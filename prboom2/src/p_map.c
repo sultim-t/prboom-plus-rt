@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.3 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_map.c,v 1.4 2000/05/12 07:40:18 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.3 2000/05/11 23:22:21 cph Exp $";
+rcsid[] = "$Id: p_map.c,v 1.4 2000/05/12 07:40:18 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -228,8 +228,8 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
   subsector_t*  newsubsec;
 
   /* killough 8/9/98: make telefragging more consistent, preserve compatibility */
-  telefrag = thing->player || compatibility ||
-    (mbf_features ? boss : gamemap==30);
+  telefrag = thing->player || 
+    (mbf_features ? boss : (gamemap==30));
 
   // kill anything occupying the position
 
@@ -1044,7 +1044,8 @@ void P_HitSlideLine (line_t* ld)
 
   // Check for the special cases of horz or vert walls.
 
-  // killough 10/98: only bounce if hit hard (prevents wobbling)
+  /* killough 10/98: only bounce if hit hard (prevents wobbling)
+   * cph - DEMOSYNC - should only affect players in Boom demos? */
   icyfloor = 
     (mbf_features ? 
      P_AproxDistance(tmxmove, tmymove) > 4*FRACUNIT : !compatibility) &&
@@ -1279,7 +1280,8 @@ void P_SlideMove(mobj_t *mo)
       mo->momx = tmxmove;
       mo->momy = tmymove;
 
-      // killough 10/98: affect the bobbing the same way (but not voodoo dolls)
+      /* killough 10/98: affect the bobbing the same way (but not voodoo dolls)
+       * cph - DEMOSYNC? */
       if (mo->player && mo->player->mo == mo)
 	{
 	  if (D_abs(mo->player->momx) > D_abs(tmxmove))
