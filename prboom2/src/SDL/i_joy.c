@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.c,v 1.2 2001/02/18 18:34:10 proff_fs Exp $
+ * $Id: i_joy.c,v 1.3 2001/07/16 15:05:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: i_joy.c,v 1.2 2001/02/18 18:34:10 proff_fs Exp $";
+static const char rcsid[] = "$Id: i_joy.c,v 1.3 2001/07/16 15:05:52 proff_fs Exp $";
 #endif /* lint */
 
 #include "SDL.h"
@@ -71,10 +71,10 @@ void I_PollJoystick(void)
     (SDL_JoystickGetButton(joystick, 2)<<2) |
     (SDL_JoystickGetButton(joystick, 3)<<3);
   axis_value = SDL_JoystickGetAxis(joystick, 0) / 3000;
-  if (abs(axis_value)<10) axis_value=0;
+  if (D_abs(axis_value)<10) axis_value=0;
   ev.data2 = axis_value;
   axis_value = SDL_JoystickGetAxis(joystick, 1) / 3000;
-  if (abs(axis_value)<10) axis_value=0;
+  if (D_abs(axis_value)<10) axis_value=0;
   ev.data3 = axis_value;
 
   D_PostEvent(&ev);

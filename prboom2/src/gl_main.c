@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.41 2001/06/17 18:49:50 proff_fs Exp $
+ * $Id: gl_main.c,v 1.42 2001/07/16 15:05:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1451,7 +1451,7 @@ static void gld_PrecalculateSector(int num)
           else
             // check if the angle between the current line and this best line candidate is smaller then
             // the angle of the last candidate
-            if (abs(lineangle-angle)<abs(bestangle))
+            if (D_abs(lineangle-angle)<D_abs(bestangle))
             {
               bestline=i;
               bestangle=lineangle-angle;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.2 2001/07/11 18:12:36 proff_fs Exp $
+ * $Id: c_io.c,v 1.3 2001/07/16 15:05:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.2 2001/07/11 18:12:36 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.3 2001/07/16 15:05:16 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -178,7 +178,7 @@ void C_Ticker()
 	    redrawsbar = true;
 */      
     // move the console toward its target
-    if(abs(current_height-current_target)>=c_speed)
+    if(D_abs(current_height-current_target)>=c_speed)
 	    current_height += current_target<current_height ? -c_speed : c_speed;
     else
 	    current_height = current_target;

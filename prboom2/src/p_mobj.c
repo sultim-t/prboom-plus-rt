@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.14 2001/07/07 18:10:09 cph Exp $
+ * $Id: p_mobj.c,v 1.15 2001/07/16 15:05:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.14 2001/07/07 18:10:09 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.15 2001/07/16 15:05:16 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -399,7 +399,7 @@ static void P_ZMovement (mobj_t* mo)
 	    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
 		  
 	  /* Bring it to rest below a certain speed */
-	  if (abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
+	  if (D_abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
 	    mo->momz = 0;
 	}
 
@@ -478,7 +478,7 @@ floater:
       {
 	fixed_t delta;
 	if (P_AproxDistance(mo->x - mo->target->x, mo->y - mo->target->y) <
-	    abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
+	    D_abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
 	  mo->z += delta < 0 ? -FLOATSPEED : FLOATSPEED;
       }
 

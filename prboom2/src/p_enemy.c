@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.11 2000/11/12 14:59:29 cph Exp $
+ * $Id: p_enemy.c,v 1.12 2001/07/16 15:05:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.11 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.12 2001/07/16 15:05:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -527,7 +527,7 @@ static void P_DoNewChaseDir(mobj_t *actor, fixed_t deltax, fixed_t deltay)
     return;
 
   // try other directions
-  if (P_Random(pr_newchase) > 200 || abs(deltay)>abs(deltax))
+  if (P_Random(pr_newchase) > 200 || D_abs(deltay)>D_abs(deltax))
     tdir = xdir, xdir = ydir, ydir = tdir;
 
   if ((xdir == turnaround ? xdir = DI_NODIR : xdir) != DI_NODIR &&
