@@ -3,6 +3,9 @@ For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.2.1 to v2.2.2
 - more demo sync problems for original Doom and Boom fixed
+- added changeable samplerate for soundmixing
+- added fullscreen/window toggle in option menu
+- added double buffering
 - floor rendering made more accurate
 - Win32 config file handling fixed
 - fix endian conversion problem on Linux/PPC
