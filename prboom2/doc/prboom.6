@@ -17,7 +17,7 @@ prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 [ \-net \fIhostname\fR[:\fIport\fR] ]
 [ \-deathmatch [ \-altdeath ] ] [ { \-timer \fImins\fR | \-avg }] ]
 .BR
-[ \-nosound ] [ \-nosfx ] [ \-nomusic] [ \-nojoy ] [ \-grabmouse ]
+[ \-nosound ] [ \-nosfx ] [ \-nomusic] [ \-nojoy ] [ \-nomouse ]
 [ \-noaccel ] [ \-{1,2,3} ]
 .BR
 [ \-config \fImyconf\fR ] [ \-save \fIsavedir\fR ] 
@@ -151,6 +151,9 @@ Disables playing of music in the game.
 .TP
 \-nojoy
 Disables joystick support.
+.TP
+\-nomouse
+Prevents the mouse being grabbed by the prboom window.
 .TP
 \-noaccel
 For prboom, this prevents it using the MITShm server extension for passing

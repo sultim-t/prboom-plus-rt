@@ -81,6 +81,7 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
+static boolean grabMouse;       // internal var
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -238,7 +239,7 @@ void I_StartTic (void)
 {
   SDL_Event Event;
   {
-    int should_be_grabbed = usemouse &&
+    int should_be_grabbed = grabMouse &&
       !(paused || (gamestate != GS_LEVEL) || demoplayback);
 
     if (mouse_currently_grabbed != should_be_grabbed)
@@ -265,6 +266,9 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
+  // check if the user wants to grab the mouse
+  grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
+
   I_InitJoystick();
 }
 /////////////////////////////////////////////////////////////////////////////
