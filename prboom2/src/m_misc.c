@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.28 2000/12/31 15:08:55 cph Exp $
+ * $Id: m_misc.c,v 1.29 2001/02/03 22:54:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.28 2000/12/31 15:08:55 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.29 2001/02/03 22:54:48 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -63,7 +63,6 @@ rcsid[] = "$Id: m_misc.c,v 1.28 2000/12/31 15:08:55 cph Exp $";
 #include "m_misc.h"
 #include "s_sound.h"
 #include "sounds.h"
-#include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
 
@@ -209,6 +208,12 @@ int map_point_coordinates;
 #else
 #define MIN_RAM (16*1024)
 #endif
+
+/* cph - stub joystick variables.
+ * Replace once we add real SDL joystick support
+ */
+
+int usejoystick, joybfire,joybstrafe,joybspeed,joybuse;
 
 default_t defaults[] =
 {
@@ -544,10 +549,6 @@ default_t defaults[] =
   {"Joystick settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"use_joystick",{&usejoystick},{0},0,2,
    def_int,ss_none}, // number of joystick to use (0 for none)
-  {"joy_left",{&joyleft},{0},  UL,UL,def_int,ss_none},
-  {"joy_right",{&joyright},{0},UL,UL,def_int,ss_none},
-  {"joy_up",  {&joyup},  {0},  UL,UL,def_int,ss_none},
-  {"joy_down",{&joydown},{0},  UL,UL,def_int,ss_none},
   {"joyb_fire",{&joybfire},{0},0,UL,
    def_int,ss_keys}, // joystick button number to use for fire
   {"joyb_strafe",{&joybstrafe},{1},0,UL,

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.20 2001/02/03 12:38:56 cph Exp $
+ * $Id: i_video.c,v 1.21 2001/02/03 22:54:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.20 2001/02/03 12:38:56 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.21 2001/02/03 22:54:48 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -55,7 +55,6 @@ rcsid[] = "$Id: i_video.c,v 1.20 2001/02/03 12:38:56 cph Exp $";
 #include "r_draw.h"
 #include "d_main.h"
 #include "d_event.h"
-#include "i_joy.h"
 #include "i_video.h"
 #include "z_zone.h"
 #include "s_sound.h"
@@ -247,8 +246,6 @@ void I_StartTic (void)
 
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
-  
-  I_PollJoystick();
 }
 
 //
@@ -264,7 +261,6 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
-  I_InitJoystick();
 }
 /////////////////////////////////////////////////////////////////////////////
 
