@@ -9,6 +9,7 @@ Changes from v2.2.3 to v2.3.0
 - fix super-shotgun reload on last shot
 - intermission demo sync bug fixed
 - support for more and less then 8 channels
+- improved response file parser
 - replaced use_vsync with use_doublebuffer in cfg file and implemented
   double buffering
 - removed old Doom v1.2 lumps from prboom.wad

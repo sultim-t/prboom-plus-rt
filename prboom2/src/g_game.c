@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.54 2002/08/05 21:57:01 cph Exp $
+ * $Id: g_game.c,v 1.55 2002/08/09 23:35:25 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.54 2002/08/05 21:57:01 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.55 2002/08/09 23:35:25 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1437,7 +1437,7 @@ void G_DoLoadGame(void)
   gameaction = ga_nothing;
 
   length = M_ReadFile(name, &savebuffer);
-  if (length==0)
+  if (length<=0)
     I_Error("Couldn't read file %s: %s", name, "(Unknown Error)");
   save_p = savebuffer + SAVESTRINGSIZE;
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.43 2002/02/10 21:03:46 proff_fs Exp $
+ * $Id: m_misc.c,v 1.44 2002/08/09 23:35:25 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.43 2002/02/10 21:03:46 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.44 2002/08/09 23:35:25 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -112,8 +112,6 @@ int M_ReadFile(char const *name, byte **buffer)
 {
   FILE *fp;
 
-  //errno = 0;
-
   if ((fp = fopen(name, "rb")))
     {
       size_t length;
@@ -132,11 +130,9 @@ int M_ReadFile(char const *name, byte **buffer)
       fclose(fp);
     }
 
-/*
-  I_Error("Couldn't read file %s: %s", name, 
-	  errno ? strerror(errno) : "(Unknown Error)");
-*/
-  return 0;
+  /* cph 2002/08/10 - this used to return 0 on error, but that's ambiguous,
+   * because we could have a legit 0-length file. So make it -1. */
+  return -1;
 }
 
 //
