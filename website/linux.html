@@ -8,10 +8,6 @@
 
     <title>PrBoom - Linux/UNIX Installation</title>
     <meta name="author" content="Colin Phipps" />
-    <meta name="generator"
-    content="vi (vim; Mandrake GNU/Linux 8.1 (Enigma); i686)" />
-    <meta name="CVSID"
-    content="$Id: linux.html,v 1.19 2003/07/04 09:56:01 cph Exp $" />
     <link rel="stylesheet" href="main.css" type="text/css" />
   </head>
 
@@ -49,31 +45,29 @@
 
     <h2>Compiling with OpenGL support</h2>
 
-    <p> I didn't write the OpenGL stuff, nor do I have a good 3D
+    <p>I didn't write the OpenGL stuff, nor do I have a good 3D
     card to test with, so I don't use this nor know much about it.
     That said, it did work for me last time I tried it.</p>
 
     <p> The RPM distribution of PrBoom doesn't support this, so you
     must compile from source. Follow the instructions below
     relevant to your distribution, but add the parameter <code>
-    --enable-gl</code> when you run <code>configure</code>. You'll
+    --enable-gl</code> when you run <code>./configure</code>. You'll
     need Mesa installed.</p>
 
     <p>I don't suggest using the OpenGL stuff unless you're already
     familiar with Doom and PrBoom.</p>
 
     <p>We got reports that it works with XFree 4.x</p>
-    <!-- cph - perhaps Jess should write some stuff here - I know nothing ;-) -->
 
-    <h2><a id="redhat" name="redhat">Linux/x86 RPM based
-	distributions</a></h2>
+    <h2 id="redhat">Linux/x86 RPM based distributions</h2>
 
     <p>Several of the main desktop Linux distributions ship with and install all the
     required libraries by default. Both RedHat 7.2 and Mandrake 8.1 come with
     all the required libraries. So you can just grab the RPM of PrBoom,
-    <code>prboom-2.2.3-1.i386.rpm</code>, and install it with the following
+    <code>prboom-2.2.4-1.i386.rpm</code>, and install it with the following
     command (as root):</p>
-    <blockquote><p><code>rpm -ivh prboom-2.2.3-1.i386.rpm</code></p></blockquote>
+    <blockquote><p><code>rpm -ivh prboom-2.2.4-1.i386.rpm</code></p></blockquote>
     <p>You can then run PrBoom as <code>
       /usr/games/prboom</code> (or just <code>prboom</code> if the games are in
     your <code>PATH</code>).</p>
@@ -130,7 +124,7 @@
     libsdl-net1.2</a> packages and the corresponding -dev versions
     - these are all available in Debian woody and above (and should
     compile from source fine for potato). Get the prboom source
-    code <code>prboom-2.2.3.tar.gz</code> from our <a
+    code <code>prboom-2.2.4.tar.gz</code> from our <a
     href="#download">download page</a>, extract, and then follow
     the included <code>INSTALL</code> instructions.</p>
 
@@ -153,11 +147,11 @@
     ../SDL/SDL_net.h /usr/local/include/SDL11/SDL_net.h</code> or
     something similar.</p>
 
-    <p> Finally, get <code>prboom-2.2.3.tar.gz</code> the PrBoom
+    <p>Finally, get <code>prboom-2.2.4.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
-    <h2><a id="unix" name="unix">Generic UNIX</a></h2>
+    <h2 name="unix">Generic UNIX</h2>
 
     <p>You need to get and install the following libraries:</p>
 
@@ -169,15 +163,9 @@
       <li>
         SDL_mixer, from <a
         href="http://www.libsdl.org/projects/SDL_mixer/">its home
-        page</a>. This also requires the following: 
-
-        <ul>
-          <li>SMPEG, from <a
-          href="http://www.lokigames.com/development/smpeg.php3">
-          the SMPEG homepage</a>.</li>
-        </ul>
-
-        <p>I don't know about these, look 'em up yourself :-).</p>
+        page</a>. You might need to compile and install SMPEG first to compile
+	this, but I think that recent versions do not require SMPEG (it provides
+	mp3 music support I think, which is not needed for PrBoom).
       </li>
 
       <li>SDL_net, from <a
@@ -185,34 +173,34 @@
       page</a>.</li>
     </ul>
 
-    <p> Then get <code>prboom-2.2.3.tar.gz</code> the PrBoom
+    <p>Then get <code>prboom-2.2.4.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
-    <p>On some Unix systems, there is a minor symbol conflict with the
-    <code>time</code> symbol during linking. You may also have to specify extra
-    linking options to link with the threading-enabled or real-time C library in
-    order for SDL to run. See for example <a href="http://cloud.prohosting.com/patos/docs/prboom_on_hpux11.00.htm">these instructions for compiling on HP-UX</a>.</p>
 
-    <h2><a id="download" name="download">Download page</a></h2>
+    <p>In previous releases, a symbol conflict occured on some platforms. This
+    should not happen anymore. Let us know if you have to make any changes to
+    get it to compile on common platforms.</p>
 
-    <p>Is <a
-    href="http://sourceforge.net/project/showfiles.php?group_id=3396">
-    here</a>. It's possible that the version numbers on this page
-    may not be up to date. You can figure it out :-).</p>
+    <h2 name="download">Download page</h2>
 
-    <h2><a id="IWAD" name="IWAD">Getting a Doom IWAD</a></h2>
+    <p><a
+    href="http://sourceforge.net/project/showfiles.php?group_id=3396"> Download
+    either the RPM or the tarball here</a>. It's possible that the version
+    numbers on this page may not be up to date. You can figure it out :-).</p>
+
+    <h2 name="IWAD">Getting a Doom IWAD</h2>
 
     <p>
     The IWAD is the main data file containing the graphics and levels for Doom.
     You need one to use PrBoom. If you have a copy of one of the original Doom
-    games,   copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD
+    games, copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD
     (doom.wad, doom2.wad, tnt.wad or plutonia.wad) to
-    /usr/local/share/games/doom/.  Or if you don't have any of those, use the
+    /usr/local/share/games/doom/.  Or, if you don't have any of those, use the
     shareware IWAD, which you can get from http://www.doomworld.com/ or
     http://www.idsoftware.com/.
     </p>
 
-    <h2><a id="timidity" name="timidity">Music</a></h2>
+    <h2 name="timidity">Music</h2>
 
     <p> The SDL_mixer library used by PrBoom supports software MIDI
     music synthesis. If you want to hear the Doom music, you need a
