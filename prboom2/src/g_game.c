@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: g_game.c,v 1.3 2000/05/09 18:43:44 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.3 2000/05/09 18:43:44 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1473,9 +1473,11 @@ void G_DoLoadGame(void)
   save_p += strlen(save_p)+1;
 
   if (savegame_compatibility == boom_compatibility)
-    compatibility_level = 2 - *save_p++; // CPhipps - Load compatibility level
-  else 
-    compatibility_level = *save_p++;
+    /* cph - Load supported Boom compatibility modes */
+    compatibility_level = *save_p++ ? boom_compatibility_compatibility 
+      : boom_compatibility; 
+  else /* LxDoom savegame. Have to +1 because a level was added at v1.4.5 */
+    compatibility_level = (*save_p++) +1;
 
   gameskill = *save_p++;
   gameepisode = *save_p++;
@@ -1634,12 +1636,13 @@ void G_DoSaveGame (void)
 
   CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+10);
 
-  // CPhipps - Save compatibility level
-  if (compatibility_level == boom_compatibility_compatibility
-      || compatibility_level == boom_compatibility)
-    *save_p++ = 2 - compatibility_level;
+  /* cph - Save compatibility level */
+  if (compatibility_level == boom_compatibility_compatibility)
+    *save_p++ = 1;
+  else if (compatibility_level == boom_compatibility)
+    *save_p++ = 0;
   else
-    *save_p++ = compatibility_level;
+    *save_p++ = compatibility_level-1;
 
   *save_p++ = gameskill;
   *save_p++ = gameepisode;
@@ -1774,10 +1777,13 @@ void G_ReloadDefaults(void)
 
   consoleplayer = 0;
 
-  { // CPhipps - set compatibility to default, or command-line selected
+  { /* cph - set compatibility to default
+     *  This can be either from the command line, the config file, 
+     *  or normally the most up to date */
     int p = M_CheckParm("-complevel");
     compatibility_level = (p && (p+1<myargc)) ? atoi(myargv[p+1])
-      : default_compatibility_level; 
+      : ((default_compatibility_level == -1) 
+	 ? MAX_COMPATIBILITY_LEVEL-1 : default_compatibility_level); 
   }
 
   // killough 3/31/98, 4/5/98: demo sync insurance
@@ -2059,7 +2065,7 @@ void G_BeginRecording (void)
 
   demo_p = demobuffer;
 
-  if (compatibility_level > boom_demo_compatibility_compatibility) {
+  if (compatibility_level > doom_compatibility) {
     *demo_p++ = (compatibility_level < lxdoom_1_compatibility) ? 202 : 203;
     
     // signature
@@ -2070,7 +2076,8 @@ void G_BeginRecording (void)
     *demo_p++ = 'm';
     *demo_p++ = 0xe6;
     
-    *demo_p++ = 2 - compatibility_level; // CPhipps - save compatibility level in demos
+    /* CPhipps - save compatibility level in demos */
+    *demo_p++ = boom_compatibility_compatibility + 1 - compatibility_level; 
     
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
@@ -2137,7 +2144,7 @@ void G_DoPlayDemo (void)
 
   if (demover < 200)     // Autodetect old demos
     {
-      compatibility_level = boom_demo_compatibility_compatibility;
+      compatibility_level = doom_demo_compatibility;
 
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
 
@@ -2172,7 +2179,7 @@ void G_DoPlayDemo (void)
   else    // new versions of demos
     {
       demo_p += 6;               // skip signature;
-      compatibility_level = 2 - (signed char)(*demo_p++); // CPhipps - load compatibility flag
+      compatibility_level = boom_compatibility_compatibility + 1 - (signed char)(*demo_p++); /* cph - load compatibility flag */
       skill = *demo_p++;
       episode = *demo_p++;
       map = *demo_p++;
@@ -2304,6 +2311,9 @@ void doom_printf(const char *s, ...)
 //----------------------------------------------------------------------------
 //
 // $Log: g_game.c,v $
+// Revision 1.3  2000/05/09 18:43:44  cph
+// Improve original Doom compatibility
+//
 // Revision 1.2  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.

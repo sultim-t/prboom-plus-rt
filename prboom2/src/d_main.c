@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.6 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: d_main.c,v 1.7 2000/05/09 18:43:44 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.6 2000/05/07 20:19:33 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.7 2000/05/09 18:43:44 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1658,6 +1658,8 @@ void D_DoomMainSetup(void)
   lprintf(LO_INFO,"HU_Init: Setting up heads up display.\n");
   HU_Init();
 
+  I_InitGraphics();
+
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"ST_Init: Init status bar.\n");
   ST_Init();
@@ -1721,8 +1723,6 @@ void D_DoomMainSetup(void)
 	  G_DeferedPlayDemo(myargv[p]);
 	  singledemo = true;          // quit after one demo
 	}
-
-  I_InitGraphics();
 
   if (slot && ++slot < myargc)
     {
@@ -1833,6 +1833,9 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: d_main.c,v $
+// Revision 1.7  2000/05/09 18:43:44  cph
+// Improve original Doom compatibility
+//
 // Revision 1.6  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.

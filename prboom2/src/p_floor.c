@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_floor.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_floor.c,v 1.3 2000/05/09 18:43:44 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.3 2000/05/09 18:43:44 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -101,6 +101,14 @@ result_e T_MovePlane
             lastpos = sector->floorheight;
             sector->floorheight -= speed;
             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
+	    /* cph - make more compatible with original Doom, by
+	     *  reintroducing this code. This means floors can't lower 
+	     *  if objects are stuck in the ceiling */
+	    if ((flag == true) && (compatibility_level <= doom_compatibility)) {
+	      sector->floorheight = lastpos;
+	      P_ChangeSector(sector,crush);
+	      return crushed;
+	    }
           }
           break;
                                                 
@@ -988,6 +996,9 @@ int EV_DoElevator
 //----------------------------------------------------------------------------
 //
 // $Log: p_floor.c,v $
+// Revision 1.3  2000/05/09 18:43:44  cph
+// Improve original Doom compatibility
+//
 // Revision 1.2  2000/05/07 10:26:16  proff_fs
 // changed think_t and action_f in d_think.h
 // this fixes many compiler warnings in VisualC

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.1 2000/05/04 08:01:08 proff_fs Exp $
+ * $Id: doomstat.h,v 1.2 2000/05/09 18:43:44 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -72,7 +72,9 @@ extern  boolean modifiedgame;
 extern int compatibility_level, default_compatibility_level;
 
 enum {
-  boom_demo_compatibility_compatibility, // Boom's demo compatibility mode
+  doom_demo_compatibility, /* As compatible as possible for 
+			    * playing original Doom demos */
+  doom_compatibility,      /* Compatible with original Doom levels */
   boom_compatibility_compatibility,      // Boom's compatibility mode
   boom_compatibility,                    // Compatible with Boom
   lxdoom_1_compatibility,                // LxDoom v1.3.2+
@@ -80,7 +82,7 @@ enum {
 };
 
 // CPhipps - old compatibility testing flags aliased to new handling
-#define compatibility (compatibility_level<=1)
+#define compatibility (compatibility_level<=boom_compatibility_compatibility)
 #define demo_compatibility (!compatibility_level)
 
 // v1.1-like pitched sounds
@@ -312,8 +314,11 @@ extern int default_player_bobbing;  // killough 3/1/98: make local to each game
 //----------------------------------------------------------------------------
 //
 // $Log: doomstat.h,v $
-// Revision 1.1  2000/05/04 08:01:08  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/09 18:43:44  cph
+// Improve original Doom compatibility
+//
+// Revision 1.1.1.1  2000/05/04 08:01:08  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.11  2000/03/28 08:47:48  cph
 // New free join/parting for network games
