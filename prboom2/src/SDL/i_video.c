@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.32 2001/07/22 14:57:44 cph Exp $
+ * $Id: i_video.c,v 1.33 2001/08/05 22:30:25 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.32 2001/07/22 14:57:44 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.33 2001/08/05 22:30:25 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -415,7 +415,7 @@ static void I_UploadNewPalette(int pal)
     int pplump = W_GetNumForName("PLAYPAL");
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
     register const byte * palette = W_CacheLumpNum(pplump);
-    register const byte * const gtable = W_CacheLumpNum(gtlump) + 256*(cachedgamma = usegamma);
+    register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*(cachedgamma = usegamma);
     register int i;
 
     num_pals = W_LumpLength(pplump) / (3*256);

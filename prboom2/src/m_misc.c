@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.40 2001/07/22 14:57:43 cph Exp $
+ * $Id: m_misc.c,v 1.41 2001/08/05 22:30:25 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.40 2001/07/22 14:57:43 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.41 2001/08/05 22:30:25 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1013,7 +1013,7 @@ static void WriteBMPfile(const char* filename, const byte* data,
   st = fopen(filename,"wb");
   if (st!=NULL) {
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
-    register const byte * const gtable = W_CacheLumpNum(gtlump) + 256*usegamma;
+    register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*usegamma;
 
     // write the header
     SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
