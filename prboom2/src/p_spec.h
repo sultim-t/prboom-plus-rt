@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.h,v 1.3 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_spec.h,v 1.4 2000/05/13 10:45:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1008,6 +1008,8 @@ int EV_TurnTagLightsOff
 int EV_LightTurnOn
 ( line_t* line,
   int   bright );
+
+int EV_LightTurnOnPartway(line_t* line, fixed_t level); // killough 10/10/98
 
 // p_floor
 

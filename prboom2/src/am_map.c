@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $
+ * $Id: am_map.c,v 1.6 2000/05/13 10:45:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $";
+  "$Id: am_map.c,v 1.6 2000/05/13 10:45:46 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1721,7 +1721,7 @@ void AM_Drawer (void)
   if (!(automapmode & am_active)) return;
 
   if (!(automapmode & am_overlay)) // cph - If not overlay mode, clear background for the automap
-    V_FillRect(FB, f_x, f_y, f_w, f_h, mapcolor_back); //jff 1/5/98 background default color
+    V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_back); //jff 1/5/98 background default color
   if (automapmode & am_grid)
     AM_drawGrid(mapcolor_grid);      //jff 1/7/98 grid default color
   AM_drawWalls();

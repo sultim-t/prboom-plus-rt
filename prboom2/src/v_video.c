@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: v_video.c,v 1.8 2000/05/13 10:45:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.8 2000/05/13 10:45:46 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -446,7 +446,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
     
-    for (col=0 ; col<=w ; desttop++, col++) {
+    for (col=0 ; (unsigned int)col<=w ; desttop++, col++) {
       column = (column_t *)((byte *)patch + 
 			    LONG(patch->columnofs[(flags & VPT_FLIP) ? w-col : col]));
       
