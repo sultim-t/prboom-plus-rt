@@ -7,6 +7,7 @@ Changes from v2.2.4 to v2.2.5
 - notify server if client quits during startup wait
 - improved response file parser
 - fast forward to given map # in demo playback
+- fixes for various sound bugs
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
