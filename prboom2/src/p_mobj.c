@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.11 2000/10/02 21:34:29 cph Exp $
+ * $Id: p_mobj.c,v 1.12 2000/11/08 22:02:34 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.11 2000/10/02 21:34:29 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.12 2000/11/08 22:02:34 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -385,84 +385,72 @@ static void P_ZMovement (mobj_t* mo)
    * (e.g. grenade, mine, pipebomb)
    */
 
-  if (mo->flags & MF_BOUNCES && mo->momz)
-    {
-      mo->z += mo->momz;
-      if (mo->z <= mo->floorz)                  // bounce off floors
-	{
-	  mo->z = mo->floorz;
-	  if (mo->momz < 0)
-	    {
-	      mo->momz = -mo->momz;
-	      if (!(mo->flags & MF_NOGRAVITY))  // bounce back with decay
-		{
-		  mo->momz = mo->flags & MF_FLOAT ?   // floaters fall slowly
-		    mo->flags & MF_DROPOFF ?          // DROPOFF indicates rate
-		    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.85)) :
-		    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.70)) :
-		    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
+  if (mo->flags & MF_BOUNCES && mo->momz) {
+    mo->z += mo->momz;
+    if (mo->z <= mo->floorz) {                /* bounce off floors */
+      mo->z = mo->floorz;
+      if (mo->momz < 0) {
+        mo->momz = -mo->momz;
+	if (!(mo->flags & MF_NOGRAVITY)) { /* bounce back with decay */
+	  mo->momz = mo->flags & MF_FLOAT ?   // floaters fall slowly
+	    mo->flags & MF_DROPOFF ?          // DROPOFF indicates rate
+	    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.85)) :
+	    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.70)) :
+	    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
 		  
-		  // Bring it to rest below a certain speed
-		  if (abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
-		    mo->momz = 0;
-		}
-
-	      // killough 11/98: touchy objects explode on impact
-	      if (mo->flags & MF_TOUCHY && mo->intflags & MIF_ARMED &&
-      		  mo->health > 0)
-		      P_DamageMobj(mo, NULL, NULL, mo->health);
-	      else
-		      if (mo->flags & MF_FLOAT && sentient(mo))
-		        goto floater;
-	      return;
-	    }
+	  /* Bring it to rest below a certain speed */
+	  if (abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
+	    mo->momz = 0;
 	}
-      else
-	if (mo->z >= mo->ceilingz - mo->height)   // bounce off ceilings
-	  {
-	    mo->z = mo->ceilingz - mo->height;
-	    if (mo->momz > 0)
-	      {
-		if (mo->subsector->sector->ceilingpic != skyflatnum)
-		  mo->momz = -mo->momz;    // always bounce off non-sky ceiling
-		else
-		  if (mo->flags & MF_MISSILE)
-		    P_RemoveMobj(mo);      // missiles don't bounce off skies
-		  else
-		    if (mo->flags & MF_NOGRAVITY)
-		      mo->momz = -mo->momz; // bounce unless under gravity
 
-		if (mo->flags & MF_FLOAT && sentient(mo))
-		  goto floater;
+	/* killough 11/98: touchy objects explode on impact */
+	if (mo->flags & MF_TOUCHY && mo->intflags & MIF_ARMED
+			&& mo->health > 0)
+	  P_DamageMobj(mo, NULL, NULL, mo->health);
+	else if (mo->flags & MF_FLOAT && sentient(mo))
+	  goto floater;
+	return;
+      }
+    } else if (mo->z >= mo->ceilingz - mo->height) {
+      /* bounce off ceilings */
+      mo->z = mo->ceilingz - mo->height;
+      if (mo->momz > 0) {
+	if (mo->subsector->sector->ceilingpic != skyflatnum)
+	  mo->momz = -mo->momz;    /* always bounce off non-sky ceiling */
+	else if (mo->flags & MF_MISSILE)
+	  P_RemoveMobj(mo);        /* missiles don't bounce off skies */
+	else if (mo->flags & MF_NOGRAVITY)
+	  mo->momz = -mo->momz; // bounce unless under gravity
+	
+	if (mo->flags & MF_FLOAT && sentient(mo))
+	  goto floater;
 
-		return;
-	      }
-	  }
-	else
-	  {
-	    if (!(mo->flags & MF_NOGRAVITY))      // free-fall under gravity
+	return;
+      }
+    } else {
+      if (!(mo->flags & MF_NOGRAVITY))      /* free-fall under gravity */
 	      mo->momz -= mo->info->mass*(GRAVITY/256);
-	    if (mo->flags & MF_FLOAT && sentient(mo))
-	      goto floater;
-	    return;
-	  }
 
-      // came to a stop
-      mo->momz = 0;
+      if (mo->flags & MF_FLOAT && sentient(mo)) goto floater;
+      return;
+    }
 
-      if (mo->flags & MF_MISSILE)
+    /* came to a stop */
+    mo->momz = 0;
+
+    if (mo->flags & MF_MISSILE) {
 	if (ceilingline &&
 	    ceilingline->backsector &&
 	    ceilingline->backsector->ceilingpic == skyflatnum &&
 	    mo->z > ceilingline->backsector->ceilingheight)
-	  P_RemoveMobj(mo);  // don't explode on skies
+	  P_RemoveMobj(mo);  /* don't explode on skies */
 	else
 	  P_ExplodeMissile(mo);
-
-      if (mo->flags & MF_FLOAT && sentient(mo))
-	goto floater;
-      return;
     }
+
+    if (mo->flags & MF_FLOAT && sentient(mo)) goto floater;
+    return;
+  }
 
   /* killough 8/9/98: end bouncing object code */
 

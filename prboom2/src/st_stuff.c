@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.8 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.9 2000/11/08 22:02:34 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.8 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.9 2000/11/08 22:02:34 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -828,24 +828,30 @@ void ST_diffDraw(void)
 void ST_Drawer(boolean st_statusbaron, boolean refresh)
 {
   /* cph - let status bar on be controlled 
-	 * completely by the call from D_Display
-   * proff - really do it */
+   * completely by the call from D_Display
+   * proff - really do it
+   */
   st_firsttime = st_firsttime || refresh;
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
 #ifdef GL_DOOM
-  // proff 05/17/2000: always draw everything in OpenGL, because there is no backbuffer
+  /* proff 05/17/2000: always draw everything in OpenGL, because there 
+   * is no backbuffer
+   */
   if (st_statusbaron)
     ST_doRefresh();
 #else
-  if (st_statusbaron)
+  if (st_statusbaron) {
     if (st_firsttime)
-      ST_doRefresh();     // If just after ST_Start(), refresh all
+      ST_doRefresh();     /* If just after ST_Start(), refresh all */
     else
-      ST_diffDraw();      // Otherwise, update as little as possible
+      ST_diffDraw();      /* Otherwise, update as little as possible */
+  }
 #endif
 }
+
+
 
 //
 // ST_loadGraphics

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.16 2000/09/16 20:20:40 proff_fs Exp $
+ * $Id: m_menu.c,v 1.17 2000/11/08 22:02:34 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.16 2000/09/16 20:20:40 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.17 2000/11/08 22:02:34 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -233,7 +233,6 @@ extern int monsters_remember;
 extern int map_point_coordinates; // killough 10/98
 
 extern char* chat_macros[];  // chat macros
-extern char *wad_files[], *deh_files[]; // killough 10/98
 extern const char* shiftxform;
 extern int map_secret_after; //secrets do not appear til after bagged
 extern default_t defaults[];
@@ -2091,10 +2090,10 @@ void M_DrawDefVerify()
 
 void M_DrawInstructions()
 {
-  default_t *def = current_setup_menu[set_menu_itemon].var.def;
   int flags = current_setup_menu[set_menu_itemon].m_flags;
 
 #if 0
+  default_t *def = current_setup_menu[set_menu_itemon].var.def;
   // killough 8/15/98: warn when values are different
   if (flags & (S_NUM|S_YESNO) && def->current && *def->current!=*def->location.pi)
     {

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.27 2000/10/26 15:09:17 proff_fs Exp $
+ * $Id: d_main.c,v 1.28 2000/11/08 22:02:34 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.27 2000/10/26 15:09:17 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.28 2000/11/08 22:02:34 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1271,7 +1271,7 @@ void DoLooseFiles(void)
 }
 
 /* cph - MBF-like wad/deh/bex autoload code */
-char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
+const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 // CPhipps - misc screen stuff
 unsigned int desired_screenwidth, desired_screenheight;
@@ -1581,7 +1581,7 @@ void D_DoomMainSetup(void)
     int i;
 
     for (i=0; i<MAXLOADFILES*2; i++) {
-      char *fname = (i < MAXLOADFILES) ? wad_files[i] 
+      const char *fname = (i < MAXLOADFILES) ? wad_files[i] 
 	: deh_files[i - MAXLOADFILES];
       char *fpath;
 
