@@ -2168,3 +2168,13 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
     }
   }
 }
+
+/* cphipps 2004/08/30 - 
+ * Must clear tmthing at tic end, as it might contain a pointer to a removed thinker, or the level might have ended/been ended and we clear the objects it was pointing too. Hopefully we don't need to carry this between tics for sync. */
+void P_MapStart(void) {
+	if (tmthing) I_Error("P_MapStart: tmthing set!");
+}
+void P_MapEnd(void) {
+	tmthing = NULL;
+}
+

@@ -278,6 +278,7 @@ void P_Ticker (void)
   if (!VIDD_PLAY_inProgress()) { // POPE
 #endif
 
+  P_MapStart();
                // not if this is an intermission screen
   if(gamestate==GS_LEVEL)
   for (i=0; i<MAXPLAYERS; i++)
@@ -291,6 +292,7 @@ void P_Ticker (void)
   P_RunThinkers();
   P_UpdateSpecials();
   P_RespawnSpecials();
+  P_MapEnd();
   leveltime++;                       // for par times
 
 #ifdef FRAGGLE_SCRIPT
