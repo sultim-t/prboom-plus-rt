@@ -5,7 +5,7 @@
  <title>PrBoom - Linux/UNIX Installation</title>
  <meta name="author" content="Colin Phipps" />
  <meta name="generator" content="vi (gvim Debian/GNU Linux 2.3 (testing) i686)" />
- <meta name="CVSID" content="$Id: linux.html,v 1.12 2001/04/06 13:30:34 proff_fs Exp $" />
+ <meta name="CVSID" content="$Id: linux.html,v 1.13 2001/04/23 20:12:44 cph Exp $" />
  <link rel="stylesheet" href="main.css" type="text/css" />
 </head>
 <body>
@@ -84,18 +84,21 @@
  </ul>
 <h2><a name="debian">Debian</a></h2>
  <p>
-  Debian unstable contains packages of SDL and SDL_mixer. First, install
-   the packages <code>libsdl1.1, libsdl1.1-dev, libsdl-mixer1.0,
-   libsdl-mixer-dev, smpeg</code>.
-   You also need the SDL_net library, which is not
-   yet packaged for Debian; get the source from
-   <a href="http://www.libsdl.org/projects/SDL_net/">the SDL_net homepage</a>.
-   Get the prboom source code <code>prboom-2.2.0.tar.gz</code> from our
-   <a href="#download">download page</a>, extract, and then follow the
-   included <code>INSTALL</code> instructions.
+  Debian unstable contains a
+  <a href="http://packages.debian.org/prboom">packaged version of PrBoom</a>,
+  which should be fairly up-to-date.
  </p><p>
-  Joe Drew, the maintainer of LxDoom in Debian, is working on packages of
-  PrBoom for Debian.
+  Alteratively,
+  you can build the latest PrBoom from source on Debian very easily.
+  Install the <a href="http://packages.debian.org/libsdl1.1">libsdl1.1</a>,
+  <a href="http://packages.debian.org/libsdl-mixer1.1">libsdl-mixer1.1</a>
+  and <a href="http://packages.debian.org/libsdl-net1.1">libsdl-net1.1</a>
+  packages and the corresponding -dev versions - 
+  these are all available in Debian woody and above
+  (and should compile from source fine for potato).
+  Get the prboom source code <code>prboom-2.2.0.tar.gz</code> from our
+  <a href="#download">download page</a>, extract, and then follow the
+  included <code>INSTALL</code> instructions.
  </p>
 <h2><a name="freebsd">FreeBSD</a></h2>
  <p>
