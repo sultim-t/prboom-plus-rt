@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_struct.h,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+// $Id: gl_struct.h,v 1.3 2000/05/09 20:49:32 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -33,7 +33,6 @@
 
 #include "doomtype.h"
 #include "r_data.h"
-#include "v_video.h"
 
 void gld_Init(int width, int height);
 void gld_InitCommandLine();
@@ -63,6 +62,9 @@ void gld_Finish();
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_struct.h,v $
+// Revision 1.3  2000/05/09 20:49:32  proff_fs
+// reorganised the gl-stuff a little bit and made it ready for Linux
+//
 // Revision 1.2  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.

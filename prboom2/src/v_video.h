@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: v_video.h,v 1.3 2000/05/09 20:49:32 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -52,26 +52,6 @@
 // Screen 0 is the screen updated by I_Update screen.
 // Screen 1 is an extra buffer.
 
-/* cphipps 10/99 - fixed all pointers to pixel values to use "byte"
- *               - also fixed constness of most pointers
- * jff 2/16/98 palette color ranges for translation
- * jff 2/18/98 conversion to palette lookups for speed
- * jff 4/24/98 now pointers to lumps loaded 
- */
-/*
-extern const byte *cr_brick;
-extern const byte *cr_tan;
-extern const byte *cr_gray;
-extern const byte *cr_green;
-extern const byte *cr_brown;
-extern const byte *cr_gold;
-extern const byte *cr_red;
-extern const byte *cr_blue;
-extern const byte *cr_blue_status; /* killough 2/28/98 */
-/*
-extern const byte *cr_orange;
-extern const byte *cr_yellow;
-*/
 // array of pointers to color translation tables
 extern const byte *colrngs[];
 
@@ -204,6 +184,9 @@ static const void V_PlotPixel(int scrn, int x, int y, byte colour) {
 //----------------------------------------------------------------------------
 //
 // $Log: v_video.h,v $
+// Revision 1.3  2000/05/09 20:49:32  proff_fs
+// reorganised the gl-stuff a little bit and made it ready for Linux
+//
 // Revision 1.2  2000/05/07 20:19:34  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_texture.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+// $Id: gl_texture.c,v 1.3 2000/05/09 20:49:32 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,7 +30,6 @@
 
 #include "gl_intern.h"
 #include "gl_struct.h"
-#include "lprintf.h"
 
 static int *gld_TexNumToGLTexture=NULL;
 static int gld_NumTex=0;
@@ -40,6 +39,8 @@ static int gld_NumGLTextures=0;
 extern texture_t **textures;
 extern int gld_GetTexHeightGL(int value);
 extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm);
+
+extern boolean use_mipmaping;
 
 static GLTexture *gld_AddNewGLTexture(int texture_num)
 {
@@ -74,7 +75,7 @@ static GLTexture *gld_AddNewGLTexture(int texture_num)
   return &gld_GLTextures[gld_TexNumToGLTexture[texture_num]];
 }
 
-GLTexture *gld_RegisterTexture(int texture_num)
+GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
 {
   GLTexture *gltexture;
   texture_t *texture;
@@ -112,45 +113,37 @@ GLTexture *gld_RegisterTexture(int texture_num)
   for (i=0; i<texture->patchcount; i++)
   {
     patch=W_CacheLumpNum(texture->patches[i].patch);
-    gld_AddPatchToTexture(gltexture, buffer, patch, texture->patches[i].originx, texture->patches[i].originy, CR_DEFAULT);
+    if (texture_num==skytexture)
+      gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, CR_DEFAULT);
+    else
+      gld_AddPatchToTexture(gltexture, buffer, patch, texture->patches[i].originx, texture->patches[i].originy, CR_DEFAULT);
     W_UnlockLumpNum(texture->patches[i].patch);
   }
   if (gltexture->glTexID[CR_DEFAULT]==0)
     glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
 	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
-  glTexImage2D( GL_TEXTURE_2D, 0, 4, 
-                gltexture->tex_width, gltexture->tex_height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  if (mipmap & use_mipmaping)
+  {
+	 gluBuild2DMipmaps( GL_TEXTURE_2D, 4,
+					            gltexture->tex_width, gltexture->tex_height,
+					            GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  }
+  else
+  {
+    glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+                  gltexture->tex_width, gltexture->tex_height,
+                  0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  }
   GLFree(buffer);
   return gltexture;
-}
-
-GLTexture *gld_GetGLTexture( short sTexture,short xOffset,short yOffset,float *fU1,float *fU2,
-					   float *fV1,float *fV2,float *fU1Off,float *fV2Off)
-{
-  GLTexture *gltexture;
-
-  gltexture=gld_RegisterTexture(sTexture);
-  if (!gltexture)
-    return NULL;
-
-	if (xOffset>=gltexture->width)
-		xOffset=0;
-	if (yOffset>=gltexture->height)
-		yOffset=0;
-			
-	*fU1 = 0.0f;
-	*fU2 = (float)gltexture->width/(float)gltexture->tex_width;
-	*fU1Off= (float)(xOffset)/(float)gltexture->tex_width;
-
-	*fV1 = 0.0f;
-	*fV2 = (float)gltexture->height/(float)gltexture->tex_height;
-	*fV2Off = (float)(yOffset)/(float)gltexture->tex_height;
-	return gltexture;
 }
 
 void gld_CleanTextures(void)
@@ -174,6 +167,9 @@ void gld_CleanTextures(void)
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_texture.c,v $
+// Revision 1.3  2000/05/09 20:49:32  proff_fs
+// reorganised the gl-stuff a little bit and made it ready for Linux
+//
 // Revision 1.2  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.

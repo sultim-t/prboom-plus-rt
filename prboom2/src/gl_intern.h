@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_intern.h,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+// $Id: gl_intern.h,v 1.3 2000/05/09 20:49:32 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -31,13 +31,18 @@
 #ifndef _GL_INTERN_H
 #define _GL_INTERN_H
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
+#ifndef CALLBACK
+#define CALLBACK
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <gl/gl.h>
-#include <gl/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include "SDL.h"
 #include "w_wad.h"
 #include "m_argv.h"
@@ -45,25 +50,19 @@
 #include "d_event.h"
 #include "v_video.h"
 #include "doomstat.h"
+#include "r_bsp.h"
+#include "r_main.h"
+#include "r_draw.h"
+#include "r_sky.h"
+#include "m_bbox.h"
+#include "lprintf.h"
 
 #define MAP_COEFF 128
 #define MAP_SCALE	(MAP_COEFF<<FRACBITS) // 6553600 -- nicolas
 
-//#define CR_SPRITETRAN 128
-//#define CR_SPRITESTART CR_DEFAULT
-
 #define GLMalloc(n) Z_Malloc(n,PU_STATIC,0)
 #define GLRealloc(p,n) Z_Realloc(p,n,PU_STATIC,0)
 #define GLFree(p) Z_Free(p)
-
-typedef struct
-{
-	int iLump;
-	boolean bFlip;
-	float fLightLevel;
-	boolean rendered;
-	mobj_t *p_Obj;
-} GLSprite;
 
 typedef struct
 {	
@@ -76,9 +75,7 @@ typedef struct
 void gld_StaticLight3f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue);
 void gld_StaticLight4f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue, GLfloat fAlpha);
 
-GLTexture *gld_GetGLTexture( short sTexture,short xOffset,short yOffset,float *fU1,float *fU2,
-					   float *fV1,float *fV2,float *fU1Off,float *fV2Off);
-GLTexture *gld_RegisterTexture(int texture_num);
+GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
 
 void gld_OutputLevelInfo(void);
 #endif // _GL_INTERN_H
@@ -86,6 +83,9 @@ void gld_OutputLevelInfo(void);
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_intern.h,v $
+// Revision 1.3  2000/05/09 20:49:32  proff_fs
+// reorganised the gl-stuff a little bit and made it ready for Linux
+//
 // Revision 1.2  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.

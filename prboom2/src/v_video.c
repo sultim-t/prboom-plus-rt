@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.3 2000/05/08 09:54:37 cph Exp $
+ * $Id: v_video.c,v 1.4 2000/05/09 20:49:32 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.3 2000/05/08 09:54:37 cph Exp $";
+rcsid[] = "$Id: v_video.c,v 1.4 2000/05/09 20:49:32 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -47,23 +47,6 @@ rcsid[] = "$Id: v_video.c,v 1.3 2000/05/08 09:54:37 cph Exp $";
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 byte *screens[6];
 int  dirtybox[4];
-
-/* jff 2/18/98 palette color ranges for translation
- * jff 4/24/98 now pointers set to predefined lumps to allow overloading
- * cphipps 10/99 - be consistent in using byte for pixel values
- */
-
-const byte *cr_brick;
-const byte *cr_tan;
-const byte *cr_gray;
-const byte *cr_green;
-const byte *cr_brown;
-const byte *cr_gold;
-const byte *cr_red;
-const byte *cr_blue;
-const byte *cr_blue_status;
-const byte *cr_orange;
-const byte *cr_yellow;
 
 /* jff 4/24/98 initialize this at runtime */
 const byte *colrngs[CR_LIMIT];
@@ -172,22 +155,22 @@ int usegamma;
 
 typedef struct {
   const char *name;
-  const byte **map1, **map2;
+  const byte **map;
 } crdef_t;
 
 // killough 5/2/98: table-driven approach
 static const crdef_t crdefs[] = {
-  {"CRBRICK",  &cr_brick,       &colrngs[CR_BRICK ]},
-  {"CRTAN",    &cr_tan,         &colrngs[CR_TAN   ]},
-  {"CRGRAY",   &cr_gray,        &colrngs[CR_GRAY  ]},
-  {"CRGREEN",  &cr_green,       &colrngs[CR_GREEN ]},
-  {"CRBROWN",  &cr_brown,       &colrngs[CR_BROWN ]},
-  {"CRGOLD",   &cr_gold,        &colrngs[CR_GOLD  ]},
-  {"CRRED",    &cr_red,         &colrngs[CR_RED   ]},
-  {"CRBLUE",   &cr_blue,        &colrngs[CR_BLUE  ]},
-  {"CRORANGE", &cr_orange,      &colrngs[CR_ORANGE]},
-  {"CRYELLOW", &cr_yellow,      &colrngs[CR_YELLOW]},
-  {"CRBLUE2",  &cr_blue_status, &colrngs[CR_BLUE2]},
+  {"CRBRICK",  &colrngs[CR_BRICK ]},
+  {"CRTAN",    &colrngs[CR_TAN   ]},
+  {"CRGRAY",   &colrngs[CR_GRAY  ]},
+  {"CRGREEN",  &colrngs[CR_GREEN ]},
+  {"CRBROWN",  &colrngs[CR_BROWN ]},
+  {"CRGOLD",   &colrngs[CR_GOLD  ]},
+  {"CRRED",    &colrngs[CR_RED   ]},
+  {"CRBLUE",   &colrngs[CR_BLUE  ]},
+  {"CRORANGE", &colrngs[CR_ORANGE]},
+  {"CRYELLOW", &colrngs[CR_YELLOW]},
+  {"CRBLUE2",  &colrngs[CR_BLUE2]},
   {NULL}
 };
 
@@ -196,7 +179,7 @@ void V_InitColorTranslation(void)
 {
   register const crdef_t *p;
   for (p=crdefs; p->name; p++)
-    *p->map1 = *p->map2 = W_CacheLumpName(p->name);
+    *p->map = W_CacheLumpName(p->name);
 }
 
 //
@@ -717,6 +700,9 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 //----------------------------------------------------------------------------
 //
 // $Log: v_video.c,v $
+// Revision 1.4  2000/05/09 20:49:32  proff_fs
+// reorganised the gl-stuff a little bit and made it ready for Linux
+//
 // Revision 1.3  2000/05/08 09:54:37  cph
 // Fix range of colrngs array
 //

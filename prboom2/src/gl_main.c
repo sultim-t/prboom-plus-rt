@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_main.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+// $Id: gl_main.c,v 1.3 2000/05/09 20:49:32 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,12 +30,6 @@
 
 #include "gl_intern.h"
 #include "gl_struct.h"
-#include "r_bsp.h"
-#include "r_main.h"
-#include "r_draw.h"
-#include "r_sky.h"
-#include "m_bbox.h"
-#include "lprintf.h"
 
 // PATCHES FLATS SPRITES
 static int *gld_LumpToGLPatchTexture=NULL;
@@ -51,11 +45,8 @@ int *LineRenderQueue=NULL;
 int LineRenderQueueSize=0;
 int NumLinesInQueue=0;
 
-// SPRITES
-
-#define MAXVISSPRITES  	128
-GLSprite SpriteRenderQueue[MAXVISSPRITES];
-int NumSpritesInQueue;
+boolean use_mipmaping=false;
+boolean use_fog=false;
 
 extern void R_DrawPlayerSprites (void);
 
@@ -127,12 +118,13 @@ void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned char *buf
   byte *p_bColumn;
   int pos;
   int size;
-  const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
+  const unsigned char *playpal;
 
   if (!gltexture)
     return;
   if (!patch)
     return;
+  playpal=W_CacheLumpName("PLAYPAL");
   size=gltexture->tex_width*gltexture->tex_height*4;
   p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
 	for (x=0;x<patch->width;x++)
@@ -173,7 +165,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
   byte *p_bColumn;
   int pos;
   int size;
-  const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
+  const unsigned char *playpal;
   extern const unsigned char *colrngs[];
   const unsigned char *outr;
 
@@ -190,6 +182,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
     return;
   if (!patch)
     return;
+  playpal=W_CacheLumpName("PLAYPAL");
   size=gltexture->tex_width*gltexture->tex_height*4;
   p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
 	for (x=0;x<patch->width;x++)
@@ -283,12 +276,13 @@ void gld_AddPatchToTexture_SpriteTrans(GLTexture *gltexture, unsigned char *buff
 void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, const unsigned char *flat)
 {
   int x,y,pos;
-  const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
+  const unsigned char *playpal;
 
   if (!gltexture)
     return;
   if (!flat)
     return;
+  playpal=W_CacheLumpName("PLAYPAL");
   for (y=0;y<gltexture->height;y++)
   {
     for (x=0;x<gltexture->width;x++)
@@ -351,7 +345,7 @@ static GLTexture *gld_RegisterPatch(int lump, int cm)
   return gltexture;
 }
 
-static GLTexture *gld_RegisterFlat(int lump)
+static GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
 {
   GLTexture *gltexture;
   const unsigned char *flat;
@@ -387,13 +381,26 @@ static GLTexture *gld_RegisterFlat(int lump)
   if (gltexture->glTexID[CR_DEFAULT]==0)
   	glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
 	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
-  glTexImage2D( GL_TEXTURE_2D, 0, 4, 
-                gltexture->tex_width, gltexture->tex_height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  if (mipmap & use_mipmaping)
+  {
+	 gluBuild2DMipmaps( GL_TEXTURE_2D, 4,
+					            gltexture->tex_width, gltexture->tex_height,
+					            GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  }
+  else
+  {
+    glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+                  gltexture->tex_width, gltexture->tex_height,
+                  0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  }
   GLFree(buffer);
   W_UnlockLumpNum(lump);
   return gltexture;
@@ -510,7 +517,7 @@ void gld_DrawBackground(const char* name)
   float fU1,fU2,fV1,fV2;
   int width,height;
 
-  gltexture=gld_RegisterFlat(firstflat+R_FlatNumForName(name));
+  gltexture=gld_RegisterFlat(firstflat+R_FlatNumForName(name), false);
   if (!gltexture)
     return;
   fU1=0;
@@ -671,6 +678,19 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 // SPRITES
 //
 //////////////////////////////
+
+typedef struct
+{
+	int iLump;
+	boolean bFlip;
+	float fLightLevel;
+	boolean rendered;
+	mobj_t *p_Obj;
+} GLSprite;
+
+#define MAXVISSPRITES  	128
+GLSprite SpriteRenderQueue[MAXVISSPRITES];
+int NumSpritesInQueue;
 
 void gld_AddSpriteToRenderQueue(mobj_t *pSpr,int lump, boolean flip)
 {
@@ -891,7 +911,7 @@ void gld_Finish()
   }
   gld_Set2DMode();
 #ifdef _DEBUG
-  gld_DrawSoftwareScreen();
+  //gld_DrawSoftwareScreen();
 #endif
   glFinish();
 	SDL_GL_SwapBuffers();
@@ -1053,7 +1073,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, boolean sky_only)
     }
     else
     {
-      walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture]);
+      walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true);
       if (walldef.gltexture)
       {
         gld_CalcYCoords(&walldef, floor_height, ceiling_height);
@@ -1080,7 +1100,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, boolean sky_only)
       if (floor_height<ceiling_height)
       {
         if (!((frontsector->ceilingpic==skyflatnum) && (backsector->ceilingpic==skyflatnum)))
-          walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture]);
+          walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->toptexture], true);
         if (walldef.gltexture)
         {
           gld_CalcYCoords(&walldef, floor_height, ceiling_height);
@@ -1091,7 +1111,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, boolean sky_only)
     // midtexture
     if (!sky_only)
     {
-      walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture]);
+      walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true);
       if (walldef.gltexture)
       {
         if ( (line->flags & ML_DONTPEGBOTTOM) >0)
@@ -1138,7 +1158,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, boolean sky_only)
     else
       if (floor_height<ceiling_height)
       {
-        walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture]);
+        walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->bottomtexture], true);
         if (walldef.gltexture)
         {
           gld_CalcYCoords(&walldef, floor_height, ceiling_height);
@@ -1233,7 +1253,7 @@ static void gld_DrawFlat(int num, boolean ceiling)
     {
       // get the texture. flattranslation is maintained by doom and
       // contains the number of the current animation frame
-      gltexture=gld_RegisterFlat(firstflat+flattranslation[sector->floorpic]);
+      gltexture=gld_RegisterFlat(firstflat+flattranslation[sector->floorpic], true);
       if (!gltexture)
         return;
       // get the lightlevel
@@ -1258,7 +1278,7 @@ static void gld_DrawFlat(int num, boolean ceiling)
     {
       // get the texture. flattranslation is maintained by doom and
       // contains the number of the current animation frame
-      gltexture=gld_RegisterFlat(firstflat+flattranslation[sector->ceilingpic]);
+      gltexture=gld_RegisterFlat(firstflat+flattranslation[sector->ceilingpic], true);
       // get the lightlevel
       if (sector->ceilinglightsec!=-1)
         light=gld_CalcLightLevel(sectors[sector->ceilinglightsec].lightlevel+(extralight<<LIGHTSEGSHIFT));
@@ -1926,6 +1946,7 @@ void gld_PreprocessLevel(void)
   if (levelinfo) fclose(levelinfo);
   GLFree(vertexcheck);
   // if precache true, register most textures
+/*
   if (precache)
   {
     for (i=0; i<numsectors; i++)
@@ -1935,11 +1956,12 @@ void gld_PreprocessLevel(void)
     }
     for (i=0; i<numsides; i++)
     {
-      gld_RegisterTexture(sides[i].toptexture);
-      gld_RegisterTexture(sides[i].midtexture);
-      gld_RegisterTexture(sides[i].bottomtexture);
+      gld_RegisterTexture(sides[i].toptexture, true);
+      gld_RegisterTexture(sides[i].midtexture, true);
+      gld_RegisterTexture(sides[i].bottomtexture, true);
     }
   }
+*/
 }
 
 int fog_density=200;
@@ -1949,7 +1971,7 @@ void gld_DrawSky(float yaw)
   GLTexture *gltexture;
   float u,ou,v;
 
-  gltexture=gld_RegisterTexture(skytexture);
+  gltexture=gld_RegisterTexture(skytexture, false);
 //  glAlphaFunc(GL_ALWAYS,0.0f);
   v=128.0f/(float)gltexture->tex_height*1.6f;
   u=256.0f/(float)gltexture->tex_width;
@@ -2016,7 +2038,10 @@ void gld_StartDrawScene(void)
 
   // nicolas -- using fog to make scene mor orig. DOOM like :)
 	// Geht jetzt! Sieht aber scheiﬂe aus :( !
-	//glEnable(GL_FOG); 
+  if (use_fog)
+	  glEnable(GL_FOG);
+  else
+    glDisable(GL_FOG);
 	glFogi (GL_FOG_MODE, GL_EXP);
 	glFogfv(GL_FOG_COLOR, BlackFogColor);
 
@@ -2293,6 +2318,9 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_main.c,v $
+// Revision 1.3  2000/05/09 20:49:32  proff_fs
+// reorganised the gl-stuff a little bit and made it ready for Linux
+//
 // Revision 1.2  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.
