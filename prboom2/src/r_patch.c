@@ -426,6 +426,19 @@ static void createTextureCompositePatch(int id) {
         // set up the post's data
         post->startY = oldColumn->topdelta;
         post->length = oldColumn->length;
+        if ((texpatch->originy + post->startY + post->length) > composite_patch->height) {
+          if ((texpatch->originy + post->startY) > composite_patch->height)
+            post->length = 0;
+          else
+            post->length = composite_patch->height - (texpatch->originy + post->startY);
+        }
+        if ((texpatch->originy + post->startY) < 0) {
+          post->startY = 0;
+          if ((texpatch->originy + post->startY + post->length) <= 0)
+            post->length = 0;
+          else
+            post->length -= (texpatch->originy + post->startY);
+        }
         post->edgeSloping = 0;
 
         edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta);
