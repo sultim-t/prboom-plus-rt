@@ -51,7 +51,7 @@
 void I_InitNetwork(void);
 size_t I_GetPacket(packet_header_t* buffer, size_t buflen);
 void I_SendPacket(packet_header_t* packet, size_t len);
-void I_WaitForPacket(void);
+void I_WaitForPacket(int ms);
 
 #ifdef USE_SDL_NET
 UDP_SOCKET I_Socket(Uint16 port);

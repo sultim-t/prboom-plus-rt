@@ -104,11 +104,11 @@ void I_FreePacket(UDP_PACKET *packet)
 /* cph - I_WaitForPacket - use select(2) via SDL_net's interface
  * No more I_uSleep loop kludge */
 
-void I_WaitForPacket(void)
+void I_WaitForPacket(int ms)
 {
   SDLNet_SocketSet ss = SDLNet_AllocSocketSet(1);
   SDLNet_UDP_AddSocket(ss, udp_socket);
-  SDLNet_CheckSockets(ss,1<<30);
+  SDLNet_CheckSockets(ss,ms);
   SDLNet_FreeSocketSet(ss);
 #if (defined _WIN32 && !defined PRBOOM_SERVER)
   I_UpdateConsole();
