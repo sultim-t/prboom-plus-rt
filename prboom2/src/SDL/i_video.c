@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.25 2001/07/01 21:37:38 proff_fs Exp $
+ * $Id: i_video.c,v 1.26 2001/07/04 14:59:52 uid24111 Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.25 2001/07/01 21:37:38 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.26 2001/07/04 14:59:52 uid24111 Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -72,13 +72,11 @@ int gl_depthbuffer_bits=16;
 
 extern void M_QuitDOOM(int choice);
 
-int use_vsync = 0; // Included not to break m_misc, but not relevant to SDL
+int use_doublebuffer = 0; // Included not to break m_misc, but not relevant to SDL
 int use_fullscreen;
 static SDL_Surface *screen;
 
 typedef unsigned char* pval;
-// This is the pointer to the buffer to blit
-pval     *      out_buffer = NULL;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code 
@@ -373,6 +371,31 @@ void I_FinishUpdate (void)
 #endif
   
 #ifndef GL_DOOM
+  if (screen->pixels != screens[0])
+  {
+    if (screen->pixels == NULL)
+    {
+      int h;
+      int w;
+      char *src;
+      char *dest;
+
+      SDL_LockSurface(screen);
+      if (screen->pixels == NULL)
+        I_Error("I_FinishUpdate: Couldn't lock screen surface");
+      dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
+      src=screens[0];
+      w=(screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w);
+      h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
+      for (; h>0; h--)
+      {
+        memcpy(dest,src,SCREENWIDTH);
+        dest+=screen->pitch;
+        src+=SCREENWIDTH;
+      }
+      SDL_UnlockSurface(screen);
+    }
+  }
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
   if (newpal != NO_PALETTE_CHANGE) { 
@@ -413,15 +436,9 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   // Initialize SDL
-#ifdef _DEBUG
-  if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0 ) {
-    I_Error("Could not initialize SDL [%s]", SDL_GetError());
-  }
-#else
   if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
-#endif
   
   atexit(I_ShutdownSDL);
 }
@@ -479,7 +496,13 @@ void I_UpdateVideoMode(void)
 #ifdef GL_DOOM
   init_flags = SDL_OPENGL;
 #else
-  init_flags = SDL_SWSURFACE | SDL_HWPALETTE;
+  if (use_doublebuffer)
+    init_flags = SDL_SWSURFACE | SDL_DOUBLEBUF;
+  else
+    init_flags = SDL_SWSURFACE;
+#ifndef _DEBUG
+  init_flags |= SDL_HWPALETTE;
+#endif
 #endif
   if ( use_fullscreen )
     init_flags |= SDL_FULLSCREEN;
@@ -499,15 +522,7 @@ void I_UpdateVideoMode(void)
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
-#ifdef USE_OWN_TRANSLATION_CODE
-  if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) { 
-#endif
-    screen = SDL_SetVideoMode(w, h, 8, init_flags);
-#ifdef USE_OWN_TRANSLATION_CODE
-  } else {
-    screen = SDL_SetVideoMode(w, h, 0, init_flags);
-  }
-#endif
+  screen = SDL_SetVideoMode(w, h, 8, init_flags);
 #endif
 
   if (screen == NULL) {
@@ -517,8 +532,10 @@ void I_UpdateVideoMode(void)
   mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
-  out_buffer = (pval *)screen->pixels;
-  screens[0] = (unsigned char *) (screen->pixels); 
+  if (screen->pixels != NULL)
+  {
+    screens[0] = (unsigned char *) (screen->pixels);
+  }
 
   // Hide pointer while over this window
   SDL_ShowCursor(0);

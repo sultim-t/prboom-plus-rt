@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.h,v 1.5 2001/01/15 18:06:05 proff_fs Exp $
+ * $Id: i_video.h,v 1.6 2001/07/04 14:59:52 uid24111 Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -72,7 +72,7 @@ void I_StartTic (void);
 
 void I_StartFrame (void);
 
-extern int use_vsync;  /* killough 2/8/98: controls whether vsync is called */
+extern int use_doublebuffer;  /* proff 2001-7-4 - controls wether to use doublebuffering*/
 extern int use_fullscreen;  /* proff 21/05/2000 */
 
 #endif

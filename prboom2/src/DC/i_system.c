@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.1 2001/07/02 22:46:46 proff_fs Exp $
+ * $Id: i_system.c,v 1.2 2001/07/04 14:59:52 uid24111 Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.1 2001/07/02 22:46:46 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.2 2001/07/04 14:59:52 uid24111 Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include <kallisti/libk.h>
@@ -418,7 +418,7 @@ void I_SetPalette(int pal)
 }
 
 
-int use_vsync;
+int use_doublebuffer;
 int use_fullscreen;
 int snd_card, mus_card;
 

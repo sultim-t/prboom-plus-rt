@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.7 2001/01/15 18:06:06 proff_fs Exp $
+ * $Id: i_video.c,v 1.8 2001/07/04 14:59:52 uid24111 Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.7 2001/01/15 18:06:06 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.8 2001/07/04 14:59:52 uid24111 Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -85,7 +85,7 @@ int XShmQueryExtension(Display* dpy); // CP added
 
 void M_QuitDOOM(int choice);
 
-int use_vsync = 0; // Included not to break m_misc, but not relevant to X
+int use_doublebuffer = 0; // Included not to break m_misc, but not relevant to X
 static Display*	X_display=NULL;
 static int      X_screen;
 static Window   X_mainWindow;
