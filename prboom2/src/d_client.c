@@ -106,7 +106,7 @@ void D_InitNetGame (void)
 	initpacket.pn = doom_htons(wanted_player_number);
 	packet_set(&initpacket.head, PKT_INIT, 0);
 	I_SendPacket(&initpacket.head, sizeof(initpacket));
-	I_WaitForPacket(50000);
+	I_WaitForPacket(5000);
       } while (!I_GetPacket(packet, 1000));
       if (packet->type == PKT_DOWN) I_Error("Server aborted the game");
     } while (packet->type != PKT_SETUP);
