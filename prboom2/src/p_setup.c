@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.9 2000/09/27 11:30:26 proff_fs Exp $
+ * $Id: p_setup.c,v 1.10 2000/09/29 18:04:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.9 2000/09/27 11:30:26 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.10 2000/09/29 18:04:09 proff_fs Exp $";
 
 #include <math.h>
 
@@ -99,7 +99,7 @@ typedef struct
 	short			linedef; // linedef, or -1 for minisegs
 	short			side;	 // side on linedef: 0 for right, 1 for left
 	short			partner; // corresponding partner seg, or -1 on one-sided walls
-}glseg_t;
+} glseg_t;
 
 // fixed 32 bit gl_vert format v2.0+ (glBsp 1.91)
 typedef struct
@@ -284,11 +284,12 @@ static float GetDistance(int dx, int dy)
 
 static int GetOffset(vertex_t *v1, vertex_t *v2)
 {
-	int	a, b;
-	a = (int)(v1->x - v2->x) / FRACUNIT;
-	b = (int)(v1->y - v2->y) / FRACUNIT;
-	a = (int) sqrt(a*a+b*b)* FRACUNIT;
-	return a;
+	float	a, b;
+  int r;
+	a = (float)(v1->x - v2->x) / (float)FRACUNIT;
+	b = (float)(v1->y - v2->y) / (float)FRACUNIT;
+  r = (int)(sqrt(a*a+b*b) * (float)FRACUNIT);
+	return r;
 }
 
 
@@ -370,13 +371,13 @@ static void P_LoadGLSegs(int lump)
 		segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
 		segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
 		segs[i].iSegID  = i;   
-		segs[i].angle  = 0;   // we don´t need this 8)
 							
 		if(ml->linedef != -1) // skip minisegs 
 		{
 			ldef = &lines[ml->linedef];
 			segs[i].linedef = ldef;
 			segs[i].miniseg = false;
+  		segs[i].angle = R_PointToAngle2(segs[i].v1->x,segs[i].v1->y,segs[i].v2->x,segs[i].v2->y);
 
 			segs[i].sidedef = &sides[ldef->sidenum[ml->side]];
 			segs[i].length  = GetDistance(segs[i].v2->x - segs[i].v1->x, segs[i].v2->y - segs[i].v1->y);
@@ -387,13 +388,14 @@ static void P_LoadGLSegs(int lump)
 				segs[i].backsector = 0;
 
 			if (ml->side)
-				segs[i].offset = SHORT(GetOffset(segs[i].v1, ldef->v2));
+				segs[i].offset = GetOffset(segs[i].v1, ldef->v2);
 			else
-				segs[i].offset = SHORT(GetOffset(segs[i].v1, ldef->v1));
+				segs[i].offset = GetOffset(segs[i].v1, ldef->v1);
 		}
 		else
 		{
 			segs[i].miniseg = true;
+  		segs[i].angle  = 0;
 			segs[i].offset  = 0;
 			segs[i].linedef = NULL;
 			segs[i].sidedef = NULL;

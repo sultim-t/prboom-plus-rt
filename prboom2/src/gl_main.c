@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.25 2000/09/29 16:20:24 proff_fs Exp $
+ * $Id: gl_main.c,v 1.26 2000/09/29 18:04:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -692,234 +692,6 @@ typedef struct
 static GLSector *sectorloops=NULL;
 // this is the list for all subsectors
 static GLSubSector *subsectorloops=NULL;
-
-// gld_DrawSectorFlat
-//
-// This draws on flat for the sector "num"
-// The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
-
-static void gld_DrawSectorFlat(int num, boolean ceiling, visplane_t *plane)
-{
-  int loopnum; // current loop number
-  GLLoopDef *currentloop; // the current loop
-  int vertexnum; // the current vertexnumber
-  GLVertex *currentvertex; // the current vertex
-  sector_t *sector; // the sector we want to draw
-  sector_t tempsec; // needed for R_FakeFlat
-  float light; // the lightlevel of the flat
-  GLTexture *gltexture; // the texture
-  float uoffs,voffs; // the texture coordinates
-  float z; // the z position of the flat (height)
-  int floorlightlevel;      // killough 3/16/98: set floor lightlevel
-  int ceilinglightlevel;    // killough 4/11/98
-
-  sector=&sectors[num]; // get the sector
-  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
-  if (!ceiling) // if it is a floor ...
-    glCullFace(GL_FRONT);
-  else
-    glCullFace(GL_BACK);
-  if (!ceiling) // if it is a floor ...
-  {
-    if (sector->floorpic == skyflatnum) // don't draw if sky
-      return;
-    // get the texture. flattranslation is maintained by doom and
-    // contains the number of the current animation frame
-    gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
-    if (!gltexture)
-      return;
-    // get the lightlevel from floorlightlevel
-    light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
-    // calculate texture offsets
-    uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
-    voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
-  }
-  else // if it is a ceiling ...
-  {
-    if (sector->ceilingpic == skyflatnum) // don't draw if sky
-      return;
-    // get the texture. flattranslation is maintained by doom and
-    // contains the number of the current animation frame
-    gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
-    if (!gltexture)
-      return;
-    // get the lightlevel from ceilinglightlevel
-    light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
-    // calculate texture offsets
-    uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
-    voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
-  }
-  
-  // get height from plane
-  z=(float)plane->height/(float)MAP_SCALE;
-
-  gld_BindFlat(gltexture);
-  gld_StaticLight(light);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glTranslatef(0.0f,z,0.0f);
-  glMatrixMode(GL_TEXTURE);
-  glPushMatrix();
-  glTranslatef(uoffs/64.0f,voffs/64.0f,0.0f);
-  // go through all loops of this sector
-  if (!sectorloops[num].gl_list)
-  {
-    if (use_display_lists)
-    {
-      sectorloops[num].gl_list=glGenLists(1);
-      if (!sectorloops[num].gl_list)
-      {
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        return;
-      }
-      glNewList(sectorloops[num].gl_list,GL_COMPILE_AND_EXECUTE);
-    }
-    for (loopnum=0; loopnum<sectorloops[num].loopcount; loopnum++)
-    {
-      // set the current loop
-      currentloop=&sectorloops[num].loops[loopnum];
-      if (!currentloop)
-        continue;
-      // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
-      glBegin(currentloop->mode);
-      // go through all vertexes of this loop
-      for (vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
-      {
-        // set the current vertex
-        currentvertex=&currentloop->gl_vertexes[vertexnum];
-        if (!currentvertex)
-          continue;
-        // set texture coordinate of this vertex
-        glTexCoord2f(currentvertex->u,currentvertex->v);
-        // set vertex coordinate
-        glVertex3f(currentvertex->x,0.0f,currentvertex->y);
-      }
-      // end of loop
-      glEnd();
-    }
-    if (use_display_lists)
-      glEndList();
-  }
-  else
-    glCallList(sectorloops[num].gl_list);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-}
-
-// gld_DrawSubSectorFlat
-//
-// This draws on flat for the subsector "num"
-// The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
-
-static void gld_DrawSubSectorFlat(int num, boolean ceiling, visplane_t *plane)
-{
-  GLLoopDef *currentloop; // the current loop
-  int vertexnum; // the current vertexnumber
-  GLVertex *currentvertex; // the current vertex
-  subsector_t *subsector; // the sector we want to draw
-  sector_t *sector; // the sector we want to draw
-  sector_t tempsec; // needed for R_FakeFlat
-  float light; // the lightlevel of the flat
-  GLTexture *gltexture; // the texture
-  float uoffs,voffs; // the texture coordinates
-  float z; // the z position of the flat (height)
-  int floorlightlevel;      // killough 3/16/98: set floor lightlevel
-  int ceilinglightlevel;    // killough 4/11/98
-
-  subsector=&subsectors[num]; // get the subsector
-  sector=&sectors[subsector->sector->iSectorID]; // get the sector
-  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
-  if (!ceiling) // if it is a floor ...
-    glCullFace(GL_FRONT);
-  else
-    glCullFace(GL_BACK);
-  if (!ceiling) // if it is a floor ...
-  {
-    if (sector->floorpic == skyflatnum) // don't draw if sky
-      return;
-    // get the texture. flattranslation is maintained by doom and
-    // contains the number of the current animation frame
-    gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
-    if (!gltexture)
-      return;
-    // get the lightlevel from floorlightlevel
-    light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
-    // calculate texture offsets
-    uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
-    voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
-  }
-  else // if it is a ceiling ...
-  {
-    if (sector->ceilingpic == skyflatnum) // don't draw if sky
-      return;
-    // get the texture. flattranslation is maintained by doom and
-    // contains the number of the current animation frame
-    gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
-    if (!gltexture)
-      return;
-    // get the lightlevel from ceilinglightlevel
-    light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
-    // calculate texture offsets
-    uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
-    voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
-  }
-  
-  // get height from plane
-  z=(float)plane->height/(float)MAP_SCALE;
-
-  gld_BindFlat(gltexture);
-  gld_StaticLight(light);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glTranslatef(0.0f,z,0.0f);
-  glMatrixMode(GL_TEXTURE);
-  glPushMatrix();
-  glTranslatef(uoffs/64.0f,voffs/64.0f,0.0f);
-  // go through all loops of this sector
-  if (!subsectorloops[num].gl_list)
-  {
-    if (use_display_lists)
-    {
-      subsectorloops[num].gl_list=glGenLists(1);
-      if (!subsectorloops[num].gl_list)
-      {
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-        return;
-      }
-      glNewList(subsectorloops[num].gl_list,GL_COMPILE_AND_EXECUTE);
-    }
-    // set the current loop
-    currentloop=&subsectorloops[num].loop;
-    // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
-    glBegin(currentloop->mode);
-    // go through all vertexes of this loop
-    for (vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
-    {
-      // set the current vertex
-      currentvertex=&currentloop->gl_vertexes[vertexnum];
-      if (!currentvertex)
-        continue;
-      // set texture coordinate of this vertex
-      glTexCoord2f(currentvertex->u,currentvertex->v);
-      // set vertex coordinate
-      glVertex3f(currentvertex->x,0.0f,currentvertex->y);
-    }
-    // end of loop
-    glEnd();
-    if (use_display_lists)
-      glEndList();
-  }
-  else
-    glCallList(subsectorloops[num].gl_list);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-}
 
 static boolean *sectorrendered=NULL; // true if sector rendered (only here for malloc)
 static boolean *subsectorrendered=NULL; // true if subsector rendered (only here for malloc)
@@ -2239,6 +2011,189 @@ static void gld_PreprocessSegs(void)
  *               *
  *****************/
 
+typedef struct
+{
+  int sectornum;
+  int subsectornum;
+  float light; // the lightlevel of the flat
+  float uoffs,voffs; // the texture coordinates
+  float z; // the z position of the flat (height)
+  GLTexture *gltexture;
+} GLFlat;
+
+static void gld_DrawFlat(GLFlat *flat)
+{
+  int loopnum; // current loop number
+  GLLoopDef *currentloop; // the current loop
+  int vertexnum; // the current vertexnumber
+  GLVertex *currentvertex; // the current vertex
+
+  gld_BindFlat(flat->gltexture);
+  gld_StaticLight(flat->light);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glTranslatef(0.0f,flat->z,0.0f);
+  glMatrixMode(GL_TEXTURE);
+  glPushMatrix();
+  glTranslatef(flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
+  if (flat->sectornum>=0)
+  {
+    // go through all loops of this sector
+    if (!sectorloops[flat->sectornum].gl_list)
+    {
+      if (use_display_lists)
+      {
+        sectorloops[flat->sectornum].gl_list=glGenLists(1);
+        if (!sectorloops[flat->sectornum].gl_list)
+        {
+          glPopMatrix();
+          glMatrixMode(GL_MODELVIEW);
+          glPopMatrix();
+          return;
+        }
+        glNewList(sectorloops[flat->sectornum].gl_list,GL_COMPILE_AND_EXECUTE);
+      }
+      for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+      {
+        // set the current loop
+        currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+        if (!currentloop)
+          continue;
+        // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
+        glBegin(currentloop->mode);
+        // go through all vertexes of this loop
+        for (vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
+        {
+          // set the current vertex
+          currentvertex=&currentloop->gl_vertexes[vertexnum];
+          if (!currentvertex)
+            continue;
+          // set texture coordinate of this vertex
+          glTexCoord2f(currentvertex->u,currentvertex->v);
+          // set vertex coordinate
+          glVertex3f(currentvertex->x,0.0f,currentvertex->y);
+        }
+        // end of loop
+        glEnd();
+      }
+      if (use_display_lists)
+        glEndList();
+    }
+    else
+      glCallList(sectorloops[flat->sectornum].gl_list);
+  }
+  if (flat->subsectornum>=0)
+  {
+    // go through all loops of this sector
+    if (!subsectorloops[flat->subsectornum].gl_list)
+    {
+      if (use_display_lists)
+      {
+        subsectorloops[flat->subsectornum].gl_list=glGenLists(1);
+        if (!subsectorloops[flat->subsectornum].gl_list)
+        {
+          glPopMatrix();
+          glMatrixMode(GL_MODELVIEW);
+          glPopMatrix();
+          return;
+        }
+        glNewList(subsectorloops[flat->subsectornum].gl_list,GL_COMPILE_AND_EXECUTE);
+      }
+      // set the current loop
+      currentloop=&subsectorloops[flat->subsectornum].loop;
+      // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
+      glBegin(currentloop->mode);
+      // go through all vertexes of this loop
+      for (vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
+      {
+        // set the current vertex
+        currentvertex=&currentloop->gl_vertexes[vertexnum];
+        if (!currentvertex)
+          continue;
+        // set texture coordinate of this vertex
+        glTexCoord2f(currentvertex->u,currentvertex->v);
+        // set vertex coordinate
+        glVertex3f(currentvertex->x,0.0f,currentvertex->y);
+      }
+      // end of loop
+      glEnd();
+      if (use_display_lists)
+        glEndList();
+    }
+    else
+      glCallList(subsectorloops[flat->subsectornum].gl_list);
+  }
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+}
+
+// gld_AddFlat
+//
+// This draws on flat for the sector "num"
+// The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
+
+static void gld_AddFlat(int subsectornum, int sectornum, boolean ceiling, visplane_t *plane)
+{
+  subsector_t *subsector; // the subsector we want to draw
+  sector_t *sector; // the sector we want to draw
+  sector_t tempsec; // needed for R_FakeFlat
+  int floorlightlevel;      // killough 3/16/98: set floor lightlevel
+  int ceilinglightlevel;    // killough 4/11/98
+  GLFlat flat;
+
+  if (subsectornum>=0)
+  {
+    subsector=&subsectors[subsectornum]; // get the subsector
+    sectornum=subsector->sector->iSectorID;
+  }
+  if (sectornum<0)
+    return;
+  flat.subsectornum=subsectornum;
+  flat.sectornum=sectornum;
+  sector=&sectors[sectornum]; // get the sector
+  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
+  if (!ceiling) // if it is a floor ...
+    glCullFace(GL_FRONT);
+  else
+    glCullFace(GL_BACK);
+  if (!ceiling) // if it is a floor ...
+  {
+    if (sector->floorpic == skyflatnum) // don't draw if sky
+      return;
+    // get the texture. flattranslation is maintained by doom and
+    // contains the number of the current animation frame
+    flat.gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
+    if (!flat.gltexture)
+      return;
+    // get the lightlevel from floorlightlevel
+    flat.light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
+    // calculate texture offsets
+    flat.uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
+    flat.voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
+  }
+  else // if it is a ceiling ...
+  {
+    if (sector->ceilingpic == skyflatnum) // don't draw if sky
+      return;
+    // get the texture. flattranslation is maintained by doom and
+    // contains the number of the current animation frame
+    flat.gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
+    if (!flat.gltexture)
+      return;
+    // get the lightlevel from ceilinglightlevel
+    flat.light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
+    // calculate texture offsets
+    flat.uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
+    flat.voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
+  }
+  
+  // get height from plane
+  flat.z=(float)plane->height/(float)MAP_SCALE;
+
+  gld_DrawFlat(&flat);
+}
+
 void gld_DrawPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingplane)
 {
   subsector_t *subsector;
@@ -2257,10 +2212,10 @@ void gld_DrawPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceiling
       glEnable(GL_CULL_FACE);
       // render the floor
       if (floorplane)
-        gld_DrawSubSectorFlat(subsectornum, false, floorplane);
+        gld_AddFlat(subsectornum, -1, false, floorplane);
       // render the ceiling
       if (ceilingplane)
-        gld_DrawSubSectorFlat(subsectornum, true, ceilingplane);
+        gld_AddFlat(subsectornum, -1, true, ceilingplane);
       // set rendered true
       subsectorrendered[subsectornum]=true;
       // disable backside removing
@@ -2278,10 +2233,10 @@ void gld_DrawPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceiling
       glEnable(GL_CULL_FACE);
       // render the floor
       if (floorplane)
-        gld_DrawSectorFlat(subsector->sector->iSectorID, false, floorplane);
+        gld_AddFlat(-1, subsector->sector->iSectorID, false, floorplane);
       // render the ceiling
       if (ceilingplane)
-        gld_DrawSectorFlat(subsector->sector->iSectorID, true, ceilingplane);
+        gld_AddFlat(-1, subsector->sector->iSectorID, true, ceilingplane);
       // set rendered true
       sectorrendered[subsector->sector->iSectorID]=true;
       // disable backside removing
