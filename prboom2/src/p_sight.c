@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.11 2001/08/15 18:53:00 cph Exp $
+ * $Id: p_sight.c,v 1.12 2002/08/22 20:30:33 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.11 2001/08/15 18:53:00 cph Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.12 2002/08/22 20:30:33 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -67,7 +67,8 @@ inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
   fixed_t left, right;
   return
     !node->dx ? x == node->x ? 2 : x <= node->x ? node->dy > 0 : node->dy < 0 :
-    !node->dy ? x == node->y ? 2 : y <= node->y ? node->dx < 0 : node->dx > 0 :
+    !node->dy ? ( compatibility_level < prboom_4_compatibility ? x : y) == node->y ?
+		    2 : y <= node->y ? node->dx < 0 : node->dx > 0 :
     (right = ((y - node->y) >> FRACBITS) * (node->dx >> FRACBITS)) <
     (left  = ((x - node->x) >> FRACBITS) * (node->dy >> FRACBITS)) ? 0 :
     right == left ? 2 : 1;
