@@ -1052,6 +1052,7 @@ static void G_DoSaveGame (boolean menu)
   char name2[VERSIONSIZE];
   char *description;
   int  length, i;
+  int  savegame_version;
 
   gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
@@ -1076,12 +1077,13 @@ static void G_DoSaveGame (boolean menu)
 
   // killough 2/22/98: "proprietary" version string :-)
   psnprintf (name2,VERSIONSIZE,version_headers[i].ver_printf,version_headers[i].version);
+  savegame_version = version_headers[i].version;
   memcpy (save_p, name2, VERSIONSIZE);
 
   save_p += VERSIONSIZE;
   
   // sf: use string rather than episode, map
-  {
+  if (savegame_version >= 211) {
     int i;
     for(i=0; i<8; i++)
       *save_p++ = levelmapname[i];
@@ -1089,7 +1091,7 @@ static void G_DoSaveGame (boolean menu)
 
 
   { /* killough 3/16/98, 12/98: store lump name checksum */
-    uint_64_t checksum = G_Signature();
+    uint_64_t checksum = (savegame_version >= 211) ? G_Signature() : G_Signature_old();
     memcpy(save_p, &checksum, sizeof checksum);
     save_p += sizeof checksum;
   }
@@ -1111,6 +1113,13 @@ static void G_DoSaveGame (boolean menu)
 
   /* cph - FIXME? - Save compatibility level */
   *save_p++ = compatibility_level;
+
+  if (savegame_version < 211)
+  {
+    *save_p++ = gameskill;
+    *save_p++ = gameepisode;
+    *save_p++ = gamemap;
+  }
 
   for (i=0 ; i<MAXPLAYERS ; i++)
     *save_p++ = playeringame[i];
