@@ -760,7 +760,7 @@ int R_ColormapNumForName(const char *name)
  * cph 2001/11/17 - unify colour maping logic in a single place; 
  *  obsoletes old c_scalelight stuff
  */
-int fake_contrast;
+int fake_contrast = 1;
 
 #ifndef between
 #define between(l,u,x) ( ((l) > (x)) ? (l) : ( ((x) > (u)) ? (u) : (x)) )
