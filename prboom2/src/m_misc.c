@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.17 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: m_misc.c,v 1.18 2000/09/18 11:36:38 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.17 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.18 2000/09/18 11:36:38 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -328,7 +328,7 @@ default_t defaults[] =
    def_int,ss_none},  
   {"fake_contrast",{&fake_contrast},{1},0,1,
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
-  {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
+  {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
   {"use_vsync",{&use_vsync},{1},0,1,             // killough 2/8/98
    def_bool,ss_none}, // enable wait for vsync to avoid display tearing (fullscreen)
