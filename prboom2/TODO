@@ -66,11 +66,10 @@ Colin: It's frankly a disaster area, which I can say with confidence
  stuff
 
 --------------------------------------------------------------------------
-33. (2000/12/24) Single key quit
+*33. (2000/12/24) Single key quit
 
 Colin: opulent wants the old 'q quits demo recording' feature back. 
- I suggest making it a configurable key setting, not bound to any 
- key by default.
+ This is trivial with the new keybindings system, "bind q quit".
 
 --------------------------------------------------------------------------
 34. (2001/03/29) Dreamcast port
@@ -167,7 +166,7 @@ Proff:
   even bring the speed up.
 
 --------------------------------------------------------------------------
-48. (2002/08/05) comp_sound
+*48. (2002/08/05) comp_sound
 
 Colin:
 The purists want a sound compatibility option that prevents the player hearing
@@ -180,6 +179,8 @@ anomalies.
 > should cause the sound of a firing BFG to be canceled, [...]
 > 
 > Players must not be able to hear other players pick up items or weapons.
+
+Colin: done; just needs #49 below so peopl can use in DM.
 
 --------------------------------------------------------------------------
 49. (2002/08/07) game options in netgames
