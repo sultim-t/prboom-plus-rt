@@ -458,7 +458,8 @@ void TryRunTics (void)
 #endif
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
-      I_uSleep(1000);
+      if (server) I_WaitForPacket(ms_to_next_tick);
+      else I_uSleep(ms_to_next_tick*1000);
       if (I_GetTime() - entertime > 10) {
         M_Ticker(); return;
       }
