@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.5 2000/07/28 15:40:05 proff_fs Exp $
+ * $Id: i_main.c,v 1.6 2000/09/11 21:52:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.5 2000/07/28 15:40:05 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.6 2000/09/11 21:52:21 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -144,7 +144,7 @@ static void I_SignalHandler(int s)
   if (s==SIGSEGV || s==SIGILL || s==SIGFPE)
     Z_DumpHistory(buf);
 
-  I_Error(buf);
+  I_Error("%s",buf);
 }
 
 /* killough 2/22/98: Add support for ENDBOOM, which is PC-specific

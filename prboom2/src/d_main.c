@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.21 2000/08/08 14:43:18 proff_fs Exp $
+ * $Id: d_main.c,v 1.22 2000/09/11 21:52:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.21 2000/08/08 14:43:18 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.22 2000/09/11 21:52:21 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1405,7 +1405,7 @@ void D_DoomMainSetup(void)
 
   if (devparm)
     //jff 9/3/98 use logical output routine
-    lprintf(LO_CONFIRM,D_DEVSTR);
+    lprintf(LO_CONFIRM,"%s",D_DEVSTR);
 
   // turbo option
   if ((p=M_CheckParm ("-turbo")))
@@ -1648,11 +1648,11 @@ void D_DoomMainSetup(void)
   // Ty 04/08/98 - Add 5 lines of misc. data, only if nonblank
   // The expectation is that these will be set in a .bex file
   //jff 9/3/98 use logical output routine
-  if (*startup1) lprintf(LO_INFO,startup1);
-  if (*startup2) lprintf(LO_INFO,startup2);
-  if (*startup3) lprintf(LO_INFO,startup3);
-  if (*startup4) lprintf(LO_INFO,startup4);
-  if (*startup5) lprintf(LO_INFO,startup5);
+  if (*startup1) lprintf(LO_INFO,"%s",startup1);
+  if (*startup2) lprintf(LO_INFO,"%s",startup2);
+  if (*startup3) lprintf(LO_INFO,"%s",startup3);
+  if (*startup4) lprintf(LO_INFO,"%s",startup4);
+  if (*startup5) lprintf(LO_INFO,"%s",startup5);
   // End new startup strings
 
   //jff 9/3/98 use logical output routine

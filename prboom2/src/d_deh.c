@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.7 2000/09/11 10:28:29 proff_fs Exp $
+ * $Id: d_deh.c,v 1.8 2000/09/11 21:52:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.7 2000/09/11 10:28:29 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.8 2000/09/11 21:52:21 cph Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -474,8 +474,9 @@ static const deh_strs deh_strlookup[] = {
   {&s_QUITMSG,"QUITMSG"},
   {&s_QSAVESPOT,"QSAVESPOT"},
   {&s_SAVEDEAD,"SAVEDEAD"},
+  /* cph - disabled to prevent format string attacks in WAD files
   {&s_QSPROMPT,"QSPROMPT"},
-  {&s_QLPROMPT,"QLPROMPT"},
+  {&s_QLPROMPT,"QLPROMPT"},*/
   {&s_NEWGAME,"NEWGAME"},
   {&s_RESTARTLEVEL,"RESTARTLEVEL"},
   {&s_NIGHTMARE,"NIGHTMARE"},
