@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.32 2002/11/23 01:11:04 proff_fs Exp $
+ * $Id: v_video.c,v 1.33 2002/11/23 20:29:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.32 2002/11/23 01:11:04 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.33 2002/11/23 20:29:05 cph Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -244,11 +244,11 @@ static void nullFunc_void() {}
 // Generate the V_Video functions
 //---------------------------------------------------------------------------
 #define V_VIDEO_BITS 8
-#include "inl/V_Video.inl"
+#include "inl/v_video.inl"
 #define V_VIDEO_BITS 16
-#include "inl/V_Video.inl"
+#include "inl/v_video.inl"
 #define V_VIDEO_BITS 32
-#include "inl/V_Video.inl"
+#include "inl/v_video.inl"
 
 //---------------------------------------------------------------------------
 // Function pointers for normal access to any of the bit-depth versions
