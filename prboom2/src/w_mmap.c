@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_mmap.c,v 1.3 2001/07/13 23:05:32 proff_fs Exp $
+ * $Id: w_mmap.c,v 1.4 2001/07/22 10:04:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_mmap.c,v 1.3 2001/07/13 23:05:32 proff_fs Exp $";
+rcsid[] = "$Id: w_mmap.c,v 1.4 2001/07/22 10:04:50 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -56,6 +56,11 @@ rcsid[] = "$Id: w_mmap.c,v 1.3 2001/07/13 23:05:32 proff_fs Exp $";
 #include "z_zone.h"
 #include "lprintf.h"
 
+#ifdef HEAPDUMP
+void W_PrintLump(FILE* fp, void* p) {
+}
+#endif
+
 #ifdef _WIN32
 typedef struct {
   HANDLE hnd;
@@ -65,11 +70,6 @@ typedef struct {
 } mmap_info_t;
 
 mmap_info_t *mapped_wad;
-
-#ifdef HEAPDUMP
-void W_PrintLump(FILE* fp, void* p) {
-}
-#endif
 
 void W_DoneCache(void)
 {
