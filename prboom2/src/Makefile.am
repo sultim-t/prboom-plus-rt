@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.8 2000/05/21 03:18:17 jessh Exp $
+# $Id: Makefile.am,v 1.9 2000/05/21 04:07:39 jessh Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -16,7 +16,7 @@ EXTRA_PROGRAMS = xprboom prboom prboom-game-server
 games_PROGRAMS = @BUILD_XPRBOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
 
 if I386_ASM
-ASMS = drawspan.s drawcol.s drawasm.h
+ASMS = drawspan.S drawcol.S drawasm.h
 else
 ASMS = 
 endif

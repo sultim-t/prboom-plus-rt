@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- Assembler -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: drawspan.s,v 1.1 2000/05/04 08:01:19 proff_fs Exp $
+// $Id: drawspan.S,v 1.1 2000/05/21 04:07:39 jessh Exp $
 //
 //  LxDoom, a Doom port for Linux/Unix
 //  based on BOOM, a modified and improved DOOM engine
@@ -239,12 +239,15 @@ R_DrawSpan:
  ret
 
 //----------------------------------------------------------------------------
-// $Id: drawspan.s,v 1.1 2000/05/04 08:01:19 proff_fs Exp $
+// $Id: drawspan.S,v 1.1 2000/05/21 04:07:39 jessh Exp $
 //----------------------------------------------------------------------------
 //
-// $Log: drawspan.s,v $
-// Revision 1.1  2000/05/04 08:01:19  proff_fs
-// Initial revision
+// $Log: drawspan.S,v $
+// Revision 1.1  2000/05/21 04:07:39  jessh
+// Fixed assembly linking _ problem (i could have sworn i already commited this)
+//
+// Revision 1.1.1.1  2000/05/04 08:01:19  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.5  2000/05/01 17:50:33  Proff
 // made changes to compile with VisualC and SDL
