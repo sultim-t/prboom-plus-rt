@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.3 2001/07/11 18:12:36 proff_fs Exp $
+ * $Id: g_bind.c,v 1.4 2001/07/22 10:07:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.3 2001/07/11 18:12:36 proff_fs Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.4 2001/07/22 10:07:57 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -98,7 +98,7 @@ int action_toggleweapon;  // toggle to next-favored weapon
 
 typedef struct keyaction_s
 {
-  char *name;        // text description
+  const char *name;     /* text description - cphipps: const char * */
   enum
     {
       at_variable,
@@ -162,7 +162,7 @@ static keyaction_t *cons_keyactions = NULL;
 
 typedef struct
 {
-  char *name;
+  const char *name;
   boolean keydown;
   keyaction_t *binding;
 } doomkey_t;
@@ -274,7 +274,7 @@ void G_InitKeyBindings()
 // Obtain a keyaction from its name
 //
 
-static keyaction_t *G_KeyActionForName(char *name)
+static keyaction_t *G_KeyActionForName(const char *name)
 {
   int i;
   keyaction_t *prev, *temp, *newaction;
@@ -334,7 +334,7 @@ static keyaction_t *G_KeyActionForName(char *name)
 //
 // Obtain a keyaction from its name
 //
-static int G_KeyForName(char *name)
+static int G_KeyForName(const char *name)
 {
   int i;
 
@@ -349,7 +349,7 @@ static int G_KeyForName(char *name)
 // G_BindKeyToAction
 //
 
-static void G_BindKeyToAction(char *key_name, char *action_name)
+static void G_BindKeyToAction(const char *key_name, const char *action_name)
 {
   int key;
   keyaction_t *action;
@@ -382,7 +382,7 @@ static void G_BindKeyToAction(char *key_name, char *action_name)
 //
 // Get an ascii description of the keys bound to a particular action
 //
-char *G_BoundKeys(char *action)
+const char *G_BoundKeys(char *action)
 {
   int i;
   static char ret[NUM_KEYS];   // store list of keys bound to this

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.2 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: c_runcmd.c,v 1.3 2001/07/22 10:07:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.2 2001/07/09 14:21:52 proff_fs Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.3 2001/07/22 10:07:57 cph Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,11 +64,11 @@ command_t *c_netcmds[20];
 int cmdsrc = 0;           // the source of a network console command
 #define CN_BROADCAST 128
 
-void MN_ErrorMsg(char *s)
+void MN_ErrorMsg(const char *s)
 {
 }
 
-void C_SendCmd(int dest, int cmdnum, char *s,...)
+void C_SendCmd(int dest, int cmdnum, const char *s,...)
 {
 }
 
@@ -97,9 +97,9 @@ int c_argc;                               // number of arguments
 char c_args[128];                         // raw list of arguments
 
         // break up the command into tokens
-static void C_GetTokens(char *command)
+static void C_GetTokens(const char *command)
 {
-  char *rover;
+  const char *rover;
   boolean quotemark=0;
 
   rover = command;
@@ -146,7 +146,7 @@ static void C_GetTokens(char *command)
 // into individual commands (multiple commands on one
 // line are allowed with the ';' character)
 
-static void C_RunIndivTextCmd(char *cmdname)
+static void C_RunIndivTextCmd(const char *cmdname)
 {
   command_t *command;
   alias_t *alias;
@@ -183,7 +183,7 @@ static void C_RunIndivTextCmd(char *cmdname)
 
 static boolean C_CheckFlags(command_t *command)
 {
-  char *errormsg;
+  const char *errormsg;
   
   // check the flags
   errormsg = NULL;
@@ -217,7 +217,7 @@ static boolean C_CheckFlags(command_t *command)
 // call with the command to run and the command-line options.
 // buffers the commands which will be run later.
 
-void C_RunCommand(command_t *command, char *options)
+void C_RunCommand(command_t *command, const char *options)
 {
   // do not run straight away, we might be in the middle of rendering
   C_BufferCommand(cmdtype, command, options, cmdsrc);
@@ -355,11 +355,11 @@ static int C_Sync(command_t *command)
 
 // execute a compound command (with or without ;'s)
 
-void C_RunTextCmd(char *command)
+void C_RunTextCmd(const char *command)
 {
   boolean quotemark=0;  // for " quote marks
   char *sub_command = NULL;
-  char *rover;
+  const char *rover;
 
   for(rover=command; *rover; rover++)
     {
@@ -398,7 +398,7 @@ void C_RunTextCmd(char *command)
 
 // get the literal value of a variable (ie. "1" not "on")
 
-char *C_VariableValue(variable_t *variable)
+const char *C_VariableValue(variable_t *variable)
 {
   static char value[128];
   
@@ -425,7 +425,7 @@ char *C_VariableValue(variable_t *variable)
 
 // get the string value (ie. "on" not "1")
 
-char *C_VariableStringValue(variable_t *variable)
+const char *C_VariableStringValue(variable_t *variable)
 {
   static char value[128];
 
@@ -515,7 +515,7 @@ static void C_SetVariable(command_t *command)
 {
   variable_t* variable;
   int size = 0;
-  char *errormsg;
+  const char *errormsg;
   char *temp;
   
   // cut off the leading spaces
@@ -722,10 +722,10 @@ char *C_PrevTab(char *key)
 
 // fixed length array arrgh!
 alias_t aliases[128];
-char *cmdoptions;       // command line options for aliases
+const char *cmdoptions;       // command line options for aliases
 
         // get an alias from a name
-alias_t *C_GetAlias(char *name)
+alias_t *C_GetAlias(const char *name)
 {
   alias_t *alias = aliases;
 
@@ -745,7 +745,7 @@ alias_t *C_GetAlias(char *name)
 
 // create a new alias, or use one that already exists
 
-alias_t *C_NewAlias(unsigned char *aliasname, unsigned char *command)
+alias_t *C_NewAlias(const char *aliasname, const char *command)
 {
   alias_t *alias;
 
@@ -770,7 +770,7 @@ alias_t *C_NewAlias(unsigned char *aliasname, unsigned char *command)
 
 // remove an alias
 
-void C_RemoveAlias(unsigned char *aliasname)
+void C_RemoveAlias(const char *aliasname)
 {
   alias_t *alias;
 
@@ -847,7 +847,7 @@ void C_RunBufferedCommand(bufferedcmd *bufcmd)
   C_DoRunCommand(bufcmd->command, bufcmd->options);
 }
 
-void C_BufferCommand(int cmtype, command_t *command, char *options,
+void C_BufferCommand(int cmtype, command_t *command, const char *options,
                         int cmdsrc)
 {
   bufferedcmd *bufcmd;

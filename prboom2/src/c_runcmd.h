@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.h,v 1.2 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: c_runcmd.h,v 1.3 2001/07/22 10:07:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -198,7 +198,7 @@ struct variable_s
 
 struct command_s
 {
-  char *name;
+  const char *name;
   int type;               // ct_?? command type
   int flags;              // cf_??
   variable_t *variable;
@@ -223,11 +223,11 @@ extern char c_argv[MAXTOKENS][MAXTOKENLENGTH];
 extern int c_argc;
 extern char c_args[128];
 
-void C_RunCommand(command_t *command, char *options);
-void C_RunTextCmd(char *cmdname);
+void C_RunCommand(command_t *command, const char *options);
+void C_RunTextCmd(const char *cmdname);
 
-char *C_VariableValue(variable_t *command);
-char *C_VariableStringValue(variable_t *command);
+const char *C_VariableValue(variable_t *command);
+const char *C_VariableStringValue(variable_t *command);
 
 // haleyjd: the SMMU v3.30 script-running functions
 // (with my fixes :P)
@@ -244,17 +244,17 @@ char *C_PrevTab(char *key);
 /**** aliases ****/
 
 extern alias_t aliases[128];
-extern char *cmdoptions;
+extern const char *cmdoptions;
 
 void C_Alias();
-alias_t *C_NewAlias(unsigned char *aliasname, unsigned char *command);
-void C_RemoveAlias(unsigned char *aliasname);
-alias_t *C_GetAlias(char *name);
+alias_t *C_NewAlias(const char *aliasname, const char *command);
+void C_RemoveAlias(const char *aliasname);
+alias_t *C_GetAlias(const char *name);
 
 /**** command buffers ****/
 
 void C_BufferCommand(int cmdtype, command_t *command,
-                     char *options, int cmdsrc);
+                     const char *options, int cmdsrc);
 void C_RunBuffers();
 void C_RunBuffer(int cmtype);
 void C_BufferDelay(int, int);
@@ -281,7 +281,7 @@ extern char *skills[];
 
 #define CN_BROADCAST 128
 
-void C_SendCmd(int dest, int, char *s,...);
+void C_SendCmd(int dest, int, const char *s,...);
 
 /* proff - end of dummys */
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_cmd.c,v 1.1 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: c_cmd.c,v 1.2 2001/07/22 10:07:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -42,8 +42,6 @@
 //#include "c_net.h"
 
 #include "m_random.h"
-
-extern char *cmdoptions;
 
                 /************* aliases ***************/
 CONSOLE_COMMAND(alias, 0)

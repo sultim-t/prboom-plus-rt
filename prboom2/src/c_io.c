@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.3 2001/07/16 15:05:16 proff_fs Exp $
+ * $Id: c_io.c,v 1.4 2001/07/22 10:07:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,8 +38,9 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.3 2001/07/16 15:05:16 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.4 2001/07/22 10:07:57 cph Exp $";
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -82,7 +83,7 @@ static unsigned char history[HISTORY][LINELENGTH];
 static int history_last=0;
 static int history_current=0;
 
-char *inputprompt = FC_GRAY "$" FC_RED;
+const char *inputprompt = FC_GRAY "$" FC_RED;
 int c_height=100;     // the height of the console
 int c_speed=10;       // pixels/tic it moves
 int current_target = 0;
@@ -110,7 +111,7 @@ int console_enabled = true;
 
 static void C_InitBackdrop()
 {
-  char *lumpname;
+  const char *lumpname;
   byte *oldscreen;
   
   // replace this with the new SMMU graphic soon i hope..
@@ -207,8 +208,8 @@ void C_Ticker()
 
 static void C_AddToHistory(char *s)
 {
-  char *t;
-  char *a_prompt;
+  const char *t;
+  const char *a_prompt;
   
   // display the command in console
   a_prompt = inputprompt;
@@ -451,7 +452,7 @@ void C_Drawer()
   
   if(current_height > 8 && c_showprompt && message_pos == message_last)
   {
-    char *a_prompt;
+    const char *a_prompt;
     unsigned char tempstr[LINELENGTH];
       
     // if we are scrolled back, dont draw the input line
@@ -574,51 +575,44 @@ static void C_AdjustLineBreaks(char *str)
    }
 }
 
-// write some text 'printf' style to the console
-// the main function for I/O
+/* C_Printf -
+ * write some text 'printf' style to the console
+ * the main function for I/O
+ * cph 2001/07/22 - remove arbitrary limit, use malloc'd buffer instead
+ *  and make format string parameter const char*
+ */
 
-void C_Printf(unsigned char *s, ...)
+void C_Printf(const char *s, ...)
 {
   va_list args;
-  unsigned char *c, tempstr[10240];   // 10k should be enough i hope
+  char *c, *t;
   
   // haleyjd: sanity check
   if(!s) return;
   
   // difficult to remove limit
   va_start(args, s);
-  vsprintf(tempstr, s, args);
+  vasprintf(&t, s, args);
   va_end(args);
 
-  C_AdjustLineBreaks(tempstr); // haleyjd
+  C_AdjustLineBreaks(t); // haleyjd
 
-  for(c = tempstr; *c; c++)
+  for(c = t; *c; c++)
     C_AddChar(*c);
+  (free)(t);
 }
 
 // write a line of text to the console
 // kind of redundant now, #defined as c_puts also
 
-void C_WriteText(unsigned char *s, ...)
+void C_Puts(const char *s)
 {
-  va_list args;
-  unsigned char tempstr[500];
-
-  // haleyjd: sanity check
-  if(!s) return;
-
-  va_start(args, s);  
-  vsprintf(tempstr, s, args);
-  va_end(args);
-
-  C_AdjustLineBreaks(tempstr); // haleyjd
-
-  C_Printf("%s\n", tempstr);
+  C_Printf("%s\n", s);
 }
 
 void C_Seperator()
 {
-  C_Printf("{|||||||||||||||||||||||||||||}\n");
+  C_Puts("{|||||||||||||||||||||||||||||}\n");
 }
 
 ///////////////////////////////////////////////////////////////////

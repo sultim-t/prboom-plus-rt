@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.h,v 1.1 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: c_io.h,v 1.2 2001/07/22 10:07:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,9 +45,9 @@ void C_Drawer();
 int C_Responder(event_t* ev);
 void C_Update();
 
-void C_Printf(unsigned char *s, ...);
-void C_WriteText(unsigned char *s, ...);
-#define C_Puts C_WriteText     /*** basically the same **/
+void C_Puts(const char *s);
+void C_Printf(const char *s, ...);
+
 void C_Seperator();
 
 void C_SetConsole();
