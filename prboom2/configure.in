@@ -135,7 +135,7 @@ enable_gl="no"
 AM_CONDITIONAL(BUILD_GL,test "$enable_gl" = "yes")
 
 dnl - SDL
-AM_PATH_SDL(1.0.1, BUILD_SDLDOOM=prboom, BUILD_SDLDOOM=)
+AM_PATH_SDL(1.1.4, BUILD_SDLDOOM=prboom, BUILD_SDLDOOM=)
 AC_CHECK_LIB(smpeg,SMPEG_playAudio,[
     MIXER_LIBS=-lsmpeg
 ],,$SDL_LIBS)
