@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.8 2003/02/15 17:23:40 dukope Exp $
+ * $Id: mn_menus.c,v 1.9 2003/07/11 21:14:33 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,10 +22,10 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION:  
+ * DESCRIPTION:
  * Menus
  *
  * the actual menus: structs and handler functions (if any)
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.8 2003/02/15 17:23:40 dukope Exp $";
+  "$Id: mn_menus.c,v 1.9 2003/07/11 21:14:33 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -116,7 +116,7 @@ menu_t menu_main =
 {
   {
     // 'doom' title drawn by the drawer
-    
+
     {it_runcmd, "new game",             "mn_newgame",            "M_NGAME"},
     {it_runcmd, "options",              "mn_options",            "M_OPTION"},
     {it_runcmd, "load game",            "mn_loadgame",           "M_LOADG"},
@@ -161,7 +161,7 @@ CONSOLE_COMMAND(mn_newgame, 0)
 	  if(use_startmap == -1)              // not asked yet
 	    MN_StartMenu(&menu_startmap);
 	  else
-            {        // use start map 
+            {        // use start map
 	      G_DeferedInitNew(defaultskill, "START");
 	      MN_ClearMenus ();
             }
@@ -203,7 +203,7 @@ CONSOLE_COMMAND(mn_quit, 0)
   sprintf(quitmsg, "%s\n\n%s",
           strcmp(s_QUITMSG, "") ? s_QUITMSG : endmsg[quitmsgnum],
 	  s_DOSY);
-  
+
   MN_Question(quitmsg, "quit");
 
 }
@@ -279,9 +279,9 @@ menu_t menu_newgame =
 CONSOLE_COMMAND(newgame, cf_notnet)
 {
   int skill = gameskill;
-  
+
   // skill level is argv 0
-  
+
   if(c_argc) skill = atoi(c_argv[0]);
 
   if(gamemode == commercial || modifiedgame)
@@ -321,7 +321,7 @@ menu_t menu_startmap =
   },
   40, 15,               // x,y offsets
   7,                    // starting item: start map
-  mf_leftaligned | mf_background, 
+  mf_leftaligned | mf_background,
 };
 
 /*
@@ -370,7 +370,7 @@ CONSOLE_COMMAND(mn_features, 0)
 // also access to camera angles
 //
 
-menu_t menu_demos = 
+menu_t menu_demos =
 {
   {
     {it_title,      FC_GOLD "demos",          NULL,             "m_demos"},
@@ -423,7 +423,7 @@ menu_t menu_loadwad =
   },
   150, 40,                     // x,y offsets
   3,                          // starting item
-  mf_background               // full screen 
+  mf_background               // full screen
 };
 
 VARIABLE_STRING(mn_wadname,     NULL,           15);
@@ -478,7 +478,7 @@ CONSOLE_COMMAND(mn_multi, 0)
 {
   MN_StartMenu(&menu_multiplayer);
 }
-  
+
 /////////////////////////////////////////////////////////////////
 //
 // Multiplayer Game settings
@@ -573,7 +573,7 @@ CONSOLE_COMMAND(mn_startgame, 0)
     "nullmodem",            // cn_serial_connect
     "connect",              // udp connect
   };
-  
+
   cmdtype = c_menu;
   C_RunTextCmd(console_cmds[connect_type]);
 }
@@ -738,14 +738,14 @@ void MN_PlayerDrawer()
   int lump;
   spritedef_t *sprdef;
   spriteframe_t *sprframe;
-  
+
   //V_DrawBox(SPRITEBOX_X, SPRITEBOX_Y, 80, 80);
-  
+
   sprdef = &sprites[players[consoleplayer].mo->sprite];
-  
+
   sprframe = &sprdef->spriteframes[0];
   lump = sprframe->lump[1];
-  
+
   V_DrawNumPatch (
     SPRITEBOX_X + 40,
     SPRITEBOX_Y + 70,
@@ -799,7 +799,7 @@ void MN_CreateSaveCmds()
       command_t *save_command;
       variable_t *save_variable;
       char tempstr[10];
-      
+
       // create the variable first
       save_variable = Z_Malloc(sizeof(*save_variable), PU_STATIC, 0); // haleyjd
       save_variable->variable = &savegamenames[i];
@@ -853,7 +853,7 @@ void MN_ReadSaveStrings(void)
 	{   // Ty 03/27/98 - externalized:
           // haleyjd
           if(savegamenames[i]) Z_Free(savegamenames[i]);
-          savegamenames[i] = Z_Strdup("empty slot", PU_STATIC, 0);
+          savegamenames[i] = Z_Strdup(empty_slot, PU_STATIC, 0);
 	  continue;
 	}
 
@@ -922,7 +922,7 @@ void MN_LoadGameDrawer()
     {
       MN_DrawLoadBox(45, y);
     }
-  
+
   // this is lame
   for(i=0, y=2; i<SAVESLOTS; i++, y+=2)  // haleyjd
     {
@@ -953,6 +953,12 @@ CONSOLE_COMMAND(mn_load, 0)
 
   if(savegamenames[slot] == empty_slot) return;     // empty slot
 
+  if(slot<0 || slot >= SAVESLOTS )
+    return;
+
+  if(strcmp( savegamenames[slot], empty_slot ) == 0)
+    return;     // empty slot
+
   G_SaveGameName(name,sizeof(name),slot,false);
   G_LoadGame(slot, false);
 
@@ -976,7 +982,7 @@ void MN_SaveGameDrawer()
     }
 }
 
-menu_t menu_savegame = 
+menu_t menu_savegame =
 {
   {
     {it_title,  FC_GOLD "save game",           NULL,              "M_SGTTL"},
@@ -1060,7 +1066,7 @@ CONSOLE_COMMAND(mn_endgame, 0)
 {
   if(gamestate == GS_DEMOSCREEN) return;
   if(cmdtype != c_menu && menuactive) return;
-  
+
   MN_Question(s_ENDGAME, "starttitle");
 }
 
@@ -1082,20 +1088,20 @@ menu_t menu_video =
     {it_toggle,       "wait for retrace",             "v_retrace"},
     {it_runcmd,       "test framerate..",             "timedemo demo2; mn_clearmenus"},
     {it_slider,       "gamma correction",             "gamma"},
-    
+
     {it_gap},
     {it_info,         FC_GOLD "rendering"},
     {it_slider,       "screen size",                  "screensize"},
     {it_toggle,       "hom detector flashes",         "r_homflash"},
     {it_toggle,       "translucency",                 "r_trans"},
     {it_variable,     "translucency percentage",      "r_tranpct"},
-    
+
     {it_gap},
     {it_info,         FC_GOLD "misc."},
     {it_toggle,       "\"loading\" disk icon",        "v_diskicon"},
     {it_toggle,       "screenshot format",            "shot_type"},
     {it_toggle,       "text mode startup",            "textmode_startup"},
-    
+
     {it_end},
   },
   200, 15,              // x,y offset
@@ -1111,7 +1117,7 @@ void MN_VideoModeDrawer()
   spriteframe_t *sprframe;
 
   // draw an imp fireball
-  
+
   sprdef = &sprites[states[S_TBALL1].sprite];
   sprframe = &sprdef->spriteframes[0];
   lump = sprframe->lump[0];
@@ -1157,15 +1163,15 @@ void MN_VidModeDrawer()
 CONSOLE_COMMAND(mn_vidmode, 0)
 {
   static boolean menu_built = false;
-  
+
   // dont build multiple times
   if(!menu_built)
     {
       int menuitem;//, vidmode;
       //char tempstr[20];
-      
+
       // start on item 6
-      
+
 /*
       for(menuitem=6, vidmode=0; videomodes[vidmode].description;
 	  menuitem++, vidmode++)
@@ -1351,7 +1357,7 @@ CONSOLE_COMMAND(mn_status, 0)
 // Automap colours
 //
 
-menu_t menu_automap = 
+menu_t menu_automap =
 {
   {
     {it_title,    FC_GOLD,                        NULL,         "m_auto"},
@@ -1438,18 +1444,18 @@ menu_t menu_compat =
     {it_title,      FC_GOLD "compatibility",        NULL,        "m_compat"},
     {it_gap},
     //{it_toggle,   "use start map",                          "use_startmap"},
-    
+
     {it_toggle,   "some objects don't hang over cliffs",    "comp_dropoff"},
     {it_toggle,   "torque simulation disabled",             "comp_falloff"},
-    
+
     {it_toggle,   "god mode isn't absolute",                "comp_god"},
     {it_toggle,   "power-up cheats have limited duration",  "comp_infcheat"},
-    
+
     {it_toggle,   "sky unaffected by invulnerability",      "comp_skymap"},
-    
+
     {it_toggle,   "blazing doors, double closing sound",    "comp_blazing"},
     {it_toggle,   "tagged door lighting effect off",        "comp_doorlight"},
-    
+
     {it_toggle,   "pain elemental 20 lost soul limit",      "comp_pain"},
     {it_toggle,   "lost souls get stuck behind walls",      "comp_skull"},
     {it_toggle,   "monsters walk off lifts",                "comp_staylift"},
@@ -1457,7 +1463,7 @@ menu_t menu_compat =
     {it_toggle,   "monsters don't give up pursuit",         "comp_pursuit"},
     {it_toggle,   "any monster can telefrag on map30",      "comp_telefrag"},
     {it_toggle,   "arch-vile resurrects invincible ghosts", "comp_vile"},
-    
+
     {it_toggle,   "zombie players can exit levels",         "comp_zombie"},
     {it_toggle,   "use doom's stairbuilding method",        "comp_stairs"},
     {it_toggle,   "use doom's floor motion behaviour",      "comp_floors"},
@@ -1545,7 +1551,7 @@ int framerates[] = {2462, 1870, 2460, 698, 489};
 int this_framerate;
 void MN_FrameRateDrawer();
 
-menu_t menu_framerate = 
+menu_t menu_framerate =
 {
   {
     {it_title,    FC_GOLD "framerate"},
@@ -1572,17 +1578,17 @@ void MN_FrameRateDrawer()
   int scrwidth = 320;
   int linelength;
   char tempstr[50];
-  
+
   // fast computers framerate is always 3/4 of screen
 
   sprintf(tempstr, "your computer: %i.%i fps",
 	  this_framerate/10, this_framerate%10);
   V_WriteText(tempstr, 50, 80, -1);
-  
+
   y = 93;
   linelength = (3 * scrwidth * this_framerate) / (4 * framerates[0]);
   if(linelength > scrwidth) linelength = scrwidth-2;
- 
+
   sprintf(tempstr, "fast computer (k6-2 450): %i.%i fps",
 	  framerates[0]/10, framerates[0]%10);
   V_WriteText(tempstr, 50, 110, -1);
@@ -1719,13 +1725,13 @@ void MN_AddMenus()
   C_AddCommand(mn_loadgame);
   C_AddCommand(mn_load);
   C_AddCommand(mn_savegame);
-  
+
   C_AddCommand(mn_features);
   C_AddCommand(mn_loadwad);
   C_AddCommand(mn_wadname);
   C_AddCommand(mn_demos);
   C_AddCommand(mn_demoname);
-  
+
   C_AddCommand(mn_multi);
   C_AddCommand(mn_serial);
   C_AddCommand(mn_phonenum);
@@ -1733,14 +1739,14 @@ void MN_AddMenus()
   C_AddCommand(mn_chatmacros);
   C_AddCommand(mn_player);
   C_AddCommand(mn_advanced);
-  
+
   // different connect types
   C_AddCommand(mn_ser_answer);
   C_AddCommand(mn_ser_connect);
   C_AddCommand(mn_udpserv);
   C_AddCommand(mn_startgame);
   C_AddCommand(mn_multigame);
-  
+
   C_AddCommand(mn_options);
   C_AddCommand(mn_mouse);
   C_AddCommand(mn_video);
