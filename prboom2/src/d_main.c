@@ -964,6 +964,8 @@ void IdentifyVersion(void)
     free(iwad);
 #endif
     prwad = I_FindFile("prboom.wad", ".wad");
+	if (!prwad)
+		I_Error("IdentifyVersion: prboom.wad not found\n");
     D_AddFile(prwad, source_pwad);
     free(prwad);
   }
