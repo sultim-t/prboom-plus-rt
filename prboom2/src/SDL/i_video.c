@@ -721,6 +721,7 @@ void I_UpdateVideoMode(void)
   unsigned int w, h;
   int init_flags;
   int temp;
+  static int dyngl_loaded = false;
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
@@ -730,11 +731,12 @@ void I_UpdateVideoMode(void)
 		  gld_CleanMemory();
 #endif
 
-  if (r_rendermode == VID_MODEGL) {
+  if (r_rendermode == VID_MODEGL && !dyngl_loaded) {
     if (DynGL_LoadLibrary(gl_library_str) == SDL_FALSE) {
       doom_printf("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
       r_rendermode = VID_MODE8;
     }
+    dyngl_loaded = true;
   }
   V_InitMode(r_rendermode);
   V_DestroyUnusedTrueColorPalettes();
