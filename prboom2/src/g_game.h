@@ -90,7 +90,6 @@ void G_RestartLevel(void); // CPhipps - menu involked level restart
 void G_DoLoadGame(void);
 void G_DoVictory(void);
 void G_BuildTiccmd (ticcmd_t* cmd); // CPhipps - move decl to header
-void G_ChangedPlayerColour(int pn, int cl); // CPhipps - On-the-fly player colour changing
 void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 
 // killough 1/18/98: Doom-style printf;   killough 4/25/98: add gcc attributes

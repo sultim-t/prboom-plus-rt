@@ -1343,15 +1343,6 @@ void G_Ticker (void)
   int i;
   static gamestate_t prevgamestate;
 
-  // CPhipps - player colour changing
-  if (!demoplayback && mapcolor_plyr[consoleplayer] != mapcolor_me) {
-    // Changed my multiplayer colour - Inform the whole game
-    int net_cl = LONG(mapcolor_me);
-#ifdef HAVE_NET
-    D_NetSendMisc(nm_plcolour, sizeof(net_cl), &net_cl);
-#endif
-    G_ChangedPlayerColour(consoleplayer, mapcolor_me);
-  }
   // do player reborns if needed
   for (i=0 ; i<MAXPLAYERS ; i++)
     if (playeringame[i] && players[i].playerstate == PST_REBORN)
@@ -1550,26 +1541,6 @@ void G_Ticker (void)
 // PLAYER STRUCTURE FUNCTIONS
 // also see P_SpawnPlayer in P_Things
 //
-
-// CPhipps - G_SetPlayerColour
-// Player colours stuff
-//
-// G_SetPlayerColour
-
-void G_ChangedPlayerColour(int pn, int cl)
-{
-  int i;
-
-  // Rebuild colour translation tables accordingly
-  R_InitTranslationTables();
-  // Change translations on existing player mobj's
-  for (i=0; i<MAXPLAYERS; i++) {
-    if ((gamestate == GS_LEVEL) && playeringame[i] && (players[i].mo != NULL)) {
-      players[i].colormap = cl;
-      players[i].mo->colour = cl;
-    }
-  }
-}
 
 //
 // G_PlayerReborn

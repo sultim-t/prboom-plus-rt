@@ -119,7 +119,6 @@ typedef struct
 
 typedef enum {
   // Leave space, so low values corresponding to normal netgame setup packets can be ignored
-  nm_plcolour = 3, 
   nm_savegamename = 4,
 } netmisctype_t;
 

@@ -398,9 +398,6 @@ static void CheckQueuedPackets(void)
 	  int *p = (int*)(queuedpacket[i]+1);
 	  size_t len = LONG(*(p+2));
 	  switch (LONG(*p)) {
-	  case nm_plcolour:
-	    G_ChangedPlayerColour(LONG(*(p+1)), LONG(*(p+3)));
-	    break;
 	  case nm_savegamename:
 	    if (len < SAVEDESCLEN) {
 	      memcpy(savedescription, p+3, len);
