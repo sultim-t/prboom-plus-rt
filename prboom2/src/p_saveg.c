@@ -927,7 +927,6 @@ void P_UnArchiveRNG(void)
 }
 
 // killough 2/22/98: Save/restore automap state
-// killough 2/22/98: Save/restore automap state
 void P_ArchiveMap(void)
 {
   int zero = 0, one = 1;

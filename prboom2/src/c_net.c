@@ -250,7 +250,7 @@ void C_SendNetData()
   
   if(consoleplayer == 0)      // if server, send command to warp to map
     {
-      //C_RunTextCmdf("map %s", startlevel);
+      C_RunTextCmdf("map %s", startlevel);
     }
 
   //  G_InitNew(gameskill, "map01");

@@ -78,6 +78,7 @@ typedef struct
   int     tics;
   fixed_t sx;
   fixed_t sy;
+  int trans;
 } pspdef_t;
 
 extern int weapon_preferences[2][NUMWEAPONS+1];      /* killough 5/2/98 */

@@ -69,6 +69,7 @@ fixed_t pspriteyscale;
 
 short negonearray[MAX_SCREENWIDTH];        // killough 2/8/98:
 short screenheightarray[MAX_SCREENWIDTH];  // change to MAX_*
+int lefthanded=0;
 
 //
 // INITIALIZATION FUNCTIONS

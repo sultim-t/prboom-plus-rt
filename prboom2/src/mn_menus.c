@@ -148,7 +148,6 @@ CONSOLE_COMMAND(mn_newgame, 0)
   if(gamemode == commercial)
   {
       // dont use new game menu if not needed
-/*
     if(!modifiedgame && gamemode == commercial
 	     && W_CheckNumForName("START") >= 0
 	     && use_startmap)
@@ -162,7 +161,6 @@ CONSOLE_COMMAND(mn_newgame, 0)
       }
     }
     else
-*/
 	  {
   	  MN_StartMenu(&menu_newgame);
 	    menu_newgame.selected = 4 + defaultskill-1;
@@ -278,15 +276,13 @@ CONSOLE_COMMAND(newgame, cf_notnet)
 
   if(c_argc) skill = atoi(c_argv[0]);
 
-  //if(gamemode == commercial || modifiedgame)
+  if(gamemode == commercial || modifiedgame)
     {
-/*
       // start on newest level from wad
       G_DeferedInitNew(skill, firstlevel);
     }
   else
     {
-*/
       // start on first level of selected episode
       G_DeferedInitNewNum(skill, start_episode, 1);
     }
@@ -318,11 +314,8 @@ menu_t menu_startmap =
   mf_leftaligned | mf_background,
 };
 
-/*
 char *str_startmap[] = {"ask", "no", "yes"};
-VARIABLE_INT(use_startmap, NULL, -1, 1, str_startmap);
-CONSOLE_VARIABLE(use_startmap, use_startmap, 0) {}
-*/
+CONSOLE_INT(use_startmap, use_startmap, NULL, -1, 1, str_startmap, 0) {}
 
 /////////////////////////////////////////////////////
 //
@@ -523,9 +516,7 @@ menu_t menu_multigame =
 };
 
         // level to start on
-/*
-VARIABLE_STRING(startlevel,    NULL,   8);
-CONSOLE_VARIABLE(startlevel, startlevel, cf_handlerset)
+CONSOLE_STRING(startlevel, startlevel, NULL, 8, cf_handlerset|cf_nosave)
 {
   char *newvalue = c_argv[0];
 
@@ -538,7 +529,6 @@ CONSOLE_VARIABLE(startlevel, startlevel, cf_handlerset)
       startlevel = Z_Strdup(newvalue, PU_STATIC, 0);
     }
 }
-*/
 
 CONSOLE_COMMAND(mn_multigame, 0)            // just setting options from menu
 {
@@ -1704,7 +1694,7 @@ void MN_AddMenus()
   C_AddCommand(mn_newgame);
   C_AddCommand(mn_episode);
 //  C_AddCommand(startlevel);
-//  C_AddCommand(use_startmap);
+  C_AddCommand(use_startmap);
 
   C_AddCommand(mn_loadgame);
   C_AddCommand(mn_load);

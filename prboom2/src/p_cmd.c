@@ -204,7 +204,7 @@ CONSOLE_NETVAR(mon_distfriend, distfriend, cf_server, netcmd_mondistfriend) {}
 
 void P_Chase_AddCommands();            // p_chase.c
 //void P_Skin_AddCommands();             // p_skin.c
-//void P_Info_AddCommands();             // p_info.c
+void P_Info_AddCommands();             // p_info.c
 
 void P_AddCommands()
 {
@@ -238,5 +238,5 @@ void P_AddCommands()
   
   P_Chase_AddCommands();
   //P_Skin_AddCommands();
-  //P_Info_AddCommands();
+  P_Info_AddCommands();
 }

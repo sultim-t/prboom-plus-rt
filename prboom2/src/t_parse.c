@@ -41,7 +41,6 @@
 #include "c_io.h"
 #include "doomtype.h"
 #include "s_sound.h"
-#include "sounds.h"
 #include "w_wad.h"
 #include "z_zone.h"
 

@@ -45,6 +45,7 @@
 #include "p_enemy.h"
 #include "p_tick.h"
 #include "m_bbox.h"
+#include "t_script.h"
 #include "lprintf.h"
 
 static mobj_t *current_actor;
@@ -2554,6 +2555,17 @@ void A_LineEffect(mobj_t *mo)
     P_CrossSpecialLine(&junk, 0, mo);
   mo->state->misc1 = junk.special;
   mo->player = oldplayer;
+}
+
+// sf: Trigger running script
+
+void A_RunScript(mobj_t *mo)
+{
+  t_trigger = mo;
+
+  // script num is held in mo->state->misc1
+
+  T_RunThingScript(mo->state->misc1);
 }
 
 /***** Start of new functions for Andy Baker's stealth monsters ******/

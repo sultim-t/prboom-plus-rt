@@ -53,7 +53,7 @@
 #include "p_mobj.h"
 #include "p_tick.h"
 #include "p_spec.h"
-//#include "p_hubs.h"
+#include "p_hubs.h"
 #include "p_inter.h"
 #include "r_data.h"
 #include "r_main.h"
@@ -1120,8 +1120,8 @@ void SF_ChangeHubLevel()
   else
     tagnum = -1;
 
-  // P_SavePlayerPosition(current_script->trigger->player, tagnum); FIXME
-  // P_ChangeHubLevel(t_argv[0].value.s); FIXME
+  P_SavePlayerPosition(current_script->trigger->player, tagnum);
+  P_ChangeHubLevel(t_argv[0].value.s);
 }
 
 // for start map: start new game on a particular skill
@@ -1137,7 +1137,7 @@ void SF_StartSkill()
 
   skill = intvalue(t_argv[0]) - 1;
 
-  //G_DeferedInitNew(skill, firstlevel);
+  G_DeferedInitNew(skill, firstlevel);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1245,7 +1245,7 @@ void SF_ChangeMusic()
   if(t_argv[0].type != svt_string)
     { script_error("incorrect argument to function\n"); return;}
 
-  // S_ChangeMusicName(t_argv[0].value.s, 1); FIXME
+  S_ChangeMusicName(t_argv[0].value.s, 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -40,7 +40,7 @@
 #include "c_io.h"
 #include "c_net.h"
 #include "c_runcmd.h"
-//#include "p_info.h"
+#include "p_info.h"
 #include "p_mobj.h"
 #include "p_spec.h"
 #include "w_wad.h"
@@ -331,8 +331,7 @@ void T_DelayedScripts()
   runningscript_t *current, *next;
   int i;
 
-  //if(!info_scripts)
-    return;       // no level scripts
+  if(!info_scripts) return;       // no level scripts
   
   current = runningscripts.next;
   
