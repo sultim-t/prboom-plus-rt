@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.22 2002/08/09 21:53:21 cph Exp $
+ * $Id: p_setup.c,v 1.23 2002/08/22 20:32:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.22 2002/08/09 21:53:21 cph Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.23 2002/08/22 20:32:20 cph Exp $";
 
 #include <math.h>
 
@@ -669,6 +669,11 @@ static void P_LoadLineDefs2(int lump)
 	  ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 	  // cph - print a warning about the bug
 	  lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i);
+	}
+
+	if ((ld->sidenum[1] < -1) && !(ld->flags & ML_TWOSIDED)) {
+	  ld->sidenum[1] = -1;
+	  lprintf(LO_WARN, "P_LoadSegs: linedef %d has negative second sidedef number and no two-sided flag set\n",numlines-i);
 	}
       }
 
