@@ -266,6 +266,8 @@ AC_SUBST(LIB_SND)
 AC_SUBST(MATH_LIB)
 AC_SUBST(GL_LIBS)
 AC_SUBST(CFLAGS)
+dnl -- ac_aux_dir - see Makefile.am
+AC_SUBST(ac_aux_dir) 
 
 dnl --- Pass install dirs to C pre-processor
 dnl --- YUCK! but I can't see a better way to do this
