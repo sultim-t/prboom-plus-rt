@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_pspr.c,v 1.7 2002/08/08 22:42:29 cph Exp $
+ * $Id: p_pspr.c,v 1.8 2003/06/06 22:05:04 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_pspr.c,v 1.7 2002/08/08 22:42:29 cph Exp $";
+rcsid[] = "$Id: p_pspr.c,v 1.8 2003/06/06 22:05:04 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -728,7 +728,8 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp)
 
 void A_FireCGun(player_t *player, pspdef_t *psp)
 {
-  S_StartSound(player->mo, sfx_pistol);
+  if (player->ammo[weaponinfo[player->readyweapon].ammo] || comp[comp_sound])
+    S_StartSound(player->mo, sfx_pistol);
 
   if (!player->ammo[weaponinfo[player->readyweapon].ammo])
     return;
