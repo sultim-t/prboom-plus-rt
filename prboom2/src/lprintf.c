@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.10 2000/05/21 13:34:38 proff_fs Exp $
+ * $Id: lprintf.c,v 1.11 2000/05/30 19:57:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.10 2000/05/21 13:34:38 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.11 2000/05/30 19:57:32 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -230,6 +230,8 @@ int Init_ConsoleWin(void)
     HINSTANCE hInstance;
     char titlebuffer[2048];
 
+    if (con_hWnd)
+      return TRUE;
     hInstance = GetModuleHandle(NULL);
     Init_Console();
     /* Register the frame class */
@@ -279,6 +281,7 @@ int Init_ConsoleWin(void)
     ReleaseDC(con_hWnd,conDC);
     ShowWindow(con_hWnd, SW_SHOW);
     UpdateWindow(con_hWnd);
+    return TRUE;
 }
 
 void Done_ConsoleWin(void)
@@ -339,14 +342,11 @@ void I_Error(const char *error, ...)
 #endif
   va_end(argptr);
   fprintf(stderr,"%s\n",errmsg);
-/*
 #ifdef _MSC_VER
   {
-    extern void I_ShutdownSDL(void);
-    I_ShutdownSDL();
-    MessageBox(NULL,errmsg,"PrBoom",0);
+    Init_ConsoleWin();
+    MessageBox(con_hWnd,errmsg,"PrBoom",MB_OK | MB_TASKMODAL | MB_TOPMOST);
   }
 #endif
-*/
   I_SafeExit(-1);
 }
