@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: f_finale.c,v 1.4 2000/05/17 21:15:29 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
+rcsid[] = "$Id: f_finale.c,v 1.4 2000/05/17 21:15:29 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -276,7 +276,7 @@ extern patchnum_t hu_font[HU_FONTSIZE];
 
 void F_TextWrite (void)
 {
-  V_DrawBackground(finaleflat);
+  V_DrawBackground(finaleflat, 0);
   { // draw some of the text onto the screen
     int         cx = 10;
     int         cy = 10;
@@ -600,21 +600,27 @@ static void F_BunnyScroll (void)
 
   V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
   {
-    int scrolled = (finalecount-230)/2;
+    int scrolled = 320 - (finalecount-230)/2;
     if (scrolled <= 0) {
       V_DrawNamePatch(0, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     } else if (scrolled >= 320) {
       V_DrawNamePatch(0, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
     } else {
 #define SCRN 2
+
+#ifdef GL_DOOM
+      V_DrawNamePatch(320-scrolled, 0, SCRN, pfub1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(-scrolled, 0, SCRN, pfub2, CR_DEFAULT, VPT_STRETCH);
+#else
       int realscrolled = (SCREENWIDTH * scrolled) / 320;
 
       V_AllocScreen(SCRN);
       V_DrawNamePatch(0, 0, SCRN, pfub2, CR_DEFAULT, VPT_STRETCH);
-      V_CopyRect(realscrolled, 0, SCRN, SCREENWIDTH-realscrolled, SCREENHEIGHT, 0, 0, 0);
+      V_CopyRect(realscrolled, 0, SCRN, SCREENWIDTH-realscrolled, SCREENHEIGHT, 0, 0, 0, VPT_NONE);
       V_DrawNamePatch(0, 0, SCRN, pfub1, CR_DEFAULT, VPT_STRETCH);
-      V_CopyRect(0, 0, SCRN, realscrolled, SCREENHEIGHT, SCREENWIDTH-realscrolled, 0, 0);
+      V_CopyRect(0, 0, SCRN, realscrolled, SCREENHEIGHT, SCREENWIDTH-realscrolled, 0, 0, VPT_NONE);
       V_FreeScreen(SCRN);
+#endif
     }
   }
 
