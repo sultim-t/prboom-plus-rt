@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.9 2002/11/23 20:41:21 cph Exp $
+ * $Id: r_draw.h,v 1.10 2002/11/23 22:19:00 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -135,7 +135,7 @@ extern TRDrawVars rdrawvars;
 #ifndef _WIN32
 #define __cdecl
 #endif
-typedef void (__cdecl *TVoidFunc)();
+typedef void (*TVoidFunc)();
 typedef enum {
   RDRAW_PIPELINE_COL_STANDARD,
   RDRAW_PIPELINE_COL_TRANSLUCENT,

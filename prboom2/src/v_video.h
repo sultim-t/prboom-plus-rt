@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.20 2002/11/23 00:56:15 dukope Exp $
+ * $Id: v_video.h,v 1.21 2002/11/23 22:19:00 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -161,45 +161,45 @@ typedef struct {
 // video mode for speed and ease-of-use/compatibility reasons
 //---------------------------------------------------------------------------
 // V_CopyRect
-typedef void (__cdecl *TFunc_V_CopyRect)(int,int,int,int,int,int,int,int, enum patch_translation_e);
+typedef void (*TFunc_V_CopyRect)(int,int,int,int,int,int,int,int, enum patch_translation_e);
 extern TFunc_V_CopyRect V_CopyRect;
 
 // V_FillRect
-typedef void (__cdecl *TFunc_V_FillRect)(int,int,int,int,int,byte);
+typedef void (*TFunc_V_FillRect)(int,int,int,int,int,byte);
 extern TFunc_V_FillRect V_FillRect;
 
 // V_DrawMemPatch
-typedef void (__cdecl *TFunc_V_DrawMemPatch)(int,int,int,const patch_t *,int,enum patch_translation_e);
+typedef void (*TFunc_V_DrawMemPatch)(int,int,int,const patch_t *,int,enum patch_translation_e);
 extern TFunc_V_DrawMemPatch V_DrawMemPatch;
 
 // V_DrawNumPatch
-typedef void (__cdecl *TFunc_V_DrawNumPatch)(int,int,int,int,int,enum patch_translation_e);
+typedef void (*TFunc_V_DrawNumPatch)(int,int,int,int,int,enum patch_translation_e);
 extern TFunc_V_DrawNumPatch V_DrawNumPatch;
 
 #define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatch(x,y,s,W_GetNumForName(n),t,f)
 
 // V_DrawBlock
-typedef void (__cdecl *TFunc_V_DrawBlock)(int,int,int,int,int,const byte*,enum patch_translation_e);
+typedef void (*TFunc_V_DrawBlock)(int,int,int,int,int,const byte*,enum patch_translation_e);
 extern TFunc_V_DrawBlock V_DrawBlock;
 
 // V_DrawBackground
-typedef void (__cdecl *TFunc_V_DrawBackground)(const char*,int);
+typedef void (*TFunc_V_DrawBackground)(const char*,int);
 extern TFunc_V_DrawBackground V_DrawBackground;
 
 // V_PlotPixel
-typedef void (__cdecl *TFunc_V_PlotPixel)(int,int,int,byte);
+typedef void (*TFunc_V_PlotPixel)(int,int,int,byte);
 extern TFunc_V_PlotPixel V_PlotPixel;
 
 // V_PlotPatch
-typedef void (__cdecl *TFunc_V_PlotPatch)(const patch_t*,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
+typedef void (*TFunc_V_PlotPatch)(const patch_t*,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
 extern TFunc_V_PlotPatch V_PlotPatch;
 
 // V_PlotPatchNum
-typedef void (__cdecl *TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
+typedef void (*TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
 extern TFunc_V_PlotPatchNum V_PlotPatchNum;
 
 // V_PlotTextureNum
-typedef void (__cdecl *TFunc_V_PlotTextureNum)(int,int,int,int,int,TRDrawFilterType,byte*,int,int);
+typedef void (*TFunc_V_PlotTextureNum)(int,int,int,int,int,TRDrawFilterType,byte*,int,int);
 extern TFunc_V_PlotTextureNum V_PlotTextureNum;
 
 // V_PatchToBlock
