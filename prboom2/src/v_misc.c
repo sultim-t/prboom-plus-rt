@@ -41,6 +41,7 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "i_main.h"
+#include "i_video.h"
 #include "hu_stuff.h"
 #include "v_video.h"
 #include "v_misc.h"
@@ -141,7 +142,7 @@ void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patch
 
 void V_WriteTextFont(const char *s, int x, int y, int gap, patchnum_t font[])
 {
-  V_WriteTextXYGapFont(s, x, y, gap, 0, v_font);
+  V_WriteTextXYGapFont(s, x, y, gap, 0, font);
 }
 
 void V_WriteTextXYGap(const char *s, int x, int y, int xgap, int ygap)
@@ -288,7 +289,6 @@ void V_InitBox()
   R_SetPatchNum(&bgp[8], "BOXLR");
 }
 
-#if 0
 //---------------------------------------------------------------------------
 //
 // "Loading" Box
@@ -300,53 +300,44 @@ static char *loading_message;
 
 void V_DrawLoading()
 {
-  int x, y;
-  char *dest;
-  int linelen;
   int wid, height;
 
   if(!loading_message) return;
 
-  wid = V_StringWidth(loading_message) + 20;
+  wid = V_StringWidth(loading_message, 0) + 20;
   if(wid < 100)
     wid = 100;
 
   height = V_StringHeight(loading_message) + 30;
   
-  V_DrawBox((SCREENWIDTH-wid) / 2, (SCREENHEIGHT-height)/2, wid, height);
+  V_DrawBox((320-wid) / 2, (200-height)/2, wid, height);
 
   // don't draw progress meter if loading_total is 0
   
   if(loading_total)
     {
       V_WriteText(loading_message,
-		  (SCREENWIDTH - V_StringWidth(loading_message)) / 2,
-		  (SCREENHEIGHT - V_StringHeight(loading_message)) / 2 - 4);
-      
-      x = (SCREENWIDTH / 2) - 45;
-      y = (SCREENHEIGHT / 2) + 12;
-      dest = screens[0] + ((y<<hires)*(SCREENWIDTH<<hires)) + (x<<hires);
+		  (320 - V_StringWidth(loading_message, 0)) / 2,
+		  (200 - V_StringHeight(loading_message)) / 2 - 4, 0);
+      /*
+      x = (320 / 2) - 45;
+      y = (200 / 2) + 12;
+      dest = screens[0] + ((y)*(320)) + (x);
       linelen = (90*loading_amount) / loading_total;
       
       // white line
-      memset(dest, 4, linelen<<hires);
+      memset(dest, 4, linelen);
       // black line (unfilled)
-      memset(dest+(linelen<<hires), 0, (90-linelen)<<hires);
-      
-      if(hires)
-	{
-	  dest += SCREENWIDTH<<hires;
-	  memset(dest, 4, linelen<<hires);
-	  memset(dest+(linelen<<hires), 0, (90-linelen)<<hires);
-	}
+      memset(dest+(linelen), 0, (90-linelen));
+      */
     }
   else
     V_WriteText(loading_message,
-		(SCREENWIDTH - V_StringWidth(loading_message)) / 2,
-		(SCREENHEIGHT - V_StringHeight(loading_message)) / 2);
+		(320 - V_StringWidth(loading_message, 0)) / 2,
+		(200 - V_StringHeight(loading_message)) / 2, 0);
 
     
-  V_FinishUpdate();
+  I_FinishUpdate();
 }
 
 void V_SetLoading(int total, char *mess)
@@ -355,28 +346,12 @@ void V_SetLoading(int total, char *mess)
   loading_amount = 0;
   loading_message = mess;
 
-  if(!in_graphics_mode)
-    {
-      int i;
-      printf(" %s ", mess);
-      putchar('[');
-      for(i=0; i<total; i++) putchar(' ');     // gap
-      putchar(']');
-      for(i=0; i<=total; i++) putchar('\b');    // backspace
-    }
-  else
     V_DrawLoading();
 }
 
 void V_LoadingIncrease()
 {
   loading_amount++;
-  if(!in_graphics_mode)
-    {
-      putchar('.');
-      if(loading_amount == loading_total) putchar('\n');
-    }
-  else
     V_DrawLoading();
 
   if(loading_amount == loading_total) loading_message = NULL;
@@ -385,10 +360,8 @@ void V_LoadingIncrease()
 void V_LoadingSetTo(int amount)
 {
   loading_amount = amount;
-  if(in_graphics_mode)
     V_DrawLoading();
 }
-#endif
 
 //---------------------------------------------------------------------------
 //
