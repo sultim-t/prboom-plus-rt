@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.2 2000/05/05 13:51:49 cph Exp $
+ * $Id: acconfig.h,v 1.3 2000/05/07 08:18:23 jessh Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -26,6 +26,9 @@
 
 /* Define on I386 target */
 #undef I386
+
+/* Define on targets supporting 386 Assembly */
+#undef I386_ASM
 
 /* Define on big endian target */
 #undef __BIG_ENDIAN__
@@ -96,6 +99,9 @@
 
 /* 
  * $Log: acconfig.h,v $
+ * Revision 1.3  2000/05/07 08:18:23  jessh
+ * Fix Configure, Moved I_InitGraphics fixing BIG bug
+ *
  * Revision 1.2  2000/05/05 13:51:49  cph
  * Get SDL configuration and compilation working on POSIX
  *

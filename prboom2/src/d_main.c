@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.4 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: d_main.c,v 1.5 2000/05/07 08:18:23 jessh Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.4 2000/05/04 16:40:00 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.5 2000/05/07 08:18:23 jessh Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -361,8 +361,6 @@ static void D_DoomLoop(void)
     G_BeginRecording ();
 
   basetic = gametic;
-
-  I_InitGraphics ();
 
 #ifdef HAVE_NET 
   atexit(D_QuitNetGame);       // killough
@@ -1724,6 +1722,8 @@ void D_DoomMainSetup(void)
 	  singledemo = true;          // quit after one demo
 	}
 
+  I_InitGraphics();
+
   if (slot && ++slot < myargc)
     {
       slot = atoi(myargv[slot]);        // killough 3/16/98: add slot info
@@ -1833,6 +1833,9 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: d_main.c,v $
+// Revision 1.5  2000/05/07 08:18:23  jessh
+// Fix Configure, Moved I_InitGraphics fixing BIG bug
+//
 // Revision 1.4  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.
