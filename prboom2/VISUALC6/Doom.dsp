@@ -654,14 +654,6 @@ SOURCE=..\src\protocol.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\qmus2mid.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\qmus2mid.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\r_bsp.c
 # End Source File
 # Begin Source File

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.12 2000/09/24 13:46:50 proff_fs Exp $
+ * $Id: i_sound.c,v 1.13 2000/09/30 15:50:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.12 2000/09/24 13:46:50 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.13 2000/09/30 15:50:26 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -699,7 +699,6 @@ int I_RegisterSong(const void *data, size_t len)
   /* Convert MUS chunk to MIDI? */
   if ( memcmp(data, "MUS", 3) == 0 )
   {
-    //qmus2mid(data, len, midfile, 1, 0, 0, 0);
     UBYTE *mid;
     int midlen;
 

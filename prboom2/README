@@ -209,7 +209,14 @@ What's new?
 -----------
 
 since prboom 2.1.0
-     * fullscreen is now default for new boom.cfg.
-     * included sdl_mixer.dll plays midi-files now.
+     * fullscreen is now default for new boom.cfg
+     * included sdl_mixer.dll now plays midi-files
      * if waveout is used for sound (Windows NT4) the sound doesn't
-       stutter anymore.
+       stutter anymore
+     * redid parts of the OpenGL renderer
+       + sprites behind translucent walls are rendered correctly
+       + translucent walls are rendered correctly
+       + support for glBSP nodes
+       + compliant to glBSP spec v2
+       + use_mipmapping option in boom.cfg
+       + the default for zone memory in OpenGL is now 16MB
