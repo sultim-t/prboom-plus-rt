@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.34 2002/11/23 22:20:40 proff_fs Exp $
+ * $Id: v_video.c,v 1.35 2002/11/23 22:55:51 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.34 2002/11/23 22:20:40 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.35 2002/11/23 22:55:51 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -223,22 +223,44 @@ void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA)
   }
 }
 
+void WRAP_V_DrawLine(fline_t* fl, int color);
+
 //---------------------------------------------------------------------------
 // GL wrapping funcs so the parameters match up to the function pointer
 // prototypes
 //---------------------------------------------------------------------------
 #ifdef GL_DOOM
-void WRAP_gld_DrawBackground(const char *flatname, int n) { gld_DrawBackground(flatname); }
-void WRAP_gld_DrawPatchFromMem(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) { gld_DrawPatchFromMem(x,y,patch,cm,flags); }
-void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags) { gld_DrawNumPatch(x,y,lump,cm,flags); }
+void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
+{
+  gld_FillBlock(x,y,width,height,colour);
+}
+void WRAP_gld_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags)
+{
+}
+void WRAP_gld_DrawBackground(const char *flatname, int n)
+{
+  gld_DrawBackground(flatname);
+}
+void WRAP_gld_DrawPatchFromMem(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags)
+{
+  gld_DrawPatchFromMem(x,y,patch,cm,flags);
+}
+void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
+{
+  gld_DrawNumPatch(x,y,lump,cm,flags);
+}
 void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawLine(x-1, y, x+1, y, color);
   gld_DrawLine(x, y-1, x, y+1, color);
 }
+void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
+{
+}
+void WRAP_gld_DrawLine(fline_t* fl, int color)
+{
+  gld_DrawLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, color);
+}
 #endif
-
-//---------------------------------------------------------------------------
-static void nullFunc_void() {}
 
 //---------------------------------------------------------------------------
 // Generate the V_Video functions
@@ -262,6 +284,7 @@ TFunc_V_PlotPixel       V_PlotPixel;
 TFunc_V_PlotPatch       V_PlotPatch;
 TFunc_V_PlotPatchNum    V_PlotPatchNum;
 TFunc_V_PlotTextureNum  V_PlotTextureNum;
+TFunc_V_DrawLine        V_DrawLine;
 
 //---------------------------------------------------------------------------
 // Set Function Pointers
@@ -282,6 +305,7 @@ void vid_initMode(TVidMode vd) {
     V_PlotPatch = V_PlotPatch8;
     V_PlotPatchNum = V_PlotPatchNum8;
     V_PlotTextureNum = V_PlotTextureNum8;
+    V_DrawLine = WRAP_V_DrawLine;
   }
   else if (vidMode == VID_MODE16) {
     V_FillRect = V_FillRect16;
@@ -294,6 +318,7 @@ void vid_initMode(TVidMode vd) {
     V_PlotPatch = V_PlotPatch16;
     V_PlotPatchNum = V_PlotPatchNum16;
     V_PlotTextureNum = V_PlotTextureNum16;
+    V_DrawLine = WRAP_V_DrawLine;
   }
   else if (vidMode == VID_MODE32) {
     V_FillRect = V_FillRect32;
@@ -306,16 +331,18 @@ void vid_initMode(TVidMode vd) {
     V_PlotPatch = V_PlotPatch32;
     V_PlotPatchNum = V_PlotPatchNum32;
     V_PlotTextureNum = V_PlotTextureNum32;
+    V_DrawLine = WRAP_V_DrawLine;
   }
 #ifdef GL_DOOM
   else if (vidMode == VID_MODEGL) {
-    V_FillRect = nullFunc_void;
-    V_CopyRect = nullFunc_void;
+    V_FillRect = WRAP_gld_FillRect;
+    V_CopyRect = WRAP_gld_CopyRect;
     V_DrawMemPatch = WRAP_gld_DrawPatchFromMem;
     V_DrawNumPatch = WRAP_gld_DrawNumPatch;
-    V_DrawBlock = nullFunc_void;
+    V_DrawBlock = WRAP_gld_DrawBlock;
     V_PlotPixel = V_PlotPixelGL;
     V_DrawBackground = WRAP_gld_DrawBackground;
+    V_DrawLine = WRAP_gld_DrawLine;
   }
 #endif
 }
@@ -611,6 +638,93 @@ byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, u
   screens[1] = oldscr;
   return block;
 }
+
+//
+// V_drawLine()
+//
+// Draw a line in the frame buffer.
+// Classic Bresenham w/ whatever optimizations needed for speed
+//
+// Passed the frame coordinates of line, and the color to be drawn
+// Returns nothing
+//
+void WRAP_V_DrawLine(fline_t* fl, int color)
+{
+  register int x;
+  register int y;
+  register int dx;
+  register int dy;
+  register int sx;
+  register int sy;
+  register int ax;
+  register int ay;
+  register int d;
+
+#ifdef RANGECHECK         // killough 2/22/98    
+  static int fuck = 0;
+
+  // For debugging only
+  if
+  (
+       fl->a.x < 0 || fl->a.x >= SCREENWIDTH
+    || fl->a.y < 0 || fl->a.y >= SCREENHEIGHT
+    || fl->b.x < 0 || fl->b.x >= SCREENWIDTH
+    || fl->b.y < 0 || fl->b.y >= SCREENHEIGHT
+  )
+  {
+    //jff 8/3/98 use logical output routine
+    lprintf(LO_DEBUG, "fuck %d \r", fuck++);
+    return;
+  }
+#endif
+
+#define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
+
+  dx = fl->b.x - fl->a.x;
+  ax = 2 * (dx<0 ? -dx : dx);
+  sx = dx<0 ? -1 : 1;
+
+  dy = fl->b.y - fl->a.y;
+  ay = 2 * (dy<0 ? -dy : dy);
+  sy = dy<0 ? -1 : 1;
+
+  x = fl->a.x;
+  y = fl->a.y;
+
+  if (ax > ay)
+  {
+    d = ay - ax/2;
+    while (1)
+    {
+      PUTDOT(x,y,color);
+      if (x == fl->b.x) return;
+      if (d>=0)
+      {
+        y += sy;
+        d -= ax;
+      }
+      x += sx;
+      d += ay;
+    }
+  }
+  else
+  {
+    d = ax - ay/2;
+    while (1)
+    {
+      PUTDOT(x, y, color);
+      if (y == fl->b.y) return;
+      if (d >= 0)
+      {
+        x += sx;
+        d -= ay;
+      }
+      y += sy;
+      d += ax;
+    }
+  }
+}
+
 /*
 //---------------------------------------------------------------------------
 byte *V_GetPlottedPatch8(int patchNum, int width, int height, byte clearColor) {

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.21 2002/11/23 22:19:00 proff_fs Exp $
+ * $Id: v_video.h,v 1.22 2002/11/23 22:55:51 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -204,6 +204,20 @@ extern TFunc_V_PlotTextureNum V_PlotTextureNum;
 
 // V_PatchToBlock
 byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, unsigned short* width, unsigned short* height);
+
+typedef struct
+{
+    int x, y;
+} fpoint_t;
+
+typedef struct
+{
+    fpoint_t a, b;
+} fline_t;
+
+// V_DrawLine
+typedef void (*TFunc_V_DrawLine)(fline_t* , int);
+extern TFunc_V_DrawLine V_DrawLine;
 
 //---------------------------------------------------------------------------
 // These functions are now bit-depth aware
