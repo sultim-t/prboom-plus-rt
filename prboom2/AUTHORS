@@ -1,0 +1,109 @@
+This file is now the amalgamated list of authors, contributors and credits
+for LxDoom. Hopefully by keeping these all in one place, they will remain
+more accurate.
+
+Doom was originally written by id software; when playing with any id main
+wad file, you can see their list of credits, which includes the list of
+programmers. After some years, they released the source code, to allow
+others to work on improving the game.
+
+One of the first projects was DosDoom, by Chi Hoang. This was a quick port
+of the released source code, which was for Linux, to DOS. This was then
+picked up by TeamTNT (http://www.teamtnt.com/), who produced Boom, a greatly
+debugged and extended version of Doom. The Boom programmers were Lee
+Killough, Jim Flynn, Rand Phares, Ty Halderman.
+
+LxDoom started as a port of Boom to Linux, by me, Colin Phipps
+(cph@lxdoom.linuxgames.com). After porting the code to Linux, with the help
+of the original released Linux-doom sources, I continued to add bug fixes and
+features.
+
+These included many things from MBF (Marine's Best Friend), a further enhanced
+and debugged version of Boom, written by Lee Killough, and some ideas from
+DosDoom (http://frag.com/dosdoom/).
+
+In October 1999, id Software have re-released the Doom source code under the 
+GNU General Public License. TeamTNT have also changed to the new license,
+and the other sources mentioned above have all allowed their code to be
+GPLed. So LxDoom is now covered by the GPL.
+
+I'd like to thank TeamTNT for writing such a good engine, which has become
+the basis for so many others. And I'd like to thank Lee Killough in
+particular. His excellent coding in Boom made it easy to port to Linux and
+indeed other architectures, and his further work in MBF was crucial in 
+enabling me to improve LxDoom. Also thanks go to the DosDoom team.
+
+My thanks also go to all the people below, who have contributed to or
+otherwise helped LxDoom:
+
+Gady Kozma	gady@math.tau.ac.il
+Added hires to the SVGALib version of LxDoom, and other useful patches.
+
+Dick Leban
+Lots of feedback about portability issues and helping get the network code 
+working properly back at v1.3.6.
+
+Eduardo Casino Almao
+Lots of helpful feedback and suggestions, but more importantly actually getting 
+to grips with the code and giving very precise bug reports and patches.
+
+Udo Monk
+His port xdoom is very portable, and I referred to his code sometimes for help 
+with the X stuff; also his collection of Doom tools (XWadTools) is the 
+definitive tools collection for Linux.
+
+Joey Hess
+For numerous patches, like the glibc fixes and window manager updates, and
+help with the music.
+
+Andre Majorel	amajorel@teaser.fr
+For Yadex, which drags Linux Doom editing back into this decade (well, last
+few years anyway ;), and for the odd encouraging email.
+
+Ben Winslow
+Various useful patches, like the colour ENDOOM code.
+
+Josh Parsons	josh@schlick.anu.edu.au
+Sent me the patches to use autoconf for configuring LxDoom.
+
+Michael Heasley	
+Author of musserver, which helped me first add music support.
+
+Rafael Reilova		
+Took over the musserver program, made it much better, and mainly saved me 
+having to worry about it anymore :-).
+
+Steve Van Devender <stevev@efn.org>
+Found the bug causing slight noise at the start of sounds playing, and other
+patches.
+
+Barry Mead <bmead@surfree.com>
+Improvements to the mouse code.
+
+Mattias Kunkel <mattias@kunkel.freeservers.com>
+Made the lxdoom.spec file for creating LxDoom RPMs.
+
+Frederic Oghdayan
+For useful feedback on LxDoom v1.0.1, and repeating his bug reports until I 
+believed them :-).
+
+Vicente Aguilar	vicente@hal.dhis.org
+His handy patch convinced me to keep on with making LxDoom a nicer UNIX style 
+program.
+
+Benjamin L McGee <vuelto@netscape.net>
+Patch fixing the joystick code.
+
+James "Quasar" Haley	
+Ever willing to talk about source ideas; mentioned some Boom/MBF bugs to me, 
+which I was then able to fix in LxDoom.
+
+Everyone who contributed indirectly to MBF and Boom and Doom; see the
+respective documentation files.
+
+Everyone who brings us Linux, the best and cheapest OS around.
+
+If you sent me patches for LxDoom which were included, and I forgot to
+list you, I apologise. Please email me and I will add you. I have only
+just collected these credits together into a single file, something I
+should have done long ago, and I probably forgot many people.

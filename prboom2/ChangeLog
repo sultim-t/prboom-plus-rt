@@ -1,0 +1,2178 @@
+Log of changes made to LxDoom sources by CPhipps (cph@lxdoom.linuxgames.com).
+Usually when I make changes, I add my comments with prefix CPhipps or cph. 
+The RCS logs at the end of each file show the order of changes and their dates.
+
+This is an informal change log, hence the strange order and numerous gaps.
+
+1998/09/14
+
+Downloaded the Boom v2.01 sources, intending to start a proper linux XF86 
+port of Boom. 
+
+I could have started with my LxDoom sources, but I had to alter a lot of 
+code in them to get around problems with SVGALib. This made of lot of the
+code very messy. So I'll start with the clean Boom sources, and just copy
+across the useful code.
+
+Also downloaded the latest source patches from www.teamtnt.com; so for now
+mine won't be internetworkable (is that a word) with any other Boom
+version. Not that I intend IPX or serial networking, but presumably
+PrBoom uses TCP/IP sockets networking like the original Doom. Getting
+lxdoom to network with PrBoom would be really something.
+
+09/15
+
+Basic X-windows boom up and running. Just copied the original Doom code
+into place. I had to add some global variables that Boom uses to
+manipulate the low-level code (leds_always_off, snd_card, etc), which I
+ignore for now. 
+
+New modules are:
+x_video.c	X-windows input & video code
+l_sound.c	Linux sound output (via /dev/dsp)
+		Allows for either internal, internal timer based, or external 
+			sound server
+l_net.c		Linux net code
+l_system.c	Linux system code (time functions, 
+
+Current frame rate 150fps, compared to 280+fps using DOS Boom. Executable
+is about 700 Kb. Still, PrBoom on my machine is only ~150fps, so it's a
+good start.
+
+Moved out all the predefined lumps from the executable to a PWAD - 
+boomlump.wad.
+
+09/16
+
+Moved the precalculated trig tables out to boomlump.wad. Now the
+executable is under 400k. Just in case you were wondering why I bothered,
+I intend to have seperate executables for the SVGALib and X-windows
+versions - so removing common data stuff that should be in a WAD anyway
+will save people download time.
+
+Tried to improve the mouse code - it was badly jerky in the last build.
+Seems to be to do with the strange event handling needed by XShm. I tried
+a re-write, which made it smoother but added intolerable lag in the
+controls. I don't get it.
+
+I reverted to the original code and made a few tweaks, and now its better.
+Still needs some work, though.
+
+I seperated the X-windows input code to x_input.c. Partly because it is
+helpful in distinguishing the input and output code, and partly because I
+am looking at the XF86DGA extensions, which could possibly share input
+code but provide a new output method.
+
+09/17
+
+Dug up the old sndserver sources, and compiled a copy of the original
+sndserver. Then I enabled the sound code in l_sound. And it worked, with
+only a little tweaking. The sound doesn't sound 'right' to me, though that
+is partly, I think, due to the proper implementation of stereo and phase
+shifting, which was not enabled by default in DOS Doom. Anyway, it has
+only about a 10 fps impact on performance, and is reasonably smooth.
+
+Music support will be longer, as I'll have to write it from scratch. I
+installed a source package for a midi player program, but looking at it
+worries me - practically every call is an ioctl, which means it is pretty 
+technical stuff. Maybe I'll do like for the sound, but use a prewritten
+program - just get doom to write the music for the current level out to a
+file, and then shell 'playmidi d_exmx.mid' (a bit like PrBoom, I notice).
+
+I also analysed the poor performance of the multiplying routines in
+x_video.c. With -2 on, I_FinishUpdate takes most time of any subroutine,
+at 20%. With -3, that rises to 40%. Anyway, I optimised those loops, the
+those %ages dropped to 15% and 35% respectively. The frame rate is little
+better, though.
+
+09/18
+
+Tried merging in my old SVGALib code, as a new file ls_video.c. It worked
+in parts, but each time I fixed one thing, another broke. It seems to be
+basically sound, but more work is needed to get it all working.
+
+Added ENDBOOM support. No colour as yet, and non-ascii characters get
+translated to '#', but it's better than nothing. Also, it only works if
+the window is 80 characters wide. The alternative is to link with
+ncurses, but I'd rather avoid that, as it would waste memory all the while
+lxdoom was running just to see a few credits that probably no-one reads. 
+
+Also I wrote xdga_video.c, which is a copy of x_video.c modified to use
+XF86DGA extensions. Finally got it all compiling OK, but when I ran it, it
+froze the machine. Judging from the output, DGA may not be supported on
+my vid card. Drat.
+
+09/19
+
+Added joystick support. You have to have the joystick kernel module, and
+after that it was easy. Works fine, though I would never use it myself,
+since a trackball is far better. New code is in l_joy.c.
+
+Tried to make the sound output internal to the main program (hence
+avoiding the massive duplication of wad reading and sound outputting
+code). It worked, but it was crap - quaility was no better than having a
+separate sndserver, and the frame rate dropped to 90fps.
+
+I _did_ notice a very stupid slip, though - with an external sndserver,
+the sound code internal to lxdoom was still being partly run, resulting in
+some wasted time. I '#ifndef SND_SERV' around this code, and the frame
+rate jumped to 220fps. Somewhere I must have messed up the #ifdef's in
+there.
+
+09/20
+
+Decided to remove the sound code redundancy. Created l_soundgen.c, which
+contains the mixing and output code, the sound mixing data structures
+allocation and preparation, and the ioctl's for setting up the card. This
+will be used in sndserver or the main executable as required.
+
+Having done that, I decided to create a new sound server, which uses the
+new l_soundgen.c and a new l_soundsrv.c. Instead of using wadread.c to
+read the sounds from the iwad, this version uses IPC and shared memory to
+pass the data from lxdoom to the sound server. It is slower to load, but
+it means that sounds in a PWAD now work with the sound server, and the
+sound server doesn't have all the redundant WAD reading code anymore.
+
+File sizes (strip'ped):
+lxdoom 387 kb
+sndserv 14 kb
+
+Checked the frame rate again. With -nosound, it's 230fps; with sound using
+the new sound server, it's 220fps. With internal sound (timer based or
+not), it's stuck at 100fps.
+
+I tried playing a bit, but the mouse code is still terrible. X seems to be
+buffering the mouse events, which adds lag and makes it jerky. So I
+changed to polling the mouse instead of using X's asynchronous mouse
+events model.
+
+09/21
+
+Finished off the mouse code I was working on yesterday. As a final touch,
+it now monitors the pause state, and releases the pointer while Doom is
+paused. That makes it a lot easies to switch between Doom and whatever
+else is open.
+
+Had a go at getting music support working. Failed :(. Why do all the Linux
+music sources I find have to have tons of extra stuff to hanbdle GUS and
+external MIDI - all I want is simple fm synthesis.
+
+09/23
+
+Added support for a BOOMPATH environmental variable which indicates what
+path l_main.c will tell Boom that it is running from. DOS Boom used
+argv[0], but Linux is only giving me the path the user _typed_, so if the
+user entered just 'lxdoom' then Boom would get confused. Now l_main.c
+fakes myargv[0] with the value in BOOMPATH.
+
+Added a system-identifying string, outputted on startup and also after
+ENDBOOM. So TeamTNT get a page of credits, but I get 1 line at least ;).
+
+Version is now complete, christened LxDoom v1.0 (previous release was 0.1
+if I remember rightly).
+
+09/24
+
+Tried a net game with lxdoom on Linux on one machine, and PrBoom on
+Windows NT 4 on the other, over a TCP/IP network. Was I mad? Anyway, it
+worked for about 30 seconds, then there was a consistency failure.
+Presumably they have had different levels of patches applied to the base
+Boom code or something.
+
+09/25
+
+Combined my old SVGALib code back into the source tree. Got rid of a
+handful of initial merging bugs. It runs OK, but the mouse is dead, and
+there are lots of minor but irritating keyboard mapping glitches. Then it
+hung my machine :-(.
+
+09/26
+
+Tried a net game (coop) with 2 linux machines, using lxdoom on both.
+Worked fine, except for a SEGV after nearly an hour's play, so not bad.
+That's better that I can manage with Dos BOOM. I can't remember a network
+co-op crash with PrBoom, but deathmatch with PrBoom crashes consistently
+after a level or so. I suspect there are some underlying Boom bugs causing
+all this. Maybe I'll go after them myself when I get a chance, but I don't
+have 2 Linux machines available often enough.
+
+09/27
+
+Stressed lxdoom on another machine. Sound didn't work; after a lot of
+investigation I think it is a fault in the sound setup on that machine
+(PnP sound card, probably a bad DMA or IRQ). Worked OK otherwise.
+
+Added code to x_input.c to maintain a flag indicating the visibility of
+the main window, as reported by the last X message. Added code to
+x_video.c to set VisibilityChangeMask on the window message attributes,
+and to save screen redraws when the window is obscured. Verified with
+some diagnostics that it worked.
+
+Changed all printf()'s in l_joy.c to fprintf(stderr,...)'s.
+
+Added a few lines to d_net.c:TryRunTics, to return some time to Linux. As
+Boom was written under DOS, TeamTNT saw no reason to sleep() while killing
+time here; as a result lxdoom was thrashing a loop TryRunTics to NetUpdate
+to GetPackets to HGetPacket, which did nothing except waste CPU time and
+check I_GetTime. Adding a usleep(10000) (10 ms sleep) reduced CPU usage on
+my machine to 50% with an idle game, with no performance loss.
+
+Just checked, the original Doom sources for Linux didn't do a sleep()
+either. So TeamTNT have a good excuse ;). I suppose that when id wrote
+Doom the PC's were so slow that they were always maxed out anyway.
+
+Current frame rate: 250fps without sound, 230fps with. 
+
+09/28
+
+Tried to implement 16bpp mode support in x_video.c. Previously, xdoom and
+lxdoom only supported 256 colour PseudoColor modes, i.e modes with 256
+pixel values and the ability to set the colours that these pixels
+represent with palette calls. 16bpp TrueColor is what I prefer to use X
+in, so a new approach is called for. 
+
+If anyone understands XAllocColorPlanes, e-mail me with some help. It
+doesn't seem to do anything or report an error. It should be what I need,
+but I don't get it. 
+
+09/29
+
+Anyway, for now TrueColor is supported by 'cheating'; I lookup the pixel
+values for red, green, and blue; I assume that they have contiguous sets
+of bits set to 1; and I construct a shift which will merge the RGB values
+required into a pixel value that gives them. Other highcolour modes are
+done using hundreds of XAllocColor calls, which means the game pauses for
+1 second every time the palette changes; without XAllocColorPlanes I can
+do nothing else.
+
+Both of these methods write a conversion table from Doom's internal 256
+colours to the external highcolour pixel values, which is then used in the
+buffer-expanding routine. 
+
+For comparison, frame rates without sound:
+
+320x200x256 : 250
+640x400x256 : ~160
+960x600x256 : ~100
+640x400x65536 : 110
+960x600x65536 : ~60
+
+Basically, these routines to expand the rendering buffer into a much large
+image buffer take much longer than the rest of the doom code altogether,
+and dominate the performance. Then again, 640x400x65536 is increasing the
+size of the rendering buffer by a factor of 8, to nearly 1/2 Mb in size; a
+phenomenal amount of data to shift at 35fps, let alone higher. At least
+when Boom goes highcolour the performance impact is largely already felt,
+so the drop won't b so bad. But if Boom goes to 640x400x256, I still have
+to double the buffer to 16bpp in those modes, so it will be even worse.
+
+09/30
+
+Had a look for a bug in the rendering buffer to image buffer expanding
+code for 8 bpp x2 mode - the bottom 2 lines or so were being missed. Soon
+picked up a bug, I had uses 'while (x--)' instead of 'while (--x)' at the
+end of a loop. Quite why that should cause lines to be missed I don't
+know, but fixing combined with some general tidying seemed to cure the
+problem. 
+
+10/01
+
+Decided to have a look at a long-standing bug that I have found in all
+Boom-based ports. PrBoom and lxdoom both crash during a deathmatch game
+after the players complete a level. The next level runs fine for a while,
+then crashes, often when a player dies. I can't say if Boom itself has the
+bug, since Boom's networking is so hard to get going anyway.
+
+Anyway, xxgdb obediently waited for the crash, and delivered a complete
+call trace for the crash. It turned out to be in g_game.c:D_CheckSpot -
+there is a variable (static something** bodyque) declared here which
+maintains a list of player corpses to be removed. p_setup.c sets the
+counter back to 0, but that doesn't clear the array, so it was trying to
+remove player corpses that had existed at previous levels. This could 
+cause a SIGSEGV depending on whether other memory it referenced had been
+reused yet. Easy to fix, converted a calloc into a
+Z_Calloc(...,...,PU_LEVEL,&ptr) so z_zone would reset the pointer to NULL
+when the level data it referenced was cleared.
+
+Had a boring half-hour testing that fix - playing deathmatch with yourself
+is pretty dull <g>. Seems OK now, I played through 4 levels without
+problems. This could even be the cause of co-op crashes after a long time
+(half an hour to an hour) which I noticed in testing (deathmatch has a lot
+more player deaths, so was more likely to hit the bug). Don't remember
+anyone dying in those co-op crashes though.
+ 
+10/02
+
+Had another go with the SVGALib code. Fixed up all the keyboard problems
+as I found them, but it could take ages to find them all. No more crashes.
+The exit code works without any problem, confirming my suspision that it
+was the old version of SVGALib (or maybe the driver for my old vid card)
+which was at fault in lxdoom v0.1. A -fastdemo demo2 revealed 120fps;
+disabling retrace waiting pushed this to 280fps, nearly reaching DOS
+Boom's fps of 300. The mouse is definitely dead though, but in SVGAlib,
+not my code - my code is receiving no mouse movement messages at all.
+
+10/03
+
+Typical. I sit down for a game of doom to finish off the day, and 2 hours
+later I find that I've rewritten half of l_soundgen.c :-). The code is I
+hope faster now, though there is no direct benchmark that I can think of
+which would be relevant. Certainly the CPU load seems less when few sounds
+are playing; with many sounds playing there is unlikely to be performance
+loss, I hope.
+
+The code is much neater now, with a struct for each channel instead of
+almost a dozen arrays. So the memory allocation is neater too. I tried
+optimising further, by stopped the writes to the sound card when no sound
+was active, but that causes stop and start noises on my card.
+
+10/04
+
+Looked up gcc's extensions, and tried some out. The __regparm__ attribute
+doesn't work as far as I can see. I did add 'const' to a load of functions
+in p_maputl and many of their parameters, as well as m_fixed.h (though
+they are inlined anyway).
+
+10/05
+
+Implemented contextual mouse grabbing/releasing. The mouse code is ready
+to be the default now IMO. What it does is grab the mouse pointer or
+release it according to the current game and window state. If lxdoom is
+partly obscured by another window, minimised, paused, a menu is active, a
+demo is playing or an intermission screen is active, the mouse is
+released; otherwise, it is grabbed. So you can't navigate the menus with a
+mouse anymore, but you no longer have to start a new game just to be able
+to PAUSE and release the mouse.
+
+I don't know about the automap - opinions? The mouse doesn't move the map,
+but sometimes I like to navigate using the mouse while watching the map. 
+
+10/06
+
+Installed pgcc, and tried to compile. I had to redo all the multi-line
+comments in d_deh.h, but otherwise it compiled OK. However, it didn't
+render correctly :-(. Turned out that P_LoadNodes had ben 'optimised' by
+gcc s.t. it didn't write the bounding box data into the internal nodes.
+Stupid compiler. I added a fix, #ifdef'ed with COMPILER_FLOW_BUG. It now
+runs fine. 
+
+Glanced at the xdoom sources. They seem to have stuck with the old sound
+code, but there is some interesting stuff in the X-video code: discovered
+how to make a couple of calls work to do things 'the right way'. 
+
+10/07
+
+Noticed a slowdown in DEMO2 - checked the frame rate, and for some reason
+its down to 200fps. It was 240-250fps in the basic mode, so somewhere
+things have gone wrong.
+
+Chucked pgcc, since it made no difference on my machine (which has a
+PR166+, not a Pentium, so I presume that's why). Compiled with profiling,
+and can see no problem.
+
+Decided to fix profiling: changed all non-global symbols in drawspan.s and 
+drawcol.s to local symbols, which gcc omits from its profiling info. For 
+completeness here are the results:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 16.95      4.58     4.58                             R_DrawColumn
+ 16.54      9.05     4.47                             mcount
+ 15.88     13.34     4.29      935     4.59     4.59  I_Double8Buf
+  7.77     15.44     2.10                             R_DrawSpan
+  3.55     16.40     0.96  1121405     0.00     0.00  P_MobjThinker
+  3.52     17.35     0.95    25182     0.04     0.06  R_RenderSegLoop
+  2.18     17.94     0.59   179863     0.00     0.00  P_CrossSubsector
+  2.07     18.50     0.56   434187     0.00     0.00  R_DrawMaskedColumn
+  2.00     19.04     0.54  1387160     0.00     0.00  P_DivlineSide
+  1.30     19.39     0.35  1295628     0.00     0.00  R_MakeSpans
+  1.30     19.74     0.35   634965     0.00     0.00  R_GetColumn
+  1.22     20.07     0.33   939515     0.00     0.00  R_PointOnSide
+  1.18     20.39     0.32   210134     0.00     0.00  R_MapPlane
+  1.11     20.69     0.30    25182     0.01     0.08  R_StoreWallRange
+  1.00     20.96     0.27    24042     0.01     0.06  P_CrossBSPNode
+  0.93     21.21     0.25   177343     0.00     0.00  P_BlockLinesIterator
+  0.93     21.46     0.25    13436     0.02     0.07  do_draw_plane
+  0.89     21.70     0.24     4471     0.05     0.05  P_UpdateSpecials
+
+Some comments:
+
+- parameters were -file boomlump.wad -fastdemo demo3 -nosound
+- That's at x2, so remove the I_Double8Buf for non-x2 mode
+- Probably a true profile of conventional Boom still, as I have made few changes
+- TeamTNT are right, the only obvious bottleneck is R_DrawColumn as expected.
+
+10/08
+
+Did a bit more optimising. Frame rate is back to 220fps now under X, but
+still off its peak. Got a book which told me about asm optimising, and
+that helped a little.
+
+Saw the speaker doom page - PC speaker support was somethong I had in mind 
+anyway. Must try out that speaker driver.
+
+10/09
+
+Contacted the author of speaker doom, Frederick Oghdayan. He gave me some
+info on the intermittent crashes he was having with old sdoom using the pc
+speaker diver. 
+
+Downloaded the pc speaker driver, built a kernel. The quality is quite
+good, I was really surprised; to use it seriously you'd have to do some
+shielding inside the case for the cables I think, to eliminate
+interference.
+
+Tried it out - I got the same crash problems. Real Sherlock Holmes stuff
+finding that bug - xxgdb led me to a loop in the screen wiping code, which
+was counting down from -180000 to 0 (down, i.e decrementing!). Turns out
+that the pc speaker driver messes so badly with the kernel timings that it
+was returning times out of order.
+
+Added a tiny fix to l_system.c to clamp time values into the present. It
+will break if you run doom for (2^32)/35 seconds, so restart your game
+every 2.8 years please :-).
+
+10/10
+
+Worked on mouse support for lsdoom. Strange one, but it seems that
+mouse_sethandler() doesn't do its job. The man page doesn't say it's not
+implemented, but it doesn't work. Made the code poll the mouse pointer
+instead.
+
+Also fixed a bug in the scancode conversion table builder. This is crap
+code; I could nick the table from Allegro that Boom uses, but that
+sacrifices portability a bit if svgalib changes its input method.
+
+13/10
+
+Sound code tidying. Allow both IPC and pipe data passing, in an effort to
+solv mysterious problems with sound data passing on a user's machine.
+Added diagnostics to sndserv, enabled if -devparm is specified
+
+14/10
+
+Someone made a minor complaint about X-windows standard parameter support
+a few days ago, so I fixed the -disp and -geom code to allow all the
+xterm-like variants of these commands. Also added a XSetWindowFocus call
+to I_InitGraphics, in case your WM doesn't give lxdoom the focus.
+
+15/10
+
+Tried to complete music code. Fixed some odd problems, but no joy, it
+crashes out still. Hmm, tricky to fix that, hard to debug these seperate
+programs.
+
+16/10
+
+Downloaded and compiled gcc v2.8.1. 
+
+Increased the level of syntax strictness required by gcc, with
+-Wwrite-strings (since strings are not writable on Linux/ELF), -Werror (so
+I can't ignore them anymore :-), and -Wcast-align. Also tried
+-Wmissing-prototypes but Doom uses so many ambigously defined functions
+that this was impractical.
+
+Well, m_misc.c, m_cheat.c, sounds.c and info.c all gave masses or errors 
+compiling, because of poorly specified structures (const's missing
+everywhere). m_menu blew up, with hundreds of minor things which took ages
+to sort out. myargv was problematic, as was wadfiles in w_wad.c, but
+nothing major.
+
+I took the opportunity to put const specifiers on a lot more functions and
+their parameters. This should help gcc optimise a little better.
+
+The main problem files were m_misc.c - this works for now, but someone has
+to go in there and rewrite that damn table. It's doing stuff like assuming 
+sizeof(int) = sizeo(const char*) which is specifically against standard C 
+guidelines. And casting to and from pointers is very non-portable.
+
+...and deh.c. This is really broken as far as portability is concerned, It
+is writing to string constants in the sprite table routine, and I don't
+think there was a single const in the entire file. Well I went through
+adding them, fixed the sprite codes. This could by the cause of a report I
+had about GDMII not working, is that using sprite table mods? Had to shift
+pointer logic around to get the right effect in a few places. 
+
+Tried compiling with -fschedule-insns and -fschedule-insns2. Causes loss
+of demo sync in all demos, and in testing I found that many monsters were
+failing to see me. Verified that it was these options causing it. Must
+investigate further, maybe it's a gcc 2.8.1 bug?
+
+17/10
+
+Fixed a stupid mess in x_video.c; I had broken the non-local X server 
+connection code, so MITShm was always disabled. That's why the KBOOM's were 
+making the frame rate intolerable. Frame rate is back to 220 fps now,
+still not its best though.
+
+18/10
+
+Preparing the new website today; I really need a way of collecting all
+these updates into one place.
+
+Some testing, no problems yet...
+
+19/10
+
+More testing, finally released v1.1.0. 
+
+20/10
+
+Had an e-mail from a glibc person, with a short list of fixes to get it
+compiling with glibc. Seems that dprintf is used in the library now, so
+renamed the Doom version to doom_printf. Also fixed misc headers.
+
+Major bug in lsdoom, the same one I had a few weeks ago in lxdoom: Boom
+calls I_SetPalette before I_InitGraphics if you warp straight to a level.
+Grrr...
+
+21/10
+
+Fixed problem with music passing, by passing the size of the music to
+I_RegisterSong. This inadvertantly removes the 64K limit on music size, by
+ignoring the size member for the MUS header (though no utilities will
+exist for using this feature). LxDoom side of music handling now fixed.
+
+Music now works. Tried with original Doom and Doom ][, works fine.
+
+22/10
+
+Bad day all round. Just to top it all, music doesn't work. Instead of
+music all I'm getting is hundreds of kernel errors. Narrowed it down to a
+musserver problem.
+
+23/10
+
+Now musserver problem is identified, music is OK. 
+
+General testing. Played through 2 and a half levels of PD18, to check that
+music in PWADs was OK, and to verify that dehacked was fine still. All
+seems good.
+
+Releasing v1.1.1 now. Fingers crossed...
+
+24/10
+
+Someone emailed me about the music problems. Hmm, seems that the musserver 
+needs GENMIDI, so I added that to the info down the pipe.
+
+25/10
+
+Someone let me know what the problem with the callback mouse function for
+svgalib was a few days ago, and follow up mails narrowed it down quite
+quickly. It looks good now, using the lib the way it was meant to be used.
+
+26/10
+
+Ripped out the X-windows image enlargement code, put in a separate file.
+
+27/10
+
+Patched up that code, fixed the X-windows version so it works again.
+
+Completed the GGI code, which now uses that enlargement code if you ask
+it to.
+
+GGI works, but no mouse under X; don't know, maybe that's how it's meant
+to be. Checked that the aalib target worked too.
+
+Renamed some source files, merged X input code back into the main X video
+code file, as they needn't be separate now.
+
+30/10
+
+Modified the code to send vol control messages to the music server. Also 
+flush the messages everywhere, otherwise they mightn't be sent.
+
+v1.2.0 ready to go...
+
+7/11
+
+I'm getting really bad at updating this file ;). Anyway, patched in some 
+patches sent to me to get LxDoom running on FreeBSD. Nothing major, mainly 
+just fixing bugs/missing cases in my only code allowing for portability. 
+
+9/11
+
+Another porting success, this time to a Netwinder. That's a risc machine, 
+so porting to it is a real achievement. I haven't had a chance to browse 
+the patches yet, but that must be a priority I guess.
+
+11/11
+
+Was talking to DaveEL or irc, it seems that DosDoom next version won't have 
+a linux version. It seemed a mixed blessing to me, no competition for 
+LxDoom will help it face linux legacy and any other linux ports that emerge 
+later, but in the bigger picture I guess more linux ports is better (just 
+not for me :). Anyway, I offered to do a linux port of DosDoom. Mainly 
+it's out of interest, I'd like to know which source is easiest to port 
+ready for the merger engine. Also it'll be interesting to see how DosDoom 
+is doing, it's a while since I looked at it.
+
+12/11
+
+Accepted as a DosDoom programmer, got a source dump. Hmm. Hmmmmmm. Well, it 
+won't be as easy as I thought, 3 months of dedicated dos programming for 
+it has lost a lot of portability. It is doing all kinds of non-portable 
+stuff. I can write off non-i386 ports for starters. Hopefully i386 linux 
+can be made to work at least, but it's using a lot of non-portable 
+operations, like writing into code segments. Started trying to compile, 
+gradually working out problems.
+
+13/11
+
+Hmm, progressing with DosDoom. 99% compiles now, just fixing odd 
+problems. There are a fair number of changes, I hope it is practical to 
+integrate these with the main DosDoom source in some way. 
+
+14/11
+
+DosDoom works on linux, but it's shaky. No music, sound, hi-res, mouse, in
+fact not much works really, and I had to delete half the DEFAULT.LDF file
+to avoid a buffer overrun on ddf_lang.c. But it's a start.
+
+15/11
+
+PrBoom released, with hi-res. TeamTNT have shifted the goalposts on me :). 
+Anyway, I d/led the source and it looks like the changes are surprisingly 
+minor. m_menu.c and f_finale.c are the only major problems, the others I
+can patch manually or just copy in the changed source file. I started 
+working through the patches on minor files, mostly minor corrections.
+
+16/11
+
+Continued on PrBoom changes, worked through m_menu.c and f_finale.c. They 
+are damn messy code, by the nature of what they do I guess. Most of the 
+updates are in place now. 
+
+17/11
+
+Finished off hi-res, compiled. It works, fortunately - it's been over a 
+week since my last sucessful compile, I was starting to worry :). The 
+PrBoom code seems very good, copes with any window size. On-the-fly 
+resizing seems out of the question though.
+
+As a side note, it's interesting that my own code coped almost without changes, 
+though that's partly due to DosDoom compatibility stuff which I had
+already done. A good sign I think.
+
+18/11
+
+Tried 16bpp for the first time in a few weeks, it's badly broken it seems,
+hopefully only due to hi-res. Hmm, seems to be doubling the image size for
+some reason.
+
+Fixed it, in fact it was a bug in the non-MitShm image blitting, been there all
+along. Only showed up because I disabled MitShm because of DosDoom problems. 
+
+19/11
+
+Ran some profiling. Here is the output from -fastdemo demo2 -nosound
+-width 640 -height 480:
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 61.11     55.86    55.86                             R_DrawColumn_HighRes
+  8.84     63.94     8.08                             R_DrawSpan
+  7.37     70.68     6.74                             mcount
+  4.08     74.41     3.73    25817     0.14     0.21  R_RenderSegLoop
+  1.68     75.95     1.54       76    20.26    20.26  wipe_doMelt
+  1.64     77.45     1.50                             R_DrawTLColumn_HighRes
+  1.16     78.51     1.06  1261387     0.00     0.00  R_GetColumn
+  1.02     79.44     0.93   971186     0.00     0.00  R_DrawMaskedColumn
+
+Basically, R_DrawColumn calls dominate the time, nothing else is significant.
+R_DrawColumn_HighRes is the bottleneck, no other optimisations are
+relevant. Since a much higher proportion of walls than before are being
+expanded, my optimised loop for expanding from LxDoom v0.3 might yield
+improvements, I'll try it. Otherwise I can see little to do, that sub is
+asm'ed and highly optimised, loop unrolled etc.
+
+Also did a stress-texting by running at 500x320 with the kernel being
+compiled in the background; amazingly it managed 50+ fps, and despite a
+lot of disk thrashing things all continued as expected. Nice to know, I
+think.
+
+One thing though, the screen wipes seem much slower at hi-res, in fact at
+640x480 a screen wipe is irritatingly slow. I may fix that.
+
+Another concern is that being hit head-on by a fireball causes the
+translucent explosion to almost fill your hi-res screen, so there is
+massive work in rendering that translucent sprite that causes a lot of
+slowdown. Since the screen goes red anyway, and your vision is meant to be
+obscured... we could make nearby exploding sprites not translucent; that
+way the frame rate won't stutter when you get hit, which is usually when
+the player needs most responsiveness. It's hard to define a close
+explosion though.
+
+21/11 - 29/11
+
+Forgot to update this file, so I can't remember the exact dates ;). Anyway
+a simple list of things:
+
+- AWE32 support in musserver, thanks to Spirilis
+- Fixed problem with musserver dying when PAUSEd, by changing pauses to kill the music
+- sound server upgraded to be more flexible, mainly for DosDoom usability
+
+2/12
+
+Installed RedHat v5.1 yesterday. LxDoom compiled up fine as a glibc
+program, as it should (phew).
+
+Immediately I was hit by the problem that all my users have been
+complaining of, namely the failure of LxDoom to save it's config file.
+After a little work I found that it was because of an extra / inserted in
+D_DoomExeDir, which was easily fixed by  removing any trailing
+backslashes. The only mystery that remains is how it ever worked for me
+before...
+
+4/12
+
+24bpp and 32bpp colour translation added, at last. It's messy, and 24 bpp
+is disabled for non-i386 machines (I can't guarantee the pointer casts
+will work). I can't test either, my vid card is rubbish. Well, I just hope
+it's ok.
+
+General fixing/tidying those areas of the code, nothing major.
+
+6/12
+
+Identified the irritating problem where the idmus cheat doesn't work for
+me. It's a feature ;). I assign u to be my screenshot key (near my other
+keys) so the u key is masked before it reaches the cheat code routine. I'd
+rather not modify this behaviour, since I can see reasons why it was made
+to work this way. So I changed my key setup. Hmmm...
+
+12-15/12
+
+Extensive multiplayer testing of LxDoom (it's a hard life :p). Tried a
+multiplayer game with PrBoom, but it still crashes with consistency
+failures :(. Since demos sync in both PrBoom and LxDoom, it must be a
+network-code problem. I copied the i_net.c from PrBoom and replaced my
+l_net.c with it, fixed it to wok in Linux. Still no luck. It must be an
+implementation difference in the UDP sockets in WIN32 and Linux I guess.
+I don't know enough to fix this.
+
+Network games with LxDoom at both ends work fine though. I'm testing on a
+3 machine lan at home, so it isn't exactly a loaded network. Tested with 2
+copies running on one machine too, that works fine once you use the
+alternate ports options.
+
+17/12
+
+Went through testing various combinations of compile options. It's been a
+while since I compiled with anything other than -DI386 -DHIGHRES. Thanks
+to user feedback -DNO_JOY_CODE is now fixed, and I quickly tracked down
+problems when the others were omitted. 
+
+18/12
+
+Modified the loadgame triggering code to work like the savegame triggering
+code, so a game can be loaded during a netgame. Pretty easy using the
+savegame code as a template, they were already fairly similar. Works fine.
+The only problem is lack of space in the bitfield used to pass the special
+event info: I haven't looked into this deeply, for now loadgame is a
+kludgy default.
+
+Another issue that needs thought is `security'. There should be a flag
+that prevents anything another user in the game does from affecting your
+files (i.e. disables game load/save in demos and netgames). So people like
+myself playing at home on a lan can allow this, but people playing on the
+net or over modem with people they don't know can be sure that their
+opponent won't save the game and overwrite their MAP29 UV HR game ;).
+
+19/12
+
+Had some trouble with corrupt savegames today. At first I thought it was
+due to my loadgame changes from yesterday. Turned out that my hard drive
+was full. So I made some changes:
+
+- if M_WriteFile can't write the whole file, it deletes the file
+afterwards. That way there won't be corrupt & misleading
+savegames/screenshots etc.
+- every call of M_WriteFile now checks if it suceeded, and prints a
+suitable error message if it failed (instead of cheerily saying 'Game
+Saved' when it wasn't)
+
+Checked that this worked. Also tested yesterday's stuff some more, seems
+to work perfectly.
+
+Another issue turned up with the key masking mantioned a while back
+(keypresses used in my keysetup not reaching other routines). I use `E' as
+a control key (close to the weapon numbers you see). It seems that this
+means that I can't use E in messages in multiplayer games - it is caught
+before it reaches the routine which builds those messages. Damn.
+
+No more changes before I release v1.3.1 now. 
+
+21/12
+
+Downloaded the Marine's Best Friend sources (the port by Lee Killough).
+I'm not sure yet how much I can/will use it, though. He says there are
+lots of bug fixes and optimisations, so I'll certainly try and use those.
+The other 'features' will be harder to integrate, so I will probably leave
+those until there is demand for them.
+
+Imported fixes from MBF for a file handle leak in the translucency code.
+
+22-23/12
+
+Imported MBF fixes & optimisations:
+- optimised m_fixed.h
+- WAD error autocorrection
+- sprite sorting (merge sort)
+
+Also removed limit in number of wad files, by rearranging the W_Init stuff
+a bit. Since the wadfiles array should be the definitive list of loaded
+wads, I made W_Init read that instead of params, and moved wadfiles array
+stuff to w_wad.*. Probably D_AddFile should be moved there too.
+
+Imported MBF fixes for underwater lighting problems. Fixed buffer overrun
+in M_Drawer (MBF pointed out the problem, I did my own fix. Doesn't break
+lines on word boundaries yet though).
+
+24/12
+
+
+Imported MBF's much neater network options syncronisation code. Killough
+says it is better too, and it certainly looks better. I'd still like
+PrBoom synchronisation though, so for now the old code can be selected
+instead with a command line parameter.
+
+Imported MBF change, no chat in demo playback, not mentioned in its docs.
+
+Overhauled a large part of m_misc.c, to make it portable. Separate fields
+for ints and const char*, changed the type field to an enum, and made the
+limits and default values be written by the code instead of duplicated in
+the help string. Reordered the entries and added section headers; prefix
+all comments by the unix standard '#' for comments. Some minor changes to
+the variables too.
+
+Wrote new V_DrawStretchedBlock function, and used it in m_menu.c and
+various places to fix high-res graphics errors. Also replaced some
+memory-setting loops with memsets for speed and clarity.
+
+26/12
+
+Have been thinking about compatibility code for a while now. I'm caught in
+a dilema... LxDoom isn't big enough on its own to set a standard, but
+there are multiple conflicting standards it could follow.
+
+The solution I've adopted is to change the compatibility variable to be
+called compatibility_level. This is an int which takes increasing values
+for more  improved versions of the doom engine - the levels are:
+
+0 - Boom's demo_compatibility mode, i.e. a very close approximation to Doom v1.9
+1 - Boom's compatibility mode, so `bugless' Doom v1.9
+2 - Boom normal mode
+3 - LxDoom v1.3.2+, that is LxDoom with some MBF bug fixes, and net game
+loading. When I next release LxDoom this will become a fixed standard.
+
+This way of doing things works nicely with savegames. The old
+compatibility variable was stored in savegames, so I now store
+compatibility_level - 1. This means that Boom can read and write savegames
+from LxDoom's higher compatibility levels, it will just play them at it's
+own level. 
+
+Imported a few more MBF fixes:
+- archville fire spawn
+- scroller calcs overflow (aliasing?)
+- fast shots going through walls (the fix isn't that good though, could be
+made tougher)
+
+27/12
+
+Imported the whole of MBF's d_deh.c. Had to go through all the usual
+const'ness problems again, but basically no big problems. This is the only
+way to get all the bug fixes reliably.
+
+I also imported the new codepointer functions into p_enemy.c. I don't know
+enough to know if that's all I need to do, but it seems to be. It's a
+cheap way to improve LxDoom's compatibility and flexibility, and doesn't
+hurt backwards compatibility - Doom and Boom deh/bex files will never
+refer to these (well, a buggy bex file might, but if that proves a problem
+they could be compatiblity optioned).
+
+Added code to allow the multiplayer colours to be selected in the config
+file. There isn't any friendly interface to it, but it does the job. Nice
+to be able to see the other player clearly. 
+
+28/12
+
+Discovered some savegame problems. I added the new RNG classes that MBF
+uses to m_random.h, this broke Boom v2.02 savegames. Ooops, fixed this.
+While I was at it, I imported the `improved' MBF savegame code in
+p_saveg.c, mainly storing a few fields with more accuracy. Also caught and
+fixed a potential buffer overrun in the existing Boom v2.02 code, where
+soundtargets had been added but the extra space used hadn't been accounted
+for properly.
+
+Also fixed a bug with my own loadgame in a netgame code, which prevented
+loading a game during demo playback. This is a complicated area - either
+the demo or the player watching can request a loadgame, and these have to
+be dealt with differently. 
+
+The p_saveg.c code is a real mess for portability though; I thought
+m_misc.c was bad, but it's worse. It's casting integers to pointers and
+visa-versa all the time, as it converts pointers to indexes etc. Fixing
+this will be, uh, very tricky. Hopefully the integer indices will
+generally be small and we can get away with it as it is. I won't hold my
+breath tho.
+
+Also, MBF and Boom v2.02 added soundtargets to savegames in different
+ways. I don't really want to try being compatible with both, but... Hmmm.
+Already the changes I've made mean Boom v2.02 can't read savegames from
+LxDoom saved at lxdoom_1_compatibility or greater. I might as well make
+them MBF compatible I suppose. This wasn't my plan, but each day as I add
+fixes I'm getting closer to MBF, further from Boom v2.02 with 
+lxdoom_1_compatibility.
+
+So I did it. Added a little table of recognsed savegame headers, added 
+lxdoom_1_compatibility as having header "MBF %d". Copied in the MBF
+soundtarget saving and loading code, compatibility optioned.
+
+Also did a pass of the nastier source files, checking data structures. A
+slight mod in f_finale.c allowed the cast call data structure to be made
+const and initialised directly instead of in code. Also made the gamma
+correction tables const, and made the stats arrays used in wi_stuff.c
+allocated dynamically only as-and-when needed. Most importantly, I made
+screens[2] and screens[3] so they are allocated and deallocated by 
+f_wipe.c, instead of being held all the time: these are only used for
+screen wipes (and screenshots, which I also fixed), and typically take up
+half a megabyte, so this is a big saving.
+
+29/12
+
+Rewrote a lot of stuff in v_video.c. Previously there were separate
+functions for each combination of translated, flipped and stretched
+drawing. Now there is a single function, which takes a flags parameter, so
+you just | together the modes you want :). Added a couple of nice
+variations, which take a wad lump number or name.
+
+Went through all the code changing the V_Draw* calls to match the new
+system. It certainly makes things much neater in places like m_menu.c.
+It's a pity that we can't do function overloading, it would make things
+even nicer.
+
+30/12
+
+Decided to take the plunge, and reimplemented the wad lump locking system
+from LxDoom v0.3. In many ways v0.3 was ahead of its time, with all kinds
+of advanced stuff in it. 
+
+What is this, you ask? Instead of calling W_CacheLumpNum(...,PU_STATIC)
+and then Z_ChangeTag later to release it, we now just call
+W_CacheLumpNum(...), which automatically `locks' the lump, then later call
+W_UnlockLumpNum(...). This makes the w_wad.h API complete, and eliminates
+the risk associated with all those W_CacheLumpNum(..., PU_CACHE) calls...
+by making them illegal :). Now anywhere a lump is used it must be locked,
+then later unlocked.
+
+31/12
+
+Went through modifying the sources for this new wad lump scheme. All kinds
+of hacks and kludges were cleared out and fixed. 
+
+In particular, the patch/column building routines were overhauled a bit
+(these were amongst the worst offenders of bad lump locking (they
+didn't)). Now R_GetColumn() remembers the last lump cached, and releases
+it when next called - unless the call is for _the same_ lump. This means
+that lumps are locked correctly always, but the calls to Z_ChangeTag are
+minimised.
+
+1/1
+
+Happy New Year. Quite why a coincidence of choice of calendar, numbering
+system and astronomy should be a cause for celebration is not clear, but
+it seems people need no excuse to party ;).
+
+Finished off yesterdays wad lump handling changes. A few minor problems
+arose, but the good error checking in place (combined with gdb in its
+usual superb form) made these easily fixed. I played my old speed run,
+MAP01-12 at ITYTD, no problems (well, as usual musserver crashed, but
+nothing wad related).
+
+2/1
+
+Pasted in the MBF game type startup code, specifically the bit dealing
+with demos and loadgames - thus gaining it's -recordfrom and -record
+-loadgame abilities.
+
+3/1
+
+Found the strange problems with musserver were caused by stupid error
+handling. There was a counter counting errors that exited after 10, with
+no message (doh). Also fixed the problem causing the errors, namely that
+stop messages dropped back to the main wait loop and were unrecognised
+there (doh). 
+
+Serious stress testing of LxDoom's stability, left it running a speed demo
+of MAP01-12 in the looping demo sequence for a few hours. Music, sound and
+the demos were all stable, no noticable performance loss (no indication of
+leaks).
+
+4/1
+
+Added -fno-common to the flags in the makefile, in response to another
+email from the guy porting LxDoom to BEOS. Half-a-dozen such repeats were
+easily caught and fixed.
+
+6/1
+
+Found 3 serious bugs in the new savegame/loadgame stuff. The error
+handling code in G_SaveGame was leaking memory (like the whole savegame
+buffer d'oh) and not clearing gameaction so entering an infinite loop. The
+trigger though was the compatibility level being saved wrongly, which was
+easily enough fixed.
+
+11/1 - 13/1
+
+Integrated Dick Leban's (the guy portnig LxDoom to BeOS) changes to the
+network code. There's a lot changed: checksum calculated in the
+network-byte-ordering, new byte order macros, and a various header fixes
+for BeOS. Also there was a big issue with the network startup packet; it
+was being byte-swapped twice on big-endian systems, for different
+structure layouts, giving a total mess. So I've modified the l_net.c code
+to not byte-swap network startup packets, and stuck with the MBF network
+options code. This gives the best of all worlds I hope.
+
+14/1
+
+Several reports have now built up of problems with super-hicolour LxDoom
+(32 bpp). Nothing I can do, but hopefully someone will fix it. Maybe they
+already have; I still have a patch whih someone sent for a weird thing to
+do with 32bpp X servers using less than 32bpp of actual data. I haven't
+had the courage to patch it in yet.
+
+Found the cause of the jump in executable size - -fno-common creates all
+static/global vars as initialised. Which leaves me with the statistic that
+there are 130 kb of uninitialised global/static vars in LxDoom; over half
+of which I've added (the trig tables are no longer initialised).
+
+16/1
+
+Dick sent me a patch which he reckons is the coop bug; a slight piece of
+shall we say misinterpretable code in p_enemy.c, to do with monsters
+seeing players. We're not sure quite what the exact failure is but it
+seems to cure it, and doesn't break demo sync for me. So it can only be a
+good thing.
+
+Tried to do a hires mode for the SVGALib version, but was defeated. All
+the SVGA calls in my SVGALib seem not to work with my card. Which is kind
+of limiting :(. Someone else will have to look at it.
+
+17/1 
+
+Left LxDoom running Sprike demo overnight to check yesterday's check
+didn't hurt demo sync, and to warn me of any leaks/instability. Sure
+enough it was running smooth as usual to greet me this morning.
+
+Modified time drawing routine to display hours (up to 100), and slight
+algorithm changes and reformatting needed to accomodate that in
+WI_drawTime. Also changed spacings on the ending screen slightly to
+accomodate the larger time figures.
+
+Fixed -geometry handling in l_video_x.c, though it still doesn't do
+anything for twm. Also added -geometry handling in d_main.c for the screen
+size, overriding the defaults but not setting them unlike -width/-height.
+
+19/1
+
+Fixed the PAUSE graphic so it displays centre-screen. 
+
+I got a report that PRBoom networking works provided you play without
+monsters. Which makes it look like it could be the coop monsters bug
+again. There is every chance that LxDoom v1.3.2 will network fine with
+PRBoom now, since I went through and reinstated all the PRBoom network
+options stuff.
+
+I bumped up VERSION to 204, so there is a distinct code to send to remote
+nodes to say 'this is an LxDOom node, but a buggy PRBoom node'. If the
+server is PRBoom then LxDoom nodes will automatically enter
+boom_compatibility mode with it's bad network options code. If the server
+is LxDoom, the -complevel 3 parameter will make it emulate PRBoom's bad
+code (and so other LxDoom nodes will go into compatibility mode), but if
+the server is started without this then it is in LxDoom mode, and PRBoom
+nodes won't be able to play. 
+
+20/1
+
+Fixed a problem where LxDoom couldn't load games in an competibility mode
+other than the default. I was masking things so that the new way of
+loading a game (triggered via a ticcmd) was suppressed in case of buggy
+demos or netgame nodes in comapibility mode; however this also suppressed
+saves in compatibility modes, since they don't revert to the old way. 
+
+23/1
+
+Becan the UNIXification of lxdoom, by making a default DOOMWADDIR of 
+/usr/local/games/wads, and allowing th sound server and music server to be
+searched for using the path. Previously I've always kept LxDoom in its own
+directory, everything together, but the unix philosophy on laying out
+filesystems says binaries and data in different places, not running
+programs from their own directory, etc.
+
+Also caught a stupid bug in the translucency code, causing crashes after
+saving the translucency cache. D'oh.
+
+Ready for release. I hope :).
+
+Also did a test playing LxDoom over the Internet. It was transatlantic, no
+change of a smooth game, but I was disappointed when it crashed. First
+time I've encountered the NUMTICS >= BACKUPTICS that Disk Leban mentioned
+in an email. Something isn't perfect in the network code it seems (so
+what's new heh).
+
+25/1
+
+Tried compiling on FreeBSD. Got a lot of warnings about values.h being
+depreciated, use limits.h instead. So I changed all the macros in LxDoom
+to use the newer header. FreeBSD compiles now, crashes during screen init.
+I'll look at that later.
+
+26/1
+
+Did some more optimising of the rendering inner loop. I reimplemented the
+256-byte alignment of colourmaps (no idea why it was taken out) for i386
+targets, and optimised the 128-byte high rendering loop to take account of
+this. About a 2% improvement in fps.
+
+14/2
+
+Been too lazy to update this log for a while. Busy busy. I've been adding
+some more MBF stuff to LxDoom, most significantly the new monster pointer
+reference counting. This is a serious stability improvement, fixing one of
+the nastiest parts of the Doom source. I couldn't use all of Lee's code
+directly, but mostly it all went in fine. There is error checking designed
+to check for bad reference changes, and I'm still getting odd warnings
+from it, but it's basically stable now.
+
+Also, I added the enhanced skies support from MBF. Quite a simple patch,
+good code as usual from Lee. The example wad SKY.WAD from MBF works great
+with LxDoom now.
+
+Also added status bar scaling to LxDoom; the status bar is now stratched
+to fix the window in highres. It works nicely enough.
+
+DosDoom code was branched from LxDoom, it was getting too fiddly to
+maintain 2 programs in the same code. Cleaned DosDoom stuff from the
+LxDoom side.
+
+23/2
+
+Well not much has been happening to LxDoom; I've been busy working on
+other things mainly. The only real things happening have been a few bug
+fixes, which I'll simply list:
+
+- crash using the -loadgame parameter
+- bug in the memory management code (from Boom/MBF), the block size on VM
+blocks wasn't being set. Caused corrupt savegames.
+
+Also modified m_argv.c to give priority to the later command line
+arguments, by user request and because it makes sense.
+
+27/2
+
+I got an email from Rafael Reilova about a new version of the musserver.
+This is a big relief for me; I know nothing about the musserver, so I'm
+more than glad to pass over the work on it to someone else. It sounds like
+it has been given some serious work, which it needed. So far the music is
+messed up for me, must reply and sort this out once I get time to look at
+it more.
+
+1/3
+
+Ouch. LxDoom hangs starting up this morning. Fortunately I immediately 
+guessed the problem, fixed it fast. The time value clamping in 
+I_GetTime_RealTime() was buggy. Damn. Hopefully fixed now.
+
+Will release a new version to get that fix out asap.
+
+2/3
+
+Cleaning up and texting for the new release. I removed a load of
+unnecessary I_GetTime references in m_menu.c; I_GetTime is a system call
+on Linux, so isn't as fast as in DOS Boom, where the time is maintained by
+Boom itself. Also trying to narrow down timing problems, in particular the
+strange behavior of -timedemo.
+
+3/3
+
+Email discussion of the new musserver is now getting somewhere, it seems
+that fm-synth has some problems but should be working soon.
+
+5/3
+
+LxDoom v1.3.5 released to fix that timing bug; however I soon noticed that
+my fix was also badly broken. Doh!!! Will be fixed for the next release.
+
+6/3
+
+Started integrating the automap patch that I was sent a while back. I
+decided not to do the patch blindly, but do it my way, rolling the
+separate automap-mode variables into a single enum. Needed some changes in
+other files for that, but nothing serious.
+
+8/3
+
+LxDoom v1.3.6 to be released shortly. I integrated a few patches to make
+LxDoom work better with the new musserver (including enabling music
+pause/unpause). It will no longer work with my old musserver hack, only
+the new one.
+
+15/3
+
+Tried reproducing a bug report I received; a SIGSEGV when holding down a
+key in the end-of-MAP30 cast call. Sure enough it crashed, but a
+preliminary code-dive showed no obvious reason.
+
+21/3
+
+Decided to try implementing an idea from DosDoom - lazy R_GenerateLookup
+for textures. This function builds the basic info about a texture that
+Doom needs; the lump and offset into it of the data for each column, or if
+it is composite then the size of the composite column. Building all this
+stuff means reading every patch for the texture into memory. Old Doom &
+Boom and indeed most ports do this for every texture on startup.
+
+I modified LxDoom to use the same trick as DosDoom; call R_GenerateLookup
+for a texture when it is first used. The benefits are:
+
+- fast startup
+- most Doom levels will not use 50% of the textures in the TEXTURE lumps
+(e.g. the Wolfenstein stuff, MAP30 textures, and textures not of the same
+style as the level). We need never read the patches for these, and save
+memory by not storing info about them.
+
+Cons:
+
+- like turning off level precaching, we are trading startup time for time
+during play.
+- the lookups need PU_STATIC malloc()s, so we are fragmenting memory by
+not doing them all together
+
+Possibly some kind of texture precaching would be an even better solution.
+
+22/3
+
+Serious attempt at a decent player-colours system. First, I added a
+protocol enhancement to LxDoom; it now transmits non-game-critical data in
+a new packet format, with the NCMD_SETUP tag. This way, old nodes don't
+even notice the new data. 
+
+First off, I added transmission of netgame save savegame names; when one
+person saves, the savegame name is broadcast to all players. Very nice :-).
+
+Then, added player colours. Modified r_draw.c to generate the colourmaps
+based on a new per-player colour setting, and regenerate them on the fly.
+G_ChangedPlayerColour() was added to g_game.c, and is able to change the
+translation flags on the player mobj's to match the new translations.
+Added a cheat code to change your own colour.
+
+23/3
+
+Reverted the m_cheat.c changes, saw a better system. We want player
+colours to match the map, so I added a mapcolor_me variable which is the
+colour _you_ want to be in a netgame. The mapcolor_plyr[] array now stores
+the player colours; this is set by the new player colour net messages, not
+by the local player; also it is used by r_draw.c, st_stuff.c and
+wi_stuff.c wherever player colours are needed.
+
+24/3
+
+Major debugging session. I was after the bug causing all the other
+LxDoom's in an LxDoom netgame to hang when one exited (well not a real
+hang, the menu still worked but the game itself stopped).
+
+Eventually tracked it down to local packets; it seems that packets being
+sent by LxDoom to itself are rebounded in d_net.c, but the flags (packet
+type) weren't being set since leban's fixes. Ouch. This could be the cause
+of many problems with netgames.
+
+All fixed now, things seem to be working well.
+
+25/3
+
+Misc stuff today. Changed the text player names to "Player 1" etc, since
+they are no longer fixed colours.
+
+Fixed the location of the PAUSE graphic; I had got the parameters to a ?:
+mixed up, and forgot to allow for stretching in calculating the y offset.
+Works perfectly now :-).
+
+Tried reproducing the SIGSEGV on the cast call after MAP30 again, but
+couldn't trigger it. Couldn't find the email bug report either; I need to
+clean my email folders ;-). Hmm. 
+
+26/3
+
+For some time, people have been reporting that LxDoom doesn't work at
+24bpp. So today I finally got the chance to run LxDoom on a machine that
+is capable of 24bpp. And sure enough it doesn't work. No idea why. I
+prodded the code a bit, no dice. Seems to be a fault with the Xwindows
+stuff, not the image translation.
+
+28/3
+
+After the major debugging session a few days ago, I now know more than I
+ever wanted to about how d_net.c works. Which left me thinking... I should
+now know enough to try doing client-server. This is regarded as something
+of a holy grail by some Doom players, but in fact all it really means is a
+different network topology. A separate, server program that communicates
+with each client, instead of every client talking to every other one. That
+alone is no enough to improve 'net play, but it is a good starting point
+for further improvements.
+
+So I did it. Wrote 4 new files, l_udp.c (UDP network packet
+sending/receiving), protocol.h (a protocol describing the packet headers
+and the format of the setup packet), i_network.h (a new i_net.h really,
+for the new packet-style functions), and d_client.c which replaces d_net.c
+and has the new netgame code.
+
+The major problems with the code so far are:
+
+- messy; code that packs different structures (varying lengths of them
+too) into packets is always going to be messy, but that doesn't mean I
+have to like it.
+- insecure; UDP does not limit the people that can send to a port, and my
+code does no authentication so far. Admitedly this isn't really important
+for the clients, but the server will need better code I think.
+
+29/3
+
+Wrote the server today. Nice compact program, similar to the client but
+without needing to worry about timing for now. Some initial problems in
+use, as expected, got rid of a lot of bugs in the client and server code.
+It works, but needs testing and refinement.
+
+30/3
+
+Testing the new client-server code today. Went through working out some
+endianness problems, made sure byte-swaps were being done in the right
+places, etc. I don't hold out much hope that it'll work first-time on
+big-endian machines, but I can always hope. I'll need feedback on this.
+
+However, ran into a major bug; after about 5 minutes of play, the game
+would be slowing down; after a while it would be unplayable. My first
+guess is some kind of information leak, maybe PKT_EXTRA packets leaking on
+the packet queue. Or it could be a networking problem, packets bunching
+up. Some tests I did make network problems seem unlikely though.
+
+31/3
+
+Couldn't see the bug in the client-server stuff, was forced to revert to
+the old makefile and put the new code aside for now. I'll look at it again
+soon, I hope.
+
+1/4
+
+I should probably put a load of wild claims here, like LxDoom having all
+its bugs cured, becoming true 3d, solving world hunger, and then say
+"April Fool!". But I'm too lazy to think of things to say.
+
+In fact, after some thinking last night I looked again at the
+client-server code, and found the bug. Damn memory leak! Very careless
+error I'd made, a very serious memory leak was causing the slowdown. Fixed
+it. Did an hour coop game with the new code, finished MM MAP07, everything
+worked fine.
+
+I also took a break to look at an email I got yesterday, regarding the
+24bpp problems. Gerhard den Hollander sent me a patch that made it work
+for him. All it did was... pretend it was 32bpp. Ummm... clearly I have
+misunderstood what Xwindows is telling me here, if by 24bpp it means
+unpacked, i.e. 4 bytes per pixel but 1 unused. Weird IMHO.
+
+Anyway that is the fix - when Xwindows says 24bpp, we work in 32bpp, but
+pretend to Xwindows that we still agree it is 24bpp. New variable X_bpp is
+separate from our internal dest_bpp. Tested and it works. Enabled by an
+option in the config file. I still don't get it though, this is very odd.
+
+2/4 
+
+Released v1.3.7.
+
+x/5
+
+Ok I was pretty busy with exam preparation during this month. All that's
+here really is a collection of patches that people sent me during this
+time, and bug fixes for reported bugs.
+
+Fixed the glitches at the start of sounds playing, thanks to a hint from
+someone, lost their name/email addy atm though :-\. Sorry about that.
+Anyway the problem was it was playing the sound lump header as part of the
+sound. D'oh.
+
+More UNIXification, prompted by a patch from Vicente Aguilar
+<vicente@hal.dhis.org>. Basically it ues ~/.lxdoom/ instead of the current
+dir for everything important. Didn't implement the patch blindly, did my
+own version of it. Screenshots still do to the current dir... to lazy to
+do some kind of config option to place those.
+
+12/6
+
+Exams over, so I have time to release a new version with the various small
+changes I've done over the last few months.  Went through this morning,
+cleaning up this log file, and making a new page for my website
+summarising some of the technical things I've found in coding LxDoom that
+I've found.
+
+20/6
+
+Big debugging day. Fixed the bug pointed out by Quasar, where the "got a
+medikit you REALLY needed" message was never shown. Also did a big
+debugging run of my attempt at importing the mobj pointer reference
+counting from MBF. Turned out I'd made a complete mess of the logic in
+p_tick.c, it's a miracle it worked at all. It was deleting stuff
+regardless of references. Very bad. All fixed and appears to work now.
+
+Did some code improvement in d_main.c, making the title string code more
+compact. Also some code cleaning in l_main.c. And I made the after-level
+screen show for ExM8. This breaks demo sync... but demos end at ExM8 so
+nobody cares (right?).
+
+20/7
+
+Well, as you can see, I am working on LxDoom pretty intermittently these days.
+Some things came up while I was playing coop, so I decided to add them.
+Firstly, I forgot about quickloads when enabling netgame savegame loading,
+that's done now (just removing a check). Also, I added the level and game
+time display to the intermission screens in coop games. They only show up if
+there is space (<3 players I think). Not an ideal solution, but a useful
+feature for me at least.
+
+Decided that a release was long overdue. While there are no big new
+features, the accumulated bug fixes and minor things should certainly go
+into a released version. So I did a scan of the RCS logs for the past few
+months; here are some things I apparently forgot to enter into this log:
+
+- removed frame rate dots (was duplicated code, and it was a pain to convert
+from the dots to a frame rate number). Instead I added an IDRATE cheat which
+shows the framerate and other misc rendering stats.
+- added separate internal keycodes for the numeric keypad, so those keys can
+be assigned and used separately from the other keys; done for both SVGALib
+and X. Prompted by a patch someone sent me for just the SVGALib version, but
+didn't use much of their patch in the end, since I prefered to not change
+existing codes.
+- portability improvement, replacing long long's by a typedef, so it's
+easier to change this to your compiler's 64bit int type.
+- code to detect broken pipes and stop trying to do sounds etc after the
+connection is lost.
+
+16/8
+
+Well I never got around to that release. Hopefully I will soon. Anyway, 
+I felt like dabbling a bit, and poked around in r_bsp.c, doing some minor 
+optimisations.
+
+18/8
+
+I decided to do some performance tests under stress. Using the "detailed" 
+areas of 6fiffy3 as a test, I ran some performance tests.
+
+First thing I noticed was that it took 8 seconds just to load the level. 
+Quickly identified the problem, an O(number of lines * number of sectors) 
+loop in P_GroupLines. Fixed it, by rewriting part of the function.
+
+20/8
+
+Testing on 6fiffy3 suggested that p_sight.c was important to performance. In
+earlier tests I had used the built in Doom 2 demos, which are at the
+comparatively simple original levels, so don't stress anything other than
+the column drawing. However most modern Boom levels are far more complicated
+than the originals. The column drawing is still present, but takes hardly
+any more time at a Boom level than a Doom one; however with much larger
+levels and more monsters, LOS calcs suddenly begin to take a lot of time.
+
+I did some optimising to p_sight.c, mainly by making intelligent use of the
+z-range of a line of sight. Also made the los_t structure static, so we don't
+have to dereference its pointer all the time. 
+
+I decided on SPRIKE, with it's supplied demo, as a good test (since it's a
+Boom level). Frame rate improved from 188fps to 199fps at 320x200
+
+25/8
+
+Upgraded my machine from a crap old CL5436 1meg video card... to a slightly 
+less crap CL5446 2meg card. This finally allows me to use 24bpp on my machine 
+for testing. Anyway, a test showed me what I expected; the kludge already 
+in place to get 24bp (which is really 32bpp) to work, works.
+
+I've been thinking longer term though. Screens running at less than true 
+colour will become increasingly rare over the coming years, so programs that 
+work in less that true colour will become dated. Doom will always have 8bpp 
+graphics, but the colourmaps could be translated to 32bpp, eliminating the 
+need for the third colour translation stage (l_video_trans.c).
+
+That may be a long way off, but I decided to go through the program, and try 
+to isolate the direct screen buffer accesses to v_video.c, r_draw.c (and asm 
+substitutes) and l_video_*.c.
+
+26/8
+
+Went through am_map.c, removing the direct screens[0] accessing, adding 
+functions in v_video.* where needed.
+
+I also went through f_wipe.c. The functions to snapshot the before and after 
+screens were easily change to use V_CopyRect. There were 3 old functions, 
+apparently for some kind of 8bpp-specific fade transition, which was never 
+used. Finally, the actual wipe transition uses direct screen accesses, but 
+not in a way that can be easily replaced by V_* stuff (not without losing 
+a lot of optimisations). So I left it for now.
+
+29/8
+
+I decided to try coding an idea I had a long time ago. Instead of recording 
+demos to a huge buffer in memory, on any decent OS it should be much 
+faster in the long run to write straight to a file (since it saves memory, 
+and writes are buffered so take little time on average).
+
+I messed around in g_game.c, coded it in, but had trouble with recorded demos. 
+The header seems to be written ok, and later in the file the 4-byte record 
+structure is evident, but they don't play back. I didn't change the demo 
+playing code, so something is badly wrong.
+
+30/8
+
+I had some new ideas this morning, which could be the big performance 
+breakthrough I've been looking for. But it's a big experiment to try those, 
+so I decided that first I should tie off the other stuff I was working on, 
+and release a stable version. I bumped the version number up to v1.4.0, 
+reverted the demo related stuff from yesterday, and did a test to make sure 
+demos worked again. Also I checked in the video files I was working on, since 
+they seem fine.
+
+I began thinking about outstanding bugs, which I've known about but haven't
+affected me enough to make me fix them. The first one that came to mind was
+the problem with the status bar being drawn at the wrong times sometimes.
+The problem, as pointed out by Gady Kozma <gady@math.tau.ac.il>, is that
+there was no cental place where the display logic was worked out. D_Display
+used to do most of this work, but with sucessive hacks like hi-res, status
+bar scaling, and overlayed automap, the logic has been spread to places in
+r_draw.c, r_main.c and am_map.c.
+
+So I started by rewriting the logic in D_Display(); the code was a mess,
+with lots of special case if()'s for the various hacks.   
+
+31/8
+
+Finished the rewrite of D_Display. It's much better now, far more
+understandable. There is still rather too much logic in R_FillBackScreen and
+R_DrawViewBorder, but moving that would be more work. Anyway it's a big
+improvement. I did a variety of tests, and the display always seems to
+update correctly. The status bar display bugs are gone.
+
+However, I was thinking about other outstanding bugs (not all have even been
+investigated yet), and here are the ones I can remember:
+
+- sky scaling (it seems to stretch near the edges; hi-res bug maybe)
+- lighting in hi-res (some folks are real senstive to this, I fixed the
+serious bug from PrBoom with v1.3.7, but there may still be problems)
+- crashes on a couple of particular levels that I've received in bug reports
+- WI_(un)loadData locking problems when going from the end level screen to a
+finale screen (maybe caused by my earlier changes to show the end level
+screen even for ends of episodes)
+
+1/9
+
+Fixed the problems with WI_(un)loadData. This has been buggy since the first
+Doom source release. Basically the problem was this: WI_End was called when
+WI_Ticker decided that the intermission screen had finished, but g_game.c
+only set gameaction to ga_worlddone, which changed the gamestate _next tic_.
+Hence the WI_ drawing functions would get called one more time.
+
+But WI_End released all the memory, patches etc needed by the drawing
+functions. As Lee Killough commented in his log, there were several
+instances of memory accessed after it was freed, due to this problem. Lee's
+fix was to delay the freeing of stuff until the next WI_loadData. That's bad
+though, since WI_* data is being held in memory throughout playing the next
+level, just to work around the bug.
+
+The fix wasn't trivial, since WI_End wasn't guaranteed to get called at all.
+This means one bug was that locks would accumulate on WI_* data. The bug I
+had noticed was mroe obscure; WI_loadData didn't remember the previous level
+and episode it was loaded for, so it wasn't able to free the data for the
+right episode (in fact it freed the data for the current episode, which was
+sometimes the wrong one).
+
+The fix is to call WI_End from G_Ticker, instead of in the WI_* exit logic.
+G_Ticker now remembers the previous gamestate, and if it changes, it can run
+a cleanup function for the previous gamestate; so far WI_End is the only
+instance of this.
+
+2/9
+
+Looked a bit into the hi-res brightness problem. It seems that the previous
+fix I did fixed flats, but walls (and maybe sprites) are still too bright.
+The code isn't that easy to follow.
+
+3/9
+
+Worked out the brightness problem. My previous fix had been to the c_zlight
+array, which is used for floors. Walls and sprites use the c_scalelight
+array, which is worked out in a different subroutine. The problem was the
+same though; the original Doom screen width was used as a factor in working
+out these tables, but SCREENWIDTH became a variable in PrBoom hires. Hence
+the calculations were skewed; replacing by 320 cured the problem.
+
+4/9
+
+I decided to look at an old bug report about a crash in Hell Revealed.
+Knowing that that episode is one of the hardest around, I expected just some
+kind of overload. In fact, it was much mroe serious.
+
+Essentially, there is a vertical shaft of about 4000 in height, which the
+player falls down. Except LxDoom crashes when you cross the edge to fall. I
+tested with -nomonsters and running in gdb, and narrowed the crash down to
+the ylookup[] index in drawcol.s:R_DrawColumn_Highres. In the x86 asm
+version, this index is done _before_ the pixel count is checked to be
+positive. The segs at the bottom of the shaft are way off the bottom of the
+screen, but they still reach R_DrawColumn_Highres, and SEGV on the
+ylookup[]. Only at the pixel count does it realise they don't need drawing. 
+
+This exposes two serious issues. One, that Doom can't regard a long vertical
+shaft as a blockage to sight (since there is no physical blockage, it's only
+your angle of view that means the floor and wall block vision). This means
+that potentially hundreds of segs are being "drawn" behind such dropoffs,
+when they aren't visible. Two, that when a seg goes a long way below the
+player, the ylookup[] for parts of it may SEGV (even if there are parts of
+the seg that are in sight; the seg at the back of the vertical shaft is very
+tall).
+
+It turns out that R_RenderSegLoop already does the necessary checks for all
+but one-sided lines. For these, no overflow can occur if they are in sight.
+So it is sufficient to make sure that 2 sided lines that block site because
+of height reasons actually do block sight as far as r_bsp.c is concerned
+(which they did not before).
+
+The current sight blocking in r_bsp.c is done via clipsegs; an array of
+entries indicating blocks of screen columns which are already completely
+blocked by 1s lines. The trouble is, 2s lines blocking sight due to height
+may not do so in neat blocks (well, they will usually do so, but it's hard
+to compute these blocks). So I changed to a slightly less efficient
+algorithm for handling blocked columns, an array with one entry per screen
+column. This is worse for high resolutions, but makes it easier to code the
+new 2s line blocking stuff.
+
+The new code works fine. This was also the cause of the rendering stats
+showing far more segs than expected when looking at some walls; now only the
+segs actually in sight are ever considered. Finally, it fixes the related
+automap bug, that when looking at such a vertical shaft, one could often see
+the area beyond on the map. It's all just an extension of Lee's original
+automap bug fix really.
+
+5/9
+
+Generally fixing stuff today. My father has been writing a doom level, using
+LxDoom as the main engine for development. When he tried his level on Boom,
+it crashed during startup with an R_GenerateLookup error. LxDoom calculates
+the lookups lazily, and the faulting texture was never used; but most ports
+work through all the textures at startup checking them.
+
+This exposes a more fundamental underlying point; LxDoom autocorrects or
+misses a lot of bugs in wads now (like linedef flags (code from MBF), or the
+texture lookup generation). But for people developing levels, this is
+undesirable. So I went through modifying my previous fixes, so they report
+warnings whenever they fix a bad wad file. For the lazy texture lookup code
+this isn't a solution though; instead I made -devparm cause all the lookups
+to be generated at startup, so wad developers can use that to check
+everything will be OK with Boom etc.
+
+I also looked into a bug report about the networking. People with computers
+on changeable internet connections reported that LxDoom often picked up the
+wrong IP address for the machine (e.g. 127.0.0.1 or a LAN IP, even tho the
+game was to be played over a dialup connection). I did some work on the
+networking. Now the server calculates the client's IP by the return info
+from recvfrom(2), instead of requiring the client to send its IP (the client
+could not know which IP was the one via which to contact the server without
+hacking into the routing tables).
+
+I removed the -cdrom parameter, it's redundant. I then checked my email,
+and found waiting a load of patches from Gady Kozma. The first one that
+caught my attention was for v_video.c, fixing a mistake in V_DrawPatch for
+highres flipped patches. It shows how little flipped patches are used that
+this was never noticed.
+
+Next, a patch to allow the status bar to have independent x and y scales.
+The code was a little messy due to the reducing part of the scaling code;
+since this never worked well anyway, I removed the ability to reduce the
+status bar, so making it rather simpler to implement.
+
+7/9 - 10/9
+
+I got another email a few days ago from Josh Parsons about an
+automake/autoconf based setup for LxDoom. The first mail contained a patch
+to get it working for Linux, but I was concerned that it would be a step
+backwards to implement this without portability testing (the whole point of
+autoconf is to make things portable). This mail contained more though, with
+some testing done and some changes to make things easily portable. So I
+decided to "bite the bullet" and apply them to my latest source.
+
+It took me a few days to find my way around the automake/autoconf system, but
+I think it's all working great now. The configure script now tests for the
+presence of X, SVGALib, libXext, and the headers for the sound and joystick
+support, and compiles only the relevant programs and features. Still needs
+some testing, but it seems great.
+
+I reorganised a lot of the documentation while I was at it. The install
+instructions have been separated to a file INSTALL, which is based on the
+generic autoconf install instructions. The old Boom and Doom source docs are
+included but in a tar.gz, just for interest's sake. The main docs (boom.txt,
+boomref.txt, doomlic.txt) are in a subdir doc/, along with the man pages. I
+renamed my own log to ChangeLog, and separated teh version history into a
+NEWS file, to fit the preferred file layout of automake.
+
+Josh also included experimental XFree86 DGA extension support in his patch.
+It's interesting, though it doesn't work properly on my 16bpp X setup (good
+job I had my Psion and cable handy to close it down :-). I disabled the line
+to check for Xxf86dga in configure.in for the next release, but it's a
+feature many have requested so I will pursue this later.
+
+20/9
+
+I was reviewing a WAD (PWADI.WAD) today, and by the end of the game it was
+running quite slowly (11-12fps). I exited LxDoom, and out of paranoia, I
+re-ran LxDoom and reloaded my last savegame. 17-19fps. Uh-oh. It could be a
+memory leak or similar bug causing the game to slow down. I haven't noticed
+it before, and I haven't been doing serious code changes for a couple of 
+weeks.
+
+26/9
+
+No luck tracking down the slowdown in PMAPI.WAD. I played through the whole
+level again, without a problem. However, I did find something interesting -
+aumix doesn't sleep(3) at all, so it tries to take 100% CPU time. And I did
+run aumix quite a few times while I was playing that PMAPI game... maybe I
+left it running, and that caused the slowdown. Anyway, that means the bug
+is only a possible bug now, so I won't hold back doing a release because of
+it.
+
+1/10
+
+I've been reading about CVS for a while, and finally I decided to bite the
+bullet and put LxDoom into CVS. Since I was already using RCS for most of the
+files, it was no great problem.
+
+2/10
+
+I decided to use the configure --enable/--disable options to take over some
+of the compile options for LxDoom, like HIGHRES, RANGECHECK, etc. Those are
+specified in configure.in and acconfig.h now, and I removed teh redundant
+sections from w_wad.c and z_zone.c that this replaces.
+
+I also did a test compile under FreeBSD, which threw up a problem with the
+include path for the X11 headers. Had to modify src/Makefile.am to include
+the X_CFLAGS generated by autoconf. LxDoom now works on FreeBSD, except I
+haven't tested sound yet (need to recompile the FreeBSD kernel I guess, that
+should be fun).
+
+3/10
+
+I'd been noticing some minor rendering erros since my rendering improvements
+of 4/9. To summarise, sprites were being shown under closing doors that
+should've been blocked by a further wall. I made a major effort to debug them 
+today. 
+
+Firstly, I was aware that the IDRATE rendering stats were showing that far 
+too many visplanes were being added in rendering (=> too many subsectors were 
+being visited by the renderer). After adding some diagnostics, I found the
+problem - My edits to r_bsp.c between 1.1 and 1.2, in November last year,
+had hugely limited R_CheckBBox's ability to exclude non-visible subsectors.
+I reverted that change, and the number of visplanes returned to a more
+sensible number.
+
+But that wasn't the bug I was after. At the time of the edit, I had not
+fully understood Lee's comment in r_segs.c, where he added some sprite
+clipping flags in the case of a 2S back closed line. My new code was
+effectively creating closed 2S lines, but wasn't able to set those flags
+there, because only during R_RenderSegLoop did the new blocking code work
+out is a block was forming. 
+
+To summarise the technical side of the bug: Doom stores information about
+each rendered seg, including information about how to clip sprites behind
+it. Flags are set if the seg can actually cover a sprite - if it cannot, it
+is ignored during clipping. Two sided lines that didn't have a floor or
+ceiling drop-off behind them (floor level lowers, or ceiling raises), then
+they can't conceal a sprite (the old code said - if the sprite was
+concealedm, there must be a further solid wall or drop-off that concels
+them). The old code relied on visiting all the lines in the view cone until 
+it found a solid one, which would be marked as clipping.
+
+But the new code didn't need to reach a solid line - I made it so it
+realised when the view was blocked even by non-solid lines. But that meant
+there might be no line which Doom thought could block sight to a monster,
+because the new code was more efficient and didn't need to reach out to a
+solid line. So I added a flag passed back from R_RenderSegLoop, which allows
+the right flags to be set for lines that block sight. All appears to work
+right now.
+
+4/10
+
+Doom is GPL'ed! :-)
+
+I'm still not sure of all the implications - I might have to ask TeamTNT
+(DosDoom too?)if they are happy for their code to be GPL'ed as well. I
+haven't seen the new license yet, I won't know if it's retrospective or not
+until I do. But it must surely be the best news for LxDoom.
+
+5/10
+
+Had yet more sprite clipping problems. Playing KBoom_4, I first had a
+problem with cacodemons on a pillar on a room, where the central part of the
+pillar had ceiling=floor) - because the lines on the sides of the block were 
+2S-closed, this was hitting my earlier clipping changes. It seems that 
+my confused attempt to recode Lee's "doorclosed" clipping change (his sprite
+clipping fix for the 2S closed rendering bug) was in error. I changed the
+code to treat 2S-closed lines just the same as 1S lines. Bug fixed.
+
+Later, I saw another glitch - sprites showing though a lowering lift. This
+is directly to do with my newer 2S blocking code, as the sprites showed
+throgh only whenteh lift completely filled some columns but not others. It
+had to be the new code - I quickly found and corrected a typo in my changes
+of 3/10. Bug fixed.
+
+6/10
+
+Investigated a chain of minor mistakes in teh screen update logic. When the
+view was full screen, with overlayed automap, the status bar was being drawn
+(but largely overwritten by the rendering). It turned out there was still
+some display logic in st_stuff.c, I removed it. Fixed.
+
+Also, I noticed the status bar percents were being drawn every frame (when
+the status bar was in view, or when a refresh was needed). Just bad logic in
+st_lib.c. I changed it to be drawn only when the status bar was on screen
+and either a refresh was needed or te number had changed (the coloured
+percent sign option needs this).
+
+9/10
+
+Emails back from old upstream developers are saying GPL is fine. I'm waiting
+for the Boom source to be rereleased as GPL, then I can release LxDoom.
+
+I spent yesterday installing Debian 2.2 (unstable/potato) on another
+partition, then edbugging lxdoom on it. It seems that gcc 2.95.1 tightens
+the rules on inline assembler considerably (to an outsider like me,
+"pedantically" could be used ;-). Anyway, I fixed that, and after ironing
+out a few problems it looks good now. It's not quite as optimised as it was
+before, but I'm not expert enough to fix that. Checked demo sync, all appears 
+ok (no worse than before, anyway).
+
+10/10
+
+Boom is released GPL'ed. I've gone through and changed all the headers, so
+LxDoom is now GPL'ed too :-). I also changed a lot of C++ comments to C
+comments while I was at it.
+
+11/10
+
+Preparing to release v1.4.0 - since the license change is so important, i
+decided a larger version increment was appropriate. Last minute update of
+all the text files and documentation.
+
+15/10
+
+Got a patch from Steve Van Devender, fixing bugginess in the wad autoloading
+logic in d_main.c. 
+
+16/10
+
+I did an experimen to see what parts of savegames took all the space. The
+conclusion: P_ArchiveWorld, and P_ArchiveThinkers take the vast majority of
+the space. The latter is probably unavoidable; the former could be
+compressed hugely just be storing only sidedefs that differed from when the
+level was loaded. I'm interested in reducing savegame size because it might
+be useful in speeding up joinable netgames later.
+
+17/10
+
+First job, I fixed the problem with tutti fruiti on non-power-of-2
+non-tiling textures. The non-tiling rendering loop does not round the
+position in the texture by the texture height (because it's not told this).
+So, we have to make sure the right position is passed to R_DrawColumn*. If
+you work through the maths, various terms cancel out and there is no need to
+do any offset % textureheight stuff (I have a piece of paper with the math
+right here in front of me - believe it). But when Lee did the tutti-fruiti
+fix, he added a rw_m*texturemid %= textureheight, simply to speed up
+calculation for textures with a large y offset in the sidedef.
+
+So the fix is easy - apply the % textureheight only to the y offset. Alas
+this can't be moved outside of the renderer, since the texture height for
+different textures on the sidedef could be different, and the offset can
+change during the game (OK, it could be done, but it'd be fiddly). I added
+an efficient FixedMod function to m_fixed.c to do the %'ing.
+
+Also fixed all the hanging else's causing warnings on the new gcc.
+
+18/10
+
+Got a patch from Chris Purnell, fixing the function keys in lsdoom. Even
+though I hardly ever use lsdoom these days, I'm surprised I never noticed
+this when I coded it originally. Simply fix, tested and works fine.
+
+27/10
+
+I finally got around to a major code improvement that's been a long time
+coming... making W_CacheLumpNum return a const pointer. It certainly should
+always have done this, but it was referenced in so many places that I
+decided to wait until I'd const-fixed other parts of the code before
+attempting it. Anyway, it's now done.
+
+The main complication was the translation lumps (cr_red etc), because they
+needed const'ing too. I took the opporunity to change those pointers from
+char's to byte's. That had knock on effects in st_lib.*, but nothing
+serious. All fixed up.
+
+Still some bits to do.. the demo lump and music lumps.. there are some minor
+complications with those I'll have to work out.
+
+18/12
+
+Well I was installing LxDoom on a couple of machines today, and found a few 
+minor glitches. Firstly, I clarified a couple of things in the INSTALL file, 
+most importantly adding a note about using GNU make on BSD systems. I also 
+removed the -pipe compile option, since this only works on systems where 
+as(1) accepts input from a pipe (FreeBSD's version apparently does not).
+
+I did some major code cleanup in d_main.c. Now there is one function used
+for searching the standard dirs for WAD files, which is used by both
+FindIWADFile and the WAD autoloading code. FindIWADFile was a horrible
+function, it's much nicer now.
+
+Also fixed a bug in l_sound.c; the default is for the music to stop when the
+game is paused, but when it was restarted the looping wasn't being
+preserved.
+
+I might add in joystick support for FreeBSD, time permitting.. looks easy
+enough. Also, I still have an idea to improve the key binding stuff.
+
+24/12
+
+Made a change to l_udp.c. I discovered the hard way that non-blocking IO on
+the network socket is _required_, so silently compiling with no call made to
+make the IO non-blocking is not a good idea. As it happens, because of the
+autoconf changes the #define being used by this code wasn't being set, and
+so no non-blocking call was being made. In future, it may fail but it will
+do so noisily. I need to find a portable way to make a network socket use
+non-blocking IO, but for now it works on Linux, FreeBSD, and maybe BeOS and
+Win32.
+
+25/01/2000
+
+Got a load of patches for compiling on Sparc. Some of these I had already
+known about and fixed (e.g. l_udp.c inet_aton call, uint_t in
+m_misc.c). Another just required one of the earlier Sparc porting patches to
+be reverted (problem with misaligned memcpy). There was a fix included for
+the non-blocking l_udp.c socket on Solaris, which was very helpful.
+
+More problematically, there were some SIGBUS's in d_client.c, for no clear
+reason (the patch replaces a function call with code that duplicates the
+function). More investigation required.
+
+Went through adding new code to make making lsdoom setuid root less unsafe. 
+It will only be used on Linux systems (since that's the only place lsdoom
+applies to).
+
+26/02/2000
+
+More portability work. uid_t isn't available in the headers for all
+linux-en. And don't use .dep files by default as pmake doesn't like them.
+
+Also went through cleaning up various security/reliability related things.
+Got rid of some sprintf's and static buffers. And made safe the wad download
+fork thing in d_client.c.
+
+14/03/2000
+
+Added RPM spec file to the CVS tree. I'm not sure whether I'll be making
+RPM's yet or not, but including the file is nice at least.
+
+16/03/2000
+
+Cleaned up the uid_t stuff somewhat. It should not have trouble compiling
+anymore.
+
+Added the rpm build to the root Makefile. Added the documentation to the 
+standard make install, which means it gets included in the RPM too. The 
+packaging seems excellent now.
+
+17/03/2000
+
+Merged Barry Mead's improved mouse code. It took me way too long to get 
+around to taking a real look at this, and it turned out my fears were largely 
+unjustified. The finer grain control can't be a bad thing, and I left 
+the movement clamping unchanged.
+
+Also sorted out the configure scripts way of deciding compiler optimisations. 
+Now it will add options for your system only if they are tested to work, 
+and they can be disabled by a configure option (which is used by the RPM).
+
+22/03/2000
+
+Whoops, the documentation was being installed in the wrong directory. Just
+needed an @PACKAGE@ in the doc path. Fixed.
+
+23/03/2000
+
+Did some cleaning up of the sound code. This is meant to clear the ground
+for work later, maybe converting it to use esd.
+
+25/03/2000
+
+Found a problem with lxdoom, the new mouse code, and consistency failures,
+when trying to play a netgame. Right at game start the game would desync, as
+if one player was trying to move before the game started.
+
+Implemented a kludge which prevents movement in the first few tics. It's
+definitely a kludge though.
+
+26/03/2000
+
+Started working on a more intuitive network system. The idea is that people
+should be able to join and part network servers freely, instead of waiting
+for all players to join.
+
+27/03/2000
+
+Completed the work started yesterday on free join/parting from network
+servers. It works. It's not very usable yet, we'll need in-network-game
+ability to start new games (with all options) and end games for it to be
+much use.
+
+28/03/2000
+
+I was thinking about the need for more game special events today, and the
+fact that some of these would require more data to be transmitted than would
+fit in a few bits. I came up with a new system where the whole ticcmd would
+be used for special data - that should give enough for most purposes.
+
+Started coding it.
+
+29/03/2000
+
+Finished game special event code reorganisation. End game in a netgame now
+works, and the way is clear for a more powerful and working New game in a
+netgame.
+
+You can now join a new player to a game as follows: save, end game, player
+joins, load game. It's getting there.
+
+01/04/2000
+
+Switched G_MakeSpecialEvent use a variable argument list, so it can take
+parameters directly instead of via global variables. I do try not to
+increase the global variable mess, I really do :-/.
+
+03/04/2000
+
+Started looking into IPv6 support. It seems that the application side is
+very similar to IPv4, so the two main problems will be (a) I don't know much
+IPv6, (b) it's hard to tell how much is missing kernel features or
+misconfigured IPv6 interfaces, and how much is program bugs.
+
+I did get complete support coded but not working. So I decided to back out
+the actual IPv6 support, but I kept the structural changes that it needed.
+So I'm much closer to adding support, but not there yet.
+
+Tested the new code on FreeBSD, had to make some changes to get it to
+compile. 
+
+Also did some quick reworking in l_sound.c to fix a warning about the way
+music data was managed. I reorganised a bit, so there is less duplication of
+the data now.
+
+05/04/2000
+
+Investigated the problems with DGA support. It works in 8bpp, but not above,
+because it isn't reading from the expanded image buffer. Without any API
+documentation I can't really play with this DGA stuff though.
+
+06/04/2000
+
+Removed the doomcom structure. It took memory and was virtually unused by
+the new code.
+
+Also began some more reorganising in d_client.c - heading towards joining
+and leaving network servers from the menus. D_CheckNetGame will be used to
+"update" the game settings to te current connection status, while
+D_InitNetGame will start (or stop?) a connection.
+
+08/04/2000
+
+Started working on the new newgame menu. Basically I'm going to use the
+Boom setup menu code, creating a new menu which will let game options be
+chosen. A couple of extensions to the setup menu code will be needed, but
+hopefully nothing major.
+
+I was running with --enable-debug as I do these days, and experienced a
+crash when I warped to MAP29. In fact, I noticed that the static memory
+figure was far too high on several levels.
+
+Started tracking this bug. The crash was causes by corruption on the
+conventional C heap. I soon located yet another problem with block->size for
+vm blocks - it shouldn't include the HEADER_SIZE. The memory randomiser in
+Z_Free which is enabled by INSTRUMENTED was then doing the damage. Fixed.
+
+That left the source of the high memory usage still to be found. I added a
+couple of functions to dump the heap contents (including flagging WAD lumps
+with their names and locks). It soon became apparent that Z_FreeTags wasn't
+freeing all the PU_LEVEL data! Having narrowed it down to this, a quick
+inspection of Z_FreeTags found the problem - a simple bug in the way it
+stepped through the list. Yet another original Boom (doom? I don't have the
+source handy) bug.
+
+But that didn't substantially reduce the problem. Late night debugging
+session finally found the true culprit - W_CacheLumpNum wasn't handling the
+no-locks case right, so R_PrecacheLevel was causing all the data to be held
+statically. Damn. Fixed.
+
+09/04/2000
+
+Added a new ./configure option to enable/disable the heap dumping code - it
+might come in useful in future.
+
+Made level precaching not the default, since we shouldn't need it on most
+modern systems. Made it a config file option. While I was there, I removed
+some old config file options only relevant to DOS.
+
+15/04/2000
+
+Spent several hours narrowing down the cause of the demo desync in Memento
+Mori DEMO3. It turned out to have started with my p_sight.c optimisations of
+20/8/1999, in particular the z-range optimisations. I can't see exactly in
+what circumstances the code was wrong, but I suspect a rounding problem.
+Anyway, a slight change making the optimisation less aggressive fixed the
+problem.
+
+25/04/2000
+
+Finishing up the new newgame code ready for release. It's far from perfect
+yet, but it's not critical either and I don't want to hold up the other bug
+fixes much longer.
+
+27/04/2000
+
+Finally tracked down something I noticed a while back. E.g. start of
+Darkening Ep2, MAP01; one section of the canyon wall looks too dark. The
+particular section turns out to be exactly east-west. I thought there was a
+bug in the distance code when calculating axial line distances, but it
+turned out to be something else altogether. In r_segs.c, east-west and
+north-south lines have their brightness adjusted... for no physical reason.
+Once you know what to look for you can see it everywhere (start of MAP04
+shows it well).
+
+I've put in an option to disable it, since it's clearly rubbish (it adds
+contrast to plain rooms sure, but looks crap in outdoor areas, and doesn't
+work for rooms which don't have orthogonal walls). But by default I suppose
+I have to leave it on :-\.
+
+29/04/2000
+
+I decided that, since I'm busy right now, and the new netgame stuff is still
+very experimental, it won't go in the main version for now. Thus began the
+painful proceedure of removing the changes - painful because I wanted to
+retain the low level network code improvements I made afterwards. Anyway, it
+wasn't too problematic.
+
+Now begins the process of testing, prior to a v1.4.5 release. There's still
+a SPARC fix to go in, and I'm waiting for feedback from Andre Majorel about
+a 24bpp packed video problem, but apart from thatn I'm happy right now.
