@@ -237,7 +237,11 @@ P_UseSpecialLine
     int (*linefunc)(line_t *line)=NULL;
 
     // check each range of generalized linedefs
-    if ((unsigned)line->special >= GenFloorBase)
+    if ((unsigned)line->special >= GenEnd)
+    {
+      // Out of range for GenFloors
+    }
+    else if ((unsigned)line->special >= GenFloorBase)
     {
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
