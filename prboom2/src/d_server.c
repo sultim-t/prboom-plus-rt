@@ -655,12 +655,12 @@ int main(int argc, char** argv)
         if (remoteticfrom[i] == remoteticto[i]) {
 	  backoffcounter[i] = 0;
 	} else if (remoteticfrom[i] > remoteticto[i]+1) {
-	  if ((backoffcounter[i] += remoteticfrom[i] - remoteticto[i] - 1) > 100) {
+	  if ((backoffcounter[i] += remoteticfrom[i] - remoteticto[i] - 1) > 35) {
 	    packet_header_t *packet = malloc(sizeof(packet_header_t));
 	    packet->type = PKT_BACKOFF; packet->tic = doom_htonl(remoteticto[i]);
 	    I_SendPacketTo(packet,sizeof *packet,remoteaddr+i);
 	    backoffcounter[i] = 0;
-	    if (verbose) fprintf(stderr,"telling client %d to back off\n",i);
+	    if (verbose) printf("telling client %d to back off\n",i);
 	  }
 	}
       }
