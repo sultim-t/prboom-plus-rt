@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp_sdl.c,v 1.5 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_udp_sdl.c,v 1.6 2000/09/30 08:57:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,10 +33,10 @@
  *-----------------------------------------------------------------------------*/
 
 #ifdef HAVE_CONFIG_H
-        #include "../config.h"
+# include "../config.h"
 #endif
 #ifdef HAVE_NETINET_IN_H
-	#include <netinet/in.h>
+# include <netinet/in.h>
 #endif
 #include <stdlib.h>
 #include <errno.h>
@@ -46,6 +46,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+
+#ifdef HAVE_NET
 
 #include "SDL.h"
 #include "SDL_net.h"
@@ -282,3 +284,5 @@ void I_PrintAddress(FILE* fp, UDP_CHANNEL *addr)
 		fprintf(fp, "Error");
 */
 }
+
+#endif /* HAVE_NET */
