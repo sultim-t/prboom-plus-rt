@@ -70,6 +70,7 @@ char szConName[] = "PrBoomConWinClass";
 char Lines[(80+2)*25+1];
 char *Last = NULL;
 boolean console_inited=FALSE;
+static boolean should_exit = 0;
 
 static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -77,6 +78,10 @@ static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
   HDC dc;
 
   switch (iMsg) {
+  case WM_KEYDOWN:
+    if (wParam == VK_ESCAPE)
+      should_exit = 1;
+    break;
   case WM_CLOSE:
     return 1;
     break;
@@ -102,8 +107,9 @@ static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
     return 0;
     break;
   default:
-    return(DefWindowProc(hwnd,iMsg,wParam,lParam));
+    break;
   }
+  return(DefWindowProc(hwnd,iMsg,wParam,lParam));
 }
 
 static void I_PrintStr (int xp, const char *cp, int count, BOOL scroll) {
@@ -210,6 +216,20 @@ void I_ConTextAttr(unsigned char a)
   if (a & BACKGROUND_BLUE) b=col;
  	SetBkColor(conDC, PALETTERGB(r,g,b));
   ReleaseDC(con_hWnd,conDC);
+}
+
+void I_UpdateConsole(void)
+{
+  MSG msg;
+
+  UpdateWindow(con_hWnd);
+  while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+  if (should_exit)
+    exit(0);
 }
 
 static void Init_Console(void)
