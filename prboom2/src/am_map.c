@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.15 2002/11/23 22:55:51 proff_fs Exp $
+ * $Id: am_map.c,v 1.16 2002/11/24 22:43:01 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.15 2002/11/23 22:55:51 proff_fs Exp $";
+  "$Id: am_map.c,v 1.16 2002/11/24 22:43:01 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1646,12 +1646,7 @@ void AM_drawMarks(void)
 inline static void AM_drawCrosshair(int color)
 {
   // single point for now
-#ifdef GL_DOOM
-  gld_DrawLine((f_w/2)-1, (f_h/2), (f_w/2)+1, (f_h/2), (byte)color);
-  gld_DrawLine((f_w/2), (f_h/2)-1, (f_w/2), (f_h/2)+1, (byte)color);
-#else
   V_PlotPixel(FB, f_w/2, f_h/2, (byte)color);
-#endif
 }
 
 //

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.63 2002/11/24 00:48:46 proff_fs Exp $
+ * $Id: d_main.c,v 1.64 2002/11/24 22:43:01 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.63 2002/11/24 00:48:46 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.64 2002/11/24 22:43:01 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -68,9 +68,7 @@ int access(const char *path, int mode);
 #include "s_sound.h"
 #include "v_video.h"
 #include "f_finale.h"
-#ifndef GL_DOOM
 #include "f_wipe.h"
-#endif /* GL_DOOM */
 #include "m_argv.h"
 #include "m_misc.h"
 #include "mn_engin.h"
@@ -92,9 +90,6 @@ int access(const char *path, int mode);
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 // DEHacked support - Ty 03/09/97 // CPhipps - const char*'s
 void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
@@ -189,7 +184,6 @@ void D_PostEvent(event_t *ev)
 // The screens to wipe between are already stored, this just does the timing
 // and screen updating
 
-#ifndef GL_DOOM
 static void D_Wipe(void)
 {
   boolean done;
@@ -213,7 +207,6 @@ static void D_Wipe(void)
     }
   while (!done);
 }
-#endif /* GL_DOOM */
 
 //
 // D_Display
@@ -234,19 +227,15 @@ void D_Display (void)
   static boolean isborderstate        = false;
   static boolean borderwillneedredraw = false;
   static gamestate_t oldgamestate = -1;
-#ifndef GL_DOOM
   boolean wipe;
-#endif
   boolean viewactive = false, isborder = false;
 
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
-#ifndef GL_DOOM
   // save the current screen if about to wipe
-  if ((wipe = gamestate != wipegamestate))
+  if ((wipe = gamestate != wipegamestate) && (vid_getMode() != VID_MODEGL))
     wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
-#endif /* GL_DOOM */
 
   if (gamestate != GS_LEVEL) { // Not a level
     switch (oldgamestate) {
@@ -299,12 +288,8 @@ void D_Display (void)
       // and there is a menu being displayed
       borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
     }
-#ifdef GL_DOOM
-    R_DrawViewBorder();
-#else
-    if (redrawborderstuff || redrawborder)
+    if (redrawborderstuff || redrawborder || (vid_getMode() == VID_MODEGL))
       R_DrawViewBorder();
-#endif
 
     // Now do the drawing
     if (viewactive)
@@ -312,9 +297,8 @@ void D_Display (void)
     if (automapmode & am_active)
       AM_Drawer();
     ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || redrawsbar);
-#ifndef GL_DOOM
-    R_DrawViewBorder();
-#endif
+    if (vid_getMode() != VID_MODEGL)
+      R_DrawViewBorder();
     HU_Drawer();
   }
 
@@ -345,18 +329,14 @@ void D_Display (void)
   D_BuildNewTiccmds();
 #endif
   
-#ifndef GL_DOOM
   // normal update
-  if (!wipe)
+  if (!wipe || (vid_getMode() == VID_MODEGL))
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
     wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
     D_Wipe();
   }
-#else
-  I_FinishUpdate ();              // page flip or blit buffer
-#endif /* GL_DOOM */
 }
 
 // CPhipps - Auto screenshot Variables
@@ -873,9 +853,9 @@ void IdentifyVersion (void)
 
   iwad = FindIWADFile();
 
-#if (defined(GL_DOOM) && defined(_DEBUG))
+#ifdef _DEBUG
   // proff 11/99: used for debugging
-  {
+  if (vid_getMode() == VID_MODEGL) {
     FILE *f;
     f=fopen("levelinfo.txt","w");
     if (f)
@@ -1509,11 +1489,6 @@ void D_DoomMainSetup(void)
 
   if ((p = M_CheckParm("-nofullscreen"))) 
       use_fullscreen = 0;
-
-#ifdef GL_DOOM
-  // proff 04/05/2000: for GL-specific switches
- 	gld_InitCommandLine();
-#endif
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"V_Init: allocate screens.\n");
