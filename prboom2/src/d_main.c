@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.14 2000/05/19 22:38:20 cph Exp $
+ * $Id: d_main.c,v 1.15 2000/05/21 12:12:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.14 2000/05/19 22:38:20 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.15 2000/05/21 12:12:24 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1621,8 +1621,6 @@ void D_DoomMainSetup(void)
 
   // internal translucency set to config file value               // phares
   general_translucency = default_translucency;                    // phares
-
-  pitched_sounds = default_pitched_sounds;    // killough 2/21/98
 
   // 1/18/98 killough: Z_Init() call moved to i_main.c
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.6 2000/05/13 16:00:48 cph Exp $
+ * $Id: doomstat.h,v 1.7 2000/05/21 12:12:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -93,7 +93,7 @@ typedef enum {
 #define mbf_features (compatibility_level>=mbf_compatibility)
 
 // v1.1-like pitched sounds
-extern int pitched_sounds, default_pitched_sounds;        // killough
+extern int pitched_sounds;        // killough
 
 extern int     default_translucency; // config file says           // phares
 extern boolean general_translucency; // true if translucency is ok // phares
@@ -329,7 +329,7 @@ extern thinker_t thinkercap;  // Both the head and tail of the thinker list
 //-----------------------------------------------------------------------------
 
 // v1.1-like pitched sounds
-extern int pitched_sounds, default_pitched_sounds;     // killough 2/21/98
+extern int pitched_sounds;     // killough 2/21/98
 
 extern int allow_pushers;         // MT_PUSH Things    // phares 3/10/98
 extern int default_allow_pushers;

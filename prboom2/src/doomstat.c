@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.c,v 1.4 2000/05/12 22:51:54 cph Exp $
+ * $Id: doomstat.c,v 1.5 2000/05/21 12:12:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: doomstat.c,v 1.4 2000/05/12 22:51:54 cph Exp $";
+rcsid[] = "$Id: doomstat.c,v 1.5 2000/05/21 12:12:24 proff_fs Exp $";
 
 #ifdef __GNUG__
 #pragma implementation "doomstat.h"
@@ -59,7 +59,7 @@ int compatibility_level, default_compatibility_level;
 int comp[COMP_TOTAL], default_comp[COMP_TOTAL];    // killough 10/98
 
 // v1.1-like pitched sounds
-int pitched_sounds, default_pitched_sounds;        // killough
+int pitched_sounds;        // killough
 
 int     default_translucency; // config file says           // phares
 boolean general_translucency; // true if translucency is ok // phares
