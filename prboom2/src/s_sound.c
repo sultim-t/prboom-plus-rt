@@ -143,8 +143,31 @@ CONSOLE_STRING(mus_read_m, S_music_files[mus_read_m], NULL, 20, 0) {}
 CONSOLE_STRING(mus_dm2ttl, S_music_files[mus_dm2ttl], NULL, 20, 0) {}
 CONSOLE_STRING(mus_dm2int, S_music_files[mus_dm2int], NULL, 20, 0) {}
 
+static char *samplerate_str[] =
+{
+  "11025",
+  "22050",
+  "44100"
+};
 
-CONSOLE_INT(s_samplerate, snd_samplerate, NULL, 11025, 44100, NULL, 0) {}
+static int desired_samplerate;
+
+CONSOLE_INT(snd_samplerate, desired_samplerate, NULL, 0, 2, samplerate_str, cf_buffered)
+{
+	switch (desired_samplerate) {
+	default:
+	case 0:
+		snd_samplerate = 11025;
+		break;
+	case 1:
+		snd_samplerate = 22050;
+		break;
+	case 2:
+		snd_samplerate = 44100;
+		break;
+	}
+	I_InitSound();
+}
 
 typedef struct
 {
@@ -758,7 +781,10 @@ void S_ResetVolume()
 }
 
 CONSOLE_BOOLEAN(s_pitched, pitched_sounds, NULL,   onoff, 0) {}
-CONSOLE_INT(snd_channels, default_numChannels, NULL, 1, 32, NULL, 0) {}
+CONSOLE_INT(snd_channels, default_numChannels, NULL, 1, 32, NULL, 0)
+{
+	I_InitSound();
+}
 CONSOLE_INT(sfx_volume, snd_SfxVolume, NULL,         0, 15, NULL, 0)
 {
   S_ResetVolume();
@@ -841,7 +867,7 @@ void S_AddCommands()
 	C_AddCommand(s_pitched);
 	C_AddCommand(snd_channels);
 	C_AddCommand(sfx_volume);
-	C_AddCommand(s_samplerate);
+	C_AddCommand(snd_samplerate);
 	C_AddCommand(music_volume);
 	C_AddCommand(mus_e1m1);
 	C_AddCommand(mus_e1m2);
