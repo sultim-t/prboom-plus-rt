@@ -74,7 +74,7 @@ const byte *main_tranmap;     // killough 4/11/98
 #define FUZZTABLE 50
 #define FUZZOFF 1
 
-static const int fuzzoffset[FUZZTABLE] = {
+static const int fuzzoffset_org[FUZZTABLE] = {
   FUZZOFF,-FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
   FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
   FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,
@@ -83,6 +83,8 @@ static const int fuzzoffset[FUZZTABLE] = {
   FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,
   FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF
 };
+
+static int fuzzoffset[FUZZTABLE];
 
 static int fuzzpos = 0;
 byte *translationtables[TRANSLATIONCOLOURS];
@@ -617,6 +619,9 @@ void R_InitBuffer(int width, int height) {
 
   dcvars.targetwidth = SCREENWIDTH;
   dcvars.targetheight = SCREENHEIGHT;
+
+  for (i=0; i<FUZZTABLE; i++)
+    fuzzoffset[i] = fuzzoffset_org[i]*SCREENWIDTH;
 }
 
 typedef struct
