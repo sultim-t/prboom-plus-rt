@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video_trans.h,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: v_video_trans.h,v 1.3 2000/05/10 23:28:44 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,15 +35,15 @@
  * Yes, I'm afraid so, it's another colour remapping layer.
  */
 
-#ifndef _L_VIDEO_TRANS_H_
-#define _L_VIDEO_TRANS_H_
+#ifndef _V_VIDEO_TRANS_H_
+#define _V_VIDEO_TRANS_H_
 
 /* LxDoom may support 24bpp and 32bpp */
 typedef unsigned long pval;
 
 typedef struct {
-  unsigned char pshift; /* Shifts color value to correct place in pixel       */
-  signed   char rshift; /* Shift to desired value to make it fit within range */
+  int pshift; /* Shifts color value to correct place in pixel       */
+  int rshift; /* Shift to desired value to make it fit within range */
 } colourshift_t;
 
 /* Not really part of this API, but put here as common code 

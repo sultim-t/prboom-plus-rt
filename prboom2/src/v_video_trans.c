@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video_trans.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: v_video_trans.c,v 1.3 2000/05/10 23:28:44 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 #ifndef lint
-static const char rcsid[] = "$Id: v_video_trans.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+static const char rcsid[] = "$Id: v_video_trans.c,v 1.3 2000/05/10 23:28:44 proff_fs Exp $";
 #endif /* lint */
 
 #ifdef HAVE_LINUX_BITOPS_H
@@ -119,7 +119,7 @@ void I_SetPaletteTranslation(const byte* palette)
 {
   // This builds a suitable palette for DirectColor and TrueColor modes
   register unsigned short int i = 256;
-  register unsigned long*     ppnum;
+  register pval *ppnum;
   register const byte *const  gtable = gammatable[usegamma];
 
   pv_changed = true; // Flag the buffer copying routines that palette
@@ -130,11 +130,13 @@ void I_SetPaletteTranslation(const byte* palette)
     pixelvals = Z_Malloc(256 * sizeof(*pixelvals), PU_STATIC, NULL);
   
   ppnum = pixelvals;
-  do {
-    *ppnum++ = ((gtable[palette[0]] >> redshift.rshift) << redshift.pshift)
-      | ((gtable[palette[1]] >> greenshift.rshift) << greenshift.pshift)
-      | ((gtable[palette[2]] >> blueshift.rshift) << blueshift.pshift);
-    
+  do
+  {
+    *ppnum++ = 
+        (((pval)gtable[palette[0]] >> redshift.rshift) << redshift.pshift)
+      | (((pval)gtable[palette[1]] >> greenshift.rshift) << greenshift.pshift)
+      | (((pval)gtable[palette[2]] >> blueshift.rshift) << blueshift.pshift);
+
     palette+=3;
   } while (--i);
 }
@@ -155,7 +157,7 @@ static void I_Double8Buf(pval* out_buffer, const byte* src)
       register unsigned int twoopixels;
       register unsigned int twomoreopixels;
       unsigned long* oline2ptr = olineptr + SCREENWIDTH*2 / sizeof(*olineptr);
-#ifndef I386
+#ifndef I386_ASM
       unsigned int fouripixels = *ilineptr++;
       twoopixels =	(fouripixels & 0xff000000)
 	|	((fouripixels>>8) & 0xffff00)
@@ -164,6 +166,15 @@ static void I_Double8Buf(pval* out_buffer, const byte* src)
 	|	((fouripixels<<8) & 0xffff00)
 	|	(fouripixels & 0xff);
 #else
+# ifdef _MSC_VER
+      unsigned int fouripixels = *ilineptr++;
+      twoopixels =	(fouripixels & 0xff000000)
+	|	((fouripixels>>8) & 0xffff00)
+	|	((fouripixels>>16) & 0xff);
+      twomoreopixels =	((fouripixels<<16) & 0xff000000)
+	|	((fouripixels<<8) & 0xffff00)
+	|	(fouripixels & 0xff);
+# else /* _MSC_VER */
       asm( "movl %%eax, %%edx ; "
 	       "shrl $16, %%eax ; "
 	       "movb %%dh, %%cl ; "
@@ -178,6 +189,7 @@ static void I_Double8Buf(pval* out_buffer, const byte* src)
 	       "movb %%al, %%bl ; "
 	       : "=b" (twoopixels), "=c" (twomoreopixels)
 	       : "a" (*ilineptr++) : "%cc", "%edx");
+# endif /* _MSC_VER */
 #endif
 #ifdef WORDS_BIGENDIAN
       olineptr[0] = oline2ptr[0] = twoopixels;
@@ -253,16 +265,26 @@ static void I_Copyto16Buf(pval* out_buffer, const byte* src)
 
   if (pixelvals == NULL) return;
 
-#ifndef I386
+#ifndef I386_ASM
   do {
-    optr[0] = pixelvals[iptr[0]];
-    optr[1] = pixelvals[iptr[1]];
-    optr[2] = pixelvals[iptr[2]];
-    optr[3] = pixelvals[iptr[3]];
+    optr[0] = (unsigned short)pixelvals[iptr[0]];
+    optr[1] = (unsigned short)pixelvals[iptr[1]];
+    optr[2] = (unsigned short)pixelvals[iptr[2]];
+    optr[3] = (unsigned short)pixelvals[iptr[3]];
 
     iptr += 4; optr += 4;
   } while (--count);
 #else
+# ifdef _MSC_VER
+  do {
+    optr[0] = (unsigned short)pixelvals[iptr[0]];
+    optr[1] = (unsigned short)pixelvals[iptr[1]];
+    optr[2] = (unsigned short)pixelvals[iptr[2]];
+    optr[3] = (unsigned short)pixelvals[iptr[3]];
+
+    iptr += 4; optr += 4;
+  } while (--count);
+# else /* _MSC_VER */
   asm("xorl %%eax,%%eax ; "
       ".align 8 ; "
       "0:"
@@ -283,6 +305,7 @@ static void I_Copyto16Buf(pval* out_buffer, const byte* src)
       "dec %%ecx ; jg 0b"
       :: "D" (optr), "S" (iptr), "b" (pixelvals), "c" (count)
       : "%eax", "%edx");
+# endif /* _MSC_VER */
 #endif
 }
 
@@ -397,7 +420,7 @@ static void I_Copyto32Buf(pval* out_buffer, const byte* src)
 
   if (pixelvals == NULL) return;
 
-#ifndef I386
+#ifndef I386_ASM
   do {
     optr[0] = pixelvals[iptr[0]];
     optr[1] = pixelvals[iptr[1]];
@@ -407,6 +430,16 @@ static void I_Copyto32Buf(pval* out_buffer, const byte* src)
     iptr += 4; optr += 4;
   } while (--count);
 #else
+# ifdef _MSC_VER
+  do {
+    optr[0] = pixelvals[iptr[0]];
+    optr[1] = pixelvals[iptr[1]];
+    optr[2] = pixelvals[iptr[2]];
+    optr[3] = pixelvals[iptr[3]];
+
+    iptr += 4; optr += 4;
+  } while (--count);
+# else /* _MSC_VER */
   asm("xorl %%eax,%%eax ; "
       ".align 8 ; " 
       "0:"
@@ -427,6 +460,7 @@ static void I_Copyto32Buf(pval* out_buffer, const byte* src)
       "dec %%ecx ; jg 0b"
       :: "D" (optr), "S" (iptr), "b" (pixelvals), "c" (count)
       : "%eax", "%edx");
+# endif /* _MSC_VER */
 #endif
 }
 
