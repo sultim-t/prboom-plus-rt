@@ -1,27 +1,21 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.23 2001/09/02 10:27:11 proff_fs Exp $
+# $Id: Makefile.am,v 1.24 2001/12/09 17:26:00 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
 #
 
-EXTRA_SUBDIRS = Posix SDL
-
 SUBDIRS = SDL POSIX
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = prboom-game-server
-games_PROGRAMS = prboom @BUILD_SERVER@
+EXTRA_PROGRAMS = prboom
+games_PROGRAMS = @BUILD_DOOM@ prboom-game-server
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-if SDL_NET
 UDP_SRC = i_udp_sdl.c
-else
-UDP_SRC = i_udp.c
-endif
 
 prboom_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
 prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
@@ -60,15 +54,7 @@ COMMON_SRC = \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h    \
  p_chase.c      p_chase.h
 
-if SDL_NET
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
-else
-if HAVE_NET
-NET_CLIENT_SRC = d_client.c i_udp.c i_network.c
-else
-NET_CLIENT_SRC = d_client.c
-endif
-endif
 
 GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
 
