@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.8 2002/02/08 23:53:41 cph Exp $
+ * $Id: g_bind.c,v 1.9 2002/08/11 16:02:39 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.8 2002/02/08 23:53:41 cph Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.9 2002/08/11 16:02:39 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -256,7 +256,7 @@ void G_InitKeyBindings()
       char tempstr[32];
 
       // build generic name
-      if(isprint(i))
+      if(isprint(i) && (i<256))
         sprintf(tempstr, "%c", i);
       else
         sprintf(tempstr, "key%02i", i);
