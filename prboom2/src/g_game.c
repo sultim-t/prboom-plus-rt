@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30 2000/11/12 14:59:29 cph Exp $
+ * $Id: g_game.c,v 1.30.2.3 2001/06/18 19:53:00 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.3 2001/06/18 19:53:00 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -212,7 +212,7 @@ int     joybspeed;
 #define TURBOTHRESHOLD  0x32
 #define SLOWTURNTICS  6
 #define QUICKREVERSE (short)32768 // 180 degree reverse                    // phares
-#define NUMKEYS   256
+#define NUMKEYS   512
 
 fixed_t forwardmove[2] = {0x19, 0x32};
 fixed_t sidemove[2]    = {0x18, 0x28};
@@ -1324,7 +1324,12 @@ void G_DoCompleted (void)
               sizeof(wminfo.plyr[i].frags));
     }
 
-  wminfo.totaltimes = (totalleveltimes += leveltime);
+  /* cph - modified so that only whole seconds are added to the totalleveltimes
+   *  value; so our total is compatible with the "naive" total of just adding
+   *  the times in seconds shown for each level. Also means our total time
+   *  will agree with Compet-n.
+   */
+  wminfo.totaltimes = (totalleveltimes += (leveltime - leveltime%35));
 
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
@@ -1575,13 +1580,13 @@ void G_DoLoadGame(void)
   idmusnum = *save_p++;           // jff 3/17/98 restore idmus music
   if (idmusnum==255) idmusnum=-1; // jff 3/18/98 account for unsigned byte
 
-  // load a base level
-  G_InitNew (gameskill, gameepisode, gamemap);
-
   /* killough 3/1/98: Read game options
    * killough 11/98: move down to here
    */
   save_p = (char*)G_ReadOptions(save_p);
+
+  // load a base level
+  G_InitNew (gameskill, gameepisode, gamemap);
 
   /* get the times - killough 11/98: save entire word */
   memcpy(&leveltime, save_p, sizeof leveltime);
@@ -2627,14 +2632,6 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
   if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
     G_InitNew(skill, episode, map);
-
-    /* killough 11/98: If OPTIONS were loaded from the wad in G_InitNew(),
-     * reload any demo sync-critical ones from the demo itself, to be exactly
-     * the same as during recording.
-     */
-
-    if (option_p)
-      G_ReadOptions(option_p);
   }
 
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98

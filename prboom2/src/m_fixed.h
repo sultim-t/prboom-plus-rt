@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_fixed.h,v 1.7 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: m_fixed.h,v 1.7.2.2 2001/06/15 09:13:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -52,7 +52,8 @@ typedef int fixed_t;
  * killough 9/05/98: better code seems to be gotten from using inlined C
  */
 
-#if ((defined _MSC_VER) && (defined I386_ASM))
+#ifdef _MSC_VER
+# ifdef I386_ASM
 #pragma warning( disable : 4035 )
 __inline static int D_abs(int x)
 {
@@ -64,9 +65,17 @@ __inline static int D_abs(int x)
         sub eax,edx
     }
 }
-#else
+# else /* I386_ASM */
+inline static const int D_abs(x)
+{
+	fixed_t _t = (x),_s;
+	_s = _t >> (8*sizeof _t-1);
+	return (_t^_s)-_s;
+}
+# endif /* I386_ASM */
+#else /* _MSC_VER */
 #define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
-#endif
+#endif /* _MSC_VER */
 
 /*
  * Fixed Point Multiplication

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.13 2000/12/24 11:40:35 cph Exp $
+ * $Id: doomstat.h,v 1.13.2.1 2001/05/19 15:42:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -40,7 +40,6 @@
 
 // We need globally shared data structures,
 //  for defining the global state variables.
-#include "doomdata.h"
 #include "d_net.h"
 
 // We need the playr data structure as well.
