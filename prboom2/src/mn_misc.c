@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_misc.c,v 1.1 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: mn_misc.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_misc.c,v 1.1 2002/01/07 15:56:19 proff_fs Exp $";
+  "$Id: mn_misc.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -279,26 +279,27 @@ void MN_DrawCredits(void)
 
   V_DrawBackground(gamemode==commercial ? "SLIME05" : "NUKAGE1", 0);
 
-  // sf: SMMU credits
+  V_DrawNamePatch(115,9,0, "PRBOOM",CR_GOLD, VPT_TRANS | VPT_STRETCH);
 
-  V_WriteText(FC_GRAY "The Eternity Engine\n"
+  V_WriteText("\n"
+              FC_GRAY "Programmers:\n"
+              FC_TAN "Colin Robert Phipps" FC_BRICK ", "
+	      FC_TAN "Nicolas Kalkhof" FC_BRICK ",\n"
+	      FC_TAN "Florian 'Proff' Schulze" FC_BRICK " and "
+	      FC_TAN "Jess Haas\n"
               "\n"
-              FC_RED "Enhancements by James 'Quasar' Haley\n"
-              "\n"
-              FC_GRAY "SMMU:" FC_RED " \"Smack my marine up\"\n"
-	      "\n"
-	      "Port by Simon Howard 'Fraggle'\n"
-	      "\n"
-	      "Based on the MBF port by Lee Killough\n"
-	      "\n"
-	      FC_GRAY "Programming:" FC_RED " J. Haley, S. Howard\n"
-	      FC_GRAY "Graphics:" FC_RED " Bob Satori\n"
-	      FC_GRAY "Level editing/start map:" FC_RED " Derek MacDonald\n"
-	      "\n"
-	      "\n"
-              "Copyright(C) 2000 J. Haley, S. Howard\n"              
-              FC_GRAY"         http://doomworld.com/eternity/\n"
-              "         http://fraggle.alkali.org/",
+              FC_GRAY "Thanks to:\n"
+	      FC_TAN "id Software" FC_GRAY " - " FC_GREEN "DOOM\n"
+	      FC_TAN "TeamTNT" FC_GRAY " - " FC_GREEN "BOOM\n"
+	      FC_TAN "Lee Killough" FC_GRAY " - " FC_GREEN "MBF\n"
+	      FC_TAN "Simon 'fraggle' Howard" FC_GRAY " - " FC_GREEN "SMMU\n"
+	      FC_TAN "James 'Quasar' Haley" FC_BRICK" and\n"
+	      FC_TAN "Steven 'SoM' McGranahan" FC_GRAY " - " FC_GREEN "Eternity\n"
+	      FC_TAN "The DOSDoom-Team" FC_GRAY " - " FC_GREEN "DOSDOOM\n"
+	      FC_TAN "Randy Heit" FC_GRAY " - " FC_GREEN "ZDOOM\n"
+	      FC_TAN "Michael 'Kodak' Ryssen" FC_GRAY " - " FC_GREEN "DOOMGL\n"
+	      FC_TAN "all contributors (see AUTHORS file)\n"
+	      FC_GOLD "\nhttp://prboom.sourceforge.net",
               10, 25, 0);
 }
 

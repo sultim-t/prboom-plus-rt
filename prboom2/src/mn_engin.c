@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_engin.c,v 1.1 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: mn_engin.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_engin.c,v 1.1 2002/01/07 15:56:19 proff_fs Exp $";
+  "$Id: mn_engin.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -1028,7 +1028,7 @@ void MN_StartControlPanel()
 //
 
 extern void MN_AddMenus();              // mn_menus.c
-//extern void MN_Misc_AddCommands();       // mn_misc.c
+extern void MN_AddMiscCommands();       // mn_misc.c
 //extern void MN_File_AddCommands();       // mn_files.c
 //extern void MN_Net_AddCommands();        // mn_net.c
 
@@ -1038,7 +1038,7 @@ void MN_AddCommands()
   C_AddCommand(mn_prevmenu);
 
   MN_AddMenus();               // add commands to call the menus
-//  MN_Misc_AddCommands();
+  MN_AddMiscCommands();
 //  MN_File_AddCommands();
 //  MN_Net_AddCommands();
 }
