@@ -61,6 +61,7 @@
 #include "p_setup.h"
 #include "p_saveg.h"
 #include "p_tick.h"
+#include "p_map.h"
 #include "d_main.h"
 #include "wi_stuff.h"
 #include "hu_stuff.h"
@@ -1360,10 +1361,12 @@ void G_Ticker (void)
   int i;
   static gamestate_t prevgamestate;
 
+  P_MapStart();
   // do player reborns if needed
   for (i=0 ; i<MAXPLAYERS ; i++)
     if (playeringame[i] && players[i].playerstate == PST_REBORN)
       G_DoReborn (i);
+  P_MapEnd();
 
   // do things to change the game state
   while (gameaction != ga_nothing)
