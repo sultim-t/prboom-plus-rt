@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.8 2000/05/15 23:14:12 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.9 2000/05/16 21:39:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.8 2000/05/15 23:14:12 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.9 2000/05/16 21:39:13 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -401,20 +401,6 @@ static void R_AddLine (seg_t *line)
 
   if (linedef->r_flags & RF_IGNORE)
   {
-#ifdef GL_DOOM
-    return;
-    if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
-    {
-      unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
-      unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
-      drawsegs = realloc(drawsegs,newmax*sizeof(*drawsegs));
-      //ds_p = drawsegs+maxdrawsegs;
-      ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
-      maxdrawsegs = newmax;
-    }
-    ds_p->curline = curline;
-    ds_p++;
-#endif
     return;
   }
   else
