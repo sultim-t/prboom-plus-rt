@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.2 2000/05/05 08:28:50 cph Exp $
+ * $Id: w_wad.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.2 2000/05/05 08:28:50 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -636,3 +636,9 @@ void WritePredefinedLumpWad(const char *filename)
 }
 #endif
 
+//
+// $Log: w_wad.c,v $
+// Revision 1.3  2000/05/05 13:00:46  proff_fs
+// Readded the CVS-Log
+//
+//

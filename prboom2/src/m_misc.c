@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.2 2000/05/05 08:28:50 cph Exp $
+ * $Id: m_misc.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.2 2000/05/05 08:28:50 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -991,3 +991,9 @@ void M_ScreenShot(void)
   S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink); 
 }
 
+//
+// $Log: m_misc.c,v $
+// Revision 1.3  2000/05/05 13:00:46  proff_fs
+// Readded the CVS-Log
+//
+//
