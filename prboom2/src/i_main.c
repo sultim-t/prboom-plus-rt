@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.11 2000/12/30 19:51:28 cph Exp $
+ * $Id: i_main.c,v 1.12 2001/06/26 20:05:24 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.11 2000/12/30 19:51:28 cph Exp $";
+rcsid[] = "$Id: i_main.c,v 1.12 2001/06/26 20:05:24 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -402,7 +402,6 @@ int main(int argc, char **argv)
   signal(SIGPIPE, I_SignalHandler); /* CPhipps - add SIGPIPE, as this is fatal */
 #endif
   signal(SIGTERM, I_SignalHandler);
-  signal(SIGILL,  I_SignalHandler);
   signal(SIGFPE,  I_SignalHandler);
   signal(SIGILL,  I_SignalHandler);
   signal(SIGINT,  I_SignalHandler);  /* killough 3/6/98: allow CTRL-BRK during init */
@@ -411,10 +410,6 @@ int main(int argc, char **argv)
 
   /* cphipps - call to video specific startup code */
   I_PreInitGraphics();
-
-  /* 2/2/98 Stan
-   * Must call this here.  It's required by both netgames and i_video.c.
-   */
 
   D_DoomMain ();
   return 0;
