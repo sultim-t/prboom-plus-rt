@@ -15,13 +15,6 @@ It runs, but on Voodoo1 cards it's very very slow. Other cards aren't tested,
 but I guess on Voodoo3s and above it should work.
 
 --------------------------------------------------------------------------
-4.  Compiling on Linux with OpenGL
-
-Jess:
-Seems to work
-
-
---------------------------------------------------------------------------
 6.  Import MBF m_menu.c and m_misc.c stuff
 
 Colin:
@@ -57,6 +50,9 @@ Colin: will do after we release
 --------------------------------------------------------------------------
 14. Fix RPM packaging stuff for Linux targets (we do different
     RPMs for the two targets I think).
+
+Colin: RPM is done, and I've committed to the website CVS a page 
+telling people where to get all the other RPMs it needs. Done.
     
 --------------------------------------------------------------------------
 15. Hardware music synth support for SDL target. timidity is
@@ -72,11 +68,16 @@ an updated dll.
 --------------------------------------------------------------------------
 18. Website.
 
+Colin:
+We have an about page listing features and history. I've done a download 
+page for Linux. We still need a Windows download page, a front page to 
+tie them all together, and... anything else?
+
 --------------------------------------------------------------------------
 20. 24bpp packed support fix in v_video_trans.c.
 
 Colin:
-On my list.
+We switched to SDL.
 
 --------------------------------------------------------------------------
 21. Bug with the CapsLock key.
@@ -90,3 +91,7 @@ Works, but you have to press it twice to change running speed (why?).
 Proff:
 It's not a bug, but a mbf_feature, the compatibility needs to be set to boom_compatibility.
 Maybe this should be added to the compatibility menu with a extra option, like some other stuff.
+
+--------------------------------------------------------------------------
+23. Update the README
+
