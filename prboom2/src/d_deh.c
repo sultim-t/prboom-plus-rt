@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.16 2002/11/27 03:52:01 dukope Exp $
+ * $Id: d_deh.c,v 1.17 2003/03/01 14:07:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.16 2002/11/27 03:52:01 dukope Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.17 2003/03/01 14:07:40 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -2776,7 +2776,7 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
 
           if (!key) // must have passed an old style string so showBEX
             if (fpout) fprintf(fpout,
-                               "*BEX FORMAT:\n%s=%s\n*END BEX\n",
+                               "*BEX FORMAT:\n%s = %s\n*END BEX\n",
                                deh_strlookup[i].lookup,
                                dehReformatStr(newstring));
 
