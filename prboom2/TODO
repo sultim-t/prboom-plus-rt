@@ -14,19 +14,6 @@ It does work with Mesa3D with Gilde support. Voodoo I doesn't have enough
 texture Ram, but newer cards should work.
 
 --------------------------------------------------------------------------
-*15. Hardware music synth support for SDL target. timidity is
-    nice, but some of the music sounds no good (notably MAP01).
-    I suggest a cheat code to toggle software vs hardware.
-    At least, for Linux this is easy, just call the old music
-    server. (Not essential for first release).
-
-Proff:
-This will be added to SDL_mixer, so we can do that after the release with
-an updated dll.
-2001/02/18 Proff: Released new SDL_mixer_beta.dll
-2002/07/28 Proff: This is in SDL_mixer for some time now
-
---------------------------------------------------------------------------
 21. Bug with the CapsLock key.
 
 Proff:
@@ -64,12 +51,6 @@ Colin: It's frankly a disaster area, which I can say with confidence
 2001/02/18 proff: Done, but this whole input crap should be redone.
 2002/07/28 proff: partly redone with the console system and the new axes
  stuff
-
---------------------------------------------------------------------------
-*33. (2000/12/24) Single key quit
-
-Colin: opulent wants the old 'q quits demo recording' feature back. 
- This is trivial with the new keybindings system, "bind q quit".
 
 --------------------------------------------------------------------------
 34. (2001/03/29) Dreamcast port
@@ -141,9 +122,10 @@ Colin: done for walls & sprites; lookups remain for floors so far, which is a it
 trickier to change.
 
 --------------------------------------------------------------------------
-45. (2002/07/28) OpenGL currently seems to be broken
+*45. (2002/07/28) OpenGL currently seems to be broken
 
 Proff: Fix that and add improvements from 2.2.x
+Done!
 
 --------------------------------------------------------------------------
 46. (2002/07/28) Fix all current loose ends
@@ -152,8 +134,8 @@ Proff:
 - fix new menu system
 - fix config system
 - sort the config file alphabetically
-- fix new axes support
-- add everything new from 2.2.x
+*- fix new axes support
+- add everything new from 2.2.x - Done?
 
 --------------------------------------------------------------------------
 47. (2002/07/28) Wishlist for the future
