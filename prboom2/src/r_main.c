@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.15 2001/02/18 15:56:19 proff_fs Exp $
+ * $Id: r_main.c,v 1.16 2001/07/03 12:17:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.15 2001/02/18 15:56:19 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.16 2001/07/03 12:17:03 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -430,10 +430,8 @@ void R_Init (void)
   colfunc = R_DrawColumn;     // current column draw function
   if (SCREENWIDTH<320)
     I_Error("R_Init: Screenwidth(%d) < 320",SCREENWIDTH);
-#if defined TABLES_AS_LUMPS && defined NO_PREDEFINED_LUMPS
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
   R_LoadTrigTables();
-#endif
   lprintf(LO_INFO, "\nR_InitData: ");
   R_InitData();
   R_SetViewSize(screenblocks);

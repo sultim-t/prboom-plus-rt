@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.38 2001/07/02 23:04:03 proff_fs Exp $
+ * $Id: d_main.c,v 1.39 2001/07/03 12:17:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.38 2001/07/02 23:04:03 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.39 2001/07/03 12:17:03 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1592,12 +1592,6 @@ void D_DoomMainSetup(void)
   // killough 3/2/98: allow -nodraw -noblit generally
   nodrawers = M_CheckParm ("-nodraw");
   noblit = M_CheckParm ("-noblit");
-
-#ifndef NO_PREDEFINED_LUMPS
-  // jff 4/21/98 allow writing predefined lumps out as a wad
-  if ((p = M_CheckParm("-dumplumps")) && p < myargc-1)
-    WritePredefinedLumpWad(myargv[p+1]);
-#endif
 
   //proff 11/22/98: Added setting of viewangleoffset
   p = M_CheckParm("-viewangle");
