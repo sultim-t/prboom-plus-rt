@@ -73,6 +73,7 @@ static const byte *demo_p;
 static boolean timedemo_menuscreen;
 static int starttime;     // for comparative timing purposes
 static int startgametic;
+int longtics;
 
 static const byte* G_ReadDemoHeader(const byte* demo_p);
 
@@ -98,7 +99,12 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
     {
       cmd->forwardmove = ((signed char)*demo_p++);
       cmd->sidemove = ((signed char)*demo_p++);
-      cmd->angleturn = ((unsigned char)*demo_p++)<<8;
+      if (!longtics) {
+        cmd->angleturn = ((unsigned char)*demo_p++)<<8;
+      } else {
+        unsigned int lowbyte = (unsigned char)*demo_p++;
+	cmd->angleturn = (((signed int)(*demo_p++))<<8) + lowbyte;
+      }
       cmd->buttons = (unsigned char)*demo_p++;
     }
 }
@@ -114,14 +120,19 @@ static inline signed char fudge(signed char b)
 
 void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
-  char buf[4];
+  char buf[5];
 
   buf[0] = (cmd->forwardmove && demo_compatibility) ?
     fudge(cmd->forwardmove) : cmd->forwardmove;
   buf[1] = cmd->sidemove;
-  buf[2] = (cmd->angleturn+128)>>8;
-  buf[3] = cmd->buttons;
-  if (fwrite(buf, sizeof(buf), 1, demofp) != 1)
+  if (!longtics) {
+    buf[2] = (cmd->angleturn+128)>>8;
+  } else {
+    buf[2] = cmd->angleturn & 0xff;
+    buf[3] = (cmd->angleturn >> 8) & 0xff;
+  }
+  buf[longtics ? 4 : 3] = cmd->buttons;
+  if (fwrite(buf, longtics ? 5 : 4, 1, demofp) != 1)
     I_Error("G_WriteDemoTiccmd: error writing demo"); // FIXME
 
   /* cph - alias demo_p to it so we can read it back */
@@ -459,7 +470,7 @@ void G_BeginRecording (void)
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
   } else { // cph - write old v1.9 demos (might even sync)
-    *demo_p++ = 109; // v1.9 has best chance of syncing these
+    *demo_p++ = longtics ? 111 : 109; // v1.9 has best chance of syncing these
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
@@ -537,6 +548,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
   if (demover < 200)     // Autodetect old demos
     {
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
+      longtics = (demover >= 111);
 
       variable_friction = 0;
 

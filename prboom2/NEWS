@@ -27,6 +27,7 @@ Changes from v2.3.0 to v2.3.1
 - live monster counter for HUD
 - fast forward to given map # in demo playback
 - fixes for various sound bugs
+- support higher-turning-resolution demos from the Enhanced Edition of v1.9
 
 Changes from v2.2.4 to v2.3.0
 - the OpenGL libs are loaded dynamically
