@@ -10,7 +10,7 @@
     <meta name="author" content="Proff" />
     <meta name="generator" content="Ulli Meybohms HTML EDITOR" />
     <meta name="CVSID"
-    content="$Id: index.html,v 1.21 2001/10/15 17:01:20 proff_fs Exp $" />
+    content="$Id: index.html,v 1.22 2002/07/27 16:05:51 proff_fs Exp $" />
     <link rel="stylesheet" href="main.css" type="text/css" />
   </head>
 
@@ -41,6 +41,28 @@
     href="mbf-bugs.html">Doom/Boom/MBF bugs page</a>.</p>
 
     <h2>News</h2>
+
+    <h3>28. July 2002</h3>
+
+    <p>Version 2.2.3 released.</p>
+<pre>
+Changes from v2.2.2 to v2.2.3
+- improved mouse handling
+- intermission demo sync bug fixed
+- framebuffer update fixes (solves flicker on fbcon)
+- -forceoldbsp allowed in non-GL version, and saved in demos
+- fix player colours in multiplayer demos
+- apply workarounds for buggy pwads even during demo playback
+- fix numpad 5 key
+- allow compilation on systems where SDL is built without joystick support
+- fix comp_skymap
+- using anisotropic filtering when the OpenGL extension is available
+- using paletted textures when the OpenGL extension is available
+- added gl_use_paletted_texture option to glboom configuration file
+- using shared texture palette when the OpenGL extension is available
+- added gl_use_shared_texture_palette option to glboom configuration file
+</pre>
+    <p>Some screenshots of the shared texture palette support:<br /><a href="DOOM04.jpg">Screenshot 1</a> <a href="DOOM05.jpg">Screenshot 2</a> <a href="DOOM06.jpg">Screenshot 3</a></p>
 
     <h3>14. October 2001</h3>
 
