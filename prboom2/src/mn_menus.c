@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.2 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: mn_menus.c,v 1.3 2002/08/22 20:33:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.2 2002/08/05 17:44:58 proff_fs Exp $";
+  "$Id: mn_menus.c,v 1.3 2002/08/22 20:33:21 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1186,6 +1186,10 @@ CONSOLE_COMMAND(mn_vidmode, 0)
   MN_StartMenu(&menu_vidmode);
 }
 
+CONSOLE_COMMAND(screenshot, cf_notnet)
+{
+  M_ScreenShot();
+}
 
 /////////////////////////////////////////////////////////////////
 //
@@ -1685,6 +1689,7 @@ menu_t menu_envbindings =
 	{it_binding,      "toggle hud",            "hu_overlay /"},
 	{it_binding,      "end game",              "mn_endgame"},
 	{it_binding,      "toggle messages",       "messages /"},
+	{it_binding,      "take screenshot",       "screenshot"},
 	{it_binding,      "quit",                  "mn_quit"},
 	{it_binding,      "gamma correction",      "gamma /"},
 	{it_end},
@@ -1735,6 +1740,7 @@ void MN_AddMenus()
   C_AddCommand(mn_mouse);
   C_AddCommand(mn_video);
   C_AddCommand(mn_vidmode);
+  C_AddCommand(screenshot);
   C_AddCommand(mn_sound);
   C_AddCommand(mn_weapons);
   C_AddCommand(mn_compat);
