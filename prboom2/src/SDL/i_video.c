@@ -701,9 +701,7 @@ void I_InitGraphics(void)
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 
 #ifdef GL_DOOM
-    if (DynGL_LoadLibrary(gl_library_str) == SDL_FALSE) {
-      I_Error("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
-    }
+    DynGL_CloseLibrary();
 #endif
 
     /* Set the video mode */
@@ -731,6 +729,12 @@ void I_UpdateVideoMode(void)
 		  gld_CleanMemory();
 #endif
 
+  if (r_rendermode == VID_MODEGL) {
+    if (DynGL_LoadLibrary(gl_library_str) == SDL_FALSE) {
+      doom_printf("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
+      r_rendermode = VID_MODE8;
+    }
+  }
   V_InitMode(r_rendermode);
   V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();

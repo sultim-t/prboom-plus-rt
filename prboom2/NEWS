@@ -3,6 +3,7 @@ For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
 Changes from v2.3.0 to v2.3.1
+- load OpenGL libraries only when needed
 
 Changes from v2.2.4 to v2.3.0
 - the OpenGL libs are loaded dynamically
