@@ -155,6 +155,15 @@ typedef enum {
 #define MTF_FRIEND            128
 #define MTF_RESERVED          256
 
+// sf: sector flags, not me =)
+                // kill all sound in sector
+#define SF_KILLSOUND          1024
+                // kill all sounds due to moving
+#define SF_KILLMOVESOUND      2048
+
+        // a macro to find out whether to make moving sounds in a sector
+#define silentmove(s) ((s)->special & SF_KILLMOVESOUND)
+
 typedef enum {
   sk_none=-1, //jff 3/24/98 create unpicked skill setting
   sk_baby=0,
@@ -268,6 +277,7 @@ typedef enum {
 #define KEYD_SPACEBAR   0x20
 // phares 3/2/98
 
+// sf: console key
 #define KEYD_CONSOLE    '`'
 
 #define KEYD_NUMLOCK    0xC5                 // killough 3/6/98
