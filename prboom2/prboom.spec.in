@@ -28,7 +28,7 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 %build
-%configure --disable-cpu-opt
+%configure --disable-cpu-opt --program-prefix=''
 make
 
 %install
