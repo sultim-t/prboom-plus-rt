@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.40 2003/02/15 17:23:42 dukope Exp $
+ * $Id: v_video.c,v 1.41 2003/02/16 11:46:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.40 2003/02/15 17:23:42 dukope Exp $";
+rcsid[] = "$Id: v_video.c,v 1.41 2003/02/16 11:46:09 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -237,10 +237,13 @@ void V_PlotPixelGL(int scrn, int x, int y, byte color) {
 void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
 {
 }
-void WRAP_gld_PlotPatchNum(int patchNum, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
+void WRAP_gld_PlotPatch(const TPatch *patch, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
 {
 }
-void WRAP_gld_PlotTextureNum(int textureNum, int x, int y, int width, int height, TRDrawFilterType filter, byte *destBuffer, int bufferWidth, int bufferHeight)
+void WRAP_gld_PlotPatchNum(int patchNum, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
+{
+}
+void WRAP_gld_PlotTextureNum(int textureNum, int x, int y, int width, int height, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, byte *destBuffer, int bufferWidth, int bufferHeight)
 {
 }
 void WRAP_gld_DrawLine(fline_t* fl, int color)

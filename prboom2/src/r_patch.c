@@ -138,6 +138,7 @@ static void createPatch(int id) {
   }
   
   patch = &patches[id];
+  // proff - 2003-02-16 What about endianess?
   patch->width = oldPatch->width;
   patch->height = oldPatch->height;
   patch->leftOffset = oldPatch->leftoffset;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.20 2002/11/23 01:11:04 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.21 2003/02/16 11:46:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -224,7 +224,7 @@ void gld_BindTexture(GLTexture *gltexture)
   if (gltexture->glTexID[CR_DEFAULT]==0)
     p_glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
 	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
-  buffer = V_GetPlottedTexture32(gltexture->index, gltexture->width, gltexture->height, gltexture->tex_width, gltexture->tex_height, RDRAW_FILTER_POINT, true);
+  buffer = V_GetPlottedTexture32(gltexture->index, gltexture->width, gltexture->height, gltexture->tex_width, gltexture->tex_height, RDRAW_FILTER_POINT, RDRAW_MASKEDCOLUMNEDGE_SLOPED, true);
   p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                   gltexture->tex_width, gltexture->tex_height,
                   0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -237,7 +237,7 @@ void gld_BindTexture(GLTexture *gltexture)
 
 GLTexture *gld_RegisterPatch(int lump, int cm)
 {
-  const patch_t *patch;
+  const TPatch *patch;
   GLTexture *gltexture;
 
   gltexture=gld_AddNewGLPatchTexture(lump);
@@ -245,21 +245,20 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     return NULL;
   if (gltexture->textype==GLDT_UNREGISTERED)
   {
-    patch=W_CacheLumpNum(lump);
+    patch=R_GetPatch(lump);
     if (!patch)
       return NULL;
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=lump;
     gltexture->mipmap=false;
-    gltexture->realtexwidth=SHORT(patch->width);
-    gltexture->realtexheight=SHORT(patch->height);
-    gltexture->leftoffset=SHORT(patch->leftoffset);
-    gltexture->topoffset=SHORT(patch->topoffset);
+    gltexture->realtexwidth=patch->width;
+    gltexture->realtexheight=patch->height;
+    gltexture->leftoffset=patch->leftOffset;
+    gltexture->topoffset=patch->topOffset;
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
     gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
     gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
     gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
-    W_UnlockLumpNum(lump);
     gltexture->textype=GLDT_PATCH;
   }
   return gltexture;
@@ -303,7 +302,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     trans = colrngs[cm];
   else
     trans = translationtables + 256 * ((cm-CR_LIMIT) - 1);
-  buffer = V_GetPlottedPatch32(gltexture->index, gltexture->width, gltexture->height, gltexture->tex_width, gltexture->tex_height, RDRAW_FILTER_POINT, trans, true);
+  buffer = V_GetPlottedPatch32(gltexture->index, gltexture->width, gltexture->height, gltexture->tex_width, gltexture->tex_height, RDRAW_FILTER_POINT, RDRAW_MASKEDCOLUMNEDGE_SLOPED, trans, true);
   if (gltexture->glTexID[cm]==0)
 	  p_glGenTextures(1,&gltexture->glTexID[cm]);
 	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);

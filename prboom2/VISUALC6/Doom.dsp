@@ -843,6 +843,14 @@ SOURCE=..\src\r_main.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\r_patch.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_patch.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\r_plane.c
 # End Source File
 # Begin Source File
