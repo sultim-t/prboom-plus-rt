@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.9.2.1 2002/07/20 18:08:34 proff_fs Exp $
+ * $Id: d_deh.c,v 1.9.2.2 2003/03/01 14:01:14 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.9.2.1 2002/07/20 18:08:34 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.9.2.2 2003/03/01 14:01:14 cph Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -2634,7 +2634,7 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
 
           if (!key) // must have passed an old style string so showBEX
             if (fpout) fprintf(fpout,
-                               "*BEX FORMAT:\n%s=%s\n*END BEX\n",
+                               "*BEX FORMAT:\n%s = %s\n*END BEX\n",
                                deh_strlookup[i].lookup,
                                dehReformatStr(newstring));
 
