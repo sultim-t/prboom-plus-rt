@@ -40,6 +40,8 @@
 #pragma interface
 #endif
 
+extern int screenblocks;
+
 //
 // POV related.
 //

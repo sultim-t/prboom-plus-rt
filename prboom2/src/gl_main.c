@@ -649,7 +649,6 @@ void gld_StartDrawScene(void)
   float trY ;
   float xCamera,yCamera;
 
-  extern int screenblocks;
   int height;
 
   if (gl_shared_texture_palette)

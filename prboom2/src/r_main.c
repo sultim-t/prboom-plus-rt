@@ -392,8 +392,6 @@ void R_ExecuteSetViewSize (void)
 // R_Init
 //
 
-extern int screenblocks;
-
 void R_InitColFunc()
 {
   colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
