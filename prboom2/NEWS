@@ -2,6 +2,9 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.2.4 to v2.2.5
+- fix crash caused by long messages in HUD
+- live monster counter on HUD
+- notify server if client quits during startup wait
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
