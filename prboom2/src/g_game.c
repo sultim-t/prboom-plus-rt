@@ -1843,7 +1843,7 @@ static int     d_episode;
 static int     d_map;
 static char    d_mapname[10];
 
-int G_GetMapForName(char *name)
+int G_GetMapForName(const char *name)
 {
   int episode, map;
 

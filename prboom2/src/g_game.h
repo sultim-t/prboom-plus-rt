@@ -45,7 +45,7 @@
 #define GAME_OPTION_SIZE 64
 
 char *G_GetNameForMap(int episode, int map);
-int G_GetMapForName(char *name);
+int G_GetMapForName(const char *name);
 
 boolean G_Responder(event_t *ev);
 boolean G_CheckDemoStatus(void);
