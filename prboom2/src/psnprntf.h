@@ -9,17 +9,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#ifdef HAVE_SNPRINTF
-#define psnprintf snprintf
-#else
 int psnprintf(char *str, size_t n, const char *format, ...);
-#endif
-
-#ifdef HAVE_VSNPRINTF
-#define pvsnprintf vsnprintf
-#else
 int pvsnprintf(char *str, size_t n, const char *format, va_list ap);
-#endif
 
 /* Use these directly if you want to avoid overhead of psnprintf
  * Return value is number of characters printed (or number printed

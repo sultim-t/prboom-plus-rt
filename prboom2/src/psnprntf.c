@@ -31,7 +31,6 @@
 #define FCVT M_Fcvt
 #endif
 
-#ifndef HAVE_SNPRINTF
 int psnprintf(char *str, size_t n, const char *format, ...)
 {
     va_list args;
@@ -42,7 +41,6 @@ int psnprintf(char *str, size_t n, const char *format, ...)
     va_end(args);
     return ret;
 }
-#endif
 
 #define STATE_NONE 0
 #define STATE_OPERATOR 1 /* Just received % */
@@ -165,7 +163,6 @@ int psnprintf(char *str, size_t n, const char *format, ...)
     } \
     ncount++;
 
-#ifndef HAVE_VSNPRINTF
 int pvsnprintf(char *str, size_t nmax, const char *format, va_list ap)
 {
     /* nmax gives total size of buffer including null
@@ -305,7 +302,6 @@ int pvsnprintf(char *str, size_t nmax, const char *format, va_list ap)
 
     return ncount;
 }
-#endif
 
 int pvsnfmt_char(char **pinsertion, size_t *nmax, const char fmt, int flags,
                  int width, int precision, char prefix, va_list *ap)
