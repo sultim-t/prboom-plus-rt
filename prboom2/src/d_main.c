@@ -168,8 +168,8 @@ void D_PostEvent(event_t *ev)
   /* cph - suppress all input events at game start
    * FIXME: This is a lousy kludge */
   if (gametic < 3) return;
-  C_Responder(ev) ||
   MN_Responder(ev) ||
+  C_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
 				     ST_Responder(ev) ||
@@ -812,6 +812,9 @@ char *D_FindIWADFile(void)
   if (i && (++i < myargc)) {
     iwad = I_FindFile(myargv[i], ".wad");
   } else {
+    // first try the setting from the config file
+    if (g_iwad && *g_iwad)
+      iwad = I_FindFile(g_iwad, ".wad");
     for (i=0; !iwad && i<nstandard_iwads; i++)
       iwad = I_FindFile(standard_iwads[i], ".wad");
   }
