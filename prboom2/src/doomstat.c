@@ -76,7 +76,7 @@ int  variable_friction = 1;      // ice & mud               // phares 3/10/98
 int  default_variable_friction;  // killough 3/1/98: make local to each game
 
 int  weapon_recoil;              // weapon recoil                   // phares
-int  default_weapon_recoil = 1;  // killough 3/1/98: make local to each game
+int  default_weapon_recoil = 0;  // killough 3/1/98: make local to each game
 
 int player_bobbing;  // whether player bobs or not          // phares 2/25/98
 int default_player_bobbing = 1;  // killough 3/1/98: make local to each game
@@ -100,20 +100,20 @@ int distfriend = 128, default_distfriend = 128;
 
 // killough 9/8/98: whether monsters are allowed to strafe or retreat
 int monster_backing;
-int default_monster_backing = 1;
+int default_monster_backing = 0;
 
 // killough 9/9/98: whether monsters are able to avoid hazards (e.g. crushers)
 int monster_avoid_hazards;
-int default_monster_avoid_hazards = 1;
+int default_monster_avoid_hazards = 0;
 
 // killough 9/9/98: whether monsters help friends
 int help_friends;
-int default_help_friends = 1;
+int default_help_friends = 0;
 
 int flashing_hom = 0;     // killough 10/98
 
 int doom_weapon_toggles = 1; // killough 10/98
 
 int monkeys;
-int default_monkeys = 1;
+int default_monkeys = 0;
 
