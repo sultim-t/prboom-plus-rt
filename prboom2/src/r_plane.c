@@ -398,11 +398,11 @@ static void R_DoDrawPlane(visplane_t *pl)
         for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
           if ((dcvars.yl = pl->top[x]) <= (dcvars.yh = pl->bottom[x]))
             {
-              dcvars.source = R_GetTextureColumn(texture, ((an + xtoviewangle[x])^flip) >>
-              ANGLETOSKYSHIFT);
+              dcvars.source = R_GetTextureColumn(texture, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
               
-              dcvars.nextsource = R_GetTextureColumn(texture, ((an + xtoviewangle[x+1])^flip) >>
-              ANGLETOSKYSHIFT);
+              dcvars.nextsource = R_GetTextureColumn(texture, ((an + xtoviewangle[x+1])^flip) >> ANGLETOSKYSHIFT);
+              
+              dcvars.prevsource = R_GetTextureColumn(texture, ((an + xtoviewangle[x-1])^flip) >> ANGLETOSKYSHIFT);
               
               colfunc();
             }
