@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.39 2001/07/21 16:36:35 cph Exp $
+ * $Id: m_misc.c,v 1.40 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.39 2001/07/21 16:36:35 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.40 2001/07/22 14:57:43 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -157,7 +157,7 @@ int M_ReadFile(char const *name, byte **buffer)
       fseek(fp, 0, SEEK_END);
       length = ftell(fp);
       fseek(fp, 0, SEEK_SET);
-      *buffer = Z_Malloc(length, PU_STATIC, 0);
+      *buffer = malloc(length);
       if (fread(*buffer, 1, length, fp) == length)
         {
           fclose(fp);

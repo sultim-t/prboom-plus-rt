@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.4 2001/07/22 10:07:57 cph Exp $
+ * $Id: g_bind.c,v 1.5 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.4 2001/07/22 10:07:57 cph Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.5 2001/07/22 14:57:43 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -261,7 +261,7 @@ void G_InitKeyBindings()
       else
         sprintf(tempstr, "key%02i", i);
     
-      keybindings[i].name = Z_Strdup(tempstr, PU_STATIC, 0);
+      keybindings[i].name = strdup(tempstr);
     }
 
     keybindings[i].binding = NULL;
@@ -303,9 +303,9 @@ static keyaction_t *G_KeyActionForName(const char *name)
   else
   {
      // first time only - cons_keyactions was NULL
-     cons_keyactions = Z_Malloc(sizeof(keyaction_t), PU_STATIC, 0);
+     cons_keyactions = malloc(sizeof(keyaction_t));
      cons_keyactions->type = at_conscmd;
-     cons_keyactions->name = Z_Strdup(name, PU_STATIC, 0);
+     cons_keyactions->name = strdup(name);
      cons_keyactions->next = NULL;
 
      return cons_keyactions;
@@ -319,9 +319,9 @@ static keyaction_t *G_KeyActionForName(const char *name)
      prev = temp;
      temp = temp->next;
   }
-  newaction = Z_Malloc(sizeof(keyaction_t), PU_STATIC, 0);
+  newaction = malloc(sizeof(keyaction_t));
   newaction->type = at_conscmd;
-  newaction->name = Z_Strdup(name, PU_STATIC, 0);
+  newaction->name = strdup(name);
   newaction->next = NULL;
 
   if(prev) prev->next = newaction;

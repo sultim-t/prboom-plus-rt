@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.15 2001/06/09 10:21:35 cph Exp $
+ * $Id: r_draw.c,v 1.16 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.15 2001/06/09 10:21:35 cph Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.16 2001/07/22 14:57:43 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -491,7 +491,7 @@ void R_InitTranslationTables (void)
   // Remove dependency of colormaps aligned on 256-byte boundary
 
   if (translationtables == NULL) // CPhipps - allow multiple calls
-    translationtables = Z_Malloc(256*MAXTRANS, PU_STATIC, 0);
+    translationtables = malloc(256*MAXTRANS);
 
   for (i=0; i<MAXTRANS; i++) transtocolour[i] = 255;
 

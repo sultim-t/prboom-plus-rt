@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.6 2001/02/18 15:56:19 proff_fs Exp $
+ * $Id: f_wipe.c,v 1.7 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.6 2001/02/18 15:56:19 proff_fs Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.7 2001/07/22 14:57:43 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -58,14 +58,14 @@ static byte *wipe_scr;
 
 static void wipe_shittyColMajorXform(short *array, int width, int height)
 {
-  short *dest = Z_Malloc(width*height*sizeof(short), PU_STATIC, 0);
+  short *dest = malloc(width*height*sizeof(short));
   int x, y;
 
   for(y=0;y<height;y++)
     for(x=0;x<width;x++)
       dest[x*height+y] = array[y*width+x];
   memcpy(array, dest, width*height*sizeof(short));
-  Z_Free(dest);
+  free(dest);
 }
 
 static int *y;
@@ -83,7 +83,7 @@ static int wipe_initMelt(int width, int height, int ticks)
   wipe_shittyColMajorXform((short*)wipe_scr_end, width/2, height);
 
   // setup initial column positions (y<0 => not ready to scroll yet)
-  y = (int *) Z_Malloc(width*sizeof(int), PU_STATIC, 0);
+  y = (int *) malloc(width*sizeof(int));
   y[0] = -(M_Random()%16);
   for (i=1;i<width;i++)
     {
@@ -147,9 +147,9 @@ static int wipe_doMelt(int width, int height, int ticks)
 
 static int wipe_exitMelt(int width, int height, int ticks)
 {
-  Z_Free(y);
-  Z_Free(wipe_scr_start);
-  Z_Free(wipe_scr_end);
+  free(y);
+  free(wipe_scr_start);
+  free(wipe_scr_end);
   // Paranoia
   y = NULL;
   wipe_scr_start = wipe_scr_end = screens[SRC_SCR] = screens[DEST_SCR] = NULL;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.31 2001/07/21 16:36:35 cph Exp $
+ * $Id: i_video.c,v 1.32 2001/07/22 14:57:44 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.31 2001/07/21 16:36:35 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.32 2001/07/22 14:57:44 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -646,15 +646,15 @@ void I_UpdateVideoMode(void)
   if (screen->pixels != NULL)
   {
     if (out_buffer)
-      Z_Free(out_buffer);
+      free(out_buffer);
     out_buffer=NULL;
     screens[0] = (unsigned char *) (screen->pixels);
   }
   else
   {
     if (!out_buffer)
-      Z_Free(out_buffer);
-    out_buffer = Z_Calloc(SCREENWIDTH*SCREENHEIGHT, 1, PU_STATIC, NULL);
+      free(out_buffer);
+    out_buffer = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
     screens[0] = out_buffer;
   }
 

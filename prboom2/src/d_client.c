@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.16 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: d_client.c,v 1.17 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -92,7 +92,7 @@ void D_InitNetGame (void)
     playeringame[consoleplayer = 0] = true;
   } else {
     // Get game info from server
-    packet_header_t *packet = Z_Malloc(1000, PU_STATIC, NULL);
+    packet_header_t *packet = malloc(1000);
     struct setup_packet_s *sinfo = (void*)(packet+1);
   struct { packet_header_t head; short pn; } initpacket;
 
@@ -134,7 +134,7 @@ void D_InitNetGame (void)
 	p += strlen(p) + 1;
       }
     }
-    Z_Free(packet);
+    free(packet);
   }
   localcmds = netcmds[displayplayer = consoleplayer];
   for (i=0; i<numplayers; i++)
@@ -164,7 +164,7 @@ void D_InitNetGame (void)
 #ifdef HAVE_NET
 void D_CheckNetGame(void)
 {
-  packet_header_t *packet = Z_Malloc(sizeof(packet_header_t)+1, PU_STATIC, NULL);
+  packet_header_t *packet = malloc(sizeof(packet_header_t)+1);
 
   if (server) {
     lprintf(LO_INFO, "D_CheckNetGame: waiting for server to signal game start\n");
@@ -177,7 +177,7 @@ void D_CheckNetGame(void)
       }
     } while (packet->type != PKT_GO);
   }
-  Z_Free(packet);
+  free(packet);
 }
 
 boolean D_NetGetWad(const char* name)
@@ -191,7 +191,7 @@ boolean D_NetGetWad(const char* name)
 
   do {
     // Send WAD request to remote
-    packet = Z_Malloc(psize, PU_STATIC, NULL);
+    packet = malloc(psize);
     packet->type = PKT_WAD; packet->tic = 0;
     *(byte*)(packet+1) = consoleplayer;
     strcpy(1+(byte*)(packet+1), name);
@@ -199,7 +199,7 @@ boolean D_NetGetWad(const char* name)
     
     I_uSleep(10000);
   } while (!I_GetPacket(packet, psize) || (packet->type != PKT_WAD));
-  Z_Free(packet);
+  free(packet);
 
   if (!strcasecmp((void*)(packet+1), name)) {
     pid_t pid;

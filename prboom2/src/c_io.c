@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.4 2001/07/22 10:07:57 cph Exp $
+ * $Id: c_io.c,v 1.5 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.4 2001/07/22 10:07:57 cph Exp $";
+rcsid[] = "$Id: c_io.c,v 1.5 2001/07/22 14:57:43 cph Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -126,8 +126,8 @@ static void C_InitBackdrop()
     lumpname = "CONSOLE";
   
 #ifndef GL_DOOM
-  if(backdrop) Z_Free(backdrop);
-  backdrop = Z_Malloc((C_SCREENHEIGHT+10)*C_SCREENWIDTH, PU_STATIC, 0);
+  if(backdrop) free(backdrop);
+  backdrop = malloc((C_SCREENHEIGHT+10)*C_SCREENWIDTH);
   
   oldscreen = screens[1]; screens[1] = backdrop;  // hack to write to
   

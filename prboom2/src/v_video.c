@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.20 2001/07/21 16:36:35 cph Exp $
+ * $Id: v_video.c,v 1.21 2001/07/22 14:57:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.20 2001/07/21 16:36:35 cph Exp $";
+rcsid[] = "$Id: v_video.c,v 1.21 2001/07/22 14:57:43 cph Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -208,7 +208,7 @@ void V_Init (void)
   //  if e.g. it wants a MitSHM buffer instead
 
   for (i=0 ; i<PREALLOCED_SCREENS ; i++)
-    screens[i] = Z_Calloc(SCREENWIDTH*SCREENHEIGHT, 1, PU_STATIC, NULL);
+    screens[i] = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
   for (; i<4; i++) // Clear the rest (paranoia)
     screens[i] = NULL;
 }
@@ -534,23 +534,13 @@ void V_WriteText(unsigned char *s, int x, int y)
 
 void V_WriteTextColoured(unsigned char *s, int colour, int x, int y)
 {
-  static char *tempstr = NULL;
-  static size_t allocedsize=0;
-
-  // if string bigger than allocated, realloc bigger
-  if(strlen(s) > allocedsize)
-  {
-    if(tempstr)       // already alloced?
-      tempstr = Z_Realloc(tempstr, strlen(s) + 3, PU_STATIC, 0);
-    else
-      tempstr = Z_Malloc(strlen(s) + 3, PU_STATIC, 0);
-
-    allocedsize = strlen(s);  // save for next time
-  }
+  char *tempstr = malloc(strlen(s)+3);
 
   sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
 
   V_WriteText(tempstr, x, y);
+
+  free(tempstr);
 }
 
 // find height(in pixels) of a string
