@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.24 2000/11/18 18:02:49 cph Exp $
+ * $Id: m_misc.c,v 1.25 2000/11/19 10:16:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.24 2000/11/18 18:02:49 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.25 2000/11/19 10:16:59 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -788,8 +788,7 @@ void M_LoadDefaults (void)
   else
     defaultfile = basedefault;
 
-  if (i || devparm ) // if debug or -config was specified
-    lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
+  lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
 
   // read the file in, overriding any set defaults
 

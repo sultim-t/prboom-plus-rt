@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.19 2000/11/13 21:24:12 cph Exp $
+ * $Id: m_menu.c,v 1.20 2000/11/19 10:16:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.19 2000/11/13 21:24:12 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.20 2000/11/19 10:16:59 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -4149,7 +4149,7 @@ boolean M_Responder (event_t* ev) {
 
   // killough 2/22/98: add support for screenshot key:
 
-  if ((devparm && ch == key_help) || ch == key_screenshot)
+  if (ch == key_screenshot)
     {
     G_ScreenShot ();
     return true;
