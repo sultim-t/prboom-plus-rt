@@ -98,17 +98,16 @@ void D_InitNetGame (void)
     I_InitNetwork();
   udp_socket = I_Socket(0);
   I_ConnectToServer(myargv[i]);
-  // Send init packet
-  initpacket.pn = doom_htons(wanted_player_number);
-  packet_set(&initpacket.head, PKT_INIT, 0);
-  I_SendPacket(&initpacket.head, sizeof(initpacket));
 
     do
     {
-      do { I_WaitForPacket(); } while (!I_GetPacket(packet, 1000));
-      {
-        printf("type: %d\n",packet->type);
-      }
+      do { 
+	// Send init packet
+	initpacket.pn = doom_htons(wanted_player_number);
+	packet_set(&initpacket.head, PKT_INIT, 0);
+	I_SendPacket(&initpacket.head, sizeof(initpacket));
+	I_WaitForPacket(50000);
+      } while (!I_GetPacket(packet, 1000));
       if (packet->type == PKT_DOWN) I_Error("Server aborted the game");
     } while (packet->type != PKT_SETUP);
 
