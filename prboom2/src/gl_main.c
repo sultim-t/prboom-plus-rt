@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.29 2000/09/30 17:31:13 proff_fs Exp $
+ * $Id: gl_main.c,v 1.30 2000/10/03 19:57:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,6 +39,12 @@ boolean use_fog=false;
 boolean use_maindisplay_list=false;
 boolean use_display_lists=false;
 
+int gl_nearclip=5;
+int gl_farclip=6400;
+char *gl_tex_filter_string;
+int gl_tex_filter;
+int gl_mipmap_filter;
+
 GLuint gld_DisplayList=0;
 int fog_density=200;
 static float extra_red=0.0f;
@@ -47,7 +53,7 @@ static float extra_blue=0.0f;
 static float extra_alpha=0.0f;
 
 #define MAP_COEFF 128
-#define MAP_SCALE	(MAP_COEFF<<FRACBITS) // 6553600 -- nicolas
+#define MAP_SCALE	(MAP_COEFF<<FRACBITS)
 
 /*
  * lookuptable for lightvalues
@@ -262,9 +268,9 @@ void gld_Init(int width, int height)
   GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
 	GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-  lprintf(LO_INFO,"\nGL_VENDOR:\n%s\n",glGetString(GL_VENDOR));
-  lprintf(LO_INFO,"GL_RENDERER:\n%s\n",glGetString(GL_RENDERER));
-  lprintf(LO_INFO,"GL_VERSION:\n%s\n",glGetString(GL_VERSION));
+  lprintf(LO_INFO,"GL_VENDOR: %s\n",glGetString(GL_VENDOR));
+  lprintf(LO_INFO,"GL_RENDERER: %s\n",glGetString(GL_RENDERER));
+  lprintf(LO_INFO,"GL_VERSION: %s\n",glGetString(GL_VERSION));
 	glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT); 
 
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f); 
@@ -272,7 +278,7 @@ void gld_Init(int width, int height)
 
   glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
   //gld_max_texturesize=16;
-  lprintf(LO_INFO,"gld_max_texturesize=%i\n",gld_max_texturesize);
+  lprintf(LO_INFO,"GL_MAX_TEXTURE_SIZE=%i\n",gld_max_texturesize);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -296,6 +302,97 @@ void gld_Init(int width, int height)
 	glHint (GL_FOG_HINT, GL_NICEST);
 	glFogf (GL_FOG_START, 0.0f);
 	glFogf (GL_FOG_END, 1.0f);
+  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_NEAREST"))
+  {
+#ifdef USE_GLU_MIPMAP
+    use_mipmapping=true;
+#endif
+    lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
+    lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_NEAREST for mipmap textures.\n");
+    gl_tex_filter=GL_NEAREST;
+    gl_mipmap_filter=GL_NEAREST_MIPMAP_NEAREST;
+  }
+  else
+  if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_NEAREST"))
+  {
+#ifdef USE_GLU_MIPMAP
+    use_mipmapping=true;
+#endif
+    lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
+    lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_NEAREST for mipmap textures.\n");
+    gl_tex_filter=GL_LINEAR;
+    gl_mipmap_filter=GL_LINEAR_MIPMAP_NEAREST;
+  }
+  else
+  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_LINEAR"))
+  {
+#ifdef USE_GLU_MIPMAP
+    use_mipmapping=true;
+#endif
+    lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
+    lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_LINEAR for mipmap textures.\n");
+    gl_tex_filter=GL_NEAREST;
+    gl_mipmap_filter=GL_NEAREST_MIPMAP_LINEAR;
+  }
+  else
+  if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_LINEAR"))
+  {
+#ifdef USE_GLU_MIPMAP
+    use_mipmapping=true;
+#endif
+    lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
+    lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_LINEAR for mipmap textures.\n");
+    gl_tex_filter=GL_LINEAR;
+    gl_mipmap_filter=GL_LINEAR_MIPMAP_LINEAR;
+  }
+  else
+  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST"))
+  {
+#ifdef USE_GLU_MIPMAP
+    use_mipmapping=false;
+#endif
+    lprintf(LO_INFO,"Using GL_NEAREST for textures.\n");
+    gl_tex_filter=GL_NEAREST;
+    gl_mipmap_filter=GL_NEAREST;
+  }
+  else
+  {
+#ifdef USE_GLU_MIPMAP
+    use_mipmapping=false;
+#endif
+    lprintf(LO_INFO,"Using GL_LINEAR for textures.\n");
+    gl_tex_filter=GL_LINEAR;
+    gl_mipmap_filter=GL_LINEAR;
+  }
+
+  if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
+  {
+    gl_tex_format=GL_RGBA8;
+    lprintf(LO_INFO,"Using texture format GL_RGBA8.\n");
+  }
+  else
+  if (!strcasecmp(gl_tex_format_string,"GL_RGB5_A1"))
+  {
+    gl_tex_format=GL_RGB5_A1;
+    lprintf(LO_INFO,"Using texture format GL_RGB5_A1.\n");
+  }
+  else
+  if (!strcasecmp(gl_tex_format_string,"GL_RGBA4"))
+  {
+    gl_tex_format=GL_RGBA4;
+    lprintf(LO_INFO,"Using texture format GL_RGBA4.\n");
+  }
+  else
+  if (!strcasecmp(gl_tex_format_string,"GL_RGBA2"))
+  {
+    gl_tex_format=GL_RGBA2;
+    lprintf(LO_INFO,"Using texture format GL_RGBA2.\n");
+  }
+  else
+  {
+    gl_tex_format=GL_RGBA;
+    lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
+  }
 }
 
 void gld_InitCommandLine()
@@ -405,7 +502,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
                     GL_UNSIGNED_BYTE,scaledbuffer);
       GLFree(buffer);
       buffer=scaledbuffer;
-      glTexImage2D( GL_TEXTURE_2D, 0, 4,
+      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                     gltexture->tex_width, gltexture->tex_height,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
@@ -413,14 +510,14 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   else
 #endif /* USE_GLU_IMAGESCALE */
   {
-    glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+    glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
                   gltexture->buffer_width, gltexture->buffer_height,
                   0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
   }
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   GLFree(buffer);
 
   fV1=0.0f;
@@ -1660,8 +1757,7 @@ void gld_StartDrawScene(void)
   glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-//	gluPerspective(64.0f, 320.0f/200.0f, 0.01f, 2*fSkyRadius);
-	gluPerspective(64.0f, 320.0f/200.0f, 0.05f, 64.0f);
+	gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

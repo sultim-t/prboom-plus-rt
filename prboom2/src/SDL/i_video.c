@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.13 2000/09/30 12:24:12 proff_fs Exp $
+ * $Id: i_video.c,v 1.14 2000/10/03 19:57:25 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.13 2000/09/30 12:24:12 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.14 2000/10/03 19:57:25 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -67,8 +67,13 @@ void (*R_DrawTLColumn)(void);
 #include "sounds.h"
 #include "w_wad.h"
 #include "lprintf.h"
+
 #ifdef GL_DOOM
 #include "gl_struct.h"
+
+int gl_colorbuffer_bits=16;
+int gl_depthbuffer_bits=16;
+
 #endif
 
 extern void M_QuitDOOM(int choice);
@@ -488,6 +493,9 @@ void I_InitGraphics(void)
   int           w, h;
   Uint32        init_flags;
   char titlebuffer[2048];
+#ifdef GL_DOOM
+  int temp;
+#endif
   
   {  
     static int		firsttime=1;
@@ -523,9 +531,9 @@ void I_InitGraphics(void)
   SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
   //SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 0 );
-  SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
-  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
-  screen = SDL_SetVideoMode(w, h, 16, init_flags);
+  SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
+  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+  screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
 #ifdef USE_OWN_TRANSLATION_CODE
   if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) { 
@@ -561,6 +569,29 @@ void I_InitGraphics(void)
   I_InitInputs();
 
 #ifdef GL_DOOM
+  lprintf(LO_INFO,"\nSDL OpenGL PixelFormat:\n");
+  SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
+  lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
+  lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
   gld_Init(SCREENWIDTH, SCREENHEIGHT);
 #endif
   // Hide pointer while over this window

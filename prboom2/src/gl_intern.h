@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.11 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.12 2000/10/03 19:57:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -91,6 +91,13 @@ typedef struct
 } GLTexture;
 
 extern int gld_max_texturesize;
+extern char *gl_tex_format_string;
+extern int gl_tex_format;
+extern int gl_tex_filter;
+extern int gl_mipmap_filter;
+#ifdef USE_GLU_MIPMAP
+extern boolean use_mipmapping;
+#endif
   
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
 void gld_BindTexture(GLTexture *gltexture);

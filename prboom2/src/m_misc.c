@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.19 2000/09/30 00:09:23 proff_fs Exp $
+ * $Id: m_misc.c,v 1.20 2000/10/03 19:57:25 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.19 2000/09/30 00:09:23 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.20 2000/10/03 19:57:25 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -170,10 +170,14 @@ extern int mousebforward;
 extern int viewwidth;
 extern int viewheight;
 extern int fake_contrast;
-#ifdef USE_GLU_MIPMAP
-extern boolean use_mipmapping;
+#ifdef GL_DOOM
+extern int gl_nearclip;
+extern int gl_farclip;
+extern int gl_colorbuffer_bits;
+extern int gl_depthbuffer_bits;
+extern char *gl_tex_filter_string;
+extern char *gl_tex_format_string;
 #endif
-
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
@@ -356,9 +360,18 @@ default_t defaults[] =
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
-#ifdef USE_GLU_MIPMAP
-  {"use_mipmapping",{&use_mipmapping},{0},0,1,def_bool,ss_none},
-#endif
+  {"gl_nearclip",{&gl_nearclip},{5},0,UL,
+   def_int,ss_none}, /* near clipping plane pos */
+  {"gl_farclip",{&gl_farclip},{6400},0,UL,
+   def_int,ss_none}, /* far clipping plane pos */
+  {"gl_colorbuffer_bits",{&gl_colorbuffer_bits},{16},16,32,
+   def_int,ss_none},
+  {"gl_depthbuffer_bits",{&gl_depthbuffer_bits},{16},16,32,
+   def_int,ss_none},
+  {"gl_tex_filter_string", {NULL,&gl_tex_filter_string}, {0,"GL_LINEAR"},UL,UL,
+   def_str,ss_none},
+  {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
+   def_str,ss_none},
 #endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},

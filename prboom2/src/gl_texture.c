@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.10 2000/09/30 00:09:23 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.11 2000/10/03 19:57:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -46,6 +46,11 @@ boolean use_mipmapping=false;
 #endif
 
 int gld_max_texturesize=0;
+char *gl_tex_format_string;
+//int gl_tex_format=GL_RGBA8;
+int gl_tex_format=GL_RGB5_A1;
+//int gl_tex_format=GL_RGBA4;
+//int gl_tex_format=GL_RGBA2;
 
 int gld_GetTexDimension(int value)
 {
@@ -385,13 +390,13 @@ void gld_BindTexture(GLTexture *gltexture)
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
-	  gluBuild2DMipmaps(GL_TEXTURE_2D, 4,
+	  gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
 					            gltexture->buffer_width, gltexture->buffer_height,
 					            GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
   }
   else
 #endif /* USE_GLU_MIPMAP */
@@ -413,7 +418,7 @@ void gld_BindTexture(GLTexture *gltexture)
                       GL_UNSIGNED_BYTE,scaledbuffer);
         GLFree(buffer);
         buffer=scaledbuffer;
-        glTexImage2D( GL_TEXTURE_2D, 0, 4,
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                       gltexture->tex_width, gltexture->tex_height,
                       0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
       }
@@ -421,14 +426,14 @@ void gld_BindTexture(GLTexture *gltexture)
     else
 #endif /* USE_GLU_IMAGESCALE */
     {
-      glTexImage2D( GL_TEXTURE_2D, 0, 4,
+      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                     gltexture->buffer_width, gltexture->buffer_height,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   }
   GLFree(buffer);
 }
@@ -526,7 +531,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
                     GL_UNSIGNED_BYTE,scaledbuffer);
       GLFree(buffer);
       buffer=scaledbuffer;
-      glTexImage2D( GL_TEXTURE_2D, 0, 4,
+      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                     gltexture->tex_width, gltexture->tex_height,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
@@ -534,14 +539,14 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   else
 #endif /* USE_GLU_IMAGESCALE */
   {
-    glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+    glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
                   gltexture->buffer_width, gltexture->buffer_height,
                   0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
   }
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   GLFree(buffer);
   W_UnlockLumpNum(gltexture->index);
 }
@@ -629,13 +634,13 @@ void gld_BindFlat(GLTexture *gltexture)
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
-	  gluBuild2DMipmaps(GL_TEXTURE_2D, 4,
+	  gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
 					            GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
   }
   else
 #endif /* USE_GLU_MIPMAP */
@@ -657,7 +662,7 @@ void gld_BindFlat(GLTexture *gltexture)
                       GL_UNSIGNED_BYTE,scaledbuffer);
         GLFree(buffer);
         buffer=scaledbuffer;
-        glTexImage2D( GL_TEXTURE_2D, 0, 4,
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                       gltexture->tex_width, gltexture->tex_height,
                       0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
       }
@@ -665,14 +670,14 @@ void gld_BindFlat(GLTexture *gltexture)
     else
 #endif /* USE_GLU_IMAGESCALE */
     {
-      glTexImage2D( GL_TEXTURE_2D, 0, 4, 
+      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
                     gltexture->buffer_width, gltexture->buffer_height,
                     0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   }
   GLFree(buffer);
   W_UnlockLumpNum(gltexture->index);
