@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.3 2000/05/10 04:53:38 jessh Exp $
+ * $Id: i_video.c,v 1.4 2000/05/21 12:55:50 cph Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.3 2000/05/10 04:53:38 jessh Exp $";
+rcsid[] = "$Id: i_video.c,v 1.4 2000/05/21 12:55:50 cph Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -155,6 +155,7 @@ int             X_bpp; // bpp that we tell X
 
 // Mouse handling
 extern int     usemouse;        // config file var
+int            use_fullscreen;  /* cph - config file dummy */
 static boolean grabMouse;       // internal var
 static boolean grabbed = false; // Is the mouse currently grabbed
 
