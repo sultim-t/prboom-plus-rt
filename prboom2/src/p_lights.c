@@ -156,6 +156,50 @@ void T_Glow(glow_t* g)
   }
 }
 
+// sf 13/10/99:
+//
+// T_LightFade()
+//
+// Just fade the light level in a sector to a new level
+//
+
+void T_LightFade(lightlevel_t *ll)
+{
+  if(ll->sector->lightlevel < ll->destlevel)
+  {
+      // increase the lightlevel
+    if(ll->sector->lightlevel + ll->speed >= ll->destlevel)
+    {
+          // stop changing light level
+       ll->sector->lightlevel = ll->destlevel;    // set to dest lightlevel
+
+       ll->sector->lightingdata = NULL;          // clear lightingdata
+       P_RemoveThinker(&ll->thinker);    // remove thinker       
+    }
+    else
+    {
+        ll->sector->lightlevel += ll->speed; // move lightlevel
+    }
+  }
+  else
+  {
+        // decrease lightlevel
+    if(ll->sector->lightlevel - ll->speed <= ll->destlevel)
+    {
+          // stop changing light level
+       ll->sector->lightlevel = ll->destlevel;    // set to dest lightlevel
+
+       ll->sector->lightingdata = NULL;          // clear lightingdata
+       P_RemoveThinker(&ll->thinker);            // remove thinker       
+    }
+    else
+    {
+        ll->sector->lightlevel -= ll->speed;      // move lightlevel
+    }
+  }
+}
+
+
 //////////////////////////////////////////////////////////
 //
 // Sector lighting type spawners
@@ -284,6 +328,35 @@ void P_SpawnGlowingLight(sector_t*  sector)
   g->direction = -1;
 
   sector->special &= ~31; //jff 3/14/98 clear non-generalized sector type
+}
+
+// sf 13/10/99:
+//
+// P_FadeLight()
+//
+// Fade all the lights in sectors with a particular tag to a new value
+//
+
+void P_FadeLight(int tag, int destvalue, int speed)
+{
+  int i;
+  lightlevel_t *ll;
+
+  // search all sectors for ones with tag
+  for (i = -1; (i = P_FindSectorFromTag(tag,i)) >= 0;)
+  {
+      sector_t *sector = &sectors[i];
+      sector->lightingdata = sector;    // just set it to something
+
+      ll = Z_Malloc(sizeof(*ll), PU_LEVSPEC, 0);
+      ll->thinker.function = T_LightFade;
+
+      P_AddThinker(&ll->thinker);       // add thinker
+
+      ll->sector = sector;
+      ll->destlevel = destvalue;
+      ll->speed = speed;
+  }
 }
 
 //////////////////////////////////////////////////////////
