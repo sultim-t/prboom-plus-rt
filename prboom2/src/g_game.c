@@ -1013,6 +1013,14 @@ static void G_DoSaveGame (boolean menu)
   memcpy (save_p, name2, VERSIONSIZE);
 
   save_p += VERSIONSIZE;
+  
+  // sf: use string rather than episode, map
+  {
+    int i;
+    for(i=0; i<8; i++)
+      *save_p++ = levelmapname[i];
+  }
+
 
   { /* killough 3/16/98, 12/98: store lump name checksum */
     uint_64_t checksum = G_Signature();
@@ -1037,10 +1045,6 @@ static void G_DoSaveGame (boolean menu)
 
   /* cph - FIXME? - Save compatibility level */
   *save_p++ = compatibility_level;
-
-  *save_p++ = gameskill;
-  *save_p++ = gameepisode;
-  *save_p++ = gamemap;
 
   for (i=0 ; i<MAXPLAYERS ; i++)
     *save_p++ = playeringame[i];
@@ -1149,6 +1153,21 @@ void G_DoLoadGame(void)
 
   save_p += VERSIONSIZE;
 
+  // sf: use string rather than episode, map
+
+  {
+    int i;
+    
+    if(gamemapname) free(gamemapname);    //sf
+    gamemapname = malloc(10);
+
+    for(i=0; i<8; i++)
+      gamemapname[i] = *save_p++;
+    gamemapname[8] = 0;        // ending NULL
+  }
+
+  G_SetGameMap();       // get gameepisode, map
+
   // CPhipps - always check savegames even when forced,
   //  only print a warning if forced
   {  // killough 3/16/98: check lump name checksum (independent of order)
@@ -1178,10 +1197,6 @@ void G_DoLoadGame(void)
   compatibility_level = (savegame_compatibility >= prboom_4_compatibility)
     ? *save_p : savegame_compatibility;
   save_p++;
-
-  gameskill = *save_p++;
-  gameepisode = *save_p++;
-  gamemap = *save_p++;
 
   for (i=0 ; i<MAXPLAYERS ; i++)
     playeringame[i] = *save_p++;

@@ -939,9 +939,9 @@ CONSOLE_COMMAND(mn_prevmenu, 0)
   MN_PrevMenu();
 }
 
-        // ??
 void MN_ForcedLoadGame(const char *msg)
 {
+  MN_Alert(msg);
 }
 
 // display error msg in popup display at bottom of screen
