@@ -1,6 +1,14 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.2.2 to v2.2.3
+- improved mouse handling
+- intermission demo sync bug fixed
+- framebuffer update fixes (solves flicker on fbcon)
+- -forceoldbsp allowed in non-GL version, and saved in demos
+- apply workarounds for buggy pwads even during demo playback
+- fix numpad 5 key
+
 Changes from v2.2.1 to v2.2.2
 - more demo sync problems for original Doom and Boom fixed
 - added changeable samplerate for soundmixing
