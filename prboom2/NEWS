@@ -8,6 +8,7 @@ Changes from v2.3.1 to v2.3.2
 - fix fuzz drawing for hi-res
 - fixed patch drawing with VPT_FLIP (Doom2 cast drawing)
 - fix dehacked NOSECTOR/NOBLOCKMAP effects
+- fix player spawn sound
 
 Changes from v2.3.0 to v2.3.1
 - disabled vidd support, because currently it's broken

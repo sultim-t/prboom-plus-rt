@@ -148,6 +148,9 @@ Lucas Pope <pope@jeffsys.net>
 Reworked the software renderer and added all those filters.
 Also made the VIDD System.
 
+Ville Vuorinen <vv@ydin.org>
+Spotted the player spawn sound bug.
+
 Everyone who contributed indirectly to MBF and Boom and Doom; see the
 respective documentation files.
 

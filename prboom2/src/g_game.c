@@ -224,11 +224,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 #ifdef CONSHUGE
    // in console mode the whole ticcmd is used
    // to transfer console command chars
-   
+
    if(gamestate == GS_CONSOLE)
-   {                         
+   {
       int i;
-      
+
       // fill ticcmd with console chars
       for(i = 0; i < sizeof(ticcmd_t); i++)
       {
@@ -1081,7 +1081,7 @@ static void G_DoSaveGame (boolean menu)
   memcpy (save_p, name2, VERSIONSIZE);
 
   save_p += VERSIONSIZE;
-  
+
   // sf: use string rather than episode, map
   if (savegame_version >= 211) {
     int i;
@@ -1235,7 +1235,7 @@ void G_DoLoadGame(void)
   if (savegame_version >= 211)
   {
     int i;
-    
+
     if(gamemapname) free(gamemapname);    //sf
     gamemapname = malloc(10);
 
@@ -1332,7 +1332,7 @@ void G_DoLoadGame(void)
       C_Printf("bad savegame: offset 0x%x is 0x%x\n",
 	       save_p-savebuffer, *save_p);
       Z_Free(savebuffer);
-      return; 
+      return;
     }
 
   // done
@@ -1697,7 +1697,7 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 
   // spawn a teleport fog
   ss = R_PointInSubsector (x,y);
-  an = ( ANG45 * (mthing->angle/45) ) >> ANGLETOFINESHIFT;
+  an = ( ANG45 * ((unsigned)mthing->angle/45) ) >> ANGLETOFINESHIFT;
 
   mo = P_SpawnMobj(x+20*finecosine[an], y+20*finesine[an],
                    ss->sector->floorheight, MT_TFOG);
