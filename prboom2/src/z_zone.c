@@ -50,6 +50,7 @@
 #include "z_zone.h"
 #include "doomstat.h"
 #include "m_argv.h"
+#include "v_video.h"
 #include "lprintf.h"
 
 #ifdef DJGPP
@@ -119,31 +120,53 @@ static size_t purgable_memory;
 static size_t inactive_memory;
 static size_t virtual_memory;
 
-static void Z_PrintStats(void)            // Print allocation statistics
+void Z_DrawStats(void)            // Print allocation statistics
 {
+  char buffer[1024];
+
   unsigned long total_memory = free_memory + active_memory +
                                purgable_memory + inactive_memory +
                                virtual_memory;
   double s = 100.0 / total_memory;
 
-  doom_printf("%-5u\t%6.01f%%\tstatic\n"
-          "%-5u\t%6.01f%%\tpurgable\n"
-          "%-5u\t%6.01f%%\tfree\n"
-          "%-5u\t%6.01f%%\tfragmentary\n"
-          "%-5u\t%6.01f%%\tvirtual\n"
-          "%-5lu\t\ttotal\n",
+  if (gamestate != GS_LEVEL)
+    return;
+
+  sprintf(buffer,FC_GRAY
+          "%-5u\n"
+          "%-5u\n"
+          "%-5u\n"
+          "%-5u\n"
+          "%-5u\n"
+          "%-5lu\n",
           active_memory,
-          active_memory*s,
           purgable_memory,
-          purgable_memory*s,
           free_memory,
-          free_memory*s,
           inactive_memory,
-          inactive_memory*s,
           virtual_memory,
-          virtual_memory*s,
           total_memory
           );
+  V_WriteTextXYGap(buffer, 0, 16, -1, -1);
+  sprintf(buffer,FC_GRAY
+          "%6.01f%%\n"
+          "%6.01f%%\n"
+          "%6.01f%%\n"
+          "%6.01f%%\n"
+          "%6.01f%%\n",
+          active_memory*s,
+          purgable_memory*s,
+          free_memory*s,
+          inactive_memory*s,
+          virtual_memory*s
+          );
+  V_WriteTextXYGap(buffer, 45, 16, -1, -1);
+  V_WriteTextXYGap(FC_GRAY
+                   "static\n"
+                   "purgable\n"
+                   "free\n"
+                   "fragmentary\n"
+                   "virtual\n"
+                   "total\n", 90, 16, -1, -1);
 }
 
 #ifdef HEAPDUMP
@@ -478,7 +501,6 @@ void *(Z_Malloc)(size_t size, int tag, void **user
     *user = block;            // set user to point to new block
   
 #ifdef INSTRUMENTED
-  Z_PrintStats();           // print memory allocation stats
   // scramble memory -- weed out any bugs
   memset(block, gametic & 0xff, size);
 #endif
@@ -584,10 +606,6 @@ void (Z_Free)(void *p
 #endif
             }
         }
-
-#ifdef INSTRUMENTED
-      Z_PrintStats();           // print memory allocation stats
-#endif
     }
 }
 

@@ -629,6 +629,12 @@ void HU_Drawer()
   //HU_WarningsDrawer();
   HU_WidgetsDraw();
   HU_OverlayDraw();
+#ifdef INSTRUMENTED
+  {
+    extern void Z_DrawStats(void);
+    Z_DrawStats();           // draw memory allocation stats
+  }
+#endif
 }
 
 void HU_Ticker()
