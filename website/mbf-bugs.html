@@ -1,92 +1,103 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
- <head>
-  <title>MBF Source Notes</title>
-  <meta name="author" content="Colin Phipps" />
-  <link rel="STYLESHEET"
-        href="main.css" 
-	type="text/css" />
- </head>
- <body>
-  <h1>MBF Code Notes</h1>
-   <h2>What this is</h2>
-    <p>
-     Unless you're a source port coder working with either the Boom or
-     MBF source code (or code derived from them), you don't want to read this.
-    <p></p>
-     As you know, MBF is not maintained by anyone, and like all software it
-     has some bugs, This page is intended as a reference on all the bugs
-     in the last release of MBF, so people working from its code don't have
-     to repeat all my debugging again in order to find them for themselves.
-    </p><p>
-     I don't list all the bugs in the Boom source, because there were lots
-     of bugs in Boom that were fixed by MBF; see the MBF docs for a list.
-     You should start from the MBF or PrBoom source if you're starting a new
-     port, not the Boom source. If you are working from Boom (or, indeed,
-     even from original Doom, which is even less advisable) then the list
-     below is still relevant (where noted), but just remember that there are
-     all the fixes from MBF that you need to apply too.
-    </p><p>
-     This page used to carry PrBoom bugs, but since PrBoom is active these
-     days there's no need, all bugs that get found, get fixed. Similarly
-     this page no longer contains info on BSP bugs.
-    </p><p>
-     Those bugs here which are not otherwise attributed,
-     were found and fixed by myself
-     (<a href="mailto:cphipps@doomworld.com">Colin Phipps</a>).
-     Also I'd like to thank
-     <a href="mailto:haleyjd@concentric.net">James &quot;Quasar&quot; Haley</a>,
-     and <a href="mailto:fraggle@alkali.org">Simon &quot;Fraggle&quot; Howard</a>,
-     who discovered some of these bugs, and
-     are always glad to share this information :-).
-    </p>
-  <h2>Fixed</h2>
-   <p>
-    For a lot of the bugs I now give source fixes. These are in UNIX
-    diff(1) format, which hopefully is clear even to those not familiar
-    with it. Note that the patches are usually generated from the PrBoom
-    or LxDoom CVS, so they probably won't apply cleanly on the original
-    Boom/MBF sources. You're a coder, you can figure it out.
-   </p>
-  <h2>Bugs</h2>
-     <p>
-      I've divided them into programming bugs, which
-      cause the game to lose data, crash, or such, and game logic bugs,
-      which cause things in the game to behave wrongly.
-     </p>
-   <h3>Programming bugs</h3>
+  <head>
+    <meta name="generator" content="HTML Tidy, see www.w3.org" />
+    <title>MBF Source Notes</title>
+    <meta name="author" content="Colin Phipps" />
+    <link rel="STYLESHEET" href="main.css" type="text/css" />
+  </head>
+
+  <body>
+    <h1>MBF Code Notes</h1>
+
+    <h2>What this is</h2>
+
+    <p> Unless you're a source port coder working with either the
+    Boom or MBF source code (or code derived from them), you don't
+    want to read this.</p>
+
+    <p> As you know, MBF is not maintained by anyone, and like all
+    software it has some bugs, This page is intended as a reference
+    on all the bugs in the last release of MBF, so people working
+    from its code don't have to repeat all my debugging again in
+    order to find them for themselves.</p>
+
+    <p> I don't list all the bugs in the Boom source, because there
+    were lots of bugs in Boom that were fixed by MBF; see the MBF
+    docs for a list. You should start from the MBF or PrBoom source
+    if you're starting a new port, not the Boom source. If you are
+    working from Boom (or, indeed, even from original Doom, which
+    is even less advisable) then the list below is still relevant
+    (where noted), but just remember that there are all the fixes
+    from MBF that you need to apply too.</p>
+
+    <p> This page used to carry PrBoom bugs, but since PrBoom is
+    active these days there's no need, all bugs that get found, get
+    fixed. Similarly this page no longer contains info on BSP
+    bugs.</p>
+
+    <p> Those bugs here which are not otherwise attributed, were
+    found and fixed by myself (<a
+    href="mailto:cphipps@doomworld.com">Colin Phipps</a>). Also I'd
+    like to thank <a href="mailto:haleyjd@concentric.net">James
+    "Quasar" Haley</a>, and <a href="mailto:fraggle@alkali.org">
+    Simon "Fraggle" Howard</a>, who discovered some of these bugs,
+    and are always glad to share this information :-).</p>
+
+    <h2>Fixed</h2>
+
+    <p> For a lot of the bugs I now give source fixes. These are in
+    UNIX diff(1) format, which hopefully is clear even to those not
+    familiar with it. Note that the patches are usually generated
+    from the PrBoom or LxDoom CVS, so they probably won't apply
+    cleanly on the original Boom/MBF sources. You're a coder, you
+    can figure it out.</p>
+
+    <h2>Bugs</h2>
+
+    <p> I've divided them into programming bugs, which cause the
+    game to lose data, crash, or such, and game logic bugs, which
+    cause things in the game to behave wrongly.</p>
+
+    <h3>Programming bugs</h3>
+
     <h4>Minor save glitch</h4>
-     <p>
-      Affects: Boom v2.02, PrBoom v2.02
-     </p><p>
-      Symptoms: Highly unlikely to ever occur, but it might show up in a level
-      with a lot of sectors, with a ZONE_ID crash or SEGV saving a game.
-     </p><p>
-      Description: Boom v2.02 added a soundtargets field to the data stored
-      with each sector, but the code to check if there was enough space in the
-      savegame buffer was not updated with the extra size. cf PrBoom p_saveg.c,
-      P_ArchiveWorld().
-     </p>
+
+    <p> Affects: Boom v2.02, PrBoom v2.02</p>
+
+    <p> Symptoms: Highly unlikely to ever occur, but it might show
+    up in a level with a lot of sectors, with a ZONE_ID crash or
+    SEGV saving a game.</p>
+
+    <p> Description: Boom v2.02 added a soundtargets field to the
+    data stored with each sector, but the code to check if there
+    was enough space in the savegame buffer was not updated with
+    the extra size. cf PrBoom p_saveg.c, P_ArchiveWorld().</p>
+
     <h4>VM block size bug</h4>
-     <p>
-      Affects: MBF, Boom v2.02, PrBoom v2.02
-     </p><p>
-      Symptoms: Saving a game in a large level, or loading a large
-      savegame (savegame would have to be &gt;64k)
-      for the first time, when memory is tight and fragmented, produces
-      a corrupt savegame file if writing, or loses data when reading.
-      Also, on machines with tight memory, when INSTRUMENTED is defined,
-      the libc heap (not the Doom heap) can become corrupted.
-     </p><p>
-      Description: cf MBF, z_zone.c Z_Malloc, line 371. The Z_Malloc code
-      fails to store the block size in the header for memory blocks allocated
-      outside of the normal heap. This field is unused for "vm" blocks (hence
-      the bug is rarely noticed), _except_ when doing a Z_Realloc() (as when
-      enlarging the savegame buffer); data will failed to be copied to the
-      new block. A "vm" memory block is only allocated when no memory block
-      in Doom's own heap is suitable. Fix follows:
-     </p><pre>
+
+    <p> Affects: MBF, Boom v2.02, PrBoom v2.02</p>
+
+    <p> Symptoms: Saving a game in a large level, or loading a
+    large savegame (savegame would have to be &gt;64k) for the
+    first time, when memory is tight and fragmented, produces a
+    corrupt savegame file if writing, or loses data when reading.
+    Also, on machines with tight memory, when INSTRUMENTED is
+    defined, the libc heap (not the Doom heap) can become
+    corrupted.</p>
+
+    <p> Description: cf MBF, z_zone.c Z_Malloc, line 371. The
+    Z_Malloc code fails to store the block size in the header for
+    memory blocks allocated outside of the normal heap. This field
+    is unused for "vm" blocks (hence the bug is rarely noticed),
+    _except_ when doing a Z_Realloc() (as when enlarging the
+    savegame buffer); data will failed to be copied to the new
+    block. A "vm" memory block is only allocated when no memory
+    block in Doom's own heap is suitable. Fix follows:</p>
+<pre>
 ***
 @@ -363,13 +447,20 @@ allocated:
    block-&gt;vm = 1;
@@ -101,43 +112,46 @@
 
    goto allocated;
  }
-     </pre>
+     
+</pre>
+
     <h4>SEGV when falling down long vertical shaft</h4>
-     <p>
-      Affects: MBF, and probably Boom
-     </p><p>
-      Symptoms: E.g. MAP26 of Hell Revealed. Play with -nomonsters. Walk north
-      east from the start until you teleport. You are in a weird corridor,
-      walk to the end _slowly_. You teleport again, to a ledge at the top o a
-      long vertical shaft going down. If you walked slowly, you probably
-      won't be thrown off of the ledge. As you walk off, the game may crash,
-      depending on the amount of memory allocated, the position of the
-      ylookup[] array in that memory, and whether the OS detects the SEGV
-      (it does in Linux, but I guess DOS might let it pass).
-     </p><p>
-      Description: On x86 machines, an assembly code version of R_DrawColumn is
-      used, which has the instructions reordered to make it faster. It happens
-      that the ylookup[] lookup is done before the pixel count is checked. If
-      the pixel begin or end values are way out of range, this causes a SEGV.
-      The memory accessed by the out-of-range array index is not used
-      (in the out-of-range case), so provided the OS doesn't detect the
-      SEGV there are no ill effects.
-      I've had it confirmed that this does affect MBF in extreme cases.
-     </p>
+
+    <p> Affects: MBF, and probably Boom</p>
+
+    <p> Symptoms: E.g. MAP26 of Hell Revealed. Play with
+    -nomonsters. Walk north east from the start until you teleport.
+    You are in a weird corridor, walk to the end _slowly_. You
+    teleport again, to a ledge at the top o a long vertical shaft
+    going down. If you walked slowly, you probably won't be thrown
+    off of the ledge. As you walk off, the game may crash,
+    depending on the amount of memory allocated, the position of
+    the ylookup[] array in that memory, and whether the OS detects
+    the SEGV (it does in Linux, but I guess DOS might let it
+    pass).</p>
+
+    <p> Description: On x86 machines, an assembly code version of
+    R_DrawColumn is used, which has the instructions reordered to
+    make it faster. It happens that the ylookup[] lookup is done
+    before the pixel count is checked. If the pixel begin or end
+    values are way out of range, this causes a SEGV. The memory
+    accessed by the out-of-range array index is not used (in the
+    out-of-range case), so provided the OS doesn't detect the SEGV
+    there are no ill effects. I've had it confirmed that this does
+    affect MBF in extreme cases.</p>
+
     <h4>Memory wastage</h4>
-     <p>
-      Affects: Boom, PrBoom v2.02, MBF
-     </p><p>
-      Symptoms: Memory is wasted by data from previous games or levels,
-      which should have been purged.
-     </p><p>
-      Description:
-      If you add debugging to show used memory immediately after
-      a Z_FreeTags, you'll see that not all blocks with the tags being freed
-      get freed.
-      The algorithm used to walk the heap in Z_FreeTags is buggy. Fix
-      follows:
-     </p><pre>
+
+    <p> Affects: Boom, PrBoom v2.02, MBF</p>
+
+    <p> Symptoms: Memory is wasted by data from previous games or
+    levels, which should have been purged.</p>
+
+    <p> Description: If you add debugging to show used memory
+    immediately after a Z_FreeTags, you'll see that not all blocks
+    with the tags being freed get freed. The algorithm used to walk
+    the heap in Z_FreeTags is buggy. Fix follows:</p>
+<pre>
 @@ -480,9 +572,21 @@ void (Z_FreeTags)(int lowtag, int highta
    do               // Scan through list, searching for tags in range
      if (block-&gt;tag &gt;= lowtag &amp;&amp; block-&gt;tag &lt;= hightag)
@@ -158,19 +172,22 @@
        }
    while ((block=block-&gt;next) != zone);
 
-     </pre>
+     
+</pre>
+
     <h4>Poor memory scanning</h4>
-     <p>
-      Affects: Boom, PrBoom v2.02, MBF
-     </p><p>
-      Symptoms: The efficiency of memory usage in Boom/MBF rarely exceeds 60%
-     </p><p>
-      Description: Sometimes when cache memory is freed in order to make space
-      for new memory allocations, the freed memory is immediately skipped
-      over, so this space is not taken advantage of until the next cycle
-      round the heap. Fixed by being more careful in the block searching
-      code.
-     </p><pre>
+
+    <p> Affects: Boom, PrBoom v2.02, MBF</p>
+
+    <p> Symptoms: The efficiency of memory usage in Boom/MBF rarely
+    exceeds 60%</p>
+
+    <p> Description: Sometimes when cache memory is freed in order
+    to make space for new memory allocations, the freed memory is
+    immediately skipped over, so this space is not taken advantage
+    of until the next cycle round the heap. Fixed by being more
+    careful in the block searching code.</p>
+<pre>
 ***************
 *** 359,365 ****
           {                                   // replacement is roughly FIFO
@@ -195,30 +212,32 @@
         if (block-&gt;tag == PU_FREE &amp;&amp; block-&gt;size &gt;= size)   // First-fit
 ***************
 </pre>
-    <h4><a name="format">Format string bugs</a></h4>
-     <p>
-      Affects: Boom, MBF, PrBoom v2.02, v2.03beta
-     </p><p>
-      Symptoms: Malicious WAD/DEH/BEX files could potentially run
-       arbitrary code on your computer (read: trojan WAD files)
-     </p><p>
-      Description: Boom and MBF allow strings displayed by the game to be
-      modified by dehacked patch files (.deh or .bex files). The string
-      handling is not as careful as it should be in some places; specifically
-      sometimes these strings are passed as the format arguments to
-      *printf calls.  As widely
-      reported on security mailing lists recently, by supplying malformed
-      strings as a format string it is possible for the person supplying the
-      strings to cause arbitrary code to be run.
-     </p><p>
-      So potentially, a malicious person could write a dehacked patch
-      which did nasty things to your computer. So beware malicious .deh
-      or .bex files.
-      Also, MBF will interpret a DEHACKED lump inside a .wad file as a
-      dehacked patch, so beware malicious .wad files too.
-     </p><p>
-      Fix is simple, supply a format string correctly. For Boom v2.02:
-</p><pre>
+
+    <h4><a id="format" name="format">Format string bugs</a></h4>
+
+    <p> Affects: Boom, MBF, PrBoom v2.02, v2.03beta</p>
+
+    <p> Symptoms: Malicious WAD/DEH/BEX files could potentially run
+    arbitrary code on your computer (read: trojan WAD files)</p>
+
+    <p> Description: Boom and MBF allow strings displayed by the
+    game to be modified by dehacked patch files (.deh or .bex
+    files). The string handling is not as careful as it should be
+    in some places; specifically sometimes these strings are passed
+    as the format arguments to *printf calls. As widely reported on
+    security mailing lists recently, by supplying malformed strings
+    as a format string it is possible for the person supplying the
+    strings to cause arbitrary code to be run.</p>
+
+    <p> So potentially, a malicious person could write a dehacked
+    patch which did nasty things to your computer. So beware
+    malicious .deh or .bex files. Also, MBF will interpret a
+    DEHACKED lump inside a .wad file as a dehacked patch, so beware
+    malicious .wad files too.</p>
+
+    <p> Fix is simple, supply a format string correctly. For Boom
+    v2.02:</p>
+<pre>
 --- d_main.c        Sat Oct  9 15:44:42 1999
 +++ d_main.c.fixed        Sat Sep 23 18:54:58 2000
 @@ -1572,11 +1572,11 @@ void D_DoomMain(void)
@@ -238,9 +257,10 @@
    // End new startup strings
 
    //jff 9/3/98 use logical output routine
-</pre><p>
-     And the following applies to both Boom and MBF
-</p><pre>
+</pre>
+
+    <p> And the following applies to both Boom and MBF</p>
+<pre>
 --- d_deh.c     Sat Oct  9 15:44:42 1999
 +++ d_deh.c.fixed       Sat Sep 23 19:13:10 2000
 @@ -401,8 +401,10 @@ deh_strs deh_strlookup[] = {
@@ -266,49 +286,56 @@
 
  void I_Quit(void);
 </pre>
-   <h3>Game logic bugs</h3>
-    <p>Note that some of these bug fixes are only for fixing demo sync,
-     and so some people won't be interested in them. Also, some of these bug
-     fixes change the game behaviour and so people might not like them.
-     It's your choice.</p>
+
+    <h3>Game logic bugs</h3>
+
+    <p>Note that some of these bug fixes are only for fixing demo
+    sync, and so some people won't be interested in them. Also,
+    some of these bug fixes change the game behaviour and so people
+    might not like them. It's your choice.</p>
+
     <h4>Medikit health</h4>
-     <p>
-      Affects: Doom, Boom, PrBoom v2.02, MBF
-     </p><p>
-      Symptoms: The message "You picked up a medikit that you REALLY need!"
-      is never shown
-     </p><p>
-      Found by: <a href="mailto:haleyjd@concentric.net">Quasar</a>
-     </p><p>
-      Description: cf MBF line 419. The test to see if the player had very low
-      health is after the health for the medikit is added, so the low-health
-      condition is never met.
-     </p>
+
+    <p> Affects: Doom, Boom, PrBoom v2.02, MBF</p>
+
+    <p> Symptoms: The message "You picked up a medikit that you
+    REALLY need!" is never shown</p>
+
+    <p> Found by: <a href="mailto:haleyjd@concentric.net">
+    Quasar</a></p>
+
+    <p> Description: cf MBF line 419. The test to see if the player
+    had very low health is after the health for the medikit is
+    added, so the low-health condition is never met.</p>
+
     <h4>Player grunt</h4>
-     <p>
-      Affects: Doom, Boom, PrBoom v2.02, MBF
-     </p><p>
-      Symptoms: The player grunt sound is heard when hitting the ground,
-      even when the player is already dead (e.g. high archville toss)
-     </p><p>
-      Found by: <a href="mailto:haleyjd@concentric.net">Quasar</a>
-     </p><p>
-      Description: There is no test that the player is alive when playing the
-      grunt sound. 'nuff said.
-     </p>
+
+    <p> Affects: Doom, Boom, PrBoom v2.02, MBF</p>
+
+    <p> Symptoms: The player grunt sound is heard when hitting the
+    ground, even when the player is already dead (e.g. high
+    archville toss)</p>
+
+    <p> Found by: <a href="mailto:haleyjd@concentric.net">
+    Quasar</a></p>
+
+    <p> Description: There is no test that the player is alive when
+    playing the grunt sound. 'nuff said.</p>
+
     <h4>3-key door works with only 2 keys</h4>
-      <p>
-       Affects: MBF
-      </p><p>
-       Found by: Fraggle
-      </p><p>
-       Symptoms: The generalised line type for a door which needs all 3 keys
-       doesn't work right, it lets you through with only the red and blue keys.
-      </p><p>
-       Description: A simple typo introduced by some code
-       cleaning/reformatting in MBF, in p_spec.c:P_CanUnlockGenDoor. Simple
-       fix is:
-      </p><pre>
+
+    <p> Affects: MBF</p>
+
+    <p> Found by: Fraggle</p>
+
+    <p> Symptoms: The generalised line type for a door which needs
+    all 3 keys doesn't work right, it lets you through with only
+    the red and blue keys.</p>
+
+    <p> Description: A simple typo introduced by some code
+    cleaning/reformatting in MBF, in p_spec.c:P_CanUnlockGenDoor.
+    Simple fix is:</p>
+<pre>
 --- p_spec.c.orig        Wed Aug 23 23:46:49 2000
 +++ p_spec.c        Wed Aug 23 23:47:12 2000
 @@ -810,7 +810,7 @@ boolean P_CanUnlockGenDoor(line_t *line,
@@ -320,22 +347,26 @@
          {
            player-&gt;message = s_PD_ALL3; // Ty 03/27/98 - externalized
            S_StartSound(player-&gt;mo,sfx_oof);             // killough 3/20/98
-      </pre><p>
-       Although you might prefer a more complicated fix which allowed for
-       compatibility with MBF's buggy behaviour.
-      </p>
-     <h4>Compatibility bug in T_MovePlane</h4>
-      <p>
-       Affects: Boom, MBF
-      </p><p>
-       Description: In original doom, a lowering floor will be stuck if there
-       is an object standing on the floor which is stuck in the ceiling. In
-       Boom and MBF, the floor will not be stuck, even in compatibility mode.
-      </p><p>
-       Fix is easy, reintroduce the old behaviour in compatibility mode:
-</p><pre>
---- p_floor.c	Tue Feb 15 16:20:46 2000
-+++ p_floor.c-fixed	Sat May 26 20:03:42 2001
+      
+</pre>
+
+    <p> Although you might prefer a more complicated fix which
+    allowed for compatibility with MBF's buggy behaviour.</p>
+
+    <h4>Compatibility bug in T_MovePlane</h4>
+
+    <p> Affects: Boom, MBF</p>
+
+    <p> Description: In original doom, a lowering floor will be
+    stuck if there is an object standing on the floor which is
+    stuck in the ceiling. In Boom and MBF, the floor will not be
+    stuck, even in compatibility mode.</p>
+
+    <p> Fix is easy, reintroduce the old behaviour in compatibility
+    mode:</p>
+<pre>
+--- p_floor.c   Tue Feb 15 16:20:46 2000
++++ p_floor.c-fixed Sat May 26 20:03:42 2001
 @@ -81,42 +81,51 @@ result_e T_MovePlane
        switch(direction)
        {
@@ -373,13 +404,14 @@
          case 1:
            // Moving a floor up
 </pre>
-     <h4>Compatibility bug in P_CheckSight</h4>
-      <p>
-       Affects: MBF
-      </p><p>
-       Description: An optimisation in P_CheckSight needs to be compatibility
-       optioned, or some demos (HR06-UV.LMP for example) desync.
-      </p>
+
+    <h4>Compatibility bug in P_CheckSight</h4>
+
+    <p> Affects: MBF</p>
+
+    <p> Description: An optimisation in P_CheckSight needs to be
+    compatibility optioned, or some demos (HR06-UV.LMP for example)
+    desync.</p>
 <pre>
 --- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
 +++ fixed.p_sight.c        Sun Aug 27 17:31:01 2000
@@ -398,14 +430,14 @@
 
    // An unobstructed LOS is possible.
 </pre>
-     <h4>Compatibility bug in P_CrossSubsector</h4>
-      <p>
-       Affects: MBF
-      </p><p>
-       Description: An optimisation in P_CrossSubsector needs to be compatibility
-       optioned, or some demos (MAP02 of 30nm4048.lmp I think is an example)
-       desync.
-      </p>
+
+    <h4>Compatibility bug in P_CrossSubsector</h4>
+
+    <p> Affects: MBF</p>
+
+    <p> Description: An optimisation in P_CrossSubsector needs to
+    be compatibility optioned, or some demos (MAP02 of 30nm4048.lmp
+    I think is an example) desync.</p>
 <pre>
 --- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
 +++ fixed.p_sight.c        Sun Aug 27 17:03:48 2000
@@ -424,15 +456,16 @@
            line-&gt;bbox[BOXRIGHT ] &lt; los-&gt;bbox[BOXLEFT  ] ||
            line-&gt;bbox[BOXBOTTOM] &gt; los-&gt;bbox[BOXTOP   ] ||
 </pre>
-     <h4>Compatibility bug in P_SlideMove</h4>
-      <p>
-       Affects: MBF
-      </p><p>
-       Description: MBF includes some cruft in P_SlideMove to be backward
-       compatible with Boom. Unfortunately it's only back compatible
-       with Boom v2.01, because in v2.02 the cruft was removed. So the
-       compatibility check needs fixing:
-</p><pre>
+
+    <h4>Compatibility bug in P_SlideMove</h4>
+
+    <p> Affects: MBF</p>
+
+    <p> Description: MBF includes some cruft in P_SlideMove to be
+    backward compatible with Boom. Unfortunately it's only back
+    compatible with Boom v2.01, because in v2.02 the cruft was
+    removed. So the compatibility check needs fixing:</p>
+<pre>
 --- p_map.c        Tue Feb 15 16:17:12 2000
 +++ p_map.c.fixed        Sat Sep 23 18:47:22 2000
 @@ -1199,7 +1199,7 @@ void P_SlideMove(mobj_t *mo)
@@ -445,33 +478,31 @@
 
            break;
 </pre>
-     <h4>Bouncing Lost Souls</h4>
-      <p>
-       Affects: All source ports, Final Doom, Doom95
-      </p><p>
-       Lost souls that are charging were intended to bounce off of floors
-       and ceilings, but due to a coding error in the original Doom source
-       (the test was placed after the momentum was already set to zero), 
-       they did not.
-       This bug was corrected in the source code for Doom95 and 
-       Final/Ultimate Doom, and in the v1.10 source that was released
-       and forms the basis for all of the source ports.
-       This fix broke a lot of v1.9 Doom 2 demos.
-      </p>
-      <p>
-       The same coding error was made with lost souls bouncing off of 
-       ceilings and this was never fixed, it seems.
-      </p>
-      <p>
-       Back then there 
-       was no notion of a compatibility mode, but nowadays we can compatibility 
-       option the fix so old demos will work.
-       We use the <code>gamemission</code> variable to guess whether 
-       this demo is Doom2 or Ult/Final Doom - it's crude but works for all
-       the Compet-n demos I've tried.
-      </p><pre>
---- p_mobj.c	Tue Feb 15 16:16:34 2000
-+++ p_mobj.c-fixed	Sat May 26 19:34:52 2001
+
+    <h4>Bouncing Lost Souls</h4>
+
+    <p> Affects: All source ports, Final Doom, Doom95</p>
+
+    <p> Lost souls that are charging were intended to bounce off of
+    floors and ceilings, but due to a coding error in the original
+    Doom source (the test was placed after the momentum was already
+    set to zero), they did not. This bug was corrected in the
+    source code for Doom95 and Final/Ultimate Doom, and in the
+    v1.10 source that was released and forms the basis for all of
+    the source ports. This fix broke a lot of v1.9 Doom 2
+    demos.</p>
+
+    <p> The same coding error was made with lost souls bouncing off
+    of ceilings and this was never fixed, it seems.</p>
+
+    <p> Back then there was no notion of a compatibility mode, but
+    nowadays we can compatibility option the fix so old demos will
+    work. We use the <code>gamemission</code> variable to guess
+    whether this demo is Doom2 or Ult/Final Doom - it's crude but
+    works for all the Compet-n demos I've tried.</p>
+<pre>
+--- p_mobj.c    Tue Feb 15 16:16:34 2000
++++ p_mobj.c-fixed  Sat May 26 19:34:52 2001
 @@ -471,7 +471,21 @@ floater:
      {
        // hit the floor
@@ -492,11 +523,11 @@
 +      int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
 +
 +      if (correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
- 	mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
+    mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
  
        if (mo-&gt;momz &lt; 0)
 @@ -497,6 +511,14 @@ floater:
- 	}
+    }
  
        mo-&gt;z = mo-&gt;floorz;
 +
@@ -509,20 +540,23 @@
 +        mo-&gt;momz = -mo-&gt;momz;
  
        if (!((mo-&gt;flags ^ MF_MISSILE) &amp; (MF_MISSILE | MF_NOCLIP)))
- 	{
-      </pre>
-     <h4>Overlapping uses of global variables in p_map.c</h4>
-      <p>
-       Affects: Boom, MBF, PrBoom up to v2.1.1
-      </p><p>
-       The global variable <code>tmthing</code> is used by a number of
-       functions in p_map.c. However these functions can also call each
-       other (indirectly), so they can disrupt each other's use of
-       <code>tmthing</code>.
-      </p><p>
-       Amazingly, the only symptom I've seen so far is that it causes original
-       Doom demos to to desync (cf hruvlmp2.zip hr22-uv.lmp).
-      </p><pre>
+    {
+      
+</pre>
+
+    <h4>Overlapping uses of global variables in p_map.c</h4>
+
+    <p> Affects: Boom, MBF, PrBoom up to v2.1.1</p>
+
+    <p> The global variable <code>tmthing</code> is used by a
+    number of functions in p_map.c. However these functions can
+    also call each other (indirectly), so they can disrupt each
+    other's use of <code>tmthing</code>.</p>
+
+    <p> Amazingly, the only symptom I've seen so far is that it
+    causes original Doom demos to to desync (cf hruvlmp2.zip
+    hr22-uv.lmp).</p>
+<pre>
 *** p_map.c     2000/09/23 12:50:02     1.7
 --- p_map.c     2000/10/02 21:34:29     1.8
 ***************
@@ -539,7 +573,7 @@
 *** 2184,2187 ****
 --- 2185,2200 ----
       else
-        node = node->m_tnext;
+        node = node-&gt;m_tnext;
       }
 +
 +   /* cph -
@@ -550,39 +584,40 @@
 +    * OTOH for Boom/MBF demos we have to preserve the buggy behaviour.
 +    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
 +    */
-+   if ((compatibility_level < boom_compatibility_compatibility) ||
-+       (compatibility_level >= prboom_3_compatibility))
++   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
++       (compatibility_level &gt;= prboom_3_compatibility))
 +     tmthing = saved_tmthing;
     }
-      </pre>
-     <h4>Spawned monsters respawn at 0,0</h4>
-      <p>
-       Affects: Boom, MBF, PrBoom before v2.1.x
-      </p><p>
-       Found by: Quasar
-      </p><p>
-       Description:
-       Monsters which aren't on the map to start with
-       (e.g. monsters spawner by a boss cube thrower)
-       which respawn, will appear at 0,0 -
-       which might be a bad place (e.g. solid rock).
-      </p><p>
-       The spawnpoint fields in the data structure for a spawned mobj
-       will be 0,0 - and so if the monster gets killed and then respawns,
-       it would appear at 0,0. This might leave the monsters stuck in
-       rock, for instance.
-      </p><p>
-       Eternity fixed this by making monsters respawn at the place where
-       they died, and PrBoom did a similar fix. Thanks, Quasar.
-      </p>
-      <pre>
+      
+</pre>
+
+    <h4>Spawned monsters respawn at 0,0</h4>
+
+    <p> Affects: Boom, MBF, PrBoom before v2.1.x</p>
+
+    <p> Found by: Quasar</p>
+
+    <p> Description: Monsters which aren't on the map to start with
+    (e.g. monsters spawner by a boss cube thrower) which respawn,
+    will appear at 0,0 - which might be a bad place (e.g. solid
+    rock).</p>
+
+    <p> The spawnpoint fields in the data structure for a spawned
+    mobj will be 0,0 - and so if the monster gets killed and then
+    respawns, it would appear at 0,0. This might leave the monsters
+    stuck in rock, for instance.</p>
+
+    <p> Eternity fixed this by making monsters respawn at the place
+    where they died, and PrBoom did a similar fix. Thanks,
+    Quasar.</p>
+<pre>
 *** p_mobj.c        Sun Apr  1 12:06:31 2001
 --- p_mobj.c.orig        Sun Apr  1 12:05:26 2001
 *************** void P_NightmareRespawn(mobj_t* mobj)
 *** 572,577 ****
 --- 572,596 ----
-    x = mobj->spawnpoint.x &lt;&lt; FRACBITS;
-    y = mobj->spawnpoint.y &lt;&lt; FRACBITS;
+    x = mobj-&gt;spawnpoint.x &lt;&lt; FRACBITS;
+    y = mobj-&gt;spawnpoint.y &lt;&lt; FRACBITS;
 
 +   /* haleyjd: stupid nightmare respawning bug fix
 +    *
@@ -599,41 +634,43 @@
 +   if(!comp[comp_respawn] &amp;&amp; !x &amp;&amp; !y)
 +   {
 +      // spawnpoint was zeroed out, so use point of death instead
-+      x = mobj->x;
-+      y = mobj->y;
++      x = mobj-&gt;x;
++      y = mobj-&gt;y;
 +   }
 +
     // something is occupying its position?
 
     if (!P_CheckPosition (mobj, x, y) )
-      </pre>
-      <p>
-       (Note that the above requires a new compatibility option, comp_respawn.)
-      </p>
-     <h4>Floor thinker should prevent DR door opening</h4>
-      <p>
-       Affects: Boom, MBF, PrBoom up to and including v2.2.0
-      </p><p>
-       Found by: <a href="mailto:adam@scisoft.force9.co.uk">Adam Williamson</a>
-      </p><p>
-       Description:
-       In original Doom, a DR door would refuse to open if the same
-       sector had a lighting or floor thinker in progress;
-       this behaviour was changed in Boom but not compatibility optioned.
-       cf ep1-0511.lmp (see Compet-N)
-      </p><p>
-       In fact, underlying this is a bug in original Doom which is still
-       present (at least in the Boom ports) - if you try to trigger a DR
-       door with an existing ceiling action, it assumes the existing action
-       must be a door action and merely changes the direction.
-       But if there's a different type of action going on,
-       it will be corrupting some field in that action.
-      </p><p>
-       Original Doom didn't even separate floor, ceilnig and lighting actions
-       though, so it would do this for floor and lighting actions too.
-       I made the following change to PrBoom to add compatibility with
-       the old Doom behaviour for demos:
-      </p><pre>
+      
+</pre>
+
+    <p> (Note that the above requires a new compatibility option,
+    comp_respawn.)</p>
+
+    <h4>Floor thinker should prevent DR door opening</h4>
+
+    <p> Affects: Boom, MBF, PrBoom up to and including v2.2.0</p>
+
+    <p> Found by: <a href="mailto:adam@scisoft.force9.co.uk">Adam
+    Williamson</a></p>
+
+    <p> Description: In original Doom, a DR door would refuse to
+    open if the same sector had a lighting or floor thinker in
+    progress; this behaviour was changed in Boom but not
+    compatibility optioned. cf ep1-0511.lmp (see Compet-N)</p>
+
+    <p> In fact, underlying this is a bug in original Doom which is
+    still present (at least in the Boom ports) - if you try to
+    trigger a DR door with an existing ceiling action, it assumes
+    the existing action must be a door action and merely changes
+    the direction. But if there's a different type of action going
+    on, it will be corrupting some field in that action.</p>
+
+    <p> Original Doom didn't even separate floor, ceilnig and
+    lighting actions though, so it would do this for floor and
+    lighting actions too. I made the following change to PrBoom to
+    add compatibility with the old Doom behaviour for demos:</p>
+<pre>
 ===================================================================
 RCS file: /cvsroot/prboom/prboom2/src/p_doors.c,v
 retrieving revision 1.6
@@ -674,33 +711,34 @@ diff -p -c -r1.6 p_doors.c
       switch(line-&gt;special)
       {
         case  1: // only for "raise" doors, not "open"s
-      </pre>
-     <h4>Fast and respawn options not reloaded from savegames correctly</h4>
-      <p>
-       Affects: MBF, PrBoom v2.1.x through v2.2.0
-      </p><p>
-       Description:
-       MBF changed the order of some function calls in G_DoLoadGame
-       in order to work around loading of options from PWADs
-       (MBF loads options from PWADs, but needs to override them with the 
-       options from the savegame).
-       However this resulted in the previous/old game options being used in
-       setting up the loaded level.
-       Amongst other things this breaks savegames with the fast or respawn
-       options set - these options were being loaded after the level
-       was set up by G_InitNew.
-       This resulted in the respawn parameter being left at the setting from
-       the previous game (or as on the command line),
-       and parts of the setup for -fast mode being left as in the previous game,
-       rather than loaded from the savegame.
-      </p><p>
-       The fix is something like this (this does the same thing as 
-       the demo code in MBF, reading the game options twice
-       - an ugly kludge). I haven't tried this fix though,
-       as PrBoom doesn't support options in PWADs so the fix was easier for us.
-      </p><pre>
---- g_game.c	Tue Feb 15 16:06:28 2000
-+++ g_game.c.new	Wed May 23 20:47:06 2001
+      
+</pre>
+
+    <h4>Fast and respawn options not reloaded from savegames
+    correctly</h4>
+
+    <p> Affects: MBF, PrBoom v2.1.x through v2.2.0</p>
+
+    <p> Description: MBF changed the order of some function calls
+    in G_DoLoadGame in order to work around loading of options from
+    PWADs (MBF loads options from PWADs, but needs to override them
+    with the options from the savegame). However this resulted in
+    the previous/old game options being used in setting up the
+    loaded level. Amongst other things this breaks savegames with
+    the fast or respawn options set - these options were being
+    loaded after the level was set up by G_InitNew. This resulted
+    in the respawn parameter being left at the setting from the
+    previous game (or as on the command line), and parts of the
+    setup for -fast mode being left as in the previous game, rather
+    than loaded from the savegame.</p>
+
+    <p> The fix is something like this (this does the same thing as
+    the demo code in MBF, reading the game options twice - an ugly
+    kludge). I haven't tried this fix though, as PrBoom doesn't
+    support options in PWADs so the fix was easier for us.</p>
+<pre>
+--- g_game.c    Tue Feb 15 16:06:28 2000
++++ g_game.c.new    Wed May 23 20:47:06 2001
 @@ -1347,11 +1347,16 @@ static void G_DoLoadGame(void)
    // killough 11/98: simplify
    idmusnum = *(signed char *) save_p++;
@@ -718,8 +756,13 @@ diff -p -c -r1.6 p_doors.c
    save_p = G_ReadOptions(save_p);
  
    // get the times
-      </pre>
-  <h2>Author</h2>
-   <p>Colin Phipps &lt;<a href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
- </body>
+      
+</pre>
+
+    <h2>Author</h2>
+
+    <p>Colin Phipps &lt;<a
+    href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
+  </body>
 </html>
+
