@@ -244,6 +244,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
   int count;
   register R_DRAWCOLUMN_SCRNTYPE *dest;
   register fixed_t frac;
+  fixed_t slope_texu;
   int screenY;
   
 #if (R_DRAWCOLUMN_PIPELINE & RDC_DITHERZ)
@@ -301,9 +302,14 @@ void R_DRAWCOLUMN_FUNCNAME() {
 
   // Determine scaling, which is the only mapping to be done.
 #define  fracstep dcvars.iscale
-  frac = dcvars.texturemid + (dcvars.yl-centery)*fracstep;
+  #if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
+    frac = dcvars.texturemid - (FRACUNIT>>1) + (dcvars.yl-centery)*fracstep;
+  #else
+    frac = dcvars.texturemid + (dcvars.yl-centery)*fracstep;
+  #endif
 
 
+  slope_texu = dcvars.texu;
 #if (R_DRAWCOLUMN_PIPELINE & (RDC_BILINEAR|RDC_ROUNDED))
   #if ((R_DRAWCOLUMN_PIPELINE & RDC_ROUNDED) || (R_DRAWCOLUMN_PIPELINE & RDC_8BITS))
     // 8 bit dithering and rounded filtering uses filter_fracu: 0 -> 0xff
@@ -311,6 +317,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
   #else
     // true-color filtering uses filter_fracu: 0 -> 0xffff    
     filter_fracu = (dcvars.source == dcvars.nextsource) ? 0 : dcvars.texu & 0xffff;    
+    slope_texu = filter_fracu;
   #endif
 #endif
 
@@ -321,27 +328,27 @@ void R_DRAWCOLUMN_FUNCNAME() {
     if (dcvars.yl != 0) {
       if (dcvars.edgeSlope & RDRAW_EDGESLOPE_TOP_UP) {
         // [/#]
-        int shift = ((0xffff-(dcvars.texu&0xffff))/dcvars.iscale);
+        int shift = ((0xffff-(slope_texu&0xffff))/dcvars.iscale);
         dest += dcvars.targetwidth * shift;
         count -= shift;
-        frac += 0xffff-(dcvars.texu&0xffff);
+        frac += 0xffff-(slope_texu&0xffff);
       }
       else if (dcvars.edgeSlope & RDRAW_EDGESLOPE_TOP_DOWN) {
         // [#\]
-        int shift = ((dcvars.texu&0xffff)/dcvars.iscale);
+        int shift = ((slope_texu&0xffff)/dcvars.iscale);
         dest += dcvars.targetwidth * shift;
         count -= shift;
-        frac += dcvars.texu&0xffff;
+        frac += slope_texu&0xffff;
       }
     }
     if (dcvars.yh != viewheight-1) {
       if (dcvars.edgeSlope & RDRAW_EDGESLOPE_BOT_UP) {
         // [#/]
-        count -= ((0xffff-(dcvars.texu&0xffff))/dcvars.iscale);
+        count -= ((0xffff-(slope_texu&0xffff))/dcvars.iscale);
       }
       else if (dcvars.edgeSlope & RDRAW_EDGESLOPE_BOT_DOWN) {
         // [\#]
-        count -= ((dcvars.texu&0xffff)/dcvars.iscale);
+        count -= ((slope_texu&0xffff)/dcvars.iscale);
       }
     }
     if (count <= 0) return;  

@@ -190,7 +190,10 @@ void R_RenderMaskedSegRange(drawseg_t *seg, int x1, int x2)
     
     // calculate texture offset - POPE
     angle =(seg->rw_centerangle+xtoviewangle[dcvars.x])>>ANGLETOFINESHIFT;
-    dcvars.texu = seg->rw_offset-FixedMul(finetangent[angle],seg->rw_distance);
+    if (rdrawvars.filterwall == RDRAW_FILTER_LINEAR)
+      dcvars.texu = seg->rw_offset-FixedMul(finetangent[angle],seg->rw_distance) - (FRACUNIT>>1);
+    else
+      dcvars.texu = seg->rw_offset-FixedMul(finetangent[angle],seg->rw_distance);
           
     if (!fixedcolormap) dcvars.z = spryscale; // POPE
     dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
@@ -304,7 +307,10 @@ static void R_RenderSegLoop (void)
           // calculate texture offset
           angle_t angle =(rw_centerangle+xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
 
-          texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance);
+          if (rdrawvars.filterwall == RDRAW_FILTER_LINEAR)
+            texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance) - (FRACUNIT>>1);
+          else
+            texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance);
           dcvars.texu = texturecolumn; // POPE
           texturecolumn >>= FRACBITS;
 

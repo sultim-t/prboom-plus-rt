@@ -305,7 +305,7 @@ void FUNC_V_PlotPatch(
   
   if (filter == RDRAW_FILTER_LINEAR) {
     // bias the texture u coordinate
-    if (patch->isNotTileable) srcX = (FRACUNIT>>1);
+    if (patch->isNotTileable) srcX = -(FRACUNIT>>1);
     else srcX = (patch->width<<FRACBITS)-(FRACUNIT>>1);
   }
   else {
@@ -355,13 +355,7 @@ void FUNC_V_PlotPatch(
       dcvars.nextsource = nextColumn ? nextColumn->pixels + post->startY : dcvars.source;
       dcvars.prevsource = prevColumn ? prevColumn->pixels + post->startY : dcvars.source;
       
-      if (filter == RDRAW_FILTER_LINEAR) {
-        // (FRACUNIT>>1) = empirical shift
-        dcvars.texturemid = srcYShift - (FRACUNIT>>1) - (dcvars.yl-centery)*dcvars.iscale;
-      }
-      else {
-        dcvars.texturemid = (srcYShift - (dcvars.yl-centery)*dcvars.iscale);
-      }
+      dcvars.texturemid = (srcYShift - (dcvars.yl-centery)*dcvars.iscale);
       
       columnFunc();
     }

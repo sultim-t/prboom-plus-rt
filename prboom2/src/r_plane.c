@@ -154,9 +154,18 @@ static void R_MapPlane(int y, int x1, int x2)
   length = FixedMul (distance,distscale[x1]);
   angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
 
-  // killough 2/28/98: Add offsets
-  dsvars.xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
-  dsvars.yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
+  if (rdrawvars.filterfloor == RDRAW_FILTER_LINEAR)
+  {
+    // killough 2/28/98: Add offsets
+    dsvars.xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs - (FRACUNIT>>1);
+    dsvars.yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs - (FRACUNIT>>1);
+  }
+  else
+  {
+    // killough 2/28/98: Add offsets
+    dsvars.xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
+    dsvars.yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
+  }
 
   if (!(dsvars.colormap = fixedcolormap))
     {

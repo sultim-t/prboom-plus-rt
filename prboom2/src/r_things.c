@@ -370,9 +370,7 @@ void R_DrawMaskedColumn(
           dcvars.prevsource = prevColumn->pixels + post->startY;
           dcvars.texturemid = basetexturemid - (post->startY<<FRACBITS);
 
-          if (rdrawvars.maskedColumnEdgeType == RDRAW_MASKEDCOLUMNEDGE_SLOPED) { // POPE
-            dcvars.edgeSlope = post->edgeSloping;
-          }
+          dcvars.edgeSlope = post->edgeSloping;
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
           dcvars.drawingmasked = 1; // POPE
@@ -421,7 +419,10 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 // proff 11/06/98: Changed for high-res
   dcvars.iscale = FixedDiv (FRACUNIT, vis->scale);
   dcvars.texturemid = vis->texturemid;
-  frac = vis->startfrac;
+  if (rdrawvars.filterwall == RDRAW_FILTER_LINEAR)
+    frac = vis->startfrac - (FRACUNIT>>1);
+  else
+    frac = vis->startfrac;
   spryscale = vis->scale;
   sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
@@ -429,11 +430,6 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
     {
       texturecolumn = frac>>FRACBITS;
       dcvars.texu = frac;
-
-#ifdef RANGECHECK
-      if (texturecolumn < 0 || texturecolumn >= patch->width)
-        I_Error ("R_DrawSpriteRange: Bad texturecolumn");
-#endif
 
       R_DrawMaskedColumn(
         patch, 
