@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.6 2000/05/15 22:59:25 cph Exp $
+ * $Id: p_sight.c,v 1.7 2000/05/30 19:59:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.6 2000/05/15 22:59:25 cph Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.7 2000/05/30 19:59:32 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -63,7 +63,12 @@ static los_t los; // cph - made static
 // Returns side 0 (front), 1 (back), or 2 (on).
 //
 // killough 4/19/98: made static, cleaned up
-
+// proff - made inline for speedup
+#ifdef _MSC_VER
+__inline
+#else
+inline
+#endif
 static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 {
   fixed_t left, right;
@@ -213,29 +218,54 @@ static boolean P_CrossSubsector(int num)
 //  could return 2 which was ambigous, and the former is 
 //  better optimised; also removes two casts :-)
 
-static boolean P_CrossBSPNode(int bspnum)
+static boolean P_CrossBSPNode_LxDoom(int bspnum)
 {
   while (!(bspnum & NF_SUBSECTOR))
     {
       register const node_t *bsp = nodes + bspnum;
       int side,side2;
-      /* cph - LxDoom used some R_* funcs here */
-      if (compatibility_level == lxdoom_1_compatibility) {
-	side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
-	side2 = R_PointOnSide(los.t2x, los.t2y, bsp);
-      } else {
-	side = P_DivlineSide(los.strace.x,los.strace.y,(divline_t *)bsp)&1;
-	side2= P_DivlineSide(los.t2x, los.t2y, (divline_t *) bsp);
-      }
+	    side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
+	    side2 = R_PointOnSide(los.t2x, los.t2y, bsp);
       if (side == side2)
          bspnum = bsp->children[side]; // doesn't touch the other side
       else         // the partition plane is crossed here
-        if (!P_CrossBSPNode(bsp->children[side]))
+        if (!P_CrossBSPNode_LxDoom(bsp->children[side]))
           return 0;  // cross the starting side
         else
           bspnum = bsp->children[side^1];  // cross the ending side
     }
   return P_CrossSubsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
+}
+
+static boolean P_CrossBSPNode_PrBoom(int bspnum)
+{
+  while (!(bspnum & NF_SUBSECTOR))
+    {
+      register const node_t *bsp = nodes + bspnum;
+      int side,side2;
+	    side = P_DivlineSide(los.strace.x,los.strace.y,(divline_t *)bsp)&1;
+	    side2= P_DivlineSide(los.t2x, los.t2y, (divline_t *) bsp);
+      if (side == side2)
+         bspnum = bsp->children[side]; // doesn't touch the other side
+      else         // the partition plane is crossed here
+        if (!P_CrossBSPNode_PrBoom(bsp->children[side]))
+          return 0;  // cross the starting side
+        else
+          bspnum = bsp->children[side^1];  // cross the ending side
+    }
+  return P_CrossSubsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
+}
+
+/* proff - Moved the compatibility check outside the functions
+ * this gives a slight speedup
+ */
+static boolean P_CrossBSPNode(int bspnum)
+{
+  /* cph - LxDoom used some R_* funcs here */
+  if (compatibility_level == lxdoom_1_compatibility)
+    return P_CrossBSPNode_LxDoom(bspnum);
+  else
+    return P_CrossBSPNode_PrBoom(bspnum);
 }
 
 //
