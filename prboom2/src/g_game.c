@@ -592,11 +592,25 @@ boolean G_Responder (event_t* ev)
       // of demo playback, or if automap active.
       // Don't suck up keys, which may be cheats
 
+	/*
       return gamestate == GS_DEMOSCREEN &&
 	!(paused & 2) && !(automapmode & am_active) &&
 	((ev->type == ev_keydown) ||
 	 (ev->type == ev_mouse && ev->data1)) ?
 	MN_StartControlPanel(), true : false;
+    */
+      if(!walkcam_active)
+      { // sf: check for walkcam fixed menu popup in demos
+        if ((gamestate==GS_DEMOSCREEN || (demoplayback && !singledemo)) &&
+	         !(paused & 2) && !(automapmode & am_active) &&
+	         ((ev->type == ev_keydown) ||
+	          (ev->type == ev_mouse && ev->data1) ||
+	          (ev->type == ev_axis && ev->data1)))
+        {
+          MN_StartControlPanel();
+	        return true;
+        }
+      }
     }
 
   if (gamestate == GS_FINALE && F_Responder(ev))
