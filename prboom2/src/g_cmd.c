@@ -479,9 +479,11 @@ const char *comp_strings[COMP_NUM] =
   "infcheat",
   "zerotags",
   "moveblock",
-  "respawnfix",
-  "tag666",
+  "respawn",
+  "666",
   "soul",
+  "maskedanim",
+  "sound",
 };
 
 void G_AddCompat()
