@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.5 2002/11/15 17:20:30 proff_fs Exp $
+ * $Id: mn_menus.c,v 1.6 2002/11/24 12:30:55 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.5 2002/11/15 17:20:30 proff_fs Exp $";
+  "$Id: mn_menus.c,v 1.6 2002/11/24 12:30:55 cph Exp $";
 
 #include <stdarg.h>
 
@@ -50,7 +50,7 @@ static const char rcsid[] =
 #include "d_main.h"
 #include "dstrings.h"
 #include "g_game.h"
-//#include "hu_over.h"
+#include "m_misc.h"
 #include "i_video.h"
 #include "m_random.h"
 #include "m_misc.h"
@@ -566,7 +566,7 @@ CONSOLE_COMMAND(mn_udpserv, 0)              // udp start server
         // start game
 CONSOLE_COMMAND(mn_startgame, 0)
 {
-  char *console_cmds[] =
+  const char *console_cmds[] =
   {
     "mn_prevmenu",          // menu game setup
     "answer",               // cn_serial_answer
