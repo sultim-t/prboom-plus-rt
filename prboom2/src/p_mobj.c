@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.20 2002/02/09 12:41:36 cph Exp $
+ * $Id: p_mobj.c,v 1.21 2002/07/04 20:21:47 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.20 2002/02/09 12:41:36 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.21 2002/07/04 20:21:47 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1166,7 +1166,7 @@ void P_SpawnMapThing (const mapthing_t* mthing)
     playerstarts[mthing->type-1].options = 1;
 
     if (!deathmatch)
-      P_SpawnPlayer (mthing->type-1, mthing);
+      P_SpawnPlayer (mthing->type-1, &playerstarts[mthing->type-1]);
     return;
     }
 
