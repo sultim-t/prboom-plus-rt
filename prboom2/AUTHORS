@@ -35,6 +35,9 @@ the following people who contributed code to LxDoom or PrBoom:
 go to all the people below, who have contributed to or
 otherwise helped LxDoom:
 
+Nicolas Kalkhof  nkalkhof@gmx.net
+Helped with highres in PrBoom and with the OpenGL part
+
 Gady Kozma	gady@math.tau.ac.il
 Added hires to the SVGALib version of LxDoom, and other useful patches.
 
