@@ -150,6 +150,16 @@ AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
     has_net=yes
     sdl_net=yes
     BUILD_SERVER=prboom-game-server
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $SDL_CFLAGS"
+    AC_TRY_COMPILE([
+	#include "SDL_net.h"
+	],[
+	UDPpacket *p;
+	int n = sizeof(p->src);
+	],
+	AC_DEFINE(SDL_NET_UDP_PACKET_SRC))
+    CFLAGS="$save_CFLAGS"
 ],,$SDL_LIBS)
 AM_CONDITIONAL(SDL_NET, test "$sdl_net" = yes)
 
@@ -266,5 +276,5 @@ AC_DEFINE_UNQUOTED(MUSSERV_PATH,"$exp_gamesdir/musserv")
 AC_DEFINE_UNQUOTED(DOOMWADDIR,"$waddir")
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/OSS/Makefile src/X11/Makefile src/SDL/Makefile doc/Makefile data/Makefile prboom.spec)
-
+AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile doc/Makefile data/Makefile prboom.spec)
+# src/OSS/Makefile src/X11/Makefile

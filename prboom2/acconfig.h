@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.9 2000/08/20 13:28:31 cph Exp $
+ * $Id: acconfig.h,v 1.10 2000/09/02 11:02:15 cph Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -102,6 +102,11 @@
 
 /* Define if you want to use the SDL net lib */
 #undef USE_SDL_NET
+
+/* Define if you have an old SDL_net, such that the 
+ * UDPpacket structure has a src member instead of 
+ * an address member */
+#undef SDL_NET_UDP_PACKET_SRC
 
 /* Define if you have struct sockaddr_in6 */
 #undef HAVE_IPv6

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp_sdl.c,v 1.2 2000/08/06 11:46:51 cph Exp $
+ * $Id: i_udp_sdl.c,v 1.3 2000/09/02 11:02:15 cph Exp $
  *
  *  New UDP networking code for LxDoom, based in part on 
  *  the original linuxdoom networking
@@ -231,7 +231,11 @@ size_t I_GetPacket(packet_header_t* buffer, size_t buflen)
   if ( (status!=0) && (len>0) )
     memcpy(buffer, udp_packet->data, len);
   sentfrom=udp_packet->channel;
+#ifndef SDL_NET_UDP_PACKET_SRC
   sentfrom_addr=udp_packet->address;
+#else
+  sentfrom_addr=udp_packet->src; /* cph - allow for old SDL_net library */
+#endif
   checksum=buffer->checksum;
   buffer->checksum=0;
   if ( (status!=0) && (len>0)) {
