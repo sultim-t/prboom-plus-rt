@@ -561,8 +561,8 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 #endif
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
-      int color=(gametic % 20) < 9 ? 0xb0 : 0;
-      //memset(screens[0].data+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
+      byte color=(gametic % 20) < 9 ? 0xb0 : 0;
+      V_FillRect(0, viewwindowx, viewwindowy, viewwidth, viewheight, color);
       R_DrawViewBorder();
     }
 
