@@ -1083,6 +1083,8 @@ void (C_AddCommand)(command_t *command)
   // save the netcmd link
   if(command->flags & cf_netvar && command->netcmd == 0)
     C_Printf("C_AddCommand: cf_netvar without a netcmd (%s)\n", command->name);
+  if (command->netcmd >= NUMNETCMDS)
+    I_Error("C_AddCommand: out of range netcmd (%i >= %i)",command->netcmd,NUMNETCMDS);
 
   c_netcmds[command->netcmd] = command;
 }

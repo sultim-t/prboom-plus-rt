@@ -90,6 +90,12 @@ enum
   netcmd_comp_16,
   netcmd_comp_17,
   netcmd_comp_18,
+  netcmd_comp_19,
+  netcmd_comp_20,
+  netcmd_comp_21,
+  netcmd_comp_22,
+  netcmd_comp_23,
+  netcmd_comp_24,
   NUMNETCMDS,
 };
 
