@@ -68,11 +68,12 @@ static char *gl_library_str;
 #include "w_wad.h"
 #include "lprintf.h"
 #include "c_runcmd.h"
+#include "c_io.h"
 #include "st_stuff.h"
 
 extern void M_QuitDOOM(int choice);
 
-static int r_videomode = 0;
+static int r_rendermode = 0;
 int use_doublebuffer = 1;
 int use_fullscreen = 1;
 static SDL_Surface *screen;
@@ -156,6 +157,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_RALT:
   case SDLK_RMETA:	rc = KEYD_RALT;		break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
+  case SDLK_BACKQUOTE: rc = KEYD_CONSOLE; break;
   default:		rc = key->sym;		break;
   }
 
@@ -723,7 +725,7 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
-  V_InitMode(r_videomode);
+  V_InitMode(r_rendermode);
   V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
 
@@ -838,34 +840,74 @@ CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered)
   }
 }
 
-static const char *str_vidmode[] = {
+static const char *str_rendermode[] = {
   "8bit",
   "16bit",
   "32bit",
   "OpenGL"
 };
 
-CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 3, str_vidmode, cf_buffered)
+CONSOLE_INT(r_rendermode, r_rendermode, NULL, 0, 3, str_rendermode, cf_buffered)
 {
 #ifndef GL_DOOM
-  if (r_videomode == 3)
-    r_videomode = 0;
+  if (r_rendermode == 3)
+    r_rendermode = 0;
 #endif
-  if (graphics_inited)
-    I_UpdateVideoMode();
 }
 
-CONSOLE_INT(r_width, desired_screenwidth, NULL, 320, MAX_SCREENWIDTH, NULL, cf_buffered)
+CONSOLE_INT(r_width, desired_screenwidth, NULL, 320, MAX_SCREENWIDTH, NULL, cf_buffered) {}
+
+CONSOLE_INT(r_height, desired_screenheight, NULL, 200, MAX_SCREENHEIGHT, NULL, cf_buffered) {}
+
+static char *video_modes[] =
+{
+  "320x200",
+  "320x240",
+  "640x400",
+  "640x480",
+  "800x600",
+  "1024x768",
+  "1280x1024",
+  "1600x1200"
+};
+
+static int desired_videomode;
+
+CONSOLE_INT(r_videomode, desired_videomode, NULL, 0, 7, video_modes, cf_buffered)
+{
+	switch (desired_videomode) {
+	default:
+	case 0:
+		C_RunTextCmd("r_width 320; r_height 200");
+		break;
+	case 1:
+		C_RunTextCmd("r_width 320; r_height 240");
+		break;
+	case 2:
+		C_RunTextCmd("r_width 640; r_height 400");
+		break;
+	case 3:
+		C_RunTextCmd("r_width 640; r_height 480");
+		break;
+	case 4:
+		C_RunTextCmd("r_width 800; r_height 600");
+		break;
+	case 5:
+		C_RunTextCmd("r_width 1024; r_height 768");
+		break;
+	case 6:
+		C_RunTextCmd("r_width 1280; r_height 1024");
+		break;
+	case 7:
+		C_RunTextCmd("r_width 1600; r_height 1200");
+		break;
+	};
+}
+
+CONSOLE_COMMAND(r_setmode, cf_buffered)
 {
   if (graphics_inited) {
     SCREENWIDTH = desired_screenwidth;
-    I_UpdateVideoMode();
-  }
-}
-
-CONSOLE_INT(r_height, desired_screenheight, NULL, 200, MAX_SCREENHEIGHT, NULL, cf_buffered)
-{
-  if (graphics_inited) {
     SCREENHEIGHT = desired_screenheight;
     I_UpdateVideoMode();
   }
@@ -881,9 +923,11 @@ void I_Video_AddCommands()
 	gl_library_str = Z_Strdup("libGL.so.1", PU_STATIC, 0);
 #endif
   C_AddCommand(r_fullscreen);
-  r_videomode = V_GetMode();
-  C_AddCommand(r_videomode);
+  r_rendermode = V_GetMode();
+  C_AddCommand(r_rendermode);
   C_AddCommand(r_width);
   C_AddCommand(r_height);
+  C_AddCommand(r_videomode);
+  C_AddCommand(r_setmode);
   C_AddCommand(gl_library);
 }
