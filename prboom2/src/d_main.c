@@ -987,11 +987,6 @@ void FindResponseFile (void)
 		  // Quotes are removed but remembered
 		  infile++; size--; quoted ^= 1; 
 		} else {
-		  // Backslash allows the next character through untouched
-		  if (*infile == '\\') {
-		    infile++;
-		    if (!--size) I_Error("Trailing \\ in response file");
-		  }
 		  *p++ = *infile++; size--;
 		}
 	      }
