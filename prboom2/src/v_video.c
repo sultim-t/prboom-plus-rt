@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.10 2000/05/17 21:09:10 proff_fs Exp $
+ * $Id: v_video.c,v 1.11 2000/05/30 20:01:08 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.10 2000/05/17 21:09:10 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.11 2000/05/30 20:01:08 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -193,11 +193,13 @@ void V_InitColorTranslation(void)
 // upper left origin and height and width dirty to minimize
 // the amount of screen update necessary. No return.
 //
+#ifndef GL_DOOM
 void V_MarkRect(int x, int y, int width, int height)
 {
   M_AddToBox(dirtybox, x, y);
   M_AddToBox(dirtybox, x+width-1, y+height-1);
 }
+#endif /* GL_DOOM */
 
 //
 // V_CopyRect
@@ -211,6 +213,7 @@ void V_MarkRect(int x, int y, int width, int height)
 //
 // No return.
 //
+#ifndef GL_DOOM
 void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
                 int height, int destx, int desty, int destscrn,
                 enum patch_translation_e flags)
@@ -251,6 +254,7 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
       dest += SCREENWIDTH;
     }
 }
+#endif /* GL_DOOM */
 
 //
 // V_DrawBlock
@@ -267,6 +271,7 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 // CPhipps - modified  to take the patch translation flags. For now, only stretching is 
 //  implemented, to support highres in the menus
 //
+#ifndef GL_DOOM
 void V_DrawBlock(int x, int y, int scrn, int width, int height, 
 		 const byte *src, enum patch_translation_e flags)
 {
@@ -317,6 +322,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
     }
   }
 }
+#endif /* GL_DOOM */
 
 /*
  * V_DrawBackground tiles a 64x64 patch over the entire screen, providing the
@@ -355,6 +361,7 @@ void V_DrawBackground(const char* flatname, int scrn)
 // No return
 //
 
+#ifndef GL_DOOM
 void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
 {
   byte *src;
@@ -376,6 +383,7 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
       dest += width;
     }
 }
+#endif /* GL_DOOM */
 
 //
 // V_Init
@@ -587,15 +595,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
 // static inline; other compilers have different behaviour.
 // This inline is _only_ for the function below
 // Proff - added __inline for VisualC
-/*
-#ifdef _MSC_VER
-__inline
-#else
-#ifdef __GNUC__
-inline
-#endif
-#endif
-*/
 #ifndef GL_DOOM
 #ifdef __GNUC__
 inline
@@ -607,14 +606,6 @@ void V_DrawNumPatch(int x, int y, int scrn, int lump,
 		 cm, flags);
   W_UnlockLumpNum(lump);
 }
-
-/*
-void V_DrawNamePatch(int x, int y, int scrn, const char *name, 
-		     int cm, enum patch_translation_e flags)
-{
-  V_DrawNumPatch(x, y, scrn, W_GetNumForName(name), cm, flags);
-}
-*/
 #endif // GL_DOOM
 
 /* cph -
@@ -655,6 +646,7 @@ int V_NamePatchHeight(const char* name)
 // Returns a simple bitmap which contains the patch. See-through parts of the 
 // patch will be undefined (in fact black for now)
 
+#ifndef GL_DOOM
 byte *V_PatchToBlock(const char* name, int cm, 
 			      enum patch_translation_e flags, 
 			      unsigned short* width, unsigned short* height)
@@ -685,6 +677,7 @@ byte *V_PatchToBlock(const char* name, int cm,
   screens[1] = oldscr;
   return block;
 }
+#endif /* GL_DOOM */
 
 //
 // V_SetPalette

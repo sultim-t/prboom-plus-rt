@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.8 2000/05/18 07:24:40 cph Exp $
+ * $Id: v_video.h,v 1.9 2000/05/30 20:01:08 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -93,9 +93,13 @@ enum patch_translation_e {
   VPT_STRETCH = 4, // Stretch to compensate for high-res
 };
 
+#ifndef GL_DOOM
 void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
                 int destx, int desty, int destscrn,
                 enum patch_translation_e flags);
+#else
+#define V_CopyRect(sx,sy,ss,w,h,dx,dy,ds,f)
+#endif /* GL_DOOM */
 
 #ifdef GL_DOOM
 #define V_FillRect(s,x,y,w,h,c) gld_FillBlock(x,y,w,h,c)
@@ -124,10 +128,6 @@ void V_DrawNumPatch(int x, int y, int scrn, int lump,
 #define V_DrawNamePatch(x,y,s,n,t,f) gld_DrawNumPatch(x,y,W_GetNumForName(n),t,f)
 #else
 #define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatch(x,y,s,W_GetNumForName(n),t,f)
-/*
-void V_DrawNamePatch(int x, int y, int scrn, const char *name, 
-		     const byte *trans, enum patch_translation_e flags);
-*/
 #endif
 
 /* cph -
@@ -141,8 +141,10 @@ int V_NamePatchHeight(const char* name);
 // Draw a linear block of pixels into the view buffer.
 
 // CPhipps - added const's, patch translation flags for stretching
+#ifndef GL_DOOM
 void V_DrawBlock(int x, int y, int scrn, int width, int height, 
 		 const byte *src, enum patch_translation_e flags);
+#endif
 
 /* cphipps 10/99: function to tile a flat over the screen */
 #ifdef GL_DOOM
@@ -153,6 +155,7 @@ void V_DrawBackground(const char* flatname, int scrn);
 
 // Reads a linear block of pixels into the view buffer.
 
+#ifndef GL_DOOM
 void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest);
 
 void V_MarkRect(int x, int y, int width,int height);
@@ -162,22 +165,16 @@ void V_MarkRect(int x, int y, int width,int height);
 byte *V_PatchToBlock(const char* name, int cm, 
 		     enum patch_translation_e flags, 
 		     unsigned short* width, unsigned short* height);
+#else
+#define V_MarkRect(x,y,w,h)
+#define V_PatchToBlock(n,cm,f,w,h) NULL
+#endif
 
 // CPhipps - function to set the palette to palette number pal.
 void V_SetPalette(int pal);
 
 // CPhipps - function to plot a pixel
 // Proff - added __inline for VisualC
-/*
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static const void V_PlotPixel(int scrn, int x, int y, byte colour) {
-  screens[scrn][x+SCREENWIDTH*y] = colour;
-}
-*/
 
 #ifndef GL_DOOM
 #define V_PlotPixel(s,x,y,c) screens[s][x+SCREENWIDTH*y]=c

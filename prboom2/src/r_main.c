@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $
+ * $Id: r_main.c,v 1.8 2000/05/30 20:01:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.8 2000/05/30 20:01:07 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -557,7 +557,7 @@ void R_RenderPlayerView (player_t* player)
 #ifdef GL_DOOM
   // proff 11/99: clear buffers
   gld_InitDrawScene();
-#endif
+#else /* GL_DOOM */
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       char c[47*47];
@@ -628,6 +628,7 @@ void R_RenderPlayerView (player_t* player)
                     viewwindowy + viewheight/2 - 24, 0, 47, 47, c, VPT_NONE);
       R_DrawViewBorder();
     }
+#endif /* GL_DOOM */
 
 #ifdef GL_DOOM
   // proff 11/99: switch to perspective mode

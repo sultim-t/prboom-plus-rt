@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.6 2000/05/17 21:13:45 proff_fs Exp $
+ * $Id: r_draw.c,v 1.7 2000/05/30 20:01:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.6 2000/05/17 21:13:45 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.7 2000/05/30 20:01:07 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -778,8 +778,6 @@ void R_VideoErase(unsigned ofs, int count)
 // Draws the border around the view
 //  for different size windows?
 //
-
-void V_MarkRect(int x, int y, int width, int height); 
 
 void R_DrawViewBorder(void) 
 { 
