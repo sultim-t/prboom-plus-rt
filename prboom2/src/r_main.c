@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.26 2002/11/21 20:53:10 dukope Exp $
+ * $Id: r_main.c,v 1.27 2002/11/23 22:54:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.26 2002/11/21 20:53:10 dukope Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.27 2002/11/23 22:54:27 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -529,8 +529,6 @@ static void R_ShowStats(void)
 // R_RenderView
 //
 
-//#include "sdl.h" // for the test stuff below
-
 void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 {       
   R_SetupFrame (player, viewcamera);
@@ -597,39 +595,6 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
   gld_EndDrawScene();
 #endif
   if (rendering_stats) R_ShowStats();
-  
-  /*
-  // V_Plot* testing
-  
-  //V_PlotPatch(firstspritelump + 500, 200, 100, 512, 512, screens[0], vid_getMode(), SCREENWIDTH, SCREENHEIGHT);
-  
-  {
-  static int textureNum = 1503;//295;
-  static int nextSwitchTime = 0;
-  int i;
-  const int width = 500, height = 300;
-  byte *buffer;
-  
-  if (!textureNum) textureNum = firstspritelump;
-  
-  if (SDL_GetKeyState(NULL)['n']) textureNum--;
-  if (SDL_GetKeyState(NULL)['m']) textureNum++;
-  lprintf(LO_INFO, "%i\n", textureNum);
-  
-  //V_PlotTexture(textureNum, 50, 50, 500, 300, screens[0], vid_getMode(), SCREENWIDTH, SCREENHEIGHT);
-  
-  //buffer = V_GetPlottedTexture(textureNum, width, height, vid_getMode());
-  //buffer = V_GetPlottedPatch32(textureNum, width, height);
-  buffer = V_GetPlottedPatch8(textureNum, width, height, 0);
-  
-  for (i=0; i<height; i++) {
-    memcpy(screens[0] + i*SCREENWIDTH*vid_getDepth(), buffer+i*width*vid_getDepth(), width*vid_getDepth());
-  }
-  free(buffer);
-  
-  }
-  */
-  
 }
 
 void R_ResetTrans()
