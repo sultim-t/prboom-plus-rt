@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.h,v 1.5 2001/02/18 18:34:10 proff_fs Exp $
+ * $Id: g_bindaxes.h,v 1.2 2002/08/10 18:23:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -26,21 +26,28 @@
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *  Joystick interface.
  *
- *-----------------------------------------------------------------------------*/
+ * Axis Bindings
+ *
+ *-----------------------------------------------------------------------------
+ */
 
-extern int joybfire;
-extern int joybstrafe;
-extern int joybuse;
-extern int joybspeed;
+#ifndef __G_BINDAXES_H__
+#define __G_BINDAXES_H__
 
-extern int joyleft;
-extern int joyright;
-extern int joyup;
-extern int joydown;
+void G_InitAxisBindings();
+boolean G_AxisResponder(event_t *ev);
 
-extern int usejoystick;
+void G_EditAxisBinding(char *action);
+const char *G_BoundAxes(char *action);
+void G_WriteAxisBindings(FILE* file);
 
-void I_InitJoystick();
-void I_PollJoystick();
+// action variables
+
+extern int axis_forward_value;
+extern int axis_side_value;
+extern int axis_turn_value;
+extern int axis_cycleweapon_value;
+extern int axis_changeweapon_value;
+
+#endif

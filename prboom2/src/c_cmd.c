@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_cmd.c,v 1.4 2002/01/07 15:56:18 proff_fs Exp $
+ * $Id: c_cmd.c,v 1.5 2002/08/10 18:23:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -171,6 +171,7 @@ extern void    AM_AddCommands();        // am_color.c
 
 //extern void    PE_AddCommands();        // p_enemy.c -- haleyjd
 extern void    G_Bind_AddCommands();    // g_bind.c  -- haleyjd
+extern void    G_BindAxes_AddCommands();    // g_bindaxes.c
 extern void    P_Chase_AddCommands();   // p_chase.c  -- proff (until P_AddCommands is used)
 
 void C_AddCommands()
@@ -200,6 +201,7 @@ void C_AddCommands()
   AM_AddCommands();
 //  PE_AddCommands();  // haleyjd
   G_Bind_AddCommands();
+  G_BindAxes_AddCommands();
   P_Chase_AddCommands();
 }
 

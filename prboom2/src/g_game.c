@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.56 2002/08/10 11:22:42 cph Exp $
+ * $Id: g_game.c,v 1.57 2002/08/10 18:23:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.56 2002/08/10 11:22:42 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.57 2002/08/10 18:23:07 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -86,6 +86,7 @@ rcsid[] = "$Id: g_game.c,v 1.56 2002/08/10 11:22:42 cph Exp $";
 #include "p_inter.h"
 #include "g_game.h"
 #include "g_bind.h" // keybinding
+#include "g_bindaxes.h"
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
@@ -233,10 +234,6 @@ static int   dclicktime2;
 static int   dclickstate2;
 static int   dclicks2;
 
-// joystick values are repeated
-static int   joyxmove;
-static int   joyymove;
-
 // Game events info
 static buttoncode_t special_event; // Event triggered by local player, to send
 static byte  savegameslot;         // Slot to load if gameaction == ga_loadgame
@@ -282,8 +279,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
     // use two stage accelerative turning
     // on the keyboard and joystick
-  if (joyxmove < 0 || joyxmove > 0 ||
-      action_left || action_right)
+  if (action_left || action_right)
     turnheld += ticdup;
   else
     turnheld = 0;
@@ -309,10 +305,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         side += sidemove[speed];
       if (action_left)
         side -= sidemove[speed];
-      if (joyxmove > 0)
-        side += sidemove[speed];
-      if (joyxmove < 0)
-        side -= sidemove[speed];
     }
   else
     {
@@ -320,24 +312,21 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         cmd->angleturn -= angleturn[tspeed];
       if (action_left)
         cmd->angleturn += angleturn[tspeed];
-      if (joyxmove > 0)
-        cmd->angleturn -= angleturn[tspeed];
-      if (joyxmove < 0)
-        cmd->angleturn += angleturn[tspeed];
     }
 
   if (action_forward)
     forward += forwardmove[speed];
   if (action_backward)
     forward -= forwardmove[speed];
-  if (joyymove < 0)
-    forward += forwardmove[speed];
-  if (joyymove > 0)
-    forward -= forwardmove[speed];
   if (action_moveright)
     side += sidemove[speed];
   if (action_moveleft)
     side -= sidemove[speed];
+
+  // Read Axes
+  forward += forwardmove[1] * axis_forward_value / 256;
+  side += sidemove[1] * axis_side_value / 256;
+  cmd->angleturn += angleturn[1] * axis_turn_value / 256;
 
     // buttons
   cmd->chatchar = HU_dequeueChatChar();
@@ -549,7 +538,6 @@ static void G_DoLoadLevel (void)
   Z_CheckHeap ();
 
   // clear cmd building stuff
-  joyxmove = joyymove = 0;
   mousex = mousey = 0;
   special_event = 0; paused = false;
 
@@ -628,8 +616,7 @@ boolean G_Responder (event_t* ev)
       return gamestate == GS_DEMOSCREEN &&
 	!(paused & 2) && !(automapmode & am_active) &&
 	((ev->type == ev_keydown) ||
-	 (ev->type == ev_mouse && ev->data1) ||
-	 (ev->type == ev_joystick && ev->data1)) ?
+	 (ev->type == ev_mouse && ev->data1)) ?
 	MN_StartControlPanel(), true : false;
     }
 
@@ -663,10 +650,9 @@ boolean G_Responder (event_t* ev)
       mousey += (ev->data3*(mouseSensitivity_vert))/10;  /*Mead rm *4 */
       return true;    // eat events
 
-    case ev_joystick:
-      joyxmove = ev->data2;
-      joyymove = ev->data3;
-      return true;    // eat events
+    case ev_axis:
+      G_AxisResponder(ev);
+      return true;
 
     default:
       break;

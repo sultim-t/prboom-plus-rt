@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.36 2002/01/12 14:37:48 cph Exp $
+ * $Id: i_video.c,v 1.37 2002/08/10 18:23:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.36 2002/01/12 14:37:48 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.37 2002/08/10 18:23:09 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -56,6 +56,7 @@ rcsid[] = "$Id: i_video.c,v 1.36 2002/01/12 14:37:48 cph Exp $";
 #include "d_main.h"
 #include "d_event.h"
 #include "i_video.h"
+#include "i_axes.h"
 #include "z_zone.h"
 #include "s_sound.h"
 #include "sounds.h"
@@ -78,6 +79,9 @@ int use_fullscreen = 1;
 static SDL_Surface *screen;
 
 unsigned char* out_buffer = NULL;
+
+//// TEMPORARY /////////
+int enablejoystick = 1;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code 
@@ -188,84 +192,82 @@ static void I_GetEvent(SDL_Event *Event)
     break;
 
   case SDL_KEYUP:
-  {
     event.type = ev_keyup;
     event.data1 = I_TranslateKey(&Event->key.keysym);
     D_PostEvent(&event);
-  }
-  break;
+    break;
 
   case SDL_MOUSEBUTTONDOWN:
-  if (usemouse)
-  {
-    switch (Event->button.button)
+    if (usemouse)
     {
-    case SDL_BUTTON_LEFT:
-      event.type = ev_keydown;
-      event.data1 = KEYD_MOUSE1;
-      D_PostEvent(&event);
-      if (doubleclicktime[0])
+      switch (Event->button.button)
       {
-        if ((eventtime-doubleclicktime[0])<20)
-          doubleclicks[0]++;
-        if (doubleclicks[0]==2)
+      case SDL_BUTTON_LEFT:
+        event.type = ev_keydown;
+        event.data1 = KEYD_MOUSE1;
+        D_PostEvent(&event);
+        if (doubleclicktime[0])
         {
-          event.type = ev_keydown;
-          event.data1 = KEYD_MOUSED1;
-          D_PostEvent(&event);
+          if ((eventtime-doubleclicktime[0])<20)
+            doubleclicks[0]++;
+          if (doubleclicks[0]==2)
+          {
+            event.type = ev_keydown;
+            event.data1 = KEYD_MOUSED1;
+            D_PostEvent(&event);
+          }
         }
-      }
-      else
-      {
-        doubleclicks[0]=1;
-        doubleclicktime[0]=eventtime;
-      }
-      break;
-    case SDL_BUTTON_RIGHT:
-      event.type = ev_keydown;
-      event.data1 = KEYD_MOUSE2;
-      D_PostEvent(&event);
-      if (doubleclicktime[1])
-      {
-        if ((eventtime-doubleclicktime[1])<20)
-          doubleclicks[1]++;
-        if (doubleclicks[1]==2)
+        else
         {
-          event.type = ev_keydown;
-          event.data1 = KEYD_MOUSED2;
-          D_PostEvent(&event);
+          doubleclicks[0]=1;
+          doubleclicktime[0]=eventtime;
         }
-      }
-      else
-      {
-        doubleclicks[1]=1;
-        doubleclicktime[1]=eventtime;
-      }
-      break;
-    case SDL_BUTTON_MIDDLE:
-      event.type = ev_keydown;
-      event.data1 = KEYD_MOUSE3;
-      D_PostEvent(&event);
-      if (doubleclicktime[2])
-      {
-        if ((eventtime-doubleclicktime[2])<20)
-          doubleclicks[2]++;
-        if (doubleclicks[2]==2)
+        break;
+      case SDL_BUTTON_RIGHT:
+        event.type = ev_keydown;
+        event.data1 = KEYD_MOUSE2;
+        D_PostEvent(&event);
+        if (doubleclicktime[1])
         {
-          event.type = ev_keydown;
-          event.data1 = KEYD_MOUSED3;
-          D_PostEvent(&event);
+          if ((eventtime-doubleclicktime[1])<20)
+            doubleclicks[1]++;
+          if (doubleclicks[1]==2)
+          {
+            event.type = ev_keydown;
+            event.data1 = KEYD_MOUSED2;
+            D_PostEvent(&event);
+          }
         }
+        else
+        {
+          doubleclicks[1]=1;
+          doubleclicktime[1]=eventtime;
+        }
+        break;
+      case SDL_BUTTON_MIDDLE:
+        event.type = ev_keydown;
+        event.data1 = KEYD_MOUSE3;
+        D_PostEvent(&event);
+        if (doubleclicktime[2])
+        {
+          if ((eventtime-doubleclicktime[2])<20)
+            doubleclicks[2]++;
+          if (doubleclicks[2]==2)
+          {
+            event.type = ev_keydown;
+            event.data1 = KEYD_MOUSED3;
+            D_PostEvent(&event);
+          }
+        }
+        else
+        {
+          doubleclicks[2]=1;
+          doubleclicktime[2]=eventtime;
+        }
+        break;
       }
-      else
-      {
-        doubleclicks[2]=1;
-        doubleclicktime[2]=eventtime;
-      }
-      break;
     }
-  }
-  break;
+    break;
 
   case SDL_MOUSEBUTTONUP:
   if (usemouse)
@@ -301,6 +303,78 @@ static void I_GetEvent(SDL_Event *Event)
   }
   break;
 
+  case SDL_JOYBUTTONDOWN:
+  case SDL_JOYBUTTONUP:
+  if (enablejoystick) {
+    if ((Event->jbutton.state) == SDL_PRESSED)
+      event.type = ev_keydown;
+    if ((Event->jbutton.state) == SDL_RELEASED)
+      event.type = ev_keyup;
+    switch (Event->jbutton.button)
+    {
+      case 0:
+        event.data1 = KEYD_JOY1;
+        break;
+      case 1:
+        event.data1 = KEYD_JOY2;
+        break;
+      case 2:
+        event.data1 = KEYD_JOY3;
+        break;
+      case 3:
+        event.data1 = KEYD_JOY4;
+        break;
+      case 4:
+        event.data1 = KEYD_JOY5;
+        break;
+      case 5:
+        event.data1 = KEYD_JOY6;
+        break;
+      case 6:
+        event.data1 = KEYD_JOY7;
+        break;
+      case 7:
+        event.data1 = KEYD_JOY8;
+        break;
+      case 8:
+        event.data1 = KEYD_JOY9;
+        break;
+      case 9:
+        event.data1 = KEYD_JOY10;
+        break;
+      case 10:
+        event.data1 = KEYD_JOY11;
+        break;
+      case 11:
+        event.data1 = KEYD_JOY12;
+        break;
+      case 12:
+        event.data1 = KEYD_JOY13;
+        break;
+      case 13:
+        event.data1 = KEYD_JOY14;
+        break;
+      case 14:
+        event.data1 = KEYD_JOY15;
+        break;
+      case 15:
+        event.data1 = KEYD_JOY16;
+        break;
+    }
+    D_PostEvent(&event);
+  }
+  break;
+        
+
+  case SDL_JOYAXISMOTION:
+  if (enablejoystick) {
+    event.type = ev_axis;
+    event.data1 = Event->jaxis.which;
+    event.data2 = Event->jaxis.axis;
+    event.data3 = (256 * Event->jaxis.value) / 32768;
+    D_PostEvent(&event);
+  }
+  break;
 
   case SDL_QUIT:
     S_StartSound(NULL, sfx_swtchn);
@@ -374,6 +448,7 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
+  I_InitAxes();
 }
 /////////////////////////////////////////////////////////////////////////////
 
@@ -536,13 +611,14 @@ void I_SetPalette (int pal)
   newpal = pal;
 }
 
-// I_PreInitGraphics
 
 void I_ShutdownSDL(void)
 {
 	SDL_Quit();
 	return;
 }
+
+// I_PreInitGraphics
 
 void I_PreInitGraphics(void)
 {
@@ -552,6 +628,8 @@ void I_PreInitGraphics(void)
   }
   
   atexit(I_ShutdownSDL);
+  
+  I_InitInputs();
 }
 
 // CPhipps -
@@ -588,9 +666,6 @@ void I_InitGraphics(void)
     strcat(titlebuffer," ");
     strcat(titlebuffer,VERSION);
     SDL_WM_SetCaption(titlebuffer, titlebuffer);
-
-    /* Initialize the input system */
-    I_InitInputs();
   }
 }
 

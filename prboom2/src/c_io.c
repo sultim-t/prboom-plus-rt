@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.8 2002/02/10 21:03:45 proff_fs Exp $
+ * $Id: c_io.c,v 1.9 2002/08/10 18:23:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.8 2002/02/10 21:03:45 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.9 2002/08/10 18:23:07 proff_fs Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -63,6 +63,7 @@ rcsid[] = "$Id: c_io.c,v 1.8 2002/02/10 21:03:45 proff_fs Exp $";
 #include "sounds.h"
 
 #include "g_bind.h"
+#include "g_bindaxes.h"
 
 #define MESSAGES 384
 // keep the last 32 typed commands
@@ -162,6 +163,7 @@ void C_Init()
   C_UpdateInputPoint();
 
   G_InitKeyBindings();
+  G_InitAxisBindings();
 }
 
 // called every tic

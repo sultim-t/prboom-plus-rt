@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_config.c,v 1.1 2002/02/08 23:53:41 cph Exp $
+ * $Id: g_config.c,v 1.2 2002/08/10 18:23:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -44,6 +44,7 @@
 #include "c_runcmd.h"
 #include "g_config.h"
 #include "g_bind.h"
+#include "g_bindaxes.h"
 
 //===========================================================================
 //
@@ -71,6 +72,9 @@ void G_LoadDefaults(const char *file)
 
     free(cfg_data);
   }
+
+  //Add G_SaveDefaults as an exit handler
+  atexit(G_SaveDefaults);
 }
 
 void G_SaveDefaults()
@@ -87,6 +91,9 @@ void G_SaveDefaults()
   
   // write key bindings
   G_WriteBindings(file);
+  
+  // write axis bindings
+  G_WriteAxisBindings(file);
   
   fclose(file);
 }

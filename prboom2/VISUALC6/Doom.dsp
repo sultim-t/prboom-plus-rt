@@ -477,6 +477,14 @@ SOURCE=..\src\g_bind.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\g_bindaxes.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\g_bindaxes.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\g_cmd.c
 # End Source File
 # Begin Source File
@@ -513,11 +521,11 @@ SOURCE=..\src\hu_stuff.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\Sdl\i_joy.c
+SOURCE=..\src\SDL\i_axes.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\i_joy.h
+SOURCE=..\src\i_axes.h
 # End Source File
 # Begin Source File
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_event.h,v 1.4 2001/02/04 14:15:40 cph Exp $
+ * $Id: d_event.h,v 1.5 2002/08/10 18:23:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -48,16 +48,16 @@ typedef enum
   ev_keydown,
   ev_keyup,
   ev_mouse,
-  ev_joystick
+  ev_axis
 } evtype_t;
 
 // Event structure.
 typedef struct
 {
   evtype_t  type;
-  int       data1;    // keys / mouse/joystick buttons
-  int       data2;    // mouse/joystick x move
-  int       data3;    // mouse/joystick y move
+  int       data1;    // keys / mouse/joystick buttons; device number
+  int       data2;    // mouse x move; axis number
+  int       data3;    // mouse y move; axis value
 } event_t;
 
  
