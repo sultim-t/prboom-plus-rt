@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.58 2002/08/11 11:29:43 proff_fs Exp $
+ * $Id: d_main.c,v 1.59 2002/08/11 11:31:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.58 2002/08/11 11:29:43 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.59 2002/08/11 11:31:27 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -1249,13 +1249,11 @@ void D_DoomMainSetup(void)
   Z_Init();
 
   // figgi 09/18/00-- added switch to force classic bsp nodes
-#ifdef GL_DOOM
   if (M_CheckParm ("-forceoldbsp"))
   {
 	  extern boolean forceOldBsp;
 	  forceOldBsp = true;
   }
-#endif
 
   //jff 9/3/98 get mask for console output filter
   if ((p = M_CheckParm ("-cout")))
