@@ -2,6 +2,8 @@ This file shows a history of changes between PrBoom versions since v2.2.0.
 For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
+Changes from v2.3.1 to v2.3.2
+
 Changes from v2.3.0 to v2.3.1
 - disabled vidd support, because currently it's broken
 - network console variables are exchanged now

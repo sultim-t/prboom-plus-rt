@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -7,10 +7,10 @@
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Colin Phipps (cph@lxdoom.linuxgames.com),
  *  Jess Haas (JessH@lbjhs.net)
  *  and Florian Schulze (florian.proff.schulze@gmx.net)
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -23,7 +23,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -56,7 +56,7 @@
 #define RANGECHECK 1
 
 /* Define this to see real-time memory allocation
- * statistics, and enable extra debugging features 
+ * statistics, and enable extra debugging features
  */
 #define INSTRUMENTED 1
 
@@ -77,11 +77,11 @@
 #define ZONEIDCHECK 1
 
 /* CPhipps - some debugging macros for the new wad lump handling code */
-/* Defining this causes quick checks which only impose an overhead if a 
+/* Defining this causes quick checks which only impose an overhead if a
  *  posible error is detected. */
 #define SIMPLECHECKS 1
 
-/* Defining this causes time stamps to be created each time a lump is locked, and 
+/* Defining this causes time stamps to be created each time a lump is locked, and
  *  lumps locked for long periods of time are reported */
 #define TIMEDIAG 1
 
@@ -138,4 +138,4 @@
 #define PACKAGE "prboom"
 
 /* Version number of package */
-#define VERSION "2.3.1 (win32 experimental)"
+#define VERSION "2.3.2 (win32 experimental)"

@@ -1,40 +1,40 @@
-PrBoom 2.3.1 (experimental)
+PrBoom 2.3.2 (experimental)
 ===========================
 
-PrBoom is a version of the classic 3D shoot'em'up game Doom, originally 
-written by id Software. 
+PrBoom is a version of the classic 3D shoot'em'up game Doom, originally
+written by id Software.
 
-See the file AUTHORS in this distribution for a list of authors and 
-other contributors, and a history of the projects PrBoom is derived 
+See the file AUTHORS in this distribution for a list of authors and
+other contributors, and a history of the projects PrBoom is derived
 from.
 
-PrBoom is made available under the GNU General Public License. See the 
-file COPYING included in this distribution for details. 
+PrBoom is made available under the GNU General Public License. See the
+file COPYING included in this distribution for details.
 
 Please see the NEWS file included for changes since the previous version.
 
 Game data - WADs
 ----------------
 
-(This section is aimed at people not familiar with Doom and the 
+(This section is aimed at people not familiar with Doom and the
 data files it uses.)
 
-PrBoom is a game engine - it provides a program to play Doom levels, but 
-it doesn't include any levels itself. More importantly, you need all the 
-sounds, sprites, and other graphics that make up the Doom environment. 
-So to play PrBoom, you need one of the main Doom date files from id 
-Software - either doom.wad, doom2.wad, tnt.wad or plutonia.wad from one 
-of the commercial Doom games, or the shareware doom1.wad. This file 
+PrBoom is a game engine - it provides a program to play Doom levels, but
+it doesn't include any levels itself. More importantly, you need all the
+sounds, sprites, and other graphics that make up the Doom environment.
+So to play PrBoom, you need one of the main Doom date files from id
+Software - either doom.wad, doom2.wad, tnt.wad or plutonia.wad from one
+of the commercial Doom games, or the shareware doom1.wad. This file
 is called the IWAD.
 
-PrBoom also supports playing Doom add-on levels, called "PWADs", which 
-are small extra .wad files which just contain extra levels or other 
-resources. PWADs are ONLY ADD-ONS, you still need the original IWAD 
-that they are designed to work with. In practice, most PWADs on the 
-Internet require doom2.wad (although some work with doom.wad). 
+PrBoom also supports playing Doom add-on levels, called "PWADs", which
+are small extra .wad files which just contain extra levels or other
+resources. PWADs are ONLY ADD-ONS, you still need the original IWAD
+that they are designed to work with. In practice, most PWADs on the
+Internet require doom2.wad (although some work with doom.wad).
 
-If you don't own any of the Doom games, get the shareware doom1.wad 
-from Doomworld's shareware download page. You won't be able to play 
+If you don't own any of the Doom games, get the shareware doom1.wad
+from Doomworld's shareware download page. You won't be able to play
 most add-ons.
 http://www.doomworld.com/shareware
 
@@ -60,35 +60,35 @@ implementation.
 Linux Installation
 ------------------
 
-For UNIX, Linux, and other POSIX systems, you need the SDL libraries in 
-order to use PrBoom. If you haven't already done so, visit 
-http://prboom.sourceforge.net/linux.html and follow the instructions there 
-for your system, downloading the necessary libraries, and either 
+For UNIX, Linux, and other POSIX systems, you need the SDL libraries in
+order to use PrBoom. If you haven't already done so, visit
+http://prboom.sourceforge.net/linux.html and follow the instructions there
+for your system, downloading the necessary libraries, and either
 installing the binary RPM package or compiling PrBoom from source.
 
-Once you've done that, you'll need to copy your IWAD file (see the section 
-above if you don't know what this is) to a directory where PrBoom can find 
-it. Make /usr/local/share/games/doom/, and copy you IWAD (all of your 
-IWADs, if you own more than one) to that directory. 
+Once you've done that, you'll need to copy your IWAD file (see the section
+above if you don't know what this is) to a directory where PrBoom can find
+it. Make /usr/local/share/games/doom/, and copy you IWAD (all of your
+IWADs, if you own more than one) to that directory.
 
 First Use
 ---------
 
-If it's the first time you've run PrBoom, you'll need to do some configuring 
-to get the controls and display right for you. 
+If it's the first time you've run PrBoom, you'll need to do some configuring
+to get the controls and display right for you.
 
-By default, PrBoom runs at Doom's normal 320x200 resolution. This is rather 
-low by modern standards :-). You can use the -width and -height parameters to 
+By default, PrBoom runs at Doom's normal 320x200 resolution. This is rather
+low by modern standards :-). You can use the -width and -height parameters to
 select a higher resolution, e.g.:
 
 prboom -width 640 -height 400
 
-sets the resolution. This setting is remembered for future sessions. For 
+sets the resolution. This setting is remembered for future sessions. For
 other parameters, see the included README.command-line.
 
-You may also wish to customise the key bindings. PrBoom's default keybindings 
-are the same as the original Doom; unlike original Doom, you can change key 
-bindings in the game. In the in-game menus, go to Options, Settings, Key 
+You may also wish to customise the key bindings. PrBoom's default keybindings
+are the same as the original Doom; unlike original Doom, you can change key
+bindings in the game. In the in-game menus, go to Options, Settings, Key
 Bindings.
 
 Features
@@ -97,14 +97,14 @@ Features
    This is all the features PrBoom has compared to the original Doom game
    - it's intended to give you an idea of the enhancements, rather than
    burying you in details.
-   
-   See http://prboom.sourceforge.net/about.html for an HTML version of 
+
+   See http://prboom.sourceforge.net/about.html for an HTML version of
    this list.
 
    This is shamelessly modelled on Boom's changes pages. By each
    change, there's the name of the port the feature comes from (so it's
    compatible with).
-   
+
 Playing the game
 
      * Supports loading dehacked files at the command line, or in WADs
@@ -114,7 +114,7 @@ Playing the game
        MBF)
      * Savegames store list of loaded WAD files, warning if wrong files
        loaded (BOOM, MBF)
-       
+
 Game engine
 
      * Player bobbing improved, optional (BOOM, MBF)
@@ -140,7 +140,7 @@ Game engine
      * Icon of Sin telefragging made more consistent (MBF)
      * Fix large numbers of game bugs (BOOM, MBF, LxDoom)
      * Support arbitrary texture heights (BOOM)
-       
+
 Screen
 
      * High resolution support (PrBoom)
@@ -148,13 +148,13 @@ Screen
      * Status bar shows health/armour/ammo in colours (BOOM)
      * Heads up display, showing ammo, health, keys overlayed on view
        (BOOM)
-       
+
 Multiplayer
 
      * Spy mode improved (BOOM)
      * Support for loadgame in a net game (LxDoom)
      * Client server style network games (LxDoom)
-       
+
 Automap
 
      * No limit on marks (BOOM)
@@ -164,18 +164,18 @@ Automap
      * Teleport lines, key doors and switches marked specially (BOOM)
      * Keys, secrets visible on map with cheat codes (BOOM)
      * Colours fully configurable from menus (BOOM)
-       
+
 Intermission screens
 
      * Par times hidden when not relevant (BOOM)
      * Total episode time shown (LxDoom)
-       
+
 Menus
 
      * F1 help screen shows current key setup (BOOM)
      * Key bindings, monster behaviour, and compatibility settings all set
        in menus (BOOM, MBF)
-       
+
 Compatibility
 
      * Game is capable of behaving like any of: original Doom v1.9, Boom
@@ -189,12 +189,12 @@ Compatibility
        warnings (LxDoom)
      * Fine control of options controlling compatibility and new features
        (MBF)
-       
+
 Controls
 
      * Greater control of key bindings from in game menus (BOOM)
      * More accurate mouse sensitivity control (BOOM, LxDoom)
-       
+
 Misc
 
      * Screenshot code improved, supports BMPs (BOOM)
@@ -203,7 +203,7 @@ Misc
      * Real time frame rate, segs, visplanes, sprites display
        (LxDoom)
      * Various extra cheat codes (BOOM, LxDoom)
-       
+
 Internals
 
      * Greatly improved internal memory management (BOOM, LxDoom)
@@ -214,8 +214,8 @@ Internals
 Other Tips
 ----------
 
-On Linux, SDL tries to detect an appropriate video device automatically. 
-If you want to overrite the default, you can set the SDL_VIDEODRIVER 
+On Linux, SDL tries to detect an appropriate video device automatically.
+If you want to overrite the default, you can set the SDL_VIDEODRIVER
 enviromental variable. At a bash prompt, this is as easy as running:
 
 SDL_VIDEODRIVER=fbcon prboom
@@ -228,13 +228,13 @@ Details
 Details on these extra features are split into separate text files:
 
 README.demos		provides a guide to PrBoom's demo support
-README.compatibility	describes PrBoom's various compatibility 
+README.compatibility	describes PrBoom's various compatibility
 			options and modes
-README.command-line	gives a command line reference for prboom, 
+README.command-line	gives a command line reference for prboom,
 			prboom-game-server, and the format of boom.cfg.
 			On UNIX/Linux systems use the man pages instead.
 
-Editing features are not covered in the docs with this package. We plan 
-to bundle the editing docs as a separate download. Watch our website 
+Editing features are not covered in the docs with this package. We plan
+to bundle the editing docs as a separate download. Watch our website
 for news.
 
