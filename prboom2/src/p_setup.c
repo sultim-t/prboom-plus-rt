@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.11 2000/09/30 00:09:23 proff_fs Exp $
+ * $Id: p_setup.c,v 1.12 2000/09/30 12:24:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.11 2000/09/30 00:09:23 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.12 2000/09/30 12:24:09 proff_fs Exp $";
 
 #include <math.h>
 
@@ -323,8 +323,10 @@ static void P_LoadSegs (int lump)
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
 
-	  li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
+#ifdef GL_DOOM
+  	  li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
+#endif
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
       linedef = SHORT(ml->linedef);
@@ -353,6 +355,7 @@ static void P_LoadSegs (int lump)
  * author   : figgi						   *
  * what		: support for gl nodes		   *
  *******************************************/
+#ifdef GL_DOOM
 static void P_LoadGLSegs(int lump)
 {
 	const byte	*data;
@@ -370,7 +373,7 @@ static void P_LoadGLSegs(int lump)
 	{							// check for gl-vertices
 		segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
 		segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
-		segs[i].iSegID  = i;   
+		segs[i].iSegID  = i;
 							
 		if(ml->linedef != -1) // skip minisegs 
 		{
@@ -406,6 +409,7 @@ static void P_LoadGLSegs(int lump)
 	}
 	W_UnlockLumpNum(lump);
 }
+#endif
 
 //
 // P_LoadSubsectors
@@ -422,23 +426,24 @@ static void P_LoadSubsectors (int lump)
   data = W_CacheLumpNum(lump); // cph - wad lump handling updated
 
   for (i=0; i<numsubsectors; i++)
-    {
-	  int j;
-	  subsector_t* ss;
+  {
+//	  int j;
+//	  subsector_t* ss;
 
-      subsectors[i].numlines  = SHORT(((mapsubsector_t *) data)[i].numsegs );
-      subsectors[i].firstline = SHORT(((mapsubsector_t *) data)[i].firstseg);
+    subsectors[i].numlines  = (unsigned short)SHORT(((mapsubsector_t *) data)[i].numsegs );
+    subsectors[i].firstline = (unsigned short)SHORT(((mapsubsector_t *) data)[i].firstseg);
 
 	   // figgi -- fix for glBsp rendering
+/*
 #ifdef GL_DOOM
 	  ss = &subsectors[i];
 	  ss->segs = Z_Malloc(ss->numlines*sizeof(seg_t), PU_LEVEL, 0);
 
-      for (j = 0; j < ss->numlines; j++)
-		   ss->segs[j] = segs[ss->firstline+j];
+    for (j = 0; j < ss->numlines; j++)
+	    ss->segs[j] = segs[ss->firstline+j];
 #endif
-
-    }
+*/
+  }
 
   W_UnlockLumpNum(lump); // cph - release the data
 }
@@ -1165,14 +1170,14 @@ void P_GroupLines (void)
   register line_t	*li;
   register sector_t *sector;
   register seg_t    *seg;
-  int				i,j, total = numlines;
+  int i,j, total = numlines;
 	
 	// figgi
-    for (i=0 ; i<numsubsectors ; i++)
-    {
+  for (i=0 ; i<numsubsectors ; i++)
+  {
 		seg = &segs[subsectors[i].firstline];
 		subsectors[i].sector = NULL;
-		for(j=0; j< subsectors[i].numlines; j++)
+		for(j=0; j<subsectors[i].numlines; j++)
 		{
 			if(seg->sidedef)
 			{
@@ -1183,7 +1188,7 @@ void P_GroupLines (void)
 		}
 		if(subsectors[i].sector == NULL)
 			I_Error("P_GroupLines: Subsector a part of no sector!\n");
-    }
+  }
 
   // count number of lines in each sector
   for (i=0,li=lines; i<numlines; i++, li++)
@@ -1200,7 +1205,7 @@ void P_GroupLines (void)
     line_t **linebuffer = Z_Malloc(total*4, PU_LEVEL, 0);
 
     for (i=0, sector = sectors; i<numsectors; i++, sector++) 
-	{
+	  {
       sector->lines = linebuffer;
       linebuffer += sector->linecount;
       sector->linecount = 0;
@@ -1297,14 +1302,16 @@ void P_RemoveSlimeTrails(void)                // killough 10/98
   byte *hit = calloc(1, numvertexes);         // Hitlist for vertices
   int i;
   for (i=0; i<numsegs; i++)                   // Go through each seg
-    {
-     const line_t *l;
-	 
-	 if (segs[i].miniseg == true)			  //figgi -- skip minisegs
-		 return;
+  {
+    const line_t *l;
+
+#ifdef GL_DOOM
+	  if (segs[i].miniseg == true)			  //figgi -- skip minisegs
+		  return;
+#endif
 
 	  l = segs[i].linedef;					  // The parent linedef
-      if (l->dx && l->dy)                     // We can ignore orthogonal lines
+    if (l->dx && l->dy)                     // We can ignore orthogonal lines
 	  {
 	  vertex_t *v = segs[i].v1;
 	  do

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.10 2000/09/21 10:47:45 proff_fs Exp $
+ * $Id: r_defs.h,v 1.11 2000/09/30 12:24:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -248,7 +248,7 @@ typedef struct msecnode_s
 //
 // The LineSeg.
 //
-typedef struct seg_s // figgi -- needed fpr glBsp
+typedef struct
 {
   vertex_t *v1, *v2;
   fixed_t offset;
@@ -256,10 +256,12 @@ typedef struct seg_s // figgi -- needed fpr glBsp
   side_t* sidedef;
   line_t* linedef;
 
-// figgi -- needed for glnodes
+#ifdef GL_DOOM
   int iSegID;	// proff 11/05/2000: needed for OpenGL
+  // figgi -- needed for glnodes
   float			length;
   boolean		miniseg;
+#endif
 
   
   // Sector references.
@@ -281,9 +283,13 @@ typedef struct seg_s // figgi -- needed fpr glBsp
 
 typedef struct subsector_s
 {
-  struct seg_s*	segs;    // figgi -- needed for glBsp
+/*
+#ifdef GL_DOOM
+  seg_t*	segs;    // figgi -- needed for glBsp
+#endif
+*/
   sector_t *sector;
-  short numlines, firstline;
+  unsigned short numlines, firstline;
 } subsector_t;
 
 

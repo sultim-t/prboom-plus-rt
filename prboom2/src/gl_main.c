@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.27 2000/09/30 00:09:22 proff_fs Exp $
+ * $Id: gl_main.c,v 1.28 2000/09/30 12:24:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -737,7 +737,6 @@ typedef struct
   GLTexture *gltexture;
 } GLSprite;
 
-/*
 typedef enum
 {
   GLDIT_NONE,
@@ -770,14 +769,16 @@ typedef struct
 } GLDrawInfo;
 
 static GLDrawInfo gld_drawinfo;
-*/
+
 // this is the list for all sectors to the loops
 static GLSector *sectorloops;
 // this is the list for all subsectors
 static GLSubSector *subsectorloops;
 
-static boolean *sectorrendered; // true if sector rendered (only here for malloc)
-static boolean *subsectorrendered; // true if subsector rendered (only here for malloc)
+byte rendermarker=0;
+static byte *sectorrendered; // true if sector rendered (only here for malloc)
+static byte *subsectorrendered; // true if subsector rendered (only here for malloc)
+static byte *segrendered; // true if sector rendered (only here for malloc)
 
 static FILE *levelinfo;
 
@@ -1502,9 +1503,10 @@ void gld_PreprocessSectors(void)
   memset(sectorloops, 0, sizeof(GLSector)*numsectors);
 
   GLFree(sectorrendered);
-  sectorrendered=GLMalloc(numsectors*sizeof(boolean));
+  sectorrendered=GLMalloc(numsectors*sizeof(byte));
   if (!sectorrendered)
     I_Error("Not enough memory for array (sectorrendered)\n");
+  memset(sectorrendered, 0, numsectors*sizeof(byte));
 
   GLFree(subsectorloops);
   subsectorloops=GLMalloc(sizeof(GLSubSector)*numsubsectors);
@@ -1513,9 +1515,16 @@ void gld_PreprocessSectors(void)
   memset(subsectorloops, 0, sizeof(GLSubSector)*numsubsectors);
 
   GLFree(subsectorrendered);
-  subsectorrendered=GLMalloc(numsubsectors*sizeof(boolean));
+  subsectorrendered=GLMalloc(numsubsectors*sizeof(byte));
   if (!subsectorrendered)
     I_Error("Not enough memory for array (subsectorrendered)\n");
+  memset(subsectorrendered, 0, numsubsectors*sizeof(byte));
+
+  GLFree(segrendered);
+  segrendered=GLMalloc(numsegs*sizeof(byte));
+  if (!segrendered)
+    I_Error("Not enough memory for array (segrendered)\n");
+  memset(segrendered, 0, numsegs*sizeof(byte));
 
 #ifdef USE_GLU_TESS
   if (usingGLNodes == false)
@@ -1629,7 +1638,12 @@ void gld_StartDrawScene(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 
-  glEnable(GL_DEPTH_TEST);
+/*
+  if (usingGLNodes)
+    glDisable(GL_DEPTH_TEST);
+  else
+*/
+    glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -1648,18 +1662,13 @@ void gld_StartDrawScene(void)
 	  glEnable(GL_FOG);
   else
     glDisable(GL_FOG);
-  // set all sectors to not rendered
-  memset(sectorrendered, 0, numsectors*sizeof(boolean));
-  // set all subsectors to not rendered
-  memset(subsectorrendered, 0, numsubsectors*sizeof(boolean));
-/*
+  rendermarker++;
   gld_drawinfo.num_walls=0;
   gld_drawinfo.num_flats=0;
   gld_drawinfo.num_sprites=0;
   gld_drawinfo.num_drawitems=0;
   if (gld_drawinfo.max_drawitems>0)
     memset(gld_drawinfo.drawitems,0,gld_drawinfo.max_drawitems*sizeof(GLDrawItem));
-*/
 }
 
 void gld_EndDrawScene(void)
@@ -1696,7 +1705,6 @@ void gld_EndDrawScene(void)
   glDisable(GL_SCISSOR_TEST);
 }
 
-/*
 static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
 {
   if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
@@ -1724,7 +1732,6 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
   }
   gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount++;
 }
-*/
 
 /*****************
  *               *
@@ -1884,18 +1891,16 @@ static void gld_DrawWall(GLWall *wall)
 	  wall.skyflip = false;\
   }
 
-/*
-void ADDWALL(GLWall *wall)
-{
-  if (gld_drawinfo.num_walls>=gld_drawinfo.max_walls)
-  {
-    gld_drawinfo.max_walls+=128;
-    gld_drawinfo.walls=Z_Realloc(gld_drawinfo.walls,gld_drawinfo.max_walls*sizeof(GLWall),PU_LEVEL,0);
-  }
-  gld_AddDrawItem(GLDIT_WALL, gld_drawinfo.num_walls);
-  gld_drawinfo.walls[gld_drawinfo.num_walls++]=*wall;
-}
-*/
+#define ADDWALL(wall)\
+{\
+  if (gld_drawinfo.num_walls>=gld_drawinfo.max_walls)\
+  {\
+    gld_drawinfo.max_walls+=128;\
+    gld_drawinfo.walls=Z_Realloc(gld_drawinfo.walls,gld_drawinfo.max_walls*sizeof(GLWall),PU_LEVEL,0);\
+  }\
+  gld_AddDrawItem(GLDIT_WALL, gld_drawinfo.num_walls);\
+  gld_drawinfo.walls[gld_drawinfo.num_walls++]=*wall;\
+};
 
 void gld_AddWall(seg_t *seg)
 {
@@ -1906,6 +1911,11 @@ void gld_AddWall(seg_t *seg)
   sector_t ftempsec; // needed for R_FakeFlat
   sector_t btempsec; // needed for R_FakeFlat
 
+  if (!segrendered)
+    return;
+  if (segrendered[seg->iSegID]==rendermarker)
+    return;
+  segrendered[seg->iSegID]=rendermarker;
   if (!seg->frontsector)
     return;
   frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
@@ -1925,7 +1935,7 @@ void gld_AddWall(seg_t *seg)
       wall.ybottom=(float)frontsector->ceilingheight/(float)MAP_SCALE;
       SKYTEXTURE(frontsector->sky,frontsector->sky);
       wall.sky=true;
-      gld_DrawWall(&wall);
+      ADDWALL(&wall);
     }
     if (frontsector->floorpic==skyflatnum)
     {
@@ -1933,7 +1943,7 @@ void gld_AddWall(seg_t *seg)
       wall.ybottom=-255.0f;
       SKYTEXTURE(frontsector->sky,frontsector->sky);
       wall.sky=true;
-      gld_DrawWall(&wall);
+      ADDWALL(&wall);
     }
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true);
     if (temptex)
@@ -1942,7 +1952,7 @@ void gld_AddWall(seg_t *seg)
       CALC_Y_VALUES(wall, frontsector->floorheight, frontsector->ceilingheight);
       CALC_TEX_VALUES_MIDDLE1S(wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0);
       wall.sky=false;
-      gld_DrawWall(&wall);
+      ADDWALL(&wall);
     }
   }
   else /* twosided */
@@ -1966,7 +1976,7 @@ void gld_AddWall(seg_t *seg)
         wall.ybottom=(float)backsector->floorheight/(float)MAP_SCALE;
         SKYTEXTURE(frontsector->sky,backsector->sky);
         wall.sky=true;
-        gld_DrawWall(&wall);
+        ADDWALL(&wall);
       }
       else
       {
@@ -1975,7 +1985,7 @@ void gld_AddWall(seg_t *seg)
           wall.ybottom=(float)frontsector->ceilingheight/(float)MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           wall.sky=true;
-          gld_DrawWall(&wall);
+          ADDWALL(&wall);
         }
         else
           //if ( backsector->ceilingpic != skyflatnum )
@@ -1985,7 +1995,7 @@ void gld_AddWall(seg_t *seg)
             wall.ybottom=(float)backsector->ceilingheight/(float)MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
             wall.sky=true;
-            gld_DrawWall(&wall);
+            ADDWALL(&wall);
           }
       }
     }
@@ -2000,7 +2010,7 @@ void gld_AddWall(seg_t *seg)
           CALC_Y_VALUES(wall, floor_height, ceiling_height);
           CALC_TEX_VALUES_TOP(wall, seg, (LINE->flags & (ML_DONTPEGBOTTOM | ML_DONTPEGTOP))==0);
           wall.sky=false;
-          gld_DrawWall(&wall);
+          ADDWALL(&wall);
         }
       }
     }
@@ -2029,7 +2039,8 @@ void gld_AddWall(seg_t *seg)
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.trans=1;
       wall.sky=false;
-      gld_DrawWall(&wall);
+      ADDWALL(&wall);
+      wall.trans=0;
     }
 bottomtexture:
     /* bottomtexture */
@@ -2046,7 +2057,7 @@ bottomtexture:
         wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
         SKYTEXTURE(frontsector->sky,backsector->sky);
         wall.sky=true;
-        gld_DrawWall(&wall);
+        ADDWALL(&wall);
       }
       else
       {
@@ -2055,7 +2066,7 @@ bottomtexture:
           wall.ytop=(float)frontsector->floorheight/(float)MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           wall.sky=true;
-          gld_DrawWall(&wall);
+          ADDWALL(&wall);
         }
         else
           //if ( backsector->floorpic != skyflatnum )
@@ -2065,7 +2076,7 @@ bottomtexture:
             wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
             wall.sky=true;
-            gld_DrawWall(&wall);
+            ADDWALL(&wall);
           }
       }
     }
@@ -2078,12 +2089,13 @@ bottomtexture:
         CALC_Y_VALUES(wall, floor_height, ceiling_height);
         CALC_TEX_VALUES_BOTTOM(wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0, floor_height-frontsector->ceilingheight);
         wall.sky=false;
-        gld_DrawWall(&wall);
+        ADDWALL(&wall);
       }
     }
   }
 }
 
+#undef ADDWALL
 #undef LINE
 #undef FRONTSECTOR
 #undef BACKSECTOR
@@ -2123,7 +2135,7 @@ static void gld_DrawFlat(GLFlat *flat)
   GLVertex *currentvertex; // the current vertex
 
   // enable backside removing
-  glEnable(GL_CULL_FACE);
+  //glEnable(GL_CULL_FACE);
   if (!flat->ceiling) // if it is a floor ...
     glCullFace(GL_FRONT);
   else
@@ -2227,7 +2239,7 @@ static void gld_DrawFlat(GLFlat *flat)
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
   // disable backside removing
-  glDisable(GL_CULL_FACE);
+  //glDisable(GL_CULL_FACE);
 }
 
 // gld_AddFlat
@@ -2290,7 +2302,6 @@ static void gld_AddFlat(int subsectornum, int sectornum, boolean ceiling, vispla
   // get height from plane
   flat.z=(float)plane->height/(float)MAP_SCALE;
 
-/*
   if (gld_drawinfo.num_flats>=gld_drawinfo.max_flats)
   {
     gld_drawinfo.max_flats+=128;
@@ -2298,8 +2309,7 @@ static void gld_AddFlat(int subsectornum, int sectornum, boolean ceiling, vispla
   }
   gld_AddDrawItem(GLDIT_FLAT, gld_drawinfo.num_flats);
   gld_drawinfo.flats[gld_drawinfo.num_flats++]=flat;
-*/
-  gld_DrawFlat(&flat);
+//  gld_DrawFlat(&flat);
 }
 
 void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingplane)
@@ -2314,7 +2324,7 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
 
   if (usingGLNodes)
   {
-    if (!subsectorrendered[subsectornum]) // if not already rendered
+    if (subsectorrendered[subsectornum]!=rendermarker) // if not already rendered
     {
       // render the floor
       if (floorplane)
@@ -2323,7 +2333,7 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
       if (ceilingplane)
         gld_AddFlat(subsectornum, -1, true, ceilingplane);
       // set rendered true
-      subsectorrendered[subsectornum]=true;
+      subsectorrendered[subsectornum]=rendermarker;
     }
   }
   else
@@ -2331,7 +2341,7 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
     subsector = &subsectors[subsectornum];
     if (!subsector)
       return;
-    if (!sectorrendered[subsector->sector->iSectorID]) // if not already rendered
+    if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
     {
       // render the floor
       if (floorplane)
@@ -2340,7 +2350,7 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
       if (ceilingplane)
         gld_AddFlat(-1, subsector->sector->iSectorID, true, ceilingplane);
       // set rendered true
-      sectorrendered[subsector->sector->iSectorID]=true;
+      sectorrendered[subsector->sector->iSectorID]=rendermarker;
     }
   }
 }
@@ -2423,7 +2433,6 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.w=(float)sprite.gltexture->realtexwidth/(float)(MAP_COEFF);
   sprite.h=(float)sprite.gltexture->realtexheight/(float)(MAP_COEFF);
 
-/*
   if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
   {
     gld_drawinfo.max_sprites+=128;
@@ -2431,8 +2440,7 @@ void gld_AddSprite(vissprite_t *vspr)
   }
   gld_AddDrawItem(GLDIT_SPRITE, gld_drawinfo.num_sprites);
   gld_drawinfo.sprites[gld_drawinfo.num_sprites++]=sprite;
-*/
-  gld_DrawSprite(&sprite);
+//  gld_DrawSprite(&sprite);
 }
 
 /*****************
@@ -2443,7 +2451,6 @@ void gld_AddSprite(vissprite_t *vspr)
 
 void gld_DrawScene(player_t *player)
 {
-/*
   int i,j;
 
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
@@ -2468,7 +2475,6 @@ void gld_DrawScene(player_t *player)
       break;
     }
   }
-*/
 }
 
 void gld_PreprocessLevel(void)
@@ -2481,5 +2487,5 @@ void gld_PreprocessLevel(void)
 */
   gld_PreprocessSectors();
   gld_PreprocessSegs();
-//  memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
+  memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.12 2000/09/30 00:09:24 proff_fs Exp $
+ * $Id: i_video.c,v 1.13 2000/09/30 12:24:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.12 2000/09/30 00:09:24 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.13 2000/09/30 12:24:12 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -522,6 +522,7 @@ void I_InitGraphics(void)
   SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
   SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+  //SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 0 );
   SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
   screen = SDL_SetVideoMode(w, h, 16, init_flags);

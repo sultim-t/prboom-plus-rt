@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.9 2000/09/30 00:09:24 proff_fs Exp $
+ * $Id: r_things.c,v 1.10 2000/09/30 12:24:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.9 2000/09/30 00:09:24 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.10 2000/09/30 12:24:09 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -540,6 +540,7 @@ void R_ProjectSprite (mobj_t* thing)
   vis->flip = flip;
   vis->scale = FixedDiv(projectiony, tz);
   vis->patch = lump;
+  gld_AddSprite(vis);
   return;
 #endif
 
@@ -594,9 +595,9 @@ void R_ProjectSprite (mobj_t* thing)
 // During BSP traversal, this adds sprites by sector.
 //
 // killough 9/18/98: add lightlevel as parameter, fixing underwater lighting
-
-void R_AddSprites(sector_t* sec, int lightlevel)
+void R_AddSprites(subsector_t* subsec, int lightlevel)
 {
+  sector_t* sec=subsec->sector;
   mobj_t *thing;
   int    lightnum;
 
@@ -605,8 +606,11 @@ void R_AddSprites(sector_t* sec, int lightlevel)
   //  subsectors during BSP building.
   // Thus we check whether its already added.
 
-  if (sec->validcount == validcount)
-    return;
+#ifdef GL_DOOM
+  if (!usingGLNodes)
+#endif
+    if (sec->validcount == validcount)
+      return;
 
   // Well, now it will be done.
   sec->validcount = validcount;
@@ -623,7 +627,15 @@ void R_AddSprites(sector_t* sec, int lightlevel)
   // Handle all things in sector.
 
   for (thing = sec->thinglist; thing; thing = thing->snext)
-    R_ProjectSprite(thing);
+#ifdef GL_DOOM
+    if (usingGLNodes)
+    {
+      if (subsec==thing->subsector)
+        R_ProjectSprite(thing);
+    }
+    else
+#endif
+      R_ProjectSprite(thing);
 }
 
 //
@@ -991,17 +1003,6 @@ void R_DrawSprite (vissprite_t* spr)
 
 void R_DrawMasked(void)
 {
-#ifdef GL_DOOM
-  int i;
-
-  R_SortVisSprites();
-
-  // draw all vissprites back to front
-
-  rendered_vissprites = num_vissprite;
-  for (i = num_vissprite ;--i>=0; )
-    gld_AddSprite(vissprite_ptrs[i]);
-#else
   int i;
   drawseg_t *ds;
 
@@ -1029,5 +1030,4 @@ void R_DrawMasked(void)
   //  but does not draw on side views
   if (!viewangleoffset)
     R_DrawPlayerSprites ();
-#endif
 }
