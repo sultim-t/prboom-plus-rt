@@ -151,6 +151,10 @@ static int I_ConPrintString (const char *outline)
         newxp--;
         break;
       }
+      else if (*newcp == '\t') {
+        newxp = ((newxp + 8) / 8) * 8;
+        break;
+      }
       else
         newxp++;
     }
@@ -182,7 +186,7 @@ static int I_ConPrintString (const char *outline)
 
       xp = newxp;
 
-      if ((*newcp == '\n') || (*newcp == '\x08'))
+      if ((*newcp == '\n') || (*newcp == '\x08') || (*newcp == '\t'))
         cp = newcp + 1;
       else
         cp = newcp;
