@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.18.2.4 2001/10/07 12:34:42 proff_fs Exp $
+ * $Id: i_video.c,v 1.18.2.5 2002/01/12 14:10:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.18.2.4 2001/10/07 12:34:42 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18.2.5 2002/01/12 14:10:53 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -133,7 +133,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_KP2:	rc = KEYD_KEYPAD2;	break;
   case SDLK_KP3:	rc = KEYD_KEYPAD3;	break;
   case SDLK_KP4:	rc = KEYD_KEYPAD4;	break;
-  case SDLK_KP5:	rc = KEYD_KEYPAD0;	break;
+  case SDLK_KP5:	rc = KEYD_KEYPAD5;	break;
   case SDLK_KP6:	rc = KEYD_KEYPAD6;	break;
   case SDLK_KP7:	rc = KEYD_KEYPAD7;	break;
   case SDLK_KP8:	rc = KEYD_KEYPAD8;	break;
