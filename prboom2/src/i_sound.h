@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.h,v 1.3.2.1 2001/10/04 07:26:14 proff_fs Exp $
+ * $Id: i_sound.h,v 1.3.2.2 2002/07/04 22:18:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -89,6 +89,9 @@ void I_ResumeSong(int handle);
 
 // Registers a song handle to song data.
 int I_RegisterSong(const void *data, size_t len);
+
+// cournia - tries to load a music file 
+int I_RegisterMusic( const char* filename, musicinfo_t *music );
 
 // Called by anything that wishes to start music.
 //  plays a song, and when the song is done,

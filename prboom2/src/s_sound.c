@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.4.2.1 2001/10/04 07:26:14 proff_fs Exp $
+ * $Id: s_sound.c,v 1.4.2.2 2002/07/04 22:18:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,14 +30,19 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.4.2.1 2001/10/04 07:26:14 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.4.2.2 2002/07/04 22:18:43 proff_fs Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+
 #include "doomstat.h"
 #include "s_sound.h"
 #include "i_sound.h"
+#include "i_system.h"
 #include "r_main.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -65,6 +70,8 @@ rcsid[] = "$Id: s_sound.c,v 1.4.2.1 2001/10/04 07:26:14 proff_fs Exp $";
 extern int snd_card, mus_card;
 extern boolean nosfxparm, nomusicparm;
 //jff end sound enabling variables readable here
+
+const char* S_music_files[NUMMUSIC]; // cournia - stores music file names
 
 typedef struct
 {
@@ -447,6 +454,8 @@ void S_StartMusic(int m_id)
 void S_ChangeMusic(int musicnum, int looping)
 {
   musicinfo_t *music;
+  int music_file_failed; // cournia - if true load the default MIDI music
+  char* music_filename;  // cournia
 
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
@@ -471,9 +480,29 @@ void S_ChangeMusic(int musicnum, int looping)
       music->lumpnum = W_GetNumForName(namebuf);
     }
 
-  // load & register it
-  music->data = W_CacheLumpNum(music->lumpnum);
-  music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+  music_file_failed = 1;
+
+  // proff_fs - only load when from IWAD
+  if (lumpinfo[music->lumpnum].source == source_iwad)
+    {
+      // cournia - check to see if we can play a higher quality music file
+      //           rather than the default MIDI
+      music_filename = I_FindFile(S_music_files[musicnum], "");
+      if (music_filename)
+        {
+          music_file_failed = I_RegisterMusic(music_filename, music);
+          free(music_filename);
+        }
+    }
+
+  if (music_file_failed)
+    {
+      //cournia - could not load music file, play default MIDI music
+
+      // load & register it
+      music->data = W_CacheLumpNum(music->lumpnum);
+      music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+    }
 
   // play it
   I_PlaySong(music->handle, looping);
@@ -495,7 +524,8 @@ void S_StopMusic(void)
 
       I_StopSong(mus_playing->handle);
       I_UnRegisterSong(mus_playing->handle);
-      W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
+      if (mus_playing->lumpnum >= 0)
+	W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
 
       mus_playing->data = 0;
       mus_playing = 0;
