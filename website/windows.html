@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+ <title>PrBoom - Linux/UNIX Installation</title>
+ <meta name="author" content="Proff" />
+ <meta name="generator" content="Ulli Meybohms HTML EDITOR">
+ <meta name="CVSID" content="$Id: windows.html,v 1.1 2000/09/03 16:29:52 proff_fs Exp $" />
+ <link rel="stylesheet" href="main.css" type="text/css" />
+</head>
+<body>
+
+<a href="http://sourceforge.net">
+<img src="http://sourceforge.net/sflogo.php?group_id=3396&type=1" width="88" height="31" />
+</a>
+
+<h1>Installation on Windows Systems</h1>
+<p>This page guides you through the installation of PrBoom.</p>
+<p>PrBoom should work with Windows 95, Windows NT4.0 and Windows 2000 or above.</p>
+<p>PrBoom for Windows comes in two versions. The one version has software rendering and is called <code>prboom-210-win32.zip</code>, the other one has OpenGl rendering and is called <code>glboom-210-win32.zip</code>.</p>
+<p><a href="#download">Download</a> the version you want to use and unzip it to the directory you want it. For example <code>c:\prboom</code>. To unzip it use a program like <a href="http://www.winzip.com">WinZip</a> or <a href="http://www.rarsoft.com/">WinRAR</a>.
+<p>If you want music support, see the <a href="#timidity">music section</a>.</p>
+<h2><a name="download">Download page</h2>
+ <p>Is <a href="http://www.sourceforge.net/projects/showfiles.php?group_id=3396">here</a>. It's possible that the version numbers on this page may not be up to date. You can figure it out :-).</p>
+ <p>PrBoom uses the SDL library and the SDL_mixer library. The dlls for them are included in the packages. If you want to look for newer versions go to there homepages. SDL is at <a href="http://www.libsdl.org">http://www.libsdl.org</a>. SDL_mixer is at <a href="http://www.libsdl.org/projects/SDL_mixer/">http://www.libsdl.org/projects/SDL_mixer/</a>.
+<h2><a name="timidity">Music</a></h2>
+ <p>
+  The SDL_mixer library used by PrBoom supports software MIDI music synthesis.
+  If you want to hear the Doom music, you need a set of Timidity
+  instrument patches. Do a web search for timidity patch sets,
+  there are plenty around.
+ </p>
+ <note>These patch sets are a large download (>5megs).</note>
+ <p>
+  SDL_mixer does not currently support hardware MIDI synthesis. We plan to nag
+  the SDL developers about this. If you want it, you nag them too :-).
+ </p>
+</body>
+</html>
