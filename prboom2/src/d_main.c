@@ -1380,7 +1380,7 @@ void D_DoomMainSetup(void)
   fastparm = clfastparm = M_CheckParm ("-fast");
   // jff 1/24/98 end of set to both working and command line value
 
-  devparm = M_CheckParm ("-devparm");
+  devparm = (M_CheckParm ("-devparm") != 0);
 
   if (M_CheckParm ("-altdeath"))
     deathmatch = 2;

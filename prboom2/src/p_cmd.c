@@ -80,6 +80,8 @@ char *skills[]=
  "ultra violence", "nightmare"};
 char *bfgtypestr[3]= {"bfg9000", "classic", "bfg11k"};
 
+CONSOLE_BOOLEAN(devparm, devparm, NULL, onoff, 0) {}
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // Game variables
@@ -209,6 +211,7 @@ void P_Info_AddCommands();             // p_info.c
 
 void P_AddCommands()
 {
+  C_AddCommand(devparm);
   //C_AddCommand(colour);
   //C_AddCommand(deathmatch);
   //C_AddCommand(skill);
