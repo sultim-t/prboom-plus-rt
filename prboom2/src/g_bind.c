@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.6 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: g_bind.c,v 1.7 2002/01/12 16:16:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.6 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.7 2002/01/12 16:16:40 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -622,11 +622,11 @@ void G_LoadDefaults(const char *file)
       C_Printf("cfg not found.\n");
       //C_Printf("cfg not found. using default\n");
       //cfg_data = W_CacheLumpName("DEFAULT", PU_STATIC);
-  }
+  } else {
+    C_RunScript(cfg_data);
 
-  C_RunScript(cfg_data);
-  
-  //  Z_Free(cfg_data);
+    free(cfg_data);
+  }
 }
 
 void G_SaveDefaults()
