@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.26.2.2 2001/10/04 07:26:14 proff_fs Exp $
+ * $Id: m_misc.c,v 1.26.2.3 2001/10/07 12:34:42 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.26.2.2 2001/10/04 07:26:14 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26.2.3 2001/10/07 12:34:42 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -340,8 +340,8 @@ default_t defaults[] =
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
-  {"use_vsync",{&use_vsync},{1},0,1,             // killough 2/8/98
-   def_bool,ss_none}, // enable wait for vsync to avoid display tearing (fullscreen)
+  {"use_doublebuffer",{&use_doublebuffer},{1},0,1,             // proff 2001-7-4
+   def_bool,ss_none}, // enable doublebuffer to avoid display tearing (fullscreen)
   {"translucency",{&default_translucency},{1},0,1,   // phares
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{66},0,100,         // killough 2/21/98
