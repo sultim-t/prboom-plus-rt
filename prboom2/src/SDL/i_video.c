@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.18.2.1 2001/02/18 17:19:50 proff_fs Exp $
+ * $Id: i_video.c,v 1.18.2.2 2001/02/18 18:29:38 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.18.2.1 2001/02/18 17:19:50 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18.2.2 2001/02/18 18:29:38 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -496,6 +496,8 @@ void I_InitGraphics(void)
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
   
+  lprintf(LO_INFO,"I_InitGraphics: %ix%i\n",w,h);
+
   // Initialize SDL with this graphics mode
 #ifdef GL_DOOM
   init_flags = SDL_OPENGL;
@@ -540,8 +542,6 @@ void I_InitGraphics(void)
   strcat(titlebuffer,VERSION);
   SDL_WM_SetCaption(titlebuffer, titlebuffer);
 
-  lprintf(LO_INFO,"I_InitGraphics:");
-
   // Get the info needed to render to the display
   out_buffer = (pval *)screen->pixels;
   {
@@ -552,11 +552,8 @@ void I_InitGraphics(void)
 
   atexit(I_ShutdownGraphics);
 
-  // Initialize the input system
-  I_InitInputs();
-
 #ifdef GL_DOOM
-  lprintf(LO_INFO,"\nSDL OpenGL PixelFormat:\n");
+  lprintf(LO_INFO,"SDL OpenGL PixelFormat:\n");
   SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
   lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
   SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
@@ -581,6 +578,9 @@ void I_InitGraphics(void)
   lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
   gld_Init(SCREENWIDTH, SCREENHEIGHT);
 #endif
+  // Initialize the input system
+  I_InitInputs();
+
   // Hide pointer while over this window
   SDL_ShowCursor(0);
 }
