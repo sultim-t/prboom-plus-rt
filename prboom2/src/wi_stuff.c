@@ -385,6 +385,26 @@ static const char facebackp[] = {"STPB0"};
 // CODE
 //
 
+/**********************
+
+  INTERMISSION CAMERA
+
+***********************/
+
+// is this just some boring picture, or a view of the level?
+static int realbackdrop=1;
+camera_t        intercam;
+
+mapthing_t *camerathing[MAXCAMERAS];
+mapthing_t *wi_camera;
+int numcameraviews=0;
+
+void WI_StopCamera()
+{
+  numcameraviews = 0;
+  realbackdrop = 0;
+}
+
 static void WI_endDeathmatchStats(void);
 static void WI_endNetgameStats(void);
 void WI_unloadData(void);

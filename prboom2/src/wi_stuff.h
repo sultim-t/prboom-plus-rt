@@ -36,6 +36,10 @@
 
 #include "doomdef.h"
 
+// intercam
+        // more than enough
+#define MAXCAMERAS 128
+
 // States for the intermission
 
 typedef enum
@@ -55,6 +59,13 @@ void WI_Drawer (void);
 
 // Setup for an intermission screen.
 void WI_Start(wbstartstruct_t*   wbstartstruct);
+
+void WI_checkForAccelerate(void);      // killough 11/98
+
+void WI_DrawBackground(void);          // killough 11/98
+
+void WI_AddCamera(mapthing_t *mthing);
+void WI_StopCamera();
 
 // Release intermission screen memory
 void WI_End(void);
