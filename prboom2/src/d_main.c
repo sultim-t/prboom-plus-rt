@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.31 2000/11/27 17:50:40 proff_fs Exp $
+ * $Id: d_main.c,v 1.32 2000/12/27 18:37:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.31 2000/11/27 17:50:40 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.32 2000/12/27 18:37:36 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1076,11 +1076,11 @@ void FindResponseFile (void)
         }
         if (!handle)
         {
-            //jff 9/3/98 use logical output routine
-            // proff 04/05/2000: Changed from LO_FATAL
-            lprintf(LO_ERROR,"\nNo such response file!\n");
-            // proff 04/05/2000: Simply removed the exit(1);
-            //exit(1);
+            /* proff 04/05/2000: Changed from LO_FATAL
+             * proff 04/05/2000: Simply removed the exit(1);
+	     * cph - made fatal, don't drop through and SEGV
+	     */
+            I_Error("No such response file: %s",fname);
         }
         //jff 9/3/98 use logical output routine
         lprintf(LO_CONFIRM,"Found response file %s!\n",&myargv[i][1]);
