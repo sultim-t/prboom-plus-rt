@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.8 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: d_main.c,v 1.9 2000/05/10 16:22:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.8 2000/05/09 21:45:36 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.9 2000/05/10 16:22:18 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1470,6 +1470,15 @@ void D_DoomMainSetup(void)
   if ((p = M_CheckParm("-dumplumps")) && p < myargc-1)
     WritePredefinedLumpWad(myargv[p+1]);
 #endif
+
+  //proff 11/22/98: Added setting of viewangleoffset
+  p = M_CheckParm("-viewangle");
+  if (p)
+  {
+    viewangleoffset = atoi(myargv[p+1]);
+    viewangleoffset = viewangleoffset<0 ? 0 : (viewangleoffset>7 ? 7 : viewangleoffset);
+    viewangleoffset = (8-viewangleoffset) * ANG45;
+  }
 
   // init subsystems
   //jff 9/3/98 use logical output routine
