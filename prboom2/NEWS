@@ -2,8 +2,9 @@ This file shows a history of changes between PrBoom versions since v2.2.0.
 For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
-Changes from v2.2.3 to v2.3.0
+Changes from v2.2.4 to v2.3.0
 - the OpenGL libs are loaded dynamically
+- only one executable for software rendering and OpenGL
 - option for sound compatibility with original Doom
 - added more compatibility levels (check frontend configurations!)
 - in game switching between fullscreen and windowed mode
@@ -17,6 +18,25 @@ Changes from v2.2.3 to v2.3.0
 - windows also uses prboom.wad now
 - removed lumps and tables which are in prboom.wad from source
 - fix translucency map file handle leak
+- added a quake like console
+- new menu code and much more options available through it
+- reworked software renderer
+- bilinear filter for software rendering
+- AdvanceScale2x like filter, but working on individual lines not fullscreen
+- smooth edges on masked textures and sprites
+- 16bit and 32bit software rendering
+- sound and video settings changeable while running (Software <-> OpenGL)
+- VIDD (Version Independant Doom Demo) support
+
+Changes from v2.2.3 to v2.2.4
+- fixed sky-over-sky HOM
+- shared texture palette isn't the default anymore
+- better invulnerabilty rendering for non paletted OpenGL
+- small compilation fix for OpenGL on some unix platforms
+- fix for dehacked files which change frames
+- fixed name clash when compiling for some unix platforms
+- flag counted items with different colour on the IDDT automap
+- fixed extra shot sound when chaingun runs out of ammo
 
 Changes from v2.2.2 to v2.2.3
 - improved mouse handling
@@ -45,7 +65,7 @@ Changes from v2.2.1 to v2.2.2
 Changes from v2.2.0 to v2.2.1
 - improved fix for demo sync problems with lost souls bouncing off floors
 - fixed bug where loading a -fast or -respawn savegame failed to restore
-  those options properly 
+  those options properly
 - fixed demo sync bug with doors also tagged to lift triggers
 - fix some endianness problems in the OpenGL renderer
 - hopefully fixed some problems compiling for Linux/ARM
@@ -71,7 +91,7 @@ Changes from v2.1.1 to v2.1.2
 
 Changes from v2.1.0 to v2.1.1
 - config file is now prboom.cfg for the non-GL version, glboom.cfg
-  for the GL version. If you have used PrBoom (or LxDoom) before, 
+  for the GL version. If you have used PrBoom (or LxDoom) before,
   rename your old config file (boom.cfg) appropriately.
 - fullscreen is now default for new prboom.cfg
 - included sdl_mixer.dll now plays midi-files
@@ -99,7 +119,7 @@ Note that LxDoom v0.* was a seperate line of development.
  Mori DEMO3)
 - Fix memory management bugs
   - Memory wasted by bug in Z_FreeTags (original Doom bug)
-  - Store correct size in extra memory blocks (Boom/MBF bug, harmless 
+  - Store correct size in extra memory blocks (Boom/MBF bug, harmless
    except when debugging)
   - Fix level precaching
     - Disabled by default, controlled by config file
@@ -137,14 +157,14 @@ Note that LxDoom v0.* was a seperate line of development.
   automatically compiles only the versions and features your system
   supports.
 - Fixed rendering bugs:
-  - tall vertical shafts did not block vision on the automap, and on x86 
+  - tall vertical shafts did not block vision on the automap, and on x86
     systems there could be crashes in the column rendering near such shafts (
     bug from original Doom).
   - fixed slowdown caused by non-power of 2 height textures in the case
-    where they don't tile (i.e. almost all cases) (this was the tutti-fruiti 
+    where they don't tile (i.e. almost all cases) (this was the tutti-fruiti
     "fix" from Boom, I've "fixed the fix" in a sense)
   - fixed a slight slowdown caused by a bad optimisation (an old LxDoom bug)
-- Fixed bug where things were rendered brighter in high-res, depending on the 
+- Fixed bug where things were rendered brighter in high-res, depending on the
   resolution (bug from PRBoom).
 - Improvements to the sound code:
   - Fixed noise at the start of sounds playing (thanks to Steve Van Devender).
@@ -162,9 +182,9 @@ Note that LxDoom v0.* was a seperate line of development.
 - Added warning messages whenever LxDoom auto-corrects errors in buggy
   PWADs. Also made -devparm cause LxDoom to initialise all textures at
   startup, so all texture errors are found at once.
-- Store config files and save games in ~/.lxdoom/ instead of the current 
+- Store config files and save games in ~/.lxdoom/ instead of the current
   directory, removed the -cdrom parameter.
-- Fixed Doom bug where the "got a medikit you REALLY needed" message was 
+- Fixed Doom bug where the "got a medikit you REALLY needed" message was
   never used. Thanks to James "Quasar" Haley for pointing that one out.
 - Made the numeric keypad keys be treated differently from their normal
   equivalents, so you can bind them to different actions.
@@ -182,11 +202,11 @@ Note that LxDoom v0.* was a seperate line of development.
 * Changes v1.3.6 to v1.3.7
 - Client-server style net-games, including new server program
 - LxDoom starts faster, thanks to an idea borrowed from DosDoom
-- Player colours system sorted out, now your personal player colour is part of 
+- Player colours system sorted out, now your personal player colour is part of
   your player preferences.
-- Fix for problems with 24bpp screens, new option in config file to deal with 
+- Fix for problems with 24bpp screens, new option in config file to deal with
   this.
-- Fix key setup problems where certain choices of key setup could hinder 
+- Fix key setup problems where certain choices of key setup could hinder
   message typing in multi-player.
 - Misc stuff
 
@@ -210,7 +230,7 @@ Note that LxDoom v0.* was a seperate line of development.
   - Occasional corrupt save-games in large levels fixed (Boom/MBF bug)
   - -loadgame crashes fixed
 - Performance improvements
-- Command line argument parsing logic changed for convenience in shell scripts 
+- Command line argument parsing logic changed for convenience in shell scripts
   (later arguments take precedence)
 
 * Changes from v1.3.2 to v1.3.3
@@ -227,19 +247,19 @@ Note that LxDoom v0.* was a seperate line of development.
   - Improved Dehacked handling (more reliable, Dehacked-in-a-PWAD)
   - Fractional floor attributes saved in save-games
   - Auto-correction of common errors in wads
-- Massive internal improvements, making LxDoom more stable - WAD lump locking, 
-  rewritten patch drawing code. 
-- Improved config file handling - now accepts (and writes out selected) numbers 
-  in hex, entries are sorted into sections with headers, and internally the 
+- Massive internal improvements, making LxDoom more stable - WAD lump locking,
+  rewritten patch drawing code.
+- Improved config file handling - now accepts (and writes out selected) numbers
+  in hex, entries are sorted into sections with headers, and internally the
   handling is better.
-- Portability improvements - LxDoom is now near-completely endian-corrected, so it 
-  should be compilable on big-endian machines, read the little endian Doom data 
-  files fine, and even network with other machines regardless of endianness. 
-  Also lots of misc portability stuff, explicitly signing some variables, a 
-  lot more stuff made const, etc. The only problem I think is that save-games aren't 
+- Portability improvements - LxDoom is now near-completely endian-corrected, so it
+  should be compilable on big-endian machines, read the little endian Doom data
+  files fine, and even network with other machines regardless of endianness.
+  Also lots of misc portability stuff, explicitly signing some variables, a
+  lot more stuff made const, etc. The only problem I think is that save-games aren't
   yet interchangeable across endiannesses.
-- More memory efficient - block memory allocator reduces memory fragmentation, 
-  video buffers allocated only when needed, more things made constant and 
+- More memory efficient - block memory allocator reduces memory fragmentation,
+  video buffers allocated only when needed, more things made constant and
   initialised better.
 - Imported bug fixes from MBF:
   - File handle leak in translucency code
@@ -253,21 +273,21 @@ Note that LxDoom v0.* was a seperate line of development.
   - New thing flags caused incompatibility with buggy Doom wads
   - Setup menu backspace
   - Indigo/Brown default chat keys reversed
-- Glide (3dfx) frame-buffer target (warning - released only in source code form and 
+- Glide (3dfx) frame-buffer target (warning - released only in source code form and
   only for alpha testing purposes, not ready for normal use).
-- Improved ENDOOM support - (optional) colour ENDOOM display, non-ASCII 
-  characters displayed, sensible choice between ENDOOM and ENDBOOM (displays 
+- Improved ENDOOM support - (optional) colour ENDOOM display, non-ASCII
+  characters displayed, sensible choice between ENDOOM and ENDBOOM (displays
   any from a PWAD in preference, randomly chooses otherwise).
-- Minor improvements so LxDoom integrates more naturally into UNIX systems; sound 
-  and music server are now searched for via the path, and wads are looked for in 
-  /usr/local/games/wads/ if no DOOMWADDIR is set. 
+- Minor improvements so LxDoom integrates more naturally into UNIX systems; sound
+  and music server are now searched for via the path, and wads are looked for in
+  /usr/local/games/wads/ if no DOOMWADDIR is set.
 - More keys work in the SVGALib version (notably PAUSE).
-- Monster-monster kills in coop are assigned to the player the monster was 
-  targeting, or a random player if it wasn't targeting any, so coop 
+- Monster-monster kills in coop are assigned to the player the monster was
+  targeting, or a random player if it wasn't targeting any, so coop
   monster kills stats total 100% at the end-level screen.
-- Total game time is displayed on the intermission screens. This is a simple 
-  total of the times shown on the end-level screens so far this game, not 
-  including intermission times, and accurate to 1/35 of a second. 
+- Total game time is displayed on the intermission screens. This is a simple
+  total of the times shown on the end-level screens so far this game, not
+  including intermission times, and accurate to 1/35 of a second.
 - Low sound volume fixed.
 - Multi-player colours selectable in the config file.
 - Misc minor fixes and improvements inspired by MBF:
@@ -279,7 +299,7 @@ Note that LxDoom v0.* was a seperate line of development.
 * Changes from v1.3.0 to v1.3.1
 - Fixed saving of config file (bug affected most Linux systems)
 - Binaries are now use libc.so.6.
-- 24 bpp and 32 bpp true colour X displays are now supported (untested) (24 
+- 24 bpp and 32 bpp true colour X displays are now supported (untested) (24
   bpp only supported for i386 systems).
 - Auto-loading of wad files - in the config file there is a new option
   which lists wad files to be loaded automatically (several directories are
@@ -309,11 +329,11 @@ Note that LxDoom v0.* was a seperate line of development.
 - Portability improvements (FreeBSD and RISC stuff in the makefile, minor code
   changes included)
 - Minor bug-fixes
- 
+
 * Changes from v1.1.1 to v1.2.0
 - Boom v2.02 updates incorporated (see TeamTNT's site for info on that)
 - Improved music comms code, to pass instruments and volume info
-- Code reorganisation & tweaking; video code is more logically organised, 
+- Code reorganisation & tweaking; video code is more logically organised,
   and SVGALib code is neater now.
 
 * Changes from v1.1.0 to v1.1.1
@@ -327,25 +347,25 @@ Note that LxDoom v0.* was a seperate line of development.
 - Fixed bug in sound server communications which prevented Doom 1 working
 - Fixed problem with sound code causing accelerated sound on v2.1.125 kernel
 - Removed need for IPC in sound server communications, used pipe instead
-- Improved mouse grabbing/ungrabbing code in XFree86 version, now depends on 
+- Improved mouse grabbing/ungrabbing code in XFree86 version, now depends on
   game and window status
 - Improved TrueColor/DirectColor 16 bpp support
-- X version is more multitasking friendly - detects when it is hidden or paused 
+- X version is more multitasking friendly - detects when it is hidden or paused
   or an intermission screen is up, and tries to free some more CPU time.
 
 * Changes from v1.0.0 to v1.0.1:
-- 16 bpp colour modes now supported. If you use a 16 bpp colour mode (65 
-  thousand colours approx.), then you don't have to change your X setup to 256 
-  colours (8 bpp) before using lxdoom anymore. However, it is still a good idea 
+- 16 bpp colour modes now supported. If you use a 16 bpp colour mode (65
+  thousand colours approx.), then you don't have to change your X setup to 256
+  colours (8 bpp) before using lxdoom anymore. However, it is still a good idea
   to use 256 colours, because it is faster that way.
-- fixed a minor bug in routine used for the 8 bpp '-2' option (screen 
-  doubling), which caused a couple of lines to be missed at the bottom of the 
+- fixed a minor bug in routine used for the 8 bpp '-2' option (screen
+  doubling), which caused a couple of lines to be missed at the bottom of the
   display window.
-- fixed a Boom bug which caused crashes in multi-player games. The bug occurred 
-  when, during a single game session, first the players played one level at 
-  which someone died, and then later exited that level, and later still another 
-  player died. I.e in a multilevel death-match, or a long coop game. Caused one 
-  machine to exit lxdoom with 'Segmentation Violation'. The version of PRBoom I 
-  have also exhibits these symptoms, though obviously I can't be sure that this 
+- fixed a Boom bug which caused crashes in multi-player games. The bug occurred
+  when, during a single game session, first the players played one level at
+  which someone died, and then later exited that level, and later still another
+  player died. I.e in a multilevel death-match, or a long coop game. Caused one
+  machine to exit lxdoom with 'Segmentation Violation'. The version of PRBoom I
+  have also exhibits these symptoms, though obviously I can't be sure that this
   is the cause; Boom v2.0 and v2.01 had this bug.
 
