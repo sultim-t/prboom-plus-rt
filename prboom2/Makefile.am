@@ -1,22 +1,25 @@
 #
 # Top level automake Makefile.am for LxDoom
 #
-# $Id: Makefile.am,v 1.1 2000/05/04 07:53:10 proff_fs Exp $
+# $Id: Makefile.am,v 1.2 2000/07/22 14:55:02 cph Exp $
 #
 
 docdir=$(prefix)/share/doc/@PACKAGE@
 SUBDIRS = doc data src
-EXTRA_DIST = ChangeLog lxdoom.spec.in
+EXTRA_DIST = ChangeLog prboom.spec.in
 doc_DATA = ChangeLog README COPYING AUTHORS
 
-rpm:	lxdoom.spec dist
+rpm:	prboom.spec dist
 	mv @PACKAGE@-@VERSION@.tar.gz /usr/src/redhat/SOURCES
-	rpm -bb lxdoom.spec
+	rpm -bb prboom.spec
 
 #
 # $Log: Makefile.am,v $
-# Revision 1.1  2000/05/04 07:53:10  proff_fs
-# Initial revision
+# Revision 1.2  2000/07/22 14:55:02  cph
+# Add prboom RPM spec file to build scripts
+#
+# Revision 1.1.1.1  2000/05/04 07:53:10  proff_fs
+# initial login on sourceforge as prboom2
 #
 # Revision 1.5  2000/03/19 16:28:37  cph
 # Fix documentation directory

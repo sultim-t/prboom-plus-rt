@@ -254,5 +254,5 @@ AC_DEFINE_UNQUOTED(MUSSERV_PATH,"$exp_gamesdir/musserv")
 AC_DEFINE_UNQUOTED(DOOMWADDIR,"$waddir")
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/OSS/Makefile src/X11/Makefile src/SDL/Makefile doc/Makefile data/Makefile)
+AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/OSS/Makefile src/X11/Makefile src/SDL/Makefile doc/Makefile data/Makefile prboom.spec)
 
