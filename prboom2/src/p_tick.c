@@ -33,6 +33,7 @@
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
+#include "p_map.h"
 
 int leveltime;
 
@@ -238,6 +239,9 @@ void P_Ticker (void)
      players[consoleplayer].viewz != 1))
     return;
 
+  P_MapStart();
+               // not if this is an intermission screen
+  if(gamestate==GS_LEVEL)
   for (i=0; i<MAXPLAYERS; i++)
     if (playeringame[i])
       P_PlayerThink(&players[i]);
@@ -245,6 +249,7 @@ void P_Ticker (void)
   P_RunThinkers();
   P_UpdateSpecials();
   P_RespawnSpecials();
+  P_MapEnd();
   leveltime++;                       // for par times
 }
 
