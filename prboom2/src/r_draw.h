@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.4 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: r_draw.h,v 1.5 2000/10/10 19:37:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -53,44 +53,8 @@ extern const byte     *dc_source;
 // The span blitting interface.
 // Hook in assembler or system specific BLT here.
 
-#ifndef _MSC_VER
-
-#ifndef I386
 void R_DrawColumn(void);
 void R_DrawTLColumn(void);      // drawing translucent textures // phares
-#else
-// CPhipps - core rendering high res ASM support
-// For optimal speed at 320xy resolutions we continue to use the 
-//  old hardcoded width asm funcs
-// For other resolutions we use versions that uses SCREENWIDTH
-
-// _Normal funcs assume SCREENWIDTH = 320
-void R_DrawColumn_Normal(void);
-void R_DrawTLColumn_Normal(void);
-
-// _HighRes funcs use SCREENWIDTH var
-void R_DrawColumn_HighRes(void);
-void R_DrawTLColumn_HighRes(void);
-
-// Pointers to the ones to use, held and set in i_video.c
-extern void (*R_DrawColumn)(void);
-extern void (*R_DrawTLColumn)(void);
-
-#endif
-
-#else // _MSC_VER
-void (*R_DrawColumn)(void);
-void (*R_DrawTLColumn)(void);
-
-#ifndef GL_DOOM
-void R_DrawColumn_Normal(void);
-void R_DrawTLColumn_Normal(void);
-#endif
-
-#define R_DrawColumn_HighRes R_DrawColumn_Normal
-#define R_DrawTLColumn_HighRes R_DrawTLColumn_Normal
-#endif // _MSC_VER
-
 void R_DrawFuzzColumn(void);    // The Spectre/Invisibility effect.
 
 // Draw with color translation tables, for player sprite rendering,

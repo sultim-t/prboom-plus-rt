@@ -1,13 +1,13 @@
 // Emacs style mode select   -*- Assembler -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: drawspan.S,v 1.1 2000/05/21 04:07:39 jessh Exp $
+// $Id: drawspan.S,v 1.2 2000/10/10 19:37:12 cph Exp $
 //
 //  LxDoom, a Doom port for Linux/Unix
 //  based on BOOM, a modified and improved DOOM engine
 //  Copyright (C) 1999 by
 //  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
-//   and Colin Phipps
+//  Copyright 1999-2000 by Colin Phipps <cphipps@doomworld.com>
 //  
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -238,49 +238,3 @@ R_DrawSpan:
  popl %ebp
  ret
 
-//----------------------------------------------------------------------------
-// $Id: drawspan.S,v 1.1 2000/05/21 04:07:39 jessh Exp $
-//----------------------------------------------------------------------------
-//
-// $Log: drawspan.S,v $
-// Revision 1.1  2000/05/21 04:07:39  jessh
-// Fixed assembly linking _ problem (i could have sworn i already commited this)
-//
-// Revision 1.1.1.1  2000/05/04 08:01:19  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.5  2000/05/01 17:50:33  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.4  1999/10/12 13:04:17  cphipps
-// Added GPL header
-//
-// Revision 1.3  1999/01/29 21:35:58  cphipps
-// No longer use columnofs lookup array
-//
-// Revision 1.2  1998/10/07 11:50:15  cphipps
-// Change to local symbols
-//
-// Revision 1.1  1998/09/21 17:32:07  cphipps
-// Initial revision
-//
-// Revision 1.1  1998/09/21 17:31:20  cphipps
-// Initial revision
-//
-// Revision 1.3  1998/09/13 11:21:38  cphipps
-// Removed _ prefix from function name (silly me)
-//
-// Revision 1.2  1998/09/12 17:11:23  cphipps
-// Removed prepended _'s on C variables
-//
-// Revision 1.1  1998/09/12 09:41:15  cphipps
-// Initial revision
-//
-// Revision 1.2  1998/02/23  04:18:51  killough
-// Performance tuning
-//
-// Revision 1.1  1998/02/17  06:37:34  killough
-// Initial version
-//
-//
-//----------------------------------------------------------------------------

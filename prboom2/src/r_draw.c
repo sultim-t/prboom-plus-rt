@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.9 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: r_draw.c,v 1.10 2000/10/10 19:37:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.9 2000/10/08 18:42:20 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.10 2000/10/10 19:37:12 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -131,7 +131,7 @@ byte    *dc_source;      // first pixel in a column (possibly virtual)
 
 #ifndef I386_ASM     // killough 2/15/98
 
-void R_DrawColumn_Normal (void) 
+void R_DrawColumn (void) 
 {
   int              count; 
   register byte    *dest;            // killough
@@ -176,7 +176,7 @@ void R_DrawColumn_Normal (void)
   if ((unsigned)dc_x >= SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
-    I_Error ("R_DrawColumn_Normal: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.
@@ -306,7 +306,7 @@ void R_DrawColumn_Normal (void)
 
 #ifndef I386_ASM                       // killough 2/21/98: converted to x86 asm
 
-void R_DrawTLColumn_Normal (void)                                           
+void R_DrawTLColumn (void)                                           
 { 
   int              count; 
   register byte    *dest;           // killough
@@ -323,7 +323,7 @@ void R_DrawTLColumn_Normal (void)
   if ((unsigned)dc_x >= SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
-    I_Error ("R_DrawTLColumn_Normal: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error ("R_DrawTLColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.

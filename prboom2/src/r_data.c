@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: r_data.c,v 1.9 2000/10/10 19:37:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.9 2000/10/10 19:37:12 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -654,7 +654,7 @@ void R_InitSpriteLumps(void)
 // CPhipps - reinstate 256-byte alignment of colourmaps for I386 targets
 static void* R_GetColourmaps(int lump)
 {
-#ifdef I386
+#ifdef I386_ASM
   // Load in the light tables, 
   //  256 byte align tables.
   void  *colormaps;

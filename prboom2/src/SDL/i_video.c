@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.15 2000/10/08 15:51:52 cph Exp $
+ * $Id: i_video.c,v 1.16 2000/10/10 19:37:15 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.15 2000/10/08 15:51:52 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.16 2000/10/10 19:37:15 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -45,11 +45,6 @@ rcsid[] = "$Id: i_video.c,v 1.15 2000/10/08 15:51:52 cph Exp $";
 #endif
 
 #include "SDL.h"
-
-#ifdef I386
-void (*R_DrawColumn)(void);
-void (*R_DrawTLColumn)(void);
-#endif
 
 #include "i_system.h"
 #include "m_argv.h"
@@ -475,25 +470,11 @@ void I_PreInitGraphics(void)
 void I_SetRes(unsigned int width, unsigned int height)
 {
 #ifdef HIGHRES
-  SCREENWIDTH = 
-#endif
-    (width+3) & ~3;
+  SCREENWIDTH = (width+3) & ~3;
+  SCREENHEIGHT = (height+3) & ~3;
 
-#ifdef HIGHRES
-  SCREENHEIGHT = 
-#endif
-    (height+3) & ~3;
-
-#ifndef GL_DOOM
-  if (SCREENWIDTH == 320) {
-    R_DrawColumn = R_DrawColumn_Normal;
-    R_DrawTLColumn = R_DrawTLColumn_Normal;
-  } else {
-    R_DrawColumn = R_DrawColumn_HighRes;
-    R_DrawTLColumn = R_DrawTLColumn_HighRes;
-  }
-#endif
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+#endif
 }
 
 void I_InitGraphics(void)
