@@ -192,7 +192,7 @@ void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, e
 
     desttop = (V_VIDEO_SCRNTYPE*)(screens[scrn]) + stretchy * SCREENWIDTH +  stretchx;
 
-    for ( col = 0; col <= w; x++, col+=DXI, desttop++ ) {
+    for ( col = 0xf; col <= w; x++, col+=DXI, desttop++ ) {
       const column_t *column;
       {
   unsigned int d = patch->columnofs[(flags & VPT_FLIP) ? ((w - col)>>16): (col>>16)];
@@ -200,10 +200,14 @@ void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, e
       }
 
       while ( column->topdelta != 0xff ) {
+	int toprow = ((column->topdelta*DY)>>16);
   register const byte *source = ( byte* ) column + 3;
-  register V_VIDEO_SCRNTYPE  *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
+  register V_VIDEO_SCRNTYPE  *dest = desttop + toprow * SCREENWIDTH;
   register int         count  = ( column->length * DY ) >> 16;
-  register int         srccol = 0x8000;
+  register int         srccol = 0xf;
+
+	if ( toprow+count >= SCREENHEIGHT ) // fix by John Popplewell
+		count = SCREENHEIGHT-toprow-1; // proff - I couldn't find a better fix
 
   if (flags & VPT_TRANS)
     while (count--) {
