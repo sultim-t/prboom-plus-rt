@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $
+ * $Id: z_zone.c,v 1.10 2000/12/30 19:51:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.10 2000/12/30 19:51:28 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -241,7 +241,7 @@ void Z_DumpHistory(char *buf)
 
 #endif
 
-static void Z_Close(void)
+void Z_Close(void)
 {
   (free)(zonebase);
   zone = rover = zonebase = NULL;
@@ -275,8 +275,6 @@ void Z_Init(void)
   if (!(HEADER_SIZE >= sizeof(memblock_t) && MIN_RAM > LEAVE_ASIDE)) 
     I_Error("Z_Init: Sanity check failed");
 #endif
-
-  atexit(Z_Close);            // exit handler
 
   size = (size+CHUNK_SIZE-1) & ~(CHUNK_SIZE-1);  // round to chunk size
 
@@ -334,7 +332,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 {
   register memblock_t *block;
   memblock_t *start, *first_of_free;
-  register size_t contig_free;
+  register size_t contig_free = 0;
 
 #ifdef INSTRUMENTED
   size_t size_orig = size;
@@ -363,13 +361,17 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 
   block = rover;
 
-  if (block->prev->tag == PU_FREE)
+  /* cph - allow memory allocation even before Z_Init;
+   *  just drop through to the malloc(3) fallback
+   */
+  if (block) {
+   if (block->prev->tag == PU_FREE)
     block = block->prev;
 
-  start = block;
-  first_of_free = NULL; contig_free = 0;
+   start = block;
+   first_of_free = NULL;
 
-  do {
+   do {
     /* If we just wrapped, we're not contiguous with the previous block */
     if (block == zone) contig_free = 0;
 
@@ -385,8 +387,9 @@ void *(Z_Malloc)(size_t size, int tag, void **user
       if (contig_free >= size)
 	break;
     }
+   }
+   while ((block = block->next) != start);   // detect cycles as failure
   }
-  while ((block = block->next) != start);   // detect cycles as failure
 
   if (contig_free >= size) {
     /* We have a block of free(able) memory on the heap which will suffice */
@@ -779,6 +782,7 @@ void (Z_CheckHeap)(
 		   )
 {
   memblock_t *block = zone;   // Start at base of zone mem
+  if (!block) return;
   do                          // Consistency check (last node treated special)
     if ((block->next != zone &&
          (memblock_t *)((char *) block+HEADER_SIZE+block->size) != block->next)

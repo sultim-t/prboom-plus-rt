@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.13 2000/12/24 11:40:35 cph Exp $
+ * $Id: doomstat.h,v 1.14 2000/12/30 19:51:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -275,7 +275,6 @@ extern int maxammo[];
 //
 
 // File handling stuff.
-extern  char    basedefault[];
 extern  FILE   *debugfile;
 
 // if true, load all graphics at level load

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: i_main.c,v 1.11 2000/12/30 19:51:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.11 2000/12/30 19:51:28 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -377,6 +377,8 @@ int main(int argc, char **argv)
   myargc = argc;
   myargv = argv;
 
+  /* cph - Z_Close must be done after I_Quit, so we register it first. */
+  atexit(Z_Close);
   /*
      killough 1/98:
 
@@ -392,8 +394,6 @@ int main(int argc, char **argv)
      loud SFX noise because the sound card is
      left in an unstable state.
   */
-
-  Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
   atexit(I_Quit);
 #ifndef _DEBUG

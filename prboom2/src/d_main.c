@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.32 2000/12/27 18:37:36 cph Exp $
+ * $Id: d_main.c,v 1.33 2000/12/30 19:51:27 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.32 2000/12/27 18:37:36 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.33 2000/12/30 19:51:27 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -126,7 +126,6 @@ static int      basetic;
 
 char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
-char    basedefault[PATH_MAX+1];   // default file
 char    baseiwad[PATH_MAX+1];      // jff 3/23/98: iwad directory
 char    basesavegame[PATH_MAX+1];  // killough 2/16/98: savegame directory
 
@@ -944,13 +943,6 @@ void IdentifyVersion (void)
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
   char *iwad;
 
-  // get config file from same directory as executable
-#ifdef GL_DOOM
-  sprintf(basedefault,"%s/glboom.cfg", D_DoomExeDir());  // killough
-#else
-  sprintf(basedefault,"%s/prboom.cfg", D_DoomExeDir());  // killough
-#endif
-
   // set save path to -save parm or current dir
 
   //jff 3/27/98 default to current dir
@@ -1294,6 +1286,11 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
+  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  M_LoadDefaults();              // load before initing other systems
+
+  Z_Init();
+
   // figgi 09/18/00-- added switch to force classic bsp nodes
 #ifdef GL_DOOM
   if (M_CheckParm ("-forceoldbsp"))
@@ -1531,9 +1528,6 @@ void D_DoomMainSetup(void)
   }
 
   // init subsystems
-  //jff 9/3/98 use logical output routine
-  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
-  M_LoadDefaults();              // load before initing other systems
 
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1
