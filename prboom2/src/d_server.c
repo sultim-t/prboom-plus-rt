@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.11 2000/11/12 14:59:29 cph Exp $
+ * $Id: d_server.c,v 1.12 2000/11/25 18:23:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -392,7 +392,6 @@ int main(int argc, char** argv)
 	      {
 		int n;
 		struct setup_packet_s *sinfo = (void*)(packet+1);
-		const char *rname = (void*)((short*)(packet+1)+1);
 
 		/* Find player number and add to the game */
 		n = *(short*)(packet+1);
@@ -410,8 +409,7 @@ int main(int argc, char** argv)
       remoteaddr[n]=I_RegisterPlayer(&sentfrom_addr);
 #endif
 
-		if (!memchr(rname,0,1000)) rname = "Invalid";
-		printf("Join by %s ", rname);
+		printf("Join by ");
 		I_PrintAddress(stdout, &remoteaddr[n]);
 		putc('\n', stdout);
 		{
