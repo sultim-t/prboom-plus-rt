@@ -129,6 +129,7 @@ int     startepisode;
 int     startmap;
 char    *startlevel;
 boolean autostart;
+int ffmap;
 
 boolean advancedemo;
 
@@ -389,6 +390,8 @@ static void D_DoomLoop(void)
 
       // frame syncronous IO operations
       I_StartFrame ();
+
+      if (ffmap == gamemap) ffmap = 0;
 
       // process one or more tics
       if (singletics)
@@ -1613,6 +1616,10 @@ void D_DoomMainSetup(void)
       D_AddFile (file,source_lmp);
       //jff 9/3/98 use logical output routine
       lprintf(LO_CONFIRM,"Playing demo %s\n",file);
+      if ((p = M_CheckParm ("-ffmap")) && p < myargc-1) {
+        ffmap = atoi(myargv[p+1]);
+      }
+
     }
 
 #ifdef COMPILE_VIDD

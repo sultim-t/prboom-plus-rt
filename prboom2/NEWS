@@ -23,6 +23,7 @@ Changes from v2.3.0 to v2.3.1
 - load OpenGL libraries only when needed
 - autorun available in key bindings menu
 - live monster counter for HUD
+- fast forward to given map # in demo playback
 
 Changes from v2.2.4 to v2.3.0
 - the OpenGL libs are loaded dynamically
