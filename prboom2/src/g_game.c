@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.8 2000/05/12 22:51:54 cph Exp $
+ * $Id: g_game.c,v 1.9 2000/05/13 08:50:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.8 2000/05/12 22:51:54 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.9 2000/05/13 08:50:43 cph Exp $";
 
 #include <stdarg.h>
 
@@ -2467,16 +2467,22 @@ void G_DoPlayDemo (void)
 	  : boom_compatibility;
 	break;
       case 203:
-	/* LxDoom *
+	/* LxDoom or MBF - determine from signature
 	 * cph - load compatibility level */
-	compatibility_level = boom_compatibility_compatibility + 1 - (signed char)(*demo_p++);
-      case 204:
-	/* MBF */
-	compatibility_level = mbf_compatibility;
+	switch (demobuffer[2]) {
+	case 'B': /* LxDoom */
+	  compatibility_level = boom_compatibility_compatibility + 1 - (signed char)(*demo_p++);
+	  break;
+	case 'M':
+	  compatibility_level = mbf_compatibility;
+	  *demo_p++;
+	  break;
+	}
 	break;
       case 260:
-	/* PrBoom */
+	/* PrBoom? */
 	compatibility_level = prboom_1_compatibility;
+	*demo_p++;
 	break;
       }
       G_Compatibility();
