@@ -29,7 +29,7 @@ Changes from v2.3.0 to v2.3.1
 - fixes for various sound bugs
 - fix doom2 demos at levels with >10 deathmatch starts
 - and more compatibility and demo fixes
-- support higher-turning-resolution demos from the Enhanced Edition of v1.9
+- support higher-turning-resolution demos from v1.91
 
 Changes from v2.2.4 to v2.3.0
 - the OpenGL libs are loaded dynamically
