@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.16 2000/05/21 12:08:22 proff_fs Exp $
+ * $Id: gl_main.c,v 1.17 2000/05/21 17:26:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1908,12 +1908,13 @@ void gld_AddWall(seg_t *seg)
           gld_DrawWall(&wall);
         }
         else
-        {
-          wall.ybottom=(float)backsector->ceilingheight/(float)MAP_SCALE;
-          SKYTEXTURE(frontsector->sky,backsector->sky);
-          wall.sky=true;
-          gld_DrawWall(&wall);
-        }
+          if ( backsector->ceilingpic != skyflatnum )
+          {
+            wall.ybottom=(float)backsector->ceilingheight/(float)MAP_SCALE;
+            SKYTEXTURE(frontsector->sky,backsector->sky);
+            wall.sky=true;
+            gld_DrawWall(&wall);
+          }
       }
     }
     if (floor_height<ceiling_height)
@@ -1985,12 +1986,13 @@ bottomtexture:
           gld_DrawWall(&wall);
         }
         else
-        {
-          wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
-          SKYTEXTURE(frontsector->sky,backsector->sky);
-          wall.sky=true;
-          gld_DrawWall(&wall);
-        }
+          if ( backsector->floorpic != skyflatnum )
+          {
+            wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
+            SKYTEXTURE(frontsector->sky,backsector->sky);
+            wall.sky=true;
+            gld_DrawWall(&wall);
+          }
       }
     }
     if (floor_height<ceiling_height)
