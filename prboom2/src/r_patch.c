@@ -539,8 +539,10 @@ static void createTextureCompositePatch(int id) {
 
       if ((post1->startY + post1->length) >= post2->startY) {
         length = (post1->length + post2->length) - ((post1->startY + post1->length) - post2->startY);
-        if (post1->length < length)
+        if (post1->length < length) {
+          post1->edgeSloping = post2->edgeSloping;
           post1->length = length;
+        }
         removePostFromColumn(column, i+1);
         i = 0;
         continue;
