@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in,v 1.9 2000/05/09 00:08:59 jessh Exp $
+dnl $Id: configure.in,v 1.10 2000/05/11 07:26:36 cph Exp $
 AC_INIT(src/d_main.c)
 
 dnl --- Check for system type
@@ -32,6 +32,9 @@ AC_DEFINE(RANGECHECK)
 AC_DEFINE(INSTRUMENTED)
 AC_DEFINE(TIMEDIAG)
 CFLAGS_OPT="-g"
+)
+AC_ARG_ENABLE(profile,[  --enable-profile	  turns on profiling],
+CFLAGS_OPT="-pg"
 )
 dnl --- some defaults for CFLAGS : josh
 if test -z "$CFLAGS" ; then 
@@ -92,7 +95,6 @@ if test "x$x_includes" != x; then
 else
   CFLAGS="$CFLAGS"
 fi
-echo "CFLAGS complete: $CFLAGS"
 LIBS="$LIBS $X_LIBS $X_EXTRA_LIBS"
 dnl --- cphipps - no longer need sqrt(3) AC_CHECK_LIB(m,sqrt)
 AC_CHECK_LIB(Xext,XShmCreateImage,AC_DEFINE(HAVE_LIBXEXT) LIB_XEXT=-lXext,LIB_XEXT=,-lXext -lX11)
@@ -111,6 +113,15 @@ AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
     AC_DEFINE(HAVE_LIBSDL_MIXER)
     MIXER_LIBS=-lSDL_mixer
 ],,$SDL_LIBS)
+
+AC_ARG_ENABLE(gl,[  --enable-gl	  	enable GL code],
+enable_gl="yes"
+SDL_LIBS="$SDL_LIBS -lGL -lGLU"
+AC_DEFINE(GL_DOOM),
+enable_gl="no"
+)
+
+AM_CONDITIONAL(BUILD_GL,test "$enable_gl" = "yes")
 
 AC_CHECK_FUNC(socket,[
      has_net=yes
@@ -166,8 +177,6 @@ if test "$no_x" != yes
  then 
  BUILD_LXDOOM=lxdoom
  BUILD_DIRS="$BUILD_DIRS X11"
- dnl --- Nasty hack follows, sounds.c used by two dirs
- ln -fs ../sounds.c src/OSS/sounds.c
 else
  BUILD_LXDOOM=
 fi
@@ -179,7 +188,9 @@ fi
 
 if test "$BUILD_SNDSERV" = "sndserv"
 then
-BUILD_DIRS="$BUILD_DIRS OSS"
+ BUILD_DIRS="$BUILD_DIRS OSS"
+ dnl --- Nasty hack follows, sounds.c used by two dirs
+ ln -fs ../sounds.c src/OSS/sounds.c
 fi
 
 if test "$BUILD_SNDSERV" = "sndserv" || test "$BUILD_LXDOOM" = "lxdoom"

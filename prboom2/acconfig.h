@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.4 2000/05/09 21:45:35 proff_fs Exp $
+ * $Id: acconfig.h,v 1.5 2000/05/11 07:26:36 cph Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -96,3 +96,7 @@
 
 /* Define if you have struct sockaddr_in6 */
 #undef HAVE_IPv6
+
+/* Define if you want to build with OpenGL support */
+#undef GL_DOOM
+
