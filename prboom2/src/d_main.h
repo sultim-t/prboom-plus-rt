@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.h,v 1.5 2000/11/08 22:02:34 cph Exp $
+ * $Id: d_main.h,v 1.6 2001/02/04 15:39:46 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -60,7 +60,6 @@ extern boolean nomusicparm;
 
 // Called by IO functions when input is detected.
 void D_PostEvent(event_t* ev);
-void D_ProcessEvents (void);
 
 // Demo stuff
 extern boolean advancedemo;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.32 2001/02/04 14:15:40 cph Exp $
+ * $Id: g_game.c,v 1.33 2001/02/04 15:39:46 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.32 2001/02/04 14:15:40 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.33 2001/02/04 15:39:46 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -660,12 +660,6 @@ boolean G_Responder (event_t* ev)
 	}
       return true;
     }
-
-  // killough 9/29/98: reformatted
-  if (gamestate == GS_LEVEL && (HU_Responder(ev) ||  // chat ate the event
-				ST_Responder(ev) ||  // status window ate it
-				AM_Responder(ev)))   // automap ate it
-    return true;
 
   // any other key pops up menu if in demos
   //
