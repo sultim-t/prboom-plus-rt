@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.5 2000/05/21 12:14:55 proff_fs Exp $
+ * $Id: i_sound.c,v 1.6 2000/05/21 13:36:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.5 2000/05/21 12:14:55 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.6 2000/05/21 13:36:36 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -52,6 +52,9 @@ rcsid[] = "$Id: i_sound.c,v 1.5 2000/05/21 12:14:55 proff_fs Exp $";
 #include "SDL_mutex.h"
 #include "SDL_byteorder.h"
 #include "SDL_version.h"
+#ifdef HAVE_MIXER
+#include "SDL_mixer.h"
+#endif
 
 #include "z_zone.h"
 
@@ -421,7 +424,6 @@ void I_UpdateSound(void *unused, Uint8 *stream, int len)
   int				chan;
    
 #ifdef HAVE_MIXER
-extern void music_mixer(void *udata, Uint8 *stream, int len);
     // Mix in the music
     music_mixer(NULL, stream, len);
 #endif
@@ -558,11 +560,12 @@ I_InitSound()
 
 #ifdef HAVE_MIXER
 #include "SDL_mixer.h"
-#include "qmus2mid.h"
+//#include "qmus2mid.h"
+#include "mmus2mid.h"
 
 /* FIXME: Make this file instance-specific */
 #ifdef _WIN32
-	#define MIDI_TMPFILE	"c:\\windows\\temp\\doom.mid"
+	#define MIDI_TMPFILE	"doom.mid"
 #else
 	#define MIDI_TMPFILE	"/tmp/.lsdlmidi"
 #endif
@@ -573,9 +576,6 @@ static Mix_Music *music[2] = { NULL, NULL };
 void I_ShutdownMusic(void) 
 {
 #ifdef HAVE_MIXER
-  /* Should this be exposed in mixer.h? */
-  extern void close_music(void);
-
   close_music();
 #endif
   fprintf(stderr, "I_ShutdownMusic: shut down\n");
@@ -584,9 +584,6 @@ void I_ShutdownMusic(void)
 void I_InitMusic(void)
 {
 #ifdef HAVE_MIXER
-  /* Should this be exposed in mixer.h? */
-  extern int open_music(SDL_AudioSpec *);
-
   if ( open_music(&audio) < 0 ) {
     fprintf(stderr, "Unable to open music: %s\n", Mix_GetError());
     return;
@@ -656,6 +653,7 @@ void I_UnRegisterSong(int handle)
 int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
+  MIDI mididata;
   FILE *midfile;
 
 //printf("Registering song {%c%c%c}\n", ((unsigned char *)data)[0],
@@ -667,8 +665,17 @@ int I_RegisterSong(const void *data, size_t len)
     return 0;
   }
   /* Convert MUS chunk to MIDI? */
-  if ( memcmp(data, "MUS", 3) == 0 ) {
-    qmus2mid(data, len, midfile, 1, 0, 0, 0);
+  if ( memcmp(data, "MUS", 3) == 0 )
+  {
+    //qmus2mid(data, len, midfile, 1, 0, 0, 0);
+    UBYTE *mid;
+    int midlen;
+
+    memset(&mididata,0,sizeof(MIDI));
+    mmus2mid(data, &mididata, 89, 0);
+    MIDIToMidi(&mididata,&mid,&midlen);
+    M_WriteFile(MIDI_TMPFILE,mid,midlen);
+    free(mid);
   } else {
     fwrite(data, len, 1, midfile);
   }
