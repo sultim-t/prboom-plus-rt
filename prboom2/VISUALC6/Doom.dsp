@@ -473,6 +473,14 @@ SOURCE=..\src\hu_stuff.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\Sdl\i_joy.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_joy.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\i_main.c
 # End Source File
 # Begin Source File

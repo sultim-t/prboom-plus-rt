@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.19 2001/02/05 11:28:31 proff_fs Exp $
+# $Id: Makefile.am,v 1.20 2001/02/18 18:34:10 proff_fs Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -39,7 +39,7 @@ COMMON_SRC = \
  d_items.h      i_sound.h          m_cheat.h        p_setup.h   s_sound.h   \
  d_main.c       i_system.h         m_fixed.h        p_sight.c   sounds.c    \
  d_main.h       i_video.h          m_menu.c         p_spec.c    sounds.h    \
-                info.c             m_menu.h         p_spec.h    st_lib.c    \
+ i_joy.h        info.c             m_menu.h         p_spec.h    st_lib.c    \
  d_net.h        info.h             m_misc.c         p_switch.c  st_lib.h    \
  d_player.h     m_misc.h           p_telept.c       st_stuff.c  \
  m_random.c     p_tick.c           st_stuff.h       i_main.c    i_main.h    \
