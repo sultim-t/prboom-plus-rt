@@ -727,9 +727,9 @@ Include comments to indicate what you need feedback on.<br />
 
 <script type="text/javascript" src="pastebin.js"></script>
 
-<textarea id="code" class="codeedit" name="code" cols="80" rows="10" onkeydown="checkTab(this)">
-<?php echo htmlentities($editcode) ?>
-</textarea>
+<textarea id="code" class="codeedit" name="code" cols="80" rows="10" onkeydown="checkTab(this)"
+><?php echo htmlentities($editcode)
+?></textarea>
 
 </form>
 
