@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -43,6 +43,10 @@ rcsid[] = "$Id: r_bsp.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 #include "r_plane.h"
 #include "r_things.h"
 #include "r_bsp.h" // cph - sanity checking
+#include "lprintf.h"
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 
 seg_t     *curline;
 side_t    *sidedef;
@@ -364,7 +368,6 @@ static void R_AddLine (seg_t *line)
     // proff 11/99: we have to add these segs to avoid gaps in OpenGL
     if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
     {
-#ifndef _DEBUG
       if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
       {
         unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
@@ -376,7 +379,7 @@ static void R_AddLine (seg_t *line)
       }
       ds_p->curline = curline;
       ds_p++;
-#endif
+      gld_AddWall(curline);
       return;
     }
   }
@@ -400,7 +403,6 @@ static void R_AddLine (seg_t *line)
   if (linedef->r_flags & RF_IGNORE)
   {
 #ifdef GL_DOOM
-#ifndef _DEBUG
       if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
       {
         unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
@@ -412,7 +414,7 @@ static void R_AddLine (seg_t *line)
       }
       ds_p->curline = curline;
       ds_p++;
-#endif
+      gld_AddWall(curline);
 #endif
     return;
   }
@@ -596,7 +598,6 @@ void R_RenderBSPNode(int bspnum)
 
       // Decide which side the view point is on.
       int side = R_PointOnSide(viewx, viewy, bsp);
-
       // Recursively divide front space.
       R_RenderBSPNode(bsp->children[side]);
 

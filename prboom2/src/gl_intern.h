@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.4 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.5 2000/05/11 22:44:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -61,25 +61,29 @@
 #include "m_bbox.h"
 #include "lprintf.h"
 
-#define MAP_COEFF 128
-#define MAP_SCALE	(MAP_COEFF<<FRACBITS) // 6553600 -- nicolas
-
 #define GLMalloc(n) Z_Malloc(n,PU_STATIC,0)
 #define GLRealloc(p,n) Z_Realloc(p,n,PU_STATIC,0)
 #define GLFree(p) Z_Free(p)
 
 typedef struct
-{	
+{
+  boolean registered;
+  texture_t *texture;
+  int lump;
+  int size;
+  boolean mipmap;
 	int width,height;
   int leftoffset,topoffset;
   int tex_width,tex_height;
   int glTexID[CR_LIMIT+MAXPLAYERS];
 } GLTexture;
 
-void gld_StaticLight3f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue);
-void gld_StaticLight4f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue, GLfloat fAlpha);
-
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
+void gld_BindTexture(GLTexture *gltexture);
+GLTexture *gld_RegisterPatch(int lump, int cm);
+void gld_BindPatch(GLTexture *gltexture, int cm);
+GLTexture *gld_RegisterFlat(int lump, boolean mipmap);
+void gld_BindFlat(GLTexture *gltexture);
 
 void gld_OutputLevelInfo(void);
 #endif // _GL_INTERN_H

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: z_bmalloc.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -88,7 +88,7 @@ void* Z_BMalloc(struct block_memory_alloc_s *pzone)
     if (p) {
       int n = p - (*pool)->used;
 #ifdef SIMPLECHECKS
-      if ((n<0) || (n>=(*pool)->blocks)) 
+      if ((n<0) || ((size_t)n>=(*pool)->blocks)) 
 	I_Error("Z_BMalloc: memchr returned pointer outside of array!");
 #endif
       (*pool)->used[n] = used_block;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: r_defs.h,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -253,6 +253,7 @@ typedef struct msecnode_s
 //
 typedef struct
 {
+  int iSegID; // proff 11/05/2000: needed for OpenGL
   vertex_t *v1, *v2;
   fixed_t offset;
   angle_t angle;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.6 2000/05/10 16:26:47 proff_fs Exp $
+ * $Id: w_wad.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.6 2000/05/10 16:26:47 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -536,7 +536,7 @@ void W_ReadLump(int lump, void *dest)
 const void * (W_CacheLumpNum)(int lump, unsigned short locks)
 {
 #ifdef RANGECHECK
-  if ((unsigned)lump >= numlumps)
+  if ((unsigned)lump >= (unsigned)numlumps)
     I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
 #endif
 
@@ -570,7 +570,7 @@ const void * (W_CacheLumpNum)(int lump, unsigned short locks)
 void (W_UnlockLumpNum)(int lump, signed short unlocks)
 {
 #ifdef SIMPLECHECKS
-  if (lumpinfo[lump].locks < unlocks)
+  if ((signed short)lumpinfo[lump].locks < unlocks)
     lprintf(LO_DEBUG, "W_UnlockLumpNum: Excess unlocks on %8s (%d-%d)\n", 
 	    lumpinfo[lump].name, lumpinfo[lump].locks, unlocks);
 #endif

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.4 2000/05/11 20:03:08 proff_fs Exp $
+ * $Id: i_video.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.4 2000/05/11 20:03:08 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -344,7 +344,7 @@ static void I_UploadNewPalette(int pal)
   }
 
 #ifdef RANGECHECK
-  if (pal >= num_pals) 
+  if ((size_t)pal >= num_pals) 
     I_Error("I_UploadNewPalette: Palette number out of range (%d>=%d)", 
 	    pal, num_pals);
 #endif

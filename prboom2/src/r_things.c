@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $
+ * $Id: r_things.c,v 1.6 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.6 2000/05/11 22:44:35 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -462,7 +462,7 @@ void R_ProjectSprite (mobj_t* thing)
 
     // decide which patch to use for sprite relative to player
 #ifdef RANGECHECK
-  if ((unsigned) thing->sprite >= numsprites)
+  if ((unsigned) thing->sprite >= (unsigned)numsprites)
     I_Error ("R_ProjectSprite: invalid sprite number %i ", thing->sprite);
 #endif
 
@@ -582,7 +582,7 @@ void R_ProjectSprite (mobj_t* thing)
     }
 #ifdef GL_DOOM
   // proff 11/99: add sprite for OpenGL
-  gld_AddSpriteToRenderQueue(thing,lump,flip);
+  gld_AddSprite(thing,lump,flip);
 #endif
 }
 
@@ -641,7 +641,7 @@ void R_DrawPSprite (pspdef_t *psp)
   // decide which patch to use
 
 #ifdef RANGECHECK
-  if ( (unsigned)psp->state->sprite >= numsprites)
+  if ( (unsigned)psp->state->sprite >= (unsigned)numsprites)
     I_Error ("R_ProjectSprite: invalid sprite number %i ", psp->state->sprite);
 #endif
 

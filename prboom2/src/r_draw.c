@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.4 2000/05/10 23:34:54 proff_fs Exp $
+ * $Id: r_draw.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.4 2000/05/10 23:34:54 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -450,9 +450,9 @@ void R_DrawFuzzColumn(void)
     return; 
     
 #ifdef RANGECHECK 
-  if ((unsigned) dc_x >= SCREENWIDTH
+  if ((unsigned) dc_x >= (unsigned)SCREENWIDTH
       || dc_yl < 0 
-      || dc_yh >= SCREENHEIGHT)
+      || (unsigned)dc_yh >= (unsigned)SCREENHEIGHT)
     I_Error ("R_DrawFuzzColumn: %i to %i at %i",
              dc_yl, dc_yh, dc_x);
 #endif
@@ -519,9 +519,9 @@ void R_DrawTranslatedColumn (void)
     return; 
                                  
 #ifdef RANGECHECK 
-  if ((unsigned)dc_x >= SCREENWIDTH
+  if ((unsigned)dc_x >= (unsigned)SCREENWIDTH
       || dc_yl < 0
-      || dc_yh >= SCREENHEIGHT)
+      || (unsigned)dc_yh >= (unsigned)SCREENHEIGHT)
     I_Error ( "R_DrawColumn: %i to %i at %i",
               dc_yl, dc_yh, dc_x);
 #endif 

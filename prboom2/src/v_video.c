@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.6 2000/05/10 23:30:58 proff_fs Exp $
+ * $Id: v_video.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.6 2000/05/10 23:30:58 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -46,6 +46,7 @@ rcsid[] = "$Id: v_video.c,v 1.6 2000/05/10 23:30:58 proff_fs Exp $";
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
 #include "i_video.h"
+#include "lprintf.h"
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 byte *screens[6];
