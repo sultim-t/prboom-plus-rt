@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: d_main.h,v 1.3 2000/05/19 22:38:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -78,5 +78,9 @@ void D_PageDrawer(void);
 void D_StartTitle(void);
 void D_DoomMain(void);
 void D_AddFile (const char *file, wad_source_t source);
+
+/* cph - MBF-like wad/deh/bex autoload code */
+#define MAXLOADFILES 2
+extern char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 #endif

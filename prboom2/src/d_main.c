@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.13 2000/05/17 21:13:45 proff_fs Exp $
+ * $Id: d_main.c,v 1.14 2000/05/19 22:38:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.13 2000/05/17 21:13:45 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.14 2000/05/19 22:38:20 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1265,8 +1265,8 @@ void DoLooseFiles(void)
   myargc = tmyargc;
 }
 
-// CPhipps - wad autoloading
-const char* auto_load_wads; // Semicolon separated list of wad names to be loaded automatically
+/* cph - MBF-like wad/deh/bex autoload code */
+char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 // CPhipps - misc screen stuff
 unsigned int desired_screenwidth, desired_screenheight;
@@ -1564,35 +1564,20 @@ void D_DoomMainSetup(void)
   // Some people might find this useful
   // cph - support MBF -noload parameter
   if (!M_CheckParm("-noload")) {
-    const char* p = auto_load_wads;
+    int i;
 
-    while (*p) {
-      char	*	fname;
-      char	*	fpath;
-      {
-	const char* q;
-	int len;
-      
-	if ((q=strchr(p, ';')) != NULL)
-	  len = q-p;
-	else len = strlen(p);
-	
-	fname = malloc(len+1);
-	memcpy(fname,p,len);
-	fname[len]=0;
-	p+=len; if (*p) p++;
-      }
+    for (i=0; i<MAXLOADFILES*2; i++) {
+      char *fname = (i < MAXLOADFILES) ? wad_files[i] 
+	: deh_files[i - MAXLOADFILES];
+      char *fpath;
+
+      if (!(fname && *fname)) continue;
       // Filename is now stored as a zero terminated string
-      fpath = FindWADFile(fname, ".wad");
+      fpath = FindWADFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
       if (!fpath)
         lprintf(LO_WARN, "Failed to autoload %s\n", fname);
       else {
-        /* CPhipps - if extension is a standard deh/bex one, assume it's a patch
-         * else assume it's a lump
-         */
-        const char* ext = NULL;
-        if (strlen(fpath)>=4) ext = fpath + strlen(fpath) - 4;
-        if (ext && (!strcasecmp(ext,".deh") || !strcasecmp(ext,".bex"))) 
+        if (i >= MAXLOADFILES) 
           ProcessDehFile(fpath, D_dehout(), 0);
         else {
           D_AddFile(fpath,source_auto_load);
@@ -1600,7 +1585,6 @@ void D_DoomMainSetup(void)
         modifiedgame = true; 
         free(fpath);
       }
-      free(fname);
     }
   }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.11 2000/05/18 20:45:12 proff_fs Exp $
+ * $Id: m_misc.c,v 1.12 2000/05/19 22:38:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.11 2000/05/18 20:45:12 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.12 2000/05/19 22:38:20 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -67,6 +67,7 @@ rcsid[] = "$Id: m_misc.c,v 1.11 2000/05/18 20:45:12 proff_fs Exp $";
 #include "sounds.h"
 #include "i_joy.h"
 #include "lprintf.h"
+#include "d_main.h"
 
 //
 // M_DrawText
@@ -189,8 +190,6 @@ int         mus_pause_opt; // 0 = kill music, 1 = pause, 2 = continue
 
 extern const char* chat_macros[];
 
-// CPhipps - new stuff. Autoloaded wads, and endoom and misc X options
-extern const char* auto_load_wads;
 extern int endoom_mode;
 int X_opt;
 
@@ -220,9 +219,18 @@ default_t defaults[] =
    def_bool,ss_none}, // precache level data?
   
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
-  // jff 3/30/98 add ability to take screenshots in BMP format
-  {"auto_load",{NULL,&auto_load_wads},{0,"boomlump.wad"},UL,UL, 
-   def_str,ss_none}, // files to load automatically, separated by ;'s
+  /* cph - MBF-like wad/deh/bex autoload code 
+   * POSIX targets need to get lumps from prboom.wad */
+  {"wadfile_1",{NULL,&wad_files[0]},{0,
+#ifdef _WIN32
+				     ""
+#else
+				     "prboom.wad"
+#endif
+                                         },UL,UL,def_str,ss_none},
+  {"wadfile_2",{NULL,&wad_files[1]},{0,""},UL,UL,def_str,ss_none},
+  {"dehfile_1",{NULL,&deh_files[0]},{0,""},UL,UL,def_str,ss_none},
+  {"dehfile_2",{NULL,&deh_files[1]},{0,""},UL,UL,def_str,ss_none},
   
   {"Game settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_skill",{&defaultskill},{3},1,5, // jff 3/24/98 allow default skill setting

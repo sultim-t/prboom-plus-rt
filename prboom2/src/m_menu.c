@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.10 2000/05/18 20:55:14 proff_fs Exp $
+ * $Id: m_menu.c,v 1.11 2000/05/19 22:38:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.10 2000/05/18 20:55:14 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.11 2000/05/19 22:38:20 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -2999,7 +2999,6 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Enable Joystick", S_YESNO, m_null, G_X,
    G_Y + general_joy*8, {"use_joystick"}},
 
-#if 0
   {"Files Preloaded at Game Startup",S_SKIP|S_TITLE, m_null, G_X,
    G_Y3 - 12},
 
@@ -3010,7 +3009,6 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"DEH/BEX # 1", S_FILE, m_null, GF_X, G_Y3 + general_deh1*8, {"dehfile_1"}},
 
   {"DEH/BEX #2", S_FILE, m_null, GF_X, G_Y3 + general_deh2*8, {"dehfile_2"}},
-#endif
 
   {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_Y4 - 12},
 
