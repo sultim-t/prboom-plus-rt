@@ -116,3 +116,22 @@ Colin: It's frankly a disaster area, which I can say with confidence
 
 --------------------------------------------------------------------------
 30. (2000/11/13) Port joystick stuff to SDL
+
+--------------------------------------------------------------------------
+31. (2000/11/14) inline vs __inline
+
+Colin: At the moment, the Linux build scripts test the compiler to see 
+ what keyword to use for inlining, and then #define inline __inline 
+ or whatever as necessary in config.h. But at the moment we have a lot 
+ of ugly 
+ 
+#ifdef _MSC_VER
+__inline
+#else
+inline
+#endif
+
+ bits scattered around in the source. It should be easily cleaned up, by 
+ putting a "#define inline __inline" in the windows config.h, and reverting 
+ to just plain "inline" everywhere. Job for you Proff :-).
+
