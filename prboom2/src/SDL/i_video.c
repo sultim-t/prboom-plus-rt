@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.19 2001/01/15 18:06:06 proff_fs Exp $
+ * $Id: i_video.c,v 1.20 2001/02/03 12:38:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.19 2001/01/15 18:06:06 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.20 2001/02/03 12:38:56 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -87,7 +87,6 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
-static boolean grabMouse;       // internal var
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -210,57 +209,13 @@ static void I_GetEvent(SDL_Event *Event)
   break;
 
   case SDL_MOUSEMOTION:
-#ifndef POLL_MOUSE
-  /* Ignore mouse warp events */
-  if (usemouse &&
-      ((Event->motion.x != screen->w/2)||(Event->motion.y != screen->h/2)))
-  {
-    /* Warp the mouse back to the center */
-    if (grabMouse && !(paused || (gamestate != GS_LEVEL) || demoplayback)) {
-      if ( (Event->motion.x < ((screen->w/2)-(screen->w/4))) ||
-           (Event->motion.x > ((screen->w/2)+(screen->w/4))) ||
-           (Event->motion.y < ((screen->h/2)-(screen->h/4))) ||
-           (Event->motion.y > ((screen->h/2)+(screen->h/4))) )
-        SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
-    }
+  if (usemouse) {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
     event.data2 = Event->motion.xrel << 5;
     event.data3 = -Event->motion.yrel << 5;
     D_PostEvent(&event);
   }
-#else
-  /* cph - under X11 fullscreen, SDL's MOUSEMOTION events are just too
-   *  unreliable. Deja vu, I had similar trouble in the early LxDoom days
-   *  with X11 mouse motion events. Except SDL makes it worse, because
-   *  it feeds SDL_WarpMouse events back to us. */
-  if (usemouse) {
-    static int px,py;
-    static int was_grabbed;
-    int x,y,dx,dy;
-    Uint8 buttonstate = SDL_GetMouseState(&x,&y);
-    if (was_grabbed) { /* Previous position saved */
-      dx = x - px; dy = y - py;
-      if (!(dx | dy)) break; /* No motion, not interesting */
-      event.type = ev_mouse;
-      event.data1 = I_SDLtoDoomMouseState(buttonstate);
-      event.data2 = dx << 5; event.data3 = -dy << 5;
-      D_PostEvent(&event);
-    }
-    /* Warp the mouse back to the center */
-    was_grabbed = 0;
-    if (grabMouse && !(paused || (gamestate != GS_LEVEL) || demoplayback)) {
-      if ( (x < (screen->w/4)) ||
-           (x > (3*screen->w/4)) ||
-           (y < (screen->h/4)) ||
-           (y > (3*screen->h/4)) ) {
-        SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
-      } else {
-        px = x; py = y; was_grabbed = 1;
-      }
-    }
-  }
-#endif
   break;
 
 
@@ -280,6 +235,15 @@ static void I_GetEvent(SDL_Event *Event)
 void I_StartTic (void)
 {
   SDL_Event Event;
+  {
+    static int currently_grabbed;
+    int should_be_grabbed = usemouse &&
+	    !(paused || (gamestate != GS_LEVEL) || demoplayback); 
+
+    if (currently_grabbed != should_be_grabbed)
+      SDL_WM_GrabInput((currently_grabbed = should_be_grabbed) 
+		      ? SDL_GRAB_ON : SDL_GRAB_OFF);
+  }
 
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
@@ -300,10 +264,6 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
-  // check if the user wants to grab the mouse (quite unnice)
-  grabMouse = M_CheckParm("-nomouse") ? false : 
-    usemouse ? true : false;
-
   I_InitJoystick();
 }
 /////////////////////////////////////////////////////////////////////////////
