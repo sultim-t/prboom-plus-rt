@@ -11,23 +11,6 @@ It does work with the beta OpenGL driver, but with the normal drivers only at
 a very low framerate. Further testing needed.
 
 --------------------------------------------------------------------------
-6.  Import MBF m_menu.c and m_misc.c stuff
-
-Colin:
-m_menu.c done, m_misc.c I don't intend to import, at least not at this
-stage. It may be simpler to rewrite it. 
-
---------------------------------------------------------------------------
-13. Repackage editing docs; I suggest that with all of
-    the Boom and MBF stuff to go in, that we distribute
-    the editing docs separately.
-    (Could be done after a release though).
-
-2000/11/08 Colin: working on it. Using it as an excuse to learn SGML :-)
- Proff, perhaps you should make a new CVS directory for the editing 
- pack, since it's going to be a separate package?
-
---------------------------------------------------------------------------
 15. Hardware music synth support for SDL target. timidity is
     nice, but some of the music sounds no good (notably MAP01).
     I suggest a cheat code to toggle software vs hardware.
@@ -37,18 +20,7 @@ stage. It may be simpler to rewrite it.
 Proff:
 This will be added to SDL_mixer, so we can do that after the release with
 an updated dll.
-
---------------------------------------------------------------------------
-18. Website.
-
-Proff:
-I did the windows download page and the front page.
-Maybe we should do a developer page.
-2000/10/04:
-What about adding some stuff from the lxdoom website.
-
-Colin:
-The MBF bugs page I moved over.
+2001/02/18 Proff: Released new SDL_mixer_beta.dll
 
 --------------------------------------------------------------------------
 21. Bug with the CapsLock key.
@@ -57,65 +29,12 @@ Proff:
 Works, but you have to press it twice to change running speed (why?).
 
 --------------------------------------------------------------------------
-23. Update the README
-
-Colin: there will probably be some FAQs to go in here, like "how to 
- get higher resolutions", but we'll see.
-
-2000/10/21 colin: ok; also someone on the DW forums was complaining about 
- PrBoom overwriting their boom.cfg... perhaps we should rename the non-GL
- version's conf file to prboom.cfg?
-
-2000/11/08 colin: did both of the above.
-
---------------------------------------------------------------------------
-24. (2000/10/04) Seperating segs and gl_segs etc.
-
-2000/10/08 Proff:
-That's not as easy as I thought.
-
---------------------------------------------------------------------------
-*25. (2000/10/04) Loading gl_nodes in softwaremode for higher accuracy
-
-2000/10/08 Proff:
-Did it.
-
---------------------------------------------------------------------------
-26. (2000/10/04) Is the current version for demos updated to 211?
-
-2000/10/07 colin: I added a new compatibility level, yes.
-
-2000/10/08 Proff:
-It seems like that in G_BeginRecording the version for new recorded Demos
-is still 210. Is that correct, or does it have to be 211.
-
-2000/10/24 colin: Done, just needs some more testing
-
---------------------------------------------------------------------------
 27. (2000/10/08) There is a memory leak in the OpenGL part.
 
 2000/10/08 Proff:
 Everytime a level is loaded some bytes more are allocated. It seems to be
 dependant on the size of level how much is allocated. I just can't find
 the leak.
-
---------------------------------------------------------------------------
-*28. (2000/10/08) SigSegv on 30uv1617.lmp and hrdem2\hr22-uv.lmp
-
-2000/10/08 Proff:
-I was able to reproduce those SigSegv, it happens in the assembler
-version of R_DrawColumn_Normal in drawasm.nas
-Have to check that.
-2000/12/24 Proff: This was fixed by removing the assembler drawing functions.
-
---------------------------------------------------------------------------
-29. (2000/11/08) Rewrite the networking (medium term todo)
-
-Colin: It's frankly a disaster area, which I can say with confidence
- because I wrote it. I had experimental builds of lxdoom which allowed 
- selection of game parameters in-game, asynchronous game joining (but 
- not in-game joining). We need a decent reliable-sequenced-packets-over-UDP 
- library (or just switch to TCP) too, rather than the current lash-up.
 
 --------------------------------------------------------------------------
 30. (2000/11/13) Port joystick stuff to SDL

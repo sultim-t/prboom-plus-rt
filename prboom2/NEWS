@@ -1,6 +1,12 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.1.2 to v2.2.0
+- fix compiling problem on alpha processors (size_t != unsigned long)
+- fixed stair building (ex. TNT - Evilution MAP30)
+- fixed OpenGL menu drawing bug
+- hopefully fixed top sky line bug for some OpenGL drivers
+
 Changes from v2.1.1 to v2.1.2
 - fix problem with sound stereo
 - fix problem with new network games
