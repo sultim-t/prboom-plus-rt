@@ -278,11 +278,16 @@ void F_TextWrite (void)
   int count = (int)((float)(finalecount - 10)/Get_TextSpeed()); // phares
 
   V_DrawBackground(finaleflat, 0);
-  temp = strdup(finaletext);
   if (count < 0)
     count = 0;
-  temp[count] = 0;
-  V_WriteTextXYGap(temp, 10, 10, 0, 3);
+  if (count >= strlen(finaletext)) {
+    V_WriteTextXYGap(finaletext, 10, 10, 0, 3);
+  } else {
+    temp = strdup(finaletext);
+    temp[count] = 0;
+    V_WriteTextXYGap(temp, 10, 10, 0, 3);
+    free(temp);
+  }
 }
 
 //
