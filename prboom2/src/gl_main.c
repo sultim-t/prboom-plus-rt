@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.17 2000/05/21 17:26:50 proff_fs Exp $
+ * $Id: gl_main.c,v 1.18 2000/05/23 21:38:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1947,9 +1947,9 @@ void gld_AddWall(seg_t *seg)
       }
       else
       {
-        if (backsector->ceilingheight<=frontsector->floorheight)
+        if (seg->backsector->ceilingheight<=seg->frontsector->floorheight)
           goto bottomtexture;
-        ceiling_height=min(frontsector->ceilingheight,backsector->ceilingheight)+(seg->sidedef->rowoffset);
+        ceiling_height=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
       CALC_Y_VALUES(wall, floor_height, ceiling_height);
