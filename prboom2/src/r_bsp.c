@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.20.2.1 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.20.2.2 2003/04/18 20:02:31 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.20.2.1 2002/07/20 18:08:37 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.20.2.2 2003/04/18 20:02:31 cph Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -236,16 +236,16 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 
           if (underwater) {
             if (s->ceilingpic == skyflatnum) {
-        tempsec->floorheight   = tempsec->ceilingheight+1;
-        tempsec->ceilingpic    = tempsec->floorpic;
+		tempsec->floorheight   = tempsec->ceilingheight+1;
+		tempsec->ceilingpic    = tempsec->floorpic;
                 tempsec->ceiling_xoffs = tempsec->floor_xoffs;
                 tempsec->ceiling_yoffs = tempsec->floor_yoffs;
-      } else {
-        tempsec->ceilingpic    = s->ceilingpic;
-        tempsec->ceiling_xoffs = s->ceiling_xoffs;
-        tempsec->ceiling_yoffs = s->ceiling_yoffs;
-      }
-    }
+	    } else {
+		tempsec->ceilingpic    = s->ceilingpic;
+		tempsec->ceiling_xoffs = s->ceiling_xoffs;
+		tempsec->ceiling_yoffs = s->ceiling_yoffs;
+	    }
+	  }
 
           tempsec->lightlevel  = s->lightlevel;
 
