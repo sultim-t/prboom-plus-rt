@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.h,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: p_enemy.h,v 1.3 2000/05/11 22:06:33 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -41,6 +41,10 @@
 
 void P_NoiseAlert (mobj_t *target, mobj_t *emmiter);
 void P_SpawnBrainTargets(void); /* killough 3/26/98: spawn icon landings */
+/* proff 11/22/98: Andy Baker's stealth monsters */
+void	 P_BecomeVisible (mobj_t *actor);
+void	 P_IncreaseVisibility (mobj_t *actor);
+void	 P_DecreaseVisibility (mobj_t *actor);
 
 extern struct brain_s {         /* killough 3/26/98: global state of boss brain */
   int easy, targeton;
