@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.21 2001/07/11 09:19:38 proff_fs Exp $
+# $Id: Makefile.am,v 1.22 2001/07/12 20:55:54 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -85,7 +85,13 @@ else
 USE_DLL_SRC = 
 endif
 
-prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(USE_DLL_SRC)
+if WAD_MMAP
+WAD_SRC = w_mmap.c
+else
+WAD_SRC = w_memcache.c
+endif
+
+prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(USE_DLL_SRC) $(WAD_SRC)
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @DLL_LIBS@ @MATH_LIB@
 
 # Must remember to include 'optional' sources in the tarball

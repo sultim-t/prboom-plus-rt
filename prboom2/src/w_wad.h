@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.h,v 1.6 2001/07/03 12:17:04 proff_fs Exp $
+ * $Id: w_wad.h,v 1.7 2001/07/12 20:55:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -87,20 +87,15 @@ typedef struct
     ns_global=0,
     ns_sprites,
     ns_flats,
-    ns_colormaps
+    ns_colormaps,
+    ns_prboom
   } namespace;
 
   int handle;
   int position;
-  unsigned int locks; // CPhipps - wad lump locking
   wad_source_t source;
 } lumpinfo_t;
 
-// killough 1/31/98: predefined lumps
-extern const size_t num_predefined_lumps;
-extern const lumpinfo_t predefined_lumps[];
-
-extern void       **lumpcache;
 extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
 
@@ -127,24 +122,22 @@ int     W_GetNumForName (const char* name);
 int     W_LumpLength (int lump);
 void    W_ReadLump (int lump, void *dest);
 // CPhipps - modified for 'new' lump locking
-const void* W_CacheLumpNum (int lump, unsigned short locks);
-void    W_UnlockLumpNum(int lump, signed short unlocks);
+const void* W_CacheLumpNum (int lump);
+void    W_UnlockLumpNum(int lump);
 
 /* cph - special version to return lump with padding, for sound lumps */
 const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad);
 
 // CPhipps - convenience macros
-#define W_CacheLumpNum(num) (W_CacheLumpNum)((num),1)
+//#define W_CacheLumpNum(num) (W_CacheLumpNum)((num),1)
 #define W_CacheLumpName(name) W_CacheLumpNum (W_GetNumForName(name))
 
-#define W_UnlockLumpNum(num) (W_UnlockLumpNum)((num),1)
+//#define W_UnlockLumpNum(num) (W_UnlockLumpNum)((num),1)
 #define W_UnlockLumpName(name) W_UnlockLumpNum (W_GetNumForName(name))
 
 char *AddDefaultExtension(char *, const char *);  // killough 1/18/98
 void ExtractFileBase(const char *, char *);       // killough
 unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
-
-// Function to write all predefined lumps to a PWAD if requested
-extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98
+void W_HashLumps(void);                           // cph 2001/07/07 - made public
 
 #endif

@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.19 2001/07/03 12:17:04 proff_fs Exp $
+ * $Id: w_wad.c,v 1.20 2001/07/12 20:55:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.19 2001/07/03 12:17:04 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.20 2001/07/12 20:55:54 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -69,38 +69,8 @@ extern abi_fs_t *fslib;
 // Location of each lump on disk.
 lumpinfo_t *lumpinfo;
 int        numlumps;         // killough
-void       **lumpcache;      // killough
-#ifdef TIMEDIAG
-static int *locktic; // cph
 
-static void W_ReportLocks(void)
-{
-  int i;
-  lprintf(LO_DEBUG, "W_ReportLocks:\nLump     Size   Locks  Tics\n");
-  for (i=0; i<numlumps; i++) {
-    if (lumpinfo[i].locks)
-      lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name, 
-	      W_LumpLength(i), lumpinfo[i].locks, gametic - locktic[i]);
-  }
-}
-#endif
-
-#ifdef HEAPDUMP
-void W_PrintLump(FILE* fp, void* p) {
-  int i;
-  for (i=0; i<numlumps; i++)
-    if (lumpcache[i] == p) {
-      fprintf(fp, " %8.8s %6u %2d %6d", lumpinfo[i].name, 
-	      W_LumpLength(i), lumpinfo[i].locks, gametic - locktic[i]);
-      return;
-    }
-  fprintf(fp, " not found");
-}
-#endif
-
-
-
-static int W_Filelength(int handle)
+int W_Filelength(int handle)
 {
 #ifndef DREAMCAST
   struct stat   fileinfo;
@@ -260,7 +230,6 @@ static void W_AddFile(const char *filename, wad_source_t source)
         lump_p->namespace = ns_global;              // killough 4/17/98
         strncpy (lump_p->name, fileinfo->name, 8);
 	lump_p->source = source;                    // Ty 08/29/98
-	lump_p->locks = 0;                   // CPhipps - initialise locks
       }
 
     free(fileinfo2free);      // killough
@@ -297,6 +266,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
             strncpy(marked->name, start_marker, 8);
             marked->size = 0;  // killough 3/20/98: force size to be 0
             marked->namespace = ns_global;        // killough 4/17/98
+            marked->handle = 0;
             num_marked = 1;
           }
         is_marked = 1;                            // start marking lumps
@@ -326,6 +296,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
   if (mark_end)                                   // add end marker
     {
       lumpinfo[numlumps].size = 0;  // killough 3/20/98: force size to be 0
+      lumpinfo[numlumps].handle = 0;
       lumpinfo[numlumps].namespace = ns_global;   // killough 4/17/98
       strncpy(lumpinfo[numlumps++].name, end_marker, 8);
     }
@@ -396,7 +367,7 @@ int (W_CheckNumForName)(register const char *name, register int namespace)
 // killough 1/31/98: Initialize lump hash table
 //
 
-static void W_InitLumpHash(void)
+void W_HashLumps(void)
 {
   int i;
 
@@ -486,27 +457,16 @@ void W_Init(void)
   // get all the sprites and flats into one marked block each
   // killough 1/24/98: change interface to use M_START/M_END explicitly
   // killough 4/17/98: Add namespace tags to each entry
-
+  // killough 4/4/98: add colormap markers
   W_CoalesceMarkedResource("S_START", "S_END", ns_sprites);
   W_CoalesceMarkedResource("F_START", "F_END", ns_flats);
-
-  // killough 4/4/98: add colormap markers
   W_CoalesceMarkedResource("C_START", "C_END", ns_colormaps);
 
-  // set up caching
-  lumpcache = calloc(sizeof *lumpcache, numlumps); // killough
-
-  if (!lumpcache)
-    I_Error ("W_Init: Couldn't allocate lumpcache");
-
   // killough 1/31/98: initialize lump hash table
-  W_InitLumpHash();
+  W_HashLumps();
 
-#ifdef TIMEDIAG
-  // cph - allocate space for lock time diagnostics
-  locktic = malloc(sizeof(*locktic)*numlumps);
-  atexit(W_ReportLocks);
-#endif
+  /* cph 2001/07/07 - separated cache setup */
+  W_InitCache();
 }
 
 //
@@ -538,8 +498,6 @@ void W_ReadLump(int lump, void *dest)
     {
       int c;
 
-      // killough 1/31/98: Reload hack (-wart) removed
-
 #ifdef DREAMCAST
       fslib->seek(l->handle, l->position, SEEK_SET);
       c = fslib->read(l->handle, dest, l->size);
@@ -552,101 +510,3 @@ void W_ReadLump(int lump, void *dest)
     }
 }
 
-//
-// W_CacheLumpNum
-/*
- * killough 4/25/98: simplified
- * CPhipps - modified for new lump locking scheme
- *           returns a const*
- */
-
-const void * (W_CacheLumpNum)(int lump, unsigned short locks)
-{
-#ifdef RANGECHECK
-  if ((unsigned)lump >= (unsigned)numlumps)
-    I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
-#endif
-
-  if (!lumpcache[lump])      // read the lump in
-    W_ReadLump(lump, Z_Malloc(W_LumpLength(lump), PU_CACHE, &lumpcache[lump]));
-
-  /* cph - if wasn't locked but now is, tell z_zone to hold it */
-  if (!lumpinfo[lump].locks && locks) {
-    Z_ChangeTag(lumpcache[lump],PU_STATIC);
-#ifdef TIMEDIAG
-    locktic[lump] = gametic;
-#endif
-  }
-  lumpinfo[lump].locks += locks;
-
-#ifdef SIMPLECHECKS
-  if (!((lumpinfo[lump].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n", 
-	    lumpinfo[lump].name, lumpinfo[lump].locks);
-#endif
-
-  // CPhipps - if not locked, can't give you a pointer
-  return (locks ? lumpcache[lump] : NULL);
-}
-
-/* cph - 
- * W_CacheLumpNumPadded
- *
- * Caches a lump and pads the memory following it.
- * The thing returned is *only* guaranteed to be padded if 
- *  the lump isn't already cached (otherwise, you get whatever is 
- *  currently cached, which if it was cached by a previous call 
- *  to this will also be padded)
- */
-
-const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad)
-{
-  const int locks = 1;
-#ifdef RANGECHECK
-  if ((unsigned)lump >= (unsigned)numlumps)
-    I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
-#endif
-
-  if (!lumpcache[lump]) {     /* read the lump in */
-    size_t lumplen = W_LumpLength(lump);
-    unsigned char* p;
-    W_ReadLump(lump, p = Z_Malloc(len, PU_CACHE, &lumpcache[lump]));
-    memset(p+lumplen, pad, len-lumplen);
-  }
-
-  /* cph - if wasn't locked but now is, tell z_zone to hold it */
-  if (!lumpinfo[lump].locks && locks) {
-    Z_ChangeTag(lumpcache[lump],PU_STATIC);
-#ifdef TIMEDIAG
-    locktic[lump] = gametic;
-#endif
-  }
-  lumpinfo[lump].locks += locks;
-
-#ifdef SIMPLECHECKS
-  if (!((lumpinfo[lump].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n", 
-	    lumpinfo[lump].name, lumpinfo[lump].locks);
-#endif
-
-  return lumpcache[lump];
-}
-
-//
-// W_UnlockLumpNum
-//
-// CPhipps - this changes (should reduce) the number of locks on a lump
-
-void (W_UnlockLumpNum)(int lump, signed short unlocks)
-{
-#ifdef SIMPLECHECKS
-  if ((signed short)lumpinfo[lump].locks < unlocks)
-    lprintf(LO_DEBUG, "W_UnlockLumpNum: Excess unlocks on %8s (%d-%d)\n", 
-	    lumpinfo[lump].name, lumpinfo[lump].locks, unlocks);
-#endif
-  lumpinfo[lump].locks -= unlocks;
-  // cph - Note: must only tell z_zone to make purgeable if currently locked, 
-  // else it might already have been purged
-  if (unlocks && !lumpinfo[lump].locks)
-    Z_ChangeTag(lumpcache[lump], PU_CACHE);
-}

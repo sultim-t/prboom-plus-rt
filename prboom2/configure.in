@@ -76,7 +76,7 @@ AC_CHECK_HEADERS(unistd.h asm/byteorder.h)
 dnl --- Library functions
 AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp))
 AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp))
-AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf)
+AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf mmap)
 
 dnl --- Check for libraries
 dnl --- cph: we need pow(3) in SDL/i_sound.c; on some systems it gets pulled
@@ -214,6 +214,7 @@ then
 BUILD_DIRS="POSIX $BUILD_DIRS"
 fi
 
+AM_CONDITIONAL(WAD_MMAP,test "$ac_cv_func_mmap" = yes)
 AC_SUBST(BUILD_DIRS)
 AC_SUBST(BUILD_SERVER)
 AC_SUBST(MIXER_CFLAGS)
