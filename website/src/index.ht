@@ -2,6 +2,25 @@ title: Project Homepage
 
     <h1>News</h1>
 
+    <h3>25th September 2004</h3>
+
+    <p>Version 2.2.5 is released. This is just another release fixing bugs and
+    making minor improvements:</p>
+    <ul class="changes">
+        <li>fix crash caused by long messages in HUD</li>
+        <li>live monster counter on HUD</li>
+        <li>notify server if client quits during startup wait</li>
+        <li>improved response file parser</li>
+        <li>fast forward to given map # in demo playback</li>
+        <li>fixes for various sound bugs</li>
+        <li>fix doom2 demos at levels with >10 deathmatch starts</li>
+        <li>and more compatibility and demo fixes</li>
+        <li>support higher-turning-resolution demos from v1.91</li>
+        <li>fix compilation with gcc 3.4.x</li>
+    </ul>
+    <p>The compiled Windows and Linux versions, and the source code, are now
+    available to <a href="#download">download</a>.</p>
+
     <h3>21th September 2003</h3>
 
     <p><b>Update!</b> The Windows release was missing the stlport_vc645.dll, this is now fixed</p>
