@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: z_zone.c,v 1.5 2000/05/13 23:50:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -41,7 +41,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.5 2000/05/13 23:50:21 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -311,8 +311,17 @@ void Z_Init(void)
 #endif
 }
 
-// Z_Malloc
-// You can pass a NULL user if the tag is < PU_PURGELEVEL.
+/* Z_Malloc
+ * You can pass a NULL user if the tag is < PU_PURGELEVEL.
+ *
+ * cph - the algorithm here was a very simple first-fit round-robin 
+ *  one - just keep looping around, freeing everything we can until 
+ *  we get a large enough space
+ *
+ * This has been changed now; we still do the round-robin first-fit, 
+ * but we only free the blocks we actually end up using; we don't 
+ * free all the stuff we just pass on the way.
+ */
 
 void *(Z_Malloc)(size_t size, int tag, void **user
 #ifdef INSTRUMENTED
@@ -321,7 +330,8 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 		 )
 {
   register memblock_t *block;
-  memblock_t *start;
+  memblock_t *start, *first_of_free;
+  register size_t contig_free;
 
 #ifdef INSTRUMENTED
   size_t size_orig = size;
@@ -354,86 +364,87 @@ void *(Z_Malloc)(size_t size, int tag, void **user
     block = block->prev;
 
   start = block;
+  first_of_free = NULL; contig_free = 0;
 
-  do
-    {
-      if (block->tag >= PU_PURGELEVEL)      // Free purgable blocks
-        {                                   // replacement is roughly FIFO
-          start = block->prev;
-          Z_Free((char *) block + HEADER_SIZE);
-	  /* cph - If start->next == block, we did not merge with the previous
-	   *       If !=, we did, so we continue from start.
-	   *  Important: we've reset start
-	   */
-	  if (start->next == block) start = start->next;
-	  else block = start;
-        }
+  do {
+    /* If we just wrapped, we're not contiguous with the previous block */
+    if (block == zone) contig_free = 0;
 
-      if (block->tag == PU_FREE && block->size >= size)   // First-fit
-        {
-          size_t extra = block->size - size;
-          if (extra >= MIN_BLOCK_SPLIT + HEADER_SIZE)
-            {
-              memblock_t *newb = (memblock_t *)((char *) block +
-                                                HEADER_SIZE + size);
+    if (block->tag < PU_PURGELEVEL && block->tag != PU_FREE) {
+      /* Not free(able), so no free space here */
+      contig_free = 0;
+    } else {
+      /* Add to contiguous chunk of free space */
+      if (!contig_free) first_of_free = block;
+      contig_free += block->size;
 
-              (newb->next = block->next)->prev = newb;
-              (newb->prev = block)->next = newb;          // Split up block
-              block->size = size;
-              newb->size = extra - HEADER_SIZE;
-              newb->tag = PU_FREE;
-              newb->vm = 0;
-
-#ifdef INSTRUMENTED
-              inactive_memory += HEADER_SIZE;
-              free_memory -= HEADER_SIZE;
-#endif
-            }
-
-          rover = block->next;           // set roving pointer for next search
-
-#ifdef INSTRUMENTED
-          inactive_memory += block->extra = block->size - size_orig;
-          if (tag >= PU_PURGELEVEL)
-            purgable_memory += size_orig;
-          else
-            active_memory += size_orig;
-          free_memory -= block->size;
-#endif
-
-allocated:
-
-#ifdef INSTRUMENTED
-          block->file = file;
-          block->line = line;
-#endif
-
-#ifdef ZONEIDCHECK
-          block->id = ZONEID;         // signature required in block header
-#endif
-          block->tag = tag;           // tag
-          block->user = user;         // user
-          block = (memblock_t *)((char *) block + HEADER_SIZE);
-          if (user)                   // if there is a user
-            *user = block;            // set user to point to new block
-
-#ifdef INSTRUMENTED
-          Z_PrintStats();           // print memory allocation stats
-          // scramble memory -- weed out any bugs
-          memset(block, gametic & 0xff, size);
-#endif
-          return block;
-        }
+      /* First fit */
+      if (contig_free >= size)
+	break;
     }
+  }
   while ((block = block->next) != start);   // detect cycles as failure
 
-  // We've run out of physical memory, or so we think.
-  // Although less efficient, we'll just use ordinary malloc.
-  // This will squeeze the remaining juice out of this machine
-  // and start cutting into virtual memory if it has it.
+  if (contig_free >= size) {
+    /* We have a block of free(able) memory on the heap which will suffice */
+    block = first_of_free;
 
-  while (!(block = (malloc)(size + HEADER_SIZE)))
+    /* If the previous block is adjacent and free, step back and include it */
+    if (block != zone && block->prev->tag == PU_FREE) 
+      block = block->prev;
+
+    /* Free current block if needed */
+    if (block->tag != PU_FREE) Z_Free((char *) block + HEADER_SIZE);
+
+    /* Note: guaranteed that block->prev is either 
+     * not free or not contiguous 
+     *
+     * At every step, block->next must be not free, else it would 
+     *  have been merged with our block 
+     * No range check needed because we know it works by the previous loop */
+    while (block->size < size)
+      Z_Free((char *)(block->next) + HEADER_SIZE);
+
+    /* Now, carve up the block */
     {
+      size_t extra = block->size - size;
+      if (extra >= MIN_BLOCK_SPLIT + HEADER_SIZE) {
+	memblock_t *newb = (memblock_t *)((char *) block +
+					  HEADER_SIZE + size);
+	
+	(newb->next = block->next)->prev = newb;
+	(newb->prev = block)->next = newb;          // Split up block
+	block->size = size;
+	newb->size = extra - HEADER_SIZE;
+	newb->tag = PU_FREE;
+	newb->vm = 0;
+	
+#ifdef INSTRUMENTED
+	inactive_memory += HEADER_SIZE;
+	free_memory -= HEADER_SIZE;
+#endif
+      }
+      
+      rover = block->next;           // set roving pointer for next search
+      
+#ifdef INSTRUMENTED
+      inactive_memory += block->extra = block->size - size_orig;
+      if (tag >= PU_PURGELEVEL)
+	purgable_memory += size_orig;
+      else
+	active_memory += size_orig;
+      free_memory -= block->size;
+#endif
+    }
+  } else {
+    /* Allocate a vm block * 
+     * We've run out of physical memory, or so we think.
+     * Although less efficient, we'll just use ordinary malloc.
+     * This will squeeze the remaining juice out of this machine
+     * and start cutting into virtual memory if it has it.
+     */
+    
+    while (!(block = (malloc)(size + HEADER_SIZE))) {
       if (!blockbytag[PU_CACHE])
         I_Error ("Z_Malloc: Failure trying to allocate %lu bytes"
 #ifdef INSTRUMENTED
@@ -447,20 +458,40 @@ allocated:
       Z_FreeTags(PU_CACHE,PU_CACHE);
     }
 
-  if ((block->next = blockbytag[tag]))
-    block->next->prev = (memblock_t *) &block->next;
-  blockbytag[tag] = block;
-  block->prev = (memblock_t *) &blockbytag[tag];
-  block->vm = 1;
+    if ((block->next = blockbytag[tag]))
+      block->next->prev = (memblock_t *) &block->next;
+    blockbytag[tag] = block;
+    block->prev = (memblock_t *) &blockbytag[tag];
+    block->vm = 1;
+    
+#ifdef INSTRUMENTED
+    virtual_memory += size + HEADER_SIZE;
+#endif
+    /* cph - the next line was lost in the #ifdef above, and also added an 
+     *  extra HEADER_SIZE to block->size, which was incorrect */
+    block->size = size; 
+  }
 
 #ifdef INSTRUMENTED
-  virtual_memory += size + HEADER_SIZE;
+  block->file = file;
+  block->line = line;
 #endif
-  /* cph - the next line was lost in the #ifdef above, and also added an 
-   *  extra HEADER_SIZE to block->size, which was incorrect */
-  block->size = size; 
-
-  goto allocated;
+  
+#ifdef ZONEIDCHECK
+  block->id = ZONEID;         // signature required in block header
+#endif
+  block->tag = tag;           // tag
+  block->user = user;         // user
+  block = (memblock_t *)((char *) block + HEADER_SIZE);
+  if (user)                   // if there is a user
+    *user = block;            // set user to point to new block
+  
+#ifdef INSTRUMENTED
+  Z_PrintStats();           // print memory allocation stats
+  // scramble memory -- weed out any bugs
+  memset(block, gametic & 0xff, size);
+#endif
+  return block;
 }
 
 void (Z_Free)(void *p
@@ -571,7 +602,10 @@ void (Z_FreeTags)(int lowtag, int hightag
 #endif
 		  )
 {
-  memblock_t *block = zone;
+  /* cph - move rover to start of zone; we like to encourage static 
+   * data to stay in one place, at the start of the heap
+   */
+  memblock_t *block = rover = zone;
 
 #ifdef HEAPDUMP
   Z_DumpMemory();
