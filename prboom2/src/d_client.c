@@ -470,7 +470,6 @@ void TryRunTics (void)
     NetUpdate(); // Keep sending our tics to avoid stalling remote nodes
 #endif
   }
-  doom_printf("lag: %d",maketic-gametic);
 }
 
 #ifdef HAVE_NET
