@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.13.2.1 2001/05/19 15:42:56 cph Exp $
+ * $Id: r_data.c,v 1.13.2.2 2002/07/04 22:16:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,12 +32,13 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.13.2.1 2001/05/19 15:42:56 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.13.2.2 2002/07/04 22:16:50 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_sky.h"
+#include "i_system.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 
 //
@@ -709,12 +710,12 @@ void R_InitTranMap(int progress)
       const byte *playpal = W_CacheLumpName("PLAYPAL");
       byte       *my_tranmap;
 
-      char fname[PATH_MAX+1], *D_DoomExeDir(void);
+      char fname[PATH_MAX+1];
       struct {
         unsigned char pct;
         unsigned char playpal[256];
       } cache;
-      FILE *cachefp = fopen(strcat(strcpy(fname, D_DoomExeDir()),
+      FILE *cachefp = fopen(strcat(strcpy(fname, I_DoomExeDir()),
                                    "/tranmap.dat"),"r+b");
 
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98

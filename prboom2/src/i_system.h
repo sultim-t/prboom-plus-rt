@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.h,v 1.3 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_system.h,v 1.3.2.1 2002/07/04 22:16:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -52,5 +52,9 @@ const char* I_GetVersionString(char* buf, size_t sz);
  * Returns a string describing a signal number
  */
 const char* I_SigString(char* buf, size_t sz, int signum);
+
+char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
+
+char* I_FindFile(const char* wfname, const char* ext);
 
 #endif

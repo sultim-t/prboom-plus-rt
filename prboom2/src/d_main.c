@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.32.2.2 2001/10/07 12:34:42 proff_fs Exp $
+ * $Id: d_main.c,v 1.32.2.3 2002/07/04 22:16:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.32.2.2 2001/10/07 12:34:42 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.32.2.3 2002/07/04 22:16:50 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -606,55 +606,6 @@ void D_AddFile (const char *file, wad_source_t source)
   numwadfiles++;
 }
 
-// Return the path where the executable lies -- Lee Killough
-#ifdef _WIN32
-char *D_DoomExeDir(void)
-{
-  static const char current_dir_dummy[] = {"./"};
-  static char *base;
-  if (!base)        // cache multiple requests
-    {
-      size_t len = strlen(*myargv);
-      char *p = (base = malloc(len+1)) + len - 1;
-      strcpy(base,*myargv);
-      while (p > base && *p!='/' && *p!='\\')
-        *p--=0;
-      if (*p=='/' || *p=='\\')
-        *p--=0;
-      if (strlen(base)<2)
-      {
-        free(base);
-        base = malloc(1024);
-        if (!getcwd(base,1024))
-          strcpy(base, current_dir_dummy);
-      }
-    }
-  return base;
-}
-#else
-// cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
-//  if non-existant
-static const char prboom_dir[] = {"/.prboom/"};
-
-char *D_DoomExeDir(void)
-{
-  static char *base;
-  if (!base)        // cache multiple requests
-    {
-      char *home = getenv("HOME");
-      size_t len = strlen(home);
-
-      base = malloc(len + strlen(prboom_dir) + 1);
-      strcpy(base, home);
-      // I've had trouble with trailing slashes before...
-      if (base[len-1] == '/') base[len-1] = 0;
-      strcat(base, prboom_dir);
-      mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR); // Make sure it exists
-    }
-  return base;
-}
-#endif
-
 // killough 10/98: support -dehout filename
 // cph - made const, don't cache results
 static const char *D_dehout(void)
@@ -788,17 +739,6 @@ void NormalizeSlashes(char *str)
       str[l]='/';
 }
 
-/* 
- * HasTrailingSlash
- *
- * cphipps - simple test for trailing slash on dir names
- */
-
-static boolean HasTrailingSlash(const char* dn)
-{
-  return (dn[strlen(dn)-1] == '/');
-}
-
 // jff 4/19/98 Add routine to check a pathname for existence as
 // a file or directory. If neither append .wad and check if it
 // exists as a file then. Else return non-existent.
@@ -834,76 +774,6 @@ boolean WadFileStatus(char *filename,boolean *isdir)
   return false;                   //and report doesn't exist
 }
 
-/* 
- * FindWADFile
- *
- * cphipps 19/1999 - writen to unify the logic in FindIWADFile and the WAD 
- * 			autoloading code.
- * Searches the standard dirs for a named WAD file
- * The dirs are: 
- * . 
- * DOOMWADDIR 
- * ~/doom 
- * /usr/share/games/doom 
- * /usr/local/share/games/doom
- * ~
- */
-
-static char* FindWADFile(const char* wfname, const char* ext)
-{
-  int		i;
-  /* Precalculate a length we will need in the loop */
-  size_t	pl = strlen(wfname) + strlen(ext) + 4;
-
-  for (i=0; i<8; i++) {
-    char	*	p;
-    const char	*	d = NULL;
-    const char	*	s = NULL;
-    /* Each entry in the switch sets d to the directory to look in, 
-     * and optionally s to a subdirectory of d */
-    switch(i) {
-    case 1:
-      if (!(d = getenv("DOOMWADDIR"))) continue;
-    case 0:
-      break;
-    case 2:
-      d = DOOMWADDIR;
-      break;
-    case 4:
-      d = "/usr/share/games/doom";
-      break;
-    case 5:
-      d = "/usr/local/share/games/doom";
-      break;
-    case 6:
-      d = D_DoomExeDir();
-    case 3:
-      s = "doom";
-    case 7:
-      if (!(d = getenv("HOME"))) continue;
-      break;
-#ifdef SIMPLECHECKS
-    default:
-      I_Error("FindWADFile: Internal failure");
-#endif
-    }
-
-    p = malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
-    sprintf(p, "%s%s%s%s%s", d ? d : "", (d && !HasTrailingSlash(d)) ? "/" : "",
-                             s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
-                             wfname);
-
-    if (access(p,F_OK))
-      strcat(p, ext);
-    if (!access(p,F_OK)) {
-      lprintf(LO_INFO, " found %s\n", p);
-      return p;
-    }
-    free(p);
-  }
-  return NULL;
-}
-
 /*
  * FindIWADFIle
  *
@@ -918,10 +788,10 @@ static char *FindIWADFile(void)
 
   i = M_CheckParm("-iwad");
   if (i && (++i < myargc)) {
-    iwad =FindWADFile(myargv[i], ".wad");
+    iwad = I_FindFile(myargv[i], ".wad");
   } else {
     for (i=0; !iwad && i<nstandard_iwads; i++)
-      iwad = FindWADFile(standard_iwads[i], ".wad");
+      iwad = I_FindFile(standard_iwads[i], ".wad");
   }
   return iwad;
 }
@@ -955,9 +825,9 @@ void IdentifyVersion (void)
 
   // get config file from same directory as executable
 #ifdef GL_DOOM
-  sprintf(basedefault,"%s/glboom.cfg", D_DoomExeDir());  // killough
+  sprintf(basedefault,"%s/glboom.cfg", I_DoomExeDir());  // killough
 #else
-  sprintf(basedefault,"%s/prboom.cfg", D_DoomExeDir());  // killough
+  sprintf(basedefault,"%s/prboom.cfg", I_DoomExeDir());  // killough
 #endif
 
   // set save path to -save parm or current dir
@@ -971,7 +841,7 @@ void IdentifyVersion (void)
     if (p != NULL) 
       if (strlen(p) > PATH_MAX-12) p = NULL;
 
-    strcpy(basesavegame,(p == NULL) ? D_DoomExeDir() : p);
+    strcpy(basesavegame,(p == NULL) ? I_DoomExeDir() : p);
   }
   if ((i=M_CheckParm("-save")) && i<myargc-1) //jff 3/24/98 if -save present
   {
@@ -1079,7 +949,7 @@ void FindResponseFile (void)
         // proff 04/05/2000: Added for searching responsefile
         if (!handle)
         {
-          strcat(strcpy(fname,D_DoomExeDir()),&myargv[i][1]);
+          strcat(strcpy(fname,I_DoomExeDir()),&myargv[i][1]);
           AddDefaultExtension(fname,".rsp");
           handle = fopen (fname,"rb");
         }
@@ -1609,7 +1479,7 @@ void D_DoomMainSetup(void)
 
       if (!(fname && *fname)) continue;
       // Filename is now stored as a zero terminated string
-      fpath = FindWADFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
+      fpath = I_FindFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
       if (!fpath)
         lprintf(LO_WARN, "Failed to autoload %s\n", fname);
       else {
