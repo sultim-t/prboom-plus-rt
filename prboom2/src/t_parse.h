@@ -63,7 +63,7 @@ struct svalue_s
   
 #define fixedvalue(v)                                             \
   ( (v).type == svt_fixed ? (v).value.f :                         \
-    (v).type == svt_string ? (atof((v).value.s) * FRACUNIT) :     \
+    (v).type == svt_string ? (int)(atof((v).value.s) * FRACUNIT) :     \
     intvalue(v) * FRACUNIT )
 
 char *stringvalue(svalue_t v);

@@ -496,12 +496,12 @@ void SF_Teleport()
   else if(t_argc == 1)    // 1 argument: sector tag
     {
       mo = current_script->trigger;   // default to trigger
-      line.tag = intvalue(t_argv[0]);
+      line.tag = (short)intvalue(t_argv[0]);
     }
   else    // 2 or more
     {                       // teleport a given object
       mo = MobjForSvalue(t_argv[0]);
-      line.tag = intvalue(t_argv[1]);
+      line.tag = (short)intvalue(t_argv[1]);
     }
   
   if(mo)
@@ -521,12 +521,12 @@ void SF_SilentTeleport()
   else if(t_argc == 1)    // 1 argument: sector tag
     {
       mo = current_script->trigger;   // default to trigger
-      line.tag = intvalue(t_argv[0]);
+      line.tag = (short)intvalue(t_argv[0]);
     }
   else    // 2 or more
     {                       // teleport a given object
       mo = MobjForSvalue(t_argv[0]);
-      line.tag = intvalue(t_argv[1]);
+      line.tag = (short)intvalue(t_argv[1]);
     }
 
   if(mo)
@@ -960,7 +960,7 @@ void SF_LightLevel()
       // set all sectors with tag
       while ((i = P_FindSectorFromTag(tagnum, i)) >= 0)
 	{
-	  sectors[i].lightlevel = intvalue(t_argv[1]);
+	  sectors[i].lightlevel = (short)intvalue(t_argv[1]);
 	}
     }
   
@@ -1229,8 +1229,8 @@ void SF_LineTrigger()
       return;
     }
   
-  junk.special = intvalue(t_argv[0]);
-  junk.tag = t_argc == 1 ? 0 : intvalue(t_argv[1]);
+  junk.special = (short)intvalue(t_argv[0]);
+  junk.tag = t_argc == 1 ? 0 : (short)intvalue(t_argv[1]);
   
   if (!P_UseSpecialLine(t_trigger, &junk, 0))    // Try using it
     P_CrossSpecialLine(&junk, 0, t_trigger);   // Try crossing it

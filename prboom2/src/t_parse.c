@@ -549,7 +549,7 @@ static svalue_t simple_evaluate(int n)
       if(strchr(tokens[n], '.'))
 	{
 	  returnvar.type = svt_fixed;
-	  returnvar.value.f = atof(tokens[n]) * FRACUNIT;
+	  returnvar.value.f = (int)(atof(tokens[n]) * FRACUNIT);
 	}
       else
 	{
