@@ -762,7 +762,7 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
   if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
   {
     gld_drawinfo.max_drawitems+=64;
-    gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem), PU_LEVEL, 0);
+    gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem), PU_LEVEL, (void **) &gld_drawinfo.drawitems);
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=itemtype;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount=1;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].firstitemindex=itemindex;
@@ -781,7 +781,7 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
     if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
     {
       gld_drawinfo.max_drawitems+=64;
-      gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem), PU_LEVEL, 0);
+      gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem), PU_LEVEL, (void **) &gld_drawinfo.drawitems);
     }
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=itemtype;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount=1;
@@ -939,7 +939,7 @@ static void gld_DrawWall(GLWall *wall)
   if (gld_drawinfo.num_walls>=gld_drawinfo.max_walls)\
   {\
     gld_drawinfo.max_walls+=128;\
-    gld_drawinfo.walls=Z_Realloc(gld_drawinfo.walls,gld_drawinfo.max_walls*sizeof(GLWall), PU_LEVEL, 0);\
+    gld_drawinfo.walls=Z_Realloc(gld_drawinfo.walls,gld_drawinfo.max_walls*sizeof(GLWall), PU_LEVEL, (void **) &gld_drawinfo.walls);\
   }\
   gld_AddDrawItem(GLDIT_WALL, gld_drawinfo.num_walls);\
   gld_drawinfo.walls[gld_drawinfo.num_walls++]=*wall;\
@@ -1265,7 +1265,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
   if (gld_drawinfo.num_flats>=gld_drawinfo.max_flats)
   {
     gld_drawinfo.max_flats+=128;
-    gld_drawinfo.flats=Z_Realloc(gld_drawinfo.flats,gld_drawinfo.max_flats*sizeof(GLFlat), PU_LEVEL, 0);
+    gld_drawinfo.flats=Z_Realloc(gld_drawinfo.flats,gld_drawinfo.max_flats*sizeof(GLFlat), PU_LEVEL, (void **) &gld_drawinfo.flats);
   }
   gld_AddDrawItem(GLDIT_FLAT, gld_drawinfo.num_flats);
   gld_drawinfo.flats[gld_drawinfo.num_flats++]=flat;
@@ -1381,7 +1381,7 @@ void gld_AddSprite(vissprite_t *vspr)
   if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
   {
     gld_drawinfo.max_sprites+=128;
-    gld_drawinfo.sprites=Z_Realloc(gld_drawinfo.sprites,gld_drawinfo.max_sprites*sizeof(GLSprite), PU_LEVEL, 0);
+    gld_drawinfo.sprites=Z_Realloc(gld_drawinfo.sprites,gld_drawinfo.max_sprites*sizeof(GLSprite), PU_LEVEL, (void **) &gld_drawinfo.sprites);
   }
   gld_AddDrawItem(GLDIT_SPRITE, gld_drawinfo.num_sprites);
   gld_drawinfo.sprites[gld_drawinfo.num_sprites++]=sprite;
