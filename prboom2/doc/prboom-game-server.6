@@ -8,6 +8,8 @@ prboom-game-server \- Server for network games of PrBoom.
 .BR
 [ \-x \fIxtics\fR ] [ \-p \fIport\fR ] [ \-s \fIskill\fR ] [ \-N \fIplayers\fR ]
 .BR
+[ \-c \fIconffilename\fR ]
+.BR
 [ \-w \fIwadname\fR[,\fIdl_url\fR ]]
 .SH DESCRIPTION
 .PP
@@ -61,6 +63,15 @@ Selects nomonsters mode, i.e. there are no monsters in the game.
 .TP
 \-r
 Respawn mode. If you don't know what this is, you don't want to ;-).
+.TP
+\-c \fIconffilename\fR
+Specifies a configuration file to read which sets parameters for the
+game. This is in the same format as the PrBoom configuration file (in
+fact, you can ask it to read your normal PrBoom configuration file if
+you want). Only certain settings are acknowledged: default_skill,
+default_compatibility_level, the compatibility options and some of the
+game settings (use -v to have the server print the options as it
+recognises them).
 .TP
 \-w \fIwadname\fR[,\fIdl_url\fR]
 Specifies a WAD file to play. This is added to the internal list that the 

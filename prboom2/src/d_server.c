@@ -227,6 +227,18 @@ byte def_game_options[GAME_OPTIONS_SIZE] = \
   /* Zeroes for all compatibility stuff */
 };
 
+#define nosuch "NOSUCHCONFIGITEM"
+
+const char* gameopt_config_names[] = {
+"monsters_remember",nosuch,"weapon_recoil",nosuch,nosuch,"player_bobbing",nosuch,nosuch,nosuch,"demo_insurance",
+nosuch,nosuch,nosuch,nosuch, // RNG seed
+"monster_infighting","player_helpers",nosuch,nosuch,
+nosuch,nosuch, // distfriend
+"monster_backing","monster_avoid_hazards","monster_friction","help_friends","dog_jumping","monkeys",
+"comp_telefrag","comp_dropoff","comp_vile","comp_pain","comp_skull","comp_blazing","comp_doorlight","comp_model","comp_god","comp_falloff","comp_floors","comp_skymap","comp_pursuit","comp_doorstuck","comp_staylift","comp_zombie","comp_stairs","comp_infcheat","comp_zerotags","comp_moveblock","comp_respawn","comp_sound" };
+
+const int num_gameopts = sizeof gameopt_config_names / sizeof gameopt_config_names[0];
+
 int verbose;
 
 void sig_handler(int signum)
@@ -268,6 +280,35 @@ long int ptic(packet_header_t* p)
     return doom_ntohl(p->tic);
 }
 
+
+
+void read_config_file(FILE* fp, struct setup_packet_s* sp)
+{
+  byte* gameopt = sp->game_options;
+
+  while (!feof(fp)) {
+    char  def[80];
+    char  strparm[100];
+    if (fscanf (fp, "%79s %99[^\n]\n", def, strparm) == 2) {
+      int v = atoi(strparm);
+      if (!strcmp(def,"default_skill")) {
+        if (verbose) printf("config file sets default_skill to %d\n",v);
+        sp->skill = v-1;
+      } else if (!strcmp(def,"default_compatibility_level")) {
+        if (verbose) printf("config file sets compatibility_level to %d\n",v);
+        sp->complevel = v;
+      } else {
+        int i;
+        for (i=0; i<num_gameopts; i++) {
+	  if (!!strcmp(gameopt_config_names[i],def)) continue;
+	  if (verbose) printf("config file sets %s to %d\n",def,v);
+	  gameopt[i] = v;
+	}
+      }
+    }
+  }
+}
+
 int main(int argc, char** argv)
 {
   int localport = 5030, numplayers = 2, xtratics = 0, ticdup = 1;
@@ -281,8 +322,16 @@ int main(int argc, char** argv)
     byte *gameopt = setupinfo.game_options;
 
     memcpy(gameopt, &def_game_options, sizeof (setupinfo.game_options));
-    while ((opt = getopt(argc, argv, "p:e:l:adrfns:c:N:x:t:vw:")) != EOF)
+    while ((opt = getopt(argc, argv, "c:t:x:p:e:l:adrfns:N:vw:")) != EOF)
       switch (opt) {
+      case 'c':
+        {
+	  FILE *cf = fopen(optarg,"r");
+	  if (!cf) { perror("fopen"); return -1; }
+	  read_config_file(cf,&setupinfo);
+	  fclose(cf);
+	}
+	break;
       case 't':
   if (optarg) ticdup = atoi(optarg);
   break;
@@ -314,7 +363,7 @@ int main(int argc, char** argv)
   setupinfo.game_options[8] = 1;
   break;
       case 's':
-  if (optarg) setupinfo.skill = atoi(optarg);
+  if (optarg) setupinfo.skill = atoi(optarg)-1;
   break;
       case 'N':
   if (optarg) setupinfo.players = numplayers = atoi(optarg);
