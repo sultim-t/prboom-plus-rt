@@ -176,7 +176,7 @@ static void createPatch(int id) {
   patch->posts = (TPatchPost*)((unsigned char*)patch->columns + columnsDataSize);
   
   // sanity check that we've got all the memory allocated we need
-  assert(((int)patch->posts + (numPostsTotal*sizeof(TPatchPost)) - (int)patch->data) == dataSize);
+  assert(((int)patch->posts + (int)(numPostsTotal*sizeof(TPatchPost)) - (int)patch->data) == dataSize);
   
   memset(patch->pixels, 0xff, (patch->width*patch->height));
   
