@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.h,v 1.4 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_tick.h,v 1.5 2002/01/13 14:25:45 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2000,2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -54,8 +54,12 @@ void P_UpdateThinker(thinker_t *thinker);   // killough 8/29/98
 
 void P_SetTarget(mobj_t **mo, mobj_t *target);   // killough 11/98
 
-// killough 8/29/98: threads of thinkers, for more efficient searches
+/* killough 8/29/98: threads of thinkers, for more efficient searches
+ * cph 2002/01/13: for consistency with the main thinker list, keep objects
+ * pending deletion on a class list too
+ */
 typedef enum {
+  th_delete,
   th_misc,
   th_friends,
   th_enemies,
