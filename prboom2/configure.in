@@ -39,7 +39,7 @@ AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_RANLIB
 
-if test "x$GCC" == "xyes"; then
+if test "x$GCC" = "xyes"; then
   AC_DEFINE(PACKEDATTR,[__attribute__((packed))])
 else
   AC_DEFINE(PACKEDATTR,[])
