@@ -73,6 +73,9 @@ Handy patch for the file handling
 Benjamin L McGee <vuelto@netscape.net>
 Patch fixing the joystick code.
 
+Chris Young <young1@users.sourceforge.net>
+Patch improving the ENDOOM printing
+
 If you sent me patches for LxDoom which were included, and I forgot to
 list you, I apologise. Please email me and I will add you.
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.7 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_main.c,v 1.8 2000/10/08 16:03:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.7 2000/09/16 20:20:36 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.8 2000/10/08 16:03:11 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -240,7 +240,7 @@ static void I_EndDoom(void)
     int i, l = W_LumpLength(lump) / 2;
 
     /* cph - colour ENDOOM by rain */
-    int oldbg = 0, oldcolor = 7, bold = 0, oldbold = 0, color = 0;
+    int oldbg = -1, oldcolor = -1, bold = 0, oldbold = -1, color = 0;
 #ifndef _WIN32
     if (endoom_mode & endoom_nonasciichars)
 	    /* switch to secondary charset, and set to cp437 (IBM charset) */
@@ -263,8 +263,8 @@ static void I_EndDoom(void)
         if (!(i % 80))
         {
           /* reset everything when we start a new line */
-          oldbg = 0;
-          oldcolor = 7;
+          oldbg = -1;
+          oldcolor = -1;
           printf("\e[0m\n");
         }
         /* foreground color */
@@ -277,10 +277,11 @@ static void I_EndDoom(void)
           if (oldbold != bold)
           {
 	          oldbold = bold;
-	          oldbg = 0;
+		  printf("\e[%cm", bold + '0');
+		  if (!bold) oldbg = -1;
           }
           /* we buffer everything or output is horrendously slow */
-          printf("\e[%d;%dm", bold, color + 30);
+          printf("\e[%dm", color + 30);
           bold = 0;
         }
         /* background color */
