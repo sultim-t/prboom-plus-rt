@@ -145,6 +145,7 @@ void D_InitNetGame (void)
     playeringame[i] = true;
   for (; i<MAXPLAYERS; i++)
     playeringame[i] = false;
+  if (!playeringame[consoleplayer]) I_Error("D_InitNetGame: consoleplayer not in game");
 }
 #else
 void D_InitNetGame (void)
