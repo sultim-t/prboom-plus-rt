@@ -1438,16 +1438,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
 
+  // Note: you don't need to clear player queue slots --
+  // a much simpler fix is in g_game.c -- killough 10/98
+
   bodyqueslot = 0;
-
-// phares 8/10/98: Clear body queue so the corpses from previous games are
-// not assumed to be from this one. The mobj_t's belonging to these corpses
-// are cleared in the normal freeing of zoned memory between maps, so all
-// we have to do here is clear the pointers to them.
-
-  if (bodyque)
-    memset(bodyque, 0, bodyquesize * sizeof (*bodyque)); // CPhipps - use memset
-
   deathmatch_p = deathmatchstarts;
   P_LoadThings(lumpnum+ML_THINGS);
 
