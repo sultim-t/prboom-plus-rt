@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.6.2.3 2002/07/21 10:20:47 cph Exp $
+ * $Id: i_system.c,v 1.6.2.4 2002/08/05 16:22:59 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.6.2.3 2002/07/21 10:20:47 cph Exp $";
+rcsid[] = "$Id: i_system.c,v 1.6.2.4 2002/08/05 16:22:59 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -116,6 +116,8 @@ const char* I_SigString(char* buf, size_t sz, int signum)
     sprintf(buf,"signal %d",signum);
   return buf;
 }
+
+#ifndef PRBOOM_SERVER
 
 // Return the path where the executable lies -- Lee Killough
 // proff_fs 2002-07-04 - moved to i_system
@@ -251,3 +253,4 @@ char* I_FindFile(const char* wfname, const char* ext)
   return NULL;
 }
 
+#endif // PRBOOM_SERVER
