@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.c,v 1.3 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_joy.c,v 1.1.2.1 2001/02/18 18:07:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,9 +32,10 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: i_joy.c,v 1.3 2000/09/16 20:20:36 proff_fs Exp $";
+static const char rcsid[] = "$Id: i_joy.c,v 1.1.2.1 2001/02/18 18:07:22 proff_fs Exp $";
 #endif /* lint */
 
+#include "SDL.h"
 #include "doomdef.h"
 #include "doomtype.h"
 #include "m_argv.h"
@@ -43,22 +44,6 @@ static const char rcsid[] = "$Id: i_joy.c,v 1.3 2000/09/16 20:20:36 proff_fs Exp
 #include "i_joy.h"
 #include "lprintf.h"
 
-#undef NO_JOY_CODE
-
-#ifndef HAVE_LINUX_JOYSTICK_H
-#define NO_JOY_CODE
-#else
-
-#include <linux/joystick.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-static int joy_fd = -1;
-
-#endif
-
 int joyleft;
 int joyright;
 int joyup;
@@ -66,65 +51,16 @@ int joydown;
 
 int usejoystick;
 
+static SDL_Joystick *joystick;
+
 void I_EndJoystick(void)
 {
-#ifndef NO_JOY_CODE
   lprintf(LO_DEBUG, "I_EndJoystick : closing joystick\n");
-  close(joy_fd);
-  joy_fd = -1;
-#endif
 }
-
-#ifndef NO_JOY_CODE
-/* On read errors, try reopening. Patch from Benjamin McGee */
-static int I_ReopenJoystick(void)
-{
-  char jdev[10];
-  const char *fname = "I_ReopenJoystick : ";
-  if (joy_fd != -1) I_EndJoystick();
-  sprintf(jdev, "/dev/js%d", usejoystick-1);
-  joy_fd = open(jdev, O_RDONLY);
-  if (joy_fd == -1) {
-    lprintf(LO_ERROR, "%serror re-opening %s\n", fname, jdev);
-    return 0;
-  }
-  lprintf(LO_WARN, "%s%s successfully re-opened\n", fname, jdev);
-  return 1;
-}
-#endif
-
-#ifndef NO_JOY_CODE
-static struct JS_DATA_TYPE jdata;
-
-static int I_ReadJoystick(void)
-{
-  if (read(joy_fd, &jdata, JS_RETURN) != JS_RETURN){
-    lprintf(LO_WARN, "I_PollJoystick : read failed\n");
-    I_EndJoystick();
-    return 0;
-  }
-  return 1;
-}
-
-static int I_WaitButton(void)
-{
-  do {
-    usleep(10);
-	if (!I_ReadJoystick() && !I_ReopenJoystick() && !I_ReadJoystick())
-      return 0;
-  } while (!jdata.buttons);
-  while (jdata.buttons) {
-    usleep(10);
-    if (!I_ReadJoystick())
-      return 0;
-  }
-  return 1;
-}
-#endif
 
 void I_PollJoystick(void)
 {
-#ifndef NO_JOY_CODE
+#ifdef JOY_CODE
   if (!usejoystick || (joy_fd == -1)) return;
   if (!I_ReadJoystick()) I_ReopenJoystick();
 	if (I_ReadJoystick())	 {
@@ -170,47 +106,27 @@ void I_PollJoystick(void)
 
 void I_InitJoystick(void)
 {
-#ifndef NO_JOY_CODE
-  char jdev[10];
   const char* fname = "I_InitJoystick : ";
+  int num_joysticks;
 
   if (!usejoystick) return;
-  if (M_CheckParm("-nojoy") || (usejoystick>9) || (usejoystick<0)) {
-    if ((usejoystick > 9) || (usejoystick < 0))
+  num_joysticks=SDL_NumJoysticks();
+  if (M_CheckParm("-nojoy") || (usejoystick>num_joysticks) || (usejoystick<0)) {
+    if ((usejoystick > num_joysticks) || (usejoystick < 0))
       lprintf(LO_WARN, "%sinvalid joystick %d\n", fname, usejoystick);
     else
       lprintf(LO_INFO, "%suser disabled\n", fname);
-    joy_fd = -1; return;
+    return;
   }
-  sprintf(jdev, "/dev/js%d", usejoystick-1);
-  joy_fd = open(jdev, O_RDONLY);
-  if (joy_fd == -1)
-    lprintf(LO_ERROR, "%serror opening %s\n", fname, jdev);
+  joystick=SDL_JoystickOpen(usejoystick);
+  if (!joystick)
+    lprintf(LO_ERROR, "%serror opening joystick %s\n", fname, SDL_JoystickName(usejoystick));
   else {
     atexit(I_EndJoystick);
-    lprintf(LO_INFO, "%sopened %s\n", fname, jdev);
-    if ((joyup == joydown) || (joyleft == joyright)) {
-      int joyt, joyl, joyb, joyr, joycx, joycy;
-      lprintf(LO_INFO,"Invalid joystick calibration. Calbrating now...\n");
-      
-      lprintf(LO_INFO,"Move joystick to top-left and press a button\n");
-      fflush(stdin);
-      if (!I_WaitButton()) return;
-      joyt = jdata.y; joyl = jdata.x;
-      
-      lprintf(LO_INFO,"Move joystick to bottom right and press a button\n");
-      fflush(stdin);
-      if (!I_WaitButton()) return;
-      joyb = jdata.y; joyr = jdata.x;
-      
-      lprintf(LO_INFO,"Move joystick to centre and press a button\n");
-      fflush(stdin);
-      if (!I_WaitButton()) return;
-      joycy = jdata.y; joycx = jdata.x;
-
-      joyleft = (joyl + joycx)/2; joyright = (joyr + joycx)/2;
-      joyup   = (joyt + joycy)/2; joydown  = (joyb + joycy)/2;
-    }
+    lprintf(LO_INFO, "%sopened %s\n", fname, SDL_JoystickName(usejoystick));
+    joyup = 32767;
+    joydown = -32768;
+    joyright = 32767;
+    joyleft = -32768;
   }
-#endif
 }
