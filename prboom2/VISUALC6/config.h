@@ -130,6 +130,10 @@
 
 #define MONITOR_VISIBILITY 1
 
+#define GL_DOOM
+
+//#define COMPILE_VIDD
+
 /* Name of package */
 #define PACKAGE "prboom"
 
