@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_floor.c,v 1.4 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: p_floor.c,v 1.5 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.4 2000/05/09 21:45:38 proff_fs Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.5 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -119,7 +119,7 @@ result_e T_MovePlane
           // Moving a floor up
           // jff 02/04/98 keep floor from moving thru ceilings
           // jff 2/22/98 weaken check to demo_compatibility
-          destheight = (demo_compatibility || dest<sector->ceilingheight)?
+          destheight = (comp[comp_floors] || dest<sector->ceilingheight)?
                           dest : sector->ceilingheight;
           if (sector->floorheight + speed > destheight)
           {
@@ -141,8 +141,8 @@ result_e T_MovePlane
             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
             if (flag == true)
             {
-              if (demo_compatibility) //jff 1/25/98 fix floor crusher
-              {                       //killough relax to demo_compatibility
+	      /* jff 1/25/98 fix floor crusher */
+              if (comp[comp_floors]) {
                 if (crush == true)
                   return crushed;
               }
@@ -163,7 +163,7 @@ result_e T_MovePlane
           // moving a ceiling down
           // jff 02/04/98 keep ceiling from moving thru floors
           // jff 2/22/98 weaken check to demo_compatibility
-          destheight = (demo_compatibility || dest>sector->floorheight)?
+          destheight = (comp[comp_floors] || dest>sector->floorheight)?
                           dest : sector->floorheight;
           if (sector->ceilingheight - speed < destheight)
           {
@@ -569,8 +569,9 @@ int EV_DoFloor
         {
           int minsize = INT_MAX;
           side_t*     side;
-                      
-          if (!compatibility) minsize = 32000<<FRACBITS; //jff 3/13/98 no ovf
+
+	  /* jff 3/13/98 no ovf */
+          if (!comp[comp_model]) minsize = 32000<<FRACBITS; 
           floor->direction = 1;
           floor->sector = sec;
           floor->speed = FLOORSPEED;
@@ -581,18 +582,18 @@ int EV_DoFloor
               side = getSide(secnum,i,0);
               // jff 8/14/98 don't scan texture 0, its not real
               if (side->bottomtexture > 0 ||
-                  (compatibility && !side->bottomtexture))
+                  (comp[comp_model] && !side->bottomtexture))
                 if (textureheight[side->bottomtexture] < minsize)
                   minsize = textureheight[side->bottomtexture];
               side = getSide(secnum,i,1);
               // jff 8/14/98 don't scan texture 0, its not real
               if (side->bottomtexture > 0 ||
-                  (compatibility && !side->bottomtexture))
+                  (comp[comp_model] && !side->bottomtexture))
                 if (textureheight[side->bottomtexture] < minsize)
                   minsize = textureheight[side->bottomtexture];
             }
           }
-          if (compatibility)
+          if (comp[comp_model])
             floor->floordestheight = floor->sector->floorheight + minsize;
           else
           {
@@ -823,7 +824,9 @@ int EV_BuildStairs
         break;
       }
     } while(ok);      // continue until no next step is found
-    secnum = osecnum; //jff 3/4/98 restore loop index
+
+    if (!comp[comp_stairs])      // killough 10/98: compatibility option
+      secnum = osecnum; //jff 3/4/98 restore loop index
   }
   return rtn;
 }
@@ -862,8 +865,9 @@ int EV_DoDonut(line_t*  line)
     if (!s2) continue;                    // note lowest numbered line around
                                           // pillar must be two-sided 
 
-    // do not start the donut if the pool is already moving
-    if (!compatibility && P_SectorActive(floor_special,s2)) 
+    /* do not start the donut if the pool is already moving
+     * cph - DEMOSYNC - was !compatibility */
+    if (!comp[comp_floors] && P_SectorActive(floor_special,s2)) 
       continue;                           //jff 5/7/98
                       
     // find a two sided line around the pool whose other side isn't the pillar
@@ -871,7 +875,7 @@ int EV_DoDonut(line_t*  line)
     {
       //jff 3/29/98 use true two-sidedness, not the flag
       // killough 4/5/98: changed demo_compatibility to compatibility
-      if (compatibility)
+      if (comp[comp_model])
       {
         if ((!s2->lines[i]->flags & ML_TWOSIDED) ||
             (s2->lines[i]->backsector == s1))

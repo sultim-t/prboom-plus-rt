@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.7 2000/05/12 08:38:45 cph Exp $
+ * $Id: g_game.c,v 1.8 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.7 2000/05/12 08:38:45 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.8 2000/05/12 22:51:54 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1378,6 +1378,46 @@ void R_ExecuteSetViewSize(void);
 
 //CPhipps - savename variable redundant
 
+/* killough 12/98:
+ * This function returns a signature for the current wad.
+ * It is used to distinguish between wads, for the purposes
+ * of savegame compatibility warnings, and options lookups.
+ */
+
+static uint_64_t G_UpdateSignature(uint_64_t s, const char *name)
+{
+  int i, lump = W_CheckNumForName(name);
+  if (lump != -1 && (i = lump+10) < numlumps)
+    do
+      {
+	int size = W_LumpLength(i);
+	const byte *p = W_CacheLumpNum(i);
+	while (size--)
+	  s <<= 1, s += *p++;
+	W_UnlockLumpNum(i);
+      }
+    while (--i > lump);
+  return s;
+}
+
+static uint_64_t G_Signature(void)
+{
+  uint_64_t s = 0;
+  char name[9];
+  int episode, map;
+
+  if (gamemode == commercial)
+    for (map = haswolflevels ? 32 : 30; map; map--)
+      sprintf(name, "map%02d", map), s = G_UpdateSignature(s, name);
+  else
+    for (episode = gamemode==retail ? 4 :
+	   gamemode==shareware ? 1 : 3; episode; episode--)
+      for (map = 9; map; map--)
+	sprintf(name, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
+
+  return s;
+}
+
 //
 // killough 5/15/98: add forced loadgames, which allow user to override checks
 //
@@ -1449,7 +1489,7 @@ static const size_t num_version_headers = sizeof(version_headers) / sizeof(versi
 
 void G_DoLoadGame(void)
 {
-  int  length, i, a, b, c;
+  int  length, i;
   // CPhipps - do savegame filename stuff here
   char name[PATH_MAX+1];     // killough 3/22/98
   int savegame_compatibility = forced_loadgame ? boom_compatibility /* Default to Boom v2.02 */
@@ -1483,11 +1523,9 @@ void G_DoLoadGame(void)
   // CPhipps - always check savegames even when forced, 
   //  only print a warning if forced
   {  // killough 3/16/98: check lump name checksum (independent of order)
-    unsigned long checksum = 0;
-    int i;
+    uint_64_t long checksum = 0;
 
-    for (i=0; i<numlumps; i++)
-      checksum += W_LumpNameHash(lumpinfo[i].name) + lumpinfo[i].size;
+    checksum = G_Signature();
 
     if (memcmp(&checksum, save_p, sizeof checksum)) {
       if (!forced_loadgame) {
@@ -1507,18 +1545,13 @@ void G_DoLoadGame(void)
   save_p += sizeof(unsigned long);
   save_p += strlen(save_p)+1;
 
-  if (savegame_compatibility == boom_compatibility)
-    /* cph - Load supported Boom compatibility modes */
-    compatibility_level = *save_p++ ? boom_compatibility_compatibility 
-      : boom_compatibility; 
-  else /* LxDoom savegame. Have to +1 because a level was added at v1.4.5 */
-    compatibility_level = (*save_p++) +1;
+  /* cph - FIXME - compatibility flag? */
+  compatibility_level = savegame_compatibility;
+  save_p++;
 
   gameskill = *save_p++;
   gameepisode = *save_p++;
   gamemap = *save_p++;
-
-  save_p = G_ReadOptions(save_p);   // killough 3/1/98: Read game options
 
   for (i=0 ; i<MAXPLAYERS ; i++)
     playeringame[i] = *save_p++;
@@ -1530,19 +1563,19 @@ void G_DoLoadGame(void)
   // load a base level
   G_InitNew (gameskill, gameepisode, gamemap);
 
-  // get the times
-  if (compatibility_level < lxdoom_1_compatibility) {
-    a = *save_p++;
-    b = *save_p++;
-    c = *save_p++;
-    leveltime = (a<<16) + (b<<8) + c;
-  } else {
-    // CPhipps - store times in 4 bytes, store total time
-    leveltime = LONG(*(long*)save_p);
-    save_p += sizeof(long);
-    totalleveltimes = LONG(*(long*)save_p);
-    save_p += sizeof(long);
-  }
+  /* killough 3/1/98: Read game options
+   * killough 11/98: move down to here
+   */
+  save_p = G_ReadOptions(save_p);
+
+  /* get the times - killough 11/98: save entire word */
+  memcpy(&leveltime, save_p, sizeof save_p);
+  save_p += sizeof save_p;
+
+  // killough 11/98: load revenant tracer state
+  basetic = gametic - *save_p++;
+
+  /* cph - totalleveltimes? */
 
   // dearchive all the modifications
   P_UnArchivePlayers ();
@@ -1563,6 +1596,8 @@ void G_DoLoadGame(void)
 
   // draw the pattern into the back screen
   R_FillBackScreen ();
+
+  /* cph - FIXME - import MBF -recordfrom support? */
 }
 
 //
@@ -1646,12 +1681,8 @@ void G_DoSaveGame (void)
 
   save_p += VERSIONSIZE;
 
-  // killough 3/16/98: store lump name checksum (independent of order)
-  {
-    int i;
-    unsigned long checksum = 0;
-    for (i=0; i<numlumps; i++)
-      checksum += W_LumpNameHash(lumpinfo[i].name) + lumpinfo[i].size;
+  { /* killough 3/16/98, 12/98: store lump name checksum */
+    uint_64_t checksum = G_Signature();
     memcpy(save_p, &checksum, sizeof checksum);
     save_p += sizeof checksum;
   }
@@ -1671,19 +1702,12 @@ void G_DoSaveGame (void)
 
   CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+10);
 
-  /* cph - Save compatibility level */
-  if (compatibility_level == boom_compatibility_compatibility)
-    *save_p++ = 1;
-  else if (compatibility_level == boom_compatibility)
-    *save_p++ = 0;
-  else
-    *save_p++ = compatibility_level-1;
+  /* cph - FIXME? - Save compatibility level */
+  *save_p++ = 0;
 
   *save_p++ = gameskill;
   *save_p++ = gameepisode;
   *save_p++ = gamemap;
-
-  save_p = G_WriteOptions(save_p);    // killough 3/1/98: save game options
 
   for (i=0 ; i<MAXPLAYERS ; i++)
     *save_p++ = playeringame[i];
@@ -1693,16 +1717,14 @@ void G_DoSaveGame (void)
 
   *save_p++ = idmusnum;               // jff 3/17/98 save idmus state
 
-  if (compatibility_level < lxdoom_1_compatibility) {
-    *save_p++ = leveltime>>16;
-    *save_p++ = leveltime>>8;
-    *save_p++ = leveltime;
-  } else {
-    *(long*)save_p = LONG(leveltime);
-    save_p += sizeof(long);
-    *(long*)save_p = LONG(totalleveltimes);
-    save_p += sizeof(long);
-  }
+  save_p = G_WriteOptions(save_p);    // killough 3/1/98: save game options
+
+  /* cph - FIXME - endianness? totalleveltimes? */
+  memcpy(save_p, &leveltime, sizeof save_p); //killough 11/98: save entire word
+  save_p += sizeof save_p;
+
+  // killough 11/98: save revenant tracer state
+  *save_p++ = (gametic-basetic) & 255;
 
   // killough 3/22/98: add Z_CheckHeap after each call to ensure consistency
   Z_CheckHeap();
@@ -1770,6 +1792,57 @@ extern int default_player_bobbing;    // whether player bobs or not
 
 extern int monsters_remember, default_monsters_remember;
 
+/* cph - 
+ * G_Compatibility
+ *
+ * Initialises the comp[] array based on the compatibility_level
+ * For reference, MBF did:
+ * for (i=0; i < COMP_TOTAL; i++)
+ *   comp[i] = compatibility;
+ *
+ * Instead, we have a lookup table showing at what versio a fix was 
+ *  introduced.
+ */
+
+static void G_Compatibility(void)
+{
+  static const complevel_t fix_levels[COMP_NUM] = {
+    mbf_compatibility, /* comp_telefrag - monsters used to telefrag only 
+			* on MAP30, now they do it for spawners only */
+    mbf_compatibility, /* comp_dropoff - MBF encourages things to drop
+			* off of overhangs */
+    boom_compatibility,/* comp_vile - original Doom archville bugs like 
+			* ghosts */
+    boom_compatibility,/* comp_pain - original Doom limits Pain Elements
+			* from spawning too many skulls */
+    boom_compatibility,/* comp_skull - original Doom let skulls be spit 
+			* through walls by Pain Elementals */
+    boom_compatibility,/* comp_blazing - original Doom duplicated 
+			* blazing door sound */
+    mbf_compatibility, /* comp_doorlight - MBF made door lighting changes 
+			* more gradual */
+    boom_compatibility,/* comp_model - improvements to the game physics */
+    boom_compatibility,/* comp_god - fixes to God mode */
+    mbf_compatibility, /* comp_falloff - MBF encourages things to drop
+			* off of overhangs */
+    boom_compatibility_compatibility,
+                       /* comp_floors - fixes for moving floors bugs */
+    boom_compatibility,/* comp_skymap */
+    mbf_compatibility, /* comp_pursuit - MBF AI change, limited pursuit? */
+    boom_compatibility,/* comp_doorstuck - monsters stuck in doors fix */
+    mbf_compatibility, /* comp_staylift - MBF AI change, monsters try
+			* to stay on lifts */
+    boom_compatibility,/* comp_zerotags - allow zero tags in wads */
+    boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
+    mbf_compatibility, /* comp_infcheat - FIXME */
+    lxdoom_1_compatibility, /* comp_zombie - prevent dead players 
+			     * triggering stuff */
+  };
+  int i;
+  for (i=0; i<COMP_NUM; i++)
+    comp[i] = compatibility_level < fix_levels[i];
+}
+
 // killough 3/1/98: function to reload all the default parameter
 // settings before a new game begins
 
@@ -1783,15 +1856,28 @@ void G_ReloadDefaults(void)
 
   player_bobbing = default_player_bobbing;  // whether player bobs or not
 
-  variable_friction = true;
-
-  // phares 4/13/98:
-  // removed ifdef PUSHERS that allow_pushers was wrapped in. There's no
-  // -DPUSHERS in makefile, so this was always left out of the compile.
-
-  allow_pushers = true;
+  variable_friction = allow_pushers = true;
 
   monsters_remember = default_monsters_remember;   // remember former enemies
+
+  monster_infighting = default_monster_infighting; // killough 7/19/98
+
+#ifdef DOGS
+  dogs = netgame ? 0 : G_GetHelpers();             // killough 7/19/98
+  dog_jumping = default_dog_jumping;
+#endif
+
+  distfriend = default_distfriend;                 // killough 8/8/98
+
+  monster_backing = default_monster_backing;     // killough 9/8/98
+
+  monster_avoid_hazards = default_monster_avoid_hazards; // killough 9/9/98
+
+  monster_friction = default_monster_friction;     // killough 10/98
+
+  help_friends = default_help_friends;             // killough 9/9/98
+
+  monkeys = default_monkeys;
 
   // jff 1/24/98 reset play mode to command line spec'd version
   // killough 3/1/98: moved to here
@@ -1805,6 +1891,7 @@ void G_ReloadDefaults(void)
     startskill = (skill_t)(defaultskill-1);
 
   demoplayback = false;
+  singledemo = false;            // killough 9/29/98: don't stop after 1 demo
   netdemo = false;
 
   // killough 2/21/98:
@@ -1812,14 +1899,14 @@ void G_ReloadDefaults(void)
 
   consoleplayer = 0;
 
-  { /* cph - set compatibility to default
-     *  This can be either from the command line, the config file, 
-     *  or normally the most up to date */
-    int p = M_CheckParm("-complevel");
-    compatibility_level = (p && (p+1<myargc)) ? atoi(myargv[p+1])
-      : ((default_compatibility_level == -1) 
-	 ? MAX_COMPATIBILITY_LEVEL-1 : default_compatibility_level); 
-  }
+  compatibility_level = default_compatibility_level;
+  if (compatibility_level == -1) 
+    compatibility_level = MAX_COMPATIBILITY_LEVEL-1;
+
+  if (mbf_features)
+    memcpy(comp, default_comp, sizeof comp);
+  else 
+    G_Compatibility();
 
   // killough 3/31/98, 4/5/98: demo sync insurance
   demo_insurance = default_demo_insurance == 1;
@@ -2040,6 +2127,44 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = (byte)((rngseed >>  8) & 0xff);
   *demo_p++ = (byte)( rngseed        & 0xff);
 
+  // Options new to v2.03 begin here
+
+  *demo_p++ = monster_infighting;   // killough 7/19/98
+
+#ifdef DOGS
+  *demo_p++ = dogs;                 // killough 7/19/98
+#else
+  *demo_p++ = 0;
+#endif
+
+  *demo_p++ = 0;
+  *demo_p++ = 0;
+
+  *demo_p++ = (distfriend >> 8) & 0xff;  // killough 8/8/98  
+  *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98  
+
+  *demo_p++ = monster_backing;         // killough 9/8/98
+
+  *demo_p++ = monster_avoid_hazards;    // killough 9/9/98
+
+  *demo_p++ = monster_friction;         // killough 10/98
+
+  *demo_p++ = help_friends;             // killough 9/9/98
+
+#ifdef DOGS
+  *demo_p++ = dog_jumping;
+#else
+  *demo_p++ = 0;
+#endif
+
+  *demo_p++ = monkeys;
+
+  {   // killough 10/98: a compatibility vector now
+    int i;
+    for (i=0; i < COMP_TOTAL; i++)
+      *demo_p++ = comp[i] != 0;
+  }
+
   //----------------
   // Padding at end
   //----------------
@@ -2091,6 +2216,68 @@ byte *G_ReadOptions(byte *demo_p)
   rngseed <<= 8;
   rngseed += *demo_p++ & 0xff;
 
+  // Options new to v2.03
+  if (mbf_features)
+    {
+      monster_infighting = *demo_p++;   // killough 7/19/98
+
+#ifdef DOGS
+      dogs = *demo_p++;                 // killough 7/19/98
+#else
+      demo_p++;
+#endif
+
+      demo_p += 2;
+
+      distfriend = *demo_p++ << 8;      // killough 8/8/98
+      distfriend+= *demo_p++;
+
+      monster_backing = *demo_p++;     // killough 9/8/98
+
+      monster_avoid_hazards = *demo_p++; // killough 9/9/98
+
+      monster_friction = *demo_p++;      // killough 10/98
+
+      help_friends = *demo_p++;          // killough 9/9/98
+
+#ifdef DOGS
+      dog_jumping = *demo_p++;           // killough 10/98
+#else
+      demo_p++;
+#endif
+
+      monkeys = *demo_p++;
+
+      {   // killough 10/98: a compatibility vector now
+	int i;
+	for (i=0; i < COMP_TOTAL; i++)
+	  comp[i] = *demo_p++;
+      }
+    }
+  else  // defaults for versions < 2.02
+    {
+      int i;  // killough 10/98: a compatibility vector now
+      for (i=0; i < COMP_TOTAL; i++)
+	comp[i] = compatibility;
+
+      monster_infighting = 1;           // killough 7/19/98
+
+      monster_backing = 0;              // killough 9/8/98
+      
+      monster_avoid_hazards = 0;        // killough 9/9/98
+
+      monster_friction = 0;             // killough 10/98
+
+      help_friends = 0;                 // killough 9/9/98
+
+#ifdef DOGS
+      dogs = 0;                         // killough 7/19/98
+      dog_jumping = 0;                  // killough 10/98
+#endif
+
+      monkeys = 0;
+    }
+
   return target;
 }
 
@@ -2100,7 +2287,45 @@ void G_BeginRecording (void)
 
   demo_p = demobuffer;
 
-  if (compatibility_level > doom_compatibility) {
+  /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
+  if (mbf_features) {
+    demo_p = demobuffer;
+    
+    /* cph - FIXME - use version_headers? */
+    *demo_p++ = compatibility_level == mbf_compatibility ?
+      204 : 260;
+    
+    // signature
+    *demo_p++ = 0x1d;
+    *demo_p++ = 'M';
+    *demo_p++ = 'B';
+    *demo_p++ = 'F';
+    *demo_p++ = 0xe6;
+    *demo_p++ = '\0';
+    
+    /* killough 2/22/98: save compatibility flag in new demos
+     * cph - FIXME? MBF demos will always be not in compat. mode */
+    *demo_p++ = 0;
+    
+    *demo_p++ = gameskill;
+    *demo_p++ = gameepisode;
+    *demo_p++ = gamemap;
+    *demo_p++ = deathmatch;
+    *demo_p++ = consoleplayer;
+    
+    demo_p = G_WriteOptions(demo_p); // killough 3/1/98: Save game options
+    
+    for (i=0 ; i<MAXPLAYERS ; i++)
+      *demo_p++ = playeringame[i];
+    
+    // killough 2/28/98:
+    // We always store at least MIN_MAXPLAYERS bytes in demo, to
+    // support enhancements later w/o losing demo compatibility
+    
+    for (; i<MIN_MAXPLAYERS; i++)
+      *demo_p++ = 0;
+
+  } else if (compatibility_level > doom_compatibility) {
     *demo_p++ = (compatibility_level < lxdoom_1_compatibility) ? 202 : 203;
     
     // signature
@@ -2165,6 +2390,7 @@ void G_DoPlayDemo (void)
   int i, episode, map;
   char basename[9];
   int demover;
+  byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
 
@@ -2182,6 +2408,7 @@ void G_DoPlayDemo (void)
   if (demover < 200)     // Autodetect old demos
     {
       compatibility_level = doom_demo_compatibility;
+      G_Compatibility();
 
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
 
@@ -2190,6 +2417,21 @@ void G_DoPlayDemo (void)
       weapon_recoil = 0;
 
       allow_pushers = 0;
+
+      monster_infighting = 1;           // killough 7/19/98
+
+#ifdef DOGS
+      dogs = 0;                         // killough 7/19/98
+      dog_jumping = 0;                  // killough 10/98
+#endif
+
+      monster_backing = 0;              // killough 9/8/98
+      
+      monster_avoid_hazards = 0;        // killough 9/9/98
+
+      monster_friction = 0;             // killough 10/98
+      help_friends = 0;                 // killough 9/9/98
+      monkeys = 0;
 
       // killough 3/6/98: rearrange to fix savegame bugs (moved fastparm,
       // respawnparm, nomonsters flags to G_LoadOptions()/G_SaveOptions())
@@ -2237,11 +2479,17 @@ void G_DoPlayDemo (void)
 	compatibility_level = prboom_1_compatibility;
 	break;
       }
+      G_Compatibility();
       skill = *demo_p++;
       episode = *demo_p++;
       map = *demo_p++;
       deathmatch = *demo_p++;
       consoleplayer = *demo_p++;
+
+      /* killough 11/98: save option pointer for below */
+      if (mbf_features)
+	option_p = demo_p;
+
       demo_p = G_ReadOptions(demo_p);  // killough 3/1/98: Read game options
 
       if (demover == 200)              // killough 6/3/98: partially fix v2.00 demos
@@ -2271,7 +2519,17 @@ void G_DoPlayDemo (void)
       netdemo = true;
     }
 
-  G_InitNew(skill, episode, map);
+  if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
+    G_InitNew(skill, episode, map);
+
+    /* killough 11/98: If OPTIONS were loaded from the wad in G_InitNew(),
+     * reload any demo sync-critical ones from the demo itself, to be exactly
+     * the same as during recording.
+     */
+
+    if (option_p)
+      G_ReadOptions(option_p);
+  }
 
   usergame = false;
 

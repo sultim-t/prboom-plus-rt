@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.7 2000/05/12 13:14:23 cph Exp $
+ * $Id: p_enemy.c,v 1.8 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.7 2000/05/12 13:14:23 cph Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.8 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -410,7 +410,7 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) /* killough 9/12/98 */
        * Boom v2.02 and LxDoom return good && (P_Random(pr_trywalk)&3)
        * MBF plays even more games
        */
-      if (!good || compatibility) return good;
+      if (!good || comp[comp_doorstuck]) return good;
       if (!mbf_features)
 	return (P_Random(pr_trywalk)&3); /* jff 8/13/98 */
       else /* finally, MBF code */
@@ -439,7 +439,7 @@ static boolean P_SmartMove(mobj_t *actor)
   int on_lift, dropoff = false, under_damage;
 
   /* killough 9/12/98: Stay on a lift if target is on one */
-  on_lift = mbf_features
+  on_lift = !comp[comp_staylift]
     && target && target->health > 0
     && target->subsector->sector->tag==actor->subsector->sector->tag &&
     P_IsOnLift(actor);
@@ -653,7 +653,7 @@ static void P_NewChaseDir(mobj_t *actor)
   if (mbf_features)
     if (actor->floorz - actor->dropoffz > FRACUNIT*24 &&
 	actor->z <= actor->floorz && !(actor->flags & (MF_DROPOFF|MF_FLOAT)) &&
-	P_AvoidDropoff(actor)) /* Move away from dropoff */
+	!comp[comp_dropoff] && P_AvoidDropoff(actor)) /* Move away from dropoff */
       {
 	P_DoNewChaseDir(actor, dropoff_deltax, dropoff_deltay);
 
@@ -841,7 +841,7 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
       /* killough 9/9/98: give monsters a threshold towards getting players
        * (we don't want it to be too easy for a player with dogs :)
        */
-      if (mbf_features)
+      if (!comp[comp_pursuit])
 	actor->threshold = 60;
 
       return true;
@@ -1182,7 +1182,7 @@ void A_Chase(mobj_t *actor)
 	    /* If current target is bad and a new one is found, return: */
 
 	    if (!(actor->target && actor->target->health > 0 &&
-		  ((mbf_features && !netgame) || 
+		  ((comp[comp_pursuit] && !netgame) || 
 		   (((actor->target->flags ^ actor->flags) & MF_FRIEND ||
 		     (!(actor->flags & MF_FRIEND) && monster_infighting)) &&
 		    P_CheckSight(actor, actor->target)))) &&
@@ -1577,7 +1577,7 @@ boolean PIT_VileCheck(mobj_t *thing)
 
     corpsehit = thing;
     corpsehit->momx = corpsehit->momy = 0;
-    if (compatibility)                                              // phares
+    if (comp[comp_vile])                                            // phares
       {                                                             //   |
         corpsehit->height <<= 2;                                    //   V
         check = P_CheckPosition(corpsehit,corpsehit->x,corpsehit->y);
@@ -1651,7 +1651,7 @@ void A_VileChase(mobj_t* actor)
 
                   P_SetMobjState(corpsehit,info->raisestate);
 
-                  if (compatibility)                                // phares
+                  if (comp[comp_vile])                              // phares
                     corpsehit->height <<= 2;                        //   |
                   else                                              //   V
                     {
@@ -1912,7 +1912,7 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
 // and wouldn't spit another one if there were. If not in           // phares
 // compatibility mode, we remove the limit.                         // phares
                                                                     // phares
-  if (compatibility)  // original or bug fix extension              // phares
+  if (comp[comp_pain]) /* killough 10/98: compatibility-optioned */
     {
       // count total number of skulls currently on the level
       int count = 0;
@@ -1937,8 +1937,8 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
   y = actor->y + FixedMul(prestep, finesine[an]);
   z = actor->z + 8*FRACUNIT;
 
-  if (compatibility)                                              // phares
-    newmobj = P_SpawnMobj(x, y, z, MT_SKULL);                     //   |
+  if (comp[comp_skull])   /* killough 10/98: compatibility-optioned */
+    newmobj = P_SpawnMobj(x, y, z, MT_SKULL);                     // phares
   else                                                            //   V
     {
       // Check whether the Lost Soul is being fired through a 1-sided

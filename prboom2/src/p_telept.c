@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_telept.c,v 1.4 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_telept.c,v 1.5 2000/05/12 22:51:55 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_telept.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
+rcsid[] = "$Id: p_telept.c,v 1.5 2000/05/12 22:51:55 cph Exp $";
 
 #include "doomdef.h"
 #include "p_spec.h"
@@ -97,7 +97,9 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
                                    thing->z, MT_TFOG),
                        sfx_telept);
 
-          if (thing->player)       // don't move for a bit // killough 10/98
+	  /* don't move for a bit
+	   * cph - DEMOSYNC - BOOM had (player) here? */
+          if (thing->player)
             thing->reactiontime = 18;
 
           thing->angle = m->angle;

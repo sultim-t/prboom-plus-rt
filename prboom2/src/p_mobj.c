@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.7 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.7 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -668,7 +668,7 @@ void P_MobjThinker (mobj_t* mobj)
 
 	if (mobj->z > mobj->dropoffz &&      // Only objects contacting dropoff
 	    !(mobj->flags & MF_NOGRAVITY) && // Only objects which fall
-	    mbf_features) // Not in old demos
+	    !comp[comp_falloff]) // Not in old demos
 	  P_ApplyTorque(mobj);               // Apply torque
 	else
 	  mobj->intflags &= ~MIF_FALLING, mobj->gear = 0;  // Reset torque
@@ -741,7 +741,6 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   else
     if (type == MT_PLAYER)         // Except in old demos, players
       mobj->flags |= MF_FRIEND;    // are always friends.
-
 
   mobj->health = info->spawnhealth;
 

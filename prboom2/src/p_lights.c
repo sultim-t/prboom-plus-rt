@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_lights.c,v 1.4 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_lights.c,v 1.5 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_lights.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
+rcsid[] = "$Id: p_lights.c,v 1.5 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h" //jff 5/18/98
 #include "doomdef.h"
@@ -392,7 +392,7 @@ int EV_LightTurnOn(line_t *line, int bright)
       
       //jff 5/17/98 unless compatibility optioned 
       //then maximum near ANY tagged sector
-      if (compatibility)
+      if (comp[comp_model])
 	bright = tbright;
     }
   return 1;

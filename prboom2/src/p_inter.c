@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.4 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: p_inter.c,v 1.5 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.4 2000/05/12 21:31:20 proff_fs Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.5 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -799,7 +799,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       // ignore damage in GOD mode, or with INVUL power.
       // killough 3/26/98: make god mode 100% god mode in non-compat mode
 
-      if ((damage < 1000 || (!compatibility && (player->cheats&CF_GODMODE))) &&
+      if ((damage < 1000 || (!comp[comp_god] && (player->cheats&CF_GODMODE))) &&
           (player->cheats&CF_GODMODE || player->powers[pw_invulnerability]))
         return;
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.4 2000/05/11 23:22:20 cph Exp $
+ * $Id: doomstat.h,v 1.5 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -74,7 +74,7 @@ extern  boolean modifiedgame;
 // CPhipps - new compatibility handling
 extern int compatibility_level, default_compatibility_level;
 
-enum {
+typedef enum {
   doom_demo_compatibility, /* As compatible as possible for 
 			    * playing original Doom demos */
   doom_compatibility,      /* Compatible with original Doom levels */
@@ -84,7 +84,7 @@ enum {
   mbf_compatibility,                     /* MBF */
   prboom_1_compatibility,                /* PrBoom 2.03+? */
   MAX_COMPATIBILITY_LEVEL                // Must be last entry
-};
+} complevel_t;
 
 // CPhipps - old compatibility testing flags aliased to new handling
 #define compatibility (compatibility_level<=boom_compatibility_compatibility)
@@ -98,6 +98,35 @@ extern int     default_translucency; // config file says           // phares
 extern boolean general_translucency; // true if translucency is ok // phares
 
 extern int demo_insurance, default_demo_insurance;      // killough 4/5/98
+
+// -------------------------------------------
+// killough 10/98: compatibility vector
+
+enum {
+  comp_telefrag,
+  comp_dropoff,
+  comp_vile,
+  comp_pain,
+  comp_skull,
+  comp_blazing,
+  comp_doorlight,
+  comp_model,
+  comp_god,
+  comp_falloff,
+  comp_floors,
+  comp_skymap,
+  comp_pursuit,
+  comp_doorstuck,
+  comp_staylift,
+  comp_zombie,
+  comp_stairs,
+  comp_infcheat,
+  comp_zerotags,
+  COMP_NUM,      /* cph - should be last in sequence */
+  COMP_TOTAL=32  // Some extra room for additional variables
+};
+
+extern int comp[COMP_TOTAL], default_comp[COMP_TOTAL];
 
 // -------------------------------------------
 // Language.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_doors.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: p_doors.c,v 1.4 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.4 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -145,7 +145,7 @@ void T_VerticalDoor (vldoor_t* door)
             door->sector->ceilingdata = NULL;  //jff 2/22/98 
             P_RemoveThinker (&door->thinker);  // unlink and free
             // killough 4/15/98: remove double-closing sound of blazing doors
-            if (compatibility)
+            if (comp[comp_blazing])
               S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdcls);
             break;
 
@@ -561,6 +561,9 @@ int EV_VerticalDoor
   door->speed = VDOORSPEED;
   door->topwait = VDOORWAIT;
   door->line = line; // jff 1/31/98 remember line that triggered us
+
+  /* killough 10/98: use gradual lighting changes if nonzero tag given */
+  door->lighttag = comp[comp_doorlight] ? 0 : line->tag;
 
   // set the type of door from the activating linedef type
   switch(line->special)

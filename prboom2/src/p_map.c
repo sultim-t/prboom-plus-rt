@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.4 2000/05/12 07:40:18 cph Exp $
+ * $Id: p_map.c,v 1.5 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.4 2000/05/12 07:40:18 cph Exp $";
+rcsid[] = "$Id: p_map.c,v 1.5 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -229,7 +229,7 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
 
   /* killough 8/9/98: make telefragging more consistent, preserve compatibility */
   telefrag = thing->player || 
-    (mbf_features ? boss : (gamemap==30));
+    (!comp[comp_telefrag] ? boss : (gamemap==30));
 
   // kill anything occupying the position
 
@@ -764,7 +764,7 @@ boolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
        */
 
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT)))
-	if (!mbf_features)
+	if (comp[comp_dropoff])
 	  {
 	    if (tmfloorz - tmdropoffz > 24*FRACUNIT)
 	      return false;                      // don't stand over a dropoff
@@ -1905,7 +1905,7 @@ boolean P_CheckSector(sector_t* sector,boolean crunch)
   {
   msecnode_t *n;
 
-  if (demo_compatibility) // use the old routine for old demos though
+  if (comp[comp_floors]) /* use the old routine for old demos though */
     return P_ChangeSector(sector,crunch);
 
   nofit = false;

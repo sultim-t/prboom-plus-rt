@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_plats.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_plats.c,v 1.4 2000/05/12 22:51:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_plats.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_plats.c,v 1.4 2000/05/12 22:51:54 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -139,7 +139,7 @@ void T_PlatRaise(plat_t* plat)
         //killough 1/31/98: relax compatibility to demo_compatibility
 
         // remove the plat if its a pure raise type
-        if (!demo_compatibility)
+        if (!comp[comp_floors])
         {
           switch(plat->type)
           {
