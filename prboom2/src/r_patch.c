@@ -33,7 +33,10 @@ typedef post_t column_t;
 // Re-engineered patch support
 //---------------------------------------------------------------------------
 static TPatch *patches = 0;
-int numPatches = 0;
+static int numPatches = 0;
+
+static TPatch *texture_composites = 0;
+static int numTextureComposites = 0;
 
 //---------------------------------------------------------------------------
 void R_InitPatches() {
@@ -44,6 +47,12 @@ void R_InitPatches() {
   free(patches);
   patches = 0;
   numPatches = 0;
+  for (i=0; i<numTextureComposites; i++) {
+    if (texture_composites[i].data) free(texture_composites[i].data);
+  }
+  free(texture_composites);
+  texture_composites = 0;
+  numTextureComposites = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -279,10 +288,187 @@ static void createPatch(int id) {
   free(numPostsInColumn);
 }
 
+typedef struct {
+  unsigned short patches;
+  unsigned short posts;
+  unsigned short posts_used;
+} count_t;
+
+//---------------------------------------------------------------------------
+static void createTextureCompositePatch(int id) {
+  TPatch *composite_patch;
+  texture_t *texture;
+  texpatch_t *texpatch;
+  int patchNum;
+  const patch_t *oldPatch;
+  const column_t *oldColumn, *oldPrevColumn, *oldNextColumn;
+  int i, x, y;
+  int pixelDataSize;
+  int columnsDataSize;
+  int postsDataSize;
+  int dataSize;
+  int numPostsTotal;
+  const unsigned char *oldColumnPixelData;
+  int numPostsUsedSoFar;
+  int edgeSlope;
+  count_t *countsInColumn;
+
+  if (id >= numTextureComposites) {
+    // create room for this patch
+    int prevNumTextureComposites = numTextureComposites;
+    numTextureComposites = (id + 256);
+    texture_composites = (TPatch*)realloc(texture_composites,  numTextureComposites * sizeof(TPatch));
+    // clear out new texture_composites to signal they're uninitialized
+    memset(texture_composites + prevNumTextureComposites, 0, sizeof(TPatch)*(numTextureComposites-prevNumTextureComposites));
+  }
+
+  composite_patch = &texture_composites[id];
+
+  texture = textures[id];
+
+  composite_patch->width = texture->width;
+  composite_patch->height = texture->height;
+  composite_patch->leftOffset = 0;
+  composite_patch->topOffset = 0;
+  composite_patch->isNotTileable = 0;
+
+  // work out how much memory we need to allocate for this patch's data
+  pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
+  columnsDataSize = sizeof(TPatchColumn) * composite_patch->width;
+
+  // count the number of posts in each column
+  countsInColumn = (count_t *)calloc(sizeof(count_t), composite_patch->width);
+  numPostsTotal = 0;
+
+  for (i=0; i<texture->patchcount; i++) {
+    texpatch = &texture->patches[i];
+    patchNum = texpatch->patch;
+    oldPatch = (const patch_t*)W_CacheLumpNum(patchNum);
+
+    for (x=0; x<SHORT(oldPatch->swidth); x++) {
+      int tx = texpatch->originx + x;
+
+      if (tx < 0)
+        continue;
+      if (tx >= composite_patch->width)
+        break;
+
+      countsInColumn[tx].patches++;
+
+      oldColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->lcolumnofs[x]));
+      while (oldColumn->topdelta != 0xff) {
+        countsInColumn[tx].posts++;
+        numPostsTotal++;
+        oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
+      }
+    }
+
+    W_UnlockLumpNum(patchNum);
+  }
+
+  postsDataSize = numPostsTotal * sizeof(TPatchPost);
+
+  // allocate our data chunk
+  dataSize = pixelDataSize + columnsDataSize + postsDataSize;
+  composite_patch->data = (unsigned char*)malloc(dataSize);
+  memset(composite_patch->data, 0, dataSize);
+
+  // set out pixel, column, and post pointers into our data array
+  composite_patch->pixels = composite_patch->data;
+  composite_patch->columns = (TPatchColumn*)((unsigned char*)composite_patch->pixels + pixelDataSize);
+  composite_patch->posts = (TPatchPost*)((unsigned char*)composite_patch->columns + columnsDataSize);
+
+  // sanity check that we've got all the memory allocated we need
+  assert(((int)composite_patch->posts + (int)(numPostsTotal*sizeof(TPatchPost)) - (int)composite_patch->data) == dataSize);
+
+  memset(composite_patch->pixels, 0xff, (composite_patch->width*composite_patch->height));
+
+  numPostsUsedSoFar = 0;
+
+  for (x=0; x<texture->width; x++) {
+      // setup the column's data
+      if (countsInColumn[x].patches > 1)
+        I_Error("Multipatch columns not supported yet, please report the WAD file to the authors, so it can be fixed.");
+      composite_patch->columns[x].pixels = composite_patch->pixels + (x*composite_patch->height);
+      composite_patch->columns[x].numPosts = countsInColumn[x].posts;
+      composite_patch->columns[x].posts = composite_patch->posts + numPostsUsedSoFar;
+      numPostsUsedSoFar += countsInColumn[x].posts;
+  }
+
+  // fill in the pixels, posts, and columns
+  for (i=0; i<texture->patchcount; i++) {
+    texpatch = &texture->patches[i];
+    patchNum = texpatch->patch;
+    oldPatch = (const patch_t*)W_CacheLumpNum(patchNum);
+
+    for (x=0; x<SHORT(oldPatch->swidth); x++) {
+      int tx = texpatch->originx + x;
+
+      if (tx < 0)
+        continue;
+      if (tx >= composite_patch->width)
+        break;
+
+      oldColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->lcolumnofs[x]));
+
+      {
+        // tiling
+        int prevColumnIndex = x-1;
+        int nextColumnIndex = x+1;
+        while (prevColumnIndex < 0) prevColumnIndex += SHORT(oldPatch->swidth);
+        while (nextColumnIndex >= SHORT(oldPatch->swidth)) nextColumnIndex -= SHORT(oldPatch->swidth);
+        oldPrevColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->lcolumnofs[prevColumnIndex]));
+        oldNextColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->lcolumnofs[nextColumnIndex]));
+      }
+
+      while (oldColumn->topdelta != 0xff) {
+        TPatchPost *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
+        // set up the post's data
+        post->startY = oldColumn->topdelta;
+        post->length = oldColumn->length;
+        post->edgeSloping = 0;
+
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta);
+        if (edgeSlope == 1) post->edgeSloping |= RDRAW_EDGESLOPE_TOP_UP;
+        else if (edgeSlope == -1) post->edgeSloping |= RDRAW_EDGESLOPE_TOP_DOWN;
+
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta+oldColumn->length);
+        if (edgeSlope == 1) post->edgeSloping |= RDRAW_EDGESLOPE_BOT_UP;
+        else if (edgeSlope == -1) post->edgeSloping |= RDRAW_EDGESLOPE_BOT_DOWN;
+
+        // fill in the post's pixels
+        oldColumnPixelData = (const byte *)oldColumn + 3;
+        for (y=0; y<oldColumn->length; y++) {
+          int ty = texpatch->originy + oldColumn->topdelta + y;
+          if (ty < 0)
+            continue;
+          if (ty >= composite_patch->height)
+            break;
+          composite_patch->pixels[tx * composite_patch->height + ty] = oldColumnPixelData[y];
+        }
+
+        oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
+        countsInColumn[tx].posts_used++;
+        assert(countsInColumn[tx].posts_used <= countsInColumn[tx].posts);
+      }
+    }
+
+    W_UnlockLumpNum(patchNum);
+  }
+
+  free(countsInColumn);
+}
+
 //---------------------------------------------------------------------------
 const TPatch *R_GetPatch(int id) {
   if (id >= numPatches || !patches[id].data) createPatch(id);
   return &patches[id];
+}
+
+//---------------------------------------------------------------------------
+const TPatch *R_GetTextureCompositePatch(int id) {
+  if (id >= numTextureComposites || !texture_composites[id].data) createTextureCompositePatch(id);
+  return &texture_composites[id];
 }
 
 //---------------------------------------------------------------------------

@@ -38,6 +38,7 @@ typedef struct {
 
 //---------------------------------------------------------------------------
 const TPatch *R_GetPatch(int id);
+const TPatch *R_GetTextureCompositePatch(int id);
 
 //---------------------------------------------------------------------------
 // Size query funcs

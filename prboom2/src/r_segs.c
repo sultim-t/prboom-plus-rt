@@ -180,8 +180,10 @@ void R_RenderMaskedSegRange(drawseg_t *seg, int x1, int x2)
   }
 
   // just render one single patch for now - POPE
-  patch = R_GetPatch(textures[texnum]->patches[0].patch);
-  
+  //patch = R_GetPatch(textures[texnum]->patches[0].patch);
+  // proff - implemented multipatch textures
+  patch = R_GetTextureCompositePatch(texnum);
+
   // draw the columns
   for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep) {
     if (maskedtexturecol[dcvars.x] == SHRT_MAX) continue;
