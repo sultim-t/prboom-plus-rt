@@ -638,7 +638,7 @@ int main(int argc, char** argv)
     int j, playersthistic = 0;
     byte *q = p++;
     for (j=0; j<MAXPLAYERS; j++)
-      if ((playerjoingame[j] < remoteticto[i]) &&
+      if ((playerjoingame[j] <= remoteticto[i]) &&
           (playerleftgame[j] > remoteticto[i])) {
         *p++ = j;
         memcpy(p, &netcmds[j][remoteticto[i]%BACKUPTICS], sizeof(ticcmd_t));
