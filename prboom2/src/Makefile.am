@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.10 2000/05/23 08:44:41 cph Exp $
+# $Id: Makefile.am,v 1.11 2000/08/06 12:04:56 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -23,8 +23,14 @@ endif
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-prboom_game_server_SOURCES = d_server.c i_udp.c protocol.h
-prboom_game_server_LDADD = POSIX/libposixdoom.a 
+if SDL_NET
+UDP_SRC = i_udp_sdl.c
+else
+UDP_SRC = i_udp.c
+endif
+
+prboom_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
+prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
@@ -58,10 +64,14 @@ COMMON_SRC = \
  f_wipe.c       p_map.h            r_main.h         z_zone.c    \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h    $(ASMS)
 
+if SDL_NET
+NET_CLIENT_SRC = d_client.c i_udp_sdl.c
+else
 if HAVE_NET
 NET_CLIENT_SRC = d_client.c i_udp.c i_network.c
 else
 NET_CLIENT_SRC = d_client.c
+endif
 endif
 
 if BUILD_GL
@@ -73,5 +83,5 @@ endif
 prboom_SOURCES = v_video_trans.h v_video_trans.c mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(GL_SRC)
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
 
-xprboom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
+xprboom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) d_client.c i_udp.c i_network.c
 xprboom_LDADD = X11/libx11doom.a OSS/libossdoom.a POSIX/libposixdoom.a @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ @MATH_LIB@
