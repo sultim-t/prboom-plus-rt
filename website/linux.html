@@ -9,9 +9,9 @@
     <title>PrBoom - Linux/UNIX Installation</title>
     <meta name="author" content="Colin Phipps" />
     <meta name="generator"
-    content="vi (gvim Debian/GNU Linux 2.3 (testing) i686)" />
+    content="vi (vim; Mandrake GNU/Linux 8.1 (Enigma); i686)" />
     <meta name="CVSID"
-    content="$Id: linux.html,v 1.15 2001/06/23 12:26:43 cph Exp $" />
+    content="$Id: linux.html,v 1.16 2001/11/17 13:09:26 cph Exp $" />
     <link rel="stylesheet" href="main.css" type="text/css" />
   </head>
 
@@ -22,11 +22,13 @@
 
     <h1>Installation on Linux and UNIX Systems</h1>
 
-    <p> This page guides you through the first steps of getting
-    PrBoom, namely downloading the right PrBoom package for your
-    system, and getting the necessary libraries.</p>
+    <p> This page guides you through the steps for getting PrBoom running on
+    UNIX and Linux systems.</p>
 
-    <p> Please see the most appropriate instructions depending on
+    <h2>Steps</h2>
+    <ol>
+      <li><p>Install the PrBoom program and required libraries -
+    Please see the most appropriate instructions depending on
     your system distribution:</p>
 
     <ul>
@@ -40,9 +42,10 @@
 
       <li><a href="#unix">Generic UNIX</a> (anything else)</li>
     </ul>
-
-    <p>If you want music support, see the <a href="#timidity">music
-    section</a>.</p>
+      </li>
+      <li><a href="#IWAD">Getting a Doom IWAD</a></li>
+      <li><a href="#timidity">Getting music</a> (optional).</p>
+    </ol>
 
     <h2>Compiling with OpenGL support</h2>
 
@@ -63,9 +66,20 @@
     <!-- cph - perhaps Jess should write some stuff here - I know nothing ;-) -->
 
     <h2><a id="redhat" name="redhat">Linux/x86 RPM based
-    distributions</a></h2>
+	distributions</a></h2>
 
-    <p> We test and recommend the following RPM's to use with
+    <p>Several of the main desktop Linux distributions ship with and install all the
+    required libraries by default. Both RedHat 7.2 and Mandrake 8.1 come with
+    all the required libraries. So you can just grab the RPM of PrBoom,
+    <code>prboom-2.2.2-1.i386.rpm</code>, and install it with the following
+    command (as root):</p>
+    <blockquote><p><code>rpm -ivh prboom-2.2.2-1.i386.rpm</code></p></blockquote>
+    <p>You can then run PrBoom as <code>
+      /usr/games/prboom</code> (or just <code>prboom</code> if the games are in
+    your <code>PATH</code>).</p>
+
+    <p>If you use an older distribution, you will need to install the required
+    SDL libraries first. We test and recommend the following RPM's to use with
     PrBoom:</p>
 
     <ul>
@@ -77,18 +91,11 @@
     <p>To install these, you use <code>rpm</code>. E.g. if you
     downloaded all of the above RPMs into one directory, <code>
     cd</code> to that directory and run <code>rpm -ivh
-    *.rpm</code>. You can then run PrBoom as <code>
-    /usr/games/prboom</code>.</p>
+    *.rpm</code>. You can then install the PrBoom RPM itself as above.</p>
 
     <p> Notes:</p>
 
     <ul>
-      <li>
-      If you're a Mandrake user, you can't any more just use the SDL version
-      shipped with Mandrake (Mandrake 8.0 only ships with SDL-1.1 I believe).
-      I'm sure the next Mandrake release will catch up though.
-      </li>
-
       <li>There may be newer versions of some of these libraries
       available from their websites;
       anything in the 1.2 series should work fine, let us know if not.
@@ -98,9 +105,14 @@
       might need to install a few more RPMs required by these ones.
       They should be on your distribution CDs.</li>
 
-      <li>No source RPM (SRPM) is provided for PrBoom. The RPM is
-      built from the source tarball unmodified: see the <code>
-      INSTALL</code> file in the source tarball for details.</li>
+      <li>No source RPM (SRPM) is provided for PrBoom. The RPM is built from the
+      source tarball unmodified: see the <code>INSTALL</code> file in the source
+      tarball for details.</li>
+
+      <li>If you have information on installing PrBoom on other distributions,
+      if there were any special steps required (or if there weren't!), <a
+	href="mailto:prboom-devel@lists.sourceforge.net">let us know</a>, and
+      I'll update the instructions here.</li>
     </ul>
 
     <h2><a id="debian" name="debian">Debian</a></h2>
@@ -184,24 +196,45 @@
     here</a>. It's possible that the version numbers on this page
     may not be up to date. You can figure it out :-).</p>
 
+    <h2><a id="IWAD" name="IWAD">Getting a Doom IWAD</a></h2>
+
+    <p>
+    The IWAD is the main data file containing the graphics and levels for Doom.
+    You need one to use PrBoom. If you have a copy of one of the original Doom
+    games,   copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD
+    (doom.wad, doom2.wad, tnt.wad or plutonia.wad) to
+    /usr/local/share/games/doom/.  Or if you don't have any of those, use the
+    shareware IWAD, which you can get from http://www.doomworld.com/ or
+    http://www.idsoftware.com/.
+    </p>
+
     <h2><a id="timidity" name="timidity">Music</a></h2>
 
     <p> The SDL_mixer library used by PrBoom supports software MIDI
     music synthesis. If you want to hear the Doom music, you need a
-    set of Timidity instrument patches. Debian includes a package
-    <code>timidity-patches</code> which provides these. People with
-    RPM based systems can <a
-    href="http://rpmfind.net/linux/RPM/timidity-instruments.html">
-    look for a package</a>. Really good but quite big are the <a
-    href="http://www.stardate.bc.ca/eawpatches/html/default.htm">
-    Eawpatches</a>. Everyone else, do a web search for timidity
-    patch sets, there are plenty around.</p>
+    set of Timidity instrument patches. There are various ways to get these:</p>
+    <ul>
+      <li>Mandrake includes a <code>timidity-instruments</code> package
+      (installed by default I think, if not use
+      <code>urpmi&nbsp;timidity-instruments</code>).</li>
+      <li>Other RPM based systems can <a
+	href="http://rpmfind.net/linux/RPM/timidity-instruments.html">
+	look for a package</a>.</li>
+      <li>Debian includes a package <code>timidity-patches</code>.</li>
+      <li>
+      Everyone else, do a web search for timidity
+      patch sets, there are plenty around.
+      Really good but quite big are the <a
+	href="http://www.stardate.bc.ca/eawpatches/html/default.htm">
+	Eawpatches</a>.
+      </li>
+    </ul>
 
     <p>These patch sets are a large download (&gt;5megs).</p>
 
-    <p> SDL_mixer does not currently support hardware MIDI
-    synthesis. We plan to nag the SDL developers about this. If you
-    want it, you nag them too :-).</p>
+    <p> SDL_mixer does not currently support hardware MIDI synthesis on UNIX
+    systems. We plan to nag the SDL developers about this. If you want it, you
+    nag them too :-).</p>
     <hr />
 
     <p> <a href="http://validator.w3.org/check/referer"><img
