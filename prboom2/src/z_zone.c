@@ -691,6 +691,10 @@ void (Z_ChangeTag)(void *ptr, int tag
 {
   memblock_t *block = (memblock_t *)((char *) ptr - HEADER_SIZE);
 
+  // proff - added sanity check, this can happen when an empty lump is locked
+  if (!ptr)
+    return;
+
 #ifdef INSTRUMENTED
 #ifdef CHECKHEAP
   Z_CheckHeap();
