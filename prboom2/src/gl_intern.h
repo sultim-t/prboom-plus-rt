@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.7 2000/05/13 10:23:20 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.8 2000/05/15 23:14:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -66,16 +66,26 @@
 #define GLRealloc(p,n) Z_Realloc(p,n,PU_STATIC,0)
 #define GLFree(p) Z_Free(p)
 
+typedef enum
+{
+  GLDT_UNREGISTERED,
+  GLDT_BROKEN,
+  GLDT_PATCH,
+  GLDT_TEXTURE,
+  GLDT_FLAT
+} GLTexType;
+
 typedef struct
 {
-  boolean registered;
-  texture_t *texture;
-  int lump;
-  int size;
+  GLTexType textype;
+  int index;
   boolean mipmap;
 	int width,height;
   int leftoffset,topoffset;
   int tex_width,tex_height;
+  int realtexwidth, realtexheight;
+  int buffer_width,buffer_height;
+  int buffer_size;
   int glTexID[CR_LIMIT+MAXPLAYERS];
 } GLTexture;
 
