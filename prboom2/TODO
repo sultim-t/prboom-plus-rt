@@ -169,8 +169,24 @@ Proff:
 --------------------------------------------------------------------------
 48. (2002/08/05) comp_sound
 
+Colin:
 The purists want a sound compatibility option that prevents the player hearing
 other coop/dm player weapon pickup noise (as in the original game I'm told).
 Conversely, !comp_sound could, e.g., get rid of the silent BFG and other sound
 anomalies.
+
+> From bahdko@erols.com:
+> When the player jumps down from a ledge or is injured, the "grunt sound" 
+> should cause the sound of a firing BFG to be canceled, [...]
+> 
+> Players must not be able to hear other players pick up items or weapons.
+
+--------------------------------------------------------------------------
+49. (2002/08/07) game options in netgames
+
+The server currently controls these, but lacks a way to set them. In particular
+the classic Doom DM types like to be able to turn on the comp_ options. We could
+have a v1.9 flag to use traditional options, or we could make the server parse a
+prboom.cfg to get the options. Or we could implement in-game game launching, the
+big option.
 
