@@ -103,6 +103,7 @@ prboom2/data/lumps/crred.lmp -text
 prboom2/data/lumps/crtan.lmp -text
 prboom2/data/lumps/cryellow.lmp -text
 prboom2/data/lumps/endboom.lmp -text svneol=unset#application/octet-stream
+prboom2/data/lumps/gammatbl.lmp -text svneol=unset#application/octet-stream
 prboom2/data/lumps/sinetabl.lmp -text
 prboom2/data/lumps/switches.lmp -text
 prboom2/data/lumps/tangtabl.lmp -text

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.30 2001/07/11 17:49:47 proff_fs Exp $
+ * $Id: i_video.c,v 1.31 2001/07/21 16:36:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.30 2001/07/11 17:49:47 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.31 2001/07/21 16:36:35 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -412,12 +412,13 @@ static void I_UploadNewPalette(int pal)
   return;
 #endif
   if ((colours == NULL) || (cachedgamma != usegamma)) {
-    int            lump = W_GetNumForName("PLAYPAL");
-    const byte *palette = W_CacheLumpNum(lump);
-    register const byte *const gtable = gammatable[cachedgamma = usegamma];
+    int pplump = W_GetNumForName("PLAYPAL");
+    int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
+    register const byte * palette = W_CacheLumpNum(pplump);
+    register const byte * const gtable = W_CacheLumpNum(gtlump) + 256*(cachedgamma = usegamma);
     register int i;
 
-    num_pals = W_LumpLength(lump) / (3*256);
+    num_pals = W_LumpLength(pplump) / (3*256);
     num_pals *= 256;
 
     if (!colours) {
@@ -433,7 +434,8 @@ static void I_UploadNewPalette(int pal)
       palette += 3;
     }
   
-    W_UnlockLumpNum(lump);
+    W_UnlockLumpNum(pplump);
+    W_UnlockLumpNum(gtlump);
     num_pals/=256;
   }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.38 2001/07/16 15:35:16 proff_fs Exp $
+ * $Id: m_misc.c,v 1.39 2001/07/21 16:36:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.38 2001/07/16 15:35:16 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.39 2001/07/21 16:36:35 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1012,6 +1012,9 @@ static void WriteBMPfile(const char* filename, const byte* data,
 
   st = fopen(filename,"wb");
   if (st!=NULL) {
+    int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
+    register const byte * const gtable = W_CacheLumpNum(gtlump) + 256*usegamma;
+
     // write the header
     SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
     SafeWrite(&bmfh.bfSize,sizeof(bmfh.bfSize),1,st);
@@ -1033,11 +1036,11 @@ static void WriteBMPfile(const char* filename, const byte* data,
 
     // write the palette, in blue-green-red order, gamma corrected
     for (i=0;i<768;i+=3) {
-      c=gammatable[usegamma][palette[i+2]];
+      c=gtable[palette[i+2]];
       SafeWrite(&c,sizeof(char),1,st);
-      c=gammatable[usegamma][palette[i+1]];
+      c=gtable[palette[i+1]];
       SafeWrite(&c,sizeof(char),1,st);
-      c=gammatable[usegamma][palette[i+0]];
+      c=gtable[palette[i+0]];
       SafeWrite(&c,sizeof(char),1,st);
       SafeWrite(&zero,sizeof(char),1,st);
     }
@@ -1046,6 +1049,7 @@ static void WriteBMPfile(const char* filename, const byte* data,
       SafeWrite(data+(height-1-i)*width,sizeof(byte),wid,st);
 
     fclose(st);
+    W_UnlockLumpNum(gtlump);
   }
 #endif // DREAMCAST
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.13 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: v_video.h,v 1.14 2001/07/21 16:36:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -74,7 +74,6 @@ typedef enum
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
 extern byte      *screens[6];
-extern const byte gammatable[5][256];
 extern int        usegamma;
 
 //jff 4/24/98 loads color translation lumps

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: tables.c,v 1.6 2001/07/03 12:17:04 proff_fs Exp $
+ * $Id: tables.c,v 1.7 2001/07/21 16:36:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,7 +45,7 @@
  */
 
 static const char
-rcsid[] = "$Id: tables.c,v 1.6 2001/07/03 12:17:04 proff_fs Exp $";
+rcsid[] = "$Id: tables.c,v 1.7 2001/07/21 16:36:35 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -83,19 +83,22 @@ void R_LoadTrigTables(void)
 {
   int lump;
   {
-    lump = W_GetNumForName("SINETABL");
+    lump = (W_CheckNumForName)("SINETABL",ns_prboom);
+    if (lump == -1) I_Error("Failed to locate trig tables");
     if (W_LumpLength(lump) != sizeof(finesine))
       I_Error("R_LoadTrigTables: Invalid SINETABL");
     W_ReadLump(lump,(unsigned char*)finesine);
   }
   {
-    lump = W_GetNumForName("TANGTABL");
+    lump = (W_CheckNumForName)("TANGTABL",ns_prboom);
+    if (lump == -1) I_Error("Failed to locate trig tables");
     if (W_LumpLength(lump) != sizeof(finetangent))
       I_Error("R_LoadTrigTables: Invalid TANGTABL");
     W_ReadLump(lump,(unsigned char*)finetangent);
   }
   {
-    lump = W_GetNumForName("TANTOANG");
+    lump = (W_CheckNumForName)("TANTOANG",ns_prboom);
+    if (lump == -1) I_Error("Failed to locate trig tables");
     if (W_LumpLength(lump) != sizeof(tantoangle))
       I_Error("R_LoadTrigTables: Invalid TANTOANG");
     W_ReadLump(lump,(unsigned char*)tantoangle);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.23 2001/07/16 15:35:16 proff_fs Exp $
+ * $Id: w_wad.c,v 1.24 2001/07/21 16:36:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.23 2001/07/16 15:35:16 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.24 2001/07/21 16:36:35 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -445,6 +445,7 @@ void W_Init(void)
   W_CoalesceMarkedResource("S_START", "S_END", ns_sprites);
   W_CoalesceMarkedResource("F_START", "F_END", ns_flats);
   W_CoalesceMarkedResource("C_START", "C_END", ns_colormaps);
+  W_CoalesceMarkedResource("B_START", "B_END", ns_prboom);
 
   // killough 1/31/98: initialize lump hash table
   W_HashLumps();
