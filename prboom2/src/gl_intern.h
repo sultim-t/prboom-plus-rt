@@ -84,12 +84,6 @@ void gld_InitPalettedTextures(void);
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#ifndef PFNGLCOLORTABLEEXTPROC
-typedef void (APIENTRY * PFNGLCOLORTABLEEXTPROC) (GLenum target, 
-		GLenum internalFormat, GLsizei width, GLenum format, 
-		GLenum type, const GLvoid *table);
-#endif // Linux / Nvidia hack
-
 PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
 
 #endif // _GL_INTERN_H

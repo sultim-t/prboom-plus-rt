@@ -20,3 +20,7 @@ Q: The sky looks wrong in OpenGL, WTF?
 A: It seems like you are using Mesa3D. Try a newer version and if it's still not
 fixed bug them about it.
 A: Are you using Windows? Try using another glu32.dll.
+
+Q: I get a compile error saying PFNGLCOLORTABLEEXTPROC isn't defined
+A: Get a newer version of your OpenGL headers/drivers. This problem occured on
+nvidia cards. If you still can't get it working, the please tell us.
