@@ -389,7 +389,7 @@ static void CheckQueuedPackets(void)
 {
   int i;
   for (i=0; (unsigned)i<numqueuedpackets; i++)
-    if (doom_ntohl(queuedpacket[i]->tic) <= (unsigned)gametic)
+    if (doom_ntohl(queuedpacket[i]->tic) <= gametic)
       switch (queuedpacket[i]->type) {
       case PKT_QUIT: // Player quit the game
   {
@@ -425,7 +425,7 @@ static void CheckQueuedPackets(void)
     packet_header_t **newqueue = NULL;
 
     for (i=0; (unsigned)i<numqueuedpackets; i++)
-      if (doom_ntohl(queuedpacket[i]->tic) > (unsigned)gametic) {
+      if (doom_ntohl(queuedpacket[i]->tic) > gametic) {
   newqueue = Z_Realloc(newqueue, ++newnum * sizeof *newqueue,
            PU_STATIC, NULL);
   newqueue[newnum-1] = queuedpacket[i];

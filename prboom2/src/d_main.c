@@ -920,6 +920,7 @@ void FindResponseFile (void)
         char fname[PATH_MAX+1];
 
         strcpy(fname,&myargv[i][1]);
+        AddDefaultExtension(fname,".rsp");
 
         // READ THE RESPONSE FILE INTO MEMORY
         // proff 04/05/2000: changed for searching responsefile
@@ -960,7 +961,7 @@ void FindResponseFile (void)
         }
 
         // KEEP ALL CMDLINE ARGS FOLLOWING @RESPONSEFILE ARG
-	memcpy(moreargs,&myargv[i+1],(index = myargc - i - 1) * sizeof(myargv[0]));
+	memcpy((void *)moreargs,&myargv[i+1],(index = myargc - i - 1) * sizeof(myargv[0]));
 
 	{
 	  const char *firstargv = myargv[0];
@@ -1004,8 +1005,8 @@ void FindResponseFile (void)
 	}
 	free(file);
 
-	memcpy(&newargv[indexinfile],moreargs,index*sizeof(moreargs[0]));
-	free(moreargs);
+	memcpy((void *)&newargv[indexinfile],moreargs,index*sizeof(moreargs[0]));
+	free((void *)moreargs);
 
         myargc = indexinfile+index; myargv = newargv;
 

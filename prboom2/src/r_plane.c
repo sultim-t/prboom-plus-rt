@@ -125,7 +125,7 @@ void R_InitPlanes (void)
 // BASIC PRIMITIVE
 //
 
-static void R_MapPlane(short y, int x1, int x2)
+static void R_MapPlane(int y, int x1, int x2)
 {
   angle_t angle;
   fixed_t distance, length;
