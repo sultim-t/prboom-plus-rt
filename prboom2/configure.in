@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in,v 1.1 2000/05/04 07:54:22 proff_fs Exp $
+dnl $Id: configure.in,v 1.2 2000/05/05 08:28:50 cph Exp $
 AC_INIT(src/d_main.c)
 
 dnl --- Check for system type
@@ -110,8 +110,9 @@ dnl - First, joystick
 AC_CHECK_HEADERS(linux/joystick.h)
 dnl - want ffz()
 AC_CHECK_HEADERS(linux/bitops.h)
-dnl - wait(2)
+dnl - more standard stuff
 AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(unistd.h)
 dnl - Check for soundcard.h
 BUILD_SNDSERV=
 AC_CHECK_HEADERS(sys/soundcard.h,BUILD_SNDSERV=sndserv)
@@ -169,8 +170,12 @@ AC_OUTPUT(Makefile src/Makefile doc/Makefile data/Makefile lxdoom.spec)
 
 dnl
 dnl $Log: configure.in,v $
-dnl Revision 1.1  2000/05/04 07:54:22  proff_fs
-dnl Initial revision
+dnl Revision 1.2  2000/05/05 08:28:50  cph
+dnl Include config.h, unistd.h where needed for POSIX systems
+dnl Remove in-file CVS logs, they're getting big
+dnl
+dnl Revision 1.1.1.1  2000/05/04 07:54:22  proff_fs
+dnl initial login on sourceforge as prboom2
 dnl
 dnl Revision 1.23  2000/04/29 16:18:52  cph
 dnl *** empty log message ***

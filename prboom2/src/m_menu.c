@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.1 2000/05/04 08:10:03 proff_fs Exp $
+ * $Id: m_menu.c,v 1.2 2000/05/05 08:28:50 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by Colin Phipps (cph@lxdoom.linuxgames.com)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -34,9 +34,12 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.1 2000/05/04 08:10:03 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.2 2000/05/05 08:28:50 cph Exp $";
 
-#ifdef HAVE_UNISTD
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef _MSC_VER
@@ -4947,259 +4950,3 @@ void M_Init (void)
 //
 /////////////////////////////////////////////////////////////////////////////
 
-//----------------------------------------------------------------------------
-//
-// $Log: m_menu.c,v $
-// Revision 1.1  2000/05/04 08:10:03  proff_fs
-// Initial revision
-//
-// Revision 1.30  2000/05/01 17:50:35  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.29  2000/04/29 16:15:01  cph
-// Revert new netgame stuff
-//
-// Revision 1.24  2000/03/17 20:50:30  cph
-// Commit mead's improved mouse stuff
-//
-// Revision 1.23  2000/02/26 19:17:27  cph
-// Pass buffer size to G_SaveGameName, minor tweaking
-//
-// Revision 1.22  1999/10/27 12:01:11  cphipps
-// Removed M_DrawBackground, point existing calls to new V_DrawBackground
-//
-// Revision 1.21  1999/10/12 13:01:12  cphipps
-// Changed header to GPL
-//
-// Revision 1.20  1999/07/20 16:42:36  cphipps
-// Allow quickload in netgames
-//
-// Revision 1.19  1999/05/14 20:44:35  cphipps
-// Add number keypad support to the in-game key config screen
-//
-// Revision 1.18  1999/03/26 11:24:33  cphipps
-// Add new automap mode keys to key bindings menus
-//
-// Revision 1.17  1999/03/24 09:46:16  cphipps
-// Remove redundant extern decl's
-// Add new mapcolor_me menu entry, remove the old mapcolor_plyr entries
-//
-// Revision 1.16  1999/03/13 10:10:26  cphipps
-// Modified for new automap mode variable
-//
-// Revision 1.15  1999/02/28 08:40:48  cphipps
-// Remove large number of needless I_GetTime references
-//
-// Revision 1.14  1999/01/13 10:45:26  cphipps
-// Change exit delay handling to new I_uSleep()
-// Remove i_video.h include :)
-//
-// Revision 1.13  1999/01/07 10:32:16  cphipps
-// Fix bad enum
-// Improve messy pointer casts
-//
-// Revision 1.12  1998/12/31 20:26:26  cphipps
-// New wad lump handling
-//
-// Revision 1.11  1998/12/31 11:07:15  cphipps
-// All V_Draw* function calls updated
-//
-// Revision 1.10  1998/12/27 15:45:06  cphipps
-// When New Game selected in a netgame, query then do a level restart insytead
-//
-// Revision 1.9  1998/12/24 20:48:10  cphipps
-// Change V_DrawBlock calls to V_DrawStretchedBlock
-// (fixes high-res menu problems)
-// Rewrote most of M_DrawDefVerify to render its dialog into a buffer and then blit it, so
-// it stretches properly
-//
-// Revision 1.8  1998/12/24 17:46:56  cphipps
-// Modify for new default_t format
-//
-// Revision 1.7  1998/12/24 11:05:54  cphipps
-// Fix buffer overrun in M_Drawer
-//
-// Revision 1.6  1998/12/19 11:46:16  cphipps
-// Allow savegame loading in a netgame
-// Modify M_LoadGame so no savegame filename parameter is passed
-//
-// Revision 1.5  1998/11/16 22:42:57  cphipps
-// Hi-res fixes
-//
-// Revision 1.4  1998/10/27 16:08:45  cphipps
-// *** empty log message ***
-//
-// Revision 1.3  1998/10/27 16:08:07  cphipps
-// Logical output routine used
-//
-// Revision 1.2  1998/10/16 20:11:32  cphipps
-// Massive reformatting
-// Added static o many functions
-// Made string structure members const to prevent SIGSEGV's on protected
-// mode systems
-// Added const to many functions parameters to allow this
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.3  1998/09/12 19:36:11  cphipps
-// Cured a SIGSEGV by strdup()ing a constant string which was being written to
-//
-// Revision 1.54  1998/05/28  05:27:13  killough
-// Fix some load / save / end game handling r.w.t. demos
-//
-// Revision 1.53  1998/05/16  09:17:09  killough
-// Make loadgame checksum friendlier
-//
-// Revision 1.52  1998/05/05  15:34:55  phares
-// Documentation and Reformatting changes
-//
-// Revision 1.51  1998/05/03  21:55:58  killough
-// Provide minimal required headers and decls
-//
-// Revision 1.50  1998/05/01  21:35:06  killough
-// Fix status bar update after leaving help screens
-//
-// Revision 1.49  1998/04/24  23:51:51  thldrmn
-// Reinstated gamma correction deh variables
-//
-// Revision 1.48  1998/04/23  13:07:05  jim
-// Add exit line to automap
-//
-// Revision 1.47  1998/04/22  13:46:02  phares
-// Added Setup screen Reset to Defaults
-//
-// Revision 1.46  1998/04/19  01:19:42  killough
-// Tidy up last fix's code
-//
-// Revision 1.45  1998/04/17  14:46:33  killough
-// fix help showstopper
-//
-// Revision 1.44  1998/04/17  10:28:46  killough
-// Add traditional_menu
-//
-// Revision 1.43  1998/04/14  11:29:50  phares
-// Added demorecording as a condition for delaying config change
-//
-// Revision 1.42  1998/04/14  10:55:24  phares
-// Recoil, Bobbing, Monsters Remember changes in Setup now take effect immediately
-//
-// Revision 1.41  1998/04/13  21:36:24  phares
-// Cemented ESC and F1 in place
-//
-// Revision 1.40  1998/04/12  22:55:23  phares
-// Remaining 3 Setup screens
-//
-// Revision 1.39  1998/04/06  05:01:04  killough
-// set inhelpscreens=true for status bar update, rearrange menu yet again
-//
-// Revision 1.38  1998/04/05  00:50:59  phares
-// Joystick support, Main Menu re-ordering
-//
-// Revision 1.37  1998/04/03  19:18:31  phares
-// Automap Palette work, slot 0 = disable, 247 = BLACK
-//
-// Revision 1.36  1998/04/03  14:45:28  jim
-// Fixed automap disables at 0, mouse sens unbounded
-//
-// Revision 1.35  1998/04/01  15:34:09  phares
-// Added Automap Setup Screen, fixed Seg Viol in Setup Menus
-//
-// Revision 1.34  1998/03/31  23:07:40  phares
-// Fixed bug in key binding screen causing seg viol
-//
-// Revision 1.33  1998/03/31  10:40:06  killough
-// Fix incorrect order of quit message
-//
-// Revision 1.32  1998/03/31  01:07:59  phares
-// Initial Setup screens and Extended HELP screens
-//
-// Revision 1.31  1998/03/28  05:32:25  jim
-// Text enabling changes for DEH
-//
-// Revision 1.30  1998/03/24  15:59:36  jim
-// Added default_skill parameter to config file
-//
-// Revision 1.29  1998/03/23  15:21:24  phares
-// Start of setup menus
-//
-// Revision 1.28  1998/03/23  03:22:00  killough
-// Use G_SaveGameName for consistent savegame naming
-//
-// Revision 1.27  1998/03/16  12:31:11  killough
-// Remember savegame slot when loading
-//
-// Revision 1.26  1998/03/15  14:41:15  jim
-// added two more save/load slots
-//
-// Revision 1.25  1998/03/11  17:48:10  phares
-// New cheats, clean help code, friction fix
-//
-// Revision 1.24  1998/03/10  07:07:25  jim
-// Fixed display glitch in HUD cycle
-//
-// Revision 1.23  1998/03/09  18:29:06  phares
-// Created separately bound automap and menu keys
-//
-// Revision 1.22  1998/03/09  07:36:45  killough
-// Some #ifdef'ed help screen fixes, saved autorun status
-//
-// Revision 1.21  1998/03/05  11:29:26  jim
-// Fixed mis-merge in m_menu.c
-//
-// Revision 1.20  1998/03/05  01:12:34  jim
-// Added distributed hud to key_hud function
-//
-// Revision 1.19  1998/03/04  22:15:51  phares
-// Included missing externs
-//
-// Revision 1.18  1998/03/04  21:02:20  phares
-// Dynamic HELP screen
-//
-// Revision 1.17  1998/03/04  11:54:56  jim
-// Fix fullscreen bug in F5 key
-//
-// Revision 1.16  1998/03/02  15:34:06  jim
-// Added Rand's HELP screen as lump and loaded and displayed it
-//
-// Revision 1.15  1998/02/24  10:52:13  jim
-// Fixed missing changes in m_menu.c
-//
-// Revision 1.14  1998/02/24  09:13:01  phares
-// Corrected key_detail->key_hud oversight
-//
-// Revision 1.13  1998/02/24  08:46:00  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.12  1998/02/24  04:14:08  jim
-// Added double keys to status
-//
-// Revision 1.11  1998/02/23  14:21:04  jim
-// Merged HUD stuff, fixed p_plats.c to support elevators again
-//
-// Revision 1.10  1998/02/23  04:35:44  killough
-// Fix help screens and broken HUD control
-//
-// Revision 1.8  1998/02/19  16:54:40  jim
-// Optimized HUD and made more configurable
-//
-// Revision 1.7  1998/02/18  11:56:03  jim
-// Fixed issues with HUD and reduced screen size
-//
-// Revision 1.5  1998/02/17  06:11:59  killough
-// Support basesavegame path to savegames
-//
-// Revision 1.4  1998/02/15  02:47:50  phares
-// User-defined keys
-//
-// Revision 1.3  1998/02/02  13:38:15  killough
-// Add mouse sensitivity menu bar lumps
-//
-// Revision 1.2  1998/01/26  19:23:47  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:58  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

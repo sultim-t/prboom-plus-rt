@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_main.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
+ * $Id: l_main.c,v 1.3 2000/05/05 08:28:50 cph Exp $
  *
  *  Hybrid of the Boom i_main.c and original linuxdoom i_main.c
  *
@@ -9,7 +9,9 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *                             Jess Haas (JessH@lbjhs.net),
+ *                         and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -35,8 +37,14 @@
  */
 
 static const char
-rcsid[] = "$Id: l_main.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
+rcsid[] = "$Id: l_main.c,v 1.3 2000/05/05 08:28:50 cph Exp $";
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
@@ -393,96 +401,3 @@ int main(int argc, const char * const * argv)
   return 0;
 }
 
-
-/*----------------------------------------------------------------------------
- *
- * $Log: l_main.c,v $
- * Revision 1.2  2000/05/04 11:23:01  proff_fs
- * added an textwindow for Win32 and
- * changed some printfs to lprintfs
- *
- * Revision 1.1.1.1  2000/05/04 08:07:18  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.16  2000/05/01 17:50:34  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.15  2000/05/01 15:16:47  Proff
- * added __inline for VisualC
- *
- * Revision 1.14  2000/03/16 13:27:29  cph
- * Clean up uid stuff
- *
- * Revision 1.13  2000/01/25 21:33:22  cphipps
- * Fix security in case of being setuid
- *
- * Revision 1.12  1999/11/01 00:20:11  cphipps
- * Change int64_t's to int_64_t's
- * (the latter being LxDoom's wrapper for 64 bit int type)
- *
- * Revision 1.11  1999/10/31 16:07:38  cphipps
- * Moved most system functions that are specifically for the doom game from
- * l_system.c to here.
- * Cahnged all C++ comments to C.
- * Use new functions in l_system.c to get the LxDoom ver and signal names.
- * New function I_SafeExit is a wrapper for exit() that checks has_exited.
- *
- * Revision 1.10  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.9  1999/07/03 13:15:07  cphipps
- * Add broken_pipe variable to allow for broken pipe checking
- *
- * Revision 1.8  1999/06/20 14:04:13  cphipps
- * Code cleaning
- *
- * Revision 1.7  1999/01/11 16:03:37  cphipps
- * Fix version string printout
- *
- * Revision 1.6  1998/11/17 16:40:06  cphipps
- * Modified to work for DosDoom and LxDoom
- *
- * Revision 1.5  1998/10/16 22:20:50  cphipps
- * Match argv to myargv in type const char* const *
- * Disable dodgy BOOMPATH hack to fix D_DoomExeDir remotely, since it writes argv[0]
- *
- * Revision 1.4  1998/10/15 20:13:02  cphipps
- * Made SIGPIPE non-fatal
- *
- * Revision 1.3  1998/10/13 11:52:29  cphipps
- * Added i_video.h and I_PreInitGraphics call
- *
- * Revision 1.2  1998/09/23 09:34:53  cphipps
- * Added identifying string at startup.
- * Add code to patch up myargv[0].
- * Cleaned up exit handling
- * Removed allegro_init call
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.8  1998/05/15  00:34:03  killough
- * Remove unnecessary crash hack
- *
- * Revision 1.7  1998/05/13  22:58:04  killough
- * Restore Doom bug compatibility for demos
- *
- * Revision 1.6  1998/05/03  22:38:36  killough
- * beautification
- *
- * Revision 1.5  1998/04/27  02:03:11  killough
- * Improve signal handling, to use Z_DumpHistory()
- *
- * Revision 1.4  1998/03/09  07:10:47  killough
- * Allow CTRL-BRK during game init
- *
- * Revision 1.3  1998/02/03  01:32:58  stan
- * Moved __djgpp_nearptr_enable() call from I_video.c to i_main.c
- *
- * Revision 1.2  1998/01/26  19:23:24  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:02:57  rand
- * Lee's Jan 19 sources
- *
- *----------------------------------------------------------------------------*/
