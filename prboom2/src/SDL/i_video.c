@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.3 2000/05/10 23:38:07 proff_fs Exp $
+ * $Id: i_video.c,v 1.4 2000/05/11 20:03:08 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.3 2000/05/10 23:38:07 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.4 2000/05/11 20:03:08 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -219,7 +219,7 @@ static void I_GetEvent(SDL_Event *Event)
            (Event->motion.x > ((screen->w/2)+(screen->w/4))) ||
            (Event->motion.y < ((screen->h/2)-(screen->h/4))) ||
            (Event->motion.y > ((screen->h/2)+(screen->h/4))) )
-        SDL_WarpMouse(screen->w/2, screen->h/2);
+        SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
     }
     event.type = ev_mouse;
     event.data1 = 0
