@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: w_wad.c,v 1.6 2000/05/10 16:26:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.6 2000/05/10 16:26:47 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -605,7 +605,11 @@ void WritePredefinedLumpWad(const char *filename)
 
   // The following code writes a PWAD from the predefined lumps array
   // How to write a PWAD will not be explained here.
+#ifdef _MSC_VER // proff: In Visual C open is defined a bit different
+  if ( (handle = open (filenam, O_RDWR | O_CREAT | O_BINARY, _S_IWRITE|_S_IREAD)) != -1)
+#else
   if ( (handle = open (filenam, O_RDWR | O_CREAT | O_BINARY, S_IWUSR|S_IRUSR)) != -1)
+#endif
   {
     wadinfo_t header = {"PWAD"};
     size_t filepos = sizeof(wadinfo_t) + num_predefined_lumps * sizeof(filelump_t);
