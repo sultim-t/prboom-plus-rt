@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.43 2001/07/22 15:02:08 cph Exp $
+ * $Id: g_game.c,v 1.44 2001/07/28 13:06:32 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.43 2001/07/22 15:02:08 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.44 2001/07/28 13:06:32 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1387,7 +1387,7 @@ void G_LoadGame(int slot, boolean command)
 
 static void G_LoadGameErr(const char *msg)
 {
-  Z_Free(savebuffer);                // Free the savegame buffer
+  free(savebuffer);                  // Free the savegame buffer
   M_ForcedLoadGame(msg);             // Print message asking for 'Y' to force
   if (command_loadgame)              // If this was a command-line -loadgame
     {
@@ -1532,7 +1532,7 @@ void G_DoLoadGame(void)
     I_Error ("G_DoLoadGame: Bad savegame");
 
   // done
-  Z_Free (savebuffer);
+  free (savebuffer);
 
   if (setsizeneeded)
     R_ExecuteSetViewSize ();
