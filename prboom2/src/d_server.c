@@ -496,7 +496,8 @@ int main(int argc, char** argv)
       if (!ingame) {
         int from = *(byte*)(packet+1);
 
-	if (badplayer(from) || !playeringame(from) || playerleftgame[from] == INT_MAX) break;
+	// Note: cannot user playeringame() here, as the player is still joining
+	if (badplayer(from) || playerjoingame[from] == INT_MAX || playerleftgame[from] == INT_MAX) break;
         playerleftgame[from] = INT_MAX;
         if (++curplayers == numplayers) {
     ingame=true;
