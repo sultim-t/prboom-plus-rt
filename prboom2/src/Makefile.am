@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.14 2000/09/17 10:59:13 cph Exp $
+# $Id: Makefile.am,v 1.15 2000/11/13 21:19:29 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -12,7 +12,7 @@ EXTRA_SUBDIRS = Posix OSS X11 SDL
 SUBDIRS = @BUILD_DIRS@
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = xprboom prboom prboom-game-server
+EXTRA_PROGRAMS = prboom prboom-game-server
 games_PROGRAMS = @BUILD_XPRBOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
 
 ASM_SRC = drawspan.S drawcol.S drawasm.h
@@ -86,9 +86,6 @@ endif
 
 prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC)
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
-
-xprboom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) d_client.c i_udp.c i_network.c
-xprboom_LDADD = X11/libx11doom.a OSS/libossdoom.a POSIX/libposixdoom.a @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ @MATH_LIB@
 
 # Must remember to include 'optional' sources in the tarball
 EXTRA_prboom_SOURCES = $(GL_SRC) $(ASM_SRC)
