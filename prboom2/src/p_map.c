@@ -2106,7 +2106,7 @@ boolean PIT_GetSectors(line_t* ld)
 // the object resides in.
 
 void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
-  {
+{
   int xl;
   int xh;
   int yl;
@@ -2181,8 +2181,16 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
   if ((compatibility_level < boom_compatibility_compatibility) ||
       (compatibility_level >= prboom_3_compatibility))
     tmthing = saved_tmthing;
-  /* And, duh, the same for tmx/y - cph 2002/09/22 */
+  /* And, duh, the same for tmx/y - cph 2002/09/22
+   * And for tmbbox - cph 2003/08/10 */
   if ((compatibility_level < boom_compatibility_compatibility) /* ||
-      (compatibility_level >= prboom_4_compatibility) */)
+      (compatibility_level >= prboom_4_compatibility) */) {
     tmx = saved_tmx, tmy = saved_tmy;
+    if (tmthing) {
+      tmbbox[BOXTOP]  = tmy + tmthing->radius;
+      tmbbox[BOXBOTTOM] = tmy - tmthing->radius;
+      tmbbox[BOXRIGHT]  = tmx + tmthing->radius;
+      tmbbox[BOXLEFT]   = tmx - tmthing->radius;
+    }
   }
+}
