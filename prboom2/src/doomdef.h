@@ -129,11 +129,13 @@ extern int SCREENHEIGHT;
 // at the intermission screen, the game final animation, or a demo.
 
 typedef enum {
-  GS_LEVEL,
-  GS_INTERMISSION,
-  GS_FINALE,
-  GS_DEMOSCREEN,
-  GS_CONSOLE
+  GS_INIT          = -1,         // loading doom
+  GS_LEVEL         = 0,          // in level
+  GS_INTERMISSION  = 1,          // intermission screen
+  GS_FINALE        = 2,          // finale screen
+  GS_DEMOSCREEN    = 3,          // demo screen
+  GS_CONSOLE       = 4,          // fullscreen console
+  GS_SERVERWAIT    = 5,          // waiting for server to start game
 } gamestate_t;
 
 //

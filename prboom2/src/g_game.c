@@ -97,7 +97,7 @@ boolean  netdemo;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
 gameaction_t    gameaction;
-gamestate_t     gamestate = GS_DEMOSCREEN;
+gamestate_t     gamestate = GS_INIT;
 skill_t         gameskill;
 boolean         respawnmonsters;
 int             gameepisode;
@@ -555,13 +555,11 @@ boolean G_Responder (event_t* ev)
     return true;
   }
 
-/*
   if (gamestate == GS_SERVERWAIT)
   {
-    CL_WaitResponder(ev);
+    //CL_WaitResponder(ev);
     return true;
   }
-*/
 
   // any other key pops up menu if in demos
   //

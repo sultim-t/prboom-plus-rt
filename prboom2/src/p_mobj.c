@@ -1043,6 +1043,8 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     ST_Start(); // wake up the status bar
     HU_Start(); // wake up the heads up text
     }
+  if(mthing->type-1 == displayplayer)
+    P_ResetChasecam(); //sf
   }
 
 /*

@@ -37,6 +37,7 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "d_deh.h"  // Ty 03/22/98 - externalizations
+#include "p_info.h"
 #include "f_finale.h" // CPhipps - hmm...
 
 // Stage of animation:
@@ -170,6 +171,12 @@ void F_StartFinale (void)
          break;
   }
   
+  if(info_intertext)
+  {
+        finaleflat = info_backdrop ? info_backdrop : "F_SKY1";
+        finaletext = info_intertext;
+  }
+
   finalestage = 0;
   finalecount = 0;
 }
