@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.23 2002/08/22 20:32:20 cph Exp $
+ * $Id: p_setup.c,v 1.24 2002/11/24 23:20:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.23 2002/08/22 20:32:20 cph Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.24 2002/11/24 23:20:09 proff_fs Exp $";
 
 #include <math.h>
 
@@ -277,13 +277,11 @@ static int checkGLVertex(int num)
 }
 
 
-#ifdef GL_DOOM
 static float GetDistance(int dx, int dy)
 {
 	float fx = (float)(dx)/FRACUNIT, fy = (float)(dy)/FRACUNIT;
 	return (float)sqrt(fx*fx + fy*fy);
 }
-#endif
 
 static int GetOffset(vertex_t *v1, vertex_t *v2)
 {
@@ -319,17 +317,13 @@ static void P_LoadSegs (int lump)
       int side, linedef;
       line_t *ldef;
 
-#ifdef GL_DOOM
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
-#endif
 
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
 
   	  li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
-#ifdef GL_DOOM
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
-#endif
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
       linedef = SHORT(ml->linedef);
@@ -375,9 +369,7 @@ static void P_LoadGLSegs(int lump)
 	{							// check for gl-vertices
 		segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
 		segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
-#ifdef GL_DOOM
 		segs[i].iSegID  = i;
-#endif
 							
 		if(ml->linedef != -1) // skip minisegs 
 		{
@@ -387,9 +379,7 @@ static void P_LoadGLSegs(int lump)
   		segs[i].angle = R_PointToAngle2(segs[i].v1->x,segs[i].v1->y,segs[i].v2->x,segs[i].v2->y);
 
 			segs[i].sidedef = &sides[ldef->sidenum[ml->side]];
-#ifdef GL_DOOM
 			segs[i].length  = GetDistance(segs[i].v2->x - segs[i].v1->x, segs[i].v2->y - segs[i].v1->y);
-#endif
 			segs[i].frontsector = sides[ldef->sidenum[ml->side]].sector;
 			if (ldef->flags & ML_TWOSIDED)
 				segs[i].backsector = sides[ldef->sidenum[ml->side^1]].sector;
@@ -406,9 +396,7 @@ static void P_LoadGLSegs(int lump)
 			segs[i].miniseg = true;
   		segs[i].angle  = 0;
 			segs[i].offset  = 0;
-#ifdef GL_DOOM
 			segs[i].length  = 0;
-#endif
 			segs[i].linedef = NULL;
 			segs[i].sidedef = NULL;
 			segs[i].frontsector = NULL;
@@ -461,9 +449,7 @@ static void P_LoadSectors (int lump)
       sector_t *ss = sectors + i;
       const mapsector_t *ms = (mapsector_t *) data + i;
 
-#ifdef GL_DOOM
   		ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL
-#endif
       ss->floorheight = SHORT(ms->floorheight)<<FRACBITS;
       ss->ceilingheight = SHORT(ms->ceilingheight)<<FRACBITS;
       ss->floorpic = R_FlatNumForName(ms->floorpic);
@@ -633,9 +619,7 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXTOP] = v1->y;
         }
 
-#ifdef GL_DOOM
   		ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
-#endif
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.27 2002/11/23 22:54:27 proff_fs Exp $
+ * $Id: r_main.c,v 1.28 2002/11/24 23:20:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.27 2002/11/23 22:54:27 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.28 2002/11/24 23:20:10 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -512,11 +512,9 @@ static void R_ShowStats(void)
   int now = I_GetTime();
 
   if (now - showtime > 35) {
-#ifdef GL_DOOM
-    doom_printf("Frame rate %d fps\nWalls %d, Flats %d, Sprites %d", 
-#else
-    doom_printf("Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d", 
-#endif
+    doom_printf((vid_getMode() == VID_MODEGL)
+                ?"Frame rate %d fps\nWalls %d, Flats %d, Sprites %d"
+                :"Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
 		(35*KEEPTIMES)/(now - keeptime[0]), rendered_segs, 
 		rendered_visplanes, rendered_vissprites);
     showtime = now;
@@ -543,18 +541,16 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 #ifdef GL_DOOM
   // proff 11/99: clear buffers
   gld_InitDrawScene();
-#else /* not GL_DOOM */
+
+  // proff 11/99: switch to perspective mode
+  gld_StartDrawScene();
+#else
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
       //memset(screens[0].data+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
       R_DrawViewBorder();
     }
-#endif /* not GL_DOOM */
-
-#ifdef GL_DOOM
-  // proff 11/99: switch to perspective mode
-  gld_StartDrawScene();
 #endif
 
   // check for new console commands.
@@ -570,18 +566,16 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
   NetUpdate ();
 #endif
     
-#ifndef GL_DOOM
-  R_DrawPlanes ();
-#endif
+  if (vid_getMode() != VID_MODEGL)
+    R_DrawPlanes ();
     
   // Check for new console commands.
 #ifdef HAVE_NET  
   NetUpdate ();
 #endif
 
-#ifndef GL_DOOM
-  R_DrawMasked ();
-#endif
+  if (vid_getMode() != VID_MODEGL)
+    R_DrawMasked ();
 
   // Check for new console commands.
 #ifdef HAVE_NET  

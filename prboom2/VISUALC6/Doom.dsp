@@ -413,24 +413,17 @@ SOURCE=..\src\f_wipe.c
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
 
-# PROP Exclude_From_Build 1
-
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
 
 # PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
 
 !ENDIF 
 
@@ -445,24 +438,17 @@ SOURCE=..\src\f_wipe.h
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
 
-# PROP Exclude_From_Build 1
-
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
 
 # PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
 
 !ENDIF 
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.37 2002/11/24 15:09:11 proff_fs Exp $
+ * $Id: v_video.c,v 1.38 2002/11/24 23:20:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.37 2002/11/24 15:09:11 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.38 2002/11/24 23:20:10 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -298,6 +298,8 @@ TFunc_V_DrawLine        V_DrawLine;
 // Set Function Pointers
 void vid_initMode(TVidMode vd) {
 #ifndef GL_DOOM
+  if (vd == VID_MODEGL)
+    return;
   vidMode = vd;
 #else // GL_DOOM
   vidMode = VID_MODEGL;
@@ -518,7 +520,6 @@ void V_DestroyUnusedTrueColorPalettes() {
 void V_SetPalette(int pal) {
   currentPaletteIndex = pal;
   
-#ifndef GL_DOOM
   if (vidMode == VID_MODE8) {
     I_SetPalette(pal);
   }
@@ -532,10 +533,10 @@ void V_SetPalette(int pal) {
     }
   }
   else if (vidMode == VID_MODEGL) {
-  }
-#else
-  gld_SetPalette(pal);
+#ifdef GL_DOOM
+    gld_SetPalette(pal);
 #endif
+  }
 }
 
 //---------------------------------------------------------------------------

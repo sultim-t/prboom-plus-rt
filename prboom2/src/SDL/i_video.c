@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.45 2002/11/24 22:36:26 proff_fs Exp $
+ * $Id: i_video.c,v 1.46 2002/11/24 23:20:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.45 2002/11/24 22:36:26 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.46 2002/11/24 23:20:10 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -46,10 +46,10 @@ rcsid[] = "$Id: i_video.c,v 1.45 2002/11/24 22:36:26 proff_fs Exp $";
 
 #ifdef GL_DOOM
 #include "gl_intern.h"
+#endif
 
 int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
-#endif
 
 static char *gl_library_str;
 
@@ -485,9 +485,9 @@ static void I_UploadNewPalette(int pal)
   static int cachedgamma;
   static size_t num_pals;
 
-#ifdef GL_DOOM
-  return;
-#endif
+  if (vid_getMode() == VID_MODEGL)
+    return;
+
   if ((colours == NULL) || (cachedgamma != usegamma)) {
     int pplump = W_GetNumForName("PLAYPAL");
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
@@ -556,7 +556,13 @@ void I_FinishUpdate (void)
   }
 #endif
   
-#ifndef GL_DOOM
+#ifdef GL_DOOM
+  if (vid_getMode() == VID_MODEGL) {
+    // proff 04/05/2000: swap OpenGL buffers
+    gld_Finish();
+    return;
+  }
+#endif
   if (screen->pixels != screens[0].data)
   {
     if (SDL_MUSTLOCK(screen))
@@ -590,10 +596,6 @@ void I_FinishUpdate (void)
     newpal = NO_PALETTE_CHANGE;
   }
   SDL_Flip(screen);
-#else
-  // proff 04/05/2000: swap OpenGL buffers
-  gld_Finish();
-#endif
 }
 
 //
@@ -721,6 +723,7 @@ void I_UpdateVideoMode(void)
 {
   unsigned int w, h;
   int init_flags;
+  int temp;
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
@@ -734,37 +737,38 @@ void I_UpdateVideoMode(void)
   h = SCREENHEIGHT;
   
   // Initialize SDL with this graphics mode
-#ifdef GL_DOOM
-  init_flags = SDL_OPENGL;
-#else
-  if (use_doublebuffer && use_fullscreen)
-    init_flags = SDL_DOUBLEBUF;
-  else
-    init_flags = SDL_SWSURFACE;
+  if (vid_getMode() == VID_MODEGL) {
+    init_flags = SDL_OPENGL;
+  } else {
+    if (use_doublebuffer && use_fullscreen)
+      init_flags = SDL_DOUBLEBUF;
+    else
+      init_flags = SDL_SWSURFACE;
 #ifndef _DEBUG
-  init_flags |= SDL_HWPALETTE;
+    init_flags |= SDL_HWPALETTE;
 #endif
-#endif
+  }
+
   if (use_fullscreen)
     init_flags |= SDL_FULLSCREEN;
 
-#ifdef GL_DOOM
-  SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-  SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
-  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
-  screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
-#else
-  screen = SDL_SetVideoMode(w, h, vid_getNumBits(), init_flags); // POPE
-#endif
+  if (vid_getMode() == VID_MODEGL) {
+    SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+    screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
+  } else {
+    screen = SDL_SetVideoMode(w, h, vid_getNumBits(), init_flags); // POPE
+  }
 
   if (screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
@@ -789,36 +793,35 @@ void I_UpdateVideoMode(void)
     screens[0].not_on_heap = false;
   }
 
+  if (vid_getMode() == VID_MODEGL) {
+    lprintf(LO_INFO,"    SDL OpenGL PixelFormat:\n");
+    SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
+    lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
 #ifdef GL_DOOM
-  {
-  int temp;
-  lprintf(LO_INFO,"    SDL OpenGL PixelFormat:\n");
-  SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
-  lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
-  gld_Init(SCREENWIDTH, SCREENHEIGHT);
-  gld_PreprocessLevel();
-  }
+    gld_Init(SCREENWIDTH, SCREENHEIGHT);
+    gld_PreprocessLevel();
 #endif
+  }
 
   V_AllocScreens();
 
@@ -842,11 +845,18 @@ CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered)
 static const char *str_vidmode[] = {
   "8bit",
   "16bit",
-  "32bit"
+  "32bit",
+  "OpenGL"
 };
 
-CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 2, str_vidmode, cf_buffered)
+CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 3, str_vidmode, cf_buffered)
 {
+#ifndef GL_DOOM
+  if (r_videomode == 3)
+    r_videomode = 0;
+#else
+  r_videomode = 3;
+#endif
   if (graphics_inited)
     I_UpdateVideoMode();
 }
@@ -877,6 +887,7 @@ void I_Video_AddCommands()
 	gl_library_str = Z_Strdup("libGL.so.1", PU_STATIC, 0);
 #endif
   C_AddCommand(r_fullscreen);
+  r_videomode = vid_getMode();
   C_AddCommand(r_videomode);
   C_AddCommand(r_width);
   C_AddCommand(r_height);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.11 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: r_plane.c,v 1.12 2002/11/24 23:20:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.11 2002/11/18 13:35:49 proff_fs Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.12 2002/11/24 23:20:10 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -59,6 +59,7 @@ rcsid[] = "$Id: r_plane.c,v 1.11 2002/11/18 13:35:49 proff_fs Exp $";
 #include "r_things.h"
 #include "r_sky.h"
 #include "r_plane.h"
+#include "v_video.h"
 #include "lprintf.h"
 
 #define MAXVISPLANES 128    /* must be a power of 2 */
@@ -178,9 +179,8 @@ static void R_MapPlane(int y, int x1, int x2)
   dsvars.x1 = x1;
   dsvars.x2 = x2;
 
-#ifndef GL_DOOM
-  R_GetDrawFunc(RDRAW_PIPELINE_SPAN)(); //R_DrawSpan();
-#endif
+  if (vid_getMode() != VID_MODEGL)
+    R_GetDrawFunc(RDRAW_PIPELINE_SPAN)(); //R_DrawSpan();
 }
 
 //

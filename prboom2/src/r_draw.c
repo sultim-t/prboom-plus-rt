@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.21 2002/11/23 20:43:07 cph Exp $
+ * $Id: r_draw.c,v 1.22 2002/11/24 23:20:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.21 2002/11/23 20:43:07 cph Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.22 2002/11/24 23:20:09 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -737,9 +737,8 @@ void R_FillBackScreen(void) {
 // Copy a screen buffer.
 //---------------------------------------------------------------------------
 void R_VideoErase(unsigned ofs, int count) {
-#ifndef GL_DOOM
-  memcpy((byte*)screens[0].data+ofs*vid_getDepth(), (byte*)screens[1].data+ofs*vid_getDepth(), count*vid_getDepth());   // LFB copy.
-#endif
+  if (vid_getMode() != VID_MODEGL)
+    memcpy((byte*)screens[0].data+ofs*vid_getDepth(), (byte*)screens[1].data+ofs*vid_getDepth(), count*vid_getDepth());   // LFB copy.
 }
 
 //---------------------------------------------------------------------------
@@ -748,60 +747,60 @@ void R_VideoErase(unsigned ofs, int count) {
 //  for different size windows?
 //---------------------------------------------------------------------------
 void R_DrawViewBorder(void) {
-#ifdef GL_DOOM
+  if (vid_getMode() == VID_MODEGL) {
+    R_FillBackScreen();
+  } else {
   // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
-  R_FillBackScreen();
-#else
 
-  int top, side, ofs, i;
-// proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
-  int side2;
+    int top, side, ofs, i;
+    // proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
+    int side2;
 
-// proff/nicolas 09/20/98: Removed for high-res
-  //  if (scaledviewwidth == SCREENWIDTH)
-  //  return;
+    // proff/nicolas 09/20/98: Removed for high-res
+    //  if (scaledviewwidth == SCREENWIDTH)
+    //  return;
 
-// proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
-  if ((SCREENHEIGHT != viewheight) ||
-      ((automapmode & am_active) && ! (automapmode & am_overlay)))
-  {
-    ofs = ( SCREENHEIGHT - ST_SCALED_HEIGHT ) * SCREENWIDTH;
-    side= ( SCREENWIDTH - ST_SCALED_WIDTH ) / 2;
-    side2 = side * 2;
-
-    R_VideoErase ( ofs, side );
-
-    ofs += ( SCREENWIDTH - side );
-    for ( i = 1; i < ST_SCALED_HEIGHT; i++ )
+    // proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
+    if ((SCREENHEIGHT != viewheight) ||
+        ((automapmode & am_active) && ! (automapmode & am_overlay)))
     {
-      R_VideoErase ( ofs, side2 );
-      ofs += SCREENWIDTH;
+      ofs = ( SCREENHEIGHT - ST_SCALED_HEIGHT ) * SCREENWIDTH;
+      side= ( SCREENWIDTH - ST_SCALED_WIDTH ) / 2;
+      side2 = side * 2;
+
+      R_VideoErase ( ofs, side );
+
+      ofs += ( SCREENWIDTH - side );
+      for ( i = 1; i < ST_SCALED_HEIGHT; i++ )
+      {
+        R_VideoErase ( ofs, side2 );
+        ofs += SCREENWIDTH;
+      }
+
+      R_VideoErase ( ofs, side );
     }
 
-    R_VideoErase ( ofs, side );
+    if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
+      return; // if high-res, don´t go any further!
+
+    top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
+    side = (SCREENWIDTH-scaledviewwidth)/2;
+
+    // copy top and one line of left side
+    R_VideoErase (0, top*SCREENWIDTH+side);
+
+    // copy one line of right side and bottom
+    ofs = (viewheight+top)*SCREENWIDTH-side;
+    R_VideoErase (ofs, top*SCREENWIDTH+side);
+
+    // copy sides using wraparound
+    ofs = top*SCREENWIDTH + SCREENWIDTH-side;
+    side <<= 1;
+
+    for (i=1 ; i<viewheight ; i++)
+      {
+        R_VideoErase (ofs, side);
+        ofs += SCREENWIDTH;
+      }
   }
-
-  if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
-    return; // if high-res, don´t go any further!
-
-  top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
-  side = (SCREENWIDTH-scaledviewwidth)/2;
-
-  // copy top and one line of left side
-  R_VideoErase (0, top*SCREENWIDTH+side);
-
-  // copy one line of right side and bottom
-  ofs = (viewheight+top)*SCREENWIDTH-side;
-  R_VideoErase (ofs, top*SCREENWIDTH+side);
-
-  // copy sides using wraparound
-  ofs = top*SCREENWIDTH + SCREENWIDTH-side;
-  side <<= 1;
-
-  for (i=1 ; i<viewheight ; i++)
-    {
-      R_VideoErase (ofs, side);
-      ofs += SCREENWIDTH;
-    }
-#endif
 }
