@@ -2239,7 +2239,7 @@ void doom_printf(const char *s, ...)
   vsprintf(msg,s,v);
 #endif
   va_end(v);
-  C_Printf(msg);  // set new message
+  C_Printf("%s\n", msg);  // set new message
   HU_PlayerMsg(msg);
 }
 
