@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.13 2000/10/08 18:42:19 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.14 2001/02/05 11:28:31 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -109,4 +109,17 @@ void gld_BindFlat(GLTexture *gltexture);
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
+#ifdef _WIN32
+#define PROTOTYPE(ret, func, param) ret (APIENTRY *p_##func) param;
+#include "gl_funcs.h"
+
+#define PROTOTYPE(ret, func, param) ret (APIENTRY *p_##func) param;
+#include "glu_funcs.h"
+#else
+#define PROTOTYPE(ret, func, param) extern ret (*p_##func) param;
+#include "gl_funcs.h"
+
+#define PROTOTYPE(ret, func, param) extern ret (*p_##func) param;
+#include "glu_funcs.h"
+#endif
 #endif // _GL_INTERN_H

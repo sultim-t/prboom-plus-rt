@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.12 2001/02/03 12:38:55 cph Exp $
+ * $Id: acconfig.h,v 1.13 2001/02/05 11:28:29 proff_fs Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -113,6 +113,9 @@
 
 /* Define if you want to build with OpenGL support */
 #undef GL_DOOM
+
+/* Define if you want to build with dynamic OpenGL support */
+#undef DYNAMIC_GL
 
 /* Define if you want to use the gluTesselator  */
 #undef USE_GLU_TESS

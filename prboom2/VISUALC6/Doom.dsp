@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"Release/prboom.exe"
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"Release/prboom.exe"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom.exe" /pdbtype:sept
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom.exe" /pdbtype:sept
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
@@ -114,7 +114,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseGL/glboom.exe"
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseGL/glboom.exe"
 # SUBTRACT LINK32 /profile /debug
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
@@ -142,7 +142,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom.exe"
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom.exe"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
@@ -170,7 +170,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASM/prboom.exe"
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASM/prboom.exe"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
@@ -199,7 +199,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib opengl32.lib glu32.lib /nologo /subsystem:windows /machine:I386
 # SUBTRACT BASE LINK32 /profile /debug
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASMGL/glboom.exe"
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASMGL/glboom.exe"
 # SUBTRACT LINK32 /profile /debug
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
@@ -228,7 +228,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom.exe" /pdbtype:sept
 # SUBTRACT BASE LINK32 /profile
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom.exe" /pdbtype:sept
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom.exe" /pdbtype:sept
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
@@ -257,7 +257,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom.exe"
 # SUBTRACT BASE LINK32 /profile
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASMGL/glboom.exe"
+# ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASMGL/glboom.exe"
 # SUBTRACT LINK32 /profile
 
 !ENDIF 
@@ -470,14 +470,6 @@ SOURCE=..\src\hu_stuff.c
 # Begin Source File
 
 SOURCE=..\src\hu_stuff.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\i_joy.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\i_joy.h
 # End Source File
 # Begin Source File
 
@@ -897,6 +889,99 @@ SOURCE=..\src\z_zone.h
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\src\gl_dll.c
+
+!IF  "$(CFG)" == "Doom - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_dll.h
+
+!IF  "$(CFG)" == "Doom - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_funcs.h
+
+!IF  "$(CFG)" == "Doom - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\gl_intern.h
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
@@ -1020,6 +1105,37 @@ SOURCE=..\src\gl_texture.c
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
 
 # PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\glu_funcs.h
+
+!IF  "$(CFG)" == "Doom - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
