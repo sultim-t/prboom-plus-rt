@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,13 +21,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  none
  *  The original Doom description was none, basically because this file
- *  has everything. This ties up the game logic, linking the menu and 
- *  input code to the underlying game by creating & respawning players, 
+ *  has everything. This ties up the game logic, linking the menu and
+ *  input code to the underlying game by creating & respawning players,
  *  building game tics, calling the underlying thing logic.
  *
  *-----------------------------------------------------------------------------
@@ -432,7 +432,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   }
 }
 
-// 
+//
 // G_RestartLevel
 //
 
@@ -551,7 +551,7 @@ boolean G_Responder (event_t* ev)
     }
   }
 #endif
-  
+
   // allow spy mode changes even during the demo
   // killough 2/22/98: even during DM demo
   //
@@ -646,204 +646,6 @@ boolean G_Responder (event_t* ev)
 }
 
 //
-// G_Ticker
-// Make ticcmd_ts for the players.
-//
-
-extern int mapcolor_me;
-
-void G_Ticker (void)
-{
-  int i;
-  static gamestate_t prevgamestate;
-
-  // CPhipps - player colour changing
-  if (!demoplayback && mapcolor_plyr[consoleplayer] != mapcolor_me) {
-    // Changed my multiplayer colour - Inform the whole game
-    int net_cl = LONG(mapcolor_me);
-#ifdef HAVE_NET
-    D_NetSendMisc(nm_plcolour, sizeof(net_cl), &net_cl);
-#endif
-    G_ChangedPlayerColour(consoleplayer, mapcolor_me);
-  }
-  // do player reborns if needed
-  for (i=0 ; i<MAXPLAYERS ; i++)
-    if (playeringame[i] && players[i].playerstate == PST_REBORN)
-      G_DoReborn (i);
-
-  // do things to change the game state
-  while (gameaction != ga_nothing)
-    {
-      switch (gameaction)
-        {
-        case ga_loadlevel:
-	  // force players to be initialized on level reload
-	  for (i=0 ; i<MAXPLAYERS ; i++)
-	    players[i].playerstate = PST_REBORN;
-          G_DoLoadLevel ();
-          break;
-        case ga_newgame:
-          G_DoNewGame ();
-          break;
-        case ga_loadgame:
-          G_DoLoadGame ();
-          break;
-        case ga_savegame:
-          G_DoSaveGame (false);
-          break;
-        case ga_playdemo:
-          G_DoPlayDemo ();
-          break;
-        case ga_completed:
-          G_DoCompleted ();
-          break;
-        case ga_victory:
-          F_StartFinale ();
-          break;
-        case ga_worlddone:
-          G_DoWorldDone ();
-          break;
-        case ga_nothing:
-          break;
-        }
-    }
-
-  if (paused & 2 || (!demoplayback && menuactive && !netgame))
-    basetic++;  // For revenant tracers and RNG -- we must maintain sync
-  else {
-    // get commands, check consistancy, and build new consistancy check
-    int buf = (gametic/ticdup)%BACKUPTICS;
-
-    for (i=0 ; i<MAXPLAYERS ; i++) {
-      if (playeringame[i])
-        {
-          ticcmd_t *cmd = &players[i].cmd;
-
-          memcpy(cmd, &netcmds[i][buf], sizeof *cmd);
-
-          if (demoplayback)
-            G_ReadDemoTiccmd (cmd);
-          if (demorecording)
-            G_WriteDemoTiccmd (cmd);
-
-          // check for turbo cheats
-          // killough 2/14/98, 2/20/98 -- only warn in netgames and demos
-
-          if ((netgame || demoplayback) && cmd->forwardmove > TURBOTHRESHOLD &&
-              !(gametic&31) && ((gametic>>5)&3) == i )
-            {
-	            /* cph - don't use sprintf, use doom_printf */
-              doom_printf ("%s is turbo!", players[i].name);
-            }
-
-          if (netgame && !netdemo && !(gametic%ticdup) )
-            {
-              if (gametic > BACKUPTICS
-                  && consistancy[i][buf] != cmd->consistancy)
-                I_Error("G_Ticker: Consistency failure (%i should be %i)",
-						cmd->consistancy, consistancy[i][buf]);
-              if (players[i].mo)
-                consistancy[i][buf] = players[i].mo->x;
-              else
-                consistancy[i][buf] = 0; // killough 2/14/98
-            }
-        }
-    }
-
-    // check for special buttons
-    for (i=0; i<MAXPLAYERS; i++) {
-      if (playeringame[i])
-        {
-          if (players[i].cmd.buttons & BT_SPECIAL)
-            {
-              switch (players[i].cmd.buttons & BT_SPECIALMASK)
-                {
-                case BTS_PAUSE:
-                  paused ^= 1;
-                  if (paused)
-                    S_PauseSound ();
-                  else
-                    S_ResumeSound ();
-                  break;
-
-                case BTS_SAVEGAME:
-                  if (!savedescription[0])
-                    strcpy(savedescription, "NET GAME");
-                  savegameslot =
-                    (players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT;
-                  gameaction = ga_savegame;
-                  break;
-
-		  // CPhipps - remote loadgame request
-                case BTS_LOADGAME: 
-                  savegameslot =
-                    (players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT;
-                  gameaction = ga_loadgame;
-		  forced_loadgame = netgame; // Force if a netgame 
-		  command_loadgame = false;
-                  break;
-
-		  // CPhipps - Restart the level
-		case BTS_RESTARTLEVEL:
-                  if (demoplayback || (compatibility_level < lxdoom_1_compatibility))
-                    break;     // CPhipps - Ignore in demos or old games
- 		  gameaction = ga_loadlevel;
-		  break;
-                }
-	      players[i].cmd.buttons = 0;
-            }
-        }
-    }
-  }
-
-  // cph - if the gamestate changed, we may need to clean up the old gamestate
-  if (gamestate != prevgamestate) {
-    switch (prevgamestate) {
-    case GS_LEVEL:
-#ifdef COMPILE_VIDD
-      // During playback, VIDD does its own cleanup of the level memory
-      // in a graceful (non-flush) way - POPE
-      if (VIDD_PLAY_inProgress()) break;      
-#endif
-
-      // In general, this seems like a pretty bad move here. This invalidates
-      // hordes of structures pointed to elsewhere that aren't cleaned
-      // up immediately - POPE
-      Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
-      break;
-    case GS_INTERMISSION:
-      WI_End();
-    default:
-      break;
-    }
-    prevgamestate = gamestate;
-  }
-
-  // do main actions
-  switch (gamestate)
-    {
-    case GS_LEVEL:
-      P_Ticker ();
-      ST_Ticker ();
-      AM_Ticker ();
-      HU_Ticker ();
-      break;
-
-    case GS_INTERMISSION:
-      WI_Ticker ();
-      break;
-
-    case GS_FINALE:
-      F_Ticker ();
-      break;
-
-    case GS_DEMOSCREEN:
-      D_PageTicker ();
-      break;
-    }
-}
-
-//
 // PLAYER STRUCTURE FUNCTIONS
 // also see P_SpawnPlayer in P_Things
 //
@@ -867,7 +669,7 @@ void G_PlayerFinishLevel(int player)
 
 // CPhipps - G_SetPlayerColour
 // Player colours stuff
-// 
+//
 // G_SetPlayerColour
 
 #include "r_draw.h"
@@ -887,7 +689,7 @@ void G_ChangedPlayerColour(int pn, int cl)
   for (i=0; i<MAXPLAYERS; i++) {
     if ((gamestate == GS_LEVEL) && playeringame[i] && (players[i].mo != NULL)) {
       players[i].mo->flags &= ~MF_TRANSLATION;
-      players[i].mo->flags |= playernumtotrans[i] << MF_TRANSSHIFT;      
+      players[i].mo->flags |= playernumtotrans[i] << MF_TRANSSHIFT;
     }
   }
 }
@@ -1245,7 +1047,7 @@ void G_WorldDone (void)
 #ifdef COMPILE_VIDD
   if (VIDD_PLAY_inProgress()) return; // POPE
 #endif
-  
+
   if (secretexit)
     players[consoleplayer].didsecret = true;
 
@@ -1342,7 +1144,7 @@ static uint_64_t G_Signature(void)
 
 void G_ForcedLoadGame(void)
 {
-  // CPhipps - net loadgames are always forced, so we only reach here 
+  // CPhipps - net loadgames are always forced, so we only reach here
   //  in single player
   gameaction = ga_loadgame;
   forced_loadgame = true;
@@ -1356,7 +1158,7 @@ void G_LoadGame(int slot, boolean command)
     // CPhipps - handle savegame filename in G_DoLoadGame
     //         - Delay load so it can be communicated in net game
     //         - store info in special_event
-    special_event = BT_SPECIAL | (BTS_LOADGAME & BT_SPECIALMASK) | 
+    special_event = BT_SPECIAL | (BTS_LOADGAME & BT_SPECIALMASK) |
       ((slot << BTS_SAVESHIFT) & BTS_SAVEMASK);
     forced_loadgame = netgame; // CPhipps - always force load netgames
   } else {
@@ -1440,7 +1242,7 @@ void G_DoLoadGame(void)
 
   save_p += VERSIONSIZE;
 
-  // CPhipps - always check savegames even when forced, 
+  // CPhipps - always check savegames even when forced,
   //  only print a warning if forced
   {  // killough 3/16/98: check lump name checksum (independent of order)
     uint_64_t checksum = 0;
@@ -1457,7 +1259,7 @@ void G_DoLoadGame(void)
         G_LoadGameErr(msg);
         free(msg);
         return;
-      } else 
+      } else
 	lprintf(LO_WARN, "G_DoLoadGame: Incompatible savegame\n");
     }
     save_p += sizeof checksum;
@@ -1544,14 +1346,14 @@ void G_SaveGame(int slot, char *description)
 {
   strcpy(savedescription, description);
   if (demoplayback) {
-    /* cph - We're doing a user-initiated save game while a demo is 
-     * running so, go outside normal mechanisms 
+    /* cph - We're doing a user-initiated save game while a demo is
+     * running so, go outside normal mechanisms
      */
     savegameslot = slot;
     G_DoSaveGame(true);
   }
   // CPhipps - store info in special_event
-  special_event = BT_SPECIAL | (BTS_SAVEGAME & BT_SPECIALMASK) | 
+  special_event = BT_SPECIAL | (BTS_SAVEGAME & BT_SPECIALMASK) |
     ((slot << BTS_SAVESHIFT) & BTS_SAVEMASK);
 #ifdef HAVE_NET
   D_NetSendMisc(nm_savegamename, strlen(savedescription)+1, savedescription);
@@ -1570,7 +1372,7 @@ void CheckSaveGame(size_t size)
 
 /* killough 3/22/98: form savegame name in one location
  * (previously code was scattered around in multiple places)
- * cph - Avoid possible buffer overflow problems by passing 
+ * cph - Avoid possible buffer overflow problems by passing
  * size to this function and using snprintf */
 
 void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
@@ -1578,7 +1380,7 @@ void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
   const char* sgn = demoplayback ? "demosav" : savegamename;
 #ifdef HAVE_SNPRINTF
   snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
-#else 
+#else
   sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
 #endif
 }
@@ -1590,7 +1392,7 @@ static void G_DoSaveGame (boolean menu)
   char *description;
   int  length, i;
 
-  gameaction = ga_nothing; // cph - cancel savegame at top of this function, 
+  gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
 
   G_SaveGameName(name,sizeof(name),savegameslot, demoplayback && !menu);
@@ -1604,8 +1406,8 @@ static void G_DoSaveGame (boolean menu)
   save_p += SAVESTRINGSIZE;
   memset (name2,0,sizeof(name2));
 
-  /* cph 2001/08/15 - look for an appropriate version string for the savegame, 
-   *  otherwise falling back on the last one in the array, which should be the 
+  /* cph 2001/08/15 - look for an appropriate version string for the savegame,
+   *  otherwise falling back on the last one in the array, which should be the
    *  current save format.
    */
   for (i=0; (size_t)i<num_version_headers-1; i++)
@@ -1687,7 +1489,7 @@ static void G_DoSaveGame (boolean menu)
 
   // phares 9/13/98: Move index->mobj_t out of P_ArchiveThinkers, simply
   // for symmetry with the P_ThinkerToIndex call above.
-  
+
   P_IndexToThinker();
 
   Z_CheckHeap();
@@ -1701,7 +1503,7 @@ static void G_DoSaveGame (boolean menu)
   length = save_p - savebuffer;
 
   Z_CheckHeap();
-  doom_printf( "%s", M_WriteFile(name, savebuffer, length) 
+  doom_printf( "%s", M_WriteFile(name, savebuffer, length)
 	       ? s_GGSAVED /* Ty - externalised */
 	       : "Game save failed!"); // CPhipps - not externalised
 
@@ -1736,7 +1538,7 @@ extern int default_player_bobbing;    // whether player bobs or not
 
 extern int monsters_remember, default_monsters_remember;
 
-/* cph - 
+/* cph -
  * G_Compatibility
  *
  * Initialises the comp[] array based on the compatibility_level
@@ -1744,11 +1546,11 @@ extern int monsters_remember, default_monsters_remember;
  * for (i=0; i < COMP_TOTAL; i++)
  *   comp[i] = compatibility;
  *
- * Instead, we have a lookup table showing at what version a fix was 
+ * Instead, we have a lookup table showing at what version a fix was
  *  introduced.
  */
 
-static byte comp_options_by_version[] = 
+static byte comp_options_by_version[] =
  { 0,0,0,0,0, /* Original Doom's don't have comp[] */
    0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
    19,19, /* MBF and early PrBoom had 19 */
@@ -1759,19 +1561,19 @@ static byte comp_options_by_version[] =
 void G_Compatibility(void)
 {
   static const complevel_t fix_levels[COMP_NUM] = {
-    mbf_compatibility, /* comp_telefrag - monsters used to telefrag only 
+    mbf_compatibility, /* comp_telefrag - monsters used to telefrag only
 			* on MAP30, now they do it for spawners only */
     mbf_compatibility, /* comp_dropoff - MBF encourages things to drop
 			* off of overhangs */
-    boom_compatibility,/* comp_vile - original Doom archville bugs like 
+    boom_compatibility,/* comp_vile - original Doom archville bugs like
 			* ghosts */
     boom_compatibility,/* comp_pain - original Doom limits Pain Elements
 			* from spawning too many skulls */
-    boom_compatibility,/* comp_skull - original Doom let skulls be spit 
+    boom_compatibility,/* comp_skull - original Doom let skulls be spit
 			* through walls by Pain Elementals */
-    boom_compatibility,/* comp_blazing - original Doom duplicated 
+    boom_compatibility,/* comp_blazing - original Doom duplicated
 			* blazing door sound */
-    mbf_compatibility, /* comp_doorlight - MBF made door lighting changes 
+    mbf_compatibility, /* comp_doorlight - MBF made door lighting changes
 			* more gradual */
     boom_compatibility,/* comp_model - improvements to the game physics */
     boom_compatibility,/* comp_god - fixes to God mode */
@@ -1784,14 +1586,14 @@ void G_Compatibility(void)
     boom_compatibility,/* comp_doorstuck - monsters stuck in doors fix */
     mbf_compatibility, /* comp_staylift - MBF AI change, monsters try
 			* to stay on lifts */
-    lxdoom_1_compatibility, /* comp_zombie - prevent dead players 
+    lxdoom_1_compatibility, /* comp_zombie - prevent dead players
 			     * triggering stuff */
     boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
     mbf_compatibility, /* comp_infcheat - FIXME */
     boom_compatibility,/* comp_zerotags - allow zero tags in wads */
-    lxdoom_1_compatibility, /* comp_moveblock - enables keygrab and 
+    lxdoom_1_compatibility, /* comp_moveblock - enables keygrab and
 			     * mancubi shots going thru walls */
-    prboom_2_compatibility, /* comp_respawn - objects which aren't on the map 
+    prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
     doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
     prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
@@ -1879,7 +1681,7 @@ void G_ReloadDefaults(void)
     int i = M_CheckParm("-complevel");
     if (i && (1+i) < myargc) compatibility_level = atoi(myargv[i+1]);
   }
-  if (compatibility_level == -1) 
+  if (compatibility_level == -1)
     compatibility_level = best_compatibility;
 
   if (mbf_features)
@@ -2000,6 +1802,204 @@ void G_InitNewNum(skill_t skill, int episode, int map)
   AM_clearMarks();
 
   G_DoLoadLevel ();
+}
+
+//
+// G_Ticker
+// Make ticcmd_ts for the players.
+//
+
+extern int mapcolor_me;
+
+void G_Ticker (void)
+{
+  int i;
+  static gamestate_t prevgamestate;
+
+  // CPhipps - player colour changing
+  if (!demoplayback && mapcolor_plyr[consoleplayer] != mapcolor_me) {
+    // Changed my multiplayer colour - Inform the whole game
+    int net_cl = LONG(mapcolor_me);
+#ifdef HAVE_NET
+    D_NetSendMisc(nm_plcolour, sizeof(net_cl), &net_cl);
+#endif
+    G_ChangedPlayerColour(consoleplayer, mapcolor_me);
+  }
+  // do player reborns if needed
+  for (i=0 ; i<MAXPLAYERS ; i++)
+    if (playeringame[i] && players[i].playerstate == PST_REBORN)
+      G_DoReborn (i);
+
+  // do things to change the game state
+  while (gameaction != ga_nothing)
+    {
+      switch (gameaction)
+        {
+        case ga_loadlevel:
+	  // force players to be initialized on level reload
+	  for (i=0 ; i<MAXPLAYERS ; i++)
+	    players[i].playerstate = PST_REBORN;
+          G_DoLoadLevel ();
+          break;
+        case ga_newgame:
+          G_DoNewGame ();
+          break;
+        case ga_loadgame:
+          G_DoLoadGame ();
+          break;
+        case ga_savegame:
+          G_DoSaveGame (false);
+          break;
+        case ga_playdemo:
+          G_DoPlayDemo ();
+          break;
+        case ga_completed:
+          G_DoCompleted ();
+          break;
+        case ga_victory:
+          F_StartFinale ();
+          break;
+        case ga_worlddone:
+          G_DoWorldDone ();
+          break;
+        case ga_nothing:
+          break;
+        }
+    }
+
+  if (paused & 2 || (!demoplayback && menuactive && !netgame))
+    basetic++;  // For revenant tracers and RNG -- we must maintain sync
+  else {
+    // get commands, check consistancy, and build new consistancy check
+    int buf = (gametic/ticdup)%BACKUPTICS;
+
+    for (i=0 ; i<MAXPLAYERS ; i++) {
+      if (playeringame[i])
+        {
+          ticcmd_t *cmd = &players[i].cmd;
+
+          memcpy(cmd, &netcmds[i][buf], sizeof *cmd);
+
+          if (demoplayback)
+            G_ReadDemoTiccmd (cmd);
+          if (demorecording)
+            G_WriteDemoTiccmd (cmd);
+
+          // check for turbo cheats
+          // killough 2/14/98, 2/20/98 -- only warn in netgames and demos
+
+          if ((netgame || demoplayback) && cmd->forwardmove > TURBOTHRESHOLD &&
+              !(gametic&31) && ((gametic>>5)&3) == i )
+            {
+	            /* cph - don't use sprintf, use doom_printf */
+              doom_printf ("%s is turbo!", players[i].name);
+            }
+
+          if (netgame && !netdemo && !(gametic%ticdup) )
+            {
+              if (gametic > BACKUPTICS
+                  && consistancy[i][buf] != cmd->consistancy)
+                I_Error("G_Ticker: Consistency failure (%i should be %i)",
+						cmd->consistancy, consistancy[i][buf]);
+              if (players[i].mo)
+                consistancy[i][buf] = players[i].mo->x;
+              else
+                consistancy[i][buf] = 0; // killough 2/14/98
+            }
+        }
+    }
+
+    // check for special buttons
+    for (i=0; i<MAXPLAYERS; i++) {
+      if (playeringame[i])
+        {
+          if (players[i].cmd.buttons & BT_SPECIAL)
+            {
+              switch (players[i].cmd.buttons & BT_SPECIALMASK)
+                {
+                case BTS_PAUSE:
+                  paused ^= 1;
+                  if (paused)
+                    S_PauseSound ();
+                  else
+                    S_ResumeSound ();
+                  break;
+
+                case BTS_SAVEGAME:
+                  if (!savedescription[0])
+                    strcpy(savedescription, "NET GAME");
+                  savegameslot =
+                    (players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+                  gameaction = ga_savegame;
+                  break;
+
+		  // CPhipps - remote loadgame request
+                case BTS_LOADGAME:
+                  savegameslot =
+                    (players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+                  gameaction = ga_loadgame;
+		  forced_loadgame = netgame; // Force if a netgame
+		  command_loadgame = false;
+                  break;
+
+		  // CPhipps - Restart the level
+		case BTS_RESTARTLEVEL:
+                  if (demoplayback || (compatibility_level < lxdoom_1_compatibility))
+                    break;     // CPhipps - Ignore in demos or old games
+ 		  gameaction = ga_loadlevel;
+		  break;
+                }
+	      players[i].cmd.buttons = 0;
+            }
+        }
+    }
+  }
+
+  // cph - if the gamestate changed, we may need to clean up the old gamestate
+  if (gamestate != prevgamestate) {
+    switch (prevgamestate) {
+    case GS_LEVEL:
+#ifdef COMPILE_VIDD
+      // During playback, VIDD does its own cleanup of the level memory
+      // in a graceful (non-flush) way - POPE
+      if (VIDD_PLAY_inProgress()) break;
+#endif
+
+      // In general, this seems like a pretty bad move here. This invalidates
+      // hordes of structures pointed to elsewhere that aren't cleaned
+      // up immediately - POPE
+      Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
+      break;
+    case GS_INTERMISSION:
+      WI_End();
+    default:
+      break;
+    }
+    prevgamestate = gamestate;
+  }
+
+  // do main actions
+  switch (gamestate)
+    {
+    case GS_LEVEL:
+      P_Ticker ();
+      ST_Ticker ();
+      AM_Ticker ();
+      HU_Ticker ();
+      break;
+
+    case GS_INTERMISSION:
+      WI_Ticker ();
+      break;
+
+    case GS_FINALE:
+      F_Ticker ();
+      break;
+
+    case GS_DEMOSCREEN:
+      D_PageTicker ();
+      break;
+    }
 }
 
 // killough 1/22/98: this is a "Doom printf" for messages. I've gotten
