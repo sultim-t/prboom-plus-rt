@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.11 2000/05/13 16:00:48 cph Exp $
+ * $Id: g_game.c,v 1.12 2000/05/13 19:03:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.11 2000/05/13 16:00:48 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.12 2000/05/13 19:03:53 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1402,19 +1402,22 @@ static uint_64_t G_UpdateSignature(uint_64_t s, const char *name)
 
 static uint_64_t G_Signature(void)
 {
-  uint_64_t s = 0;
+  static uint_64_t s = 0;
+  static boolean computed = false;
   char name[9];
   int episode, map;
 
-  if (gamemode == commercial)
+  if (!computed) {
+   computed = true;
+   if (gamemode == commercial)
     for (map = haswolflevels ? 32 : 30; map; map--)
       sprintf(name, "map%02d", map), s = G_UpdateSignature(s, name);
-  else
+   else
     for (episode = gamemode==retail ? 4 :
 	   gamemode==shareware ? 1 : 3; episode; episode--)
       for (map = 9; map; map--)
 	sprintf(name, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
-
+  }
   return s;
 }
 
