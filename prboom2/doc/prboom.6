@@ -12,7 +12,7 @@ prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 .BR
 [ \-loadgame {0,1,2,3,4,5,6,7} ] [ \-warp { \fImap\fR | \fIepis level\fR } \-skill {1,2,3,4,5} ]
 .BR
-[ {\-fastdemo,\-timedemo,\-playdemo} \fIdemofile\fR ] [ \-record \fIdemofile\fR ] 
+[ {\-fastdemo,\-timedemo,\-playdemo} \fIdemofile\fR [ \-ffmap \fInum\fR ] ] [ \-record \fIdemofile\fR ] 
 .BR
 [ \-net \fIhostname\fR[:\fIport\fR] ]
 [ \-deathmatch [ \-altdeath ] ] [ { \-timer \fImins\fR | \-avg }] ]
@@ -136,6 +136,11 @@ Play the recorded demo \fIdemofile\fR.lmp, reporting information about the lengt
 \-fastdemo \fIdemofile\fR
 Play the recorded demo \fIdemofile\fR.lmp as fast as possible. Useful for 
 benchmarking PrBoom, as compared to other versions of Doom.
+.TP
+\-ffmap \fInum\fR
+Fast forward the demo (play at max speed) until reaching map \fInum\fR
+(note that this takes just a number, not a map name, so so -ffmap 7 to go fast
+until MAP07 or ExM7).
 .SH I/O Options
 .TP
 \-nosound

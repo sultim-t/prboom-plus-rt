@@ -54,6 +54,7 @@ extern boolean clfastparm; // checkparm of -fast
 
 extern boolean nosfxparm;
 extern boolean nomusicparm;
+extern int ffmap;
 
 // Called by IO functions when input is detected.
 void D_PostEvent(event_t* ev);

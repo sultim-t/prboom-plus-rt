@@ -6,6 +6,7 @@ Changes from v2.2.4 to v2.2.5
 - live monster counter on HUD
 - notify server if client quits during startup wait
 - improved response file parser
+- fast forward to given map # in demo playback
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
