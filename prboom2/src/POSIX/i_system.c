@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.1 2000/05/07 22:16:45 cph Exp $
+ * $Id: i_system.c,v 1.2 2001/08/25 10:33:04 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.1 2000/05/07 22:16:45 cph Exp $";
+rcsid[] = "$Id: i_system.c,v 1.2 2001/08/25 10:33:04 cph Exp $";
 
 #include <stdio.h>
 
@@ -54,7 +54,13 @@ rcsid[] = "$Id: i_system.c,v 1.1 2000/05/07 22:16:45 cph Exp $";
 
 void I_uSleep(unsigned long usecs)
 {
+#ifdef HAVE_USLEEP
   usleep(usecs);
+#else
+  /* Fall back on select(2) */
+  struct timeval tv = { usecs / 1000000, usecs % 1000000 };
+  select(0,NULL,NULL,NULL,&tv);
+#endif
 }
 
 /* CPhipps - believe it or not, it is possible with consecutive calls to 
