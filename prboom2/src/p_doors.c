@@ -598,10 +598,13 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
     if (!door) door = sec->floordata;
     if (!door) door = sec->lightingdata;
   }
-  if (door) {
-    /* If the current action is a T_VerticalDoor and we're back in
-     * EV_VerticalDoor, it must have been a repeatable line, so I've dropped
-     * that check. For old demos we have to emulate the old buggy behavior and
+  /* If this is a repeatable line, and the door is already moving, then we can just reverse the current action. Note that in prboom 2.3.0 I erroneously removed the if-this-is-repeatable check, hence the prboom_4_compatibility clause below (foolishly assumed that already moving implies repeatable - but it could be moving due to another switch, e.g. lv19-509) */
+  if (door &&
+	  ((compatibility_level == prboom_4_compatibility) ||
+	   (line->special == 1) || (line->special == 117) || (line->special == 26) || (line->special == 27) || (line->special == 28)
+	  )
+     ) {
+    /* For old demos we have to emulate the old buggy behavior and
      * mess up non-T_VerticalDoor actions.
      */
     if (compatibility_level < prboom_4_compatibility || 
