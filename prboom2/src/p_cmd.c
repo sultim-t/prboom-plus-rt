@@ -71,7 +71,8 @@ char *textcolours[]=
   FC_RED    "red"   FC_RED,
   FC_BLUE   "blue"  FC_RED,
   FC_ORANGE "orange"FC_RED,
-  FC_YELLOW "yellow"FC_RED
+  FC_YELLOW "yellow"FC_RED,
+  FC_BLUE2  "blue2" FC_RED,
 };
 
 char *skills[]=

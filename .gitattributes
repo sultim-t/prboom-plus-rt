@@ -214,6 +214,7 @@ prboom2/src/g_game.c -text svneol=native#unset
 prboom2/src/hu_stuff.c -text svneol=native#unset
 prboom2/src/inl/Makefile.am -text
 prboom2/src/mn_menus.c -text svneol=native#unset
+prboom2/src/p_cmd.c -text svneol=native#unset
 prboom2/src/p_enemy.c -text svneol=native#unset
 prboom2/src/p_info.c -text svneol=native#unset
 prboom2/src/p_setup.c -text svneol=native#unset
