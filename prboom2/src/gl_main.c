@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35.2.4 2002/07/20 18:08:34 proff_fs Exp $
+ * $Id: gl_main.c,v 1.35.2.5 2002/07/27 15:58:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@ extern int tran_filter_pct;
 
 #define USE_VERTEX_ARRAYS
 
-boolean use_fog=true;
+boolean use_fog=false;
 
 int gl_nearclip=5;
 int gl_farclip=6400;
@@ -47,6 +47,8 @@ int gl_mipmap_filter;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
+int gl_use_paletted_texture = 1;
+int gl_use_shared_texture_palette = 1;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
 
@@ -272,11 +274,18 @@ void gld_InitExtensions(const char *_extensions)
     if (strcasecmp(extension, "GL_EXT_texture_filter_anisotropic") == 0)
       gl_texture_filter_anisotropic = true;
     else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
-      gl_paletted_texture = true;
-      glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+      if (gl_use_paletted_texture) {
+        gl_paletted_texture = true;
+        glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+        lprintf(LO_INFO,"using GL_EXT_paletted_texture\n",glGetString(GL_VENDOR));
+      }
     }
     else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
-      gl_shared_texture_palette = true;
+      if (gl_use_shared_texture_palette) {
+        gl_shared_texture_palette = true;
+        glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+        lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n",glGetString(GL_VENDOR));
+      }
 
     extension = p;
   } while (*extension != '\0');
@@ -471,7 +480,8 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
 {
   extern int gld_GetTexDimension(int value);
-  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm);
+  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted);
+  extern void gld_SetTexturePalette(GLenum target);
 
   GLTexture *gltexture;
   unsigned char *buffer;
@@ -504,10 +514,15 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   if (gltexture->realtexheight>gltexture->buffer_height)
     return;
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  memset(buffer,0,gltexture->buffer_size);
-  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
+  if (gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
+  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
   glGenTextures(1,&gltexture->glTexID[cm]);
   glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
+  last_gltexture = NULL;
+  last_cm = -1;
 #ifdef USE_GLU_IMAGESCALE
   if ((gltexture->buffer_width>gltexture->tex_width) ||
       (gltexture->buffer_height>gltexture->tex_height)
@@ -533,9 +548,16 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   else
 #endif /* USE_GLU_IMAGESCALE */
   {
-    glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                  gltexture->buffer_width, gltexture->buffer_height,
-                  0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    if (gl_paletted_texture) {
+      gld_SetTexturePalette(GL_TEXTURE_2D);
+      glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
+                    gltexture->buffer_width, gltexture->buffer_height,
+                    0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
+    } else {
+      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+                    gltexture->buffer_width, gltexture->buffer_height,
+                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    }
   }
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -603,6 +625,8 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
   glBindTexture(GL_TEXTURE_2D, 0);
+  last_gltexture = NULL;
+  last_cm = -1;
   glColor3f((float)playpal[3*BaseColor]/255.0f,
             (float)playpal[3*BaseColor+1]/255.0f,
             (float)playpal[3*BaseColor+2]/255.0f);
@@ -669,6 +693,8 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
   glBindTexture(GL_TEXTURE_2D, 0);
+  last_gltexture = NULL;
+  last_cm = -1;
   glColor3f((float)playpal[3*col]/255.0f,
             (float)playpal[3*col+1]/255.0f,
             (float)playpal[3*col+2]/255.0f);
@@ -1830,6 +1856,8 @@ void gld_EndDrawScene(void)
     glDisable(GL_ALPHA_TEST);
     glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
     glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     glBegin(GL_TRIANGLE_STRIP);
       glVertex2f( 0.0f, 0.0f);
       glVertex2f( 0.0f, (float)SCREENHEIGHT);
@@ -2546,10 +2574,8 @@ void gld_DrawScene(player_t *player)
           continue;
         if ( (gl_drawskys) && (k==GLDWF_SKY) )
         {
-/*
-          if (gl_shared_texture_palette)
+          if (comp[comp_skymap] && gl_shared_texture_palette)
             glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
-*/
           glEnable(GL_TEXTURE_GEN_S);
           glEnable(GL_TEXTURE_GEN_T);
           glEnable(GL_TEXTURE_GEN_Q);
@@ -2567,10 +2593,8 @@ void gld_DrawScene(player_t *player)
           glDisable(GL_TEXTURE_GEN_Q);
           glDisable(GL_TEXTURE_GEN_T);
           glDisable(GL_TEXTURE_GEN_S);
-/*
-          if (gl_shared_texture_palette)
+          if (comp[comp_skymap] && gl_shared_texture_palette)
             glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
-*/
         }
       }
       break;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.13.2.2 2002/07/20 18:08:34 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.13.2.3 2002/07/27 15:58:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -96,6 +96,8 @@ extern int gl_shared_texture_palette;
 extern boolean use_mipmapping;
 extern int transparent_pal_index;
 extern unsigned char gld_palmap[256];
+extern GLTexture *last_gltexture;
+extern int last_cm;
 
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
 void gld_BindTexture(GLTexture *gltexture);

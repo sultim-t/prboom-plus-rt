@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.13.2.5 2002/07/20 18:08:34 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.13.2.6 2002/07/27 15:58:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,8 +50,8 @@ int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;
 //int gl_tex_format=GL_RGBA2;
 
-static GLTexture *last_gltexture=NULL;
-static int last_cm=0;
+GLTexture *last_gltexture=NULL;
+int last_cm=-1;
 
 int transparent_pal_index;
 unsigned char gld_palmap[256];
@@ -134,7 +134,7 @@ static GLTexture *gld_AddNewGLPatchTexture(int lump)
   return gld_GLPatchTextures[lump];
 }
 
-static void gld_SetTexturePalette(GLenum target)
+void gld_SetTexturePalette(GLenum target)
 {
   const unsigned char *playpal;
   unsigned char pal[1024];
@@ -454,11 +454,15 @@ void gld_BindTexture(GLTexture *gltexture)
   last_gltexture=gltexture;
   if (!gltexture) {
     glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
   if (gltexture->textype!=GLDT_TEXTURE)
   {
     glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
   if (gltexture->glTexID[CR_DEFAULT]!=0)
@@ -608,6 +612,8 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   if (gltexture->textype!=GLDT_PATCH)
   {
     glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
   if (gltexture->glTexID[cm]!=0)
@@ -734,6 +740,8 @@ void gld_BindFlat(GLTexture *gltexture)
   if (gltexture->textype!=GLDT_FLAT)
   {
     glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
   if (gltexture->glTexID[CR_DEFAULT]!=0)

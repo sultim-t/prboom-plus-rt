@@ -13,7 +13,9 @@ Changes from v2.2.2 to v2.2.3
 - fix comp_skymap
 - using anisotropic filtering when the OpenGL extension is available
 - using paletted textures when the OpenGL extension is available
+- added gl_use_paletted_texture option to glboom configuration file
 - using shared texture palette when the OpenGL extension is available
+- added gl_use_shared_texture_palette option to glboom configuration file
 
 Changes from v2.2.1 to v2.2.2
 - more demo sync problems for original Doom and Boom fixed

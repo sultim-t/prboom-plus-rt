@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.26.2.6 2002/07/20 18:08:36 proff_fs Exp $
+ * $Id: m_misc.c,v 1.26.2.7 2002/07/27 15:58:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.26.2.6 2002/07/20 18:08:36 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26.2.7 2002/07/27 15:58:45 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -177,6 +177,8 @@ extern char *gl_tex_filter_string;
 extern char *gl_tex_format_string;
 extern int gl_drawskys;
 extern int gl_sortsprites;
+extern int gl_use_paletted_texture;
+extern int gl_use_shared_texture_palette;
 #endif
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 
@@ -372,6 +374,10 @@ default_t defaults[] =
   {"gl_drawskys",{&gl_drawskys},{1},0,1,
    def_bool,ss_none},
   {"gl_sortsprites",{&gl_sortsprites},{1},0,1,
+   def_bool,ss_none},
+  {"gl_use_paletted_texture",{&gl_use_paletted_texture},{1},0,1,
+   def_bool,ss_none},
+  {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{1},0,1,
    def_bool,ss_none},
 #endif
 
