@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35.2.8 2003/03/29 18:27:17 proff_fs Exp $
+ * $Id: gl_main.c,v 1.35.2.9 2003/03/29 19:00:41 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -222,26 +222,10 @@ static void gld_StaticLightAlpha(float light, float alpha)
   player_t *player;
   player = &players[displayplayer];
 
-  if (gl_shared_texture_palette) {
-    if (player->fixedcolormap)
-    {
-      glColor4f(1.0f, 1.0f, 1.0f, alpha);
-      return;
-    }
-  } else {
-    if (player->fixedcolormap == 32)
-    {
-      glColor4f(0.5f, 1.0f, 0.0f, alpha);
-      return;
-    }
-    else
-      if (player->fixedcolormap)
-      {
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
-        return;
-      }
-  }
-  glColor4f(light, light, light, alpha);
+  if (player->fixedcolormap)
+    glColor4f(1.0f, 1.0f, 1.0f, alpha);
+  else
+    glColor4f(light, light, light, alpha);
 }
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
@@ -716,19 +700,19 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 
 void gld_SetPalette(int palette)
 {
+  static int last_palette = 0;
   extra_red=0.0f;
   extra_green=0.0f;
   extra_blue=0.0f;
   extra_alpha=0.0f;
+  if (palette < 0)
+    palette = last_palette;
+  last_palette = palette;
   if (gl_shared_texture_palette) {
-    static int last_palette = 0;
     const unsigned char *playpal;
     unsigned char pal[1024];
     int i;
 
-    if (palette < 0)
-      palette = last_palette;
-    last_palette = palette;
     playpal = W_CacheLumpName("PLAYPAL");
     playpal += (768*palette);
     for (i=0; i<256; i++) {
@@ -1844,6 +1828,7 @@ void gld_StartDrawScene(void)
 
 void gld_EndDrawScene(void)
 {
+  player_t *player = &players[displayplayer];
   extern void R_DrawPlayerSprites (void);
 
   glDisable(GL_POLYGON_SMOOTH);
@@ -1856,6 +1841,20 @@ void gld_EndDrawScene(void)
     viewangleoffset >=-1024<<ANGLETOFINESHIFT)
   { // don't draw on side views
     R_DrawPlayerSprites ();
+  }
+  if (player->fixedcolormap == 32) {
+		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
+		glColor4f(1,1,1,1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
+    glBegin(GL_TRIANGLE_STRIP);
+  		glVertex2f( 0.0f, 0.0f);
+	  	glVertex2f( 0.0f, (float)SCREENHEIGHT);
+		  glVertex2f( (float)SCREENWIDTH, 0.0f);
+		  glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+    glEnd();
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
   if (extra_alpha>0.0f)
   {
