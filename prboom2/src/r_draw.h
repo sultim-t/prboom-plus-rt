@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.7 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: r_draw.h,v 1.8 2002/11/21 20:53:10 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -52,6 +52,7 @@ typedef struct {
   int texheight;    // killough
   const byte *source; // first pixel in a column
   const byte *nextsource; // the next column to the right of source
+  const byte *prevsource;
   const lighttable_t *colormap; // the z-depth colormap
   const lighttable_t *nextcolormap; // the next farthest z-depth colormap
   fixed_t z; // the current column z coord
@@ -90,7 +91,9 @@ extern TRDrawSpanVars dsvars;
 //---------------------------------------------------------------------------
 typedef enum {
   RDRAW_FILTER_POINT,
-  RDRAW_FILTER_LINEAR
+  RDRAW_FILTER_LINEAR,
+  RDRAW_FILTER_ROUNDED,
+  RDRAW_FILTER_MAXFILTERS
 } TRDrawFilterType;
 
 //---------------------------------------------------------------------------

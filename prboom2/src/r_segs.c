@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: r_segs.c,v 1.19 2002/11/21 20:53:10 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.19 2002/11/21 20:53:10 dukope Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -325,6 +325,7 @@ static void R_RenderSegLoop (void)
           dcvars.texturemid = rw_midtexturemid;
           dcvars.source = R_GetTextureColumn(midtexture, texturecolumn);
           dcvars.nextsource = R_GetTextureColumn(midtexture, texturecolumn+1); // POPE
+          dcvars.prevsource = R_GetTextureColumn(midtexture, texturecolumn-1); // POPE
 	        dcvars.texheight = midtexheight;
           colfunc ();
           ceilingclip[rw_x] = viewheight;
@@ -350,6 +351,7 @@ static void R_RenderSegLoop (void)
                   dcvars.texturemid = rw_toptexturemid;
                   dcvars.source = R_GetTextureColumn(toptexture,texturecolumn);
                   dcvars.nextsource = R_GetTextureColumn(toptexture, texturecolumn+1); // POPE
+                  dcvars.prevsource = R_GetTextureColumn(toptexture, texturecolumn-1); // POPE
 		              dcvars.texheight = toptexheight;
                   colfunc ();
                   ceilingclip[rw_x] = mid;
@@ -380,6 +382,7 @@ static void R_RenderSegLoop (void)
                   dcvars.texturemid = rw_bottomtexturemid;
                   dcvars.source = R_GetTextureColumn(bottomtexture, texturecolumn);
                   dcvars.nextsource = R_GetTextureColumn(bottomtexture, texturecolumn+1); // POPE
+                  dcvars.prevsource = R_GetTextureColumn(bottomtexture, texturecolumn-1); // POPE
                   dcvars.texheight = bottomtexheight;
                   colfunc ();
                   floorclip[rw_x] = mid;

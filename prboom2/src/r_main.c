@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.25 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: r_main.c,v 1.26 2002/11/21 20:53:10 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.25 2002/11/18 22:54:32 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.26 2002/11/21 20:53:10 dukope Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -668,10 +668,11 @@ CONSOLE_INT(screensize, screenblocks, NULL, 3, 11, NULL, 0)
 static char *str_filter[] =
 {
   "point",
-  "linear"
+  "linear",
+  "rounded"
 };
 
-CONSOLE_INT(r_filteruv, rdrawvars.filteruv, NULL, 0, 1, str_filter, 0) {}
+CONSOLE_INT(r_filteruv, rdrawvars.filteruv, NULL, 0, 2, str_filter, 0) {}
 CONSOLE_INT(r_filterz, rdrawvars.filterz, NULL, 0, 1, str_filter, 0) {}
 CONSOLE_INT(r_columnslope, rdrawvars.maskedColumnEdgeType, NULL, 0, 1, onoff, 0) {}
 CONSOLE_INT(r_filterthreshold, rdrawvars.magThresh, NULL, 10000, 200000, NULL, 0) {}

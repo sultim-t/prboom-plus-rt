@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.27 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: v_video.c,v 1.28 2002/11/21 20:53:10 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.27 2002/11/18 22:54:32 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.28 2002/11/21 20:53:10 dukope Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -47,6 +47,7 @@ rcsid[] = "$Id: v_video.c,v 1.27 2002/11/18 22:54:32 proff_fs Exp $";
 #include "i_video.h"
 #include "lprintf.h"
 #include "r_things.h" // R_GetColumnEdgeSlope POPE 
+#include "r_filter.h"
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 TScreenVars screens[6];
@@ -104,7 +105,7 @@ void V_InitColorTranslation(void) {
 #ifdef GL_DOOM
 static TVidMode vidMode = VID_MODEGL;
 #else
-static TVidMode vidMode = VID_MODE8;
+static TVidMode vidMode = VID_MODE32;
 #endif
 
 //---------------------------------------------------------------------------
@@ -475,6 +476,7 @@ void V_Init (void)
   int i;
 
   vid_initMode(vidMode);
+  filter_init();
 
   // reset the all
   for (i = 0; i<NUM_SCREENS; i++) {

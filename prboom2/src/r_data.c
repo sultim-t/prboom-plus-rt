@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: r_data.c,v 1.27 2002/11/21 20:53:10 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.27 2002/11/21 20:53:10 dukope Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -341,13 +341,17 @@ const byte *R_GetTextureColumn(int tex, int col)
   const texture_t *texture = textures[tex];
   if (!texture->columnlump) R_GenerateLookup(tex, NULL);
   {
-  int lump = texture->columnlump[col &= texture->widthmask];
-  int ofs  = texture->columnofs[col]; // cph - WARNING: must be after the above line
   // cph - remember the last lump, so we can unlock it if no longer needed, 
   //  or reuse it if possible to reduce lump locking/unlocking
   static int lastlump = -1;
   static const byte* lastlumpdata;
-
+  int lump, ofs;
+  
+  while (col < 0) col += texture->width;
+  col &= texture->widthmask;
+  lump = texture->columnlump[col];
+  ofs  = texture->columnofs[col];
+  
   if ((lump<=0) && (lastlump<=0))
     lump = lastlump; // cph - force equal
 

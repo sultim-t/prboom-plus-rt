@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.19 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: r_draw.c,v 1.20 2002/11/21 20:53:10 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.19 2002/11/18 22:54:32 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.20 2002/11/21 20:53:10 dukope Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -207,17 +207,17 @@ extern lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
 #define RDC_16BITS         32
 #define RDC_32BITS         64
 #define RDC_FUZZ           128
+#define RDC_ROUNDED        256
 
 //---------------------------------------------------------------------------
 // Set up the globals and their defaults
 //---------------------------------------------------------------------------
 TRDrawColumnVars dcvars;
-
 TRDrawSpanVars dsvars;
 
 TRDrawVars rdrawvars = { 
   0,0,0, // topleft
-  RDRAW_FILTER_POINT, // filteruv
+  RDRAW_FILTER_LINEAR, // filteruv
   RDRAW_FILTER_LINEAR, // filterz
   RDRAW_MASKEDCOLUMNEDGE_SLOPED, // maskedColumnEdgeType
   // 49152 = FRACUNIT * 0.75
@@ -246,6 +246,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ)
+#include "inl/R_DrawColumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS)
@@ -259,6 +265,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ)
+#include "inl/R_DrawColumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS)
@@ -271,6 +283,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #include "inl/R_DrawColumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_BILINEAR | RDC_DITHERZ)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
 
 //---------------------------------------------------------------------------
@@ -291,6 +309,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_TRANSLUCENT)
@@ -304,6 +328,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_TRANSLUCENT)
@@ -316,6 +346,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #include "inl/R_DrawColumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
 #include "inl/R_DrawColumn.inl"
 
 //---------------------------------------------------------------------------
@@ -336,6 +372,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER)
@@ -348,6 +390,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #include "inl/R_DrawColumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
 #include "inl/R_DrawColumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_PointUV_PointZ
@@ -362,7 +410,12 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/R_DrawColumn.inl"
-
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#include "inl/R_DrawColumn.inl"
 
 //---------------------------------------------------------------------------
 // R_DrawFuzzColumn
@@ -430,21 +483,30 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 //---------------------------------------------------------------------------
 // Lookup table for fetching the proper drawing function quickly
 static TVoidFunc plFuncs[] = {
+  // 8
   R_DrawColumn8_PointUV_PointZ,
   R_DrawColumn8_PointUV_LinearZ,
   R_DrawColumn8_LinearUV_PointZ,
   R_DrawColumn8_LinearUV_LinearZ,
+  R_DrawColumn8_RoundedUV_PointZ,
+  R_DrawColumn8_RoundedUV_LinearZ,
   
   R_DrawTLColumn8_PointUV_PointZ,
   R_DrawTLColumn8_PointUV_LinearZ,
   R_DrawTLColumn8_LinearUV_PointZ,
   R_DrawTLColumn8_LinearUV_LinearZ,
+  R_DrawTLColumn8_RoundedUV_PointZ,
+  R_DrawTLColumn8_RoundedUV_LinearZ,
   
   R_DrawTranslatedColumn8_PointUV_PointZ,
   R_DrawTranslatedColumn8_PointUV_LinearZ,
   R_DrawTranslatedColumn8_LinearUV_PointZ,
   R_DrawTranslatedColumn8_LinearUV_LinearZ,
+  R_DrawTranslatedColumn8_RoundedUV_PointZ,
+  R_DrawTranslatedColumn8_RoundedUV_LinearZ,
 
+  R_DrawFuzzColumn8,
+  R_DrawFuzzColumn8,
   R_DrawFuzzColumn8,
   R_DrawFuzzColumn8,
   R_DrawFuzzColumn8,
@@ -454,47 +516,69 @@ static TVoidFunc plFuncs[] = {
   R_DrawSpan8_PointUV_LinearZ, 
   R_DrawSpan8_LinearUV_PointZ,
   R_DrawSpan8_LinearUV_LinearZ,
-  
+  R_DrawSpan8_LinearUV_PointZ,
+  R_DrawSpan8_LinearUV_LinearZ,
+
+  // 16
   R_DrawColumn16_PointUV_PointZ,
   R_DrawColumn16_PointUV_LinearZ,
   R_DrawColumn16_LinearUV_PointZ,
   R_DrawColumn16_LinearUV_LinearZ,
+  R_DrawColumn16_RoundedUV_PointZ,
+  R_DrawColumn16_RoundedUV_LinearZ,
   
   R_DrawTLColumn16_PointUV_PointZ,
   R_DrawTLColumn16_PointUV_LinearZ,
   R_DrawTLColumn16_LinearUV_PointZ,
   R_DrawTLColumn16_LinearUV_LinearZ,
+  R_DrawTLColumn16_RoundedUV_PointZ,
+  R_DrawTLColumn16_RoundedUV_LinearZ,
   
   R_DrawTranslatedColumn16_PointUV_PointZ,
   R_DrawTranslatedColumn16_PointUV_LinearZ,
   R_DrawTranslatedColumn16_LinearUV_PointZ,
   R_DrawTranslatedColumn16_LinearUV_LinearZ,
+  R_DrawTranslatedColumn16_RoundedUV_PointZ,
+  R_DrawTranslatedColumn16_RoundedUV_LinearZ,
+
+  R_DrawFuzzColumn16,
+  R_DrawFuzzColumn16,
+  R_DrawFuzzColumn16,
+  R_DrawFuzzColumn16,
+  R_DrawFuzzColumn16,
+  R_DrawFuzzColumn16,
   
-  R_DrawFuzzColumn16,
-  R_DrawFuzzColumn16,
-  R_DrawFuzzColumn16,
-  R_DrawFuzzColumn16,
-   
   R_DrawSpan16_PointUV_PointZ,
   R_DrawSpan16_PointUV_LinearZ, 
   R_DrawSpan16_LinearUV_PointZ,
   R_DrawSpan16_LinearUV_LinearZ,
+  R_DrawSpan16_LinearUV_PointZ,
+  R_DrawSpan16_LinearUV_LinearZ,
   
+  // 32
   R_DrawColumn32_PointUV_PointZ,
   R_DrawColumn32_PointUV_LinearZ,
   R_DrawColumn32_LinearUV_PointZ,
   R_DrawColumn32_LinearUV_LinearZ,
+  R_DrawColumn32_RoundedUV_PointZ,
+  R_DrawColumn32_RoundedUV_LinearZ,
   
   R_DrawTLColumn32_PointUV_PointZ,
   R_DrawTLColumn32_PointUV_LinearZ,
   R_DrawTLColumn32_LinearUV_PointZ,
   R_DrawTLColumn32_LinearUV_LinearZ,
+  R_DrawTLColumn32_RoundedUV_PointZ,
+  R_DrawTLColumn32_RoundedUV_LinearZ,
   
   R_DrawTranslatedColumn32_PointUV_PointZ,
   R_DrawTranslatedColumn32_PointUV_LinearZ,
   R_DrawTranslatedColumn32_LinearUV_PointZ,
   R_DrawTranslatedColumn32_LinearUV_LinearZ,
-  
+  R_DrawTranslatedColumn32_RoundedUV_PointZ,
+  R_DrawTranslatedColumn32_RoundedUV_LinearZ,
+
+  R_DrawFuzzColumn32,
+  R_DrawFuzzColumn32,
   R_DrawFuzzColumn32,
   R_DrawFuzzColumn32,
   R_DrawFuzzColumn32,
@@ -503,33 +587,33 @@ static TVoidFunc plFuncs[] = {
   R_DrawSpan32_PointUV_PointZ,
   R_DrawSpan32_PointUV_LinearZ, 
   R_DrawSpan32_LinearUV_PointZ,
+  R_DrawSpan32_LinearUV_LinearZ,
+  R_DrawSpan32_LinearUV_PointZ,
   R_DrawSpan32_LinearUV_LinearZ
 };
+
+//---------------------------------------------------------------------------
+// Use the table above to get the requested pipeline function
+//---------------------------------------------------------------------------
+TVoidFunc R_GetExactDrawFunc(
+TRDrawPipelineType type, int bitDepth, 
+TRDrawFilterType filteruv, TRDrawFilterType filterz
+) {
+  if (bitDepth == 16 && !vid_shortPalette) V_UpdateTrueColorPalette(VID_MODE16);
+  if (bitDepth == 32 && !vid_intPalette) V_UpdateTrueColorPalette(VID_MODE32);
+  return plFuncs[
+    vid_getModeForNumBits(bitDepth)*(6*RDRAW_PIPELINE_MAXFUNCS) +
+    type*6 +
+    filteruv*2 +
+    filterz
+  ];
+}
 
 //---------------------------------------------------------------------------
 static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type) {
   // This lets us select point sampling when minifying and the global
   // filtering method when magnifying - POPE
-  return plFuncs[
-    vid_getMode()*(4*RDRAW_PIPELINE_MAXFUNCS)+
-    type*4+
-    RDRAW_FILTER_POINT*2+
-    rdrawvars.filterz
-  ];
-}
-
-//---------------------------------------------------------------------------
-// Use the table above to get the requested pipeline function
-//---------------------------------------------------------------------------
-TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, int bitDepth, TRDrawFilterType filteruv, TRDrawFilterType filterz) {
-  if (bitDepth == 16 && !vid_shortPalette) V_UpdateTrueColorPalette(VID_MODE16);
-  if (bitDepth == 32 && !vid_intPalette) V_UpdateTrueColorPalette(VID_MODE32);
-  return plFuncs[
-    vid_getModeForNumBits(bitDepth)*(4*RDRAW_PIPELINE_MAXFUNCS)+
-    type*4+
-    filteruv*2+
-    filterz
-  ];
+  return R_GetExactDrawFunc(type, vid_getNumBits(), RDRAW_FILTER_POINT, rdrawvars.filterz);
 }
 
 //---------------------------------------------------------------------------
