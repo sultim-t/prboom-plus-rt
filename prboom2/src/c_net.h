@@ -119,6 +119,6 @@ extern int cmdsrc;           // the player which started the current command
 // use the entire ticcmd for transferring console commands when
 // in console mode ?
 
-#define CONSHUGE
+//#define CONSHUGE
 
 #endif

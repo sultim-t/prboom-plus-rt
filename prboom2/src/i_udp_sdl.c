@@ -69,6 +69,146 @@ size_t sentbytes, recvdbytes;
 
 UDP_PACKET *udp_packet;
 
+//#define DUMP_PACKETS
+
+#ifdef DUMP_PACKETS
+#include "ctype.h"
+
+void DumpPacket(packet_header_t* packet, size_t len, boolean received)
+{
+  lprintf(LO_DEBUG, "DumpPacket:\n");
+  if (received)
+    lprintf(LO_DEBUG, "\tRECEIVED length %6i\n", len);
+  else
+    lprintf(LO_DEBUG, "\tSEND     length %6i\n", len);
+  lprintf(LO_DEBUG, "\ttic     : %6i\n", packet->tic);
+  lprintf(LO_DEBUG, "\tchecksum: %8i\n", packet->checksum);
+  switch (packet->type)
+  {
+  case PKT_INIT:
+    {
+      struct initpacket_s { packet_header_t head; short pn; } *initpacket = (struct initpacket_s *)packet;
+
+      lprintf(LO_DEBUG, "\tPKT_INIT\n");
+      lprintf(LO_DEBUG, "\tplayernumber: %i\n", initpacket->pn);
+    }
+    break;
+  case PKT_SETUP:
+    {
+      struct setup_packet_s *setuppacket = (struct setup_packet_s *)packet;
+      int i;
+      char *c;
+
+      lprintf(LO_DEBUG, "\tPKT_SETUP\n");
+      lprintf(LO_DEBUG, "\tplayers   : %i\n", setuppacket->players);
+      lprintf(LO_DEBUG, "\tyourplayer: %i\n", setuppacket->yourplayer);
+      lprintf(LO_DEBUG, "\tskill     : %i\n", setuppacket->skill);
+      lprintf(LO_DEBUG, "\tepisode   : %i\n", setuppacket->episode);
+      lprintf(LO_DEBUG, "\tlevel     : %i\n", setuppacket->level);
+      lprintf(LO_DEBUG, "\tdeathmatch: %i\n", setuppacket->deathmatch);
+      lprintf(LO_DEBUG, "\tcomplevel : %i\n", setuppacket->complevel);
+      lprintf(LO_DEBUG, "\tticdup    : %i\n", setuppacket->ticdup);
+      lprintf(LO_DEBUG, "\textratic  : %i\n", setuppacket->extratic);
+      lprintf(LO_DEBUG, "\tnumwads   : %i\n", setuppacket->numwads);
+      for (i=0, c=setuppacket->wadnames; i<setuppacket->numwads; i++)
+      {
+        lprintf(LO_DEBUG, "\t\t%s\n", c);
+        c += strlen(c) + 1;
+      }
+    }
+    break;
+  case PKT_GO:
+    lprintf(LO_DEBUG, "\tPKT_GO\n");
+    if (len - sizeof(packet_header_t) > 0)
+      lprintf(LO_DEBUG, "\tplayer: %i\n", (int)*(byte*)(packet+1));
+    break;
+  case PKT_TICC:
+    {
+      byte *p = (void*)(packet+1);
+      int tics = *p++;
+      int player = *p++;
+      lprintf(LO_DEBUG, "\tPKT_TICC\n");
+      lprintf(LO_DEBUG, "\ttics: %i\n", tics);
+      lprintf(LO_DEBUG, "\tplayer: %i\n", player);
+      while (tics--) {
+        int n = *p++;
+        ticcmd_t tic;
+        RawToTic(&tic, p);
+        p += sizeof(ticcmd_t);
+        lprintf(LO_DEBUG, "\t\tnetcmd: %i\n", n);
+        lprintf(LO_DEBUG, "\t\t\tforwardmove: %i\n", tic.forwardmove);
+        lprintf(LO_DEBUG, "\t\t\tsidemove   : %i\n", tic.sidemove);
+        lprintf(LO_DEBUG, "\t\t\tangleturn  : %i\n", tic.angleturn);
+        lprintf(LO_DEBUG, "\t\t\tconsistancy: %i\n", tic.consistancy);
+        lprintf(LO_DEBUG, "\t\t\tchatchar   : %i (%c)\n", tic.chatchar, isprint(tic.chatchar)?tic.chatchar:' ');
+        lprintf(LO_DEBUG, "\t\t\tbuttons    : %i\n", tic.buttons);
+      }
+    }
+    break;
+  case PKT_TICS:
+    {
+      int ti,pl;
+      byte *p = (void*)(packet+1);
+      int tics = *p++;
+      unsigned long ptic = doom_ntohl(packet->tic);
+      lprintf(LO_DEBUG, "\tPKT_TICS\n");
+      lprintf(LO_DEBUG, "\ttics: %i\n", tics);
+      lprintf(LO_DEBUG, "\tptic: %i\n", ptic);
+      ti = 0;
+      while (tics--) {
+        int players = *p++;
+        lprintf(LO_DEBUG, "\t\ttic: %i\n", ti++);
+        pl = 0;
+        lprintf(LO_DEBUG, "\t\tplayer: %i\n", pl++);
+        while (players--) {
+          int n = *p++;
+          ticcmd_t tic;
+          RawToTic(&tic, p);
+          p += sizeof(ticcmd_t);
+          lprintf(LO_DEBUG, "\t\tnetcmd: %i\n", n);
+          lprintf(LO_DEBUG, "\t\t\tforwardmove: %i\n", tic.forwardmove);
+          lprintf(LO_DEBUG, "\t\t\tsidemove   : %i\n", tic.sidemove);
+          lprintf(LO_DEBUG, "\t\t\tangleturn  : %i\n", tic.angleturn);
+          lprintf(LO_DEBUG, "\t\t\tconsistancy: %i\n", tic.consistancy);
+          lprintf(LO_DEBUG, "\t\t\tchatchar   : %i (%c)\n", tic.chatchar, isprint(tic.chatchar)?tic.chatchar:' ');
+          lprintf(LO_DEBUG, "\t\t\tbuttons    : %i\n", tic.buttons);
+        }
+      }
+    }
+    break;
+  case PKT_RETRANS:
+    lprintf(LO_DEBUG, "\tPKT_RETRANS\n");
+    break;
+  case PKT_EXTRA:
+    {
+      int *p = (int*)(packet+1);
+      size_t extra_len = LONG(*(p+2));
+      int extra_type = LONG(*p);
+      lprintf(LO_DEBUG, "\tPKT_EXTRA\n");
+      lprintf(LO_DEBUG, "\textra_type: %i\n", extra_type);
+      lprintf(LO_DEBUG, "\textra_len: %i\n", extra_len);
+    }
+    break;
+  case PKT_QUIT:
+    lprintf(LO_DEBUG, "\tPKT_QUIT\n");
+    if (len - sizeof(packet_header_t) > 0)
+      lprintf(LO_DEBUG, "\tplayer: %i\n", (int)*(byte*)(packet+1));
+    break;
+  case PKT_DOWN:
+    lprintf(LO_DEBUG, "\tPKT_DOWN\n");
+    break;
+  case PKT_WAD:
+    lprintf(LO_DEBUG, "\tPKT_WAD\n");
+    break;
+  case PKT_BACKOFF:
+    lprintf(LO_DEBUG, "\tPKT_BACKOFF\n");
+    break;
+  default:
+    lprintf(LO_DEBUG, "\tunknown type (%i)\n", packet->type);
+  }
+}
+#endif
+
 /* I_ShutdownNetwork
  *
  * Shutdown the network code
@@ -247,7 +387,13 @@ size_t I_GetPacket(packet_header_t* buffer, size_t buflen)
     byte psum = ChecksumPacket(buffer, udp_packet->len);
 /*    fprintf(stderr, "recvlen = %u, stolen = %u, csum = %u, psum = %u\n", 
 	udp_packet->len, len, checksum, psum); */
-    if (psum == checksum) return len;
+    if (psum == checksum)
+    {
+#ifdef DUMP_PACKETS
+      DumpPacket(buffer, len, 1);
+#endif
+      return len;
+    }
   }
   return 0;
 }
@@ -255,6 +401,9 @@ size_t I_GetPacket(packet_header_t* buffer, size_t buflen)
 void I_SendPacket(packet_header_t* packet, size_t len)
 {
   packet->checksum = ChecksumPacket(packet, len);
+#ifdef DUMP_PACKETS
+  DumpPacket(packet, len, 0);
+#endif
   memcpy(udp_packet->data, packet, udp_packet->len = len);
 	SDLNet_UDP_Send(udp_socket, 0, udp_packet);
 }

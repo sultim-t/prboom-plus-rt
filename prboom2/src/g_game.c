@@ -220,6 +220,24 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   int newweapon;                                          // phares
   /* cphipps - remove needless I_BaseTiccmd call, just set the ticcmd to zero */
   memset(cmd,0,sizeof*cmd);
+#ifdef CONSHUGE
+   // in console mode the whole ticcmd is used
+   // to transfer console command chars
+   
+   if(gamestate == GS_CONSOLE)
+   {                         
+      int i;
+      
+      // fill ticcmd with console chars
+      for(i = 0; i < sizeof(ticcmd_t); i++)
+      {
+         ((unsigned char*)cmd)[i] = C_dequeueChatChar();
+      }
+      return;
+   }
+#endif
+
+
   cmd->consistancy = consistancy[consoleplayer][maketic%BACKUPTICS];
 
   strafe = action_strafe;
@@ -278,8 +296,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   side += sidemove[1] * axis_side_value / 256;
   cmd->angleturn += angleturn[1] * axis_turn_value / 256;
 
-    // buttons
-  //cmd->chatchar = HU_dequeueChatChar(); FIXME
+  // console commands
+  cmd->chatchar = C_dequeueChatChar();
 
   if (action_attack)
     cmd->buttons |= BT_ATTACK;
@@ -1513,6 +1531,8 @@ void G_Ticker (void)
   }
 
   // do main actions
+  // call other tickers
+  C_NetTicker();        // sf: console network commands
   switch (gamestate)
     {
     case GS_LEVEL:

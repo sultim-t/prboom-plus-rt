@@ -60,6 +60,18 @@ int cmdsrc = 0;           // the source of a network console command
 
 command_t *c_netcmds[NUMNETCMDS];
 
+/*
+  haleyjd: indiscrete bug here
+
+  default_name was being set equal to a string on the C heap,
+  and then free()'d in the player name console command handler --
+  but of course free() is redefined to Z_Free(), and you can't do
+  that -- similar to the bug that was crashing the savegame menu,
+  but this one caused a segfault, and only occasionally, because
+  of Z_Free's faulty assumption that a pointer will be in valid 
+  address space to test the zone id, even if its not a ptr to a
+  zone block.
+*/
 char *default_name = NULL;
 int default_colour;
 
@@ -70,6 +82,13 @@ int default_colour;
 static char chatchars[QUEUESIZE];
 static int  head = 0;
 static int  tail = 0;
+
+// haleyjd: this must be called from start-up -- see above.
+void C_InitPlayerName(void)
+{
+  default_name = Z_Strdup("player", PU_STATIC, 0);
+}
+
 
 //
 // C_queueChatChar() (used to be HU_*)
@@ -157,7 +176,7 @@ void C_DealWithChar(unsigned char c, int source);
 
 void C_NetTicker()
 {
-  int i, n;
+  int i;
   
   if(netgame && !demoplayback)      // only deal with chat chars in
     // netgames
@@ -166,8 +185,7 @@ void C_NetTicker()
     for(i=0; i<MAXPLAYERS; i++)
       {
 	if(!playeringame[i]) continue;
-	for(n=0; n<CONS_BYTES; n++)
-	  C_DealWithChar(players[i].cmd.consdata[n], i);
+	  C_DealWithChar(players[i].cmd.chatchar,i);
       }
   
   // run buffered commands essential for netgame sync
@@ -224,7 +242,6 @@ void C_SendNetData()
   int i;
   
   C_SetConsole();
-  C_NetInit();
   
   // display message according to what we're about to do
 

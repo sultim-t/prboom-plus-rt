@@ -36,6 +36,7 @@
 
 #include "doomtype.h"
 #include "doomstat.h"
+#include "c_net.h"
 #include "d_net.h"
 #include "z_zone.h"
 
@@ -177,6 +178,7 @@ void D_CheckNetGame(void)
     } while (packet->type != PKT_GO);
   }
   free(packet);
+  C_NetInit();
 }
 
 boolean D_NetGetWad(const char* name)

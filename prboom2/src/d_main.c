@@ -1292,6 +1292,9 @@ void D_DoomMainSetup(void)
   VIDD_checkStartupParamsFirst(); // POPE
 #endif
 
+  // haleyjd: need to do this before M_LoadDefaults
+  C_InitPlayerName();
+
   lprintf(LO_INFO,"C_Init: Init console.\n");
   C_Init();
 
@@ -1774,10 +1777,19 @@ void D_DoomMainSetup(void)
       G_LoadGame(slot, true);           // killough 5/15/98: add command flag // cph - no filename
     }
   else
-    if (!singledemo) {                  /* killough 12/98 */
-      if (autostart || netgame)
+    if (!singledemo)                  /* killough 12/98 */
+    {
+      if (netgame)
+	    {
+        C_SendNetData();
+
+        if (demorecording)
+	        G_BeginRecording();
+	    }
+      else if (autostart)
 	{
 	  G_InitNew(startskill, startlevel);
+
 	  if (demorecording)
 	    G_BeginRecording();
 	}
