@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.5 2000/05/13 09:24:59 cph Exp $
+ * $Id: p_sight.c,v 1.6 2000/05/15 22:59:25 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.5 2000/05/13 09:24:59 cph Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.6 2000/05/15 22:59:25 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -277,8 +277,9 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 
   /* killough 11/98: shortcut for melee situations
    * same subsector? obviously visible
-   * cph - DEMOSYNC - shouldn't break stuff but... */
-  if (t1->subsector == t2->subsector)
+   * cph - compatibility optioned for demo sync, cf HR06-UV.LMP */
+  if ((t1->subsector == t2->subsector) &&
+      (compatibility_level >= mbf_compatibility))
     return true;
 
   // An unobstructed LOS is possible.
