@@ -73,8 +73,8 @@ static patchnum_t fragbox;
 
 void HU_FragsInit()
 {
-  //R_SetPatchNum(&fragspic, "HU_FRAGS");
-  //R_SetPatchNum(&fragbox, "HU_FRGBX");
+  R_SetPatchNum(&fragspic, "HU_FRAGS");
+  R_SetPatchNum(&fragbox, "HU_FRGBX");
 }
 
 void HU_FragsDrawer()
@@ -85,7 +85,7 @@ void HU_FragsDrawer()
   if(!deathmatch)
     return;
   
-//  if(!action_frags) FIXME
+  if(!action_frags)
     {
       if(players[displayplayer].playerstate != PST_DEAD ||
 	 walkcam_active ||
@@ -188,7 +188,7 @@ CONSOLE_COMMAND(frags, 0)
   
   for(i=0; i<num_players; i++)
     {
-      C_Printf(FC_GRAY"%i"FC_RED" %s\n",
+      C_Printf(FC_HI"%i"FC_NORMAL" %s\n",
 	       sortedplayers[i]->totalfrags,
 	       sortedplayers[i]->name);
     }

@@ -40,13 +40,19 @@
 
 typedef struct textwidget_s textwidget_t;
 
+// haleyjd: architecture alteration:
+// made handler take a pointer to its widget for 
+// self-referencing purposes -- seems silly at first but it
+// creates an interface-style functionality allowing several
+// widgets to be handled by the same code (less explosion)
+
 struct textwidget_s
 {
   int x, y;       // co-ords on screen
   int font;       // 0 = normal red text 1 = heads up font
   int fontcolour;
   char *message;
-  void (*handler)();      // controller function
+  void (*handler)(textwidget_t *widget);      // controller function
   int cleartic;   // gametic in which to clear the widget (0=never)
 };
 

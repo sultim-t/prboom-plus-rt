@@ -108,7 +108,7 @@ int hud_hidestatus = 0;
 
 patchnum_t hu_font[HU_FONTSIZE];
 
-void HU_LoadFont()
+void HU_LoadFont(void)
 {
   int i, j;
   char lumpname[10];
@@ -158,29 +158,28 @@ int HU_StringWidth(unsigned char *s)
 // create a string containing the text 'bar' which graphically
 // show %age of ammo/health/armor etc left
 
-void HU_TextBar(unsigned char *s, int pct)
+void HU_TextBar(unsigned char *s, size_t len, int pct)
 {
-  if(pct > 100) pct = 100;
+  if(pct > 100)
+    pct = 100;
   
   // build the string, decide how many blocks
   while(pct)
-    {
-      int addchar = 0;
+  {
+    int addchar = 0;
       
-      if(pct >= BARSIZE)
-	{
-	  addchar = 123;  // full pct: 4 blocks
-	  pct -= BARSIZE;
-	}
-      else
-	{
-	  addchar = 127 - (pct*5)/BARSIZE;
-	  pct = 0;
-	}
-
-      s[strlen(s) + 1] = '\0';
-      s[strlen(s)] = addchar;
-    }
+    if(pct >= BARSIZE)
+	  {
+	    addchar = 123;  // full pct: 4 blocks
+	    pct -= BARSIZE;
+	  }
+    else
+	  {
+	    addchar = 127 - (pct*5)/BARSIZE;
+	    pct = 0;
+	  }
+    psnprintf(s, len, "%s%c", s, addchar);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -201,9 +200,11 @@ void HU_TextBar(unsigned char *s, int pct)
 
 void HU_DrawHealth(int x, int y)
 {
-  char tempstr[50];
+   char tempstr[128];
   int fontcolour;
   
+   memset(tempstr, 0, 128);
+
   HU_WriteText(HUDCOLOUR "Health", x, y);
   x += GAP;               // leave a gap between name and bar
   
@@ -214,13 +215,14 @@ void HU_DrawHealth(int x, int y)
     players[displayplayer].health <= health_green ? *FC_GREEN :
     *FC_BLUE;
   
-  psnprintf(tempstr, 50, "%c", fontcolour);
+  psnprintf(tempstr, sizeof(tempstr), "%c", fontcolour);
 
   // now make the actual bar
-  HU_TextBar(tempstr, players[displayplayer].health);
+  HU_TextBar(tempstr, sizeof(tempstr), players[displayplayer].health);
 
   // append the percentage itself
-  psnprintf(tempstr, 50, "%s %i", tempstr, players[displayplayer].health);
+  psnprintf(tempstr, sizeof(tempstr),
+            "%s %i", tempstr, players[displayplayer].health);
 
   // write it
   HU_WriteText(tempstr, x, y);
@@ -234,9 +236,11 @@ void HU_DrawHealth(int x, int y)
 
 void HU_DrawArmor(int x, int y)
 {
-  char tempstr[50];
+  char tempstr[128];
   int fontcolour;
   
+  memset(tempstr, 0, 128);
+
   // title first
   HU_WriteText(HUDCOLOUR "Armor", x, y);
   x += GAP;              // leave a gap between name and bar
@@ -247,13 +251,14 @@ void HU_DrawArmor(int x, int y)
     players[displayplayer].armorpoints < armor_yellow ? *FC_GOLD :
     players[displayplayer].armorpoints <= armor_green ? *FC_GREEN :
     *FC_BLUE;
-  psnprintf(tempstr, 50, "%c", fontcolour);
+  psnprintf(tempstr, sizeof(tempstr), "%c", fontcolour);
   
   // make the bar
-  HU_TextBar(tempstr, players[displayplayer].armorpoints);
+  HU_TextBar(tempstr, sizeof(tempstr),
+             players[displayplayer].armorpoints);
   
   // append the percentage itself
-  psnprintf(tempstr, 50, "%s %i", tempstr,
+  psnprintf(tempstr, sizeof(tempstr), "%s %i", tempstr,
 	  players[displayplayer].armorpoints);
   
   HU_WriteText(tempstr, x, y);
@@ -266,22 +271,26 @@ void HU_DrawArmor(int x, int y)
 
 void HU_DrawAmmo(int x, int y)
 {
-  char tempstr[50];
+   char tempstr[128];
   int fontcolour;
   
+   memset(tempstr, 0, 128);
+   
   HU_WriteText(HUDCOLOUR "Ammo", x, y);
   x += GAP;
   
   fontcolour = weapcolour(players[displayplayer].readyweapon);
-  psnprintf(tempstr, 50, "%c", fontcolour);
+  psnprintf(tempstr, sizeof(tempstr), "%c", fontcolour);
   
   if(playermaxammo)
     {
-      HU_TextBar(tempstr, (100 * playerammo) / playermaxammo);
-      psnprintf(tempstr, 50, "%s %i/%i", tempstr, playerammo, playermaxammo);
+      HU_TextBar(tempstr, sizeof(tempstr),
+                 (100 * playerammo) / playermaxammo);
+      psnprintf(tempstr, sizeof(tempstr), "%s %i/%i",
+                tempstr, playerammo, playermaxammo);
     }
   else    // fist or chainsaw
-    strcat(tempstr, "N/A");
+    psnprintf(tempstr, sizeof(tempstr), "%sN/A", tempstr);
   
   HU_WriteText(tempstr, x, y);
 }
@@ -293,23 +302,25 @@ void HU_DrawAmmo(int x, int y)
 
 void HU_DrawWeapons(int x, int y)
 {
-  char tempstr[50] = "";
+   char tempstr[128];
   int i;
   int fontcolour;
   
+   memset(tempstr, 0, 128);
+   
   HU_WriteText(HUDCOLOUR "Weapons", x, y);    // draw then leave a gap
   x += GAP;
   
   for(i=0; i<NUMWEAPONS; i++)
-    {
-      if(players[displayplayer].weaponowned[i])
-	{
-	  // got it
-	  fontcolour = weapcolour(i);
-	  psnprintf(tempstr, 50, "%s%c%i ", tempstr,
-		  fontcolour, i+1);
-	}
-    }
+  {
+    if(players[displayplayer].weaponowned[i])
+	  {
+	    // got it
+	    fontcolour = weapcolour(i);
+	    psnprintf(tempstr, sizeof(tempstr), "%s%c%i ", tempstr,
+		            fontcolour, i+1);
+	  }
+  }
 
   HU_WriteText(tempstr, x, y);    // draw it
 }
@@ -345,12 +356,14 @@ void HU_DrawKeys(int x, int y)
 
 void HU_DrawFrag(int x, int y)
 {
-  char tempstr[20];
+  char tempstr[64];
+
+  memset(tempstr, 0, 64);
   
   HU_WriteText(HUDCOLOUR "Frags", x, y);    // draw then leave a gap
   x += GAP;
   
-  psnprintf(tempstr, 20, HUDCOLOUR "%i", players[displayplayer].totalfrags);
+  psnprintf(tempstr, sizeof(tempstr), HUDCOLOUR "%i", players[displayplayer].totalfrags);
   HU_WriteText(tempstr, x, y);        
 }
 
@@ -361,13 +374,14 @@ void HU_DrawFrag(int x, int y)
 
 void HU_DrawStatus(int x, int y)
 {
-  char tempstr[50];
+  char tempstr[128];
+
+  memset(tempstr, 0, 128);
   
   HU_WriteText(HUDCOLOUR "Status", x, y); // draw, leave a gap
   x += GAP;
   
-  
-  psnprintf(tempstr, 50,
+  psnprintf(tempstr, sizeof(tempstr),
 	  FC_RED "K" FC_GREEN " %i "
 	  FC_RED "M" FC_GREEN " %i "
 	  FC_RED "I" FC_GREEN " %i/%i "
@@ -385,18 +399,18 @@ overlay_t overlay[NUMOVERLAY];
 
 // toggle the overlay style
 
-void HU_OverlayStyle()
+void HU_OverlayStyle(void)
 {
   hud_enabled = true;
   hud_overlaystyle = (hud_overlaystyle+1) % 4;
 }
 
-void HU_ToggleHUD()
+void HU_ToggleHUD(void)
 {
   hud_enabled = !hud_enabled;
 }
 
-void HU_OverlaySetup()
+void HU_OverlaySetup(void)
 {
   int i;
   

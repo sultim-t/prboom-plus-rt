@@ -39,30 +39,30 @@ typedef struct menuwidget_s menuwidget_t;
 
 // responder for events
 
-boolean MN_Responder (event_t *ev);
+boolean MN_Responder(event_t *ev);
 
 // Called by main loop,
 // only used for menu (skull cursor) animation.
 
-void MN_Ticker (void);
+void MN_Ticker(void);
 
 // Called by main loop,
 // draws the menus directly into the screen buffer.
 
 void MN_DrawMenu(menu_t *menu);
-void MN_Drawer (void);
+void MN_Drawer(void);
 
 void MN_LoadData(void);
 
 // Called by D_DoomMain,
 // loads the config file.
 
-void MN_Init (void);
+void MN_Init(void);
 
 // Called by intro code to force menu up upon a keypress,
 // does nothing if menu is already up.
 
-void MN_StartControlPanel (void);
+void MN_StartControlPanel(void);
 
 void MN_ForcedLoadGame(const char *msg); // killough 5/15/98: forced loadgames
 
@@ -72,10 +72,17 @@ void MN_DrawBackground(char *patch, byte *screen);  // killough 11/98
 
 void MN_DrawCredits(void);    // killough 11/98
 
-void MN_ActivateMenu();
+void MN_ActivateMenu(void);
 void MN_StartMenu(menu_t *menu);         // sf 10/99
-void MN_PrevMenu();
-void MN_ClearMenus();                    // sf 10/99
+void MN_PrevMenu(void);
+void MN_ClearMenus(void);                    // sf 10/99
+
+// font functions
+void MN_WriteText(const char *s, int x, int y);
+void MN_WriteTextColoured(const char *s, int colour, int x, int y);
+int MN_StringWidth(const char *s);
+
+void MN_ErrorMsg(const char *s, ...);
 
 //
 // menu_t
@@ -156,6 +163,7 @@ struct menuwidget_s
 {
   void (*drawer)();
   boolean (*responder)(event_t *ev);
+  boolean fullscreen; // haleyjd: optimization for fullscreen widgets
 };
 
 extern boolean menuactive;

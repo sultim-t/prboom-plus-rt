@@ -109,7 +109,7 @@ void HU_PlayerMsg(char *s)
 
 // erase the text before drawing
 
-static void HU_MessageErase()
+static void HU_MessageErase(void)
 {
   int y;
 
@@ -117,7 +117,7 @@ static void HU_MessageErase()
     R_VideoErase(y*SCREENWIDTH, SCREENWIDTH);
 }
 
-static void HU_MessageDraw()
+static void HU_MessageDraw(void)
 {
   int i;
   int x;
@@ -132,12 +132,12 @@ static void HU_MessageDraw()
     V_WriteText(hu_messages[i], 0, x);
 }
 
-static void HU_MessageClear()
+static void HU_MessageClear(void)
 {
   current_messages = 0;
 }
 
-static void HU_MessageTick()
+static void HU_MessageTick(void)
 {
   int i;
 
@@ -342,7 +342,7 @@ static void HU_AddWidget(textwidget_t *widget)
 
 // draw widgets
 
-static void HU_WidgetsDraw()
+static void HU_WidgetsDraw(void)
 {
   int i;
 
@@ -359,34 +359,33 @@ static void HU_WidgetsDraw()
   }
 }
 
-static void HU_WidgetsTick()
+static void HU_WidgetsTick(void)
 {
   int i;
 
   for(i=0; i<num_widgets; i++)
-    {
-      if(widgets[i]->handler)
-	widgets[i]->handler();
-    }
+  {
+    if(widgets[i]->handler)
+	    widgets[i]->handler(widgets[i]); // haleyjd
+  }
 }
 
-        // erase all the widget text
-static void HU_WidgetsErase()
+// erase all the widget text
+static void HU_WidgetsErase(void)
 {
   int i, y;
 
   for(i=0; i<num_widgets; i++)
-    {
-      for(y=widgets[i]->y; y<widgets[i]->y+8; y++)
-	R_VideoErase(y*SCREENWIDTH, SCREENWIDTH);
-    }
+  {
+    for(y=widgets[i]->y; y<widgets[i]->y+8; y++)
+	    R_VideoErase(y*SCREENWIDTH, SCREENWIDTH);
+  }
 }
 
-static void HU_LevelTimeHandler();
-static void HU_CentreMessageHandler();
-static void HU_LevelNameHandler();
-static void HU_CoordHandler();
-static void HU_ChatHandler();
+static void HU_LevelTimeHandler(textwidget_t *widget);
+static void HU_LevelNameHandler(textwidget_t *widget);
+static void HU_CoordHandler(textwidget_t *widget);
+static void HU_ChatHandler(textwidget_t *widget);
 
 //--------------------------------------------------------------------------
 //
@@ -397,16 +396,11 @@ static textwidget_t hu_centremessage =
   {
     0, 0,                      // x,y set by HU_CentreMsg
     0,                         // normal font
-    CR_RED,                   // normal color
+    CR_RED,                    // normal color
     NULL,                      // init to nothing
-    HU_CentreMessageHandler    // handler
+    NULL                       // handler
   };
 static int centremessage_timer = 1500;         // 1.5 seconds
-
-static void HU_CentreMessageHandler(void)
-{
-  return;         // do nothing
-}
 
 static void HU_CentreMessageClear(void)
 {
@@ -449,7 +443,7 @@ static textwidget_t hu_leveltime =
   HU_LevelTimeHandler                            // handler
 };
 
-static void HU_LevelTimeHandler()
+static void HU_LevelTimeHandler(textwidget_t *widget)
 {
   static char timestr[100];
   int seconds = 0;
@@ -461,10 +455,10 @@ static void HU_LevelTimeHandler()
     }
 
   seconds = leveltime / 35;
-  timestr[0] = 0;
+  timestr[0] = '\0';
 
-  psnprintf(timestr, 100, "%02i:%02i:%02i", seconds/3600, (seconds%3600)/60,
-	  seconds%60);
+  psnprintf(timestr, sizeof(timestr), "%02i:%02i:%02i",
+            seconds/3600, (seconds%3600)/60, seconds%60);
 
   hu_leveltime.x = 320-HU_StringWidth("A")*13;
   hu_leveltime.y = 200-ST_HEIGHT-8;
@@ -485,7 +479,7 @@ static textwidget_t hu_levelname =
   HU_LevelNameHandler                // handler
 };
 
-static void HU_LevelNameHandler()
+static void HU_LevelNameHandler(textwidget_t *widget)
 {
   if (automapmode & am_active)
   {
@@ -510,7 +504,7 @@ static textwidget_t hu_coord =
   HU_CoordHandler                    // handler
 };
 
-static void HU_CoordHandler()
+static void HU_CoordHandler(textwidget_t *widget)
 {
   static char coord_str[128];
   player_t *plr = &players[displayplayer];
@@ -548,7 +542,7 @@ static textwidget_t hu_chat =
 };
 static char chatinput[100] = "";
 
-static void HU_ChatHandler()
+static void HU_ChatHandler(textwidget_t *widget)
 {
   static char tempchatmsg[128];
 
@@ -586,7 +580,8 @@ static boolean HU_ChatRespond(event_t *ev)
     {
       // chat macro
       char tempstr[100];
-      psnprintf(tempstr, 100, "say \"%s\"", chat_macros[ev->data1-'0']);
+      psnprintf(tempstr, sizeof(tempstr),
+                "say \"%s\"", chat_macros[ev->data1-'0']);
       C_RunTextCmd(tempstr);
       chat_active = false;
       return true;
@@ -607,7 +602,7 @@ static boolean HU_ChatRespond(event_t *ev)
   if(ev->data1 == KEYD_ENTER)
     {
       char tempstr[100];
-      psnprintf(tempstr, 100, "say \"%s\"", chatinput);
+      psnprintf(tempstr, sizeof(tempstr), "say \"%s\"", chatinput);
       C_RunTextCmd(tempstr);
       chat_active = false;
       return true;
@@ -617,7 +612,7 @@ static boolean HU_ChatRespond(event_t *ev)
 
   if(ch>31 && ch<127)
     {
-      psnprintf(chatinput, 100, "%s%c", chatinput, ch);
+      psnprintf(chatinput, sizeof(chatinput), "%s%c", chatinput, ch);
       C_InitTab();
       return true;
     }
@@ -810,10 +805,10 @@ CONSOLE_NETCMD(say, cf_netvar, netcmd_chat)
   doom_printf("%s: %s", players[cmdsrc].name, c_args);
 }
 
-extern void HU_FragsAddCommands();
-extern void HU_OverAddCommands();
+extern void HU_FragsAddCommands(void);
+extern void HU_OverAddCommands(void);
 
-void HU_AddCommands()
+void HU_AddCommands(void)
 {
   C_AddCommand(obituaries);
   C_AddCommand(obcolour);

@@ -83,6 +83,8 @@ prboom2/data/graphics/digw.ppm -text
 prboom2/data/graphics/digx.ppm -text
 prboom2/data/graphics/digy.ppm -text
 prboom2/data/graphics/digz.ppm -text
+prboom2/data/graphics/hu_frags.ppm -text
+prboom2/data/graphics/hu_frgbx.ppm -text
 prboom2/data/graphics/m_about.ppm -text
 prboom2/data/graphics/m_auto.ppm -text
 prboom2/data/graphics/m_butt1.ppm -text

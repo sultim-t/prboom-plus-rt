@@ -115,10 +115,10 @@ menu_t menu_main =
     // 'doom' title drawn by the drawer
 
     {it_runcmd, "new game",             "mn_newgame",            "M_NGAME"},
-    {it_runcmd, "options",              "mn_options",            "M_OPTION"},
+    {it_runcmd, "options",              "mn_optfeat",            "M_OPTION"},
     {it_runcmd, "load game",            "mn_loadgame",           "M_LOADG"},
     {it_runcmd, "save game",            "mn_savegame",           "M_SAVEG"},
-    {it_runcmd, "features",             "mn_features",           "M_FEAT"},
+    {it_runcmd, "end game",             "mn_endgame",            "M_ENDGAM"},
     {it_runcmd, "quit",                 "mn_quit",               "M_QUITG"},
     {it_end},
   },
@@ -128,7 +128,7 @@ menu_t menu_main =
   MN_MainMenuDrawer
 };
 
-void MN_MainMenuDrawer()
+void MN_MainMenuDrawer(void)
 {
   // hack for m_doom compatibility
    V_DrawNamePatch(94, 2, 0, "M_DOOM", CR_DEFAULT, VPT_STRETCH);
@@ -193,12 +193,11 @@ CONSOLE_COMMAND(mn_quit, 0)
   // sf: use s_QUITMSG if it has been replaced in a dehacked file
   // haleyjd 1/17/00: fixed this to work with NULL pointer derefernce
   //  fix in d_deh.c
-  psnprintf(quitmsg, 128, "%s\n\n%s",
+  psnprintf(quitmsg, sizeof(quitmsg), "%s\n\n%s",
           strcmp(s_QUITMSG, "") ? s_QUITMSG : endmsg[quitmsgnum],
 	  s_DOSY);
 
   MN_Question(quitmsg, "quit");
-
 }
 
 /////////////////////////////////////////////////////////
@@ -302,7 +301,7 @@ menu_t menu_startmap =
   {
     {it_title,  "new game",             NULL,                   "M_NEWG"},
     {it_gap},
-    {it_info,   "SMMU includes a 'start map' to let"},
+    {it_info,   "PrBoom includes a 'start map' to let"},
     {it_info,   "you start new games from in a level."},
     {it_gap},
     {it_info,   FC_GOLD "in the future would you rather:"},
@@ -318,6 +317,29 @@ menu_t menu_startmap =
 
 char *str_startmap[] = {"ask", "no", "yes"};
 CONSOLE_INT(use_startmap, use_startmap, NULL, -1, 1, str_startmap, 0) {}
+
+// haleyjd 04/18/03: rearranged menus
+
+menu_t menu_optfeat =
+{
+   {
+      {it_title,  FC_GOLD "options",  NULL,          "M_OPTION"},
+      {it_gap},
+      {it_gap},
+      {it_runcmd, "setup",            "mn_options",  "M_SETUP"},
+      {it_gap},
+      {it_runcmd, "features",         "mn_features", "M_FEAT"},
+      {it_end},
+   },
+   100, 15,
+   3,
+   mf_leftaligned | mf_skullmenu
+};
+
+CONSOLE_COMMAND(mn_optfeat, 0)
+{
+   MN_StartMenu(&menu_optfeat);
+}
 
 /////////////////////////////////////////////////////
 //
@@ -369,12 +391,12 @@ menu_t menu_demos =
     {it_gap},
     {it_runcmd,     "play demo",              "mn_clearmenus; playdemo %mn_demoname"},
     {it_runcmd,     "time demo",              "mn_clearmenus; timedemo %mn_demoname"},
-    //{it_runcmd,     "stop playing demo",      "mn_clearmenus; stopdemo"},
+    {it_runcmd,     "stop playing demo",      "mn_clearmenus; stopdemo"},
     {it_gap},
     {it_info,       FC_GOLD "cameras"},
-    //{it_toggle,     "viewpoint changes",      "cooldemo"},
+    {it_toggle,     "viewpoint changes",      "cooldemo"},
     {it_toggle,     "chasecam",               "chasecam"},
-    //{it_toggle,     "walkcam",                "walkcam"},
+    {it_toggle,     "walkcam",                "walkcam"},
     {it_gap},
     {it_end},
   },
@@ -410,13 +432,12 @@ menu_t menu_loadwad =
     {it_runcmd,    "Doom2 french",           "mn_iwad doom2f"},
     {it_runcmd,    "TNT",                    "mn_iwad tnt"},
     {it_runcmd,    "Plutonia",               "mn_iwad plutonia"},
-/*
+
     {it_info,      FC_GOLD "load wad"},
     {it_variable,  "wad name",          "mn_wadname"},
-    {it_runcmd,    "select wad",        "mn_selectwad"},
+    {it_runcmd,    "select wad...",        "mn_selectwad"},
     {it_gap},
     {it_runcmd,    "load wad",          "addfile %mn_wadname; starttitle"},
-*/
     {it_end},
   },
   150, 40,                     // x,y offsets
@@ -475,15 +496,15 @@ menu_t menu_multiplayer =
     {it_gap},
     {it_gap},
     {it_info,   FC_GOLD "connect:"},
-    {it_runcmd, "serial/modem",         "mn_serial"},
-    {it_runcmd, "tcp/ip",               "mn_tcpip"},
+    {it_runcmd, "serial/modem...",         "mn_serial"},
+    {it_runcmd, "tcp/ip...",               "mn_tcpip"},
     {it_gap},
     {it_runcmd, "disconnect",           "disconnect"},
     {it_gap},
     {it_info,   FC_GOLD "setup"},
-    {it_runcmd, "chat macros",          "mn_chatmacros"},
-    {it_runcmd, "player setup",         "mn_player"},
-    {it_runcmd, "game settings",        "mn_multigame"},
+    {it_runcmd, "chat macros...",          "mn_chatmacros"},
+    {it_runcmd, "player setup...",         "mn_player"},
+    {it_runcmd, "game settings...",        "mn_multigame"},
     {it_end},
   },
   100, 15,                                      // x,y offsets
@@ -603,8 +624,9 @@ menu_t menu_advanced =
   {
     {it_title,    FC_GOLD "advanced",           NULL,             "M_MULTI"},
     {it_gap},
-    {it_runcmd,   "done",                       "mn_prevmenu"},
+    {it_runcmd,   "done...",                       "mn_prevmenu"},
     {it_gap},
+    {it_toggle,   "no monsters",                "nomonsters"},
     {it_toggle,   "fast monsters",              "fast"},
     {it_toggle,   "respawning monsters",        "respawn"},
     {it_gap},
@@ -615,7 +637,7 @@ menu_t menu_advanced =
     {it_gap},
     {it_toggle,   "variable friction",          "varfriction"},
     {it_toggle,   "boom pusher objects",        "pushers"},
-    {it_toggle,   "hurting floors(slime)",      "nukage"},
+    {it_toggle,   "damaging floors",            "nukage"},
     {it_end},
   },
   170, 15,
@@ -641,7 +663,7 @@ menu_t menu_tcpip =
     {it_title,  FC_GOLD "TCP/IP",            NULL,           "M_TCPIP"},
     {it_gap},
     {it_info,   "not implemented yet. :)"},
-    {it_runcmd, "",                          "mn_prevmenu"},
+    {it_runcmd, "return...",                       "mn_prevmenu"},
     {it_end},
   },
   180,15,                       // x,y offset
@@ -721,7 +743,7 @@ CONSOLE_COMMAND(mn_chatmacros, 0)
 // Player Setup
 //
 
-void MN_PlayerDrawer();
+void MN_PlayerDrawer(void);
 
 menu_t menu_player =
 {
@@ -744,7 +766,7 @@ menu_t menu_player =
 #define SPRITEBOX_X 200
 #define SPRITEBOX_Y 80
 
-void MN_PlayerDrawer()
+void MN_PlayerDrawer(void)
 {
   int lump;
   spritedef_t *sprdef;
@@ -809,7 +831,7 @@ void MN_CreateSaveCmds()
     {
       command_t *save_command;
       variable_t *save_variable;
-      char tempstr[12];
+      char tempstr[16];
 
       // create the variable first
       save_variable = Z_Malloc(sizeof(*save_variable), PU_STATIC, 0); // haleyjd
@@ -823,7 +845,7 @@ void MN_CreateSaveCmds()
       // now the command
       save_command = Z_Malloc(sizeof(*save_command), PU_STATIC, 0); // haleyjd
 
-      psnprintf(tempstr, 12, "savegame_%i", i);
+      psnprintf(tempstr, sizeof(tempstr), "savegame_%i", i);
       save_command->name = strdup(tempstr);
       save_command->type = ct_variable;
       save_command->flags = cf_nosave;
@@ -1055,7 +1077,6 @@ menu_t menu_options =
     //{it_runcmd, "eternity options",		"mn_etccompat"}, // haleyjd
     {it_runcmd, "enemies",                      "mn_enemies"},
     {it_runcmd, "weapons",                      "mn_weapons"},
-    {it_runcmd, "end game",                     "mn_endgame"},
     {it_gap},
     {it_info,   FC_GOLD "game widgets"},
     {it_runcmd, "hud settings",                 "mn_hud"},
@@ -1344,7 +1365,7 @@ CONSOLE_COMMAND(mn_status, 0)
 menu_t menu_automap =
 {
   {
-    {it_title,    FC_GOLD,                        NULL,         "m_auto"},
+    {it_title,    FC_GOLD "automap",              NULL,  "m_auto"},
     {it_gap},
     {it_automap,  "background colour",            "mapcolor_back"},
     {it_automap,  "walls",                        "mapcolor_wall"},
@@ -1559,7 +1580,7 @@ CONSOLE_COMMAND(mn_enemies, 0)
 // this menu
 
 int this_framerate;
-void MN_FrameRateDrawer();
+void MN_FrameRateDrawer(void);
 
 menu_t menu_framerate =
 {
@@ -1578,15 +1599,15 @@ menu_t menu_framerate =
 
 #define BARCOLOR 208
 
-void MN_FrameRateDrawer()
+void MN_FrameRateDrawer(void)
 {
   char tempstr[50];
 
   // fast computers framerate is always 3/4 of screen
 
-  psnprintf(tempstr, 50, "%i.%i fps",
+  psnprintf(tempstr, sizeof(tempstr), "%i.%i fps",
 	  this_framerate/10, this_framerate%10);
-  V_WriteTextXYGap(tempstr, 50, 80, -1, 0);
+  MN_WriteText(tempstr, 50, 80);
 }
 
 void MN_ShowFrameRate(int framerate)
@@ -1606,8 +1627,8 @@ menu_t menu_keybindings =
     {
         {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
 	{it_gap},
-	{it_runcmd,       "weapon keys",           "mn_weaponkeys"},
-	{it_runcmd,       "environment",           "mn_envkeys"},
+	{it_runcmd,       "weapon keys...",        "mn_weaponkeys"},
+	{it_runcmd,       "environment...",        "mn_envkeys"},
 	{it_gap},
 	{it_info, FC_GOLD "basic movement"},
 	{it_binding,      "move forward",          "forward"},
@@ -1714,17 +1735,18 @@ CONSOLE_COMMAND(mn_envkeys, 0)
   MN_StartMenu(&menu_envbindings);
 }
 
-void MN_AddMenus()
+void MN_AddMenus(void)
 {
   C_AddCommand(mn_newgame);
   C_AddCommand(mn_episode);
-//  C_AddCommand(startlevel);
+  C_AddCommand(startlevel);
   C_AddCommand(use_startmap);
 
   C_AddCommand(mn_loadgame);
   C_AddCommand(mn_load);
   C_AddCommand(mn_savegame);
 
+  C_AddCommand(mn_optfeat); // haleyjd 04/18/03
   C_AddCommand(mn_features);
   C_AddCommand(mn_iwad);
   C_AddCommand(mn_loadwad);

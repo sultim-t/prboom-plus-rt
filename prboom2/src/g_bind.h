@@ -57,5 +57,7 @@ extern int action_weapon4, action_weapon5, action_weapon6;
 extern int action_weapon7, action_weapon8, action_weapon9;
 extern int action_toggleweapon;
 
+extern int action_frags;
+
 #endif
 

@@ -83,6 +83,8 @@ int action_weapon9; // select weapon 9
 
 int action_toggleweapon;  // toggle to next-favored weapon
 
+int action_frags;       // show frags
+
 //
 // Handler Functions
 //
@@ -137,6 +139,8 @@ keyaction_t keyactions[] =
    {"weapon8",          at_variable,     {&action_weapon8}},
    {"weapon9",          at_variable,     {&action_weapon9}},
    {"toggleweapon",     at_variable,     {&action_toggleweapon}},
+
+   {"frags",            at_variable,     {&action_frags}},
 };
 
 const int num_keyactions = sizeof(keyactions) / sizeof(*keyactions);
@@ -299,8 +303,10 @@ static keyaction_t *G_KeyActionForName(const char *name)
   // this is only called every now and then
 
   for(i=0; i<num_keyactions; i++)
+  {
     if(!strcasecmp(name, keyactions[i].name))
       return &keyactions[i];
+  }
 
   // check console keyactions
   // haleyjd: TOTALLY rewritten to use linked list
@@ -355,8 +361,10 @@ static int G_KeyForName(const char *name)
   int i;
 
   for(i=0; i<NUM_KEYS; i++)
+  {
     if(!strcasecmp(keybindings[i].name, name))
       return tolower(i);
+  }
 
   return -1;
 }
@@ -560,8 +568,8 @@ void G_BindDrawer()
 boolean G_BindResponder(event_t *ev)
 {
   keyaction_t *action;
-  int i;
-  int bound;
+
+
   
   if(ev->type != ev_keydown)
     return false;
@@ -583,7 +591,9 @@ boolean G_BindResponder(event_t *ev)
     }
 
   // find how many keys bound
-
+  // haleyjd: why?? this wouldn't allow a key, mouse button, &
+  //          joystick button to all support the same action -- dumb.
+/*
   bound = 0;
   for(i=0; i<NUM_KEYS; i++)
     bound += (keybindings[i].binding == action);
@@ -594,10 +604,14 @@ boolean G_BindResponder(event_t *ev)
     for(i=0; i<NUM_KEYS; i++)
       if(keybindings[i].binding == action)
 	keybindings[i].binding = NULL;
+*/
+  // bind new key to action, if its not already bound -- if it is,
+  // remove it
 
-  // bind new key to action
-
-  keybindings[ev->data1].binding = action;
+  if(keybindings[ev->data1].binding != action)
+    keybindings[ev->data1].binding = action;
+  else
+    keybindings[ev->data1].binding = NULL;
 
   return true;
 }
@@ -749,5 +763,5 @@ void G_Bind_AddCommands()
   C_AddCommand(listkeys);
   C_AddCommand(unbind);
   C_AddCommand(unbindall);
-   C_AddCommand(bindings);
+  C_AddCommand(bindings);
 }

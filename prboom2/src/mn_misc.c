@@ -56,8 +56,9 @@
 // Pop-up Messages
 //
 
-char popup_message[128];
-const char *popup_message_command;            // console command to run
+
+static char popup_message[128];
+static const char *popup_message_command; // console command to run
 enum
 {
   popup_alert,
@@ -112,14 +113,15 @@ static void WriteCentredText(char *message)
   V_WriteText(tempbuf, x, y);
 }
 
-void MN_PopupDrawer()
+void MN_PopupDrawer(void)
 {
   WriteCentredText(popup_message);
 }
 
 boolean MN_PopupResponder(event_t *ev)
 {
-  if(ev->type != ev_keydown) return false;
+  if(ev->type != ev_keydown)
+    return false;
 
   switch(popup_message_type)
     {
@@ -158,7 +160,7 @@ boolean MN_PopupResponder(event_t *ev)
       break;
     }
   
-  return true; // always eatkey
+  return true; // always eat key
 }
 
 // widget for popup message alternate draw
@@ -178,7 +180,7 @@ void MN_Alert(const char *message, ...)
   popup_message_type = popup_alert;
   
   va_start(args, message);
-  pvsnprintf(popup_message, 128, message, args);
+  pvsnprintf(popup_message, sizeof(popup_message), message, args);
   va_end(args);
 }
 
@@ -229,7 +231,7 @@ static void AddHelpScreen(char *screenname)
 // build help screens differently according to whether displaying
 // help or displaying credits
 
-static void MN_FindCreditScreens()
+static void MN_FindCreditScreens(void)
 {
   num_helpscreens = 0;  // reset
 
@@ -243,7 +245,7 @@ static void MN_FindCreditScreens()
   AddHelpScreen("CREDIT");      // credits screen
 }
 
-static void MN_FindHelpScreens()
+static void MN_FindHelpScreens(void)
 {
   int custom;
 
@@ -254,7 +256,7 @@ static void MN_FindHelpScreens()
   for(custom = 0; custom<100; custom++)
     {
       char tempstr[10];
-      psnprintf(tempstr, 10, "HELP%.02i", custom);
+      psnprintf(tempstr, sizeof(tempstr), "HELP%.02i", custom);
       AddHelpScreen(tempstr);
     }
 
@@ -302,7 +304,7 @@ void MN_DrawCredits(void)
               10, 25);
 }
 
-void MN_HelpDrawer()
+void MN_HelpDrawer(void)
 {
   if(helpscreens[viewing_helpscreen].Drawer)
     {
@@ -322,12 +324,14 @@ boolean MN_HelpResponder(event_t *ev)
   if(ev->data1 == KEYD_BACKSPACE)
     {
       // go to previous screen
+      // haleyjd: only make sound if we really went back
       viewing_helpscreen--;
       if(viewing_helpscreen < 0)
-	{
-	  viewing_helpscreen = 0;
-	}
-      S_StartSound(NULL, sfx_swtchx);
+	    {
+	      viewing_helpscreen = 0;
+	    }
+	    else
+        S_StartSound(NULL, sfx_swtchx);
     }
   if(ev->data1 == KEYD_ENTER)
     {
@@ -354,7 +358,7 @@ boolean MN_HelpResponder(event_t *ev)
   return true;
 }
 
-menuwidget_t helpscreen_widget = {MN_HelpDrawer, MN_HelpResponder};
+menuwidget_t helpscreen_widget = {MN_HelpDrawer, MN_HelpResponder, true};
 
 CONSOLE_COMMAND(help, 0)
 {
@@ -392,7 +396,7 @@ int selected_colour;
 
 #define HIGHLIGHT_COLOUR 4
 
-void MN_MapColourDrawer()
+void MN_MapColourDrawer(void)
 {
   int x, y;
 
@@ -442,7 +446,7 @@ boolean MN_MapColourResponder(event_t *ev)
   if(ev->data1 == KEYD_ENTER)
     {
       static char tempstr[128];
-      psnprintf(tempstr, 128, "%i", selected_colour);
+      psnprintf(tempstr, sizeof(tempstr), "%i", selected_colour);
 
       // run command
       cmdtype = c_menu;
@@ -459,7 +463,7 @@ boolean MN_MapColourResponder(event_t *ev)
   return true; // always eatkey
 }
 
-menuwidget_t colour_widget = {MN_MapColourDrawer, MN_MapColourResponder};
+menuwidget_t colour_widget = {MN_MapColourDrawer, MN_MapColourResponder, true};
 
 void MN_SelectColour(const char *variable_name)
 {
@@ -469,7 +473,7 @@ void MN_SelectColour(const char *variable_name)
 }
 
 
-void MN_AddMiscCommands()
+void MN_AddMiscCommands(void)
 {
   C_AddCommand(credits);
   C_AddCommand(help);

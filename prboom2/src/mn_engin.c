@@ -114,6 +114,8 @@ patchnum_t slider_gfx[num_slider_gfx];
 static menu_t *drawing_menu;
 static patchnum_t skulls[2];
 
+static void MN_GetItemVariable(menuitem_t *item);
+
         // width of slider, in mid-patches
 #define SLIDE_PATCHES 9
 
@@ -153,7 +155,9 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
     (drawing_menu->flags & mf_skullmenu) ||
     (drawing_menu->flags & mf_leftaligned);
 
-  if(item->type == it_gap) return 8;    // skip drawing if a gap
+  // skip drawing if a gap
+  if(item->type == it_gap)
+    return 8;
 
   item->x = x; item->y = y;       // save x,y to item
  
@@ -182,9 +186,9 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	    V_DrawNumPatch(x, y, 0, lumpnum, colour, VPT_STRETCH | VPT_TRANS);
 	    
 	    return height + 1;   // 1 pixel gap
-	} else {
-		lprintf(LO_WARN, "mn_engin.c: patch %s not found.\n", item->patch);
-	}
+	  } else {
+		  lprintf(LO_WARN, "mn_engin.c: patch %s not found.\n", item->patch);
+	  }
   }
 
   // draw description text
@@ -193,22 +197,22 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
   {
     // if it_title, we draw the description centered
 
-    V_WriteTextXYGapColoured (
+    MN_WriteTextColoured (
       item->description,
       colour,
-      (320-V_StringWidthGap(item->description, -1))/2,
-	    y, -1, 0
+      (320-MN_StringWidth(item->description))/2,
+	    y
 	  );
   }
   else
   {
       
     // write description
-    V_WriteTextXYGapColoured (
+    MN_WriteTextColoured (
       item->description,
       colour,
-      x - (leftaligned ? 0 : V_StringWidthGap(item->description, -1)),
-	    y, -1, 0
+      x - (leftaligned ? 0 : MN_StringWidth(item->description)),
+	    y
 	  );
   }
 
@@ -238,12 +242,12 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	 }
 	  
 	 // write variable value text
-	 V_WriteTextXYGapColoured
+	 MN_WriteTextColoured
 	   (
 	    boundkeys,
 	    colour,
-	    x + (leftaligned ? V_StringWidthGap(item->description, -1): 0),
-	    y, -1, 0
+	    x + (leftaligned ? MN_StringWidth(item->description): 0),
+	    y
 	   );
 	 
 	 break;
@@ -256,16 +260,17 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
     case it_toggle:
     case it_variable:
       {
-        char varvalue[128];             // temp buffer 
+        char varvalue[1024];             // temp buffer 
+        MN_GetItemVariable(item);
 
 	// create variable description:
 	// Use console variable descriptions.
 	
 	// display input buffer if inputting new var value
 	if(input_command && item->var == input_command->variable)
-          psnprintf(varvalue, 128, "%s_", input_buffer);
+          psnprintf(varvalue, sizeof(varvalue), "%s_", input_buffer);
 	else
-          strcpy(varvalue, C_VariableStringValue(item->var));
+          strncpy(varvalue, C_VariableStringValue(item->var), sizeof(varvalue));
 
 	if(drawing_menu->flags & mf_background)
 	  {
@@ -276,12 +281,12 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	  }
 
         // draw it
-        V_WriteTextXYGapColoured
+        MN_WriteTextColoured
 	  (
 	   varvalue,
            colour,
-           x + (leftaligned ? V_StringWidthGap(item->description, -1) : 0),
-	   y, -1, 0
+           x + (leftaligned ? MN_StringWidth(item->description) : 0),
+	   y
 	   );
 	break;
       }
@@ -290,6 +295,7 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 
     case it_slider:
       { 
+        MN_GetItemVariable(item);
 	// draw slider
 	  // only int variables
 
@@ -309,10 +315,10 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
     case it_automap:
       {
 	int colour;
+        MN_GetItemVariable(item);
 	
 	  // only with variables, only int variables
-	  if(!item->var || item->var->type != vt_int)
-	    break;
+	  if(!item->var || item->var->type != vt_int) break;
 	
 	// find colour of this variable from console variable
 	colour = *(int *)item->var->variable;
@@ -349,6 +355,9 @@ void MN_DrawMenu(menu_t *menu)
 {
   int y;
   int itemnum;
+
+  if(!menu) // haleyjd 04/20/03
+    return;
 
   drawing_menu = menu;    // needed by MN_DrawMenuItem
   y = menu->y;
@@ -421,14 +430,8 @@ void MN_DrawMenu(menu_t *menu)
   if(menu_error_message[0])             // error message takes priority
     {
       // make it flash
-      V_WriteTextXYGapColoured
-	(
-	 menu_error_message,
-	 CR_TAN,
-	 10,
-	 200 - V_StringHeight(menu_error_message),
-   -1, 0
-	 );
+      MN_WriteTextColoured(menu_error_message,CR_TAN,10,
+	                         200 - V_StringHeight(menu_error_message));
     }
   else
     {
@@ -444,8 +447,27 @@ void MN_DrawMenu(menu_t *menu)
 	{
 	    helpmsg = "use left/right to change value";
 	}
-      V_WriteTextXYGapColoured(helpmsg, CR_GOLD, 10, 200 - V_StringHeight(helpmsg), -1, 0);
+      MN_WriteTextColoured(helpmsg, CR_GOLD, 10, 200 - V_StringHeight(helpmsg));
     }
+}
+
+//
+// MN_CheckFullScreen
+//
+// Called by D_Drawer to see if the menu is in full-screen mode --
+// this allows the game to skip all other drawing, keeping the
+// framerate at 35 fps.
+//
+boolean MN_CheckFullScreen(void)
+{
+   if(!menuactive || !current_menu)
+      return false;
+
+   if(!(current_menu->flags & mf_background) || hide_menu ||
+      (current_menuwidget && !current_menuwidget->fullscreen))
+      return false;
+
+   return true;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -532,7 +554,7 @@ extern menu_t menu_sound;
 
 extern char *shiftxform; // hu_stuff.c
 
-boolean MN_Responder (event_t *ev)
+boolean MN_Responder(event_t *ev)
 {
   unsigned char ch;
   static boolean shiftdown;
@@ -577,7 +599,7 @@ boolean MN_Responder (event_t *ev)
 
 	  // place " marks round the new value
 	  temp = strdup(input_buffer);
-	  psnprintf(input_buffer, 128, "\"%s\"", temp);
+	  psnprintf(input_buffer, sizeof(input_buffer), "\"%s\"", temp);
 	  free(temp);
 
 	  // set the command
@@ -777,7 +799,8 @@ boolean MN_Responder (event_t *ev)
       do
 	{
 	  n++;
-	  if(current_menu->menuitems[n].type == it_end) n = 0; // loop round
+	  if(current_menu->menuitems[n].type == it_end)
+	    n = 0; // loop round
 
 	  // ignore unselectables
 	  if(selectable(&current_menu->menuitems[n])) 
@@ -798,14 +821,9 @@ boolean MN_Responder (event_t *ev)
 // Other Menu Functions
 //
 
-// ?
-void MN_ResetMenu()
-{
-}
-
 // make menu 'clunk' sound on opening
 
-void MN_ActivateMenu()
+void MN_ActivateMenu(void)
 {
   if(!menuactive)  // activate menu if not already
     {
@@ -854,7 +872,7 @@ static void MN_GetItemVariable(menuitem_t *item)
       // use data for variable name
       if(!(cmd = C_GetCmdForName(item->data)))
         {
-          C_Printf("variable not found: %s\n", item->data);
+          C_Printf(FC_ERROR"variable not found: %s\n", item->data);
 	  item->type = it_disabled;   // disable item
 	  // possibly change selected item on menu
 	  MN_SelectValidItem(drawing_menu);
@@ -913,9 +931,10 @@ void MN_StartMenu(menu_t *menu)
 
 // go back to a previous menu
 
-void MN_PrevMenu()
+void MN_PrevMenu(void)
 {
-  if(--menu_history_num < 0) MN_ClearMenus();
+  if(--menu_history_num < 0)
+    MN_ClearMenus();
   else
     current_menu = menu_history[menu_history_num];
       
@@ -925,7 +944,7 @@ void MN_PrevMenu()
 }
 
 // turn off menus
-void MN_ClearMenus()
+void MN_ClearMenus(void)
 {
   menuactive = false;
   redrawsbar = redrawborder = true;  // need redraw
@@ -941,9 +960,15 @@ CONSOLE_COMMAND(mn_prevmenu, 0)
   MN_PrevMenu();
 }
 
+CONSOLE_COMMAND(forceload, cf_hidden)
+{
+  G_ForcedLoadGame();
+  MN_ClearMenus();
+}
+
 void MN_ForcedLoadGame(const char *msg)
 {
-  MN_Alert(msg);
+  MN_Question(msg, "forceload");
 }
 
 // display error msg in popup display at bottom of screen
@@ -953,7 +978,7 @@ void MN_ErrorMsg(const char *s, ...)
   va_list args;
   
   va_start(args, s);
-  pvsnprintf(menu_error_message, 128, s, args);
+  pvsnprintf(menu_error_message, sizeof(menu_error_message), s, args);
   va_end(args);
 }
 
@@ -961,11 +986,38 @@ void MN_ErrorMsg(const char *s, ...)
 
 extern menu_t menu_main;
 
-void MN_StartControlPanel()
+void MN_StartControlPanel(void)
 {
   MN_StartMenu(&menu_main);
   
   S_StartSound(NULL,sfx_swtchn);
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+// Menu Font Drawing
+//
+// these do not leave a 1 pixel-gap between chars, I think it looks
+// better for the menu
+
+void MN_WriteText(const char *s, int x, int y)
+{
+  V_WriteTextXYGap(s, x, y, -1, 0);
+  
+}
+
+        // write text in a particular colour
+
+void MN_WriteTextColoured(const char *s, int colour, int x, int y)
+{
+  V_WriteTextXYGapColoured(s, colour, x, y, -1, 0);
+
+}
+
+
+int MN_StringWidth(const char *s)
+{
+  return V_StringWidthGap(s, -1);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -982,6 +1034,7 @@ void MN_AddCommands()
 {
   C_AddCommand(mn_clearmenus);
   C_AddCommand(mn_prevmenu);
+  C_AddCommand(forceload);
 
   MN_AddMenus();               // add commands to call the menus
   MN_AddMiscCommands();

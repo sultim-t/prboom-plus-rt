@@ -76,8 +76,8 @@ enum
 
 extern overlay_t overlay[NUMOVERLAY];
 
-void HU_OverlayDraw();
-void HU_OverlayStyle();
-void HU_ToggleHUD();
+void HU_OverlayDraw(void);
+void HU_OverlayStyle(void);
+void HU_ToggleHUD(void);
 
 #endif
