@@ -9,6 +9,9 @@ but I guess on Voodoo3s and above it should work.
 2000/10/04:
 It does work with the beta OpenGL driver, but with the normal drivers only at
 a very low framerate. Further testing needed.
+2001/06/15:
+It does work with Mesa3D with Gilde support. Voodoo I doesn't have enough
+texture Ram, but newer cards should work.
 
 --------------------------------------------------------------------------
 6.  Import MBF m_menu.c and m_misc.c stuff
@@ -45,6 +48,9 @@ an updated dll.
 
 Proff:
 Works, but you have to press it twice to change running speed (why?).
+2001/06/16:
+Just read that this is a problem with SDL in Windows, should be no problem
+in X11 etc. Might also get fixed soon by the SDL people.
 
 --------------------------------------------------------------------------
 24. (2000/10/04) Seperating segs and gl_segs etc.
@@ -88,3 +94,9 @@ Proff: I have to get off my ass and do the Dreamcast port of this.
 
 --------------------------------------------------------------------------
 35. (2001/03/29) FraggleScript and DDF?
+
+--------------------------------------------------------------------------
+36. (2001/06/16) The Dynamic OpenGL loading doesn't work correctly.
+
+Proff: I noticed that it doesn't work as expected. Also seems to cause
+problems on Sparc, but this is not certain.
