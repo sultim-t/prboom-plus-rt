@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.4 2000/05/11 19:58:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.3 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.4 2000/05/11 19:58:12 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -399,11 +399,10 @@ void ST_refreshBackground(void)
       V_DrawBlock(ST_X, 0, BG, sbar_width, sbar_height, sbar, VPT_NONE);
 
       // killough 3/7/98: make face background change with displayplayer
-      if (netgame) {
-	//int whattrans = playernumtotrans[displayplayer];
+      if (netgame)
+      {
         V_DrawMemPatch(ST_FX, 0, BG, faceback, 
 		       displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT, 
-//		       displayplayer ? translationtables + 256*(whattrans-1) : CR_DEFAULT, 
 		       displayplayer ? VPT_TRANS : VPT_NONE);
       }
 
@@ -832,10 +831,14 @@ void ST_Drawer(boolean fullscreen, boolean refresh)
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
+#ifdef GL_DOOM
+  return;
+#else
   if (st_firsttime)
     ST_doRefresh();     // If just after ST_Start(), refresh all
   else
     ST_diffDraw();      // Otherwise, update as little as possible
+#endif
 }
 
 //
