@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="viddsys"
 	SccProjectName=""
 	SccLocalPath="">
@@ -63,7 +63,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -119,13 +125,57 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Quellcodedateien"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\ViddSys\zlib\adler32.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\bzlib\blocksort.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\bzlib\bzlib.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\bzlib\compress.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile=".\viddsys___Win32_Release\zlib/"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile=".\viddsys___Win32_Debug\zlib/"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\compress.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\bzlib\crctable.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\bzlib\decompress.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\deflate.c">
+			</File>
 			<File
 				RelativePath="..\ViddSys\XML\Elements.cpp">
 			</File>
@@ -133,7 +183,40 @@
 				RelativePath="..\ViddSys\XML\ErrorMessages.cpp">
 			</File>
 			<File
+				RelativePath="..\ViddSys\bzlib\huffman.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\infblock.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\infcodes.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\inffast.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\inflate.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\inftrees.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\infutil.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\bzlib\randtable.c">
+			</File>
+			<File
 				RelativePath="..\ViddSys\XML\Reader.cpp">
+			</File>
+			<File
+				RelativePath="..\ViddSys\stdafx.cpp">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\trees.c">
+			</File>
+			<File
+				RelativePath="..\ViddSys\zlib\uncompr.c">
 			</File>
 			<File
 				RelativePath="..\ViddSys\XML\Utils.cpp">
@@ -166,75 +249,6 @@
 				RelativePath="..\ViddSys\XML\Writer.cpp">
 			</File>
 			<File
-				RelativePath="..\ViddSys\zlib\adler32.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\blocksort.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\bzlib.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\compress.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\compress.c">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile=".\viddsys___Win32_Release\zlib/"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile=".\viddsys___Win32_Debug\zlib/"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\crctable.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\decompress.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\deflate.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\huffman.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\infblock.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\infcodes.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\inffast.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\inflate.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\inftrees.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\infutil.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\bzlib\randtable.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\stdafx.cpp">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\trees.c">
-			</File>
-			<File
-				RelativePath="..\ViddSys\zlib\uncompr.c">
-			</File>
-			<File
 				RelativePath="..\ViddSys\zlib\zutil.c">
 			</File>
 		</Filter>
@@ -261,33 +275,6 @@
 			</File>
 			<File
 				RelativePath="..\ViddSys\AssocVector.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddBasic.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddController.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddElementTrack.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddEventTrack.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddFile.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddPlayer.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddRecorder.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddSys.h">
-			</File>
-			<File
-				RelativePath="..\ViddSys\ViddTypedPropertyTracks.h">
 			</File>
 			<File
 				RelativePath="..\ViddSys\bzlib\bzlib.h">
@@ -321,6 +308,33 @@
 			</File>
 			<File
 				RelativePath="..\ViddSys\zlib\trees.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddBasic.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddController.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddElementTrack.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddEventTrack.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddFile.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddPlayer.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddRecorder.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddSys.h">
+			</File>
+			<File
+				RelativePath="..\ViddSys\ViddTypedPropertyTracks.h">
 			</File>
 			<File
 				RelativePath="..\ViddSys\zlib\zconf.h">
