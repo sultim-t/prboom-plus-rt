@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.35 2001/02/04 15:39:46 cph Exp $
+ * $Id: d_main.c,v 1.36 2001/07/01 21:39:57 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.35 2001/02/04 15:39:46 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.36 2001/07/01 21:39:57 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1268,6 +1268,21 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
+  // proff 04/05/2000: Added support for include response files
+  /* proff 2001/7/1 - Moved up, so -config can be in response files */
+  {
+    boolean rsp_found;
+    int i;
+
+    do {
+      rsp_found=false;
+      for (i=0; i<myargc; i++)
+        if (myargv[i][0]=='@')
+          rsp_found=true;
+      FindResponseFile();
+    } while (rsp_found==true);
+  }
+
   lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
   M_LoadDefaults();              // load before initing other systems
 
@@ -1298,19 +1313,6 @@ void D_DoomMainSetup(void)
 
   setbuf(stdout,NULL);
 
-  // proff 04/05/2000: Added support for include response files
-  {
-    boolean rsp_found;
-    int i;
-
-    do {
-      rsp_found=false;
-      for (i=0; i<myargc; i++)
-        if (myargv[i][0]=='@')
-          rsp_found=true;
-      FindResponseFile();
-    } while (rsp_found==true);
-  }
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
