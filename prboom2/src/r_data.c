@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.22 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: r_data.c,v 1.23 2002/08/08 22:41:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.22 2002/08/05 17:44:58 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.23 2002/08/08 22:41:21 cph Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -732,9 +732,9 @@ void R_InitTranMap(int progress)
 
   if (lump != -1)  // Set a pointer to the translucency filter maps.
     main_tranmap = W_CacheLumpNum(lump);   // killough 4/11/98
-  else
+  else if (W_CheckNumForName("PLAYPAL")!=-1) // can be called before WAD loaded
     {   // Compose a default transparent filter map based on PLAYPAL.
-      const byte *playpal;
+      const byte *playpal = W_CacheLumpName("PLAYPAL");
       byte       *my_tranmap;
 
       char fname[PATH_MAX+1], *D_DoomExeDir(void);
@@ -742,16 +742,13 @@ void R_InitTranMap(int progress)
         unsigned char pct;
         unsigned char playpal[256];
       } cache;
-      FILE *cachefp = fopen(strcat(strcpy(fname, D_DoomExeDir()),
-                                   "/tranmap.dat"),"r+b");
-      if (W_CheckNumForName("PLAYPAL")==-1) // happens when called before WAD loaded
-        return;
-      playpal = W_CacheLumpName("PLAYPAL");
+      FILE *cachefp = fopen(strcat(strcpy(fname, D_DoomExeDir()), "/tranmap.dat"),"rb");
+
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 
       // Use cached translucency filter if it's available
 
-      if (!cachefp ? cachefp = fopen(fname,"wb") , 1 :
+      if (!cachefp ||
           fread(&cache, 1, sizeof cache, cachefp) != sizeof cache ||
           cache.pct != tran_filter_pct ||
           memcmp(cache.playpal, playpal, sizeof cache.playpal) ||
@@ -760,6 +757,9 @@ void R_InitTranMap(int progress)
           long pal[3][256], tot[256], pal_w1[3][256];
           long w1 = ((unsigned long) tran_filter_pct<<TSC)/100;
           long w2 = (1l<<TSC)-w1;
+
+	  if (cachefp)              // killough 11/98: fix filehandle leak
+            fclose(cachefp);
 
 	  if (progress)
 	    lprintf(LO_INFO, "Tranmap build [        ]\x08\x08\x08\x08\x08\x08\x08\x08\x08");
@@ -814,7 +814,7 @@ void R_InitTranMap(int progress)
                   }
               }
           }
-          if (cachefp)        // write out the cached translucency map
+          if ((cachefp = fopen(fname,"wb")) != NULL) // write out the cached translucency map
             {
               cache.pct = tran_filter_pct;
               memcpy(cache.playpal, playpal, 256);
@@ -822,7 +822,7 @@ void R_InitTranMap(int progress)
               fwrite(&cache, 1, sizeof cache, cachefp);
               fwrite(main_tranmap, 256, 256, cachefp);
 	      // CPhipps - leave close for a few lines...
-        	}
+	    }
         }
       if (cachefp)              // killough 11/98: fix filehandle leak
         fclose(cachefp);
