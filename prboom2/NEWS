@@ -13,7 +13,7 @@ Changes from v2.2.3 to v2.3.0
   double buffering
 - removed old Doom v1.2 lumps from prboom.wad
 - windows also uses prboom.wad now
-- removed lumps and tables which are in prboom.cfg from source
+- removed lumps and tables which are in prboom.wad from source
 - fix translucency map file handle leak
 
 Changes from v2.2.2 to v2.2.3
