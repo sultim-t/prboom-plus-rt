@@ -72,6 +72,8 @@ Colin: It's frankly a disaster area, which I can say with confidence
 --------------------------------------------------------------------------
 30. (2000/11/13) Port joystick stuff to SDL
 
+2001/02/18 proff: Done, but this whole input crap should be redone.
+
 --------------------------------------------------------------------------
 33. (2000/12/24) Single key quit
 
