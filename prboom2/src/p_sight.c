@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.1 2000/05/04 08:13:46 proff_fs Exp $
+ * $Id: p_sight.c,v 1.2 2000/05/09 18:34:30 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,8 +30,9 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.1 2000/05/04 08:13:46 proff_fs Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.2 2000/05/09 18:34:30 cph Exp $";
 
+#include "doomstat.h"
 #include "r_main.h"
 #include "p_maputl.h"
 #include "p_setup.h"
@@ -115,8 +116,11 @@ static boolean P_CrossSubsector(int num)
     
     line->validcount = validcount;
     
-    // OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
-    
+    /* OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
+     * cph - this is causing demo desyncs on original Doom demos. 
+     *  Who knows why. Exclude test for those.
+     */
+    if (!demo_compatibility)
     if (line->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
 	line->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
 	line->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
@@ -211,8 +215,16 @@ static boolean P_CrossBSPNode(int bspnum)
   while (!(bspnum & NF_SUBSECTOR))
     {
       register const node_t *bsp = nodes + bspnum;
-      int side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
-      if (side == R_PointOnSide(los.t2x, los.t2y, bsp))
+      int side,side2;
+      /* cph - have to use the old sometimes for compatibility */
+      if (compatibility_level >= lxdoom_1_compatibility) {
+	side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
+	side2 = R_PointOnSide(los.t2x, los.t2y, bsp);
+      } else {
+	side = P_DivlineSide(los.strace.x,los.strace.y,(divline_t *)bsp)&1;
+	side2= P_DivlineSide(los.t2x, los.t2y, (divline_t *) bsp);
+      }
+      if (side == side2)
          bspnum = bsp->children[side]; // doesn't touch the other side
       else         // the partition plane is crossed here
         if (!P_CrossBSPNode(bsp->children[side]))
@@ -297,8 +309,11 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 //----------------------------------------------------------------------------
 //
 // $Log: p_sight.c,v $
-// Revision 1.1  2000/05/04 08:13:46  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/09 18:34:30  cph
+// Demo sync fixes
+//
+// Revision 1.1.1.1  2000/05/04 08:13:46  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.5  2000/04/15 14:30:05  cph
 // Make optimisation in P_CrossSubsector less aggressive
