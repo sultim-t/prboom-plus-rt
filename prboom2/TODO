@@ -54,6 +54,14 @@ Colin: It's frankly a disaster area, which I can say with confidence
 proff: Just needs a nice menu.
 
 --------------------------------------------------------------------------
+*33. (2000/12/24) Single key quit
+
+Colin: opulent wants the old 'q quits demo recording' feature back. 
+ I suggest making it a configurable key setting, not bound to any 
+ key by default.
+Proff: Should be done with the console.
+
+--------------------------------------------------------------------------
 34. (2001/03/29) Dreamcast port
 
 Proff: I have to get off my ass and do the Dreamcast port of this.
@@ -192,4 +200,12 @@ Colin: Time to ditch the "compression" in Doom demos where the low byte of
 cmd->angleturn is thrown away, this very significantly degrades the playabiity
 of the game when recording. Secondly, possibly we could allow sync critical
 options to change in demos by recording the console commands executed.
+
+--------------------------------------------------------------------------
+52. (2002/07/28) Fix documentation
+
+Proff:
+- add mp3 stuff
+- add new opengl options
+- update FAQ?
 
