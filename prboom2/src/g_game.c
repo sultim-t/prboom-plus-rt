@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.1 2001/02/03 10:59:43 cph Exp $
+ * $Id: g_game.c,v 1.30.2.2 2001/05/26 17:02:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.1 2001/02/03 10:59:43 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.2 2001/05/26 17:02:10 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1575,13 +1575,13 @@ void G_DoLoadGame(void)
   idmusnum = *save_p++;           // jff 3/17/98 restore idmus music
   if (idmusnum==255) idmusnum=-1; // jff 3/18/98 account for unsigned byte
 
-  // load a base level
-  G_InitNew (gameskill, gameepisode, gamemap);
-
   /* killough 3/1/98: Read game options
    * killough 11/98: move down to here
    */
   save_p = (char*)G_ReadOptions(save_p);
+
+  // load a base level
+  G_InitNew (gameskill, gameepisode, gamemap);
 
   /* get the times - killough 11/98: save entire word */
   memcpy(&leveltime, save_p, sizeof leveltime);
@@ -2627,14 +2627,6 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
   if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
     G_InitNew(skill, episode, map);
-
-    /* killough 11/98: If OPTIONS were loaded from the wad in G_InitNew(),
-     * reload any demo sync-critical ones from the demo itself, to be exactly
-     * the same as during recording.
-     */
-
-    if (option_p)
-      G_ReadOptions(option_p);
   }
 
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98

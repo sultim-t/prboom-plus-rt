@@ -1,6 +1,13 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.2.0 to v2.2.1
+- improved fix for demo sync problems with lost souls bouncing off floors
+- fixed bug where loading a -fast or -respawn savegame failed to restore
+ those options properly 
+- fixed demo sync bug with doors also tagged to lift triggers
+- hopefully fixed some problems compiling for Linux/ARM
+
 Changes from v2.1.2 to v2.2.0
 - fix compiling problem on alpha processors (size_t != unsigned long)
 - fixed stair building (ex. TNT - Evilution MAP30)
