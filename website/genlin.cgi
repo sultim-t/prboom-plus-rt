@@ -2,7 +2,7 @@
 #
 # $Id: genlin.cgi,v 1.3 2000/12/10 15:03:42 cph Exp $
 #
-# Copyright (C) 2000 by Colin Phipps <cphipps@doomworld.com>
+# Copyright (C) 2000 by Colin Phipps <cph@cph.demon.co.uk>
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -178,7 +178,7 @@ print header, start_html(-title=>'Boom generalised linedef calculator',
 		})
 	);
 
-print p('This program written by <a href="mailto:cphipps@doomworld.com">Colin Phipps</a>. You can ',
+print p('This program written by <a href="mailto:cph&#64;cph.demon.co.uk">Colin Phipps</a>. You can ',
 	a({href=> (url(-relative=>1) . '?source=1')},"download the source"),
 	'.'),hr;
 
