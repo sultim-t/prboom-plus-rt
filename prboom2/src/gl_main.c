@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.12 2000/05/15 23:14:12 proff_fs Exp $
+ * $Id: gl_main.c,v 1.13 2000/05/15 23:45:01 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,6 @@
 
 #include "gl_intern.h"
 #include "gl_struct.h"
-#include "p_maputl.h"
 
 extern int tran_filter_pct;
 

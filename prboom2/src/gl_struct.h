@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_struct.h,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: gl_struct.h,v 1.7 2000/05/15 23:45:01 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,9 +34,6 @@
 
 #ifndef _GL_STRUCT_H
 #define _GL_STRUCT_H
-
-#include "doomtype.h"
-#include "r_data.h"
 
 void gld_Init(int width, int height);
 void gld_InitCommandLine();
