@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_video_sdl.c,v 1.4 2000/05/05 13:51:50 cph Exp $
+ * $Id: l_video_sdl.c,v 1.5 2000/05/06 04:12:51 jessh Exp $
  *
  *  SDL display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_video_sdl.c,v 1.4 2000/05/05 13:51:50 cph Exp $";
+rcsid[] = "$Id: l_video_sdl.c,v 1.5 2000/05/06 04:12:51 jessh Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -496,20 +496,17 @@ void I_InitGraphics(void)
   if ( M_CheckParm("-fullscreen") ) {
     init_flags |= SDL_FULLSCREEN;
   }
-/*
-  if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) {
-    screen = SDL_SetVideoMode(w, h, 8, init_flags);
-  } else {
-    screen = SDL_SetVideoMode(w, h, 0, init_flags);
-  }
-*/
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
   screen = SDL_SetVideoMode(w, h, 16, init_flags);
 #else
-  screen = SDL_SetVideoMode(w, h, 8, init_flags);
+  if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) { 
+    screen = SDL_SetVideoMode(w, h, 8, init_flags);
+  } else {
+    screen = SDL_SetVideoMode(w, h, 0, init_flags);
+  }
 #endif
   if(screen == NULL || !I_QueryImageTranslation()) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
