@@ -252,7 +252,7 @@ default_t defaults[] =
    /* MBF AI enhancement options */
   {"monster_infighting",{&default_monster_infighting}, {1}, 0, 1,
    def_bool, ss_enem, &monster_infighting},
-  {"monster_backing",{&default_monster_backing}, {1}, 0, 1,
+  {"monster_backing",{&default_monster_backing}, {0}, 0, 1,
    def_bool, ss_enem, &monster_backing},
   {"monster_avoid_hazards",{&default_monster_avoid_hazards}, {1}, 0, 1,
    def_bool, ss_enem, &monster_avoid_hazards},
