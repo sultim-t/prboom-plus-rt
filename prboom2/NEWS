@@ -5,6 +5,7 @@ Changes from v2.2.4 to v2.2.5
 - fix crash caused by long messages in HUD
 - live monster counter on HUD
 - notify server if client quits during startup wait
+- improved response file parser
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
