@@ -554,16 +554,16 @@ diff -p -u -r1.6 p_doors.c
     its history, stepped through all the stairs to be triggered by a single
     switch:</p>
     <ul>
-     <li>original Doom used a linear P_FindSectorFromLineTag, but failed to
+     <li>original Doom used a linear <code>P_FindSectorFromLineTag</code>, but failed to
      preserve the index of the previous sector found, so instead it would
      restart its linear search from the last sector of the previous
      staircase</li>
-     <li>MBF/PrBoom with comp_stairs fail to emulate this, because their
-     P_FindSectorFromLineTag is a chained hash table implementation. Instead
+     <li>MBF/PrBoom with <code>comp_stairs</code> fail to emulate this, because their
+     <code>P_FindSectorFromLineTag</code> is a chained hash table implementation. Instead
      they start following the hash chain from the last sector of the previous
      staircase, which will (probably) have the wrong tag, so they miss any
      further stairs</li>
-     <li>Boom fixed the bug, and MBF/PrBoom without comp_stairs work right
+     <li>Boom fixed the bug, and MBF/PrBoom without <code>comp_stairs</code> work right</li>
     </ul>
     <p>Fixing MBF's comp_stairs requires an elaborate fix, and remaining
     compatible with the buggy behavior of old MBF demos is tricky too. See
@@ -849,7 +849,7 @@ diff -p -u -r1.4 p_user.c
 </pre>
     <h4>Final Doom teleport demo desyncs</h4>
 
-    <p>Thanks to Adam Hegyi for pointing me in the direction of this one<./p>
+    <p>Thanks to Adam Hegyi for pointing me in the direction of this one</p>
 
     <p>Description: It's been known for a long time that Final Doom wasn't
     compatible with Doom 2 demos and visa versa. The original Doom source
