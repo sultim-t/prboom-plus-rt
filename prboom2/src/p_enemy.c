@@ -2540,9 +2540,11 @@ void A_RandomJump(mobj_t *mo)
 
 void A_LineEffect(mobj_t *mo)
 {
-  static line_t junk = *lines;
+  static line_t junk;
   player_t player;
-  player_t *oldplayer = mo->player;
+  player_t *oldplayer;
+  junk = *lines;
+  oldplayer = mo->player;
   mo->player = &player;
   player.health = 100;
   junk.special = (short)mo->state->misc1;
