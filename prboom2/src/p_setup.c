@@ -1368,18 +1368,19 @@ extern int level_error;
 //
 // killough 5/3/98: reformatted, cleaned up
 
-void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
+void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
 {
   int   i;
-  char  mapname[9];
   int   lumpnum;
-  extern char *gamemapname;
 
   char  *gl_mapname;
   int   gl_lumpnum;
 
+  if (!mapname)
+    I_Error("P_SetupLevel: mapname == NULL");
+
 #ifdef COMPILE_VIDD
-  if (VIDD_REC_inProgress()) VIDD_REC_registerLevelLoad(episode, map, skill); // POPE
+  // FIXME if (VIDD_REC_inProgress()) VIDD_REC_registerLevelLoad(episode, map, skill); // POPE
 #endif
 
   totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
@@ -1390,17 +1391,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   // Initial height of PointOfView will be set by player think.
   players[consoleplayer].viewz = 1;
-
-  // find map name
-  if (gamemode == commercial)
-  {
-    sprintf(mapname, "MAP%02d", map);           // killough 1/24/98: simplify
-  }
-  else
-  {
-    sprintf(mapname, "E%dM%d", episode, map);   // killough 1/24/98: simplify
-  }
-  gamemapname = strdup(mapname);
 
   lprintf(LO_DEBUG, "P_SetupLevel: got here\n mapname: %s\n",mapname);
 

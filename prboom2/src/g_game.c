@@ -460,13 +460,6 @@ void G_DoLoadLevel (void)
 
   gamestate = GS_LEVEL;
 
-  if(gamestate != GS_LEVEL)       // level load error
-    {
-      for(i=0;i<MAXPLAYERS;i++)
-	players[i].playerstate = PST_LIVE;
-      return;
-    }
-
   for (i=0 ; i<MAXPLAYERS ; i++)
     {
       if (playeringame[i] && players[i].playerstate == PST_DEAD)
@@ -486,10 +479,18 @@ void G_DoLoadLevel (void)
       //headsecnode = NULL;
   }
 
-  P_SetupLevel (gameepisode, gamemap, 0, gameskill);
+  P_SetupLevel (gamemapname, 0, gameskill);
+
+  if(gamestate != GS_LEVEL)       // level load error
+    {
+      for(i=0;i<MAXPLAYERS;i++)
+	players[i].playerstate = PST_LIVE;
+      return;
+    }
+
+  gameaction = ga_nothing;
   displayplayer = consoleplayer;    // view the guy you are playing
   P_ResetChasecam();    // sf: because displayplayer changed
-  gameaction = ga_nothing;
   Z_CheckHeap ();
 
   // clear cmd building stuff
@@ -1769,6 +1770,30 @@ int G_GetMapForName(char *name)
 char *G_GetNameForMap(int episode, int map)
 {
   static char levelname[10];
+
+  if (episode < 1)
+    episode = 1;
+
+  if (gamemode == retail)
+    {
+      if (episode > 4)
+        episode = 4;
+    }
+  else
+    if (gamemode == shareware)
+      {
+        if (episode > 1)
+          episode = 1; // only start episode 1 on shareware
+      }
+    else
+      if (episode > 3)
+        episode = 3;
+
+  if (map < 1)
+    map = 1;
+  if (map > 9 && gamemode != commercial)
+    map = 9;
+
   if(gamemode == commercial)
     {
       sprintf(levelname, "MAP%02d", map);
@@ -2025,6 +2050,11 @@ void G_SetFastParms(int fast_pending)
 
 void G_InitNewNum(skill_t skill, int episode, int map)
 {
+  G_InitNew(skill, G_GetNameForMap(episode, map) );
+}
+
+void G_InitNew(skill_t skill, char *name)
+{
   int i;
 
   if (paused)
@@ -2038,29 +2068,6 @@ void G_InitNewNum(skill_t skill, int episode, int map)
   
   if (skill > sk_nightmare)
     skill = sk_nightmare;
-
-  if (episode < 1)
-    episode = 1;
-
-  if (gamemode == retail)
-    {
-      if (episode > 4)
-        episode = 4;
-    }
-  else
-    if (gamemode == shareware)
-      {
-        if (episode > 1)
-          episode = 1; // only start episode 1 on shareware
-      }
-    else
-      if (episode > 3)
-        episode = 3;
-
-  if (map < 1)
-    map = 1;
-  if (map > 9 && gamemode != commercial)
-    map = 9;
 
   G_SetFastParms(fastparm || skill == sk_nightmare);  // killough 4/10/98
 
@@ -2085,12 +2092,14 @@ void G_InitNewNum(skill_t skill, int episode, int map)
   G_StopDemo();
 
   automapmode &= ~am_active;
-  gameepisode = episode;
-  gamemap = map;
   gameskill = skill;
 
   totalleveltimes = 0; // cph
 
+  if(gamemapname) free(gamemapname);    //sf
+  gamemapname = strdup(name);
+  G_SetGameMap();  // sf
+  
   //jff 4/16/98 force marks on automap cleared every new level start
   AM_clearMarks();
 

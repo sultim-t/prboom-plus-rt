@@ -298,7 +298,6 @@ CONSOLE_NETCMD(kill, cf_level, netcmd_kill)
 */
 
 // change level
-/*
 CONSOLE_NETCMD(map, cf_server, netcmd_map)
 {
   if(!c_argc)
@@ -312,7 +311,7 @@ CONSOLE_NETCMD(map, cf_server, netcmd_map)
   
   // check for .wad files
   // i'm not particularly a fan of this myself, but..
-  
+/*  
   if(strlen(c_argv[0]) > 4)
     {
       char *extension;
@@ -326,10 +325,9 @@ CONSOLE_NETCMD(map, cf_server, netcmd_map)
 	  return;
 	}
     }
-  
+*/
   G_InitNew(gameskill, c_argv[0]);
 }
-*/
 
         // player name
 /*
@@ -619,7 +617,7 @@ void G_AddCommands()
   C_AddCommand(iwad);
   C_AddCommand(rngseed);
   //C_AddCommand(kill);
-  //C_AddCommand(map);
+  C_AddCommand(map);
   //C_AddCommand(name);
   C_AddCommand(demo_insurance);
   //C_AddCommand(smooth_turning);
