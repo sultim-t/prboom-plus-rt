@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_fixed.h,v 1.4 2000/09/16 20:20:40 proff_fs Exp $
+ * $Id: m_fixed.h,v 1.5 2000/11/18 18:00:31 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -75,9 +75,9 @@ __inline static int D_abs(int x)
 }
 # endif /* I386_asm */
 #else /* _MSC_VER */
-# ifdef I386
+# ifdef I386_ASM
 #  define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
-# endif /* I386 */
+# endif /* I386_ASM */
 #endif /* _MSC_VER */
 
 /*
