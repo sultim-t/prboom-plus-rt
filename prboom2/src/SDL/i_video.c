@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.39 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: i_video.c,v 1.40 2002/11/18 17:49:30 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.39 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.40 2002/11/18 17:49:30 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -42,6 +42,14 @@ rcsid[] = "$Id: i_video.c,v 1.39 2002/11/17 18:34:54 proff_fs Exp $";
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef GL_DOOM
+#include "gl_intern.h"
+
+int gl_colorbuffer_bits=16;
+int gl_depthbuffer_bits=16;
+
 #endif
 
 #include "SDL.h"
@@ -63,14 +71,6 @@ rcsid[] = "$Id: i_video.c,v 1.39 2002/11/17 18:34:54 proff_fs Exp $";
 #include "w_wad.h"
 #include "lprintf.h"
 #include "c_runcmd.h"
-
-#ifdef GL_DOOM
-#include "gl_struct.h"
-
-int gl_colorbuffer_bits=16;
-int gl_depthbuffer_bits=16;
-
-#endif
 
 extern void M_QuitDOOM(int choice);
 
@@ -623,12 +623,22 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   // Initialize SDL
+#ifdef _DEBUG
+  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
+#else
   if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+#endif
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
   
   atexit(I_ShutdownSDL);
   
+#ifdef GL_DOOM
+  if (DynGL_LoadLibrary("OpenGL32.DLL") == SDL_FALSE) {
+    I_Error("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
+  }
+#endif
+
   I_InitInputs();
 }
 
@@ -644,14 +654,14 @@ void I_SetRes(unsigned int width, unsigned int height)
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
 
+static int graphics_inited=0;
 void I_InitGraphics(void)
 {
   char          titlebuffer[2048];
-  static int		firsttime=1;
   
-  if (firsttime)
+  if (!graphics_inited)
   {  
-    firsttime = 0;
+    graphics_inited = 1;
 
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
@@ -716,6 +726,12 @@ void I_UpdateVideoMode(void)
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
 
+#ifdef GL_DOOM
+  if (DynGL_GetFunctions(NULL) == SDL_FALSE) {
+    I_Error("DynGL_GetFunctions failed: %s\n", SDL_GetError());
+  }
+#endif
+
   mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
@@ -768,4 +784,36 @@ void I_UpdateVideoMode(void)
   gld_Init(SCREENWIDTH, SCREENHEIGHT);
   }
 #endif
+}
+
+CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, 0)
+{
+  if (graphics_inited) {
+    I_UpdateVideoMode();
+    V_SetPalette(0);
+  }
+}
+
+static char *str_vidmode[] = {
+  "8bit",
+  "16bit",
+  "32bit"
+};
+
+static int r_videomode = 0;
+
+CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 2, str_vidmode, 0)
+{
+  if (graphics_inited) {
+    vid_initMode(r_videomode);
+    I_UpdateVideoMode();
+    V_DestroyUnusedTrueColorPalettes();
+    V_SetPalette(0);
+  }
+}
+
+void I_Video_AddCommands()
+{
+  C_AddCommand(r_fullscreen);
+  C_AddCommand(r_videomode);
 }
