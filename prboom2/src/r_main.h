@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.h,v 1.5 2001/09/02 10:27:11 proff_fs Exp $
+ * $Id: r_main.h,v 1.6 2001/11/18 12:27:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -87,7 +87,6 @@ extern boolean rendering_stats;
 #define LIGHTZSHIFT       20
 
 // killough 3/20/98: Allow colormaps to be dynamic (e.g. underwater)
-extern lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 extern lighttable_t *(*zlight)[MAXLIGHTZ];
 extern lighttable_t *fullcolormap;
 extern int numcolormaps;    // killough 4/4/98: dynamic number of maps

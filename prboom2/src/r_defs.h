@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.13 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: r_defs.h,v 1.14 2001/11/18 12:27:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -385,7 +385,7 @@ typedef struct vissprite_s
   uint_64_t mobjflags;
 
   // for color translation and shadow draw, maxbright frames as well
-  lighttable_t *colormap;
+  const lighttable_t *colormap;
    
   // killough 3/27/98: height sector for underwater/fake ceiling support
   int heightsec;

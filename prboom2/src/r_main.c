@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.18 2001/09/02 10:27:11 proff_fs Exp $
+ * $Id: r_main.c,v 1.19 2001/11/18 12:27:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.18 2001/09/02 10:27:11 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.19 2001/11/18 12:27:28 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -100,9 +100,7 @@ angle_t xtoviewangle[MAX_SCREENWIDTH+1];   // killough 2/8/98
 // killough 4/4/98: support dynamic number of them as well
 
 int numcolormaps;
-lighttable_t *(*c_scalelight)[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
-lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 lighttable_t *(*zlight)[MAXLIGHTZ];
 lighttable_t *fullcolormap;
 lighttable_t **colormaps;
@@ -272,8 +270,6 @@ static void R_InitTextureMapping (void)
 
 //
 // R_InitLightTables
-// Only inits the zlight table,
-//  because the scalelight table changes with view size.
 //
 
 #define DISTMAP 2
@@ -284,7 +280,6 @@ void R_InitLightTables (void)
     
   // killough 4/4/98: dynamic colormaps
   c_zlight = malloc(sizeof(*c_zlight) * numcolormaps);
-  c_scalelight = malloc(sizeof(*c_scalelight) * numcolormaps);
 
   // Calculate the light levels to use
   //  for each level / distance combination.
@@ -394,29 +389,6 @@ void R_ExecuteSetViewSize (void)
       fixed_t cosadj = D_abs(finecosine[xtoviewangle[i]>>ANGLETOFINESHIFT]);
       distscale[i] = FixedDiv(FRACUNIT,cosadj);
     }
-    
-  // Calculate the light levels to use
-  //  for each level / scale combination.
-  for (i=0; i<LIGHTLEVELS; i++)
-    {
-      int j, startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
-      for (j=0 ; j<MAXLIGHTSCALE ; j++)
-        {
-          int t, level = startmap - j*320/viewwidth/DISTMAP;
-            
-          if (level < 0)
-            level = 0;
-
-          if (level >= NUMCOLORMAPS)
-            level = NUMCOLORMAPS-1;
-
-          // killough 3/20/98: initialize multiple colormaps
-          level *= 256;
-
-          for (t=0; t<numcolormaps; t++)     // killough 4/4/98
-            c_scalelight[t][i][j] = colormaps[t] + level;
-        }
-    }
 }
 
 //
@@ -466,7 +438,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 
 void R_SetupFrame (player_t *player, camera_t* camera)
 {               
-  int i, cm;
+  int cm;
     
   viewplayer = player;
   viewcamera = camera;
@@ -507,20 +479,11 @@ void R_SetupFrame (player_t *player, camera_t* camera)
 
   fullcolormap = colormaps[cm];
   zlight = c_zlight[cm];
-  scalelight = c_scalelight[cm];
 
   if (player->fixedcolormap)
     {
-      // killough 3/20/98: localize scalelightfixed (readability/optimization)
-      static lighttable_t *scalelightfixed[MAXLIGHTSCALE];
-
       fixedcolormap = fullcolormap   // killough 3/20/98: use fullcolormap
         + player->fixedcolormap*256*sizeof(lighttable_t);
-        
-      walllights = scalelightfixed;
-
-      for (i=0 ; i<MAXLIGHTSCALE ; i++)
-        scalelightfixed[i] = fixedcolormap;
     }
   else
     fixedcolormap = 0;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.h,v 1.6 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: r_data.h,v 1.7 2001/11/18 12:27:28 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -97,6 +97,8 @@ int R_CheckTextureNumForName (const char *name);
 
 void R_InitTranMap(int);      // killough 3/6/98: translucency initialization
 int R_ColormapNumForName(const char *name);      // killough 4/4/98
+/* cph 2001/11/17 - new func to do lighting calcs and get suitable colour map */
+const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale);
 
 extern const byte *main_tranmap, *tranmap;
 
