@@ -201,6 +201,7 @@ void I_Error(const char *error, ...) // killough 3/20/98: add const
 int playerjoingame[MAXPLAYERS], playerleftgame[MAXPLAYERS];
 UDP_CHANNEL remoteaddr[MAXPLAYERS];
 enum { pc_unused, pc_connected, pc_ready, pc_confirmedready, pc_playing, pc_quit } playerstate[MAXPLAYERS];
+int displaycounter;
 
 boolean n_players_in_state(int n, int ps) {
 	int i,j;
@@ -509,8 +510,6 @@ int main(int argc, char** argv)
 		playerstate[from] = pc_confirmedready;
 	} else
 		playerstate[from] = pc_ready;
-	printf("player %d ready, \n",from);
-	printf("%d of %d players ready\n", curplayers, numplayers);
       }
       break;
     case PKT_TICC:
@@ -701,6 +700,21 @@ int main(int argc, char** argv)
       }
     }
   }
+      if (!((ingame ? 0xff : 0xf) & displaycounter++)) { 
+        int i;
+        fprintf(stderr,"Player states: [");
+        for (i=0;i<MAXPLAYERS;i++) {
+            switch (playerstate[i]) {
+                case pc_unused: fputc(' ',stderr); break;
+                case pc_connected: fputc('c',stderr); break;
+                case pc_ready: fputc('r',stderr); break;
+                case pc_confirmedready: fputc('g',stderr); break;
+                case pc_playing: fputc('p',stderr); break;
+                case pc_quit: fputc('x',stderr); break;
+            }
+        }
+        fprintf(stderr,"]\n");
+      }
     }
   }
 }
