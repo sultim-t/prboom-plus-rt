@@ -246,6 +246,7 @@ prboom2/src/m_fcvt.h -text
 prboom2/src/psnprntf.c -text
 prboom2/src/psnprntf.h -text
 prboom2/src/vidd/Makefile.am eol=lf
+pyboom/main.py -text
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text
 website/html/DOOM05.jpg -text
