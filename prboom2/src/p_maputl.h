@@ -82,7 +82,7 @@ void    P_UnsetThingPosition(mobj_t *thing);
 void    P_SetThingPosition(mobj_t *thing);
 boolean P_BlockLinesIterator (int x, int y, boolean func(line_t *));
 boolean P_BlockThingsIterator(int x, int y, boolean func(mobj_t *));
-boolean ThingIsOnLine(const mobj_t *t, const line_t *l);  /* killough 3/15/98 */
+boolean CONSTFUNC ThingIsOnLine(const mobj_t *t, const line_t *l);  /* killough 3/15/98 */
 boolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, boolean trav(intercept_t *));
 
