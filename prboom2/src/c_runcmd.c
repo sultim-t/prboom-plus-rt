@@ -47,6 +47,7 @@
 
 #include "doomdef.h"
 #include "doomstat.h"
+#include "m_misc.h"
 #include "mn_engin.h"
 #include "t_script.h"
 #include "g_game.h"
@@ -1060,6 +1061,12 @@ void (C_AddCommand)(command_t *command)
   int hash;
   static int first = 1;
   
+  if (C_GetCmdForName(command->name))
+  {
+    C_Printf("'%s' already added!\n", command->name);
+    return;
+  }
+
   if (first)
   {
     first = 0;
@@ -1168,8 +1175,6 @@ void C_RunScript(const char *script)
   }
   
 }
-
-extern int M_ReadFile(const char*, byte**);
 
 void C_RunScriptFromFile(char *filename)
 {
