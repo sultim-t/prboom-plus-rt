@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.19 2001/07/07 17:28:55 proff_fs Exp $
+ * $Id: i_sound.c,v 1.20 2001/07/11 22:30:27 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.19 2001/07/07 17:28:55 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.20 2001/07/11 22:30:27 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -160,8 +160,8 @@ int addsfx(int sfxid, int channel)
     size_t len = W_LumpLength(lump);
 
     /* Find padded length */
-    len = (((len-8) + (SAMPLECOUNT-1)) / SAMPLECOUNT) * SAMPLECOUNT + 16;
-    channelinfo[channel].data = W_CacheLumpNumPadded(lump, len, 128);
+    len -= 8;
+    channelinfo[channel].data = W_CacheLumpNum(lump);
       
     /* Set pointer to end of raw data. */
     channelinfo[channel].enddata = channelinfo[channel].data + len - 1;
