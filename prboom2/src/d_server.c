@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.7 2000/08/08 14:43:18 proff_fs Exp $
+ * $Id: d_server.c,v 1.8 2000/08/20 18:42:04 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -55,7 +55,7 @@
 #include "i_network.h"
 #include "i_system.h"
 
-#ifdef _MSC_VER
+#ifndef HAVE_GETOPT
 /* The following code for getopt is from the libc-source of FreeBSD,
  * it might be changed a little bit.
  * Florian Schulze (florian.proff.schulze@gmx.net)
@@ -182,6 +182,8 @@ getopt(nargc, nargv, ostr)
 	}
 	return (optopt);			/* dump back option letter */
 }
+#else
+#include <unistd.h>
 #endif
 
 #define MAXPLAYERS 4

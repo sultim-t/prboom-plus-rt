@@ -174,7 +174,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp))
 AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp))
 AC_CHECK_FUNCS(inet_aton inet_pton inet_ntop setsockopt vsnprintf snprintf)
-AC_CHECK_FUNCS(gethostname mkdir select socket strcspn strdup strtol)
+AC_CHECK_FUNCS(gethostname mkdir select socket strcspn strdup strtol getopt)
 
 dnl --- Check for header files
 AC_HEADER_STDC
