@@ -1,3 +1,34 @@
+Installation From CVS
+=====================
+
+If you intend to compile PrBoom from a source tar file, such as
+prboom-2.2.2.tar.gz, as opposed to CVS, skip to the "Basic Installation"
+section.
+
+  1. Install and configure deutex.  If deutex is already installed and
+     configured skip to step 2.
+        a. Install deutex from http://www.teaser.fr/~amajorel/deutex
+        b. Set the DOOMWADDIR environment variable to the directory that
+           contains the IWAD files:
+              export DOOMWADDIR=/usr/local/share/games/doom
+
+  2. 'cd' to a suitable parent directory for the PrBoom distribution:
+        cd /usr/local/src
+
+  3. Extract the PrBoom distribution from CVS:
+        cvs -d:pserver:anonymous@cvs.prboom.sourceforge.net:/cvsroot/prboom login
+        cvs -z3 -d:pserver:anonymous@cvs.prboom.sourceforge.net:/cvsroot/prboom co prboom2
+
+  4. 'cd' to the directory containing the PrBoom distribution (the directory
+     this file is in):
+        cd prboom2
+
+  5. Run the 'bootstrap' script in order to create the 'configure' script.
+        ./bootstrap
+
+  6. If the 'configure' script was created by step 5 then proceed to the
+     "Basic Installation" section.
+
 Basic Installation
 ==================
 
