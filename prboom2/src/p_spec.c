@@ -57,6 +57,7 @@
 #include "d_deh.h"
 #include "r_plane.h"
 #include "lprintf.h"
+#include "t_script.h"
 
 //
 // Animating textures and planes
@@ -1056,7 +1057,16 @@ int P_CheckTag(line_t *line)
 
     case 48:                // Scrolling walls
     case 85:
-      return 1;   // zero tag allowed
+        // sf: scripting
+    case 272:   // WR
+    case 273:
+    case 274:   // W1
+    case 275:
+    case 276:   // SR
+    case 277:   // S1
+    case 278:   // GR
+    case 279:   // G1
+      return 1;
 
     default:
       break;
@@ -1684,6 +1694,29 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       EV_DoFloor(line,raiseFloorTurbo);
       break;
 
+        // scripting ld types
+
+        // repeatable
+
+    case 273:  // console command (1sided)
+      if(side) break;
+
+    case 272:  // console command (2sided)
+      t_trigger = thing;
+      T_RunScript(line->tag);
+      break;
+
+        // once-only triggers
+
+    case 275:  // console command (1sided)
+      if(side) break;
+
+    case 274:  // console command (2sided)
+      t_trigger = thing;
+      T_RunScript(line->tag);
+      line->special = 0;        // clear trigger
+      break;
+
       // Extended walk triggers
 
       // jff 1/29/98 added new linedef types to fill all functions out so that
@@ -2144,6 +2177,14 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
 
     //jff 1/30/98 added new gun linedefs here
     // killough 1/31/98: added demo_compatibility check, added inner switch
+
+        // sf: scripting
+    case 278:
+    case 279:
+      t_trigger = thing;
+      T_RunScript(line->tag);
+      if(line->special == 279) line->special = 0;       // clear if G1
+      break;
 
     default:
       if (!demo_compatibility)

@@ -163,12 +163,18 @@ CONSOLE_COMMAND(mn_newgame, 0)
         }
       else
 */
+	{
 	MN_StartMenu(&menu_newgame);
+	  menu_newgame.selected = 4 + defaultskill-1;
+	}
     }
   else
     {
       if(modifiedgame)
+	{
 	MN_StartMenu(&menu_newgame);
+	  menu_newgame.selected = 4 + defaultskill-1;
+	}
       else
 	{
 	  // hack -- cut off thy flesh consumed if not retail
@@ -245,6 +251,7 @@ CONSOLE_COMMAND(mn_episode, cf_notnet)
     }
 
   MN_StartMenu(&menu_newgame);
+  menu_newgame.selected = 4 + defaultskill-1;
 }
 
 //////////////////////////////////////////////////////////

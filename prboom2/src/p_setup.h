@@ -52,4 +52,30 @@ extern fixed_t  bmaporgx;
 extern fixed_t  bmaporgy;        /* origin of block map */
 extern mobj_t   **blocklinks;    /* for thing chains */
 
+extern int      newlevel;
+extern int      doom1level;
+extern char     *levelmapname;
+
+typedef struct                          // Standard OLO stuff, put in WADs
+{       
+  unsigned char header[3];                 // Header
+  unsigned char space1;
+  unsigned char extend;
+  unsigned char space2;
+  
+  // Standard
+  unsigned char levelwarp;
+  unsigned char lastlevel;
+  unsigned char deathmatch;
+  unsigned char skill_level;
+  unsigned char nomonsters;
+  unsigned char respawn;
+  unsigned char fast;
+
+  unsigned char levelname[32][32];
+} olo_t;
+
+extern olo_t olo;
+extern int olo_loaded;
+
 #endif

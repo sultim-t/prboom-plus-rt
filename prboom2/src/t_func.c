@@ -264,7 +264,7 @@ void SF_Tip()
     else    // assume int
       sprintf(tempstr,"%s%i", tempstr, (int)t_argv[i].value.i);
 
-  //HU_CentreMsg(tempstr); FIXME
+  HU_CentreMsg(tempstr);
 }
 
         // tip to a particular player
@@ -980,7 +980,7 @@ void SF_FadeLight()
   destlevel = intvalue(t_argv[1]);
   speed = t_argc>2 ? intvalue(t_argv[2]) : 1;
   
-  // P_FadeLight(sectag, destlevel, speed); FIXME
+  P_FadeLight(sectag, destlevel, speed);
 }
 
 void SF_FloorTexture()
@@ -1176,7 +1176,7 @@ void SF_OpenDoor()
   else
     speed = 1;    // 1= normal speed
   
-  // EV_OpenDoor(sectag, speed, wait_time);  FIXME
+  EV_OpenDoor(sectag, speed, wait_time);  
 }
 
 void SF_CloseDoor()
@@ -1200,7 +1200,7 @@ void SF_CloseDoor()
   else
     speed = 1;    // 1= normal speed
   
-  // EV_CloseDoor(sectag, speed);  FIXME
+  EV_CloseDoor(sectag, speed);  
 }
 
 // run console cmd

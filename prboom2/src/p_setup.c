@@ -33,6 +33,7 @@
 #include <math.h>
 
 #include "z_zone.h"
+#include "c_io.h"
 #include "doomstat.h"
 #include "m_bbox.h"
 #include "m_argv.h"
@@ -1307,6 +1308,45 @@ void P_RemoveSlimeTrails(void)                // killough 10/98
 }
 
 //
+// P_CheckLevel
+//
+// sf 11/9/99
+// we need to do this now because we no longer have to
+// conform to the MAPxy or ExMy standard previously
+// imposed
+//
+
+char *levellumps[] =
+{
+  "label",        // ML_LABEL,    A separator, name, ExMx or MAPxx
+  "THINGS",       // ML_THINGS,   Monsters, items..
+  "LINEDEFS",     // ML_LINEDEFS, LineDefs, from editing
+  "SIDEDEFS",     // ML_SIDEDEFS, SideDefs, from editing
+  "VERTEXES",     // ML_VERTEXES, Vertices, edited and BSP splits generated
+  "SEGS",         // ML_SEGS,     LineSegs, from LineDefs split by BSP
+  "SSECTORS",     // ML_SSECTORS, SubSectors, list of LineSegs
+  "NODES",        // ML_NODES,    BSP nodes
+  "SECTORS",      // ML_SECTORS,  Sectors, from editing
+  "REJECT",       // ML_REJECT,   LUT, sector-sector visibility
+  "BLOCKMAP"      // ML_BLOCKMAP  LUT, motion clipping, walls/grid element
+};
+
+boolean P_CheckLevel(int lumpnum)
+{
+  int i, ln;
+  
+  for(i=ML_THINGS; i<=ML_BLOCKMAP; i++)
+    {
+      ln = lumpnum+i;
+      if(ln > numlumps ||     // past the last lump
+	 strncmp(lumpinfo[ln].name, levellumps[i], 8) )
+	return false;
+    }
+  return true;    // all right
+}
+
+
+//
 // P_SetupLevel
 //
 // killough 5/3/98: reformatted, cleaned up
@@ -1493,4 +1533,51 @@ void P_Init (void)
   P_InitSwitchList();
   P_InitPicAnims();
   R_InitSprites(sprnames);
+}
+
+//
+// OLO Support. - sf
+//
+// OLOs were something I came up with a while ago when making my 'onslaunch'
+// launcher. They are lumps which hold information about the lump: which
+// deathmatch type they are best played on etc. which was read by onslaunch
+// which adjusted its launch settings appropriately. More importantly,
+// they hold the level names which I use here..
+//
+
+olo_t olo;
+int olo_loaded = false;
+
+void P_LoadOlo()
+{
+  int lumpnum;
+  const char *lump;
+
+  if((lumpnum = W_CheckNumForName("OLO")) == -1)
+    return;
+
+  lump = W_CacheLumpNum(lumpnum);
+  
+  if(strncmp(lump, "OLO", 3))
+    return;
+  
+  memcpy(&olo, lump, sizeof(olo_t));
+  
+  W_UnlockLumpNum(lumpnum);
+
+  olo_loaded = true;
+}
+
+// test thingy
+
+void C_DumpThings()
+{
+  int i;
+  
+  for(i=0; i<numthings; i++)
+    {
+      C_Printf("%i\n", spawnedthings[i]);
+    }
+  
+  C_Printf(FC_GRAY"(%i)\n", numthings);
 }

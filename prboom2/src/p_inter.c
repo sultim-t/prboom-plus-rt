@@ -692,7 +692,10 @@ void P_KillMobj(mobj_t *source, mobj_t *target)
     {
       // count environment kills against you
       if (!source)
+      {
         target->player->frags[target->player-players]++;
+        HU_FragsUpdate();
+      }
 
       target->flags &= ~MF_SOLID;
       target->player->playerstate = PST_DEAD;

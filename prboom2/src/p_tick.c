@@ -34,6 +34,7 @@
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
+#include "t_script.h"
 
 #ifdef COMPILE_VIDD
 #include "vidd/vidd.h"
@@ -275,6 +276,8 @@ void P_Ticker (void)
   if (!VIDD_PLAY_inProgress()) { // POPE
 #endif
 
+               // not if this is an intermission screen
+  if(gamestate==GS_LEVEL)
   for (i=0; i<MAXPLAYERS; i++)
     if (playeringame[i])
       P_PlayerThink(&players[i]);
@@ -287,5 +290,7 @@ void P_Ticker (void)
   P_UpdateSpecials();
   P_RespawnSpecials();
   leveltime++;                       // for par times
+
+  T_DelayedScripts();
 }
 
