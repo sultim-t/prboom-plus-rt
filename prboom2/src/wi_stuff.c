@@ -405,6 +405,61 @@ void WI_StopCamera()
   realbackdrop = 0;
 }
 
+void WI_TickerCamera()
+{
+  if(!realbackdrop) return;
+}
+
+void WI_AddCamera(mapthing_t *mthing)
+{
+  camerathing[numcameraviews] = mthing;
+  numcameraviews++;
+}
+
+// set up the intermissions camera
+
+void WI_StartCamera()
+{
+  int i;
+  
+  if(numcameraviews)
+    {
+      realbackdrop = 1;
+      // pick a camera at random
+      wi_camera = camerathing[M_Random() % numcameraviews];
+      
+      // centre the view
+      // players[displayplayer].updownangle = 0;
+      
+      // remove the player mobjs (look silly in camera view)
+      for(i=0; i<MAXPLAYERS; i++)
+	{
+	  if(!playeringame[i]) continue;
+	  // this is strange. the monsters can still
+	  // see the player Mobj, (and even kill it!)
+	  // even tho it has been removed from the
+	  // level. I make it unshootable first so
+	  // they lose interest.
+	  players[i].mo->flags &= ~MF_SHOOTABLE;
+	  P_RemoveMobj(players[i].mo);
+	}
+      
+      
+      intercam.x = wi_camera->x*FRACUNIT;
+      intercam.y = wi_camera->y*FRACUNIT;
+      intercam.angle = R_WadToAngle(wi_camera->angle);
+      intercam.updownangle = 0;
+      intercam.z = R_PointInSubsector(intercam.x, intercam.y)
+	->sector->floorheight + 41*FRACUNIT;
+      R_SetViewSize (11);     // force fullscreen
+    }
+  else            // no camera, boring interpic
+    {
+      realbackdrop = 0;
+      wi_camera = NULL;
+    }
+}
+
 static void WI_endDeathmatchStats(void);
 static void WI_endNetgameStats(void);
 void WI_unloadData(void);
@@ -579,7 +634,7 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
 // Args:    none
 // Returns: void
 //
-void WI_initAnimatedBack(void)
+static void WI_initAnimatedBack(void)
 {
   int   i;
   anim_t* a;
@@ -616,7 +671,7 @@ void WI_initAnimatedBack(void)
 // Args:    none
 // Returns: void
 //
-void WI_updateAnimatedBack(void)
+static void WI_updateAnimatedBack(void)
 {
   int   i;
   anim_t* a;
@@ -673,7 +728,7 @@ void WI_updateAnimatedBack(void)
 // Args:    none
 // Returns: void
 //
-void WI_drawAnimatedBack(void)
+static void WI_drawAnimatedBack(void)
 {
   int     i;
   anim_t*   a;
@@ -837,7 +892,7 @@ void WI_End(void)
 // Args:    none
 // Returns: void
 //
-void WI_initNoState(void)
+static void WI_initNoState(void)
 {
   state = NoState;
   acceleratestage = 0;
@@ -900,7 +955,7 @@ static boolean    snl_pointeron = false;
 // Args:    none
 // Returns: void
 //
-void WI_initShowNextLoc(void)
+static void WI_initShowNextLoc(void)
 {
   if ((gamemode != commercial) && (gamemap == 8)) {
     G_WorldDone();
@@ -921,7 +976,7 @@ void WI_initShowNextLoc(void)
 // Args:    none
 // Returns: void
 //
-void WI_updateShowNextLoc(void)
+static void WI_updateShowNextLoc(void)
 {
   WI_updateAnimatedBack();
 
@@ -938,7 +993,7 @@ void WI_updateShowNextLoc(void)
 // Args:    none
 // Returns: void
 //
-void WI_drawShowNextLoc(void)
+static void WI_drawShowNextLoc(void)
 {
   int   i;
   int   last;
@@ -983,7 +1038,7 @@ void WI_drawShowNextLoc(void)
 // Args:    none
 // Returns: void
 //
-void WI_drawNoState(void)
+static void WI_drawNoState(void)
 {
   snl_pointeron = true;
   WI_drawShowNextLoc();
@@ -996,7 +1051,7 @@ void WI_drawNoState(void)
 // Args:    playernum -- the player to be calculated
 // Returns: the total frags for this player
 //
-int WI_fragSum(int playernum)
+static int WI_fragSum(int playernum)
 {
   int   i;
   int   frags = 0;
@@ -1029,7 +1084,7 @@ static short int   *dm_totals;  // totals by player
 // Args:    none
 // Returns: void
 //
-void WI_initDeathmatchStats(void)
+static void WI_initDeathmatchStats(void)
 {
   int   i; // looping variables
 
@@ -1080,7 +1135,7 @@ void WI_endDeathmatchStats(void)
 // Args:    none
 // Returns: void
 //
-void WI_updateDeathmatchStats(void)
+static void WI_updateDeathmatchStats(void)
 {
   int   i;
   int   j;
@@ -1295,7 +1350,7 @@ static void WI_endNetgameStats(void)
 // Args:    none
 // Returns: void
 //
-void WI_initNetgameStats(void)
+static void WI_initNetgameStats(void)
 {
   int i;
 
@@ -1328,7 +1383,7 @@ void WI_initNetgameStats(void)
 // Returns: void
 // Comment: This stuff sure is complicated for what it does
 //
-void WI_updateNetgameStats(void)
+static void WI_updateNetgameStats(void)
 {
   int   i;
   int   fsum;
@@ -1566,7 +1621,7 @@ static int  sp_state;
 // Comment: Seems like we could do all these stats in a more generic
 //          set of routines that weren't duplicated for dm, coop, sp
 //
-void WI_initStats(void)
+static void WI_initStats(void)
 {
   state = StatCount;
   acceleratestage = 0;
@@ -1588,7 +1643,7 @@ void WI_initStats(void)
 // Args:    none
 // Returns: void
 //
-void WI_updateStats(void)
+static void WI_updateStats(void)
 {
   WI_updateAnimatedBack();
 
@@ -1953,7 +2008,7 @@ void WI_Drawer (void)
 // Args:    wbstartstruct -- pointer to the structure with the data
 // Returns: void
 //
-void WI_initVariables(wbstartstruct_t* wbstartstruct)
+static void WI_initVariables(wbstartstruct_t* wbstartstruct)
 {
 
   wbs = wbstartstruct;
@@ -2008,6 +2063,8 @@ void WI_initVariables(wbstartstruct_t* wbstartstruct)
 //
 void WI_Start(wbstartstruct_t* wbstartstruct)
 {
+  WI_StartCamera();  //set up camera
+
   WI_initVariables(wbstartstruct);
   WI_loadData();
 
