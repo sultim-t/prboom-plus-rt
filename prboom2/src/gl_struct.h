@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_struct.h,v 1.7 2000/05/15 23:45:01 proff_fs Exp $
+ * $Id: gl_struct.h,v 1.8 2000/05/16 21:44:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,21 +45,18 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor);
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 void gld_FillBlock(int x, int y, int width, int height, int col);
 void gld_SetPalette(int palette);
+void gld_ReadScreen (byte* scr);
 
 void gld_CleanMemory(void);
 void gld_PreprocessLevel(void);
 
-//void gld_AddSpriteToRenderQueue(mobj_t *pSpr,int lump, boolean flip);
-
 void gld_Set2DMode();
 void gld_InitDrawScene(void);
 void gld_StartDrawScene(void);
+void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceilingplane);
+void gld_DrawSprite(vissprite_t *vspr);
 void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();
-
-//void gld_AddWall(seg_t *seg);
-void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceilingplane);
-void gld_DrawSprite(vissprite_t *vspr);
 
 #endif // _GL_STRUCT_H

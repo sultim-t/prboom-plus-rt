@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.9 2000/05/15 23:45:01 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.10 2000/05/16 21:44:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -101,5 +101,11 @@ void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterFlat(int lump, boolean mipmap);
 void gld_BindFlat(GLTexture *gltexture);
 
-void gld_OutputLevelInfo(void);
+#ifndef max
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
+
 #endif // _GL_INTERN_H
