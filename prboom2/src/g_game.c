@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.3 2001/06/18 19:53:00 cph Exp $
+ * $Id: g_game.c,v 1.30.2.4 2001/09/29 11:20:22 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.3 2001/06/18 19:53:00 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.4 2001/09/29 11:20:22 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1967,6 +1967,10 @@ void G_ReloadDefaults(void)
   consoleplayer = 0;
 
   compatibility_level = default_compatibility_level;
+  {
+    int i = M_CheckParm("-complevel");
+    if (i && (1+i) < myargc) compatibility_level = atoi(myargv[i+1]);
+  }
   if (compatibility_level == -1) 
     compatibility_level = MAX_COMPATIBILITY_LEVEL-1;
 
@@ -2113,12 +2117,18 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 /* Demo limits removed -- killough
  * cph - record straight to file
  */
+static inline signed char fudge(signed char b)
+{
+  b |= 1; if (b>2) b-=2;
+  return b;
+}
 
 void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
   char buf[4];
 
-  buf[0] = cmd->forwardmove;
+  buf[0] = (cmd->forwardmove && demo_compatibility) ?
+    fudge(cmd->forwardmove) : cmd->forwardmove;
   buf[1] = cmd->sidemove;
   buf[2] = (cmd->angleturn+128)>>8;
   buf[3] = cmd->buttons;
