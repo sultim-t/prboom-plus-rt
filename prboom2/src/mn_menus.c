@@ -437,6 +437,27 @@ CONSOLE_VARIABLE(mn_wadname,    mn_wadname,     0) {}
 
 CONSOLE_COMMAND(mn_loadwad, cf_notnet)
 {
+  menuitem_t *menuitem;
+  
+  menuitem = &menu_loadwad.menuitems[0];
+  while (menuitem->type != it_end)
+  {
+    if (menuitem->type == it_disabled)
+      if (menuitem->data)
+        if (!strncmp(menuitem->data, "mn_iwad ", 8))
+          menuitem->type = it_runcmd;
+    if (menuitem->type == it_runcmd)
+    {
+      const char *cmd;
+      cmd = &menuitem->data[strlen(menuitem->data)];
+      while ((cmd > menuitem->data) && (*cmd != ' '))
+        cmd--;
+      cmd++;
+      if (!I_FindFile(cmd, ".wad"))
+        menuitem->type = it_disabled;
+    }
+    menuitem++;
+  }
   MN_StartMenu(&menu_loadwad);
 }
 
