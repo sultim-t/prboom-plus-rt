@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.7 2001/07/22 14:57:43 cph Exp $
+ * $Id: f_wipe.c,v 1.8 2001/07/29 16:55:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.7 2001/07/22 14:57:43 cph Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.8 2001/07/29 16:55:36 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -118,7 +118,12 @@ static int wipe_doMelt(int width, int height, int ticks)
             short *s, *d;
             int j, dy, idx;
 
-            dy = (y[i] < 16) ? y[i]+1 : 8;
+            /* cph 2001/07/29 -
+             *  The original melt rate was 8 pixels/sec, i.e. 25 frames to melt
+             *  the whole screen, so make the melt rate depend on SCREENHEIGHT
+             *  so it takes no longer in high res
+             */
+            dy = (y[i] < 16) ? y[i]+1 : SCREENHEIGHT/25;
             if (y[i]+dy >= height)
               dy = height - y[i];
             s = &((short *)wipe_scr_end)[i*height+y[i]];
