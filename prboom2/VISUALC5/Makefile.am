@@ -1,6 +1,6 @@
 #
-# $Id: Makefile.am,v 1.1 2000/09/17 10:59:13 cph Exp $
+# $Id: Makefile.am,v 1.2 2001/07/01 21:10:52 cph Exp $
 #
 
-EXTRA_DIST = Doom.dsw prboom_server.dsp Doom.dsp
+EXTRA_DIST = Doom.dsw prboom_server.dsp Doom.dsp readme.txt
 
