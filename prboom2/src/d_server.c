@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.12 2000/11/25 18:23:54 cph Exp $
+ * $Id: d_server.c,v 1.13 2000/11/25 19:19:17 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -357,7 +357,7 @@ int main(int argc, char** argv)
 
     // Print wads
     for (i=0; i<numwads; i++)
-      printf("Wad %s (%s)\n", wadname[i], wadget[i]);
+      printf("Wad %s (%s)\n", wadname[i], wadget[i] ? wadget[i] : "");
   }
 
   // Exit and signal handling
