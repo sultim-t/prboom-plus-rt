@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.7 2000/05/22 09:17:39 cph Exp $
+ * $Id: i_sound.c,v 1.8 2000/06/25 11:51:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.7 2000/05/22 09:17:39 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.8 2000/06/25 11:51:48 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -313,7 +313,10 @@ void I_SetChannels()
   //  into signed samples.
   for (i=0 ; i<128 ; i++)
     for (j=0 ; j<256 ; j++) {
-      vol_lookup[i*256+j] = (i*(j-128)*256)/127;
+      // proff - made this a little bit softer, because with
+      // full volume the sound clipped badly
+      vol_lookup[i*256+j] = (i*(j-128)*256)/191;
+      //vol_lookup[i*256+j] = (i*(j-128)*256)/127;
     }
 }	
 
@@ -426,7 +429,7 @@ void I_UpdateSound(void *unused, Uint8 *stream, int len)
    
 #ifdef HAVE_MIXER
     // Mix in the music
-    music_mixer(NULL, stream, len);
+    //music_mixer(NULL, stream, len);
 #endif
 
     // Left and right channel
@@ -485,20 +488,20 @@ void I_UpdateSound(void *unused, Uint8 *stream, int len)
 	// else if (dl < -128) *leftout = -128;
 	// else *leftout = dl;
 
-	if (dl > 0x7fff)
-	    *leftout = 0x7fff;
-	else if (dl < -0x8000)
-	    *leftout = -0x8000;
+	if (dl > SHRT_MAX)
+	    *leftout = SHRT_MAX;
+	else if (dl < SHRT_MIN)
+	    *leftout = SHRT_MIN;
 	else
-	    *leftout = dl;
+	    *leftout = (signed short)dl;
 
 	// Same for right hardware channel.
-	if (dr > 0x7fff)
-	    *rightout = 0x7fff;
-	else if (dr < -0x8000)
-	    *rightout = -0x8000;
+	if (dr > SHRT_MAX)
+	    *rightout = SHRT_MAX;
+	else if (dr < SHRT_MIN)
+	    *rightout = SHRT_MIN;
 	else
-	    *rightout = dr;
+	    *rightout = (signed short)dr;
 
 	// Increment current pointers in stream
 	leftout += step;
@@ -509,7 +512,11 @@ void I_UpdateSound(void *unused, Uint8 *stream, int len)
 void I_ShutdownSound(void)
 {    
   fprintf(stderr, "I_ShutdownSound: ");
+#ifdef HAVE_MIXER
+  Mix_CloseAudio();
+#else
   SDL_CloseAudio();
+#endif
   fprintf(stderr, "\n");
 }
 
@@ -518,13 +525,35 @@ static SDL_AudioSpec audio;
 void
 I_InitSound()
 { 
+#ifdef HAVE_MIXER
+	int audio_rate;
+	Uint16 audio_format;
+	int audio_channels;
+	int audio_buffers;
+
   // Secure and configure sound device first.
   fprintf( stderr, "I_InitSound: ");
  
-/*  if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) {
-    fprintf(stderr, "Couldn't initialize SDL Audio: %s\n",SDL_GetError());
-    return;        
-  } */
+	/* Initialize variables */
+	audio_rate = SAMPLERATE;
+  #if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
+    audio_format = AUDIO_S16MSB;
+  #else
+    audio_format = AUDIO_S16LSB;
+  #endif
+	audio_channels = 2;
+	audio_buffers = SAMPLECOUNT;
+
+	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
+    fprintf(stderr, "couldn't open audio with desired format\n");
+    return;
+  }
+  Mix_SetPostMix(I_UpdateSound, NULL);
+  fprintf(stderr, " configured audio device with %d samples/slice\n", SAMPLECOUNT);
+#else
+  // Secure and configure sound device first.
+  fprintf( stderr, "I_InitSound: ");
+ 
   // Open the audio device
   audio.freq = SAMPLERATE;
   #if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
@@ -541,6 +570,7 @@ I_InitSound()
   }
   SAMPLECOUNT = audio.samples;
   fprintf(stderr, " configured audio device with %d samples/slice\n", SAMPLECOUNT);
+#endif
 
   atexit(I_ShutdownSound);
 
@@ -549,7 +579,9 @@ I_InitSound()
   
   // Finished initialization.
   fprintf(stderr, "I_InitSound: sound module ready\n");
+#ifndef HAVE_MIXER
   SDL_PauseAudio(0);
+#endif
 }
 
 
@@ -577,7 +609,7 @@ static Mix_Music *music[2] = { NULL, NULL };
 void I_ShutdownMusic(void) 
 {
 #ifdef HAVE_MIXER
-  close_music();
+  //close_music();
 #endif
   fprintf(stderr, "I_ShutdownMusic: shut down\n");
 }
@@ -585,10 +617,12 @@ void I_ShutdownMusic(void)
 void I_InitMusic(void)
 {
 #ifdef HAVE_MIXER
+/*
   if ( open_music(&audio) < 0 ) {
     fprintf(stderr, "Unable to open music: %s\n", Mix_GetError());
     return;
   }
+*/
   fprintf(stderr, "I_InitMusic: music initialized\n");
 #endif
   atexit(I_ShutdownMusic);
