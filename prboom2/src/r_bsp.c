@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.12 2000/05/22 23:31:10 cph Exp $
+ * $Id: r_bsp.c,v 1.13 2000/05/30 20:02:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.12 2000/05/22 23:31:10 cph Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.13 2000/05/30 20:02:54 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -558,7 +558,7 @@ static void R_Subsector(int num)
   {
     // if the sector has bottomtextures, then the floorheight will be set to the
     // highest surounding floorheight
-    if (frontsector->no_bottomtextures)
+    if ((frontsector->no_bottomtextures) || (!floorplane))
     {
       int i=frontsector->linecount;
 
@@ -585,7 +585,7 @@ static void R_Subsector(int num)
         floorplane=&dummyfloorplane;
     }
     // the same for ceilings. they will be set to the lowest ceilingheight
-    if (frontsector->no_toptextures)
+    if ((frontsector->no_toptextures) || (!ceilingplane))
     {
       int i=frontsector->linecount;
 
