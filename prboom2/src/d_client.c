@@ -443,6 +443,13 @@ void TryRunTics (void)
   // Wait for tics to run
   while (1) {
     if (I_GetTime() - entertime > 5) {
+      remotesend--;
+      {
+	char buf[sizeof(packet_header_t)+1];
+	packet_set(&buf, PKT_RETRANS, remotetic);
+	buf[sizeof(buf)-1] = consoleplayer;
+	I_SendPacket(buf, sizeof buf);
+      }
       M_Ticker(); return;
     }
 #ifdef HAVE_NET
@@ -454,7 +461,7 @@ void TryRunTics (void)
     if (!runtics) {
       I_uSleep(1000);
       if (I_GetTime() - entertime > 10) {
-  M_Ticker(); return;
+        M_Ticker(); return;
       }
     } else break;
   }
