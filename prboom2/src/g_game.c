@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.15 2000/05/18 10:00:18 cph Exp $
+ * $Id: g_game.c,v 1.16 2000/05/21 12:46:37 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.15 2000/05/18 10:00:18 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.16 2000/05/21 12:46:37 cph Exp $";
 
 #include <stdarg.h>
 
@@ -747,7 +747,7 @@ extern int mapcolor_me;
 
 void G_Ticker (void)
 {
-  int i, buf;
+  int i;
   static gamestate_t prevgamestate;
 
   // CPhipps - player colour changing
@@ -805,11 +805,13 @@ void G_Ticker (void)
         }
     }
 
-  // get commands, check consistancy, and build new consistancy check
-  buf = (gametic/ticdup)%BACKUPTICS;
+  if (paused & 2 || (!demoplayback && menuactive && !netgame))
+    basetic++;  // For revenant tracers and RNG -- we must maintain sync
+  else {
+    // get commands, check consistancy, and build new consistancy check
+    int buf = (gametic/ticdup)%BACKUPTICS;
 
-  for (i=0 ; i<MAXPLAYERS ; i++)
-    {
+    for (i=0 ; i<MAXPLAYERS ; i++) {
       if (playeringame[i])
         {
           ticcmd_t *cmd = &players[i].cmd;
@@ -846,9 +848,8 @@ void G_Ticker (void)
         }
     }
 
-  // check for special buttons
-  for (i=0; i<MAXPLAYERS; i++)
-    {
+    // check for special buttons
+    for (i=0; i<MAXPLAYERS; i++) {
       if (playeringame[i])
         {
           if (players[i].cmd.buttons & BT_SPECIAL)
@@ -864,8 +865,6 @@ void G_Ticker (void)
                   break;
 
                 case BTS_SAVEGAME:
-                  if (demoplayback)
-                    break;     // killough 3/26/98: Ignore savegames in demos
                   if (!savedescription[0])
                     strcpy(savedescription, "NET GAME");
                   savegameslot =
@@ -875,8 +874,6 @@ void G_Ticker (void)
 
 		  // CPhipps - remote loadgame request
                 case BTS_LOADGAME: 
-                  if (demoplayback)
-                    break;     // CPhipps - Ignore loadgames in demos
                   savegameslot =
                     (players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT;
                   gameaction = ga_loadgame;
@@ -895,6 +892,7 @@ void G_Ticker (void)
             }
         }
     }
+  }
 
   // cph - if the gamestate changed, we may need to clean up the old gamestate
   if (gamestate != prevgamestate) {
@@ -1450,6 +1448,7 @@ void G_LoadGame(int slot, boolean command)
     gameaction = ga_loadgame;
     forced_loadgame = false;
     savegameslot = slot;
+    demoplayback = false;
   }
   command_loadgame = command;
 }
@@ -1618,6 +1617,12 @@ void G_DoLoadGame(void)
 
 void G_SaveGame(int slot, char *description)
 {
+  if (demoplayback) {
+    if (!savedescription[0])
+      strcpy(savedescription, "NET GAME");
+    savegameslot = slot;
+    gameaction = ga_savegame;
+  }
   strcpy(savedescription, description);
   // CPhipps - store info in special_event
   special_event = BT_SPECIAL | (BTS_SAVEGAME & BT_SPECIALMASK) | 
@@ -1644,10 +1649,11 @@ void CheckSaveGame(size_t size)
 
 void G_SaveGameName(char *name, size_t size, int slot)
 {
+  const char* sgn = demoplayback ? "demosav" : savegamename;
 #ifdef HAVE_SNPRINTF
-  snprintf (name, size, "%s/%s%d.dsg", basesavegame, savegamename, slot);
+  snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
 #else 
-  sprintf (name, "%s/%s%d.dsg", basesavegame, savegamename, slot);
+  sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
 #endif
 }
 
@@ -2038,7 +2044,6 @@ void G_InitNew(skill_t skill, int episode, int map)
 
   usergame = true;                // will be set false if a demo
   paused = false;
-  demoplayback = false;
   automapmode &= ~am_active;
   gameepisode = episode;
   gamemap = map;
@@ -2320,7 +2325,7 @@ void G_BeginRecording (void)
     
     /* cph - FIXME - use version_headers? */
     *demo_p++ = compatibility_level == mbf_compatibility ?
-      204 : 260;
+      204 : 210;
     
     // signature
     *demo_p++ = 0x1d;
@@ -2506,7 +2511,7 @@ void G_DoPlayDemo (void)
 	  break;
 	}
 	break;
-      case 260:
+      case 210:
 	/* PrBoom? */
 	compatibility_level = prboom_1_compatibility;
 	*demo_p++;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.11 2000/05/19 22:38:20 cph Exp $
+ * $Id: m_menu.c,v 1.12 2000/05/21 12:46:37 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.11 2000/05/19 22:38:20 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.12 2000/05/21 12:46:37 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -841,10 +841,12 @@ void M_ForcedLoadGame(const char *msg)
 
 void M_LoadGame (int choice)
 {
-  if (demorecording)   // killough 5/26/98: exclude during demo recordings
+  /* killough 5/26/98: exclude during demo recordings
+   * cph - unless a new demo */
+  if (demorecording && (compatibility_level < prboom_2_compatibility))
     {
     M_StartMessage("you can't load a game\n"
-		   "while recording a demo!\n\n"PRESSKEY,
+		   "while recording an old demo!\n\n"PRESSKEY,
 		   NULL, false); // killough 5/26/98: not externalized
     return;
     }
