@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.55 2002/08/09 23:35:25 cph Exp $
+ * $Id: g_game.c,v 1.56 2002/08/10 11:22:42 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.55 2002/08/09 23:35:25 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.56 2002/08/10 11:22:42 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -101,7 +101,7 @@ static const byte *demo_p;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
 gameaction_t    gameaction;
-gamestate_t     gamestate;
+gamestate_t     gamestate = GS_DEMOSCREEN;
 skill_t         gameskill;
 boolean         respawnmonsters;
 int             gameepisode;
