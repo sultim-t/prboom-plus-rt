@@ -106,7 +106,7 @@ void D_InitNetGame (void)
 
     do
     {
-      do { I_WaitForPacket(30*1000); } while (!I_GetPacket(packet, 1000));
+      do { I_WaitForPacket(100); } while (!I_GetPacket(packet, 1000));
       {
         printf("type: %d\n",packet->type);
       }

@@ -322,7 +322,7 @@ CONSOLE_NETCMD(map, cf_server, netcmd_map)
 	{
 	  if(D_AddNewFile(c_argv[0]))
 	    {
-	      G_DeferedInitNew(gameskill, firstlevel);
+	      G_InitNew(gameskill, firstlevel); // FIXME should be G_DeferedInitNew but it breaks networking
 	    }
 	  return;
 	}
@@ -333,7 +333,7 @@ CONSOLE_NETCMD(map, cf_server, netcmd_map)
 
    if(lumpnum != -1 && P_CheckLevel(lumpnum))
    {   
-      G_DeferedInitNew(gameskill, c_argv[0]);
+      G_InitNew(gameskill, c_argv[0]); // FIXME should be G_DeferedInitNew but it breaks networking
    }
    else
       C_Printf(FC_ERROR"%s not found or is not a valid map\n", c_argv[0]);
