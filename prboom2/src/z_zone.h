@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.h,v 1.8 2001/07/22 15:07:49 cph Exp $
+ * $Id: z_zone.h,v 1.9 2001/11/18 15:37:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -91,9 +91,13 @@ void Z_DumpHistory(char *);
 #define Z_CheckHeap()      (Z_CheckHeap)(__FILE__,__LINE__)
 #endif
 
-/* cphipps 2001/07/22 - if we're not managing our own heap, use the system
- * malloc(3) */
-#ifndef HAVE_MMAP
+/* cphipps 2001/11/18 -
+ * If we're using memory mapped file access to WADs, we won't need to maintain
+ * our own heap. So we *could* let "normal" malloc users use the libc malloc
+ * directly, for efficiency. Except we do need a wrapper to handle out of memory
+ * errors... damn, ok, we'll leave it for now.
+ */
+#ifndef HAVE_LIBDMALLOC
 // Remove all definitions before including system definitions
 
 #undef malloc
