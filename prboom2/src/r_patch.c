@@ -15,10 +15,10 @@
 //---------------------------------------------------------------------------
 // Legacy patch format, now private to this file
 //---------------------------------------------------------------------------
-typedef struct { 
-  short width, height;  // bounding box size 
-  short leftoffset;     // pixels to the left of origin 
-  short topoffset;      // pixels below the origin 
+typedef struct {
+  short width, height;  // bounding box size
+  short leftoffset;     // pixels to the left of origin
+  short topoffset;      // pixels below the origin
   int columnofs[8];     // only [width] used
 } patch_t;
 // posts are runs of non masked source pixels
@@ -43,7 +43,7 @@ void R_InitPatches() {
   }
   free(patches);
   patches = 0;
-  numPatches = 0;  
+  numPatches = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -64,24 +64,24 @@ static int getPatchIsNotTileable(const patch_t *patch) {
   int cornerCount = 0;
   int hasAHole = 0;
 
-  for (x=0; x<patch->width; x++) {
-    column = (const column_t *)((const byte *)patch + patch->columnofs[x]);
+  for (x=0; x<SHORT(patch->width); x++) {
+    column = (const column_t *)((const byte *)patch + LONG(patch->columnofs[x]));
     if (!x) lastColumnDelta = column->topdelta;
     else if (lastColumnDelta != column->topdelta) hasAHole = 1;
-    
+
     numPosts = 0;
     while (column->topdelta != 0xff) {
       // check to see if a corner pixel filled
       if (x == 0 && column->topdelta == 0) cornerCount++;
-      else if (x == 0 && column->topdelta + column->length >= patch->height) cornerCount++;
-      else if (x == patch->width-1 && column->topdelta == 0) cornerCount++;
-      else if (x == patch->width-1 && column->topdelta + column->length >= patch->height) cornerCount++;
-      
+      else if (x == 0 && column->topdelta + column->length >= SHORT(patch->height)) cornerCount++;
+      else if (x == SHORT(patch->width)-1 && column->topdelta == 0) cornerCount++;
+      else if (x == SHORT(patch->width)-1 && column->topdelta + column->length >= SHORT(patch->height)) cornerCount++;
+
       if (numPosts++) hasAHole = 1;
       column = (const column_t *)((byte *)column + column->length + 4);
     }
   }
-  
+
   if (cornerCount == 4) return 0;
   return hasAHole;
 }
@@ -104,7 +104,7 @@ static int getIsSolidAtSpot(const column_t *column, int spot) {
 static int getColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextcolumn, int spot) {
   int holeToLeft = !getIsSolidAtSpot(prevcolumn, spot);
   int holeToRight = !getIsSolidAtSpot(nextcolumn, spot);
-  
+
   if (holeToLeft && !holeToRight) return 1;
   if (!holeToLeft && holeToRight) return -1;
   return 0;
@@ -127,7 +127,7 @@ static void createPatch(int id) {
   int numPostsUsedSoFar;
   int edgeSlope;
   const TPatchColumn *column, *prevColumn;
-  
+
   if (id >= numPatches) {
     // create room for this patch
     int prevNumPatches = numPatches;
@@ -136,25 +136,25 @@ static void createPatch(int id) {
     // clear out new patches to signal they're uninitialized
     memset(patches + prevNumPatches, 0, sizeof(TPatch)*(numPatches-prevNumPatches));
   }
-  
+
   patch = &patches[id];
   // proff - 2003-02-16 What about endianess?
-  patch->width = oldPatch->width;
-  patch->height = oldPatch->height;
-  patch->leftOffset = oldPatch->leftoffset;
-  patch->topOffset = oldPatch->topoffset;
+  patch->width = SHORT(oldPatch->width);
+  patch->height = SHORT(oldPatch->height);
+  patch->leftOffset = SHORT(oldPatch->leftoffset);
+  patch->topOffset = SHORT(oldPatch->topoffset);
   patch->isNotTileable = getPatchIsNotTileable(oldPatch);
-  
+
   // work out how much memory we need to allocate for this patch's data
-  pixelDataSize = oldPatch->width * oldPatch->height;
-  columnsDataSize = sizeof(TPatchColumn) * oldPatch->width;  
-  
+  pixelDataSize = patch->width * patch->height;
+  columnsDataSize = sizeof(TPatchColumn) * patch->width;
+
   // count the number of posts in each column
-  numPostsInColumn = (int*)malloc(sizeof(int) * oldPatch->width);
+  numPostsInColumn = (int*)malloc(sizeof(int) * patch->width);
   numPostsTotal = 0;
-  
+
   for (x=0; x<patch->width; x++) {
-    oldColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x]);
+    oldColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[x]));
     numPostsInColumn[x] = 0;
     while (oldColumn->topdelta != 0xff) {
       numPostsInColumn[x]++;
@@ -162,36 +162,36 @@ static void createPatch(int id) {
       oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
     }
   }
-  
+
   postsDataSize = numPostsTotal * sizeof(TPatchPost);
-  
+
   // allocate our data chunk
   dataSize = pixelDataSize + columnsDataSize + postsDataSize;
   patch->data = (unsigned char*)malloc(dataSize);
   memset(patch->data, 0, dataSize);
-  
+
   // set out pixel, column, and post pointers into our data array
   patch->pixels = patch->data;
   patch->columns = (TPatchColumn*)((unsigned char*)patch->pixels + (patch->width*patch->height));
   patch->posts = (TPatchPost*)((unsigned char*)patch->columns + columnsDataSize);
-  
+
   // sanity check that we've got all the memory allocated we need
   assert(((int)patch->posts + (int)(numPostsTotal*sizeof(TPatchPost)) - (int)patch->data) == dataSize);
-  
+
   memset(patch->pixels, 0xff, (patch->width*patch->height));
-  
+
   // fill in the pixels, posts, and columns
   numPostsUsedSoFar = 0;
   for (x=0; x<patch->width; x++) {
-    
-    oldColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x]);
-    
+
+    oldColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[x]));
+
     if (patch->isNotTileable) {
       // non-tiling
       if (x == 0) oldPrevColumn = 0;
-      else oldPrevColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x-1]);
+      else oldPrevColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[x-1]));
       if (x == patch->width-1) oldNextColumn = 0;
-      else oldNextColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x+1]);
+      else oldNextColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[x+1]));
     }
     else {
       // tiling
@@ -199,67 +199,67 @@ static void createPatch(int id) {
       int nextColumnIndex = x+1;
       while (prevColumnIndex < 0) prevColumnIndex += patch->width;
       while (nextColumnIndex >= patch->width) nextColumnIndex -= patch->width;
-      oldPrevColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[prevColumnIndex]);
-      oldNextColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[nextColumnIndex]);
-    }    
-    
+      oldPrevColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[prevColumnIndex]));
+      oldNextColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[nextColumnIndex]));
+    }
+
     // setup the column's data
     patch->columns[x].pixels = patch->pixels + (x*patch->height) + 0;
     patch->columns[x].numPosts = numPostsInColumn[x];
     patch->columns[x].posts = patch->posts + numPostsUsedSoFar;
-    
+
     while (oldColumn->topdelta != 0xff) {
       // set up the post's data
       patch->posts[numPostsUsedSoFar].startY = oldColumn->topdelta;
       patch->posts[numPostsUsedSoFar].length = oldColumn->length;
       patch->posts[numPostsUsedSoFar].edgeSloping = 0;
-      
+
       edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta);
       if (edgeSlope == 1) patch->posts[numPostsUsedSoFar].edgeSloping |= RDRAW_EDGESLOPE_TOP_UP;
       else if (edgeSlope == -1) patch->posts[numPostsUsedSoFar].edgeSloping |= RDRAW_EDGESLOPE_TOP_DOWN;
-      
+
       edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta+oldColumn->length);
       if (edgeSlope == 1) patch->posts[numPostsUsedSoFar].edgeSloping |= RDRAW_EDGESLOPE_BOT_UP;
       else if (edgeSlope == -1) patch->posts[numPostsUsedSoFar].edgeSloping |= RDRAW_EDGESLOPE_BOT_DOWN;
-      
+
       // fill in the post's pixels
       oldColumnPixelData = (const byte *)oldColumn + 3;
       for (y=0; y<oldColumn->length; y++) {
         patch->pixels[x * patch->height + oldColumn->topdelta + y] = oldColumnPixelData[y];
       }
-      
+
       oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
       numPostsUsedSoFar++;
-    }    
+    }
   }
-  
+
   if (1 || patch->isNotTileable) {
     // copy the patch image down and to the right where there are
     // holes to eliminate the black halo from bilinear filtering
     for (x=0; x<patch->width; x++) {
       //oldColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x]);
-    
+
       column = R_GetPatchColumnClamped(patch, x);
       prevColumn = R_GetPatchColumnClamped(patch, x-1);
-      
+
       if (column->pixels[0] == 0xff) {
         // force the first pixel (which is a hole), to use
         // the color from the next solid spot in the column
-        for (y=0; y<patch->height; y++) { 
+        for (y=0; y<patch->height; y++) {
           if (column->pixels[y] != 0xff) {
             column->pixels[0] = column->pixels[y];
             break;
           }
         }
       }
-      
+
       // copy from above or to the left
       for (y=1; y<patch->height; y++) {
         //if (getIsSolidAtSpot(oldColumn, y)) continue;
         if (column->pixels[y] != 0xff) continue;
-        
+
         // this pixel is a hole
-        
+
         if (x && prevColumn->pixels[y-1] != 0xff) {
           // copy the color from the left
           column->pixels[y] = prevColumn->pixels[y];
@@ -270,7 +270,7 @@ static void createPatch(int id) {
         }
       }
     }
-    
+
     // verify that the patch truly is non-rectangular since
     // this determines tiling later on
   }

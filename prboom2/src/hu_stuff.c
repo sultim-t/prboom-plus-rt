@@ -266,9 +266,11 @@ static void HU_CrossHairTick()
 // this should give them a warning for when they have 'a few
 // planes too many'
 
+/*
 static patch_t *vpo;
 static patch_t *socket;
 static patch_t *sync;
+*/
 
 static void HU_WarningsInit()
 {
