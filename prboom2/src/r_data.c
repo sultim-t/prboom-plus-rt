@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.23 2002/08/08 22:41:21 cph Exp $
+ * $Id: r_data.c,v 1.24 2002/08/11 11:29:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.23 2002/08/08 22:41:21 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.24 2002/08/11 11:29:43 proff_fs Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -42,6 +42,7 @@ rcsid[] = "$Id: r_data.c,v 1.23 2002/08/08 22:41:21 cph Exp $";
 #include "r_bsp.h"
 #include "r_things.h"
 #include "p_tick.h"
+#include "i_system.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 
 //
@@ -737,12 +738,12 @@ void R_InitTranMap(int progress)
       const byte *playpal = W_CacheLumpName("PLAYPAL");
       byte       *my_tranmap;
 
-      char fname[PATH_MAX+1], *D_DoomExeDir(void);
+      char fname[PATH_MAX+1];
       struct {
         unsigned char pct;
         unsigned char playpal[256];
       } cache;
-      FILE *cachefp = fopen(strcat(strcpy(fname, D_DoomExeDir()), "/tranmap.dat"),"rb");
+      FILE *cachefp = fopen(strcat(strcpy(fname, I_DoomExeDir()), "/tranmap.dat"),"rb");
 
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 

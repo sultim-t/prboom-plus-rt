@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.h,v 1.8 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: d_main.h,v 1.9 2002/08/11 11:29:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -44,8 +44,6 @@
 
 // jff make startskill globally visible
 extern skill_t startskill;
-
-char *D_DoomExeDir(void); // killough 2/16/98: path to executable's dir
 
 extern char basesavegame[];     // killough 2/16/98: savegame path
 

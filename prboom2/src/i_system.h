@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.h,v 1.4 2001/11/18 15:46:10 cph Exp $
+ * $Id: i_system.h,v 1.5 2002/08/11 11:29:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -58,5 +58,9 @@ void I_Read(int fd, void* buf, size_t sz);
 
 /* cph 2001/11/18 - Move W_Filelength to i_system.c */
 int I_Filelength(int handle);
+
+char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
+
+char* I_FindFile(const char* wfname, const char* ext);
 
 #endif
