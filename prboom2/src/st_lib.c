@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_lib.c,v 1.1 2000/05/04 08:17:13 proff_fs Exp $
+ * $Id: st_lib.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_lib.c,v 1.1 2000/05/04 08:17:13 proff_fs Exp $";
+rcsid[] = "$Id: st_lib.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -94,7 +94,7 @@ void STlib_initNum
  */
 static void STlib_drawNum
 ( st_number_t*  n,
-  const byte *outrng,
+  int cm,
   boolean refresh )
 {
 
@@ -146,16 +146,16 @@ static void STlib_drawNum
   // in the special case of 0, you draw 0
   if (!num)
     // CPhipps - patch drawing updated, reformatted
-    V_DrawMemPatch(x - w, n->y, FG, n->p[0], outrng, 
-		   (outrng && !sts_always_red) ? VPT_TRANS : VPT_NONE);
+    V_DrawMemPatch(x - w, n->y, FG, n->p[0], cm, 
+		   ((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE);
 
   // draw the new number
   //jff 2/16/98 add color translation to digit output
   while (num && numdigits--) {
     // CPhipps - patch drawing updated, reformatted
     x -= w;
-    V_DrawMemPatch(x, n->y, FG, n->p[num % 10], outrng, 
-		   (outrng && !sts_always_red) ? VPT_TRANS : VPT_NONE);
+    V_DrawMemPatch(x, n->y, FG, n->p[num % 10], cm, 
+		   ((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE);
     num /= 10;
   }
 
@@ -163,8 +163,8 @@ static void STlib_drawNum
   //jff 2/16/98 add color translation to digit output
   // cph - patch drawing updated, load by name instead of acquiring pointer earlier
   if (neg)
-    V_DrawNamePatch(x - w, n->y, FG, "STTMINUS", outrng, 
-		   (outrng && !sts_always_red) ? VPT_TRANS : VPT_NONE);
+    V_DrawNamePatch(x - w, n->y, FG, "STTMINUS", cm, 
+		   ((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE);
 }
 
 /*
@@ -180,10 +180,10 @@ static void STlib_drawNum
  */
 void STlib_updateNum
 ( st_number_t*    n,
-  const byte *outrng,
+  int cm,
   boolean   refresh )
 {
-  if (*n->on) STlib_drawNum(n, outrng, refresh);
+  if (*n->on) STlib_drawNum(n, cm, refresh);
 }
 
 //
@@ -223,7 +223,7 @@ void STlib_initPercent
 
 void STlib_updatePercent
 ( st_percent_t*   per,
-  const byte *outrng,
+  int cm,
   int refresh )
 {
   if (*per->n.on && (refresh || (per->n.oldnum != *per->n.num))) { 
@@ -231,11 +231,11 @@ void STlib_updatePercent
     /* CPhipps - make %'s only be updated if number changed */
     // CPhipps - patch drawing updated
     V_DrawMemPatch(per->n.x, per->n.y, FG, per->p, 
-		   sts_pct_always_gray ? cr_gray : outrng, 
+		   sts_pct_always_gray ? CR_GRAY : cm, 
 		   sts_always_red ? VPT_NONE : VPT_TRANS);
   }
 
-  STlib_updateNum(&per->n, outrng, refresh);
+  STlib_updateNum(&per->n, cm, refresh);
 }
 
 //
@@ -300,7 +300,7 @@ void STlib_updateMultIcon
       V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
     }
     if (*mi->inum != -1)  // killough 2/16/98: redraw only if != -1
-      V_DrawMemPatch(mi->x, mi->y, FG, mi->p[*mi->inum], NULL, VPT_NONE);
+      V_DrawMemPatch(mi->x, mi->y, FG, mi->p[*mi->inum], CR_DEFAULT, VPT_NONE);
     mi->oldinum = *mi->inum;
   }
 }
@@ -366,7 +366,7 @@ void STlib_updateBinIcon
 #endif
 
     if (*bi->val)
-      V_DrawMemPatch(bi->x, bi->y, FG, bi->p, NULL, VPT_NONE);
+      V_DrawMemPatch(bi->x, bi->y, FG, bi->p, CR_DEFAULT, VPT_NONE);
     else
       V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
 
@@ -377,8 +377,16 @@ void STlib_updateBinIcon
 //----------------------------------------------------------------------------
 //
 // $Log: st_lib.c,v $
-// Revision 1.1  2000/05/04 08:17:13  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:17:13  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.9  1999/10/31 12:02:30  cphipps
 // Make various sanity checks only be included by RANGECHECK

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.1 2000/05/04 08:15:59 proff_fs Exp $
+ * $Id: r_draw.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.1 2000/05/04 08:15:59 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -272,7 +272,7 @@ void R_DrawColumn_Normal (void)
          if (frac < 0)
            while ((frac += heightmask) <  0);
          else
-           while (frac >= heightmask)
+           while (frac >= (int)heightmask)
              frac -= heightmask;
            
          while(count>0)
@@ -284,7 +284,7 @@ void R_DrawColumn_Normal (void)
              
              *dest = colormap[source[frac>>FRACBITS]];
              dest += scrwid; 
-             if ((frac += fracstep) >= heightmask)
+             if ((frac += fracstep) >= (int)heightmask)
                frac -= heightmask;
             count--;
            } 
@@ -359,7 +359,7 @@ void R_DrawTLColumn_Normal (void)
         if (frac < 0)
           while ((frac += heightmask) <  0);
         else
-          while (frac >= heightmask)
+          while (frac >= (int)heightmask)
             frac -= heightmask;
         
         do
@@ -371,7 +371,7 @@ void R_DrawTLColumn_Normal (void)
               
             *dest = tranmap[(*dest<<8)+colormap[source[frac>>FRACBITS]]]; // phares
             dest += SCREENWIDTH; 
-            if ((frac += fracstep) >= heightmask)
+            if ((frac += fracstep) >= (int)heightmask)
               frac -= heightmask;
           } 
         while (--count);
@@ -767,7 +767,7 @@ void R_FillBackScreen (void)
     patch = W_GetNumForName("brdr_b");
     
     for (x=0; x<scaledviewwidth; x+=8)
-      V_DrawNumPatch(viewwindowx+x, viewwindowy+viewheight, 1, patch, NULL, VPT_NONE);
+      V_DrawNumPatch(viewwindowx+x, viewwindowy+viewheight, 1, patch, CR_DEFAULT, VPT_NONE);
   }
 // proff 08/17/98: Changed for high-res
 // proff/nicolas 09/20/98: Moved down for high-res
@@ -776,29 +776,29 @@ void R_FillBackScreen (void)
 
   patch = W_GetNumForName("brdr_t");
   for (x=0; x<scaledviewwidth; x+=8)
-    V_DrawNumPatch(viewwindowx+x, viewwindowy-8, 1, patch, NULL, VPT_NONE);
+    V_DrawNumPatch(viewwindowx+x, viewwindowy-8, 1, patch, CR_DEFAULT, VPT_NONE);
 
   patch = W_GetNumForName("brdr_l");
   for (y=0; y<viewheight; y+=8)
-    V_DrawNumPatch(viewwindowx-8, viewwindowy+y, 1, patch, NULL, VPT_NONE);
+    V_DrawNumPatch(viewwindowx-8, viewwindowy+y, 1, patch, CR_DEFAULT, VPT_NONE);
 
   patch = W_GetNumForName("brdr_r");
   for (y=0; y<viewheight; y+=8)
     V_DrawNumPatch(viewwindowx+scaledviewwidth, viewwindowy+y, 
-		   1, patch, NULL, VPT_NONE);
+		   1, patch, CR_DEFAULT, VPT_NONE);
 
   // Draw beveled edge. 
   V_DrawNamePatch(viewwindowx-8, viewwindowy-8, 1,
-		  "brdr_tl", NULL, VPT_NONE);
+		  "brdr_tl", CR_DEFAULT, VPT_NONE);
     
   V_DrawNamePatch(viewwindowx+scaledviewwidth, viewwindowy-8,
-              1, "brdr_tr", NULL, VPT_NONE);
+              1, "brdr_tr", CR_DEFAULT, VPT_NONE);
     
   V_DrawNamePatch(viewwindowx-8, viewwindowy+viewheight,
-		  1, "brdr_bl", NULL, VPT_NONE);
+		  1, "brdr_bl", CR_DEFAULT, VPT_NONE);
     
   V_DrawNamePatch(viewwindowx+scaledviewwidth, viewwindowy+viewheight,
-		  1, "brdr_br", NULL, VPT_NONE);
+		  1, "brdr_br", CR_DEFAULT, VPT_NONE);
 } 
 
 //
@@ -878,8 +878,16 @@ void R_DrawViewBorder(void)
 //----------------------------------------------------------------------------
 //
 // $Log: r_draw.c,v $
-// Revision 1.1  2000/05/04 08:15:59  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:15:59  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.16  2000/05/01 17:50:36  Proff
 // made changes to compile with VisualC and SDL

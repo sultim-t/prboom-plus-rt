@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.1 2000/05/04 08:02:14 proff_fs Exp $
+ * $Id: g_game.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.1 2000/05/04 08:02:14 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -198,7 +198,7 @@ int     joybspeed;
 #define MAXPLMOVE   (forwardmove[1])
 #define TURBOTHRESHOLD  0x32
 #define SLOWTURNTICS  6
-#define QUICKREVERSE 32768 // 180 degree reverse                    // phares
+#define QUICKREVERSE (short)32768 // 180 degree reverse                    // phares
 #define NUMKEYS   256
 
 fixed_t forwardmove[2] = {0x19, 0x32};
@@ -1428,7 +1428,7 @@ void G_DoLoadGame(void)
   save_p = savebuffer + SAVESTRINGSIZE;
 
   // CPhipps - read the description field, compare with supported ones
-  for (i=0; i<num_version_headers; i++) {
+  for (i=0; (size_t)i<num_version_headers; i++) {
     char vcheck[VERSIONSIZE];
     // killough 2/22/98: "proprietary" version string :-)
     sprintf (vcheck, version_headers[i].ver_printf, version_headers[i].version);
@@ -1591,7 +1591,7 @@ void G_DoSaveGame (void)
   memset (name2,0,sizeof(name2));
 
   // CPhipps - scan for the version header
-  for (i=0; i<num_version_headers; i++)
+  for (i=0; (size_t)i<num_version_headers; i++)
     if (version_headers[i].comp_level == compatibility_level) {
       // killough 2/22/98: "proprietary" version string :-)
       sprintf (name2,version_headers[i].ver_printf,version_headers[i].version);
@@ -1599,7 +1599,7 @@ void G_DoSaveGame (void)
       i = num_version_headers+1;
     }
 
-  if (i == num_version_headers) {
+  if ((size_t)i == num_version_headers) {
     doom_printf("No savegame signature known for\nthis compatibility level\n"
 		"%d/%d, %u registered", compatibility_level, 
 		MAX_COMPATIBILITY_LEVEL, num_version_headers);
@@ -1623,7 +1623,7 @@ void G_DoSaveGame (void)
   {
     // CPhipps - changed for new wadfiles handling
     int i = 0;
-    for (*save_p = 0; i<numwadfiles; i++)
+    for (*save_p = 0; (size_t)i<numwadfiles; i++)
       {
 	const char *const w = wadfiles[i].name;
         CheckSaveGame(strlen(w)+2);
@@ -1932,7 +1932,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   demo_p[2] = (cmd->angleturn+128)>>8;
   demo_p[3] = cmd->buttons;
 
-  if (position > maxdemosize - 16)
+  if (position > (ptrdiff_t)maxdemosize - 16)
     {
       // no more space
       maxdemosize += 128*1024;   // add another 128K  -- killough
@@ -1994,10 +1994,10 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = demo_insurance;        // killough 3/31/98
 
   // killough 3/26/98: Added rngseed. 3/31/98: moved here
-  *demo_p++ = (rngseed >> 24) & 0xff;
-  *demo_p++ = (rngseed >> 16) & 0xff;
-  *demo_p++ = (rngseed >>  8) & 0xff;
-  *demo_p++ =  rngseed        & 0xff;
+  *demo_p++ = (byte)((rngseed >> 24) & 0xff);
+  *demo_p++ = (byte)((rngseed >> 16) & 0xff);
+  *demo_p++ = (byte)((rngseed >>  8) & 0xff);
+  *demo_p++ = (byte)( rngseed        & 0xff);
 
   //----------------
   // Padding at end
@@ -2304,8 +2304,16 @@ void doom_printf(const char *s, ...)
 //----------------------------------------------------------------------------
 //
 // $Log: g_game.c,v $
-// Revision 1.1  2000/05/04 08:02:14  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:02:14  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.47  2000/05/01 17:50:34  Proff
 // made changes to compile with VisualC and SDL

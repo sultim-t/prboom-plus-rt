@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_main.c,v 1.4 2000/05/05 13:02:07 proff_fs Exp $
+ * $Id: l_main.c,v 1.5 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  Hybrid of the Boom i_main.c and original linuxdoom i_main.c
  *
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_main.c,v 1.4 2000/05/05 13:02:07 proff_fs Exp $";
+rcsid[] = "$Id: l_main.c,v 1.5 2000/05/07 20:19:33 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -81,7 +81,7 @@ static int_64_t I_GetTime_Scale = 1<<24;
 
 static int I_GetTime_Scaled(void)
 {
-  return (int_64_t) I_GetTime_RealTime() * I_GetTime_Scale >> 24;
+  return (int)( (int_64_t) I_GetTime_RealTime() * I_GetTime_Scale >> 24);
 }
 
 static int  I_GetTime_FastDemo(void)
@@ -404,6 +404,14 @@ int main(int argc, char **argv)
 
 //
 // $Log: l_main.c,v $
+// Revision 1.5  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.4  2000/05/05 13:02:07  proff_fs
 // Readded the CVS-Log and
 // changed the definition of main()

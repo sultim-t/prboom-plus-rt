@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_main.c,v 1.1 2000/05/04 16:40:00 proff_fs Exp $
+// $Id: gl_main.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -32,6 +32,7 @@
 #include "gl_struct.h"
 #include "r_bsp.h"
 #include "r_main.h"
+#include "r_draw.h"
 #include "r_sky.h"
 #include "m_bbox.h"
 #include "lprintf.h"
@@ -119,7 +120,7 @@ static GLTexture *gld_AddNewGLPatchTexture(int lump)
   return &gld_GLPatchTextures[gld_LumpToGLPatchTexture[lump]];
 }
 
-void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy)
+void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy)
 {
   int x,y,j;
   column_t *p_bColumn_t;
@@ -165,7 +166,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
   W_UnlockLumpName("PLAYPAL");
 }
 
-void gld_AddPatchToTexture_CharTrans(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, unsigned char cm)
+void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm)
 {
   int x,y,j;
   column_t *p_bColumn_t;
@@ -174,20 +175,21 @@ void gld_AddPatchToTexture_CharTrans(GLTexture *gltexture, unsigned char *buffer
   int size;
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
   extern const unsigned char *colrngs[];
-  const unsigned char *outr=colrngs[cm];
+  const unsigned char *outr;
 
+  if ((cm==CR_DEFAULT) || (cm==CR_LIMIT))
+  {
+    gld_AddPatchToTexture_UnTranslated(gltexture,buffer,patch,originx,originy);
+    return;
+  }
+  if (cm<CR_LIMIT)
+    outr=colrngs[cm];
+  else
+    outr=translationtables + 256*((cm-CR_LIMIT)-1);
   if (!gltexture)
     return;
   if (!patch)
     return;
-#ifdef RANGECHECK
-  if (cm==CR_DEFAULT)
-  {
-    gld_AddPatchToTexture(gltexture,buffer,patch,originx,originy);
-    lprintf(LO_ERROR, "You are not supposed to be here (gld_AddPatchTexture_CharTrans cm==CR_DEFAULT)\n");
-    return;
-  }
-#endif
   size=gltexture->tex_width*gltexture->tex_height*4;
   p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
 	for (x=0;x<patch->width;x++)
@@ -221,6 +223,7 @@ void gld_AddPatchToTexture_CharTrans(GLTexture *gltexture, unsigned char *buffer
   W_UnlockLumpName("PLAYPAL");
 }
 
+/*
 void gld_AddPatchToTexture_SpriteTrans(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, unsigned char cm)
 {
   int x,y,j;
@@ -275,6 +278,7 @@ void gld_AddPatchToTexture_SpriteTrans(GLTexture *gltexture, unsigned char *buff
 	}
   W_UnlockLumpName("PLAYPAL");
 }
+*/
 
 void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, const unsigned char *flat)
 {
@@ -299,7 +303,7 @@ void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, const uns
   W_UnlockLumpName("PLAYPAL");
 }
 
-static GLTexture *gld_RegisterPatch(int lump, unsigned char cm)
+static GLTexture *gld_RegisterPatch(int lump, int cm)
 {
   GLTexture *gltexture;
   const patch_t *patch;
@@ -310,9 +314,9 @@ static GLTexture *gld_RegisterPatch(int lump, unsigned char cm)
   gltexture=gld_AddNewGLPatchTexture(lump);
   if (!gltexture)
     return NULL;
-  if (gltexture->glTexID[cm & ~CR_SPRITETRAN]!=0)
+  if (gltexture->glTexID[cm]!=0)
   {
-   	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm & ~CR_SPRITETRAN]);
+ 	  glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -331,19 +335,10 @@ static GLTexture *gld_RegisterPatch(int lump, unsigned char cm)
   size=gltexture->tex_width*gltexture->tex_height*4;
   buffer=(unsigned char*)GLMalloc(size);
   memset(buffer,0,size);
-  if (cm==CR_DEFAULT)
-    gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0);
-  else
-    if (cm & CR_SPRITETRAN)
-      if (cm==(CR_SPRITETRAN+CR_SPRITESTART))
-        gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0);
-      else
-        gld_AddPatchToTexture_SpriteTrans(gltexture, buffer, patch, 0, 0, (unsigned char)((cm & ~CR_SPRITETRAN)-CR_SPRITESTART-1));
-    else
-      gld_AddPatchToTexture_CharTrans(gltexture, buffer, patch, 0, 0, cm);
-  if (gltexture->glTexID[cm & ~CR_SPRITETRAN]==0)
-  	glGenTextures(1,&gltexture->glTexID[cm & ~CR_SPRITETRAN]);
-	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm & ~CR_SPRITETRAN]);
+  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
+  if (&gltexture->glTexID[cm]==0)
+	  glGenTextures(1,&gltexture->glTexID[cm]);
+	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
   glTexImage2D( GL_TEXTURE_2D, 0, 4, 
                 gltexture->tex_width, gltexture->tex_height,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -404,22 +399,25 @@ static GLTexture *gld_RegisterFlat(int lump)
   return gltexture;
 }
 
-#define SCALE_X(x)		(stretched?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
-#define SCALE_Y(y)		(stretched?((float)y)*(float)SCREENHEIGHT/200.0f:(float)y)
+#define SCALE_X(x)		((flags & VPT_STRETCH)?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
+#define SCALE_Y(y)		((flags & VPT_STRETCH)?((float)y)*(float)SCREENHEIGHT/200.0f:(float)y)
 
-void gld_DrawPatch(int x, int y, int lump, unsigned char cm, boolean flipped, boolean stretched)
+void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags)
 { 
   GLTexture *gltexture;
   float fU1,fU2,fV1,fV2;
   float width,height;
   float xpos, ypos;
 
-  gltexture=gld_RegisterPatch(lump,cm);
+  if (flags & VPT_TRANS)
+    gltexture=gld_RegisterPatch(lump,cm);
+  else
+    gltexture=gld_RegisterPatch(lump,CR_DEFAULT);
   if (!gltexture)
     return;
   fV1=0.0f;
   fV2=(float)gltexture->height/(float)gltexture->tex_height;
-  if (flipped)
+  if (flags & VPT_FLIP)
   {
     fU1=(float)gltexture->width/(float)gltexture->tex_width;
     fU2=0.0f;
@@ -441,7 +439,7 @@ void gld_DrawPatch(int x, int y, int lump, unsigned char cm, boolean flipped, bo
 	glEnd();
 }
 
-void gld_DrawPatchFromMem(int x, int y, patch_t *patch, unsigned char cm, boolean flipped, boolean stretched)
+void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
 { 
   GLTexture *gltexture;
   int size;
@@ -462,10 +460,7 @@ void gld_DrawPatchFromMem(int x, int y, patch_t *patch, unsigned char cm, boolea
   size=gltexture->tex_width*gltexture->tex_height*4;
   buffer=(unsigned char*)GLMalloc(size);
   memset(buffer,0,size);
-  if (cm==CR_DEFAULT)
-    gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0);
-  else
-    gld_AddPatchToTexture_CharTrans(gltexture, buffer, patch, 0, 0, cm);
+  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
 	glGenTextures(1,&gltexture->glTexID[cm]);
 	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
   glTexImage2D( GL_TEXTURE_2D, 0, 4, 
@@ -479,7 +474,7 @@ void gld_DrawPatchFromMem(int x, int y, patch_t *patch, unsigned char cm, boolea
 
   fV1=0.0f;
   fV2=(float)gltexture->height/(float)gltexture->tex_height;
-  if (flipped)
+  if (flags & VPT_FLIP)
   {
     fU1=(float)gltexture->width/(float)gltexture->tex_width;
     fU2=0.0f;
@@ -709,8 +704,8 @@ void gld_DrawSprites(player_t *player)
 //	for (i=0;i<NumSpritesInQueue;i++)
 	{
     sprite=&SpriteRenderQueue[i];
-    cm=CR_SPRITESTART+(int)((sprite->p_Obj->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
-    gltexture=gld_RegisterPatch(sprite->iLump+firstspritelump, (unsigned char)(CR_SPRITETRAN | cm));
+    cm=CR_LIMIT+(int)((sprite->p_Obj->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+    gltexture=gld_RegisterPatch(sprite->iLump+firstspritelump, cm);
     if (!gltexture)
       continue;
     x=-(float)sprite->p_Obj->x/(float)MAP_SCALE;
@@ -789,8 +784,8 @@ void gld_DrawSprites1(player_t *player, sector_t* cur_sector)
     else
 */
       continue;
-    cm=CR_SPRITESTART+(int)((sprite->p_Obj->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
-    gltexture=gld_RegisterPatch(sprite->iLump+firstspritelump, (unsigned char)(CR_SPRITETRAN | cm));
+    cm=CR_LIMIT+(int)((sprite->p_Obj->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+    gltexture=gld_RegisterPatch(sprite->iLump+firstspritelump, cm);
     if (!gltexture)
       continue;
     x=-(float)sprite->p_Obj->x/(float)MAP_SCALE;
@@ -895,7 +890,9 @@ void gld_Finish()
     glCallList(gld_DisplayList);
   }
   gld_Set2DMode();
+#ifdef _DEBUG
   gld_DrawSoftwareScreen();
+#endif
   glFinish();
 	SDL_GL_SwapBuffers();
 }
@@ -1945,7 +1942,7 @@ void gld_PreprocessLevel(void)
   }
 }
 
-int fog_density=100;
+int fog_density=200;
 
 void gld_DrawSky(float yaw)
 {
@@ -2020,7 +2017,7 @@ void gld_StartDrawScene(void)
   // nicolas -- using fog to make scene mor orig. DOOM like :)
 	// Geht jetzt! Sieht aber scheiﬂe aus :( !
 	//glEnable(GL_FOG); 
-	glFogi (GL_FOG_MODE, GL_EXP2);
+	glFogi (GL_FOG_MODE, GL_EXP);
 	glFogfv(GL_FOG_COLOR, BlackFogColor);
 
 	glFogf (GL_FOG_DENSITY, (float)fog_density/1000.0f);
@@ -2296,6 +2293,14 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_main.c,v $
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.1  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.1 2000/05/04 08:18:37 proff_fs Exp $
+ * $Id: v_video.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,10 +34,11 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.1 2000/05/04 08:18:37 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
+#include "r_draw.h"
 #include "m_bbox.h"
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
@@ -176,17 +177,17 @@ typedef struct {
 
 // killough 5/2/98: table-driven approach
 static const crdef_t crdefs[] = {
-  {"CRBRICK",  &cr_brick,   &colrngs[CR_BRICK ]},
-  {"CRTAN",    &cr_tan,     &colrngs[CR_TAN   ]},
-  {"CRGRAY",   &cr_gray,    &colrngs[CR_GRAY  ]},
-  {"CRGREEN",  &cr_green,   &colrngs[CR_GREEN ]},
-  {"CRBROWN",  &cr_brown,   &colrngs[CR_BROWN ]},
-  {"CRGOLD",   &cr_gold,    &colrngs[CR_GOLD  ]},
-  {"CRRED",    &cr_red,     &colrngs[CR_RED   ]},
-  {"CRBLUE",   &cr_blue,    &colrngs[CR_BLUE  ]},
-  {"CRORANGE", &cr_orange,  &colrngs[CR_ORANGE]},
-  {"CRYELLOW", &cr_yellow,  &colrngs[CR_YELLOW]},
-  {"CRBLUE2",  &cr_blue_status, &cr_blue_status},
+  {"CRBRICK",  &cr_brick,       &colrngs[CR_BRICK ]},
+  {"CRTAN",    &cr_tan,         &colrngs[CR_TAN   ]},
+  {"CRGRAY",   &cr_gray,        &colrngs[CR_GRAY  ]},
+  {"CRGREEN",  &cr_green,       &colrngs[CR_GREEN ]},
+  {"CRBROWN",  &cr_brown,       &colrngs[CR_BROWN ]},
+  {"CRGOLD",   &cr_gold,        &colrngs[CR_GOLD  ]},
+  {"CRRED",    &cr_red,         &colrngs[CR_RED   ]},
+  {"CRBLUE",   &cr_blue,        &colrngs[CR_BLUE  ]},
+  {"CRORANGE", &cr_orange,      &colrngs[CR_ORANGE]},
+  {"CRYELLOW", &cr_yellow,      &colrngs[CR_YELLOW]},
+  {"CRBLUE2",  &cr_blue_status, &colrngs[CR_BLUE2]},
   {NULL}
 };
 
@@ -325,7 +326,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
  * cphipps - used to have M_DrawBackground, but that was used the framebuffer 
  * directly, so this is my code from the equivalent function in f_finale.c
  */
-
+#ifndef GL_DOOM
 void V_DrawBackground(const char* flatname)
 {
   /* erase the entire screen to a tiled background */
@@ -344,6 +345,7 @@ void V_DrawBackground(const char* flatname)
 		 ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, 0);
   W_UnlockLumpNum(lump);
 }
+#endif
 
 //
 // V_GetBlock
@@ -412,9 +414,16 @@ void V_Init (void)
 // (indeed, laziness of the people who wrote the 'clones' of the original V_DrawPatch
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
+#ifndef GL_DOOM
 void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, 
-		    const byte *trans, enum patch_translation_e flags)
+		    int cm, enum patch_translation_e flags)
 {
+  const byte *trans;
+
+  if (cm<CR_LIMIT)
+    trans=colrngs[cm];
+  else
+    trans=translationtables + 256*((cm-CR_LIMIT)-1);
   y -= SHORT(patch->topoffset);
   x -= SHORT(patch->leftoffset);
 
@@ -572,6 +581,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
   }
 #endif
 }
+#endif // GL_DOOM
 
 // CPhipps - some simple, useful wrappers for that function, for drawing patches from wads
 
@@ -588,22 +598,26 @@ inline
 #endif
 #endif
 */
+#ifndef GL_DOOM
 #ifdef __GNUC__
 inline
 #endif
 void V_DrawNumPatch(int x, int y, int scrn, int lump, 
-			   const byte *trans, enum patch_translation_e flags)
+			   int cm, enum patch_translation_e flags)
 {
   V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump), 
-		 trans, flags);
+		 cm, flags);
   W_UnlockLumpNum(lump);
 }
 
+/*
 void V_DrawNamePatch(int x, int y, int scrn, const char *name, 
-		     const byte *trans, enum patch_translation_e flags)
+		     int cm, enum patch_translation_e flags)
 {
-  V_DrawNumPatch(x, y, scrn, W_GetNumForName(name), trans, flags);
+  V_DrawNumPatch(x, y, scrn, W_GetNumForName(name), cm, flags);
 }
+*/
+#endif // GL_DOOM
 
 /* cph -
  * V_NamePatchWidth - returns width of a patch.
@@ -643,7 +657,7 @@ int V_NamePatchHeight(const char* name)
 // Returns a simple bitmap which contains the patch. See-through parts of the 
 // patch will be undefined (in fact black for now)
 
-byte *V_PatchToBlock(const char* name, const byte *trans, 
+byte *V_PatchToBlock(const char* name, int cm, 
 			      enum patch_translation_e flags, 
 			      unsigned short* width, unsigned short* height)
 {
@@ -655,7 +669,7 @@ byte *V_PatchToBlock(const char* name, const byte *trans,
 
   patch = W_CacheLumpName(name);
   V_DrawMemPatch(SHORT(patch->leftoffset), SHORT(patch->topoffset), 
-		  1, patch, trans, flags);
+		  1, patch, cm, flags);
 
 #ifdef RANGECHECK
   if (flags & VPT_STRETCH) 
@@ -680,7 +694,7 @@ byte *V_PatchToBlock(const char* name, const byte *trans,
 // CPhipps - New function to set the palette to palette number pal.
 // Handles loading of PLAYPAL and calls I_SetPalette
 
-void V_SetPalette(unsigned short pal)
+void V_SetPalette(int pal)
 {
   I_SetPalette(pal);
 }
@@ -689,7 +703,7 @@ void V_SetPalette(unsigned short pal)
 // V_FillRect
 //
 // CPhipps - New function to fill a rectangle with a given colour
-
+#ifndef GL_DOOM
 void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 {
   byte* dest = screens[scrn] + x + y*SCREENWIDTH;
@@ -698,12 +712,21 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
     dest += SCREENWIDTH;
   }
 }
+#endif
 
 //----------------------------------------------------------------------------
 //
 // $Log: v_video.c,v $
-// Revision 1.1  2000/05/04 08:18:37  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:18:37  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.22  2000/05/01 17:50:37  Proff
 // made changes to compile with VisualC and SDL

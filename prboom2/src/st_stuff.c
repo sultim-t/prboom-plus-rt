@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.1 2000/05/04 08:17:29 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.1 2000/05/04 08:17:29 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -397,10 +397,11 @@ void ST_refreshBackground(void)
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame) {
-	int whattrans = playernumtotrans[displayplayer];
+	//int whattrans = playernumtotrans[displayplayer];
         V_DrawMemPatch(ST_FX, 0, BG, faceback, 
-		       whattrans ? translationtables + 256*(whattrans-1) : NULL, 
-		       whattrans ? VPT_TRANS : VPT_NONE);
+		       displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT, 
+//		       displayplayer ? translationtables + 256*(whattrans-1) : CR_DEFAULT, 
+		       displayplayer ? VPT_TRANS : VPT_NONE);
       }
 
       V_CopyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y, FG);
@@ -753,39 +754,39 @@ void ST_drawWidgets(boolean refresh)
 
   //jff 2/16/98 make color of ammo depend on amount
   if (*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
-    STlib_updateNum(&w_ready, cr_red, refresh);
+    STlib_updateNum(&w_ready, CR_RED, refresh);
   else
     if (*w_ready.num*100 <
         ammo_yellow*plyr->maxammo[weaponinfo[w_ready.data].ammo])
-      STlib_updateNum(&w_ready, cr_gold, refresh);
+      STlib_updateNum(&w_ready, CR_GOLD, refresh);
     else
-      STlib_updateNum(&w_ready, cr_green, refresh);
+      STlib_updateNum(&w_ready, CR_GREEN, refresh);
 
   for (i=0;i<4;i++)
     {
-      STlib_updateNum(&w_ammo[i], NULL, refresh);   //jff 2/16/98 no xlation
-      STlib_updateNum(&w_maxammo[i], NULL, refresh);
+      STlib_updateNum(&w_ammo[i], CR_DEFAULT, refresh);   //jff 2/16/98 no xlation
+      STlib_updateNum(&w_maxammo[i], CR_DEFAULT, refresh);
     }
 
   //jff 2/16/98 make color of health depend on amount
   if (*w_health.n.num<health_red)
-    STlib_updatePercent(&w_health, cr_red, refresh);
+    STlib_updatePercent(&w_health, CR_RED, refresh);
   else if (*w_health.n.num<health_yellow)
-    STlib_updatePercent(&w_health, cr_gold, refresh);
+    STlib_updatePercent(&w_health, CR_GOLD, refresh);
   else if (*w_health.n.num<=health_green)
-    STlib_updatePercent(&w_health, cr_green, refresh);
+    STlib_updatePercent(&w_health, CR_GREEN, refresh);
   else
-    STlib_updatePercent(&w_health, cr_blue_status, refresh); //killough 2/28/98
+    STlib_updatePercent(&w_health, CR_BLUE2, refresh); //killough 2/28/98
 
   //jff 2/16/98 make color of armor depend on amount
   if (*w_armor.n.num<armor_red)
-    STlib_updatePercent(&w_armor, cr_red, refresh);
+    STlib_updatePercent(&w_armor, CR_RED, refresh);
   else if (*w_armor.n.num<armor_yellow)
-    STlib_updatePercent(&w_armor, cr_gold, refresh);
+    STlib_updatePercent(&w_armor, CR_GOLD, refresh);
   else if (*w_armor.n.num<=armor_green)
-    STlib_updatePercent(&w_armor, cr_green, refresh);
+    STlib_updatePercent(&w_armor, CR_GREEN, refresh);
   else
-    STlib_updatePercent(&w_armor, cr_blue_status, refresh); //killough 2/28/98
+    STlib_updatePercent(&w_armor, CR_BLUE2, refresh); //killough 2/28/98
 
   STlib_updateBinIcon(&w_armsbg, refresh);
 
@@ -797,7 +798,7 @@ void ST_drawWidgets(boolean refresh)
   for (i=0;i<3;i++)
     STlib_updateMultIcon(&w_keyboxes[i], refresh);
 
-  STlib_updateNum(&w_frags, NULL, refresh);
+  STlib_updateNum(&w_frags, CR_DEFAULT, refresh);
 
 }
 
@@ -891,7 +892,7 @@ else var = (const patch_t*)W_CacheLumpName(name)
 
   // status bar background bits
   if (doload)
-    sbar = V_PatchToBlock("STBAR", NULL, VPT_NONE, 
+    sbar = V_PatchToBlock("STBAR", CR_DEFAULT, VPT_NONE, 
 		  &sbar_width, &sbar_height);
   else {
     free(sbar); sbar=NULL;
@@ -1149,8 +1150,16 @@ void ST_Init(void)
 //----------------------------------------------------------------------------
 //
 // $Log: st_stuff.c,v $
-// Revision 1.1  2000/05/04 08:17:29  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:17:29  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.8  1999/10/12 13:01:14  cphipps
 // Changed header to GPL

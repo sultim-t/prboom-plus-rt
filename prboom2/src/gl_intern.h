@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_intern.h,v 1.1 2000/05/04 16:40:00 proff_fs Exp $
+// $Id: gl_intern.h,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -49,8 +49,8 @@
 #define MAP_COEFF 128
 #define MAP_SCALE	(MAP_COEFF<<FRACBITS) // 6553600 -- nicolas
 
-#define CR_SPRITETRAN 128
-#define CR_SPRITESTART CR_DEFAULT
+//#define CR_SPRITETRAN 128
+//#define CR_SPRITESTART CR_DEFAULT
 
 #define GLMalloc(n) Z_Malloc(n,PU_STATIC,0)
 #define GLRealloc(p,n) Z_Realloc(p,n,PU_STATIC,0)
@@ -70,7 +70,7 @@ typedef struct
 	int width,height;
   int leftoffset,topoffset;
   int tex_width,tex_height;
-  int glTexID[CR_LIMIT];
+  int glTexID[CR_LIMIT+MAXPLAYERS];
 } GLTexture;
 
 void gld_StaticLight3f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue);
@@ -86,6 +86,14 @@ void gld_OutputLevelInfo(void);
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_intern.h,v $
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.1  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

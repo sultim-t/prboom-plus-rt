@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $
+ * $Id: m_misc.c,v 1.4 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.4 2000/05/07 20:19:33 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -70,7 +70,7 @@ rcsid[] = "$Id: m_misc.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $";
 // Returns the final X coordinate
 // HU_Init must have been called to init the font
 //
-extern patch_t* hu_font[HU_FONTSIZE];
+extern patchnum_t hu_font[HU_FONTSIZE];
 
 int M_DrawText(int x,int y,boolean direct,char* string)
 {
@@ -85,13 +85,13 @@ int M_DrawText(int x,int y,boolean direct,char* string)
       continue;
     }
     
-    w = SHORT (hu_font[c]->width);
+    w = SHORT (hu_font[c].width);
     if (x+w > SCREENWIDTH)
       break;
 
     // proff/nicolas 09/20/98 -- changed for hi-res
     // CPhipps - patch drawing updated, reformatted
-    V_DrawMemPatch(x, y, 0, hu_font[c], NULL, VPT_STRETCH);
+    V_DrawNumPatch(x, y, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
     x+=w;
   }
 
@@ -993,6 +993,14 @@ void M_ScreenShot(void)
 
 //
 // $Log: m_misc.c,v $
+// Revision 1.4  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.3  2000/05/05 13:00:46  proff_fs
 // Readded the CVS-Log
 //

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: r_segs.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -701,7 +701,7 @@ void R_StoreWallRange(const int start, const int stop)
       offsetangle = rw_normalangle-rw_angle1;
 
       if (offsetangle > ANG180)
-        offsetangle = -offsetangle;
+        offsetangle = 0-offsetangle;
 
       if (offsetangle > ANG90)
         offsetangle = ANG90;
@@ -841,6 +841,14 @@ void R_StoreWallRange(const int start, const int stop)
 //----------------------------------------------------------------------------
 //
 // $Log: r_segs.c,v $
+// Revision 1.3  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

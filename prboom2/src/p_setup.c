@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: p_setup.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include <math.h>
 
@@ -1069,8 +1069,8 @@ void P_RemoveSlimeTrails(void)                // killough 10/98
 		    int_64_t dxy = (l->dx >> FRACBITS) * (l->dy >> FRACBITS);
 		    int_64_t s = dx2 + dy2;
 		    int x0 = v->x, y0 = v->y, x1 = l->v1->x, y1 = l->v1->y;
-		    v->x = (dx2 * x0 + dy2 * x1 + dxy * (y0 - y1)) / s;
-		    v->y = (dy2 * y0 + dx2 * y1 + dxy * (x0 - x1)) / s;
+		    v->x = (int)((dx2 * x0 + dy2 * x1 + dxy * (y0 - y1)) / s);
+		    v->y = (int)((dy2 * y0 + dx2 * y1 + dxy * (x0 - x1)) / s);
 		  }
 	      }  // Obsfucated C contest entry:   :)
 	  while ((v != segs[i].v2) && (v = segs[i].v2));
@@ -1205,6 +1205,14 @@ void P_Init (void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_setup.c,v $
+// Revision 1.3  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

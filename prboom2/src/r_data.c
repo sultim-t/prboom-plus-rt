@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: r_data.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -898,7 +898,7 @@ void R_PrecacheLevel(void)
 
   {
     size_t size = numflats > numsprites  ? numflats : numsprites;
-    hitlist = malloc(numtextures > size ? numtextures : size);
+    hitlist = malloc((size_t)numtextures > size ? numtextures : size);
   }
 
   // Precache flats.
@@ -965,9 +965,31 @@ void R_PrecacheLevel(void)
   free(hitlist);
 }
 
+// Proff - Added for OpenGL
+void R_SetPatchNum(patchnum_t *patchnum, char *name)
+{
+  patch_t *patch;
+
+  patch = (patch_t *) W_CacheLumpName(name);
+  patchnum->width = patch->width;
+  patchnum->height = patch->height;
+  patchnum->leftoffset = patch->leftoffset;
+  patchnum->topoffset = patch->topoffset;
+  patchnum->lumpnum = W_GetNumForName(name);
+  W_UnlockLumpName(name);
+}
+
 //-----------------------------------------------------------------------------
 //
 // $Log: r_data.c,v $
+// Revision 1.4  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.3  2000/05/07 10:26:16  proff_fs
 // changed think_t and action_f in d_think.h
 // this fixes many compiler warnings in VisualC

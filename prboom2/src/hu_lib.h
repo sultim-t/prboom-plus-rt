@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_lib.h,v 1.1 2000/05/04 08:02:30 proff_fs Exp $
+ * $Id: hu_lib.h,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -63,9 +63,11 @@ typedef struct
   int   x;
   int   y;
 
-  const patch_t** f;                    // font
+  const patchnum_t* f;                    // font
   int   sc;                             // start character
-  const char *cr;                       //jff 2/16/52 output color range
+  //const char *cr;                       //jff 2/16/52 output color range
+  // Proff - Made this an int again. Needed for OpenGL
+  int   cm;                         //jff 2/16/52 output color range
 
   // killough 1/23/98: Support multiple lines:
   #define MAXLINES 25
@@ -105,7 +107,7 @@ typedef struct
   int     cl;                          // current line number
 
   int x,y,w,h;                         // window position and size
-  const patch_t **bg;                  // patches for background
+  const patchnum_t *bg;                  // patches for background
 
   // pointer to boolean stating whether to update window
   boolean*    on;
@@ -150,9 +152,9 @@ void HUlib_initTextLine
   hu_textline_t *t,
   int x,
   int y,
-  const patch_t **f,
+  const patchnum_t *f,
   int sc,
-  const char *cr    //jff 2/16/98 add color range parameter
+  int cm    //jff 2/16/98 add color range parameter
 );
 
 // returns success
@@ -178,9 +180,9 @@ void HUlib_initSText
   int   x,
   int   y,
   int   h,
-  const patch_t** font,
+  const patchnum_t* font,
   int   startchar,
-  const char *cr,   //jff 2/16/98 add color range parameter
+  int cm,   //jff 2/16/98 add color range parameter
   boolean*  on );
 
 // add a new line
@@ -197,8 +199,8 @@ void HUlib_eraseSText(hu_stext_t* s);
 
 //jff 2/26/98 message refresh widget
 // initialize refresh text widget
-void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, const patch_t** font,
-		     int startchar, const char *cr, const patch_t** bgfont, boolean *on);
+void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, const patchnum_t* font,
+		     int startchar, int cm, const patchnum_t* bgfont, boolean *on);
 
 //jff 2/26/98 message refresh widget
 // add a text line to refresh text widget
@@ -215,7 +217,7 @@ void HUlib_drawMBg
   int y,
   int w,
   int h,
-  const patch_t** bgp
+  const patchnum_t* bgp
 );
 
 //jff 2/26/98 message refresh widget
@@ -230,9 +232,9 @@ void HUlib_initIText
 ( hu_itext_t* it,
   int   x,
   int   y,
-  const patch_t** font,
+  const patchnum_t* font,
   int   startchar,
-  const char *cr,   //jff 2/16/98 add color range parameter
+  int cm,   //jff 2/16/98 add color range parameter
   boolean*  on );
 
 // enforces left margin
@@ -265,8 +267,16 @@ void HUlib_eraseIText(hu_itext_t* it);
 //----------------------------------------------------------------------------
 //
 // $Log: hu_lib.h,v $
-// Revision 1.1  2000/05/04 08:02:30  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:02:30  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.4  1999/10/12 13:01:15  cphipps
 // Changed header to GPL

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.1 2000/05/04 08:01:30 proff_fs Exp $
+ * $Id: f_finale.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.1 2000/05/04 08:01:30 proff_fs Exp $";
+rcsid[] = "$Id: f_finale.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -53,7 +53,7 @@ static const char*   finaleflat; // made static const
 
 #define TEXTSPEED    3     // original value                    // phares
 #define TEXTWAIT     250   // original value                    // phares
-#define NEWTEXTSPEED 0.01  // new value                         // phares
+#define NEWTEXTSPEED 0.01f  // new value                         // phares
 #define NEWTEXTWAIT  1000  // new value                         // phares
 
 // CPhipps - removed the old finale screen text message strings;
@@ -268,7 +268,7 @@ void F_Ticker(void)
 // CPhipps - reformatted
 
 #include "hu_stuff.h"
-extern  patch_t *hu_font[HU_FONTSIZE];
+extern patchnum_t hu_font[HU_FONTSIZE];
 
 
 void F_TextWrite (void)
@@ -278,7 +278,7 @@ void F_TextWrite (void)
     int         cx = 10;
     int         cy = 10;
     const char* ch = finaletext; // CPhipps - const
-    int         count = (finalecount - 10)/Get_TextSpeed();                 // phares
+    int         count = (int)((float)(finalecount - 10)/Get_TextSpeed()); // phares
     int         w;
     
     if (count < 0)
@@ -301,11 +301,11 @@ void F_TextWrite (void)
 	continue;
       }
       
-      w = SHORT (hu_font[c]->width);
+      w = SHORT (hu_font[c].width);
       if (cx+w > SCREENWIDTH)
 	break;
       // CPhipps - patch drawing updated
-      V_DrawMemPatch(cx, cy, 0, hu_font[c], NULL, VPT_STRETCH);
+      V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
       cx+=w;
     }
   }
@@ -528,7 +528,7 @@ static void F_CastPrint (const char* text) // CPhipps - static, const char*
       continue;
     }
             
-    w = SHORT (hu_font[c]->width);
+    w = SHORT (hu_font[c].width);
     width += w;
   }
   
@@ -547,9 +547,9 @@ static void F_CastPrint (const char* text) // CPhipps - static, const char*
       continue;
     }
               
-    w = SHORT (hu_font[c]->width);
+    w = SHORT (hu_font[c].width);
     // CPhipps - patch drawing updated
-    V_DrawMemPatch(cx, 180, 0, hu_font[c], NULL, VPT_STRETCH);
+    V_DrawNumPatch(cx, 180, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
     cx+=w;
   }
 }
@@ -568,7 +568,7 @@ void F_CastDrawer (void)
     
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(0,0,0, bgcastcall, NULL, VPT_STRETCH); // Ty 03/30/98 bg texture extern
+  V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
 
   F_CastPrint (*(castorder[castnum].name));
     
@@ -579,7 +579,7 @@ void F_CastDrawer (void)
   flip = (boolean)sprframe->flip[0];
 
   // CPhipps - patch drawing updated
-  V_DrawNumPatch(160, 170, 0, lump+firstspritelump, NULL, 
+  V_DrawNumPatch(160, 170, 0, lump+firstspritelump, CR_DEFAULT, 
 		 VPT_STRETCH | (flip ? VPT_FLIP : 0));
 }
 
@@ -599,17 +599,17 @@ static void F_BunnyScroll (void)
   {
     int scrolled = (finalecount-230)/2;
     if (scrolled <= 0) {
-      V_DrawNamePatch(0, 0, 0, pfub2, NULL, VPT_STRETCH);
+      V_DrawNamePatch(0, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     } else if (scrolled >= 320) {
-      V_DrawNamePatch(0, 0, 0, pfub1, NULL, VPT_STRETCH);
+      V_DrawNamePatch(0, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
     } else {
 #define SCRN 2
       int realscrolled = (SCREENWIDTH * scrolled) / 320;
 
       V_AllocScreen(SCRN);
-      V_DrawNamePatch(0, 0, SCRN, pfub2, NULL, VPT_STRETCH);
+      V_DrawNamePatch(0, 0, SCRN, pfub2, CR_DEFAULT, VPT_STRETCH);
       V_CopyRect(realscrolled, 0, SCRN, SCREENWIDTH-realscrolled, SCREENHEIGHT, 0, 0, 0);
-      V_DrawNamePatch(0, 0, SCRN, pfub1, NULL, VPT_STRETCH);
+      V_DrawNamePatch(0, 0, SCRN, pfub1, CR_DEFAULT, VPT_STRETCH);
       V_CopyRect(0, 0, SCRN, realscrolled, SCREENHEIGHT, SCREENWIDTH-realscrolled, 0, 0);
       V_FreeScreen(SCRN);
     }
@@ -620,7 +620,7 @@ static void F_BunnyScroll (void)
   if (finalecount < 1180)
   {
     // CPhipps - patch drawing updated
-    V_DrawNamePatch((320-13*8)/2, (200-8*8)/2,0, "END0", NULL, VPT_STRETCH);
+    V_DrawNamePatch((320-13*8)/2, (200-8*8)/2,0, "END0", CR_DEFAULT, VPT_STRETCH);
     laststage = 0;
     return;
   }
@@ -636,7 +636,7 @@ static void F_BunnyScroll (void)
       
   sprintf (name,"END%i",stage);
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, 0, name, NULL, VPT_STRETCH);
+  V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, 0, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 
@@ -660,18 +660,18 @@ void F_Drawer (void)
       // CPhipps - patch drawing updated
       case 1:
            if ( gamemode == retail )
-             V_DrawNamePatch(0, 0, 0, "CREDIT", NULL, VPT_STRETCH);
+             V_DrawNamePatch(0, 0, 0, "CREDIT", CR_DEFAULT, VPT_STRETCH);
            else
-             V_DrawNamePatch(0, 0, 0, "HELP2", NULL, VPT_STRETCH);
+             V_DrawNamePatch(0, 0, 0, "HELP2", CR_DEFAULT, VPT_STRETCH);
            break;
       case 2:
-           V_DrawNamePatch(0, 0, 0, "VICTORY2", NULL, VPT_STRETCH);
+           V_DrawNamePatch(0, 0, 0, "VICTORY2", CR_DEFAULT, VPT_STRETCH);
            break;
       case 3:
            F_BunnyScroll ();
            break;
       case 4:
-           V_DrawNamePatch(0, 0, 0, "ENDPIC", NULL, VPT_STRETCH);
+           V_DrawNamePatch(0, 0, 0, "ENDPIC", CR_DEFAULT, VPT_STRETCH);
            break;
     }
   }
@@ -680,8 +680,16 @@ void F_Drawer (void)
 //----------------------------------------------------------------------------
 //
 // $Log: f_finale.c,v $
-// Revision 1.1  2000/05/04 08:01:30  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:01:30  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.14  1999/10/27 12:01:44  cphipps
 // Moved flat background tiling code to V_DrawBackground in v_video.c

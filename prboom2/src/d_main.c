@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.5 2000/05/07 08:18:23 jessh Exp $
+ * $Id: d_main.c,v 1.6 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.5 2000/05/07 08:18:23 jessh Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.6 2000/05/07 20:19:33 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -316,7 +316,7 @@ void D_Display (void)
       // CPhipps - updated for new patch drawing
       V_DrawNamePatch(x, (!(automapmode & am_active) || (automapmode & am_overlay)) 
 		      ? 4+(viewwindowy*200/SCREENHEIGHT) : 4, // cph - Must un-stretch viewwindowy
-		      0, "M_PAUSE", NULL, VPT_STRETCH);
+		      0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
   }
 
   // menus go directly to the screen
@@ -426,7 +426,7 @@ void D_PageDrawer(void)
 {
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing
-  V_DrawNamePatch(0, 0, 0, pagename, NULL, VPT_STRETCH);
+  V_DrawNamePatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
 }
 
 //
@@ -1253,14 +1253,14 @@ void D_DoomMainSetup(void)
   //jff 9/3/98 get mask for console output filter
   if ((p = M_CheckParm ("-cout")))
     if (++p != myargc && *myargv[p] != '-')
-      for (i=0,cons_output_mask=0;i<strlen(myargv[p]);i++)
+      for (i=0,cons_output_mask=0;(size_t)i<strlen(myargv[p]);i++)
         if ((pos = strchr(cena,toupper(myargv[p][i]))))
           cons_output_mask |= (1<<(pos-cena));
 
   //jff 9/3/98 get mask for redirected console error filter
   if ((p = M_CheckParm ("-cerr")))
     if (++p != myargc && *myargv[p] != '-')
-      for (i=0,cons_error_mask=0;i<strlen(myargv[p]);i++)
+      for (i=0,cons_error_mask=0;(size_t)i<strlen(myargv[p]);i++)
         if ((pos = strchr(cena,toupper(myargv[p][i]))))
           cons_error_mask |= (1<<(pos-cena));
 
@@ -1833,6 +1833,14 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: d_main.c,v $
+// Revision 1.6  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.5  2000/05/07 08:18:23  jessh
 // Fix Configure, Moved I_InitGraphics fixing BIG bug
 //

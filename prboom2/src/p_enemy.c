@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_enemy.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -1877,12 +1877,12 @@ void A_Spawn(mobj_t *mo)
 
 void A_Turn(mobj_t *mo)
 {
-  mo->angle += ((uint_64_t) mo->state->misc1 << 32) / 360;
+  mo->angle += (unsigned int)(((uint_64_t) mo->state->misc1 << 32) / 360);
 }
 
 void A_Face(mobj_t *mo)
 {
-  mo->angle = ((uint_64_t) mo->state->misc1 << 32) / 360;
+  mo->angle = (unsigned int)(((uint_64_t) mo->state->misc1 << 32) / 360);
 }
 
 void A_Scratch(mobj_t *mo)
@@ -1914,10 +1914,10 @@ void A_LineEffect(mobj_t *mo)
   player_t *oldplayer = mo->player;
   mo->player = &player;
   player.health = 100;
-  junk.special = mo->state->misc1;
+  junk.special = (short)mo->state->misc1;
   if (!junk.special)
     return;
-  junk.tag = mo->state->misc2;
+  junk.tag = (short)mo->state->misc2;
   if (!P_UseSpecialLine(mo, &junk, 0))
     P_CrossSpecialLine(&junk, 0, mo);
   mo->state->misc1 = junk.special;
@@ -1927,6 +1927,14 @@ void A_LineEffect(mobj_t *mo)
 //----------------------------------------------------------------------------
 //
 // $Log: p_enemy.c,v $
+// Revision 1.3  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/07 10:26:16  proff_fs
 // changed think_t and action_f in d_think.h
 // this fixes many compiler warnings in VisualC

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: r_defs.h,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -331,6 +331,14 @@ typedef struct
   int columnofs[8];     // only [width] used
 } patch_t;
 
+// proff: Added for OpenGL
+typedef struct
+{
+  int width,height;
+  int leftoffset,topoffset;
+  int lumpnum;
+} patchnum_t;
+
 //
 // A vissprite_t is a thing that will be drawn during a refresh.
 // i.e. a sprite object that is partly visible.
@@ -422,6 +430,14 @@ typedef struct visplane
 //----------------------------------------------------------------------------
 //
 // $Log: r_defs.h,v $
+// Revision 1.3  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

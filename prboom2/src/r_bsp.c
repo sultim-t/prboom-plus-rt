@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -343,7 +343,7 @@ static void R_AddLine (seg_t *line)
       // Totally off the left edge?
       if (tspan >= span)
         return;
-      angle2 = -clipangle;
+      angle2 = 0-clipangle;
     }
 
   // The seg is in the view range,
@@ -476,7 +476,7 @@ static boolean R_CheckBBox(const fixed_t *bspcoord)
   if ((signed)angle2 >= (signed)clipangle) return false; // Both off left edge
   if ((signed)angle1 <= -(signed)clipangle) return false; // Both off right edge
   if ((signed)angle1 >= (signed)clipangle) angle1 = clipangle; // Clip at left edge
-  if ((signed)angle2 <= -(signed)clipangle) angle2 = -clipangle; // Clip at right edge
+  if ((signed)angle2 <= -(signed)clipangle) angle2 = 0-clipangle; // Clip at right edge
 
   // Find the first clippost
   //  that touches the source post
@@ -610,6 +610,14 @@ void R_RenderBSPNode(int bspnum)
 //----------------------------------------------------------------------------
 //
 // $Log: r_bsp.c,v $
+// Revision 1.3  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

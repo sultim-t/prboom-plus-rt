@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.1 2000/05/04 08:18:45 proff_fs Exp $
+ * $Id: v_video.h,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,6 +39,9 @@
 #include "doomdef.h"
 // Needed because we are refering to patches.
 #include "r_data.h"
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 
 //
 // VIDEO
@@ -55,6 +58,7 @@
  * jff 2/18/98 conversion to palette lookups for speed
  * jff 4/24/98 now pointers to lumps loaded 
  */
+/*
 extern const byte *cr_brick;
 extern const byte *cr_tan;
 extern const byte *cr_gray;
@@ -64,9 +68,10 @@ extern const byte *cr_gold;
 extern const byte *cr_red;
 extern const byte *cr_blue;
 extern const byte *cr_blue_status; /* killough 2/28/98 */
+/*
 extern const byte *cr_orange;
 extern const byte *cr_yellow;
-
+*/
 // array of pointers to color translation tables
 extern const byte *colrngs[];
 
@@ -83,7 +88,8 @@ typedef enum
   CR_BLUE,    //7
   CR_ORANGE,  //8
   CR_YELLOW,  //9
-  CR_LIMIT    //10 //jff 2/27/98 added for range check
+  CR_BLUE2,   //10 // proff
+  CR_LIMIT    //11 //jff 2/27/98 added for range check
 } crange_idx_e;
 //jff 1/16/98 end palette color range additions
 
@@ -103,7 +109,11 @@ void V_Init (void);
 void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
                 int destx, int desty, int destscrn);
 
+#ifdef GL_DOOM
+#define V_FillRect(s,x,y,w,h,c) gld_FillBlock(x,y,w,h,c)
+#else
 void V_FillRect(int scrn, int x, int y, int width, int height, byte colour);
+#endif
 
 enum patch_translation_e {
   VPT_NONE    = 0, // Normal
@@ -115,14 +125,29 @@ enum patch_translation_e {
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
 // V_DrawMemPatch - Draws the given patch_t
+#ifdef GL_DOOM
+#define V_DrawMemPatch(x,y,s,p,t,f) gld_DrawPatchFromMem(x,y,p,t,f)
+#else
 void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, 
-		    const byte *trans, enum patch_translation_e flags);
+		    int cm, enum patch_translation_e flags);
+#endif
 // V_DrawNumPatch - Draws the patch from lump num
+#ifdef GL_DOOM
+#define V_DrawNumPatch(x,y,s,l,t,f) gld_DrawNumPatch(x,y,l,t,f)
+#else
 void V_DrawNumPatch(int x, int y, int scrn, int lump, 
-		    const byte *trans, enum patch_translation_e flags);
+		    int cm, enum patch_translation_e flags);
+#endif
 // V_DrawNamePatch - Draws the patch from lump "name"
+#ifdef GL_DOOM
+#define V_DrawNamePatch(x,y,s,n,t,f) gld_DrawNumPatch(x,y,W_GetNumForName(n),t,f)
+#else
+#define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatch(x,y,s,W_GetNumForName(n),t,f)
+/*
 void V_DrawNamePatch(int x, int y, int scrn, const char *name, 
 		     const byte *trans, enum patch_translation_e flags);
+*/
+#endif
 
 /* cph -
  * Functions to return width & height of a patch.
@@ -139,7 +164,11 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
 		 const byte *src, enum patch_translation_e flags);
 
 /* cphipps 10/99: function to tile a flat over the screen */
+#ifdef GL_DOOM
+#define V_DrawBackground gld_DrawBackground
+#else
 void V_DrawBackground(const char* flatname);
+#endif
 
 // Reads a linear block of pixels into the view buffer.
 
@@ -149,12 +178,12 @@ void V_MarkRect(int x, int y, int width,int height);
 
 // CPhipps - function to convert a patch_t into a simple block bitmap
 // Returns pointer to the malloc()'ed bitmap, and its width and height
-byte *V_PatchToBlock(const char* name, const byte *trans, 
+byte *V_PatchToBlock(const char* name, int cm, 
 		     enum patch_translation_e flags, 
 		     unsigned short* width, unsigned short* height);
 
 // CPhipps - function to set the palette to palette number pal.
-void V_SetPalette(unsigned short pal);
+void V_SetPalette(int pal);
 
 // CPhipps - function to plot a pixel
 // Proff - added __inline for VisualC
@@ -175,8 +204,16 @@ static const void V_PlotPixel(int scrn, int x, int y, byte colour) {
 //----------------------------------------------------------------------------
 //
 // $Log: v_video.h,v $
-// Revision 1.1  2000/05/04 08:18:45  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:18:45  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.14  2000/05/01 15:16:47  Proff
 // added __inline for VisualC

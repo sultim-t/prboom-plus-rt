@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_texture.c,v 1.1 2000/05/04 16:40:00 proff_fs Exp $
+// $Id: gl_texture.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -39,7 +39,7 @@ static int gld_NumGLTextures=0;
 
 extern texture_t **textures;
 extern int gld_GetTexHeightGL(int value);
-extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy);
+extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm);
 
 static GLTexture *gld_AddNewGLTexture(int texture_num)
 {
@@ -112,7 +112,7 @@ GLTexture *gld_RegisterTexture(int texture_num)
   for (i=0; i<texture->patchcount; i++)
   {
     patch=W_CacheLumpNum(texture->patches[i].patch);
-    gld_AddPatchToTexture(gltexture, buffer, patch, texture->patches[i].originx, texture->patches[i].originy);
+    gld_AddPatchToTexture(gltexture, buffer, patch, texture->patches[i].originx, texture->patches[i].originy, CR_DEFAULT);
     W_UnlockLumpNum(texture->patches[i].patch);
   }
   if (gltexture->glTexID[CR_DEFAULT]==0)
@@ -174,6 +174,14 @@ void gld_CleanTextures(void)
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_texture.c,v $
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.1  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

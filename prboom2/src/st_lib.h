@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_lib.h,v 1.1 2000/05/04 08:17:16 proff_fs Exp $
+ * $Id: st_lib.h,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -155,7 +155,7 @@ void STlib_initNum
 
 void STlib_updateNum
 ( st_number_t* n,
-  const byte *outrng,
+  int cm,
   boolean refresh );
 
 
@@ -172,7 +172,7 @@ void STlib_initPercent
 
 void STlib_updatePercent
 ( st_percent_t* per,
-  const byte *outrng,
+  int cm,
   int refresh );
 
 
@@ -210,8 +210,16 @@ void STlib_updateBinIcon
 //----------------------------------------------------------------------------
 //
 // $Log: st_lib.h,v $
-// Revision 1.1  2000/05/04 08:17:16  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:17:16  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.5  1999/10/27 18:38:03  cphipps
 // Updated for W_Cache'd lumps being properly const

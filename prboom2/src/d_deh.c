@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.1 2000/05/04 07:59:43 proff_fs Exp $
+ * $Id: d_deh.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.1 2000/05/04 07:59:43 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -2431,7 +2431,7 @@ void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
         for (i=1; i<NUMSFX; i++)
           {
             // avoid short prefix erroneous match
-            if (strlen(S_sfx[i].name) != fromlen) continue;
+            if (strlen(S_sfx[i].name) != (size_t)fromlen) continue;
             if (!strnicmp(S_sfx[i].name,inbuffer,fromlen))
               {
                 if (fpout) fprintf(fpout,
@@ -2449,7 +2449,7 @@ void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
             for (i=1; i<NUMMUSIC; i++)
               {
                 // avoid short prefix erroneous match
-                if (strlen(S_music[i].name) != fromlen) continue;
+                if (strlen(S_music[i].name) != (size_t)fromlen) continue;
                 if (!strnicmp(S_music[i].name,inbuffer,fromlen))
                   {
                     if (fpout) fprintf(fpout,
@@ -2467,7 +2467,7 @@ void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   if (!found) // Nothing we want to handle here--see if strings can deal with it.
     {
       if (fpout) fprintf(fpout,"Checking text area through strings for '%.12s%s' from=%d to=%d\n",inbuffer, (strlen(inbuffer) > 12) ? "..." : "",fromlen,tolen);
-      if (fromlen <= strlen(inbuffer))
+      if ((size_t)fromlen <= strlen(inbuffer))
         {
           line2 = strdup(&inbuffer[fromlen]);
           inbuffer[fromlen] = '\0';
@@ -2530,7 +2530,7 @@ void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
               continue;
             }
         }
-      while (strlen(holdstring) + strlen(inbuffer) > maxstrlen) // Ty03/29/98 - fix stupid error
+      while (strlen(holdstring) + strlen(inbuffer) > (size_t)maxstrlen) // Ty03/29/98 - fix stupid error
         {
 	  // killough 11/98: allocate enough the first time
           maxstrlen += strlen(holdstring) + strlen(inbuffer) - maxstrlen;
@@ -2768,8 +2768,16 @@ boolean deh_GetData(char *s, char *k, long *l, char **strval, FILE *fpout)
 //---------------------------------------------------------------------
 //
 // $Log: d_deh.c,v $
-// Revision 1.1  2000/05/04 07:59:43  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 07:59:43  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.19  2000/05/01 17:50:33  Proff
 // made changes to compile with VisualC and SDL

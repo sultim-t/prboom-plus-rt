@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $
+ * $Id: w_wad.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.3 2000/05/05 13:00:46 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -219,7 +219,7 @@ static void W_AddFile(const char *filename, wad_source_t source)
 
     lump_p = &lumpinfo[startlump];
 
-    for (i=startlump ; i<numlumps ; i++,lump_p++, fileinfo++)
+    for (i=startlump ; (int)i<numlumps ; i++,lump_p++, fileinfo++)
       {
         lump_p->handle = handle;                    //  killough 4/25/98
         lump_p->position = LONG(fileinfo->filepos);
@@ -445,7 +445,7 @@ void W_Init(void)
   { // CPhipps - new wadfiles array used 
     // open all the files, load headers, and count lumps
     int i;
-    for (i=0; i<numwadfiles; i++)
+    for (i=0; (size_t)i<numwadfiles; i++)
       W_AddFile(wadfiles[i].name, wadfiles[i].src);
   }
 
@@ -638,6 +638,14 @@ void WritePredefinedLumpWad(const char *filename)
 
 //
 // $Log: w_wad.c,v $
+// Revision 1.4  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.3  2000/05/05 13:00:46  proff_fs
 // Readded the CVS-Log
 //

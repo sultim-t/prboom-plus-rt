@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.h,v 1.1 2000/05/04 08:18:58 proff_fs Exp $
+ * $Id: w_wad.h,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -126,7 +126,7 @@ struct wadfile_info {
 
 extern struct wadfile_info *wadfiles;
 
-extern unsigned int numwadfiles; // CPhipps - size of the wadfiles array
+extern size_t numwadfiles; // CPhipps - size of the wadfiles array
 
 void W_Init(void); // CPhipps - uses the above array
 
@@ -161,8 +161,16 @@ extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98
 //----------------------------------------------------------------------------
 //
 // $Log: w_wad.h,v $
-// Revision 1.1  2000/05/04 08:18:58  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:18:58  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.10  1999/10/27 18:35:50  cphipps
 // Made W_CacheLump* return a const pointer

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: qmus2mid.c,v 1.1 2000/05/04 08:15:13 proff_fs Exp $
+ * $Id: qmus2mid.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  Sound server for LxDoom, based on the sound server sources released
  *   with the original linuxdoom.
@@ -51,7 +51,7 @@
 */
 
 static const char 
-rcsid[] = "$Id: qmus2mid.c,v 1.1 2000/05/04 08:15:13 proff_fs Exp $";
+rcsid[] = "$Id: qmus2mid.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include <ctype.h>
 #include <stdio.h>
@@ -118,7 +118,7 @@ size_t fwrite2(const int2 *ptr, size_t size, FILE *file)
   int4 rev = 0;
   int i;
   
-  for( i = 0 ; i < size ; i++ )
+  for( i = 0 ; (size_t)i < size ; i++ )
     rev = (rev << 8) + (((*ptr) >> (i*8)) & 0xFF) ;
 
   return fwrite( &rev, size, 1, file ) ;
@@ -554,8 +554,16 @@ int qmus2mid( void *mus, size_t len, FILE *file_mid,
 
 //
 // $Log: qmus2mid.c,v $
-// Revision 1.1  2000/05/04 08:15:13  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 08:15:13  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.1  2000/05/01 15:36:38  Proff
 // initial revision

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_video_sdl.c,v 1.5 2000/05/06 04:12:51 jessh Exp $
+ * $Id: l_video_sdl.c,v 1.6 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  SDL display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_video_sdl.c,v 1.5 2000/05/06 04:12:51 jessh Exp $";
+rcsid[] = "$Id: l_video_sdl.c,v 1.6 2000/05/07 20:19:33 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -327,7 +327,7 @@ static void I_UploadNewPalette(int pal)
     }
 
     // set the colormap entries
-    for (i=0 ; i<num_pals ; i++) {
+    for (i=0 ; (size_t)i<num_pals ; i++) {
       colours[i].r = gtable[palette[0]];
       colours[i].g = gtable[palette[1]];
       colours[i].b = gtable[palette[2]];

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_saveg.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_saveg.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_saveg.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_saveg.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -172,7 +172,7 @@ void P_ArchiveWorld (void)
 
       if (compatibility_level < lxdoom_1_compatibility) {
 	if (sec->soundtarget)
-	  *put++ = (long) sec->soundtarget->thinker.prev;
+	  *put++ = (short) sec->soundtarget->thinker.prev;
 	else
 	  *put++ = 0; // no soundtarget
       }
@@ -1062,6 +1062,14 @@ void P_UnArchiveMap(void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_saveg.c,v $
+// Revision 1.3  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/07 10:26:16  proff_fs
 // changed think_t and action_f in d_think.h
 // this fixes many compiler warnings in VisualC

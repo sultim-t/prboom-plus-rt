@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.1 2000/05/04 07:58:39 proff_fs Exp $
+ * $Id: am_map.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.1 2000/05/04 07:58:39 proff_fs Exp $";
+  "$Id: am_map.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -165,9 +165,9 @@ mline_t cheat_player_arrow[] =
 #define R (FRACUNIT)
 mline_t triangle_guy[] =
 {
-  { { -.867*R, -.5*R }, { .867*R, -.5*R } },
-  { { .867*R, -.5*R } , { 0, R } },
-  { { 0, R }, { -.867*R, -.5*R } }
+{ { (fixed_t)(-.867*R), (fixed_t)(-.5*R) }, { (fixed_t)( .867*R), (fixed_t)(-.5*R) } },
+{ { (fixed_t)( .867*R), (fixed_t)(-.5*R) }, { (fixed_t)(0      ), (fixed_t)(    R) } },
+{ { (fixed_t)(0      ), (fixed_t)(    R) }, { (fixed_t)(-.867*R), (fixed_t)(-.5*R) } }
 };
 #undef R
 #define NUMTRIANGLEGUYLINES (sizeof(triangle_guy)/sizeof(mline_t))
@@ -186,9 +186,9 @@ mline_t cross_mark[] =
 #define R (FRACUNIT)
 mline_t thintriangle_guy[] =
 {
-  { { -.5*R, -.7*R }, { R, 0 } },
-  { { R, 0 }, { -.5*R, .7*R } },
-  { { -.5*R, .7*R }, { -.5*R, -.7*R } }
+{ { (fixed_t)(-.5*R), (fixed_t)(-.7*R) }, { (fixed_t)(    R), (fixed_t)(    0) } },
+{ { (fixed_t)(    R), (fixed_t)(    0) }, { (fixed_t)(-.5*R), (fixed_t)( .7*R) } },
+{ { (fixed_t)(-.5*R), (fixed_t)( .7*R) }, { (fixed_t)(-.5*R), (fixed_t)(-.7*R) } }
 };
 #undef R
 #define NUMTHINTRIANGLEGUYLINES (sizeof(thintriangle_guy)/sizeof(mline_t))
@@ -245,7 +245,7 @@ static fixed_t old_m_x, old_m_y;
 static mpoint_t f_oldloc;
 
 // used by MTOF to scale from map-to-frame-buffer coords
-static fixed_t scale_mtof = INITSCALEMTOF;
+static fixed_t scale_mtof = (fixed_t)INITSCALEMTOF;
 // used by FTOM to scale from frame-buffer-to-map coords (=1/scale_mtof)
 static fixed_t scale_ftom;
 
@@ -1047,7 +1047,7 @@ void AM_drawFline
   }
 #endif
 
-#define PUTDOT(xx,yy,cc) V_PlotPixel(FB,xx,yy,cc)
+#define PUTDOT(xx,yy,cc) V_PlotPixel(FB,xx,yy,(byte)cc)
 
   dx = fl->b.x - fl->a.x;
   ax = 2 * (dx<0 ? -dx : dx);
@@ -1240,8 +1240,8 @@ void AM_drawWalls(void)
     l.b.y = lines[i].v2->y;
 
     if (automapmode & am_rotate) {
-      AM_rotate(&l.a.x, &l.a.y, -plr->mo->angle+ANG90, plr->mo->x, plr->mo->y);
-      AM_rotate(&l.b.x, &l.b.y, -plr->mo->angle+ANG90, plr->mo->x, plr->mo->y);
+      AM_rotate(&l.a.x, &l.a.y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+      AM_rotate(&l.b.x, &l.b.y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
     }
 
     // if line has been seen or IDDT has been used
@@ -1529,7 +1529,7 @@ void AM_drawPlayers(void)
     if (playeringame[i]) {
       fixed_t x = p->mo->x, y = p->mo->y;
       if (automapmode & am_rotate)
-	AM_rotate(&x, &y, -plr->mo->angle+ANG90, plr->mo->x, plr->mo->y);
+	AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, p->mo->angle,
 			    p->powers[pw_invisibility] ? 246 /* *close* to black */ 
@@ -1563,7 +1563,7 @@ void AM_drawThings
       fixed_t x = t->x, y = t->y;
 
       if (automapmode & am_rotate)
-	AM_rotate(&x, &y, -plr->mo->angle+ANG90, plr->mo->x, plr->mo->y);
+	AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_rkey || mapcolor_ykey || mapcolor_bkey)
@@ -1650,7 +1650,7 @@ void AM_drawMarks(void)
       int j = i;
 
       if (automapmode & am_rotate)
-        AM_rotate(&fx, &fy, -plr->mo->angle+ANG90, plr->mo->x, plr->mo->y);
+        AM_rotate(&fx, &fy, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
 
       fx = CXMTOF(fx); fy = CYMTOF(fy);
 
@@ -1664,7 +1664,7 @@ void AM_drawMarks(void)
 	  // cph - construct patch name and draw marker
 	  char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
 	  
-          V_DrawNamePatch(fx, fy, FB, namebuf, NULL, VPT_NONE);
+          V_DrawNamePatch(fx, fy, FB, namebuf, CR_DEFAULT, VPT_NONE);
 	}
         fx -= w-1;          // killough 2/22/98: 1 space backwards
         j /= 10;
@@ -1691,7 +1691,7 @@ inline
 static void AM_drawCrosshair(int color)
 {
   // single point for now
-  V_PlotPixel(FB, f_w/2, f_h/2, color);
+  V_PlotPixel(FB, f_w/2, f_h/2, (byte)color);
 }
 
 //
@@ -1724,8 +1724,16 @@ void AM_Drawer (void)
 //----------------------------------------------------------------------------
 //
 // $Log: am_map.c,v $
-// Revision 1.1  2000/05/04 07:58:39  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
+// Revision 1.1.1.1  2000/05/04 07:58:39  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.21  2000/05/01 17:50:33  Proff
 // made changes to compile with VisualC and SDL

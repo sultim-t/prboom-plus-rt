@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_struct.h,v 1.1 2000/05/04 16:40:00 proff_fs Exp $
+// $Id: gl_struct.h,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -33,12 +33,13 @@
 
 #include "doomtype.h"
 #include "r_data.h"
+#include "v_video.h"
 
 void gld_Init(int width, int height);
 void gld_InitCommandLine();
 
-void gld_DrawPatch(int x, int y, int lump, unsigned char cm, boolean flipped, boolean stretched);
-void gld_DrawPatchFromMem(int x, int y, patch_t *patch, unsigned char cm, boolean flipped, boolean stretched);
+void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags);
+void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags);
 void gld_DrawBackground(const char* name);
 void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor);
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
@@ -62,6 +63,14 @@ void gld_Finish();
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_struct.h,v $
+// Revision 1.2  2000/05/07 20:19:33  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.1  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

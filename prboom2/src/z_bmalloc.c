@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.2 2000/05/06 08:49:55 cph Exp $
+ * $Id: z_bmalloc.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  Block memory allocator for LxDoom, 
  *  Copyright (C) 1999 by Colin Phipps
@@ -69,7 +69,7 @@ static const int iselem(const bmalpool_t *pool, size_t size, const void* p)
   dif -= pool->blocks;
   if (dif<0) return -1;
   dif /= size;
-  return ((dif >= pool->blocks) ? -1 : dif);
+  return (((size_t)dif >= pool->blocks) ? -1 : dif);
 }
 
 enum { unused_block = 0, used_block = 1};
@@ -133,6 +133,14 @@ void Z_BFree(struct block_memory_alloc_s *pzone, void* p)
 
 /*
  * $Log: z_bmalloc.c,v $
+ * Revision 1.3  2000/05/07 20:19:34  proff_fs
+ * changed use of colormaps from pointers to numbers.
+ * That's needed for OpenGL.
+ * The OpenGL part is slightly better now.
+ * Added some typedefs to reduce warnings in VisualC.
+ * Messages are also scaled now, because at 800x600 and
+ * above you can't read them even on a 21" monitor.
+ *
  * Revision 1.2  2000/05/06 08:49:55  cph
  * Minor header file fixing
  *

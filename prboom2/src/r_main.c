@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: r_main.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -180,7 +180,7 @@ angle_t R_PointToAngle(fixed_t x, fixed_t y)
       y >= 0 ? 
         (x > y) ? tantoangle[SlopeDiv(y,x)] :                      // octant 0 
                 ANG90-1-tantoangle[SlopeDiv(x,y)] :                // octant 1
-        x > (y = -y) ? -tantoangle[SlopeDiv(y,x)] :                // octant 8
+        x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :                // octant 8
                        ANG270+tantoangle[SlopeDiv(x,y)] :          // octant 7
       y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[SlopeDiv(y,x)] : // octant 3
                             ANG90 + tantoangle[SlopeDiv(x,y)] :    // octant 2
@@ -196,7 +196,7 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
       y >= 0 ? 
         (x > y) ? tantoangle[SlopeDiv(y,x)] :                      // octant 0 
                 ANG90-1-tantoangle[SlopeDiv(x,y)] :                // octant 1
-        x > (y = -y) ? -tantoangle[SlopeDiv(y,x)] :                // octant 8
+        x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :                // octant 8
                        ANG270+tantoangle[SlopeDiv(x,y)] :          // octant 7
       y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[SlopeDiv(y,x)] : // octant 3
                             ANG90 + tantoangle[SlopeDiv(x,y)] :    // octant 2
@@ -218,7 +218,7 @@ void R_InitStatusBar(void)
     if(SCREENWIDTH >= ST_WIDTH*st_scalex) break;
   }
   st_width = ST_WIDTH*st_scalex;
-  st_scaley = ((double)st_scalex * 320 * SCREENHEIGHT) / (SCREENWIDTH * 200) + 0.5;
+  st_scaley = (int)(((double)(st_scalex * 320 * SCREENHEIGHT) / (double)(SCREENWIDTH * 200)) + 0.5);
 #ifdef RANGECHECK
   if (st_scaley<1) I_Error("st_scaley<1");
 #endif
@@ -726,6 +726,14 @@ void R_RenderPlayerView (player_t* player)
 //----------------------------------------------------------------------------
 //
 // $Log: r_main.c,v $
+// Revision 1.3  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: r_things.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -175,10 +175,10 @@ void R_InitSpriteDefs(const char * const * namelist)
 
   hash = malloc(sizeof(*hash)*numentries); // allocate hash table
 
-  for (i=0; i<numentries; i++)             // initialize hash table as empty
+  for (i=0; (size_t)i<numentries; i++)             // initialize hash table as empty
     hash[i].index = -1;
 
-  for (i=0; i<numentries; i++)             // Prepend each sprite to hash chain
+  for (i=0; (size_t)i<numentries; i++)             // Prepend each sprite to hash chain
     {                                      // prepend so that later ones win
       int j = R_SpriteNameHash(lumpinfo[i+firstspritelump].name) % numentries;
       hash[i].next = hash[j].index;
@@ -1020,6 +1020,14 @@ void R_DrawMasked(void)
 //----------------------------------------------------------------------------
 //
 // $Log: r_things.c,v $
+// Revision 1.3  2000/05/07 20:19:34  proff_fs
+// changed use of colormaps from pointers to numbers.
+// That's needed for OpenGL.
+// The OpenGL part is slightly better now.
+// Added some typedefs to reduce warnings in VisualC.
+// Messages are also scaled now, because at 800x600 and
+// above you can't read them even on a 21" monitor.
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.
