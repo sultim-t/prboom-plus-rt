@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.28 2000/10/02 21:34:29 cph Exp $
+ * $Id: g_game.c,v 1.29 2000/10/24 22:01:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.28 2000/10/02 21:34:29 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.29 2000/10/24 22:01:49 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1492,6 +1492,8 @@ static const struct {
   int version;
 } version_headers[] = {
   { prboom_1_compatibility, "PrBoom %d", 260},
+  /* cph - we don't need a new version_header for prboom_3_comp/v2.1.1, since
+   *  the file format is unchanged. */
   { prboom_3_compatibility, "PrBoom %d", 210}
 };
 
@@ -2367,9 +2369,15 @@ void G_BeginRecording (void)
 
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
-    /* cph - FIXME - use version_headers? */
-    *demo_p++ = compatibility_level == mbf_compatibility ?
-      204 : 210;
+    { /* Write version code into demo */
+      unsigned char v;
+      switch(compatibility_level) {
+	      case mbf_compatibility: v = 204; break;
+	      case prboom_2_compatibility: v = 210; break;
+	      case prboom_3_compatibility: v = 211; break;
+      }
+      *demo_p++ = v;
+    }
     
     // signature
     *demo_p++ = 0x1d;
@@ -2568,8 +2576,11 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 	}
 	break;
       case 210:
-	/* PrBoom? */
 	compatibility_level = prboom_2_compatibility;
+	demo_p++;
+	break;
+      case 211:
+	compatibility_level = prboom_3_compatibility;
 	demo_p++;
 	break;
       }
