@@ -29,7 +29,7 @@
  *---------------------------------------------------------------------
  */
 
-#include "../config.h"
+#include "config.h"
 #include "z_zone.h"
 #include "gl_intern.h"
 #include "gl_struct.h"

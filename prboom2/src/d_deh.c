@@ -33,7 +33,7 @@
  *--------------------------------------------------------------------*/
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"

@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="VisualC6,../src"
+				AdditionalIncludeDirectories="../VisualCNET,../src"
 				PreprocessorDefinitions="_DEBUG,WIN32,_CONSOLE,HAVE_CONFIG_H,PRBOOM_SERVER"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -75,7 +75,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="VisualC6,../src"
+				AdditionalIncludeDirectories="../VisualCNET,../src"
 				PreprocessorDefinitions="NDEBUG,WIN32,_CONSOLE,HAVE_CONFIG_H,PRBOOM_SERVER"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

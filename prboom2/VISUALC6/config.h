@@ -27,7 +27,7 @@
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *  This is the config file for Windows
+ *  This is the config file for Windows (VisualC 6.0)
  *
  *-----------------------------------------------------------------------------*/
 

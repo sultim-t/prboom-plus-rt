@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="VisualC6,../src"
+				AdditionalIncludeDirectories="../VisualCNET,../src"
 				PreprocessorDefinitions="NDEBUG,I386_ASM,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="VisualC6,../src"
+				AdditionalIncludeDirectories="../VisualCNET,../src"
 				PreprocessorDefinitions="NDEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -132,7 +132,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="VisualC6,../src"
+				AdditionalIncludeDirectories="../VisualCNET,../src"
 				PreprocessorDefinitions="I386_ASM,_DEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -189,7 +189,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="VisualC6,../src"
+				AdditionalIncludeDirectories="../VisualCNET,../src"
 				PreprocessorDefinitions="_DEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"

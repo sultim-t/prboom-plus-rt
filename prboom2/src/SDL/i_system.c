@@ -51,7 +51,7 @@
 #include "SDL.h"
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -73,10 +73,6 @@
 #pragma implementation "i_system.h"
 #endif
 #include "i_system.h"
-
-#ifdef HAVE_CONFIG_H
-#include "../config.h"
-#endif
 
 void I_uSleep(unsigned long usecs)
 {
