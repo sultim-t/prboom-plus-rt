@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.h,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: m_misc.h,v 1.3 2000/05/18 07:27:00 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -57,12 +57,14 @@ void M_SaveDefaults (void);
 
 int M_DrawText (int x,int y,boolean direct,char* string);
 
+struct default_s *M_LookupDefault(const char *name);     /* killough 11/98 */
+
 // phares 4/21/98:
 // Moved from m_misc.c so m_menu.c could see it.
 
 // CPhipps - struct to hold a value in a config file
 // Cannot be a union, as it must be initialised
-typedef struct
+typedef struct default_s
 {
   const char* name;
   struct {
@@ -90,11 +92,14 @@ typedef struct
   // cph - removed the help strings from the config file
   // const char* help;       // jff 3/3/98 description of parameter
   // CPhipps - remove unused "lousy hack" code
+  struct setup_menu_s *setup_menu;   /* Xref to setup menu item, if any */
 } default_t;
 
 #define IS_STRING(dv) ((dv).type == def_str)
 // CPhipps - What is the max. key code that X will send us?
 #define MAX_KEY 65536
 #define MAX_MOUSEB 2
+
+#define UL (-123456789) /* magic number for no min or max for parameter */
 
 #endif
