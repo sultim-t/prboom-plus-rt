@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.14 2001/11/18 17:15:53 cph Exp $
+ * $Id: r_segs.c,v 1.15 2001/11/25 15:03:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.14 2001/11/18 17:15:53 cph Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.15 2001/11/25 15:03:11 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -145,7 +145,10 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   frontsector = curline->frontsector;
   backsector = curline->backsector;
 
-  texnum = texturetranslation[curline->sidedef->midtexture];
+  /* cph 2001/11/25 - middle textures did not animate in v1.2 */
+  texnum = curline->sidedef->midtexture;
+  if (!comp[comp_maskedanim])
+    texnum = texturetranslation[texnum];
 
   // killough 4/13/98: get correct lightlevel for 2s normal textures
   rw_lightlevel = R_FakeFlat(frontsector, &tempsec, NULL, NULL, false) ->lightlevel;
