@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.40 2001/07/08 13:08:19 cph Exp $
+ * $Id: g_game.c,v 1.41 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.40 2001/07/08 13:08:19 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.41 2001/07/08 17:34:02 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -82,6 +82,7 @@ rcsid[] = "$Id: g_game.c,v 1.40 2001/07/08 13:08:19 cph Exp $";
 #include "d_deh.h"              // Ty 3/27/98 deh declarations
 #include "p_inter.h"
 #include "g_game.h"
+#include "g_bind.h" // keybinding
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
@@ -204,13 +205,6 @@ int     key_weapon8;                                                //    |
 int     key_weapon9;                                                // phares
 
 int     key_screenshot;             // killough 2/22/98: screenshot key
-int     mousebfire;
-int     mousebstrafe;
-int     mousebforward;
-int     joybfire;
-int     joybstrafe;
-int     joybuse;
-int     joybspeed;
 
 #define MAXPLMOVE   (forwardmove[1])
 #define TURBOTHRESHOLD  0x32
@@ -223,11 +217,7 @@ fixed_t sidemove[2]    = {0x18, 0x28};
 fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 
 // CPhipps - made lots of key/button state vars static
-static boolean gamekeydown[NUMKEYS];
 static int     turnheld;       // for accelerative turning
-
-static boolean mousearray[4];
-static boolean *mousebuttons = &mousearray[1];    // allow [-1]
 
 // mouse values are used once
 static int   mousex;
@@ -242,8 +232,6 @@ static int   dclicks2;
 // joystick values are repeated
 static int   joyxmove;
 static int   joyymove;
-static boolean joyarray[5];
-static boolean *joybuttons = &joyarray[1];    // allow [-1]
 
 // Game events info
 static buttoncode_t special_event; // Event triggered by local player, to send
@@ -273,7 +261,6 @@ static const byte* G_ReadDemoHeader(const byte* demo_p);
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
   boolean strafe;
-  boolean bstrafe;
   int speed;
   int tspeed;
   int forward;
@@ -283,16 +270,15 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   memset(cmd,0,sizeof*cmd);
   cmd->consistancy = consistancy[consoleplayer][maketic%BACKUPTICS];
 
-  strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
-    || joybuttons[joybstrafe];
-  speed = autorun || gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
+  strafe = action_strafe;
+  speed = autorun || action_speed; // phares
 
   forward = side = 0;
 
     // use two stage accelerative turning
     // on the keyboard and joystick
   if (joyxmove < 0 || joyxmove > 0 ||
-      gamekeydown[key_right] || gamekeydown[key_left])
+      action_left || action_right)
     turnheld += ticdup;
   else
     turnheld = 0;
@@ -304,19 +290,19 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   // turn 180 degrees in one keystroke?                           // phares
                                                                   //    |
-  if (gamekeydown[key_reverse])                                   //    V
+  if (action_flip)                                                //    V
     {
       cmd->angleturn += QUICKREVERSE;                             //    ^
-      gamekeydown[key_reverse] = false;                           //    |
+      action_flip = false;                                        //    |
     }                                                             // phares
 
   // let movement keys cancel each other out
 
   if (strafe)
     {
-      if (gamekeydown[key_right])
+      if (action_right)
         side += sidemove[speed];
-      if (gamekeydown[key_left])
+      if (action_left)
         side -= sidemove[speed];
       if (joyxmove > 0)
         side += sidemove[speed];
@@ -325,9 +311,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
   else
     {
-      if (gamekeydown[key_right])
+      if (action_right)
         cmd->angleturn -= angleturn[tspeed];
-      if (gamekeydown[key_left])
+      if (action_left)
         cmd->angleturn += angleturn[tspeed];
       if (joyxmove > 0)
         cmd->angleturn -= angleturn[tspeed];
@@ -335,27 +321,26 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         cmd->angleturn += angleturn[tspeed];
     }
 
-  if (gamekeydown[key_up])
+  if (action_forward)
     forward += forwardmove[speed];
-  if (gamekeydown[key_down])
+  if (action_backward)
     forward -= forwardmove[speed];
   if (joyymove < 0)
     forward += forwardmove[speed];
   if (joyymove > 0)
     forward -= forwardmove[speed];
-  if (gamekeydown[key_straferight])
+  if (action_moveright)
     side += sidemove[speed];
-  if (gamekeydown[key_strafeleft])
+  if (action_moveleft)
     side -= sidemove[speed];
 
     // buttons
   cmd->chatchar = HU_dequeueChatChar();
 
-  if (gamekeydown[key_fire] || mousebuttons[mousebfire] ||
-      joybuttons[joybfire])
+  if (action_attack)
     cmd->buttons |= BT_ATTACK;
 
-  if (gamekeydown[key_use] || joybuttons[joybuse])
+  if (action_use)
     {
       cmd->buttons |= BT_USE;
       // clear double clicks if hit use button
@@ -374,20 +359,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   // killough 3/26/98, 4/2/98: fix autoswitch when no weapons are left
 
   if ((!demo_compatibility && players[consoleplayer].attackdown && // killough
-       !P_CheckAmmo(&players[consoleplayer])) || gamekeydown[key_weapontoggle])
+       !P_CheckAmmo(&players[consoleplayer])) || action_toggleweapon)
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
   else
     {                                 // phares 02/26/98: Added gamemode checks
       newweapon =
-        gamekeydown[key_weapon1] ? wp_fist :    // killough 5/2/98: reformatted
-        gamekeydown[key_weapon2] ? wp_pistol :
-        gamekeydown[key_weapon3] ? wp_shotgun :
-        gamekeydown[key_weapon4] ? wp_chaingun :
-        gamekeydown[key_weapon5] ? wp_missile :
-        gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
-        gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
-        gamekeydown[key_weapon8] ? wp_chainsaw :
-        gamekeydown[key_weapon9] && gamemode == commercial ? wp_supershotgun :
+        action_weapon1 ? wp_fist :    // killough 5/2/98: reformatted
+        action_weapon2 ? wp_pistol :
+        action_weapon3 ? wp_shotgun :
+        action_weapon4 ? wp_chaingun :
+        action_weapon5 ? wp_missile :
+        action_weapon6 && gamemode != shareware ? wp_plasma :
+        action_weapon7 && gamemode != shareware ? wp_bfg :
+        action_weapon8 ? wp_chainsaw :
+        action_weapon9 && gamemode == commercial ? wp_supershotgun :
         wp_nochange;
 
       // killough 3/22/98: For network and demo consistency with the
@@ -439,53 +424,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       cmd->buttons |= newweapon<<BT_WEAPONSHIFT;
     }
 
-  // mouse
-  if (mousebuttons[mousebforward])
-    forward += forwardmove[speed];
-
-    // forward double click
-  if (mousebuttons[mousebforward] != dclickstate && dclicktime > 1 )
-    {
-      dclickstate = mousebuttons[mousebforward];
-      if (dclickstate)
-        dclicks++;
-      if (dclicks == 2)
-        {
-          cmd->buttons |= BT_USE;
-          dclicks = 0;
-        }
-      else
-        dclicktime = 0;
-    }
-  else
-    if ((dclicktime += ticdup) > 20)
-      {
-        dclicks = 0;
-        dclickstate = 0;
-      }
-
-  // strafe double click
-
-  bstrafe = mousebuttons[mousebstrafe] || joybuttons[joybstrafe];
-  if (bstrafe != dclickstate2 && dclicktime2 > 1 )
-    {
-      dclickstate2 = bstrafe;
-      if (dclickstate2)
-        dclicks2++;
-      if (dclicks2 == 2)
-        {
-          cmd->buttons |= BT_USE;
-          dclicks2 = 0;
-        }
-      else
-        dclicktime2 = 0;
-    }
-  else
-    if ((dclicktime2 += ticdup) > 20)
-      {
-        dclicks2 = 0;
-        dclickstate2 = 0;
-      }
   mousey = (mousey > 0) ? mousey : mousey / 6; /* mead desense backward moves. */
   forward += mousey;
   if (strafe)
@@ -607,12 +545,9 @@ static void G_DoLoadLevel (void)
   Z_CheckHeap ();
 
   // clear cmd building stuff
-  memset (gamekeydown, 0, sizeof(gamekeydown));
   joyxmove = joyymove = 0;
   mousex = mousey = 0;
   special_event = 0; paused = false;
-  memset (mousebuttons, 0, sizeof(mousebuttons));
-  memset (joybuttons, 0, sizeof(joybuttons));
 
   // killough 5/13/98: in case netdemo has consoleplayer other than green
   ST_Start();
@@ -647,23 +582,20 @@ boolean G_Responder (event_t* ev)
 
   if (ev->data1 == key_spy && netgame && (demoplayback || !deathmatch) &&
       gamestate == GS_LEVEL)
-    {
-      if (ev->type == ev_keyup)
-	gamekeydown[key_spy] = false;
-      if (ev->type == ev_keydown && !gamekeydown[key_spy])
-	{
-	  gamekeydown[key_spy] = true;
-	  do                                          // spy mode
-	    if (++displayplayer >= MAXPLAYERS)
-	      displayplayer = 0;
-	  while (!playeringame[displayplayer] && displayplayer!=consoleplayer);
+  {
+    if (ev->type == ev_keydown)
+	  {
+	    do                                          // spy mode
+	      if (++displayplayer >= MAXPLAYERS)
+	        displayplayer = 0;
+	    while (!playeringame[displayplayer] && displayplayer!=consoleplayer);
 
-	  ST_Start();    // killough 3/7/98: switch status bar views too
-	  HU_Start();
-	  S_UpdateSounds(players[displayplayer].mo);
-	}
-      return true;
-    }
+	    ST_Start();    // killough 3/7/98: switch status bar views too
+	    HU_Start();
+	    S_UpdateSounds(players[displayplayer].mo);
+	  }
+    return true;
+  }
 
   // any other key pops up menu if in demos
   //
@@ -708,19 +640,14 @@ boolean G_Responder (event_t* ev)
           special_event = BT_SPECIAL | (BTS_PAUSE & BT_SPECIALMASK);
           return true;
         }
-      if (ev->data1 <NUMKEYS)
-        gamekeydown[ev->data1] = true;
+    	G_KeyResponder(ev); // keybinding
       return true;    // eat key down events
 
     case ev_keyup:
-      if (ev->data1 <NUMKEYS)
-        gamekeydown[ev->data1] = false;
+    	G_KeyResponder(ev); // keybinding
       return false;   // always let key up events filter down
 
     case ev_mouse:
-      mousebuttons[0] = ev->data1 & 1;
-      mousebuttons[1] = ev->data1 & 2;
-      mousebuttons[2] = ev->data1 & 4;
       /*
        * bmead@surfree.com
        * Modified by Barry Mead after adding vastly more resolution
@@ -733,10 +660,6 @@ boolean G_Responder (event_t* ev)
       return true;    // eat events
 
     case ev_joystick:
-      joybuttons[0] = ev->data1 & 1;
-      joybuttons[1] = ev->data1 & 2;
-      joybuttons[2] = ev->data1 & 4;
-      joybuttons[3] = ev->data1 & 8;
       joyxmove = ev->data2;
       joyymove = ev->data3;
       return true;    // eat events

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_net.h,v 1.3 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_net.h,v 1.4 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -58,14 +58,6 @@
 
 // Networking and tick handling related.
 #define BACKUPTICS              12
-
-typedef enum
-{
-    CMD_SEND    = 1,
-    CMD_GET     = 2
-
-} command_t;
-
 
 //
 // Network packet data.

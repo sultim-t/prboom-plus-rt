@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.36 2001/07/07 17:28:55 proff_fs Exp $
+ * $Id: m_misc.c,v 1.37 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.36 2001/07/07 17:28:55 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.37 2001/07/08 17:34:02 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -179,10 +179,6 @@ int M_ReadFile(char const *name, byte **buffer)
 
 int usemouse;
 boolean    precache = true; /* if true, load all graphics at start */
-
-extern int mousebfire;
-extern int mousebstrafe;
-extern int mousebforward;
 
 extern int viewwidth;
 extern int viewheight;
@@ -416,14 +412,6 @@ default_t defaults[] =
   //jff 4/3/98 allow unlimited sensitivity
   {"mouse_sensitivity_vert",{&mouseSensitivity_vert},{10},0,UL,
    def_int,ss_none}, /* adjust vertical (y) mouse sensitivity killough/mead */
-  //jff 3/8/98 allow -1 in mouse bindings to disable mouse function
-  {"mouseb_fire",{&mousebfire},{0},-1,MAX_MOUSEB,
-   def_int,ss_keys}, // mouse button number to use for fire
-  {"mouseb_strafe",{&mousebstrafe},{1},-1,MAX_MOUSEB,
-   def_int,ss_keys}, // mouse button number to use for strafing
-  {"mouseb_forward",{&mousebforward},{2},-1,MAX_MOUSEB,
-   def_int,ss_keys}, // mouse button number to use for forward motion
-  //jff 3/8/98 end of lower range change for -1 allowed in mouse binding
   
 // For key bindings, the values stored in the key_* variables       // phares
 // are the internal Doom Codes. The values stored in the default.cfg

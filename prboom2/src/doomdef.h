@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.7 2001/02/18 17:13:26 proff_fs Exp $
+ * $Id: doomdef.h,v 1.8 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -269,6 +269,31 @@ typedef enum {
 // phares 3/2/98
 
 #define KEYD_NUMLOCK    0xC5                 // killough 3/6/98
+
+#define KEYD_MOUSE1       (0xe0 + 0)
+#define KEYD_MOUSE2       (0xe0 + 1)
+#define KEYD_MOUSE3       (0xe0 + 2)
+#define KEYD_MOUSE4       (0xe0 + 3)
+#define KEYD_MOUSE5       (0xe0 + 4)
+#define KEYD_MOUSED1      (0xe0 + 5)
+#define KEYD_MOUSED2      (0xe0 + 6)
+#define KEYD_MOUSED3      (0xe0 + 7)
+#define KEYD_JOY1         (0xe0 + 8)
+#define KEYD_JOY2         (0xe0 + 9)
+#define KEYD_JOY3         (0xe0 +10)
+#define KEYD_JOY4         (0xe0 +11)
+#define KEYD_JOY5         (0xe0 +12)
+#define KEYD_JOY6         (0xe0 +13)
+#define KEYD_JOY7         (0xe0 +14)
+#define KEYD_JOY8         (0xe0 +15)
+#define KEYD_JOY9         (0xe0 +16)
+#define KEYD_JOY10        (0xe0 +17)
+#define KEYD_JOY11        (0xe0 +18)
+#define KEYD_JOY12        (0xe0 +19)
+#define KEYD_JOY13        (0xe0 +20)
+#define KEYD_JOY14        (0xe0 +21)
+#define KEYD_JOY15        (0xe0 +22)
+#define KEYD_JOY16        (0xe0 +23)
 
 // cph - Add the numeric keypad keys, as suggested by krose 4/22/99:
 // The way numbers are assigned to keys is a mess, but it's too late to 

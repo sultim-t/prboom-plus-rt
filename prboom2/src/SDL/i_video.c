@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.28 2001/07/07 14:52:15 proff_fs Exp $
+ * $Id: i_video.c,v 1.29 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.28 2001/07/07 14:52:15 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.29 2001/07/08 17:34:02 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -84,6 +84,9 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
+static int doubleclicktime[3]={0,0,0};
+static int doubleclicks[3]={0,0,0};
+static int eventtime;
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -172,15 +175,6 @@ int I_ScanCode2DoomCode(int c)
 /////////////////////////////////////////////////////////////////////////////////
 // Main input code
 
-/* cph - pulled out common button code logic */
-static int I_SDLtoDoomMouseState(Uint8 buttonstate)
-{
-  return 0
-      | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
-      | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
-      | (buttonstate & SDL_BUTTON(3) ? 4 : 0);
-}
-
 static void I_GetEvent(SDL_Event *Event)
 {
   event_t event;
@@ -201,20 +195,105 @@ static void I_GetEvent(SDL_Event *Event)
   break;
 
   case SDL_MOUSEBUTTONDOWN:
+  if (usemouse)
+  {
+    switch (Event->button.button)
+    {
+    case SDL_BUTTON_LEFT:
+      event.type = ev_keydown;
+      event.data1 = KEYD_MOUSE1;
+      D_PostEvent(&event);
+      if (doubleclicktime[0])
+      {
+        if ((eventtime-doubleclicktime[0])<20)
+          doubleclicks[0]++;
+        if (doubleclicks[0]==2)
+        {
+          event.type = ev_keydown;
+          event.data1 = KEYD_MOUSED1;
+          D_PostEvent(&event);
+        }
+      }
+      else
+      {
+        doubleclicks[0]=1;
+        doubleclicktime[0]=eventtime;
+      }
+      break;
+    case SDL_BUTTON_RIGHT:
+      event.type = ev_keydown;
+      event.data1 = KEYD_MOUSE2;
+      D_PostEvent(&event);
+      if (doubleclicktime[1])
+      {
+        if ((eventtime-doubleclicktime[1])<20)
+          doubleclicks[1]++;
+        if (doubleclicks[1]==2)
+        {
+          event.type = ev_keydown;
+          event.data1 = KEYD_MOUSED2;
+          D_PostEvent(&event);
+        }
+      }
+      else
+      {
+        doubleclicks[1]=1;
+        doubleclicktime[1]=eventtime;
+      }
+      break;
+    case SDL_BUTTON_MIDDLE:
+      event.type = ev_keydown;
+      event.data1 = KEYD_MOUSE3;
+      D_PostEvent(&event);
+      if (doubleclicktime[2])
+      {
+        if ((eventtime-doubleclicktime[2])<20)
+          doubleclicks[2]++;
+        if (doubleclicks[2]==2)
+        {
+          event.type = ev_keydown;
+          event.data1 = KEYD_MOUSED3;
+          D_PostEvent(&event);
+        }
+      }
+      else
+      {
+        doubleclicks[2]=1;
+        doubleclicktime[2]=eventtime;
+      }
+      break;
+    }
+  }
+  break;
+
   case SDL_MOUSEBUTTONUP:
   if (usemouse)
   {
-    event.type = ev_mouse;
-    event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
-    event.data2 = event.data3 = 0;
-    D_PostEvent(&event);
+    switch (Event->button.button)
+    {
+    case SDL_BUTTON_LEFT:
+      event.type = ev_keyup;
+      event.data1 = KEYD_MOUSE1;
+      D_PostEvent(&event);
+      break;
+    case SDL_BUTTON_RIGHT:
+      event.type = ev_keyup;
+      event.data1 = KEYD_MOUSE2;
+      D_PostEvent(&event);
+      break;
+    case SDL_BUTTON_MIDDLE:
+      event.type = ev_keyup;
+      event.data1 = KEYD_MOUSE3;
+      D_PostEvent(&event);
+      break;
+    }
   }
   break;
 
   case SDL_MOUSEMOTION:
   if (usemouse) {
     event.type = ev_mouse;
-    event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
+    event.data1 = 0;
     event.data2 = Event->motion.xrel << 5;
     event.data3 = -Event->motion.yrel << 5;
     D_PostEvent(&event);
@@ -240,6 +319,8 @@ static int mouse_currently_grabbed;
 void I_StartTic (void)
 {
   SDL_Event Event;
+  event_t event;
+
   {
     int should_be_grabbed = usemouse &&
 	    !(paused || (gamestate != GS_LEVEL) || demoplayback); 
@@ -247,6 +328,32 @@ void I_StartTic (void)
     if (mouse_currently_grabbed != should_be_grabbed)
       SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed) 
 		      ? SDL_GRAB_ON : SDL_GRAB_OFF);
+  }
+
+  eventtime=I_GetTime_RealTime();
+  if (((eventtime-doubleclicktime[0])>=20) || (doubleclicks[0]>=2))
+  {
+    event.type = ev_keyup;
+    event.data1 = KEYD_MOUSED1;
+    D_PostEvent(&event);
+    doubleclicktime[0]=0;
+    doubleclicks[0]=0;
+  }
+  if (((eventtime-doubleclicktime[1])>=20) || (doubleclicks[1]>=2))
+  {
+    event.type = ev_keyup;
+    event.data1 = KEYD_MOUSED2;
+    D_PostEvent(&event);
+    doubleclicktime[1]=0;
+    doubleclicks[1]=0;
+  }
+  if (((eventtime-doubleclicktime[2])>=20) || (doubleclicks[2]>=2))
+  {
+    event.type = ev_keyup;
+    event.data1 = KEYD_MOUSED3;
+    D_PostEvent(&event);
+    doubleclicktime[2]=0;
+    doubleclicks[2]=0;
   }
 
   while ( SDL_PollEvent(&Event) )

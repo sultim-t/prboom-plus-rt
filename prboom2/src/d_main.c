@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.39 2001/07/03 12:17:03 proff_fs Exp $
+ * $Id: d_main.c,v 1.40 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.39 2001/07/03 12:17:03 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.40 2001/07/08 17:34:02 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -74,6 +74,7 @@ static const char rcsid[] = "$Id: d_main.c,v 1.39 2001/07/03 12:17:03 proff_fs E
 #include "i_sound.h"
 #include "i_video.h"
 #include "g_game.h"
+#include "g_bind.h" // keybinding
 #include "hu_stuff.h"
 #include "wi_stuff.h"
 #include "st_stuff.h"
@@ -1756,6 +1757,9 @@ void D_DoomMainSetup(void)
   // CPhipps - now wait for netgame start
   D_CheckNetGame();
 #endif
+
+  lprintf(LO_INFO,"G_LoadDefaults: Init keybindings.\n"); // keybinding
+  G_LoadDefaults();
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"R_Init: Init DOOM refresh daemon - ");

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.h,v 1.4 2000/09/16 20:20:40 proff_fs Exp $
+ * $Id: m_menu.h,v 1.5 2001/07/08 17:34:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -173,8 +173,6 @@ typedef struct setup_menu_s
     struct setup_menu_s *menu;  /* next or prev menu */
   } var;
 
-  int         *m_mouse; /* mouse button value, or 0 if not shown */
-  int         *m_joy;   /* joystick button value, or 0 if not shown */
   void (*action)(void); /* killough 10/98: function to call after changing */
 } setup_menu_t;
 

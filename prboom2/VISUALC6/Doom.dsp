@@ -449,6 +449,14 @@ SOURCE=..\src\f_wipe.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\g_bind.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\g_bind.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\g_game.c
 # End Source File
 # Begin Source File
