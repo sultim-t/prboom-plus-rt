@@ -573,7 +573,6 @@ extern char *shiftxform; // hu_stuff.c
 
 boolean MN_Responder (event_t *ev)
 {
-  char tempstr[128];
   unsigned char ch;
   static boolean shiftdown;
 
@@ -722,22 +721,6 @@ boolean MN_Responder (event_t *ev)
 	    C_RunTextCmd(menuitem->data);
 	    break;
 	  }
-#if 0	
-	case it_toggle:
-	  {
-	    // boolean values only toggled on enter
-	    if(menuitem->var->type != vt_int ||
-	       menuitem->var->max-menuitem->var->min > 1) break;
-	    
-	    // toggle value now
-	    sprintf(tempstr, "%s /", menuitem->data);
-	    cmdtype = c_menu;
-	    C_RunTextCmd(tempstr);
-	    
-	    S_StartSound(NULL,sfx_pistol);  // make sound
-	    break;
-	  }
-#endif
 	case it_variable:
 	  {
 	    menuitem_t *menuitem =
@@ -784,14 +767,9 @@ boolean MN_Responder (event_t *ev)
 	case it_slider:
 	case it_toggle:
 	  {
-	    // no on-off int values
-	    //if(menuitem->var->type == vt_int &&
-	    //   menuitem->var->max-menuitem->var->min == 1) break;
-	    
 	    // change variable
-	    sprintf(tempstr, "%s -", menuitem->data);
 	    cmdtype = c_menu;
-	    C_RunTextCmd(tempstr);
+	    C_RunTextCmdf("%s -", menuitem->data);
 	  }
 	default:
 	  {
@@ -811,14 +789,9 @@ boolean MN_Responder (event_t *ev)
 	case it_slider:
 	case it_toggle:
 	  {
-	    // no on-off int values
-	    //if(menuitem->var->type == vt_int &&
-	    //   menuitem->var->max-menuitem->var->min == 1) break;
-	    
 	    // change variable
-	    sprintf(tempstr, "%s +", menuitem->data);
 	    cmdtype = c_menu;
-	    C_RunTextCmd(tempstr);
+	    C_RunTextCmdf("%s +", menuitem->data);
 	  }
 	
 	default:
