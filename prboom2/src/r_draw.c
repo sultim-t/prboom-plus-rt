@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.13 2000/11/18 13:21:20 cph Exp $
+ * $Id: r_draw.c,v 1.13.2.1 2001/02/18 17:19:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.13 2000/11/18 13:21:20 cph Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.13.2.1 2001/02/18 17:19:50 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -154,7 +154,7 @@ void R_DrawColumn (void)
   count++;
 
 #ifdef RANGECHECK 
-  if ((unsigned)dc_x >= SCREENWIDTH
+  if ((unsigned)dc_x >= (unsigned)SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
     I_Error("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
@@ -253,7 +253,7 @@ void R_DrawTLColumn (void)
     return; 
                                  
 #ifdef RANGECHECK 
-  if ((unsigned)dc_x >= SCREENWIDTH
+  if ((unsigned)dc_x >= (unsigned)SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
     I_Error("R_DrawTLColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 

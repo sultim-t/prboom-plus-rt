@@ -4,8 +4,8 @@ AC_CONFIG_AUX_DIR(autotools)
 
 dnl --- Set version strings
 PR_MAJOR_VERSION=2
-PR_MINOR_VERSION=1
-PR_MICRO_VERSION=2
+PR_MINOR_VERSION=2
+PR_MICRO_VERSION=0
 PR_VERSION=$PR_MAJOR_VERSION.$PR_MINOR_VERSION.$PR_MICRO_VERSION
 
 AC_SUBST(PR_VERSION)
@@ -79,6 +79,9 @@ AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp))
 AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf)
 
 dnl --- Check for libraries
+dnl --- cph: we need pow(3) in SDL/i_sound.c; on some systems it gets pulled
+dnl ---  in by other libraries, ubt we can't rely on that.
+AC_CHECK_LIB(m,pow)
 dnl - system specific stuff
 case "$target" in
     *-*-cygwin* | *-*-mingw32*)

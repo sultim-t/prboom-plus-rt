@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.h,v 1.3 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_joy.h,v 1.3.2.2 2001/02/18 18:29:38 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine

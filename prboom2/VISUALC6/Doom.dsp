@@ -1,30 +1,30 @@
 # Microsoft Developer Studio Project File - Name="Doom" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
 CFG=Doom - Win32 Debug OpenGL NOASM
-!MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE use the Export Makefile command and run
+!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
+!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
 !MESSAGE NMAKE /f "Doom.mak".
 !MESSAGE 
-!MESSAGE You can specify a configuration when running NMAKE
-!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
+!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
 !MESSAGE NMAKE /f "Doom.mak" CFG="Doom - Win32 Debug OpenGL NOASM"
 !MESSAGE 
-!MESSAGE Possible choices for configuration are:
+!MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "Doom - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Debug" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Release OpenGL" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Debug OpenGL" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Release NOASM" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Release OpenGL NOASM" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Debug NOASM" (based on "Win32 (x86) Application")
-!MESSAGE "Doom - Win32 Debug OpenGL NOASM" (based on "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Release" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Debug" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Release OpenGL" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Debug OpenGL" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Release NOASM" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Release OpenGL NOASM" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Debug NOASM" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Debug OpenGL NOASM" (basierend auf  "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -473,7 +473,7 @@ SOURCE=..\src\hu_stuff.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\i_joy.c
+SOURCE=..\src\Sdl\i_joy.c
 # End Source File
 # Begin Source File
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.20 2000/11/19 10:16:59 cph Exp $
+ * $Id: m_menu.c,v 1.20.2.1 2001/02/18 17:19:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.20 2000/11/19 10:16:59 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.20.2.1 2001/02/18 17:19:50 proff_fs Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -3733,6 +3733,7 @@ int M_GetKeyString(int c,int offset)
       case KEYD_END:        s = "END";  break;
       case KEYD_PAGEDOWN:   s = "PGDN"; break;
       case KEYD_INSERT:	    s = "INST"; break;
+      case KEYD_DEL:	      s = "DEL"; break;
       case KEYD_F10:        s = "F10";  break;
       case KEYD_F11:        s = "F11";  break;
       case KEYD_F12:        s = "F12";  break;
