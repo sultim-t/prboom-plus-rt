@@ -1886,6 +1886,7 @@ static void G_Compatibility(void)
            * mancubi shots going thru walls */
     prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
+    boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
   };
   int i;
   for (i=0; i<COMP_NUM; i++)

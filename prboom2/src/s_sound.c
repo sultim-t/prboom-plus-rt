@@ -218,7 +218,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   if (!snd_card || nosfxparm)
     return;
 
-  is_pickup = sfx_id & PICKUP_SOUND || sfx_id == sfx_oof; // killough 4/25/98
+  is_pickup = sfx_id & PICKUP_SOUND || sfx_id == sfx_oof || (compatibility_level >= prboom_2_compatibility && sfx_id == sfx_noway); // killough 4/25/98
   sfx_id &= ~PICKUP_SOUND;
 
   // check for bogus sound #
@@ -276,7 +276,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // kill old sound
   for (cnum=0 ; cnum<numChannels ; cnum++)
     if (channels[cnum].sfxinfo && channels[cnum].origin == origin &&
-        channels[cnum].is_pickup == is_pickup)
+        (comp[comp_sound] || channels[cnum].is_pickup == is_pickup))
       {
         S_StopChannel(cnum);
         break;

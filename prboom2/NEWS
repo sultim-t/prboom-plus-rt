@@ -3,6 +3,7 @@ For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
+- add sound compatibility option
 - shared texture palette isn't the default anymore
 - better invulnerabilty rendering for non paletted OpenGL
 - small compilation fixed for OpenGL on some unix platforms
