@@ -7,6 +7,7 @@ Changes from v2.1.2 to v2.2.0
 - fixed OpenGL menu drawing bug
 - hopefully fixed top sky line bug for some OpenGL drivers
 - added joystick support through SDL
+- made a (temporary) fix for the crash at 800x600 when timidity can't find cfg
 
 Changes from v2.1.1 to v2.1.2
 - fix problem with sound stereo
