@@ -1,5 +1,5 @@
 #
 #
 
-EXTRA_DIST = Doom.sln prboom_server.vcproj Doom.vcproj viddsys.vcproj
+EXTRA_DIST = Doom.sln prboom_server.vcproj Doom.vcproj viddsys.vcproj config.h
 

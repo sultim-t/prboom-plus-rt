@@ -176,5 +176,5 @@ AC_SUBST(ac_aux_dir)
 AC_DEFINE(GL_DOOM)
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/inl/Makefile src/POSIX/Makefile src/SDL/Makefile src/vidd/Makefile doc/Makefile data/Makefile ICONS/Makefile VISUALC5/Makefile VISUALC6/Makefile VISUALCNET/Makefile prboom.spec)
+AC_OUTPUT(Makefile src/Makefile src/inl/Makefile src/POSIX/Makefile src/SDL/Makefile src/vidd/Makefile doc/Makefile data/Makefile ICONS/Makefile ViddSys/Makefile ViddSys/bzlib/Makefile ViddSys/XML/Makefile ViddSys/zlib/Makefile VISUALC5/Makefile VISUALC6/Makefile VISUALCNET/Makefile prboom.spec)
 # src/OSS/Makefile src/X11/Makefile
