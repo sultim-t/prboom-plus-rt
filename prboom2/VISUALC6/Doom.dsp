@@ -1239,6 +1239,10 @@ SOURCE=..\src\gl_polytest.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\gl_preprocess.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\gl_struct.h
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
