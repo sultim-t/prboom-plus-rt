@@ -464,8 +464,8 @@ static void HU_LevelTimeHandler()
   sprintf(timestr, "%02i:%02i:%02i", seconds/3600, (seconds%3600)/60,
 	  seconds%60);
 
-  hu_leveltime.x = SCREENWIDTH-HU_StringWidth("A")*13;
-  hu_leveltime.y = SCREENHEIGHT-ST_SCALED_HEIGHT-8;
+  hu_leveltime.x = 320-HU_StringWidth("A")*13;
+  hu_leveltime.y = 200-ST_HEIGHT-8;
   hu_leveltime.message = timestr;
 }
 
@@ -485,10 +485,9 @@ static textwidget_t hu_levelname =
 
 static void HU_LevelNameHandler()
 {
-  hu_levelname.y = SCREENHEIGHT-ST_SCALED_HEIGHT-8;
-
   if (automapmode & am_active)
   {
+    hu_levelname.y = 200-ST_HEIGHT-8;
     hu_levelname.message = levelname;
   }
   else
@@ -514,11 +513,10 @@ static void HU_CoordHandler()
   static char coord_str[128];
   player_t *plr = &players[displayplayer];
 
-  hu_coord.x = SCREENWIDTH-HU_StringWidth("A")*13;
-  hu_coord.y = 1;
-
   if (automapmode & am_active)
   {
+    hu_coord.x = 320-HU_StringWidth("A")*13;
+    hu_coord.y = 1;
 #ifdef HAVE_SNPRINTF
     snprintf(coord_str,
              127,
@@ -527,7 +525,6 @@ static void HU_CoordHandler()
              (plr->mo->y)>>FRACBITS,
              (plr->mo->z)>>FRACBITS
             );
-    coord_str[127] = 0;
 #else
     sprintf(coord_str,
             "X: %-5d\nY: %-5d\nZ: %-5d",
@@ -536,6 +533,7 @@ static void HU_CoordHandler()
             (plr->mo->z)>>FRACBITS
            );
 #endif
+    coord_str[127] = 0;
     hu_coord.message = coord_str;
   }
   else
