@@ -10,6 +10,7 @@ Changes from v2.2.2 to v2.2.3
 - apply workarounds for buggy pwads even during demo playback
 - fix numpad 5 key
 - allow compilation on systems where SDL is built without joystick support
+- fix comp_skymap
 
 Changes from v2.2.1 to v2.2.2
 - more demo sync problems for original Doom and Boom fixed
