@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.13 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: p_map.c,v 1.14 2002/09/22 13:50:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.13 2002/08/05 17:44:58 proff_fs Exp $";
+rcsid[] = "$Id: p_map.c,v 1.14 2002/09/22 13:50:57 cph Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -50,7 +50,6 @@ rcsid[] = "$Id: p_map.c,v 1.13 2002/08/05 17:44:58 proff_fs Exp $";
 #include "lprintf.h"
 
 static mobj_t    *tmthing;
-static uint_64_t tmflags;
 static fixed_t   tmx;
 static fixed_t   tmy;
 static int pe_x; // Pain Elemental position for Lost Soul checks // phares
@@ -233,7 +232,6 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
   // kill anything occupying the position
 
   tmthing = thing;
-  tmflags = thing->flags;
 
   tmx = x;
   tmy = y;
@@ -558,7 +556,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   if (thing->flags & MF_SPECIAL)
     {
       uint_64_t solid = thing->flags & MF_SOLID;
-      if (tmflags & MF_PICKUP)
+      if (tmthing->flags & MF_PICKUP)
 	P_TouchSpecialThing(thing, tmthing); // can remove thing
       return !solid;
     }
@@ -660,7 +658,6 @@ boolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
   subsector_t*  newsubsec;
 
   tmthing = thing;
-  tmflags = thing->flags;
 
   tmx = x;
   tmy = y;
@@ -688,7 +685,7 @@ boolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
   validcount++;
   numspechit = 0;
 
-  if ( tmflags & MF_NOCLIP )
+  if ( tmthing->flags & MF_NOCLIP )
     return true;
 
   // Check things first, possibly picking things up.
@@ -2119,6 +2116,7 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
   int by;
   msecnode_t* node;
   mobj_t* saved_tmthing = tmthing; /* cph - see comment at func end */
+  fixed_t saved_tmx = tmx, saved_tmy = tmy; /* ditto */
 
   // First, clear out the existing m_thing fields. As each node is
   // added or verified as needed, m_thing will be set properly. When
@@ -2133,7 +2131,6 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
     }
 
   tmthing = thing;
-  tmflags = thing->flags;
 
   tmx = x;
   tmy = y;
@@ -2185,4 +2182,8 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
   if ((compatibility_level < boom_compatibility_compatibility) ||
       (compatibility_level >= prboom_3_compatibility))
     tmthing = saved_tmthing;
+  /* And, duh, the same for tmx/y - cph 2002/09/22 */
+  if ((compatibility_level < boom_compatibility_compatibility) ||
+      (compatibility_level >= prboom_4_compatibility))
+    tmx = saved_tmx, tmy = saved_tmy;
   }
