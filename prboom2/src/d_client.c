@@ -109,6 +109,7 @@ void D_InitNetGame (void)
       {
         printf("type: %d\n",packet->type);
       }
+      if (packet->type == PKT_DOWN) I_Error("Server aborted the game");
     } while (packet->type != PKT_SETUP);
 
     // Get info from the setup packet
