@@ -1614,6 +1614,7 @@ void D_DoomMainSetup(void)
   if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
     ProcessDehFile(NULL, D_dehout(), p);
 
+  V_InitMisc();
   V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
   // killough 2/22/98: copyright / "modified game" / SPA banners removed
