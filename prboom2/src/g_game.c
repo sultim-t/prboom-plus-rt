@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.45 2001/08/14 17:12:58 cph Exp $
+ * $Id: g_game.c,v 1.46 2001/09/02 13:55:47 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.45 2001/08/14 17:12:58 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.46 2001/09/02 13:55:47 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1620,22 +1620,16 @@ static void G_DoSaveGame (boolean menu)
   save_p += SAVESTRINGSIZE;
   memset (name2,0,sizeof(name2));
 
-  // CPhipps - scan for the version header
-  for (i=0; (size_t)i<num_version_headers; i++)
-    if (version_headers[i].comp_level == compatibility_level) {
-      // killough 2/22/98: "proprietary" version string :-)
-      sprintf (name2,version_headers[i].ver_printf,version_headers[i].version);
-      memcpy (save_p, name2, VERSIONSIZE);
-      i = num_version_headers+1;
-    }
+  /* cph 2001/08/15 - look for an appropriate version string for the savegame, 
+   *  otherwise falling back on the last one in the array, which should be the 
+   *  current save format.
+   */
+  for (i=0; (size_t)i<num_version_headers-1; i++)
+    if (version_headers[i].comp_level == compatibility_level) break;
 
-  if ((size_t)i == num_version_headers) {
-    doom_printf("No savegame signature known for\nthis compatibility level\n"
-		"%d/%d, %u registered", compatibility_level, 
-		MAX_COMPATIBILITY_LEVEL, num_version_headers);
-    free(savebuffer); // cph - free data
-    return;
-  }
+  // killough 2/22/98: "proprietary" version string :-)
+  sprintf (name2,version_headers[i].ver_printf,version_headers[i].version);
+  memcpy (save_p, name2, VERSIONSIZE);
 
   save_p += VERSIONSIZE;
 
@@ -2049,7 +2043,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
   char buf[4];
 
-  buf[0] = cmd->forwardmove;
+  buf[0] = compatibility ? (cmd->forwardmove & ~1) : cmd->forwardmove;
   buf[1] = cmd->sidemove;
   buf[2] = (cmd->angleturn+128)>>8;
   buf[3] = cmd->buttons;
