@@ -243,12 +243,35 @@ void gld_InitExtensions(const char *_extensions)
 void gld_Init(int width, int height)
 { 
   GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
-	GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+  GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
   lprintf(LO_INFO,"GL_VENDOR: %s\n",p_glGetString(GL_VENDOR));
   lprintf(LO_INFO,"GL_RENDERER: %s\n",p_glGetString(GL_RENDERER));
   lprintf(LO_INFO,"GL_VERSION: %s\n",p_glGetString(GL_VERSION));
-  lprintf(LO_INFO,"GL_EXTENSIONS: %s\n",p_glGetString(GL_EXTENSIONS));
+  lprintf(LO_INFO,"GL_EXTENSIONS:\n");
+  {
+    char ext_name[256];
+    const char *extensions = p_glGetString(GL_EXTENSIONS);
+    const char *rover = extensions;
+    const char *p = rover;
+
+    while (*rover)
+    {
+      p = rover;
+      while (*p && *p != ' ')
+        p++;
+      if (*p)
+      {
+        int len = min(p-extensions, sizeof(ext_name)-1);
+        memset(ext_name, 0, sizeof(ext_name));
+        strncpy(ext_name, rover, len);
+        lprintf(LO_INFO,"\t%s\n", ext_name);
+      }
+      rover = p;
+      while (*rover && *rover == ' ')
+        rover++;
+    }
+  }
 
   gld_InitExtensions(p_glGetString(GL_EXTENSIONS));
   //gl_shared_texture_palette = false;
