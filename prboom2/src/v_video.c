@@ -233,10 +233,10 @@ void V_PlotPixelGL(int scrn, int x, int y, byte color) {
 void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
 {
 }
-void WRAP_gld_PlotPatch(const TPatch *patch, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable, boolean translucent, byte *destBuffer, int bufferWidth, int bufferHeight)
+void WRAP_gld_PlotPatch(const TPatch *patch, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable, boolean translucent, byte *destBuffer, int bufferWidth, int bufferHeight, boolean flip)
 {
 }
-void WRAP_gld_PlotPatchNum(int patchNum, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable, boolean translucent, byte *destBuffer, int bufferWidth, int bufferHeight)
+void WRAP_gld_PlotPatchNum(int patchNum, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable, boolean translucent, byte *destBuffer, int bufferWidth, int bufferHeight, boolean flip)
 {
 }
 void WRAP_gld_PlotTextureNum(int textureNum, int x, int y, int width, int height, TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, byte *destBuffer, int bufferWidth, int bufferHeight)

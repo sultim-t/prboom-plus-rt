@@ -272,7 +272,8 @@ void FUNC_V_PlotPatch(
   const TPatch *patch, TPlotRect destRect, const TPlotRect clampRect,
   TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, 
   const byte *colorTranslationTable, boolean translucent,
-  byte *destBuffer, int bufferWidth, int bufferHeight
+  byte *destBuffer, int bufferWidth, int bufferHeight,
+  boolean flip
 ) {
   const TPatchColumn *column, *nextColumn, *prevColumn;
   fixed_t yfrac, xfrac, srcX, srcYShift;
@@ -316,8 +317,8 @@ void FUNC_V_PlotPatch(
     dcvars.x = dx;
     if (dcvars.x >= clampRect.right) break;
     
-    dcvars.texu = srcX % (patch->width<<FRACBITS);
-    srcColumnIndex = (srcX>>FRACBITS) % patch->width;
+    dcvars.texu = (flip ? (patch->width<<FRACBITS)-srcX : srcX) % (patch->width<<FRACBITS);
+    srcColumnIndex = (flip ? patch->width-(srcX>>FRACBITS) : (srcX>>FRACBITS)) % patch->width;
     srcX += FixedDiv(FRACUNIT, xfrac);
 
     // ignore this column if it's to the left of our clampRect
@@ -371,10 +372,11 @@ void FUNC_V_PlotPatchNum(
   int patchNum, TPlotRect destRect, const TPlotRect clampRect,
   TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, 
   const byte *colorTranslationTable, boolean translucent,
-  byte *destBuffer, int bufferWidth, int bufferHeight
+  byte *destBuffer, int bufferWidth, int bufferHeight,
+  boolean flip
 ) {
   const TPatch *patch = R_CachePatchNum(patchNum);
-  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, slope, colorTranslationTable, translucent, destBuffer, bufferWidth, bufferHeight);
+  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, slope, colorTranslationTable, translucent, destBuffer, bufferWidth, bufferHeight, flip);
   R_UnlockPatchNum(patchNum);
 }
 
@@ -413,7 +415,7 @@ void FUNC_V_PlotTextureNum(
     
     FUNC_V_PlotPatch(
       patch, destRect, clampRect, filter, slope, 0, false,
-      destBuffer, bufferWidth, bufferHeight
+      destBuffer, bufferWidth, bufferHeight, false
     );
     R_UnlockPatchNum(patchNum);
   }
@@ -453,7 +455,7 @@ byte *FUNC_V_GetPlottedPatch(
   memset(destBuffer, 0xff, bufferSize);
 #endif
   
-  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, slope, colorTranslationTable, false, destBuffer, bufferWidth, bufferHeight);  
+  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, slope, colorTranslationTable, false, destBuffer, bufferWidth, bufferHeight, false);
   
 #if V_VIDEO_BITS == 32
   finalizeTrueColorBuffer(destBuffer, bufferWidth*bufferHeight, convertToBGRA);
@@ -548,7 +550,8 @@ void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
   FUNC_V_PlotPatch(
     patch, destRect, clampRect, 
     vid_drawPatchFilterType, vid_drawPatchSlopeType, 
-    trans, translucent, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT
+    trans, translucent, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT,
+    flags & VPT_FLIP
   );
   R_UnlockPatchNum(lump);
 }
