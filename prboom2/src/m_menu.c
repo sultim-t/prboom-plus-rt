@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.9 2000/05/18 11:32:40 cph Exp $
+ * $Id: m_menu.c,v 1.10 2000/05/18 20:55:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.9 2000/05/18 11:32:40 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.10 2000/05/18 20:55:14 proff_fs Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -5084,16 +5084,16 @@ void M_Drawer (void)
 
       int y = 100 - M_StringHeight(messageString)/2;
       while (*p)
-	{
-	  char *string = p, c;
-	  while ((c = *p) && *p != '\n')
-	    p++;
-	  *p = 0;
-	  M_WriteText(160 - M_StringWidth(string)/2, y, string);
-	  y += SHORT(hu_font[0].height);
-	  if ((*p = c))
-	    p++;
-	}
+      {
+        char *string = p, c;
+        while ((c = *p) && *p != '\n')
+          p++;
+        *p = 0;
+        M_WriteText(160 - M_StringWidth(string)/2, y, string);
+        y += SHORT(hu_font[0].height);
+        if ((*p = c))
+          p++;
+      }
       free(ms);
     }
   else
@@ -5261,7 +5261,7 @@ void M_DrawSelCell (menu_t* menu,int item)
 int M_StringWidth(const char* string)
 {
   int i, c, w = 0;
-  for (i = 0;i < strlen(string);i++)
+  for (i = 0;(size_t)i < strlen(string);i++)
     w += (c = toupper(string[i]) - HU_FONTSTART) < 0 || c >= HU_FONTSIZE ?
       4 : SHORT(hu_font[c].width);
   return w;
