@@ -397,7 +397,7 @@ void V_Init (void)
   //  if e.g. it wants a MitSHM buffer instead
 
   for (i=0 ; i<PREALLOCED_SCREENS ; i++)
-    screens[i] = Z_Calloc(SCREENWIDTH*SCREENHEIGHT, 1, PU_STATIC, NULL);
+    screens[i] = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
   for (; i<4; i++) // Clear the rest (paranoia)
     screens[i] = NULL;
 }

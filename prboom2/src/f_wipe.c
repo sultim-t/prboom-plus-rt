@@ -81,7 +81,7 @@ static int wipe_initMelt(int width, int height, int ticks)
   wipe_shittyColMajorXform((short*)wipe_scr_end, width/2, height);
 
   // setup initial column positions (y<0 => not ready to scroll yet)
-  y = (int *) Z_Malloc(width*sizeof(int), PU_STATIC, 0);
+  y = (int *) malloc(width*sizeof(int));
   y[0] = -(M_Random()%16);
   for (i=1;i<width;i++)
     {
@@ -145,9 +145,9 @@ static int wipe_doMelt(int width, int height, int ticks)
 
 static int wipe_exitMelt(int width, int height, int ticks)
 {
-  Z_Free(y);
-  Z_Free(wipe_scr_start);
-  Z_Free(wipe_scr_end);
+  free(y);
+  free(wipe_scr_start);
+  free(wipe_scr_end);
   // Paranoia
   y = NULL;
   wipe_scr_start = wipe_scr_end = screens[SRC_SCR] = screens[DEST_SCR] = NULL;

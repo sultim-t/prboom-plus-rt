@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*-
+/* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *
+ *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -41,17 +41,10 @@
 #define __attribute__(x)
 #endif
 
-// Remove all definitions before including system definitions
-
-#undef malloc
-#undef free
-#undef realloc
-#undef calloc
-#undef strdup
-
 // Include system definitions so that prototypes become
 // active before macro replacements below are in effect.
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +62,7 @@ enum {PU_FREE, PU_STATIC, PU_SOUND, PU_MUSIC, PU_LEVEL, PU_LEVSPEC, PU_CACHE,
 #define DA(x,y) ,x,y
 #define DAC(x,y) x,y
 #else
-#define DA(x,y)
+#define DA(x,y) 
 #define DAC(x,y)
 #endif
 
@@ -78,6 +71,7 @@ void (Z_Free)(void *ptr DA(const char *, int));
 void (Z_FreeTags)(int lowtag, int hightag DA(const char *, int));
 void (Z_ChangeTag)(void *ptr, int tag DA(const char *, int));
 void (Z_Init)(void);
+void Z_Close(void);
 void *(Z_Calloc)(size_t n, size_t n2, int tag, void **user DA(const char *, int));
 void *(Z_Realloc)(void *p, size_t n, int tag, void **user DA(const char *, int));
 char *(Z_Strdup)(const char *s, int tag, void **user DA(const char *, int));
@@ -85,7 +79,7 @@ void (Z_CheckHeap)(DAC(const char *,int));   // killough 3/22/98: add file/line 
 void Z_DumpHistory(char *);
 
 #ifdef INSTRUMENTED
-/* cph - save space if not debugging, don't require file
+/* cph - save space if not debugging, don't require file 
  * and line to memory calls */
 #define Z_Free(a)          (Z_Free)     (a,      __FILE__,__LINE__)
 #define Z_FreeTags(a,b)    (Z_FreeTags) (a,b,    __FILE__,__LINE__)
@@ -96,6 +90,21 @@ void Z_DumpHistory(char *);
 #define Z_Realloc(a,b,c,d) (Z_Realloc)  (a,b,c,d,__FILE__,__LINE__)
 #define Z_CheckHeap()      (Z_CheckHeap)(__FILE__,__LINE__)
 #endif
+
+/* cphipps 2001/11/18 -
+ * If we're using memory mapped file access to WADs, we won't need to maintain
+ * our own heap. So we *could* let "normal" malloc users use the libc malloc
+ * directly, for efficiency. Except we do need a wrapper to handle out of memory
+ * errors... damn, ok, we'll leave it for now.
+ */
+#ifndef HAVE_LIBDMALLOC
+// Remove all definitions before including system definitions
+
+#undef malloc
+#undef free
+#undef realloc
+#undef calloc
+#undef strdup
 
 #define malloc(n)          Z_Malloc(n,PU_STATIC,0)
 #define free(p)            Z_Free(p)
@@ -109,9 +118,19 @@ char *strdup(const char *s);
 #endif
 #define strdup(s)          Z_Strdup(s,PU_STATIC,0)
 
+#else
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+#endif
+
 // Doom-style printf
 void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
 
 void Z_ZoneHistory(char *);
+
+extern size_t zone_size;
 
 #endif
