@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_user.c,v 1.4 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_user.c,v 1.5 2001/06/28 22:37:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_user.c,v 1.4 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_user.c,v 1.5 2001/06/28 22:37:54 cph Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -110,8 +110,11 @@ void P_CalcHeight (player_t* player)
    * it causes bobbing jerkiness when the player moves from ice to non-ice,
    * and vice-versa.
    */
-  player->bob = player_bobbing ? (FixedMul(player->momx,player->momx) + 
-				  FixedMul(player->momy,player->momy))>>2 : 0;
+  player->bob = !mbf_features ? 
+    (FixedMul (player->mo->momx, player->mo->momx)
+     + FixedMul (player->mo->momy,player->mo->momy))>>2 :
+    player_bobbing ? (FixedMul(player->momx,player->momx) + 
+        FixedMul(player->momy,player->momy))>>2 : 0;
 
   if (player->bob > MAXBOB)                             
     player->bob = MAXBOB;
