@@ -293,8 +293,6 @@ extern  int             mouseSensitivity_vert;
 extern  boolean         singletics;
 
 extern  int             bodyqueslot;
-extern  int             bodyquesize;                        // phares 8/10/98
-extern  mobj_t          **bodyque;                          // phares 8/10/98
 
 // Needed to store the number of the dummy sky flat.
 // Used for rendering, as well as tracking projectiles etc.

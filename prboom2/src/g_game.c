@@ -1569,16 +1569,22 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 
   // flush an old corpse if needed
   // killough 2/8/98: make corpse queue have an adjustable limit
+  // killough 8/1/98: Fix bugs causing strange crashes
+
   if (bodyquesize > 0)
     {
-//    static mobj_t **bodyque;       // phares 8/10/98: moved outside routine
-      if (!bodyque)
-        bodyque = calloc(bodyquesize,sizeof*bodyque);
-      if (bodyque[bodyqueslot])
-        P_RemoveMobj(bodyque[bodyqueslot]);
-      bodyque[bodyqueslot] = players[playernum].mo;
-      if (++bodyqueslot >= bodyquesize)
-        bodyqueslot -= bodyquesize;
+      static mobj_t **bodyque;
+      static size_t queuesize;
+      if (queuesize < bodyquesize)
+	{
+	  bodyque = realloc(bodyque, bodyquesize*sizeof*bodyque);
+	  memset(bodyque+queuesize, 0, 
+		 (bodyquesize-queuesize)*sizeof*bodyque);
+	  queuesize = bodyquesize;
+	}
+      if (bodyqueslot >= bodyquesize) 
+	P_RemoveMobj(bodyque[bodyqueslot % bodyquesize]); 
+      bodyque[bodyqueslot++ % bodyquesize] = players[playernum].mo; 
     }
   else
     if (!bodyquesize)

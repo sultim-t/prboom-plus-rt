@@ -1527,9 +1527,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 // are cleared in the normal freeing of zoned memory between maps, so all
 // we have to do here is clear the pointers to them.
 
-  if (bodyque)
-    memset(bodyque, 0, bodyquesize * sizeof (*bodyque)); // CPhipps - use memset
-
 #ifdef COMPILE_VIDD
   if (!VIDD_PLAY_inProgress()) { // POPE
 #endif
