@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomtype.h,v 1.4 2000/12/24 11:40:35 cph Exp $
+ * $Id: doomtype.h,v 1.5 2001/04/15 15:05:37 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -66,10 +66,15 @@ typedef unsigned __int64 uint_64_t;
 
 /* cph - move compatibility levels here so we can use them in d_server.c */
 typedef enum {
-  doom_12_compatibility, /* Behave like early doom versions */ 
-  doom_demo_compatibility, /* As compatible as possible for 
-			    * playing original Doom demos */
-  doom_compatibility,      /* Compatible with original Doom levels */
+  /* Emulate various doom versions, for demos and old levels */ 
+  doom_12_compatibility,	/* Doom v1.2 */
+  doom_1666_compatibility,	/* Doom & Doom2, v1.666 */
+  doom2_19_compatibility,	/* Doom 2 doom2.exe v1.9 */
+  finaldoom_compatibility,	/* Final & Ultimate Doom v1.9, and Doom95 */
+  /* Compatibility with various early Doom ports */
+  dosdoom_compatibility,
+  tasdoom_compatibility,
+  /* Compatibility with various Boom derivatives */
   boom_compatibility_compatibility,      /* Boom's compatibility mode */
   boom_201_compatibility,                /* Compatible with Boom v2.01 */
   boom_202_compatibility,                /* Compatible with Boom v2.01 */
@@ -77,11 +82,12 @@ typedef enum {
   mbf_compatibility,                     /* MBF */
   prboom_1_compatibility,                /* PrBoom 2.03beta? */
   prboom_2_compatibility,                /* PrBoom 2.1.0-2.1.1 */
-  prboom_3_compatibility,                /* Latest PrBoom */
+  prboom_3_compatibility,                /* PrBoom 2.1.2-2.2.0 */
+  prboom_4_compatibility,                /* Latest PrBoom */
   MAX_COMPATIBILITY_LEVEL,               /* Must be last entry */
   /* Aliases follow */
   boom_compatibility = boom_201_compatibility, /* Alias used by G_Compatibility */
-  best_compatibility = prboom_3_compatibility,
+  best_compatibility = prboom_4_compatibility,
 } complevel_t;
 
 #endif

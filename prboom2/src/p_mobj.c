@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.12 2000/11/08 22:02:34 cph Exp $
+ * $Id: p_mobj.c,v 1.13 2001/04/15 15:05:37 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.12 2000/11/08 22:02:34 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.13 2001/04/15 15:05:37 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -491,13 +491,24 @@ floater:
     /* Note (id):
      *  somebody left this after the setting momz to 0,
      *  kinda useless there.
-     * cph - This was the (a?) bug in the linuxdoom-1.10 source which
-     *  caused it not to sync v1.9 demos. Someone (bg@games.org I guess)
-     *  added the above comment and moved up the following code. So 
-     *  demos would desync in close lost soul fights.
-     * Compatibility optioned. */
+     * cph - revised 2001/04/15 -
+     * This was a bug in the Doom/Doom 2 source; the following code
+     *  is meant to make charging lost souls bounce off of floors, but it 
+     *  was incorrectly placed after momz was set to 0.
+     *  However, this bug was fixed in Doom95, Final/Ultimate Doom, and 
+     *  the v1.10 source release (which is one reason why it failed to sync 
+     *  some Doom2 v1.9 demos)
+     * I've added a comp_soul compatibility option to make this behavior 
+     *  selectable for PrBoom v2.3+. For older demos, we do this here only 
+     *  if we're in a compatibility level above Doom 2 v1.9 (in which case we
+     *  mimic the bug and do it further down instead)
+     */
 
-    if (!demo_compatibility && mo->flags & MF_SKULLFLY)
+    if (mo->flags & MF_SKULLFLY &&
+	(!comp[comp_soul] ||
+	 (compatibility_level >= finaldoom_compatibility &&
+	  compatibility_level < prboom_4_compatibility)
+	))
       mo->momz = -mo->momz; // the skull slammed into something
 
     if (mo->momz < 0)
@@ -521,6 +532,17 @@ floater:
 	mo->momz = 0;
       }
     mo->z = mo->floorz;
+
+    /* cph 2001/04/15 - 
+     * This is the buggy lost-soul bouncing code referenced above.
+     * We've already set momz = 0 normally by this point, so it's useless.
+     * However we might still have upward momentum, in which case this will
+     * incorrectly reverse it, so we might still need this for demo sync
+     */
+    if (mo->flags & MF_SKULLFLY &&
+	compatibility_level < finaldoom_compatibility)
+      mo->momz = -mo->momz; // the skull slammed into something
+
     if ( (mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP) )
       {
       P_ExplodeMissile (mo);
@@ -537,6 +559,12 @@ floater:
 
   if (mo->z + mo->height > mo->ceilingz)
     {
+    /* cph 2001/04/15 - 
+     * Lost souls were meant to bounce off of ceilings;
+     *  new comp_soul compatibility option added
+     */
+    if (!comp[comp_soul] && mo->flags & MF_SKULLFLY)
+      mo->momz = -mo->momz; // the skull slammed into something
 
     // hit the ceiling
 
@@ -545,7 +573,12 @@ floater:
 
     mo->z = mo->ceilingz - mo->height;
 
-    if (mo->flags & MF_SKULLFLY)
+    /* cph 2001/04/15 - 
+     * We might have hit a ceiling but had downward momentum (e.g. ceiling is 
+     *  lowering on us), so for old demos we must still do the buggy 
+     *  momentum reversal here
+     */
+    if (comp[comp_soul] && mo->flags & MF_SKULLFLY)
       mo->momz = -mo->momz; // the skull slammed into something
 
     if ( (mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP) )
