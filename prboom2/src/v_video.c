@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.15.2.1 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: v_video.c,v 1.15.2.2 2003/04/05 20:09:07 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.15.2.1 2002/07/20 18:08:37 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.15.2.2 2003/04/05 20:09:07 cph Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -440,7 +440,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
   if (!trans)
     flags &= ~VPT_TRANS;
 
-#ifdef RANGECHECK
   if (x<0
       ||x+SHORT(patch->width) > ((flags & VPT_STRETCH) ? 320 : SCREENWIDTH)
       || y<0
@@ -448,7 +447,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     // killough 1/19/98: improved error message:
     I_Error("V_DrawMemPatch: Patch origin %d,%d exceeds LFB"
             "Bad V_DrawMemPatch (flags=%u)", x, y, flags);
-#endif
 
   if (!(flags & VPT_STRETCH)) {
     int             col;
