@@ -442,8 +442,7 @@ int main(int argc, char** argv)
     boolean ingame = false;
     ticcmd_t netcmds[MAXPLAYERS][BACKUPTICS];
 
-    while (1)
-      {
+    while (1) {
   packet_header_t *packet = malloc(10000);
   size_t len;
 
@@ -606,8 +605,11 @@ int main(int argc, char** argv)
       break;
     }
   }
+  free(packet);
   if (!ingame && n_players_in_state(numplayers,pc_confirmedready)) {
     int i;
+    packet_header_t gopacket;
+    packet_header_t *packet = &gopacket;
     ingame=true;
     printf("All players joined, beginning game.\n");
     for (i=0; i<MAXPLAYERS; i++) {
@@ -617,7 +619,7 @@ int main(int argc, char** argv)
 	      playerstate[i] = pc_playing;
       }
     }
-    packet->type = PKT_GO; packet->tic = 0;
+    packet_set(packet, PKT_GO, 0);
     BroadcastPacket(packet, sizeof *packet);
     I_uSleep(10000);
     BroadcastPacket(packet, sizeof *packet);
@@ -632,14 +634,14 @@ int main(int argc, char** argv)
 	      printf("Player %d dropped, no PKT_GO received in confirmation\n", i);
       }
       if (playerstate[i] == pc_confirmedready) playerstate[i] = pc_ready;
+    }
   }
-  free(packet);
-      }
   if (!ingame && n_players_in_state(numplayers,pc_ready)) {
+	  printf("All players ready, now confirming.\n");
 	  confirming = 100;
   }
 
-      if (ingame) { // Run some tics
+  if (ingame) { // Run some tics
   int lowtic = INT_MAX;
   int i;
   for (i=0; i<MAXPLAYERS; i++)
@@ -693,11 +695,12 @@ int main(int argc, char** argv)
 	    I_SendPacketTo(packet,sizeof *packet,remoteaddr+i);
 	    backoffcounter[i] = 0;
 	    if (verbose) printf("telling client %d to back off\n",i);
+	    free(packet);
 	  }
 	}
       }
     }
-      }
+  }
     }
   }
 }
