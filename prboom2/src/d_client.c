@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.9 2000/11/25 18:23:54 cph Exp $
+ * $Id: d_client.c,v 1.10 2000/11/29 19:42:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -362,7 +362,7 @@ void D_NetSendMisc(netmisctype_t type, size_t len, void* data)
     
     packet->tic = gametic;
     packet->type = PKT_EXTRA;
-    *p++ = LONG(type); *p++ = LONG(consoleplayer); *p++ = len;
+    *p++ = LONG(type); *p++ = LONG(consoleplayer); *p++ = LONG(len);
     memcpy(p, data, len);
     I_SendPacket(packet, size);
     
