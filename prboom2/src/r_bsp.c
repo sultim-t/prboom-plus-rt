@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.18 2000/09/30 12:24:09 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.19 2000/09/30 17:31:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.18 2000/09/30 12:24:09 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.19 2000/09/30 17:31:13 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -625,14 +625,6 @@ static void R_Subsector(int num)
 
 #ifdef GL_DOOM
   R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);
-   // figgi -- fix for glBsp 
-/*
-  for (i = 0; i < sub->numlines; i++)
-  {
-    if (sub->segs[i].miniseg == false)
-		  R_AddLine (&sub->segs[i]);
-  }
-*/
   while (count--)
   {
     if (line->miniseg == false)

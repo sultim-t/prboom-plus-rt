@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.10 2000/09/30 12:24:09 proff_fs Exp $
+ * $Id: r_things.c,v 1.11 2000/09/30 17:31:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.10 2000/09/30 12:24:09 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.11 2000/09/30 17:31:13 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -542,8 +542,7 @@ void R_ProjectSprite (mobj_t* thing)
   vis->patch = lump;
   gld_AddSprite(vis);
   return;
-#endif
-
+#else
   // killough 3/27/98: save sector for special clipping later
   vis->heightsec = heightsec;
 
@@ -588,6 +587,7 @@ void R_ProjectSprite (mobj_t* thing)
         index = MAXLIGHTSCALE-1;
       vis->colormap = spritelights[index];
     }
+#endif
 }
 
 //

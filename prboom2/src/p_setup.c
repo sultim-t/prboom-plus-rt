@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.12 2000/09/30 12:24:09 proff_fs Exp $
+ * $Id: p_setup.c,v 1.13 2000/09/30 17:31:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.12 2000/09/30 12:24:09 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.13 2000/09/30 17:31:13 proff_fs Exp $";
 
 #include <math.h>
 
@@ -165,7 +165,7 @@ mapthing_t playerstarts[MAXPLAYERS];
 //
 // killough 5/3/98: reformatted, cleaned up
 //
-static void P_LoadVertexes (int lump, int gllump)
+static void P_LoadVertexes (int lump)
 {
   const byte *data; // cph - const
   int i;
@@ -427,22 +427,8 @@ static void P_LoadSubsectors (int lump)
 
   for (i=0; i<numsubsectors; i++)
   {
-//	  int j;
-//	  subsector_t* ss;
-
     subsectors[i].numlines  = (unsigned short)SHORT(((mapsubsector_t *) data)[i].numsegs );
     subsectors[i].firstline = (unsigned short)SHORT(((mapsubsector_t *) data)[i].firstseg);
-
-	   // figgi -- fix for glBsp rendering
-/*
-#ifdef GL_DOOM
-	  ss = &subsectors[i];
-	  ss->segs = Z_Malloc(ss->numlines*sizeof(seg_t), PU_LEVEL, 0);
-
-    for (j = 0; j < ss->numlines; j++)
-	    ss->segs[j] = segs[ss->firstline+j];
-#endif
-*/
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -1407,7 +1393,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
 	  P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
   else
-	  P_LoadVertexes  (lumpnum+ML_VERTEXES,-1);
+	  P_LoadVertexes  (lumpnum+ML_VERTEXES);
   P_LoadSectors   (lumpnum+ML_SECTORS);
   P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             
   P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             
@@ -1433,7 +1419,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
 #else
 
-  P_LoadVertexes  (lumpnum+ML_VERTEXES, -1);
+  P_LoadVertexes  (lumpnum+ML_VERTEXES);
   P_LoadSectors   (lumpnum+ML_SECTORS);
   P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             // killough 4/4/98
   P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             //       |

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.28 2000/09/30 12:24:09 proff_fs Exp $
+ * $Id: gl_main.c,v 1.29 2000/09/30 17:31:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -520,7 +520,9 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   if (viewplayer->mo->flags & MF_SHADOW)
   {
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    glAlphaFunc(GL_GEQUAL,0.1f);
+    //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    glColor4f(0.2f,0.2f,0.2f,0.33f);
   }
   else
   {
@@ -536,7 +538,10 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
 		glTexCoord2f(fU2, fV2); glVertex2f((float)(x2),(float)(y2));
 	glEnd();
   if(viewplayer->mo->flags & MF_SHADOW)
+  {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glAlphaFunc(GL_GEQUAL,0.5f);
+  }
   glColor3f(1.0f,1.0f,1.0f);
 }
 
@@ -1130,6 +1135,41 @@ static void CALLBACK ntessEnd( void )
 #endif
 }
 
+static void gld_PrepareSectorSpecialEffects(int num)
+{
+  int i;
+
+  // the following is for specialeffects. see r_bsp.c in R_Subsector
+  sectors[num].no_toptextures=true;
+  sectors[num].no_bottomtextures=true;
+  for (i=0; i<sectors[num].linecount; i++)
+  {
+    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
+         (sectors[num].lines[i]->sidenum[1]>=0) )
+    {
+      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
+        sectors[num].no_toptextures=false;
+      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=R_TextureNumForName("-"))
+        sectors[num].no_bottomtextures=false;
+      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=R_TextureNumForName("-"))
+        sectors[num].no_toptextures=false;
+      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=R_TextureNumForName("-"))
+        sectors[num].no_bottomtextures=false;
+    }
+    else
+    {
+      sectors[num].no_toptextures=false;
+      sectors[num].no_bottomtextures=false;
+    }
+  }
+#ifdef _DEBUG
+  if (sectors[num].no_toptextures)
+    lprintf(LO_INFO,"Sector %i has no toptextures\n",num);
+  if (sectors[num].no_bottomtextures)
+    lprintf(LO_INFO,"Sector %i has no bottomtextures\n",num);
+#endif
+}
+
 // gld_PrecalculateSector
 //
 // this calculates the loops for the sector "num"
@@ -1202,37 +1242,6 @@ static void gld_PrecalculateSector(int num)
           if (levelinfo) fprintf(levelinfo, "line %4i (iLineID %4i) has both sides in same sector (removed)\n", i, sectors[num].lines[i]->iLineID);
         }
   }
-
-  // the following is for specialeffects. see r_bsp.c in R_Subsector
-  sectors[num].no_toptextures=true;
-  sectors[num].no_bottomtextures=true;
-  linecount=0;
-  for (i=0; i<sectors[num].linecount; i++)
-  {
-    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
-         (sectors[num].lines[i]->sidenum[1]>=0) )
-    {
-      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
-        sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=R_TextureNumForName("-"))
-        sectors[num].no_bottomtextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=R_TextureNumForName("-"))
-        sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=R_TextureNumForName("-"))
-        sectors[num].no_bottomtextures=false;
-    }
-    else
-    {
-      sectors[num].no_toptextures=false;
-      sectors[num].no_bottomtextures=false;
-    }
-  }
-#ifdef _DEBUG
-  if (sectors[num].no_toptextures)
-    lprintf(LO_INFO,"Sector %i has no toptextures\n",num);
-  if (sectors[num].no_bottomtextures)
-    lprintf(LO_INFO,"Sector %i has no bottomtextures\n",num);
-#endif
 
   // initialize variables
   linecount=sectors[num].linecount;
@@ -1589,6 +1598,9 @@ void gld_PreprocessSectors(void)
     GLFree(vertexcheck);
   }
 #endif /* USE_GLU_TESS */
+
+  for (i=0; i<numsectors; i++)
+    gld_PrepareSectorSpecialEffects(i);
 
   // figgi -- adapted for glnodes
   if (usingGLNodes == false)
@@ -2371,7 +2383,9 @@ static void gld_DrawSprite(GLSprite *sprite)
 	if(sprite->shadow)
   {
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    //glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    glAlphaFunc(GL_GEQUAL,0.1f);
+    glColor4f(0.2f,0.2f,0.2f,0.33f);
   }
   else
   {
@@ -2394,7 +2408,10 @@ static void gld_DrawSprite(GLSprite *sprite)
   glPopMatrix();
 
 	if(sprite->shadow)
+  {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glAlphaFunc(GL_GEQUAL,0.5f);
+  }
 }
 
 void gld_AddSprite(vissprite_t *vspr)

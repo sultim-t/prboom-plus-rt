@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.11 2000/09/30 12:24:09 proff_fs Exp $
+ * $Id: r_defs.h,v 1.12 2000/09/30 17:31:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -283,11 +283,6 @@ typedef struct
 
 typedef struct subsector_s
 {
-/*
-#ifdef GL_DOOM
-  seg_t*	segs;    // figgi -- needed for glBsp
-#endif
-*/
   sector_t *sector;
   unsigned short numlines, firstline;
 } subsector_t;
