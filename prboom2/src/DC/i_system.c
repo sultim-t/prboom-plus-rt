@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.6 2002/02/10 21:47:05 proff_fs Exp $
+ * $Id: i_system.c,v 1.7 2002/02/11 14:45:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.6 2002/02/10 21:47:05 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.7 2002/02/11 14:45:12 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -49,7 +49,7 @@ rcsid[] = "$Id: i_system.c,v 1.6 2002/02/10 21:47:05 proff_fs Exp $";
 #define TEX_SIZE 512
 
 GLuint video_tex;
-uint16 *tex_mem;
+uint8 *tex_mem;
 uint32 txr;
 uint16 tex_pal[256];
 
@@ -101,66 +101,6 @@ void *signal(int sig, void *func)
 	return NULL;
 }
 
-void I_InitSound(void)
-{
-}
-
-void I_SetChannels(void)
-{
-}
-
-int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
-{
-}
-
-void I_StopSound(int handle)
-{
-}
-
-int I_GetSfxLumpNum (void *sfxinfo)
-{
-}
-
-boolean I_SoundIsPlaying(int handle)
-{
-}
-
-void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
-{
-}
-
-void I_InitMusic(void)
-{
-}
-
-void I_SetMusicVolume(int volume)
-{
-}
-
-void I_PauseSong(int handle)
-{
-}
-
-void I_ResumeSong(int handle)
-{
-}
-
-int I_RegisterSong(const void *data, size_t len)
-{
-}
-
-void I_PlaySong(int handle, int looping)
-{
-}
-
-void I_StopSong(int handle)
-{
-}
-
-void I_UnRegisterSong(int handle)
-{
-}
-
 /* cphipps - I_GetVersionString
  * Returns a version string in the given buffer 
  */
@@ -172,9 +112,12 @@ const char* I_GetVersionString(char* buf, size_t sz)
 
 int I_GetTime_RealTime (void)
 {
+  return (jiffies*(1000/HZ)*TICRATE)/1000;
+/*
 	static time=0;
 	
 	return time++;
+*/
 }
 
 /* cphipps - I_SigString
@@ -194,7 +137,7 @@ const char* I_SigString(char* buf, size_t sz, int signum)
 unsigned long I_GetRandomTimeSeed(void)
 {                            
 /* This isnt very random */
-  return(0);
+  return((unsigned long)rtc_unix_secs());
 }
 
 void I_uSleep(unsigned long usecs)
@@ -225,16 +168,18 @@ void I_FinishUpdate (void)
 	int x,y;
 	uint8 *s;
 	uint16 *d;
+	//uint8 *d;
 
   if (I_SkipFrame()) return;
 
 	s=screens[0];
 	for (y=0; y<SCREENHEIGHT; y++)
 	{
-		d=&tex_mem[y*TEX_SIZE];
+		d=(uint16 *)&tex_mem[y*TEX_SIZE*2];
 		for (x=0; x<SCREENWIDTH; x++)
 		{
 			*d++=tex_pal[*s++];
+			//*d++=*s++;
 		}
 	}
 
@@ -243,14 +188,19 @@ void I_FinishUpdate (void)
 	glKosBeginFrame();
 
 	ta_txr_load(txr, tex_mem, TEX_SIZE * TEX_SIZE * 2);
+	//txr_twiddle_copy_general(tex_mem, txr, TEX_SIZE, TEX_SIZE, 8);
 
 	glBindTexture(GL_TEXTURE_2D, video_tex);
 
 	glBegin(GL_QUADS);
-	glVertex3f(-1.0f, -1.0f, 0.5f);
-	glVertex3f(10.0f, -1.0f, 0.5f);
-	glVertex3f(10.0f, 10.0f, 0.5f);
-	glVertex3f(-1.0f, 10.0f, 0.5f);
+	glTexCoord2f(0.0,0.0);
+	glVertex3f(0.0f, 0.0f, 0.5f);
+	glTexCoord2f(1.0/(float)TEX_SIZE*320.0,0.0);
+	glVertex3f(320.0f, 0.0f, 0.5f);
+	glTexCoord2f(1.0/(float)TEX_SIZE*320.0,1.0/(float)TEX_SIZE*200.0);
+	glVertex3f(320.0f, 200.0f, 0.5f);
+	glTexCoord2f(0.0,1.0/(float)TEX_SIZE*200.0);
+	glVertex3f(0.0f, 200.0f, 0.5f);
 	glEnd();
 
 	glKosFinishFrame();
@@ -281,7 +231,7 @@ void I_StartTic (void)
 
 void I_PreInitGraphics(void)
 {
-    kos_init_all(IRQ_ENABLE | TA_ENABLE, ROMDISK_NONE);
+    kos_init_all(IRQ_ENABLE | TA_ENABLE | THD_ENABLE, ROMDISK_NONE);
 	/* Get basic stuff initialized */
 	glKosInit();
 }
@@ -306,17 +256,19 @@ void I_InitGraphics (void)
     W_UnlockLumpNum(lump);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0, 320.0, 200.0, 0.0, -1.0, 1.0);
+	glOrtho(0.0, 320.0, 0.0, 200.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_KOS_AUTO_UV);
+	//glEnable(GL_KOS_AUTO_UV);
 	glDisable(GL_CULL_FACE);
 	glGenTextures(1, &video_tex);
 	tex_mem=malloc(TEX_SIZE * TEX_SIZE * 2);
 	txr=ta_txr_allocate(TEX_SIZE * TEX_SIZE * 2);
 	glBindTexture(GL_TEXTURE_2D, video_tex);
 	glKosTex2D(GL_RGB565, TEX_SIZE, TEX_SIZE, txr);
+	//glKosTex2D(TA_PAL8BPP, TEX_SIZE, TEX_SIZE, txr);
+	//pvr_set_pal_format(PVR_PAL_RGB565);
 }
 
 void I_UpdateVideoMode(void)
@@ -342,7 +294,10 @@ void I_SetPalette(int pal)
 	int n;
 
 	for (n=0; n<256; n++)
+	{
 		tex_pal[n] = (((spal[n*3]>>3)<<11) | ((spal[n*3+1]>>2)<<5) | (spal[n*3+2]>>3));
+		//pvr_set_pal_entry(n,(((spal[n*3]>>3)<<11) | ((spal[n*3+1]>>2)<<5) | (spal[n*3+2]>>3)));
+	}
     W_UnlockLumpNum(lump);
 }
 
@@ -377,6 +332,3 @@ int I_Filelength(int handle)
 
 int use_doublebuffer = 0;
 int use_fullscreen = 0;
-int snd_card = -1;
-int mus_card = -1;
-int snd_samplerate = 11025;
