@@ -14,7 +14,7 @@ prboom2/VISUALC6/prboom_server.dsp eol=crlf
 prboom2/autotools/ac_c_compile_flags.m4 eol=lf
 prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
 prboom2/data/Makefile.am eol=lf
-prboom2/data/prboom.wad -text
+prboom2/data/prboom.wad -text svneol=unset#application/x-doom-wad-file
 prboom2/doc/Makefile.am eol=lf
 prboom2/src/Makefile.am eol=lf
 prboom2/src/OSS/Makefile.am eol=lf
