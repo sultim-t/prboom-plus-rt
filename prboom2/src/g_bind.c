@@ -243,6 +243,24 @@ void G_InitKeyBindings()
   keybindings[','].name = "<";
   keybindings['.'].name = ">";
   
+  keybindings[KEYD_KEYPAD0].name       = "kp_0";
+  keybindings[KEYD_KEYPAD1].name       = "kp_1";
+  keybindings[KEYD_KEYPAD2].name       = "kp_2";
+  keybindings[KEYD_KEYPAD3].name       = "kp_3";
+  keybindings[KEYD_KEYPAD4].name       = "kp_4";
+  keybindings[KEYD_KEYPAD5].name       = "kp_5";
+  keybindings[KEYD_KEYPAD6].name       = "kp_6";
+  keybindings[KEYD_KEYPAD7].name       = "kp_7";
+  keybindings[KEYD_KEYPAD8].name       = "kp_8";
+  keybindings[KEYD_KEYPAD9].name       = "kp_9";
+  keybindings[KEYD_KEYPADENTER].name       = "kp_enter";
+  keybindings[KEYD_KEYPADDIVIDE].name       = "kp_/";
+  keybindings[KEYD_KEYPADMULTIPLY].name       = "kp_*";
+  keybindings[KEYD_KEYPADMINUS].name       = "kp_-";
+  keybindings[KEYD_KEYPADPLUS].name       = "kp_+";
+  keybindings[KEYD_KEYPADPERIOD].name       = "kp_.";
+
+
   for(i=0; i<NUM_KEYS; i++)
   {
     // fill in name if not set yet
