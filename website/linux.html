@@ -5,7 +5,7 @@
  <title>PrBoom - Linux/UNIX Installation</title>
  <meta name="author" content="Colin Phipps" />
  <meta name="generator" content="vi (gvim Debian/GNU Linux 2.3 (testing) i686)" />
- <meta name="CVSID" content="$Id: linux.html,v 1.11 2001/04/01 10:12:43 cph Exp $" />
+ <meta name="CVSID" content="$Id: linux.html,v 1.12 2001/04/06 13:30:34 proff_fs Exp $" />
  <link rel="stylesheet" href="main.css" type="text/css" />
 </head>
 <body>
@@ -43,7 +43,6 @@
   with Doom and PrBoom.</p>
  <p>We got reports that it works with XFree 4.x</p>
 <!-- cph - perhaps Jess should write some stuff here - I know nothing ;-) -->
- </p>
 <h2><a name="redhat">Linux/x86 RPM based distributions</a></h2>
  <p>
   We test and recommend the following RPM's to use with PrBoom:
@@ -54,28 +53,28 @@
  </ul>
  <p>To install these, you use <code>rpm</code>. E.g. if you downloaded all
   of the above RPMs into one directory, <code>cd</code> to that directory
-  and run <code>rpm -ivh <code>*.rpm</code>. You can then run PrBoom as
+  and run <code>rpm -ivh *.rpm</code>. You can then run PrBoom as
   <code>/usr/games/prboom</code>.
  </p><p>
   Notes:
  </p><ul>
   <li>
-   You no longer need the smpeg library to use PrBoom. PrBoom itself has 
+   You no longer need the smpeg library to use PrBoom. PrBoom itself has
    never used smpeg, but the SDL RPM's we used to recommend needed it.
   </li><li>
-   If you're a Mandrake user, you can use the SDL RPM's included with 
-   Mandrake 7.2. They were installed by default 
-   if you selected a workstation setup (at least, they were here...). 
+   If you're a Mandrake user, you can use the SDL RPM's included with
+   Mandrake 7.2. They were installed by default
+   if you selected a workstation setup (at least, they were here...).
    If not, you can install them off the Mandrake CDs.
   </li><li>
-   There may be newer versions of some of these libraries available from their 
-   respective homepages. It's generally OK to use these. The main exception is 
-   SDL_mixer... the latest upstream RPMs have (needlessly) changed the soname 
+   There may be newer versions of some of these libraries available from their
+   respective homepages. It's generally OK to use these. The main exception is
+   SDL_mixer... the latest upstream RPMs have (needlessly) changed the soname
    of the library, rendering their new RPMs useless.
    Use the Mandrake one we recommend.
   </li><li>
-   If you are using a partiularly stripped down setup, you might need to 
-   install a few more RPMs required by these ones. They should be on your 
+   If you are using a partiularly stripped down setup, you might need to
+   install a few more RPMs required by these ones. They should be on your
    distribution CDs.
   </li><li>
    No source RPM (SRPM) is provided for PrBoom.
@@ -93,9 +92,9 @@
    <a href="http://www.libsdl.org/projects/SDL_net/">the SDL_net homepage</a>.
    Get the prboom source code <code>prboom-2.2.0.tar.gz</code> from our
    <a href="#download">download page</a>, extract, and then follow the
-   included <code>INSTALL</code> instructions.</dd>
+   included <code>INSTALL</code> instructions.
  </p><p>
-  Joe Drew, the maintainer of LxDoom in Debian, is working on packages of 
+  Joe Drew, the maintainer of LxDoom in Debian, is working on packages of
   PrBoom for Debian.
  </p>
 <h2><a name="freebsd">FreeBSD</a></h2>
@@ -146,10 +145,12 @@
   Debian includes a package <code>timidity-patches</code> which provides
   these. People with RPM based systems can
   <a href="http://rpmfind.net/linux/RPM/timidity-instruments.html">look
-  for a package</a>. Everyone else, do a web search for timidity patch sets,
+  for a package</a>. Really good but quite big are the
+  <a href="http://www.stardate.bc.ca/eawpatches/html/default.htm">Eawpatches</a>.
+  Everyone else, do a web search for timidity patch sets,
   there are plenty around.
  </p>
- <note>These patch sets are a large download (>5megs).</note>
+ <note>These patch sets are a large download (&gt;5megs).</note>
  <p>
   SDL_mixer does not currently support hardware MIDI synthesis. We plan to nag
   the SDL developers about this. If you want it, you nag them too :-).
