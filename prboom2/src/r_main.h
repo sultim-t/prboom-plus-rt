@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.h,v 1.7 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: r_main.h,v 1.8 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -122,6 +122,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 //
 
 void R_RenderPlayerView(player_t *player, camera_t* viewcamera);
+void R_InitColFunc();
 void R_Init(void);                           // Called by startup code.
 void R_SetViewSize(int blocks);              // Called by M_Responder.
 void R_ExecuteSetViewSize(void);             // cph - called by D_Display to complete a view resize

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.24 2002/11/18 17:46:51 proff_fs Exp $
+ * $Id: r_main.c,v 1.25 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.24 2002/11/18 17:46:51 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.25 2002/11/18 22:54:32 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -398,11 +398,16 @@ void R_ExecuteSetViewSize (void)
 
 extern int screenblocks;
 
+void R_InitColFunc()
+{
+  colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
+}
+
 void R_Init (void)
 {
   // CPhipps - R_DrawColumn isn't constant anymore, so must 
   //  initialise in code
-  colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
+  R_InitColFunc();
   if (SCREENWIDTH<320)
     I_Error("R_Init: Screenwidth(%d) < 320",SCREENWIDTH);
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
@@ -544,7 +549,7 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
-      memset(*screens+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
+      //memset(screens[0].data+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
       R_DrawViewBorder();
     }
 #endif /* not GL_DOOM */

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.17 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: v_video.h,v 1.18 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -74,10 +74,17 @@ typedef enum
 
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
-extern byte      *screens[6];
-extern int        dirtybox[4];
-extern const byte gammatable[5][256];
-extern int        usegamma;
+typedef struct {
+  void *data; // pointer to the screen content
+  boolean not_on_heap; // if set, no malloc or free is preformed and
+                       // data never set to NULL. Used i.e. with SDL doublebuffer.
+  int width;           // the width of the surface, used when mallocing
+  int height;          // the height of the surface, used when mallocing
+} TScreenVars;
+
+#define NUM_SCREENS 6
+extern TScreenVars screens[NUM_SCREENS];
+extern int         usegamma;
 
 //jff 4/24/98 loads color translation lumps
 void V_InitColorTranslation(void);
@@ -200,8 +207,10 @@ byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, u
 
 //---------------------------------------------------------------------------
 // These functions are now bit-depth aware
-void V_AllocScreen(int scrn);
-void V_FreeScreen(int scrn);
+void V_AllocScreen(TScreenVars *scrn);
+void V_AllocScreens();
+void V_FreeScreen(TScreenVars *scrn);
+void V_FreeScreens();
 void V_SetPalette(int pal);
 void V_MarkRect(int x, int y, int width, int height);
 //---------------------------------------------------------------------------

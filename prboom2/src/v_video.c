@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: v_video.c,v 1.27 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,10 +35,10 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.27 2002/11/18 22:54:32 proff_fs Exp $";
 
-#include "hu_stuff.h"
 #include "doomdef.h"
+#include "hu_stuff.h"
 #include "r_main.h"
 #include "r_draw.h"
 #include "m_bbox.h"
@@ -46,10 +46,10 @@ rcsid[] = "$Id: v_video.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $";
 #include "v_video.h"
 #include "i_video.h"
 #include "lprintf.h"
-#include "R_Things.h" // R_GetColumnEdgeSlope POPE 
+#include "r_things.h" // R_GetColumnEdgeSlope POPE 
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
-byte *screens[6];
+TScreenVars screens[6];
 
 /* jff 4/24/98 initialize this at runtime */
 const byte *colrngs[CR_LIMIT];
@@ -287,14 +287,34 @@ void vid_initMode(TVidMode vd) {
 }
 
 //---------------------------------------------------------------------------
-void V_AllocScreen(int scrn) {
-  screens[scrn] = malloc(SCREENWIDTH*SCREENHEIGHT*vid_getNumBits()/8);
+void V_AllocScreen(TScreenVars *scrn) {
+  if (!scrn->not_on_heap)
+    if ((scrn->width * scrn->height) > 0)
+      scrn->data = malloc(scrn->width*scrn->height*vid_getDepth());
 }
 
 //---------------------------------------------------------------------------
-void V_FreeScreen(int scrn) {
-  free(screens[scrn]); 
-  screens[scrn] = NULL;
+void V_AllocScreens() {
+  int i;
+
+  for (i=0; i<NUM_SCREENS; i++)
+    V_AllocScreen(&screens[i]);
+}
+
+//---------------------------------------------------------------------------
+void V_FreeScreen(TScreenVars *scrn) {
+  if (!scrn->not_on_heap) {
+    free(scrn->data);
+    scrn->data = NULL;
+  }
+}
+
+//---------------------------------------------------------------------------
+void V_FreeScreens() {
+  int i;
+
+  for (i=0; i<NUM_SCREENS; i++)
+    V_FreeScreen(&screens[i]);
 }
 
 //---------------------------------------------------------------------------
@@ -452,20 +472,17 @@ void V_SetPalette(int pal) {
 //---------------------------------------------------------------------------
 void V_Init (void)
 {
-  int  i;
-  
-  vid_initMode(vidMode);
-  
-  // CPhipps - allocate only 2 screens all the time, the rest can be allocated as and when needed
-#define PREALLOCED_SCREENS 2
+  int i;
 
-  // CPhipps - no point in "stick these in low dos memory on PCs" anymore
-  // Allocate the screens individually, so I_InitGraphics can release screens[0]
-  //  if e.g. it wants a MitSHM buffer instead
-  for (i=0 ; i<PREALLOCED_SCREENS ; i++)
-    screens[i] = Z_Calloc(SCREENWIDTH*SCREENHEIGHT*vid_getDepth(), 1, PU_STATIC, NULL);
-  for (; i<4; i++) // Clear the rest (paranoia)
-    screens[i] = NULL;
+  vid_initMode(vidMode);
+
+  // reset the all
+  for (i = 0; i<NUM_SCREENS; i++) {
+    screens[i].data = NULL;
+    screens[i].not_on_heap = false;
+    screens[i].width = 0;
+    screens[i].height = 0;
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -510,7 +527,7 @@ void V_GetBlock8(int x, int y, int scrn, int width, int height, byte *dest) {
 #ifdef RANGECHECK
   if (x<0 ||x+width >SCREENWIDTH || y<0 || y+height>SCREENHEIGHT) I_Error ("V_GetBlock: Bad arguments");
 #endif
-  src = screens[scrn] + y*SCREENWIDTH+x;
+  src = (byte*)screens[scrn].data + y*SCREENWIDTH+x;
   while (height--) {
     memcpy (dest, src, width);
     src += SCREENWIDTH;
@@ -528,13 +545,13 @@ void V_GetBlock8(int x, int y, int scrn, int width, int height, byte *dest) {
 // This always draws to and returns an 8-bit byte* buffer - POPE
 //---------------------------------------------------------------------------
 byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, unsigned short* width, unsigned short* height) {
-  byte          *oldscr = screens[1];
+  TScreenVars    oldscr = screens[1];
   byte          *block;
   const patch_t *patch;
 
   if (vidMode == VID_MODEGL) return 0;
   
-  screens[1] = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
+  screens[1].data = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
 
   patch = W_CacheLumpName(name);
   V_DrawMemPatch8(SHORT(patch->leftoffset), SHORT(patch->topoffset),1, patch, cm, flags);
@@ -551,7 +568,7 @@ byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, u
   V_GetBlock8(0, 0, 1, *width, *height,
        block = malloc((long)(*width) * (*height)));
   
-  free(screens[1]);
+  free(screens[1].data);
   screens[1] = oldscr;
   return block;
 }

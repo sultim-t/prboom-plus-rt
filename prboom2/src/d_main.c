@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.61 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: d_main.c,v 1.62 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.61 2002/11/18 13:35:49 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.62 2002/11/18 22:54:32 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -1501,7 +1501,7 @@ void D_DoomMainSetup(void)
 	}
       }
 
-    I_SetRes(w, h);
+    I_CalculateRes(w, h);
   }
 
   if ((p = M_CheckParm("-fullscreen"))) 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.14 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.15 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.14 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.15 2002/11/18 22:54:32 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1150,9 +1150,6 @@ void ST_Init(void)
 {
   veryfirsttime = 0;
   ST_loadData();
-// proff 08/18/98: Changed for high-res
-  screens[4] = malloc(SCREENWIDTH*(ST_SCALED_HEIGHT+1)*vid_getDepth()); // POPE
-
 }
 
 CONSOLE_INT(ammo_red, ammo_red, NULL, 0, 100, NULL, 0) { }

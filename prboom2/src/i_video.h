@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.h,v 1.6 2001/07/04 14:59:52 uid24111 Exp $
+ * $Id: i_video.h,v 1.7 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -40,7 +40,7 @@
 #endif
 
 void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */
-void I_SetRes(unsigned int width, unsigned int height); /* CPhipps - set resolution */
+void I_CalculateRes(unsigned int width, unsigned int height); /* CPhipps - set resolution */
 void I_InitGraphics (void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);

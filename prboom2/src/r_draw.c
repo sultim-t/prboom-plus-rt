@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: r_draw.c,v 1.19 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.19 2002/11/18 22:54:32 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -554,9 +554,9 @@ void R_InitBuffer(int width, int height) {
   // Same with base row offset.
   viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-(ST_SCALED_HEIGHT-1)-height)>>1;
 
-  rdrawvars.topleft_byte = (byte*)(screens[0]) + viewwindowy*SCREENWIDTH + viewwindowx;
-  rdrawvars.topleft_short = (short*)(screens[0]) + viewwindowy*SCREENWIDTH + viewwindowx;
-  rdrawvars.topleft_int = (int*)(screens[0]) + viewwindowy*SCREENWIDTH + viewwindowx;
+  rdrawvars.topleft_byte = (byte*)(screens[0].data) + viewwindowy*SCREENWIDTH + viewwindowx;
+  rdrawvars.topleft_short = (short*)(screens[0].data) + viewwindowy*SCREENWIDTH + viewwindowx;
+  rdrawvars.topleft_int = (int*)(screens[0].data) + viewwindowy*SCREENWIDTH + viewwindowx;
 
   dcvars.targetwidth = SCREENWIDTH;
   dcvars.targetheight = SCREENHEIGHT;
@@ -565,7 +565,7 @@ void R_InitBuffer(int width, int height) {
   // CPhipps - merge viewwindowx into here
 
   for (i=0 ; i<height ; i++)
-    ylookup[i] = screens[0] + ((i+viewwindowy)*SCREENWIDTH + viewwindowx)*vid_getDepth();
+    ylookup[i] = (byte*)screens[0].data + ((i+viewwindowy)*SCREENWIDTH + viewwindowx)*vid_getDepth();
 }
 
 //---------------------------------------------------------------------------
@@ -654,7 +654,7 @@ void R_FillBackScreen(void) {
 //---------------------------------------------------------------------------
 void R_VideoErase(unsigned ofs, int count) {
 #ifndef GL_DOOM
-  memcpy(screens[0]+ofs*vid_getDepth(), screens[1]+ofs*vid_getDepth(), count*vid_getDepth());   // LFB copy.
+  memcpy((byte*)screens[0].data+ofs*vid_getDepth(), (byte*)screens[1].data+ofs*vid_getDepth(), count*vid_getDepth());   // LFB copy.
 #endif
 }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.40 2002/11/18 17:49:30 proff_fs Exp $
+ * $Id: i_video.c,v 1.41 2002/11/18 22:56:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.40 2002/11/18 17:49:30 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.41 2002/11/18 22:56:05 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -60,7 +60,7 @@ int gl_depthbuffer_bits=16;
 #include "doomdef.h"
 #include "doomtype.h"
 #include "v_video.h"
-#include "r_draw.h"
+#include "r_main.h"
 #include "d_main.h"
 #include "d_event.h"
 #include "i_video.h"
@@ -71,14 +71,14 @@ int gl_depthbuffer_bits=16;
 #include "w_wad.h"
 #include "lprintf.h"
 #include "c_runcmd.h"
+#include "st_stuff.h"
 
 extern void M_QuitDOOM(int choice);
 
+static int r_videomode = 0;
 int use_doublebuffer = 1;
 int use_fullscreen = 1;
 static SDL_Surface *screen;
-
-unsigned char* out_buffer = NULL;
 
 //// TEMPORARY /////////
 int enablejoystick = 1;
@@ -556,7 +556,7 @@ void I_FinishUpdate (void)
 #endif
   
 #ifndef GL_DOOM
-  if (screen->pixels != screens[0])
+  if (screen->pixels != screens[0].data)
   {
     if (SDL_MUSTLOCK(screen))
     {
@@ -569,7 +569,7 @@ void I_FinishUpdate (void)
       {
         //dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
         dest=(char *)screen->pixels;
-        src=screens[0];
+        src=screens[0].data;
         w=vid_getDepth()*((screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w));
         h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
         for (; h>0; h--)
@@ -600,7 +600,7 @@ void I_FinishUpdate (void)
 //
 void I_ReadScreen (byte* scr)
 {
-  memcpy(scr, screens[0], SCREENWIDTH*SCREENHEIGHT*vid_getDepth()); // POPE
+  memcpy(scr, screens[0].data, screens[0].width*screens[0].height*vid_getDepth()); // POPE
 }
 
 //
@@ -643,15 +643,34 @@ void I_PreInitGraphics(void)
 }
 
 // CPhipps -
-// I_SetRes
-// Sets the screen resolution, possibly using the supplied guide
+// I_CalculateRes
+// Calculates the screen resolution, possibly using the supplied guide
 
-void I_SetRes(unsigned int width, unsigned int height)
+void I_CalculateRes(unsigned int width, unsigned int height)
 {
   SCREENWIDTH = (width+3) & ~3;
   SCREENHEIGHT = (height+3) & ~3;
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+}
+
+// I_SetRes
+// Sets all necessary values
+void I_SetRes()
+{
+  int i;
+
+  I_CalculateRes(SCREENWIDTH, SCREENHEIGHT);
+
+  // set first two to standard values
+  for (i=0; i<2; i++) {
+    screens[i].width = SCREENWIDTH;
+    screens[i].height = SCREENHEIGHT;
+  }
+
+  // statusbar
+  screens[4].width = SCREENWIDTH;
+  screens[4].height = (ST_SCALED_HEIGHT+1);
 }
 
 static int graphics_inited=0;
@@ -665,8 +684,6 @@ void I_InitGraphics(void)
 
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
-
-    out_buffer=screens[0];
 
     /* Set the video mode */
     I_UpdateVideoMode();
@@ -685,6 +702,12 @@ void I_UpdateVideoMode(void)
   int init_flags;
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
+
+  vid_initMode(r_videomode);
+  V_DestroyUnusedTrueColorPalettes();
+  V_FreeScreens();
+
+  I_SetRes();
 
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
@@ -737,23 +760,24 @@ void I_UpdateVideoMode(void)
   // Get the info needed to render to the display
   if (!SDL_MUSTLOCK(screen))
   {
-    if (out_buffer)
-      free(out_buffer);
-    out_buffer=NULL;
-    screens[0] = (unsigned char *) (screen->pixels);
+    screens[0].not_on_heap = true;
+    screens[0].data = (unsigned char *) (screen->pixels);
   }
   else
   {
-    if (!out_buffer)
-      free(out_buffer);
-    out_buffer = calloc(SCREENWIDTH*SCREENHEIGHT*vid_getDepth(), 1); // POPE
-    screens[0] = out_buffer;
+    screens[0].not_on_heap = false;
   }
+
+  V_AllocScreens();
 
   // Hide pointer while over this window
   SDL_ShowCursor(0);
 
-  R_InitBuffer(w,h);
+  R_InitColFunc();
+
+  R_ExecuteSetViewSize();
+
+  V_SetPalette(0);
 
 #ifdef GL_DOOM
   {
@@ -800,20 +824,30 @@ static char *str_vidmode[] = {
   "32bit"
 };
 
-static int r_videomode = 0;
-
 CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 2, str_vidmode, 0)
 {
-  if (graphics_inited) {
-    vid_initMode(r_videomode);
+  if (graphics_inited)
     I_UpdateVideoMode();
-    V_DestroyUnusedTrueColorPalettes();
-    V_SetPalette(0);
-  }
 }
+
+/*
+CONSOLE_INT(r_width, SCREENWIDTH, NULL, 320, MAX_SCREENWIDTH, NULL, 0)
+{
+  if (graphics_inited)
+    I_UpdateVideoMode();
+}
+
+CONSOLE_INT(r_height, SCREENHEIGHT, NULL, 200, MAX_SCREENHEIGHT, NULL, 0)
+{
+  if (graphics_inited)
+    I_UpdateVideoMode();
+}
+*/
 
 void I_Video_AddCommands()
 {
   C_AddCommand(r_fullscreen);
   C_AddCommand(r_videomode);
+  //C_AddCommand(r_width);
+  //C_AddCommand(r_height);
 }

@@ -80,14 +80,14 @@
 // V_PlotPixel
 //---------------------------------------------------------------------------
 void FUNC_V_PlotPixel(int scrn, int x, int y, byte color) {
-  ((V_VIDEO_SCRNTYPE*)screens[scrn])[x+SCREENWIDTH*y] = V_VIDEO_GETCOL(color);
+  ((V_VIDEO_SCRNTYPE*)screens[scrn].data)[x+SCREENWIDTH*y] = V_VIDEO_GETCOL(color);
 }
 
 //---------------------------------------------------------------------------
 // V_FillRect
 //---------------------------------------------------------------------------
 void FUNC_V_FillRect(int scrn, int x, int y, int width, int height, byte colour) {
-  V_VIDEO_SCRNTYPE *dest = (V_VIDEO_SCRNTYPE*)(screens[scrn]) + x + y*SCREENWIDTH;
+  V_VIDEO_SCRNTYPE *dest = (V_VIDEO_SCRNTYPE*)(screens[scrn].data) + x + y*SCREENWIDTH;
 
 #if (V_VIDEO_BITS == 8)
   // 8 bit optimized
@@ -149,8 +149,8 @@ void FUNC_V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 
   //V_MarkRect (destx, desty, width, height);
 
-  src = (V_VIDEO_SCRNTYPE*)(screens[srcscrn])+SCREENWIDTH*srcy+srcx;
-  dest = (V_VIDEO_SCRNTYPE*)(screens[destscrn])+SCREENWIDTH*desty+destx;
+  src = (V_VIDEO_SCRNTYPE*)(screens[srcscrn].data)+SCREENWIDTH*srcy+srcx;
+  dest = (V_VIDEO_SCRNTYPE*)(screens[destscrn].data)+SCREENWIDTH*desty+destx;
 
   for ( ; height>0 ; height--)
     {
@@ -200,7 +200,7 @@ void FUNC_V_DrawBlock(int x, int y, int scrn, int width, int height,
 
     //if (!scrn) V_MarkRect (x, y, width, height);
 
-    dest = (V_VIDEO_SCRNTYPE*)(screens[scrn]) + y*SCREENWIDTH+x;
+    dest = (V_VIDEO_SCRNTYPE*)(screens[scrn].data) + y*SCREENWIDTH+x;
     // x & y no longer needed
 
     while (height--) {
@@ -214,7 +214,7 @@ void FUNC_V_DrawBlock(int x, int y, int scrn, int width, int height,
   } else {
     // V_MarkRect (x, y, width, height);
 
-    dest = (V_VIDEO_SCRNTYPE*)(screens[scrn]) + y*SCREENWIDTH+x;
+    dest = (V_VIDEO_SCRNTYPE*)(screens[scrn].data) + y*SCREENWIDTH+x;
 
 #if (V_VIDEO_BITS == 8)
     // 8 bit optimized
@@ -512,7 +512,7 @@ void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, e
     trans = 0;
   }
 
-  FUNC_V_PlotPatch(patch, destRect, clampRect, RDRAW_FILTER_POINT, trans, screens[scrn], SCREENWIDTH, SCREENHEIGHT);
+  FUNC_V_PlotPatch(patch, destRect, clampRect, RDRAW_FILTER_POINT, trans, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT);
 }
 
 //---------------------------------------------------------------------------

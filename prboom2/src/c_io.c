@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.10 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: c_io.c,v 1.11 2002/11/18 22:54:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.10 2002/11/18 13:35:49 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.11 2002/11/18 22:54:32 proff_fs Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -91,7 +91,7 @@ int current_target = 0;
 int current_height = 0;
 boolean c_showprompt;
 #ifndef GL_DOOM
-static char *backdrop=NULL;
+static TScreenVars backdrop = {NULL,0,0};
 #else
 static int backdrop_lumpnum;
 #endif
@@ -113,7 +113,7 @@ int console_enabled = true;
 static void C_InitBackdrop()
 {
   const char *lumpname;
-  byte *oldscreen;
+  TScreenVars oldscreen = {NULL,0,0};
   
   // replace this with the new SMMU graphic soon i hope..
   switch(gamemode)
@@ -127,8 +127,11 @@ static void C_InitBackdrop()
     lumpname = "CONSOLE";
   
 #ifndef GL_DOOM
-  if(backdrop) free(backdrop);
-  backdrop = malloc((C_SCREENHEIGHT+10)*C_SCREENWIDTH);
+  if(backdrop.data) {
+    free(backdrop.data);
+    backdrop.data = NULL;
+  }
+  backdrop.data = malloc((C_SCREENHEIGHT+10)*C_SCREENWIDTH*vid_getDepth());
   
   oldscreen = screens[1]; screens[1] = backdrop;  // hack to write to
   
@@ -414,11 +417,9 @@ void C_Drawer()
 
   // draw backdrop
 #ifndef GL_DOOM
-/*
-  memcpy(screens[0],
-	 backdrop + (C_SCREENHEIGHT-(current_height*SCREENHEIGHT/200))*C_SCREENWIDTH,
-	 (current_height*(SCREENHEIGHT-1)/200)*C_SCREENWIDTH);
-*/
+  memcpy(screens[0].data,
+	 (byte*)backdrop.data + (C_SCREENHEIGHT-(current_height*SCREENHEIGHT/200))*C_SCREENWIDTH*vid_getDepth(),
+	 (current_height*(SCREENHEIGHT-1)/200)*C_SCREENWIDTH*vid_getDepth());
 #else
   V_DrawNumPatch(0, current_height-200, 1, backdrop_lumpnum, CR_DEFAULT, VPT_STRETCH);
 #endif
