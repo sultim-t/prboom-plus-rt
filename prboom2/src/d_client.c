@@ -330,8 +330,7 @@ void NetUpdate(void)
 	size_t pkt_size = sizeof(packet_header_t) + 2 + sendtics * sizeof(ticcmd_t);
 	packet_header_t *packet = Z_Malloc(pkt_size, PU_STATIC, NULL);
 	
-	packet->tic = doom_htonl(maketic - sendtics);
-	packet->type = PKT_TICC;
+	packet_set(packet, PKT_TICC, doom_htonl(maketic - sendtics));
 	*(byte*)(packet+1) = sendtics;
 	*(((byte*)(packet+1))+1) = consoleplayer;
 	{
