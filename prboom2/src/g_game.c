@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.31 2001/02/03 12:38:56 cph Exp $
+ * $Id: g_game.c,v 1.32 2001/02/04 14:15:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.31 2001/02/03 12:38:56 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.32 2001/02/04 14:15:40 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -807,10 +807,6 @@ void G_Ticker (void)
         case ga_worlddone:
           G_DoWorldDone ();
           break;
-        case ga_screenshot:
-          M_ScreenShot ();
-          gameaction = ga_nothing;
-          break;
         case ga_nothing:
           break;
         }
@@ -1178,11 +1174,6 @@ void G_DoReborn (int playernum)
         }
       P_SpawnPlayer (&playerstarts[playernum]);
     }
-}
-
-void G_ScreenShot (void)
-{
-  gameaction = ga_screenshot;
 }
 
 // DOOM Par Times

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_event.h,v 1.3 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_event.h,v 1.4 2001/02/04 14:15:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -72,7 +72,6 @@ typedef enum
   ga_completed,
   ga_victory,
   ga_worlddone,
-  ga_screenshot
 } gameaction_t;
 
 
