@@ -1,19 +1,19 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.16 2000/11/18 13:21:20 cph Exp $
+# $Id: Makefile.am,v 1.17 2000/11/18 18:12:42 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
 #
 
-EXTRA_SUBDIRS = Posix OSS X11 SDL
+EXTRA_SUBDIRS = Posix SDL
 
-SUBDIRS = @BUILD_DIRS@
+SUBDIRS = SDL POSIX
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = prboom prboom-game-server
-games_PROGRAMS = @BUILD_XPRBOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
+EXTRA_PROGRAMS = prboom-game-server
+games_PROGRAMS = prboom @BUILD_SERVER@
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
