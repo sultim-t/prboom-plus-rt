@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.18 2000/05/23 21:38:02 proff_fs Exp $
+ * $Id: gl_main.c,v 1.19 2000/05/24 15:37:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -711,6 +711,8 @@ static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
     gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
     if (!gltexture)
       return;
+    // get the lightlevel from floorlightlevel
+    light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
     // calculate texture offsets
     uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
     voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
@@ -724,6 +726,8 @@ static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
     gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
     if (!gltexture)
       return;
+    // get the lightlevel from ceilinglightlevel
+    light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
     // calculate texture offsets
     uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
     voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
@@ -731,8 +735,6 @@ static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
   
   // get height from plane
   z=(float)plane->height/(float)MAP_SCALE;
-  // get the lightlevel from plane
-  light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
 
   gld_BindFlat(gltexture);
   gld_StaticLight(light);
@@ -1806,7 +1808,7 @@ static void gld_DrawWall(GLWall *wall)
 	      const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
 	      const side_t *s = *l->sidenum + sides;\
         wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
-	      wall.skyyaw=270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;\
+	      wall.skyyaw=-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;\
 	      wall.skyymid = (float)s->rowoffset/(float)FRACUNIT - 28.0f;\
 	      wall.skyflip = l->special==272 ? false : true;\
       }\
@@ -1816,14 +1818,14 @@ static void gld_DrawWall(GLWall *wall)
 	      const line_t *l = &lines[sky2 & ~PL_SKYFLAT];\
 	      const side_t *s = *l->sidenum + sides;\
         wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
-	      wall.skyyaw=270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;\
+	      wall.skyyaw=-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;\
 	      wall.skyymid = (float)s->rowoffset/(float)FRACUNIT - 28.0f;\
 	      wall.skyflip = l->special==272 ? false : true;\
       }\
       else\
       {\
         wall.gltexture=gld_RegisterTexture(skytexture, false);\
-	      wall.skyyaw=yaw;\
+	      wall.skyyaw=yaw+90.0f;\
 	      wall.skyymid = 100.0f;\
 	      wall.skyflip = false;\
       }
@@ -1908,7 +1910,8 @@ void gld_AddWall(seg_t *seg)
           gld_DrawWall(&wall);
         }
         else
-          if ( backsector->ceilingpic != skyflatnum )
+          //if ( backsector->ceilingpic != skyflatnum )
+          if (backsector->ceilingheight <= frontsector->floorheight)
           {
             wall.ybottom=(float)backsector->ceilingheight/(float)MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
@@ -1986,7 +1989,8 @@ bottomtexture:
           gld_DrawWall(&wall);
         }
         else
-          if ( backsector->floorpic != skyflatnum )
+          //if ( backsector->floorpic != skyflatnum )
+          if (backsector->floorheight >= frontsector->ceilingheight)
           {
             wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
