@@ -676,7 +676,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   boolean       flip;
   vissprite_t   *vis;
   vissprite_t   avis;
-  int           width;
+  int           spritewidth;
   fixed_t       topoffset;
 
   // decide which patch to use
@@ -704,15 +704,16 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     
     // calculate edges of the shape
     fixed_t       tx;
+    int           spriteoffset = SHORT(patch->leftOffset)<<FRACBITS;
     tx = psp->sx-160*FRACUNIT;
+    spritewidth = SHORT(patch->width)<<FRACBITS;
 
-    tx -= SHORT(patch->leftOffset)<<FRACBITS;
+    tx -= flip ? spritewidth - spriteoffset : spriteoffset;
     x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
 
-    tx += SHORT(patch->width)<<FRACBITS;
+    tx += spritewidth;
     x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
-    width = SHORT(patch->width);
     topoffset = SHORT(patch->topOffset)<<FRACBITS;
   }
 
@@ -734,7 +735,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   if (flip)
     {
       vis->xiscale = -pspriteiscale;
-      vis->startfrac = (width<<FRACBITS)-1;
+      vis->startfrac = spritewidth-1;
     }
   else
     {
