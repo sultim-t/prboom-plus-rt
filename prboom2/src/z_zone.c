@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.12 2001/01/15 18:06:05 proff_fs Exp $
+ * $Id: z_zone.c,v 1.13 2001/07/22 15:07:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.12 2001/01/15 18:06:05 proff_fs Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.13 2001/07/22 15:07:49 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -159,6 +159,7 @@ void Z_DumpMemory(void)
 
   sprintf(buf, "memdump.%d", dump++);
   fp = fopen(buf, "w");
+  if (block)
   do {
     switch (block->tag) {
     case PU_FREE: 
@@ -242,7 +243,9 @@ void Z_Init(void)
 {
   size_t size = zone_size*1000;
 
-  size -= LEAVE_ASIDE;        // Leave aside some for other libraries
+#ifdef HAVE_MMAP
+  return; /* cphipps - if we have mmap, we don't need our own heap */
+#endif
 
 #ifdef INSTRUMENTED
   if (!(HEADER_SIZE >= sizeof(memblock_t) && size > HEADER_SIZE)) 
@@ -279,6 +282,9 @@ void Z_Init(void)
 #ifdef INSTRUMENTED
   free_memory = size;
   /* cph - remove unnecessary initialisations to 0 */
+#endif
+#ifdef HEAPDUMP
+  atexit(Z_DumpMemory);
 #endif
 }
 
@@ -420,7 +426,11 @@ void *(Z_Malloc)(size_t size, int tag, void **user
      * and start cutting into virtual memory if it has it.
      */
     
+#ifdef HAVE_LIBDMALLOC
+    while (!(block = _malloc_leap(file,line,size + HEADER_SIZE))) {
+#else
     while (!(block = (malloc)(size + HEADER_SIZE))) {
+#endif
       if (!blockbytag[PU_CACHE])
         I_Error ("Z_Malloc: Failure trying to allocate %lu bytes"
 #ifdef INSTRUMENTED
@@ -517,7 +527,11 @@ void (Z_Free)(void *p
 #ifdef INSTRUMENTED
           virtual_memory -= block->size + HEADER_SIZE;
 #endif
+#ifdef HAVE_LIBDMALLOC
+          _free_leap(file,line,block);
+#else
           (free)(block);
+#endif
         }
       else
         {
@@ -590,6 +604,7 @@ void (Z_FreeTags)(int lowtag, int hightag
   if (lowtag <= PU_FREE)
     lowtag = PU_FREE+1;
 
+  if (block)
   do               // Scan through list, searching for tags in range
     if (block->tag >= lowtag && block->tag <= hightag)
       {
@@ -752,7 +767,7 @@ void (Z_CheckHeap)(
 		   )
 {
   memblock_t *block = zone;   // Start at base of zone mem
-  if (!block) return;
+  if (block)
   do                          // Consistency check (last node treated special)
     if ((block->next != zone &&
          (memblock_t *)((char *) block+HEADER_SIZE+block->size) != block->next)

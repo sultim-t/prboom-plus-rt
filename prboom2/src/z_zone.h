@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.h,v 1.7 2000/12/31 15:08:55 cph Exp $
+ * $Id: z_zone.h,v 1.8 2001/07/22 15:07:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -41,14 +41,6 @@
 #ifndef __GNUC__
 #define __attribute__(x)
 #endif
-
-// Remove all definitions before including system definitions
-
-#undef malloc
-#undef free
-#undef realloc
-#undef calloc
-#undef strdup
 
 // Include system definitions so that prototypes become
 // active before macro replacements below are in effect.
@@ -99,6 +91,17 @@ void Z_DumpHistory(char *);
 #define Z_CheckHeap()      (Z_CheckHeap)(__FILE__,__LINE__)
 #endif
 
+/* cphipps 2001/07/22 - if we're not managing our own heap, use the system
+ * malloc(3) */
+#ifndef HAVE_MMAP
+// Remove all definitions before including system definitions
+
+#undef malloc
+#undef free
+#undef realloc
+#undef calloc
+#undef strdup
+
 #define malloc(n)          Z_Malloc(n,PU_STATIC,0)
 #define free(p)            Z_Free(p)
 #define realloc(p,n)       Z_Realloc(p,n,PU_STATIC,0)
@@ -110,6 +113,14 @@ _CRTIMP char *strdup(const char *s);
 char *strdup(const char *s);
 #endif
 #define strdup(s)          Z_Strdup(s,PU_STATIC,0)
+
+#else
+
+#ifdef HAVE_LIBDMALLOC
+#include <dmalloc.h>
+#endif
+
+#endif
 
 // Doom-style printf
 void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
