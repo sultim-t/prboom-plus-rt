@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.52 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: g_game.c,v 1.53 2002/08/05 20:04:39 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.52 2002/08/05 17:44:58 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.53 2002/08/05 20:04:39 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -214,7 +214,7 @@ int     key_screenshot = '*';             // killough 2/22/98: screenshot key
 #define TURBOTHRESHOLD  0x32
 #define SLOWTURNTICS  6
 #define QUICKREVERSE (short)32768 // 180 degree reverse                    // phares
-#define NUMKEYS   256
+#define NUMKEYS   512
 
 fixed_t forwardmove[2] = {0x19, 0x32};
 fixed_t sidemove[2]    = {0x18, 0x28};
@@ -429,7 +429,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       cmd->buttons |= newweapon<<BT_WEAPONSHIFT;
     }
 
-  mousey = (mousey > 0) ? mousey : mousey / 6; /* mead desense backward moves. */
   forward += mousey;
   if (strafe)
     side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
@@ -688,7 +687,7 @@ void G_Ticker (void)
   static gamestate_t prevgamestate;
 
   // CPhipps - player colour changing
-  if (mapcolor_plyr[consoleplayer] != mapcolor_me) {
+  if (!demoplayback && mapcolor_plyr[consoleplayer] != mapcolor_me) {
     // Changed my multiplayer colour - Inform the whole game
     int net_cl = LONG(mapcolor_me);
 #ifdef HAVE_NET
@@ -2047,12 +2046,18 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 /* Demo limits removed -- killough
  * cph - record straight to file
  */
+static inline signed char fudge(signed char b)
+{
+  b |= 1; if (b>2) b-=2;
+  return b;
+}
 
 void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
   char buf[4];
 
-  buf[0] = compatibility ? (cmd->forwardmove & ~1) : cmd->forwardmove;
+  buf[0] = (cmd->forwardmove && demo_compatibility) ?
+    fudge(cmd->forwardmove) : cmd->forwardmove;
   buf[1] = cmd->sidemove;
   buf[2] = (cmd->angleturn+128)>>8;
   buf[3] = cmd->buttons;
@@ -2117,6 +2122,8 @@ void G_RecordDemo (const char* name)
 // positions as before for the variables, so if one becomes obsolete, the
 // byte(s) should still be skipped over or padded with 0's.
 // Lee Killough 3/1/98
+
+extern int forceOldBsp;
 
 byte *G_WriteOptions(byte *demo_p)
 {
@@ -2184,6 +2191,8 @@ byte *G_WriteOptions(byte *demo_p)
     for (i=0; i < COMP_TOTAL; i++)
       *demo_p++ = comp[i] != 0;
   }
+
+  *demo_p++ = (compatibility_level >= prboom_2_compatibility) && forceOldBsp; // cph 2002/07/20
 
   //----------------
   // Padding at end
@@ -2275,6 +2284,8 @@ const byte *G_ReadOptions(const byte *demo_p)
 	for (i=0; i < COMP_TOTAL; i++)
 	  comp[i] = *demo_p++;
       }
+
+      forceOldBsp = *demo_p++; // cph 2002/07/20
     }
   else  /* defaults for versions <= 2.02 */
     {
