@@ -777,23 +777,3 @@ void HU_AddCommands()
   HU_FragsAddCommands();
   HU_OverAddCommands();
 }
-
-//-----------------------------------------------------------------------------
-//
-// $Log: hu_stuff.c,v $
-// Revision 1.14  2003/08/01 17:35:42  proff_fs
-// New hud from smmu with some small related changes.
-// The fullscreen hud works again now.
-// This new hud code is much simpler.
-//
-// Revision 1.3  2000/05/12 16:42:20  fraggle
-// ctrl-d to disconnect from server
-//
-// Revision 1.2  2000/05/07 13:01:11  fraggle
-// lightup crosshair prediction
-//
-// Revision 1.1.1.1  2000/04/30 19:12:08  fraggle
-// initial import
-//
-//
-//-----------------------------------------------------------------------------
