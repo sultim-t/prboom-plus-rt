@@ -46,7 +46,7 @@ platlist_t *activeplats;       // killough 2/14/98: made global again
 // Action routine to move a plat up and down
 //
 // Passed a plat structure containing all pertinent information about the move
-// No return
+// No return value
 //
 // jff 02/08/98 all cases with labels beginning with gen added to support 
 // generalized line type behaviors.
@@ -65,7 +65,7 @@ void T_PlatRaise(plat_t* plat)
       if (plat->type == raiseAndChange
           || plat->type == raiseToNearestAndChange)
       {
-        if (!(leveltime&7))
+        if (!(leveltime&7) && !silentmove(plat->sector)) // sf: silentmove
           S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_stnmov);
       }
       
@@ -74,6 +74,7 @@ void T_PlatRaise(plat_t* plat)
       {
         plat->count = plat->wait;
         plat->status = down;
+        if(!silentmove(plat->sector))    // sf: silentmove
         S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstart);
       }
       else  // else handle reaching end of up stroke
@@ -85,6 +86,7 @@ void T_PlatRaise(plat_t* plat)
           {
             plat->count = plat->wait;
             plat->status = waiting;
+            if(!silentmove(plat->sector)) // sf: silentmove
             S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstop);
           }
           else // else go into stasis awaiting next toggle activation
@@ -121,6 +123,7 @@ void T_PlatRaise(plat_t* plat)
         {                           // is silent, instant, no waiting
           plat->count = plat->wait;
           plat->status = waiting;
+          if(!silentmove(plat->sector)) // sf: silentmove
           S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstop);
         }
         else // instant toggles go into stasis awaiting next activation
@@ -157,6 +160,7 @@ void T_PlatRaise(plat_t* plat)
           plat->status = down;   // if at top, start down
 
         // make plat start sound
+        if(!silentmove(plat->sector))    // sf: silentmove
         S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstart);
       }
       break; //jff 1/27/98 don't pickup code added later to in_stasis
@@ -244,6 +248,7 @@ int EV_DoPlat
         //jff 3/14/98 clear old field as well
         sec->oldspecial = 0;               
 
+        if(!silentmove(sec)) //sf: silentmove
         S_StartSound((mobj_t *)&sec->soundorg,sfx_stnmov);
         break;
           
@@ -254,6 +259,7 @@ int EV_DoPlat
         plat->wait = 0;
         plat->status = up;
 
+        if(!silentmove(sec)) //sf: silentmove
         S_StartSound((mobj_t *)&sec->soundorg,sfx_stnmov);
         break;
           
@@ -267,6 +273,7 @@ int EV_DoPlat
         plat->high = sec->floorheight;
         plat->wait = 35*PLATWAIT;
         plat->status = down;
+        if(!silentmove(sec))    // sf: silentmove
         S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
         break;
           
@@ -280,6 +287,7 @@ int EV_DoPlat
         plat->high = sec->floorheight;
         plat->wait = 35*PLATWAIT;
         plat->status = down;
+        if(!silentmove(sec))    // sf: silentmove
         S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
         break;
           
@@ -298,6 +306,7 @@ int EV_DoPlat
         plat->wait = 35*PLATWAIT;
         plat->status = P_Random(pr_plats)&1;
 
+        if(!silentmove(sec))    // sf: silentmove
         S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
         break;
 

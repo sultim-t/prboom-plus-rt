@@ -36,6 +36,7 @@
 #include "g_game.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "t_script.h"
 #include "lprintf.h"
 
 // killough 2/8/98: Remove switch limit
@@ -103,7 +104,7 @@ void P_InitSwitchList(void)
 // Passed the linedef the button is on, which texture on the sidedef contains
 // the button, the texture number of the button, and the time the button is
 // to remain active in gametics.
-// No return.
+// No return value.
 //
 void P_StartButton
 ( line_t*       line,
@@ -140,7 +141,7 @@ void P_StartButton
 // Passed the line which the switch is on, and whether its retriggerable.
 // If not retriggerable, this function clears the line special to insure that
 //
-// No return
+// No return value
 //
 void P_ChangeSwitchTexture
 ( line_t*       line,
@@ -561,6 +562,21 @@ P_UseSpecialLine
       if (EV_DoFloor(line,raiseFloor512))
         P_ChangeSwitchTexture(line,0);
       break;
+
+      // sf: scripting
+
+    case 276:
+    case 277:
+       t_trigger = thing;
+       T_RunScript(line->tag);
+       if(line->special == 277)
+	 {
+	   line->special = 0;         // clear tag
+	   P_ChangeSwitchTexture(line,0);
+	 }
+       else
+         P_ChangeSwitchTexture(line,1);
+       break;
 
       // killough 1/31/98: factored out compatibility check;
       // added inner switch, relaxed check to demo_compatibility
