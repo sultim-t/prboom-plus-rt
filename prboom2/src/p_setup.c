@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.20 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: p_setup.c,v 1.21 2002/08/05 19:10:46 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.20 2002/08/05 17:44:58 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.21 2002/08/05 19:10:46 cph Exp $";
 
 #include <math.h>
 
@@ -670,8 +670,7 @@ static void P_LoadLineDefs2(int lump)
   register line_t *ld = lines;
   for (;i--;ld++)
     {
-      // CPhipps - compatibility selected
-      if (compatibility_level >= lxdoom_1_compatibility) {
+      { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
 	// killough 11/98: fix common wad errors (missing sidedefs):
 	
 	if (ld->sidenum[0] == -1) {
