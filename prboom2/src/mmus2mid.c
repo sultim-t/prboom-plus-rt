@@ -1,48 +1,55 @@
-// Emacs style mode select   -*- C++ -*-
-//-----------------------------------------------------------------------------
-//
-//  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
-//  based on
-//  BOOM, a modified and improved DOOM engine
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
-//
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
-// DESCRIPTION:
-//  This file supports conversion of MUS format music in memory
-//  to MIDI format 1 music in memory. 
-//
-//  The primary routine, mmus2mid, converts a block of memory in MUS format
-//  to an Allegro MIDI structure. This supports playing MUS lumps in a wad
-//  file with BOOM.
-//
-//  Another routine, Midi2MIDI, converts a block of memory in MIDI format 1 to
-//  an Allegro MIDI structure. This supports playing MIDI lumps in a wad
-//  file with BOOM.
-//
-//  For testing purposes, and to make a utility if desired, if the symbol
-//  STANDALONE is defined by uncommenting the definition below, a main
-//  routine is compiled that will convert a possibly wildcarded set of MUS
-//  files to a similarly named set of MIDI files.
-//
-//  Much of the code here is thanks to S. Bacquet's source for QMUS2MID.C
-//
-//-----------------------------------------------------------------------------
-static const char rcsid[] = "$Id: mmus2mid.c,v 1.1 2000/05/21 13:33:53 proff_fs Exp $";
+/* Emacs style mode select   -*- C++ -*- 
+ *-----------------------------------------------------------------------------
+ *
+ * $Id: mmus2mid.c,v 1.2 2000/05/21 14:00:12 proff_fs Exp $
+ *
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  02111-1307, USA.
+ *
+ * DESCRIPTION:  
+ *  This file supports conversion of MUS format music in memory
+ *  to MIDI format 1 music in memory. 
+ *
+ *  The primary routine, mmus2mid, converts a block of memory in MUS format
+ *  to an Allegro MIDI structure. This supports playing MUS lumps in a wad
+ *  file with BOOM.
+ *
+ *  Another routine, Midi2MIDI, converts a block of memory in MIDI format 1 to
+ *  an Allegro MIDI structure. This supports playing MIDI lumps in a wad
+ *  file with BOOM.
+ *
+ *  For testing purposes, and to make a utility if desired, if the symbol
+ *  STANDALONE is defined by uncommenting the definition below, a main
+ *  routine is compiled that will convert a possibly wildcarded set of MUS
+ *  files to a similarly named set of MIDI files.
+ *
+ *  Much of the code here is thanks to S. Bacquet's source for QMUS2MID.C
+ *
+ *-----------------------------------------------------------------------------
+ */
+
+static const char rcsid[] = "$Id: mmus2mid.c,v 1.2 2000/05/21 14:00:12 proff_fs Exp $";
 
 #include <ctype.h>
 #include <stdio.h>
@@ -146,7 +153,7 @@ static UBYTE trackhdr[]  =
 
 static int TWriteByte(MIDI *mididata, int MIDItrack, UBYTE byte);
 static int TWriteVarLen(MIDI *mididata, int MIDItrack, register ULONG value);
-static ULONG ReadTime(UBYTE **musptrp);
+static ULONG ReadTime(const UBYTE **musptrp);
 static int FirstChannelAvailable(int MUS2MIDchannel[]);
 static UBYTE MidiEvent(MIDI *mididata,UBYTE midicode,UBYTE MIDIchannel,
                UBYTE MIDItrack,int nocomp);
@@ -232,7 +239,7 @@ static int TWriteVarLen(MIDI *mididata, int tracknum, register ULONG value)
 // Passed a pointer to the pointer to the MUS buffer
 // Returns the integer unsigned long time value there and advances the pointer
 //
-static ULONG ReadTime(UBYTE **musptrp)
+static ULONG ReadTime(const UBYTE **musptrp)
 {
   register ULONG timeval = 0;
   int byte;
@@ -313,12 +320,12 @@ static UBYTE MidiEvent(MIDI *mididata,UBYTE midicode,UBYTE MIDIchannel,
 //
 // Returns 0 if successful, otherwise an error code (see mmus2mid.h).
 //
-int mmus2mid(UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
+int mmus2mid(const UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
 {
   UWORD TrackCnt = 0;
   UBYTE evt, MUSchannel, MIDIchannel, MIDItrack=0, NewEvent;
   int i, event, data;
-  UBYTE *musptr;
+  const UBYTE *musptr;
   size_t muslen;
   static MUSheader MUSh;
   UBYTE MIDIchan2track[MIDI_TRACKS];  // killough 10/7/98: fix too small array
@@ -844,50 +851,3 @@ int main(int argc,char **argv)
 }
 
 #endif
-//----------------------------------------------------------------------------
-//
-// $Log: mmus2mid.c,v $
-// Revision 1.1  2000/05/21 13:33:53  proff_fs
-// initial revision
-//
-// Revision 1.1.1.1  2000/04/09 18:17:50  proff_fs
-// Initial login
-//
-// Revision 1.12  1998/09/07  20:09:38  jim
-// Logical output routine added
-//
-// Revision 1.11  1998/07/14  20:07:21  jim
-// correction of minor errors
-//
-// Revision 1.10  1998/05/10  23:00:43  jim
-// formatted/documented mmus2mid
-//
-// Revision 1.9  1998/03/14  17:16:19  jim
-// Fixed track timing problem
-//
-// Revision 1.8  1998/03/05  16:59:55  jim
-// Fixed minor error in mus to midi conversion
-//
-// Revision 1.7  1998/02/08  15:15:47  jim
-// Added native midi support
-//
-// Revision 1.6  1998/01/26  19:23:54  phares
-// First rev with no ^Ms
-//
-// Revision 1.5  1998/01/23  20:26:20  jim
-// Fix bug causing leftover tracks to persist
-//
-// Revision 1.4  1998/01/21  17:41:13  rand
-// Added rcsid string back that Jim took out.
-//
-// Revision 1.3  1998/01/21  16:56:20  jim
-// Music fixed, defaults for cards added
-//
-// Revision 1.2  1998/01/19  23:36:15  rand
-// Added rcsid and Id: strings at top of file
-//
-// Revision 1.1.1.1  1998/01/19  14:03:10  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------
