@@ -2922,8 +2922,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Fullscreen Video mode", S_YESNO, m_null, G_X,
    G_Y + general_fullscreen*8, {"use_fullscreen"}, 0, 0, M_FullScreen},
+#ifdef GL_DOOM
   {"Item out of Floor offset", S_NUM, m_null, G_X,
    G_Y + general_flooroffset*8, {"gl_sprite_offset"}},
+#endif
 
 #if 0
   {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
