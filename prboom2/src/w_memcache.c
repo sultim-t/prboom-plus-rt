@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_memcache.c,v 1.2 2001/07/12 21:29:27 proff_fs Exp $
+ * $Id: w_memcache.c,v 1.3 2002/02/10 21:03:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_memcache.c,v 1.2 2001/07/12 21:29:27 proff_fs Exp $";
+rcsid[] = "$Id: w_memcache.c,v 1.3 2002/02/10 21:03:46 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -97,6 +97,10 @@ void W_InitCache(void)
 #ifdef TIMEDIAG
   atexit(W_ReportLocks);
 #endif
+}
+
+void W_DoneCache(void)
+{
 }
 
 /* W_CacheLumpNum

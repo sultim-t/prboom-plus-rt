@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.50 2002/02/08 23:53:41 cph Exp $
+ * $Id: g_game.c,v 1.51 2002/02/10 21:03:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,22 +35,24 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.50 2002/02/08 23:53:41 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.51 2002/02/10 21:03:45 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#ifdef _MSC_VER
+#if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
 #define    W_OK    2    /* Check for write permission */
 #define    R_OK    4    /* Check for read permission */
+#endif
+#ifdef _MSC_VER
 #include <io.h>
 #else
 #include <unistd.h>
 #endif
 #ifndef DREAMCAST
 #include <fcntl.h>
-#endif // DREAMCAST
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -93,9 +95,7 @@ rcsid[] = "$Id: g_game.c,v 1.50 2002/02/08 23:53:41 cph Exp $";
 static size_t   savegamesize = SAVEGAMESIZE; // killough
 static boolean  netdemo;
 static const byte *demobuffer;   /* cph - only used for playback */
-#ifndef DREAMCAST
 static FILE    *demofp; /* cph - record straight to file */
-#endif // DREAMCAST
 static const byte *demo_p;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
@@ -2055,9 +2055,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   buf[1] = cmd->sidemove;
   buf[2] = (cmd->angleturn+128)>>8;
   buf[3] = cmd->buttons;
-#ifndef DREAMCAST
   if (fwrite(buf, sizeof(buf), 1, demofp) != 1)
-#endif // DREAMCAST
     I_Error("G_WriteDemoTiccmd: error writing demo");
 
   /* cph - alias demo_p to it so we can read it back */
@@ -2078,7 +2076,6 @@ void G_RecordDemo (const char* name)
   /* cph - Record demos straight to file
    * If file already exists, try to continue existing demo
    */
-#ifndef DREAMCAST
   if (access(demoname, F_OK)) {
     demofp = fopen(demoname, "wb");
   } else {
@@ -2109,7 +2106,6 @@ void G_RecordDemo (const char* name)
     }
   }
   if (!demofp)
-#endif // DREAMCAST
   	I_Error("G_RecordDemo: failed to open %s", name);
 }
 
@@ -2404,9 +2400,7 @@ void G_BeginRecording (void)
       *demo_p++ = playeringame[i];
   }
 
-#ifndef DREAMCAST
   if (fwrite(demostart, 1, demo_p-demostart, demofp) != (size_t)(demo_p-demostart))
-#endif // DREAMCAST
     I_Error("G_BeginRecording: Error writing demo header");
   free(demostart);
 }
@@ -2616,6 +2610,7 @@ void G_DoPlayDemo(void)
   char basename[9];
 
   ExtractFileBase(defdemoname,basename);           // killough
+  printf("basename: %s\n",basename);
   demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));  
   /* cph - store lump number for unlocking later */
 
@@ -2649,9 +2644,7 @@ boolean G_CheckDemoStatus (void)
   if (demorecording)
     {
       demorecording = false;
-#ifndef DREAMCAST
-      fputc(DEMOMARKER, demofp);
-#endif // DREAMCAST
+      fprintf(demofp, "%c", DEMOMARKER);
       I_Error("G_CheckDemoStatus: Demo recorded");
       return false;  // killough
     }

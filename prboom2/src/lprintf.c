@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.15 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: lprintf.c,v 1.16 2002/02/10 21:03:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.15 2002/01/07 15:56:19 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.16 2002/02/10 21:03:45 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -319,7 +319,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
   if (!isatty(1) && lvl&cons_error_mask)  /* if stdout redirected     */
     r=fprintf(stderr,"%s",msg);           /* select output at console */
 #else // DREAMCAST
-    r=printf("%s",msg);
+  r=printf("%s",msg);
 #endif // DREAMCAST
 
   return r;
@@ -354,7 +354,7 @@ void I_Error(const char *error, ...)
   }
 #endif
 #else // DREAMCAST
-    printf("%s",errmsg);
+  printf("%s",errmsg);
 #endif // DREAMCAST
 
   I_SafeExit(-1);

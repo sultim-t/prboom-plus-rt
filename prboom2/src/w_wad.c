@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.28 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: w_wad.c,v 1.29 2002/02/10 21:03:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.28 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.29 2002/02/10 21:03:46 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -46,7 +46,10 @@ rcsid[] = "$Id: w_wad.c,v 1.28 2002/01/07 15:56:20 proff_fs Exp $";
 #include <io.h>
 #endif
 #ifdef DREAMCAST
-#include <kos/fs.h>
+#include <kos.h>
+#define O_BINARY 0
+uint32 open(const char *fn, int mode);
+#define lseek fs_seek
 #else
 #include <fcntl.h>
 #endif
@@ -81,14 +84,19 @@ void ExtractFileBase (const char *path, char *dest)
   while (src != path && src[-1] != ':' // killough 3/22/98: allow c:filename
          && *(src-1) != '\\'
          && *(src-1) != '/')
+  {
     src--;
+  }
 
   // copy up to eight characters
   memset(dest,0,8);
   length = 0;
 
-  while (*src && *src != '.' && ++length<9)
-    *dest++ = toupper(*src++);
+  while ((*src) && (*src != '.') && (++length<9))
+  {
+    *dest++ = toupper(*src);
+    *src++;
+  }
   /* cph - length check removed, just truncate at 8 chars.
    * If there are 8 or more chars, we'll copy 8, and no zero termination
    */
@@ -141,12 +149,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
 
   // open the file and add to directory
 
-#ifdef DREAMCAST
-  wadfile->handle = fs_open(wadfile->name,O_RDONLY);
-  if (wadfile->handle==0) wadfile->handle=-1;
-#else
   wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
-#endif
 
 #ifdef HAVE_NET
   if (wadfile->handle == -1 && D_NetGetWad(wadfile->name)) // CPhipps
@@ -192,11 +195,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
       header.infotableofs = LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
       fileinfo2free = fileinfo = malloc(length);    // killough
-#ifdef DREAMCAST
-      fs_seek(wadfile->handle, header.infotableofs, SEEK_SET);
-#else
       lseek(wadfile->handle, header.infotableofs, SEEK_SET);
-#endif
       I_Read(wadfile->handle, fileinfo, length);
       numlumps += header.numlumps;
     }
@@ -469,11 +468,7 @@ void W_ReadLump(int lump, void *dest)
     {
       if (l->wadfile)
       {
-#ifdef DREAMCAST
-        fs_seek(l->wadfile->handle, l->position, SEEK_SET);
-#else
         lseek(l->wadfile->handle, l->position, SEEK_SET);
-#endif
         I_Read(l->wadfile->handle, dest, l->size);
       }
     }

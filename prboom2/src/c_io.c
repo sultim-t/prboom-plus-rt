@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.7 2002/01/07 15:56:18 proff_fs Exp $
+ * $Id: c_io.c,v 1.8 2002/02/10 21:03:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.7 2002/01/07 15:56:18 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.8 2002/02/10 21:03:45 proff_fs Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -597,7 +597,11 @@ void C_Printf(const char *s, ...)
    * malloc, we must force the libc malloc(3) here and free(3) below
    */
   t = (malloc)(2048);
+#ifdef HAVE_VSNPRINTF
   vsnprintf(t,2047,s,args);
+#else
+  vsprintf(t,s,args);
+#endif
 #endif
   va_end(args);
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.7 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_spec.c,v 1.8 2002/02/10 21:03:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.7 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.8 2002/02/10 21:03:46 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -97,10 +97,10 @@ typedef struct
 
 typedef struct
 {
-  signed char istexture; //jff 3/23/98 make char for comparison // cph - make signed
-  char        endname[9];           //  if false, it is a flat
-  char        startname[9];
-  int         speed;
+  signed char istexture GCC_PACKED; //jff 3/23/98 make char for comparison // cph - make signed
+  char        endname[9] GCC_PACKED;           //  if false, it is a flat
+  char        startname[9] GCC_PACKED;
+  int         speed GCC_PACKED;
 } GCC_PACKED animdef_t; //jff 3/23/98 pack to read from memory
 
 #if defined(__MWERKS__)

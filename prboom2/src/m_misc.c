@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.42 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: m_misc.c,v 1.43 2002/02/10 21:03:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,24 +33,26 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.42 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.43 2002/02/10 21:03:46 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
 
 #include <stdio.h>
-#include <errno.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef _MSC_VER
 #include <io.h>
 #endif
-#ifndef DREAMCAST
+#ifdef DREAMCAST
+#define remove fs_unlink
+#else
+//#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#endif // DREAMCAST
+#endif
 
 #include "doomstat.h"
 #include "m_argv.h"
@@ -82,10 +84,9 @@ static inline void I_EndRead(void) {}
 
 boolean M_WriteFile(char const *name, void *source, int length)
 {
-#ifndef DREAMCAST	
   FILE *fp;
 
-  errno = 0;
+  //errno = 0;
   
   if (!(fp = fopen(name, "wb")))       // Try opening file
     return 0;                          // Could not open file for writing
@@ -99,8 +100,6 @@ boolean M_WriteFile(char const *name, void *source, int length)
     remove(name);
 
   return length;
-#endif // DREAMCAST
-  return true;
 }
 
 /*
@@ -111,10 +110,9 @@ boolean M_WriteFile(char const *name, void *source, int length)
 
 int M_ReadFile(char const *name, byte **buffer)
 {
-#ifndef DREAMCAST
   FILE *fp;
 
-  errno = 0;
+  //errno = 0;
 
   if ((fp = fopen(name, "rb")))
     {
@@ -138,7 +136,6 @@ int M_ReadFile(char const *name, byte **buffer)
   I_Error("Couldn't read file %s: %s", name, 
 	  errno ? strerror(errno) : "(Unknown Error)");
 */
-#endif // DREAMCAST
   return 0;
 }
 
@@ -179,26 +176,26 @@ typedef unsigned char ubyte_t;
 
 typedef struct tagBITMAPFILEHEADER
   {
-  unsigned short  bfType;
-  dword_t bfSize;
-  unsigned short  bfReserved1;
-  unsigned short  bfReserved2;
-  dword_t bfOffBits;
+  unsigned short  bfType GCC_PACKED;
+  dword_t bfSize GCC_PACKED;
+  unsigned short  bfReserved1 GCC_PACKED;
+  unsigned short  bfReserved2 GCC_PACKED;
+  dword_t bfOffBits GCC_PACKED;
   } GCC_PACKED BITMAPFILEHEADER;
 
 typedef struct tagBITMAPINFOHEADER
   {
-  dword_t biSize;
-  long_t  biWidth;
-  long_t  biHeight;
-  unsigned short  biPlanes;
-  unsigned short  biBitCount;
-  dword_t biCompression;
-  dword_t biSizeImage;
-  long_t  biXPelsPerMeter;
-  long_t  biYPelsPerMeter;
-  dword_t biClrUsed;
-  dword_t biClrImportant;
+  dword_t biSize GCC_PACKED;
+  long_t  biWidth GCC_PACKED;
+  long_t  biHeight GCC_PACKED;
+  unsigned short  biPlanes GCC_PACKED;
+  unsigned short  biBitCount GCC_PACKED;
+  dword_t biCompression GCC_PACKED;
+  dword_t biSizeImage GCC_PACKED;
+  long_t  biXPelsPerMeter GCC_PACKED;
+  long_t  biYPelsPerMeter GCC_PACKED;
+  dword_t biClrUsed GCC_PACKED;
+  dword_t biClrImportant GCC_PACKED;
   } GCC_PACKED BITMAPINFOHEADER;
 
 #if defined(__MWERKS__)
@@ -209,7 +206,6 @@ typedef struct tagBITMAPINFOHEADER
 #pragma pack(pop)
 #endif //_MSC_VER
 
-#ifndef DREAMCAST
 // jff 3/30/98 binary file write with error detection
 // CPhipps - static, const on parameter
 static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
@@ -217,7 +213,6 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
   if (fwrite(data,size,number,st)<number)
     screenshot_write_error = true; // CPhipps - made non-fatal
 }
-#endif // DREAMCAST
 
 #ifndef GL_DOOM
 //
@@ -229,7 +224,6 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
 static void WriteBMPfile(const char* filename, const byte* data, 
 			 const int width, const int height, const byte* palette)
 {
-#ifndef DREAMCAST
   int i,wid;
   BITMAPFILEHEADER bmfh;
   BITMAPINFOHEADER bmih;
@@ -301,7 +295,6 @@ static void WriteBMPfile(const char* filename, const byte* data,
     fclose(st);
     W_UnlockLumpNum(gtlump);
   }
-#endif // DREAMCAST
 }
 
 #else /* GL_DOOM */
@@ -419,7 +412,6 @@ void M_DoScreenShot (const char* fname)
 
 void M_ScreenShot(void)
 {
-#ifndef DREAMCAST	
   static int shot;
   char       lbmname[32];
   int        startshot;
@@ -451,6 +443,5 @@ void M_ScreenShot(void)
   }
 
   M_DoScreenShot(lbmname); // cph
-#endif // DREAMCAST
   S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink); 
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.18 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: p_setup.c,v 1.19 2002/02/10 21:03:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.18 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.19 2002/02/10 21:03:46 proff_fs Exp $";
 
 #include <math.h>
 
@@ -276,12 +276,13 @@ static int checkGLVertex(int num)
 }
 
 
+#ifdef GL_DOOM
 static float GetDistance(int dx, int dy)
 {
 	float fx = (float)(dx)/FRACUNIT, fy = (float)(dy)/FRACUNIT;
 	return (float)sqrt(fx*fx + fy*fy);
 }
-
+#endif
 
 static int GetOffset(vertex_t *v1, vertex_t *v2)
 {

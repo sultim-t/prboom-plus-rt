@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomtype.h,v 1.7 2001/07/21 22:16:49 cph Exp $
+ * $Id: doomtype.h,v 1.8 2002/02/10 21:03:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,8 +43,10 @@ typedef bool boolean;
 #  ifndef DREAMCAST
 typedef enum {false, true} boolean;
 #  else // DREAMCAST
-#define false 0
-#define true (!false)
+#ifndef false
+#define true (1)
+#define false (0)
+#endif
 typedef int boolean;
 #  endif // DREAMCAST
 # endif // __cplusplus

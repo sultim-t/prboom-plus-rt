@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.17 2002/02/08 23:53:41 cph Exp $
+ * $Id: i_main.c,v 1.18 2002/02/10 21:03:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.17 2002/02/08 23:53:41 cph Exp $";
+rcsid[] = "$Id: i_main.c,v 1.18 2002/02/10 21:03:45 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -299,7 +299,7 @@ static void I_EndDoom(void)
     lprintf(LO_INFO,"\b"); /* hack workaround for extra newline at bottom of screen */
     lprintf(LO_INFO,"\r");
     if (endoom_mode & endoom_nonasciichars)
-      putchar('\017'); /* restore primary charset */
+      printf("%c",'\017'); /* restore primary charset */
 #endif /* _WIN32 */
     W_UnlockLumpNum(lump);
   }

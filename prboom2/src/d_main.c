@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.50 2002/02/09 11:15:13 proff_fs Exp $
+ * $Id: d_main.c,v 1.51 2002/02/10 21:03:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,22 +34,22 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.50 2002/02/09 11:15:13 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.51 2002/02/10 21:03:45 proff_fs Exp $";
 
-#ifdef _MSC_VER
+#if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
 #define    W_OK    2    /* Check for write permission */
 #define    R_OK    4    /* Check for read permission */
+#endif
+#ifdef _MSC_VER
 #include <io.h>
 #include <direct.h>
 #else
 #include <unistd.h>
 #endif
 #ifdef DREAMCAST
-#include <kos/fs.h>
-#include <dc/dcload.h>
-#include <dc/fs_iso9660.h>
-#else // DREAMCAST
+int access(const char *path, int mode);
+#else
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -649,7 +649,7 @@ char *D_DoomExeDir(void)
   return base;
 }
 #elif (defined DREAMCAST)
-static const char prboom_dir[] = {"/cd/doom/"};
+static const char prboom_dir[] = {"/pc/doom/"};
 
 char *D_DoomExeDir(void)
 {
@@ -710,9 +710,7 @@ static const char *D_dehout(void)
 // CPhipps - const char* for iwadname, made static
 static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 {
-#ifndef DREAMCAST
   if ( !access (iwadname,R_OK) )
-#endif // DREAMCAST
   {
     int ud=0,rg=0,sw=0,cm=0,sc=0;
     FILE* fp;
@@ -792,10 +790,8 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
     else if (sw>=9)
       *gmode = shareware;
   }
-#ifndef DREAMCAST  
   else // error from access call
     I_Error("CheckIWAD: IWAD %s not readable", iwadname);
-#endif // DREAMCAST
 }
 
 
@@ -837,14 +833,9 @@ static boolean HasTrailingSlash(const char* dn)
 // jff 4/19/98 Add routine to check a pathname for existence as
 // a file or directory. If neither append .wad and check if it
 // exists as a file then. Else return non-existent.
-
+#if 0
 boolean WadFileStatus(char *filename,boolean *isdir)
 {
-#ifdef DREAMCAST
-	// DREAMCAST_TODO
-  isdir=false;
-  return true;
-#else // DREAMCAST
   struct stat sbuf;
   int i;
 
@@ -872,8 +863,8 @@ boolean WadFileStatus(char *filename,boolean *isdir)
   }
   filename[i]=0;                  //remove .wad
   return false;                   //and report doesn't exist
-#endif // DREAMCAST
 }
+#endif
 
 /* 
  * FindWADFile
@@ -908,7 +899,7 @@ static char* FindWADFile(const char* wfname, const char* ext)
       if (!(d = getenv("DOOMWADDIR"))) continue;
 #else // DREAMCAST
     case 1:
-      d = "/cd/doom";
+      d = "/pc/doom";
 #endif // DREAMCAST
     case 0:
       break;
@@ -931,7 +922,7 @@ static char* FindWADFile(const char* wfname, const char* ext)
       break;
 #else // DREAMCAST
     case 7:
-      continue;
+      d = "/cd/doom/iwad";
       break;
 #endif // DREAMCAST
 #ifdef SIMPLECHECKS
@@ -945,32 +936,12 @@ static char* FindWADFile(const char* wfname, const char* ext)
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);
 
-#ifdef DREAMCAST
-	// DREAMCAST_TODO
-	{
-	    int handle;
-		
-		printf("trying %s\n\r",p);
-    	if ( (handle = fs_open (p,O_RDONLY)) == 0)
-      		strcat(p, ext);
-    	else
-    		fs_close(handle);
-    		
-    	if ( (handle = fs_open (p,O_RDONLY)) != 0)
-    	{
-    		lprintf(LO_INFO, " found %s\n", p);
-    		fs_close(handle);
-    		return p;
-    	}
-    }
-#else // DREAMCAST
     if (access(p,F_OK))
       strcat(p, ext);
     if (!access(p,F_OK)) {
       lprintf(LO_INFO, " found %s\n", p);
       return p;
     }
-#endif // DREAMCAST
     free(p);
   }
   return NULL;
@@ -985,9 +956,6 @@ static char* FindWADFile(const char* wfname, const char* ext)
  */
 static char *FindIWADFile(void)
 {
-#ifdef DREAMCAST
-	return "/cd/doom/iwad/doom2.wad";
-#else // DREAMCAST
   int		i;
   char	*	iwad	= NULL;
 
@@ -999,7 +967,6 @@ static char *FindIWADFile(void)
       iwad = FindWADFile(standard_iwads[i], ".wad");
   }
   return iwad;
-#endif // DREAMCAST
 }
 
 //
@@ -1126,7 +1093,6 @@ void IdentifyVersion (void)
 
 void FindResponseFile (void)
 {
-#ifndef DREAMCAST
   int i;
 
   for (i = 1;i < myargc;i++)
@@ -1230,7 +1196,6 @@ void FindResponseFile (void)
           lprintf(LO_CONFIRM,"%s\n",myargv[k]);
         break;
       }
-#endif // DREAMCAST
 }
 
 //
@@ -1381,17 +1346,6 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
-#ifdef DREAMCAST
-	printf("Initializing fs\n");
-	fs_init();
-
-	printf("Initializing fs_dcload\n");
-	fs_dcload_init();
-
-	printf("Initializing fs_iso9660\n");
-	fs_iso9660_init();
-#endif // DREAMCAST
-
   // proff 04/05/2000: Added support for include response files
   /* proff 2001/7/1 - Moved up, so -config can be in response files */
   {
@@ -1418,11 +1372,19 @@ void D_DoomMainSetup(void)
   else {
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-#ifdef GL_DOOM
+#ifdef HAVE_SNPRINTF
+# ifdef GL_DOOM
     snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", D_DoomExeDir());
-#else // GL_DOOM
+# else // GL_DOOM
     snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", D_DoomExeDir());
-#endif // GL_DOOM
+# endif // GL_DOOM
+#else
+# ifdef GL_DOOM
+    sprintf((char *)defaultfile,"%s/glboom.cfg", D_DoomExeDir());
+# else // GL_DOOM
+    sprintf((char *)defaultfile,"%s/prboom.cfg", D_DoomExeDir());
+# endif // GL_DOOM
+#endif
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
@@ -1462,9 +1424,7 @@ void D_DoomMainSetup(void)
         if ((pos = strchr(cena,toupper(myargv[p][i]))))
           cons_error_mask |= (1<<(pos-cena));
 
-#ifndef DREAMCAST
   setbuf(stdout,NULL);
-#endif // DREAMCAST
 
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
@@ -1477,7 +1437,6 @@ void D_DoomMainSetup(void)
 
   D_BuildBEXTables(); // haleyjd
 
-#ifndef DREAMCAST
   p = M_CheckParm ("-deh");
   if (p)
     {
@@ -1499,7 +1458,6 @@ void D_DoomMainSetup(void)
           ProcessDehFile(file,D_dehout(),0);
         }
     }
-#endif // DREAMCAST
 
   // ty 03/09/98 end of do dehacked stuff
 

@@ -3,18 +3,20 @@
 # src/Makefile.dc
 # (c)2001 Florian Schulze
 #   
-# $Id: Makefile.dc,v 1.2 2001/07/16 15:35:16 proff_fs Exp $
+# $Id: Makefile.dc,v 1.3 2002/02/10 21:03:46 proff_fs Exp $
+
+.PHONY: libdcdoom
 
 PROG = prboom
 
-all: dc/libdcdoom.a $(PROG).elf
+all: $(PROG).elf
 
 include $(KOS_BASE)/Makefile.rules
 
 OBJS = am_map.o g_game.o p_mobj.o r_segs.o hu_lib.o lprintf.o
 OBJS += p_plats.o r_sky.o d_deh.o hu_stuff.o m_argv.o p_pspr.o
 OBJS += m_bbox.o p_saveg.o r_things.o d_items.o m_cheat.o p_setup.o
-OBJS += s_sound.o d_main.o p_sight.o sounds.o m_menu.o p_spec.o
+OBJS += s_sound.o d_main.o p_sight.o sounds.o p_spec.o
 OBJS += info.o st_lib.o m_misc.o p_switch.o p_telept.o
 OBJS += st_stuff.o m_random.o p_tick.o i_main.o tables.o p_user.o
 OBJS += p_ceilng.o v_video.o doomdef.o p_doors.o p_enemy.o r_bsp.o
@@ -23,14 +25,17 @@ OBJS += dstrings.o p_inter.o wi_stuff.o r_draw.o f_finale.o
 OBJS += p_lights.o z_bmalloc.o p_map.o r_main.o f_wipe.o z_zone.o
 OBJS += p_maputl.o r_plane.o w_wad.o w_memcache.o
 OBJS += d_client.o c_cmd.o c_io.o c_runcmd.o g_bind.o
+OBJS += mn_engin.o mn_menus.o mn_misc.o g_cmd.o g_config.o p_chase.o
 
-LIBS = -Ldc -ldcdoom
-KOS_CFLAGS += -I. -I../. -nostdlib -DHAVE_CONFIG_H -DDREAMCAST --fast-math -O3
+LIBS = -Ldc -ldcdoom -lgl -ldcutils -lm
+#KOS_CFLAGS += -I. -I../. -nostdlib -DHAVE_CONFIG_H -DDREAMCAST --fast-math -O0
+KOS_CFLAGS += -I. -I../. -DHAVE_CONFIG_H -DDREAMCAST
 
-$(PROG).elf: $(OBJS)
-	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o ${PROG}.elf $(KOS_START) $(OBJS) $(DATAOBJS) $(OBJEXTRA) ${LIBS} -L$(KOS_BASE)/lib -lkallisti -lgcc
+$(PROG).elf: libdcdoom $(OBJS)
+	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) -o ${PROG}.elf $(KOS_START) \
+		$(OBJS) $(DATAOBJS) $(OBJEXTRA) ${LIBS} $(KOS_LIBS)
 
-dc/libdcdoom.a:
+libdcdoom:
 	$(MAKE) -C dc -f makefile.dc
 
 clean:
