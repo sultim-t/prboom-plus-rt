@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.14 2000/11/12 14:59:29 cph Exp $
+ * $Id: w_wad.c,v 1.15 2000/12/27 18:40:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.14 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.15 2000/12/27 18:40:21 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -119,11 +119,11 @@ void ExtractFileBase (const char *path, char *dest)
   memset(dest,0,8);
   length = 0;
 
-  while (*src && *src != '.')
-    if (++length == 9)
-      I_Error ("ExtractFileBase: Filename base of %s >8 chars",path);
-    else
-      *dest++ = toupper(*src++);
+  while (*src && *src != '.' && ++length<9)
+    *dest++ = toupper(*src++);
+  /* cph - length check removed, just truncate at 8 chars.
+   * If there are 8 or more chars, we'll copy 8, and no zero termination
+   */
 }
 
 //
