@@ -7,7 +7,8 @@ Done
 2.  Network in SDL.
 
 Colin:
-I'll check out the networking
+The BSD-sockets net code works. Jess is working on the SDL version. The
+Linux SDL version current compiles using the BSD-sockets code fine though.
 
 --------------------------------------------------------------------------
 3.  Testing on Voodoo.
@@ -22,8 +23,6 @@ Seems to work
 5.  Does SDL_net work together with Colin's version?
     That would mean Windows->Linux and OpenGL->Linux, yeah ;)
 
-Colin:
-I'll check out the networking
 
 --------------------------------------------------------------------------
 6.  Import MBF m_menu.c and m_misc.c stuff
@@ -85,7 +84,7 @@ I have added Nicolas Kalkhof to AUTHORS. It's ok for me now.
 
 Colin:
 I've done AUTHORS (well, updating the history) and the Linux install
-instructions.
+instructions, and some misc feature docs. More to do still.
 
 --------------------------------------------------------------------------
 13. Repackage editing docs; I suggest that with all of
@@ -147,4 +146,5 @@ It seems like I have done the most for Windows.
 
 Colin:
 I've just changed the savegame base from BOOMSAV to prbmsav, and moved the
-linux config dir.
+linux config dir. 
+That's all I can think of.
