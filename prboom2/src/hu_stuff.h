@@ -62,6 +62,7 @@ void HU_Init(void);
 void HU_Drawer(void);
 void HU_Ticker(void);
 boolean HU_Responder(event_t* ev);
+void HU_NewLevel(void);
 char HU_dequeueChatChar(void);
 
 void HU_Start(void);

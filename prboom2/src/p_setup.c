@@ -34,19 +34,28 @@
 
 #include "z_zone.h"
 #include "c_io.h"
+#include "c_runcmd.h"
+#include "d_main.h"
+#include "hu_stuff.h"
+#include "wi_stuff.h"
 #include "doomstat.h"
+#include "hu_frags.h"
 #include "m_bbox.h"
 #include "m_argv.h"
 #include "g_game.h"
 #include "w_wad.h"
+#include "p_hubs.h"
 #include "r_main.h"
 #include "r_things.h"
+#include "r_sky.h"
+#include "p_chase.h"
 #include "p_maputl.h"
 #include "p_map.h"
 #include "p_setup.h"
 #include "p_spec.h"
 #include "p_tick.h"
 #include "p_enemy.h"
+#include "p_info.h"
 #include "s_sound.h"
 #include "v_video.h"
 #include "t_script.h"
@@ -1362,10 +1371,11 @@ extern int level_error;
 void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 {
   int   i;
-  char  lumpname[9];
+  char  mapname[9];
   int   lumpnum;
+  extern char *gamemapname;
 
-  char  gl_lumpname[9];
+  char  *gl_mapname;
   int   gl_lumpnum;
 
 #ifdef COMPILE_VIDD
@@ -1381,9 +1391,40 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // Initial height of PointOfView will be set by player think.
   players[consoleplayer].viewz = 1;
 
-  // Make sure all sounds are stopped before Z_FreeTags.
-  S_Start();
+  // find map name
+  if (gamemode == commercial)
+  {
+    sprintf(mapname, "MAP%02d", map);           // killough 1/24/98: simplify
+  }
+  else
+  {
+    sprintf(mapname, "E%dM%d", episode, map);   // killough 1/24/98: simplify
+  }
+  gamemapname = strdup(mapname);
 
+  lprintf(LO_DEBUG, "P_SetupLevel: got here\n mapname: %s\n",mapname);
+
+      // get the map name lump number
+  if((lumpnum = W_CheckNumForName(mapname)) == -1
+    || !P_CheckLevel(lumpnum))  
+    {
+      C_Printf("level not found: '%s'\n", mapname);
+      C_SetConsole();
+      return;
+    }
+  
+  if(levelmapname) Z_Free(levelmapname);
+  levelmapname = Z_Strdup(mapname, PU_STATIC, 0);
+  
+  leveltime = 0;
+
+  lprintf(LO_DEBUG, "stop sounds\n");
+
+  // Make sure all sounds are stopped before Z_FreeTags. - sf: why?
+  S_StopSounds(); // sf: s_start split into s_start, s_stopsounds
+			            // because of this requirement
+
+		// free the old level
   Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
   if (rejectlump != -1) { // cph - unlock the reject table
     W_UnlockLumpNum(rejectlump);
@@ -1395,33 +1436,44 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   gld_CleanMemory();
 #endif	
 
+  // FIXME P_FreeSecNodeList();  // sf: free the psecnode_t linked list in p_map.c
   P_InitThinkers();
 
-  // if working with a devlopment map, reload it
-  //    W_Reload ();     killough 1/31/98: W_Reload obsolete
+  P_LoadOlo();                          // level names etc
+  P_LoadLevelInfo(lumpnum);    // load level lump info(level name etc)
 
-  // find map name
-  if (gamemode == commercial)
-  {
-    sprintf(lumpname, "map%02d", map);           // killough 1/24/98: simplify
-	  sprintf(gl_lumpname, "gl_map%02d", map);    // figgi
-  }
-  else
-  {
-    sprintf(lumpname, "E%dM%d", episode, map);   // killough 1/24/98: simplify
-	  sprintf(gl_lumpname, "GL_E%iM%i", episode, map); // figgi
-  }
+  WI_StopCamera();      // reset the intermissions camera
 
-  lumpnum = W_GetNumForName(lumpname);
-  gl_lumpnum = W_CheckNumForName(gl_lumpname); // figgi
+  // when loading a hub level, display a 'loading' box
 
-  leveltime = 0;
+  lprintf(LO_DEBUG, "hu_newlevel\n");
+  newlevel = lumpinfo[lumpnum].source != source_iwad;
+  doom1level = false;
+  HU_NewLevel();
+  HU_Start();
+
+  // must be after p_loadlevelinfo as the music lump name is got there
+  S_Start();
+
+  lprintf(LO_DEBUG, "P_SetupLevel: loaded level info\n");
+  
+	// load the sky
+  R_StartSky();
+
+  lprintf(LO_DEBUG, "P_SetupLevel: sky done\n");
+
+  gl_mapname = malloc(strlen(mapname)+4);
+	sprintf(gl_mapname, "GL_%s", mapname);
+  gl_lumpnum = W_CheckNumForName(gl_mapname); // figgi
+  free(gl_mapname);
 
   // note: most of this ordering is important
 
   // killough 3/1/98: P_LoadBlockMap call moved down to below
   // killough 4/4/98: split load of sidedefs into two parts,
   // to allow texture names to be used in special linedefs
+
+  level_error = false;  // reset
 
   // figgi 10/19/00 -- check for gl lumps and load them
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
@@ -1437,6 +1489,13 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             
   P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             
+
+  if(level_error)       // drop to the console
+  {             
+    C_SetConsole();
+    return;
+  }
+
   P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
 
   if (usingGLNodes)
@@ -1515,6 +1574,22 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     gld_PreprocessLevel();
   }
 #endif	
+
+  // psprites
+  HU_FragsUpdate();     // reset frag counter
+
+  R_SetViewSize (screenblocks); //sf
+  //R_SetViewSize (screenSize+3); //sf
+
+  T_PreprocessScripts();        // preprocess FraggleScript scripts
+
+  lprintf(LO_DEBUG, "P_SetupLevel: finished\n");
+  if(doom1level && gamemode == commercial)
+    C_Printf("doom 1 level\n");
+
+  camera = NULL;        // camera off
+
+  // FIXME ResetNet();
 }
 
 //
@@ -1525,6 +1600,7 @@ void P_Init (void)
   P_InitSwitchList();
   P_InitPicAnims();
   R_InitSprites(sprnames);
+  P_InitHubs();
 }
 
 //

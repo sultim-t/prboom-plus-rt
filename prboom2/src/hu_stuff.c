@@ -657,7 +657,7 @@ void HU_NewLevel()
   
   C_Printf("\n");
   C_Seperator();
-  //C_Printf(FC_GRAY " %s\n\n", levelname); FIXME
+  C_Printf(FC_GRAY " %s\n\n", levelname);
   C_InstaPopup();       // put console away
   //  C_Update();
 }
