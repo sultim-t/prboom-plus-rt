@@ -153,14 +153,9 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
-# Begin Source File
+# Begin Group "c_"
 
-SOURCE=..\src\am_map.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\am_map.h
-# End Source File
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\c_cmd.c
@@ -175,16 +170,24 @@ SOURCE=..\src\c_io.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\c_net.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\c_net.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\c_runcmd.c
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\c_runcmd.h
 # End Source File
-# Begin Source File
+# End Group
+# Begin Group "d_"
 
-SOURCE=.\config.h
-# End Source File
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\d_client.c
@@ -237,6 +240,42 @@ SOURCE=..\src\d_think.h
 
 SOURCE=..\src\d_ticcmd.h
 # End Source File
+# End Group
+# Begin Group "f_"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\f_finale.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\f_finale.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\f_wipe.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\f_wipe.h
+# End Source File
+# End Group
+# Begin Group "am_"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\am_map.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\am_map.h
+# End Source File
+# End Group
+# Begin Group "doom"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\doomdata.h
@@ -261,34 +300,10 @@ SOURCE=..\src\doomstat.h
 
 SOURCE=..\src\doomtype.h
 # End Source File
-# Begin Source File
+# End Group
+# Begin Group "g_"
 
-SOURCE=..\src\drawasm.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\dstrings.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\dstrings.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_finale.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_finale.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_wipe.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_wipe.h
-# End Source File
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\g_bind.c
@@ -329,6 +344,10 @@ SOURCE=..\src\g_game.c
 
 SOURCE=..\src\g_game.h
 # End Source File
+# End Group
+# Begin Group "hu_"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\hu_lib.c
@@ -345,6 +364,10 @@ SOURCE=..\src\hu_stuff.c
 
 SOURCE=..\src\hu_stuff.h
 # End Source File
+# End Group
+# Begin Group "i_"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\SDL\i_axes.c
@@ -397,22 +420,10 @@ SOURCE=..\src\sdl\i_video.c
 
 SOURCE=..\src\i_video.h
 # End Source File
-# Begin Source File
+# End Group
+# Begin Group "m_"
 
-SOURCE=..\src\info.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\info.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\lprintf.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\lprintf.h
-# End Source File
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\m_argv.c
@@ -461,14 +472,10 @@ SOURCE=..\src\m_random.h
 
 SOURCE=..\src\m_swap.h
 # End Source File
-# Begin Source File
+# End Group
+# Begin Group "mn_"
 
-SOURCE=..\src\Mmus2mid.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\Mmus2mid.h
-# End Source File
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\mn_engin.c
@@ -493,6 +500,10 @@ SOURCE=..\src\mn_misc.c
 
 SOURCE=..\src\mn_misc.h
 # End Source File
+# End Group
+# Begin Group "p_"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\p_ceilng.c
@@ -629,10 +640,10 @@ SOURCE=..\src\p_user.c
 
 SOURCE=..\src\p_user.h
 # End Source File
-# Begin Source File
+# End Group
+# Begin Group "r_"
 
-SOURCE=..\src\protocol.h
-# End Source File
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=..\src\r_bsp.c
@@ -728,6 +739,107 @@ SOURCE=..\src\r_things.c
 # Begin Source File
 
 SOURCE=..\src\r_things.h
+# End Source File
+# End Group
+# Begin Group "t_"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\t_func.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_func.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_oper.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_oper.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_parse.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_parse.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_prepro.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_prepro.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_script.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_script.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_spec.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_spec.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_vari.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\t_vari.h
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=.\config.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\dstrings.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\dstrings.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\info.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\info.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\lprintf.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\lprintf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\Mmus2mid.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\Mmus2mid.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\protocol.h
 # End Source File
 # Begin Source File
 
