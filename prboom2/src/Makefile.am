@@ -64,25 +64,11 @@ COMMON_SRC = \
 	tables.c        tables.h        v_misc.c        v_misc.h \
 	v_video.c       v_video.h       version.c       version.h \
 	w_wad.c         w_wad.h         wi_stuff.c      wi_stuff.h \
-	z_bmalloc.c     z_bmalloc.h     z_zone.c        z_zone.h
+	z_bmalloc.c     z_bmalloc.h     z_zone.c        z_zone.h \
+	gl_dyn.c        gl_dyn.h        gl_funcs.h      gl_intern.h \
+	gl_main.c       gl_preprocess.c gl_struct.h     gl_texture.c
 
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
-
-GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
-
-if BUILD_GL
-USE_GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
-else
-USE_GL_SRC =
-endif
-
-DLL_SRC = gl_dll.h  gl_dll.c
-
-if BUILD_DLL
-USE_DLL_SRC = gl_dll.h  gl_dll.c
-else
-USE_DLL_SRC =
-endif
 
 if WAD_MMAP
 WAD_SRC = w_mmap.c
@@ -90,9 +76,9 @@ else
 WAD_SRC = w_memcache.c
 endif
 
-prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(USE_DLL_SRC) $(WAD_SRC)
-prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @DLL_LIBS@ @MATH_LIB@
+prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(WAD_SRC)
+prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @DLL_LIBS@ @MATH_LIB@
 
 # Must remember to include 'optional' sources in the tarball
-EXTRA_prboom_SOURCES = $(GL_SRC) $(DLL_SRC)
+EXTRA_prboom_SOURCES =
 
