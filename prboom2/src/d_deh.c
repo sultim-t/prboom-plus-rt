@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.15 2002/02/10 21:03:45 proff_fs Exp $
+ * $Id: d_deh.c,v 1.16 2002/11/27 03:52:01 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.15 2002/02/10 21:03:45 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.16 2002/11/27 03:52:01 dukope Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1686,6 +1686,90 @@ static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
   return;
 }
 
+//---------------------------------------------------------------------------
+// To be on the safe, compatible side, we manually convert DEH bitflags
+// to prboom types - POPE
+//---------------------------------------------------------------------------
+uint_64_t getConvertedDEHBits(uint_64_t bits) {
+  static const uint_64_t bitMap[32] = {
+    // from http://www.btinternet.com/~Enjay001/deh05.htm:
+    MF_SPECIAL, // 0 Can be picked up – When touched the thing can be picked up.
+    MF_SOLID, // 1 Obstacle – The thing is solid and will not let you (or others) pass through it
+    MF_SHOOTABLE, // 2 Shootable – Can be shot.
+    MF_NOSECTOR, // 3 Total Invisibility – Invisible, but can be touched
+    MF_AMBUSH, // 4 Semi deaf – The thing is a deaf monster
+    MF_JUSTHIT, // 5 In pain – Will try to attack right back after being hit
+    MF_JUSTATTACKED, // 6 Steps before attack – Will take at least one step before attacking
+    MF_SPAWNCEILING, // 7 Hangs from ceiling – When the level starts, this thing will be at ceiling height.
+    MF_NOGRAVITY, // 8 No gravity – Gravity does not affect this thing
+    MF_DROPOFF, // 9 Travels over cliffs – Monsters normally do not walk off ledges/steps they could not walk up. With this set they can walk off any height of cliff. Usually only used for flying monsters.
+    MF_PICKUP, // 10 Pick up items – The thing can pick up gettable items.
+    MF_NOCLIP, // 11 No clipping - Thing can walk through walls.
+    MF_SLIDE, // 12 Slides along walls – Keep info about sliding along walls (don’t really know much about this one).
+    MF_FLOAT, // 13 Floating – Thing can move to any height
+    MF_TELEPORT, // 14 Semi no clipping – Don’t cross lines or look at teleport heights. (don’t really know much about this one either).
+    MF_MISSILE, // 15 Projectiles – Behaves like a projectile, explodes when hitting something that blocks movement
+    MF_DROPPED, // 16 Disappearing weapon – Dropped, not spawned (like an ammo clip) I have not had much success in using this one.
+    MF_SHADOW, // 17 Partial invisibility – Drawn like a spectre.
+    MF_NOBLOOD, // 18 Puffs (vs. bleeds) – If hit will spawn bullet puffs instead of blood splats.
+    MF_CORPSE, // 19 Sliding helpless – Will slide down steps when dead.
+    MF_INFLOAT, // 20 No auto levelling - float but not to target height (?)
+    MF_COUNTKILL, // 21 Affects kill % – counted as a killable enemy and affects percentage kills on level summary.
+    MF_COUNTITEM, // 22 Affects item % –affects percentage items gathered on level summary.
+    MF_SKULLFLY, // 23 Running - special handling for flying skulls.
+    MF_NOTDMATCH, // 24 Not in deathmatch - do not spawn in deathmatch (like keys)
+    MF_TRANSLATION1, // 25 Color 1 (grey / red)
+    MF_TRANSLATION2, // 26 Color 2 (brown / red)
+    MF_TRANSLATION, // 27 and 28 allow the green colours in a thing’s graphics to be remapped to a different colour like the players uniforms in multiplayer games. Leaving all the bits alone, the thing stays green. Setting 26 it becomes grey. Setting 27 it becomes brown. Setting both 26 and 27 it becomes red.
+    MF_TRANSLATION,
+    0,
+    0,
+    0
+  };
+  int i;
+  uint_64_t shiftBits = bits;
+  uint_64_t convertedBits = 0;
+  for (i=0; i<32; i++) {
+    if (shiftBits & 0x1) convertedBits |= bitMap[i];
+    shiftBits >>= 1;
+  }
+  return convertedBits;
+}
+
+//---------------------------------------------------------------------------
+// See usage below for an explanation of this function's existence - POPE
+//---------------------------------------------------------------------------
+void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
+  mobjinfo_t *mi;
+  if (mobjInfoIndex >= NUMMOBJTYPES || mobjInfoIndex < 0) return;
+  mi = &mobjinfo[mobjInfoIndex];
+  switch (keyIndex) {
+    case 0: mi->doomednum = (int)value; return;
+    case 1: mi->spawnstate = (int)value; return;
+    case 2: mi->spawnhealth = (int)value; return;
+    case 3: mi->seestate = (int)value; return;
+    case 4: mi->seesound = (int)value; return;
+    case 5: mi->reactiontime = (int)value; return;
+    case 6: mi->attacksound = (int)value; return;
+    case 7: mi->painstate = (int)value; return;
+    case 8: mi->painchance = (int)value; return;
+    case 9: mi->painsound = (int)value; return;
+    case 10: mi->meleestate = (int)value; return;
+    case 11: mi->missilestate = (int)value; return;
+    case 12: mi->deathstate = (int)value; return;
+    case 13: mi->xdeathstate = (int)value; return;
+    case 14: mi->deathsound = (int)value; return;
+    case 15: mi->speed = (int)value; return;
+    case 16: mi->radius = (int)value; return;
+    case 17: mi->height = (int)value; return;
+    case 18: mi->mass = (int)value; return;
+    case 19: mi->damage = (int)value; return;
+    case 20: mi->activesound = (int)value; return;
+    case 21: mi->flags = value; return;
+    case 22: mi->raisestate = (int)value; return;
+    default: return;
+  }
+}
 
 // ====================================================================
 // deh_procThing
@@ -1706,7 +1790,6 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
   uint_64_t value;      // All deh values are ints or longs
   int indexnum;
   int ix;
-  int *pix;  // Ptr to int, since all Thing structure entries are ints
   char *strval;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -1738,54 +1821,73 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
           if (fpout) fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
           continue;
         }
-      for (ix=0; ix < DEH_MOBJINFOMAX; ix++)
-        {
-          if (!strcasecmp(key,deh_mobjinfo[ix]))  // killough 8/98
-            {
-              if (!strcasecmp(key,"bits") && !value) // killough 10/98
-                {
-                  // figure out what the bits are
-                  value = 0;
-
-                  // killough 10/98: replace '+' kludge with strtok() loop
-                  // Fix error-handling case ('found' var wasn't being reset)
-                  //
-                  // Use OR logic instead of addition, to allow repetition
-
-                  for (;(strval = strtok(strval,",+| \t\f\r")); strval = NULL)
-                    {
-                      int iy;
-                      for (iy=0; iy < DEH_MOBJFLAGMAX; iy++)
-                        if (!strcasecmp(strval,deh_mobjflags[iy].name))
-                          {
-                            if (fpout)
-                              fprintf(fpout, "ORed value 0x%08lX%08lX %s\n",
-                                      (unsigned long)(deh_mobjflags[iy].value>>32) & 0xffffffff, (unsigned long)deh_mobjflags[iy].value & 0xffffffff, strval);
-                            value |= deh_mobjflags[iy].value;
-                            break;
-                          }
-                      if (iy >= DEH_MOBJFLAGMAX && fpout)
-                        fprintf(fpout, "Could not find bit mnemonic %s\n",
-                                strval);
-                    }
-
-                  // Don't worry about conversion -- simply print values
-                  if (fpout) fprintf(fpout, "Bits = 0x%08lX%08lX\n",
-                                     (unsigned long)(value>>32) & 0xffffffff, (unsigned long)value & 0xffffffff);
-                }
-              if (!strcasecmp(key,"bits")) // proff
-              {
-                mobjinfo[indexnum].flags = value;
-              }
-              else
-              {
-                pix = (int *)&mobjinfo[indexnum];
-                pix[ix] = (int)value;
-              }
-              if (fpout) fprintf(fpout,"Assigned 0x%08lx%08lx to %s(%d) at index %d\n",
-                                 (unsigned long)(value>>32) & 0xffffffff, (unsigned long)value & 0xffffffff, key, indexnum, ix);
-            }
+      for (ix=0; ix<DEH_MOBJINFOMAX; ix++) {
+        if (strcasecmp(key,deh_mobjinfo[ix])) continue;
+        
+        if (strcasecmp(key,"bits")) {
+          // standard value set
+          
+          // The old code here was the cause of a DEH-related bug in prboom.
+          // When the mobjinfo_t.flags member was graduated to an int64, this
+          // code was caught unawares and was indexing each property of the
+          // mobjinfo as if it were still an int32. This caused sets of the 
+          // "raisestate" member to partially overwrite the "flags" member, 
+          // thus screwing everything up and making most DEH patches result in 
+          // unshootable enemy types. Moved to a separate function above
+          // and stripped of all hairy struct address indexing. - POPE
+          setMobjInfoValue(indexnum, ix, value);
         }
+        else {
+          // bit set
+          if (value) { // proff
+            value = getConvertedDEHBits(value);
+            mobjinfo[indexnum].flags = value;
+          }
+          else {
+            // figure out what the bits are
+            value = 0;
+
+            // killough 10/98: replace '+' kludge with strtok() loop
+            // Fix error-handling case ('found' var wasn't being reset)
+            //
+            // Use OR logic instead of addition, to allow repetition
+            for (;(strval = strtok(strval,",+| \t\f\r")); strval = NULL) {
+              int iy;
+              for (iy=0; iy < DEH_MOBJFLAGMAX; iy++) {
+                if (strcasecmp(strval,deh_mobjflags[iy].name)) continue;
+                if (fpout) {
+                  fprintf(fpout, 
+                    "ORed value 0x%08lX%08lX %s\n",
+                    (unsigned long)(deh_mobjflags[iy].value>>32) & 0xffffffff, 
+                    (unsigned long)deh_mobjflags[iy].value & 0xffffffff, strval
+                  );
+                }
+                value |= deh_mobjflags[iy].value;
+                break;
+              }
+              if (iy >= DEH_MOBJFLAGMAX && fpout) {
+                fprintf(fpout, "Could not find bit mnemonic %s\n", strval);
+              }
+            }
+
+            // Don't worry about conversion -- simply print values
+            if (fpout) {
+              fprintf(fpout, 
+                "Bits = 0x%08lX%08lX\n",
+                (unsigned long)(value>>32) & 0xffffffff, 
+                (unsigned long)value & 0xffffffff
+              );
+            }
+          }
+        }
+        if (fpout) {
+          fprintf(fpout,
+            "Assigned 0x%08lx%08lx to %s(%d) at index %d\n",
+            (unsigned long)(value>>32) & 0xffffffff, 
+            (unsigned long)value & 0xffffffff, key, indexnum, ix
+          );
+        }
+      }
     }
   return;
 }
