@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.7 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: s_sound.c,v 1.8 2002/08/10 20:57:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.7 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.8 2002/08/10 20:57:57 cph Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -275,7 +275,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // kill old sound
   for (cnum=0 ; cnum<numChannels ; cnum++)
     if (channels[cnum].sfxinfo && channels[cnum].origin == origin &&
-        channels[cnum].is_pickup == is_pickup)
+        (comp[comp_sound] || channels[cnum].is_pickup == is_pickup))
       {
         S_StopChannel(cnum);
         break;

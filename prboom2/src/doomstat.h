@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.19 2002/01/13 17:45:05 cph Exp $
+ * $Id: doomstat.h,v 1.20 2002/08/10 20:57:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -114,6 +114,7 @@ enum {
   comp_666,
   comp_soul,
   comp_maskedanim,
+  comp_sound,
   COMP_NUM,      /* cph - should be last in sequence */
   COMP_TOTAL=32  // Some extra room for additional variables
 };

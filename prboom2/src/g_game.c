@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.58 2002/08/10 20:01:51 cph Exp $
+ * $Id: g_game.c,v 1.59 2002/08/10 20:57:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.58 2002/08/10 20:01:51 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.59 2002/08/10 20:57:57 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1762,7 +1762,7 @@ static byte comp_options_by_version[] =
    0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
    19,19, /* MBF and early PrBoom had 19 */
    21,21, /* PrBoom v2.1-v2.2 have 21 */
-   24, /* PrBoom v2.3 still counting... */
+   25, /* PrBoom v2.3 still counting... */
  };
 
 static void G_Compatibility(void)
@@ -1805,6 +1805,7 @@ static void G_Compatibility(void)
     doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
     prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
     doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
+    boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
   };
   int i;
   if (sizeof(comp_options_by_version) != MAX_COMPATIBILITY_LEVEL)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_inter.c,v 1.7 2002/08/10 20:57:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.7 2002/08/10 20:57:57 cph Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -186,7 +186,10 @@ boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropped)
       P_GiveAmmo(player, weaponinfo[weapon].ammo, deathmatch ? 5 : 2);
 
       player->pendingweapon = weapon;
-      S_StartSound (player->mo, sfx_wpnup|PICKUP_SOUND); // killough 4/25/98
+      /* cph 20028/10 - for old-school DM addicts, allow old behavior where only
+       * consoleplayer's pickup sounds are heard */
+      if (!comp[comp_sound] || player == &players[consoleplayer])
+	S_StartSound (player->mo, sfx_wpnup|PICKUP_SOUND); // killough 4/25/98
       return false;
     }
 
@@ -604,7 +607,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   P_RemoveMobj (special);
   player->bonuscount += BONUSADD;
 
-  S_StartSound (player->mo, sound | PICKUP_SOUND);   // killough 4/25/98
+  /* cph 20028/10 - for old-school DM addicts, allow old behavior where only
+   * consoleplayer's pickup sounds are heard */
+  if (!comp[comp_sound] || player == &players[consoleplayer])
+    S_StartSound (player->mo, sound | PICKUP_SOUND);   // killough 4/25/98
 }
 
 //

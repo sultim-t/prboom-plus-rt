@@ -4,6 +4,7 @@ changelog follows it.
 
 Changes from v2.2.3 to v2.3.0
 - the OpenGL libs are loaded dynamically
+- option for sound compatibility with original Doom
 - added more compatibility levels (check frontend configurations!)
 - in game switching between fullscreen and windowed mode
 - fix super-shotgun reload on last shot
