@@ -38,21 +38,21 @@
 #define INPUTLENGTH 512
 #define LINELENGTH 96
 
-void C_InitBackdrop();
-void C_Init();
-void C_Ticker();
-void C_Drawer();
+void C_InitBackdrop(void);
+void C_Init(void);
+void C_Ticker(void);
+void C_Drawer(void);
 int C_Responder(event_t* ev);
-void C_Update();
+void C_Update(void);
 
 void C_Puts(const char *s);
 void C_Printf(const char *s, ...);
 
-void C_Seperator();
+void C_Seperator(void);
 
-void C_SetConsole();
-void C_Popup();
-void C_InstaPopup();
+void C_SetConsole(void);
+void C_Popup(void);
+void C_InstaPopup(void);
 
         // sf 9/99: made a #define
 #define consoleactive (current_height || gamestate==GS_CONSOLE)

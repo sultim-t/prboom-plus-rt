@@ -42,25 +42,33 @@
 
 #include "m_random.h"
 
-//extern const char *cmdoptions;
+
                 /************* aliases ***************/
 CONSOLE_COMMAND(alias, 0)
 {
   alias_t *alias;
   char *temp;
 
+  // haleyjd 04/14/03: rewritten
+  
   if(!c_argc)
     {
       // list em
-      C_Printf(FC_GRAY"alias list:" FC_RED "\n\n");
-      alias = aliases;
-      while(alias->name)
-	{
-	  C_Printf("\"%s\": \"%s\"\n", alias->name,
-		   alias->command);
-	  alias++;
-	}
-      if(alias==aliases) C_Printf("(empty)\n");
+      C_Printf(FC_HI"alias list:" FC_NORMAL "\n\n");
+
+      alias = aliases.next;
+      if(!alias)
+      {
+        C_Printf("(empty)\n");
+      }
+      else
+      {
+        while(alias)
+        {
+          C_Printf("\"%s\": \"%s\"\n", alias->name, alias->command);
+          alias = alias->next;
+        }
+      }
       return;
     }
 
@@ -73,7 +81,8 @@ CONSOLE_COMMAND(alias, 0)
   // find it or make a new one
 
   temp = c_args + strlen(c_argv[0]);
-  while(*temp == ' ') temp++;
+  while(*temp == ' ')
+    temp++;
 
   C_NewAlias(c_argv[0], temp);
 }
@@ -85,7 +94,6 @@ CONSOLE_CONST(opt, cmdoptions);
 // command list
 CONSOLE_COMMAND(cmdlist, 0)
 {
-  int numonline = 0;
   command_t *current;
   int i;
   int charnum;
@@ -96,27 +104,21 @@ CONSOLE_COMMAND(cmdlist, 0)
   //  alphabetical order by first letter
 
   for(charnum=33; charnum < 'z'; charnum++) // go thru each char in alphabet
+  {
     for(i=0; i<CMDCHAINS; i++)
+    {
       for(current = cmdroots[i]; current; current = current->next)
-	{
-	  if(current->name[0]==charnum && !(current->flags & cf_hidden))
-	    {
-	      C_Printf("%s ", current->name);
-	      numonline++;
-	      if(numonline >= 3)
-		{
-		  numonline = 0;
-		  C_Printf("\n");
-		}
-	    }
-	}
-  C_Printf("\n");
+      {
+        if(current->name[0]==charnum && !(current->flags & cf_hidden))
+        {
+          C_Printf("%s\n", current->name);
+        }
+      }
+    }
+  }
 }
 
 // console height
-
-//VARIABLE_INT(c_height,  NULL,                   20, 200, NULL);
-//CONSOLE_VARIABLE(c_height, c_height, 0) {}
 
 CONSOLE_INT(c_height, c_height, NULL, 20, 200, NULL, 0) {}
 
@@ -154,26 +156,26 @@ CONSOLE_COMMAND(flood, 0)
 
 // command-adding functions in other modules
 
-extern void    AM_AddCommands();        // am_map.c
-extern void Cheat_AddCommands();        // m_cheat.c
-extern void     G_AddCommands();        // g_cmd.c
-extern void    HU_AddCommands();        // hu_stuff.c
-extern void     I_AddCommands();        // i_system.c
-//extern void   net_AddCommands();        // d_net.c
-extern void     P_AddCommands();        // p_cmd.c
-extern void     R_AddCommands();        // r_main.c
-extern void     S_AddCommands();        // s_sound.c
-extern void    ST_AddCommands();        // st_stuff.c
+extern void Cheat_AddCommands(void);        // m_cheat.c
+extern void     G_AddCommands(void);        // g_cmd.c
+extern void    HU_AddCommands(void);        // hu_stuff.c
+extern void     I_AddCommands(void);        // i_system.c
+extern void   net_AddCommands(void);        // d_net.c
+extern void     P_AddCommands(void);        // p_cmd.c
+extern void     R_AddCommands(void);        // r_main.c
+extern void     S_AddCommands(void);        // s_sound.c
+extern void    ST_AddCommands(void);        // st_stuff.c
 #ifdef FRAGGLE_SCRIPT
-extern void     T_AddCommands();        // t_script.c
+extern void     T_AddCommands(void);        // t_script.c
 #endif
-extern void     V_AddCommands();        // v_misc.c
-extern void    MN_AddCommands();        // mn_menu.c
+extern void     V_AddCommands(void);        // v_misc.c
+extern void    MN_AddCommands(void);        // mn_menu.c
+extern void    AM_AddCommands(void);        // am_map.c
 
-//extern void    PE_AddCommands();        // p_enemy.c -- haleyjd
-extern void    G_Bind_AddCommands();    // g_bind.c  -- haleyjd
-extern void    G_BindAxes_AddCommands();    // g_bindaxes.c
-extern void    GL_AddCommands();        // gl_main.c
+extern void    PE_AddCommands(void);        // p_enemy.c -- haleyjd
+extern void    G_Bind_AddCommands(void);    // g_bind.c  -- haleyjd
+extern void    G_BindAxes_AddCommands(void);    // g_bindaxes.c
+extern void    GL_AddCommands(void);        // gl_main.c
 
 void C_AddCommands()
 {
@@ -187,7 +189,6 @@ void C_AddCommands()
   C_AddCommand(flood);
 
   // add commands in other modules
-  AM_AddCommands();
   Cheat_AddCommands();
   G_AddCommands();
   HU_AddCommands();
@@ -202,6 +203,7 @@ void C_AddCommands()
 #endif
   V_AddCommands();
   MN_AddCommands();
+  AM_AddCommands();
 //  PE_AddCommands();  // haleyjd
   G_Bind_AddCommands();
   G_BindAxes_AddCommands();

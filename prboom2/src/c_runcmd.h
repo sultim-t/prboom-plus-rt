@@ -49,51 +49,51 @@ typedef struct variable_s variable_t;
 //        }
 
 #define CONSOLE_COMMAND(name, flags)                    \
-        static void Handler_ ## name();                 \
-        command_t Cmd_ ## name = { # name, ct_command,  \
+        static void Handler_ ## name(void);             \
+        static command_t Cmd_ ## name = { # name, ct_command,  \
                        flags, NULL, Handler_ ## name,   \
                        0 };                             \
-        static void Handler_ ## name()
+        static void Handler_ ## name(void)
 
 
 // new all-in-one variable command macros
 // easier than messing around with two VARIABLE_ and CONSOLE_ macros
 
 #define CONSOLE_INT(name, variable, defaultvar, min, max, strings, flags) \
-   variable_t Var_ ## name = {&variable, defaultvar, vt_int,              \
-	                      min, max, strings};                         \
-   static void Handler_ ## name();                                        \
-   command_t Cmd_ ## name = { # name, ct_variable, flags, &Var_ ## name,  \
+   static variable_t Var_ ## name = {&variable, defaultvar, vt_int,              \
+                        min, max, strings};                               \
+   static void Handler_ ## name(void);                                    \
+   static command_t Cmd_ ## name = { # name, ct_variable, flags, &Var_ ## name,  \
    Handler_ ## name, 0};                                                  \
-   static void Handler_ ## name()
+   static void Handler_ ## name(void)
 
 #define CONSOLE_BOOLEAN(name, variable, defaultvar, strings, flags)       \
-   variable_t Var_ ## name = {&variable, defaultvar, vt_int,              \
+   static variable_t Var_ ## name = {&variable, defaultvar, vt_int,              \
                               0, 1, strings};                             \
-   void Handler_ ## name();                                               \
-   command_t Cmd_ ## name = { #name, ct_variable, flags, &Var_ ## name,   \
+   static void Handler_ ## name(void);                                           \
+   static command_t Cmd_ ## name = { #name, ct_variable, flags, &Var_ ## name,   \
    Handler_ ## name, 0};                                                  \
-        void Handler_ ## name()
+   static void Handler_ ## name(void)
 
 #define CONSOLE_STRING(name, variable, defaultvar, max, flags)            \
-   variable_t Var_ ## name = {&variable, defaultvar, vt_string,           \
-			      0, max};                                    \
-   void Handler_ ## name();                                               \
-   command_t Cmd_ ## name = { # name, ct_variable, flags, & Var_ ## name, \
+   static variable_t Var_ ## name = {&variable, defaultvar, vt_string,           \
+            0, max};                                    \
+   static void Handler_ ## name(void);                                           \
+   static command_t Cmd_ ## name = { # name, ct_variable, flags, & Var_ ## name, \
    Handler_ ## name, 0};                                                  \
-   void Handler_ ## name()
-		 
+   static void Handler_ ## name(void)
+     
 // console variable. you must define the range of values etc. for
 //      the variable using the other macros below.
 //      You must also provide a handler function even
 //      if it is just {}
 
 #define CONSOLE_VARIABLE(name, variable, flags)                         \
-        void Handler_ ## name();                                        \
-        command_t Cmd_ ## name = { # name, ct_variable,                 \
+        static void Handler_ ## name(void);                                        \
+        static command_t Cmd_ ## name = { # name, ct_variable,                 \
                         flags, &var_ ## variable, Handler_ ## name,     \
                         0 };                                            \
-        void Handler_ ## name()
+        static void Handler_ ## name(void)
 
 // Same as CONSOLE_COMMAND, but sync-ed across network. When
 //      this command is executed, it is run on all computers.
@@ -101,26 +101,26 @@ typedef struct variable_s variable_t;
 //      variable (list in c_net.h)
 
 #define CONSOLE_NETCMD(name, flags, netcmd)             \
-        void Handler_ ## name();                        \
-        command_t Cmd_ ## name = { # name, ct_command,  \
+        static void Handler_ ## name(void);                        \
+        static command_t Cmd_ ## name = { # name, ct_command,  \
                        (flags) | cf_netvar, NULL,       \
                        Handler_ ## name, netcmd };      \
-        void Handler_ ## name()
+        static void Handler_ ## name(void)
 
 // As for CONSOLE_VARIABLE, but for net, see above
 
 #define CONSOLE_NETVAR(name, variable, flags, netcmd)                   \
-        void Handler_ ## name();                                        \
-        command_t Cmd_ ## name = { # name, ct_variable,                 \
+        static void Handler_ ## name(void);                                        \
+        static command_t Cmd_ ## name = { # name, ct_variable,                 \
                         cf_netvar | (flags), &var_ ## variable,         \
                         Handler_ ## name, netcmd };                     \
-        void Handler_ ## name()
+        static void Handler_ ## name(void)
 
 // Create a constant. You must declare the variable holding
 //      the constant using the variable macros below.
 
 #define CONSOLE_CONST(name, variable)                           \
-        command_t Cmd_ ## name = { # name, ct_constant, 0,      \
+        static command_t Cmd_ ## name = { # name, ct_constant, 0,      \
                 &var_ ## variable, NULL, 0 };
 
         /*********** variable macros *************/
@@ -134,36 +134,36 @@ typedef struct variable_s variable_t;
 // basic VARIABLE macro. You must specify all the data needed
 
 #define VARIABLE(name, defaultvar, type, min, max, strings)  \
-        variable_t var_ ## name = { &name, defaultvar,       \
+        static variable_t var_ ## name = { &name, defaultvar,       \
                         type, min, max, strings};
 
 // simpler macro for int. You do not need to specify the type
 
 #define VARIABLE_INT(name, defaultvar, min, max, strings)    \
-        variable_t var_ ## name = { &name, defaultvar,       \
+        static variable_t var_ ## name = { &name, defaultvar,       \
                         vt_int, min, max, strings};
 
 // Simplified to create strings: 'max' is the maximum string length
 
 #define VARIABLE_STRING(name, defaultvar, max)               \
-        variable_t var_ ## name = { &name, defaultvar,       \
+        static variable_t var_ ## name = { &name, defaultvar,       \
                         vt_string, 0, max, NULL};
 
 // Boolean. Note that although the name here is boolean, the
 // actual type is int.
 
 #define VARIABLE_BOOLEAN(name, defaultvar, strings)          \
-        variable_t var_ ## name = { &name, defaultvar,       \
+        static variable_t var_ ## name = { &name, defaultvar,       \
                         vt_int, 0, 1, strings };
 
 // basic variable_t creators for constants.
 
 #define CONST_INT(name)                                      \
-        variable_t var_ ## name = { &name, NULL,             \
+        static variable_t var_ ## name = { &name, NULL,             \
                         vt_int, -1, -1, NULL};
 
 #define CONST_STRING(name)                                   \
-        variable_t var_ ## name = { &name, NULL,             \
+        static variable_t var_ ## name = { &name, NULL,             \
                         vt_string, -1, -1, NULL};
 
 
@@ -176,7 +176,7 @@ enum    // cmdtype values
   c_typed,        // typed at console
   c_menu,
   c_netcmd,
-  c_script,	  // haleyjd: started by command script
+  c_script,   // haleyjd: started by command script
   C_CMDTYPES
 };
 
@@ -230,15 +230,18 @@ struct command_s
   int type;               // ct_?? command type
   int flags;              // cf_??
   variable_t *variable;
-  void (*handler)();       // handler
+  void (*handler)(void);  // handler
   int netcmd;     // network command number
   command_t *next;        // for hashing
 };
 
-typedef struct
+typedef struct alias_s
 {
   char *name;
   char *command;
+  
+  struct alias_s *next; // haleyjd 04/14/03
+
 } alias_t;
 
 /************************** PROTOTYPES/EXTERNS ****************************/
@@ -272,10 +275,9 @@ char *C_PrevTab(char *key);
 
 /**** aliases ****/
 
-extern alias_t aliases[128];
+extern alias_t aliases; // haleyjd 04/14/03: changed to linked list
 extern const char *cmdoptions;
 
-void C_Alias();
 alias_t *C_NewAlias(const char *aliasname, const char *command);
 void C_RemoveAlias(const char *aliasname);
 alias_t *C_GetAlias(const char *name);

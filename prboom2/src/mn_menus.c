@@ -784,7 +784,7 @@ CONSOLE_COMMAND(mn_player, 0)
 
 #define SAVESTRINGSIZE  24
 
-void MN_SaveGame()
+void MN_SaveGame(void)
 {
   int save_slot = (char **)c_command->variable->variable - savegamenames;
 

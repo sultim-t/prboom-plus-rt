@@ -449,7 +449,7 @@ char *weapon_str[NUMWEAPONS] =
 {"fist", "pistol", "shotgun", "chaingun", "rocket launcher", "plasma gun",
  "bfg", "chainsaw", "double shotgun"}; // haleyjd
 
-void G_WeapPrefHandler()
+void G_WeapPrefHandler(void)
 {
   int prefnum = (int *)c_command->variable->variable - weapon_preferences[0];
   G_SetWeapPref(prefnum, atoi(c_argv[0]));

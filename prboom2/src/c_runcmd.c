@@ -92,36 +92,36 @@ static void C_GetTokens(const char *command)
 
   while(*rover == ' ') rover++;
   if(!*rover)     // end of string already
-    {
-      numtokens = 0;
-      return;
-    }
+  {
+    numtokens = 0;
+    return;
+  }
 
   while(*rover)
-    {
-      if(*rover=='"')
-	{
-	  quotemark = !quotemark;
-	  rover++;
-	  continue;
-	}
-      if(*rover==' ' && !quotemark)   // end of token
-	{
-	  // only if the current one actually contains something
-	  if(cmdtokens[numtokens-1][0])
+  {
+    if(*rover=='"')
+	  {
+	    quotemark = !quotemark;
+	    rover++;
+	    continue;
+	  }
+    if(*rover==' ' && !quotemark)   // end of token
+	  {
+	    // only if the current one actually contains something
+	    if(cmdtokens[numtokens-1][0])
 	    {
 	      numtokens++;
 	      cmdtokens[numtokens-1][0] = 0;
 	    }
-	  rover++;
-	  continue;
-	}
+	    rover++;
+	    continue;
+	  }
 
-      // add char to line
-      psnprintf(cmdtokens[numtokens-1], MAXTOKENLENGTH, "%s%c",
-	      cmdtokens[numtokens-1], *rover);
-      rover++;
-    }
+    // add char to line
+    psnprintf(cmdtokens[numtokens-1], MAXTOKENLENGTH, "%s%c", cmdtokens[numtokens-1], *rover);
+
+    rover++;
+  }
 }
 
 //
@@ -145,18 +145,18 @@ static void C_RunIndivTextCmd(const char *cmdname)
   command = C_GetCmdForName(cmdtokens[0]);
   if(!numtokens) return; // no command
   if(!command)    // no _command_ called that
-    {
-      // alias?
-      if((alias = C_GetAlias(cmdtokens[0])))
-	{
-	  // save the options into cmdoptions
-	  cmdoptions = cmdname + strlen(cmdtokens[0]);
-	  C_RunAlias(alias);
-	}
-      else         // no alias either
-	C_Printf("unknown command: '%s'\n",cmdtokens[0]);
-      return;
-    }
+  {
+    // alias?
+    if((alias = C_GetAlias(cmdtokens[0])))
+	  {
+	    // save the options into cmdoptions
+	    cmdoptions = cmdname + strlen(cmdtokens[0]);
+	    C_RunAlias(alias);
+	  }
+    else         // no alias either
+	    C_Printf("unknown command: '%s'\n",cmdtokens[0]);
+    return;
+  }
 
   // run the command (buffer it)
   C_RunCommand(command, cmdname+strlen(cmdtokens[0]));
@@ -185,19 +185,19 @@ static boolean C_CheckFlags(command_t *command)
   // net-sync critical variables are usually critical to
   // demo sync too
   if((command->flags & cf_netvar) && demoplayback)
-    {
-      if(cmdtype == c_menu)    // if called from menu, stop demo playback
-	G_StopDemo();
-      else
-    errormsg = "not during demo playback";
-    }
+  {
+    if(cmdtype == c_menu)    // if called from menu, stop demo playback
+	    G_StopDemo();
+    else
+      errormsg = "not during demo playback";
+  }
 
   if(errormsg)
-    {
-      C_Printf("%s: %s\n", command->name, errormsg);
-      MN_ErrorMsg(errormsg);   // menu error
-      return true;
-    }
+  {
+    C_Printf("%s: %s\n", command->name, errormsg);
+    MN_ErrorMsg(errormsg);   // menu error
+    return true;
+  }
 
   return false;
 }
@@ -230,13 +230,13 @@ static void C_DoRunCommand(command_t *command, char *options)
 
   // check through the tokens for variable names
   for(i=0 ; i<c_argc ; i++)
-    {
-      if(c_argv[i][0]=='%' || c_argv[i][0]=='$') // variable
-	{
-	  command_t *variable;
+  {
+    if(c_argv[i][0]=='%' || c_argv[i][0]=='$') // variable
+	  {
+	    command_t *variable;
 
-	  variable = C_GetCmdForName(c_argv[i]+1);
-	  if(!variable || !variable->variable)
+	    variable = C_GetCmdForName(c_argv[i]+1);
+	    if(!variable || !variable->variable)
 	    {
 	      C_Printf("unknown variable '%s'\n",c_argv[i]+1);
 	      // clear for next time
@@ -244,43 +244,44 @@ static void C_DoRunCommand(command_t *command, char *options)
 	      return;
 	    }
 
-	  strcpy(c_argv[i], c_argv[i][0]=='%' ?
-		 C_VariableValue(variable->variable) :
-		 C_VariableStringValue(variable->variable) );
-	}
-    }
+	    strcpy(c_argv[i], c_argv[i][0]=='%' ?
+		   C_VariableValue(variable->variable) :
+		   C_VariableStringValue(variable->variable) );
+	  }
+  }
 
   C_ArgvtoArgs();                 // build c_args
 
   // actually do this command
   switch(command->type)
-    {
-    case ct_command:
-      // not to be run ?
-      if(C_CheckFlags(command) ||
-	 C_Sync(command))
-	{
-	  cmdtype = c_typed; cmdsrc = consoleplayer;
-	  return;
-	}
-      if(command->handler)
-	command->handler();
-      else
-	C_Printf("error: no command handler for %s\n", command->name);
-      break;
+  {
+  case ct_command:
+    // not to be run ?
+    if(C_CheckFlags(command) ||
+       C_Sync(command))
+	  {
+	    cmdtype = c_typed; cmdsrc = consoleplayer;
+	    return;
+	  }
+    if(command->handler)
+	    command->handler();
+    else
+	    C_Printf(FC_ERROR"error: no command handler for %s\n",
+	             command->name);
+    break;
 
-    case ct_constant:
-      C_EchoValue(command);
-      break;
+  case ct_constant:
+    C_EchoValue(command);
+    break;
 
-    case ct_variable:
-      C_SetVariable(command);
-      break;
+  case ct_variable:
+    C_SetVariable(command);
+    break;
 
-    default:
-      C_Printf("unknown command type %i\n",command->type);
-      break;
-    }
+  default:
+    C_Printf(FC_ERROR"unknown command type %i\n", command->type);
+    break;
+  }
 
   cmdtype = c_typed; cmdsrc = consoleplayer;   // clear for next time
 }
@@ -292,23 +293,19 @@ static void C_ArgvtoArgs()
   int i, n;
 
   for(i=0; i<c_argc; i++)
-    {
-      if(!c_argv[i][0])       // empty string
-	{
-	  for(n=i; n<c_argc-1; n++)
-	    strcpy(c_argv[n],c_argv[n+1]);
-	  c_argc--; i--;
-	}
-    }
+  {
+    if(!c_argv[i][0])       // empty string
+	  {
+	    for(n=i; n<c_argc-1; n++)
+	      strcpy(c_argv[n],c_argv[n+1]);
+	    c_argc--; i--;
+	  }
+  }
 
   c_args[0] = '\0';
 
-  for(i=0 ; i<c_argc; i++)
-    {
-      if(c_args[0])
-	strcat(c_args, " ");
-      strcat(c_args, c_argv[i]);
-    }
+  for(i=0; i<c_argc; i++)
+    psnprintf(c_args, MAXTOKENLENGTH, "%s%s ", c_args, c_argv[i]);
 }
 
 // return a string of all the argvs linked together, but with each
@@ -326,28 +323,12 @@ static char *C_QuotedArgvToArgs()
 
   // build command line
 
-  returnvar[0] = 0;
+  memset(returnvar, 0, 1024);
 
   for(i=0 ; i<c_argc; i++)
-    {
-      // enclose in spaces if it contains a ' '
-      if(strchr(c_argv[i], ' '))
-	{
-	  strcat(returnvar, " \"");
-	  strcat(returnvar, c_argv[i]);
-	  strcat(returnvar, "\"");
-	}
-      else
-	{
-	  strcat(returnvar, " ");
-	  strcat(returnvar, c_argv[i]);
-	}
-    }
+    psnprintf(returnvar, 1024, "%s\"%s\" ", returnvar, c_argv[i]);
 
-  // we will always have a first character of a space character
-  // using above algorithm. ignore the first char
-
-  return returnvar + 1;
+  return returnvar;
 }
 
 // see if the command needs to be sent to other computers
@@ -356,14 +337,14 @@ static char *C_QuotedArgvToArgs()
 static int C_Sync(command_t *command)
 {
   if(command->flags & cf_netvar)
-    {
-      // dont get stuck repeatedly sending the same command
-      if(cmdtype != c_netcmd)
-	{                               // send to sync
-	  C_SendCmd(command->netcmd, C_QuotedArgvToArgs());
-	  return true;
-	}
-    }
+  {
+    // dont get stuck repeatedly sending the same command
+    if(cmdtype != c_netcmd)
+	  {                               // send to sync
+	    C_SendCmd(command->netcmd, C_QuotedArgvToArgs());
+	    return true;
+	  }
+  }
 
   return false;
 }
@@ -376,33 +357,33 @@ void C_RunTextCmd(const char *command)
   const char *rover;
 
   for(rover=command; *rover; rover++)
-    {
-      if(*rover=='\"')    // quotemark
-	{
-	  quotemark = !quotemark;
-	  continue;
-	}
-      if(*rover==';' && !quotemark)  // command seperator and not in string
-	{
-	  // found sub-command
-	  // use recursion to run the subcommands
+  {
+    if(*rover=='\"')    // quotemark
+	  {
+	    quotemark = !quotemark;
+	    continue;
+	  }
+    if(*rover==';' && !quotemark)  // command seperator and not in string
+	  {
+	    // found sub-command
+	    // use recursion to run the subcommands
 
-	  // left
-	  // copy sub command, alloc slightly more than needed
-	  char *sub_command = malloc(rover-command+3);
-	  strncpy(sub_command, command, rover-command);
-	  sub_command[rover-command] = '\0';   // end string
+	    // left
+	    // copy sub command, alloc slightly more than needed
+	    char *sub_command = malloc(rover-command+3);
+	    strncpy(sub_command, command, rover-command);
+	    sub_command[rover-command] = '\0';   // end string
 
-	  C_RunTextCmd(sub_command);
+	    C_RunTextCmd(sub_command);
 
-	  // right
-	  C_RunTextCmd(rover+1);
+	    // right
+	    C_RunTextCmd(rover+1);
 
-	  // leave to the other function calls (above) to run commands
-	  free(sub_command);
-	  return;
-	}
-    }
+	    // leave to the other function calls (above) to run commands
+	    free(sub_command);
+	    return;
+	  }
+  }
 
   // no sub-commands: just one
   // so run it
@@ -439,29 +420,31 @@ void C_RunTextCmdf(const char *s, ...)
 
 const char *C_VariableValue(variable_t *variable)
 {
-  static char value[128];
+  static char value[1024];
+
+  memset(value, 0, 1024);
 
   if(!variable || !variable->variable)
     return "no variable - bug!";
 
   switch(variable->type)
-    {
-    case vt_int:
-    case vt_toggle:
-      psnprintf(value, 128, "%i", *(int*)variable->variable);
-      break;
+  {
+  case vt_int:
+  case vt_toggle:
+    psnprintf(value, 1024, "%i", *(int*)variable->variable);
+    break;
 
-    case vt_string:
-      if(*(char **)variable->variable)
-	strcpy(value, *(char**)variable->variable);
-      else
-	return "null";
-      break;
+  case vt_string:
+    if(*(char **)variable->variable)
+      psnprintf(value, 1024, "%s", *(char**)variable->variable);
+    else
+      return "null";
+    break;
 
-    default:
-      psnprintf(value, 128, "(unknown)");
-      break;
-    }
+  default:
+    psnprintf(value, 1024, "(unknown)");
+    break;
+  }
 
   return value;
 }
@@ -470,21 +453,34 @@ const char *C_VariableValue(variable_t *variable)
 
 const char *C_VariableStringValue(variable_t *variable)
 {
-  static char value[128];
+  static char value[1024];
+
+  memset(value, 0, 1024);
 
   if(!variable)
     return "";
+
   if(!variable->variable)
     return "null";
 
   // does the variable have alternate 'defines' ?
-  strcpy(value, variable->defines ?
+  if(variable->defines)
+  {
+    // print defined value
+    // haleyjd 03/17/02: needs rangechecking
+    int varValue = *((int *)variable->variable);
+    int valStrIndex = varValue - variable->min;
 
-	 // print the 'define' (string representing the value)
-	 variable->defines[*(int*)variable->variable-variable->min] :
-
-	 // otherwise print the literal value
-	 C_VariableValue(variable) );
+    if(valStrIndex < 0 || valStrIndex > variable->max - variable->min)
+      return "";
+    else
+      strncpy(value, variable->defines[valStrIndex], 1024);
+  }
+  else
+  {
+    // print literal value
+    strncpy(value, C_VariableValue(variable), 1024);
+  }
 
   return value;
 }
@@ -502,58 +498,64 @@ static void C_EchoValue(command_t *command)
 
 static boolean isnum(char *text)
 {
-  for(;*text; text++)
-    if((*text>'9' || *text<'0') && *text!='-') return false;
+  for(; *text; text++)
+  {
+    if((*text>'9' || *text<'0') && *text!='-')
+      return false;
+  }
   return true;
 }
 
 // take a string and see if it matches a define for a
 // variable. Replace with the literal value if so.
 
-static char* C_ValueForDefine(variable_t *variable, char *s)
+static char *C_ValueForDefine(variable_t *variable, char *s)
 {
   int count;
-  static char returnstr[10];
+  static char returnstr[48];
+
+  memset(returnstr, 0, 48);
 
   if(variable->defines)
-    for(count = variable->min;count <= variable->max; count++)
-      {
-	if(!C_Strcmp(s, variable->defines[count-variable->min]))
-	  {
-	    psnprintf(returnstr, 10, "%i", count);
-	    return returnstr;
-	  }
-      }
+  {
+    for(count = variable->min; count <= variable->max; count++)
+    {
+	    if(!C_Strcmp(s, variable->defines[count-variable->min]))
+	    {
+	      psnprintf(returnstr, 48, "%i", count);
+	      return returnstr;
+	    }
+    }
+  }
 
   // special hacks for menu
 
   if(variable->type == vt_int)    // int values only
-    {
-      if(!strcmp(s, "+"))     // increase value
-	{
-	  int value = *(int *)variable->variable + 1;
-	  if(value > variable->max) value = variable->max;
-	  psnprintf(returnstr, 10, "%i", value);
-	  return returnstr;
-	}
-      if(!strcmp(s, "-"))     // decrease value
-	{
-	  int value = *(int *)variable->variable - 1;
-	  if(value < variable->min) value = variable->min;
-	  psnprintf(returnstr, 10, "%i", value);
-	  return returnstr;
-	}
-      if(!strcmp(s, "/"))     // toggle value
-	{
-	  int value = *(int *)variable->variable + 1;
-	  if(value > variable->max) value = variable->min; // wrap around
-	  psnprintf(returnstr, 10, "%i", value);
-	  return returnstr;
-	}
+  {
+    if(!strcmp(s, "+"))     // increase value
+	  {
+	    int value = *(int *)variable->variable + 1;
+	    if(value > variable->max) value = variable->max;
+	    psnprintf(returnstr, 48, "%i", value);
+	    return returnstr;
+	  }
+    if(!strcmp(s, "-"))     // decrease value
+	  {
+	    int value = *(int *)variable->variable - 1;
+	    if(value < variable->min) value = variable->min;
+	    psnprintf(returnstr, 48, "%i", value);
+	    return returnstr;
+	  }
+    if(!strcmp(s, "/"))     // toggle value
+	  {
+	    int value = *(int *)variable->variable + 1;
+	    if(value > variable->max) value = variable->min; // wrap around
+	    psnprintf(returnstr, 48, "%i", value);
+	    return returnstr;
+	  }
 
-      if(!isnum(s))
-	return NULL;
-    }
+    if(!isnum(s)) return NULL;
+  }
 
   return s;
 }
@@ -568,10 +570,10 @@ static void C_SetVariable(command_t *command)
   // cut off the leading spaces
 
   if(!c_argc)     // asking for value
-    {
-      C_EchoValue(command);
-      return;
-    }
+  {
+    C_EchoValue(command);
+    return;
+  }
 
   // change it?
   if(C_CheckFlags(command)) return;       // no
@@ -584,24 +586,24 @@ static void C_SetVariable(command_t *command)
   if(temp)
     strcpy(c_argv[0], temp);
   else
-    {
-      C_Printf("not a possible value for '%s'\n", command->name);
-      return;
-    }
+  {
+    C_Printf("not a possible value for '%s'\n", command->name);
+    return;
+  }
 
   switch(variable->type)
-    {
-    case vt_int:
-      size = atoi(c_argv[0]);
-      break;
+  {
+  case vt_int:
+    size = atoi(c_argv[0]);
+    break;
 
-    case vt_string:
-      size = strlen(c_argv[0]);
-      break;
+  case vt_string:
+    size = strlen(c_argv[0]);
+    break;
 
-    default:
-      return;
-    }
+  default:
+    return;
+  }
 
   // check the min/max sizes
 
@@ -611,11 +613,11 @@ static void C_SetVariable(command_t *command)
   if(size < variable->min)
     errormsg = "value too small";
   if(errormsg)
-    {
-      MN_ErrorMsg(errormsg);
-      C_Printf("%s\n",errormsg);
-      return;
-    }
+  {
+    MN_ErrorMsg(errormsg);
+    C_Printf("%s\n",errormsg);
+    return;
+  }
 
   // netgame sync: send command to other nodes
   if(C_Sync(command)) return;
@@ -626,27 +628,29 @@ static void C_SetVariable(command_t *command)
   // the handler instead
 
   if(!(command->flags & cf_handlerset))
+  {
     switch(variable->type)  // implicitly set the variable
-      {
-      case vt_int:
-	*(int*)variable->variable = atoi(c_argv[0]);
-	if(variable->v_default && cmdsrc==c_typed)  // default
-	  *(int*)variable->v_default = atoi(c_argv[0]);
-	break;
+    {
+    case vt_int:
+      *(int*)variable->variable = atoi(c_argv[0]);
+      if(variable->v_default && cmdsrc==c_typed)  // default
+	      *(int*)variable->v_default = atoi(c_argv[0]);
+      break;
 
-      case vt_string:
-	free(*(char**)variable->variable);
-	*(char**)variable->variable = strdup(c_argv[0]);
-	if(variable->v_default && cmdsrc==c_typed)  // default
-	  {
-	    free(*(char**)variable->v_default);
-	    *(char**)variable->v_default = strdup(c_argv[0]);
-	  }
-	break;
+    case vt_string:
+      free(*(char**)variable->variable);
+      *(char**)variable->variable = strdup(c_argv[0]);
+      if(variable->v_default && cmdsrc==c_typed)  // default
+	    {
+	      free(*(char**)variable->v_default);
+	      *(char**)variable->v_default = strdup(c_argv[0]);
+	    }
+      break;
 
-      default:
-	return;
-      }
+    default:
+      return;
+    }
+  }
 
   if(command->handler)          // run handler if there is one
     command->handler();
@@ -686,19 +690,21 @@ void GetTabs(char *key)
   // check each hash chain in turn
 
   for(i=0; i<CMDCHAINS; i++)
-    {
-      command_t* browser = cmdroots[i];
+  {
+    command_t* browser = cmdroots[i];
 
-      // go through each link in this chain
-      for(; browser; browser = browser->next)
-	if(!(browser->flags & cf_hidden) && // ignore hidden ones
-	   !strncmp(browser->name, key, keylen))
-	  {
-	    // found a new tab
-	    tabs[numtabs] = browser;
-	    numtabs++;
-	  }
+    // go through each link in this chain
+    for(; browser; browser = browser->next)
+    {
+    	if(!(browser->flags & cf_hidden) && // ignore hidden ones
+	       !strncmp(browser->name, key, keylen))
+	    {
+	      // found a new tab
+	      tabs[numtabs] = browser;
+	      numtabs++;
+	    }
     }
+  }
 }
 
 // reset the tab list
@@ -718,18 +724,20 @@ char *C_NextTab(char *key)
 {
   static char returnstr[100];
 
+  memset(returnstr, 0, 100);
+
   // get tabs if not done already
   if(!gotkey)
-      GetTabs(key);
+    GetTabs(key);
 
   // select next tab
   thistab = thistab == -1 ? 0 : thistab+1;
 
   if(thistab >= numtabs)
-    {
-      thistab = -1;
-      return origkey;
-    }
+  {
+    thistab = -1;
+    return origkey;
+  }
 
   psnprintf(returnstr,100,"%s ",tabs[thistab]->name);
   return returnstr;
@@ -742,21 +750,23 @@ char *C_PrevTab(char *key)
 {
   static char returnstr[100];
 
+  memset(returnstr, 0, 100);
+
   // get tabs if neccesary
   if(!gotkey)
-    {
-      GetTabs(key);
-    }
+  {
+    GetTabs(key);
+  }
 
   // select prev.
   thistab = thistab == -1 ? numtabs - 1 : thistab - 1;
 
   // check invalid
   if(thistab < 0)
-    {
-      thistab = -1;
-      return origkey;
-    }
+  {
+    thistab = -1;
+    return origkey;
+  }
 
   psnprintf(returnstr,100,"%s ",tabs[thistab]->name);
   return returnstr;
@@ -768,24 +778,21 @@ char *C_PrevTab(char *key)
 //
 
 // fixed length array arrgh!
-alias_t aliases[128];
+// haleyjd 04/14/03: removed limit and rewrote all code
+alias_t aliases;
 const char *cmdoptions;       // command line options for aliases
 
         // get an alias from a name
 alias_t *C_GetAlias(const char *name)
 {
-  alias_t *alias = aliases;
+  alias_t *alias = aliases.next;
 
-  // search all aliases
-
-  while(alias->name)
-    {
-      if(!strcmp(name, alias->name))
-	{
-	  return alias;
-	}
-      alias++;
-    }
+  while(alias)
+  {
+    if(!strcmp(name, alias->name))
+	    return alias;
+    alias = alias->next;
+  }
 
   return NULL;
 }
@@ -796,47 +803,66 @@ alias_t *C_NewAlias(const char *aliasname, const char *command)
 {
   alias_t *alias;
 
-  alias = aliases;
+  // search for an existing alias with this name
+  alias = C_GetAlias(aliasname);
 
-  while(alias->name)
-    {
-      if(!strcmp(alias->name, c_argv[0]))
-	{
-	  free(alias->name);
-	  free(alias->command);
-	  break;
-	}
-      alias++;
-    }
+  if(alias)
+  {
+    free(alias->command);
+    alias->command = strdup(command);
+    return alias;
+  }
+	else
+  {
+    // create a new alias
+    alias = malloc(sizeof(alias_t));
+    alias->name = strdup(aliasname);
+    alias->command = strdup(command);
+    alias->next = aliases.next;
+    aliases.next = alias;
 
-  alias->name = strdup(aliasname);
-  alias->command = strdup(command);
-
-  return alias;
+    return alias;
+  }
 }
 
 // remove an alias
 
 void C_RemoveAlias(const char *aliasname)
 {
-  alias_t *alias;
+  alias_t *prev  = &aliases;
+  alias_t *rover = aliases.next;
+  alias_t *alias = NULL;
 
-  alias = C_GetAlias(aliasname);
-  if(!alias)
+  C_Printf("C_RemoveAlias(\"%s\")\n", aliasname);
+
+  while(rover)
+  {
+    if(!strcmp(aliasname, rover->name))
     {
-      C_Printf("unknown alias \"%s\"\n", aliasname);
-      return;
+      alias = rover;
+      break;
     }
+
+    prev = rover;
+    rover = rover->next;
+  }
+
+  if(!alias)
+  {
+    C_Printf("unknown alias \"%s\"\n", aliasname);
+    return;
+  }
 
   // free alias data
-  free(alias->name); free(alias->command);
+  free(alias->name);
+  free(alias->command);
 
-  // move all further aliases back
-  while(alias->name)
-    {
-      memcpy(alias, alias+1, sizeof(alias_t));
-      alias++;
-    }
+  // unlink alias
+  prev->next = alias->next;
+  alias->next = NULL;
+
+  // free the alias
+  free(alias);
 }
 
 // run an alias
@@ -844,7 +870,9 @@ void C_RemoveAlias(const char *aliasname)
 void C_RunAlias(alias_t *alias)
 {
   // store command line for use in macro
-  while(*cmdoptions==' ') cmdoptions++;
+  while(*cmdoptions==' ')
+    cmdoptions++;
+
   C_RunTextCmd(alias->command);   // run the command
 }
 
@@ -913,14 +941,14 @@ void C_BufferCommand(int cmtype, command_t *command, const char *options,
 
   // no need to be buffered: run it now
   if(!(command->flags & cf_buffered) && buffers[cmtype].timer == 0)
-    {
-      cmdtype = cmtype;
-      C_RunBufferedCommand(newbuf);
+  {
+    cmdtype = cmtype;
+    C_RunBufferedCommand(newbuf);
 
-      free(newbuf->options);
-      free(newbuf);
-      return;
-    }
+    free(newbuf->options);
+    free(newbuf);
+    return;
+  }
 
   // add to list now
 
@@ -931,13 +959,13 @@ void C_BufferCommand(int cmtype, command_t *command, const char *options,
   if(!bufcmd)              // hook in
     buffers[cmtype].cmdbuffer = newbuf;
   else
-    {
-      // go to end of list
-      for(; bufcmd->next; bufcmd = bufcmd->next);
+  {
+    // go to end of list
+    for(; bufcmd->next; bufcmd = bufcmd->next);
 
-      // point last to newbuf
-      bufcmd->next = newbuf;
-    }
+    // point last to newbuf
+    bufcmd->next = newbuf;
+  }
 }
 
 void C_RunBuffer(int cmtype)
@@ -947,30 +975,29 @@ void C_RunBuffer(int cmtype)
   bufcmd = buffers[cmtype].cmdbuffer;
 
   while(bufcmd)
-    {
-      // check for delay timer
-      if(buffers[cmtype].timer)
-	{
-	  buffers[cmtype].timer--;
-	  break;
-	}
+  {
+    // check for delay timer
+    if(buffers[cmtype].timer)
+	  {
+	    buffers[cmtype].timer--;
+	    break;
+	  }
 
-      cmdtype = cmtype;
-      C_RunBufferedCommand(bufcmd);
+    cmdtype = cmtype;
+    C_RunBufferedCommand(bufcmd);
 
-      // save next before freeing
+    // save next before freeing
 
-      next = bufcmd->next;
+    next = bufcmd->next;
 
-      // free bufferedcmd
+    // free bufferedcmd
 
-      free(bufcmd->options);
-      free(bufcmd);
+    free(bufcmd->options);
+    free(bufcmd);
 
-      // go to next in list
-      bufcmd = buffers[cmtype].cmdbuffer = next;
-    }
-
+    // go to next in list
+    bufcmd = buffers[cmtype].cmdbuffer = next;
+  }
 }
 
 void C_RunBuffers()
@@ -998,21 +1025,21 @@ void C_ClearBuffer(int cmdtype)
 boolean C_Strcmp(const unsigned char *a, const unsigned char *b)
 {
   while(*a || *b)
-    {
-      // remove colour dependency
-      if(*a >= 128)   // skip colour
-	{
-	  a++; continue;
-	}
-      if(*b >= 128)
-	{
-	  b++; continue;
-	}
-      // regardless of case also
-      if(toupper(*a) != toupper(*b))
-	return true;
-      a++; b++;
-    }
+  {
+    // remove colour dependency
+    if(*a >= 128)   // skip colour
+	  {
+	    a++; continue;
+	  }
+    if(*b >= 128)
+	  {
+	    b++; continue;
+	  }
+    // regardless of case also
+    if(toupper(*a) != toupper(*b))
+    	return true;
+    a++; b++;
+  }
 
   return false;       // no difference in them
 }
@@ -1046,7 +1073,8 @@ CONSOLE_COMMAND(c_addcommand_stats, 0)
   command_t *cmd;
 
   C_Printf("c_addcommand_calls: %i\n", c_addcommand_calls);
-  for (i=0; i<CMDCHAINS; i++) {
+  for (i=0; i<CMDCHAINS; i++)
+  {
     c[i]=0;
     for (cmd = cmdroots[i]; cmd; cmd = cmd->next)
     {
@@ -1084,7 +1112,7 @@ void (C_AddCommand)(command_t *command)
 
   // save the netcmd link
   if(command->flags & cf_netvar && command->netcmd == 0)
-    C_Printf("C_AddCommand: cf_netvar without a netcmd (%s)\n", command->name);
+    C_Printf(FC_ERROR"C_AddCommand: cf_netvar without a netcmd (%s)\n", command->name);
   if (command->netcmd >= NUMNETCMDS)
     I_Error("C_AddCommand: out of range netcmd (%i >= %i)",command->netcmd,NUMNETCMDS);
 
@@ -1114,11 +1142,11 @@ command_t *C_GetCmdForName(const char *cmdname)
 
   current = cmdroots[hash];
   while(current)
-    {
-      if(!strcasecmp(cmdname, current->name))
-	return current;
-      current = current->next;        // try next in chain
-    }
+  {
+    if(!strcasecmp(cmdname, current->name))
+	    return current;
+    current = current->next;        // try next in chain
+  }
 
   return NULL;
 }
@@ -1139,43 +1167,43 @@ void C_RunScript(const char *script)
 
   for(rover = script; *rover; rover++)
   {
-      if(*rover == '\n')      // end of line - run command
-      {
+    if(*rover == '\n')      // end of line - run command
+    {
 	  //	  C_Puts(buffer);
 
-	  if(buffer[0] == '#' || buffer[0] == ';' ||
-	     (buffer[0] == '/' && buffer[1] == '/'))
-	  {
+	    if(buffer[0] == '#' || buffer[0] == ';' ||
+	       (buffer[0] == '/' && buffer[1] == '/'))
+	    {
 	      // comment
-	  }
-	  else
-	  {
+	    }
+	    else
+	    {
 	      cmdtype = c_script;
 	      C_RunTextCmd(buffer);
 	      C_RunBuffer(c_script);   // force to run now
-	  }
+	    }
 
-	  // clear buffer for next line
-	  buffer[0] = '\0';
-      }
-      else if(isprint(*rover))
-      {
-	 // haleyjd: we need overflow protection here, or a segv
-	 // is possible
-	 if(strlen(buffer) == 127)
-	 {
-	    // should have had a line break by now but we haven't.
-	    // we'll assume the line is garbage and go on to the
-	    // next one
+  	  // clear buffer for next line
 	    buffer[0] = '\0';
-	    continue;
-	 }
-
-	 // add to end of buffer
-
-	 buffer[strlen(buffer) + 1] = '\0';
-	 buffer[strlen(buffer)] = *rover;
+    }
+    else if(isprint(*rover))
+    {
+      // haleyjd: we need overflow protection here, or a segv
+      // is possible
+      if(strlen(buffer) == 127)
+      {
+	      // should have had a line break by now but we haven't.
+	      // we'll assume the line is garbage and go on to the
+	      // next one
+	      buffer[0] = '\0';
+	      continue;
       }
+
+	    // add to end of buffer
+
+	    buffer[strlen(buffer) + 1] = '\0';
+	    buffer[strlen(buffer)] = *rover;
+    }
   }
 
 }
@@ -1211,7 +1239,8 @@ void C_WriteVariables(FILE *file)
   command_t **sortedCommands;
 
   // count number of commands
-  for (i=0; i<CMDCHAINS; i++) {
+  for (i=0; i<CMDCHAINS; i++)
+  {
     for (cmd = cmdroots[i]; cmd; cmd = cmd->next)
       numCommands++;
   }
@@ -1219,15 +1248,18 @@ void C_WriteVariables(FILE *file)
   // put em into a single array
   sortedCommands = (command_t**)malloc(sizeof(command_t*)*numCommands);
   c = 0;
-  for (i=0; i<CMDCHAINS; i++) {
-    for (cmd = cmdroots[i]; cmd; cmd = cmd->next) sortedCommands[c++] = cmd;
+  for (i=0; i<CMDCHAINS; i++)
+  {
+    for (cmd = cmdroots[i]; cmd; cmd = cmd->next)
+      sortedCommands[c++] = cmd;
   }
 
   // sort it
   qsort(sortedCommands, numCommands, sizeof(command_t*), compareCommands);
 
   // write em out
-  for (c=0; c<numCommands; c++) {
+  for (c=0; c<numCommands; c++)
+  {
     cmd = sortedCommands[c];
 
     // only write variables

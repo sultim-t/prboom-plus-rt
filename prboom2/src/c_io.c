@@ -66,7 +66,7 @@
 // keep the last 32 typed commands
 #define HISTORY 32
 
-extern const char* shiftxform;
+extern const char *shiftxform;
 
 // the messages (what you see in the console window)
 static unsigned char messages[MESSAGES][LINELENGTH];
@@ -78,7 +78,7 @@ static unsigned char history[HISTORY][LINELENGTH];
 static int history_last=0;
 static int history_current=0;
 
-const char *inputprompt = FC_GRAY "$" FC_RED;
+static const char *inputprompt = FC_HI "$" FC_NORMAL;
 int c_height=100;     // the height of the console
 int c_speed=10;       // pixels/tic it moves
 int current_target = 0;
@@ -100,19 +100,26 @@ int console_enabled = true;
 // ticker, responder, drawer, init etc.
 //
 
-void C_InitBackdrop()
+void C_InitBackdrop(void)
 {
   const char *lumpname;
   TScreenVars oldscreen = {NULL,0,0};
   
-  // replace this with the new SMMU graphic soon i hope..
   switch(gamemode)
-    {
-    case commercial: case retail: lumpname = "INTERPIC";break;
-    case registered: lumpname = "PFUB2"; break;
-    default: lumpname = "TITLEPIC"; break;
-    }
+  {
+  case commercial:
+  case retail:
+    lumpname = "INTERPIC";
+    break;
+  case registered:
+    lumpname = "PFUB2";
+    break;
+  default:
+    lumpname = "TITLEPIC";
+    break;
+  }
 
+  // allow for custom console background graphic
   if(W_CheckNumForName("CONSOLE") >= 0)
     lumpname = "CONSOLE";
 
@@ -123,7 +130,7 @@ void C_InitBackdrop()
 // we see. This function is called every time the inputtext
 // changes to decide where input_point should be.
 
-static void C_UpdateInputPoint()
+static void C_UpdateInputPoint(void)
 {
   for(input_point=inputtext;
       V_StringWidth(input_point, 0) > 320-20; input_point++);
@@ -131,7 +138,7 @@ static void C_UpdateInputPoint()
 
 // initialise the console
 
-void C_Init()
+void C_Init(void)
 {
   // sf: stupid american spellings =)
   C_NewAlias("color", "colour %opt");
@@ -146,7 +153,7 @@ void C_Init()
 
 // called every tic
 
-void C_Ticker()
+void C_Ticker(void)
 {
   c_showprompt = true;
   
@@ -206,12 +213,18 @@ static void C_AddToHistory(char *s)
   while(history_last >= HISTORY)
     {
       int i;
-      for(i=0; i<HISTORY; i++)
-	strcpy(history[i], history[i+1]);
+      
+      // haleyjd 03/02/02: this loop went one past the end of history
+      // and left possible garbage in the higher end of the array
+      for(i=0; i<HISTORY-1; i++)
+	      strcpy(history[i], history[i+1]);
+      history[HISTORY - 1][0] = '\0';
+      
       history_last--;
     }
+
   history_current = history_last;
-  history[history_last][0] = 0;
+  history[history_last][0] = '\0';
 }
 
 // respond to keyboard input/events
@@ -255,10 +268,12 @@ int C_Responder(event_t* ev)
       return true;
     }
 
-  if(!consoleactive) return false;
+  if(!consoleactive)
+    return false;
 
   // not til its stopped moving
-  if(current_target < current_height) return false;
+  if(current_target < current_height)
+    return false;
 
   ///////////////////////////////////////
   // Console active commands
@@ -280,7 +295,6 @@ int C_Responder(event_t* ev)
     }
   
   // run command
-
   if(ev->data1 == KEYD_ENTER)
     {
       C_AddToHistory(inputtext);      // add to history
@@ -306,7 +320,7 @@ int C_Responder(event_t* ev)
   if(ev->data1 == KEYD_UPARROW)
     {
       history_current =
-	history_current <= 0 ? 0 : history_current-1;
+        (history_current <= 0) ? 0 : history_current-1;
       
       // read history from inputtext
       strcpy(inputtext, history[history_current]);
@@ -320,8 +334,8 @@ int C_Responder(event_t* ev)
   
   if(ev->data1 == KEYD_DOWNARROW)
     {
-      history_current = history_current >= history_last ?
-	history_last : history_current+1;
+      history_current = (history_current >= history_last)
+        ? history_last : history_current+1;
 
       // the last history is an empty string
       strcpy(inputtext, (history_current == history_last) ?
@@ -347,7 +361,7 @@ int C_Responder(event_t* ev)
   if(ev->data1 == KEYD_BACKSPACE)
     {
       if(strlen(inputtext) > 0)
-	inputtext[strlen(inputtext)-1] = '\0';
+	      inputtext[strlen(inputtext)-1] = '\0';
       
       C_InitTab();            // reset tab-completion
       C_UpdateInputPoint();   // reset scrolling
@@ -377,7 +391,7 @@ int C_Responder(event_t* ev)
 
 // draw the console
 
-void C_Drawer()
+void C_Drawer(void)
 {
   int y;
   int count;
