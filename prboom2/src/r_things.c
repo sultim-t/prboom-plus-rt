@@ -345,15 +345,13 @@ void R_DrawMaskedColumn(
   
   int i;
   
-  dcvars.texheight = patch->height;//0; // killough 11/98
+  dcvars.texheight = patch->height;
   for (i=0; i<column->numPosts; i++) {
-    const TPatchPost *post = &column->posts[i]; 
+      const TPatchPost *post = &column->posts[i]; 
   
-  //while (column->topdelta != 0xff)
-  //  {
       // calculate unclipped screen coordinates for post
       topscreen = sprtopscreen + spryscale*post->startY;
-      bottomscreen = sprtopscreen + spryscale*(post->startY+post->length-1);
+      bottomscreen = topscreen + spryscale*post->length;
 
       dcvars.yl = (topscreen+FRACUNIT-1)>>FRACBITS;
       dcvars.yh = (bottomscreen-1)>>FRACBITS;
@@ -365,7 +363,7 @@ void R_DrawMaskedColumn(
         dcvars.yl = mceilingclip[dcvars.x]+1;
 
       if (dcvars.yl <= dcvars.yh && dcvars.yh < viewheight)
-        {
+      {
           dcvars.source = column->pixels + post->startY;
           
           dcvars.nextsource = nextColumn->pixels + post->startY;
@@ -380,10 +378,8 @@ void R_DrawMaskedColumn(
           dcvars.drawingmasked = 1; // POPE
           colfunc ();
           dcvars.drawingmasked = 0; // POPE
-        }
-
-      //column = (const column_t *)(  (byte *)column + column->length + 4);
-    }
+      }
+  }
   dcvars.texturemid = basetexturemid;
 }
 

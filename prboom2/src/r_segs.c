@@ -214,23 +214,19 @@ void R_RenderMaskedSegRange(drawseg_t *seg, int x1, int x2)
         continue;        // skip if the texture is out of screen's range
       
       sprtopscreen = (long)(t >> FRACBITS);
-      
-      // I'm not sure why this is needed, but columns drawn
-      // by R_DrawMaskedColumn are shifted up one pixel on the screen
-      // otherwise
-      sprtopscreen += spryscale; // POPE      
     }
 
     dcvars.iscale = 0xffffffffu / (unsigned) spryscale;
 
     // draw the masked column (always wrapped)
+
     R_DrawMaskedColumn(
       patch, 
       R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]),
       R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]-1),
       R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]+1)
     );
-        
+
     maskedtexturecol[dcvars.x] = SHRT_MAX;
   }
 
