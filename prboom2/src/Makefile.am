@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.12 2000/08/19 17:14:18 cph Exp $
+# $Id: Makefile.am,v 1.13 2000/09/02 11:03:02 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -80,7 +80,7 @@ else
 GL_SRC = 
 endif
 
-prboom_SOURCES = v_video_trans.h v_video_trans.c mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(GL_SRC)
+prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(GL_SRC)
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
 
 xprboom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) d_client.c i_udp.c i_network.c
