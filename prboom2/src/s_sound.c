@@ -520,7 +520,7 @@ void S_PauseSound(void)
 {
   if (sound_initted && mus_playing && !mus_paused)
     {
-      I_PauseSong(mus_playing->handle);
+      I_PauseSong();
       mus_paused = true;
     }
 }
@@ -529,7 +529,7 @@ void S_ResumeSound(void)
 {
   if (sound_initted && mus_playing && mus_paused)
     {
-      I_ResumeSong(mus_playing->handle);
+      I_ResumeSong();
       mus_paused = false;
     }
 }
@@ -702,11 +702,11 @@ void S_ChangeMusic(musicinfo_t *music, int looping)
 
       // load & register it
       music->data = W_CacheLumpNum(music->lumpnum);
-      music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+      I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
     }
 
   // play it
-  I_PlaySong(music->handle, looping);
+  I_PlaySong(looping);
 
   mus_playing = music;
 }
@@ -741,10 +741,10 @@ void S_StopMusic(void)
   if (mus_playing)
     {
       if (mus_paused)
-        I_ResumeSong(mus_playing->handle);
+        I_ResumeSong();
 
-      I_StopSong(mus_playing->handle);
-      I_UnRegisterSong(mus_playing->handle);
+      I_StopSong();
+      I_UnRegisterSong();
        if (mus_playing->lumpnum >= 0)
      W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
 

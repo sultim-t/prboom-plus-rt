@@ -4,6 +4,7 @@ changelog follows it.
 
 Changes from v2.3.1 to v2.3.2
 - fix Inferno intermission screens
+- don't play music when volume is 0
 
 Changes from v2.3.0 to v2.3.1
 - disabled vidd support, because currently it's broken

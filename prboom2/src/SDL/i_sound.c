@@ -461,7 +461,7 @@ void I_ShutdownSound(void)
     lprintf(LO_INFO, "I_ShutdownSound: ");
     Mix_CloseAudio();
     lprintf(LO_INFO, "\n");
-	sound_inited = false;
+  sound_inited = false;
   }
 }
 
@@ -474,7 +474,7 @@ I_InitSound(boolean first)
 
   if (!first && !sound_inited) return;
   if (sound_inited)
-	  I_ShutdownSound();
+    I_ShutdownSound();
 
   // Secure and configure sound device first.
   lprintf(LO_INFO,"I_InitSound: ");
@@ -493,8 +493,8 @@ I_InitSound(boolean first)
   lprintf(LO_INFO," configured audio device with %d samples/slice\n", SAMPLECOUNT);
   
   if (first_sound_init) {
-	atexit(I_ShutdownSound);
-	first_sound_init = false;
+  atexit(I_ShutdownSound);
+  first_sound_init = false;
   }
   
   if (!nomusicparm)
@@ -514,9 +514,11 @@ I_InitSound(boolean first)
 #include "SDL_mixer.h"
 #include "mmus2mid.h"
 
-static Mix_Music *music[2] = { NULL, NULL };
+static Mix_Music *music = NULL;
+static int music_volume;
+static int music_looping;
+static char* music_tmp = NULL; /* cph - name of music temporary file */
 
-char* music_tmp = NULL; /* cph - name of music temporary file */
 
 void I_ShutdownMusic(void) 
 {
@@ -524,7 +526,7 @@ void I_ShutdownMusic(void)
     unlink(music_tmp);
     lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
     free(music_tmp);
-	music_tmp = NULL;
+    music_tmp = NULL;
   }
 }
 
@@ -533,14 +535,14 @@ void I_InitMusic(void)
   if (!music_tmp) {
 #ifndef _WIN32
     music_tmp = strdup("/tmp/prboom-music-XXXXXX");
-	{
+    {
       int fd = mkstemp(music_tmp);
       if (fd<0) {
         lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
         free(music_tmp); return;
-	  } else 
+      } else 
         close(fd);
-	}
+    }
 #else /* !_WIN32 */
     music_tmp = strdup("doom.tmp");
 #endif
@@ -548,20 +550,21 @@ void I_InitMusic(void)
   }
 }
 
-void I_PlaySong(int handle, int looping)
+void I_PlaySong(int looping)
 {
-  if ( music[handle] ) {
-    Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
+  music_looping = looping;
+  if (music && music_volume) {
+    Mix_FadeInMusic(music, looping ? -1 : 0, 500);
   }
 }
 
 int mus_pause_opt = 2;
 
-void I_PauseSong (int handle)
+void I_PauseSong (void)
 {
   switch(mus_pause_opt) {
   case 0:
-    I_StopSong(handle);
+    I_StopSong();
     break;
   case 1:
     Mix_PauseMusic();
@@ -570,11 +573,11 @@ void I_PauseSong (int handle)
   // Default - let music continue
 }
 
-void I_ResumeSong (int handle)
+void I_ResumeSong (void)
 {
   switch(mus_pause_opt) {
   case 0:
-    I_PlaySong(handle,1);
+    I_PlaySong(music_looping);
     break;
   case 1:
     Mix_ResumeMusic();
@@ -583,30 +586,30 @@ void I_ResumeSong (int handle)
   /* Otherwise, music wasn't stopped */
 }
 
-void I_StopSong(int handle)
+void I_StopSong(void)
 {
   Mix_FadeOutMusic(500);
 }
 
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong(void)
 {
-  if ( music[handle] ) {
-    Mix_FreeMusic(music[handle]);
-    music[handle] = NULL;
+  if ( music ) {
+    Mix_FreeMusic(music);
+    music = NULL;
   }
 }
 
-int I_RegisterSong(const void *data, size_t len)
+void I_RegisterSong(const void *data, size_t len)
 {
   MIDI *mididata;
   FILE *midfile;
 
   if ( music_tmp == NULL )
-    return 0;
+    return;
   midfile = fopen(music_tmp, "wb");
   if ( midfile == NULL ) {
     lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
-    return 0;
+    return;
   }
   /* Convert MUS chunk to MIDI? */
   if ( memcmp(data, "MUS", 3) == 0 )
@@ -626,11 +629,10 @@ int I_RegisterSong(const void *data, size_t len)
   }
   fclose(midfile);
 
-  music[0] = Mix_LoadMUS(music_tmp);
-  if ( music[0] == NULL ) {
+  music = Mix_LoadMUS(music_tmp);
+  if ( music == NULL ) {
     lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", music_tmp, Mix_GetError());
   }
-  return (0);
 }
 
 // cournia - try to load a music file into SDL_Mixer
@@ -660,6 +662,11 @@ int I_RegisterMusic( const char* filename, musicinfo_t *song )
 
 void I_SetMusicVolume(int volume)
 {
-  Mix_VolumeMusic(volume*8);
+  music_volume = volume;
+  Mix_VolumeMusic(music_volume*8);
+  if (music_volume == 0)
+    I_StopSong();
+  else
+    I_PlaySong(music_looping);
 }
 

@@ -103,9 +103,6 @@ struct musicinfo_s
   /* music data - cphipps 4/11 made const void* */ 
   const void *data;
 
-  // music handle once registered
-  int handle;
-
   // sf: for hashing
   musicinfo_t *next;
   
