@@ -85,6 +85,10 @@ Fixed inline asm for gcc-2.95 (from Eternity)
 Lionel Ulmer <lionel.ulmer@free.fr>
 Patch to fix alignment problems on ARM processors.
 
+Ville Vuorinen <vv@ydin.org>
+Spotted and helped patch the player spawn bug, as well as helping with some
+Win32 issues.
+
 If you have sent in patches and I forgot to list you, I apologise. Please email
 me and I will add you.
 
@@ -124,9 +128,6 @@ Pointing me toward yet another compatibility bug.
 
 Ingo van Lil
 Another bug spotter.
-
-Ville Vuorinen <vv@ydin.org>
-Spotted the player spawn sound bug.
 
 Everyone who contributed indirectly to MBF and Boom and Doom; see the
 respective documentation files.

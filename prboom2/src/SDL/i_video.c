@@ -381,8 +381,10 @@ void I_FinishUpdate (void)
       char *src;
       char *dest;
 
-      if (SDL_LockSurface(screen) < 0)
-        I_Error("I_FinishUpdate: Couldn't lock screen surface");
+      if (SDL_LockSurface(screen) < 0) {
+	lprintf(LO_INFO,"I_FinishUpdate: %s\n", SDL_GetError());
+        return;
+      }
       dest=(char *)screen->pixels;
       src=screens[0];
       w=screen->w;

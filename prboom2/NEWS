@@ -5,6 +5,7 @@ Changes from v2.2.5 to v2.2.6
 - fix Inferno intermission screen crash
 - fix lockup for other netgame clients when one client quits
 - fix memory leak in netgame server
+- fix SDL_LockScreen crashes on Win32
 - fix fuzz drawing for hi-res
 - network games should survive temporary loss of connection
 - fix dehacked NOSECTOR/NOBLOCKMAP effects
