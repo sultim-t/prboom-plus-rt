@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.1 2001/07/09 12:09:20 proff_fs Exp $
+ * $Id: c_runcmd.c,v 1.2 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,14 +38,14 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.1 2001/07/09 12:09:20 proff_fs Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.2 2001/07/09 14:21:52 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 
-//#include "c_io.h"
+#include "c_io.h"
 #include "c_runcmd.h"
 //#include "c_net.h"
 
@@ -63,28 +63,6 @@ mobj_t *t_trigger;
 command_t *c_netcmds[20];
 int cmdsrc = 0;           // the source of a network console command
 #define CN_BROADCAST 128
-
-void C_Printf(unsigned char *s, ...)
-{
-  va_list args;
-  unsigned char *c, tempstr[10240];   // 10k should be enough i hope
-  
-  // haleyjd: sanity check
-  if(!s) return;
-  
-  // difficult to remove limit
-  va_start(args, s);
-  vsprintf(tempstr, s, args);
-  va_end(args);
-
-  lprintf(LO_INFO,"%s",tempstr);
-/*
-  C_AdjustLineBreaks(tempstr); // haleyjd
-
-  for(c = tempstr; *c; c++)
-    C_AddChar(*c);
-*/
-}
 
 void MN_ErrorMsg(char *s)
 {

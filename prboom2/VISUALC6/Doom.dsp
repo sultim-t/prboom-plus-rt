@@ -285,6 +285,26 @@ SOURCE=..\src\am_map.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\c_cmd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\c_io.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\c_io.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\c_runcmd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\c_runcmd.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\config.h
 # End Source File
 # Begin Source File

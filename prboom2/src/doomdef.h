@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.8 2001/07/08 17:34:02 proff_fs Exp $
+ * $Id: doomdef.h,v 1.9 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -133,7 +133,8 @@ typedef enum {
   GS_LEVEL,
   GS_INTERMISSION,
   GS_FINALE,
-  GS_DEMOSCREEN
+  GS_DEMOSCREEN,
+  GS_CONSOLE
 } gamestate_t;
 
 //
@@ -267,6 +268,8 @@ typedef enum {
 #define KEYD_SCROLLLOCK 0xc6
 #define KEYD_SPACEBAR   0x20
 // phares 3/2/98
+
+#define KEYD_CONSOLE    '`'
 
 #define KEYD_NUMLOCK    0xC5                 // killough 3/6/98
 

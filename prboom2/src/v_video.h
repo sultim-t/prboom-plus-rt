@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.12 2001/02/18 15:56:19 proff_fs Exp $
+ * $Id: v_video.h,v 1.13 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -153,6 +153,28 @@ void V_SetPalette(int pal);
 
 #define V_AllocScreen(scrn) screens[scrn] = malloc(SCREENWIDTH*SCREENHEIGHT)
 #define V_FreeScreen(scrn) free(screens[scrn]); screens[scrn] = NULL
+
+/* Font */
+
+/* font colours (CR_ colors + 0x80 as char) */
+#define FC_BASEVALUE     0x80
+#define FC_BRICK        "\x80"
+#define FC_TAN          "\x81"
+#define FC_GRAY         "\x82"
+#define FC_GREEN        "\x83"
+#define FC_BROWN        "\x84"
+#define FC_GOLD         "\x85"
+#define FC_RED          "\x86"
+#define FC_BLUE         "\x87"
+#define FC_ORANGE       "\x88"
+#define FC_YELLOW       "\x89"
+#define FC_BLUE2        "\x8a"
+
+void V_WriteText(unsigned char *s, int x, int y);
+void V_WriteTextColoured(unsigned char *s, int colour, int x, int y);
+void V_LoadFont();
+int V_StringWidth(unsigned char *s);
+int V_StringHeight(unsigned char *s);
 
 #ifdef GL_DOOM
 #include "gl_struct.h"

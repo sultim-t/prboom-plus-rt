@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.15 2001/07/02 23:04:03 proff_fs Exp $
+ * $Id: d_client.c,v 1.16 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -40,6 +40,7 @@
 #include "d_net.h"
 #include "z_zone.h"
 
+#include "c_io.h"
 #include "d_main.h"
 #include "g_game.h"
 #include "m_menu.h"
@@ -429,8 +430,11 @@ void TryRunTics (void)
 
   // Wait for tics to run
   while (1) {
-    if (I_GetTime() - entertime > 5) {
-      M_Ticker(); return;
+    if (I_GetTime() - entertime > 5)
+    {
+      C_Ticker();
+      M_Ticker();
+      return;
     }
 #ifdef HAVE_NET
     NetUpdate();
@@ -440,8 +444,11 @@ void TryRunTics (void)
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
       I_uSleep(1000);
-      if (I_GetTime() - entertime > 10) {
-	M_Ticker(); return;
+      if (I_GetTime() - entertime > 10)
+      {
+	      C_Ticker();
+	      M_Ticker();
+        return;
       }
     } else break;
   }
@@ -452,6 +459,7 @@ void TryRunTics (void)
 #endif
     if (advancedemo)
       D_DoAdvanceDemo ();
+    C_Ticker ();
     M_Ticker ();
     G_Ticker ();
     gametic++;

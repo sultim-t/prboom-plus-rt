@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.40 2001/07/08 17:34:02 proff_fs Exp $
+ * $Id: d_main.c,v 1.41 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.40 2001/07/08 17:34:02 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.41 2001/07/09 14:21:52 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -59,6 +59,9 @@ static const char rcsid[] = "$Id: d_main.c,v 1.40 2001/07/08 17:34:02 proff_fs E
 #include "dstrings.h"
 #include "sounds.h"
 #include "z_zone.h"
+#include "c_runcmd.h"
+#include "c_io.h"
+//#include "c_net.h"
 #include "w_wad.h"
 #include "s_sound.h"
 #include "v_video.h"
@@ -164,6 +167,7 @@ void D_DoAdvanceDemo (void);
 
 void D_PostEvent(event_t *ev)
 {
+  C_Responder(ev) ||
   M_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
@@ -256,6 +260,8 @@ void D_Display (void)
     case GS_DEMOSCREEN:
       D_PageDrawer();
       break;
+    case GS_CONSOLE:
+      break;
     default:
       break;
     }
@@ -325,6 +331,7 @@ void D_Display (void)
 		      0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
   }
 
+  C_Drawer();
   // menus go directly to the screen
   M_Drawer();          // menu is drawn even on top of everything
 #ifdef HAVE_NET
@@ -385,6 +392,7 @@ static void D_DoomLoop(void)
           G_BuildTiccmd (&netcmds[consoleplayer][maketic%BACKUPTICS]);
           if (advancedemo)
             D_DoAdvanceDemo ();
+          C_Ticker ();
           M_Ticker ();
           G_Ticker ();
           gametic++;
@@ -1748,6 +1756,9 @@ void D_DoomMainSetup(void)
   if (*startup4) lprintf(LO_INFO,"%s",startup4);
   if (*startup5) lprintf(LO_INFO,"%s",startup5);
   // End new startup strings
+
+  lprintf(LO_INFO,"C_Init: Init console.\n");
+  C_Init();
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"M_Init: Init miscellaneous info.\n");

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.h,v 1.1 2001/07/09 12:09:20 proff_fs Exp $
+ * $Id: c_runcmd.h,v 1.2 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -281,7 +281,6 @@ extern char *skills[];
 
 #define CN_BROADCAST 128
 
-void C_Printf(unsigned char *s, ...);
 void C_SendCmd(int dest, int, char *s,...);
 
 /* proff - end of dummys */

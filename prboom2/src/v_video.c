@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.17 2001/02/18 17:12:34 proff_fs Exp $
+ * $Id: v_video.c,v 1.18 2001/07/09 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.17 2001/02/18 17:12:34 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.18 2001/07/09 14:21:52 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -44,6 +44,7 @@ rcsid[] = "$Id: v_video.c,v 1.17 2001/02/18 17:12:34 proff_fs Exp $";
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
 #include "i_video.h"
+#include "hu_stuff.h"
 #include "lprintf.h"
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
@@ -548,3 +549,134 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
   }
 }
 #endif
+
+/* Font */
+
+extern patchnum_t hu_font[HU_FONTSIZE];
+
+void V_WriteText(unsigned char *s, int x, int y)
+{
+  int   w, h;
+  unsigned char* ch;
+  int colour = CR_DEFAULT;
+  unsigned int c;
+  int   cx;
+  int   cy;
+
+  ch = s;
+  cx = x;
+  cy = y;
+  
+  while(1)
+  {
+    c = *ch++;
+    if (!c)
+	    break;
+    if (c >= FC_BASEVALUE)     // new colour
+    {
+      colour = c - FC_BASEVALUE;
+      continue;
+    }
+    if (c == '\t')
+    {
+      cx = (cx/40)+1;
+      cx = cx*40;
+    }
+    if (c == '\n')
+	  {
+	    cx = x;
+      cy += 8;
+	    continue;
+	  }
+      
+    c = toupper(c) - HU_FONTSTART;
+    if (c < 0 || c> HU_FONTSIZE)
+    {
+      cx += 4;
+      continue;
+    }
+
+    // haleyjd: was no cx<0 check
+      
+    w = hu_font[c].width;
+    if(cx < 0 || cx+w > 320)
+	    break;
+
+    // haleyjd: was no y checking at all!
+
+    h = hu_font[c].height;
+    if(cy < 0 || cy+h > 200)
+	    break;
+
+    V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, colour, VPT_STRETCH);
+    //V_DrawPatchTranslated(cx, cy, 0, patch, colour, 0);
+
+    cx+=w;
+  }
+}
+
+// write text in a particular colour
+
+void V_WriteTextColoured(unsigned char *s, int colour, int x, int y)
+{
+  static char *tempstr = NULL;
+  static size_t allocedsize=0;
+
+  // if string bigger than allocated, realloc bigger
+  if(strlen(s) > allocedsize)
+  {
+    if(tempstr)       // already alloced?
+      tempstr = Z_Realloc(tempstr, strlen(s) + 3, PU_STATIC, 0);
+    else
+      tempstr = Z_Malloc(strlen(s) + 3, PU_STATIC, 0);
+      
+    allocedsize = strlen(s);  // save for next time
+  }
+  
+  sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
+  
+  V_WriteText(tempstr, x, y);
+}
+
+// find height(in pixels) of a string 
+
+int V_StringHeight(unsigned char *s)
+{
+  int height = 8;  // always at least 8
+
+  // add an extra 8 for each newline found
+
+  while(*s)
+  {
+    if(*s == '\n') height += 8;
+      s++;
+  }
+
+  return height;
+}
+
+int V_StringWidth(unsigned char *s)
+{
+  int length = 0; // current line width
+  int longest_width = 0; // line with longest width so far
+  unsigned char c;
+  
+  for(; *s; s++)
+  {
+    c = *s;
+    if(c >= FC_BASEVALUE)         // colour
+	    continue;
+    if(c == '\n')        // newline
+  	{
+	    if(length > longest_width) longest_width = length;
+	    length = 0; // next line;
+	    continue;	  
+	  }
+    c = toupper(c) - HU_FONTSTART;
+    length += (c >= HU_FONTSIZE) ? 4 : hu_font[c].width;
+  }
+
+  if(length > longest_width) longest_width = length; // check last line
+
+  return longest_width;
+}
