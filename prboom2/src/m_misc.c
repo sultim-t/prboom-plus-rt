@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.12 2000/05/19 22:38:20 cph Exp $
+ * $Id: m_misc.c,v 1.13 2000/05/21 12:13:56 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.12 2000/05/19 22:38:20 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.13 2000/05/21 12:13:56 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -305,7 +305,7 @@ default_t defaults[] =
    def_int,ss_none}, // select sounds driver (DOS), -1 is autodetect, 0 is none; in Linux, non-zero enables sound 
   {"music_card",{&mus_card},{-1},-1,9,       //  to be set,  -1 = autodetect
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
-  {"pitched_sounds",{&default_pitched_sounds},{0},0,1, // killough 2/21/98
+  {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
   {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none}, 
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
@@ -330,6 +330,8 @@ default_t defaults[] =
    def_int,ss_none},  
   {"fake_contrast",{&fake_contrast},{1},0,1,
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
+  {"use_fullscreen",{&use_fullscreen},{0},0,1, /* proff 21/05/2000 */
+   def_bool,ss_none},
   {"use_vsync",{&use_vsync},{1},0,1,             // killough 2/8/98
    def_bool,ss_none}, // enable wait for vsync to avoid display tearing (fullscreen)
   {"translucency",{&default_translucency},{1},0,1,   // phares
