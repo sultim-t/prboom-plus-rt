@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.8 2000/09/21 10:47:45 proff_fs Exp $
+ * $Id: p_setup.c,v 1.9 2000/09/27 11:30:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.8 2000/09/21 10:47:45 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.9 2000/09/27 11:30:26 proff_fs Exp $";
 
 #include <math.h>
 
@@ -1373,12 +1373,12 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   if (gamemode == commercial)
   {
     sprintf(lumpname, "map%02d", map);           // killough 1/24/98: simplify
-	sprintf(gl_lumpname, "gl_map%02d", map);    // figgi
+	  sprintf(gl_lumpname, "gl_map%02d", map);    // figgi
   }
   else
   {
     sprintf(lumpname, "E%dM%d", episode, map);   // killough 1/24/98: simplify
-	sprintf(gl_lumpname, "GL_E%iM%i", episode, map); // figgi
+	  sprintf(gl_lumpname, "GL_E%iM%i", episode, map); // figgi
   }
 
   lumpnum = W_GetNumForName(lumpname);
@@ -1394,32 +1394,32 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
 #ifdef GL_DOOM
   // figgi 10/19/00 -- check for gl lumps and load them
-  P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);             
-  if (gl_lumpnum > lumpnum && forceOldBsp == false)
-	P_LoadVertexes2(lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
+  P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
+  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
+	  P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
   else
-	P_LoadVertexes (lumpnum+ML_VERTEXES,-1);
+	  P_LoadVertexes  (lumpnum+ML_VERTEXES,-1);
   P_LoadSectors   (lumpnum+ML_SECTORS);
   P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             
   P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             
   P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             
 
-  if (gl_lumpnum > lumpnum && forceOldBsp == false)
+  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
   { 
     usingGLNodes = true;
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-	P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
-	lprintf(LO_INFO,"Using GL BSP NODES!!!\n");
+	  P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
+	  lprintf(LO_INFO,"Using GL BSP NODES!!!\n");
   }
   else
   {
-	usingGLNodes = false;
-	P_LoadNodes(lumpnum + ML_NODES);
-	P_LoadSegs(lumpnum + ML_SEGS);
-	P_LoadSubsectors(lumpnum + ML_SSECTORS);
-	lprintf(LO_INFO,"Using classic BSP NODES!!!\n");
+	  usingGLNodes = false;
+	  P_LoadNodes(lumpnum + ML_NODES);
+	  P_LoadSegs(lumpnum + ML_SEGS);
+	  P_LoadSubsectors(lumpnum + ML_SSECTORS);
+	  lprintf(LO_INFO,"Using classic BSP NODES!!!\n");
   }
 
 #else

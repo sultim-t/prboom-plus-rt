@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.23 2000/09/21 10:47:45 proff_fs Exp $
+ * $Id: gl_main.c,v 1.24 2000/09/27 11:30:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1489,75 +1489,75 @@ void gld_PreprocessSectors(void)
   if (!sectorrendered)
     I_Error("Not enough memory for array (sectorrendered)\n");
 
-//#ifdef USE_GLU_TESS
-if(usingGLNodes == false)
-{
-  vertexcheck=GLMalloc(numvertexes*sizeof(char));
-  if (!vertexcheck)
+  //#ifdef USE_GLU_TESS
+  if (usingGLNodes == false)
   {
-    if (levelinfo) fclose(levelinfo);
-    I_Error("Not enough memory for array (vertexcheck)\n");
-    return;
-  }
+    vertexcheck=GLMalloc(numvertexes*sizeof(char));
+    if (!vertexcheck)
+    {
+      if (levelinfo) fclose(levelinfo);
+      I_Error("Not enough memory for array (vertexcheck)\n");
+      return;
+    }
 
-  for (i=0; i<numsectors; i++)
-  {
-    memset(vertexcheck,0,numvertexes*sizeof(char));
-    for (j=0; j<sectors[i].linecount; j++)
+    for (i=0; i<numsectors; i++)
     {
-      v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
-      v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
-      if ((v1num>=numvertexes) || (v2num>=numvertexes))
-        continue;
-      if (sectors[i].lines[j]->sidenum[0]>=0)
-        if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
-        {
-          vertexcheck[v1num]|=1;
-          vertexcheck[v2num]|=2;
-        }
-      if (sectors[i].lines[j]->sidenum[1]>=0)
-        if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
-        {
-          vertexcheck[v1num]|=2;
-          vertexcheck[v2num]|=1;
-        }
-    }
-    if (sectors[i].linecount<3)
-    {
-#ifdef _DEBUG
-      lprintf(LO_ERROR, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
-#endif
-      if (levelinfo) fprintf(levelinfo, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
-      sectorclosed[i]=false;
-    }
-    else
-    {
-      sectorclosed[i]=true;
-      for (j=0; j<numvertexes; j++)
+      memset(vertexcheck,0,numvertexes*sizeof(char));
+      for (j=0; j<sectors[i].linecount; j++)
       {
-        if ((vertexcheck[j]==1) || (vertexcheck[j]==2))
-        {
+        v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
+        v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
+        if ((v1num>=numvertexes) || (v2num>=numvertexes))
+          continue;
+        if (sectors[i].lines[j]->sidenum[0]>=0)
+          if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
+          {
+            vertexcheck[v1num]|=1;
+            vertexcheck[v2num]|=2;
+          }
+        if (sectors[i].lines[j]->sidenum[1]>=0)
+          if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
+          {
+            vertexcheck[v1num]|=2;
+            vertexcheck[v2num]|=1;
+          }
+      }
+      if (sectors[i].linecount<3)
+      {
 #ifdef _DEBUG
-          lprintf(LO_ERROR, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+        lprintf(LO_ERROR, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
 #endif
-          if (levelinfo) fprintf(levelinfo, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
-          sectorclosed[i]=false;
+        if (levelinfo) fprintf(levelinfo, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
+        sectorclosed[i]=false;
+      }
+      else
+      {
+        sectorclosed[i]=true;
+        for (j=0; j<numvertexes; j++)
+        {
+          if ((vertexcheck[j]==1) || (vertexcheck[j]==2))
+          {
+#ifdef _DEBUG
+            lprintf(LO_ERROR, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+#endif
+            if (levelinfo) fprintf(levelinfo, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+            sectorclosed[i]=false;
+          }
         }
       }
+	    // figgi -- adapted for glnodes
+      if ( (sectorclosed[i]) && (usingGLNodes == false) )
+        gld_PrecalculateSector(i);	
     }
-	// figgi -- adapted for glnodes
-    if (sectorclosed[i] && usingGLNodes == false)
-      gld_PrecalculateSector(i);	
+    GLFree(vertexcheck);
   }
-  GLFree(vertexcheck);
-//#endif /* USE_GLU_TESS */
-}
+  //#endif /* USE_GLU_TESS */
 
-// figgi -- adapted for glnodes
-  if(usingGLNodes == false)
-	gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
+  // figgi -- adapted for glnodes
+  if (usingGLNodes == false)
+	  gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
   else
-	gld_GetSubSectorVertices();
+	  gld_GetSubSectorVertices();
 
   if (levelinfo) fclose(levelinfo);
   GLFree(sectorclosed);

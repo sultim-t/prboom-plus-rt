@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.11 2000/09/21 10:47:45 proff_fs Exp $
+ * $Id: w_wad.c,v 1.12 2000/09/27 11:30:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.11 2000/09/21 10:47:45 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.12 2000/09/27 11:30:26 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -179,8 +179,10 @@ static void W_AddFile(const char *filename, wad_source_t source)
     
   if (handle == -1) 
     {
-      if (strlen(filename)<=4 ||      // add error check -- killough
-	  strcasecmp(filename+strlen(filename)-4 , ".lmp" ) )
+      if (  strlen(filename)<=4 ||      // add error check -- killough
+	         (strcasecmp(filename+strlen(filename)-4 , ".lmp" ) &&
+	          strcasecmp(filename+strlen(filename)-4 , ".gwa" ) )
+         )
 	I_Error("Error: couldn't open %s\n",filename);  // killough
       return;
     }
@@ -191,9 +193,12 @@ static void W_AddFile(const char *filename, wad_source_t source)
 
   // figgi -- added support for glBsp .gwa files
 #ifdef GL_DOOM
-   	if( strlen(filename)<=4 || 
-	   (stricmp(filename+strlen(filename)-3,"wad") && 
-	    stricmp(filename+strlen(filename)-3,"gwa")))
+  if (  strlen(filename)<=4 || 
+	      (
+          strcasecmp(filename+strlen(filename)-4,".wad") && 
+	        strcasecmp(filename+strlen(filename)-4,".gwa")
+        )
+     )
 #else
 	if (strlen(filename)<=4 || strcasecmp(filename+strlen(filename)-4, ".wad" ))
 #endif
@@ -428,6 +433,9 @@ unsigned int numwadfiles = 0; // CPhipps - size of the wadfiles array (dynamic, 
 
 void W_Init(void)
 {
+#ifdef GL_DOOM
+  char *gwa_filename=NULL;
+#endif
 #ifndef NO_PREDEFINED_LUMPS
   // killough 1/31/98: add predefined lumps first
 
@@ -453,7 +461,21 @@ void W_Init(void)
     // open all the files, load headers, and count lumps
     int i;
     for (i=0; (size_t)i<numwadfiles; i++)
+    {
       W_AddFile(wadfiles[i].name, wadfiles[i].src);
+#ifdef GL_DOOM
+      if (strlen(wadfiles[i].name)>4)
+        if (!strcasecmp(wadfiles[i].name+(strlen(wadfiles[i].name)-4),".wad"))
+        {
+          gwa_filename=malloc(strlen(wadfiles[i].name));
+          strncpy(gwa_filename,wadfiles[i].name,strlen(wadfiles[i].name)-4);
+          AddDefaultExtension(gwa_filename, ".gwa");
+          W_AddFile(gwa_filename, source_pwad);
+          free(gwa_filename);
+          gwa_filename=NULL;
+        }
+#endif
+    }
   }
 
   if (!numlumps)
