@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.6 2000/05/11 23:22:20 cph Exp $
+ * $Id: g_game.c,v 1.7 2000/05/12 08:38:45 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.6 2000/05/11 23:22:20 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.7 2000/05/12 08:38:45 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1427,6 +1427,10 @@ static void G_LoadGameErr(const char *msg)
 // CPhipps - size of version header
 #define VERSIONSIZE   16
 
+const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
+{ "demo", "doom", "\"boom compatibility\"", "boom", "lxdoom v1.3.2+", 
+  "MBF", "PrBoom" };
+
 static const struct {
   int comp_level;
   const char* ver_printf;
@@ -2212,7 +2216,27 @@ void G_DoPlayDemo (void)
   else    // new versions of demos
     {
       demo_p += 6;               // skip signature;
-      compatibility_level = boom_compatibility_compatibility + 1 - (signed char)(*demo_p++); /* cph - load compatibility flag */
+      switch (demover) {
+      case 200:
+      case 201:
+      case 202:
+	/* BOOM */
+	compatibility_level = (*demo_p++) ? boom_compatibility_compatibility
+	  : boom_compatibility;
+	break;
+      case 203:
+	/* LxDoom *
+	 * cph - load compatibility level */
+	compatibility_level = boom_compatibility_compatibility + 1 - (signed char)(*demo_p++);
+      case 204:
+	/* MBF */
+	compatibility_level = mbf_compatibility;
+	break;
+      case 260:
+	/* PrBoom */
+	compatibility_level = prboom_1_compatibility;
+	break;
+      }
       skill = *demo_p++;
       episode = *demo_p++;
       map = *demo_p++;
@@ -2223,6 +2247,9 @@ void G_DoPlayDemo (void)
       if (demover == 200)              // killough 6/3/98: partially fix v2.00 demos
         demo_p += 128-GAME_OPTION_SIZE;
     }
+
+  lprintf(LO_INFO, "G_DoPlayDemo: playing demo with %s compatibility\n", 
+	  comp_lev_str[compatibility_level]);
 
   if (demo_compatibility)  // only 4 players can exist in old demos
     {

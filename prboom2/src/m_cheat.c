@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: m_cheat.c,v 1.4 2000/05/12 08:38:45 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.4 2000/05/12 08:38:45 cph Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
@@ -469,9 +469,6 @@ static void cheat_rate()
 }
 
 // compatibility cheat
-
-static const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
-{ "demo compatibility", "boom compatibility", "boom", "lxdoom v1.3.2+" };
 
 static void cheat_comp()
 {

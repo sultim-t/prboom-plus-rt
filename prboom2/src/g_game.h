@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: g_game.h,v 1.3 2000/05/12 08:38:45 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -178,5 +178,8 @@ extern int cpars[32];    // hardcoded array size
 // CPhipps - Make savedesciption visible in wider scope
 #define SAVEDESCLEN 32
 extern char savedescription[SAVEDESCLEN];  // Description to save in savegame
+
+/* cph - compatibility level strings */
+extern const char * comp_lev_str[];
 
 #endif
