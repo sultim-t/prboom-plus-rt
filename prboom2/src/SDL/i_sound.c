@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.9 2000/07/22 14:46:42 cph Exp $
+ * $Id: i_sound.c,v 1.10 2000/09/02 10:59:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.9 2000/07/22 14:46:42 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.10 2000/09/02 10:59:43 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -606,7 +606,7 @@ void I_ShutdownMusic(void)
 #ifdef HAVE_MIXER
   if (music_tmp) {
     unlink(music_tmp);
-    lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s", music_tmp);
+    lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
     free(music_tmp);
   }
 #endif
