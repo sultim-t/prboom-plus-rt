@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_switch.c,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: p_switch.c,v 1.5.2.2 2003/04/06 16:14:03 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_switch.c,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $";
+rcsid[] = "$Id: p_switch.c,v 1.5.2.2 2003/04/06 16:14:03 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -240,7 +240,11 @@ P_UseSpecialLine
     int (*linefunc)(line_t *line)=NULL;
 
     // check each range of generalized linedefs
-    if ((unsigned)line->special >= GenFloorBase)
+    if ((unsigned)line->special >= GenEnd)
+    {
+      // Out of range for GenFloors
+    }
+    else if ((unsigned)line->special >= GenFloorBase)
     {
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.h,v 1.5.2.2 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: p_spec.h,v 1.5.2.3 2003/04/06 16:14:03 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -88,6 +88,7 @@
 //jff 02/04/98 Define masks, shifts, for fields in
 // generalized linedef types
 
+#define GenEnd                0x8000
 #define GenFloorBase          0x6000
 #define GenCeilingBase        0x4000
 #define GenDoorBase           0x3c00

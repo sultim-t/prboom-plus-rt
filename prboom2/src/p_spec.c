@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.7.2.2 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: p_spec.c,v 1.7.2.3 2003/04/06 16:14:03 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.7.2.2 2002/07/20 18:08:37 proff_fs Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.7.2.3 2003/04/06 16:14:03 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -1140,7 +1140,11 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
     int (*linefunc)(line_t *line)=NULL;
 
     // check each range of generalized linedefs
-    if ((unsigned)line->special >= GenFloorBase)
+    if ((unsigned)line->special >= GenEnd)
+    {
+      // Out of range for GenFloors
+    }
+    else if ((unsigned)line->special >= GenFloorBase)
     {
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
@@ -2009,7 +2013,11 @@ void P_ShootSpecialLine
     int (*linefunc)(line_t *line)=NULL;
 
     // check each range of generalized linedefs
-    if ((unsigned)line->special >= GenFloorBase)
+    if ((unsigned)line->special >= GenEnd)
+    {
+      // Out of range for GenFloors
+    }
+    else if ((unsigned)line->special >= GenFloorBase)
     {
       if (!thing->player)
         if ((line->special & FloorChange) || !(line->special & FloorModel))
