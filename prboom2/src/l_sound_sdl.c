@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: l_sound_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
+// $Id: l_sound_sdl.c,v 1.3 2000/05/05 13:51:50 cph Exp $
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -20,10 +20,16 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: l_sound_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
+rcsid[] = "$Id: l_sound_sdl.c,v 1.3 2000/05/05 13:51:50 cph Exp $";
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+#ifdef HAVE_LIBSDL_MIXER
+#define HAVE_MIXER
+#endif
 #include <math.h>
-#ifdef HAVE_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
@@ -746,7 +752,7 @@ void I_UnRegisterSong(int handle)
 #endif
 }
 
-int I_RegisterSong(void *data, size_t len)
+int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
   FILE *midfile;
@@ -783,16 +789,3 @@ void I_SetMusicVolume(int volume)
 #endif
 }
 
-//
-// $Log: l_sound_sdl.c,v $
-// Revision 1.2  2000/05/04 11:23:01  proff_fs
-// added an textwindow for Win32 and
-// changed some printfs to lprintfs
-//
-// Revision 1.1.1.1  2000/05/04 08:07:38  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.1  2000/05/01 15:29:24  Proff
-// initial revision
-//
-//

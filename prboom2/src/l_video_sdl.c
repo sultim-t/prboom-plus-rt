@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_video_sdl.c,v 1.3 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: l_video_sdl.c,v 1.4 2000/05/05 13:51:50 cph Exp $
  *
  *  SDL display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,14 +29,24 @@
  */
 
 static const char
-rcsid[] = "$Id: l_video_sdl.c,v 1.3 2000/05/04 16:40:00 proff_fs Exp $";
+rcsid[] = "$Id: l_video_sdl.c,v 1.4 2000/05/05 13:51:50 cph Exp $";
+
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
 
 #include <stdlib.h>
-#ifdef HAVE_UNISTD
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
 #include "SDL.h"
+
+#ifdef I386
+void (*R_DrawColumn)(void);
+void (*R_DrawTLColumn)(void);
+#endif
 
 #include "i_system.h"
 #include "m_argv.h"
@@ -539,25 +549,3 @@ void I_InitGraphics(void)
   SDL_ShowCursor(0);
 }
 
-//
-// $Log: l_video_sdl.c,v $
-// Revision 1.3  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.2  2000/05/04 11:23:01  proff_fs
-// added an textwindow for Win32 and
-// changed some printfs to lprintfs
-//
-// Revision 1.1.1.1  2000/05/04 08:08:10  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.2  2000/05/01 17:50:35  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.1  2000/05/01 15:25:11  Proff
-// initial revision of l_video_sdl.c
-//
-//

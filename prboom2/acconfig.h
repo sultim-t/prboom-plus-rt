@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.1 2000/05/04 07:53:31 proff_fs Exp $
+ * $Id: acconfig.h,v 1.2 2000/05/05 13:51:49 cph Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -85,13 +85,22 @@
 /* Define if you have the DGA library -lXxf86dga */
 #undef HAVE_LIBXXF86DGA
 
+/* Define if you have the SDL mixer library -lSDL_mixer */
+#undef HAVE_LIBSDL_MIXER
+
+/* Define if you want networkg ame support */
+#undef HAVE_NET
+
 /* Define if you have struct sockaddr_in6 */
 #undef HAVE_IPv6
 
 /* 
  * $Log: acconfig.h,v $
- * Revision 1.1  2000/05/04 07:53:31  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/05 13:51:49  cph
+ * Get SDL configuration and compilation working on POSIX
+ *
+ * Revision 1.1.1.1  2000/05/04 07:53:31  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.5  2000/04/09 13:39:43  cph
  * Get ./configure heap dumping option working
