@@ -113,15 +113,14 @@
       ylookup[] array in that memory, and whether the OS detects the SEGV 
       (it does in Linux, but I guess DOS might let it pass).
      </p><p>
-      Description: On x86 machines, as assembly code version of R_DrawColumn is
+      Description: On x86 machines, an assembly code version of R_DrawColumn is
       used, which has the instructions reordered to make it faster. It happens
       that the ylookup[] lookup is done before the pixel count is checked. If 
       the pixel begin or end values are way out of range, this causes a SEGV. 
-      However, I haven't checked the whole renderer in these ports, so it's 
-      possible this case is filtered out elsewhere. I don't think it is, 
-      though. The memory accessed by the out-of-range array index is not used 
+      The memory accessed by the out-of-range array index is not used 
       (in the out-of-range case), so provided the OS doesn't detect the 
       SEGV there are no ill effects.
+      I've had it confirmed that this does affect MBF in extreme cases.
      </p>
     <h4>Memory wastage</h4>
      <p>
@@ -511,6 +510,61 @@
 +     tmthing = saved_tmthing;
     }
       </pre>
+     <h4>Spawned monsters respawn at 0,0</h4>
+      <p>
+       Affects: Boom, MBF, PrBoom before v2.1.x
+      </p><p>
+       Found by: Quasar
+      </p><p>
+       Description: 
+       Monsters which aren't on the map to start with 
+       (e.g. monsters spawner by a boss cube thrower) 
+       which respawn, will appear at 0,0 - 
+       which might be a bad place (e.g. solid rock).
+      </p><p>
+       The spawnpoint fields in the data structure for a spawned mobj
+       will be 0,0 - and so if the monster gets killed and then respawns, 
+       it would appear at 0,0. This might leave the monsters stuck in 
+       rock, for instance.
+      </p><p>
+       Eternity fixed this by making monsters respawn at the place where
+       they died, and PrBoom did a similar fix. Thanks, Quasar.
+      </p>
+      <pre>
+*** p_mobj.c	Sun Apr  1 12:06:31 2001
+--- p_mobj.c.orig	Sun Apr  1 12:05:26 2001
+*************** void P_NightmareRespawn(mobj_t* mobj)
+*** 572,577 ****
+--- 572,596 ----
+    x = mobj->spawnpoint.x &lt;&lt; FRACBITS;
+    y = mobj->spawnpoint.y &lt;&lt; FRACBITS;
+  
++   /* haleyjd: stupid nightmare respawning bug fix
++    *
++    * 08/09/00: compatibility added, time to ramble :)
++    * This fixes the notorious nightmare respawning bug that causes monsters
++    * that didn't spawn at level startup to respawn at the point (0,0)
++    * regardless of that point's nature. SMMU and Eternity need this for
++    * script-spawned things like Halif Swordsmythe, as well.
++    *
++    * cph - copied from eternity, except comp_respawnfix becomes comp_respawn 
++    *   and the logic is reversed (i.e. like the rest of comp_ it *disables*
++    *   the fix)
++    */
++   if(!comp[comp_respawn] &amp;&amp; !x &amp;&amp; !y)
++   {
++      // spawnpoint was zeroed out, so use point of death instead
++      x = mobj->x;
++      y = mobj->y;
++   }
++ 
+    // something is occupying its position?
+  
+    if (!P_CheckPosition (mobj, x, y) )
+      </pre>
+      <p>
+       (Note that the above requires a new compatibility option, comp_respawn.)
+      </p>
   <h2>Author</h2>
    <p>Colin Phipps &lt;<a href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
  </body>
