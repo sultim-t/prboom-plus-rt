@@ -442,7 +442,6 @@ int main(int argc, char** argv)
     if (verbose>2) printf("Received packet:");
     switch (packet->type) {
     case PKT_INIT:
-      printf("INIT\n");
       if (!ingame) {
         {
     int n;
@@ -469,7 +468,7 @@ int main(int argc, char** argv)
 #ifdef USE_SDL_NET
     printf(" (channel %d)",remoteaddr[n]);
 #endif
-    putc('\n', stdout);
+    printf(" as player %d\n",n);
     {
       int i;
       size_t extrabytes = 0;
@@ -499,6 +498,7 @@ int main(int argc, char** argv)
 	// Note: cannot user playeringame() here, as the player is still joining
 	if (badplayer(from) || playerjoingame[from] == INT_MAX || playerleftgame[from] == INT_MAX) break;
         playerleftgame[from] = INT_MAX;
+	printf("player %d ready\n",from);
         if (++curplayers == numplayers) {
     ingame=true;
     printf("All players joined, beginning game.\n");
@@ -507,7 +507,9 @@ int main(int argc, char** argv)
     I_uSleep(10000);
     BroadcastPacket(packet, sizeof *packet);
     I_uSleep(100000);
-        }
+        } else {
+	  printf("%d of %d players ready\n", curplayers, numplayers);
+	}
       }
       break;
     case PKT_TICC:
@@ -547,10 +549,17 @@ int main(int argc, char** argv)
         int from = *(byte*)(packet+1);
 	if (badplayer(from)) break;
 
-        if (verbose>2) printf("%d quits at %d\n", from, ptic(packet));
+	if (!ingame && playerjoingame[from] != INT_MAX) {
+	  // If we already got a PKT_GO, we have to remove this player frmo the count of ready players. And we then flag this player slot as vacant.
+	  printf("player %d pulls out\n", from);
+	  if (playerleftgame[from] == INT_MAX) curplayers--;
+	  playerleftgame[from] = 0;
+	  playerjoingame[from] = INT_MAX;
+	} else
         if (playerleftgame[from] == INT_MAX) { // In the game
-    playerleftgame[from] = ptic(packet);
-    if (ingame && !--curplayers) exit(0); // All players have exited
+	  if (verbose>2) printf("%d quits at %d\n", from, ptic(packet));
+	  playerleftgame[from] = ptic(packet);
+	  if (ingame && !--curplayers) exit(0); // All players have exited
         }
       }
       // Fall through and broadcast it
