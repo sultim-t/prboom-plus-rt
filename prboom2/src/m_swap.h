@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_swap.h,v 1.1 2000/05/04 08:10:35 proff_fs Exp $
+ * $Id: m_swap.h,v 1.2 2000/05/06 03:54:47 jessh Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -47,15 +47,30 @@
  * might as well use the xdoom macros.
  */
 
+/* Try to use superfast macros on systems that support them */
+#ifdef HAVE_ASM_BYTEORDER_H
+#include <asm/byteorder.h>
+#ifdef __arch__swab16
+#define doom_swap_s  __arch__swab16
+#endif
+#ifdef __arch__swab32
+#define doom_swap_l  __arch__swab32
+#endif
+#endif /* HAVE_ASM_BYTEORDER_H */
+
+#ifndef doom_swap_l
 #define doom_swap_l(x) \
         ((long int)((((unsigned long int)(x) & 0x000000ffU) << 24) | \
                              (((unsigned long int)(x) & 0x0000ff00U) <<  8) | \
                              (((unsigned long int)(x) & 0x00ff0000U) >>  8) | \
                              (((unsigned long int)(x) & 0xff000000U) >> 24)))
+#endif
 
+#ifndef doom_swap_s
 #define doom_swap_s(x) \
         ((short int)((((unsigned short int)(x) & 0x00ff) << 8) | \
                               (((unsigned short int)(x) & 0xff00) >> 8))) 
+#endif
 
 /* CPhipps - now the endianness handling, converting input or output to/from 
  * the machine's endianness to that wanted for this type of I/O
@@ -112,8 +127,11 @@
 /*----------------------------------------------------------------------------
  *
  * $Log: m_swap.h,v $
- * Revision 1.1  2000/05/04 08:10:35  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/06 03:54:47  jessh
+ * Use fast assembly byte swaping macros on Linux
+ *
+ * Revision 1.1.1.1  2000/05/04 08:10:35  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.9  2000/05/01 17:50:36  Proff
  * made changes to compile with VisualC and SDL
