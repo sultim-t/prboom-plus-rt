@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_floor.c,v 1.7 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_floor.c,v 1.8 2001/04/15 14:59:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.7 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.8 2001/04/15 14:59:36 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -791,15 +791,21 @@ int EV_BuildStairs
         if (tsec->floorpic != texture)
           continue;
 
-        if (compatibility) // jff 6/19/98 prevent double stepsize
+        /* jff 6/19/98 prevent double stepsize
+	 * killough 10/98: intentionally left this way [MBF comment]
+	 * cph 2001/02/06: stair bug fix should be controlled by comp_stairs, 
+	 *  except if we're emulating MBF which perversly reverted the fix
+	 */
+        if (comp[comp_stairs] || (compatibility_level == mbf_compatibility))
           height += stairsize; // jff 6/28/98 change demo compatibility
 
         // if sector's floor already moving, look for another
         if (P_SectorActive(floor_special,tsec)) //jff 2/22/98
           continue;
                                   
-        if (!compatibility) // jff 6/19/98 increase height AFTER continue
-          height += stairsize; // jff 6/28/98 change demo compatibility
+	/* cph - see comment above - do this iff we didn't do so above */
+        if (!comp[comp_stairs] && (compatibility_level != mbf_compatibility))
+          height += stairsize;
 
         sec = tsec;
         secnum = newsecnum;

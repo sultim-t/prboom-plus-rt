@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_doors.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_doors.c,v 1.7 2001/04/15 14:59:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.7 2001/04/15 14:59:36 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -488,10 +488,21 @@ int EV_VerticalDoor
   sec = sides[line->sidenum[1]].sector;
   secnum = sec-sectors;
 
-  // if door already has a thinker, use it
-  if (sec->ceilingdata)      //jff 2/22/98
+  /* if door already has a thinker, use it
+   * cph 2001/04/05 - 
+   * Ok, this is a disaster area. We're assuming that sec->ceilingdata
+   *  is a vldoor_t! What if this door is controlled by both DR lines
+   *  and by switches? I don't know how to fix that.
+   * Secondly, original Doom didn't distinguish floor/lighting/ceiling 
+   *  actions, so we need to do the same in demo compatibility mode.
+   */
+  door = sec->ceilingdata;
+  if (demo_compatibility) {
+    if (!door) door = sec->floordata;
+    if (!door) door = sec->lightingdata;
+  }
+  if (door)
   {
-    door = sec->ceilingdata; //jff 2/22/98
     switch(line->special)
     {
       case  1: // only for "raise" doors, not "open"s
