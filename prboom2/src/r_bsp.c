@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.22 2001/09/02 10:27:11 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.23 2001/11/18 17:15:52 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.22 2001/09/02 10:27:11 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.23 2001/11/18 17:15:52 cph Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -304,7 +304,6 @@ static void R_AddLine (seg_t *line)
   angle_t  span;
   angle_t  tspan;
   static sector_t tempsec;     // killough 3/8/98: ceiling/water hack
-  //  boolean solid = true;
 
   curline = line;
 
@@ -627,6 +626,7 @@ static void R_Subsector(int num)
     if (line->miniseg == false)
       R_AddLine (line);
     line++;
+    curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
   }
 #ifdef GL_DOOM
   gld_AddPlane(num, floorplane, ceilingplane);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.13 2001/11/18 12:27:28 cph Exp $
+ * $Id: r_segs.c,v 1.14 2001/11/18 17:15:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.13 2001/11/18 12:27:28 cph Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.14 2001/11/18 17:15:53 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -221,6 +221,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   // Except for main_tranmap, mark others purgable at this point
   if (curline->linedef->tranlump > 0 && general_translucency)
     W_UnlockLumpNum(curline->linedef->tranlump-1); // cph - unlock it
+  curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
 }
 
 //
