@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.8 2000/08/20 18:42:04 cph Exp $
+ * $Id: d_server.c,v 1.9 2000/08/25 14:09:17 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -337,8 +337,6 @@ int main(int argc, char** argv)
       }
   }
   
-  verbose=3;
-
   setupinfo.ticdup = ticdup; setupinfo.extratic = xtratics;
   { /* Random number seed 
      * Mirrors the corresponding code in G_ReadOptions */
