@@ -219,7 +219,7 @@ Proff: Only happens to me????
 
 53. (2003/09/22) found by bahdko
 
-- autorun not working
+*- autorun not working
 - compatibility settings not correct in netgame
 - chat strings not sent
 - allow multiline chat strings
@@ -231,7 +231,7 @@ Proff: Only happens to me????
 54. From the doomworld comments
 
 - "test framerate" won't work if you've changed resolution unless you restart
-- "always run" setting omitted from menus (available through console though)
+*- "always run" setting omitted from menus (available through console though)
 - when doing -fastdemo and starting a game while demo is running, game speed it set to that of the fastdemo
 - timedemo doesn't give me a result; where am I supposed to see the # of gametics?
 > It's printed to the console, but I don't know if PrBoom quits after -timedemo (writing this without being able to test).
@@ -248,6 +248,7 @@ Proff: Only happens to me????
     texture format, texture filter, use fog and fog density). I think this will
     also make all these settings a little easier to understand.
 - in full view (no statbar) weapons are drawn too high
+> not completely correct, the height of the weapon is one pixel too few
 - also I'm getting desynch problems with Final DOOM demos, even when loading DOOM2.WAD as IWAD and TNT.WAD/PLUTONIA.WAD as PWAD. Still testing ways to get that to work though.
     prboom.exe -iwad tnt.wad -playdemo ev10-239.lmp
 > works from commandline, but not with play command

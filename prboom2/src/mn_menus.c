@@ -1607,6 +1607,10 @@ menu_t menu_keybindings =
 	{it_gap},
 */
 	{it_binding,      "use",                   "use"},
+	//{it_binding,      "next weapon",           "nextweapon"},
+	{it_binding,      "attack/fire",           "attack"},
+	{it_gap},
+  {it_toggle,       "autorun",               "autorun"},
 	{it_end},
     },
     150, 5,                       // x,y offsets
@@ -1640,7 +1644,7 @@ menu_t menu_weaponbindings =
 	{it_binding,      "weapon 8",              "weapon8"},
 	{it_binding,      "weapon 9",              "weapon9"},
 	{it_gap},
-	{it_binding,      "next weapon",           "nextweapon"},
+	//{it_binding,      "next weapon",           "nextweapon"},
 	{it_binding,      "attack/fire",           "attack"},
 	{it_end},
     },
