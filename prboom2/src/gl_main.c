@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.55 2003/03/28 21:04:17 proff_fs Exp $
+ * $Id: gl_main.c,v 1.56 2003/03/29 18:43:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,12 +37,9 @@
 
 extern int tran_filter_pct;
 
-//#define USE_VERTEX_ARRAYS
-
-boolean use_fog=false;
+#define USE_VERTEX_ARRAYS
 
 int gl_nearclip=5;
-int gl_farclip=6400;
 char *gl_tex_filter_string = "GL_LINEAR";
 int gl_tex_filter = GL_LINEAR;
 int gl_mipmap_filter = GL_LINEAR;
@@ -53,6 +50,7 @@ int gl_use_paletted_texture = 0;
 int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
+boolean gl_use_fog=false;
 
 int fog_density=200;
 static float extra_red=0.0f;
@@ -692,11 +690,6 @@ static float pitch    = 0.0f;
 
 #define __glPi 3.14159265358979323846
 
-// This is needed due to some subtle compiler bug
-#ifdef _MSC_VER
-#pragma optimize("", off)
-#endif
-
 void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 {
 	GLdouble left, right, bottom, top;
@@ -733,33 +726,6 @@ void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 
 	p_glMultMatrixd(m);
 }
-
-void gldPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
-{
-    GLdouble m[4][4];
-    double sine, cotangent, deltaZ;
-    double radians = fovy / 2 * __glPi / 180;
-
-    deltaZ = zFar - zNear;
-    sine = sin(radians);
-    if ((deltaZ == 0) || (sine == 0) || (aspect == 0)) {
-	return;
-    }
-    cotangent = cos(radians) / sine;
-
-    p_glLoadIdentity();
-    m[0][0] = cotangent / aspect;
-    m[1][1] = cotangent;
-    m[2][2] = -(zFar + zNear) / deltaZ;
-    m[2][3] = -1;
-    m[3][2] = -2 * zNear * zFar / deltaZ;
-    m[3][3] = 0;
-    p_glMultMatrixd(&m[0][0]);
-}
-
-#ifdef _MSC_VER
-#pragma optimize("", on)
-#endif
 
 void gld_StartDrawScene(void)
 {
@@ -803,7 +769,6 @@ void gld_StartDrawScene(void)
 	p_glLoadIdentity();
 
 	infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
-	//gldPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
 
 	p_glMatrixMode(GL_MODELVIEW);
 	p_glLoadIdentity();
@@ -812,7 +777,7 @@ void gld_StartDrawScene(void)
 	p_glRotatef(yaw,   0.0f, 1.0f, 0.0f);
 	p_glTranslatef(-xCamera, -trY, -yCamera);
 
-  if (use_fog)
+  if (gl_use_fog)
 	  p_glEnable(GL_FOG);
   else
     p_glDisable(GL_FOG);
