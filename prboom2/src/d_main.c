@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.33 2000/12/30 19:51:27 cph Exp $
+ * $Id: d_main.c,v 1.34 2001/01/15 18:06:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.33 2000/12/30 19:51:27 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.34 2001/01/15 18:06:04 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1564,6 +1564,12 @@ void D_DoomMainSetup(void)
 
     I_SetRes(w, h);
   }
+
+  if ((p = M_CheckParm("-fullscreen"))) 
+      use_fullscreen = 1;
+
+  if ((p = M_CheckParm("-nofullscreen"))) 
+      use_fullscreen = 0;
 
 #ifdef GL_DOOM
   // proff 04/05/2000: for GL-specific switches

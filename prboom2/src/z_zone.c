@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.11 2000/12/31 15:08:55 cph Exp $
+ * $Id: z_zone.c,v 1.12 2001/01/15 18:06:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.11 2000/12/31 15:08:55 cph Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.12 2001/01/15 18:06:05 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -225,6 +225,7 @@ void Z_DumpHistory(char *buf)
 }
 #else
 
+size_t zone_size;
 void Z_DumpHistory(char *buf)
 {
 }

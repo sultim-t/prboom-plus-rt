@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.6 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: i_video.c,v 1.7 2001/01/15 18:06:06 proff_fs Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.6 2000/11/22 21:46:48 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.7 2001/01/15 18:06:06 proff_fs Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -1285,4 +1285,9 @@ void I_InitGraphics(void)
   atexit(I_ShutdownGraphics);
 
   I_XInitInputs();
+}
+
+void I_UpdateVideoMode(void)
+{
+  lprintf(LO_INFO, "I_UpdateVideoMode: not yet implemented\n");
 }
