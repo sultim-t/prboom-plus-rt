@@ -4,7 +4,7 @@
 # Created: 1993-05-16
 # Public domain
 
-# $Id: mkinstalldirs,v 1.1 2000/05/04 07:54:27 proff_fs Exp $
+# $Id: mkinstalldirs,v 1.1.1.2 2000/09/20 09:38:23 figgi Exp $
 
 errstatus=0
 
