@@ -344,7 +344,7 @@ void FUNC_V_PlotPatch(
         dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);      
       }
       if (dcvars.yl < clampRect.top) {
-        srcYShift = (clampRect.top - dcvars.yl) <<FRACBITS;
+        srcYShift = FixedDiv((clampRect.top - dcvars.yl)<<FRACBITS, yfrac);
         dcvars.yl = clampRect.top;
         dcvars.topslope = 0;
       }
@@ -432,16 +432,29 @@ void FUNC_V_PlotTextureNum(
 
 
 //---------------------------------------------------------------------------
-byte *FUNC_V_GetPlottedPatch(int patchNum, int width, int height, TRDrawFilterType filter, const byte *colorTranslationTable
+byte *FUNC_V_GetPlottedPatch(
+  int patchNum, int plotWidth, int plotHeight, 
+  int bufferWidth, int bufferHeight, 
+  TRDrawFilterType filter, const byte *colorTranslationTable    
 #if V_VIDEO_BITS == 8  
-, byte clearColor) {
-#else
-) {
+, byte clearColor
+#elif V_VIDEO_BITS == 32
+, int convertToBGRA
 #endif
+) {
   byte *destBuffer;
-  int bufferSize = width*height*sizeof(V_VIDEO_SCRNTYPE);
-  TPlotRect rect = { 0, 0, width, height };
+  int bufferSize;
+  TPlotRect destRect;
+  TPlotRect clampRect = { 0, 0, bufferWidth, bufferHeight };
   
+  if (plotWidth > bufferWidth) plotWidth = bufferWidth;
+  if (plotHeight > bufferHeight) plotHeight = bufferHeight;
+  
+  destRect.left = destRect.top = 0;
+  destRect.right = plotWidth;
+  destRect.bottom = plotHeight;
+  
+  bufferSize = bufferWidth*bufferHeight*sizeof(V_VIDEO_SCRNTYPE);
   destBuffer = malloc(bufferSize);
   
 #if V_VIDEO_BITS == 8  
@@ -451,14 +464,10 @@ byte *FUNC_V_GetPlottedPatch(int patchNum, int width, int height, TRDrawFilterTy
   memset(destBuffer, 0xff, bufferSize);
 #endif
   
-  FUNC_V_PlotPatchNum(patchNum, rect, rect, filter, colorTranslationTable, destBuffer, width, height);  
+  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);  
   
 #if V_VIDEO_BITS == 32
-  {
-    int i;
-    // invert alphas (assumes ARGB or ABGR)
-    for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
-  }
+  finalizeTrueColorBuffer(destBuffer, bufferSize/V_VIDEO_BITS, convertToBGRA);
 #endif
 
   return destBuffer;
@@ -466,15 +475,23 @@ byte *FUNC_V_GetPlottedPatch(int patchNum, int width, int height, TRDrawFilterTy
 
 
 //---------------------------------------------------------------------------
-byte *FUNC_V_GetPlottedTexture(int textureNum, int width, int height, TRDrawFilterType filter
+byte *FUNC_V_GetPlottedTexture(
+  int textureNum, int plotWidth, int plotHeight, 
+  int bufferWidth, int bufferHeight, 
+  TRDrawFilterType filter
 #if V_VIDEO_BITS == 8  
-, byte clearColor) {
-#else
-) {
+, byte clearColor
+#elif V_VIDEO_BITS == 32
+, int convertToBGRA
 #endif
+) {
   byte *destBuffer;
-  int bufferSize = width*height*sizeof(V_VIDEO_SCRNTYPE);
+  int bufferSize;
 
+  if (plotWidth > bufferWidth) plotWidth = bufferWidth;
+  if (plotHeight > bufferHeight) plotHeight = bufferHeight;
+  
+  bufferSize = bufferWidth*bufferHeight*sizeof(V_VIDEO_SCRNTYPE);
   destBuffer = malloc(bufferSize);
   
 #if V_VIDEO_BITS == 8  
@@ -484,14 +501,10 @@ byte *FUNC_V_GetPlottedTexture(int textureNum, int width, int height, TRDrawFilt
   memset(destBuffer, 0xff, bufferSize);
 #endif
   
-  FUNC_V_PlotTextureNum(textureNum, 0, 0, width, height, filter, destBuffer, width, height);  
+  FUNC_V_PlotTextureNum(textureNum, 0, 0, plotWidth, plotHeight, filter, destBuffer, bufferWidth, bufferHeight);
 
 #if V_VIDEO_BITS == 32
-  {
-    int i;
-    // invert alphas (assumes ARGB or ABGR)
-    for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
-  }
+  finalizeTrueColorBuffer(destBuffer, bufferSize/V_VIDEO_BITS, convertToBGRA);
 #endif
     
   return destBuffer;

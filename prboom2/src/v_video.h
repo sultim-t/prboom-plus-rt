@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.18 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: v_video.h,v 1.19 2002/11/22 21:57:12 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -229,11 +229,27 @@ int V_NumPatchHeight(int lump);
 // These functions use the R_DrawColumn* pipelines to plot filtered
 // patches and textures to a destination buffer
 //---------------------------------------------------------------------------
-byte *V_GetPlottedPatch32(int patchNum, int width, int height, TRDrawFilterType filter, const byte *colorTranslationTable);
-byte *V_GetPlottedPatch8(int patchNum, int width, int height, TRDrawFilterType filter, const byte *colorTranslationTable, byte clearColor);
+byte *V_GetPlottedPatch32(
+  int patchNum, int plotWidth, int plotHeight, 
+  int bufferWidth, int bufferHeight, 
+  TRDrawFilterType filter, const byte *colorTranslationTable, int convertToBGRA
+);
+byte *V_GetPlottedPatch8(
+  int patchNum, int plotWidth, int plotHeight, 
+  int bufferWidth, int bufferHeight,
+  TRDrawFilterType filter, const byte *colorTranslationTable, byte clearColor
+);
 
-byte *V_GetPlottedTexture32(int textureNum, int width, int height, TRDrawFilterType filter);
-byte *V_GetPlottedTexture8(int textureNum, int width, int height, TRDrawFilterType filter, byte clearColor);
+byte *V_GetPlottedTexture32(
+  int textureNum, int plotWidth, int plotHeight, 
+  int bufferWidth, int bufferHeight, 
+  TRDrawFilterType filter, int convertToBGRA
+);
+byte *V_GetPlottedTexture8(
+  int textureNum, int plotWidth, int plotHeight, 
+  int bufferWidth, int bufferHeight, 
+  TRDrawFilterType filter, byte clearColor
+);
 
 //---------------------------------------------------------------------------
 // Font

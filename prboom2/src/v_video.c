@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.28 2002/11/21 20:53:10 dukope Exp $
+ * $Id: v_video.c,v 1.29 2002/11/22 21:57:12 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.28 2002/11/21 20:53:10 dukope Exp $";
+rcsid[] = "$Id: v_video.c,v 1.29 2002/11/22 21:57:12 dukope Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -192,6 +192,33 @@ int getPatchHasAHoleOrIsNonRectangular(const patch_t *patch) {
     }
   }
   return 0;    
+}
+
+//---------------------------------------------------------------------------
+void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA) {
+  byte r,g,b,a;
+  unsigned int color;
+  int i;
+  int *destBufferAsInt = (int*)destBuffer;   
+  
+  for (i=0; i<numPixels; i++) {
+    color = destBufferAsInt[i];
+    r = color & (0x000000ff);
+    g = (color & (0x0000ff00)) >> 8;
+    b = (color & (0x00ff0000)) >> 16;
+    a = (color & (0xff000000));
+    
+    // if alpha is 0xff, then nothing was plotted to this pixel
+    if (a == 0xff) {
+      destBufferAsInt[i] = 0; 
+      continue;
+    }
+    
+    // alpha was zero, which means R_DrawColumn plotted a pixel
+    a = 0xff;      
+    if (convertToBGRA) destBufferAsInt[i] = ((b<<24) | (g<<16) | (r<<8) | a);
+    else destBufferAsInt[i] = ((r<<24) | (g<<16) | (b<<8) | a);      
+  }
 }
 
 //---------------------------------------------------------------------------
