@@ -50,10 +50,7 @@ boolean modifiedgame;
 
 // CPhipps - compatibility vars
 complevel_t default_compatibility_level = -1;
-CONSOLE_INT(default_compatibility_level, default_compatibility_level, NULL, -1, MAX_COMPATIBILITY_LEVEL, NULL, 0) {}
-
 complevel_t compatibility_level = -1;
-CONSOLE_INT(compatibility_level, compatibility_level, NULL, -1, MAX_COMPATIBILITY_LEVEL, NULL, 0) {}
 
 int comp[COMP_TOTAL];
 int default_comp[COMP_TOTAL] = {

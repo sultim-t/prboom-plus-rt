@@ -455,6 +455,40 @@ void G_AddWeapPrefs()
     }
 }
 
+// CPhipps - compatibility vars
+static const char *complevel_str[] =
+{
+	"prboom_current", // -1 = best
+	"doom_12",
+	"doom_1666",
+	"doom2_19",
+	"ultdoom_19",
+	"finaldoom_doom95",
+	"dosdoom",
+	"tasdoom",
+	"boom_compatibility",
+	"boom_201",
+	"boom_202",
+	"lxdoom_132",
+	"MBF",
+	"prboom_203beta",
+	"prboom_210_211",
+	"prboom_212_223",
+};
+
+static int desired_default_compatibility_level;
+CONSOLE_INT(default_compatibility_level, desired_default_compatibility_level, NULL, 0, MAX_COMPATIBILITY_LEVEL-1, complevel_str, 0)
+{
+	default_compatibility_level = desired_default_compatibility_level - 1;
+}
+
+static int desired_compatibility_level;
+CONSOLE_INT(compatibility_level, desired_compatibility_level, NULL, 0, MAX_COMPATIBILITY_LEVEL-1, complevel_str, 0)
+{
+	compatibility_level = desired_compatibility_level - 1;
+	G_Compatibility();
+}
+
 ///////////////////////////////////////////////////////////////
 //
 // Compatibility vectors
@@ -515,13 +549,15 @@ void G_AddCompat()
       sprintf(tempstr, "comp_%s", comp_strings[i]);
       command->name = strdup(tempstr);
       command->type = ct_variable;
-      command->flags = cf_server | cf_netvar;
+      command->flags = cf_server;// | cf_netvar;
       command->variable = variable;
       command->handler = NULL;
       command->netcmd = /*netcmd_comp_0*/ + i;
 
       (C_AddCommand)(command); // hook into cmdlist
     }
+  C_AddCommand(default_compatibility_level);
+  C_AddCommand(compatibility_level);
 }
 
 //defined in g_game.c
