@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: version.h,v 1.1 2000/05/04 08:18:45 proff_fs Exp $
+ * $Id: version.h,v 1.2 2000/05/06 08:52:25 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,8 +33,6 @@
 #ifndef __DOOMVERSION__
 #define __DOOMVERSION__
 
-#include "z_zone.h"  /* memory allocation wrappers -- killough */
-
 // DOOM version
 enum { LXDOOM_VERSION =  204 };
 
@@ -45,8 +43,11 @@ extern const char version_date[];
 /*----------------------------------------------------------------------------
  *
  * $Log: version.h,v $
- * Revision 1.1  2000/05/04 08:18:45  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/06 08:52:25  cph
+ * Minor header file fixing
+ *
+ * Revision 1.1.1.1  2000/05/04 08:18:45  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.5  1999/10/12 13:01:16  cphipps
  * Changed header to GPL

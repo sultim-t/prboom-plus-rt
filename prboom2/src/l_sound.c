@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_sound.c,v 1.1 2000/05/04 08:07:27 proff_fs Exp $
+ * $Id: l_sound.c,v 1.2 2000/05/06 08:49:55 cph Exp $
  *
  *  Sound interface from the original linuxdoom, extensively modified
  *  for LxDoom, a Doom port for Linux/Unix
@@ -31,8 +31,11 @@
  */
 
 static const char
-rcsid[] = "$Id: l_sound.c,v 1.1 2000/05/04 08:07:27 proff_fs Exp $";
+rcsid[] = "$Id: l_sound.c,v 1.2 2000/05/06 08:49:55 cph Exp $";
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -431,8 +434,11 @@ void I_SetCDMusicVolume(int vol) { };
 #endif
 /*
  * $Log: l_sound.c,v $
- * Revision 1.1  2000/05/04 08:07:27  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/06 08:49:55  cph
+ * Minor header file fixing
+ *
+ * Revision 1.1.1.1  2000/05/04 08:07:27  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.41  2000/04/09 13:23:24  cph
  * Remove PCX screenshot support

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.1 2000/05/04 08:19:19 proff_fs Exp $
+ * $Id: z_bmalloc.c,v 1.2 2000/05/06 08:49:55 cph Exp $
  *
  *  Block memory allocator for LxDoom, 
  *  Copyright (C) 1999 by Colin Phipps
@@ -26,6 +26,10 @@
  *-----------------------------------------------------------------------------
  */
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+
 #include <memory.h>
 
 #include "doomtype.h"
@@ -38,8 +42,6 @@ typedef struct bmalpool_s {
   size_t             blocks;
   byte               used[0];
 } bmalpool_t;
-
-#define SIMPLECHECKS
 
 // Proff - added __inline for VisualC
 #ifdef _MSC_VER
@@ -131,8 +133,11 @@ void Z_BFree(struct block_memory_alloc_s *pzone, void* p)
 
 /*
  * $Log: z_bmalloc.c,v $
- * Revision 1.1  2000/05/04 08:19:19  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/06 08:49:55  cph
+ * Minor header file fixing
+ *
+ * Revision 1.1.1.1  2000/05/04 08:19:19  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.7  2000/05/01 15:16:48  Proff
  * added __inline for VisualC

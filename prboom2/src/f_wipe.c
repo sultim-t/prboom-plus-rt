@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.1 2000/05/04 08:01:33 proff_fs Exp $
+ * $Id: f_wipe.c,v 1.2 2000/05/06 08:49:55 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,11 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.1 2000/05/04 08:01:33 proff_fs Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.2 2000/05/06 08:49:55 cph Exp $";
+
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
 
 #include "z_zone.h"
 #include "doomdef.h"
@@ -188,8 +192,11 @@ int wipe_ScreenWipe(int x, int y, int width, int height, int ticks)
 //----------------------------------------------------------------------------
 //
 // $Log: f_wipe.c,v $
-// Revision 1.1  2000/05/04 08:01:33  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/06 08:49:55  cph
+// Minor header file fixing
+//
+// Revision 1.1.1.1  2000/05/04 08:01:33  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.5  1999/10/12 13:01:10  cphipps
 // Changed header to GPL

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_bbox.h,v 1.1 2000/05/04 08:08:47 proff_fs Exp $
+ * $Id: m_bbox.h,v 1.2 2000/05/06 08:49:55 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,8 +33,6 @@
 #ifndef __M_BBOX__
 #define __M_BBOX__
 
-#include "z_zone.h"         /* killough 1/18/98 */
-
 #include <limits.h>
 #include "m_fixed.h"
 
@@ -58,8 +56,11 @@ void M_AddToBox(fixed_t* box,fixed_t x,fixed_t y);
 /*----------------------------------------------------------------------------
  *
  * $Log: m_bbox.h,v $
- * Revision 1.1  2000/05/04 08:08:47  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/06 08:49:55  cph
+ * Minor header file fixing
+ *
+ * Revision 1.1.1.1  2000/05/04 08:08:47  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.3  1999/10/12 13:00:57  cphipps
  * Changed header to GPL, converted C++ comments to C

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.1 2000/05/04 08:16:18 proff_fs Exp $
+ * $Id: r_plane.c,v 1.2 2000/05/06 08:49:55 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -42,10 +42,14 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.1 2000/05/04 08:16:18 proff_fs Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.2 2000/05/06 08:49:55 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -428,8 +432,11 @@ void R_DrawPlanes (void)
 //----------------------------------------------------------------------------
 //
 // $Log: r_plane.c,v $
-// Revision 1.1  2000/05/04 08:16:18  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/06 08:49:55  cph
+// Minor header file fixing
+//
+// Revision 1.1.1.1  2000/05/04 08:16:18  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.10  2000/05/01 14:37:33  Proff
 // changed abs to D_abs
