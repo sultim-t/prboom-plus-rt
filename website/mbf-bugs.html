@@ -33,10 +33,11 @@
      this page no longer contains info on BSP bugs.
     </p><p>
      Those bugs here which are not otherwise attributed, were found and fixed
-     by myself. Also I'd like to
-     thank <a href="mailto:haleyjd@concentric.net">James &quot;Quasar&quot; 
-     Haley</a>, and <a href="mailto:fraggle@alkali.org">Simon
-     &quot;Fraggle&quot; Howard</a>, who discovered some of these bugs, and
+     by myself.
+     Also I'd like to thank
+     <a href="mailto:haleyjd@concentric.net">James &quot;Quasar&quot; Haley</a>,
+     and <a href="mailto:fraggle@alkali.org">Simon &quot;Fraggle&quot; Howard</a>,
+     who discovered some of these bugs, and
      are always glad to share this information :-).
     </p>  
   <h2>Fixed</h2>
@@ -565,6 +566,71 @@
       <p>
        (Note that the above requires a new compatibility option, comp_respawn.)
       </p>
+     <h4>Floor thinker should prevent DR door opening</h4>
+      <p>
+       Affects: Boom, MBF, PrBoom up to and including v2.2.0
+      </p><p>
+       Found by: <a href="mailto:adam@scisoft.force9.co.uk">Adam Williamson</a>
+      </p><p>
+       Description: 
+       In original Doom, a DR door would refuse to open if the same
+       sector had a lighting or floor thinker in progress;
+       this behaviour was changed in Boom but not compatibility optioned.
+       cf ep1-0511.lmp (see Compet-N)
+      </p><p>
+       In fact, underlying this is a bug in original Doom which is still
+       present (at least in the Boom ports) - if you try to trigger a DR
+       door with an existing ceiling action, it assumes the existing action
+       must be a door action and merely changes the direction.
+       But if there's a different type of action going on,
+       it will be corrupting some field in that action.
+      </p><p>
+       Original Doom didn't even separate floor, ceilnig and lighting actions
+       though, so it would do this for floor and lighting actions too.
+       I made the following change to PrBoom to add compatibility with
+       the old Doom behaviour for demos:
+      </p><pre>
+===================================================================
+RCS file: /cvsroot/prboom/prboom2/src/p_doors.c,v
+retrieving revision 1.6
+diff -p -c -r1.6 p_doors.c
+*** p_doors.c	2000/09/16 20:20:41	1.6
+--- p_doors.c	2001/04/05 20:51:17
+*************** int EV_VerticalDoor
+*** 488,497 ****
+    sec = sides[line-&gt;sidenum[1]].sector;
+    secnum = sec-sectors;
+  
+!   // if door already has a thinker, use it
+!   if (sec-&gt;ceilingdata)      //jff 2/22/98
+    {
+-     door = sec-&gt;ceilingdata; //jff 2/22/98
+      switch(line-&gt;special)
+      {
+        case  1: // only for "raise" doors, not "open"s
+--- 488,508 ----
+    sec = sides[line-&gt;sidenum[1]].sector;
+    secnum = sec-sectors;
+  
+!   /* if door already has a thinker, use it
+!    * cph 2001/04/05 - 
+!    * Ok, this is a disaster area. We're assuming that sec-&gt;ceilingdata
+!    *  is a vldoor_t! What if this door is controlled by both DR lines
+!    *  and by switches? I don't know how to fix that.
+!    * Secondly, original Doom didn't distinguish floor/lighting/ceiling 
+!    *  actions, so we need to do the same in demo compatibility mode.
+!    */
+!   door = sec-&gt;ceilingdata;
+!   if (demo_compatibility) {
+!     if (!door) door = sec-&gt;floordata;
+!     if (!door) door = sec-&gt;lightingdata;
+!   }
+!   if (door)
+    {
+      switch(line-&gt;special)
+      {
+        case  1: // only for "raise" doors, not "open"s
+      </pre>
   <h2>Author</h2>
    <p>Colin Phipps &lt;<a href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
  </body>
