@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: i_main.c,v 1.3 2000/05/10 17:47:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.3 2000/05/10 17:47:11 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -348,7 +348,7 @@ int main(int argc, char **argv)
     else
       fprintf(stderr, "Revoked uid %d\n",stored_euid);
 #endif
-#ifdef _MSC_VER
+#ifdef _WIN32
   /* initialize the console window */
   Init_ConsoleWin();
   atexit(Done_ConsoleWin);

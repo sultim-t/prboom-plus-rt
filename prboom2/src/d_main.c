@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.9 2000/05/10 16:22:18 proff_fs Exp $
+ * $Id: d_main.c,v 1.10 2000/05/10 17:47:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.9 2000/05/10 16:22:18 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.10 2000/05/10 17:47:11 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -587,7 +587,7 @@ void D_AddFile (const char *file, wad_source_t source)
 }
 
 // Return the path where the executable lies -- Lee Killough
-#ifdef _MSC_VER
+#ifdef _WIN32
 char *D_DoomExeDir(void)
 {
   static char *base;
@@ -597,6 +597,8 @@ char *D_DoomExeDir(void)
       char *p = (base = malloc(len+1)) + len;
       strcpy(base,*myargv);
       while (p > base && *p!='/' && *p!='\\')
+        *p--=0;
+      if (*p=='/' || *p=='\\')
         *p--=0;
     }
   return base;
@@ -918,11 +920,7 @@ void IdentifyVersion (void)
   char *iwad;
 
   // get config file from same directory as executable
-#ifdef _MSC_VER
-  sprintf(basedefault,"%sboom.cfg", D_DoomExeDir());  // killough
-#else
   sprintf(basedefault,"%s/boom.cfg", D_DoomExeDir());  // killough
-#endif
 
   // set save path to -save parm or current dir
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.5 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: lprintf.c,v 1.6 2000/05/10 17:47:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,13 +34,15 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.5 2000/05/09 21:45:38 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.6 2000/05/10 17:47:11 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
-#ifdef _MSC_VER
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
+#ifdef _MSC_VER
 #include <io.h>
 #endif
 #include <stdio.h>
@@ -61,7 +63,7 @@ int cons_output_mask = -1;        /* all output enabled */
  */
 #define MAX_MESSAGE_SIZE 2048
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 // Variables for the console
 HWND con_hWnd=0;
 HFONT OemFont;
@@ -278,7 +280,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
   if (lvl&cons_output_mask)               /* mask output as specified */
   {
     r=fprintf(stdout,"%s",msg);
-#ifdef _MSC_VER
+#ifdef _WIN32
     I_ConPrintString(msg);
 #endif
   }

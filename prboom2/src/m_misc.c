@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.6 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: m_misc.c,v 1.7 2000/05/10 17:47:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.6 2000/05/09 21:45:38 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.7 2000/05/10 17:47:11 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -254,7 +254,7 @@ const default_t defaults[] =
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{0},0,2, // CPhipps - music pausing
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
-#ifndef _MSC_VER
+#ifndef _WIN32
   {"soundsrv", {NULL,&sndserver_filename}, {0,SNDSERV_PATH},UL,UL,
    def_str,ss_none}, // path to sound server (UNIX)
   {"musicsrv", {NULL,&musserver_filename}, {0,MUSSERV_PATH},UL,UL,
