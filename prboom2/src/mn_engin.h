@@ -165,6 +165,7 @@ extern menuwidget_t *current_menuwidget;      // current widget being drawn
 
 // size of automap colour blocks
 #define BLOCK_SIZE 9
+#define background_flat "FLOOR4_8"
 
 void MN_ErrorMsg(const char *s, ...);
 

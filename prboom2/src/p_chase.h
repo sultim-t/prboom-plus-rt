@@ -36,9 +36,7 @@ typedef struct camera_s
   long z;
   angle_t angle;
   int updownangle;
-}
-camera_t;
-
+} camera_t;
 
 extern int chasex;
 extern int chasey;

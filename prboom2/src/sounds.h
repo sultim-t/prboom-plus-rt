@@ -37,11 +37,13 @@
 // SoundFX struct.
 //
 
-struct sfxinfo_struct;
+struct sfxinfo_s;
 
-typedef struct sfxinfo_struct sfxinfo_t;
+typedef struct sfxinfo_s sfxinfo_t;
+typedef struct musicinfo_s musicinfo_t;
 
-struct sfxinfo_struct {
+struct sfxinfo_s
+{
 
   // up to 6-character name
   const char *name; // CPhipps - const
@@ -77,7 +79,8 @@ struct sfxinfo_struct {
 // MusicInfo struct.
 //
 
-typedef struct {
+struct musicinfo_s
+{
   // up to 6-character name
   const char *name; // CPhipps - const
 
@@ -89,7 +92,11 @@ typedef struct {
 
   // music handle once registered
   int handle;
-} musicinfo_t;
+
+  // sf: for hashing
+  musicinfo_t *next;
+  
+};
 
 // the complete set of sound effects
 extern sfxinfo_t    S_sfx[];

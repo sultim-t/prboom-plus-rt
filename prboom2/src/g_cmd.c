@@ -88,12 +88,10 @@ CONSOLE_COMMAND(endgame, cf_notnet)
   C_SetConsole();
 }
 
-/*
 CONSOLE_COMMAND(pause, cf_server)
 {
-  sendpause = true;
+  //sendpause = true;
 }
-*/
 
 // haleyjd: Restoration of original exit behavior
 
@@ -164,7 +162,7 @@ CONSOLE_VARIABLE(autorun, autorun, 0) {}
 
 int turbo_scale = 100;
 VARIABLE_INT(turbo_scale, NULL,         10, 400, NULL);
-CONSOLE_VARIABLE(turbo, turbo_scale, 0)
+CONSOLE_VARIABLE(turbo, turbo_scale, cf_nosave)
 {
   C_Printf ("turbo scale: %i%%\n",turbo_scale);
   forwardmove[0] = (0x19*turbo_scale)/100;
@@ -173,12 +171,10 @@ CONSOLE_VARIABLE(turbo, turbo_scale, 0)
   sidemove[1] = (0x28*turbo_scale)/100;
 }
 
-/*
 CONSOLE_NETCMD(exitlevel, cf_server|cf_level, netcmd_exitlevel)
 {
   G_ExitLevel();
 }
-*/
 
 //////////////////////////////////////
 //
@@ -585,10 +581,10 @@ void G_AddCompat()
       sprintf(tempstr, "comp_%s", comp_strings[i]);
       command->name = strdup(tempstr);
       command->type = ct_variable;
-      command->flags = cf_server;// | cf_netvar;
+      command->flags = cf_server | cf_netvar;
       command->variable = variable;
       command->handler = NULL;
-      command->netcmd = /*netcmd_comp_0*/ + i;
+      command->netcmd = netcmd_comp_0 + i;
 
       (C_AddCommand)(command); // hook into cmdlist
     }
@@ -605,7 +601,7 @@ void G_AddCommands()
   C_AddCommand(i_error);
   C_AddCommand(starttitle);
   C_AddCommand(endgame);
-  //C_AddCommand(pause);
+  C_AddCommand(pause);
   C_AddCommand(quit);
   C_AddCommand(bobbing);
   C_AddCommand(sens_vert);

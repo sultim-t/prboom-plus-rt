@@ -64,7 +64,7 @@ int obcolour = CR_BRICK;       // the colour of death messages
 int showMessages = 1;    // Show messages has default, 0 = off, 1 = on
 int mess_colour = CR_RED;      // the colour of normal messages
 
-//extern char *levelname;        // p_info.c
+extern char *levelname;        // p_info.c
 
 //==========================================================================
 //

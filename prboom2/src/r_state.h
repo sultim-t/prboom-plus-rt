@@ -95,7 +95,8 @@ extern line_t           *lines;
 extern int              numsides;
 extern side_t           *sides;
 
-int                     numthings;
+        // sf: for scripting
+extern int              numthings;
 extern mobj_t           **spawnedthings;
 
 //

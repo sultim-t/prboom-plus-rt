@@ -47,8 +47,7 @@ static int chasecam_active = 0;
 static long targetx, targety, targetz;
 int chasecam_turnoff = 0;
 
-void
-P_ChaseSetupFrame ()
+void P_ChaseSetupFrame()
 {
   viewx = chasecam.x;
   viewy = chasecam.y;
@@ -60,8 +59,7 @@ P_ChaseSetupFrame ()
 #define playermobj players[displayplayer].mo
 #define playerangle (playermobj->angle)
 
-void
-P_GetChasecamTarget ()
+void P_GetChasecamTarget()
 {
   int aimfor;
   int sin, cos;
@@ -107,8 +105,7 @@ P_GetChasecamTarget ()
 	// get to the target each tic
 int chasespeed = 33;
 
-void
-P_ChaseTicker ()
+void P_ChaseTicker()
 {
   int xdist, ydist, zdist;
   //subsector_t *subsec;		// haleyjd
@@ -159,9 +156,7 @@ P_ChaseTicker ()
 
 /* console command */
 
-VARIABLE_BOOLEAN (chasecam_active, NULL, onoff);
-
-CONSOLE_VARIABLE (chasecam, chasecam_active, 0)
+CONSOLE_BOOLEAN(chasecam, chasecam_active, NULL, onoff, cf_nosave)
 {
   if (atoi (c_argv[0]))
     P_ChaseStart ();
@@ -169,16 +164,14 @@ CONSOLE_VARIABLE (chasecam, chasecam_active, 0)
     P_ChaseEnd ();
 }
 
-void
-P_ChaseStart ()
+void P_ChaseStart()
 {
   chasecam_active = true;
   camera = &chasecam;
   P_ResetChasecam ();
 }
 
-void
-P_ChaseEnd ()
+void P_ChaseEnd()
 {
   chasecam_active = false;
   camera = NULL;
@@ -261,8 +254,7 @@ PTR_chasetraverse (intercept_t * in)
 
       targetx = x;		// point the new chasecam target at the intersection
       targety = y;
-      targetz =
-	zi (dist, attackrange, targetz, playermobj->z + 28 * FRACUNIT);
+      targetz = zi(dist, attackrange, targetz, playermobj->z+28*FRACUNIT);
 
       // don't go any farther
 
@@ -274,8 +266,7 @@ PTR_chasetraverse (intercept_t * in)
 
 // reset chasecam eg after teleporting etc
 
-void
-P_ResetChasecam ()
+void P_ResetChasecam()
 {
   if (!chasecam_active)
     return;
@@ -297,9 +288,13 @@ P_ResetChasecam ()
 }
 
 
-/*******************
- WALK AROUND CAMERA
- *******************/
+//==========================================================================
+//
+// Walkcam
+//
+// walk around inside playing demos without upsetting demo sync
+//
+//==========================================================================
 
 // walk around inside demos without
 // upsetting demo sync
@@ -307,8 +302,7 @@ P_ResetChasecam ()
 camera_t walkcamera;
 int walkcam_active = 0;
 
-void
-P_WalkTicker ()
+void P_WalkTicker()
 {
   ticcmd_t *walktic =
     &netcmds[consoleplayer][(gametic / ticdup) % BACKUPTICS];
@@ -352,8 +346,7 @@ P_WalkTicker ()
 #endif
 }
 
-VARIABLE_BOOLEAN (walkcam_active, NULL, onoff);
-CONSOLE_VARIABLE (walkcam, walkcam_active, cf_notnet)
+CONSOLE_BOOLEAN(walkcam, walkcam_active, NULL, onoff, cf_notnet|cf_nosave)
 {
   if (!c_argc)
     walkcam_active = !walkcam_active;
@@ -369,8 +362,7 @@ CONSOLE_VARIABLE (walkcam, walkcam_active, cf_notnet)
     camera = NULL;
 }
 
-void
-P_ResetWalkcam ()
+void P_ResetWalkcam()
 {
   walkcamera.x = playerstarts[0].x << FRACBITS;
   walkcamera.y = playerstarts[0].y << FRACBITS;
@@ -382,8 +374,7 @@ P_ResetWalkcam ()
 #endif
 }
 
-void
-P_Chase_AddCommands ()
+void P_Chase_AddCommands()
 {
   C_AddCommand (chasecam);
   C_AddCommand (walkcam);

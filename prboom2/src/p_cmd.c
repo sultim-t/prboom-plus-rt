@@ -125,15 +125,18 @@ CONSOLE_NETVAR(skill, gameskill, cf_server, netcmd_skill)
 
 // weapons recoil 
 
-CONSOLE_BOOLEAN(recoil, weapon_recoil, &default_weapon_recoil, onoff, cf_server) {}
+VARIABLE_BOOLEAN(weapon_recoil, &default_weapon_recoil, onoff);
+CONSOLE_NETVAR(recoil, weapon_recoil, cf_server, netcmd_recoil) {}
 
 // allow pushers
 
-CONSOLE_BOOLEAN(pushers, allow_pushers, &default_allow_pushers, onoff, cf_server|cf_nosave) {}
+VARIABLE_BOOLEAN(allow_pushers, &default_allow_pushers, onoff);
+CONSOLE_NETVAR(pushers, allow_pushers, cf_server|cf_nosave, netcmd_pushers) {}
 
 // varying friction
 
-CONSOLE_BOOLEAN(varfriction, variable_friction, &default_variable_friction, onoff, cf_server|cf_nosave) {}
+VARIABLE_BOOLEAN(variable_friction, &default_variable_friction, onoff);
+CONSOLE_NETVAR(varfriction, variable_friction, cf_server|cf_nosave, netcmd_varfriction){}
 
 
 ////////////////////////////////////////////////////////////
@@ -143,50 +146,61 @@ CONSOLE_BOOLEAN(varfriction, variable_friction, &default_variable_friction, onof
 
 // fast monsters
 
-CONSOLE_BOOLEAN(fast, fastparm, NULL, onoff, cf_server|cf_nosave)
+VARIABLE_BOOLEAN(fastparm, NULL,                    onoff);
+CONSOLE_NETVAR(fast, fastparm, cf_server|cf_nosave, netcmd_fast)
 {
   G_SetFastParms(fastparm); // killough 4/10/98: set -fast parameter correctly
 }
 
 // no monsters
 
-CONSOLE_BOOLEAN(nomonsters, nomonsters, NULL, onoff, cf_server|cf_nosave) {}
+VARIABLE_BOOLEAN(nomonsters, NULL,                  onoff);
+CONSOLE_NETVAR(nomonsters, nomonsters, cf_server|cf_nosave, netcmd_nomonsters) { }
 
 // respawning monsters
 
-CONSOLE_BOOLEAN(respawn, respawnparm, NULL, onoff, cf_server|cf_nosave) {}
+VARIABLE_BOOLEAN(respawnparm, NULL,                 onoff);
+CONSOLE_NETVAR(respawn, respawnparm, cf_server|cf_nosave, netcmd_respawn) {}
 
 // monsters remember
 
-CONSOLE_BOOLEAN(mon_remember, monsters_remember, &default_monsters_remember, onoff, cf_server) {}
+VARIABLE_BOOLEAN(monsters_remember, &default_monsters_remember, onoff);
+CONSOLE_NETVAR(mon_remember, monsters_remember, cf_server, netcmd_monremember) {}
 
 // infighting among monsters
 
-CONSOLE_BOOLEAN(mon_infight, monster_infighting, &default_monster_infighting, onoff, cf_server) {}
+VARIABLE_BOOLEAN(monster_infighting, &default_monster_infighting, onoff);
+CONSOLE_NETVAR(mon_infight, monster_infighting, cf_server, netcmd_moninfight) {}
 
 // monsters backing out
 
-CONSOLE_BOOLEAN(mon_backing, monster_backing, &default_monster_backing, onoff, cf_server) {}
+VARIABLE_BOOLEAN(monster_backing, &default_monster_backing, onoff);
+CONSOLE_NETVAR(mon_backing, monster_backing, cf_server, netcmd_monbacking) {}
 
 // monsters avoid hazards
 
-CONSOLE_BOOLEAN(mon_avoid, monster_avoid_hazards, &default_monster_avoid_hazards, onoff, cf_server) {}
+VARIABLE_BOOLEAN(monster_avoid_hazards, &default_monster_avoid_hazards, onoff);
+CONSOLE_NETVAR(mon_avoid, monster_avoid_hazards, cf_server, netcmd_monavoid) {}
 
 // monsters affected by friction
 
-CONSOLE_BOOLEAN(mon_friction, monster_friction, &default_monster_friction, onoff, cf_server) {}
+VARIABLE_BOOLEAN(monster_friction, &default_monster_friction, onoff);
+CONSOLE_NETVAR(mon_friction, monster_friction, cf_server, netcmd_monfriction) {}
 
 // monsters climb tall steps
 
-CONSOLE_BOOLEAN(mon_climb, monkeys, &default_monkeys, onoff, cf_server) {}
+VARIABLE_BOOLEAN(monkeys, &default_monkeys,         onoff);
+CONSOLE_NETVAR(mon_climb, monkeys, cf_server, netcmd_monclimb) {}
 
 // help dying friends
 
-CONSOLE_BOOLEAN(mon_helpfriends, help_friends, &default_help_friends, onoff, cf_server) {}
+VARIABLE_BOOLEAN(help_friends, &default_help_friends, onoff);
+CONSOLE_NETVAR(mon_helpfriends, help_friends, cf_server, netcmd_monhelpfriends) {}
 
 // distance friends keep from player
 
-CONSOLE_INT(mon_distfriend, distfriend, &default_distfriend, 0, 1024, NULL, cf_server) {}
+VARIABLE_INT(distfriend, &default_distfriend,   0, 1024, NULL);
+CONSOLE_NETVAR(mon_distfriend, distfriend, cf_server, netcmd_mondistfriend) {}
 
 void P_Chase_AddCommands();            // p_chase.c
 //void P_Skin_AddCommands();             // p_skin.c

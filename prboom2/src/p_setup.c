@@ -1071,8 +1071,7 @@ void P_CreateBlockMap()
 // killough 3/1/98: substantially modified to work
 // towards removing blockmap limit (a wad limitation)
 //
-// killough 3/30/98: Rewritten to remove blockmap limit,
-// though current algorithm is brute-force and unoptimal.
+// killough 3/30/98: Rewritten to remove blockmap limit
 //
 
 static void P_LoadBlockMap (int lump)
@@ -1232,7 +1231,7 @@ void P_GroupLines (void)
 //
 // Slime trails are inherent to Doom's coordinate system -- i.e. there is
 // nothing that a node builder can do to prevent slime trails ALL of the time,
-// because it's a product of the integer coodinate system, and just because
+// because it's a product of the integer coordinate system, and just because
 // two lines pass through exact integer coordinates, doesn't necessarily mean
 // that they will intersect at integer coordinates. Thus we must allow for
 // fractional coordinates if we are to be able to split segs with node lines,

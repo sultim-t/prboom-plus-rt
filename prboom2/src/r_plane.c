@@ -436,7 +436,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 }
 
 //
-// RDrawPlanes
+// R_DrawPlanes
 // At the end of each frame.
 //
 

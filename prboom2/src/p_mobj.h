@@ -32,6 +32,8 @@
 #ifndef __P_MOBJ__
 #define __P_MOBJ__
 
+typedef struct mobj_s mobj_t;   //sf: move up here
+
 // Basics.
 #include "tables.h"
 #include "m_fixed.h"
@@ -246,7 +248,7 @@ enum {
 // killough 9/8/98: changed some fields to shorts,
 // for better memory usage (if only for cache).
 
-typedef struct mobj_s
+struct mobj_s
 {
     // List: thinker links.
     thinker_t           thinker;
@@ -359,7 +361,10 @@ typedef struct mobj_s
     struct msecnode_s* touching_sectorlist;                 // phares 3/14/98
 
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
-} mobj_t;
+};
+
+        // put it here, it works, ok?
+#include "d_player.h"
 
 // External declarations (fomerly in p_local.h) -- killough 5/2/98
 

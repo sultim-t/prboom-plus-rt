@@ -91,7 +91,6 @@ static char input_buffer[128] = "";
 
         // gap from variable description to value
 #define GAP 20
-#define background_flat "FLOOR4_8"
 #define SKULL_HEIGHT 19
 #define BLINK_TIME 8
 
@@ -99,7 +98,7 @@ static char input_buffer[128] = "";
 #define unselect_colour    CR_RED
 #define select_colour      CR_GRAY
 #define var_colour         CR_GREEN
-#define disabled_colour    CR_BLUE
+#define disabled_colour    CR_TRANS
 
 enum
 {
@@ -143,38 +142,6 @@ static void MN_DrawSlider(int x, int y, int pct)
   
   V_DrawNumPatch(x + draw_x, y, 0, slider_gfx[slider_slider].lumpnum, CR_DEFAULT, VPT_STRETCH);
 }
-
-/*
-// proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-#define PAL_BLACK   0
-#define PAL_WHITE   4
-
-static unsigned char colchipsrc[] = {
-  9,0,9,0,0,0,0,0,44,0,0,0,58,0,0,0,72,0,0,0,86,0,0,0,100,0,0,0,114,0,0,0,128,
-  0,0,0,142,0,0,0,156,0,0,0,0,9,0,4,4,4,4,4,4,4,4,4,0,255,0,9,0,4,251,251,251,
-  251,251,251,251,4,0,255,0,9,0,4,251,251,251,251,251,251,251,4,0,255,0,9,0,4,
-  251,251,251,251,251,251,251,4,0,255,0,9,0,4,251,251,251,251,251,251,251,4,0,
-  255,0,9,0,4,251,251,251,251,251,251,251,4,0,255,0,9,0,4,251,251,251,251,251,
-  251,251,4,0,255,0,9,0,4,251,251,251,251,251,251,251,4,0,255,0,9,0,4,4,4,4,4,
-  4,4,4,4,0,255
-};
-
-static unsigned char colchip[171];
-
-static patch_t *M_MakeColChip(byte chipcol, byte framecol)
-{
-  int i;
-
-  for (i=0; i<sizeof(colchipsrc); i++)
-    if (colchipsrc[i]==4)
-      colchip[i]=framecol;
-    else if (colchipsrc[i]==251)
-      colchip[i]=chipcol;
-    else
-      colchip[i]=colchipsrc[i];
-  return (patch_t *)colchip;
-}
-*/
 
 // draw a menu item. returns the height in pixels
 
@@ -381,7 +348,7 @@ void MN_DrawMenu(menu_t *menu)
   int y;
   int itemnum;
 
-  drawing_menu = menu;    // needed by DrawMenuItem
+  drawing_menu = menu;    // needed by MN_DrawMenuItem
   y = menu->y;
   
   // draw background
@@ -473,17 +440,9 @@ void MN_DrawMenu(menu_t *menu)
       
       if(menuitem->type == it_toggle)         // togglable variable
 	{
-	  // enter to change boolean variables
-	  // left/right otherwise
-#if 0
-	  if(menuitem->var->type == vt_int &&
-	     menuitem->var->max - menuitem->var->min == 1)
-	    helpmsg = "press enter to change";
-	  else
-#endif
 	    helpmsg = "use left/right to change value";
 	}
-      V_WriteTextColoured(helpmsg, CR_GOLD, 10, 192, -1);
+      V_WriteTextColoured(helpmsg, CR_GOLD, 10, 200 - V_StringHeight(helpmsg), -1);
     }
 }
 
@@ -639,10 +598,10 @@ boolean MN_Responder (event_t *ev)
   // only care about valid characters
   // dont allow too many characters on one command line
 
-  if((ch > 31) && (ch < 127)
-    && (strlen(input_buffer) <=
-	  (var->type == vt_string ? (size_t)var->max :
-	  (var->type == vt_int ? 10 : 20))))
+  if(V_IsPrint(ch) && ch <= 0x80 &&
+	   (int)strlen(input_buffer) <=
+	   (var->type == vt_string ? var->max :
+	   var->type == vt_int ? 10 : 20))
 	{
 	  input_buffer[strlen(input_buffer) + 1] = 0;
     input_buffer[strlen(input_buffer)] = ch;

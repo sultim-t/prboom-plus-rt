@@ -43,7 +43,7 @@
 #include "r_main.h"
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
 
-#define plyr (players+consoleplayer)     /* the console player */
+#define plyr (&players[consoleplayer])     /* the console player */
 
 //-----------------------------------------------------------------------------
 //

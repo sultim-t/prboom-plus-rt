@@ -69,7 +69,6 @@ extern menu_t menu_startmap;
 //int     detailLevel;    obsolete -- killough
 int screenblocks = 10;      // screen size
 
-char *mn_phonenum;           // phone number to dial
 char *mn_demoname;           // demo to play
 char *mn_wadname;            // wad to load
 
@@ -85,7 +84,6 @@ void MN_InitMenus()
 {
   int i; // haleyjd
 
-  mn_phonenum = Z_Strdup("555-1212", PU_STATIC, 0);
   mn_demoname = Z_Strdup("demo1", PU_STATIC, 0);
   mn_wadname = Z_Strdup("", PU_STATIC, 0);
 
@@ -393,8 +391,7 @@ menu_t menu_demos =
   mf_background,    // full screen
 };
 
-VARIABLE_STRING(mn_demoname,     NULL,           12);
-CONSOLE_VARIABLE(mn_demoname,    mn_demoname,     0) {}
+CONSOLE_STRING(mn_demoname, mn_demoname, NULL, 12, cf_nosave) {}
 
 CONSOLE_COMMAND(mn_demos, cf_notnet)
 {
@@ -677,9 +674,6 @@ CONSOLE_COMMAND(mn_serial, 0)
   MN_StartMenu(&menu_serial);
 }
 
-VARIABLE_STRING(mn_phonenum,     NULL,           126);
-CONSOLE_VARIABLE(mn_phonenum,    mn_phonenum,     0) {}
-
 /////////////////////////////////////////////////////////////////
 //
 // Chat Macros
@@ -822,7 +816,7 @@ void MN_CreateSaveCmds()
       sprintf(tempstr, "savegame_%i", i);
       save_command->name = strdup(tempstr);
       save_command->type = ct_variable;
-      save_command->flags = 0;
+      save_command->flags = cf_nosave;
       save_command->variable = save_variable;
       save_command->handler = MN_SaveGame;
       save_command->netcmd = 0;
@@ -1726,7 +1720,6 @@ void MN_AddMenus()
 
   C_AddCommand(mn_multi);
   C_AddCommand(mn_serial);
-  C_AddCommand(mn_phonenum);
   C_AddCommand(mn_tcpip);
   C_AddCommand(mn_chatmacros);
   C_AddCommand(mn_player);

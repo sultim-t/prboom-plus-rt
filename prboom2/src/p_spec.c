@@ -214,10 +214,8 @@ void P_InitPicAnims (void)
 //
 // Note: if side=1 is specified, it must exist or results undefined
 //
-side_t* getSide
-( int           currentSector,
-  int           line,
-  int           side )
+
+side_t *getSide(int currentSector, int line, int side)
 {
   return &sides[ (sectors[currentSector].lines[line])->sidenum[side] ];
 }
@@ -232,10 +230,8 @@ side_t* getSide
 //
 // Note: if side=1 is specified, it must exist or results undefined
 //
-sector_t* getSector
-( int           currentSector,
-  int           line,
-  int           side )
+
+sector_t *getSector(int currentSector, int line, int side)
 {
   return sides[ (sectors[currentSector].lines[line])->sidenum[side] ].sector;
 }
@@ -250,9 +246,8 @@ sector_t* getSector
 // modified to return actual two-sidedness rather than presence
 // of 2S flag unless compatibility optioned
 //
-int twoSided
-( int   sector,
-  int   line )
+
+int twoSided(int sector, int line)
 {
   //jff 1/26/98 return what is actually needed, whether the line
   //has two sidedefs, rather than whether the 2S flag is set
@@ -271,9 +266,8 @@ int twoSided
 //
 // Note: returns NULL if not two-sided line, or both sides refer to sector
 //
-sector_t* getNextSector
-( line_t*       line,
-  sector_t*     sec )
+
+sector_t *getNextSector(line_t *line, sector_t *sec)
 {
   //jff 1/26/98 check unneeded since line->backsector already
   //returns NULL if the line is not two sided, and does so from
@@ -786,9 +780,8 @@ static void P_InitTagLists(void)
 // in a surrounding sector less than that passed. If no smaller light
 // level exists, the light level passed is returned.
 //
-int P_FindMinSurroundingLight
-( sector_t*     sector,
-  int           max )
+
+int P_FindMinSurroundingLight(sector_t *sector, int max)
 {
   int         i;
   int         min;
@@ -823,9 +816,8 @@ int P_FindMinSurroundingLight
 // jff 02/05/98 routine added to test for unlockability of
 //  generalized locked doors
 //
-boolean P_CanUnlockGenDoor
-( line_t* line,
-  player_t* player)
+
+boolean P_CanUnlockGenDoor(line_t *line, player_t *player)
 {
   // does this line special distinguish between skulls and keys?
   int skulliscard = (line->special & LockedNKeys)>>LockedNKeysShift;
@@ -2012,9 +2004,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 // of the line, should the sector already be in motion when the line is
 // impacted. Change is qualified by demo_compatibility.
 //
-void P_ShootSpecialLine
-( mobj_t*       thing,
-  line_t*       line )
+void P_ShootSpecialLine(mobj_t *thing, line_t *line)
 {
   //jff 02/04/98 add check here for generalized linedef
   if (!demo_compatibility)
@@ -2193,9 +2183,7 @@ void P_ShootSpecialLine
 //
 void P_PlayerInSpecialSector (player_t* player)
 {
-  sector_t*   sector;
-
-  sector = player->mo->subsector->sector;
+  sector_t *sector = player->mo->subsector->sector;
 
   // Falling, not all the way down yet?
   // Sector specials don't apply in mid-air
@@ -3271,3 +3259,5 @@ static void P_SpawnPushers(void)
 // phares 3/20/98: End of Pusher effects
 //
 ////////////////////////////////////////////////////////////////////////////
+
+
