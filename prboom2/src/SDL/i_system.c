@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: i_system.c,v 1.3 2000/05/11 20:02:23 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.3 2000/05/11 20:02:23 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -89,9 +89,8 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-//  snprintf(buf,sz,"LxDoom v%s (http://lxdoom.linuxgames.com/)",VERSION);
-//  return buf;
-  return NULL;
+  snprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
+  return buf;
 }
 
 /* cphipps - I_SigString
