@@ -444,7 +444,7 @@ char buf[3];
 
   doom_printf(s_STSTR_CLEV); // Ty 03/27/98 - externalized
 
-  G_DeferedInitNew(gameskill, epsd, map);
+  G_DeferedInitNewNum(gameskill, epsd, map);
 }
 
 // 'mypos' for player position

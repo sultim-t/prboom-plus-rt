@@ -357,4 +357,19 @@ typedef enum {
 #define ORIG_FRICTION          0xE800      // original value
 #define ORIG_FRICTION_FACTOR   2048        // original value
 
+// sf: some useful macros
+
+#define isnumchar(c) ( (c) >= '0' && (c) <= '9')
+#define isExMy(s) ( (tolower((s)[0]) == 'e') && \
+                    (isnumchar((s)[1])) &&      \
+                    (tolower((s)[2]) == 'm') && \
+                    (isnumchar((s)[3])) &&      \
+                    ((s)[4] == '\0') )
+#define isMAPxy(s) ( (tolower((s)[0]) == 'm') && \
+                     (tolower((s)[1]) == 'a') && \
+                     (tolower((s)[2]) == 'p') && \
+                     (isnumchar((s)[3])) &&      \
+                     (isnumchar((s)[4])) &&      \
+                     ((s)[5] == '\0'))
+  
 #endif          // __DOOMDEF__

@@ -1138,7 +1138,6 @@ void SF_StartSkill()
   skill = intvalue(t_argv[0]) - 1;
 
   //G_DeferedInitNew(skill, firstlevel);
-  G_DeferedInitNew(skill, startepisode, 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -44,12 +44,15 @@
 // killough 5/2/98: number of bytes reserved for saving options
 #define GAME_OPTION_SIZE 64
 
+char *G_GetNameForMap(int episode, int map);
+int G_GetMapForName(char *name);
+
 boolean G_Responder(event_t *ev);
 boolean G_CheckDemoStatus(void);
 boolean G_CheckDemoStatus(void);
 void G_DeathMatchSpawnPlayer(int playernum);
-void G_InitNew(skill_t skill, int episode, int map);
-void G_DeferedInitNew(skill_t skill, int episode, int map);
+void G_DeferedInitNewNum(skill_t skill, int episode, int map);
+void G_DeferedInitNew(skill_t skill, char *levelname);
 void G_DeferedPlayDemo(const char *demo); // CPhipps - const
 void G_LoadGame(int slot, boolean is_command); // killough 5/15/98
 void G_ForcedLoadGame(void);           // killough 5/15/98: forced loadgames
@@ -80,7 +83,8 @@ void G_DoWorldDone(void);
 const byte *G_ReadOptions(const byte *demo_p);   /* killough 3/1/98 - cph: const byte* */
 byte *G_WriteOptions(byte *demo_p);        // killough 3/1/98
 void G_PlayerReborn(int player);
-void G_InitNew(skill_t skill, int episode, int map);
+void G_InitNewNum(skill_t skill, int episode, int map);
+void G_InitNew(skill_t skill, char*);
 void G_RestartLevel(void); // CPhipps - menu involked level restart
 void G_DoLoadGame(void);
 void G_DoVictory(void);
@@ -185,5 +189,7 @@ extern char savedescription[SAVEDESCLEN];  // Description to save in savegame
 extern const char * comp_lev_str[];
 
 extern const char *g_iwad;
+extern int cooldemo;
+extern boolean hub_changelevel;
 
 #endif

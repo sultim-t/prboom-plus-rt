@@ -670,7 +670,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
     }
 
   if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
-    G_InitNew(skill, episode, map);
+    G_InitNewNum(skill, episode, map);
   }
 
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98

@@ -96,11 +96,14 @@ skill_t         gameskill;
 boolean         respawnmonsters;
 int             gameepisode;
 int             gamemap;
+char            *gamemapname;
 boolean         paused;
 // CPhipps - moved *_loadgame vars here
 static boolean forced_loadgame = false;
 static boolean command_loadgame = false;
 
+boolean         sendpause;     // send a pause event next tic
+boolean         sendsave;      // send a save event next tic
 boolean         usergame;      // ok to save / end game
 boolean         timingdemo;    // if true, exit with report on completion
 boolean         fastdemo;      // if true, run at full speed -- killough
@@ -518,6 +521,7 @@ static void G_DoLoadLevel (void)
 
   P_SetupLevel (gameepisode, gamemap, 0, gameskill);
   displayplayer = consoleplayer;    // view the guy you are playing
+  P_ResetChasecam();    // sf: because displayplayer changed
   gameaction = ga_nothing;
   Z_CheckHeap ();
 
@@ -1482,7 +1486,7 @@ void G_DoLoadGame(void)
   save_p = (char*)G_ReadOptions(save_p);
 
   // load a base level
-  G_InitNew (gameskill, gameepisode, gamemap);
+  G_InitNewNum(gameskill, gameepisode, gamemap);
 
   /* get the times - killough 11/98: save entire word */
   memcpy(&leveltime, save_p, sizeof leveltime);
@@ -1711,7 +1715,7 @@ static skill_t d_skill;
 static int     d_episode;
 static int     d_map;
 
-void G_DeferedInitNew(skill_t skill, int episode, int map)
+void G_DeferedInitNewNum(skill_t skill, int episode, int map)
 {
   d_skill = skill;
   d_episode = episode;
@@ -1893,7 +1897,7 @@ void G_DoNewGame (void)
   G_ReloadDefaults();            // killough 3/1/98
   netgame = false;               // killough 3/29/98
   deathmatch = false;
-  G_InitNew (d_skill, d_episode, d_map);
+  G_InitNewNum(d_skill, d_episode, d_map);
   gameaction = ga_nothing;
 
   //jff 4/26/98 wake up the status bar in case were coming out of a DM demo
@@ -1932,12 +1936,12 @@ void G_SetFastParms(int fast_pending)
 extern int skytexture;
 
 //
-// G_InitNew
+// G_InitNewNum
 // Can be called by the startup code or the menu task,
 // consoleplayer, displayplayer, playeringame[] should be set.
 //
 
-void G_InitNew(skill_t skill, int episode, int map)
+void G_InitNewNum(skill_t skill, int episode, int map)
 {
   int i;
 
@@ -2038,3 +2042,13 @@ void player_printf(player_t *player, const char *s, ...)
   if(player == &players[consoleplayer])
     doom_printf(msg);
 }
+
+
+// cool demo: change to new viewpoint
+void G_CoolViewPoint(void)
+{
+}
+
+
+
+

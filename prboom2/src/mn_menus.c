@@ -146,44 +146,36 @@ CONSOLE_COMMAND(mn_newgame, 0)
     }
 
   if(gamemode == commercial)
-    {
+  {
       // dont use new game menu if not needed
 /*
-      if(!modifiedgame && gamemode == commercial
-	 && W_CheckNumForName("START") >= 0
-	 && use_startmap)
-        {
-	  if(use_startmap == -1)              // not asked yet
-	    MN_StartMenu(&menu_startmap);
-	  else
-            {        // use start map
+    if(!modifiedgame && gamemode == commercial
+	     && W_CheckNumForName("START") >= 0
+	     && use_startmap)
+    {
+	    if(use_startmap == -1)              // not asked yet
+	      MN_StartMenu(&menu_startmap);
+	    else
+      {        // use start map
 	      G_DeferedInitNew(defaultskill, "START");
 	      MN_ClearMenus ();
-            }
-        }
-      else
-*/
-	{
-	MN_StartMenu(&menu_newgame);
-	  menu_newgame.selected = 4 + defaultskill-1;
-	}
+      }
     }
+    else
+*/
+	  {
+  	  MN_StartMenu(&menu_newgame);
+	    menu_newgame.selected = 4 + defaultskill-1;
+	  }
+  }
   else
-    {
-      if(modifiedgame)
-	{
-	MN_StartMenu(&menu_newgame);
-	  menu_newgame.selected = 4 + defaultskill-1;
-	}
-      else
-	{
+  {
 	  // hack -- cut off thy flesh consumed if not retail
 	  if(gamemode != retail)
 	    menu_episode.menuitems[5].type = it_end;
 
 	  MN_StartMenu(&menu_episode);
-	}
-    }
+  }
 }
 
 // menu item to quit doom:
@@ -286,7 +278,7 @@ CONSOLE_COMMAND(newgame, cf_notnet)
 
   if(c_argc) skill = atoi(c_argv[0]);
 
-  if(gamemode == commercial || modifiedgame)
+  //if(gamemode == commercial || modifiedgame)
     {
 /*
       // start on newest level from wad
@@ -296,7 +288,7 @@ CONSOLE_COMMAND(newgame, cf_notnet)
     {
 */
       // start on first level of selected episode
-      G_DeferedInitNew(skill, start_episode, 1);
+      G_DeferedInitNewNum(skill, start_episode, 1);
     }
 
   MN_ClearMenus();

@@ -109,7 +109,7 @@ void VIDD_PLAY_endFrame() {
     int episode, map, skill;
     sscanf(levelname, "%i %i %i", &episode, &map, &skill);
     //if (episode != gameepisode || map != gamemap) {
-      G_InitNew(skill, episode, map);
+      G_InitNewNum(skill, episode, map);
       gamestate = GS_LEVEL;
       advancedemo = false;
       levelLoaded = 1;
