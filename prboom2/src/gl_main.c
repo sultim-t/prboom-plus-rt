@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.34 2000/11/12 14:59:29 cph Exp $
+ * $Id: gl_main.c,v 1.35 2000/11/14 21:22:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1542,8 +1542,8 @@ static void gld_PrepareSectorSpecialEffects(int num)
 void gld_PreprocessSectors(void)
 {
   boolean *sectorclosed;
-#ifdef USE_GLU_TESS // figgi
   int i;
+#ifdef USE_GLU_TESS // figgi
   char *vertexcheck;
   int v1num;
   int v2num;
@@ -1668,7 +1668,6 @@ static float pitch    = 0.0f;
 
 void gld_StartDrawScene(void)
 {
-  float trZ = -5.0f;
   float trY ;
   float xCamera,yCamera;
 
