@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.42 2002/11/23 22:21:57 proff_fs Exp $
+ * $Id: i_video.c,v 1.43 2002/11/24 00:45:39 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.42 2002/11/23 22:21:57 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.43 2002/11/24 00:45:39 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -589,7 +589,7 @@ void I_FinishUpdate (void)
     I_UploadNewPalette(newpal);
     newpal = NO_PALETTE_CHANGE;
   }
-    SDL_Flip(screen);
+  SDL_Flip(screen);
 #else
   // proff 04/05/2000: swap OpenGL buffers
   gld_Finish();
@@ -717,7 +717,7 @@ void I_UpdateVideoMode(void)
 #ifdef GL_DOOM
   init_flags = SDL_OPENGL;
 #else
-  if (use_doublebuffer)
+  if (use_doublebuffer && use_fullscreen)
     init_flags = SDL_DOUBLEBUF;
   else
     init_flags = SDL_SWSURFACE;
@@ -725,7 +725,7 @@ void I_UpdateVideoMode(void)
   init_flags |= SDL_HWPALETTE;
 #endif
 #endif
-  if ( use_fullscreen )
+  if (use_fullscreen)
     init_flags |= SDL_FULLSCREEN;
 
 #ifdef GL_DOOM
@@ -796,6 +796,7 @@ void I_UpdateVideoMode(void)
   SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
   lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
   gld_Init(SCREENWIDTH, SCREENHEIGHT);
+  gld_PreprocessLevel();
   }
 #endif
 
@@ -815,7 +816,6 @@ CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered)
 {
   if (graphics_inited) {
     I_UpdateVideoMode();
-    V_SetPalette(0);
   }
 }
 
