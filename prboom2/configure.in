@@ -27,14 +27,6 @@ dnl --- Fire up automake
 AM_INIT_AUTOMAKE(prboom,$PR_VERSION)
 AM_CONFIG_HEADER(config.h)
 
-dnl --- Compiler characteristics
-AC_C_CONST
-AC_C_INLINE
-if test "$cross_compiling" != "yes"; then
-        AC_C_BIGENDIAN
-fi
-
-
 CFLAGS_OPT="-O2 -fomit-frame-pointer -ffast-math"
 dnl --- Option to enable debugging
 AC_ARG_ENABLE(debug,[  --enable-debug     turns on various debugging features, like range checking and internal heap diagnostics],
@@ -78,6 +70,13 @@ dnl --- Check for programs
 AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_RANLIB
+
+dnl --- Compiler characteristics
+AC_C_CONST
+AC_C_INLINE
+if test "$cross_compiling" != "yes"; then
+        AC_C_BIGENDIAN
+fi
 
 dnl --- Check for libraries
 dnl - system specific stuff
@@ -146,7 +145,7 @@ dnl - Net
 AC_CHECK_FUNC(socket,[
      has_net=yes
      BUILD_SERVER=prboom-game-server
-],)
+],BUILD_SERVER=)
 AM_CONDITIONAL(HAVE_NET, test "$has_net" = yes)
 if test "$has_net" = yes
 then
@@ -214,7 +213,7 @@ then
  $LN_S ../sounds.c src/OSS/sounds.c
 fi
 
-if test "$BUILD_SNDSERV" = "sndserv" || test "$BUILD_XPRBOOM" = "xprboom"
+if test "$BUILD_SNDSERV" = "sndserv" || test "$BUILD_XPRBOOM" = "xprboom" || test "$BUILD_SERVER" = "prboom-game-server"
 then
 BUILD_DIRS="POSIX $BUILD_DIRS"
 fi
