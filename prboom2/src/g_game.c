@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.39 2001/07/07 18:10:09 cph Exp $
+ * $Id: g_game.c,v 1.40 2001/07/08 13:08:19 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.39 2001/07/07 18:10:09 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.40 2001/07/08 13:08:19 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1487,8 +1487,10 @@ static const struct {
 } version_headers[] = {
   { prboom_1_compatibility, "PrBoom %d", 260},
   /* cph - we don't need a new version_header for prboom_3_comp/v2.1.1, since
-   *  the file format is unchanged. */
-  { prboom_3_compatibility, "PrBoom %d", 210}
+   *  the file format is unchanged.
+   * Ditto v2.3.x, so far anyway - if we change the format then this must be
+   * changed though. */
+  { prboom_4_compatibility, "PrBoom %d", 210}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
