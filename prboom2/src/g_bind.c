@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.11 2002/11/21 20:52:09 dukope Exp $
+ * $Id: g_bind.c,v 1.12 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.11 2002/11/21 20:52:09 dukope Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.12 2002/11/24 00:48:46 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -382,7 +382,7 @@ static void G_BindKeyToAction(const char *key_name, const char *action_name)
 //
 // Get an ascii description of the keys bound to a particular action
 //
-const char *G_BoundKeys(char *action)
+const char *G_BoundKeys(const char *action)
 {
   int i;
   static char ret[NUM_KEYS];   // store list of keys bound to this
@@ -499,7 +499,7 @@ boolean G_KeyResponder(event_t *ev)
 //
 //===========================================================================
 
-static char *binding_action;       // name of action we are editing
+static const char *binding_action;       // name of action we are editing
 
 //
 // G_BindDrawer
@@ -595,7 +595,7 @@ menuwidget_t binding_widget = {G_BindDrawer, G_BindResponder};
 //
 // Main Function
 //
-void G_EditBinding(char *action)
+void G_EditBinding(const char *action)
 {
   current_menuwidget = &binding_widget;
   binding_action = action;

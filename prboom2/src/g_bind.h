@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.h,v 1.3 2002/02/08 23:53:41 cph Exp $
+ * $Id: g_bind.h,v 1.4 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,8 +38,8 @@
 void G_InitKeyBindings(void);
 boolean G_KeyResponder(event_t *ev);
 
-void G_EditBinding(char *action);
-char *G_BoundKeys(char *action);
+void G_EditBinding(const char *action);
+char *G_BoundKeys(const char *action);
 void G_WriteBindings(FILE* file);
 
 // action variables

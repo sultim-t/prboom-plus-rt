@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_misc.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $
+ * $Id: mn_misc.c,v 1.3 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_misc.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $";
+  "$Id: mn_misc.c,v 1.3 2002/11/24 00:48:46 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -469,7 +469,7 @@ boolean MN_MapColourResponder(event_t *ev)
 
 menuwidget_t colour_widget = {MN_MapColourDrawer, MN_MapColourResponder};
 
-void MN_SelectColour(char *variable_name)
+void MN_SelectColour(const char *variable_name)
 {
   current_menuwidget = &colour_widget;
   colour_command = C_GetCmdForName(variable_name);

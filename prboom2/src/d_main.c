@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.62 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: d_main.c,v 1.63 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.62 2002/11/18 22:54:32 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.63 2002/11/24 00:48:46 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -996,7 +996,7 @@ void FindResponseFile (void)
         }
 
         // KEEP ALL CMDLINE ARGS FOLLOWING @RESPONSEFILE ARG
-	memcpy(moreargs,&myargv[i+1],(index = myargc - i - 1) * sizeof(myargv[0]));
+	memcpy((void *)moreargs,&myargv[i+1],(index = myargc - i - 1) * sizeof(myargv[0]));
 
 	{
 	  const char *firstargv = myargv[0];
@@ -1035,8 +1035,8 @@ void FindResponseFile (void)
 	}
 	free(file);
 
-	memcpy(&newargv[indexinfile],moreargs,index*sizeof(moreargs[0]));
-	free(moreargs);
+	memcpy((void *)&newargv[indexinfile],moreargs,index*sizeof(moreargs[0]));
+	free((void *)moreargs);
 
         myargc = indexinfile+index; myargv = newargv;
 

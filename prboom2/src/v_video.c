@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.35 2002/11/23 22:55:51 proff_fs Exp $
+ * $Id: v_video.c,v 1.36 2002/11/24 00:48:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.35 2002/11/23 22:55:51 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.36 2002/11/24 00:48:47 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -105,7 +105,7 @@ void V_InitColorTranslation(void) {
 #ifdef GL_DOOM
 static TVidMode vidMode = VID_MODEGL;
 #else
-static TVidMode vidMode = VID_MODE32;
+static TVidMode vidMode = VID_MODE8;
 #endif
 
 //---------------------------------------------------------------------------
@@ -256,6 +256,15 @@ void V_PlotPixelGL(int scrn, int x, int y, byte color) {
 void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
 {
 }
+void WRAP_gld_PlotPatch(const patch_t *patch, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
+{
+}
+void WRAP_gld_PlotPatchNum(int patchNum, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
+{
+}
+void WRAP_gld_PlotTextureNum(int textureNum, int x, int y, int width, int height, TRDrawFilterType filter, byte *destBuffer, int bufferWidth, int bufferHeight)
+{
+}
 void WRAP_gld_DrawLine(fline_t* fl, int color)
 {
   gld_DrawLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, color);
@@ -342,6 +351,9 @@ void vid_initMode(TVidMode vd) {
     V_DrawBlock = WRAP_gld_DrawBlock;
     V_PlotPixel = V_PlotPixelGL;
     V_DrawBackground = WRAP_gld_DrawBackground;
+    V_PlotPatch = WRAP_gld_PlotPatch;
+    V_PlotPatchNum = WRAP_gld_PlotPatchNum;
+    V_PlotTextureNum = WRAP_gld_PlotTextureNum;
     V_DrawLine = WRAP_gld_DrawLine;
   }
 #endif
@@ -394,7 +406,7 @@ void V_UpdateTrueColorPalette(TVidMode mode) {
   byte r,g,b;
   int nr,ng,nb;
   float t;
-  int paletteNum = currentPaletteIndex;
+  int paletteNum = (vid_getMode() == VID_MODEGL ? 0 : currentPaletteIndex);
   
   int pplump = W_GetNumForName("PLAYPAL");
   int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
@@ -795,10 +807,10 @@ byte *V_GetPlottedTexture32(int textureNum, int width, int height, TRDrawFilterT
 //---------------------------------------------------------------------------
 extern patchnum_t hu_font[HU_FONTSIZE];
 
-void V_WriteText(unsigned char *s, int x, int y, int gap)
+void V_WriteText(const char *s, int x, int y, int gap)
 {
   int   w, h;
-  unsigned char* ch;
+  const unsigned char* ch;
   int colour = CR_DEFAULT;
   unsigned int c;
   int   cx;
@@ -858,7 +870,7 @@ void V_WriteText(unsigned char *s, int x, int y, int gap)
 
 // write text in a particular colour
 
-void V_WriteTextColoured(unsigned char *s, int colour, int x, int y, int gap) {
+void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap) {
   char *tempstr = malloc(strlen(s)+3);
   sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
   V_WriteText(tempstr, x, y, gap);
@@ -866,7 +878,7 @@ void V_WriteTextColoured(unsigned char *s, int colour, int x, int y, int gap) {
 }
 
 // find height(in pixels) of a string
-int V_StringHeight(unsigned char *s) {
+int V_StringHeight(const char *s) {
   int height = 8;  // always at least 8
   // add an extra 8 for each newline found
   while(*s) {
@@ -876,7 +888,7 @@ int V_StringHeight(unsigned char *s) {
   return height;
 }
 
-int V_StringWidth(unsigned char *s, int gap) {
+int V_StringWidth(const char *s, int gap) {
   int length = 0; // current line width
   int longest_width = 0; // line with longest width so far
   unsigned char c;

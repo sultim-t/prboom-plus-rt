@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.h,v 1.5 2002/02/08 23:53:41 cph Exp $
+ * $Id: c_runcmd.h,v 1.6 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -260,7 +260,7 @@ const char *C_VariableStringValue(variable_t *command);
 // haleyjd: the SMMU v3.30 script-running functions
 // (with my fixes :P)
 
-void C_RunScript(char *script);
+void C_RunScript(const char *script);
 void C_RunScriptFromFile(char *filename);
 
 /**** tab completion ****/
@@ -296,7 +296,7 @@ void (C_AddCommand)(command_t *command);
 void C_AddCommandList(command_t *list);
 void C_AddCommands();
 void C_WriteVariables(FILE* file);
-command_t *C_GetCmdForName(char *cmdname);
+command_t *C_GetCmdForName(const char *cmdname);
 
 /***** define strings for variables *****/
 

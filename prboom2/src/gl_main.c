@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.50 2002/11/23 01:11:04 proff_fs Exp $
+ * $Id: gl_main.c,v 1.51 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -2519,6 +2519,10 @@ void gld_DrawScene(player_t *player)
 void gld_PreprocessLevel(void)
 {
   void gld_Precache(void);
+
+  if (gamestate != GS_LEVEL)
+    return;
+
   if (precache)
     gld_Precache();
   gld_PreprocessSectors();

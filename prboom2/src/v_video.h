@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.22 2002/11/23 22:55:51 proff_fs Exp $
+ * $Id: v_video.h,v 1.23 2002/11/24 00:48:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -282,10 +282,10 @@ byte *V_GetPlottedTexture8(
 #define FC_YELLOW       "\x89"
 #define FC_BLUE2        "\x8a"
 
-void V_WriteText(unsigned char *s, int x, int y, int gap);
-void V_WriteTextColoured(unsigned char *s, int colour, int x, int y, int gap);
-int V_StringWidth(unsigned char *s, int gap);
-int V_StringHeight(unsigned char *s);
+void V_WriteText(const char *s, int x, int y, int gap);
+void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap);
+int V_StringWidth(const char *s, int gap);
+int V_StringHeight(const char *s);
 //---------------------------------------------------------------------------
 
 

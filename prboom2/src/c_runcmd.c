@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.7 2002/11/17 18:14:24 proff_fs Exp $
+ * $Id: c_runcmd.c,v 1.8 2002/11/24 00:48:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.7 2002/11/17 18:14:24 proff_fs Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.8 2002/11/24 00:48:46 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -388,7 +388,6 @@ static int C_Sync(command_t *command)
 void C_RunTextCmd(const char *command)
 {
   boolean quotemark=0;  // for " quote marks
-  char *sub_command = NULL;
   const char *rover;
 
   for(rover=command; *rover; rover++)
@@ -405,7 +404,7 @@ void C_RunTextCmd(const char *command)
 
 	  // left
 	  // copy sub command, alloc slightly more than needed
-	  sub_command = malloc(rover-command+3); 
+	  char *sub_command = malloc(rover-command+3); 
 	  strncpy(sub_command, command, rover-command);
 	  sub_command[rover-command] = '\0';   // end string
 
@@ -1053,7 +1052,7 @@ void C_AddCommandList(command_t *list)
 
 // get a command from a string if possible
         
-command_t *C_GetCmdForName(char *cmdname)
+command_t *C_GetCmdForName(const char *cmdname)
 {
   command_t *current;
   int hash;
@@ -1081,10 +1080,10 @@ command_t *C_GetCmdForName(char *cmdname)
   files or buffered lumps -- very cool IMHO.
 */
   
-void C_RunScript(char *script)
+void C_RunScript(const char *script)
 {
   char buffer[128] = "";
-  char *rover;
+  const char *rover;
   
   if(!script)
     return;
