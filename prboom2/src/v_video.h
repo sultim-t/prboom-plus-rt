@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.5 2000/05/10 17:43:57 proff_fs Exp $
+ * $Id: v_video.h,v 1.6 2000/05/11 07:44:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -42,9 +42,6 @@
 #include "doomdef.h"
 // Needed because we are refering to patches.
 #include "r_data.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 //
 // VIDEO
@@ -188,4 +185,7 @@ static const void V_PlotPixel(int scrn, int x, int y, byte colour) {
 #define V_AllocScreen(scrn) screens[scrn] = malloc(SCREENWIDTH*SCREENHEIGHT)
 #define V_FreeScreen(scrn) free(screens[scrn]); screens[scrn] = NULL
 
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 #endif
