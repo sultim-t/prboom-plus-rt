@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.51 2002/02/10 21:03:45 proff_fs Exp $
+ * $Id: d_main.c,v 1.52 2002/02/10 21:47:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.51 2002/02/10 21:03:45 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.52 2002/02/10 21:47:05 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -281,7 +281,7 @@ void D_Display (void)
 
     if (camera == &chasecam) P_ChaseTicker();
     // Work out if the player view is visible, and if there is a border
-    viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) && !inhelpscreens;
+    viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) /*&& !inhelpscreens*/;
     isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens && (automapmode & am_active)); 
 
     if (oldgamestate != GS_LEVEL) {
@@ -922,7 +922,7 @@ static char* FindWADFile(const char* wfname, const char* ext)
       break;
 #else // DREAMCAST
     case 7:
-      d = "/cd/doom/iwad";
+      d = "/pc/doom";
       break;
 #endif // DREAMCAST
 #ifdef SIMPLECHECKS

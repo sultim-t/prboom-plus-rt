@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.5 2002/02/10 20:59:44 proff_fs Exp $
+ * $Id: i_system.c,v 1.6 2002/02/10 21:47:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.5 2002/02/10 20:59:44 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.6 2002/02/10 21:47:05 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -40,6 +40,7 @@ rcsid[] = "$Id: i_system.c,v 1.5 2002/02/10 20:59:44 proff_fs Exp $";
 #include <kos.h>
 #include <GL/gl.h>
 #include "doomdef.h"
+#include "doomstat.h"
 #include "m_argv.h"
 #include "d_main.h"
 #include "v_video.h"
@@ -253,69 +254,6 @@ void I_FinishUpdate (void)
 	glEnd();
 
 	glKosFinishFrame();
-#if 0
-    poly_hdr_t poly;
-	int x,y;
-	uint8 *s;
-	uint16 *d;
-    vertex_ot_t vert;
-	
-	s=screens[0];
-	for (y=0; y<SCREENHEIGHT; y++)
-	{
-		d=&tex_mem[y*TEX_SIZE*2];
-		for (x=0; x<SCREENWIDTH; x++)
-		{
-			*d++=tex_pal[*s++];
-//			*d++=*s++;
-		}
-	}
-    /* Begin opaque polygons */
-    ta_begin_render();
-    
-    /* Send polygon header to the TA using store queues */
-    ta_poly_hdr_txr(&poly, TA_TRANSLUCENT, TA_RGB565, TEX_SIZE, TEX_SIZE, video_tex, TA_BILINEAR_FILTER);
-    ta_commit_poly_hdr(&poly);
-
-    /* Draw frame */
-    
-    vert.r = vert.g = vert.b = vert.a = 1.0f;
-    vert.oa = vert.or = vert.ob = 0.0f;
-    vert.flags = TA_VERTEX_NORMAL;
-    vert.z = 2.0f;
-
-    vert.x = 0.0f;
-    vert.y = 479.0f;
-    vert.u = 0.0;
-    vert.v = (float)SCREENHEIGHT/(float)TEX_SIZE;
-    ta_commit_vertex(&vert, sizeof(vert));
-    
-    vert.x = 0.0f;
-    vert.y = 0.0f;
-    vert.u = 0.0;
-    vert.v = 0.0;
-    ta_commit_vertex(&vert, sizeof(vert));
-    
-    vert.x = 639.0f;
-    vert.y = 479.0f;
-    vert.u = (float)SCREENWIDTH/(float)TEX_SIZE;
-    vert.v = (float)SCREENHEIGHT/(float)TEX_SIZE;
-    ta_commit_vertex(&vert, sizeof(vert));
-    
-    vert.x = 639.0f;
-    vert.y = 0.0f;
-    vert.u = (float)SCREENWIDTH/(float)TEX_SIZE;
-    vert.v = 0.0;
-    vert.flags = TA_VERTEX_EOL;
-    ta_commit_vertex(&vert, sizeof(vert));
-    
-    /* Begin translucent polygons */
-    ta_commit_eol();
-    
-    /* Finish up */
-    ta_commit_eol();
-    ta_finish_frame();
-#endif
 }
 
 void I_UpdateNoBlit (void)
@@ -335,10 +273,10 @@ void I_StartTic (void)
 	/* Check key status */
 	if (cont_get_cond(c, &cond) < 0) {
 		printf("Error reading controller\n");
-		exit(0);
+	    C_RunTextCmd("quit");
 	}
 	if (!(cond.buttons & CONT_START))
-		exit(0);
+	    C_RunTextCmd("quit");
 }
 
 void I_PreInitGraphics(void)
@@ -423,7 +361,8 @@ void I_SetPalette(int pal)
 void I_Read(int fd, void* buf, size_t sz)
 {
   while (sz) {
-    int rc = fs_read(fd,buf,sz);
+    ssize_t rc;
+    rc = fs_read(fd,buf,sz);
     if (rc <= 0) {
       I_Error("I_Read: read failed: %s", /*rc ? strerror(errno) :*/ "EOF");
     }
