@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.9 2000/05/13 08:50:43 cph Exp $
+ * $Id: g_game.c,v 1.10 2000/05/13 10:46:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.9 2000/05/13 08:50:43 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.10 2000/05/13 10:46:47 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -1523,7 +1523,7 @@ void G_DoLoadGame(void)
   // CPhipps - always check savegames even when forced, 
   //  only print a warning if forced
   {  // killough 3/16/98: check lump name checksum (independent of order)
-    uint_64_t long checksum = 0;
+    uint_64_t checksum = 0;
 
     checksum = G_Signature();
 
