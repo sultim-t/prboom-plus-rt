@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: glu_funcs.h,v 1.3 2002/11/16 23:02:19 proff_fs Exp $
+ * $Id: glu_funcs.h,v 1.4 2002/11/23 01:11:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,11 +32,9 @@
 
 #define PROTOTYPE(ret, func, param) extern ret p_##func param;
 
-PROTOTYPE(GLint, gluBuild2DMipmaps, (GLenum, GLint, GLint, GLint, GLenum, GLenum, const void *))
 PROTOTYPE(void, gluDeleteTess, (GLUtriangulatorObj *))
 PROTOTYPE(const GLubyte *, gluErrorString, (GLenum))
 PROTOTYPE(GLUtriangulatorObj *, gluNewTess, (void))
-PROTOTYPE(GLint, gluScaleImage, (GLenum, GLint, GLint, GLenum, const void *, GLint, GLint, GLenum, void *))
 PROTOTYPE(void, gluNextContour, (GLUtriangulatorObj *, GLenum))
 PROTOTYPE(void, gluBeginPolygon, (GLUtriangulatorObj *))
 PROTOTYPE(void, gluTessCallback, (GLUtriangulatorObj *, GLenum, void *))

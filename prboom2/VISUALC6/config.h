@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.9 2002/11/16 11:01:45 proff_fs Exp $
+ * $Id: config.h,v 1.10 2002/11/23 01:11:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -130,15 +130,6 @@
 #define USE_SDL 1
 
 #define MONITOR_VISIBILITY 1
-
-/* Define if you want to use the gluTesselator  */
-#define USE_GLU_TESS 1
-
-/* Define if you want to use gluImageScale  */
-//#define USE_GLU_IMAGESCALE 1
-
-/* Define if you want to use gluBuild2DMipmaps  */
-#define USE_GLU_MIPMAP 1
 
 /* Name of package */
 #define PACKAGE "prboom"

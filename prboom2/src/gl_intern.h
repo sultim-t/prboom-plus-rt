@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.18 2002/11/16 11:01:59 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.19 2002/11/23 01:11:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -76,12 +76,10 @@ typedef enum
 typedef struct
 {
   int index;
-	int width,height;
   int leftoffset,topoffset;
-  int tex_width,tex_height;
   int realtexwidth, realtexheight;
-  int buffer_width,buffer_height;
-  int buffer_size;
+  int tex_width,tex_height;
+	int width,height;
   int glTexID[CR_LIMIT+MAXPLAYERS];
   GLTexType textype;
   boolean mipmap;

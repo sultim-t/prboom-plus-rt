@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.31 2002/11/23 00:56:15 dukope Exp $
+ * $Id: v_video.c,v 1.32 2002/11/23 01:11:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.31 2002/11/23 00:56:15 dukope Exp $";
+rcsid[] = "$Id: v_video.c,v 1.32 2002/11/23 01:11:04 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -268,6 +268,9 @@ TFunc_V_PlotTextureNum  V_PlotTextureNum;
 void vid_initMode(TVidMode vd) {
 #ifndef GL_DOOM  
   vidMode = vd;
+#else // GL_DOOM  
+  vidMode = VID_MODEGL;
+#endif    
   if (vidMode == VID_MODE8) {
     V_FillRect = V_FillRect8;
     V_CopyRect = V_CopyRect8;
@@ -304,8 +307,7 @@ void vid_initMode(TVidMode vd) {
     V_PlotPatchNum = V_PlotPatchNum32;
     V_PlotTextureNum = V_PlotTextureNum32;
   }
-#else // GL_DOOM  
-  //else if (vidMode == VID_MODEGL) {
+  else if (vidMode == VID_MODEGL) {
     V_FillRect = nullFunc_void;
     V_CopyRect = nullFunc_void;
     V_DrawMemPatch = WRAP_gld_DrawPatchFromMem;
@@ -313,8 +315,7 @@ void vid_initMode(TVidMode vd) {
     V_DrawBlock = nullFunc_void;
     V_PlotPixel = V_PlotPixelGL;
     V_DrawBackground = WRAP_gld_DrawBackground;
-  //}
-#endif    
+  }
 }
 
 //---------------------------------------------------------------------------

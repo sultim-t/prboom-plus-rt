@@ -1214,37 +1214,6 @@ SOURCE=..\src\gl_main.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\gl_mipmap.c
-
-!IF  "$(CFG)" == "Doom - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\gl_polytest.c
 
 !IF  "$(CFG)" == "Doom - Win32 Release"

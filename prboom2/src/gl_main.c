@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.49 2002/11/17 18:19:17 proff_fs Exp $
+ * $Id: gl_main.c,v 1.50 2002/11/23 01:11:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,8 +49,8 @@ int gl_mipmap_filter = GL_LINEAR;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
-int gl_use_paletted_texture = 1;
-int gl_use_shared_texture_palette = 1;
+int gl_use_paletted_texture = 0;
+int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
 
@@ -270,7 +270,7 @@ void gld_Init(int width, int height)
   p_glClearDepth(1.0f);
 
   p_glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
-  //gld_max_texturesize=16;
+  //gld_max_texturesize=64;
   lprintf(LO_INFO,"GL_MAX_TEXTURE_SIZE=%i\n",gld_max_texturesize);
 
   p_glEnable(GL_BLEND);
@@ -351,9 +351,7 @@ void gld_Init(int width, int height)
     gl_mipmap_filter=GL_LINEAR;
   }
 
-#ifndef USE_GLU_MIPMAP
 	use_mipmapping = false;
-#endif
 
   if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
   {
@@ -438,119 +436,7 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 }
 
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
-{ 
-  extern int gld_GetTexDimension(int value);
-  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted);
-  extern void gld_SetTexturePalette(GLenum target);
-
-  GLTexture *gltexture;
-  unsigned char *buffer;
-  float fU1,fU2,fV1,fV2;
-  float width,height;
-  float xpos, ypos;
-
-  gltexture=(GLTexture *)Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
-  if (!gltexture)
-    return;
-  gltexture->realtexwidth=SHORT(patch->width);
-  gltexture->realtexheight=SHORT(patch->height);
-  gltexture->leftoffset=SHORT(patch->leftoffset);
-  gltexture->topoffset=SHORT(patch->topoffset);
-  gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
-  gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
-  gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-  gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
-  gltexture->buffer_width=gltexture->tex_width;
-  gltexture->buffer_height=gltexture->tex_height;
-#ifdef USE_GLU_IMAGESCALE
-  gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-  gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
-  gltexture->buffer_width=max(gltexture->realtexwidth, gltexture->tex_width);
-  gltexture->buffer_height=max(gltexture->realtexheight, gltexture->tex_height);
-#endif
-  gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
-  if (gltexture->realtexwidth>gltexture->buffer_width)
-    return;
-  if (gltexture->realtexheight>gltexture->buffer_height)
-    return;
-  buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  if (gl_paletted_texture)
-    memset(buffer,transparent_pal_index,gltexture->buffer_size);
-  else
-    memset(buffer,0,gltexture->buffer_size);
-  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
-	p_glGenTextures(1,&gltexture->glTexID[cm]);
-	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
-  last_gltexture = NULL;
-  last_cm = -1;
-#ifdef USE_GLU_IMAGESCALE
-  if ((gltexture->buffer_width>gltexture->tex_width) ||
-      (gltexture->buffer_height>gltexture->tex_height)
-     )
-  {
-    unsigned char *scaledbuffer;
-
-    scaledbuffer=(unsigned char*)Z_Malloc(gltexture->tex_width*gltexture->tex_height*4,PU_STATIC,0);
-    if (scaledbuffer)
-    {
-      p_gluScaleImage(GL_RGBA,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    GL_UNSIGNED_BYTE,buffer,
-                    gltexture->tex_width, gltexture->tex_height,
-                    GL_UNSIGNED_BYTE,scaledbuffer);
-      Z_Free(buffer);
-      buffer=scaledbuffer;
-      p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                    gltexture->tex_width, gltexture->tex_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-  }
-  else
-#endif /* USE_GLU_IMAGESCALE */
-  {
-    if (gl_paletted_texture) {
-      gld_SetTexturePalette(GL_TEXTURE_2D);
-      p_glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
-    } else {
-      p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-  }
-	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-  Z_Free(buffer);
-
-  fV1=0.0f;
-  fV2=(float)gltexture->height/(float)gltexture->tex_height;
-  if (flags & VPT_FLIP)
-  {
-    fU1=(float)gltexture->width/(float)gltexture->tex_width;
-    fU2=0.0f;
-  }
-  else
-  {
-    fU1=0.0f;
-    fU2=(float)gltexture->width/(float)gltexture->tex_width;
-  }
-  xpos=SCALE_X(x-gltexture->leftoffset);
-  ypos=SCALE_Y(y-gltexture->topoffset);
-  width=SCALE_X(gltexture->realtexwidth);
-  height=SCALE_Y(gltexture->realtexheight);
-	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
-	p_glBegin(GL_TRIANGLE_STRIP);
-		p_glTexCoord2f(fU1, fV1); p_glVertex2f((xpos),(ypos));
-		p_glTexCoord2f(fU1, fV2); p_glVertex2f((xpos),(ypos+height));
-		p_glTexCoord2f(fU2, fV1); p_glVertex2f((xpos+width),(ypos));
-		p_glTexCoord2f(fU2, fV2); p_glVertex2f((xpos+width),(ypos+height));
-	p_glEnd();
-
-	p_glDeleteTextures(1,&gltexture->glTexID[cm]);
-  Z_Free(gltexture);
+{
 }
 
 #undef SCALE_X
@@ -1931,9 +1817,9 @@ static void gld_DrawWall(GLWall *wall)
       p_glMatrixMode(GL_TEXTURE);
       p_glPushMatrix();
       if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-        p_glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
+        p_glScalef(-128.0f/(float)wall->gltexture->tex_width,200.0f/320.0f*2.0f,1.0f);
       else
-        p_glScalef(128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
+        p_glScalef(128.0f/(float)wall->gltexture->tex_width,200.0f/320.0f*2.0f,1.0f);
       p_glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
     }
     p_glBegin(GL_TRIANGLE_STRIP);
@@ -1966,47 +1852,47 @@ static void gld_DrawWall(GLWall *wall)
   (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-0.001f;\
   lineheight=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
 
-#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
-#define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height)
-#define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height))
+#define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->tex_width)
+#define OV(w,seg) (((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->tex_height)
+#define OV_PEG(w,seg,v_offset) (OV((w),(seg))-(((float)(v_offset)/(float)FRACUNIT)/(float)(w).gltexture->tex_height))
 
 #define CALC_TEX_VALUES_TOP(w, seg, peg, linelength, lineheight)\
   (w).flag=GLDWF_TOP;\
   (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->tex_width);\
   (peg)?\
   (\
     (w).vb=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->tex_height))\
   ):(\
     (w).vt=OV((w),(seg))+(0.0f),\
-    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->tex_height)\
   )
 
 #define CALC_TEX_VALUES_MIDDLE1S(w, seg, peg, linelength, lineheight)\
   (w).flag=GLDWF_M1S;\
   (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->tex_width);\
   (peg)?\
   (\
     (w).vb=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->tex_height))\
   ):(\
     (w).vt=OV((w),(seg))+(0.0f),\
-    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->tex_height)\
   )
 
 #define CALC_TEX_VALUES_MIDDLE2S(w, seg, peg, linelength, lineheight)\
   (w).flag=GLDWF_M2S;\
   (w).ul=OU((w),(seg))+(0.0f);\
-  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->tex_width);\
   (peg)?\
   (\
     (w).vb=((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->tex_height))\
   ):(\
     (w).vt=(0.0f),\
-    (w).vb=((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vb=((float)(lineheight)/(float)(w).gltexture->tex_height)\
   )
 
 #define CALC_TEX_VALUES_BOTTOM(w, seg, peg, linelength, lineheight, v_offset)\
@@ -2016,10 +1902,10 @@ static void gld_DrawWall(GLWall *wall)
   (peg)?\
   (\
     (w).vb=OV_PEG((w),(seg),(v_offset))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->tex_height))\
   ):(\
     (w).vt=OV((w),(seg))+(0.0f),\
-    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->tex_height)\
   )
 
 #define SKYTEXTURE(sky1,sky2)\
