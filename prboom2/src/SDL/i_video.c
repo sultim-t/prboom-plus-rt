@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.27 2001/07/06 09:38:39 proff_fs Exp $
+ * $Id: i_video.c,v 1.28 2001/07/07 14:52:15 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.27 2001/07/06 09:38:39 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.28 2001/07/07 14:52:15 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -76,7 +76,7 @@ int use_doublebuffer = 0; // Included not to break m_misc, but not relevant to S
 int use_fullscreen;
 static SDL_Surface *screen;
 
-typedef unsigned char* pval;
+unsigned char* out_buffer = NULL;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code 
@@ -469,6 +469,8 @@ void I_InitGraphics(void)
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 
+    out_buffer=screens[0];
+
     /* Set the video mode */
     I_UpdateVideoMode();
 
@@ -535,7 +537,17 @@ void I_UpdateVideoMode(void)
   // Get the info needed to render to the display
   if (screen->pixels != NULL)
   {
+    if (out_buffer)
+      Z_Free(out_buffer);
+    out_buffer=NULL;
     screens[0] = (unsigned char *) (screen->pixels);
+  }
+  else
+  {
+    if (!out_buffer)
+      Z_Free(out_buffer);
+    out_buffer = Z_Calloc(SCREENWIDTH*SCREENHEIGHT, 1, PU_STATIC, NULL);
+    screens[0] = out_buffer;
   }
 
   // Hide pointer while over this window
