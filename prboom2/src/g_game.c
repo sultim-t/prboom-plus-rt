@@ -1792,7 +1792,7 @@ static byte comp_options_by_version[] =
    25, /* PrBoom v2.3 still counting... */
  };
 
-static void G_Compatibility(void)
+void G_Compatibility(void)
 {
   static const complevel_t fix_levels[COMP_NUM] = {
     mbf_compatibility, /* comp_telefrag - monsters used to telefrag only 
@@ -2435,7 +2435,7 @@ void G_BeginRecording (void)
 // G_PlayDemo
 //
 
-static const char *defdemoname = NULL;
+static char *defdemoname = NULL;
 
 static set_defdemoname(const char *name)
 {
