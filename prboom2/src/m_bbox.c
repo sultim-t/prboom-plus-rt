@@ -32,9 +32,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
-
 #ifdef __GNUG__
 #pragma implementation "m_bbox.h"
 #endif

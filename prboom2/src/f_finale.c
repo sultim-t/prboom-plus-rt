@@ -30,8 +30,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #include "doomstat.h"
 #include "d_event.h"
 #include "v_video.h"

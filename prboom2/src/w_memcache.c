@@ -30,8 +30,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
 #include "../config.h"

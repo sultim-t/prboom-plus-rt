@@ -37,8 +37,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "z_zone.h"
 #include "doomstat.h"
 #include "p_spec.h"

@@ -30,8 +30,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 // We are referring to sprite numbers.
 #include "doomtype.h"
 #include "info.h"

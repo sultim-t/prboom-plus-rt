@@ -35,8 +35,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] =
-
 #include <stdarg.h>
 
 #include "doomstat.h"

@@ -29,8 +29,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 // killough 5/3/98: remove unnecessary headers
 
 #include "doomstat.h"

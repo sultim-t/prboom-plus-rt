@@ -29,8 +29,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomstat.h"
 #include "c_runcmd.h"
 #include "g_game.h"

@@ -31,8 +31,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #ifdef __GNUG__
 #pragma implementation "doomdef.h"
 #endif

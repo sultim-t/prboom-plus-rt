@@ -30,8 +30,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "z_zone.h"
 #include "doomstat.h" //jff 6/19/98 for demo_compatibility
 #include "r_main.h"

@@ -30,8 +30,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #include "doomstat.h"
 #include "m_random.h"
 #include "w_wad.h"
