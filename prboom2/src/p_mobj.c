@@ -797,6 +797,8 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   mobj->target = mobj->tracer = mobj->lastenemy = NULL;
   P_AddThinker (&mobj->thinker);
+  if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+    totallive++;
   return mobj;
   }
 
