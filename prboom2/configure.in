@@ -27,6 +27,13 @@ dnl --- Fire up automake
 AM_INIT_AUTOMAKE(prboom,$PR_VERSION)
 AM_CONFIG_HEADER(config.h)
 
+if test "x$prefix" != xNONE; then
+  DOOMWADDIR="$prefix/share/games/doom"
+else
+  DOOMWADDIR="$ac_default_prefix/share/games/doom"
+fi
+AC_DEFINE_UNQUOTED(DOOMWADDIR,"$DOOMWADDIR")
+
 dnl --- Check for programs
 AC_PROG_CC
 AC_PROG_LN_S
