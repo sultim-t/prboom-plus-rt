@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.7 2000/05/21 12:05:45 proff_fs Exp $
+ * $Id: i_video.c,v 1.8 2000/08/26 14:06:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.7 2000/05/21 12:05:45 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.8 2000/08/26 14:06:50 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -150,6 +150,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_LMETA:
   case SDLK_RALT:
   case SDLK_RMETA:	rc = KEYD_RALT;		break;
+  case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
   default:		rc = key->sym;		break;
   }
 
