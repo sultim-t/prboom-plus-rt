@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.14 2000/05/23 09:10:11 cph Exp $
+ * $Id: m_misc.c,v 1.15 2000/06/14 23:04:48 jessh Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.14 2000/05/23 09:10:11 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.15 2000/06/14 23:04:48 jessh Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -222,7 +222,7 @@ default_t defaults[] =
   /* cph - MBF-like wad/deh/bex autoload code 
    * POSIX targets need to get lumps from prboom.wad */
   {"wadfile_1",{NULL,&wad_files[0]},{0,
-#ifdef _WIN32
+#ifdef ALL_IN_ONE
 				     ""
 #else
 				     "prboom.wad"

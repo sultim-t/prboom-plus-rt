@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.4 2000/05/21 05:24:46 jessh Exp $
+ * $Id: i_system.c,v 1.5 2000/06/14 23:04:51 jessh Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.4 2000/05/21 05:24:46 jessh Exp $";
+rcsid[] = "$Id: i_system.c,v 1.5 2000/06/14 23:04:51 jessh Exp $";
 
 #include <stdio.h>
 
@@ -87,7 +87,7 @@ const char* I_GetVersionString(char* buf, size_t sz)
 #ifdef HAVE_SNPRINTF
   snprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
 #else
-  snprintf(buf,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
+  sprintf(buf,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
 #endif
   return buf;
 }
