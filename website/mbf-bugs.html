@@ -89,15 +89,15 @@
      </p><pre>
 ***
 @@ -363,13 +447,20 @@ allocated:
-   block->vm = 1;
+   block-&gt;vm = 1;
 
  #ifdef INSTRUMENTED
--  virtual_memory += block->size = size + HEADER_SIZE;
+-  virtual_memory += block-&gt;size = size + HEADER_SIZE;
 +  virtual_memory += size + HEADER_SIZE;
  #endif
 +  /* cph - the next line was lost in the #ifdef above, and also added an
-+   *  extra HEADER_SIZE to block->size, which was incorrect */
-+  block->size = size;
++   *  extra HEADER_SIZE to block-&gt;size, which was incorrect */
++  block-&gt;size = size;
 
    goto allocated;
  }
@@ -140,23 +140,23 @@
      </p><pre>
 @@ -480,9 +572,21 @@ void (Z_FreeTags)(int lowtag, int highta
    do               // Scan through list, searching for tags in range
-     if (block->tag >= lowtag && block->tag <= hightag)
+     if (block-&gt;tag &gt;= lowtag &amp;&amp; block-&gt;tag &lt;= hightag)
        {
--        memblock_t *prev = block->prev;
-+        memblock_t *prev = block->prev, *cur = block;
+-        memblock_t *prev = block-&gt;prev;
++        memblock_t *prev = block-&gt;prev, *cur = block;
          (Z_Free)((char *) block + HEADER_SIZE, file, line);
--        block = prev->next;
+-        block = prev-&gt;next;
 +       /* cph - be more careful here, we were skipping blocks!
 +        * If the current block was not merged with the previous,
-+        *  cur is still a valid pointer, prev->next == cur, and cur is
++        *  cur is still a valid pointer, prev-&gt;next == cur, and cur is
 +        *  already free so skip to the next.
 +        * If the current block was merged with the previous,
-+        *  the next block to analyse is prev->next.
++        *  the next block to analyse is prev-&gt;next.
 +        * Note that the while() below does the actual step forward
 +        */
-+        block = (prev->next == cur) ? cur : prev;
++        block = (prev-&gt;next == cur) ? cur : prev;
        }
-   while ((block=block->next) != zone);
+   while ((block=block-&gt;next) != zone);
 
      </pre>
     <h4>Poor memory scanning</h4>
@@ -174,25 +174,25 @@
 ***************
 *** 359,365 ****
           {                                   // replacement is roughly FIFO
-            start = block->prev;
+            start = block-&gt;prev;
             Z_Free((char *) block + HEADER_SIZE);
-!           block = start = start->next;      // Important: resets start
+!           block = start = start-&gt;next;      // Important: resets start
           }
 
-        if (block->tag == PU_FREE && block->size >= size)   // First-fit
+        if (block-&gt;tag == PU_FREE &amp;&amp; block-&gt;size &gt;= size)   // First-fit
 --- 358,369 ----
           {                                   // replacement is roughly FIFO
-            start = block->prev;
+            start = block-&gt;prev;
             Z_Free((char *) block + HEADER_SIZE);
-!           /* cph - If start->next == block, we did not merge with the previous
+!           /* cph - If start-&gt;next == block, we did not merge with the previous
 !            *       If !=, we did, so we continue from start.
 !            *  Important: we've reset start
 !            */
-!           if (start->next == block) start = start->next;
+!           if (start-&gt;next == block) start = start-&gt;next;
 !           else block = start;
           }
 
-        if (block->tag == PU_FREE && block->size >= size)   // First-fit
+        if (block-&gt;tag == PU_FREE &amp;&amp; block-&gt;size &gt;= size)   // First-fit
 ***************
 </pre>
     <h4><a name="format">Format string bugs</a></h4>
@@ -244,16 +244,16 @@
 --- d_deh.c     Sat Oct  9 15:44:42 1999
 +++ d_deh.c.fixed       Sat Sep 23 19:13:10 2000
 @@ -401,8 +401,10 @@ deh_strs deh_strlookup[] = {
-   {&s_QLOADNET,"QLOADNET"},
-   {&s_QSAVESPOT,"QSAVESPOT"},
-   {&s_SAVEDEAD,"SAVEDEAD"},
+   {&amp;s_QLOADNET,"QLOADNET"},
+   {&amp;s_QSAVESPOT,"QSAVESPOT"},
+   {&amp;s_SAVEDEAD,"SAVEDEAD"},
 +/* cph - disabled to prevent format string attacks
-   {&s_QSPROMPT,"QSPROMPT"},
-   {&s_QLPROMPT,"QLPROMPT"},
+   {&amp;s_QSPROMPT,"QSPROMPT"},
+   {&amp;s_QLPROMPT,"QLPROMPT"},
 + */
-   {&s_NEWGAME,"NEWGAME"},
-   {&s_NIGHTMARE,"NIGHTMARE"},
-   {&s_SWSTRING,"SWSTRING"},
+   {&amp;s_NEWGAME,"NEWGAME"},
+   {&amp;s_NIGHTMARE,"NIGHTMARE"},
+   {&amp;s_SWSTRING,"SWSTRING"},
 --- i_main.c        Tue Feb 15 16:08:02 2000
 +++ i_main.c.fixed        Sat Sep 23 18:52:55 2000
 @@ -60,7 +60,7 @@ static void handler(int s)
@@ -312,14 +312,14 @@
 --- p_spec.c.orig        Wed Aug 23 23:46:49 2000
 +++ p_spec.c        Wed Aug 23 23:47:12 2000
 @@ -810,7 +810,7 @@ boolean P_CanUnlockGenDoor(line_t *line,
-       if (skulliscard &&
-           (!(player->cards[it_redcard] | player->cards[it_redskull]) ||
-            !(player->cards[it_bluecard] | player->cards[it_blueskull]) ||
--           !(player->cards[it_yellowcard] | !player->cards[it_yellowskull])))
-+           !(player->cards[it_yellowcard] | player->cards[it_yellowskull])))
+       if (skulliscard &amp;&amp;
+           (!(player-&gt;cards[it_redcard] | player-&gt;cards[it_redskull]) ||
+            !(player-&gt;cards[it_bluecard] | player-&gt;cards[it_blueskull]) ||
+-           !(player-&gt;cards[it_yellowcard] | !player-&gt;cards[it_yellowskull])))
++           !(player-&gt;cards[it_yellowcard] | player-&gt;cards[it_yellowskull])))
          {
-           player->message = s_PD_ALL3; // Ty 03/27/98 - externalized
-           S_StartSound(player->mo,sfx_oof);             // killough 3/20/98
+           player-&gt;message = s_PD_ALL3; // Ty 03/27/98 - externalized
+           S_StartSound(player-&gt;mo,sfx_oof);             // killough 3/20/98
       </pre><p>
        Although you might prefer a more complicated fix which allowed for
        compatibility with MBF's buggy behaviour.
@@ -334,24 +334,44 @@
       </p><p>
        Fix is easy, reintroduce the old behaviour in compatibility mode:
 </p><pre>
-***************
-*** 101,106 ****
---- 101,114 ----
-              lastpos = sector->floorheight;
-              sector->floorheight -= speed;
-              flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
-+             /* cph - make more compatible with original Doom, by
-+              *  reintroducing this code. This means floors can't lower
-+              *  if objects are stuck in the ceiling */
-+             if ((flag == true) && compatibility) {
-+               sector->floorheight = lastpos;
-+               P_ChangeSector(sector,crush);
-+               return crushed;
-+             }
-            }
-            break;
-
-***************
+--- p_floor.c	Tue Feb 15 16:20:46 2000
++++ p_floor.c-fixed	Sat May 26 20:03:42 2001
+@@ -81,42 +81,51 @@ result_e T_MovePlane
+       switch(direction)
+       {
+         case -1:
+           // Moving a floor down
+           if (sector-&gt;floorheight - speed &lt; dest)
+           {
+             lastpos = sector-&gt;floorheight;
+             sector-&gt;floorheight = dest;
+             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
+             if (flag == true)                   
+             {
+               sector-&gt;floorheight =lastpos;
+               P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
+             }
+             return pastdest;
+           }
+           else
+           {
+             lastpos = sector-&gt;floorheight;
+             sector-&gt;floorheight -= speed;
+             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
++
++            /* cph - make more compatible with original Doom, by
++             *  reintroducing this code. This means floors can't lower
++             *  if objects are stuck in the ceiling */
++            if ((flag == true) &amp;&amp; compatibility) {
++              sector-&gt;floorheight = lastpos;
++              P_ChangeSector(sector,crush);
++              return crushed;
++            }
+           }
+           break;
+                                                 
+         case 1:
+           // Moving a floor up
 </pre>
      <h4>Compatibility bug in P_CheckSight</h4>
       <p>
@@ -364,15 +384,15 @@
 --- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
 +++ fixed.p_sight.c        Sun Aug 27 17:31:01 2000
 @@ -258,8 +258,11 @@ H_boolean P_CheckSight(mobj_t *t1, mobj_
-          t1->z + t2->height <= sectors[s2->heightsec].ceilingheight))))
+          t1-&gt;z + t2-&gt;height &lt;= sectors[s2-&gt;heightsec].ceilingheight))))
      return false;
 
 -  // killough 11/98: shortcut for melee situations
--  if (t1->subsector == t2->subsector) // same subsector? obviously visible
+-  if (t1-&gt;subsector == t2-&gt;subsector) // same subsector? obviously visible
 +  /* killough 11/98: shortcut for melee situations
 +   * same subsector? obviously visible
 +   * cph - compatibility optioned for demo sync, cf HR06-UV.LMP */
-+  if ((t1->subsector == t2->subsector) &&
++  if ((t1-&gt;subsector == t2-&gt;subsector) &amp;&amp;
 +      !demo_compatibility)
      return true;
 
@@ -391,7 +411,7 @@
 +++ fixed.p_sight.c        Sun Aug 27 17:03:48 2000
 @@ -117,8 +117,12 @@ static H_boolean P_CrossSubsector(int nu
 
-       line->validcount = validcount;
+       line-&gt;validcount = validcount;
 
 -      // OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
 +    /* OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
@@ -400,9 +420,9 @@
 +     */
 
 +      if (!demo_compatibility)
-       if (line->bbox[BOXLEFT  ] > los->bbox[BOXRIGHT ] ||
-           line->bbox[BOXRIGHT ] < los->bbox[BOXLEFT  ] ||
-           line->bbox[BOXBOTTOM] > los->bbox[BOXTOP   ] ||
+       if (line-&gt;bbox[BOXLEFT  ] &gt; los-&gt;bbox[BOXRIGHT ] ||
+           line-&gt;bbox[BOXRIGHT ] &lt; los-&gt;bbox[BOXLEFT  ] ||
+           line-&gt;bbox[BOXBOTTOM] &gt; los-&gt;bbox[BOXTOP   ] ||
 </pre>
      <h4>Compatibility bug in P_SlideMove</h4>
       <p>
@@ -417,11 +437,11 @@
 +++ p_map.c.fixed        Sat Sep 23 18:47:22 2000
 @@ -1199,7 +1199,7 @@ void P_SlideMove(mobj_t *mo)
 
-           if (!P_TryMove(mo, mo->x, mo->y + mo->momy, true))
-             if (!P_TryMove(mo, mo->x + mo->momx, mo->y, true))
--              if (demo_version < 203 && !compatibility)
+           if (!P_TryMove(mo, mo-&gt;x, mo-&gt;y + mo-&gt;momy, true))
+             if (!P_TryMove(mo, mo-&gt;x + mo-&gt;momx, mo-&gt;y, true))
+-              if (demo_version &lt; 203 &amp;&amp; !compatibility)
 +              if (demo_version == 201)
-                 mo->momx = mo->momy = 0;
+                 mo-&gt;momx = mo-&gt;momy = 0;
 
            break;
 </pre>
@@ -446,91 +466,50 @@
        Back then there 
        was no notion of a compatibility mode, but nowadays we can compatibility 
        option the fix so old demos will work.
-       Note however that the fix below breaks Final Doom and Doom95 demos,
-       so really we need separate compatibility modes for Doom 2 and 
-       Final Doom/Doom95.
+       We use the <code>gamemission</code> variable to guess whether 
+       this demo is Doom2 or Ult/Final Doom - it's crude but works for all
+       the Compet-n demos I've tried.
       </p><pre>
---- /home/cph/doom/prboom/dev/src/p_mobj.c.old	Sun Apr 15 17:00:02 2001
-+++ /home/cph/doom/prboom/dev/src/p_mobj.c	Sun Apr 15 16:05:37 2001
-@@ -488,11 +488,27 @@ floater:
+--- p_mobj.c	Tue Feb 15 16:16:34 2000
++++ p_mobj.c-fixed	Sat May 26 19:34:52 2001
+@@ -471,7 +471,21 @@ floater:
      {
-     // hit the floor
+       // hit the floor
  
--    // Note (id):
--    //  somebody left this after the setting momz to 0,
--    //  kinda useless there.
--
--    if (mo-&gt;flags &amp; MF_SKULLFLY)
-+    /* Note (id):
-+     *  somebody left this after the setting momz to 0,
-+     *  kinda useless there.
-+     * cph - revised 2001/04/15 -
-+     * This was a bug in the Doom/Doom 2 source; the following code
-+     *  is meant to make charging lost souls bounce off of floors, but it 
-+     *  was incorrectly placed after momz was set to 0.
-+     *  However, this bug was fixed in Doom95, Final/Ultimate Doom, and 
-+     *  the v1.10 source release (which is one reason why it failed to sync 
-+     *  some Doom2 v1.9 demos)
-+     * I've added a comp_soul compatibility option to make this behavior 
-+     *  selectable for PrBoom v2.3+. For older demos, we do this here only 
-+     *  if we're in a compatibility level above Doom 2 v1.9 (in which case we
-+     *  mimic the bug and do it further down instead)
-+     */
+-      if (mo-&gt;flags &amp; MF_SKULLFLY)
++      /* Note (id):
++       *  somebody left this after the setting momz to 0,
++       *  kinda useless there.
++       * cph - This was the a bug in the linuxdoom-1.10 source which
++       *  caused it not to sync Doom 2 v1.9 demos. Someone
++       *  added the above comment and moved up the following code. So 
++       *  demos would desync in close lost soul fights.
++       * Note that this only applies to original Doom 1 or Doom2 demos - not
++       *  Final Doom and Ultimate Doom.  So we test demo_compatibility *and*
++       *  gamemission. (Note we assume that Doom1 is always Ult Doom, which
++       *  seems to hold for most published demos.)
++       */
++      int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
 +
-+    if (mo-&gt;flags &amp; MF_SKULLFLY &amp;&amp;
-+	(!comp[comp_soul] ||
-+	 (compatibility_level &gt;= finaldoom_compatibility &amp;&amp;
-+	  compatibility_level &lt; prboom_4_compatibility)
-+	))
-       mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
++      if (correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
+ 	mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
  
-     if (mo-&gt;momz &lt; 0)
-@@ -516,6 +532,17 @@ floater:
- 	mo-&gt;momz = 0;
-       }
-     mo-&gt;z = mo-&gt;floorz;
+       if (mo-&gt;momz &lt; 0)
+@@ -497,6 +511,14 @@ floater:
+ 	}
+ 
+       mo-&gt;z = mo-&gt;floorz;
 +
-+    /* cph 2001/04/15 - 
-+     * This is the buggy lost-soul bouncing code referenced above.
-+     * We've already set momz = 0 normally by this point, so it's useless.
-+     * However we might still have upward momentum, in which case this will
-+     * incorrectly reverse it, so we might still need this for demo sync
-+     */
-+    if (mo-&gt;flags &amp; MF_SKULLFLY &amp;&amp;
-+	compatibility_level &lt; finaldoom_compatibility)
-+      mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
-+
-     if ( (mo-&gt;flags &amp; MF_MISSILE) &amp;&amp; !(mo-&gt;flags &amp; MF_NOCLIP) )
-       {
-       P_ExplodeMissile (mo);
-@@ -532,6 +559,13 @@ floater:
++      /* cph 2001/05/26 -
++       * See lost soul bouncing comment above. We need this here for bug
++       * compatibility with original Doom2 v1.9 - if a soul is charging and
++       * hit by a raising floor this incorrectly reverses its Y momentum.
++       */
++      if (!correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
++        mo-&gt;momz = -mo-&gt;momz;
  
-   if (mo-&gt;z + mo-&gt;height &gt; mo-&gt;ceilingz)
-     {
-+    /* cph 2001/04/15 - 
-+     * Lost souls were meant to bounce off of ceilings;
-+     *  new comp_soul compatibility option added
-+     */
-+    if (!comp[comp_soul] &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
-+      mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
-+
-     // hit the ceiling
- 
-     if (mo-&gt;momz &gt; 0)
-@@ -539,7 +573,12 @@ floater:
- 
-     mo-&gt;z = mo-&gt;ceilingz - mo-&gt;height;
- 
--    if (mo-&gt;flags &amp; MF_SKULLFLY)
-+    /* cph 2001/04/15 - 
-+     * We might have hit a ceiling but had downward momentum (e.g. ceiling is 
-+     *  lowering on us), so for old demos we must still do the buggy 
-+     *  momentum reversal here
-+     */
-+    if (comp[comp_soul] &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
-       mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
- 
-     if ( (mo-&gt;flags &amp; MF_MISSILE) &amp;&amp; !(mo-&gt;flags &amp; MF_NOCLIP) )
+       if (!((mo-&gt;flags ^ MF_MISSILE) &amp; (MF_MISSILE | MF_NOCLIP)))
+ 	{
       </pre>
      <h4>Overlapping uses of global variables in p_map.c</h4>
       <p>
@@ -710,6 +689,10 @@ diff -p -c -r1.6 p_doors.c
        Amongst other things this breaks savegames with the fast or respawn
        options set - these options were being loaded after the level
        was set up by G_InitNew.
+       This resulted in the respawn parameter being left at the setting from
+       the previous game (or as on the command line),
+       and parts of the setup for -fast mode being left as in the previous game,
+       rather than loaded from the savegame.
       </p><p>
        The fix is something like this (this does the same thing as 
        the demo code in MBF, reading the game options twice
