@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.53 2002/02/11 19:21:19 proff_fs Exp $
+ * $Id: d_main.c,v 1.54 2002/08/05 19:47:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.53 2002/02/11 19:21:19 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.54 2002/08/05 19:47:50 cph Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -1373,17 +1373,9 @@ void D_DoomMainSetup(void)
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
 #ifdef HAVE_SNPRINTF
-# ifdef GL_DOOM
-    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", D_DoomExeDir());
-# else // GL_DOOM
-    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", D_DoomExeDir());
-# endif // GL_DOOM
+    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.config", D_DoomExeDir());
 #else
-# ifdef GL_DOOM
-    sprintf((char *)defaultfile,"%s/glboom.cfg", D_DoomExeDir());
-# else // GL_DOOM
-    sprintf((char *)defaultfile,"%s/prboom.cfg", D_DoomExeDir());
-# endif // GL_DOOM
+    sprintf((char *)defaultfile,"%s/prboom.config", D_DoomExeDir());
 #endif
   }
 
