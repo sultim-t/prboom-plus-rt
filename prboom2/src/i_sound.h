@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.h,v 1.3 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_sound.h,v 1.3.2.1 2001/10/04 07:26:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,8 +33,6 @@
 #ifndef __I_SOUND__
 #define __I_SOUND__
 
-#include <stdio.h>
-
 #include "sounds.h"
 #include "doomtype.h"
 
@@ -62,7 +60,7 @@ void I_SetChannels(void);
 int I_GetSfxLumpNum (sfxinfo_t *sfxinfo);
 
 // Starts a sound in a particular sound channel.
-int I_StartSound(int id, int vol, int sep, int pitch, int priority);
+int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority);
 
 // Stops a sound channel.
 void I_StopSound(int handle);
@@ -111,5 +109,6 @@ extern int mus_card;
 extern const char* sndserver_filename;
 extern const char* snd_device;
 extern const char* musserver_filename; 
+extern int snd_samplerate;
 
 #endif

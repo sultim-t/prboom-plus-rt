@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.4 2000/11/12 14:59:29 cph Exp $
+ * $Id: s_sound.c,v 1.4.2.1 2001/10/04 07:26:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.4 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.4.2.1 2001/10/04 07:26:14 proff_fs Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -94,6 +94,7 @@ static musicinfo_t *mus_playing;
 // following is set
 //  by the defaults code in M_misc:
 // number of channels available
+int default_numChannels;
 int numChannels;
 
 //jff 3/17/98 to keep track of last IDMUS specified music num
@@ -118,6 +119,7 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, int is_pickup);
 void S_Init(int sfxVolume, int musicVolume)
 {
   //jff 1/22/98 skip sound init if sound not enabled
+  numChannels = default_numChannels;
   if (snd_card && !nosfxparm)
   {
     int i;
@@ -134,7 +136,7 @@ void S_Init(int sfxVolume, int musicVolume)
     // simultaneously) within zone memory.
     // CPhipps - calloc
     channels =
-      (channel_t *) Z_Calloc(numChannels,sizeof(channel_t), PU_STATIC, 0);
+      (channel_t *) calloc(numChannels,sizeof(channel_t));
 
     // Note that sounds have not been cached (yet).
     for (i=1 ; i<NUMSFX ; i++)
@@ -293,7 +295,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
     sfx->usefulness = 1;
 
   // Assigns the handle to one of the channels in the mix/output buffer.
-  channels[cnum].handle = I_StartSound(sfx_id, volume, sep, pitch, priority);
+  channels[cnum].handle = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
 }
 
 void S_StartSound(void *origin, int sfx_id)

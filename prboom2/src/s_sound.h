@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.h,v 1.3 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: s_sound.h,v 1.3.2.1 2001/10/04 07:26:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -87,6 +87,7 @@ void S_SetMusicVolume(int volume);
 void S_SetSfxVolume(int volume);
 
 // machine-independent sound params
+extern int default_numChannels;
 extern int numChannels;
 
 //jff 3/17/98 holds last IDMUS number, or -1
