@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.64 2002/11/24 22:43:01 proff_fs Exp $
+ * $Id: d_main.c,v 1.65 2002/11/26 22:50:38 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.64 2002/11/24 22:43:01 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.65 2002/11/26 22:50:38 dukope Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -308,16 +308,11 @@ void D_Display (void)
 
   // draw pause pic
   if (paused) {
-      static int x;
-
-      if (!x) { // Cache results of x pos calc
-	      x = (320 - SHORT(V_NamePatchWidth("M_PAUSE"))/2);
-      }
-
-      // CPhipps - updated for new patch drawing
-      V_DrawNamePatch(x, (!(automapmode & am_active) || (automapmode & am_overlay)) 
-		      ? 4+(viewwindowy*200/SCREENHEIGHT) : 4, // cph - Must un-stretch viewwindowy
-		      0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+    // Simplified the "logic" here and no need for x-coord caching - POPE
+    V_DrawNamePatch(
+      (320 - V_NamePatchWidth("M_PAUSE"))/2, 4,
+		    0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH
+		);
   }
 
   C_Drawer();
