@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.19 2000/05/24 15:34:09 proff_fs Exp $
+ * $Id: d_main.c,v 1.20 2000/08/08 13:11:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.19 2000/05/24 15:34:09 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.20 2000/08/08 13:11:05 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -444,7 +444,13 @@ void D_PageDrawer(void)
 {
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing
-  V_DrawNamePatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
+  // proff - added M_DrawCredits
+  if (pagename)
+  {
+    V_DrawNamePatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
+  }
+  else
+    M_DrawCredits();
 }
 
 //
@@ -501,10 +507,10 @@ static struct
       {G_DeferedPlayDemo, "demo1"},
     },
     {
-      {D_SetPageName, "CREDIT"},
-      {D_SetPageName, "CREDIT"},
-      {D_SetPageName, "CREDIT"},
-      {D_SetPageName, "CREDIT"},
+      {D_SetPageName, NULL},
+      {D_SetPageName, NULL},
+      {D_SetPageName, NULL},
+      {D_SetPageName, NULL},
     },
 
     {
