@@ -175,6 +175,7 @@ extern int gl_drawskys;
 extern int gl_sortsprites;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
+extern int gl_sprite_offset;
 #endif
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 
@@ -336,6 +337,8 @@ default_t defaults[] =
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{480},200,1200,
    def_int,ss_none},
+  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
+   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
 #endif
   {"fake_contrast",{&fake_contrast},{1},0,1,
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */

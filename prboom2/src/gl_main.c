@@ -29,6 +29,34 @@
  *---------------------------------------------------------------------
  */
 
+#include "z_zone.h"
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+#ifndef CALLBACK
+#define CALLBACK
+#endif
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
+#include "doomtype.h"
+#include "w_wad.h"
+#include "m_argv.h"
+#include "d_event.h"
+#include "v_video.h"
+#include "doomstat.h"
+#include "r_bsp.h"
+#include "r_main.h"
+#include "r_draw.h"
+#include "r_sky.h"
+#include "r_plane.h"
+#include "r_data.h"
+#include "p_maputl.h"
+#include "m_bbox.h"
+#include "lprintf.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
 
@@ -50,6 +78,7 @@ int gl_use_paletted_texture = 0;
 int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
+int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -2481,7 +2510,8 @@ static void gld_DrawSprite(GLSprite *sprite)
   gld_BindPatch(sprite->gltexture,sprite->cm);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-  glTranslatef(sprite->x,sprite->y,sprite->z);
+  // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
+  glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
   glRotatef(inv_yaw,0.0f,1.0f,0.0f);
   if(sprite->shadow)
   {

@@ -9,3 +9,8 @@ prboom2/VISUALC6/Doom.dsp eol=crlf
 prboom2/VISUALC6/Doom.dsw eol=crlf
 prboom2/VISUALC6/prboom_server.dsp eol=crlf
 prboom2/data/prboom.wad -text
+prboom2/src/gl_intern.h -text svneol=native#unset
+prboom2/src/gl_main.c -text svneol=native#unset
+prboom2/src/gl_texture.c -text svneol=native#unset
+prboom2/src/m_menu.c -text svneol=native#unset
+prboom2/src/m_misc.c -text svneol=native#unset

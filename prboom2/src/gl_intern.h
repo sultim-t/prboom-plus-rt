@@ -32,35 +32,6 @@
 #ifndef _GL_INTERN_H
 #define _GL_INTERN_H
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-#ifndef CALLBACK
-#define CALLBACK
-#endif
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
-#include "doomtype.h"
-#include "w_wad.h"
-#include "m_argv.h"
-#include "z_zone.h"
-#include "d_event.h"
-#include "v_video.h"
-#include "doomstat.h"
-#include "r_bsp.h"
-#include "r_main.h"
-#include "r_draw.h"
-#include "r_sky.h"
-#include "r_plane.h"
-#include "r_data.h"
-#include "p_maputl.h"
-#include "m_bbox.h"
-#include "lprintf.h"
-
 typedef enum
 {
   GLDT_UNREGISTERED,
