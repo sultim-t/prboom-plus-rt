@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.15 2001/09/02 10:27:11 proff_fs Exp $
+ * $Id: r_things.c,v 1.16 2001/09/21 23:29:27 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.15 2001/09/02 10:27:11 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.16 2001/09/21 23:29:27 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -521,12 +521,11 @@ void R_ProjectSprite (mobj_t* thing)
 
   if (heightsec != -1)   // only clip things which are in special sectors
     {
-      int phs = viewplayer->mo->subsector->sector->heightsec;
-      if (phs != -1 && viewz < sectors[phs].floorheight ?
+      if (viewheightsec != -1 && viewz < sectors[viewheightsec].floorheight ?
           thing->z >= sectors[heightsec].floorheight :
           gzt < sectors[heightsec].floorheight)
         return;
-      if (phs != -1 && viewz > sectors[phs].ceilingheight ?
+      if (viewheightsec != -1 && viewz > sectors[viewheightsec].ceilingheight ?
           gzt < sectors[heightsec].ceilingheight &&
           viewz >= sectors[heightsec].ceilingheight :
           thing->z >= sectors[heightsec].ceilingheight)
