@@ -746,7 +746,7 @@ void MN_PlayerDrawer()
   spritedef_t *sprdef;
   spriteframe_t *sprframe;
 
-  //V_DrawBox(SPRITEBOX_X, SPRITEBOX_Y, 80, 80);
+  V_DrawBox(SPRITEBOX_X, SPRITEBOX_Y, 80, 80);
 
   sprdef = &sprites[players[consoleplayer].mo->sprite];
 
@@ -1129,7 +1129,8 @@ void MN_VideoModeDrawer()
   sprframe = &sprdef->spriteframes[0];
   lump = sprframe->lump[0];
 
-  V_DrawNumPatch(282, 124, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
+  V_DrawBox(270, 110, 20, 20);
+  V_DrawNumPatch(282, 122, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
 }
 
 CONSOLE_COMMAND(mn_video, 0)

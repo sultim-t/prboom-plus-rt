@@ -538,18 +538,16 @@ void G_BindDrawer()
 
   // draw box
   
-/*
-  V_DrawBox((SCREENWIDTH - wid) / 2 - 4,
-	    (SCREENHEIGHT - height) / 2 - 4,
-	    wid + 8,
-	    height + 8);
-*/
+  V_DrawBox((320 - wid) / 2 - 4,
+	          (200 - height) / 2 - 4,
+	          wid + 8,
+	          height + 8);
 
   // write text in box
 
   V_WriteText(temp,
-	      (320 - wid) / 2,
-	      (200 - height) / 2, 0);
+	            (320 - wid) / 2,
+	            (200 - height) / 2, 0);
 }
 
 //
