@@ -2648,6 +2648,7 @@ void G_DoPlayDemo(void)
   char basename[9];
 
   ExtractFileBase(defdemoname,basename);           // killough
+  basename[8] = 0;
   demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));
   /* cph - store lump number for unlocking later */
 
