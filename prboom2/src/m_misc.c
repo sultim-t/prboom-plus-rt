@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.10 2000/05/18 07:43:29 cph Exp $
+ * $Id: m_misc.c,v 1.11 2000/05/18 20:45:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.10 2000/05/18 07:43:29 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.11 2000/05/18 20:45:12 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -250,7 +250,7 @@ default_t defaults[] =
   {"help_friends",{&default_help_friends}, {1}, 0, 1, 
    def_bool, ss_enem }, 
 #ifdef DOGS
-  {"player_helpers",{&default_dogs}, {1}, 0, 1, 
+  {"player_helpers",{&default_dogs}, {0}, 0, 3, 
    def_bool, ss_enem }, 
   {"friend_distance",{&default_distfriend}, {128}, 0, 999, 
    def_int, ss_enem }, 
