@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.18 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: v_video.c,v 1.19 2001/07/11 09:20:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.18 2001/07/09 14:21:52 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.19 2001/07/11 09:20:14 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -588,7 +588,7 @@ void V_WriteText(unsigned char *s, int x, int y)
       cy += 8;
 	    continue;
 	  }
-      
+
     c = toupper(c) - HU_FONTSTART;
     if (c < 0 || c> HU_FONTSIZE)
     {
@@ -597,14 +597,14 @@ void V_WriteText(unsigned char *s, int x, int y)
     }
 
     // haleyjd: was no cx<0 check
-      
-    w = hu_font[c].width;
+
+    w = SHORT(hu_font[c].width);
     if(cx < 0 || cx+w > 320)
 	    break;
 
     // haleyjd: was no y checking at all!
 
-    h = hu_font[c].height;
+    h = SHORT(hu_font[c].height);
     if(cy < 0 || cy+h > 200)
 	    break;
 
@@ -629,16 +629,16 @@ void V_WriteTextColoured(unsigned char *s, int colour, int x, int y)
       tempstr = Z_Realloc(tempstr, strlen(s) + 3, PU_STATIC, 0);
     else
       tempstr = Z_Malloc(strlen(s) + 3, PU_STATIC, 0);
-      
+
     allocedsize = strlen(s);  // save for next time
   }
-  
+
   sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
-  
+
   V_WriteText(tempstr, x, y);
 }
 
-// find height(in pixels) of a string 
+// find height(in pixels) of a string
 
 int V_StringHeight(unsigned char *s)
 {
@@ -660,7 +660,7 @@ int V_StringWidth(unsigned char *s)
   int length = 0; // current line width
   int longest_width = 0; // line with longest width so far
   unsigned char c;
-  
+
   for(; *s; s++)
   {
     c = *s;
@@ -670,10 +670,10 @@ int V_StringWidth(unsigned char *s)
   	{
 	    if(length > longest_width) longest_width = length;
 	    length = 0; // next line;
-	    continue;	  
+	    continue;
 	  }
     c = toupper(c) - HU_FONTSTART;
-    length += (c >= HU_FONTSIZE) ? 4 : hu_font[c].width;
+    length += (c >= HU_FONTSIZE) ? 4 : SHORT(hu_font[c].width);
   }
 
   if(length > longest_width) longest_width = length; // check last line
