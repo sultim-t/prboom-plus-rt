@@ -1,13 +1,13 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.3 2000/05/07 22:44:25 cph Exp $
+# $Id: Makefile.am,v 1.4 2000/05/08 23:58:37 jessh Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
 #
 
-EXTRA_SUBDIRS = Posix OSS X11
+EXTRA_SUBDIRS = Posix OSS X11 SDL
 
 SUBDIRS = @BUILD_DIRS@
 
@@ -64,9 +64,8 @@ else
 NET_CLIENT_SRC = d_client.c
 endif
 
-lsdldoom_SOURCES = l_video_trans.h l_video_trans.c l_video_sdl.c l_sound_sdl.c qmus2mid.c qmus2mid.h l_system_sdl.c $(COMMON_SRC) $(NET_CLIENT_SRC)
-lsdldoom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm
+lsdldoom_SOURCES = l_video_trans.h l_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC)
+lsdldoom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm SDL/libsdldoom.a
 
 lxdoom_SOURCES = l_video_trans.h   l_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
-lxdoom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ POSIX/libposixdoom.a X11/libx11doom.a OSS/libossdoom.a
-
+lxdoom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ -lm POSIX/libposixdoom.a X11/libx11doom.a OSS/libossdoom.a
