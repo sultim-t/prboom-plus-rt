@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_mmap.c,v 1.4 2001/07/22 10:04:50 cph Exp $
+ * $Id: w_mmap.c,v 1.5 2001/11/18 15:46:08 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_mmap.c,v 1.4 2001/07/22 10:04:50 cph Exp $";
+rcsid[] = "$Id: w_mmap.c,v 1.5 2001/11/18 15:46:08 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -55,6 +55,7 @@ rcsid[] = "$Id: w_mmap.c,v 1.4 2001/07/22 10:04:50 cph Exp $";
 #include "w_wad.h"
 #include "z_zone.h"
 #include "lprintf.h"
+#include "i_system.h"
 
 #ifdef HEAPDUMP
 void W_PrintLump(FILE* fp, void* p) {
@@ -181,7 +182,7 @@ void W_InitCache(void)
       if (lumpinfo[i].wadfile) {
         int fd = lumpinfo[i].wadfile->handle;
         if (!mapped_wad[fd])
-          if (!(mapped_wad[fd] = mmap(NULL,W_Filelength(fd),PROT_READ,MAP_SHARED,fd,0))) 
+          if (!(mapped_wad[fd] = mmap(NULL,I_Filelength(fd),PROT_READ,MAP_SHARED,fd,0))) 
             I_Error("W_InitCache: failed to mmap");
       }
   }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.25 2001/07/22 15:03:47 cph Exp $
+ * $Id: w_wad.c,v 1.26 2001/11/18 15:46:09 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.25 2001/07/22 15:03:47 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.26 2001/11/18 15:46:09 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -48,8 +48,8 @@ rcsid[] = "$Id: w_wad.c,v 1.25 2001/07/22 15:03:47 cph Exp $";
 #include <kos/fs.h>
 #else
 #include <fcntl.h>
-#include <sys/stat.h>
 #endif
+#include "i_system.h"
 
 #include "doomstat.h"
 #include "doomtype.h"
@@ -70,18 +70,6 @@ void W_InitCache(void);
 // Location of each lump on disk.
 lumpinfo_t *lumpinfo;
 int        numlumps;         // killough
-
-int W_Filelength(int handle)
-{
-#ifndef DREAMCAST
-  struct stat   fileinfo;
-  if (fstat(handle,&fileinfo) == -1)
-    I_Error("W_Filelength: Error fstating");
-  return fileinfo.st_size;
-#endif  
-}
-
-
 
 void ExtractFileBase (const char *path, char *dest)
 {
@@ -188,18 +176,14 @@ static void W_AddFile(wadfile_info_t *wadfile)
       // single lump file
       fileinfo = &singleinfo;
       singleinfo.filepos = 0;
-      singleinfo.size = LONG(W_Filelength(wadfile->handle));
+      singleinfo.size = LONG(I_Filelength(wadfile->handle));
       ExtractFileBase(wadfile->name, singleinfo.name);
       numlumps++;
     }
   else
     {
       // WAD file
-#ifdef DREAMCAST
-      fs_read(wadfile->handle, &header, sizeof(header));
-#else
-      read(wadfile->handle, &header, sizeof(header));
-#endif
+      I_Read(wadfile->handle, &header, sizeof(header));
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
         I_Error("W_AddFile: Wad file %s doesn't have IWAD or PWAD id", wadfile->name);
@@ -209,11 +193,10 @@ static void W_AddFile(wadfile_info_t *wadfile)
       fileinfo2free = fileinfo = malloc(length);    // killough
 #ifdef DREAMCAST
       fs_seek(wadfile->handle, header.infotableofs, SEEK_SET);
-      fs_read(wadfile->handle, fileinfo, length);
 #else
       lseek(wadfile->handle, header.infotableofs, SEEK_SET);
-      read(wadfile->handle, fileinfo, length);
 #endif
+      I_Read(wadfile->handle, fileinfo, length);
       numlumps += header.numlumps;
     }
 
@@ -482,19 +465,14 @@ void W_ReadLump(int lump, void *dest)
 #endif
 
     {
-      int c;
-
       if (l->wadfile)
       {
 #ifdef DREAMCAST
         fs_seek(l->wadfile->handle, l->position, SEEK_SET);
-        c = fs_read(l->wadfile->handle, dest, l->size);
 #else
         lseek(l->wadfile->handle, l->position, SEEK_SET);
-        c = read(l->wadfile->handle, dest, l->size);
 #endif
-        if (c < l->size)
-          I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
+        I_Read(l->wadfile->handle, dest, l->size);
       }
     }
 }

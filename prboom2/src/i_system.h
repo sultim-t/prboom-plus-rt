@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.h,v 1.3 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: i_system.h,v 1.4 2001/11/18 15:46:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -52,5 +52,11 @@ const char* I_GetVersionString(char* buf, size_t sz);
  * Returns a string describing a signal number
  */
 const char* I_SigString(char* buf, size_t sz, int signum);
+
+/* cph 2001/11/18 - wrapper for read(2) which deals with partial reads */
+void I_Read(int fd, void* buf, size_t sz);
+
+/* cph 2001/11/18 - Move W_Filelength to i_system.c */
+int I_Filelength(int handle);
 
 #endif
