@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.42 2001/07/21 22:16:49 cph Exp $
+ * $Id: g_game.c,v 1.43 2001/07/22 15:02:08 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.42 2001/07/21 22:16:49 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.43 2001/07/22 15:02:08 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -825,6 +825,9 @@ void G_Ticker (void)
   // cph - if the gamestate changed, we may need to clean up the old gamestate
   if (gamestate != prevgamestate) {
     switch (prevgamestate) {
+    case GS_LEVEL:
+      Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
+      break;
     case GS_INTERMISSION:
       WI_End();
     default:
