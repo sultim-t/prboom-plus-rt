@@ -39,6 +39,7 @@
 #include "sounds.h"
 #include "dstrings.h"
 #include "r_main.h"
+#include "p_map.h"
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
 
 #define plyr (players+consoleplayer)     /* the console player */
@@ -515,6 +516,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
 
   // killough 7/20/98: kill friendly monsters only if no others to kill
   uint_64_t mask = MF_FRIEND;
+  P_MapStart();
   do
     while ((currentthinker=currentthinker->next)!=&thinkercap)
     if (currentthinker->function == P_MobjThinker &&
@@ -534,6 +536,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
           }
       }
   while (!killcount && mask ? mask=0, 1 : 0); // killough 7/20/98
+  P_MapEnd();
   // killough 3/22/98: make more intelligent about plural
   // Ty 03/27/98 - string(s) *not* externalized
   doom_printf("%d Monster%s Killed", killcount, killcount==1 ? "" : "s");
