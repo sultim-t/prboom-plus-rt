@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.6 2000/05/20 11:53:50 proff_fs Exp $
+ * $Id: config.h,v 1.7 2000/05/21 13:37:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -92,7 +92,7 @@
 #define DOOMWADDIR "/usr/local/share/games/doom"
 
 /* Define if you have the SDL mixer library -lSDL_mixer */
-/* #define HAVE_LIBSDL_MIXER 1 */
+#define HAVE_LIBSDL_MIXER 1
 
 /* Define if you want networkg ame support */
 /* #define HAVE_NET 1 */
