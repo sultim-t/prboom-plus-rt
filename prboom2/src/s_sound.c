@@ -648,7 +648,7 @@ void S_ChangeMusicName(char *name, int looping)
 void S_ChangeMusic(musicinfo_t *music, int looping)
 {
   int music_file_failed; // cournia - if true load the default MIDI music
-  char* music_filename;  // cournia
+//  char* music_filename;  // cournia
 
   //jff 1/22/98 return if music is not enabled
   if (!sound_initted || !mus_card || nomusicparm)

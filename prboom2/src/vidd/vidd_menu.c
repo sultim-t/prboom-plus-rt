@@ -475,11 +475,11 @@ const char *VIDD_MENU_getInterfaceString() {
       else if (menuState.playbackSpeed < 2) n = 2;
       else if (menuState.playbackSpeed < 3) n = 3;
       else n = 4;
-      appendColoredString(line, "<<< ", n==0?COLOR_GREEN:COLOR_GREY, VIDD_MAXSTRLEN);
-      appendColoredString(line, "<< ", n==1?COLOR_GREEN:COLOR_GREY, VIDD_MAXSTRLEN);
-      appendColoredString(line, "> ", n==2?COLOR_GREEN:COLOR_GREY, VIDD_MAXSTRLEN);
-      appendColoredString(line, ">> ", n==3?COLOR_GREEN:COLOR_GREY, VIDD_MAXSTRLEN);
-      appendColoredString(line, ">>>   ", n==4?COLOR_GREEN:COLOR_GREY, VIDD_MAXSTRLEN);
+      appendColoredString(line, "<<< ", (char)(n==0?COLOR_GREEN:COLOR_GREY), VIDD_MAXSTRLEN);
+      appendColoredString(line, "<< ", (char)(n==1?COLOR_GREEN:COLOR_GREY), VIDD_MAXSTRLEN);
+      appendColoredString(line, "> ", (char)(n==2?COLOR_GREEN:COLOR_GREY), VIDD_MAXSTRLEN);
+      appendColoredString(line, ">> ", (char)(n==3?COLOR_GREEN:COLOR_GREY), VIDD_MAXSTRLEN);
+      appendColoredString(line, ">>>   ", (char)(n==4?COLOR_GREEN:COLOR_GREY), VIDD_MAXSTRLEN);
       appendStringEllipsied(line, viddPlayer_getSegmentInfo(menuState.highlightedSegment).name, 8, VIDD_MAXSTRLEN);
       appendColoredString(line, "   ", COLOR_GREY, VIDD_MAXSTRLEN);
       {
@@ -513,13 +513,13 @@ const char *VIDD_MENU_getInterfaceString() {
     }
     else if (lines[i].id == MP_SMOOTHING) {
       // smoothing
-      appendColoredString(line, "ON     ", menuState.interpolationEnabled ? COLOR_GREEN : COLOR_GREY, VIDD_MAXSTRLEN); 
-      appendColoredString(line, "OFF", menuState.interpolationEnabled ? COLOR_GREY : COLOR_GREEN, VIDD_MAXSTRLEN); 
+      appendColoredString(line, "ON     ", (char)(menuState.interpolationEnabled ? COLOR_GREEN : COLOR_GREY), VIDD_MAXSTRLEN); 
+      appendColoredString(line, "OFF", (char)(menuState.interpolationEnabled ? COLOR_GREY : COLOR_GREEN), VIDD_MAXSTRLEN); 
     }
     else if (lines[i].id == MP_INTERMISSION) {
       // intermissions
-      appendColoredString(line, "ON     ", menuState.intermissionsEnabled ? COLOR_GREEN : COLOR_GREY, VIDD_MAXSTRLEN); 
-      appendColoredString(line, "OFF", menuState.intermissionsEnabled ? COLOR_GREY : COLOR_GREEN, VIDD_MAXSTRLEN); 
+      appendColoredString(line, "ON     ", (char)(menuState.intermissionsEnabled ? COLOR_GREEN : COLOR_GREY), VIDD_MAXSTRLEN); 
+      appendColoredString(line, "OFF", (char)(menuState.intermissionsEnabled ? COLOR_GREY : COLOR_GREEN), VIDD_MAXSTRLEN); 
     }
     else if (lines[i].id == MP_SEGMENT) {
       // segments
@@ -532,7 +532,7 @@ const char *VIDD_MENU_getInterfaceString() {
       
       // tack them onto the string using ellipses so they don't overdraw the line
       for (n=firstVisibleSegment; n<lastVisibleSegment; n++) {
-        appendColoredString(line, "", n==menuState.highlightedSegment ? COLOR_GREEN : COLOR_GREY, VIDD_MAXSTRLEN);
+        appendColoredString(line, "", (char)(n==menuState.highlightedSegment ? COLOR_GREEN : COLOR_GREY), VIDD_MAXSTRLEN);
         appendStringEllipsied(line, viddPlayer_getSegmentInfo(n).name, 7, VIDD_MAXSTRLEN);
         if (n != lastVisibleSegment-1) appendColoredString(line, " - ", COLOR_GREY, VIDD_MAXSTRLEN);
       }   
@@ -543,14 +543,14 @@ const char *VIDD_MENU_getInterfaceString() {
         appendColoredString(line, "[PRESS ESCAPE TO DISABLE]", COLOR_GREEN, VIDD_MAXSTRLEN);      
       }
       else {
-        appendColoredString(line, "ON     ", menuState.phantomActive ? COLOR_GREEN : COLOR_GREY, VIDD_MAXSTRLEN); 
-        appendColoredString(line, "OFF", menuState.phantomActive ? COLOR_GREY : COLOR_GREEN, VIDD_MAXSTRLEN);
+        appendColoredString(line, "ON     ", (char)(menuState.phantomActive ? COLOR_GREEN : COLOR_GREY), VIDD_MAXSTRLEN); 
+        appendColoredString(line, "OFF", (char)(menuState.phantomActive ? COLOR_GREY : COLOR_GREEN), VIDD_MAXSTRLEN);
       }      
     }
     else if (lines[i].id == MP_ANNOTATIONS) {
       // annotations
-      appendColoredString(line, "ON     ", menuState.annotationsEnabled ? COLOR_GREEN : COLOR_GREY, VIDD_MAXSTRLEN); 
-      appendColoredString(line, "OFF", menuState.annotationsEnabled ? COLOR_GREY : COLOR_GREEN, VIDD_MAXSTRLEN); 
+      appendColoredString(line, "ON     ", (char)(menuState.annotationsEnabled ? COLOR_GREEN : COLOR_GREY), VIDD_MAXSTRLEN); 
+      appendColoredString(line, "OFF", (char)(menuState.annotationsEnabled ? COLOR_GREY : COLOR_GREEN), VIDD_MAXSTRLEN); 
     }
     
     if (menuState.activeControl == lines[i].id) {

@@ -126,7 +126,7 @@ void C_SendCmd(int cmdnum, const char *s,...)
       return;
     }
 
-  C_queueChatChar(cmdnum);        // command num
+  C_queueChatChar((unsigned char)cmdnum);        // command num
   
   while(*s)
     {

@@ -408,7 +408,7 @@ void V_FPSDrawer()
     for(cy=0, y = Y_OFFSET; cy<CHART_HEIGHT; y++, cy++)
       {
 	i = cy > (CHART_HEIGHT-history[cx]) ? BLACK : WHITE;
-  V_PlotPixel(0, x, y, i);
+  V_PlotPixel(0, x, y, (byte)i);
       }
 }
 

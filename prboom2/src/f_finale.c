@@ -280,7 +280,7 @@ void F_TextWrite (void)
   V_DrawBackground(finaleflat, 0);
   if (count < 0)
     count = 0;
-  if (count >= strlen(finaletext)) {
+  if ((size_t)count >= strlen(finaletext)) {
     V_WriteTextXYGap(finaletext, 10, 10, 0, 3);
   } else {
     temp = strdup(finaletext);

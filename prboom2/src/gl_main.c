@@ -366,7 +366,7 @@ void gld_DrawBackground(const char* name)
 	p_glEnd();
 }
 
-void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
+void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor)
 {
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
