@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: wi_stuff.c,v 1.6.2.2 2002/07/28 19:06:17 cph Exp $
+ * $Id: wi_stuff.c,v 1.6.2.3 2002/12/05 21:10:24 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: wi_stuff.c,v 1.6.2.2 2002/07/28 19:06:17 cph Exp $";
+rcsid[] = "$Id: wi_stuff.c,v 1.6.2.3 2002/12/05 21:10:24 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -365,7 +365,7 @@ static const char items[] = {"WIOSTI"};
 static const char frags[] = {"WIFRGS"};
 
 // Time sucks.
-static const char time[] = {"WITIME"};
+static const char time1[] = {"WITIME"};
 static const char par[] = {"WIPAR"};
 static const char sucks[] = {"WISUCKS"};
 
@@ -836,7 +836,7 @@ void WI_initNoState(void)
 
 static void WI_drawTimeStats(int cnt_time, int cnt_total_time, int cnt_par)
 {
-  V_DrawNamePatch(SP_TIMEX, SP_TIMEY, FB, time, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(SP_TIMEX, SP_TIMEY, FB, time1, CR_DEFAULT, VPT_STRETCH);
   WI_drawTime(320/2 - SP_TIMEX, SP_TIMEY, cnt_time);
 
   V_DrawNamePatch(SP_TIMEX, (SP_TIMEY+200)/2, FB, total, CR_DEFAULT, VPT_STRETCH);
