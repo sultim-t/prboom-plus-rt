@@ -1,8 +1,3 @@
-1.  Statusbar in OpenGL. My thing.
-
-Proff:
-Done
-
 --------------------------------------------------------------------------
 2.  Network in SDL.
 
@@ -33,49 +28,12 @@ stage. It may be simpler to rewrite it. Let's delay that to a later
 release.
 
 --------------------------------------------------------------------------
-7.  Import extra wad lumps into info.c
-
-Colin:
-Done
-
---------------------------------------------------------------------------
 8.  Verify Boom demos
 
 Colin:
 Don't appear to be working well. There aren't that many Boom demos though
 so I think we can leave this until after a first release.
 
---------------------------------------------------------------------------
-9.  Verify MBF -recordfrom support (probably still a
-    bit of code to import, but mostly done)
-
-Colin:
-Done.
-
---------------------------------------------------------------------------
-10. Rename linux targets (SDL target could be prboom,
-    X target xprboom?)
-
-Proff:
-Ok
-
-Jess:
-sounds good
-
-Colin:
-suggested it
-Done.
-
---------------------------------------------------------------------------
-11. Decide on documentation. LxDoom has good manpages
-    describing the config file and command line, we
-    could convert these to HTML, or convert them but
-    only use the converted versions for windows.
-
-Colin:
-Simple, I'll do. Better update those docs for the MBF stuff too while
-I'm in there.
-    
 --------------------------------------------------------------------------
 12. Update README, AUTHORS
 
@@ -91,6 +49,8 @@ instructions, and some misc feature docs. More to do still.
     the Boom and MBF stuff to go in, that we distribute
     the editing docs separately.
     (Could be done after a release though).
+
+Colin: will do after we release
     
 --------------------------------------------------------------------------
 14. Fix RPM packaging stuff for Linux targets (we do different
@@ -120,31 +80,8 @@ Done, just waiting for any complaints :-).
 18. Website.
 
 --------------------------------------------------------------------------
-19. MBF dogs support. 
-
-Colin:
-Done, seems to work.
-
---------------------------------------------------------------------------
 20. 24bpp packed support fix in v_video_trans.c.
 
 Colin:
 On my list.
 
---------------------------------------------------------------------------
-21. Import m_cheat.c changes
-
-Colin:
-Done.
-
---------------------------------------------------------------------------
-22. Convert various file name references to Boom/LxDoom (config file, save
-game names, dir etc)
-
-Proff:
-It seems like I have done the most for Windows.
-
-Colin:
-I've just changed the savegame base from BOOMSAV to prbmsav, and moved the
-linux config dir. 
-That's all I can think of.
