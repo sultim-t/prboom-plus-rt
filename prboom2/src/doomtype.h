@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomtype.h,v 1.5 2001/04/15 15:05:37 cph Exp $
+ * $Id: doomtype.h,v 1.6 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,13 +37,19 @@
 #ifndef __BYTEBOOL__
 #define __BYTEBOOL__
 /* Fixed to use builtin bool type with C++. */
-#ifdef __cplusplus
+# ifdef __cplusplus
 typedef bool boolean;
-#else
+# else // __cplusplus
+#  ifndef DREAMCAST
 typedef enum {false, true} boolean;
-#endif
+#  else // DREAMCAST
+#define false 0
+#define true (!false)
+typedef int boolean;
+#  endif // DREAMCAST
+# endif // __cplusplus
 typedef unsigned char byte;
-#endif
+#endif // __BYTEBOOL__
 
 /* cph - Wrapper for the long long type, as Win32 used a different name.
  * Except I don't know what to test as it's compiler specific
@@ -51,7 +57,11 @@ typedef unsigned char byte;
 #ifndef _MSC_VER
 typedef signed long long int_64_t; 
 typedef unsigned long long uint_64_t; 
-#else
+# ifdef DREAMCAST
+#undef PATH_MAX
+#define PATH_MAX 1024
+# endif // DREAMCAST
+#else // _MSC_VER
 typedef __int64 int_64_t;
 typedef unsigned __int64 uint_64_t;
 #undef PATH_MAX
@@ -59,7 +69,7 @@ typedef unsigned __int64 uint_64_t;
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define S_ISDIR(x) (((sbuf.st_mode & S_IFDIR)==S_IFDIR)?1:0)
-#endif
+#endif // _MSC_VER
 
 /* CPhipps - use limits.h instead of depreciated values.h */
 #include <limits.h>

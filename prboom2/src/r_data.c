@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.13 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: r_data.c,v 1.14 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.13 2000/11/22 21:46:48 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.14 2001/07/02 22:46:46 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -714,18 +714,21 @@ void R_InitTranMap(int progress)
         unsigned char pct;
         unsigned char playpal[256];
       } cache;
+#ifndef DREAMCAST
       FILE *cachefp = fopen(strcat(strcpy(fname, D_DoomExeDir()),
                                    "/tranmap.dat"),"r+b");
-
+#endif // DREAMCAST
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 
       // Use cached translucency filter if it's available
 
+#ifndef DREAMCAST
       if (!cachefp ? cachefp = fopen(fname,"wb") , 1 :
           fread(&cache, 1, sizeof cache, cachefp) != sizeof cache ||
           cache.pct != tran_filter_pct ||
           memcmp(cache.playpal, playpal, sizeof cache.playpal) ||
           fread(my_tranmap, 256, 256, cachefp) != 256 ) // killough 4/11/98
+#endif // DREAMCAST
         {
           long pal[3][256], tot[256], pal_w1[3][256];
           long w1 = ((unsigned long) tran_filter_pct<<TSC)/100;
@@ -784,6 +787,7 @@ void R_InitTranMap(int progress)
                   }
               }
           }
+#ifndef DREAMCAST
           if (cachefp)        // write out the cached translucency map
             {
               cache.pct = tran_filter_pct;
@@ -792,11 +796,13 @@ void R_InitTranMap(int progress)
               fwrite(&cache, 1, sizeof cache, cachefp);
               fwrite(main_tranmap, 256, 256, cachefp);
 	      // CPhipps - leave close for a few lines...
-            }
+        	}
+#endif // DREAMCAST
         }
-
+#ifndef DREAMCAST
       if (cachefp)              // killough 11/98: fix filehandle leak
         fclose(cachefp);
+#endif // DREAMCAST
  
       W_UnlockLumpName("PLAYPAL");
     }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.10 2001/07/02 12:46:43 proff_fs Exp $
+ * $Id: d_deh.c,v 1.11 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.10 2001/07/02 12:46:43 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.11 2001/07/02 22:46:46 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -57,6 +57,7 @@ rcsid[] = "$Id: d_deh.c,v 1.10 2001/07/02 12:46:43 proff_fs Exp $";
 #define TRUE 1
 #define FALSE 0
 
+#ifndef DREAMCAST
 #if ((!defined DJGPP) && (!defined _MSC_VER))
 // CPhipps - hmm, odd...
 #include <ctype.h>
@@ -108,6 +109,7 @@ int dehfgetc(DEHFILE *fp)
   return !fp->lump ? (fgetc)((FILE *) fp->inp) : fp->size > 0 ?
     fp->size--, *fp->inp++ : EOF;
 }
+#endif //DREAMCAST
 
 
 // variables used in other routines
@@ -962,6 +964,7 @@ const char **const mapnamest[] = // TNT WAD map names.
   &s_THUSTR_32,
 };
 
+#ifndef DREAMCAST
 // Function prototypes
 void    lfstrip(char *);     // strip the \r and/or \n off of a line
 void    rstrip(char *);      // strip trailing whitespace
@@ -2782,3 +2785,4 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
 
   return(okrc);
 }
+#endif //DREAMCAST

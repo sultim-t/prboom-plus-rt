@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.32 2001/07/01 21:47:07 proff_fs Exp $
+ * $Id: m_misc.c,v 1.33 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.32 2001/07/01 21:47:07 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.33 2001/07/02 22:46:46 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -47,8 +47,10 @@ rcsid[] = "$Id: m_misc.c,v 1.32 2001/07/01 21:47:07 proff_fs Exp $";
 #ifdef _MSC_VER
 #include <io.h>
 #endif
+#ifndef DREAMCAST
 #include <fcntl.h>
 #include <sys/stat.h>
+#endif // DREAMCAST
 
 #include "doomstat.h"
 #include "m_argv.h"
@@ -113,6 +115,7 @@ static inline void I_EndRead(void) {}
 
 boolean M_WriteFile(char const *name, void *source, int length)
 {
+#ifndef DREAMCAST	
   FILE *fp;
 
   errno = 0;
@@ -129,6 +132,8 @@ boolean M_WriteFile(char const *name, void *source, int length)
     remove(name);
 
   return length;
+#endif // DREAMCAST
+  return true;
 }
 
 /*
@@ -139,6 +144,7 @@ boolean M_WriteFile(char const *name, void *source, int length)
 
 int M_ReadFile(char const *name, byte **buffer)
 {
+#ifndef DREAMCAST
   FILE *fp;
 
   errno = 0;
@@ -163,7 +169,7 @@ int M_ReadFile(char const *name, byte **buffer)
 
   I_Error("Couldn't read file %s: %s", name, 
 	  errno ? strerror(errno) : "(Unknown Error)");
-
+#endif // DREAMCAST
   return 0;
 }
 
@@ -219,11 +225,15 @@ int map_point_coordinates;
 /* cph - zone memory size
  * proff - OpenGL needs even more ram at least 16megs are allocated
  */
+#ifdef DREAMCAST
+#define MIN_RAM (6*1024)
+#else // DREAMCAST
 #ifndef GL_DOOM
 #define MIN_RAM (8*1024)
-#else
+#else // GL_DOOM
 #define MIN_RAM (16*1024)
-#endif
+#endif // GL_DOOM
+#endif // DREAMCAST
 
 /* cph - stub joystick variables.
  * Replace once we add real SDL joystick support
@@ -722,6 +732,7 @@ static const char* defaultfile; // CPhipps - static, const
 
 void M_SaveDefaults (void)
   {
+#ifndef DREAMCAST
   int   i;
   FILE* f;
   
@@ -757,6 +768,7 @@ void M_SaveDefaults (void)
     }
   
   fclose (f);
+#endif // DREAMCAST
   }
 
 /*
@@ -785,7 +797,9 @@ void M_LoadDefaults (void)
 {
   int   i;
   int   len;
+#ifndef DREAMCAST
   FILE* f;
+#endif // DREAMCAST
   char  def[80];
   char  strparm[100];
   char* newstring = NULL;   // killough
@@ -801,7 +815,8 @@ void M_LoadDefaults (void)
     if (defaults[i].location.pi)
       *defaults[i].location.pi = defaults[i].defaultvalue.i;
   }
-    
+#ifndef DREAMCAST
+   
   // check for a custom default file
 
   i = M_CheckParm ("-config");
@@ -812,9 +827,9 @@ void M_LoadDefaults (void)
     /* get config file from same directory as executable */
 #ifdef GL_DOOM
     snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", D_DoomExeDir());
-#else
+#else // GL_DOOM
     snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", D_DoomExeDir());
-#endif
+#endif // GL_DOOM
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
@@ -881,6 +896,7 @@ void M_LoadDefaults (void)
     fclose (f);
     }
   //jff 3/4/98 redundant range checks for hud deleted here
+#endif // DREAMCAST
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
      doesn't overlap with the cfg settings */
   wad_files[MAXLOADFILES-1]="prboom.wad";
@@ -954,6 +970,7 @@ typedef struct tagBITMAPINFOHEADER
 #pragma pack(pop)
 #endif //_MSC_VER
 
+#ifndef DREAMCAST
 // jff 3/30/98 binary file write with error detection
 // CPhipps - static, const on parameter
 static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
@@ -961,6 +978,7 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
   if (fwrite(data,size,number,st)<number)
     screenshot_write_error = true; // CPhipps - made non-fatal
 }
+#endif // DREAMCAST
 
 #ifndef GL_DOOM
 //
@@ -972,6 +990,7 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
 static void WriteBMPfile(const char* filename, const byte* data, 
 			 const int width, const int height, const byte* palette)
 {
+#ifndef DREAMCAST
   int i,wid;
   BITMAPFILEHEADER bmfh;
   BITMAPINFOHEADER bmih;
@@ -1039,6 +1058,7 @@ static void WriteBMPfile(const char* filename, const byte* data,
 
     fclose(st);
   }
+#endif // DREAMCAST
 }
 
 #else /* GL_DOOM */
@@ -1156,6 +1176,7 @@ void M_DoScreenShot (const char* fname)
 
 void M_ScreenShot(void)
 {
+#ifndef DREAMCAST	
   static int shot;
   char       lbmname[32];
   int        startshot;
@@ -1169,9 +1190,9 @@ void M_ScreenShot(void)
   do
 #ifdef GL_DOOM
     sprintf(lbmname,"DOOM%02d.TGA", shot++);
-#else
+#else // GL_DOOM
     sprintf(lbmname,"DOOM%02d.BMP", shot++);
-#endif
+#endif // GL_DOOM
   while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
   if (!access(lbmname,0)) screenshot_write_error = true;
@@ -1179,14 +1200,14 @@ void M_ScreenShot(void)
   if (screenshot_write_error) {
 #ifdef GL_DOOM
     doom_printf ("M_ScreenShot: Couldn't create a TGA"); 
-#else
+#else // GL_DOOM
     doom_printf ("M_ScreenShot: Couldn't create a BMP"); 
-#endif
+#endif // GL_DOOM
     // killough 4/18/98
     return;
   }
 
   M_DoScreenShot(lbmname); // cph
-
+#endif // DREAMCAST
   S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink); 
 }

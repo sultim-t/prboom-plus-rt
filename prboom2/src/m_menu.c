@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.23 2001/02/18 17:13:26 proff_fs Exp $
+ * $Id: m_menu.c,v 1.24 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,10 +35,12 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.23 2001/02/18 17:13:26 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.24 2001/07/02 22:46:46 proff_fs Exp $";
 
 #include <stdio.h>
+#ifndef DREAMCAST
 #include <fcntl.h>
+#endif // DREAMCAST
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -889,6 +891,12 @@ void M_ReadSaveStrings(void)
 {
   int i;
 
+#ifdef DREAMCAST
+  for (i = 0 ; i < load_end ; i++) {
+    strcpy(&savegamestrings[i][0],s_EMPTYSTRING);
+    LoadMenue[i].status = 0;
+  }
+#else // DREAMCAST
   for (i = 0 ; i < load_end ; i++) {
     char name[PATH_MAX+1];    // killough 3/22/98
     FILE *fp;  // killough 11/98: change to use stdio
@@ -906,6 +914,7 @@ void M_ReadSaveStrings(void)
     fclose(fp);
     LoadMenue[i].status = 1;
   }
+#endif // DREAMCAST
 }
 
 //

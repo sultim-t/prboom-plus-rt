@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.36 2001/07/01 21:39:57 proff_fs Exp $
+ * $Id: d_main.c,v 1.37 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.36 2001/07/01 21:39:57 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.37 2001/07/02 22:46:46 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -44,9 +44,14 @@ static const char rcsid[] = "$Id: d_main.c,v 1.36 2001/07/01 21:39:57 proff_fs E
 #else
 #include <unistd.h>
 #endif
+#ifdef DREAMCAST
+#include <kallisti/libk.h>
+#include <kallisti/abi/fs.h>
+#else // DREAMCAST
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#endif // DREAMCAST
 
 #include "doomdef.h"
 #include "doomtype.h"
@@ -116,6 +121,9 @@ skill_t startskill;
 int     startepisode;
 int     startmap;
 boolean autostart;
+#ifdef DREAMCAST
+abi_fs_t *fslib = NULL;
+#endif // DREAMCAST
 FILE    *debugfile;
 
 boolean advancedemo;
@@ -603,6 +611,19 @@ char *D_DoomExeDir(void)
     }
   return base;
 }
+#elif (defined DREAMCAST)
+static const char prboom_dir[] = {"/cd/doom/"};
+
+char *D_DoomExeDir(void)
+{
+  static char *base;
+  if (!base)        // cache multiple requests
+    {
+      base = malloc(strlen(prboom_dir) + 1);
+      strcpy(base, prboom_dir);
+    }
+  return base;
+}
 #else
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
@@ -652,18 +673,28 @@ static const char *D_dehout(void)
 // CPhipps - const char* for iwadname, made static
 static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 {
+#ifndef DREAMCAST
   if ( !access (iwadname,R_OK) )
+#endif // DREAMCAST
   {
     int ud=0,rg=0,sw=0,cm=0,sc=0;
     int handle;
 
     // Identify IWAD correctly
+#ifdef DREAMCAST
+    if ( (handle = fslib->open (iwadname,O_RDONLY)) != 0)
+#else // DREAMCAST
     if ( (handle = open (iwadname,O_RDONLY | O_BINARY)) != -1)
+#endif // DREAMCAST
     {
       wadinfo_t header;
 
       // read IWAD header
+#ifdef DREAMCAST
+      fslib->read (handle, &header, sizeof(header));
+#else // DREAMCAST
       read (handle, &header, sizeof(header));
+#endif // DREAMCAST
       if (!strncmp(header.identification,"IWAD",4))
       {
         size_t length;
@@ -674,9 +705,15 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         header.infotableofs = LONG(header.infotableofs);
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
+#ifdef DREAMCAST
+        fslib->seek (handle, header.infotableofs, SEEK_SET);
+        fslib->read (handle, fileinfo, length*sizeof(filelump_t));
+        fslib->close(handle);
+#else // DREAMCAST
         lseek (handle, header.infotableofs, SEEK_SET);
         read (handle, fileinfo, length*sizeof(filelump_t));
         close(handle);
+#endif // DREAMCAST
 
         // scan directory for levelname lumps
         while (length--)
@@ -731,8 +768,10 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
     else if (sw>=9)
       *gmode = shareware;
   }
+#ifndef DREAMCAST  
   else // error from access call
     I_Error("CheckIWAD: IWAD %s not readable", iwadname);
+#endif // DREAMCAST
 }
 
 
@@ -777,6 +816,11 @@ static boolean HasTrailingSlash(const char* dn)
 
 boolean WadFileStatus(char *filename,boolean *isdir)
 {
+#ifdef DREAMCAST
+	// DREAMCAST_TODO
+  isdir=false;
+  return true;
+#else // DREAMCAST
   struct stat sbuf;
   int i;
 
@@ -804,6 +848,7 @@ boolean WadFileStatus(char *filename,boolean *isdir)
   }
   filename[i]=0;                  //remove .wad
   return false;                   //and report doesn't exist
+#endif // DREAMCAST
 }
 
 /* 
@@ -834,8 +879,13 @@ static char* FindWADFile(const char* wfname, const char* ext)
     /* Each entry in the switch sets d to the directory to look in, 
      * and optionally s to a subdirectory of d */
     switch(i) {
+#ifndef DREAMCAST    	
     case 1:
       if (!(d = getenv("DOOMWADDIR"))) continue;
+#else // DREAMCAST
+    case 1:
+      d = "/cd/doom";
+#endif // DREAMCAST
     case 0:
       break;
     case 2:
@@ -851,9 +901,15 @@ static char* FindWADFile(const char* wfname, const char* ext)
       d = D_DoomExeDir();
     case 3:
       s = "doom";
+#ifndef DREAMCAST    	
     case 7:
       if (!(d = getenv("HOME"))) continue;
       break;
+#else // DREAMCAST
+    case 7:
+      continue;
+      break;
+#endif // DREAMCAST
 #ifdef SIMPLECHECKS
     default:
       I_Error("FindWADFile: Internal failure");
@@ -865,12 +921,32 @@ static char* FindWADFile(const char* wfname, const char* ext)
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);
 
+#ifdef DREAMCAST
+	// DREAMCAST_TODO
+	{
+	    int handle;
+		
+		printf("trying %s\n\r",p);
+    	if ( (handle = fslib->open (p,O_RDONLY)) == 0)
+      		strcat(p, ext);
+    	else
+    		fslib->close(handle);
+    		
+    	if ( (handle = fslib->open (p,O_RDONLY)) != 0)
+    	{
+    		lprintf(LO_INFO, " found %s\n", p);
+    		fslib->close(handle);
+    		return p;
+    	}
+    }
+#else // DREAMCAST
     if (access(p,F_OK))
       strcat(p, ext);
     if (!access(p,F_OK)) {
       lprintf(LO_INFO, " found %s\n", p);
       return p;
     }
+#endif // DREAMCAST
     free(p);
   }
   return NULL;
@@ -885,6 +961,9 @@ static char* FindWADFile(const char* wfname, const char* ext)
  */
 static char *FindIWADFile(void)
 {
+#ifdef DREAMCAST
+	return "/cd/doom/iwad/doom2.wad";
+#else // DREAMCAST
   int		i;
   char	*	iwad	= NULL;
 
@@ -896,6 +975,7 @@ static char *FindIWADFile(void)
       iwad = FindWADFile(standard_iwads[i], ".wad");
   }
   return iwad;
+#endif // DREAMCAST
 }
 
 //
@@ -921,9 +1001,10 @@ static char *FindIWADFile(void)
 
 void IdentifyVersion (void)
 {
-  int         i;    //jff 3/24/98 index of args on commandline
-  struct stat sbuf; //jff 3/24/98 used to test save path for existence
   char *iwad;
+  int         i;    //jff 3/24/98 index of args on commandline
+#ifndef DREAMCAST
+  struct stat sbuf; //jff 3/24/98 used to test save path for existence
 
   // set save path to -save parm or current dir
 
@@ -948,6 +1029,7 @@ void IdentifyVersion (void)
     //jff 9/3/98 use logical output routine
     else lprintf(LO_ERROR,"Error: -save path does not exist, using %s\n", basesavegame);
   }
+#endif // DREAMCAST
 
   // locate the IWAD and determine game mode from it
 
@@ -1000,7 +1082,10 @@ void IdentifyVersion (void)
       //jff 9/3/98 use logical output routine
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");
     D_AddFile(iwad,source_iwad);
+#ifndef DREAMCAST
+/* proff 2001/7/2 - On Dreamcast the free crashes. There is a bug somewhere. */
     free(iwad);
+#endif
   }
   else
     I_Error("IdentifyVersion: IWAD not found\n");
@@ -1017,6 +1102,7 @@ void IdentifyVersion (void)
 
 void FindResponseFile (void)
 {
+#ifndef DREAMCAST
   int i;
 
   for (i = 1;i < myargc;i++)
@@ -1120,6 +1206,7 @@ void FindResponseFile (void)
           lprintf(LO_CONFIRM,"%s\n",myargv[k]);
         break;
       }
+#endif // DREAMCAST
 }
 
 //
@@ -1268,6 +1355,9 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
+  fslib = lib_open("fs");
+  if (!fslib) { printf("Can't open fs library\r\n"); return; }
+
   // proff 04/05/2000: Added support for include response files
   /* proff 2001/7/1 - Moved up, so -config can be in response files */
   {
@@ -1311,7 +1401,9 @@ void D_DoomMainSetup(void)
         if ((pos = strchr(cena,toupper(myargv[p][i]))))
           cons_error_mask |= (1<<(pos-cena));
 
+#ifndef DREAMCAST
   setbuf(stdout,NULL);
+#endif // DREAMCAST
 
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
@@ -1322,6 +1414,7 @@ void D_DoomMainSetup(void)
   // Using -deh in BOOM, others use -dehacked.
   // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
 
+#ifndef DREAMCAST
   p = M_CheckParm ("-deh");
   if (p)
     {
@@ -1343,6 +1436,8 @@ void D_DoomMainSetup(void)
           ProcessDehFile(file,D_dehout(),0);
         }
     }
+#endif // DREAMCAST
+
   // ty 03/09/98 end of do dehacked stuff
 
   // jff 1/24/98 set both working and command line value of play parms

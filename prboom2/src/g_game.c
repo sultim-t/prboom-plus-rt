@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.37 2001/07/02 12:35:02 proff_fs Exp $
+ * $Id: g_game.c,v 1.38 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.37 2001/07/02 12:35:02 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.38 2001/07/02 22:46:46 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -48,7 +48,9 @@ rcsid[] = "$Id: g_game.c,v 1.37 2001/07/02 12:35:02 proff_fs Exp $";
 #else
 #include <unistd.h>
 #endif
+#ifndef DREAMCAST
 #include <fcntl.h>
+#endif // DREAMCAST
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -90,7 +92,9 @@ rcsid[] = "$Id: g_game.c,v 1.37 2001/07/02 12:35:02 proff_fs Exp $";
 static size_t   savegamesize = SAVEGAMESIZE; // killough
 static boolean  netdemo;
 static const byte *demobuffer;   /* cph - only used for playback */
+#ifndef DREAMCAST
 static FILE    *demofp; /* cph - record straight to file */
+#endif // DREAMCAST
 static const byte *demo_p;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
@@ -2124,7 +2128,9 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   buf[1] = cmd->sidemove;
   buf[2] = (cmd->angleturn+128)>>8;
   buf[3] = cmd->buttons;
+#ifndef DREAMCAST
   if (fwrite(buf, sizeof(buf), 1, demofp) != 1)
+#endif // DREAMCAST
     I_Error("G_WriteDemoTiccmd: error writing demo");
 
   /* cph - alias demo_p to it so we can read it back */
@@ -2145,6 +2151,7 @@ void G_RecordDemo (const char* name)
   /* cph - Record demos straight to file
    * If file already exists, try to continue existing demo
    */
+#ifndef DREAMCAST
   if (access(demoname, F_OK)) {
     demofp = fopen(demoname, "wb");
   } else {
@@ -2174,7 +2181,9 @@ void G_RecordDemo (const char* name)
       autostart = false;
     }
   }
-  if (!demofp) I_Error("G_RecordDemo: failed to open %s", name);
+  if (!demofp)
+#endif // DREAMCAST
+  	I_Error("G_RecordDemo: failed to open %s", name);
 }
 
 // These functions are used to read and write game-specific options in demos
@@ -2468,7 +2477,9 @@ void G_BeginRecording (void)
       *demo_p++ = playeringame[i];
   }
 
+#ifndef DREAMCAST
   if (fwrite(demostart, 1, demo_p-demostart, demofp) != (size_t)(demo_p-demostart))
+#endif // DREAMCAST
     I_Error("G_BeginRecording: Error writing demo header");
   free(demostart);
 }
@@ -2706,7 +2717,9 @@ boolean G_CheckDemoStatus (void)
   if (demorecording)
     {
       demorecording = false;
+#ifndef DREAMCAST
       fputc(DEMOMARKER, demofp);
+#endif // DREAMCAST
       I_Error("G_CheckDemoStatus: Demo recorded");
       return false;  // killough
     }

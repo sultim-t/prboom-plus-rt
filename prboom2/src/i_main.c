@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.12 2001/06/26 20:05:24 cph Exp $
+ * $Id: i_main.c,v 1.13 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.12 2001/06/26 20:05:24 cph Exp $";
+rcsid[] = "$Id: i_main.c,v 1.13 2001/07/02 22:46:46 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -61,6 +61,9 @@ rcsid[] = "$Id: i_main.c,v 1.12 2001/06/26 20:05:24 cph Exp $";
 #endif
 
 #include <signal.h>
+#ifdef DREAMCAST
+#undef SIGPIPE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -1,0 +1,43 @@
+# PrBoom Dreamcast
+#
+# src/Makefile.dc
+# (c)2001 Florian Schulze
+#   
+# $Id: Makefile.dc,v 1.1 2001/07/02 22:46:46 proff_fs Exp $
+
+include ../../../Makefile.globals
+
+PROG = prboom
+
+OBJS = am_map.o g_game.o p_mobj.o r_segs.o hu_lib.o lprintf.o
+OBJS += p_plats.o r_sky.o d_deh.o hu_stuff.o m_argv.o p_pspr.o
+OBJS += m_bbox.o p_saveg.o r_things.o d_items.o m_cheat.o p_setup.o
+OBJS += s_sound.o d_main.o p_sight.o sounds.o m_menu.o p_spec.o
+OBJS += info.o st_lib.o m_misc.o p_switch.o p_telept.o
+OBJS += st_stuff.o m_random.o p_tick.o i_main.o tables.o p_user.o
+OBJS += p_ceilng.o v_video.o doomdef.o p_doors.o p_enemy.o r_bsp.o
+OBJS += version.o doomstat.o p_floor.o r_data.o p_genlin.o
+OBJS += dstrings.o p_inter.o wi_stuff.o r_draw.o f_finale.o
+OBJS += p_lights.o z_bmalloc.o p_map.o r_main.o f_wipe.o z_zone.o
+OBJS += p_maputl.o r_plane.o w_wad.o
+OBJS += d_client.o
+
+INCS += -I. -I../. -I../../include -nostdlib
+LIBS += -L../../lib -Ldc -ldcdoom -lm -lk -lgcc
+CFLAGS += -DHAVE_CONFIG_H -DDREAMCAST --fast-math -O3
+
+all: $(PROG).klf
+
+# First one checks for missing symbols, second one makes the real file
+$(PROG).klf: $(OBJS) dc/libdcdoom.a
+	$(CC) -ml -m4-single-only -O2 -g -e _ko_main -nostartfiles -nostdlib -o $(PROG).klf $(OBJS)  -L../lib -lk -lgcc $(LIBS)
+	$(CC) -ml -m4-single-only -O2 -Wl,-d -Wl,-r -Wl,-S -Wl,-x -nostartfiles -nostdlib -o $(PROG).klf $(OBJS) -L../lib -lk -lgcc $(LIBS)
+
+dc/libdcdoom.a:
+	$(MAKE) -C dc -f makefile.dc
+
+clean:
+	$(MAKE) -C dc -f makefile.dc clean
+	-rm -f *.bck *.o *.klf
+
+include ../../../Makefile.rules

@@ -1,0 +1,21 @@
+# PrBoom Dreamcast
+#
+# src/dc/Makefile.dc
+# (c)2001 Florian Schulze
+#   
+# $Id: Makefile.dc,v 1.1 2001/07/02 22:46:46 proff_fs Exp $
+
+include ../../../../Makefile.globals
+
+OBJS = i_system.o
+INCS += -I. -I../. -I../../. -I../../../include
+CFLAGS += -DHAVE_CONFIG_H -DDREAMCAST --fast-math -nostdlib -O3
+
+all: libdcdoom.a
+libdcdoom.a: $(OBJS)
+	$(AR) rcs libdcdoom.a $(OBJS)
+
+clean:
+	-rm -f *.bck *.o *.klf libdcdoom.a
+
+include ../../../../Makefile.rules

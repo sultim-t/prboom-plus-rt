@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.12 2000/09/16 20:20:40 proff_fs Exp $
+ * $Id: lprintf.c,v 1.13 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.12 2000/09/16 20:20:40 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.13 2001/07/02 22:46:46 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -306,6 +306,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
 #endif
   va_end(v);
 
+#ifndef DREAMCAST
   if (lvl&cons_output_mask)               /* mask output as specified */
   {
     r=fprintf(stdout,"%s",msg);
@@ -315,6 +316,9 @@ int lprintf(OutputLevels pri, const char *s, ...)
   }
   if (!isatty(1) && lvl&cons_error_mask)  /* if stdout redirected     */
     r=fprintf(stderr,"%s",msg);           /* select output at console */
+#else // DREAMCAST
+    r=printf("%s",msg);
+#endif // DREAMCAST
 
   return r;
 }
@@ -339,6 +343,7 @@ void I_Error(const char *error, ...)
   vsprintf(errmsg,error,argptr);
 #endif
   va_end(argptr);
+#ifndef DREAMCAST
   fprintf(stderr,"%s\n",errmsg);
 #ifdef _MSC_VER
   {
@@ -346,5 +351,9 @@ void I_Error(const char *error, ...)
     MessageBox(con_hWnd,errmsg,"PrBoom",MB_OK | MB_TASKMODAL | MB_TOPMOST);
   }
 #endif
+#else // DREAMCAST
+    printf("%s",errmsg);
+#endif // DREAMCAST
+
   I_SafeExit(-1);
 }

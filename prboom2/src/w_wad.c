@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.17 2001/02/25 20:19:51 proff_fs Exp $
+ * $Id: w_wad.c,v 1.18 2001/07/02 22:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.17 2001/02/25 20:19:51 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.18 2001/07/02 22:46:46 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -44,8 +44,14 @@ rcsid[] = "$Id: w_wad.c,v 1.17 2001/02/25 20:19:51 proff_fs Exp $";
 #ifdef _MSC_VER
 #include <io.h>
 #endif
+#ifdef DREAMCAST
+#include <kallisti/libk.h>
+#include <kallisti/abi/fs.h>
+extern abi_fs_t *fslib;
+#else
 #include <fcntl.h>
 #include <sys/stat.h>
+#endif
 
 #include "doomstat.h"
 #include "doomtype.h"
@@ -96,10 +102,12 @@ void W_PrintLump(FILE* fp, void* p) {
 
 static int W_Filelength(int handle)
 {
+#ifndef DREAMCAST
   struct stat   fileinfo;
   if (fstat(handle,&fileinfo) == -1)
     I_Error("W_Filelength: Error fstating");
   return fileinfo.st_size;
+#endif  
 }
 
 
@@ -174,7 +182,12 @@ static void W_AddFile(const char *filename, wad_source_t source)
 
   // open the file and add to directory
 
+#ifdef DREAMCAST
+  handle = fslib->open(filename,O_RDONLY);
+  if (handle==0) handle=-1;
+#else
   handle = open(filename,O_RDONLY | O_BINARY);
+#endif
 
 #ifdef HAVE_NET
   if (handle == -1 && D_NetGetWad(filename)) // CPhipps
@@ -212,7 +225,11 @@ static void W_AddFile(const char *filename, wad_source_t source)
   else
     {
       // WAD file
+#ifdef DREAMCAST
+      fslib->read(handle, &header, sizeof(header));
+#else
       read(handle, &header, sizeof(header));
+#endif
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
         I_Error("W_AddFile: Wad file %s doesn't have IWAD or PWAD id", filename);
@@ -220,8 +237,13 @@ static void W_AddFile(const char *filename, wad_source_t source)
       header.infotableofs = LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
       fileinfo2free = fileinfo = malloc(length);    // killough
+#ifdef DREAMCAST
+      fslib->seek(handle, header.infotableofs, SEEK_SET);
+      fslib->read(handle, fileinfo, length);
+#else
       lseek(handle, header.infotableofs, SEEK_SET);
       read(handle, fileinfo, length);
+#endif
       numlumps += header.numlumps;
     }
 
@@ -543,8 +565,13 @@ void W_ReadLump(int lump, void *dest)
 
       // killough 1/31/98: Reload hack (-wart) removed
 
+#ifdef DREAMCAST
+      fslib->seek(l->handle, l->position, SEEK_SET);
+      c = fslib->read(l->handle, dest, l->size);
+#else
       lseek(l->handle, l->position, SEEK_SET);
       c = read(l->handle, dest, l->size);
+#endif
       if (c < l->size)
         I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
     }
