@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.34 2001/07/04 14:59:52 uid24111 Exp $
+ * $Id: m_misc.c,v 1.35 2001/07/07 15:00:29 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.34 2001/07/04 14:59:52 uid24111 Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.35 2001/07/07 15:00:29 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -352,7 +352,7 @@ default_t defaults[] =
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
   {"sounddev", {NULL,&snd_device}, {0,"/dev/dsp"},UL,UL,
    def_str,ss_none}, // sound output device (UNIX)
-  {"snd_channels",{&numChannels},{32},1,UL,
+  {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},

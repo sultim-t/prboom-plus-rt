@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.h,v 1.5 2001/07/02 23:04:03 proff_fs Exp $
+ * $Id: i_sound.h,v 1.6 2001/07/07 15:00:29 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -60,7 +60,7 @@ void I_SetChannels(void);
 int I_GetSfxLumpNum (sfxinfo_t *sfxinfo);
 
 // Starts a sound in a particular sound channel.
-int I_StartSound(int id, int vol, int sep, int pitch, int priority);
+int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority);
 
 // Stops a sound channel.
 void I_StopSound(int handle);

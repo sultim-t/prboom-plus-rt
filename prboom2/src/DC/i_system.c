@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.2 2001/07/04 14:59:52 uid24111 Exp $
+ * $Id: i_system.c,v 1.3 2001/07/07 15:00:29 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.2 2001/07/04 14:59:52 uid24111 Exp $";
+rcsid[] = "$Id: i_system.c,v 1.3 2001/07/07 15:00:29 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include <kallisti/libk.h>
@@ -180,7 +180,7 @@ void I_SetChannels(void)
 {
 }
 
-int I_StartSound(int id, int vol, int sep, int pitch, int priority)
+int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
 }
 
