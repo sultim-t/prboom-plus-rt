@@ -16,12 +16,6 @@ games_PROGRAMS = prboom @BUILD_SERVER@
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-if SDL_NET
-UDP_SRC = i_udp_sdl.c
-else
-UDP_SRC = i_udp.c
-endif
-
 prboom_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
 prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
 
@@ -57,15 +51,7 @@ COMMON_SRC = \
  f_wipe.c       p_map.h            r_main.h         z_zone.c    \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h
 
-if SDL_NET
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
-else
-if HAVE_NET
-NET_CLIENT_SRC = d_client.c i_udp.c i_network.c
-else
-NET_CLIENT_SRC = d_client.c
-endif
-endif
 
 GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
 

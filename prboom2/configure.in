@@ -167,7 +167,6 @@ AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
 	AC_DEFINE(SDL_NET_UDP_PACKET_SRC))
     CFLAGS="$save_CFLAGS"
 ],,$SDL_LIBS)
-AM_CONDITIONAL(SDL_NET, test "$sdl_net" = yes)
 
 if test "$BUILD_SDLDOOM" != "prboom" || test "$sdl_net" != yes
 then
@@ -181,7 +180,6 @@ AC_CHECK_FUNC(socket,[
      has_net=yes
      BUILD_SERVER=prboom-game-server
 ],BUILD_SERVER=)
-AM_CONDITIONAL(HAVE_NET, test "$has_net" = yes)
 if test "$has_net" = yes
 then
  AC_DEFINE(HAVE_NET)
