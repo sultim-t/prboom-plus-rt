@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.7 2000/05/10 23:32:47 proff_fs Exp $
+ * $Id: lprintf.c,v 1.8 2000/05/11 20:01:06 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.7 2000/05/10 23:32:47 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.8 2000/05/11 20:01:06 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -187,6 +187,29 @@ static int I_ConPrintString (const char *outline)
 	}
 
 	return strlen (outline);
+}
+
+void I_ConTextAttr(byte a)
+{
+  int r,g,b,col;
+  HDC conDC;
+
+  conDC=GetDC(con_hWnd);
+  r=0; g=0; b=0;
+  if (a & FOREGROUND_INTENSITY) col=255;
+  else col=128;
+  if (a & FOREGROUND_RED) r=col;
+  if (a & FOREGROUND_GREEN) g=col;
+  if (a & FOREGROUND_BLUE) b=col;
+  SetTextColor(conDC, PALETTERGB(r,g,b));
+  r=0; g=0; b=0;
+  if (a & BACKGROUND_INTENSITY) col=255;
+  else col=128;
+  if (a & BACKGROUND_RED) r=col;
+  if (a & BACKGROUND_GREEN) g=col;
+  if (a & BACKGROUND_BLUE) b=col;
+ 	SetBkColor(conDC, PALETTERGB(r,g,b));
+  ReleaseDC(con_hWnd,conDC);
 }
 
 static void Init_Console(void)
