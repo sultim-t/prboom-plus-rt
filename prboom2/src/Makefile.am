@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.4 2000/05/08 23:58:37 jessh Exp $
+# $Id: Makefile.am,v 1.5 2000/05/09 20:50:41 proff_fs Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -23,7 +23,7 @@ endif
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-lxdoom_game_server_SOURCES = d_server.c l_udp.c protocol.h
+lxdoom_game_server_SOURCES = d_server.c i_udp.c protocol.h
 lxdoom_game_server_LDADD = POSIX/libposixdoom.a 
 
 COMMON_SRC = \
@@ -41,8 +41,8 @@ COMMON_SRC = \
  d_main.h       i_video.h          m_menu.c         p_spec.c    sounds.h    \
                 info.c             m_menu.h         p_spec.h    st_lib.c    \
  d_net.h        info.h             m_misc.c         p_switch.c  st_lib.h    \
- d_player.h     l_joy.c            m_misc.h         p_telept.c  st_stuff.c  \
- m_random.c     p_tick.c           st_stuff.h       l_main.c    i_main.h    \
+ d_player.h     i_joy.c            m_misc.h         p_telept.c  st_stuff.c  \
+ m_random.c     p_tick.c           st_stuff.h       i_main.c    i_main.h    \
  d_think.h      m_random.h         p_tick.h         tables.c    \
  d_ticcmd.h     m_swap.h           p_user.c         tables.h     \
  doomdata.h     p_ceilng.c         p_user.h         v_video.c   \
@@ -59,13 +59,13 @@ COMMON_SRC = \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h    $(ASMS)
 
 if HAVE_NET
-NET_CLIENT_SRC = d_client.c l_udp.c l_network.c
+NET_CLIENT_SRC = d_client.c i_udp.c i_network.c
 else
 NET_CLIENT_SRC = d_client.c
 endif
 
-lsdldoom_SOURCES = l_video_trans.h l_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC)
+lsdldoom_SOURCES = v_video_trans.h v_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC)
 lsdldoom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm SDL/libsdldoom.a
 
-lxdoom_SOURCES = l_video_trans.h   l_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
+lxdoom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
 lxdoom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ -lm POSIX/libposixdoom.a X11/libx11doom.a OSS/libossdoom.a

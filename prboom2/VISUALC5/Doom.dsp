@@ -333,19 +333,19 @@ SOURCE=..\src\info.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\l_joy.c
+SOURCE=..\src\i_joy.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\l_main.c
+SOURCE=..\src\i_main.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\l_video_trans.c
+SOURCE=..\src\v_video_trans.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\l_video_trans.h
+SOURCE=..\src\v_video_trans.h
 # End Source File
 # Begin Source File
 
