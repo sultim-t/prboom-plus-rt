@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_main.c,v 1.3 2000/05/05 08:28:50 cph Exp $
+ * $Id: l_main.c,v 1.4 2000/05/05 13:02:07 proff_fs Exp $
  *
  *  Hybrid of the Boom i_main.c and original linuxdoom i_main.c
  *
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_main.c,v 1.3 2000/05/05 08:28:50 cph Exp $";
+rcsid[] = "$Id: l_main.c,v 1.4 2000/05/05 13:02:07 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -337,7 +337,8 @@ void I_Quit (void)
 uid_t stored_euid = -1;
 #endif
 
-int main(int argc, const char * const * argv)
+//int main(int argc, const char * const * argv)
+int main(int argc, char **argv)
 {
 #ifdef SECURE_UID
   /* First thing, revoke setuid status (if any) */
@@ -401,3 +402,10 @@ int main(int argc, const char * const * argv)
   return 0;
 }
 
+//
+// $Log: l_main.c,v $
+// Revision 1.4  2000/05/05 13:02:07  proff_fs
+// Readded the CVS-Log and
+// changed the definition of main()
+//
+//
