@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_lib.c,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: st_lib.c,v 1.4 2000/05/17 21:13:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_lib.c,v 1.3 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: st_lib.c,v 1.4 2000/05/17 21:13:46 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -68,7 +68,7 @@ void STlib_initNum
 ( st_number_t* n,
   int x,
   int y,
-  const patch_t** pl,
+  const patchnum_t* pl,
   int* num,
   boolean* on,
   int     width )
@@ -104,8 +104,8 @@ static void STlib_drawNum
   int   numdigits = n->width;
   int   num = *n->num;
 
-  int   w = SHORT(n->p[0]->width);
-  int   h = SHORT(n->p[0]->height);
+  int   w = SHORT(n->p[0].width);
+  int   h = SHORT(n->p[0].height);
   int   x = n->x;
 
   int   neg;
@@ -137,7 +137,7 @@ static void STlib_drawNum
     I_Error("drawNum: n->y - ST_Y < 0");
 #endif
 
-  V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG);
+  V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG, VPT_STRETCH);
 
   // if non-number, do not draw it
   if (num == 1994)
@@ -149,16 +149,16 @@ static void STlib_drawNum
   // in the special case of 0, you draw 0
   if (!num)
     // CPhipps - patch drawing updated, reformatted
-    V_DrawMemPatch(x - w, n->y, FG, n->p[0], cm, 
-		   ((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE);
+    V_DrawNumPatch(x - w, n->y, FG, n->p[0].lumpnum, cm, 
+		   (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
 
   // draw the new number
   //jff 2/16/98 add color translation to digit output
   while (num && numdigits--) {
     // CPhipps - patch drawing updated, reformatted
     x -= w;
-    V_DrawMemPatch(x, n->y, FG, n->p[num % 10], cm, 
-		   ((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE);
+    V_DrawNumPatch(x, n->y, FG, n->p[num % 10].lumpnum, cm, 
+		   (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
     num /= 10;
   }
 
@@ -167,7 +167,7 @@ static void STlib_drawNum
   // cph - patch drawing updated, load by name instead of acquiring pointer earlier
   if (neg)
     V_DrawNamePatch(x - w, n->y, FG, "STTMINUS", cm, 
-		   ((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE);
+		   (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
 }
 
 /*
@@ -203,10 +203,10 @@ void STlib_initPercent
 ( st_percent_t* p,
   int x,
   int y,
-  const patch_t** pl,
+  const patchnum_t* pl,
   int* num,
   boolean* on,
-  const patch_t* percent )
+  const patchnum_t* percent )
 {
   STlib_initNum(&p->n, x, y, pl, num, on, 3);
   p->p = percent;
@@ -233,9 +233,9 @@ void STlib_updatePercent
     // killough 2/21/98: fix percents not updated;
     /* CPhipps - make %'s only be updated if number changed */
     // CPhipps - patch drawing updated
-    V_DrawMemPatch(per->n.x, per->n.y, FG, per->p, 
+    V_DrawNumPatch(per->n.x, per->n.y, FG, per->p->lumpnum, 
 		   sts_pct_always_gray ? CR_GRAY : cm, 
-		   sts_always_red ? VPT_NONE : VPT_TRANS);
+		   (sts_always_red ? VPT_NONE : VPT_TRANS) | VPT_STRETCH);
   }
 
   STlib_updateNum(&per->n, cm, refresh);
@@ -255,7 +255,7 @@ void STlib_initMultIcon
 ( st_multicon_t* i,
   int x,
   int y,
-  const patch_t** il,
+  const patchnum_t* il,
   int* inum,
   boolean* on )
 {
@@ -290,20 +290,20 @@ void STlib_updateMultIcon
   {
     if (mi->oldinum != -1)
     {
-      x = mi->x - SHORT(mi->p[mi->oldinum]->leftoffset);
-      y = mi->y - SHORT(mi->p[mi->oldinum]->topoffset);
-      w = SHORT(mi->p[mi->oldinum]->width);
-      h = SHORT(mi->p[mi->oldinum]->height);
+      x = mi->x - SHORT(mi->p[mi->oldinum].leftoffset);
+      y = mi->y - SHORT(mi->p[mi->oldinum].topoffset);
+      w = SHORT(mi->p[mi->oldinum].width);
+      h = SHORT(mi->p[mi->oldinum].height);
 
 #ifdef RANGECHECK
       if (y - ST_Y < 0)
         I_Error("updateMultIcon: y - ST_Y < 0");
 #endif
 
-      V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
+      V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG, VPT_STRETCH);
     }
     if (*mi->inum != -1)  // killough 2/16/98: redraw only if != -1
-      V_DrawMemPatch(mi->x, mi->y, FG, mi->p[*mi->inum], CR_DEFAULT, VPT_NONE);
+      V_DrawNumPatch(mi->x, mi->y, FG, mi->p[*mi->inum].lumpnum, CR_DEFAULT, VPT_STRETCH);
     mi->oldinum = *mi->inum;
   }
 }
@@ -322,7 +322,7 @@ void STlib_initBinIcon
 ( st_binicon_t* b,
   int x,
   int y,
-  const patch_t* i,
+  const patchnum_t* i,
   boolean* val,
   boolean* on )
 {
@@ -369,9 +369,9 @@ void STlib_updateBinIcon
 #endif
 
     if (*bi->val)
-      V_DrawMemPatch(bi->x, bi->y, FG, bi->p, CR_DEFAULT, VPT_NONE);
+      V_DrawNumPatch(bi->x, bi->y, FG, bi->p->lumpnum, CR_DEFAULT, VPT_STRETCH);
     else
-      V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG);
+      V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG, VPT_STRETCH);
 
     bi->oldval = *bi->val;
   }

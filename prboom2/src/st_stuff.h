@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.h,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: st_stuff.h,v 1.3 2000/05/17 21:13:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,18 +43,13 @@
 // Size of statusbar.
 // Now sensitive for scaling.
 
-#define ST_HEIGHT 32
 // proff 08/18/98: Changed for high-res
+#define ST_HEIGHT 32
 #define ST_WIDTH  320
-// CPhipps - if drawing status bar direct then add the offset, else draw 
-// at the top of the dedicated buffer
-#define ST_Y      (st_fgscreen ? 0 : (SCREENHEIGHT - st_height))
-// CPhipps - the ST_T macros have the true, on-screen values always, as used by other
-// code for screen positionings
-#define ST_TY     (SCREENHEIGHT - st_height)
-#define ST_TWIDTH st_width
-extern int st_height, st_width; // Actual on-screen size of status bar
-extern int st_fgscreen;
+#define ST_Y      (200 - ST_HEIGHT)
+#define ST_SCALED_HEIGHT (ST_HEIGHT*SCREENHEIGHT/200)
+#define ST_SCALED_WIDTH  SCREENWIDTH
+#define ST_SCALED_Y      (SCREENHEIGHT - ST_SCALED_HEIGHT)
 
 //
 // STATUS BAR

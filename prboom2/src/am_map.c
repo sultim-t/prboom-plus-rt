@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.6 2000/05/13 10:45:46 proff_fs Exp $
+ * $Id: am_map.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.6 2000/05/13 10:45:46 proff_fs Exp $";
+  "$Id: am_map.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -546,7 +546,7 @@ void AM_LevelInit(void)
 
   f_x = f_y = 0;
   f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
-  f_h = SCREENHEIGHT-st_height;// to allow runtime setting of width/height
+  f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
 
   AM_findMinMaxBoundaries();
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.12 2000/05/15 07:17:20 proff_fs Exp $
+ * $Id: d_main.c,v 1.13 2000/05/17 21:13:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.12 2000/05/15 07:17:20 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.13 2000/05/17 21:13:45 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -296,8 +296,12 @@ void D_Display (void)
       // and there is a menu being displayed
       borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
     }
+#ifdef GL_DOOM
+    R_DrawViewBorder();
+#else
     if (redrawborderstuff)
       R_DrawViewBorder();
+#endif
 
     // Now do the drawing
     if (viewactive)
@@ -305,8 +309,9 @@ void D_Display (void)
     if (automapmode & am_active)
       AM_Drawer();
     ST_Drawer(viewheight == SCREENHEIGHT, redrawborderstuff);
+#ifndef GL_DOOM
     R_DrawViewBorder();
-    if (isborder) R_CopyStatusBar();
+#endif
     HU_Drawer();
   }
 

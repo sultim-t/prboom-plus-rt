@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.4 2000/05/11 19:58:12 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.5 2000/05/17 21:13:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.4 2000/05/11 19:58:12 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.5 2000/05/17 21:13:46 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -66,9 +66,7 @@ rcsid[] = "$Id: st_stuff.c,v 1.4 2000/05/11 19:58:12 proff_fs Exp $";
 #define RADIATIONPAL            13
 
 // Location of status bar
-// proff 08/18/98: Changed for high-res
-#define ST_X                    (SCREENWIDTH/2-160)
-//#define ST_X                    0
+#define ST_X                    0
 #define ST_X2                   104
 
 // proff 08/18/98: Changed for high-res
@@ -298,29 +296,29 @@ static byte *sbar;
 static unsigned short sbar_width, sbar_height;
 
 // 0-9, tall numbers
-static const patch_t *tallnum[10];
+static patchnum_t tallnum[10];
 
 // tall % sign
-static const patch_t *tallpercent;
+static patchnum_t tallpercent;
 
 // 0-9, short, yellow (,different!) numbers
-static const patch_t *shortnum[10];
+static patchnum_t shortnum[10];
 
 // 3 key-cards, 3 skulls, 3 card/skull combos
 // jff 2/24/98 extend number of patches by three skull/card combos
-static const patch_t *keys[NUMCARDS+3];
+static patchnum_t keys[NUMCARDS+3];
 
 // face status patches
-static const patch_t *faces[ST_NUMFACES];
+static patchnum_t faces[ST_NUMFACES];
 
 // face background
-static const patch_t *faceback; // CPhipps - single background, translated for different players
+static patchnum_t faceback; // CPhipps - single background, translated for different players
 
  // main bar right
-static const patch_t *armsbg;
+static patchnum_t armsbg;
 
 // weapon ownership patches
-static const patch_t *arms[6][2];
+static patchnum_t arms[6][2];
 
 // ready-weapon widget
 static st_number_t w_ready;
@@ -393,20 +391,26 @@ void ST_Stop(void);
 
 void ST_refreshBackground(void)
 {
+  int y=0;
+  int screen=BG;
+
   if (st_statusbaron)
     {
-      // CPhipps - patch drawing updated
-      V_DrawBlock(ST_X, 0, BG, sbar_width, sbar_height, sbar, VPT_NONE);
+#ifdef GL_DOOM
+      // proff 05/17/2000: draw to the frontbuffer in OpenGL
+      y=ST_Y;
+#endif
+      V_DrawNamePatch(ST_X, y, screen, "STBAR", CR_DEFAULT, VPT_STRETCH);
 
       // killough 3/7/98: make face background change with displayplayer
       if (netgame)
       {
-        V_DrawMemPatch(ST_FX, 0, BG, faceback, 
+        V_DrawNumPatch(ST_FX, y, BG, faceback.lumpnum,
 		       displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT, 
 		       displayplayer ? VPT_TRANS : VPT_NONE);
       }
 
-      V_CopyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y, FG);
+      V_CopyRect(ST_X, y, screen, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
     }
 }
 
@@ -832,7 +836,9 @@ void ST_Drawer(boolean fullscreen, boolean refresh)
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
 #ifdef GL_DOOM
-  return;
+  // proff 05/17/2000: always draw everything in OpenGL, because there is no backbuffer
+  if (st_statusbaron)
+    ST_doRefresh();
 #else
   if (st_firsttime)
     ST_doRefresh();     // If just after ST_Start(), refresh all
@@ -853,31 +859,33 @@ static void ST_loadGraphics(boolean doload)
   char namebuf[9];
   // cph - macro that either acquires a pointer and lock for a lump, or 
   // unlocks it. var is referenced exactly once in either case, so ++ in arg works
+/*
 #define LOADORFREE(var,name) \
 if (!doload) { W_UnlockLumpName(name); var = NULL; } \
 else var = (const patch_t*)W_CacheLumpName(name)
+*/
 
   // Load the numbers, tall and short
   for (i=0;i<10;i++)
     {
       sprintf(namebuf, "STTNUM%d", i);
-      LOADORFREE(tallnum[i],namebuf);
+      R_SetPatchNum(&tallnum[i],namebuf);
       sprintf(namebuf, "STYSNUM%d", i);
-      LOADORFREE(shortnum[i],namebuf);
+      R_SetPatchNum(&shortnum[i],namebuf);
     }
 
   // Load percent key. 
-  LOADORFREE(tallpercent,"STTPRCNT");
+  R_SetPatchNum(&tallpercent,"STTPRCNT");
 
   // key cards
   for (i=0;i<NUMCARDS+3;i++)  //jff 2/23/98 show both keys too
     {
       sprintf(namebuf, "STKEYS%d", i);
-      LOADORFREE(keys[i], namebuf);
+      R_SetPatchNum(&keys[i], namebuf);
     }
 
   // arms background
-  LOADORFREE(armsbg, "STARMS");
+  R_SetPatchNum(&armsbg, "STARMS");
 
   // arms ownership widgets
   for (i=0;i<6;i++)
@@ -885,7 +893,7 @@ else var = (const patch_t*)W_CacheLumpName(name)
       sprintf(namebuf, "STGNUM%d", i+2);
 
       // gray #
-      LOADORFREE(arms[i][0], namebuf);
+      R_SetPatchNum(&arms[i][0], namebuf);
 
       // yellow #
       arms[i][1] = shortnum[i+2];
@@ -894,7 +902,7 @@ else var = (const patch_t*)W_CacheLumpName(name)
   // face backgrounds for different color players
   // killough 3/7/98: add better support for spy mode by loading all
   // player face backgrounds and using displayplayer to choose them:
-  LOADORFREE(faceback, "STFB0");
+  R_SetPatchNum(&faceback, "STFB0");
 
   // status bar background bits
   if (doload)
@@ -912,21 +920,21 @@ else var = (const patch_t*)W_CacheLumpName(name)
       for (j=0;j<ST_NUMSTRAIGHTFACES;j++)
         {
           sprintf(namebuf, "STFST%d%d", i, j);
-          LOADORFREE(faces[facenum++], namebuf);
+          R_SetPatchNum(&faces[facenum++], namebuf);
         }
       sprintf(namebuf, "STFTR%d0", i);        // turn right
-      LOADORFREE(faces[facenum++], namebuf);
+      R_SetPatchNum(&faces[facenum++], namebuf);
       sprintf(namebuf, "STFTL%d0", i);        // turn left
-      LOADORFREE(faces[facenum++], namebuf);
+      R_SetPatchNum(&faces[facenum++], namebuf);
       sprintf(namebuf, "STFOUCH%d", i);       // ouch!
-      LOADORFREE(faces[facenum++], namebuf);
+      R_SetPatchNum(&faces[facenum++], namebuf);
       sprintf(namebuf, "STFEVL%d", i);        // evil grin ;)
-      LOADORFREE(faces[facenum++], namebuf);
+      R_SetPatchNum(&faces[facenum++], namebuf);
       sprintf(namebuf, "STFKILL%d", i);       // pissed off
-      LOADORFREE(faces[facenum++], namebuf);
+      R_SetPatchNum(&faces[facenum++], namebuf);
     }
-  LOADORFREE(faces[facenum++], "STFGOD0");
-  LOADORFREE(faces[facenum++], "STFDEAD0");
+  R_SetPatchNum(&faces[facenum++], "STFGOD0");
+  R_SetPatchNum(&faces[facenum++], "STFDEAD0");
 }
 
 void ST_loadData(void)
@@ -991,13 +999,13 @@ void ST_createWidgets(void)
                     tallnum,
                     &plyr->health,
                     &st_statusbaron,
-                    tallpercent);
+                    &tallpercent);
 
   // arms background
   STlib_initBinIcon(&w_armsbg,
                     ST_ARMSBGX,
                     ST_ARMSBGY,
-                    armsbg,
+                    &armsbg,
                     &st_notdeathmatch,
                     &st_statusbaron);
 
@@ -1034,7 +1042,7 @@ void ST_createWidgets(void)
                     ST_ARMORY,
                     tallnum,
                     &plyr->armorpoints,
-                    &st_statusbaron, tallpercent);
+                    &st_statusbaron, &tallpercent);
 
   // keyboxes 0-2
   STlib_initMultIcon(&w_keyboxes[0],
@@ -1149,6 +1157,6 @@ void ST_Init(void)
   veryfirsttime = 0;
   ST_loadData();
 // proff 08/18/98: Changed for high-res
-  screens[4] = Z_Malloc(SCREENWIDTH*ST_HEIGHT, PU_STATIC, 0);
+  screens[4] = Z_Malloc(SCREENWIDTH*(ST_SCALED_HEIGHT+1), PU_STATIC, 0);
 //  screens[4] = Z_Malloc(ST_WIDTH*ST_HEIGHT, PU_STATIC, 0);
 }

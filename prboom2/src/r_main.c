@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: r_main.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -208,49 +208,6 @@ angle_t R_PointToAngle2(fixed_t viewx, fixed_t viewy, fixed_t x, fixed_t y)
     0;
 }
 
-// CPhipps - 
-// Status bar scaling
-// Independant x and y scaling by Gady Kozma <gady@math.tau.ac.il>
-
-int st_height, st_width, st_fgscreen, st_scalex, st_scaley;
-
-void R_InitStatusBar(void)
-{
-  st_height = 32;
-  for (st_scalex = 8; st_scalex>1; st_scalex--) {
-    if(SCREENWIDTH >= ST_WIDTH*st_scalex) break;
-  }
-  st_width = ST_WIDTH*st_scalex;
-  st_scaley = (int)(((double)(st_scalex * 320 * SCREENHEIGHT) / (double)(SCREENWIDTH * 200)) + 0.5);
-#ifdef RANGECHECK
-  if (st_scaley<1) I_Error("st_scaley<1");
-#endif
-  st_height = ST_HEIGHT*st_scaley;
-  if ((st_scalex > 1) || (st_scaley > 1))
-    screens[st_fgscreen = 5] = malloc(SCREENWIDTH*ST_HEIGHT); 
-  else
-    st_fgscreen = 0;
-}
-
-void R_CopyStatusBar(void)
-{
-  if ((st_scalex > 1) || (st_scaley > 1)) {
-    // Enlarge
-    // Caution: we increment st_scale for calculational convenience, watch out for it
-    int sr, sc, dr, dc;
-    byte* dst = screens[0] + SCREENWIDTH*ST_TY + (SCREENWIDTH - ST_WIDTH*(st_scalex))/2;
-    const byte* src = screens[5] + (SCREENWIDTH - ST_WIDTH)/2;
-
-    for (sr=0; sr<ST_HEIGHT; sr++, src+=SCREENWIDTH, dst+=SCREENWIDTH*st_scaley) {
-      for (sc=0, dc=0; sc<ST_WIDTH; sc++, dc+=st_scalex)
-	memset(&dst[dc], src[sc], st_scalex);
-      // Duplicate other rows
-      for (dr=1; dr<st_scaley; dr++)
-      	memcpy(dst+dr*SCREENWIDTH, dst, ST_WIDTH*st_scalex);
-    }
-  }
-}
-
 //
 // R_InitTextureMapping
 //
@@ -390,13 +347,13 @@ void R_ExecuteSetViewSize (void)
   else if (setblocks == 10)
     {
       scaledviewwidth = SCREENWIDTH;
-      viewheight = SCREENHEIGHT-st_height;
+      viewheight = SCREENHEIGHT-ST_SCALED_HEIGHT;
     }
   else
     {
 // proff 08/17/98: Changed for high-res
       scaledviewwidth = setblocks*SCREENWIDTH/10;
-      viewheight = (setblocks*(SCREENHEIGHT-st_height)/10) & ~7;
+      viewheight = (setblocks*(SCREENHEIGHT-ST_SCALED_HEIGHT)/10) & ~7;
     }
     
   viewwidth = scaledviewwidth;
@@ -480,7 +437,6 @@ void R_Init (void)
 #endif
   lprintf(LO_INFO, "\nR_InitData: ");
   R_InitData();
-  R_InitStatusBar();
   R_SetViewSize(screenblocks);
   lprintf(LO_INFO, "\nR_Init: R_InitPlanes ");
   R_InitPlanes();

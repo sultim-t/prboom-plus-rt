@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_lib.h,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: st_lib.h,v 1.4 2000/05/17 21:13:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,7 +43,7 @@
 // Background and foreground screen numbers
 //
 #define BG 4
-#define FG st_fgscreen
+#define FG 0
 
 //
 // Typedefs of widgets
@@ -72,7 +72,7 @@ typedef struct
   boolean*  on;
 
   // list of patches for 0-9
-  const patch_t** p;
+  const patchnum_t* p;
 
   // user data
   int data;
@@ -86,7 +86,7 @@ typedef struct
   st_number_t   n;
 
   // percent sign graphic
-  const patch_t*    p;
+  const patchnum_t*    p;
 } st_percent_t;
 
 // Multiple Icon widget
@@ -107,7 +107,7 @@ typedef struct
   boolean*    on;
 
   // list of icons
-  const patch_t**   p;
+  const patchnum_t*   p;
   
   // user data
   int     data;
@@ -132,7 +132,7 @@ typedef struct
   //  stating whether to update icon
   boolean*    on;  
 
-  const patch_t*    p;  // icon
+  const patchnum_t*    p;  // icon
   int     data;   // user data
 } st_binicon_t;
 
@@ -151,7 +151,7 @@ void STlib_initNum
 ( st_number_t* n,
   int x,
   int y,
-  const patch_t** pl,
+  const patchnum_t* pl,
   int* num,
   boolean* on,
   int width );
@@ -167,10 +167,10 @@ void STlib_initPercent
 ( st_percent_t* p,
   int x,
   int y,
-  const patch_t** pl,
+  const patchnum_t* pl,
   int* num,
   boolean* on,
-  const patch_t* percent );
+  const patchnum_t* percent );
 
 
 void STlib_updatePercent
@@ -184,7 +184,7 @@ void STlib_initMultIcon
 ( st_multicon_t* mi,
   int x,
   int y,
-  const patch_t**   il,
+  const patchnum_t*   il,
   int* inum,
   boolean* on );
 
@@ -199,7 +199,7 @@ void STlib_initBinIcon
 ( st_binicon_t* b,
   int x,
   int y,
-  const patch_t* i,
+  const patchnum_t* i,
   boolean* val,
   boolean* on );
 

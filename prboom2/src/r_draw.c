@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: r_draw.c,v 1.6 2000/05/17 21:13:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.6 2000/05/17 21:13:45 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -48,10 +48,6 @@ rcsid[] = "$Id: r_draw.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
 
 #define MAXWIDTH  MAX_SCREENWIDTH          /* kilough 2/8/98 */
 #define MAXHEIGHT MAX_SCREENHEIGHT
-
-// CPhipps - height of status bar on the screen
-#define SBARHEIGHT st_height
-#define SBARWIDTH ST_TWIDTH
 
 //
 // All drawing to the view buffer is accomplished in this file.
@@ -716,7 +712,7 @@ void R_InitBuffer(int width, int height)
 
   // Same with base row offset.
 
-  viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-SBARHEIGHT-height)>>1; 
+  viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-(ST_SCALED_HEIGHT-1)-height)>>1; 
 
   topleft = screens[0] + viewwindowy*SCREENWIDTH + viewwindowx;
 
@@ -737,71 +733,33 @@ void R_InitBuffer(int width, int height)
 
 void R_FillBackScreen (void) 
 { 
-  byte    *dest;
-  const byte *src;
   int     x,y; 
-  int     patch; // CPhipps - the lump number of the patch
-  int     flump; // cph - lump number of the flat
 
-  flump = firstflat +
-          R_FlatNumForName(gamemode == commercial ? "GRNROCK" : "FLOOR7_2");
-  src = W_CacheLumpNum(flump);
-
-  dest = screens[1]; 
-         
-  for ( y = 0 ; y < SCREENHEIGHT; y++ ) // proff/nicolas
-    { 
-      int x;
-      for (x=0 ; x<SCREENWIDTH/64 ; x++) 
-        { 
-          memcpy(dest, src+((y&63)<<6), 64); 
-          dest += 64; 
-        } 
-      if (SCREENWIDTH&63) 
-        { 
-          memcpy(dest, src+((y&63)<<6), SCREENWIDTH&63); 
-          dest += (SCREENWIDTH&63); 
-        } 
-    } 
-  W_UnlockLumpNum(flump);
-
-  // CPhipps - bevelled edge on background either side of status bar
-  if (viewwindowy + viewheight < SCREENHEIGHT) {
-    patch = W_GetNumForName("brdr_b");
-    
-    for (x=0; x<scaledviewwidth; x+=8)
-      V_DrawNumPatch(viewwindowx+x, viewwindowy+viewheight, 1, patch, CR_DEFAULT, VPT_NONE);
-  }
-// proff 08/17/98: Changed for high-res
-// proff/nicolas 09/20/98: Moved down for high-res
   if (scaledviewwidth == SCREENWIDTH)
     return;
 
-  patch = W_GetNumForName("brdr_t");
+  V_DrawBackground(gamemode == commercial ? "GRNROCK" : "FLOOR7_2", 1);
+        
   for (x=0; x<scaledviewwidth; x+=8)
-    V_DrawNumPatch(viewwindowx+x, viewwindowy-8, 1, patch, CR_DEFAULT, VPT_NONE);
+    V_DrawNamePatch(viewwindowx+x,viewwindowy-8,1,"brdr_t", CR_DEFAULT, VPT_NONE);
 
-  patch = W_GetNumForName("brdr_l");
-  for (y=0; y<viewheight; y+=8)
-    V_DrawNumPatch(viewwindowx-8, viewwindowy+y, 1, patch, CR_DEFAULT, VPT_NONE);
+  for (x=0; x<scaledviewwidth; x+=8)
+    V_DrawNamePatch(viewwindowx+x,viewwindowy+viewheight,1,"brdr_b", CR_DEFAULT, VPT_NONE);
 
-  patch = W_GetNumForName("brdr_r");
   for (y=0; y<viewheight; y+=8)
-    V_DrawNumPatch(viewwindowx+scaledviewwidth, viewwindowy+y, 
-		   1, patch, CR_DEFAULT, VPT_NONE);
+    V_DrawNamePatch(viewwindowx-8,viewwindowy+y,1,"brdr_l", CR_DEFAULT, VPT_NONE);
+
+  for (y=0; y<viewheight; y+=8)
+    V_DrawNamePatch(viewwindowx+scaledviewwidth,viewwindowy+y,1,"brdr_r", CR_DEFAULT, VPT_NONE);
 
   // Draw beveled edge. 
-  V_DrawNamePatch(viewwindowx-8, viewwindowy-8, 1,
-		  "brdr_tl", CR_DEFAULT, VPT_NONE);
+  V_DrawNamePatch(viewwindowx-8,viewwindowy-8,1,"brdr_tl", CR_DEFAULT, VPT_NONE);
     
-  V_DrawNamePatch(viewwindowx+scaledviewwidth, viewwindowy-8,
-              1, "brdr_tr", CR_DEFAULT, VPT_NONE);
+  V_DrawNamePatch(viewwindowx+scaledviewwidth,viewwindowy-8,1,"brdr_tr", CR_DEFAULT, VPT_NONE);
     
-  V_DrawNamePatch(viewwindowx-8, viewwindowy+viewheight,
-		  1, "brdr_bl", CR_DEFAULT, VPT_NONE);
+  V_DrawNamePatch(viewwindowx-8,viewwindowy+viewheight,1,"brdr_bl", CR_DEFAULT, VPT_NONE);
     
-  V_DrawNamePatch(viewwindowx+scaledviewwidth, viewwindowy+viewheight,
-		  1, "brdr_br", CR_DEFAULT, VPT_NONE);
+  V_DrawNamePatch(viewwindowx+scaledviewwidth,viewwindowy+viewheight,1,"brdr_br", CR_DEFAULT, VPT_NONE);
 } 
 
 //
@@ -809,9 +767,11 @@ void R_FillBackScreen (void)
 //
 
 void R_VideoErase(unsigned ofs, int count)
-{ 
+{
+#ifndef GL_DOOM
   memcpy(screens[0]+ofs, screens[1]+ofs, count);   // LFB copy.
-} 
+#endif
+}
 
 //
 // R_DrawViewBorder
@@ -820,9 +780,14 @@ void R_VideoErase(unsigned ofs, int count)
 //
 
 void V_MarkRect(int x, int y, int width, int height); 
- 
+
 void R_DrawViewBorder(void) 
 { 
+#ifdef GL_DOOM
+  // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
+  R_FillBackScreen();
+#else
+
   int top, side, ofs, i;
 // proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
   int side2;
@@ -832,30 +797,29 @@ void R_DrawViewBorder(void)
   //  return; 
  
 // proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
-  if (( SCREENWIDTH > SBARWIDTH ) && ((SCREENHEIGHT != viewheight) || 
-				      ((automapmode & am_active) && ! (automapmode & am_overlay))))
+  if ((SCREENHEIGHT != viewheight) || 
+      ((automapmode & am_active) && ! (automapmode & am_overlay)))
   {
-    ofs = ( SCREENHEIGHT - SBARHEIGHT ) * SCREENWIDTH;
-    side= ( SCREENWIDTH - SBARWIDTH ) / 2; 
+    ofs = ( SCREENHEIGHT - ST_SCALED_HEIGHT ) * SCREENWIDTH;
+    side= ( SCREENWIDTH - ST_SCALED_WIDTH ) / 2; 
 	  side2 = side * 2;
 
     R_VideoErase ( ofs, side );
     
     ofs += ( SCREENWIDTH - side );
-    for ( i = 1; i < SBARHEIGHT; i++ )
+    for ( i = 1; i < ST_SCALED_HEIGHT; i++ )
 	  {
       R_VideoErase ( ofs, side2 );
       ofs += SCREENWIDTH;
     }
-
+  
     R_VideoErase ( ofs, side );
   }
 
-  if ( viewheight >= ( SCREENHEIGHT - SBARHEIGHT ))
+  if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
     return; // if high-res, don´t go any further!
 
-// proff/nicolas 09/20/98: End of addition
-  top = ((SCREENHEIGHT-SBARHEIGHT)-viewheight)/2; 
+  top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2; 
   side = (SCREENWIDTH-scaledviewwidth)/2; 
  
   // copy top and one line of left side 
@@ -875,5 +839,6 @@ void R_DrawViewBorder(void)
       ofs += SCREENWIDTH; 
     } 
 
-  V_MarkRect (0,0,SCREENWIDTH, SCREENHEIGHT-SBARHEIGHT); 
-} 
+  V_MarkRect (0,0,SCREENWIDTH, SCREENHEIGHT-ST_SCALED_HEIGHT); 
+#endif
+}
