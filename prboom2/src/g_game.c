@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.25 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: g_game.c,v 1.26 2000/09/21 18:53:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.25 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.26 2000/09/21 18:53:57 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -2338,11 +2338,9 @@ const byte *G_ReadOptions(const byte *demo_p)
 	  comp[i] = *demo_p++;
       }
     }
-  else  // defaults for versions < 2.02
+  else  /* defaults for versions <= 2.02 */
     {
-      int i;  // killough 10/98: a compatibility vector now
-      for (i=0; i < COMP_TOTAL; i++)
-	comp[i] = compatibility;
+      /* cph - comp[] has already been set up right by G_Compatibility */
 
       monster_infighting = 1;           // killough 7/19/98
 
