@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.13.2.1 2001/02/18 17:19:50 proff_fs Exp $
+ * $Id: r_draw.c,v 1.13.2.2 2001/09/29 10:57:39 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.13.2.1 2001/02/18 17:19:50 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.13.2.2 2001/09/29 10:57:39 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -547,67 +547,27 @@ byte *ds_source;
 
 void R_DrawSpan (void) 
 { 
-  register unsigned position;
-  unsigned step;
+  register unsigned count,xfrac = ds_xfrac,yfrac = ds_yfrac;
 
   byte *source;
   byte *colormap;
   byte *dest;
     
-  unsigned count;
-  unsigned spot; 
-  unsigned xtemp;
-  unsigned ytemp;
-                
-  position = ((ds_xfrac<<10)&0xffff0000) | ((ds_yfrac>>6)&0xffff);
-  step = ((ds_xstep<<10)&0xffff0000) | ((ds_ystep>>6)&0xffff);
-                
   source = ds_source;
   colormap = ds_colormap;
   dest = topleft + ds_y*SCREENWIDTH + ds_x1;       
   count = ds_x2 - ds_x1 + 1; 
         
-  while (count >= 4)
-    { 
-      ytemp = position>>4;
-      ytemp = ytemp & 4032;
-      xtemp = position>>26;
-      spot = xtemp | ytemp;
-      position += step;
-      dest[0] = colormap[source[spot]]; 
-
-      ytemp = position>>4;
-      ytemp = ytemp & 4032;
-      xtemp = position>>26;
-      spot = xtemp | ytemp;
-      position += step;
-      dest[1] = colormap[source[spot]];
-        
-      ytemp = position>>4;
-      ytemp = ytemp & 4032;
-      xtemp = position>>26;
-      spot = xtemp | ytemp;
-      position += step;
-      dest[2] = colormap[source[spot]];
-        
-      ytemp = position>>4;
-      ytemp = ytemp & 4032;
-      xtemp = position>>26;
-      spot = xtemp | ytemp;
-      position += step;
-      dest[3] = colormap[source[spot]]; 
-                
-      dest += 4;
-      count -= 4;
-    } 
-
   while (count)
     { 
-      ytemp = position>>4;
-      ytemp = ytemp & 4032;
-      xtemp = position>>26;
+      register unsigned xtemp = xfrac >> 16;
+      register unsigned ytemp = yfrac >> 10;
+      register unsigned spot;
+      ytemp &= 4032;
+      xtemp &= 63;
       spot = xtemp | ytemp;
-      position += step;
+      xfrac += ds_xstep;
+      yfrac += ds_ystep;
       *dest++ = colormap[source[spot]]; 
       count--;
     } 
@@ -756,7 +716,5 @@ void R_DrawViewBorder(void)
       R_VideoErase (ofs, side); 
       ofs += SCREENWIDTH; 
     } 
-
-  V_MarkRect (0,0,SCREENWIDTH, SCREENHEIGHT-ST_SCALED_HEIGHT); 
 #endif
 }
