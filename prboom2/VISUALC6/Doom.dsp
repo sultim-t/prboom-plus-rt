@@ -7,21 +7,21 @@
 CFG=Doom - Win32 Release
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "Doom.mak".
-!MESSAGE
+!MESSAGE 
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "Doom.mak" CFG="Doom - Win32 Release"
-!MESSAGE
+!MESSAGE 
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
-!MESSAGE
+!MESSAGE 
 !MESSAGE "Doom - Win32 Release" (basierend auf  "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Debug" (basierend auf  "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Release NOASM" (basierend auf  "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Debug NOASM" (basierend auf  "Win32 (x86) Application")
-!MESSAGE
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -142,7 +142,7 @@ LINK32=link.exe
 # ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom.exe" /pdbtype:sept
 # SUBTRACT LINK32 /profile
 
-!ENDIF
+!ENDIF 
 
 # Begin Target
 
@@ -547,6 +547,22 @@ SOURCE=..\src\p_floor.c
 # Begin Source File
 
 SOURCE=..\src\p_genlin.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_hubs.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_hubs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_info.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_info.h
 # End Source File
 # Begin Source File
 
@@ -985,7 +1001,7 @@ SOURCE=..\src\gl_intern.h
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF
+!ENDIF 
 
 # End Source File
 # Begin Source File
@@ -1004,7 +1020,7 @@ SOURCE=..\src\gl_main.c
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF
+!ENDIF 
 
 # End Source File
 # Begin Source File
@@ -1027,7 +1043,7 @@ SOURCE=..\src\gl_struct.h
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF
+!ENDIF 
 
 # End Source File
 # Begin Source File
@@ -1046,7 +1062,7 @@ SOURCE=..\src\gl_texture.c
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF
+!ENDIF 
 
 # End Source File
 # End Group
