@@ -21,3 +21,4 @@ prboom2/src/OSS/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/X11/Makefile.am eol=lf
+prboom2/src/d_ipxgate.c -text
