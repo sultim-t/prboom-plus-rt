@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.2 2000/05/18 09:36:11 cph Exp $
+# $Id: Makefile.am,v 1.3 2001/07/19 20:38:37 cph Exp $
 #
 # Install boomlump.wad to /usr/local/share/doom
 #
@@ -8,8 +8,16 @@ waddir=$(datadir)/games/doom
 wad_DATA=prboom.wad
 EXTRA_DIST=prboom.wad
 
+prboom.wad      :       prboom.txt $(wildcard graphics/*.ppm sprites/*.ppm lumps/*.lmp sounds/*.wav)
+	-rm -f $@
+	deutex -make prboom.txt $@
+
 #
 # $Log: Makefile.am,v $
+# Revision 1.3  2001/07/19 20:38:37  cph
+# Generate prboom.wad from a DeuTex tree
+# Must be the biggest CVS commit I've ever made :-)
+#
 # Revision 1.2  2000/05/18 09:36:11  cph
 # Import new data WAD with Boom, MBF and PrBoom stuff
 #
