@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_floor.c,v 1.7.2.1 2001/02/06 21:47:26 cph Exp $
+ * $Id: p_floor.c,v 1.7.2.2 2001/09/22 10:27:37 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.7.2.1 2001/02/06 21:47:26 cph Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.7.2.2 2001/09/22 10:27:37 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -688,48 +688,64 @@ int EV_DoChange
   return rtn;
 }
 
-//
-// EV_BuildStairs()
-//
-// Handles staircase building. A sequence of sectors chosen by algorithm
-// rise at a speed indicated to a height that increases by the stepsize
-// each step.
-//
-// Passed the linedef triggering the stairs and the type of stair rise
-// Returns true if any thinkers are created
-//
+/*
+ * EV_BuildStairs()
+ *
+ * Handles staircase building. A sequence of sectors chosen by algorithm
+ * rise at a speed indicated to a height that increases by the stepsize
+ * each step.
+ *
+ * Passed the linedef triggering the stairs and the type of stair rise
+ * Returns true if any thinkers are created
+ * 
+ * cph 2001/09/21 - compatibility nightmares again
+ * There are three different ways this function has, during its history, stepped
+ * through all the stairs to be triggered by the single switch
+ * - original Doom used a linear P_FindSectorFromLineTag, but failed to preserve
+ * the index of the previous sector found, so instead it would restart its
+ * linear search from the last sector of the previous staircase
+ * - MBF/PrBoom with comp_stairs fail to emulate this, because their
+ * P_FindSectorFromLineTag is a chained hash table implementation. Instead they
+ * start following the hash chain from the last sector of the previous
+ * staircase, which will (probably) have the wrong tag, so they miss any further
+ * stairs
+ * - Boom fixed the bug, and MBF/PrBoom without comp_stairs work right
+ */
+static inline int P_FindSectorFromLineTagWithLowerBound
+(line_t* l, int start, int min)
+{
+  /* Emulate original Doom's linear lower-bounded P_FindSectorFromLineTag
+   * as needed */
+  do {
+    start = P_FindSectorFromLineTag(l,start);
+  } while (start >= 0 && start <= min);
+  return start;
+}
+
 int EV_BuildStairs
 ( line_t*       line,
   stair_e       type )
 {
-  int                   secnum;
-  int                   osecnum; //jff 3/4/98 save old loop index
-  int                   height;
-  int                   i;
-  int                   newsecnum;
-  int                   texture;
-  int                   ok;
-  int                   rtn;
+  /* cph 2001/09/22 - cleaned up this function to save my sanity. A separate
+   * outer loop index makes the logic much cleared, and local variables moved
+   * into the inner blocks helps too */
+  int                   ssec = -1;
+  int                   minssec = -1;
+  int                   rtn = 0;
     
-  sector_t*             sec;
-  sector_t*             tsec;
-
-  floormove_t*  floor;
-    
-  fixed_t               stairsize;
-  fixed_t               speed;
-
-  secnum = -1;
-  rtn = 0;
-
   // start a stair at each sector tagged the same as the linedef
-  while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+  while ((ssec = P_FindSectorFromLineTagWithLowerBound(line,ssec,minssec)) >= 0)
   {
-    sec = &sectors[secnum];
-              
+   int           secnum = ssec;
+   sector_t*     sec = &sectors[secnum];
+             
     // don't start a stair if the first step's floor is already moving
-    if (P_SectorActive(floor_special,sec)) //jff 2/22/98
-      continue;
+   if (!P_SectorActive(floor_special,sec)) { //jff 2/22/98
+    floormove_t*  floor;
+    int           texture, height;
+    fixed_t       stairsize;
+    fixed_t       speed;
+    int           ok;
       
     // create new floor thinker for first step
     rtn = 1;
@@ -763,7 +779,6 @@ int EV_BuildStairs
     floor->floordestheight = height;
               
     texture = sec->floorpic;
-    osecnum = secnum;           //jff 3/4/98 preserve loop index
       
     // Find next sector to raise
     //   1. Find 2-sided line with same sector side[0] (lowest numbered)
@@ -771,13 +786,16 @@ int EV_BuildStairs
     //   3. Unless already moving, or different texture, then stop building
     do
     {
+      int i;
       ok = 0;
+
       for (i = 0;i < sec->linecount;i++)
       {
+        sector_t* tsec = (sec->lines[i])->frontsector;
+        int newsecnum;
         if ( !((sec->lines[i])->flags & ML_TWOSIDED) )
           continue;
                                   
-        tsec = (sec->lines[i])->frontsector;
         newsecnum = tsec-sectors;
           
         if (secnum != newsecnum)
@@ -829,8 +847,23 @@ int EV_BuildStairs
       }
     } while(ok);      // continue until no next step is found
 
-    if (!comp[comp_stairs])      // killough 10/98: compatibility option
-      secnum = osecnum; //jff 3/4/98 restore loop index
+   }
+   /* killough 10/98: compatibility option */
+   if (comp[comp_stairs]) {
+     /* cph 2001/09/22 - emulate buggy MBF comp_stairs for demos, with logic
+      * reversed since we now have a separate outer loop index.
+      * DEMOSYNC - what about boom_compatibility_compatibility?
+      */
+     if ((compatibility_level >= mbf_compatibility) && (compatibility_level <
+           prboom_3_compatibility)) ssec = secnum; /* Trash outer loop index */
+     else {
+       /* cph 2001/09/22 - now the correct comp_stairs - Doom used a linear
+        * search from the last secnum, so we set that as a minimum value and do
+        * a fresh tag search
+        */
+       ssec = -1; minssec = secnum;
+     }
+   }
   }
   return rtn;
 }
