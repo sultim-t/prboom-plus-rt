@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.13.2.6 2002/07/27 15:58:45 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.13.2.7 2002/08/13 16:26:21 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -151,7 +151,7 @@ void gld_SetTexturePalette(GLenum target)
   pal[transparent_pal_index*4+1]=0;
   pal[transparent_pal_index*4+2]=0;
   pal[transparent_pal_index*4+3]=0;
-  glColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+  gld_ColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
   W_UnlockLumpName("PLAYPAL");
 }
 

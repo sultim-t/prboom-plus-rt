@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35.2.6 2002/08/05 16:22:27 proff_fs Exp $
+ * $Id: gl_main.c,v 1.35.2.7 2002/08/13 16:26:21 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -276,8 +276,8 @@ void gld_InitExtensions(const char *_extensions)
     else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
       if (gl_use_paletted_texture) {
         gl_paletted_texture = true;
-        glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
-	if (glColorTableEXT == NULL)
+        gld_ColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+	if (gld_ColorTableEXT == NULL)
 	  gl_paletted_texture = false;
 	else
           lprintf(LO_INFO,"using GL_EXT_paletted_texture\n",glGetString(GL_VENDOR));
@@ -286,8 +286,8 @@ void gld_InitExtensions(const char *_extensions)
     else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
       if (gl_use_shared_texture_palette) {
         gl_shared_texture_palette = true;
-        glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
-	if (glColorTableEXT == NULL)
+        gld_ColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+	if (gld_ColorTableEXT == NULL)
 	  gl_shared_texture_palette = false;
 	else
           lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n",glGetString(GL_VENDOR));
@@ -749,7 +749,7 @@ void gld_SetPalette(int palette)
     pal[transparent_pal_index*4+1]=0;
     pal[transparent_pal_index*4+2]=0;
     pal[transparent_pal_index*4+3]=0;
-    glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+    gld_ColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
     W_UnlockLumpName("PLAYPAL");
   } else {
     if (palette>0)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.13.2.3 2002/07/27 15:58:45 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.13.2.4 2002/08/13 16:26:21 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -114,5 +114,12 @@ void gld_InitPalettedTextures(void);
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-PFNGLCOLORTABLEEXTPROC glColorTableEXT;
+#ifndef PFNGLCOLORTABLEEXTPROC
+typedef void (APIENTRY * PFNGLCOLORTABLEEXTPROC) (GLenum target, 
+		GLenum internalFormat, GLsizei width, GLenum format, 
+		GLenum type, const GLvoid *table);
+#endif // Linux / Nvidia hack
+
+PFNGLCOLORTABLEEXTPROC gld_ColorTableEXT;
+
 #endif // _GL_INTERN_H
