@@ -30,6 +30,8 @@ We support nearly everything of MBF, like multiple skys etc.
 All that needs to be mentioned in the docs. Maybe we should combine the
 boomedit and mbfedit docs.
 
+2000/10/21 Colin: Merging the various docs will be most of the work, yes. 
+
 --------------------------------------------------------------------------
 15. Hardware music synth support for SDL target. timidity is
     nice, but some of the music sounds no good (notably MAP01).
@@ -51,9 +53,7 @@ Maybe we should do a developer page.
 What about adding some stuff from the lxdoom website.
 
 Colin:
-I'm going to move over some more content this weekend. And the Linux 
-Doom FAQ author is going to update it to point to PrBoom soon, 
-hopefully.
+The MBF bugs page I moved over.
 
 --------------------------------------------------------------------------
 21. Bug with the CapsLock key.
@@ -84,6 +84,10 @@ there so I can let people test if that's causing the problems on Voodoos.
 gl_sortsprites might speed up with the cost of sorting errors with
 transparent sprites. But the speedup is not very high.
 
+2000/10/21 colin: ok; also someone on the DW forums was complaining about 
+ PrBoom overwriting their boom.cfg... perhaps we should rename the non-GL
+ version's conf file to prboom.cfg?
+
 --------------------------------------------------------------------------
 24. (2000/10/04) Seperating segs and gl_segs etc.
 
@@ -104,6 +108,10 @@ Did it.
 2000/10/08 Proff:
 It seems like that in G_BeginRecording the version for new recorded Demos
 is still 210. Is that correct, or does it have to be 211.
+
+2000/10/21 colin: Hmmm. It looks like I was trying to be clever here and 
+ avoid changing the code for demos. But I think it does need changing. If 
+ I can't remember what my reasoning was, I'll change it.
 
 --------------------------------------------------------------------------
 27. (2000/10/08) There is a memory leak in the OpenGL part.
