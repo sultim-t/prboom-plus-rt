@@ -222,5 +222,9 @@ website/html/DOOM04.jpg -text
 website/html/DOOM05.jpg -text
 website/html/DOOM06.jpg -text
 website/html/OGL.gif -text
+website/html/main.css -text svneol=native#unset
+website/html/prboom2.gif -text
+website/src/index.ht -text svneol=native#unset
+website/src/mailinglists.ht -text
 website/src/mbf-bugs.ht -text
 website/web.config -text

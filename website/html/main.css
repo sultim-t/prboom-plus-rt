@@ -1,14 +1,58 @@
 body {
- font-family: Arial;
- color: black;
- background-color: white;
-}
-h1 {
- text-align: center;
+    font-family: ARIAL, HELVETICA, VERDANA;
+    color: #000000;
+    background-color: #ffffff;
 }
 a:link {
- color: red;
+    color: #ff0000;
 }
 a:visited {
- color: red;
+    color: #a00000;
+}
+img {
+    border: 0px;
+}
+ul.changes li {
+    font-size: small;
+    margin: 0px;
+}
+#navigation #menu {
+    font-weight: bold;
+}
+#navigation #menu div {
+    background-color: #eeeeee;
+    margin-top: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 5px;
+}
+#navigation #menu div div {
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 20px;
+}
+#navigation {
+    vertical-align: top;
+    width: 200px;
+    float: left;
+    background-color: #ffffff;
+    padding-right: 10px;
+/*
+    position: absolute;
+    left: 10px;
+    top: 10px;
+*/
+}
+#content {
+    vertical-align: top;
+    margin-left: 220px;
+}
+#prboom_logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+#sf_logo {
+    text-align: center;
+    margin-top: 20px;
 }

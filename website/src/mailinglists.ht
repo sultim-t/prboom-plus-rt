@@ -1,0 +1,24 @@
+title: Mailing Lists
+
+    <h1>Mailing Lists</h1>
+
+    <p>The following mailing lists are available:</p>
+
+    <dl>
+      <dt><a href="mailto:prboom-announce&#64;lists.sourceforge.net">
+      prboom-announce&#64;lists.sourceforge.net</a></dt>
+
+      <dd>Low traffic, only for announcements of new versions
+      etc.</dd>
+
+      <dt><a href="mailto:prboom-users&#64;lists.sourceforge.net">
+      prboom-users&#64;lists.sourceforge.net</a></dt>
+
+      <dd>For the users, posting of bugs etc.</dd>
+    </dl>
+
+    <p>To subscribe and unsubscribe from the mailing lists, and to
+    see the list archives, go to <a
+    href="https://sourceforge.net/mail/?group_id=3396">
+    https://sourceforge.net/mail/?group_id=3396</a></p>
+
