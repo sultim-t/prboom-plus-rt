@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.7 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: r_plane.c,v 1.8 2001/12/22 16:15:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.7 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.8 2001/12/22 16:15:35 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -186,7 +186,6 @@ static void R_MapPlane(int y, int x1, int x2)
 void R_ClearPlanes(void)
 {
   int i;
-  angle_t angle;
 
   // opening / clipping determination
   for (i=0 ; i<viewwidth ; i++)
@@ -201,12 +200,9 @@ void R_ClearPlanes(void)
   // texture calculation
   memset (cachedheight, 0, sizeof(cachedheight));
 
-  // left to right mapping
-  angle = (viewangle-ANG90)>>ANGLETOFINESHIFT;
-
   // scale will be unit scale at SCREENWIDTH/2 distance
-  basexscale = FixedDiv (finecosine[angle],centerxfrac);
-  baseyscale = -FixedDiv (finesine[angle],centerxfrac);
+  basexscale = FixedDiv (viewsin,projection);
+  baseyscale = FixedDiv (viewcos,projection);
 }
 
 // New function, by Lee Killough
