@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.46 2001/09/02 13:55:47 cph Exp $
+ * $Id: g_game.c,v 1.47 2001/11/18 20:17:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.46 2001/09/02 13:55:47 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.47 2001/11/18 20:17:36 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1410,12 +1410,13 @@ static const struct {
   const char* ver_printf;
   int version;
 } version_headers[] = {
-  { prboom_1_compatibility, "PrBoom %d", 260},
-  /* cph - we don't need a new version_header for prboom_3_comp/v2.1.1, since
-   *  the file format is unchanged.
-   * Ditto v2.3.x, so far anyway - if we change the format then this must be
-   * changed though. */
-  { prboom_4_compatibility, "PrBoom %d", 210}
+  { prboom_3_compatibility, "PrBoom %d", 210},
+  /* cph 2001/08/15 - need a new savegame format, which saves the compatibility
+   *  level in the savegame file - should've done this from the start.
+   * The entry above is only for compat with v2.2.1 savegames, should be dropped
+   *  later.
+   */
+  { prboom_4_compatibility, "PrBoom %d", 211}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
@@ -1481,8 +1482,8 @@ void G_DoLoadGame(void)
 
   save_p += strlen(save_p)+1;
 
-  /* cph - FIXME - compatibility flag? */
-  compatibility_level = savegame_compatibility;
+  compatibility_level = (savegame_compatibility >= prboom_4_compatibility)
+    ? *save_p : savegame_compatibility;
   save_p++;
 
   gameskill = *save_p++;
@@ -1655,7 +1656,7 @@ static void G_DoSaveGame (boolean menu)
   CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+10);
 
   /* cph - FIXME? - Save compatibility level */
-  *save_p++ = 0;
+  *save_p++ = compatibility_level;
 
   *save_p++ = gameskill;
   *save_p++ = gameepisode;
