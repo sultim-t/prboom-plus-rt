@@ -2,8 +2,7 @@
 2.  Network in SDL.
 
 Colin:
-The BSD-sockets net code works. Jess is working on the SDL version. The
-Linux SDL version current compiles using the BSD-sockets code fine though.
+SDL_net version works fine on Linux now.
 
 Proff:
 This seems to work now.
@@ -20,10 +19,6 @@ but I guess on Voodoo3s and above it should work.
 
 Jess:
 Seems to work
-
---------------------------------------------------------------------------
-5.  Does SDL_net work together with Colin's version?
-    That would mean Windows->Linux and OpenGL->Linux, yeah ;)
 
 
 --------------------------------------------------------------------------
@@ -49,7 +44,7 @@ I have added Nicolas Kalkhof to AUTHORS. It's ok for me now.
 
 Colin:
 I've done AUTHORS (well, updating the history) and the Linux install
-instructions, and some misc feature docs. More to do still.
+instructions, and some misc feature docs.
 
 --------------------------------------------------------------------------
 13. Repackage editing docs; I suggest that with all of
