@@ -605,13 +605,13 @@ int main(int argc, char** argv)
     if (playeringame(i)) {
       int tics;
       if (lowtic <= remoteticto[i]) continue;
-      remoteticto[i] -= xtratics;
+      if ((remoteticto[i] -= xtratics) < 0) remoteticto[i] = 0;
       tics = lowtic - remoteticto[i];
       {
         packet_header_t *packet = malloc(sizeof(packet_header_t) + 1 +
          tics * (1 + numplayers * (1 + sizeof(ticcmd_t))));
         byte *p = (void*)(packet+1);
-        packet->type = PKT_TICS; packet->tic = doom_htonl(remoteticto[i] - xtratics);
+        packet->type = PKT_TICS; packet->tic = doom_htonl(remoteticto[i]);
         *p++ = tics;
         if (verbose>1) printf("sending %d tics to %d\n", tics, i);
         while (tics--) {

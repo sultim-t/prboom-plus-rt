@@ -323,6 +323,7 @@ void NetUpdate(void)
     if (server && maketic > remotesend) { // Send the tics to the server
       int sendtics;
       remotesend -= xtratics;
+      if (remotesend < 0) remotesend = 0;
       sendtics = maketic - remotesend;
       {
   size_t pkt_size = sizeof(packet_header_t) + 2 + sendtics * sizeof(ticcmd_t);
