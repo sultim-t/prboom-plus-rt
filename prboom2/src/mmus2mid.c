@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mmus2mid.c,v 1.2 2000/05/21 14:00:12 proff_fs Exp $
+ * $Id: mmus2mid.c,v 1.3 2000/05/21 15:08:03 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,7 +49,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: mmus2mid.c,v 1.2 2000/05/21 14:00:12 proff_fs Exp $";
+static const char rcsid[] = "$Id: mmus2mid.c,v 1.3 2000/05/21 15:08:03 cph Exp $";
 
 #include <ctype.h>
 #include <stdio.h>
@@ -58,9 +58,9 @@ static const char rcsid[] = "$Id: mmus2mid.c,v 1.2 2000/05/21 14:00:12 proff_fs 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <malloc.h>
-#ifndef _WIN32 // proff: I don't use allegro in windows
+#ifdef MSDOS /* proff: I don't use allegro in windows */
 #include <allegro.h>
-#endif //_WIN32
+#endif /* !MSDOS */
 #include "mmus2mid.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 

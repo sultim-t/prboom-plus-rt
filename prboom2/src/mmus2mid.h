@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mmus2mid.h,v 1.2 2000/05/21 14:00:12 proff_fs Exp $
+ * $Id: mmus2mid.h,v 1.3 2000/05/21 15:08:03 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -54,7 +54,7 @@ typedef unsigned short UWORD; // a two-byte int
 // proff: changed from unsigned int to unsigned long to avoid warning
 typedef unsigned long ULONG;   // a four-byte int (assumes int 4 bytes) 
 
-#ifdef _WIN32 // proff: This is from allegro.h
+#ifndef MSDOS /* proff: This is from allegro.h */
 #define MIDI_TRACKS           32       
 
 typedef struct MIDI                    /* a midi file */
@@ -65,7 +65,7 @@ typedef struct MIDI                    /* a midi file */
       int len;                         /* length of the track data */
    } track[MIDI_TRACKS]; 
 } MIDI;
-#endif //_WIN32
+#endif /* !MSDOS */
 
 extern int mmus2mid(const UBYTE *mus,MIDI *mid, UWORD division, int nocomp);
 extern int MIDIToMidi(MIDI *mididata,UBYTE **mid,int *midlen);
