@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: GL_PROFF.C,v 1.1 2000/04/09 18:21:05 proff_fs Exp $
+// $Id: GL_PROFF.C,v 1.2 2000/04/10 21:13:13 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -2056,3 +2056,14 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 	glColor3f(1.0f,1.0f,1.0f);
   Z_ChangeTag(playpal, PU_CACHE);
 }
+
+//-----------------------------------------------------------------------------
+//
+// $Log: GL_PROFF.C,v $
+// Revision 1.2  2000/04/10 21:13:13  proff_fs
+// added Log to OpenGL files
+//
+// Revision 1.1.1.1  2000/04/09 18:21:44  proff_fs
+// Initial login
+//
+//-----------------------------------------------------------------------------

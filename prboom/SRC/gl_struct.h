@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_struct.h,v 1.1 2000/04/09 18:20:39 proff_fs Exp $
+// $Id: gl_struct.h,v 1.2 2000/04/10 21:13:13 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -58,3 +58,14 @@ void gld_EndDrawScene(void);
 void gld_Finish();
 
 #endif // _GL_STRUCT_H
+
+//-----------------------------------------------------------------------------
+//
+// $Log: gl_struct.h,v $
+// Revision 1.2  2000/04/10 21:13:13  proff_fs
+// added Log to OpenGL files
+//
+// Revision 1.1.1.1  2000/04/09 18:21:44  proff_fs
+// Initial login
+//
+//-----------------------------------------------------------------------------

@@ -2660,3 +2660,13 @@ BOOL  APIENTRY OpenGLSetPixelFormat(HDC hdc, int iPixelFormat, CONST PIXELFORMAT
   return (*fnSetPixelFormat)(hdc, iPixelFormat, ppfd);
 }
 
+//-----------------------------------------------------------------------------
+//
+// $Log: OpenGL.c,v $
+// Revision 1.2  2000/04/10 21:13:13  proff_fs
+// added Log to OpenGL files
+//
+// Revision 1.1.1.1  2000/04/09 18:21:44  proff_fs
+// Initial login
+//
+//-----------------------------------------------------------------------------

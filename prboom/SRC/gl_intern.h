@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_intern.h,v 1.1 2000/04/09 18:21:09 proff_fs Exp $
+// $Id: gl_intern.h,v 1.2 2000/04/10 21:13:13 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -77,3 +77,14 @@ GLTexture *gld_RegisterTexture(int texture_num);
 
 void gld_OutputLevelInfo(void);
 #endif // _GL_INTERN_H
+
+//-----------------------------------------------------------------------------
+//
+// $Log: gl_intern.h,v $
+// Revision 1.2  2000/04/10 21:13:13  proff_fs
+// added Log to OpenGL files
+//
+// Revision 1.1.1.1  2000/04/09 18:21:44  proff_fs
+// Initial login
+//
+//-----------------------------------------------------------------------------
