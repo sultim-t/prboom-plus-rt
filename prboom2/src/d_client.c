@@ -93,14 +93,14 @@ void D_InitNetGame (void)
     // Get game info from server
     packet_header_t *packet = Z_Malloc(1000, PU_STATIC, NULL);
     struct setup_packet_s *sinfo = (void*)(packet+1);
-  struct { packet_header_t head; short pn; } initpacket;
+  struct { packet_header_t head; short pn; } PACKEDATTR initpacket;
 
     I_InitNetwork();
   udp_socket = I_Socket(0);
   I_ConnectToServer(myargv[i]);
   // Send init packet
   initpacket.pn = doom_htons(wanted_player_number);
-  initpacket.head.type = PKT_INIT; initpacket.head.tic = 0;
+  packet_set(&initpacket.head, PKT_INIT, 0);
   I_SendPacket(&initpacket.head, sizeof(initpacket));
 
     do
@@ -174,10 +174,10 @@ void D_CheckNetGame(void)
     lprintf(LO_INFO, "D_CheckNetGame: waiting for server to signal game start\n");
     do {
       while (!I_GetPacket(packet, sizeof(packet_header_t)+1)) {
-  packet->tic = 0; packet->type = PKT_GO;
-  *(byte*)(packet+1) = consoleplayer;
-  I_SendPacket(packet, sizeof(packet_header_t)+1);
-  I_uSleep(100000);
+        packet_set(packet, PKT_GO, 0);
+	*(byte*)(packet+1) = consoleplayer;
+	I_SendPacket(packet, sizeof(packet_header_t)+1);
+	I_uSleep(100000);
       }
     } while (packet->type != PKT_GO);
   }
@@ -196,7 +196,7 @@ boolean D_NetGetWad(const char* name)
   do {
     // Send WAD request to remote
     packet = Z_Malloc(psize, PU_STATIC, NULL);
-    packet->type = PKT_WAD; packet->tic = 0;
+    packet_set(packet, PKT_WAD, 0);
     *(byte*)(packet+1) = consoleplayer;
     strcpy(1+(byte*)(packet+1), name);
     I_SendPacket(packet, sizeof(packet_header_t) + strlen(name) + 2);
@@ -261,8 +261,7 @@ void NetUpdate(void)
     int tics = *p++;
     unsigned long ptic = doom_ntohl(packet->tic);
     if (ptic > (unsigned)remotetic) { // Missed some
-      packet->type = PKT_RETRANS;
-      packet->tic = doom_htonl(remotetic);
+      packet_set(packet, PKT_RETRANS, remotetic);
       *(byte*)(packet+1) = consoleplayer;
       I_SendPacket(packet, sizeof(*packet)+1);
     } else {
@@ -333,8 +332,7 @@ void NetUpdate(void)
   size_t pkt_size = sizeof(packet_header_t) + 2 + sendtics * sizeof(ticcmd_t);
   packet_header_t *packet = Z_Malloc(pkt_size, PU_STATIC, NULL);
 
-  packet->tic = doom_htonl(maketic - sendtics);
-  packet->type = PKT_TICC;
+  packet_set(packet, PKT_TICC, maketic - sendtics);
   *(byte*)(packet+1) = sendtics;
   *(((byte*)(packet+1))+1) = consoleplayer;
   {
@@ -375,8 +373,7 @@ void D_NetSendMisc(netmisctype_t type, size_t len, void* data)
     packet_header_t *packet = Z_Malloc(size, PU_STATIC, NULL);
     int *p = (void*)(packet+1);
 
-    packet->tic = doom_htonl(gametic);
-    packet->type = PKT_EXTRA;
+    packet_set(packet, PKT_EXTRA, gametic);
     *p++ = LONG(type); *p++ = LONG(consoleplayer); *p++ = LONG(len);
     memcpy(p, data, len);
     I_SendPacket(packet, size);
@@ -485,7 +482,7 @@ void D_QuitNetGame (void)
 
   if (!server) return;
   buf[sizeof(packet_header_t)] = consoleplayer;
-  packet->type = PKT_QUIT; packet->tic = doom_htonl(gametic);
+  packet_set(packet, PKT_QUIT, gametic);
 
   for (i=0; i<4; i++) {
     I_SendPacket(packet, 1 + sizeof(packet_header_t));

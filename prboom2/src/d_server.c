@@ -256,8 +256,7 @@ void doexit(void)
   packet_header_t packet;
 
   // Send "downed" packet
-  packet.type = PKT_DOWN;
-  packet.tic = 0; // Clients should not need the tic number, can't see a use for it
+  packet_set(&packet, PKT_DOWN, 0);
   BroadcastPacket(&packet, sizeof packet);
 }
 
@@ -473,8 +472,7 @@ int main(int argc, char** argv)
       int i;
       size_t extrabytes = 0;
       // Send setup packet
-      packet->type = PKT_SETUP;
-      packet->tic = 0;
+      packet_set(packet, PKT_SETUP, 0);
       memcpy(sinfo, &setupinfo, sizeof setupinfo);
       sinfo->yourplayer = n;
       sinfo->numwads = numwads;
@@ -502,7 +500,7 @@ int main(int argc, char** argv)
         if (++curplayers == numplayers) {
     ingame=true;
     printf("All players joined, beginning game.\n");
-    packet->type = PKT_GO; packet->tic = 0;
+    packet_set(packet, PKT_GO, 0);
     BroadcastPacket(packet, sizeof *packet);
     I_uSleep(10000);
     BroadcastPacket(packet, sizeof *packet);
@@ -523,8 +521,7 @@ int main(int argc, char** argv)
             printf("tics %d - %d from %d\n", ptic(packet), ptic(packet) + tics - 1, from);
         if (ptic(packet) > remoteticfrom[from]) {
             // Missed tics, so request a resend
-            packet->tic = doom_htonl(remoteticfrom[from]);
-            packet->type = PKT_RETRANS;
+            packet_set(packet, PKT_RETRANS, remoteticfrom[from]);
             I_SendPacketTo(packet, sizeof *packet, remoteaddr+from);
         } else {
             ticcmd_t *newtic = (void*)(((byte*)(packet+1))+2);
@@ -591,7 +588,7 @@ int main(int argc, char** argv)
         } else {
     size += strlen(wadname[i]) + strlen(wadget[i]) + 2;
     reply = malloc(size);
-    reply->type = PKT_WAD; reply->tic = 0;
+    packet_set(reply, PKT_WAD, 0);
     strcpy((char*)(reply+1), wadname[i]);
     strcpy((char*)(reply+1) + strlen(wadname[i]) + 1, wadget[i]);
     printf("sending %s\n", wadget[i]);
@@ -631,7 +628,7 @@ int main(int argc, char** argv)
         packet_header_t *packet = malloc(sizeof(packet_header_t) + 1 +
          tics * (1 + numplayers * (1 + sizeof(ticcmd_t))));
         byte *p = (void*)(packet+1);
-        packet->type = PKT_TICS; packet->tic = doom_htonl(remoteticto[i]);
+        packet_set(packet, PKT_TICS, remoteticto[i]);
         *p++ = tics;
         if (verbose>1) printf("sending %d tics to %d\n", tics, i);
         while (tics--) {
@@ -657,7 +654,7 @@ int main(int argc, char** argv)
 	} else if (remoteticfrom[i] > remoteticto[i]+1) {
 	  if ((backoffcounter[i] += remoteticfrom[i] - remoteticto[i] - 1) > 35) {
 	    packet_header_t *packet = malloc(sizeof(packet_header_t));
-	    packet->type = PKT_BACKOFF; packet->tic = doom_htonl(remoteticto[i]);
+	    packet_set(packet, PKT_BACKOFF, remoteticto[i]);
 	    I_SendPacketTo(packet,sizeof *packet,remoteaddr+i);
 	    backoffcounter[i] = 0;
 	    if (verbose) printf("telling client %d to back off\n",i);
