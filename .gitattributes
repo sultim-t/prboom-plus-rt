@@ -210,6 +210,7 @@ prboom2/doc/vidd.gif -text
 prboom2/src/SDL/i_video.c -text svneol=native#unset
 prboom2/src/c_cmd.c -text svneol=native#unset
 prboom2/src/c_runcmd.c -text svneol=native#unset
+prboom2/src/d_main.c -text svneol=native#unset
 prboom2/src/g_game.c -text svneol=native#unset
 prboom2/src/hu_stuff.c -text svneol=native#unset
 prboom2/src/inl/Makefile.am -text

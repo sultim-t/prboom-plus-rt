@@ -945,6 +945,7 @@ void D_SetVersionFromIWAD(const char *iwad)
 void IdentifyVersion(void)
 {
   char *iwad;
+  char *prwad;
 
   // locate the IWAD
 
@@ -956,7 +957,9 @@ void IdentifyVersion(void)
 /* proff 2001/7/2 - On Dreamcast the free crashes. There is a bug somewhere. */
     free(iwad);
 #endif
-    D_AddFile("prboom.wad",source_pwad);
+    prwad = I_FindFile("prboom.wad", ".wad");
+    D_AddFile(prwad, source_pwad);
+    free(prwad);
   }
   else
     I_Error("IdentifyVersion: IWAD not found\n");
