@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.h,v 1.3 2000/05/18 07:27:00 cph Exp $
+ * $Id: m_misc.h,v 1.4 2000/05/23 09:10:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -89,6 +89,7 @@ typedef struct default_s
     def_colour = def_hex // Colour (256 colour palette entry)
   } type; // CPhipps - type of entry
   int   setupscreen;      // phares 4/19/98: setup screen where this appears
+  int  *current;          /* cph - MBF-like pointer to current value */
   // cph - removed the help strings from the config file
   // const char* help;       // jff 3/3/98 description of parameter
   // CPhipps - remove unused "lousy hack" code

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.20 2000/05/22 19:07:05 proff_fs Exp $
+ * $Id: g_game.c,v 1.21 2000/05/23 09:10:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.20 2000/05/22 19:07:05 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.21 2000/05/23 09:10:11 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1844,7 +1844,7 @@ extern int monsters_remember, default_monsters_remember;
  * for (i=0; i < COMP_TOTAL; i++)
  *   comp[i] = compatibility;
  *
- * Instead, we have a lookup table showing at what versio a fix was 
+ * Instead, we have a lookup table showing at what version a fix was 
  *  introduced.
  */
 
@@ -1881,6 +1881,8 @@ static void G_Compatibility(void)
     boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
     mbf_compatibility, /* comp_infcheat - FIXME */
     boom_compatibility,/* comp_zerotags - allow zero tags in wads */
+    lxdoom_1_compatibility, /* comp_moveblock - disables keygrab and 
+			     * mancubi shots going thru walls */
   };
   int i;
   for (i=0; i<COMP_NUM; i++)

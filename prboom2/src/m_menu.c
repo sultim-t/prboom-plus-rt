@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.13 2000/05/22 09:21:50 cph Exp $
+ * $Id: m_menu.c,v 1.14 2000/05/23 09:10:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.13 2000/05/22 09:21:50 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.14 2000/05/23 09:10:11 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -115,15 +115,13 @@ static int allow_changes(void)
 
 static void M_UpdateCurrent(default_t* def) 
 {
-#if 0
   /* cph - requires rewrite of m_misc.c */
-  if (ptr1->var.def->current)
+  if (def->current)
     if (allow_changes())  /* killough 8/15/98 */
-      *ptr1->var.def->current = *ptr1->var.def->location.pi;
+      *def->current = *def->location.pi;
     else
-      if (*ptr1->var.def->current != *ptr1->var.def->location.pi)
+      if (*def->current != *def->location.pi)
 	warn_about_changes(S_LEVWARN); /* killough 8/15/98 */
-#endif
 }
 
 int warning_about_changes, print_warning_about_changes;
@@ -3114,6 +3112,7 @@ enum
   compat_skymap,
   compat_stairs,
   compat_floors,
+  compat_moveblock,
   compat_model,
   compat_zerotags,
   compat_menu,
@@ -3182,6 +3181,9 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 
   {"Use exactly Doom's floor motion behavior", S_YESNO, m_null, C_X,
    C_Y + compat_floors * COMP_SPC, {"comp_floors"}},
+
+  {"Use exactly Doom's movement clipping code", S_YESNO, m_null, C_X,
+   C_Y + compat_moveblock * COMP_SPC, {"comp_moveblock"}},
 
   {"Use exactly Doom's linedef trigger model", S_YESNO, m_null, C_X,
    C_Y + compat_model * COMP_SPC, {"comp_model"}},

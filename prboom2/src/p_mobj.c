@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.7 2000/05/12 22:51:54 cph Exp $
+ * $Id: p_mobj.c,v 1.8 2000/05/23 09:10:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.7 2000/05/12 22:51:54 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.8 2000/05/23 09:10:11 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -196,7 +196,7 @@ void P_XYMovement (mobj_t* mo)
       // CPhipps - compatibility optioned
 
       if (xmove > MAXMOVE/2 || ymove > MAXMOVE/2 ||
-	((compatibility_level >= lxdoom_1_compatibility) 
+	(!comp[comp_moveblock] 
 	 && (xmove < -MAXMOVE/2 || ymove < -MAXMOVE/2)))
       {
       ptryx = mo->x + xmove/2;

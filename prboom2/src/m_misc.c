@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.13 2000/05/21 12:13:56 proff_fs Exp $
+ * $Id: m_misc.c,v 1.14 2000/05/23 09:10:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.13 2000/05/21 12:13:56 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.14 2000/05/23 09:10:11 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -236,34 +236,34 @@ default_t defaults[] =
   {"default_skill",{&defaultskill},{3},1,5, // jff 3/24/98 allow default skill setting
    def_int,ss_none}, // selects default skill 1=TYTD 2=NTR 3=HMP 4=UV 5=NM
   {"weapon_recoil",{&default_weapon_recoil},{1},0,1,
-   def_bool,ss_weap}, // enables recoil from weapon fire   // phares 
+   def_bool,ss_weap, &weapon_recoil}, 
   /* killough 10/98 - toggle between SG/SSG and Fist/Chainsaw */
   {"doom_weapon_toggles",{&doom_weapon_toggles}, {1}, 0, 1, 
    def_bool, ss_weap }, 
   {"player_bobbing",{&default_player_bobbing},{1},0,1,         // phares 2/25/98
-   def_bool,ss_weap}, // enables player bobbing (view randomly moving up/down slightly)
+   def_bool,ss_weap, &player_bobbing},
   {"monsters_remember",{&default_monsters_remember},{1},0,1,   // killough 3/1/98
-   def_bool,ss_enem}, // enables monsters remembering enemies after killing others
+   def_bool,ss_enem, &monsters_remember},
    /* MBF AI enhancement options */
   {"monster_infighting",{&default_monster_infighting}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &monster_infighting}, 
   {"monster_backing",{&default_monster_backing}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &monster_backing}, 
   {"monster_avoid_hazards",{&default_monster_avoid_hazards}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &monster_avoid_hazards}, 
   {"monkeys",{&default_monkeys}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &monkeys}, 
   {"monster_friction",{&default_monster_friction}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &monster_friction}, 
   {"help_friends",{&default_help_friends}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &help_friends}, 
 #ifdef DOGS
   {"player_helpers",{&default_dogs}, {0}, 0, 3, 
    def_bool, ss_enem }, 
   {"friend_distance",{&default_distfriend}, {128}, 0, 999, 
-   def_int, ss_enem }, 
+   def_int, ss_enem, &distfriend}, 
   {"dog_jumping",{&default_dog_jumping}, {1}, 0, 1, 
-   def_bool, ss_enem }, 
+   def_bool, ss_enem, &dog_jumping}, 
 #endif
    /* End of MBF AI extras */
   {"sts_always_red",{&sts_always_red},{0},0,1, // no color changes on status bar
@@ -280,25 +280,26 @@ default_t defaults[] =
    def_bool,ss_none},
 
   {"Compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"comp_zombie",{&default_comp[comp_zombie]},{0},0,1,def_bool,ss_comp},
-  {"comp_infcheat",{&default_comp[comp_infcheat]},{0},0,1,def_bool,ss_comp},
-  {"comp_stairs",{&default_comp[comp_stairs]},{0},0,1,def_bool,ss_comp},
-  {"comp_telefrag",{&default_comp[comp_telefrag]},{0},0,1,def_bool,ss_comp},
-  {"comp_dropoff",{&default_comp[comp_dropoff]},{0},0,1,def_bool,ss_comp},
-  {"comp_falloff",{&default_comp[comp_falloff]},{0},0,1,def_bool,ss_comp},
-  {"comp_staylift",{&default_comp[comp_staylift]},{0},0,1,def_bool,ss_comp},
-  {"comp_doorstuck",{&default_comp[comp_doorstuck]},{0},0,1,def_bool,ss_comp},
-  {"comp_pursuit",{&default_comp[comp_pursuit]},{0},0,1,def_bool,ss_comp},
-  {"comp_vile",{&default_comp[comp_vile]},{0},0,1,def_bool,ss_comp},
-  {"comp_pain",{&default_comp[comp_pain]},{0},0,1,def_bool,ss_comp},
-  {"comp_skull",{&default_comp[comp_skull]},{0},0,1,def_bool,ss_comp},
-  {"comp_blazing",{&default_comp[comp_blazing]},{0},0,1,def_bool,ss_comp},
-  {"comp_doorlight",{&default_comp[comp_doorlight]},{0},0,1,def_bool,ss_comp},
-  {"comp_god",{&default_comp[comp_god]},{0},0,1,def_bool,ss_comp},
-  {"comp_skymap",{&default_comp[comp_skymap]},{0},0,1,def_bool,ss_comp},
-  {"comp_floors",{&default_comp[comp_floors]},{0},0,1,def_bool,ss_comp},
-  {"comp_model",{&default_comp[comp_model]},{0},0,1,def_bool,ss_comp},
-  {"comp_zerotags",{&default_comp[comp_zerotags]},{0},0,1,def_bool,ss_comp},
+  {"comp_zombie",{&default_comp[comp_zombie]},{0},0,1,def_bool,ss_comp,&comp[comp_zombie]},
+  {"comp_infcheat",{&default_comp[comp_infcheat]},{0},0,1,def_bool,ss_comp,&comp[comp_infcheat]},
+  {"comp_stairs",{&default_comp[comp_stairs]},{0},0,1,def_bool,ss_comp,&comp[comp_stairs]},
+  {"comp_telefrag",{&default_comp[comp_telefrag]},{0},0,1,def_bool,ss_comp,&comp[comp_telefrag]},
+  {"comp_dropoff",{&default_comp[comp_dropoff]},{0},0,1,def_bool,ss_comp,&comp[comp_dropoff]},
+  {"comp_falloff",{&default_comp[comp_falloff]},{0},0,1,def_bool,ss_comp,&comp[comp_falloff]},
+  {"comp_staylift",{&default_comp[comp_staylift]},{0},0,1,def_bool,ss_comp,&comp[comp_staylift]},
+  {"comp_doorstuck",{&default_comp[comp_doorstuck]},{0},0,1,def_bool,ss_comp,&comp[comp_doorstuck]},
+  {"comp_pursuit",{&default_comp[comp_pursuit]},{0},0,1,def_bool,ss_comp,&comp[comp_pursuit]},
+  {"comp_vile",{&default_comp[comp_vile]},{0},0,1,def_bool,ss_comp,&comp[comp_vile]},
+  {"comp_pain",{&default_comp[comp_pain]},{0},0,1,def_bool,ss_comp,&comp[comp_pain]},
+  {"comp_skull",{&default_comp[comp_skull]},{0},0,1,def_bool,ss_comp,&comp[comp_skull]},
+  {"comp_blazing",{&default_comp[comp_blazing]},{0},0,1,def_bool,ss_comp,&comp[comp_blazing]},
+  {"comp_doorlight",{&default_comp[comp_doorlight]},{0},0,1,def_bool,ss_comp,&comp[comp_doorlight]},
+  {"comp_god",{&default_comp[comp_god]},{0},0,1,def_bool,ss_comp,&comp[comp_god]},
+  {"comp_skymap",{&default_comp[comp_skymap]},{0},0,1,def_bool,ss_comp,&comp[comp_skymap]},
+  {"comp_floors",{&default_comp[comp_floors]},{0},0,1,def_bool,ss_comp,&comp[comp_floors]},
+  {"comp_model",{&default_comp[comp_model]},{0},0,1,def_bool,ss_comp,&comp[comp_model]},
+  {"comp_zerotags",{&default_comp[comp_zerotags]},{0},0,1,def_bool,ss_comp,&comp[comp_zerotags]},
+  {"comp_moveblock",{&default_comp[comp_moveblock]},{0},0,1,def_bool,ss_comp,&comp[comp_moveblock]},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
