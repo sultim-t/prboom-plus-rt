@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.h,v 1.6 2000/12/30 19:51:28 cph Exp $
+ * $Id: z_zone.h,v 1.7 2000/12/31 15:08:55 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -115,5 +115,7 @@ char *strdup(const char *s);
 void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
 
 void Z_ZoneHistory(char *);
+
+extern size_t zone_size;
 
 #endif

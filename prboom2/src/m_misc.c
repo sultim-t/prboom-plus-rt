@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.27 2000/12/30 19:51:28 cph Exp $
+ * $Id: m_misc.c,v 1.28 2000/12/31 15:08:55 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.27 2000/12/30 19:51:28 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.28 2000/12/31 15:08:55 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -201,6 +201,15 @@ int X_opt;
  */
 int map_point_coordinates;
 
+/* cph - zone memory size
+ * proff - OpenGL needs even more ram at least 16megs are allocated
+ */
+#ifndef GL_DOOM
+#define MIN_RAM (8*1024)
+#else
+#define MIN_RAM (16*1024)
+#endif
+
 default_t defaults[] =
 {
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -219,6 +228,8 @@ default_t defaults[] =
    def_hex, ss_none}, // 0, +1 for colours, +2 for non-ascii chars, +4 for skip-last-line
   {"level_precache",{(int*)&precache},{0},0,1,
    def_bool,ss_none}, // precache level data?
+  {"zone_mem",{&zone_size},{MIN_RAM},MIN_RAM/2,UL,
+   def_int,ss_none}, /* z_zone heap size (in kb) */
   
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code 
