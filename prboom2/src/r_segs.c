@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.21 2003/02/15 17:23:41 dukope Exp $
+ * $Id: r_segs.c,v 1.22 2003/04/19 06:35:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.21 2003/02/15 17:23:41 dukope Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.22 2003/04/19 06:35:27 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -769,7 +769,16 @@ void R_StoreWallRange(const int start, const int stop)
 
   if (markfloor) {
     if (floorplane)     // killough 4/11/98: add NULL ptr checks
-      floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
+      /* cph 2003/04/18  - ceilingplane and floorplane might be the same
+       * visplane (e.g. if both skies); R_CheckPlane doesn't know about
+       * modifications to the plane that might happen in parallel with the check
+       * being made, so we have to override it and split them anyway if that is
+       * a possibility, otherwise the floor marking would overwrite the ceiling
+       * marking, resulting in HOM. */
+      if (markceiling && ceilingplane == floorplane)
+        floorplane = R_DupPlane (floorplane, rw_x, rw_stopx-1);
+      else
+        floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
     else
       markfloor = 0;
   }

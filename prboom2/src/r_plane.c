@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.13 2003/02/15 17:23:41 dukope Exp $
+ * $Id: r_plane.c,v 1.14 2003/04/19 06:35:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.13 2003/02/15 17:23:41 dukope Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.14 2003/04/19 06:35:26 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -225,6 +225,27 @@ static visplane_t *new_visplane(unsigned hash)
   return check;
 }
 
+/*
+ * R_DupPlane
+ *
+ * cph 2003/04/18 - create duplicate of existing visplane and set initial range
+ */
+visplane_t *R_DupPlane(const visplane_t *pl, int start, int stop)
+{
+      unsigned hash = visplane_hash(pl->picnum, pl->lightlevel, pl->height);
+      visplane_t *new_pl = new_visplane(hash);
+
+      new_pl->height = pl->height;
+      new_pl->picnum = pl->picnum;
+      new_pl->lightlevel = pl->lightlevel;
+      new_pl->xoffs = pl->xoffs;           // killough 2/28/98
+      new_pl->yoffs = pl->yoffs;
+      new_pl->minx = start;
+      new_pl->maxx = stop;
+      memset(new_pl->top, 0xff, sizeof new_pl->top);
+      return new_pl;
+}
+
 //
 // R_FindPlane
 //
@@ -285,25 +306,11 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
   for (x=intrl ; x <= intrh && pl->top[x] == 0xffff; x++)
     ;
 
-  if (x > intrh)
-    pl->minx = unionl, pl->maxx = unionh;
-  else
-    {
-      unsigned hash = visplane_hash(pl->picnum, pl->lightlevel, pl->height);
-      visplane_t *new_pl = new_visplane(hash);
-
-      new_pl->height = pl->height;
-      new_pl->picnum = pl->picnum;
-      new_pl->lightlevel = pl->lightlevel;
-      new_pl->xoffs = pl->xoffs;           // killough 2/28/98
-      new_pl->yoffs = pl->yoffs;
-      pl = new_pl;
-      pl->minx = start;
-      pl->maxx = stop;
-      memset(pl->top, 0xff, sizeof pl->top);
-    }
-
-  return pl;
+  if (x > intrh) { /* Can use existing plane; extend range */
+    pl->minx = unionl; pl->maxx = unionh;
+    return pl;
+  } else /* Cannot use existing plane; create a new one */
+    return R_DupPlane(pl,start,stop);
 }
 
 //
