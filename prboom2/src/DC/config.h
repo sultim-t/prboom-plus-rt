@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.3 2002/02/10 20:59:44 proff_fs Exp $
+ * $Id: config.h,v 1.4 2002/02/11 19:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,12 +35,6 @@
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 #undef WORDS_BIGENDIAN
-
-/* Define to strcasecmp, if we have it */
-#define stricmp strcasecmp
-
-/* Define to strncasecmp, if we have it */
-#define strnicmp strncasecmp
 
 /* Define on targets supporting 386 Assembly */
 /* This is in the project settings */
