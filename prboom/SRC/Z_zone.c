@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: Z_zone.c,v 1.1 2000/04/09 18:21:44 proff_fs Exp $
+// $Id: Z_zone.c,v 1.2 2000/04/30 15:25:38 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -37,7 +37,7 @@
 // statistics and tunables.
 //-----------------------------------------------------------------------------
 
-static const char rcsid[] = "$Id: Z_zone.c,v 1.1 2000/04/09 18:21:44 proff_fs Exp $";
+static const char rcsid[] = "$Id: Z_zone.c,v 1.2 2000/04/30 15:25:38 proff_fs Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -377,8 +377,9 @@ allocated:
   block->vm = 1;
 
 #ifdef INSTRUMENTED
-  virtual_memory += block->size = size + HEADER_SIZE;
+  virtual_memory +=
 #endif
+    block->size = size + HEADER_SIZE; // proff - this was lost in the #ifdef above
 
   goto allocated;
 }
@@ -651,8 +652,11 @@ void (Z_CheckHeap)(const char *file, int line)
 //-----------------------------------------------------------------------------
 //
 // $Log: Z_zone.c,v $
-// Revision 1.1  2000/04/09 18:21:44  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/30 15:25:38  proff_fs
+// fixed small bug in Z_Malloc
+//
+// Revision 1.1.1.1  2000/04/09 18:21:44  proff_fs
+// Initial login
 //
 // Revision 1.13  1998/05/12  06:11:55  killough
 // Improve memory-related error messages
