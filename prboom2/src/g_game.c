@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.59 2002/08/10 20:57:57 cph Exp $
+ * $Id: g_game.c,v 1.60 2002/08/12 21:47:11 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.59 2002/08/10 20:57:57 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.60 2002/08/12 21:47:11 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1392,7 +1392,7 @@ const char * comp_lev_str[] =
   "ultimate doom v1.9", "final doom/doom95", 
   "early DosDoom", "TASDoom",
   "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
-  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.0",
+  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.3",
   "Current PrBoom"  };
 
 static const struct {
