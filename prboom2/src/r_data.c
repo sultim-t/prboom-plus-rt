@@ -464,35 +464,21 @@ void R_InitTranMap(int progress)
   // If a tranlucency filter map lump is present, use it
 
   if (lump != -1)  // Set a pointer to the translucency filter maps.
-    main_tranmap = W_CacheLumpNum(lump);   // killough 4/11/98
+    main_tranmap = (byte *)W_CacheLumpNum(lump);   // killough 4/11/98
   else if (W_CheckNumForName("PLAYPAL")!=-1) // can be called before WAD loaded
     {   // Compose a default transparent filter map based on PLAYPAL.
       const byte *playpal = W_CacheLumpName("PLAYPAL");
-      byte       *my_tranmap;
 
-      char fname[PATH_MAX+1];
-      struct {
-        unsigned char pct;
-        unsigned char playpal[256];
-      } cache;
-      FILE *cachefp = fopen(strcat(strcpy(fname, I_DoomExeDir()), "/tranmap.dat"),"rb");
-
-      main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
+      // proff - fix memory by checking for existence of memory
+      if (!main_tranmap)
+        main_tranmap = malloc(256*256);  // killough 4/11/98
 
       // Use cached translucency filter if it's available
 
-      if (!cachefp ||
-          fread(&cache, 1, sizeof cache, cachefp) != sizeof cache ||
-          cache.pct != tran_filter_pct ||
-          memcmp(cache.playpal, playpal, sizeof cache.playpal) ||
-          fread(my_tranmap, 256, 256, cachefp) != 256 ) // killough 4/11/98
         {
           long pal[3][256], tot[256], pal_w1[3][256];
           long w1 = ((unsigned long) tran_filter_pct<<TSC)/100;
           long w2 = (1l<<TSC)-w1;
-
-	  if (cachefp)              // killough 11/98: fix filehandle leak
-            fclose(cachefp);
 
 	  if (progress)
 	    lprintf(LO_INFO, "Tranmap build [        ]\x08\x08\x08\x08\x08\x08\x08\x08\x08");
@@ -501,11 +487,11 @@ void R_InitTranMap(int progress)
           // for fast inner-loop calculations. Precompute tot array.
 
           {
-            register int i = 255;
-            register const unsigned char *p = playpal+255*3;
+            int i = 255;
+            const unsigned char *p = playpal+255*3;
             do
               {
-                register long t,d;
+                long t,d;
                 pal_w1[0][i] = (pal[0][i] = t = p[0]) * w1;
                 d = t*t;
                 pal_w1[1][i] = (pal[1][i] = t = p[1]) * w1;
@@ -522,19 +508,19 @@ void R_InitTranMap(int progress)
 
           {
             int i,j;
-            byte *tp = my_tranmap;
+            byte *tp = (byte *)main_tranmap;
             for (i=0;i<256;i++)
               {
                 long r1 = pal[0][i] * w2;
                 long g1 = pal[1][i] * w2;
                 long b1 = pal[2][i] * w2;
-                if (!(i & 31) && progress)
+                if (progress && !(i & 31))
                   //jff 8/3/98 use logical output routine
                   lprintf(LO_INFO,".");
                 for (j=0;j<256;j++,tp++)
                   {
-                    register int color = 255;
-                    register long err;
+                    int color = 255;
+                    long err;
                     long r = pal_w1[0][j] + r1;
                     long g = pal_w1[1][j] + g1;
                     long b = pal_w1[2][j] + b1;
@@ -547,18 +533,7 @@ void R_InitTranMap(int progress)
                   }
               }
           }
-          if ((cachefp = fopen(fname,"wb")) != NULL) // write out the cached translucency map
-            {
-              cache.pct = tran_filter_pct;
-              memcpy(cache.playpal, playpal, 256);
-              fseek(cachefp, 0, SEEK_SET);
-              fwrite(&cache, 1, sizeof cache, cachefp);
-              fwrite(main_tranmap, 256, 256, cachefp);
-	      // CPhipps - leave close for a few lines...
-	    }
         }
-      if (cachefp)              // killough 11/98: fix filehandle leak
-        fclose(cachefp);
  
       W_UnlockLumpName("PLAYPAL");
     }
