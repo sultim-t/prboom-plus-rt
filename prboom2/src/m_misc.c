@@ -240,7 +240,7 @@ default_t defaults[] =
   {"Game settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_skill",{&defaultskill},{3},1,5, // jff 3/24/98 allow default skill setting
    def_int,ss_none}, // selects default skill 1=TYTD 2=NTR 3=HMP 4=UV 5=NM
-  {"weapon_recoil",{&default_weapon_recoil},{1},0,1,
+  {"weapon_recoil",{&default_weapon_recoil},{0},0,1,
    def_bool,ss_weap, &weapon_recoil},
   /* killough 10/98 - toggle between SG/SSG and Fist/Chainsaw */
   {"doom_weapon_toggles",{&doom_weapon_toggles}, {1}, 0, 1,
@@ -256,7 +256,7 @@ default_t defaults[] =
    def_bool, ss_enem, &monster_backing},
   {"monster_avoid_hazards",{&default_monster_avoid_hazards}, {1}, 0, 1,
    def_bool, ss_enem, &monster_avoid_hazards},
-  {"monkeys",{&default_monkeys}, {1}, 0, 1,
+  {"monkeys",{&default_monkeys}, {0}, 0, 1,
    def_bool, ss_enem, &monkeys},
   {"monster_friction",{&default_monster_friction}, {1}, 0, 1,
    def_bool, ss_enem, &monster_friction},
@@ -271,13 +271,13 @@ default_t defaults[] =
    def_bool, ss_enem, &dog_jumping},
 #endif
    /* End of MBF AI extras */
-  {"sts_always_red",{&sts_always_red},{0},0,1, // no color changes on status bar
+  {"sts_always_red",{&sts_always_red},{1},0,1, // no color changes on status bar
    def_bool,ss_stat},
-  {"sts_pct_always_gray",{&sts_pct_always_gray},{1},0,1, // 2/23/98 chg default
+  {"sts_pct_always_gray",{&sts_pct_always_gray},{0},0,1, // 2/23/98 chg default
    def_bool,ss_stat}, // makes percent signs on status bar always gray
   {"sts_traditional_keys",{&sts_traditional_keys},{0},0,1,  // killough 2/28/98
    def_bool,ss_stat}, // disables doubled card and skull key display on status bar
-  {"traditional_menu",{&traditional_menu},{0},0,1,
+  {"traditional_menu",{&traditional_menu},{1},0,1,
    def_bool,ss_none}, // force use of Doom's main menu ordering // killough 4/17/98
   {"show_messages",{&showMessages},{1},0,1,
    def_bool,ss_none}, // enables message display
