@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.8 2000/08/26 14:06:50 proff_fs Exp $
+ * $Id: i_video.c,v 1.9 2000/09/01 19:37:55 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.8 2000/08/26 14:06:50 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.9 2000/09/01 19:37:55 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -62,7 +62,6 @@ void (*R_DrawTLColumn)(void);
 #include "r_draw.h"
 #include "d_main.h"
 #include "d_event.h"
-#include "v_video_trans.h"
 #include "i_joy.h"
 #include "i_video.h"
 #include "z_zone.h"
@@ -80,6 +79,7 @@ int use_vsync = 0; // Included not to break m_misc, but not relevant to SDL
 int use_fullscreen;
 static SDL_Surface *screen;
 
+typedef unsigned char* pval;
 // This is the pointer to the buffer to blit
 pval     *      out_buffer = NULL;
 
@@ -359,7 +359,6 @@ void I_ShutdownGraphics(void)
   fprintf(stderr, "I_ShutdownGraphics : ");
 
   // Free internal structures
-  if (pixelvals != NULL) free(pixelvals);
   I_EndImageTranslation();
   fprintf(stderr, "\n");
 }
@@ -385,10 +384,6 @@ void I_FinishUpdate (void)
 #endif
   
 #ifndef GL_DOOM
-  // scales the screen size before blitting it
-  if (expand_buffer)
-    (*I_ExpandImage)(out_buffer, screens[0]);
-  
   // Update the display buffer (flipping video pages if supported)
   SDL_Flip(screen);
 #else
@@ -410,12 +405,6 @@ void I_ReadScreen (byte* scr)
 //
 void I_SetPalette (int pal)
 {
-  if (true_color) {
-    int            lump = W_GetNumForName("PLAYPAL");
-    const byte *palette = W_CacheLumpNum(lump);
-    I_SetPaletteTranslation(palette + (3*256)*pal);
-    W_UnlockLumpNum(lump);
-  } else
     I_UploadNewPalette(pal);
 }
 
@@ -481,17 +470,8 @@ void I_InitGraphics(void)
     firsttime = 0;
   }
 
-  { // Check for screen enlargement
-    char str[3] = { '-', 0, 0 };
-
-    for (n=1; n<4; n++) {
-      str[1] = n + '0';
-      if (M_CheckParm(str)) multiply = n;
-    }
-  }
-  
-  w = SCREENWIDTH * multiply;
-  h = SCREENHEIGHT * multiply;
+  w = SCREENWIDTH;
+  h = SCREENHEIGHT;
   
   // Initialize SDL with this graphics mode
 #ifdef GL_DOOM
@@ -509,36 +489,29 @@ void I_InitGraphics(void)
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
   screen = SDL_SetVideoMode(w, h, 16, init_flags);
 #else
+#ifdef USE_OWN_TRANSLATION_CODE
   if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) { 
+#endif
     screen = SDL_SetVideoMode(w, h, 8, init_flags);
+#ifdef USE_OWN_TRANSLATION_CODE
   } else {
     screen = SDL_SetVideoMode(w, h, 0, init_flags);
   }
 #endif
-  if(screen == NULL || !I_QueryImageTranslation()) {
+#endif
+  if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
-  dest_bpp = screen->format->BitsPerPixel;
   strcpy(titlebuffer,PACKAGE);
   strcat(titlebuffer," ");
   strcat(titlebuffer,VERSION);
   SDL_WM_SetCaption(titlebuffer, titlebuffer);
 
-  I_InitImageTranslation();
-  if (true_color) {
-    // Set up colour shifts
-    I_SetColourShift(screen->format->Rmask, &redshift);
-    I_SetColourShift(screen->format->Gmask, &greenshift);
-    I_SetColourShift(screen->format->Bmask, &blueshift);
-  }
-
   lprintf(LO_INFO,"I_InitGraphics:");
-  lprintf(LO_INFO, " SDL %d bpp %s, scale x%d\n", dest_bpp,
-	  screen->format->palette ? "PseudoColor" : "TrueColor", multiply);
 
   // Get the info needed to render to the display
   out_buffer = (pval *)screen->pixels;
-  if (!expand_buffer) {
+  {
     // Render directly into SDL display memory
     Z_Free(screens[0]);
     screens[0] = (unsigned char *) (screen->pixels); 
