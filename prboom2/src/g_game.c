@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.10 2000/05/13 10:46:47 proff_fs Exp $
+ * $Id: g_game.c,v 1.11 2000/05/13 16:00:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.10 2000/05/13 10:46:47 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.11 2000/05/13 16:00:48 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1469,15 +1469,15 @@ static void G_LoadGameErr(const char *msg)
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
 { "demo", "doom", "\"boom compatibility\"", "boom", "lxdoom v1.3.2+", 
-  "MBF", "PrBoom" };
+  "MBF", "PrBoom 2.03beta", "New PrBoom"  };
 
 static const struct {
   int comp_level;
   const char* ver_printf;
   int version;
 } version_headers[] = {
-  { mbf_compatibility, "MBF %d", 204},
-  { prboom_1_compatibility, "PrBoom %d", 260}
+  { prboom_1_compatibility, "PrBoom %d", 260},
+  { prboom_2_compatibility, "PrBoom %d", 210}
 #if 0
   { boom_compatibility, "BoomVer %d", 202 },
   { lxdoom_1_compatibility, "LxD %d", 203 },
@@ -1492,8 +1492,7 @@ void G_DoLoadGame(void)
   int  length, i;
   // CPhipps - do savegame filename stuff here
   char name[PATH_MAX+1];     // killough 3/22/98
-  int savegame_compatibility = forced_loadgame ? boom_compatibility /* Default to Boom v2.02 */
-    : -1;
+  int savegame_compatibility = -1;
 
   G_SaveGameName(name,sizeof(name),savegameslot);
 
@@ -1514,8 +1513,12 @@ void G_DoLoadGame(void)
     }
   }
   if (savegame_compatibility == -1) {
-    G_LoadGameErr("Unrecognised or unsupported savegame version!\nAre you sure? (y/n) ");
-    return;
+    if (forced_loadgame) {
+      savegame_compatibility = MAX_COMPATIBILITY_LEVEL-1;
+    } else {
+      G_LoadGameErr("Unrecognised or unsupported savegame version!\nAre you sure? (y/n) ");
+      return;
+    }
   }
 
   save_p += VERSIONSIZE;
@@ -1540,9 +1543,9 @@ void G_DoLoadGame(void)
       } else 
 	lprintf(LO_WARN, "G_DoLoadGame: Incompatible savegame\n");
     }
+    save_p += sizeof checksum;
    }
 
-  save_p += sizeof(unsigned long);
   save_p += strlen(save_p)+1;
 
   /* cph - FIXME - compatibility flag? */
@@ -1572,10 +1575,13 @@ void G_DoLoadGame(void)
   memcpy(&leveltime, save_p, sizeof save_p);
   save_p += sizeof save_p;
 
+  /* cph - total episode time */
+  if (compatibility_level >= prboom_2_compatibility)
+    memcpy(&totalleveltimes, save_p, sizeof totalleveltimes);
+  else totalleveltimes = 0;
+
   // killough 11/98: load revenant tracer state
   basetic = gametic - *save_p++;
-
-  /* cph - totalleveltimes? */
 
   // dearchive all the modifications
   P_UnArchivePlayers ();
@@ -1719,9 +1725,14 @@ void G_DoSaveGame (void)
 
   save_p = G_WriteOptions(save_p);    // killough 3/1/98: save game options
 
-  /* cph - FIXME - endianness? totalleveltimes? */
+  /* cph - FIXME - endianness? */
   memcpy(save_p, &leveltime, sizeof save_p); //killough 11/98: save entire word
   save_p += sizeof save_p;
+
+  /* cph - total episode time */
+  if (compatibility_level >= prboom_2_compatibility)
+    memcpy(save_p, &totalleveltimes, sizeof totalleveltimes);
+  else totalleveltimes = 0;
 
   // killough 11/98: save revenant tracer state
   *save_p++ = (gametic-basetic) & 255;

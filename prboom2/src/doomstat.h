@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.5 2000/05/12 22:51:54 cph Exp $
+ * $Id: doomstat.h,v 1.6 2000/05/13 16:00:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -82,7 +82,8 @@ typedef enum {
   boom_compatibility,                    // Compatible with Boom
   lxdoom_1_compatibility,                // LxDoom v1.3.2+
   mbf_compatibility,                     /* MBF */
-  prboom_1_compatibility,                /* PrBoom 2.03+? */
+  prboom_1_compatibility,                /* PrBoom 2.03beta? */
+  prboom_2_compatibility,                /* New PrBoom */
   MAX_COMPATIBILITY_LEVEL                // Must be last entry
 } complevel_t;
 
