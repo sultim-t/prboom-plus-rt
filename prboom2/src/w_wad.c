@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.20 2001/07/12 20:55:54 cph Exp $
+ * $Id: w_wad.c,v 1.21 2001/07/12 21:29:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.20 2001/07/12 20:55:54 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.21 2001/07/12 21:29:27 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -61,6 +61,9 @@ extern abi_fs_t *fslib;
 #endif
 #include "w_wad.h"
 #include "lprintf.h"
+
+// From w_memcache.c
+void W_InitCache(void);
 
 //
 // GLOBALS

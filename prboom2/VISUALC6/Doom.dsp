@@ -889,6 +889,10 @@ SOURCE=..\src\version.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\w_memcache.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\w_wad.c
 # End Source File
 # Begin Source File

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $$
+ * $Id: w_mmap.c,v 1.2 2001/07/12 21:29:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_mmap.c,v 1.1 2001/07/12 20:55:54 cph Exp $";
+rcsid[] = "$Id: w_mmap.c,v 1.2 2001/07/12 21:29:27 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
