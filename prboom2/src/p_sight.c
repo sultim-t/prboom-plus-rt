@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.4 2000/05/12 07:44:38 cph Exp $
+ * $Id: p_sight.c,v 1.5 2000/05/13 09:24:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.4 2000/05/12 07:44:38 cph Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.5 2000/05/13 09:24:59 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -149,7 +149,7 @@ static boolean P_CrossSubsector(int num)
 	front->floorheight : back->floorheight ;
       
       // cph - reject if does not intrude in the z-space of the possible LOS
-      if ((opentop > los.maxz) && (openbottom < los.minz)) 
+      if ((opentop >= los.maxz) && (openbottom <= los.minz)) 
 	continue;
     }
     
@@ -275,6 +275,12 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
          t1->z + t2->height <= sectors[s2->heightsec].ceilingheight))))
     return false;
 
+  /* killough 11/98: shortcut for melee situations
+   * same subsector? obviously visible
+   * cph - DEMOSYNC - shouldn't break stuff but... */
+  if (t1->subsector == t2->subsector)
+    return true;
+
   // An unobstructed LOS is possible.
   // Now look from eyes of t1 to any part of t2.
 
@@ -296,13 +302,21 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
   else
     los.bbox[BOXTOP] = t2->y, los.bbox[BOXBOTTOM] = t1->y;
 
-  // cph - calculate min and max z of the potential line of sight
-  if (los.sightzstart < t2->z) {
-    los.maxz = t2->z + t2->height; los.minz = los.sightzstart;
-  } else if (los.sightzstart > t2->z + t2->height) {
-    los.maxz = los.sightzstart; los.minz = t2->z;
-  } else {
-    los.maxz = t2->z + t2->height; los.minz = t2->z;
+  /* cph - calculate min and max z of the potential line of sight
+   * For old demos, we disable this optimisation by setting them to 
+   * the extremes */
+  switch (compatibility_level) {
+  case lxdoom_1_compatibility:
+    if (los.sightzstart < t2->z) {
+      los.maxz = t2->z + t2->height; los.minz = los.sightzstart;
+    } else if (los.sightzstart > t2->z + t2->height) {
+      los.maxz = los.sightzstart; los.minz = t2->z;
+    } else {
+      los.maxz = t2->z + t2->height; los.minz = t2->z;
+    }
+    break;
+  default:
+    los.maxz = INT_MAX; los.minz = INT_MIN;
   }
 
   // the head node is the last node output
