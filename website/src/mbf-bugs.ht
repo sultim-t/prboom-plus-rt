@@ -1,15 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <title>MBF Source Notes</title>
-  <meta name="author" content="Colin Phipps" />
-  <link rel="stylesheet" href="main.css" type="text/css" />
-  <link rel="start" href="." type="text/html" />
-</head>
+title: MBF Source Notes
 
-<body>
 <h1>MBF Code Notes</h1>
 
 <h2>What this is</h2>
@@ -326,7 +316,7 @@ compatibility with MBF's buggy behaviour.</p>
 <p>Found by: Quasar</p>
 
 <p>Description: Monsters which aren't on the map to start with (e.g. monsters
-spawner by a boss cube thrower) which respawn, will appear at 0,0 — which
+spawner by a boss cube thrower) which respawn, will appear at 0,0 &mdash; which
 might be a bad place (e.g. solid rock).</p>
 
 <p>The spawnpoint fields in the data structure for a spawned mobj will be
@@ -397,7 +387,7 @@ diff -p -u -r1.6 p_doors.c
 @@ -488,30 +488,39 @@ int EV_VerticalDoor
    sec = sides[line-&gt;sidenum[1]].sector;
    secnum = sec-sectors;
- 
+
 -  // if door already has a thinker, use it
 -  if (sec-&gt;ceilingdata)      //jff 2/22/98
 -  {
@@ -415,13 +405,13 @@ diff -p -u -r1.6 p_doors.c
 -        {
 -          if (!thing-&gt;player)
 -            return 0;           // JDC: bad guys never close doors
--    
+-
 -          door-&gt;direction = -1; // start going down immediately
 -        }
 -        return 1;
 +  /* if door already has a thinker, use it
-+   * cph 2001/04/05 - 
-+   * Original Doom didn't distinguish floor/lighting/ceiling 
++   * cph 2001/04/05 -
++   * Original Doom didn't distinguish floor/lighting/ceiling
 +   *  actions, so we need to do the same in demo compatibility mode.
 +   */
 +  door = sec-&gt;ceilingdata;
@@ -435,7 +425,7 @@ diff -p -u -r1.6 p_doors.c
 +     * that check. For old demos we have to emulate the old buggy behavior and
 +     * mess up non-T_VerticalDoor actions.
 +     */
-+    if (compatibility_level &lt; prboom_4_compatibility || 
++    if (compatibility_level &lt; prboom_4_compatibility ||
 +        door-&gt;thinker.function == T_VerticalDoor) {
 +      /* An already moving repeatable door which is being re-pressed, or a
 +       * monster is trying to open a closing door - so change direction
@@ -451,7 +441,7 @@ diff -p -u -r1.6 p_doors.c
 +     */
 +    return 0;
    }
--  
+-
 +
    // emit proper sound
    switch(line-&gt;special)
@@ -473,7 +463,7 @@ setup for -fast mode being left as in the previous game, rather than loaded
 from the savegame.</p>
 
 <p>The fix is something like this (this does the same thing as the demo code
-in MBF, reading the game options twice — an ugly kludge). I haven't tried
+in MBF, reading the game options twice &mdash; an ugly kludge). I haven't tried
 this fix though, as PrBoom doesn't support options in PWADs so the fix was
 easier for us.</p>
 <pre>--- g_game.c    Tue Feb 15 16:06:28 2000
@@ -481,19 +471,19 @@ easier for us.</p>
 @@ -1347,11 +1347,16 @@ static void G_DoLoadGame(void)
    // killough 11/98: simplify
    idmusnum = *(signed char *) save_p++;
- 
+
 +  /* cph 2001/05/23 - Must read options before we set up the level */
 +  G_ReadOptions(save_p);
 +
    // load a base level
    G_InitNew(gameskill, gameepisode, gamemap);
- 
+
    // killough 3/1/98: Read game options
    // killough 11/98: move down to here
 +  /* cph - MBF needs to reread the savegame options because G_InitNew
 +   * rereads the WAD options. The demo playback code does this too. */
    save_p = G_ReadOptions(save_p);
- 
+
    // get the times
       </pre>
 
@@ -548,7 +538,7 @@ change occurs.</p>
 <pre>--- p_pspr.c	7 Jul 2001 18:17:10 -0000	1.6
 +++ p_pspr.c	8 Aug 2002 20:54:13 -0000
 @@ -377,7 +377,14 @@ void A_ReFire(player_t *player, pspdef_t
- 
+
  void A_CheckReload(player_t *player, pspdef_t *psp)
  {
 -  P_CheckAmmo(player);
@@ -561,7 +551,7 @@ change occurs.</p>
 +    P_SetPsprite(player,ps_weapon,weaponinfo[player-&gt;readyweapon].downstate);
 +  }
  }
- 
+
  //
     </pre>
 
@@ -577,7 +567,7 @@ line of sight.</p>
 <p>It's a trivial typo in <code>P_DivlineSide</code>:</p>
 <pre>--- p_sight.c.orig	Mon Aug 19 11:35:14 2002
 +++ p_sight.c	Mon Aug 19 17:26:41 2002
-@@ -67,7 +67,8 @@ inline static int P_DivlineSide(fixed_t 
+@@ -67,7 +67,8 @@ inline static int P_DivlineSide(fixed_t
    fixed_t left, right;
    return
      !node-&gt;dx ? x == node-&gt;x ? 2 : x &lt;= node-&gt;x ? node-&gt;dy &gt; 0 : node-&gt;dy &lt; 0 :
@@ -636,7 +626,7 @@ compatibility-option the fix; in PrBoom v2.3.0 I will put this under the new
 <p>Affects: Boom, MBF, PrBoom up to and including 2.2.3</p>
 
 <p>Description: In original Doom, the weapon pickup sounds are like item
-pickup sounds — they are considered to be an interface noise (like the
+pickup sounds &mdash; they are considered to be an interface noise (like the
 clunks in the menus, and the radio beep for mesages), and not part of the
 game. Players therefore do not hear other players' weapon pickup sounds. Boom
 changed this behaviour, making these sounds audible to other players. Old
@@ -724,7 +714,7 @@ MBF, the floor will not be stuck, even in compatibility mode.</p>
              lastpos = sector-&gt;floorheight;
              sector-&gt;floorheight = dest;
              flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
-             if (flag == true)                   
+             if (flag == true)
              {
                sector-&gt;floorheight =lastpos;
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
@@ -747,7 +737,7 @@ MBF, the floor will not be stuck, even in compatibility mode.</p>
 +            }
            }
            break;
-                                                 
+
          case 1:
            // Moving a floor up</pre>
 
@@ -856,7 +846,7 @@ behaviour, so if you don't care about MBF/Boom demos you can make the fix
 unconditional.</p>
 <pre>*** 50,56 ****
   #include "lprintf.h"
-  
+
   static mobj_t    *tmthing;
 - static uint_64_t tmflags;
   static fixed_t   tmx;
@@ -866,10 +856,10 @@ unconditional.</p>
 *************** boolean P_TeleportMove (mobj_t* thing,fi
 *** 233,239 ****
     // kill anything occupying the position
-  
+
     tmthing = thing;
 -   tmflags = thing-&gt;flags;
-  
+
     tmx = x;
     tmy = y;
 --- 232,237 ----
@@ -893,10 +883,10 @@ unconditional.</p>
 *************** boolean P_CheckPosition (mobj_t* thing,f
 *** 660,666 ****
     subsector_t*  newsubsec;
-  
+
     tmthing = thing;
 -   tmflags = thing-&gt;flags;
-  
+
     tmx = x;
     tmy = y;
 --- 658,663 ----
@@ -904,18 +894,18 @@ unconditional.</p>
 *** 688,694 ****
     validcount++;
     numspechit = 0;
-  
+
 !   if ( tmflags &amp; MF_NOCLIP )
       return true;
-  
+
     // Check things first, possibly picking things up.
 --- 685,691 ----
     validcount++;
     numspechit = 0;
-  
+
 !   if ( tmthing-&gt;flags &amp; MF_NOCLIP )
       return true;
-  
+
     // Check things first, possibly picking things up.
 *************** void P_CreateSecNodeList(mobj_t* thing,f
 *** 2130,2135 ****
@@ -925,16 +915,16 @@ unconditional.</p>
     msecnode_t* node;
 +   mobj_t* saved_tmthing = tmthing; /* cph - see comment at func end */
 +   fixed_t saved_tmx = tmx, saved_tmy = tmy; /* ditto */
-  
+
     // First, clear out the existing m_thing fields. As each node is
     // added or verified as needed, m_thing will be set properly. When
 *************** void P_CreateSecNodeList(mobj_t* thing,f
 *** 2133,2139 ****
       }
-  
+
     tmthing = thing;
 -   tmflags = thing-&gt;flags;
-  
+
     tmx = x;
     tmy = y;
 --- 2131,2136 ----
@@ -944,12 +934,12 @@ unconditional.</p>
       else
         node = node-&gt;m_tnext;
       }
-+ 
++
 +   /* cph -
-+    * This is the strife we get into for using global variables. tmthing 
++    * This is the strife we get into for using global variables. tmthing
 +    *  is being used by several different functions calling
 +    *  P_BlockThingIterator, including functions that can be called *from*
-+    *  P_BlockThingIterator. Using a global tmthing is not reentrant. 
++    *  P_BlockThingIterator. Using a global tmthing is not reentrant.
 +    * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
 +    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
 +    */
@@ -988,21 +978,21 @@ and this was never fixed, it seems.</p>
 <p>Back then there was no notion of a compatibility mode, but nowadays we can
 compatibility option the fix so old demos will work. We use the
 <code>gamemission</code> variable to guess whether this demo is Doom2 or
-Ult/Final Doom — it's crude but works for all the Compet-n demos I've
+Ult/Final Doom &mdash; it's crude but works for all the Compet-n demos I've
 tried.</p>
 <pre>--- p_mobj.c    Tue Feb 15 16:16:34 2000
 +++ p_mobj.c-fixed  Sat May 26 19:34:52 2001
 @@ -471,7 +471,21 @@ floater:
      {
        // hit the floor
- 
+
 -      if (mo-&gt;flags &amp; MF_SKULLFLY)
 +      /* Note (id):
 +       *  somebody left this after the setting momz to 0,
 +       *  kinda useless there.
 +       * cph - This was the a bug in the linuxdoom-1.10 source which
 +       *  caused it not to sync Doom 2 v1.9 demos. Someone
-+       *  added the above comment and moved up the following code. So 
++       *  added the above comment and moved up the following code. So
 +       *  demos would desync in close lost soul fights.
 +       * Note that this only applies to original Doom 1 or Doom2 demos - not
 +       *  Final Doom and Ultimate Doom.  So we test demo_compatibility *and*
@@ -1013,11 +1003,11 @@ tried.</p>
 +
 +      if (correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
     mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
- 
+
        if (mo-&gt;momz &lt; 0)
 @@ -497,6 +511,14 @@ floater:
     }
- 
+
        mo-&gt;z = mo-&gt;floorz;
 +
 +      /* cph 2001/05/26 -
@@ -1027,7 +1017,7 @@ tried.</p>
 +       */
 +      if (!correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
 +        mo-&gt;momz = -mo-&gt;momz;
- 
+
        if (!((mo-&gt;flags ^ MF_MISSILE) &amp; (MF_MISSILE | MF_NOCLIP)))
     {
       </pre>
@@ -1054,15 +1044,15 @@ diff -p -u -r1.4 p_user.c
     * it causes bobbing jerkiness when the player moves from ice to non-ice,
     * and vice-versa.
     */
--  player-&gt;bob = player_bobbing ? (FixedMul(player-&gt;momx,player-&gt;momx) + 
+-  player-&gt;bob = player_bobbing ? (FixedMul(player-&gt;momx,player-&gt;momx) +
 -				  FixedMul(player-&gt;momy,player-&gt;momy))&gt;&gt;2 : 0;
-+  player-&gt;bob = demo_compatibility ? 
++  player-&gt;bob = demo_compatibility ?
 +    (FixedMul (player-&gt;mo-&gt;momx, player-&gt;mo-&gt;momx)
 +     + FixedMul (player-&gt;mo-&gt;momy,player-&gt;mo-&gt;momy))&gt;&gt;2 :
-+    player_bobbing ? (FixedMul(player-&gt;momx,player-&gt;momx) + 
++    player_bobbing ? (FixedMul(player-&gt;momx,player-&gt;momx) +
 +        FixedMul(player-&gt;momy,player-&gt;momy))&gt;&gt;2 : 0;
- 
-   if (player-&gt;bob &gt; MAXBOB)                             
+
+   if (player-&gt;bob &gt; MAXBOB)
      player-&gt;bob = MAXBOB;</pre>
 
 <h4>Final Doom teleport demo desyncs</h4>
@@ -1095,14 +1085,14 @@ noticable when you know what to look for.</p>
 when a Final Doom IWAD is loaded.</p>
 <pre>--- p_telept.c-orig	Sun Jul 22 14:39:36 2001
 +++ p_telept.c	Sun Jul 22 14:40:45 2001
-@@ -79,7 +79,8 @@ int EV_Teleport(line_t *line, int side, 
+@@ -79,7 +79,8 @@ int EV_Teleport(line_t *line, int side,
            if (!P_TeleportMove(thing, m-&gt;x, m-&gt;y, false)) /* killough 8/9/98 */
              return 0;
- 
+
 -          thing-&gt;z = thing-&gt;floorz;  // fixme: not needed?
 +          if (!(demo_compatibility &amp;&amp; gamemission &gt;= pack_tnt))
 +            thing-&gt;z = thing-&gt;floorz;
- 
+
            if (player)
              player-&gt;viewz = thing-&gt;z + player-&gt;viewheight;
     </pre>
@@ -1111,5 +1101,3 @@ when a Final Doom IWAD is loaded.</p>
 
 <p>Colin Phipps &lt;<a
 href="mailto:cph&#64;cph.demon.co.uk">cph&#64;cph.demon.co.uk</a>&gt;</p>
-</body>
-</html>

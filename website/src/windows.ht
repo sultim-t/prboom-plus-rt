@@ -1,8 +1,8 @@
 title: Windows Installation
 
-    <a href="http://sourceforge.net"><img
-    src="http://sourceforge.net/sflogo.php?group_id=3396&type=1"
-     width="88" height="31" alt="Sourceforge logo" /></a>
+    <p><a href="http://sourceforge.net"><img
+    src="http://sourceforge.net/sflogo.php?group_id=3396"
+     width="88" height="31" alt="Sourceforge logo" /></a></p>
 
     <h1>Installation on Windows Systems</h1>
 
@@ -31,15 +31,6 @@ title: Windows Installation
     href="http://www.sourceforge.net/project/showfiles.php?group_id=3396">
     here</a>. It's possible that the version numbers on this page
     may not be up to date. You can figure it out :-).</p>
-
-    <p>You can also find mirrors at <a
-    href="http://www.doomworld.com">Doomworld</a> (<a
-    href="http://www.doomworld.com/ports/">Source Ports</a>) and <a
-    href="http://www.doomcenter.com">Doomcenter</a> (<a
-    href="http://www.doomcenter.com/downloads/index.phtml?id=65557&language=en">
-    Windows</a> and <a
-    href="http://www.doomcenter.com/downloads/index.phtml?id=65555&language=en">
-    Linux</a>).</p>
 
     <p>PrBoom uses the SDL library (&gt;=1.2.0), the SDL_mixer
     (&gt;=1.2.0) library and the SDL_net (&gt;=1.2.0) library. The

@@ -1,8 +1,8 @@
 title: Linux/UNIX Installation
 
-    <a href="http://sourceforge.net"><img
-    src="http://sourceforge.net/sflogo.php?group_id=3396&amp;type=1"
-     width="88" height="31" alt="Sourceforge logo" /></a>
+    <p><a href="http://sourceforge.net"><img
+    src="http://sourceforge.net/sflogo.php?group_id=3396"
+     width="88" height="31" alt="Sourceforge logo" /></a></p>
 
     <h1>Installation on Linux and UNIX Systems</h1>
 
@@ -139,7 +139,7 @@ title: Linux/UNIX Installation
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
-    <h2 name="unix">Generic UNIX</h2>
+    <h2 id="unix">Generic UNIX</h2>
 
     <p>You need to get and install the following libraries:</p>
 
@@ -169,14 +169,14 @@ title: Linux/UNIX Installation
     should not happen anymore. Let us know if you have to make any changes to
     get it to compile on common platforms.</p>
 
-    <h2 name="download">Download page</h2>
+    <h2 id="download">Download page</h2>
 
     <p><a
     href="http://sourceforge.net/project/showfiles.php?group_id=3396"> Download
     either the RPM or the tarball here</a>. It's possible that the version
     numbers on this page may not be up to date. You can figure it out :-).</p>
 
-    <h2 name="IWAD">Getting a Doom IWAD</h2>
+    <h2 id="IWAD">Getting a Doom IWAD</h2>
 
     <p>
     The IWAD is the main data file containing the graphics and levels for Doom.
@@ -188,7 +188,7 @@ title: Linux/UNIX Installation
     http://www.idsoftware.com/.
     </p>
 
-    <h2 name="timidity">Music</h2>
+    <h2 id="timidity">Music</h2>
 
     <p> The SDL_mixer library used by PrBoom supports software MIDI
     music synthesis. If you want to hear the Doom music, you need a

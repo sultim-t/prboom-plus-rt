@@ -1,8 +1,8 @@
 title: Project Homepage
 
-    <a href="http://sourceforge.net"><img
-    src="http://sourceforge.net/sflogo.php?group_id=3396&type=1"
-     width="88" height="31" alt="Sourceforge logo" /></a>
+    <p><a href="http://sourceforge.net"><img
+    src="http://sourceforge.net/sflogo.php?group_id=3396"
+     width="88" height="31" alt="Sourceforge logo" /></a></p>
 
     <h1>About PrBoom</h1>
 
@@ -25,7 +25,7 @@ title: Project Homepage
       </tr>
 
       <tr>
-        <td><a id="dosdoom" name="dosdoom">DosDoom</a></td>
+        <td><span id="dosdoom">DosDoom</span></td>
 
         <td>The first serious Doom port, got things working enough
         for other projects to spawn from it. Also continued to
@@ -33,9 +33,9 @@ title: Project Homepage
       </tr>
 
       <tr>
-        <td><a id="boom" name="boom"><a
+        <td><span id="boom"><a
         href="http://www.teamtnt.com/boompubl/boom2.htm">
-        Boom</a></a></td>
+        Boom</a></span></td>
 
         <td>This project gave a complete overhaul to the Doom
         engine, one it badly needed. All of Doom's infamous bugs
@@ -46,7 +46,7 @@ title: Project Homepage
       </tr>
 
       <tr>
-        <td><a id="prboom" name="prboom">PrBoom</a></td>
+        <td><span id="prboom">PrBoom</span></td>
 
         <td>Brought Boom to Windows, and made large improvements to
         the graphics: first higher resolutions, later OpenGL
@@ -54,7 +54,7 @@ title: Project Homepage
       </tr>
 
       <tr>
-        <td><a id="mbf" name="mbf">MBF</a></td>
+        <td><span id="mbf">MBF</span></td>
 
         <td>This continuation of the Boom project, by Lee Killough,
         did huge amounts of debugging and other improvements, as
@@ -64,8 +64,8 @@ title: Project Homepage
       </tr>
 
       <tr>
-        <td><a id="lxdoom" name="lxdoom"><a
-        href="http://lxdoom.linuxgames.com/">LxDoom</a></a></td>
+        <td><span id="lxdoom"><a
+        href="http://lxdoom.linuxgames.com/">LxDoom</a></span></td>
 
         <td>Initially just a Linux port of Boom, it went on to
         become a portable POSIX Doom port, with further
@@ -73,7 +73,7 @@ title: Project Homepage
       </tr>
 
       <tr>
-        <td><a id="lsdldoom" name="lsdldoom">lSDLDoom</a></td>
+        <td><span id="lsdldoom">lSDLDoom</span></td>
 
         <td>This port of LxDoom to SDL brought the Windows and
         Linux development back together. It just makes you wish

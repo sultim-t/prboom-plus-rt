@@ -1,13 +1,13 @@
 title: Project Homepage
 
-    <table align="center" summary="Title and Logo">
+    <table style="margin-left: auto; margin-right: auto;" summary="Title and Logo">
       <tr>
         <td><a href="http://sourceforge.net"> <img
-        src="http://sourceforge.net/sflogo.php?group_id=3396&amp;type=1"
+        src="http://sourceforge.net/sflogo.php?group_id=3396"
          width="88" height="31" alt="Sourceforge logo" /></a></td>
 
-        <td width="100%">
-          <h1 align="center">PrBoom</h1>
+        <td>
+          <h1 style="text-align: center;">PrBoom</h1>
         </td>
 
         <td><a href="http://www.opengl.org"> <img src="OGL.gif"
@@ -61,7 +61,7 @@ Changes from v2.2.4 to v2.3.0
 - AdvanceScale2x like filter, but working on individual lines not fullscreen
 - smooth edges on masked textures and sprites
 - 16bit and 32bit software rendering
-- sound and video settings changeable while running (Software <-> OpenGL)
+- sound and video settings changeable while running (Software &lt;-&gt; OpenGL)
 - VIDD (Version Independant Doom Demo) support
 
 
@@ -89,7 +89,7 @@ Changes from v2.2.4 to v2.3.0
     <li>Hopefully fix problems with network games on big-endian platforms.</li>
     </ul>
     <p>The compiled Windows and Linux versions, and the source code, are now
-    available to <a href="#download">download</a>.</li>
+    available to <a href="#download">download</a>.</p>
 
     <h3>28. July 2002</h3>
 
