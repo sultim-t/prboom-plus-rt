@@ -27,8 +27,6 @@ stage. It may be simpler to rewrite it.
     (Could be done after a release though).
 
 2000/11/08 Colin: working on it. Using it as an excuse to learn SGML :-)
- Proff, perhaps you should make a new CVS directory for the editing 
- pack, since it's going to be a separate package?
 2001/02/18 Proff: New directory was added by Colin some time ago
 
 --------------------------------------------------------------------------
@@ -67,7 +65,7 @@ dependant on the size of level how much is allocated. I just can't find
 the leak.
 
 --------------------------------------------------------------------------
-29. (2000/11/08) Rewrite the networking (medium term todo)
+29. (2000/11/08) Rewrite the networking
 
 Colin: It's frankly a disaster area, which I can say with confidence
  because I wrote it. I had experimental builds of lxdoom which allowed 
@@ -100,3 +98,30 @@ Proff: I have to get off my ass and do the Dreamcast port of this.
 
 Proff: I noticed that it doesn't work as expected. Also seems to cause
 problems on Sparc, but this is not certain.
+
+--------------------------------------------------------------------------
+37. (2001/07/01) TASDoom demo support
+
+Colin: So far I know it's based on DosDoom v0.47, source for which isn't
+available anywhere public to my knowledge; TASDoom itself is a modified version
+thereof, only Yonatan has the source for it and may need some persuading to
+part with it, but I may have a go, might try reverse engineering it first.
+
+--------------------------------------------------------------------------
+38. (2001/07/01) Cleanup RPM building
+
+Colin: Done.
+
+--------------------------------------------------------------------------
+
+39. (2001/07/01) w_wad.c/z_zone.c reorganisation
+
+Colin: Should be fun :-)
+
+--------------------------------------------------------------------------
+40. (2001/07/01) Doom v1.2 support
+
+Colin: new compatibility level and option went in awhile ago, just have to do
+the actual supporting code. (And no, not planning to support v1.2 demos :)
+
+--------------------------------------------------------------------------
