@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.67 2003/02/16 15:52:20 cph Exp $
+ * $Id: d_main.c,v 1.68 2003/03/28 21:00:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.67 2003/02/16 15:52:20 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.68 2003/03/28 21:00:09 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -876,19 +876,6 @@ void IdentifyVersion (void)
   // locate the IWAD and determine game mode from it
 
   iwad = D_FindIWADFile();
-
-#ifdef _DEBUG
-  // proff 11/99: used for debugging
-  if (V_GetMode() == VID_MODEGL) {
-    FILE *f;
-    f=fopen("levelinfo.txt","w");
-    if (f)
-    {
-      fprintf(f,"%s\n",iwad);
-      fclose(f);
-    }
-  }
-#endif
 
   if (iwad && *iwad)
   {
