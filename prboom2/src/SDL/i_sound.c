@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.6 2000/05/21 13:36:36 proff_fs Exp $
+ * $Id: i_sound.c,v 1.7 2000/05/22 09:17:39 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.6 2000/05/21 13:36:36 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.7 2000/05/22 09:17:39 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -135,6 +135,7 @@ int*		channelrightvol_lookup[NUM_CHANNELS];
 
 static void stopchan(int i)
 {
+  if (!channels[i]) return; /* cph - prevent excess unlocks */
   channels[i]=0;
   W_UnlockLumpNum(S_sfx[channelids[i]].lumpnum);
 }
