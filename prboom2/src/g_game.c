@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.17 2000/05/21 21:44:08 cph Exp $
+ * $Id: g_game.c,v 1.18 2000/05/22 09:21:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.17 2000/05/21 21:44:08 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.18 2000/05/22 09:21:50 cph Exp $";
 
 #include <stdarg.h>
 
@@ -45,6 +45,7 @@ rcsid[] = "$Id: g_game.c,v 1.17 2000/05/21 21:44:08 cph Exp $";
 #include "../config.h"
 #endif
 
+#include <stdio.h>
 #include "doomstat.h"
 #include "f_finale.h"
 #include "m_argv.h"
@@ -79,11 +80,10 @@ rcsid[] = "$Id: g_game.c,v 1.17 2000/05/21 21:44:08 cph Exp $";
 #define SAVESTRINGSIZE  24
 
 static size_t   savegamesize = SAVEGAMESIZE; // killough
-static char     demoname[PATH_MAX];
 static boolean  netdemo;
-static byte     *demobuffer;   // made some static -- killough
-static size_t   maxdemosize;
-static byte     *demo_p;
+static const byte *demobuffer;   /* cph - only used for playback */
+static FILE    *demofp; /* cph - record straight to file */
+static const byte *demo_p;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
 gameaction_t    gameaction;
@@ -247,6 +247,8 @@ int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
 void   *statcopy;       // for statistics driver
+
+void G_DoSaveGame (boolean menu);
 
 //
 // G_BuildTiccmd
@@ -782,7 +784,7 @@ void G_Ticker (void)
           G_DoLoadGame ();
           break;
         case ga_savegame:
-          G_DoSaveGame ();
+          G_DoSaveGame (false);
           break;
         case ga_playdemo:
           G_DoPlayDemo ();
@@ -1497,7 +1499,7 @@ void G_DoLoadGame(void)
   char name[PATH_MAX+1];     // killough 3/22/98
   int savegame_compatibility = -1;
 
-  G_SaveGameName(name,sizeof(name),savegameslot);
+  G_SaveGameName(name,sizeof(name),savegameslot, demoplayback);
 
   gameaction = ga_nothing;
 
@@ -1572,7 +1574,7 @@ void G_DoLoadGame(void)
   /* killough 3/1/98: Read game options
    * killough 11/98: move down to here
    */
-  save_p = G_ReadOptions(save_p);
+  save_p = (char*)G_ReadOptions(save_p);
 
   /* get the times - killough 11/98: save entire word */
   memcpy(&leveltime, save_p, sizeof save_p);
@@ -1617,13 +1619,14 @@ void G_DoLoadGame(void)
 
 void G_SaveGame(int slot, char *description)
 {
-  if (demoplayback) {
-    if (!savedescription[0])
-      strcpy(savedescription, "NET GAME");
-    savegameslot = slot;
-    gameaction = ga_savegame;
-  }
   strcpy(savedescription, description);
+  if (demoplayback) {
+    /* cph - We're doing a user-initiated save game while a demo is 
+     * running so, go outside normal mechanisms 
+     */
+    savegameslot = slot;
+    G_DoSaveGame(true);
+  }
   // CPhipps - store info in special_event
   special_event = BT_SPECIAL | (BTS_SAVEGAME & BT_SPECIALMASK) | 
     ((slot << BTS_SAVESHIFT) & BTS_SAVEMASK);
@@ -1647,7 +1650,7 @@ void CheckSaveGame(size_t size)
  * cph - Avoid possible buffer overflow problems by passing 
  * size to this function and using snprintf */
 
-void G_SaveGameName(char *name, size_t size, int slot)
+void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
 #ifdef HAVE_SNPRINTF
@@ -1657,7 +1660,7 @@ void G_SaveGameName(char *name, size_t size, int slot)
 #endif
 }
 
-void G_DoSaveGame (void)
+static void G_DoSaveGame (boolean menu)
 {
   char name[PATH_MAX+1];
   char name2[VERSIONSIZE];
@@ -1667,7 +1670,7 @@ void G_DoSaveGame (void)
   gameaction = ga_nothing; // cph - cancel savegame at top of this function, 
     // in case later problems cause a premature exit
 
-  G_SaveGameName(name,sizeof(name),savegameslot);
+  G_SaveGameName(name,sizeof(name),savegameslot, demoplayback && !menu);
 
   description = savedescription;
 
@@ -2077,31 +2080,23 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
     }
 }
 
-// Demo limits removed -- killough
+/* Demo limits removed -- killough
+ * cph - record straight to file
+ */
 
 void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
-  ptrdiff_t position = demo_p - demobuffer;
+  char buf[4];
 
-  // 2/8/98 killough: stop 'q' from quitting demo recording
-  //
-  // if (gamekeydown['q'])           // press q to end demo recording
-  //   G_CheckDemoStatus ();
+  buf[0] = cmd->forwardmove;
+  buf[1] = cmd->sidemove;
+  buf[2] = (cmd->angleturn+128)>>8;
+  buf[3] = cmd->buttons;
+  if (fwrite(buf, sizeof(buf), 1, demofp) != 1)
+    I_Error("G_WriteDemoTiccmd: error writing demo");
 
-  demo_p[0] = cmd->forwardmove;
-  demo_p[1] = cmd->sidemove;
-  demo_p[2] = (cmd->angleturn+128)>>8;
-  demo_p[3] = cmd->buttons;
-
-  if (position > (ptrdiff_t)maxdemosize - 16)
-    {
-      // no more space
-      maxdemosize += 128*1024;   // add another 128K  -- killough
-      demobuffer = realloc(demobuffer,maxdemosize);
-      demo_p = position + demobuffer;  // back on track
-      // end of main demo limit changes -- killough
-    }
-
+  /* cph - alias demo_p to it so we can read it back */
+  demo_p = buf;
   G_ReadDemoTiccmd (cmd);         // make SURE it is exactly the same
 }
 
@@ -2111,15 +2106,11 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
 void G_RecordDemo (const char* name)
 {
-  int i;
-  usergame = false;
+  char     demoname[PATH_MAX];
+  usergame = false;  
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
-  i = M_CheckParm ("-maxdemo");
-  if (i && i<myargc-1)
-    maxdemosize = atoi(myargv[i+1])*1024;
-  if (maxdemosize < 0x20000)  // killough
-    maxdemosize = 0x20000;
-  demobuffer = malloc(maxdemosize); // killough
+  demofp = fopen(demoname, "wb");
+  if (!demofp) I_Error("G_RecordDemo: failed to open %s", name);
   demorecording = true;
 }
 
@@ -2210,11 +2201,13 @@ byte *G_WriteOptions(byte *demo_p)
   return target;
 }
 
-// Same, but read instead of write
+/* Same, but read instead of write
+ * cph - const byte*'s
+ */
 
-byte *G_ReadOptions(byte *demo_p)
+const byte *G_ReadOptions(const byte *demo_p)
 {
-  byte *target = demo_p + GAME_OPTION_SIZE;
+  const byte *target = demo_p + GAME_OPTION_SIZE;
 
   monsters_remember = *demo_p++;
 
@@ -2317,13 +2310,11 @@ byte *G_ReadOptions(byte *demo_p)
 void G_BeginRecording (void)
 {
   int i;
-
-  demo_p = demobuffer;
+  byte *demostart, *demo_p;
+  demostart = demo_p = malloc(1000);
 
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
-    demo_p = demobuffer;
-    
     /* cph - FIXME - use version_headers? */
     *demo_p++ = compatibility_level == mbf_compatibility ?
       204 : 210;
@@ -2402,6 +2393,10 @@ void G_BeginRecording (void)
     for (i=0; i<4; i++)  // intentionally hard-coded 4 -- killough
       *demo_p++ = playeringame[i];
   }
+
+  if (fwrite(demostart, 1, demo_p-demostart, demofp) != demo_p-demostart)
+    I_Error("G_BeginRecording: error writing demo header");
+  free(demostart);
 }
 //
 // G_PlayDemo
@@ -2423,7 +2418,7 @@ void G_DoPlayDemo (void)
   int i, episode, map;
   char basename[9];
   int demover;
-  byte *option_p = NULL;      /* killough 11/98 */
+  const byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
 
@@ -2514,7 +2509,7 @@ void G_DoPlayDemo (void)
 	break;
       case 210:
 	/* PrBoom? */
-	compatibility_level = prboom_1_compatibility;
+	compatibility_level = prboom_2_compatibility;
 	*demo_p++;
 	break;
       }
@@ -2603,13 +2598,8 @@ boolean G_CheckDemoStatus (void)
   if (demorecording)
     {
       demorecording = false;
-      *demo_p++ = DEMOMARKER;
-      // CPhipps - generate warning on demo save fail
-      if (!M_WriteFile (demoname, demobuffer, demo_p - demobuffer))
-	lprintf(LO_WARN, "Error writing demo file %s\n", demoname);
-      free(demobuffer);
-      demobuffer = NULL;  // killough
-      I_Error("Demo %s recorded",demoname);
+      fputc(DEMOMARKER, demofp);
+      I_Error("Demo recorded");
       return false;  // killough
     }
 

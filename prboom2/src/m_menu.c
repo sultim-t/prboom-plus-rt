@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.12 2000/05/21 12:46:37 cph Exp $
+ * $Id: m_menu.c,v 1.13 2000/05/22 09:21:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.12 2000/05/21 12:46:37 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.13 2000/05/22 09:21:50 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -896,7 +896,9 @@ void M_ReadSaveStrings(void)
     char name[PATH_MAX+1];    // killough 3/22/98
     FILE *fp;  // killough 11/98: change to use stdio
     
-    G_SaveGameName(name,sizeof(name),i);    // killough 3/22/98
+    /* killough 3/22/98
+     * cph - add not-demoplayback parameter */
+    G_SaveGameName(name,sizeof(name),i,false);
     fp = fopen(name,"rb");
     if (!fp) {   // Ty 03/27/98 - externalized:
       strcpy(&savegamestrings[i][0],s_EMPTYSTRING);

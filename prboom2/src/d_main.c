@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.16 2000/05/21 12:45:23 cph Exp $
+ * $Id: d_main.c,v 1.17 2000/05/22 09:21:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.16 2000/05/21 12:45:23 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.17 2000/05/22 09:21:50 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -378,9 +378,6 @@ extern boolean demorecording;
 
 static void D_DoomLoop(void)
 {
-  if (demorecording)
-    G_BeginRecording ();
-
   basetic = gametic;
 
 #ifdef HAVE_NET 
