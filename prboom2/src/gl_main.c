@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.48 2002/11/16 23:02:19 proff_fs Exp $
+ * $Id: gl_main.c,v 1.49 2002/11/17 18:19:17 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1166,6 +1166,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
 	Z_Free(childlist);
 }
 
+#undef USE_GLU_TESS
 #ifdef USE_GLU_TESS
 
 static int currentsector; // the sector which is currently tesselated
