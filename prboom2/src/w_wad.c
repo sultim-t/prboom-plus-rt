@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.24 2001/07/21 16:36:35 cph Exp $
+ * $Id: w_wad.c,v 1.25 2001/07/22 15:03:47 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.24 2001/07/21 16:36:35 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.25 2001/07/22 15:03:47 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -425,7 +425,7 @@ void W_Init(void)
 {
   // CPhipps - start with nothing
 
-  numlumps = 0; lumpinfo = malloc(0);
+  numlumps = 0; lumpinfo = NULL;
 
   { // CPhipps - new wadfiles array used 
     // open all the files, load headers, and count lumps
