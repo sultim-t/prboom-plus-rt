@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: sounds.h,v 1.3 2000/05/18 10:00:19 cph Exp $
+ * $Id: sounds.h,v 1.4 2000/05/18 20:46:08 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -302,9 +302,5 @@ typedef enum {
 
   NUMSFX
 } sfxenum_t;
-
-#ifndef DOGS
-#error DAMN
-#endif
 
 #endif
