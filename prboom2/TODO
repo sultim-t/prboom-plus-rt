@@ -113,3 +113,6 @@ Colin: It's frankly a disaster area, which I can say with confidence
  selection of game parameters in-game, asynchronous game joining (but 
  not in-game joining). We need a decent reliable-sequenced-packets-over-UDP 
  library (or just switch to TCP) too, rather than the current lash-up.
+
+--------------------------------------------------------------------------
+30. (2000/11/13) Port joystick stuff to SDL
