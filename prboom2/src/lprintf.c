@@ -167,6 +167,10 @@ static int I_ConPrintString (const char *outline)
         Last[x+2] = ((*poop) < 32) ? 32 : (*poop);
       }
 
+      if (*newcp == '\t')
+        for (x = xp; x < newxp; x++)
+          Last[x+2] = ' ';
+
       if (Last[1] < xp + (newcp - cp))
         Last[1] = xp + (newcp - cp);
 
