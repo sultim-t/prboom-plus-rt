@@ -5,7 +5,7 @@ AC_CONFIG_AUX_DIR(autotools)
 dnl --- Set version strings
 PR_MAJOR_VERSION=2
 PR_MINOR_VERSION=2
-PR_MICRO_VERSION=5
+PR_MICRO_VERSION=6
 PR_VERSION=$PR_MAJOR_VERSION.$PR_MINOR_VERSION.$PR_MICRO_VERSION
 
 AC_SUBST(PR_VERSION)
@@ -13,7 +13,7 @@ AC_SUBST(PR_VERSION)
 dnl --- Check for system type
 AC_CANONICAL_SYSTEM
 
-use_i386_asm=no 
+use_i386_asm=no
 case "$target" in
         i?86-*) use_i386_asm=yes ;;
 esac
@@ -57,7 +57,7 @@ AC_DEFINE(RANGECHECK)
 AC_DEFINE(INSTRUMENTED)
 AC_DEFINE(TIMEDIAG)
 CFLAGS_OPT="-g"
-) 
+)
 AC_ARG_ENABLE(profile,[  --enable-profile         turns on profiling],
 CFLAGS_OPT="-pg"
 )
@@ -117,13 +117,13 @@ CFLAGS="$CFLAGS $X_CFLAGS"
 LDFLAGS="$LDFLAGS $X_LIBS"
 dnl - GL
 AC_ARG_ENABLE(gl,[  --enable-gl         enable GL code],
-AC_MSG_CHECKING(for OpenGL support)   
+AC_MSG_CHECKING(for OpenGL support)
 have_opengl=no
 AC_TRY_COMPILE([
  #include <GL/gl.h>
 ],[
-],[ 
-have_opengl=yes  
+],[
+have_opengl=yes
 ])
 AC_MSG_RESULT($have_opengl)
 if test x$have_opengl = xyes; then
@@ -220,7 +220,7 @@ AC_SUBST(MATH_LIB)
 AC_SUBST(GL_LIBS)
 AC_SUBST(CFLAGS)
 dnl -- ac_aux_dir - see Makefile.am
-AC_SUBST(ac_aux_dir) 
+AC_SUBST(ac_aux_dir)
 
 dnl --- output
 AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile doc/Makefile data/Makefile ICONS/Makefile VISUALC5/Makefile VISUALC6/Makefile prboom.spec)
