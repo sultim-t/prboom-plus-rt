@@ -1,0 +1,861 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<title>PrBoom Editing Reference</title>
+<author>Colin Phipps, &lt;<tt><htmlurl url="mailto:cphipps@doomworld.com" name="cphipps@doomworld.com"></tt>&gt;
+<date>$Date: 2000/12/10 15:06:03 $
+
+<abstract>
+This document is a reference on the various object types used by PrBoom.
+</abstract>
+
+<sect>Introduction
+<sect1>Overview
+<p>This document is intended to be a reference on all the magic numbers which control types of objects and their behaviors in PrBoom. It assumes that you either know the standard Doom WAD level format, or you are using an editor which can take care of that for you.
+<p>If your reaction to reading the above is &quot;What?&quot;, then you are probably reading the wrong document. This is not a tutorial on Doom editing, a guide to Doom editors, an introduction to Doom, or a WAD file format specification. Those are available elsewhere; try looking on <url url="http://www.doomworld.com/" name="Doomworld">.
+<p>This document is mainly a merge of the Boom and MBF editing documents, converted to HTML for better browseability. It's primarily of interest to people maintaining level editors and writing other level tools for PrBoom (or Boom or MBF), and also to level authors who want the full story on what the various types do.
+
+<sect1>Authors
+<p>This document is based on the Boom Reference v1.3. This was written by <url url="http://www.teamtnt.com/" name="TeamTNT">.
+<p>It also contains additions from the &quot;Marine's Best Friend Editing Features&quot; document, by Lee Killough.
+<p>Currently, this reference is maintained by me, <htmlurl url="mailto:cphipps@doomworld.com" name="Colin Phipps">, and I've made various additions relevant to PrBoom.
+
+<sect1>Some terminology
+<p>The linedef, sector and other types supported by PrBoom can be divided into 
+three classes:
+<descrip>
+<tag>Regular</tag>The types that were already in DOOM II v1.9.
+<tag>Extended</tag>Types not in DOOM II v1.9, which were added as extensions 
+during development of source ports, to give some new features.
+<tag>Generalized</tag>In the development of Boom, it was realised that the old 
+system of linedef types was a mess. Whether the exact type you needed 
+existed or not was mostly a matter of luck. So a new system was devised, where 
+the values of bits within the linedef number determined its properties.
+</descrip>
+<p>Where possible, the newer generalized types are preferred over the old 
+types, because it's possible to get the exact properties you want. Tables 
+of the obsolete linedef types are included too, though.
+
+<sect1>Copyright
+<p>This document is copyright by its various contributors.
+<p>This document is distributed under the terms of <url url="http://www.gnu.org/copyleft/gpl.html" name="version 2 of the GNU General Public License"> as published by the Free software Foundation.
+<p>This document is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the GNU General Public License for more details.  You can obtain a copy of the GNU General Public License by writing to the Free Software Foundation,, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+<sect>Triggerable Linedef Types
+<sect1>Triggers
+<p>A linedef trigger is always activated in one of three ways - pushing on the first sidedef of the linedef, walking over the linedef, or shooting the linedef with an impact weapon (fists, chainsaw, pistol, shotgun, double barreled, or chaingun). 
+<p>Linedefs activated by pushing on them come in two varieties. A manual linedef affects the sector on the second sidedef of the line pushed.  A switched linedef affects all sectors that have the same tag field as the linedef that was pushed.
+<p>Nearly all switched, walkover, and gun linedefs operate on the sectors with the same tag as that in the tag field of the linedef.
+<p>Some linedefs are never activated per se, but simply create or control an effect through their existence and properties, usually affecting the sectors sharing the linedef's tags. There are also a few special case like line-line teleporters and exit linedefs that do not affect sectors.
+<p>Some linedefs are only triggerable once, others are triggerable as many times as you like.
+<p>Triggering types are denoted by the letters P, S, W, and G for manual(push), switched, walkover, and gun resectively. Their retriggerability is denoted by a 1 or R following the letter. So the triggering types for linedefs are: P1 PR S1 SR W1 WR G1 GR
+<p>Other documents on Doom editing, and many Doom editors, follow the same or a similar convention. The main variation that you may see is D1 and DR instead of P1 and PR (D for &quot;Door&quot;, because this is the most common use of such lines - the Boom editing reference also incorrectly used these abbreviations in several places, when they meant P1, PR).
+<p>Often linedef actions depend on values in neighboring sectors. A neighboring sector is one that shares a linedef in common, just sharing a vertex is not sufficient.
+<p>In DOOM only one action on a sector could occur at a time. PrBoom supports one floor action, one ceiling action, and one lighting action simultaneously.
+
+<sect1>Doors
+<p>A door is a sector, usually placed between two rooms, whose ceiling raises to open, and lowers to close. A door is fully closed when its ceiling height is equal to its floor height. A door is fully open when its ceiling height is 4 less than the lowest neighbor ceiling adjacent to it. 
+<p>A door may be set to an intermediate state initially, or thru the action of a linedef trigger that affects ceilings or floors. In general the door is passable to a monster or a thing when its ceiling is at least the monster or thing's height above the floor.
+<p>If a door has a ceiling height ABOVE the fully open height, then an open door action moves the ceiling to the fully open height instantly. If a door has a ceiling height BELOW the fully closed height (that is the ceiling of the door sector is lower than the floor of the door sector) a close door action moves the ceiling to the fully closed height instantly.
+<p>There are 4 styles of door mechanism:
+<descrip>
+<tag>Open, Wait, Then Close</tag>On activation, door opens fully, waits a specified period, then closes fully.
+<tag>Open and Stay Open</tag>On activation, door opens fully and remains there.
+<tag>Close and Stay Closed</tag>On activation, door closes fully, and remains there.
+<tag>Close, Wait, Then Open</tag>On activation, door closes fully, waits a specified period, then opens fully.
+</descrip>
+<p>In the tables below, we denote these four mechanisms by odc, o, c, cdo respectively.
+<p>A door can be triggered by pushing on it, walking over or pressing a linedef trigger tagged to it, or shooting a linedef tagged to it. These are called manual, walkover, switched, or gun doors resp.
+<p>Each door trigger can also have a number of other properties:
+<itemize>
+<item>It can be locked. This means that the door trigger will only operate if the player is in possession of the right key(s). Regular and extended door triggers only care if the player has a key of the right color, they do not care which. Door triggers can distinguish between skull and card keys, and can also require any key, or all keys in order to activate.
+<item>Speed: slow, normal, fast or turbo. Each step of the scale represents a doubling of speed.
+<item>For door triggers with a wait, the amount of time can vary.
+<item>It may or may not be activatable by monsters.
+</itemize>
+<sect2>Calculating Generalised Door Types
+<p>There are two generalised linedef types for doors.
+<p>Line types between 0x3c00 and 0x4000 are simple doors. Within this range, the exact value determines the properties of the door; these are the fields:
+<table>
+<tabular ca="llrrr">
+field  | description                 | # of bits |  Mask  |   Shift @
+trigger| W1/WR/S1/SR/G1/GR/P1/PR     |      3    | 0x0007 |     0   @
+speed  | slow/normal/fast/turbo      |      2    | 0x0018 |     3   @
+kind   | odc/o/cdo/c                 |      2    | 0x0060 |     5   @
+monster| n/y                         |      1    | 0x0080 |     7   @
+delay  | 1/4/9/30 (secs)             |      2    | 0x0300 |     8   @
+</tabular>
+</table>
+<p>Line types between 0x3800 and 0x3c00 are locked doors. Within this range, the exact value determines the properties of the door; these are the fields:
+<table>
+<tabular ca="llrrr">
+field  | description                  | # of Bits  |  Mask    | Shift @
+trigger| W1/WR/S1/SR/G1/GR/P1/PR      |      3     | 0x0007   |   0   @
+speed  | slow/normal/fast/turbo       |      2     | 0x0018   |   3   @
+kind   | odc/o                        |      1     | 0x0020   |   5   @
+lock   | any/rc/bc/yc/rs/bs/ys/all    |      3     | 0x01c0   |   6   @
+sk=ck  | n/y                          |      1     | 0x0200   |   9   @
+</tabular>
+</table>
+<p>Note that only the open door types are available for locked doors, and that monsters can never open them.
+<p>rc = red card, bc = blue card, ys = yellow skull etc. &quot;any&quot; and &quot;all&quot; mean that any key or all the keys, respectively, are needed to unlock. If the &quot;sk=ck&quot; field is set to 1, then the distinction between skull and card keys is dropped; it is effectively assumed that if you have one key, you have all keys of that colour.
+<sect2>Misc
+<p>Any door function except Close and Stay Closed, when closing and encountering a monster or player's head will bounce harmlessly off that head and return to fully open. A Close and Stay Closed will rest on the head until it leaves the door sector.
+<p>Since a push door (P1/PR) has no use for its tag (since it always affects only the sector on its second sidedef), BOOM and MBF have used its tag for another purpose. In PrBoom, when a push door is opened or closed, any sectors tagged to the pushed linedef will have their lighting adjusted as the door moves. When the door is fully open, they will be set to maximum neighbor lighting; when fully closed, to minimum neighbor lighting. When partly open, their light level should be set in between. The idea is that as a door opens, such tagged sectors should change light level smoothly.
+<p>Note that this behavior is in common with MBF, but is different from BOOM and possibly other ports supporting BOOM's linedef extensions. There is a compatibility flag in MBF and PrBoom which emulated BOOM's behavior. It is not possible to set this flag from a PWAD in PrBoom.
+
+<sect1>Floors
+<p>This section covers line types which cause simple floor movements - the floor moves from its old height to a new height, either instantaneously, or moving at a steady speed. There are various properties which a floor movement has:
+<itemize>
+<item>The most complex aspect of moving floors in Doom is setting the target floor height. All of Doom's floor trigger types specify floor heights relative either to the sector's current height, or relative to its neighbours.
+<item>Each floor linedef type has a direction.
+<item>A speed. Ignored in the case of instantaneous jumps as described later.
+<item>It can specify that a texture change should also occur, and can also change the sector type (for example, to change whether a sector is acid).
+<item>It can be crushing; solid objects which would prevent it rising are instead crushed.
+</itemize>
+<p>If a floor moving toward its destination height encounters an obstacle, it waits until the obstacle is removed (unless the obstacle is crushable and the floor is crushing).
+<sect2>Floor Targets
+<p>There are various ways of choosing the target floor level. These are listed below; first, some generalities.
+<p>Two sectors are considered neighbours if they share a linedef (i.e. the linedef has two sidedefs, one in each sector).
+<p>Some target types don't depend on the direction. In these cases, if the direction is &quot;wrong&quot;, i.e. the new floor level is in the opposite direction to that specified, then the floor moves instantaneously to the target level. In this case, the normal speed of the trigger is ignored, and I think no crushing is performed and no obstacles are considered. I should check.
+<p>Most of the target types either implicitely or explicitely depend on their direction, so the direction is never &quot;wrong&quot;, and they always move at the specified speed (not instantaneously).
+<p>After each target type, I give a short mneumonic for it in brackets, which is used in the tables later.
+<descrip>
+<tag>Lowest Neighbor Floor (LnF)</tag>This means that the floor moves to the height of the lowest neighboring floor including the floor itself.
+<tag>Next Neighbor Floor (NnF)</tag>This means that the floor moves up to the height of the lowest adjacent floor greater in height than the current, or down to the height of the highest adjacent floor less in height than the current, as determined by the floor's direction.
+<tag>Lowest Neighbor Ceiling (LnC)</tag>This means that the floor height changes to the height of the lowest ceiling possessed by any neighboring sector, including that floor's ceiling.
+<tag>8 Under Lowest Neighbor Ceiling (8uLnC)</tag>This means that the floor height changes to 8 less than the height of the lowest ceiling possessed by any neighboring sector, including that floor's ceiling.
+<tag>Highest Neighbor Floor (HnF)</tag>This means that the floor height changes to the height of the highest neighboring floor, excluding the floor itself. If no neighbor floor exists, the floor moves down to -32000.
+<tag>8 Above Highest Neighbor Floor (8aHnF)</tag>This means that the floor height changes to 8 above the height of the highest neighboring floor, excluding the floor itself. If no neighbor floor exists, the floor moves down to -31992.
+<tag>Ceiling</tag>The floor moves up until its at ceiling height, instantly if floor direction is down.
+<tag>24 Units (24)</tag>The floor moves 24 units in the floor action's direction.
+<tag>32 Units (32)</tag>The floor moves 32 units in the floor action's direction.
+<tag>512 Units (512)</tag>The floor moves 512 units in the floor action's direction.
+<tag>Shortest Lower Texture (SLT)</tag>The floor moves the height of the shortest lower texture on the boundary of the sector, in the floor direction.  In the case that there is no surrounding texture the motion is to -32000 or +32000 depending on direction.
+<tag>None</tag>Some pure texture type changes are provided for changing the floor texture and/or sector type without moving the floor.
+</descrip>
+<sect2>Texture/Sector changing
+<p>A floor action can be a texture change type, in which case after the action the floor texture of the affected floor, and possibly the sector type of the affected floor, are changed, to those of a model sector. The sector type may be zeroed instead of copied from the model, or not changed at all. These change types are referred to below as Tx (texture only), Tx0 (type zeroed), and TxTy (texture and type changed). 
+<p>There are two ways of choosing the model sector:
+<itemize>
+<item>The trigger model (Trg) - the sector on the 1st side of the trigger line is used.
+<item>The numeric model (Num) - the lowest numbered linedef in the sector whose other side is at the destination height of this movement is found, and the sector on that other side is used as the model.
+</itemize>
+<p>To clarify, these are the steps used by the numeric model:
+<itemize>
+<item>Find all floors adjacent to the tagged floor at destination height
+<item>Find the lowest numbered linedef separating those floors from that tagged
+<item>The sector on the other side of that linedef is the model
+</itemize>
+<sect2>Calculating Generalized Floor Types
+<p>Line types between 0x6000 and 0x8000 are floor types. Within this range, the exact value determines the properties of the floor trigger; these are the fields:
+<table>
+<tabular ca="llrrr">
+field  | description                    |# of Bits|  Mask  |   Shift @
+trigger| W1/WR/S1/SR/G1/GR/P1/PR          |  3    | 0x0007 |     0   @
+speed  | slow/normal/fast/turbo           |  2    | 0x0018 |     3   @
+model  | trig/numeric -or- nomonst/monst  |  1    | 0x0020 |     5   @
+direct | down/up                          |  1    | 0x0040 |     6   @
+target | HnF/LnF/NnF/LnC/C/sT/24/32       |  3    | 0x0380 |     7   @
+change | nochg/Tx0/Tx/TxTy                |  2    | 0x0c00 |     10  @
+crush  | no/yes                           |  1    | 0x1000 |     12
+</tabular>
+</table>
+<p>When change is nochg, model is 1 when monsters can activate the line, otherwise monsters cannot activate it. When change is not nochg, the model field determined the method of determining the model sector.
+
+<sect1>Ceilings
+<p>This section covers line types which cause simple ceiling movements - the floor moves from its old height to a new height, either instantaneously, or moving at a steady speed. There are various properties which a ceiling movement has:
+<itemize>
+<item>The most complex aspect of moving ceilings in Doom is setting the target floor height. All of Doom's ceiling trigger types specify heights relative either to the sector's current ceiling height, or relative to its neighbours.
+<item>Each type has a direction.
+<item>A speed. Ignored in the case of instantaneous jumps.
+<item>It can specify that a texture change should also occur, and can also change the sector type (for example, to change whether a sector is acid).
+<item>It can be crushing; solid objects which would prevent it rising are instead crushed.
+</itemize>
+<p>If a floor moving toward its destination height encounters an obstacle, it waits until the obstacle is removed (unless the obstacle is crushable and the floor is crushing).
+<sect2>Ceiling Targets
+<p>There are various ways of choosing the target ceiling height. These are listed below; first, some generalities, the same as for floors.
+<p>Two sectors are considered neighbours if they share a linedef (i.e. the linedef has two sidedefs, one in each sector).
+<p>Some target types don't depend on the direction. In these cases, if the direction is &quot;wrong&quot;, i.e. the new ceiling level is in the opposite direction to that specified, then the ceiling moves instantaneously to the target level. In this case, the normal speed of the trigger is ignored, and I think no crushing is performed and no obstacles are considered. I should check.
+<p>Most of the target types either implicitely or explicitely depend on their direction, so the direction is never &quot;wrong&quot;, and they always move at the specified speed (not instantaneously).
+<p>After each target type, I give a short mneumonic for it in brackets, which is used in the tables later.
+<descrip>
+<tag>Next Neighbor Ceiling (NnC)</tag>This means that the ceiling moves up to the height of the lowest adjacent ceiling greater in height than the current, or to the height of the highest adjacent ceiling less in height than the current, as determined by the ceiling's direction. If no such ceiling exists, the ceiling does not move.
+<tag>Lowest Neighbor Ceiling (LnC)</tag>This means that the ceiling height changes to the height of the lowest ceiling possessed by any neighboring sector, NOT including itself. If no adjacent ceiling exists the ceiling moves to 32000 units.
+<tag>Highest Neighbor Floor (HnF)</tag>This means that the ceiling height changes to the height of the highest neighboring floor, excluding the ceiling's floor itself. If no neighbor floor exists, the ceiling moves down to -32000 or the ceiling's floor, whichever is higher.
+<tag>Floor</tag>The ceiling moves down until its at floor height.
+<tag>8 Above Floor (8aF)</tag>This means that the ceiling height changes to 8 above the height of the ceiling's floor.
+<tag>24 Units (24)</tag>The ceiling moves 24 units in the ceiling action's direction.
+<tag>32 Units (32)</tag>The ceiling moves 32 units in the ceiling action's direction.
+<tag>Shortest Upper Texture (SUT)</tag>The ceiling moves the height of the shortest upper texture on the boundary of the sector, in the ceiling direction. In the case that there is no surrounding texture the motion is to -32000 or +32000 depending on direction.
+</descrip>
+<sect2>Texture/Sector changing
+<p>A ceiling action can be a texture change type, in which case after the action the ceiling texture of the affected ceiling, and possibly the sector type of the affected sector, are changed to those of a model sector. The sector type may be zeroed instead of copied from the model, or not changed at all. These change types are referred to below as Tx (texture only), Tx0 (type set to 0), and TxTy (texture and type copied from model).
+<p>There are two ways of choosing the model sector:
+<itemize>
+<item>The trigger model (Trg) - the sector on the 1st side of the trigger line is used.
+<item>The numeric model (Num) - the lowest numbered linedef in the sector whose other side has ceiling at the destination height of this movement is found, and the sector on that other side is used as the model.
+</itemize>
+<p>To clarify, these are the steps used by the numeric model:
+<itemize>
+<item>Find all ceilings adjacent to the tagged ceiling at destination height
+<item>Find the lowest numbered linedef separating those ceilings from that tagged
+<item>The sector on the other side of that linedef is the model
+</itemize>
+<sect2>Calculating Generalized Ceiling Types
+<p>Line types between 0x4000 and 0x6000 are floor types. Within this range, the exact value determines the properties of the floor trigger; these are the fields:
+<table>
+<tabular ca="llrrr">
+field  |description                   | # of Bits | Mask   | Shift@
+trigger|W1/WR/S1/SR/G1/GR/P1/PR           | 3   | 0x0007   |  0   @
+speed  |slow/normal/fast/turbo            | 2   | 0x0018   |  3   @
+model  |trig/numeric -or- nomonst/monst   | 1   | 0x0020   |  5   @
+direct |down/up                           | 1   | 0x0040   |  6   @
+target |HnC/LnC/NnC/HnF/F/sT/24/32        | 3   | 0x0380   |  7   @
+change |nochg/zero/txtonly/type           | 2   | 0x0c00   |  10  @
+crush  |no/yes                            | 1   | 0x1000   |  12
+</tabular>
+</table>
+<p>When change is nochg, model is 1 when monsters can activate the line, otherwise monsters cannot activate it. When change is not nochg, the model field determined the method of determining the model sector.
+
+<sect1>Platforms (Lifts)
+<p>
+A platform is basically a floor action involving two heights. The
+simple raise platform actions, for example, differ from the
+corresponding floor actions in that if they encounter an obstacle,
+they reverse direction and return to their former height.
+<p>
+The most often used kind of platform is a lift which travels from its
+current height to the target height, then waits a specified time and
+returns to it former height.
+<sect2>Platform Targets
+<p><descrip>
+<tag>Lowest Neighbor Floor</tag>
+This means that the platforms "low" height is the height of the
+lowest surrounding floor, including the platform itself. The "high"
+height is the original height of the floor.
+<tag>Next Lowest Neighbor Floor</tag>
+This means that the platforms "low" height is the height of the
+highest surrounding floor lower than the floor itself. If no lower
+floor exists, no motion occurs as the "low" and "high" heights are
+then both equal to the floors current height.
+<tag>Lowest Neighbor Ceiling</tag>
+This means that the platforms "low" height is the height of the
+lowest surrounding ceiling unless this is higher than the floor
+itself. If no adjacent ceiling exists, or is higher than the floor no
+motion occurs as the "low" and "high" heights are then both equal to
+the floors current height.
+<tag>Lowest and Highest Floor</tag>
+This target sets the "low" height to the lowest neighboring floor,
+including the floor itself, and the "high" height to the highest
+neighboring floor, including the floor itself. When this target is
+used the floor moves perpetually between the two heights. Once
+triggered this type of linedef runs permanently, even if the motion
+is temporarily suspended with a Stop type. No other floor action can
+be commanded on the sector after this type is begun.
+<tag>Ceiling</tag>
+This target sets the "high" height to the ceiling of the sector and
+the "low" height to the floor height of the sector and is only used in
+the instant toggle type that switches the floor between the ceiling
+and its original height on each activation. This is also the ONLY
+instant platform type. There are just two extended line numbers which 
+provide this type, 211 (SR - repeatable switch) and 212 (WR - repeatable 
+walk trigger).
+<tag>Raise Next Floor</tag>
+This means that the "high" height is the lowest surrounding floor
+higher than the platform. If no higher adjacent floor exists no
+motion will occur.
+<tag>Raise 24 Units</tag>
+The "low" height is the original floor height, the "high" height is 24
+more. 
+<tag>Raise 32 Units</tag>
+The "low" height is the original floor height, the "high" height is 32
+more. 
+</descrip>
+<sect2>Properties of Platforms
+<p><itemize>
+<item>A speed
+<item>The delay between stages of the platform's movement (e.g. the wait 
+at the bottom of a lift's motion before it rises again, or the delay at 
+each end of a perpetually moving floor's motion).
+<item>A texture change. See the discussion on floor texture changers earlier, 
+eith the exception that the model sector is always the sector on the first 
+sidedef of the trigger (the trigger model as described earlier).
+</itemize>
+<sect2>Calculating Generalized Platform Types
+<p>Line types between 0x3400 and 0x3800 are platform types. Within this range, the exact value determines the properties of the crusher trigger; these are the fields:
+<table><tabular ca="llrrr">
+field  |description                   | # of Bits | Mask   | Shift @
+trigger| W1/WR/S1/SR/G1/GR/P1/PR      |      3    |  0x0007 |     0 @
+speed  | slow/normal/fast/turbo       |      2    |  0x0018 |     3 @
+monster| n/y                          |      1    |  0x0020 |     5 @
+delay  | 1/3/5/10 (secs)              |      2    |  0x00c0 |     6 @
+target | LnF/NnF/LnC/LnF<->HnF(perp.) |      2    |  0x0300 |     8
+</tabular></table>
+<sect2>Other Platform line types
+<p>There are 4 line types provided which stop currently moving platforms:
+<table><tabular ca="rll">
+#   | Type| Trigger @
+182 | Ext | SR @
+163 | Ext | S1 @
+89  | Reg | WR @
+54  | Reg | W1 
+</tabular></table>
+<p>There are just a small number of testure change platform types 
+available, as regular and extended line types. They are all slow, not 
+triggerable by monsters, with 0 delay. They are:
+<table><tabular ca="rllll">
+# | Type| Trigger| Texture change| Target @
+66| Reg | SR  |Tx  | Raise 24 Units @
+15| Reg | S1  |Tx  | Raise 24 Units @
+148|Ext | WR  |Tx  | Raise 24 Units @
+143|Ext | W1  |Tx  | Raise 24 Units @
+67| Reg | SR  |Tx0 | Raise 32 Units @
+14| Reg | S1  |Tx0 | Raise 32 Units @
+149|Ext | WR  |Tx0 | Raise 32 Units @
+144|Ext | W1  |Tx0 | Raise 32 Units @
+68| Reg | SR  |Tx0 | Raise Next Floor @
+20| Reg | S1  |Tx0 | Raise Next Floor @
+95| Reg | WR  |Tx0 | Raise Next Floor @
+22| Reg | W1  |Tx0 | Raise Next Floor @
+47| Reg | G1  |Tx0 | Raise Next Floor
+</tabular></table>
+
+<sect1>Crushers
+<p>A crusher ceiling is a linedef type that causes the ceiling to cycle between its starting height and 8 above the floor, damaging monsters and players that happen to be in between. Barrels explode when crushed.
+<p>A crusher has a speed: slow, normal, fast, or turbo. The slower the speed, the more damage the crusher does when crushing, simply thru being applied longer. When a slow or normal crusher is moving down and encounters something to crush, it slows down even more, by a factor of 8. This persists until it reaches bottom of stroke and starts up again. Fast and turbo crushers do not slow down.
+<p> A crusher can be silent. The regular silent crusher makes platform stop and start noises at top and bottom of stroke. The generalized silent crusher is completely quiet.
+<sect2>Calculating Generalized Crusher Types
+<p>Line types between 0x2f80 and 0x3000 are crusher types. Within this range, the exact value determines the properties of the crusher trigger; these are the fields:
+<table><tabular ca="llrrr">
+field  |description                   | # of Bits | Mask   | Shift @
+trigger| W1/WR/S1/SR/G1/GR/P1/PR      |      3    |  0x0007 |     0 @
+speed  | slow/normal/fast/turbo       |      2    |  0x0018 |     3 @
+monster| n/y                          |      1    |  0x0020 |     5 @
+silent | n/y                          |      1    |  0x0040 |     6
+</tabular></table>
+<sect2>Stopping crushers
+<p>Once a crusher ceiling is started it remains running for the remainder of the level even if temporarily suspended with a stop type. No other ceiling action can be used in that sector thereafter.  
+<p>Four linedefs are provided to stop a crusher in its current position. Care should be used that this doesn't lock the player out of an area of the wad if the crusher is too low to pass. A crusher can be restarted, but not changed, with any crusher linedef. The four types are:
+<table><tabular ca="rll">
+Linedef type | Class | Trigger @
+188 | Ext |   SR @
+168 | Ext |   S1 @
+74  | Reg |   WR @
+57  | Reg |   W1
+</tabular></table>
+
+<sect1>Stair Builders
+<p>A stair builder is a linedef type that sets a sequence of sectors defined by a complex rule to an ascending or descending sequence of heights.
+<p> The rule for stair building is as follows:
+<enum>
+<item>The first step to rise or fall is the tagged sector. It rises or falls by the stair stepsize, at the stair speed, in the stair direction..
+<item>To find the next step (sector) affected examine each two-sided linedef with first sidedef facing into the previous step in numerical order. For each such linedef if the sector on the other side is already active, or has already risen from this stair, the linedef is skipped. If textures are not ignored then any linedef with a different floor texture on its second side is also skipped. The next step to rise is the sector on the other side of the first linedef not skipped. If none exists, stair building ceases.
+<item>The next step moves to the height of the previous step plus or minus the stepsize depending on the direction the stairs build, up or down.  If the motion is in the same direction as the stairs build, it occurs at stair build speed, otherwise it is instant.
+<item>Repeat step 2 until stair building ceases.
+</enum>
+<sect2>Stair builder properties
+<p><itemize>
+<item>Can build up or down.
+<item>A step size of 4, 8, 16, or 24.
+<item>A build speed
+<item>A stair can stop on encountering a different texture (the traditional behavior) or ignore different textures and continue.
+</itemize>
+<p>As a special exception to normal rules, the generalized retriggerable stairs alternate building up and down on each activation, which is much more useful than the default behaviour would be.
+<p>Only the regular build fast, stepsize 16 stair has the property that monsters and players can be crushed by the motion, all others do not crush.
+<sect2>Calculating Generalized Stair Types
+<p>Line types between 0x3000 and 0x3400 are stair types. Within this range, the exact value determines the properties of the stair trigger; these are the fields:
+<table><tabular ca="llrrr">
+field  |description                   | # of Bits | Mask   | Shift @
+trigger| W1/WR/S1/SR/G1/GR/P1/PR      |      3    | 0x0007 |     0 @
+speed  | slow/normal/fast/turbo       |      2    | 0x0018 |     3 @
+monster| n/y                          |      1    | 0x0020 |     5 @
+step   | 4/8/16/24                    |      2    | 0x00c0 |     6 @
+dir    | dn/up                        |      1    | 0x0100 |     8 @
+igntxt | n/y                          |      1    | 0x0200 |     9
+</tabular></table>
+
+<sect1>Lighting
+<p>The lighting linedef types change the lighting in the tagged sector.  All are regular or extended types, there are no generalized lighting types. All are switched or walkovers.
+<sect2>Lighting Targets
+<p><descrip>
+<tag>Lights to Minimum Neighbor</tag>Each tagged sector is set to the minimum light level found in any adjacent sector. The tagged sectors are changed in numerical order, and this may influence the result.
+<tag>Lights to Maximum Neighbor</tag>Each tagged sector is set to the maximum light level found in any adjacent sector. The tagged sectors are changed in numerical order, and this may influence the result.
+<tag>Blinking</tag>Each tagged sector begins blinking between two light levels. The brighter level is the light level in the tagged sector. The darker level is the minimum neighbor light level, or 0 if all neighbor sectors have lighting greater than or equal to the sector's at the time of activation. The blinking is non-synchronous, beginning 1-9 gametics after activation, with a dark period of 1 sec (35 gametics) and a bright period of 1/7 sec (5 gametics).
+<tag>35 Units</tag>Each tagged sector is set to a light level of 35 units.
+<tag>255 Units</tag>Each tagged sector is set to a light level of 255 units.
+</descrip>
+<sect2>Lighting Linedef Types
+<p><table><tabular ca="rlll">
+#   | Class| Trig|  Target @
+139 | Reg  | SR  | 35 Units @
+170 | Ext  | S1  | 35 Units @
+79  | Reg  | WR  | 35 Units @
+35  | Reg  | W1  | 35 Units @
+138 | Reg  | SR  | 255 Units @
+171 | Ext  | S1  | 255 Units @
+81  | Reg  | WR  | 255 Units @
+13  | Reg  | W1  | 255 Units @
+192 | Ext  | SR  | Maximum Neighbor @
+169 | Ext  | S1  | Maximum Neighbor @
+80  | Reg  | WR  | Maximum Neighbor @
+12  | Reg  | W1  | Maximum Neighbor @
+194 | Ext  | SR  | Minimum Neighbor @
+173 | Ext  | S1  | Minimum Neighbor @
+157 | Ext  | WR  | Minimum Neighbor @
+104 | Reg  | W1  | Minimum Neighbor @
+193 | Ext  | SR  | Blinking @
+172 | Ext  | S1  | Blinking @
+156 | Ext  | WR  | Blinking @
+17  | Reg  | W1  | Blinking
+</tabular></table>
+
+<sect1>Elevators
+<p>An elevator is a linedef type that moves both floor and ceiling together. All elevator linedefs are extended, there are no regular or generalized elevator types. Instant elevator motion is not possible, and monsters cannot activate elevators. All elevator triggers are either switched or walkover.
+<sect2>Elevator Targets
+<p><descrip>
+<tag>Next Highest Floor</tag>The elevator floor moves to the lowest adjacent floor higher than the elevator's floor, the ceiling staying the same height above the floor.  If there is no higher floor the elevator doesn't move.
+<tag>Next Lowest Floor</tag>The elevator floor moves to the highest adjacent floor lower than the current floor, the ceiling staying the same height above the floor. If there is no lower floor the elevator doesn't move.
+<tag>Current Floor</tag>The elevator floor moves to the height of the floor on the first sidedef of the triggering line, the ceiling remaining the same height above the elevator floor.
+</descrip>
+<sect2>Elevator Linedef Types
+<p><table><tabular ca="rllll">
+#   | Class | Trig | Spd   | Target @
+230 | Ext  | SR  | Fast  | Next Highest Floor @
+229 | Ext  | S1  | Fast  | Next Highest Floor @
+228 | Ext  | WR  | Fast  | Next Highest Floor @
+227 | Ext  | W1  | Fast  | Next Highest Floor @
+234 | Ext  | SR  | Fast  | Next Lowest Floor @
+233 | Ext  | S1  | Fast  | Next Lowest Floor @
+232 | Ext  | WR  | Fast  | Next Lowest Floor @
+231 | Ext  | W1  | Fast  | Next Lowest Floor @
+238 | Ext  | SR  | Fast  | Current Floor @
+237 | Ext  | S1  | Fast  | Current Floor @
+236 | Ext  | WR  | Fast  | Current Floor @
+235 | Ext  | W1  | Fast  | Current Floor
+</tabular></table>
+
+<sect1>Old Line Types
+<p>This section lists the old, traditional Doom and Boom linedef types for various actions. There is no rhyme nor reason to these numbers, this is just how they are. We're stuck with them for backward compatibility purposes, and because most level editors still use them. If you want to do clever stuff with lines yourself, don't use these - the only reason to use these in levels is for doom2.exe compatibility, or because your editor provides an easy interface for choosing from them.
+<p>See the preceeding sections for descriptions of how these work. Hopefully everything is self explanatory.
+<sect2>Doors
+<p>
+<table>
+<tabular ca="rllllrll">
+Linedef type | Class | Trigger type | Key  | Speed  | Wait| Monsters | Mechanism @
+1      | Reg   | PR   | No   | Slow   | 4s  | Yes    | Open, Wait, Then Close @
+117    | Reg   | PR   | No   | Fast   | 4s  | No     | Open, Wait, Then Close @
+63     | Reg   | SR   | No   | Slow   | 4s  | No     | Open, Wait, Then Close @
+114    | Reg   | SR   | No   | Fast   | 4s  | No     | Open, Wait, Then Close @
+29     | Reg   | S1   | No   | Slow   | 4s  | No     | Open, Wait, Then Close @
+111    | Reg   | S1   | No   | Fast   | 4s  | No     | Open, Wait, Then Close @
+90     | Reg   | WR   | No   | Slow   | 4s  | No     | Open, Wait, Then Close @
+105    | Reg   | WR   | No   | Fast   | 4s  | No     | Open, Wait, Then Close @
+4      | Reg   | W1   | No   | Slow   | 4s  | No     | Open, Wait, Then Close @
+108    | Reg   | W1   | No   | Fast   | 4s  | No     | Open, Wait, Then Close @
+
+31     | Reg   | P1   | No   | Slow   | --  | No     | Open and Stay Open @
+118    | Reg   | P1   | No   | Fast   | --  | No     | Open and Stay Open @
+61     | Reg   | SR   | No   | Slow   | --  | No     | Open and Stay Open @
+115    | Reg   | SR   | No   | Fast   | --  | No     | Open and Stay Open @
+103    | Reg   | S1   | No   | Slow   | --  | No     | Open and Stay Open @
+112    | Reg   | S1   | No   | Fast   | --  | No     | Open and Stay Open @
+86     | Reg   | WR   | No   | Slow   | --  | No     | Open and Stay Open @
+106    | Reg   | WR   | No   | Fast   | --  | No     | Open and Stay Open @
+2      | Reg   | W1   | No   | Slow   | --  | No     | Open and Stay Open @
+109    | Reg   | W1   | No   | Fast   | --  | No     | Open and Stay Open @
+46     | Reg   | GR   | No   | Slow   | --  | No     | Open and Stay Open @
+
+42     | Reg   | SR   | No   | Slow   | --  | No     | Close and Stay Closed @
+116    | Reg   | SR   | No   | Fast   | --  | No     | Close and Stay Closed @
+50     | Reg   | S1   | No   | Slow   | --  | No     | Close and Stay Closed @
+113    | Reg   | S1   | No   | Fast   | --  | No     | Close and Stay Closed @
+75     | Reg   | WR   | No   | Slow   | --  | No     | Close and Stay Closed @
+107    | Reg   | WR   | No   | Fast   | --  | No     | Close and Stay Closed @
+3      | Reg   | W1   | No   | Slow   | --  | No     | Close and Stay Closed @
+110    | Reg   | W1   | No   | Fast   | --  | No     | Close and Stay Closed @
+
+196    | Ext   | SR   | No   | Slow   | 30s | No     | Close, Wait, Then Open @
+175    | Ext   | S1   | No   | Slow   | 30s | No     | Close, Wait, Then Open @
+76     | Reg   | WR   | No   | Slow   | 30s | No     | Close, Wait, Then Open @
+16     | Reg   | W1   | No   | Slow   | 30s | No     | Close, Wait, Then Open @
+
+26     | Reg   | PR   | Blue | Slow   | 4s  | No     | Open, Wait, Then Close @
+28     | Reg   | PR   | Red  | Slow   | 4s  | No     | Open, Wait, Then Close @
+27     | Reg   | PR   | Yell | Slow   | 4s  | No     | Open, Wait, Then Close @
+
+32     | Reg   | P1   | Blue | Slow   | --  | No     | Open and Stay Open @
+33     | Reg   | P1   | Red  | Slow   | --  | No     | Open and Stay Open @
+34     | Reg   | P1   | Yell | Slow   | --  | No     | Open and Stay Open @
+99     | Reg   | SR   | Blue | Fast   | --  | No     | Open and Stay Open @
+134    | Reg   | SR   | Red  | Fast   | --  | No     | Open and Stay Open @
+136    | Reg   | SR   | Yell | Fast   | --  | No     | Open and Stay Open @
+133    | Reg   | S1   | Blue | Fast   | --  | No     | Open and Stay Open @
+135    | Reg   | S1   | Red  | Fast   | --  | No     | Open and Stay Open @
+137    | Reg   | S1   | Yell | Fast   | --  | No     | Open and Stay Open @
+</tabular>
+</table>
+
+<sect2>Floors
+<p>
+<table>
+<tabular ca="rlllllllll">
+Type #|Class | Trig  |Dir|Spd  |Chg |Model|Monst|Crush | Target @
+
+60   |Reg   | SR    |Dn |Slow |None|-- |No |No   |Lowest Neighbor Floor @
+23   |Reg   | S1    |Dn |Slow |None|-- |No |No   |Lowest Neighbor Floor @
+82   |Reg   | WR    |Dn |Slow |None|-- |No |No   |Lowest Neighbor Floor @
+38   |Reg   | W1    |Dn |Slow |None|-- |No |No   |Lowest Neighbor Floor @
+
+177  |Ext   | SR    |Dn |Slow |TxTy|Num|No |No   |Lowest Neighbor Floor @
+159  |Ext   | S1    |Dn |Slow |TxTy|Num|No |No   |Lowest Neighbor Floor @
+84   |Reg   | WR    |Dn |Slow |TxTy|Num|No |No   |Lowest Neighbor Floor @
+37   |Reg   | W1    |Dn |Slow |TxTy|Num|No |No   |Lowest Neighbor Floor @
+
+69   |Reg   | SR    |Up |Slow |None|-- |No |No   |Next Neighbor Floor @
+18   |Reg   | S1    |Up |Slow |None|-- |No |No   |Next Neighbor Floor @
+128  |Reg   | WR    |Up |Slow |None|-- |No |No   |Next Neighbor Floor @
+119  |Reg   | W1    |Up |Slow |None|-- |No |No   |Next Neighbor Floor @
+
+132  |Reg   | SR    |Up |Fast |None|-- |No |No   |Next Neighbor Floor @
+131  |Reg   | S1    |Up |Fast |None|-- |No |No   |Next Neighbor Floor @
+129  |Reg   | WR    |Up |Fast |None|-- |No |No   |Next Neighbor Floor @
+130  |Reg   | W1    |Up |Fast |None|-- |No |No   |Next Neighbor Floor @
+
+222  |Ext   | SR    |Dn |Slow |None|-- |No |No   |Next Neighbor Floor @
+221  |Ext   | S1    |Dn |Slow |None|-- |No |No   |Next Neighbor Floor @
+220  |Ext   | WR    |Dn |Slow |None|-- |No |No   |Next Neighbor Floor @
+219  |Ext   | W1    |Dn |Slow |None|-- |No |No   |Next Neighbor Floor @
+
+64   |Reg   | SR    |Up |Slow |None|-- |No |No   |Lowest Neighbor Ceiling @
+101  |Reg   | S1    |Up |Slow |None|-- |No |No   |Lowest Neighbor Ceiling @
+91   |Reg   | WR    |Up |Slow |None|-- |No |No   |Lowest Neighbor Ceiling @
+5    |Reg   | W1    |Up |Slow |None|-- |No |No   |Lowest Neighbor Ceiling @
+24   |Reg   | G1    |Up |Slow |None|-- |No |No   |Lowest Neighbor Ceiling @
+
+65   |Reg   | SR    |Up |Slow |None|-- |No |Yes  |Lowest Neighbor Ceiling - 8 @
+55   |Reg   | S1    |Up |Slow |None|-- |No |Yes  |Lowest Neighbor Ceiling - 8 @
+94   |Reg   | WR    |Up |Slow |None|-- |No |Yes  |Lowest Neighbor Ceiling - 8 @
+56   |Reg   | W1    |Up |Slow |None|-- |No |Yes  |Lowest Neighbor Ceiling - 8 @
+
+45   |Reg   | SR    |Dn |Slow |None|-- |No |No   |Highest Neighbor Floor @
+102  |Reg   | S1    |Dn |Slow |None|-- |No |No   |Highest Neighbor Floor @
+83   |Reg   | WR    |Dn |Slow |None|-- |No |No   |Highest Neighbor Floor @
+19   |Reg   | W1    |Dn |Slow |None|-- |No |No   |Highest Neighbor Floor @
+
+70   |Reg   | SR    |Dn |Fast |None|-- |No |No   |Highest Neighbor Floor + 8      @
+71   |Reg   | S1    |Dn |Fast |None|-- |No |No   |Highest Neighbor Floor + 8      @
+98   |Reg   | WR    |Dn |Fast |None|-- |No |No   |Highest Neighbor Floor + 8      @
+36   |Reg   | W1    |Dn |Fast |None|-- |No |No   |Highest Neighbor Floor + 8      @
+
+180  |Ext   | SR    |Up |Slow |None|-- |No |No   |Absolute 24 @
+161  |Ext   | S1    |Up |Slow |None|-- |No |No   |Absolute 24 @
+92   |Reg   | WR    |Up |Slow |None|-- |No |No   |Absolute 24 @
+58   |Reg   | W1    |Up |Slow |None|-- |No |No   |Absolute 24 @
+
+179  |Ext   | SR    |Up |Slow |TxTy|Trg|No |No   |Absolute 24 @
+160  |Ext   | S1    |Up |Slow |TxTy|Trg|No |No   |Absolute 24 @
+93   |Reg   | WR    |Up |Slow |TxTy|Trg|No |No   |Absolute 24 @
+59   |Reg   | W1    |Up |Slow |TxTy|Trg|No |No   |Absolute 24 @
+
+176  |Ext   | SR    |Up |Slow |None|-- |No |No   |Abs Shortest Lower Texture @
+158  |Ext   | S1    |Up |Slow |None|-- |No |No   |Abs Shortest Lower Texture @
+96   |Reg   | WR    |Up |Slow |None|-- |No |No   |Abs Shortest Lower Texture @
+30   |Reg   | W1    |Up |Slow |None|-- |No |No   |Abs Shortest Lower Texture @
+
+178  |Ext   | SR    |Up |Slow |None|-- |No |No   |Absolute 512 @
+140  |Reg   | S1    |Up |Slow |None|-- |No |No   |Absolute 512 @
+147  |Ext   | WR    |Up |Slow |None|-- |No |No   |Absolute 512 @
+142  |Ext   | W1    |Up |Slow |None|-- |No |No   |Absolute 512 @
+
+190  |Ext   | SR    |-- |---- |TxTy|Trg|No |No   |None @
+189  |Ext   | S1    |-- |---- |TxTy|Trg|No |No   |None @
+154  |Ext   | WR    |-- |---- |TxTy|Trg|No |No   |None @
+153  |Ext   | W1    |-- |---- |TxTy|Trg|No |No   |None @
+
+78   |Ext   | SR    |-- |---- |TxTy|Num|No |No   |None @
+241  |Ext   | S1    |-- |---- |TxTy|Num|No |No   |None @
+240  |Ext   | WR    |-- |---- |TxTy|Num|No |No   |None @
+239  |Ext   | W1    |-- |---- |TxTy|Num|No |No   |None @
+</tabular>
+</table>
+
+<sect2>Ceilings
+<p>
+<table>
+<tabular ca="rlllllllll">
+Type #| Class |Trig | Dir|Spd | *Chg|*Mdl|Mon|Crsh|Target @
+43  | Reg   | SR   | Dn |Fast| None |-- |No |No | Floor 	@
+41  | Reg   | S1   | Dn |Fast| None |-- |No |No | Floor 	@
+152 | Ext   | WR   | Dn |Fast| None |-- |No |No | Floor 	@
+145 | Ext   | W1   | Dn |Fast| None |-- |No |No | Floor 	@
+186 | Ext   | SR   | Up |Slow | None |-- |No |No | Highest Neighbor Ceiling	@
+166 | Ext   | S1   | Up |Slow | None |-- |No |No | Highest Neighbor Ceiling	@
+151 | Ext   | WR   | Up |Slow | None |-- |No |No | Highest Neighbor Ceiling	@
+40  | Reg   | W1   | Up |Slow | None |-- |No |No | Highest Neighbor Ceiling	@
+187 | Ext   | SR   | Dn |Slow | None |-- |No |No | 8 Above Floor	@
+167 | Ext   | S1   | Dn |Slow | None |-- |No |No | 8 Above Floor	@
+72  | Reg   | WR   | Dn |Slow | None |-- |No |No | 8 Above Floor	@
+44  | Reg   | W1   | Dn |Slow | None |-- |No |No | 8 Above Floor	@
+205 | Ext   | SR   | Dn |Slow | None |-- |No |No | Lowest Neighbor Ceiling	@
+203 | Ext   | S1   | Dn |Slow | None |-- |No |No | Lowest Neighbor Ceiling	@
+201 | Ext   | WR   | Dn |Slow | None |-- |No |No | Lowest Neighbor Ceiling	@
+199 | Ext   | W1   | Dn |Slow | None |-- |No |No | Lowest Neighbor Ceiling	@
+206 | Ext   | SR   | Dn |Slow | None |-- |No |No | Highest Neighbor Floor	@
+204 | Ext   | S1   | Dn |Slow | None |-- |No |No | Highest Neighbor Floor	@
+202 | Ext   | WR   | Dn |Slow | None |-- |No |No | Highest Neighbor Floor	@
+200 | Ext   | W1   | Dn |Slow | None |-- |No |No | Highest Neighbor Floor	@
+</tabular></table>
+<sect2>Platforms
+<p>All these obsolete platform types do no texture change, and cannot be 
+triggered by monsters.
+<table><tabular ca="rlllll">
+Type #| Class |Trig | Delay|Spd Target @
+181 |  Ext  |  SR  |   3s | Slow | Lowest and Highest Floor (perpetual) @
+162 |  Ext  |  S1  |   3s | Slow | Lowest and Highest Floor (perpetual) @
+87  |  Reg  |  WR  |   3s | Slow |Lowest and Highest Floor (perpetual) @
+53  |  Reg  |  W1  |   3s | Slow | Lowest and Highest Floor (perpetual) @
+62  |  Reg  |  SR  |   3s | Slow |Lowest Neighbor Floor (lift) @
+21  |  Reg  |  S1  |   3s | Slow |Lowest Neighbor Floor (lift) @
+88  |  Reg  |  WR  |   3s | Slow |Lowest Neighbor Floor (lift) @
+10  |  Reg  |  W1  |   3s | Slow |Lowest Neighbor Floor (lift) @
+123 |  Reg  |  SR  |   3s | Fast |Lowest Neighbor Floor (lift) @
+122 |  Reg  |  S1  |   3s | Fast |Lowest Neighbor Floor (lift) @
+120 |  Reg  |  WR  |   3s | Fast |Lowest Neighbor Floor (lift) @
+121 |  Reg  |  W1  |   3s | Fast |Lowest Neighbor Floor (lift)
+</tabular></table>
+
+<sect>Property Linedef Types
+<p>Some linedef types do not indicate triggerable actions. Instead, they 
+convey some property, either to the line itself, or to the sector it 
+belongs to, or to the correspondingly tagged sectors.
+<p>TODO
+
+<sect>Sector Types
+<p>Sector types are used to indicate 
+
+<sect>Things
+<sect1>New Things
+<p>A few new thing types were added by Boom and MBF; they are described here.
+<descrip>
+<tag>888</tag>
+A dog. MBF added support for helper dogs, which follow the player around and 
+help them battle the monsters. This new dog thing type is <em>independent</em>
+of any helper dogs the user has selected though - the idea si to allow the 
+WAD author to include dogs if they want. They are <em>not</em> friendly by
+default, you have to either mark the whole dog species (140) friendly via 
+a BEX patch, or individual dogs friendly via the revelant thing flag 
+(see below).
+<tag>4000-4099</tag>
+Reserved for use for additional coop player starts in future.
+<tag>5001, 5002</tag>
+BOOM implemented two new thing types, MT_PUSH (5001), and
+MT_PULL(5002). These control the origin of the point source wind
+effect controlled by linedef types 225 and 226, and set whether the
+wind blows towards or away from the origin depending on which is
+used.
+</descrip><p>
+See the Doom Specs for a complete reference on Doom's thing types.
+
+<sect1>Thing Flags
+<p>The thing flags field in Doom controls various properties of each 
+THING. Each property is controlled by one or more bits within the 
+flags field. The various bits mean:
+<descrip>
+<tag>Bit 0 - "easy"</tag>This thing appears in skill 1/2 games
+<tag>Bit 1 - "medium"</tag>This thing appears in skill 3 "Hurt Me Plenty" games.
+<tag>Bit 2 - "hard"</tag>This thing appears in skill 4 &amp; 5 ("Ultraviolent" and "Nightmare!") games.
+<tag>Bit 3 - "ambush"M</tag>This thing is deaf, so it only awakens when it sees the player.
+<tag>Bit 4 - "not single"</tag>This thing only appears in multiplayer games.
+<tag>Bit 5 - "not in DM"</tag>This thing should not appear in deathmatch games.
+<tag>Bit 6 - "not in COOP"</tag>This thing should not appear in multiplayer cooperative games.
+<tag>Bit 7 - "friendly"</tag>This thing is spawned with the FRIEND mobj flag, 
+so it is friendly to the player and fights other non-FRIEND monsters. Note 
+that things without this flag might be friendly for other reasons, e.g. 
+players are always friendly, and thing types can be marked friendly in 
+BEX patches.
+<tag>Bit 8 - "compatibility"</tag>If set, all bits other than bits 0-4 are ignored for this thing. This is to cope with some old level editors like Hellmaker which set all the unused bits to 1, which would otherwise not be compatible with the newer extensions.
+</descrip>
+<p>Editors should always leave unused bits set to 0.
+
+<sect>Lumps
+<p>
+A lump is an entry in a .wad file, containing data used by Doom/PrBoom.
+<p>
+PrBoom comes with a number of extra lumps which provide data needed by 
+some of its new features which were not present in Doom.
+<p>
+The Linux version of PrBoom comes with these as a separate WAD file, 
+prboom.wad. The Windows version has them embedded in the executable 
+file; thy can be extracted with prboom -dumplumps prboom.wad
+<p>
+PrBoom also looks for a number of new lumps which can control the behaviour 
+of levels and animations in the game.
+<sect1>Embedded Dehacked Support
+<p>With BOOM, you could load dehacked patches on the command line. MBF, 
+and now PrBoom, take that one step further, by allowing WAD files to contain 
+a dehacked patch embedded into the wad file. If PrBoom finds a lump called 
+DEHACKED in a WAD file, it parses it as a dehacked/BEX file.
+<p>Since dehacked/BEX are horribly messy to work with, they are not 
+discussed in this document. If you need that level of customisation, you don't 
+want PrBoom, you want one of the Doom mods which aim for customisability, 
+like SMMU or DosDoom.
+<sect1>Animation Definitions
+<descrip>
+<tag>SWITCHES</tag>Definition of switch textures recognized
+<tag>ANIMATED</tag>Definition of animated textures and flats recognized
+</descrip>
+<sect2>Switches format
+<p>The SWITCHES lump makes the names of the switch textures used in the
+game known to the engine. It consists of a list of records each 20
+bytes long, terminated by an entry (not used) whose last 2 bytes are 0.
+<table><tabular ca="ll">
+9 bytes   |     Null terminated string naming "off" state texture for switch @
+9 bytes   |     Null terminated string naming "on" state texture for switch  @
+2 bytes   |     Short integer for the IWADs switch will work in
+<itemize>
+<item>0 = terminates list of known switches
+<item>1 = shareware
+<item>2 = registered/retail DOOM or shareware
+<item>3 = DOOM II, registered/retail DOOM, or shareware
+</itemize>
+</tabular></table>
+<sect2>ANIMATED format
+<p>The ANIMATED lump makes the names of the animated flats and textures
+known to the engine. It consists of a list of records, each 23 bytes
+long, terminated by a record (not used) whose first byte is -1 (255).
+<table><tabular ca="ll">
+1 byte   |      -1 to terminate list, 0 if a flat, 1 if a texture @
+9 bytes  |      Null terminated string naming last texture/flat in animation  @
+9 bytes  |      Null terminated string naming first texture/flat in animation @
+4 bytes  |      Animation speed, number of frames between animation changes
+</tabular></table>
+<sect1>Colour translation tables
+<p>These tables are used to translate the red font characters to other
+colors. They are made replaceable in order to support custom palettes
+in TC's better. Note however that the font character graphics must
+be defined using the palette indices for the standard red range of the
+palette 176-191.
+<descrip>
+<tag>CRBRICK</tag>Translates red range to brick red
+<tag>CRTAN</tag>Translates red range to tan
+<tag>CRGRAY</tag>Translates red range to gray
+<tag>CRGREEN</tag>Translates red range to green
+<tag>CRBROWN</tag>Translates red range to brown
+<tag>CRGOLD</tag>Translates red range to dark yellow
+<tag>CRRED</tag>Translates red range to red range (no change)
+<tag>CRBLUE</tag>Translates red range to light blue
+<tag>CRBLUE2</tag>Translates red range to dark blue (status bar numerals)
+<tag>CRORANGE</tag>Translates red range to orange
+<tag>CRYELLOW</tag>Translates red range to light yellow
+</descrip>
+<sect1>New graphics used by PrBoom
+<sect2>Menu graphics
+<p>All in standard Doom patch format
+<descrip>
+<tag>M_HORSEN</tag>Mouse horizontal sensitivity menu
+<tag>M_VERSEN</tag>Mouse vertical sensitivity menu
+<tag>M_SETUP</tag>Setup menu entry in main menu
+<tag>M_KEYBND</tag>Key Bindings entry in setup menu
+<tag>M_AUTO</tag>Automap entry in setup menu
+<tag>M_CHAT</tag>Chat string entry in setup menu
+<tag>M_ENEM</tag>Enemies options entry in setup menu
+<tag>M_STAT</tag>Status bar and Hud entry in setup menu
+<tag>M_WEAP</tag>Weapons entry in setup menu
+<tag>M_MESS</tag>Message option entry in setup menu
+<tag>M_COLORS</tag>Palette color picker diagram
+<tag>M_PALNO</tag>Xed-out symbol for unused automap features
+<tag>M_BUTT1</tag>Setup reset button off state
+<tag>M_BUTT2</tag>Setup reset button on state
+</descrip>
+<sect2>Fonts
+<p>All in standard Doom patch format
+<descrip>
+<tag>STCFN096</tag>` character for standard DOOM font
+<tag>STBR123</tag>HUD font bargraph char, full, 4 vertical bars
+<tag>STBR124</tag>HUD font bargraph char, partial, 3 vertical bars
+<tag>STBR125</tag>HUD font bargraph char, partial, 2 vertical bars
+<tag>STBR126</tag>HUD font bargraph char, partial, 1 vertical bars
+<tag>STBR127</tag>HUD font bargraph char, empty, 0 vertical bars
+<tag>DIG0</tag>HUD font 0 char
+<tag>DIG1</tag>HUD font 1 char
+<tag>DIG2</tag>HUD font 2 char
+<tag>DIG3</tag>HUD font 3 char
+<tag>DIG4</tag>HUD font 4 char
+<tag>DIG5</tag>HUD font 5 char
+<tag>DIG6</tag>HUD font 6 char
+<tag>DIG7</tag>HUD font 7 char
+<tag>DIG8</tag>HUD font 8 char
+<tag>DIG9</tag>HUD font 9 char
+<tag>DIGA</tag>HUD font A char
+<tag>DIGB</tag>HUD font B char
+<tag>DIGC</tag>HUD font C char
+<tag>DIGD</tag>HUD font D char
+<tag>DIGE</tag>HUD font E char
+<tag>DIGF</tag>HUD font F char
+<tag>DIGG</tag>HUD font G char
+<tag>DIGH</tag>HUD font H char
+<tag>DIGI</tag>HUD font I char
+<tag>DIGJ</tag>HUD font J char
+<tag>DIGK</tag>HUD font K char
+<tag>DIGL</tag>HUD font L char
+<tag>DIGM</tag>HUD font M char
+<tag>DIGN</tag>HUD font N char
+<tag>DIGO</tag>HUD font O char
+<tag>DIGP</tag>HUD font P char
+<tag>DIGQ</tag>HUD font Q char
+<tag>DIGR</tag>HUD font R char
+<tag>DIGS</tag>HUD font S char
+<tag>DIGT</tag>HUD font T char
+<tag>DIGU</tag>HUD font U char
+<tag>DIGV</tag>HUD font V char
+<tag>DIGW</tag>HUD font W char
+<tag>DIGX</tag>HUD font X char
+<tag>DIGY</tag>HUD font Y char
+<tag>DIGZ</tag>HUD font Z char
+<tag>DIG45</tag>HUD font - char
+<tag>DIG47</tag>HUD font / char
+<tag>DIG58</tag>HUD font : char
+<tag>DIG91</tag>HUD font [ char
+<tag>DIG93</tag>HUD font ] char
+</descrip>
+<sect2>New key graphics for status bar
+<p>All in standard Doom patch format
+<descrip>
+<tag>STKEYS6</tag>Both blue keys graphic
+<tag>STKEYS7</tag>Both yellow keys graphic
+<tag>STKEYS8</tag>Both red keys graphic
+</descrip>
+<sect2>Box graphics
+<p>All in standard Doom patch format
+<descrip>
+<tag>BOXUL</tag>Upper left corner of box
+<tag>BOXUC</tag>Center of upper border of box
+<tag>BOXUR</tag>Upper right corner of box
+<tag>BOXCL</tag>Center of left border of box
+<tag>BOXCC</tag>Center of box
+<tag>BOXCR</tag>Center of right border of box
+<tag>BOXLL</tag>Lower left corner of box
+<tag>BOXLC</tag>Center of lower border of box
+<tag>BOXLR</tag>Lower right corner of box
+</descrip>
+<sect1>Lumps not present in Doom v1.1
+<p>All in standard Doom patch/sound format respectively
+<descrip>
+<tag>STTMINUS</tag>minus sign for neg frags in status bar
+<tag>WIMINUS</tag>minus sign for neg frags on end screen
+<tag>M_NMARE</tag>nightmare skill menu string
+<tag>STBAR</tag>status bar background
+<tag>DSGETPOW</tag>sound for obtaining power-up
+</descrip>
+<sect1>Misc
+<p>The WATERMAP lump has the same format as COLORMAP, 34 tables of 256
+bytes each, see the UDS for details. Note that colormaps you add to
+a PWAD must be between C_START and C_END markers.
+<descrip>
+<tag>ENDBOOM</tag>Text displayed at end of game, 80X25 with attributes
+<tag>TNT1A0</tag>Invisible sprite for push/pull controller things
+<tag>WATERMAP</tag>Custom greenish colormap for underwater use
+</descrip>
+</article>
