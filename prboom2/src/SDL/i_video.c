@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.41 2002/11/18 22:56:05 proff_fs Exp $
+ * $Id: i_video.c,v 1.42 2002/11/23 22:21:57 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.41 2002/11/18 22:56:05 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.42 2002/11/23 22:21:57 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -49,8 +49,9 @@ rcsid[] = "$Id: i_video.c,v 1.41 2002/11/18 22:56:05 proff_fs Exp $";
 
 int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
-
 #endif
+
+static char *gl_library_str;
 
 #include "SDL.h"
 
@@ -633,12 +634,6 @@ void I_PreInitGraphics(void)
   
   atexit(I_ShutdownSDL);
   
-#ifdef GL_DOOM
-  if (DynGL_LoadLibrary("OpenGL32.DLL") == SDL_FALSE) {
-    I_Error("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
-  }
-#endif
-
   I_InitInputs();
 }
 
@@ -684,6 +679,12 @@ void I_InitGraphics(void)
 
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+
+#ifdef GL_DOOM
+    if (DynGL_LoadLibrary(gl_library_str) == SDL_FALSE) {
+      I_Error("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
+    }
+#endif
 
     /* Set the video mode */
     I_UpdateVideoMode();
@@ -768,17 +769,6 @@ void I_UpdateVideoMode(void)
     screens[0].not_on_heap = false;
   }
 
-  V_AllocScreens();
-
-  // Hide pointer while over this window
-  SDL_ShowCursor(0);
-
-  R_InitColFunc();
-
-  R_ExecuteSetViewSize();
-
-  V_SetPalette(0);
-
 #ifdef GL_DOOM
   {
   int temp;
@@ -808,9 +798,20 @@ void I_UpdateVideoMode(void)
   gld_Init(SCREENWIDTH, SCREENHEIGHT);
   }
 #endif
+
+  V_AllocScreens();
+
+  // Hide pointer while over this window
+  SDL_ShowCursor(0);
+
+  R_InitColFunc();
+
+  R_ExecuteSetViewSize();
+
+  V_SetPalette(0);
 }
 
-CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, 0)
+CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered)
 {
   if (graphics_inited) {
     I_UpdateVideoMode();
@@ -824,30 +825,40 @@ static char *str_vidmode[] = {
   "32bit"
 };
 
-CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 2, str_vidmode, 0)
+CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 2, str_vidmode, cf_buffered)
 {
   if (graphics_inited)
     I_UpdateVideoMode();
 }
 
-/*
-CONSOLE_INT(r_width, SCREENWIDTH, NULL, 320, MAX_SCREENWIDTH, NULL, 0)
+CONSOLE_INT(r_width, desired_screenwidth, NULL, 320, MAX_SCREENWIDTH, NULL, cf_buffered)
 {
-  if (graphics_inited)
+  if (graphics_inited) {
+    SCREENWIDTH = desired_screenwidth;
     I_UpdateVideoMode();
+  }
 }
 
-CONSOLE_INT(r_height, SCREENHEIGHT, NULL, 200, MAX_SCREENHEIGHT, NULL, 0)
+CONSOLE_INT(r_height, desired_screenheight, NULL, 200, MAX_SCREENHEIGHT, NULL, cf_buffered)
 {
-  if (graphics_inited)
+  if (graphics_inited) {
+    SCREENHEIGHT = desired_screenheight;
     I_UpdateVideoMode();
+  }
 }
-*/
+
+CONSOLE_STRING(gl_library, gl_library_str, NULL, 126, 0) {}
 
 void I_Video_AddCommands()
 {
+#ifdef _WIN32
+	gl_library_str = Z_Strdup("OpenGL32.DLL", PU_STATIC, 0);
+#else
+	gl_library_str = Z_Strdup("libGL.so.1", PU_STATIC, 0);
+#endif
   C_AddCommand(r_fullscreen);
   C_AddCommand(r_videomode);
-  //C_AddCommand(r_width);
-  //C_AddCommand(r_height);
+  C_AddCommand(r_width);
+  C_AddCommand(r_height);
+  C_AddCommand(gl_library);
 }
