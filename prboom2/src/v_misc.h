@@ -53,8 +53,16 @@
 #define FC_ORANGE       "\x88"
 #define FC_YELLOW       "\x89"
 #define FC_BLUE2        "\x8a"
-#define FC_TRANS        "\x8b" // always needs to be the last
-#define FC_TRANSVALUE    0x8b // always needs to be the last
+#define FC_TRANS        "\x8b"
+#define FC_TRANSVALUE    0x8b
+// haleyjd 08/20/02: new characters for internal color usage
+#define FC_NORMAL       "\x8c"
+#define FC_NORMALVALUE   0x8c
+#define FC_HI           "\x8d"
+#define FC_HIVALUE       0x8d
+#define FC_ERROR        "\x8e"
+#define FC_ERRORVALUE    0x8e
+#define FC_LASTVALUE     0x8e
 
 void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patchnum_t font[]);
 void V_WriteTextFont(const char *s, int x, int y, int gap, patchnum_t font[]);

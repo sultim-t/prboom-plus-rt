@@ -43,6 +43,7 @@
 #include "c_runcmd.h"
 #include "doomdef.h"
 #include "doomstat.h"
+#include "lprintf.h"
 #include "i_main.h"
 #include "i_video.h"
 #include "hu_stuff.h"
@@ -50,12 +51,10 @@
 #include "v_misc.h"
 #include "w_wad.h"
 
-extern int gamma_correct;
-
 //---------------------------------------------------------------------------
 // Font
 //---------------------------------------------------------------------------
-patchnum_t v_font[V_FONTSIZE];
+static patchnum_t v_font[V_FONTSIZE];
 
 void V_LoadFont()
 {
@@ -85,7 +84,7 @@ void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patch
   int   cx;
   int   cy;
 
-  ch = s;
+  ch = (const unsigned char *)s;
   cx = x;
   cy = y;
   
@@ -93,49 +92,85 @@ void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patch
   {
     c = *ch++;
     if (!c)
-	    break;
-    if ((c >= FC_BASEVALUE) && (c <=FC_TRANSVALUE)) // new colour
+      break;
+    if ((c >= FC_BASEVALUE) && (c <=FC_LASTVALUE)) // new colour
     {
-	    if(c == FC_TRANSVALUE) // translucent toggle
-	      translucent = !translucent;
+      if(c == FC_TRANSVALUE) // translucent toggle
+      {
+        translucent = !translucent;
+      }
       else
-        colour = c - FC_BASEVALUE;
+      {
+        int colnum;
+
+        // haleyjd: allow use of gamemode-dependent defaults
+        switch(c)
+        {
+        case FC_NORMALVALUE:
+           //colnum = gameModeInfo->colorNormal;
+           colnum = CR_RED;
+           break;
+        case FC_HIVALUE:
+           //colnum = gameModeInfo->colorHigh;
+           colnum = CR_GRAY;
+           break;
+        case FC_ERRORVALUE:
+           //colnum = gameModeInfo->colorError;
+           colnum = CR_GOLD;
+           break;
+        default:
+           colnum = c - FC_BASEVALUE;
+           break;
+        }
+
+        // haleyjd: added error checking from SMMU v3.30
+        if(colnum < 0 || colnum >= CR_LIMIT)
+          I_Error("V_WriteText: invalid colour %i\n", colnum);
+        else
+          colour = colnum;
+      }
       continue;
     }
     if (c == '\t')
     {
       cx = (cx/40)+1;
       cx = cx*40;
+      continue; // haleyjd: missing continue for \t
     }
     if (c == '\n')
-	  {
-	    cx = x;
+    {
+      cx = x;
       cy += 8+ygap;
-	    continue;
-	  }
+      continue;
+    }
 
     c = toupper(c) - V_FONTSTART;
-    if (c < 0 || c> V_FONTSIZE)
+    if (c < 0 || c >= V_FONTSIZE)
     {
       cx += 4;
       continue;
     }
 
     // check if patch is available
+    // haleyjd: need to add 4 to cx for NULL characters
+    // or else V_StringWidth is lying about their length
     if (font[c].lumpnum < 0)
+    {
+      cx += 4;
       continue;
+    }
 
     // haleyjd: was no cx<0 check
 
     w = font[c].width;
     if (cx < 0 || cx+w > 320)
-	    continue;
+      continue;
 
     // haleyjd: was no y checking at all!
 
     h = font[c].height;
     if (cy < 0 || cy+h > 200)
-	    continue;
+      continue;
 
     V_DrawNumPatch(cx, cy, 0, font[c].lumpnum, colour, VPT_STRETCH | VPT_TRANS | (translucent?VPT_TRANSLUCENT:0));
 
@@ -162,7 +197,7 @@ void V_WriteText(const char *s, int x, int y, int gap)
 
 boolean V_IsPrint(unsigned char c)
 {
-  if ((c >= FC_BASEVALUE) && (c <=FC_TRANSVALUE)) // new colour
+  if ((c >= FC_BASEVALUE) && (c <=FC_LASTVALUE)) // new colour
     return true;
 
   // hack to make spacebar work
@@ -217,23 +252,25 @@ int V_StringWidthFont(const char *s, int gap, patchnum_t font[])
   {
     c = *s;
     if(c >= FC_BASEVALUE)         // colour
-	    continue;
+      continue;
     if(c == '\n')        // newline
-  	{
-	    if(length > longest_width) longest_width = length;
-	    length = 0; // next line;
-	    continue;
-	  }
+    {
+      if(length > longest_width)
+        longest_width = length;
+      length = 0; // next line;
+      continue;
+    }
     c = toupper(c) - V_FONTSTART;
     // check if patch is available
-    if (c >= V_FONTSIZE)
+    if (c >= V_FONTSIZE || font[c].lumpnum < 0)
       length += 4;
     else
       if (font[c].lumpnum >= 0)
         length += font[c].width+gap;
   }
 
-  if(length > longest_width) longest_width = length; // check last line
+  if(length > longest_width)
+    longest_width = length; // check last line
 
   return longest_width;
 }
@@ -325,8 +362,8 @@ void V_DrawLoading()
   if(loading_total)
     {
       V_WriteText(loading_message,
-		  (320 - V_StringWidth(loading_message, 0)) / 2,
-		  (200 - V_StringHeight(loading_message)) / 2 - 4, 0);
+      (320 - V_StringWidth(loading_message, 0)) / 2,
+      (200 - V_StringHeight(loading_message)) / 2 - 4, 0);
       /*
       x = (320 / 2) - 45;
       y = (200 / 2) + 12;
@@ -341,8 +378,8 @@ void V_DrawLoading()
     }
   else
     V_WriteText(loading_message,
-		(320 - V_StringWidth(loading_message, 0)) / 2,
-		(200 - V_StringHeight(loading_message)) / 2, 0);
+    (320 - V_StringWidth(loading_message, 0)) / 2,
+    (200 - V_StringHeight(loading_message)) / 2, 0);
 
     
   I_FinishUpdate();
@@ -389,7 +426,7 @@ void V_LoadingSetTo(int amount)
 
 int v_ticker = false;
 static int history[FPS_HISTORY];
-int current_count = 0;
+static int current_count = 0;
 
 void V_ClassicFPSDrawer();
 
@@ -400,19 +437,19 @@ void V_FPSDrawer()
   int cx, cy;       // chart x,y
 
   if(v_ticker == 2)
-    {
-      V_ClassicFPSDrawer();
-      return;
-    }
+  {
+    V_ClassicFPSDrawer();
+    return;
+  }
   
   current_count++;
   // render the chart
   for(cx=0, x = X_OFFSET; cx<FPS_HISTORY; x++, cx++)
     for(cy=0, y = Y_OFFSET; cy<CHART_HEIGHT; y++, cy++)
-      {
-	i = cy > (CHART_HEIGHT-history[cx]) ? BLACK : WHITE;
-  V_PlotPixel(0, x, y, (byte)i);
-      }
+    {
+      i = cy > (CHART_HEIGHT-history[cx]) ? BLACK : WHITE;
+      V_PlotPixel(0, x, y, (byte)i);
+    }
 }
 
 void V_FPSTicker()
@@ -424,15 +461,15 @@ void V_FPSTicker()
   thistic = I_GetTime()/7;
   
   if(lasttic != thistic)
-    {
-      lasttic = thistic;
-      
-      for(i=0; i<FPS_HISTORY-1; i++)
-	history[i] = history[i+1];
-      
-      history[FPS_HISTORY-1] = current_count;
-      current_count = 0;
-    }
+  {
+    lasttic = thistic;
+    
+    for(i=0; i<FPS_HISTORY-1; i++)
+      history[i] = history[i+1];
+    
+    history[FPS_HISTORY-1] = current_count;
+    current_count = 0;
+  }
 }
 
 // sf: classic fps ticker kept seperate
