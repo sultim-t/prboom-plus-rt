@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $
+ * $Id: am_map.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $";
+  "$Id: am_map.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -719,7 +719,7 @@ boolean AM_Responder
     else if (ch == key_map_mark)
     {
       // Ty 03/27/98 - *not* externalized     
-#ifdef HAVE_snprintf 
+#ifdef HAVE_SNPRINTF 
       snprintf(buffer, sizeof(buffer), "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);  
 #else
       sprintf(buffer, "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);

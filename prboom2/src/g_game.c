@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.4 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: g_game.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.4 2000/05/09 21:45:36 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -1567,7 +1567,7 @@ void CheckSaveGame(size_t size)
 
 void G_SaveGameName(char *name, size_t size, int slot)
 {
-#ifdef HAVE_snprintf
+#ifdef HAVE_SNPRINTF
   snprintf (name, size, "%s/%s%d.dsg", basesavegame, savegamename, slot);
 #else 
   sprintf (name, "%s/%s%d.dsg", basesavegame, savegamename, slot);
@@ -2302,7 +2302,7 @@ void doom_printf(const char *s, ...)
   static char msg[MAX_MESSAGE_SIZE];
   va_list v;
   va_start(v,s);
-#ifdef HAVE_vsnprintf
+#ifdef HAVE_VSNPRINTF
   vsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
 #else
   vsprintf(msg,s,v);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.6 2000/05/10 17:47:11 proff_fs Exp $
+ * $Id: lprintf.c,v 1.7 2000/05/10 23:32:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.6 2000/05/10 17:47:11 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.7 2000/05/10 23:32:47 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -270,7 +270,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
 
   va_list v;
   va_start(v,s);
-#ifdef HAVE_vsnprintf
+#ifdef HAVE_VSNPRINTF
   vsnprintf(msg,sizeof(msg),s,v);         /* print message in buffer  */
 #else 
   vsprintf(msg,s,v);
@@ -304,7 +304,7 @@ void I_Error(const char *error, ...)
   char errmsg[MAX_MESSAGE_SIZE];
   va_list argptr;
   va_start(argptr,error);
-#ifdef HAVE_vsnprintf
+#ifdef HAVE_VSNPRINTF
   vsnprintf(errmsg,sizeof(errmsg),error,argptr);
 #else
   vsprintf(errmsg,error,argptr);
