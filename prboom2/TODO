@@ -23,6 +23,7 @@ release.
     (Could be done after a release though).
 
 Colin: will do after we release
+... guess that means now. I'll begin thinking about it.
     
 --------------------------------------------------------------------------
 15. Hardware music synth support for SDL target. timidity is
@@ -38,16 +39,16 @@ an updated dll.
 --------------------------------------------------------------------------
 18. Website.
 
-Colin:
-We have an about page listing features and history. I've done a download 
-page for Linux. We still need a Windows download page, a front page to 
-tie them all together, and... anything else?
-
 Proff:
 I did the windows download page and the front page.
 Maybe we should do a developer page.
 2000/10/04:
 What about adding some stuff from the lxdoom website.
+
+Colin:
+I'm going to move over some more content this weekend. And the Linux 
+Doom FAQ author is going to update it to point to PrBoom soon, 
+hopefully.
 
 --------------------------------------------------------------------------
 21. Bug with the CapsLock key.
@@ -64,6 +65,7 @@ Colin: there will probably be some FAQs to go in here, like "how to
 README.command-line
 Maybe README.command-line should be renamed to README.options.
 From the next release on I will add .txt to all text files.
+2000/10/07 Colin: gl options into boom.cfg.5, will make a start on this.
 
 --------------------------------------------------------------------------
 24. (2000/10/04) Seperating segs and gl_segs etc.
@@ -73,3 +75,6 @@ From the next release on I will add .txt to all text files.
 
 --------------------------------------------------------------------------
 26. (2000/10/04) Is the current version for demos updated to 211?
+
+2000/10/07 colin: I added a new compatibility level, yes.
+
