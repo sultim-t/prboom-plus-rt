@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.13.2.2 2001/06/15 09:12:51 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.13.2.3 2001/06/15 16:25:44 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -460,10 +460,10 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=lump;
     gltexture->mipmap=false;
-    gltexture->realtexwidth=patch->width;
-    gltexture->realtexheight=patch->height;
-    gltexture->leftoffset=patch->leftoffset;
-    gltexture->topoffset=patch->topoffset;
+    gltexture->realtexwidth=SHORT(patch->width);
+    gltexture->realtexheight=SHORT(patch->height);
+    gltexture->leftoffset=SHORT(patch->leftoffset);
+    gltexture->topoffset=SHORT(patch->topoffset);
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
     gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
     gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
