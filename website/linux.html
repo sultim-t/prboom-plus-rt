@@ -5,7 +5,7 @@
  <title>PrBoom - Linux/UNIX Installation</title>
  <meta name="author" content="Colin Phipps" />
  <meta name="generator" content="vi (FreeBSD 4.1-STABLE i686)" />
- <meta name="CVSID" content="$Id: linux.html,v 1.7 2000/11/12 08:08:53 proff_fs Exp $" />
+ <meta name="CVSID" content="$Id: linux.html,v 1.8 2000/12/17 18:17:27 cph Exp $" />
  <link rel="stylesheet" href="main.css" type="text/css" />
 </head>
 <body>
@@ -41,47 +41,44 @@
   <code>configure</code>. You'll need Mesa installed.</p>
  <p>I don't suggest using the OpenGL stuff unless you're already familiar
   with Doom and PrBoom.</p>
- <p><code>We got reports that it works with XFree 4.x</code></p>
+ <p>We got reports that it works with XFree 4.x</p>
 <!-- cph - perhaps Jess should write some stuff here - I know nothing ;-) -->
  </p>
 <h2><a name="redhat">Linux/x86 RPM based distributions</a></h2>
  <p>
-  You need to download the following things:
+  We test and recommend the following RPM's to use with PrBoom:
  </p><ul>
-  <li>The main SDL library, <code>SDL-1.1.6-1.i386.rpm</code> (or a later version),
-   from <a href="http://www.libsdl.org/download-1.1.html">the SDL 1.1
-   download page</a>.</li>
-  <li>smpeg, from <code>smpeg-0.3.5-1.i386.rpm</code> or later from
-   the <a href="http://www.lokigames.com/development/smpeg.php3">SMPEG
-   homepage</a>.</li>
-  <li>The SDL_mixer library, <code>SDL_mixer-1.0.6-1.i386.rpm</code> (or later),
-   from <a href="http://www.libsdl.org/projects/SDL_mixer/">the SDL_mixer
-   homepage</a>.</li>
-  <li>The SDL_net library. There is no official package of this so I made
-   my own, <code>SDL_net-1.1.1.i386.rpm</code>, available from
-   <a href="ftp://prboom.sourceforge.net/pub/prboom/SDL_net-1.1.1-1.i386.rpm">here</a>.</li>
-  <li>PrBoom itself, <code>prboom-2.1.1-0.i386.rpm</code>, from the
-   <a href="#download">PrBoom download page</a>.</li>
+  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL-1.1.4-7mdk.i586.rpm>http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL-1.1.4-7mdk.i586.rpm</a></li>
+  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_mixer-1.0.6-2mdk.i586.rpm">http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_mixer-1.0.6-2mdk.i586.rpm</a></li>
+  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_net-1.1.1-1mdk.i586.rpm">http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_net-1.1.1-1mdk.i586.rpm</a></li>
  </ul>
- <p>In total that's about 850k to download</p>
- <p>Exception: Mandrake ships with all this stuff on the CDs. smpeg (and
-  <a href="#timidity">timidity</a>)
-  on the Mandrake CDs are fine, <em>but</em> the versions of the
-  SDL libraries on the Mandrake CDs are too old and buggy to use with
-  PrBoom. Don't try it - I have, they're no good. Get new ones from the
-  URLs above.</p>
  <p>To install these, you use <code>rpm</code>. E.g. if you downloaded all
   of the above RPMs into one directory, <code>cd</code> to that directory
-  and run <code>rpm -ivh <code>*.rpm</code></code>. You can then run PrBoom as
+  and run <code>rpm -ivh <code>*.rpm</code>. You can then run PrBoom as
   <code>/usr/games/prboom</code>.
- </p>
- <h3>Compiling from source</h3>
-  <p>If you want to compile from source, then you need all of the above
-   packages, and also <code>SDL-devel-1.1.6-1.i386.rpm</code> (from
-   <a href="http://www.libsdl.org/download-1.1.html">the SDL 1.1
-   download page</a>) and <code>SDL_mixer-devel-1.0.6-1.i386.rpm</code> (again from
-   the <a href="http://www.libsdl.org/projects/SDL_mixer/">SDL_mixer
-   homepage</a>).</p>
+ </p><p>
+  Notes:
+ </p><ul>
+  <li>
+   You no longer need the smpeg library to use PrBoom. PrBoom itself has 
+   never used smpeg, but the SDL RPM's we used to recommend needed it.
+  </li><li>
+   The RPMs we recommend are those shipped with Mandrake 7.2. If you're a 
+   Mandrake user, you already have them, and they were installed by default 
+   if you selected a workstation setup (at least, they were here...). If not, 
+   you can install them off the Mandrake CDs.
+  </li><li>
+   There are newer versions of some of these libraries available from their 
+   respective homepages. It's generally OK to use these. The main exception is 
+   SDL_mixer... the latest upstream RPMs have (needlessly) changed the soname 
+   of the library, rendering their new RPMs useless. Use the Mandrake one 
+   we recommend.
+  </li><li>
+   If you are using a partiularly stripped down setup, you might need to 
+   install a few more RPMs required by these ones. They should be on your 
+   CDs.
+  </li>
+ </ul>
 <h2><a name="debian">Debian</a></h2>
  <p>
   Debian unstable contains packages of SDL and SDL_mixer. First, install
@@ -93,6 +90,9 @@
    Get the prboom source code <code>prboom-2.1.1.tar.gz</code> from our
    <a href="#download">download page</a>, extract, and then follow the
    included <code>INSTALL</code> instructions.</dd>
+ </p><p>
+  Joe Drew, the maintainer of LxDoom in Debian, is working on packages of 
+  PrBoom for Debian.
  </p>
 <h2><a name="freebsd">FreeBSD</a></h2>
  <p>
