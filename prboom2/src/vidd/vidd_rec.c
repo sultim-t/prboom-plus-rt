@@ -429,7 +429,7 @@ void VIDD_REC_endFrame() {
     copyString(segmentTime, getTimeAsString((gametic-levelStartTime)*1000/TICRATE, false), VIDD_MAXSTRLEN);
     copyString(totalTime, getTimeAsString(gametic*1000/TICRATE, false), VIDD_MAXSTRLEN);
     
-    snprintf(infoMsg, VIDD_MAXSTRLEN, msg, curLmpName, viddSys_getCurSegmentName(), segmentTime, totalTime);
+    //snprintf(infoMsg, VIDD_MAXSTRLEN, msg, curLmpName, viddSys_getCurSegmentName(), segmentTime, totalTime);
     
     nextInfoPrintTime = gametic + 10*TICRATE;    
   }
