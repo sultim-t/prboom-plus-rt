@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 #
-# $Id: genlin.cgi,v 1.1 2000/11/26 14:18:29 cph Exp $
+# $Id: genlin.cgi,v 1.2 2000/11/26 16:52:22 cph Exp $
 #
 # Copyright (C) 2000 by Colin Phipps <cphipps@doomworld.com>
 #
@@ -33,21 +33,37 @@ use strict;
 use CGI qw(:standard);
 
 my %field_name = (
+	ceil_target => 'Target height',
+	crush => 'Crushing',
 	delay => 'Wait delay (seconds)',
+	direction => 'Direction',
+	floor_target => 'Target height',
 	kind => 'Mechanism',
 	locked_kind => 'Mechanism',
 	lock => 'Needs keys',
-	monster => 'Monsters can open',
+	model => 'Model sector selection algorithm',
+	monster => 'Monsters can activate',
 	skck => 'Skull keys and card keys considered equivalent',
 	speed => 'Speed',
 	repeatable => 'Repeatable',
+	texchg => 'Texture/sector change',
 	trigger => 'Trigger',
 	);
 
 my $bool = [ qw/No Yes/ ];
 
 my %field_value = (
+	ceil_target => [ 'Highest neighbour ceiling', 'Lowest neighbour ceiling',
+		'Next neighbour ceiling', 'Highest neighbour floor', 
+		'Own floor', 'Shortest side texture', 'Move 24 units', 
+		'Move 32 units' ],
+	crush => $bool,
 	delay => [ 1, 4, 9, 30],
+	direction => [ qw/ Down Up / ],
+	floor_target => [ 'Highest neighbour floor', 'Lowest neighbour floor',
+		'Next neighbour floor', 'Lowest neighbour ceiling', 
+		'Own ceiling', 'Shortest side texture', 'Move 24 units', 
+		'Move 32 units' ],
 	kind => [ 'Open-wait-close', 'Open and stay',
 		'Close-wait-open', 'Close and stay' ],
 	locked_kind => [ 'Open-wait-close', 'Open and stay'],
@@ -55,24 +71,52 @@ my %field_value = (
 		'Red Key', 'Blue Key', 'Yellow Key',
 		'Red Skull', 'Blue Skull', 'Yellow Skull',
 		'All keys' ],
+	model => [ qw/ Trigger Numeric / ],
 	monster => $bool,
 	skck => $bool,
 	speed => [ qw/Slow Normal Fast Turbo/ ],
 	repeatable => $bool,
+	texchg => [ 'Choose change type','Change texture and zero sector type',
+		'Change texture only', 'Change texture and sector type' ],
 	trigger => [ qw/ Walk Switch Shoot Door / ],
 	);
 
 my %line_classes = (
-	Door => {
-		start => 0x3c00,
-		fields => {
-			repeatable => 0x1,
-			trigger => 0x6,
-			speed => 0x18,
-			kind => 0x60,
+	Door => { start => 0x3c00,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, kind => 0x60,
 			monster => 0x80,
 			delay => 0x300,
 			},
+	},
+	'Locked Door' => { start => 0x3800,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, locked_kind => 0x20,
+			lock => 0x1c0, skck => 0x200, },
+	},
+	Floor => { start => 0x6000,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, monster => 0x20,
+			direction => 0x40, floor_target => 0x380,
+			crush => 0x1000, },
+	},
+	'Floor with texture change' => { start => 0x6000,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, model => 0x20,
+			direction => 0x40, floor_target => 0x380,
+			texchg => 0xc00, crush => 0x1000, },
+	},
+	Ceiling => { start => 0x4000,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, monster => 0x20,
+			direction => 0x40, ceil_target => 0x380,
+			crush => 0x1000, },
+	},
+	'Ceiling with texture change' => { start => 0x4000,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, model => 0x20,
+			direction => 0x40, ceil_target => 0x380,
+			texchg => 0xc00, crush => 0x1000, },
 	},
 	);
 
@@ -145,5 +189,5 @@ print start_form(-method => 'GET'),
 	submit('Make new line'), end_form;
 
 print p(a({href => url(-relative=>1)}, "Start again")),
-	hr,p("Copyright (C) 2000 Colin Phipps"),end_html;
+	hr,end_html;
 
