@@ -120,7 +120,7 @@ const char* I_SigString(char* buf, size_t sz, int signum)
 #ifdef _WIN32
 char *I_DoomExeDir(void)
 {
-  static const char current_dir_dummy[] = {"./"};
+  static const char current_dir_dummy[] = {"."}; // proff - rem extra slash 8/21/03
   static char *base;
   if (!base)        // cache multiple requests
     {
@@ -144,7 +144,7 @@ char *I_DoomExeDir(void)
 #else
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
-static const char prboom_dir[] = {"/.prboom/"};
+static const char prboom_dir[] = {"/.prboom"}; // Mead rem extra slash 8/21/03
 
 char *I_DoomExeDir(void)
 {
