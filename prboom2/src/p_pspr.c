@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_pspr.c,v 1.6 2001/07/07 18:17:10 cph Exp $
+ * $Id: p_pspr.c,v 1.7 2002/08/08 22:42:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_pspr.c,v 1.6 2001/07/07 18:17:10 cph Exp $";
+rcsid[] = "$Id: p_pspr.c,v 1.7 2002/08/08 22:42:29 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -377,7 +377,14 @@ void A_ReFire(player_t *player, pspdef_t *psp)
 
 void A_CheckReload(player_t *player, pspdef_t *psp)
 {
-  P_CheckAmmo(player);
+  if (!P_CheckAmmo(player) && compatibility_level >= prboom_4_compatibility) {
+    /* cph 2002/08/08 - In old Doom, P_CheckAmmo would start the weapon lowering
+     * immediately. This was lost in Boom when the weapon switching logic was
+     * rewritten. But we must tell Doom that we don't need to complete the
+     * reload frames for the weapon here. G_BuildTiccmd will set ->pendingweapon
+     * for us later on. */
+    P_SetPsprite(player,ps_weapon,weaponinfo[player->readyweapon].downstate);
+  }
 }
 
 //
