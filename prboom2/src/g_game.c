@@ -80,7 +80,9 @@
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
+#ifdef HUBS
 #include "p_hubs.h"
+#endif
 
 #ifdef COMPILE_VIDD
 #include "vidd/vidd.h"
@@ -495,7 +497,9 @@ void G_DoLoadLevel (void)
 
   // clear cmd building stuff
 
+#ifdef HUBS
   if(!hub_changelevel)
+#endif
   {
   mousex = mousey = 0;
     special_event = 0;
@@ -509,7 +513,9 @@ void G_DoLoadLevel (void)
 
   C_InstaPopup();  // pop up the console
 
+#ifdef HUBS
   if(!hub_changelevel)
+#endif
     {
       // sf: no screen wipe while changing hub level
       if (wipegamestate == GS_LEVEL)
@@ -684,8 +690,10 @@ void G_DoCompleted (void)
     if (playeringame[i])
       G_PlayerFinishLevel(i);        // take away cards and stuff
 
+#ifdef HUBS
   // clear hubs now
   P_ClearHubs();
+#endif
 
   if (automapmode & am_active)
     AM_Stop();
@@ -817,7 +825,9 @@ void G_DoWorldDone (void)
 
   gamemapname = strdup(*info_nextlevel ? info_nextlevel :
                    G_GetNameForMap(gameepisode, gamemap) );
+#ifdef HUBS
   hub_changelevel = false;
+#endif
   G_DoLoadLevel();
   gameaction = ga_nothing;
   AM_clearMarks();           //jff 4/12/98 clear any marks on the automap
@@ -873,7 +883,9 @@ void G_LoadGame(int slot, boolean command)
     demoplayback = false;
   }
   command_loadgame = command;
+#ifdef HUBS
   hub_changelevel = false;
+#endif
 }
 
 // killough 5/15/98:
@@ -1284,9 +1296,11 @@ void G_Ticker (void)
 	        M_ScreenShot();
 	        gameaction = ga_nothing;
 	        break;
+#ifdef HUBS
 	      case ga_loadhublevel:
 	        P_DoChangeHubLevel();
 	        break;
+#endif
         case ga_playdemo:
           G_DoPlayDemo ();
           break;
@@ -1639,7 +1653,9 @@ void G_DeathMatchSpawnPlayer (int playernum)
 
 void G_DoReborn (int playernum)
 {
+#ifdef HUBS
   hub_changelevel = false;
+#endif
 
   if (!netgame)
     gameaction = ga_loadlevel;      // reload the level from scratch
@@ -2063,9 +2079,11 @@ void G_InitNew(skill_t skill, char *name)
       S_ResumeSound();
     }
 
+#ifdef HUBS
   hub_changelevel = false;  // sf
   P_ClearHubs();
-  
+#endif
+
   if (skill > sk_nightmare)
     skill = sk_nightmare;
 

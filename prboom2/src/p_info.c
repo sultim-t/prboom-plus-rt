@@ -48,7 +48,9 @@
 #include "p_setup.h"
 #include "p_info.h"
 #include "p_mobj.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -244,11 +246,14 @@ void P_ClearLevelVars(void)
     }
 
   info_backdrop = NULL;
-  
+
+#ifdef FRAGGLE_SCRIPT
   T_ClearScripts();
+#endif
   info_scripts = false;
 }
 
+#ifdef FRAGGLE_SCRIPT
 //----------------------------------------------------------------------------
 //
 // P_ParseScriptLine
@@ -271,6 +276,7 @@ void P_ParseScriptLine(const char *line)
   // add the new line to the current data using sprintf (ugh)
   sprintf(levelscript.data, "%s%s\n", levelscript.data, line);
 }
+#endif
 
 //-------------------------------------------------------------------------
 //
@@ -448,11 +454,13 @@ void P_ParseInfoCmd(const char *line)
     case RT_LEVELINFO:
       P_ParseLevelVar(line);
       break;
-      
+
+#ifdef FRAGGLE_SCRIPT
     case RT_SCRIPT:
       P_ParseScriptLine(line);
       break;
-      
+#endif
+
     case RT_INTERTEXT:
       P_ParseInterText(line);
       break;

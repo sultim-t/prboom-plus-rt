@@ -164,7 +164,9 @@ extern void     P_AddCommands();        // p_cmd.c
 extern void     R_AddCommands();        // r_main.c
 extern void     S_AddCommands();        // s_sound.c
 extern void    ST_AddCommands();        // st_stuff.c
+#ifdef FRAGGLE_SCRIPT
 extern void     T_AddCommands();        // t_script.c
+#endif
 extern void     V_AddCommands();        // v_misc.c
 extern void    MN_AddCommands();        // mn_menu.c
 
@@ -195,7 +197,9 @@ void C_AddCommands()
   R_AddCommands();
   S_AddCommands();
   ST_AddCommands();
+#ifdef FRAGGLE_SCRIPT
   T_AddCommands();
+#endif
   V_AddCommands();
   MN_AddCommands();
 //  PE_AddCommands();  // haleyjd

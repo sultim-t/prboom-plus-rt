@@ -447,7 +447,7 @@ static textwidget_t hu_leveltime =
 static void HU_LevelTimeHandler()
 {
   static char timestr[100];
-  int seconds;
+  int seconds = 0;
   
   if(!(automapmode & am_active))
     {

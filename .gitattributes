@@ -209,10 +209,19 @@ prboom2/doc/network_details.txt -text
 prboom2/doc/vidd.gif -text
 prboom2/src/SDL/i_video.c -text svneol=native#unset
 prboom2/src/c_cmd.c -text svneol=native#unset
+prboom2/src/c_runcmd.c -text svneol=native#unset
+prboom2/src/g_game.c -text svneol=native#unset
 prboom2/src/hu_stuff.c -text svneol=native#unset
 prboom2/src/inl/Makefile.am -text
 prboom2/src/mn_menus.c -text svneol=native#unset
+prboom2/src/p_enemy.c -text svneol=native#unset
+prboom2/src/p_info.c -text svneol=native#unset
+prboom2/src/p_setup.c -text svneol=native#unset
+prboom2/src/p_spec.c -text svneol=native#unset
 prboom2/src/p_spec.h -text svneol=native#unset
+prboom2/src/p_switch.c -text svneol=native#unset
+prboom2/src/p_tick.c -text svneol=native#unset
+prboom2/src/t_func.c -text svneol=native#unset
 prboom2/src/vidd/Makefile.am -text
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text

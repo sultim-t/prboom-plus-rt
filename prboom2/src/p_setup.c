@@ -44,7 +44,9 @@
 #include "m_argv.h"
 #include "g_game.h"
 #include "w_wad.h"
+#ifdef HUBS
 #include "p_hubs.h"
+#endif
 #include "r_main.h"
 #include "r_things.h"
 #include "r_sky.h"
@@ -58,7 +60,9 @@
 #include "p_info.h"
 #include "s_sound.h"
 #include "v_video.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 #include "lprintf.h" //jff 10/6/98 for debug outputs
 
 #ifdef COMPILE_VIDD
@@ -1568,7 +1572,9 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   R_SetViewSize (screenblocks); //sf
   //R_SetViewSize (screenSize+3); //sf
 
+#ifdef FRAGGLE_SCRIPT
   T_PreprocessScripts();        // preprocess FraggleScript scripts
+#endif
 
   lprintf(LO_DEBUG, "P_SetupLevel: finished\n");
   if(doom1level && gamemode == commercial)
@@ -1587,7 +1593,9 @@ void P_Init (void)
   P_InitSwitchList();
   P_InitPicAnims();
   R_InitSprites(sprnames);
+#ifdef HUBS
   P_InitHubs();
+#endif
 }
 
 //

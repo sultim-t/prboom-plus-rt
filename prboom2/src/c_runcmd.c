@@ -49,7 +49,9 @@
 #include "doomstat.h"
 #include "m_misc.h"
 #include "mn_engin.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 #include "g_game.h"
 #include "z_zone.h"
 #include "lprintf.h"
@@ -890,7 +892,9 @@ void C_RunBufferedCommand(bufferedcmd *bufcmd)
   // restore variables
   
   cmdsrc = bufcmd->cmdsrc;
+#ifdef FRAGGLE_SCRIPT
   t_trigger = players[cmdsrc].mo;
+#endif
   C_DoRunCommand(bufcmd->command, bufcmd->options);
 }
 

@@ -53,7 +53,9 @@
 #include "p_mobj.h"
 #include "p_tick.h"
 #include "p_spec.h"
+#ifdef HUBS
 #include "p_hubs.h"
+#endif
 #include "p_inter.h"
 #include "r_data.h"
 #include "r_main.h"
@@ -1120,8 +1122,10 @@ void SF_ChangeHubLevel()
   else
     tagnum = -1;
 
+#ifdef HUBS
   P_SavePlayerPosition(current_script->trigger->player, tagnum);
   P_ChangeHubLevel(t_argv[0].value.s);
+#endif
 }
 
 // for start map: start new game on a particular skill

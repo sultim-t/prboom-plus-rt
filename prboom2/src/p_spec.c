@@ -57,7 +57,9 @@
 #include "d_deh.h"
 #include "r_plane.h"
 #include "lprintf.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 
 //
 // Animating textures and planes
@@ -1057,6 +1059,7 @@ int P_CheckTag(line_t *line)
 
     case 48:                // Scrolling walls
     case 85:
+#ifdef FRAGGLE_SCRIPT
         // sf: scripting
     case 272:   // WR
     case 273:
@@ -1066,6 +1069,7 @@ int P_CheckTag(line_t *line)
     case 277:   // S1
     case 278:   // GR
     case 279:   // G1
+#endif
       return 1;
 
     default:
@@ -1694,6 +1698,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       EV_DoFloor(line,raiseFloorTurbo);
       break;
 
+#ifdef FRAGGLE_SCRIPT
         // scripting ld types
 
         // repeatable
@@ -1716,6 +1721,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       T_RunScript(line->tag);
       line->special = 0;        // clear trigger
       break;
+#endif
 
       // Extended walk triggers
 
@@ -2178,6 +2184,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
     //jff 1/30/98 added new gun linedefs here
     // killough 1/31/98: added demo_compatibility check, added inner switch
 
+#ifdef FRAGGLE_SCRIPT
         // sf: scripting
     case 278:
     case 279:
@@ -2185,6 +2192,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
       T_RunScript(line->tag);
       if(line->special == 279) line->special = 0;       // clear if G1
       break;
+#endif
 
     default:
       if (!demo_compatibility)

@@ -34,7 +34,9 @@
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 
 #ifdef COMPILE_VIDD
 #include "vidd/vidd.h"
@@ -291,6 +293,8 @@ void P_Ticker (void)
   P_RespawnSpecials();
   leveltime++;                       // for par times
 
+#ifdef FRAGGLE_SCRIPT
   T_DelayedScripts();
+#endif
 }
 

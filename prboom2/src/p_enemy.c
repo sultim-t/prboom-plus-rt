@@ -45,7 +45,9 @@
 #include "p_enemy.h"
 #include "p_tick.h"
 #include "m_bbox.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 #include "lprintf.h"
 
 static mobj_t *current_actor;
@@ -2557,6 +2559,7 @@ void A_LineEffect(mobj_t *mo)
   mo->player = oldplayer;
 }
 
+#ifdef FRAGGLE_SCRIPT
 // sf: Trigger running script
 
 void A_RunScript(mobj_t *mo)
@@ -2567,6 +2570,7 @@ void A_RunScript(mobj_t *mo)
 
   T_RunThingScript(mo->state->misc1);
 }
+#endif
 
 /***** Start of new functions for Andy Baker's stealth monsters ******/
 

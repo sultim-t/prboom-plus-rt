@@ -36,7 +36,9 @@
 #include "g_game.h"
 #include "s_sound.h"
 #include "sounds.h"
+#ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
+#endif
 #include "lprintf.h"
 
 // killough 2/8/98: Remove switch limit
@@ -567,6 +569,7 @@ P_UseSpecialLine
         P_ChangeSwitchTexture(line,0);
       break;
 
+#ifdef FRAGGLE_SCRIPT
       // sf: scripting
 
     case 276:
@@ -581,6 +584,7 @@ P_UseSpecialLine
        else
          P_ChangeSwitchTexture(line,1);
        break;
+#endif
 
       // killough 1/31/98: factored out compatibility check;
       // added inner switch, relaxed check to demo_compatibility
