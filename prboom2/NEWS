@@ -2,11 +2,29 @@ This file shows a history of changes between PrBoom versions since v2.2.0.
 For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
-Changes from v2.2.0 to v2.3.0
+Changes from v2.2.1 to v2.3.0
 - the OpenGL libs are loaded dynamically
+- added more compatibility levels (check frontend configurations!)
+- in game switching between fullscreen and windowed mode
+- support for more and less then 8 channels
+- replaced use_vsync with use_doublebuffer in cfg file and implemented
+  double buffering
+- removed old Doom v1.2 lumps from prboom.wad
+- windows also uses prboom.wad now
+- removed lumps and tables which are in prboom.cfg from source
 
 -----------------------------------------------------------------------------
 This file shows a history of changes between PrBoom versions since v2.1.0.
+
+Changes from v2.2.0 to v2.2.1
+- improved fix for demo sync problems with lost souls bouncing off floors
+- fixed bug where loading a -fast or -respawn savegame failed to restore
+  those options properly 
+- fixed demo sync bug with doors also tagged to lift triggers
+- fix some endianness problems in the OpenGL renderer
+- hopefully fixed some problems compiling for Linux/ARM
+- fix multi-level demo time totals to agree with compet-n
+- linux rpm is now a bit more standardised
 
 Changes from v2.1.2 to v2.2.0
 - fix compiling problem on alpha processors (size_t != unsigned long)
