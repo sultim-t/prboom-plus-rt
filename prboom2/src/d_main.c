@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: d_main.c,v 1.50 2002/02/09 11:15:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.50 2002/02/09 11:15:13 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -80,6 +80,7 @@ static const char rcsid[] = "$Id: d_main.c,v 1.49 2002/01/07 15:56:19 proff_fs E
 #include "i_video.h"
 #include "g_game.h"
 #include "g_bind.h" // keybinding
+#include "g_config.h"
 #include "hu_stuff.h"
 #include "wi_stuff.h"
 #include "st_stuff.h"
