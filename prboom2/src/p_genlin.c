@@ -1122,7 +1122,7 @@ manual_door:
         door->topheight = P_FindLowestCeilingSurrounding(sec);
         door->topheight -= 4*FRACUNIT;
         if (door->topheight != sec->ceilingheight)
-          S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdopn);
+          S_StartSound((mobj_t *)&door->sector->soundorg,Sped>=SpeedFast || comp[comp_sound] ? sfx_bdopn : sfx_doropn);
         door->type = Sped>=SpeedFast? genBlazeRaise : genRaise;
         break;
       case ODoor:
@@ -1130,20 +1130,20 @@ manual_door:
         door->topheight = P_FindLowestCeilingSurrounding(sec);
         door->topheight -= 4*FRACUNIT;
         if (door->topheight != sec->ceilingheight)
-          S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdopn);
+          S_StartSound((mobj_t *)&door->sector->soundorg,Sped>=SpeedFast || comp[comp_sound] ? sfx_bdopn : sfx_doropn);
         door->type = Sped>=SpeedFast? genBlazeOpen : genOpen;
         break;
       case CdODoor:
         door->topheight = sec->ceilingheight;
         door->direction = plat_down;
-        S_StartSound((mobj_t *)&door->sector->soundorg,sfx_dorcls);
+        S_StartSound((mobj_t *)&door->sector->soundorg,Sped>=SpeedFast && !comp[comp_sound] ? sfx_bdcls : sfx_dorcls);
         door->type = Sped>=SpeedFast? genBlazeCdO : genCdO;
         break;
       case CDoor:
         door->topheight = P_FindLowestCeilingSurrounding(sec);
         door->topheight -= 4*FRACUNIT;
         door->direction = plat_down;
-        S_StartSound((mobj_t *)&door->sector->soundorg,sfx_dorcls);
+        S_StartSound((mobj_t *)&door->sector->soundorg,Sped>=SpeedFast && !comp[comp_sound] ? sfx_bdcls : sfx_dorcls);
         door->type = Sped>=SpeedFast? genBlazeClose : genClose;
         break;
       default:

@@ -550,10 +550,10 @@ const char *comp_strings[COMP_NUM] =
   "zerotags",
   "moveblock",
   "respawn",
+  "sound",
   "666",
   "soul",
   "maskedanim",
-  "sound",
 };
 
 void G_AddCompat()
