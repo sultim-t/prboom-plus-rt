@@ -32,6 +32,7 @@
 
 #include "z_zone.h"
 #include "doomstat.h"
+#include "c_io.h"
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_sky.h"
@@ -941,6 +942,8 @@ void R_InitData(void)
   R_InitColormaps();                    // killough 3/20/98
 }
 
+int level_error = false;
+
 //
 // R_FlatNumForName
 // Retrieval, get a flat number for a flat name.
@@ -952,7 +955,14 @@ int R_FlatNumForName(const char *name)    // killough -- const added
 {
   int i = (W_CheckNumForName)(name, ns_flats);
   if (i == -1)
-    I_Error("R_FlatNumForName: %.8s not found", name);
+  {
+    if(!level_error)
+	  {
+      C_Printf("R_FlatNumForName: %.8s not found", name);
+	    level_error = true;
+	  }
+    return -1;
+  }
   return i - firstflat;
 }
 
@@ -990,7 +1000,11 @@ int R_TextureNumForName(const char *name)  // const added -- killough
 {
   int i = R_CheckTextureNumForName(name);
   if (i == -1)
-    I_Error("R_TextureNumForName: %.8s not found", name);
+  {
+    C_Printf("R_TextureNumForName: %.8s not found", name);
+    level_error = true;
+    return -1;
+  }
   return i;
 }
 
