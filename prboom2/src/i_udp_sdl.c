@@ -193,7 +193,8 @@ void I_CloseSocket(UDP_SOCKET sock)
 
 UDP_CHANNEL I_RegisterPlayer(IPaddress *ipaddr)
 {
-  return(SDLNet_UDP_Bind(udp_socket, -1, ipaddr));
+  static int freechannel;
+  return(SDLNet_UDP_Bind(udp_socket, freechannel++, ipaddr));
 }
 
 void I_UnRegisterPlayer(UDP_CHANNEL channel)
