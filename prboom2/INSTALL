@@ -1,17 +1,10 @@
 Basic Installation
 ==================
 
-  1. To compile PrBoom, you need either:
-
-     The X11R6 libraries and development headers installed (should be 
-     present if your system has X installed).
-
-     or
-
-     The SDL development headers and libraries installed (libSDL, and 
-     libSDL_mixer if you want sound). See the README.SDL for information 
-     about obtaining these libraries, and information about the samples 
-     needed for music support.
+  1. To compile PrBoom, you need the SDL development headers and libraries 
+     installed (SDL, SDL_mixer, SDL_net). See 
+     http://prboom.sourceforge.net/linux.html for information on downloading 
+     the right libraries for your system.
 
   2. `cd' to the directory containing the PrBoom distribution (the directory
      this file is in).
@@ -56,11 +49,10 @@ Basic Installation
      with the distribution.
 
   7. PrBoom is now ready for use. If /usr/local/games is in your path,
-     you can just run prboom (for the SDL version) or xprboom (for the X11
-     version); otherwise give the full path.
+     you can just run prboom; otherwise give the full path.
 
-     See the README file for information about getting higher resolutions,
-     etc.
+     See the README file for information about getting the Timidity 
+     patches needed for music support, and more.
 
 Installation Details
 ====================

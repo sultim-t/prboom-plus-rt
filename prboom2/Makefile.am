@@ -1,12 +1,12 @@
 #
 # Top level automake Makefile.am for LxDoom
 #
-# $Id: Makefile.am,v 1.3 2000/09/16 22:39:43 cph Exp $
+# $Id: Makefile.am,v 1.4 2000/09/17 10:59:12 cph Exp $
 #
 
 docdir=$(prefix)/share/doc/@PACKAGE@
-SUBDIRS = doc data src
-EXTRA_DIST = ChangeLog prboom.spec.in
+SUBDIRS = doc data src ICONS VISUALC5 VISUALC6
+EXTRA_DIST = ChangeLog prboom.spec.in config.h
 doc_DATA = README COPYING AUTHORS
 
 rpm:	prboom.spec dist
@@ -15,6 +15,10 @@ rpm:	prboom.spec dist
 
 #
 # $Log: Makefile.am,v $
+# Revision 1.4  2000/09/17 10:59:12  cph
+# Include all the windows stuff in the distribution
+# Fix src/Makefile.am so it includes all the sources
+#
 # Revision 1.3  2000/09/16 22:39:43  cph
 # Don't include out-of-date Changelog
 #
