@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in,v 1.8 2000/05/07 22:59:05 cph Exp $
+dnl $Id: configure.in,v 1.9 2000/05/09 00:08:59 jessh Exp $
 AC_INIT(src/d_main.c)
 
 dnl --- Check for system type
@@ -163,13 +163,18 @@ AC_ARG_ENABLE(heapdump,[  --enable-heapdump	  turns on dumping the heap state fo
 
 dnl --- Decide what programs to build
 if test "$no_x" != yes
-then 
-BUILD_LXDOOM=lxdoom
-BUILD_DIRS="$BUILD_DIRS X11"
-dnl --- Nasty hack follows, sounds.c used by two dirs
-ln -fs ../sounds.c src/OSS/sounds.c
+ then 
+ BUILD_LXDOOM=lxdoom
+ BUILD_DIRS="$BUILD_DIRS X11"
+ dnl --- Nasty hack follows, sounds.c used by two dirs
+ ln -fs ../sounds.c src/OSS/sounds.c
 else
-BUILD_LXDOOM=
+ BUILD_LXDOOM=
+fi
+
+if test "$BUILD_SDLDOOM" = "lsdldoom"
+ then
+ BUILD_DIRS="$BUILD_DIRS SDL"
 fi
 
 if test "$BUILD_SNDSERV" = "sndserv"
@@ -216,5 +221,5 @@ AC_DEFINE_UNQUOTED(MUSSERV_PATH,"$exp_gamesdir/musserv")
 AC_DEFINE_UNQUOTED(DOOMWADDIR,"$waddir")
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/OSS/Makefile src/X11/Makefile doc/Makefile data/Makefile lxdoom.spec)
+AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/OSS/Makefile src/X11/Makefile src/SDL/Makefile doc/Makefile data/Makefile lxdoom.spec)
 
