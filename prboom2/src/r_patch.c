@@ -135,7 +135,6 @@ static void createPatch(int id) {
   const unsigned char *oldColumnPixelData;
   int numPostsUsedSoFar;
   int edgeSlope;
-  const TPatchColumn *column, *prevColumn;
 
   if (id >= numPatches) {
     // create room for this patch
@@ -243,6 +242,8 @@ static void createPatch(int id) {
   }
 
   if (1 || patch->isNotTileable) {
+    const TPatchColumn *column, *prevColumn;
+
     // copy the patch image down and to the right where there are
     // holes to eliminate the black halo from bilinear filtering
     for (x=0; x<patch->width; x++) {
@@ -521,10 +522,55 @@ static void createTextureCompositePatch(int id) {
         if (post1->length < length)
           post1->length = length;
         removePostFromColumn(column, i+1);
+        i = 0;
         continue;
       }
       i++;
     }
+  }
+
+  if (1 || composite_patch->isNotTileable) {
+    const TPatchColumn *column, *prevColumn;
+
+    // copy the patch image down and to the right where there are
+    // holes to eliminate the black halo from bilinear filtering
+    for (x=0; x<composite_patch->width; x++) {
+      //oldColumn = (const column_t *)((const byte *)oldPatch + oldPatch->columnofs[x]);
+
+      column = R_GetPatchColumnClamped(composite_patch, x);
+      prevColumn = R_GetPatchColumnClamped(composite_patch, x-1);
+
+      if (column->pixels[0] == 0xff) {
+        // force the first pixel (which is a hole), to use
+        // the color from the next solid spot in the column
+        for (y=0; y<composite_patch->height; y++) {
+          if (column->pixels[y] != 0xff) {
+            column->pixels[0] = column->pixels[y];
+            break;
+          }
+        }
+      }
+
+      // copy from above or to the left
+      for (y=1; y<composite_patch->height; y++) {
+        //if (getIsSolidAtSpot(oldColumn, y)) continue;
+        if (column->pixels[y] != 0xff) continue;
+
+        // this pixel is a hole
+
+        if (x && prevColumn->pixels[y-1] != 0xff) {
+          // copy the color from the left
+          column->pixels[y] = prevColumn->pixels[y];
+        }
+        else {
+          // copy the color from above
+          column->pixels[y] = column->pixels[y-1];
+        }
+      }
+    }
+
+    // verify that the patch truly is non-rectangular since
+    // this determines tiling later on
   }
 
   free(countsInColumn);
