@@ -257,7 +257,7 @@ CONSOLE_STRING(iwad, g_iwad, NULL, 126, cf_buffered)
   G_StopDemo();
   S_InvalidateCache();
   W_ReleaseAllWads();
-  D_SetVersionFromIWAD(iwad);
+  IdentifyVersion();
   D_AutoLoad();
   W_Init();
   R_Init();

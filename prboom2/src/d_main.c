@@ -919,7 +919,7 @@ void D_SetVersionFromIWAD(const char *iwad)
 //
 // jff 4/19/98 rewritten to use a more advanced search algorithm
 
-void IdentifyVersion (void)
+void IdentifyVersion(void)
 {
   char *iwad;
 
@@ -933,6 +933,7 @@ void IdentifyVersion (void)
 /* proff 2001/7/2 - On Dreamcast the free crashes. There is a bug somewhere. */
     free(iwad);
 #endif
+    D_AddFile("prboom.wad",source_pwad);
   }
   else
     I_Error("IdentifyVersion: IWAD not found\n");
@@ -1284,10 +1285,6 @@ void D_DoomMainSetup(void)
 
   lprintf(LO_INFO,"G_LoadDefaults: Load system defaults.\n");
   need_defaults = !G_LoadDefaults(defaultfile);
-
-  /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
-     doesn't overlap with the cfg settings */
-  wad_files[MAXLOADFILES-1]="prboom.wad";
 
   Z_Init();
 
@@ -1743,7 +1740,7 @@ void D_DoomMainSetup(void)
     if (!singledemo) {                  /* killough 12/98 */
       if (autostart || netgame)
 	{
-	  G_InitNew(startskill, startepisode, startmap);
+	  G_InitNewNum(startskill, startepisode, startmap);
 	  if (demorecording)
 	    G_BeginRecording();
 	}

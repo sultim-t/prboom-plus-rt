@@ -76,7 +76,7 @@ void D_DoomMain(void);
 void D_AddFile (const char *file, wad_source_t source);
 char *D_FindIWADFile(void); // Publicized for vidd support - POPE
 void D_AutoLoad(void);
-void D_SetVersionFromIWAD(const char *iwad);
+void IdentifyVersion(void);
 
 /* cph - MBF-like wad/deh/bex autoload code */
 /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
