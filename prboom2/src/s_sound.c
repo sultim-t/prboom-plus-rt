@@ -172,7 +172,7 @@ CONSOLE_INT(snd_samplerate, desired_samplerate, NULL, 0, 2, samplerate_str, cf_b
 typedef struct
 {
   sfxinfo_t *sfxinfo;  // sound information (if null, channel avail.)
-  void *origin;        // origin of sound
+  const mobj_t *origin;// origin of sound
   int handle;          // handle of the sound being played
   int is_pickup;       // killough 4/25/98: whether sound is a player's weapon
 } channel_t;
@@ -209,15 +209,24 @@ int idmusnum;
 
 void S_StopChannel(int cnum);
 
-int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
+int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source,
                         int *vol, int *sep, int *pitch);
 
-static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, int is_pickup);
+static int S_getChannel(const mobj_t *origin, sfxinfo_t *sfxinfo, int is_pickup);
 
 // Initializes sound stuff, including volume
 // Sets channels, SFX and music volume,
 //  allocates channel buffer, sets S_sfx lookup.
 //
+
+void S_InvalidateCache(void)
+{
+  int i;
+  
+  // Note that sounds have not been cached (yet).
+  for (i=1 ; i<NUMSFX ; i++)
+    S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
+}
 
 void S_Init(int sfxVolume, int musicVolume)
 {
@@ -225,8 +234,6 @@ void S_Init(int sfxVolume, int musicVolume)
   numChannels = default_numChannels;
   if (snd_card && !nosfxparm)
   {
-    int i;
-    
     lprintf(LO_CONFIRM, "S_Init: default sfx volume %d\n", sfxVolume);
 
     // Whatever these did with DMX, these are rather dummies now.
@@ -238,12 +245,9 @@ void S_Init(int sfxVolume, int musicVolume)
     // (the maximum numer of sounds rendered
     // simultaneously) within zone memory.
     // CPhipps - calloc
-    channels =
-      (channel_t *) calloc(numChannels,sizeof(channel_t));
+    channels = (channel_t *) calloc(numChannels,sizeof(channel_t));
 
-    // Note that sounds have not been cached (yet).
-    for (i=1 ; i<NUMSFX ; i++)
-      S_sfx[i].lumpnum = S_sfx[i].usefulness = -1;
+    S_InvalidateCache();
   }
 
   // CPhipps - music init reformatted
@@ -308,11 +312,10 @@ void S_Start(void)
   S_ChangeMusic(mnum, true);
 }
 
-void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
+void S_StartSoundAtVolume(const mobj_t *origin, int sfx_id, int volume)
 {
   int sep, pitch, priority, cnum, is_pickup;
   sfxinfo_t *sfx;
-  mobj_t *origin = (mobj_t *) origin_p;
 
 #ifdef COMPILE_VIDD
   if (VIDD_REC_inProgress()) {
@@ -408,12 +411,24 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   channels[cnum].handle = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
 }
 
-void S_StartSound(void *origin, int sfx_id)
+void S_StartSound(const mobj_t *origin, int sfx_id)
 {
   S_StartSoundAtVolume(origin, sfx_id, snd_SfxVolume);
 }
 
-void S_StopSound(void *origin)
+void S_StartSoundName(const mobj_t *origin, char *name)
+{
+/* FIXME
+  sfxinfo_t *sfx;
+  
+  if(!(sfx = S_SfxInfoForName(name)))
+    doom_printf("sound not found: %s\n", name);
+  else
+    S_StartSfxInfo(origin, sfx);
+*/
+}
+
+void S_StopSound(const mobj_t *origin)
 {
   int cnum;
 
@@ -463,9 +478,8 @@ void S_ResumeSound(void)
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(void* listener_p)
+void S_UpdateSounds(const mobj_t* listener)
 {
-  mobj_t *listener = (mobj_t*) listener_p;
   int cnum;
 
   //jff 1/22/98 return if sound is not enabled
@@ -505,7 +519,7 @@ void S_UpdateSounds(void* listener_p)
 
               // check non-local sounds for distance clipping
               // or modify their params
-              if (c->origin && listener_p != c->origin) { // killough 3/20/98
+              if (c->origin && listener != c->origin) { // killough 3/20/98
                 if (!S_AdjustSoundParams(listener, c->origin,
                                          &volume, &sep, &pitch))
                   S_StopChannel(cnum);
@@ -684,7 +698,7 @@ void S_StopChannel(int cnum)
 // Otherwise, modifies parameters and returns 1.
 //
 
-int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
+int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source,
                         int *vol, int *sep, int *pitch)
 {
   fixed_t adx, ady,approx_dist;
@@ -740,7 +754,7 @@ int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
 //
 // killough 4/25/98: made static, added is_pickup argument
 
-static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, int is_pickup)
+static int S_getChannel(const mobj_t *origin, sfxinfo_t *sfxinfo, int is_pickup)
 {
   // channel number to use
   int cnum;

@@ -42,6 +42,7 @@
 //  allocates channel buffer, sets S_sfx lookup.
 //
 void S_Init(int sfxVolume, int musicVolume);
+void S_InvalidateCache(void);
 
 //
 // Per level startup code.
@@ -54,16 +55,17 @@ void S_Start(void);
 // Start sound for thing at <origin>
 //  using <sound_id> from sounds.h
 //
-void S_StartSound(void *origin, int sound_id);
+void S_StartSound(const mobj_t *origin, int sound_id);
+void S_StartSoundName(const mobj_t *origin, char *name);
 
 // Will start a sound at a given volume.
-void S_StartSoundAtVolume(void *origin, int sound_id, int volume);
+void S_StartSoundAtVolume(const mobj_t *origin, int sound_id, int volume);
 
 // killough 4/25/98: mask used to indicate sound origin is player item pickup
 #define PICKUP_SOUND (0x8000)
 
 // Stop sound for thing at <origin>
-void S_StopSound(void* origin);
+void S_StopSound(const mobj_t* origin);
 
 // Start music using <music_id> from sounds.h
 void S_StartMusic(int music_id);
@@ -82,7 +84,7 @@ void S_ResumeSound(void);
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(void* listener);
+void S_UpdateSounds(const mobj_t* listener);
 void S_SetMusicVolume(int volume);
 void S_SetSfxVolume(int volume);
 
