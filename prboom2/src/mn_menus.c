@@ -48,6 +48,7 @@
 #include "g_game.h"
 #include "m_misc.h"
 #include "i_video.h"
+#include "i_system.h"
 #include "m_random.h"
 #include "m_misc.h"
 #include "mn_engin.h"
@@ -342,9 +343,9 @@ menu_t menu_features =
 /*
     {it_runcmd, "multiplayer",          "mn_multi",              "M_MULTI"},
     {it_gap},
+*/
     {it_runcmd, "load wad",             "mn_loadwad",            "M_WAD"},
     {it_gap},
-*/
     {it_runcmd, "demos",                "mn_demos",              "M_DEMOS"},
     {it_gap},
     {it_runcmd, "about",                "credits",               "M_ABOUT"},
@@ -412,11 +413,21 @@ menu_t menu_loadwad =
   {
     {it_title,     FC_GOLD "load wad",    NULL,                   "M_WAD"},
     {it_gap},
+    {it_info,      FC_GOLD "select iwad"},
+    {it_runcmd,    "Doom Shareware",         "mn_iwad doom1"},
+    {it_runcmd,    "Doom",                   "mn_iwad doom"},
+    {it_runcmd,    "Ultimate Doom",          "mn_iwad doomu"},
+    {it_runcmd,    "Doom2",                  "mn_iwad doom2"},
+    {it_runcmd,    "Doom2 french",           "mn_iwad doom2f"},
+    {it_runcmd,    "TNT",                    "mn_iwad tnt"},
+    {it_runcmd,    "Plutonia",               "mn_iwad plutonia"},
+/*
     {it_info,      FC_GOLD "load wad"},
     {it_variable,  "wad name",          "mn_wadname"},
     {it_runcmd,    "select wad",        "mn_selectwad"},
     {it_gap},
     {it_runcmd,    "load wad",          "addfile %mn_wadname; starttitle"},
+*/
     {it_end},
   },
   150, 40,                     // x,y offsets
@@ -424,21 +435,19 @@ menu_t menu_loadwad =
   mf_background               // full screen
 };
 
+CONSOLE_COMMAND(mn_iwad, 0)
+{
+  if (!I_FindFile(c_argv[0], ".wad"))
+    MN_ErrorMsg("'%s' not found!", c_argv[0]);
+  else
+    C_RunTextCmdf("iwad %s", c_argv[0]);
+}
+
 VARIABLE_STRING(mn_wadname,     NULL,           15);
 CONSOLE_VARIABLE(mn_wadname,    mn_wadname,     0) {}
 
 CONSOLE_COMMAND(mn_loadwad, cf_notnet)
 {
-  if(gamemode == shareware)
-    {
-      MN_Alert("You must purchase the full version\n"
-	       "of doom to load external .wad\n"
-	       "files.\n"
-	       "\n"
-	       "%s", s_PRESSKEY);
-      return;
-    }
-
   MN_StartMenu(&menu_loadwad);
 }
 
@@ -1707,6 +1716,7 @@ void MN_AddMenus()
   C_AddCommand(mn_savegame);
 
   C_AddCommand(mn_features);
+  C_AddCommand(mn_iwad);
   C_AddCommand(mn_loadwad);
   C_AddCommand(mn_wadname);
   C_AddCommand(mn_demos);
