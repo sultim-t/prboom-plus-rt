@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.60 2002/08/12 21:47:11 cph Exp $
+ * $Id: g_game.c,v 1.61 2002/11/28 13:35:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.60 2002/08/12 21:47:11 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.61 2002/11/28 13:35:04 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -213,13 +213,13 @@ int     key_screenshot = '*';             // killough 2/22/98: screenshot key
 
 #define MAXPLMOVE   (forwardmove[1])
 #define TURBOTHRESHOLD  0x32
-#define SLOWTURNTICS  6
 #define QUICKREVERSE (short)32768 // 180 degree reverse                    // phares
 #define NUMKEYS   512
 
 fixed_t forwardmove[2] = {0x19, 0x32};
 fixed_t sidemove[2]    = {0x18, 0x28};
 fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
+int slowturntics = 6; // proff 2002/11/28 - made variable
 
 // CPhipps - made lots of key/button state vars static
 static int     turnheld;       // for accelerative turning
@@ -284,7 +284,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else
     turnheld = 0;
 
-  if (turnheld < SLOWTURNTICS)
+  if (turnheld < slowturntics)
     tspeed = 2;             // slow turn
   else
     tspeed = speed;

@@ -520,6 +520,10 @@ void G_AddCompat()
     }
 }
 
+//defined in g_game.c
+extern int slowturntics;
+CONSOLE_INT(g_slowturntics, slowturntics, NULL, 0, 50, NULL, 0) {}
+
 void G_AddCommands()
 {
   C_AddCommand(i_error);
@@ -552,7 +556,9 @@ void G_AddCommands()
 #ifdef DOGS
   C_AddCommand(numhelpers);
 #endif
-  
+
+  C_AddCommand(g_slowturntics);
+
   //G_AddChatMacros();
   G_AddWeapPrefs();
   G_AddCompat();
