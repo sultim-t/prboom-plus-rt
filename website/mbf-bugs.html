@@ -614,6 +614,28 @@ diff -p -u -r1.6 p_doors.c
  
  //
     </pre>
+   <h4>Bug with East-West walls in Line of Sight Calculation</h4>
+    <p>Affects: Original Doom, Boom, MBF, PrBoom up to and including
+    2.2.3</p>
+    <p>Description: If a line which is considered for blocking a LOS
+    is east-west, and its starting Y coordinate equals either the
+    source or target thing's X coordinate, the line will be
+    incorrectly judged to obstruct the line of sight.</p>
+    <p>It's a trivial typo in <code>P_DivlineSide</code>:</p>
+    <pre>
+--- p_sight.c.orig	Mon Aug 19 11:35:14 2002
++++ p_sight.c	Mon Aug 19 17:26:41 2002
+@@ -67,7 +67,8 @@ inline static int P_DivlineSide(fixed_t 
+   fixed_t left, right;
+   return
+     !node-&gt;dx ? x == node-&gt;x ? 2 : x &lt;= node-&gt;x ? node-&gt;dy &gt; 0 : node-&gt;dy &lt; 0 :
+-    !node-&gt;dy ? x == node-&gt;y ? 2 : y &lt;= node-&gt;y ? node-&gt;dx &lt; 0 : node-&gt;dx &gt; 0 :
++    !node-&gt;dy ? ( compatibility_level &lt; prboom_4_compatibility ? x : y) == node-&gt;y ?
++		    2 : y &lt;= node-&gt;y ? node-&gt;dx &lt; 0 : node-&gt;dx &gt; 0 :
+     (right = ((y - node-&gt;y) &gt;&gt; FRACBITS) * (node-&gt;dx &gt;&gt; FRACBITS)) &lt;
+     (left  = ((x - node-&gt;x) &gt;&gt; FRACBITS) * (node-&gt;dy &gt;&gt; FRACBITS)) ? 0 :
+     right == left ? 2 : 1;
+    </pre>
 
    <h3>Demo sync bugs</h3>
     <p>
@@ -675,11 +697,19 @@ diff -p -u -r1.6 p_doors.c
 
     <h4>Compatibility bug in P_CheckSight</h4>
 
-    <p> Affects: MBF</p>
+    <p>Affects: MBF</p>
 
-    <p> Description: An optimisation in P_CheckSight needs to be
-    compatibility optioned, or some demos (HR06-UV.LMP for example)
-    desync.</p>
+    <p>Description: MBF added an optimisation in
+    <code>P_CheckSight</code> which assumes that all points within one
+    subsector nothing can block a line of sight. That is not strictly
+    true - in Doom, a subsector merely implies that all points in the
+    subsector which are contained in the level can see each other -
+    solid rock (space outside one-sided lines) may also be part of a
+    subsector but it won't be able to see into the real sector because
+    of the one-sided lines in the way. Things can end up outside the
+    map (e.g. lost souls thrown outside the level by a dying pain
+    elemental) and should not be able to see the player
+    (e.g. hr06-uv.lmp goes out of sync without this patch).</p>
 <pre>
 --- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
 +++ fixed.p_sight.c        Sun Aug 27 17:31:01 2000
@@ -704,8 +734,12 @@ diff -p -u -r1.6 p_doors.c
     <p> Affects: MBF</p>
 
     <p> Description: An optimisation in P_CrossSubsector needs to
-    be compatibility optioned, or some demos (MAP02 of 30nm4048.lmp
-    I think is an example) desync.</p>
+    be compatibility optioned, or some demos can desync.
+     The optimisation ought to be 100% safe, but it masks a bug in
+    P_DivlineSide that gives wrong line-of-sight results soemtimes,
+     particularly at Doom 2 MAP02 (30nm4048 desyncs on that map
+    without this fix).
+    </p>
 <pre>
 --- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
 +++ fixed.p_sight.c        Sun Aug 27 17:03:48 2000
