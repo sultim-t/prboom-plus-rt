@@ -1,38 +1,43 @@
-/* config.h.  This is the config file for Windows  */
-
-/* Define to empty if the keyword does not work.  */
-/* #undef const */
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef gid_t */
-
-/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
-/* #define HAVE_SYS_WAIT_H 1 */
-
-/* Define as __inline if that's what the C compiler calls it.  */
-/* #undef inline */
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef pid_t */
-
-/* Define to `unsigned' if <sys/types.h> doesn't define.  */
-/* #undef size_t */
+/* Emacs style mode select   -*- C++ -*- 
+ *-----------------------------------------------------------------------------
+ *
+ * $Id: config.h,v 1.2 2000/05/11 20:04:24 proff_fs Exp $
+ *
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  02111-1307, USA.
+ *
+ * DESCRIPTION:
+ *  This is the config file for Windows
+ *
+ *-----------------------------------------------------------------------------*/
 
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 
-/* Define if `sys_siglist' is declared by <signal.h>.  */
-/* #define SYS_SIGLIST_DECLARED 1 */
-
-/* Define to `int' if <sys/types.h> doesn't define.  */
-/* #undef uid_t */
-
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 /* #undef WORDS_BIGENDIAN */
-
-/* Define if the X Window System is missing or not being used.  */
-/* #undef X_DISPLAY_MISSING */
 
 /* Define to strcasecmp, if we have it */
 #define stricmp strcasecmp
@@ -44,7 +49,8 @@
 #define I386 1
 
 /* Define on targets supporting 386 Assembly */
-#define I386_ASM 1
+/* This is in the project settings */
+/* #define I386_ASM 1 */
 
 /* Define for high resolution support */
 #define HIGHRES 1
@@ -82,21 +88,8 @@
  *  lumps locked for long periods of time are reported */
 /* #undef TIMEDIAG */
 
-/* Define this to revoke any setuid status at startup (except to be reenabled 
- * when SVGALib needs it). Ony relevant to the SVGALib/Linux version */
-/* #define SECURE_UID 1 */
-
 /* Define to be the path where Doom WADs are stored */
 #define DOOMWADDIR "/usr/local/share/games/doom"
-
-/* Define to be the path to the sound server */
-/* #define SNDSERV_PATH "/usr/local/games/sndserv" */
-
-/* Define to be the path to the lxmusserver */
-/* #define MUSSERV_PATH "/usr/local/games/musserv" */
-
-/* Define if you have library -lXext */
-/* #define HAVE_LIBXEXT 1 */
 
 /* Define if you have the SDL mixer library -lSDL_mixer */
 /* #define HAVE_LIBSDL_MIXER 1 */
@@ -129,27 +122,6 @@
 /* Define if you have the vsnprintf function.  */
 #define HAVE_VSNPRINTF 1
 #define vsnprintf _vsnprintf
-
-/* Define if you have the <asm/byteorder.h> header file.  */
-/* #define HAVE_ASM_BYTEORDER_H 1 */
-
-/* Define if you have the <linux/bitops.h> header file.  */
-/* #define HAVE_LINUX_BITOPS_H 1 */
-
-/* Define if you have the <linux/joystick.h> header file.  */
-/* #define HAVE_LINUX_JOYSTICK_H 1 */
-
-/* Define if you have the <machine/soundcard.h> header file.  */
-/* #undef HAVE_MACHINE_SOUNDCARD_H */
-
-/* Define if you have the <soundcard.h> header file.  */
-/* #undef HAVE_SOUNDCARD_H */
-
-/* Define if you have the <sys/soundcard.h> header file.  */
-/* #define HAVE_SYS_SOUNDCARD_H 1 */
-
-/* Define if you have the <unistd.h> header file.  */
-/* #define HAVE_UNISTD_H 1 */
 
 /* Define if you want to compile with SDL  */
 #define USE_SDL
