@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.8 2002/11/24 00:48:46 proff_fs Exp $
+ * $Id: c_runcmd.c,v 1.9 2002/11/24 20:55:31 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.8 2002/11/24 00:48:46 proff_fs Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.9 2002/11/24 20:55:31 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,7 +75,7 @@ static void C_SetVariable(command_t *command);
 static void C_RunAlias(alias_t *alias);
 static int C_Sync(command_t *command);
 static void C_ArgvtoArgs();
-static boolean C_Strcmp(unsigned char *a, unsigned char *b);
+static boolean C_Strcmp(const unsigned char *a, const unsigned char *b);
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -983,7 +983,7 @@ void C_ClearBuffer(int cmdtype)
 }
 
         // compare regardless of font colour
-boolean C_Strcmp(unsigned char *a, unsigned char *b)
+boolean C_Strcmp(const unsigned char *a, const unsigned char *b)
 {
   while(*a || *b)
     {

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.h,v 1.6 2002/11/24 00:48:46 proff_fs Exp $
+ * $Id: c_runcmd.h,v 1.7 2002/11/24 20:55:31 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -221,7 +221,7 @@ struct variable_s
   int type;       // vt_?? variable type: int, string
   int min;        // minimum value or string length
   int max;        // maximum value/length
-  char **defines;  // strings representing the value: eg "on" not "1"
+  const char **defines;  // strings representing the value: eg "on" not "1"
 };
 
 struct command_s
