@@ -1078,10 +1078,12 @@ menu_t menu_video =
   {
     {it_title,        FC_GOLD "video",                NULL, "m_video"},
     {it_gap},
-    {it_runcmd,       "set video mode",               "mn_vidmode"},
+    {it_toggle,       "video mode",                   "r_videomode"},
+    {it_toggle,       "render mode",                  "r_rendermode"},
+    {it_runcmd,       "set video mode",               "r_setmode"},
     {it_gap},
     {it_info,         FC_GOLD "mode"},
-    {it_toggle,       "wait for retrace",             "v_retrace"},
+//    {it_toggle,       "wait for retrace",             "v_retrace"},
 //    {it_runcmd,       "test framerate..",             "timedemo demo2; mn_clearmenus"},
     {it_slider,       "gamma correction",             "gamma"},
 
@@ -1091,13 +1093,18 @@ menu_t menu_video =
     {it_toggle,       "hom detector flashes",         "r_homflash"},
     {it_toggle,       "translucency",                 "r_trans"},
     {it_variable,     "translucency percentage",      "r_tranpct"},
-
+    {it_toggle,       "wall drawing filter",          "r_filteruv"},
+    {it_toggle,       "depth drawing filter",         "r_filterz"},
+    {it_toggle,       "patch drawing filter",         "r_patchfilter"},
+    {it_toggle,       "masked borders slope",         "r_columnslope"},
+    {it_toggle,       "patch borders slope",          "r_patchslope"},
+/*
     {it_gap},
     {it_info,         FC_GOLD "misc."},
     {it_toggle,       "\"loading\" disk icon",        "v_diskicon"},
     {it_toggle,       "screenshot format",            "shot_type"},
     {it_toggle,       "text mode startup",            "textmode_startup"},
-
+*/
     {it_end},
   },
   200, 15,              // x,y offset
