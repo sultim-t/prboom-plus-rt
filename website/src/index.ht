@@ -4,6 +4,39 @@ title: Project Homepage
 
     <h3>25th September 2004</h3>
 
+    <p>Version 2.3.1 is released. This is still experimental, but should be much
+    more usable then 2.3.0. Please test it thoroughly and give us feedback. The
+    feedback from the last release was very helpful.</p>
+    <ul class="changes">
+        <li>disabled vidd support, because currently it's broken</li>
+        <li>network console variables are exchanged now</li>
+        <li>waiting for network can be aborted on windows</li>
+        <li>several keys didn't work in demo playback</li>
+        <li>fixed levelname and other widgets on automap</li>
+        <li>load opengl library only once to prevent error on mode switching</li>
+        <li>fix savegame handling</li>
+        <li>unavailable IWADs are disabled in the load wad menu</li>
+        <li>several small fixes to the new software renderer</li>
+        <li>reimplemented multipatch textures on two sided lines</li>
+        <li>fixed buffer overflow on intermission texts</li>
+        <li>filenames with dots beside the one on the extension work better now</li>
+        <li>fixed texture pegging of upper textures in OpenGL</li>
+        <li>correctly search prboom.wad</li>
+        <li>removed hubs and fragglescript as they are too buggy</li>
+        <li>fixed savegame root directory</li>
+        <li>fixed several endian problems (for PowerPC and Sparc)</li>
+        <li>added more options to menus</li>
+        <li>fixed some default config values</li>
+        <li>load OpenGL libraries only when needed</li>
+        <li>autorun available in key bindings menu</li>
+        <li>live monster counter for HUD</li>
+        <li>fast forward to given map # in demo playback</li>
+        <li>fixes for various sound bugs</li>
+        <li>fix doom2 demos at levels with >10 deathmatch starts</li>
+        <li>and more compatibility and demo fixes</li>
+        <li>support higher-turning-resolution demos from v1.91</li>
+    </ul>
+
     <p>Version 2.2.5 is released. This is just another release fixing bugs and
     making minor improvements:</p>
     <ul class="changes">
