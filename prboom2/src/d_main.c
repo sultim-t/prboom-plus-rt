@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.56 2002/08/10 10:55:37 cph Exp $
+ * $Id: d_main.c,v 1.57 2002/08/10 20:06:09 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.56 2002/08/10 10:55:37 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.57 2002/08/10 20:06:09 cph Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -168,6 +168,9 @@ void D_DoAdvanceDemo (void);
 
 void D_PostEvent(event_t *ev)
 {
+  /* cph - suppress all input events at game start
+   * FIXME: This is a lousy kludge */
+  if (gametic < 3) return;
   C_Responder(ev) ||
   MN_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
@@ -407,7 +410,8 @@ static void D_DoomLoop(void)
         TryRunTics (); // will run at least one tic
 
       // killough 3/16/98: change consoleplayer to displayplayer
-      S_UpdateSounds(players[displayplayer].mo);// move positional sounds
+      if (players[displayplayer].mo) // cph 2002/08/10
+	S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
       // Update display, next frame, with current state.
       D_Display();
