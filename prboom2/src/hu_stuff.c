@@ -40,6 +40,7 @@
 #include "dstrings.h"
 #include "sounds.h"
 #include "d_deh.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
+#include "g_game.h"
 
 // global heads up display controls
 
@@ -124,10 +125,6 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 
 #define key_alt KEYD_RALT
 #define key_shift KEYD_RSHIFT
-extern int  key_chat;
-extern int  key_escape;
-extern int  key_enter;
-extern int  destination_keys[MAXPLAYERS];                           // phares
 
 const char* chat_macros[] =
 // Ty 03/27/98 - *not* externalized
@@ -1303,6 +1300,9 @@ void HU_Erase(void)
 //
 // Passed nothing, returns nothing
 //
+static boolean bsdown; // Is backspace down?
+static int bscounter;
+
 void HU_Ticker(void)
 {
   int i, rc;
@@ -1313,6 +1313,10 @@ void HU_Ticker(void)
   {
     message_on = false;
     message_nottobefuckedwith = false;
+  }
+  if (bsdown && bscounter++ > 9) {
+    HUlib_keyInIText(&w_chat, key_backspace);
+    bscounter = 8;
   }
 
   // if messages on, or "Messages Off" is being displayed
@@ -1468,6 +1472,11 @@ boolean HU_Responder(event_t *ev)
   {
     altdown = ev->type == ev_keydown;
     return false;
+  }
+  else if (ev->data1 == key_backspace)
+  {
+    bsdown = ev->type == ev_keydown;
+    bscounter = 0;
   }
 
   if (ev->type != ev_keydown)
