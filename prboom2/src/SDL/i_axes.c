@@ -34,6 +34,7 @@
 #include "m_argv.h"
 #include "lprintf.h"
 #include "i_axes.h"
+#include "z_zone.h"
 #include "SDL.h"
 
 SDL_Joystick** joysticks;
