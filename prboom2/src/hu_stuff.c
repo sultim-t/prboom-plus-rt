@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.8 2002/11/15 17:20:28 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.9 2002/11/18 17:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.8 2002/11/15 17:20:28 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.9 2002/11/18 17:46:48 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -1596,6 +1596,8 @@ CONSOLE_INT(mess_lines, hud_msg_lines, NULL, 0, 14, NULL, 0) {}
 //CONSOLE_BOOLEAN(mess_scrollup, hud_msg_scrollup, NULL, yesno, 0) {}
 //CONSOLE_INT(mess_timer, message_timer, NULL, 0, 100000, NULL, 0) {}
 
+CONSOLE_BOOLEAN(hud_displayed, hud_displayed, NULL, yesno, 0) {}
+
 extern void HU_FragsAddCommands();
 extern void HU_OverAddCommands();
 
@@ -1613,6 +1615,8 @@ void HU_AddCommands()
   //C_AddCommand(mess_scrollup);
   //C_AddCommand(mess_timer);
   
+  C_AddCommand(hud_displayed);
+
   //HU_FragsAddCommands();
   //HU_OverAddCommands();
 }

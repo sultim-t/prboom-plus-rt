@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.10 2002/08/11 11:29:44 proff_fs Exp $
+ * $Id: i_system.c,v 1.11 2002/11/18 17:48:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.10 2002/08/11 11:29:44 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.11 2002/11/18 17:48:45 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -159,6 +159,22 @@ int I_Filelength(int handle)
   if (fstat(handle,&fileinfo) == -1)
     I_Error("I_Filelength: %s",strerror(errno));
   return fileinfo.st_size;
+}
+
+extern void I_Video_AddCommands();
+//extern void I_Sound_AddCommands();
+//extern void I_Input_AddCommands();
+//extern void Ser_AddCommands();
+
+// add system specific commands
+void I_AddCommands()
+{
+  //C_AddCommand(i_ledsoff);
+  //C_AddCommand(i_gamespeed);
+  
+  I_Video_AddCommands();
+  //I_Sound_AddCommands();
+  //Ser_AddCommands();
 }
 
 #ifndef PRBOOM_SERVER

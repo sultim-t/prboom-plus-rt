@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.23 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: r_main.c,v 1.24 2002/11/18 17:46:51 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.23 2002/11/17 18:34:54 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.24 2002/11/18 17:46:51 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -643,6 +643,7 @@ CONSOLE_BOOLEAN(r_trans, general_translucency, NULL, onoff, 0)
 {
   R_ResetTrans();
 }
+
 CONSOLE_INT(r_tranpct, tran_filter_pct, NULL, 0, 100, NULL, 0)
 {
   R_ResetTrans();
@@ -654,10 +655,31 @@ CONSOLE_INT(gamma, usegamma, NULL, 0, 4, NULL, 0)
     V_SetPalette(0);
 }
 
+CONSOLE_INT(screensize, screenblocks, NULL, 3, 11, NULL, 0)
+{
+  R_SetViewSize(screenblocks);
+}
+
+static char *str_filter[] =
+{
+  "point",
+  "linear"
+};
+
+CONSOLE_INT(r_filteruv, rdrawvars.filteruv, NULL, 0, 1, str_filter, 0) {}
+CONSOLE_INT(r_filterz, rdrawvars.filterz, NULL, 0, 1, str_filter, 0) {}
+CONSOLE_INT(r_columnslope, rdrawvars.maskedColumnEdgeType, NULL, 0, 1, onoff, 0) {}
+CONSOLE_INT(r_filterthreshold, rdrawvars.magThresh, NULL, 10000, 200000, NULL, 0) {}
+
 void R_AddCommands()
 {
   C_AddCommand(r_trans);
   C_AddCommand(r_tranpct);
-   C_AddCommand(gamma);
+  C_AddCommand(gamma);
+  C_AddCommand(screensize);
+  C_AddCommand(r_filteruv);
+  C_AddCommand(r_filterz);
+  C_AddCommand(r_columnslope);
+  C_AddCommand(r_filterthreshold);
 }
 

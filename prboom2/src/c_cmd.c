@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_cmd.c,v 1.7 2002/11/15 17:20:27 proff_fs Exp $
+ * $Id: c_cmd.c,v 1.8 2002/11/18 17:46:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -158,7 +158,7 @@ CONSOLE_COMMAND(flood, 0)
 extern void Cheat_AddCommands();        // m_cheat.c
 extern void     G_AddCommands();        // g_cmd.c
 extern void    HU_AddCommands();        // hu_stuff.c
-//extern void     I_AddCommands();        // i_system.c
+extern void     I_AddCommands();        // i_system.c
 //extern void   net_AddCommands();        // d_net.c
 //extern void     P_AddCommands();        // p_cmd.c
 extern void     R_AddCommands();        // r_main.c
@@ -189,7 +189,7 @@ void C_AddCommands()
   Cheat_AddCommands();
   G_AddCommands();
   HU_AddCommands();
-//  I_AddCommands();
+  I_AddCommands();
 //  net_AddCommands();
 //  P_AddCommands();
   R_AddCommands();
