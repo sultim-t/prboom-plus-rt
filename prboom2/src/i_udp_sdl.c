@@ -250,7 +250,7 @@ void I_WaitForPacket(void)
   SDLNet_UDP_AddSocket(ss, udp_socket);
   SDLNet_CheckSockets(ss,1<<30);
   SDLNet_FreeSocketSet(ss);
-#ifdef _WIN32
+#if (defined _WIN32 && !defined PRBOOM_SERVER)
   I_UpdateConsole();
 #endif
 }
