@@ -4,6 +4,9 @@
 Proff:
 It runs, but on Voodoo1 cards it's very very slow. Other cards aren't tested,
 but I guess on Voodoo3s and above it should work.
+2000/10/04:
+It does work with the beta OpenGL driver, but with the normal drivers only at
+a very low framerate. Further testing needed.
 
 --------------------------------------------------------------------------
 6.  Import MBF m_menu.c and m_misc.c stuff
@@ -43,6 +46,8 @@ tie them all together, and... anything else?
 Proff:
 I did the windows download page and the front page.
 Maybe we should do a developer page.
+2000/10/04:
+What about adding some stuff from the lxdoom website.
 
 --------------------------------------------------------------------------
 21. Bug with the CapsLock key.
@@ -55,4 +60,16 @@ Works, but you have to press it twice to change running speed (why?).
 
 Colin: there will probably be some FAQs to go in here, like "how to 
  get higher resolutions", but we'll see.
+2000/10/04 Proff: The version needs to be corrected in boom.cfg.5 and
+README.command-line
+Maybe README.command-line should be renamed to README.options.
+From the next release on I will add .txt to all text files.
 
+--------------------------------------------------------------------------
+24. (2000/10/04) Seperating segs and gl_segs etc.
+
+--------------------------------------------------------------------------
+25. (2000/10/04) Loading gl_nodes in softwaremode for higher accuracy
+
+--------------------------------------------------------------------------
+26. (2000/10/04) Is the current version for demos updated to 211?
