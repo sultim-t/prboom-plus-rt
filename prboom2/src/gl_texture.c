@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.15 2001/02/11 16:35:34 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.16 2001/06/17 17:40:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -123,7 +123,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     return;
   playpal=W_CacheLumpName("PLAYPAL");
   xs=0;
-  xe=patch->width;
+  xe=SHORT(patch->width);
   if ((xs+originx)>=gltexture->realtexwidth)
     return;
   if ((xe+originx)<=0)
@@ -132,17 +132,17 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     xs=-originx;
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
-  p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
+  p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[0]));
 	for (x=xs;x<xe;x++)
 	{
 #ifdef RANGECHECK
-    if (x>=patch->width)
+    if (x>=SHORT(patch->width))
     {
-      lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated x>=patch->width (%i >= %i)\n",x,patch->width);
+      lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated x>=patch->width (%i >= %i)\n",x,SHORT(patch->width));
       return;
     }
 #endif
-    p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[x]);
+    p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[x]));
     while (p_bColumn_t->topdelta != 0xff)
   	{
       y=(p_bColumn_t->topdelta+originy);
@@ -206,7 +206,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
     outr=translationtables + 256*((cm-CR_LIMIT)-1);
   playpal=W_CacheLumpName("PLAYPAL");
   xs=0;
-  xe=patch->width;
+  xe=SHORT(patch->width);
   if ((xs+originx)>=gltexture->realtexwidth)
     return;
   if ((xe+originx)<=0)
@@ -215,17 +215,17 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
     xs=-originx;
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
-  p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
+  p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[0]));
 	for (x=xs;x<xe;x++)
 	{
 #ifdef RANGECHECK
-    if (x>=patch->width)
+    if (x>=SHORT(patch->width))
     {
-      lprintf(LO_ERROR,"gld_AddPatchToTexture x>=patch->width (%i >= %i)\n",x,patch->width);
+      lprintf(LO_ERROR,"gld_AddPatchToTexture x>=patch->width (%i >= %i)\n",x,SHORT(patch->width));
       return;
     }
 #endif
-    p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[x]);
+    p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[x]));
     while (p_bColumn_t->topdelta != 0xff)
   	{
       y=(p_bColumn_t->topdelta+originy);
@@ -460,10 +460,10 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=lump;
     gltexture->mipmap=false;
-    gltexture->realtexwidth=patch->width;
-    gltexture->realtexheight=patch->height;
-    gltexture->leftoffset=patch->leftoffset;
-    gltexture->topoffset=patch->topoffset;
+    gltexture->realtexwidth=SHORT(patch->width);
+    gltexture->realtexheight=SHORT(patch->height);
+    gltexture->leftoffset=SHORT(patch->leftoffset);
+    gltexture->topoffset=SHORT(patch->topoffset);
     gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
     gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
     gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
