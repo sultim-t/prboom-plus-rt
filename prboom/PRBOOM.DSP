@@ -905,23 +905,23 @@ SOURCE=.\txts\whatsnew.txt
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\icons\barrel.ico
+SOURCE=.\icon\barrel.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\icons\fouch.ico
+SOURCE=.\icon\fouch.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\icons\god.ico
+SOURCE=.\icon\god.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\icons\Heada1.ico
+SOURCE=.\icon\Heada1.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\icons\icons.rc
+SOURCE=.\icon\icons.rc
 
 !IF  "$(CFG)" == "prboom - Win32 Release"
 
@@ -938,7 +938,7 @@ SOURCE=.\icons\icons.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\icons\skull.ico
+SOURCE=.\icon\skull.ico
 # End Source File
 # End Group
 # Begin Group "GL_Source Files"
