@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: p_map.c,v 1.11 2001/06/09 10:12:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: p_map.c,v 1.11 2001/06/09 10:12:35 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -1013,9 +1013,7 @@ boolean P_ThingHeightClip (mobj_t* thing)
 
 /* killough 8/2/98: make variables static */
 static fixed_t   bestslidefrac;
-static fixed_t   secondslidefrac;
 static line_t*   bestslideline;
-static line_t*   secondslideline;
 static mobj_t*   slidemo;
 static fixed_t   tmxmove;
 static fixed_t   tmymove;
@@ -1169,8 +1167,6 @@ isblocking:
 
   if (in->frac < bestslidefrac)
     {
-    secondslidefrac = bestslidefrac;
-    secondslideline = bestslideline;
     bestslidefrac = in->frac;
     bestslideline = li;
     }
