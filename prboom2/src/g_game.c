@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.19 2000/05/22 15:19:53 cph Exp $
+ * $Id: g_game.c,v 1.20 2000/05/22 19:07:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.19 2000/05/22 15:19:53 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.20 2000/05/22 19:07:05 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -2444,7 +2444,7 @@ void G_BeginRecording (void)
       *demo_p++ = playeringame[i];
   }
 
-  if (fwrite(demostart, 1, demo_p-demostart, demofp) != demo_p-demostart)
+  if (fwrite(demostart, 1, demo_p-demostart, demofp) != (size_t)(demo_p-demostart))
     I_Error("G_BeginRecording: error writing demo header");
   free(demostart);
 }
