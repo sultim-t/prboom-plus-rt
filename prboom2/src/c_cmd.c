@@ -172,6 +172,7 @@ extern void    AM_AddCommands();        // am_color.c
 extern void    G_Bind_AddCommands();    // g_bind.c  -- haleyjd
 extern void    G_BindAxes_AddCommands();    // g_bindaxes.c
 extern void     P_AddCommands();        // p_cmd.c
+extern void    GL_AddCommands();        // gl_main.c
 
 void C_AddCommands()
 {
@@ -202,5 +203,6 @@ void C_AddCommands()
   G_Bind_AddCommands();
   G_BindAxes_AddCommands();
   P_AddCommands();
+  GL_AddCommands();
 }
 

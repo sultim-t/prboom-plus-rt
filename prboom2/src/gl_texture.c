@@ -45,11 +45,7 @@ static GLTexture **gld_GLPatchTextures=NULL;
 boolean use_mipmapping=false;
 
 int gld_max_texturesize=0;
-char *gl_tex_format_string = "GL_RGB5_A1";
-//int gl_tex_format=GL_RGBA8;
 int gl_tex_format=GL_RGB5_A1;
-//int gl_tex_format=GL_RGBA4;
-//int gl_tex_format=GL_RGBA2;
 
 GLTexture *last_gltexture=NULL;
 int last_cm=-1;
@@ -230,7 +226,8 @@ void gld_BindTexture(GLTexture *gltexture)
   p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-  p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
+  p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+  //p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
   free(buffer);
 }
 
@@ -470,7 +467,7 @@ static void gld_CleanTextures(void)
         result = p_glGetError();
         if (result)
           lprintf(LO_WARN, "glGetError: %i", result);
-      }
+	  }
       Z_Free(gld_GLTextures[i]);
     }
   }
@@ -494,7 +491,7 @@ static void gld_CleanPatchTextures(void)
         result = p_glGetError();
         if (result)
           lprintf(LO_WARN, "glGetError: %i", result);
-      }
+	  }
       Z_Free(gld_GLPatchTextures[i]);
     }
   }

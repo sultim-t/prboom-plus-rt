@@ -1080,7 +1080,9 @@ menu_t menu_video =
     {it_gap},
     {it_toggle,       "video mode",                   "r_videomode"},
     {it_toggle,       "render mode",                  "r_rendermode"},
-    {it_runcmd,       "set video mode",               "r_setmode"},
+    {it_toggle,       "doublebuffer",                 "r_doublebuffer"},
+    {it_toggle,       "fullscreen",                   "r_fullscreen"},
+    {it_runcmd,       "apply changes",                "r_setmode"},
     {it_gap},
     {it_info,         FC_GOLD "mode"},
 //    {it_toggle,       "wait for retrace",             "v_retrace"},
@@ -1093,11 +1095,8 @@ menu_t menu_video =
     {it_toggle,       "hom detector flashes",         "r_homflash"},
     {it_toggle,       "translucency",                 "r_trans"},
     {it_variable,     "translucency percentage",      "r_tranpct"},
-    {it_toggle,       "wall drawing filter",          "r_filteruv"},
-    {it_toggle,       "depth drawing filter",         "r_filterz"},
-    {it_toggle,       "patch drawing filter",         "r_patchfilter"},
-    {it_toggle,       "masked borders slope",         "r_columnslope"},
-    {it_toggle,       "patch borders slope",          "r_patchslope"},
+    {it_gap},
+    {it_runcmd,       "advanced settings",            "mn_vidsettings"},
 /*
     {it_gap},
     {it_info,         FC_GOLD "misc."},
@@ -1125,13 +1124,43 @@ void MN_VideoModeDrawer()
   sprframe = &sprdef->spriteframes[0];
   lump = sprframe->lump[0];
 
-  //V_DrawBox(270, 110, 20, 20);
-  V_DrawNumPatch(282, 122, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
+  V_DrawNumPatch(282, 140, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
 }
 
 CONSOLE_COMMAND(mn_video, 0)
 {
   MN_StartMenu(&menu_video);
+}
+
+menu_t menu_video_settings =
+{
+  {
+    {it_title,        FC_GOLD "video",                NULL, "m_video"},
+    {it_gap},
+    {it_info,         FC_GOLD "render options"},
+    {it_toggle,       "wall drawing filter",          "r_filteruv"},
+    {it_toggle,       "depth drawing filter",         "r_filterz"},
+    {it_toggle,       "patch drawing filter",         "r_patchfilter"},
+    {it_toggle,       "masked borders slope",         "r_columnslope"},
+    {it_toggle,       "patch borders slope",          "r_patchslope"},
+    {it_gap},
+    {it_info,         FC_GOLD "OpenGL texture options"},
+    {it_toggle,       "texture format",               "gl_tex_format"},
+    {it_toggle,       "texture filter",               "gl_filter"},
+    {it_gap},
+    {it_info,         FC_GOLD "OpenGL fog options"},
+    {it_toggle,       "use fog",                      "gl_use_fog"},
+    {it_toggle,       "fog density",                  "gl_fog_density"},
+    {it_end},
+  },
+  200, 15,              // x,y offset
+  2,                    // start on first selectable
+  mf_background,        // full-screen menu
+};
+
+CONSOLE_COMMAND(mn_vidsettings, 0)
+{
+  MN_StartMenu(&menu_video_settings);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -1415,7 +1444,7 @@ menu_t menu_weapons =
     //{it_toggle,     "bfg type",                       "bfgtype"},
     {it_toggle,     "bobbing",                        "bobbing"},
     {it_toggle,     "recoil",                         "recoil"},
-    {it_info,       FC_BRICK "fist/chainsaw switch"},
+    //{it_info,       FC_BRICK "fist/chainsaw switch"},
     {it_gap},
     {it_info,       FC_GOLD "weapon prefs."},
     {it_variable,   "1st choice",                     "weappref_1"},
@@ -1786,6 +1815,7 @@ void MN_AddMenus()
   C_AddCommand(mn_options);
   C_AddCommand(mn_mouse);
   C_AddCommand(mn_video);
+  C_AddCommand(mn_vidsettings);
   //C_AddCommand(mn_vidmode);
   C_AddCommand(screenshot);
   C_AddCommand(mn_sound);

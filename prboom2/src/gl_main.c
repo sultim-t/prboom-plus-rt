@@ -39,16 +39,15 @@ extern int tran_filter_pct;
 #define USE_VERTEX_ARRAYS
 
 int gl_nearclip=5;
-char *gl_tex_filter_string = "GL_LINEAR";
 int gl_tex_filter = GL_LINEAR;
 int gl_mipmap_filter = GL_LINEAR;
-int gl_drawskys=true;
-int gl_sortsprites=true;
-int gl_texture_filter_anisotropic = 0;
-int gl_use_paletted_texture = 0;
-int gl_use_shared_texture_palette = 0;
-int gl_paletted_texture = 0;
-int gl_shared_texture_palette = 0;
+boolean gl_drawskys=true;
+boolean gl_sortsprites=true;
+boolean gl_texture_filter_anisotropic = false;
+boolean gl_use_paletted_texture = false;
+boolean gl_use_shared_texture_palette = false;
+boolean gl_paletted_texture = false;
+boolean gl_shared_texture_palette = false;
 boolean gl_use_fog=false;
 
 int fog_density=200;
@@ -287,91 +286,6 @@ void gld_Init(int width, int height)
 	p_glFogf (GL_FOG_START, 0.0f);
 	p_glFogf (GL_FOG_END, 1.0f);
 
-  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_NEAREST"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_NEAREST for mipmap textures.\n");
-    gl_tex_filter=GL_NEAREST;
-    gl_mipmap_filter=GL_NEAREST_MIPMAP_NEAREST;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_NEAREST"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_NEAREST for mipmap textures.\n");
-    gl_tex_filter=GL_LINEAR;
-    gl_mipmap_filter=GL_LINEAR_MIPMAP_NEAREST;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_LINEAR"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_LINEAR for mipmap textures.\n");
-    gl_tex_filter=GL_NEAREST;
-    gl_mipmap_filter=GL_NEAREST_MIPMAP_LINEAR;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_LINEAR"))
-  {
-    use_mipmapping=true;
-    gl_shared_texture_palette = false;
-    lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
-    lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_LINEAR for mipmap textures.\n");
-    gl_tex_filter=GL_LINEAR;
-    gl_mipmap_filter=GL_LINEAR_MIPMAP_LINEAR;
-  }
-  else
-  if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST"))
-  {
-    use_mipmapping=false;
-    lprintf(LO_INFO,"Using GL_NEAREST for textures.\n");
-    gl_tex_filter=GL_NEAREST;
-    gl_mipmap_filter=GL_NEAREST;
-  }
-  else
-  {
-    use_mipmapping=false;
-    lprintf(LO_INFO,"Using GL_LINEAR for textures.\n");
-    gl_tex_filter=GL_LINEAR;
-    gl_mipmap_filter=GL_LINEAR;
-  }
-
-	use_mipmapping = false;
-
-  if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
-  {
-    gl_tex_format=GL_RGBA8;
-    lprintf(LO_INFO,"Using texture format GL_RGBA8.\n");
-  }
-  else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGB5_A1"))
-  {
-    gl_tex_format=GL_RGB5_A1;
-    lprintf(LO_INFO,"Using texture format GL_RGB5_A1.\n");
-  }
-  else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGBA4"))
-  {
-    gl_tex_format=GL_RGBA4;
-    lprintf(LO_INFO,"Using texture format GL_RGBA4.\n");
-  }
-  else
-  if (!strcasecmp(gl_tex_format_string,"GL_RGBA2"))
-  {
-    gl_tex_format=GL_RGBA2;
-    lprintf(LO_INFO,"Using texture format GL_RGBA2.\n");
-  }
-  else
-  {
-    gl_tex_format=GL_RGBA;
-    lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
-  }
   gld_CleanMemory();
 }
 
@@ -1593,4 +1507,119 @@ void gld_DrawScene(player_t *player)
 
 void gld_CleanSectorMemory(void)
 {
+}
+
+static const char *gl_tex_strs[] = {
+	"GL_RGBA",
+	"GL_RGBA2",
+	"GL_RGBA4",
+	"GL_RGB5_A1",
+	"GL_RGBA8"
+};
+
+static int gl_texformat=3;
+CONSOLE_INT(gl_tex_format, gl_texformat, NULL, 0, 4, gl_tex_strs, 0)
+{
+	switch (gl_texformat) {
+	default:
+	case 0:
+		gl_tex_format=GL_RGBA;
+		break;
+	case 1:
+		gl_tex_format=GL_RGBA2;
+		break;
+	case 2:
+		gl_tex_format=GL_RGBA4;
+		break;
+	case 3:
+		gl_tex_format=GL_RGB5_A1;
+		break;
+	case 4:
+		gl_tex_format=GL_RGBA8;
+		break;
+	}
+	gld_CleanMemory();
+}
+
+static const char *gl_filter_strs[] = {
+	"GL_NEAREST",
+	"GL_LINEAR",
+	"GL_NEAREST_MIPMAP_NEAREST",
+	"GL_LINEAR_MIPMAP_NEAREST",
+	"GL_NEAREST_MIPMAP_LINEAR",
+	"GL_LINEAR_MIPMAP_LINEAR"
+};
+
+CONSOLE_INT(gl_nearclip, gl_nearclip, NULL, 1, 100, NULL, 0) {}
+
+static int gl_filter = 1;
+CONSOLE_INT(gl_filter, gl_filter, NULL, 0, 1, gl_filter_strs, 0)
+/* mipmapping disabled for now           ^^^^^ */
+{
+	switch (gl_filter) {
+	case 0:
+		use_mipmapping=false;
+		gl_tex_filter=GL_NEAREST;
+		gl_mipmap_filter=GL_NEAREST;
+		break;
+	default:
+	case 1:
+		use_mipmapping=false;
+		gl_tex_filter=GL_LINEAR;
+		gl_mipmap_filter=GL_LINEAR;
+		break;
+	case 2:
+		use_mipmapping=true;
+		gl_shared_texture_palette = false;
+		gl_tex_filter=GL_NEAREST;
+		gl_mipmap_filter=GL_NEAREST_MIPMAP_NEAREST;
+		break;
+	case 3:
+		use_mipmapping=true;
+		gl_shared_texture_palette = false;
+		gl_tex_filter=GL_LINEAR;
+		gl_mipmap_filter=GL_LINEAR_MIPMAP_NEAREST;
+		break;
+	case 4:
+		use_mipmapping=true;
+		gl_shared_texture_palette = false;
+		gl_tex_filter=GL_NEAREST;
+		gl_mipmap_filter=GL_NEAREST_MIPMAP_LINEAR;
+		break;
+	case 5:
+		use_mipmapping=true;
+		gl_shared_texture_palette = false;
+		gl_tex_filter=GL_LINEAR;
+		gl_mipmap_filter=GL_LINEAR_MIPMAP_LINEAR;
+		break;
+	}
+	gld_CleanMemory();
+}
+
+CONSOLE_INT(gl_texture_filter_anisotropic, gl_texture_filter_anisotropic, NULL, 0, 1, onoff, 0) {}
+
+CONSOLE_INT(gl_drawskys, gl_drawskys, NULL, 0, 1, yesno, 0) {}
+
+CONSOLE_INT(gl_sortsprites, gl_sortsprites, NULL, 0, 1, yesno, 0) {}
+
+CONSOLE_INT(gl_use_paletted_texture, gl_use_paletted_texture, NULL, 0, 1, yesno, 0) {}
+
+CONSOLE_INT(gl_use_shared_texture_palette, gl_use_shared_texture_palette, NULL, 0, 1, yesno, 0) {}
+
+CONSOLE_INT(gl_use_fog, gl_use_fog, NULL, 0, 1, yesno, 0) {}
+
+CONSOLE_INT(gl_fog_density, fog_density, NULL, 1, 1000, NULL, 0) {}
+
+void GL_AddCommands(void)
+{
+	C_AddCommand(gl_nearclip);
+	C_AddCommand(gl_tex_format);
+	C_AddCommand(gl_filter);
+	//C_AddCommand(gl_texture_filter_anisotropic);
+	C_AddCommand(gl_drawskys);
+	C_AddCommand(gl_sortsprites);
+	C_AddCommand(gl_use_paletted_texture);
+	C_AddCommand(gl_use_shared_texture_palette);
+	C_AddCommand(gl_use_fog);
+	C_AddCommand(gl_fog_density);
 }

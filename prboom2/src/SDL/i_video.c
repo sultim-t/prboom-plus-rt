@@ -725,6 +725,10 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
+  if (V_GetMode() == VID_MODEGL)
+	  if (V_GetMode() != r_rendermode)
+		  gld_CleanMemory();
+
   V_InitMode(r_rendermode);
   V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
@@ -833,12 +837,8 @@ void I_UpdateVideoMode(void)
   V_SetPalette(0);
 }
 
-CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered)
-{
-  if (graphics_inited) {
-    I_UpdateVideoMode();
-  }
-}
+CONSOLE_INT(r_doublebuffer, use_doublebuffer, NULL, 0, 1, yesno, cf_buffered) {}
+CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered) {}
 
 static const char *str_rendermode[] = {
   "8bit",
@@ -913,6 +913,9 @@ CONSOLE_COMMAND(r_setmode, cf_buffered)
   }
 }
 
+CONSOLE_INT(gl_colorbuffer_bits, gl_colorbuffer_bits, NULL, 16, 32, NULL, cf_buffered) {}
+CONSOLE_INT(gl_depthbuffer_bits, gl_depthbuffer_bits, NULL, 16, 32, NULL, cf_buffered) {}
+
 CONSOLE_STRING(gl_library, gl_library_str, NULL, 126, 0) {}
 
 CONSOLE_BOOLEAN(use_mouse, usemouse, NULL, yesno, 0) {}
@@ -924,6 +927,7 @@ void I_Video_AddCommands()
 #else
 	gl_library_str = Z_Strdup("libGL.so.1", PU_STATIC, 0);
 #endif
+  C_AddCommand(r_doublebuffer);
   C_AddCommand(r_fullscreen);
   r_rendermode = V_GetMode();
   C_AddCommand(r_rendermode);
@@ -932,5 +936,7 @@ void I_Video_AddCommands()
   C_AddCommand(r_videomode);
   C_AddCommand(r_setmode);
   C_AddCommand(gl_library);
+  C_AddCommand(gl_colorbuffer_bits);
+  C_AddCommand(gl_depthbuffer_bits);
   C_AddCommand(use_mouse);
 }

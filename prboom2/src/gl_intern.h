@@ -43,6 +43,7 @@
 #include <string.h>
 #include <math.h>
 #include "SDL.h"
+#include "c_runcmd.h"
 #include "gl_dyn.h"
 #include "doomtype.h"
 #include "w_wad.h"
@@ -84,7 +85,6 @@ typedef struct
 } GLTexture;
 
 extern int gld_max_texturesize;
-extern char *gl_tex_format_string;
 extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;
