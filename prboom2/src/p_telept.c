@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_telept.c,v 1.6 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_telept.c,v 1.6.2.1 2001/07/22 18:40:24 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_telept.c,v 1.6 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_telept.c,v 1.6.2.1 2001/07/22 18:40:24 cph Exp $";
 
 #include "doomdef.h"
 #include "p_spec.h"
@@ -79,7 +79,8 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
           if (!P_TeleportMove(thing, m->x, m->y, false)) /* killough 8/9/98 */
             return 0;
 
-          thing->z = thing->floorz;  // fixme: not needed?
+          if (!(demo_compatibility && gamemission >= pack_tnt))
+            thing->z = thing->floorz;
 
           if (player)
             player->viewz = thing->z + player->viewheight;
