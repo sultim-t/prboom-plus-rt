@@ -662,6 +662,10 @@ void S_StopSounds()
 {
   int cnum;
 
+  //jff 1/22/98 return if music is not enabled
+  if (!snd_card || nosfxparm)
+    return;
+
   for (cnum=0 ; cnum<numChannels ; cnum++)
     if (channels[cnum].sfxinfo)
       S_StopChannel(cnum);
