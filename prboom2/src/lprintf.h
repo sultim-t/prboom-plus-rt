@@ -1,0 +1,83 @@
+/* Emacs style mode select   -*- C++ -*- 
+ *-----------------------------------------------------------------------------
+ *
+ * $Id: lprintf.h,v 1.1 2000/05/04 08:08:40 proff_fs Exp $
+ *
+ *  LxDoom, a Doom port for Linux/Unix
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Console output wrapper.
+ *  Copyright (C) 1999 by Jim Flynn, Rand Phares, Ty Halderman, Colin Phipps
+ *  
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  02111-1307, USA.
+ *
+ * DESCRIPTION:
+ *    Declarations etc. for logical console output
+ *
+ *-----------------------------------------------------------------------------*/
+
+#ifndef __LPRINTF__
+#define __LPRINTF__
+
+typedef enum                /* Logical output levels */
+{
+  LO_INFO=1,                /* One of these is used in each physical output    */
+  LO_CONFIRM=2,             /* call. Which are output, or echoed to console    */
+  LO_WARN=4,                /* if output redirected is determined by the       */
+  LO_ERROR=8,               /* global masks: cons_output_mask,cons_error_mask. */
+  LO_FATAL=16,
+  LO_DEBUG=32,
+  LO_ALWAYS=64,
+} OutputLevels;
+
+#ifndef __GNUC__
+#define __attribute__(x)
+#endif
+
+extern int lprintf(OutputLevels pri, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int cons_output_mask;
+extern int cons_error_mask;
+
+/* killough 3/20/98: add const
+ * killough 4/25/98: add gcc attributes
+ * cphipps 01/11- moved from i_system.h */
+void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));
+
+#endif
+
+/*----------------------------------------------------------------------------
+ *
+ * $Log: lprintf.h,v $
+ * Revision 1.1  2000/05/04 08:08:40  proff_fs
+ * Initial revision
+ *
+ * Revision 1.4  1999/10/31 12:54:09  cphipps
+ * Moved I_Error to lprintf.c
+ * Finished off C++ comments
+ *
+ * Revision 1.3  1999/10/12 13:00:57  cphipps
+ * Changed header to GPL, converted C++ comments to C
+ *
+ * Revision 1.2  1999/01/07 10:21:01  cphipps
+ * Fix __attribute__ handling for non-gnu compilers
+ *
+ * Revision 1.1  1998/10/27 20:52:29  cphipps
+ * Initial revision
+ *
+ * Revision 1.2  1998/09/09  21:21:43  phares
+ * Added Log line
+ *
+ *
+ *----------------------------------------------------------------------------*/
