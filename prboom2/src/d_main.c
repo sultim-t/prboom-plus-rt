@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -165,7 +165,7 @@ void D_DoAdvanceDemo (void);
  *
  * Called by I/O functions when an event is received.
  * Try event handlers for each code area in turn.
- * cph - in the true spirit of the Boom source, let the 
+ * cph - in the true spirit of the Boom source, let the
  *  short ciruit operator madness begin!
  */
 
@@ -258,7 +258,7 @@ void D_Display (void)
     switch (oldgamestate) {
     case -1:
     case GS_LEVEL:
-      V_SetPalette(0); // cph - use default (basic) palette  
+      V_SetPalette(0); // cph - use default (basic) palette
     default:
       break;
     }
@@ -291,17 +291,17 @@ void D_Display (void)
     if (camera == &chasecam) P_ChaseTicker();
     // Work out if the player view is visible, and if there is a border
     viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) /*&& !inhelpscreens*/;
-    isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens && (automapmode & am_active)); 
+    isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens && (automapmode & am_active));
 
     if (oldgamestate != GS_LEVEL) {
       R_FillBackScreen ();    // draw the pattern into the back screen
       redrawborderstuff = isborder;
     } else {
-      // CPhipps - 
-      // If there is a border, and either there was no border last time, 
+      // CPhipps -
+      // If there is a border, and either there was no border last time,
       // or the border might need refreshing, then redraw it.
       redrawborderstuff = isborder && (!isborderstate || borderwillneedredraw);
-      // The border may need redrawing next time if the border surrounds the screen, 
+      // The border may need redrawing next time if the border surrounds the screen,
       // and there is a menu being displayed
       borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
     }
@@ -340,7 +340,7 @@ void D_Display (void)
 #else
   D_BuildNewTiccmds();
 #endif
-  
+
   // sf: now system independent
   if(v_ticker)
     V_FPSDrawer();
@@ -377,7 +377,7 @@ static void D_DoomLoop(void)
 {
   basetic = gametic;
 
-#ifdef HAVE_NET 
+#ifdef HAVE_NET
   atexit(D_QuitNetGame);       // killough
 #endif
 
@@ -386,7 +386,7 @@ static void D_DoomLoop(void)
 #ifdef COMPILE_VIDD
       if (VIDD_inProgress()) VIDD_beginFrame(); // POPE
 #endif
-    
+
       // frame syncronous IO operations
       I_StartFrame ();
 
@@ -468,7 +468,7 @@ void D_AdvanceDemo (void)
   advancedemo = true;
 }
 
-/* killough 11/98: functions to perform demo sequences 
+/* killough 11/98: functions to perform demo sequences
  * cphipps 10/99: constness fixes
  */
 
@@ -490,10 +490,10 @@ static void D_DrawTitle2(const char *name)
   D_SetPageName(name);
 }
 
-/* killough 11/98: tabulate demo sequences 
+/* killough 11/98: tabulate demo sequences
  */
 
-static struct 
+static struct
 {
   void (*func)(const char *);
   const char *name;
@@ -582,7 +582,7 @@ void D_DoAdvanceDemo(void)
     return;
   }
 #endif
-  
+
   if (netgame && !demoplayback) {
     demosequence = 0;
   } else
@@ -694,9 +694,9 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         header.infotableofs = LONG(header.infotableofs);
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
-        
-        if (fseek (fp, header.infotableofs, SEEK_SET) || 
-            fread (fileinfo, sizeof(filelump_t), length, fp) != length || 
+
+        if (fseek (fp, header.infotableofs, SEEK_SET) ||
+            fread (fileinfo, sizeof(filelump_t), length, fp) != length ||
             fclose(fp))
           I_Error("CheckIWAD: failed to read directory %s",iwadname);
 
@@ -835,7 +835,7 @@ char *D_FindIWADFile(void)
     return I_FindFile(VIDD_getIWad(), ".wad");
   }
 #endif
-  
+
   i = M_CheckParm("-iwad");
   if (i && (++i < myargc)) {
     iwad = I_FindFile(myargv[i], ".wad");
@@ -864,7 +864,7 @@ void D_SetSavegameRoot(void)
     // CPhipps - use DOOMSAVEDIR if defined
     char* p = getenv("DOOMSAVEDIR");
 
-    if (p != NULL) 
+    if (p != NULL)
       if (strlen(p) > PATH_MAX-12) p = NULL;
 
     strcpy(basesavegame,(p == NULL) ? I_DoomExeDir() : p);
@@ -892,7 +892,7 @@ void D_SetVersionFromIWAD(const char *iwad)
   CheckIWAD(iwad,&gamemode,&haswolflevels);
 
   /* jff 8/23/98 set gamemission global appropriately in all cases
-   * cphipps 12/1999 - no version output here, leave that to the caller 
+   * cphipps 12/1999 - no version output here, leave that to the caller
    */
   switch(gamemode)
   {
@@ -927,7 +927,7 @@ void D_SetVersionFromIWAD(const char *iwad)
 // Set the location of the defaults file and the savegame root
 // Locate and validate an IWAD file
 // Determine gamemode from the IWAD
-// 
+//
 // supports IWADs with custom names. Also allows the -iwad parameter to
 // specify which iwad is being searched for if several exist in one dir.
 // The -iwad parm may specify:
@@ -1049,14 +1049,14 @@ void FindResponseFile (void)
 	    if (size > 0) {
 	      char *s = malloc(size+1);
 	      char *p = s;
-	      int quoted = 0; 
+	      int quoted = 0;
 
 	      while (size > 0) {
 		// Whitespace terminates the token unless quoted
 		if (!quoted && isspace(*infile)) break;
 		if (*infile == '\"') {
 		  // Quotes are removed but remembered
-		  infile++; size--; quoted ^= 1; 
+		  infile++; size--; quoted ^= 1;
 		} else {
 		  *p++ = *infile++; size--;
 		}
@@ -1097,11 +1097,11 @@ void FindResponseFile (void)
 // work, so we have to go get all the valid ones if any that show up
 // after the loose ones.  This means that boom fred.wad -file wilma
 // will still load fred.wad and wilma.wad, in that order.
-// The response file code kludges up its own version of myargv[] and 
+// The response file code kludges up its own version of myargv[] and
 // unfortunately we have to do the same here because that kludge only
 // happens if there _is_ a response file.  Truth is, it's more likely
-// that there will be a need to do one or the other so it probably 
-// isn't important.  We'll point off to the original argv[], or the 
+// that there will be a need to do one or the other so it probably
+// isn't important.  We'll point off to the original argv[], or the
 // area allocated in FindResponseFile, or our own areas from strdups.
 //
 // CPhipps - OUCH! Writing into *myargv is too dodgy, damn
@@ -1124,17 +1124,17 @@ void DoLooseFiles(void)
 
   for (i=1;i<myargc;i++)
   {
-    if (*myargv[i] == '-') break;  // quit at first switch 
+    if (*myargv[i] == '-') break;  // quit at first switch
 
     // so now we must have a loose file.  Find out what kind and store it.
     j = strlen(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".wad")) 
+    if (!stricmp(&myargv[i][j-4],".wad"))
       wads[wadcount++] = strdup(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".lmp")) 
+    if (!stricmp(&myargv[i][j-4],".lmp"))
       lmps[lmpcount++] = strdup(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".deh")) 
+    if (!stricmp(&myargv[i][j-4],".deh"))
       dehs[dehcount++] = strdup(myargv[i]);
-    if (!stricmp(&myargv[i][j-4],".bex")) 
+    if (!stricmp(&myargv[i][j-4],".bex"))
       dehs[dehcount++] = strdup(myargv[i]);
     if (myargv[i][j-4] != '.')  // assume wad if no extension
       wads[wadcount++] = strdup(myargv[i]);
@@ -1177,7 +1177,7 @@ void DoLooseFiles(void)
   // Now go back and redo the whole myargv array with our stuff in it.
   // First, create a new myargv array to copy into
   tmyargv = calloc(sizeof(char *),MAXARGVS);
-  tmyargv[0] = myargv[0]; // invocation 
+  tmyargv[0] = myargv[0]; // invocation
   tmyargc = 1;
 
   // put our stuff into it
@@ -1191,17 +1191,17 @@ void DoLooseFiles(void)
   // for -deh
   if (dehcount > 0)
   {
-    tmyargv[tmyargc++] = strdup("-deh"); 
+    tmyargv[tmyargc++] = strdup("-deh");
     for (i=0;i<dehcount;)
-      tmyargv[tmyargc++] = dehs[i++]; 
+      tmyargv[tmyargc++] = dehs[i++];
   }
 
   // for -playdemo
   if (lmpcount > 0)
   {
-    tmyargv[tmyargc++] = strdup("-playdemo"); 
+    tmyargv[tmyargc++] = strdup("-playdemo");
     for (i=0;i<lmpcount;)
-      tmyargv[tmyargc++] = lmps[i++]; 
+      tmyargv[tmyargc++] = lmps[i++];
   }
 
   // then copy everything that's there now
@@ -1233,7 +1233,7 @@ void D_AutoLoad(void)
     int i;
 
     for (i=0; i<MAXLOADFILES*2; i++) {
-      const char *fname = (i < MAXLOADFILES) ? wad_files[i] 
+      const char *fname = (i < MAXLOADFILES) ? wad_files[i]
 	: deh_files[i - MAXLOADFILES];
       char *fpath;
 
@@ -1243,12 +1243,12 @@ void D_AutoLoad(void)
       if (!fpath)
         lprintf(LO_WARN, "Failed to autoload %s\n", fname);
       else {
-        if (i >= MAXLOADFILES) 
+        if (i >= MAXLOADFILES)
           ProcessDehFile(fpath, D_dehout(), 0);
         else {
           D_AddFile(fpath,source_auto_load);
         }
-        modifiedgame = true; 
+        modifiedgame = true;
         free(fpath);
       }
     }
@@ -1258,7 +1258,7 @@ void D_AutoLoad(void)
 //
 // D_DoomMainSetup
 //
-// CPhipps - the old contents of D_DoomMain, but moved out of the main 
+// CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
 
 void D_DoomMainSetup(void)
@@ -1281,7 +1281,7 @@ void D_DoomMainSetup(void)
       FindResponseFile();
     } while (rsp_found==true);
   }
-  
+
 #ifdef COMPILE_VIDD
   VIDD_checkStartupParamsFirst(); // POPE
 #endif
@@ -1489,14 +1489,14 @@ void D_DoomMainSetup(void)
     lprintf(LO_CONFIRM,"Austin Virtual Gaming: Levels will end after 20 minutes\n");
 
   if ((p = M_CheckParm ("-warp")) ||      // killough 5/2/98
-       (p = M_CheckParm ("-wart"))) 
+       (p = M_CheckParm ("-wart")))
        // Ty 08/29/98 - moved this check later so we can have -warp alone: && p < myargc-1)
   {
     startmap = 0; // Ty 08/29/98 - allow "-warp x" to go to first map in wad(s)
     autostart = true; // Ty 08/29/98 - move outside the decision tree
     if (gamemode == commercial)
     {
-      if (p < myargc-1) 
+      if (p < myargc-1)
         startmap = atoi(myargv[p+1]);   // Ty 08/29/98 - add test if last parm
     }
     else    // 1/25/98 killough: fix -warp xxx from crashing Doom 1 / UD
@@ -1539,11 +1539,11 @@ void D_DoomMainSetup(void)
   // jff 3/24/98 this sets startskill if it was -1
 
   // Video stuff
-  if ((p = M_CheckParm("-width"))) 
+  if ((p = M_CheckParm("-width")))
     if (myargv[p+1])
       desired_screenwidth = atoi(myargv[p+1]);
-  
-  if ((p = M_CheckParm("-height"))) 
+
+  if ((p = M_CheckParm("-height")))
     if (myargv[p+1])
       desired_screenheight = atoi(myargv[p+1]);
 
@@ -1571,10 +1571,10 @@ void D_DoomMainSetup(void)
     I_CalculateRes(w, h);
   }
 
-  if ((p = M_CheckParm("-fullscreen"))) 
+  if ((p = M_CheckParm("-fullscreen")))
       use_fullscreen = 1;
 
-  if ((p = M_CheckParm("-nofullscreen"))) 
+  if ((p = M_CheckParm("-nofullscreen")))
       use_fullscreen = 0;
 
   //jff 9/3/98 use logical output routine
@@ -1623,7 +1623,7 @@ void D_DoomMainSetup(void)
   // system is allowed to start demoplayback
   VIDD_checkStartupParamsSecond(); // POPE
 #endif
-  
+
   // internal translucency set to config file value               // phares
   general_translucency = default_translucency;                    // phares
 
@@ -1697,7 +1697,7 @@ void D_DoomMainSetup(void)
   idmusnum = -1; //jff 3/17/98 insure idmus number is blank
 
   // CPhipps - auto screenshots
-  if ((p = M_CheckParm("-autoshot")) && (p < myargc-2)) 
+  if ((p = M_CheckParm("-autoshot")) && (p < myargc-2))
     if ((auto_shot_count = auto_shot_time = atoi(myargv[p+1])))
       auto_shot_fname = myargv[p+2];
 
@@ -1721,7 +1721,7 @@ void D_DoomMainSetup(void)
 
   // start the apropriate game based on parms
 
-  // killough 12/98: 
+  // killough 12/98:
   // Support -loadgame with -record and reimplement -recordfrom.
 
   if ((slot = M_CheckParm("-recordfrom")) && (p = slot+2) < myargc)
@@ -1887,7 +1887,7 @@ boolean D_AddNewFile(char *s)
 // GetFirstMap
 //
 // Ty 08/29/98 - determine first available map from the loaded wads and run it
-// 
+//
 
 void GetFirstMap(int *ep, int *map)
 {
@@ -1953,7 +1953,7 @@ void GetFirstMap(int *ep, int *map)
           }
         }
       }
-    }   
+    }
     //jff 9/3/98 use logical output routine
     lprintf(LO_CONFIRM,"Auto-warping to first %slevel: %s\n",
       newlevel ? "new " : "", name);  // Ty 10/04/98 - new level test

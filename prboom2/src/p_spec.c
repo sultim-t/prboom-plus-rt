@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -497,7 +497,7 @@ fixed_t P_FindLowestCeilingSurrounding(sector_t* sec)
   fixed_t             height = INT_MAX;
 
   /* jff 3/12/98 avoid ovf in height calculations */
-  if (!comp[comp_model]) height = 32000*FRACUNIT; 
+  if (!comp[comp_model]) height = 32000*FRACUNIT;
 
   for (i=0 ;i < sec->linecount ; i++)
   {
@@ -533,7 +533,7 @@ fixed_t P_FindHighestCeilingSurrounding(sector_t* sec)
   /* jff 1/26/98 Fix initial value for floor to not act differently
    * in sections of wad that are below 0 units
    * jff 3/12/98 avoid ovf in height calculations */
-  if (!comp[comp_model]) height = -32000*FRACUNIT; 
+  if (!comp[comp_model]) height = -32000*FRACUNIT;
 
   for (i=0 ;i < sec->linecount ; i++)
   {

@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -82,8 +82,8 @@ static SDL_Surface *screen;
 int enablejoystick = 1;
 
 ////////////////////////////////////////////////////////////////////////////
-// Input code 
-int             leds_always_off = 0; // Expected by m_misc, not relevant 
+// Input code
+int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 int     usemouse = 1;        // config file var
@@ -363,7 +363,7 @@ static void I_GetEvent(SDL_Event *Event)
     D_PostEvent(&event);
   }
   break;
-        
+
 
   case SDL_JOYAXISMOTION:
   if (enablejoystick) {
@@ -397,10 +397,10 @@ void I_StartTic (void)
 
   {
     int should_be_grabbed = usemouse &&
-	    !(paused || (gamestate != GS_LEVEL) || demoplayback); 
+	    !(paused || (gamestate != GS_LEVEL) || demoplayback);
 
     if (mouse_currently_grabbed != should_be_grabbed)
-      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed) 
+      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed)
 		      ? SDL_GRAB_ON : SDL_GRAB_OFF);
   }
 
@@ -478,7 +478,7 @@ static void I_UploadNewPalette(int pal)
   // This is used to replace the current 256 colour cmap with a new one
   // Used by 256 colour PseudoColor modes
 
-  // Array of SDL_Color structs used for setting the 256-colour palette 
+  // Array of SDL_Color structs used for setting the 256-colour palette
   static SDL_Color* colours;
   static int cachedgamma;
   static size_t num_pals;
@@ -508,18 +508,18 @@ static void I_UploadNewPalette(int pal)
       colours[i].b = gtable[palette[2]];
       palette += 3;
     }
-  
+
     W_UnlockLumpNum(pplump);
     W_UnlockLumpNum(gtlump);
     num_pals/=256;
   }
 
 #ifdef RANGECHECK
-  if ((size_t)pal >= num_pals) 
-    I_Error("I_UploadNewPalette: Palette number out of range (%d>=%d)", 
+  if ((size_t)pal >= num_pals)
+    I_Error("I_UploadNewPalette: Palette number out of range (%d>=%d)",
 	    pal, num_pals);
 #endif
-  
+
   // store the colors to the current display
   SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL | SDL_PHYSPAL,colours+256*pal, 0, 256);
 }
@@ -553,7 +553,7 @@ void I_FinishUpdate (void)
     return;
   }
 #endif
-  
+
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL) {
     // proff 04/05/2000: swap OpenGL buffers
@@ -589,7 +589,7 @@ void I_FinishUpdate (void)
   }
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
-  if (newpal != NO_PALETTE_CHANGE) { 
+  if (newpal != NO_PALETTE_CHANGE) {
     I_UploadNewPalette(newpal);
     newpal = NO_PALETTE_CHANGE;
   }
@@ -651,9 +651,9 @@ void I_PreInitGraphics(void)
 #endif
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
-  
+
   atexit(I_ShutdownSDL);
-  
+
   I_InitInputs();
 }
 
@@ -692,9 +692,9 @@ static int graphics_inited=0;
 void I_InitGraphics(void)
 {
   char          titlebuffer[2048];
-  
+
   if (!graphics_inited)
-  {  
+  {
     graphics_inited = 1;
 
     atexit(I_ShutdownGraphics);
@@ -743,7 +743,7 @@ void I_UpdateVideoMode(void)
 
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
-  
+
   // Initialize SDL with this graphics mode
   if (V_GetMode() == VID_MODEGL) {
     init_flags = SDL_OPENGL;

@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000,2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -53,7 +53,7 @@ int leveltime;
 //
 
 /* killough 8/29/98: we maintain several separate threads, each containing
- * a special class of thinkers, to allow more efficient searches. 
+ * a special class of thinkers, to allow more efficient searches.
  */
 
 thinker_t thinkerclasscap[NUMTHCLASS]; // Dim on actual size - POPE
@@ -74,7 +74,7 @@ void P_InitThinkers(void)
 
 //
 // killough 8/29/98:
-// 
+//
 // We maintain separate threads of friends and enemies, to permit more
 // efficient searches.
 //
@@ -83,11 +83,11 @@ void P_UpdateThinker(thinker_t *thinker)
 {
   register thinker_t *th;
   // find the class the thinker belongs to
-  
+
   int class =
     thinker->function == P_RemoveThinkerDelayed ? th_delete :
-    thinker->function == P_MobjThinker && 
-    ((mobj_t *) thinker)->health > 0 && 
+    thinker->function == P_MobjThinker &&
+    ((mobj_t *) thinker)->health > 0 &&
     (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
      ((mobj_t *) thinker)->type == MT_SKULL) ?
     ((mobj_t *) thinker)->flags & MF_FRIEND ?
@@ -98,7 +98,7 @@ void P_UpdateThinker(thinker_t *thinker)
     if ((th = thinker->cnext)!= NULL)
       (th->cprev = thinker->cprev)->cnext = th;
   }
-  
+
   // Add to appropriate thread
   th = &thinkerclasscap[class];
   th->cprev->cnext = thinker;
@@ -149,10 +149,10 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 {
   if (!thinker->references)
     {
-#ifdef COMPILE_VIDD    
+#ifdef COMPILE_VIDD
       if (VIDD_REC_inProgress()) VIDD_REC_registerElementDestruction(thinker); // POPE
 #endif
-    
+
       { /* Remove from main thinker list */
         thinker_t *next = thinker->next;
         /* Note that currentthinker is guaranteed to point to us,
@@ -205,7 +205,7 @@ thinker_t* P_NextThinker(thinker_t* th, th_class cl)
  * P_SetTarget
  *
  * This function is used to keep track of pointer references to mobj thinkers.
- * In Doom, objects such as lost souls could sometimes be removed despite 
+ * In Doom, objects such as lost souls could sometimes be removed despite
  * their still being referenced. In Boom, 'target' mobj fields were tested
  * during each gametic, and any objects pointed to by them would be prevented
  * from being removed. But this was incomplete, and was slow (every mobj was
@@ -266,7 +266,7 @@ void P_Ticker (void)
    * killough 9/29/98: note that this ties in with basetic,
    * since G_Ticker does the pausing during recording or
    * playback, and compenates by incrementing basetic.
-   * 
+   *
    * All of this complicated mess is used to preserve demo sync.
    */
 

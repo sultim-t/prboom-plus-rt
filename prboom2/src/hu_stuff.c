@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  Heads-up displays
@@ -89,12 +89,12 @@ void HU_PlayerMsg(char *s)
   if(current_messages == hud_msg_lines)  // display full
     {
       int i;
-    
+
       // scroll up
-      
+
       for(i=0; i<hud_msg_lines-1; i++)
 	strcpy(hu_messages[i], hu_messages[i+1]);
-      
+
       strcpy(hu_messages[hud_msg_lines-1], s);
     }
   else            // add one to the end
@@ -110,7 +110,7 @@ void HU_PlayerMsg(char *s)
 static void HU_MessageErase()
 {
   int y;
-  
+
   for(y=0; y<8*hud_msg_lines; y++)
     R_VideoErase(y*SCREENWIDTH, SCREENWIDTH);
 }
@@ -119,10 +119,10 @@ static void HU_MessageDraw()
 {
   int i;
   int x;
-  
+
   if(!showMessages)
     return;
-  
+
   // go down a bit if chat active
   x = chat_active ? 8 : 0;
 
@@ -138,7 +138,7 @@ static void HU_MessageClear()
 static void HU_MessageTick()
 {
   int i;
-  
+
   if(!hud_msg_scrollup) return;   // messages not to scroll
 
   if(leveltime >= scrolltime)
@@ -167,26 +167,26 @@ char *cross_str[]= {"none", "cross", "angle"}; // for console
 static void HU_CrossHairDraw()
 {
   int drawx, drawy;
-  
+
   if(!crosshair) return;
   if(viewcamera || automapactive) return;
-  
+
   // where to draw??
-  
+
   drawx = SCREENWIDTH/2 - crosshair->width/2;
   drawy = scaledviewheight == SCREENHEIGHT ? SCREENHEIGHT/2 :
     (SCREENHEIGHT-ST_HEIGHT)/2;
-  
+
   // check for bfglook: make crosshair face forward
 
   if(bfglook == 2 && players[displayplayer].readyweapon == wp_bfg)
     drawy += (players[displayplayer].updownangle * scaledviewheight)/100;
-  
+
   drawy -= crosshair->height/2;
 
   if((drawy + crosshair->height) > ((viewwindowy + viewheight)>>hires) )
     return;
-  
+
   if(crosshairpal == notargetcolour)
     V_DrawPatchTL(drawx, drawy, 0, crosshair, crosshairpal);
   else
@@ -197,7 +197,7 @@ static void HU_CrossHairInit()
 {
   crosshairs[0] = W_CacheLumpName("CROSS1", PU_STATIC);
   crosshairs[1] = W_CacheLumpName("CROSS2", PU_STATIC);
-  
+
   notargetcolour = cr_red;
   targetcolour = cr_green;
   friendcolour = cr_blue;
@@ -209,10 +209,10 @@ static void HU_CrossHairTick()
 {
   player_t *player;
   mobj_t *playerobj;
-  
+
   // don't bother with this crap if
   // the crosshair isn't going to be displayed anyway
-  
+
   if(!crosshairnum)
     return;
 
@@ -220,12 +220,12 @@ static void HU_CrossHairTick()
   crosshairpal = notargetcolour;
 
   // sf: use player prediction
-  
+
   player = &players[displayplayer];
   if(player->predicted)
     player = player->predicted;
   playerobj = player->mo;
-  
+
   // search for targets
 
   P_AimLineAttack(playerobj, playerobj->angle, 16*64*FRACUNIT, 0);
@@ -233,11 +233,11 @@ static void HU_CrossHairTick()
   if(linetarget && !(linetarget->flags & MF_SHADOW))
     {
       // target found
-      
+
       crosshairpal = targetcolour;
       if(linetarget->flags & MF_FRIEND)
 	crosshairpal = friendcolour;
-    }        
+    }
 }
 
 //======================================================================
@@ -291,16 +291,16 @@ int show_vpo = 0;
 static void HU_WarningsDrawer()
 {
   int x = WARNING_X;
-  
+
   // the number of visplanes drawn is less in boom.
   // i lower the threshold to 85
-  
+
   if(show_vpo && num_visplanes > 85)
     {
       V_DrawPatch(x, WARNING_Y, 0, vpo);
       x += vpo->width + GAP;
     }
- 
+
   if(opensocket)
     {
       V_DrawPatch(x, WARNING_Y, 0, socket);
@@ -311,7 +311,7 @@ static void HU_WarningsDrawer()
     }
 
   // out of sync?
-  
+
   if(out_of_sync)
     {
       V_DrawPatch(x, WARNING_Y, 0, sync);
@@ -343,7 +343,7 @@ static void HU_AddWidget(textwidget_t *widget)
 static void HU_WidgetsDraw()
 {
   int i;
-  
+
   // check each widget.
   // draw according to font type, and only if message being displayed
 
@@ -372,7 +372,7 @@ static void HU_WidgetsTick()
 static void HU_WidgetsErase()
 {
   int i, y;
-  
+
   for(i=0; i<num_widgets; i++)
     {
       for(y=widgets[i]->y; y<widgets[i]->y+8; y++)
@@ -421,7 +421,7 @@ void HU_CentreMsg(char *s)
     allocedsize = strlen(s);
   }
   strcpy(centremsg, s);
-  
+
   hu_centremessage.message = centremsg;
   hu_centremessage.x = (SCREENWIDTH-V_StringWidth(s, 0)) / 2;
   hu_centremessage.y = (SCREENHEIGHT-V_StringHeight(s) - ((viewheight==SCREENHEIGHT) ? 0 : ST_SCALED_HEIGHT-8)) / 2;
@@ -448,22 +448,22 @@ static void HU_LevelTimeHandler()
 {
   static char timestr[100];
   int seconds = 0;
-  
+
   if(!(automapmode & am_active))
     {
       hu_leveltime.message = NULL;
       return;
     }
-  
+
   //seconds = levelTime / 35;
   timestr[0] = 0;
-  
+
   sprintf(timestr, "%02i:%02i:%02i", seconds/3600, (seconds%3600)/60,
 	  seconds%60);
 
   hu_leveltime.x = SCREENWIDTH-60;
   hu_leveltime.y = SCREENHEIGHT-ST_SCALED_HEIGHT-8;
-  hu_leveltime.message = timestr;        
+  hu_leveltime.message = timestr;
 }
 
 //------------------------------------------------------------------------
@@ -473,7 +473,7 @@ static void HU_LevelTimeHandler()
 
 static textwidget_t hu_levelname =
 {
-  0, 0,                              // x,y 
+  0, 0,                              // x,y
   0,                                 // normal font
   NULL,                              // init to nothing
   HU_LevelNameHandler                // handler
@@ -495,7 +495,7 @@ static void HU_LevelNameHandler()
 // Chat message display
 //
 
-static textwidget_t hu_chat = 
+static textwidget_t hu_chat =
 {
   0, 0,                 // x,y
   0,                    // use normal font
@@ -521,22 +521,22 @@ static boolean HU_ChatRespond(event_t *ev)
 {
   char ch;
   static boolean shiftdown;
-  
+
   if(ev->data1 == KEYD_RSHIFT) shiftdown = ev->type == ev_keydown;
-  
+
   if(ev->type != ev_keydown) return false;
-  
+
   if(!chat_active)
     {
-      if(ev->data1 == key_chat && netgame) 
-	{       
+      if(ev->data1 == key_chat && netgame)
+	{
 	  chat_active = true;     // activate chat
 	  chatinput[0] = 0;       // empty input string
 	  return true;
 	}
       return false;
     }
-  
+
   if(altdown && ev->type == ev_keydown &&
      ev->data1 >= '0' && ev->data1 <= '9')
     {
@@ -547,19 +547,19 @@ static boolean HU_ChatRespond(event_t *ev)
       chat_active = false;
       return true;
     }
-  
+
   if(ev->data1 == KEYD_ESCAPE)    // kill chat
     {
       chat_active = false;
       return true;
     }
-  
+
   if(ev->data1 == KEYD_BACKSPACE && chatinput[0])
     {
       chatinput[strlen(chatinput)-1] = 0;      // remove last char
       return true;
     }
-  
+
   if(ev->data1 == KEYD_ENTER)
     {
       char tempstr[100];
@@ -570,7 +570,7 @@ static boolean HU_ChatRespond(event_t *ev)
     }
 
   ch = shiftdown ? shiftxform[ev->data1] : ev->data1; // shifted?
-  
+
   if(ch>31 && ch<127)
     {
       sprintf(chatinput, "%s%c", chatinput, ch);
@@ -651,7 +651,7 @@ boolean HU_Responder(event_t *ev)
 {
   if(ev->data1 == KEYD_LALT)
     altdown = ev->type == ev_keydown;
-  
+
   return HU_ChatRespond(ev);
 }
 
@@ -662,7 +662,7 @@ boolean HU_Responder(event_t *ev)
 void HU_NewLevel()
 {
   // print the new level name into the console
-  
+
   C_Printf("\n");
   C_Seperator();
   C_Printf(FC_GRAY " %s\n\n", levelname);
@@ -748,9 +748,9 @@ CONSOLE_INT(obcolour, obcolour, NULL, 0, CR_LIMIT-1, textcolours, 0) {}
 CONSOLE_INT(crosshair, crosshairnum, NULL, 0, CROSSHAIRS-1, cross_str, 0)
 {
   int a;
-  
+
   a=atoi(c_argv[0]);
-  
+
   crosshair = a ? crosshairs[a-1] : NULL;
   crosshairnum = a;
 }
@@ -761,7 +761,7 @@ CONSOLE_INT(mess_colour, mess_colour, NULL, 0, CR_LIMIT-1, textcolours, 0) {}
 CONSOLE_NETCMD(say, cf_netvar, netcmd_chat)
 {
   S_StartSound(0, gamemode == commercial ? sfx_radio : sfx_tink);
-  
+
   doom_printf("%s: %s", players[cmdsrc].name, c_args);
 }
 
@@ -777,11 +777,11 @@ void HU_AddCommands()
   C_AddCommand(messages);
   C_AddCommand(mess_colour);
   C_AddCommand(say);
-  
+
   C_AddCommand(mess_lines);
   C_AddCommand(mess_scrollup);
   C_AddCommand(mess_timer);
-  
+
   HU_FragsAddCommands();
   HU_OverAddCommands();
 }

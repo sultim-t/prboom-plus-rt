@@ -4,25 +4,35 @@ prboom/ICON/barrel.ico -text
 prboom/ICON/fouch.ico -text
 prboom/ICON/god.ico -text
 prboom/ICON/skull.ico -text
+prboom2/ICONS/Makefile.am eol=lf
 prboom2/ICONS/barrel.ico -text
 prboom2/ICONS/fouch.ico -text
 prboom2/ICONS/god.ico -text
 prboom2/ICONS/heada1.ico -text
 prboom2/ICONS/skull.ico -text
+prboom2/Makefile.am eol=lf
+prboom2/Makefile.dc eol=lf
+prboom2/VISUALC5/Makefile.am eol=lf
 prboom2/VISUALC6/Doom.dsp eol=crlf
 prboom2/VISUALC6/Doom.dsw eol=crlf
+prboom2/VISUALC6/Makefile.am eol=lf
 prboom2/VISUALC6/prboom_server.dsp eol=crlf
 prboom2/VISUALC6/viddsys.dsp eol=crlf
 prboom2/VISUALCNET/Doom.sln eol=crlf
 prboom2/VISUALCNET/Doom.vcproj eol=crlf
-prboom2/VISUALCNET/Makefile.am -text
+prboom2/VISUALCNET/Makefile.am eol=lf
 prboom2/VISUALCNET/config.h -text
 prboom2/VISUALCNET/prboom_server.vcproj eol=crlf
 prboom2/VISUALCNET/viddsys.vcproj eol=crlf
-prboom2/ViddSys/Makefile.am -text
-prboom2/ViddSys/XML/Makefile.am -text
-prboom2/ViddSys/bzlib/Makefile.am -text
-prboom2/ViddSys/zlib/Makefile.am -text
+prboom2/ViddSys/Makefile.am eol=lf
+prboom2/ViddSys/XML/Makefile.am eol=lf
+prboom2/ViddSys/bzlib/Makefile.am eol=lf
+prboom2/ViddSys/zlib/Makefile.am eol=lf
+prboom2/autotools/ac_c_compile_flags.m4 eol=lf
+prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
+prboom2/bootstrap eol=lf
+prboom2/configure.in eol=lf
+prboom2/data/Makefile.am eol=lf
 prboom2/data/graphics/boxcc.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxcl.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxcr.ppm -text svneol=unset#application/octet-stream
@@ -205,26 +215,16 @@ prboom2/data/sprites/dogsl0.ppm -text
 prboom2/data/sprites/dogsm0.ppm -text
 prboom2/data/sprites/dogsn0.ppm -text
 prboom2/data/sprites/tnt1a0.ppm -text
+prboom2/doc/Makefile.am eol=lf
 prboom2/doc/network_details.txt -text
 prboom2/doc/vidd.gif -text
-prboom2/src/SDL/i_video.c -text svneol=native#unset
-prboom2/src/c_cmd.c -text svneol=native#unset
-prboom2/src/c_runcmd.c -text svneol=native#unset
-prboom2/src/d_main.c -text svneol=native#unset
-prboom2/src/g_game.c -text svneol=native#unset
-prboom2/src/hu_stuff.c -text svneol=native#unset
-prboom2/src/inl/Makefile.am -text
-prboom2/src/mn_menus.c -text svneol=native#unset
-prboom2/src/p_cmd.c -text svneol=native#unset
-prboom2/src/p_enemy.c -text svneol=native#unset
-prboom2/src/p_info.c -text svneol=native#unset
-prboom2/src/p_setup.c -text svneol=native#unset
-prboom2/src/p_spec.c -text svneol=native#unset
-prboom2/src/p_spec.h -text svneol=native#unset
-prboom2/src/p_switch.c -text svneol=native#unset
-prboom2/src/p_tick.c -text svneol=native#unset
-prboom2/src/t_func.c -text svneol=native#unset
-prboom2/src/vidd/Makefile.am -text
+prboom2/prboom.spec.in eol=lf
+prboom2/src/DC/Makefile.dc eol=lf
+prboom2/src/Makefile.am eol=lf
+prboom2/src/POSIX/Makefile.am eol=lf
+prboom2/src/SDL/Makefile.am eol=lf
+prboom2/src/inl/Makefile.am eol=lf
+prboom2/src/vidd/Makefile.am eol=lf
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text
 website/html/DOOM05.jpg -text

@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -112,7 +112,7 @@ boolean usingGLNodes  = false;
 boolean forceOldBsp   = false;
 boolean precache      = true; /* if true, load all graphics at start */
 
-// figgi 08/21/00 -- glSegs 
+// figgi 08/21/00 -- glSegs
 typedef struct
 {
 	unsigned short	v1;		 // start vertex		(16 bit)
@@ -198,7 +198,7 @@ static void P_LoadVertexes (int lump)
   // Allocate zone memory for buffer.
   vertexes = Z_Malloc(numvertexes*sizeof(vertex_t),PU_LEVEL,0);
 
-  // Load data into cache. 
+  // Load data into cache.
   data = W_CacheLumpNum(lump); // cph - wad handling updated
 
   // Copy and convert vertex coordinates,
@@ -232,7 +232,7 @@ static void P_LoadVertexes2(int lump, int gllump)
 	firstglvertex = W_LumpLength(lump) / sizeof(mapvertex_t);
 	numvertexes   = W_LumpLength(lump) / sizeof(mapvertex_t);
 	data		  = W_CacheLumpNum(lump);
-	
+
 	if (gllump >= 0)  // check for glVertices
 	{
 		gldata = W_CacheLumpNum(gllump);
@@ -243,7 +243,7 @@ static void P_LoadVertexes2(int lump, int gllump)
 
 			numvertexes += (W_LumpLength(gllump) - GL_VERT_OFFSET)/sizeof(mapglvertex_t);
 			vertexes	 = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);
-			mgl			 = (mapglvertex_t *) (gldata + GL_VERT_OFFSET);	
+			mgl			 = (mapglvertex_t *) (gldata + GL_VERT_OFFSET);
 
 			for (i = firstglvertex; i < numvertexes; i++)
 			{
@@ -260,7 +260,7 @@ static void P_LoadVertexes2(int lump, int gllump)
 
 			for (i = firstglvertex; i < numvertexes; i++)
 			{
-				vertexes[i].x = SHORT(ml->x)<<FRACBITS; 
+				vertexes[i].x = SHORT(ml->x)<<FRACBITS;
 				vertexes[i].y = SHORT(ml->y)<<FRACBITS;
 				ml++;
 			}
@@ -380,7 +380,7 @@ static void P_LoadGLSegs(int lump)
 
 	numsegs = W_LumpLength(lump) / sizeof(glseg_t);
 	segs = Z_Malloc(numsegs * sizeof(seg_t), PU_LEVEL, 0);
-	memset(segs, 0, numsegs * sizeof(seg_t));	
+	memset(segs, 0, numsegs * sizeof(seg_t));
 	data = W_CacheLumpNum(lump);
 
 	ml = (glseg_t*) data;
@@ -389,8 +389,8 @@ static void P_LoadGLSegs(int lump)
 		segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
 		segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
 		segs[i].iSegID  = i;
-							
-		if(ml->linedef != -1) // skip minisegs 
+
+		if(ml->linedef != -1) // skip minisegs
 		{
 			ldef = &lines[ml->linedef];
 			segs[i].linedef = ldef;
@@ -421,7 +421,7 @@ static void P_LoadGLSegs(int lump)
 			segs[i].frontsector = NULL;
 			segs[i].backsector  = NULL;
 		}
-		ml++;		
+		ml++;
 	}
 	W_UnlockLumpNum(lump);
 }
@@ -662,13 +662,13 @@ static void P_LoadLineDefs2(int lump)
     {
       { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
 	// killough 11/98: fix common wad errors (missing sidedefs):
-	
+
 	if (ld->sidenum[0] == -1) {
 	  ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
 	  // cph - print a warning about the bug
 	  lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i);
 	}
-	
+
 	if ((ld->sidenum[1] == -1) && (ld->flags & ML_TWOSIDED)) {
 	  ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 	  // cph - print a warning about the bug
@@ -765,7 +765,7 @@ static void P_LoadSideDefs2(int lump)
           break;
         }
     }
-  
+
   W_UnlockLumpNum(lump); // cph - release the lump
 }
 
@@ -773,12 +773,12 @@ static void P_LoadSideDefs2(int lump)
 // jff 10/6/98
 // New code added to speed up calculation of internal blockmap
 // Algorithm is order of nlines*(ncols+nrows) not nlines*ncols*nrows
-// 
+//
 
 #define blkshift 7               /* places to shift rel position for cell num */
 #define blkmask ((1<<blkshift)-1)/* mask for rel position within cell */
 #define blkmargin 0              /* size guardband around map used */
-                                 // jff 10/8/98 use guardband>0 
+                                 // jff 10/8/98 use guardband>0
                                  // jff 10/12/98 0 ok with + 1 in rows,cols
 
 typedef struct linelist_t        // type used to list lines in each block
@@ -920,7 +920,7 @@ void P_CreateBlockMap()
     AddBlockLine(blocklists,blockcount,blockdone,by*ncols+bx,i);
 
 
-    // For each column, see where the line along its left edge, which 
+    // For each column, see where the line along its left edge, which
     // it contains, intersects the Linedef i. Add i to each corresponding
     // blocklist.
 
@@ -948,7 +948,7 @@ void P_CreateBlockMap()
         AddBlockLine(blocklists,blockcount,blockdone,ncols*yb+j,i);
 
         // if the intersection is at a corner it depends on the slope
-        // (and whether the line extends past the intersection) which 
+        // (and whether the line extends past the intersection) which
         // blocks are hit
 
         if (yp==0)        // intersection at a corner
@@ -976,7 +976,7 @@ void P_CreateBlockMap()
       }
     }
 
-    // For each row, see where the line along its bottom edge, which 
+    // For each row, see where the line along its bottom edge, which
     // it contains, intersects the Linedef i. Add i to all the corresponding
     // blocklists.
 
@@ -1004,7 +1004,7 @@ void P_CreateBlockMap()
         AddBlockLine(blocklists,blockcount,blockdone,ncols*j+xb,i);
 
         // if the intersection is at a corner it depends on the slope
-        // (and whether the line extends past the intersection) which 
+        // (and whether the line extends past the intersection) which
         // blocks are hit
 
         if (xp==0)        // intersection at a corner
@@ -1152,7 +1152,7 @@ static void P_LoadBlockMap (int lump)
 static void P_AddLineToSector(line_t* li, sector_t* sector)
 {
   fixed_t *bbox = (void*)sector->blockbox;
-  
+
   sector->lines[sector->linecount++] = li;
   M_AddToBox (bbox, li->v1->x, li->v1->y);
   M_AddToBox (bbox, li->v2->x, li->v2->y);
@@ -1163,7 +1163,7 @@ void P_GroupLines (void)
   register line_t	*li;
   register sector_t *sector;
   int i,j, total = numlines;
-	
+
 	// figgi
   for (i=0 ; i<numsubsectors ; i++)
   {
@@ -1196,7 +1196,7 @@ void P_GroupLines (void)
   {  // allocate line tables for each sector
     line_t **linebuffer = Z_Malloc(total*sizeof(line_t *), PU_LEVEL, 0);
 
-    for (i=0, sector = sectors; i<numsectors; i++, sector++) 
+    for (i=0, sector = sectors; i<numsectors; i++, sector++)
 	  {
       sector->lines = linebuffer;
       linebuffer += sector->linecount;
@@ -1213,29 +1213,29 @@ void P_GroupLines (void)
       P_AddLineToSector(li, li->backsector);
   }
 
-  for (i=0, sector = sectors; i<numsectors; i++, sector++) 
+  for (i=0, sector = sectors; i<numsectors; i++, sector++)
   {
     fixed_t *bbox = (void*)sector->blockbox; // cph - For convenience, so
                                   // I can sue the old code unchanged
     int block;
-    
+
     // set the degenmobj_t to the middle of the bounding box
     sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
     sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
-    
+
     // adjust bounding box to map blocks
     block = (bbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
     block = block >= bmapheight ? bmapheight-1 : block;
     sector->blockbox[BOXTOP]=block;
-    
+
     block = (bbox[BOXBOTTOM]-bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
     block = block < 0 ? 0 : block;
     sector->blockbox[BOXBOTTOM]=block;
-    
+
     block = (bbox[BOXRIGHT]-bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
     block = block >= bmapwidth ? bmapwidth-1 : block;
     sector->blockbox[BOXRIGHT]=block;
-    
+
     block = (bbox[BOXLEFT]-bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
     block = block < 0 ? 0 : block;
     sector->blockbox[BOXLEFT]=block;
@@ -1352,7 +1352,7 @@ char *levellumps[] =
 boolean P_CheckLevel(int lumpnum)
 {
   int i, ln;
-  
+
   for(i=ML_THINGS; i<=ML_BLOCKMAP; i++)
     {
       ln = lumpnum+i;
@@ -1400,16 +1400,16 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
 
       // get the map name lump number
   if((lumpnum = W_CheckNumForName(mapname)) == -1
-    || !P_CheckLevel(lumpnum))  
+    || !P_CheckLevel(lumpnum))
     {
       C_Printf("level not found: '%s'\n", mapname);
       C_SetConsole();
       return;
     }
-  
+
   if(levelmapname) Z_Free(levelmapname);
   levelmapname = Z_Strdup(mapname, PU_STATIC, 0);
-  
+
   leveltime = 0;
 
   lprintf(LO_DEBUG, "stop sounds\n");
@@ -1428,7 +1428,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
 #ifdef GL_DOOM
 // proff 11/99: clean the memory from textures etc.
   gld_CleanMemory();
-#endif	
+#endif
 
   // FIXME P_FreeSecNodeList();  // sf: free the psecnode_t linked list in p_map.c
   P_InitThinkers();
@@ -1450,7 +1450,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   S_Start();
 
   lprintf(LO_DEBUG, "P_SetupLevel: loaded level info\n");
-  
+
 	// load the sky
   R_StartSky();
 
@@ -1479,13 +1479,13 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   else
 	  P_LoadVertexes  (lumpnum+ML_VERTEXES);
   P_LoadSectors   (lumpnum+ML_SECTORS);
-  P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             
-  P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             
-  P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             
-  P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             
+  P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);
+  P_LoadLineDefs  (lumpnum+ML_LINEDEFS);
+  P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);
+  P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
 
   if(level_error)       // drop to the console
-  {             
+  {
     C_SetConsole();
     return;
   }
@@ -1493,7 +1493,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
 
   if (usingGLNodes)
-  { 
+  {
 	  P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
@@ -1512,8 +1512,8 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
   P_GroupLines();
 
-  P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad      
-                                                                                    
+  P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
+
   bodyqueslot = 0;
 
 // phares 8/10/98: Clear body queue so the corpses from previous games are
@@ -1553,7 +1553,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
 #ifdef COMPILE_VIDD
   } // if (!VIDD_PLAY_inProgress()) { // POPE
 #endif
-  
+
   // preload graphics
   if (precache)
     R_PrecacheLevel();
@@ -1564,7 +1564,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
     // proff 11/99: calculate all OpenGL specific tables etc.
     gld_PreprocessLevel();
   }
-#endif	
+#endif
 
   // psprites
   HU_FragsUpdate();     // reset frag counter
@@ -1620,12 +1620,12 @@ void P_LoadOlo()
     return;
 
   lump = W_CacheLumpNum(lumpnum);
-  
+
   if(strncmp(lump, "OLO", 3))
     return;
-  
+
   memcpy(&olo, lump, sizeof(olo_t));
-  
+
   W_UnlockLumpNum(lumpnum);
 
   olo_loaded = true;
@@ -1636,11 +1636,11 @@ void P_LoadOlo()
 void C_DumpThings()
 {
   int i;
-  
+
   for(i=0; i<numthings; i++)
     {
       C_Printf("%i\n", spawnedthings[i]);
     }
-  
+
   C_Printf(FC_GRAY"(%i)\n", numthings);
 }

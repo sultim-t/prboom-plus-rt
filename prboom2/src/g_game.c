@@ -401,7 +401,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 void G_SetGameMap()
 {
   gamemap = G_GetMapForName(gamemapname);
-  
+
   if(gamemode != commercial)
     {
       gameepisode = gamemap/10;
@@ -434,7 +434,7 @@ void G_SetGameMap()
     gamemap = 9;
 }
 
-// 
+//
 // G_RestartLevel
 //
 
@@ -775,7 +775,7 @@ void G_DoCompleted (void)
 
   // sf: moved partime code from wi_stuff.c,
   // added new features(level info)
-  
+
   if ( gamemode == commercial )
     wminfo.partime = TICRATE*cpars[gamemap-1];
   else
@@ -966,7 +966,7 @@ static uint_64_t G_Signature(void)
   uint_64_t s = 0;
   int lump, i;
   //  char name[9];
-  
+
   // sf: use gamemapname now, not gameepisode and gamemap
   lump = W_CheckNumForName(gamemapname);
 
@@ -1434,7 +1434,7 @@ void G_Ticker (void)
     if(cooldemo_tics)
 	    cooldemo_tics--;
     else
-	    G_CoolViewPoint();                
+	    G_CoolViewPoint();
   }
 
   // do main actions
@@ -1591,13 +1591,13 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
       if (queuesize < bodyquesize)
 	{
 	  bodyque = realloc(bodyque, bodyquesize*sizeof*bodyque);
-	  memset(bodyque+queuesize, 0, 
+	  memset(bodyque+queuesize, 0,
 		 (bodyquesize-queuesize)*sizeof*bodyque);
 	  queuesize = bodyquesize;
 	}
-      if (bodyqueslot >= bodyquesize) 
-	P_RemoveMobj(bodyque[bodyqueslot % bodyquesize]); 
-      bodyque[bodyqueslot++ % bodyquesize] = players[playernum].mo; 
+      if (bodyqueslot >= bodyquesize)
+	P_RemoveMobj(bodyque[bodyqueslot % bodyquesize]);
+      bodyque[bodyqueslot++ % bodyquesize] = players[playernum].mo;
     }
   else
     if (!bodyquesize)
@@ -2117,7 +2117,7 @@ void G_InitNew(skill_t skill, char *name)
   if(gamemapname) free(gamemapname);    //sf
   gamemapname = strdup(name);
   G_SetGameMap();  // sf
-  
+
   //jff 4/16/98 force marks on automap cleared every new level start
   AM_clearMarks();
 
@@ -2179,15 +2179,15 @@ void G_CoolViewPoint(void)
   // 2 if no cameras, 3 if cameras
   int viewtype = M_Random() % (2 + !!numcameraviews);
   int old_displayplayer = displayplayer;
-  
+
   // pick the next player
   do
-    { 
-      displayplayer++; 
-      if (displayplayer == MAXPLAYERS) 
-	displayplayer = 0; 
+    {
+      displayplayer++;
+      if (displayplayer == MAXPLAYERS)
+	displayplayer = 0;
     } while (!playeringame[displayplayer]);
-  
+
   if(displayplayer != old_displayplayer)
     {
       ST_Start();

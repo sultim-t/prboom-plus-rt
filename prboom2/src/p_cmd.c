@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,12 +21,12 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
  *
- * Game console variables 
+ * Game console variables
  *
  * By Simon Howard, added to PrBoom by Florian Schulze
  *
@@ -91,14 +91,14 @@ VARIABLE_INT(default_colour, NULL, 0, TRANSLATIONCOLOURS-1, colournames);
 CONSOLE_NETVAR(colour, default_colour, cf_handlerset, netcmd_colour)
 {
   int playernum, colour;
-  
+
   playernum = cmdsrc;
   colour = atoi(c_argv[0]) % TRANSLATIONCOLOURS;
-  
+
   players[playernum].colormap = colour;
   if(gamestate == GS_LEVEL)
     players[playernum].mo->colour = colour;
-  
+
   if(playernum == consoleplayer) default_colour = colour; // typed
 }
 
@@ -119,12 +119,12 @@ CONSOLE_NETVAR(skill, gameskill, cf_server, netcmd_skill)
     defaultskill = gameskill + 1;
 }
 #endif
-// autoaiming 
+// autoaiming
 
 //VARIABLE_BOOLEAN(autoaim, &default_autoaim,         onoff);
 //CONSOLE_NETVAR(autoaim, autoaim, cf_server, netcmd_autoaim) {}
 
-// weapons recoil 
+// weapons recoil
 
 VARIABLE_BOOLEAN(weapon_recoil, &default_weapon_recoil, onoff);
 CONSOLE_NETVAR(recoil, weapon_recoil, cf_server, netcmd_recoil) {}
@@ -221,7 +221,7 @@ void P_AddCommands()
   //C_AddCommand(nukage);
   //C_AddCommand(weapspeed);
   //C_AddCommand(bfglook);
-  
+
   C_AddCommand(fast);
   C_AddCommand(nomonsters);
   C_AddCommand(respawn);
@@ -233,10 +233,10 @@ void P_AddCommands()
   C_AddCommand(mon_climb);
   C_AddCommand(mon_helpfriends);
   C_AddCommand(mon_distfriend);
-  
+
   //C_AddCommand(timelimit);
   //C_AddCommand(fraglimit);
-  
+
   P_Chase_AddCommands();
   //P_Skin_AddCommands();
   P_Info_AddCommands();

@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -123,13 +123,13 @@ section_t *looping_section()
   section_t *best = NULL;         // highest level loop we're in
                                   // that has been found so far
   int n;
-  
+
   // check thru all the hashchains
 
   for(n=0; n<SECTIONSLOTS; n++)
     {
       section_t *current = current_script->sections[n];
-      
+
       // check all the sections in this hashchain
       while(current)
 	{
@@ -146,7 +146,7 @@ section_t *looping_section()
 	  current = current->next;
 	}
     }
-  
+
   return best;    // return the best one found
 }
 
@@ -154,7 +154,7 @@ section_t *looping_section()
 void SF_Continue()
 {
   section_t *section;
-  
+
   if(!(section = looping_section()) )       // no loop found
     {
       script_error("continue() not in loop\n");
@@ -167,7 +167,7 @@ void SF_Continue()
 void SF_Break()
 {
   section_t *section;
-  
+
   if(!(section = looping_section()) )
     {
       script_error("break() not in loop\n");
@@ -184,17 +184,17 @@ void SF_Goto()
       script_error("incorrect arguments to goto\n");
       return;
     }
-  
+
   // check argument is a labelptr
-  
+
   if(t_argv[0].type != svt_label)
     {
       script_error("goto argument not a label\n");
       return;
     }
-  
+
   // go there then if everythings fine
-  
+
   rover = t_argv[0].value.labelptr;
 }
 
@@ -217,7 +217,7 @@ void SF_Include()
     strncpy(tempstr, t_argv[0].value.s, 8);
   else
     sprintf(tempstr, "%i", (int)t_argv[0].value.i);
-  
+
   parse_include(tempstr);
 }
 
@@ -256,7 +256,7 @@ void SF_Tip()
 {
   int i;
   char tempstr[128]="";
-  
+
   if(current_script->trigger->player != &players[displayplayer])
     return;
 
@@ -274,15 +274,15 @@ void SF_PlayerTip()
 {
   int i, plnum;
   char tempstr[128]="";
-  
+
   if(!t_argc)
     { script_error("player not specified\n"); return;}
-  
+
   plnum = intvalue(t_argv[0]);
-  
+
   for(i=1; i<t_argc; i++)
     sprintf(tempstr,"%s%s", tempstr, stringvalue(t_argv[i]));
-  
+
   player_printf(&players[plnum], tempstr);
 }
 
@@ -291,10 +291,10 @@ void SF_Message()
 {
   int i;
   char tempstr[128]="";
-  
+
   if(current_script->trigger->player != &players[displayplayer])
     return;
-  
+
   for(i=0; i<t_argc; i++)
     sprintf(tempstr, "%s%s", tempstr, stringvalue(t_argv[i]));
 
@@ -306,15 +306,15 @@ void SF_PlayerMsg()
 {
   int i, plnum;
   char tempstr[128]="";
-  
+
   if(!t_argc)
     { script_error("player not specified\n"); return;}
-  
+
   plnum = intvalue(t_argv[0]);
-  
+
   for(i=1; i<t_argc; i++)
     sprintf(tempstr, "%s%s", tempstr, stringvalue(t_argv[i]));
-  
+
   player_printf(&players[plnum], tempstr);
 }
 
@@ -322,7 +322,7 @@ void SF_PlayerInGame()
 {
   if(!t_argc)
     { script_error("player not specified\n"); return;}
-  
+
   t_return.type = svt_int;
   t_return.value.i = playeringame[intvalue(t_argv[0])];
 }
@@ -330,7 +330,7 @@ void SF_PlayerInGame()
 void SF_PlayerName()
 {
   int plnum;
-  
+
   if(!t_argc)
     {
       player_t *pl;
@@ -344,7 +344,7 @@ void SF_PlayerName()
     }
   else
     plnum = intvalue(t_argv[0]);
-  
+
   t_return.type = svt_string;
   t_return.value.s = players[plnum].name;
 }
@@ -353,7 +353,7 @@ void SF_PlayerName()
 void SF_PlayerObj()
 {
   int plnum;
-  
+
   if(!t_argc)
     {
       player_t *pl;
@@ -367,7 +367,7 @@ void SF_PlayerObj()
     }
   else
     plnum = intvalue(t_argv[0]);
-  
+
   t_return.type = svt_mobj;
   t_return.value.mobj = players[plnum].mo;
 }
@@ -384,9 +384,9 @@ void SF_Player()
 {
   mobj_t *mo = t_argc ? MobjForSvalue(t_argv[0]) :
     current_script->trigger;
-  
+
   t_return.type = svt_int;
-  
+
   if(mo)
     {
       t_return.value.i = (int)(mo->player - players);
@@ -402,10 +402,10 @@ void SF_Spawn()
 {
   int x, y, z, objtype;
   angle_t angle = 0;
-  
+
   if(t_argc < 3)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   objtype = intvalue(t_argv[0]);
   x = intvalue(t_argv[1]) * FRACUNIT;
   y = intvalue(t_argv[2]) * FRACUNIT;
@@ -414,11 +414,11 @@ void SF_Spawn()
     {
       angle = R_WadToAngle(intvalue(t_argv[3]));
     }
-  
+
   // invalid object to spawn
   if(objtype < 0 || objtype >= NUMMOBJTYPES)
     { script_error("unknown object type: %i\n", objtype); return; }
-  
+
   t_return.type = svt_mobj;
   t_return.value.mobj = P_SpawnMobj(x,y,z, objtype);
   t_return.value.mobj->angle = angle;
@@ -427,10 +427,10 @@ void SF_Spawn()
 void SF_RemoveObj()
 {
   mobj_t *mo;
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   mo = MobjForSvalue(t_argv[0]);
   if(mo)  // nullptr check
     P_RemoveMobj(mo);
@@ -439,12 +439,12 @@ void SF_RemoveObj()
 void SF_KillObj()
 {
   mobj_t *mo;
-  
+
   if(t_argc)
     mo = MobjForSvalue(t_argv[0]);
   else
     mo = current_script->trigger;  // default to trigger object
-  
+
   if(mo)  // nullptr check
     P_KillMobj(current_script->trigger, mo);         // kill it
 }
@@ -505,7 +505,7 @@ void SF_Teleport()
       mo = MobjForSvalue(t_argv[0]);
       line.tag = (short)intvalue(t_argv[1]);
     }
-  
+
   if(mo)
     EV_Teleport(&line, 0, mo);
 }
@@ -514,7 +514,7 @@ void SF_SilentTeleport()
 {
   line_t line;    // dummy line for teleport function
   mobj_t *mo;
-  
+
   if(t_argc==0)   // no arguments
     {
       script_error("insufficient arguments to function\n");
@@ -555,7 +555,7 @@ void SF_DamageObj()
       mo = MobjForSvalue(t_argv[0]);
       damageamount = intvalue(t_argv[1]);
     }
-  
+
   if(mo)
     P_DamageMobj(mo, NULL, current_script->trigger, damageamount);
 }
@@ -565,7 +565,7 @@ void SF_ObjSector()
 {
   // use trigger object if not specified
   mobj_t *mo = t_argc ? MobjForSvalue(t_argv[0]) : current_script->trigger;
-  
+
   t_return.type = svt_int;
   t_return.value.i = mo ? mo->subsector->sector->tag : 0; // nullptr check
 }
@@ -584,7 +584,7 @@ void SF_ObjFlag()
 {
   mobj_t *mo;
   int flagnum;
-  
+
   if(t_argc==0)   // no arguments
     {
       script_error("no arguments for function\n");
@@ -608,22 +608,22 @@ void SF_ObjFlag()
         {
 	  mo = MobjForSvalue(t_argv[0]);
 	  flagnum = intvalue(t_argv[1]);
-	  
+
 	  if(mo)          // nullptr check
 	    {
 	      long newflag;
 	      // remove old bit
 	      mo->flags = mo->flags & ~(1 << flagnum);
-	      
+
 	      // make the new flag
 	      newflag = (!!intvalue(t_argv[2])) << flagnum;
 	      mo->flags |= newflag;   // add new flag to mobj flags
 	    }
-	  
+
 	  P_UpdateThinker(&mo->thinker);     // update thinker
-	  
+
         }
-  
+
   t_return.type = svt_int;
   // nullptr check:
   t_return.value.i = mo ? !!(mo->flags & (1 << flagnum)) : 0;
@@ -635,7 +635,7 @@ void SF_PushThing()
   mobj_t *mo;
   angle_t angle;
   fixed_t force;
-  
+
   if(t_argc<3)   // missing arguments
     {
       script_error("insufficient arguments for function\n");
@@ -643,12 +643,12 @@ void SF_PushThing()
     }
 
   mo = MobjForSvalue(t_argv[0]);
-  
+
   if(!mo) return;
-  
+
   angle = R_WadToAngle(intvalue(t_argv[1]));
   force = intvalue(t_argv[2]) * FRACUNIT;
-  
+
   mo->momx += FixedMul(finecosine[angle >> ANGLETOFINESHIFT], force);
   mo->momy += FixedMul(finesine[angle >> ANGLETOFINESHIFT], force);
 }
@@ -670,7 +670,7 @@ void SF_PointToAngle()
   y1 = intvalue(t_argv[1]) * FRACUNIT;
   x2 = intvalue(t_argv[2]) * FRACUNIT;
   y2 = intvalue(t_argv[3]) * FRACUNIT;
-                            
+
   angle = R_PointToAngle2(x1, y1, x2, y2);
   t_return.type = svt_int;
   t_return.value.i = angle/(ANG45/45);
@@ -680,18 +680,18 @@ void SF_PointToDist()
 {
   int dist;
   int x1, x2, y1, y2;
-  
+
   if(t_argc<4)
     {
       script_error("insufficient arguments to function\n");
-      return; 
+      return;
     }
 
   x1 = intvalue(t_argv[0]) * FRACUNIT;
   y1 = intvalue(t_argv[1]) * FRACUNIT;
   x2 = intvalue(t_argv[2]) * FRACUNIT;
   y2 = intvalue(t_argv[3]) * FRACUNIT;
-                            
+
   dist = R_PointToDist2(x1, y1, x2, y2);
   t_return.type = svt_int;
   t_return.value.i = dist/FRACUNIT;
@@ -716,13 +716,13 @@ void SF_SetCamera()
   mo = MobjForSvalue(t_argv[0]);
   if(!mo) return;         // nullptr check
   angle = t_argc==1 ? mo->angle : R_WadToAngle(intvalue(t_argv[1]));
-  
+
   script_camera.x = mo->x;
   script_camera.y = mo->y;
   script_camera.z = mo->z + 41*FRACUNIT;
   script_camera.angle = angle;
   script_camera.updownangle = 0;  // straight forward
-  
+
   camera = &script_camera;
 }
 
@@ -737,13 +737,13 @@ void SF_ClearCamera()
 void SF_StartSound()
 {
   mobj_t *mo;
-  
+
   if(t_argc < 2)
     {
       script_error("insufficient arguments to function\n");
-      return; 
+      return;
     }
-  
+
   if(t_argv[1].type != svt_string)
     {
       script_error("sound lump argument not a string!\n");
@@ -751,7 +751,7 @@ void SF_StartSound()
     }
 
   mo = MobjForSvalue(t_argv[0]);
-  
+
   S_StartSoundName(mo, t_argv[1].value.s);
 }
 
@@ -768,14 +768,14 @@ void SF_StartSectorSound()
 
   tagnum = intvalue(t_argv[0]);
   // argv is sector tag
-  
+
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
-  
+
   sector = &sectors[secnum];
-  
+
   S_StartSoundName((mobj_t *)&sector->soundorg, t_argv[1].value.s);
 }
 
@@ -787,24 +787,24 @@ void SF_FloorHeight()
   sector_t *sector;
   int tagnum;
   int secnum;
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
 
   // argv is sector tag
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
-  
+
   sector = &sectors[secnum];
-  
+
   if(t_argc > 1)          // > 1: set floorheight
     {
       int i = -1;
-      
+
       // set all sectors with tag
       while ((i = P_FindSectorFromTag(tagnum, i)) >= 0)
 	{
@@ -824,24 +824,24 @@ void SF_MoveFloor()
   sector_t *sec;
   floormove_t *floor;
   int tagnum, platspeed = 1, destheight;
-  
+
   if(t_argc < 2)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
   destheight = intvalue(t_argv[1]) * FRACUNIT;
   platspeed = FLOORSPEED * (t_argc > 2 ? intvalue(t_argv[2]) : 1);
-  
+
   // move all sectors with tag
 
   while ((secnum = P_FindSectorFromTag(tagnum, secnum)) >= 0)
     {
       sec = &sectors[secnum];
-      
+
       // Don't start a second thinker on the same floor
       if (P_SectorActive(floor_special,sec))
 	continue;
-      
+
       floor = Z_Malloc(sizeof(floormove_t), PU_LEVSPEC, 0);
       P_AddThinker(&floor->thinker);
       sec->floordata = floor;
@@ -863,20 +863,20 @@ void SF_CeilingHeight()
   sector_t *sector;
   int secnum;
   int tagnum;
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
-  
+
   // argv is sector tag
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
-  
+
   sector = &sectors[secnum];
-  
+
   if(t_argc > 1)          // > 1: set ceilheight
     {
       int i = -1;
@@ -887,7 +887,7 @@ void SF_CeilingHeight()
 	  sectors[i].ceilingheight = intvalue(t_argv[1]) * FRACUNIT;
 	}
     }
-  
+
   // return floorheight
   t_return.type = svt_int;
   t_return.value.i = sector->ceilingheight / FRACUNIT;
@@ -908,29 +908,29 @@ void SF_MoveCeiling()
   platspeed = FLOORSPEED * (t_argc > 2 ? intvalue(t_argv[2]) : 1);
 
   // move all sectors with tag
-  
+
   while ((secnum = P_FindSectorFromTag(tagnum, secnum)) >= 0)
     {
       sec = &sectors[secnum];
-      
+
       // Don't start a second thinker on the same floor
       if (P_SectorActive(ceiling_special,sec))
 	continue;
-      
+
       ceiling = Z_Malloc(sizeof(*ceiling), PU_LEVSPEC, 0);
       P_AddThinker(&ceiling->thinker);
       sec->ceilingdata = ceiling;
       ceiling->thinker.function = T_MoveCeiling;
       ceiling->type = genCeiling;   // not done by line
       ceiling->crush = false;
-      
+
       ceiling->direction =
 	destheight < sec->ceilingheight ? plat_down : plat_up;
       ceiling->sector = sec;
       ceiling->speed = platspeed;
       // just set top and bottomheight the same
       ceiling->topheight = ceiling->bottomheight = destheight;
-      
+
       ceiling->tag = sec->tag;
       P_AddActiveCeiling(ceiling);
     }
@@ -941,31 +941,31 @@ void SF_LightLevel()
   sector_t *sector;
   int secnum;
   int tagnum;
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
-  
+
   // argv is sector tag
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
-  
+
   sector = &sectors[secnum];
-  
+
   if(t_argc > 1)          // > 1: set ceilheight
     {
       int i = -1;
-      
+
       // set all sectors with tag
       while ((i = P_FindSectorFromTag(tagnum, i)) >= 0)
 	{
 	  sectors[i].lightlevel = (short)intvalue(t_argv[1]);
 	}
     }
-  
+
   // return lightlevel
   t_return.type = svt_int;
   t_return.value.i = sector->lightlevel;
@@ -974,14 +974,14 @@ void SF_LightLevel()
 void SF_FadeLight()
 {
   int sectag, destlevel, speed = 1;
-  
+
   if(t_argc < 2)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   sectag = intvalue(t_argv[0]);
   destlevel = intvalue(t_argv[1]);
   speed = t_argc>2 ? intvalue(t_argv[2]) : 1;
-  
+
   P_FadeLight(sectag, destlevel, speed);
 }
 
@@ -990,34 +990,34 @@ void SF_FloorTexture()
   int tagnum, secnum;
   sector_t *sector;
   char floortextname[10];
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
-  
+
   // argv is sector tag
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
-  
+
   sector = &sectors[secnum];
-  
+
   if(t_argc > 1)
     {
       int i = -1;
       int picnum = R_FlatNumForName(t_argv[1].value.s);
-      
+
       // set all sectors with tag
       while ((i = P_FindSectorFromTag(tagnum, i)) >= 0)
 	{
 	  sectors[i].floorpic = picnum;
 	}
     }
-  
+
   strncpy(floortextname, lumpinfo[sector->floorpic + firstflat].name, 8);
-  
+
   t_return.type = svt_string;
   t_return.value.s = Z_Strdup(floortextname, PU_LEVEL, 0);
 }
@@ -1026,25 +1026,25 @@ void SF_SectorColormap()
 {
   int tagnum, secnum;
   sector_t *sector;
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
-  
+
   // argv is sector tag
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
-  
+
   sector = &sectors[secnum];
-  
+
   if(t_argc > 1)
     {
       int i = -1;
       int mapnum = R_ColormapNumForName(t_argv[1].value.s);
-      
+
       // set all sectors with tag
       while ((i = P_FindSectorFromTag(tagnum, i)) >= 0)
 	{
@@ -1059,7 +1059,7 @@ void SF_SectorColormap()
 	    }
 	}
     }
-    
+
   t_return.type = svt_string;
   t_return.value.s = lumpinfo[firstcolormaplump + sector->midmap].name;
 }
@@ -1069,32 +1069,32 @@ void SF_CeilingTexture()
   int tagnum, secnum;
   sector_t *sector;
   char floortextname[10];
-  
+
   if(!t_argc)
     { script_error("insufficient arguments to function\n"); return; }
-  
+
   tagnum = intvalue(t_argv[0]);
-  
+
   // argv is sector tag
   secnum = P_FindSectorFromTag(tagnum, -1);
-  
+
   if(secnum < 0)
     { script_error("sector not found with tagnum %i\n", tagnum); return;}
 
   sector = &sectors[secnum];
-  
+
   if(t_argc > 1)
     {
       int i = -1;
       int picnum = R_FlatNumForName(t_argv[1].value.s);
-      
+
       // set all sectors with tag
       while ((i = P_FindSectorFromTag(tagnum, i)) >= 0)
 	{
 	  sectors[i].ceilingpic = picnum;
 	}
     }
-  
+
   strncpy(floortextname, lumpinfo[sector->ceilingpic + firstflat].name, 8);
 
   t_return.type = svt_string;
@@ -1133,7 +1133,7 @@ void SF_StartSkill()
 {
   int skill;
 
-  if(t_argc < 1) 
+  if(t_argc < 1)
     { script_error("need skill level to start on\n"); return;}
 
   // -1: 1-5 is how we normally see skills
@@ -1155,7 +1155,7 @@ void SF_OpenDoor()
 {
   int speed, wait_time;
   int sectag;
-  
+
   if(t_argc < 1)
     {
       script_error("need sector tag for door to open\n");
@@ -1166,27 +1166,27 @@ void SF_OpenDoor()
   sectag = intvalue(t_argv[0]);
 
   // door wait time
-  
+
   if(t_argc > 1)    // door wait time
     wait_time = (intvalue(t_argv[1]) * 35) / 100;
   else
     wait_time = 0;  // 0= stay open
-  
+
   // door speed
 
   if(t_argc > 2)
     speed = intvalue(t_argv[2]);
   else
     speed = 1;    // 1= normal speed
-  
-  EV_OpenDoor(sectag, speed, wait_time);  
+
+  EV_OpenDoor(sectag, speed, wait_time);
 }
 
 void SF_CloseDoor()
 {
   int speed;
   int sectag;
-  
+
   if(t_argc < 1)
     {
       script_error("need sector tag for door to open\n");
@@ -1202,8 +1202,8 @@ void SF_CloseDoor()
     speed = intvalue(t_argv[1]);
   else
     speed = 1;    // 1= normal speed
-  
-  EV_CloseDoor(sectag, speed);  
+
+  EV_CloseDoor(sectag, speed);
 }
 
 // run console cmd
@@ -1212,7 +1212,7 @@ void SF_RunCommand()
 {
   int i;
   char tempstr[128]="";
-  
+
   for(i=0; i<t_argc; i++)
     sprintf(tempstr, "%s%s", tempstr, stringvalue(t_argv[i]));
 
@@ -1225,16 +1225,16 @@ void SF_RunCommand()
 void SF_LineTrigger()
 {
   line_t junk;
-  
+
   if(!t_argc)
     {
       script_error("need line trigger type\n");
       return;
     }
-  
+
   junk.special = (short)intvalue(t_argv[0]);
   junk.tag = t_argc == 1 ? 0 : (short)intvalue(t_argv[1]);
-  
+
   if (!P_UseSpecialLine(t_trigger, &junk, 0))    // Try using it
     P_CrossSpecialLine(&junk, 0, t_trigger);   // Try crossing it
 }
@@ -1266,14 +1266,14 @@ void init_functions()
   add_game_int("displayplayer", &displayplayer);
   // add_game_int("fov", &fov); FIXME
   add_game_mobj("trigger", &trigger_obj);
-  
+
   // important C-emulating stuff
   new_function("break", SF_Break);
   new_function("continue", SF_Continue);
   new_function("return", SF_Return);
   new_function("goto", SF_Goto);
   new_function("include", SF_Include);
-  
+
   // standard FraggleScript functions
   new_function("print", SF_Print);
   new_function("rnd", SF_Rnd);
@@ -1285,13 +1285,13 @@ void init_functions()
   new_function("scriptwait", SF_ScriptWait);
   new_function("startscript", SF_StartScript);
   new_function("scriptrunning", SF_ScriptRunning);
-  
+
   // doom stuff
   new_function("startskill", SF_StartSkill);
   new_function("exitlevel", SF_ExitLevel);
   new_function("tip", SF_Tip);
   new_function("message", SF_Message);
-  
+
   // player stuff
   new_function("playermsg", SF_PlayerMsg);
   new_function("playertip", SF_PlayerTip);
@@ -1315,7 +1315,7 @@ void init_functions()
   new_function("pushobj", SF_PushThing);
   new_function("objangle", SF_ObjAngle);
   new_function("objhealth", SF_ObjHealth);
-  
+
   // sector stuff
   new_function("floorheight", SF_FloorHeight);
   new_function("floortext", SF_FloorTexture);
@@ -1326,11 +1326,11 @@ void init_functions()
   new_function("lightlevel", SF_LightLevel);
   new_function("fadelight", SF_FadeLight);
   new_function("colormap", SF_SectorColormap);
-	
+
   // cameras!
   new_function("setcamera", SF_SetCamera);
   new_function("clearcamera", SF_ClearCamera);
-  
+
   // trig functions
   new_function("pointtoangle", SF_PointToAngle);
   new_function("pointtodist", SF_PointToDist);
@@ -1339,7 +1339,7 @@ void init_functions()
   new_function("startsound", SF_StartSound);
   new_function("startsectorsound", SF_StartSectorSound);
   new_function("changemusic", SF_ChangeMusic);
-  
+
   // hubs!
   new_function("changehublevel", SF_ChangeHubLevel);
 

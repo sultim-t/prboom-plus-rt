@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -62,7 +62,7 @@
 void P_LowerCase(char *line)
 {
   char *temp;
-  
+
   for(temp=line; *temp; temp++)
     *temp = tolower(*temp);
 }
@@ -70,9 +70,9 @@ void P_LowerCase(char *line)
 void P_StripSpaces(char *line)
 {
   char *temp;
-  
+
   temp = line+strlen(line)-1;
-  
+
   while(*temp == ' ')
     {
       *temp = '\0';
@@ -83,7 +83,7 @@ void P_StripSpaces(char *line)
 static void P_RemoveComments(char *line)
 {
   char *temp = line;
-  
+
   while(*temp)
     {
       if(*temp=='/' && *(temp+1)=='/')
@@ -97,9 +97,9 @@ static void P_RemoveComments(char *line)
 static void P_RemoveEqualses(char *line)
 {
   char *temp;
-  
+
   temp = line;
-  
+
   while(*temp)
     {
       if(*temp == '=')
@@ -169,21 +169,21 @@ void P_ParseLevelVar(const char *_cmd)
   char *equals;
   levelvar_t* current;
   char *cmd = strdup(_cmd);
-  
+
   if(!*cmd) return;
-  
+
   P_RemoveEqualses(cmd);
-  
+
   // right, first find the variable name
-  
+
   sscanf(cmd, "%s", varname);
-  
+
   // find what it equals
   equals = cmd+strlen(varname);
   while(*equals == ' ') equals++; // cut off the leading spaces
-  
+
   current = levelvars;
-  
+
   while(current->type != IVT_END)
     {
       if(!strcasecmp(current->name, varname))
@@ -195,7 +195,7 @@ void P_ParseLevelVar(const char *_cmd)
 	      *(char**)current->variable = Z_Malloc(strlen(equals)+5, PU_LEVEL, NULL);
 	      strcpy(*(char**)current->variable, equals);
 	      break;
-	      
+
 	    case IVT_INT:
 	      *(int*)current->variable = atoi(equals);
                      break;
@@ -216,12 +216,12 @@ void P_ClearLevelVars(void)
   info_creator = "unknown";
   info_interpic = "INTERPIC";
   info_partime = -1;
-  
+
   if(gamemode == commercial && isExMy(levelmapname))
     {
       static char nextlevel[10];
       info_nextlevel = nextlevel;
-      
+
       // set the next episode
       strcpy(nextlevel, levelmapname);
       nextlevel[3] ++;
@@ -230,12 +230,12 @@ void P_ClearLevelVars(void)
 	  nextlevel[3] = '1';
 	  nextlevel[1] ++;
 	}
-      
+
       info_music = levelmapname;
     }
-  else 
+  else
     info_nextlevel = "";
-  
+
   info_weapons = "";
   gravity = FRACUNIT;     // default gravity
 
@@ -268,11 +268,11 @@ void P_ParseScriptLine(const char *line)
 
              // +10 for comfort
   allocsize = strlen(line) + strlen(levelscript.data) + 10;
-  
+
   // realloc the script bigger
   levelscript.data =
     Z_Realloc(levelscript.data, allocsize, PU_LEVEL, 0);
-  
+
   // add the new line to the current data using sprintf (ugh)
   sprintf(levelscript.data, "%s%s\n", levelscript.data, line);
 }
@@ -293,9 +293,9 @@ void P_ParseInterText(const char *line)
   if(info_intertext)
     {
       int textlen = strlen(info_intertext);
-      
+
       // realloc bigger
-      
+
       info_intertext =
 	Z_Realloc(info_intertext,
 		  textlen + strlen(line) + 10,
@@ -303,9 +303,9 @@ void P_ParseInterText(const char *line)
 		  0);
 
       // newline
-      
+
       info_intertext[textlen] = '\n';
-      
+
       // add line to end
       strcpy(info_intertext + textlen + 1, line);
     }
@@ -323,11 +323,11 @@ boolean default_weaponowned[NUMWEAPONS];
 void P_InitWeapons(void)
 {
   char *s;
-  
+
   memset(default_weaponowned, 0, sizeof(default_weaponowned));
-  
+
   s = info_weapons;
-  
+
   while(*s)
     {
       switch(*s)
@@ -369,24 +369,24 @@ unsigned char *levelname;
 void P_FindLevelName(void)
 {
   extern char *gamemapname;
-  
-  // determine the level name        
+
+  // determine the level name
   // there are a number of sources from which it can come from,
   // getting the right one is the tricky bit =)
-  
+
   // if commerical mode, OLO loaded and inside the confines of the
   // new level names added, use the olo level name
-  
+
   if(gamemode == commercial && olo_loaded
      && (gamemap-1 >= olo.levelwarp && gamemap-1 <= olo.lastlevel) )
     levelname = olo.levelname[gamemap-1];
-  
+
         // info level name from level lump (p_info.c) ?
-  
+
   else if(*info_levelname) levelname = info_levelname;
-  
+
         // not a new level or dehacked level names ?
-  
+
   else if(!newlevel || deh_loaded)
     {
       if(isMAPxy(gamemapname))
@@ -400,7 +400,7 @@ void P_FindLevelName(void)
   else        //  otherwise just put "new level"
     {
       static char newlevelstr[50];
-      
+
       sprintf(newlevelstr, "%s: new level", gamemapname);
       levelname = newlevelstr;
     }
@@ -424,7 +424,7 @@ enum
 } readtype;
 
 void P_ParseInfoCmd(const char *line)
-{  
+{
   if(readtype != RT_SCRIPT)       // not for scripts
     {
       //      P_LowerCase(line);
@@ -433,7 +433,7 @@ void P_ParseInfoCmd(const char *line)
       if((line[0] == '/' && line[1] == '/') ||     // comment
 	 line[0] == '#' || line[0] == ';') return;
     }
-  
+
   if(*line == '[')                // a new section seperator
     {
       line++;
@@ -448,7 +448,7 @@ void P_ParseInfoCmd(const char *line)
 	readtype = RT_INTERTEXT;
       return;
     }
-  
+
   switch(readtype)
     {
     case RT_LEVELINFO:
@@ -481,14 +481,14 @@ void P_LoadLevelInfo(int lumpnum)
 {
   const char *lump, *rover;
   char readline[256];
-  
+
   readtype = RT_OTHER;
   P_ClearLevelVars();
 
   rover = lump = W_CacheLumpNum(lumpnum);
-  
+
   readline[0] = '\0';
-  
+
   while(rover < lump+lumpinfo[lumpnum].size)
     {
       if(*rover == '\n') // end of line
@@ -498,22 +498,22 @@ void P_LoadLevelInfo(int lumpnum)
 	}
       else
 	// add to line if valid char
-	
+
 	if(isprint(*rover))
 	  {
 	    // add char
 	    readline[strlen(readline)+1] = '\0';
-	    readline[strlen(readline)] = *rover;	    
+	    readline[strlen(readline)] = *rover;
 	  }
-      
+
       rover++;
     }
-  
+
   // parse last line
   P_ParseInfoCmd(readline);
-  
+
   W_UnlockLumpNum(lumpnum);
-  
+
   P_InitWeapons();
   P_FindLevelName();
 }
