@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.9 2000/09/01 19:37:55 cph Exp $
+ * $Id: i_video.c,v 1.10 2000/09/02 19:25:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.9 2000/09/01 19:37:55 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.10 2000/09/02 19:25:12 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -172,6 +172,15 @@ int I_ScanCode2DoomCode(int c)
 /////////////////////////////////////////////////////////////////////////////////
 // Main input code
 
+/* cph - pulled out common button code logic */
+static int I_SDLtoDoomMouseState(Uint8 buttonstate)
+{
+  return 0
+      | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
+      | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
+      | (buttonstate & SDL_BUTTON(3) ? 4 : 0);
+}
+
 static void I_GetEvent(SDL_Event *Event)
 {
   event_t event;
@@ -194,19 +203,16 @@ static void I_GetEvent(SDL_Event *Event)
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
   if (usemouse)
-  { Uint8 buttonstate;
-    buttonstate = SDL_GetMouseState(NULL, NULL);
+  {
     event.type = ev_mouse;
-    event.data1 = 0
-      | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
-      | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
-      | (buttonstate & SDL_BUTTON(3) ? 4 : 0);
+    event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
     event.data2 = event.data3 = 0;
     D_PostEvent(&event);
   }
   break;
 
   case SDL_MOUSEMOTION:
+#ifndef POLL_MOUSE
   /* Ignore mouse warp events */
   if (usemouse &&
       ((Event->motion.x != screen->w/2)||(Event->motion.y != screen->h/2)))
@@ -220,15 +226,45 @@ static void I_GetEvent(SDL_Event *Event)
         SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
     }
     event.type = ev_mouse;
-    event.data1 = 0
-      | (Event->motion.state & SDL_BUTTON(1) ? 1 : 0)
-      | (Event->motion.state & SDL_BUTTON(2) ? 2 : 0)
-      | (Event->motion.state & SDL_BUTTON(3) ? 4 : 0);
+    event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
     event.data2 = Event->motion.xrel << 5;
     event.data3 = -Event->motion.yrel << 5;
     D_PostEvent(&event);
   }
+#else
+  /* cph - under X11 fullscreen, SDL's MOUSEMOTION events are just too
+   *  unreliable. Deja vu, I had similar trouble in the early LxDoom days
+   *  with X11 mouse motion events. Except SDL makes it worse, because
+   *  it feeds SDL_WarpMouse events back to us. */
+  if (usemouse) {
+    static int px,py;
+    static int was_grabbed;
+    int x,y,dx,dy;
+    Uint8 buttonstate = SDL_GetMouseState(&x,&y);
+    if (was_grabbed) { /* Previous position saved */
+      dx = x - px; dy = y - py;
+      if (!(dx | dy)) break; /* No motion, not interesting */
+      event.type = ev_mouse;
+      event.data1 = I_SDLtoDoomMouseState(buttonstate);
+      event.data2 = dx << 5; event.data3 = -dy << 5;
+      D_PostEvent(&event);
+    }
+    /* Warp the mouse back to the center */
+    was_grabbed = 0;
+    if (grabMouse && !(paused || (gamestate != GS_LEVEL) || demoplayback)) {
+      if ( (x < (screen->w/4)) ||
+           (x > (3*screen->w/4)) ||
+           (y < (screen->h/4)) ||
+           (y > (3*screen->h/4)) ) {
+        SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
+      } else {
+        px = x; py = y; was_grabbed = 1;
+      }
+    }
+  }
+#endif
   break;
+
 
   case SDL_QUIT:
     S_StartSound(NULL, sfx_swtchn);
@@ -356,11 +392,6 @@ static void I_UploadNewPalette(int pal)
 
 void I_ShutdownGraphics(void)
 {
-  fprintf(stderr, "I_ShutdownGraphics : ");
-
-  // Free internal structures
-  I_EndImageTranslation();
-  fprintf(stderr, "\n");
 }
 
 //
@@ -457,7 +488,6 @@ void I_SetRes(unsigned int width, unsigned int height)
 void I_InitGraphics(void)
 {
   int           w, h;
-  int		n;
   Uint32        init_flags;
   char titlebuffer[2048];
   
