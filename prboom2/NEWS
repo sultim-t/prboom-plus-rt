@@ -12,6 +12,7 @@ Changes from v2.2.3 to v2.2.4
 - fixed extra shot sound when chaingun runs out of ammo
 - fix some telefragging related desyncs
 - fixed offsets for flipped sprites
+- hopefully fix problems with network games on big-endian platforms
 
 Changes from v2.2.2 to v2.2.3
 - improved mouse handling

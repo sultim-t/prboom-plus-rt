@@ -253,20 +253,21 @@ void NetUpdate(void)
   {
     byte *p = (void*)(packet+1);
     int tics = *p++;
-    if (packet->tic > (unsigned)remotetic) { // Missed some
+    unsigned long ptic = doom_ntohl(packet->tic);
+    if (ptic > (unsigned)remotetic) { // Missed some
       packet->type = PKT_RETRANS;
-      packet->tic = remotetic;
+      packet->tic = doom_htonl(remotetic);
       *(byte*)(packet+1) = consoleplayer;
       I_SendPacket(packet, sizeof(*packet)+1);
     } else {
-      if (packet->tic + tics <= (unsigned)remotetic) break; // Will not improve things
-      remotetic = packet->tic;
+      if (ptic + tics <= (unsigned)remotetic) break; // Will not improve things
+      remotetic = ptic;
       while (tics--) {
         int players = *p++;
         while (players--) {
-    int n = *p++;
-    RawToTic(&netcmds[n][remotetic%BACKUPTICS], p);
-    p += sizeof(ticcmd_t);
+            int n = *p++;
+            RawToTic(&netcmds[n][remotetic%BACKUPTICS], p);
+            p += sizeof(ticcmd_t);
         }
         remotetic++;
       }
@@ -274,8 +275,8 @@ void NetUpdate(void)
   }
   break;
       case PKT_RETRANS: // Resend request
-  remotesend = packet->tic;
-  break;
+          remotesend = doom_ntohl(packet->tic);
+          break;
       case PKT_DOWN: // Server downed
   {
     int j;
@@ -319,7 +320,7 @@ void NetUpdate(void)
   size_t pkt_size = sizeof(packet_header_t) + 2 + sendtics * sizeof(ticcmd_t);
   packet_header_t *packet = Z_Malloc(pkt_size, PU_STATIC, NULL);
 
-  packet->tic = maketic - sendtics;
+  packet->tic = doom_htonl(maketic - sendtics);
   packet->type = PKT_TICC;
   *(byte*)(packet+1) = sendtics;
   *(((byte*)(packet+1))+1) = consoleplayer;
@@ -362,7 +363,7 @@ void D_NetSendMisc(netmisctype_t type, size_t len, void* data)
     packet_header_t *packet = Z_Malloc(size, PU_STATIC, NULL);
     int *p = (void*)(packet+1);
 
-    packet->tic = gametic;
+    packet->tic = doom_htonl(gametic);
     packet->type = PKT_EXTRA;
     *p++ = LONG(type); *p++ = LONG(consoleplayer); *p++ = LONG(len);
     memcpy(p, data, len);
@@ -376,7 +377,7 @@ static void CheckQueuedPackets(void)
 {
   int i;
   for (i=0; (unsigned)i<numqueuedpackets; i++)
-    if (queuedpacket[i]->tic <= (unsigned)gametic)
+    if (doom_ntohl(queuedpacket[i]->tic) <= (unsigned)gametic)
       switch (queuedpacket[i]->type) {
       case PKT_QUIT: // Player quit the game
   {
@@ -412,7 +413,7 @@ static void CheckQueuedPackets(void)
     packet_header_t **newqueue = NULL;
 
     for (i=0; (unsigned)i<numqueuedpackets; i++)
-      if (queuedpacket[i]->tic > (unsigned)gametic) {
+      if (doom_ntohl(queuedpacket[i]->tic) > (unsigned)gametic) {
   newqueue = Z_Realloc(newqueue, ++newnum * sizeof *newqueue,
            PU_STATIC, NULL);
   newqueue[newnum-1] = queuedpacket[i];
@@ -472,7 +473,7 @@ void D_QuitNetGame (void)
 
   if (!server) return;
   buf[sizeof(packet_header_t)] = consoleplayer;
-  packet->type = PKT_QUIT; packet->tic = gametic;
+  packet->type = PKT_QUIT; packet->tic = doom_htonl(gametic);
 
   for (i=0; i<4; i++) {
     I_SendPacket(packet, 1 + sizeof(packet_header_t));

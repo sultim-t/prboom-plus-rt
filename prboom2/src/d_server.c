@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-//#include <sys/time.h>
 #include <limits.h>
 #include <string.h>
 #ifdef HAVE_UNISTD_H
@@ -44,13 +43,12 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
-//#include <sys/socket.h>
-//#include <netinet/in.h>
 
 #include "doomtype.h"
 #include "protocol.h"
 #include "i_network.h"
 #include "i_system.h"
+#include "m_swap.h"
 
 #ifndef HAVE_GETOPT
 /* The following code for getopt is from the libc-source of FreeBSD,
@@ -265,6 +263,11 @@ static void I_InitSockets(Uint16 port)
 }
 #endif
 
+long int ptic(packet_header_t* p)
+{
+    return doom_ntohl(p->tic);
+}
+
 int main(int argc, char** argv)
 {
   int localport = 5030, numplayers = 2, xtratics = 0, ticdup = 1;
@@ -456,35 +459,35 @@ int main(int argc, char** argv)
         int from = *(((byte*)(packet+1))+1);
 
         if (verbose>2)
-    printf("tics %d - %d from %d\n", packet->tic, packet->tic + tics - 1, from);
-        if (packet->tic > remoteticfrom[from]) {
-    // Missed tics, so request a resend
-    packet->tic = remoteticfrom[from];
-    packet->type = PKT_RETRANS;
-    I_SendPacketTo(packet, sizeof *packet, remoteaddr+from);
+            printf("tics %d - %d from %d\n", ptic(packet), ptic(packet) + tics - 1, from);
+        if (ptic(packet) > remoteticfrom[from]) {
+            // Missed tics, so request a resend
+            packet->tic = doom_htonl(remoteticfrom[from]);
+            packet->type = PKT_RETRANS;
+            I_SendPacketTo(packet, sizeof *packet, remoteaddr+from);
         } else {
-    ticcmd_t *newtic = (void*)(((byte*)(packet+1))+2);
-    if (packet->tic + tics < remoteticfrom[from]) break; // Won't help
-    remoteticfrom[from] = packet->tic;
-    while (tics--)
-      netcmds[from][remoteticfrom[from]++%BACKUPTICS] =  *newtic++;
+            ticcmd_t *newtic = (void*)(((byte*)(packet+1))+2);
+            if (ptic(packet) + tics < remoteticfrom[from]) break; // Won't help
+            remoteticfrom[from] = ptic(packet);
+            while (tics--)
+              netcmds[from][remoteticfrom[from]++%BACKUPTICS] =  *newtic++;
         }
       }
       break;
     case PKT_RETRANS:
       {
         int from = *(byte*)(packet+1);
-        if (verbose>2) printf("%d requests resend from %d\n", from, packet->tic);
-        remoteticto[from] = packet->tic;
+        if (verbose>2) printf("%d requests resend from %d\n", from, ptic(packet));
+        remoteticto[from] = ptic(packet);
       }
       break;
     case PKT_QUIT:
       {
         int from = *(byte*)(packet+1);
 
-        if (verbose>2) printf("%d quits at %d\n", from, packet->tic);
+        if (verbose>2) printf("%d quits at %d\n", from, ptic(packet));
         if (playerleftgame[from] == INT_MAX) { // In the game
-    playerleftgame[from] = packet->tic;
+    playerleftgame[from] = ptic(packet);
     if (ingame && !--curplayers) exit(0); // All players have exited
         }
       }
@@ -555,7 +558,7 @@ int main(int argc, char** argv)
         packet_header_t *packet = malloc(sizeof(packet_header_t) + 1 +
          tics * (1 + numplayers * (1 + sizeof(ticcmd_t))));
         byte *p = (void*)(packet+1);
-        packet->type = PKT_TICS; packet->tic = remoteticto[i] - xtratics;
+        packet->type = PKT_TICS; packet->tic = doom_htonl(remoteticto[i] - xtratics);
         *p++ = tics;
         if (verbose>1) printf("sending %d tics to %d\n", tics, i);
         while (tics--) {
