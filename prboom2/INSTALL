@@ -62,7 +62,10 @@ to build an RPM containing the PrBoom binaries rather than installing them
 directly. Follow steps 1 and 2 above, then run a "make rpm". This performs 
 the usual proceedure for building the rpm in /usr/src/redhat/. Note that
 the RPM sets its own parameters to ./configure; if you want to override 
-them you'll have to edit the build scripts yourself.
+them you'll have to edit the build scripts yourself. Note that to get the
+correct permissions, you either have to run this process as root, or use the
+wrapper program fakeroot (version 0.4.5 or later - grab it from the Debian
+source archive) and make sure you have permissions to the RPM build area.
 
 Installation Details
 ====================
