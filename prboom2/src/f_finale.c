@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: f_finale.c,v 1.6 2001/02/18 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: f_finale.c,v 1.6 2001/02/18 15:56:19 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -596,7 +596,6 @@ static void F_BunnyScroll (void)
   int         stage;
   static int  laststage;
 
-  V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
   {
     int scrolled = 320 - (finalecount-230)/2;
     if (scrolled <= 0) {

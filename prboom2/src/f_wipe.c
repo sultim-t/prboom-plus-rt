@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: f_wipe.c,v 1.6 2001/02/18 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.6 2001/02/18 15:56:19 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -181,7 +181,7 @@ int wipe_ScreenWipe(int x, int y, int width, int height, int ticks)
       wipe_scr = screens[0];
       wipe_initMelt(width, height, ticks);
     }
-  V_MarkRect(0, 0, width, height);                 // do a piece of wipe-in
+  // do a piece of wipe-in
   if (wipe_doMelt(width, height, ticks))     // final stuff
     {
       wipe_exitMelt(width, height, ticks);

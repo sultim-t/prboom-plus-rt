@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.11 2000/11/19 20:24:10 proff_fs Exp $
+ * $Id: am_map.c,v 1.12 2001/02/18 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.11 2000/11/19 20:24:10 proff_fs Exp $";
+  "$Id: am_map.c,v 1.12 2001/02/18 15:56:19 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1711,6 +1711,4 @@ void AM_Drawer (void)
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
 
   AM_drawMarks();
-
-  V_MarkRect(f_x, f_y, f_w, f_h);
 }
