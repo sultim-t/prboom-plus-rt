@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.6 2002/02/11 19:20:42 proff_fs Exp $
+ * $Id: c_runcmd.c,v 1.7 2002/11/17 18:14:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.6 2002/02/11 19:20:42 proff_fs Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.7 2002/11/17 18:14:24 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1147,24 +1147,50 @@ void C_RunScriptFromFile(char *filename)
   }
 }
 
+//---------------------------------------------------------------------------
+// Added sorting commands on file write - POPE
+//---------------------------------------------------------------------------
+int compareCommands(const void *p0, const void *p1) {
+  command_t *c0 = *(command_t**)p0;
+  command_t *c1 = *(command_t**)p1;
+  return strcmp(c0->name, c1->name);  
+}
+
+//---------------------------------------------------------------------------
 /* cph - split console variable saving code to here */
 void C_WriteVariables(FILE *file)
 {
-  int i;
+  int i, numCommands = 0, c = 0;
   command_t *cmd;
+  command_t **sortedCommands;
 
-  for(i=0; i<CMDCHAINS; i++)
-  {
-    for(cmd = cmdroots[i]; cmd; cmd = cmd->next)
-	  {
-	    if(cmd->type != ct_variable)    // only write variables
-	      continue;
-	    if(cmd->flags & cf_nosave)      // do not save if cf_nosave set
-	      continue;
-	    
-	    fprintf(file, "%s \"%s\"\n", cmd->name,
-		    C_VariableValue(cmd->variable));
-	  }
+  // count number of commands 
+  for (i=0; i<CMDCHAINS; i++) {
+    for (cmd = cmdroots[i]; cmd; cmd = cmd->next) numCommands++;
   }
+  
+  // put em into a single array
+  sortedCommands = (command_t**)malloc(sizeof(command_t*)*numCommands);
+  c = 0;
+  for (i=0; i<CMDCHAINS; i++) {
+    for (cmd = cmdroots[i]; cmd; cmd = cmd->next) sortedCommands[c++] = cmd;
+  }
+  
+  // sort it
+  qsort(sortedCommands, numCommands, sizeof(command_t*), compareCommands);
+    
+  // write em out
+  for (c=0; c<numCommands; c++) {
+    cmd = sortedCommands[c];
+
+    // only write variables
+    if (cmd->type != ct_variable) continue;
+    // do not save if cf_nosave set
+    if (cmd->flags & cf_nosave) continue;
+
+    fprintf(file, "%s \"%s\"\n", cmd->name, C_VariableValue(cmd->variable));
+  }
+  
+  free(sortedCommands);
 }
 
