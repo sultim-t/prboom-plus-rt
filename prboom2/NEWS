@@ -3,6 +3,8 @@ For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
 Changes from v2.3.0 to v2.3.1
+- network console variables are exchanged now
+- waiting for network can be aborted on windows
 - several keys didn't work in demo playback
 - fixed levelname and other widgets on automap
 - load opengl library only once to prevent error on mode switching
