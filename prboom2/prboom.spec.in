@@ -1,18 +1,21 @@
 %define doomprefix /usr
 %define version @VERSION@
 %define doomname @PACKAGE@
-%define doomrelease 0
+%define doomrelease 1
 
 Name: %{doomname}
 Summary: Doom - classic 3D shoot-em-up game
 Version: %{version}
 Release: %{doomrelease}
 Source: ftp://download.sourceforge.net//prboom//@PACKAGE@-@VERSION@.tar.gz
-URL: http://prboom.sourceforge.net//
+URL: http://prboom.sourceforge.net/
 Group: Amusements/Games
 BuildRoot: /var/tmp/%{doomname}-buildroot
 Copyright: GPL
+Packager: cphipps@doomworld.com
 Prefix: %{doomprefix}
+Autoreq: 0
+Requires: libSDL-1.2.so.0, libSDL_mixer-1.2.so.0, libSDL_net-1.2.so.0, libm.so.6, libc.so.6
 
 %description
 Doom is the classic 3D shoot-em-up game. It must have been one of the best
