@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.5 2001/07/03 12:17:03 proff_fs Exp $
+ * $Id: config.h,v 1.6 2001/07/06 09:35:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -51,24 +51,26 @@
 /* This is in the project settings */
 /* #define I386_ASM 1 */
 
+#ifdef _DEBUG
+
 /* Define to enable internal range checking */
-/* #undef RANGECHECK */
+#define RANGECHECK 1
 
 /* Define this to see real-time memory allocation
  * statistics, and enable extra debugging features 
  */
-/* #undef INSTRUMENTED */
+#define INSTRUMENTED 1
 
 /* Uncomment this to exhaustively run memory checks
  * while the game is running (this is EXTREMELY slow).
  * Only useful if INSTRUMENTED is also defined.
  */
-/* #undef CHECKHEAP */
+#define CHECKHEAP 1
 
 /* Uncomment this to cause heap dumps to be generated.
  * Only useful if INSTRUMENTED is also defined.
  */
-/* #undef HEAPDUMP */
+#define HEAPDUMP 1
 
 /* Uncomment this to perform id checks on zone blocks,
  * to detect corrupted and illegally freed blocks
@@ -82,7 +84,9 @@
 
 /* Defining this causes time stamps to be created each time a lump is locked, and 
  *  lumps locked for long periods of time are reported */
-/* #undef TIMEDIAG */
+#define TIMEDIAG 1
+
+#endif // _DEBUG
 
 /* Define to be the path where Doom WADs are stored */
 #define DOOMWADDIR "/usr/local/share/games/doom"
