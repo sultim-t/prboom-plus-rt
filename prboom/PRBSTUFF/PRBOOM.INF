@@ -1,0 +1,61 @@
+[Version]
+signature="$chicago$"
+
+[DefaultInstall]
+CopyFiles=INF_File
+AddReg=Registry,Registry_Uninstall
+UpdateInis=Symbols_Create
+
+[DefaultInstall.ntx86] 
+CopyFiles=INF_File
+AddReg=Registry,Registry_Uninstall_NT
+UpdateInis=Symbols_Create
+
+[DefaultUninstall]
+DelFiles=INF_File
+DelReg=Registry,Registry_Uninstall
+UpdateInis=Symbols_Remove
+
+[INF_File]
+prboom.inf
+
+[DestinationDirs]
+INF_File=17
+
+[SourceDisksNames]
+1="%01%",,1
+
+[Registry]
+HKLM,"%Reg_Path_Run%","Registering 'DOOM Options File' (.rsp)",,
+HKCR,".rsp",,,"rspfile"
+HKCR,"rspfile",,,"DOOM Options File"
+HKCR,"rspfile\Shell\Open",,,"&Open"
+HKCR,"rspfile\Shell\Open\command",,,"%01%\prboom.exe ""@%1"" -condump"
+HKCR,"rspfile\Shell\Edit",,,"&Edit"
+HKCR,"rspfile\Shell\Edit\command",,,"%10%\NOTEPAD.EXE ""%1"""
+HKCR,"rspfile\DefaultIcon",,,"%01%\prboom.exe,0"
+HKLM,"%Reg_Path_Run%","Viewing README.TXT",,"%10%\notepad.exe %01%\txts\readme.txt"
+
+[Registry_Uninstall]
+HKLM,%UnInstallPath%,DisplayName,,"PrBoom - the Win32 port of Boom"
+HKLM,%UnInstallPath%,UninstallString,,"%10%\rundll.exe setupx.dll,InstallHinfSection DefaultUninstall 132 %17%\prboom.inf"
+
+[Registry_Uninstall_NT] 
+HKLM,%UnInstallPath%,DisplayName,,"PrBoom - the Win32 port of Boom"
+HKLM,%UnInstallPath%,UninstallString,,"%11%\rundll32.exe setupapi.dll,InstallHinfSection DefaultUninstall 132 %17%\prboom.inf"
+
+[Symbols_Create]
+setup.ini, progman.groups,, "group1=PrBoom - the Win32 port of Boom"
+setup.ini, group1,,""PrBoom","%01%\prboom.exe""
+setup.ini, group1,,""Readme.txt","%01%\txts\readme.txt""
+setup.ini, group1,,""Whatsnew.txt","%01%\txts\Whatsnew.txt""
+
+[Symbols_Remove]
+setup.ini, progman.groups,, "group1=PrBoom - the Win32 port of Boom"
+setup.ini, group1,,""PrBoom""
+setup.ini, group1,,""Readme.txt""
+setup.ini, group1,,""Whatsnew.txt""
+
+[Strings]
+Reg_Path_Run="Software\Microsoft\Windows\CurrentVersion\RunOnce\Setup"
+UnInstallPath="Software\Microsoft\Windows\CurrentVersion\Uninstall\TeamTNT - PrBoom"

@@ -1,0 +1,1469 @@
+10/12/98
+
+Rand's seg adjust proved to be the better after measuring, so
+my experiment was removed in favor of his code. 
+
+Fixed a calculation in the blockmap that now allows zero guardband
+around level, hence slightly smaller blockmaps.
+
+10/8/98
+
+Replaced brute force internal blockmap calculation with one much
+faster. Difference on a 64K blockmap is 5 sec vs 32 sec.
+
+Wrote a slightly different implementation of the seg adjustment
+idea of Rand's that uses a bit more accurate arithmetic and
+provably flattens all vertices to the line they came from. Rand's
+code is more elegant, but I believe this is slightly better.
+
+9/23/98
+
+Fixed a bug that didn't allow trailing backslashes in parameters for
+the -save option.
+
+9/12/98
+
+DETH can now be put in the path and work anywhere. The DETH.INI in
+the local directory is still required - but can now load the pwads,
+so typing DETH in a directory can open the wad developed there
+automatically (along with any resource wads it requires). This makes
+creating shortcuts to wad sessions far simpler - just set the working
+directory on a shortcut to DETH.EXE, and set the mode to full screen.
+
+CMAPTOOL now generates a BMP consisting of an array of squares of
+color not a spectrum of vertical lines, making editing the palette by
+hand easier. It also supports +V and -V for only modifying the invuln
+colormap or not modifying the invuln colormap.
+
+9/11/98
+
+Thanks to Rand's analysis of the underwater fireball medusa problem
+-- tracking it down to there being far more sprites active than there
+should have been, was able to trace the problem to a mistaken
+parameter to R_AddSprites in R_Subsector in R_BSP. The temporary
+sector used to fake the heights underwater was being passed and
+validcount was not working to stop the sprites from being added
+once per subsector instead of once per sector.
+
+Fixed a bug in R_SEG's R_PointToDist that allowed division by zero if
+the player was exactly on a vertex, and the node builder worked a
+certain way, causing segviol on startup. Fixed the sole call to it to
+avoid doing so when division by zero would result.
+
+9/8/98
+
+Removed 1S wall escape. Was causing problems when the player was
+moved by monster attacks and was not sufficient to solve line-line
+teleporter problem.
+
+9/6/98
+
+Added a logical console output routine that all console output is directed
+thru. Each physical output is tagged with by a class identifer from:
+
+LO_INFO      informational header - no new information present
+LO_CONFIRM   informational - but outputs information that confirms a setting
+LO_WARN      an error, but not too serious - execution continues
+LO_ERROR     an error, may be serious enough to abort - execution continues
+LO_FATAL     an error, BOOM will exit
+LO_DEBUG     used for outputs that are for debugging
+LO_ALWAYS    used to tag outputs that should always be shown, like build date
+
+Which outputs are allowed to pass to standard output, and which are
+sent to the console when standard output is redirected is
+controllable by two masks. These masks can be set by command line
+switches -cout and -cerr, each followed by a string of letters from
+ICWEFDA to indicate which classes pass to output and error console
+resp.
+
+Added files LPRINTF.C and LPRINTF.H. Modified G_GAME.C, HU_STUFF.C,
+AM_MAP.C, D_DEH.C, D_NET.C, I_SOUND.C, I_SYSTEM.C, M_MENU.C,
+MMUS2MID.C, I_MAIN.C, S_SOUND.C, W_WAD.C, WI_STUFF.C, R_MAIN.C,
+R_DATA.C, M_MISC.C, D_MAIN.C, MAKEFILE.
+
+Modified BOOM.TXT to change "No Limits" to "No Static Limits".
+
+8/28/98
+
+Added right shift to "into/outof wall" calculation to avoid overflow
+in FixedMul. This was causing 1S walls to be walkable thru on
+occasion. Also added compatibility flag to change. All in P_MAP.C.
+
+8/14/98
+
+Restricted escape from 1S walls to players until I can figure out
+why it allows monsters to embed themselves in walls while walking around.
+
+Fixed IDCLEV to not accept 33 or 34 in DOOM2. Leads to crash if
+allowed. Affected M_CHEAT.C
+
+Fixed "Raise to shortest texture linedefs". Now the regular linedef
+triggers raise to actual texture height, not min(64,textureheight)
+unless compatibility mode is set. Generalized linedefs always raise
+to actual texture height now. Problem was caused by missing textures
+being represented by texture 0, AASHITTY, which had height 64.
+Affects P_SPEC.C and P_FLOOR.C.
+
+8/13/98
+
+Fixed tendency of monsters to get stuck in doorways, flagged by
+compatibility global. P_ENEMY.C affected.
+
+8/9/98
+
+Imported ZDoom's fix to the openings limit removal to R_SEGS.C
+
+8/8/98
+
+Changed behavior of being stuck in a 1S wall so that motion out of
+the wall is still allowed. This "fixes" the line-line teleport problem
+and the DM start embedding problem. P_MAP.C affected.
+
+Added the Flicker special to P_SAVEG, where it was left out when
+the special was added to DOOM II. P_SAVEG.C and P_SPEC.H affected.
+
+Added better initialization of scrolling message display to
+HU_STUFF.C
+
+8/7/98
+
+Fixed update of HUD so it occurs on every refresh to avoid problems
+caused by lag on slower systems. HU_STUFF.C affected
+
+7/14/98
+
+Corrected padding size in G_GAME.C to allow for 128 bytes in v200
+demos and 64 bytes in v201 and later demos.
+
+Fixed EV_BuildStairs routine in p_floor.c to use the buggy code order
+in compatibility mode, and the new order otherwise. This fixes some
+problems with existing wads that depended on the old buggy order.
+
+Fixed the comment for MIDItoMidi in MMUS2MID.C
+
+6/19/98
+
+Fixed rising stairs so that the step height does not increase twice
+as much when redirected by a moving step.
+
+6/3/98
+
+Fixed misspelling in chat string variable in M_MISC.C.
+
+6/1/98
+
+Fixed bug in switches caused by inadvertant deletion of sidedness
+check, in P_SWITCH.C
+
+5/24/98
+
+Added documentation on predefined lumps to BOOMREF.TXT
+
+5/23/98
+
+Fixed a bug in the numeric model texture changers where the loop
+variable was being modified in the loop thru adjacent sectors. This
+could cause crashes and missed changes.
+
+5/20/98
+
+Removed conditional from net testing code to make sources completely
+done outside bugs discovered after this. D_NET.C, D_NET.H, M_MISC.C.
+
+5/17/98
+
+Fixed a bug in lights to max neighbor that would cause it to set all
+tagged sectors to the maximum lighting near the first sector
+searched.
+
+5/16/98
+
+Added temporary config variable, "oldnetcode" to M_MISC.C to select
+between Lee and Stan's version of net code so both can be tested at
+once. Removed LEESFIXES from makefile. Formatted D_NET.C and I_NET.C.
+
+Fixed "may change without notice" paragraph about generalized
+linedefs in BOOMREF.TXT.
+
+5/12/98
+
+Finished source formatting/documenting for:
+
+p_floor.c      am_map.h      hu_lib.c
+p_switch.c     am_map.c      hu_lib.h
+p_genlin.c                   hu_stuff.c
+p_plats.c      mmus2mid.c    hu_stuff.h
+p_ceilng.c     mmus2mid.h    st_lib.c
+p_doors.c                    st_lib.h
+p_lights.c     
+         
+Moved wind/thing controller from 4001/2 to 5001/2 and made
+corresponding change to documentation and utilties.
+
+Added new ENDBOOM with new URL, and made change in text files.
+
+Fixed a bug of uninitialized delay in generalized close/delay/open
+doors affecting P_DOORS.C.
+
+Fixed a possible crash due to dereferencing a sector backside that
+didn't exist in stair building in P_FLOOR.C.
+
+Fixed an error in donuts allowing an already active pool to have
+another thinker started on it in P_FLOOR.C.
+
+Added Rich Nagel's DIGMID instructions to SNDDRVR.TXT
+
+5/3/98
+
+Formatted P_SPEC.C and P_SPEC.H. Fixed a bug in getNextSector that
+returned the same sector as passed when a line referenced to that
+sector on both sides existed.
+
+4/29/98
+
+Added new ENDBOOM lump by Ty to INFO.C
+
+4/28/98
+
+Fixed bug in message review display that caused overwritten characters
+and incomplete erasure of lines when screen not fullsize.
+
+Files affected: HU_LIB.H HU_LIB.C HU_STUFF.C 
+
+4/26/98
+
+Fixed bug in status bar display when New Game started after a DM demo
+in which spy mode had been used. G_GAME.C affected.
+
+Re-re-removed IDK cheat from ST_STUFF.C as it was causing a compiler
+error and no justification had been made for it.
+
+4/25/98
+
+Fixed bug Ty spotted in WI_STUFF.C that was preventing animated
+backgrounds in non-DOOM II versions.
+
+4/24/98
+
+Added DOOM support to MUSPUT.EXE.
+
+Fixed a bug in secret exits for non-commercial games. The wolf level
+check was incorrectly being applied to them, and was preventing their
+use.
+
+Files affected G_GAME.C
+
+Fix a bug in the sprite loading that caused the presence of an A0
+lump to clear the rotate flag on the sprite definition, even when
+it wasn't used because the rotations were already defined.
+
+Files affected R_THINGS.C
+
+Make the text color translation tables predefined lumps to support palette
+changes in TCs better.
+
+Files affected: V_VIDEO.C V_VIDEO.H INFO.C D_MAIN.C 
+
+4/23/98
+
+Add exit color line to automap, default not shown. Affects M_MENU.C,
+M_MISC.C, AM_MAP.C
+
+Add endian macros, SHORT, LONG to BMP screenshot routine in M_MISC.C
+
+4/22/98
+
+Fixed a lockout problem in HU_STUFF.C, when the Setup changed the
+number of messages to 1 when the message review was displayed. This
+would prevent any messages from being displayed. Now if hud_msg_lines
+is 1 or less, message_list is cleared to false, preventing this.
+
+4/21/98
+
+Added "-dumplumps file" switch to BOOM command line that writes the
+predefined lumps out as a wad, where authors can extract them to
+lumps for modification or understanding them enough to replace them
+
+File affected: INFO.H INFO.C D_MAIN.C BOOM.TXT
+
+4/20/98
+
+BOOM.TXT updated for -iwad parameter changes.
+
+Fixed printout of IWAD found: with blank string when IWAD not found.
+
+Files affected: D_MAIN.C
+
+Added two digit printout to support v2.01 rather than v2.1 when
+version was 201 in VERSION.H
+
+Files affected: D_MAIN.C
+
+Upped BOOM version to 201 in VERSION.H
+
+4/19/98
+
+Rewrote the IWAD search to be more flexible and to eliminate some
+bugs still present in it. The -iwad parm on the command line can now
+be one of three things. The full pathname of the IWAD (.WAD optional), the
+directory in which a standard IWAD is to be found, or the filename of a
+standard or custom IWAD that is to be loaded (.WAD optional). The
+environment variables DOOMWADDIR and HOME can also now specify a full
+IWAD pathname if desired. If a filename for a custom or standard IWAD
+is specified thru -iwad, then it replaces any filename in DOOMWADDIR
+or HOME during the search. Examples:
+
+BOOM 
+Searches current dir, exe dir, DOOMWADDIR dir or path, HOME dir or path
+for a standard iwad or one fully specified in DOOMWADDIR or HOME
+
+BOOM -iwad doom
+Tries to locate doom.wad in current dir, exe dir, DOOMWADDIR dir or HOME dir
+
+BOOM -iwad c:\doom2
+Looks for any standard iwad in c:\doom2, reports not found if none
+
+BOOM -iwad c:\doom_se\doom
+Reports not found unless c:\doom_se\doom.wad exists
+
+Once the IWAD file is located it is checked for an IWAD tag in the
+header, and the retail, registered, shareware, or commercial nature
+of the IWAD is determined from which levels are present. All levels
+corresponding to the mode must be present for detection, though the
+search allows Map31 and Map32 to be missing in the commercial version
+for the german edition. The french language version is detected from
+the IWAD filename doom2f.wad.
+
+4/16/98
+
+Updated BOOM.TXT, BOOMDEH.TXT
+
+Updated DOOM17.DAT with new teleporters
+
+Added release ENDBOOM to INFO.C
+
+Fixed leak in IdentifyVersion in D_MAIN.C
+
+Removed call to AM_clearMarks in AM_levelInit, and put it in
+G_InitNew, so that it is not cleared on map_key press whenever the
+level has changed, even if the save loaded contains marks.
+
+4/14/98
+
+Added 8 teleport types to P_SPEC.H and P_SPEC.C. Monster only silent
+variants and line-line reversing teleports. The reversing teleports
+have problems, but the regular ones share them.
+
+4/12/98
+
+Cleared markpointnum in G_DoWorldDone to avoid carrying over marks
+from one level to the next.
+
+4/11/98
+
+Fixed IDMUS00 to not crash
+
+4/10/98
+
+Fixed string/int check in M_MISC.C by adding a field to the default
+structure to specify this, rather than relying on the default value's
+size to determine which.
+
+4/7/98
+
+Skipped MF_NOBLOCKMAP things in P_CheckSector, as the original
+routine didn't see these - they weren't in the blocklinks lists. This
+brings the bullet puffs back in Map06.
+
+Fixed elevators so if floor or ceiling is blocked, other doesn't move
+
+4/6/98
+
+Removed conditional LEESFIXES from P_SPEC.C and P_MAP.C
+
+Fixed background color of automap to default to 247, not 0
+
+4/5/98
+
+Fixed failure of crushers to change switch on second activation in
+P_CEILNG.C P_GENLIN.C and P_SPEC.H
+
+Added STCFN096(`) as predefined lump in INFO.C , enabled it in HU_STUFF.C
+
+Changed P_CheckSector to always call P_ChangeSector until segviol
+problem understood
+
+4/3/98
+
+Switched automap back to disabling features on color 0, not -1 in
+AM_MAP.C
+
+Added generalized keyed doors to automap display
+
+Fixed lower ranges for automap in M_MISC.C
+
+Removed upper limits on mouse sensitivities in M_MISC.C and clamped
+display of thermometer in M_MENU.C
+
+Fixed breaking of list in P_CheckSector in P_MAP.C by keeping track
+of two nodes after current instead of just one.
+
+4/2/98
+
+Made corrections to BOOM.TXT
+
+Made additions and corrections to LINEDEFS.TXT, renamed to
+BOOMREF.TXT
+
+4/1/98
+
+Added pre-release ENDOOM to INFO.C, used it in I_SYSTEM.C
+
+Added last few things to BOOM.TXT
+
+Fixed Seg Viol in P_CheckSector caused by passing NULL thing pointer
+to PIT_ChangeSector. Not sure why this pointer is NULL, but I'm not
+passing any more that are. P_MAP.C affected.
+
+Fixed problem with keyed doors giving away their type when shot, even
+when they weren't keyed doors. Fixed corresponding problem for
+walkove doors. P_SPEC.C affected.
+
+3/31/98
+
+Fixed problem with stair builders, normal and generalized, namely
+they never set the type field in the thinker and could fall into the
+texture change cases of T_MoveFloor. P_FLOOR.C P_GENLIN.C P_SPEC.H
+affected.
+
+3/30/98
+
+Added option to make screenshots in .BMP format to account for
+inability of MSPaint to display .PCX correctly. New config variable
+screenshot_pcx (1 by default) controls which. M_MISC.C affected.
+
+Made some revisions to LINEDEFS.TXT and BOOM.TXT. Added BOOM.TXT to
+CVS system.
+
+Added support for "not-deathmatch" and "not-coop" thing flags in
+P_MOBJ.C.
+
+3/29/98
+
+Fixed use of 2S flag rather than two-sidedness in EV_DoDonut in P_SPEC.C
+
+Fixed glitch in new crusher check routine in P_MAP.C that was using
+the next pointer from a node after its removal from touching_thinglist.
+
+Fixed lack of sound and switch change on second activation of instant
+toggle linedefs in P_PLATS.C
+
+3/27/98
+
+Fixed skies in Ultimate DOOM, so they wouldn't all be SKY1. The Linux
+port had confused pack_tnt and pack_plut with gamemodes, which were
+matching the gamemode retail. They also forgot to account for DOOM
+and Ultimate DOOM completely in G_DoLoadLevel. Also removed the
+redundant sky setting code in G_InitNew.
+
+Files affected G_GAME.C
+
+3/26/98
+
+Changed escape character in hud messages strings for color changes
+from \ to actual escape \x1b, in order not to mess \ in path strings
+printed out with messages.
+
+Files affected HU_LIB.C HU_STUFF.C
+
+3/25/98
+
+Fixed problem that duplicated IWAD search in . in D_MAIN.C
+
+Fixed bad value for defaultskill default in M_MISC.C
+
+3/24/98
+
+Fixed "looking for iwad files in..." message to read "looking for
+IWAD in...".
+
+Added config file param default_skill 1-5 for setting your skill
+preference once and for all. If -skill is used it overrides the
+setting temporarily. If you set skill with the menu, default_skill
+remembers the setting.
+
+Files affected: D_MAIN.C G_GAME.C M_MENU.C M_MISC.C DOOMDEF.H
+
+Added parms -iwad and -save to the command line. -iwad is tried
+before all other choices if present, otherwise the order remains the
+same. The -save parm is check for existence and being a dir. If
+either fails, or -save is not present the iwad directory is used.
+
+Files affected D_MAIN.C
+
+Moved the switchlist and animation table into predefined lumps,
+SWITCHES, and ANIMATED that can be replaced by wad authors. Created a
+utility SWANTBLS.EXE that will turn a text file into two .LMP files
+suitable for insertion in a PWAD. Created the default text file
+source DEFSWANI.DAT.  Text file format:
+
+#
+# This file is input for SWANTBLS.EXE, it specifies the switchnames
+# and animated textures and flats usable with BOOM. The output of
+# SWANTBLS is two lumps, SWITCHES.LMP and ANIMATED.LMP that should
+# be inserted in the PWAD as lumps.
+#
+#switches usable with each IWAD, 1=SW, 2=registered DOOM, 3=DOOM2
+[SWITCHES]
+#epi    texture1        texture2
+1       SW1BRCOM        SW2BRCOM
+1       SW1BRN1         SW2BRN1 
+1       SW1BRN2         SW2BRN2 
+1       SW1BRNGN        SW2BRNGN
+1       SW1BROWN        SW2BROWN
+1       SW1COMM         SW2COMM 
+...
+
+#animated flats, spd is number of frames between changes
+[FLATS]
+#spd    last        first
+8       NUKAGE3     NUKAGE1      
+8       FWATER4     FWATER1      
+8       SWATER4     SWATER1      
+8       LAVA4       LAVA1        
+...
+
+#animated textures, spd is number of frames between changes
+[TEXTURES]
+#spd    last        first
+8       BLODGR4     BLODGR1      
+8       SLADRIP3    SLADRIP1     
+
+Files affected: P_SPEC.H P_SPEC.C P_SWITCH.C
+
+
+3/22/98
+
+Added new linedef flag, ML_PASSUSE, bit 9, value 512 that enables a
+push action to pass thru the line, allowing several linedef actions to take
+place from one push.
+
+Fixed crash in DETH on inserting vertex or thing before anything
+else.
+
+Files affected: DOOMDATA.H P_MAP.C
+
+3/21/98
+
+Made cheats individually disabled for netgame/demorecord so that
+IDMUS can still be used in those conditions.
+
+Files affected: ST_STUFF.C
+
+
+3/20/98
+
+Made ceilings more orthogonal by using shortest UPPER texture around
+in the move by shortest texture type.
+
+Files affected: P_SPEC.H P_SPEC.C P_GENLIN.C
+
+
+3/19/98
+
+Changed DETH to reflect combination of sludge and ice, removed
+wind thing flags (too early - sorry!) fixed crash clicking outside a
+menu, increased limits on rectangle size and curved stair angle.
+
+Used new mobj list structures to improve crusher code
+
+Changed p_spec.h to reflect combination of ice and sludge effects.
+
+Fixed indirection error in d_deh.c causing exception in MS-DOS.
+
+3/18/98
+
+Fixed bug in idmusnum handling. Restoral from idmusnum=-1 as a byte in 
+savegame was incorrectly converted to 255 as an integer, causing an abort
+when S_ChangeMusic tried to load it (it checks for -1).
+
+Fixed hang in I_Init and incorrect key shift/LED handling. Was a bug
+in Allegro, a failure to disable interrupts around a low level
+call to a keyboard io routine - causing 2E6 retries, hence the hang,
+and the lack of function when it didn't succeed. Faster systems (like
+Lee's) would not see this or be intermittent due to less time spent
+in interrupts.
+
+Files affected:
+
+G_GAME.C I_SYSTEM.C in Allegro: KEYBOARD.C
+
+
+3/17/98
+
+Added FRG line in place of KEY line in HUD when deathmatch true.
+Display shows the top four frag counts with highest at left, each
+number in the player's color.
+
+Fixed failure to restore IDMUS selected music. MUSIC reverts to
+original on end of level or IDCLEV, otherwise IDMUS selection remains
+in force.
+
+Fixed crash from space after IDMUS cheat.
+
+Files affected: ST_STUFF.C HU_STUFF.C G_GAME.C D_MAIN.C S_SOUND.C 
+
+3/15/98
+
+Added 2 more save/load slots for 8 total.
+
+Added pure texture change type, trigger model, on 215-218 types.
+Added pure texture change type, numeric model, on 78,239-241 types.
+
+Files affected: P_SPEC.H P_SPEC.C P_SWITCH.C P_FLOOR.C COMMON.CFG
+DOOM17.DAT DOOM19.DAT P_GENLIN.C M_MENU.C
+
+3/14/98
+
+Made the 1 and 8 in the HUD weapons display show green when in
+possession of berserk power-up.
+
+Added oldspecial type to floormove_t and ceilng_t so that texture
+changes copy both the old and new special fields, thereby avoiding
+bugs in the automap display and possibly other places.
+
+Added generalized sector types. Limited lighting types to looking at
+lower 5 bits, added damage and secret detection from generalized
+bits. Fixed automap to recognize new secret bits. Created masks for
+new damage, secret, ice, sludge and wind bits.
+
+sector type bit assignments:
+Bit 15  14  13  12  11  10   9   8   7   6   5   4   3   2   1   0
+                        wnd slg ice sec  damage     lighting
+
+Added instant toggle floor linedef type between floor and ceiling height to
+support scrolling changers for Lee. Also can be used for building
+binary combination locks.
+
+Files affected: P_SPEC.C P_SPEC.H P_SWITCH.C P_PLATS.C COMMON.CFG
+DOOM17.DAT DOOM19.DAT P_LIGHTS.C AM_MAP.C P_CEILNG.C HU_STUFF.C
+
+3/13/98
+
+Found and fixed problem with delta-time accumulation in MMUS2MID.C,
+probable cause of "scrambled tracks" reports.
+
+Did more numeric overflow protection concerning shortest texture
+surrounding in the case of no surrounding textures.
+
+Files affected: P_SPEC.C P_FLOOR.C P_GENLIN.C
+
+
+3/12/98
+
+Provisionally removed linedef #s 211-218 and 223-226 as no longer
+being needed to support floor height based scrolling. These are
+intended to allow more room for vector based effects within DCKs
+range of 0-255 for linedef types.
+
+Changed MININT and MAXINT limits in P_SPEC.C in highest and lowest
+surrounding floor/ceiling searches to 32000*FRACUNIT or
+-32000*FRACUNIT to avoid wrapping heights around during floor/ceiling
+motion.
+
+Files affected: P_SPEC.C P_SWITCH.C P_GENLIN.C P_FLOOR.C COMMON.CFG
+DOOM17.DAT DOOM19.DAT
+
+3/9/98
+
+Lights in tagged sector to max neighbor on fully open and to min
+neighbor on fully closed extended to generalized manual doors.
+
+Added map_secret_after option to hide secrets on the automap until
+after they are found.
+
+Fixed glitch in cycling HUD where the medium display would flash in
+lower left corner while switching to scattered display.
+
+Files affected HU_STUFF.C
+
+3/8/98
+
+Fixed length of local string variables for ammo etc in HUD drawer that were
+no longer adequate post-DEH.
+
+Allowed -1 for disabling in mouse bindings and automap colors in
+config file.
+
+Wrote program to output config file keycode, when key is struck.
+
+Added generalized substitution syntax to CLED. Supports changing old
+lindef types to new and any other level object fields as well.
+
+Modified Allegro to not use floating point in AWE32 midi driver
+interrupt. Other option is to remove all floating point from our
+code, now and in future.
+
+Fixed bug in HUD that caused removed keys to remain in display.
+
+Revised DETH to 4.08, now includes thing flags for WIND type, plus
+not-single, not-DM, and not-coop flags (not implemented in engine
+yet).
+
+Files affected HU_STUFF.C, M_MENU.C, M_MISC.C
+
+3/7/98
+
+Switched HUD keys display to use status bar graphics for keys.
+
+Allowed room for 2 more digits in automap coordinate display.
+
+File affected: HU_STUFF.C
+
+3/6/98
+
+Renumbered linedefs 300,301 to 248,249 and linedefs 310-315 to
+250-255 so that DCK can use them and save them.
+
+Fixed erroneous range for gamma correction.
+
+Files affected P_SPEC.C, M_MISC.C
+
+
+3/5/98
+
+Fixed inability of monsters to use new teleporters
+
+Affected P_SPEC.C, P_SWITCH.C
+
+Added some more text to SNDDRVR.TXT to try to clarify what needs to
+be done.
+
+Affected SNDDRVR.TXT
+
+Fixed some problems in initialization of mus to midi converter, no
+change in behavior detected here though.
+
+Affected MMUS2MID.C
+
+3/4/98
+
+1) Checking range of boom.cfg variables, and OPTIONALLY outputting a
+help string for each. The help strings can be disabled thru the new
+variable config_help. When you add a new variable you can assign its
+minvalue and maxvalue fields in the structure, right after the
+defaultvalue, and place a help string after those. The symbol UL as a
+limit will allow the range not to be checked for either minvalue or
+maxvalue or both.
+
+Affected: m_misc.c
+
+2) Fixing a bug in HUD that made it not react to F5 in full screen
+
+Affected: m_menu.c
+
+3) Redo of coordinate display in automap to stack X,Y,Z over each
+other in upper right of screen, using old font.
+
+Affected: hu_stuff.c
+
+4) Addition of TRAN50 and TRAN66 lumps to info.c, they are not
+called, just implemented as predefined lumps.
+
+Affected: info.c
+
+5) Fixing the stairs bug Jou pointed out, multiple tagged sectors
+wouldn't always rise do to corruption of loop variable thru tagged
+sectors.
+
+Affected: p_floor.c, p_genlin.c
+
+6) After reading sound docs in Allegro again last night have put code
+in I_SOUND.C to first detect each device, and then reserving voices
+for it according to the number of voices returned by each call, THEN
+calling install sound. Music is slightly improved on my system,
+hoping this will affect others similarly, and get rid of the
+install_sound errors which Allegro says can be caused by calling
+install_sound when the default number of voices is greater than the
+card can provide. The sound volume is somewhat down from before, but
+I still want to try this experiment. The variable detect_voices in
+BOOM.CFG allows you to return to old setup by setting it to 0. 1 is
+default.
+
+Affected: i_sound.c
+
+7) Made some experimental changes to HUD. Distributed the display
+over the screen as part of the F5 cycle, removed the readyweapon
+brackets, added weapon 1, and reduced the update lag.
+
+Affected: m_menu.c m_misc.c hu_stuff.c
+
+8) detect_midi_device and detect_digi_device turn out not to work
+with the autodetect code. Fixed the install of sound so that the
+detect_voices only happens in the case that specific values are input
+for music_card and sound_card.
+
+Affected: i_sound.c
+
+
+3/3/98
+
+Added ENDBETA as predefined lump in INFO.C and displayed it place of
+ENDOOM in I_SYSTEM.C
+
+3/2/98
+
+Added Rand's static help screen as a predefined lump in INFO.C and
+loaded and displayed it in M_MENU.C.
+
+Fixed a misplacement of the zero-tag trigger checks for generalized
+linedefs in P_SPEC.C and P_SWITCH.C.
+
+Fixed a failure to initialize the sector used to search for a model
+for numeric model changes in P_SPEC.C
+
+Removed #ifdef LEESFIXES in ST_STUFF.C, all changes were good.
+
+Added Lee's new scrolling types to COMMON.CFG
+
+
+2/27/98
+
+Fixed a bug in generalized stair builders. They would retrigger
+before completing the build causing crazy stair configurations to
+arise. Added link fields to next and prev step in sector_t, and a
+lock flag, stairlock. During build the links between stairs are set
+and stairlock is set to -2 for each step. As each thinker completes
+its stairlock is set to -1 and the chain of steps is checked for any
+still at -2. If none are, all locks are cleared to 0. The stair builder
+will not start again until the initial step has a stairlock of 0.
+Indices rather than pointers were used in the link fields so the
+savegame need not be modified. p_setup.c initializes all sector links
+to -1, and all stairlocks to 0 or no next or previous step, unlocked,
+though this is not relied upon by the stair building code. This
+affects both P_GENLIN.C and P_FLOOR.C
+
+Fixed a bug in the original stair builders, namely the crush field
+was never initialized. Set it to false for build8 stairs and true for
+build16 stairs, as that is what DMSPEC claims. P_FLOOR.C affected.
+
+Fixed COMMON.CFG again to remove the 303 and 302 types I had gotten
+carried away and added. There are no switch types for silent line
+teleporters.
+
+Added STTMINUS as a predefined lump in INFO.C to allow v1.2 to work
+with BOOM if anyone ever fixes demo format incompatibility.
+
+Prevented non-manual 0 tag triggers of floor moving or ceiling moving variety
+from operating in !demo_compatibility. manual types, lighting, exits,
+non-line teleporters, and scrolling specials may have 0 tag. Affects
+P_SPEC.H, P_SPEC.C and P_SWITCH.C
+
+Added range checks and adjustments to M_MISC.C for variables I added where
+out-of-range conditions could cause an exception or serious
+misoperation.
+
+Added CR_LIMIT at end of color range enum in V_VIDEO.H for range
+checks above.
+
+
+2/26/98
+
+Added previous messages display to HUD. If not in chat mode,
+key_enter causes the last hud_msg_lines to be displayed in screen
+upper left, and to scroll as new messages come in, latest at top. The
+color of text is determined by hudcolor_list. A solid window
+background can be enabled with hud_list_bgon. When in message list
+display mode, chat entry is locked out. Files affected were HU_LIB.C,
+HU_LIB.H, HU_STUFF.C. Background graphics added to INFO.C. Options
+added to M_MISC.C.
+
+Also fixed the comment about keys[NUMCARDS+3] in ST_STUFF.C and
+updated common.cfg for Lee's silent teleporter.
+
+
+2/24/98
+
+Added double keys to status bar display. You can now see that you
+possess both card and skull of a given color.
+
+
+2/23/98
+
+HUD functions fixed according to consensus, mostly, anyway they
+compile. Fixed a merge error in p_plats.c where some changes I made
+got wiped. Changed default of sts_pct_always_gray to 1.
+
+Added P_ActiveSector to P_SPEC.C used to test if a sector is
+available for a special action. If demo_compatibility is true,
+returns true if ANY special is active, else returns true only if the
+same type of special inquired about is active. This prevents demos
+losing sync thru inadvertantly starting multiple specials on the same
+sector. This finishes the multiple thinker support for elevators.
+
+Tuned the HUD font some. Made the drop shadow black for all
+characters. Reduced the ragged diagonals in some characters.
+Lightened the blue range for better visibility.
+
+
+2/22/98
+
+Moved HUD control to F5 (default key, set key_detail in DEFAULT.CFG).
+hud_active in DEFAULT.CFG now has three states 0,1,2. 0 disables HUD
+display, 1 shows a small HUD (no keys or kills/secrets status) and 2
+shows the full HUD. Pressing F5 cycles between these states. If the
+hud_active state becomes 1 from 0, the screen is expanded to show the
+small HUD, expanded to full HUD on next F5, and then restored to previous
+screensize on next F5, allowing those using small screensize to check
+the HUD without readjusting screensize. The secrets line can still be
+disabled with hud_nosecrets=1, for those that prefer not to see this
+information. Making screensize max with = will show the current HUD state,
+none, small, or full.
+
+Added z coordinate to automap coordinate display.
+
+Removed active ceiling limits and changed savegame accordingly.
+
+Fixed two bugs in the general crusher - a failure to take ceilings in
+stasis out of stasis in EV_DoGenCrusher in P_GENLIN.C, and failure to reverse
+crusher direction on bottom of stroke in P_CEILNG.C, caused by
+another bugfix last week.
+
+Replaced specialdata field in sector_t with floordata, ceilingdata,
+lightingdata to allow independent thinkers to operate simultaneously.
+Fixed savegame correspondingly. There is an issue with compatibility
+flagging here, since savegames under one mode cannot be restored
+under another. Left unflagged for now, CRUSHER.LMP remains in sync.
+
+Weakened compatibility flags on detection of floor or ceiling moving
+thru the other to demo_compatibility.
+
+Added elevator linedef specials, for up to next floor, down to next
+floor, and move to floor in front of activating switch. Added these
+to common.cfg as well.
+
+
+
+2/21/98
+
+Fixed difference between initialized HUD line titles and caculated
+HUD string titles. Removed colons from display, shrunk spacing.
+
+2/20/98
+
+Removed a temporary fix from M_MISC.C that was obviated by the bugfix
+of 2/18. Fixed a bug in the divide down of string creation for HUD in
+HU_STUFF.C. Added a new lighter font for HUD to HU_STUFF.C and
+INFO.C. This font only has :/[], upper alphas, and numbers,
+currently, you'll get the char from the older font otherwise.
+
+2/19/98
+
+Optimized V_DrawPatchTranslated to avoid so much of a performance hit
+from HUD. Added several variables to make it more configurable.
+hud_active can now be set to -1 to avoid hud completely.
+hud_nosecrets can be set non-zero to suppress display of the top line
+showing kills/items/secretes. sts_always_red may be set non-zero to
+suppress use of color in status numerals.
+
+
+2/18/98
+
+Fixed bug in HU_Erase that was causing the status bar to be
+overwritten when the HUD was erased. Also added hud_active
+to DEFAULT.CFG in M_MISC.C so hud is displayed on start of
+level if it was in previous level or game. Finally added a
+condition to hud activation in M_MENU.C so that the code
+wouldn't screw up on + key with reduced screen.
+
+2/15-17/98
+
+Fixed bug in automap where secret sectors were not shown as secret
+after you entered them once. The engine clears the sector type after
+you enter a secret sector. Added oldspecial field to sector_t in
+R_DEFS.H and initialized it from the special field in P_SETUP.C, and
+used this field in the automap in AM_MAP.C to fix this.
+
+Added a new routine, V_DrawPatchTranslated, in V_VIDEO.C to support
+color translation of patches and graphics, as required in the HUD to
+write non-red text. Added some range tables as well to define color
+ranges usable as source or destination of the translation. Added
+declarations for the new routine and ranges to V_VIDEO.H. The ranges
+avaiable to translation are:
+
+CR_BRICK,   //0
+CR_TAN,     //1
+CR_GRAY,    //2
+CR_GREEN,   //3
+CR_BROWN,   //4
+CR_GOLD,    //5
+CR_RED,     //6
+CR_BLUE,    //7
+CR_ORANGE,  //8
+CR_YELLOW,  //9
+
+These may be used as index to colrngs to produce a point to a
+colrng_t type, or the same number can be used in a text string output
+by the HUD or messager to change its color, syntax "\\nText" writes
+Text in color range n instead of red.
+
+Added ammo_red,ammo_yellow, armor_red, armor_yellow, armor_green,
+health_red, health_yellow, health_green variables to DEFAULT.CFG in
+M_MISC.C to set points at which status and hud displays change
+color. Also added hudcolor_titl for color of automap title, and
+hudcolor_xyco for color of coordinate display. Added hudcolor_mesg
+and hudcolor_chat to set the colors of message and chat text.
+
+Changed ST_STUFF.C ST_LIB.C and ST_LIB.H so that the large numerals on
+the status bar would change color according to the range variables
+added to M_MISC.C above.
+
+Added support to HU_*.C for a true heads-up display that shows six
+lines of information. The top line shows kills/total, items/total,
+and secrets/total. The next line shows which of the six keys you
+have. The third line displays which weapons you have, the current
+weapon in brackets and the ammo available to each roughly indicated
+by the number's color as determined by ammo_red and ammo_yellow. If a
+weapon doesn't use ammo it displays in gray. The chainsaw displays as
+8 and the super shotgun as 9. The fourth line shows ready weapon ammo
+as a bar graph and ammo/fullammo. The color of the line indicates how
+close to running out you are as usual. The fifth line shows health
+with bargraph and number, and its color also indicates the health
+status according to the default variables. The bargraph saturates at
+100 health to provide more resolution of low health amounts, but the
+number does not. The sixth line is like the fifth except the variable
+displayed is current armor. Files affected HU_LIB.C, HU_LIB.H,
+HU_STUFF.C, HU_STUFF.H.
+
+To support the HUD bargraphs, five new characters were created and
+defined as predefined lumps in INFO.C. Each is a set of vertical
+lines from 4 of them to 0 for bargraph construction.
+
+Finally, added code to M_MENU.C to turn the HUD off and on when the
+zoom keys (+/-) are used when screen is at maximum. DOOMSTAT.H was
+also changed to make hud_active global.
+
+Work still remains to make the message window variable line scrolling
+and to make the hud repositionable.
+
+
+2/14/98
+
+Fixed bug in automap. Erroneously mistook FB for a color when it was
+an index into the frame buffers. Files affected: AM_MAP.C M_MISC.C.
+
+2/12/98
+
+Fixed an inadvertent change to crusher ceilings that was causing loss
+of demo sync in CRUSHER.LMP. P_CEILNG.C affected.
+
+Fixed all W1 and G1 regular linedefs to check the result of the line
+function before clearing the special. Added int returns to the line
+functions that didn't have them.
+
+Fixed some cosmetic errors in the general linedefs.
+
+2/09/98
+
+Made generalized stairs retrigger in opposite direction each time,
+fixed failure to initialize floor->crush there.
+
+2/08/98
+
+Added native midi lump support to BOOM. I_SOUND.C tries to convert
+from midi first, and if the correct header is not found, tries mus.
+
+Files affected : MMUS2MID.H, MMUS2MID.C, and I_SOUND.C
+
+2/04-07/98
+
+Added bit field linedef types that allow any combinattion of parameters for
+each type. There are types for Floors, Ceilings, Doors, Locked Doors, Lifts,
+Stairs, and Crushers. The allocation of linedef type field numbers is 
+according to the following table:
+
+Type            Start      Length   (Dec)
+-----------------------------------------------------------------
+Floors          0x6000     0x2000  (8192)
+Ceilings        0x4000     0x2000  (8192)
+Doors           0x3c00     0x0400  (1024)
+Locked Doors    0x3800     0x0400  (1024)
+Lifts           0x3400     0x0400  (1024)
+Stairs          0x3000     0x0400  (1024)
+Crushers        0x2F80     0x0080   (128)
+-----------------------------------------------------------------
+Totals:  0x2f80-0x7fff     0x5080  (20568)
+
+The following define the placement and meaning of the bit fields within
+each linedef category. Fields in the description are listed in increasing
+numeric order.
+
+------------------------------------------------------------------
+generalized floors (8192 types)
+
+field   description                       NBits   Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3     0x0007      0
+speed   slow/normal/fast/turbo             2     0x0018      3
+model   trig/numeric -or- nomonst/monst    1     0x0020      5
+direct  down/up                            1     0x0040      6
+target  HnF/LnF/NnF/LnC/C/sT/24/32         3     0x0380      7
+change  nochg/zero/txtonly/type            2     0x0c00      10
+crush   no/yes                             1     0x1000      12
+
+Notes:
+
+1) When change is nochg, model is 1 when monsters can activate trigger
+   otherwise monsters cannot activate it.
+2) The change fields mean the following:
+   nochg   - means no texture change or type change
+   zero    - means sector type is zeroed, texture copied from model
+   txtonly - means sector type unchanged, texture copied from model
+   type    - means sector type and floor texture are copied from model
+3) down/up specifies the "normal" direction for moving. If the
+   target specifies motion in the opposite direction, motion is instant.
+   Otherwise it occurs at speed specified by speed field.
+4) Speed is 1/2/4/8 units per tic
+5) If change is nonzero then model determines which sector is copied.
+   If model is 0 its the sector on the first side of the trigger.
+   if model is 1 (numeric) then the model sector is the sector at
+   destination height on the opposite side of the lowest numbered
+   two sided linedef around the tagged sector. If it doesn't exist
+   no change occurs.
+
+------------------------------------------------------------------
+generalized ceilings (8192 types)
+
+field   description                        NBits   Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR             3     0x0007      0
+speed   slow/normal/fast/turbo              2     0x0018      3
+model   trig/numeric -or- nomonst/monst     1     0x0020      5
+direct  down/up                             1     0x0040      6
+target  HnC/LnC/NnC/HnF/F/sT/24/32          3     0x0380      7
+change  nochg/zero/txtonly/type             2     0x0c00      10
+crush   no/yes                              1     0x1000      12
+
+Notes:
+
+1) When change is nochg, model is 1 when monsters can activate trigger
+   otherwise monsters cannot activate it.
+2) The change fields mean the following:
+   nochg   - means no texture change or type change
+   zero    - means sector type is zeroed, texture copied from model
+   txtonly - means sector type unchanged, texture copied from model
+   type    - means sector type and ceiling texture are copied from model
+3) down/up specifies the "normal" direction for moving. If the
+   target specifies motion in the opposite direction, motion is instant.
+   Otherwise it occurs at speed specified by speed field.
+4) Speed is 1/2/4/8 units per tic
+5) If change is nonzero then model determines which sector is copied.
+   If model is 0 its the sector on the first side of the trigger.
+   if model is 1 (numeric) then the model sector is the sector at
+   destination height on the opposite side of the lowest numbered
+   two sided linedef around the tagged sector. If it doesn't exist
+   no change occurs.
+
+------------------------------------------------------------------
+generalized doors (1024 types)
+
+field   description                       NBits    Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+kind    odc/o/cdo/c                        2      0x0060      5
+monster n/y                                1      0x0070      7
+delay   1/4/9/30 (secs)                    2      0x0300      8
+
+Notes:
+
+1) The odc (Open, Delay, Close) and cdo (Close, Delay, Open) kinds use
+   the delay field. The o (Open and Stay) and c (Close and Stay) kinds 
+   do not.
+2) The precise delay timings in gametics are: 35/150/300/1050
+3) Speed is 2/4/8/16 units per tic
+
+------------------------------------------------------------------
+generalized locked doors (1024 types)
+
+field   description                       NBits    Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+kind    odc/o                              1      0x0020      5
+lock    any/rc/yc/bc/rs/bs/ys/all          3      0x01c0      6
+sk=ck   n/y                                1      0x0200      9
+
+Notes:
+
+1) Delay for odc kind is constant at 150 gametics or about 4.333 secs
+2) The lock field allows any key to open a door, or a specific key to
+   open a door, or all keys to open a door.
+3) If the sk=ck field is 1 (y) skull and cards are different keys,
+   otherwise they are treated identically. Hence an "all" type door
+   requires 3 keys if sk=ck is 1, and 6 keys if sk=ck is 0.
+4) Speed is 2/4/8/16 units per tic
+
+-------------------------------------------------------------------
+generalized lifts (1024 types)
+
+field   description                       NBits    Mask     Shift
+-------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+monster n/y                                1      0x0020      5
+delay   1/3/5/10 (secs)                    2      0x00c0      6
+target  LnF/NnF/LnC/LnF<->HnF(perp.)       2      0x0300      8
+
+Notes:
+
+1) The precise delay timings in gametics are: 35/105/165/350
+2) Speed is 1/2/4/8 units per tic
+3) If the target specified is above starting floor height, or does not
+   exist the lift does not move when triggered. NnF is Next Lowest
+   Neighbor Floor.
+4) Starting a perpetual lift between lowest and highest neighboring floors
+   locks out all other actions on the sector, even if it is stopped with
+   the non-extended stop perpetual floor function.
+
+-------------------------------------------------------------------
+generalized stairs (1024 types)
+
+field   description                       NBits    Mask     Shift
+-------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+monster n/y                                1      0x0020      5
+step    4/8/16/24                          2      0x00c0      6
+dir     dn/up                              1      0x0100      8
+igntxt  n/y                                1      0x0200      9
+
+Notes:
+
+1) Speed is .25/.5/2/4 units per tic
+2) If igntxt is 1, then the staircase will not stop building when
+   a step does not have the same texture as the previous.
+
+-------------------------------------------------------------------
+generalized crushers (128 types)
+
+field   description                       NBits    Mask     Shift
+-------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+monster n/y                                1   0x0020      5
+silent  n/y                                1      0x0040      6
+
+Notes:
+
+1) Speed is 1/2/4/8 units per second, faster means slower damage as usual.
+2) If silent is 1, the crusher is totally quiet, no start/stop sounds
+                                           
+-------------------------------------------------------------------
+
+Added these generalized linedefs to DETH linedef menu, creating arrays
+of buttons for each type to set the parameters. Readback is currently
+primitive, only the general class is reported.
+
+Created a DOS command line tool TRIGCALC to calculate the value of a
+given generalized linedef type based on answers to questions about its
+properties.
+
+Exercised each field of each type with small test wads.
+
+Also fixed the W1 Teleport bug, where it was used up being crossed in the
+wrong direction.
+
+Files affected: P_SPEC.H, P_SPEC.C, P_SWITCH.C, P_FLOOR.C, P_CEILNG.C,
+P_PLATS.C, P_DOORS.C, and a new file P_GENLIN.C was added.
+
+2/03/98
+
+Added functionality to manual doors, so that their tag specifies a sector
+or sectors that will go to max neighbor light level on the door completely
+opening, and to min neighbor light level on the door completely closing.
+Changes to P_DOORS.C P_SPEC.H P_SAVEG.C.
+
+Added TNTEM cheat code that will kill all monsters now alive. Simply borrowed 
+the code from Chi's .046 port, as it works and looks fine. Unless you develop
+wads you may not appreciate how useful this code can be :). Changes to
+ST_STUFF.C.
+
+Relabelled Lee's WR Silent Teleport to 208, with W1 on 207, S1 on 209, and SR
+on 210, as 203 was already being used by a ceiling function. Changes to
+P_SPEC.C, P_SWITCH.C, and COMMON.CFG.
+
+Fixed an automap bug that was showing secret doors. Change to AM_MAP.C.
+
+Added P_FindNextLowestFloor routine to support downward linedef functions.
+Simply borrowed Lee's P_FindNextHighestFloor and reversed some inequalities.
+
+New linedefs:
+
+211-214 Lower Floor 24
+215-218 Lower Floor 32 Fast
+219-222 Lower Floor to Next Lower
+223-226 Raise Floor 32 Fast
+
+Changes to P_SPEC.C, P_SPEC.H, P_SWITCH.C, and P_FLOOR.C
+
+
+1/30/98
+
+Fixed the "monster squished - no floor lower" bug in P_FLOOR.C. Floors moving
+down were being halted if a monster on the periphery of the sector had
+insufficient headroom, this did not make sense, a bug. Reformatted P_CEILNG.C,
+P_FLOOR.C, and P_PLATS.C as part of their documenting (so I could read them!).
+
+Added 85 linedef type to make right scrolling animated walls.
+
+Added new linedef functions for ceiling to lowest neighbor ceiling, and ceiling
+to maximum neighbor floor. 
+
+Added new gun exit linedefs, normal and secret.
+
+1/29/98
+
+Filled out the linedef specials to include SR, S1, WR, and W1 varieties
+for all functions it makes sense for. Created new file COMMON.CFG which
+documents the new linedef types and provides new menus for DETH so that
+they may be entered normally with that editor.
+
+1/26/98
+
+Fixed a problem in P_PLATS.C where a raiseAndChange plat type would
+bounce, and go down but not be removed, disallowing any future access
+to it.
+
+Fixed another problem in P_PLATS.C where the same raiseAndChange type
+of plat would bounce, without the low height of the plat ever being
+initialized.  This could cause unpredictable behavior and plats that
+lowered forever.
+
+Fixed the twoSided routine in P_SPEC.C so that it returns whether a
+line has two sides, not whether it is marked 2S (means "can be
+transparent").
+
+Fixed getNextSector routine in P_SPEC.C to ignore 2S flag and actually
+use whether a line has two sides.
+
+Fixed P_FindHighestFloorSurrounding routine in P_SPEC.C to use MININT
+as it initialization for the highest search rather than the arbitrary
+-500 units it did.
+
+Fixed P_FindHighestCeilingSurrounding routine in P_SPEC.C to use MININT
+as it initialization for the highest search rather than the arbitrary
+0 units it did.
+
+Fixed EV_DoDonut in P_SPEC.C to not dereference NULL if the lowest numbered
+line in the donut sector was one-sided.
+
+1/25/98
+
+Fixed the floor crusher bug. It was not resetting the floor position
+when it encountered a monster blockage, allowing the monster to live if the
+floor reached its destination before the monster died from crushing.
+
+1/24/98
+
+Added new variables for nomonsters, respawnparm, and fastparm to store their
+command line invocation value. Change code in G_GAME.C to use these values
+to initialize the old variables in level start, so they persist thru demo
+play and IDCLEV changes.
+
+Fixed a failure to initialize the floor move special field in lower and change
+texture type actions (triggers 37 and 84). This would cause an illegal texture
+change to create an invalid sector type if the model sector was not found. The
+change is in P_FLOOR.C, EV_DoFloor.
+
+Removed I_Error exit from P_PlayerInSpecialSector routine in P_SPEC.C and
+just output a player message with dprintf instead. Can't find any reason
+this should cause a crash or problems.
+
+1/23/98
+
+Added W_CoalesceMarkedResource routine to W_WAD.C to organize directory
+entries for sprites and flats into a single marked block, allowing them
+to be read from PWADS. Commented out several error checks in 
+R_InstallSpriteLump in R_THINGS.C that were no longer appropriate and
+rewrote to use the last loaded rotation definition for sprite frames.
+Reversed the order of lumps searched in R_InstallSprite.
+
+Added automap support for setting color to -2 to disable the line
+drawing at all, and setting color to -1 to suppress new automap
+features. Removed some code that would have displayed secret walls,
+but was disabled already by using the normal color for them.
+
+Rewrote MMUS2MID nearly entirely to be self contained and to provide
+a routine for full MIDI conversion for future ports. Also fixed a bug
+that would fail to zero out tracks not used in the next music piece that
+were used in the previous one.
+
+1/22/98
+
+Added command line parms for -nosfx, -nomusic, and -nosound to allow
+disabling sound from the command line. Added returns in S_SOUND.C to
+skip sound functions when disabled. Also added code in I_SOUND.C to
+suppress music thru nosfxparm and nomusicparm when Allegro returns an
+error from install_sound. Made sure I_ShutdownSound did not register
+with atexit if sound was never installed.
+
+1/21/98
+
+Removed I_Error exit on error loading MUS lump into Allegro in
+I_SOUND.C, used dprintf to show a player message in its place. Moved
+the music sound volume routine down to the music API. Stopped using
+destroy_midi, just reallocate track structure on new music load, and
+stop_midi when done.
+
+1/18/98
+
+Added variables sound_card and music_card to DEFAULT.CFG to support
+manually setting the sound card and music card type for Allegro when
+autodetect fails. Change in M_MISC.C and I_SOUND.C. Tweaked music volume
+for maximum volume possible.
+
+1/17/98
+
+Brought up the music volume setting routines in I_SOUND.C.
+
+1/16/98
+
+Added basic mus to midi memory converter module in MMUS2MID.C, brought
+up music calls in I_SOUND.C. 
+
+
+1/14/98
+
+Removed old color defines from AM_MAP.C, no longer needed, supplanted by
+variables added to DEFAULT.CFG.
+
+1/10/98
+
+Added support for secret sector boundaries being displayed on automap. Also
+enabled code to show teleporter lines.
+
+
+1/7/98
+
+Added variables to DEFAULT.CFG to support automap color configuration.
+
+
+1/5/98
+
+Added initial support in automap for showing keyed doors, opening doors, and
+with double IDDT, keys.
+
+12/28/98
+
+Fixed 0-index confusion in ST_STUFF.C that was not allowing IDCLEV to work
+in the Linux port.
+
+

@@ -1,0 +1,619 @@
+################################################################
+#
+# $Id: MAKEFILE.C32,v 1.1 2000/04/09 17:52:24 proff_fs Exp $
+#
+################################################################
+
+CC = gcc
+
+# the command you use to delete files
+RM = rm -f
+
+# the command you use to copy files
+CP = cp
+
+# options common to all builds
+CFLAGS_common = -Wall -Winline -DNOASM
+
+# debug options
+CFLAGS_debug = -g -O2 -DRANGECHECK -DINSTRUMENTED -DCHECKHEAP
+#CFLAGS_debug = -g -O2 -DRANGECHECK -DINSTRUMENTED
+LDFLAGS_debug =
+
+# optimized (release) options
+CFLAGS_release = -O3 -ffast-math -fomit-frame-pointer -m486
+LDFLAGS_release = -s
+
+# new features; comment out what you don't want at the moment
+#CFLAGS_newfeatures = 
+CFLAGS_newfeatures = 
+
+# libraries to link in
+LIBS = -lcygwin -luser32 -lgdi32 -lcomdlg32 -lkernel32 -lwsock32 -lwinmm
+
+# this selects flags based on debug and release tagets
+mode = release
+CFLAGS =  $(CFLAGS_common)  $(CFLAGS_$(mode)) $(CFLAGS_newfeatures)
+LDFLAGS = $(LDFLAGS_common) $(LDFLAGS_$(mode))
+
+# subdirectory for objects (depends on target, to allow you
+# to build debug and release versions simultaneously)
+
+O=$(O_$(mode))
+O_release=obj/cygwin32
+O_debug=objdebug/cygwin32
+
+B=$(B_$(mode))
+B_release=bin/cygwin32
+B_debug=bindebug/cygwin32
+
+# object files
+OBJS=   $(O)/doomdef.o      \
+        $(O)/doomstat.o     \
+        $(O)/dstrings.o     \
+        $(O)/i_system.o     \
+        $(O)/i_sound.o      \
+        $(O)/i_video.o      \
+        $(O)/i_net.o        \
+        $(O)/tables.o       \
+        $(O)/f_finale.o     \
+        $(O)/f_wipe.o       \
+        $(O)/d_main.o       \
+        $(O)/d_net.o        \
+        $(O)/d_items.o      \
+        $(O)/g_game.o       \
+        $(O)/m_menu.o       \
+        $(O)/m_misc.o       \
+        $(O)/m_argv.o       \
+        $(O)/m_bbox.o       \
+        $(O)/m_cheat.o      \
+        $(O)/m_random.o     \
+        $(O)/am_map.o       \
+        $(O)/p_ceilng.o     \
+        $(O)/p_doors.o      \
+        $(O)/p_enemy.o      \
+        $(O)/p_floor.o      \
+        $(O)/p_inter.o      \
+        $(O)/p_lights.o     \
+        $(O)/p_map.o        \
+        $(O)/p_maputl.o     \
+        $(O)/p_plats.o      \
+        $(O)/p_pspr.o       \
+        $(O)/p_setup.o      \
+        $(O)/p_sight.o      \
+        $(O)/p_spec.o       \
+        $(O)/p_switch.o     \
+        $(O)/p_mobj.o       \
+        $(O)/p_telept.o     \
+        $(O)/p_tick.o       \
+        $(O)/p_saveg.o      \
+        $(O)/p_user.o       \
+        $(O)/r_bsp.o        \
+        $(O)/r_data.o       \
+        $(O)/r_draw.o       \
+        $(O)/r_main.o       \
+        $(O)/r_plane.o      \
+        $(O)/r_segs.o       \
+        $(O)/r_sky.o        \
+        $(O)/r_things.o     \
+        $(O)/w_wad.o        \
+        $(O)/wi_stuff.o     \
+        $(O)/v_video.o      \
+        $(O)/st_lib.o       \
+        $(O)/st_stuff.o     \
+        $(O)/hu_stuff.o     \
+        $(O)/hu_lib.o       \
+        $(O)/s_sound.o      \
+        $(O)/z_zone.o       \
+        $(O)/info.o         \
+        $(O)/sounds.o       \
+        $(O)/mmus2mid.o     \
+        $(O)/i_main.o       \
+        $(O)/p_genlin.o     \
+        $(O)/d_deh.o        \
+        $(O)/lprintf.o      \
+        $(O)/winstuff.o
+
+boom doom release all: $(B)/cprboom.exe
+
+debug:
+        $(MAKE) mode=debug
+
+clean:
+	$(RM) boom.exe
+	$(RM) $(B_release)/*.exe
+	$(RM) $(B_debug)/*.exe
+	$(RM) $(O_release)/*.o
+	$(RM) $(O_debug)/*.o
+
+$(B)/cprboom.exe: $(OBJS) $(O)/version.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/version.o -o $@ $(LIBS)
+	$(RM) $(O)/version.o
+
+$(O)/%.o:   $(addprefix src/, %.c)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(O)/%.o:   $(addprefix src/, %.s)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Very important that all sources #include this one
+$(OBJS): $(addprefix src/, z_zone.h)
+
+# If you change the makefile, everything should rebuild
+# $(OBJS): Makefile
+
+# individual file depedencies follow
+
+$(O)/doomdef.o: $(addprefix src/, doomdef.c doomdef.h z_zone.h m_swap.h version.h)
+
+$(O)/doomstat.o: $(addprefix src/, doomstat.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h)
+
+$(O)/dstrings.o: $(addprefix src/,  dstrings.c dstrings.h d_englsh.h)
+
+$(O)/i_system.o: $(addprefix src/,  i_system.c i_system.h d_ticcmd.h doomtype.h i_sound.h \
+ sounds.h doomstat.h doomdata.h d_net.h d_player.h d_items.h doomdef.h \
+ z_zone.h m_swap.h version.h p_pspr.h m_fixed.h tables.h info.h \
+ d_think.h p_mobj.h m_misc.h g_game.h d_event.h w_wad.h)
+
+$(O)/i_sound.o: $(addprefix src/,  i_sound.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h mmus2mid.h \
+ i_sound.h sounds.h w_wad.h g_game.h d_event.h d_main.h)
+
+$(O)/i_video.o: $(addprefix src/,  i_video.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h v_video.h \
+ r_data.h r_defs.h r_state.h d_main.h d_event.h)
+
+$(O)/i_net.o: $(addprefix src/,  i_net.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h d_event.h \
+ m_argv.h i_net.h)
+
+$(O)/tables.o: $(addprefix src/,  tables.c tables.h m_fixed.h i_system.h d_ticcmd.h doomtype.h)
+
+$(O)/f_finale.o: $(addprefix src/,  f_finale.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ d_event.h v_video.h r_data.h r_defs.h r_state.h w_wad.h s_sound.h \
+ sounds.h dstrings.h d_englsh.h d_deh.h hu_stuff.h)
+
+$(O)/f_wipe.o: $(addprefix src/,  f_wipe.c doomdef.h z_zone.h m_swap.h version.h i_video.h \
+ doomtype.h v_video.h r_data.h r_defs.h m_fixed.h i_system.h \
+ d_ticcmd.h d_think.h p_mobj.h tables.h doomdata.h info.h r_state.h \
+ d_player.h d_items.h p_pspr.h m_random.h f_wipe.h)
+
+$(O)/d_main.o: $(addprefix src/,  d_main.c doomdef.h z_zone.h m_swap.h version.h doomstat.h \
+ doomdata.h doomtype.h d_net.h d_player.h d_items.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h dstrings.h \
+ d_englsh.h sounds.h w_wad.h s_sound.h v_video.h r_data.h r_defs.h \
+ r_state.h f_finale.h d_event.h f_wipe.h m_argv.h m_misc.h m_menu.h \
+ i_sound.h i_video.h g_game.h hu_stuff.h wi_stuff.h st_stuff.h \
+ am_map.h p_setup.h r_draw.h r_main.h d_main.h d_deh.h)
+
+$(O)/d_net.o: $(addprefix src/,  d_net.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h m_menu.h \
+ d_event.h i_video.h i_net.h g_game.h)
+
+$(O)/d_items.o: $(addprefix src/,  d_items.c info.h d_think.h d_items.h doomdef.h z_zone.h \
+ m_swap.h version.h)
+
+$(O)/g_game.o: $(addprefix src/,  g_game.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h f_finale.h \
+ d_event.h m_argv.h m_misc.h m_menu.h m_random.h p_setup.h p_saveg.h \
+ p_tick.h d_main.h wi_stuff.h hu_stuff.h st_stuff.h am_map.h w_wad.h \
+ r_main.h r_data.h r_defs.h r_state.h r_draw.h p_map.h s_sound.h \
+ dstrings.h d_englsh.h sounds.h r_sky.h d_deh.h p_inter.h g_game.h)
+
+$(O)/m_menu.o: $(addprefix src/,  m_menu.c doomdef.h z_zone.h m_swap.h version.h doomstat.h \
+ doomdata.h doomtype.h d_net.h d_player.h d_items.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h dstrings.h \
+ d_englsh.h d_main.h d_event.h i_video.h v_video.h r_data.h r_defs.h \
+ r_state.h w_wad.h r_main.h hu_stuff.h g_game.h s_sound.h sounds.h \
+ m_menu.h d_deh.h m_misc.h)
+
+$(O)/m_misc.o: $(addprefix src/,  m_misc.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h m_argv.h \
+ g_game.h d_event.h m_menu.h am_map.h w_wad.h i_sound.h sounds.h \
+ i_video.h v_video.h r_data.h r_defs.h r_state.h hu_stuff.h st_stuff.h \
+ dstrings.h d_englsh.h m_misc.h s_sound.h)
+
+$(O)/m_argv.o: $(addprefix src/,  m_argv.c)
+
+$(O)/m_bbox.o: $(addprefix src/,  m_bbox.c m_bbox.h z_zone.h m_fixed.h i_system.h d_ticcmd.h \
+ doomtype.h)
+
+$(O)/m_cheat.o: $(addprefix src/,  m_cheat.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ g_game.h d_event.h r_data.h r_defs.h r_state.h p_inter.h m_cheat.h \
+ m_argv.h s_sound.h sounds.h dstrings.h d_englsh.h d_deh.h)
+
+$(O)/m_random.o: $(addprefix src/,  m_random.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ m_random.h)
+
+$(O)/am_map.o: $(addprefix src/,  am_map.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h st_stuff.h \
+ d_event.h r_main.h r_data.h r_defs.h r_state.h p_setup.h p_maputl.h \
+ w_wad.h v_video.h p_spec.h am_map.h dstrings.h d_englsh.h d_deh.h)
+
+$(O)/p_ceilng.o: $(addprefix src/,  p_ceilng.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ r_main.h r_data.h r_defs.h r_state.h p_spec.h p_tick.h s_sound.h \
+ sounds.h)
+
+$(O)/p_doors.o: $(addprefix src/,  p_doors.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ r_main.h r_data.h r_defs.h r_state.h p_spec.h p_tick.h s_sound.h \
+ sounds.h dstrings.h d_englsh.h d_deh.h)
+
+$(O)/p_enemy.o: $(addprefix src/,  p_enemy.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ m_random.h r_main.h r_data.h r_defs.h r_state.h p_maputl.h p_map.h \
+ p_setup.h p_spec.h s_sound.h sounds.h p_inter.h g_game.h d_event.h \
+ p_enemy.h)
+
+$(O)/p_floor.o: $(addprefix src/,  p_floor.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ r_main.h r_data.h r_defs.h r_state.h p_map.h p_spec.h p_tick.h \
+ s_sound.h sounds.h)
+
+$(O)/p_inter.o: $(addprefix src/,  p_inter.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ dstrings.h d_englsh.h m_random.h am_map.h d_event.h r_main.h r_data.h \
+ r_defs.h r_state.h s_sound.h sounds.h d_deh.h p_inter.h)
+
+$(O)/p_lights.o: $(addprefix src/,  p_lights.c doomdef.h z_zone.h m_swap.h version.h \
+ m_random.h doomtype.h r_main.h d_player.h d_items.h p_pspr.h d_net.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ doomdata.h r_data.h r_defs.h r_state.h p_spec.h p_tick.h doomstat.h)
+
+$(O)/p_map.o: $(addprefix src/,  p_map.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h r_main.h \
+ r_data.h r_defs.h r_state.h p_maputl.h p_map.h p_setup.h p_spec.h \
+ s_sound.h sounds.h p_inter.h m_random.h m_bbox.h)
+
+$(O)/p_maputl.o: $(addprefix src/,  p_maputl.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ m_bbox.h r_main.h r_data.h r_defs.h r_state.h p_maputl.h p_map.h \
+ p_setup.h)
+
+$(O)/p_plats.o: $(addprefix src/,  p_plats.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ m_random.h r_main.h r_data.h r_defs.h r_state.h p_spec.h p_tick.h \
+ s_sound.h sounds.h)
+
+$(O)/p_pspr.o: $(addprefix src/,  p_pspr.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h r_main.h \
+ r_data.h r_defs.h r_state.h p_map.h p_inter.h p_enemy.h m_random.h \
+ s_sound.h sounds.h d_event.h)
+
+$(O)/p_setup.o: $(addprefix src/,  p_setup.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ m_bbox.h m_argv.h g_game.h d_event.h w_wad.h r_main.h r_data.h \
+ r_defs.h r_state.h r_things.h p_maputl.h p_map.h p_setup.h p_spec.h \
+ p_tick.h p_enemy.h s_sound.h)
+
+$(O)/p_sight.o: $(addprefix src/,  p_sight.c r_main.h d_player.h d_items.h doomdef.h z_zone.h \
+ m_swap.h version.h p_pspr.h m_fixed.h i_system.h d_ticcmd.h \
+ doomtype.h tables.h info.h d_think.h p_mobj.h doomdata.h r_data.h \
+ r_defs.h r_state.h p_maputl.h p_setup.h m_bbox.h)
+
+$(O)/p_spec.o: $(addprefix src/,  p_spec.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h p_spec.h \
+ r_defs.h p_tick.h p_setup.h m_random.h d_englsh.h m_argv.h w_wad.h \
+ r_main.h r_data.h r_state.h p_maputl.h p_map.h g_game.h d_event.h \
+ p_inter.h s_sound.h sounds.h m_bbox.h d_deh.h)
+
+$(O)/p_switch.o: $(addprefix src/,  p_switch.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ w_wad.h r_main.h r_data.h r_defs.h r_state.h p_spec.h g_game.h \
+ d_event.h s_sound.h sounds.h)
+
+$(O)/p_mobj.o: $(addprefix src/,  p_mobj.c doomdef.h z_zone.h m_swap.h version.h doomstat.h \
+ doomdata.h doomtype.h d_net.h d_player.h d_items.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h m_random.h \
+ r_main.h r_data.h r_defs.h r_state.h p_maputl.h p_map.h p_tick.h \
+ sounds.h st_stuff.h d_event.h hu_stuff.h s_sound.h g_game.h)
+
+$(O)/p_telept.o: $(addprefix src/,  p_telept.c doomdef.h z_zone.h m_swap.h version.h p_spec.h \
+ r_defs.h m_fixed.h i_system.h d_ticcmd.h doomtype.h d_think.h p_user.h \
+ p_mobj.h tables.h doomdata.h info.h d_player.h d_items.h p_pspr.h \
+ p_maputl.h p_map.h r_main.h r_data.h r_state.h p_tick.h s_sound.h \
+ sounds.h)
+
+$(O)/p_tick.o: $(addprefix src/,  p_tick.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h p_user.h \
+ p_spec.h r_defs.h p_tick.h)
+
+$(O)/p_saveg.o: $(addprefix src/,  p_saveg.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ r_main.h r_data.h r_defs.h r_state.h p_maputl.h p_spec.h p_tick.h \
+ p_saveg.h m_random.h am_map.h d_event.h p_enemy.h)
+
+$(O)/p_user.o: $(addprefix src/,  p_user.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h d_event.h \
+ r_main.h r_data.h r_defs.h r_state.h p_map.h p_spec.h p_user.h)
+
+$(O)/r_bsp.o: $(addprefix src/,  r_bsp.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h m_bbox.h \
+ r_main.h r_data.h r_defs.h r_state.h r_segs.h r_plane.h r_things.h)
+
+$(O)/r_data.o: $(addprefix src/,  r_data.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h w_wad.h \
+ r_main.h r_data.h r_defs.h r_state.h r_sky.h)
+
+$(O)/r_draw.o: $(addprefix src/,  r_draw.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h w_wad.h \
+ r_main.h r_data.h r_defs.h r_state.h v_video.h)
+
+$(O)/r_main.o: $(addprefix src/,  r_main.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h r_data.h \
+ r_defs.h r_state.h r_main.h r_bsp.h r_segs.h r_plane.h r_things.h \
+ r_draw.h m_bbox.h r_sky.h v_video.h)
+
+$(O)/r_plane.o: $(addprefix src/,  r_plane.c z_zone.h i_system.h d_ticcmd.h doomtype.h w_wad.h \
+ doomdef.h m_swap.h version.h doomstat.h doomdata.h d_net.h d_player.h \
+ d_items.h p_pspr.h m_fixed.h tables.h info.h d_think.h p_mobj.h \
+ r_plane.h r_data.h r_defs.h r_state.h r_main.h r_bsp.h r_segs.h \
+ r_things.h r_draw.h r_sky.h)
+
+$(O)/r_segs.o: $(addprefix src/,  r_segs.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h r_main.h \
+ r_data.h r_defs.h r_state.h r_bsp.h r_plane.h r_things.h r_draw.h \
+ w_wad.h)
+
+$(O)/r_sky.o: $(addprefix src/,  r_sky.c r_sky.h m_fixed.h i_system.h d_ticcmd.h doomtype.h)
+
+$(O)/r_things.o: $(addprefix src/,  r_things.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ w_wad.h r_main.h r_data.h r_defs.h r_state.h r_bsp.h r_segs.h \
+ r_draw.h r_things.h)
+
+$(O)/w_wad.o: $(addprefix src/,  w_wad.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
+ d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h w_wad.h)
+
+$(O)/wi_stuff.o: $(addprefix src/,  wi_stuff.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ m_random.h w_wad.h g_game.h d_event.h r_main.h r_data.h r_defs.h \
+ r_state.h v_video.h wi_stuff.h s_sound.h sounds.h)
+
+$(O)/v_video.o: $(addprefix src/,  v_video.c doomdef.h z_zone.h m_swap.h version.h r_main.h \
+ d_player.h d_items.h p_pspr.h m_fixed.h i_system.h d_ticcmd.h \
+ doomtype.h tables.h info.h d_think.h p_mobj.h doomdata.h r_data.h \
+ r_defs.h r_state.h m_bbox.h w_wad.h v_video.h)
+
+$(O)/st_lib.o: $(addprefix src/,  st_lib.c doomdef.h z_zone.h m_swap.h version.h v_video.h \
+ doomtype.h r_data.h r_defs.h m_fixed.h i_system.h d_ticcmd.h \
+ d_think.h p_mobj.h tables.h doomdata.h info.h r_state.h d_player.h \
+ d_items.h p_pspr.h w_wad.h st_stuff.h d_event.h st_lib.h r_main.h \
+ r_bsp.h r_segs.h r_plane.h r_things.h r_draw.h)
+
+$(O)/st_stuff.o: $(addprefix src/,  st_stuff.c doomdef.h z_zone.h m_swap.h version.h \
+ doomstat.h doomdata.h doomtype.h d_net.h d_player.h d_items.h \
+ p_pspr.h m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h \
+ p_mobj.h m_random.h i_video.h w_wad.h st_stuff.h d_event.h st_lib.h \
+ r_defs.h v_video.h r_data.h r_state.h r_main.h am_map.h m_cheat.h \
+ s_sound.h sounds.h dstrings.h d_englsh.h)
+
+$(O)/hu_stuff.o: $(addprefix src/,  hu_stuff.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ hu_stuff.h d_event.h hu_lib.h r_defs.h v_video.h r_data.h r_state.h \
+ st_stuff.h w_wad.h s_sound.h dstrings.h d_englsh.h sounds.h d_deh.h)
+
+$(O)/hu_lib.o: $(addprefix src/,  hu_lib.c doomdef.h z_zone.h m_swap.h version.h v_video.h \
+ doomtype.h r_data.h r_defs.h m_fixed.h i_system.h d_ticcmd.h \
+ d_think.h p_mobj.h tables.h doomdata.h info.h r_state.h d_player.h \
+ d_items.h p_pspr.h hu_lib.h r_main.h r_bsp.h r_segs.h r_plane.h \
+ r_things.h r_draw.h)
+
+$(O)/s_sound.o: $(addprefix src/,  s_sound.c doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
+ m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
+ s_sound.h i_sound.h sounds.h r_main.h r_data.h r_defs.h r_state.h \
+ m_random.h w_wad.h)
+
+$(O)/z_zone.o: $(addprefix src/,  z_zone.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
+ d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h)
+
+$(O)/info.o: $(addprefix src/,  info.c doomdef.h z_zone.h m_swap.h version.h sounds.h \
+ m_fixed.h i_system.h d_ticcmd.h doomtype.h p_mobj.h tables.h \
+ d_think.h doomdata.h info.h w_wad.h)
+
+$(O)/sounds.o: $(addprefix src/,  sounds.c doomtype.h sounds.h)
+
+$(O)/mmus2mid.o: $(addprefix src/,  mmus2mid.c mmus2mid.h z_zone.h)
+
+$(O)/i_main.o: $(addprefix src/,  i_main.c doomdef.h z_zone.h m_swap.h version.h m_argv.h \
+ d_main.h d_event.h doomtype.h i_system.h d_ticcmd.h)
+
+$(O)/p_genlin.o: $(addprefix src/,  p_genlin.c r_main.h d_player.h d_items.h doomdef.h \
+ z_zone.h m_swap.h version.h p_pspr.h m_fixed.h i_system.h d_ticcmd.h \
+ doomtype.h tables.h info.h d_think.h p_mobj.h doomdata.h r_data.h \
+ r_defs.h r_state.h p_spec.h p_tick.h m_random.h s_sound.h sounds.h)
+
+$(O)/d_deh.o: $(addprefix src/,  d_deh.c doomdef.h z_zone.h m_swap.h version.h doomstat.h \
+ doomdata.h doomtype.h d_net.h d_player.h d_items.h p_pspr.h m_fixed.h \
+ i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h sounds.h \
+ m_cheat.h p_inter.h g_game.h d_event.h dstrings.h d_englsh.h)
+
+$(O)/lprintf.o: $(addprefix src/,  lprintf.c lprintf.h)
+
+$(O)/version.o: $(addprefix src/,  version.c version.h z_zone.h)
+
+$(O)/winstuff.o: $(addprefix src/,  winstuff.c doomdef.h m_argv.h d_event.h \
+ d_main.h v_video.h i_system.h)
+
+# Allegro patches required for Boom to function satisfactorily
+
+$(O)/emu8kmid.o: $(addprefix src/,  emu8kmid.c emu8k.h internal.h interndj.h allegro.h)
+
+$(O)/keyboard.o: $(addprefix src/,  keyboard.c internal.h interndj.h allegro.h)
+
+# bin2c utility
+
+bin2c: $(O)/bin2c.exe
+	$(CP) $(O)\bin2c.exe .
+
+$(O)/bin2c.exe: $(O)/bin2c.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(O)/bin2c.o -o $@ $(LIBS)
+
+$(O)/bin2c.o: bin2c.c
+
+# DCK support files
+
+dckboom: dckboom.zip
+
+dckboom.zip: doom17.dat doom19.dat watermap.wad dckboom.txt
+	pkzip -a -Ex dckboom.zip doom17.dat doom19.dat watermap.wad dckboom.txt
+
+###############################################################################
+# $Log: MAKEFILE.C32,v $
+# Revision 1.1  2000/04/09 17:52:24  proff_fs
+# Initial revision
+#
+# Revision 1.40  1998/10/17  03:11:37  jim
+# Suppressed if/else warnings
+#
+# Revision 1.39  1998/09/07  20:12:32  jim
+# Logical output routine added
+#
+# Revision 1.38  1998/05/18  22:59:22  killough
+# Update p_lights.o depedencies
+#
+# Revision 1.37  1998/05/16  09:41:24  jim
+# formatted net files, installed temp switch for testing Stan/Lee's version
+#
+# Revision 1.36  1998/05/15  00:35:40  killough
+# Remove p_tick.h dependence from i_main.o
+#
+# Revision 1.35  1998/05/13  22:58:58  killough
+# Restore Doom bug compatibility for demos
+#
+# Revision 1.34  1998/05/12  12:47:35  phares
+# Removed OVER_UNDER code
+#
+# Revision 1.33  1998/05/10  23:43:03  killough
+# Add p_user.h to p_user.o, p_telept.o dependencies
+#
+# Revision 1.32  1998/05/05  16:29:20  phares
+# Removed RECOIL and OPT_BOBBING defines
+#
+# Revision 1.31  1998/05/03  23:20:15  killough
+# Reflect current dependencies, beautify
+#
+# Revision 1.30  1998/04/27  02:25:42  killough
+# Fix missing tabs after fixing cvsto script
+#
+# Revision 1.26  1998/04/14  08:14:50  killough
+# remove obsolete ADAPTIVE_GAMETICS
+#
+# Revision 1.25  1998/04/13  13:03:22  killough
+# Add -DADAPTIVE_GAMETIC
+#
+# Revision 1.24  1998/04/13  09:43:20  killough
+# Add watermap.wad to dckboom.zip
+#
+# Revision 1.23  1998/04/12  02:07:37  killough
+# Add r_segs.c dependency for translucency
+#
+# Revision 1.22  1998/04/09  09:18:52  thldrmn
+# Added dependency of d_main.c on d_deh.h
+#
+# Revision 1.21  1998/03/29  21:40:17  jim
+# Fix to DEH text problem
+#
+# Revision 1.20  1998/03/23  15:24:21  phares
+# Changed pushers to linedef control
+#
+# Revision 1.19  1998/03/23  03:23:47  killough
+# Add dckboom, bin2c targets, add new dependencies
+#
+# Revision 1.18  1998/03/20  00:29:51  phares
+# Changed friction to linedef control
+#
+# Revision 1.17  1998/03/16  12:32:18  killough
+# Add -m486 flag for better 486 codegen
+#
+# Revision 1.16  1998/03/11  17:48:20  phares
+# New cheats, clean help code, friction fix
+#
+# Revision 1.15  1998/03/10  07:15:05  jim
+# Initial DEH support added, minus text
+#
+# Revision 1.14  1998/03/09  07:17:18  killough
+# Turn on instrumenting in debug builds
+#
+# Revision 1.13  1998/03/04  21:02:24  phares
+# Dynamic HELP screen
+#
+# Revision 1.12  1998/03/02  11:38:42  killough
+# Add dependencies, clarify CFLAGS_debug
+#
+# Revision 1.11  1998/02/27  08:10:05  phares
+# Added optional player bobbing
+#
+# Revision 1.10  1998/02/24  08:46:08  phares
+# Pushers, recoil, new friction, and over/under work
+#
+# Revision 1.9  1998/02/23  04:42:54  killough
+# Correct depedencies
+#
+# Revision 1.8  1998/02/18  01:00:11  jim
+# Addition of HUD
+#
+# Revision 1.7  1998/02/17  05:41:34  killough
+# Add drawspan.s, drawcol.s, fix some dependencies
+#
+# Revision 1.6  1998/02/08  05:35:13  jim
+# Added generalized linedef types
+#
+# Revision 1.5  1998/02/02  13:26:04  killough
+# Add version information files
+#
+# Revision 1.4  1998/01/30  14:45:16  jim
+# Makefile changed to build BOOM.EXE
+#
+# Revision 1.3  1998/01/26  19:31:15  phares
+# First rev w/o ^Ms
+#
+# Revision 1.2  1998/01/26  05:56:52  killough
+# Add PPro blit routine
+#
+# Revision 1.1.1.1  1998/01/19  14:02:52  rand
+# Lee's Jan 19 sources
+#
+###############################################################################

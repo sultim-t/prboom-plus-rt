@@ -1,0 +1,2392 @@
+
+==========================================
+Dehacked support in BOOM, extended support
+==========================================
+
+Changes:
+
+8/28/98 added mnemonic representation for the bits of an item
+definition.  Also added an appendix B with the default bit
+states for all DOOM2 Things.
+
+5/16/98 added a A_NULL codepointer entry to clear an already
+existing code pointer to zero.
+
+5/3/98 added SAVEGAMENAME string parameter to change the first
+part of the savegame name.  0-7 is appended during save.
+
+-------------------------------THINGS-----------------------------
+#####
+USAGE
+#####
+
+This is actually something you can use to hack your Dehacked
+output file to be more understandable and modifiable.  Note that
+once you do this you won't be able to bring it back into 
+Dehacked.
+
+You will find an area in a Dehacked output file for Things,
+starting with an entry such as:
+
+  Thing 31 (Barrel)
+
+Down a few lines, if you've altered the bits at all, you'll see 
+a line like:
+
+  Bits = 205636102
+
+That horrible number is why we are providing some mnemonics
+instead.  All you need to do is to put the appropriate ones
+of the following mnemonics on the line where the big number is,
+and it'll be read in and converted to the number for you.  An
+example line:
+
+  Bits = SOLID+SHOOTABLE+NOBLOOD
+
+which converts to Bits = 524294 but you didn't have to figure
+that part out.  Just use plus signs between the mnemonics.
+Here's the list, along with a bit of explanation of each, 
+and the phrase that's used in Dehacked to describe them.  If
+there are any disagreements between the 2 definitions, ours
+wins.  There is a complete list of all the DOOM2 Things in 
+Appendix B at the end of this file, with which bits they have
+by default in BOOM (including for example which Things are
+translucent)
+
+  Mnemonic      Bit mask     Meaning / Dehacked phrase
+  ------------------------------------------------------------------
+  SPECIAL,      0x00000001 - call P_Specialthing when touched
+                                  Can be picked up
+  SOLID,        0x00000002 - block movement
+                                  Obstacle
+  SHOOTABLE,    0x00000004 - can be hit
+                                  Shootable
+  NOSECTOR,     0x00000008 - invisible but touchable
+                                  Total invisibility
+  NOBLOCKMAP,   0x00000010 - inert but displayable
+                                  Can't be hit
+  AMBUSH,       0x00000020 - deaf monster
+                                  Semi-deaf
+  JUSTHIT,      0x00000040 - will try to attack right back
+                                  In pain
+  JUSTATTACKED, 0x00000080 - take at least 1 step before attacking
+                                  Steps before attack
+  SPAWNCEILING, 0x00000100 - initially hang from ceiling
+                                  Hangs from ceiling
+  NOGRAVITY,    0x00000200 - don't apply gravity during play
+                                  No Gravity
+  DROPOFF,      0x00000400 - can jump from high places
+                                  Travels over cliffs
+  PICKUP,       0x00000800 - will pick up items
+                                  Picks up items
+  NOCLIP,       0x00001000 - goes through walls
+                                  No clipping
+  SLIDE,        0x00002000 - keep info about sliding along walls
+                                  Slides along walls
+  FLOAT,        0x00004000 - allow movement to any height
+                                  Floating
+  TELEPORT,     0x00008000 - don't cross lines or look at teleport heights
+                                  Semi-no clipping
+  MISSILE,      0x00010000 - don't hit same species, explode on block
+                                  Projectiles
+  DROPPED,      0x00020000 - dropped, not spawned (like ammo clip)
+                                  Disappearing weapon
+  SHADOW,       0x00040000 - use fuzzy draw like spectres
+                                  Partial invisibility
+  NOBLOOD,      0x00080000 - puffs instead of blood when shot
+                                  Puffs (vs. bleeds)
+  CORPSE,       0x00100000 - so it will slide down steps when dead
+                                  Sliding helpless
+  INFLOAT,      0x00200000 - float but not to target height
+                                  No auto-leveling
+  COUNTKILL,    0x00400000 - count toward the kills total
+                                  Affects Kill %
+  COUNTITEM,    0x00800000 - count toward the items total
+                                  Affects Item %
+  SKULLFLY,     0x01000000 - special handling for flying skulls
+                                  Running
+  NOTDMATCH,    0x02000000 - do not spawn in deathmatch
+                                  Not in deathmatch
+  TRANSLATION,  0x04000000 - use translation table for color (players
+                                  Color 1 (gray/red)
+  UNUSED1,      0x08000000 - undefined or second bit for translation
+                                  Color 2 (brown/red)
+  UNUSED2,      0x10000000 - undefined
+  UNUSED3,      0x20000000 - undefined
+  UNUSED4,      0x40000000 - undefined
+  TRANSLUCENT,  0x80000000 - apply translucency to sprite (BOOM)
+
+
+----------------------------CODE POINTERS-------------------------
+#####
+USAGE
+#####
+
+Insert this block into your BEX file:
+
+[CODEPTR]
+FRAME nn = mnemonic
+...
+
+The Frame number is the same as you would use in Dehacked, and the
+mnemonic is one of the ones listed below.  These mnemonics, though
+not perfectly clear, are the actual names of the functions in DOOM
+that are called, so it makes the most sense to use them. 
+
+When using Dehacked frame code pointer changes, BOOM will write out
+a line for each one used showing what you'd put into a BEX [CODEPTR] 
+block, in the DEHOUT.TXT file.  For example:
+
+  Original Dehacked file lines:
+
+     Pointer 93 (Frame 196)
+     Codep Frame = 176
+
+  Output from BOOM in the DEHOUT.TXT file when processing them:
+
+    Line='Pointer 93 (Frame 196)'
+    Processing function [2] for Pointer
+    Processing Pointer at index 196: Frame
+     - applied 1c53c from codeptr[176] to states[196]
+    BEX [CODEPTR] -> FRAME 196 = Chase
+
+  You could then use this in the [CODEPTR] block of a BEX file 
+  instead of the Dehacked lines, making it much more clear 
+  that in frame 196 you expect the monster to Chase the player:
+
+    FRAME 196 = Chase
+
+In addition, you can now put any code pointer into any frame, whereas
+Dehacked is limited to replacing only the existing ones.
+
+Valid mnemonics you can use:
+
+    NULL  <<  new, zeroes out an existing codepointer
+    Light0
+    WeaponReady
+    Lower
+    Raise
+    Punch
+    ReFire
+    FirePistol
+    Light1
+    FireShotgun
+    Light2
+    FireShotgun2
+    CheckReload
+    OpenShotgun2
+    LoadShotgun2
+    CloseShotgun2
+    FireCGun
+    GunFlash
+    FireMissile
+    Saw
+    FirePlasma
+    BFGsound
+    FireBFG
+    BFGSpray
+    Explode
+    Pain
+    PlayerScream
+    Fall
+    XScream
+    Look
+    Chase
+    FaceTarget
+    PosAttack
+    Scream
+    SPosAttack
+    VileChase
+    VileStart
+    VileTarget
+    VileAttack
+    StartFire
+    Fire
+    FireCrackle
+    Tracer
+    SkelWhoosh
+    SkelFist
+    SkelMissile
+    FatRaise
+    FatAttack1
+    FatAttack2
+    FatAttack3
+    BossDeath
+    CPosAttack
+    CPosRefire
+    TroopAttack
+    SargAttack
+    HeadAttack
+    BruisAttack
+    SkullAttack
+    Metal
+    SpidRefire
+    BabyMetal
+    BspiAttack
+    Hoof
+    CyberAttack
+    PainAttack
+    PainDie
+    KeenDie
+    BrainPain
+    BrainScream
+    BrainDie
+    BrainAwake
+    BrainSpit
+    SpawnSound
+    SpawnFly
+    BrainExplode
+
+
+See the end of this file for the Code Pointer Appendix
+which contains the actual default settings for code pointers
+and frames.  Remember, changing code pointers with BEX files is
+no less prone to you trying to do something impossible that will
+crash than it ever was in Dehacked--it's just simpler and more
+flexible, and clearer to read, in specification.
+
+
+----------------------------PAR TIMES-----------------------------
+#####
+USAGE
+#####
+
+Insert the following block in your BEX file, using one or more
+of the par lines depending on if you want to alter them for
+DOOM 1 or DOOM 2.
+
+[PARS]
+par e m p      << for DOOM 1: episode, map, parseconds
+par m p        << for DOOM 2: mapnumber, parseconds
+
+You may have as many par times listed as you wish in the pars block.
+
+----------------------------INCLUDES------------------------------
+#####
+USAGE
+#####
+
+To include a DEH or BEX file in another one, put one or more of the
+following lines in your BEX file:
+
+
+INCLUDE filename
+INCLUDE NOTEXT filename
+
+Filename must be specified in full, including a path if it's not
+going to be in the current directory, and including its .deh or
+.bex extension.  By far better is to ship a file as a completely
+self-contained file, but you can use this during testing and development.
+
+The NOTEXT directive will cause BOOM to skip any deh-style text blocks
+in the included file, with the assumption that you're doing something
+else in your main BEX file instead.  Note that this will include any text
+changes, including sprite names, etc.
+
+You may not nest include files (one include file can't include another).
+
+-----------------------------STRINGS------------------------------
+##########
+BACKGROUND
+##########
+
+The basic Dehacked file is understood and properly evaluated to change
+such things as sounds, frame rewiring, Thing attributes, etc.  No change
+is required to the original .deh file for those things.  However, text
+is handled differently in BOOM for several reasons:
+
+1.  Dehacked by the nature of the program was simply doing a search and
+replace action on the strings as found in the executable.  This is 
+clumsy and dangerous, though as good as can be done when dealing with
+a compiled executable program.  We now have the ability to change the
+actual string values during play, a safer and better solution.
+
+2.  Because Dehacked used the original string to find the place to 
+plug in the replacement, there was no way to write a generic hack that
+would replace strings in all versions regardless of language.  In BOOM,
+the strings are identified by their names, which are the same in all
+cases.
+
+3.  Because Dehacked was replacing strings in a physical location in
+the program file, it was limited to approximately the same size string
+as the original.  Though this is generally practical, it is limiting in
+flexibility.  BOOM allows any length string to replace any of the ones
+in the game (this also applies to cheats).
+
+4.  The purpose of replacing a string is to show the player some text
+at a particular point in the game.  Finding the original text that was
+there and replacing it with other text worked, but logically what the 
+author should have been able to do was assign strings depending on the
+desired purpose, and not have to recognize the original text to do so.
+In BOOM, all strings are identified by a mnemonic name (actually the
+name of the internal variable), making it easier to assign a string to
+its desired purpose.  In later versions we may also make other aliases
+for some of those.
+
+Detailed information is available further down in this file, explaining
+the mnemonic codes that are used for all the replaceable strings. Note
+that some of the strings are always displayed in the small (uppercase
+only) font, so capitalization is not important for those.  
+
+The dehacked method of supplying an old texture followed by a new one,
+with the lengths of the before and after strings in the dehacked file,
+will be supported so long as the old string can be found as the default
+value of one of the supported strings (see below).  This should take 
+care of 97% of actual hacks, since intermission texts, informational
+messages and level names for the automap are by far the most 
+prevalent and important changes.  We urge the patch authors to also
+provide new BEX format files, for clarity, supportability and 
+flexibility.
+
+#####
+USAGE
+#####
+
+To use extended string support in BOOM, start the section with a 
+[STRINGS] section marker, followed by lines that start with the key
+mnemonic, an equal sign, and the value to assign to that string.  You
+may split the value to be assigned onto multiple lines by ending
+each line that is to be continued with a backslash.  Don't put 
+quotes around the string if you don't want them to show up in the
+result.  A couple of examples:
+
+# Start comments with a #
+# Change the level name that shows up in the automap for MAP12:
+[STRINGS]
+HUSTR_12 = The Twelfth Night
+# and now the new red key message for switches
+PD_REDO = You need the scarlet pimpernel to \
+          turn on this machine.
+# Note that the blank before the backslash is included in the string
+# but that the indentation before the word "turn" is not, allowing
+# the change file to be easy to read.
+
+Other example files are included in the BEX_SAMP.ZIP file.  All use the
+.bex extension to avoid conflict with existing .deh files of the same
+name.
+
+########################################
+MNEMONIC KEYS AND ORIGINAL VALUES TABLES
+########################################
+
+Note:
+If the original initial value is longer than about 40 characters, 
+the string will have been truncated and will have an ellipsis (...)
+after the closing double-quote.  There should be enough in the part
+that is shown to recognize it.
+
+If a string has C language printf() characters in it, such as %s or %d, 
+you should be sure that your replacement string either contains the 
+same ones in the same order, or that you leave them out of your string.  
+If that confuses you, you need to learn C or leave 'em alone <g>.  
+Some trailing linefeeds have been removed for clarity, though \n in 
+the middle of a string indicates an internal linefeed and your 
+replacement can do likewise.
+
+===========================================
+Part 1 - GENERAL INITIALIZATION AND PROMPTS
+===========================================
+
+MNEMONIC           Purpose
+                     Initial original value (just the first part if long)
+------------------ -----------------------------------------------------
+D_DEVSTR           What shows during init if -devparm is used
+                     "Development mode ON."
+D_CDROM            Init: if switch -cdrom is used
+                     "CD-ROM Version: default.cfg from c:\\doomdata"
+QUITMSG            Default display when you pick Quit
+                     "are you sure you want to\nquit this great game?"
+LOADNET            Warning when you try to load during a network game
+                     "you can't do load while in a net game!"
+QLOADNET           Warning when you try quickload during a network game
+                     "you can't quickload during a netgame!"
+QSAVESPOT          Warning when you quickload without a quicksaved game
+                     "you haven't picked a quicksave slot yet!"
+SAVEDEAD           Warning when not playing or dead and you try to save
+                     "you can't save if you aren't playing!"
+QSPROMPT           Prompt when quicksaving your game
+                     "quicksave over your game named\n\n'%s'?"
+QLPROMPT           Prompt when quickloading a game
+                     "do you want to quickload the game named\n\n'%s'?"
+NEWGAME            Warning if you try to start a game during network play
+                     "you can't start a new game\nwhile in a network"...
+NIGHTMARE          Nightmare mode warning
+                     "are you sure? this skill level\nisn't even rem"...
+SWSTRING           Warning when you pick any episode but 1 in Shareware
+                     "this is the shareware version of doom.\n\nyou '...
+MSGOFF             Message when toggling messages off (F8)
+                     "Messages OFF"
+MSGON              Message when toggling messages back on (F8)
+                     "Messages ON"
+NETEND             Message when you try to Quit during a network game
+                     "you can't end a netgame!"
+ENDGAME            Warning when you try to end the game
+                     "are you sure you want to end the game?"
+DETAILHI           Message switching to high detail (obsolete in BOOM)
+                     "High detail"
+DETAILLO           Message switching to high detail (obsolete in BOOM)
+                     "Low detail"
+GAMMALVL0          Message when gamma correction is set off
+                     "Gamma correction OFF"
+GAMMALVL1          Message when gamma correction is set to 1
+                     "Gamma correction level 1"
+GAMMALVL2          Message when gamma correction is set to 2
+                     "Gamma correction level 2"
+GAMMALVL3          Message when gamma correction is set to 3
+                     "Gamma correction level 3"
+GAMMALVL4          Message when gamma correction is set to 4
+                     "Gamma correction level 4"
+EMPTYSTRING        Value that shows up in an unused savegame slot
+                     "empty slot"
+GGSAVED            Message after a savegame has been written to disk
+                     "game saved."
+SAVEGAMENAME       Saved game name, number is appended during save
+                     "BOOMSAV"  << new 5/3/98
+
+=============================================
+Part 2 - MESSAGES WHEN THE PLAYER GETS THINGS
+=============================================
+
+GOTARMOR           Picking up the Green armor (100%)
+                     "Picked up the armor."
+GOTMEGA            Picking up the Blue armor (200%)
+                     "Picked up the MegaArmor!"
+GOTHTHBONUS        Picking up a health bottle (1%)
+                     "Picked up a health bonus."
+GOTARMBONUS        Picking up an armor helmet (1%)
+                     "Picked up an armor bonus."
+GOTSTIM            Picking up a stimpack (10%)
+                     "Picked up a stimpack."
+GOTMEDINEED        Picking up a medikit (25%) when very low on health
+                     "Picked up a medikit that you REALLY need!"
+GOTMEDIKIT         Picking up a medikit (25%) under normal conditions
+                     "Picked up a medikit."
+GOTSUPER           Picking up the blue health orb (200%)
+                     "Supercharge!"
+GOTBLUECARD        Picking up the blue keycard
+                     "Picked up a blue keycard."
+GOTYELWCARD        Picking up the yellow keycard
+                     "Picked up a yellow keycard."
+GOTREDCARD         Picking up the red keycard
+                     "Picked up a red keycard."
+GOTBLUESKUL        Picking up the blue skull key
+                     "Picked up a blue skull key."
+GOTYELWSKUL        Picking up the yellow skull key
+                     "Picked up a yellow skull key."
+GOTREDSKULL        Picking up the red skull key
+                     "Picked up a red skull key."
+GOTINVUL           Picking up the invulnerability sphere
+                     "Invulnerability!"
+GOTBERSERK         Picking up the berserk box
+                     "Berserk!"
+GOTINVIS           Picking up the invisibility sphere
+                     "Partial Invisibility"
+GOTSUIT            Picking up the rad suit
+                     "Radiation Shielding Suit"
+GOTMAP             Picking up the computer map
+                     "Computer Area Map"
+GOTVISOR           Picking up the light-amp goggles
+                     "Light Amplification Visor"
+GOTMSPHERE         Picking up the mega orb (200%/200%)
+                     "MegaSphere!"
+GOTCLIP            Picking up an ammo clip
+                     "Picked up a clip."
+GOTCLIPBOX         Picking up a box of ammo
+                     "Picked up a box of bullets."
+GOTROCKET          Picking up a single rocket
+                     "Picked up a rocket."
+GOTROCKBOX         Picking up a box of rockets
+                     "Picked up a box of rockets."
+GOTCELL            Picking up an energy cell (20 units)
+                     "Picked up an energy cell."
+GOTCELLBOX         Picking up an energy pack (100 units)
+                     "Picked up an energy cell pack."
+GOTSHELLS          Picking up a set of 4 shells
+                     "Picked up 4 shotgun shells."
+GOTSHELLBOX        Picking up a box of 20 shells
+                     "Picked up a box of shotgun shells."
+GOTBACKPACK        Picking up a backpack
+                     "Picked up a backpack full of ammo!"
+GOTBFG9000         Picking up the BFG (weapon 7)
+                     "You got the BFG9000!  Oh, yes."
+GOTCHAINGUN        Picking up the chaingun (weapon 4)
+                     "You got the chaingun!"
+GOTCHAINSAW        Picking up the chainsaw (weapon 8)
+                     "A chainsaw!  Find some meat!"
+GOTLAUNCHER        Picking up the rocket launcher (weapon 5)
+                     "You got the rocket launcher!"
+GOTPLASMA          Picking up the plasma gun (weapon 6)
+                     "You got the plasma gun!"
+GOTSHOTGUN         Picking up the shotgun (weapon 3)
+                     "You got the shotgun!"
+GOTSHOTGUN2        Picking up the double-barreled shotgun (weapon 9)
+                     "You got the super shotgun!"
+
+======================================
+Part 3 - MESSAGES WHEN KEYS ARE NEEDED (*)= BOOM extensions
+======================================
+
+PD_BLUEO           When you don't have the blue key for a switch
+                     "You need a blue key to activate this object"
+PD_REDO            When you don't have the red key for a switch
+                     "You need a red key to activate this object"
+PD_YELLOWO         When you don't have the yellow key for a switch
+                     "You need a yellow key to activate this object"
+PD_BLUEK           Blue key needed to open a door
+                     "You need a blue key to open this door"
+PD_REDK            Red key needed to open a door
+                     "You need a red key to open this door"
+PD_YELLOWK         Yellow key needed to open a door
+                     "You need a yellow key to open this door"
+PD_BLUEC           Blue card key needed, not skull (*)
+                     "You need a blue card to open this door"
+PD_REDC            Red card key needed, not skull (*)
+                     "You need a red card to open this door"
+PD_YELLOWC         Yellow card key needed, not skull (*)
+                     "You need a yellow card to open this door"
+PD_BLUES           Blue skull key needed, not card (*)
+                     "You need a blue skull to open this door"
+PD_REDS            Red skull key needed, not card (*)
+                     "You need a red skull to open this door"
+PD_YELLOWS         Yellow skull key needed, not card (*)
+                     "You need a yellow skull to open this door"
+PD_ANY             You need a key but any of them will do (*)
+                     "Any key will open this door"
+PD_ALL3            You need red, blue and yellow keys (*)
+                     "You need all three keys to open this door"
+PD_ALL6            You need both skulls and cards in all 3 colors (*)
+                     "You need all six keys to open this door"
+
+==============================
+Part 4 - MULTIPLAYER MESSAGING
+==============================
+
+HUSTR_MSGU         If you try to send a blank message?
+                     "[Message unsent]"
+HUSTR_MESSAGESENT  After you send a message?  Haven't seen it
+                     "[Message Sent]"
+
+* Chat macros 1-10
+* Original values in quotes
+
+HUSTR_CHATMACRO1        "I'm ready to kick butt!"
+HUSTR_CHATMACRO2        "I'm OK."
+HUSTR_CHATMACRO3        "I'm not looking too good!"
+HUSTR_CHATMACRO4        "Help!"
+HUSTR_CHATMACRO5        "You suck!"
+HUSTR_CHATMACRO6        "Next time, scumbag..."
+HUSTR_CHATMACRO7        "Come here!"
+HUSTR_CHATMACRO8        "I'll take care of it."
+HUSTR_CHATMACRO9        "Yes"
+HUSTR_CHATMACRO0        "No"
+
+* What shows up when you message yourself, depending
+* on how many times you've done it during the game
+
+HUSTR_TALKTOSELF1       "You mumble to yourself"
+HUSTR_TALKTOSELF2       "Who's there?"
+HUSTR_TALKTOSELF3       "You scare yourself"
+HUSTR_TALKTOSELF4       "You start to rave"
+HUSTR_TALKTOSELF5       "You've lost it..."
+
+* Prefixes for the multiplayer messages when displayed
+
+HUSTR_PLRGREEN  "Green: "
+HUSTR_PLRINDIGO "Indigo: "
+HUSTR_PLRBROWN  "Brown: "
+HUSTR_PLRRED      "Red: "
+
+===================================
+Part 5 - LEVEL NAMES IN THE AUTOMAP
+===================================
+
+* For DOOM - These names are made up of HUSTR_ and 
+* ExMx for the episode and map numbers.  Original
+* names are shown in quotes.  Episode 4 entries are
+* for Ultimate DOOM only.  
+* Blank lines separate sky change groupings
+
+HUSTR_E1M1      "E1M1: Hangar"
+HUSTR_E1M2      "E1M2: Nuclear Plant"
+HUSTR_E1M3      "E1M3: Toxin Refinery"
+HUSTR_E1M4      "E1M4: Command Control"
+HUSTR_E1M5      "E1M5: Phobos Lab"
+HUSTR_E1M6      "E1M6: Central Processing"
+HUSTR_E1M7      "E1M7: Computer Station"
+HUSTR_E1M8      "E1M8: Phobos Anomaly"
+HUSTR_E1M9      "E1M9: Military Base"
+
+HUSTR_E2M1      "E2M1: Deimos Anomaly"
+HUSTR_E2M2      "E2M2: Containment Area"
+HUSTR_E2M3      "E2M3: Refinery"
+HUSTR_E2M4      "E2M4: Deimos Lab"
+HUSTR_E2M5      "E2M5: Command Center"
+HUSTR_E2M6      "E2M6: Halls of the Damned"
+HUSTR_E2M7      "E2M7: Spawning Vats"
+HUSTR_E2M8      "E2M8: Tower of Babel"
+HUSTR_E2M9      "E2M9: Fortress of Mystery"
+
+HUSTR_E3M1      "E3M1: Hell Keep"
+HUSTR_E3M2      "E3M2: Slough of Despair"
+HUSTR_E3M3      "E3M3: Pandemonium"
+HUSTR_E3M4      "E3M4: House of Pain"
+HUSTR_E3M5      "E3M5: Unholy Cathedral"
+HUSTR_E3M6      "E3M6: Mt. Erebus"
+HUSTR_E3M7      "E3M7: Limbo"
+HUSTR_E3M8      "E3M8: Dis"
+HUSTR_E3M9      "E3M9: Warrens"
+
+HUSTR_E4M1      "E4M1: Hell Beneath"
+HUSTR_E4M2      "E4M2: Perfect Hatred"
+HUSTR_E4M3      "E4M3: Sever The Wicked"
+HUSTR_E4M4      "E4M4: Unruly Evil"
+HUSTR_E4M5      "E4M5: They Will Repent"
+HUSTR_E4M6      "E4M6: Against Thee Wickedly"
+HUSTR_E4M7      "E4M7: And Hell Followed"
+HUSTR_E4M8      "E4M8: Unto The Cruel"
+HUSTR_E4M9      "E4M9: Fear"
+
+* For DOOM2 - These names are made up of HUSTR_ and 
+* a number for the map number.  Original names are shown in quotes.
+* Blank lines separate sky change groupings
+
+HUSTR_1 "level 1: entryway"
+HUSTR_2 "level 2: underhalls"
+HUSTR_3 "level 3: the gantlet"
+HUSTR_4 "level 4: the focus"
+HUSTR_5 "level 5: the waste tunnels"
+HUSTR_6 "level 6: the crusher"
+HUSTR_7 "level 7: dead simple"
+HUSTR_8 "level 8: tricks and traps"
+HUSTR_9 "level 9: the pit"
+HUSTR_10        "level 10: refueling base"
+HUSTR_11        "level 11: 'o' of destruction!"
+
+HUSTR_12        "level 12: the factory"
+HUSTR_13        "level 13: downtown"
+HUSTR_14        "level 14: the inmost dens"
+HUSTR_15        "level 15: industrial zone"
+HUSTR_16        "level 16: suburbs"
+HUSTR_17        "level 17: tenements"
+HUSTR_18        "level 18: the courtyard"
+HUSTR_19        "level 19: the citadel"
+HUSTR_20        "level 20: gotcha!"
+
+HUSTR_21        "level 21: nirvana"
+HUSTR_22        "level 22: the catacombs"
+HUSTR_23        "level 23: barrels o' fun"
+HUSTR_24        "level 24: the chasm"
+HUSTR_25        "level 25: bloodfalls"
+HUSTR_26        "level 26: the abandoned mines"
+HUSTR_27        "level 27: monster condo"
+HUSTR_28        "level 28: the spirit world"
+HUSTR_29        "level 29: the living end"
+HUSTR_30        "level 30: icon of sin"
+
+* Secret levels
+
+HUSTR_31        "level 31: wolfenstein"
+HUSTR_32        "level 32: grosse"
+
+* For PLUTONIA - These names are made up of PHUSTR_ and 
+* a number for the map number.  Original names are shown in quotes.
+* Blank lines separate sky change groupings
+
+PHUSTR_1        "level 1: congo"
+PHUSTR_2        "level 2: well of souls"
+PHUSTR_3        "level 3: aztec"
+PHUSTR_4        "level 4: caged"
+PHUSTR_5        "level 5: ghost town"
+PHUSTR_6        "level 6: baron's lair"
+PHUSTR_7        "level 7: caughtyard"
+PHUSTR_8        "level 8: realm"
+PHUSTR_9        "level 9: abattoire"
+PHUSTR_10       "level 10: onslaught"
+PHUSTR_11       "level 11: hunted"
+
+PHUSTR_12       "level 12: speed"
+PHUSTR_13       "level 13: the crypt"
+PHUSTR_14       "level 14: genesis"
+PHUSTR_15       "level 15: the twilight"
+PHUSTR_16       "level 16: the omen"
+PHUSTR_17       "level 17: compound"
+PHUSTR_18       "level 18: neurosphere"
+PHUSTR_19       "level 19: nme"
+PHUSTR_20       "level 20: the death domain"
+
+PHUSTR_21       "level 21: slayer"
+PHUSTR_22       "level 22: impossible mission"
+PHUSTR_23       "level 23: tombstone"
+PHUSTR_24       "level 24: the final frontier"
+PHUSTR_25       "level 25: the temple of darkness"
+PHUSTR_26       "level 26: bunker"
+PHUSTR_27       "level 27: anti-christ"
+PHUSTR_28       "level 28: the sewers"
+PHUSTR_29       "level 29: odyssey of noises"
+PHUSTR_30       "level 30: the gateway of hell"
+
+PHUSTR_31       "level 31: cyberden"
+PHUSTR_32       "level 32: go 2 it"
+
+* For TNT:Evilution - These names are made up of THUSTR_ and 
+* a number for the map number.  Original names are shown in quotes.
+* Blank lines separate sky change groupings
+
+THUSTR_1        "level 1: system control"
+THUSTR_2        "level 2: human bbq"
+THUSTR_3        "level 3: power control"
+THUSTR_4        "level 4: wormhole"
+THUSTR_5        "level 5: hanger"
+THUSTR_6        "level 6: open season"
+THUSTR_7        "level 7: prison"
+THUSTR_8        "level 8: metal"
+THUSTR_9        "level 9: stronghold"
+THUSTR_10       "level 10: redemption"
+THUSTR_11       "level 11: storage facility"
+
+THUSTR_12       "level 12: crater"
+THUSTR_13       "level 13: nukage processing"
+THUSTR_14       "level 14: steel works"
+THUSTR_15       "level 15: dead zone"
+THUSTR_16       "level 16: deepest reaches"
+THUSTR_17       "level 17: processing area"
+THUSTR_18       "level 18: mill"
+THUSTR_19       "level 19: shipping/respawning"
+THUSTR_20       "level 20: central processing"
+
+THUSTR_21       "level 21: administration center"
+THUSTR_22       "level 22: habitat"
+THUSTR_23       "level 23: lunar mining project"
+THUSTR_24       "level 24: quarry"
+THUSTR_25       "level 25: baron's den"
+THUSTR_26       "level 26: ballistyx"
+THUSTR_27       "level 27: mount pain"
+THUSTR_28       "level 28: heck"
+THUSTR_29       "level 29: river styx"
+THUSTR_30       "level 30: last call"
+
+THUSTR_31       "level 31: pharaoh"
+THUSTR_32       "level 32: caribbean"
+
+================================================
+Part 6 - MESSAGES AS A RESULT OF TOGGLING STATES
+================================================
+
+AMSTR_FOLLOWON     Automap follow mode toggled on (F)
+                     "Follow Mode ON"
+AMSTR_FOLLOWOFF    Automap follow mode toggled off (F)
+                     "Follow Mode OFF"
+AMSTR_GRIDON       Automap grid mode toggled on (G)
+                     "Grid ON"
+AMSTR_GRIDOFF      Automap grid mode toggled off (G)
+                     "Grid OFF"
+AMSTR_MARKEDSPOT   Automap spot marked (M)
+                     "Marked Spot"
+AMSTR_MARKSCLEARED Automap marks cleared (C)
+                     "All Marks Cleared" 
+STSTR_MUS          Music changed with IDMUSnn
+                     "Music Change"
+STSTR_NOMUS        Error message [IDMUS] to bad number
+                     "IMPOSSIBLE SELECTION"
+STSTR_DQDON        God mode toggled on [IDDQD]
+                     "Degreelessness Mode On"
+STSTR_DQDOFF       God mode toggled off [IDDQD]
+                     "Degreelessness Mode Off"
+STSTR_KFAADDED     Ammo and keys added [IDKFA]
+                     "Very Happy Ammo Added"
+STSTR_FAADDED      Ammo no keys added [IDK or IDKA]
+                     "Ammo (no keys) Added"
+STSTR_NCON         Walk through walls toggled on [IDCLIP or IDSPISPOPD]
+                     "No Clipping Mode ON"
+STSTR_NCOFF        Walk through walls off [IDCLIP or IDSPISPOPD]
+                     "No Clipping Mode OFF"
+STSTR_BEHOLD       Prompt for IDBEHOLD cheat menu
+                     "inVuln, Str, Inviso, Rad, Allmap, or Lite-amp"
+STSTR_BEHOLDX      Prompt after toggling the special with IDBEHOLD
+                     "Power-up Toggled"
+STSTR_CHOPPERS     Message when the chainsaw is picked [IDCHOPPERS]
+                     "... doesn't suck - GM"
+STSTR_CLEV         Message while changing levels [IDCLEVxx]
+                     "Changing Level..."
+STSTR_COMPON       Message when turning on DOOM compatibility mode (*)
+                     "Compatibility Mode On"
+STSTR_COMPOFF      Message when turning off DOOM compatibility mode (*)
+                     "Compatibility Mode Off"
+
+
+===================================
+Part 7 - EPISODE INTERMISSION TEXTS
+===================================
+
+* DOOM/Ultimate DOOM Intermissions
+
+E1TEXT             Message after Episode 1 of DOOM
+                     "Once you beat the big badasses and\nclean out "...
+E2TEXT             Message after Episode 2 of DOOM
+                     "You've done it! The hideous cyber-\ndemon lord"...
+E3TEXT             Message after Episode 3 of DOOM
+                     "The loathsome spiderdemon that\nmasterminded t"...
+E4TEXT             Message after Episode 4 of Ultimate DOOM
+                     "the spider mastermind must have sent forth\nit"...
+
+* DOOM2 Intermissions
+
+C1TEXT             Message after MAP06
+                     "YOU HAVE ENTERED DEEPLY INTO THE INFESTED\nSTA"...
+C2TEXT             Message after MAP11
+                     "YOU HAVE WON! YOUR VICTORY HAS ENABLED\nHUMANK"...
+C3TEXT             Message after MAP20
+                     "YOU ARE AT THE CORRUPT HEART OF THE CITY,\nSUR"...
+C4TEXT             Message after MAP30
+                     "THE HORRENDOUS VISAGE OF THE BIGGEST\nDEMON YO"...
+C5TEXT             Message when entering MAP31
+                     "CONGRATULATIONS, YOU'VE FOUND THE SECRET\nLEVE"...
+C6TEXT             Message when entering MAP32
+                     "CONGRATULATIONS, YOU'VE FOUND THE\nSUPER SECRE"...
+
+* PLUTONIA Intermissions
+
+P1TEXT             Message after MAP06
+                     "You gloat over the steaming carcass of the\nGu"...
+P2TEXT             Message after MAP11
+                     "Even the deadly Arch-Vile labyrinth could\nnot"...
+P3TEXT             Message after MAP20
+                     "You've bashed and battered your way into\nthe "...
+P4TEXT             Message after MAP30
+                     "The Gatekeeper's evil face is splattered\nall "...
+P5TEXT             Message when entering MAP31
+                     "You've found the second-hardest level we\ngot."...
+P6TEXT             Message when entering MAP32
+                     "Betcha wondered just what WAS the hardest\nlev"...
+
+* TNT:Evilution Intermissions
+
+T1TEXT             Message after MAP06
+                     "You've fought your way out of the infested\nex"...
+T2TEXT             Message after MAP11
+                     "You hear the grinding of heavy machinery\nahea"...
+T3TEXT             Message after MAP20
+                     "The vista opening ahead looks real damn\nfamil"...
+T4TEXT             Message after MAP30
+                     "Suddenly, all is silent, from one horizon\nto "...
+T5TEXT             Message when entering MAP31
+                     "What now? Looks totally different. Kind\nof li"...
+T6TEXT             Message when entering MAP32
+                     "Time for a vacation. You've burst the\nbowels "...
+
+
+======================================
+Part 8 - CREATURE NAMES FOR THE FINALE
+======================================
+
+CC_ZOMBIE          Trooper
+                     "ZOMBIEMAN"
+CC_SHOTGUN         Sargeant
+                     "SHOTGUN GUY"
+CC_HEAVY           Chaingunner
+                     "HEAVY WEAPON DUDE"
+CC_IMP             Imp
+                     "IMP"
+CC_DEMON           Demon
+                     "DEMON"
+CC_LOST            Lost Soul
+                     "LOST SOUL"
+CC_CACO            Cacodemon
+                     "CACODEMON"
+CC_HELL            Hell Knight
+                     "HELL KNIGHT"
+CC_BARON           Baron of Hell
+                     "BARON OF HELL"
+CC_ARACH           Arachnotron (baby spider)
+                     "ARACHNOTRON"
+CC_PAIN            Pain Elemental
+                     "PAIN ELEMENTAL"
+CC_REVEN           Revenant
+                     "REVENANT"
+CC_MANCU           Mancubus
+                     "MANCUBUS"
+CC_ARCH            Arch Vile
+                     "ARCH-VILE"
+CC_SPIDER          Spider Mastermind
+                     "THE SPIDER MASTERMIND"
+CC_CYBER           Cyberdemon
+                     "THE CYBERDEMON"
+CC_HERO            Green player
+                     "OUR HERO"
+
+=======================================
+Part 9 - INTERMISSION TILED BACKGROUNDS
+=======================================
+
+BGFLATE1           End of DOOM Episode 1
+                     "FLOOR4_8"
+BGFLATE2           End of DOOM Episode 2
+                     "SFLR6_1"
+BGFLATE3           End of DOOM Episode 3
+                     "MFLR8_4"
+BGFLATE4           End of DOOM Episode 4
+                     "MFLR8_3"
+BGFLAT06           DOOM2 after MAP06
+                     "SLIME16"
+BGFLAT11           DOOM2 after MAP11
+                     "RROCK14"
+BGFLAT20           DOOM2 after MAP20
+                     "RROCK07"
+BGFLAT30           DOOM2 after MAP30
+                     "RROCK17"
+BGFLAT15           DOOM2 going MAP15 to MAP31
+                     "RROCK13"
+BGFLAT31           DOOM2 going MAP31 to MAP32
+                     "RROCK19"
+BGCASTCALL         Panel behind cast call    
+                     "BOSSBACK"
+
+==============================
+Part 10 - NEW: STARTUP BANNERS
+==============================
+
+STARTUP1           Starting strings to be displayed during startup
+                     ""
+STARTUP2           Leave them blank to not display
+                     ""
+STARTUP3           You may include \n to split a line
+                     ""
+STARTUP4           Have a nice time
+                     ""
+STARTUP5           Burma Shave
+                     ""
+
+=======================================================================
+
+#################################
+CODE POINTER INFORMATION APPENDIX
+#################################
+
+This comes directly from the source code, with frame numbers inserted.  
+at the beginning of the line.  Values are as follows, separated by :
+commas.  Don't worry if you don't understand C, you'll get the idea.
+This is the stuff that Dehacked messes with in the Frames section,
+and for the most part we don't care because we don't do that stuff
+in here.  Note that the "zero'th" entry is a dummy one--don't use it.
+
+  First, 3 things we can ignore
+     Name of the sprite, preceded by SPR_
+     Subsprite number
+     Duration in tics
+
+  Then the code pointer, which is what we really care about here
+     Code pointer 
+
+  Then some frame info and spare parts
+     Next frame if any (see the // comment at the end of
+       the line for the identifier for that line)
+     A couple of zeroes
+
+Wherever you see {NULL} as the code pointer, that means there
+isn't anything there now.  Otherwise it's the mnemonic we use
+in BOOM BEX file code pointers, preceded by "A_".  A mnemonic
+entry for the NULL pointer is available using mnemonic "NULL"
+
+[0] dummy {SPR_TROO,0,-1,{NULL},S_NULL,0,0},  // S_NULL
+[1]       {SPR_SHTG,4,0,{A_Light0},S_NULL,0,0}, // S_LIGHTDONE
+[2]       {SPR_PUNG,0,1,{A_WeaponReady},S_PUNCH,0,0}, // S_PUNCH
+[3]       {SPR_PUNG,0,1,{A_Lower},S_PUNCHDOWN,0,0}, // S_PUNCHDOWN
+[4]       {SPR_PUNG,0,1,{A_Raise},S_PUNCHUP,0,0}, // S_PUNCHUP
+[5]       {SPR_PUNG,1,4,{NULL},S_PUNCH2,0,0},   // S_PUNCH1
+[6]       {SPR_PUNG,2,4,{A_Punch},S_PUNCH3,0,0},  // S_PUNCH2
+[7]       {SPR_PUNG,3,5,{NULL},S_PUNCH4,0,0},   // S_PUNCH3
+[8]       {SPR_PUNG,2,4,{NULL},S_PUNCH5,0,0},   // S_PUNCH4
+[9]       {SPR_PUNG,1,5,{A_ReFire},S_PUNCH,0,0},  // S_PUNCH5
+[10]      {SPR_PISG,0,1,{A_WeaponReady},S_PISTOL,0,0},// S_PISTOL
+[11]      {SPR_PISG,0,1,{A_Lower},S_PISTOLDOWN,0,0},  // S_PISTOLDOWN
+[12]      {SPR_PISG,0,1,{A_Raise},S_PISTOLUP,0,0},  // S_PISTOLUP
+[13]      {SPR_PISG,0,4,{NULL},S_PISTOL2,0,0},  // S_PISTOL1
+[14]      {SPR_PISG,1,6,{A_FirePistol},S_PISTOL3,0,0},// S_PISTOL2
+[15]      {SPR_PISG,2,4,{NULL},S_PISTOL4,0,0},  // S_PISTOL3
+[16]      {SPR_PISG,1,5,{A_ReFire},S_PISTOL,0,0}, // S_PISTOL4
+[17]      {SPR_PISF,32768,7,{A_Light1},S_LIGHTDONE,0,0},  // S_PISTOLFLASH
+[18]      {SPR_SHTG,0,1,{A_WeaponReady},S_SGUN,0,0},  // S_SGUN
+[19]      {SPR_SHTG,0,1,{A_Lower},S_SGUNDOWN,0,0},  // S_SGUNDOWN
+[20]      {SPR_SHTG,0,1,{A_Raise},S_SGUNUP,0,0},  // S_SGUNUP
+[21]      {SPR_SHTG,0,3,{NULL},S_SGUN2,0,0},  // S_SGUN1
+[22]      {SPR_SHTG,0,7,{A_FireShotgun},S_SGUN3,0,0}, // S_SGUN2
+[23]      {SPR_SHTG,1,5,{NULL},S_SGUN4,0,0},  // S_SGUN3
+[24]      {SPR_SHTG,2,5,{NULL},S_SGUN5,0,0},  // S_SGUN4
+[25]      {SPR_SHTG,3,4,{NULL},S_SGUN6,0,0},  // S_SGUN5
+[26]      {SPR_SHTG,2,5,{NULL},S_SGUN7,0,0},  // S_SGUN6
+[27]      {SPR_SHTG,1,5,{NULL},S_SGUN8,0,0},  // S_SGUN7
+[28]      {SPR_SHTG,0,3,{NULL},S_SGUN9,0,0},  // S_SGUN8
+[29]      {SPR_SHTG,0,7,{A_ReFire},S_SGUN,0,0}, // S_SGUN9
+[30]      {SPR_SHTF,32768,4,{A_Light1},S_SGUNFLASH2,0,0}, // S_SGUNFLASH1
+[31]      {SPR_SHTF,32769,3,{A_Light2},S_LIGHTDONE,0,0},  // S_SGUNFLASH2
+[32]      {SPR_SHT2,0,1,{A_WeaponReady},S_DSGUN,0,0}, // S_DSGUN
+[33]      {SPR_SHT2,0,1,{A_Lower},S_DSGUNDOWN,0,0}, // S_DSGUNDOWN
+[34]      {SPR_SHT2,0,1,{A_Raise},S_DSGUNUP,0,0}, // S_DSGUNUP
+[35]      {SPR_SHT2,0,3,{NULL},S_DSGUN2,0,0}, // S_DSGUN1
+[36]      {SPR_SHT2,0,7,{A_FireShotgun2},S_DSGUN3,0,0}, // S_DSGUN2
+[37]      {SPR_SHT2,1,7,{NULL},S_DSGUN4,0,0}, // S_DSGUN3
+[38]      {SPR_SHT2,2,7,{A_CheckReload},S_DSGUN5,0,0},  // S_DSGUN4
+[39]      {SPR_SHT2,3,7,{A_OpenShotgun2},S_DSGUN6,0,0}, // S_DSGUN5
+[40]      {SPR_SHT2,4,7,{NULL},S_DSGUN7,0,0}, // S_DSGUN6
+[41]      {SPR_SHT2,5,7,{A_LoadShotgun2},S_DSGUN8,0,0}, // S_DSGUN7
+[42]      {SPR_SHT2,6,6,{NULL},S_DSGUN9,0,0}, // S_DSGUN8
+[43]      {SPR_SHT2,7,6,{A_CloseShotgun2},S_DSGUN10,0,0}, // S_DSGUN9
+[44]      {SPR_SHT2,0,5,{A_ReFire},S_DSGUN,0,0},  // S_DSGUN10
+[45]      {SPR_SHT2,1,7,{NULL},S_DSNR2,0,0},  // S_DSNR1
+[46]      {SPR_SHT2,0,3,{NULL},S_DSGUNDOWN,0,0},  // S_DSNR2
+[47]      {SPR_SHT2,32776,5,{A_Light1},S_DSGUNFLASH2,0,0},  // S_DSGUNFLASH1
+[48]      {SPR_SHT2,32777,4,{A_Light2},S_LIGHTDONE,0,0},  // S_DSGUNFLASH2
+[49]      {SPR_CHGG,0,1,{A_WeaponReady},S_CHAIN,0,0}, // S_CHAIN
+[50]      {SPR_CHGG,0,1,{A_Lower},S_CHAINDOWN,0,0}, // S_CHAINDOWN
+[51]      {SPR_CHGG,0,1,{A_Raise},S_CHAINUP,0,0}, // S_CHAINUP
+[52]      {SPR_CHGG,0,4,{A_FireCGun},S_CHAIN2,0,0}, // S_CHAIN1
+[53]      {SPR_CHGG,1,4,{A_FireCGun},S_CHAIN3,0,0}, // S_CHAIN2
+[54]      {SPR_CHGG,1,0,{A_ReFire},S_CHAIN,0,0},  // S_CHAIN3
+[55]      {SPR_CHGF,32768,5,{A_Light1},S_LIGHTDONE,0,0},  // S_CHAINFLASH1
+[56]      {SPR_CHGF,32769,5,{A_Light2},S_LIGHTDONE,0,0},  // S_CHAINFLASH2
+[57]      {SPR_MISG,0,1,{A_WeaponReady},S_MISSILE,0,0}, // S_MISSILE
+[58]      {SPR_MISG,0,1,{A_Lower},S_MISSILEDOWN,0,0}, // S_MISSILEDOWN
+[59]      {SPR_MISG,0,1,{A_Raise},S_MISSILEUP,0,0}, // S_MISSILEUP
+[60]      {SPR_MISG,1,8,{A_GunFlash},S_MISSILE2,0,0}, // S_MISSILE1
+[61]      {SPR_MISG,1,12,{A_FireMissile},S_MISSILE3,0,0}, // S_MISSILE2
+[62]      {SPR_MISG,1,0,{A_ReFire},S_MISSILE,0,0},  // S_MISSILE3
+[63]      {SPR_MISF,32768,3,{A_Light1},S_MISSILEFLASH2,0,0},  // S_MISSILEFLASH1
+[64]      {SPR_MISF,32769,4,{NULL},S_MISSILEFLASH3,0,0},  // S_MISSILEFLASH2
+[65]      {SPR_MISF,32770,4,{A_Light2},S_MISSILEFLASH4,0,0},  // S_MISSILEFLASH3
+[66]      {SPR_MISF,32771,4,{A_Light2},S_LIGHTDONE,0,0},  // S_MISSILEFLASH4
+[67]      {SPR_SAWG,2,4,{A_WeaponReady},S_SAWB,0,0},  // S_SAW
+[68]      {SPR_SAWG,3,4,{A_WeaponReady},S_SAW,0,0}, // S_SAWB
+[69]      {SPR_SAWG,2,1,{A_Lower},S_SAWDOWN,0,0}, // S_SAWDOWN
+[70]      {SPR_SAWG,2,1,{A_Raise},S_SAWUP,0,0}, // S_SAWUP
+[71]      {SPR_SAWG,0,4,{A_Saw},S_SAW2,0,0}, // S_SAW1
+[72]      {SPR_SAWG,1,4,{A_Saw},S_SAW3,0,0},  // S_SAW2
+[73]      {SPR_SAWG,1,0,{A_ReFire},S_SAW,0,0},  // S_SAW3
+[74]      {SPR_PLSG,0,1,{A_WeaponReady},S_PLASMA,0,0},  // S_PLASMA
+[75]      {SPR_PLSG,0,1,{A_Lower},S_PLASMADOWN,0,0},  // S_PLASMADOWN
+[76]      {SPR_PLSG,0,1,{A_Raise},S_PLASMAUP,0,0},  // S_PLASMAUP
+[77]      {SPR_PLSG,0,3,{A_FirePlasma},S_PLASMA2,0,0},  // S_PLASMA1
+[78]      {SPR_PLSG,1,20,{A_ReFire},S_PLASMA,0,0},  // S_PLASMA2
+[79]      {SPR_PLSF,32768,4,{A_Light1},S_LIGHTDONE,0,0},  // S_PLASMAFLASH1
+[80]      {SPR_PLSF,32769,4,{A_Light1},S_LIGHTDONE,0,0},  // S_PLASMAFLASH2
+[81]      {SPR_BFGG,0,1,{A_WeaponReady},S_BFG,0,0}, // S_BFG
+[82]      {SPR_BFGG,0,1,{A_Lower},S_BFGDOWN,0,0}, // S_BFGDOWN
+[83]      {SPR_BFGG,0,1,{A_Raise},S_BFGUP,0,0}, // S_BFGUP
+[84]      {SPR_BFGG,0,20,{A_BFGsound},S_BFG2,0,0},  // S_BFG1
+[85]      {SPR_BFGG,1,10,{A_GunFlash},S_BFG3,0,0},  // S_BFG2
+[86]      {SPR_BFGG,1,10,{A_FireBFG},S_BFG4,0,0}, // S_BFG3
+[87]      {SPR_BFGG,1,20,{A_ReFire},S_BFG,0,0}, // S_BFG4
+[88]      {SPR_BFGF,32768,11,{A_Light1},S_BFGFLASH2,0,0}, // S_BFGFLASH1
+[89]      {SPR_BFGF,32769,6,{A_Light2},S_LIGHTDONE,0,0},  // S_BFGFLASH2
+[90]      {SPR_BLUD,2,8,{NULL},S_BLOOD2,0,0}, // S_BLOOD1
+[91]      {SPR_BLUD,1,8,{NULL},S_BLOOD3,0,0}, // S_BLOOD2
+[92]      {SPR_BLUD,0,8,{NULL},S_NULL,0,0}, // S_BLOOD3
+[93]      {SPR_PUFF,32768,4,{NULL},S_PUFF2,0,0},  // S_PUFF1
+[94]      {SPR_PUFF,1,4,{NULL},S_PUFF3,0,0},  // S_PUFF2
+[95]      {SPR_PUFF,2,4,{NULL},S_PUFF4,0,0},  // S_PUFF3
+[96]      {SPR_PUFF,3,4,{NULL},S_NULL,0,0}, // S_PUFF4
+[97]      {SPR_BAL1,32768,4,{NULL},S_TBALL2,0,0}, // S_TBALL1
+[98]      {SPR_BAL1,32769,4,{NULL},S_TBALL1,0,0}, // S_TBALL2
+[99]      {SPR_BAL1,32770,6,{NULL},S_TBALLX2,0,0},  // S_TBALLX1
+[100]     {SPR_BAL1,32771,6,{NULL},S_TBALLX3,0,0},  // S_TBALLX2
+[101]     {SPR_BAL1,32772,6,{NULL},S_NULL,0,0}, // S_TBALLX3
+[102]     {SPR_BAL2,32768,4,{NULL},S_RBALL2,0,0}, // S_RBALL1
+[103]     {SPR_BAL2,32769,4,{NULL},S_RBALL1,0,0}, // S_RBALL2
+[104]     {SPR_BAL2,32770,6,{NULL},S_RBALLX2,0,0},  // S_RBALLX1
+[105]     {SPR_BAL2,32771,6,{NULL},S_RBALLX3,0,0},  // S_RBALLX2
+[106]     {SPR_BAL2,32772,6,{NULL},S_NULL,0,0}, // S_RBALLX3
+[107]     {SPR_PLSS,32768,6,{NULL},S_PLASBALL2,0,0},  // S_PLASBALL
+[108]     {SPR_PLSS,32769,6,{NULL},S_PLASBALL,0,0}, // S_PLASBALL2
+[109]     {SPR_PLSE,32768,4,{NULL},S_PLASEXP2,0,0}, // S_PLASEXP
+[110]     {SPR_PLSE,32769,4,{NULL},S_PLASEXP3,0,0}, // S_PLASEXP2
+[111]     {SPR_PLSE,32770,4,{NULL},S_PLASEXP4,0,0}, // S_PLASEXP3
+[112]     {SPR_PLSE,32771,4,{NULL},S_PLASEXP5,0,0}, // S_PLASEXP4
+[113]     {SPR_PLSE,32772,4,{NULL},S_NULL,0,0}, // S_PLASEXP5
+[114]     {SPR_MISL,32768,1,{NULL},S_ROCKET,0,0}, // S_ROCKET
+[115]     {SPR_BFS1,32768,4,{NULL},S_BFGSHOT2,0,0}, // S_BFGSHOT
+[116]     {SPR_BFS1,32769,4,{NULL},S_BFGSHOT,0,0},  // S_BFGSHOT2
+[117]     {SPR_BFE1,32768,8,{NULL},S_BFGLAND2,0,0}, // S_BFGLAND
+[118]     {SPR_BFE1,32769,8,{NULL},S_BFGLAND3,0,0}, // S_BFGLAND2
+[119]     {SPR_BFE1,32770,8,{A_BFGSpray},S_BFGLAND4,0,0}, // S_BFGLAND3
+[120]     {SPR_BFE1,32771,8,{NULL},S_BFGLAND5,0,0}, // S_BFGLAND4
+[121]     {SPR_BFE1,32772,8,{NULL},S_BFGLAND6,0,0}, // S_BFGLAND5
+[122]     {SPR_BFE1,32773,8,{NULL},S_NULL,0,0}, // S_BFGLAND6
+[123]     {SPR_BFE2,32768,8,{NULL},S_BFGEXP2,0,0},  // S_BFGEXP
+[124]     {SPR_BFE2,32769,8,{NULL},S_BFGEXP3,0,0},  // S_BFGEXP2
+[125]     {SPR_BFE2,32770,8,{NULL},S_BFGEXP4,0,0},  // S_BFGEXP3
+[126]     {SPR_BFE2,32771,8,{NULL},S_NULL,0,0}, // S_BFGEXP4
+[127]     {SPR_MISL,32769,8,{A_Explode},S_EXPLODE2,0,0},  // S_EXPLODE1
+[128]     {SPR_MISL,32770,6,{NULL},S_EXPLODE3,0,0}, // S_EXPLODE2
+[129]     {SPR_MISL,32771,4,{NULL},S_NULL,0,0}, // S_EXPLODE3
+[130]     {SPR_TFOG,32768,6,{NULL},S_TFOG01,0,0}, // S_TFOG
+[131]     {SPR_TFOG,32769,6,{NULL},S_TFOG02,0,0}, // S_TFOG01
+[132]     {SPR_TFOG,32768,6,{NULL},S_TFOG2,0,0},  // S_TFOG02
+[133]     {SPR_TFOG,32769,6,{NULL},S_TFOG3,0,0},  // S_TFOG2
+[134]     {SPR_TFOG,32770,6,{NULL},S_TFOG4,0,0},  // S_TFOG3
+[135]     {SPR_TFOG,32771,6,{NULL},S_TFOG5,0,0},  // S_TFOG4
+[136]     {SPR_TFOG,32772,6,{NULL},S_TFOG6,0,0},  // S_TFOG5
+[137]     {SPR_TFOG,32773,6,{NULL},S_TFOG7,0,0},  // S_TFOG6
+[138]     {SPR_TFOG,32774,6,{NULL},S_TFOG8,0,0},  // S_TFOG7
+[139]     {SPR_TFOG,32775,6,{NULL},S_TFOG9,0,0},  // S_TFOG8
+[140]     {SPR_TFOG,32776,6,{NULL},S_TFOG10,0,0}, // S_TFOG9
+[141]     {SPR_TFOG,32777,6,{NULL},S_NULL,0,0}, // S_TFOG10
+[142]     {SPR_IFOG,32768,6,{NULL},S_IFOG01,0,0}, // S_IFOG
+[143]     {SPR_IFOG,32769,6,{NULL},S_IFOG02,0,0}, // S_IFOG01
+[144]     {SPR_IFOG,32768,6,{NULL},S_IFOG2,0,0},  // S_IFOG02
+[145]     {SPR_IFOG,32769,6,{NULL},S_IFOG3,0,0},  // S_IFOG2
+[146]     {SPR_IFOG,32770,6,{NULL},S_IFOG4,0,0},  // S_IFOG3
+[147]     {SPR_IFOG,32771,6,{NULL},S_IFOG5,0,0},  // S_IFOG4
+[148]     {SPR_IFOG,32772,6,{NULL},S_NULL,0,0}, // S_IFOG5
+[149]     {SPR_PLAY,0,-1,{NULL},S_NULL,0,0},  // S_PLAY
+[150]     {SPR_PLAY,0,4,{NULL},S_PLAY_RUN2,0,0},  // S_PLAY_RUN1
+[151]     {SPR_PLAY,1,4,{NULL},S_PLAY_RUN3,0,0},  // S_PLAY_RUN2
+[152]     {SPR_PLAY,2,4,{NULL},S_PLAY_RUN4,0,0},  // S_PLAY_RUN3
+[153]     {SPR_PLAY,3,4,{NULL},S_PLAY_RUN1,0,0},  // S_PLAY_RUN4
+[154]     {SPR_PLAY,4,12,{NULL},S_PLAY,0,0},  // S_PLAY_ATK1
+[155]     {SPR_PLAY,32773,6,{NULL},S_PLAY_ATK1,0,0},  // S_PLAY_ATK2
+[156]     {SPR_PLAY,6,4,{NULL},S_PLAY_PAIN2,0,0}, // S_PLAY_PAIN
+[157]     {SPR_PLAY,6,4,{A_Pain},S_PLAY,0,0}, // S_PLAY_PAIN2
+[158]     {SPR_PLAY,7,10,{NULL},S_PLAY_DIE2,0,0}, // S_PLAY_DIE1
+[159]     {SPR_PLAY,8,10,{A_PlayerScream},S_PLAY_DIE3,0,0}, // S_PLAY_DIE2
+[160]     {SPR_PLAY,9,10,{A_Fall},S_PLAY_DIE4,0,0}, // S_PLAY_DIE3
+[161]     {SPR_PLAY,10,10,{NULL},S_PLAY_DIE5,0,0},  // S_PLAY_DIE4
+[162]     {SPR_PLAY,11,10,{NULL},S_PLAY_DIE6,0,0},  // S_PLAY_DIE5
+[163]     {SPR_PLAY,12,10,{NULL},S_PLAY_DIE7,0,0},  // S_PLAY_DIE6
+[164]     {SPR_PLAY,13,-1,{NULL},S_NULL,0,0}, // S_PLAY_DIE7
+[165]     {SPR_PLAY,14,5,{NULL},S_PLAY_XDIE2,0,0},  // S_PLAY_XDIE1
+[166]     {SPR_PLAY,15,5,{A_XScream},S_PLAY_XDIE3,0,0}, // S_PLAY_XDIE2
+[167]     {SPR_PLAY,16,5,{A_Fall},S_PLAY_XDIE4,0,0},  // S_PLAY_XDIE3
+[168]     {SPR_PLAY,17,5,{NULL},S_PLAY_XDIE5,0,0},  // S_PLAY_XDIE4
+[169]     {SPR_PLAY,18,5,{NULL},S_PLAY_XDIE6,0,0},  // S_PLAY_XDIE5
+[170]     {SPR_PLAY,19,5,{NULL},S_PLAY_XDIE7,0,0},  // S_PLAY_XDIE6
+[171]     {SPR_PLAY,20,5,{NULL},S_PLAY_XDIE8,0,0},  // S_PLAY_XDIE7
+[172]     {SPR_PLAY,21,5,{NULL},S_PLAY_XDIE9,0,0},  // S_PLAY_XDIE8
+[173]     {SPR_PLAY,22,-1,{NULL},S_NULL,0,0}, // S_PLAY_XDIE9
+[174]     {SPR_POSS,0,10,{A_Look},S_POSS_STND2,0,0},  // S_POSS_STND
+[175]     {SPR_POSS,1,10,{A_Look},S_POSS_STND,0,0}, // S_POSS_STND2
+[176]     {SPR_POSS,0,4,{A_Chase},S_POSS_RUN2,0,0}, // S_POSS_RUN1
+[177]     {SPR_POSS,0,4,{A_Chase},S_POSS_RUN3,0,0}, // S_POSS_RUN2
+[178]     {SPR_POSS,1,4,{A_Chase},S_POSS_RUN4,0,0}, // S_POSS_RUN3
+[179]     {SPR_POSS,1,4,{A_Chase},S_POSS_RUN5,0,0}, // S_POSS_RUN4
+[180]     {SPR_POSS,2,4,{A_Chase},S_POSS_RUN6,0,0}, // S_POSS_RUN5
+[181]     {SPR_POSS,2,4,{A_Chase},S_POSS_RUN7,0,0}, // S_POSS_RUN6
+[182]     {SPR_POSS,3,4,{A_Chase},S_POSS_RUN8,0,0}, // S_POSS_RUN7
+[183]     {SPR_POSS,3,4,{A_Chase},S_POSS_RUN1,0,0}, // S_POSS_RUN8
+[184]     {SPR_POSS,4,10,{A_FaceTarget},S_POSS_ATK2,0,0}, // S_POSS_ATK1
+[185]     {SPR_POSS,5,8,{A_PosAttack},S_POSS_ATK3,0,0}, // S_POSS_ATK2
+[186]     {SPR_POSS,4,8,{NULL},S_POSS_RUN1,0,0},  // S_POSS_ATK3
+[187]     {SPR_POSS,6,3,{NULL},S_POSS_PAIN2,0,0}, // S_POSS_PAIN
+[188]     {SPR_POSS,6,3,{A_Pain},S_POSS_RUN1,0,0},  // S_POSS_PAIN2
+[189]     {SPR_POSS,7,5,{NULL},S_POSS_DIE2,0,0},  // S_POSS_DIE1
+[190]     {SPR_POSS,8,5,{A_Scream},S_POSS_DIE3,0,0},  // S_POSS_DIE2
+[191]     {SPR_POSS,9,5,{A_Fall},S_POSS_DIE4,0,0},  // S_POSS_DIE3
+[192]     {SPR_POSS,10,5,{NULL},S_POSS_DIE5,0,0}, // S_POSS_DIE4
+[193]     {SPR_POSS,11,-1,{NULL},S_NULL,0,0}, // S_POSS_DIE5
+[194]     {SPR_POSS,12,5,{NULL},S_POSS_XDIE2,0,0},  // S_POSS_XDIE1
+[195]     {SPR_POSS,13,5,{A_XScream},S_POSS_XDIE3,0,0}, // S_POSS_XDIE2
+[196]     {SPR_POSS,14,5,{A_Fall},S_POSS_XDIE4,0,0},  // S_POSS_XDIE3
+[197]     {SPR_POSS,15,5,{NULL},S_POSS_XDIE5,0,0},  // S_POSS_XDIE4
+[198]     {SPR_POSS,16,5,{NULL},S_POSS_XDIE6,0,0},  // S_POSS_XDIE5
+[199]     {SPR_POSS,17,5,{NULL},S_POSS_XDIE7,0,0},  // S_POSS_XDIE6
+[200]     {SPR_POSS,18,5,{NULL},S_POSS_XDIE8,0,0},  // S_POSS_XDIE7
+[201]     {SPR_POSS,19,5,{NULL},S_POSS_XDIE9,0,0},  // S_POSS_XDIE8
+[202]     {SPR_POSS,20,-1,{NULL},S_NULL,0,0}, // S_POSS_XDIE9
+[203]     {SPR_POSS,10,5,{NULL},S_POSS_RAISE2,0,0}, // S_POSS_RAISE1
+[204]     {SPR_POSS,9,5,{NULL},S_POSS_RAISE3,0,0},  // S_POSS_RAISE2
+[205]     {SPR_POSS,8,5,{NULL},S_POSS_RAISE4,0,0},  // S_POSS_RAISE3
+[206]     {SPR_POSS,7,5,{NULL},S_POSS_RUN1,0,0},  // S_POSS_RAISE4
+[207]     {SPR_SPOS,0,10,{A_Look},S_SPOS_STND2,0,0},  // S_SPOS_STND
+[208]     {SPR_SPOS,1,10,{A_Look},S_SPOS_STND,0,0}, // S_SPOS_STND2
+[209]     {SPR_SPOS,0,3,{A_Chase},S_SPOS_RUN2,0,0}, // S_SPOS_RUN1
+[210]     {SPR_SPOS,0,3,{A_Chase},S_SPOS_RUN3,0,0}, // S_SPOS_RUN2
+[211]     {SPR_SPOS,1,3,{A_Chase},S_SPOS_RUN4,0,0}, // S_SPOS_RUN3
+[212]     {SPR_SPOS,1,3,{A_Chase},S_SPOS_RUN5,0,0}, // S_SPOS_RUN4
+[213]     {SPR_SPOS,2,3,{A_Chase},S_SPOS_RUN6,0,0}, // S_SPOS_RUN5
+[214]     {SPR_SPOS,2,3,{A_Chase},S_SPOS_RUN7,0,0}, // S_SPOS_RUN6
+[215]     {SPR_SPOS,3,3,{A_Chase},S_SPOS_RUN8,0,0}, // S_SPOS_RUN7
+[216]     {SPR_SPOS,3,3,{A_Chase},S_SPOS_RUN1,0,0}, // S_SPOS_RUN8
+[217]     {SPR_SPOS,4,10,{A_FaceTarget},S_SPOS_ATK2,0,0}, // S_SPOS_ATK1
+[218]     {SPR_SPOS,32773,10,{A_SPosAttack},S_SPOS_ATK3,0,0}, // S_SPOS_ATK2
+[219]     {SPR_SPOS,4,10,{NULL},S_SPOS_RUN1,0,0}, // S_SPOS_ATK3
+[220]     {SPR_SPOS,6,3,{NULL},S_SPOS_PAIN2,0,0}, // S_SPOS_PAIN
+[221]     {SPR_SPOS,6,3,{A_Pain},S_SPOS_RUN1,0,0},  // S_SPOS_PAIN2
+[222]     {SPR_SPOS,7,5,{NULL},S_SPOS_DIE2,0,0},  // S_SPOS_DIE1
+[223]     {SPR_SPOS,8,5,{A_Scream},S_SPOS_DIE3,0,0},  // S_SPOS_DIE2
+[224]     {SPR_SPOS,9,5,{A_Fall},S_SPOS_DIE4,0,0},  // S_SPOS_DIE3
+[225]     {SPR_SPOS,10,5,{NULL},S_SPOS_DIE5,0,0}, // S_SPOS_DIE4
+[226]     {SPR_SPOS,11,-1,{NULL},S_NULL,0,0}, // S_SPOS_DIE5
+[227]     {SPR_SPOS,12,5,{NULL},S_SPOS_XDIE2,0,0},  // S_SPOS_XDIE1
+[228]     {SPR_SPOS,13,5,{A_XScream},S_SPOS_XDIE3,0,0}, // S_SPOS_XDIE2
+[229]     {SPR_SPOS,14,5,{A_Fall},S_SPOS_XDIE4,0,0},  // S_SPOS_XDIE3
+[230]     {SPR_SPOS,15,5,{NULL},S_SPOS_XDIE5,0,0},  // S_SPOS_XDIE4
+[231]     {SPR_SPOS,16,5,{NULL},S_SPOS_XDIE6,0,0},  // S_SPOS_XDIE5
+[232]     {SPR_SPOS,17,5,{NULL},S_SPOS_XDIE7,0,0},  // S_SPOS_XDIE6
+[233]     {SPR_SPOS,18,5,{NULL},S_SPOS_XDIE8,0,0},  // S_SPOS_XDIE7
+[234]     {SPR_SPOS,19,5,{NULL},S_SPOS_XDIE9,0,0},  // S_SPOS_XDIE8
+[235]     {SPR_SPOS,20,-1,{NULL},S_NULL,0,0}, // S_SPOS_XDIE9
+[236]     {SPR_SPOS,11,5,{NULL},S_SPOS_RAISE2,0,0}, // S_SPOS_RAISE1
+[237]     {SPR_SPOS,10,5,{NULL},S_SPOS_RAISE3,0,0}, // S_SPOS_RAISE2
+[238]     {SPR_SPOS,9,5,{NULL},S_SPOS_RAISE4,0,0},  // S_SPOS_RAISE3
+[239]     {SPR_SPOS,8,5,{NULL},S_SPOS_RAISE5,0,0},  // S_SPOS_RAISE4
+[240]     {SPR_SPOS,7,5,{NULL},S_SPOS_RUN1,0,0},  // S_SPOS_RAISE5
+[241]     {SPR_VILE,0,10,{A_Look},S_VILE_STND2,0,0},  // S_VILE_STND
+[242]     {SPR_VILE,1,10,{A_Look},S_VILE_STND,0,0}, // S_VILE_STND2
+[243]     {SPR_VILE,0,2,{A_VileChase},S_VILE_RUN2,0,0}, // S_VILE_RUN1
+[244]     {SPR_VILE,0,2,{A_VileChase},S_VILE_RUN3,0,0}, // S_VILE_RUN2
+[245]     {SPR_VILE,1,2,{A_VileChase},S_VILE_RUN4,0,0}, // S_VILE_RUN3
+[246]     {SPR_VILE,1,2,{A_VileChase},S_VILE_RUN5,0,0}, // S_VILE_RUN4
+[247]     {SPR_VILE,2,2,{A_VileChase},S_VILE_RUN6,0,0}, // S_VILE_RUN5
+[248]     {SPR_VILE,2,2,{A_VileChase},S_VILE_RUN7,0,0}, // S_VILE_RUN6
+[249]     {SPR_VILE,3,2,{A_VileChase},S_VILE_RUN8,0,0}, // S_VILE_RUN7
+[250]     {SPR_VILE,3,2,{A_VileChase},S_VILE_RUN9,0,0}, // S_VILE_RUN8
+[251]     {SPR_VILE,4,2,{A_VileChase},S_VILE_RUN10,0,0},  // S_VILE_RUN9
+[252]     {SPR_VILE,4,2,{A_VileChase},S_VILE_RUN11,0,0},  // S_VILE_RUN10
+[253]     {SPR_VILE,5,2,{A_VileChase},S_VILE_RUN12,0,0},  // S_VILE_RUN11
+[254]     {SPR_VILE,5,2,{A_VileChase},S_VILE_RUN1,0,0}, // S_VILE_RUN12
+[255]     {SPR_VILE,32774,0,{A_VileStart},S_VILE_ATK2,0,0}, // S_VILE_ATK1
+[256]     {SPR_VILE,32774,10,{A_FaceTarget},S_VILE_ATK3,0,0}, // S_VILE_ATK2
+[257]     {SPR_VILE,32775,8,{A_VileTarget},S_VILE_ATK4,0,0},  // S_VILE_ATK3
+[258]     {SPR_VILE,32776,8,{A_FaceTarget},S_VILE_ATK5,0,0},  // S_VILE_ATK4
+[259]     {SPR_VILE,32777,8,{A_FaceTarget},S_VILE_ATK6,0,0},  // S_VILE_ATK5
+[260]     {SPR_VILE,32778,8,{A_FaceTarget},S_VILE_ATK7,0,0},  // S_VILE_ATK6
+[261]     {SPR_VILE,32779,8,{A_FaceTarget},S_VILE_ATK8,0,0},  // S_VILE_ATK7
+[262]     {SPR_VILE,32780,8,{A_FaceTarget},S_VILE_ATK9,0,0},  // S_VILE_ATK8
+[263]     {SPR_VILE,32781,8,{A_FaceTarget},S_VILE_ATK10,0,0}, // S_VILE_ATK9
+[264]     {SPR_VILE,32782,8,{A_VileAttack},S_VILE_ATK11,0,0}, // S_VILE_ATK10
+[265]     {SPR_VILE,32783,20,{NULL},S_VILE_RUN1,0,0}, // S_VILE_ATK11
+[266]     {SPR_VILE,32794,10,{NULL},S_VILE_HEAL2,0,0},  // S_VILE_HEAL1
+[267]     {SPR_VILE,32795,10,{NULL},S_VILE_HEAL3,0,0},  // S_VILE_HEAL2
+[268]     {SPR_VILE,32796,10,{NULL},S_VILE_RUN1,0,0}, // S_VILE_HEAL3
+[269]     {SPR_VILE,16,5,{NULL},S_VILE_PAIN2,0,0},  // S_VILE_PAIN
+[270]     {SPR_VILE,16,5,{A_Pain},S_VILE_RUN1,0,0}, // S_VILE_PAIN2
+[271]     {SPR_VILE,16,7,{NULL},S_VILE_DIE2,0,0}, // S_VILE_DIE1
+[272]     {SPR_VILE,17,7,{A_Scream},S_VILE_DIE3,0,0},  // S_VILE_DIE2
+[273]     {SPR_VILE,18,7,{A_Fall},S_VILE_DIE4,0,0}, // S_VILE_DIE3
+[274]     {SPR_VILE,19,7,{NULL},S_VILE_DIE5,0,0}, // S_VILE_DIE4
+[275]     {SPR_VILE,20,7,{NULL},S_VILE_DIE6,0,0}, // S_VILE_DIE5
+[276]     {SPR_VILE,21,7,{NULL},S_VILE_DIE7,0,0}, // S_VILE_DIE6
+[277]     {SPR_VILE,22,7,{NULL},S_VILE_DIE8,0,0}, // S_VILE_DIE7
+[278]     {SPR_VILE,23,5,{NULL},S_VILE_DIE9,0,0}, // S_VILE_DIE8
+[279]     {SPR_VILE,24,5,{NULL},S_VILE_DIE10,0,0},  // S_VILE_DIE9
+[280]     {SPR_VILE,25,-1,{NULL},S_NULL,0,0}, // S_VILE_DIE10
+[281]     {SPR_FIRE,32768,2,{A_StartFire},S_FIRE2,0,0}, // S_FIRE1
+[282]     {SPR_FIRE,32769,2,{A_Fire},S_FIRE3,0,0},  // S_FIRE2
+[283]     {SPR_FIRE,32768,2,{A_Fire},S_FIRE4,0,0},  // S_FIRE3
+[284]     {SPR_FIRE,32769,2,{A_Fire},S_FIRE5,0,0},  // S_FIRE4
+[285]     {SPR_FIRE,32770,2,{A_FireCrackle},S_FIRE6,0,0}, // S_FIRE5
+[286]     {SPR_FIRE,32769,2,{A_Fire},S_FIRE7,0,0},  // S_FIRE6
+[287]     {SPR_FIRE,32770,2,{A_Fire},S_FIRE8,0,0},  // S_FIRE7
+[288]     {SPR_FIRE,32769,2,{A_Fire},S_FIRE9,0,0},  // S_FIRE8
+[289]     {SPR_FIRE,32770,2,{A_Fire},S_FIRE10,0,0}, // S_FIRE9
+[290]     {SPR_FIRE,32771,2,{A_Fire},S_FIRE11,0,0}, // S_FIRE10
+[291]     {SPR_FIRE,32770,2,{A_Fire},S_FIRE12,0,0}, // S_FIRE11
+[292]     {SPR_FIRE,32771,2,{A_Fire},S_FIRE13,0,0}, // S_FIRE12
+[293]     {SPR_FIRE,32770,2,{A_Fire},S_FIRE14,0,0}, // S_FIRE13
+[294]     {SPR_FIRE,32771,2,{A_Fire},S_FIRE15,0,0}, // S_FIRE14
+[295]     {SPR_FIRE,32772,2,{A_Fire},S_FIRE16,0,0}, // S_FIRE15
+[296]     {SPR_FIRE,32771,2,{A_Fire},S_FIRE17,0,0}, // S_FIRE16
+[297]     {SPR_FIRE,32772,2,{A_Fire},S_FIRE18,0,0}, // S_FIRE17
+[298]     {SPR_FIRE,32771,2,{A_Fire},S_FIRE19,0,0}, // S_FIRE18
+[299]     {SPR_FIRE,32772,2,{A_FireCrackle},S_FIRE20,0,0},  // S_FIRE19
+[300]     {SPR_FIRE,32773,2,{A_Fire},S_FIRE21,0,0}, // S_FIRE20
+[301]     {SPR_FIRE,32772,2,{A_Fire},S_FIRE22,0,0}, // S_FIRE21
+[302]     {SPR_FIRE,32773,2,{A_Fire},S_FIRE23,0,0}, // S_FIRE22
+[303]     {SPR_FIRE,32772,2,{A_Fire},S_FIRE24,0,0}, // S_FIRE23
+[304]     {SPR_FIRE,32773,2,{A_Fire},S_FIRE25,0,0}, // S_FIRE24
+[305]     {SPR_FIRE,32774,2,{A_Fire},S_FIRE26,0,0}, // S_FIRE25
+[306]     {SPR_FIRE,32775,2,{A_Fire},S_FIRE27,0,0}, // S_FIRE26
+[307]     {SPR_FIRE,32774,2,{A_Fire},S_FIRE28,0,0}, // S_FIRE27
+[308]     {SPR_FIRE,32775,2,{A_Fire},S_FIRE29,0,0}, // S_FIRE28
+[309]     {SPR_FIRE,32774,2,{A_Fire},S_FIRE30,0,0}, // S_FIRE29
+[310]     {SPR_FIRE,32775,2,{A_Fire},S_NULL,0,0}, // S_FIRE30
+[311]     {SPR_PUFF,1,4,{NULL},S_SMOKE2,0,0}, // S_SMOKE1
+[312]     {SPR_PUFF,2,4,{NULL},S_SMOKE3,0,0}, // S_SMOKE2
+[313]     {SPR_PUFF,1,4,{NULL},S_SMOKE4,0,0}, // S_SMOKE3
+[314]     {SPR_PUFF,2,4,{NULL},S_SMOKE5,0,0}, // S_SMOKE4
+[315]     {SPR_PUFF,3,4,{NULL},S_NULL,0,0}, // S_SMOKE5
+[316]     {SPR_FATB,32768,2,{A_Tracer},S_TRACER2,0,0},  // S_TRACER
+[317]     {SPR_FATB,32769,2,{A_Tracer},S_TRACER,0,0}, // S_TRACER2
+[318]     {SPR_FBXP,32768,8,{NULL},S_TRACEEXP2,0,0},  // S_TRACEEXP1
+[319]     {SPR_FBXP,32769,6,{NULL},S_TRACEEXP3,0,0},  // S_TRACEEXP2
+[320]     {SPR_FBXP,32770,4,{NULL},S_NULL,0,0}, // S_TRACEEXP3
+[321]     {SPR_SKEL,0,10,{A_Look},S_SKEL_STND2,0,0},  // S_SKEL_STND
+[322]     {SPR_SKEL,1,10,{A_Look},S_SKEL_STND,0,0}, // S_SKEL_STND2
+[323]     {SPR_SKEL,0,2,{A_Chase},S_SKEL_RUN2,0,0}, // S_SKEL_RUN1
+[324]     {SPR_SKEL,0,2,{A_Chase},S_SKEL_RUN3,0,0}, // S_SKEL_RUN2
+[325]     {SPR_SKEL,1,2,{A_Chase},S_SKEL_RUN4,0,0}, // S_SKEL_RUN3
+[326]     {SPR_SKEL,1,2,{A_Chase},S_SKEL_RUN5,0,0}, // S_SKEL_RUN4
+[327]     {SPR_SKEL,2,2,{A_Chase},S_SKEL_RUN6,0,0}, // S_SKEL_RUN5
+[328]     {SPR_SKEL,2,2,{A_Chase},S_SKEL_RUN7,0,0}, // S_SKEL_RUN6
+[329]     {SPR_SKEL,3,2,{A_Chase},S_SKEL_RUN8,0,0}, // S_SKEL_RUN7
+[330]     {SPR_SKEL,3,2,{A_Chase},S_SKEL_RUN9,0,0}, // S_SKEL_RUN8
+[331]     {SPR_SKEL,4,2,{A_Chase},S_SKEL_RUN10,0,0},  // S_SKEL_RUN9
+[332]     {SPR_SKEL,4,2,{A_Chase},S_SKEL_RUN11,0,0},  // S_SKEL_RUN10
+[333]     {SPR_SKEL,5,2,{A_Chase},S_SKEL_RUN12,0,0},  // S_SKEL_RUN11
+[334]     {SPR_SKEL,5,2,{A_Chase},S_SKEL_RUN1,0,0}, // S_SKEL_RUN12
+[335]     {SPR_SKEL,6,0,{A_FaceTarget},S_SKEL_FIST2,0,0}, // S_SKEL_FIST1
+[336]     {SPR_SKEL,6,6,{A_SkelWhoosh},S_SKEL_FIST3,0,0}, // S_SKEL_FIST2
+[337]     {SPR_SKEL,7,6,{A_FaceTarget},S_SKEL_FIST4,0,0}, // S_SKEL_FIST3
+[338]     {SPR_SKEL,8,6,{A_SkelFist},S_SKEL_RUN1,0,0},  // S_SKEL_FIST4
+[339]     {SPR_SKEL,32777,0,{A_FaceTarget},S_SKEL_MISS2,0,0}, // S_SKEL_MISS1
+[340]     {SPR_SKEL,32777,10,{A_FaceTarget},S_SKEL_MISS3,0,0},  // S_SKEL_MISS2
+[341]     {SPR_SKEL,10,10,{A_SkelMissile},S_SKEL_MISS4,0,0},  // S_SKEL_MISS3
+[342]     {SPR_SKEL,10,10,{A_FaceTarget},S_SKEL_RUN1,0,0},  // S_SKEL_MISS4
+[343]     {SPR_SKEL,11,5,{NULL},S_SKEL_PAIN2,0,0},  // S_SKEL_PAIN
+[344]     {SPR_SKEL,11,5,{A_Pain},S_SKEL_RUN1,0,0}, // S_SKEL_PAIN2
+[345]     {SPR_SKEL,11,7,{NULL},S_SKEL_DIE2,0,0}, // S_SKEL_DIE1
+[346]     {SPR_SKEL,12,7,{NULL},S_SKEL_DIE3,0,0}, // S_SKEL_DIE2
+[347]     {SPR_SKEL,13,7,{A_Scream},S_SKEL_DIE4,0,0}, // S_SKEL_DIE3
+[348]     {SPR_SKEL,14,7,{A_Fall},S_SKEL_DIE5,0,0}, // S_SKEL_DIE4
+[349]     {SPR_SKEL,15,7,{NULL},S_SKEL_DIE6,0,0}, // S_SKEL_DIE5
+[350]     {SPR_SKEL,16,-1,{NULL},S_NULL,0,0}, // S_SKEL_DIE6
+[351]     {SPR_SKEL,16,5,{NULL},S_SKEL_RAISE2,0,0}, // S_SKEL_RAISE1
+[352]     {SPR_SKEL,15,5,{NULL},S_SKEL_RAISE3,0,0}, // S_SKEL_RAISE2
+[353]     {SPR_SKEL,14,5,{NULL},S_SKEL_RAISE4,0,0}, // S_SKEL_RAISE3
+[354]     {SPR_SKEL,13,5,{NULL},S_SKEL_RAISE5,0,0}, // S_SKEL_RAISE4
+[355]     {SPR_SKEL,12,5,{NULL},S_SKEL_RAISE6,0,0}, // S_SKEL_RAISE5
+[356]     {SPR_SKEL,11,5,{NULL},S_SKEL_RUN1,0,0}, // S_SKEL_RAISE6
+[357]     {SPR_MANF,32768,4,{NULL},S_FATSHOT2,0,0}, // S_FATSHOT1
+[358]     {SPR_MANF,32769,4,{NULL},S_FATSHOT1,0,0}, // S_FATSHOT2
+[359]     {SPR_MISL,32769,8,{NULL},S_FATSHOTX2,0,0},  // S_FATSHOTX1
+[360]     {SPR_MISL,32770,6,{NULL},S_FATSHOTX3,0,0},  // S_FATSHOTX2
+[361]     {SPR_MISL,32771,4,{NULL},S_NULL,0,0}, // S_FATSHOTX3
+[362]     {SPR_FATT,0,15,{A_Look},S_FATT_STND2,0,0},  // S_FATT_STND
+[363]     {SPR_FATT,1,15,{A_Look},S_FATT_STND,0,0}, // S_FATT_STND2
+[364]     {SPR_FATT,0,4,{A_Chase},S_FATT_RUN2,0,0}, // S_FATT_RUN1
+[365]     {SPR_FATT,0,4,{A_Chase},S_FATT_RUN3,0,0}, // S_FATT_RUN2
+[366]     {SPR_FATT,1,4,{A_Chase},S_FATT_RUN4,0,0}, // S_FATT_RUN3
+[367]     {SPR_FATT,1,4,{A_Chase},S_FATT_RUN5,0,0}, // S_FATT_RUN4
+[368]     {SPR_FATT,2,4,{A_Chase},S_FATT_RUN6,0,0}, // S_FATT_RUN5
+[369]     {SPR_FATT,2,4,{A_Chase},S_FATT_RUN7,0,0}, // S_FATT_RUN6
+[370]     {SPR_FATT,3,4,{A_Chase},S_FATT_RUN8,0,0}, // S_FATT_RUN7
+[371]     {SPR_FATT,3,4,{A_Chase},S_FATT_RUN9,0,0}, // S_FATT_RUN8
+[372]     {SPR_FATT,4,4,{A_Chase},S_FATT_RUN10,0,0},  // S_FATT_RUN9
+[373]     {SPR_FATT,4,4,{A_Chase},S_FATT_RUN11,0,0},  // S_FATT_RUN10
+[374]     {SPR_FATT,5,4,{A_Chase},S_FATT_RUN12,0,0},  // S_FATT_RUN11
+[375]     {SPR_FATT,5,4,{A_Chase},S_FATT_RUN1,0,0}, // S_FATT_RUN12
+[376]     {SPR_FATT,6,20,{A_FatRaise},S_FATT_ATK2,0,0}, // S_FATT_ATK1
+[377]     {SPR_FATT,32775,10,{A_FatAttack1},S_FATT_ATK3,0,0}, // S_FATT_ATK2
+[378]     {SPR_FATT,8,5,{A_FaceTarget},S_FATT_ATK4,0,0},  // S_FATT_ATK3
+[379]     {SPR_FATT,6,5,{A_FaceTarget},S_FATT_ATK5,0,0},  // S_FATT_ATK4
+[380]     {SPR_FATT,32775,10,{A_FatAttack2},S_FATT_ATK6,0,0}, // S_FATT_ATK5
+[381]     {SPR_FATT,8,5,{A_FaceTarget},S_FATT_ATK7,0,0},  // S_FATT_ATK6
+[382]     {SPR_FATT,6,5,{A_FaceTarget},S_FATT_ATK8,0,0},  // S_FATT_ATK7
+[383]     {SPR_FATT,32775,10,{A_FatAttack3},S_FATT_ATK9,0,0}, // S_FATT_ATK8
+[384]     {SPR_FATT,8,5,{A_FaceTarget},S_FATT_ATK10,0,0}, // S_FATT_ATK9
+[385]     {SPR_FATT,6,5,{A_FaceTarget},S_FATT_RUN1,0,0},  // S_FATT_ATK10
+[386]     {SPR_FATT,9,3,{NULL},S_FATT_PAIN2,0,0}, // S_FATT_PAIN
+[387]     {SPR_FATT,9,3,{A_Pain},S_FATT_RUN1,0,0},  // S_FATT_PAIN2
+[388]     {SPR_FATT,10,6,{NULL},S_FATT_DIE2,0,0}, // S_FATT_DIE1
+[389]     {SPR_FATT,11,6,{A_Scream},S_FATT_DIE3,0,0}, // S_FATT_DIE2
+[390]     {SPR_FATT,12,6,{A_Fall},S_FATT_DIE4,0,0}, // S_FATT_DIE3
+[391]     {SPR_FATT,13,6,{NULL},S_FATT_DIE5,0,0}, // S_FATT_DIE4
+[392]     {SPR_FATT,14,6,{NULL},S_FATT_DIE6,0,0}, // S_FATT_DIE5
+[393]     {SPR_FATT,15,6,{NULL},S_FATT_DIE7,0,0}, // S_FATT_DIE6
+[394]     {SPR_FATT,16,6,{NULL},S_FATT_DIE8,0,0}, // S_FATT_DIE7
+[395]     {SPR_FATT,17,6,{NULL},S_FATT_DIE9,0,0}, // S_FATT_DIE8
+[396]     {SPR_FATT,18,6,{NULL},S_FATT_DIE10,0,0},  // S_FATT_DIE9
+[397]     {SPR_FATT,19,-1,{A_BossDeath},S_NULL,0,0},  // S_FATT_DIE10
+[398]     {SPR_FATT,17,5,{NULL},S_FATT_RAISE2,0,0}, // S_FATT_RAISE1
+[399]     {SPR_FATT,16,5,{NULL},S_FATT_RAISE3,0,0}, // S_FATT_RAISE2
+[400]     {SPR_FATT,15,5,{NULL},S_FATT_RAISE4,0,0}, // S_FATT_RAISE3
+[401]     {SPR_FATT,14,5,{NULL},S_FATT_RAISE5,0,0}, // S_FATT_RAISE4
+[402]     {SPR_FATT,13,5,{NULL},S_FATT_RAISE6,0,0}, // S_FATT_RAISE5
+[403]     {SPR_FATT,12,5,{NULL},S_FATT_RAISE7,0,0}, // S_FATT_RAISE6
+[404]     {SPR_FATT,11,5,{NULL},S_FATT_RAISE8,0,0}, // S_FATT_RAISE7
+[405]     {SPR_FATT,10,5,{NULL},S_FATT_RUN1,0,0}, // S_FATT_RAISE8
+[406]     {SPR_CPOS,0,10,{A_Look},S_CPOS_STND2,0,0},  // S_CPOS_STND
+[407]     {SPR_CPOS,1,10,{A_Look},S_CPOS_STND,0,0}, // S_CPOS_STND2
+[408]     {SPR_CPOS,0,3,{A_Chase},S_CPOS_RUN2,0,0}, // S_CPOS_RUN1
+[409]     {SPR_CPOS,0,3,{A_Chase},S_CPOS_RUN3,0,0}, // S_CPOS_RUN2
+[410]     {SPR_CPOS,1,3,{A_Chase},S_CPOS_RUN4,0,0}, // S_CPOS_RUN3
+[411]     {SPR_CPOS,1,3,{A_Chase},S_CPOS_RUN5,0,0}, // S_CPOS_RUN4
+[412]     {SPR_CPOS,2,3,{A_Chase},S_CPOS_RUN6,0,0}, // S_CPOS_RUN5
+[413]     {SPR_CPOS,2,3,{A_Chase},S_CPOS_RUN7,0,0}, // S_CPOS_RUN6
+[414]     {SPR_CPOS,3,3,{A_Chase},S_CPOS_RUN8,0,0}, // S_CPOS_RUN7
+[415]     {SPR_CPOS,3,3,{A_Chase},S_CPOS_RUN1,0,0}, // S_CPOS_RUN8
+[416]     {SPR_CPOS,4,10,{A_FaceTarget},S_CPOS_ATK2,0,0}, // S_CPOS_ATK1
+[417]     {SPR_CPOS,32773,4,{A_CPosAttack},S_CPOS_ATK3,0,0},  // S_CPOS_ATK2
+[418]     {SPR_CPOS,32772,4,{A_CPosAttack},S_CPOS_ATK4,0,0},  // S_CPOS_ATK3
+[419]     {SPR_CPOS,5,1,{A_CPosRefire},S_CPOS_ATK2,0,0},  // S_CPOS_ATK4
+[420]     {SPR_CPOS,6,3,{NULL},S_CPOS_PAIN2,0,0}, // S_CPOS_PAIN
+[421]     {SPR_CPOS,6,3,{A_Pain},S_CPOS_RUN1,0,0},  // S_CPOS_PAIN2
+[422]     {SPR_CPOS,7,5,{NULL},S_CPOS_DIE2,0,0},  // S_CPOS_DIE1
+[423]     {SPR_CPOS,8,5,{A_Scream},S_CPOS_DIE3,0,0},  // S_CPOS_DIE2
+[424]     {SPR_CPOS,9,5,{A_Fall},S_CPOS_DIE4,0,0},  // S_CPOS_DIE3
+[425]     {SPR_CPOS,10,5,{NULL},S_CPOS_DIE5,0,0}, // S_CPOS_DIE4
+[426]     {SPR_CPOS,11,5,{NULL},S_CPOS_DIE6,0,0}, // S_CPOS_DIE5
+[427]     {SPR_CPOS,12,5,{NULL},S_CPOS_DIE7,0,0}, // S_CPOS_DIE6
+[428]     {SPR_CPOS,13,-1,{NULL},S_NULL,0,0}, // S_CPOS_DIE7
+[429]     {SPR_CPOS,14,5,{NULL},S_CPOS_XDIE2,0,0},  // S_CPOS_XDIE1
+[430]     {SPR_CPOS,15,5,{A_XScream},S_CPOS_XDIE3,0,0}, // S_CPOS_XDIE2
+[431]     {SPR_CPOS,16,5,{A_Fall},S_CPOS_XDIE4,0,0},  // S_CPOS_XDIE3
+[432]     {SPR_CPOS,17,5,{NULL},S_CPOS_XDIE5,0,0},  // S_CPOS_XDIE4
+[433]     {SPR_CPOS,18,5,{NULL},S_CPOS_XDIE6,0,0},  // S_CPOS_XDIE5
+[434]     {SPR_CPOS,19,-1,{NULL},S_NULL,0,0}, // S_CPOS_XDIE6
+[435]     {SPR_CPOS,13,5,{NULL},S_CPOS_RAISE2,0,0}, // S_CPOS_RAISE1
+[436]     {SPR_CPOS,12,5,{NULL},S_CPOS_RAISE3,0,0}, // S_CPOS_RAISE2
+[437]     {SPR_CPOS,11,5,{NULL},S_CPOS_RAISE4,0,0}, // S_CPOS_RAISE3
+[438]     {SPR_CPOS,10,5,{NULL},S_CPOS_RAISE5,0,0}, // S_CPOS_RAISE4
+[439]     {SPR_CPOS,9,5,{NULL},S_CPOS_RAISE6,0,0},  // S_CPOS_RAISE5
+[440]     {SPR_CPOS,8,5,{NULL},S_CPOS_RAISE7,0,0},  // S_CPOS_RAISE6
+[441]     {SPR_CPOS,7,5,{NULL},S_CPOS_RUN1,0,0},  // S_CPOS_RAISE7
+[442]     {SPR_TROO,0,10,{A_Look},S_TROO_STND2,0,0},  // S_TROO_STND
+[443]     {SPR_TROO,1,10,{A_Look},S_TROO_STND,0,0}, // S_TROO_STND2
+[444]     {SPR_TROO,0,3,{A_Chase},S_TROO_RUN2,0,0}, // S_TROO_RUN1
+[445]     {SPR_TROO,0,3,{A_Chase},S_TROO_RUN3,0,0}, // S_TROO_RUN2
+[446]     {SPR_TROO,1,3,{A_Chase},S_TROO_RUN4,0,0}, // S_TROO_RUN3
+[447]     {SPR_TROO,1,3,{A_Chase},S_TROO_RUN5,0,0}, // S_TROO_RUN4
+[448]     {SPR_TROO,2,3,{A_Chase},S_TROO_RUN6,0,0}, // S_TROO_RUN5
+[449]     {SPR_TROO,2,3,{A_Chase},S_TROO_RUN7,0,0}, // S_TROO_RUN6
+[450]     {SPR_TROO,3,3,{A_Chase},S_TROO_RUN8,0,0}, // S_TROO_RUN7
+[451]     {SPR_TROO,3,3,{A_Chase},S_TROO_RUN1,0,0}, // S_TROO_RUN8
+[452]     {SPR_TROO,4,8,{A_FaceTarget},S_TROO_ATK2,0,0},  // S_TROO_ATK1
+[453]     {SPR_TROO,5,8,{A_FaceTarget},S_TROO_ATK3,0,0},  // S_TROO_ATK2
+[454]     {SPR_TROO,6,6,{A_TroopAttack},S_TROO_RUN1,0,0}, // S_TROO_ATK3
+[455]     {SPR_TROO,7,2,{NULL},S_TROO_PAIN2,0,0}, // S_TROO_PAIN
+[456]     {SPR_TROO,7,2,{A_Pain},S_TROO_RUN1,0,0},  // S_TROO_PAIN2
+[457]     {SPR_TROO,8,8,{NULL},S_TROO_DIE2,0,0},  // S_TROO_DIE1
+[458]     {SPR_TROO,9,8,{A_Scream},S_TROO_DIE3,0,0},  // S_TROO_DIE2
+[459]     {SPR_TROO,10,6,{NULL},S_TROO_DIE4,0,0}, // S_TROO_DIE3
+[460]     {SPR_TROO,11,6,{A_Fall},S_TROO_DIE5,0,0}, // S_TROO_DIE4
+[461]     {SPR_TROO,12,-1,{NULL},S_NULL,0,0}, // S_TROO_DIE5
+[462]     {SPR_TROO,13,5,{NULL},S_TROO_XDIE2,0,0},  // S_TROO_XDIE1
+[463]     {SPR_TROO,14,5,{A_XScream},S_TROO_XDIE3,0,0}, // S_TROO_XDIE2
+[464]     {SPR_TROO,15,5,{NULL},S_TROO_XDIE4,0,0},  // S_TROO_XDIE3
+[465]     {SPR_TROO,16,5,{A_Fall},S_TROO_XDIE5,0,0},  // S_TROO_XDIE4
+[466]     {SPR_TROO,17,5,{NULL},S_TROO_XDIE6,0,0},  // S_TROO_XDIE5
+[467]     {SPR_TROO,18,5,{NULL},S_TROO_XDIE7,0,0},  // S_TROO_XDIE6
+[468]     {SPR_TROO,19,5,{NULL},S_TROO_XDIE8,0,0},  // S_TROO_XDIE7
+[469]     {SPR_TROO,20,-1,{NULL},S_NULL,0,0}, // S_TROO_XDIE8
+[470]     {SPR_TROO,12,8,{NULL},S_TROO_RAISE2,0,0}, // S_TROO_RAISE1
+[471]     {SPR_TROO,11,8,{NULL},S_TROO_RAISE3,0,0}, // S_TROO_RAISE2
+[472]     {SPR_TROO,10,6,{NULL},S_TROO_RAISE4,0,0}, // S_TROO_RAISE3
+[473]     {SPR_TROO,9,6,{NULL},S_TROO_RAISE5,0,0},  // S_TROO_RAISE4
+[474]     {SPR_TROO,8,6,{NULL},S_TROO_RUN1,0,0},  // S_TROO_RAISE5
+[475]     {SPR_SARG,0,10,{A_Look},S_SARG_STND2,0,0},  // S_SARG_STND
+[476]     {SPR_SARG,1,10,{A_Look},S_SARG_STND,0,0}, // S_SARG_STND2
+[477]     {SPR_SARG,0,2,{A_Chase},S_SARG_RUN2,0,0}, // S_SARG_RUN1
+[478]     {SPR_SARG,0,2,{A_Chase},S_SARG_RUN3,0,0}, // S_SARG_RUN2
+[479]     {SPR_SARG,1,2,{A_Chase},S_SARG_RUN4,0,0}, // S_SARG_RUN3
+[480]     {SPR_SARG,1,2,{A_Chase},S_SARG_RUN5,0,0}, // S_SARG_RUN4
+[481]     {SPR_SARG,2,2,{A_Chase},S_SARG_RUN6,0,0}, // S_SARG_RUN5
+[482]     {SPR_SARG,2,2,{A_Chase},S_SARG_RUN7,0,0}, // S_SARG_RUN6
+[483]     {SPR_SARG,3,2,{A_Chase},S_SARG_RUN8,0,0}, // S_SARG_RUN7
+[484]     {SPR_SARG,3,2,{A_Chase},S_SARG_RUN1,0,0}, // S_SARG_RUN8
+[485]     {SPR_SARG,4,8,{A_FaceTarget},S_SARG_ATK2,0,0},  // S_SARG_ATK1
+[486]     {SPR_SARG,5,8,{A_FaceTarget},S_SARG_ATK3,0,0},  // S_SARG_ATK2
+[487]     {SPR_SARG,6,8,{A_SargAttack},S_SARG_RUN1,0,0},  // S_SARG_ATK3
+[488]     {SPR_SARG,7,2,{NULL},S_SARG_PAIN2,0,0}, // S_SARG_PAIN
+[489]     {SPR_SARG,7,2,{A_Pain},S_SARG_RUN1,0,0},  // S_SARG_PAIN2
+[490]     {SPR_SARG,8,8,{NULL},S_SARG_DIE2,0,0},  // S_SARG_DIE1
+[491]     {SPR_SARG,9,8,{A_Scream},S_SARG_DIE3,0,0},  // S_SARG_DIE2
+[492]     {SPR_SARG,10,4,{NULL},S_SARG_DIE4,0,0}, // S_SARG_DIE3
+[493]     {SPR_SARG,11,4,{A_Fall},S_SARG_DIE5,0,0}, // S_SARG_DIE4
+[494]     {SPR_SARG,12,4,{NULL},S_SARG_DIE6,0,0}, // S_SARG_DIE5
+[495]     {SPR_SARG,13,-1,{NULL},S_NULL,0,0}, // S_SARG_DIE6
+[496]     {SPR_SARG,13,5,{NULL},S_SARG_RAISE2,0,0}, // S_SARG_RAISE1
+[497]     {SPR_SARG,12,5,{NULL},S_SARG_RAISE3,0,0}, // S_SARG_RAISE2
+[498]     {SPR_SARG,11,5,{NULL},S_SARG_RAISE4,0,0}, // S_SARG_RAISE3
+[499]     {SPR_SARG,10,5,{NULL},S_SARG_RAISE5,0,0}, // S_SARG_RAISE4
+[500]     {SPR_SARG,9,5,{NULL},S_SARG_RAISE6,0,0},  // S_SARG_RAISE5
+[501]     {SPR_SARG,8,5,{NULL},S_SARG_RUN1,0,0},  // S_SARG_RAISE6
+[502]     {SPR_HEAD,0,10,{A_Look},S_HEAD_STND,0,0}, // S_HEAD_STND
+[503]     {SPR_HEAD,0,3,{A_Chase},S_HEAD_RUN1,0,0}, // S_HEAD_RUN1
+[504]     {SPR_HEAD,1,5,{A_FaceTarget},S_HEAD_ATK2,0,0},  // S_HEAD_ATK1
+[505]     {SPR_HEAD,2,5,{A_FaceTarget},S_HEAD_ATK3,0,0},  // S_HEAD_ATK2
+[506]     {SPR_HEAD,32771,5,{A_HeadAttack},S_HEAD_RUN1,0,0},  // S_HEAD_ATK3
+[507]     {SPR_HEAD,4,3,{NULL},S_HEAD_PAIN2,0,0}, // S_HEAD_PAIN
+[508]     {SPR_HEAD,4,3,{A_Pain},S_HEAD_PAIN3,0,0}, // S_HEAD_PAIN2
+[509]     {SPR_HEAD,5,6,{NULL},S_HEAD_RUN1,0,0},  // S_HEAD_PAIN3
+[510]     {SPR_HEAD,6,8,{NULL},S_HEAD_DIE2,0,0},  // S_HEAD_DIE1
+[511]     {SPR_HEAD,7,8,{A_Scream},S_HEAD_DIE3,0,0},  // S_HEAD_DIE2
+[512]     {SPR_HEAD,8,8,{NULL},S_HEAD_DIE4,0,0},  // S_HEAD_DIE3
+[513]     {SPR_HEAD,9,8,{NULL},S_HEAD_DIE5,0,0},  // S_HEAD_DIE4
+[514]     {SPR_HEAD,10,8,{A_Fall},S_HEAD_DIE6,0,0}, // S_HEAD_DIE5
+[515]     {SPR_HEAD,11,-1,{NULL},S_NULL,0,0}, // S_HEAD_DIE6
+[516]     {SPR_HEAD,11,8,{NULL},S_HEAD_RAISE2,0,0}, // S_HEAD_RAISE1
+[517]     {SPR_HEAD,10,8,{NULL},S_HEAD_RAISE3,0,0}, // S_HEAD_RAISE2
+[518]     {SPR_HEAD,9,8,{NULL},S_HEAD_RAISE4,0,0},  // S_HEAD_RAISE3
+[519]     {SPR_HEAD,8,8,{NULL},S_HEAD_RAISE5,0,0},  // S_HEAD_RAISE4
+[520]     {SPR_HEAD,7,8,{NULL},S_HEAD_RAISE6,0,0},  // S_HEAD_RAISE5
+[521]     {SPR_HEAD,6,8,{NULL},S_HEAD_RUN1,0,0},  // S_HEAD_RAISE6
+[522]     {SPR_BAL7,32768,4,{NULL},S_BRBALL2,0,0},  // S_BRBALL1
+[523]     {SPR_BAL7,32769,4,{NULL},S_BRBALL1,0,0},  // S_BRBALL2
+[524]     {SPR_BAL7,32770,6,{NULL},S_BRBALLX2,0,0}, // S_BRBALLX1
+[525]     {SPR_BAL7,32771,6,{NULL},S_BRBALLX3,0,0}, // S_BRBALLX2
+[526]     {SPR_BAL7,32772,6,{NULL},S_NULL,0,0}, // S_BRBALLX3
+[527]     {SPR_BOSS,0,10,{A_Look},S_BOSS_STND2,0,0},  // S_BOSS_STND
+[528]     {SPR_BOSS,1,10,{A_Look},S_BOSS_STND,0,0}, // S_BOSS_STND2
+[529]     {SPR_BOSS,0,3,{A_Chase},S_BOSS_RUN2,0,0}, // S_BOSS_RUN1
+[530]     {SPR_BOSS,0,3,{A_Chase},S_BOSS_RUN3,0,0}, // S_BOSS_RUN2
+[531]     {SPR_BOSS,1,3,{A_Chase},S_BOSS_RUN4,0,0}, // S_BOSS_RUN3
+[532]     {SPR_BOSS,1,3,{A_Chase},S_BOSS_RUN5,0,0}, // S_BOSS_RUN4
+[533]     {SPR_BOSS,2,3,{A_Chase},S_BOSS_RUN6,0,0}, // S_BOSS_RUN5
+[534]     {SPR_BOSS,2,3,{A_Chase},S_BOSS_RUN7,0,0}, // S_BOSS_RUN6
+[535]     {SPR_BOSS,3,3,{A_Chase},S_BOSS_RUN8,0,0}, // S_BOSS_RUN7
+[536]     {SPR_BOSS,3,3,{A_Chase},S_BOSS_RUN1,0,0}, // S_BOSS_RUN8
+[537]     {SPR_BOSS,4,8,{A_FaceTarget},S_BOSS_ATK2,0,0},  // S_BOSS_ATK1
+[538]     {SPR_BOSS,5,8,{A_FaceTarget},S_BOSS_ATK3,0,0},  // S_BOSS_ATK2
+[539]     {SPR_BOSS,6,8,{A_BruisAttack},S_BOSS_RUN1,0,0}, // S_BOSS_ATK3
+[540]     {SPR_BOSS,7,2,{NULL},S_BOSS_PAIN2,0,0}, // S_BOSS_PAIN
+[541]     {SPR_BOSS,7,2,{A_Pain},S_BOSS_RUN1,0,0},  // S_BOSS_PAIN2
+[542]     {SPR_BOSS,8,8,{NULL},S_BOSS_DIE2,0,0},  // S_BOSS_DIE1
+[543]     {SPR_BOSS,9,8,{A_Scream},S_BOSS_DIE3,0,0},  // S_BOSS_DIE2
+[544]     {SPR_BOSS,10,8,{NULL},S_BOSS_DIE4,0,0}, // S_BOSS_DIE3
+[545]     {SPR_BOSS,11,8,{A_Fall},S_BOSS_DIE5,0,0}, // S_BOSS_DIE4
+[546]     {SPR_BOSS,12,8,{NULL},S_BOSS_DIE6,0,0}, // S_BOSS_DIE5
+[547]     {SPR_BOSS,13,8,{NULL},S_BOSS_DIE7,0,0}, // S_BOSS_DIE6
+[548]     {SPR_BOSS,14,-1,{A_BossDeath},S_NULL,0,0},  // S_BOSS_DIE7
+[549]     {SPR_BOSS,14,8,{NULL},S_BOSS_RAISE2,0,0}, // S_BOSS_RAISE1
+[550]     {SPR_BOSS,13,8,{NULL},S_BOSS_RAISE3,0,0}, // S_BOSS_RAISE2
+[551]     {SPR_BOSS,12,8,{NULL},S_BOSS_RAISE4,0,0}, // S_BOSS_RAISE3
+[552]     {SPR_BOSS,11,8,{NULL},S_BOSS_RAISE5,0,0}, // S_BOSS_RAISE4
+[553]     {SPR_BOSS,10,8,{NULL},S_BOSS_RAISE6,0,0}, // S_BOSS_RAISE5
+[554]     {SPR_BOSS,9,8,{NULL},S_BOSS_RAISE7,0,0},  // S_BOSS_RAISE6
+[555]     {SPR_BOSS,8,8,{NULL},S_BOSS_RUN1,0,0},  // S_BOSS_RAISE7
+[556]     {SPR_BOS2,0,10,{A_Look},S_BOS2_STND2,0,0},  // S_BOS2_STND
+[557]     {SPR_BOS2,1,10,{A_Look},S_BOS2_STND,0,0}, // S_BOS2_STND2
+[558]     {SPR_BOS2,0,3,{A_Chase},S_BOS2_RUN2,0,0}, // S_BOS2_RUN1
+[559]     {SPR_BOS2,0,3,{A_Chase},S_BOS2_RUN3,0,0}, // S_BOS2_RUN2
+[560]     {SPR_BOS2,1,3,{A_Chase},S_BOS2_RUN4,0,0}, // S_BOS2_RUN3
+[561]     {SPR_BOS2,1,3,{A_Chase},S_BOS2_RUN5,0,0}, // S_BOS2_RUN4
+[562]     {SPR_BOS2,2,3,{A_Chase},S_BOS2_RUN6,0,0}, // S_BOS2_RUN5
+[563]     {SPR_BOS2,2,3,{A_Chase},S_BOS2_RUN7,0,0}, // S_BOS2_RUN6
+[564]     {SPR_BOS2,3,3,{A_Chase},S_BOS2_RUN8,0,0}, // S_BOS2_RUN7
+[565]     {SPR_BOS2,3,3,{A_Chase},S_BOS2_RUN1,0,0}, // S_BOS2_RUN8
+[566]     {SPR_BOS2,4,8,{A_FaceTarget},S_BOS2_ATK2,0,0},  // S_BOS2_ATK1
+[567]     {SPR_BOS2,5,8,{A_FaceTarget},S_BOS2_ATK3,0,0},  // S_BOS2_ATK2
+[568]     {SPR_BOS2,6,8,{A_BruisAttack},S_BOS2_RUN1,0,0}, // S_BOS2_ATK3
+[569]     {SPR_BOS2,7,2,{NULL},S_BOS2_PAIN2,0,0}, // S_BOS2_PAIN
+[570]     {SPR_BOS2,7,2,{A_Pain},S_BOS2_RUN1,0,0},  // S_BOS2_PAIN2
+[571]     {SPR_BOS2,8,8,{NULL},S_BOS2_DIE2,0,0},  // S_BOS2_DIE1
+[572]     {SPR_BOS2,9,8,{A_Scream},S_BOS2_DIE3,0,0},  // S_BOS2_DIE2
+[573]     {SPR_BOS2,10,8,{NULL},S_BOS2_DIE4,0,0}, // S_BOS2_DIE3
+[574]     {SPR_BOS2,11,8,{A_Fall},S_BOS2_DIE5,0,0}, // S_BOS2_DIE4
+[575]     {SPR_BOS2,12,8,{NULL},S_BOS2_DIE6,0,0}, // S_BOS2_DIE5
+[576]     {SPR_BOS2,13,8,{NULL},S_BOS2_DIE7,0,0}, // S_BOS2_DIE6
+[577]     {SPR_BOS2,14,-1,{NULL},S_NULL,0,0}, // S_BOS2_DIE7
+[578]     {SPR_BOS2,14,8,{NULL},S_BOS2_RAISE2,0,0}, // S_BOS2_RAISE1
+[579]     {SPR_BOS2,13,8,{NULL},S_BOS2_RAISE3,0,0}, // S_BOS2_RAISE2
+[580]     {SPR_BOS2,12,8,{NULL},S_BOS2_RAISE4,0,0}, // S_BOS2_RAISE3
+[581]     {SPR_BOS2,11,8,{NULL},S_BOS2_RAISE5,0,0}, // S_BOS2_RAISE4
+[582]     {SPR_BOS2,10,8,{NULL},S_BOS2_RAISE6,0,0}, // S_BOS2_RAISE5
+[583]     {SPR_BOS2,9,8,{NULL},S_BOS2_RAISE7,0,0},  // S_BOS2_RAISE6
+[584]     {SPR_BOS2,8,8,{NULL},S_BOS2_RUN1,0,0},  // S_BOS2_RAISE7
+[585]     {SPR_SKUL,32768,10,{A_Look},S_SKULL_STND2,0,0}, // S_SKULL_STND
+[586]     {SPR_SKUL,32769,10,{A_Look},S_SKULL_STND,0,0},  // S_SKULL_STND2
+[587]     {SPR_SKUL,32768,6,{A_Chase},S_SKULL_RUN2,0,0},  // S_SKULL_RUN1
+[588]     {SPR_SKUL,32769,6,{A_Chase},S_SKULL_RUN1,0,0},  // S_SKULL_RUN2
+[589]     {SPR_SKUL,32770,10,{A_FaceTarget},S_SKULL_ATK2,0,0},  // S_SKULL_ATK1
+[590]     {SPR_SKUL,32771,4,{A_SkullAttack},S_SKULL_ATK3,0,0},  // S_SKULL_ATK2
+[591]     {SPR_SKUL,32770,4,{NULL},S_SKULL_ATK4,0,0}, // S_SKULL_ATK3
+[592]     {SPR_SKUL,32771,4,{NULL},S_SKULL_ATK3,0,0}, // S_SKULL_ATK4
+[593]     {SPR_SKUL,32772,3,{NULL},S_SKULL_PAIN2,0,0},  // S_SKULL_PAIN
+[594]     {SPR_SKUL,32772,3,{A_Pain},S_SKULL_RUN1,0,0}, // S_SKULL_PAIN2
+[595]     {SPR_SKUL,32773,6,{NULL},S_SKULL_DIE2,0,0}, // S_SKULL_DIE1
+[596]     {SPR_SKUL,32774,6,{A_Scream},S_SKULL_DIE3,0,0}, // S_SKULL_DIE2
+[597]     {SPR_SKUL,32775,6,{NULL},S_SKULL_DIE4,0,0}, // S_SKULL_DIE3
+[598]     {SPR_SKUL,32776,6,{A_Fall},S_SKULL_DIE5,0,0}, // S_SKULL_DIE4
+[599]     {SPR_SKUL,9,6,{NULL},S_SKULL_DIE6,0,0}, // S_SKULL_DIE5
+[600]     {SPR_SKUL,10,6,{NULL},S_NULL,0,0},  // S_SKULL_DIE6
+[601]     {SPR_SPID,0,10,{A_Look},S_SPID_STND2,0,0},  // S_SPID_STND
+[602]     {SPR_SPID,1,10,{A_Look},S_SPID_STND,0,0}, // S_SPID_STND2
+[603]     {SPR_SPID,0,3,{A_Metal},S_SPID_RUN2,0,0}, // S_SPID_RUN1
+[604]     {SPR_SPID,0,3,{A_Chase},S_SPID_RUN3,0,0}, // S_SPID_RUN2
+[605]     {SPR_SPID,1,3,{A_Chase},S_SPID_RUN4,0,0}, // S_SPID_RUN3
+[606]     {SPR_SPID,1,3,{A_Chase},S_SPID_RUN5,0,0}, // S_SPID_RUN4
+[607]     {SPR_SPID,2,3,{A_Metal},S_SPID_RUN6,0,0}, // S_SPID_RUN5
+[608]     {SPR_SPID,2,3,{A_Chase},S_SPID_RUN7,0,0}, // S_SPID_RUN6
+[609]     {SPR_SPID,3,3,{A_Chase},S_SPID_RUN8,0,0}, // S_SPID_RUN7
+[610]     {SPR_SPID,3,3,{A_Chase},S_SPID_RUN9,0,0}, // S_SPID_RUN8
+[611]     {SPR_SPID,4,3,{A_Metal},S_SPID_RUN10,0,0},  // S_SPID_RUN9
+[612]     {SPR_SPID,4,3,{A_Chase},S_SPID_RUN11,0,0},  // S_SPID_RUN10
+[613]     {SPR_SPID,5,3,{A_Chase},S_SPID_RUN12,0,0},  // S_SPID_RUN11
+[614]     {SPR_SPID,5,3,{A_Chase},S_SPID_RUN1,0,0}, // S_SPID_RUN12
+[615]     {SPR_SPID,32768,20,{A_FaceTarget},S_SPID_ATK2,0,0}, // S_SPID_ATK1
+[616]     {SPR_SPID,32774,4,{A_SPosAttack},S_SPID_ATK3,0,0},  // S_SPID_ATK2
+[617]     {SPR_SPID,32775,4,{A_SPosAttack},S_SPID_ATK4,0,0},  // S_SPID_ATK3
+[618]     {SPR_SPID,32775,1,{A_SpidRefire},S_SPID_ATK2,0,0},  // S_SPID_ATK4
+[619]     {SPR_SPID,8,3,{NULL},S_SPID_PAIN2,0,0}, // S_SPID_PAIN
+[620]     {SPR_SPID,8,3,{A_Pain},S_SPID_RUN1,0,0},  // S_SPID_PAIN2
+[621]     {SPR_SPID,9,20,{A_Scream},S_SPID_DIE2,0,0}, // S_SPID_DIE1
+[622]     {SPR_SPID,10,10,{A_Fall},S_SPID_DIE3,0,0},  // S_SPID_DIE2
+[623]     {SPR_SPID,11,10,{NULL},S_SPID_DIE4,0,0},  // S_SPID_DIE3
+[624]     {SPR_SPID,12,10,{NULL},S_SPID_DIE5,0,0},  // S_SPID_DIE4
+[625]     {SPR_SPID,13,10,{NULL},S_SPID_DIE6,0,0},  // S_SPID_DIE5
+[626]     {SPR_SPID,14,10,{NULL},S_SPID_DIE7,0,0},  // S_SPID_DIE6
+[627]     {SPR_SPID,15,10,{NULL},S_SPID_DIE8,0,0},  // S_SPID_DIE7
+[628]     {SPR_SPID,16,10,{NULL},S_SPID_DIE9,0,0},  // S_SPID_DIE8
+[629]     {SPR_SPID,17,10,{NULL},S_SPID_DIE10,0,0}, // S_SPID_DIE9
+[630]     {SPR_SPID,18,30,{NULL},S_SPID_DIE11,0,0}, // S_SPID_DIE10
+[631]     {SPR_SPID,18,-1,{A_BossDeath},S_NULL,0,0},  // S_SPID_DIE11
+[632]     {SPR_BSPI,0,10,{A_Look},S_BSPI_STND2,0,0},  // S_BSPI_STND
+[633]     {SPR_BSPI,1,10,{A_Look},S_BSPI_STND,0,0}, // S_BSPI_STND2
+[634]     {SPR_BSPI,0,20,{NULL},S_BSPI_RUN1,0,0}, // S_BSPI_SIGHT
+[635]     {SPR_BSPI,0,3,{A_BabyMetal},S_BSPI_RUN2,0,0}, // S_BSPI_RUN1
+[636]     {SPR_BSPI,0,3,{A_Chase},S_BSPI_RUN3,0,0}, // S_BSPI_RUN2
+[637]     {SPR_BSPI,1,3,{A_Chase},S_BSPI_RUN4,0,0}, // S_BSPI_RUN3
+[638]     {SPR_BSPI,1,3,{A_Chase},S_BSPI_RUN5,0,0}, // S_BSPI_RUN4
+[639]     {SPR_BSPI,2,3,{A_Chase},S_BSPI_RUN6,0,0}, // S_BSPI_RUN5
+[640]     {SPR_BSPI,2,3,{A_Chase},S_BSPI_RUN7,0,0}, // S_BSPI_RUN6
+[641]     {SPR_BSPI,3,3,{A_BabyMetal},S_BSPI_RUN8,0,0}, // S_BSPI_RUN7
+[642]     {SPR_BSPI,3,3,{A_Chase},S_BSPI_RUN9,0,0}, // S_BSPI_RUN8
+[643]     {SPR_BSPI,4,3,{A_Chase},S_BSPI_RUN10,0,0},  // S_BSPI_RUN9
+[644]     {SPR_BSPI,4,3,{A_Chase},S_BSPI_RUN11,0,0},  // S_BSPI_RUN10
+[645]     {SPR_BSPI,5,3,{A_Chase},S_BSPI_RUN12,0,0},  // S_BSPI_RUN11
+[646]     {SPR_BSPI,5,3,{A_Chase},S_BSPI_RUN1,0,0}, // S_BSPI_RUN12
+[647]     {SPR_BSPI,32768,20,{A_FaceTarget},S_BSPI_ATK2,0,0}, // S_BSPI_ATK1
+[648]     {SPR_BSPI,32774,4,{A_BspiAttack},S_BSPI_ATK3,0,0},  // S_BSPI_ATK2
+[649]     {SPR_BSPI,32775,4,{NULL},S_BSPI_ATK4,0,0},  // S_BSPI_ATK3
+[650]     {SPR_BSPI,32775,1,{A_SpidRefire},S_BSPI_ATK2,0,0},  // S_BSPI_ATK4
+[651]     {SPR_BSPI,8,3,{NULL},S_BSPI_PAIN2,0,0}, // S_BSPI_PAIN
+[652]     {SPR_BSPI,8,3,{A_Pain},S_BSPI_RUN1,0,0},  // S_BSPI_PAIN2
+[653]     {SPR_BSPI,9,20,{A_Scream},S_BSPI_DIE2,0,0}, // S_BSPI_DIE1
+[654]     {SPR_BSPI,10,7,{A_Fall},S_BSPI_DIE3,0,0}, // S_BSPI_DIE2
+[655]     {SPR_BSPI,11,7,{NULL},S_BSPI_DIE4,0,0}, // S_BSPI_DIE3
+[656]     {SPR_BSPI,12,7,{NULL},S_BSPI_DIE5,0,0}, // S_BSPI_DIE4
+[657]     {SPR_BSPI,13,7,{NULL},S_BSPI_DIE6,0,0}, // S_BSPI_DIE5
+[658]     {SPR_BSPI,14,7,{NULL},S_BSPI_DIE7,0,0}, // S_BSPI_DIE6
+[659]     {SPR_BSPI,15,-1,{A_BossDeath},S_NULL,0,0},  // S_BSPI_DIE7
+[660]     {SPR_BSPI,15,5,{NULL},S_BSPI_RAISE2,0,0}, // S_BSPI_RAISE1
+[661]     {SPR_BSPI,14,5,{NULL},S_BSPI_RAISE3,0,0}, // S_BSPI_RAISE2
+[662]     {SPR_BSPI,13,5,{NULL},S_BSPI_RAISE4,0,0}, // S_BSPI_RAISE3
+[663]     {SPR_BSPI,12,5,{NULL},S_BSPI_RAISE5,0,0}, // S_BSPI_RAISE4
+[664]     {SPR_BSPI,11,5,{NULL},S_BSPI_RAISE6,0,0}, // S_BSPI_RAISE5
+[665]     {SPR_BSPI,10,5,{NULL},S_BSPI_RAISE7,0,0}, // S_BSPI_RAISE6
+[666]     {SPR_BSPI,9,5,{NULL},S_BSPI_RUN1,0,0},  // S_BSPI_RAISE7
+[667]     {SPR_APLS,32768,5,{NULL},S_ARACH_PLAZ2,0,0},  // S_ARACH_PLAZ
+[668]     {SPR_APLS,32769,5,{NULL},S_ARACH_PLAZ,0,0}, // S_ARACH_PLAZ2
+[669]     {SPR_APBX,32768,5,{NULL},S_ARACH_PLEX2,0,0},  // S_ARACH_PLEX
+[670]     {SPR_APBX,32769,5,{NULL},S_ARACH_PLEX3,0,0},  // S_ARACH_PLEX2
+[671]     {SPR_APBX,32770,5,{NULL},S_ARACH_PLEX4,0,0},  // S_ARACH_PLEX3
+[672]     {SPR_APBX,32771,5,{NULL},S_ARACH_PLEX5,0,0},  // S_ARACH_PLEX4
+[673]     {SPR_APBX,32772,5,{NULL},S_NULL,0,0}, // S_ARACH_PLEX5
+[674]     {SPR_CYBR,0,10,{A_Look},S_CYBER_STND2,0,0}, // S_CYBER_STND
+[675]     {SPR_CYBR,1,10,{A_Look},S_CYBER_STND,0,0},  // S_CYBER_STND2
+[676]     {SPR_CYBR,0,3,{A_Hoof},S_CYBER_RUN2,0,0}, // S_CYBER_RUN1
+[677]     {SPR_CYBR,0,3,{A_Chase},S_CYBER_RUN3,0,0},  // S_CYBER_RUN2
+[678]     {SPR_CYBR,1,3,{A_Chase},S_CYBER_RUN4,0,0},  // S_CYBER_RUN3
+[679]     {SPR_CYBR,1,3,{A_Chase},S_CYBER_RUN5,0,0},  // S_CYBER_RUN4
+[680]     {SPR_CYBR,2,3,{A_Chase},S_CYBER_RUN6,0,0},  // S_CYBER_RUN5
+[681]     {SPR_CYBR,2,3,{A_Chase},S_CYBER_RUN7,0,0},  // S_CYBER_RUN6
+[682]     {SPR_CYBR,3,3,{A_Metal},S_CYBER_RUN8,0,0},  // S_CYBER_RUN7
+[683]     {SPR_CYBR,3,3,{A_Chase},S_CYBER_RUN1,0,0},  // S_CYBER_RUN8
+[684]     {SPR_CYBR,4,6,{A_FaceTarget},S_CYBER_ATK2,0,0}, // S_CYBER_ATK1
+[685]     {SPR_CYBR,5,12,{A_CyberAttack},S_CYBER_ATK3,0,0}, // S_CYBER_ATK2
+[686]     {SPR_CYBR,4,12,{A_FaceTarget},S_CYBER_ATK4,0,0},  // S_CYBER_ATK3
+[687]     {SPR_CYBR,5,12,{A_CyberAttack},S_CYBER_ATK5,0,0}, // S_CYBER_ATK4
+[688]     {SPR_CYBR,4,12,{A_FaceTarget},S_CYBER_ATK6,0,0},  // S_CYBER_ATK5
+[689]     {SPR_CYBR,5,12,{A_CyberAttack},S_CYBER_RUN1,0,0}, // S_CYBER_ATK6
+[690]     {SPR_CYBR,6,10,{A_Pain},S_CYBER_RUN1,0,0},  // S_CYBER_PAIN
+[691]     {SPR_CYBR,7,10,{NULL},S_CYBER_DIE2,0,0},  // S_CYBER_DIE1
+[692]     {SPR_CYBR,8,10,{A_Scream},S_CYBER_DIE3,0,0},  // S_CYBER_DIE2
+[693]     {SPR_CYBR,9,10,{NULL},S_CYBER_DIE4,0,0},  // S_CYBER_DIE3
+[694]     {SPR_CYBR,10,10,{NULL},S_CYBER_DIE5,0,0}, // S_CYBER_DIE4
+[695]     {SPR_CYBR,11,10,{NULL},S_CYBER_DIE6,0,0}, // S_CYBER_DIE5
+[696]     {SPR_CYBR,12,10,{A_Fall},S_CYBER_DIE7,0,0}, // S_CYBER_DIE6
+[697]     {SPR_CYBR,13,10,{NULL},S_CYBER_DIE8,0,0}, // S_CYBER_DIE7
+[698]     {SPR_CYBR,14,10,{NULL},S_CYBER_DIE9,0,0}, // S_CYBER_DIE8
+[699]     {SPR_CYBR,15,30,{NULL},S_CYBER_DIE10,0,0},  // S_CYBER_DIE9
+[700]     {SPR_CYBR,15,-1,{A_BossDeath},S_NULL,0,0},  // S_CYBER_DIE10
+[701]     {SPR_PAIN,0,10,{A_Look},S_PAIN_STND,0,0}, // S_PAIN_STND
+[702]     {SPR_PAIN,0,3,{A_Chase},S_PAIN_RUN2,0,0}, // S_PAIN_RUN1
+[703]     {SPR_PAIN,0,3,{A_Chase},S_PAIN_RUN3,0,0}, // S_PAIN_RUN2
+[704]     {SPR_PAIN,1,3,{A_Chase},S_PAIN_RUN4,0,0}, // S_PAIN_RUN3
+[705]     {SPR_PAIN,1,3,{A_Chase},S_PAIN_RUN5,0,0}, // S_PAIN_RUN4
+[706]     {SPR_PAIN,2,3,{A_Chase},S_PAIN_RUN6,0,0}, // S_PAIN_RUN5
+[707]     {SPR_PAIN,2,3,{A_Chase},S_PAIN_RUN1,0,0}, // S_PAIN_RUN6
+[708]     {SPR_PAIN,3,5,{A_FaceTarget},S_PAIN_ATK2,0,0},  // S_PAIN_ATK1
+[709]     {SPR_PAIN,4,5,{A_FaceTarget},S_PAIN_ATK3,0,0},  // S_PAIN_ATK2
+[710]     {SPR_PAIN,32773,5,{A_FaceTarget},S_PAIN_ATK4,0,0},  // S_PAIN_ATK3
+[711]     {SPR_PAIN,32773,0,{A_PainAttack},S_PAIN_RUN1,0,0},  // S_PAIN_ATK4
+[712]     {SPR_PAIN,6,6,{NULL},S_PAIN_PAIN2,0,0}, // S_PAIN_PAIN
+[713]     {SPR_PAIN,6,6,{A_Pain},S_PAIN_RUN1,0,0},  // S_PAIN_PAIN2
+[714]     {SPR_PAIN,32775,8,{NULL},S_PAIN_DIE2,0,0},  // S_PAIN_DIE1
+[715]     {SPR_PAIN,32776,8,{A_Scream},S_PAIN_DIE3,0,0},  // S_PAIN_DIE2
+[716]     {SPR_PAIN,32777,8,{NULL},S_PAIN_DIE4,0,0},  // S_PAIN_DIE3
+[717]     {SPR_PAIN,32778,8,{NULL},S_PAIN_DIE5,0,0},  // S_PAIN_DIE4
+[718]     {SPR_PAIN,32779,8,{A_PainDie},S_PAIN_DIE6,0,0}, // S_PAIN_DIE5
+[719]     {SPR_PAIN,32780,8,{NULL},S_NULL,0,0}, // S_PAIN_DIE6
+[720]     {SPR_PAIN,12,8,{NULL},S_PAIN_RAISE2,0,0}, // S_PAIN_RAISE1
+[721]     {SPR_PAIN,11,8,{NULL},S_PAIN_RAISE3,0,0}, // S_PAIN_RAISE2
+[722]     {SPR_PAIN,10,8,{NULL},S_PAIN_RAISE4,0,0}, // S_PAIN_RAISE3
+[723]     {SPR_PAIN,9,8,{NULL},S_PAIN_RAISE5,0,0},  // S_PAIN_RAISE4
+[724]     {SPR_PAIN,8,8,{NULL},S_PAIN_RAISE6,0,0},  // S_PAIN_RAISE5
+[725]     {SPR_PAIN,7,8,{NULL},S_PAIN_RUN1,0,0},  // S_PAIN_RAISE6
+[726]     {SPR_SSWV,0,10,{A_Look},S_SSWV_STND2,0,0},  // S_SSWV_STND
+[727]     {SPR_SSWV,1,10,{A_Look},S_SSWV_STND,0,0}, // S_SSWV_STND2
+[728]     {SPR_SSWV,0,3,{A_Chase},S_SSWV_RUN2,0,0}, // S_SSWV_RUN1
+[729]     {SPR_SSWV,0,3,{A_Chase},S_SSWV_RUN3,0,0}, // S_SSWV_RUN2
+[730]     {SPR_SSWV,1,3,{A_Chase},S_SSWV_RUN4,0,0}, // S_SSWV_RUN3
+[731]     {SPR_SSWV,1,3,{A_Chase},S_SSWV_RUN5,0,0}, // S_SSWV_RUN4
+[732]     {SPR_SSWV,2,3,{A_Chase},S_SSWV_RUN6,0,0}, // S_SSWV_RUN5
+[733]     {SPR_SSWV,2,3,{A_Chase},S_SSWV_RUN7,0,0}, // S_SSWV_RUN6
+[734]     {SPR_SSWV,3,3,{A_Chase},S_SSWV_RUN8,0,0}, // S_SSWV_RUN7
+[735]     {SPR_SSWV,3,3,{A_Chase},S_SSWV_RUN1,0,0}, // S_SSWV_RUN8
+[736]     {SPR_SSWV,4,10,{A_FaceTarget},S_SSWV_ATK2,0,0}, // S_SSWV_ATK1
+[737]     {SPR_SSWV,5,10,{A_FaceTarget},S_SSWV_ATK3,0,0}, // S_SSWV_ATK2
+[738]     {SPR_SSWV,32774,4,{A_CPosAttack},S_SSWV_ATK4,0,0},  // S_SSWV_ATK3
+[739]     {SPR_SSWV,5,6,{A_FaceTarget},S_SSWV_ATK5,0,0},  // S_SSWV_ATK4
+[740]     {SPR_SSWV,32774,4,{A_CPosAttack},S_SSWV_ATK6,0,0},  // S_SSWV_ATK5
+[741]     {SPR_SSWV,5,1,{A_CPosRefire},S_SSWV_ATK2,0,0},  // S_SSWV_ATK6
+[742]     {SPR_SSWV,7,3,{NULL},S_SSWV_PAIN2,0,0}, // S_SSWV_PAIN
+[743]     {SPR_SSWV,7,3,{A_Pain},S_SSWV_RUN1,0,0},  // S_SSWV_PAIN2
+[744]     {SPR_SSWV,8,5,{NULL},S_SSWV_DIE2,0,0},  // S_SSWV_DIE1
+[745]     {SPR_SSWV,9,5,{A_Scream},S_SSWV_DIE3,0,0},  // S_SSWV_DIE2
+[746]     {SPR_SSWV,10,5,{A_Fall},S_SSWV_DIE4,0,0}, // S_SSWV_DIE3
+[747]     {SPR_SSWV,11,5,{NULL},S_SSWV_DIE5,0,0}, // S_SSWV_DIE4
+[748]     {SPR_SSWV,12,-1,{NULL},S_NULL,0,0}, // S_SSWV_DIE5
+[749]     {SPR_SSWV,13,5,{NULL},S_SSWV_XDIE2,0,0},  // S_SSWV_XDIE1
+[750]     {SPR_SSWV,14,5,{A_XScream},S_SSWV_XDIE3,0,0}, // S_SSWV_XDIE2
+[751]     {SPR_SSWV,15,5,{A_Fall},S_SSWV_XDIE4,0,0},  // S_SSWV_XDIE3
+[752]     {SPR_SSWV,16,5,{NULL},S_SSWV_XDIE5,0,0},  // S_SSWV_XDIE4
+[753]     {SPR_SSWV,17,5,{NULL},S_SSWV_XDIE6,0,0},  // S_SSWV_XDIE5
+[754]     {SPR_SSWV,18,5,{NULL},S_SSWV_XDIE7,0,0},  // S_SSWV_XDIE6
+[755]     {SPR_SSWV,19,5,{NULL},S_SSWV_XDIE8,0,0},  // S_SSWV_XDIE7
+[756]     {SPR_SSWV,20,5,{NULL},S_SSWV_XDIE9,0,0},  // S_SSWV_XDIE8
+[757]     {SPR_SSWV,21,-1,{NULL},S_NULL,0,0}, // S_SSWV_XDIE9
+[758]     {SPR_SSWV,12,5,{NULL},S_SSWV_RAISE2,0,0}, // S_SSWV_RAISE1
+[759]     {SPR_SSWV,11,5,{NULL},S_SSWV_RAISE3,0,0}, // S_SSWV_RAISE2
+[760]     {SPR_SSWV,10,5,{NULL},S_SSWV_RAISE4,0,0}, // S_SSWV_RAISE3
+[761]     {SPR_SSWV,9,5,{NULL},S_SSWV_RAISE5,0,0},  // S_SSWV_RAISE4
+[762]     {SPR_SSWV,8,5,{NULL},S_SSWV_RUN1,0,0},  // S_SSWV_RAISE5
+[763]     {SPR_KEEN,0,-1,{NULL},S_KEENSTND,0,0},  // S_KEENSTND
+[764]     {SPR_KEEN,0,6,{NULL},S_COMMKEEN2,0,0},  // S_COMMKEEN
+[765]     {SPR_KEEN,1,6,{NULL},S_COMMKEEN3,0,0},  // S_COMMKEEN2
+[766]     {SPR_KEEN,2,6,{A_Scream},S_COMMKEEN4,0,0},  // S_COMMKEEN3
+[767]     {SPR_KEEN,3,6,{NULL},S_COMMKEEN5,0,0},  // S_COMMKEEN4
+[768]     {SPR_KEEN,4,6,{NULL},S_COMMKEEN6,0,0},  // S_COMMKEEN5
+[769]     {SPR_KEEN,5,6,{NULL},S_COMMKEEN7,0,0},  // S_COMMKEEN6
+[770]     {SPR_KEEN,6,6,{NULL},S_COMMKEEN8,0,0},  // S_COMMKEEN7
+[771]     {SPR_KEEN,7,6,{NULL},S_COMMKEEN9,0,0},  // S_COMMKEEN8
+[772]     {SPR_KEEN,8,6,{NULL},S_COMMKEEN10,0,0}, // S_COMMKEEN9
+[773]     {SPR_KEEN,9,6,{NULL},S_COMMKEEN11,0,0}, // S_COMMKEEN10
+[774]     {SPR_KEEN,10,6,{A_KeenDie},S_COMMKEEN12,0,0},// S_COMMKEEN11
+[775]     {SPR_KEEN,11,-1,{NULL},S_NULL,0,0},   // S_COMMKEEN12
+[776]     {SPR_KEEN,12,4,{NULL},S_KEENPAIN2,0,0}, // S_KEENPAIN
+[777]     {SPR_KEEN,12,8,{A_Pain},S_KEENSTND,0,0},  // S_KEENPAIN2
+[778]     {SPR_BBRN,0,-1,{NULL},S_NULL,0,0},    // S_BRAIN
+[779]     {SPR_BBRN,1,36,{A_BrainPain},S_BRAIN,0,0},  // S_BRAIN_PAIN
+[780]     {SPR_BBRN,0,100,{A_BrainScream},S_BRAIN_DIE2,0,0},  // S_BRAIN_DIE1
+[781]     {SPR_BBRN,0,10,{NULL},S_BRAIN_DIE3,0,0},  // S_BRAIN_DIE2
+[782]     {SPR_BBRN,0,10,{NULL},S_BRAIN_DIE4,0,0},  // S_BRAIN_DIE3
+[783]     {SPR_BBRN,0,-1,{A_BrainDie},S_NULL,0,0},  // S_BRAIN_DIE4
+[784]     {SPR_SSWV,0,10,{A_Look},S_BRAINEYE,0,0},  // S_BRAINEYE
+[785]     {SPR_SSWV,0,181,{A_BrainAwake},S_BRAINEYE1,0,0},  // S_BRAINEYESEE
+[786]     {SPR_SSWV,0,150,{A_BrainSpit},S_BRAINEYE1,0,0}, // S_BRAINEYE1
+[787]     {SPR_BOSF,32768,3,{A_SpawnSound},S_SPAWN2,0,0}, // S_SPAWN1
+[788]     {SPR_BOSF,32769,3,{A_SpawnFly},S_SPAWN3,0,0}, // S_SPAWN2
+[789]     {SPR_BOSF,32770,3,{A_SpawnFly},S_SPAWN4,0,0}, // S_SPAWN3
+[790]     {SPR_BOSF,32771,3,{A_SpawnFly},S_SPAWN1,0,0}, // S_SPAWN4
+[791]     {SPR_FIRE,32768,4,{A_Fire},S_SPAWNFIRE2,0,0}, // S_SPAWNFIRE1
+[792]     {SPR_FIRE,32769,4,{A_Fire},S_SPAWNFIRE3,0,0}, // S_SPAWNFIRE2
+[793]     {SPR_FIRE,32770,4,{A_Fire},S_SPAWNFIRE4,0,0}, // S_SPAWNFIRE3
+[794]     {SPR_FIRE,32771,4,{A_Fire},S_SPAWNFIRE5,0,0}, // S_SPAWNFIRE4
+[795]     {SPR_FIRE,32772,4,{A_Fire},S_SPAWNFIRE6,0,0}, // S_SPAWNFIRE5
+[796]     {SPR_FIRE,32773,4,{A_Fire},S_SPAWNFIRE7,0,0}, // S_SPAWNFIRE6
+[797]     {SPR_FIRE,32774,4,{A_Fire},S_SPAWNFIRE8,0,0}, // S_SPAWNFIRE7
+[798]     {SPR_FIRE,32775,4,{A_Fire},S_NULL,0,0},   // S_SPAWNFIRE8
+[799]     {SPR_MISL,32769,10,{NULL},S_BRAINEXPLODE2,0,0}, // S_BRAINEXPLODE1
+[800]     {SPR_MISL,32770,10,{NULL},S_BRAINEXPLODE3,0,0}, // S_BRAINEXPLODE2
+[801]     {SPR_MISL,32771,10,{A_BrainExplode},S_NULL,0,0},  // S_BRAINEXPLODE3
+[802]     {SPR_ARM1,0,6,{NULL},S_ARM1A,0,0},  // S_ARM1
+[803]     {SPR_ARM1,32769,7,{NULL},S_ARM1,0,0}, // S_ARM1A
+[804]     {SPR_ARM2,0,6,{NULL},S_ARM2A,0,0},  // S_ARM2
+[805]     {SPR_ARM2,32769,6,{NULL},S_ARM2,0,0}, // S_ARM2A
+[806]     {SPR_BAR1,0,6,{NULL},S_BAR2,0,0}, // S_BAR1
+[807]     {SPR_BAR1,1,6,{NULL},S_BAR1,0,0}, // S_BAR2
+[808]     {SPR_BEXP,32768,5,{NULL},S_BEXP2,0,0},  // S_BEXP
+[809]     {SPR_BEXP,32769,5,{A_Scream},S_BEXP3,0,0},  // S_BEXP2
+[810]     {SPR_BEXP,32770,5,{NULL},S_BEXP4,0,0},  // S_BEXP3
+[811]     {SPR_BEXP,32771,10,{A_Explode},S_BEXP5,0,0},  // S_BEXP4
+[812]     {SPR_BEXP,32772,10,{NULL},S_NULL,0,0},  // S_BEXP5
+[813]     {SPR_FCAN,32768,4,{NULL},S_BBAR2,0,0},  // S_BBAR1
+[814]     {SPR_FCAN,32769,4,{NULL},S_BBAR3,0,0},  // S_BBAR2
+[815]     {SPR_FCAN,32770,4,{NULL},S_BBAR1,0,0},  // S_BBAR3
+[816]     {SPR_BON1,0,6,{NULL},S_BON1A,0,0},  // S_BON1
+[817]     {SPR_BON1,1,6,{NULL},S_BON1B,0,0},  // S_BON1A
+[818]     {SPR_BON1,2,6,{NULL},S_BON1C,0,0},  // S_BON1B
+[819]     {SPR_BON1,3,6,{NULL},S_BON1D,0,0},  // S_BON1C
+[820]     {SPR_BON1,2,6,{NULL},S_BON1E,0,0},  // S_BON1D
+[821]     {SPR_BON1,1,6,{NULL},S_BON1,0,0}, // S_BON1E
+[822]     {SPR_BON2,0,6,{NULL},S_BON2A,0,0},  // S_BON2
+[823]     {SPR_BON2,1,6,{NULL},S_BON2B,0,0},  // S_BON2A
+[824]     {SPR_BON2,2,6,{NULL},S_BON2C,0,0},  // S_BON2B
+[825]     {SPR_BON2,3,6,{NULL},S_BON2D,0,0},  // S_BON2C
+[826]     {SPR_BON2,2,6,{NULL},S_BON2E,0,0},  // S_BON2D
+[827]     {SPR_BON2,1,6,{NULL},S_BON2,0,0}, // S_BON2E
+[828]     {SPR_BKEY,0,10,{NULL},S_BKEY2,0,0}, // S_BKEY
+[829]     {SPR_BKEY,32769,10,{NULL},S_BKEY,0,0},  // S_BKEY2
+[830]     {SPR_RKEY,0,10,{NULL},S_RKEY2,0,0}, // S_RKEY
+[831]     {SPR_RKEY,32769,10,{NULL},S_RKEY,0,0},  // S_RKEY2
+[832]     {SPR_YKEY,0,10,{NULL},S_YKEY2,0,0}, // S_YKEY
+[833]     {SPR_YKEY,32769,10,{NULL},S_YKEY,0,0},  // S_YKEY2
+[834]     {SPR_BSKU,0,10,{NULL},S_BSKULL2,0,0}, // S_BSKULL
+[835]     {SPR_BSKU,32769,10,{NULL},S_BSKULL,0,0},  // S_BSKULL2
+[836]     {SPR_RSKU,0,10,{NULL},S_RSKULL2,0,0}, // S_RSKULL
+[837]     {SPR_RSKU,32769,10,{NULL},S_RSKULL,0,0},  // S_RSKULL2
+[838]     {SPR_YSKU,0,10,{NULL},S_YSKULL2,0,0}, // S_YSKULL
+[839]     {SPR_YSKU,32769,10,{NULL},S_YSKULL,0,0},  // S_YSKULL2
+[840]     {SPR_STIM,0,-1,{NULL},S_NULL,0,0},  // S_STIM
+[841]     {SPR_MEDI,0,-1,{NULL},S_NULL,0,0},  // S_MEDI
+[842]     {SPR_SOUL,32768,6,{NULL},S_SOUL2,0,0},  // S_SOUL
+[843]     {SPR_SOUL,32769,6,{NULL},S_SOUL3,0,0},  // S_SOUL2
+[844]     {SPR_SOUL,32770,6,{NULL},S_SOUL4,0,0},  // S_SOUL3
+[845]     {SPR_SOUL,32771,6,{NULL},S_SOUL5,0,0},  // S_SOUL4
+[846]     {SPR_SOUL,32770,6,{NULL},S_SOUL6,0,0},  // S_SOUL5
+[847]     {SPR_SOUL,32769,6,{NULL},S_SOUL,0,0}, // S_SOUL6
+[848]     {SPR_PINV,32768,6,{NULL},S_PINV2,0,0},  // S_PINV
+[849]     {SPR_PINV,32769,6,{NULL},S_PINV3,0,0},  // S_PINV2
+[850]     {SPR_PINV,32770,6,{NULL},S_PINV4,0,0},  // S_PINV3
+[851]     {SPR_PINV,32771,6,{NULL},S_PINV,0,0}, // S_PINV4
+[852]     {SPR_PSTR,32768,-1,{NULL},S_NULL,0,0},  // S_PSTR
+[853]     {SPR_PINS,32768,6,{NULL},S_PINS2,0,0},  // S_PINS
+[854]     {SPR_PINS,32769,6,{NULL},S_PINS3,0,0},  // S_PINS2
+[855]     {SPR_PINS,32770,6,{NULL},S_PINS4,0,0},  // S_PINS3
+[856]     {SPR_PINS,32771,6,{NULL},S_PINS,0,0}, // S_PINS4
+[857]     {SPR_MEGA,32768,6,{NULL},S_MEGA2,0,0},  // S_MEGA
+[858]     {SPR_MEGA,32769,6,{NULL},S_MEGA3,0,0},  // S_MEGA2
+[859]     {SPR_MEGA,32770,6,{NULL},S_MEGA4,0,0},  // S_MEGA3
+[860]     {SPR_MEGA,32771,6,{NULL},S_MEGA,0,0}, // S_MEGA4
+[861]     {SPR_SUIT,32768,-1,{NULL},S_NULL,0,0},  // S_SUIT
+[862]     {SPR_PMAP,32768,6,{NULL},S_PMAP2,0,0},  // S_PMAP
+[863]     {SPR_PMAP,32769,6,{NULL},S_PMAP3,0,0},  // S_PMAP2
+[864]     {SPR_PMAP,32770,6,{NULL},S_PMAP4,0,0},  // S_PMAP3
+[865]     {SPR_PMAP,32771,6,{NULL},S_PMAP5,0,0},  // S_PMAP4
+[866]     {SPR_PMAP,32770,6,{NULL},S_PMAP6,0,0},  // S_PMAP5
+[867]     {SPR_PMAP,32769,6,{NULL},S_PMAP,0,0}, // S_PMAP6
+[868]     {SPR_PVIS,32768,6,{NULL},S_PVIS2,0,0},  // S_PVIS
+[869]     {SPR_PVIS,1,6,{NULL},S_PVIS,0,0}, // S_PVIS2
+[870]     {SPR_CLIP,0,-1,{NULL},S_NULL,0,0},  // S_CLIP
+[871]     {SPR_AMMO,0,-1,{NULL},S_NULL,0,0},  // S_AMMO
+[872]     {SPR_ROCK,0,-1,{NULL},S_NULL,0,0},  // S_ROCK
+[873]     {SPR_BROK,0,-1,{NULL},S_NULL,0,0},  // S_BROK
+[874]     {SPR_CELL,0,-1,{NULL},S_NULL,0,0},  // S_CELL
+[875]     {SPR_CELP,0,-1,{NULL},S_NULL,0,0},  // S_CELP
+[876]     {SPR_SHEL,0,-1,{NULL},S_NULL,0,0},  // S_SHEL
+[877]     {SPR_SBOX,0,-1,{NULL},S_NULL,0,0},  // S_SBOX
+[878]     {SPR_BPAK,0,-1,{NULL},S_NULL,0,0},  // S_BPAK
+[879]     {SPR_BFUG,0,-1,{NULL},S_NULL,0,0},  // S_BFUG
+[880]     {SPR_MGUN,0,-1,{NULL},S_NULL,0,0},  // S_MGUN
+[881]     {SPR_CSAW,0,-1,{NULL},S_NULL,0,0},  // S_CSAW
+[882]     {SPR_LAUN,0,-1,{NULL},S_NULL,0,0},  // S_LAUN
+[883]     {SPR_PLAS,0,-1,{NULL},S_NULL,0,0},  // S_PLAS
+[884]     {SPR_SHOT,0,-1,{NULL},S_NULL,0,0},  // S_SHOT
+[885]     {SPR_SGN2,0,-1,{NULL},S_NULL,0,0},  // S_SHOT2
+[886]     {SPR_COLU,32768,-1,{NULL},S_NULL,0,0},  // S_COLU
+[887]     {SPR_SMT2,0,-1,{NULL},S_NULL,0,0},  // S_STALAG
+[888]     {SPR_GOR1,0,10,{NULL},S_BLOODYTWITCH2,0,0}, // S_BLOODYTWITCH
+[889]     {SPR_GOR1,1,15,{NULL},S_BLOODYTWITCH3,0,0}, // S_BLOODYTWITCH2
+[890]     {SPR_GOR1,2,8,{NULL},S_BLOODYTWITCH4,0,0},  // S_BLOODYTWITCH3
+[891]     {SPR_GOR1,1,6,{NULL},S_BLOODYTWITCH,0,0}, // S_BLOODYTWITCH4
+[892]     {SPR_PLAY,13,-1,{NULL},S_NULL,0,0}, // S_DEADTORSO
+[893]     {SPR_PLAY,18,-1,{NULL},S_NULL,0,0}, // S_DEADBOTTOM
+[894]     {SPR_POL2,0,-1,{NULL},S_NULL,0,0},  // S_HEADSONSTICK
+[895]     {SPR_POL5,0,-1,{NULL},S_NULL,0,0},  // S_GIBS
+[896]     {SPR_POL4,0,-1,{NULL},S_NULL,0,0},  // S_HEADONASTICK
+[897]     {SPR_POL3,32768,6,{NULL},S_HEADCANDLES2,0,0}, // S_HEADCANDLES
+[898]     {SPR_POL3,32769,6,{NULL},S_HEADCANDLES,0,0},  // S_HEADCANDLES2
+[899]     {SPR_POL1,0,-1,{NULL},S_NULL,0,0},  // S_DEADSTICK
+[900]     {SPR_POL6,0,6,{NULL},S_LIVESTICK2,0,0}, // S_LIVESTICK
+[901]     {SPR_POL6,1,8,{NULL},S_LIVESTICK,0,0},  // S_LIVESTICK2
+[902]     {SPR_GOR2,0,-1,{NULL},S_NULL,0,0},  // S_MEAT2
+[903]     {SPR_GOR3,0,-1,{NULL},S_NULL,0,0},  // S_MEAT3
+[904]     {SPR_GOR4,0,-1,{NULL},S_NULL,0,0},  // S_MEAT4
+[905]     {SPR_GOR5,0,-1,{NULL},S_NULL,0,0},  // S_MEAT5
+[906]     {SPR_SMIT,0,-1,{NULL},S_NULL,0,0},  // S_STALAGTITE
+[907]     {SPR_COL1,0,-1,{NULL},S_NULL,0,0},  // S_TALLGRNCOL
+[908]     {SPR_COL2,0,-1,{NULL},S_NULL,0,0},  // S_SHRTGRNCOL
+[909]     {SPR_COL3,0,-1,{NULL},S_NULL,0,0},  // S_TALLREDCOL
+[910]     {SPR_COL4,0,-1,{NULL},S_NULL,0,0},  // S_SHRTREDCOL
+[911]     {SPR_CAND,32768,-1,{NULL},S_NULL,0,0},  // S_CANDLESTIK
+[912]     {SPR_CBRA,32768,-1,{NULL},S_NULL,0,0},  // S_CANDELABRA
+[913]     {SPR_COL6,0,-1,{NULL},S_NULL,0,0},  // S_SKULLCOL
+[914]     {SPR_TRE1,0,-1,{NULL},S_NULL,0,0},  // S_TORCHTREE
+[915]     {SPR_TRE2,0,-1,{NULL},S_NULL,0,0},  // S_BIGTREE
+[916]     {SPR_ELEC,0,-1,{NULL},S_NULL,0,0},  // S_TECHPILLAR
+[917]     {SPR_CEYE,32768,6,{NULL},S_EVILEYE2,0,0}, // S_EVILEYE
+[918]     {SPR_CEYE,32769,6,{NULL},S_EVILEYE3,0,0}, // S_EVILEYE2
+[919]     {SPR_CEYE,32770,6,{NULL},S_EVILEYE4,0,0}, // S_EVILEYE3
+[920]     {SPR_CEYE,32769,6,{NULL},S_EVILEYE,0,0},  // S_EVILEYE4
+[921]     {SPR_FSKU,32768,6,{NULL},S_FLOATSKULL2,0,0},  // S_FLOATSKULL
+[922]     {SPR_FSKU,32769,6,{NULL},S_FLOATSKULL3,0,0},  // S_FLOATSKULL2
+[923]     {SPR_FSKU,32770,6,{NULL},S_FLOATSKULL,0,0}, // S_FLOATSKULL3
+[924]     {SPR_COL5,0,14,{NULL},S_HEARTCOL2,0,0}, // S_HEARTCOL
+[925]     {SPR_COL5,1,14,{NULL},S_HEARTCOL,0,0},  // S_HEARTCOL2
+[926]     {SPR_TBLU,32768,4,{NULL},S_BLUETORCH2,0,0}, // S_BLUETORCH
+[927]     {SPR_TBLU,32769,4,{NULL},S_BLUETORCH3,0,0}, // S_BLUETORCH2
+[928]     {SPR_TBLU,32770,4,{NULL},S_BLUETORCH4,0,0}, // S_BLUETORCH3
+[929]     {SPR_TBLU,32771,4,{NULL},S_BLUETORCH,0,0},  // S_BLUETORCH4
+[930]     {SPR_TGRN,32768,4,{NULL},S_GREENTORCH2,0,0},  // S_GREENTORCH
+[931]     {SPR_TGRN,32769,4,{NULL},S_GREENTORCH3,0,0},  // S_GREENTORCH2
+[932]     {SPR_TGRN,32770,4,{NULL},S_GREENTORCH4,0,0},  // S_GREENTORCH3
+[933]     {SPR_TGRN,32771,4,{NULL},S_GREENTORCH,0,0}, // S_GREENTORCH4
+[934]     {SPR_TRED,32768,4,{NULL},S_REDTORCH2,0,0},  // S_REDTORCH
+[935]     {SPR_TRED,32769,4,{NULL},S_REDTORCH3,0,0},  // S_REDTORCH2
+[936]     {SPR_TRED,32770,4,{NULL},S_REDTORCH4,0,0},  // S_REDTORCH3
+[937]     {SPR_TRED,32771,4,{NULL},S_REDTORCH,0,0}, // S_REDTORCH4
+[938]     {SPR_SMBT,32768,4,{NULL},S_BTORCHSHRT2,0,0},  // S_BTORCHSHRT
+[939]     {SPR_SMBT,32769,4,{NULL},S_BTORCHSHRT3,0,0},  // S_BTORCHSHRT2
+[940]     {SPR_SMBT,32770,4,{NULL},S_BTORCHSHRT4,0,0},  // S_BTORCHSHRT3
+[941]     {SPR_SMBT,32771,4,{NULL},S_BTORCHSHRT,0,0}, // S_BTORCHSHRT4
+[942]     {SPR_SMGT,32768,4,{NULL},S_GTORCHSHRT2,0,0},  // S_GTORCHSHRT
+[943]     {SPR_SMGT,32769,4,{NULL},S_GTORCHSHRT3,0,0},  // S_GTORCHSHRT2
+[944]     {SPR_SMGT,32770,4,{NULL},S_GTORCHSHRT4,0,0},  // S_GTORCHSHRT3
+[945]     {SPR_SMGT,32771,4,{NULL},S_GTORCHSHRT,0,0}, // S_GTORCHSHRT4
+[946]     {SPR_SMRT,32768,4,{NULL},S_RTORCHSHRT2,0,0},  // S_RTORCHSHRT
+[947]     {SPR_SMRT,32769,4,{NULL},S_RTORCHSHRT3,0,0},  // S_RTORCHSHRT2
+[948]     {SPR_SMRT,32770,4,{NULL},S_RTORCHSHRT4,0,0},  // S_RTORCHSHRT3
+[949]     {SPR_SMRT,32771,4,{NULL},S_RTORCHSHRT,0,0}, // S_RTORCHSHRT4
+[950]     {SPR_HDB1,0,-1,{NULL},S_NULL,0,0},  // S_HANGNOGUTS
+[951]     {SPR_HDB2,0,-1,{NULL},S_NULL,0,0},  // S_HANGBNOBRAIN
+[952]     {SPR_HDB3,0,-1,{NULL},S_NULL,0,0},  // S_HANGTLOOKDN
+[953]     {SPR_HDB4,0,-1,{NULL},S_NULL,0,0},  // S_HANGTSKULL
+[954]     {SPR_HDB5,0,-1,{NULL},S_NULL,0,0},  // S_HANGTLOOKUP
+[955]     {SPR_HDB6,0,-1,{NULL},S_NULL,0,0},  // S_HANGTNOBRAIN
+[956]     {SPR_POB1,0,-1,{NULL},S_NULL,0,0},  // S_COLONGIBS
+[957]     {SPR_POB2,0,-1,{NULL},S_NULL,0,0},  // S_SMALLPOOL
+[958]     {SPR_BRS1,0,-1,{NULL},S_NULL,0,0},    // S_BRAINSTEM
+[959]     {SPR_TLMP,32768,4,{NULL},S_TECHLAMP2,0,0},  // S_TECHLAMP
+[960]     {SPR_TLMP,32769,4,{NULL},S_TECHLAMP3,0,0},  // S_TECHLAMP2
+[961]     {SPR_TLMP,32770,4,{NULL},S_TECHLAMP4,0,0},  // S_TECHLAMP3
+[962]     {SPR_TLMP,32771,4,{NULL},S_TECHLAMP,0,0},   // S_TECHLAMP4
+[963]     {SPR_TLP2,32768,4,{NULL},S_TECH2LAMP2,0,0}, // S_TECH2LAMP
+[964]     {SPR_TLP2,32769,4,{NULL},S_TECH2LAMP3,0,0}, // S_TECH2LAMP2
+[965]     {SPR_TLP2,32770,4,{NULL},S_TECH2LAMP4,0,0}, // S_TECH2LAMP3
+[966]     {SPR_TLP2,32771,4,{NULL},S_TECH2LAMP,0,0},  // S_TECH2LAMP4
+[967]     {SPR_TNT1,0,-1,{NULL},S_TNT1,0,0},          // S_TNT1
+
+=======================================================================
+
+###########################
+THING DEFAULT "BITS" VALUES
+###########################
+
+This comes directly from the source code, with Thing numbers added.
+The item names are those used in the source code, not necessarily
+what Dehacked might call them.  They should all be identical to the
+defaults in DOOM(2) except where translucency has been added and for
+the two Things for PUSH and PULL wind sources at the end.
+
+
+1   PLAYER
+    SOLID+SHOOTABLE+DROPOFF+PICKUP+NOTDMATCH    
+  
+2   POSSESSED
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+3   SHOTGUY
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+4   VILE
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+5   FIRE
+    NOBLOCKMAP+NOGRAVITY+TRANSLUCENT    
+  
+6   UNDEAD
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+7   TRACER
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY   
+  
+8   SMOKE
+    NOBLOCKMAP+NOGRAVITY+TRANSLUCENT    
+  
+9   FATSO
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+10  FATSHOT
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT    
+  
+11  CHAINGUY
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+12  TROOP
+    SOLID+SHOOTABLE+COUNTKILL
+  
+13  SERGEANT
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+14  SHADOWS
+    SOLID+SHOOTABLE+SHADOW+COUNTKILL   
+  
+15  HEAD
+    SOLID+SHOOTABLE+FLOAT+NOGRAVITY+COUNTKILL   
+  
+16  BRUISER
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+17  BRUISERSHOT
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT   
+  
+18  KNIGHT
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+19  SKULL
+    SOLID+SHOOTABLE+FLOAT+NOGRAVITY    
+  
+20  SPIDER
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+21  BABY
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+22  CYBORG
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+23  PAIN
+    SOLID+SHOOTABLE+FLOAT+NOGRAVITY+COUNTKILL   
+  
+24  WOLFSS
+    SOLID+SHOOTABLE+COUNTKILL   
+  
+25  KEEN
+    SOLID+SPAWNCEILING+NOGRAVITY+SHOOTABLE+COUNTKILL    
+  
+26  BOSSBRAIN
+    SOLID+SHOOTABLE    
+  
+27  BOSSSPIT
+    NOBLOCKMAP+NOSECTOR    
+  
+28  BOSSTARGET
+    NOBLOCKMAP+NOSECTOR    
+  
+29  SPAWNSHOT
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+NOCLIP   
+  
+30  SPAWNFIRE
+    NOBLOCKMAP+NOGRAVITY+TRANSLUCENT
+  
+31  BARREL
+    SOLID+SHOOTABLE+NOBLOOD   
+  
+32  TROOPSHOT
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT
+  
+33  HEADSHOT
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT  
+  
+34  ROCKET
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY   
+  
+35  PLASMA
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT
+  
+36  BFG
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT
+  
+37  ARACHPLAZ
+    NOBLOCKMAP+MISSILE+DROPOFF+NOGRAVITY+TRANSLUCENT
+  
+38  PUFF
+    NOBLOCKMAP+NOGRAVITY+TRANSLUCENT
+  
+39  BLOOD
+    NOBLOCKMAP    
+  
+40  TFOG
+    NOBLOCKMAP+NOGRAVITY+TRANSLUCENT
+  
+41  IFOG
+    NOBLOCKMAP+NOGRAVITY+TRANSLUCENT
+  
+42  TELEPORTMAN
+    NOBLOCKMAP+NOSECTOR    
+  
+43  EXTRABFG
+    NOBLOCKMAP+NOGRAVITY   
+  
+44  MISC0
+    SPECIAL   
+  
+45  MISC1
+    SPECIAL   
+  
+46  MISC2
+    SPECIAL+COUNTITEM    
+  
+47  MISC3
+    SPECIAL+COUNTITEM    
+  
+48  MISC4
+    SPECIAL+NOTDMATCH    
+  
+49  MISC5
+    SPECIAL+NOTDMATCH    
+  
+50  MISC6
+    SPECIAL+NOTDMATCH    
+  
+51  MISC7
+    SPECIAL+NOTDMATCH    
+  
+52  MISC8
+    SPECIAL+NOTDMATCH    
+  
+53  MISC9
+    SPECIAL+NOTDMATCH    
+  
+54  MISC10
+    SPECIAL   
+  
+55  MISC11
+    SPECIAL   
+  
+56  MISC12
+    SPECIAL+COUNTITEM+TRANSLUCENT
+  
+57  INV
+    SPECIAL+COUNTITEM+TRANSLUCENT
+  
+58  MISC13
+    SPECIAL+COUNTITEM    
+  
+59  INS
+    SPECIAL+COUNTITEM+TRANSLUCENT
+  
+60  MISC14
+    SPECIAL   
+  
+61  MISC15
+    SPECIAL+COUNTITEM    
+  
+62  MISC16
+    SPECIAL+COUNTITEM    
+  
+63  MEGA
+    SPECIAL+COUNTITEM+TRANSLUCENT
+  
+64  CLIP
+    SPECIAL   
+  
+65  MISC17
+    SPECIAL   
+  
+66  MISC18
+    SPECIAL   
+  
+67  MISC19
+    SPECIAL   
+  
+68  MISC20
+    SPECIAL   
+  
+69  MISC21
+    SPECIAL   
+  
+70  MISC22
+    SPECIAL   
+  
+71  MISC23
+    SPECIAL   
+  
+72  MISC24
+    SPECIAL   
+  
+73  MISC25
+    SPECIAL   
+  
+74  CHAINGUN
+    SPECIAL   
+  
+75  MISC26
+    SPECIAL   
+  
+76  MISC27
+    SPECIAL   
+  
+77  MISC28
+    SPECIAL   
+  
+78  SHOTGUN
+    SPECIAL   
+  
+79  SUPERSHOTGUN
+    SPECIAL   
+  
+80  MISC29
+    SOLID   
+  
+81  MISC30
+    SOLID   
+  
+82  MISC31
+    SOLID   
+  
+83  MISC32
+    SOLID   
+  
+84  MISC33
+    SOLID   
+  
+85  MISC34
+    SOLID   
+  
+86  MISC35
+    SOLID   
+  
+87  MISC36
+    SOLID   
+  
+88  MISC37
+    SOLID   
+  
+89  MISC38
+    SOLID   
+  
+90  MISC39
+    SOLID   
+  
+91  MISC40
+    SOLID   
+  
+92  MISC41
+    SOLID   
+  
+93  MISC42
+    SOLID   
+  
+94  MISC43
+    SOLID   
+  
+95  MISC44
+    SOLID   
+  
+96  MISC45
+    SOLID   
+  
+97  MISC46
+    SOLID   
+  
+98  MISC47
+    SOLID   
+  
+99  MISC48
+    SOLID   
+  
+100 MISC49
+    0    
+  
+101 MISC50
+    SOLID   
+  
+102 MISC51
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+103 MISC52
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+104 MISC53
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+105 MISC54
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+106 MISC55
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+107 MISC56
+    SPAWNCEILING+NOGRAVITY   
+  
+108 MISC57
+    SPAWNCEILING+NOGRAVITY   
+  
+109 MISC58
+    SPAWNCEILING+NOGRAVITY   
+  
+110 MISC59
+    SPAWNCEILING+NOGRAVITY   
+  
+111 MISC60
+    SPAWNCEILING+NOGRAVITY   
+  
+112 MISC61
+    0    
+  
+113 MISC62
+    0    
+  
+114 MISC63
+    0    
+  
+115 MISC64
+    0    
+  
+116 MISC65
+    0    
+  
+117 MISC66
+    0    
+  
+118 MISC67
+    0    
+  
+119 MISC68
+    0    
+  
+120 MISC69
+    0    
+  
+121 MISC70
+    SOLID   
+  
+122 MISC71
+    0    
+  
+123 MISC72
+    SOLID   
+  
+124 MISC73
+    SOLID   
+  
+125 MISC74
+    SOLID   
+  
+126 MISC75
+    SOLID   
+  
+127 MISC76
+    SOLID   
+  
+128 MISC77
+    SOLID   
+  
+129 MISC78
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+130 MISC79
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+131 MISC80
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+132 MISC81
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+133 MISC82
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+134 MISC83
+    SOLID+SPAWNCEILING+NOGRAVITY    
+  
+135 MISC84
+    NOBLOCKMAP    
+  
+136 MISC85
+    NOBLOCKMAP    
+  
+137 MISC86
+    NOBLOCKMAP    
+
+138 PUSH
+    NOBLOCKMAP  
+
+139 PULL
+    NOBLOCKMAP  
+
+
+
+
+/// end of file BOOMDEH.TXT - last revised 8/28/98

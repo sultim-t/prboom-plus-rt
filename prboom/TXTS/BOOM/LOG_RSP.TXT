@@ -1,0 +1,1217 @@
+Here are the things I've changed/added:
+
+11/20/98
+
+1. Re-fixed Firelines
+---------------------
+
+It was discovered after the release of version 2.02 that hoover.wad's
+graphics were screwed up. This was due to some nasty line-splitting in a
+particular part of hoover.wad that was upsetting the Fireline fix.
+
+Further study showed that firelines could be fixed by simply setting the
+seg angles and seg offsets according to the rounded seg vertex coords. You
+didn't have to try to reset the seg vertices back to the parent line, as
+the previous fix attempted to do.
+
+Introduced the -noadjust command-line flag. If this appears on the command
+line, no seg adjusting occurs. If absent, seg adjusting occurs.
+
+For saved games and demos, the state of seg adjusting (doing it, not doing it)
+is saved in the headers and restored upon read. Any games saved, or demos
+recorded, with BOOM versions less than 2.03 are NEVER adjusted when played
+with BOOM versions >= 2.03 (this version). 
+
+Files affected: p_setup.c, g_game.c, version.h, d_main.c, boom.txt
+
+
+10/5/98
+
+1. Fixed Firelines
+------------------
+
+Firelines are another form of slime-trail. They occur when the rounding of
+coordinates for lineseg vertices on very short linesegs introduces errors
+in the calculation of texture scaling and span painting. Firelines typically
+are shown as floor spans being painted up to the middle of the screen, and
+ceiling spans being painted down to the middle of the screen. They're named
+after the original sighting of fire textures in the wrong places.
+
+The correction is to adjust 'bad' lineseg vertices that are 'off' of their
+parent lines (from which they were split). Move them back 'on' to the parent
+line, or at least as close as you can get. By using the length of the short
+lineseg and the original angle of the parent line, you can get closer than
+the rounded-off coordinates that you get out of the wad. These changes are
+done during map setup when the segs are read in, so there's no affect on
+gameplay.
+
+Files affected: p_setup.c, r_segs.c, r_bsp.c
+
+
+09/16/98
+
+1. Fixed sound propogation across savegames
+-------------------------------------------
+
+Allowed sector_t.soundtarget to be saved across savegames. This field is a
+pointer to a thinker that caused a sound to be propogated through the
+sector. Monsters can then target this thinker. The field was getting cleared.
+
+Solution was to serialize the thinkers a little bit earlier and allow the
+sector-saving code to store the index of the soundtarget thinker. After
+the saved game is loaded, the index is used to locate the actual address of
+the new target thinker.
+
+Files affected: p_saveg.*,g_game.c
+
+
+09/10/98
+
+1. Fixed "Stuck in DM Start" bug and re-fixed ice-bobbing bug
+-------------------------------------------------------------
+
+The code that reduced your bobbing while stuck against a wall and on ice
+caused you not to be able to free yourself from a wall when mildly stuck.
+A DM Start in TNT Pursuit, Map 25 is too close to the wall and exhibits
+this problem. Id's code allowed for extra momentum buildup that would
+eventually free you if you weren't too far embedded in a wall.
+
+I backed out the original ice-bobbing code and replaced it with code that
+still fixes the ice-bobbing problem, and still leaves you enough momentum
+to free yourself when you're mildly stuck in a wall.
+
+Part of the original ice-bobbing problem (which I did not know at the
+time) was that you could build up so much forward momentum pressed against
+the wall that when you went to back away from the wall, it took about 2
+seconds to free yourself before you started to back up. The new code gets
+rid of this problem as well.
+
+These changes are NOT compatibility-wrapped because they key off of new
+friction values which only exist in BOOM.
+
+Files affected: p_map.c, p_user.c, p_mobj,c
+
+2. Earlier self-check
+---------------------
+
+While p_map.c was open for #1, I moved the self-checks in the
+PIT_StompThing and PIT_CheckThing routines to the beginning of those
+routines. The player is always checked against himself, and there was no
+point to the other checks that preceded the self-check because eventually
+the routines would have bailed out at the self-check. There were no side
+effects prior to the self-check (i.e. global variables being set) so this
+appears safe.
+
+File affected: p_map.c
+
+
+08/11/98
+
+1. Fixed DM Weapon Pickup Bug
+-----------------------------
+
+Corrected the (new) corpse queue management code so it wouldn't leave
+corpses from one map in the corpse queue when a new map was started.
+When a new map begins, the mobj_t's of existing corpses are freed, but
+the pointers to them in the corpse queue were left around. This affected
+picking up a weapon (or any object, actually) when the queue thought a
+corpse was in the same block as that weapon. When a player dies, and the
+queue-management code wants to re-use a queue slot to make room for the
+player's corpse, it frees the mobj_t of the previous corpse in that slot
+and removes the corpse from the block links. In this case, since the corpse
+doesn't exist, the weapon was removed from the block instead. Since the
+weapon's mobj_t is still in the game, you can still see the weapon, but
+you can't pick it up since it's no longer in the block.
+
+The fix is to clear the corpse queue at the beginning of each map so 
+the pointers to the (already freed) corpse mobj_t's no longer exist.
+
+Files affected: p_setup.c, g_game.c, doomstat.h
+
+
+05/16/98
+
+1. Unknown Things
+-----------------
+
+Changed handling of unknown thing types from an abort with an error msg.
+to a continuation with a warning msg posted to the screen.
+
+File affected: p_mobj.c
+
+
+05/14/98
+
+1. New Player Starts
+--------------------
+
+Added Player Starts 5-8 using doomednums of 4001-4004. This complies
+with DosDoom and other ports. These starts are ignored when spawning
+Things, so 8-player support is NOT implemented.
+
+Files affected: p_mobj.c, doomdef.h
+
+
+
+05/12/98
+
+1. MT_PUSH/MT_PULL
+------------------
+
+Modified OVER/UNDER height/radius table in info.c for the
+change of numbers from 4001->5001 and 4002->5002.
+
+2. OVER/UNDER
+-------------
+
+Removed OVER/UNDER code for final Phase I source release.
+Here is a list of the files changed, with their rev numbers
+just prior to the change.
+
+1.9  d_net.c
+1.4  doomstat.c
+1.54 g_game.c
+1.43 info.c
+1.6  m_cheat.c
+1.56 m_misc.c
+1.21 p_enemy.c
+1.34 p_map.c
+1.22 p_mobj.c
+1.13 p_user.c
+1.12 doomstat.h
+1.9  info.h
+1.33 makefile
+
+
+05/05/98
+
+1. Documentation and Reformatting
+---------------------------------
+
+Added documentation to these files and reformatted them:
+
+  doomdef.h
+  m_menu.c
+  p_map.c
+  p_mobj.c
+  p_user.c
+  m_misc.*
+  m_bbox.*
+  d_event.h
+
+2. Removed RECOIL and OPT_BOBBING defines
+-----------------------------------------
+
+Removed these from all the files where they appeared.
+
+
+05/04/98
+
+1. Player Bobbing
+-----------------
+
+Fixed problem where the player is pressed against a wall while on ice and
+he's still trying to move forward with no success. The momentum code is
+used to drive the bobbing effect, and--though no movement was occurring--
+momentum was still present, causing bobbing to occur. The fix was to kill
+momentum. Compatibility-optioned.
+
+File affected: p_map.c
+
+
+04/22/98
+
+1. HU_Start
+-----------
+
+Added a call to HU_Start() when leaving the Setup Screens to pick up any
+message changes that were made. Now you don't have to wait until the
+next level to see the changes.
+
+
+2. Reset to Defaults
+--------------------
+
+Added a button item on each of the Setup screens to allow you to reset values
+to the default values. Also collapsed more of the code.
+
+From the boom.txt file:
+
+"8) Reset to Default Values
+
+   A "Reset to Default Values" button appears in the upper-right-hand
+   corner of each Setup screen (and on the first screen where there are
+   multiple screens). When selected, this button blinks.
+
+   This button allows you to reset all options on this Setup screen (or
+   set of screens) to their default values. This is useful if you've
+   made a number of changes that don't seem to work together, and you'd
+   like to get back to a baseline.
+
+   Pressing Enter will give you a dialogue box that asks you whether you
+   'really' want to reset to the default values. Pressing 'N' exits the
+   dialogue without resetting. Pressing 'Y' resets all values.
+
+Note: Each screen has its own reset button. There is no single reset
+      button that covers _all_ options that appear in all Setup screens. If
+      you want to reset _all_ options to their default values, you'll need
+      to activate each button separately."
+
+Files affected: info.c, m_menu.c
+
+
+04/14/98
+
+1. Recoil, Bobbing, and Monster Remember
+----------------------------------------
+
+These items now take immediate effect when toggled from the Setup screens,
+except if a demo is playing or being recorded, or a net game is taking place.
+In those cases, the effect will occur later.
+
+File affected: m_menu.c
+
+
+2. #if PUSHER
+-------------
+
+Found this wrapped around an 'allow_pushers = true' in g_game.c.  Since
+there's no -DPUSHER in makefile, and all push code is now enabled, I removed
+the wrapper.
+
+File affected: g_game.c
+
+
+
+04/13/98
+
+1. ESC and F1
+-------------
+
+Cemented ESC to the MENU action and F1 to the HELP screen action when
+in normal game play. This ensures that a player can always bring up
+the Main Menu and HELP screens if they get themselves into a key binding
+bind.
+
+Neither ESC nor F1 can be bound to another action that is available at
+the same time as MENU and HELP. (I.e you can't rebind F1 to SAVE GAME.)
+
+Files affected: g_game.c, m_misc.c, m_menu.c
+
+
+04/12/98
+
+1. New Setup Screens
+--------------------
+
+Added these screens:
+
+    Enemies
+
+        At the moment, this only has the 'remember' option. This is where
+        any AI options should be placed in the future.
+
+    Messages
+
+        Options related to HUD messages (mainly colors).
+
+    Chat Strings
+
+        Provides the ability to change chat strings. String width is
+        limited to what will display on this screen. DEL, left and right
+        cursor movement, shifted keys, and overstrike are allowed. 
+
+
+2. Setup/Help Screen Mods
+-------------------------
+
+Flopped the "SETTING|ACTION" description on all screens to be
+"ACTION|SETTING". Most noticeable on the HELP screen, where groups had to
+be rearranged to accomodate the flop. The Chat Strings caused this change,
+since they look more natural the new way, especially when editing them.
+
+Also consolidated the Setup Screen keystroke handling code and tables
+so that common code paths and table structure could be used. Trimmed 600+
+lines of code. Needed to see all the Setup screen possibilities before
+doing this.
+
+Files affected for #1,#2: m_menu.c, m_misc.c, info.c, d_main.c
+
+
+
+04/04/98
+
+1. Joystick Support
+-------------------
+
+Added support for joysticks. Calibration needs to be done using ASETUP so
+that the joystick information is available in allegro.cfg. Support is for
+up to 4 buttons. Used a CH Flightstick Pro, so will watch for any incoming
+problems from different types of joysticks.
+
+Verified rebinding of joystick buttons 1-4, and use of joystick to navigate
+the menu screens.
+
+Files affected: i_system.c, i_video.c, m_misc.c, g_game.c, m_menu.c
+
+
+2. Main Menu Order
+------------------
+
+Per user suggestion, rearranged ordering of Main Menu to place more often-used
+items at the top.
+
+Tested with Doom shareware, Doom, Ultimate Doom, and Doom2.
+
+File affected: m_menu.c
+
+
+04/03/98
+
+1. Placed a border around the outside of the color palette in the Automap
+setup screen.
+
+Added a "don't show" symbol (X) in slot 0 of the palette. When this is
+chosen, the color is set to zero, which the Automap code interprets as
+"don't show".
+
+Allowed slot 247 to be active again (it was CYAN) and to represent pure
+BLACK, since that color is no longer available in slot zero.
+
+Files affected: m_menu.c, info.c
+
+
+04/01/98
+
+1. Fixed two Seg Violations caused by dereferencing NULL pointers in the
+Setup menus. These are only seen when running in DOS Mode. Running in
+a Win95 DOS window does not show the problem.
+
+2. Added Automap screen to the Setup menus. Now you can set automap colors
+using a color palette rather than changing the numbers in BOOM.CFG.
+
+Files affected: m_menu.c, info.c
+
+
+03/30/98
+
+1. Extended HELP Screens
+------------------------
+
+Added user-defined HELP screens.
+
+If you press ENTER while on BOOM's dynamic HELP screen, and HELP01 has
+been defined in a PWAD, HELP01 is displayed. From there, repeated ENTERs
+will display HELP02, HELP03, ... to an upper limit of HELP99.
+
+File affected: m_menu.c
+
+
+2. Setup Menus
+--------------
+
+Added the first few of several Setup Menus. They can be reached via the
+"Setup" item on the Main Menu.
+
+When on a Setup screen, these actions are allowed:
+
+    Up Arrow and Down Arrow move you from one item to the next.
+
+    ENTER highlights an item and lets you change it. Any item that gets
+    changed is immediately in effect.
+   
+    Left Arrow brings up the previous screen if present.
+
+    Right Arrow brings up the next screen if present.
+
+    Backspace leaves this Setup screen and brings up the Setup menu.
+
+    ESC leaves Menus entirely.
+
+(Of course, if you rebind the keys used with menus, you can perform the
+above actions with the new keys...)
+
+
+The Setup Menu now contains
+
+    Key Bindings
+
+        All bindable actions are represented in groups.
+
+        If a key is bound to an action, and that key was previously bound
+        to another action that could be performed in the same input 'mode'
+        then the two bindings are swapped. I.e. if F1 brings up HELP and F2
+        brings up SAVEGAME, and you bind F2 to HELP, F1 will move over and
+        be bound to F2.
+
+        (Binding multiple keys to the same action should be possible in
+        Phase 2.)
+
+        You can bind mouse buttons in the same manner as keys, but in
+        Phase 1, you're limited to the run, strafe, use, and forward actions.
+        Phase 2 should expand these to _any_ action.
+
+        Joysticks aren't supported at the moment, but are represented...
+
+
+    Weapons
+
+        This is mainly where you can define your weapon preferences. As in
+        Key Bindings, if you plug a weapon into a slot, whatever was there
+        moves over to where the new setting came from.
+
+
+    Status Bar / HUD
+
+        Nothing unusual here.
+
+
+Files affected: m_menu.c, info.c, d_main.c. (D_main.c was changed to support
+taller menu graphics by redrawing the status bar more often.)
+
+
+03/25/98
+
+Fixed headsecnode use that was misusing memory. Required
+setting it to NULL when a level started.
+
+File affected: g_game.c
+
+
+03/21/98
+
+
+1. Pushers
+----------
+Changed all pusher code to use controlling linedefs. Removed all the old
+code that was using constant values based on sector special types.
+
+The effects have been expanded, and are controlled by new linedef types
+and an on/off switch in the sector type.
+
+Constant pushers
+----------------
+Two types of constant pushers are available, wind and current. Depending
+on whether you are above, on, or below (special water sectors) the ground
+level, the amount of force varies.
+
+The length of the linedef defines the 'full' magnitude of the force, and
+the linedef's angle defines the direction.
+
+         line type  above  on   under
+         ---------  -----  --   -----
+   wind     224     full  half  none
+current     225     none  full  full
+
+The linedef should be tagged to the sector where you want the effect. The
+special type of the sector should have bit 9 set (0x200). If this bit
+is turned off, the effect goes away. For example, a fan creating a wind
+could be turned off, and the wind dies, by changing the sector type and
+clearing that bit.
+
+Constant pushers can be combined with scrolling effects and point pushers.
+
+Point pushers
+-------------
+Two types of point pushers are available, push and pull.
+
+The previous implementation of these was SECTOR-SPECIFIC. The new
+implementation ignores sector boundaries and provides the effect in a
+circular area whose center is defined by a Thing of type 4001 (push)
+or 4002 (pull). The effect will not occur if there is no line-of-sight
+from a 'candidate' Thing to the center point.
+
+You now also don't have to set any option flags on these Things. A new
+linedef type of 226 is used to control the effect, and this line should be
+tagged to the sector with the 4001/4002 Thing.
+
+The length of the linedef defines the 'full' magnitude of the force, and
+the force is inversely proportional to distance from the point source. If
+the length of the controlling linedef is L, then the force is reduced to
+zero at a distance of 2L.
+
+The angle of the controlling linedef is not used.
+
+The sector where the 4001/4002 Things reside must have bit 9 set (0x200)
+in its type. If this is turned off, the effect goes away.
+
+Point pushers can be combined with scrolling effects and constant pushers.
+
+Affected files: p_map.c, p_spec.c, makefile, st_stuff.c, g_game.c,
+m_misc.c, p_mobj.c, p_user.c, p_spec.h, doomdef.h, info.c, info.h,
+p_mobj.h, p_saveg.c.
+
+
+2. Msecnode Freelist
+--------------------
+Nodes that are used to populate the touching_sectorlist and
+touching_thinglist lists are now retrieved from and returned to a freelist
+of nodes. When a node request is made and no nodes are available, a new
+one is Z_Malloc'ed. Nodes are never Z_Free'd until the level is finished.
+This should improve performance, but probably won't be noticeable.
+
+
+3. Resurrected Monsters Sticking Together
+-----------------------------------------
+The Archvile resurrection code checked to see if the candidate corpse would
+fit in the space around it. Corpses are considered non-solid (so you can
+pass through them) so they would always fit, even if they ended up sharing
+space with a neighbor after resurrection.
+
+This bug is fixed.
+
+File affected: p_enemy.c
+
+
+03/20/98
+
+1. Friction
+-----------
+Changed all friction (ice/sludge) code to use controlling linedefs.
+Removed all the old code that was using constant values based on sector
+special types. All features prior to this build have been carried over
+(bouncing off walls, overcoming inertia from a dead stop, proper effect
+when hanging out over ledges, etc.).
+
+Now, to use increased or decreased friction, a new linedef type (223) is
+available. The length of the linedef controls the type and magnitude of
+the friction variance. Lengths from 1->99 are used for sludge-like sectors.
+(A length of 67 is equivalent to the sludge effect in prior builds.)
+A length of 100 gives you normal friction. Lengths from 101->200 will
+give you icy floors. (A length of 189 is equivalent to the icy effect in
+prior builds.)
+
+The controlling linedef should be tagged to the sector(s) where you want
+the effect. The special types of the sectors should have their FRICTION_MASK
+bit turned on. (ox100) See log_jff.txt for details on generalized sector
+types. One quick way to turn off the effect is to have a switch that
+changes the sector type in a way that turns that bit off. You could
+then have a 'change floor texture and type' switch that 'melts the ice' in a
+sector, and turns it from icy to normal. Or a 'change floor texture and type'
+switch that 'freezes' the floor, creating ice.
+
+If there is more than one controlling linedef for a sector, the one with
+the most friction will prevail. (Sludge beats ice.)
+
+Details on a new structure needed for all this to work
+------------------------------------------------------
+Sector_t has a thinglist that is a linked list of every object whose
+center point is in a sector.
+
+I'm interested in knowing the complete list of objects that either are
+partially in a sector or are entirely in a sector. This would be a
+superset of 'thinglist'.
+
+Thinglist works nicely because the links run through the mobj_t's of the
+objects, so it's easy to add and delete objects from the world by playing
+with these links.
+
+In converting friction and pushers from Thing control to linedef control,
+I've found that I can't rely on 'thinglist' to handle all the cases that
+will arise as moving Things cross sector boundaries. For example, assume
+sector A and sector B share a linedef, and A's floor is higher than B's
+floor. A player perched on the linedef could have his center point in B,
+but his feet on A's floor. A search through A's thinglist won't find him,
+so any sector A effect won't be applied.
+
+To deal with this problem, I've created a new structure
+
+typedef struct msecnode_s
+    {
+    sector_t*          m_sector; // a sector containing this object
+    struct mobj_s*     m_thing;  // this object
+    struct msecnode_s* m_tprev;  // prev msecnode_t for this thing
+    struct msecnode_s* m_tnext;  // next msecnode_t for this thing
+    struct msecnode_s* m_sprev;  // prev msecnode_t for this sector
+    struct msecnode_s* m_snext;  // next msecnode_t for this sector
+    } msecnode_t;
+
+We create a new 'thinglist' called 'touching_thinglist' that links together
+a set of these nodes, each node representing a Thing that encroaches on a
+sector. (Whether its center point is in the sector or not.) 'thinglist'
+then becomes a subset of 'touching_thinglist'.
+
+We also create a second set of links through these nodes, call it
+'touching_sectorlist', and add it to each Thing's mobj_t structure. As a
+Thing is spawned and moves through the world, this set of links is used
+to identify all the sectors the Thing encroaches upon.
+
+In the following diagram, Thing N encroaches on sectors M and M+1.
+Thing N+1 encroaches on sectors M and M+2.
+
+
+                              Thing N          Thing N+1
+                      (touching_thinglist) (touching_thinglist)
+                                   |                |
+                                =  |             =  |
+                                |  |             |  |
+                                |  V             |  V
+                              --------         --------
+                              |      |         |      |
+    Sector M             ||-- |      | <------ |      | <------
+                              | node |         | node |
+(touching_sectorlist) ------> |      | ------> |      | ------>
+                              |      |         |      |
+                              --------         --------
+                                ^  |             ^  |
+                                |  |             |  |
+                                |  |             |  |
+                                |  V             |  |
+                              --------           |  | 
+                              |      |           |  | 
+  Sector M+1             ||-- |      | <-----------------------
+                              | node |           |  | 
+(touching_sectorlist) ------> |      | ----------------------->
+                              |      |           |  | 
+                              --------           |  | 
+                                   |             |  |
+                                   |             |  |
+                                   |             |  |
+                                   =             |  V
+                                               --------
+                                               |      |
+  Sector M+2                              ||-- |      | <------
+                                               | node |
+(touching_sectorlist) -----------------------> |      | ------>
+                                               |      |
+                                               --------
+                                                    |
+                                                    |
+                                                    =
+                                             
+When a Thing is spawned, a node gets created for each sector the Thing
+appears in, and the node is linked into the lists.
+
+When a Thing vacates a sector, a node is unlinked and deleted.
+
+When a Thing enters a sector, a node is created and linked in.
+
+When a Thing is in a sector both before and after a move, no nodes are
+deleted or added.
+
+When a Thing is removed, its nodes are unlinked and deleted.
+
+Since movement is handled at the 'Thing' level, mobj_t->touching_sectorlist
+allows quick access to all nodes belonging to the Thing.
+
+Since sector effects are handled by Thinkers, and applied across all
+Things in a sector, sector_t->touching_thinglist allows quick access to all
+nodes of affected Things.
+
+FUTURE WORK: Keep a free list of nodes. When a node is deleted, put it on
+the list. When a node is needed, take it from the list. Only go to the
+memory management routines when the free list is NULL.
+
+
+03/12/98
+
+1. Checked in a friction fix that should better deal with the fact that
+player speed seems to affect how friction is determined. In a
+constant-friction world, this doesn't matter, but when friction is
+expected to change exactly at a sector boundary, it presents a problem.
+This should fix Jonathan's problem of jumping over a high-friction area
+but 10% of the time picking up high friction when landing on the other
+(normal) side.
+
+2. Adjusted the 'getting started' movement in a high-friction sector
+to simulate a slow start but gaining your footing after about 2 seconds.
+Suggested by Paul.
+
+3. Set friction to the original value if the IDCLIP cheat is on, reported
+by Gary.
+
+4. Turned off any pusher effects if the IDCLIP cheat is on.
+
+
+03/10/98
+
+Checked in the following:
+
+a) A friction bug fix similar to the previous one (neighboring sectors).
+
+b) new cheat codes for friction (TNTICE), pushers (TNTPUSH), and over/under (TNTOVER). The global variables are still present, but commented out of the configuration code. I did not touch any of the savegame or demo code, so Lee can adjust the use of the globals to his liking.
+
+c) a version of m_menu.c with the #defines removed from around the HELP code. This code now behaves in the manner described by LEESFIXES.
+
+Here's the behavior at this point:
+
+  ID Shareware [Read This]->ad       [Enter key]->old help
+BOOM Shareware [Read This]->ad       [Enter key]->new help
+  ID Shareware        [F1]->ad       [Enter key]->old help
+BOOM Shareware        [F1]->new help [Enter key]->menu
+
+  ID DOOM      [Read This]->ad       [Enter key]->old help
+BOOM DOOM      [Read This]->ad       [Enter key]->new help
+  ID DOOM             [F1]->ad       [Enter key]->old help
+BOOM DOOM             [F1]->new help [Enter key]->menu
+
+  ID Ult DOOM  [Read This]->old help [Enter key]->menu
+BOOM Ult DOOM  [Read This]->credits  [Enter key]->new help
+  ID Ult DOOM         [F1]->old help [Enter key]->menu
+BOOM Ult DOOM         [F1]->new help [Enter key]->menu
+
+  ID DOOM2            [F1]->old help [Enter key]->menu
+BOOM DOOM2            [F1]->new help [Enter key]->menu
+
+
+03/09/98
+
+1. Fixed Bug in FRICTION Code
+-----------------------------
+
+Fixed a bug in the FRICTION code where you could pick up the friction value
+of a lower sector if hanging out over the edge of an upper one. (Nasty
+bugger to fix!)
+
+Had to add a 'friction' field to mobj_t, so any savegames prior to this
+are NG.
+
+Modules affected: p_user.c, p_map.c, p_mobj.c, p_local.h, p_maputl.c,
+p_mobj.h, doomdef.h
+
+
+2. Seperately Bound Menu and Automap Keys
+-----------------------------------------
+
+Allowed menu, movement, and automap keys to be separately bound.
+
+Modules affected: m_menu.c, m_misc.c, g_game.c, am_map.c
+
+
+3. Invisible Sprite
+-------------------
+
+Added code--courtesy of Ty and Jim--to make the MT_PUSH Thing invisible.
+(Prior to this it was a candle.) Gave MT_PUSH some height, width, and mass
+to avoid possible math problems.
+
+Modules affected: info.c, info.h
+
+
+03/04/98
+
+1. Dynamic BOOMHELP Screen
+--------------------------
+
+Shareware, DOOM1, and DOOM2 help screen are now dynamic. The key bindings
+shown are what's current. The screen has been rearranged to group keys by
+action. The plasma rifle, bfg, and ssg are not shown in shawareware. The ssg is
+not shown in DOOM1.
+
+This is wrapped by #define NEW_HELP_SCREENS.
+
+Modules affected: m_menu.c, doomdef.h, makefile
+
+
+02/27/98
+
+1. Player Bobbing is now optional
+---------------------------------
+
+Player bobbing can now be controlled by the player_bobbing config option.
+
+This is wrapped by #define OPT_BOBBING.
+
+Modules affected: m_misc.c, p_user.c, makefile
+
+
+2. Weapon Selection
+-------------------
+
+Put gamemode wrappers around SSG, plasma, and BFG at selection time
+so that selecting these in registered DOOM or shareware DOOM will not
+cause a Segment Violation.
+
+Module affected: g_game.c
+
+
+3. Weapon Ownership
+-------------------
+
+Changed the IDFA cheat so you can't own weapons that aren't in the version
+of the game you're playing. Shareware status bar was showing plasma rifle
+and BFG after IDFA.
+
+Module affected: st_stuff.c
+
+
+
+02/24/98
+
+1. Added key_hud
+----------------
+
+Changed the name of the key_define config variable to key_hud since the
+F5 key brings up the HUD now.
+
+
+2. Weapon recoil
+----------------
+
+Added weapon recoil, including recoil during refire, which is when you
+hold down the fire key. There are different recoil values for each
+weapon, determined by experiment. The recoil is applied at the point
+where the 'muzzle blast' appears rather than at the point where the key
+is pressed, due to the slight delay when firing the BFG.
+
+This is wrapped by #define RECOIL, as well as a weapon_recoil config switch.
+
+
+3. Varying friction
+-------------------
+
+A certain amount of friction is applied to player movement so he slows
+down in a realistic way. By decreasing the friction applied, we can
+simulate an icy floor. By increasing it, we can simulate mud or sludge
+or magnetic floors. Two new 'special sector' values, 18 and 19 are used;
+18 for less friction, 19 for more. When the player enters such a sector,
+the friction value changes. In all other sectors, the old friction value
+is used. Friction is not applied when the player is in the air. Friction 
+_is_ applied if the player is walking across other Things when that is
+allowed.
+
+On both types of floors, 'getting started' is slowed down slightly, to
+simulate getting your footing.
+
+Future: apply varying friction to monster movement.
+
+This is wrapped by #define FRICTION, as well as a variable_friction
+config switch.
+
+
+4. Wall bouncing
+----------------
+
+On an icy floor, the player can bounce off of walls if the angle of
+approach is less than 45 degrees from the wall's normal. If greater than
+45 degrees, the player will slide along the wall. Some momentum is lost
+during the bounce, and you'll get the 'ooof' sound.
+
+Future: if the player's speed is large enough, some damage is possible.
+
+This is wrapped by #define FRICTION, as well as a variable_friction
+config switch.
+
+
+5. Push
+-------
+
+A new 'special sector' 20 allows for a 'water current' or 'wind' effect.
+This is applied whether the player is on the ground or in the air.
+
+There are two types of push that can be applied:
+
+    a) constant push across the sector
+
+    b) push emanating from a point in the sector, or drawing the player
+       toward a point in the sector
+
+A new Thing, MT_PUSH, has been created. Place one in a sector 20 and the
+code looks at the MT_PUSH's flags (options) to determine which type of
+push is being applied. Bits 8->10 give the push magnitude, (values 0->7).
+If bit 11 is set, then it's a type b) push, otherwise it's type a). For a
+type a) push, the Thing's angle gives the push direction. For a type b) push,
+if bit 12 is set, the player is pulled toward the push point, otherwise
+he's pushed away.
+
+Type a) push force is constant across the sector.
+
+Type b) push force diminishes linearly as you get farther from the point
+source.
+
+This effect can be used to create wind tunnels or water currents, ala Quake.
+
+Future: apply push to monsters.
+
+Future: if the floor is a liquid, don't apply push when the player is off
+the ground. (No water current in the air, eh?)
+
+Future: Type b) push force could diminish exponentially.
+
+This is wrapped by #define PUSHERS, as well as a allow_pushers config switch.
+
+
+6. Sprite Height
+----------------
+
+THIS FEATURE IS A PHASE II ITEM. IT'S DISABLED FOR PHASW I BETA!
+
+a) Added the ability to jump over a blocking Thing if your feet are above the
+top of the Thing.
+
+You can now stop while above a Thing, which means that you're standing
+on top of it. This allows for using Things as stepping stones, or sitting
+on the head of a monster. Walking across Things takes on the same
+height-checking that takes place when moving up or down steps. Friction is
+also applied, as if you were on the ground.
+
+Special sector damage (i.e. lava) doesn't happen when you're perched atop a
+Thing sitting in the sector. A push force in your sector may affect you.
+
+Allowing this meant that the Thing heights needed to be corrected. In
+ID's code, Thing heights weren't always right, but it didn't matter much.
+Now, whenever the code initializes height for a spawned Thing, it will either
+use the old value (in compatibility mode) or a new value (in non-compatibility
+mode).
+
+Added two new fields to mobj_t: above_thing, which points to the mobj_t
+of the thing you're above, and below_thing, which points to the mobj_t
+of the thing you're below.
+
+Added special 'saving/loading game' code for these new fields following
+Lee's example.
+
+b) Added the ability to move under a blocking Thing if your head is below the
+bottom of the Thing.
+
+Everything is wrapped by #define OVER_UNDER, as well as an over_under
+config switch.
+
+WARNING: THIS FEATURE IS INCOMPLETE! IT HAS BUGS! IT IS HERE FOR OTHERS
+TO EXAMINE.
+
+
+02/21/98
+
+1. Screen clear
+
+Minor change: added screen clear and color band at startup. This is
+commented out until after beta.
+
+Addendum (2/24) : this might have been overwritten on purpose by Lee. Have to
+see where to put it back in.
+
+
+02/20/98
+
+1. Initial sprite translucency
+
+Added preliminary ability to draw translucent sprites. This requires
+the presence of tranmap.wad. This has one lump, TRANMAP, which
+contains tranmap[256][256], where
+
+        tranmap[i][j] = index of best matching color for Rk,Gk,Bk where
+
+                        Rk = (Ri + Rj)/2
+                        Gk = (Gi + Gj)/2
+                        Bk = (Bi + Bj)/2
+
+This means the painted color is the average of the existing color
+and the new color. Averaging RGB values simulates translucency.
+
+I copied R_DrawColumn, changed the copy's name to R_DrawTLColumn, and added the
+changes at the point where the pixels are drawn. This keeps the
+decision-making about translucency at a higher level, so as not to impact
+performance more than necessary.
+
+I wrote a program tranfilt.exe to create TRANMAP. It's in the
+boomutil directory under my home directory on the server. Use its output
+with WinTex to create the lump.
+
+I added a config-file option "translucency". There's been some talk about
+being able to turn this on/off generally for performance reasons. If we
+decide not to have any default translucent Things (see below) we can remove
+this later.
+
+I added a TNTTRAN cheat code to turn translucency on or off for testing. I added
+an MF_TRANSLUCENT bit to the p_mobj.h file to indicate that a sprite is
+translucent, and modified several Thing definitions in info.c to make them
+translucent. (I.e. imp, smoke, BFG blast, etc.) Look for MF_TRANSLUCENT. 
+These should be modified later when we decide which Things _should be_
+translucent by default, if any (i.e. not imps). For Things that can be
+seen during a level-editing session (i.e. imps) we'll need a way to turn
+translucency on/off.
+
+This work is preliminary, and does not handle translucent textures. The 
+solution there may be slightly different, and is a Phase II or III project.
+                        
+
+02/14/98
+
+1. User-defined keys (bindings)
+
+ALL KEYS that trigger some action can now be defined in the config file.
+Running BOOM with no config file will give you the key_* strings that can
+be remapped. You're going to need a SETUP program though unless you
+learned key codes in 4th grade. Now you can map your roommate's weapon
+keys to garbage while he's asleep.
+
+Here are all the keys that can be remapped. If you can think of any I
+missed, let me know. (A few of these were already there.)
+
+    default.cfg          key pressed
+    -----------          -----------
+    key_right            RIGHT ARROW
+    key_left             LEFT ARROW 
+    key_up               UP ARROW   
+    key_down             DOWN ARROW 
+    key_strafeleft       ','            
+    key_straferight      '.'
+    key_strafe           ALT      
+    key_speed            SHIFT    
+    key_autorun          CAPSLOCK  
+    key_fire             CTRL     
+    key_use              ' '            
+    key_escape           ESCAPE
+    key_help             F1
+    key_savegame         F2
+    key_loadgame         F3        
+    key_soundvolume      F4        
+    key_detail           F5        
+    key_quicksave        F6        
+    key_endgame          F7        
+    key_messages         F8        
+    key_quickload        F9        
+    key_quit             F10       
+    key_gamma            F11       
+    key_spy              F12       
+    key_pause            PAUSE     
+    key_backspace        BACKSPACE 
+    key_enter            ENTER     
+    key_map              TAB       
+    key_mapgobig         '0'        (zero)            
+    key_mapfollow        'f'            
+    key_mapmark          'm'            
+    key_mapclear         'c'            
+    key_mapgrid          'g'            
+    key_reverse          '/'            
+    key_zoomin           '='            
+    key_zoomout          '-'            
+    key_chat             't'            
+    key_chatplayer1      'g'            
+    key_chatplayer2      'b'            
+    key_chatplayer3      'i'            
+    key_chatplayer4      'r'        Will need to add more for players > 4            
+    key_weapontoggle     '0'        (zero)            
+    key_weapon1          '1'            
+    key_weapon2          '2'            
+    key_weapon3          '3'            
+    key_weapon4          '4'            
+    key_weapon5          '5'            
+    key_weapon6          '6'            
+    key_weapon7          '7'
+    key_weapon8          '8'
+    key_weapon9          '9'
+
+2. New weapon toggle key
+
+The 0 (zero) key can be used to toggle between your most preferred
+weapons that still have ammo. The key always chooses 'the most preferred
+weapon other than the one that's showing, that still has ammo'. Don't
+like my key choice? See #1 above.
+
+3. SSG
+
+The SSG now _really_ comes up when you hit the '9' key. I had to extend
+BT_WEAPONMASK from 3 bits to 4 to enable this.
+
+4. New Quick Reverse key
+
+The '/' key will give you that quick 180-degree turn like mouse players
+can execute.
+
+5. Caps Lock is now Autorun
+
+The Caps Lock key toggles you in and out of Autorun. As Jim told me, it's
+like hiring someone to hold down the SHIFT key while you play. Good way
+to put it.
+
+
+01/30/98
+
+1. Faster end-mission display text
+----------------------------------
+
+In compatibility mode, the end-mission text is displayed in its normal, slow
+manner. In non-compatibility mode, the text comes up all at once.
+
+2. Delimiter 0 bug in P_BlockLinesIterator in p_maputl.c
+--------------------------------------------------------
+
+The lines list carried in each block of the blockmap always starts with
+a 0 and ends with a -1. These are the delimiters, and the linedef values
+of lines that appear in a block are inserted between the 0 and the -1.
+I.e. 0,330,332,-1 means that linedefs 330 and 332 appear in this block.
+The code in P_BlockLinesIterator was treating the delimiting starting 0
+as linedef 0 and applying whatever function was passed to it to this line.
+I bumped the 'list' pointer ahead of time to get past the 0 delimiter
+before applying the function. BTW, a block with linedef 0 in it looks like
+0,0,n,...,-1.
+
+(Later on, Lee wrapped it in the compatibility flag because it threw
+the crusher demo out of sync. Go figure.)
+
+
+01/28/98
+
+1. Pain Elemental fires Lost Souls through blocking lines.
+----------------------------------------------------------
+
+A Pain Elemental can fire Lost Souls through impassable, monsters can't
+cross, and one-sided lines. This is the cause of Lost Souls who are found
+wandering outside the map.
+
+I included a check of the trajectory intersecting these kinds of lines, and
+disallow the Lost Soul spawn if the trajectory is blocked.
+
+Also added a check to make sure the Lost Soul actually appears in a
+legal space, i.e. isn't being spawned above the ceiling or below the
+floor of its new sector.
+
+Though this is a bug, it might break demos, so it has the
+compatibility flag wrapped around it.
+
+2. Pain Elemental can't shoot Lost Souls if >20 already present
+---------------------------------------------------------------
+
+Lee already removed this limit, but I extended the compatibility wrapper to
+include the counting process.
+
+3. Archvile creates ghosts
+--------------------------
+
+These are those nasty, can't kill w/o a rocket bounce guys that walk through
+walls after Archie resurrects their door-crushed remains.
+
+I suggest 3 options:
+
+a. no change (compatibility mode)
+b. resurrected monsters are killable and cannot walk through walls
+   (bug fixed)
+c. Archie ignores crushed monsters
+
+Details:
+
+When a monster dies, his new height is 1/4 his old height.
+
+When a dead monster is crushed, he's turned into a GIB and given zero
+height and zero radius.
+
+When a monster is resurrected by Archie, Id multiplies the 'dead' height by
+4 to restore it to normal. But if Archie's resurrecting a GIB, 4 times zero
+is still zero. Id was also not restoring his radius.
+
+So a ghost is a point-monster of zero height and width. He isn't killable
+because you're always shooting over his head. Nearby rocket blasts killed
+him because the blast radius code probably doesn't check height, just
+existence w/in the radius.
+
+To fix the bug, I restored the monster's height and radius at
+resurrection time.
+
+Everything else about him was ok. I also had to fix a check that Id had to
+make sure the sector was tall enough to accept the resurrected monster.
+This was done before the actual resurrection, and was using the GIB's zero
+height, which always fit.
+
+
+4. Added the TNTCOMP cheat code
+-------------------------------
+
+This toggles the compatibility flag on/off, for run-time checking of
+compatibility-flag-wrapped code.
+
+
+
+
+

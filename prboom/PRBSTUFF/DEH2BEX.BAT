@@ -1,0 +1,1 @@
+perl -w deh2bex.pl <dehout.txt >bexout.txt

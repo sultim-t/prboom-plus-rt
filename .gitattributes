@@ -1,1 +1,20 @@
 * text=auto !eol
+prboom/ICONS/BARREL.ICO -text svneol=native#unset
+prboom/ICONS/FOUCH.ICO svneol=native#unset
+prboom/ICONS/GOD.ICO svneol=native#unset
+prboom/ICONS/Heada1.ico -text
+prboom/ICONS/ICONS.APS -text svneol=native#unset
+prboom/ICONS/SKULL.ICO svneol=native#unset
+prboom/LUMPS/GRAPHICS/COLCHIP.BMP svneol=native#unset
+prboom/LUMPS/GRAPHICS/CURCHIP.BMP svneol=native#unset
+prboom/LUMPS/GRAPHICS/DOOM.ACT svneol=native#unset
+prboom/LUMPS/GRAPHICS/PRBOOM.PSD -text svneol=native#unset
+prboom/LUMPS/GRAPHICS/Prboom.bmp svneol=native#unset
+prboom/LUMPS/TEST.WAD -text svneol=native#unset
+prboom/LUMPS/TEST/HISTORY/HISTORY.TXT -text svneol=native#unset
+prboom/LUMPS/TEST/LUMPS/COLCHIP.LMP svneol=native#unset
+prboom/LUMPS/TEST/LUMPS/CURCHIP.LMP svneol=native#unset
+prboom/LUMPS/TEST/LUMPS/PRBOOM.LMP -text svneol=native#unset
+prboom/LUMPS/TEST/LUMPS/Prboom.bmp svneol=native#unset
+prboom/LUMPS/TEST/LUMPS/VRFYBOX.LMP -text svneol=native#unset
+prboom/LUMPS/TEST/TEST.WAD -text svneol=native#unset

@@ -1,0 +1,3706 @@
+Log of changes to Boom Engine
+
+Lee Killough
+killough@rsn.hp.com
+http://classicgaming.com/doom/
+http://www.trailerpark.com/tequila/killough/
+
+---------------------------------------------------------------------------
+
+6/3/98  (post-source-code release):
+
+Fixed problems with v2.00 demo headers being a different size from v2.01
+headers, causing game lockups when playing back v2.00 demos.
+
+5/27/98 (post-source-code release):
+
+Fixed problem with End Game and Load Game during demo recordings, and Load
+Game during demo playbacks.
+
+5/27/98:
+
+Investigated problem where monsters awaken when carried by conveyors to
+another sector (perhaps through teleporter): Problem is that in Doom, player
+gunfire sounds are transmitted throughout sectors and stored in the form of
+'soundtargets' for each sector. Each sector that can hear a player's gunshot
+gets that player as its soundtarget, and then anytime a monster goes in that
+sector, they can "hear" that soundtarget even if the sound is long-dead.
+This wasn't an issue in Doom because monsters didn't move from one sector to
+another unless they were already awake.
+
+In Boom you can carry them when they are asleep, and then old sounds left
+over in sectors' soundtargets can awaken them for no apparent reason.
+
+5/25/98:
+
+Fixed drift caused by roundoff error in wall scroller delta calcluations.
+The R_PointToAngle2() function is not accurate enough for wall scrollers,
+so instead of using it, I use a different dot product formula that always
+preserves orthogonality (the only roundoff error is in the speed now -- if
+either the true value of the x or y components of scrolling are exactly 0,
+then that resulting component will be exactly 0, something not always
+preserved before).
+
+5/15/98:
+
+Fixed bug in which savegame consistency check failure message was applied
+inconsistently :) Now it appears no matter where you load the savegame from,
+and it's friendlier because it stays on the screen as long as it waits for
+you to answer whether to load the savegame anyway. -loadgame also works
+better now -- instead of aborting with an error message, it starts the game
+anyway, with the main title sequence overlayed with a consistency warning
+allowing you to force it to be loaded.
+
+iwads are also listed now, so that if you try to load a Doom 2 savegame
+while running the Doom 1 iwad, for example, it will tell you the savegame
+uses Doom 2 because the doom2.wad's path used when the game was saved, is
+shown.
+
+Changes in g_game.c, g_game.h, m_menu.c, m_menu.h, d_main.c
+
+5/14/98
+
+Found that Doom bug in thinker deletion algorithm could be fixed without
+sacrificing demo sync in most cases, if we use two different methods for
+finding the 'next' pointer, depending on whether the node is being deleted
+next. For undeleted nodes we wait until after processing the function; for
+deleted nodes we load the 'next' pointer first. Not 100% Doom compatible,
+but good enough for demo sync, and 100% safe.
+
+5/13/98
+
+Fixed bug in status bar when the consoleplayer in a netgame demo isn't green.
+
+Restored v1.9 demo sync some more, but only at a price: we must go back to
+using that Doom bug (using linked list's "next" pointer after the node has
+been freed, in p_tick.c) in order to restore demo sync!!!  One wonders how
+Doom even ran!!!  Such demos are detected and flagged appropriately -- if
+Boom crashes during a Doom demo, it knows whether it used unsafe methods to
+preserve demo sync, and tells the user.
+
+5/12/98
+
+Fixed silent teleporters, yet again :) Had to fix z-coordinate of thing at
+exit.
+
+Had to exclude voodoo dolls from evironmental bobbing influences, in order
+to prevent hiccups from occurring in silent teleporters on conveyors.
+
+Previously if a voodoo doll was on a conveyor which carried them across a
+teleporter linedef or over a ledge, the teleportation or dropoff would cause
+the real player to experience bobbing. Now the real player's bobbing is
+unaffected by voodoo dolls. This was not an big issue in Doom, since the
+only way to move a voodoo doll was to shoot them, and so rarely did they
+walk up steps or teleport and thus cause the real player to experience
+bobbing.
+
+Investigated GODLESS3.WAD but could not reproduce any problems other than
+demo sync problems, which are not unexpected in at least some wads.
+
+5/10/98
+
+Improved Boom performance around 20 fps by, reluctantly :), adding inlined
+assembly code for abs(), FixedMul() and FixedDiv(). The inlined assembly is
+#ifdef'ed to only be used when DJGPP is the compiler. The code is used
+everywhere and so if there were any problems with it, they would show up
+immediately. The code is also small (1-10 lines per function).
+
+Restored v1.9 demo sync during intermission screens with messages.
+
+5/9/98
+
+Fixed silent teleporter bugs, by taking player viewheight into account
+during silent teleportation and by more intelligently choosing where to exit
+(the infinitesimal exit position must be carefully made to land on a certain
+side of the exit linedef). Tested thoroughly with every combination of
+sector heights and relative linedef angles.
+
+Silent l2l teleporter code was tripled in size, in order to fix the problems :)
+
+Studied Cacodemon desync problem, but could not identify root cause. No Boom
+code whatsoever, which is unique to floating monsters, can be replaced with
+the real thing and fix v1.9 demo desync. It's not frames, height code, or
+anything like that. Just as the previous major desync was a roundoff error
+difference in a monster sight calculation, this desync's cause may be just
+as subtle and unrelated to its symptoms. The desync must either be in some
+code which is not uniquely related to floating monsters, or the real thing
+is not v1.9 demo- compatible.
+
+5/7/98:
+
+Fixed exit position of reversed line-to-line teleporters.
+
+Switched ammo 3 and 4 in TNTAMMO cheat so that ordering follows status bar.
+
+Fixed Doom bug in which RNG was called in a way that depended on compiler's
+order of evaluation, which is unspecified (I'm talking about where it uses
+P_Random()-P_Random() to generate random values around 0).
+
+To prevent confusion, made translucency lumps get ignored unless they are
+exactly 64K. TRANMAP.DAT no longer will work without error.
+
+Made monsters blind if they are directly tangent to a water surface (their
+head is right on the water), and the player is on the other side.
+
+Fixed bug (no symptoms noticable, though) in which -1 pointer hack wasn't
+completely removed by me. I had replaced the -1 pointer hack with the
+address of a real function, but missed it in a couple of places. p_mobj.c
+and p_tick.c are concerned with this -1 pointer hack, which indicates a
+thinker is about to be deleted.
+
+Investigated Cacodemon and PE demo desyncing, sometimes cutting and pasting
+part of the real thing into Boom, but could not get v1.9 demos with lots of
+Caco or PE action to stay in sync. Replacing every function which uses
+MF_FLOAT or MF_NOGRAVITY did not help -- it appears to be something more
+fundamental, like roundoff in arithmetic calculations.
+
+Reformatted my parts of p_spec.c.
+
+5/2/98-5/3/98:
+
+Finished work on all my files, except for the shared ones Jim and Ty have
+first.
+
+MASSIVE reorg of headers and files. On files that were not assigned to me,
+usually only the top few #include lines were affected, so merging should
+not be hard, since 95%+ of those files were untouched by me.
+
+Every header file has been corrected w.r.t. global functions and data
+and headers it depends on, and every file has had its set of #includes
+minimized.  The makefile dependencies have been regenerated.
+
+You now get almost as few unnecessary rebuilds as possible.
+
+p_local.h and r_local.h have been eliminated. p_map.h and p_maputl.h
+added. global declarations in g_game.c and m_misc.c have been moved to
+proper headers.
+
+Fixed bug in networking code which didn't take compatibility flag into
+account (will cause network inconsistencies if players have different
+orig_doom_compatibility options). Needs testing, but it's #ifdef'ed with
+LEESFIXES in d_net.*.
+
+5/1/98:
+
+Refixed weapons switch bug: original fix was incomplete and prevented '0'
+from working all the time. Found another unrelated weapons switch bug: the
+'1' and '3' keys (chainsaw/fist and shotgun/SSG) would not reflect player
+preferences immediately if changed in the setup screen, because original
+algorithm relied on a cached table which was only initialized once per
+game. Fixed it by adding P_WeaponPreferred() to p_pspr.c, which tests
+whether player prefers one weapon over another, and which always reflects
+the latest player preferences instead of just a snapshot at startup.
+
+Reformatted files. No functional (semantic) changes unless otherwise
+mentioned, but some structural (syntax) changes were made sometimes, to
+beautify code.  Most significantly affected was g_game.c, due to its
+initial messiness. Lots of prototypes and declarations in g_game.c were
+moved to header files instead.
+
+The general paradigm is that most variables or functions defined externally
+in a .c file should be declared in the corresponding .h file, and the .h
+file should be #included instead of redeclaring the variables or functions
+inside each of the .c files which use them.
+
+Lots of commented out dead code was removed.
+
+4/29/98:
+
+Fixed bug in which game would pause and not pause backwards according to
+whether a demo is playing. File: p_tick.c
+
+Fixed "TNTAMO10" bug. Bug has existed since March, and was due to
+prematurely setting the pending weapon in a weapons switch to "no_change".
+If the current weapon was the fist, and no other weapons had ammo, then
+'0' (weapons toggle) would crash game, because the code would enter an
+infinite loop -- it would keep setting the pending weapon to the fist
+(the only valid choice), but then, since it's also the current weapon,
+the code would switch the weapon selection back to "nochange". Sort of
+like getting your ear bitten :) The loop's terminating condition was that
+the pending weapon was something other than "nochange", so it would enter
+an infinite loop if the current weapon was the only allowed weapon. Fix
+was to stop setting the pending weapon to "nochange" inside the loop.
+
+4/28/98:
+
+Improved texture error message display to show all bad textures (textures
+containing columns without a patch, or missing patches) before aborting.
+
+4/26/98:
+
+Fixed the bug which caused rare crash. Problem was that sometimes a mobj's
+target was left pointing to a deleted mobj. In demo which caught this, the
+crash occurs right as a barrel explodes and hurts a dying lost soul. Somehow
+the barrel is not able to finish inflicting damage, before the lost soul has
+died and is removed completely. The fix is to delay the deletion of thinkers
+generally, by using a multi-staged lazy approach, and when a mobj thinker is
+processed, check its tracer field to see if it points to a target about to
+be deleted. If so, delay the deletion of that object. I tried the simpler
+approach of setting the target field to NULL when the target is about to be
+deleted, but that breaks demo sync, while this fix doesn't.
+
+Fixed an intermission screen bug which was also caused by using data after
+it was freed. Problem was data pointed to by "lnames" was used after it was
+freed in wi_stuff.c.
+
+4/25/98:
+
+Fixed major bug in P_RunThinkers() in which data was used after it was
+freed, after adding code to z_zone.c which intentionally scrambles data
+right before freeing it (to amplify the ill-effects of using it after it's
+freed). Found another bug with this freed memory debugging trick, a segviol
+when a player is attacked under rare conditions, but did not have time to
+isolate and fix it, and since it almost never happens unless the freed
+memory is erased, I left it standing.
+
+Fixed item pickup sounds to keep them from stopping weapons sounds. Problem
+was that every sound needs an origin to work consistently with spy mode
+(F12) (sometimes a NULL origin was used in Doom, which made the console
+player hear it at full volume, but it also made other players hear it full
+volume too).  But only one sound was allowed per origin at a time. Since the
+item being picked up disappears, it cannot be the origin for the pickup
+sound, so the player has to be the origin. But the player is also the origin
+of weapons fire. Current fix is kludgy and will likely be redesigned in
+Phase 2: item pickup sounds have their sound number masked with a large
+bitmask, and the sound routine does not stop sounds based on origin unless
+they both have this bitmask set or cleared. Affected files: s_sound.c,
+s_sound.h, p_inter.c
+
+Commented and reformatted these files:
+
+s_sound.c, s_sound.h, r_plane.c, r_plane.h, r_defs.h, r_data.c, z_zone.h,
+w_wad.c, w_wad.h, r_segs.c, r_segs.h, m_fixed.h
+
+Added gcc's __attribute__ extension, under #ifdef __GNUC__, to make gcc
+catch programmer mistakes in printf formats passed to dprintf() and
+I_Error().  Files affected: doomdef.h, g_game.h, i_system.h.
+
+Found bug in r_things.c using new check (long versus int in an I_Error()
+format string in r_things.c).
+
+Fixed cr_gold declaration error in info.c -- it must be static in info.c if
+it is not to conflict with the global cr_gold pointer defined in v_video.c.
+
+Added #ifdef __GNUC__ around m_fixed.h's gcc extensions.
+
+Added STBAR, M_NMARE, WIMINUS, and DSGETPOW lumps to info.c for Doom v1.1.
+
+4/23/98:
+
+Fixed two cheat bugs affecting demos: prevented most cheats from being
+activated during demo playback (previously only demo recordings had them
+excluded), and cleared player cheats such as IDDQD and IDCLIP when starting
+demos (previously cheats could mess up internal demos played after End
+Game).
+
+4/20/98:
+
+Fixed monster sight code so that monsters cannot see player when totally
+separated by water or fake ceilings. Leads to interesting effects --
+monsters tend to pop their head out from under the water and attack the
+player!!!  May need to be made optional and/or turned back off when
+translucent flats are added in Phase II.
+
+Also found bug which caused some demo sync problems: monster sight code had
+slight roundoff error due to point/line query optimization. Now all 4 demos
+in Ultimate Doom stay in sync, and other v1.9 demos are expected to have
+better success now too.
+
+4/18/98:
+
+Fixed bug in screenshot code (data could be freed before it was finished
+being used).
+
+Consolidated cheat code into one table. Now deh-specific stuff is
+included as part of the cheat table and will not break if table order
+is modified. Cheats can be individually disabled during DM, coop, demo
+recordings, -deh, and while menu is active. idk added back, but disabled
+during -deh.
+
+Fixed boss brain savegame bug. Landings were not properly reinitialized after
+saved game was loaded, causing saved landing targets to become NULL.
+
+Fixed namespace errors in 5 places: flats animation, intermissions background,
+small screen size background, help screen background, and registered game
+check. Exhaustively searched every source file for lump name lookups. Found
+no more cases. Namespace code works now and should go out in the next release
+after a week of internal testing.
+
+4/17/98:
+
+Updated DCK configuration files for new linedef types.
+
+Added traditional_menu option since there appears to be a mutual
+disagreement over the order the main menu items should be in.
+
+Improved silent teleporter response time by adding P_FindLineFromTag() to
+find linedefs matching tags quickly.
+
+Fixed problem with linedef types 213, 261 not causing new light levels to be
+drawn if they were the only thing making the sector different.
+
+Fixed namespace problem with flats, patches, colormaps and sprites. Now the
+lumps are all tagged internally, and are searched by specific tags. Sprites,
+flats, and colormaps are in their own lump namespace now (apart from their
+markers). However, if a texture patch cannot be found in the global
+namespace, it will be searched for in the sprite namespace, since apparently
+some wads use sprite patches for wall patches too (INVASIO2 did). If other
+non-wall graphics patches need to be able to use the sprite patches, then
+sprites may have to be put under the global namespace instead of a separate
+one.
+
+INVASIO2 seems to be the more perverted wad when it comes to name collision :)
+
+4/15/98:
+
+Fixed blazing door double-closing sound (something I had been meaning to add
+to our list earlier). This change is compatibility-optioned. Blazing doors
+making double-closing sounds has been a complaint, and it does sound odd.
+
+Fixed generalized door opening sounds. Generalized doors being opened were
+always making the blazing door closing sound, instead of a regular opening
+sound or blazing opening sound (depending on speed).
+
+Fixed silent line->line teleporter bug, by nudging exit coordinates by 1
+part in 2^16 if they are on top of the exit line. Now regular silent
+teleporters, and the reversing ones Jim just added for me, work without
+"hiccups" like double-teleportation.
+
+Apparently when I used floating-point back in January for point-line
+queries, it was more accurate, and teleporters didn't have this problem.
+Now that I'm back to using Doom's method (in light of disappearing E3
+imps etc.), I seem to have inherited this problem with landing on lines.
+
+Fixed 2s normal textures from bleeding underwater or over fake ceilings.
+Does not affect Doom wads which do this effect intentionally, and does
+not prevent a determined author like Jim <g> from doing it with outside
+sector references.
+
+Fixed bug mentioned in the NGs, in which cheats like IDCLEV work while
+inside thermometer menus -- I simply disabled cheats from working while
+the menu is active.
+
+4/14/98:
+
+Investigated silent teleporters -- Jack was right, there is a problem :(
+They don't work anymore. The player gets stuck because they are considered
+on the "wrong side" of the teleporter line. I can't get any of my effects
+with it to work right. This is a showstopper, IMO. Silent teleporters "work"
+as far as moving the player and other objects, but if you try special tricks
+like rooms-over-rooms, you have to either make the player come out facing
+the wrong way, or you end up with "sticky teleporters" where the player's
+momentum carries them back and forth between two teleporters constantly, or
+where they can't get out of one side of the teleporter because as soon as
+they teleport from A to B, B's line carries them right back to A.
+
+Problem seems to be in considering which side of a linedef the player is on.
+When the player exits a line-line teleporter, they are always supposed to be
+on the first side of the linedef, and the teleporter code, which has been
+stable for over a month, ensures that this is true. But sometimes, depsite
+this assurance, Boom currently will teleport a player right back as soon as
+they walk across that line, even though they are supposed to be walking out
+of the first side. Something in the line-crossing logic is bad.
+
+Also, I used a silent teleporter wad someone wrote a while back, and it
+crashes the current version of Boom in P_SetThingPosition(), before Boom
+even switches into graphics mode. The wad worked around a month ago. [Nodes
+were unbuilt]
+
+Fixed a bug with 2s normal textures not having correct lighting when under
+water or over fake ceilings. The control sector's lighting wasn't being used
+when it should. Another bug currently not fixed, which is not a showstopper,
+is that 2s normals are not correctly clipped against water or fake ceilings,
+and hence they bleed. Some might like that as an effect, and they can still
+do that, but that's not what I designed 242 for. Fixing this has nothing to
+do, by the way, with fixing it generally -- wads that use it as a special
+effect continue to work, as the special clipping only comes into play when
+242 is used.
+
+Note: the sector heights are always taken from the real sector when
+displaying 2s normals, because otherwise 'anomolies' may arise which cannot
+be solved with sidedef offsets. Thus 2s normals are always "anchored" to the
+real ceiling, not a fake one which can change based on player position.
+
+Fixed another ?bad merge? in r_data.c, causing seg faults (invasio2.wad).
+Problem was 'x1' was being used when 'x' should have been used, and if x1<0
+this could cause seg faults (the code already made sure x >= max(0,x1)).
+Looks like another simple typo I made, or something like that :)
+
+Changed adaptive_gametics option to realtic_clock_rate option. Now user can
+set speedup rate as a percentage in realtic_clock_rate, and it does not
+change during the game (no "molasses" effect). By default it's 100% which is
+normal speed. Removed -DADAPTIVE_GAMETIC from the makefile, as obsolete.
+
+4/13/98:
+
+Fixed ?bad merge? in r_data.c causing seg faults.
+
+Added -DADAPTIVE_GAMETIC to makefile to enable adaptive speedup (attempts
+to make Boom run at 35 fps on slow systems by scaling up the gametic clock).
+
+4/12/98:
+
+Fixed sprite clipping problem under fake ceilings.
+
+Fixed problem drawing underwater sectors' ceilings while the player is
+over fake ceiling.
+
+Updated dckboom.txt, added watermap.wad to allow DCK users to enter WATERMAP
+as a texture name.
+
+4/11/98:
+
+Made 242 linedef smarter, by ignoring missing or bad colormap names that are
+valid textures. If you use a texture name on a 242 linedef, the texture, not
+the colormap, definition applies. Some wads, such as DFA's (Dark King), had
+HOM because they used ordinary walls in the room for 242 linedefs. This is
+okay now, since ordinary COLORMAP is used and the textures are drawn
+normally now. Only if a valid colormap name is given for a 242 linedef's
+first side's textures, do those textures get replaced with "-" now.
+
+Made no-clipping objects (e.g. player) not block objects moving on a conveyor
+(it might mess up some conveyors if a player cheats and things start piling
+up because the player blocks them but isn't moved by the conveyor). Objects
+pass right through player in no-clipping mode if they are MF_SOLID objects
+otherwise blocked by the player. This does not affect projectiles, e.g.
+rockets hitting the player.
+
+Added linedef type 261 to set ceiling light level, since there was already
+one to set the floor light level, but not ceiling. With this linedef type,
+you can now set the walls, things, floor, and ceiling light levels all
+independently (well, all but one wall, I think :)
+
+Added linedef types 262-264 to carry objects hanging from ceilings, just
+like normal conveyors. For Phase 1 the code is commented out since it
+doesn't work correctly yet. Doom is apparently not prepared to handle moving
+ceiling-hanging things. But 262-264 have been reserved for this function,
+which mimicks the behavior of conveyors for floors.
+
+Added support for translucent 2s normals. Most of the support was already
+present -- the same routine that is used to draw sprites, is used to draw 2s
+normals. With Medusa 100% out of the way now, enhanced 2s normals seemed
+appropriate.
+
+No new flags are added to linedefs, patches, or textures -- like most of my
+other linedefs, translucent textures work under a "property transfer" model,
+where one linedef affects one or more objects, in this case 2s normal
+textures on linedefs.
+
+Linedef type 260 causes the linedef itself to be translucent with the
+TRANMAP lump if the tag==0, while if the tag!=0, linedef type 260 causes
+all tagged lines to be translucent, and the filter used is either the
+one specified by the first sidedef's normal texture (which means each
+translucent linedef can have its own translucency filter), or TRANMAP if
+the first sidedef's normal texture isn't a valid translucency map filter
+lump name.
+
+I very much prefer the property transfer approach to the flags approach:
+
+1) No wad format changes.
+
+2) No new editor or utility support required, as long as it groks
+   overloaded texture names and new linedef types.
+
+3) Can be applied to more than one object, by using tags.
+
+4) Allows effects to be independent of the definitions of the objects they
+   affect -- for example, linedef 260's use of the property transfer model
+   means that any 2s normal textures can be made translucent, not just new
+   textures constructed with new special flags.
+
+5) Can apply other information, such as from overloaded sidedefs and their
+   sectors -- allows the transfer of dynamic properties (e.g. displacement
+   and accelerative scrollers react to moving sectors).
+
+There was talk at some time in TeamTNT about translucent textures and/or
+patches being defined by new flags. Considering the ease of implementing
+linedef 260, against the difficulty of making textures or patches always
+translucent by definition, 260 seemed the only reasonable way. Disadvantages
+of the flags approach:
+
+1) Requires wad format changes unless some flags found unused in Doom are used.
+
+2) Requires special editor / utility support to recognize and modify the new
+   flags.
+
+3) If individual patches are allowed to be translucent, they take special
+   handling to merge when making multipatched textures. This would basically
+   require rewriting the code which fixed Medusa, and it would be more than
+   3x as complicated since it would have to actually "draw" translucently
+   to form multipatched textures -- very ugly code.
+
+4) Makes specifying translucency filter much harder. With this property-
+   transferring approach, an arbitrary filter can be part of the effect.
+   If textures or patches were made translucent by definition, they would
+   either be restricted to one filter, or another significant wad format
+   change would be needed to allow translucency filters to be specified
+   individually for each patch or texture.
+
+The amount of coding needed to add 2s normal translucency to what we had
+already, took me only around 90 minutes to implement, and since there's such
+a big demand for it, and it doesn't require wad format changes or any editor
+changes other than a new linedef type, it seemed right. It will certainly
+make more people happy. ~90 minutes is all it took, so it's not a big
+change.
+
+Much more time, over 8 hours, was spent making sure water worked as
+expected under all kinds of conditions.
+
+Unless linedef 260 is actually used in wads, the risk of this change is
+almost zero. No new code was added to actually do the translucent drawing --
+all I had to do, was enable the use of the R_DrawTLColumn() instead of
+R_DrawColumn() when a translucent 2s normal was being drawn, and to transfer
+the translucency property to the linedef, similar to how linedef 242 already
+transferered properties to sectors (just one more 'case' in a switch).
+
+Fixed deep water to work properly with lots of varying underwater floor and
+ceiling height and texture changes. Prevented HOM, bleeding, disappearing
+textures, and inconsistent sprite clipping. Tested it with a strange water
+floor height pattern like this:
+
+        -----                   -----
+       |     |                 |     |
+  -----       -----       -----       -----       -------
+ |                 |     |                 |     |       |
+ |                  -----                   -----        |
+  --        ---                  ----                    |
+    |      |   |                |    |                   |
+     ------     ---------------       -------------------
+
+All the water levels displayed correctly with no bleeding or HOM, both under
+and over water. The correct halves of sprites were displayed, and they did
+not disappear suddenly.
+
+Translucent flats is all that remains to do for water. It's not as trivial
+as translucent 2s normals, because unlike translucent 2s normals,
+translucent flats requires that we do something never done before in Doom:
+divide space into two at the water level. If the player is under water,
+everything above the water level must be drawn first, then the water must be
+drawn translucent, and then everything underwater must be drawn. If the
+player is over water, the opposite order must be done. It's basically like
+adding a 3-d component to Boom's BSP (Binary space partition). Also, while
+the current water allows water height changes to occur, and fill them with
+upper and lower textures, those textures are not translucent, nor is it
+probably ever going to be practical to make them so. So if and when
+translucent flats are done, existing water won't be able to be fully
+translucent unless it's very simple (one water level). Translucent flats
+must be applied with the same care and consistency as these others effects
+I've added, so it's is a Phase II item. Sorry, no MAP30 -16 hacks :)
+
+4/10/98:
+
+Added adpative gametic option if -DADAPTIVE_GAMETIC is used. This may help
+game fps on slower machines, but I cannot test it, since I get 35fps whether
+I use it or not. It's an option turned off by default even if it's compiled
+into Boom, so its risk is extremely low. Need others to test it on slow
+systems, or anyone who is getting lower fps performance with Boom compared
+to Doom.
+
+Fixed -fast idclev bug (a Doom bug too, BTW). Now the state of fastparm is
+remembered and the state tics are never doubled or halved twice. No state
+cycles occur in MAP16 anymore, but even if they were to, they would not hang
+Boom.
+
+4/9/98:
+
+Added state cycle detection algorithm. MAP16 still has the problem it had
+before with -fast and idclev16, but now instead of locking up Boom, a
+message appears: "Warning: State Cycle Detected", and except for the
+Spectres remaining asleep because their wakeup frames have a cycle that
+cannot be exited in any defined state, the game continues as usual. This
+means Boom is now idiot-proof against state transition table cycles that
+lock up the game.  No significant performance impact.
+
+4/8/98:
+
+Analyzed MAP16 -fast bug, determining it was a state cycle -- when a Spectre
+near the red key or in the "cave" wakes up upon seeing the player near the
+nukage, the game hangs in an infinite state-loop, because the tics are 0.
+One problem, for sure, is that the tic counts are halved more than once when
+idclev is used. When a frame state tic count is 0, the next state is handled
+immediately, so at least one non-zero tic state must eventually be reached
+or there will be a cycle which will hang Boom (this is a Doom bug too, BTW).
+
+Fixed Medusa bug for 2s transparent normals. Now Medusa is 100% fixed.
+
+Fixed Icarus MAP02 problem, which was a texture column offset overflow.
+Doom only used 16-bit offsets for multipatched texture column offsets,
+which was insufficient for Icarus. Adding 5 bytes per column to Boom's
+multipatched columns, to fix Medusa, made the 64K limit get exceeded in
+Boom when it didn't in Boom. Fix was simple -- use 32-bit offsets.
+
+4/7/98:
+
+Simplified the P_CheckSector() traversal algorithm to use simple markers
+instead of complicated counters. The only advantage the counters have is
+that they avoid having to initializations each step, but we have to do that
+anyway, I think, to be safe.
+
+Fixed the problem with the disappearing things, happening on CASLOTR and
+probably other wads as well. Problem was an incorrect BSP optimization,
+sometimes missing the drawing of things. One of my hunches was right :)
+
+Fixed the problem with HOM in beginning of earth.wad MAP05 -- it's using
+AASHITTY alright, but apparently, the sky effect works anyway despite this,
+so long as a certain clipping decision is made (it's sort of like the
+difference between a closed door and a 1s linedef -- what do you draw in
+such a case if it's a 2s linedef that has AASHITTY as an upper texture, but
+has F_SKY1 ceiling on both sides?). Anyway, I removed a very minor change
+which I made eariler which "bailed out" in certain 1s line cases, so now,
+earth.wad, despite having AASHITTY textures, displays sky background
+correctly on MAP05. Second hunch right :)
+
+Also took the time to do a minor optimization trick.
+
+Files affected: r_bsp.c r_segs.c
+
+Analyzed the MAP06 bullet puff problem and determined it's actually due to
+P_CheckSector(). If you use the old code you get bullet puffs on the way
+down the elevator, but if you use the new code you don't. Someone else needs
+to look more at this -- I don't have the time right now. The disappearing
+bullet puffs seem to have something to do with how the sectors_thinglist
+itself is updated or used. The problem only happens when the elevator is
+actually moving, which is why it involves P_CheckSector().
+
+4/5/98
+
+Found that significant performance regression was being caused by recent
+changes to d_main.c, which unconditionally redraw the status bar. Makes
+the status bar get drawn every frame, lowering the game's effective fps.
+
+Fixed problem by reinstating code which intelligently avoids redrawing the
+status bar, and by fixing the drawing problem by setting inhelpscreens=true
+when the setup menus are entered. The inhelpscreens variable was designed
+just for this purpose -- to redraw the status bar when a full screen was
+entered. Future setup screens need to set this variable as well.
+
+Gives a 10-20% performance boost to Boom overall fps.
+
+Also moved SETUP to be a sub-option of OPTIONS (only a two-line change --
+see comments below).
+
+4/4/98
+
+Updated boom.txt and boomref.txt with colormap and demo_insurance
+information.
+
+Note: I strongly suggest "SETUP" be moved to a sub-menu of "OPTIONS". The
+menu is stretching the limits of its height now with the extra entry (it's
+bleeding into the status bar), and having "SETUP" and "OPTIONS" in the same
+main menu sounds redundant and/or vague -- sort of like having "options",
+"configure", "parameters", "setup", etc. all in the same place. At the
+highest menu level, I think there should be only one entry having to do with
+"options". The other can be made a sub-part of it. I prefer SETUP to be a
+sub-part of "OPTIONS".
+
+Current, wind and friction should also be allowed for non-players, IMO.
+Conveyors, and my version of currents, certainly are.
+
+Fixed problem with sector_thinglist and CheckSector(), by rescanning the
+list every time a new thing is processed, thus avoiding any problems if
+nodes are inserted or deleted in arbitrary fashion during their
+processing. Nodes are marked "valid" after they are processed, using a
+scheme similar to Doom's existing validcount scheme. The list is scanned for
+the first "invalid" thing, which is marked "valid" and processed, and then
+the list is scanned again from the start for another "invalid" thing, etc.,
+until no more "invalid" things exist to process. This scheme is used in some
+OS protocols, and is tightly robust.
+
+Fixed doubled messages in the menu selections. ("Press Y or N. Press Y or
+N.", "Press a key to continue. Press a key to continue."). The PRESS*
+messages were appended to the main messages in d_deh.c, even though they
+apparently didn't need to be. Nightmare Skill, End Game, and several other
+options had queries that came up twice.
+
+Detected a 40 fps slowdown since last week, due to some unknown change.
+(-fastdemo crusher went down from 580 to 540 fps on my machine). This is a
+significant performance hit, and so Rez isn't imagining things :)
+
+It could just be due to cache alignment -- info.c gets updated with new data
+often, and so it may affect the alignment of code and/or data in the cache,
+affecting performance by even this much. djgpp doesn't have very good cache
+alignment options, though. The rewritten z_zone memory allocator, BTW,
+always allocates memory on cache boundaries, but it's code that's probably
+involved here -- tight renderer loops might be spanning two cache lines when
+they only need one, thus lowering prefetch bandwidth.
+
+Tried changing code alignment and could not detect performance improvement.
+Problem is hard to isolate, but definitely occurred sometime last week after
+my changes of Tuesday. Performance hit is probably 10%+ on low-end machines.
+It is measured with crusher.lmp using demo_compatibility=true, so it
+probably isn't any changes involving sector_thinglists.
+
+Added more support for dynamic colormaps. Colormaps can be defined between
+C_START and C_END (COLORMAP is predefined regardless of whether it appears
+between C_START and C_END, for compatibility reasons). Linedef type 242 can
+specify colormaps for when the player is below the fake floor, above the
+fake ceiling, and in normal space, based on the names of the lower, upper,
+and normal textures of the 242 linedef's first sidedef.
+
+A C_START / C_END delimited list was more practical than a totally dynamic
+solution (arbitrary lump names being allowed in sidedefs), because there is
+a lot of colormap processing that must be performed at game startup and is
+not performed again during level startup, and we need to know the names of
+the colormaps ahead of time, which is not available without the level's
+references, or some other list. C_START / C_END seemed appropriate and it
+works just like F_START / F_END and S_START / S_END.
+
+The colormaps are referenced internally by every sector, and might later be
+made to change in real-time.
+
+Right now the dynamic colormaps alter everything the viewer sees -- they do
+not simply change things seen from a particular sector. Doing sector-by-
+sector colormaps which are viewer-independent, is harder and should wait
+until Phase II. Doom's colormap was for light goggles, invulerability,
+etc., and so it was viewer-centered.
+
+Note: editors may need to be modified to allow undefined textures to be
+entered. Overloading sidedefs with names other than texture names, is a
+practical method which doesn't require drastically new editor support. Some
+editors, such as DCK, may be fooled into accepting the colormap names as
+textures, by creating and loading fake TEXTURE1 lumps, without real textures
+or patches in them.
+
+Fixed deep water / fake ceiling effect (242) to allow player to see steps
+underwater, and to draw it more consistently.
+
+Modified carriers to carry no-gravity things at any height, if under water
+(so lost souls etc. get carried by currents just like other things on
+floors).
+
+Fixed minor bugs in d_deh.c which could cause seg faults. Undefined pointer
+comparisons were being done -- it's undefined to compare two C pointers for
+their relative order, unless they point to elements INSIDE the same array,
+or they point to one element past the right END of the array. If, say, a
+pointer used in a loop, decrements one element BEFORE the beginning of the
+array, then its comparison with the array's address is undefined, and the
+loop might not terminate correctly. BTW: Another of these bugs, which did
+cause crashes, was also in Doom, in the renderer code which draws 2s
+normals, but that was fixed by me in January.
+
+4/2/98
+
+Fixed weapons switching problem which prevented selecting a weapon w/o
+any ammo.
+
+Analyzed and (hopefully) fixed DM spawn problem, caused by changes to
+PIT_CheckThing to allow non-solid objects to pass through solid ones.
+
+Fixed problem with netgame sync caused by not properly initializing RNG
+(the -net command-line parameter should have been tested instead of
+netgame, which isn't set early enough).
+
+3/31/98
+
+Fixed bug in deep water sprite clipping which caused the wrong half of the
+sprite to be clipped sometimes.
+
+3/30/98
+
+Addressed RNG concerns by giving the user the choice. By default nothing
+special is done, but if they want to, they can take out a Boom demo
+insurance policy :) demo_insurance is the config file option. Whatever
+they use, it's part of WriteOptions()/ReadOptions() and hence must be
+saved in demos and savegames, as well as netgames.
+
+Could not get perfect blockmap algorithm finished, due to health and other
+factors :( Hacked in a very slow algorithm though (the same one used in BSP,
+in fact). Takes 5 seconds or so on large E3 levels, on my fast machine, so
+it's not as fast as one might expect :(
+
+I don't like this hack, but I don't like the pressure to fix the blockmap
+limit for phase 1, so I did this hack just to get it over with. It needs a
+real fix, which this isn't. A real fix takes a long time (perhaps 3 weekends
+full-time work), designing the equations and testing the blockmap builder.
+Almost every Doom node builder has used the algorithm mentioned in the UDS,
+which is slow.  I have a much better algorithm in mind, but it doesn't work
+yet and I have to carefully design it, which takes lots of R&D time with
+few quick results in the interim.
+
+I was right -- I did double the blockmap limit earlier -- but from 64K to
+128K.  Doom was limited to a 64K blockmap, but the wad format allowed
+128K. And yes, Doom was considering the offsets as signed, but they were
+offsets in words, not in bytes, so they were divided by two implicitly. It
+certainly explains why one of my test wads works with Boom but crashes both
+Doom and with Boom before my changes last time, which increased it to 128K
+(instead of 64K as I had first thought).
+
+Fixed seg fault when starting a new game in the middle of a demo. Stan's
+change last time fixed DM spawning, but broke games started after DM demo
+playback. We MUST set deathmatch and netgame to 0 when starting a new game.
+
+Aparently, the problem was that the G_ReloadDefaults() call in d_main.c
+comes AFTER the DM parameters are set according to the command-line -- if
+the call to G_ReloadDefaults() came before the DM parameters were set, we'd
+be okay. So I've taken every call to G_ReloadDefaults() except the one in
+d_main.c, and added deathmatch=0 and netgame=0 after each one. Those are
+required in every other place. Remember, this is a "Reload" of the defaults,
+something normally done at the beginning of a new game started by the user.
+Netgames can't normally be interrupted like that by a user anyway, but demos
+can.
+
+G_ReloadDefaults() must come after M_LoadDefaults() is called, and after
+some other parameters are set -- Boom will stop working if you move it up
+too early.
+
+Improved random number generator to be more random.
+
+3/29/98:
+
+Fixed incorrect order of quit message (s_DOSY was put in the wrong order).
+
+Updated linedefs.txt, correcting some errors in the scrollers/underwater
+linedef specs.
+
+For some reason I was sick (allergies).
+
+3/28/98:
+
+Made intermission teletype start off at normal speed, accelerating only when
+the use/fire keys are used. Rand's time delays for Doom 1 are still used,
+in that if you press use/fire once, you get the faster speed and then the
+longer wait. But you can accelerate the wait too, to move on immediately.
+It's just like the kills/items/secrets screen now. Doom 2 had to be
+considered also, but it always waits for the user to press a key before it
+moves on to the next level anyway -- now, it allows the intermission text
+to be accelerated with one use/fire, and then the next level is entered
+with the next use/fire.
+
+Fixed deep water sprite clipping. Now things are properly clipped both under
+and over water, and also across fake ceilings. Took an unusually long time
+to do, and seemed much harder than it really was, simply because of a
+compiler bug which caused mysterious seg fault crashes -- three hours were
+spent trying to fix a bug that wasn't mine, and it looked so bad under a
+debugger: entire structs being clobbered, but no routine but my own, which
+simply sets a tiny field, was being detected as writing to the structs after
+startup. I tried something slightly different but semantically the same, and
+the problem went away immediately and I got almost perfect sprite clipping
+on my first try -- so it seemed it was a compiler bug, though I'm not going
+to try and track it down any more (that's what I spend a lot of my regular
+work doing, BTW <g>).
+
+3/27/98:
+
+Changed the IDDT cheat to work more like in Doom.
+
+Prevented weapon recoil from affecting player in no-clipping mode, since all
+other external motion is already disabled in no-clipping mode, and many
+times no-clipping is used to keep the player from moving, even when firing
+weapons.
+
+Fixed conveyor bug in which conveyors would carry objects hanging over ledges,
+but not touching the conveyor.
+
+Fixed bug in new sector/thing lists, in which a linedef's 2s flag was being
+used to test for two-sidedness. Tested second sidedef instead of the 2s
+flag.  Original implementation prevented conveyors and other movers from
+working on objects which are touching moving sectors, but whose centers are
+on the non-moving sides of non-2s two-sided linedefs. 2s implies two-sided,
+but two-sided does not imply 2s.
+
+For some things like lost soul spawning, the 2s flag is still used as the
+test, for compatibility reasons. But since this sector/thing list is new, we
+should do it right the first time, and take the linedef's two-sidedness into
+account rather than the 2s flag. Jim has already done this for the floor
+changers, among other things.
+
+3/26/98:
+
+Fixed weapon switch bug, in which the player had to be firing their weapon
+in order for it to switch properly when it ran out of ammo.
+
+Improved random number generator. Demos now save RNG seed (4 bytes long),
+and every new game scrambles the seed based on the system clock and other
+fairly random variables.
+
+Fixed spawnfrag bug. Only in god mode (not merely an invulnerability orb), and
+only if compatibility mode is turned off, are spawnfrags disabled.
+
+Discovered savegame crash bug in MAP30 (and all other boss spawn levels),
+was actually a Doom bug which previously caused all icon landings to be
+forgotten across savegames. Since they were forgotten, and since we made
+them dynamic in Boom to remove any limit, the list of icon landings was
+pointed by a NULL pointer, causing seg faults. Solution is to initialize the
+icon landings during level startup, instead of during boss wake-up. Doom
+worked only by accident because it also put the boss to sleep during
+savegames. Since we don't put monsters to sleep across savegames anymore in
+Boom, the brain was trying to spawn a monster into a NULL-pointed-to list of
+landings, hence the seg fault.  Fix also required saving the boss brain's
+state in the savegame, such as which icon landing it was last targeting when
+the game was saved.
+
+3/22/98:
+
+Fixed the problem Rez noticed with demos such as "g:caslotr", in which no
+leading (back)slash appears before a filename, but only a drive letter.
+
+Fixed what looked like another Allegro bug (not sure), which was preventing
+the right shift key from working with the new keyboard interrupt handler.
+Sometimes the arrow keys generate extended scancodes which, un-extended,
+look like releases of the shift keys. Previously, you had to "pump" the
+right shift key to get to work, because the section of Allegro code which
+filtered out useless extended scancodes (such as this fake release of the
+right shift key), did not consider this case. Now it does.
+
+Historical note: Our problems with Allegro are not unique in gaming. Recall
+how the right shift key had to be "pumped" in one of the alpha versions of
+Doom, too. Also recall that sometimes on exit, the shift state was reversed.
+Finally, recall how the sound code, in particular GUS, was such a problem.
+If anyone can come up with a perfect game library that works on every major
+sound card and has no keyboard hassles, they can make a lot of money :)
+
+Looked at weapons switching and determined that for demos, weapons switches
+which were involuntary in Doom, e.g. always switching to SSG first if you
+had it and you selected the shotgun, or switching to another weapon when
+you run out of ammo, are NOT broadcast across networks or demos, just as I
+had originally suspected.
+
+Fixed weapons switching problem by moving all the weapons-switching code
+from p_user.c and p_pspr.c into g_game.c's G_BuildTiccmd() function. In
+demo_compatibility mode the old method is still used. There may be some
+slight differences or "gotchas" that I missed, such as different response
+times or different weapon switching behavior, but that's a small price paid
+for having consistency across demos and networks. I'm sure it can be fine-
+tuned to be more like original Doom if someone finds something odd with it.
+I played a few levels of Doom 1 with it, losing ammo several times, and I
+did not notice anything unusual.
+
+Now demos and netgames can have different player weapons preferences without
+it causing sync problems, because the weapons changes are stored in the
+demos or broadcast across the network, instead of being a part of the
+thinker code.
+
+The thinker code was used in Doom to change the weapons when the player
+ran out of ammo or chose a shotgun or fist, when a SSG or chainsaw was
+available.  These changes were governed by an arbitrary, yet fixed, set
+of preferences.  They were "involuntary" weapons switches, in that sense.
+
+Think of the thinker code as the involuntary weapons changes, while the
+G_BuildTiccmd code is the voluntary weapons changes. With variations now
+possible in involuntary weapons changes (across different players and demo
+recordings), we must treat them as variables just like voluntary weapons
+changes, and record them as such.
+
+I was able to record a demo under one set of preferences, and then change
+the preferences and play the same demo back just okay, something that was
+not possible in 0316's build. Files: p_pspr.c, p_user.c, g_game.c
+significantly changed.
+
+Now this needs real testing across network. It needs to be tested with
+players having very different weapons preferences, and with them running
+out of those weapon's ammo during firing, and also of using the '3' and
+'1' keys often.
+
+3/21/98:
+
+Fixed savegame crash Paul Schmidt was experiencing. Problem was that
+savegame buffer could be reallocated, but a local copy of save_p in
+P_ArchiveWorld() would still use an old value of save_p. If a reallocation
+occurred, save_p would become invalid and memory would be overwritten,
+causing unpredictable results.
+
+Changed Makefile so that modified Allegro sources are built as a part of
+Boom.  Object files which are linked as a part of Boom will always be linked
+in and take precedence over the buggy liballeg.a objects they are supposed
+to replace.  Thus linking in Boom's keyboard.o causes liballeg.a's
+keyboard.o to be ignored.
+
+Added interrupt-driven keyboard IO. No longer is Allegro's key[] array
+polled, so performance on low-end systems should improve significantly,
+and response should be faster overall. Allegro is still used to maintain
+keyboard sanity and handle LEDs etc., but there's a new callback mechanism
+added to Allegro, which allows scancodes to be passed directly to Boom or
+any other program.  Boom stores these scancodes in a FIFO queue and does not
+process them any more than it needs to in the interrupt routine.
+
+As a side benefit of rewriting the keyboard routine, autorepeat works again
+in the savegame menu and other places.
+
+Comment: Many Allegro routines look like they were written by non-systems
+programmers, because interrupts often have lots of code in them that they
+shouldn't -- for example, it's better to just queue raw data in an interrupt
+handler and process it later in a non-interrupt handler, instead of doing
+all sorts of operations or conversions on the data in the interrupt handler
+itself -- Allegro's keyboard interrupt handler has a loop in it that counts
+an index from 1 to 128, looking for matching table entries. Also, interrupt
+masks are applied inconsistently in Allegro and may cause problems such as
+that "keyboard starvation" problem which set_leds(-1) caused by not properly
+masking interrupts. Also, the AWE32 midi driver's use of floating point
+registers inside an interrupt handler without saving and restoring the FP
+state properly, is another blatant example. One gets the impression that
+Allegro's authors have never programmed interrupts, device drivers, or any
+kind of programming that depends on understanding multitasking issues.
+
+Fixed idclip bug. Original bug was caused by following the bad advice of one
+of the comments (a "fixme" comment which actually breaks the idclip cheat).
+
+Added bin2c program, for adding predefined lumps and such.
+
+Added new colormap for underwater effect. WATERMAP is the same format as
+COLORMAP except it's used when the player is underwater. Took a little work
+rearranging the colormap-handling code so that more than one colormap could
+be used. Now the structure is in place for an arbitrary number of colormaps.
+Right now the colormap used is not the best -- if anyone can come up with a
+better default I'll welcome it.
+
+Discovered problem with savegame checksum was that garbage was being left in
+the length fields of the F_START/F_END/S_START/S_END markers. Doesn't usually
+matter since these are markers, but it affected checksum. For robustness, I
+forced them to length 0 in the merge routine.
+
+3/20/98:
+
+Fixed problem with weapons pickup not being heard in spy mode. Fixed a lot
+of Doom hacks that were scattered around id's sound-generating code, such as
+fixing the origins of sounds to be the player doing the action rather than
+NULL (which is generally heard throughout the entire level by everyone).
+
+Worked around loadgame checksum bug. Apparently the sizes of the lumps
+loaded from wads are not consistent from run to run. This calls for more
+investigation, and may point to the cause of other crashes.
+
+Fixed -loadgame bug, the cause of which was being masked by the checksum
+failure. The -loadgame bug was simply the result of finishing the loadgame
+code without loading a full game (due to a checksum error), and then
+proceeding to play anyway.
+
+Changed carrying floor thinker to use new sector thing lists, and to carry
+objects if they are under water, yet above real floor level.
+
+3/18/98:
+
+Worked with Jim in tracking down YAAB (Yet Another Allegro Bug <g>). Allegro
+keyboard code did not properly mask interrupts during low-level keyboard IO.
+
+Fixed tiny bug in currently-unused linedef/thing intersection routine -- the
+radius used in a calculation was off by a factor of 2.
+
+3/15/98:
+
+Improved sound effects when listening from another player's view in spy mode.
+
+Added user-friendly savegame check. Savegame checksum is weak, simply taking
+the lump names and sizes into account. If Boom detects a checksum mismatch, a
+message is printed and any pwads which were loaded when the game was saved,
+are listed. The user can override the warning by loading the same slot twice.
+
+NOTE: found a -loadgame bug which happens most with "-loadgame 0" after memory
+has been used by another big process -- seems to indicate something's uninit,
+specifically, the player's mobj. "-loadgame 0" sometimes segfaults. Need more
+time to isolate and fix, but am willing to entertain others looking at it :)
+
+Since some interest in having lava always bright was expressed in the betatest
+group, I added another linedef type which can be used to set the light level
+of a sector's floor independently. Thus a sector with light 255 can be used
+to set the floor light level of a sector containing lava to be always 255.
+
+Fixed the bug Len Pitre mentioned regarding the conveyors, where corpses were
+unable to move through solid objects including monsters, depsite monsters being
+able to move through corpses. Problem was an asymmetry in the thing<->thing
+collision checks.
+
+Optimized thing/linedef intersection query algorithm. Added it to p_maputl.c
+for possible future use. Algorithm never requires division, and requires four
+multiplications maximum, zero multiplications if the thing is outside the
+linedef's bounding box. C code is small, and assembly output verified to be
+nearly optimal (no register spills and very few redundant register copies).
+
+3/14/98:
+
+Investigated bleeding ceilings and concluded that without major changes to
+the renderer, Paul Schmitz's bridges cannot be done with linedef type 242 as
+hoped.
+
+Improved underwater effects to support different light levels and textures
+underwater.
+
+Added accelerative scrollers. Five new linedef types have the same functions
+as the constant scrollers and the scrollers which move in response to sector
+height changes, except that the five new ones are accelerative. With the
+addition of a floor or ceiling height changer which alternates between two
+heights, an on/off scroller is possible (the heights don't matter and it
+doesn't matter whether the floor or ceiling changes).
+
+In response to complaints about scrolling floors not being able to push things
+over ledges, added ability for monsters and other things to be pushed off of
+tall ledges in non-compatibility mode. Monsters cannot jump off of tall ledges
+voluntarily, but projectiles, conveyors (constant pushers), and player gunfire
+can push monsters off of ledges.
+
+Currently this is not a separate option and simply goes under "compatibility,"
+because the gameplay is not too much different -- most monsters (and barrels)
+that a player can push over a ledge, do not have much strength to begin with
+and die before they can be pushed over the ledge. Stronger monsters are more
+massive and thus harder to push over a ledge. While playing a few Doom 2
+levels with lots of structures, such as MAP11-15, I did not notice too much
+difference -- only every once and a while did a monster get knocked over a
+ledge by my gunfire without dying.
+
+If it is ever made into a separate option, it MUST be stored in G_SaveOptions /
+G_LoadOptions in g_game.c or else Boom demos will not stay in sync.
+
+This option to knock objects over ledges took very little work to implement,
+since it was simply a matter of conditionally disabling a check in P_TryMove()
+when the movement was not monster AI but was due to outside forces.
+
+3/8/98:
+
+Updated common.cfg and doom17.dat with the new linedef types.
+
+Fixed missing DPMI lock in the sound code. Two locks were needed -- I had
+only locked one of them.
+
+Added even more generalized scrollers. Now any sector's floor or ceiling
+motion can be converted into wall, floor, or ceiling scroll motion, or
+object motion.
+
+A Doom vending machine is possible now, among other things :)
+
+Vectors are represented by linedefs to give the designer maximum
+flexibility.
+
+The only thing not completed is the ability to turn continuous scrolling on
+and off.
+
+Renumbered linedef types for silent teleporters so that 5 new scroller
+linedef types could be made consecutive with the 5 constant-speed
+scrollers. There are now 10 generalized scrolling linedef types: ceiling
+tex, floor tex, floor object carrying, floor tex & floor object carrying,
+and wall tex.
+
+Added explicit deep water / invisible platform support. A sector's floor or
+ceiling texture height can now be set independently of its actual height, by
+tagging it to another sector with a special linedef type (242). A linedef
+type #242 causes all tagged sectors to get their flats drawn at the heights
+of the sector on the 242 linedef's first side. This avoids having to use
+special sidedef sector references to get deep water, and allows deep water
+to span concave polygons (previously if a polygon was concave, deep water
+would be messed up easily and was exteremely dependent on the nodes).
+
+Added VERY primitive underwater support as part of linedef type
+#242. Whenever the player is below the height of the floor indicated by
+#242, the floor is drawn all around them and above them. As a special case,
+if all lowers are missing in a sector underneath the water, a "cloudy" water
+effect appears.  This change allows water to go much deeper than it could
+under Doom.
+
+3/7/98:
+
+Fixed messed up help screen sequences again, this time with the new help
+screens. Help screens must be tested on Doom 1 Registered, Doom 2, and
+Ultimate Doom, at a minimum, and the "Read This" main menu option should
+also be tested. The new help screens were appearing twice or in the wrong
+places some times. #ifdef LEESFIXES is around these changes.
+
+Fixed disappearing imp bug on E3 MAP02. Bug existed since Jan. 1 version and
+was caused by roundoff error in a point/line query. I'm not sure it's really
+a Boom bug, since the wad and/or nodes seem very suspicious when the imp's
+visibility is so sensitive to a point/line query's roundoff error, but for
+compatibility this is being fixed.
+
+Based on disappearing imp bug on E3 MAP02, and a re-analysis of the performance
+impact of quick dot-product checks, I decided to bring back the old functions
+for point/line queries rather than use new inline macros which use floating
+point. For some low-end users the old functions may be faster; the new method
+requires at least 48 bytes of RAM extra per linedef, probably more; tiny
+roundoff differences cause problems like the disappearing imp bug on E3 MAP02,
+and the performance impact of switching between the old and new methods is
+negligible on my system and probably other higher-end systems.
+
+Fixed spy mode so that the status bar and HUD reflect the player being watched.
+I could only test it with multiplayer demos, so I need someone to test it
+some more under real co-op play. Sound is also heard from the other player's
+location, but the support for it is not perfect right now -- some minor
+differences exist between what a player hears in spy mode and what they would
+hear if they actually were that player, such as weapons fire. This is due to
+the fact that Doom made a lot of assumptions and took shortcuts that only work
+with the console player, such as using NULL pointers to represent the origins
+of sounds coming from the console player.
+
+3/6/98:
+
+Added translucency map caching, because the range of tastes is too broad
+to only include 50% and 66% in the exe. Translucency map cache automatically
+detects changes in filter percentage or even the PLAYPAL lump it's based on.
+"tranmap.dat" is written in Boom's executable directory. If there are any
+errors attempting to create the cache file, Boom simply recomputes the
+translucency map. More initialization dots, and a progress indicator, were
+added to show the progress when a cache miss occurs, since it may take up to
+10 seconds on slow machines.
+
+Fixed problems with CapsLock and related keys, using, of all things, Allegro :)
+(there is no need to mess with the BIOS data area directly as Allegro has
+functions / variables to do this -- I think someone quoted me an outdated
+article which said Allegro didn't allow you to do that stuff -- might have
+been true in the past :).
+
+Added two new config file variables:
+
+1. autorun, which remembers the autorun state from the last time you ran Boom,
+so that you don't have to turn autorun mode on each time.
+
+2. leds_always_off, which tells Boom to keep the keyboard LEDs off while
+a game is playing -- allows you to use CapsLock and other keys for Boom
+functions without having their LEDs turn on.
+
+Allowed CTRL-C to be used to abort Boom during startup init.
+
+Fixed bug with revenant tracers being too random, while preserving demo sync.
+
+3/5/98:
+
+Fixed TNTEM cheat, once again, to get rid of every last lost soul :)
+Sometimes requires killing PEs even after they are "dead".
+
+Looked into DCK support -- DCK versions later than 2.2-f cannot handle
+linedef types >= 256.
+
+3/4/98:
+
+Fixed infinite loop caused by two or more floor-carrying linedefs tagging the
+same sector.
+
+Fixed problem with config file defaults not being loaded during demos or
+deathmatch.
+
+Fixed problem with last pixel in translucent column not being drawn as
+translucent.
+
+3/2/98:
+
+Isolated and fixed problem which was causing MAP19 crash in Eternal with v1.9
+and all other versions -- the problem was that a 2s normal texture with large
+magnitude y-offsets was being drawn incorrectly because an overflow occurred
+in a texturemapping calculation. The overflow was not the symptom (this is
+not an overflow exception or anything like that), but was the indirect cause.
+
+Anytime an already-medium-to-large y-offset was scaled even larger due to the
+proximity of the player to the texture, an overflow might occur. Doom simply
+truncated the result to the 16.16 fixed-point precision of all its fixed-point
+numbers, and relied on floor/ceiling clip ranges to clip 2s normals which were
+out of range. But if the overflow occurred, the result could be the wrong sign
+or worse, and so sometimes invariants Doom assumed were violated, causing it
+to draw where it shouldn't and creating seg faults. The solution is simple:
+perform the scaling in double-precision, but compare the double-precision
+results to overflow first, and clip the entire column if it's out of range.
+This amounts to testing whether the bottom end of the texture column is above
+the top of the framebuffer, or whether the top end of the texture column is
+below the bottom of the framebuffer.
+
+MAP19 created the overflow because the player was near a tall column with a
+2s normal (probably the flame animation) way up above. The height/distance
+ratio is so huge (practically 90 degree tangent) that it causes the overflow.
+But for the overflow to create a crash, means that holes in Doom's clipping
+checks must be found, which is why it was nontrivial to reproduce.
+
+There is less chance of this happening with sprites, and with the failsafes
+I've added to the drawing routine it shouldn't happen anymore for 2s normals
+or sprites.
+
+Fixed v1.9 demo sync problem accidentally caused by new friction code -- added
+demo_compatibility check under #ifdef LEESFIXES to compensate. Demo sync
+problem did not show up in crusher.lmp or demo1,2,3, but occurs about midway
+in a 100+ frag DM demo I use in my testing (it's the +10 units angle adjustment
+used when hitting walls -- it breaks demo sync sometimes).
+
+Added scrolling walls. One type of scrolling wall is programmed and
+synchronized just like the scrolling floors, so that a player standing on a
+horizontally scrolling floor which has been programmed with a linedef having
+the same length and direction as the linedef programming a wall, will see
+the wall standing still. This scrolling linedef type has constant speed, but
+it can be arbitrary in direction and speed, so vertical scrolling is also
+possible. This one is special, in that it's another linedef->linedef effect
+(where one linedef operates on another linedef with the same tag), just like
+the silent linedef->linedef teleporter.
+
+Another scrolling linedef type, much simpler for the wad author to use,
+sacrifices the use of the x- and y-offsets of the sidedef, and uses them as
+the scrolling speeds. The loss of the offsets is not really a problem unless
+you need to line it up with another scrolling linedef, or you need to line
+it up horizontally or vertically when it scrolls in the orthogonal
+direction, but in that case, you can be sure that all of the linedefs of
+this type scrolling at the same speed have the same implicit x- and
+y-offsets. For maximum freedom use the more complicated linedef type above.
+
+There are so many options for scrolling, that it's probably best left to
+scripting, but until then, wad authors will be wanting more options than
+they have had in the past, so I've tried to make the options available far
+and wide.
+
+Supporting variable-rate or on/off scrolling, both for walls and for flats,
+was too much work for me to do this weekend given the other changes. I spent
+more time getting the scrolling flats and their mobj-carrying properties
+working, than I did improving the scrolling walls, since I thought scrolling
+flats would be more in demand since there's nothing like it before.
+
+Supporting a sector controlling a texture's (or even a flat's) scroll speed
+is possible, but it's more work -- the current code is nice and small
+because the scroll speed is known to be constant. If we start supporting
+variable scroll speeds, more fields will need to be added to the (internal)
+linedef and/or sector structs if we are to have an efficient scrolling
+algorithm, because instead of simply relying on a global scroll offset
+counter which is scaled appropriately to each line's or flat's needs, we'd
+have to modify the individual line's or flat's offsets during each gametic
+based on the sector heights of the control sector at the moment, and to do
+this without scanning all of the linedefs for specials during every gametic,
+requires setting up a list of scrolling linedefs. In short, it's more work,
+but it's possible.
+
+Scrolling type 48 still works as before, as does Jim's reversed type 85.
+
+Unless there are more serious bugs to fix, I guess I'll work on improving
+the scrollers next weekend, perhaps by making it possible to turn them on
+and off, have variable speed, etc.
+
+3/1/98:
+
+Changed automatic TRANMAP generator to only be called when translucency is
+requested. If translucency is off, the startup delay will not happen. If the
+cheat is then used, there will be a delay in the middle of the game while it
+generates the table.
+
+Cleaned up handling of game options (e.g. smart monsters, head bopping,
+etc).  Added new function G_ReloadOptions() in g_game.c, which should be
+used to reload any options with their runtime defaults so that games play
+consistently.  G_ReadOptions() and G_WriteOptions() are used to load and
+save the options from savegames and demos, without messing up the defaults
+in the config file.  G_ReloadOptions() is therefore needed when starting a
+new game, since a loaded savegame or demo might change the options from
+their defaults. Moved Jim's command-line resetting (-nomonsters fix) to this
+new function since it falls under the same usage.
+
+Doubled blockmap limit. The previous blockmap limit was actually 32K, not
+64K, because the blockmap offsets were being treated as signed instead of
+unsigned.  The special marker -1 still needs to be sign-extended into -1,
+but all other 16-bit values can be zero extended. Verified with a test wad
+left over from my visplane research days -- it crashes both Doom and older
+versions of Boom when a bullet is shot in a room surrounded by hundreds of
+linedefs (not even in the same room), but with this new version of Boom, it
+doesn't crash anymore.
+
+Changed internal blockmap data structures to use 32-bit offsets everywhere.
+Blockmap limitation is still a wad limitation, and I have ideas on how to
+fix it (on-the-fly blockmap generation at runtime, or new a blockmap lump),
+but those will have to wait. For now, enjoy the 64K limit instead of 32K
+<g>.
+
+Added generalized "options" block to both demos and savegames, to support
+saving and loading options which significantly affect demos and which we may
+want to be restored during savegames, such as player bobbing. Right now 256
+bytes are reserved for this block, which can expand to up to 256 bytes
+without requiring demo format changes.
+
+Cloned variables <xxx> into default_<xxx> and loaded and saved <xxx> from
+the savegames and demos, using default_<xxx> only for new games. These are
+the options for over/under, bobbing, recoil, etc. The defaults should be
+made separate from the actuals used, so that demos and savegames can load
+values different from the user's own preferences, or turn the options off
+completely in compatibility mode, without messing up their preferences, and
+so that cheats can be used to change these flags at runtime without changing
+the defaults.
+
+Padded demo and savegame formats to include room for up to 32 players. <g>
+This way, in case the number of players supported increases later, demo and
+savegame compatibility won't be a problem. Right now the last 28 bytes are
+always stored as 0 and are ignored when read.
+
+2/28/98:
+
+Added support for generalized scrolling floors. Floors and ceilings can be
+scrolled at any direction and speed, and floors can carry objects on top of
+them. A flowing river, or a conveyor belt, are both possible now. Four
+linedef types were added to support it:
+
+1) Ceiling scroller 2) Floor scroller 3) Floor "carrier" (carries all
+objects on the sector's floor) 4) A combination of 2) and 3) in the same
+speed and direction
+
+No special sector types are necessary -- a tagged linedef controls the
+effect.  The scrolling is in the same direction and magnitude as the
+linedef, so usually one of the linedefs making up the edge of the sector
+simply needs to be split and adjusted to the proper length to make the
+scrolling flow neatly along the sector's edges.
+
+The effects are cumulative, so with two or more linedefs tagged to the same
+sector, any combination of floor, ceiling, and object-carrying effects can
+be formed. The speed of a carrying floor does not even have to move at the
+same speed as the floor. The fourth linedef type is equivalent to the sum of
+the second and third, but is included for convenience, since I expect many
+will want the floor to scroll and carry things at the same time and in the
+same direction.
+
+Tested with a conveyor belt, ala duke3d, and scrolling ceilings. Tuned it so
+that momenta displacements are precisely equivalent to texture scrolling (1
+pixel = 3/32 momenta). Works independently of Rand's pusher/friction
+changes, but may be combined since the momenta are cumulative. Affects all
+things which aren't floating, not just players. For objects such as trees
+and pillars, which may not want to be carried (say, in a river), the wad
+author can put a small sector in the middle of a larger scrolling one, and
+lay the thing on top of it to avoid it being swept away by the currents.
+
+The only problem right now is that <extremely> slow scrolling floors
+sometimes "slip underneath" things which are on top of them (I don't know if
+this is a bug or a feature <g>). If the scrolling speed is increased past a
+certain point, or if the thing moves in the slightest, then the carrying
+floor "catches" it and starts to carry it.
+
+Note: as part of adding this scrolling flats effect, general intrastructure
+support was added to the visplane code, to support arbitrary (x,y) offsets
+in flats. In the future, this can be used to support (x,y) offsets applied
+statically to flats, such as for aligning them when the 64x64 grid
+limitation is removed.
+
+Added config option to use traditional keys in the Doom status bar. Default
+is off, so that the new "doubled" keys are shown, but if you should prefer
+going back to the Doom keys, there's now a config switch to do so :)
+
+Fixed the savegame bugs Rand had already analyzed: loadgames always coming
+up in automap, and players getting stuck in walls. Tested stuck wall fix.
+Added automap gridline status to the savegame. All that's left now as far as
+automap status not being saved, is the zoom-in position and scale, but that
+will take me too much time to do right now since it's not as simple to save
+as the rest of the automap state, due to how it's implemented in am_map.c.
+
+Added demo compatibility support for versions of Doom prior to v1.4, since
+there appears to be a demand for it. <g> However, to support versions of
+Doom prior to v1.4, will require lots of gamemode and/or other checks to be
+added, since the STMINUS mentioned is only one of many such lumps missing in
+pre-v1.4 and refererenced in post-v1.4. I think a lumpdiff is in order
+(i.e. compare the lump directories of old and new versions and account for
+all the differences). I have neither the time nor the inclination to pursue
+this now.
+
+As much as I like old versions of Doom (see my web page), I do not feel the
+need to support them in Boom. Pre-v1.4 demos are almost certain to have sync
+problems. Demos prior to version 1.2 are not even compatible with later demo
+versions, even after the header is accounted for, because player movement
+deltas are scaled differently (v1.1 demos play back on later versions, as
+though the player is in turbo). I was able to play a demo from v1.2, and the
+demo support for pre-v1.4 versions seems to work, since there are no seg
+fault crashes or complete demo sync problems anymore, and the demo starts
+off just fine, but there are all kinds of missing lumps which prevented the
+demo from completing: STMINUS, WIMINUS (another intermission screen lump),
+and probably many others. I fixed the problem with DSGETPOW sound lump not
+being found, by simply muting out sound effects with missing lumps. If this
+is too silent for y'all's tastes, and you want a message of some kind that a
+sound lump is missing instead of no sound at all, I can either back out this
+change or improve it to print a non-fatal error message. For now though,
+missing sound lumps are simply not played back.
+
+Fixed minor problem with ENDOOM -- the bug was simply that it was being
+printed when it shouldn't. The backspace which caused the message to begin
+in column 79 was intentional, because without this backspace, ENDOOM scrolls
+one line off the screen. djgpp's DOS extender seems to print an extra
+newline when the program finishes, so we have to backspace to hack around
+this. Now ENDOOM is printed iff there is no exit message (such as a
+-timedemo report or an error message).
+
+2/26/98:
+
+Fixed problem which caused linux version (and all DOS ports based on it) to
+crash on Eternal MAP25 -- Thing type #0 was not being handled as a no-op,
+and so memory was being corrupted. The symptoms were delayed, and bore
+little relation to the cause (something common in these types of bugs <g>).
+
+2/22/98:
+
+Allow spy mode (F12) even during deathmatch demo playback, to allow you to
+watch DM demos from any player's perspective.
+
+Some minor tuning of the assembly routines.
+
+2/21/98:
+
+Judged that, with the new automatic TRANMAP filter generator mixing at 66%,
+translucency looks good enough to be turned on for some sprites: monster
+fireballs, BFG, and spherical items (especially the invisibility orb and
+soul sphere -- brings new meaning to that 'eyeball' <g>). I turned it off
+for the imp because the spheres are good enough examples now.
+
+Added ENDOOM support (color text printed when game ends).
+
+Stopped par times from being printed during modified games (pwads). If ever
+DEH support for setting par times is added, this can be turned back on,
+preferably turned on somehow in the DEH specification.
+
+Commented out id copyright banners from startup screen ("modified game", "DO
+NOT DISTRIBUTE", "Call the SPA", etc.)
+
+Added key_screenshot customizable key, to allow screenshots in non-devparm
+mode. Currently the best default I could think of to use was '*', which is
+the * on the numeric keypad (I've heard of problems with using PrintScreen
+since it's often already reserved as a hotkey by some OSes -- I believe
+DOSDoom tried this and had to retract it later). Screenshots in non-devparm
+mode are desirable for bug reporting since many people don't use devparm
+when they need it, and savegames might not be good enough (the bug might go
+away or might interfere with savegames).
+
+Added general infrastructure for monster AI improvement flags, and
+implemented first use of it with the recent monster memory improvent.
+
+A monster_ai flag is loaded and saved across demos and savegames. An enum
+list can be updated in one of the header files if additional flags need to
+be added.
+
+If any new monster AI features are to be added, they should be turned on/off
+with bits in this new variable, to allow better customization of monster AI
+options, and to ensure uniform results across demos and savegames. At some
+point it might be something settable from pwads. No new config variables
+need to be added if all that is needed is a monster-affecting on/off
+flag. If the default needs to be changed, the default value of monster_ai in
+m_misc.c should be formed based on bitwise OR-ing of the bitmask enums which
+are to be turned on by default.
+
+Digression...
+
+Even if demo sync with v1.9 is not seen as being important, the issues are
+almost the same with future versions of Boom as they are with preserving
+demo compatibility with past versions of Doom, because the causes of desync
+are the same and extra care must be taken. It is extremely important to save
+compatibility-type switches in demos and savegames, because otherwise sync
+problems WILL occur and we'll get lots of bug reports we'd rather not have.
+
+As for the precedence of various options, I think any conflicts should be
+resolved according to this precedence list:
+
+Demo Savegame Command-line Pwad Iwad Config file
+
+The command-line should not be overriden by a wad; the user should be able
+to "exercise exceptions" on the command-line. However, a wad can override
+the config file's defaults. A savegame being loaded is a different matter --
+it may override the command-line since it's restoring an almost complete
+state.  A demo may also override it, because a demo may need something for
+it to stay in sync at all. The precedence list above is designed so that
+exceptions are minimized, while giving wad author, user, etc. control, and
+ensuring that the state of the game is preserved as much as possible,
+barring explicit requests for exceptions.
+
+I feel as strongly about the above list of precedences, as some do about
+searching for wad files in the current working directory first :)
+
+... End of digression.
+
+Improved -timedemo and -fastdemo accuracy by preloading levels before timing
+starts, and by sampling the clock as late as possible during the
+initialization sequence. Verified with two consecutive runs of -fastdemo
+crusher, which both returned the same "realtics" count.
+
+Fixed secret percentage in intermission screens to indicate 100% if there
+are no secrets. No more wondering why you got no secrets when there were
+none.  "Computer Game Proves 0/0 = 1. Proof: Boom. QED." <g>
+
+Relaxed compatibility switch on blockmap iterator change, to become
+demo_compatibility. It's probably just a random number generator call count
+issue (some line collision calcluations involve random number generation to
+simulate friction).
+
+On the subject of random number generators, I added a new pr_class for the
+revenant tracers. Previously, the revenant tracers (tracking/non-tracking
+missiles) were randomized based on the global gametics counter, being
+tracking only 1/4 of the time on average. Since gametics could start out at
+almost any value (mod 4) for internal demos, this is why revenants messed up
+internal demos. If demo_compatibility is on, the old method is still used,
+except that the global gametics counter is adjusted at the start of the demo
+to make sure it has a canonical value of 0 mod 4. If demo_compatibility is
+turned off, then the new pr_class and its associated random number generator
+is used instead.
+
+Made savegame version string to become proprietary: "version 200" becomes
+"Boomver 200". This is just a way to prevent crashes in case someone else
+calls theirs version 200 and someone loads their savegames.
+
+Fixed internal demo sync problems (e.g. DEMO1 disappearing imp). Problem
+seemed to be that demo_compatibility wasn't turned on early enough. Now
+demo_compatibility is turned on at demo load time: when a Pre-2.0 demo is
+detected, both the compatibility and demo_compatibility flags are forced on.
+Otherwise, demo_compatibility is turned off, and the less strict
+compatibility option is set to the user's default, and is saved and restored
+in v2.0+ demos and savegames (it can still be changed during the game with a
+cheat).
+
+Now, demos recorded by the new engine are always recorded as v2.0 or higher,
+and are not recorded with demo_compatibility turned on, because if they
+were, they would lose the benefits of the new localized random number
+generators which reduce the chances of demo sync failure, by making RNG
+seeds local to each RNG caller.
+
+v1.9 demo compatibility is much better now, although it's not 100% and I
+don't expect it to ever be. Some v1.9 demos work perfectly now.
+
+Removed limit on automap marks. Now more than 10 marks can be drawn.
+
+Added automap information to savegame. Whether the automap is active,
+whether follow mode is turned on, and the current state of the automap
+marks, are all saved in savegames now.
+
+Fixed help screen menu sequences. Previously the help, credit, and "ordering
+info" screens were drawn in the wrong order w.r.t. F1 and "READ THIS". Also,
+the skull icon was in the wrong place and covered some of the help screen's
+text. Now the help menus emulate Registered Doom, Ultimate Doom, and Doom 2
+as much as possible. Ultimate Doom needed the most work, since its help
+screen (F1) turned up the credits screen instead.
+
+Renamed "default.cfg" to "boom.cfg".
+
+Converted R_DrawTLColumn to assembly language, #ifdef'ing out the C code.
+Verified sufficient speedup.
+
+Fixed badly behaving HUD display -- the HUD would turn on or off in
+seemingly random ways when the screen sizes were changed. Now, the HUD
+maintains its own "on/off" switch independently, although the HUD is never
+displayed except on a full screen. When you go to full-screen, hud_active
+determines whether the HUD is displayed, and can be toggled by pressing '='
+(going "past" full screen).  hud_active remembers its status, so if you're
+one who likes HUD, you can turn it on once and switch back and forth between
+full-screen and the status bar, getting the HUD each time you're in full
+screen; if you dislike HUD, you can turn it off and then it won't come back
+just by switching to full screen. In either case, you can toggle HUD, while
+in full screen mode, by using '='. If you really hate HUD, you can stick a
+-1 for hud_active in the config file and it will never come up no matter
+what you type.
+
+Fixed bug in status bar which was causing armor (and perhaps health) percent
+signs to not be updated during color changes (this was related to the
+all-gray percent sign "bug", but the cause was different).
+
+Fixed "bug" in V_DrawPatchTranslated which was drawing patches twice in the
+case of their being red. Option to make status bar all red is still in
+place, but V_DrawPatchTranslated and V_DrawPatch are both much faster now --
+the all- red option is unecessary to get the same performance as before the
+status bar changes were made.
+
+Made god mode cheat work everywhere (E1M8 exit, MAP30 spawnspots, telefrags,
+etc.) when compatibility mode is turned off. Previously only MAP30
+spawnspots were being handled.
+
+Wrote routine to automatically generate TRANMAP. TRANMAP is now generated as
+part of game initialization, based dynamically on PLAYPAL. However, you can
+always override it with your own lump. There is no need to store any data in
+the .exe or load tranmap.wad anymore, since a fast algorithm exists to
+compute TRANMAP at game startup, and it will adjust itself to a different
+PLAYPAL.
+
+Evaluated translucency effect. A (symmetric) 50/50 translucency filter leads
+to a bad color distribution in most Doom sprites. A 66/33 filter has better
+results, such as a near-perfect-looking translucent blue soul sphere (the
+50/50 filter makes the soul sphere have dark spots). This may just be due to
+the low color resolution.
+
+The filter percentage used by the automatic TRANMAP setter can be set in the
+config file, for minor tweaking and/or experimentation. This filter
+percentage does not affect external TRANMAPs if they are loaded, since it
+only affects the automatically-generated TRANMAP.
+
+Fixed problem with health and armor percent signs not being colored the same
+as the numbers -- it felt odd, having 100 health -- 100 what? <g>. Not sure
+whether this was a bug, so made it optional: sts_pct_always_gray makes
+percent signs not get drawn in the color of the numbers they are next to --
+it makes them just get drawn gray. Similar to sts_num_always_red, but for
+gray percent signs.
+
+Enabled variable-pitched sounds (ala v1.1), turned on either by config file,
+or by TNTPITCH cheat. These variable pitched sounds do not have a pwad
+developer interface -- they are just random or approximate pitch bends
+applied in the original code, such as making chaingun shots have random
+variations (the reason I say this, is that I thought I heard someone say
+that they wanted to make a wad just to use variable pitched sounds. But you
+can't control the pitch yourself in the wad, not yet, anyway :) [BTW, Sample
+rate, which you CAN control in wads, is a totally different beast and I'm
+not talking about that here]).
+
+Added config file option and TNTSMART cheat to toggle last week's monster IQ
+improvement (remembering former enemies, including players out of sight).
+All monster IQ improvements will be switched under this as well.
+
+Made player cheats stay preserved across non-exit level changes
+(i.e. idclev).  For example, god mode stays around even after idclev. So
+many times when testing stuff I typed idclev.. iddqd, that I got tired of
+it. However, player powers (e.g. invisibility, rad suit) are still cleared
+when changing levels.
+
+Added TNTAMO, TNTRAN cheats as aliases for TNTAMMO and TNTTRAN, since typing
+them is less stressful (fewer repeated letters). I'm a mild RSI sufferer and
+this makes certain cheat codes harder to type :(
+
+2/20/98:
+
+Changed "." to be the first iwad directory searched, instead of the exe's
+dir.
+
+Added warning comments about savegames (modifications to mobj_s structure
+may cause savegame crashes unless special measures are taken in p_saveg.c).
+
+Reenabled "green is turbo" message during demo playbacks as well as
+netgames.
+
+2/16/98 killough
+
+Designed a much more stable random number generator process, to guard
+against demo sync problems. Every basic block now has a unique random number
+generator assigned to it, so that two blocks cannot interfere. There's also
+a development process in place for adding new random number generator calls
+without breaking demo sync, something which was not possible earlier.
+
+One of the reasons demo sync, such as in crusher.lmp, is so sensitive to
+changes, is because a single pseudorandom number generator is used. In Jim's
+example last week, where he changed a crushing ceiling and it made the
+player go crazy in crusher.lmp, this could have just been because the
+crushing ceiling uses a RNG call, and so if Jim (unintentionally <g>)
+changed it so that it called the RNG a different number of times, then when
+some other code called the RNG, it got totally different numbers than before
+Jim's change.
+
+The new method makes sure that this won't happen as often, by assigning a
+key (a C enum) to each P_Random() call, with at least one key per basic
+block. Now the damage than can be done is limited to within each basic
+block, e.g., no demo sync problems involving, say, random gunfire, can be
+caused by changing the number of times the crushing ceiling code calls its
+random number generator.
+
+This desyncing due to the RNG was what was happening with the bullet-puff
+fix -- the random number generator used to generate the puffs, interfered
+with the same RNG being used for everything else in Doom, so we had to
+preserve the lack of bullet puffs in demo_compatibility mode. I suspect the
+same is true of Rand's blockmap iterator change.
+
+In demo_compatibility mode, the old sequence must still be returned, in
+order to preserve old demos working even remotely. They still suffer from
+this problem, that changes in one part of Doom can affect the sync in
+another part of Doom. The new localized RNG method only benefits demo sync
+when compatibility mode is turned off, but if we use the new method to
+prevent different blocks from desyncing each other, we should have fewer
+problems in the future.
+
+Added TNTKEY[RYB][SC] cheat codes. TNTKEY followed by R,Y,B, then by S,C,
+toggles the red, yellow, blue skull and card keys. A tiny change had to be
+made to the status bar widget display code, to allow keys to display
+properly after being removed. IDK* cheat codes are left unchanged except
+that IDK adds all 6 keys in the middle of typing IDKFA, so you can stop
+typing IDKFA early to get just the keys, or type it fully to get everything.
+
+Added TNTAMO[1-4B] ammo cheat code. TNTAMO followed by 1-4 toggles the
+respective ammo (bullet, shell, cell, rocket), and TNTAMOB toggles the
+backpack. TNTAMMO (two M's) felt awkward to type, so I used TNTAMO.
+
+Added TNTWEAP[1-9] weapon cheat code. TNTWEAP1 is the same as IDBEHOLDS
+(toggles berserker fist), while TNTWEAP followed by '2' through '9' toggles
+the weapon's presence (you can even remove the pistol). 9 is the SSG and 8
+is the chainsaw, in case you forgot :) The cheat is independent of custom
+weapon key maps.
+
+All of these cheats have interactive messages, similar to IDBEHOLD, to help
+guide lost souls. :)
+
+Added silent teleporter functions. Old silent teleporter linedef types still
+work, including the switch types, but they have been changed to use a
+function more like the original Doom teleporter. The linedef->linedef
+teleporter which preserves almost every aspect of the player's movement,
+only makes sense with walk linedef types, and its function and linedef
+numbers have been renamed.
+
+Silent teleporter now has two forms: line->line, and line->thing. Both are
+silent and try to preserve as many properties as possible, but the
+line->thing type of teleporter cannot preserve player position since there
+is only one point of exit. However, the line->thing silent teleporter can be
+used with switches.
+
+2/15/98 killough
+
+Removed savegame-compatibility-preserving code, since it's too hard to
+maintain and fix savegame bugs at the same time. Savegames from v1.9 cannot
+be loaded into Boom, and of course, Boom savegames cannot be loaded into
+v1.9. Fixing this is hard because some of the actual underlying data
+structures have been modified and so it's not as simple as a runtime
+compatibility switch. Since Doom never supported savegames across different
+versions, why should we?  Past demo version support is more important, even
+if its not fully attainable.
+
+Fixed problem with monsters going to sleep after killing other monsters,
+when players are out of sight. Problem was, of course, that only one
+"target" was remembered at a time by the monster. Although there is a
+"lastlook" field which remembers the last player being targeted, the code
+does not make the monsters go after such a player unless it is visible by
+line-of-sight. This is probably because the original code tried to look for
+more than one player and made monsters go after the first player seen,
+rather than the original target necessarily (if one player is visible, why
+not go after it instead of searching for a former enemy?). Problem was, if
+no players were seen, it just went back to sleep.
+
+Also, only up to 2 players still in the game were being searched for, in
+round-robin fashion starting with the "lastlook" one, and the code used a
+hard-coded "&3" instead of being based on MAXPLAYERS (only the first 4
+players could ever be seen by monsters). No more than 2 players were
+searched, so if, say, player 1 was the last one looked at, and player 1 and
+player 2 were both still in the game but out of the monster's sight, player
+3 would not be seen even if it should be, so the monster would be put to
+sleep, until a short time later when it wakes up again seeing 3. This would
+cause the reaction time and sound effects to vary depending on the number of
+the player first seen, as compared to number of the player last looked at.
+
+Now the code searches all active players starting with the last one looked
+at. If none are visible, it goes after a former enemy, which could either be
+a player or monster (it would be the last enemy the monster was attacking
+before being forced to change his plans <g>). It goes after the last enemy,
+regardless of whether it's visible or not, and most of the time will be a
+player, two main exceptions being: 1) when a monster is ressurected by an AV
+and cannot see any players, it goes after the last monster who killed it, if
+a monster killed it and is still alive; 2) when a monster is being attacked
+by more than one other monster, the monster remembers both of them, and
+switches between them during every melee attack it receives, or when one of
+them dies, unless a player is spotted during the switchover point in which
+case the monster goes after the player until another melee attack by a
+monster is received.
+
+Now, if you make a Cyberdemon or Baron get into a fight with another
+monster, you can't simply get out of his view, wait for him to kill the
+other monster, and sneak behind his back while he's asleep, because he
+remembers you and will come after you as soon as he's finished the other
+monster. The same rule applies to all monsters.
+
+All of this is demo_compatibility optioned, of course. If anyone has any
+objections and feels the stronger compatibility option needs to be used,
+because wads or players rely on monsters going to sleep after fighting other
+monsters, I can change it, but I'd hate to have to get everything else
+gained by turing off compatibility, just to get this.
+
+Ideally a stack of enemies should be used -- whenever you need a new enemy,
+pop one off the stack; whenever you need to change enemies, push any current
+one on the stack. However, this is overkill, given Doom's current monster AI
+-- remembering one enemy is enough, and takes much less coding than a
+general enemy stack.
+
+2/14/98 killough
+
+Converted R_DrawColumn to assembly and tuned it. Only a small performance
+increase on a PPro, but maybe better results can be found on a Pentium or
+486.  AGI stalls are likely to limit the benefit which can be gained from it
+on a Pentium. The inherent problem with R_DrawColumn is its serialism, since
+a source pixel's offset is computed, then the source pixel is loaded, then
+it is color-mapped, and finally it is written. Each of these operations must
+wait for the previous to finish. To get better instruction level parallelism
+requires doing two or more pixels at once, something which requires either
+more CPU registers to work with, or which requires spilling registers to
+memory (using mem, which is slower, to hold variables instead of registers).
+There is no simple answer to this problem. A Pentium Pro / PII processor
+offsets the problem by renaming registers and executing instructions out of
+order (there are no AGI stalls associated with the PPro, so the serialism in
+R_DrawColumn is not a problem, and so fewer registers are needed in the
+source without requiring spillage).
+
+Some have expressed concern about scripting being too slow in Phase 3, but I
+don't share this concern, since I know it's the renderer, not the rest of
+Boom, which is slow right now. Try using "boom -nodraw -fastdemo crusher"
+and see what I mean. It gets nearly 4000 frames per second on my machine if
+you turn off the drawing.
+
+It's the entire renderer, not any one particular part of it. I've done case-
+by-case analysis of each function, seeing how much speedup there would be if
+a function such as R_DrawColumn, R_DrawSpan, etc. were replaced by no-ops,
+and the speedup is not too great proportional-wise; only a 33% or so
+increase speed is gained by disabling any single one of these functions --
+tuning them perfect can therefore only get so much benefit. So the work
+which is taking all the time, is pretty much spread throughout the renderer,
+which is good in a way, since it means there's no single bottleneck,
+although it's bad since it's harder to know what to tune next. Of course,
+I'm basing all this on what I've observed; it's conceivable that on a
+Pentium system all this means nothing and there's clearly a single
+bottleneck function. A Pentium requires much more care in instruction
+scheduling than a PPro or a 486 does. It is unique among x86 processors, in
+that never before or after the Pentium, has an x86 implementation had such
+dependence on instruction scheduling. The 486 and below had some cases of
+stalls, such as using an index register in indexed addressing, but these
+stalls were usually on the order of 1-2 clocks, when the instruction already
+required 4 or more, and these stalls did not occur very often.
+
+Thw DOS/linux version of R_DrawColumn was not used since it is not directly
+usable without losing the TFE bug fix. There was a small difference in the
+instruction scheduling in the DOS/linux version's inner loop, a difference
+which may reduce AGI stalls and allow better pairing on the Pentium, but to
+schedule the instructions in this way, requires either spilling registers
+(using memory instead of registers for some variables), or writing self-
+modifying code (which is what the DOS/linux code did, but which we can't do
+in protected mode without a lot of trouble). It is not clear to me whether
+the additional pairing opportunity can offset the register spills.
+
+Ported R_DrawSpan routine from readme.asm, which came with the linux source.
+Required changing from Intel to AT&T syntax; replacing self-modifying code;
+and removing the depedence on colormaps being aligned at 256-byte addresses.
+No significant performance increase compared to the C code on a PPro;
+perhaps there are improvements from this change on a Pentium or a 486.
+
+Made default.cfg file always get loaded/saved from the same directory as the
+executable, so that executable and config are always a bundled pair. Does
+not change IWAD search method -- the IWAD path is still searched in this
+order: executable's directory, current directory, $DOOMWADDIR, $HOME. If
+this is a problem (many people may have different iwad search preferences),
+I might be able to add an IWADPATH variable to the config file (one more
+reason to keep the config file bundled with the .exe instead of the iwad, so
+that it can be used to set the iwad search method -- however, we'd be
+changing when the default.cfg is loaded, which may have unforseen problems).
+
+Added "basesavegame" variable to allow global setting of savegame directory
+path. Currently set to the same directory as the iwad which is loaded, so
+that savegames are iwad-specific (allows the same boom.exe to run different
+iwads and have separate savegames in each).
+
+Commented out audible HOM alarm call for now, since detection method does
+not catch every instance of HOM. However, flashing red HOM indicator still
+works with TNTHOM. Bright red flashing light indicates a HOM area when
+TNTHOM is toggled on.
+
+Removed "green is turbo" message from non-net turbo games. Message still
+gets printed in netgames.
+
+Fixed savegame plat original height bug -- the problem was that platforms in
+stasis were not being saved at all. A typical symptom was that if a platform
+was last moving up, but it was stopped by the player (put in stasis), then
+saving the game would lose the target height it was moving up to. This is
+why MAP13's yellow key platform in v1.9 Doom 2 did not always return to its
+original height: if you walked out of the room while it was going up, saved
+a game, and later reloaded it, the height it was at when you left the room
+was the highest it could ever reach after that.
+
+Fix was to do what was already being done with active ceilings in stasis --
+look for active plats which match a given thinker, and save them.
+
+Fixed savegame crashes which were caused by not properly saving "target" and
+"tracer" fields of thinkers, among other pointers inside objects. Pointers
+(i.e. absolute memory addresses) were being stored in the savegame instead
+of ordinals (relative positions in a linked list). Doom sets some of these
+to NULL to work around this bug, but we've all seen the result: monsters are
+asleep, when you load the game, etc.
+
+Added user-friendly message to tell the player when a different savegame
+version is being loaded -- previously, when a savegame had the wrong
+version, nothing happened. Now a message is printed.
+
+
+2/8/98 killough
+
+Added user-configurable weapon preferences: any permutation of the 9 weapons
+can be specified and the first one available is used (minor exception: if
+you choose the fist over the chainsaw, it only applies to berserker fist).
+
+However, user preferences are disabled in network games, for network sync
+and DM fairness reasons, and user preferences are also disabled when
+demo_compatibility is turned on. Also, there may be some sync problems with
+demos even under the new engine, unless the preferences are saved as part of
+the demo. It's easy to add the preferences to the demo, if we can design a
+demo format which works on old and new (in other words, two formats which
+the new engine can distinguish between -- maybe version id's are enough).
+I'll think on this and work on it next week.
+
+Regardless of whether it's a networked game, however, unless
+demo_compatiblity is turned on, all players can now choose the SSG with '9',
+and all players can choose a non-berserker fist even if they have a
+chainsaw, by pressing '1' after the chainsaw is selected.
+
+The user preferences govern the order in which weapons are chosen when one
+runs out of ammo, and the order in which the SSG and chainsaw are given
+priority over the shotgun and fist, respectively.
+
+Fixed problem with SSG and BFG not being switched to when another weapon
+runs out and the BFG or SSG has room for exactly one shot. I think a big
+deal was made about the BFG in the newsgroups. The BFG worked just fine if
+you selected it yourself, but Doom would not select it to replace another
+weapon running out of ammo, even if there was 40 units of cells
+available. >40 versus >=40.  The SSG had a similar problem when only 2
+shells were available.
+
+There are three unresolved problems I noticed this weekend:
+
+1. Sometimes on Doom 1 E2M3 (and perhaps other levels), light levels are at
+full brightness. It happened when I used -warp 2 4 and then idclev23, but
+it's random and I cannot reproduce it now. I did not use idbeholdl, but the
+effect was the same. It might have just been a bug in the initial coding of
+the new cheat code detector.
+
+2. There's a "stuck note" problem of a different kind, in MAP09's music.
+This occurs under DOS 6.xx, with a SBPro 2 card, and without any special
+sound drivers loaded, with "Adlib" music selected (type 1). (i.e. it's a
+basic non-windoze 8-bit SB system). Sound is almost perfect, but music is
+not.
+
+3. When hundreds of monster death sounds are kicked off at once, sound stops
+working until player has moved around a bit. I know what causes this
+problem, but I don't have a fix right now since there's no simple way I know
+of to query allegro about whether a non-looped sample has finished playing
+or not. If there's a way to do this, I know how to fix the "sound overload"
+problem. Try using TNTEM on MAP16 and then try the door of the first room.
+
+Fixed bug in TNTEM cheat, which was leaving behind lost souls when pain
+elementals were killed by it. Problem was that the lost souls were spawned
+several tics after the PE died, so the fix was to accelerate the spawning of
+the lost souls to happen immediately during the TNTEM cheat, so that they
+could be killed during the same cheat. Verified fix using MAP20.
+
+Make dead player sprite limit variable, in the config file. If you set it to
+a negative value, there will be no limit to the number of player corpses (it
+will make you Knee Deep in the Dead <g>). A non-negative value sets the
+limit to that value. The default limit is 32, just as in Doom.
+
+Removed switch limit. There's still a static table which lists the switches,
+but if it's expanded, or if later a lump is added to control switch
+animations, the new code will be able to expand to any number of switches.
+
+Changed SCREENWIDTH, SCREENHEIGHT to MAX_SCREENWIDTH, MAX_SCREENHEIGHT in
+many places, to allow high-res video to be easier to implement later.
+
+Added IDK cheat, which adds the keys. It works in the middle of IDKFA as
+well, so you can type IDK and get the keys, and then if you type FA, you get
+ammo as well. This allows you to add keys without ammo, without having to
+remember a totally new cheat code (it's just the first part of an existing
+cheat code).
+
+Added TNTHOM cheat to toggle HOM autodetection, instead of relying on
+-devparm.  HOM detector doesn't work 100% yet, but since it's just a
+debugging feature anyway, I'm not going to spend much time on it until I
+have more free time, or I see the solution right in front of me. Boom can't
+take the place of level authors <g>.
+
+2/7/98 killough
+
+Added wait for vertical sync, to prevent breaks in screen during
+blit. Screen is much smoother now. Although page flipping is more
+attractive, it is not supported by all video cards without using planar
+pixels, which would slow Doom down, since we'd need to convert from Doom 8
+bpp packed pixels to planar pixels during every frame. Therefore I've
+decided not to use page flipping for 320x200 mode. When higher resolutions
+are also supported, this issue can be reconsidered.
+
+In the rare case that vsync messes up your system or slows it down too much,
+you can turn it off in default.cfg.
+
+Changed PPro blit routine to copy forwards instead of backwards, to take
+advantage of vertical sync fix.
+
+Fixed problem with ExM8 endings not working correctly -- the code was okay
+to start off with <g> gamemode!=commercial is necessary and sufficient. The
+TNT wads set gamemode==commercial. The E2M8 ending was not working right.
+
+Completely rewrote cheat code detector, in anticipation of people adding
+more cheats. Cheats are now governed by a simple table with 2-3 entries per
+cheat code: An unencrypted string of the cheat code; a function to handle it
+when it's detected; and an optional argument, either a non-negative integer
+to be passed to the function, or a negative integer which indicates special
+things like the idclev and idmus arguments. Cheat-handling code runs faster
+and is easier to read now. Note: only the last 12 characters of a cheat code
+are significant now, but this allows a clever trick using shift registers to
+be used to speed up the cheat detector and make the code smaller.
+
+Removing the scrambling from the cheat codes was only one of the reasons for
+the rewrite -- mainly, it was changed to make the C code more readable, and
+to make adding new cheat codes easier. The complicated cheat structures that
+were in Doom, and the overhead Doom had to maintain them during every event,
+were replaced with a much simpler table-driven approach. A long long shift
+register remembers up to 12 characters typed, and the cheat codes are
+matched using the bottom bits of the shift register.
+
+As expected, the blockmap limit is a wad limitation, not an engine
+limitation per se. Fixing the 64K blockmap limit requires changing the wad
+definition.  The blockmap limit is inherent, in that pwads use 2-byte
+integers to express offsets in the blockmap.
+
+There are two alternatives I can think of:
+
+1. Add a new lump, an "extended blockmap". I would then enhance the BSP node
+builder to generate it. Boom would operate the same as it does now if this
+expanded blockmap is not present, otherwise, it would use the new one
+instead.  I'd choose to call the new blockmap "XBLOCMAP" or something like
+that.
+
+2. On-the-fly blockmap generation. In BSP, blockmap building is the fastest
+operation, and it would probably not be too slow for Boom to do it
+on-the-fly as well -- it takes under a second on most levels. This would
+prevent any need for an external pwad spec change, but it would mess up wads
+which use blockmap special effects (know of any wads which intentionally
+leave out linedefs from blocklists?), since it would be ignoring their
+blockmap. It could be made contingent on the compatibility flag, but I do
+not like the sound of this.
+
+I like #1 much better, because it means people will have to use BSP :) (just
+kidding -- I think #1 is better because it doesn't break compatibility!)
+
+Did a systematic search for all static limits in Doom, by egrep'ing for:
+
+([^r]int|unsigned|long|short|double|float|char|_t).*[[]([0-9]+|[A-Z_]+)[]]
+
+(i.e. almost every fixed-size array declaration in Doom.)
+
+Found and removed limit of 32 for icon landings -- so that's why my wad
+crashed!!! I was trying a special effect almost a year ago that did not work
+when I had too many landings. The limit used to be 32, and no checks were
+made by Doom to see whether it had been exceeded (it might therefore have
+caused mysterious crashes), but now the icon landings are unlimited.
+
+Added DPMI lock to sound samples, to prevent swapping out of the sound
+sample memory by virtual memory system.
+
+2/01/98 killough
+
+Corrected Ultimate Doom detection -- you no longer have to use doomu.wad.
+doom.wad will be treated as registered or retail (ultimate) based on E4Mx
+lump presence.
+
+Fixed music looping problem -- the music is looping when it shouldn't in
+some cases -- this means that if you want to turn looping on, you need to do
+it somewhere else instead of S_StartMusic. It looks like that code was right
+to begin with, since many things started looping (such as the Bunny scroller
+music in Doom 1/UD) which don't loop in the original Doom.
+
+Added version.c and version.h, to automatically record compilation date
+without intervention. Right now all it does is print the date at startup,
+although we can do other stuff with it. The important thing is to keep all
+version-related info in version.* If you have more ideas please contact me.
+
+Added HOM autodetection, which beeps and displays a message in -devparm
+mode.  Normal mode is unaffected, since this would probably annoy regular
+users of wads. Perhaps other non-fatal error messages should be switched
+with -devparm too, to avoid confusing wad players who don't understand
+technical issues.
+
+It's also possible to fill in the areas left by the HOM, say with a bright
+red color, so that the HOM effect is replaced with a solid color, but this
+is not done right now.
+
+The check for HOM is trivial and there is no negative performance impact.
+
+More performance tuning, by replacing some macros with inlined functions --
+apparently djgpp's codegen generates better code when functions are inlined
+than when the same code is inlined using macros -- perhaps some additional
+optimization phases are run when functions are inlined (not uncommon -- HP's
+compilers do this). Also manually unrolled some loops in critical drawing
+routines.
+
+Fixed opening bug -- too little space was being allocated for openings,
+causing seg faults. Changed z_zone.c, so that when compiled debug, it
+records where each block is allocated. With this change, z_zone.c
+immediately found the bug of not allocating enough space for openings --
+source, line, and file. If you ever have problems (memory, crashes), build
+debug since it gives you more info (it is much slower though, since it now
+checks the zone heap for consistency during every allocation).
+
+Enabled -nodraw and -noblit options for -fastdemo (previously only -timedemo
+allowed them).
+
+1/31/98 killough
+
+Improved sector tag search time by hashing sector tags. Algorithm reduces
+the average number of sectors searched for matching tags, to usually less
+than 2 per search. Old average was > 30 for original Doom levels, bigger for
+larger wads like Eternal. No significant speedup for original Doom-sized
+levels was detectable by me, though, probably because the original levels
+have so few sectors that merely searching them from front-to-back is
+probably just as fast.  But for large wads with > 100 sectors I expect a
+significant speedup.
+
+Minor performance enhancement gained by clipping a front BSP node's bounding
+box against the current view. Previously only the back BSP nodes were
+checked.
+
+Made some changes to the lump hashing algorithm again, this time, mainly to
+improve program robustness, decrease memory overhead, and speed up hash
+table initialization. Gameplay speed was not significantly changed, since
+the hash table is already at its peak efficiency. Somewhere else in Boom has
+to be attacked now as being the major bottleneck -- it looks like the
+renderer, since turning off rendering lets Boom get over 3400 fps now on my
+machine!!!  "I know, I'll get it up for you somehow. So far we're using all
+we can, just to keep up with them." -- Geordi LaForge
+
+Some minor code shuffling/rearrangement to improve self-documentation and/or
+allow compiler inlining.
+
+Commented out "reload" hack, a feature which was the whole reason behind
+-wart.  It has no use for us now (it was an id development option), and
+anyway, it does not work with the new hashing algorithms unless they are
+changed some more (reloading a level might invalidate some lump entries and
+the hash table would need to be recomputed). The reload hack was explicitly
+called a hack in the original sources, and uses ~ (tilde) characters in
+front of internal wad filenames to indicate it's in effect. It's used in
+conjunction with -wart, which expects id's own set of development
+subdirectories and wad files corresponding to each map under
+development. (-wart still works, by the way, but it only does the same as
+-warp now -- something most of us probably thought it only did all along,
+since we did not have id's development subdirectories on our hard drive!!!)
+
+Added silent teleporter effect. Right now it's just linedef type 203 and it
+is a walk repeated linedef type like 97. I'll let Jim do the linedef type
+numbering assignments, as well as add the W1, S1, and SR varieties. It's
+better for one person to coordinate linedef assignments, than for everyone
+to simply pick the "smallest type not currently used in checked-out file".
+Even though Jim will tell me there are many linedef types available <g>, I
+want him to do the assignments.
+
+The silent teleporter works well, even when the player is falling in
+mid-air.  The player's height above floor is preserved during teleport, as
+are the player's momentum and angle. The teleporter is constructed with two
+linedefs of type 203 having the same sector tag. Walking into one walks out
+the other, and the player's position along the linedef is preserved during
+teleport by interpolation.
+
+Rotation is also possible, as the player's momentum and angle are adjusted
+according to the difference in the linedefs. If the angle and/or momentum
+were set 180 degrees backwards, the player would get stuck in the
+teleporter, as long as they were moving. By setting up a series of silent
+teleporters back-to-back, it's possible to make a player's own momentum
+carry them several places in a short period, even in mid-air.
+
+Fixed demo sync problems -- the change to stop using the first blockmap
+entry caused all demos which were working before, to stop working. As long
+as demo compatibility can be preserved as much as possible, I think it's the
+correct goal, but please do not confuse means or goals with ends. If a demo
+sync problem is easily preventable, it should be prevented. The blockmap
+change is now qualified with "compatibility", though I'd be willing to use
+the weaker "demo_compatibility" later if we're sure it's not going to change
+gameplay (it caused crusher.lmp to look totally different than before, as
+though certain collisions were being missed -- so perhaps the 0 entry has a
+purpose).
+
+Looked at other changes made this week and noticed that in some cases,
+"compatibility" was being used even though I think it should have been
+"demo_compatibility", such as in bug fixes which don't affect gameplay much
+(such as bugs which haven't been turned into effects). I'm talking about
+things like the lost soul bug -- apart from making you curious about hearing
+a noise behind a wall, did the lost soul bug change gameplay much? Did you
+turn it into an effect in one of your levels? I doubt it. So I think the fix
+for it should be turned on unless demo_compatibility is true.
+
+BTW, the floor height and 2s line bug fixes which Jim qualified with
+"compatibility," are still under "compatibility" since many wads used those
+bugs as features.
+
+demo_compatibility is true iff compatibility is true and a demo is being
+played back or recorded. demo_compatibility is false if you are playing the
+game interactively, even if compatibility mode is turned on. By using
+demo_compatibility instead of compatibility for bug fixes, TNTCOMP needs to
+be used less often.
+
+demo_compatibility is the switch used to turn on the bullet puff and rocket-
+absorbing wall bugs, for example. The bullet buff can affect monster
+behavior, so its absorbtion by walls is critical for demos, but the
+difference is so subtle that it only affects demos significantly -- is your
+gameplay going to be adversely affected by seeing bullet puffs where you
+didn't before? The same might be true of the blockmap linedef 0 fix, if it's
+indeed a fix.
+
+If in doubt, use "compatibility" and consult with me; if it does not break
+demos such as crusher.lmp, demo1, demo2, demo3, and does not change gameplay
+much except that it fixes a bug or does the "right" thing, then you can turn
+it on all the time. If it breaks demos which are otherwise currently working
+(I'm not implying all v1.9 demos must work), but it does not change gameplay
+-- something like the bullet puff fix, or the level ending text's print
+speed, or the arithmetic method used to answer point/line queries -- then
+use "demo_compatibility". If it can affect gameplay significantly, and
+without user intervention (pwads taking advantage of the new engine), then
+use "compatibility".
+
+New linedef types, for instance, should go under "demo_compatibility" since
+it takes either user intervention, or a previously bad wad, to make the new
+linedef types have any effect. Even whether "demo_compatibility" is required
+for new linedef types, is questionable to me -- did bad linedef types appear
+often in wads, and do we want to preserve them being no-ops in compatibility
+mode?  If we feel the need to have the new linedef types optionally
+suppressed, then I suggest a new switch, separate and apart from
+compatibility, to suppress the new linedef types. The new linedef types are
+almost orthogonal to the gameplay compatibility issue.
+
+Added mouse sensitivity menu bars, by adding support for "predefined lumps".
+Now in info.c, you can define lumps which you want to be defined at load
+time, and whose data is in the exe. These lumps can, of course be modified
+by iwads and pwads, but they provide data in case the iwads or pwads don't
+supply any.  The two mouse sensitivity menu bar lumps were a tiny amount of
+data, so they were converted to C code and the predefined lump idea was
+generalized to support them.
+
+Did some minor cosmetic work on some sources, such as getting rid of some
+tab characters, replacing them with their equivalents in spaces, in
+accordance with the original author's comments. Re-baselining the sources is
+probably not acceptable to some people right now because of disk space
+reasons, but the next time it comes up, I think tab characters and trailing
+whitespace at the end of lines needs to be treated too -- i.e. tab
+characters, which usually stop at multiples of 8, but for which some people
+have set to other sizes, should be replaced with spaces prior to checkin
+unless we agree on a uniform tab stop size, which for some is not
+adjustable; and, lines with blanks at the end but before newlines, should be
+stripped of trailing blanks so that there are no other blanks before a
+newline.
+
+Split compatibility variable into compatibility and
+default_compatibility. Now TNTCOMP only affects compatibility, not
+default_compatibility -- i.e. using the TNTCOMP cheat does not affect the
+default loaded at startup.
+
+1/26/98 killough
+
+Figured out that problem with random pink tutti-frutti was unique to PPro-
+specific blit routine. Since FP numbers are 80 bits on x86 machines, storing
+64-bit FP values may involve loss of precision or overflow. Even though
+these 64-bit FP values were only being used to load and store data, there
+was an implied conversion taking place which sometimes, though rarely,
+caused pink debris to show up on the walls.
+
+Fixed this "pink bug" by rewriting PPro blit routine in assembly instead of
+C, and by using 64-bit integer loads/stores instead of 64-bit FP
+loads/stores (it still uses the FPU though, and using it this way is not
+possible in C with djgpp right now). Also tuned the new routine and got it
+up from 510 to 525 fps.
+
+1/25/98 killough
+
+Found much simpler solution to the Medusa bug -- the Medusa bug can be fixed
+if multipatched columns are constructed with the proper column headers and
+footers. Previously, only the raw image data was constructed for each
+column, and Doom assumed all masked columns (2s middle textures and sprites)
+came from a source that contained the normal column headers, runs of posts,
+etc.
+
+However, this fix still does not allow multipatched columns with transparent
+posts. That would require changing the code which draws mulitple patches in
+memory to form a texture, to be much more general, and to be able to
+generate an arbitrary series of posts as output.
+
+Also removed arbitrary 64K limit on composite texture size -- a limit which
+I suppose was there originally because of a 64K limit to segments in real
+mode.  This was apparently a throwback to Wolf3d.
+
+Tuned R_DrawSpan() by using the unrolled code that was present in the linux
+port but commented out. Verified another 10-20 fps speed increase with
+-fastdemo.
+
+Looked at djgpp's memcpy() implementation and determined that it was optimal
+for Pentiums and earlier, because it uses REP MOVSD when possible. For PPros
+and IIs it's faster to use a simple loop than to use REP MOVSD, but for the
+important cases such as the screen blit, we already make a decision based on
+the processor detected.
+
+Looked at current vissprite sorting implementation and determined that the
+impact was negligible on "normal" wads -- only when hordes of monsters
+appear, or any other situation where many sprites are visible, does the
+sorting make any significant difference in fps. For 0-30 visible sprites
+it's negligible.
+
+Tuned lump hash function by choosing a different multiplier for one of the
+characters in the name. Verified ~ 1 fps increase in speed.
+
+Attempted to tune texture cache loads (the place where Doom pauses in the
+middle of the dotted progress indicator), but determined that bottleneck was
+totally disk-IO-bound. Attempted to change the order in which textures or
+their patches are cached, to reduce hard drive seeks (elevator problem), but
+without having more details on the mapping from file position to drive
+cylinder, the benefit of trying to reduce seeks by reading the file's
+patches in the order they appear in the wad, was insignificant.
+
+Improved sprite initialization routine to search and find sprites more
+quickly, by hashing them. New algorithm probes less than 5% as many sprite
+lumps, looking for matches, as the old algorithm did, based on doom2.wad.
+
+Rewrote sprite/flat lump merging routine to use faster and simpler
+algorithm.
+
+Added support for tab stops in dprintf(), and increased maximum buffer size
+to allow a full screen of text, in the heads up display library. Improved
+z_zone memory allocator statistics to use new tab support and print stats in
+real-time.
+
+Fixed bugs in zone memory allocator causing fragmentation and/or memory
+loss.  Improved support of virtual memory when physical memory goes
+away. Tested it using Covers on a "7 MB virtual machine". Tuned parameters
+to reduce fragmentation and improve memory usage, while maintaining
+performance.  Corrected some minor miscalculations of real-time statistics
+for debug mode.
+
+1/22/98 killough
+
+Fixed SSG reload sound effect and pwad sound effects, by properly
+considering the sampling frequency stored in the lump when constructing
+allegro samples.
+
+Improved worst-case performance of lump hash table, by using coalesced
+chaining instead of linear probing. Verified average probes/search to be
+under 2 during practically all Doom playing, by watching hash statistics in
+real time.
+
+1/19/98 killough
+
+Looked at hash table performance some more, and improved it by adding
+redundancy to the table size to prevent "buildup". Now -fastdemo crusher
+gets 500 fps on my system!!!  Doom was spending too much damn time doing
+linear searches. :) This version is definitely faster now than Doom 2
+v1.9. But I will not stop until it's perfect :)
+
+Fixed Medusa bug -- sorta. It's going to take a lot of work probably to ever
+get support for transparent 2s normal textures with multiple patches, simply
+because of how Doom separates rendering sprites and 2s normals, with
+everything else. It would probably be easiest in that case to just write a
+front-end in Doom which takes the patches and creates the composites, not
+how Doom creates composites, but in the same form as the original
+patches. That's the simplest way to go -- write a function which, perhaps
+when loading the sprite or texture, recognizes multiple patches and merges
+them into a single patch at runtime, so that the renderer does not have to
+deal with multiple patches.
+
+However, as a compromise, I thought it might be easy to just detect if the
+2s normal was multipatched, and if so, draw it as a non-transparent region
+(i.e.  no transparent 'posts' which can be seen through). After around 2
+hours of experimenting, and working around HOM, floor slime lines, and other
+problems, I finally got it working. MEDUSA.WAD is included as a
+demonstration. The only thing left to do with it is to fix any bugs found in
+it.
+
+As for making multi-patched SEE-THROUGH 2s normals -- that's probably too
+hard without major changes (but maybe not after a few more months of
+studying the renderer) -- it would like supporting sprites with
+multi-patched frames.  That's another whole project. At least for now, you
+will be able to display non-transparent multipatched textures in 2s normals,
+although they will have HOM if they have see-through regions. The casual
+interchanging of the words "transparent" and "singly-patched", or
+"non-transparent" and "multi-patched", in Doom editing circles, is not
+arbitrary, you see. <g>
+
+Note: it took adding around 50 lines of code to the renderer, to fix Medusa.
+That's big, considering most bug fixes in the renderer have been one-liners.
+
+Added support for multi-line messages, mainly for use in conjunction with
+dprintf(). Newlines now are handled properly. Need to make sure this doesn't
+interfere with anything else, but I don't expect so, since the affected
+"heads-up" routine never supported multiple lines, and unless it sees a
+newline character, it works the same as it did before.
+
+Commented out some some printf()s in v_video.c which showed up as noise on
+the screen while drawing patches out of range. Text is nearly unreadable
+while Doom is playing and flickers. If the error message was fatal enough,
+then I_Error() should have been used. There may be other cases where printfs
+are giving diagnostic messages, which flicker on a 320x200 screen.
+
+Some minor comment changes (my previous comments) and code shuffling --
+nothing of consequence.
+
+1/18/98
+
+Figured out why some demos were getting out of sync -- the bullet puff fix
+affects demos, and must not be used while demo_compatibility is turned on.
+-playdemo demo1 and -playdemo demo2 work again now. However, demos are still
+not 100% in sync with v1.9, nor will they probably ever be -- take a look at
+DEMO1 for an example. If you play DEMO1 with -playdemo it works okay, but if
+you wait for the internal demo, it gets out of sync and the imp on the ledge
+that the player turns around to shoot, disappears suddenly right before the
+player shoots -- very strange effect!!! Only happens in the internal
+(deferred) playback, not -playdemo demo1, so I suspect it's similar to the
+revenant bug, for which I have a possible fix (not ready net) commented out
+in g_game.c (it does not fix DEMO1, and it's too risky to turn it on right
+now).
+
+The demo recording method, based on player movements, is elegant, but has
+sync problems as its major drawback. Doom is highly incremental, so the
+slightest error magnifies itself with time -- there is nothing built-in to
+self-correct errors of this sort, be it rounding errors in wall calculations
+leading to a player bouncing slightly differently off of a wall, or the
+distance calculations leading to a collision or miss.
+
+The only way these demo sync problems can be fixed, and I think the only way
+VCR demos will work too, is to store information frame-by-frame, like all of
+the object's positions and status. This takes a lot of memory, probably too
+much. Doom is incremental, everything being expressed in terms of
+deltas/tics (similar to /\x / /\ t). Also, backwards play is probably
+impossible because there is no "unique inverse" of Doom. Only by recording
+it fully and then playing back samples of frames can you approximate the
+inverse -- you can't start at the end and go back. For that kind of
+simulation, play with my toy billiard ball program which is reversible, up
+to a point.
+
+Added dprintf() function to make it simpler to print messages to the screen.
+It works just like printf(), sprintf(), fprintf(), etc., except that it
+prints Doom messages on the player 1 console. Mainly used for debugging,
+such as printing memory usage statistics in real-time.
+
+Changed default gamma correction to 3 (only affects people with a missing
+default.cfg -- I hope there are no objections -- it's just I hate having to
+turn up gamma correction everytime I start with a fresh default.cfg).
+
+Used DSRADIO sound effect to acknowledge screenshots (Ty's idea).
+
+Performed Rand's changes on the sources (changing the CVS logs).
+
+Fixed makefile, adding "debug" and "release" targets, and adding correct
+source file dependencies. Now if you change a header 'make' will rebuild
+Doom correctly. Separate directories OBJ and OBJDEBUG are used now instead
+of DOS, so that you can separately build debug and release targets without
+one of them erasing the other. Suppressed warning about deleting all files
+during clean.
+
+Ran tests on the new engine with many special effects wads, such as Jens'
+collection (SPECIAL2.ZIP or whatever). Did not notice any new regressions.
+Also ran tests using Eternal 3, and some of my wads.
+
+Commented out my sparkles fix for now, since it causes a new kind of rarer
+sparkles, which is more noticable when it happens (usually only visible when
+player is running, and occurs at the bottom of textures and sprites). Will
+get back to it later.
+
+Discovered new bug in DOOM 2 -- or in the nodes in MAP30 -- I can't believe
+I never saw this before -- there's a big slime trail on the wall to the left
+of the Boss' brain and it looks like the problem extends directly back to
+the skull switch on the other side of the map.  At first I thought this was
+a new bug in Boom, but it seems not, since I can reproduce it with Doom 2
+v1.9. I hope my iwad isn't corrupted. Has everyone else seen this slime
+trail but me, on the boss brain wall of MAP30? It makes a vertical line go
+all the way up the wall and it can be seen solidly even if you're in
+no-clipping mode and walk in-between the walls.
+
+Fixed funny-looking slashes in paths printed out during loading (Ty's
+suggestion). However, if you type -file \waddir\thiswad.wad you will still
+get the backslashes printed, though it's much more consistent now (it either
+reprints what you've typed in, or uses /'s). Fixing it everywhere would take
+more work.
+
+Renamed I_Add_Default_Extension to AddDefaultExtension and moved it from
+i_system.c to w_wad.c (it did not seem right having it in i_system.c).
+
+Added empty stub functions for performing saves and restores of plat height
+info in savegames. I will finish the functions later, when I have more time.
+
+Added random number generator info to the savegame, and started a very
+simple extension protocol for savegames which allows new engine to accept
+old or new savegames automatically. (See the source for more details -- I
+think this will work to support both old and new savegames, although you
+have to think hard about forward compatibility [whether any decisions we
+make now prevent us from doing something in the future, etc.]).
+
+Changed random number generator algorithm to use longer-period LCG
+generator, instead of simply a mod lookup table, although the old method is
+still used if compatibility mode is selected and a demo is played
+back. Tested random number generator by literally listening to it with the
+sound code -- it sounds white enough. <g> The old RNG sounded like bells and
+whistles -- hardly random. <g>
+
+Finished the dstrings.c changes, going so far as to make the list variable
+in size (you can now add messages or remove messages and Doom will adjust
+automatically to your changes -- with this change it would even have
+adjusted to the missing comma bug, and displayed the concatenated messages
+correctly).
+
+Replaced main lump searching routine with hash table scheme, just like I did
+on the R_TexNumForName() routine a couple of weeks ago. Immediately got
+10-15 fps improvement from this change alone -- now I get 309 fps on PPro
+200, MGA graphics card, with -fastdemo crusher. With -timedemo crusher I get
+101 fps.
+
+There are so many places in Doom where linear searching or other slow
+algorithms were used:
+
+1. Visplanes (one rumor I once heard was that the limit was imposed BECAUSE
+of the slow search -- but this is not a valid excuse, since hash tables
+exist :) Right now the algorithm enjoys an average of just under 1 visplane
+comparison per lookup, instead of n comparisons per lookup in the old
+algorithm if there were n visplanes.
+
+2. Texture and lump name table lookup, when looking up a lump or tetxure by
+name -- this is where a lot of Doom v1.9's time is spent while preloading
+between huge levels like Eternal -- it's spending most of its time just
+searching for the names. But now this has been fixed, and no matter how many
+lumps or textures there are, the search is still O(1) average-case since it
+uses a linear probing hash table, with n slots preallocated for n known
+items.
+
+3. O(n^2) sorting algorithm in R_SortVisSprites -- the main reason why Doom
+slowed to a crawl sometimes on levels with many monsters in view, and
+probably why there was a limit imposed on the number of visible
+sprites. Let's just be glad they didn't use a bubble sort :)
+
+4. Scroll effect linedef updates -- old algorithm updated every sidedef
+which was animated, once per frame, so if there were 1000 animated linedefs,
+that would be 1000x as much work per frame. New algorithm uses global
+counter which is all that needs updating each frame, and then the sidedefs
+are drawn with the appropriate offsets, which are only computed when the
+sidedefs are visible.  O(n) setup cost, O(1) overhead per frame, O(1)
+overhead per visible sidedef, compared to old method's O(n) setup cost, O(n)
+overhead per frame.
+
+5. Others?
+
+1/17/98
+
+Refined PPro/PII blit routine optimization: when PII or PPro CPU is
+detected, some optimized inlined C code is used instead of memcpy, giving
+another 10-15% performance boost on those CPUs. Wrote a separate routine so
+it's more readable and reusable now.
+
+Completely redesigned and rewrote memory wrappers and lump caching system.
+Threw away dalloc.c as being too incongruous with z_zone.c, which is
+essential.  This means every file had to be changed which #included
+"dalloc.h". New memory manager seems to work much better. <g> Verified
+memory behavior by printing statistics such as the percentage of
+fragmentation, in real-time. Tuned many parameters for maximum performance
+without significant fragmentation, such as the chunk size.
+
+The problems with memory seen earlier seem to have been aggrevated by
+fragmentation. The Doom lumps tend to be very large, but very varied, in
+size, and many classical methods, such as the one probably used in gcc's
+libc (probably the 'buddy system'), are not prepared to deal with Doom's
+widely varying sizes. Therefore the previous enhancements I did, while good
+in theory, did not work well because they were built on top of libc
+malloc(), free() etc. and the libc free() routine in gcc does not to
+coalesce blocks often when they are freed, causing fragmentation, and making
+a wad like Covers seem like it needs 100 MB to run (no, really).
+
+So I'm afraid our own memory pool is needed -- we have to write our own
+low-level malloc, not just a wrapper (well, we can call malloc() once to
+allocate the pool -- we don't need to get involved with sbrk()).
+
+All files were changed to use z_zone. You MUST #include "z_zone.h" if you
+use malloc, free, etc. in any future code, unless it's totally
+self-contained w.r.t. heap allocation, such as a library which only uses it
+internally (if you set globals that other files read, or you return
+malloc'ed space, etc., you need to use the wrappers defined in
+z_zone.h). Contact me for more details.  Usually you just need to put
+#include "z_zone.h" at the top of your code, and the rest is automatic.
+
+Changed mmus2mid.c to follow indentation and comment style more in line with
+the rest of the code, and added 'static' to internal functions and
+variables, to prevent namespace pollution and to allow total
+inlining. Commented out some unused functions to reduce executable's size
+and/or prevent warnings.
+
+Added music volume support, although it's weak. <g> On my system right now,
+Allegro seems to make the volume of sounds and music much softer than usual,
+and no allegro commands I've tried, such as set_volume, fix it, and both my
+sound card's analog amplifier and built-in mixer are set to maximum volume.
+Allegro just deafens the sound. But let's not forget, Allegro is tradeware.
+
+Fixed music problem on SBPro -- not sure why it doesn't work on SBPro yet
+unless ADLIB is selected -- the same thing happens if the "digital sfx" midi
+is used, perhaps because required samples are missing. We should probably
+force ADLIB if it's available, which is what happens now (see i_sound.c).
+
+Still, however, the music quality is poor -- there's no "bass" to it. <g>
+Some of the notes are slightly off (it sounds like it's an octave or half
+too high), and the instruments are poor. It's not my sound card or driver
+which is intrinsically the problem -- music can be played back quite well
+with many MUS and MID players and Doom v1.9's music player, all on my
+system.  It's just the current allegro & mmus2mid setup is not quite right
+yet.  Others can tackle this.
+
+I had to decrease the tempo slightly, because all songs were going by just a
+little too fast. I don't know the exact figure which should be used.
+
+Added R_DoorClosed function for my earlier automap closed door bug --
+previously the expression used in my fix for the automap rendering bug was
+in two places, but since it's a big expression, I decided a separate
+function was appropriate. Also removed the exceptional case of two sky
+floors, since it was not really correct (only two sky ceilings cause uppers
+to be ignored -- there's no analogy with lowers for sky floors, as my logic
+previously was using).
+
+1/16/98
+
+Integrated Jim's changes to the automap and music.
+
+Added missing sentinel at the end of sprite list in info.c, as per Jim's
+suggestion.
+
+Tuned the visplane hash function for better performance (simplified the
+arithmetic needed to compute the hash function, as well as chose a hash
+function which leads to very few visplane comparisons on several real wads).
+
+1/15/98
+
+Fixed missing commas in dstrings.c found by Steve McCrea.
+
+Fixed memory thrashing by changing z_zone's purge_replacement() algorithm.
+
+1/11/98 -- killough
+
+Slightly improved keyboard routine, by adding allegro_init() to d_main.c and
+by slightly tuning keyboard routine's inner loop.
+
+Increased default of numChannels to try to avoid confusion over sounds.
+Three channels is not enough, because "3 channels" means only 3 sounds are
+allowed. This was why some people experienced doors not working in my last
+version -- their numChannels parameter was too low. The reason it did not
+have this problem in the DOSDoom port is that it did not correctly implement
+sound-stopping (which is why rockets and chainsaws sounded funny), and so
+Doom's own code which stops sounds automatically based on priority, and
+limited by the numChannels parameter, was not stopping them. My fix last
+time made the numChannels parameter suddenly become important.
+
+Fixed automap bug (closed doors can be seen through) -- the bug was that
+Doom did not consider a 2s linedef totally blocked (essentially 1s), if the
+ceiling touched the floor on either side of the line. It DID consider the
+line blocked if the ceiling on one side touched the floor on the OTHER side,
+but not the SAME side, which explains why dropoffs on the other side of a
+closed secret door made it consider the linedef as unblocked. Now the
+automap does not show you the lines until you open the door, and the
+renderer does less work anyway (previously it would draw what's behind the
+door and then what's in front of it -- now it only draws the door and what's
+in front of it).
+
+There's another place in the renderer (in the flats drawing area) which has
+this same bug (incorrect determination of whether openings exist), but
+changing it may make some special effects like deep water and bridges not
+work anymore. Paul Schmitz's comment about "fake 3d bridges" being able to
+get away with not bleeding their floor textures on ONE side, may have to do
+with this anomaly in the way openings are considered, because a new floor
+will be drawn if it considers the opening closed, but since we know already
+how to fool it by making dropoffs, we may be able to have a "closed" area
+(like a closed door) that does not have the floor redrawn in front of it.
+Since all that will be gained by changing this one too, is less rendering
+work (since it considers it blocked more often) or a more consistent way of
+considering openings, I'm not going to change it now, since the risk is too
+great it will mess up subtle special effects like bridges.
+
+I discovered that my original fix for automap bug made Doom start visibly
+drawing some sprites which were behind closed doors. The reason is that the
+automap fix creates a clipped post, and Doom somehow takes this as meaning
+that a sprite cannot possibly be blocked by it. Fixed it by changing the way
+that sprite clip ranges are set up, by creating sprite clip ranges when back
+sectors are closed doors. Now automap and sprites seem to work right behind
+closed doors, but thorough testing is required.
+
+In order to support sky effects and transparent doors and lifts, special-
+case code had to be added to automatically recognize these cases, and to not
+execute the new automap-correcting code when the linedef was part of a
+transparent door or lift, or joined two sky sectors. In these cases the old
+behavior still rules.
+
+4. Fixed span limit problem -- this was apparently the bug which was
+affecting Lisa's wad, and it has probably been in every version of Doom.
+
+When scan lines (rows) are drawn, there are spans along the x-axis which are
+simply intervals (x1,x2) which have been drawn already. When Doom draws a
+texture, it clips it against previously established spans, and if the
+texture is non-transparent, adds it to the list by computing the union of
+the previous set of intervals and the interval of the new texture. (For more
+on this rendering method, see the paper "front-to-back display of BSP trees"
+on my page: http://classicgaming.com/doom/scholar/.)
+
+The bug was that Doom only allocated 32 elements in an array for the spans.
+On a complicated wad like Lisa's, where a large outdoor scene has many
+"posts" which consist of alternating transparent and non-transparent regions
+(like the pilliars in her wad), the limit can add up. Doom never kept track
+of the limit or whether it was even exceeded, so if it was exceeded, it
+simply overwrote memory and the result was usually a venentian blinds crash,
+or a seg fault in this version.
+
+I tried a linked-list approach, but Doom performance dropped 20%. This is
+understandable, since linked-lists have more overhead than arrays and they
+also do not have as much spatial locality, so cache performance
+suffers. This is an example where dynamic linked lists are worse than arrays
+for performance, with one module decreasing Doom's performance by 20%
+overall if linked lists are used inside it instead of arrays.
+
+Since the number of posts is limited to approximately half of the screen
+width (imagine nothing but alternating one-pixel strips), I decided to
+simply increase the static limit to the theoretical maximum instead of
+adding the overhead of linked lists. Only if the screen width goes up does
+the static limit now go up -- it is now expressed in terms of the
+SCREENWIDTH global macro.  If the static limit should ever be replaced with
+a dynamic one, it should use array-doubling instead of linked data
+structures, since the overhead of linked lists in that one module, decreases
+overall Doom performance by 20% which means it is a critical module (I need
+to look at it some more and possibly tune it). I am talking about r_bsp.c.
+
+Removed static limits on animated flats, deathmatch starts, and intercepts
+(walk linedef activations). The only static limits left that I know of, and
+which can be exceeded by a pwad, are the number of crushing ceilings, and
+the number of switches, activated or animated. They are the hardest static
+limits to remove, based on how they are implemented right now. All other
+limits, are limits which are bounded by other, more basic limits, such as
+the screen resolution or the OS's limit on command-line
+arguments. Increasing or eliminating these limits is not very useful right
+now.
+
+Added const to some function parameters, and made some variables and
+functions static. Besides aiding documentation, and catching programmer
+mistakes, const, when applied to pointer parameters of functions, prevents
+"address exposure" and aids global optimization. By knowing that a function
+parameter is a pointer to a const, the compiler knows that any address
+passed via that datapath cannot be modified during the call, which allows
+more optimization.
+
+Fixed the level 8/9 special handling, at the suggestion of Stan Gula.
+
+Reduced the sparkles bug problem (bottom parts of middle textures have
+transparent sparkles which appear randomly when the player moves -- this was
+used as a hint for a secret in Monster Mansion -- if anyone objects to my
+removing the sparkles bug, which is a rounding error bug, I can make it
+dependent on the compatibility flag, but I don't seriously think anyone
+minds). I've tested several levels, but if anyone notices strange effects at
+the top or bottom of middle textures or sprites as a result of this change,
+please let me know. I have not been able yet to fix the sparkles problem
+completely, without there being negative side effects, so right now, the fix
+is very conservative -- it only reduces the effect in half or so. When I
+tried to make the fix which corrected the problem totally, I got a new kind
+of dark sparkles, but it was only noticable only on 2s middle textures which
+were in "mid-air", such as "true 3d" bridges.
+
+Fixed the scrolling wall multiple-reference special effect, by adding a
+scrolling effect amount in the basic sidedef structure. Now this amount is
+multiplied by the global counter and added as the offset. Right now the
+amount is equal to the number of type 48 linedefs which reference the
+sidedef on their right sides.
+
+Changed sky texture renderer to allow sky textures higher than 128.
+However, all columns in Doom are still limited to being 254 units high.
+
+Fixed problem with playing back demo1, demo2, demo3 (fatal exit for missing
+file was relaxed). Now only missing pwads cause immediate exit.
+
+Turned on demo_compatibility during recordings as well as playback, if
+compatibility mode turned on.
+
+Added memory-allocation wrappers to detect out-of-memory condition when
+NOWRAPPERS is defined and the smart memory allocation wrappers are
+disabled. NULL return values for malloc(), realloc(), calloc(), and strdup()
+are detected and handled through Doom I_Error handler.
+
+Tuned gcc optimization flags for maximum Doom fps performance.  Currently
+getting around 272 frames/second on a PPro 200, Matrox Millenium card.
+
+1/10/98 -- killough
+
+Fixed memory hogging problem without performance loss, by writing an
+intelligent Z_Zone memory manager. Now a "working set" is established and
+maintained by the memory manager. Initially a working set of 1.5 MB is
+allowed for Z_Zone memory allocation (but allocated on demand). When this
+limit is exceeded, purgable blocks are purged according to a priority queue
+sorted on their frequency of allocation. If purging would cause thrashing,
+which is what happens during Medusa (it's apparently a memory allocation
+bug, although I don't have the exact cause yet), then the working set is
+increased.
+
+Watched working set statistics while playing regular Doom 2 levels and
+Eternal 3 MAP31. Regular Doom levels take around 2.0 MB, while Mansion takes
+around a 5.5 MB working set. No fixed pool is allocated for Zone
+memory. Previously, a 6 MB pool was preallocated in the Linux port. In my
+previous change, no pool was allocated but nothing was freed either until
+all memory was gone. This latest version attempts to allocate as little
+memory as possible and still not have to reload buffers from disk.  If it
+notices that a block is being allocated and freed repeatedly, it will stop
+freeing it and might increase the working set to a higher value.  This is
+similar to how real operating systems manage memory through paging.
+
+01/05/98 -- killough
+
+Added compatibility option to config file. Now you can set a user preference
+in the cfg file for whether you want compatibility mode, although I support
+changing this in a wad in the future (a config lump perhaps?). The command-
+line should have the last word, though. Note: compatibility mode does not
+necessarily imply demo sync, although when you are in compatibility mode and
+play back a demo, extra measures are taken to make sure it's "really"
+compatible -- these extra steps are not user-visible nor are they humanly
+perceptible in gameplay except when watching demos. See below for more.
+
+Fixed config file loads/saves. Now you can use old DOS Doom cfg files and
+they will work, except that you will need to re-adjust mouse sensitivity
+most probably. It will load and save after one adjustment, though. The new
+mouse sensitivity allows much more sensitivity in Doom's menu option, and
+although I could never reproduce the "crash" Jim reported, I don't think it
+will happen much anymore. The new range for the mouse sensitivities is 0-23
+-- I don't know how that translates into the old numbers but if you divide
+the old number by 4 you should get a good approximation.
+
+Looked at DOSDoom3's keyboard handling, looked at Allegro docs, and
+implemented my own keyboard handler similar (but better <g>). DOSDoom's old
+keyboard handler was a hack and was part of the reason behind default.chi
+and so many of the dpmi/go32 function calls. Now the only non-allegro
+low-level hardware calls are the graphics ones.
+
+Implemented separate mouse sensitivities (horizontal and vertical). New menu
+option has both horizontal and vertical, but I need a graphic artist or
+someone willing to write an entire Doom font generator, to put the words on
+it. Right now it just says "mouse sensitivity" 3 times: the header,
+horizontal, and vertical. You can still use it, though.  Current engine
+design prevented me from easily adding "horizontal" and "vertical" menu
+bars, since they are graphic lumps in wads.
+
+Changed i_system.c to use allegro timer interrupt setup routines, for better
+Doom realtime clock resolution.
+
+Fixed a bug found recently in DOSDoom (yet another insufficient malloc size
+bug in the routine which identifies Doom versions).
+
+01/04/98 -- killough
+
+Added -deh switch to turn on enhancements (thus turning off compatibility
+mode). It's trivial to change the name to whatever we want, but I think it
+should be made a configuration file option as well. We probably need a
+-nodeh switch also, since I think the command-line should always be allowed
+to override. The order should be: command-line, wad file, config file.
+
+In non-compatibility mode, monsters on MAP30 can no longer telefrag the
+player.
+
+Change IDK[F]A cheats to give backpack as well as full ammo (not for
+cheating's sake <g> but for testing and benchmarking Doom with hundreds of
+Things coming at you all at once!!!) Thought about making the ammo unlimited
+but didn't have the time to make the status bar changes (numbers would look
+funny unless I did that). I can live with typing idfa every once and a
+while, just half as often now.
+
+Added memory allocation wrappers which were written for Jim Flynn's Patcher.
+Immediately caught and fixed one bad free() which I introduced last time,
+but which does not seem to be the cause of the problem in Lisa's wad, or any
+other major problem. To avoid using the wrappers, which have a minor
+performance hit, compile Doom with -DNOWRAPPERS, as shown in the makefile.
+
+Fixed compiler warning messages about possibly uninitialized variables,
+usually just by adding default cases to switches.
+
+Improved -timedemo flag -- now it displays the FPS, and it also works even
+on multilevel demos (previously it would give wrong timings if there were
+multiple levels in the demo).
+
+Tried MAP30 with -fastdemo in god mode (interrupt a fastdemo and start a new
+game, just like -timedemo, to see it) -- instead of once every 4 seconds,
+the icon throws a cube around three times a second or more (more than 10x
+speedup).  Left Doom running this way while I was sleeping, and came back to
+it when I woke up -- it was still running just fine, and there was only a
+small slowdown on my PPro 200, which is about as much as Eternal or any big
+wad like that gets on a 486. Previously, due to the Vissprites bug, Doom
+would slow to a crawl when the number of things grew on MAP30 -- it would
+stop drawing them after the limit was exceeded, but it was still slow. Now
+it's not so slow.
+
+Added -fastdemo switch to allow you to play back demos at the fastest speed
+possible -- even faster than -timedemo. What this does is turn the clock
+into a counter which increments as fast as Doom can read it. Crusher.lmp is
+included as an example of what "-fastdemo" means -- it's a demo I recorded
+on Doom 2 v1.9 which still stays in sync (unlike a lot of demos,
+unfortunately). Run it under -fastdemo and see it play back as fast as your
+computer can play it back.  Nothing is skipped (otherwise it would go out of
+sync), except possibly the screen updates.
+
+Added demo_compatibility global flag, to indicate whether or not strict
+compatibility is required. If you want to know whether you should use
+"demo_compatibility" or just "compatibility" when making a change, ask
+me. <g> demo_compatibility is only turned on when both the compatibility
+flag is set AND the user is playing back a demo -- just having compatibility
+mode turned on does not necessarily enable demo_compatibilty, but
+demo_compatibility implies regular compatibility. The idea is that you can
+turn compatibility mode on or off with a single global flag, and then Doom
+decides how strict to interpret it based on whether you are playing back a
+demo or not. This is friendlier to the player than having to worry about two
+compatibility flags or more than just two compatibility settings.
+
+Looked into demo sync problems caused by my recent changes, and found that
+it was the optimization of PointOnLineSide() and PointOnSide(), to use
+floating- point arithmetic instead of fixed-point arithmetic, which caused
+the most demo sync problems, so I've switched those optimizations on or off
+with the demo compatibility switch, improving many demos' sync problems, but
+not all of them.  I don't think we can expect all demos to work, but I still
+like to use it as a goal to work towards with demo_compatibility. It's the
+process of trying to reach demo sync, not the actual result of a demo that
+works, that I'm trying to promote.
+
+Included documentation on MUS files (MUS_FORM.DOC) for anyone interested in
+doing the music. For those interested, I suggest you also look at the
+allegro documentation, which has a section on its built-in midi player.
+
+Sound effects have been fixed completely -- the minor problem still left
+with the rockets was because a different SAMPLE must be used for each sound
+or else Allegro kills all sounds of a particular SAMPLE when any one of them
+is killed.  Now the sound effects are indistinguisable in quality from id's
+Doom.
+
+Lisa's problem (Doom seg faulting or other crash in her latest wad) is even
+worse in DOSDoom 3 -- in DOSDoom 3, the rendering looks like it suffered a
+"meltdown" and even the player's weapon does not display right. In this TNT
+version of Doom, based on DOSDoom 2 but signficantly improved w.r.t. engine
+limits and memory allocation, the crash occurs only when looking in a
+certain direction in the wad. It is not, IMO, another engine limit, but a
+bug in the current engine or on my changes to it. Engine limits are checked
+for and are caught by Doom when RANGECHECK is defined.
+
+01/01/98 -- killough
+
+Note: the hi/low detail option, which was never fully implemented, has been
+removed entirely by me -- there is no option anymore for low detail, and it
+does not show up in the menu. This is better IMO than having a menu option
+that doesn't do anything useful. The dead source code having to do with low
+detail rendering has also been commented out.
+
+Also, screenshots have been improved so that there is no longer a 100-file
+limit (although the first 100 are still named DOOM00.pcx through DOOM99.pcx,
+DOOM100.pcx and above are also allowed). Gamma correction is now saved as a
+part of the screenshot, and no "screenshot" message appears. (Messages can
+of course be turned off, but why turn off all messages just to turn off the
+screenshot acknowledgement? It messes up further screenshots unless you wait
+for it to go off, or you turn off all messages completely.)
+
+Oh, and the "oof" sound which the player makes when trying to activate a 1s
+linedef, now also works on 2s linedefs which block the player's movement.
+I'm sorry if this hurts a secret (has anyone used this lack of player sounds
+as a secret indicator?), but I think it's more consistent this way -- when
+the player is blocked, if they try to activate it, they get the "oof" or
+"noway" sound.
+
+>This is what we have for engine goals to date. Comments and suggestions are
+>welcome as always:
+>
+>TNT Engine goals
+>-----------------
+>
+>Limits
+>------
+>
+>+vp limit removal
+
+Done -- Using chained hash table search instead of linear search on a static
+array.
+
+Array doubling was not used to solve visplane limits, but that's because
+visplanes are essentially a caching problem, and caching is best done with
+hash tables.
+
+>+2S HOM removal
+
+Done -- A array-doubling technique. I noticed another bug in the process --
+bad pointer comparisions in a loop -- the old code was comparing a pointer
+that was one element before the beginning of an array -- ANSI-C only
+requires that a pointer pointing to one element after the END of the array,
+need to be considered valid for comparison, and that comparing any other
+pointer values outside of the array's bounds is undefined (except for
+comparision of equality with NULL). End of computer language legaleze.
+
+>+savegame limit removal (or at least doubling it for now)
+
+Done -- the savegame buffer is resized automatically when it needs room for
+more data. Needs to be fully tested though, on some large wads.
+
+>-too many plats removal
+
+Done -- the original structure was a fixed array of pointers, which was
+searched by probing to find active plats.  Now active plats are dynamically
+added to a linked list which can grow without limit. Revenge (the dead
+falling player demo wad I made) was used to test it, setting off several
+dozen plats simultaneously and watching them rise back in sequence in the
+distance, like a rollercoaster ride.
+
+>-animated linedef limit removal
+
+Removed. The sidedefs are offset at rendering time using a global offset
+counter which increases each gametic, instead of updating each sidedef
+individually, and being limited to 20 animated walls.
+
+>Bugs
+>----
+>
+>-problems in DEFAULT.CHI/CFG (from the DOS port)
+
+Will probably take a little work. Need to decide on a config file format
+(ASCII? Scancodes?). I'd prefer compatible with existing format if possible,
+but if necessary we can have our own format, in which case a migration
+utility would be nice.
+
+>-page fault on exit (from the DOS port)
+
+Happens randomly for me now, although it's stablized now (no more loud
+sound card noises or being left in graphics mode). Same with Venetian
+blind crash -- it's intercepted and things are cleaned up before exiting.
+
+>-fixing the inability to diagonally run (from the Linux port)
+>
+>+fixing IDCLEV to work (from the Linux port)
+>
+>-nomonsters bug fix
+>
+>-making illegal texture changes a nop rather than a crash
+>
+>-manual door triggers on 1-sided lines shouldn't cause problems.
+
+Done. As part of this change, the "Ummp" sound is now heard whenever a
+player tries to open a door on a 1s linedef, or whenver the player tries
+to activate a 2s linedef which they are blocked by due to linedef flags
+or sector heights (I always hated the inconsistent "umps" along walls,
+depending on their structure!!!).
+
+>-fixing the floor crusher problem (only kills minor monsters - can
+> block player when it doesn't work)
+
+The AV bug is another one to include in this category (again, we should
+preserve current behavior with a switch since many wads use the AV bug
+as an effect). I have not looked at the AV bug yet since other things
+are higher priority.
+
+>-trapping 0 tag trigger activation and noping them
+
+I disagree with this change for compatibilty reasons.
+
+[It's compatibility optioned in final release]
+
+I know some wads where this is used intentionally, like a trap to turn out
+all the lights in the level. The "no more plats" crash should no longer
+occur, but that was a different problem altogether. As long as it does not
+crash the game, I think tag 0 triggers should still work the same way.
+
+>-savegame restoral fixes (failure to save original height of plats primarily)
+
+Working on it. Need to integrate this with my "no more plats" fix, which may
+or may not require slight changes to the active plats data structure.
+
+>-correcting bullet/rocket/plasma absorption
+
+Done. Problem was in an incomplete implementation of a "sky hack" which
+prevents projectiles from exploding on sky walls (which would look as
+ridiculous as the absorbtion). The implementation did not take the
+projectile's z-coordinate into account fully, missing cases where there are
+sky textures on ceilings, but they do not affect the collision, such as when
+a lower is the blocker. Required trivial tests of z coordinates to be added
+to the bullet and projectile cases.
+
+Sky floors do not suck up fire the way sky ceilings do -- this is
+potentially another thing to be fixed -- the whole thing with the walls
+sucking up was due to the idea someone had that sky walls should not have
+impact frames, because it would look strange to see a rocket explode in "mid
+air" towards a sky. But the implementation was incomplete or just plain
+wrong, not taking into account at what height the impact occurs and whether
+sky exists at this height.
+
+>-automatic hidden line setting to reduce spiderwebs in automap.
+>
+>-correct display of normal textures on 2-sided lines that now extend
+> into the floor or ceiling
+
+This is a special effect I think some people have used -- bleeding textures.
+I started working on it but there were other things in my way. It's sorta
+like Medusa -- messing with the 2s middle texture code, which is messy in
+itself. <g>
+
+[Released source doesn't have fix, for compatibility reasons, although
+new 242 effect properly clips 2s linedefs which go across fake floors or
+ceilings.]
+
+>-tutti-frutti removal
+
+Done. Problem was that the DrawColumn only tiled columns mod 128 -- if the
+drawn column was higher than the texture, but less than 128, then it drew
+whatever garbage was past the end of the texture's data (because it did not
+wrap around until 128). New code allows arbitrary texture height info to be
+passed to DrawColumn, and the code figures out whether to use a faster
+algorithm similar to the old one, based on power-of-2 mods using ANDing, or
+a more general algorithm which uses repeated subtraction but allows
+arbitrary tiling on any height textures. Verified on some test wads --
+textures tile correctly now regardless of height.
+
+Might want to extend this item, to allow aribitrary-height textures.
+[Already works!!! But column posts are still limited to height 254.]
+
+>-remove Venetian blind crash
+
+Done. Installed signal handlers and atexit handlers to catch abnormal exits
+and execute cleanup code, such as restoring text screen, stopping sounds and
+music, and reporting the signal if it was a segmentation violation or
+illegal instruction, etc.
+
+>-general stabilization
+>
+>User Interface
+>--------------
+>
+>-default cmdline file extensions, always allow paths for file parameters
+
+Done. Any extensions can be used and missing ones are supplied defaults.
+You can use extensions and arbitrary paths for demos, and you don't need
+to supply .wad extensions for -file parameters.
+
+Also, the IWAD file determining game mode is intelligently searched for
+now, in several search paths (Doom.EXE's directory, current directory,
+$DOOMWADDIR directory, $HOME directory). So you can run DOOM.EXE from
+anywhere now, and if an iwad file exists in the same dir as the .exe, it
+is used; otherwise an iwad in the current directory is used; or one in the
+$DOOMWADDIR location, etc. The precedences of each directory and each game
+mode can be changed if we want.
+
+>-allowing demos from any version wad to be loaded and run
+
+Done. The version check is simply ignored now. Do we want a stronger test,
+say one that prints a warning and waits for the user to press ENTER, if the
+versions don't match?
+
+>-extending MAPs allowed to Map00-Map99, and E0-9M0-9
+>
+>-permanent lights on full cheat
+
+Done.
+
+idbehold[lvri] are all infinite duration now. They stay that way until you
+type the cheat again to toggle them off.
+
+idbehold[as] also toggle properly now -- you can remove berserker strength,
+and you can add it back, with full health, at any time. The computer map
+can be taken away and added back too.
+
+>-unattended demo completion (exit pressed) detection
+
+Multilevel demos may pose a problem here. Do you want a report listing all
+levels which were completed, like, say, a report of the level name followed
+by the duration it ran, with one level per line in the order the levels were
+played?
+
+I propose a log file, either specified on the command-line (-logfile ?), a
+default one that always gets appended to, or some combination thereof, with
+a line printed for each level completed, perhaps also with the date and time
+it occurred and the time elapsed in the level.
+
+[Never got around to it in Phase I]
+
+>-showing keyed door colors and possibly (with cheats) keys in automap
+
+I don't care, since I don't use the automap, although you must remember that
+yellow and red are already used for something, and this would be confusing
+to those who already use the automap.
+
+This argues for better customization options, such as more pull-down
+menus. Right now the menu text bars are graphics in the wad, while it would
+be nice if there was an automatic generator which could print arbitrary menu
+text. Lots of things such as compatibility mode and automap colors would be
+"user preferences" that I don't want to type on the command line (and I
+don't think many people will want to).  More powerful menu and configuration
+options is what this boils down to. [And they were implemented!!!]
+
+>-allow use of caps lock as an assignable key for autorun.
+
+We also need to fix Right CTRL for fire, and be sure to clean up the
+keyboard state before exiting (perhaps by writing to the BIOS area),
+so that keys stuck in CAPS until one or both shifts are pressed, won't
+happen.
+
+>-remove crash when menu is accessed and mouse speed is greater than 30.
+>-possibly increase mouse speed maximum
+>-have serarate horizontal and vertical mouse sensitivity settings.
+
+Not a mouser so don't know or really care -- someone more appreciative
+needs to do this.
+
+>-3 digit frag counter.
+>-frag counter for all players in the game.
+
+Don't care about DM, so someone more appreciative should work on it.
+
+>+doing all-at-once text display instead of char by char
+>
+>Optimization
+>------------
+>
+>-initial performance optimization - the obvious stuff
+
+Working on it -- fixed z_zone.c medusa-like slowdowns, among other things
+(yes, a form of slowdown similar to Medusa in symptoms is apparently a
+memory allocation problem). Tuned DrawColumn. Macroized and in some cases
+hand-inlined small commonly used functions like FixedMul. Changed point /
+line query functions to be macros which do intermediate floating-point
+arithmetic instead of long complicated functions which must avoid fixed-
+point overflow and still come up with the correct answer to where a
+point is relative to a line -- only on some platforms would fixed point
+arithmetic be preferable. I think we can assume a target machine of 486
+or better, so using floating point operations for faster speed, is okay.
+
+BTW, despite the "array doubling" coming up in our discussions before
+the source was released, it has only been a good solution for around
+half of the limit problems so far.
+
+I've used these data structures/algorithms/optimizations so far:
+
+1.  Array doubling (dynamic array that's realloced everytime it gets too small)
+2.  Linear probing hash table with number of elements known a priori
+3.  Chained hash table (array of pointers, each to a dynamic linked list)
+4.  Remove the array and the requirement for it completely (wall scroll effect)
+5.  Singly-linked list
+6.  Doubly-linked list
+7.  Inlining small functions by changing them into macros
+8.  Replace fixed-point integer arithmetic with simpler FP arithmetic
+9.  Loop invariant code motion (precompute constant expressions out of loops)
+10. Replacing the selection sort of a linked list with the quicksort of a
+    pointer indirection array, and removing the setup cost of the linked list
+11. Giving hints to the compiler about common subexpressions, by putting them
+    in separate local temp variables that are used often.
+12. Limiting the scope of local variables to reduce aliasing and promote GRA
+13. Cache frequent search keys with small numerical values in a lookup table
+14. Runtime dynamic selection of division methods based on divisor
+15. Hand-unroll loops and rearrange order of operations after unrolling
+
+>Networking
+>----------
+>
+>-IP networking and modem to current capabilites at least
+
+I'll let Stan worry about this since I don't know diddly about networking
+or its protocols, nor do I have the required test equipment.
+
+>Sounds and Music
+>----------------
+>
+>-improve sound quality as much as possible
+
+Fixed. DOSDoom code was unnecessarily complicated and buggy.
+
+>-bringing up music from .MUS lumps
+
+Don't have the time right now, although I could do it later. If no-one else
+wants to do it, I can, but it will take research into .MID and .MUS which
+I'm not very familiar with. It seems like music would be as simple as sound
+with allegro -- the biggest problem would be converting the .MUS into .MID,
+which for backward compatibility would need to be done by Doom at
+runtime. .MID lumps in the wad is another option, but it should not done
+exlusively of .MUS.
+
+>-check for stuck note problem - allow midi reset or force them
+>
+>Wad Structure
+>-------------
+>
+>-rough specification of extended wad structure plan
+
+We can discuss this, but I can't overemphasize the importance of backward
+compatibility.
+
+I've though about the idea of using a "higher-level specification" lump,
+to tell more about the lower-level details of the rest of the lumps, sorta
+like a configuration lump but it determines the language of the rest of the
+wad.
+
+>Limits
+>------
+>
+>-pain elemental head spawn limit made variable or optional
+
+Done, but qualified with a switch, since it breaks compatibility.
+
+>-too many sprites in view limit
+
+Done.
+
+Main problem was sorting algorithm, which was O(n^2), and was unnecessarily
+complicated -- it set up a linked list among the vissprites, which were,
+ironically, first held in a static fixed-sized array, and then it used a
+selection sort on the linked list, rotating items around a doubly-linked
+list. All that was needed was to sort the original array in-place, but since
+that would involve a lot of data movement because of large data items, a
+separate array of pointers (a redirection list) was added by me to avoid too
+much data movement, and it was sorted using qsort. A test with 500 monsters
+showed no appreciable slowdown compared to an empty room, and all were
+drawn. The new algorithm places no limits on the number of sprites in view,
+and uses a fast sorting algorithm. After several hours of running MAP30 in
+no-clipping god mode on a PPro 200, Doom still runs just fine even though
+hundreds of dead monsters are there, and the player can still move around,
+though a bit more slowly.
+
+>Bugs
+>----
+>
+>-medusa fix
+
+Working on it, although right now the slowdown is negligible compared to
+what it was in the original Doom. Making multi-patched columns work on 2s
+middle textures may require significant work (or it may not -- more deep
+study of the code is needed). [Problem was columns were not set up right.]
+
+>User Interface
+>--------------
+>-in-game secrets/monsters progress indicators
+>-heads-up health and ammo indicators
+>-allowing combination of -loadgame and -record/-playdemo
+>-allow reassignment of weapons keys
+>-possibly have a separate "use" and respawn key.
+>
+>Sounds and Music
+>----------------
+>
+>-replacing music with ambient sound or redbook audio as an option
+
+Mod (soundtracker) music would be my first choice for background music,
+since it can be included in the wad structure. There are already lots of MOD
+players on the net, plus thousands of .MOD files. Briefly, .MOD files are
+(usually 4-channel) music files which can use any arbitrary sound sample for
+instruments. They tend to be much smaller than raw digital recordings, since
+the samples only need to be stored once in the file. Since arbitrary sounds
+are possible, lyrics are often used.
+
+It should not be too hard to incorporate a .MOD player into Doom, given
+Allergo's versatility, and I know of some good .MOD sounds that could be
+used as background music for Doom.
+
+>Wad Structure
+>-------------
+>
+>-DEH lump for wad-specified engine feature/initialization control
+>-wad lump to specify switches, animations, and skies
+>
+>#####################################################
+>LATER (not to be done earlier than the second phase):
+>#####################################################
+>
+>Limits
+>------
+>
+>Bugs
+>----
+>
+>User Interface
+>--------------
+>
+>-game based menus (select skill by linedef e.g.)
+>-console for game control
+>-VCR style demos (very hard I think)
+
+One thing I think we should use to prevent sync problems is to periodically,
+or perhaps every so many tics, store the player's position in the lmp so
+that even if the player "bumps his head" he will get "back on track". But
+monsters' positions are important too for sync purposes, and it may be too
+much to save all of them. [Too much work, it turns out]
+
+>Optimization
+>------------
+>
+>-full optimization
+
+Working.
+
+(BTW, don't call it "full" optimization. Just say "more" optimization.
+I'm big with qualifiers. Usually many most sometimes maybe, but never
+always fully forever.)
+
+>Sounds and Music
+>----------------
+>
+>Networking
+>----------
+>
+>-peer-to-peer networking, joinable games
+
+Stan-area.
+
+>Wad Structure
+>-------------
+>
+>-formal extended wad specification
+>-utilities to work with new features and structures
+>
+>Engine Enhancement
+>------------------
+>
+>-generalized scripting (including an event-based engine)
+
+Very hard to do until current engine is modified to not use tic-based
+events.
+
+Current engine uses "thinkers", and goes though an entire list of them
+during every frame. If a "thinker" does not have anything useful to do, it
+simply decreases a counter or something like that and returns. No priority
+queue or the like is used.
+
+It's like a synchronous system as opposed to an asynchronous one. What I was
+proposing was asynchronous -- an event could fire at any time and would be
+handled when reached the top of the queue, unless it was cancelled earlier.
+
+Doom's tick-based events are handled somewhat like polling-based IO, since
+the tic counter itself is polled, even across networks, to keep the game in
+sync with a clock. What I was proposing with event-driven simulation would
+be more like using interrupts, and the synchronization would just be another
+event -- it would wait until the next gametic occurs, and then the game
+would move on to processing more events. The synchronization event would be
+tied in with, or would be kept close to, the screen update, so that screen
+updates occur at a regular rate.
+
+>-extended resolution
+>-sprite height
+>-extended autoaiming
+
+Easy to change the autoaiming behavior, but this should be qualified by a
+compatibility switch.
+
+>-look up/down, mlook
+>-move up/down (jump, crouch, fly)
+
+None of these should be the default, IMO.
+
+>-gravity, friction, wind/current
+>-BSP extensions - horizontal wall motion, rotation
+>-sector based 3D
+>-enhanced monster AI
+>-inventory (view, get, drop, throw, give) and possibly "use X on Y"
+>-more realistic definition of "wake up sound"
+
+e.g. door openings, chainsaw idle, moving platforms, etc.
+
+>-translucency
+>
+>#################################################################
+>NEVER (Not forseen that we will do this til much later, if ever):
+>#################################################################
+>
+>Engine Enhancement
+>------------------
+>-light sourcing
+>-mirrors
+>-3dfx/GL support
+
+There will already be people doing this in other projects.
+
+>-MMX support
+
+MMX support, if you mean Pentium MMX, is too platform-specific IMO. Time is
+better spent improving algorithms and doing optimizations which cut across
+processor implementations.
+
+I'm for 100% compatibility unless indicated otherwise in the wad, in an
+environmental variable, or on the command-line. Visual or auditory defects
+such as visplanes and other engine limits can be fixed without affecting
+compatibility, but changing the behavior of the engine so that certain wads
+don't work anymore, is unacceptable to me, even if a command-line flag like
+-compat is used to turn it on.
+
+I think Doom 1 testing needs to be emphasized. I'm a Doom 1'er, and use it
+as often as Doom 2. Losing Doom 1 compatibility would be unacceptable to me.
+
+----------------------------------------------------------------------------
+
+[END of Log of changes to Boom Engine]
+
+Lee Killough
+killough@rsn.hp.com
+http://classicgaming.com/doom/
+http://www.trailerpark.com/tequila/killough/
+
+----------------------------------------------------------------------------
+#
+# $Id: LOG_LEE.TXT,v 1.1 2000/04/09 17:55:00 proff_fs Exp $
+#
+# $Log: LOG_LEE.TXT,v $
+# Revision 1.1  2000/04/09 17:55:00  proff_fs
+# Initial revision
+#
+# Revision 1.43  1998/06/03  20:23:20  killough
+# fix v2.00 demos
+#
+# Revision 1.42  1998/05/28  06:04:20  killough
+# cleanup for public release, update
+#
+# Revision 1.41  1998/05/26  10:51:54  killough
+# Add address at top
+#
+# Revision 1.40  1998/05/25  10:40:18  killough
+# Fix wall scrolling bug
+#
+# Revision 1.39  1998/05/16  09:17:24  killough
+# Make loadgame checksum friendlier
+#
+# Revision 1.38  1998/05/15  00:34:30  killough
+# update
+#
+# Revision 1.37  1998/05/13  22:58:37  killough
+# update
+#
+# Revision 1.35  1998/05/11  00:40:39  killough
+# update
+#
+# Revision 1.34  1998/05/10  23:43:40  killough
+# update
+#
+# Revision 1.33  1998/05/07  06:54:45  killough
+# corrections
+#
+# Revision 1.32  1998/05/07  01:09:59  killough
+# update
+#
+# Revision 1.31  1998/05/07  01:09:01  killough
+# update
+#
+# Revision 1.30  1998/05/07  01:06:01  killough
+# update
+#
+# Revision 1.29  1998/05/03  23:41:15  killough
+# update
+#
+# Revision 1.28  1998/04/29  16:28:37  killough
+# update
+#
+# Revision 1.27  1998/04/29  10:03:01  killough
+# update
+#
+# Revision 1.26  1998/04/27  02:16:09  killough
+# update
+#
+# Revision 1.25  1998/04/20  11:14:04  killough
+# update
+#
+# Revision 1.23  1998/04/17  10:41:51  killough
+# update
+#
+# Revision 1.22  1998/04/16  06:15:28  killough
+# update
+#
+# Revision 1.20  1998/04/13  13:08:11  killough
+# update
+#
+# Revision 1.19  1998/04/13  09:54:22  killough
+# update
+#
+# Revision 1.18  1998/04/12  02:04:28  killough
+# update
+#
+# Revision 1.17  1998/04/10  06:27:56  killough
+# update
+#
+# Revision 1.16  1998/04/07  07:05:42  killough
+# update
+#
+# Revision 1.15  1998/04/07  07:03:33  killough
+# update
+#
+# Revision 1.14  1998/04/07  06:58:06  killough
+# update
+#
+# Revision 1.13  1998/04/06  04:55:42  killough
+# update
+#
+# Revision 1.11  1998/04/02  18:23:20  killough
+# update
+#
+# Revision 1.10  1998/04/01  16:07:23  killough
+# update
+#
+# Revision 1.9  1998/03/31  16:13:26  killough
+# comment
+#
+# Revision 1.8  1998/03/28  17:47:59  killough
+# update
+#
+# Revision 1.7  1998/03/23  03:19:37  killough
+# update
+#
+# Revision 1.6  1998/03/16  12:25:56  killough
+# update
+#
+# Revision 1.5  1998/03/09  07:34:13  killough
+# update
+#
+# Revision 1.4  1998/03/02  11:33:56  killough
+# update
+#
+# Revision 1.3  1998/02/23  04:31:50  killough
+# update
+#
+# Revision 1.2  1998/02/17  06:35:36  killough
+# update
+#
+# Revision 1.1  1998/02/17  06:30:17  killough
+# new name
+#
+# Revision 1.6  1998/02/11  13:58:59  killough
+# update
+#
+# Revision 1.5  1998/02/09  03:24:19  killough
+# update
+#
+# Revision 1.4  1998/02/02  13:17:26  killough
+# update
+#
+# Revision 1.3  1998/01/26  19:30:03  phares
+# First rev w/o ^Ms
+#
+# Revision 1.2  1998/01/26  05:46:44  killough
+# update
+#
+#
+

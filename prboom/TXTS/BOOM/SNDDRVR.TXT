@@ -1,0 +1,208 @@
+// This file contains information for setting BOOM up with sound and
+// midi devices. Tables below give the numbers used with BOOM to
+// select the sound card and music card. Usually setting both to -1
+// is all you need to do. If not...
+
+// a good plan is to run asetup.exe (Allegro setup) and configure
+// your sound and music.Then after exiting and saving changes look in
+// the ALLEGRO.CFG generated and copy the digi_card setting there to
+// BOOM.CFG's sound_card variable and the midi_card setting to BOOM's
+// music_card setting. Leave ALLEGRO.CFG in place, it won't hurt and
+// may help if you have non-standard irq, dma, or port assignments.
+// It also supports flipping left and right channel with flip_pan.
+
+// if both of music_card and sound_card are set to numbers other than
+// -1, then the detect_voices option will be used if 1. This will
+// detect the number of voices available on each device and set it
+// accordingly. This may help if autodetection of number of voices fails.
+
+//----------------------------------------------------------------
+// available sound drivers in Allegro
+// in BOOM.CFG set sound_card to the number in the middle below
+
+AUTODETECT  -1    - let Allegro pick a digital sound driver
+NONE         0    - no digital sound
+SB           1    - Sound Blaster (autodetect type)
+SB10         2    - SB 1.0 (8 bit mono single shot dma)
+SB15         3    - SB 1.5 (8 bit mono single shot dma)
+SB20         4    - SB 2.0 (8 bit mono auto-initialised dma)
+SBPRO        5    - SB Pro (8 bit stereo)
+SB16         6    - SB16 (16 bit stereo)
+GUS          7    - Gravis Ultrasound (not written yet)
+
+//----------------------------------------------------------------
+//available midi drivers in Allegro
+//in BOOM.CFG set music_card to the number in the middle below
+
+AUTODETECT  -1   - let Allegro pick a MIDI sound driver
+NONE         0   - no MIDI sound
+ADLIB        1   - Adlib or SB FM synth (autodetect type)
+OPL2         2   - OPL2 synth (mono, used in Adlib and SB)
+2XOPL2       3   - dual OPL2 synths (stereo, used in SB Pro-I)
+OPL3         4   - OPL3 synth (stereo, SB Pro-II and above)
+SB_OUT       5   - SB MIDI interface
+MPU          6   - MPU-401 MIDI interface
+GUS          7   - Gravis Ultrasound (not written yet)
+DIGMID       8   - sample-based software wavetable player
+AWE32        9   - AWE32 (EMU8000 chip)
+
+
+//----------------------------------------------------------------
+//
+//Creative Labs documentation:
+//
+
+Some instructions from Creative Labs for setting up under Win'95's
+MS-DOS mode:
+
+Please follow these steps for setting up your sound card in Win95 MS-DOS
+MODE
+
+First, *if you have a Plug and Play (PnP) sound card*, put the 3.5"
+Plug and Play (PnP) Configuration Manager disk that came with your
+sound card in your floppy drive.  If you don't have the PnP disk, you
+can get CTCMBBS.EXE/Library 15 Miscellaneous Files for CompuServe
+customers or from ftp://ftp.creaf.com/pub/creative/patches.
+
+Run the CTCMBBS file in a TEMP directory.  Go into Windows Explorer and
+view the files in the TEMP directory, or on the 3.5" floppy disk. You
+should see a file called CTCM.INF.  RIGHT CLICK on CTCM.INF and then
+LEFT CLICK on INSTALL. This will install the PnP drivers in
+DOSSTART.BAT so when you restart your computer in MS-DOS mode, it will
+load your sound card drivers and settings EXACTLY as they are in Windows 95.
+
+If you want to add the typical lines to the autoexec.bat (none are
+needed in the config.sys), here they are:
+
+  SET SOUND=C:\Progra~1\Creative\CTSND (or your path to SB files)
+  SET BLASTER=A220 I5 D1 H5 P330 T6 (see Note 1)
+  SET MIDI=SYNTH:1 MAP:G
+
+  In the DOSSTART.BAT, for a PnP card, you should have a CTCM line.
+
+Example:
+
+C:\WINDOWS\CTCM
+
+You should also have these lines:
+
+  C:\[path]\DIAGNOSE.EXE /S  (see Note 2)
+  C:\[path]\MIXERSET /P /Q   (Optional/see Note 3)
+  C:\[path}\AWEUTIL /S       (Only with SB32,AWE32,AWE64,AWE64Gold)
+
+Note 1 - These are the defaults.  Change as necessary:
+
+  A = I/O address of the card
+  I = IRQ of the card
+  D = Low DMA channel
+  H = High DMA channel
+  P = MIDI port address
+  T = Card identifier - 6 means SB16/SB32/AWE32
+
+Additional Note:
+  E = EMU8000 address for AWE32 cards - must be present for Allegro
+  to autodetect an AWE32 card.
+
+Note 2 - Diagnose is installed when the DOS/Win3.1x software is
+installed. You can get another copy of it (without installing
+all of the other software) under the file name of 95DOSAPP.EXE
+at LIB 5 or from our internet site, ftp.creaf.com, located in
+/pub/creative/drivers/sb16awe. To install it, you need to
+follow the instructions in the README.TXT file that came with
+95DOSAPP.EXE.
+
+Note 3 - MIXERSET is a program that controls your volume in DOS. To
+install it, you need to follow the instructions in the
+README.TXT file that came with 95DOSAPP.EXE.  After the
+software is installed, make sure that the MIXERSET line is in
+your DOSSTART.BAT file.  Run the MIXERSET program to set your
+volume settings in DOS.
+
+----------------------------------------------------------------------
+
+Some help with the DIGMID driver from Rich Nagel:
+
+----------------------------------------------------------------------
+Setting Up the Software Wavetable Synthesis "Digital MIDI" (DIGMID)
+Music Driver with BOOM
+=========================================================================
+
+The Allegro library that is used for sound, music, and graphics in
+the BOOM engine supports "Software Wavetable Synthesis" (the "DIGMID"
+driver) as a type of music device. Software Wavetable Synthesis uses
+digital sound samples (Gravis .PAT patch files) or an AWE32 sound
+bank (.SF2 file that has been converted to an Allegro compatable .DAT
+file) that are stored on your hard drive. The sound samples (which
+are recorded from real instruments) are played back at the proper
+time, duration, and pitch generating much more realisitic sounding
+music than standard FM OPL3 synthesis (such as a regular SBPro or an
+SB16). In order to setup BOOM using Software Wavetable Synthesis for
+your music, you will first will need to obtain a set of Gravis
+Patches (.PAT files) or an AWE32 sound bank (.SF2 file).
+
+The stock Gravis Patches (about 5 mb zipped) can be found at:
+
+ftp://ftp.cdrom.com/.25/FreeBSD/distfiles/dgguspat.zip
+
+A freeware 8 megabyte AWE32 sound bank (about 7.4 mb zipped) can be
+found at:
+
+ftp://ftp.lysator.liu.se/pub/awe32/soundfonts/8RealGS20.zip
+
+*NOTE: 8RealGS20.zip contains the file 8RealGS20.SF2 which is a
+Windows 95 long filename. You will need to unzip this using PKUNZIP
+for DOS. The short extracted filename will be 8REALGS2.SF2.
+
+There are also many links to freeware Gravis Patches and AWE32
+soundbanks at:
+
+http://www.talula.demon.co.uk/allegro/digmid.html
+
+If you use the stock Gravis Patches, unzip them to a directory of
+your choice on your hard drive. There should be a DEFAULT.CFG file in
+DGGUSPAT.ZIP, it also must be in this same directory that contains
+the Gravis Patches.
+
+If you use the AWE32 SF2 sound bank (which I recommend, it sounds
+much better than the Gravis Patches) you will need to convert it to
+an Allegro compatable .DAT sound bank file using the utility that
+ships with Allegro "PAT2DAT.EXE" (PAT2DAT.EXE is located in the
+\ALLEGRO\TOOLS subdirectory if you have previously installed
+Allegro). Simply copy 8REALGS2.SF2 and PAT2DAT.EXE to the same
+directory and then type "PAT2DAT PATCHES.DAT 8REALGS2.SF2" from the
+DOS prompt. This will create the file PATCHES.DAT (about 22 mb) which
+is an Allegro compatable sound bank .DAT file. Copy this PATCHES.DAT
+file to a directory of your choice.
+
+You will then need to obtain the SETUP.EXE utility that ships with
+Allegro (SETUP.EXE is located in the \ALLEGRO\SETUP subdirectory if
+you have previously installed Allegro). Copy the SETUP.EXE and
+SETUP.DAT files to your \BOOM directory. Run SETUP.EXE and select the
+proper "Digital Driver" for your sound card. Click on "Midi Driver"
+and select the "Digital MIDI" option. Then click on "Patches" and
+navigate around your hard drive and select the DEFAULT.CFG file that
+is contained in the directory that you unzipped the Gravis Patches to
+(if you are using the Gravis Patches) or the PATCHES.DAT file that
+you created with PAT2DAT.EXE (if you are using the AWE32 sound bank).
+
+Back at the main Setup menu, click on "Test" to test out your Digital
+Driver and Midi Driver selections. SETUP.EXE will create the file
+ALLEGRO.CFG with your saved settings (this file must be located in
+your \BOOM directory).
+
+That's about all there is to it. Keep in mind, the freeware 8
+megabyte SF2 and the Gravis Patches don't sound quite as good as an
+AWE32 with a commercial 8 mb sound bank (such as EMU Technologies
+8MBGM.SF2) loaded into 8 mb of on board AWE32 ram, but your BOOM
+music will now sound about 100 times better than stock FM Synth :))
+Hey, not bad for a freebie, huh <G>?
+
+One side note: The resulting music generated using the Digital Midi
+driver is "dry as a desert", there is NO "reverb" or "chorus" effects
+that are normally supported by wavetable and MIDI hardware.
+
+If anyone needs the PAT2DAT.EXE, SETUP.EXE, or SETUP.DAT files, or
+needs any help with this, send me an email. BTW, all of these
+utilities including the latest BOOM build) use CWSDPMI.EXE.
+
+"Richard F. Nagel" <RFNagel@compuserve.com>

@@ -1,0 +1,85 @@
+#
+# This file is input for SWANTBLS.EXE, it specifies the switchnames
+# and animated textures and flats usable with BOOM. The output of
+# SWANTBLS is two lumps, SWITCHES.LMP and ANIMATED.LMP that should
+# be inserted in the PWAD as lumps.
+#
+#switches usable with each IWAD, 1=SW, 2=registered DOOM, 3=DOOM2
+[SWITCHES]
+#epi    texture1        texture2
+1       SW1BRCOM        SW2BRCOM
+1       SW1BRN1         SW2BRN1 
+1       SW1BRN2         SW2BRN2 
+1       SW1BRNGN        SW2BRNGN
+1       SW1BROWN        SW2BROWN
+1       SW1COMM         SW2COMM 
+1       SW1COMP         SW2COMP 
+1       SW1DIRT         SW2DIRT 
+1       SW1EXIT         SW2EXIT 
+1       SW1GRAY         SW2GRAY 
+1       SW1GRAY1        SW2GRAY1
+1       SW1METAL        SW2METAL
+1       SW1PIPE         SW2PIPE 
+1       SW1SLAD         SW2SLAD 
+1       SW1STARG        SW2STARG
+1       SW1STON1        SW2STON1
+1       SW1STON2        SW2STON2
+1       SW1STONE        SW2STONE
+1       SW1STRTN        SW2STRTN
+
+2       SW1BLUE         SW2BLUE 
+2       SW1CMT          SW2CMT  
+2       SW1GARG         SW2GARG 
+2       SW1GSTON        SW2GSTON
+2       SW1HOT          SW2HOT  
+2       SW1LION         SW2LION 
+2       SW1SATYR        SW2SATYR
+2       SW1SKIN         SW2SKIN 
+2       SW1VINE         SW2VINE 
+2       SW1WOOD         SW2WOOD 
+
+3       SW1PANEL        SW2PANEL
+3       SW1ROCK         SW2ROCK 
+3       SW1MET2         SW2MET2 
+3       SW1WDMET        SW2WDMET
+3       SW1BRIK         SW2BRIK 
+3       SW1MOD1         SW2MOD1 
+3       SW1ZIM          SW2ZIM  
+3       SW1STON6        SW2STON6
+3       SW1TEK          SW2TEK  
+3       SW1MARB         SW2MARB 
+3       SW1SKULL        SW2SKULL
+
+#animated flats, spd is number of frames between changes
+[FLATS]
+#spd    last        first
+8       NUKAGE3     NUKAGE1      
+8       FWATER4     FWATER1      
+8       SWATER4     SWATER1      
+8       LAVA4       LAVA1        
+8       BLOOD3      BLOOD1       
+
+8       RROCK08     RROCK05                  
+8       SLIME04     SLIME01      
+8       SLIME08     SLIME05      
+8       SLIME12     SLIME09      
+
+#animated textures, spd is number of frames between changes
+[TEXTURES]
+#spd    last        first
+8       BLODGR4     BLODGR1      
+8       SLADRIP3    SLADRIP1     
+
+8       BLODRIP4    BLODRIP1     
+8       FIREWALL    FIREWALA     
+8       GSTFONT3    GSTFONT1     
+8       FIRELAVA    FIRELAV3     
+8       FIREMAG3    FIREMAG1     
+8       FIREBLU2    FIREBLU1     
+8       ROCKRED3    ROCKRED1     
+
+8       BFALL4      BFALL1       
+8       SFALL4      SFALL1       
+8       WFALL4      WFALL1       
+8       DBRAIN4     DBRAIN1      
+

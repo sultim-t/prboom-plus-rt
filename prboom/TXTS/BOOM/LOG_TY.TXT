@@ -1,0 +1,365 @@
+Ty Halderman - change log and diary
+
+10/04/98
+
+If -warp without a level number was used without having specified a 
+PWAD, it would correctly warp to the first map in the IWAD but would
+report to the screen that it was warping to the highest map number
+(typically MAP32).  Discovered and fixed a potential out of range 
+subscript while fixing that message.
+
+9/13/98
+
+Fixed looping bug in new -warp routine that would print the wrong
+map name to the console, though it would still warp correctly.  Only
+occurred with DOOM 1 or Ultimate DOOM.
+
+Updated documentation in BOOMDEH.TXT to match actual Thing bit 
+mnemonics for unused bits 27-30 as "UNUSED1...UNUSED4"
+
+8/29/98
+
+Added the ability to put files on the command line and have them 
+understood without the -file, -deh and -playdemo switches, so long
+as they come before the first -switch on the line.  A file with no
+extension is assumed a .wad file.  .bex and .deh files are handled
+as if they were preceded by -deh, and .lmp files are handled as if
+they were preceded by -loadfile
+
+Added functionality to the -warp parameter.  If -warp does not have
+any map number after it, then the game will automatically warp to
+the first map of all files loaded at the command line.  This allows a
+pwad to be run without concern for where the actual maps start.
+
+Added a new element to the lumpinfo_t structure: source
+This is set to an enum of source_iwad, source_pwad, source_lmp 
+or source_pre (that latter indicates a predefined lump in the EXE, and
+the others should be obvious).  Anywhere that the source of a lump needs
+to be determined, just use lumpinfo[i].source.  This is used in the
+-warp functionality above, to allow searching for the first pwad-loaded
+map.
+
+Affected: W_WAD.C, W_WAD.H, D_MAIN.C, D_MAIN.H.  Note many object files
+became obsolete with these .H changes and had to be recompiled.
+
+Changed BOOM.TXT to describe the above functionality with sections
+marked *New:
+
+8/28/98
+
+Fixed map names and intermission texts to properly display for Final 
+DOOM episodes The Plutonia Experiment and TNT:Evilution.  This also fixes
+the title display during startup.
+
+Added a new mnemonic feature to BEX to allow characteristics of a Thing
+to be set by real words and not just a huge "bits" number.  Full list of
+default Thing bits included, along with documentation on the mnemonics,
+in BOOMDEH.TXT.
+
+Affected: BOOMDEH.TXT, D_DEH.C, HU_STUFF.C, F_FINALE.C
+
+7/11/98
+
+Fixed par times parsing and assignment problems. Had overcompensated for 
+non-zero based arrays, and other general confusion.  Now supports 
+MAP[01-32] and E[1-3]M[1-9].  Note Ultimate DOOM never did have par times
+and so E4xx is not supported.
+
+Also corrected multi-line comments in D_DEH.H (thanks to Florian Schultze)
+
+6/01/98
+
+Altered a pointer assignment statement for compatibility with GCC v2.8.1
+
+5/17/98
+
+Fixed a bug that would process the last line of each deh/bex file twice.
+
+5/16/98
+
+Added a NULL entry to the code pointer mnemonics to allow an already
+existing code pointer to be cleared with BEX codepointers.  Also fixed
+a bad looping logic in that area that would have caused segv's if it
+had encountered invalid BEX Codepointer entries in a file.
+Affected: D_DEH.C, BOOMDEH.TXT
+
+5/4/98
+
+Completed reformatting and commenting of my assigned files, except for some
+that are shared that I'm the last one in line for. 
+
+Added support in BEX strings for the savegamename prefix (default boomsav)
+so that TC's can have their own savegames (and people can have sets of
+them without having to make subdirs if desired).
+Affected: G_GAME.C, D_DEH.C, D_DEH.H, DSTRINGS.H, BOOMDEH.TXT
+
+4/26/98
+
+Added mnemonic support for code pointer changing in BEX files.  This will
+allow anyone to plug any of the code pointers in by a readable name, not 
+only into the existing frames where pointers are used, but into any of the
+frames.  BOOMDEH.TXT expanded considerably with a full table of all existing
+default code pointers in the engine.
+Affected: D_DEH.C, BOOMDEH.TXT, BOOM.TXT
+
+4/24/98
+
+Fixed a bug in multiple string reading from a .BEX file if the continuation
+strings started with a blank.  This was advertised to be able to work, 
+with leading blanks removed during string concatenation, but it was
+broken.
+Affected: D_DEH.C
+
+Put strings back to deh-modifiable for GAMMALVL0-4, which were removed
+sometime around 3/23 during a merge.
+Affected: M_MENU.C
+
+Re-removed IDK cheat.
+Affected: ST_STUFF.C
+
+Removed some "draft" comments from BOOMDEH.TXT
+Affected: BOOMDEH.TXT
+
+Updated DEEP97 information and some of the Dehacked support info in the
+BOOM.TXT file.  Updated the date at the top to 4/24/98.
+Affected: BOOM.TXT
+
+4/11/98
+
+Changes based on sources as of 9:32AM 11 Apr
+
+Fixed Par times entry [PARS] for bex format, documented it in BOOMDEH.
+Corrected logic in WI_STUFF.C to show pars unless there is a pwad but
+no deh pars patch.  Found silly problem due to zero-based arrays for
+DOOM2, 1-based for DOOM.
+Affected: WI_STUFF.C, D_DEH.C
+
+Removed IDK cheat and replaced it with TNTKA to give all keys.  cheat_k()
+is still used, but no longer displays its own message, and IDK can't invoke
+it separately.  Per email earlier:
+People were having problems with this because of dehacked patches that 
+expected to be able to change the IDKFA cheat but IDK would trigger first.
+Affected: ST_STUFF.C
+
+Added the ability to load consecutive DEH/BEX files at the command line.
+Each one is still given a default extension of BEX, then DEH if not
+specified on the command line.  Changed the point at which the DEHOUT.TXT
+file is erased so it'll hold all of one session's entries.  Added a 
+line to that log file, identifying the file path being loaded.
+Affected: D_MAIN.C
+
+Added INCLUDE capability in BEX files, no nesting, with the optional 
+parameter NOTEXT.  The notext flag says to ignore any DEH-style text blocks, 
+since they've probably been redone in BEX and we just want the other
+stuff.  Note that text changes are cumulative other than sprite names and
+such.  If you change X to Y and then try to change X to Z, it won't 
+find X any more because it's now Y.
+Affected: D_DEH.C
+
+Note that comments about BEX design down around 3/20 in this file are not
+the way it was implemented after all.
+
+Documented use of INCLUDE, PARS and the new banner strings STARTUPn.
+Affected: BOOMDEH.TXT
+
+4/7/98
+
+Added the logic to go searching through the default strings for text changes,
+if found in the old DEH style.  This should be a stopgap fix to handle lots
+of text changes, so long as they are supported as valid things to change in 
+BOOM.  Should be transparent to the users--text hacks will just start working.
+Also fixed par times settings, new in BOOM.  More docs coming later.
+
+3/30/98
+
+Fixed up the text change stuff using the [STRINGS] block separator.  There is
+now a big descriptive file BOOMDEH.TXT that contains information on all 300+
+strings that can be changed.
+
+Found a bug where the included \n in a string read in wasn't being changed
+to a real linefeed, so entries which were supposed to split lines wouldn't.
+
+Added new entries in the [STRINGS] area to change the background tiled flat
+textures for behind the intermission texts.
+
+3/27/98 
+
+Finally got the deh changes in that I think are needed to complete this 
+monster.  The usual DEH files seem to work ok, and I've got the arrays built
+to be able to implement the externalized text strings, etc (see 3/20 specs).
+The main goal of this run is to merge the changes so far, so we're all caught
+up.  More work tomorrow on making the functions work right and creating several
+test deh files.
+
+Files changed:
+
+ D_DEH    C
+ WI_STUFF C
+ M_MENU   C
+ HU_STUFF C
+ AM_MAP   C
+ ST_STUFF C
+ P_DOORS  C
+ P_SPEC   C
+ P_INTER  C
+ G_GAME   C
+ D_DEH    H
+
+
+3/20/98 
+
+Designed bex format for new text and extension entries (this will go in a 
+separate doc later):
+
+1.  Replacement level names in the automap:
+
+        [LEVELS]
+        ExMx = text
+        MAPxx = text
+
+2.  Replacement sprite names
+
+        [SPRITES]
+        TROO = IMPY
+        # 4-character sprite names can be replaced by another 4-character name
+        # Only a full 4-character name will be accepted for key or value, and
+        # it is the _original_ entry that will be checked for replacement.  There
+        # won't be any cascading effect, so you could successfully use:
+        TROO = POSS
+        POSS = SPOS
+        SPOS = TROO
+        # and not have any problems with it.
+
+3.  Replacement sound names
+
+        [SOUNDS]
+        PSTOP = platwhoa
+        PSTART = platgo
+        BSPWLK = tread1
+        BAREXP = Zowie
+        # The key must be the name of a sound entry in DOOM, without the
+        # leading "S_" (ignored if present).  "P_" PC sounds aren't supported 
+        # at this time.
+
+4.  Replacement music names
+
+        [MUSICS]
+        E1M1 = mymusic
+        BUNNY = rabbitsong
+        MAP04 = fred
+        # Valid keys for DOOM2 music can be either the actual names
+        # used there, such as THE_DA and DDTBLU, or the relative names
+        # for the levels they go with, MAP06 and MAP08 in this example.
+        # Various non-level names must be entered based on the name of
+        # the entry in DOOM.  The leading "D_" is optional and will be
+        # ignored if present.
+
+5.  Replacement messages
+
+        [MESSAGES]
+        # Several kinds of these, used at the various logical places
+        # Initially they will only replace the existing ones--with scripting
+        # we will be able to add new entries, and call them in the script.
+        # This message will appear between MAP06 and MAP07.  Perhaps if there's
+        # time a more logical name can be used--for now it's what DOOM uses
+        # in the code.
+        C1TEXT = "The end has arrived.\n\nThis is the biggest \"
+                        "thing you have ever seen\n\n\n\n...and you're scared."
+        # Note \n is used to force a linefeed, and a trailing backslash
+        # on a line will concatenate the next line after stripping leading
+        # whitespace.  If you want a blank between the parts of a line, use
+        # a space before the backslash, as shown above with "biggest \"
+        GOTREDCARD = "Got a maroon computer thingy"
+        PD_BLUEO = "You need that blue gadget or you can't use this"
+        GAMMALVL4 = "This is way bright now"
+        QSPROMPT = "quicksave over your game named\n\n'%s'?\n\nHit Y or N."
+
+6.  Par times
+
+        [PARS]
+
+7.  Cheats
+
+        [CHEATS]
+        GODMODE = IDdqdWasSilly
+
+8.  Monster Roster (cast) names
+        [CAST]
+        CC_BARON = "Harvey Wallbanger"
+
+9.  Code Pointers, alternative
+        [CODEPOINTER]
+        Frame 245 = scream
+        332 = explode
+        # "Frame" is optional.  The name in the value is the name of the function
+        # that is actually called (list provided, no guessing <g>).  Future additions
+        # of new code pointer routines can be handled here as well.
+
+
+3/18/98
+
+Adding text support for level names and end messages.  Currently requires 
+a change to the format of the file, but there will be a utility written to
+handle a one-way modification to a .deh file to make it work with the new 
+system.  Either a .deh or new .bex file extension can be used.  Boom EXtensions 
+are allowed in either one, but it's easier for the author to tell which is a 
+"pure" dehacked patch.  
+
+        Modules affected: D_DEH.C, D_MAIN.C
+
+Initial new deh extension logic inserted--unfinished merge
+
+Added par time modification, usage explained in sample.bex
+
+        Modules affected: D_DEH.C
+
+Modified WI_STUFF.C to allow a dehacked par time patch to turn par times back 
+on (they are normally off when a pwad is loaded)
+
+Modified WI_STUFF.C to allow frag counts up to +/- 999
+
+Modified P_SPEC.C to handle -frags nn counter, default 10 frags if not otherwise 
+specified.
+
+Note to self: there are switch name pairs in P_SWITCH.C
+
+
+3/15/98
+
+Fixed The Big Bug where the Thing number was off by one relative to its index in 
+the structures.  A pox on base 1 programming in a base 0 language!
+
+
+3/9/98
+
+Added dehacked file support.  Added new module D_DEH.C.
+
+Usage:  -deh filename[.deh]
+
+The file is assumed to be a patch version 6 dehacked file for
+DOOM version 1.9.  No validation is done of that.  Caveat haquor.
+
+ -      New link made to recognize the -deh command-line parameter.
+
+        Modules affected: D_MAIN.C
+
+ -      The Misc entries were direct hacks into several places in 
+        the code where hardcoded entries were used.  To change these
+        required adding global ints and in some cases changing
+        #defines to use ints instead (MAXHEALTH, BFGCELLS).  The 
+        uppercase values have been #define'd to the variables.
+
+        Modules affected: 
+                P_PSPR.C for BFGCELLS, 
+                ST_STUFF.C for things that are given for cheat codes,
+                P_INTER.C for the rest of them.  
+
+ -      Moved MAXHEALTH out of P_LOCAL.H into P_INTER.C and made it a
+        variable 
+
+ -      Added d_deh.c stuff to makefile
+
+Limitations on text substitution have forced a rethink of that--it won't be in
+the 3/9/98 build.
+
+/// end of file

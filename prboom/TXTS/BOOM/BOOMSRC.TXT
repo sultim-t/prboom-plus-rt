@@ -1,0 +1,325 @@
+----------------------------------------------------------------------
+TNT BOOM Phase I Source Release BOOMSRC.TXT   5/27/98
+----------------------------------------------------------------------
+
+These are the TNT BOOM sources for the final Phase I release, May 27,
+1998. They were based on the DOSDoom .20 release, which was in turn
+based on the Linux DOOM sources released by John Carmack around Christmas
+1997.
+
+If you use the sources in whole or part you are bound by the software
+license agreement DOOMLIC.TXT. We would appreciate your giving
+credit to John Carmack, B. Krenheimer, Chi Hoang, and  TeamTNT.
+
+The files are in DOS format, with CRLF line terminators. The
+formatting styles vary slightly from file to file depending on the
+programmer who did most of the work on them, but are reasonably close
+to each other with block braces directly over each other. There are
+no tabs in the sources, so all should appear the same in most
+editors.
+
+The sources compile under DJGPP v2, available at:
+
+http://www.delorie.com/
+
+
+----------------------------------------------------------------------
+The changes since DOSDoom .20 are described in the programmer logs:
+----------------------------------------------------------------------
+
+name            identifier    change log name
+---------------------------------------------
+Lee Killough    "killough"    log_lee.txt
+Jim Flynn       "jff"         log_jff.txt
+Rand Phares     "phares"      log_rsp.txt
+Ty Halderman    "Ty"          log_ty.txt
+Stan Gula       "SG"          none (d_net and i_net changes)
+
+The changes are marked in the sources with a comment containing the
+programmer's identifier and date of change.
+
+
+
+----------------------------------------------------------------------
+A brief description of the contents of the source files follows
+----------------------------------------------------------------------
+
+
+Global and misc. stuff
+-----------------------------------------------------------------------
+
+doomdata.h
+doomdata.c   -  external data definitions (WAD file structure)
+
+doomdef.h
+doomdef.c    -  internal data definitions (game structs)
+
+doomstat.h
+doomstat.c   -  declarations for types and variables that store game state
+
+doomtype.h   -  misc declarations (boolean, char limits)
+
+dstrings.h
+dstrings.c   -  quitting game messages
+
+d_french.h   -  printed strings for translation, french
+d_englsh.h   -  printed strings for translation, english
+
+d_event.h    -  event handling declarations
+d_player.h   -  declarations for player state and information
+d_textur.h   -  declaration of pic_t structure for graphics column
+d_think.h    -  declarations for thinkers and action routine types
+d_ticcmd.h   -  declaration of structure for atomic game actions
+
+m_fixed.h    -  fixed point arithmetic functions
+m_swap.h     -  byte order swapping (big/little endian)
+
+info.h
+info.c       -  lookup tables for thing table, frame table, predefined lumps
+
+version.h
+version.c    -  compile version handler, marks exe each build with date
+
+------------------------------------------------------------------------
+DOOM game loop and top level stuff
+------------------------------------------------------------------------
+
+g_game.h
+g_game.c    -  Game loop functions, event handling, demos savegame
+               handling, etc.
+
+d_main.h
+d_main.c    -  event handling, D_DoomMain() and other functions
+
+d_net.h
+d_net.c     -  high level networking protocol code
+
+d_items.h
+d_items.c   -  weapon animation information
+
+d_deh.h
+d_deh.c     -  DEH file parser and implementation
+
+
+------------------------------------------------------------------
+I         Interfaces, system specifics
+------------------------------------------------------------------    
+
+i_main.c    -  main() program entry, calls D_DoomMain().
+
+i_net.h
+i_net.c     -  system specific net driver
+
+i_sound.h
+i_sound.c   -  system specific sound/music driver
+
+i_system.h
+i_system.c  -  system specific routines, system specific driver install
+
+i_video.h
+i_video.c   -  system specific joystick, keyboard, video routines
+
+------------------------------------------------------------------
+AM        AutoMap
+------------------------------------------------------------------
+
+am_map.h
+am_map.c     -  automap code
+
+------------------------------------------------------------------
+HU         Heads Up
+------------------------------------------------------------------
+
+hu_lib.h
+hu_lib.c    -  heads-up text and input code
+
+hu_stuff.h
+hu_stuff.c  -  Heads-up displays
+
+-------------------------------------------------------------------
+M          Menu, Miscellaneous
+-------------------------------------------------------------------
+
+m_menu.c    -  DOOM options code, game control, setup code
+
+m_misc.c    -  defaults file handling, screen shots, file I/O
+
+m_argv.h
+m_argv.c    -  command line argument parsing
+
+m_bbox.h
+m_bbox.c    -  bounding box routines
+
+m_cheat.h
+m_cheat.c   -  cheat code handler
+
+m_random.h
+m_random.c  -  random number generators
+
+-------------------------------------------------------------------
+P          Play, Specials
+-------------------------------------------------------------------
+
+p_spec.h    -  declarations for specials 
+
+p_spec.c    -  texture animation, specials, lighting, doors, plats, etc
+p_switch.c  -  button switches and animation
+p_doors.c   -  door handlers
+p_plats.c   -  platform raising/lowering handlers
+p_ceilng.c  -  ceiling movers and crushers
+p_floor.c   -  floor movers, stairs, and donuts
+p_lights.c  -  dynamic (e.g. flickering) lighting
+p_genlin.c  -  generalized linedef handling
+p_telept.c  -  teleportation code
+
+p_enemy.h
+p_enemy.c   -  enemy AI and animation
+
+p_inter.h
+p_inter.c   -  player/object interaction
+
+p_map.h
+p_map.c     -  movement objects, handling of collisions
+
+p_maputl.h
+p_maputl.c  -  distance, position, utilities for movement, point/line queries
+
+p_mobj.h
+p_mobj.c    -  mobile objects handling, spawn etc.
+
+p_user.h
+p_user.c    -  player movement, bobbing
+
+p_sight.c   -  monster line-of-sight, REJECT
+
+p_pspr.h
+p_pspr.c    -  player weapons -- sprites, ammo, preferences
+
+p_setup.h
+p_setup.c   -  load map from WAD file, level setup
+
+p_saveg.h
+p_saveg.c   -  savegame functions (archive/unarchive)
+
+p_tick.h
+p_tick.c    -  thinker list handling, game tick updates
+
+-------------------------------------------------------------------
+R          Rendering    
+-------------------------------------------------------------------
+
+r_defs.h    - shared declarations for rendering modules
+r_state.h   - internal state variables for renderer
+
+r_bsp.h
+r_bsp.c     - bsp traversal, seg clipping, #242 effect
+
+r_data.h
+r_data.c    - wall texture composition, lookup renderer resources by name
+
+r_draw.h
+r_draw.c    - access to framebuffer API, drawing functions
+
+
+r_main.h
+r_main.c    - view frame setup, lighting setup, main renderer code
+
+r_plane.h
+r_plane.c   - floor/ceiling visplanes, sky
+
+r_segs.h
+r_segs.c    - wall texture drawing, marking openings
+
+r_sky.h
+r_sky.c     - drawing skies
+
+r_things.h
+r_things.c  - sprite and sprite frame/rotation handling, drawing
+
+
+tables.h
+tables.c    - trigonometry lookup tables
+
+v_video.h
+v_video.c   - gamma correction lookup, patch drawing to rectangle,
+              color translation
+
+drawcol.s
+drawspan.s
+pproblit.s  - optimized assembly routines for screen drawing/blitting
+
+-------------------------------------------------------------------
+S          Sound
+-------------------------------------------------------------------
+
+s_sound.h
+s_sound.c   - system-independent sound and music handling
+
+sounds.h
+sounds.c    - sound and music lookup tables
+
+mmus2mid.h
+mmus2mid.c  - conversion of MUS lumps to MIDI for Allegro
+
+-------------------------------------------------------------------
+ST         STatus bar
+-------------------------------------------------------------------
+
+st_lib.h
+st_lib.c    -  status bar widget code
+
+st_stuff.c
+st_stuff.h  -  status bar code
+
+-------------------------------------------------------------------
+W          Wad file I/O
+-------------------------------------------------------------------
+
+w_wad.h
+w_wad.c     -  wad and lump management
+
+-------------------------------------------------------------------
+WI         WIn / level end screens
+-------------------------------------------------------------------
+
+wi_stuff.h  
+wi_stuff.c  -  intermission animation patchwork
+
+-------------------------------------------------------------------
+Z          Zone memory allocation
+-------------------------------------------------------------------
+
+z_zone.h
+z_zone.c    -  dynamic memory allocation and debugging system
+
+-------------------------------------------------------------------
+F          Final screen animation
+-------------------------------------------------------------------
+
+f_finale.h
+f_finale.c  -  DOOM mission end screens, end of game stuff
+
+f_wipe.h
+f_wipe.c    -  screen wipe between intermission screens/demos etc.
+
+-------------------------------------------------------------------
+           Allegro library patches
+-------------------------------------------------------------------
+
+emu8kmid.c  -  fix to AWE32 midi driver to avoid use of fp in interrupt
+
+keyboard.c  -  fixes to keyboard handler to make it more responsive,
+               and to mask interrupts whenever necessary
+
+emu8k.h     -  unchanged global files required by the above
+allegro.h  
+internal.h
+interndj.h
+
+-------------------------------------------------------------------
+           makefile
+-------------------------------------------------------------------
+
+makefile    -  contains debug and release targets
+
+-------------------------------------------------------------------
