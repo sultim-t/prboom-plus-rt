@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.20 2002/11/21 20:53:10 dukope Exp $
+ * $Id: r_draw.c,v 1.21 2002/11/23 20:43:07 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.20 2002/11/21 20:53:10 dukope Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.21 2002/11/23 20:43:07 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -236,60 +236,60 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 // 8 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn16_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawColumn32_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 
 //---------------------------------------------------------------------------
 // R_DrawTLColum
@@ -299,60 +299,60 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 // 8 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_TRANSLUCENT | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_TRANSLUCENT | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_TRANSLUCENT | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_TRANSLUCENT | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn16_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_TRANSLUCENT | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_TRANSLUCENT | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn32_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 
 //---------------------------------------------------------------------------
 // R_DrawTranslatedColumn
@@ -362,60 +362,60 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 // 8 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_PLAYER)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_PointUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_PLAYER | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_LinearUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_PLAYER | RDC_BILINEAR)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_LinearUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_RoundedUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_RoundedUV_LinearZ
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 
 //---------------------------------------------------------------------------
 // R_DrawFuzzColumn
@@ -425,15 +425,15 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 // 8 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_FUZZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn16
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_FUZZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn32
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_FUZZ)
-#include "inl/R_DrawColumn.inl"
+#include "inl/r_drawcolumn.inl"
 
 //---------------------------------------------------------------------------
 // R_DrawSpan
@@ -443,42 +443,42 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 // 8-bit
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan8_PointUV_PointZ
 #define R_DRAWSPAN_PIPELINE (RDC_8BITS)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan8_PointUV_LinearZ
 #define R_DRAWSPAN_PIPELINE (RDC_8BITS | RDC_DITHERZ)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan8_LinearUV_PointZ
 #define R_DRAWSPAN_PIPELINE (RDC_8BITS | RDC_BILINEAR)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan8_LinearUV_LinearZ
 #define R_DRAWSPAN_PIPELINE (RDC_8BITS | RDC_DITHERZ | RDC_BILINEAR)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 // 16-bit
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan16_PointUV_PointZ
 #define R_DRAWSPAN_PIPELINE (RDC_16BITS)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan16_PointUV_LinearZ
 #define R_DRAWSPAN_PIPELINE (RDC_16BITS | RDC_DITHERZ)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan16_LinearUV_PointZ
 #define R_DRAWSPAN_PIPELINE (RDC_16BITS | RDC_BILINEAR)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan16_LinearUV_LinearZ
 #define R_DRAWSPAN_PIPELINE (RDC_16BITS | RDC_DITHERZ | RDC_BILINEAR)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 // 32-bit
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan32_PointUV_PointZ
 #define R_DRAWSPAN_PIPELINE (RDC_32BITS)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan32_PointUV_LinearZ
 #define R_DRAWSPAN_PIPELINE (RDC_32BITS | RDC_DITHERZ)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan32_LinearUV_PointZ
 #define R_DRAWSPAN_PIPELINE (RDC_32BITS | RDC_BILINEAR)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 #define R_DRAWSPAN_FUNCNAME R_DrawSpan32_LinearUV_LinearZ
 #define R_DRAWSPAN_PIPELINE (RDC_32BITS | RDC_DITHERZ | RDC_BILINEAR)
-#include "inl/R_DrawSpan.inl"
+#include "inl/r_drawspan.inl"
 
 //---------------------------------------------------------------------------
 // Lookup table for fetching the proper drawing function quickly
