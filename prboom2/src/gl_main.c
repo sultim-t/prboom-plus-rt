@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.30 2000/10/03 19:57:24 proff_fs Exp $
+ * $Id: gl_main.c,v 1.31 2000/10/04 19:53:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -44,6 +44,8 @@ int gl_farclip=6400;
 char *gl_tex_filter_string;
 int gl_tex_filter;
 int gl_mipmap_filter;
+int gl_drawskys=true;
+int gl_sortsprites=true;
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -206,15 +208,7 @@ static const float lighttable[5][256] =
   }
 };
 
-static float gld_CalcLightLevel(int lightlevel)
-{
-  float light;
-
-  lightlevel=max(min(lightlevel,255),0);
-  light=lighttable[usegamma][lightlevel];
-
-  return light;
-}
+#define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][max(min((lightlevel),255),0)])
 
 static void gld_StaticLight(float light)
 { 
@@ -271,6 +265,7 @@ void gld_Init(int width, int height)
   lprintf(LO_INFO,"GL_VENDOR: %s\n",glGetString(GL_VENDOR));
   lprintf(LO_INFO,"GL_RENDERER: %s\n",glGetString(GL_RENDERER));
   lprintf(LO_INFO,"GL_VERSION: %s\n",glGetString(GL_VERSION));
+  lprintf(LO_INFO,"GL_EXTENSIONS: %s\n",glGetString(GL_EXTENSIONS));
 	glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT); 
 
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f); 
@@ -1851,18 +1846,18 @@ static void gld_DrawWall(GLWall *wall)
 {
   GLSeg *glseg=&gl_segs[wall->segnum];
 
+  if ( (!gl_drawskys) && (wall->sky) )
+    wall->gltexture=NULL;
   if (wall->gltexture)
   {
     gld_BindTexture(wall->gltexture);
-    if (wall->trans)
-      gld_StaticLightAlpha(wall->light, (float)tran_filter_pct/100.0f);
-    else
-      gld_StaticLight(wall->light);
   }
   else
   {
     glDisable(GL_TEXTURE_2D);
+#ifdef _DEBUG
     glColor4f(1.0f,0.0f,0.0f,1.0f);
+#endif
   }
   if (wall->sky)
   {
@@ -1897,6 +1892,10 @@ static void gld_DrawWall(GLWall *wall)
   }
   else
   {
+    if (wall->trans)
+      gld_StaticLightAlpha(wall->light, (float)tran_filter_pct/100.0f);
+    else
+      gld_StaticLight(wall->light);
     glBegin(GL_TRIANGLE_STRIP);
       glTexCoord2f(wall->ul+wall->ou,wall->vt+wall->ov); glVertex3f(glseg->x1,wall->ytop,glseg->z1);
       glTexCoord2f(wall->ul+wall->ou,wall->vb+wall->ov); glVertex3f(glseg->x1,wall->ybottom,glseg->z1);
@@ -2169,7 +2168,7 @@ bottomtexture:
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->toptexture]!=R_TextureNumForName("-")) )
+        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
         {
           wall.ytop=(float)frontsector->floorheight/(float)MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
@@ -2562,29 +2561,56 @@ void gld_AddSprite(vissprite_t *vspr)
  *               *
  *****************/
 
+extern int rendered_visplanes, rendered_segs, rendered_vissprites;
+
 void gld_DrawScene(player_t *player)
 {
-  int i,j;
+  int i,j,k;
+  fixed_t max_scale;
 
+  rendered_visplanes = rendered_segs = rendered_vissprites = 0;
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
     case GLDIT_WALL:
-      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--,rendered_segs++)
         gld_DrawWall(&gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex]);
       break;
     case GLDIT_FLAT:
       // enable backside removing
       glEnable(GL_CULL_FACE);
-      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--,rendered_visplanes++)
         gld_DrawFlat(&gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex]);
       // disable backside removing
       glDisable(GL_CULL_FACE);
       break;
     case GLDIT_SPRITE:
-      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
-        gld_DrawSprite(&gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex]);
+      if (gl_sortsprites)
+      {
+        do
+        {
+          max_scale=INT_MAX;
+          k=-1;
+          for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+            if (gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex].scale<max_scale)
+            {
+              max_scale=gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex].scale;
+              k=j+gld_drawinfo.drawitems[i].firstitemindex;
+            }
+          if (k>=0)
+          {
+            rendered_vissprites++;
+            gld_DrawSprite(&gld_drawinfo.sprites[k]);
+            gld_drawinfo.sprites[k].scale=INT_MAX;
+          }
+        } while (max_scale!=INT_MAX);
+      }
+      else
+      {
+        for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--,rendered_vissprites++)
+          gld_DrawSprite(&gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex]);
+      }
       break;
     }
   }

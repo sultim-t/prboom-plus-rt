@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.12 2000/09/30 12:24:09 proff_fs Exp $
+ * $Id: r_main.c,v 1.13 2000/10/04 19:53:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.12 2000/09/30 12:24:09 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.13 2000/10/04 19:53:10 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -529,7 +529,11 @@ static void R_ShowStats(void)
   int now = I_GetTime();
 
   if (now - showtime > 35) {
+#ifdef GL_DOOM
+    doom_printf("Frame rate %d fps\nWalls %d, Flats %d, Sprites %d", 
+#else
     doom_printf("Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d", 
+#endif
 		(35*KEEPTIMES)/(now - keeptime[0]), rendered_segs, 
 		rendered_visplanes, rendered_vissprites);
     showtime = now;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.20 2000/10/03 19:57:25 proff_fs Exp $
+ * $Id: m_misc.c,v 1.21 2000/10/04 19:53:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.20 2000/10/03 19:57:25 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.21 2000/10/04 19:53:10 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -177,6 +177,8 @@ extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
 extern char *gl_tex_filter_string;
 extern char *gl_tex_format_string;
+extern int gl_drawskys;
+extern int gl_sortsprites;
 #endif
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 
@@ -372,6 +374,10 @@ default_t defaults[] =
    def_str,ss_none},
   {"gl_tex_format_string", {NULL,&gl_tex_format_string}, {0,"GL_RGB5_A1"},UL,UL,
    def_str,ss_none},
+  {"gl_drawskys",{&gl_drawskys},{1},0,1,
+   def_bool,ss_none},
+  {"gl_sortsprites",{&gl_sortsprites},{1},0,1,
+   def_bool,ss_none},
 #endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
