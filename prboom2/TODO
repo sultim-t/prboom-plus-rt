@@ -1,0 +1,149 @@
+1.  Statusbar in OpenGL. My thing.
+
+Proff:
+Done
+
+--------------------------------------------------------------------------
+2.  Network in SDL.
+
+Colin:
+I'll check out the networking
+
+--------------------------------------------------------------------------
+3.  Testing on Voodoo.
+
+--------------------------------------------------------------------------
+4.  Compiling on Linux with OpenGL
+
+Jess:
+Seems to work
+
+--------------------------------------------------------------------------
+5.  Does SDL_net work together with Colin's version?
+    That would mean Windows->Linux and OpenGL->Linux, yeah ;)
+
+Colin:
+I'll check out the networking
+
+--------------------------------------------------------------------------
+6.  Import MBF m_menu.c and m_misc.c stuff
+
+Colin:
+m_menu.c done, m_misc.c I don't intend to import, at least not at this
+stage. It may be simpler to rewrite it. Let's delay that to a later
+release.
+
+--------------------------------------------------------------------------
+7.  Import extra wad lumps into info.c
+
+Colin:
+Done
+
+--------------------------------------------------------------------------
+8.  Verify Boom demos
+
+Colin:
+Don't appear to be working well. There aren't that many Boom demos though
+so I think we can leave this until after a first release.
+
+--------------------------------------------------------------------------
+9.  Verify MBF -recordfrom support (probably still a
+    bit of code to import, but mostly done)
+
+Colin:
+I'll investigate. Not crucial before a release though.
+
+--------------------------------------------------------------------------
+10. Rename linux targets (SDL target could be prboom,
+    X target xprboom?)
+
+Proff:
+Ok
+
+Jess:
+sounds good
+
+Colin:
+suggested it
+Done.
+
+--------------------------------------------------------------------------
+11. Decide on documentation. LxDoom has good manpages
+    describing the config file and command line, we
+    could convert these to HTML, or convert them but
+    only use the converted versions for windows.
+
+Colin:
+Simple, I'll do. Better update those docs for the MBF stuff too while
+I'm in there.
+    
+--------------------------------------------------------------------------
+12. Update README, AUTHORS
+
+Proff:
+I have added Nicolas Kalkhof to AUTHORS. It's ok for me now.
+
+Colin:
+I've done AUTHORS (well, updating the history) and the Linux install
+instructions.
+
+--------------------------------------------------------------------------
+13. Repackage editing docs; I suggest that with all of
+    the Boom and MBF stuff to go in, that we distribute
+    the editing docs separately.
+    (Could be done after a release though).
+    
+--------------------------------------------------------------------------
+14. Fix RPM packaging stuff for Linux targets (we do different
+    RPMs for the two targets I think).
+    
+--------------------------------------------------------------------------
+15. Hardware music synth support for SDL target. timidity is
+    nice, but some of the music sounds no good (notably MAP01).
+    I suggest a cheat code to toggle software vs hardware.
+    At least, for Linux this is easy, just call the old music
+    server. (Not essential for first release).
+
+--------------------------------------------------------------------------
+16. SDL mouse sens.
+
+Colin:
+send patch
+
+--------------------------------------------------------------------------
+17. SDL sound sample handling.
+
+Colin:
+Done, just waiting for any complaints :-).
+
+--------------------------------------------------------------------------
+18. Website.
+
+--------------------------------------------------------------------------
+19. MBF dogs support. 
+
+Colin:
+Done, seems to work.
+
+--------------------------------------------------------------------------
+20. 24bpp packed support fix in v_video_trans.c.
+
+Colin:
+On my list.
+
+--------------------------------------------------------------------------
+21. Import m_cheat.c changes
+
+Colin:
+Done.
+
+--------------------------------------------------------------------------
+22. Convert various file name references to Boom/LxDoom (config file, save
+game names, dir etc)
+
+Proff:
+It seems like I have done the most for Windows.
+
+Colin:
+I've just changed the savegame base from BOOMSAV to prbmsav, and moved the
+linux config dir.
