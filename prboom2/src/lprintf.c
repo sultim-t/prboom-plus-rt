@@ -140,12 +140,13 @@ static int I_ConPrintString (const char *outline)
   while (*cp) {
     for (newcp = cp, newxp = xp;
       *newcp != '\n' && *newcp != '\0' && newxp < 80;
-       newcp++, newxp++) {
-      if (*newcp == '\x8') {
-        if (xp) xp--;
-        newxp = xp;
-        cp++;
+       newcp++) {
+      if (*newcp == '\x08') {
+        newxp--;
+        break;
       }
+      else
+        newxp++;
     }
 
     if (*cp) {
@@ -175,7 +176,7 @@ static int I_ConPrintString (const char *outline)
 
       xp = newxp;
 
-      if (*newcp == '\n')
+      if ((*newcp == '\n') || (*newcp == '\x08'))
         cp = newcp + 1;
       else
         cp = newcp;
