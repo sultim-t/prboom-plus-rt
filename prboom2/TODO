@@ -191,3 +191,5 @@ have a v1.9 flag to use traditional options, or we could make the server parse a
 prboom.cfg to get the options. Or we could implement in-game game launching, the
 big option.
 
+--------------------------------------------------------------------------
+50. (2002/08/10) make SLOWTURNTICS configureable
