@@ -71,6 +71,10 @@ UDP_PACKET *udp_packet;
 
 //#define DUMP_PACKETS
 
+#ifdef PRBOOM_SERVER
+#undef DUMP_PACKETS
+#endif
+
 #ifdef DUMP_PACKETS
 #include "ctype.h"
 

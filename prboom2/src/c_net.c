@@ -135,9 +135,11 @@ void C_SendCmd(int cmdnum, const char *s,...)
 {
   va_list args;
   char tempstr[500];
+
   va_start(args, s);
+  pvsnprintf(tempstr, sizeof(tempstr), s, args);
+  va_end(args);
   
-  pvsnprintf(tempstr,500,s, args);
   s = tempstr;
   
   if(!netgame || demoplayback)
@@ -185,6 +187,15 @@ void C_NetTicker()
     for(i=0; i<MAXPLAYERS; i++)
       {
 	if(!playeringame[i]) continue;
+#ifdef CONSHUGE
+	if(gamestate == GS_CONSOLE)  // use the whole ticcmd in console mode
+          {
+	    int a;
+	    for(a=0; a<sizeof(ticcmd_t); a++)
+	      C_DealWithChar( ((unsigned char*)&players[i].cmd)[a], i);
+          }
+	else
+#endif
 	  C_DealWithChar(players[i].cmd.chatchar,i);
       }
   
@@ -192,7 +203,7 @@ void C_NetTicker()
   C_RunBuffer(c_netcmd);
 }
 
-void C_DealWithChar(byte c, int source)
+void C_DealWithChar(unsigned char c, int source)
 {
   if(!c)
     return;
@@ -246,8 +257,9 @@ void C_SendNetData()
   // display message according to what we're about to do
 
   C_Printf(consoleplayer ?
-	   FC_GRAY"Please Wait"FC_RED" Receiving game data..\n" :
-	   FC_GRAY"Please Wait"FC_RED" Sending game data..\n");
+           FC_HI"Please Wait"FC_NORMAL" Receiving game data..\n" :
+           FC_HI"Please Wait"FC_NORMAL" Sending game data..\n");
+
   
   // go thru all hash chains, check for net sync variables
   
@@ -272,8 +284,6 @@ void C_SendNetData()
     {
       C_RunTextCmdf("map %s", startlevel);
     }
-
-  //  G_InitNew(gameskill, "map01");
 }
 
 
