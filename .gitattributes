@@ -1,16 +1,23 @@
 * text=auto !eol
+prboom2/ICONS/Makefile.am eol=lf
 prboom2/ICONS/barrel.ico -text
 prboom2/ICONS/fouch.ico -text
 prboom2/ICONS/god.ico -text
 prboom2/ICONS/heada1.ico -text
 prboom2/ICONS/skull.ico -text
-prboom2/INSTALL -text svneol=native#unset
+prboom2/Makefile.am eol=lf
+prboom2/VISUALC5/Makefile.am eol=lf
 prboom2/VISUALC6/Doom.dsp eol=crlf
 prboom2/VISUALC6/Doom.dsw eol=crlf
+prboom2/VISUALC6/Makefile.am eol=lf
 prboom2/VISUALC6/prboom_server.dsp eol=crlf
+prboom2/autotools/ac_c_compile_flags.m4 eol=lf
+prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
+prboom2/data/Makefile.am eol=lf
 prboom2/data/prboom.wad -text
-prboom2/src/gl_intern.h -text svneol=native#unset
-prboom2/src/gl_main.c -text svneol=native#unset
-prboom2/src/gl_texture.c -text svneol=native#unset
-prboom2/src/m_menu.c -text svneol=native#unset
-prboom2/src/m_misc.c -text svneol=native#unset
+prboom2/doc/Makefile.am eol=lf
+prboom2/src/Makefile.am eol=lf
+prboom2/src/OSS/Makefile.am eol=lf
+prboom2/src/POSIX/Makefile.am eol=lf
+prboom2/src/SDL/Makefile.am eol=lf
+prboom2/src/X11/Makefile.am eol=lf
