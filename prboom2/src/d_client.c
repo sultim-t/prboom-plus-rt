@@ -319,7 +319,6 @@ void NetUpdate(void)
     lastmadetic += newtics;
     while (newtics--) {
       I_StartTic();
-      D_ProcessEvents();
       if (maketic - gametic > BACKUPTICS/2) break;
       G_BuildTiccmd(&localcmds[maketic%BACKUPTICS]);
       maketic++;
@@ -360,7 +359,6 @@ void D_BuildNewTiccmds()
     while (newtics--)
     {
       I_StartTic();
-      D_ProcessEvents();
       if (maketic - gametic > BACKUPTICS/2) break;
       G_BuildTiccmd(&localcmds[maketic%BACKUPTICS]);
       maketic++;
