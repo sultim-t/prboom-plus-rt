@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.10 2000/05/20 21:29:51 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.11 2000/05/21 12:08:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.10 2000/05/20 21:29:51 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.11 2000/05/21 12:08:22 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -553,64 +553,64 @@ static void R_Subsector(int num)
                 frontsector->ceiling_yoffs
                 ) : NULL;
 #ifdef GL_DOOM
-  // if the sector has bottomtextures, then the floorheight will be set to the
-  // highest surounding floorheight
-  if (frontsector->no_bottomtextures)
-    floorplane=NULL;
-  if (!floorplane)
+  // check if the sector is faked
+  if (frontsector==sub->sector)
   {
-    int i=frontsector->linecount;
-
-    dummyfloorplane.height=INT_MIN;
-    while (i--)
+    // if the sector has bottomtextures, then the floorheight will be set to the
+    // highest surounding floorheight
+    if (frontsector->no_bottomtextures)
     {
-      line_t *tmpline=frontsector->lines[i];
-      if (tmpline->backsector)
-        if (tmpline->backsector != frontsector)
-          if (tmpline->backsector->floorheight>dummyfloorplane.height)
-          {
-            dummyfloorplane.height=tmpline->backsector->floorheight;
-            dummyfloorplane.lightlevel=tmpline->backsector->lightlevel;
-          }
-      if (tmpline->frontsector)
-        if (tmpline->frontsector != frontsector)
-          if (tmpline->frontsector->floorheight>dummyfloorplane.height)
-          {
-            dummyfloorplane.height=tmpline->frontsector->floorheight;
-            dummyfloorplane.lightlevel=tmpline->frontsector->lightlevel;
-          }
-    }
-    if (dummyfloorplane.height!=INT_MIN)
-      floorplane=&dummyfloorplane;
-  }
-  // the same for ceilings. they will be set to the lowest ceilingheight
-  if (frontsector->no_toptextures)
-    ceilingplane=NULL;
-  if (!ceilingplane)
-  {
-    int i=frontsector->linecount;
+      int i=frontsector->linecount;
 
-    dummyceilingplane.height=INT_MAX;
-    while (i--)
-    {
-      line_t *tmpline=frontsector->lines[i];
-      if (tmpline->backsector)
-        if (tmpline->backsector != frontsector)
-          if (tmpline->backsector->ceilingheight<dummyceilingplane.height)
-          {
-            dummyceilingplane.height=tmpline->backsector->ceilingheight;
-            dummyceilingplane.lightlevel=tmpline->backsector->lightlevel;
-          }
-      if (tmpline->frontsector)
-        if (tmpline->frontsector != frontsector)
-          if (tmpline->frontsector->ceilingheight<dummyceilingplane.height)
-          {
-            dummyceilingplane.height=tmpline->frontsector->ceilingheight;
-            dummyceilingplane.lightlevel=tmpline->frontsector->lightlevel;
-          }
+      dummyfloorplane.height=INT_MIN;
+      while (i--)
+      {
+        line_t *tmpline=frontsector->lines[i];
+        if (tmpline->backsector)
+          if (tmpline->backsector != frontsector)
+            if (tmpline->backsector->floorheight>dummyfloorplane.height)
+            {
+              dummyfloorplane.height=tmpline->backsector->floorheight;
+              dummyfloorplane.lightlevel=tmpline->backsector->lightlevel;
+            }
+        if (tmpline->frontsector)
+          if (tmpline->frontsector != frontsector)
+            if (tmpline->frontsector->floorheight>dummyfloorplane.height)
+            {
+              dummyfloorplane.height=tmpline->frontsector->floorheight;
+              dummyfloorplane.lightlevel=tmpline->frontsector->lightlevel;
+            }
+      }
+      if (dummyfloorplane.height!=INT_MIN)
+        floorplane=&dummyfloorplane;
     }
-    if (dummyceilingplane.height!=INT_MAX)
-      ceilingplane=&dummyceilingplane;
+    // the same for ceilings. they will be set to the lowest ceilingheight
+    if (frontsector->no_toptextures)
+    {
+      int i=frontsector->linecount;
+
+      dummyceilingplane.height=INT_MAX;
+      while (i--)
+      {
+        line_t *tmpline=frontsector->lines[i];
+        if (tmpline->backsector)
+          if (tmpline->backsector != frontsector)
+            if (tmpline->backsector->ceilingheight<dummyceilingplane.height)
+            {
+              dummyceilingplane.height=tmpline->backsector->ceilingheight;
+              dummyceilingplane.lightlevel=tmpline->backsector->lightlevel;
+            }
+        if (tmpline->frontsector)
+          if (tmpline->frontsector != frontsector)
+            if (tmpline->frontsector->ceilingheight<dummyceilingplane.height)
+            {
+              dummyceilingplane.height=tmpline->frontsector->ceilingheight;
+              dummyceilingplane.lightlevel=tmpline->frontsector->lightlevel;
+            }
+      }
+      if (dummyceilingplane.height!=INT_MAX)
+        ceilingplane=&dummyceilingplane;
+    }
   }
 #endif
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.15 2000/05/20 21:29:51 proff_fs Exp $
+ * $Id: gl_main.c,v 1.16 2000/05/21 12:08:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1099,9 +1099,9 @@ static void CALLBACK ntessCombine( GLdouble coords[3], vertex_t *vert[4], GLfloa
   {
     fprintf(levelinfo, "\t\tVertexCombine Coords: x %10.5f, y %10.5f z %10.5f\n", coords[0], coords[1], coords[2]);
     if (vert[0]) fprintf(levelinfo, "\t\tVertexCombine Vert1 : x %10i, y %10i p %p\n", vert[0]->x>>FRACBITS, vert[0]->y>>FRACBITS, vert[0]);
-    if (vert[1]) fprintf(levelinfo, "\t\tVertexCombine Vert1 : x %10i, y %10i p %p\n", vert[1]->x>>FRACBITS, vert[1]->y>>FRACBITS, vert[1]);
-    if (vert[2]) fprintf(levelinfo, "\t\tVertexCombine Vert1 : x %10i, y %10i p %p\n", vert[2]->x>>FRACBITS, vert[2]->y>>FRACBITS, vert[2]);
-    if (vert[3]) fprintf(levelinfo, "\t\tVertexCombine Vert1 : x %10i, y %10i p %p\n", vert[3]->x>>FRACBITS, vert[3]->y>>FRACBITS, vert[3]);
+    if (vert[1]) fprintf(levelinfo, "\t\tVertexCombine Vert2 : x %10i, y %10i p %p\n", vert[1]->x>>FRACBITS, vert[1]->y>>FRACBITS, vert[1]);
+    if (vert[2]) fprintf(levelinfo, "\t\tVertexCombine Vert3 : x %10i, y %10i p %p\n", vert[2]->x>>FRACBITS, vert[2]->y>>FRACBITS, vert[2]);
+    if (vert[3]) fprintf(levelinfo, "\t\tVertexCombine Vert4 : x %10i, y %10i p %p\n", vert[3]->x>>FRACBITS, vert[3]->y>>FRACBITS, vert[3]);
   }
 #endif
   // just return the first vertex, because all vertexes are on the same coordinate
@@ -1186,7 +1186,8 @@ static void gld_PrecalculateSector(int num)
   angle_t bestangle;
   sector_t *backsector;
   GLUtesselator *tess;
-  GLdouble v[1000][3];
+  double *v=NULL;
+  int maxvertexnum;
   int vertexnum;
 
   currentsector=num;
@@ -1263,6 +1264,7 @@ static void gld_PrecalculateSector(int num)
   startvertex=sectors[num].lines[currentline]->v2;
   currentloop=0;
   vertexnum=0;
+  maxvertexnum=0;
   // start tesselator
   if (levelinfo) fprintf(levelinfo, "gluTessBeginPolygon\n");
   gluTessBeginPolygon(tess, NULL);
@@ -1323,14 +1325,19 @@ static void gld_PrecalculateSector(int num)
         lineangle=lineangle-360;
       if (levelinfo) fprintf(levelinfo, "\t\tAdded Line %4i to Loop, iLineID %5i, Angle: %4i, flipped true\n", currentline, sectors[num].lines[currentline]->iLineID, lineangle);
     }
+    if (vertexnum>=maxvertexnum)
+    {
+      maxvertexnum+=512;
+      v=GLRealloc(v,maxvertexnum*3*sizeof(double));
+    }
     // calculate coordinates for the glu tesselation functions
-    v[vertexnum][0]=-(double)currentvertex->x/(double)MAP_SCALE;
-    v[vertexnum][1]= 0.0;
-    v[vertexnum][2]= (double)currentvertex->y/(double)MAP_SCALE;
+    v[vertexnum*3+0]=-(double)currentvertex->x/(double)MAP_SCALE;
+    v[vertexnum*3+1]=0.0;
+    v[vertexnum*3+2]= (double)currentvertex->y/(double)MAP_SCALE;
     // add the vertex to the tesselator, currentvertex is the pointer to the vertexlist of doom
     // v[vertexnum] is the GLdouble array of the current vertex
     if (levelinfo) fprintf(levelinfo, "\t\tgluTessVertex(%i, %i)\n",currentvertex->x>>FRACBITS,currentvertex->y>>FRACBITS);
-    gluTessVertex(tess, v[vertexnum], currentvertex);
+    gluTessVertex(tess, &v[vertexnum*3], currentvertex);
     // increase vertexindex
     vertexnum++;
     // decrease linecount of current sector
@@ -1402,6 +1409,7 @@ static void gld_PrecalculateSector(int num)
   gluTessEndPolygon(tess);
   // clean memory
   gluDeleteTess(tess);
+  GLFree(v);
   GLFree(lineadded);
 }
 
@@ -1539,24 +1547,6 @@ void gld_PreprocessSectors(void)
   gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
   if (levelinfo) fclose(levelinfo);
   GLFree(sectorclosed);
-}
-
-void gld_DrawSky(float yaw)
-{
-  GLTexture *gltexture;
-  float u,ou,v;
-
-  gltexture=gld_RegisterTexture(skytexture, false);
-  gld_BindTexture(gltexture);
-  v=128.0f/(float)gltexture->tex_height*1.6f;
-  u=256.0f/(float)gltexture->tex_width;
-  ou=u*(yaw/90.0f);
-  glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(ou     , 0.0f);  glVertex2f( 0.0f, 0.0f);
-   	glTexCoord2f(ou     , v);     glVertex2f( 0.0f, (float)SCREENHEIGHT);
-	  glTexCoord2f(ou+u, 0.0f);  glVertex2f( (float)SCREENWIDTH, 0.0f);
-	  glTexCoord2f(ou+u, v);     glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
-  glEnd();
 }
 
 static float roll     = 0.0f;
@@ -1949,9 +1939,9 @@ void gld_AddWall(seg_t *seg)
       wall.gltexture=temptex;
       if ( (LINE->flags & ML_DONTPEGBOTTOM) >0)
       {
-        if (backsector->ceilingheight<=frontsector->floorheight)
+        if (seg->backsector->ceilingheight<=seg->frontsector->floorheight)
           goto bottomtexture;
-        floor_height=max(frontsector->floorheight,backsector->floorheight)+(seg->sidedef->rowoffset);
+        floor_height=max(seg->frontsector->floorheight,seg->backsector->floorheight)+(seg->sidedef->rowoffset);
         ceiling_height=floor_height+(wall.gltexture->realtexheight<<FRACBITS);
       }
       else
@@ -1962,7 +1952,7 @@ void gld_AddWall(seg_t *seg)
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
       CALC_Y_VALUES(wall, floor_height, ceiling_height);
-      CALC_TEX_VALUES_MIDDLE2S(wall, seg, /*(LINE->flags & ML_DONTPEGBOTTOM)>0*/false);
+      CALC_TEX_VALUES_MIDDLE2S(wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0);
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.trans=1;
       wall.sky=false;
