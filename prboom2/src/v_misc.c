@@ -124,13 +124,13 @@ void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patch
 
     // haleyjd: was no cx<0 check
 
-    w = SHORT(font[c].width);
+    w = font[c].width;
     if (cx < 0 || cx+w > 320)
 	    continue;
 
     // haleyjd: was no y checking at all!
 
-    h = SHORT(font[c].height);
+    h = font[c].height;
     if (cy < 0 || cy+h > 200)
 	    continue;
 
@@ -222,7 +222,7 @@ int V_StringWidthFont(const char *s, int gap, patchnum_t font[])
       length += 4;
     else
       if (font[c].lumpnum >= 0)
-        length += SHORT(font[c].width)+gap;
+        length += font[c].width+gap;
   }
 
   if(length > longest_width) longest_width = length; // check last line

@@ -435,7 +435,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
       dcvars.texu = frac;
 
 #ifdef RANGECHECK
-      if (texturecolumn < 0 || texturecolumn >= SHORT(patch->width))
+      if (texturecolumn < 0 || texturecolumn >= patch->width)
         I_Error ("R_DrawSpriteRange: Bad texturecolumn");
 #endif
 
@@ -534,14 +534,14 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
     const TPatch *patch = R_GetPatch(lump+firstspritelump);
 
     // calculate edges of the shape
-    tx -= SHORT(patch->leftOffset)<<FRACBITS;
+    tx -= patch->leftOffset<<FRACBITS;
     x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
 
-    tx += SHORT(patch->width)<<FRACBITS;
+    tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
-    gzt = thing->z + (SHORT(patch->topOffset)<<FRACBITS);
-    width = SHORT(patch->width);
+    gzt = thing->z + (patch->topOffset<<FRACBITS);
+    width = patch->width;
   }
 
   // off the side?
@@ -704,9 +704,9 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     
     // calculate edges of the shape
     fixed_t       tx;
-    int           spriteoffset = SHORT(patch->leftOffset)<<FRACBITS;
+    int           spriteoffset = patch->leftOffset<<FRACBITS;
     tx = psp->sx-160*FRACUNIT;
-    spritewidth = SHORT(patch->width)<<FRACBITS;
+    spritewidth = patch->width<<FRACBITS;
 
     tx -= flip ? spritewidth - spriteoffset : spriteoffset;
     x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
@@ -714,7 +714,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     tx += spritewidth;
     x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
-    topoffset = SHORT(patch->topOffset)<<FRACBITS;
+    topoffset = patch->topOffset<<FRACBITS;
   }
 
   // off the side

@@ -352,10 +352,10 @@ void STlib_updateBinIcon
 
   if (*bi->on && (bi->oldval != *bi->val || refresh))
   {
-    x = bi->x - SHORT(bi->p->leftoffset);
-    y = bi->y - SHORT(bi->p->topoffset);
-    w = SHORT(bi->p->width);
-    h = SHORT(bi->p->height);
+    x = bi->x - bi->p->leftoffset;
+    y = bi->y - bi->p->topoffset;
+    w = bi->p->width;
+    h = bi->p->height;
 
 #ifdef RANGECHECK
     if (y - ST_Y < 0)

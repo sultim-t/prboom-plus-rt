@@ -595,10 +595,10 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     int            lump = W_GetNumForName(c[i]);
     const TPatch *patch = R_GetPatch(lump); // POPE
 
-    left = lnodes[wbs->epsd][n].x - SHORT(patch->leftOffset);
-    top = lnodes[wbs->epsd][n].y - SHORT(patch->topOffset);
-    right = left + SHORT(patch->width);
-    bottom = top + SHORT(patch->height);
+    left = lnodes[wbs->epsd][n].x - patch->leftOffset;
+    top = lnodes[wbs->epsd][n].y - patch->topOffset;
+    right = left + patch->width;
+    bottom = top + patch->height;
   
     if (left >= 0
        && right < SCREENWIDTH
@@ -761,7 +761,7 @@ static void WI_drawAnimatedBack(void)
 // CPhipps - static
 static int WI_drawNum (int x, int y, int n, int digits)
 {
-  int   fontwidth = SHORT(num[0].width);
+  int   fontwidth = num[0].width;
   int   neg;
   int   temp;
 
