@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.9 2000/05/13 10:23:20 proff_fs Exp $
+ * $Id: gl_main.c,v 1.10 2000/05/13 18:39:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1378,12 +1378,12 @@ void gld_StartDrawScene(void)
 	glScissor(viewwindowx, SCREENHEIGHT-(viewheight+viewwindowy), viewwidth, viewheight);
   glEnable(GL_SCISSOR_TEST);
 	// Player coordinates
-	xCamera=-(float)viewplayer->mo->x/(float)MAP_SCALE;
-	yCamera=(float)viewplayer->mo->y/(float)MAP_SCALE;
-	trY=(float)viewplayer->viewz/(float)MAP_SCALE;
+	xCamera=-(float)viewx/(float)MAP_SCALE;
+	yCamera=(float)viewy/(float)MAP_SCALE;
+	trY=(float)viewz/(float)MAP_SCALE;
 	
-	yaw=270.0f-(float)(viewplayer->mo->angle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
-	inv_yaw=-90.0f+(float)(viewplayer->mo->angle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+	yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+	inv_yaw=-90.0f+(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
 
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -1461,6 +1461,7 @@ void gld_Init(int width, int height)
   glClearDepth(1.0f);
 
   glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
+  lprintf(LO_INFO,"gld_max_texturesize=%i\n",gld_max_texturesize);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1470,7 +1471,7 @@ void gld_Init(int width, int height)
 	glEnable(GL_TEXTURE_2D);
 	glDepthFunc(GL_LEQUAL);
  	glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_NOTEQUAL,0.0f);
+  glAlphaFunc(GL_GEQUAL,0.5f);
 	glDisable(GL_CULL_FACE);
 
   glTexGenfv(GL_Q,GL_EYE_PLANE,params);
@@ -1566,6 +1567,7 @@ typedef struct
   boolean sky;
   boolean skyflip;
   float skyymid;
+  float skyyaw;
   GLTexture *gltexture;
 } GLWall;
 
@@ -1595,11 +1597,10 @@ static void gld_DrawWall(GLWall *wall)
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
     if (wall->skyflip)
-      glScalef(-0.5f,((float)SCREENHEIGHT/(float)SCREENWIDTH)*(200.0f/(float)wall->gltexture->tex_height),1.0f);
+      glScalef(-128.0f/(float)wall->gltexture->width,200.0f/320.0f*2.0f,1.0f);
     else
-      glScalef(0.5f,((float)SCREENHEIGHT/(float)SCREENWIDTH)*(200.0f/(float)wall->gltexture->tex_height),1.0f);
-//    glTranslatef(-((float)SCREENWIDTH/(float)SCREENHEIGHT)*(yaw/90.0f),-1.0f,0.0f);
-    glTranslatef(0.0f,(wall->skyymid/100.0f)-2.0f,0.0f);
+      glScalef(128.0f/(float)wall->gltexture->width,200.0f/320.0f*2.0f,1.0f);
+    glTranslatef(-2.0f*(wall->skyyaw/90.0f),200.0f/320.0f*(wall->skyymid/100.0f),0.0f);
     glColor4f(1.0f,1.0f,1.0f,1.0f);
     glBegin(GL_TRIANGLE_STRIP);
       glVertex3f(glseg->x1,wall->ytop,glseg->z1);
@@ -1684,8 +1685,7 @@ static void gld_DrawWall(GLWall *wall)
 	      const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
 	      const side_t *s = *l->sidenum + sides;\
         wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
-	      /* an += s->textureoffset;*/\
-	      /* dc_texturemid = s->rowoffset - 28*FRACUNIT;*/\
+	      wall.skyyaw=270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;\
 	      wall.skyymid = (float)s->rowoffset/(float)FRACUNIT - 28.0f;\
 	      wall.skyflip = l->special==272 ? false : true;\
       }\
@@ -1695,13 +1695,14 @@ static void gld_DrawWall(GLWall *wall)
 	      const line_t *l = &lines[sky2 & ~PL_SKYFLAT];\
 	      const side_t *s = *l->sidenum + sides;\
         wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
-	      /* an += s->textureoffset;*/\
+	      wall.skyyaw=270.0f-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;\
 	      wall.skyymid = (float)s->rowoffset/(float)FRACUNIT - 28.0f;\
 	      wall.skyflip = l->special==272 ? false : true;\
       }\
       else\
       {\
         wall.gltexture=gld_RegisterTexture(skytexture, false);\
+	      wall.skyyaw=yaw;\
 	      wall.skyymid = 100.0f;\
 	      wall.skyflip = false;\
       }
@@ -1759,8 +1760,15 @@ void gld_AddWall(seg_t *seg)
 //    if ((FRONTSECTOR->ceilingpic==skyflatnum) || (BACKSECTOR->ceilingpic==skyflatnum))
     {
       wall.ytop=255.0f;
-      if ((floor_height==BACKSECTOR->floorheight)
-          && (texturetranslation[seg->sidedef->toptexture]==R_TextureNumForName("-")))
+      if (   (floor_height==BACKSECTOR->floorheight)
+          && (BACKSECTOR->ceilingpic==skyflatnum)
+/*
+          && (   (texturetranslation[seg->sidedef->toptexture]==R_TextureNumForName("-"))
+              || (texturetranslation[seg->sidedef->bottomtexture]==R_TextureNumForName("-"))
+             )
+*/
+          && (texturetranslation[seg->sidedef->midtexture]==R_TextureNumForName("-"))
+         )
       {
         wall.ybottom=(float)BACKSECTOR->floorheight/(float)MAP_SCALE;
         SKYTEXTURE(FRONTSECTOR->sky,BACKSECTOR->sky);

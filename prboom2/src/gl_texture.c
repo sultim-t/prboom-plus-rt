@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.6 2000/05/13 10:23:20 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.7 2000/05/13 18:39:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -360,6 +360,20 @@ void gld_BindTexture(GLTexture *gltexture)
   }
   else
   {
+    /*
+    if ((gltexture->width!=gltexture->tex_width) || (gltexture->height!=gltexture->tex_height))
+    {
+      unsigned char *scaledbuffer;
+
+      scaledbuffer=(unsigned char*)GLMalloc(gltexture->size);
+      if (scaledbuffer)
+      {
+        gluScaleImage(GL_RGBA
+        GLFree(buffer);
+        buffer=scaledbuffer;
+      }
+    }
+    */
     glTexImage2D( GL_TEXTURE_2D, 0, 4, 
                   gltexture->tex_width, gltexture->tex_height,
                   0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
