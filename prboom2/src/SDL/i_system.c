@@ -159,22 +159,6 @@ int I_Filelength(int handle)
 
 #ifndef PRBOOM_SERVER
 
-extern void I_Video_AddCommands();
-//extern void I_Sound_AddCommands();
-//extern void I_Input_AddCommands();
-//extern void Ser_AddCommands();
-
-// add system specific commands
-void I_AddCommands()
-{
-  //C_AddCommand(i_ledsoff);
-  //C_AddCommand(i_gamespeed);
-  
-  I_Video_AddCommands();
-  //I_Sound_AddCommands();
-  //Ser_AddCommands();
-}
-
 // Return the path where the executable lies -- Lee Killough
 #ifdef _WIN32
 char *I_DoomExeDir(void)

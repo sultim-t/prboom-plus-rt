@@ -119,11 +119,11 @@ int quitsounds2[8] =
   sfx_sgtatk
 };
 
-CONSOLE_COMMAND(quit, 0)
+CONSOLE_COMMAND(quit, cf_buffered)
 {
   // haleyjd: re-added code for playing random sound before exit
   //          fixed for portability
-#ifdef DJGPP
+//#ifdef DJGPP
   extern int snd_card;
   
   if((!netgame || demoplayback) && !nosfxparm && snd_card)
@@ -132,9 +132,10 @@ CONSOLE_COMMAND(quit, 0)
   	  S_StartSound(NULL, quitsounds2[(gametic>>2)&7]);
   	else 			   // anything else
   	  S_StartSound(NULL, quitsounds[(gametic>>2)&7]);
-  	I_WaitVBL(105);
+//  	I_WaitVBL(105);
+    I_uSleep(800000);
   }
-#endif
+//#endif
   
   exit(0);
 }

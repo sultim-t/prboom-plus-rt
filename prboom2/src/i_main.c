@@ -68,8 +68,12 @@
  * cphipps - much made static
  */
 
+// how long to wait showing endoom in seconds
+int endoom_delay = 1;
+CONSOLE_INT(i_endoom_delay, endoom_delay, NULL, 0, 10, NULL, 0) {}
+
 int realtic_clock_rate = 100;
-CONSOLE_INT(realtic_clock_rate, realtic_clock_rate, NULL, 1, 10000, NULL, 0) {}
+CONSOLE_INT(i_gamespeed, realtic_clock_rate, NULL, 1, 10000, NULL, 0) {}
 
 static int_64_t I_GetTime_Scale = 1<<24;
 
@@ -304,7 +308,7 @@ static void I_EndDoom(void)
     puts("\e[0m"); /* cph - reset colours */
   PrintVer();
 #else /* _WIN32 */
-  I_uSleep(3000000); // CPhipps - don't thrash cpu in this loop
+  I_uSleep(endoom_delay * 1000000); // CPhipps - don't thrash cpu in this loop
 #endif /* _WIN32 */
 }
 
@@ -402,4 +406,21 @@ int main(int argc, char **argv)
 
   D_DoomMain ();
   return 0;
+}
+
+extern void I_Video_AddCommands();
+//extern void I_Sound_AddCommands();
+//extern void I_Input_AddCommands();
+//extern void Ser_AddCommands();
+
+// add system specific commands
+void I_AddCommands()
+{
+  //C_AddCommand(i_ledsoff);
+  C_AddCommand(i_endoom_delay);
+  C_AddCommand(i_gamespeed);
+  
+  I_Video_AddCommands();
+  //I_Sound_AddCommands();
+  //Ser_AddCommands();
 }
