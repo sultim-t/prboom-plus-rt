@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -379,7 +379,6 @@ static void R_AddLine (seg_t *line)
       }
       ds_p->curline = curline;
       ds_p++;
-      gld_AddWall(curline);
       return;
     }
   }
@@ -403,18 +402,18 @@ static void R_AddLine (seg_t *line)
   if (linedef->r_flags & RF_IGNORE)
   {
 #ifdef GL_DOOM
-      if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
-      {
-        unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
-        unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
-        drawsegs = realloc(drawsegs,newmax*sizeof(*drawsegs));
-        //ds_p = drawsegs+maxdrawsegs;
-        ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
-        maxdrawsegs = newmax;
-      }
-      ds_p->curline = curline;
-      ds_p++;
-      gld_AddWall(curline);
+    return;
+    if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
+    {
+      unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
+      unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
+      drawsegs = realloc(drawsegs,newmax*sizeof(*drawsegs));
+      //ds_p = drawsegs+maxdrawsegs;
+      ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
+      maxdrawsegs = newmax;
+    }
+    ds_p->curline = curline;
+    ds_p++;
 #endif
     return;
   }
@@ -537,13 +536,14 @@ static void R_Subsector(int num)
 
   // killough 3/7/98: Add (x,y) offsets to flats, add deep water check
   // killough 3/16/98: add floorlightlevel
+  // killough 10/98: add support for skies transferred from sidedefs
 
   floorplane = frontsector->floorheight < viewz || // killough 3/7/98
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].ceilingpic == skyflatnum) ?
     R_FindPlane(frontsector->floorheight,
-		frontsector->floorpic == skyflatnum &&  // kilough 10/98
-		frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+            		frontsector->floorpic == skyflatnum &&  // kilough 10/98
+		            frontsector->sky & PL_SKYFLAT ? frontsector->sky :
                 frontsector->floorpic,
                 floorlightlevel,                // killough 3/16/98
                 frontsector->floor_xoffs,       // killough 3/7/98
@@ -555,8 +555,8 @@ static void R_Subsector(int num)
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].floorpic == skyflatnum) ?
     R_FindPlane(frontsector->ceilingheight,     // killough 3/8/98
-		frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
-		frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+            		frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
+            		frontsector->sky & PL_SKYFLAT ? frontsector->sky :
                 frontsector->ceilingpic,
                 ceilinglightlevel,              // killough 4/11/98
                 frontsector->ceiling_xoffs,     // killough 3/7/98
@@ -580,6 +580,10 @@ static void R_Subsector(int num)
 
   while (count--)
     R_AddLine (line++);
+
+#ifdef GL_DOOM
+  gld_DrawPlane(frontsector, floorplane, ceilingplane);
+#endif
 }
 
 //

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.4 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_spec.c,v 1.5 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -41,7 +41,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.5 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -2736,8 +2736,8 @@ static void Add_WallScroller(fixed_t dx, fixed_t dy, const line_t *l,
 
   // CPhipps - Import scroller calc overflow fix, compatibility optioned
   if (compatibility_level >= lxdoom_1_compatibility) {
-    x = (dy * -l->dy - dx * l->dx) / d;  // killough 10/98:
-    y = (dy * l->dx - dx * l->dy) / d;   // Use long long arithmetic
+    x = (fixed_t)(((int_64_t)dy * -(int_64_t)l->dy - (int_64_t)dx * (int_64_t)l->dx) / (int_64_t)d);  // killough 10/98:
+    y = (fixed_t)(((int_64_t)dy * (int_64_t)l->dx - (int_64_t)dx * (int_64_t)l->dy) / (int_64_t)d);   // Use long long arithmetic
   } else {
     x = -FixedDiv(FixedMul(dy, l->dy) + FixedMul(dx, l->dx), d);
     y = -FixedDiv(FixedMul(dx, l->dy) - FixedMul(dy, l->dx), d);

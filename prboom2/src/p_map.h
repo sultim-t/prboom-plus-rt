@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.h,v 1.3 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_map.h,v 1.4 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -64,6 +64,7 @@ void    P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage);
 boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y);
 
 //jff 3/19/98 P_CheckSector(): new routine to replace P_ChangeSector()
+boolean P_ChangeSector(sector_t* sector,boolean crunch);
 boolean P_CheckSector(sector_t *sector, boolean crunch);
 void    P_DelSeclist(msecnode_t*);                          // phares 3/16/98
 void    P_CreateSecNodeList(mobj_t*,fixed_t,fixed_t);       // phares 3/14/98

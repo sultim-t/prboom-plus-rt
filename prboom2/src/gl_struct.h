@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_struct.h,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: gl_struct.h,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -61,7 +61,8 @@ void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
 void gld_Finish();
 
-void gld_AddWall(seg_t *seg);
-void gld_AddSprite(mobj_t *pSpr,int lump, boolean flip);
+//void gld_AddWall(seg_t *seg);
+void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceilingplane);
+void gld_DrawSprite(vissprite_t *vspr);
 
 #endif // _GL_STRUCT_H

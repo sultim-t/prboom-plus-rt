@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.5 2000/05/11 22:44:34 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -58,8 +58,10 @@
 #include "r_main.h"
 #include "r_draw.h"
 #include "r_sky.h"
+#include "r_plane.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "z_bmalloc.h"
 
 #define GLMalloc(n) Z_Malloc(n,PU_STATIC,0)
 #define GLRealloc(p,n) Z_Realloc(p,n,PU_STATIC,0)

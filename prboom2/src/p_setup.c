@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.5 2000/05/11 20:09:53 proff_fs Exp $
+ * $Id: p_setup.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.5 2000/05/11 20:09:53 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include <math.h>
 
@@ -180,7 +180,9 @@ static void P_LoadSegs (int lump)
       int side, linedef;
       line_t *ldef;
 
+#ifdef GL_DOOM
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
+#endif
 
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
@@ -247,7 +249,9 @@ static void P_LoadSectors (int lump)
       sector_t *ss = sectors + i;
       const mapsector_t *ms = (mapsector_t *) data + i;
 
-  		ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL and used in debugmode by the HUD to draw sectornum
+#ifdef GL_DOOM
+  		ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL
+#endif
       ss->floorheight = SHORT(ms->floorheight)<<FRACBITS;
       ss->ceilingheight = SHORT(ms->ceilingheight)<<FRACBITS;
       ss->floorpic = R_FlatNumForName(ms->floorpic);
@@ -428,7 +432,9 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXTOP] = v1->y;
         }
 
+#ifdef GL_DOOM
   		ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
+#endif
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 

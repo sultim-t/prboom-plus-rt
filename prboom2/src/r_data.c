@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.5 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: r_data.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.5 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -89,8 +89,11 @@ int firstcolormaplump, lastcolormaplump;      // killough 4/17/98
 int       firstflat, lastflat, numflats;
 int       firstspritelump, lastspritelump, numspritelumps;
 int       numtextures;
+#ifdef GL_DOOM
 texture_t **textures; // proff - 04/05/2000 removed static for OpenGL
-//static texture_t **textures;
+#else
+static texture_t **textures;
+#endif
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;

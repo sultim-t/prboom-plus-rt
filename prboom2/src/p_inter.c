@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.3 2000/05/11 23:22:20 cph Exp $
+ * $Id: p_inter.c,v 1.4 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.3 2000/05/11 23:22:20 cph Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.4 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -556,7 +556,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       break;
 
     case SPR_MGUN:
-      if (!P_GiveWeapon (player, wp_chaingun, special->flags&MF_DROPPED) )
+      if (!P_GiveWeapon (player, wp_chaingun, (special->flags&MF_DROPPED)!=0) )
         return;
       player->message = s_GOTCHAINGUN; // Ty 03/22/98 - externalized
       sound = sfx_wpnup;
@@ -584,14 +584,14 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       break;
 
     case SPR_SHOT:
-      if (!P_GiveWeapon (player, wp_shotgun, special->flags&MF_DROPPED ) )
+      if (!P_GiveWeapon (player, wp_shotgun, (special->flags&MF_DROPPED)!=0 ) )
         return;
       player->message = s_GOTSHOTGUN; // Ty 03/22/98 - externalized
       sound = sfx_wpnup;
       break;
 
     case SPR_SGN2:
-      if (!P_GiveWeapon(player, wp_supershotgun, special->flags&MF_DROPPED))
+      if (!P_GiveWeapon(player, wp_supershotgun, (special->flags&MF_DROPPED)!=0))
         return;
       player->message = s_GOTSHOTGUN2; // Ty 03/22/98 - externalized
       sound = sfx_wpnup;

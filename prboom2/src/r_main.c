@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $
+ * $Id: r_main.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -700,9 +700,12 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
 
-#ifndef GL_DOOM
-  R_DrawMasked ();
+#ifdef GL_DOOM
+  // proff 11/99: draw the scene
+	gld_DrawScene(player);
 #endif
+
+  R_DrawMasked ();
 
   // Check for new console commands.
 #ifdef HAVE_NET  
@@ -710,8 +713,6 @@ void R_RenderPlayerView (player_t* player)
 #endif
 
 #ifdef GL_DOOM
-  // proff 11/99: draw the scene
-	gld_DrawScene(player);
   // proff 11/99: finishing off
   gld_EndDrawScene();
 #endif

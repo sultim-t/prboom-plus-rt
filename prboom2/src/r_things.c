@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.6 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: r_things.c,v 1.7 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.6 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.7 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -536,6 +536,15 @@ void R_ProjectSprite (mobj_t* thing)
   // store information in a vissprite
   vis = R_NewVisSprite ();
 
+#ifdef GL_DOOM
+  // proff 11/99: add sprite for OpenGL
+  vis->thing = thing;
+  vis->flip = flip;
+  vis->scale = FixedDiv(projectiony, tz);
+  vis->patch = lump;
+  return;
+#endif
+
   // killough 3/27/98: save sector for special clipping later
   vis->heightsec = heightsec;
 
@@ -580,10 +589,6 @@ void R_ProjectSprite (mobj_t* thing)
         index = MAXLIGHTSCALE-1;
       vis->colormap = spritelights[index];
     }
-#ifdef GL_DOOM
-  // proff 11/99: add sprite for OpenGL
-  gld_AddSprite(thing,lump,flip);
-#endif
 }
 
 //
@@ -988,6 +993,17 @@ void R_DrawSprite (vissprite_t* spr)
 
 void R_DrawMasked(void)
 {
+#ifdef GL_DOOM
+  int i;
+
+  R_SortVisSprites();
+
+  // draw all vissprites back to front
+
+  rendered_vissprites = num_vissprite;
+  for (i = num_vissprite ;--i>=0; )
+    gld_DrawSprite(vissprite_ptrs[i]);
+#else
   int i;
   drawseg_t *ds;
 
@@ -1015,4 +1031,5 @@ void R_DrawMasked(void)
   //  but does not draw on side views
   if (!viewangleoffset)
     R_DrawPlayerSprites ();
+#endif
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.5 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_mobj.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.5 2000/05/11 23:22:21 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -876,7 +876,7 @@ int P_FindDoomedNum(unsigned type)
     }
   
   i = hash[type % NUMMOBJTYPES].first;
-  while (i < NUMMOBJTYPES && mobjinfo[i].doomednum != type)
+  while ((i < NUMMOBJTYPES) && ((unsigned)mobjinfo[i].doomednum != type))
     i = hash[i].next;
   return i;
 }
@@ -1023,7 +1023,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
 void P_SpawnMapThing (mapthing_t* mthing)
   {
   int     i;
-  int     bit;
+  //int     bit;
   mobj_t* mobj;
   fixed_t x;
   fixed_t y;

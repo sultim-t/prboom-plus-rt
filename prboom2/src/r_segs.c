@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: r_segs.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -120,6 +120,8 @@ static fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 // R_RenderMaskedSegRange
 //
 
+int fake_contrast;
+
 void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
   column_t *col;
@@ -154,11 +156,15 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   lightnum = (R_FakeFlat(frontsector, &tempsec, NULL, NULL, false)
               ->lightlevel >> LIGHTSEGSHIFT)+extralight;
 
-  if (curline->v1->y == curline->v2->y)
-    lightnum--;
-  else
-    if (curline->v1->x == curline->v2->x)
-      lightnum++;
+	/* cph - ...what is this for? adding contrast to rooms?
+	 * It looks crap in outdoor areas */
+	if (fake_contrast) {
+    if (curline->v1->y == curline->v2->y)
+      lightnum--;
+    else
+      if (curline->v1->x == curline->v2->x)
+        lightnum++;
+  }
 
   walllights = lightnum >= LIGHTLEVELS ? scalelight[LIGHTLEVELS-1] :
     lightnum <  0           ? scalelight[0] : scalelight[lightnum];
@@ -438,8 +444,6 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
                                 + ANG90) >> ANGLETOFINESHIFT]);
 }
 
-int fake_contrast;
-
 //
 // R_StoreWallRange
 // A wall segment will be drawn
@@ -466,7 +470,6 @@ void R_StoreWallRange(const int start, const int stop)
   ds_p->curline = curline;
   ds_p++;
   curline->linedef->flags |= ML_MAPPED;
-  gld_AddWall(curline);
   return;
 #endif
 
