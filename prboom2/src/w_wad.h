@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.h,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: w_wad.h,v 1.4 2000/05/19 12:22:26 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -144,6 +144,9 @@ void    W_ReadLump (int lump, void *dest);
 // CPhipps - modified for 'new' lump locking
 const void* W_CacheLumpNum (int lump, unsigned short locks);
 void    W_UnlockLumpNum(int lump, signed short unlocks);
+
+/* cph - special version to return lump with padding, for sound lumps */
+const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad);
 
 // CPhipps - convenience macros
 #define W_CacheLumpNum(num) (W_CacheLumpNum)((num),1)

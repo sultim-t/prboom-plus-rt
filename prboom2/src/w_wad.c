@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.8 2000/05/16 21:37:13 proff_fs Exp $
+ * $Id: w_wad.c,v 1.9 2000/05/19 12:22:26 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.8 2000/05/16 21:37:13 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.9 2000/05/19 12:22:26 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -560,6 +560,49 @@ const void * (W_CacheLumpNum)(int lump, unsigned short locks)
 
   // CPhipps - if not locked, can't give you a pointer
   return (locks ? lumpcache[lump] : NULL);
+}
+
+/* cph - 
+ * W_CacheLumpNumPadded
+ *
+ * Caches a lump and pads the memory following it.
+ * The thing returned is *only* guaranteed to be padded if 
+ *  the lump isn't already cached (otherwise, you get whatever is 
+ *  currently cached, which if it was cached by a previous call 
+ *  to this will also be padded)
+ */
+
+const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad)
+{
+  const int locks = 1;
+#ifdef RANGECHECK
+  if ((unsigned)lump >= (unsigned)numlumps)
+    I_Error ("W_CacheLumpNum: %i >= numlumps",lump);
+#endif
+
+  if (!lumpcache[lump]) {     /* read the lump in */
+    size_t lumplen = W_LumpLength(lump);
+    unsigned char* p;
+    W_ReadLump(lump, p = Z_Malloc(len, PU_CACHE, &lumpcache[lump]));
+    memset(p+lumplen, pad, len-lumplen);
+  }
+
+  /* cph - if wasn't locked but now is, tell z_zone to hold it */
+  if (!lumpinfo[lump].locks && locks) {
+    Z_ChangeTag(lumpcache[lump],PU_STATIC);
+#ifdef TIMEDIAG
+    locktic[lump] = gametic;
+#endif
+  }
+  lumpinfo[lump].locks += locks;
+
+#ifdef SIMPLECHECKS
+  if (!((lumpinfo[lump].locks+1) & 0xf))
+    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n", 
+	    lumpinfo[lump].name, lumpinfo[lump].locks);
+#endif
+
+  return lumpcache[lump];
 }
 
 //
