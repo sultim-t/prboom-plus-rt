@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.5 2000/05/18 20:46:42 proff_fs Exp $
+ * $Id: config.h,v 1.6 2000/05/20 11:53:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -129,6 +129,8 @@
 /* Define if you want to compile with SDL  */
 #define USE_SDL 1
 
+#define MONITOR_VISIBILITY
+
 /* Define if you want to use the gluTesselator  */
 #define USE_GLU_TESS 1
 
@@ -139,7 +141,7 @@
 #define USE_GLU_MIPMAP 1
 
 /* Name of package */
-#define PACKAGE "lxdoom"
+#define PACKAGE "prboom"
 
 /* Version number of package */
 #define VERSION "1.4.5"
