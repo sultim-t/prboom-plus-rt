@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+ <title>PrBoom - Linux/UNIX Installation</title>
+ <meta name="author" content="Colin Phipps" />
+ <meta name="generator" content="vi (FreeBSD 4.1-STABLE i686)" />
+ <meta name="CVSID" content="$Id: linux.html,v 1.1 2000/09/02 19:37:12 cph Exp $" />
+ <link rel="stylesheet" href="main.css" type="text/css" />
+</head>
+<body>
+
+<a href="http://sourceforge.net">
+<img src="http://sourceforge.net/sflogo.php?group_id=3396" width="88" height="31" />
+</a>
+
+<h1>Installation on Linux and UNIX Systems</h1>
+<p>
+ This page guides you through the first steps of getting PrBoom, namely 
+ downloading the right PrBoom package for your system, and getting the 
+ necessary libraries.
+</p><p>
+ Please see the most appropriate instructions depending on your 
+ system distribution:
+</p><ul>
+ <li><a href="#redhat">Linux/x86 RPM based distros</a> (Redhat, Mandrake, ...)</li>
+ <li><a href="#debian">Debian</a> (and derivatives)</li>
+ <li><a href="#freebsd">FreeBSD</a> (may be appropriate for other BSDs)</li>
+ <li><a href="#unix">Generic UNIX</a> (anything else)</li>
+</ul>
+<h2>Conmpiling with OpenGL support</h2>
+ <p>
+  I didn't write the OpenGL stuff, nor do I have a good 3D card to test with, 
+  so I don't use this nor know much about it. That said, it did work for me 
+  last time I tried it.
+ </p><p>
+  The RPM distribution of PrBoom doesn't support this, so you must compile 
+  from source. Follow the instructions below relevant to your distribution, 
+  but add the parameter <code>--enable-gl</code> when you run 
+  <code>configure</code>. You'll need Mesa installed.</p>
+ <p>I don't suggest using the OpenGL stuff unless you're already familiar 
+  with Doom and PrBoom.</p>
+<!-- cph - perhaps Jess should write some stuff here - I know nothing ;-) -->
+ </p>
+<h2><a name="redhat">Linux/x86 RPM based distributions</a></h2>
+ <p>
+  You need to download the following things:
+ </p><ul>
+  <li>The main SDL library, <code>SDL-1.1.4-1.i386.rpm</code> (or a later version), 
+   from <a href="http://www.libsdl.org/download-1.1.html">the SDL 1.1
+   download page</a>.</li>
+  <li>smpeg, from <code>smpeg-0.3.5-1.i386.rpm</code> or later from 
+   the <a href="http://www.lokigames.com/development/smpeg.php3">SMPEG
+   homepage</a>.</li>
+  <li>A <a href="http://rpmfind.net/linux/RPM/timidity-instruments.html">Timidity instruments set</a> for use in the music synthesis.
+  <li>The SDL_mixer library, <code>SDL_mixer-1.0.5-1.i386.rpm</code> (or later), 
+   from <a href="http://www.libsdl.org/projects/SDL_mixer/">the SDL_mixer 
+   homepage</a>.</li>
+  <li>The SDL_net library. There is no official package of this so I made 
+   my own, <code>SDL_net-1.1.1.i386.rpm</code>, available from the
+   <a href="#download">PrBoom download page</a>.</li>
+  <li>PrBoom itself, <code>prboom-2.1.0-0.i386.rpm</code>, from the 
+   <a href="#download">PrBoom download page</a>.</li>
+ </ul>
+ <p>Exception: Mandrake ships with all this stuff on the CDs. smpeg and 
+  timidity on the Mandrake CDs are fine, <em>but</em> the versions of the 
+  SDL libraries on the Mandrake CDs are too old and buggy to use with 
+  PrBoom. Don't try it - I have, they're no good. Get new ones from the
+  URLs above.</p>
+ <p>To install these, you use <code>rpm</code>. E.g. if you downloaded all 
+  of the above RPMs into one directory, <code>cd</code> to that directory 
+  and run <code>rpm -ivh <code>*.rpm</code></code>. You can then run PrBoom as 
+  <code>/usr/games/prboom</code>.
+ </p>
+ <h3>Compiling from source</h3>
+  <p>If you want to compile from source, then you need all of the above 
+   packages, and also <code>SDL-devel-1.1.4-1.i386.rpm</code> (from 
+   <a href="http://www.libsdl.org/download-1.1.html">the SDL 1.1
+   download page</a>) and <code>SDL_mixer-devel-1.0.5-1.i386.rpm</code> (again from 
+   the <a href="http://www.libsdl.org/projects/SDL_mixer/">SDL_mixer
+   homepage</a>).</p>
+<h2><a name="debian">Debian</a></h2>
+ <p>
+  Debian unstable contains packages of SDL and SDL_mixer. First, install 
+   the packages <code>libsdl1.1, libsdl1.1-dev, libsdl-mixer1.0, 
+   libsdl-mixer-dev, smpeg, timidity, timidity-patches</code>. 
+   You also need the SDL_net library, which is not 
+   yet packaged for Debian; get the source from 
+   <a href="http://www.libsdl.org/projects/SDL_net/">the SDL_net homepage</a>. 
+   Get the prboom source code <code>prboom-2.1.0.tar.gz</code> from our 
+   <a href="#download">download page</a>, extract, and then follow the 
+   included <code>INSTALL</code> instructions.</dd>
+<h2><a name="freebsd">FreeBSD</a></h2>
+ <p>
+  I've tested on FreeBSD 4.1-STABLE. The ports tree contains packages 
+   of most of the stuff you need. Make the following ports:
+ </p></ul>
+  <li>devel/sdl-devel</li>
+  <li>audio/sdl_mixer (requires audio/smpeg)</li>
+ </ul><p>
+   You also need the SDL_net library, which you can get from 
+   <a href="http://www.libsdl.org/projects/SDL_net/">it's homepage</a>. 
+   Note that because the sdl-devel port installs in a strange directory, 
+   you'll need to 
+   <code>ln -s ../SDL/SDL_net.h /usr/local/include/SDL11/SDL_net.h</code>
+   or something similar.
+ </p><p>
+  If you want music you also need a set of timidity patches.
+ </p><p>
+  Finally, get <code>prboom-2.1.0.tar.gz</code> the PrBoom source, extract, 
+  and follow the included <code>INSTALL</code> instructions.
+ </p>
+<h2><a name="unix">Generic UNIX</a></h2>
+ <p>
+  You need to get and install the following libraries:
+ </p><ul>
+  <li>SDL 1.1.x, from <a href="http://www.libsdl.org/download-1.1.html">the 
+   SDL 1.1 download page</a>.</li>
+  <li>SDL_mixer, from <a href="http://www.libsdl.org/projects/SDL_mixer/">its
+   home page</a>. This also requires the following:
+   <ul>
+    <li>SMPEG, from <a href="http://www.lokigames.com/development/smpeg.php3">the SMPEG homepage</a>.</li>
+    <li>A set of timidity patches</li>
+   </ul>
+   <p>I don't know about these, look 'em up yourself :-).</p>
+  </li>
+  <li>SDL_net, from <a href="http://www.libsdl.org/projects/SDL_net/">its home 
+   page</a>.</li>
+ </ul>
+ <p>
+  Then get <code>prboom-2.1.0.tar.gz</code> the PrBoom source, extract, 
+  and follow the included <code>INSTALL</code> instructions.
+ </p>
+<h2><a name="download">Download page</h2>
+ <p>Is <a href="http://www.sourceforge.net/projects/showfiles.php?group_id=3396">here</a>. It's possible that the version numbers on this page may not be up to date. You can figure it out :-).</p>
+</body>
+</html>
