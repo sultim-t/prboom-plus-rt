@@ -638,6 +638,8 @@ CONSOLE_INT(r_filteruv, rdrawvars.filteruv, NULL, 0, 2, str_filter, 0) {}
 CONSOLE_INT(r_filterz, rdrawvars.filterz, NULL, 0, 1, str_filter, 0) {}
 CONSOLE_INT(r_columnslope, rdrawvars.maskedColumnEdgeType, NULL, 0, 1, onoff, 0) {}
 CONSOLE_INT(r_filterthreshold, rdrawvars.magThresh, NULL, 10000, 200000, NULL, 0) {}
+CONSOLE_INT(r_patchfilter, vid_drawPatchFilterType, NULL, 0, 2, str_filter, 0) {}
+CONSOLE_INT(r_patchslope, vid_drawPatchSlopeType, NULL, 0, 1, onoff, 0) {}
 
 void R_AddCommands()
 {
@@ -649,5 +651,7 @@ void R_AddCommands()
   C_AddCommand(r_filterz);
   C_AddCommand(r_columnslope);
   C_AddCommand(r_filterthreshold);
+  C_AddCommand(r_patchfilter);
+  C_AddCommand(r_patchslope);
 }
 
