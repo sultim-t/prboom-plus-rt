@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: sounds.h,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: sounds.h,v 1.3 2000/05/18 10:00:19 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -290,7 +290,21 @@ typedef enum {
   sfx_skesit,
   sfx_skeatk,
   sfx_radio,
+
+#ifdef DOGS
+  /* killough 11/98: dog sounds */
+  sfx_dgsit,
+  sfx_dgatk,
+  sfx_dgact,
+  sfx_dgdth,
+  sfx_dgpain,
+#endif
+
   NUMSFX
 } sfxenum_t;
+
+#ifndef DOGS
+#error DAMN
+#endif
 
 #endif

@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.5 2000/05/11 07:26:36 cph Exp $
+ * $Id: acconfig.h,v 1.6 2000/05/18 10:00:18 cph Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -35,6 +35,9 @@
 
 /* Define for high resolution support */
 #undef HIGHRES
+
+/* Define for support for MBF helper dogs */
+#undef DOGS
 
 /* Define to enable internal range checking */
 #undef RANGECHECK

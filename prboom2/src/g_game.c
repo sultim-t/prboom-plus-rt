@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.14 2000/05/18 08:38:13 cph Exp $
+ * $Id: g_game.c,v 1.15 2000/05/18 10:00:18 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.14 2000/05/18 08:38:13 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.15 2000/05/18 10:00:18 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1857,6 +1857,18 @@ static void G_Compatibility(void)
   for (i=0; i<COMP_NUM; i++)
     comp[i] = compatibility_level < fix_levels[i];
 }
+
+#ifdef DOGS
+/* killough 7/19/98: Marine's best friend :) */
+static int G_GetHelpers(void)
+{
+  int j = M_CheckParm ("-dog");
+
+  if (!j)
+    j = M_CheckParm ("-dogs");
+  return j ? j+1 < myargc ? atoi(myargv[j+1]) : 1 : default_dogs;
+}
+#endif
 
 // killough 3/1/98: function to reload all the default parameter
 // settings before a new game begins

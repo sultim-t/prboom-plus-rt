@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: sounds.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: sounds.c,v 1.3 2000/05/18 10:00:19 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,9 +34,13 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: sounds.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: sounds.c,v 1.3 2000/05/18 10:00:19 cph Exp $";
 
 // killough 5/3/98: reformatted
+
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
 
 #include "doomtype.h"
 #include "sounds.h"
@@ -233,4 +237,13 @@ sfxinfo_t S_sfx[] = {
   { "skesit", false, 70, 0, -1, -1, 0 },
   { "skeatk", false, 70, 0, -1, -1, 0 },
   { "radio", false, 60, 0, -1, -1, 0 },
+
+#ifdef DOGS
+  // killough 11/98: dog sounds
+  { "dgsit",  false,   98, 0, -1, -1, 0 },
+  { "dgatk",  false,   70, 0, -1, -1, 0 },
+  { "dgact",  false,  120, 0, -1, -1, 0 },
+  { "dgdth",  false,   70, 0, -1, -1, 0 },
+  { "dgpain", false,   96, 0, -1, -1, 0 },
+#endif
 };

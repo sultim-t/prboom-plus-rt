@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in,v 1.11 2000/05/11 07:51:23 cph Exp $
+dnl $Id: configure.in,v 1.12 2000/05/18 10:00:18 cph Exp $
 AC_INIT(src/d_main.c)
 
 dnl --- Check for system type
@@ -164,6 +164,7 @@ AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6))
 
 dnl --- Always use highres mode, unless explicitely --disabled
 AC_ARG_ENABLE(highres,[  --disable-highres	  disables support for resulutions greater than 320x200],,AC_DEFINE(HIGHRES))
+AC_ARG_ENABLE(dogs,[  --disable-dogs	    disables support for helper dogs],,AC_DEFINE(DOGS))
 dnl --- By default, simple checks with little overhead are done to catch memory corruption, or
 dnl --- problems with new code
 AC_ARG_ENABLE(checks,[  --disable-checks	  disables some basic internal sanity checks],,
