@@ -32,8 +32,9 @@
      days there's no need, all bugs that get found, get fixed. Similarly
      this page no longer contains info on BSP bugs.
     </p><p>
-     Those bugs here which are not otherwise attributed, were found and fixed
-     by myself.
+     Those bugs here which are not otherwise attributed,
+     were found and fixed by myself
+     (<a href="mailto:cphipps@doomworld.com">Colin Phipps</a>).
      Also I'd like to thank
      <a href="mailto:haleyjd@concentric.net">James &quot;Quasar&quot; Haley</a>,
      and <a href="mailto:fraggle@alkali.org">Simon &quot;Fraggle&quot; Howard</a>,
@@ -694,6 +695,46 @@ diff -p -c -r1.6 p_doors.c
       switch(line-&gt;special)
       {
         case  1: // only for "raise" doors, not "open"s
+      </pre>
+     <h4>Fast and respawn options not reloaded from savegames correctly</h4>
+      <p>
+       Affects: MBF, PrBoom v2.1.x through v2.2.0
+      </p><p>
+       Description:
+       MBF changed the order of some function calls in G_DoLoadGame
+       in order to work around loading of options from PWADs
+       (MBF loads options from PWADs, but needs to override them with the 
+       options from the savegame).
+       However this resulted in the previous/old game options being used in
+       setting up the loaded level.
+       Amongst other things this breaks savegames with the fast or respawn
+       options set - these options were being loaded after the level
+       was set up by G_InitNew.
+      </p><p>
+       The fix is something like this (this does the same thing as 
+       the demo code in MBF, reading the game options twice
+       - an ugly kludge). I haven't tried this fix though,
+       as PrBoom doesn't support options in PWADs so the fix was easier for us.
+      </p><pre>
+--- g_game.c	Tue Feb 15 16:06:28 2000
++++ g_game.c.new	Wed May 23 20:47:06 2001
+@@ -1347,11 +1347,16 @@ static void G_DoLoadGame(void)
+   // killough 11/98: simplify
+   idmusnum = *(signed char *) save_p++;
+ 
++  /* cph 2001/05/23 - Must read options before we set up the level */
++  G_ReadOptions(save_p);
++
+   // load a base level
+   G_InitNew(gameskill, gameepisode, gamemap);
+ 
+   // killough 3/1/98: Read game options
+   // killough 11/98: move down to here
++  /* cph - MBF needs to reread the savegame options because G_InitNew
++   * rereads the WAD options. The demo playback code does this too. */
+   save_p = G_ReadOptions(save_p);
+ 
+   // get the times
       </pre>
   <h2>Author</h2>
    <p>Colin Phipps &lt;<a href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
