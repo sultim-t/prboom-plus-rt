@@ -171,7 +171,7 @@ extern void    AM_AddCommands();        // am_color.c
 //extern void    PE_AddCommands();        // p_enemy.c -- haleyjd
 extern void    G_Bind_AddCommands();    // g_bind.c  -- haleyjd
 extern void    G_BindAxes_AddCommands();    // g_bindaxes.c
-extern void    P_Chase_AddCommands();   // p_chase.c  -- proff (until P_AddCommands is used)
+extern void     P_AddCommands();        // p_cmd.c
 
 void C_AddCommands()
 {
@@ -201,6 +201,6 @@ void C_AddCommands()
 //  PE_AddCommands();  // haleyjd
   G_Bind_AddCommands();
   G_BindAxes_AddCommands();
-  P_Chase_AddCommands();
+  P_AddCommands();
 }
 

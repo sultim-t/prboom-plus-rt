@@ -55,7 +55,7 @@ COMMON_SRC = \
  mn_engin.c	mn_engin.h	\
  mn_menus.c	mn_menus.h	\
  mn_misc.c	mn_misc.h	\
- g_cmd.c	\
+ g_cmd.c	p_cmd.c         \
  g_config.c	g_config.h	\
  gl_dyn.c	r_filter.c	r_patch.c
 
@@ -66,7 +66,7 @@ GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
 if BUILD_GL
 USE_GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
 else
-USE_GL_SRC = 
+USE_GL_SRC =
 endif
 
 DLL_SRC = gl_dll.h  gl_dll.c
@@ -74,7 +74,7 @@ DLL_SRC = gl_dll.h  gl_dll.c
 if BUILD_DLL
 USE_DLL_SRC = gl_dll.h  gl_dll.c
 else
-USE_DLL_SRC = 
+USE_DLL_SRC =
 endif
 
 if WAD_MMAP

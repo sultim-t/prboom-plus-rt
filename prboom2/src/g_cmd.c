@@ -55,8 +55,6 @@ extern int invert_mouse;
 extern int forwardmove[2];
 extern int sidemove[2];
 
-char *yesno[]={"no","yes"}; // dummy
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Game Commands

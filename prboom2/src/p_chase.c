@@ -46,7 +46,6 @@ static long chaseviewz;
 static int chasecam_active = 0;
 static long targetx, targety, targetz;
 int chasecam_turnoff = 0;
-char *onoff[]={"off","on"};
 
 void
 P_ChaseSetupFrame ()

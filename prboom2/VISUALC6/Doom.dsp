@@ -1247,5 +1247,9 @@ SOURCE=..\Icons\resource.h
 SOURCE=..\Icons\skull.ico
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\src\p_cmd.c
+# End Source File
 # End Target
 # End Project
