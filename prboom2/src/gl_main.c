@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35 2000/11/14 21:22:49 cph Exp $
+ * $Id: gl_main.c,v 1.35.2.1 2001/02/11 17:36:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1920,7 +1920,7 @@ static void gld_DrawWall(GLWall *wall)
 	  const side_t *s = *l->sidenum + sides;\
     wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
 	  wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
-	  wall.skyymid = 200.0f/320.0f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
+	  wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
 	  wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
   }\
   else\
@@ -1930,14 +1930,14 @@ static void gld_DrawWall(GLWall *wall)
 	  const side_t *s = *l->sidenum + sides;\
     wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
 	  wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
-	  wall.skyymid = 200.0f/320.0f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
+	  wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
 	  wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
   }\
   else\
   {\
     wall.gltexture=gld_RegisterTexture(skytexture, false);\
 	  wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
-	  wall.skyymid = 200.0f/320.0f*((100.0f)/100.0f);\
+	  wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
 	  wall.flag = GLDWF_SKY;\
   }
 
