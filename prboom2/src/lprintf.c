@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.13 2001/07/02 22:46:46 proff_fs Exp $
+ * $Id: lprintf.c,v 1.14 2001/07/06 09:36:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.13 2001/07/02 22:46:46 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.14 2001/07/06 09:36:53 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -347,7 +347,7 @@ void I_Error(const char *error, ...)
   fprintf(stderr,"%s\n",errmsg);
 #ifdef _MSC_VER
   {
-    Init_ConsoleWin();
+    //Init_ConsoleWin();
     MessageBox(con_hWnd,errmsg,"PrBoom",MB_OK | MB_TASKMODAL | MB_TOPMOST);
   }
 #endif
