@@ -95,3 +95,10 @@ Maybe this should be added to the compatibility menu with a extra option, like s
 --------------------------------------------------------------------------
 23. Update the README
 
+--------------------------------------------------------------------------
+24. totalleveltimes isn't working
+
+--------------------------------------------------------------------------
+25. Screen melt transition isn't perfect (at least on X11, the new screen 
+ is flashed briefly before the melt)
+
