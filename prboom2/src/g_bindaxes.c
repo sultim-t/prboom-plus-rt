@@ -291,6 +291,11 @@ void G_WriteAxisBindings(FILE* file)
         fprintf(file, "invertaxis %s\n",
                 axisbindings[i][j].name);
       }
+      if(axisbindings[i][j].sensitivity != 50)
+      {
+        fprintf(file, "axissensitivity %s %i\n",
+                axisbindings[i][j].name, axisbindings[i][j].sensitivity);
+      }
     }
   }
 }
