@@ -1336,6 +1336,7 @@ void D_DoomMainSetup(void)
 
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
+  D_SetSavegameRoot();
 
   // ty 03/09/98 do dehacked stuff
   // Note: do this before any other since it is expected by
