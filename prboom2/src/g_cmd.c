@@ -298,22 +298,6 @@ CONSOLE_NETVAR(name, default_name, cf_handlerset, netcmd_name)
 }
 */
 
-// screenshot type
-
-/*
-char *str_pcx[] = {"bmp", "pcx"};
-VARIABLE_BOOLEAN(screenshot_pcx, NULL,     str_pcx);
-CONSOLE_VARIABLE(shot_type,     screenshot_pcx, 0) {}
-*/
-
-// textmode startup
-
-/*
-extern int textmode_startup;            // d_main.c
-VARIABLE_BOOLEAN(textmode_startup, NULL,        onoff);
-CONSOLE_VARIABLE(textmode_startup, textmode_startup, 0) {}
-*/
-
 // demo insurance
 
 extern int demo_insurance;
@@ -569,7 +553,6 @@ void G_AddCommands()
   C_AddCommand(endgame);
   //C_AddCommand(pause);
   C_AddCommand(quit);
-  //C_AddCommand(shot_type);
   C_AddCommand(bobbing);
   C_AddCommand(sens_vert);
   C_AddCommand(sens_horiz);
@@ -586,7 +569,6 @@ void G_AddCommands()
   //C_AddCommand(kill);
   //C_AddCommand(map);
   //C_AddCommand(name);
-  //C_AddCommand(textmode_startup);
   C_AddCommand(demo_insurance);
   //C_AddCommand(smooth_turning);
 
