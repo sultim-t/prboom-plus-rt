@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: R_bsp.c,v 1.1 2000/04/09 18:19:24 proff_fs Exp $
+// $Id: R_bsp.c,v 1.2 2000/04/30 15:28:24 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: R_bsp.c,v 1.1 2000/04/09 18:19:24 proff_fs Exp $";
+rcsid[] = "$Id: R_bsp.c,v 1.2 2000/04/30 15:28:24 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -700,6 +700,7 @@ static void R_Subsector(int num)
   R_AddSprites(sub->sector, (floorlightlevel+ceilinglightlevel)/2);
   while (count--)
     R_AddLine (line++);
+  //gld_DrawScene(&players[displayplayer]);
 }
 
 //
@@ -735,8 +736,11 @@ void R_RenderBSPNode(int bspnum)
 //----------------------------------------------------------------------------
 //
 // $Log: R_bsp.c,v $
-// Revision 1.1  2000/04/09 18:19:24  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/30 15:28:24  proff_fs
+// fixed the OpenGL middle-texture alignment bug
+//
+// Revision 1.1.1.1  2000/04/09 18:19:24  proff_fs
+// Initial login
 //
 // Revision 1.20  1998/10/05  21:46:36  phares
 // Cleanup fireline checkin

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: gl_intern.h,v 1.3 2000/04/26 20:00:03 proff_fs Exp $
+// $Id: gl_intern.h,v 1.4 2000/04/30 15:28:24 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -59,6 +59,7 @@ typedef struct
 	int iLump;
 	H_boolean bFlip;
 	float fLightLevel;
+	H_boolean rendered;
 	mobj_t *p_Obj;
 } GLSprite;
 
@@ -83,6 +84,9 @@ void gld_OutputLevelInfo(void);
 //-----------------------------------------------------------------------------
 //
 // $Log: gl_intern.h,v $
+// Revision 1.4  2000/04/30 15:28:24  proff_fs
+// fixed the OpenGL middle-texture alignment bug
+//
 // Revision 1.3  2000/04/26 20:00:03  proff_fs
 // now using SDL for video and sound output.
 // sound output is currently mono only.

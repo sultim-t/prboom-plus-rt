@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: GL_PROFF.C,v 1.3 2000/04/26 20:00:02 proff_fs Exp $
+// $Id: GL_PROFF.C,v 1.4 2000/04/30 15:28:24 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -643,7 +643,7 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   x2=viewwindowx+vis->x2;
   scale=((float)vis->scale/(float)FRACUNIT);
   y1=viewwindowy+centery-(int)(((float)vis->texturemid/(float)FRACUNIT)*scale);
-  y2=y1+(int)((float)gltexture->height*scale);
+  y2=y1+(int)((float)gltexture->height*scale)+1;
   light=gld_CalcLightLevel(lightlevel);
 
   if(viewplayer->mo->flags & MF_SHADOW)
@@ -682,6 +682,7 @@ void gld_AddSpriteToRenderQueue(mobj_t *pSpr,int lump, H_boolean flip)
 	
 	SpriteRenderQueue[NumSpritesInQueue].p_Obj=pSpr;
 	SpriteRenderQueue[NumSpritesInQueue].iLump=lump;
+	SpriteRenderQueue[NumSpritesInQueue].rendered=false;
 
 	if (pSpr->frame & FF_FULLBRIGHT)
 		SpriteRenderQueue[NumSpritesInQueue].fLightLevel = 1.0f;
@@ -706,6 +707,86 @@ void gld_DrawSprites(player_t *player)
 //	for (i=0;i<NumSpritesInQueue;i++)
 	{
     sprite=&SpriteRenderQueue[i];
+    cm=CR_SPRITESTART+(int)((sprite->p_Obj->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+    gltexture=gld_RegisterPatch(sprite->iLump+firstspritelump, (unsigned char)(CR_SPRITETRAN | cm));
+    if (!gltexture)
+      continue;
+    x=-(float)sprite->p_Obj->x/(float)MAP_SCALE;
+    y=(float)sprite->p_Obj->z/(float)MAP_SCALE;
+    z=(float)sprite->p_Obj->y/(float)MAP_SCALE;
+
+    fV1=0;
+    fV2=(float)gltexture->height/(float)gltexture->tex_height;
+    if (sprite->bFlip)
+    {
+      fU1=0;
+      fU2=(float)gltexture->width/(float)gltexture->tex_width;
+    }
+    else
+    {
+      fU1=(float)gltexture->width/(float)gltexture->tex_width;
+      fU2=0;
+    }
+    fLOffset=(float)gltexture->leftoffset/(float)(MAP_COEFF);
+    fWidth=(float)gltexture->width/(float)(MAP_COEFF);
+    fTOffset=(float)gltexture->topoffset/(float)(MAP_COEFF);
+		fHeight = (float)gltexture->height/(float)(MAP_COEFF);
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslatef(x,y,z);
+		glRotatef(-90.0f+(float)(player->mo->angle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES,0.0f,1.0f,0.0f);
+		if(sprite->p_Obj->flags & MF_SHADOW)
+    {
+      glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+      gld_StaticLight4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    }
+    else
+    {
+  		if(sprite->p_Obj->flags & MF_TRANSLUCENT)
+        gld_StaticLight4f(sprite->fLightLevel,sprite->fLightLevel,sprite->fLightLevel,(float)tran_filter_pct/100.0f);
+			else
+        gld_StaticLight3f(sprite->fLightLevel,sprite->fLightLevel,sprite->fLightLevel);
+    }
+	  glBegin(GL_TRIANGLE_STRIP);
+			glTexCoord2f(fU1, fV1); glVertex3f( -fWidth+fLOffset, fTOffset, 0);
+			glTexCoord2f(fU2, fV1); glVertex3f( fLOffset, fTOffset, 0);
+			glTexCoord2f(fU1, fV2); glVertex3f( -fWidth+fLOffset, -fHeight+fTOffset, 0);
+			glTexCoord2f(fU2, fV2); glVertex3f( fLOffset, -fHeight+fTOffset, 0);
+  	glEnd();
+		
+    glPopMatrix();
+
+		if(sprite->p_Obj->flags & MF_SHADOW)
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
+}
+
+void gld_DrawSprites1(player_t *player, sector_t* cur_sector)
+{
+  GLTexture *gltexture;
+  GLSprite *sprite;
+  float fU1,fU2,fV1,fV2;
+  float x,y,z;
+  int i;
+  float fWidth,fLOffset,fHeight,fTOffset;
+  int cm;
+
+	for (i=NumSpritesInQueue-1;i>=0;i--)
+//	for (i=0;i<NumSpritesInQueue;i++)
+	{
+    sprite=&SpriteRenderQueue[i];
+    if (sprite->p_Obj->subsector->sector!=cur_sector)
+/*
+    {
+  	  if (sprite->rendered)
+        continue;
+      else
+        sprite->rendered=true;
+    }
+    else
+*/
+      continue;
     cm=CR_SPRITESTART+(int)((sprite->p_Obj->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
     gltexture=gld_RegisterPatch(sprite->iLump+firstspritelump, (unsigned char)(CR_SPRITETRAN | cm));
     if (!gltexture)
@@ -840,6 +921,7 @@ typedef struct
   float light;
   float linelength;
   float lineheight;
+  H_boolean trans;
   GLTexture *gltexture;
 } walldef_t;
 
@@ -848,19 +930,24 @@ static void gld_DrawWalldef(walldef_t *walldef)
   if (walldef->gltexture)
   {
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-    gld_StaticLight3f(walldef->light, walldef->light, walldef->light);
+    if (walldef->trans)
+      gld_StaticLight4f(walldef->light, walldef->light, walldef->light, 0.5f);
+    else
+      gld_StaticLight3f(walldef->light, walldef->light, walldef->light);
   }
   else
   {
     glDisable(GL_TEXTURE_2D);
     glColor4f(0.0f,0.0f,0.0f,0.0f);
   }
+#ifdef _DEBUG
   if (walldef->light==-1)
-    gld_StaticLight3f(1.0f, 0.0f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
   if (walldef->light==-2)
-    gld_StaticLight3f(0.0f, 1.0f, 0.0f);
+    glColor3f(0.0f, 1.0f, 0.0f);
   if (walldef->light==-3)
-    gld_StaticLight3f(0.0f, 0.0f, 1.0f);
+    glColor3f(0.5f, 0.5f, 1.0f);
+#endif
   walldef->ytop+=0.001f;
   walldef->ybottom-=0.001f;
   glBegin(GL_TRIANGLE_STRIP);
@@ -871,6 +958,10 @@ static void gld_DrawWalldef(walldef_t *walldef)
   glEnd();
   if (!walldef->gltexture)
     glEnable(GL_TEXTURE_2D);
+#ifdef _DEBUG
+  if (walldef->light<0)
+    glEnable(GL_BLEND);
+#endif
 }
 
 static void gld_CalcXZCoords(walldef_t *walldef, seg_t *seg)
@@ -893,10 +984,13 @@ static void gld_CalcYCoords(walldef_t *walldef, int floor_height, int ceiling_he
   walldef->lineheight=(float)fabs((ceiling_height/(float)FRACUNIT)-(floor_height/(float)FRACUNIT));
 }
 
-static void gld_CalcTextureCoords(walldef_t *walldef, seg_t *seg, H_boolean peg, H_boolean bottomtex, int v_offset)
+static void gld_CalcTextureCoords(walldef_t *walldef, seg_t *seg, H_boolean peg, H_boolean bottomtex, H_boolean middletex, int v_offset)
 {
   walldef->ou=((float)(seg->sidedef->textureoffset+seg->offset)/(float)FRACUNIT)/(float)walldef->gltexture->tex_width;
-  walldef->ov=((float)(seg->sidedef->rowoffset)/(float)FRACUNIT)/(float)walldef->gltexture->tex_height;
+  if (middletex)
+    walldef->ov=0.0f;
+  else
+    walldef->ov=((float)(seg->sidedef->rowoffset)/(float)FRACUNIT)/(float)walldef->gltexture->tex_height;
   walldef->ul=0.0f;
   walldef->ur=(float)walldef->linelength/(float)walldef->gltexture->tex_width;
   if (peg)
@@ -933,6 +1027,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, H_boolean sky_only)
   gld_CalcXZCoords(&walldef, seg);
   walldef.light=gld_CalcLightLevel(frontsector->lightlevel+(extralight<<LIGHTSEGSHIFT));
   walldef.gltexture=NULL;
+  walldef.trans=0;
 
   if (backsector==NULL) // onesided
   {
@@ -959,7 +1054,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, H_boolean sky_only)
       if (walldef.gltexture)
       {
         gld_CalcYCoords(&walldef, floor_height, ceiling_height);
-        gld_CalcTextureCoords(&walldef, seg, (line->flags & ML_DONTPEGBOTTOM)>0, false, 0);
+        gld_CalcTextureCoords(&walldef, seg, (line->flags & ML_DONTPEGBOTTOM)>0, false, false, 0);
         gld_DrawWalldef(&walldef);
       }
     }
@@ -986,7 +1081,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, H_boolean sky_only)
         if (walldef.gltexture)
         {
           gld_CalcYCoords(&walldef, floor_height, ceiling_height);
-          gld_CalcTextureCoords(&walldef, seg, (line->flags & (ML_DONTPEGBOTTOM | ML_DONTPEGTOP))==0, false, 0);
+          gld_CalcTextureCoords(&walldef, seg, (line->flags & (ML_DONTPEGBOTTOM | ML_DONTPEGTOP))==0, false, false, 0);
           gld_DrawWalldef(&walldef);
         }
       }
@@ -996,17 +1091,32 @@ static void gld_DrawSeg(drawseg_t *drawseg, H_boolean sky_only)
       walldef.gltexture=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture]);
       if (walldef.gltexture)
       {
-        ceiling_height=min(frontsector->ceilingheight,backsector->ceilingheight);
-        floor_height=max(frontsector->floorheight,backsector->floorheight);
-        if (abs(ceiling_height-floor_height) > walldef.gltexture->height)
-          if ( (line->flags & ML_DONTPEGBOTTOM) >0)
-            ceiling_height=floor_height+(walldef.gltexture->height<<FRACBITS);
-          else
-            floor_height=ceiling_height-(walldef.gltexture->height<<FRACBITS);
-
+        if ( (line->flags & ML_DONTPEGBOTTOM) >0)
+        {
+          if (backsector->ceilingheight<=frontsector->floorheight)
+            return;
+          floor_height=max(frontsector->floorheight,backsector->floorheight)+(seg->sidedef->rowoffset);
+          ceiling_height=floor_height+(walldef.gltexture->height<<FRACBITS);
+        }
+        else
+        {
+          if (backsector->ceilingheight<=frontsector->floorheight)
+            return;
+          ceiling_height=min(frontsector->ceilingheight,backsector->ceilingheight)+(seg->sidedef->rowoffset);
+          floor_height=ceiling_height-(walldef.gltexture->height<<FRACBITS);
+        }
         gld_CalcYCoords(&walldef, floor_height, ceiling_height);
-        gld_CalcTextureCoords(&walldef, seg, (line->flags & ML_DONTPEGBOTTOM)>0, false, 0);
+        gld_CalcTextureCoords(&walldef, seg, false, false, true, 0);
+#ifdef _DEBUG
+        if (line->flags & ML_DONTPEGBOTTOM)
+          walldef.light=-1;
+        if (line->flags & ML_DONTPEGTOP)
+          walldef.light=-2;
+        if ((line->flags & ML_DONTPEGBOTTOM) && (line->flags & ML_DONTPEGTOP))
           walldef.light=-3;
+#endif
+        if (seg->linedef->tranlump >= 0 && general_translucency)
+          walldef.trans=1;
         gld_DrawWalldef(&walldef);
       }
     }
@@ -1029,7 +1139,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, H_boolean sky_only)
         if (walldef.gltexture)
         {
           gld_CalcYCoords(&walldef, floor_height, ceiling_height);
-          gld_CalcTextureCoords(&walldef, seg, (line->flags & ML_DONTPEGBOTTOM)>0, true, floor_height-frontsector->ceilingheight);
+          gld_CalcTextureCoords(&walldef, seg, (line->flags & ML_DONTPEGBOTTOM)>0, true, false, floor_height-frontsector->ceilingheight);
           gld_DrawWalldef(&walldef);
         }
       }
@@ -1949,11 +2059,51 @@ void gld_EndDrawScene(void)
   glDisable(GL_SCISSOR_TEST);
 }
 
+/*
+void gld_DrawScene1(player_t *player)
+{
+  extern drawseg_t	*drawsegs, *ds_p;
+	drawseg_t *ds;
+
+  // check if all arrays are allocated
+  if (!sectorclosed)
+    return;
+  if (!sectorrendered)
+    return;
+
+  // set all sectors to not rendered
+  memset(sectorrendered, 0, numsectors*sizeof(H_boolean));
+  // enable backside removing
+  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  for (ds=ds_p ; ds-- > drawsegs ; ) // go through all segs
+  {
+    if (sectorclosed[ds->curline->frontsector->iSectorID]) // check if sector is closed
+      if (!sectorrendered[ds->curline->frontsector->iSectorID]) // if not already rendered
+      {
+        // render the floor
+        glCullFace(GL_FRONT);
+        gld_DrawFlat(ds->curline->frontsector->iSectorID,false);
+        // render the ceiling
+        glCullFace(GL_BACK);
+        gld_DrawFlat(ds->curline->frontsector->iSectorID,true);
+        // set rendered true
+        sectorrendered[ds->curline->frontsector->iSectorID]=true;
+        gld_DrawSprites1(player,ds->curline->frontsector);
+      }
+    gld_DrawSeg(ds,false);
+  }
+  // disable backside removing
+  glDisable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+}
+*/
 void gld_DrawScene(player_t *player)
 {
   glAlphaFunc(GL_ALWAYS,0.0f);
   gld_DrawSkyWalls();
   glAlphaFunc(GL_NOTEQUAL,0.0f);
+  //gld_DrawScene1(player);
   gld_DrawFloorsCeilings();
 /*
   // SKY-TEST
@@ -1962,9 +2112,11 @@ void gld_DrawScene(player_t *player)
   glEnable(GL_TEXTURE_GEN_Q);
 */
   gld_DrawWalls();
+/*
   glDisable(GL_TEXTURE_GEN_Q);
   glDisable(GL_TEXTURE_GEN_T);
   glDisable(GL_TEXTURE_GEN_S);
+*/
   gld_DrawSprites(player);
 }
 
@@ -2066,6 +2218,9 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 //-----------------------------------------------------------------------------
 //
 // $Log: GL_PROFF.C,v $
+// Revision 1.4  2000/04/30 15:28:24  proff_fs
+// fixed the OpenGL middle-texture alignment bug
+//
 // Revision 1.3  2000/04/26 20:00:02  proff_fs
 // now using SDL for video and sound output.
 // sound output is currently mono only.

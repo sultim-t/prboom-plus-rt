@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: P_setup.c,v 1.1 2000/04/09 18:13:22 proff_fs Exp $
+// $Id: P_setup.c,v 1.2 2000/04/30 15:28:24 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -31,7 +31,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: P_setup.c,v 1.1 2000/04/09 18:13:22 proff_fs Exp $";
+rcsid[] = "$Id: P_setup.c,v 1.2 2000/04/30 15:28:24 proff_fs Exp $";
 
 #ifdef _MSC_VER // proff
 #define strcasecmp _stricmp
@@ -954,7 +954,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
 #ifdef GL_DOOM
 // proff 11/99: clean the memory from textures etc.
-  //gld_CleanMemory();
+  gld_CleanMemory();
 #endif	
 
   P_InitThinkers();
@@ -1042,8 +1042,11 @@ void P_Init (void)
 //----------------------------------------------------------------------------
 //
 // $Log: P_setup.c,v $
-// Revision 1.1  2000/04/09 18:13:22  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/30 15:28:24  proff_fs
+// fixed the OpenGL middle-texture alignment bug
+//
+// Revision 1.1.1.1  2000/04/09 18:13:22  proff_fs
+// Initial login
 //
 // Revision 1.16  1998/05/07  00:56:49  killough
 // Ignore translucency lumps that are not exactly 64K long
