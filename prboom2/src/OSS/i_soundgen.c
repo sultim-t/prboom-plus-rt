@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_soundgen.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
  *  Sound server for LxDoom, based on the sound server sources released
  *   with the original linuxdoom.
@@ -29,7 +28,6 @@
  */
 
 static const char 
-rcsid[] = "$Id: i_soundgen.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>

@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_network.c,v 1.3.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  New UDP networking code for LxDoom, based in part on
  *  the original linuxdoom networking

@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_soundsrv.h,v 1.2 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  Sound server for LxDoom, based on the sound server released with the 
  *   original linuxdoom sources.

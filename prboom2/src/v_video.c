@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.15.2.2 2003/04/05 20:09:07 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +34,6 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.15.2.2 2003/04/05 20:09:07 cph Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"

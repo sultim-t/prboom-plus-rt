@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.c,v 1.1.2.4 2002/07/21 17:14:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +31,6 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: i_joy.c,v 1.1.2.4 2002/07/21 17:14:05 cph Exp $";
 #endif /* lint */
 
 #include "SDL.h"

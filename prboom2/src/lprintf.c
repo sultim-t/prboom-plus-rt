@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.12.2.3 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +31,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.12.2.3 2002/07/20 18:08:36 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
