@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.2 2001/05/26 17:02:10 cph Exp $
+ * $Id: g_game.c,v 1.30.2.3 2001/06/18 19:53:00 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.2 2001/05/26 17:02:10 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.3 2001/06/18 19:53:00 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1324,7 +1324,12 @@ void G_DoCompleted (void)
               sizeof(wminfo.plyr[i].frags));
     }
 
-  wminfo.totaltimes = (totalleveltimes += leveltime);
+  /* cph - modified so that only whole seconds are added to the totalleveltimes
+   *  value; so our total is compatible with the "naive" total of just adding
+   *  the times in seconds shown for each level. Also means our total time
+   *  will agree with Compet-n.
+   */
+  wminfo.totaltimes = (totalleveltimes += (leveltime - leveltime%35));
 
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
