@@ -781,52 +781,139 @@ diff -p -u -r1.6 p_doors.c
            break;
 </pre>
 
-    <h4>Overlapping uses of global variables in p_map.c</h4>
+<h4>Overlapping uses of global variables in p_map.c</h4>
 
-    <p> Affects: Boom, MBF, PrBoom up to v2.1.1</p>
+<p>Affects: Boom, MBF, PrBoom up to v2.2.3.</p>
 
-    <p> The global variable <code>tmthing</code> is used by a
-    number of functions in p_map.c. However these functions can
-    also call each other (indirectly), so they can disrupt each
-    other's use of <code>tmthing</code>.</p>
+<p>The global variables <code>tmthing</code>, <code>tmx</code>, <code>tmy</code>
+and <code>tmflags</code> are used by a number of functions
+in p_map.c. However these functions can also call each other (indirectly), so
+they can disrupt each other's use of these variables.</p>
 
-    <p> Amazingly, the only symptom I've seen so far is that it
-    causes original Doom demos to to desync (cf hruvlmp2.zip
-    hr22-uv.lmp).</p>
-<pre>
-*** p_map.c     2000/09/23 12:50:02     1.7
---- p_map.c     2000/10/02 21:34:29     1.8
-***************
+<p>The main symptom is that it causes original Doom demos to to desync (cf
+hruvlmp2.zip hr22-uv.lmp, n4m1-035.lmp). But there are sometimes noticable
+side-effects, such as the player teleporting and becoming stuck in a monster
+- because the telefrag iterator gets messed up by the
+<code>P_CreateSecNodeList</code> call after one thing is telefragged, causing
+others to be missed.</p>
+
+<p>The fix, as far as demos are concerned, is to restore the global variables
+after any call to a blockmap iterator which is not present in the original
+Doom -  which seems to be only <code>P_CreateSecNodeList</code>. For my fix I
+actually removed the <code>tmflags</code> variable to save work; also this
+fix is complicated by the fact that I forgot to save the <code>tmx</code>
+&amp; <code>tmy</code> variables when I first tried to fix the bug. Note that
+this fix <em>improves</em> the accuracy of the engine - we're correcting a
+Boom bug and restoring things to the correct original Doom behaviour, so if
+you don't care about MBF/Boom demos you can make the fix unconditional.</p>
+<pre>*** 50,56 ****
+  #include "lprintf.h"
+  
+  static mobj_t    *tmthing;
+- static uint_64_t tmflags;
+  static fixed_t   tmx;
+  static fixed_t   tmy;
+  static int pe_x; // Pain Elemental position for Lost Soul checks // phares
+--- 50,55 ----
+*************** boolean P_TeleportMove (mobj_t* thing,fi
+*** 233,239 ****
+    // kill anything occupying the position
+  
+    tmthing = thing;
+-   tmflags = thing-&gt;flags;
+  
+    tmx = x;
+    tmy = y;
+--- 232,237 ----
+*************** static boolean PIT_CheckThing(mobj_t *th
+*** 558,564 ****
+    if (thing-&gt;flags &amp; MF_SPECIAL)
+      {
+        uint_64_t solid = thing-&gt;flags &amp; MF_SOLID;
+!       if (tmflags &amp; MF_PICKUP)
+  P_TouchSpecialThing(thing, tmthing); // can remove thing
+        return !solid;
+      }
+--- 556,562 ----
+    if (thing-&gt;flags &amp; MF_SPECIAL)
+      {
+        uint_64_t solid = thing-&gt;flags &amp; MF_SOLID;
+!       if (tmthing-&gt;flags &amp; MF_PICKUP)
+  P_TouchSpecialThing(thing, tmthing); // can remove thing
+        return !solid;
+      }
+*************** boolean P_CheckPosition (mobj_t* thing,f
+*** 660,666 ****
+    subsector_t*  newsubsec;
+  
+    tmthing = thing;
+-   tmflags = thing-&gt;flags;
+  
+    tmx = x;
+    tmy = y;
+--- 658,663 ----
+*************** boolean P_CheckPosition (mobj_t* thing,f
+*** 688,694 ****
+    validcount++;
+    numspechit = 0;
+  
+!   if ( tmflags &amp; MF_NOCLIP )
+      return true;
+  
+    // Check things first, possibly picking things up.
+--- 685,691 ----
+    validcount++;
+    numspechit = 0;
+  
+!   if ( tmthing-&gt;flags &amp; MF_NOCLIP )
+      return true;
+  
+    // Check things first, possibly picking things up.
+*************** void P_CreateSecNodeList(mobj_t* thing,f
 *** 2130,2135 ****
---- 2130,2136 ----
+--- 2130,2137 ----
     int bx;
     int by;
     msecnode_t* node;
 +   mobj_t* saved_tmthing = tmthing; /* cph - see comment at func end */
-
++   fixed_t saved_tmx = tmx, saved_tmy = tmy; /* ditto */
+  
     // First, clear out the existing m_thing fields. As each node is
     // added or verified as needed, m_thing will be set properly. When
-***************
+*************** void P_CreateSecNodeList(mobj_t* thing,f
+*** 2133,2139 ****
+      }
+  
+    tmthing = thing;
+-   tmflags = thing-&gt;flags;
+  
+    tmx = x;
+    tmy = y;
+--- 2131,2136 ----
+*************** void P_CreateSecNodeList(mobj_t* thing,f
 *** 2184,2187 ****
 --- 2185,2200 ----
       else
         node = node-&gt;m_tnext;
       }
-+
++ 
 +   /* cph -
-+    * This is the strife we get into for using global variables. tmthing
++    * This is the strife we get into for using global variables. tmthing 
 +    *  is being used by several different functions calling
 +    *  P_BlockThingIterator, including functions that can be called *from*
-+    *  P_BlockThingIterator. Using a global tmthing is not reentrant.
-+    * OTOH for Boom/MBF demos we have to preserve the buggy behaviour.
++    *  P_BlockThingIterator. Using a global tmthing is not reentrant. 
++    * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
 +    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
 +    */
 +   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
 +       (compatibility_level &gt;= prboom_3_compatibility))
 +     tmthing = saved_tmthing;
++   /* And, duh, the same for tmx/y - cph 2002/09/22 */
++   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
++       (compatibility_level &gt;= prboom_4_compatibility))
++     tmx = saved_tmx, tmy = saved_tmy;
     }
-      
-</pre>
+      </pre>
 
     <h4>Bouncing Lost Souls</h4>
 
