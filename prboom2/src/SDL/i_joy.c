@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.c,v 1.1.2.3 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: i_joy.c,v 1.1.2.4 2002/07/21 17:14:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: i_joy.c,v 1.1.2.3 2002/07/20 18:08:37 proff_fs Exp $";
+static const char rcsid[] = "$Id: i_joy.c,v 1.1.2.4 2002/07/21 17:14:05 cph Exp $";
 #endif /* lint */
 
 #include "SDL.h"
@@ -51,7 +51,9 @@ int joydown;
 
 int usejoystick;
 
+#ifdef HAVE_SDL_JOYSTICKGETAXIS
 static SDL_Joystick *joystick;
+#endif
 
 void I_EndJoystick(void)
 {
@@ -60,6 +62,7 @@ void I_EndJoystick(void)
 
 void I_PollJoystick(void)
 {
+#ifdef HAVE_SDL_JOYSTICKGETAXIS
   event_t ev;
   Sint16 axis_value;
 
@@ -78,10 +81,12 @@ void I_PollJoystick(void)
   ev.data3 = axis_value;
 
   D_PostEvent(&ev);
+#endif
 }
 
 void I_InitJoystick(void)
 {
+#ifdef HAVE_SDL_JOYSTICKGETAXIS
   const char* fname = "I_InitJoystick : ";
   int num_joysticks;
 
@@ -106,4 +111,5 @@ void I_InitJoystick(void)
     joyright = 32767;
     joyleft = -32768;
   }
+#endif
 }
