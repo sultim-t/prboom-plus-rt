@@ -1,16 +1,14 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video_trans.c,v 1.3 2000/05/10 23:28:44 proff_fs Exp $
+ * $Id: v_video_trans.c,v 1.4 2000/09/16 20:20:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Colin Phipps (cph@lxdoom.linuxgames.com), 
- *  Jess Haas (JessH@lbjhs.net)
- *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -32,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 #ifndef lint
-static const char rcsid[] = "$Id: v_video_trans.c,v 1.3 2000/05/10 23:28:44 proff_fs Exp $";
+static const char rcsid[] = "$Id: v_video_trans.c,v 1.4 2000/09/16 20:20:43 proff_fs Exp $";
 #endif /* lint */
 
 #ifdef HAVE_LINUX_BITOPS_H

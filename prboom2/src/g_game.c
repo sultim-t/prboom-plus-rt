@@ -1,16 +1,14 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.24 2000/09/12 19:46:31 cph Exp $
+ * $Id: g_game.c,v 1.25 2000/09/16 20:20:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Colin Phipps (cph@lxdoom.linuxgames.com), 
- *  Jess Haas (JessH@lbjhs.net)
- *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -37,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.24 2000/09/12 19:46:31 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.25 2000/09/16 20:20:35 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>

@@ -1,16 +1,14 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.11 2000/05/30 19:57:32 proff_fs Exp $
+ * $Id: lprintf.c,v 1.12 2000/09/16 20:20:40 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Colin Phipps (cph@lxdoom.linuxgames.com), 
- *  Jess Haas (JessH@lbjhs.net)
- *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -34,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.11 2000/05/30 19:57:32 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.12 2000/09/16 20:20:40 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif

@@ -1,16 +1,14 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.9 2000/05/19 12:22:26 cph Exp $
+ * $Id: w_wad.c,v 1.10 2000/09/16 20:20:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Colin Phipps (cph@lxdoom.linuxgames.com), 
- *  Jess Haas (JessH@lbjhs.net)
- *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -34,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.9 2000/05/19 12:22:26 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.10 2000/09/16 20:20:43 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
