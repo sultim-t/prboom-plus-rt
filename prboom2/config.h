@@ -1,17 +1,17 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.14.2.5 2002/07/27 16:00:09 proff_fs Exp $
+ * $Id: config.h,v 1.14.2.6 2003/03/30 19:11:42 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Colin Phipps (cph@lxdoom.linuxgames.com),
  *  Jess Haas (JessH@lbjhs.net)
  *  and Florian Schulze (florian.proff.schulze@gmx.net)
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -24,7 +24,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -55,7 +55,7 @@
 /* #undef RANGECHECK */
 
 /* Define this to see real-time memory allocation
- * statistics, and enable extra debugging features 
+ * statistics, and enable extra debugging features
  */
 /* #undef INSTRUMENTED */
 
@@ -76,11 +76,11 @@
 #define ZONEIDCHECK 1
 
 /* CPhipps - some debugging macros for the new wad lump handling code */
-/* Defining this causes quick checks which only impose an overhead if a 
+/* Defining this causes quick checks which only impose an overhead if a
  *  posible error is detected. */
 #define SIMPLECHECKS 1
 
-/* Defining this causes time stamps to be created each time a lump is locked, and 
+/* Defining this causes time stamps to be created each time a lump is locked, and
  *  lumps locked for long periods of time are reported */
 /* #undef TIMEDIAG */
 
@@ -138,7 +138,7 @@
 #define USE_GLU_MIPMAP 1
 
 /* Set to the attribute to apply to struct definitions to make them packed.
- * For MSVC++ we can't do it like this, there are pragma's in the source 
+ * For MSVC++ we can't do it like this, there are pragma's in the source
  * instead. */
 #define PACKEDATTR
 
@@ -146,4 +146,4 @@
 #define PACKAGE "prboom"
 
 /* Version number of package */
-#define VERSION "2.2.3"
+#define VERSION "2.2.4"
