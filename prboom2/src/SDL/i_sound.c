@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.16 2000/12/24 11:36:52 cph Exp $
+ * $Id: i_sound.c,v 1.16.2.1 2001/03/29 13:32:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.16 2000/12/24 11:36:52 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.16.2.1 2001/03/29 13:32:53 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -646,10 +646,12 @@ void I_PauseSong (int handle)
 #ifdef HAVE_MIXER
   switch(mus_pause_opt) {
   case 0:
-    I_StopSong(handle);
+    if ( music[handle] )
+      I_StopSong(handle);
     break;
   case 1:
-    Mix_PauseMusic();
+    if ( music[handle] )
+      Mix_PauseMusic();
     break;
   }
 #endif
@@ -661,10 +663,12 @@ void I_ResumeSong (int handle)
 #ifdef HAVE_MIXER
   switch(mus_pause_opt) {
   case 0:
-    I_PlaySong(handle,1);
+    if ( music[handle] )
+      I_PlaySong(handle,1);
     break;
   case 1:
-    Mix_ResumeMusic();
+    if ( music[handle] )
+      Mix_ResumeMusic();
     break;
   }
 #endif
@@ -674,7 +678,8 @@ void I_ResumeSong (int handle)
 void I_StopSong(int handle)
 {
 #ifdef HAVE_MIXER
-  Mix_FadeOutMusic(500);
+  if ( music[handle] )
+    Mix_FadeOutMusic(500);
 #endif
 }
 
@@ -720,6 +725,8 @@ int I_RegisterSong(const void *data, size_t len)
   music[0] = Mix_LoadMUS(music_tmp);
   if ( music[0] == NULL ) {
     lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", music_tmp, Mix_GetError());
+    free(music_tmp);
+    music_tmp=NULL;
   }
 #endif
   return (0);
