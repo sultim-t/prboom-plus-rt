@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: wi_stuff.c,v 1.5 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: wi_stuff.c,v 1.6 2000/11/19 10:11:58 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: wi_stuff.c,v 1.5 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: wi_stuff.c,v 1.6 2000/11/19 10:11:58 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -406,11 +406,13 @@ void WI_levelNameLump(int epis, int map, char* buf)
   }
 }
 
-/* 
- * killough 11/98:
- */
-
-void WI_DrawBackground(void)
+// ====================================================================
+// WI_slamBackground
+// Purpose: Put the full-screen background up prior to patches
+// Args:    none
+// Returns: void
+//
+static void WI_slamBackground(void)
 {
   char  name[9];  // limited to 8 characters
 
@@ -420,23 +422,7 @@ void WI_DrawBackground(void)
     sprintf(name, "WIMAP%d", wbs->epsd);
 
   // background
-  V_DrawNamePatch(0, 0, 1, name, CR_DEFAULT, VPT_STRETCH);
-}
-
-// ====================================================================
-// WI_slamBackground
-// Purpose: Put the full-screen background up prior to patches
-// Args:    none
-// Returns: void
-//
-void WI_slamBackground(void)
-{
-#ifdef GL_DOOM
-  WI_DrawBackground();
-#else
-  memcpy(screens[0], screens[1], SCREENWIDTH * SCREENHEIGHT);
-  V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
-#endif
+  V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
 }
 
 
@@ -1831,8 +1817,6 @@ void WI_loadData(void)
   int   j;
   char  name[9];  // limited to 8 characters
   anim_t* a;
-
-  WI_DrawBackground();
 
   if (gamemode != commercial)
   {
