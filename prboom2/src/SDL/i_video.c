@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.33 2001/08/05 22:30:25 proff_fs Exp $
+ * $Id: i_video.c,v 1.34 2001/11/18 13:47:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.33 2001/08/05 22:30:25 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.34 2001/11/18 13:47:21 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -482,7 +482,7 @@ void I_FinishUpdate (void)
 #ifndef GL_DOOM
   if (screen->pixels != screens[0])
   {
-    if (screen->pixels == NULL)
+    if (SDL_MUSTLOCK(screen))
     {
       int h;
       int w;
@@ -608,7 +608,7 @@ void I_UpdateVideoMode(void)
   init_flags = SDL_OPENGL;
 #else
   if (use_doublebuffer)
-    init_flags = SDL_SWSURFACE | SDL_DOUBLEBUF;
+    init_flags = SDL_DOUBLEBUF;
   else
     init_flags = SDL_SWSURFACE;
 #ifndef _DEBUG
@@ -643,7 +643,7 @@ void I_UpdateVideoMode(void)
   mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
-  if (screen->pixels != NULL)
+  if (!SDL_MUSTLOCK(screen))
   {
     if (out_buffer)
       free(out_buffer);
