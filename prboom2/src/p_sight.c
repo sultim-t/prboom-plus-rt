@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_sight.c,v 1.4 2000/05/12 07:44:38 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.4 2000/05/12 07:44:38 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -219,8 +219,8 @@ static boolean P_CrossBSPNode(int bspnum)
     {
       register const node_t *bsp = nodes + bspnum;
       int side,side2;
-      /* cph - have to use the old sometimes for compatibility */
-      if (compatibility_level >= lxdoom_1_compatibility) {
+      /* cph - LxDoom used some R_* funcs here */
+      if (compatibility_level == lxdoom_1_compatibility) {
 	side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
 	side2 = R_PointOnSide(los.t2x, los.t2y, bsp);
       } else {
