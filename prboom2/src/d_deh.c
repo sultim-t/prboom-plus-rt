@@ -1653,8 +1653,8 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
     MF_SPECIAL, // 0 Can be picked up – When touched the thing can be picked up.
     MF_SOLID, // 1 Obstacle – The thing is solid and will not let you (or others) pass through it
     MF_SHOOTABLE, // 2 Shootable – Can be shot.
-    MF_NOBLOCKMAP, // 3 Don't use the blocklinks (inert but displayable)
-    MF_NOSECTOR, // 4 Total Invisibility – Invisible, but can be touched
+    MF_NOSECTOR, // 3 Total Invisibility – Invisible, but can be touched
+    MF_NOBLOCKMAP, // 4 Don't use the blocklinks (inert but displayable)
     MF_AMBUSH, // 5 Semi deaf – The thing is a deaf monster
     MF_JUSTHIT, // 6 In pain – Will try to attack right back after being hit
     MF_JUSTATTACKED, // 7 Steps before attack – Will take at least one step before attacking
