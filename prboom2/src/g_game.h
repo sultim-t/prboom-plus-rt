@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.h,v 1.3 2000/05/12 08:38:45 cph Exp $
+ * $Id: g_game.h,v 1.4 2000/05/18 08:38:13 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -134,6 +134,7 @@ extern int  key_quit;
 extern int  key_gamma;
 extern int  key_spy;
 extern int  key_pause;
+extern int  key_setup;
 extern int  key_forward;
 extern int  key_leftturn;
 extern int  key_rightturn;

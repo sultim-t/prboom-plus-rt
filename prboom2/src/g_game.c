@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.13 2000/05/13 22:41:53 cph Exp $
+ * $Id: g_game.c,v 1.14 2000/05/18 08:38:13 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.13 2000/05/13 22:41:53 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.14 2000/05/18 08:38:13 cph Exp $";
 
 #include <stdarg.h>
 
@@ -178,6 +178,7 @@ int     key_quit;
 int     key_gamma;
 int     key_spy;
 int     key_pause;
+int     key_setup;
 int     destination_keys[MAXPLAYERS];
 int     key_weapontoggle;
 int     key_weapon1;
