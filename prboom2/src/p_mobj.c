@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.16 2001/07/21 22:16:49 cph Exp $
+ * $Id: p_mobj.c,v 1.17 2001/08/14 17:12:58 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.16 2001/07/21 22:16:49 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.17 2001/08/14 17:12:58 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -993,7 +993,7 @@ void P_RespawnSpecials (void)
 
 extern byte playernumtotrans[MAXPLAYERS];
 
-void P_SpawnPlayer (const mapthing_t* mthing)
+void P_SpawnPlayer (int n, const mapthing_t* mthing)
   {
   player_t* p;
   fixed_t   x;
@@ -1004,14 +1004,20 @@ void P_SpawnPlayer (const mapthing_t* mthing)
 
   // not playing?
 
-  if (!playeringame[mthing->type-1])
+  if (!playeringame[n])
     return;
 
-  p = &players[mthing->type-1];
+  p = &players[n];
 
   if (p->playerstate == PST_REBORN)
     G_PlayerReborn (mthing->type-1);
 
+  /* cph 2001/08/14 - use the options field of memorised player starts to
+   * indicate whether the start really exists in the level.
+   */
+  if (!mthing->options)
+    I_Error("P_SpawnPlayer: attempt to spawn player at unavailable start point");
+  
   x    = mthing->x << FRACBITS;
   y    = mthing->y << FRACBITS;
   z    = ONFLOORZ;
@@ -1019,8 +1025,7 @@ void P_SpawnPlayer (const mapthing_t* mthing)
 
   // set color translations for player sprites
 
-  if (mthing->type > 0)
-    mobj->flags |= playernumtotrans[mthing->type-1]<<MF_TRANSSHIFT;
+  mobj->flags |= playernumtotrans[n]<<MF_TRANSSHIFT;
 
   mobj->angle      = ANG45 * (mthing->angle/45);
   mobj->player     = p;
@@ -1120,6 +1125,7 @@ void P_SpawnMapThing (const mapthing_t* mthing)
       deathmatch_p = deathmatchstarts + offset;
       }
     memcpy(deathmatch_p++, mthing, sizeof(*mthing));
+    (deathmatch_p-1)->options = 1;
     return;
     }
 
@@ -1141,12 +1147,12 @@ void P_SpawnMapThing (const mapthing_t* mthing)
 	}
 #endif
 
-
-    // save spots for respawning in network games
-
+    // save spots for respawning in coop games
     playerstarts[mthing->type-1] = *mthing;
+    playerstarts[mthing->type-1].options = 1;
+
     if (!deathmatch)
-      P_SpawnPlayer (mthing);
+      P_SpawnPlayer (mthing->type-1, mthing);
     return;
     }
 

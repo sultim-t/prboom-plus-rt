@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.16 2001/07/07 18:06:53 cph Exp $
+ * $Id: p_setup.c,v 1.17 2001/08/14 17:12:58 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.16 2001/07/07 18:06:53 cph Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.17 2001/08/14 17:12:58 cph Exp $";
 
 #include <math.h>
 
@@ -1456,7 +1456,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   if (bodyque)
     memset(bodyque, 0, bodyquesize * sizeof (*bodyque)); // CPhipps - use memset
 
+  /* cph - reset all multiplayer starts */
+  memset(playerstarts,0,sizeof(playerstarts));
   deathmatch_p = deathmatchstarts;
+
   P_LoadThings(lumpnum+ML_THINGS);
 
   // if deathmatch, randomly spawn the active players

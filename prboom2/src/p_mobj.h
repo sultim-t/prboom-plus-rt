@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.h,v 1.6 2001/07/07 18:10:09 cph Exp $
+ * $Id: p_mobj.h,v 1.7 2001/08/14 17:12:58 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -404,7 +404,7 @@ void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage);
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 void    P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type);
 void    P_SpawnMapThing (const mapthing_t*  mthing);
-void    P_SpawnPlayer(const mapthing_t *mthing);
+void    P_SpawnPlayer(int n, const mapthing_t *mthing);
 void    P_CheckMissileSpawn(mobj_t*);  // killough 8/2/98
 void    P_ExplodeMissile(mobj_t*);    // killough
 #endif

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.44 2001/07/28 13:06:32 cph Exp $
+ * $Id: g_game.c,v 1.45 2001/08/14 17:12:58 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.44 2001/07/28 13:06:32 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.45 2001/08/14 17:12:58 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1045,13 +1045,13 @@ void G_DeathMatchSpawnPlayer (int playernum)
       if (G_CheckSpot (playernum, &deathmatchstarts[i]) )
         {
           deathmatchstarts[i].type = playernum+1;
-          P_SpawnPlayer (&deathmatchstarts[i]);
+          P_SpawnPlayer (playernum, &deathmatchstarts[i]);
           return;
         }
     }
 
   // no good spot, so the player will probably get stuck
-  P_SpawnPlayer (&playerstarts[playernum]);
+  P_SpawnPlayer (playernum, &playerstarts[playernum]);
 }
 
 //
@@ -1078,7 +1078,7 @@ void G_DoReborn (int playernum)
 
       if (G_CheckSpot (playernum, &playerstarts[playernum]) )
         {
-          P_SpawnPlayer (&playerstarts[playernum]);
+          P_SpawnPlayer (playernum, &playerstarts[playernum]);
           return;
         }
 
@@ -1087,14 +1087,12 @@ void G_DoReborn (int playernum)
         {
           if (G_CheckSpot (playernum, &playerstarts[i]) )
             {
-              playerstarts[i].type = playernum+1; // fake as other player
-              P_SpawnPlayer (&playerstarts[i]);
-              playerstarts[i].type = i+1;   // restore
+              P_SpawnPlayer (playernum, &playerstarts[i]);
               return;
             }
           // he's going to be inside something.  Too bad.
         }
-      P_SpawnPlayer (&playerstarts[playernum]);
+      P_SpawnPlayer (playernum, &playerstarts[playernum]);
     }
 }
 
