@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.8 2000/05/16 11:29:24 cph Exp $
+ * $Id: m_misc.c,v 1.9 2000/05/16 21:42:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.8 2000/05/16 11:29:24 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.9 2000/05/16 21:42:13 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -889,6 +889,7 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
     screenshot_write_error = true; // CPhipps - made non-fatal
 }
 
+#ifndef GL_DOOM
 //
 // WriteBMPfile
 // jff 3/30/98 Add capability to write a .BMP file (256 color uncompressed)
@@ -896,7 +897,7 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
 
 // CPhipps - static, const on parameters
 static void WriteBMPfile(const char* filename, const byte* data, 
-			 int width, int height, const byte* palette)
+			 const int width, const int height, const byte* palette)
 {
   int i,wid;
   BITMAPFILEHEADER bmfh;
@@ -967,6 +968,62 @@ static void WriteBMPfile(const char* filename, const byte* data,
   }
 }
 
+#else /* GL_DOOM */
+
+//
+// WriteTGAfile
+// proff 05/15/2000 Add capability to write a .TGA file (24bit color uncompressed)
+//
+
+// CPhipps - static, const on parameters
+static void WriteTGAfile(const char* filename, const byte* data, 
+			 const int width, const int height)
+{
+  unsigned char c;
+  unsigned short s;
+  int i;
+  FILE *st;
+
+  st = fopen(filename,"wb");
+  if (st!=NULL) {
+    // write the header
+    // id_length
+    c=0; SafeWrite(&c,sizeof(c),1,st);
+    // colormap_type
+    c=0; SafeWrite(&c,sizeof(c),1,st);
+    // image_type
+    c=2; SafeWrite(&c,sizeof(c),1,st);
+    // colormap_index
+    s=0; SafeWrite(&s,sizeof(s),1,st);
+    // colormap_length
+    s=0; SafeWrite(&s,sizeof(s),1,st);
+    // colormap_size
+    c=0; SafeWrite(&c,sizeof(c),1,st);
+    // x_origin
+    s=0; SafeWrite(&s,sizeof(s),1,st);
+    // y_origin
+    s=0; SafeWrite(&s,sizeof(s),1,st);
+    // width
+    s=SHORT(width); SafeWrite(&s,sizeof(s),1,st);
+    // height
+    s=SHORT(height); SafeWrite(&s,sizeof(s),1,st);
+    // bits_per_pixel
+    c=24; SafeWrite(&c,sizeof(c),1,st);
+    // attributes
+    c=0; SafeWrite(&c,sizeof(c),1,st);
+
+    for (i=0; i<width*height*3; i+=3)
+    {
+      SafeWrite(&data[i+2],sizeof(byte),1,st);
+      SafeWrite(&data[i+1],sizeof(byte),1,st);
+      SafeWrite(&data[i+0],sizeof(byte),1,st);
+    }
+
+    fclose(st);
+  }
+}
+#endif /* GL_DOOM */
+
 //
 // M_ScreenShot
 //
@@ -985,11 +1042,23 @@ static void WriteBMPfile(const char* filename, const byte* data,
 void M_DoScreenShot (const char* fname)
 {
   byte       *linear;
+#ifndef GL_DOOM
   const byte *pal;
   int        pplump = W_GetNumForName("PLAYPAL");
+#endif
 
   screenshot_write_error = false;
 
+#ifdef GL_DOOM
+  // munge planar buffer to linear
+  // CPhipps - use a malloc()ed buffer instead of screens[2]
+  gld_ReadScreen(linear = malloc(SCREENWIDTH * SCREENHEIGHT * 3));
+
+  // save the bmp file
+
+  WriteTGAfile
+    (fname, linear, SCREENWIDTH, SCREENHEIGHT);
+#else
   // munge planar buffer to linear
   // CPhipps - use a malloc()ed buffer instead of screens[2]
   I_ReadScreen(linear = malloc(SCREENWIDTH * SCREENHEIGHT));
@@ -997,16 +1066,15 @@ void M_DoScreenShot (const char* fname)
   // killough 4/18/98: make palette stay around (PU_CACHE could cause crash)
   pal = W_CacheLumpNum (pplump);
     
-  // save the pcx file
-  //jff 3/30/98 write pcx or bmp depending on mode
+  // save the bmp file
 
   WriteBMPfile
     (fname, linear, SCREENWIDTH, SCREENHEIGHT, pal);
 
   // cph - free the palette
   W_UnlockLumpNum(pplump);
+#endif
   free(linear);
-
   // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
 
   if (screenshot_write_error)
@@ -1025,14 +1093,22 @@ void M_ScreenShot(void)
 
   startshot = shot; // CPhipps - prevent infinite loop
     
-  do                                         //jff 3/30/98 pcx or bmp?  
+  do
+#ifdef GL_DOOM
+    sprintf(lbmname,"DOOM%02d.TGA", shot++);
+#else
     sprintf(lbmname,"DOOM%02d.BMP", shot++);
+#endif
   while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
   if (!access(lbmname,0)) screenshot_write_error = true;
 
   if (screenshot_write_error) {
-    doom_printf ("M_ScreenShot: Couldn't create a PCX"); 
+#ifdef GL_DOOM
+    doom_printf ("M_ScreenShot: Couldn't create a TGA"); 
+#else
+    doom_printf ("M_ScreenShot: Couldn't create a BMP"); 
+#endif
     // killough 4/18/98
     return;
   }
