@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.7 2000/05/17 21:09:10 proff_fs Exp $
+ * $Id: v_video.h,v 1.8 2000/05/18 07:24:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -86,6 +86,13 @@ void V_InitColorTranslation(void);
 // Allocates buffer screens, call before R_Init.
 void V_Init (void);
 
+enum patch_translation_e {
+  VPT_NONE    = 0, // Normal
+  VPT_FLIP    = 1, // Flip image horizontally
+  VPT_TRANS   = 2, // Translate image via a translation table
+  VPT_STRETCH = 4, // Stretch to compensate for high-res
+};
+
 void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
                 int destx, int desty, int destscrn,
                 enum patch_translation_e flags);
@@ -95,13 +102,6 @@ void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
 #else
 void V_FillRect(int scrn, int x, int y, int width, int height, byte colour);
 #endif
-
-enum patch_translation_e {
-  VPT_NONE    = 0, // Normal
-  VPT_FLIP    = 1, // Flip image horizontally
-  VPT_TRANS   = 2, // Translate image via a translation table
-  VPT_STRETCH = 4, // Stretch to compensate for high-res
-};
 
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
