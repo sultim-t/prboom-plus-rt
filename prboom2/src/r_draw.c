@@ -213,9 +213,10 @@ TRDrawSpanVars dsvars;
 
 TRDrawVars rdrawvars = { 
   0,0,0, // topleft
-  RDRAW_FILTER_LINEAR, // filteruv
-  RDRAW_FILTER_LINEAR, // filterz
-  RDRAW_MASKEDCOLUMNEDGE_SLOPED, // maskedColumnEdgeType
+  RDRAW_FILTER_POINT, // filterwall
+  RDRAW_FILTER_POINT, // filterfloor
+  RDRAW_FILTER_POINT, // filterz
+  RDRAW_MASKEDCOLUMNEDGE_SQUARE, // maskedColumnEdgeType
   // 49152 = FRACUNIT * 0.75
   // 81920 = FRACUNIT * 1.25
   81920 // magThresh
@@ -593,28 +594,38 @@ static TVoidFunc plFuncs[] = {
 //---------------------------------------------------------------------------
 TVoidFunc R_GetExactDrawFunc(
 TRDrawPipelineType type, int bitDepth, 
-TRDrawFilterType filteruv, TRDrawFilterType filterz
+TRDrawFilterType filterwall,
+TRDrawFilterType filterfloor,
+TRDrawFilterType filterz
 ) {
   if (bitDepth == 16 && !vid_shortPalette) V_UpdateTrueColorPalette(VID_MODE16);
   if (bitDepth == 32 && !vid_intPalette) V_UpdateTrueColorPalette(VID_MODE32);
-  return plFuncs[
-    V_GetModeForNumBits(bitDepth)*(6*RDRAW_PIPELINE_MAXFUNCS) +
-    type*6 +
-    filteruv*2 +
-    filterz
-  ];
+  if (type != RDRAW_PIPELINE_SPAN)
+    return plFuncs[
+      V_GetModeForNumBits(bitDepth)*(6*RDRAW_PIPELINE_MAXFUNCS) +
+      type*6 +
+      filterwall*2 +
+      filterz
+    ];
+  else
+    return plFuncs[
+      V_GetModeForNumBits(bitDepth)*(6*RDRAW_PIPELINE_MAXFUNCS) +
+      type*6 +
+      filterfloor*2 +
+      filterz
+    ];
 }
 
 //---------------------------------------------------------------------------
 static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type) {
   // This lets us select point sampling when minifying and the global
   // filtering method when magnifying - POPE
-  return R_GetExactDrawFunc(type, V_GetNumBits(), RDRAW_FILTER_POINT, rdrawvars.filterz);
+  return R_GetExactDrawFunc(type, V_GetNumBits(), RDRAW_FILTER_POINT, RDRAW_FILTER_POINT, rdrawvars.filterz);
 }
 
 //---------------------------------------------------------------------------
 TVoidFunc R_GetDrawFunc(TRDrawPipelineType type) {
-  return R_GetExactDrawFunc(type, V_GetNumBits(), rdrawvars.filteruv, rdrawvars.filterz);
+  return R_GetExactDrawFunc(type, V_GetNumBits(), rdrawvars.filterwall, rdrawvars.filterfloor, rdrawvars.filterz);
 }
 
 //---------------------------------------------------------------------------

@@ -123,7 +123,8 @@ typedef struct {
   short *topleft_short;
   int   *topleft_int;
   
-  TRDrawFilterType filteruv;
+  TRDrawFilterType filterwall;
+  TRDrawFilterType filterfloor;
   TRDrawFilterType filterz;
   TRDrawColumnMaskedEdgeType maskedColumnEdgeType;
 
@@ -156,7 +157,7 @@ typedef enum {
 } TRDrawPipelineType;
 
 TVoidFunc R_GetDrawFunc(TRDrawPipelineType type);
-TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, int bitDepth, TRDrawFilterType filteruv, TRDrawFilterType filterz);
+TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, int bitDepth, TRDrawFilterType filterwall, TRDrawFilterType filterfloor, TRDrawFilterType filterz);
 //---------------------------------------------------------------------------
 
 void R_VideoErase(unsigned ofs, int count);

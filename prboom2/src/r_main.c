@@ -520,6 +520,19 @@ static void R_ShowStats(void)
   keeptime[KEEPTIMES-1] = now;
 }
 
+angle_t R_WadToAngle(int wadangle)
+{
+  // maintain compatibility
+  
+  //if(demo_version < 302) FIXME
+    return (wadangle / 45) * ANG45;
+
+  // allows wads to specify angles to
+  // the nearest degree, not nearest 45  
+
+  //return wadangle * (ANG45 / 45);
+}
+
 //
 // R_RenderView
 //
@@ -636,7 +649,8 @@ static char *str_filter[] =
   "rounded"
 };
 
-CONSOLE_INT(r_filteruv, rdrawvars.filteruv, NULL, 0, 2, str_filter, 0) {}
+CONSOLE_INT(r_filterwall, rdrawvars.filterwall, NULL, 0, 2, str_filter, 0) {}
+CONSOLE_INT(r_filterfloor, rdrawvars.filterfloor, NULL, 0, 1, str_filter, 0) {}
 CONSOLE_INT(r_filterz, rdrawvars.filterz, NULL, 0, 1, str_filter, 0) {}
 CONSOLE_INT(r_columnslope, rdrawvars.maskedColumnEdgeType, NULL, 0, 1, onoff, 0) {}
 CONSOLE_INT(r_filterthreshold, rdrawvars.magThresh, NULL, 10000, 200000, NULL, 0) {}
@@ -650,7 +664,8 @@ void R_AddCommands()
   C_AddCommand(r_homflash);
   C_AddCommand(gamma);
   C_AddCommand(screensize);
-  C_AddCommand(r_filteruv);
+  C_AddCommand(r_filterwall);
+  C_AddCommand(r_filterfloor);
   C_AddCommand(r_filterz);
   C_AddCommand(r_columnslope);
   C_AddCommand(r_filterthreshold);

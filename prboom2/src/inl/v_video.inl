@@ -290,7 +290,7 @@ void FUNC_V_PlotPatch(
     else
       type = RDRAW_PIPELINE_COL_STANDARD;
   }
-  columnFunc = R_GetExactDrawFunc(type, V_VIDEO_BITS, filter, RDRAW_FILTER_POINT);
+  columnFunc = R_GetExactDrawFunc(type, V_VIDEO_BITS, filter, filter, RDRAW_FILTER_POINT);
   
   // calc the fractional stepping  
   xfrac = FixedDiv((destRect.right-destRect.left)<<FRACBITS, patch->width<<FRACBITS);
