@@ -47,6 +47,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#include "psnprntf.h"
+
 #include "doomtype.h"
 #include "lprintf.h"
 #include "i_main.h"
@@ -321,11 +324,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
 
   va_list v;
   va_start(v,s);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(msg,sizeof(msg),s,v);         /* print message in buffer  */
-#else 
-  vsprintf(msg,s,v);
-#endif
+  pvsnprintf(msg,sizeof(msg),s,v);         /* print message in buffer  */
   va_end(v);
 
 #ifndef DREAMCAST
@@ -359,11 +358,7 @@ void I_Error(const char *error, ...)
   char errmsg[MAX_MESSAGE_SIZE];
   va_list argptr;
   va_start(argptr,error);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(errmsg,sizeof(errmsg),error,argptr);
-#else
-  vsprintf(errmsg,error,argptr);
-#endif
+  pvsnprintf(errmsg,sizeof(errmsg),error,argptr);
   va_end(argptr);
 #ifndef DREAMCAST
   fprintf(stderr,"%s\n",errmsg);

@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "I386_ASM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "I386_ASM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -72,7 +72,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "I386_ASM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /FR /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "I386_ASM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -100,7 +100,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /I "..\src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -128,7 +128,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "GL_DOOM" /D "COMPILE_VIDD" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -455,6 +455,14 @@ SOURCE=..\src\m_cheat.c
 # Begin Source File
 
 SOURCE=..\src\m_cheat.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\m_fcvt.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\m_fcvt.h
 # End Source File
 # Begin Source File
 
@@ -864,6 +872,14 @@ SOURCE=..\src\Mmus2mid.h
 # Begin Source File
 
 SOURCE=..\src\protocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\psnprntf.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\psnprntf.h
 # End Source File
 # Begin Source File
 

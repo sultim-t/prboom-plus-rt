@@ -31,6 +31,8 @@
 
 #include <stdio.h>
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "c_io.h"
@@ -461,7 +463,7 @@ static void HU_LevelTimeHandler()
   seconds = leveltime / 35;
   timestr[0] = 0;
 
-  sprintf(timestr, "%02i:%02i:%02i", seconds/3600, (seconds%3600)/60,
+  psnprintf(timestr, 100, "%02i:%02i:%02i", seconds/3600, (seconds%3600)/60,
 	  seconds%60);
 
   hu_leveltime.x = 320-HU_StringWidth("A")*13;
@@ -517,22 +519,13 @@ static void HU_CoordHandler()
   {
     hu_coord.x = 320-HU_StringWidth("A")*13;
     hu_coord.y = 1;
-#ifdef HAVE_SNPRINTF
-    snprintf(coord_str,
+    psnprintf(coord_str,
              127,
              "X: %-5d\nY: %-5d\nZ: %-5d",
              (plr->mo->x)>>FRACBITS,
              (plr->mo->y)>>FRACBITS,
              (plr->mo->z)>>FRACBITS
             );
-#else
-    sprintf(coord_str,
-            "X: %-5d\nY: %-5d\nZ: %-5d",
-            (plr->mo->x)>>FRACBITS,
-            (plr->mo->y)>>FRACBITS,
-            (plr->mo->z)>>FRACBITS
-           );
-#endif
     coord_str[127] = 0;
     hu_coord.message = coord_str;
   }
@@ -561,7 +554,7 @@ static void HU_ChatHandler()
 
   if(chat_active)
     {
-      sprintf(tempchatmsg, "%s_", chatinput);
+      psnprintf(tempchatmsg, 128, "%s_", chatinput);
       hu_chat.message = tempchatmsg;
     }
   else
@@ -593,7 +586,7 @@ static boolean HU_ChatRespond(event_t *ev)
     {
       // chat macro
       char tempstr[100];
-      sprintf(tempstr, "say \"%s\"", chat_macros[ev->data1-'0']);
+      psnprintf(tempstr, 100, "say \"%s\"", chat_macros[ev->data1-'0']);
       C_RunTextCmd(tempstr);
       chat_active = false;
       return true;
@@ -614,7 +607,7 @@ static boolean HU_ChatRespond(event_t *ev)
   if(ev->data1 == KEYD_ENTER)
     {
       char tempstr[100];
-      sprintf(tempstr, "say \"%s\"", chatinput);
+      psnprintf(tempstr, 100, "say \"%s\"", chatinput);
       C_RunTextCmd(tempstr);
       chat_active = false;
       return true;
@@ -624,7 +617,7 @@ static boolean HU_ChatRespond(event_t *ev)
 
   if(ch>31 && ch<127)
     {
-      sprintf(chatinput, "%s%c", chatinput, ch);
+      psnprintf(chatinput, 100, "%s%c", chatinput, ch);
       C_InitTab();
       return true;
     }

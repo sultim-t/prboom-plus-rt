@@ -36,6 +36,8 @@
 
 #include <stdarg.h>
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "c_io.h"
@@ -261,7 +263,7 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	
 	// display input buffer if inputting new var value
 	if(input_command && item->var == input_command->variable)
-          sprintf(varvalue, "%s_", input_buffer);
+          psnprintf(varvalue, 128, "%s_", input_buffer);
 	else
           strcpy(varvalue, C_VariableStringValue(item->var));
 
@@ -575,7 +577,7 @@ boolean MN_Responder (event_t *ev)
 
 	  // place " marks round the new value
 	  temp = strdup(input_buffer);
-	  sprintf(input_buffer, "\"%s\"", temp);
+	  psnprintf(input_buffer, 128, "\"%s\"", temp);
 	  free(temp);
 
 	  // set the command
@@ -951,7 +953,7 @@ void MN_ErrorMsg(const char *s, ...)
   va_list args;
   
   va_start(args, s);
-  vsprintf(menu_error_message, s, args);
+  pvsnprintf(menu_error_message, 128, s, args);
   va_end(args);
 }
 

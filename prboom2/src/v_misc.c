@@ -36,6 +36,9 @@
  */
 
 #include <stdio.h>
+
+#include "psnprntf.h"
+
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "doomdef.h"
@@ -67,7 +70,7 @@ void V_LoadFont()
       v_font[i].lumpnum = -1;
       continue;
     }
-    sprintf(tempstr, "STCFN%.3d",j);
+    psnprintf(tempstr, 10, "STCFN%.3d",j);
     R_SetPatchNum(&v_font[i], tempstr);
   }
 }
@@ -186,7 +189,7 @@ void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap)
 void V_WriteTextFontColoured(const char *s, int colour, int x, int y, int gap, patchnum_t font[])
 {
   char *tempstr = malloc(strlen(s)+3);
-  sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
+  psnprintf(tempstr, strlen(s)+3, "%c%s", FC_BASEVALUE+colour, s);
   V_WriteTextFont(tempstr, x, y, gap, font);
   free(tempstr);
 }

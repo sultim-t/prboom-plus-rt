@@ -37,6 +37,8 @@
 
 #include <stdio.h>
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "c_runcmd.h"
@@ -116,11 +118,11 @@ void HU_LoadFont()
   {
     lumpname[0] = 0;
     if( (j>='0' && j<='9') || (j>='A' && j<='Z') )
-	    sprintf(lumpname, "DIG%c", j);
+	    psnprintf(lumpname, 10, "DIG%c", j);
     if(j==45 || j==47 || j==58 || j==91 || j==93)
-	    sprintf(lumpname, "DIG%i", j);
+	    psnprintf(lumpname, 10, "DIG%i", j);
     if(j>=123 && j<=127)
-	    sprintf(lumpname, "STBR%i", j);
+	    psnprintf(lumpname, 10, "STBR%i", j);
     if(j=='_') strcpy(lumpname, "DIG45");
     if(j=='(') strcpy(lumpname, "DIG91");
     if(j==')') strcpy(lumpname, "DIG93");
@@ -212,13 +214,13 @@ void HU_DrawHealth(int x, int y)
     players[displayplayer].health <= health_green ? *FC_GREEN :
     *FC_BLUE;
   
-  sprintf(tempstr, "%c", fontcolour);
+  psnprintf(tempstr, 50, "%c", fontcolour);
 
   // now make the actual bar
   HU_TextBar(tempstr, players[displayplayer].health);
 
   // append the percentage itself
-  sprintf(tempstr, "%s %i", tempstr, players[displayplayer].health);
+  psnprintf(tempstr, 50, "%s %i", tempstr, players[displayplayer].health);
 
   // write it
   HU_WriteText(tempstr, x, y);
@@ -245,13 +247,13 @@ void HU_DrawArmor(int x, int y)
     players[displayplayer].armorpoints < armor_yellow ? *FC_GOLD :
     players[displayplayer].armorpoints <= armor_green ? *FC_GREEN :
     *FC_BLUE;
-  sprintf(tempstr, "%c", fontcolour);
+  psnprintf(tempstr, 50, "%c", fontcolour);
   
   // make the bar
   HU_TextBar(tempstr, players[displayplayer].armorpoints);
   
   // append the percentage itself
-  sprintf(tempstr, "%s %i", tempstr,
+  psnprintf(tempstr, 50, "%s %i", tempstr,
 	  players[displayplayer].armorpoints);
   
   HU_WriteText(tempstr, x, y);
@@ -271,12 +273,12 @@ void HU_DrawAmmo(int x, int y)
   x += GAP;
   
   fontcolour = weapcolour(players[displayplayer].readyweapon);
-  sprintf(tempstr, "%c", fontcolour);
+  psnprintf(tempstr, 50, "%c", fontcolour);
   
   if(playermaxammo)
     {
       HU_TextBar(tempstr, (100 * playerammo) / playermaxammo);
-      sprintf(tempstr, "%s %i/%i", tempstr, playerammo, playermaxammo);
+      psnprintf(tempstr, 50, "%s %i/%i", tempstr, playerammo, playermaxammo);
     }
   else    // fist or chainsaw
     strcat(tempstr, "N/A");
@@ -304,7 +306,7 @@ void HU_DrawWeapons(int x, int y)
 	{
 	  // got it
 	  fontcolour = weapcolour(i);
-	  sprintf(tempstr, "%s%c%i ", tempstr,
+	  psnprintf(tempstr, 50, "%s%c%i ", tempstr,
 		  fontcolour, i+1);
 	}
     }
@@ -348,7 +350,7 @@ void HU_DrawFrag(int x, int y)
   HU_WriteText(HUDCOLOUR "Frags", x, y);    // draw then leave a gap
   x += GAP;
   
-  sprintf(tempstr, HUDCOLOUR "%i", players[displayplayer].totalfrags);
+  psnprintf(tempstr, 20, HUDCOLOUR "%i", players[displayplayer].totalfrags);
   HU_WriteText(tempstr, x, y);        
 }
 
@@ -365,7 +367,7 @@ void HU_DrawStatus(int x, int y)
   x += GAP;
   
   
-  sprintf(tempstr,
+  psnprintf(tempstr, 50,
 	  FC_RED "K" FC_GREEN " %i "
 	  FC_RED "M" FC_GREEN " %i "
 	  FC_RED "I" FC_GREEN " %i/%i "

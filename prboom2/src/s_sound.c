@@ -35,6 +35,8 @@
 #include "config.h"
 #endif
 
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "s_sound.h"
 #include "i_sound.h"
@@ -667,7 +669,7 @@ void S_ChangeMusic(musicinfo_t *music, int looping)
   if (!music->lumpnum)
     {
       char namebuf[9];
-      sprintf(namebuf, "d_%s", music->name);
+      psnprintf(namebuf, 9, "d_%s", music->name);
       music->lumpnum = W_GetNumForName(namebuf);
     }
 

@@ -37,6 +37,8 @@
 
 #include <stdarg.h>
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "z_zone.h"
@@ -191,7 +193,7 @@ CONSOLE_COMMAND(mn_quit, 0)
   // sf: use s_QUITMSG if it has been replaced in a dehacked file
   // haleyjd 1/17/00: fixed this to work with NULL pointer derefernce
   //  fix in d_deh.c
-  sprintf(quitmsg, "%s\n\n%s",
+  psnprintf(quitmsg, 128, "%s\n\n%s",
           strcmp(s_QUITMSG, "") ? s_QUITMSG : endmsg[quitmsgnum],
 	  s_DOSY);
 
@@ -821,7 +823,7 @@ void MN_CreateSaveCmds()
       // now the command
       save_command = Z_Malloc(sizeof(*save_command), PU_STATIC, 0); // haleyjd
 
-      sprintf(tempstr, "savegame_%i", i);
+      psnprintf(tempstr, 10, "savegame_%i", i);
       save_command->name = strdup(tempstr);
       save_command->type = ct_variable;
       save_command->flags = cf_nosave;
@@ -1582,7 +1584,7 @@ void MN_FrameRateDrawer()
 
   // fast computers framerate is always 3/4 of screen
 
-  sprintf(tempstr, "%i.%i fps",
+  psnprintf(tempstr, 50, "%i.%i fps",
 	  this_framerate/10, this_framerate%10);
   V_WriteText(tempstr, 50, 80, -1);
 }

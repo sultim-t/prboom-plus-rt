@@ -37,6 +37,8 @@
  *-----------------------------------------------------------------------------
  */
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "z_zone.h"
@@ -271,9 +273,9 @@ void G_InitKeyBindings()
 
       // build generic name
       if((i<256) && isprint(i)) // isprint asserts with c>255 in the MSVC multithreaded runtime (?) - POPE
-        sprintf(tempstr, "%c", i);
+        psnprintf(tempstr, 32, "%c", i);
       else
-        sprintf(tempstr, "key%02i", i);
+        psnprintf(tempstr, 32, "key%02i", i);
     
       keybindings[i].name = strdup(tempstr);
     }

@@ -31,6 +31,8 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "m_random.h"
@@ -857,9 +859,9 @@ static void ST_loadGraphics(boolean doload)
   // Load the numbers, tall and short
   for (i=0;i<10;i++)
     {
-      sprintf(namebuf, "STTNUM%d", i);
+      psnprintf(namebuf, 9, "STTNUM%d", i);
       R_SetPatchNum(&tallnum[i],namebuf);
-      sprintf(namebuf, "STYSNUM%d", i);
+      psnprintf(namebuf, 9, "STYSNUM%d", i);
       R_SetPatchNum(&shortnum[i],namebuf);
     }
 
@@ -869,7 +871,7 @@ static void ST_loadGraphics(boolean doload)
   // key cards
   for (i=0;i<NUMCARDS+3;i++)  //jff 2/23/98 show both keys too
     {
-      sprintf(namebuf, "STKEYS%d", i);
+      psnprintf(namebuf, 9, "STKEYS%d", i);
       R_SetPatchNum(&keys[i], namebuf);
     }
 
@@ -879,7 +881,7 @@ static void ST_loadGraphics(boolean doload)
   // arms ownership widgets
   for (i=0;i<6;i++)
     {
-      sprintf(namebuf, "STGNUM%d", i+2);
+      psnprintf(namebuf, 9, "STGNUM%d", i+2);
 
       // gray #
       R_SetPatchNum(&arms[i][0], namebuf);
@@ -900,18 +902,18 @@ static void ST_loadGraphics(boolean doload)
       int j;
       for (j=0;j<ST_NUMSTRAIGHTFACES;j++)
         {
-          sprintf(namebuf, "STFST%d%d", i, j);
+          psnprintf(namebuf, 9, "STFST%d%d", i, j);
           R_SetPatchNum(&faces[facenum++], namebuf);
         }
-      sprintf(namebuf, "STFTR%d0", i);        // turn right
+      psnprintf(namebuf, 9, "STFTR%d0", i);        // turn right
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFTL%d0", i);        // turn left
+      psnprintf(namebuf, 9, "STFTL%d0", i);        // turn left
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFOUCH%d", i);       // ouch!
+      psnprintf(namebuf, 9, "STFOUCH%d", i);       // ouch!
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFEVL%d", i);        // evil grin ;)
+      psnprintf(namebuf, 9, "STFEVL%d", i);        // evil grin ;)
       R_SetPatchNum(&faces[facenum++], namebuf);
-      sprintf(namebuf, "STFKILL%d", i);       // pissed off
+      psnprintf(namebuf, 9, "STFKILL%d", i);       // pissed off
       R_SetPatchNum(&faces[facenum++], namebuf);
     }
   R_SetPatchNum(&faces[facenum++], "STFGOD0");

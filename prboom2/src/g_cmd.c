@@ -35,6 +35,8 @@
  *-----------------------------------------------------------------------------
  */
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomstat.h"
 #include "d_main.h"
@@ -475,7 +477,7 @@ void G_AddWeapPrefs()
       // now the command
       command = malloc(sizeof(*command));
 
-      sprintf(tempstr, "weappref_%i", i+1);
+      psnprintf(tempstr, 13, "weappref_%i", i+1);
       command->name = strdup(tempstr);
       command->type = ct_variable;
       command->flags = cf_handlerset;
@@ -578,7 +580,7 @@ void G_AddCompat()
       // now the command
       command = malloc(sizeof(*command));
 
-      sprintf(tempstr, "comp_%s", comp_strings[i]);
+      psnprintf(tempstr, 32, "comp_%s", comp_strings[i]);
       command->name = strdup(tempstr);
       command->type = ct_variable;
       command->flags = cf_server | cf_netvar;

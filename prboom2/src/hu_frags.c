@@ -38,6 +38,8 @@
 
 #include <stdio.h>
 
+#include "psnprntf.h"
+
 #include "hu_frags.h"
 #include "c_io.h"
 #include "c_runcmd.h"
@@ -99,7 +101,7 @@ void HU_FragsDrawer()
   for(i=0; i<num_players; i++)
     {
       // write their name
-      sprintf(tempstr, "%s%s", !demoplayback && 
+      psnprintf(tempstr, 50, "%s%s", !demoplayback && 
 	      sortedplayers[i]==players+consoleplayer ? FC_GRAY : FC_RED,
 	      sortedplayers[i]->name);
       
@@ -110,7 +112,7 @@ void HU_FragsDrawer()
       V_DrawNumPatch(FRAGNUMX, y, 0, fragbox.lumpnum, CR_DEFAULT, VPT_STRETCH);
 
       // draw the frags
-      sprintf(tempstr, "%i", sortedplayers[i]->totalfrags);
+      psnprintf(tempstr, 50, "%i", sortedplayers[i]->totalfrags);
       V_WriteText(tempstr, FRAGNUMX + 16 - V_StringWidth(tempstr, 0)/2, y, 0);
       y += 10;
     }

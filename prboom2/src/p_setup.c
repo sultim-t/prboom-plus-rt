@@ -32,6 +32,8 @@
 
 #include <math.h>
 
+#include "psnprntf.h"
+
 #include "z_zone.h"
 #include "c_io.h"
 #include "c_runcmd.h"
@@ -1457,7 +1459,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   lprintf(LO_DEBUG, "P_SetupLevel: sky done\n");
 
   gl_mapname = malloc(strlen(mapname)+4);
-	sprintf(gl_mapname, "GL_%s", mapname);
+	psnprintf(gl_mapname, strlen(mapname)+4, "GL_%s", mapname);
   gl_lumpnum = W_CheckNumForName(gl_mapname); // figgi
   free(gl_mapname);
 

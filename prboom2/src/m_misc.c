@@ -50,6 +50,8 @@
 #include <sys/stat.h>
 #endif
 
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "m_argv.h"
 #include "g_game.h"
@@ -164,7 +166,7 @@ void M_ScreenShot(void)
   startshot = shot; // CPhipps - prevent infinite loop
     
   do
-    sprintf(lbmname,"DOOM%02d.BMP", shot++);
+    psnprintf(lbmname,32,"DOOM%02d.BMP", shot++);
   while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
   if (!access(lbmname,0)) screenshot_write_error = true;

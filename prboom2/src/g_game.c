@@ -43,6 +43,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include "psnprntf.h"
+
 #include "z_zone.h"
 
 #include "c_io.h"
@@ -957,11 +960,7 @@ void CheckSaveGame(size_t size)
 void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
-#ifdef HAVE_SNPRINTF
-  snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
-#else
-  sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
-#endif
+  psnprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
 }
 
 //CPhipps - savename variable redundant
@@ -997,12 +996,12 @@ static uint_64_t G_Signature_old(void)
 
   if (gamemode == commercial)
     for (map = haswolflevels ? 32 : 30; map; map--)
-      sprintf(name, "map%02d", map), s = G_UpdateSignature(s, name);
+      psnprintf(name, 9, "map%02d", map), s = G_UpdateSignature(s, name);
   else
     for (episode = gamemode==retail ? 4 :
          gamemode==shareware ? 1 : 3; episode; episode--)
       for (map = 9; map; map--)
-        sprintf(name, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
+        psnprintf(name, 9, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
 
   return s;
 }
@@ -1057,7 +1056,7 @@ static void G_DoSaveGame (boolean menu)
     if (version_headers[i].comp_level == compatibility_level) break;
 
   // killough 2/22/98: "proprietary" version string :-)
-  sprintf (name2,version_headers[i].ver_printf,version_headers[i].version);
+  psnprintf (name2,VERSIONSIZE,version_headers[i].ver_printf,version_headers[i].version);
   memcpy (save_p, name2, VERSIONSIZE);
 
   save_p += VERSIONSIZE;
@@ -1184,7 +1183,7 @@ void G_DoLoadGame(void)
   for (i=0; (size_t)i<num_version_headers; i++) {
     char vcheck[VERSIONSIZE];
     // killough 2/22/98: "proprietary" version string :-)
-    sprintf (vcheck, version_headers[i].ver_printf, version_headers[i].version);
+    psnprintf (vcheck, VERSIONSIZE, version_headers[i].ver_printf, version_headers[i].version);
 
     if (!strncmp(save_p, vcheck, VERSIONSIZE)) {
       savegame_compatibility = version_headers[i].comp_level;
@@ -1873,11 +1872,11 @@ char *G_GetNameForMap(int episode, int map)
 
   if(gamemode == commercial)
     {
-      sprintf(levelname, "MAP%02d", map);
+      psnprintf(levelname, 10, "MAP%02d", map);
     }
   else
     {
-      sprintf(levelname, "E%iM%i", episode, map);
+      psnprintf(levelname, 10, "E%iM%i", episode, map);
     }
   return levelname;
 }
@@ -2204,11 +2203,7 @@ void doom_printf(const char *s, ...)
   static char msg[MAX_MESSAGE_SIZE];
   va_list v;
   va_start(v,s);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
-#else
-  vsprintf(msg,s,v);
-#endif
+  pvsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
   va_end(v);
   C_Printf("%s\n", msg);  // set new message
   HU_PlayerMsg(msg);
@@ -2222,11 +2217,7 @@ void player_printf(player_t *player, const char *s, ...)
   static char msg[MAX_MESSAGE_SIZE];
   va_list v;
   va_start(v,s);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
-#else
-  vsprintf(msg,s,v);
-#endif
+  pvsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
   va_end(v);
   if(player == &players[consoleplayer])
     doom_printf(msg);

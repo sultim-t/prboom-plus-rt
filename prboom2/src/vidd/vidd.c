@@ -1,5 +1,7 @@
 #ifdef COMPILE_VIDD
 
+#include "psnprntf.h"
+
 #include "p_mobj.h"
 #include "vidd.h"
 #include "../ViddSys/ViddSys.h"
@@ -149,12 +151,12 @@ const char *VIDD_getNumberedAttrib(const char *preName, int index, const char *p
   char attribName[VIDD_MAXSTRLEN];
   if (viddSys_getVersion() < 110) {
     // older versions always used the index
-    snprintf(attribName, VIDD_MAXSTRLEN-1, "%s%i%s", preName, index, postName);
+    psnprintf(attribName, VIDD_MAXSTRLEN-1, "%s%i%s", preName, index, postName);
   }
   else {
     // current versions ommit the number on the zero'th element
-    if (index) snprintf(attribName, VIDD_MAXSTRLEN-1, "%s%i%s", preName, index, postName);
-    else snprintf(attribName, VIDD_MAXSTRLEN-1, "%s%s", preName, postName);
+    if (index) psnprintf(attribName, VIDD_MAXSTRLEN-1, "%s%i%s", preName, index, postName);
+    else psnprintf(attribName, VIDD_MAXSTRLEN-1, "%s%s", preName, postName);
   }
   attribName[VIDD_MAXSTRLEN] = 0;
   return viddSys_getAttribute(VAT_GLOBAL, attribName);

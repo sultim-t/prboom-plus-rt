@@ -1,5 +1,7 @@
 #ifdef COMPILE_VIDD
 
+#include "psnprntf.h"
+
 #include "p_mobj.h"
 #include "vidd.h"
 #include "../ViddSys/ViddSys.h"
@@ -234,9 +236,9 @@ void VIDD_REC_registerLevelLoad(int episode, int map, int skill) {
   
   // build the verb and subject string to describe this loadlevel event
   skillStr = skill == 0 ? "0" : skill == 1 ? "1" : skill == 2 ? "2" : skill == 3 ? "uv" : "nm";
-  snprintf(eventStr, VIDD_MAXSTRLEN-1, "%i %i %i", episode, map, skill);
-  if (!strcmp(VIDD_getIWad(), "doom2.wad")) snprintf(segmentName, VIDD_MAXSTRLEN-1, "M%i%s", map, skillStr);
-  else snprintf(segmentName, VIDD_MAXSTRLEN-1, "E%iM%i%s", episode, map, skillStr);
+  psnprintf(eventStr, VIDD_MAXSTRLEN-1, "%i %i %i", episode, map, skill);
+  if (!strcmp(VIDD_getIWad(), "doom2.wad")) psnprintf(segmentName, VIDD_MAXSTRLEN-1, "M%i%s", map, skillStr);
+  else psnprintf(segmentName, VIDD_MAXSTRLEN-1, "E%iM%i%s", episode, map, skillStr);
   
   event.verb = "loadlevel";
   event.subject = eventStr;

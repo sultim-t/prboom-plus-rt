@@ -30,6 +30,8 @@
  *-----------------------------------------------------------------------------
  */
 
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -472,12 +474,12 @@ void WI_unloadData(void);
  * Args:    Episode and level, and buffer (must by 9 chars) to write to
  * Returns: void
  */
-void WI_levelNameLump(int epis, int map, char* buf)
+static void WI_levelNameLump(int epis, int map, char* buf, size_t max_len)
 {
   if (gamemode == commercial) {
-    sprintf(buf, "CWILV%2.2d", map);    
+    psnprintf(buf, max_len, "CWILV%2.2d", map);    
   } else {
-    sprintf(buf, "WILV%d%d", epis, map);
+    psnprintf(buf, max_len, "WILV%d%d", epis, map);
   }
 }
 
@@ -494,7 +496,7 @@ static void WI_slamBackground(void)
   if (gamemode == commercial || (gamemode == retail && wbs->epsd == 3))
     strcpy(name, "INTERPIC");
   else 
-    sprintf(name, "WIMAP%d", wbs->epsd);
+    psnprintf(name, 9, "WIMAP%d", wbs->epsd);
 
   // background
   V_DrawNamePatch(0, 0, FB, name, CR_DEFAULT, VPT_STRETCH);
@@ -528,7 +530,7 @@ void WI_drawLF(void)
 
   // draw <LevelName> 
   /* cph - get the graphic lump name and use it */
-  WI_levelNameLump(wbs->epsd, wbs->last, lname);
+  WI_levelNameLump(wbs->epsd, wbs->last, lname, 9);
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320 - R_NamePatchWidth(lname))/2, y, 
 		 FB, lname, CR_DEFAULT, VPT_STRETCH);
@@ -554,7 +556,7 @@ void WI_drawEL(void)
   char lname[9];
 
   /* cph - get the graphic lump name */
-  WI_levelNameLump(wbs->epsd, wbs->next, lname);
+  WI_levelNameLump(wbs->epsd, wbs->next, lname, 9);
 
   // draw "Entering"
   // CPhipps - patch drawing updated
@@ -1913,7 +1915,7 @@ void WI_loadData(void)
           if (wbs->epsd != 1 || j != 8) 
           {
             // animations
-            sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);
+            psnprintf(name, 9, "WIA%d%.2d%.2d", wbs->epsd, j, i);
             R_SetPatchNum(&a->p[i], name);
           }
           else
@@ -1929,7 +1931,7 @@ void WI_loadData(void)
   for (i=0;i<10;i++)
   {
     // numbers 0-9
-    sprintf(name, "WINUM%d", i);
+    psnprintf(name, 9, "WINUM%d", i);
     R_SetPatchNum(&num[i], name);
   }
 }
@@ -1955,7 +1957,7 @@ void WI_unloadData(void)
 	  // MONDO HACK!
 	  if (wbs->epsd != 1 || j != 8) {
 	    // animations
-	    sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);  
+	    psnprintf(name, 9, "WIA%d%.2d%.2d", wbs->epsd, j, i);  
 	    W_UnlockLumpName(name);
 	  }
 	}
@@ -1965,7 +1967,7 @@ void WI_unloadData(void)
 
   for (i=0;i<10;i++) {
     // numbers 0-9
-    sprintf(name, "WINUM%d", i);     
+    psnprintf(name, 9, "WINUM%d", i);     
     //W_UnlockLumpName(name);
   }
 }

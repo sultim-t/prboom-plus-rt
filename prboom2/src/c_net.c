@@ -39,6 +39,9 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+
+#include "psnprntf.h"
+
 #include "lprintf.h"
 #include "c_io.h"
 #include "c_runcmd.h"
@@ -115,7 +118,7 @@ void C_SendCmd(int cmdnum, const char *s,...)
   char tempstr[500];
   va_start(args, s);
   
-  vsprintf(tempstr,s, args);
+  pvsnprintf(tempstr,500,s, args);
   s = tempstr;
   
   if(!netgame || demoplayback)

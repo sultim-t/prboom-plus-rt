@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "psnprntf.h"
+
 #include "d_event.h"
 #include "i_axes.h"
 #include "c_io.h"
@@ -91,7 +94,7 @@ void G_InitAxisBindings()
     for (j=0; j<number_axes; j++) {
       axisbindings[i][j].name = (char *)malloc(15*sizeof(char));
       lprintf(LO_INFO,"dev%d/axis%d\n", i, j);
-      sprintf(axisbindings[i][j].name, "dev%d/axis%d", i, j);
+      psnprintf(axisbindings[i][j].name, 15, "dev%d/axis%d", i, j);
       axisbindings[i][j].value = 0;
       axisbindings[i][j].sensitivity = 50;
       axisbindings[i][j].invert = false;

@@ -30,6 +30,8 @@
  *-----------------------------------------------------------------------------
  */
 
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "d_event.h"
 #include "v_video.h"
@@ -561,7 +563,7 @@ static void F_BunnyScroll (void)
     laststage = stage;
   }
       
-  sprintf (name,"END%i",stage);
+  psnprintf (name,10,"END%i",stage);
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, 0, name, CR_DEFAULT, VPT_STRETCH);
 }

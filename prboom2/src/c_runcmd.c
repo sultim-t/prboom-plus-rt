@@ -41,6 +41,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "psnprntf.h"
+
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "c_net.h"
@@ -116,7 +118,7 @@ static void C_GetTokens(const char *command)
 	}
 
       // add char to line
-      sprintf(cmdtokens[numtokens-1], "%s%c",
+      psnprintf(cmdtokens[numtokens-1], MAXTOKENLENGTH, "%s%c",
 	      cmdtokens[numtokens-1], *rover);
       rover++;
     }
@@ -425,11 +427,7 @@ void C_RunTextCmdf(const char *s, ...)
    * malloc, we must force the libc malloc(3) here and free(3) below
    */
   t = (malloc)(2048);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(t,2047,s,args);
-#else
-  vsprintf(t,s,args);
-#endif
+  pvsnprintf(t,2047,s,args);
 #endif
   va_end(args);
 
@@ -450,7 +448,7 @@ const char *C_VariableValue(variable_t *variable)
     {
     case vt_int:
     case vt_toggle:
-      sprintf(value, "%i", *(int*)variable->variable);
+      psnprintf(value, 128, "%i", *(int*)variable->variable);
       break;
 
     case vt_string:
@@ -461,7 +459,7 @@ const char *C_VariableValue(variable_t *variable)
       break;
 
     default:
-      sprintf(value, "(unknown)");
+      psnprintf(value, 128, "(unknown)");
       break;
     }
 
@@ -522,7 +520,7 @@ static char* C_ValueForDefine(variable_t *variable, char *s)
       {
 	if(!C_Strcmp(s, variable->defines[count-variable->min]))
 	  {
-	    sprintf(returnstr, "%i", count);
+	    psnprintf(returnstr, 10, "%i", count);
 	    return returnstr;
 	  }
       }
@@ -535,21 +533,21 @@ static char* C_ValueForDefine(variable_t *variable, char *s)
 	{
 	  int value = *(int *)variable->variable + 1;
 	  if(value > variable->max) value = variable->max;
-	  sprintf(returnstr, "%i", value);
+	  psnprintf(returnstr, 10, "%i", value);
 	  return returnstr;
 	}
       if(!strcmp(s, "-"))     // decrease value
 	{
 	  int value = *(int *)variable->variable - 1;
 	  if(value < variable->min) value = variable->min;
-	  sprintf(returnstr, "%i", value);
+	  psnprintf(returnstr, 10, "%i", value);
 	  return returnstr;
 	}
       if(!strcmp(s, "/"))     // toggle value
 	{
 	  int value = *(int *)variable->variable + 1;
 	  if(value > variable->max) value = variable->min; // wrap around
-	  sprintf(returnstr, "%i", value);
+	  psnprintf(returnstr, 10, "%i", value);
 	  return returnstr;
 	}
 
@@ -733,7 +731,7 @@ char *C_NextTab(char *key)
       return origkey;
     }
 
-  sprintf(returnstr,"%s ",tabs[thistab]->name);
+  psnprintf(returnstr,100,"%s ",tabs[thistab]->name);
   return returnstr;
 }
 
@@ -760,7 +758,7 @@ char *C_PrevTab(char *key)
       return origkey;
     }
 
-  sprintf(returnstr,"%s ",tabs[thistab]->name);
+  psnprintf(returnstr,100,"%s ",tabs[thistab]->name);
   return returnstr;
 }
 

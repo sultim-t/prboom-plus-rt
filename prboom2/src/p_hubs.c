@@ -40,6 +40,9 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "c_io.h"
 #include "g_game.h"
@@ -80,7 +83,7 @@ char *temp_hubfile(void)
 
   new_tmpfilename = malloc(10);
 
-  sprintf(new_tmpfilename, "smmu%i.tmp", tmpfilenum++);
+  psnprintf(new_tmpfilename, 10, "smmu%i.tmp", tmpfilenum++);
 
   return new_tmpfilename;  
 }

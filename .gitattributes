@@ -224,6 +224,10 @@ prboom2/src/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/inl/Makefile.am eol=lf
+prboom2/src/m_fcvt.c -text
+prboom2/src/m_fcvt.h -text
+prboom2/src/psnprntf.c -text
+prboom2/src/psnprntf.h -text
 prboom2/src/vidd/Makefile.am eol=lf
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text

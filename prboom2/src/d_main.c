@@ -53,6 +53,8 @@ int access(const char *path, int mode);
 #include <fcntl.h>
 #endif // DREAMCAST
 
+#include "psnprntf.h"
+
 #include "doomdef.h"
 #include "doomtype.h"
 #include "doomstat.h"
@@ -1301,11 +1303,7 @@ void D_DoomMainSetup(void)
   else {
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-#ifdef HAVE_SNPRINTF
-    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.config", I_DoomExeDir());
-#else
-    sprintf((char *)defaultfile,"%s/prboom.config", I_DoomExeDir());
-#endif
+    psnprintf((char *)defaultfile,PATH_MAX,"%s/prboom.config", I_DoomExeDir());
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
@@ -1915,7 +1913,7 @@ void GetFirstMap(int *ep, int *map)
     {
       for (i=1;!done && i<33;i++)  // Ty 09/13/98 - add use of !done
       {
-        sprintf(test,"MAP%02d",i);
+        psnprintf(test,6,"MAP%02d",i);
         ix = W_CheckNumForName(test);
         if (ix != -1)  // Ty 10/04/98 avoid -1 subscript
         {
@@ -1941,7 +1939,7 @@ void GetFirstMap(int *ep, int *map)
       {
         for (j=1;!done && j<10;j++)  // Ty 09/13/98 - add use of !done
         {
-          sprintf(test,"E%dM%d",i,j);
+          psnprintf(test,6,"E%dM%d",i,j);
           ix = W_CheckNumForName(test);
           if (ix != -1)  // Ty 10/04/98 avoid -1 subscript
           {

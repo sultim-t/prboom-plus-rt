@@ -41,6 +41,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "psnprntf.h"
+
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "c_net.h"
@@ -362,7 +364,7 @@ int C_Responder(event_t* ev)
   
   if(V_IsPrint(ch) && strlen(inputtext) < INPUTLENGTH-3)
     {
-      sprintf(inputtext, "%s%c", inputtext, ch);
+      psnprintf(inputtext, INPUTLENGTH, "%s%c", inputtext, ch);
       
       C_InitTab();            // reset tab-completion
       C_UpdateInputPoint();   // reset scrolling
@@ -429,7 +431,7 @@ void C_Drawer()
       
     // if we are scrolled back, dont draw the input line
     if(message_pos == message_last)
-	    sprintf(tempstr, "%s%s_", inputprompt, input_point);
+	    psnprintf(tempstr, LINELENGTH, "%s%s_", inputprompt, input_point);
       
     V_WriteText(tempstr, 0, current_height-8, 0);
   }
@@ -567,11 +569,7 @@ void C_Printf(const char *s, ...)
    * malloc, we must force the libc malloc(3) here and free(3) below
    */
   t = (malloc)(2048);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(t,2047,s,args);
-#else
-  vsprintf(t,s,args);
-#endif
+  pvsnprintf(t,2047,s,args);
 #endif
   va_end(args);
 

@@ -40,6 +40,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "doomdef.h"
 #include "c_io.h"
@@ -274,7 +276,7 @@ void P_ParseScriptLine(const char *line)
     Z_Realloc(levelscript.data, allocsize, PU_LEVEL, 0);
 
   // add the new line to the current data using sprintf (ugh)
-  sprintf(levelscript.data, "%s%s\n", levelscript.data, line);
+  psnprintf(levelscript.data, allocsize, "%s%s\n", levelscript.data, line);
 }
 #endif
 
@@ -401,7 +403,7 @@ void P_FindLevelName(void)
     {
       static char newlevelstr[50];
 
-      sprintf(newlevelstr, "%s: new level", gamemapname);
+      psnprintf(newlevelstr, 50, "%s: new level", gamemapname);
       levelname = newlevelstr;
     }
 }

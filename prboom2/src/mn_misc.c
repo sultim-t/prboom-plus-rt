@@ -37,6 +37,8 @@
 
 #include <stdarg.h>
 
+#include "psnprntf.h"
+
 #include "doomstat.h"
 #include "d_main.h"
 #include "s_sound.h"
@@ -176,7 +178,7 @@ void MN_Alert(const char *message, ...)
   popup_message_type = popup_alert;
   
   va_start(args, message);
-  vsprintf(popup_message, message, args);
+  pvsnprintf(popup_message, 128, message, args);
   va_end(args);
 }
 
@@ -252,7 +254,7 @@ static void MN_FindHelpScreens()
   for(custom = 0; custom<100; custom++)
     {
       char tempstr[10];
-      sprintf(tempstr, "HELP%.02i", custom);
+      psnprintf(tempstr, 10, "HELP%.02i", custom);
       AddHelpScreen(tempstr);
     }
 
@@ -440,7 +442,7 @@ boolean MN_MapColourResponder(event_t *ev)
   if(ev->data1 == KEYD_ENTER)
     {
       static char tempstr[128];
-      sprintf(tempstr, "%i", selected_colour);
+      psnprintf(tempstr, 128, "%i", selected_colour);
 
       // run command
       cmdtype = c_menu;
