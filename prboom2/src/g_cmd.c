@@ -264,9 +264,10 @@ CONSOLE_STRING(iwad, g_iwad, NULL, 126, cf_buffered)
   D_SetVersionFromIWAD(iwad);
   D_AutoLoad();
   W_Init();
-  C_InitBackdrop();
-  V_InitColorTranslation();
   R_Init();
+  C_InitBackdrop();
+  V_InitMisc();
+  V_InitColorTranslation();
   P_Init();
   MN_LoadData();
   HU_Init();
