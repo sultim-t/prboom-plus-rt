@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.12 2000/05/13 19:03:53 cph Exp $
+ * $Id: g_game.c,v 1.13 2000/05/13 22:41:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.12 2000/05/13 19:03:53 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.13 2000/05/13 22:41:53 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1519,7 +1519,7 @@ void G_DoLoadGame(void)
     if (forced_loadgame) {
       savegame_compatibility = MAX_COMPATIBILITY_LEVEL-1;
     } else {
-      G_LoadGameErr("Unrecognised or unsupported savegame version!\nAre you sure? (y/n) ");
+      G_LoadGameErr("Unrecognised savegame version!\nAre you sure? (y/n) ");
       return;
     }
   }
