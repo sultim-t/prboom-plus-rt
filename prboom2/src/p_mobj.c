@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.8 2000/05/23 09:10:11 cph Exp $
+ * $Id: p_mobj.c,v 1.9 2000/08/21 19:44:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.8 2000/05/23 09:10:11 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.9 2000/08/21 19:44:30 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -580,6 +580,25 @@ void P_NightmareRespawn(mobj_t* mobj)
 
   x = mobj->spawnpoint.x << FRACBITS;
   y = mobj->spawnpoint.y << FRACBITS;
+
+  /* haleyjd: stupid nightmare respawning bug fix
+   *
+   * 08/09/00: compatibility added, time to ramble :)
+   * This fixes the notorious nightmare respawning bug that causes monsters
+   * that didn't spawn at level startup to respawn at the point (0,0)
+   * regardless of that point's nature. SMMU and Eternity need this for
+   * script-spawned things like Halif Swordsmythe, as well.
+   *
+   * cph - copied from eternity, except comp_respawnfix becomes comp_respawn 
+   *   and the logic is reversed (i.e. like the rest of comp_ it *disables*
+   *   the fix)
+   */
+  if(!comp[comp_respawn] && !x && !y)
+  {
+     // spawnpoint was zeroed out, so use point of death instead
+     x = mobj->x;
+     y = mobj->y;
+  }
 
   // something is occupying its position?
 

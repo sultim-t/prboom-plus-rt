@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $
+ * $Id: am_map.c,v 1.8 2000/08/21 19:44:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.7 2000/05/17 21:13:45 proff_fs Exp $";
+  "$Id: am_map.c,v 1.8 2000/08/21 19:44:30 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -73,6 +73,7 @@ int mapcolor_exit;    // jff 4/23/98 add exit line color
 int mapcolor_unsn;    // computer map unseen line color
 int mapcolor_flat;    // line with no floor/ceiling changes
 int mapcolor_sprt;    // general sprite color
+int mapcolor_frnd;    // friendly sprite color
 int mapcolor_hair;    // crosshair color
 int mapcolor_sngl;    // single player arrow color
 int mapcolor_plyr[4] = { 112, 88, 64, 176 }; // colors for player arrows in multiplayer
@@ -1628,7 +1629,7 @@ void AM_drawThings
         NUMTHINTRIANGLEGUYLINES,
         16<<FRACBITS,
         t->angle,
-        mapcolor_sprt,
+        t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : mapcolor_sprt,
         x, y
       );
       t = t->snext;

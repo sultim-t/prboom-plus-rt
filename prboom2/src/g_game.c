@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.21 2000/05/23 09:10:11 cph Exp $
+ * $Id: g_game.c,v 1.22 2000/08/21 19:44:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.21 2000/05/23 09:10:11 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.22 2000/08/21 19:44:30 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1881,8 +1881,10 @@ static void G_Compatibility(void)
     boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
     mbf_compatibility, /* comp_infcheat - FIXME */
     boom_compatibility,/* comp_zerotags - allow zero tags in wads */
-    lxdoom_1_compatibility, /* comp_moveblock - disables keygrab and 
+    lxdoom_1_compatibility, /* comp_moveblock - enables keygrab and 
 			     * mancubi shots going thru walls */
+    prboom_2_compatibility, /* comp_respawn - objects which aren't on the map 
+                             * at game start respawn at (0,0) */
   };
   int i;
   for (i=0; i<COMP_NUM; i++)

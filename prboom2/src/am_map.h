@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: am_map.h,v 1.3 2000/08/21 19:44:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -96,6 +96,7 @@ extern int mapcolor_exit;     // exit line
 extern int mapcolor_unsn;     // computer map unseen line color
 extern int mapcolor_flat;     // line with no floor/ceiling changes
 extern int mapcolor_sprt;     // general sprite color
+extern int mapcolor_frnd;     // friendly sprite color
 extern int mapcolor_hair;     // crosshair color
 extern int mapcolor_sngl;     // single player arrow color
 extern int mapcolor_plyr[4];  // colors for players in multiplayer

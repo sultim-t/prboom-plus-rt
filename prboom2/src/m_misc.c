@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.15 2000/06/14 23:04:48 jessh Exp $
+ * $Id: m_misc.c,v 1.16 2000/08/21 19:44:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.15 2000/06/14 23:04:48 jessh Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.16 2000/08/21 19:44:30 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -197,7 +197,6 @@ int X_opt;
  * killough 10/98
  */
 int map_point_coordinates;
-int mapcolor_frnd;
 
 default_t defaults[] =
 {

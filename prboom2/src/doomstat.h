@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.8 2000/05/23 09:10:11 cph Exp $
+ * $Id: doomstat.h,v 1.9 2000/08/21 19:44:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -124,6 +124,7 @@ enum {
   comp_infcheat,
   comp_zerotags,
   comp_moveblock,
+  comp_respawn,  /* cph - this is the inverse of comp_respawnfix from eternity */
   COMP_NUM,      /* cph - should be last in sequence */
   COMP_TOTAL=32  // Some extra room for additional variables
 };
