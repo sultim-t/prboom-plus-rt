@@ -30,13 +30,20 @@ Changes from v2.2.4 to v2.3.0
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
+- add sound compatibility option
+- improve sound volume accuracy
 - shared texture palette isn't the default anymore
 - better invulnerabilty rendering for non paletted OpenGL
-- small compilation fix for OpenGL on some unix platforms
+- network game server can now read config files to set game options
+- fix latency problems in LAN games
+- small compilation fixed for OpenGL on some unix platforms
 - fix for dehacked files which change frames
 - fixed name clash when compiling for some unix platforms
 - flag counted items with different colour on the IDDT automap
 - fixed extra shot sound when chaingun runs out of ammo
+- fix some telefragging related desyncs
+- fixed offsets for flipped sprites
+- hopefully fix problems with network games on big-endian platforms
 
 Changes from v2.2.2 to v2.2.3
 - improved mouse handling
