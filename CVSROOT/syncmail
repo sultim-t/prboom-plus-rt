@@ -129,9 +129,10 @@ def blast_mail(mailcmd, filestodiff):
         fp.write(sys.stdin.read())
         fp.write('\n')
         # append the diffs if available
-        for file in filestodiff:
-            fp.write(calculate_diff(file))
-            fp.write('\n')
+        # proff 2001/02/25: removed diff
+        # for file in filestodiff:
+        #     fp.write(calculate_diff(file))
+        #     fp.write('\n')
         fp.close()
         # doesn't matter what code we return, it isn't waited on
         os._exit(0)
