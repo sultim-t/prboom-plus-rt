@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.37 2001/07/02 22:46:46 proff_fs Exp $
+ * $Id: d_main.c,v 1.38 2001/07/02 23:04:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.37 2001/07/02 22:46:46 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.38 2001/07/02 23:04:03 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1355,8 +1355,10 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
+#ifdef DREAMCAST
   fslib = lib_open("fs");
   if (!fslib) { printf("Can't open fs library\r\n"); return; }
+#endif // DREAMCAST
 
   // proff 04/05/2000: Added support for include response files
   /* proff 2001/7/1 - Moved up, so -config can be in response files */

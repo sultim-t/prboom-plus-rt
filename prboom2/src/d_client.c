@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.14 2001/07/02 12:46:43 proff_fs Exp $
+ * $Id: d_client.c,v 1.15 2001/07/02 23:04:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -55,10 +55,6 @@
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
-/* proff 2001/7/2 - DREAMCAST
-   Can this be removed completely?
-   It's not needed in Windows either */
-//#include <sys/types.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
