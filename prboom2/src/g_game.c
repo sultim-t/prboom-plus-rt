@@ -84,6 +84,8 @@
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
+const char *g_iwad = NULL;
+
 static size_t   savegamesize = SAVEGAMESIZE; // killough
 boolean  netdemo;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];

@@ -180,4 +180,6 @@ extern char savedescription[SAVEDESCLEN];  // Description to save in savegame
 /* cph - compatibility level strings */
 extern const char * comp_lev_str[];
 
+extern const char *g_iwad;
+
 #endif

@@ -229,9 +229,14 @@ CONSOLE_COMMAND(listwads, 0)
 }
 */
 
-CONSOLE_COMMAND(iwad, cf_buffered)
+//CONSOLE_COMMAND(iwad, cf_buffered)
+CONSOLE_STRING(iwad, g_iwad, NULL, 126, cf_buffered)
 {
   char *iwad;
+
+  // shouldn't be run from scripts (startup)
+  if (cmdtype == c_script)
+    return;
   if (c_argc != 1) 
   {
     C_Printf("usage: iwad wadname\n");
@@ -243,7 +248,6 @@ CONSOLE_COMMAND(iwad, cf_buffered)
     C_Printf("'%s' not found!\n", c_argv[0]);
     return;
   }
-  C_Printf("'%s' found!\n", iwad);
   S_StopMusic();
   S_StopSounds();
   G_StopDemo();
