@@ -1,0 +1,105 @@
+This file is now the amalgamated list of authors, contributors and credits
+for PrBoom. Hopefully by keeping these all in one place, they will remain
+more accurate.
+
+Doom was originally written by id software; when playing with any id main
+wad file, you can see their list of credits, which includes the list of
+programmers. After some years, they released the source code, to allow
+others to work on improving the game.
+
+One of the first projects was DosDoom, by Chi Hoang. This was a quick port
+of the released source code, which was for Linux, to DOS. This was then
+picked up by TeamTNT (http://www.teamtnt.com/), who produced Boom, a greatly
+debugged and extended version of Doom. The Boom programmers were Lee
+Killough, Jim Flynn, Rand Phares, Ty Halderman.
+
+Several projects started working from the Boom source code. One was PrBoom, 
+made by Florian Schulze, that ported the code to Windows, added suport for 
+higher resolutions and later OpenGL. Another was Marine's Best Friend 
+(known as MBF) by Lee Killough, which fixed a lot of Boom bugs and added 
+many new game features. Finally, there was LxDoom, a port of Boom to Linux 
+by Colin Phipps.
+
+In October 1999, id Software re-released the Doom source code under the 
+GNU General Public License. TeamTNT have also changed to the new license,
+and the other sources mentioned above have all allowed their code to be
+GPLed. So PrBoom is covered by the GPL.
+
+In May 2000, LxDoom, PrBoom, and a derived port called LSDLDoom, merged 
+into one. The current authors of PrBoom are Colin Phipps 
+(cphipps@doomworld.com), Jess Haas (JessH@lbjhs.net), and Florian 
+Schulze (florian.proff.schulze@gmx.net).
+
+Our thanks go to all the authors of the ports mentioned above, and also 
+the following people who contributed code to LxDoom or PrBoom:
+
+Nicolas Kalkhof  nkalkhof@gmx.net
+Helped with highres in PrBoom and with the OpenGL part
+
+Gady Kozma	gady@math.tau.ac.il
+Added hires to the SVGALib version of LxDoom, and other useful patches.
+
+Dick Leban
+Lots of feedback about portability issues and helping get the network code 
+working properly back at v1.3.6.
+
+Eduardo Casino Almao
+Lots of helpful feedback and suggestions, but more importantly actually getting 
+to grips with the code and giving very precise bug reports and patches.
+
+Joey Hess
+For numerous patches, like the glibc fixes and window manager updates, and
+help with the music.
+
+Ben Winslow
+Various useful patches, like the colour ENDOOM code.
+
+Josh Parsons	josh@schlick.anu.edu.au
+Sent me the patches to use autoconf for configuring LxDoom.
+
+Steve Van Devender <stevev@efn.org>
+Found the bug causing slight noise at the start of sounds playing, and other
+patches.
+
+Barry Mead <bmead@surfree.com>
+Improvements to the mouse code.
+
+Mattias Kunkel <mattias@kunkel.freeservers.com>
+Made the lxdoom.spec file for creating LxDoom RPMs.
+
+Vicente Aguilar	vicente@hal.dhis.org
+Handy patch for the file handling
+
+Benjamin L McGee <vuelto@netscape.net>
+Patch fixing the joystick code.
+
+If you sent me patches for LxDoom which were included, and I forgot to
+list you, I apologise. Please email me and I will add you.
+
+Also, thanks to the following people who have helped in various ways:
+
+Udo Monk
+His port xdoom is very portable, and I referred to his code sometimes for help 
+with the X stuff; also his collection of Doom tools (XWadTools) is the 
+definitive tools collection for Linux.
+
+Andre Majorel	amajorel@teaser.fr
+For Yadex, so I can debug those problematic levels more easily.
+
+Michael Heasley	
+Author of musserver, which helped me first add music support.
+
+Rafael Reilova		
+Helped with themusic server program for LxDoom
+
+Frederic Oghdayan
+For useful feedback on LxDoom v1.0.1, and repeating his bug reports until I 
+believed them :-).
+
+James "Quasar" Haley	
+Ever willing to talk about source ideas; mentioned some Boom/MBF bugs to me, 
+which I was then able to fix in LxDoom.
+
+Everyone who contributed indirectly to MBF and Boom and Doom; see the
+respective documentation files.
+
