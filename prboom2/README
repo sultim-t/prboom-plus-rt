@@ -36,10 +36,24 @@ from Doomworld's shareware download page. You won't be able to play
 most add-ons.
 http://www.doomworld.com/shareware
 
-FIXME Windows Installation
+Windows Installation
 --------------------
 
-Do we need this section?
+Just extract the zip to a directory of your choice and copy your IWAD
+files into it. Now you can make shortcuts and add "-iwad filename.wad"
+to them.
+
+The SDL_mixer library used by PrBoom supports software MIDI music
+synthesis. If you want to hear the Doom music, you need a set of
+Timidity instrument patches. Do a web search for timidity patch sets,
+there are plenty around.
+These patch sets are a large download (>5megs).
+SDL_mixer does not currently support hardware MIDI synthesis. But we
+have added a hacked version of SDL_mixer with native midi support. If
+you like to try it out, rename SDL_mixer_beta.dll to SDL_mixer.dll.
+You should rename the original SDL_mixer.dll before. Tell us if it
+works or not. Please note, that there might be bugs in the native midi
+implementation.
 
 Linux Installation
 ------------------
