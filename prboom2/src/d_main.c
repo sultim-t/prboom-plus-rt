@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.32 2000/12/27 18:37:36 cph Exp $
+ * $Id: d_main.c,v 1.32.2.1 2001/09/25 09:47:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,13 +34,14 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.32 2000/12/27 18:37:36 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.32.2.1 2001/09/25 09:47:04 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
 #define    W_OK    2    /* Check for write permission */
 #define    R_OK    4    /* Check for read permission */
 #include <io.h>
+#include <direct.h>
 #else
 #include <unistd.h>
 #endif
@@ -609,6 +610,7 @@ void D_AddFile (const char *file, wad_source_t source)
 #ifdef _WIN32
 char *D_DoomExeDir(void)
 {
+  static const char current_dir_dummy[] = {"./"};
   static char *base;
   if (!base)        // cache multiple requests
     {
@@ -619,6 +621,13 @@ char *D_DoomExeDir(void)
         *p--=0;
       if (*p=='/' || *p=='\\')
         *p--=0;
+      if (strlen(base)<2)
+      {
+        free(base);
+        base = malloc(1024);
+        if (!getcwd(base,1024))
+          strcpy(base, current_dir_dummy);
+      }
     }
   return base;
 }
