@@ -221,7 +221,7 @@ byte def_game_options[GAME_OPTIONS_SIZE] = \
 { // cf g_game.c:G_WriteOptions()
   1, // monsters remember
   1, // friction
-  1, // weapon recoil
+  0, // weapon recoil
   1, // pushers
   0, // reserved/unused
   1, // player bobbing
@@ -230,7 +230,7 @@ byte def_game_options[GAME_OPTIONS_SIZE] = \
   0, 0, 0, 0, // 4 bytes of random number seed
   1, 0, 0, 0,
   0, 128, /* distfriend */
-  1, 1, 1, 1, 1, 1,
+  0, 1, 1, 1, 1, 0,
   /* Zeroes for all compatibility stuff */
 };
 
