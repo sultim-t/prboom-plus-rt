@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30 2000/11/12 14:59:29 cph Exp $
+ * $Id: g_game.c,v 1.30.2.1 2001/02/03 10:59:43 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.1 2001/02/03 10:59:43 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -212,7 +212,7 @@ int     joybspeed;
 #define TURBOTHRESHOLD  0x32
 #define SLOWTURNTICS  6
 #define QUICKREVERSE (short)32768 // 180 degree reverse                    // phares
-#define NUMKEYS   256
+#define NUMKEYS   512
 
 fixed_t forwardmove[2] = {0x19, 0x32};
 fixed_t sidemove[2]    = {0x18, 0x28};
