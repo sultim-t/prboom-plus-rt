@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.c,v 1.3 2001/07/16 15:05:52 proff_fs Exp $
+ * $Id: i_joy.c,v 1.4 2001/07/16 15:41:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: i_joy.c,v 1.3 2001/07/16 15:05:52 proff_fs Exp $";
+static const char rcsid[] = "$Id: i_joy.c,v 1.4 2001/07/16 15:41:26 proff_fs Exp $";
 #endif /* lint */
 
 #include "SDL.h"
@@ -43,6 +43,7 @@ static const char rcsid[] = "$Id: i_joy.c,v 1.3 2001/07/16 15:05:52 proff_fs Exp
 #include "d_main.h"
 #include "i_joy.h"
 #include "lprintf.h"
+#include "m_fixed.h"
 
 int joyleft;
 int joyright;
