@@ -46,6 +46,7 @@
 
 void HU_LoadFont();
 void HU_WriteText(unsigned char *s, int x, int y);
+void HU_WriteTextColoured(unsigned char *s, int colour, int x, int y);
 int HU_StringWidth(unsigned char *s);
 
 //--------------------------------------------------------------------------

@@ -61,6 +61,7 @@ void V_WriteTextFont(const char *s, int x, int y, int gap, patchnum_t font[]);
 void V_WriteTextXYGap(const char *s, int x, int y, int xgap, int ygap);
 void V_WriteText(const char *s, int x, int y, int gap);
 void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap);
+void V_WriteTextFontColoured(const char *s, int colour, int x, int y, int gap, patchnum_t font[]);
 int V_StringWidthFont(const char *s, int gap, patchnum_t font[]);
 int V_StringWidth(const char *s, int gap);
 int V_StringHeight(const char *s);

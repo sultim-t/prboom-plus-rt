@@ -44,6 +44,7 @@ struct textwidget_s
 {
   int x, y;       // co-ords on screen
   int font;       // 0 = normal red text 1 = heads up font
+  int fontcolour;
   char *message;
   void (*handler)();      // controller function
   int cleartic;   // gametic in which to clear the widget (0=never)
@@ -68,7 +69,6 @@ char HU_dequeueChatChar(void);
 void HU_Start(void);
 void HU_End(void);
 
-void HU_WriteText(unsigned char *s, int x, int y);
 void HU_PlayerMsg(char *s);
 void HU_CentreMsg(char *s);
 void HU_Erase(void);

@@ -180,9 +180,14 @@ boolean V_IsPrint(unsigned char c)
 
 void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap)
 {
+  V_WriteTextFontColoured(s, colour, x, y, gap, v_font);
+}
+
+void V_WriteTextFontColoured(const char *s, int colour, int x, int y, int gap, patchnum_t font[])
+{
   char *tempstr = malloc(strlen(s)+3);
   sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
-  V_WriteText(tempstr, x, y, gap);
+  V_WriteTextFont(tempstr, x, y, gap, font);
   free(tempstr);
 }
 

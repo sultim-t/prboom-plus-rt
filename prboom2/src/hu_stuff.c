@@ -351,9 +351,9 @@ static void HU_WidgetsDraw()
   {
     if (widgets[i]->message && (!widgets[i]->cleartic || leveltime < widgets[i]->cleartic) )
 	    if (widgets[i]->font)
-        HU_WriteText(widgets[i]->message, widgets[i]->x, widgets[i]->y);
+        HU_WriteTextColoured(widgets[i]->message, widgets[i]->fontcolour, widgets[i]->x, widgets[i]->y);
       else
-        V_WriteText(widgets[i]->message, widgets[i]->x, widgets[i]->y, 0);
+        V_WriteTextColoured(widgets[i]->message, widgets[i]->fontcolour, widgets[i]->x, widgets[i]->y, 0);
   }
 }
 
@@ -383,6 +383,7 @@ static void HU_WidgetsErase()
 static void HU_LevelTimeHandler();
 static void HU_CentreMessageHandler();
 static void HU_LevelNameHandler();
+static void HU_CoordHandler();
 static void HU_ChatHandler();
 
 //--------------------------------------------------------------------------
@@ -394,6 +395,7 @@ static textwidget_t hu_centremessage =
   {
     0, 0,                      // x,y set by HU_CentreMsg
     0,                         // normal font
+    CR_RED,                   // normal color
     NULL,                      // init to nothing
     HU_CentreMessageHandler    // handler
   };
@@ -440,6 +442,7 @@ static textwidget_t hu_leveltime =
 {
   0, 0,                                          // x, y
   0,                                             // normal font
+  CR_RED,                                        // normal color
   NULL,                                          // null msg
   HU_LevelTimeHandler                            // handler
 };
@@ -455,13 +458,13 @@ static void HU_LevelTimeHandler()
       return;
     }
 
-  //seconds = levelTime / 35;
+  seconds = leveltime / 35;
   timestr[0] = 0;
 
   sprintf(timestr, "%02i:%02i:%02i", seconds/3600, (seconds%3600)/60,
 	  seconds%60);
 
-  hu_leveltime.x = SCREENWIDTH-60;
+  hu_leveltime.x = SCREENWIDTH-HU_StringWidth("A")*13;
   hu_leveltime.y = SCREENHEIGHT-ST_SCALED_HEIGHT-8;
   hu_leveltime.message = timestr;
 }
@@ -475,19 +478,68 @@ static textwidget_t hu_levelname =
 {
   0, 0,                              // x,y
   0,                                 // normal font
+  CR_GOLD,                           // gold
   NULL,                              // init to nothing
   HU_LevelNameHandler                // handler
 };
 
 static void HU_LevelNameHandler()
 {
-  hu_leveltime.y = SCREENHEIGHT-ST_SCALED_HEIGHT-8;
-/*
+  hu_levelname.y = SCREENHEIGHT-ST_SCALED_HEIGHT-8;
+
   if (automapmode & am_active)
+  {
     hu_levelname.message = levelname;
+  }
   else
-*/
     hu_levelname.message = NULL;
+}
+
+//------------------------------------------------------------------------
+//
+// Automap player coordinates display
+//
+
+static textwidget_t hu_coord =
+{
+  0, 0,                              // x,y
+  0,                                 // normal font
+  CR_GREEN,                          // green
+  NULL,                              // init to nothing
+  HU_CoordHandler                    // handler
+};
+
+static void HU_CoordHandler()
+{
+  static char coord_str[128];
+  player_t *plr = &players[displayplayer];
+
+  hu_coord.x = SCREENWIDTH-HU_StringWidth("A")*13;
+  hu_coord.y = 1;
+
+  if (automapmode & am_active)
+  {
+#ifdef HAVE_SNPRINTF
+    snprintf(coord_str,
+             127,
+             "X: %-5d\nY: %-5d\nZ: %-5d",
+             (plr->mo->x)>>FRACBITS,
+             (plr->mo->y)>>FRACBITS,
+             (plr->mo->z)>>FRACBITS
+            );
+    coord_str[127] = 0;
+#else
+    sprintf(coord_str,
+            "X: %-5d\nY: %-5d\nZ: %-5d",
+            (plr->mo->x)>>FRACBITS,
+            (plr->mo->y)>>FRACBITS,
+            (plr->mo->z)>>FRACBITS
+           );
+#endif
+    hu_coord.message = coord_str;
+  }
+  else
+    hu_coord.message = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -499,6 +551,7 @@ static textwidget_t hu_chat =
 {
   0, 0,                 // x,y
   0,                    // use normal font
+  CR_RED,               // normal color
   NULL,                 // empty message
   HU_ChatHandler        // handler
 };
@@ -588,6 +641,7 @@ static void HU_WidgetsInit()
   HU_AddWidget(&hu_centremessage);
   HU_AddWidget(&hu_levelname);
   HU_AddWidget(&hu_leveltime);
+  HU_AddWidget(&hu_coord);
   HU_AddWidget(&hu_chat);
 }
 
