@@ -1097,6 +1097,52 @@ when a Final Doom IWAD is loaded.</p>
              player-&gt;viewz = thing-&gt;z + player-&gt;viewheight;
     </pre>
 
+<h4>Intermission screen secrets desync</h4>
+
+<p>Affects Boom, MBF, PrBoom up to 2.2.4 and 2.3.0.</p>
+
+<p>In Boom, the intermission screen was fixed so that 100% secrets would be shown on any level that had no secrets (to avoid making players think they might have missed some). But this changes the timing of the intermission screen in some instances, because it will take time to count up to 100% if the player does not interrupt it. Therefore it is necessary to skip past the counting-up if playing an old demo.</p>
+
+<pre>
+
+Index: src/wi_stuff.c
+===================================================================
+--- src/wi_stuff.c	(revision 1124)
++++ src/wi_stuff.c	(revision 1125)
+@@ -1403,7 +1403,7 @@
+ 
+       // killough 2/22/98: Make secrets = 100% if maxsecret = 0:
+ 
+-      if (cnt_secret[i] &gt;= (wbs-&gt;maxsecret ? (plrs[i].ssecret * 100) / wbs-&gt;maxsecret : 100))
++      if (cnt_secret[i] &gt;= (wbs-&gt;maxsecret ? (plrs[i].ssecret * 100) / wbs-&gt;maxsecret : compatibility_level &lt; lxdoom_1_compatibility ? 0 : 100))
+         cnt_secret[i] = wbs-&gt;maxsecret ? (plrs[i].ssecret * 100) / wbs-&gt;maxsecret : 100;
+       else
+         stillticking = true;
+@@ -1622,7 +1622,8 @@
+       S_StartSound(0, sfx_pistol);
+ 
+     // killough 2/22/98: Make secrets = 100% if maxsecret = 0:
+-    if (cnt_secret[0] &gt;= (wbs-&gt;maxsecret ?
++    if ((!wbs-&gt;maxsecret &amp;&amp; compatibility_level &lt; lxdoom_1_compatibility) ||
++	cnt_secret[0] &gt;= (wbs-&gt;maxsecret ?
+       (plrs[me].ssecret * 100) / wbs-&gt;maxsecret : 100))
+     {
+       cnt_secret[0] = (wbs-&gt;maxsecret ?
+@@ -1957,12 +1958,6 @@
+   if (!wbs-&gt;maxitems)
+     wbs-&gt;maxitems = 1;
+ 
+-  // killough 2/22/98: Keep maxsecret=0 if it's zero, so
+-  // we can detect 0/0 as as a special case and print 100%.
+-  //
+-  //    if (!wbs-&gt;maxsecret)
+-  //  wbs-&gt;maxsecret = 1;
+-
+   if ( gamemode != retail )
+     if (wbs-&gt;epsd &gt; 2)
+       wbs-&gt;epsd -= 3;
+</pre>
+
 <h2>Author</h2>
 
 <p>Colin Phipps &lt;<a
