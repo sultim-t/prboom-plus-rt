@@ -192,6 +192,8 @@ prboom2/data/sprites/dogsm0.ppm -text
 prboom2/data/sprites/dogsn0.ppm -text
 prboom2/data/sprites/tnt1a0.ppm -text
 prboom2/doc/vidd.gif -text
+prboom2/src/d_main.c -text svneol=native#unset
+prboom2/src/d_main.h -text svneol=native#unset
 prboom2/src/p_inter.c -text svneol=native#unset
 prboom2/src/wi_stuff.c -text svneol=native#unset
 website/DOOM04.jpg -text

@@ -100,6 +100,7 @@ void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionalit
 
 // CPhipps - removed wadfiles[] stuff
 
+int use_startmap = -1;     // default to -1 for asking in menu
 boolean devparm;        // started game with -devparm
 
 // jff 1/24/98 add new versions of these variables to remember command line
@@ -126,6 +127,7 @@ extern boolean inhelpscreens;
 skill_t startskill;
 int     startepisode;
 int     startmap;
+char    *startlevel;
 boolean autostart;
 
 boolean advancedemo;
@@ -139,6 +141,9 @@ char    mapdir[PATH_MAX+1];        // directory of development maps
 char    baseiwad[PATH_MAX+1];      // jff 3/23/98: iwad directory
 char    basesavegame[PATH_MAX+1];  // killough 2/16/98: savegame directory
 const char* defaultfile; // CPhipps - const
+
+// set from iwad: level to start new games from
+char firstlevel[9] = "";
 
 //jff 4/19/98 list of standard IWAD names
 const char *const standard_iwads[]=
@@ -241,7 +246,12 @@ void D_Display (void)
     return;
 
   // save the current screen if about to wipe
-  if ((wipe = gamestate != wipegamestate) && (V_GetMode() != VID_MODEGL))
+  // no melting consoles
+
+  wipe = gamestate != wipegamestate &&
+         wipegamestate != GS_CONSOLE &&
+         gamestate != GS_SERVERWAIT;
+  if (wipe && (V_GetMode() != VID_MODEGL))
     wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
   if (gamestate != GS_LEVEL) { // Not a level
@@ -580,6 +590,8 @@ void D_DoAdvanceDemo(void)
     demosequence = 0;
   demostates[demosequence][gamemode].func
     (demostates[demosequence][gamemode].name);
+
+  C_InstaPopup();       // make console go away
 }
 
 //
@@ -590,6 +602,7 @@ void D_StartTitle (void)
   gameaction = ga_nothing;
   demosequence = -1;
   D_AdvanceDemo();
+  C_InstaPopup();       // pop up the console straight away
 }
 
 //
@@ -623,6 +636,16 @@ void D_AddFile (const char *file, wad_source_t source)
       wadfiles[numwadfiles].src = source; // Ty 08/29/98
       numwadfiles++;
     }
+}
+
+//sf: console command to list loaded files
+void D_ListWads()
+{
+  unsigned int i;
+  C_Printf(FC_GRAY "Loaded WADs:\n" FC_RED);
+
+  for(i=0; i<numwadfiles; i++)
+    C_Printf("%s\n",wadfiles[i]);
 }
 
 // killough 10/98: support -dehout filename
@@ -1731,6 +1754,8 @@ void D_DoomMainSetup(void)
 	  singledemo = true;          // quit after one demo
 	}
 
+  startlevel = Z_Strdup(G_GetNameForMap(startepisode, startmap), PU_STATIC, 0);
+
   if (slot && ++slot < myargc)
     {
       slot = atoi(myargv[slot]);        // killough 3/16/98: add slot info
@@ -1740,13 +1765,17 @@ void D_DoomMainSetup(void)
     if (!singledemo) {                  /* killough 12/98 */
       if (autostart || netgame)
 	{
-	  G_InitNewNum(startskill, startepisode, startmap);
+	  G_InitNew(startskill, startlevel);
 	  if (demorecording)
 	    G_BeginRecording();
 	}
       else
 	D_StartTitle();                 // start up intro loop
     }
+
+  // run autoexec script
+  // proff - disabled for now
+  // C_RunScriptFromFile("smmuauto.cfg");
 }
 
 //
@@ -1758,6 +1787,96 @@ void D_DoomMain(void)
   D_DoomMainSetup(); // CPhipps - setup out of main execution stack
 
   D_DoomLoop ();  // never returns
+}
+
+// re init everything after loading a wad
+
+void D_ReInitWadfiles()
+{
+/*
+  R_FreeData();
+  R_Init();
+  P_Init();
+  ST_reloadData();
+  MN_ReloadGraphics();
+  P_ClearThingHash();
+*/
+}
+
+boolean wad_level;  // set true if most recently loaded wad contains a level
+
+void D_NewWadLumps(int handle)
+{
+  int i;
+  char wad_firstlevel[9] = "";
+
+  wad_level = false;
+
+  for(i=0; i<numlumps; i++)
+  {
+    if(lumpinfo[i].wadfile->handle != handle)
+      continue;
+
+    if(!strncmp(lumpinfo[i].name, "THINGS", 8))    // a level
+    {
+	    char *name = lumpinfo[i-1].name; // previous lump
+
+	    wad_level = true;      // contains a level
+
+	    // 'ExMy'
+	    if(isExMy(name) && isExMy(wad_firstlevel))
+	    {
+	      if(name[1] < wad_firstlevel[1] ||       // earlier episode?
+		    // earlier level in the same episode?
+                 (name[1] == wad_firstlevel[1] && name[3] < wad_firstlevel[3]))
+		    strncpy(wad_firstlevel, name, 8);
+	    }
+	    if(isMAPxy(name) && isMAPxy(wad_firstlevel))
+	    {
+	      if(name[3] < wad_firstlevel[3] || // earlier 10 levels
+		    // earlier in the same 10 levels?
+                 (name[3] == wad_firstlevel[3] && name[4] < wad_firstlevel[4]))
+		    strncpy(wad_firstlevel, name, 8);
+	    }
+
+	    // none set yet
+	    // ignore ones called 'start' as these are checked
+	    // elsewhere (m_menu.c)
+	    if(!*wad_firstlevel && strcmp(name, "START") )
+	      strncpy(wad_firstlevel, name, 8);
+	  }
+
+    // new sound
+    if(!strncmp(lumpinfo[i].name, "DSCHGUN",8)) // chaingun sound
+	    S_Chgun();
+    if(!strncmp(lumpinfo[i].name, "DS", 2))
+	  {
+	    S_UpdateSound(i);
+	  }
+
+    // new music
+    if(!strncmp(lumpinfo[i].name, "D_", 2))
+	  {
+	    S_UpdateMusic(i);
+	  }
+  }
+
+  if(*wad_firstlevel) // a new first level?
+    strcpy(firstlevel, wad_firstlevel);
+}
+
+// add a new .wad file
+// returns true if successfully loaded
+
+boolean D_AddNewFile(char *s)
+{
+  c_showprompt = false;
+  //if(W_AddNewFile(c_argv[0])) return false;
+  modifiedgame = true;
+  D_AddFile(c_argv[0], source_pwad);   // add to the list of wads
+  C_SetConsole();
+  D_ReInitWadfiles();
+  return true;
 }
 
 //

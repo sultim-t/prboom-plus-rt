@@ -33,6 +33,7 @@
 #define __D_MAIN__
 
 #include "d_event.h"
+#include "p_chase.h"
 #include "w_wad.h"
 
 #ifdef __GNUG__
@@ -43,6 +44,7 @@
 
 // jff make startskill globally visible
 extern skill_t startskill;
+extern char *startlevel;
 
 extern char basesavegame[];     // killough 2/16/98: savegame path
 
@@ -55,10 +57,16 @@ extern boolean clfastparm; // checkparm of -fast
 extern boolean nosfxparm;
 extern boolean nomusicparm;
 
+extern int use_startmap;
 extern boolean redrawsbar, redrawborder;
 
 // Called by IO functions when input is detected.
 void D_PostEvent(event_t* ev);
+
+extern camera_t *camera;
+
+extern boolean wad_level;
+extern char firstlevel[9];       // sf: first level of new wads
 
 // Demo stuff
 extern boolean advancedemo;
@@ -77,6 +85,10 @@ void D_AddFile (const char *file, wad_source_t source);
 char *D_FindIWADFile(void); // Publicized for vidd support - POPE
 void D_AutoLoad(void);
 void IdentifyVersion(void);
+void D_ListWads();
+void D_ReInitWadfiles();
+void D_NewWadLumps(int handle);
+boolean D_AddNewFile(char *s);
 
 /* cph - MBF-like wad/deh/bex autoload code */
 #define MAXLOADFILES 2
