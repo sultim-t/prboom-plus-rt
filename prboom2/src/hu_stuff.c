@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.5 2000/05/11 19:57:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.5 2000/05/11 19:57:16 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -83,7 +83,7 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_GAPY 8
 #define HU_HUDHEIGHT (6*HU_GAPY)
 #define HU_HUDX 2
-#define HU_HUDY (SCREENHEIGHT-HU_HUDHEIGHT-1)
+#define HU_HUDY (200-HU_HUDHEIGHT-1)
 #define HU_MONSECX (HU_HUDX)
 #define HU_MONSECY (HU_HUDY+0*HU_GAPY)
 #define HU_KEYSX   (HU_HUDX) 
@@ -101,12 +101,12 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 
 //jff 3/4/98 distributed HUD positions
 #define HU_HUDX_LL 2
-#define HU_HUDY_LL (SCREENHEIGHT-2*HU_GAPY-1)
+#define HU_HUDY_LL (200-2*HU_GAPY-1)
 // proff/nicolas 09/20/98: Changed for high-res
-#define HU_HUDX_LR (SCREENWIDTH-120)
-#define HU_HUDY_LR (SCREENHEIGHT-2*HU_GAPY-1)
+#define HU_HUDX_LR (320-120)
+#define HU_HUDY_LR (200-2*HU_GAPY-1)
 // proff/nicolas 09/20/98: Changed for high-res
-#define HU_HUDX_UR (SCREENWIDTH-96)
+#define HU_HUDX_UR (320-96)
 #define HU_HUDY_UR 2
 #define HU_MONSECX_D (HU_HUDX_LL)
 #define HU_MONSECY_D (HU_HUDY_LL+0*HU_GAPY)
