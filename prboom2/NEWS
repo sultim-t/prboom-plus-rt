@@ -1,7 +1,14 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
-* Changes from v2.1.0 to v2.1.1
+Changes from v2.1.1 to v2.1.2
+- fix problem with sound stereo
+- fix problem with new network games
+- supports demo files with base name >8 characters
+- enable IDDT and other display cheats in demo playback
+- various fixes for running on Solaris/sparc
+
+Changes from v2.1.0 to v2.1.1
 - config file is now prboom.cfg for the non-GL version, glboom.cfg
   for the GL version. If you have used PrBoom (or LxDoom) before, 
   rename your old config file (boom.cfg) appropriately.
