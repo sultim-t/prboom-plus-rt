@@ -146,7 +146,7 @@ static void createPatch(int id) {
   patch->isNotTileable = getPatchIsNotTileable(oldPatch);
 
   // work out how much memory we need to allocate for this patch's data
-  pixelDataSize = patch->width * patch->height;
+  pixelDataSize = (patch->width * patch->height + 4) & ~3;
   columnsDataSize = sizeof(TPatchColumn) * patch->width;
 
   // count the number of posts in each column
@@ -172,7 +172,7 @@ static void createPatch(int id) {
 
   // set out pixel, column, and post pointers into our data array
   patch->pixels = patch->data;
-  patch->columns = (TPatchColumn*)((unsigned char*)patch->pixels + (patch->width*patch->height));
+  patch->columns = (TPatchColumn*)((unsigned char*)patch->pixels + pixelDataSize);
   patch->posts = (TPatchPost*)((unsigned char*)patch->columns + columnsDataSize);
 
   // sanity check that we've got all the memory allocated we need
