@@ -102,6 +102,12 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
           if (player)
             player->viewz = thing->z + player->viewheight;
 
+                // sf: reset the chasecam at its new position.
+                //     this needs to be done before startsound so we hear
+                //     the teleport sound when using the chasecam
+          if(thing->player==players+displayplayer)
+                P_ResetChasecam();
+
           // spawn teleport fog and emit sound at source
           S_StartSound(P_SpawnMobj(oldx, oldy, oldz, MT_TFOG), sfx_telept);
 
@@ -199,6 +205,9 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
 
               // Reset the delta to have the same dynamics as before
               player->deltaviewheight = deltaviewheight;
+
+              if(player == players+displayplayer)
+                  P_ResetChasecam();
             }
           return 1;
         }
@@ -328,6 +337,9 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
 
             // Reset the delta to have the same dynamics as before
             player->deltaviewheight = deltaviewheight;
+
+            if(player == players+displayplayer)
+                P_ResetChasecam();
           }
 
         return 1;
