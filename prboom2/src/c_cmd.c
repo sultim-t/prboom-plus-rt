@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_cmd.c,v 1.3 2001/09/02 10:27:11 proff_fs Exp $
+ * $Id: c_cmd.c,v 1.4 2002/01/07 15:56:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,6 +43,7 @@
 
 #include "m_random.h"
 
+//extern const char *cmdoptions;
                 /************* aliases ***************/
 CONSOLE_COMMAND(alias, 0)
 {
@@ -115,8 +116,10 @@ CONSOLE_COMMAND(cmdlist, 0)
 
 // console height
 
-VARIABLE_INT(c_height,  NULL,                   20, 200, NULL);
-CONSOLE_VARIABLE(c_height, c_height, 0) {}
+//VARIABLE_INT(c_height,  NULL,                   20, 200, NULL);
+//CONSOLE_VARIABLE(c_height, c_height, 0) {}
+
+CONSOLE_INT(c_height, c_height, NULL, 20, 200, NULL, 0) {}
 
 // console speed
 
@@ -153,18 +156,18 @@ CONSOLE_COMMAND(flood, 0)
 // command-adding functions in other modules
 
 //extern void Cheat_AddCommands();        // m_cheat.c
-//extern void     G_AddCommands();        // g_cmd.c
+extern void     G_AddCommands();        // g_cmd.c
 //extern void    HU_AddCommands();        // hu_stuff.c
 //extern void     I_AddCommands();        // i_system.c
 //extern void   net_AddCommands();        // d_net.c
 //extern void     P_AddCommands();        // p_cmd.c
-//extern void     R_AddCommands();        // r_main.c
-//extern void     S_AddCommands();        // s_sound.c
+extern void     R_AddCommands();        // r_main.c
+extern void     S_AddCommands();        // s_sound.c
 //extern void    ST_AddCommands();        // st_stuff.c
 //extern void     T_AddCommands();        // t_script.c
 //extern void     V_AddCommands();        // v_misc.c
-//extern void    MN_AddCommands();        // mn_menu.c
-//extern void    AM_AddCommands();        // am_color.c
+extern void    MN_AddCommands();        // mn_menu.c
+extern void    AM_AddCommands();        // am_color.c
 
 //extern void    PE_AddCommands();        // p_enemy.c -- haleyjd
 extern void    G_Bind_AddCommands();    // g_bind.c  -- haleyjd
@@ -183,18 +186,18 @@ void C_AddCommands()
   
   // add commands in other modules
 //  Cheat_AddCommands();
-//  G_AddCommands();
+  G_AddCommands();
 //  HU_AddCommands();
 //  I_AddCommands();
 //  net_AddCommands();
 //  P_AddCommands();
-//  R_AddCommands();
-//  S_AddCommands();
+  R_AddCommands();
+  S_AddCommands();
 //  ST_AddCommands();
 //  T_AddCommands();
 //  V_AddCommands();
-//  MN_AddCommands();
-//  AM_AddCommands();
+  MN_AddCommands();
+  AM_AddCommands();
 //  PE_AddCommands();  // haleyjd
   G_Bind_AddCommands();
   P_Chase_AddCommands();

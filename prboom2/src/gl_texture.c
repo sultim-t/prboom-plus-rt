@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.16 2001/06/17 17:40:12 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.17 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -46,7 +46,7 @@ boolean use_mipmapping=false;
 #endif
 
 int gld_max_texturesize=0;
-char *gl_tex_format_string;
+char *gl_tex_format_string = "GL_RGB5_A1";
 //int gl_tex_format=GL_RGBA8;
 int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;

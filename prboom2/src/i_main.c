@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.15 2001/11/18 20:20:10 cph Exp $
+ * $Id: i_main.c,v 1.16 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.15 2001/11/18 20:20:10 cph Exp $";
+rcsid[] = "$Id: i_main.c,v 1.16 2002/01/07 15:56:19 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -52,10 +52,12 @@ rcsid[] = "$Id: i_main.c,v 1.15 2001/11/18 20:20:10 cph Exp $";
 #include "m_random.h"
 #include "doomstat.h"
 #include "g_game.h"
-#include "m_misc.h"
+#include "g_bind.h"
+//#include "m_misc.h"
 #include "i_sound.h"
 #include "i_main.h"
 #include "lprintf.h"
+#include "c_runcmd.h"
 #ifdef USE_SDL
 #include "SDL.h"
 #endif
@@ -72,6 +74,8 @@ rcsid[] = "$Id: i_main.c,v 1.15 2001/11/18 20:20:10 cph Exp $";
  */
 
 int realtic_clock_rate = 100;
+CONSOLE_INT(realtic_clock_rate, realtic_clock_rate, NULL, 1, 10000, NULL, 0) {}
+
 static int_64_t I_GetTime_Scale = 1<<24;
 
 static int I_GetTime_Scaled(void)
@@ -184,7 +188,7 @@ enum {
   endoom_droplastline = 4
 };
 
-unsigned int endoom_mode;
+unsigned int endoom_mode = 5;
 
 static void PrintVer(void)
 {
@@ -326,6 +330,8 @@ void I_SafeExit(int rc)
     }
 }
 
+extern void W_DoneCache(void);
+
 void I_Quit (void)
 {
   if (!has_exited)
@@ -335,7 +341,9 @@ void I_Quit (void)
     I_EndDoom();
     if (demorecording)
       G_CheckDemoStatus();
-    M_SaveDefaults ();
+    //M_SaveDefaults ();
+    G_SaveDefaults ();
+    W_DoneCache();
   }
 }
 

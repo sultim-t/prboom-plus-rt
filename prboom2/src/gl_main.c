@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.42 2001/07/16 15:05:16 proff_fs Exp $
+ * $Id: gl_main.c,v 1.43 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -42,9 +42,9 @@ boolean use_fog=false;
 
 int gl_nearclip=5;
 int gl_farclip=6400;
-char *gl_tex_filter_string;
-int gl_tex_filter;
-int gl_mipmap_filter;
+char *gl_tex_filter_string = "GL_LINEAR";
+int gl_tex_filter = GL_LINEAR;
+int gl_mipmap_filter = GL_LINEAR;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 

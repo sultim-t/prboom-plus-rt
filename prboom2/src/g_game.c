@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.48 2001/11/25 15:03:11 cph Exp $
+ * $Id: g_game.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.48 2001/11/25 15:03:11 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -60,7 +60,7 @@ rcsid[] = "$Id: g_game.c,v 1.48 2001/11/25 15:03:11 cph Exp $";
 #include "f_finale.h"
 #include "m_argv.h"
 #include "m_misc.h"
-#include "m_menu.h"
+#include "mn_engin.h"
 #include "m_random.h"
 #include "p_setup.h"
 #include "p_saveg.h"
@@ -135,76 +135,79 @@ static byte     *savebuffer;          // CPhipps - static
 int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 
+int             mouseSensitivity_horiz = 10; // has default   //  killough
+int             mouseSensitivity_vert = 10;  // has default
+
 //
 // controls (have defaults)
 //
 
-int     key_right;
-int     key_left;
-int     key_up;
-int     key_down;
-int     key_menu_right;                                      // phares 3/7/98
-int     key_menu_left;                                       //     |
-int     key_menu_up;                                         //     V
-int     key_menu_down;
-int     key_menu_backspace;                                  //     ^
-int     key_menu_escape;                                     //     |
-int     key_menu_enter;                                      // phares 3/7/98
-int     key_strafeleft;
-int     key_straferight;
-int     key_fire;
-int     key_use;
-int     key_strafe;
-int     key_speed;
-int     key_escape = KEYD_ESCAPE;                           // phares 4/13/98
-int     key_savegame;                                               // phares
-int     key_loadgame;                                               //    |
-int     key_autorun;                                                //    V
-int     key_reverse;
-int     key_zoomin;
-int     key_zoomout;
-int     key_chat;
-int     key_backspace;
-int     key_enter;
-int     key_map_right;
-int     key_map_left;
-int     key_map_up;
-int     key_map_down;
-int     key_map_zoomin;
-int     key_map_zoomout;
-int     key_map;
-int     key_map_gobig;
-int     key_map_follow;
-int     key_map_mark;
-int     key_map_clear;
-int     key_map_grid;
-int     key_map_overlay; // cph - map overlay
-int     key_map_rotate;  // cph - map rotation
-int     key_help = KEYD_F1;                                 // phares 4/13/98
-int     key_soundvolume;
-int     key_hud;
-int     key_quicksave;
-int     key_endgame;
-int     key_messages;
-int     key_quickload;
-int     key_quit;
-int     key_gamma;
-int     key_spy;
-int     key_pause;
+int     key_right = KEYD_RIGHTARROW;
+int     key_left = KEYD_LEFTARROW;
+int     key_up = KEYD_UPARROW;
+int     key_down = KEYD_DOWNARROW;
+int     key_menu_right = KEYD_RIGHTARROW;
+int     key_menu_left = KEYD_LEFTARROW;
+int     key_menu_up = KEYD_UPARROW;
+int     key_menu_down = KEYD_DOWNARROW;
+int     key_menu_backspace = KEYD_BACKSPACE;
+int     key_menu_escape = KEYD_ESCAPE;
+int     key_menu_enter = KEYD_ENTER;
+int     key_strafeleft = ',';
+int     key_straferight = '.';
+int     key_fire = KEYD_RCTRL;
+int     key_use = ' ';
+int     key_strafe = KEYD_RALT;
+int     key_speed = KEYD_RSHIFT;
+int     key_escape = KEYD_ESCAPE;
+int     key_savegame = KEYD_F2;
+int     key_loadgame = KEYD_F3;
+int     key_autorun = KEYD_CAPSLOCK;
+int     key_reverse = '/';
+int     key_zoomin = '=';
+int     key_zoomout = '-';
+int     key_chat = 't';
+int     key_backspace = KEYD_BACKSPACE;
+int     key_enter = KEYD_ENTER;
+int     key_map_right = KEYD_RIGHTARROW;
+int     key_map_left = KEYD_LEFTARROW;
+int     key_map_up = KEYD_UPARROW;
+int     key_map_down = KEYD_DOWNARROW;
+int     key_map_zoomin = '=';
+int     key_map_zoomout = '-';
+int     key_map = KEYD_TAB;
+int     key_map_gobig = '0';
+int     key_map_follow = 'f';
+int     key_map_mark = 'm';
+int     key_map_clear = 'c';
+int     key_map_grid = 'g';
+int     key_map_overlay = 'o'; // cph - map overlay
+int     key_map_rotate = 'r';  // cph - map rotation
+int     key_help = KEYD_F1;
+int     key_soundvolume = KEYD_F4;
+int     key_hud = KEYD_F5;
+int     key_quicksave = KEYD_F6;
+int     key_endgame = KEYD_F7;
+int     key_messages = KEYD_F8;
+int     key_quickload = KEYD_F9;
+int     key_quit = KEYD_F10;
+int     key_gamma = KEYD_F11;
+int     key_spy = KEYD_F12;
+int     key_pause = KEYD_PAUSE;
 int     key_setup;
-int     destination_keys[MAXPLAYERS];
-int     key_weapontoggle;
-int     key_weapon1;
-int     key_weapon2;
-int     key_weapon3;
-int     key_weapon4;
-int     key_weapon5;
-int     key_weapon6;
-int     key_weapon7;                                                //    ^
-int     key_weapon8;                                                //    |
-int     key_weapon9;                                                // phares
+int     destination_keys[MAXPLAYERS] = {'g','i','b','r'};
+int     key_weapontoggle = '0';
+int     key_weapon1 = '1';
+int     key_weapon2 = '2';
+int     key_weapon3 = '3';
+int     key_weapon4 = '4';
+int     key_weapon5 = '5';
+int     key_weapon6 = '6';
+int     key_weapon7 = '7';
+int     key_weapon8 = '8';
+int     key_weapon9 = '9';
 
-int     key_screenshot;             // killough 2/22/98: screenshot key
+int     key_screenshot = '*';             // killough 2/22/98: screenshot key
 
 #define MAXPLMOVE   (forwardmove[1])
 #define TURBOTHRESHOLD  0x32
@@ -240,10 +243,11 @@ char         savedescription[SAVEDESCLEN];  // Description to save in savegame i
 
 //jff 3/24/98 declare startskill external, define defaultskill here
 extern skill_t startskill;      //note 0-based
-int defaultskill;               //note 1-based
+int defaultskill = 3;           //note 1-based
 
 // killough 2/8/98: make corpse queue variable in size
-int    bodyqueslot, bodyquesize;        // killough 2/8/98
+int    bodyqueslot;
+int    bodyquesize = 32;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
 void   *statcopy;       // for statistics driver
@@ -626,7 +630,7 @@ boolean G_Responder (event_t* ev)
 	((ev->type == ev_keydown) ||
 	 (ev->type == ev_mouse && ev->data1) ||
 	 (ev->type == ev_joystick && ev->data1)) ?
-	M_StartControlPanel(), true : false;
+	MN_StartControlPanel(), true : false;
     }
 
   if (gamestate == GS_FINALE && F_Responder(ev))
@@ -1386,7 +1390,7 @@ void G_LoadGame(int slot, boolean command)
 static void G_LoadGameErr(const char *msg)
 {
   free(savebuffer);                  // Free the savegame buffer
-  M_ForcedLoadGame(msg);             // Print message asking for 'Y' to force
+  MN_ForcedLoadGame(msg);             // Print message asking for 'Y' to force
   if (command_loadgame)              // If this was a command-line -loadgame
     {
       D_StartTitle();                // Start the title screen
@@ -1433,6 +1437,8 @@ void G_DoLoadGame(void)
   gameaction = ga_nothing;
 
   length = M_ReadFile(name, &savebuffer);
+  if (length==0)
+    I_Error("Couldn't read file %s: %s", name, "(Unknown Error)");
   save_p = savebuffer + SAVESTRINGSIZE;
 
   // CPhipps - read the description field, compare with supported ones

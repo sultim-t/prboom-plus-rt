@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.13 2001/11/19 21:59:25 cph Exp $
+ * $Id: d_deh.c,v 1.14 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.13 2001/11/19 21:59:25 cph Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.14 2002/01/07 15:56:19 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -134,6 +134,7 @@ const char *s_D_CDROM     = D_CDROM;
 const char *s_PRESSKEY    = PRESSKEY;
 const char *s_PRESSYN     = PRESSYN;
 const char *s_QUITMSG     = QUITMSG;
+const char *s_LOADNET     = LOADNET;
 const char *s_QSAVESPOT   = QSAVESPOT; // PRESSKEY;
 const char *s_SAVEDEAD    = SAVEDEAD;  // PRESSKEY; // remove duplicate y/n
 const char *s_QSPROMPT    = QSPROMPT;  // PRESSYN;
@@ -476,6 +477,7 @@ static const deh_strs deh_strlookup[] = {
   {&s_PRESSKEY,"PRESSKEY"},
   {&s_PRESSYN,"PRESSYN"},
   {&s_QUITMSG,"QUITMSG"},
+  {&s_LOADNET,"LOADNET"},
   {&s_QSAVESPOT,"QSAVESPOT"},
   {&s_SAVEDEAD,"SAVEDEAD"},
   /* cph - disabled to prevent format string attacks in WAD files

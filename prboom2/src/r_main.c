@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.19 2001/11/18 12:27:28 cph Exp $
+ * $Id: r_main.c,v 1.20 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.19 2001/11/18 12:27:28 cph Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.20 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -50,6 +50,7 @@ static const char rcsid[] = "$Id: r_main.c,v 1.19 2001/11/18 12:27:28 cph Exp $"
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+#include "c_runcmd.h"
 
 
 void R_LoadTrigTables(void);
@@ -589,3 +590,31 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 #endif
   if (rendering_stats) R_ShowStats();
 }
+
+void R_ResetTrans()
+{
+  if (general_translucency)
+    R_InitTranMap(0);
+}
+
+//
+//  Console Commands
+//
+
+extern int tran_filter_pct;
+
+CONSOLE_BOOLEAN(r_trans, general_translucency, NULL, onoff, 0)
+{
+  R_ResetTrans();
+}
+CONSOLE_INT(r_tranpct, tran_filter_pct, NULL, 0, 100, NULL, 0)
+{
+  R_ResetTrans();
+}
+
+void R_AddCommands()
+{
+  C_AddCommand(r_trans);
+  C_AddCommand(r_tranpct);
+}
+

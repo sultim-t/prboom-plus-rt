@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.17 2001/08/14 17:12:58 cph Exp $
+ * $Id: p_setup.c,v 1.18 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.17 2001/08/14 17:12:58 cph Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.18 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include <math.h>
 
@@ -90,6 +90,7 @@ side_t   *sides;
 int	    firstglvertex = 0;
 boolean usingGLNodes  = false;
 boolean forceOldBsp   = false;
+boolean precache      = true; /* if true, load all graphics at start */
 
 // figgi 08/21/00 -- glSegs 
 typedef struct

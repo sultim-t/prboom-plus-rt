@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.6 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.7 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.6 2000/09/16 20:20:36 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.7 2002/01/07 15:56:19 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -47,11 +47,11 @@ rcsid[] = "$Id: hu_stuff.c,v 1.6 2000/09/16 20:20:36 proff_fs Exp $";
 
 // global heads up display controls
 
-int hud_active;       //jff 2/17/98 controls heads-up display mode 
-int hud_displayed;    //jff 2/23/98 turns heads-up display on/off
-int hud_nosecrets;    //jff 2/18/98 allows secrets line to be disabled in HUD
-int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
-int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
+int hud_active=2;       //jff 2/17/98 controls heads-up display mode 
+int hud_displayed=0;    //jff 2/23/98 turns heads-up display on/off
+int hud_nosecrets=0;    //jff 2/18/98 allows secrets line to be disabled in HUD
+int hud_distributed=0;  //jff 3/4/98 display HUD in different places on screen
+int hud_graph_keys=1;   //jff 3/7/98 display HUD keys as graphics
 
 //
 // Locally used constants, shortcuts.
@@ -201,15 +201,15 @@ extern boolean    automapactive;
 static boolean    headsupactive = false;
 
 //jff 2/16/98 hud supported automap colors added
-int hudcolor_titl;  // color range of automap level title
-int hudcolor_xyco;  // color range of new coords on automap
+int hudcolor_titl = 5;  // color range of automap level title
+int hudcolor_xyco = 3;  // color range of new coords on automap
 //jff 2/16/98 hud text colors, controls added
-int hudcolor_mesg;  // color range of scrolling messages
-int hudcolor_chat;  // color range of chat lines
-int hud_msg_lines;  // number of message lines in window
+int hudcolor_mesg = 6;  // color range of scrolling messages
+int hudcolor_chat = 5;  // color range of chat lines
+int hud_msg_lines = 1;  // number of message lines in window
 //jff 2/26/98 hud text colors, controls added
-int hudcolor_list;  // list of messages color
-int hud_list_bgon;  // enable for solid window background for message list
+int hudcolor_list = 5;  // list of messages color
+int hud_list_bgon = 0;  // enable for solid window background for message list
 
 //jff 2/16/98 initialization strings for ammo, health, armor widgets
 static char hud_coordstrx[32];
@@ -232,6 +232,8 @@ extern int health_green;
 extern int armor_red;
 extern int armor_yellow;
 extern int armor_green;
+
+int showMessages;    // Show messages has default, 0 = off, 1 = on
 
 //
 // Builtin map names.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.21 2001/07/22 14:57:43 cph Exp $
+ * $Id: v_video.c,v 1.22 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.21 2001/07/22 14:57:43 cph Exp $";
+rcsid[] = "$Id: v_video.c,v 1.22 2002/01/07 15:56:20 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -53,7 +53,7 @@ byte *screens[6];
 /* jff 4/24/98 initialize this at runtime */
 const byte *colrngs[CR_LIMIT];
 
-int usegamma;
+int usegamma = 0;
 
 /*
  * V_InitColorTranslation
@@ -414,9 +414,8 @@ void V_DrawNumPatch(int x, int y, int scrn, int lump,
  *  correction here, which reduces the chance of other code forgetting 
  *  this.
  */
-int V_NamePatchWidth(const char* name)
+int V_NumPatchWidth(int lump)
 {
-  int lump = W_GetNumForName(name);
   int w;
 
   w = SHORT(((const patch_t*)W_CacheLumpNum(lump))->width);
@@ -424,9 +423,8 @@ int V_NamePatchWidth(const char* name)
   return w;
 }
 
-int V_NamePatchHeight(const char* name)
+int V_NumPatchHeight(int lump)
 {
-  int lump = W_GetNumForName(name);
   int w;
 
   w = SHORT(((const patch_t*)W_CacheLumpNum(lump))->height);
@@ -469,7 +467,7 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 
 extern patchnum_t hu_font[HU_FONTSIZE];
 
-void V_WriteText(unsigned char *s, int x, int y)
+void V_WriteText(unsigned char *s, int x, int y, int gap)
 {
   int   w, h;
   unsigned char* ch;
@@ -523,22 +521,22 @@ void V_WriteText(unsigned char *s, int x, int y)
     if(cy < 0 || cy+h > 200)
 	    break;
 
-    V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, colour, VPT_STRETCH);
+    V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, colour, VPT_STRETCH | VPT_TRANS);
     //V_DrawPatchTranslated(cx, cy, 0, patch, colour, 0);
 
-    cx+=w;
+    cx+=w+gap;
   }
 }
 
 // write text in a particular colour
 
-void V_WriteTextColoured(unsigned char *s, int colour, int x, int y)
+void V_WriteTextColoured(unsigned char *s, int colour, int x, int y, int gap)
 {
   char *tempstr = malloc(strlen(s)+3);
 
   sprintf(tempstr, "%c%s", FC_BASEVALUE+colour, s);
 
-  V_WriteText(tempstr, x, y);
+  V_WriteText(tempstr, x, y, gap);
 
   free(tempstr);
 }
@@ -560,7 +558,7 @@ int V_StringHeight(unsigned char *s)
   return height;
 }
 
-int V_StringWidth(unsigned char *s)
+int V_StringWidth(unsigned char *s, int gap)
 {
   int length = 0; // current line width
   int longest_width = 0; // line with longest width so far
@@ -578,7 +576,7 @@ int V_StringWidth(unsigned char *s)
 	    continue;
 	  }
     c = toupper(c) - HU_FONTSTART;
-    length += (c >= HU_FONTSIZE) ? 4 : SHORT(hu_font[c].width);
+    length += (c >= HU_FONTSIZE) ? 4 : (SHORT(hu_font[c].width)+gap);
   }
 
   if(length > longest_width) longest_width = length; // check last line

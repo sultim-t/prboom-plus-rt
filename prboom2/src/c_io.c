@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.6 2001/08/05 22:12:00 cph Exp $
+ * $Id: c_io.c,v 1.7 2002/01/07 15:56:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.6 2001/08/05 22:12:00 cph Exp $";
+rcsid[] = "$Id: c_io.c,v 1.7 2002/01/07 15:56:18 proff_fs Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -147,21 +147,21 @@ static void C_InitBackdrop()
 static void C_UpdateInputPoint()
 {
   for(input_point=inputtext;
-      V_StringWidth(input_point) > 320-20; input_point++);
+      V_StringWidth(input_point, 0) > 320-20; input_point++);
 }
 
 // initialise the console
 
 void C_Init()
 {
-  C_InitBackdrop();
-  
   // sf: stupid american spellings =)
   C_NewAlias("color", "colour %opt");
   C_NewAlias("centermsg", "centremsg %opt");
   
   C_AddCommands();
   C_UpdateInputPoint();
+
+  G_InitKeyBindings();
 }
 
 // called every tic
@@ -174,10 +174,8 @@ void C_Ticker()
   {
     // specific to half-screen version only
       
-/*
     if(current_height != current_target)
 	    redrawsbar = true;
-*/      
     // move the console toward its target
     if(D_abs(current_height-current_target)>=c_speed)
 	    current_height += current_target<current_height ? -c_speed : c_speed;
@@ -441,7 +439,7 @@ void C_Drawer()
       if(y < 0) break;        // past top of screen?
       
       // draw this line
-      V_WriteText(messages[count], 0, y);
+      V_WriteText(messages[count], 0, y, 0);
     }
 
   //////////////////////////////////
@@ -463,7 +461,7 @@ void C_Drawer()
 	    sprintf(tempstr, "%s%s_", a_prompt, input_point);
     }
       
-    V_WriteText(tempstr, 0, current_height-8);
+    V_WriteText(tempstr, 0, current_height-8, 0);
   }
 }
 
@@ -510,7 +508,7 @@ static void C_AddChar(unsigned char c)
 
   if( c=='\t' || (c>31 && c<127) || c>=128)  // >=128 for colours
     {
-      if(V_StringWidth(messages[message_last]) > SCREENWIDTH-9)
+      if(V_StringWidth(messages[message_last], 0) > SCREENWIDTH-9)
 	{
 	  // might possibly over-run, go onto next line
 	  C_ScrollUp();

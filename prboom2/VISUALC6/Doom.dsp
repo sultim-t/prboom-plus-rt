@@ -76,7 +76,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "VisualC6" /I "../src" /D "I386_ASM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "VisualC6" /I "../src" /D "I386_ASM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -477,6 +477,10 @@ SOURCE=..\src\g_bind.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\g_cmd.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\g_game.c
 # End Source File
 # Begin Source File
@@ -597,14 +601,6 @@ SOURCE=..\src\m_fixed.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\m_menu.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\m_menu.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\m_misc.c
 # End Source File
 # Begin Source File
@@ -630,6 +626,30 @@ SOURCE=..\src\Mmus2mid.c
 # Begin Source File
 
 SOURCE=..\src\Mmus2mid.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mn_engin.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mn_engin.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mn_menus.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mn_menus.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mn_misc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\mn_misc.h
 # End Source File
 # Begin Source File
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.5 2001/07/22 14:57:43 cph Exp $
+ * $Id: g_bind.c,v 1.6 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.5 2001/07/22 14:57:43 cph Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.6 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -51,8 +51,8 @@ rcsid[] = "$Id: g_bind.c,v 1.5 2001/07/22 14:57:43 cph Exp $";
 #include "d_deh.h"
 #include "g_game.h"
 #include "m_argv.h"
-//#include "mn_engin.h"
-//#include "mn_misc.h"
+#include "mn_engin.h"
+#include "mn_misc.h"
 #include "m_misc.h"
 #include "w_wad.h"
 #include "lprintf.h"
@@ -490,60 +490,170 @@ boolean G_KeyResponder(event_t *ev)
   return true;
 }
 
-void G_SetKeyBindings()
+//===========================================================================
+//
+// Binding selection widget
+//
+// For menu: when we select to change a key binding the widget is used
+// as the drawer and responder
+//
+//===========================================================================
+
+static char *binding_action;       // name of action we are editing
+
+//
+// G_BindDrawer
+//
+// Draw the prompt box
+//
+void G_BindDrawer()
 {
+  char temp[100];
+  int wid, height;
+  
+  // draw the menu in the background
+
+  MN_DrawMenu(current_menu);
+
+  // create message
+  
+  strcpy(temp, "\n -= input new key =- \n");
+  
+  wid = V_StringWidth(temp, 0);
+  height = V_StringHeight(temp);
+
+  // draw box
+  
 /*
-  int i;
-
-  for(i=0; i<NUM_KEYS; i++)
-  {
-    keybindings[i].binding = NULL;
-  }
+  V_DrawBox((SCREENWIDTH - wid) / 2 - 4,
+	    (SCREENHEIGHT - height) / 2 - 4,
+	    wid + 8,
+	    height + 8);
 */
-  G_BindKeyToAction(keybindings[key_up].name, "forward");
-  G_BindKeyToAction(keybindings[key_down].name, "backward");
-  G_BindKeyToAction(keybindings[key_left].name, "left");
-  G_BindKeyToAction(keybindings[key_right].name, "right");
-  G_BindKeyToAction(keybindings[key_strafeleft].name, "moveleft");
-  G_BindKeyToAction(keybindings[key_straferight].name, "moveright");
-  G_BindKeyToAction(keybindings[key_use].name, "use");
-  G_BindKeyToAction(keybindings[key_fire].name, "attack");
-  G_BindKeyToAction(keybindings[key_strafe].name, "strafe");
-  G_BindKeyToAction(keybindings[key_speed].name, "speed");
-  G_BindKeyToAction(keybindings[key_reverse].name, "flip");
 
-  G_BindKeyToAction(keybindings[key_weapon1].name, "weapon1");
-  G_BindKeyToAction(keybindings[key_weapon2].name, "weapon2");
-  G_BindKeyToAction(keybindings[key_weapon3].name, "weapon3");
-  G_BindKeyToAction(keybindings[key_weapon4].name, "weapon4");
-  G_BindKeyToAction(keybindings[key_weapon5].name, "weapon5");
-  G_BindKeyToAction(keybindings[key_weapon6].name, "weapon6");
-  G_BindKeyToAction(keybindings[key_weapon7].name, "weapon7");
-  G_BindKeyToAction(keybindings[key_weapon8].name, "weapon8");
-  G_BindKeyToAction(keybindings[key_weapon9].name, "weapon9");
-  G_BindKeyToAction(keybindings[key_weapontoggle].name, "toggleweapon");
+  // write text in box
+
+  V_WriteText(temp,
+	      (320 - wid) / 2,
+	      (200 - height) / 2, 0);
 }
 
-void G_LoadDefaults()
+//
+// G_BindResponder
+//
+// Responder for widget
+//
+boolean G_BindResponder(event_t *ev)
 {
-  G_InitKeyBindings();
-  G_SetKeyBindings();
+  keyaction_t *action;
+  int i;
+  int bound;
+  
+  if(ev->type != ev_keydown)
+    return false;
+
+  if(ev->data1 == KEYD_ESCAPE)    // cancel
+    {
+      current_menuwidget = NULL;
+      return true;
+    }
+
+  // got a key - close box
+  current_menuwidget = NULL;
+  
+  action = G_KeyActionForName(binding_action);
+  if(!action)
+    {
+      C_Printf("unknown binding '%s'\n", binding_action);
+      return true;
+    }
+
+  // find how many keys bound
+
+  bound = 0;
+  for(i=0; i<NUM_KEYS; i++)
+    bound += (keybindings[i].binding == action);
+
+  // if already 2 or more then clear them
+  
+  if(bound >= 2)
+    for(i=0; i<NUM_KEYS; i++)
+      if(keybindings[i].binding == action)
+	keybindings[i].binding = NULL;
+
+  // bind new key to action
+
+  keybindings[ev->data1].binding = action;
+
+  return true;
 }
 
+menuwidget_t binding_widget = {G_BindDrawer, G_BindResponder};
+
+//
+// G_EditBinding
+//
+// Main Function
+//
+void G_EditBinding(char *action)
+{
+  current_menuwidget = &binding_widget;
+  binding_action = action;
+}
+
+//===========================================================================
+//
+// Load/Save defaults
+//
+//===========================================================================
+
+// default script:
+
+static char *cfg_file = NULL; 
+
+void G_LoadDefaults(const char *file)
+{
+  byte *cfg_data;
+
+  cfg_file = strdup(file);
+
+  if(M_ReadFile(cfg_file, &cfg_data) <= 0)
+  {
+      C_Printf("cfg not found.\n");
+      //C_Printf("cfg not found. using default\n");
+      //cfg_data = W_CacheLumpName("DEFAULT", PU_STATIC);
+  }
+
+  C_RunScript(cfg_data);
+  
+  //  Z_Free(cfg_data);
+}
 
 void G_SaveDefaults()
 {
-/*
   FILE *file;
+  command_t *cmd;
   int i;
 
   if(!cfg_file)         // check defaults have been loaded
      return;
 
-  if(!(file = fopen(cfg_file, "w")))
+  file = fopen(cfg_file, "w");
+
+  // write console variables
+  
+  for(i=0; i<CMDCHAINS; i++)
   {
-     C_Printf("Couldn't open keys.csc for write access.\n");
-     return;
+    for(cmd = cmdroots[i]; cmd; cmd = cmd->next)
+	  {
+	    if(cmd->type != ct_variable)    // only write variables
+	      continue;
+	    if(cmd->flags & cf_nosave)      // do not save if cf_nosave set
+	      continue;
+	    
+	    fprintf(file, "%s \"%s\"\n", cmd->name,
+		    C_VariableValue(cmd->variable));
+	  }
   }
 
   // write key bindings
@@ -558,8 +668,8 @@ void G_SaveDefaults()
 	}
     }
 
+  
   fclose(file);
-*/
 }
 
 //===========================================================================

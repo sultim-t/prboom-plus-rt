@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.14 2001/07/21 16:36:35 cph Exp $
+ * $Id: v_video.h,v 1.15 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -131,8 +131,10 @@ void V_DrawNumPatch(int x, int y, int scrn, int lump,
  * Doesn't really belong here, but is often used in conjunction with
  * this code.
  */
-int V_NamePatchWidth(const char* name);
-int V_NamePatchHeight(const char* name);
+int V_NumPatchWidth(int lump);
+int V_NumPatchHeight(int lump);
+#define V_NamePatchWidth(n) V_NumPatchWidth(W_GetNumForName(n))
+#define V_NamePatchHeight(n) V_NumPatchHeight(W_GetNumForName(n))
 
 /* cphipps 10/99: function to tile a flat over the screen */
 #ifdef GL_DOOM
@@ -169,10 +171,9 @@ void V_SetPalette(int pal);
 #define FC_YELLOW       "\x89"
 #define FC_BLUE2        "\x8a"
 
-void V_WriteText(unsigned char *s, int x, int y);
-void V_WriteTextColoured(unsigned char *s, int colour, int x, int y);
-void V_LoadFont();
-int V_StringWidth(unsigned char *s);
+void V_WriteText(unsigned char *s, int x, int y, int gap);
+void V_WriteTextColoured(unsigned char *s, int colour, int x, int y, int gap);
+int V_StringWidth(unsigned char *s, int gap);
 int V_StringHeight(unsigned char *s);
 
 #ifdef GL_DOOM

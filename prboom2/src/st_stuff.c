@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.11 2001/07/22 14:57:43 cph Exp $
+ * $Id: st_stuff.c,v 1.12 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.11 2001/07/22 14:57:43 cph Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.12 2002/01/07 15:56:20 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -317,14 +317,14 @@ static patchnum_t arms[6][2];
 static st_number_t w_ready;
 
 //jff 2/16/98 status color change levels
-int ammo_red;      // ammo percent less than which status is red
-int ammo_yellow;   // ammo percent less is yellow more green
-int health_red;    // health amount less than which status is red
-int health_yellow; // health amount less than which status is yellow
-int health_green;  // health amount above is blue, below is green
-int armor_red;     // armor amount less than which status is red
-int armor_yellow;  // armor amount less than which status is yellow
-int armor_green;   // armor amount above is blue, below is green
+int ammo_red=25;      // ammo percent less than which status is red
+int ammo_yellow=50;   // ammo percent less is yellow more green
+int health_red=25;    // health amount less than which status is red
+int health_yellow=50; // health amount less than which status is yellow
+int health_green=100; // health amount above is blue, below is green
+int armor_red=25;     // armor amount less than which status is red
+int armor_yellow=50;  // armor amount less than which status is yellow
+int armor_green=100;  // armor amount above is blue, below is green
 
  // in deathmatch only, summary of frags stats
 static st_number_t w_frags;
@@ -624,7 +624,7 @@ void ST_updateFaceWidget(void)
 
 }
 
-int sts_traditional_keys; // killough 2/28/98: traditional status bar keys
+int sts_traditional_keys = 0; // killough 2/28/98: traditional status bar keys
 
 void ST_updateWidgets(void)
 {

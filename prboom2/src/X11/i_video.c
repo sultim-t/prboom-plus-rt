@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.8 2001/07/04 14:59:52 uid24111 Exp $
+ * $Id: i_video.c,v 1.9 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.8 2001/07/04 14:59:52 uid24111 Exp $";
+rcsid[] = "$Id: i_video.c,v 1.9 2002/01/07 15:56:20 proff_fs Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -144,12 +144,12 @@ static event_t  event; // CPhipps - static because several subs need it
 static boolean  shmFinished = true; // Are we awaiting an MITShm completion?
 static int      vis_flag = VisibilityUnobscured; // Is lxdoom visible?
 
-extern int      X_opt; // Options to change the way we use X
+int      X_opt = 0; // Options to change the way we use X
 // it's a bitfield, currently 1 = no MitSHM, 2 = pretend 24bpp is 32bpp
 int             X_bpp; // bpp that we tell X
 
 // Mouse handling
-extern int     usemouse;        // config file var
+int     usemouse;        // config file var
 int            use_fullscreen;  /* cph - config file dummy */
 static boolean grabMouse;       // internal var
 static boolean grabbed = false; // Is the mouse currently grabbed
@@ -468,7 +468,7 @@ static void I_GetEvent(void)
     // CPhipps - allow WM quit
     if (X_event.xclient.data.l[0] == X_deletewin) {
       S_StartSound(NULL, sfx_swtchn);
-      M_QuitDOOM(0);
+      C_RunTextCmd("quit");
     }
     break;
   case Expose:

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.14 2001/07/06 09:36:53 proff_fs Exp $
+ * $Id: lprintf.c,v 1.15 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.14 2001/07/06 09:36:53 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.15 2002/01/07 15:56:19 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -192,6 +192,8 @@ void I_ConTextAttr(unsigned char a)
   int r,g,b,col;
   HDC conDC;
 
+  if (!console_inited)
+    return;
   conDC=GetDC(con_hWnd);
   r=0; g=0; b=0;
   if (a & FOREGROUND_INTENSITY) col=255;

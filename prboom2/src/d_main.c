@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.48 2001/11/19 20:48:16 cph Exp $
+ * $Id: d_main.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.48 2001/11/19 20:48:16 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -73,7 +73,7 @@ static const char rcsid[] = "$Id: d_main.c,v 1.48 2001/11/19 20:48:16 cph Exp $"
 #endif /* GL_DOOM */
 #include "m_argv.h"
 #include "m_misc.h"
-#include "m_menu.h"
+#include "mn_engin.h"
 #include "i_main.h"
 #include "i_system.h"
 #include "i_sound.h"
@@ -139,6 +139,7 @@ char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
 char    baseiwad[PATH_MAX+1];      // jff 3/23/98: iwad directory
 char    basesavegame[PATH_MAX+1];  // killough 2/16/98: savegame directory
+const char* defaultfile; // CPhipps - const
 
 //jff 4/19/98 list of standard IWAD names
 const char *const standard_iwads[]=
@@ -167,7 +168,7 @@ void D_DoAdvanceDemo (void);
 void D_PostEvent(event_t *ev)
 {
   C_Responder(ev) ||
-  M_Responder(ev) ||
+  MN_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
 				     ST_Responder(ev) ||
@@ -203,7 +204,7 @@ static void D_Wipe(void)
       wipestart = nowtime;
       done = wipe_ScreenWipe(0,0,SCREENWIDTH,SCREENHEIGHT,tics);
       I_UpdateNoBlit();
-      M_Drawer();                   // menu is drawn even on top of wipes
+      MN_Drawer();                  // menu is drawn even on top of wipes
       I_FinishUpdate();             // page flip or blit buffer
     }
   while (!done);
@@ -219,6 +220,8 @@ static void D_Wipe(void)
 gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern boolean setsizeneeded;
 extern int     showMessages;
+boolean        redrawsbar;      // sf: globaled
+boolean        redrawborder;    // sf: cleaned up border redraw
 camera_t       *camera;
 
 void D_Display (void)
@@ -295,7 +298,7 @@ void D_Display (void)
 #ifdef GL_DOOM
     R_DrawViewBorder();
 #else
-    if (redrawborderstuff)
+    if (redrawborderstuff || redrawborder)
       R_DrawViewBorder();
 #endif
 
@@ -304,7 +307,7 @@ void D_Display (void)
       R_RenderPlayerView (&players[displayplayer], camera);
     if (automapmode & am_active)
       AM_Drawer();
-    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);
+    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || redrawsbar);
 #ifndef GL_DOOM
     R_DrawViewBorder();
 #endif
@@ -334,7 +337,7 @@ void D_Display (void)
 
   C_Drawer();
   // menus go directly to the screen
-  M_Drawer();          // menu is drawn even on top of everything
+  MN_Drawer();         // menu is drawn even on top of everything
 #ifdef HAVE_NET
   NetUpdate();         // send out any new accumulation
 #else
@@ -394,7 +397,7 @@ static void D_DoomLoop(void)
           if (advancedemo)
             D_DoAdvanceDemo ();
           C_Ticker ();
-          M_Ticker ();
+          MN_Ticker ();
           G_Ticker ();
           gametic++;
           maketic++;
@@ -447,7 +450,7 @@ void D_PageDrawer(void)
     V_DrawNamePatch(0, 0, 0, pagename, CR_DEFAULT, VPT_STRETCH);
   }
   else
-    M_DrawCredits();
+    MN_DrawCredits();
 }
 
 //
@@ -1359,10 +1362,12 @@ void DoLooseFiles(void)
 }
 
 /* cph - MBF-like wad/deh/bex autoload code */
-const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
+const char *wad_files[MAXLOADFILES] = {"",""};
+const char *deh_files[MAXLOADFILES] = {"",""};
 
 // CPhipps - misc screen stuff
-unsigned int desired_screenwidth, desired_screenheight;
+unsigned int desired_screenwidth = 320;
+unsigned int desired_screenheight = 200;
 
 //
 // D_DoomMainSetup
@@ -1401,8 +1406,35 @@ void D_DoomMainSetup(void)
     } while (rsp_found==true);
   }
 
-  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
-  M_LoadDefaults();              // load before initing other systems
+  lprintf(LO_INFO,"C_Init: Init console.\n");
+  C_Init();
+
+  // check for a custom default file
+
+  i = M_CheckParm ("-config");
+  if (i && i < myargc-1)
+    defaultfile = myargv[i+1];
+  else {
+    defaultfile = malloc(PATH_MAX+1);
+    /* get config file from same directory as executable */
+#ifdef GL_DOOM
+    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", D_DoomExeDir());
+#else // GL_DOOM
+    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", D_DoomExeDir());
+#endif // GL_DOOM
+  }
+
+  lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
+
+  //lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  //M_LoadDefaults();              // load before initing other systems
+
+  lprintf(LO_INFO,"G_LoadDefaults: Load system defaults.\n");
+  G_LoadDefaults(defaultfile);
+
+  /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
+     doesn't overlap with the cfg settings */
+  wad_files[MAXLOADFILES-1]="prboom.wad";
 
   Z_Init();
 
@@ -1553,6 +1585,8 @@ void D_DoomMainSetup(void)
     }
 
   modifiedgame = false;
+
+  D_BuildBEXTables(); // haleyjd
 
   // get skill / episode / map from parms
 
@@ -1778,15 +1812,12 @@ void D_DoomMainSetup(void)
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"M_Init: Init miscellaneous info.\n");
-  M_Init();
+  MN_Init();
 
 #ifdef HAVE_NET
   // CPhipps - now wait for netgame start
   D_CheckNetGame();
 #endif
-
-  lprintf(LO_INFO,"G_LoadDefaults: Init keybindings.\n"); // keybinding
-  G_LoadDefaults();
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"R_Init: Init DOOM refresh daemon - ");
@@ -1809,9 +1840,6 @@ void D_DoomMainSetup(void)
   HU_Init();
 
   I_InitGraphics();
-
-  lprintf(LO_INFO,"C_Init: Init console.\n");
-  C_Init();
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"ST_Init: Init status bar.\n");

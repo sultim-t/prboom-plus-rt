@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.6 2001/07/22 15:12:46 cph Exp $
+ * $Id: s_sound.c,v 1.7 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.6 2001/07/22 15:12:46 cph Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.7 2002/01/07 15:56:20 proff_fs Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -42,6 +42,8 @@ rcsid[] = "$Id: s_sound.c,v 1.6 2001/07/22 15:12:46 cph Exp $";
 #include "m_random.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#include "c_io.h"
+#include "c_runcmd.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -94,7 +96,7 @@ static musicinfo_t *mus_playing;
 // following is set
 //  by the defaults code in M_misc:
 // number of channels available
-int default_numChannels;
+int default_numChannels = 8;
 int numChannels;
 
 //jff 3/17/98 to keep track of last IDMUS specified music num
@@ -630,4 +632,34 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, int is_pickup)
   c->origin = origin;
   c->is_pickup = is_pickup;         // killough 4/25/98
   return cnum;
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+// Console Commands
+//
+
+void S_ResetVolume()
+{
+  S_SetMusicVolume(snd_MusicVolume);
+  S_SetSfxVolume(snd_SfxVolume);
+}
+
+CONSOLE_BOOLEAN(s_pitched, pitched_sounds, NULL,   onoff, 0) {}
+CONSOLE_INT(snd_channels, default_numChannels, NULL, 1, 32, NULL, 0) {}
+CONSOLE_INT(sfx_volume, snd_SfxVolume, NULL,         0, 15, NULL, 0)
+{
+  S_ResetVolume();
+}
+CONSOLE_INT(music_volume, snd_MusicVolume, NULL,     0, 15, NULL, 0)
+{
+  S_ResetVolume();
+}
+
+void S_AddCommands()
+{
+  C_AddCommand(s_pitched);
+  C_AddCommand(snd_channels);
+  C_AddCommand(sfx_volume);
+  C_AddCommand(music_volume);
 }

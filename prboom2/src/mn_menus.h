@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.h,v 1.7 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: mn_menus.h,v 1.1 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -25,27 +25,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
  *  02111-1307, USA.
  *
- * DESCRIPTION:
- *  External non-system-specific stuff, like storing config settings, 
- *  simple file handling, and saving screnshots.
- *    
- *-----------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------------------
+ */
 
+#ifndef MN_MENUS_H
+#define MN_MENUS_H
 
-#ifndef __M_MISC__
-#define __M_MISC__
+void MN_InitMenus();
+void MN_ShowFrameRate();
 
-
-#include "doomtype.h"
-//
-// MISC
-//
-
-boolean M_WriteFile (char const* name,void* source,int length);
-
-int M_ReadFile (char const* name,byte** buffer);
-
-void M_ScreenShot (void);
-void M_DoScreenShot (const char*); // cph
-
-#endif
+#endif          /** MN_MENUS_H **/

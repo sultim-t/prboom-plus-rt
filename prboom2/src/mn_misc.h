@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.h,v 1.7 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: mn_misc.h,v 1.1 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -25,27 +25,23 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
  *  02111-1307, USA.
  *
- * DESCRIPTION:
- *  External non-system-specific stuff, like storing config settings, 
- *  simple file handling, and saving screnshots.
- *    
- *-----------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------------------
+ */
 
+#ifndef __MN_MISC_H__
+#define __MN_MISC_H__
 
-#ifndef __M_MISC__
-#define __M_MISC__
+// pop-up messages
 
+void MN_Alert(const char *message, ...);
+void MN_Question(const char *message, const char *command);
 
-#include "doomtype.h"
-//
-// MISC
-//
+// help screens
 
-boolean M_WriteFile (char const* name,void* source,int length);
+void MN_StartHelpScreen();
 
-int M_ReadFile (char const* name,byte** buffer);
+// map colour selection
 
-void M_ScreenShot (void);
-void M_DoScreenShot (const char*); // cph
+void MN_SelectColour(char *variable_name);
 
-#endif
+#endif /** __MN_MISC_H__ **/

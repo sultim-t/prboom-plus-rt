@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_mmap.c,v 1.5 2001/11/18 15:46:08 cph Exp $
+ * $Id: w_mmap.c,v 1.6 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_mmap.c,v 1.5 2001/11/18 15:46:08 cph Exp $";
+rcsid[] = "$Id: w_mmap.c,v 1.6 2002/01/07 15:56:20 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -102,7 +102,6 @@ void W_InitCache(void)
 {
   mapped_wad = calloc(numwadfiles,sizeof(mmap_info_t));
   memset(mapped_wad,0,sizeof(mmap_info_t)*numwadfiles);
-  atexit(W_DoneCache);
   {
     int i;
     for (i=0; i<numlumps; i++)

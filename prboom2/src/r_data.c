@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.18 2002/01/07 15:45:22 proff_fs Exp $
+ * $Id: r_data.c,v 1.19 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.18 2002/01/07 15:45:22 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.19 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -732,7 +732,7 @@ void R_InitTranMap(int progress)
     main_tranmap = W_CacheLumpNum(lump);   // killough 4/11/98
   else
     {   // Compose a default transparent filter map based on PLAYPAL.
-      const byte *playpal = W_CacheLumpName("PLAYPAL");
+      const byte *playpal;
       byte       *my_tranmap;
 
       char fname[PATH_MAX+1], *D_DoomExeDir(void);
@@ -744,6 +744,9 @@ void R_InitTranMap(int progress)
       FILE *cachefp = fopen(strcat(strcpy(fname, D_DoomExeDir()),
                                    "/tranmap.dat"),"r+b");
 #endif // DREAMCAST
+      if (W_CheckNumForName("PLAYPAL")==-1) // happens when called before WAD loaded
+        return;
+      playpal = W_CacheLumpName("PLAYPAL");
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 
       // Use cached translucency filter if it's available

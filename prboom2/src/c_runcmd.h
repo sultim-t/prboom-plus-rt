@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.h,v 1.3 2001/07/22 10:07:57 cph Exp $
+ * $Id: c_runcmd.h,v 1.4 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,12 +49,39 @@ typedef struct variable_s variable_t;
 //        }
 
 #define CONSOLE_COMMAND(name, flags)                    \
-        void Handler_ ## name();                        \
+        static void Handler_ ## name();                 \
         command_t Cmd_ ## name = { # name, ct_command,  \
                        flags, NULL, Handler_ ## name,   \
                        0 };                             \
+        static void Handler_ ## name()
+
+
+// new all-in-one variable command macros
+// easier than messing around with two VARIABLE_ and CONSOLE_ macros
+
+#define CONSOLE_INT(name, variable, defaultvar, min, max, strings, flags) \
+   variable_t Var_ ## name = {&variable, defaultvar, vt_int,              \
+	                      min, max, strings};                         \
+   static void Handler_ ## name();                                        \
+   command_t Cmd_ ## name = { # name, ct_variable, flags, &Var_ ## name,  \
+   Handler_ ## name, 0};                                                  \
+   static void Handler_ ## name()
+
+#define CONSOLE_BOOLEAN(name, variable, defaultvar, strings, flags)       \
+   variable_t Var_ ## name = {&variable, defaultvar, vt_int,              \
+                              0, 1, strings};                             \
+   void Handler_ ## name();                                               \
+   command_t Cmd_ ## name = { #name, ct_variable, flags, &Var_ ## name,   \
+   Handler_ ## name, 0};                                                  \
         void Handler_ ## name()
 
+#define CONSOLE_STRING(name, variable, defaultvar, max, flags)            \
+   variable_t Var_ ## name = {&variable, defaultvar, vt_string,           \
+			      0, max};                                    \
+   void Handler_ ## name();                                               \
+   command_t Cmd_ ## name = { # name, ct_variable, flags, & Var_ ## name, \
+   Handler_ ## name, 0};                                                  \
+   void Handler_ ## name()
 		 
 // console variable. you must define the range of values etc. for
 //      the variable using the other macros below.
@@ -173,6 +200,7 @@ enum    // command flag
   cf_hidden       =64,    // hidden in cmdlist
   cf_buffered     =128,   // buffer command: wait til all screen
                           // rendered before running command
+  cf_nosave       =256,   // do not save to .cfg file
 };
 
 enum    // variable type
@@ -188,7 +216,7 @@ enum    // variable type
 struct variable_s
 {
   // NB: for strings, this is char ** not char *
-  void *variable;
+  const void *variable;
   void *v_default;         // the default 
   int type;       // vt_?? variable type: int, string
   int min;        // minimum value or string length

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.13 2001/07/22 15:07:49 cph Exp $
+ * $Id: z_zone.c,v 1.14 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.13 2001/07/22 15:07:49 cph Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.14 2002/01/07 15:56:20 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -191,6 +191,8 @@ void Z_DumpMemory(void)
 #endif
 #endif
 
+size_t zone_size=8192;
+
 #ifdef INSTRUMENTED
 
 // killough 4/26/98: Add history information
@@ -201,7 +203,6 @@ static const char *file_history[NUM_HISTORY_TYPES][ZONE_HISTORY];
 static int line_history[NUM_HISTORY_TYPES][ZONE_HISTORY];
 static int history_index[NUM_HISTORY_TYPES];
 static const char *const desc[NUM_HISTORY_TYPES] = {"malloc()'s", "free()'s"};
-size_t zone_size;
 
 void Z_DumpHistory(char *buf)
 {
@@ -226,7 +227,6 @@ void Z_DumpHistory(char *buf)
 }
 #else
 
-size_t zone_size;
 void Z_DumpHistory(char *buf)
 {
 }

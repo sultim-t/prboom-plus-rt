@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.3 2001/07/22 10:07:57 cph Exp $
+ * $Id: c_runcmd.c,v 1.4 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.3 2001/07/22 10:07:57 cph Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.4 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +51,7 @@ rcsid[] = "$Id: c_runcmd.c,v 1.3 2001/07/22 10:07:57 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
-//#include "mn_engin.h"
+#include "mn_engin.h"
 //#include "t_script.h"
 #include "g_game.h"
 #include "z_zone.h"
@@ -63,10 +63,6 @@ mobj_t *t_trigger;
 command_t *c_netcmds[20];
 int cmdsrc = 0;           // the source of a network console command
 #define CN_BROADCAST 128
-
-void MN_ErrorMsg(const char *s)
-{
-}
 
 void C_SendCmd(int dest, int cmdnum, const char *s,...)
 {
@@ -201,7 +197,14 @@ static boolean C_CheckFlags(command_t *command)
   // net-sync critical variables are usually critical to
   // demo sync too
   if((command->flags & cf_netvar) && demoplayback)
+    {
+/*
+      if(cmdtype == c_menu)    // if called from menu, stop demo playback
+	G_StopDemo();
+      else
+*/
     errormsg = "not during demo playback";
+    }
   
   if(errormsg)
     {
@@ -312,10 +315,14 @@ static void C_ArgvtoArgs()
 	}
     }
 
-  c_args[0] = 0;
+  c_args[0] = '\0';
   
   for(i=0 ; i<c_argc; i++)
-    sprintf(c_args, "%s%s ", c_args, c_argv[i]);
+    {
+      if(c_args[0])
+	strcat(c_args, " ");
+      strcat(c_args, c_argv[i]);
+    }
 }
 
 // return a string of all the argvs linked together, but with each
@@ -326,12 +333,35 @@ static char *C_QuotedArgvToArgs()
   int i;
   static char returnvar[1024];
 
+  // no cmd line, return nothing
+  
+  if(!c_argc)
+    return "";
+
+  // build command line
+  
   returnvar[0] = 0;
   
   for(i=0 ; i<c_argc; i++)
-    sprintf(returnvar, "%s\"%s\" ", returnvar, c_argv[i]);
+    {
+      // enclose in spaces if it contains a ' '
+      if(strchr(c_argv[i], ' '))
+	{
+	  strcat(returnvar, " \"");
+	  strcat(returnvar, c_argv[i]);
+	  strcat(returnvar, "\"");
+	}
+      else
+	{
+	  strcat(returnvar, " ");
+	  strcat(returnvar, c_argv[i]);
+	}
+    }
+  
+  // we will always have a first character of a space character
+  // using above algorithm. ignore the first char
 
-  return returnvar;
+  return returnvar + 1;
 }
 
 // see if the command needs to be sent to other computers
@@ -402,7 +432,8 @@ const char *C_VariableValue(variable_t *variable)
 {
   static char value[128];
   
-  if(!variable) return "";
+  if(!variable || !variable->variable)
+    return "no variable - bug!";
   
   switch(variable->type)
     {
@@ -412,7 +443,10 @@ const char *C_VariableValue(variable_t *variable)
       break;
       
     case vt_string:
-      sprintf(value, "%s", *(char**)variable->variable);
+      if(*(char **)variable->variable)
+	strcpy(value, *(char**)variable->variable);
+      else
+	return "null";
       break;
 
     default:
@@ -429,7 +463,10 @@ const char *C_VariableStringValue(variable_t *variable)
 {
   static char value[128];
 
-  if(!variable) return "";
+  if(!variable)
+    return "";
+  if(!variable->variable)
+    return "null";
 
   // does the variable have alternate 'defines' ?
   strcpy(value, variable->defines ?
@@ -505,7 +542,8 @@ static char* C_ValueForDefine(variable_t *variable, char *s)
 	  return returnstr;
 	}
       
-      if(!isnum(s)) return NULL;
+      if(!isnum(s))
+	return NULL;
     }
   
   return s;
@@ -977,10 +1015,13 @@ boolean C_Strcmp(unsigned char *a, unsigned char *b)
 command_t *cmdroots[CMDCHAINS];
 
        // the hash key
-#define CmdHashKey(s)                                     \
-   (( (s)[0] + (s)[0] ? (s)[1] + (s)[1] ? (s)[2] +        \
-                 (s)[2] ? (s)[3] + (s)[3] ? (s)[4]        \
-                        : 0 : 0 : 0 : 0 ) % 16)
+
+static int CmdHashKey(const char *s)
+{
+  int key=0;
+  while(*s) key += tolower(*s++);
+  return key % CMDCHAINS;
+}
 
 void (C_AddCommand)(command_t *command)
 {

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.17 2001/07/22 14:57:43 cph Exp $
+ * $Id: d_client.c,v 1.18 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,7 +43,7 @@
 #include "c_io.h"
 #include "d_main.h"
 #include "g_game.h"
-#include "m_menu.h"
+#include "mn_engin.h"
 
 #include "protocol.h"
 #include "i_network.h"
@@ -433,7 +433,7 @@ void TryRunTics (void)
     if (I_GetTime() - entertime > 5)
     {
       C_Ticker();
-      M_Ticker();
+      MN_Ticker();
       return;
     }
 #ifdef HAVE_NET
@@ -447,7 +447,7 @@ void TryRunTics (void)
       if (I_GetTime() - entertime > 10)
       {
 	      C_Ticker();
-	      M_Ticker();
+	      MN_Ticker();
         return;
       }
     } else break;
@@ -460,7 +460,7 @@ void TryRunTics (void)
     if (advancedemo)
       D_DoAdvanceDemo ();
     C_Ticker ();
-    M_Ticker ();
+    MN_Ticker ();
     G_Ticker ();
     gametic++;
 #ifdef HAVE_NET

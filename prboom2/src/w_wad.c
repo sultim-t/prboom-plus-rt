@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.27 2002/01/07 15:45:22 proff_fs Exp $
+ * $Id: w_wad.c,v 1.28 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.27 2002/01/07 15:45:22 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.28 2002/01/07 15:56:20 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -330,7 +330,8 @@ int (W_CheckNumForName)(register const char *name, register int namespace)
   // Hash function maps the name to one of possibly numlump chains.
   // It has been tuned so that the average chain length never exceeds 2.
 
-  register int i = lumpinfo[W_LumpNameHash(name) % (unsigned) numlumps].index;
+  // proff 2001/09/07 - check numlumps==0, this happens when called before WAD loaded
+  register int i = (numlumps==0)?(-1):(lumpinfo[W_LumpNameHash(name) % (unsigned) numlumps].index);
 
   // We search along the chain until end, looking for case-insensitive
   // matches which also match a namespace tag. Separate hash tables are

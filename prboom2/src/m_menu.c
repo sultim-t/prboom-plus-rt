@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.25 2001/07/08 17:34:02 proff_fs Exp $
+ * $Id: m_menu.c,v 1.26 2002/01/07 15:56:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.25 2001/07/08 17:34:02 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.26 2002/01/07 15:56:19 proff_fs Exp $";
 
 #include <stdio.h>
 #ifndef DREAMCAST
@@ -79,7 +79,7 @@ extern int     HU_MoveHud(void); // jff 3/9/98 avoid glitch in HUD display
 int mouseSensitivity_horiz; // has default   //  killough
 int mouseSensitivity_vert;  // has default
 
-int showMessages;    // Show messages has default, 0 = off, 1 = on
+int showMessages = 1;    // Show messages has default, 0 = off, 1 = on
   
 int traditional_menu;
 
@@ -221,7 +221,7 @@ extern int hudcolor_chat; // color range of chat lines
 extern int hudcolor_list; // color of list of past messages
 
 extern int mapcolor_frnd;  // friends colors  // killough 8/8/98
-int mapcolor_me;    // cph
+extern int mapcolor_me;    // cph
 extern int default_monsters_remember;                     
 extern int monsters_remember;                            
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.22 2001/12/09 17:15:25 cph Exp $
+ * $Id: i_sound.c,v 1.23 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.22 2001/12/09 17:15:25 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.23 2002/01/07 15:56:20 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -73,8 +73,8 @@ rcsid[] = "$Id: i_sound.c,v 1.22 2001/12/09 17:15:25 cph Exp $";
 
 // Variables used by Boom from Allegro
 // created here to avoid changes to core Boom files
-int snd_card = 1;
-int mus_card = 1;
+int snd_card = -1;
+int mus_card = -1;
 int detect_voices = 0; // God knows
 
 // Needed for calling the actual sound output.
@@ -547,7 +547,7 @@ void I_PlaySong(int handle, int looping)
   }
 }
 
-extern int mus_pause_opt; // From m_misc.c
+int mus_pause_opt = 2;
 
 void I_PauseSong (int handle)
 {

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.13 2001/11/20 21:03:26 cph Exp $
+ * $Id: am_map.c,v 1.14 2002/01/07 15:56:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.13 2001/11/20 21:03:26 cph Exp $";
+  "$Id: am_map.c,v 1.14 2002/01/07 15:56:18 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -40,6 +40,7 @@ static const char rcsid[] =
 
 #include "doomstat.h"
 #include "st_stuff.h"
+#include "d_main.h"
 #include "r_main.h"
 #include "p_setup.h"
 #include "p_maputl.h"
@@ -51,33 +52,105 @@ static const char rcsid[] =
 #include "d_deh.h"    // Ty 03/27/98 - externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
+#include "c_io.h"
+#include "c_runcmd.h"
 
 //jff 1/7/98 default automap colors added
-int mapcolor_back;    // map background
-int mapcolor_grid;    // grid lines color
-int mapcolor_wall;    // normal 1s wall color
-int mapcolor_fchg;    // line at floor height change color
-int mapcolor_cchg;    // line at ceiling height change color
-int mapcolor_clsd;    // line at sector with floor=ceiling color
-int mapcolor_rkey;    // red key color
-int mapcolor_bkey;    // blue key color
-int mapcolor_ykey;    // yellow key color
-int mapcolor_rdor;    // red door color  (diff from keys to allow option)
-int mapcolor_bdor;    // blue door color (of enabling one but not other )
-int mapcolor_ydor;    // yellow door color
-int mapcolor_tele;    // teleporter line color
-int mapcolor_secr;    // secret sector boundary color
-int mapcolor_exit;    // jff 4/23/98 add exit line color
-int mapcolor_unsn;    // computer map unseen line color
-int mapcolor_flat;    // line with no floor/ceiling changes
-int mapcolor_sprt;    // general sprite color
-int mapcolor_frnd;    // friendly sprite color
-int mapcolor_hair;    // crosshair color
-int mapcolor_sngl;    // single player arrow color
-int mapcolor_plyr[4] = { 112, 88, 64, 176 }; // colors for player arrows in multiplayer
+int mapcolor_back = 247;    // map background
+CONSOLE_INT(mapcolor_back, mapcolor_back, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_grid = 104;    // grid lines color
+CONSOLE_INT(mapcolor_grid, mapcolor_grid, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_wall = 23;    // normal 1s wall color
+CONSOLE_INT(mapcolor_wall, mapcolor_wall, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_fchg = 55;    // line at floor height change color
+CONSOLE_INT(mapcolor_fchg, mapcolor_fchg, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_cchg = 215;    // line at ceiling height change color
+CONSOLE_INT(mapcolor_cchg, mapcolor_cchg, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_clsd = 208;    // line at sector with floor=ceiling color
+CONSOLE_INT(mapcolor_clsd, mapcolor_clsd, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_rkey = 175;    // red key color
+CONSOLE_INT(mapcolor_rkey, mapcolor_rkey, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_bkey = 204;    // blue key color
+CONSOLE_INT(mapcolor_bkey, mapcolor_bkey, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_ykey = 231;    // yellow key color
+CONSOLE_INT(mapcolor_ykey, mapcolor_ykey, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_rdor = 175;    // red door color  (diff from keys to allow option)
+CONSOLE_INT(mapcolor_rdor, mapcolor_rdor, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_bdor = 204;    // blue door color (of enabling one but not other )
+CONSOLE_INT(mapcolor_bdor, mapcolor_bdor, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_ydor = 231;    // yellow door color
+CONSOLE_INT(mapcolor_ydor, mapcolor_ydor, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_tele = 119;    // teleporter line color
+CONSOLE_INT(mapcolor_tele, mapcolor_tele, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_secr = 252;    // secret sector boundary color
+CONSOLE_INT(mapcolor_secr, mapcolor_secr, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_exit = 0;    // jff 4/23/98 add exit line color
+CONSOLE_INT(mapcolor_exit, mapcolor_exit, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_unsn = 104;    // computer map unseen line color
+CONSOLE_INT(mapcolor_unsn, mapcolor_unsn, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_flat = 88;    // line with no floor/ceiling changes
+CONSOLE_INT(mapcolor_flat, mapcolor_flat, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_sprt = 112;    // general sprite color
+CONSOLE_INT(mapcolor_sprt, mapcolor_sprt, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_hair = 208;    // crosshair color
+CONSOLE_INT(mapcolor_hair, mapcolor_hair, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_sngl = 208;    // single player arrow color
+CONSOLE_INT(mapcolor_sngl, mapcolor_sngl, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_frnd = 112;    // colors for friends of player
+CONSOLE_INT(mapcolor_frnd, mapcolor_frnd, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_me = 112;    // cph
+CONSOLE_INT(mapcolor_me, mapcolor_me, NULL, 0, 255, NULL, 0) {}
+
+int mapcolor_plyr[4];  // colors for players in multiplayer
+
+void AM_AddColors()
+{
+  C_AddCommand(mapcolor_back);
+  C_AddCommand(mapcolor_wall);
+  C_AddCommand(mapcolor_fchg);
+  C_AddCommand(mapcolor_grid);
+  C_AddCommand(mapcolor_cchg);
+  C_AddCommand(mapcolor_clsd);
+  C_AddCommand(mapcolor_rkey);
+  C_AddCommand(mapcolor_ykey);
+  C_AddCommand(mapcolor_bkey);
+  C_AddCommand(mapcolor_rdor);
+  C_AddCommand(mapcolor_ydor);
+  C_AddCommand(mapcolor_bdor);
+  C_AddCommand(mapcolor_tele);
+  C_AddCommand(mapcolor_secr);
+  C_AddCommand(mapcolor_exit);
+  C_AddCommand(mapcolor_unsn);
+  C_AddCommand(mapcolor_sprt);
+  C_AddCommand(mapcolor_hair);
+  C_AddCommand(mapcolor_sngl);
+  C_AddCommand(mapcolor_frnd);
+  C_AddCommand(mapcolor_me);
+}
 
 //jff 3/9/98 add option to not show secret sectors until entered
-int map_secret_after;
+int map_secret_after = 0;
 //jff 4/3/98 add symbols for "no-color" for disable and "black color" for black
 #define NC 0
 #define BC 247
@@ -199,7 +272,7 @@ int ddt_cheating = 0;         // killough 2/7/98: make global, rename to ddt_*
 
 static int leveljuststarted = 1;       // kluge until AM_LevelInit() is called
 
-enum automapmode_e automapmode; // Mode that the automap is in
+enum automapmode_e automapmode = 0; // Mode that the automap is in
 
 // location of window on screen
 static int  f_x;
@@ -569,6 +642,7 @@ void AM_Stop (void)
   automapmode &= ~am_active;
   ST_Responder(&st_notify);
   stopped = true;
+  redrawsbar = redrawborder = true;  // sf: need redraw
 }
 
 //
@@ -587,6 +661,7 @@ void AM_Start()
 
   if (!stopped)
     AM_Stop();
+  redrawsbar = redrawborder = true;  // sf: redraw needed
   stopped = false;
   if (lastlevel != gamemap || lastepisode != gameepisode)
   {
@@ -1707,3 +1782,25 @@ void AM_Drawer (void)
 
   AM_drawMarks();
 }
+
+//============================================================================
+//
+// Console Commands
+//
+//============================================================================
+
+CONSOLE_COMMAND(togglemap, 0)
+{
+  if(automapmode & am_active)
+    AM_Stop();
+  else
+    AM_Start();
+}
+
+void AM_AddCommands()
+{
+  C_AddCommand(togglemap);
+
+  AM_AddColors();
+}
+

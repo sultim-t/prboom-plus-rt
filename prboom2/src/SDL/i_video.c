@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.34 2001/11/18 13:47:21 cph Exp $
+ * $Id: i_video.c,v 1.35 2002/01/07 15:56:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.34 2001/11/18 13:47:21 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.35 2002/01/07 15:56:20 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -61,6 +61,7 @@ rcsid[] = "$Id: i_video.c,v 1.34 2001/11/18 13:47:21 cph Exp $";
 #include "sounds.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#include "c_runcmd.h"
 
 #ifdef GL_DOOM
 #include "gl_struct.h"
@@ -72,8 +73,8 @@ int gl_depthbuffer_bits=16;
 
 extern void M_QuitDOOM(int choice);
 
-int use_doublebuffer = 0; // Included not to break m_misc, but not relevant to SDL
-int use_fullscreen;
+int use_doublebuffer = 1;
+int use_fullscreen = 1;
 static SDL_Surface *screen;
 
 unsigned char* out_buffer = NULL;
@@ -83,7 +84,7 @@ unsigned char* out_buffer = NULL;
 int             leds_always_off = 0; // Expected by m_misc, not relevant 
 
 // Mouse handling
-extern int     usemouse;        // config file var
+int     usemouse = 1;        // config file var
 static int doubleclicktime[3]={0,0,0};
 static int doubleclicks[3]={0,0,0};
 static int eventtime;
@@ -303,7 +304,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_QUIT:
     S_StartSound(NULL, sfx_swtchn);
-    M_QuitDOOM(0);
+    C_RunTextCmd("quit");
 
   default:
     break;
