@@ -1,4 +1,19 @@
 * text=auto !eol
+eternity/Eternity.dsp eol=crlf
+eternity/Eternity.dsw eol=crlf
+eternity/Source/DJGPP/DRAWCOL.S -text
+eternity/Source/DJGPP/DRAWSPAN.S -text
+eternity/Source/DJGPP/PPROBLIT.S -text
+eternity/Source/Makefile -text
+eternity/Source/Makefile.unix -text
+eternity/Source/dep.txt -text
+eternity/Source/makefile.mingw -text
+eternity/Source/mingw_obj/mingwobj_tmp.txt -text
+eternity/Source/mingw_objdebug/mingw_objdebugtmp.txt -text
+eternity/Source/obj/obj_temp.txt -text
+eternity/Source/objdebug/objdebug_temp.txt -text
+eternity/Source/rules.make -text
+eternity/Source/sdl/Makefile -text
 prboom/ICON/Heada1.ico -text
 prboom/ICON/barrel.ico -text
 prboom/ICON/fouch.ico -text

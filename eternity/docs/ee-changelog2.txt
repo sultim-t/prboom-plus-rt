@@ -1,0 +1,687 @@
+=====================================================================
+Changes since Eternity Engine v3.31 beta 6
+=====================================================================
+=====================================================================
+04/11/04
+
+Applied the final outstanding patch to the portal code to add anchor
+type 299, which I ALMOST forgot to do.
+
+Prepared all documentation for the new release.
+
+=====================================================================
+04/10/04
+
+Made the last few minor adjustments required to compile the DOS
+version and tested it out.  Seems to work like a charm.  However,
+the assembly versions of R_DrawColumn and R_DrawTLColumn are now
+out of sync with the C versions, and thus need to be adjusted to
+work again -- but my x86 assembly skills are lacking.  I may have to
+learn a bit more to fix them so that Eternity can remain at maximum
+speed on that platform.
+
+Added a new codepointer, HealthJump.  It allows frame transfers to
+be controlled by the amount of health a thing has, and can compare
+that amount against a given number in seven different ways.  This
+is one of a few new "frame scripting" codepointers I intend to add.
+Although Small will be able to do frame transitions eventually, I 
+think these codepointers will prove useful for EDF mods even with 
+scripting in place, because they are fast to use, allowing you to
+remain in one language rather than jumping back and forth.
+
+I really did want to release today, but various things, including my
+allergies, got in the way, so it won't happen tonight.  Sorry!
+
+=====================================================================
+04/08/04
+
+Finished work on V_TileFlat, which doesn't exist as a single func-
+tion at all now.  The 2x version of this function won't work on any
+buffer, however, because making it do so would have just made it
+slower. The VBuffer setup function tests to see if the buffer is
+really 640x400 or not, and if not, makes it use the general scaled
+function instead.
+
+Turned out V_PatchWrapperS wasn't exactly kosher, as it started
+causing heap corruption again today.  SoM and I together nailed down
+a series of small problems in the function, one of which was appar-
+ently a sensitivity to some bad patches in Heretic (!!!). Now it
+seems to work properly (and it might be a bit faster too).
+
+Eternity now locks almost perfectly at 35 FPS in 640x400 for me,
+something it didn't do before the rewrite. Since the major drawing
+functions are all pointerized now (V_DrawPatch, V_DrawBlock, and
+V_DrawBackground being the major 3), I can probably feel comfortable
+with releasing a beta really soon, as in possibly tomorrow if I can
+get everything ready fast enough.  I still need to fix a couple of
+lingering DOS issues and test that build out. Hopefully no hidden
+problems will be revealed.
+
+Of course, the revisions to the drawing system are far from finished.
+I'll probably be revising and tweaking various elements of it for
+several versions to come, just to get extra speed here and there,
+or to make some of the old code nicer.  We'd eventually like to be
+able to draw directly to the SDL screen surface instead of triple
+buffering like we have to do right now.  Some of the work I've done
+in the past few days is amenable to having this happen in the future.
+
+=====================================================================
+04/07/04
+
+Created module v_block.c
+
+Added a v_mode command-line parameter so that you can override the
+video mode stored in the config file, in case Eternity can't seem to
+work in the current video mode.  You have to know the appropriate
+number of the mode you want though.  I'll publish a list somewhere
+before release.
+
+Started rewriting the block drawing functions -- V_DrawBlock now 
+works similar to the new patch system -- the proper version is called
+from V_DrawBlock through a function pointer in the VBuffer object
+passed to it (btw, I realized this is a form of polymorphism in C --
+pretty sweet in my opinion).
+
+When I started to work on V_TileFlat, which is the function that
+draws tiled flat backgrounds for the menus and intermission screens,
+I found something weird in the code that does the lowres, 320x200
+drawing:
+
+   for (y = 0 ; y < SCREENHEIGHT ; src = ((++y & 63)<<6) + back_src)
+      for (x = 0 ; x < SCREENWIDTH/64 ; x++)
+      {
+         memcpy (back_dest,back_src+((y & 63)<<6),64);
+         back_dest += 64;
+      }
+      
+Since "src" is never used inside this loop, the statement
+   
+   "src = ((++y & 63)<<6) + back_src"
+
+has no side effects, EXCEPT for incrementing y by one.  This means 
+that it's doing a bunch of unnecessary work every time the top loop
+iterates.
+
+Now, I wondered why such a weird thing would be in this code, so I
+started tracing back its history.  First I looked in MBF and as I re-
+membered, Lee Killough had rewritten the code there to support hires.
+I started to suspect that maybe he'd made a mistake, because it turns
+out his loop for hires has the same increment statement for its outer
+loop, but in that case, the inside of the loop DOES use the "src" 
+variable.
+
+So, I checked the same code in BOOM, and it was the original code
+from Linux DOOM, which was a bit different. Here's what it looks
+like:
+
+   for (y=0 ; y<SCREENHEIGHT ; y++)
+   {
+      for (x=0 ; x<SCREENWIDTH/64 ; x++)
+      {
+         memcpy (dest, src+((y&63)<<6), 64);
+         dest += 64;
+      }
+      if (SCREENWIDTH&63)
+      {
+         memcpy (dest, src+((y&63)<<6), SCREENWIDTH&63);
+         dest += (SCREENWIDTH&63);
+      }
+   }
+
+At first, this confused me even worse. You can see that their outer
+loop does indeed only increment y. But, they have this weird "if"
+statement outside the inner loop that tests if the screen width is
+not divisible by 64. In a case that it were not, it would draw the
+remaining fractional portion of the flat at the end of the current
+row on the screen.  But, DOOM only had one resolution, 320x200.
+"SCREENWIDTH & 63" is a constant expression which never changes 
+value, so that "if" statement is NEVER entered.
+
+So, it seems that either id accidentally put in some totally un-
+necessary code, or this is left over from WAY BACK in the alphas when
+DOOM was supposed to support several extended resolutions!
+
+What's funny is that when Lee rewrote the code and realized that
+test was unnecessary, he ended up accidentally duplicating the
+increment statement of his hires loop in the lowres loop.  So even
+though he got rid of one redundancy, he introduced another. I just
+find that ironic somehow, and it's a great illustration of the some
+of the many woes of maintenance programming :)
+
+=====================================================================
+04/05/04
+
+SoM figured out the bug in V_DrawBlock. He was just initializing the
+y coordinate to the wrong value by mistake.
+
+=====================================================================
+04/03/04
+
+Created module v_patch.c
+
+Rewrote and restructured all the V_DrawPatch functions so that the
+proper version (unscaled, 2x scaled, or general scaled) gets called
+through a new VBuffer object, which can represent the screen or any
+arbitrary memory buffer.  Also moved the column drawing into
+functions which are called through arrays of function pointers which
+are indexed by the drawing type (normal, translated, translucent, or
+translated and translucent).  This renders maximum flexibility for
+combining the rendering types without requiring the basic patch
+drawing loops to be duplicated over and over (while this solution is
+a bit like the one in zdoom, I didn't borrow any of Randy's code this
+time ;)
+
+Rewrote some code segments to exploit the new VBuffer facility,
+including most notably the console background code. It was previously
+using a gross hack of temporarily redirecting screens[1] to its own
+private buffer, then calling V_DrawPatch. VBuffers make that kind of
+crap totally unnecessary.
+
+I removed V_DrawPatchFlexTL and just made V_DrawPatchTL use the
+flex tran table. However, I still need to fix some of the calls to it
+so that they send in a value which is roughly equivalent to whatever
+percentage the current BOOM translucency value is. This won't be
+difficult, I just have better things to do right now.
+
+=====================================================================
+04/01/04
+
+There won't be any April Fool's jokes in the changelog, so don't
+worry about that :P
+
+Preemptively repaired several problems in SoM's retrofitting of the
+DOS video code to work within the bounds of the generalized drawing
+code.  DOS still only currently has 320x200 and 640x400 modes.  I
+might consider adding some more modes for it eventually, but that's
+REALLY low priority.
+
+Tweaked a few variables in i_video.c and r_ripple.c to make them
+static where it was possible.  Also, reformatted the DOS i_video.c
+file because it was still an ugly mess, with tabbed and untabbed 
+lines freely intermingling, and several peoples' code-writing styles
+all jumbled up.
+
+=====================================================================
+03/31/04
+
+Initial integration of SoM's generalized drawing code to allow high
+resolutions.  There are some issues, but we will tackle them one by
+one.
+
+=====================================================================
+Changes since Eternity Engine v3.31 beta 5
+=====================================================================
+=====================================================================
+02/28/04
+
+Making final preparations for a leap year release of Eternity v3.31
+public beta 6.
+
+I updated the DOS and MinGW makefiles a few days ago, and there were
+no major problems building either of those versions. The MinGW make-
+file still desparately needs dependency information, and the info in
+the DOS makefile is not perfectly up to date (so it is possible that
+modifying a few headers could break some modules).  I really need to
+find out how to auto-generate dependency information at compile-time
+with GCC, because I know it can be done. fraggle showed me a makefile
+that did this once, but I failed to fully understand it, and now I'm
+not sure I even have it any more. It would certainly save a lot of
+work.
+
+=====================================================================
+02/23/04
+
+Continued addressing some user complaints in preparation for beta 6
+launch:
+
+1. Generalized DR door types wouldn't allow you to retrigger them
+   while they were opening or closing already. Added some code to
+   allow this outside of older demos. This kind of minor change
+   doesn't justify a comp variable. Who *wouldn't* want the doors
+   to function as expected, anyways?
+   
+2. The map console command would try to start any string given it as
+   a map. This lead to some pretty weird behavior if you specified a
+   non-existant map, or a lump that existed, but was not a map. It 
+   now checks against both of these possibilities, and will report 
+   an error message if you give it a bad map name.
+   
+3. When using -warp, the console would end up with scraps left over
+   on the game border if the screen size was less than maximum.
+   fraggle did some strange things to the startup code, and there
+   was a dead segment in D_Display that should have been getting
+   called to take care of this on the first frame that a map was
+   rendered. Fixed by checking for autostart in D_DoomMain and 
+   (re)setting certain variables to force a border redraw.
+   
+4. Made some changes so that SDL ignores mouse motion events until
+   I_StartFrame has been called the first time. This keeps it from
+   queueing mouse motion during startup -- including the call to
+   SDL_WarpMouse in the video init -- and then having the player
+   pointing off to some wild angle and/or moving around when a map
+   starts using -warp. The DOS version may or may not still suffer 
+   this problem. Needs testing, I suppose.
+
+=====================================================================
+02/22/04
+
+Trying to make progress toward beta 6 release by mopping up some
+remaining issues that have been noted by users. Also finding some
+other odds-and-ends stuff to take care of.
+
+Rewrote WriteCentredText (note British spelling, heheh) in mn_misc.c
+to use the qstring structure instead of maintaining its own reallo-
+cating buffer. I'm going to continue doing this until qstring is
+used everywhere it can possibly be used.
+
+Also fixed a minor issue where hitting backspace when on the first
+help screen would play the "previous menu" sound, even though it
+wasn't moving back to a previous screen. A very small oversight in
+the menu logic ;)
+
+Moved the particle floor clipping code to P_ParticleThink to complete
+streamlining of R_ProjectParticle in response to the previous archi-
+tectural change. This is a much more logical location for this code.
+The fact it ended up in R_ProjectParticle in the first place was pro-
+bably a suggestion that the projection system should have been re-
+written much earlier.
+
+=====================================================================
+02/20/04
+
+Repaired particles to work with portals by changing the particle
+projection to be performed by sector, as normal vissprites are
+projected.
+
+Particles have to maintain sector links, and each sector has a list
+of the particles that are in it. P_ParticleThinker updates the links
+when it moves the particles. This is still significantly less than
+what has to be done to maintain mobj position, and part of the
+position setting was already being done in R_ProjectParticle anyways,
+to get at sector properties such as light level and colormap. The
+R_PointInSubsector call which was performed there is now unnecessary,
+since particle_t has a subsector pointer.
+
+This is going to come in handy for adding all those new effects I
+have planned for Millennium too, since those effects require looking
+at an always up-to-date subsector pointer in the particle (ie, a
+particle which lives infinitely until it hits the ground, and then
+begins to fade).
+
+=====================================================================
+02/19/04
+
+Added support for a combined thingtype flags field to EDF. This
+allows you to forget about which flags go with which fields, and was
+one of the first user requests to be made with respect to EDF. It
+just took me a while to come up with a good way to do it ^_^
+
+I rewrote all of the DeHackEd flag parser code to enable this, and
+cleaned it up quite a bit in the process. dehflags_t lists are now
+terminated by a NULL entry, eliminating the need for a macro using
+sizeof to determine the length of the list. All the thing type flags
+are also now in one master list rather than three separate ones.
+
+I also added two more fields, addflags and remflags -- these let you
+add or subtract a flag list from the thing's current flags, and can
+be used in both definitions and delta structures. I realized there
+was a need for this a long time ago, but it really needed the above
+feature to be finished first for it to be effective. Also, the new
+addition of dynamic monster types to zdoom has provided me with an
+impetus to get some stuff finished >:D
+
+Changed the EDF thingtype doomednum field to not be inherited. This
+makes the most sense to me.
+
+=====================================================================
+02/15/04
+
+Tweaked my fix to the sky code again, so that it acts uniformly with
+respect to single- and multipatch textures. Otherwise, "long" skies,
+which wrap less often around the game world, would be detected as
+multipatch textures and would not be stretched when they were short.
+
+This does, however, place something of a limit on what type of
+multipatch textures can be used as skies. If you have a multipatch
+texture with a patch larger than the texture but which is supposed to
+tile where the texture height cuts off, it will not work properly.
+
+Since I have to cut the texture off at the max of the texture height
+and the tallest patch height to support Heretic- and Hexen-style 
+skies, I can't support general multipatch textures that are meant to 
+tile at the texture's height, yet contain patches taller than the 
+texture.
+
+I highly doubt this will cause any compatibility issues, but it might
+surface as an issue in the future. I'll probably add a note about it
+to the sky transfer linedef docs in the editref.
+
+=====================================================================
+02/12/04
+
+Completely rewrote the console script running code. It was a gross,
+amateur-looking mess, mostly thanks to my early work on it to fix
+bugs from SMMU. Now, it is a formalized finite state automaton lexer, 
+and it uses the new qstring structure I have written, which provides 
+very secure reallocating string buffers. This removes a static limit 
+on line length, and fixes the bug where commands on the last line of 
+the file would not be run, since they didn't end with a \n. (Thanks
+to SargeBaldy for drawing my attention to this neglected code and the
+last line bug).
+
+Also rewrote the libConfuse lexer to use the qstring structure, since
+the code that m_qstr.c is based on was originally the qstring code in
+libConfuse 2.0 -- I have simply generalized and encapsulated it so it 
+can be used throughout the engine. This is another unforeseen benefit 
+of my having previously integrated libConfuse directly, instead of 
+compiling it as a static library or even as a DLL.
+
+=====================================================================
+02/11/04
+
+Found out that my previous fix to sky textures wasn't totally right.
+Tweaked the code further to be more correct. MBF's sky.wad example
+works much better now.
+
+=====================================================================
+02/04/04
+
+Upgraded the internal Small VM to v2.4.0 -- this version has lots of
+fixes over the previous version, as well as a lot of new language
+and VM features.
+
+Added even more new Small natives.
+
+=====================================================================
+02/02/04
+
+Added TID system for identifying mapthings in scripts. Restored
+StartScript codepointer to full functionality, and added several new
+Small natives to test out TIDs. Wrote a fixed point math module for
+Small.
+
+=====================================================================
+01/28/04
+
+Fixed the fastspeed field for thing types to accept floats in the
+same way that the speed field accepts them. This is something I just
+forgot to do when I originally implemented the new speed field
+behavior.
+
+=====================================================================
+01/27/04
+
+Added thingtype inheritance to EDF. E_ProcessThing is now potentially
+recursive. When a thingtype inherits from a parent, it tries to
+process the parent type first. If the parent type has already been
+processed, then it's ok and nothing will happen. Otherwise, it'll
+get processed, and recursively process any parent type it might have.
+
+When a thing type inherits from a parent type, its own definition
+will be treated more or less like a thingdelta, such that only fields
+that are explicitly specified will override those copied in from the
+parent.
+
+The only attribute which is not inherited is the DeHackEd number.
+This always has to be different, and must be resolved before thing
+types are processed, thus it cannot be inherited.
+
+Here's a small example that would create a new Baron enemy whose
+only real difference is that he would be 50% translucent:
+
+   thingtype MyNewBaron
+   {
+      inherits = BaronOfHell
+      doomednum = 20001
+      translucency = 32768
+   }
+   
+As you can see, inheritance allows definitions for similar thing
+types to be drastically minimized, and absolutely no copying or
+pasting is required.
+
+Note some changes had to be made to the speedset and nukespecial
+code to allow for this, but they were very minor.
+
+=====================================================================
+01/26/04
+
+Identified SargeBaldy's problem in a number of crashing maps to be
+zero-length REJECT lumps. Time for a lengthy explanation:
+
+In DOOM, maps with zero-length REJECT lumps are accepted and run ok,
+although possibly with undefined REJECT behavior (if I am right, the
+REJECT would act differently every time you play the map). Although
+all the REJECT loading code was the same as it is in Eternity, DOOM's
+Z_Malloc would return a 32-byte block when you requested a block of
+size zero. This is very odd behavior for any memory manager, and can
+result in the type of undefined behavior I describe above.
+
+In BOOM, the entire zone system was rewritten, and one change made to
+Z_Malloc was to make zero-size allocations return NULL, as C malloc
+and most other sane memory managers will do. This would, however,
+leave the rejectmatrix pointer NULL, and since the reject-using code
+never checks it for validity, it would segv the first time something
+called P_CheckSight. Apparently, this problem is common to all
+BOOM-derived source ports. prboom simply refuses to load such maps at 
+all currently.
+
+I have fixed the problem (for now at least) by adding code which
+generates an "empty" reject matrix when the lump size is zero. It
+allocates a buffer of the appropriate size for the map, then fills it
+with zeroes (which means that the reject is not useful for helping
+reduce line-of-sight calculations).
+
+To be technical, zero-length REJECT lumps are NOT appropriate. The
+behavior in the original engine is undefined, and really only worked
+by accident. I believe part of the blame for utilities allowing zero-
+length REJECTS rests on the Unofficial DOOM Specs, which incorrectly
+say that the lump is "optional," which can possibly be interpreted as
+meaning it is allowed to be of zero length. Technically, this is not
+true, and the REJECT should ALWAYS be the proper size for the map,
+EVEN if it is only filled with zeroes.
+
+But, this problem is easy to detect and fix within the engine, so I
+will allow it, mainly because it fixes maps which worked (albeit
+inconsistently) with vanilla DOOM. 
+
+My fix *could* be improved by actually building a meaningful reject 
+matrix for the map, but this would require reject builder code to be 
+added to the engine, and isn't something I want to undertake right 
+now. Consider it room for possible future expansion.
+
+=====================================================================
+01/25/04
+
+Another crashing problem in the portal code was identified within the
+past two days. SoM created a "bandaid" patch for the problem, but I
+finally nailed down the real cause today to be child portals not
+having their minx and maxx members initialized. Fix was simple.
+
+Restored my earlier code to functionalize the portal creation code in
+p_spec.c, and changed a chain of if/else if's in R_RenderPortals into
+a switch. Also fixed a couple of issues such as missing "void" key-
+words in parameter lists, and moved the rportal_t typedef back into
+r_portal.h along with its struct.
+
+=====================================================================
+01/22/04
+
+An initial problem in the portal system has been fixed and it has
+been reintegrated.
+
+I have had to change the way particles are projected, however. As of
+right now, they won't work inside portals because of this. In order
+for particles to be compatible with portal rendering, they would need
+to be projected subsector by subsector, as other vissprites are
+projected. This would be a major architectural change for the parti-
+cle system, but I think it's probably the best direction to move in.
+
+=====================================================================
+01/20/04
+
+Started portal code integration. Experienced problems immediately
+which would not be resolved for several days.
+
+Added code to z_zone.c which can print out the entire zone heap block
+structure to file. This will be very useful in the future for de-
+bugging and optimization. Also changed an assert call in Z_Init into
+a RANGECHECK define and altered the code to make it the same as it
+is in prboom. This "sanity check" code tests some zone system
+invariants which must be true, or else the entire system will not
+work.
+
+=====================================================================
+01/19/04
+
+Fixed the graphic used on the video options menu to test translucency
+settings for all game modes.
+
+=====================================================================
+01/14/04
+
+Modified libConfuse to support ignoring text between conditional
+function pairs. This allows an "ifenabled" function for EDF which
+can weed out DOOM or Heretic definitions when playing the other
+game mode.
+
+Now, this raises some issues, which I have addressed as follows:
+
+1. By default, when Eternity loads its own root.edf, it will enable
+   only the current game mode. The other game modes will be disabled,
+   thus saving a bunch of memory.
+
+2. When user EDFs are loaded, all game modes are enabled by default.
+   This allows for backward compatibility, and also allows user EDFs
+   to explicitly shut off game modes using the "disable" function.
+   
+3. As for non-EDF mods which rely on the existence of Heretic stuff
+   in DOOM, I haven't solved this yet, but I'm working on some ideas.
+   For now you'd need to make a dummy EDF that includes root.edf,
+   just to force Heretic definitions to be read. That's kinda silly.
+
+=====================================================================
+01/12/04
+
+Continued adding stuff that I need.
+
+1. Added MissileSpread, which I also discussed in the forums a bit.
+   It lets a thing instantaneously shoot out N projectiles evenly
+   over a given angular sweep (the sweep is always centered on the
+   actor's angle with this pointer). This relieves editors from the
+   duty of making large sequences of MissileAttack frames with only
+   the angle parameter being different.
+   
+2. Rewrote the translation table code and added support for custom
+   sprite translations.  Translation lumps are 256 bytes long and
+   contain 1-byte indices (0-255) into the palette. This is the same
+   format that's used by the BOOM hud/status bar CR* lumps, and also
+   the same format used internally for player translations.
+   
+   Translation lumps must be between the new markers T_START and
+   T_END.  If no T_START lump is found, no custom translations will
+   be available.
+   
+   To use this in EDF, you specify the "translation" field in a
+   thingtype, like this:
+   
+   thingtype <name>
+   {
+      translation = <number> | <lump name>
+   }
+   
+   If a number is provided, the thing will use one of the internal
+   player translations (valid numbers are 0 through 14, with 0
+   meaning no translation, and the rest of the numbers being in the
+   same order as the colors are for the colour console command -- if
+   a number outside the range is provided, it gets wrapped into
+   range automatically).
+   
+   If a lump name is provided, the thing will use the custom
+   translation contained in that lump (if the lump doesn't exist
+   between T_START and T_END, an error will occur).
+   
+   This is something else I had always been planning on doing, but
+   never got around to. This project has given me an excuse to wipe 
+   out a growing number of TODO's. This stuff ought to help Eternity 
+   gain a bit more credibility in the editing world.
+
+=====================================================================
+01/11/04
+
+Since I've been working on a new editing project of my own, I've
+been adding some doo-dads which I've found myself needing. It would
+appear that editing for your own port is a very good way to find out
+what can be done to add more to it ^_^
+
+1. Added the BulletAttack pointer which I mentioned on the forums.
+   Now enemies can use custom bullets too ;)
+   
+2. Added a variable to EDF called doom2_title_tics. It lets you set
+   the length of time that the DOOM II title screen shows. I imagine
+   I'll be adding a lot more of these kinds of misc settings
+   eventually, but this is the only one for now.
+   
+3. Added a new flags3 bit, SUPERFRIEND. This allows you to make a
+   friend which won't ever attack other friends, even in retaliation.
+   Sometimes really powerful friends just shouldn't attack at all,
+   since they'll more than likely kill you. Plus, if a friend is a
+   meaningful character, it may not make sense for him to retaliate
+   (would Robin throw a batarang at Batman? I should hope not!).
+   
+4. Added a console command called whistle. It lets you teleport one
+   friendly thing of a given type to your location. This was inspired
+   partially by Lee Killough's changelog note on trying to make a way
+   for the player to call his dogs. While teleporting is not what he
+   envisioned, it is much easier than overriding the normal AI, it
+   will work from anywhere in the map, and for some types of friends,
+   it may be natural for them to be able to teleport to you. It's
+   a lot of fun when used appropriately ^_^
+   
+I also discovered a very sinister bug which was preventing EDF from 
+being loaded by GFS. The "M_GetFilePath" routine which I wrote a 
+while back was starting its process one off the end of the 
+destination buffer. Apparently I have been very lucky, since this 
+function is called all over the place, and could have caused serious 
+effects by corrupting other variables (which is what it was doing to 
+the GFS structure's EDF file name).
+
+=====================================================================
+01/05/04
+
+Applied schepe's patch to SargeBaldy et al.'s problem of the game
+crashing when you alt+tab out of fullscreen mode. I_FinishUpdate
+needed to check the return value of SDL_LockSurface. If the lock
+fails, the surface is currently invalid and can't be written to.
+
+It just so happens that a DirectX fullscreen hardware surface isn't
+valid when you alt+tab out of an application using it, so this is
+where the segv was coming from. Unfortunately, the SDL docs are
+rather vague about when a surface could become invalid or what you
+have to do to handle it, so I never put any contingency code in for
+such an event. Thanks to schepe once again for fixing some of the
+ugliest problems to ever visit us ^_^
+
+=====================================================================
+12/27/03
+
+schepe helped figure out what was causing demo desyncs on so-called
+"death exit" demos. fraggle juggled some of the level transition
+code around such that the player wasn't getting marked as "reborn"
+before P_SetupLevel was called. So, when he would be spawned at
+level start, the same stuff that happened in DOOM would not happen.
+Fixed easily by restoring the original code order. Doesn't seem to
+affect anything adversely; this was probably just a mistake in SMMU.
+
+=====================================================================
+12/23/03
+
+Finally fixed the LFN drag and drop issue. Problem wasn't with LFNs
+in general, but with paths that had .'s in them. I was using strchr
+to look for the extension, when I needed to use strrchr, which looks
+for the requested character starting from the "right" end of the
+string (ie where the file extension should be).
+
+=====================================================================
+EOF
+=====================================================================

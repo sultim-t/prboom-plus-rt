@@ -1,0 +1,10 @@
+# Default root EDF file for Eternity Engine v3.31 public beta 5
+#     This file can contain any definitions, but should remain limited to
+#     include statements for the purpose of organization.
+
+include("sprites.edf")
+include("sounds.edf")
+include("frames.edf")
+include("things.edf")
+include("cast.edf")
+include("misc.edf")

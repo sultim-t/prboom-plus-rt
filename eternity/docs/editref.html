@@ -1,0 +1,3472 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="UltraEdit-32">
+<title>Eternity Engine Editing Reference</title>
+</head>
+
+<body bgcolor="#CECECE">
+
+<h2>Eternity Engine Editing Reference v1.69 -- 4/11/04</h2>
+
+<a href="../etcengine.html">Return to the Eternity Engine Page</a>
+
+<ul>
+<li><a name="contents"><b>Table of Contents</b></a>
+    <ul>
+    <li><a href="#part1">Part I Linedef Types</a>
+        <ul>
+        <li><a href="#terms">Section 0. Terminology</a>
+        <li><a href="#doors">Section 1. Doors</a>
+            <ul>
+            <li><a href="#doorfunc">1.1 Door functions</a>
+            <li><a href="#doorvar">1.2 Varieties of doors</a>
+            <li><a href="#doorlines">1.3 Door linedef types</a>
+            </ul>
+        <li><a href="#floors">Section 2. Floors</a>
+            <ul>
+            <li><a href="#floortarg">2.1 Floor targets</a>
+            <li><a href="#floorvar">2.2 Varieties of floors</a>
+            <li><a href="#floorlines">2.3 Floor linedef types</a>
+            </ul>
+        <li><a href="#ceils">Section 3. Ceilings</a>
+            <ul>
+            <li><a href="#ceiltarg">3.1 Ceiling targets</a>
+            <li><a href="#ceilvar">3.2 Varieties of ceilings</a>
+            <li><a href="#ceillines">3.3 Ceiling linedef types</a>
+            </ul>
+        <li><a href="#plats">Section 4. Platforms (Lifts)</a>
+            <ul>
+            <li><a href="#plattarg">4.1 Platform targets</a>
+            <li><a href="#platvar">4.2 Varieties of platforms</a>
+            <li><a href="#platlines">4.3 Platform linedef types</a>
+            </ul>
+        <li><a href="#crush">Section 5. Crusher Ceilings</a>
+            <ul>
+            <li><a href="#crushvar">5.1 Varieties of crushers</a>
+            <li><a href="#crushlines">5.2 Crusher linedef types</a>
+            </ul>
+        <li><a href="#stairs">Section 6. Stair Builders</a>
+            <ul>
+            <li><a href="#stairvar">6.1 Varieties of stair builders</a>
+            <li><a href="#stairlines">6.2 Regular and extended stair builder types</a>
+            </ul>
+        <li><a href="#elevs">Section 7. Elevators</a>
+            <ul>
+            <li><a href="#elevtarg">7.1 Elevator targets</a>
+            <li><a href="#elevlines">7.2 Elevator linedef types</a>
+            </ul>
+        <li><a href="#lights">Section 7a. Lighting</a>
+            <ul>
+            <li><a href="#lighttarg">7a.1 Lighting targets</a>
+            <li><a href="#lightlines">7a.2 Lighting linedef types</a>
+            </ul>
+        <li><a href="#exits">Section 8. Exits</a>
+            <ul>
+            <li><a href="#exitvar">8.1 Exit varieties</a>
+            <li><a href="#exitlines">8.2 Exit linedef types</a>
+            </ul>
+        <li><a href="#teles">Section 9. Teleporters</a>
+            <ul>
+            <li><a href="#televar">9.1 Teleport varieties</a>
+            <li><a href="#telelines">9.2 Teleport linedef types</a>
+            </ul>
+        <li><a href="#donuts">Section 10. Donuts</a>
+            <ul>
+            <li><a href="#donutlines">10.1 Donut linedef types</a>
+            </ul>
+        <li><a href="#props">Section 11. Property Transfer</a>
+            <ul>
+            <li><a href="#line213">213: Floor light transfer</a>
+            <li><a href="#line261">261: Ceiling light transfer</a>
+            <li><a href="#line260">260: Translucency transfer</a>
+            <li><a href="#line242">242: Deep water</a>
+            <li><a href="#line223">223: Friction transfer</a>
+            <li><a href="#skytrans">271/272: Sky transfer</a>
+            <li><a href="#consttrans">224/225: Wind/current transfer</a>
+            <li><a href="#pointtrans">226: Point pusher transfer</a>
+            <li><a href="#3dmidtex">281/282: 3DMidTex movement transfer</a>
+            <li><a href="#hticpush">293/294: Heretic wind/current transfer</a>
+            </ul>
+        <li><a href="#scrolls">Section 12. Scrolling Walls, Flats, Objects</a>
+            <ul>
+            <li><a href="#staticscroll">12.1 Static scrollers</a>
+            <li><a href="#simplescroll">12.2 Simple static scrollers</a>
+            <li><a href="#dynscroll">12.3 Dynamic scrolling</a>
+            </ul>
+        <li><a href="#portals">Section 13. Portals</a>
+            <ul>
+            <li><a href="#planeportal">283/284/285: Plane portals</a>
+            <li><a href="#horizportal">286/287/288: Horizon portals</a>
+            <li><a href="#skybxportal">290/291/292: Skyboxes</a>
+            <li><a href="#anchrportal">295/296/297: Anchored portals</a>
+            <li><a href="#line289">289: Portal transfer</a>
+            </ul>
+        <li><a href="#scripts">Section 14. Script Control Linedefs</a>
+        <li><a href="#genlines">Section 15. Detailed Generalized Linedef Specification</a>
+            <ul>
+            <li><a href="#ranges">Line ranges/nomenclature</a>
+            <li><a href="#genfloors">Floors</a>
+            <li><a href="#genceils">Ceilings</a>
+            <li><a href="#gendoors">Doors</a>
+            <li><a href="#genlocked">Locked Doors</a>
+            <li><a href="#genlifts">Lifts</a>
+            <li><a href="#genstairs">Stairs</a>
+            <li><a href="#gencrush">Crushers</a>
+            </ul>
+        </ul>
+    <li><a href="#part2">Part II Sector Types</a>
+        <ul>
+        <li><a href="#sectors">Section 16. Regular sector types</a>
+        <li><a href="#gensectors">Section 17. Generalized sector types</a>
+        </ul>
+    <li><a href="#part3">Part III Linedef Flags</a>
+    <li><a href="#part4">Part IV Thing Flags</a>
+    <li><a href="#part5">Part V Thing Types</a>
+    <li><a href="#part6">Part VI BOOM Predefined Lumps</a>
+        <ul>
+        <li><a href="#lumpnames">Lump names</a>
+        <li><a href="#switchformat">SWITCHES format</a>
+        <li><a href="#animformat">ANIMATED format</a>
+        <li><a href="#colmaps">Colormaps</a>
+        <li><a href="#colrngs">Color translation tables</a>
+        <li><a href="#txtrconv">TXTRCONV format</a>
+        <li><a href="#keydefs">KEYDEFS format</a>
+        <li><a href="#tertypes">TERTYPES format</a>
+        </ul>
+    </ul>
+</ul>
+
+<a name="part1">
+<hr>
+<h3>Part I Linedef Types</h3>
+<hr>
+</a>
+<a name="terms">&nbsp;</a>
+<hr width="75%" align="left">
+<b>Section 0. Terminology</b>
+<hr width="75%" align="left">
+<br>
+In BOOM actions are caused to happen in the game thru linedef
+types. BOOM has three kinds of linedef types:<br>
+<ul>
+<li> Regular - the linedef types that were already in DOOM II v1.9
+<li> Extended - linedef types not in DOOM II v1.9 but less than 8192 in value
+<li> Generalized - linedef types over 8192 in value that contain bit
+     fields that independently control the actions of the sector
+     affected.
+</ul>
+
+A linedef with non-zero linedef type is called a linedef trigger.
+A linedef trigger is always activated in one of three ways -
+pushing on the first sidedef of the linedef, walking over the
+linedef, or shooting the linedef with an impact weapon (fists,
+chainsaw, pistol, shotgun, double barreled, or chaingun). <br>
+<br>
+Linedefs activated by pushing on them come in two varieties. A
+manual linedef affects the sector on the second sidedef of the
+line pushed. A switched linedef affects all sectors that have the
+same tag field as the linedef that was pushed.<br>
+<br>
+Nearly all switched, walkover, and gun linedefs operate on the
+sectors with the same tag as that in the tag field of the
+linedef.<br>
+<br>
+Some linedefs are never activated per se, but simply create or
+control an effect thru their existence and properties, usually
+affecting the sectors sharing the linedef's tags. There are also
+a few special case like line-line teleporters and exit linedefs
+that do not affect sectors.<br>
+<br>
+Some linedefs are only triggerable once, others are triggerable
+as many times as you like.<br>
+<br>
+Triggering types are denoted by the letters P, S, W, and G for
+manual(push), switched, walkover, and gun. Their retriggerability
+is denoted by a 1 or R following the letter. So the triggering
+types for linedefs are:<br>
+<br>
+<pre>
+P1 PR S1 SR W1 WR G1 GR
+</pre>
+
+Often linedef actions depend on values in neighboring sectors. A
+neighboring sector is one that shares a linedef in common, just
+sharing a vertex is not sufficient.<br>
+<br>
+In DOOM only one action on a sector could occur at a time. BOOM
+supports one floor action, one ceiling action, and one lighting
+action simultaneously.<br>
+<br>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="doors">
+<hr width="75%" align="left">
+<b>Section 1. Doors</b>
+<hr width="75%" align="left">
+</a>
+<br>
+A door is a sector, usually placed between two rooms, whose
+ceiling raises to open, and lowers to close. <br>
+<br>
+A door is fully closed when its ceiling height is equal to its
+floor height. <br>
+<br>
+A door is fully open when its ceiling height is 4 less than the
+lowest neighbor ceiling adjacent to it. <br>
+<br>
+A door may be set to an intermediate state initially, or thru the
+action of a linedef trigger that affects ceilings or floors. The
+door is passable to a player when its ceiling is at least 56
+units higher than its floor. In general the door is passable to a
+monster or a thing when its ceiling is at least the monster or
+thing's height above the floor.<br>
+<br>
+If a door has a ceiling height ABOVE the fully open height, then
+an open door action moves the ceiling to the fully open height
+instantly.<br>
+<br>
+If a door has a ceiling height BELOW the fully closed height
+(that is the ceiling of the door sector is lower than the floor
+of the door sector) a close door action moves the ceiling to the
+fully closed height instantly.</p>
+
+<p>
+<a name="doorfunc">
+<hr align="left" width="50%">
+<b>Section 1.1 Door functions</b>
+<hr align="left" width="50%">
+</a>
+<br>
+<ul>
+<li> Open, Wait, Then Close <br>
+     On activation, door opens fully, waits a specified period, then
+     closes fully.<br><br>
+     
+<li> Open and Stay Open<br>
+     On activation, door opens fully and remains there.<br><br>
+     
+<li> Close and Stay Closed<br>
+     On activation, door closes fully, and remains there.<br><br>
+     
+<li> Close, Wait, Then Open<br>
+     On activation, door closes fully, waits a specified period, then
+     opens fully.
+</ul>
+
+</p>
+
+<p>
+<a name="doorvar">
+<hr width="50%" align="left">
+<b>Section 1.2 Varieties of doors</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A door can be triggered by pushing on it, walking over or
+pressing a linedef trigger tagged to it, or shooting a linedef
+tagged to it. These are called manual, walkover, switched, or gun
+doors resp.<br>
+<br>
+Since a push door (P1/PR) has no use for its tag, BOOM has
+extended the functionality to include changing any tagged sectors
+to maximum neighbor lighting on fully opening, then to minimum
+neighbor lighting on fully closing. This is true for regular,
+extended, and generalized doors with push triggers.<br>
+<br>
+A door trigger can be locked. This means that the door function
+will only operate if the player is in possession of the right
+key(s). Regular and extended door triggers only care if the
+player has a key of the right color, they do not care which.
+Generalized door triggers can distinguish between skull and card
+keys, and can also require any key, or all keys in order to
+activate.<br>
+<br>
+A door can have different speeds, slow, normal, fast or turbo.<br>
+<br>
+A door can wait for different amounts of time.<br>
+<br>
+A door may or may not be activatable by monsters.<br>
+<br>
+Any door function except Close and Stay Closed, when closing and
+encountering a monster or player's head will bounce harmlessly
+off that head and return to fully open. A Close and Stay Closed
+will rest on the head until it leaves the door sector.</p>
+
+<p>
+<a name="doorlines">
+<hr width="50%" align="left">
+<b>Section 1.3 Door linedef types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Door Types
+---------------------------------------------------------------
+#        Class   Trig   Lock   Speed    Wait  Monst    Function
+
+1        Reg     PR     No     Slow     4s    Yes      Open, Wait, Then Close
+117      Reg     PR     No     Fast     4s    No       Open, Wait, Then Close
+63       Reg     SR     No     Slow     4s    No       Open, Wait, Then Close
+114      Reg     SR     No     Fast     4s    No       Open, Wait, Then Close
+29       Reg     S1     No     Slow     4s    No       Open, Wait, Then Close
+111      Reg     S1     No     Fast     4s    No       Open, Wait, Then Close
+90       Reg     WR     No     Slow     4s    No       Open, Wait, Then Close
+105      Reg     WR     No     Fast     4s    No       Open, Wait, Then Close
+4        Reg     W1     No     Slow     4s    No       Open, Wait, Then Close
+108      Reg     W1     No     Fast     4s    No       Open, Wait, Then Close
+
+31       Reg     P1     No     Slow     --    No       Open and Stay Open
+118      Reg     P1     No     Fast     --    No       Open and Stay Open
+61       Reg     SR     No     Slow     --    No       Open and Stay Open
+115      Reg     SR     No     Fast     --    No       Open and Stay Open
+103      Reg     S1     No     Slow     --    No       Open and Stay Open
+112      Reg     S1     No     Fast     --    No       Open and Stay Open
+86       Reg     WR     No     Slow     --    No       Open and Stay Open
+106      Reg     WR     No     Fast     --    No       Open and Stay Open
+2        Reg     W1     No     Slow     --    No       Open and Stay Open
+109      Reg     W1     No     Fast     --    No       Open and Stay Open
+46       Reg     GR     No     Slow     --    No       Open and Stay Open
+
+42       Reg     SR     No     Slow     --    No       Close and Stay Closed
+116      Reg     SR     No     Fast     --    No       Close and Stay Closed
+50       Reg     S1     No     Slow     --    No       Close and Stay Closed
+113      Reg     S1     No     Fast     --    No       Close and Stay Closed
+75       Reg     WR     No     Slow     --    No       Close and Stay Closed
+107      Reg     WR     No     Fast     --    No       Close and Stay Closed
+3        Reg     W1     No     Slow     --    No       Close and Stay Closed
+110      Reg     W1     No     Fast     --    No       Close and Stay Closed
+
+196      Ext     SR     No     Slow     30s   No       Close, Wait, Then Open
+175      Ext     S1     No     Slow     30s   No       Close, Wait, Then Open
+76       Reg     WR     No     Slow     30s   No       Close, Wait, Then Open
+16       Reg     W1     No     Slow     30s   No       Close, Wait, Then Open
+
+Regular and Extended Locked Door Types
+---------------------------------------------------------------
+#        Class   Trig   Lock   Speed    Wait  Monst    Function
+
+26       Reg     PR     Blue   Slow     4s    No       Open, Wait, Then Close
+28       Reg     PR     Red    Slow     4s    No       Open, Wait, Then Close
+27       Reg     PR     Yell   Slow     4s    No       Open, Wait, Then Close
+
+32       Reg     P1     Blue   Slow     --    No       Open and Stay Open
+33       Reg     P1     Red    Slow     --    No       Open and Stay Open
+34       Reg     P1     Yell   Slow     --    No       Open and Stay Open
+99       Reg     SR     Blue   Fast     --    No       Open and Stay Open
+134      Reg     SR     Red    Fast     --    No       Open and Stay Open
+136      Reg     SR     Yell   Fast     --    No       Open and Stay Open
+133      Reg     S1     Blue   Fast     --    No       Open and Stay Open
+135      Reg     S1     Red    Fast     --    No       Open and Stay Open
+137      Reg     S1     Yell   Fast     --    No       Open and Stay Open
+</pre>
+
+There are two generalized door linedef types, Generalized Door,
+and Generalized Locked Door. The following tables show the
+possibilities for each parameter, any combination of parameters
+is allowed:<br>
+<br>
+Slow and Fast represent the same speeds as slow and fast regular
+doors. Normal is twice as fast as slow, Fast is twice normal,
+Turbo is twice Fast.<br>
+<br>
+<pre>
+Generalized Door Types
+---------------------------------------------------------------
+#        Class   Trig   Lock   Speed    Wait  Monst    Function
+
+3C00H-   Gen     P1/PR  No     Slow     1s    Yes      Open, Wait, Then Close
+4000H            S1/SR         Normal   4s    No       Open and Stay Open
+                 W1/WR         Fast     9s             Close and Stay Closed
+                 G1/GR         Turbo    30s            Close, Wait, Then Open
+</pre>
+
+<br>
+<pre>
+Generalized Locked Door Types
+---------------------------------------------------------------
+#        Class   Trig   Lock   Speed    Wait  Monst    Function
+
+3800H-   Gen     P1/PR  Any    Slow     1s    No       Open, Wait, Then Close
+3C00H            S1/SR  Blue   Normal   4s             Open and Stay Open
+                 W1/WR  Red    Fast     9s             Close and Stay Closed
+                 G1/GR  Yell   Turbo    30s            Close, Wait, Then Open
+                        BlueC
+                        RedC
+                        YellC
+                        BlueS
+                        RedS
+                        YellS
+                        All3
+                        All6
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="floors">
+<hr width="75%" align="left">
+<b>Section 2. Floors</b>
+<hr width="75%" align="left">
+</a>
+<br>
+<a name="floortarg">
+<hr width="50%" align="left">
+<b>Section 2.1 Floor targets</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<ul>
+<li> Lowest Neighbor Floor (LnF)<br>
+<br>
+This means that the floor moves to the height of the lowest
+neighboring floor including the floor itself. If the floor
+direction is up (only possible with generalized floors) motion is
+instant, else at the floor's speed.<br>
+<br>
+<li> Next Neighbor Floor (NnF)<br>
+<br>
+This means that the floor moves up to the height of the lowest
+adjacent floor greater in height than the current, or down to the
+height of the highest adjacent floor less in height than the
+current, as determined by the floor's direction. Instant motion
+is not possible in this case. If no such floor exists, the floor
+does not move.<br>
+<br>
+<li> Lowest Neighbor Ceiling (LnC)<br>
+<br>
+This means that the floor height changes to the height of the
+lowest ceiling possessed by any neighboring sector, including
+that floor's ceiling. If the target height is in the opposite
+direction to floor motion, motion is instant, otherwise at the
+floor action's speed.<br>
+<br>
+<li> 8 Under Lowest Neighbor Ceiling (8uLnC)<br>
+<br>
+This means that the floor height changes to 8 less than the
+height of the lowest ceiling possessed by any neighboring sector,
+including that floor's ceiling. If the target height is in the
+opposite direction to floor motion, motion is instant, otherwise
+at the floor action's speed.<br>
+<br>
+<li> Highest Neighbor Floor (HnF)<br>
+<br>
+This means that the floor height changes to the height of the
+highest neighboring floor, excluding the floor itself. If no
+neighbor floor exists, the floor moves down to -32000. If the
+target height is in the opposite direction to floor motion, the
+motion is instant, otherwise it occurs at the floor action's
+speed.<br>
+<br>
+<li> 8 Above Highest Neighbor Floor (8aHnF)<br>
+<br>
+This means that the floor height changes to 8 above the height of
+the highest neighboring floor, excluding the floor itself. If no
+neighbor floor exists, the floor moves down to -31992. If the
+target height is in the opposite direction to floor motion, the
+motion is instant, otherwise it occurs at the floor action's
+speed.<br>
+<br>
+<li> Ceiling<br>
+<br>
+The floor moves up until its at ceiling height, instantly if
+floor direction is down (only available with generalized types),
+at the floor speed if the direction is up.<br>
+<br>
+<li> 24 Units (24)<br>
+<br>
+The floor moves 24 units in the floor action's direction. Instant
+motion is not possible with this linedef type.<br>
+<br>
+<li> 32 Units (32)<br>
+<br>
+The floor moves 32 units in the floor action's direction. Instant
+motion is not possible with this linedef type.<br>
+<br>
+<li> 512 Units (512)<br>
+<br>
+The floor moves 512 units in the floor action's direction.
+Instant motion is not possible with this linedef type.<br>
+<br>
+<li> Shortest Lower Texture (SLT)<br>
+<br>
+The floor moves the height of the shortest lower texture on the
+boundary of the sector, in the floor direction. Instant motion is
+not possible with this type. In the case that there is no
+surrounding texture the motion is to -32000 or +32000 depending
+on direction.<br>
+<br>
+<li> None<br>
+<br>
+Some pure texture type changes are provided for changing the
+floor texture and/or sector type without moving the floor.</p>
+</ul>
+
+<p>
+<a name="floorvar">
+<hr width="50%" align="left">
+<b>Section 2.2 Varieties of floors</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A floor can be activated by pushing on a linedef bounding it
+(generalized types only), or by pushing on a switch with the same
+tag as the floor sector, or by walking over a linedef with the
+same tag as the floor, or by shooting a linedef with the same tag
+as the floor with an impact weapon.<br>
+<br>
+A floor can move either Up or Down.<br>
+<br>
+A floor can move with speeds of Slow, Normal, Fast, or Turbo. If
+the target height specified by the floor function (see Floor
+Targets above) is in the opposite direction to the floor's
+motion, then travel is instantaneous, otherwise its at the speed
+specified.<br>
+<br>
+A floor action can be a texture change type, in which case after
+the action the floor texture of the affected floor, and possibly
+the sector type of the affected floor are changed to those of a
+model sector. The sector type may be zeroed instead of copied
+from the model, or not changed at all. These change types are
+referred to below as Tx (texture only), Tx0 (type zeroed), and
+TxTy (texture and type changed). The model sector for the change
+may be the sector on the first sidedef of the trigger (trigger
+model) or the sector with floor at destination height across the
+lowest numbered two-sided linedef surrounding the affected sector
+(numeric model). If no model sector exists, no change occurs. If
+a change occurs, floor texture is always affected, lighting is
+never affected, even that corresponding to the sector's type, nor
+is any other sector property other than the sector's type.<br>
+<br>
+Numeric model algorithm:<br>
+<br>
+1) Find all floors adjacent to the tagged floor at destination
+height<br>
+2) Find the lowest numbered linedef separating those floors from
+that tagged<br>
+3) The sector on the other side of that linedef is the model<br>
+<br>
+A floor action can have the crush property, in which case players
+and monsters are crushed when the floor tries to move above the
+point where they fit exactly underneath the ceiling. This means
+they take damage until they die, leave the sector, or the floor
+action is stopped. A floor action never reverses on encountering
+an obstacle, even if the crush property is not true, the floor
+merely remains in the same position until the obstacle is removed
+or dies, then continues.</p>
+
+<p>
+<a name="floorlines">
+<hr width="50%" align="left">
+<b>Section 2.3 Floor linedef types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Floor Types
+-------------------------------------------------------------------
+#     Class   Trig   Dir Spd   Chg  Mdl Mon Crsh  Target
+
+60    Reg     SR     Dn  Slow  None --  No  No    Lowest Neighbor Floor
+23    Reg     S1     Dn  Slow  None --  No  No    Lowest Neighbor Floor
+82    Reg     WR     Dn  Slow  None --  No  No    Lowest Neighbor Floor
+38    Reg     W1     Dn  Slow  None --  No  No    Lowest Neighbor Floor
+      
+177   Ext     SR     Dn  Slow  TxTy Num No  No    Lowest Neighbor Floor
+159   Ext     S1     Dn  Slow  TxTy Num No  No    Lowest Neighbor Floor
+84    Reg     WR     Dn  Slow  TxTy Num No  No    Lowest Neighbor Floor
+37    Reg     W1     Dn  Slow  TxTy Num No  No    Lowest Neighbor Floor
+
+69    Reg     SR     Up  Slow  None --  No  No    Next Neighbor Floor
+18    Reg     S1     Up  Slow  None --  No  No    Next Neighbor Floor
+128   Reg     WR     Up  Slow  None --  No  No    Next Neighbor Floor
+119   Reg     W1     Up  Slow  None --  No  No    Next Neighbor Floor
+
+132   Reg     SR     Up  Fast  None --  No  No    Next Neighbor Floor
+131   Reg     S1     Up  Fast  None --  No  No    Next Neighbor Floor
+129   Reg     WR     Up  Fast  None --  No  No    Next Neighbor Floor
+130   Reg     W1     Up  Fast  None --  No  No    Next Neighbor Floor
+
+222   Ext     SR     Dn  Slow  None --  No  No    Next Neighbor Floor
+221   Ext     S1     Dn  Slow  None --  No  No    Next Neighbor Floor
+220   Ext     WR     Dn  Slow  None --  No  No    Next Neighbor Floor
+219   Ext     W1     Dn  Slow  None --  No  No    Next Neighbor Floor
+
+64    Reg     SR     Up  Slow  None --  No  No    Lowest Neighbor Ceiling
+101   Reg     S1     Up  Slow  None --  No  No    Lowest Neighbor Ceiling
+91    Reg     WR     Up  Slow  None --  No  No    Lowest Neighbor Ceiling
+5     Reg     W1     Up  Slow  None --  No  No    Lowest Neighbor Ceiling
+24    Reg     G1     Up  Slow  None --  No  No    Lowest Neighbor Ceiling
+
+65    Reg     SR     Up  Slow  None --  No  Yes   Lowest Neighbor Ceiling - 8
+55    Reg     S1     Up  Slow  None --  No  Yes   Lowest Neighbor Ceiling - 8
+94    Reg     WR     Up  Slow  None --  No  Yes   Lowest Neighbor Ceiling - 8
+56    Reg     W1     Up  Slow  None --  No  Yes   Lowest Neighbor Ceiling - 8
+
+45    Reg     SR     Dn  Slow  None --  No  No    Highest Neighbor Floor
+102   Reg     S1     Dn  Slow  None --  No  No    Highest Neighbor Floor
+83    Reg     WR     Dn  Slow  None --  No  No    Highest Neighbor Floor
+19    Reg     W1     Dn  Slow  None --  No  No    Highest Neighbor Floor
+
+70    Reg     SR     Dn  Fast  None --  No  No    Highest Neighbor Floor + 8     
+71    Reg     S1     Dn  Fast  None --  No  No    Highest Neighbor Floor + 8     
+98    Reg     WR     Dn  Fast  None --  No  No    Highest Neighbor Floor + 8     
+36    Reg     W1     Dn  Fast  None --  No  No    Highest Neighbor Floor + 8     
+
+180   Ext     SR     Up  Slow  None --  No  No    Absolute 24
+161   Ext     S1     Up  Slow  None --  No  No    Absolute 24
+92    Reg     WR     Up  Slow  None --  No  No    Absolute 24
+58    Reg     W1     Up  Slow  None --  No  No    Absolute 24
+
+179   Ext     SR     Up  Slow  TxTy Trg No  No    Absolute 24
+160   Ext     S1     Up  Slow  TxTy Trg No  No    Absolute 24
+93    Reg     WR     Up  Slow  TxTy Trg No  No    Absolute 24
+59    Reg     W1     Up  Slow  TxTy Trg No  No    Absolute 24
+
+176   Ext     SR     Up  Slow  None --  No  No    Abs Shortest Lower Texture
+158   Ext     S1     Up  Slow  None --  No  No    Abs Shortest Lower Texture
+96    Reg     WR     Up  Slow  None --  No  No    Abs Shortest Lower Texture
+30    Reg     W1     Up  Slow  None --  No  No    Abs Shortest Lower Texture
+
+178   Ext     SR     Up  Slow  None --  No  No    Absolute 512
+140   Reg     S1     Up  Slow  None --  No  No    Absolute 512
+147   Ext     WR     Up  Slow  None --  No  No    Absolute 512
+142   Ext     W1     Up  Slow  None --  No  No    Absolute 512
+
+190   Ext     SR     --  ----  TxTy Trg No  No    None
+189   Ext     S1     --  ----  TxTy Trg No  No    None
+154   Ext     WR     --  ----  TxTy Trg No  No    None
+153   Ext     W1     --  ----  TxTy Trg No  No    None
+
+78    Ext     SR     --  ----  TxTy Num No  No    None
+241   Ext     S1     --  ----  TxTy Num No  No    None
+240   Ext     WR     --  ----  TxTy Num No  No    None
+239   Ext     W1     --  ----  TxTy Num No  No    None
+</pre>
+
+The following tables show the possibilities for generalized floor
+linedef type parameters. Any combination of parameters is
+allowed:<br>
+<br>
+Slow and Fast represent the same speeds as slow and fast regular
+floors. Normal is twice as fast as slow, Fast is twice normal,
+Turbo is twice Fast.<br>
+<br>
+<pre>
+Generalized Floor Types
+---------------------------------------------------------------------------
+#      Class   Trig   Dir Spd   *Chg *Mdl Mon Crsh  Target
+
+6000H- Gen     P1/PR  Up  Slow   None Trg Yes Yes   Lowest Neighbor Floor
+7FFFH          S1/SR  Dn  Normal Tx   Num No  No    Next Neighbor Floor
+               W1/WR      Fast   Tx0                Lowest Neighbor Ceiling
+               G1/GR      Turbo  TxTy               Highest Neighbor Floor
+                                                    Ceiling
+                                                    24
+                                                    32
+*Mon(ster) enabled must be No if                    Shortest Lower Texture
+Chg field is not None
+
+Tx = Texture copied only           Trg = Trigger Model
+Tx0 = Texture copied and Type->0   Num = Numeric Model
+TxTy = Texture and Type copied
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="ceils">
+<hr width="75%" align="left">
+<b>Section 3. Ceilings</b>
+<hr width="75%" align="left">
+</a>
+<br>
+<a name="ceiltarg">
+<hr width="50%" align="left">
+<b>Section 3.1 Ceiling Targets</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<ul>
+<li> Highest Neighbor Ceiling (HnC)<br>
+<br>
+This means that the ceiling moves to the height of the highest
+neighboring ceiling NOT including the ceiling itself. If the
+ceiling direction is down (only possible with generalized
+ceilings) motion is instant, else at the ceiling's speed. If no
+adjacent ceiling exists the ceiling moves to -32000 units.<br>
+<br>
+<li> Next Neighbor Ceiling (NnC)<br>
+<br>
+This means that the ceiling moves up to the height of the lowest
+adjacent ceiling greater in height than the current, or to the
+height of the highest adjacent ceiling less in height than the
+current, as determined by the ceiling's direction. Instant motion
+is not possible in this case. If no such ceiling exists, the
+ceiling does not move.<br>
+<br>
+<li> Lowest Neighbor Ceiling (LnC)<br>
+<br>
+This means that the ceiling height changes to the height of the
+lowest ceiling possessed by any neighboring sector, NOT including
+itself. If the target height is in the opposite direction to
+ceiling motion, motion is instant, otherwise at the ceiling
+action's speed. If no adjacent ceiling exists the ceiling moves
+to 32000 units.<br>
+<br>
+<li> Highest Neighbor Floor (HnF)<br>
+<br>
+This means that the ceiling height changes to the height of the
+highest neighboring floor, excluding the ceiling's floor itself.
+If no neighbor floor exists, the ceiling moves down to -32000 or
+the ceiling's floor, whichever is higher. If the target height is
+in the opposite direction to ceiling motion, the motion is
+instant, otherwise it occurs at the ceiling action's speed.<br>
+<br>
+<li> Floor<br>
+<br>
+The ceiling moves down until its at floor height, instantly if
+ceiling direction is up (only available with generalized types),
+at the ceiling speed if the direction is down. <br>
+<br>
+<li> 8 Above Floor (8aF)<br>
+<br>
+This means that the ceiling height changes to 8 above the height
+of the ceiling's floor. If the target height is in the opposite
+direction to ceiling motion, the motion is instant, otherwise it
+occurs at the ceiling action's speed.<br>
+<br>
+<li> 24 Units (24)<br>
+<br>
+The ceiling moves 24 units in the ceiling action's direction.
+Instant motion is not possible with this linedef type.<br>
+<br>
+<li> 32 Units (32)<br>
+<br>
+The ceiling moves 32 units in the ceiling action's direction.
+Instant motion is not possible with this linedef type.<br>
+<br>
+<li> Shortest Upper Texture (SUT)<br>
+<br>
+The ceiling moves the height of the shortest upper texture on the
+boundary of the sector, in the ceiling direction. Instant motion
+is not possible with this type. In the case that there is no
+surrounding texture the motion is to -32000 or +32000 depending
+on direction.
+</ul>
+</p>
+
+<p>
+<a name="ceilvar">
+<hr width="50%" align="left">
+<b>Section 3.2 Varieties of ceilings</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A ceiling can be activated by pushing on a linedef bounding it
+(generalized types only), or by pushing on a switch with the same
+tag as the ceiling sector, or by walking over a linedef with the
+same tag as the ceiling, or by shooting a linedef with the same
+tag as the ceiling with an impact weapon (generalized types
+only).<br>
+<br>
+A ceiling can move either Up or Down.<br>
+<br>
+A ceiling can move with speeds of Slow, Normal, Fast, or Turbo.
+If the target height specified by the ceiling function (see
+Ceiling Targets above) is in the opposite direction to the
+ceiling's motion, then travel is instantaneous, otherwise its at
+the speed specified.<br>
+<br>
+A ceiling action can be a texture change type, in which case
+after the action the ceiling texture of the affected ceiling, and
+possibly the sector type of the affected ceiling are changed to
+those of a model sector. The sector type may be zeroed instead of
+copied from the model, or not changed at all. These change types
+are referred to below as Tx (texture only), Tx0 (type set to 0),
+and TxTy (texture and type copied from model). The model sector
+for the change may be the sector on the first sidedef of the
+trigger (trigger model) or the sector with ceiling at destination
+height across the lowest numbered two-sided linedef surrounding
+the affected sector (numeric model). If no model sector exists,
+no change occurs. If a change occurs, ceiling texture is always
+affected, lighting is never affected, even that corresponding to
+the sector's type, nor is any other sector property other than
+the sector's type.<br>
+<br>
+Numeric model algorithm:<br>
+<br>
+1) Find all ceilings adjacent to the tagged ceiling at
+destination height<br>
+2) Find the lowest numbered linedef separating those ceilings
+from that tagged<br>
+3) The sector on the other side of that linedef is the model<br>
+<br>
+A ceiling action can have the crush property (generalized types
+only), in which case players and monsters are crushed when the
+ceiling tries to move below the point where they fit exactly
+underneath the ceiling. This means they take damage until they
+die, leave the sector, or the ceiling action is stopped. A
+ceiling action never reverses on encountering an obstacle, even
+if the crush property is not true, the ceiling merely remains in
+the same position until the obstacle is removed or dies, then
+continues.</p>
+
+<p>
+<a name="ceillines">
+<hr width="50%" align="left">
+<b>Section 3.3 Ceiling linedef types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Ceiling Types
+-------------------------------------------------------------------
+#     Class   Trig   Dir Spd   *Chg *Mdl Mon Crsh Target
+
+43    Reg     SR     Dn  Fast  None  --  No  No   Floor 
+41    Reg     S1     Dn  Fast  None  --  No  No   Floor 
+152   Ext     WR     Dn  Fast  None  --  No  No   Floor 
+145   Ext     W1     Dn  Fast  None  --  No  No   Floor 
+
+186   Ext     SR     Up  Slow  None  --  No  No   Highest Neighbor Ceiling
+166   Ext     S1     Up  Slow  None  --  No  No   Highest Neighbor Ceiling
+151   Ext     WR     Up  Slow  None  --  No  No   Highest Neighbor Ceiling
+40    Reg     W1     Up  Slow  None  --  No  No   Highest Neighbor Ceiling
+
+187   Ext     SR     Dn  Slow  None  --  No  No   8 Above Floor
+167   Ext     S1     Dn  Slow  None  --  No  No   8 Above Floor
+72    Reg     WR     Dn  Slow  None  --  No  No   8 Above Floor
+44    Reg     W1     Dn  Slow  None  --  No  No   8 Above Floor
+
+205   Ext     SR     Dn  Slow  None  --  No  No   Lowest Neighbor Ceiling
+203   Ext     S1     Dn  Slow  None  --  No  No   Lowest Neighbor Ceiling
+201   Ext     WR     Dn  Slow  None  --  No  No   Lowest Neighbor Ceiling
+199   Ext     W1     Dn  Slow  None  --  No  No   Lowest Neighbor Ceiling
+
+206   Ext     SR     Dn  Slow  None  --  No  No   Highest Neighbor Floor
+204   Ext     S1     Dn  Slow  None  --  No  No   Highest Neighbor Floor
+202   Ext     WR     Dn  Slow  None  --  No  No   Highest Neighbor Floor
+200   Ext     W1     Dn  Slow  None  --  No  No   Highest Neighbor Floor
+
+Generalized Ceiling Types
+---------------------------------------------------------------------------
+#      Class   Trig   Dir Spd   *Chg *Mdl Mon Crsh  Target
+
+4000H- Gen     P1/PR  Up  Slow   None Trg Yes Yes   Highest Neighbor Ceiling
+5FFFH          S1/SR  Dn  Normal Tx   Num No  No    Next Neighbor Ceiling
+               W1/WR      Fast   Tx0                Lowest Neighbor Ceiling
+               G1/GR      Turbo  TxTy               Highest Neighbor Floor
+                                                    Floor
+                                                    24
+                                                    32
+*Mon(ster) enabled must be No if                    Shortest Upper Texture
+Chg field is not None
+
+Tx = Texture copied only           Trg = Trigger Model
+Tx0 = Texture copied and Type->0   Num = Numeric Model
+TxTy = Texture and Type copied
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="plats">
+<hr width="75%" align="left">
+<b>Section 4. Platforms (Lifts)</b>
+<hr width="75%" align="left">
+</a>
+<br>
+A platform is basically a floor action involving two heights. The
+simple raise platform actions, for example, differ from the
+corresponding floor actions in that if they encounter an
+obstacle, they reverse direction and return to their former
+height.<br>
+<br>
+The most often used kind of platform is a lift which travels from
+its current height to the target height, then waits a specified
+time and returns to it former height.</p>
+
+<p>
+<a name="plattarg">
+<hr width="50%" align="left">
+<b>Section 4.1 Platform Targets</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<ul>
+<li> Lowest Neighbor Floor<br>
+<br>
+This means that the platforms &quot;low&quot; height is the
+height of the lowest surrounding floor, including the platform
+itself. The &quot;high&quot; height is the original height of the
+floor.<br>
+<br>
+<li> Next Lowest Neighbor Floor<br>
+<br>
+This means that the platforms &quot;low&quot; height is the
+height of the highest surrounding floor lower than the floor
+itself. If no lower floor exists, no motion occurs as the
+&quot;low&quot; and &quot;high&quot; heights are then both equal
+to the floors current height.<br>
+<br>
+<li> Lowest Neighbor Ceiling<br>
+<br>
+This means that the platforms &quot;low&quot; height is the
+height of the lowest surrounding ceiling unless this is higher
+than the floor itself. If no adjacent ceiling exists, or is
+higher than the floor no motion occurs as the &quot;low&quot; and
+&quot;high&quot; heights are then both equal to the floors
+current height.<br>
+<br>
+<li> Lowest and Highest Floor<br>
+<br>
+This target sets the &quot;low&quot; height to the lowest
+neighboring floor, including the floor itself, and the
+&quot;high&quot; height to the highest neighboring floor,
+including the floor itself. When this target is used the floor
+moves perpetually between the two heights. Once triggered this
+type of linedef runs permanently, even if the motion is
+temporarily suspended with a Stop type. No other floor action can
+be commanded on the sector after this type is begun.<br>
+<br>
+<li> Ceiling<br>
+<br>
+This target sets the &quot;high&quot; height to the ceiling of
+the sector and the &quot;low&quot; height to the floor height of
+the sector and is only used in the instant toggle type that
+switches the floor between the ceiling and its original height on
+each activation. This is also the ONLY instant platform type.<br>
+<br>
+<li> Raise Next Floor<br>
+<br>
+This means that the &quot;high&quot; height is the lowest
+surrounding floor higher than the platform. If no higher adjacent
+floor exists no motion will occur.<br>
+<br>
+<li> Raise 24 Units<br>
+<br>
+The &quot;low&quot; height is the original floor height, the
+&quot;high&quot; height is 24 more. <br>
+<br>
+<li> Raise 32 Units<br>
+<br>
+The &quot;low&quot; height is the original floor height, the
+&quot;high&quot; height is 32 more. 
+</ul>
+</p>
+
+<p>
+<a name="platvar">
+<hr width="50%" align="left">
+<b>Section 4.2 Varieties of Platforms</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A platform can be activated by pushing on a linedef bounding it
+(generalized types only), or by pushing on a switch with the same
+tag as the platform sector, or by walking over a linedef with the
+same tag as the platform, or by shooting a linedef with the same
+tag as the platform with an impact weapon.<br>
+<br>
+A platform can move with speeds of Slow, Normal, Fast, or Turbo.
+Only the instant toggle platform moves instantly, all others move
+at the platform's speed.<br>
+<br>
+A platform can have a delay, in between when it reaches
+&quot;high&quot; height and returns to &quot;low&quot; height, or
+at both ends of the motion in the case of perpetual lifts.<br>
+<br>
+A platform action can be a texture change type, in which case
+after the action the floor texture of the affected floor, and
+possibly the sector type of the affected floor are changed to
+those of a model sector. The sector type may be zeroed instead of
+copied from the model, or not changed at all. These change types
+are referred to below as Tx (texture only), Tx0 (type zeroed),
+and TxTy (texture and type changed). The model sector for the
+change is always the sector on the first sidedef of the trigger
+(trigger model). If a change occurs, floor texture is always
+affected, lighting is never affected, even that corresponding to
+the sector's type, nor is any other sector property other than
+the sector's type.</p>
+
+<p>
+<a name="platlines">
+<hr width="50%" align="left">
+<b>Section 4.3 Platform Linedef types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Platform Types
+-------------------------------------------------------------------
+#     Class  Trig   Dly Spd  Chg  Mdl Mon Target
+
+66    Reg    SR     --  Slow Tx   Trg No  Raise 24 Units
+15    Reg    S1     --  Slow Tx   Trg No  Raise 24 Units
+148   Ext    WR     --  Slow Tx   Trg No  Raise 24 Units
+143   Ext    W1     --  Slow Tx   Trg No  Raise 24 Units
+
+67    Reg    SR     --  Slow Tx0  Trg No  Raise 32 Units
+14    Reg    S1     --  Slow Tx0  Trg No  Raise 32 Units
+149   Ext    WR     --  Slow Tx0  Trg No  Raise 32 Units
+144   Ext    W1     --  Slow Tx0  Trg No  Raise 32 Units
+
+68    Reg    SR     --  Slow Tx0  Trg No  Raise Next Floor
+20    Reg    S1     --  Slow Tx0  Trg No  Raise Next Floor
+95    Reg    WR     --  Slow Tx0  Trg No  Raise Next Floor
+22    Reg    W1     --  Slow Tx0  Trg No  Raise Next Floor
+47    Reg    G1     --  Slow Tx0  Trg No  Raise Next Floor
+
+181   Ext    SR     3s  Slow None --  No  Lowest and Highest Floor (perpetual)
+162   Ext    S1     3s  Slow None --  No  Lowest and Highest Floor (perpetual)
+87    Reg    WR     3s  Slow None --  No  Lowest and Highest Floor (perpetual)
+53    Reg    W1     3s  Slow None --  No  Lowest and Highest Floor (perpetual)
+
+182   Ext    SR     --  ---- ---- --  --  Stop
+163   Ext    S1     --  ---- ---- --  --  Stop
+89    Reg    WR     --  ---- ---- --  --  Stop
+54    Reg    W1     --  ---- ---- --  --  Stop
+
+62    Reg    SR     3s  Slow None --  No  Lowest Neighbor Floor (lift)
+21    Reg    S1     3s  Slow None --  No  Lowest Neighbor Floor (lift)
+88    Reg    WR     3s  Slow None --  No  Lowest Neighbor Floor (lift)
+10    Reg    W1     3s  Slow None --  No  Lowest Neighbor Floor (lift)
+
+123   Reg    SR     3s  Fast None --  No  Lowest Neighbor Floor (lift)
+122   Reg    S1     3s  Fast None --  No  Lowest Neighbor Floor (lift)
+120   Reg    WR     3s  Fast None --  No  Lowest Neighbor Floor (lift)
+121   Reg    W1     3s  Fast None --  No  Lowest Neighbor Floor (lift)
+
+211   Ext    SR     --  Inst None --  No  Ceiling (toggle)
+212   Ext    WR     --  Inst None --  No  Ceiling (toggle)
+
+Generalized Lift Types
+---------------------------------------------------------------------------
+#      Class   Trig   Dly Spd    Mon  Target
+
+3400H- Gen     P1/PR  1s  Slow   Yes  Lowest Neighbor Floor
+37FFH          S1/SR  3s  Normal No   Next Lowest Neighbor Floor
+               W1/WR  5s  Fast        Lowest Neighbor Ceiling
+               G1/GR  10s Turbo       Lowest and Highest Floor (perpetual)
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="crush">
+<hr width="75%" align="left">
+<b>Section 5. Crusher Ceilings</b>
+<hr width="75%" align="left">
+</a>
+<br>
+A crusher ceiling is a linedef type that causes the ceiling to
+cycle between its starting height and 8 above the floor, damaging
+monsters and players that happen to be in between. Barrels
+explode when crushed.<br>
+<br>
+Once a crusher ceiling is started it remains running for the
+remainder of the level even if temporarily suspended with a stop
+type. No other ceiling action can be used in that sector
+thereafter.<br>
+<br>
+<a name="crushvar">
+<hr width="50%" align="left">
+<b>Section 5.1 Varieties of Crushers</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A crusher can be activated by pushing on a linedef bounding it
+(generalized types only), or by pushing on a switch with the same
+tag as the crusher sector, or by walking over a linedef with the
+same tag as the crusher, or by shooting a linedef with the same
+tag as the crusher with an impact weapon (generalized types
+only).<br>
+<br>
+A crusher has a speed: slow, normal, fast, or turbo. The slower
+the speed, the more damage the crusher does when crushing, simply
+thru being applied longer. When a slow or normal crusher is
+moving down and encounters something to crush, it slows down even
+more, by a factor of 8. This persists until it reaches bottom of
+stroke and starts up again. Fast and turbo crushers do not slow
+down.<br>
+<br>
+A crusher can be silent. The regular silent crusher makes
+platform stop and start noises at top and bottom of stroke. The
+generalized silent crusher is completely quiet.<br>
+<br>
+A crusher linedef is provided to stop a crusher in its current
+position. Care should be used that this doesn't lock the player
+out of an area of the wad if the crusher is too low to pass. A
+crusher can be restarted, but not changed, with any crusher
+linedef.</p>
+
+<p>
+<a name="crushlines">
+<hr width="50%" align="left">
+<b>Section 5.2 Crusher Linedef Types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Crusher Types
+-------------------------------------------------------------------
+#     Class  Trig   Spd  Mon Silent Action
+
+184   Ext    SR     Slow No  No     Start
+49    Reg    S1     Slow No  No     Start
+73    Reg    WR     Slow No  No     Start
+25    Reg    W1     Slow No  No     Start
+
+183   Ext    SR     Fast No  No     Start
+164   Ext    S1     Fast No  No     Start
+77    Reg    WR     Fast No  No     Start
+6     Reg    W1     Fast No  No     Start
+
+185   Ext    SR     Slow No  Yes    Start
+165   Ext    S1     Slow No  Yes    Start
+150   Ext    WR     Slow No  Yes    Start
+141   Reg    W1     Slow No  Yes    Start
+
+188   Ext    SR     ---- --  --     Stop
+168   Ext    S1     ---- --  --     Stop
+74,   Reg    WR     ---- --  --     Stop
+57,   Reg    W1     ---- --  --     Stop
+
+Generalized Crusher Types
+---------------------------------------------------------------------------
+#      Class   Trig   Spd    Mon  Silent
+
+2F80H- Gen     P1/PR  Slow   Yes  Yes
+2FFFH          S1/SR  Normal No   No
+               W1/WR  Fast        
+               G1/GR  Turbo       
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="stairs">
+<hr width="75%" align="left">
+<b>Section 6. Stair Builders</b>
+<hr width="75%" align="left">
+</a>
+<br>
+A stair builder is a linedef type that sets a sequence of sectors
+defined by a complex rule to an ascending or descending sequence
+of heights.<br>
+<br>
+The rule for stair building is as follows:<br>
+<br>
+1) The first step to rise or fall is the tagged sector. It rises
+or falls by the stair stepsize, at the stair speed.<br>
+<br>
+2) To find the next step (sector) affected examine all two-sided
+linedefs with first sidedef facing into the previous step for the
+one with lowest linedef number. The sector on the other side of
+this linedef is the next step. If no such linedef exists, stair
+building ceases.<br>
+<br>
+3) If the next step is already moving, or has already risen as
+part of the stair, stair building ceases. Optionally if the floor
+texture of the next step is different from the previous step's
+the stair building stops. Otherwise the next step moves to the
+height of the previous step plus or minus the stepsize depending
+on the direction the stairs build, up or down. If the motion is
+in the same direction as the stairs build, it occurs at stair
+build speed, otherwise it is instant.<br>
+<br>
+4) Repeat from step 2 until stair building ceases.</p>
+
+<p>
+<a name="stairvar">
+<hr width="50%" align="left">
+<b>Section 6.1 Varieties of Stair Builders</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A stair can be activated by pushing on a linedef bounding it
+(generalized types only), or by pushing on a switch with the same
+tag as the stair sector, or by walking over a linedef with the
+same tag as the stair, or by shooting a linedef with the same tag
+as the stair with an impact weapon (generalized types only).<br>
+<br>
+Only extended and generalized stair types are retriggerable. The
+extended retriggerable stairs are mostly useless, though
+triggering a stair with stepsize 8 twice might be used. The
+generalized retriggerable stairs alternate building up and down
+on each activation which is much more useful.<br>
+<br>
+A stair can build up or down (generalized types only).<br>
+<br>
+A stair can have a step size of 4, 8, 16, or 24. Only generalized
+types support stepsize of 4 or 24.<br>
+<br>
+A stair can have build speeds of slow, normal, fast or turbo.
+Only generalized types support speeds of normal or turbo.<br>
+<br>
+A stair can stop on encountering a different texture or ignore
+(generalized types only) different textures and continue.<br>
+<br>
+Only the regular build fast, stepsize 16 stair has the property
+that monsters and players can be crushed by the motion, all
+others do not crush.</p>
+
+<p>
+<a name="stairlines">
+<hr width="50%" align="left">
+<b>Section 6.2 Regular and Extended Stair Builder Types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Stairs Types
+-------------------------------------------------------------------
+#     Class  Trig  Dir Spd   Step Ignore Mon
+
+258   Ext    SR    Up  Slow  8    No     No
+7     Reg    S1    Up  Slow  8    No     No
+256   Ext    WR    Up  Slow  8    No     No
+8     Reg    W1    Up  Slow  8    No     No
+
+259   Ext    SR    Up  Fast  16   No     No
+127   Reg    S1    Up  Fast  16   No     No
+257   Ext    WR    Up  Fast  16   No     No
+100   Reg    W1    Up  Fast  16   No     No
+
+Generalized Stairs Types
+---------------------------------------------------------------------------
+#      Class   Trig   Dir Spd     Step  Ignore Mon
+
+3000H- Gen     P1/PR  Up  Slow    4     Yes    Yes
+33FFH          S1/SR  Dn  Normal  8     No     No 
+               W1/WR      Fast    16 
+               G1/GR      Turbo   24 
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="elevs">
+<hr width="75%" align="left">
+<b>Section 7. Elevators</b>
+<hr width="75%" align="left">
+</a>
+<br>
+An elevator is a linedef type that moves both floor and ceiling
+together. All elevator linedefs are extended, there are no
+regular or generalized elevator types. Instant elevator motion is
+not possible, and monsters cannot activate elevators. All
+elevator triggers are either switched or walkover.</p>
+
+<p>
+<a name="elevtarg">
+<hr width="50%" align="left">
+<b>Section 7.1 Elevator Targets</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<ul>
+<li> Next Highest Floor<br>
+<br>
+The elevator floor moves to the lowest adjacent floor higher than
+the elevator's floor, the ceiling staying the same height above
+the floor. If there is no higher floor the elevator doesn't move.<br>
+<br>
+<li> Next Lowest Floor<br>
+<br>
+The elevator floor moves to the highest adjacent floor lower than
+the current floor, the ceiling staying the same height above the
+floor. If there is no lower floor the elevator doesn't move.<br>
+<br>
+<li> Current Floor<br>
+<br>
+The elevator floor moves to the height of the floor on the first
+sidedef of the triggering line, the ceiling remaining the same
+height above the elevator floor.
+</ul>
+</p>
+
+<p>
+<a name="elevlines">
+<hr width="50%" align="left">
+<b>Section 7.2 Elevator Linedef Types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Extended Elevator types
+-------------------------------------------------------------------
+#     Class  Trig  Spd    Target
+
+230   Ext    SR    Fast   Next Highest Floor
+229   Ext    S1    Fast   Next Highest Floor
+228   Ext    WR    Fast   Next Highest Floor
+227   Ext    W1    Fast   Next Highest Floor
+
+234   Ext    SR    Fast   Next Lowest Floor
+233   Ext    S1    Fast   Next Lowest Floor
+232   Ext    WR    Fast   Next Lowest Floor
+231   Ext    W1    Fast   Next Lowest Floor
+
+238   Ext    SR    Fast   Current Floor
+237   Ext    S1    Fast   Current Floor
+236   Ext    WR    Fast   Current Floor
+235   Ext    W1    Fast   Current Floor
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="lights">
+<hr width="75%" align="left">
+<b>Section 7a. Lighting</b>
+<hr width="75%" align="left">
+</a>
+<br>
+The lighting linedef types change the lighting in the tagged
+sector. All are regular or extended types, there are no
+generalized lighting types. All are switched or walkovers.</p>
+
+<p>
+<a name="lighttarg">
+<hr width="50%" align="left">
+<b>Section 7a.1 Lighting Targets</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<ul>
+<li> Lights to Minimum Neighbor<br>
+<br>
+Each tagged sector is set to the minimum light level found in any
+adjacent sector. The tagged sectors are changed in numerical
+order, and this may influence the result.<br>
+<br>
+<li> Lights to Maximum Neighbor<br>
+<br>
+Each tagged sector is set to the maximum light level found in any
+adjacent sector. The tagged sectors are changed in numerical
+order, and this may influence the result.<br>
+<br>
+<li> Blinking<br>
+<br>
+Each tagged sector begins blinking between two light levels. The
+brighter level is the light level in the tagged sector. The
+darker level is the minimum neighbor light level, or 0 if all
+neighbor sectors have lighting greater than or equal to the
+sector's at the time of activation. The blinking is
+non-synchronous, beginning 1-9 gametics after activation, with a
+dark period of 1 sec (35 gametics) and a bright period of 1/7 sec
+(5 gametics).<br>
+<br>
+<li> 35 Units<br>
+<br>
+Each tagged sector is set to a light level of 35 units.<br>
+<br>
+<li> 255 Units<br>
+<br>
+Each tagged sector is set to a light level of 255 units.
+</ul>
+</p>
+
+<p>
+<a name="lightlines">
+<hr width="50%" align="left">
+<b>Section 7a.2 Lighting Linedef Types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Lighting types
+-------------------------------------------------------------------
+#     Class  Trig  Target
+
+139   Reg    SR    35 Units
+170   Ext    S1    35 Units
+79    Reg    WR    35 Units
+35    Reg    W1    35 Units
+
+138   Reg    SR    255 Units
+171   Ext    S1    255 Units
+81    Reg    WR    255 Units
+13    Reg    W1    255 Units
+
+192   Ext    SR    Maximum Neighbor
+169   Ext    S1    Maximum Neighbor
+80    Reg    WR    Maximum Neighbor
+12    Reg    W1    Maximum Neighbor
+
+194   Ext    SR    Minimum Neighbor
+173   Ext    S1    Minimum Neighbor
+157   Ext    WR    Minimum Neighbor
+104   Reg    W1    Minimum Neighbor
+
+193   Ext    SR    Blinking
+172   Ext    S1    Blinking
+156   Ext    WR    Blinking
+17    Reg    W1    Blinking
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="exits">
+<hr width="75%" align="left">
+<b>Section 8. Exits</b>
+<hr width="75%" align="left">
+</a>
+<br>
+An exit linedef type ends the current level bringing up the
+intermission screen with its report of kills/items/secrets or
+frags in the case of deathmatch. Obviously, none are
+retriggerable, and none require tags, since no sector is
+affected.<br>
+<br>
+<a name="exitvar">
+<hr width="50%" align="left">
+<b>Section 8.1 Exit Varieties</b>
+<hr width="50%" align="left">
+</a>
+<br>
+An exit can be activated by pushing on a switch with the exit
+type or by walking over a linedef with the exit type, or by
+shooting a linedef with the exit type with an impact weapon.<br>
+<br>
+An exit can be normal or secret. The normal exit simply ends the
+level and takes you to the next level via the intermission
+screen. A secret exit only works in a special level depending on
+the IWAD being played. In DOOM the secret exits can be on E1M3,
+E2M5, or E3M6. In DOOM II they can be in levels 15 and 31. If a
+secret exit is used in any other level, it brings you back to the
+start of the current level. In DOOM the secret exits go from E1M3
+to E1M9, E2M5 to E2M9, and E3M6 to E3M9. In DOOM II they go from
+15 to 31 and from 31 to 32. In DOOM II a normal exit from 31 or
+32 goes to level 16.</p>
+
+<p>
+<a name="exitlines">
+<hr width="50%" align="left">
+<b>Section 8.2 Exit Linedef Types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Exit types
+-------------------------------------------------------------------
+#     Class  Trig  Type
+
+11    Reg    S1    Normal
+52    Reg    W1    Normal
+197   Ext    G1    Normal
+
+51    Reg    S1    Secret
+124   Reg    W1    Secret
+198   Ext    G1    Secret
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="teles">
+<hr width="75%" align="left">
+<b>Section 9. Teleporters</b>
+<hr width="75%" align="left">
+</a>
+<br>
+A teleporter is a linedef that when crossed or switched makes the
+player or monster appear elsewhere in the level. There are only
+regular and extended teleporters, no generalized teleporters
+exist (yet). Teleporters are the only direction sensitive
+walkover triggers in DOOM (to allow them to be exited without
+teleporting again). They must be crossed from the first sidedef
+side in order to work.<br>
+<br>
+The place that the player or monster appears is set in one of two
+ways. The more common is by a teleport thing in the sector tagged
+to the teleport line. The newer completely player preserving
+line-line silent teleport makes the player appear relative to the
+exit line (identified by having the same tag as the entry line)
+with the same orientation, position, momentum and height that
+they had relative to the entry line just before teleportation. A
+special kind of line-line teleporter is also provided that
+reverses the player's orientation by 180 degrees.<br>
+<br>
+In the case of several lines tagged the same as the teleport
+line, or several sectors tagged the same, or several teleport
+things in the tagged sector, in all cases the lowest numbered one
+is used.<br>
+<br>
+In DOOM crossing a W1 teleport line in the wrong direction used
+it up, and it was never activatable. In BOOM this is not the
+case, it does not teleport but remains active until next crossed
+in the right direction.<br>
+<br>
+If the exit of a teleporter is blocked a monster (or anything
+besides a player) will not teleport thru it. However if the exit
+of teleporter is blocked a player will, including into a down
+crusher, a monster, or another player. In the latter two cases
+the monster/player occupying the spot dies messily, and this is
+called a telefrag.</p>
+
+<p>
+<a name="televar">
+<hr width="50%" align="left">
+<b>Section 9.1 Teleport Varieties</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A teleporter can be walkover or switched, and retriggerable or
+not.<br>
+<br>
+A teleporter can have destination set by a teleport thing in the
+tagged sector, or by a line tagged the same as the teleport line.
+These are called thing teleporters and line teleporters resp.<br>
+<br>
+A teleporter can preserve orientation or set orientation from the
+position, height, and angle of the teleport thing. Note a thing
+destination teleporter always sets position, though it may
+preserve orientation otherwise.<br>
+<br>
+A teleporter can produce green fog and a whoosh noise, or it can
+be silent, in which case it does neither.<br>
+<br>
+A teleporter can transport monsters only, or both players and
+monsters.</p>
+
+<p>
+<a name="telelines">
+<hr width="50%" align="left">
+<b>Section 9.2 Teleport Linedef types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Teleport types
+-------------------------------------------------------------------
+#     Class  Trig  Silent Mon Plyr Orient    Dest
+
+195   Ext    SR    No     Yes Yes  Set       TP thing in tagged sector
+174   Ext    S1    No     Yes Yes  Set       TP thing in tagged sector
+97    Reg    WR    No     Yes Yes  Set       TP thing in tagged sector
+39    Reg    W1    No     Yes Yes  Set       TP thing in tagged sector
+
+126   Reg    WR    No     Yes No   Set       TP thing in tagged sector
+125   Reg    W1    No     Yes No   Set       TP thing in tagged sector
+269   Ext    WR    Yes    Yes No   Set       TP thing in tagged sector
+268   Ext    W1    Yes    Yes No   Set       TP thing in tagged sector
+
+210   Ext    SR    Yes    Yes Yes  Preserve  TP thing in tagged sector
+209   Ext    S1    Yes    Yes Yes  Preserve  TP thing in tagged sector
+208   Ext    WR    Yes    Yes Yes  Preserve  TP thing in tagged sector
+207   Ext    W1    Yes    Yes Yes  Preserve  TP thing in tagged sector
+
+244   Ext    WR    Yes    Yes Yes  Preserve  Line with same tag
+243   Ext    W1    Yes    Yes Yes  Preserve  Line with same tag
+263   Ext    WR    Yes    Yes Yes  Preserve  Line with same tag (reversed)
+262   Ext    W1    Yes    Yes Yes  Preserve  Line with same tag (reversed)
+
+267   Ext    WR    Yes    Yes No   Preserve  Line with same tag 
+266   Ext    W1    Yes    Yes No   Preserve  Line with same tag 
+265   Ext    WR    Yes    Yes No   Preserve  Line with same tag (reversed) 
+264   Ext    W1    Yes    Yes No   Preserve  Line with same tag (reversed)
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<!-- mmm, donuts -->
+<a name="donuts">
+<hr width="75%" align="left">
+<b>Section 10. Donuts</b>
+<hr width="75%" align="left">
+</a>
+<br>
+A donut is a very specialized linedef type that lowers a pillar
+in a surrounding pool, while raising the pool and changing its
+texture and type.<br>
+<br>
+The tagged sector is the pillar, and its lowest numbered line
+must be two-sided. The sector on the other side of that is the
+pool. The pool must have a two-sided line whose second sidedef
+does not adjoin the pillar, and the sector on the second side of
+the lowest numbered such linedef is the model for the pool's
+texture change. The model sector floor also provides the
+destination height both for lowering the pillar and raising the
+pool.<br>
+<br>
+No generalized donut linedefs exist, and all are switched or
+walkover.</p>
+
+<p>
+<a name="donutlines">
+<hr width="50%" align="left">
+<b>Section 10.1 Donut Linedef types</b>
+<hr width="50%" align="left">
+</a>
+<br>
+<pre>
+Regular and Extended Donut types
+-------------------------------------------------------------------
+#     Class  Trig
+
+191   Ext    SR
+9     Reg    S1
+155   Ext    WR
+146   Ext    W1
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="props">
+<hr width="75%" align="left">
+<b>Section 11. Property Transfer</b>
+<hr width="75%" align="left">
+</a>
+<br>
+These linedefs are special purpose and are used to transfer
+properties from the linedef itself or the sector on its first
+sidedef to the tagged sector(s). None are triggered, they simply
+exist.<br>
+<br>
+<pre>
+Extended Property Transfer Linedefs
+-------------------------------------------------------------------
+#     Class  Trig Description
+</pre>
+<a name="line213">
+<pre>
+213   Ext    --   Set Tagged Floor Lighting to Lighting on 1st Sidedef's Sector
+</pre>
+</a>
+Used to give the floor of a sector a different light level from
+the remainder of the sector. For example bright lava in a dark
+room.<br>
+<br>
+<a name="line261">
+<pre>
+261   Ext    --   Set Tagged Ceiling Lighting to Lighting on 1st Sidedef's Sector
+</pre>
+</a>
+Used to give the ceiling of a sector a different light level from
+the remainder of the sector.<br>
+<br>
+<a name="line260">
+<pre>
+260   Ext    --   Make Tagged Lines (or this line if tag==0) Translucent
+</pre>
+</a>
+Used to make 2s normal textures translucent. If tag==0, then this
+linedef's normal texture is made translucent if it's 2s, and the
+default translucency map TRANMAP is used as the filter. If
+tag!=0, then all similarly-tagged 2s linedefs' normal textures
+are made translucent, and if this linedef's first sidedef
+contains a valid lump name for its middle texture (as opposed to
+a texture name), and the lump is 64K long, then that lump will be
+used as the translucency filter instead of the default TRANMAP,
+allowing different filters to be used in different parts of the
+same maps. If the first side's normal texture is not a valid
+translucency filter lump name, it must be a valid texture name,
+and will be displayed as such on this linedef.<br>
+<br>
+<a name="line242">
+<pre>
+242   Ext    --   Set Tagged Lighting, Flats Heights to 1st Sidedef's Sector,
+                  and set colormap based on sidedef textures.
+</pre>
+</a>
+This allows the tagged sector to have two levels -- an actual
+floor and ceiling, and another floor or ceiling where more flats
+are rendered. Things will stand on the actual floor or hang from
+the actual ceiling, while this function provides another rendered
+floor and ceiling at the heights of the sector on the first
+sidedef of the linedef. Typical use is &quot;deep water&quot;
+that can be over the player's head.<br>
+<br>
+<pre>
+     ----------------------------------  < real sector's ceiling height
+    |         real ceiling             | < control sector's ceiling texture
+    |                                  |
+    |                                  | < control sector's lightlevel
+    |              A                   |
+    |                                  | < upper texture as colormap
+    |                                  |
+    |                                  | < control sector's floor texture
+     ----------------------------------  < control sector's ceiling height
+    |         fake ceiling             | < real sector's ceiling texture
+    |                                  |
+    |                                  | < real sector's lightlevel
+    |              B                   |
+    |                                  | < normal texture as colormap
+    |                                  |
+    |          fake floor              | < real sector's floor texture
+     ----------------------------------  < control sector's floor height
+    |                                  | < control sector's ceiling texture
+    |                                  |
+    |                                  | < control sector's lightlevel
+    |              C                   |
+    |                                  | < lower texture as colormap
+    |                                  |
+    |          real floor              | < control sector's floor texture
+     ----------------------------------  < real sector's floor height
+</pre>
+
+Boom sectors controlled by a 242 linedef are partitioned into 3
+spaces. The viewer's xyz coordinates uniquely determine which
+space they are in.<br>
+<br>
+If they are in space B (normal space), then the floor and ceiling
+textures and lightlevel from the real sector are used, and the
+colormap from the 242 linedef's first sidedef's normal texture is
+used (COLORMAP is used if it's invalid or missing). The floor and
+ceiling are rendered at the control sector's heights.<br>
+<br>
+If they are in space C (&quot;underwater&quot;), then the floor
+and ceiling textures and lightlevel from the control sector are
+used, and the lower texture in the 242 linedef's first sidedef is
+used as the colormap.<br>
+<br>
+If they are in space A (&quot;head over ceiling&quot;), then the
+floor and ceiling textures and lightlevel from the control sector
+are used, and the upper texture in the 242 linedef's first
+sidedef is used as the colormap.<br>
+<br>
+If only two of these adjacent partitions in z-space are used,
+such as underwater and normal space, one has complete control
+over floor textures, ceiling textures, light level, and
+colormaps, in each of the two partitions. The control sector
+determines the textures and lighting in the more
+&quot;unusual&quot; case (e.g. underwater).<br>
+<br>
+It's also possible for the fake floor to extend below the real
+floor, in which case an invisible platform / stair effect is
+created. In that case, the picture looks like this (barring any
+ceiling effects too):<br>
+<br>
+<pre>
+     ----------------------------------  < real sector's ceiling texture
+    |   real ceiling = fake ceiling    |
+    |                                  |
+    |                                  |
+    |              B                   | < real sector's lightlevel
+    |                                  | < normal texture's colormap
+    |                                  |
+    |          real floor              |
+     ----------------------------------  < invisible, no texture drawn
+    |                                  |
+    |                                  |
+    |                                  | < real sector's lightlevel
+    |              C                   | < normal texture's colormap
+    |                                  |
+    |                                  |
+    |          fake floor              | < real sector's floor texture
+     ----------------------------------  < fake sector's floor height
+</pre>
+
+In this case, since the viewer is always at or above the fake
+floor, no colormap/lighting/texture changes occur -- the fake
+floor just gets drawn at the control sector's height, but at the
+real sector's lighting and texture, while objects stand on the
+higher height of the real floor.<br>
+<br>
+It's the viewer's position relative to the fake floor and/or fake
+ceiling, which determines whether the control sector's lighting
+and textures should be used, and which colormap should be used.
+If the viewer is always between the fake floor and fake ceiling,
+then no colormap, lighting, or texture changes occur, and the
+view just sees the real sector's textures and light level drawn
+at possibly different heights.<br>
+<br>
+If the viewer is below the fake floor height set by the control
+sector, or is above the fake ceiling height set by the control
+sector, then the corresponding colormap is used (lower or upper
+texture name), and the textures and lighting are taken from the
+control sector rather than the real sector. They are still
+stacked vertically in standard order -- the control sector's
+ceiling is always drawn above the viewer, and the control
+sector's floor is always drawn below the viewer.<br>
+<br>
+The kaleidescope effect only occurs when F_SKY1 is used as the
+control sector's floor or ceiling. If F_SKY1 is used as the
+control sector's ceiling texture, then under water, only the
+control sector's floor appears, but it &quot;envelops&quot; the
+viewer. Similarly, if F_SKY1 is used as the control sector's
+floor texture, then when the player's head is over a fake
+ceiling, the control sector's ceiling is used throughout.<br>
+<br>
+F_SKY1 causes HOM when used as a fake ceiling between the viewer
+and normal space. Since there is no other good use for it, this
+kaleidescope is an option turned on by F_SKY1. Note that this
+does not preclude the use of sky REAL ceilings over deep water --
+this is the control sector's ceiling, the one displayed when the
+viewer is underwater, not the real one.<br>
+<br>
+A colormap has the same size and format as Doom's COLORMAP. Extra
+colormaps may defined in Boom by adding them between C_START and
+C_END markers in wads. Colormaps between C_START and C_END are
+automatically merged by Boom with any previously defined
+colormaps.<br>
+<br>
+WATERMAP is a colormap predefined by Boom which can be used to
+provide a blue-green tint while the player is under water.
+WATERMAP can be modified by pwads.<br>
+<br>
+Ceiling bleeding may occur if required upper textures are not
+used.<br>
+<br>
+<a name="line223">
+<pre>
+223   Ext    --   Length Sets Friction in tagged Sector,Sludge&lt;100, Ice&gt;100
+</pre>
+</a>
+The length of the linedef with type 223 controls the amount of
+friction experienced by the player in the tagged sector, when in
+contact with the floor. Lengths less than 100 are sticker than
+normal, lengths greater than 100 are slipperier than normal. The
+effect is only present in the tagged sector when its friction
+enable bit (bit 8) in the sector type is set. This allows the
+flat to be changed in conjunction with turning the effect on or
+off thru texture/type changes.</p>
+
+<p>=== New to MBF ===<br>
+<br>
+<a name="skytrans">
+<pre>
+271   Ext    --   Transfer sky texture to tagged sectors 
+272   Ext    --   Transfer sky texture to tagged sectors, flipped
+</pre>
+</a>
+
+These linedefs transfer wall textures to skies. F_SKY1 must still
+be used as the floor or ceiling texture in the sectors for which
+sky is desired, but the presence of a 271 or 272
+property-transfer linedef can change the sky texture to something
+other than a level-based default.<br>
+<br>
+Every sector with F_SKY1 floor or ceiling which shares the same
+sector tag as the 271 or 272 linedef will use a sky texture based
+on the upper texture of the first sidedef in the 271 or 272
+linedef. Sectors with F_SKY1 floors or ceilings which are not
+tagged with 271 or 272 linedefs, behave just like Doom.<br>
+<br>
+Horizontal offsets or scrolling in the transferred texture, is
+converted into rotation of the sky texture. Vertical offsets or
+scrolling is transferred as well, allowing for precise
+adjustments of sky position. Unpegging in the sky transfer
+linedef does not affect the sky texture.<br>
+<br>
+Horizontal scrolling of the transferred upper wall texture is
+converted into rotation of the sky texture, but it occurs at a
+very slow speed relative to the moving texture, allowing for
+long-period rotations (such as one complete revolution per Doom
+real-time hour).<br>
+<br>
+Effects other than sky-transfer effects are not excluded from the
+affected sector(s), and tags can be shared so long as the effects
+are unambiguous. For example, a wall-scrolling linedef can share
+a sector tag with both its affectee linedef (the one being
+scrolled), and with the sector that the latter controls. There is
+no ambiguity because one effect (scrolling) applies to a linedef,
+while the other effect (sky transfer) applies to a sector.<br>
+<br>
+If a sector underneath a special sky needs to be set up to have a
+different purpose (for example, if it is a lift or a
+stairbuilder), then two tags will need to be created, and the
+transfer linedef and any scrolling linedefs will need to be
+duplicated as well, so that the same effect as far as the sky
+goes, is duplicated in two separate sector tags. This will not
+affect sky appearance, but it will allow a special sector which
+needs a unique tag, to sit under such a sky.<br>
+<br>
+Animated textures may be transferred to skies as well.<br>
+<br>
+In Doom, skies were flipped horizontally. To maintain
+compatibility with this practice, the 272 linedef flips the wall
+image horizontally. The 271 linedef does not flip the wall image,
+and it is intended to make it easier to take existing non-flipped
+wall textures and transfer them to skies.<br>
+<br>
+Sky textures which are different must be separated by non-sky
+textures, or else the results are undefined.</p>
+<br>
+Note for Eternity Engine v3.31 public beta 6 and later: Sky textures
+will be rendered using the maximum of the texture height and the height
+of the tallest patch in the texture, in order to properly support tall
+skies that do not require stretching for mlook. Because of this, textures
+which are meant to cut off a taller patch at the texture height will not
+appear as expected when used as sky textures. Avoid using sky textures
+which contain patches taller than the texture to avoid this problem.
+
+<p>
+<a name="consttrans">
+<hr width="25%" align="left">
+Constant pushers
+<hr width="25%" align="left">
+</a>
+Two types of constant pushers are available, wind and current.
+Depending on whether you are above, on, or below (special water
+sectors) the ground level, the amount of force varies.<br>
+<br>
+The length of the linedef defines the 'full' magnitude of the
+force, and the linedef's angle defines the direction.<br>
+<br>
+<pre>
+     line type         above  on   under
+     ---------         -----  --   -----
+     wind       224    full  half  none
+     current    225    none  full  full
+</pre>
+<br>
+The linedef should be tagged to the sector where you want the
+effect. The special type of the sector should have bit 9 set
+(0x200). If this bit is turned off, the effect goes away. For
+example, a fan creating a wind could be turned off, and the wind
+dies, by changing the sector type and clearing that bit.<br>
+<br>
+Constant pushers can be combined with scrolling effects and point
+pushers.<br>
+<br>
+<pre>
+224  Ext     --   Length/Direction Sets Wind Force in tagged Sectors
+
+225  Ext     --   Length/Direction Sets Current Force in tagged Sectors
+</pre>
+<br>
+<a name="pointtrans">
+<hr width="25%" align="left">
+Point pushers
+<hr width="25%" align="left">
+</a>
+Two types of point pushers are available, push and pull.<br>
+<br>
+The previous implementation of these was SECTOR-SPECIFIC. The new
+implementation ignores sector boundaries and provides the effect
+in a circular area whose center is defined by a Thing of type
+5001 (push) or 5002 (pull). You now also don't have to set any
+option flags on these Things. A new linedef type of 226 is used
+to control the effect, and this line should be tagged to the
+sector with the 5001/5002 Thing.<br>
+<br>
+The length of the linedef defines the 'full' magnitude of the
+force, and the force is inversely proportional to distance from
+the point source. If the length of the controlling linedef is L,
+then the force is reduced to zero at a distance of 2L.<br>
+<br>
+The angle of the controlling linedef is not used.<br>
+<br>
+The sector where the 5001/5002 Things reside must have bit 9 set
+(0x200) in its type. If this is turned off, the effect goes away.<br>
+<br>
+Point pushers can be combined with scrolling effects and constant
+pushers.<br>
+<br>
+<pre>
+226  Ext     --   Length Sets Point Source Wind/Current Force in Tagged Sectors
+</pre>
+
+=== New to Eternity ===<br>
+<br>
+<a name="3dmidtex">
+<hr width="25%" align="left">
+Moving 3DMidTex Lines
+<hr width="25%" align="left">
+</a>
+<br>
+These line types allow lines with the 3DMidTex flag (linedef flag
+1024) to be scrolled vertically along with the floor or ceiling
+action of a sector.<br>
+<br>
+The floor or ceiling movement of the sector on the first side of
+one of these lines will be transferred to the y offsets of both
+sidedefs of all like-tagged 3DMixTex lines. If the transfer
+sector or the tagged lines are blocked by a moving object such as
+an enemy, they will obey the transfer sector's rules for movement
+when blocked (for example, 3DMidTex lines tagged to a DR door
+sector will bounce off of monster's heads).<br>
+<br>
+The new linedefs are as follows:<br>
+<br>
+<pre>
+281  Ext     --   Floor movement of sector on 1st side is transferred to all
+                  like-tagged 3DMidTex lines as vertical scrolling
+               
+282  Ext     --   Ceiling movement of sector on 1st side is transferred to all
+                  like-tagged 3DMidTex lines as vertical scrolling
+</pre>
+
+<a name="hticpush">
+<hr width="25%" align="left">
+Heretic wind/current transfer
+<hr width="25%" align="left">
+</a>
+<br>
+These lines allow Heretic-style wind and current effects to be used independent of
+automatic Heretic map translation. BOOM-style Heretic levels should use these lines in
+combination with scrollers and generalized damage sector types to replicate Heretic
+sector types 4 and 20 through 51.
+<br><br>
+Line type 293 duplicates Heretic wind specials, which affect only things with the
+Bits3 WINDTHRUST flag when the things are anywhere within the tagged sectors.
+<br><br>
+Line type 294 duplicates Heretic current specials, which affect only the player, and
+only when he/she is on the ground.
+<br><br>
+The effect, applied in every tagged sector, is to push all things in the direction of
+the control linedef with a force proportional to its length. The length of the line is
+scaled by a factor of 512, giving the following equivalencies for Heretic sector types:
+<pre>
+Heretic Sector Type    Equivalent Line Setup
+---------------------------------------------------------------------------
+4                      294, East (0 degrees), length  112
+
+20 - 24                294, East (0 degrees), lengths 20, 40, 100, 120, 140
+25 - 29                294, North (90 deg.),  lengths 20, 40, 100, 120, 140
+30 - 34                294, South (270 deg.), lengths 20, 40, 100, 120, 140
+35 - 39                294, West (180 deg.),  lengths 20, 40, 100, 120, 140
+
+40 - 42                293, East (0 degrees), lengths 20, 40, 100
+43 - 45                293, North (90 deg.),  lengths 20, 40, 100
+46 - 48                293, South (270 deg.), lengths 20, 40, 100
+49 - 51                293, West (180 deg.),  lengths 20, 40, 100
+---------------------------------------------------------------------------
+</pre>
+The new linedefs are as follows:<br>
+<br>
+<pre>
+293  Ext     --   Heretic wind in line direction with push magnitude proportional
+                  to line length.
+               
+294  Ext     --   Heretic current in line direction with push magnitude proportional
+                  to line length.
+</pre>
+
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="scrolls">
+<hr width="75%" align="left">
+<b>Section 12. Scrolling Walls, Flats, Objects</b>
+<hr width="75%" align="left">
+</a>
+<br>
+<a name="staticscroll">
+<hr width="50%" align="left">
+<b>Section 12.1 Static Scrollers</b>
+<hr width="50%" align="left">
+</a>
+<br>
+The most basic kind of scrolling linedef causes some part of the
+tagged sector or tagged wall to scroll, in proportion to the
+length of the linedef the trigger is on, and according to the
+direction that trigger linedef lies. For each 32 units of length
+of the trigger, the tagged object scrolls 1 unit per frame. Since
+the length of a linedef doesn't change during gameplay, these
+types are static, the scrolling effect remains constant during
+gameplay. However, these effects can be combined with, and/or
+canceled by, other scrollers.<br>
+<br>
+<ul>
+<li> 250 -- Scroll Tagged Ceiling<br>
+<br>
+The ceiling of the tagged sector scrolls in the direction of the
+linedef trigger, 1 unit per frame for each 32 units of linedef
+trigger length. Objects attached to the ceiling do not move.<br>
+<br>
+<li> 251 -- Scroll Tagged Floor <br>
+<br>
+The floor of the tagged sector scrolls in the direction of the
+linedef trigger, 1 unit per frame for each 32 units of linedef
+trigger length. Objects resting on the floor do not move.<br>
+<br>
+<li> 252 -- Carry Objects on Tagged Floor <br>
+<br>
+Objects on the floor of the tagged sector move in the direction
+of the linedef trigger, 1 unit per frame for each 32 units of
+linedef trigger length. The floor itself does not scroll.<br>
+<br>
+<li> 253 -- Scroll Tagged Floor, Carry Objects<br>
+<br>
+Both the floor of the tagged sector and objects resting on that
+floor move in the direction of the linedef trigger, 1 unit per
+frame for each 32 units of linedef trigger length.<br>
+<br>
+<li> 254 -- Scroll Tagged Wall, Same as Floor/Ceiling<br>
+<br>
+Walls with the same tag as the linedef trigger scroll at the same
+rate as a floor or ceiling controlled by one of 250-253, allowing
+their motion to be synchronized. When the linedef trigger is not
+parallel to the wall, the component of the linedef in the
+direction perpendicular to the wall causes the wall to scroll
+vertically. The length of the component parallel to the wall sets
+the horizontal scroll rate, the length of the component
+perpendicular to the wall sets the vertical scroll rate.
+</ul>
+</p>
+
+<p>
+<a name="simplescroll">
+<hr width="50%" align="left">
+<b>Section 12.2 Simple Static Scrollers</b>
+<hr width="50%" align="left">
+</a>
+<br>
+For convenience three simpler static scroll functions are
+provided for when you just need a wall to scroll and don't need
+to control its rate and don't want to bother with
+proportionality.<br>
+<br>
+<ul>
+<li> 255 -- Scroll Wall Using Sidedef Offsets <br>
+<br>
+For simplicity, a static scroller is provided that scrolls the
+first sidedef of a linedef, based on its x- and y- offsets. No
+tag is used. The x offset controls the rate of horizontal
+scrolling, 1 unit per frame per x offset, and the y offset
+controls the rate of vertical scrolling, 1 unit per frame per y
+offset.<br>
+<br>
+<li> 48 -- Animated wall, Scrolls Left <br>
+<br>
+A linedef with this type scrolls its first sidedef left at a
+constant rate of 1 unit per frame.<br>
+<br>
+<li> 85 -- Animated wall, Scrolls Right<br>
+<br>
+A linedef with this type scrolls its first sidedef right at a
+constant rate of 1 unit per frame.
+</ul>
+</p>
+
+<p>
+<a name="dynscroll">
+<hr width="50%" align="left">
+<b>Section 12.3 Dynamic Scrolling</b>
+<hr width="50%" align="left">
+</a>
+<br>
+To achieve dynamic scrolling effects, the position or rate of
+scrolling is controlled by the relative position of the floor and
+ceiling of the sector on the scrolling trigger's first sidedef.
+The direction of scrolling remains controlled by the direction of
+the linedef trigger. Either the floor or ceiling may move in the
+controlling sector, or both. The control variable is the amount
+of change in the sum of the floor and ceiling heights.<br>
+<br>
+All scroll effects are additive, and thus two or more effects may
+reinforce and/or cancel each other.<br>
+<br>
+Displacement Scrollers<br>
+<br>
+In the first kind, displacement scrolling, the position of the
+scrolled objects or walls changes proportionally to the motion of
+the floor or ceiling in the sector on the first sidedef of the
+scrolling trigger. The proportionality is set by the length of
+the linedef trigger. If it is 32 units long, the wall, floor,
+ceiling, or object moves 1 unit for each unit the floor or
+ceiling of the controlling sector moves. If it is 64 long, they
+move 2 units per unit of relative floor/ceiling motion in the
+controlling sector and so on.<br>
+<br>
+<ul>
+<li> 245 -- Scroll Tagged Ceiling w.r.t. 1st Side's Sector <br>
+<br>
+The tagged sector's ceiling texture scrolls in the direction of
+the scrolling trigger line, when the sector on the trigger's
+first sidedef changes height. The amount moved is the height
+change times the trigger length, divided by 32. Objects attached
+to the ceiling do not move.<br>
+<br>
+<li> 246 -- Scroll Tagged Floor w.r.t. 1st Side's Sector <br>
+<br>
+The tagged sector's floor texture scrolls in the direction of the
+scrolling trigger line when the sector on the trigger's first
+sidedef changes height. The amount moved is the height change
+times the trigger length, divided by 32. Objects on the floor do
+not move.<br>
+<br>
+<li> 247 -- Push Objects on Tagged Floor wrt 1st Side's Sector <br>
+<br>
+Objects on the tagged sector's floor move in the direction of the
+scrolling trigger line when the sector on the trigger's first
+sidedef changes height. The amount moved is the height change
+times the trigger length, divided by 32.<br>
+<br>
+<li> 248 -- Push Objects &amp; Tagged Floor wrt 1st Side's Sector <br>
+<br>
+The tagged sector's floor texture, and objects on the floor, move
+in the direction of the scrolling trigger line when the sector on
+the trigger's first sidedef changes height. The amount moved is
+the height change times the trigger length, divided by 32. <br>
+<br>
+<li> 249 -- Scroll Tagged Wall w.r.t 1st Side's Sector <br>
+<br>
+Walls with the same tag as the linedef trigger scroll at the same
+rate as a floor or ceiling controlled by one of 245-249, allowing
+their motion to be synchronized. When the linedef trigger is not
+parallel to the wall, the component of the linedef in the
+direction perpendicular to the wall causes the wall to scroll
+vertically. The length of the component parallel to the wall sets
+the horizontal scroll displacement, the length of the component
+perpendicular to the wall sets the vertical scroll displacement.
+The distance scrolled is the controlling sector's height change
+times the trigger length, divided by 32.<br>
+</ul>
+Accelerative Scrollers<br>
+<br>
+The second kind of dynamic scrollers, accelerative scrollers,
+also react to height changes in the sector on the first sidedef
+of the linedef trigger, but the RATE of scrolling changes, not
+the displacement. That is, changing the controlling sector's
+height speeds up or slows down the scrolling by the change in
+height times the trigger's length, divided by 32. <br>
+<br>
+An on/off scroller can be made by using an accelerative scroller
+and any linedef that changes the controlling sector's heights. If
+a scroll effect which is initially on is desired, then the
+accelerative scroller should be combined with a static one which
+turns the scroll effect on initially. The accelerative scroller
+would then need to be set up to cancel the static scroller's
+effect when the controlling sector's height changes.<br>
+<br>
+<ul>
+<li> 214 -- Accel Tagged Ceiling w.r.t. 1st Side's Sector<br>
+<br>
+The tagged sector's ceiling's rate of scroll changes in the
+direction of the trigger linedef (use vector addition if already
+scrolling) by the change in height of the sector on the trigger's
+first sidedef times the length of the linedef trigger, divided by
+32. For example, if the ceiling is motionless originally, the
+linedef trigger is 32 long, and the ceiling of the controlling
+sector moves 1 unit, the tagged ceiling will start scrolling at 1
+unit per frame.<br>
+<br>
+<li> 215 -- Accel Tagged Floor w.r.t. 1st Side's Sector <br>
+<br>
+The tagged sector's floor's rate of scroll changes in the
+direction of the trigger linedef (use vector addition if already
+scrolling) by the change in height of the sector on the trigger's
+first sidedef times the length of the linedef trigger, divided by
+32. For example, if the floor is motionless originally, the
+linedef trigger is 32 long, and the ceiling of the controlling
+sector moves 1 unit, the tagged floor will start scrolling at 1
+unit per frame.<br>
+<br>
+<li> 216 -- Accel Objects on Tagged Floor wrt 1st Side's Sector <br>
+<br>
+Objects on the tagged sector's floor's rate of motion changes in
+the direction of the trigger linedef (use vector addition if
+already moving) by the change in height of the sector on the
+trigger's first sidedef times the length of the linedef trigger
+divided by 32. For example, if the objects are motionless
+originally, the linedef trigger is 32 long, and the ceiling of
+the controlling sector moves 1 unit, the objects on the tagged
+floor will start moving at 1 unit per frame.<br>
+<br>
+<br>
+<li> 217 -- Accel Objects&amp;Tagged Floor wrt 1st Side's Sector <br>
+<br>
+The tagged sector's floor, and objects on it, change its rate of
+motion in the direction of the trigger linedef (use vector
+addition if already moving) by the change in height of the sector
+on the trigger's first sidedef times the length of the linedef
+trigger, divided by 32. For example, if the floor and objects are
+motionless originally, the linedef trigger is 32 long, and the
+ceiling of the controlling sector moves 1 unit, the objects and
+the tagged floor will start moving at 1 unit per frame.<br>
+<br>
+<li> 218 -- Accel Tagged Wall w.r.t 1st Side's Sector <br>
+<br>
+Walls with the same tag as the linedef trigger increase their
+scroll rate in sync with a floor or ceiling controlled by one of
+214-217. When the linedef trigger is not parallel to the wall,
+the component of the linedef in the direction perpendicular to
+the wall causes the wall to increase its vertical scroll rate.
+The length of the component parallel to the wall sets the change
+in horizontal scroll rate, the length of the component
+perpendicular to the wall sets the change in vertical scroll
+rate. The rate change is the height change times the trigger
+length, divided by 32.
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="portals">
+<hr width="75%" align="left">
+<b>Section 13. Portals</b>
+<hr width="75%" align="left">
+</a>
+<br>
+Portals turn a set of floors, ceilings, or linedefs into "windows" onto another part of the
+map, allowing for some otherwise impossible visual effects. Portals are not interactive, 
+however -- objects cannot travel through them, enemies cannot see through them or fire into 
+them, etc.
+
+<p>
+<a name="planeportal">
+<hr width="50%" align="left">
+<b>Plane Portals</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A plane portal linedef creates a portal which displays an infinite plane. The flat and light
+level used are determined from the ceiling of the sector on the front side of the plane portal 
+control linedef.
+<br><br>
+Plane portal linedefs are as follows:
+<pre>
+283  Ext     --   Applies plane portal to ceilings of all like-tagged sectors.
+               
+284  Ext     --   Applies plane portal to floors of all like-tagged sectors.
+                  
+285  Ext     --   Applies plane portal to floors and ceilings of all like-tagged sectors.
+</pre>
+
+<p>
+<a name="horizportal">
+<hr width="50%" align="left">
+<b>Horizon Portals</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A horizon portal linedef creates a portal which displays two infinite planes which converge on
+a fixed horizon at the center of the screen.  The flat and light level of the two planes come
+from the floor and ceiling of the sector on the front side of the horizon portal control linedef.
+<br><br>
+Horizon portal linedefs are as follows:
+<pre>
+286  Ext     --   Applies horizon portal to ceilings of all like-tagged sectors.
+               
+287  Ext     --   Applies horizon portal to floors of all like-tagged sectors.
+                  
+288  Ext     --   Applies horizon portal to floors and ceilings of all like-tagged sectors.
+</pre>
+
+<p>
+<a name="skybxportal">
+<hr width="50%" align="left">
+<b>Skyboxes</b>
+<hr width="50%" align="left">
+</a>
+<br>
+A skybox is a portal which renders part of the map from the point of view of a control object.
+To setup a skybox, an EESkyboxCam object (doomednum 5006) must be placed in a sector. Then, one
+of the following skybox portal lines must be placed in that same sector such that it is the
+sector on the front side of the line. When viewed in the map, the surroundings of the control
+object will be seen at their real, fixed distance from that point, although the player's
+viewing angle will still be applied (so the scenery will turn, but not move).
+<br><br>
+Skybox linedefs are as follows:
+<pre>
+290  Ext     --   Applies skybox portal to ceilings of all like-tagged sectors.
+               
+291  Ext     --   Applies skybox portal to floors of all like-tagged sectors.
+                  
+292  Ext     --   Applies skybox portal to floors and ceilings of all like-tagged sectors.
+</pre>
+
+<p>
+<a name="anchrportal">
+<hr width="50%" align="left">
+<b>Anchored Portals</b>
+<hr width="50%" align="left">
+</a>
+<br>
+Anchored portals are the most complicated portal type. They define a portal similar to a skybox, 
+but which moves relative to the player's point of view. This allows an anchored portal to appear 
+as if it is a seamless part of the surrounding map.
+<br><br>
+To create an anchored portal, first one of the below anchored portal control linedefs should be
+placed into the sector which will appear inside the portal. Then, the sector in which the portal
+will appear should be tagged the same as the control linedef. This is the same as for all other
+types.  However, an anchor line is also required so that the renderer can guage the offset
+between the real map area and the portal sector. This line, with specials 298 or 299, must be 
+placed in the real sector, and must share the same tag as the sector and control linedef.
+<br><br>
+Here is an illustration of an anchored portal setup:
+<pre>
++---+              +---+
+| A |-298 linedef  | B |-295 linedef
++---+              +---+
+</pre>
+Sector A is the normal sector in which the player will walk.  Sector B is the portal sector 
+which will be drawn into the portal. The 298 linedef, the 295 linedef, and sector A all share a 
+common tag. Eternity will guage the distance between the portal linedef and the anchor linedef 
+and will know how far to offset the camera in order to render the portal. In this case, Eternity 
+will render sector B over the ceiling of sector A, and the two will appear to be placed directly 
+on top of each other.
+<br><br>
+As of Eternity Engine v3.31 public beta 7, the 296 anchored portal type uses line special 299
+for its anchor line. This was revised to allow separate anchored portals to be used for the
+floor and ceiling of the same sector, which would not previously work. 295 and 297 still use
+the 298 anchor type.
+<br><br>
+Note that the anchored portal will not change view height. So if sector B is below sector A 
+height-wise, it will either cause strange visual artifacts, or sector B may not even render.
+<br><br>
+Anchored portal linedefs are as follows:
+<pre>
+295  Ext     --   Applies anchored portal to ceilings of all like-tagged sectors.
+               
+296  Ext     --   Applies anchored portal to floors of all like-tagged sectors.
+                  
+297  Ext     --   Applies anchored portal to floors and ceilings of all like-tagged sectors.
+
+298  Ext     --   Anchor line, required for use alongside specials 295 and 297.
+
+299  Ext     --   Anchor line, required for use alongside special 296.
+</pre>
+
+<p>
+<a name="line289">
+<hr width="50%" align="left">
+<b>289: Portal Transfer</b>
+<hr width="50%" align="left">
+</a>
+<br>
+The portal transfer linedef allows the effects of any type of portal to be transferred to the
+front side of a one-sided line (it will *not* work on 2S lines). To accomplish this, simply 
+give the 289 line the same tag used by the portal control linedef which is being targetted. 
+Any number of 289 lines may share a portal, and the portal may still be used normally. If the 
+normal effect of the portal (applied to a floor or ceiling) is not needed, it does not have to 
+be tagged to a sector.
+<br><br>
+An example:
+<pre>
++------+---+                 +------+
+|       \ B|<- B tag = 1     |      |
+|        \ |                 |  C   |
+|   A      +                 |      |
+|          |                 |  *   |<- Skybox line special 290 , tag = 1
++----------+                 +------+
+  ^                             ^
+  Line special 289, tag = 1     Control thing 5006
+</pre>
+In this example, sector C will be visible in sector B's ceiling as a skybox. However, it will
+also appear on the line in sector A with special 289, giving it a window-like effect.
+<pre>
+289  Ext     --   Transfers a like-tagged portal to the first side of this linedef.
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="scripts">
+<hr width="75%" align="left">
+<b>Section 14. Script Control Linedefs</b>
+<hr width="75%" align="left">
+</a>
+<br>
+NOTE for Eternity v3.31 beta 7:<br>
+These linedef types are not currently usable, but are reserved
+for future use once the Small scripting language is fully
+implemented.<br>
+<br>
+<pre>
+280 WR Start script with tag number
+273 WR Start script, 1-way trigger
+274 W1 Start script with tag number
+275 W1 Start script, 1-way trigger
+276 SR Start script with tag number
+277 S1 Start script with tag number
+278 GR Start script with tag number
+279 G1 Start script with tag number
+</pre>
+These linedefs exist for all activation models. The two one-way
+script activators will only be activated when the player crosses
+them from the first side, as with other line types which function
+in that manner. Crossing from the second side will have no
+effect.<br>
+<br>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="genlines">
+<hr width="75%" align="left">
+<b>Section 15. Detailed Generalized Linedef Specification</b>
+<hr width="75%" align="left">
+</a>
+<br>
+BOOM has added generalized linedef types that permit the
+parameters of linedef actions to be nearly independently chosen. <br>
+<br>
+To support these, DETH has been modified to support them via
+dialogs for each generalized type; each dialog allows the
+parameters for that type to be independently specified by choice
+from a array of radio buttons. A parser has also been added to
+support reading back the function of a generalized linedef from
+its type number.<br>
+<br>
+NOTE to wad authors:<br>
+<br>
+This requires a lot of type numbers, 20608 in all so far. Some
+editors may object to the presence of these new types thru
+assuming that a lookup table of size 256 suffices (or some other
+reason). For those that must continue to use such an editor, it
+may be necessary to stick to the old linedef types, which are
+still present.<br>
+<br>
+We are also providing command line tools to set these linedef
+types, independent of which editor you happen to use, but they
+are a lot less slick, and more difficult to use than DETH. See
+TRIGCALC.EXE and CLED.EXE in the EDITUTIL.ZIP package of the BOOM
+distribution.<br>
+<br>
+<pre>
+<a name="ranges">== Generalized Linedef Ranges =======================================</a>
+
+There are types for Floors, Ceilings, Doors, Locked Doors, Lifts,
+Stairs, and Crushers. The allocation of linedef type field numbers is 
+according to the following table:
+
+Type            Start      Length   (Dec)
+-----------------------------------------------------------------
+Floors          0x6000     0x2000  (8192)
+Ceilings        0x4000     0x2000  (8192)
+Doors           0x3c00     0x0400  (1024)
+Locked Doors    0x3800     0x0400  (1024)
+Lifts           0x3400     0x0400  (1024)
+Stairs          0x3000     0x0400  (1024)
+Crushers        0x2F80     0x0080   (128)
+-----------------------------------------------------------------
+Totals:  0x2f80-0x7fff     0x5080  (20608)
+
+======================================================================
+</pre>
+
+The following sections define the placement and meaning of the
+bit fields within each linedef category. Fields in the
+description are listed in increasing numeric order.<br>
+<br>
+Some nomenclature:<br>
+<br>
+Target height designations:<br>
+<br>
+H means highest, L means lowest, N means next, F means floor, C
+means ceiling, n means neighbor, Cr means crush, sT means
+shortest lower texture. <br>
+<br>
+Texture change designations:<br>
+<br>
+<pre>
+c0n change texture, change sector type to 0, numeric model change
+c0t change texture, change sector type to 0, trigger model change
+cTn change texture only, numeric model change
+cTt change texture only, trigger model change
+cSn change texture and sector type to model's, numeric model change
+cSt change texture and sector type to model's, trigger model change
+</pre>
+A trigger model change uses the sector on the first side of the
+trigger for its model. A numeric model change looks at the
+sectors adjoining the tagged sector at the target height, and
+chooses the one across the lowest numbered two sided line for its
+model. If no model exists, no change occurs. Note that in DOOM II
+v1.9, no model meant an illegal sector type was generated.
+</p>
+
+<p>
+<pre>
+------------------------------------------------------------------
+<a name="genfloors">generalized floors (8192 types)</a>
+
+field   description                       NBits   Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3     0x0007      0
+speed   slow/normal/fast/turbo             2     0x0018      3
+model   trig/numeric -or- nomonst/monst    1     0x0020      5
+direct  down/up                            1     0x0040      6
+target  HnF/LnF/NnF/LnC/C/sT/24/32         3     0x0380      7
+change  nochg/zero/txtonly/type            2     0x0c00      10
+crush   no/yes                             1     0x1000      12
+
+DETH Nomenclature:
+
+W1[m] F->HnF DnS [c0t] [Cr]
+WR[m] F->LnF DnN [c0n] 
+S1[m] F->NnF DnF [cTt]  
+SR[m] F->LnC DnT [cTn]          
+G1[m] F->C   UpS [cSt]          
+GR[m] FbysT  UpN [cSn]          
+D1[m] Fby24  UpF                        
+DR[m] Fby32  UpT                        
+
+Notes:
+
+1) When change is nochg, model is 1 when monsters can activate trigger
+   otherwise monsters cannot activate it.
+2) The change fields mean the following:
+   nochg   - means no texture change or type change
+   zero    - means sector type is zeroed, texture copied from model
+   txtonly - means sector type unchanged, texture copied from model
+   type    - means sector type and floor texture are copied from model
+3) down/up specifies the "normal" direction for moving. If the
+   target specifies motion in the opposite direction, motion is instant.
+   Otherwise it occurs at speed specified by speed field.
+4) Speed is 1/2/4/8 units per tic
+5) If change is nonzero then model determines which sector is copied.
+   If model is 0 its the sector on the first side of the trigger.
+   if model is 1 (numeric) then the model sector is the sector at
+   destination height on the opposite side of the lowest numbered
+   two sided linedef around the tagged sector. If it doesn't exist
+   no change occurs.
+
+------------------------------------------------------------------
+<a name="genceils">generalized ceilings (8192 types)</a>
+
+field   description                        NBits   Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR             3     0x0007      0
+speed   slow/normal/fast/turbo              2     0x0018      3
+model   trig/numeric -or- nomonst/monst     1     0x0020      5
+direct  down/up                             1     0x0040      6
+target  HnC/LnC/NnC/HnF/F/sT/24/32          3     0x0380      7
+change  nochg/zero/txtonly/type             2     0x0c00      10
+crush   no/yes                              1     0x1000      12
+
+DETH Nomenclature:
+
+W1[m] C->HnC DnS [Cr] [c0t] 
+WR[m] C->LnC DnN      [c0n] 
+S1[m] C->NnC DnF      [cTt] 
+SR[m] C->HnF DnT      [cTn]     
+G1[m] C->F   UpS      [cSt]     
+GR[m] CbysT  UpN      [cSn]     
+D1[m] Cby24  UpF                        
+DR[m] Cby32  UpT                        
+
+Notes:
+
+1) When change is nochg, model is 1 when monsters can activate trigger
+   otherwise monsters cannot activate it.
+2) The change fields mean the following:
+   nochg   - means no texture change or type change
+   zero    - means sector type is zeroed, texture copied from model
+   txtonly - means sector type unchanged, texture copied from model
+   type    - means sector type and ceiling texture are copied from model
+3) down/up specifies the "normal" direction for moving. If the
+   target specifies motion in the opposite direction, motion is instant.
+   Otherwise it occurs at speed specified by speed field.
+4) Speed is 1/2/4/8 units per tic
+5) If change is nonzero then model determines which sector is copied.
+   If model is 0 its the sector on the first side of the trigger.
+   if model is 1 (numeric) then the model sector is the sector at
+   destination height on the opposite side of the lowest numbered
+   two sided linedef around the tagged sector. If it doesn't exist
+   no change occurs.
+
+------------------------------------------------------------------
+<a name="gendoors">generalized doors (1024 types)</a>
+
+field   description                       NBits    Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+kind    odc/o/cdo/c                        2      0x0060      5
+monster n/y                                1      0x0080      7
+delay   1/4/9/30 (secs)                    2      0x0300      8
+
+DETH Nomenclature:
+
+W1[m] OpnD{1|4|9|30}Cls S
+WR[m] Opn               N
+S1[m] ClsD{1|4|9|30}Opn F
+SR[m] Cls               T
+G1[m]
+GR[m]
+D1[m]
+DR[m]
+
+Notes:
+
+1) The odc (Open, Delay, Close) and cdo (Close, Delay, Open) kinds use
+   the delay field. The o (Open and Stay) and c (Close and Stay) kinds 
+   do not.
+2) The precise delay timings in gametics are: 35/150/300/1050
+3) Speed is 2/4/8/16 units per tic
+
+------------------------------------------------------------------
+<a name="genlocked">generalized locked doors (1024 types)</a>
+
+field   description                       NBits    Mask     Shift
+------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+kind    odc/o                              1      0x0020      5
+lock    any/rc/bc/yc/rs/bs/ys/all          3      0x01c0      6
+sk=ck   n/y                                1      0x0200      9
+
+DETH Nomenclature:
+
+W1[m] OpnD{1|4|9|30}Cls S Any
+WR[m] Opn               N R{C|S|K}
+S1[m]                   F B{C|S|K}
+SR[m]                   T Y{C|S|K}
+G1[m]                     All{3|6}
+GR[m]
+D1[m]
+DR[m]
+
+Notes:
+
+1) Delay for odc kind is constant at 150 gametics or about 4.333 secs
+2) The lock field allows any key to open a door, or a specific key to
+   open a door, or all keys to open a door.
+3) If the sk=ck field is 0 (n) skull and cards are different keys,
+   otherwise they are treated identically. Hence an "all" type door
+   requires 3 keys if sk=ck is 1, and 6 keys if sk=ck is 0.
+4) Speed is 2/4/8/16 units per tic
+
+-------------------------------------------------------------------
+<a name="genlifts">generalized lifts (1024 types)</a>
+
+field   description                       NBits    Mask     Shift
+-------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+monster n/y                                1      0x0020      5
+delay   1/3/5/10 (secs)                    2      0x00c0      6
+target  LnF/NnF/LnC/LnF<->HnF(perp.)       2      0x0300      8
+
+DETH Nomenclature:
+
+W1[m] Lft  F->LnFD{1|3|5|10}    S
+WR[m]      F->NnFD{1|3|5|10}    N
+S1[m]      F->LnCD{1|3|5|10}    F
+SR[m]      HnF<->LnFD{1|3|5|10} T
+G1[m]
+GR[m]
+D1[m]
+DR[m]
+
+Notes:
+
+1) The precise delay timings in gametics are: 35/105/165/350
+2) Speed is 1/2/4/8 units per tic
+3) If the target specified is above starting floor height, or does not
+   exist the lift does not move when triggered. NnF is Next Lowest
+   Neighbor Floor.
+4) Starting a perpetual lift between lowest and highest neighboring floors
+   locks out all other actions on the sector, even if it is stopped with
+   the non-extended stop perpetual floor function.
+
+-------------------------------------------------------------------
+<a name="genstairs">generalized stairs (1024 types)</a>
+
+field   description                       NBits    Mask     Shift
+-------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+monster n/y                                1      0x0020      5
+step    4/8/16/24                          2      0x00c0      6
+dir     dn/up                              1      0x0100      8
+igntxt  n/y                                1      0x0200      9
+
+DETH Nomenclature:
+
+W1[m] Stair Dn s4  S [Ign]
+WR[m]       Up s8  N
+S1[m]          s16 F
+SR[m]          s24 T
+G1[m]
+GR[m]
+D1[m]
+DR[m]
+
+Notes:
+
+1) Speed is .25/.5/2/4 units per tic
+2) If igntxt is 1, then the staircase will not stop building when
+   a step does not have the same texture as the previous.
+3) A retriggerable stairs builds up and down alternately on each
+   trigger.
+
+-------------------------------------------------------------------
+<a name="gencrush">generalized crushers (128 types)</a>
+
+field   description                       NBits    Mask     Shift
+-------------------------------------------------------------------
+
+trigger W1/WR/S1/SR/G1/GR/D1/DR            3      0x0007      0
+speed   slow/normal/fast/turbo             2      0x0018      3
+monster n/y                                1      0x0020      5
+silent  n/y                                1      0x0040      6
+
+DETH Nomenclature:
+
+W1[m] Crusher S [Silent]
+WR[m]         N
+S1[m]         F
+SR[m]         T
+G1[m]
+GR[m]
+D1[m]
+DR[m]
+
+Notes:
+
+1) Speed is 1/2/4/8 units per second, faster means slower damage as usual.
+2) If silent is 1, the crusher is totally quiet, no start/stop sounds
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="part2">
+<hr>
+<h3>Part II Sector Types</h3>
+<hr>
+</a>
+<br>
+BOOM is backward compatible with DOOM's sector types. All types
+0-17 have the same meaning they did under DOOM. Types 18-31 are
+reserved for extended sector types, that work like DOOM's and
+share the limitation that only one type can be active in a sector
+at once. No extended sector types are implemented at this time.
+</p>
+
+<p>
+<a name="sectors">
+<hr width="75%" align="left">
+<b>Section 16. Regular Sector types</b>
+<hr width="75%" align="left">
+</a>
+<br>
+From Matt Fell's Unofficial DOOM Spec the DOOM sector types are:<br>
+<br>
+<pre>
+Dec Hex Class   Description
+-------------------------------------------------------------------
+ 0  00  -       Normal, no special characteristic.
+ 1  01  Light   random off
+ 2  02  Light   blink 0.5 second
+ 3  03  Light   blink 1.0 second
+ 4  04  Both    -10/20% health AND light blink 0.5 second
+ 5  05  Damage  -5/10% health
+ 7  07  Damage  -2/5% health
+ 8  08  Light   oscillates
+ 9  09  Secret  a player must stand in this sector to get credit for
+                  finding this secret. This is for the SECRETS ratio
+                  on inter-level screens.
+10  0a  Door    30 seconds after level start, ceiling closes like a door.
+11  0b  End     -10/20% health. If a player's health is lowered to less
+                  than 11% while standing here, then the level ends! Play
+                  proceeds to the next level. If it is a final level
+                  (levels 8 in DOOM 1, level 30 in DOOM 2), the game ends!
+12  0c  Light   blink 0.5 second, synchronized
+13  0d  Light   blink 1.0 second, synchronized
+14  0e  Door    300 seconds after level start, ceiling opens like a door.
+16  10  Damage  -10/20% health
+
+17  11  Light   flickers on and off randomly
+</pre>
+
+Note that BOOM will NEVER exit the game on an illegal sector
+type, as was the case with DOOM. The sector type will merely be
+ignored.<br>
+<br>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="gensectors">
+<hr width="75%" align="left">
+<b>Section 17. Generalized sector types</b>
+<hr width="75%" align="left">
+</a>
+<br>
+BOOM also provides generalized sector types, based on bit fields,
+that allow several sector type properties to be independently
+specified for a sector. Texture change linedefs can be used to
+switch some or all of these properties dynamically, outside
+lighting.<br>
+<br>
+Bits 0 thru 4 specify the lighting type in the sector, the same
+codes that DOOM used are employed:<br>
+<br>
+<pre>
+Dec Bits 4-0   Description
+-------------------------------------------------------------------
+0   00000      Normal lighting
+1   00001      random off
+2   00010      blink 0.5 second
+3   00011      blink 1.0 second
+4   00100      -10/20% health AND light blink 0.5 second
+8   01000      oscillates
+12  01100      blink 0.5 second, synchronized
+13  01101      blink 1.0 second, synchronized
+17  10001      flickers on and off randomly
+</pre>
+Bits 5 and 6 set the damage type of the sector, with the usual
+5/10/20 damage units per second.<br>
+<br>
+<pre>
+Dec Bits 6-5   Description
+-------------------------------------------------------------------
+0   00         No damage
+32  01         5  units damage per sec (halve damage in TYTD skill)
+64  10         10 units damage per sec
+96  11         20 units damage per sec
+</pre>
+Bit 7 makes the sector count towards the secrets total at game
+end<br>
+<br>
+<pre>
+Dec Bit 7      Description
+-------------------------------------------------------------------
+0    0         Sector is not secret
+128  1         Sector is secret
+</pre>
+Bit 8 enables the ice/mud effect controlled by linedef 223<br>
+<br>
+<pre>
+Dec Bit 8      Description
+-------------------------------------------------------------------
+0    0         Sector friction disabled
+256  1         Sector friction enabled
+</pre>
+Bit 9 enables the wind effects controlled by linedefs 224-226<br>
+<br>
+<pre>
+Dec Bit 9      Description
+-------------------------------------------------------------------
+0    0         Sector wind disabled
+512  1         Sector wind enabled
+</pre>
+=== New to SMMU ===<br>
+<br>
+Bits 10 and 11 are now implemented as of SMMU v3.21.<br>
+Bit 10 suppresses all sounds within the sector, while Bit 11
+disables any sounds due to floor or ceiling motion by the sector.
+Bit 11 is especially useful in silencing constructs such as
+pseudo-3D bridges, which give off an undesirable plat sound when
+they move.<br>
+<br>
+<pre>
+Dec Bit 10     Description
+-------------------------------------------------------------------
+0    0         Sounds made in sector function normally
+1024 1         Sounds made in sector are suppressed
+
+Dec Bit 11     Description
+-------------------------------------------------------------------
+0    0         Sounds made by sector floor/ceiling movement normal
+2048 1         Sounds made by sector floor/ceiling movement suppressed
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="part3">
+<hr>
+<h3>Part III Linedef Flags</h3>
+<hr>
+</a>
+<br>
+Only one new linedef flag is implemented in BOOM, called PassThru,
+which allows a push or switch linedef trigger to pass the push action thru it 
+to ones within range behind it. In this way BOOM is capable ofsetting off many 
+actions with a single push. Note that the limitation of one floor action, one 
+ceiling action, and one lighting action per sector affect still applies however.
+<br>
+The new linedef flag is bit 9, value 512, in the linedef flags
+word.<br>
+<br>
+<pre>
+Dec Bit 9      Description
+-------------------------------------------------------------------
+0    0         Line absorbs all push actions as normal
+512  1         Line passes push actions through to lines behind it
+</pre>
+=== New to Eternity v3.31 ===<br>
+<br>
+Eternity, starting with v3.31, implements a new line flag called 3DMidTex, 
+which causes 2S linedefs using it to clip objects using the height of their
+middle texture. Within the range of the texture's height, the lines are 
+effectively solid and block players, monsters, and projectiles. Below or 
+above, objects can pass freely. This enables very easy pseudo-3D effects.
+<br>
+The new linedef flag is bit 10, value 1024, in the linedef flags
+word.<br>
+<br>
+<pre>
+Dec Bit 10     Description
+-------------------------------------------------------------------
+0    0         Linedef is normal with respect to clipping
+1024 1         2S linedef clips objects with respect to mid texture
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="part4">
+<hr>
+<h3>Part IV Thing Flags</h3>
+<hr>
+</a>
+<br>
+BOOM has implemented two new thing flags, &quot;not in DM&quot;
+and &quot;not in COOP&quot;, which in combination with the
+existing &quot;not in Single&quot; flag, usually called
+&quot;Multiplayer&quot;, allow complete control over a level's
+inventory and monsters, in any game mode.<br>
+<br>
+If you want a thing to be only available in Single play, you set
+both the &quot;not in DM&quot; and &quot;not in COOP&quot; flags.
+Other combinations are similar.<br>
+<br>
+&quot;not in DM&quot; is bit 5, value 32, in the thing flags
+word.<br>
+&quot;not in COOP&quot; is bit 6, value 64, in the thing flags
+word.<br>
+<br>
+=== New to MBF ===<br>
+<br>
+MBF introduces one new mapthing flag<br>
+<br>
+&quot;friendly&quot; is bit 7, value 128, in the thing flags
+word.<br>
+<br>
+This flag may be placed on any object, but will only have an
+effect on sentient enemies. When given this flag, a thing will
+use MBF's friendly entity logic, and will help the player to
+defeat enemies in the level.<br>
+<br>
+To use this flag, you must manually add the value 128 to the
+thing's flags using either DETH's &quot;enter value&quot; menu,
+or a tool such as CLED which can manipulate any level data field.<br>
+<br>
+Bit 8, value 256, has been reserved for detecting editors which
+set flags they do not understand. It should not be set or else
+all extended flags will be cleared.<br>
+<br>
+=== New to Eternity ===<br>
+<br>
+Eternity introduces one new mapthing flag<br>
+<br>
+&quot;dormant&quot; is bit 9, value 512, in the thing flags word.<br>
+<br>
+Things given this flag are invincible and will remain in their
+spawn state until a script calls the objawaken function on them,
+from which point onward they act normally.<br>
+<br>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="part5">
+<hr>
+<h3>Part V Thing Types</h3>
+<hr>
+</a>
+<br>
+BOOM has implemented two new thing types as well, <b>BoomPushPoint</b> (5001),
+and <b>BoomPullPoint</b> (5002). These control the origin of the point source
+wind effect controlled by linedef types 225 and 226, and set
+whether the wind blows towards or away from the origin depending
+on which is used.<br>
+<br>
+=== New to MBF ===<br>
+<br>
+MBF introduces the following new mapthing types:<br>
+<br>
+<b>MBFHelperDog</b> (DoomEd #888, DeHackEd #140)<br>
+A dog similar to the one found in Wolfenstein. This dog is the
+one normally spawned with the player when the -dogs command-line
+option is used. It is not friendly by default, but must be given
+the &quot;friendly&quot; thing flag if you wish to make it so.
+Otherwise it will act as a normal enemy.<br>
+<br>
+=== New to SMMU ===<br>
+<br>
+SMMU introduces the following new mapthing types:<br>
+<br>
+<b>SMMUCameraSpot</b> (5003)<br>
+A general-purpose camera place-holder. These cameras will be
+randomly chosen during &quot;cool demo playback&quot; and for a
+view of the level during the intermission.<br>
+<br>
+=== New to Eternity ===<br>
+<br>
+Eternity introduces the following new mapthing types. Note that
+this list does not currently contain any Heretic mapthings, which
+may be documented here or elsewhere in the future. Note that
+there are also some mapthing types within the engine which are
+not currently documented. Maps should refrain from using those
+things until they are made official, as they could change or be
+deleted later.<br>
+<br>
+<b>Unknown</b> (5005)<br>
+This thing type is used as a placeholder by EDF, ExtraData, and
+scripting. It may be spawned when an unknown thing type is requested,
+and its definition is required by the EDF language, so it is guaranteed
+to always exist. It uses DoomEd #5005 so that it can be used by
+ExtraData, but it will not generally be useful in maps.
+<br><br>
+<b>EESkyboxCam</b> (5006)<br>
+This thing type determines the origin for rendering of a skybox portal.
+See the <a href="#skybxportal">Skybox Portal</a> documentation for complete
+information.
+<br><br>
+<b>EEParticleFountain</b> (9027 - 9033)<br>
+A particle fountain will be spawned at the mapthing's location.
+The fountain color depends on the mapthing number used, as
+follows:<br>
+<ul>
+<li> 9027: Red<br>
+<li> 9028: Green<br>
+<li> 9029: Blue<br>
+<li> 9030: Yellow<br>
+<li> 9031: Purple<br>
+<li> 9032: Black<br>
+<li> 9033: White
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+
+<p>
+<a name="part6">
+<hr>
+<h3>Part VI BOOM Predefined Lumps</h3>
+<hr>
+</a>
+<br>
+<a name="lumpnames">
+Most predefined lumps used in BOOM and MBF are still present in
+Eternity, although all are not used. These lumps can be found in
+eternity.wad and are no longer stored inside the executable,
+primarily for reasons of code size and compile time.<br>
+</a>
+<br>
+<pre>
+Menu text
+---------
+M_KEYBND       Key Bindings entry in setup menu
+M_AUTO         Automap entry in setup menu
+M_CHATM        Chat strings entry in setup menu (Replaces M_CHAT, New to SMMU)
+M_ENEM         Enemies options entry in setup menu
+M_STAT         Status bar and Hud entry in setup menu
+M_WEAP         Weapons entry in setup menu
+M_COLORS       Palette color picker diagram
+M_PALNO        Xed-out symbol for unused automap features
+M_BUTT1        Setup reset button off state (currently unused)
+M_BUTT2        Setup reset button on state (currently unused)
+M_LDSV         Load/Save menu graphic (new to SMMU)
+M_FEAT         Features menu graphic (new to SMMU)
+M_MULTI        Multiplayer options menu graphic (new to SMMU)
+M_ABOUT        About menu graphic (new to SMMU)
+M_DEMOS        Demos menu graphic (new to SMMU)
+M_WAD          Wad loading menu graphic (new to SMMU)
+M_SOUND        Sound options menu graphic (new to SMMU)
+M_VIDEO        Video options menu graphic (new to SMMU)
+M_MOUSE        Mouse options menu graphic (new to SMMU)
+M_HUD          Heads-up options menu graphic (new to SMMU)
+M_TCPIP        TCP/IP connect menu graphic (new to SMMU)
+M_SERIAL       Serial connect menu graphic (new to SMMU)
+M_PLAYER       Player options menu graphic (new to SMMU)
+M_COMPAT       Compatibility options menu graphic (new to MBF)
+M_SLIDEM       Small slider gfx, middle segment (new to SMMU)
+M_SLIDEL       Small slider gfx, left end (new to SMMU)
+M_SLIDEO       Small slider gfx, caret (new to SMMU)
+M_SLIDER       Small slider gfx, right end (new to SMMU)
+MBFTEXT        Marine's Best Friend menu graphic (new to MBF, currently unused)
+M_ETCOPT       Eternity options menu graphic (new to Eternity)
+
+Font chars
+----------
+STCFN096       ` character for standard DOOM font
+STCFN123       left end of console horizontal divider bar  (new to SMMU)
+STCFN124       center of console horizontal divider bar    (new to SMMU)
+STCFN125       right end of console horizontal divider bar (new to SMMU)
+
+STBR123        HUD font bargraph char, full, 4 vertical bars
+STBR124        HUD font bargraph char, partial, 3 vertical bars
+STBR125        HUD font bargraph char, partial, 2 vertical bars
+STBR126        HUD font bargraph char, partial, 1 vertical bars
+STBR127        HUD font bargraph char, empty, 0 vertical bars
+
+DIG0         HUD font 0 char
+DIG1         HUD font 1 char
+DIG2         HUD font 2 char
+DIG3         HUD font 3 char
+DIG4         HUD font 4 char
+DIG5         HUD font 5 char
+DIG6         HUD font 6 char
+DIG7         HUD font 7 char
+DIG8         HUD font 8 char
+DIG9         HUD font 9 char
+DIGA         HUD font A char
+DIGB         HUD font B char
+DIGC         HUD font C char
+DIGD         HUD font D char
+DIGE         HUD font E char
+DIGF         HUD font F char
+DIGG         HUD font G char
+DIGH         HUD font H char
+DIGI         HUD font I char
+DIGJ         HUD font J char
+DIGK         HUD font K char
+DIGL         HUD font L char
+DIGM         HUD font M char
+DIGN         HUD font N char
+DIGO         HUD font O char
+DIGP         HUD font P char
+DIGQ         HUD font Q char
+DIGR         HUD font R char
+DIGS         HUD font S char
+DIGT         HUD font T char
+DIGU         HUD font U char
+DIGV         HUD font V char
+DIGW         HUD font W char
+DIGX         HUD font X char
+DIGY         HUD font Y char
+DIGZ         HUD font Z char
+DIG45        HUD font - char
+DIG47        HUD font / char
+DIG58        HUD font : char
+DIG91        HUD font [ char
+DIG93        HUD font ] char
+
+Status bar
+----------
+STKEYS6        Both blue keys graphic
+STKEYS7        Both yellow keys graphic
+STKEYS8        Both red keys graphic
+
+Box chars
+---------
+BOXUL        Upper left corner of box
+BOXUC        Center of upper border of box
+BOXUR        Upper right corner of box
+BOXCL        Center of left border of box
+BOXCC        Center of box
+BOXCR        Center of right border of box
+BOXLL        Lower left corner of box
+BOXLC        Center of lower border of box
+BOXLR        Lower right corner of box
+
+Misc HUD Graphics
+-----------------
+HU_FRAGS     Frags display header graphic (new to SMMU)
+HU_FRAGBX    Frags display name plate graphic (new to SMMU)
+CROSS1       + crosshair graphic (new to SMMU)
+CROSS2       Angle crosshair graphic (new to SMMU)
+VPO          Visplane overflow indicator (new to SMMU)
+OPENSOCK     Network connection error indicator (new to SMMU)
+
+Misc Graphics
+-------------
+UDTTL00      Hires Ultimate DOOM title screen, upper left (new to SMMU)
+UDTTL01      Hires Ultimate DOOM title screen, lower left (new to SMMU)
+UDTTL10      Hires Ultimate DOOM title screen, upper rght (new to SMMU)
+UDTTL11      Hires Ultimate DOOM title screen, lower rght (new to SMMU)
+D2TTL00      Hires DOOM II title screen, upper left (new to SMMU)
+D2TTL01      Hires DOOM II title screen, lower left (new to SMMU)
+D2TTL10      Hires DOOM II title screen, upper rght (new to SMMU)
+D2TTL11      Hires DOOM II title screen, lower rght (new to SMMU)
+DLGBACK      Default dialog background graphic (new to Eternity)
+
+Lumps missing in v1.1
+---------------------
+STTMINUS       minus sign for neg frags in status bar
+WIMINUS        minus sign for neg frags on end screen
+M_NMARE        nightmare skill menu string
+STBAR          status bar background
+DSGETPOW       sound for obtaining power-up
+
+Sprites
+-------
+TNT1A0         Invisible sprite for push/pull controller things
+DOGS*          MBF helper dog sprite (new to MBF)
+PLS1*          BFG 2704 plasma 1 sprite (new to MBF)
+PLS2*          BFG 2704 plasma 2 sprite (new to MBF)
+SLDG*          FLOOR_SLUDGE TerrainType fx sprite (new to Eternity)
+LVAS*          FLOOR_LAVA TerrainType fx sprite (new to Eternity)
+SPSH*          FLOOR_WATER TerrainType fx sprite (new to Eternity)
+
+Misc Sounds
+-----------
+DSDGSIT        MBF helper dog alert (new to MBF)
+DSDGATK        MBF helper dog attack (new to MBF)
+DSDGACT        MBF helper dog idle (new to MBF)
+DSDGDTH        MBF helper dog death (new to MBF)
+DSDGPAIN       MBF helper dog pain (new to MBF)
+DSPLFEET       Light player impact (new to Eternity)
+DSFALLHT       Falling damage impact death (new to Eternity)
+DSPLFALL       Falling damage player scream (new to Eternity)
+DSTHUNDR       MapInfo global thunder effect (new to Eternity)
+DSMUCK         FLOOR_SLUDGE TerrainType sound (new to Eternity)
+DSBURN         FLOOR_LAVA TerrainType sound (new to Eternity)
+DSGLOOP        FLOOR_WATER TerrainType sound (new to Eternity)
+
+Flats
+-----
+METAL          Complimentary brown metal flat (new to SMMU)
+F_SKY2         Dummy flat for Hexen-style sky sectors (new to Eternity)
+
+Maps
+----
+START          DOOM II Mode Start Map (new to SMMU)
+
+Switches and Animations
+-----------------------
+SWITCHES       Definition of switch textures recognized
+ANIMATED       Definition of animated textures and flats recognized
+</pre>
+
+<a name="switchformat">SWITCHES format:</a><br>
+<br>
+The SWITCHES lump makes the names of the switch textures used in
+the game known to the engine. It consists of a list of records
+each 20 bytes long, terminated by an entry (not used) whose last
+2 bytes are 0.<br>
+<br>
+<pre>
+9 bytes        Null terminated string naming "off" state texture for switch
+9 bytes        Null terminated string naming "off" state texture for switch
+2 bytes        Short integer for the IWADs switch will work in
+                1=shareware
+    2=registered/retail DOOM or shareware
+    3=DOOM II, registered/retail DOOM, or shareware
+    0=terminates list of known switches
+</pre>
+
+<a name="animformat">ANIMATED format:</a><br>
+<br>
+The ANIMATED lump makes the names of the animated flats and
+textures known to the engine. It consists of a list of records,
+each 23 bytes long, terminated by a record (not used) whose first
+byte is -1 (255).<br>
+<br>
+<pre>
+1 byte         -1 to terminate list, 0 if a flat, 1 if a texture
+9 bytes        Null terminated string naming last texture/flat in animation
+9 bytes        Null terminated string naming first texture/flat in animation
+4 bytes        Animation speed, number of frames between animation changes
+</pre>
+
+The utility package contains a program, SWANTBLS.EXE that will
+generate both the SWITCHES and ANIMATED lumps from a text file.
+An example is provided, DEFSWANI.DAT that generates the standard
+set of switches and animations for DOOM.<br>
+<br>
+=== New to SMMU ===<br>
+<br>
+Setting the animation speed for a flat to a number higher than
+65535 will<br>
+cause the flat to use the swirling liquid effect rather than
+animation.<br>
+<br>
+<pre>
+<a name="colmaps">Colormaps</a>
+---------
+WATERMAP       Custom greenish colormap for underwater use
+LAVAMAP        Custom red colormap for lava (new to SMMU)
+</pre>
+
+The WATERMAP lump has the same format as COLORMAP, 34 tables of
+256 bytes each, see the UDS for details. Note that colormaps you
+add to a PWAD must be between C_START and C_END markers.<br>
+<br>
+The utility package contains a program, CMAPTOOL.EXE, that will
+generate custom colormaps for use with BOOM. It also includes 7
+premade colormaps, and an add-on wad containing them.<br>
+<br>
+<pre>
+<a name="colrngs">Color translation tables</a>
+------------------------
+CRBRICK        Translates red range to brick red
+CRTAN          Translates red range to tan
+CRGRAY         Translates red range to gray
+CRGREEN        Translates red range to green
+CRBROWN        Translates red range to brown
+CRGOLD         Translates red range to dark yellow
+CRRED          Translates red range to red range (no change)
+CRBLUE         Translates red range to light blue
+CRBLUE2        Translates red range to dark blue (status bar numerals)
+CRORANGE       Translates red range to orange
+CRYELLOW       Translates red range to light yellow
+</pre>
+
+These tables are used to translate the red font characters to
+other colors. They are made replaceable in order to support
+custom palettes in TC's better. Note however that the font
+character graphics must be defined using the palette indices for
+the standard red range of the palette 176-191.<br>
+<br>
+=== Eternity Note ===<br>
+<br>
+The default text translation range in Heretic is gray rather than
+red, and replacement fonts should use the gray range in the
+palette to support color translations.<br>
+<br>
+<pre>
+Data Lumps and Scripts
+----------------------
+TXTRCONV       DOOM -> DOOM II texture conversion table (new to SMMU)
+KEYDEFS        Default keybindings (new to Eternity)
+TERTYPES       TerrainType definitions (new to Eternity)
+</pre>
+
+<a name="txtrconv">TXTRCONV format:</a><br>
+<br>
+The TXTRCONV lump is used to translate DOOM textures to DOOM II textures, for
+the purpose of playing ExMy levels under DOOM II (accessed via the map command).
+The format of this lump is currently very strict. The pairs of texture names must
+be aligned precisely, with the first texture name (<= 8 character) starting in
+column 0, followed by spaces up to column 16, where the second DOOM II replacement
+texture name must start. Only one pair must be on a line, and lines must be
+terminated with a line break. This lump is ASCII text.
+<br><br>
+
+<a name="keydefs">KEYDEFS format:</a><br>
+<br>
+KEYDEFS contains the engine's default key bindings. This lump is written to file
+as keys.csc when a file by that name cannot be found. Editing of this defaults
+lump is not generally desirable, but it is a simple console script, the syntax
+of which is expounded upon in the <a href="console_full.txt">Eternity Engine
+Console Reference</a>. This lump is ASCII text.
+<br><br>
+
+<a name="tertypes">TERTYPES format:</a><br>
+<br>
+The TERTYPES lump holds TerrainType definitions. It can be generated from a text
+script using the TerrainEd utility. It associates flat names with the desired
+TerrainType effect. The number of TerrainType records is limited to 32768.
+<br>
+<pre>
+Header
+------
+2 bytes        short int, number of TerrainType records in lump
+
+TerrainType Record
+------------------
+9 bytes        null-extended ASCII string, name of flat graphic lump
+2 bytes        short int, index of TerrainType effect as follows:
+               0 = FLOOR_SOLID,  placeholder with no effect
+               1 = FLOOR_WATER,  water TerrainType
+               2 = FLOOR_LAVA,   lava TerrainType
+               3 = FLOOR_SLUDGE, sludge/swamp water TerrainType
+               
+               Higher values are reserved for additional types.
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+</p>
+</body>
+</html>
+
+
+
+
+
+

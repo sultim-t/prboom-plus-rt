@@ -1,0 +1,254 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="UltraEdit-32">
+<title>Eternity Engine GFS Reference</title>
+</head>
+
+<body bgcolor="#CECECE">
+
+<h2>Eternity Engine GFS Reference v1.00 -- 8/08/03</h2>
+
+<a href="../etcengine.html">Return to the Eternity Engine Page</a>
+
+<ul>
+<li><a name="contents"><b>Table of Contents</b></a>
+    <ul>
+    <li><a href="#intro">Introduction to GFS</a>
+    <li><a href="#using">Using GFS</a>
+    <li><a href="#files">How Files are Found</a>
+        <ul>
+        <li><a href="#base">Changing the Base Path</a>
+        </ul>
+    <li><a href="#wad">Adding WAD Files</a>
+    <li><a href="#deh">Adding DeHackEd/BEX Files</a>
+    <li><a href="#csc">Adding Console Scripts</a>
+    <li><a href="#edf">Specifying a Root EDF File</a>
+    <li><a href="#iwad">Specifying an IWAD</a>
+    </ul>
+</ul>
+
+<a name="intro">
+<hr>
+<b>Introduction to GFS</b>
+<hr>
+</a>
+<br>
+GFS, or Game File Script, is a new method of adding multiple data files to Eternity at
+once with the use of only one command-line parameter. GFS syntax is extremely simple,
+and allows for more safety and semantic checking than do batch files or response files.
+GFS also doesn't exclude the use of any other command-line parameters in addition to
+itself, so you can override files added in a GFS with your own if needed. GFS is designed
+primarily for distribution along with modifications such as PCs, TCs, megawads, etc.,
+to make it easier for users to play them without need for lots of command-line parameters.
+<br><br>
+GFS uses the same libConfuse parser as EDF and ExtraData, written by Martin Hedenfalk, and
+therefore shares most of the same syntactic elements. GFS is free-form, meaning that
+whitespace is ignored and that other tokens' positions are irrelevant to their meanings.
+#, //, and /* */ comments are also supported, but are not very important for GFS files,
+so they will not be discussed in this document. To see thorough information on these
+elements of the syntax, see the <a href="edf_ref.html#gensyn">General Syntax</a> section of
+the Eternity Engine EDF Reference.
+<br><br>
+GFS does support long file names under operating systems other than DOS, but they must
+be enclosed in quotation marks if they contain spaces.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="using">
+<hr>
+<b>Using GFS</b>
+<hr>
+</a>
+<br>
+To use a GFS file, use the -gfs command-line parameter, and give it an argument of one
+absolute file path to the desired GFS file. If the GFS file is in the executable's directory,
+it is not necessary for the path to be absolute, but otherwise GFS may not function properly
+if the path is only relative.
+<br><br>
+Example:
+<pre>
+eternity -gfs C:\Games\AliensTC\atc.gfs
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="files">
+<hr>
+<b>How Files are Found</b>
+<hr>
+</a>
+<br>
+Normally, file names specified in a GFS are appended to the path of the GFS file. So if a 
+GFS file is in C:\Games and specifies a file "superwar.wad", then C:\Games\superwar.wad" will
+be added. This allows specification of subdirectories or the parent directory in a file
+name. It is recommended that GFS files provided with modifications allow the GFS to work in
+this manner.
+<br><br>
+Note that an IWAD file name will not have any path appended to it, so it should be an
+absolute path in all circumstances.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="base">
+<hr width="50%" align="left">
+<b>Changing the Base Path</b>
+<hr width="50%" align="left">
+</a>
+<br>
+It is possible to alter the path which will be appended to WAD, DEH/BEX, CSC, and EDF
+file names by using the <b>basepath</b> variable. When basepath is set to a path, that
+path will be appended to those file names instead of the path of the GFS file. This allows
+GFS to be placed by the user into a directory other than where the files referred to exist.
+There can only be one basepath specification per GFS file. The last one found during parsing
+will be the one which is used.
+<br><br>
+This option is not generally useful to GFS provided with modifications, since they cannot
+know how the user's file system is set up. This facility is to allow users to create their
+own GFS files and keep them wherever they want.
+<br><br>
+<b>basepath</b>, as mentioned above, does not affect the <b>iwad</b> specification, if one
+is present.
+<br><br>
+Example of Usage:
+<pre>
+#
+# Assume that Aliens TC 2.0 is in C:\Games\AliensTC, but this GFS is somewhere else
+# (like in the port's directory, for example
+#
+
+# The files I want to load:
+
+wadfile = alitcsf.wad
+wadfile = alitcsnd.wad
+wadfile = atclev.wad
+dehfile = atcud19.bex
+
+# The location where they're at, since the GFS file is not also there
+# (note you could also use "C:\\Games\\AliensTC"):
+
+basepath = "C:/Games/AliensTC"
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="wad">
+<hr>
+<b>Adding WAD Files</b>
+<hr>
+</a>
+<br>
+A GFS can specify any number of wad files to load using the <b>wadfile</b> variable. WAD files
+will be loaded in the order in which they are specified.
+<br><br>
+A WAD file name should be a path which is relative either to the path of the GFS file, or to
+the <b>basepath</b> if it is specified.
+<br><br>
+GFS WAD files will be added before any other WAD files added via the command-line or specified
+in the configuration file, so that any WADs specified there can override those in the GFS.
+<br><br>
+Example of Usage:
+<pre>
+wadfile = chextc.wad
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="deh">
+<hr>
+<b>Adding DeHackEd/BEX Files</b>
+<hr>
+</a>
+<br>
+A GFS can specify any number of DeHackEd/BEX files to load using the <b>dehfile</b> variable. 
+These files will be loaded in the order in which they are specified.
+<br><br>
+A DEH/BEX file name should be a path which is relative either to the path of the GFS file, or to
+the <b>basepath</b> if it is specified.
+<br><br>
+GFS DEH/BEX files will be added after any DeHackEd files added on the command-line. This allows
+command-line DeHackEd files to take effect before any changes made by GFS. However, DeHackEd
+lumps in WADs and any specified in the configuration file are still added last.
+<br><br>
+Example of Usage:
+<pre>
+dehfile = chexq.bex
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="csc">
+<hr>
+<b>Adding Console Scripts</b>
+<hr>
+</a>
+<br>
+A GFS can specify any number of console scripts to run using the <b>cscfile</b> variable. 
+These files will be executed in the order in which they are specified.
+<br><br>
+A CSC file name should be a path which is relative either to the path of the GFS file, or to
+the <b>basepath</b> if it is specified.
+<br><br>
+GFS CSC files will be executed immediately after any that are specified via the configuration
+file.
+<br><br>
+Example of Usage:
+<pre>
+cscfile = setvars.csc
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="edf">
+<hr>
+<b>Specifying a Root EDF File</b>
+<hr>
+</a>
+<br>
+A GFS can specify the root EDF file to process by using the <b>edffile</b> variable. Only
+one root EDF file can be specified, so the last definition encountered will become the one
+that is used.
+<br><br>
+The EDF file name should be a path which is relative either to the path of the GFS file, or to
+the <b>basepath</b> if it is specified.
+<br><br>
+If the -edf command-line parameter is used, it will take precedence over this setting.
+<br><br>
+Example of Usage:
+<pre>
+edffile = myroot.edf
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="iwad">
+<hr>
+<b>Specifying an IWAD</b>
+<hr>
+</a>
+<br>
+A GFS can specify the IWAD file to use by using the <b>iwad</b> variable. Only one root EDF 
+file can be specified, so the last definition encountered will become the one that is used.
+<br><br>
+The IWAD file name should be the absolute path, including file name, of the IWAD. The
+<b>basepath</b> variable does NOT affect this file name, and the path of the GFS file will
+not be appended to it.
+<br><br>
+If the -iwad command-line parameter is used, it will take precedence over this setting.
+<br><br>
+This option is not generally useful to GFS provided with modifications, since they cannot
+know how the user's file system is set up. This facility is to allow users to create their
+own GFS files, or to edit existing ones, so that they can automatically be loaded without
+need to additionally specify the IWAD.
+<br><br>
+Example of Usage:
+<pre>
+iwad = "C:/Games/DOOM/DOOM.wad"
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+</body>
+</html>

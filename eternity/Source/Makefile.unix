@@ -1,0 +1,27 @@
+include ./rules.make
+
+OBJS = am_color.o am_map.o c_cmd.o c_io.o c_net.o c_runcmd.o d_deh.o \
+       d_dialog.o d_items.o d_main.o d_net.o doomdef.o doomstat.o    \
+       dstrings.o f_finale.o f_wipe.o g_bind.o g_cmd.o g_game.o      \
+       hu_frags.o hu_fspic.o hu_over.o hu_stuff.o info.o m_argv.o    \
+       m_bbox.o m_cheat.o m_misc.o m_random.o mn_engin.o mn_menus.o  \
+       mn_misc.o p_anim.o p_ceilng.o p_chase.o p_cmd.o p_doors.o     \
+       p_enemy.o p_floor.o p_genlin.o p_hubs.o p_info.o p_inter.o    \
+       p_lights.o p_map.o p_maputl.o p_mobj.o p_partcl.o p_plats.o   \
+       p_pspr.o p_saveg.o p_setup.o p_sight.o p_skin.o p_spec.o      \
+       p_switch.o p_telept.o p_tick.o p_user.o r_bsp.o r_data.o      \
+       r_draw.o r_main.o r_plane.o r_ripple.o r_segs.o r_sky.o       \
+       r_things.o s_sound.o sounds.o st_lib.o st_stuff.o t_array.o   \
+       t_func.o t_oper.o t_parse.o t_prepro.o t_script.o t_spec.o    \
+       t_vari.o tables.o v_misc.o v_video.o version.o w_wad.o        \
+       wi_stuff.o z_zone.o
+
+eternity: $(OBJS) sdl
+	$(CC) $(CFLAGS) $(LDFLAGS) sdl/libplatform.o $(OBJS) -o eternity
+
+sdl: 
+	make -C sdl
+
+%.o: %.c
+	$(CC) -c $< -o $@
+

@@ -1,0 +1,120 @@
+# cast.edf - EDF file for Eternity Engine v3.31 public beta 5
+#     DOOM II cast call information is stored here. Cast members can
+#     be defined elsewhere. If the castorder array is not defined, cast
+#     members will appear in the order they are defined. If a name
+#     is not defined by any of the first 17 cast members defined, those
+#     cast members will use the corresponding default name normally 
+#     defined through DeHackEd/BEX string replacement. See the EDF
+#     documentation for more information.
+
+castinfo zombieman
+{
+   type = Zombieman
+   sound { frame = S_POSS_ATK2; sfx = pistol }
+}
+
+castinfo sergeant
+{
+   type = Sergeant
+   sound { frame = S_SPOS_ATK2; sfx = shotgn }
+}
+
+castinfo chaingunner
+{
+   type = Chaingunner
+   sound { frame = S_CPOS_ATK2; sfx = shotgn }
+   sound { frame = S_CPOS_ATK3; sfx = shotgn }
+   sound { frame = S_CPOS_ATK4; sfx = shotgn }
+}
+
+castinfo doomimp
+{
+   type = DoomImp
+   sound { frame = S_TROO_ATK3; sfx = claw }
+}
+
+castinfo demon
+{
+   type = Demon
+   sound { frame = S_SARG_ATK2; sfx = sgtatk }
+}
+
+castinfo lostsoul
+{
+   type = LostSoul
+   sound { frame = S_SKULL_ATK2; sfx = sklatk }
+}
+
+castinfo cacodemon
+{
+   type = Cacodemon
+   sound { frame = S_HEAD_ATK2; sfx = firsht }
+}
+
+castinfo hellknight
+{
+   type = HellKnight
+   sound { frame = S_BOS2_ATK2; sfx = firsht }
+}
+
+castinfo baronofhell
+{
+   type = BaronOfHell
+   sound { frame = S_BOSS_ATK2; sfx = firsht }
+}
+
+castinfo arachnotron
+{
+   type = Arachnotron
+   sound { frame = S_BSPI_ATK2; sfx = plasma }
+}
+
+castinfo painelemental
+{
+   type = PainElemental
+   sound { frame = S_PAIN_ATK3; sfx = sklatk }
+}
+
+castinfo revenant
+{
+   type = Revenant
+   sound { frame = S_SKEL_FIST2; sfx = skeswg }
+   sound { frame = S_SKEL_FIST4; sfx = skepch }
+   sound { frame = S_SKEL_MISS2; sfx = skeatk }
+}
+
+castinfo mancubus
+{
+   type = Mancubus
+   sound { frame = S_FATT_ATK2; sfx = firsht }
+   sound { frame = S_FATT_ATK5; sfx = firsht }
+   sound { frame = S_FATT_ATK8; sfx = firsht }
+}
+
+castinfo archvile
+{
+   type = Archvile
+   sound { frame = S_VILE_ATK2; sfx = vilatk }
+}
+
+castinfo spiderdemon
+{
+   type = Spiderdemon
+   sound { frame = S_SPID_ATK2; sfx = shotgn }
+   sound { frame = S_SPID_ATK3; sfx = shotgn }
+}
+
+castinfo cyberdemon
+{
+   type = Cyberdemon
+   sound { frame = S_CYBER_ATK2; sfx = rlaunc }
+   sound { frame = S_CYBER_ATK4; sfx = rlaunc }
+   sound { frame = S_CYBER_ATK6; sfx = rlaunc }
+}
+
+castinfo player
+{
+   type = DoomPlayer
+   stopattack = true
+   sound { frame = S_PLAY_ATK1; sfx = dshtgn }
+}

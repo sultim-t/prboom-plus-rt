@@ -1,0 +1,2707 @@
+# things.edf - EDF file for Eternity Engine v3.31 public beta 5
+#     Thing types define monsters, fireballs, decorations, etc.
+#     Thing types may be defined elsewhere, and order is unimportant.
+#     User-defined thing types should use DeHackEd numbers greater
+#     than 10000 in all cases, to remain compatible with future versions
+#     of Eternity. See the EDF documentation for important information on
+#     the format of thing type fields.
+
+#     COMPATIBILITY WARNING: All things after thing #143 (EEBetaPlasma3) have 
+#     NOT been standardized as of v3.31 public beta 5. These things should not 
+#     be used by editors, via EDF or DeHackEd, until their order and existence 
+#     have been finalized and officially documented.
+
+thingtype DoomPlayer {
+  spawnstate = S_PLAY
+  spawnhealth = 100
+  seestate = S_PLAY_RUN1
+  reactiontime = 0
+  painstate = S_PLAY_PAIN
+  painchance = 255
+  painsound = plpain
+  missilestate = S_PLAY_ATK1
+  deathstate = S_PLAY_DIE1
+  xdeathstate = S_PLAY_XDIE1
+  deathsound = pldeth
+  radius = 16.0000
+  height = 56.0000
+  flags = SOLID|SHOOTABLE|DROPOFF|PICKUP|NOTDMATCH
+  flags2 = FOOTCLIP
+  flags3 = SLIDE|TELESTOMP|WINDTHRUST
+  droptype = Backpack
+  mod = 24
+  dehackednum = 1
+}
+
+ifenabled(DOOM)
+
+thingtype Zombieman {
+  doomednum = 3004
+  spawnstate = S_POSS_STND
+  spawnhealth = 20
+  seestate = S_POSS_RUN1
+  seesound = posit1
+  attacksound = pistol
+  painstate = S_POSS_PAIN
+  painchance = 200
+  painsound = popain
+  missilestate = S_POSS_ATK1
+  deathstate = S_POSS_DIE1
+  xdeathstate = S_POSS_XDIE1
+  deathsound = podth1
+  speed = 8
+  height = 56.0000
+  activesound = posact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_POSS_RAISE1
+  droptype = AmmoClip
+  obituary_normal = "was capped by a zombie"
+  dehackednum = 2
+}
+
+thingtype Sergeant {
+  doomednum = 9
+  spawnstate = S_SPOS_STND
+  spawnhealth = 30
+  seestate = S_SPOS_RUN1
+  seesound = posit2
+  painstate = S_SPOS_PAIN
+  painchance = 170
+  painsound = popain
+  missilestate = S_SPOS_ATK1
+  deathstate = S_SPOS_DIE1
+  xdeathstate = S_SPOS_XDIE1
+  deathsound = podth2
+  speed = 8
+  height = 56.0000
+  activesound = posact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_SPOS_RAISE1
+  droptype = WeaponShotgun
+  obituary_normal = "was blasted by a former sergeant"
+  dehackednum = 3
+}
+
+thingtype Archvile {
+  doomednum = 64
+  spawnstate = S_VILE_STND
+  spawnhealth = 700
+  seestate = S_VILE_RUN1
+  seesound = vilsit
+  painstate = S_VILE_PAIN
+  painchance = 10
+  painsound = vipain
+  missilestate = S_VILE_ATK1
+  deathstate = S_VILE_DIE1
+  deathsound = vildth
+  speed = 15
+  height = 56.0000
+  mass = 500
+  activesound = vilact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP|SHORTMRANGE
+  flags3 = DMGIGNORED|NOTHRESHOLD
+  obituary_normal = "was fried by an archvile"
+  dehackednum = 4
+}
+
+thingtype VileFire {
+  spawnstate = S_FIRE1
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  dehackednum = 5
+}
+
+thingtype Revenant {
+  doomednum = 66
+  spawnstate = S_SKEL_STND
+  spawnhealth = 300
+  seestate = S_SKEL_RUN1
+  seesound = skesit
+  painstate = S_SKEL_PAIN
+  painchance = 100
+  painsound = popain
+  meleestate = S_SKEL_FIST1
+  missilestate = S_SKEL_MISS1
+  deathstate = S_SKEL_DIE1
+  deathsound = skedth
+  speed = 10
+  height = 56.0000
+  mass = 500
+  activesound = skeact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP|LONGMELEE|RANGEHALF
+  raisestate = S_SKEL_RAISE1
+  obituary_normal = "couldn't hide from a revenant missile"
+  obituary_melee  = "was sucker-punched by a revenant"
+  dehackednum = 6
+}
+
+thingtype TracerShot {
+  spawnstate = S_TRACER
+  seesound = skeatk
+  deathstate = S_TRACEEXP1
+  deathsound = barexp
+  speed = 655360
+  radius = 11.0000
+  height = 8.00000
+  damage = 10
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = SEEKERMISSILE
+  dehackednum = 7
+}
+
+thingtype TracerSmoke {
+  spawnstate = S_SMOKE1
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  dehackednum = 8
+}
+
+thingtype Mancubus {
+  doomednum = 67
+  spawnstate = S_FATT_STND
+  spawnhealth = 600
+  seestate = S_FATT_RUN1
+  seesound = mansit
+  painstate = S_FATT_PAIN
+  painchance = 80
+  painsound = mnpain
+  missilestate = S_FATT_ATK1
+  deathstate = S_FATT_DIE1
+  deathsound = mandth
+  speed = 8
+  radius = 48.0000
+  height = 64.0000
+  mass = 1000
+  activesound = posact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = MAP07BOSS1|FOOTCLIP
+  raisestate = S_FATT_RAISE1
+  obituary_normal = "was flattened by a mancubus"
+  dehackednum = 9
+}
+
+thingtype MancubusShot {
+  spawnstate = S_FATSHOT1
+  seesound = firsht
+  deathstate = S_FATSHOTX1
+  deathsound = firxpl
+  speed = 1310720
+  radius = 6.00000
+  height = 8.00000
+  damage = 8
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  dehackednum = 10
+}
+
+thingtype Chaingunner {
+  doomednum = 65
+  spawnstate = S_CPOS_STND
+  spawnhealth = 70
+  seestate = S_CPOS_RUN1
+  seesound = posit2
+  painstate = S_CPOS_PAIN
+  painchance = 170
+  painsound = popain
+  missilestate = S_CPOS_ATK1
+  deathstate = S_CPOS_DIE1
+  xdeathstate = S_CPOS_XDIE1
+  deathsound = podth2
+  speed = 8
+  height = 56.0000
+  activesound = posact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_CPOS_RAISE1
+  droptype = WeaponChaingun
+  obituary_normal = "felt the heat from a chaingunner"
+  dehackednum = 11
+}
+
+thingtype DoomImp {
+  doomednum = 3001
+  spawnstate = S_TROO_STND
+  spawnhealth = 60
+  seestate = S_TROO_RUN1
+  seesound = bgsit1
+  painstate = S_TROO_PAIN
+  painchance = 200
+  painsound = popain
+  meleestate = S_TROO_ATK1
+  missilestate = S_TROO_ATK1
+  deathstate = S_TROO_DIE1
+  xdeathstate = S_TROO_XDIE1
+  deathsound = bgdth1
+  speed = 8
+  height = 56.0000
+  activesound = bgact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_TROO_RAISE1
+  obituary_normal = "was flamed by an imp"
+  obituary_melee  = "was torn apart by an imp"
+  dehackednum = 12
+}
+
+thingtype Demon {
+  doomednum = 3002
+  spawnstate = S_SARG_STND
+  spawnhealth = 150
+  seestate = S_SARG_RUN1
+  seesound = sgtsit
+  attacksound = sgtatk
+  painstate = S_SARG_PAIN
+  painchance = 180
+  painsound = dmpain
+  meleestate = S_SARG_ATK1
+  deathstate = S_SARG_DIE1
+  deathsound = sgtdth
+  speed = 10
+  radius = 30.0000
+  height = 56.0000
+  mass = 400
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_SARG_RAISE1
+  obituary_melee = "was chewed on by a demon"
+  dehackednum = 13
+}
+
+thingtype Spectre {
+  doomednum = 58
+  spawnstate = S_SARG_STND
+  spawnhealth = 150
+  seestate = S_SARG_RUN1
+  seesound = sgtsit
+  attacksound = sgtatk
+  painstate = S_SARG_PAIN
+  painchance = 180
+  painsound = dmpain
+  meleestate = S_SARG_ATK1
+  deathstate = S_SARG_DIE1
+  deathsound = sgtdth
+  speed = 10
+  radius = 30.0000
+  height = 56.0000
+  mass = 400
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|SHADOW|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_SARG_RAISE1
+  obituary_melee = "didn't see the spectre"
+  dehackednum = 14
+}
+
+thingtype Cacodemon {
+  doomednum = 3005
+  spawnstate = S_HEAD_STND
+  spawnhealth = 400
+  seestate = S_HEAD_RUN1
+  seesound = cacsit
+  painstate = S_HEAD_PAIN
+  painchance = 128
+  painsound = dmpain
+  missilestate = S_HEAD_ATK1
+  deathstate = S_HEAD_DIE1
+  deathsound = cacdth
+  speed = 8
+  radius = 31.0000
+  height = 56.0000
+  mass = 400
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|NOGRAVITY|FLOAT|COUNTKILL
+  raisestate = S_HEAD_RAISE1
+  obituary_normal = "was roasted by a cacodemon"
+  obituary_melee  = "was bitten by a cacodemon"
+  dehackednum = 15
+}
+
+thingtype BaronOfHell {
+  doomednum = 3003
+  spawnstate = S_BOSS_STND
+  seestate = S_BOSS_RUN1
+  seesound = brssit
+  painstate = S_BOSS_PAIN
+  painchance = 50
+  painsound = dmpain
+  meleestate = S_BOSS_ATK1
+  missilestate = S_BOSS_ATK1
+  deathstate = S_BOSS_DIE1
+  deathsound = brsdth
+  speed = 8
+  radius = 24.0000
+  height = 64.0000
+  mass = 1000
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = E1M8BOSS|FOOTCLIP
+  raisestate = S_BOSS_RAISE1
+  obituary_normal = "was burned by a baron"
+  obituary_melee  = "was ripped open by a baron"
+  dehackednum = 16
+}
+
+thingtype BaronShot {
+  spawnstate = S_BRBALL1
+  seesound = firsht
+  deathstate = S_BRBALLX1
+  deathsound = firxpl
+  speed = 983040
+  fastspeed = 1310720
+  radius = 6.00000
+  height = 8.00000
+  damage = 8
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 17
+}
+
+thingtype HellKnight {
+  doomednum = 69
+  spawnstate = S_BOS2_STND
+  spawnhealth = 500
+  seestate = S_BOS2_RUN1
+  seesound = kntsit
+  painstate = S_BOS2_PAIN
+  painchance = 50
+  painsound = dmpain
+  meleestate = S_BOS2_ATK1
+  missilestate = S_BOS2_ATK1
+  deathstate = S_BOS2_DIE1
+  deathsound = kntdth
+  speed = 8
+  radius = 24.0000
+  height = 64.0000
+  mass = 1000
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_BOS2_RAISE1
+  obituary_normal = "bows before a hell knight"
+  obituary_melee  = "was ripped open by a hell knight"
+  dehackednum = 18
+}
+
+thingtype LostSoul {
+  doomednum = 3006
+  spawnstate = S_SKULL_STND
+  spawnhealth = 100
+  seestate = S_SKULL_RUN1
+  attacksound = sklatk
+  painstate = S_SKULL_PAIN
+  painchance = 256
+  painsound = dmpain
+  missilestate = S_SKULL_ATK1
+  deathstate = S_SKULL_DIE1
+  deathsound = firxpl
+  speed = 8
+  radius = 16.0000
+  height = 56.0000
+  mass = 50
+  damage = 3
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|NOGRAVITY|FLOAT
+  flags2 = NOSTRAFE|RANGEHALF
+  flags3 = KILLABLE|DEADFLOAT
+  obituary_normal = "was spooked by a lost soul"
+  dehackednum = 19
+}
+
+thingtype Spiderdemon {
+  doomednum = 7
+  spawnstate = S_SPID_STND
+  spawnhealth = 3000
+  seestate = S_SPID_RUN1
+  seesound = spisit
+  attacksound = shotgn
+  painstate = S_SPID_PAIN
+  painchance = 40
+  painsound = dmpain
+  missilestate = S_SPID_ATK1
+  deathstate = S_SPID_DIE1
+  deathsound = spidth
+  speed = 12
+  radius = 128.000
+  height = 100.000
+  mass = 1000
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = E3M8BOSS|BOSS|E4M8BOSS|FOOTCLIP|RANGEHALF
+  obituary_normal = "stood in awe of the spiderdemon"
+  dehackednum = 20
+}
+
+thingtype Arachnotron {
+  doomednum = 68
+  spawnstate = S_BSPI_STND
+  spawnhealth = 500
+  seestate = S_BSPI_SIGHT
+  seesound = bspsit
+  painstate = S_BSPI_PAIN
+  painchance = 128
+  painsound = dmpain
+  missilestate = S_BSPI_ATK1
+  deathstate = S_BSPI_DIE1
+  deathsound = bspdth
+  speed = 12
+  radius = 64.0000
+  height = 64.0000
+  mass = 600
+  activesound = bspact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = MAP07BOSS2|FOOTCLIP
+  raisestate = S_BSPI_RAISE1
+  obituary_normal = "didn't escape the arachnotron"
+  dehackednum = 21
+}
+
+thingtype Cyberdemon {
+  doomednum = 16
+  spawnstate = S_CYBER_STND
+  spawnhealth = 4000
+  seestate = S_CYBER_RUN1
+  seesound = cybsit
+  painstate = S_CYBER_PAIN
+  painchance = 20
+  painsound = dmpain
+  missilestate = S_CYBER_ATK1
+  deathstate = S_CYBER_DIE1
+  deathsound = cybdth
+  speed = 16
+  radius = 40.0000
+  height = 110.000
+  mass = 1000
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = E2M8BOSS|BOSS|E4M6BOSS|FOOTCLIP|RANGEHALF|HIGHERMPROB
+  obituary_normal = "gulped down a cyberdemon's rocket"
+  dehackednum = 22
+}
+
+thingtype PainElemental {
+  doomednum = 71
+  spawnstate = S_PAIN_STND
+  spawnhealth = 400
+  seestate = S_PAIN_RUN1
+  seesound = pesit
+  painstate = S_PAIN_PAIN
+  painchance = 128
+  painsound = pepain
+  missilestate = S_PAIN_ATK1
+  deathstate = S_PAIN_DIE1
+  deathsound = pedth
+  speed = 8
+  radius = 31.0000
+  height = 56.0000
+  mass = 400
+  activesound = dmact
+  flags = SOLID|SHOOTABLE|NOGRAVITY|FLOAT|COUNTKILL
+  raisestate = S_PAIN_RAISE1
+  nukespecial = PainNukeSpec
+  dehackednum = 23
+}
+
+thingtype WolfSS {
+  doomednum = 84
+  spawnstate = S_SSWV_STND
+  spawnhealth = 50
+  seestate = S_SSWV_RUN1
+  seesound = sssit
+  painstate = S_SSWV_PAIN
+  painchance = 170
+  painsound = popain
+  missilestate = S_SSWV_ATK1
+  deathstate = S_SSWV_DIE1
+  xdeathstate = S_SSWV_XDIE1
+  deathsound = ssdth
+  speed = 8
+  height = 56.0000
+  activesound = posact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_SSWV_RAISE1
+  droptype = AmmoClip
+  obituary_normal = "was no match for the past"
+  dehackednum = 24
+}
+
+thingtype CommanderKeen {
+  doomednum = 72
+  spawnstate = S_KEENSTND
+  spawnhealth = 100
+  painstate = S_KEENPAIN
+  painchance = 256
+  painsound = keenpn
+  deathstate = S_COMMKEEN
+  deathsound = keendt
+  radius = 16.0000
+  height = 72.0000
+  mass = 10000000
+  flags = SOLID|SHOOTABLE|SPAWNCEILING|NOGRAVITY|COUNTKILL
+  dehackednum = 25
+}
+
+thingtype BossBrain {
+  doomednum = 88
+  spawnstate = S_BRAIN
+  spawnhealth = 250
+  painstate = S_BRAIN_PAIN
+  painchance = 255
+  painsound = bospn
+  deathstate = S_BRAIN_DIE1
+  deathsound = bosdth
+  radius = 16.0000
+  mass = 10000000
+  flags = SOLID|SHOOTABLE
+  dehackednum = 26
+}
+
+thingtype BossCubeSpitter {
+  doomednum = 89
+  spawnstate = S_BRAINEYE
+  seestate = S_BRAINEYESEE
+  height = 32.0000
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 27
+}
+
+thingtype BossSpawnSpot {
+  doomednum = 87
+  height = 32.0000
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 28
+}
+
+thingtype BossSpawnCube {
+  spawnstate = S_SPAWN1
+  seesound = bospit
+  deathsound = firxpl
+  speed = 655360
+  radius = 6.00000
+  height = 32.0000
+  damage = 3
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|NOCLIP|MISSILE
+  dehackednum = 29
+}
+
+thingtype BossSpawnFire {
+  spawnstate = S_SPAWNFIRE1
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  dehackednum = 30
+}
+
+thingtype DoomBarrel {
+  doomednum = 2035
+  spawnstate = S_BAR1
+  spawnhealth = 20
+  deathstate = S_BEXP
+  deathsound = barexp
+  radius = 10.0000
+  height = 42.0000
+  flags = SOLID|SHOOTABLE|NOBLOOD
+  mod = 18
+  dehackednum = 31
+}
+
+thingtype DoomImpShot {
+  spawnstate = S_TBALL1
+  seesound = firsht
+  deathstate = S_TBALLX1
+  deathsound = firxpl
+  speed = 655360
+  fastspeed = 1310720
+  radius = 6.00000
+  height = 8.00000
+  damage = 3
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 32
+}
+
+thingtype CacodemonShot {
+  spawnstate = S_RBALL1
+  seesound = firsht
+  deathstate = S_RBALLX1
+  deathsound = firxpl
+  speed = 655360
+  fastspeed = 1310720
+  radius = 6.00000
+  height = 8.00000
+  damage = 5
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 33
+}
+
+thingtype RocketShot {
+  spawnstate = S_ROCKET
+  seesound = rlaunc
+  deathstate = S_EXPLODE1
+  deathsound = barexp
+  speed = 1310720
+  radius = 11.0000
+  height = 8.00000
+  damage = 20
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  particlefx = ROCKET
+  mod = 5
+  dehackednum = 34
+}
+
+thingtype PlasmaShot {
+  spawnstate = S_PLASBALL
+  seesound = plasma
+  deathstate = S_PLASEXP
+  deathsound = firxpl
+  speed = 1638400
+  radius = 13.0000
+  height = 8.00000
+  damage = 5
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  mod = 7
+  dehackednum = 35
+}
+
+thingtype BFGShot {
+  spawnstate = S_BFGSHOT
+  deathstate = S_BFGLAND
+  deathsound = rxplod
+  speed = 1638400
+  radius = 13.0000
+  height = 8.00000
+  damage = 100
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  particlefx = BFG
+  mod = 8
+  dehackednum = 36
+}
+
+thingtype ArachnotronShot {
+  spawnstate = S_ARACH_PLAZ
+  seesound = plasma
+  deathstate = S_ARACH_PLEX
+  deathsound = firxpl
+  speed = 1638400
+  radius = 13.0000
+  height = 8.00000
+  damage = 5
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  dehackednum = 37
+}
+
+thingtype BulletPuff {
+  spawnstate = S_PUFF1
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  flags2 = NOSPLASH
+  dehackednum = 38
+}
+
+thingtype DoomBlood {
+  spawnstate = S_BLOOD1
+  flags = NOBLOCKMAP
+  flags2 = NOSPLASH
+  dehackednum = 39
+}
+
+thingtype DoomTeleFog {
+  spawnstate = S_TFOG
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  dehackednum = 40
+}
+
+thingtype DoomItemFog {
+  spawnstate = S_IFOG
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  dehackednum = 41
+}
+
+endif()
+
+thingtype TeleportSpot {
+  doomednum = 14
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 42
+}
+
+ifenabled(DOOM)
+
+thingtype BFGFlash {
+  spawnstate = S_BFGEXP
+  flags = NOBLOCKMAP|NOGRAVITY
+  dehackednum = 43
+}
+
+thingtype GreenArmor {
+  doomednum = 2018
+  spawnstate = S_ARM1
+  flags = SPECIAL
+  dehackednum = 44
+}
+
+thingtype BlueArmor {
+  doomednum = 2019
+  spawnstate = S_ARM2
+  flags = SPECIAL
+  dehackednum = 45
+}
+
+thingtype HealthBonus {
+  doomednum = 2014
+  spawnstate = S_BON1
+  flags = SPECIAL|COUNTITEM
+  dehackednum = 46
+}
+
+thingtype ArmorBonus {
+  doomednum = 2015
+  spawnstate = S_BON2
+  flags = SPECIAL|COUNTITEM
+  dehackednum = 47
+}
+
+thingtype DoomBlueCard {
+  doomednum = 5
+  spawnstate = S_BKEY
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 48
+}
+
+thingtype DoomRedCard {
+  doomednum = 13
+  spawnstate = S_RKEY
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 49
+}
+
+thingtype DoomYellowCard {
+  doomednum = 6
+  spawnstate = S_YKEY
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 50
+}
+
+thingtype DoomYellowSkull {
+  doomednum = 39
+  spawnstate = S_YSKULL
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 51
+}
+
+thingtype DoomRedSkull {
+  doomednum = 38
+  spawnstate = S_RSKULL
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 52
+}
+
+thingtype DoomBlueSkull {
+  doomednum = 40
+  spawnstate = S_BSKULL
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 53
+}
+
+thingtype StimPack {
+  doomednum = 2011
+  spawnstate = S_STIM
+  flags = SPECIAL
+  dehackednum = 54
+}
+
+thingtype MediKit {
+  doomednum = 2012
+  spawnstate = S_MEDI
+  flags = SPECIAL
+  dehackednum = 55
+}
+
+thingtype SoulSphere {
+  doomednum = 2013
+  spawnstate = S_SOUL
+  flags = SPECIAL|COUNTITEM|TRANSLUCENT
+  dehackednum = 56
+}
+
+thingtype InvulnSphere {
+  doomednum = 2022
+  spawnstate = S_PINV
+  flags = SPECIAL|COUNTITEM|TRANSLUCENT
+  flags3 = SUPERITEM
+  dehackednum = 57
+}
+
+thingtype BerzerkBox {
+  doomednum = 2023
+  spawnstate = S_PSTR
+  flags = SPECIAL|COUNTITEM
+  dehackednum = 58
+}
+
+thingtype InvisiSphere {
+  doomednum = 2024
+  spawnstate = S_PINS
+  flags = SPECIAL|COUNTITEM|TRANSLUCENT
+  flags3 = SUPERITEM
+  dehackednum = 59
+}
+
+thingtype RadiationSuit {
+  doomednum = 2025
+  spawnstate = S_SUIT
+  flags = SPECIAL
+  dehackednum = 60
+}
+
+thingtype ComputerMap {
+  doomednum = 2026
+  spawnstate = S_PMAP
+  flags = SPECIAL|COUNTITEM
+  dehackednum = 61
+}
+
+thingtype LightAmpVisor {
+  doomednum = 2045
+  spawnstate = S_PVIS
+  flags = SPECIAL|COUNTITEM
+  dehackednum = 62
+}
+
+thingtype MegaSphere {
+  doomednum = 83
+  spawnstate = S_MEGA
+  flags = SPECIAL|COUNTITEM|TRANSLUCENT
+  dehackednum = 63
+}
+
+thingtype AmmoClip {
+  doomednum = 2007
+  spawnstate = S_CLIP
+  flags = SPECIAL
+  dehackednum = 64
+}
+
+thingtype AmmoBulletBox {
+  doomednum = 2048
+  spawnstate = S_AMMO
+  flags = SPECIAL
+  dehackednum = 65
+}
+
+thingtype AmmoRocket {
+  doomednum = 2010
+  spawnstate = S_ROCK
+  flags = SPECIAL
+  dehackednum = 66
+}
+
+thingtype AmmoRocketBox {
+  doomednum = 2046
+  spawnstate = S_BROK
+  flags = SPECIAL
+  dehackednum = 67
+}
+
+thingtype AmmoCell {
+  doomednum = 2047
+  spawnstate = S_CELL
+  flags = SPECIAL
+  dehackednum = 68
+}
+
+thingtype AmmoCellPack {
+  doomednum = 17
+  spawnstate = S_CELP
+  flags = SPECIAL
+  dehackednum = 69
+}
+
+thingtype AmmoShells {
+  doomednum = 2008
+  spawnstate = S_SHEL
+  flags = SPECIAL
+  dehackednum = 70
+}
+
+thingtype AmmoShellBox {
+  doomednum = 2049
+  spawnstate = S_SBOX
+  flags = SPECIAL
+  dehackednum = 71
+}
+
+endif()
+
+thingtype Backpack {
+  doomednum = 8
+  spawnstate = S_BPAK
+  flags = SPECIAL
+  dehackednum = 72
+}
+
+ifenabled(DOOM)
+
+thingtype WeaponBFG {
+  doomednum = 2006
+  spawnstate = S_BFUG
+  flags = SPECIAL
+  dehackednum = 73
+}
+
+thingtype WeaponChaingun {
+  doomednum = 2002
+  spawnstate = S_MGUN
+  flags = SPECIAL
+  dehackednum = 74
+}
+
+thingtype WeaponChainsaw {
+  doomednum = 2005
+  spawnstate = S_CSAW
+  flags = SPECIAL
+  dehackednum = 75
+}
+
+thingtype WeaponRocketLauncher {
+  doomednum = 2003
+  spawnstate = S_LAUN
+  flags = SPECIAL
+  dehackednum = 76
+}
+
+thingtype WeaponPlasmaGun {
+  doomednum = 2004
+  spawnstate = S_PLAS
+  flags = SPECIAL
+  dehackednum = 77
+}
+
+thingtype WeaponShotgun {
+  doomednum = 2001
+  spawnstate = S_SHOT
+  flags = SPECIAL
+  dehackednum = 78
+}
+
+thingtype WeaponSSG {
+  doomednum = 82
+  spawnstate = S_SHOT2
+  flags = SPECIAL
+  dehackednum = 79
+}
+
+thingtype TechLamp1 {
+  doomednum = 85
+  spawnstate = S_TECHLAMP
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 80
+}
+
+thingtype TechLamp2 {
+  doomednum = 86
+  spawnstate = S_TECH2LAMP
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 81
+}
+
+thingtype ShortLamp {
+  doomednum = 2028
+  spawnstate = S_COLU
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 82
+}
+
+thingtype ColumnGreenTall {
+  doomednum = 30
+  spawnstate = S_TALLGRNCOL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 83
+}
+
+thingtype ColumnGreenShort {
+  doomednum = 31
+  spawnstate = S_SHRTGRNCOL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 84
+}
+
+thingtype ColumnRedTall {
+  doomednum = 32
+  spawnstate = S_TALLREDCOL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 85
+}
+
+thingtype ColumnRedShort {
+  doomednum = 33
+  spawnstate = S_SHRTREDCOL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 86
+}
+
+thingtype ColumnRedSkull {
+  doomednum = 37
+  spawnstate = S_SKULLCOL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 87
+}
+
+thingtype ColumnGreenHeart {
+  doomednum = 36
+  spawnstate = S_HEARTCOL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 88
+}
+
+thingtype EvilEye {
+  doomednum = 41
+  spawnstate = S_EVILEYE
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 89
+}
+
+thingtype FloatingSkulls {
+  doomednum = 42
+  spawnstate = S_FLOATSKULL
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 90
+}
+
+thingtype TreeGrayShort {
+  doomednum = 43
+  spawnstate = S_TORCHTREE
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 91
+}
+
+thingtype TorchBlueTall {
+  doomednum = 44
+  spawnstate = S_BLUETORCH
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 92
+}
+
+thingtype TorchGreenTall {
+  doomednum = 45
+  spawnstate = S_GREENTORCH
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 93
+}
+
+thingtype TorchRedTall {
+  doomednum = 46
+  spawnstate = S_REDTORCH
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 94
+}
+
+thingtype TorchBlueShort {
+  doomednum = 55
+  spawnstate = S_BTORCHSHRT
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 95
+}
+
+thingtype TorchGreenShort {
+  doomednum = 56
+  spawnstate = S_GTORCHSHRT
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 96
+}
+
+thingtype TorchRedShort {
+  doomednum = 57
+  spawnstate = S_RTORCHSHRT
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 97
+}
+
+thingtype ThornySpikes {
+  doomednum = 47
+  spawnstate = S_STALAGTITE
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 98
+}
+
+thingtype TechPillar {
+  doomednum = 48
+  spawnstate = S_TECHPILLAR
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 99
+}
+
+thingtype BlackCandle {
+  doomednum = 34
+  spawnstate = S_CANDLESTIK
+  dehackednum = 100
+}
+
+thingtype Candelabra {
+  doomednum = 35
+  spawnstate = S_CANDELABRA
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 101
+}
+
+thingtype HangingBodyTwitch {
+  doomednum = 49
+  spawnstate = S_BLOODYTWITCH
+  radius = 16.0000
+  height = 68.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 102
+}
+
+thingtype HangingBodyJacket {
+  doomednum = 50
+  spawnstate = S_MEAT2
+  radius = 16.0000
+  height = 84.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 103
+}
+
+thingtype HangingBodyNoLeg {
+  doomednum = 51
+  spawnstate = S_MEAT3
+  radius = 16.0000
+  height = 84.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 104
+}
+
+thingtype HangingBodyTorso {
+  doomednum = 52
+  spawnstate = S_MEAT4
+  radius = 16.0000
+  height = 68.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 105
+}
+
+thingtype HangingBodyLeg {
+  doomednum = 53
+  spawnstate = S_MEAT5
+  radius = 16.0000
+  height = 52.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 106
+}
+
+thingtype HangingBodyJacketPass {
+  doomednum = 59
+  spawnstate = S_MEAT2
+  height = 84.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 107
+}
+
+thingtype HangingBodyTorsoPass {
+  doomednum = 60
+  spawnstate = S_MEAT4
+  height = 68.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 108
+}
+
+thingtype HangingBodyNoLegPass {
+  doomednum = 61
+  spawnstate = S_MEAT3
+  height = 52.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 109
+}
+
+thingtype HangingBodyLegPass {
+  doomednum = 62
+  spawnstate = S_MEAT5
+  height = 52.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 110
+}
+
+thingtype HangingBodyTwitchPass {
+  doomednum = 63
+  spawnstate = S_BLOODYTWITCH
+  height = 68.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 111
+}
+
+thingtype DeadCacodemon {
+  doomednum = 22
+  spawnstate = S_HEAD_DIE6
+  dehackednum = 112
+}
+
+thingtype DeadDoomPlayer {
+  doomednum = 15
+  spawnstate = S_PLAY_DIE7
+  dehackednum = 113
+}
+
+thingtype DeadZombieman {
+  doomednum = 18
+  spawnstate = S_POSS_DIE5
+  dehackednum = 114
+}
+
+thingtype DeadDemon {
+  doomednum = 21
+  spawnstate = S_SARG_DIE6
+  dehackednum = 115
+}
+
+thingtype DeadLostSoul {
+  doomednum = 23
+  spawnstate = S_SKULL_DIE6
+  dehackednum = 116
+}
+
+thingtype DeadDoomImp {
+  doomednum = 20
+  spawnstate = S_TROO_DIE5
+  dehackednum = 117
+}
+
+thingtype DeadSergeant {
+  doomednum = 19
+  spawnstate = S_SPOS_DIE5
+  dehackednum = 118
+}
+
+thingtype DeadDoomPlayerGibs {
+  doomednum = 10
+  spawnstate = S_PLAY_XDIE9
+  dehackednum = 119
+}
+
+thingtype DeadDoomPlayerGibs2 {
+  doomednum = 12
+  spawnstate = S_PLAY_XDIE9
+  dehackednum = 120
+}
+
+thingtype HeadShishkabob {
+  doomednum = 28
+  spawnstate = S_HEADSONSTICK
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 121
+}
+
+thingtype CrushedGibs {
+  doomednum = 24
+  spawnstate = S_GIBS
+  dehackednum = 122
+}
+
+thingtype HeadOnStick {
+  doomednum = 27
+  spawnstate = S_HEADONASTICK
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 123
+}
+
+thingtype SkullsAndCandles {
+  doomednum = 29
+  spawnstate = S_HEADCANDLES
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 124
+}
+
+thingtype ImpaledZombieman {
+  doomednum = 25
+  spawnstate = S_DEADSTICK
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 125
+}
+
+thingtype ImpaledZombiemanAlive {
+  doomednum = 26
+  spawnstate = S_LIVESTICK
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 126
+}
+
+thingtype TreeTanLarge {
+  doomednum = 54
+  spawnstate = S_BIGTREE
+  radius = 32.0000
+  flags = SOLID
+  dehackednum = 127
+}
+
+thingtype FlamingBarrel {
+  doomednum = 70
+  spawnstate = S_BBAR1
+  radius = 16.0000
+  flags = SOLID
+  dehackednum = 128
+}
+
+thingtype HangingCorpseNoGuts {
+  doomednum = 73
+  spawnstate = S_HANGNOGUTS
+  radius = 16.0000
+  height = 88.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 129
+}
+
+thingtype HangingCorpseNoBrain {
+  doomednum = 74
+  spawnstate = S_HANGBNOBRAIN
+  radius = 16.0000
+  height = 88.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 130
+}
+
+thingtype HangingCorpseTop {
+  doomednum = 75
+  spawnstate = S_HANGTLOOKDN
+  radius = 16.0000
+  height = 64.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 131
+}
+
+thingtype HangingCorpseTopBrain {
+  doomednum = 76
+  spawnstate = S_HANGTSKULL
+  radius = 16.0000
+  height = 64.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 132
+}
+
+thingtype HangingCorpseTopLookUp {
+  doomednum = 77
+  spawnstate = S_HANGTLOOKUP
+  radius = 16.0000
+  height = 64.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 133
+}
+
+thingtype HangingCorpseTopNoBrain {
+  doomednum = 78
+  spawnstate = S_HANGTNOBRAIN
+  radius = 16.0000
+  height = 64.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 134
+}
+
+thingtype PoolBloodAndGuts {
+  doomednum = 79
+  spawnstate = S_COLONGIBS
+  flags = NOBLOCKMAP
+  dehackednum = 135
+}
+
+thingtype PoolBlood {
+  doomednum = 80
+  spawnstate = S_SMALLPOOL
+  flags = NOBLOCKMAP
+  dehackednum = 136
+}
+
+thingtype PoolBrain {
+  doomednum = 81
+  spawnstate = S_BRAINSTEM
+  flags = NOBLOCKMAP
+  dehackednum = 137
+}
+
+endif()
+
+thingtype BoomPushPoint {
+  doomednum = 5001
+  spawnstate = S_TNT1
+  radius = 0.000000
+  height = 0.000000
+  mass = 10
+  flags = NOBLOCKMAP
+  dehackednum = 138
+}
+
+thingtype BoomPullPoint {
+  doomednum = 5002
+  spawnstate = S_TNT1
+  radius = 0.000000
+  height = 0.000000
+  mass = 10
+  flags = NOBLOCKMAP
+  dehackednum = 139
+}
+
+thingtype MBFHelperDog {
+  doomednum = 888
+  spawnstate = S_DOGS_STND
+  spawnhealth = 500
+  seestate = S_DOGS_RUN1
+  seesound = dgsit
+  attacksound = dgatk
+  painstate = S_DOGS_PAIN
+  painchance = 180
+  painsound = dgpain
+  meleestate = S_DOGS_ATK1
+  deathstate = S_DOGS_DIE1
+  deathsound = dgdth
+  speed = 10
+  radius = 12.0000
+  height = 28.0000
+  activesound = dgact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = JUMPDOWN|FOOTCLIP
+  raisestate = S_DOGS_RAISE1
+  obituary_melee = "was chased down by a rabid puppy"
+  dehackednum = 140
+}
+
+thingtype MBFBetaPlasma1 {
+  spawnstate = S_PLS1BALL
+  seesound = plasma
+  deathstate = S_PLS1EXP
+  deathsound = firxpl
+  speed = 1638400
+  radius = 13.0000
+  height = 8.00000
+  damage = 4
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|BOUNCES
+  flags2 = NOCROSS
+  mod = 22
+  dehackednum = 141
+}
+
+thingtype MBFBetaPlasma2 {
+  spawnstate = S_PLS2BALL
+  seesound = plasma
+  deathstate = S_PLS2BALLX1
+  deathsound = firxpl
+  speed = 1638400
+  radius = 6.00000
+  height = 8.00000
+  damage = 4
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|BOUNCES
+  flags2 = NOCROSS
+  mod = 22
+  dehackednum = 142
+}
+
+thingtype SMMUCameraSpot {
+  doomednum = 5003
+  spawnstate = S_TNT1
+  radius = 0.000000
+  height = 0.000000
+  mass = 10
+  flags = NOBLOCKMAP
+  dehackednum = 143
+}
+
+thingtype EEBetaPlasma3 {
+  spawnstate = S_PLS1BALL
+  deathstate = S_PLS1EXP
+  speed = 1638400
+  radius = 13.0000
+  height = 8.00000
+  damage = 10
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|BOUNCES
+  flags2 = NOCROSS
+  mod = 23
+  dehackednum = 144
+}
+
+ifenabled(HERETIC)
+
+thingtype CrystalVial {
+  doomednum = 7081
+  spawnstate = S_ITEM_PTN1_1
+  flags = SPECIAL
+  flags2 = FLOATBOB
+  dehackednum = 145
+}
+
+thingtype SilverShield {
+  doomednum = 7085
+  spawnstate = S_ITEM_SHLD1
+  flags = SPECIAL
+  flags2 = FLOATBOB
+  dehackednum = 146
+}
+
+thingtype EnchantedShield {
+  doomednum = 7031
+  spawnstate = S_ITEM_SHD2_1
+  flags = SPECIAL
+  flags2 = FLOATBOB
+  dehackednum = 147
+}
+
+thingtype BagOfHolding {
+  doomednum = 7008
+  spawnstate = S_ITEM_BAGH1
+  flags = SPECIAL|COUNTITEM
+  flags2 = FLOATBOB
+  dehackednum = 148
+}
+
+thingtype MapScroll {
+  doomednum = 7035
+  spawnstate = S_ITEM_SPMP1
+  flags = SPECIAL|COUNTITEM
+  flags2 = FLOATBOB
+  dehackednum = 149
+}
+
+thingtype Pod {
+  doomednum = 7235
+  spawnstate = S_POD_WAIT1
+  spawnhealth = 45
+  painstate = S_POD_PAIN1
+  painchance = 255
+  deathstate = S_POD_DIE1
+  deathsound = ht_podexp
+  radius = 16.0000
+  height = 54.0000
+  flags = SOLID|SHOOTABLE|DROPOFF|NOBLOOD
+  flags2 = NORESPAWN|PUSHABLE
+  flags3 = SLIDE|TELESTOMP|WINDTHRUST
+  mod = 18
+  dehackednum = 150
+}
+
+thingtype PodGoo {
+  spawnstate = S_PODGOO1
+  deathstate = S_PODGOOX
+  radius = 2.00000
+  height = 4.00000
+  flags = NOBLOCKMAP|DROPOFF|MISSILE
+  flags2 = LOGRAV|NOCROSS
+  dehackednum = 151
+}
+
+thingtype PodGenerator {
+  doomednum = 7043
+  spawnstate = S_PODGENERATOR
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 152
+}
+
+thingtype HangingSkull70 {
+  doomednum = 7017
+  spawnstate = S_SKULLHANG70_1
+  height = 70.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 153
+}
+
+thingtype HangingSkull60 {
+  doomednum = 7024
+  spawnstate = S_SKULLHANG60_1
+  height = 60.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 154
+}
+
+thingtype HangingSkull45 {
+  doomednum = 7025
+  spawnstate = S_SKULLHANG45_1
+  height = 45.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 155
+}
+
+thingtype HangingSkull35 {
+  doomednum = 7026
+  spawnstate = S_SKULLHANG35_1
+  height = 35.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 156
+}
+
+thingtype Chandelier {
+  doomednum = 7028
+  spawnstate = S_CHANDELIER1
+  height = 60.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 157
+}
+
+thingtype SerpentTorch {
+  doomednum = 7027
+  spawnstate = S_SERPTORCH1
+  radius = 12.0000
+  height = 54.0000
+  flags = SOLID
+  dehackednum = 158
+}
+
+thingtype HereticPillarSmall {
+  doomednum = 7029
+  spawnstate = S_SMALLPILLAR
+  radius = 16.0000
+  height = 34.0000
+  flags = SOLID
+  dehackednum = 159
+}
+
+thingtype HereticStalagmiteSmall {
+  doomednum = 7037
+  spawnstate = S_STALAGMITESMALL
+  radius = 8.00000
+  height = 32.0000
+  flags = SOLID
+  dehackednum = 160
+}
+
+thingtype HereticStalagmiteLarge {
+  doomednum = 7038
+  spawnstate = S_STALAGMITELARGE
+  radius = 12.0000
+  height = 64.0000
+  flags = SOLID
+  dehackednum = 161
+}
+
+thingtype HereticStalactiteSmall {
+  doomednum = 7039
+  spawnstate = S_STALACTITESMALL
+  radius = 8.00000
+  height = 36.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 162
+}
+
+thingtype HereticStalactiteLarge {
+  doomednum = 7040
+  spawnstate = S_STALACTITELARGE
+  radius = 12.0000
+  height = 68.0000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 163
+}
+
+thingtype FireBrazier {
+  doomednum = 7076
+  spawnstate = S_FIREBRAZIER1
+  radius = 16.0000
+  height = 44.0000
+  flags = SOLID
+  dehackednum = 164
+}
+
+thingtype HereticBarrel {
+  doomednum = 7044
+  spawnstate = S_WOODBARREL
+  radius = 12.0000
+  height = 32.0000
+  flags = SOLID
+  dehackednum = 165
+}
+
+thingtype HornedPillar {
+  doomednum = 7047
+  spawnstate = S_BCOLUMN
+  radius = 14.0000
+  height = 128.000
+  flags = SOLID
+  dehackednum = 166
+}
+
+thingtype HereticMoss1 {
+  doomednum = 7048
+  spawnstate = S_MOSS1
+  height = 23.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 167
+}
+
+thingtype HereticMoss2 {
+  doomednum = 7049
+  spawnstate = S_MOSS2
+  height = 27.0000
+  flags = SPAWNCEILING|NOGRAVITY
+  dehackednum = 168
+}
+
+thingtype HereticWallTorch {
+  doomednum = 7050
+  spawnstate = S_WALLTORCH1
+  flags = NOGRAVITY
+  dehackednum = 169
+}
+
+thingtype HereticCorpse {
+  doomednum = 7051
+  spawnstate = S_HTICCORPSE
+  radius = 8.00000
+  height = 104.000
+  flags = SOLID|SPAWNCEILING|NOGRAVITY
+  dehackednum = 170
+}
+
+thingtype KeyGizmoBlue {
+  doomednum = 7094
+  spawnstate = S_KEYGIZMOB
+  radius = 16.0000
+  height = 50.0000
+  flags = SOLID
+  dehackednum = 171
+}
+
+thingtype KeyGizmoGreen {
+  doomednum = 7095
+  spawnstate = S_KEYGIZMOG
+  radius = 16.0000
+  height = 50.0000
+  flags = SOLID
+  dehackednum = 172
+}
+
+thingtype KeyGizmoYellow {
+  doomednum = 7096
+  spawnstate = S_KEYGIZMOY
+  radius = 16.0000
+  height = 50.0000
+  flags = SOLID
+  dehackednum = 173
+}
+
+thingtype KeyGizmoOrb {
+  spawnstate = S_KGZ_START
+  radius = 16.0000
+  flags = SOLID|NOGRAVITY
+  dehackednum = 174
+}
+
+thingtype TeleGlitterGenRed {
+  doomednum = 7074
+  spawnstate = S_TELEGLITGEN1
+  flags = NOSECTOR|NOBLOCKMAP|NOGRAVITY
+  dehackednum = 175
+}
+
+thingtype TeleGlitterGenBlue {
+  doomednum = 7052
+  spawnstate = S_TELEGLITGEN2
+  flags = NOSECTOR|NOBLOCKMAP|NOGRAVITY
+  dehackednum = 176
+}
+
+thingtype TeleGlitterRed {
+  spawnstate = S_TELEGLITTER1_1
+  flags = NOBLOCKMAP|NOGRAVITY|MISSILE
+  dehackednum = 177
+}
+
+thingtype TeleGlitterBlue {
+  spawnstate = S_TELEGLITTER2_1
+  flags = NOBLOCKMAP|NOGRAVITY|MISSILE
+  dehackednum = 178
+}
+
+thingtype HereticTeleFog {
+  spawnstate = S_HTFOG1
+  flags = NOBLOCKMAP|NOGRAVITY
+  dehackednum = 179
+}
+
+thingtype HereticBlood {
+  spawnstate = S_HTICBLOOD1
+  flags = NOBLOCKMAP
+  flags2 = NOSPLASH
+  dehackednum = 180
+}
+
+thingtype Golem {
+  doomednum = 7068
+  spawnstate = S_MUMMY_LOOK1
+  spawnhealth = 80
+  seestate = S_MUMMY_WALK1
+  seesound = ht_mumsit
+  attacksound = ht_mumat1
+  painstate = S_MUMMY_PAIN1
+  painchance = 128
+  painsound = ht_mumpai
+  meleestate = S_MUMMY_ATK1
+  deathstate = S_MUMMY_DIE1
+  deathsound = ht_mumdth
+  speed = 12
+  radius = 22.0000
+  height = 62.0000
+  mass = 75
+  activesound = ht_mumsit
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  dehackednum = 181
+}
+
+thingtype NitroGolem {
+  doomednum = 7045
+  spawnstate = S_MUMMY_LOOK1
+  spawnhealth = 100
+  seestate = S_MUMMY_WALK1
+  seesound = ht_mumsit
+  attacksound = ht_mumat1
+  painstate = S_MUMMY_PAIN1
+  painchance = 64
+  painsound = ht_mumpai
+  meleestate = S_MUMMY_ATK1
+  missilestate = S_MUMMYL_ATK1
+  deathstate = S_MUMMY_DIE1
+  deathsound = ht_mumdth
+  speed = 12
+  radius = 22.0000
+  height = 62.0000
+  mass = 75
+  activesound = ht_mumsit
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  dehackednum = 182
+}
+
+thingtype GolemGhost {
+  doomednum = 7069
+  spawnstate = S_MUMMY_LOOK1
+  spawnhealth = 80
+  seestate = S_MUMMY_WALK1
+  seesound = ht_mumsit
+  attacksound = ht_mumat1
+  painstate = S_MUMMY_PAIN1
+  painchance = 128
+  painsound = ht_mumpai
+  meleestate = S_MUMMY_ATK1
+  deathstate = S_MUMMY_DIE1
+  deathsound = ht_mumdth
+  speed = 12
+  radius = 22.0000
+  height = 62.0000
+  mass = 75
+  activesound = ht_mumsit
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  flags3 = GHOST
+  dehackednum = 183
+}
+
+thingtype NitroGolemGhost {
+  doomednum = 7046
+  spawnstate = S_MUMMY_LOOK1
+  spawnhealth = 100
+  seestate = S_MUMMY_WALK1
+  seesound = ht_mumsit
+  attacksound = ht_mumat1
+  painstate = S_MUMMY_PAIN1
+  painchance = 64
+  painsound = ht_mumpai
+  meleestate = S_MUMMY_ATK1
+  missilestate = S_MUMMYL_ATK1
+  deathstate = S_MUMMY_DIE1
+  deathsound = ht_mumdth
+  speed = 12
+  radius = 22.0000
+  height = 62.0000
+  mass = 75
+  activesound = ht_mumsit
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  flags3 = GHOST
+  dehackednum = 184
+}
+
+thingtype GolemSoul {
+  spawnstate = S_MUMMY_SOUL1
+  flags = NOBLOCKMAP|NOGRAVITY
+  dehackednum = 185
+}
+
+thingtype GolemShot {
+  spawnstate = S_MUMMYFX1_1
+  deathstate = S_MUMMYFXI1_1
+  speed = 589824
+  radius = 8.00000
+  height = 14.0000
+  damage = 4
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS|SEEKERMISSILE
+  dehackednum = 186
+}
+
+thingtype Weredragon {
+  doomednum = 7070
+  spawnstate = S_BEAST_LOOK1
+  spawnhealth = 220
+  seestate = S_BEAST_WALK1
+  seesound = ht_bstsit
+  attacksound = ht_bstatk
+  painstate = S_BEAST_PAIN1
+  painchance = 100
+  painsound = ht_bstpai
+  missilestate = S_BEAST_ATK1
+  deathstate = S_BEAST_DIE1
+  xdeathstate = S_BEAST_XDIE1
+  deathsound = ht_bstdth
+  speed = 14
+  radius = 32.0000
+  height = 74.0000
+  mass = 200
+  activesound = ht_bstact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  dehackednum = 187
+}
+
+thingtype WeredragonShot {
+  spawnstate = S_BEASTBALL1
+  deathstate = S_BEASTBALLX1
+  speed = 786432
+  radius = 9.00000
+  height = 8.00000
+  damage = 4
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  flags3 = WINDTHRUST
+  dehackednum = 188
+}
+
+thingtype WeredragonSmoke {
+  spawnstate = S_PUFFY1
+  deathstate = S_PUFFY1
+  speed = 655360
+  radius = 6.00000
+  height = 8.00000
+  damage = 2
+  flags = NOBLOCKMAP|NOGRAVITY|MISSILE
+  flags2 = NOCROSS
+  dehackednum = 189
+}
+
+thingtype Ophidian {
+  doomednum = 7092
+  spawnstate = S_SNAKE_LOOK1
+  spawnhealth = 280
+  seestate = S_SNAKE_WALK1
+  seesound = ht_snksit
+  attacksound = ht_snkatk
+  painstate = S_SNAKE_PAIN1
+  painchance = 48
+  painsound = ht_snkpai
+  missilestate = S_SNAKE_ATK1
+  deathstate = S_SNAKE_DIE1
+  deathsound = ht_snkdth
+  speed = 10
+  radius = 22.0000
+  height = 70.0000
+  activesound = ht_snkact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  dehackednum = 190
+}
+
+thingtype OphidianShotA {
+  spawnstate = S_SNAKEPRO_A1
+  deathstate = S_SNAKEPRO_AX1
+  speed = 917504
+  radius = 12.0000
+  height = 8.00000
+  damage = 1
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  flags3 = WINDTHRUST
+  dehackednum = 191
+}
+
+thingtype OphidianShotB {
+  spawnstate = S_SNAKEPRO_B1
+  deathstate = S_SNAKEPRO_BX1
+  speed = 917504
+  radius = 12.0000
+  height = 8.00000
+  damage = 3
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  dehackednum = 192
+}
+
+thingtype SabreClaw {
+  doomednum = 7090
+  spawnstate = S_CLINK_LOOK1
+  spawnhealth = 150
+  seestate = S_CLINK_WALK1
+  seesound = ht_clksit
+  attacksound = ht_clkatk
+  painstate = S_CLINK_PAIN1
+  painchance = 32
+  painsound = ht_clkpai
+  meleestate = S_CLINK_ATK1
+  deathstate = S_CLINK_DIE1
+  deathsound = ht_clkdth
+  speed = 14
+  height = 64.0000
+  mass = 75
+  activesound = ht_clkact
+  flags = SOLID|SHOOTABLE|NOBLOOD|COUNTKILL
+  flags2 = FOOTCLIP
+  dehackednum = 193
+}
+
+thingtype Disciple {
+  doomednum = 7015
+  spawnstate = S_WIZARD_LOOK1
+  spawnhealth = 180
+  seestate = S_WIZARD_WALK1
+  seesound = ht_wizsit
+  attacksound = ht_wizatk
+  painstate = S_WIZARD_PAIN1
+  painchance = 64
+  painsound = ht_wizpai
+  missilestate = S_WIZARD_ATK1
+  deathstate = S_WIZARD_DIE1
+  deathsound = ht_wizdth
+  speed = 12
+  radius = 16.0000
+  height = 68.0000
+  activesound = ht_wizact
+  flags = SOLID|SHOOTABLE|NOGRAVITY|FLOAT|COUNTKILL
+  flags3 = ACTSEESOUND|BOSSIGNORE
+  dehackednum = 194
+}
+
+thingtype DiscipleShot {
+  spawnstate = S_WIZFX1_1
+  deathstate = S_WIZFXI1_1
+  speed = 1179648
+  radius = 10.0000
+  height = 6.00000
+  damage = 3
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  dehackednum = 195
+}
+
+thingtype DeathKnight {
+  doomednum = 7064
+  spawnstate = S_KNIGHT_STND1
+  spawnhealth = 200
+  seestate = S_KNIGHT_WALK1
+  seesound = ht_kgtsit
+  attacksound = ht_kgtatk
+  painstate = S_KNIGHT_PAIN1
+  painchance = 100
+  painsound = ht_kgtpai
+  meleestate = S_KNIGHT_ATK1
+  missilestate = S_KNIGHT_ATK1
+  deathstate = S_KNIGHT_DIE1
+  deathsound = ht_kgtdth
+  speed = 12
+  radius = 24.0000
+  height = 78.0000
+  mass = 150
+  activesound = ht_kgtsit
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  dehackednum = 196
+}
+
+thingtype DeathKnightGhost {
+  doomednum = 7065
+  spawnstate = S_KNIGHT_STND1
+  spawnhealth = 200
+  seestate = S_KNIGHT_WALK1
+  seesound = ht_kgtsit
+  attacksound = ht_kgtatk
+  painstate = S_KNIGHT_PAIN1
+  painchance = 100
+  painsound = ht_kgtpai
+  meleestate = S_KNIGHT_ATK1
+  missilestate = S_KNIGHT_ATK1
+  deathstate = S_KNIGHT_DIE1
+  deathsound = ht_kgtdth
+  speed = 12
+  radius = 24.0000
+  height = 78.0000
+  mass = 150
+  activesound = ht_kgtsit
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  flags3 = GHOST
+  dehackednum = 197
+}
+
+thingtype KnightAxe {
+  spawnstate = S_SPINAXE1
+  deathstate = S_SPINAXEX1
+  deathsound = ht_hrnhit
+  speed = 589824
+  radius = 10.0000
+  height = 8.00000
+  damage = 2
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  flags3 = THRUGHOST|WINDTHRUST
+  dehackednum = 198
+}
+
+thingtype KnightAxeRed {
+  spawnstate = S_REDAXE1
+  deathstate = S_REDAXEX1
+  deathsound = ht_hrnhit
+  speed = 589824
+  radius = 10.0000
+  height = 8.00000
+  damage = 7
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  flags3 = THRUGHOST
+  dehackednum = 199
+}
+
+thingtype SerpentRiderDsparil {
+  doomednum = 7007
+  spawnstate = S_SRCR1_LOOK1
+  spawnhealth = 2000
+  seestate = S_SRCR1_WALK1
+  seesound = ht_bstsit
+  attacksound = ht_bstatk
+  painstate = S_SRCR1_PAIN1
+  painchance = 56
+  painsound = ht_sbtpai
+  missilestate = S_SRCR1_ATK1
+  deathstate = S_SRCR1_DIE1
+  deathsound = ht_sbtdth
+  speed = 16
+  radius = 28.0000
+  height = 100.000
+  mass = 800
+  activesound = ht_sbtact
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = BOSS|FOOTCLIP
+  nukespecial = SorcNukeSpec
+  dehackednum = 200
+}
+
+thingtype SRDsparilShot1 {
+  spawnstate = S_SRCRFX1_1
+  deathstate = S_SRCRFXI1_1
+  speed = 1310720
+  radius = 10.0000
+  height = 10.0000
+  damage = 10
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  flags3 = FIREDAMAGE
+  dehackednum = 201
+}
+
+thingtype Dsparil {
+  spawnstate = S_SOR2_LOOK1
+  spawnhealth = 3500
+  seestate = S_SOR2_WALK1
+  seesound = ht_sorsit
+  attacksound = ht_soratk
+  painstate = S_SOR2_PAIN1
+  painchance = 32
+  painsound = ht_sorpai
+  missilestate = S_SOR2_ATK1
+  deathstate = S_SOR2_DIE1
+  speed = 14
+  radius = 16.0000
+  height = 70.0000
+  mass = 300
+  activesound = ht_soract
+  flags = SOLID|SHOOTABLE|DROPOFF|COUNTKILL
+  flags2 = E3M8BOSS|BOSS|FOOTCLIP
+  flags3 = LOUDACTIVE|DMGIGNORED|BOSSIGNORE
+  dehackednum = 202
+}
+
+thingtype DsparilShot1 {
+  spawnstate = S_SOR2FX1_1
+  deathstate = S_SOR2FXI1_1
+  speed = 1310720
+  radius = 10.0000
+  height = 6.00000
+  damage = 1
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  dehackednum = 203
+}
+
+thingtype DsparilSpark {
+  spawnstate = S_SOR2FXSPARK1
+  flags = NOBLOCKMAP|NOGRAVITY
+  flags2 = NOCROSS
+  dehackednum = 204
+}
+
+thingtype DsparilShot2 {
+  spawnstate = S_SOR2FX2_1
+  deathstate = S_SOR2FXI2_1
+  speed = 393216
+  radius = 10.0000
+  height = 6.00000
+  damage = 10
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
+  flags2 = NOCROSS
+  dehackednum = 205
+}
+
+thingtype DsparilTeleFade {
+  spawnstate = S_SOR2TELEFADE1
+  flags = NOBLOCKMAP
+  dehackednum = 206
+}
+
+thingtype HereticGreenKey {
+  doomednum = 7073
+  spawnstate = S_AKYY1
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 207
+}
+
+thingtype HereticBlueKey {
+  doomednum = 7079
+  spawnstate = S_BKYY1
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 208
+}
+
+thingtype HereticYellowKey {
+  doomednum = 7080
+  spawnstate = S_CKYY1
+  flags = SPECIAL|NOTDMATCH
+  dehackednum = 209
+}
+
+thingtype HereticAmbienceWind {
+  doomednum = 7042
+  spawnstate = S_SND_WIND
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 210
+}
+
+thingtype HereticAmbienceWater {
+  doomednum = 7041
+  spawnstate = S_SND_WATERFALL
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 211
+}
+
+thingtype DsparilTeleSpot {
+  doomednum = 7056
+  height = 32.0000
+  flags = NOSECTOR|NOBLOCKMAP
+  dehackednum = 212
+}
+
+endif()
+
+thingtype ETCMinotaurus {
+  doomednum = 6001
+  spawnstate = S_MNTR_LOOK1
+  spawnhealth = 8000
+  seestate = S_MNTR_WALK1
+  seesound = minsit
+  attacksound = minat1
+  painstate = S_MNTR_PAIN1
+  painchance = 25
+  painsound = minpai
+  meleestate = S_MNTR_ATK1_1
+  missilestate = S_MNTR_ATK2_1
+  deathstate = S_MNTR_DIE1
+  deathsound = mindth
+  speed = 20
+  radius = 28.0000
+  height = 100.000
+  mass = 800
+  damage = 7
+  activesound = minact
+  flags = SOLID|SHOOTABLE|DROPOFF|COUNTKILL
+  flags2 = BOSS|FOOTCLIP
+  dehackednum = 213
+}
+
+thingtype ETCMinotaurusShot1 {
+  spawnstate = S_MNTRFX1_1
+  deathstate = S_MNTRFXI1_1
+  speed = 1572864
+  radius = 10.0000
+  height = 6.00000
+  damage = 3
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 214
+}
+
+thingtype ETCMinotaurusShot2 {
+  spawnstate = S_MNTRFX2_1
+  deathstate = S_MNTRFXI2_1
+  deathsound = phohit
+  speed = 1572864
+  radius = 5.00000
+  height = 12.0000
+  damage = 4
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 215
+}
+
+thingtype ETCMinotaurusShot3 {
+  spawnstate = S_MNTRFX3_1
+  deathstate = S_MNTRFXI2_1
+  deathsound = phohit
+  radius = 8.00000
+  damage = 4
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 216
+}
+
+thingtype ETCPhoenixPuff {
+  spawnstate = S_PHOENIXPUFF1
+  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
+  flags2 = NOSPLASH
+  dehackednum = 217
+}
+
+thingtype ETCCleric {
+  doomednum = 6008
+  spawnstate = S_CLER_STND1
+  spawnhealth = 300
+  seestate = S_CLER_WALK1
+  seesound = clsit1
+  painstate = S_CLER_PAIN
+  painchance = 100
+  painsound = clrpn
+  meleestate = S_CLER_ATK1
+  missilestate = S_CLER_ATK2
+  deathstate = S_CLER_DTH1
+  xdeathstate = S_CLER_XDTH1
+  deathsound = clrdth
+  speed = 10
+  radius = 16.0000
+  height = 56.0000
+  mass = 200
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = FOOTCLIP
+  raisestate = S_CLER_RAISE1
+  dehackednum = 218
+}
+
+thingtype ETCClericShot {
+  spawnstate = S_CBAL_1
+  seesound = cblsht
+  deathstate = S_CBAL_X1
+  deathsound = cblexp
+  speed = 1310720
+  radius = 6.00000
+  height = 8.00000
+  damage = 6
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS
+  dehackednum = 219
+}
+
+thingtype EETerrainWaterSplash {
+  spawnstate = S_SPLASH1
+  deathstate = S_SPLASHX
+  radius = 2.00000
+  height = 4.00000
+  flags = NOBLOCKMAP|DROPOFF|MISSILE
+  flags2 = LOGRAV|NOSPLASH|NOCROSS
+  dehackednum = 220
+}
+
+thingtype EETerrainWaterBase {
+  spawnstate = S_SPLASHBASE1
+  flags = NOBLOCKMAP|NOGRAVITY
+  flags2 = NOSPLASH
+  dehackednum = 221
+}
+
+thingtype EETerrainSludgeChunk {
+  spawnstate = S_SLUDGE1
+  deathstate = S_SLUDGEX
+  radius = 2.00000
+  height = 4.00000
+  mass = 150
+  flags = NOBLOCKMAP|DROPOFF|MISSILE
+  flags2 = LOGRAV|NOSPLASH|NOCROSS
+  dehackednum = 222
+}
+
+thingtype EETerrainSludgeBase {
+  spawnstate = S_SLUDGEBASE1
+  flags = NOBLOCKMAP|NOGRAVITY
+  flags2 = NOSPLASH
+  dehackednum = 223
+}
+
+thingtype ETCFogSpawner {
+  doomednum = 6011
+  spawnstate = S_SPAWNFOG1
+  flags = NOBLOCKMAP
+  flags2 = NOTHRUST|FLOATBOB|DONTDRAW
+  dehackednum = 224
+}
+
+thingtype ETCSmallFog {
+  doomednum = 6012
+  spawnstate = S_FOGPATCHS1
+  deathstate = S_FOGPATCHS0
+  speed = 65536
+  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|FLOAT|TRANSLUCENT
+  dehackednum = 225
+}
+
+thingtype ETCMediumFog {
+  doomednum = 6013
+  spawnstate = S_FOGPATCHM1
+  deathstate = S_FOGPATCHM0
+  speed = 65536
+  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|FLOAT|TRANSLUCENT
+  dehackednum = 226
+}
+
+thingtype ETCLargeFog {
+  doomednum = 6014
+  spawnstate = S_FOGPATCHL1
+  deathstate = S_FOGPATCHL0
+  speed = 65536
+  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|FLOAT|TRANSLUCENT
+  dehackednum = 227
+}
+
+thingtype ETCLeaderCleric {
+  doomednum = 6015
+  spawnstate = S_CLER_STND1
+  spawnhealth = 2000
+  seestate = S_LCLER_WALK1
+  seesound = clsit1
+  painstate = S_LCLER_PAIN
+  painchance = 40
+  painsound = clrpn
+  missilestate = S_LCLER_ATK1
+  deathstate = S_CLER_DTH1
+  xdeathstate = S_CLER_XDTH1
+  deathsound = clrdth
+  speed = 16
+  radius = 16.0000
+  height = 56.0000
+  mass = 200
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = BOSS|FOOTCLIP
+  dehackednum = 228
+}
+
+thingtype ETCHalif {
+  doomednum = 6044
+  spawnstate = S_DWARFSTAND1
+  seestate = S_DWARFWALK1
+  seesound = dfsit1
+  painstate = S_DWARFPAIN
+  painchance = 180
+  painsound = dwrfpn
+  missilestate = S_DWARFATK1
+  deathstate = S_DWARFDEATH1
+  deathsound = dfdth
+  speed = 15
+  radius = 13.0000
+  height = 44.0000
+  mass = 150
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = ALWAYSRESPAWN|JUMPDOWN|FOOTCLIP
+  dehackednum = 229
+}
+
+thingtype ETCCyberGuard {
+  doomednum = 6047
+  spawnstate = S_CYBERGUARD1
+  spawnhealth = 4000
+  radius = 40.0000
+  height = 110.000
+  mass = 1000
+  flags = SOLID
+  flags2 = FOOTCLIP
+  dehackednum = 230
+}
+
+thingtype ETCCyberGuard2 {
+  doomednum = 6048
+  spawnstate = S_UNKNOWN
+  radius = 32.0
+  height = 56.0
+  flags = NOBLOCKMAP|NOGRAVITY
+  dehackednum = 231
+}
+
+thingtype ETCAlterDwarf {
+  doomednum = 6049
+  spawnstate = S_ALTDWARFSTAND1
+  spawnhealth = 1500
+  seestate = S_ALTDWARFWALK1
+  seesound = fdsit
+  painstate = S_ALTDWARFPAIN
+  painchance = 180
+  painsound = fdpn
+  missilestate = S_ALTDWARFATTACK
+  deathstate = S_ALTDWARFDEATH1
+  deathsound = fddth
+  speed = 25
+  radius = 13.0000
+  height = 44.0000
+  mass = 150
+  flags = SOLID|SHOOTABLE|COUNTKILL
+  flags2 = JUMPDOWN|FOOTCLIP
+  dehackednum = 232
+}
+
+thingtype ETCGrenade {
+  spawnstate = S_GRENADEFLIGHT
+  spawnhealth = 10
+  seesound = rlaunc
+  deathstate = S_DETONATE
+  deathsound = barexp
+  speed = 1310720
+  radius = 11.0000
+  height = 8.00000
+  mass = 150
+  damage = 128
+  flags = DROPOFF|BOUNCES
+  flags2 = NOCROSS
+  particlefx = GRENADE
+  mod = 25
+  dehackednum = 233
+}
+
+thingtype ETCTotalInvisiSphere {
+  doomednum = 6052
+  spawnstate = S_PNS2_1
+  flags = SPECIAL|COUNTITEM|TRANSLUCENT
+  dehackednum = 234
+}
+
+thingtype ETCPhoenixShot {
+  spawnstate = S_PHOENIXSHOT1
+  seesound = firsht
+  deathstate = S_PHOENIXSHOTX1
+  deathsound = phohit
+  speed = 1638400
+  radius = 6.00000
+  height = 8.00000
+  damage = 10
+  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
+  flags2 = NOCROSS|SEEKERMISSILE
+  dehackednum = 235
+}
+
+thingtype ETCBrokenAxe {
+  spawnstate = S_AXEFALL1
+  speed = 196608
+  radius = 6.00000
+  height = 8.00000
+  mass = 500
+  flags = NOBLOCKMAP|DROPOFF|BOUNCES
+  flags2 = NOCROSS
+  dehackednum = 236
+}
+
+thingtype ETCBrokenStaff {
+  spawnstate = S_STAFF_FALL1
+  speed = 196608
+  radius = 6.00000
+  height = 8.00000
+  mass = 500
+  flags = NOBLOCKMAP|DROPOFF|BOUNCES
+  flags2 = NOCROSS
+  dehackednum = 237
+}
+
+thingtype ETCClericSparkle {
+  spawnstate = S_GLITTER1
+  radius = 5.00000
+  height = 5.00000
+  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|TRANSLUCENT
+  flags2 = NOSPLASH
+  dehackednum = 238
+}
+
+thingtype ETCHalifGolem {
+  spawnstate = S_UNKNOWN
+  radius = 32.0
+  height = 56.0
+  flags = NOBLOCKMAP|NOGRAVITY
+  dehackednum = 239
+}
+
+thingtype EETerrainLavaSplash {
+  spawnstate = S_LAVASPLASH1
+  flags = NOBLOCKMAP|NOGRAVITY
+  flags2 = NOSPLASH
+  dehackednum = 240
+}
+
+thingtype EETerrainLavaSmoke {
+  spawnstate = S_LAVASMOKE1
+  flags = NOBLOCKMAP|NOGRAVITY
+  flags2 = NOSPLASH
+  translucency = 21845
+  dehackednum = 241
+}
+
+thingtype EEParticleFountain {
+  spawnstate = S_TNT1
+  height = 32.0000
+  flags = NOBLOCKMAP
+  dehackednum = 242
+}
+
+thingtype Unknown {
+  doomednum = 5005
+  spawnstate = S_UNKNOWN
+  radius = 32.0
+  height = 56.0
+  flags = NOBLOCKMAP|NOGRAVITY
+  dehackednum = 243
+}
+
+thingtype EESkyboxCam {
+  doomednum = 5006
+  spawnstate = S_TNT1
+  radius = 0.0
+  height = 0.0
+  mass = 10
+  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP
+}

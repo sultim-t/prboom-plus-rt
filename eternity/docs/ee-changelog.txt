@@ -1,0 +1,3272 @@
+NOTE: This file has been retired, and contains changelog entries
+from EE v3.29 public beta 3 up to the release of v3.31 public beta 5.
+See ee-changelog2.txt for more recent updates.
+
+=====================================================================
+Changes since Eternity Engine v3.31 beta 4
+=====================================================================
+=====================================================================
+12/17/03
+
+Seriously improved EDF error messages to give file name and line
+number for parsing errors.
+
+Tested new frames.edf and fixed a few problems.
+
+Removed thing type ETCArachnophyte, its frames, and its one sound.
+
+Added Uint16 casts to the parameters to SDL_WarpMouse. This was
+causing two "integer type mismatch in parameter" warnings for a 
+looong time, and I was getting tired of seeing them :P
+
+Compiled Eternity on release platforms and packaged beta 5!
+
+=====================================================================
+12/12/03
+
+Added a new bexinclude function to EDF to allow it to specify
+DeHackEd/BEX files to be loaded after EDF processing is finished.
+This helps to solidify the union between the two languages, and to
+support EDF mods that use BEX features like text replacement, which
+will NOT be duplicated in EDF. EDF/BEX can be considered a sort of
+superlanguage, if you will.
+
+This will even further cut down the impact of EDF on command-line
+lengths, and lessens the need for GFS a bit (although GFS is still
+a great thing, and I encourage its use in any multi-file Eternity
+project).
+
+Fixed a bug related to the "new game starts on first new map"
+option. When it was enabled, Ultimate DOOM would always start on
+E1M1 no matter what episode you picked, even though the episode
+menu was shown and no PWADs were loaded. This was a simple omission
+of a check on "modifiedgame" at ONE point. All other points checked
+it, so the behavior was inconsistent.
+
+=====================================================================
+12/08/03
+
+Applied SoM's fix to 3D object clipping.  My idea about making a
+function that only clips against things turned out to be right. He
+made a function called P_CheckPositionMobjOnly, which is just the
+same as P_CheckPosition, but without a P_BlockLinesIterator call.
+The result is that things entering P_ZMovement will only update their
+floor or ceiling z values to more restrictive values taken from
+things which they may be over/under, and not from sectors their
+radius happens to make them touch through 2S lines (which is what was
+making bullet puffs jump up to the backsector floor height).
+
+This takes care of the last currently known 3D object clipping bug.
+I'd venture to bet there still might be some weird corner cases in
+there, but until somebody finds them, we won't worry about it ;)
+
+Adjusted parameters to several codepointers:
+
+FireCustomBullets -- Args1 is now a sound DeHackEd number
+CustomPlayerMelee -- Args5 is now a sound DeHackEd number
+PlayerThunk -------- Args1 is now only specifiable via EDF
+            -------- Args3 now uses negative values to mean no frame
+MissileAttack ------ Args5 now uses negative values to mean no frame
+
+These changes break backward compatibility for these codepointers,
+but the changes are necessary. The PlayerThunk and MissileAttack
+frame parameters were just plain wrong, as they excluded use of
+S_NULL, which could be made a normal frame in a completely rewritten
+user EDF. The FireCustomBullets and CustomPlayerMelee changes were
+in response to user requests for better player sound flexibility,
+and made perfect sense now that sound DeHackEd numbers are documented
+by EDF and can be assigned to totally new sounds as well.
+
+=====================================================================
+12/06/03
+
+Fixed a problem with the drag and drop code that made files on
+LFN paths not load.
+
+=====================================================================
+Changes since Eternity Engine v3.31 beta 3
+=====================================================================
+=====================================================================
+11/29/03
+
+Makefiles updated and Eternity compiled on all supported targets.
+
+Eternity Engine v3.31 Public Beta 4 released!
+
+=====================================================================
+11/28/03
+
+I planned to release today, but got lazy, so I'll do it tomorrow
+night.  Remembered I still needed to bump the default zonebase size
+up to 16 MB.  -heapsize can still force it as low as 8 MB.
+
+=====================================================================
+11/22/03
+
+Added code that should support drag-and-drop file loading for wads,
+deh/bex files, EDF, and GFS.  I can't really test it due to my setup,
+so I'll need to find a volunteer or something.
+
+SoM didn't show up all day today, so I don't know what's going on
+with him.  Its been three days since I posted the last changelog
+entry, and at least 2 since he read it, so I know that he knows its
+time for him to get the source code -- but he hasn't even spoken a
+word to me about it. I really hope that he's just been busy, and that
+he's not thinking about quitting.
+
+If he doesn't show tomorrow, I guess I'll have to talk to him about
+it as soon as he does. That's not going to be fun, but I can't delay 
+the release of Eternity Engine v3.31 beta 4 any further. If he 
+starts work now, he has a whole week to fix one bug. I'm pretty sure 
+with his talents that it would be no problem -- especially since we
+already have an idea of how to fix it.
+
+Also, there are the excellent editing features he has written for
+Eternity that we just haven't had time to integrate yet. I've been
+excited about them for a long time, but EDF got in the way, and
+that's mostly my fault. That's why I wanted to devote beta 5 entirely
+and exclusively to getting those features put in.
+
+=====================================================================
+11/19/03
+
+Removed the 11-type boss spawner limit, applying and modifying the
+patch that schepe sent me a while back. EDF now supports a list of
+numbers named boss_spawner_probs, which must have the same number of
+integers as there are thing types in the boss_spawner_types list.
+Each number in the new list is the probability out of 256 that the
+corresponding thing type will be spawned. The numbers in the list
+MUST add up to 256, and this is verified.
+
+If the boss_spawner_probs list doesn't exist, I allow the original
+default values to be loaded, but ONLY when there are exactly 11 boss
+types defined. Otherwise, results would be undefined. This is wholly
+sufficient for backward compatibility.
+
+Everything on the EDF checklist for Eternity Engine v3.31 public beta
+4 is now complete. Once I have made a mental checklist and have 
+everything ready, I will pass the source on to SoM so he can try to
+fix the object z clipping bug that Mordeth found. After that, I'll
+see if there's time to implement Windows file droploading support
+for SargeBaldy, and then it's time for beta 4 launch.
+
+=====================================================================
+11/17/03
+
+Applied cph's fix to the DOOM bug that fraggle discovered -- sprite
+x offsets were not reversed when sprites were drawn flipped, and for
+large sprites, this causes weird alignment problems. Fix is in
+R_ProjectSprite.
+
+I also finally discovered the REAL reason that DOOM still crashes
+when P_SpawnMissile tries to launch a non-missile object. Since most
+non-missile objects (medikits in my case) have their speed field set
+to zero, this caused an interesting little situation. When DOOM
+calculates the z momentum for a missile, it first divides the
+approximate distance between the objects by the missile's speed. If
+the speed is zero, this caused a divide-by-zero exception. Under
+Windows, this would just kick out with no error message.
+
+Now, if an object with zero speed makes it into P_MissileMomz, that
+function will substitute the suitable default value of 10*FRACUNIT
+for zero, and avoid a division by zero. Since DOOM would always have
+kicked out here, there are no compatibility issues. It should now
+be safe to spawn a lot more objects like they're missiles.
+
+=====================================================================
+11/15/03
+
+Added support for floating-point values in the EDF thingtype block's
+speed field. They are converted into fixed-point numbers by the
+libConfuse value-parsing callback for that field, and are meant for
+use with missiles, which use a fixed-point speed value instead of a
+plain integer.
+
+This might be slightly confusing, since these LOOK like they mean
+the same thing:
+
+   thingtype FOO { speed = 10 }
+   
+   thingtype FOO { speed = 10.0 }
+   
+But, they aren't the same. The first would set the value to 10, and
+would be a suitable speed value for monsters. The second would set
+the value to 10*FRACUNIT (655360), which is suitable for missiles.
+I'll just have to be sure to point this out carefully in the EDF
+docs (I already make a big deal there about missiles being handled
+differently, so it should build easily).
+
+=====================================================================
+11/14/03
+
+Added compressed state definitions, which allow all the frame block's
+fields to be specified in a single string, each delimited with pipes,
+and allowing defaults to be specified using stars. This is somewhat
+similar to DDF's state definition format, and was requested by a
+number of users.
+
+If I convert frames.edf to use compressed states, the file will
+shrink considerably, and its processing time should be reduced too.
+
+Compressed states will be required in anonymous state lists, which
+will work almost exactly like DDF's in-thing frame lists. Here's a
+small example of what one might look like. This would make a two-
+state torch object (other fields are left out):
+
+   thingtype MyTorch
+   {
+      spawnstates =
+      {
+         "SPRT|A|*|6|*|@next",
+         "SPRT|B|*|6|*|@prev"
+      }
+   }
+
+Here is an example of a normal frame definition using the compressed
+specifier. The only field that the cmp field can't specify is the
+dehackednum.
+
+   frame S_BLAH { cmp = "SPRT|A|*|6|*|@next"; dehackednum = 10000 }
+   
+This might still look big, but consider the alternative:
+
+   frame S_BLAH
+   {
+      sprite = SPRT
+      spriteframe = A
+      tics = 6
+      nextframe = @next
+      dehackednum = 10000
+   }
+   
+When you collapse that onto one line, it is much less readable, and
+a lot bigger.
+
+Note that frame deltas do NOT support the cmp field, for several
+reasons (they're usually much smaller, and it would severely compli-
+cate their processing, among others).
+
+=====================================================================
+11/11/03
+
+Changed all instances of atoi in EDF to strtol, to orthogonally
+support octal and hexadecimal numeric constants in all fields.
+
+Added support for letters in the EDF frame block's spriteframe
+field via a libConfuse value-parsing callback function. It tests the
+string for characters between A and ], and then translates them to
+the appropriate number.
+
+=====================================================================
+11/07/03
+
+Added special values for the EDF frame block's nextframe field --
+@next, @prev, @this, and @null. These set the nextframe to the next
+state defined, the previous state defined, the current state, or
+the S_NULL state. These will be particularly useful with anonymous
+state lists, which are on the TODO list for beta 6.
+
+=====================================================================
+11/05/03
+
+Made sounds completely dynamic and added module sounds.edf. I also
+rewrote fraggle's sound precaching code, and made it work under
+Windows (the SDL_mixer sound code wasn't taking advantage of pre-
+caching even when it was turned on).
+
+=====================================================================
+11/04/03
+
+Added default loading for cast.edf. I also attempted to do it for
+misc.edf, but figured out that it would cause too many problems,
+since misc.edf will contain lots of odds and ends that users could
+possibly override in numerous different modules.
+
+=====================================================================
+10/20/03
+
+Made some changes to the DEH-in-wad queueing code when I realized
+that what I had written wouldn't work due to the same reason that
+sound couldn't work without a queue -- lump numbers cached before
+W_InitMultipleFiles can become invalid after it runs. Fixed by
+restoring MBF's recursive D_ProcessDehInWads function, instead of
+handling DEHACKED lumps through fraggle's D_NewWadLumps. You don't
+have to collect the lumps as the wads are added; you can just run
+down the wad lump hash chain for "DEHACKED" and queue any DEHACKED
+lumps in it in reverse order.
+
+=====================================================================
+10/19/03
+
+Fixed some weird behavior of the HUD. It would turn itself on or off
+alternately every time you went to fullscreen mode (no status bar).
+Now it'll always show up right after the status bar, and pressing +
+afterwards takes you to fullscreen. I'm not sure how it worked in
+BOOM, but that seems pretty logical to me, since you progress from
+the status bar to the hud to bare fullscreen.
+
+Fixed an issue I knew about earlier but didn't address. If you were
+to start up Eternity with general translucency disabled, then enable
+it via the console or otherwise, the flex tran table (used by parti-
+cles and other neater stuff) would get used without having been init-
+ialized. I can imagine the results would not have looked pleasant.
+Now, the code responsible for reinit'ing the tranmap when that
+variable changes also checks to see if the flex tran table has been
+init'ed yet, and if not, it takes care of it.
+
+=====================================================================
+10/17/03
+
+Optimized the sprite name table allocation code in EDF so that room
+for all the sprite names is allocated into one long string. This
+has three benefits:
+
+1. Saves 3 KB of zone memory and any potential fragmentation caused
+   by having multiple small blocks 32 bytes in size.
+2. Guarantees locality of reference on accesses to sequential sprite
+   names, as found in several places. Since all the pointers in
+   sprnames now point into a single string, there's no jumping around
+   in memory. This makes for better cache performance.
+3. It is *slightly* faster to call Z_Malloc once than Z_Strdup almost 
+   200 times.
+   
+Because a copy of the sprnames array is made by DeHackEd for use by
+the [SPRITES] bex block I added, I applied the same optimization
+there as well, doubling all of these benefits.
+
+=====================================================================
+10/14/03
+
+I've finished more or less everything I can currently accomplish with
+the Heretic status bar, aside from its special fullscreen mode. For
+this, I have left the ability for ST_Drawer to call a fullscreen mode
+callback for the game mode status bar. This will allow me to easily
+add a zdoom- or Legacy-like fullscreen status bar with cute little
+sprites and big numbers for DOOM, like I wanted to do a while back.
+
+The only stuff not currently functional for the Heretic status bar
+is everything having anything to do with the inventory. The rest of
+it is all there now. The flight and tome of power icons, which
+wouldn't be usable yet anyways, belong in the HUD, not in the status
+bar, so I haven't done anything with those yet.
+
+=====================================================================
+10/13/03
+
+Created module st_hbar.c and did a lot of Heretic status bar work.
+I am going to have the entire bar draw every frame, since there's
+really not much to it. I can leave out several "cover-over" patches
+that Raven had to use, and it seems to have zero effect on the
+framerate anyways.
+
+I've been even more careful about not using Heretic's code for this.
+Though I have looked at it for reference, I have written my own 
+solutions for unique and special problems, and I have organized the 
+code in my own fashion. Also, I just used the graphics themselves to
+figure out part of the life chain semantics. It was easy to figure
+out how to move the gem across the screen, as well as how often to
+wrap the chain graphic to its starting coordinate, just by viewing
+the graphics in a paint program.
+
+=====================================================================
+10/12/03
+
+Began implementation of the Heretic status bar. Moved DOOM-specific
+code out of ST_Drawer, ST_Ticker, ST_Start, and ST_Init, and created
+a stbarfns_t structure which holds some data about a game mode's
+status bar, as well as function pointers to the drawer, ticker,
+start, and init functions for that bar. Added a StatusBar member of
+that type to gameinfo_t.
+
+Fixed the problem that kept the STF_OUCH face from showing when you
+hurt yourself badly. I probably better implement some kind of option
+for this though. It's quite possible some mods or skins don't
+replace the STF_OUCH face, assuming it isn't used. Also, that face
+is kinda scary, so some people might object ;)
+
+=====================================================================
+10/09/03
+
+ExtraData integration is complete; mapthing ED entry has been tested
+and works! Thanks to schepe for making a little test level for me.
+
+Here's how ED for mapthings works:
+
+The ExtraData control object has doomednum 5004. You put these wher-
+ever you want a thing that uses an ExtraData record. Then, you go to
+its options (aka flags) field and set it to a numeric value that in-
+dicates what ExtraData record it is supposed to use. Most editors
+have some method for entering an integer value into the options
+field. I'll be talking to gherkin about adding it to doombuilder if
+that editor doesn't already have it. There's always CLED, too, for
+the desperate.
+
+In a text script with format similar to EDF (uses libConfuse just
+like GFS and EDF), you then define a mapthing section, and inside it
+you specify the same number in that options field as the record
+number field. Then you specify the type and (real) options of the
+thing you want to spawn at that point. The x, y, and angle are taken
+from the ED control thing. Then - and this is where ExtraData really
+comes in - you can specify extended fields, such as tid, args, z,
+script specials, etc etc etc -- anything for which I could possibly
+add support.
+
+The ExtraData lump for the current level is specified via a MapInfo
+variable.
+
+So, here's a simple example:
+
+---------------------------------------------------------------------
+*{in map}*
+
+  [ ]  <-- thing of type 5004; options = 1 (x, y, angle are used)
+
+
+*{in ExtraData lump, named FOOBAR}*
+
+// This record will spawn an Imp at the location of the control thing
+mapthing
+{
+   recordnum = 1   // This matches the options value above
+   type = 3001     // Note: I could also use thing:DoomImp here!
+   options = EASY|MEDIUM|HARD|AMBUSH
+   tid = 5
+}
+
+
+*{in MapInfo}*
+
+[level info]
+extradata = FOOBAR
+
+---------------------------------------------------------------------
+
+So, there you have it. Note that any number of things on the map can
+use the same ExtraData record, which could come in handy, I'm sure.
+Note that if an invalid record number is given, or the thing type to
+be spawned isn't valid, you'll either get an "Unknown" thing with the
+exclamation point, or nothing at all, depending on which type of error
+occurs. If there's no ExtraData at all, you also get an "Unknown" for
+all ExtraData control things.
+
+While it's a little bit round-about, I think this is probably the
+best possible solution for extending the DOOM map format endlessly
+via use of a text script. It's been 6 years in the making, and now
+it's finally here! I'm very excited, to say the least.
+
+Note that I am thinking about working on a global MapInfo lump. While
+I'll still support putting a level's info into the map header, there
+are various reasons why this is undesirable (requires a special
+utility, makes some programs angry, makes other programs crash, 
+editors constantly clear it out, etc). Global MapInfo would use 
+libConfuse, and each map section would declare by name the map for 
+which it is used. I'm not totally decided on this, though.
+
+=====================================================================
+10/08/03
+
+Large amount of ExtraData work started. Mapthings are very close to
+being ExtraData-enabled.
+
+=====================================================================
+10/06/03
+
+Added a particle style flag for clipping against floors. Along with
+the normal drawing test in R_ProjectParticle, particles with the flag
+will be set to the floor and have their z acceleration and momentum
+zeroed once they reach it.
+
+This is needed for several of SoM's new particle effects which may be
+going in soon, as well as several effects from Millennium, a project
+that I'm trying to help out by getting some of their effects into the
+engine itself.
+
+Amongst those I'm going to do are drips and rain. I've been intending
+to do rain for quite a while, anyways, so this gives me a good excuse
+to get to it. Although, these objects would be best implemented using
+ExtraData, so I need to wait until it is operational.
+
+=====================================================================
+10/03/03
+
+Lots of tweaks today!
+
+Tweaked the formatting in p_saveg.c while I was looking over the save
+game code for any problems. Made some variables and functions intro-
+duced in SMMU static, as they're only used in that module.
+
+Tweaked the demo_version loading code for Eternity-format demos. It
+uses |= now instead of +=, and avoids one += by assigning the first
+byte to the variable directly.
+
+Tweaked the GameType loading code also. Collapsed an extra branch
+and redundant function call. I've been getting sloppy, I guess. ^_^
+
+=====================================================================
+10/02/03
+
+Fixed up demo loading under Heretic so that demos recorded under
+Eternity can still play in the intro sequence, and so that you can't
+even force it to play old Heretic demos from anywhere.
+
+I found out quickly that Heretic doesn't even store a version number
+in its demos (this is probably one amongst many reasons that Heretic
+demos seem to have poor sync...). The first byte in the file is the
+skill level, and it always has a value between 0 and 4. For safety,
+I test against 255, which is the value that Eternity puts in the
+old version byte. If it's not 255, I bail out of the demo-loading
+process early.
+
+Changed the title/demo sequence in d_main.c to allow it to attempt to
+play Heretic demos. That way if a new Heretic mod for Eternity has 
+demos, they'll play as expected.
+
+=====================================================================
+09/30/03
+
+Improved error_printf in r_data.c to use vfprintf, avoiding an
+unnecessary large local string buffer and vsnprintf operation.
+
+=====================================================================
+09/29/03
+
+Made some changes to the castinfo section in EDF. The changes break
+backward compatibility, but are very minor and should have very
+little impact on existing EDFs.
+
+The castinfo sections now require mnemonics. This is to allow a new
+castorder array to be specified. When it exists, it overrides the
+normal behavior of storing the cast call members in the order they
+are defined. This allows much more editing flexibility, and it really
+should have been done this way to begin with. This is why it's worth
+the minor compatibility break.
+
+Updated the local EDF docs to reflect this change, and also edited
+them. I caught a few mistakes and fixed a few readability issues.
+
+=====================================================================
+09/28/03
+
+Added more code to EDF that allows loading of default frames and
+things when no definitions are found. The eventual goal is to have
+default fallbacks for every EDF module.
+
+The reason for this is to empower old EDFs with greater forward
+compatibility, not so that EDF authors can be irresponsible about
+including all the modules.
+
+From a standards point of view, all modules should be included. The
+only problem is that when I add new required modules, such as the
+soon-to-come sounds.edf, and the later-to-come weapons.edf and
+classes.edf, old EDF modifications can't possibly know about them.
+
+But, it is safe to assume that old EDFs just need the defaults, which
+are implementing the exact same behaviors that were previously hard-
+coded. For that I can rely on being able to separately load any of the 
+standard EDF modules. Each module is only parsed for its guaranteed 
+contents rather than any possible EDF structures, and the cfg objects 
+for the individual files are discarded as soon as processing on the 
+corresponding file is done.
+
+=====================================================================
+09/21/03
+
+Added a new parameterized codepointer, MissileAttack. It's really
+cool, and can launch missiles straight or at an angle, with a custom-
+izable firing height and optional homing. It can also accept the
+DeHackEd number of a frame to use for an optional melee attack, so
+that you can create imp/baron/caco-style monsters which use either
+attack situationally.
+
+An example EDF that employs this codepointer is currently available
+here:
+ 
+  http://www.doomworld.com/eternity/engine/edf/mattack.edf
+  
+This obviously cannot be used with EE 3.31 beta 3, however. Just
+check it out if you want to see how it works in the code.
+
+To make use of the internal P_SpawnMissileAngle function easier, I
+abstracted the code for determining a missile's z momentum out of
+P_SpawnMissile and into a new P_MissileMomz function.
+
+Fixed an issue in P_SpawnMissileAngle where the missile's target
+field was being set directly. This function originally came from
+Heretic, and that's where the problem persisted from. How Heretic
+ever ran, I don't know. It compounded the already-existing problems
+in DOOM several times and yet still got away with it. I don't think 
+Heretic has ever crashed on me personally.
+
+=====================================================================
+09/19/03
+
+Added several checks and verbose log warning messages in cases where
+EDF tries to retrieve the DeHackEd number for a thing, frame, or 
+sound which was given the DeHackEd number -1. Such entities cannot be
+used in fields that are translated to DeHackEd numbers (parameterized
+codepointer arguments being the primary ones). The action taken is
+to store either the required "unknown" type, or 0 for sounds.
+
+=====================================================================
+09/13/03
+
+Added module m_queue.c to implement a generic queue data structure
+which can be used to queue up any kind of structure via the same type
+of pointer casting used to store thinkers (which is a sort of way to
+simulate polymorphism or inheritance in C).
+
+All DeHackEd lumps and wads are now queued in the order they were
+once processed, and then all are processed in that order at one time,
+immediately after EDF.
+
+Sound lumps found from W_InitMultipleFiles must also be queued. If 
+their processing is not deferred, EDF doesn't get a chance to define
+those sounds first, which results in all the sounds being declared
+as new. Also, the sound queue must now store lump names instead of
+lump numbers as it was able to do in fraggle's code, because once
+W_InitMultipleFiles returns, the master wad directory has been re-
+ordered and any cached lump numbers from before will be invalid. This
+fact wasn't obvious to me and caused me a LOT of trouble for several
+hours.
+
+I am preparing to possibly move all sound definitions into EDF, since
+all of these changes are amenable to that happening.
+
+=====================================================================
+09/11/03
+
+Began a massive code-reordering effort in d_main.c that will enable
+addition of EDF-in-WAD support. Said support may not debut until beta
+5 however, because of scheduling constraints.
+
+=====================================================================
+09/08/03
+
+Added sound deltas. Updated the EDF docs for the sound and sound
+delta sections. Updated the console docs on the openlog and closelog
+commands.
+
+=====================================================================
+09/07/03
+
+Added a true console logging system which writes all lines to a text
+file before they are sent to the console. The new commands openlog
+and closelog control this feature. The dumplog command still remains
+as a way to save the current console buffer (useful if you need to
+get something but didn't have logging on already, in particular).
+
+Changed external use of current_target and current_height console
+variables by the animshot command. Now it calls C_InstaPopup, a
+function that achieves the same thing it was doing directly. Also
+determined that the command prompt strings in c_io.c can be made 
+static.
+
+With logging enabled, I altered the cmdlist command to print one
+command per line, fixing the readability issue with it. Of course,
+you will HAVE to use a log to read the whole thing since it is so
+long, so this is still kind of annoying. A future idea is to let a
+filter be provided that will cut the list down in size.
+
+Added module e_cmd.c to contain EDF-related console commands. Wrote
+the e_dumpthings command, which prints out a formatted list of every
+thing type's important ID data, including DeHackEd number, editor
+number, and mnemonic.
+
+=====================================================================
+09/03/03
+
+Added support for dynamic sounds through EDF; added module e_sound.c
+and consolidated all sound hashing into the code there. The former
+run-time sound hashing code that was in s_sound.c now calls down to
+the corresponding EDF functions.
+
+Sounds are no longer hashed by their lump name field, since this is
+unreliable. They now also contain a mnemonic, which in some cases is
+equal to the lump name, but isn't required to be. They also contain
+a DeHackEd number field, like frames and things, so that new sounds
+added by EDF can be referred to directly by things and frames.
+
+S_StartSound and the DeHackEd parser use E_SoundForDEHNum now, so
+that they can play any sound with a valid DeHackEd number, and not
+just the builtin sounds. (Oh yeah, the original sound definitions
+are still internal, although they can be edited with sound delta
+structures, which I still need to implement).
+
+New sound lumps starting with the DS prefix are still automatically
+added to the sound hash, too. They won't be accessible via DeHackEd
+of course, since there's no way to assign them a number. They can
+be used by script though, and they are given a mnemonic equal to
+their lump name minus the DS part, for full backward compatibility.
+
+I also found a bug in i_sound.c where SoM tried to reimplement
+channel wrap-around. It wasn't working properly thanks to some screwy 
+code from PrBoom. I have no idea if it's working right now though; it 
+needs significant testing. I could swear I've heard a lot of sounds 
+cutting off since I made the change, but maybe I'm just crazy... 
+
+I wish we could just use the SDL_mixer library completely...
+
+=====================================================================
+08/28/03 - 08/31/03
+
+Since SoM is unable to work on Eternity right now given his insane
+job schedule, we've decided to go ahead and push for a rapid beta 4
+release featuring significant EDF revisions and possibly more Small
+scripting groundwork (I hope to at least get ExtraData TIDs finished).
+
+Lots of recent tweaks and bugfixes:
+
+* Found a small error in the demo reading code that would prevent
+  BOOM and MBF demos from loading; fixed it.
+
+* Tweaked the D_HashTableKey function used by EDF and DeHackEd/BEX
+  hash tables. No significant improvement in EDF resulted :P
+
+* Fixed a problem with savegamename's default value being set after
+  building BEX hash tables. This might have made BEX save game name
+  replacement break (but hardly any patches use it, so it wasn't
+  noticed).
+  
+* Put a kludge in FireCGun that stops it from crashing the game when
+  it is used on guns with different firing frames. It may not be
+  totally backward-compatible, but its behavior has always been
+  poorly defined anyways.
+  
+* Fixed a MAJOR problem with my custom libConfuse lexer that was
+  preventing GFS and EDF to load at the same time. I had to write a
+  function that totally resets the lexer to its initial state after
+  libConfuse is done parsing. This error was not introduced until
+  JUST before beta 3 release, which explains why I didn't catch it.
+  
+* Fixed a ridiculous problem caused by the incorrect assumption that
+  SDL key codes range from 0 to 255. Numpad keys generate codes 
+  greater than 255, and were thus causing out-of-bounds accesses in
+  the shiftxform and keybindings tables. For now, I_GetEvent filters
+  out-of-range key events. I'd rather actually support the numpad in 
+  the future, though.
+  
+* Generalized code in e_edf.c to create E_ProcessThing and
+  E_ProcessState, and added delta structure support to EDF. The next
+  release of Eternity will represent EDF version 1.1. BTW, delta
+  structures allow easier, more flexible editing of existing frames
+  and things. They can cascade, as each is applied to its target in
+  the order they're parsed (top to bottom always), and each only
+  lists the fields it wishes to edit. The other fields of the object
+  won't change.
+  
+* Tweaked the cfg_opt_t structures for EDF to provide for complete
+  case insensitivity, including the ability to refer to thing and
+  frame mnemonics without being correct in case. EDF 1.1 won't
+  error out or goof up if mnemonics differ only by case.
+  
+* Slightly edited the speedset and nukespecial code to support later
+  editing of speedsets and nukespecials, so that delta structures can
+  alter the values without introducing redundant list and hash table
+  items.
+  
+* Edited C_AdjustLineBreaks to push the console up a line early if
+  the first segment of a string cannot fit at the end of the current
+  line. The way I did it is definitely not ideal, but then neither is
+  most of the other console code. The cmdlist command's output looks
+  a bit better now, though it is still very difficult to read since
+  it's so bunched up. I don't have a solution for it yet.
+  
+* Made a small change to E_StateNumForDEHNum to support old, incor-
+  rect DeHackEd patches that use negative state numbers in some 
+  fields. They will automatically be remapped to the null state now,
+  which is probably what the authors intended in virtually all cases.
+  For future reference, negative state numbers are NOT to be used
+  in DeHackEd or EDF.
+  
+* Fixed a minor typo in the frame overwriting example in the EDF
+  documentation. Also added docs on the new features added so far,
+  so that I don't have to do it all at once later ;)
+
+=====================================================================
+Changes since Eternity Engine v3.31 beta 2
+=====================================================================
+=====================================================================
+08/08/03
+
+Eternity Engine v3.31 public beta 3 released!
+
+Moved the call to D_ProcessGFSWads so that command-line wads are
+added AFTER them, so that they override any GFS-specified wads.
+
+=====================================================================
+07/25/03
+
+Eliminated all direct usage of state number constants; added functions
+E_SafeState and E_NullState to EDF, and added a check to make sure the
+S_NULL frame is defined. It, like the "Unknown" thing type, is always
+required, and the game will bomb out if it's not found.
+
+So far the beta testers haven't found any actual bugs. I think most
+of them have stopped testing either out of laziness or boredom. I
+will probably release a second alpha, but if there's not much action
+on it, I will release v3.31 public beta 3 shortly.
+
+=====================================================================
+07/19/03
+
+Fixed the following Small compiler issues:
+
+* error(209) in "doreturn" that was causing a segv was fixed by
+  changing it into error(209, symname)
+  
+* for loop label deletion problem was fixed
+
+* promoted error 54 (mismatched closing brace) to fatal error status
+  to stop an assertion failure / crash in the parser. This is a kludge,
+  but is the best that can be done without a full understanding of the
+  compiler
+  
+Schepe helped fix a major problem with pvsnprintf that was causing it
+to write past the end of strings with integer formatting in them,
+trashing the stack and causing a "two-week bug"-like effect. Problem
+was that pvsnfmt_int looked like it was written in two minutes :->
+
+Schepe is now mentioned on the "About" screen under special thanks, 
+for his consistently helpful disposition toward Eternity ^_^
+
+Also realized that I made the buffer in C_Printf too small. Increased
+it to 1024, the limit of reasonability. I'm pretty sure nothing ever
+prints a line larger than that to the console. Even if something does,
+at least it will only truncate now, and not overflow.
+
+Released EE v3.31 beta 3 private alpha 1 to the beta testing team.
+
+=====================================================================
+07/18/03
+
+Fixed one of the known issues in the Small interpreter. Array indices
+could be one greater than the maximum index into the array, due to a
+simple logical error -- use of > where >= was needed. 
+
+Since it looks like Thiadmer has abandoned work on Small, I will begin
+to address known issues with it in Eternity's internal copy. The 
+remaining issues with Small that are known to me, mostly in the 
+compiler, are listed here for future reference:
+
+* The "expand" function which decompresses AMX binaries on big-
+  endian machines may not work on some large inputs, especially
+  programs with large arrays. It seems to use some type of asinine
+  circular byte queue. There are two possible approaches to fixing
+  this -- either don't compress AMX binaries on big-endian targets,
+  thereby bypassing the problem altogether, or try to figure out
+  precisely what this function is doing and fix it. Since Eternity
+  hasn't been officially ported to any big-endian targets, this is
+  low priority.
+  
+* A call to the error function in "doreturn" in sc1.c in the compiler
+  source may cause a SEGV. Problem may be a missing parameter; should
+  be easy to fix if I can verify the problem exists.
+  
+* for loops may delete labels. As with the above, this compiler bug
+  needs to be verified. If it is for real, I have a fix for it too,
+  which I found on the Small forums.
+  
+* Code near line 236 in sc2.c (compiler again) performs a "ptr--;" on
+  the current line, but may walk right off the near end of the string
+  on blank lines. I don't have a fix for this, but it can probably
+  be hacked at due to the nature of the error (C related, and not
+  deeply semantic). I'm unsure what triggers this error.
+  
+* There may be some confusion going on between the ++ and -- operators.
+  I have no idea what this is about or what could be causing it, and
+  furthermore I don't know how to trigger it. If it shows up, I don't
+  think I'll be able to fix it :(
+  
+* The sizeof operator may behave erratically when multidimensional
+  arrays are passed to functions. The user who reported this error was
+  vague about it, however. It may just be that they didn't understand
+  the way that Small uses arrays. I should be able to write some test
+  programs for this, but I doubt I'll be able to fix it if there's a 
+  problem :/
+  
+This is a lot of problems. Most of them are in the compiler, and
+can be avoided either by writing correct code (which is always good),
+writing slightly different code (who really NEEDS ++ or -- anyways),
+or by avoiding things like HUGE arrays, or passing arrays to functions
+(could just use a global, or some other approach, and use known array
+ indices when possible instead of sizeof).
+
+I was getting discouraged about Small, but since fixing the array
+issue I feel better and I think I was just being a brat earlier,
+wanting everything my way without having to work for it. I will attempt
+to trigger more of these errors, and if I can, fix them. The Small
+compiler is a beast, though, so I'm not optimistic about fixing very
+many of its issues. Hopefully they will turn out to be largely
+avoidable. I would love for Eternity to have an almost bugless
+scripting language, so that people can write ridiculous, huge, and
+impractical scripts in it, but the time for realism is now. The
+alternative, changing languages again, is less appealing to me than
+having to warn people about a few problems in the Small compiler.
+
+=====================================================================
+07/13/03
+
+Eliminated all direct usage of thing types. Features and changes
+incurred during the process:
+
+* Rewrote the segment of code in the killem cheat / nuke console
+  command that took special actions for certain thing types. It is
+  now codepointer-based. A thing type can specify a "nukespecial"
+  and give it a BEX codepointer mnemonic. It is then added to a
+  very small hash table in m_cheat.c, and the special action is run
+  whenever a thing of that type is killed by the cheat. The only
+  two pointers expressly made for use with this are PainNukeSpec and
+  SorcNukeSpec, for the Pain Elemental and D'Sparil's first form,
+  respectively.
+  
+* Made -fast speeds for projectiles editable. When "fastspeed" is
+  set by a thing type, a speedset_t is allocated and put into a
+  linked list in g_game.c. Any time the -fast mode of the game is
+  changed, all the things in the list will have their speeds swapped
+  appropriately. It saves a significant amount of space to not keep
+  this field in mobjinfo_t itself, as it does for the above.
+  
+* Made particle effects editable as a new flag field in mobjinfo.
+  Available particle effects are:
+  * ROCKET -- thing gives off a rocket trail
+  * GRENADE -- thing gives off a grenade trail (this effect may change)
+  * FLIES -- thing has a persistent swarm of flies around it
+  * BFG -- thing has a persistent BFG particle swarm
+  It is also possible to specify the particle fountain effects, but
+  only one at a time, and this is of minimal use, so I will not list
+  them here. Note when missiles explode, their particle effects are
+  disabled.
+  
+* Made monster item drop types editable as a new field in mobjinfo.
+  Simply specify "droptype" and list another (or the same!) thing
+  type for it to drop. This is not related to the HticDrop pointer in
+  any way, so its effects could even be combined with this.  There's
+  absolutely no limit to what something can drop, be it a powerup,
+  another enemy, keys, etc. Only one drop item is specifiable via
+  this field, though.
+  
+* Added a method-of-death field to mobjinfo and provided a way to
+  edit MOD types in EDF, although this is currently somewhat insatis-
+  factory, as I have it using simple integer values rather than strings.
+  Its a pain to add a bunch of strings and do yet another search over
+  them 9_9  These were added to enable a total rewrite of the obituary
+  system...
+  
+* Rewrote the obituary system. Two new const char * fields in mobjinfo
+  point to dynamically allocated obituary strings, one for normal
+  attacks and one for melee attacks.  Non-thing death messages, such
+  as those for falling damage, nukage, crushers, and deathmatch, are
+  editable through BEX text mnemonics.
+  
+* Made the thing types spawned by Boss Brains through the SpawnFly
+  codepointer editable. You just specify a list of 11 thing type names
+  in order, like this:
+  
+  boss_spawner_types =
+  {
+    DoomImp, Demon, Spectre, PainElemental, Cacodemon, Archvile,
+    Revenant, Arachnotron, Mancubus, HellKnight, BaronOfHell
+  }
+  
+  This doesn't allow you to add MORE thing types, and there MUST be
+  exactly 11. But this is more flexible than it was before. To allow
+  even more flexibility would either require breaking compatibility,
+  or providing some very hackish and clumsy extra fields.
+  
+* Added the following flags3 values in order to generalize a number
+  of previously hard-coded thing type behaviors:
+  * MF3_NOTHRESHOLD -- Archviles have no damage threshold for
+    acquiring a new target. If anything hurts them at all, they will
+    start fighting it. Normal enemies won't change targets for a
+    while.
+  * MF3_FLOORMISSILE -- Code for the Maulotaur's floor missile has
+    been in Eternity all along. This generalizes the ability for a
+    floor-running missile to go up steps and down drop-offs.
+  * MF3_SUPERITEM -- Specifies that the item will respawn only when
+    the "super items respawn" deathmatch flag is asserted. The only
+    things with this status by default are the InvisiSphere and
+    InvulnSphere.
+  * MF3_NOITEMRESP -- a new effect, enables an item to not respawn.
+    This was not previously an option, and would probably be useful
+    for some "unique" items in mods.
+
+=====================================================================
+07/12/03
+
+Began the process of converting direct usage of thing type constants
+into DeHackEd number lookups. Identified several new "EDF FIXME"
+points and have begun to address them one by one.
+
+Changed the skin viewer code to resolve the MT_PLAYER type in its
+initialization routine.
+
+Implemented MF3_KILLABLE and MF3_DEADFLOAT flags to eliminate special
+treatment of the Lost Soul throughout the engine. KILLABLE allows
+a thing with it to be treated as an enemy even though it doesn't
+possess the COUNTKILL flag. DEADFLOAT keeps a thing from having the
+NOGRAVITY flag cleared when it dies, so that it won't drop to the
+ground.
+
+=====================================================================
+07/11/03
+
+Updated various parts of libConfuse to catch up some more with v2.0
+and with the current CVS revisions. Applied Martin's slightly
+different fixes to bugs I had already addressed. Also added the
+section overwriting code, so that should be good to go.
+
+Tuned up the custom lexer a bit, as well. Removed the dangerous static
+string buffer and replaced it with the dynamically reallocating array
+system that Martin wrote for libConfuse v2.0's lexer. Also eliminated
+two cases where the lexer could possibly have entered an invalid
+state or infinite loop on malformed input. Added support for single-
+quoted strings, as well. I was just being lazy when I left this out
+in the initial write-up.
+
+Since I removed the NUM_REQ_SPRITES check from EDF, I went ahead and
+#if 0'd out the spritenum_t enumeration. Now there are no sprite
+enumeration values used at all, anywhere ^_^  spritenum_t has been
+changed to a typedef for int.
+
+Note that the mobjtype_t and statenum_t enumerations will most likely
+persist, since they can be harnessed as DeHackEd numbers for the
+corresponding entities (with a slight adjustment to mobjtype_t to
+bump up the values by one...).  I haven't decided whether codepointers
+and the such should call for things by DeHackEd number or by name
+yet. The argument for DeHackEd number is that the hash key computation
+complexity is far lower, and thus the added overhead would be mini-
+mized. This seems important to me, since lookups will be performed
+constantly on hundreds of different entities. Perhaps the ultimate
+solution will be had through a case-by-case evaluation, though.
+
+=====================================================================
+07/10/03
+
+Declared info.c mostly extinct. The old frames and things data is
+#if 0'd out, but I may remove it since it adds a large amount of
+data to the source code archive.
+
+Removed the temporary NOTDONEYET #define that was in use during the
+period of time where EDF would not compile, and then while its
+stability was still questionable (hopefully we are beyond that point).
+
+Finally got around to physically removing the FraggleScript modules
+from the source directory and from the MSVC project. I had to go
+through and comment everything out first so as not to corrupt the
+browser info, and this is why I was putting it off for so long :P
+
+Evaluated all the TODO and FIXME flags in the source. Several FIXMEs
+were determined to either be fixed or to not be problems in the
+first place, so I removed them. Most of the TODOs are, well, still
+to be done ^_^
+
+Stuff that needs to be done for EDF soon is being flagged with an
+"EDF FIXME". This stuff will definitely be done before beta 3 
+release, because it's more or less required.
+
+Emailed Martin Hedenfalk about various libConfuse issues, in order
+to both ask a question and to make sure he knew about the few bugs
+I found. He turned out to be pretty friendly, although he'd fixed
+most of those bugs in CVS already :->  I need to add the code from
+v2.0 that allows like-named sections to overwrite each other. Other-
+wise, it is impossible to edit any state or thing without replacing
+the entirety of frames.edf or things.edf, which is ridiculous and
+unnecessary, and would cause cross-version compatibility issues.
+
+If like-named sections overwrite, it will allow you to, for instance,
+override the BaronOfHell type by defining a new type called BaronOfHell.
+It'll overwrite all the values of the original section, and is totally
+transparent to the code I have already written for EDF. This is an
+absolute must :P  Coincidentally, this will make checks for duplicate
+frame and thing mnemonics in EDF unnecessary, which might speed up
+the processing just a tiny bit.
+
+=====================================================================
+07/09/03
+
+Added a cool new parameterized codepointer, PlayerThunk. It allows
+player gun frames to call a select set of monster codepointers, and
+provides a full set of parameter values that makes their functional-
+ity customizable to a degree, such that they work better as player
+attacks.
+
+Added a flags field to the deh_bexptrs array to support this, and
+defined a flag value which tells which pointers can be used by this
+one.
+
+BTW, in case you think I'm insane or just can't spell, "thunk" is a
+word in computer science which is used to describe a sort of call-
+down procedure, or function wrapper, meant to perform a conversion
+on its parameters. PlayerThunk does this by "converting" the
+player_t parameter in the gun frame action function into an mobj_t 
+parameter for a monster action function ^_^
+
+I have to thank Nanami for inspiring this. Her misadventures with
+a Mancubus pointer on a chainsaw for ZooM made me decide to finally
+get this feature done, which I'd been considering for a long time.
+
+Here's the documentation from codeptrs.txt, edited slightly for
+space:
+
+  PlayerThunk
+  Type:    Player attack, parameterized
+  
+  Parameter Information:
+  * Args1 = Index of codepointer to call (no default, must be valid)
+  * Args2 = Select target facing behavior (default of 0 = 0)
+            * 0 = FaceTarget pointer has no effect
+            * 1 = FaceTarget pointer is active
+  * Args3 = DeHackEd number of state to put player in temporarily 
+            (default of 0 = no state set; must be a valid state number)
+  * Args4 = Select targeting behavior (default of 0 = 0)
+            * 0 = Player targets last attacker, if any
+            * 1 = Player targets current autoaim target, if any 
+                  (attack fails if none)
+  * Args5 = Select ammo usage (default of 0 = 0)
+            * 0 = No ammo is used
+            * 1 = Normal amount of ammo is used, if applicable
+                  (see note below about autoaim targeting)
+            
+  Purpose: Allows player gun frames to call a select set of monster 
+           code-pointers which have been determined as safe for use 
+           in this context. If the index parameter indicates an invalid
+           codepointer, or any of the other parameters have invalid 
+           values, nothing will occur. New to Eternity.
+  Notes:   If targeting behavior is set to autoaim, and ammo usage is 
+           on, no ammo is used unless the player follows through with 
+           an attack on his current target. Otherwise, ammo would be 
+           used despite no attack occuring. This may become an 
+           additional ammo usage option in the future.
+           The Args3 field is provided for use with parameterized code-
+           pointers, so that they can retrieve args values from a 
+           different frame. The player will NOT display a sprite, call 
+           an action function, or cause a particle event from this 
+           state.
+
+=====================================================================
+07/05/03
+
+Added over 624 lines of code to e_edf.c to drive home the completion
+of basic EDF. Things and frames are now completely dynamic.
+
+Adjusted code in some of the parameterized codepointers, DeHackEd
+parsing routines, and P_SetMobjState to work with EDF. There is
+still some more of this sort of work which needs to be done. Some of
+it may be difficult to discover without extensive beta testing.
+
+Added support for include functions to EDF, to allow the information
+to be split into multiple files of manageable size and associated
+content. There are two include functions. The normal "include"
+includes files relative to the path of the file doing the inclusion,
+as you would normally expect. "stdinclude" includes files relative
+to the executable's directory. This allows user EDF mods to easily
+include the default EDF files for adding objects where necessary.
+
+Added code to the GFS for specification of a root EDF file, and added
+code in d_main.c to check for both that specification and for the
+-edf command-line parameter.
+
+Added DOOM II cast call editing via EDF, a feature I've wanted myself
+for years (it's always been irritating how DeHackEd mods mess up the
+cast call so badly, and there's nothing they can do about it). Parts
+of F_StartCast and the other code in f_finale.c were seriously
+rewritten to support this.
+
+Added two new console commands in p_enemy.c:
+* summon thingtypename [specialflag]
+  Like its namesake in zdoom, this allows you to summon a thing using
+  its EDF thing type name. This is MUCH more convenient that using the
+  spawn command (which is still supported, and is actually chained
+  down to by this one). The second parameter can still be provided
+  with the same meanings that it has for spawn.
+  
+* give thingtypename [number]
+  This command gives 1, or if provided, number, items of the indicated
+  type to you by instantly dropping them at your location and having
+  you pick them up. If the items aren't picked up, they're immediately
+  removed. So you can do stuff like "give AmmoClip 10" or
+  "give WeaponBFG". Very cool.  I may extend this command in the future
+  to allow you to give health and the such, as in zdoom and Quake 2,
+  but this is VERY low priority.
+
+Fixed a bug in the libConfuse parser that was causing parameters to
+functions to cascade on to subsequent function calls. This bug was 
+introduced accidentally in v2.0 of that library.
+
+Update: Martin Hedenfalk noted this has been fixed in CVS ^_^
+
+=====================================================================
+07/03/03
+
+Various little things were done during June, but nothing worth taking 
+the time to mention in this file.
+
+Added two new particle effects, flies and the BFG particle swarm.
+These are taken almost directly from Quake 2. All I had to do was
+change a divisor that controls the rate of animation, and turn the
+final coordinates into fixed-point numbers. These DO use floating-
+point arithmetic. I tried to avoid it, but the overflow would be
+horrific.
+
+Added a new particle event, #2, the BFG particle explosion. General-
+ized the rocket explosion code to do this, since the absolute only
+difference, even in Quake 2, is the color of the particles produced.
+The new event is called pevt_bfgexpl.
+
+=====================================================================
+05/29/03
+
+Added the cfg_opt_t structure for EDF states to e_edf.c, so the
+framework for parsing the states is now in place. The EDF "frame"
+block looks like this (variable elements are in <>'s, and all fields
+can be allowed to default, and can be provided in any order, as with 
+the rest of EDF):
+
+frame <unique_frame_identifier>           # gives this frame its name
+{
+   sprite = <string_sprite_name>          # name of sprite 
+   spriteframe = <integer>                # integer value of sprite frame
+   fullbright = <boolean>                 # true or false
+   tics = <integer>                       # duration (35 tics = 1 sec)
+   action = <string_bex_codeptr_mnemonic> # codepointer
+   nextframe = <string_frame_identifier>  # name of next frame to go to
+   misc1 = <string_special>               # misc value (arg or psprite align)
+   misc2 = <string_special>               # misc value (arg or psprite align)
+   particle_event = <string_ptclevt_name> # particle event
+   args = { <string_special>, ... }       # arguments to codepointer
+}
+
+So, an example frame translated from the source code would look like this:
+
+frame S_MUMMYFX1_2
+{
+   sprite = FX15
+   spriteframe = 1
+   fullbright = true
+   tics = 5
+   action = HticTracer
+   nextframe = S_MUMMYFX1_3
+   args = { 10, 20 }
+}
+
+Sprite names, codepointer names, particle event names, and nextframe 
+identifiers are resolved through chained hash tables. The fields of the 
+frame structure which are indicated as taking <string_special> can accept 
+special values which include frame mnemonics, thing mnemonics, sound names, 
+et al., so that those identifiers can be used as arguments to codepointers.
+
+In order for those types of arguments to be resolved, the special
+identifiers will be required to start with certain prefixes. For instance,
+all sound names start with "sfx_", all thing names will start with "MT_",
+and all frame names will start with "S_". This allows the namespace of the
+identifier to be inferred. If no special namespace is identified, those
+arguments will be interpreted as integers (ie, "10" becomes the literal
+value 10).
+
+The args list can currently accept up to 5 values. Values beyond that
+will be ignored, and values not provided will default to 0.
+
+=====================================================================
+05/22/03
+
+Applied a new, general fix to the problem of bouncing objects sticking
+to the sky. If a non-missile, gravity-effected bouncer touched a sky
+ceiling, its z momentum would remain unchanged, and it would be set to
+a position just under the sky. Thus, it would continue to enter the
+"hit sky" code segment on every frame, and would stay exactly where it
+was height-wise, bouncing around violently on the x/y plane like an air 
+hockey puck. It's obvious that this bug was a simple oversight in Lee's 
+logic. Apparently he thought that the object was going to fall through 
+to a gravity calculation below, and it may have in fact happened at one
+point, but then stopped after he modified the code for multiple types
+of bouncers.
+
+Now, the object will sort of glide across the sky for a split second,
+and begin to fall under gravity naturally. This looks pretty realistic, 
+and is as good as its going to get. Julian wanted me to have the object
+arch up above the sky, but P_XYMovement and P_CheckPosition won't allow
+objects above the ceiling to move, and that would require too large of 
+a modification IMO.
+
+=====================================================================
+05/11/03
+
+Added "pickupitem" section to EDF, to allow association of pickup
+effects with sprites. A pickup effect can be assigned to any number
+of sprites, but currently each sprite can only have one effect. This
+is likely to remain this way, since an N-to-N mapping would be
+inefficient, and it will be easier to support general item pickups
+through ExtraData, an EDF thing field, and/or scripting.
+
+Also added "playersprite" and "blanksprite" fields, to eliminate
+instances of SPR_PLAY and SPR_TNT1 from the source code. Now, the
+only remaining places where sprite enumeration values are used are in
+info.c itself, and will thus be eliminated when the frames are moved
+to EDF. Once that happens, I can eliminate the required minimum
+number of sprites and the requirement that they be in a now arbitrary
+order.
+
+=====================================================================
+05/08/03
+
+Finally added custom blood colors for monsters, but only for parti-
+cles, as I feel the space required for and drawing slowdown caused
+by color range translation tables for sprites would be unjustified.
+
+A new field has been added to mobjinfo_t, bloodcolor, and a corre-
+sponding mnemonic, "Blood color", added to the DeHackEd Things block.
+
+The currently supported blood colors are as follows:
+
+ 0 - Red (normal)
+ 1 - Grey
+ 2 - Green
+ 3 - Blue
+ 4 - Yellow
+ 5 - Black
+ 6 - Purple
+ 7 - White
+ 8 - Orange
+ 
+Each choice of basic color can make the particles use either one or
+two shades of the color, depending on the availability of the colors
+in the particleColors array. If I add more colors to that array,
+expect to see support for more blood colors. Brown is a very likely
+candidate, as it would be needed for a sewage TerrainType too.
+
+=====================================================================
+05/06/03
+
+Ported Eternity to the MinGW compiler with quite a bit of work, most
+spent, ironically, on compiling SDL_mixer 9_9
+
+The porting process revealed the following problems:
+
+Apparently only DJGPP's mkdir has two arguments, as MinGW's does not.
+For now, I've inverted the #ifdef's around the two calls to mkdir to
+use one parameter when DJGPP is NOT defined, and two when it is. This
+isn't a general solution though, and needs some work.
+
+M_Strupr and M_Strlwr were both relying on undefined behavior, which
+looked like this (except using tolower in M_Strlwr):
+
+*s++ = toupper(*s);
+
+This looks like it should work, but it turns out that between the
+undefined order of parameter evaluation under ANSI/ISO C, and the 
+(odd) behavior of the ++ operator, this expression could be inter-
+preted in several different ways. In DJGPP and VC++, it works as 
+expected, with the the pointer being incremented after being 
+dereferenced for the function call. In MinGW, the total opposite 
+happened. So in short, I fix0r3d it ^_^
+
+There was no newline at the end of psnprntf.c -- interestingly, MinGW
+DOES simply warn about this, rather than causing an error like DJGPP 
+does. I prefer the former behavior, even IF the latter is standard ;)
+
+There was a declaration of static void P_RemoveComments(void) left in
+p_info.c -- this function was removed as part of the purge of Fraggle-
+Script support systems (this was just a warning).
+
+R_DrawTLColumn had a variable defaulting to type int -- I think Lee
+accidentally left out the keyword here, as the rest of his variables
+were declared register int, and not just register :->
+
+stdarg.h needed to be included in i_system.h for I_ErrorVA -- why 
+didn't any other compilers catch this? o_O
+
+=====================================================================
+04/20/03
+
+Added a skin viewer menu widget, accessible from the player options
+menu. It looks and acts mostly like a menu widget, but draws a
+fullscreen background, the player sprite, and some instructions for
+usage. You can rotate the player to any angle and make him shoot,
+die, gib, animate at half speed, and respawn (if he's dead) -- he
+walks when doing nothing else. This is a really neat feature.
+
+In the process, fixed a couple of bugs:
+
+The menu overdraw optimization in D_Drawer wasn't smart about menu
+widgets, so if a widget came up over a menu, you pretty much couldn't
+tell what was going on, since the background failed to start drawing
+again. Also, the optimization needed to still be on for some widgets
+like the help/about screens, and the new skin viewer, so I added a
+"fullscreen" boolean member to the menuwidget_t structure, and 
+adjusted all the widgets (not very many at all) to reflect their
+nature. Any widget that is one of: 1) a fullscreen graphic,
+2) draws a tiled background, or 3) calls MN_MenuDrawer itself to
+draw a current menu, should mark itself as fullscreen.
+
+Screen sprites were being drawn with the cr_red color range trans-
+lation table, which, despite claims to the contrary in the BOOM docs,
+doesn't only remap the red range, but parts of the brown as well. This
+made parts of player skin sprites turn dark brown when they should
+have been left alone. Now, V_DrawPatchTranslated interprets a NULL
+translation table as meaning that it should call down to V_DrawPatch
+(something that it ONCE did for the cr_red table, but which caused
+problems with TCs and thus was changed by fraggle).
+
+=====================================================================
+04/18/03
+
+Restored some code to the starttitle console command that was lost
+from MBF that might be critical for proper transitions between demos
+et al. May need testing.
+
+Restored netgame checking to the mn_endgame console command, also
+lost in conversion from MBF. The game would not actually start a
+new game during a netgame, but it would fail to tell the user why
+and would go several calls deep in the stack before figuring out
+that it couldn't do it. Now it just dispenses with the menu
+action immediately and gives the classic message.
+
+Did some major restructuring of the menus. Will need user feedback
+on the new setup, but I think its improved somewhat over the previous
+one. You don't need to go as deep to get to a lot of options, and 
+some are in much more logical locations
+
+=====================================================================
+04/17/03
+
+Added support for quoted long file names in response files, following
+the lead of prboom (used their code for it, in fact ;) -- this has
+enabled a large amount of progress on the long-delayed official EE
+Win32 frontend, which will hopefully get a v1.0 release along with
+EE v3.31 beta 3.
+
+=====================================================================
+04/16/03
+
+Added basepath specification support to GFS, so that GFS do not
+necessarily need to refer to files relative to their own location. If
+basepath is specified, it is appended to all file names in the GFS.
+
+Added IWAD file support to GFS, so that users can add their IWAD
+paths to their own custom GFS files. This feature won't be useful to
+mod authors, of course, unless their project happens to be or to
+include an IWAD.
+
+Updated some parts of the libConfuse source to match the new 2.0
+release of that library. However, since I wanted to retain my new
+custom lexer, I was unable to fully implement all of the changes.
+This is unfortunate, since libConfuse can now itself parse data
+sources and provide complete sets of defaults for sections, but for
+now at least the sacrifice seems necessary.
+
+=====================================================================
+04/14/03
+
+Forgot to mention that I fixed the HU/status bar frags count bug a
+couple of days ago. Turned out that HU_FragsUpdate was just being
+called a few lines too early in P_SetupLevel, whereas it needed to
+be called a bit afterward in G_DoNewLevel, AFTER the frag counts
+were updated.
+
+Totally rewrote the console command alias code. It was using a fixed-
+size array with absolutely NO bounds checking, and also had several
+other bizarre bugs and potential crashes. Now it uses a linked list. 
+I originally tried using a reallocated array, but since aliases must
+support removal, that system was not practical.
+
+Fixed a silly little bug that was causing keys to make your view go
+to max pickup palette level if you stood on them in coop mode. Was just
+a failure to return earlier than necessary, caused by earlier rewriting
+of P_TouchSpecialThing.
+
+Added deathmatch flags, after trying to think of some consistent way
+to allow stuff like item respawning in any game type. GameType is now
+only one of gt_single, gt_coop, or gt_dm. Everything else is decided
+via dmflags. There are console commands (dmflags and defdmflags), a
+new dmflags menu (under Features->Multiplayer->Game Options->Advanced),
+and the ability to provide a dmflags value on the command line
+(-dmflags).  The old parameters -deathmatch, -altdeath, and -trideath
+still work of course, and they initialize dmflags with the appropriate
+values, but -dmflags will still override those if it is present.
+
+These are the DM flags currently available (more to come very soon):
+
+  Flag Name        Value   Meaning
+---------------------------------------------------------------
+DM_ITEMRESPAWN   --  1  -- normal items respawn
+DM_WEAPONSTAY    --  2  -- placed weapons remain on level
+DM_BARRELRESPAWN --  4  -- barrels respawn
+DM_PLAYERDROP    --  8  -- players drop items when killed
+DM_RESPAWNSUPER  -- 16  -- invis. and invuln. powerups respawn
+
+A meager start, but I have plans for some more, as I said before ;)
+I expect to implement a few of the effects that zdoom provides,
+such as not allowing exit, infinite ammo, and a few others, for sure.
+
+=====================================================================
+04/12/03
+
+Found an original DOOM bug while playing Chex Quest 2 with Eternity.
+WI_drawOnLnode expects an array of patches of exactly size 2 to be
+passed to it. This is because it tests to see if the patch can fit on
+screen, and if not, uses a second, alternate patch. This behavior was
+designed for drawing the "YOU ARE HERE" patches on the Ultimate DOOM
+map screens. But whoever at id wrote this code decided to use the
+function for the splat patch that's drawn on the levels too. Problem? 
+The splat patch is just a pointer to one patch, not an array. So if the 
+patch didn't fit, the code tried to access a non-existant alternate. 
+DOOM probably would have drawn some ugly garbage on the screen or 
+something, but it made Eternity crash.
+
+Fixed by adding a "numpatches" parameter to the function, and having
+it use that as the maximum array index, rather than assuming the
+array contains 2 patches.
+
+Inverted the format of the changelog because of an annoying scrollbar
+bug in UltraEdit-32. Plus, this format makes more sense really.
+
+=====================================================================
+04/11/03
+
+Added SDL page-flipping support, enabled via the "use_vsync" variable
+(the name is a bit wrong, but the end effect is more or less the same).
+Page flipping eliminates more or less all screen tearing, which is when
+it looks like the top of the screen is a frame ahead of the bottom.
+I dunno about anyone else, but it's quite terrible on my box without
+page flipping. A *tiny* bit of frame rate loss may occur with this, so
+it is totally optional. Also added SDL surface locking in I_FinishUpdate.
+
+I have gotten two crashes from SDL_mixer's MIDI lately. My patience for
+the library, which it turns out uses MCI code nearly identical to that
+which was in Eternity prior to the v3.29 gamma release, has grown very
+thin. In order to ensure that the crashes are SDL_mixer's fault and not
+ours, I did a review of the sound code, and ended up fixing these issues:
+
+* I_InitSound
+  + added SDL_InitSubSystem(SDL_INIT_AUDIO) call, which docs demand
+  + made I_InitMusic call dependent on whether or not sound effects were
+    initialized, since if SDL_mixer uses a subsystem like Timidity, it is
+    dependent on it being initialized
+    
+* I_ShutdownMusic
+  + changed I_StopMusic call's handle to 0 (was 1)
+  
+* I_PlaySong
+  + added handle rangecheck
+  
+* I_UnRegisterSong
+  + added handle rangecheck
+  
+* I_RegisterSong
+  + explicitly assigned NULL to music[0] at beginning of function
+  + eliminated all instances of returning -1 as a music handle on failure
+  + fixed a major bug where the cached music lump was freed, and then later
+    would try to be Z_ChangeTag(PU_CACHE)'d by S_StopSong -- this would more
+    than likely cause zone heap corruption, although I doubt this has
+    anything to do with the SDL_mixer crashes
+
+* S_ChangeMusic
+  + Changed music lump allocation level from PU_MUSIC to PU_STATIC. I don't
+    have any idea what PU_MUSIC even is, as its never used anywhere else, and
+    I don't want the music being spuriously freed. To ensure that, I just made
+    it PU_STATIC, which is never freed implicitly.
+
+=====================================================================
+04/10/03
+
+Rewrote all the game-type checking and setting code so that deathmatch
+and co-op rules can be freely enforced, even in single player mode. The
+reliance on "netgame" being true to mean coop, and bizarre inconsistencies
+between reliance on netgame and on the value of "deathmatch" for deathmatch
+stuff was what was causing it to be impossible to try out before. If any
+type of bots, DM flags, or alternate modes of play are added in the future,
+this change should help immensely.
+
+Found out that HUD and status bar frag counts are messed up. They don't
+update properly at the start of a new level, even though the players'
+frag counts have been properly zeroed, as witnessed to by the intermission,
+or once a frag occurs on the new level (the values suddenly become
+correct). Might take a bit of work to figure this out; fraggle probably 
+rarely tested deathmatch, if at all. At least the ultra-cool features like 
+player status bar face bg's and the frags scoreboard seem to work flawlessly. 
+I was afraid that once this stuff was testable, I'd find out none of it 
+worked, but those fears were not justified after all :P
+
+Also changed the "deathmatch" netvar to "gametype." You are not allowed to
+set gametype to "single" if netplay is in progress. I also have no idea
+on the possible ramifications of changing rules during levels, especially
+in a real netgame. Once Eternity has netcode this will become more
+testable. Until then, its best to start a new game immediately after
+changing game types. That ALWAYS ensures that everything is set properly.
+
+Noticed today that DETH only allows input from 0 to 255 for mapthing angles.
+Pain in the freakin' ass. Had to change ExtraData plans back to using the
+flags field, for which hopefully many, if not most, editors allow entry of
+arbitrary values from 0 to 32767. To make this easier, I globalized 
+deh_ThingFlags and the dehflags_t struct, and renamed the function to
+deh_ParseFlags. It can now be used freely by EDF and ExtraData to parse
+flag fields from quoted or unquoted libConfuse strings. Tres bien!
+
+=====================================================================
+04/08/03
+
+Finally got around to changing the behavior of the intermission camera
+code when I found out that the MT_CAMERA (doomednum 5003) thing wasn't
+even being used. Now, if not in an older demo, MT_CAMERA objects will
+actually be spawned and then collected into an array with P_CollectThings
+(just like boss brain spots and D'Sparil teleport destinations). This
+is opposed to simply collecting the mapthing_t's like deathmatch spots
+do. If an old demo is playing, the cameras are simply not collected or
+used. I might need to verify that this doesn't break 3.29 demos, although
+I don't care much, to be frank.
+
+=====================================================================
+04/06/03
+
+Added a "silencer" powerup effect that makes the player's weapons not
+wake up enemies. Also added a "silence" cheat to activate the effect.
+
+=====================================================================
+04/05/03
+
+Decided to start keeping up the changelog again, after a long time of
+neglect. The "two-week bug" which Eternity experienced in December,
+which was due to drastic string buffer overflow in the SMMU HUD code,
+put me off ALL things Eternity-related, including this file, for months.
+But now that beta 2 is out, and beta 3 is rapidly approaching, I need
+to be a responsible coder :P
+
+Recent changes from the last two months (ie, notable stuff I can remember):
+
+* Added BEX codepointer mnemonic hashing finally, since it will be
+  needed by EDF as well, and in the process, removed the silly addition
+  of A_ to the mnemonics in the DeHackEd code, and fixed a bug in some
+  of Ty's code where the mnemonic table was being indexed from 0 to
+  NUMSTATES, instead of from 0 to the number of mnemonic entries. 
+  Interesting that this never caused any noticeable problems.
+
+* Added portable snprintf and vsnprintf implementation I found on the
+  web, to end issues with the non-portability of these functions
+  (despite the fact they are both ANSI-mandated, many libraries do
+  not have them, or have buggy or poorly-behaved implementations).
+  Code was freely licensed.
+  
+* Added portable itoa implementation, derived from the DJGPP libc source.
+  I'm sick of the ANSI library not providing so many basic, necessary
+  functions >:P  The implementation in Eternity can be disabled, to cut
+  down on unnecessary code, and will default to the platform's libc
+  version if so directed. It is automatically not used for DJGPP and
+  MSVC, both of which I know have it.
+  
+* Converted all usages of (v)sprintf where the resulting length of the
+  string was not STRICTLY deterministic to p(v)snprintf. This should
+  drastically cut down on the possibility of another "two-week bug"
+  incident, as well as vastly increasing Eternity's security. String
+  buffer overflow can be very dangerous, security-wise.
+  
+* Major Small progress. Callbacks, the levelscript, and call by number
+  are all finished. Also added call-across capability between the two
+  VMs (had to be careful not to allow reentrant calls though, which are
+  not supported by Eternity for philosophical reasons).
+
+* Added libConfuse, an LGPL configuration file parser library, which
+  implements more or less the exact language that I need for both
+  ExtraData and EDF. First tested it out on a new idea I had, GFS,
+  game file script, which is sort of like a cleaner form of response
+  file that you can distribute with your DOOM mods.
+  
+* EDF Progress: The sprite names array is now read from EDF and
+  dynamically allocated. Issue: need to eliminate the small number of
+  sprite constants used directly in the source so that I can remove the
+  requirement for there to be at least NUM_REQ_SPRITES entries, and
+  remove dependencies on the order of those entries.
+  
+* Rewrote libConfuse, after some problems were discovered, to use a new
+  custom lexer, and to be able to parse both lumps and files. Rather than
+  compiling it as a separate library, it's now tightly integrated with
+  Eternity and uses assets such as zone memory and the d_io suite of
+  wad lump stdio emulation functions. Changed the license on the library
+  files from LGPL to GPL, as directed by the text of the LGPL license,
+  so that they don't conflict.
+
+* ExtraData implementation has begun. Removed temp file kludges after
+  libConfuse rewrite, so that ExtraData can now be parsed directly from
+  lump. Now I need to write the internal engine code for maintenance and
+  access of things by TID, for which I'll probably use a zdoomesque
+  solution of threaded hash chains. Once TIDs are in, I will be able to
+  write a vast number of new Small native functions for player and 
+  mapthing interaction, as well.
+
+* Rewrote a large part of the skin code to resolve problems with
+  static limits, buffer overflows (very minor ones, but we know how THOSE
+  kinds of problems can just blow up...), and strange inconsistencies,
+  such as skin sound names sometimes being NULL. This also will enable
+  easier transition toward Heretic compatibility, since the sound names
+  and the such are tablified now.
+
+* Added simple checks to the sound starting functions to ignore NULL
+  string names and to range check sfxinfo_t indices, so that every freakin'
+  place that starts sounds doesn't need to do its own rangechecking. I mean,
+  come on, what is the deal? After 10 or so people have worked on the code, 
+  you'd think I wouldn't be the first to realize that server error checking 
+  is better than client error checking in a case like this -- it's more
+  reliable and reduces code size ^_^  On a related issue, improved the safety
+  of Lee's parameterized codepointer functions from MBF -- they didn't do any
+  rangechecking on the parameters, which is too dangerous for an end-user
+  facility.
+
+* Fixed a cute little bug in the obituaries where being killed by a
+  non-enemy exploding object like a barrel or Heretic pod caused the game
+  to say you "suicided" (that is definitely NOT a word...). Anyways, now 
+  it says "<player> should have stood back," like it does when you kill 
+  yourself with your own rocket. This is kinda pointless though, as the 
+  obituary code is pending a rewrite as soon as EDF supports mapthings ^_^
+
+=====================================================================
+Changes since Eternity Engine v3.31 beta 1
+=====================================================================
+
+See above.
+
+=====================================================================
+Changes since Eternity Engine v3.29 Gamma
+=====================================================================
+=====================================================================
+09/11/02
+
+Decided to dedicate the release of Eternity to 9/11 victims, not
+to look good or something, but because I have felt burdened by it
+all day and I think its a fine gesture to make.
+
+=====================================================================
+09/10/02
+
+Attempted to address some of the problems experienced by Joel Murdoch
+with the latest GCC and verified that the DOS build compiles. Fixed
+a few bugs in the process, including one with the new FireCustomBullets
+code pointer -- it was using the damage modulus as the whole damage
+value -- oPS!!!!!!111 ^_^
+
+=====================================================================
+09/07/02
+
+Added various fixes for some 3DMIDTEX issues, including allowing
+monsters to move about freely over dropoffs when on top of them, and
+NOT allowing them to hang half-way over certain lines by giving those
+lines the ML_BLOCKMONSTERS flag but treating it specially for that
+kind of line, such that it only blocks non-floating monsters tangent
+to the surface.
+
+=====================================================================
+09/05/02
+
+Added ML_3DMIDTEX line flag by SoM, which clips things only within the
+visible portion of a line's middle texture.
+
+Fixed a line of code in C_ScrollUp() to make the console snap back to
+the input prompt when the message buffer is reduced. This prevents a
+problem with the console getting flooded so quickly with messages that
+it becomes impossible to scroll back completely.
+
+Fixed C_AddMessage to write the default color at the beginning of
+each message. This stops problems with strings inappropriately making
+later strings the wrong color. I need to clean up all the messages
+in the game to remove unnecessary color codes now that this is in 
+place.
+
+Fixed exitlevel console command to disallow zombie exits unless
+comp[comp_zombie] is set to 1.
+
+Updated all documentation for v3.31 beta 1.
+
+=====================================================================
+09/02/02
+
+All the entries above from 7/12/02 to present were written by me today,
+based on information I amassed all at once from the source code.
+Of course, a few issues and changes have been missed due to my
+sloppiness in keeping up the changelog. So, a couple of things that
+were missed that I have no specific dates for are the following:
+
+* The C_AddChar function was replaced with a better solution,
+  C_AddMessage, which itself sends all the characters of an input
+  string to the console. This was necessary to appropriately propagate
+  the color of the text when a forced line break occured. This still
+  has a few problems that need to be worked out, though.
+
+* Some of the new Heretic game mode strings have BEX mnemonics:
+  BGFLATHEx, with x = 1-5, == Heretic episode end bg flats
+  HHUSTR_ExMy, with x = 1-5 and y = 1-9, == Heretic automap level names
+  HxTEXT, with x = 1-5, == Heretic episode ending texts
+
+* Added a function G_SetGameMapName which always sets the gamemapname
+  variable appropriately. In the process, fixed a serious timing bug
+  in the "map" console command which could crash the game, and also
+  set the automap level name incorrectly. Save games suffered a brief
+  period of non-functionality, but this was due to a mistake of my
+  own which I quickly fixed.
+
+* Added a "screenshot" console command since the print screen button
+  is borked under Windows.
+
+* Added a getch() call and "Press any key to continue" message when stdin
+  is valid under Windows to keep Eternity's console window from slamming
+  shut. Windows is the rudest operating system on earth.
+  
+* Divided wi_stuff.c into two modules. Everything DOOM-specific stays
+  in wi_stuff.c, and everything universally applicable has moved to
+  in_lude.c.  hi_stuff.c is a new module which implements the Heretic
+  intermission code. The gameinfo_t structure holds some function
+  pointers which are called by the in_lude code to give a consistent
+  interface to all game mode intermissions.
+
+=====================================================================
+09/01/02
+
+Added zdoom-style translucency system. This system has a 74k total
+memory footprint to achieve effects which under BOOM would require
+about 4 MB, and those are, of course, smooth fading and multiple
+simultaneous translucency levels. Don't panic though, the BOOM system
+is still intact and can be used just as always for things and lines.
+There's no harm in having redundancy here, since the additional code
+is small, and the BOOM code is a bit faster while the zdoom code is
+more flexible.
+
+Added a "Translucency" field to the DeHackEd thing block to support
+this. Just as in zdoom, the argument is between 0 and 65536 (note that
+the internal storage is currently inverted however, due to some input
+issues -- hopefully this hack will be resolved in the future ;)
+
+Added a test for zero-length nodes to P_LoadNodes. The game bombs out
+with an error message because this error is unavoidably fatal, it
+seems.
+
+Added "r_ptcltrans" console command to control the type of
+translucency used by the particle system when general translucency is
+enabled. "none" equals no translucency, which looks positively horrible,
+"smooth" equals the wonderful goodness that is zdoom-style translucency,
+and "general" is BOOM-style translucency, as was used in v3.29 gamma and
+earlier.
+
+Interestingly, in order of appearance, best to worst, these are ranked:
+  smooth, general, none
+and in order of speed, fastest to slowest, these are ranked:
+  none, general, smooth
+  
+Computer science is always about trade-offs and not win-win situations :P
+
+=====================================================================
+08/30/02
+
+Tall sky texture support is now complete.  I had to write a cache
+structure in r_sky.c that keeps data on encountered sky textures that
+tells how to draw them based on their tallest patch height, rather
+than the texture height as specified in the textures lump.
+
+This cache uses a small chained hash table, so its about as efficient
+as it can possibly get. It should never get very large unless a
+level uses dozens of sky textures, something which has yet to be
+endevoured even despite its possibility (now watch somebody make a
+level with 150 unique sky textures just to spite me).
+
+=====================================================================
+08/25/02
+
+Somebody found out that trying to load a game from an empty save
+slot caused a segv. Stupid error.
+
+I also figured out that W_CacheLump's lax changing of the cache
+level tag on its allocations to whatever the caller requests really
+CAN cause problems, as I had expected a couple of years ago but never
+verified. SoM sent me a WAD of his that used the font characters
+as patch graphics in a texture. This is normally fine, but when
+the texture cache code would allocate the font character patches
+at level PU_CACHE, the font code would still expect them to be loaded
+PU_STATIC such that they would never go away, ever. Well, needless
+to say, this would cause the font to break completely as all the
+characters would mysteriously disappear and/or change into other
+bits of graphics or letters.
+
+W_CacheLump now only sets the cache level if the requested cache
+level is MORE restrictive than the current level. This way if some
+owner has staked a PU_STATIC claim on some cached lump, nobody else
+can come along to say they want it at PU_CACHE and make the original
+owner lose its data without any warning.
+
+This is the cost of trying to do this kind of stuff in C. The language
+gives you absolutely no help :P
+
+Added a new compatibility flag while testing the same level from
+SoM. He had a DeHackEd patch that made a suicide barrel enemy, but
+the enemy wouldn't die for some reason. Turns out somebody added
+a check on the MF_CORPSE flag in BOOM that basically says, "if you're
+dead already, don't die again." Well, for some reason, the "Sliding
+helpless" flag, which is really MF_CORPSE, was set for this barrel
+and thus it wouldn't die unless you shot it, which ruined the
+intended effect. The comp flag disables this test, which indeed is
+not present in the linux doom 1.10 source.
+
+=====================================================================
+08/23/02
+
+Heretic finale sequence support is now complete, including the
+episode 2 and 3 endings, which were more challenging: the underwater
+scene with the different palette, and the vertical demon scroller.
+The episode 2 ending still sometimes flashes a bit of gaggy trash
+when the game slams the title screen up when a key is pressed. I
+cannot seem to get rid of this through any means, including
+I_WaitVBL, changing the order of drawing and palette changing,
+forcing an update, anything. So I guess it will have to be
+tolerated for now. Its very minor and almost unnoticable.
+
+=====================================================================
+08/15/02
+
+Temporary mechanism for Heretic mode detection, the -heretic command-
+line parameter, is now in place. Modifications both temporary and
+permanent are all over, but mostly in CheckIWAD and D_DoomMain.
+
+Introduced the d_gi.c module, which holds the gameinfo_t structure,
+an idea inspired by (but not taken directly from) zdoom. Thanks Randy!
+
+Heretic demo sequence work in D_PageDrawer. In Heretic mode, the game
+just cycles through the Eternity Engine credits, Heretic credits, and
+shareware order screen (if shareware game). Heretic demo support is
+a hopeless cause which I will not even pretend to undertake. Sorry :P
+
+My missing sprite fix of 8/12/02 revealed a long-standing but not
+very widely known bug from the original DOOM source. R_InitSpriteDefs
+would totally fail to initialize the sprdef_t structure for a particular
+sprite if that sprite had absolutely no lumps in any loaded wad. This
+alone was innoculous, except that later, R_PrecacheLevel, which tries
+to preload all sprite frames that will be used by things presently
+found on the map (speeds up the game considerably) just assumed that
+any thing on the map must be using a valid sprite.  This could cause
+the game to crash with a segv that was very mysterious looking in the
+debugger. Fixed by:
+
+(1) Initializing sprdef_t's with no lumps to all zeros.
+(2) Checking for sprdef_t pointer validity when loading ANY sprite.
+
+=====================================================================
+08/14/02
+
+Removed some #ifdef RANGECHECK conditionals around checks in w_wad.c
+that can cause the game to crash if there are bad WADs used in the
+release build.
+
+Added P_ConvertHereticSpecials function to convert new Heretic line
+and sector types to BOOM-compatible types. Here's what is handled
+thus far:
+
+Heretic Line Type        |  BOOM Equivalent
+-----------------------------------------------------
+99 scroll texture right  |  85 scroll texture right
+100 WR raise door turbo  |  Generalized type 15761
+105 W1 secret exit       |  124 W1 secret exit
+106 W1 build stairs 16   |  Generalized type 12680
+107 S1 build stairs 16   |  Generalized type 12682
+
+This means that BOOM can successfully emulate all the new Heretic
+line types with existing types. No new code was needed to add them.
+
+With sectors, however, we are not so lucky. The Heretic pusher
+and scroller sectors are not compatible with BOOM solutions for
+similar sectors, and their type numbers are incompatible with the
+generalized sector type, which uses the bit values starting at 32
+and higher.
+
+The only current sector type being remapped directly is Heretic
+sector type 15, the low-friction ice sector type. This type is
+ROUGHLY equivalent to a BOOM 223 friction transfer linedef with
+length of 171; however, the movefactor is much too high compared
+to that in Heretic when computed in a standard manner. Because
+of this difference, I probably need to really make a dedicated
+sector type for this. I really hate to have to do that, though.
+
+As for the wind and scrollers, it looks like they're going to
+need ExtraData solutions to enable them. Control things can't
+be placed at run-time, and the generalized sector system offers
+little assistance here.
+
+Heretic nukage sector types 5, 7, and 16 do damage in drastically
+different ways than their DOOM counterparts. Right now, the
+game is just remapping the damage values through the gameModeInfo
+structure, but that's kind of insatisfactory as well, since it
+makes those sector types behave unreasonably different in different
+game modes. But to waste 3 whole sector types to duplicate them?
+I dunno if that's a good idea either.
+
+All of this needs careful consideration. Suggestions by other
+serious DOOM port developers would be appreciated.
+
+=====================================================================
+08/12/02
+
+Gearing up to introduce Heretic support, now that Eternity can load
+heretic.wad as a PWAD file (this it could not do before, for reasons
+that must have been fixed during the v3.29 gamma porting process!).
+
+Changed the behavior of the game engine so that it ignores any
+missing sprites, posting an error message about them only once per
+use on a thing or gun and allowing the game to continue from that
+point. Judicious use of SPR_TNT1 and the MF2_DONTDRAW flag allow the
+messages to not show up continually from then on.
+
+=====================================================================
+08/10/02
+
+Added Ammo per shot field for DeHackEd weapons. This allows the
+ammo per shot value to be changed for all weapons. Note that the
+values stored internally are not used unless enabled through
+DeHackEd, for compatbility with old patches that use weapon function 
+pointers on other weapons than their original weapon but don't
+specify ammo per shot.
+
+Totally reformatted deh_procWeapon in the process. What a freakin'
+mess!
+
+=====================================================================
+08/09/02
+
+Added Args1 through Args5 fields to support new parameterized code
+pointers, and added Particle event field, all to frames.
+
+Note the only Particle effect currently available is effect #1, the 
+rocket explosion particle burst.
+
+Info on the new code pointers follows:
+
+*** FireCustomBullets
+
+This codepointer for player gun frames lets you create your own custom 
+bullet weapons. The arguments to it include:
+
+sound (1 = dspistol, 2 = dsshotgn, 3 = dsdshtgn, 4 = dscstbul)
+accuracy (1 = always, 2 = except on refire, 3 = never, 4 = ssg)
+number of tracers to fire
+damage factor
+damage modulus
+
+*** FirePlayerMissile
+
+This codepointer for player gun frames lets you make a weapon that can 
+shoot ANY projectile. The only argument it takes is the DeHackEd number 
+of the thing type to shoot (the thing type should always be a missile). 
+
+*** CustomPlayerMelee
+
+This codepointer for player gun frames lets you create a customized melee 
+attack similar to the fist or chainsaw. The arguments to this pointer 
+include:
+
+damage factor
+damage modulus
+berserk multiplier
+angle deflection type (1 = none, 2 = fist, 3 = chainsaw)
+sound (1 = dspunch, 2 = dssawhit/dssawful, 3 = dscstpun)
+
+=====================================================================
+07/12/02
+
+Made I_StartSound prototype consistent for all compiles, and removed
+now unnecessary #ifndef GNUC directives in i_sound.c. The crashes
+fraggle had from the sound in Linux were due to the function prototype
+not matching the number of parameters passed.
+
+=====================================================================
+07/07/02
+
+Added a call to SDL_Quit() in I_Shutdown() to ensure that all SDL
+resources are shut down and released. SoM had forgotten to put this
+in after writing the video code, and there were no apparent ill
+effects under Windows.  In the process, I had to verify that all
+the atexit handlers in Eternity are called in a safe order. The
+engine passed that test, fortunately.
+
+I have devised a new plan for enabling ExtraData for mapthings.
+This involves a special mapthing type which is a stand-in "ExtraData"
+object. Instead of just hijacking one field of normal things and
+using a flag to indicate its special nature -- a method that seemed
+grossly hackish at best -- the entire object is just a dummy, and
+uses its options field as an ExtraData record number. When the
+engine encounters this dummy, it will go to the ExtraData for all
+the information it needs to spawn an object at that point.
+
+Nobody can offer me a good reason for why I didn't think of something
+that simple earlier ^_^
+
+ExtraData, for mapthings at least, will be the first feature of 
+Eternity v3.31 public beta 1. We still have to decide what kind of 
+format the data will be stored in, although one fact is certain: it 
+will be text based, not binary.
+
+*** Note: I have decided to delay ExtraData a bit in favor of some
+other features, so it won't be in beta 1. We're on a new accelerated
+release time table and will be doing beta releases more often now ^_^
+
+=====================================================================
+Changes since Eternity Engine v3.29 beta 4
+=====================================================================
+=====================================================================
+07/05/02
+
+Released a patch to repair several problems identified after launch:
+
+1. The algorithm employed to get the path of the executable from
+   myargv[0] assumed the path would be present under all
+   circumstances. Windows XP, in typical style, doesn't act
+   backwardly compatible by failing to always append the full
+   path of the EXE file. This would make D_DoomExeDir return "e"
+   sometimes, with various ill side effects. Fixed by making
+   the function run all the way to the beginning of the string
+   when no path separator (/ or \) is found, and then returning
+   "." in that case, so that files are read from and written to
+   the current working directory.
+
+2. To my dismay, the release-build executable's SDL window title
+   was "SDL_app" when launched from outside the Visual Studio
+   IDE -- dunno why that makes a difference. Fixed with a call
+   to SDL_WM_SetCaption.
+   
+3. Found a very small memory leak in G_ReadDefaults -- the
+   keybindings data was never freed after being loaded and
+   run.
+
+=====================================================================
+07/04/02
+
+Implemented SoM's fix for windowed-mode mouse, as well as adding his
+code for accelerative mouse movement -- its 100x smoother and more
+usable now. The beta testers are in love with it.
+
+Biggest problem for Eternity seems to be with MCI. It seems that a
+*lot* of cards have unstable MCI drivers -- kat and xooz have both
+reported trouble, and it even fails to start up properly for me
+on occasion. It will have to do though, as public release is today!
+
+=====================================================================
+06/22/02
+
+Stream MIDI was crashing with BSODs so it was replaced with MCI MIDI.
+MCI is not as featured, and has to intercept Win32 messages to know
+when to loop the music, but it will work for this version. In the
+meantime, we're looking at SDL_mixer.
+
+=====================================================================
+06/21/02
+
+Easily succeeded in making bullet puff particles sensitive to
+TerrainTypes. Now if you shoot water, lava, and soon, various other
+flats that have different TerrainTypes, you get colored particles
+reflecting the expected type of impact -- blue for water, red and
+orange for lava, etc. This is cool and very Quake-2-like in
+appearance. It even works on ceilings, since I wrote a new function
+under the TerrainTypes system, P_GetTerrainTypeForPt, which can
+get the TerrainType for either the floor or ceiling at point (x,y).
+This doesn't work for deep water though, since bullet puffs are
+not stopped by fake flats anyways.
+
+MIDI music support is now complete, although not very well-tested.
+I initially imported the code that fraggle sent me from SMMU v3.30
+final, but it had a couple of small problems and didn't work, so I
+patched over it with code from prboom 2.02 (thank goodness I still 
+have these ancient sources lying around!) and it seems to be
+nearly flawless.
+
+There were a lot of educative problems during the process. The
+largest made me end up needing to create a new module in the Win32
+system-dependent folder, i_music.c -- this module contains only
+Win_* functions for implementing the dirty work of MIDI. When I
+included windows.h into i_sound.c itself, about 104 errors occured,
+almost all of them conflicts between winnt.h and doomtype.h -- who
+would guess that Microsoft would use all the exact same type names
+and such as DOOM :P
+
+Now Eternity is ready to go back to SoM for work on windowed-mode
+mouse behavior (its unusable right now). After that, I have to
+tweak a few remaining issues that Joel Murdoch pointed out a long
+time ago, and then it's release time!
+
+=====================================================================
+06/20/02
+
+Kat reported that bitmap-format screenshots were broken in Windows; 
+the bitmap file structures needed a packing pragma before them since 
+they were being written directly.
+
+A very well-hidden bug in the TerrainTypes code suddenly surfaced
+while I was playing WolfenDOOM: Treasure Hunt under a compilation
+with INSTRUMENTED defined (which randomizes memory after every
+Z_Malloc and again after every Z_Free, among other things).
+
+The little splash objects fired up like missiles from water and 
+swamp TerrainType events had their target fields set directly to the
+splashbase object. Because its reference count wasn't updated
+properly, it was possible for the splashbase to be removed with the
+splash missile still pointing to it. If the missile then hit an
+creature, the game would crash mysteriously in P_DamageMobj with a 
+bad source object pointer. Fixed by changing the direct assignments 
+into calls to P_SetTarget.
+
+Removed the Eternity TC grenade launcher weapon (was available only 
+in Eternity mode). This weapon was causing problems with DeHackEd, 
+and is the first step in phasing out all the Eternity TC modifications
+from the general engine code (most will be reintroduced as data rather
+than code, once EDF is complete). For now, the grenade object itself
+and a codepointer to fire it are intact, and will likely remain that
+way for use in projects. Lee did provide a grenade death frame in MBF,
+but not a dedicated grenade thing or codepointer for firing it, which
+seems a wasted opportunity to me.
+
+=====================================================================
+05/22/02 - 06/01/02
+
+Compiler-specific C language extensions have all been centralized into
+a new header, d_keywds.h -- this currently includes GNU C __attribute__
+hints and function inlining.
+
+Inlining was problematic -- defining __inline__ under VC++ to match
+GNU C wasn't working because SDL also defines __inline__ itself. Plus,
+several uses of __inline__ were inside unnecessary "#ifdef DJGPP"
+directives, and so the functions weren't being inlined under VC++
+even though it was possible.
+
+Now, all inlining in Eternity is to be done with the custom macro
+__d_inline__ -- not as pretty looking, but pretty damn unlikely to be
+overloaded by some library or compiler.  Now inlining can be made
+easily available for any platform just by adding an #elif to d_keywds.h
+
+Fixed improper usage of the access() function -- Jim Flynn used some
+integer constants where he shouldn't have and in fact, the code was
+not correct under DOS, and only worked by lucky coincidence. Always
+follow the libc docs for your compiler! ^_^
+
+Also fixed issue of missing prototypes for open, close, and access by
+adding a temporary undefinition of _POSIX_ in d_io.h -- SoM says we
+need _POSIX_, but I still haven't figured out why :P
+
+SDL digital sound is now in place and has worked flawlessly on every
+machine on which its thus been tested. Next up, MIDI, and then we
+can release!
+
+The next release will be v3.29 'gamma', and will be considered the
+final release for v3.29 unless some hideous but quickly addressable
+problem is found. The next version, v3.31, should begin to add some
+custom features to the Windows version such as CD audio support.
+Not to mention, the new FraggleScript is up and coming.
+
+=====================================================================
+05/19/02 - 05/21/02
+
+Three bugs fixed:
+
+1. In-wad DEHACKED lumps were broken under Visual C++ because of a
+   bug in Lee's DEH-in-WAD code that failed to not call fclose()
+   when the DeHackEd being parsed was in a lump rather than a file.
+   This bug didn't surface under DOS because DJGPP ignores fclose()
+   when its parameter is NULL, whereas Visual C++ barfs.
+   
+2. Rewrote D_dehout function to avoid passing out the address of
+   strings it did not "own," including a string literal in one
+   case. This will make sure that there's no problems later with
+   string literals being written into, plus it's better style in my
+   mind for the function to pass out the address of a static buffer 
+   that it owns, rather than passing out a static pointer.
+   
+3. Added 21 dummy frames to the states array to replace the beta
+   emulation item and lost soul frames that fraggle unfortunately
+   removed from SMMU. The dummy frames need to be there to keep old
+   MBF DeHackEd patches working -- MBFEDIT!.WAD's reactor core 
+   object was broken because of this.
+   
+Note: I also increased the length of lump names in the lumpinfo_t
+structure to 9 instead of 8, to explicitly null-terminate them and
+avoid any future issues with unterminated strings, and I also
+changed Lee's "namespace" field to "li_namespace", to avoid issues
+with IDEs and for C++ portability in case anyone ever undertakes
+that chore using this source code -- namespace is a reserved word
+in C++ :)
+   
+Feature additions:
+
+Particle fountains are now available. As in zdoom, they use map
+numbers 9027 through 9033, and are available in colors red, green, 
+blue, yellow, purple, black, and white respectively.
+
+I created a new frame-based particle event system to provide a
+flexible way to attach particle events (as opposed to persistent
+effects) to things. The state structure now contains a new field,
+particle_eff, which is an integer index into the particleEffects
+array in p_partcl.c.  New effects can be added very easily, and the
+value in the frame is checked for validity before trying to use it
+as an index. This will be highly amenable to editing through
+DeHackEd files, although I'm not yet ready to provide that support
+since there's only one effect currently, rocket explosions.
+
+A pic of the effect system working (in Windows no less) is at the 
+following URL:
+
+http://www.doomworld.com/eternity/shots/particle.png
+   
+=====================================================================
+03/02/02 - 05/18/02
+
+Massive changes all over; Windows support largely complete, mostly
+thanks to SoM's hard work.
+
+Some bugs fixed during porting, largely due to Windows' stricter 
+segmentation policies, and different memory alignment coincidences 
+under Visual C++ include the following (not a complete list probably):
+
+* Console message history and command history buffers were *not*
+  appropriately maintained; apparently the SMMU v3.21 code was
+  transitional and contained code that no longer worked like it
+  was supposed to due to other changes.
+  
+* Console commands with string values could index into their string
+  value arrays out-of-bounds on either side due to some very goofy
+  looking rangechecking...
+
+* Console script code could run off the end of the buffer and run
+  garbage commands, usually causing a "V_WriteText: bad colour" error
+  (this was partially my fault this time ;)
+  
+* MN_WriteText did not check colour control characters for validity.
+  
+* MN_Responder treated non-printable characters as if they were valid,
+  resulting in the ability for shift to insert invalid colour control
+  characters into strings (even segv'd under DOS sometimes) -- this
+  was the cause of mysterious problems with the player name widget :)
+  
+* G_GetMapForName wrote back into its parameter, and since it is called
+  with string constants in the code, and Visual C++ puts its string
+  constant table in the code segment as opposed to the data segment,
+  this caused a segv which was, for a time, mysterious. Fixed by
+  not writing into the parameter (bad style, must poke fraggle).
+  
+* Namespace pollution reduced by turning abs macro in m_fixed.h into a
+  function, D_abs. Uses VC++ inline assembly under Windows, snatched from
+  prboom, of course ^_^  Also changed the names of some constants in the
+  door types enumeration -- it contained names like open, close, and
+  normal, which are too common and caused conflicts under VC++.
+  
+* Added Joel Murdoch's fix to the view-centering keylook/mlook code --
+  again this was apparently transitional in SMMU and was still using code
+  from before a rewrite.
+  
+Other things changed that qualify as features or do not really qualify as
+bugs include the following:
+
+* Puff particles made a bit lighter so they show up better.
+
+* Puff particles now correct their z distribution when spawning on
+  ceiling or floor shots (this had simply not been implemented since
+  SoM added the shooting flats fix).
+  
+* Added option for having particles AND sprites for blood and puffs
+  as is available in zdoom. Was just being lazy about it earlier 9_9
+  
+* Gamepad support under Windows is robust. Any device that is supported
+  by DirectInput (and thus by SDL) with at least 2 axes and 4 buttons can
+  be selected from a Windows-only joystick config menu. Also added
+  joystick axis sensitivities so that the user can stop noisy misfires.  
+  
+* Misc menu strings were bogus and misleading, fixed.  
+
+* Massive addition of type-safeness to satisfy Visual C++'s craving for
+  a lack of implicit down-casts -- personally I think it's good style to
+  always make casts explicit except when they're really obvious and
+  safe (like char to int for instance).
+  
+* Added dumplog console command that can dump the console to file for
+  logging, debugging, bragging to friends, etc.
+
+=====================================================================
+02/16/02 - 03/01/02
+
+SoM and I have made various changes all over for portability, most
+of them very small, but a few larger issues have arisen,
+particularily use of unistd.h IO functions that are poorly supported 
+under Visual C++.
+
+Reintroduced another lost DOOM/BOOM/MBF feature, quicksave and
+quickload. Fixed a bug in the menu system with respect to popup
+messages and the way they close or open the menus when dismissed.
+Their behavior was inconsistent because they didn't save the state
+of the menuactive variable.
+
+Tweaked a little code for the console.
+
+=====================================================================
+02/15/02 - 02/16/02
+
+Added various patches to the source provided by Joel Murdoch,
+including the melee attack z range-checking code, which is enabled
+or disabled through the comp_scratch variable/console command.
+
+Added version_time and ver_time console command, and changed 
+D_DoomMain to always print out build-time information even if GAMEBAR 
+is not defined (and it is not by default).
+
+Added EOF comments to some headers and modules because some utilities
+(including some versions of GCC apparently) don't like the file to
+end on a line of code. Taking care of it all at once just avoids any 
+future problems.
+
+Added re-inclusion guard definition to ser_main.h; it seems to have 
+been the only header missing one.
+
+=====================================================================
+01/13/02
+
+Because V_DrawPatch errors can be easily caused by user add-ons and
+because they're always safe to ignore by simply not drawing the
+patch on the screen, I've removed the #ifdef RANGECHECK conditionals 
+from around the error checking code and demoted the error from a 
+fatal I_Error call to a simple C_Printf, which will put the 
+message in the console to let the user know something is wrong. This 
+is a better way to deal with a relatively benign (when handled) 
+error.
+
+=====================================================================
+01/12/02
+
+Fixed a hitherto-unknown bug in the particle system. My assumption
+that the spritelights colormap array would be valid during particle
+rendering was incorrect, and thus particles were using the lighting
+information for whatever normal mobj vissprite was drawn last --
+this often resulted in very dark, almost black particles in a bright
+sector, and general unresponsiveness to local changes in lighting.
+P_ProjectParticle needed to do a full lighting calculation; 13
+lines of code were added where previously there were 3.  Thanks due
+to Randy Heit for some tips he gave me.
+
+=====================================================================
+01/10/02
+
+Added 13 new flags2 bits, most of which are AI-related, allowing
+better customization and allowing more full transformation between 
+different thing types in DeHackEd.  Before, if you made, say, a
+Cyberdemon out of an imp, it would not act *perfectly* like a
+normal Cyberdemon. Now that is possible. These are also necessary
+as a transitional step toward TTD, as thing-type constants can no
+longer be used in the code once it is implemented.
+
+MF2_SHORTRANGE -- mobj will not use missile attacks if farther
+                  than 14*64 (896) units from its target
+		  (used by archvile)
+
+MF2_LONGMELEE  -- mobj will always defer from its missile attack
+                  and close to melee range if it is closer than 196
+		  units to its target
+		  (used by revenant)
+
+MF2_RANGEHALF  -- mobj considers itself to be twice as close to its
+                  target with respect to missile attack probability
+		  (which increases inversely wrt distance)
+		  (used by revenant, spider demon, cyberdemon,
+		   and lost soul)
+
+MF2_HIGHERMPROB
+               -- mobj's minimum probability for using its missile
+	          attack is 37.5% as opposed to the normal 22% --
+		  a 15.5% increase when the monster is 160 units
+		  or more away.
+		  (used by cyberdemon)
+
+MF2_JUMPDOWN   -- when friendly, this mobj type can jump down off
+                  of some steps/cliffs to follow the player
+		  (used by MBF dogs, Halif Swordsmythe)
+
+MF2_NOSTRAFE   -- mobj never uses advanced strafing AI even when
+                  enabled (used by lost soul)
+
+MF2_MAP07BOSS1 -- mobj can activate the 666 MAP07 special
+MF2_MAP07BOSS2 -- mobj can activate the 667 MAP07 special
+MF2_E1M8BOSS   -- mobj can activate the 666 E1M8 special
+MF2_E2M8BOSS   -- mobj can end the level on E2M8
+MF2_E3M8BOSS   -- mobj can end the level on E3M8
+MF2_E4M6BOSS   -- mobj can activate the 666 E4M6 special
+MF2_E4M8BOSS   -- mobj can activate the 666 E4M8 special
+
+For the latter 7 flags, all members of all species with the flag
+must be dead before the special will activate. Currently the
+specials still only work on their designated maps; this will be
+addressed via MapInfo soon.  Note that any object type can already
+use the Keen 666 door special on any map, thus no flags are
+necessary, and of course, any object can use the boss brain 
+function that ends the level as well.
+
+Moved some code in P_DeathMessage for purpose of guarding against
+future segv issues.
+
+Added code to P_DamageMobj to make dormant things telefraggable.
+
+Removed redundant check in "nuke" console command to remove the
+invulnerability flag from objects, and reformatted the function,
+making it at least 10x more readable.
+
+=====================================================================
+12/14/01
+
+Due to compatibility concerns I've restored the old secret exit
+behavior, which is actually to take you to the same level you just 
+exited, but I've made sure that SMMU's MapInfo features don't 
+interfere with that behavior inappropriately, which is what was
+actually causing the strange behavior. gamemap and gamemapname could
+go out of sync, which would cause the game to think it was in one
+level but to load another.
+
+The new lump-based intertext substitution has passed some minor 
+testing and seems to work very well.
+
+=====================================================================
+12/13/01
+
+Verified that G_SetFastParms still works (as well as it did before
+at least).
+
+Rewrote the MapInfo intertext code to load an entire lump as text.
+This does away with the terrible line-by-line sprintf into a
+fixed-size buffer that fraggle's comments indicate he was very
+unhappy with.  Now, intertext is a MapInfo variable, and it
+should be set to the name of a lump to read in. Note this is
+more or less exactly how Hexen did it, minus an arbitrarily
+enforced static limit on length. Needs significant testing.
+Hopefully Joel can help with this since he needs the feature :)
+
+Patched G_DoCompleted to stop ill-defined secret exit switch
+behavior. It turns out that wminfo.next was just never set
+anywhere, period, if info_nextsecret was not set. Hence why using
+IDCLEV can change the map you go to after using a secret exit
+switch on an arbitrary level. Now, secret exit switch default
+action is to act like a normal switch and take you on to the
+next level. Needs further testing; should tell cph about this
+as well, since it qualifies as an original DOOM bug.
+
+=====================================================================
+12/12/01
+
+Added a check for the long-standing problem of crashing on missing
+player starts in single player and cooperative games to P_LoadThings.
+The player->mo members are nullified before spawning, and then
+all players in the game are checked for valid pointer values
+afterward. If any are NULL, the game now bombs out with an
+appropriate error message rather than causing a segmentation
+violation on first entrance to P_PlayerThink -- I don't understand
+why issues like this were not addressed in BOOM -- there's still
+several others I need to tackle, most notably, zero-length BSP 
+lumps. A program should ideally always exit gracefully on any input.
+
+Changed the MF2_DIEDFALLING flag into an engine-internal flag.
+It is now called MIF_DIEDFALLING and is no longer accessible from
+DeHackEd. It was useless there anyways and was just eating up
+room in the flags2 field.
+
+Massive reformatting in g_game.c -- this module is a horrible,
+entangled mess. There's too much code in it for too many different
+purposes. I may eventually break it into more than one module,
+leaving the game state transition stuff in g_game.c, and
+creating other modules for input processing, demo stuff,
+save games, etc.  Ambiguous else statements are a big problem
+too. I've put a warning in G_SetFastParms because I don't know
+for sure what the default compiler behavior is when dealing
+with them, and this function had a big one in it. Also put a
+FIXME on the view-centering code, which is known to intermittently
+malfunction.
+
+=====================================================================
+12/11/01
+
+Added a bindings console command that lists out all currently active
+key bindings. Useful since the menu only lists keys bound to internal
+actions and not those bound to console commands.
+
+=====================================================================
+12/08/01
+
+Finally, some time to work on Eternity again. Added a new console
+command, s_flippan, which forcefully reverses the audio channel
+separation value in I_StartSound and I_AdjustSoundParams. This is
+done outside of Allegro in user code, so if the Allegro config
+file is set to flip the pan, this variable will flip it back again,
+etc. There's no Allegro function for it, unfortunately, just a
+lousy config file variable.  The item has been added to the
+sound menu as well.
+
+I also took the liberty to actually range check the separation
+value.  It should always be between 1 and 256 in order to get a
+number between 0 and 255, which is what the Allegro docs demand.
+
+=====================================================================
+10/20/01 - 11/21/01
+
+Various small changes, for one, added ability to unbind a key via
+the binding menu by pressing a key that is already bound to the
+given action. Has not been tested.
+
+  ** update 12/11/01: it works! :)
+
+SoM added fixes to PTR_ShootTraverse, p_map.c, to allow bullets
+to puff on floors and ceilings except in MBF or older demos. DOOM 
+allowed tracers to simply continue through floors or ceilings until 
+they hit a line. Wherever that point was would become the spawn
+point for the puff, and then P_SpawnMobj would clip the z coordinate
+of the puff into the range of the sector, making it appear at the
+top or bottom of a line across the room at which you probably weren't
+aiming.
+
+Changed default for show_vpo in config file to 0 as I had intended
+to do for a long time. VPO indication is fun if you're a curious
+hacker like me, but not for the user in general.
+
+=====================================================================
+10/19/01
+
+Repaired the timedemo feature. This was still really messed up,
+since, as I noted earlier, I didn't pay attention to it when fixing
+demos. It was using a character array that didn't even seem to
+exist in the program to copy the demo name (the compiler had to be 
+getting one from somewhere, but I can't figure out where) -- it also
+unnecessarily called G_StopDemo.
+
+Also, the framerate menu would never show up due to a simple error 
+in fraggle's logic -- he cleared the menus first, as is necessary, 
+but then later checked if the menus were active, which of course,
+they were not. Instead, I added a parameter to G_TimeDemo, and to the 
+timedemo console command that calls it, to pass along that information.
+
+=====================================================================
+10/12/01
+
+Added endofgame mapinfo variable to allow a cast call to end the
+game after any level.  However, this can't be disabled for MAP30
+for various reasons.
+
+After reconsideration, I have allowed the finale to be disabled for
+MAP30. However, if a finale does take place on MAP30, it WILL start
+the cast call, and that cannot be changed.
+
+=====================================================================
+10/10/01
+
+Added killfinale MapInfo variable to allow maps that normally show
+intermission text in DOOM II to bypass it and move to the next level.
+This isn't allowed for MAP30, however, since the finale code has to
+be called to start the cast call -- I may add variables to allow
+further customization (including ending the game with cast call on
+maps other than 30).
+
+=====================================================================
+09/09/01 - 10/01/01
+
+Portability work -- changed all occurances of the GNU C "long long" 
+64-bit data type to use macro-defined typedefs Long64 and ULong64. 
+The actual data type used can be changed for any platform, and 
+currently is defined for MS C and GNU C platforms (__int64 and 
+long long, respectively).  The typedefs and macros are in doomtype.h
+
+Completely integrated zdoom's particle system into Eternity.
+Some minor work such as adding mapthings for particle fountains
+remains, but this is external to the system itself.
+
+=====================================================================
+08/26/01 - 09/08/01
+
+Various small changes here and there, not enough to do much
+documentation on.
+
+Restored player bobbing to its status as a demo- and net-sync
+critical variable, making it a server-only netcmd and having it use 
+a default value like it did in BOOM and MBF. Thanks go to cph for 
+originally realizing that bobbing is sync-critical a few months ago, 
+and of course fraggle should be whipped soundly for assuming it 
+wasn't in the first place ;)
+
+Another change worth noting is that I changed the printf calls in 
+the ProcessDEHFile function into usermsg calls so that the game 
+doesn't use stdout while in video mode (this couldn't originally 
+happen, but it can now if you use ADDFILE on a wad with a DEHACKED 
+lump).  This may be an issue in some other functions as well. 
+They'll need to be found gradually I guess. Any black rectangle with
+unintelligible dark grey text that appears VERY briefly in the
+upper left-hand corner of the screen is evidence of text output 
+occuring in video mode.  Why PC hardware even routes text-drawing
+to the screen in video modes other than 80x20 or 80x40 text, I
+don't know. It's pretty useless and just leads to annoyances like
+this.
+
+Fixed two bugs involving sprite clipping in deep water sectors when
+a camera was active. Similar to the HOM problem, Killough's code
+naturally assumed that the player was always the point of reference
+for determining what part of a sprite to draw. Not so any longer,
+though.  A search seems to reveal that these should be the last
+such issues involving use of the viewplayer variable.
+
+=====================================================================
+08/25/01
+
+First round of dialogue testing is mostly successful. Fixed bugs
+related to flashing of old messages when the ticker was in the
+DWT_NONE state, improper reading of color escapes from file
+(a signed-vs-unsigned issue :), improper usage of the color escapes 
+for drawing, and scraps left over on the border when dialogue is 
+viewed in a smaller screen size than the largest two.
+
+Color escapes still need more testing, and there are some possible
+issues with latent player momentum when a cinematic pause occurs --
+if you're moving when it happens, you seem to instantly start moving
+again later when its deactivated. DOOM was not really designed for
+these thinker processes to stall so I'm not horribly surprised at
+this -- it should be fixable by forcably zeroing out momenta and
+other such state variables at time of the pause. I'll knock out
+such issues as they're identified.
+
+Need to change default global translucency %age back to 66, as 50
+really looks terrible for most things IMHO. Lee Killough gave some
+good empirically sound reasons in his changelog as to why 66 is 
+preferable to 50, mostly relating to DOOM's sorry palette, and 
+after seeing what my dialogue background looks like, I really do 
+agree -- /me spanks fraggle for changing it. 
+
+*** However, some things, especially sprites, look better at lower
+levels than 66. I'm working on a way to have multiple translucency 
+levels for sprites.
+
+=====================================================================
+08/22/01
+
+Finished integrating dialogue into the engine. Changes incurred to
+modules doomstat.c, g_game.c, d_main.c, t_func.c, mn_menus.c, 
+p_tick.c, and p_mobj.c (phew).
+
+Fixed a possible bug in the walkcam code introduced during fixing
+of the demo code that may have made it unable to be moved.
+(see G_Responder)
+
+Removed monster falling damage as it just seems like a really bad
+idea to me now, and definitely has too many issues with flying
+objects, bouncers, things that aren't blocked or clipped, etc etc.
+The code is #ifdef'd so that it can be restored later if someone
+thinks they like it.
+
+Added cinemapause, startdialogue, mobjvalue, stringvalue, intvalue,
+and fixedvalue FraggleScript functions. The latter 4 are coercion
+forcing functions useful mostly for arrays, which usually preserve
+their value's types as given, and possibly for other purposes as
+well.
+
+During a cinematic pause, players cannot move or save the game, nor
+can sentient objects, that is, objects that have health > 0 AND have
+a seestate, do anything.  This doesn't rule out any forced, scripted
+action between normally inert things, and stuff like projectiles,
+explosions, particles, etc still run as normal no matter what. These
+restrictions are seen to in P_Ticker, P_MobjThinker, and MN_SaveGame.
+Note that dialogue itself only stops savegames. Users will need to
+call the FS cinemapause function before-hand to get the other effects 
+during a dialogue.
+
+=====================================================================
+08/14/01
+
+Finally working on EE again. Fixed yet another two minor bugs in
+V_WriteText -- fraggle must have been on crack when he wrote this
+one because that makes four bugs in that one function thus far.
+Tabs were not handled correctly, and a space was not added for
+characters that don't exist in the v_font, even though it was
+supposed to be, and V_StringWidth even calculated the extra space
+for it.
+
+Added support for translucent text, use of \z escape in a
+FraggleScript string toggles it on and off. Added error checking
+to V_WriteText that was present in SMMU v3.30 to make sure that
+the colrng is in range.
+
+Added some null-pointer checks to code in f_finale.c to not only
+avoid dereferencing NULL patch pointers, but also to add 4 pixels'
+space here as well.
+
+After months of trials and tribulations, and a total overhaul today, 
+all the internal dialogue system functions appear to be 100% complete
+and mostly correct ::crosses fingers:: -- so I'm ready to try
+integrating it into the main engine. The solution that I needed was
+to make the ticker and drawer both equal in priority and always
+running, and then separating their jobs out into particular tasks
+depending on the current state of the system -- one thing that helped
+with this was the addition of different types of wait states for
+the ticker -- rather than just plain waiting, it now always waits
+for SOME PARTICULAR REASON, which communicates both to itself and
+the drawer what they should do during future game ticks.  The
+system is more elegant and featured than I had even originally
+intended.
+
+Apparently I've broken through another brick wall in the way of
+my programming skill. It's only every once in a while that I feel I
+have passed a true milestone and this accomplishment is giving me
+that feeling again, particularily because I figured out the solution
+in an intense 30-minute period of concentration *away* from the
+computer, something that hasn't really helped that much in the past.
+
+=====================================================================
+07/15/01
+
+Added "nextsecret" field for MapInfo to allow customization of
+secret exit behavior. Now any map can use the secret exit switch to
+go to whatever level it specifies. Also created an exitsecret()
+function for FraggleScript.
+
+=====================================================================
+07/14/01
+
+Investigated reports of crashes caused by setting the player name
+via console command or menu and discovered that, once again, fraggle
+was having a string allocated in C static memory freed using the
+zone allocator. YOU CAN'T DO THAT!!! Eh-hem, sorry. Anyways, its
+fixed by using an initialization function, C_InitPlayerName, that
+sticks the default name in the ZONE HEAP before the main routine
+reads the config file for any existing altered default. This should
+fix it. This bug was an odd one, btw, because it somehow survived
+months of playtesting by myself and others. Weird.
+
+=====================================================================
+07/01/01
+
+Did further investigation into mouse and joystick issues and
+discovered that not only was there some artifact code that needed
+to be done away with, but that some of the old code for doing stuff 
+like double clicks was not working properly (read intermittently, or 
+at least for me, not at all) as it should, due to some changes I 
+made in i_video.c to support keybindings. If all is right now, 
+double-clicking either of the two mouse buttons you can now set in the 
+config file generates a USE action. This is independent of whatever 
+they may additionally be bound to, and is for utility as well as 
+compatibility. However, note that the joystick button that was 
+previously attached to strafe no longer generates such double click
+events. This made no sense to me since the joystick already had a 
+dedicated use action all along, so I honestly think it might have 
+been a mistake or maybe some artifact from DOOM's initial development, 
+since it's even in the linux 1.10 source.
+
+Changes were incurred to g_game.c (G_BuildTiccmd, G_Responder,
+removal of obsolete variables), i_video.c (I_GetEvent), and 
+m_misc.c (removal of obsolete config file variables).
+
+Made repairs to the beta 4 makefile, need to upload it as a patch
+to the source.
+
+=====================================================================
+Changes since Eternity Engine v3.29 beta 3
+=====================================================================
+=====================================================================
+06/30/01
+
+1. Added an MBF demo compatibility fix to the P_CanUnlockGenDoor
+   prboom bug fix.
+
+2. Added demo compatibility to some long reflection code (shouldn't
+   happen in old demos anyways, but its still a good idea).
+
+3. Enhanced lost soul bouncing demo fix with new prboom code.
+
+4. Added EV_VerticalDoor prboom fixes, but customized code to work
+   without rewriting the whole function (not enough time or good
+   enough reason).
+
+5. Added cph's bobbing fix to use the old method when playing old
+   demos
+
+I'm now up to date with prboom's bug and demo comp. fixes, with the
+exception of the G_ReloadDefaults savegame issue, which I need to
+verify myself. Phew!
+
+Implemented BEX [SOUNDS], [MUSIC], and [SPRITES] blocks to fully
+deprecate the old DeHackEd-style Text substitution. Keys consist
+of the default sound, music, or sprite names, and key values do
+not change even if multiple patches are applied (see Ty Halderman's
+BOOM change log for details, I've implemented it to his original
+vision).
+
+=====================================================================
+06/27/01
+
+Did more bug-fixing for FS functions and made them more orthogonal
+with respect to optional parameters. Identified some possible issues
+with string buffers that are strdup'd but are less than 256 chars
+long -- will do further research to determine if its a problem.
+
+=====================================================================
+06/25/01
+
+Beautified ser_main.c, added GPL headers to files in the DJGPP
+directory, and increased a buffer's size in Ser_Error() from 100 to 
+1024 to prevent overflow on relatively short messages.
+
+=====================================================================
+06/17/01
+
+New demo format changes: (comments from source)
+
+  1. The old version field is now always written as 255
+  2. The signature has been changed to the null-term'd string ETERN
+  3. The version and new subversion are written immediately following
+     the signature
+  4. cmd->updownangle is now recorded and read back appropriately
+     (this supports mlook/keylook!)
+
+  Note that the demo-reading code still handles the "sacred" formats
+  for DOOM, BOOM and MBF, so purists don't need to have heart attacks.
+  However, only new Eternity-format demos can be written, and these
+  will not be compatible with other engines.
+
+=====================================================================
+06/12/01
+
+Integrated Julian's fixes to files in the DJGPP folder including a
+new local allegro.h file that adjusts defines for the library's
+version number, and fixes to the inline assembly in m_fixed.h and
+r_things.c that remove actual bugs in Killough's code, and also
+enable compilation on GCC 2.95.* and later.  Unlike the lxdoom code,
+Julian's code does not seem to break wall sliding or any other
+game engine behaviors.
+
+=====================================================================
+06/11/01
+
+Removed an I_Error call in S_StartSound that checked the sfx_id
+number to see if it was in range when RANGECHECK is defined -- this
+is unnecessary now, and doesn't work any more since fraggle rewrote
+the code to use hashing. This broke playing of new sound lumps in
+EE 3.29b3.
+
+=====================================================================
+06/04/01
+
+I have retrofitted Eternity to support linedef type 272 as WR Start
+Script for compatibility purposes, at the urging of SoM_ and a few
+other people. This compatibility flag is off by default, of course.
+
+Work on FS array support and dialogue continues, slowly. Fixed
+camera HOM bug related to deep water sectors -- the rendering code in
+R_FakeFlat() was always using the player's sector's heightsec, even
+for cameras. I've fixed this by giving cameras their own heightsec
+field, and having it updated any time a camera is spawned or
+moved (this is necessary to spare multiple calls to 
+R_PointInSubsector() during the rendering of every frame). 
+
+Special thanks to Julian of rorDoom fame for helping to nail down 
+the exact line of code responsible for the above odd behavior :)
+
+Fixed a well-hidden bug while messing with the intermission cameras
+in wi_stuff.c -- turns out fraggle coded a hard limit to the number
+of them allowed -- 128 -- but then didn't put any range-checking
+into WI_AddCamera() to make it stop trying to add cameras to the
+array after there were too many. Fixed with range-checking, but it'd
+be more ideal to remove this limit eventually.
+
+=====================================================================
+05/25/01 - 05/26/01
+
+Made major changes to g_game.c and d_main.c in order to restore MBF
+demo-recording and playback functionality. Demos must now be loaded
+into the wad directory, and can no longer be loaded directly from
+file. Regular recording and playback of demo files now works properly,
+but time demos and fast demos have not been tested. Also repaired
+various other small, questionable changes in g_game.c back to their
+MBF forms, including a loop merger in G_Ticker. Its possible some
+features have been broken by these changes; they'll need to be
+gradually isolated and repaired one by one if so, but thus far, I've
+not noticed any problems.
+
+Demo version recording is currently broken because Killough's format
+assumes the version number will fit into a byte. 329 is obviously
+bigger than 255, so that's a problem. For now its recording 255 and
+then on read, if it sees 255, it assumes 329. This won't work in the
+long run obviously, so the need for a new, secondary demo format is
+now clear. Also, there's no real way to record demos on a map that's
+not named MAPxy or ExMy.  That's a problem too, but not an easy one
+to fix.
+
+=====================================================================
+05/23/01
+
+Added scriptwaitpre function for FraggleScript -- waits until a
+script is started rather than until all instances have finished.
+
+Changed the == operator to use mobj comparison when both operands
+are of mobj type. This makes it more useful, as well as compatible
+with Legacy's behavior.
+
+Made changes to create_variable() to disallow creation of mobj
+reference variables inside the hub script. These references could
+persist between levels with values pointing to freed heap-dynamic
+memory. Access or manipulation could cause corruption of the zone
+allocator's heap. This problem has been known since I was still 
+calling this port a mod of SMMU, but I didn't know how to fix it 
+until recently. Disallowing reference creation is more elegant and 
+fail-safe than trying to fool with reference registries or trying to 
+make the mobj_t's persist themselves (and its easier too :P).
+
+=====================================================================
+05/18/01
+
+Added new flags2 bit MF2_NOCROSS to handle making projectiles not
+activate lines. This was previously handled through a switch
+statement in P_CrossSpecialLine, but this approach required constant
+updating for new thing types, and also didn't allow for this
+attribute to be given to things converted into projectiles via
+DeHackEd. All this is now taken care of. Note that Arachnotron
+plasma was never handled in the switch though, which means its
+always been able to activate lines (odd I've never noticed it
+happening anywhere all this time). This "feature" is retained, of
+course.
+
+=====================================================================
+Changes since Eternity Engine v3.29 beta 2
+=====================================================================
+=====================================================================
+5/09/01
+
+Attempted to repair inline assembly code in m_fixed.h for GCC 2.95
+and later, but the code from lxdoom that is in SMMU v3.30 causes
+strange behavior when the player slides against walls when compiled
+under GCC 2.81.  I am currently researching ways to better select
+whether to use the assembly or C code, and if the assembly from
+lxdoom really works properly under 2.95.  With optimizations enabled,
+the assembly version of FixedMul only saved one instruction, and an
+arithmetic shift at that, which doesn't eat a lot of processor time,
+so people having trouble with it should be able to use the C versions
+in the meantime without worrying about performance hits.
+
+=====================================================================
+4/11/01 - 05/02/01
+
+Repaired FraggleScript void functions so that they now return the int
+value 0 rather than propagating the value of the last function return.
+
+Repaired a lack of range-checking in the FS startscript function.
+
+Repaired the ++ and -- operators to work properly on the fixed type.
+
+Dialog development has been delayed for now.
+
+=====================================================================
+04/10/01
+
+Did major work on Eternity's dialog system, adding module p_dialog.c
+
+Attempted to repair numhelpers console command, not tested yet.
+
+=====================================================================
+04/04/01
+
+Added user-specifiable console scripts, set via config file. They'll
+be automatically executed at the end of game setup.
+
+=====================================================================
+04/02/01
+
+Implemented lava TerrainType.
+
+Found yet another MAJOR bug by enabling I_Error() in the V_DrawPatch*
+functions -- V_WriteText() was only checking the screen for overflow
+in the x direction and only at the right side of the screen. When the
+console was in full-screen mode, this allowed it to draw characters
+part-way off the bottom of the screen when it was scrolled. Without
+bounds-checking, this was impossible to catch. Repaired by fully
+qualifying the draw against all four screen boundaries.
+
+=====================================================================
+04/01/01
+
+Repaired various small bugs in FraggleScript function handlers
+including bounds checking for all internal array access such as
+the use of player numbers.
+
+Implemented the binary invert operator ~ for FraggleScript.
+
+Added SoM's else/elseif keywords to FraggleScript.
+
+Beautified TerrainTypes code.
+
+=====================================================================
+03/31/01
+
+Repaired a major bug in HU_CoordHandler that copied a pointer to a
+local string buffer into a global struct pointer, causing access of
+freed stack-dynamic memory. This was definitely the cause of the random 
+screen corruption occuring on the automap coord widgets, and may 
+possibly have been causing some of the V_DPT crashes, if not all of 
+them, seeing that the random letters often appeared with seemingly
+random color range translations as well, and the V_DPT segvs occured
+on lines that access the outr[] array, an index into a color range
+translation table O_O
+
+Added I_Error() calls to the V_DrawPatch* functions when RANGECHECK is
+defined for debugging purposes. Ignoring the problem is not very
+helpful to the programmer at all.
+
+Strengthened some more demo version checks to 329.
+
+Fixed FraggleScript playertip function to actually use HU_CentreMsg
+like its supposed to, and added HU_CentreMsgTimed to allow for timedtip
+and timedplayertip functions similar to those in Legacy.
+
+Added Halif Spots and Cleric spots for Eternity TC, and added camera
+nodes for general use. These work similarly to boss brain spots.
+
+Completely rewrote Eternity's global colormap substitution so that it no
+longer reallocates the colormap array, does not copy colormaps into
+colormaps[0], and does not cause a memory leak by failing to free the
+light tables before rebuilding them. Rather now the rendering code
+itself, particularly in R_SectorColormap, decides on the colormap to
+use by examining the mapinfo value loaded from P_SetupLevel. This
+now also requires all global colormaps to be between C_START and C_END,
+since it uses the mapinfo value to get an index into the preloaded
+colormap array -- its a good idea for consistency as well as efficiency.
+
+Fixed some out-of-range array index problems in the t_dump and t_run
+console commands, and also made their usage messages consistent with
+the command names.
+
+=====================================================================
+03/24/01
+
+FS HU pics initial implementation completed -- added HU_FSPicErase().
+
+Added numhelpers console command to set number of helper creatures.
+
+Strengthened test on missile explosions on the sky to demo_version
+329, since this would break BOOM and MBF demos.
+
+Implemented the DORMANT mapthing flag and internal handling, including 
+an objawaken() function for FraggleScript. The new flag is value 512
+(128 is FRIEND, and 256 is reserved for checking for bad editors).
+Dormant things are invincible and will remain in their spawnstate
+perpetually until a script wakes them up, similar to Hexen.
+
+=====================================================================
+03/21/01
+
+Continued addition of FS HU gfx functions. 
+
+Added SoM's fixes to floorheight() and ceilingheight() to allow 
+crushing of objects.
+
+Investigated reports by Afterglow of FS malfunctioning on his new
+start map, but nothing conclusive turned up. It worked for me.
+
+Tobester helped find out that Eternity cannot currently record demos.
+Will research this issue, but I'm not optimistic about it ever being
+able to write DOOM-format demos. In fact, I may remove writing support
+and confer with fraggle on a new format to support SMMU/Eternity
+features such as mlook/keylook, jumping, etc. It'll still play old
+demos, yes, but only write new ones. What the use of writing DOOM-
+compatible demos from Eternity would be, I do not know anyways :P
+
+=====================================================================
+03/20/01
+
+Tobester helped find an allocation bug -- M_ReadFile() didn't pass in
+owners for the buffers it allocated, so it was impossible to implicitly
+free them by using Z_ChangeTag(buffer, PU_CACHE) -- this caused the
+game to bomb out with a Z_ChangeTag error after a demo played from
+an external lmp file was done playing.
+
+Added miscellaneous FS functions from Legacy, thanks to SoM.
+
+Started FraggleScript HU graphics support.
+
+=====================================================================
+03/16/01
+
+Added "float" keyword as an alias to "fixed" for FraggleScript at the
+urging of SoM. The math is still always fixed-point as opposed to 
+floating-point, which is why I originally changed the keyword, but it 
+should be supported for Legacy source-compatibility at least.
+
+Removed an unused string buffer from D_DoomMain() left from when I had 
+two separate resource wads.
+
+Resolved some implicitly declared functions to ensure appropriate type-
+checking.
+
+Patched V_DrawPatchTranslated(), V_DrawPatch(), and V_DrawPatchTL() 
+with MBF code. fraggle did some questionable optimizations that 
+could have possibly been causing segv's under certain circumstances.
+With my machine doing what it does, its difficult to tell, but I was
+getting consistent crashes at line 642 in V_DPT. If the MBF code
+still crashes, then its still no loss. Add instructions are not a major
+impact on speed anyways :P
+
+Fixed a boo boo in C_AdjustLineBreaks() that failed to add characters
+encountered after lastspace to the length of the new line after adding 
+a line break -- characters could still be lost on latter lines due to
+count reflecting a lower number of characters than what was actually
+on the line.
+
+Repaired a MAJOR bug in HU_StringWidth() that I can't believe I didn't
+catch earlier when trying to fix the console -- fraggle accidentally
+inverted the test condition so that when the index into the font 
+character array was out of range or the character graphic didn't exist, 
+it would try to dereference the character and get its size information. 
+What it should have done in that case was return 4, the default gap. 
+Instead, it returned 4 for every normal character, making DOOM think 
+that strings were much shorter than they should be. This could have 
+also been responsible for some segv's or page faults, but if so, they 
+must have surfaced inside other methods that rely on HU_StringWidth()'s
+return value. Also fixed my earlier hack to V_StringWidth to add 4
+for null characters, since I now understand what's going on in the
+code ;)
+
+=====================================================================
+02/15/01
+
+Added final demo compatibility fix from prboom to T_MovePlane. Floors
+will no longer move if monsters on them have their heads stuck in the
+ceiling during old demos, which was the case in the original DOOM. 
+Normal play is unaffected, and this change is not currently included 
+under the comp_floors variable. Special thanks to cph.
+
+=====================================================================
+01/26/01
+
+Michael Exline (Giomancer) pointed out that the 272 linedef type was 
+still being overloaded for MBF reversed sky transfer and for a WR 
+script activation type. This has been repaired both in Eternity and 
+SMMU by moving the offending script type to 280 and leaving the others 
+alone. This will break the start map and whatever few SMMU maps have 
+been made, but we believe the impact is minimal if not zero since 
+little mapping has gone on with the engines thus far.
+
+=====================================================================
+01/24/01
+
+Changed the conversion in t_parse.c::stringvalue() from fixed_t to
+float into a conversion from fixed_t to double, with SoM's advice.
+fixed_t is a 32-bit precision number, so the 23-bit mantissa of the
+float is insufficient for large or small values. The 52 bits in a
+double are more than enough for even the worst case scenario.
+
+=====================================================================
+01/13/01
+
+Added a check for null strings in C_Printf() to stop possible stdlib
+seg faults.
+
+Added a function to insert hard linebreaks into formatted console
+strings at the last whitespace character to prevent text being lost off 
+the right-hand side of the screen. Why it was happening I'm not sure, 
+although a miscalculation in C_AddChar() or V_StringWidth() could be 
+the culprit. A possible TODO for later debugging, if I decide its 
+worth it. Character-by-character wrapping would be a little less 
+elegant in some cases, but more fail-proof.
+
+=====================================================================
+01/11/01
+
+Enabled 640x400 non-pageflipped video mode. fraggle had accidentally 
+left set_gfx_mode() unable to assert that it had set the mode in order 
+to test the failure recovery mechanism. This caused the program to act 
+as if though 640x400 non-pageflipped was unavailable due to hardware 
+issues when in reality, it was just acting like it failed when it 
+didn't.
+
+=====================================================================
+EOF
+=====================================================================

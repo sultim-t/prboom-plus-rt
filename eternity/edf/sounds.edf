@@ -1,0 +1,238 @@
+# sounds.edf - EDF file for Eternity Engine v3.31 public beta 5
+#     This file contains sound definitions. Note that some fields in the
+#     sound block have very special semantics, so you should read the docs
+#     before you mess with this at all. Confusion is bound to result otherwise.
+
+#     COMPATIBILITY WARNING: All sounds after sound "dgpain" have 
+#     NOT been standardized as of v3.31 public beta 5. These sounds should not 
+#     be used by editors, via EDF or DeHackEd, until their order and existence 
+#     have been finalized and officially documented.
+
+sound pistol { dehackednum = 1 }
+sound shotgn { dehackednum = 2 }
+sound sgcock { dehackednum = 3 }
+sound dshtgn { dehackednum = 4 }
+sound dbopn  { dehackednum = 5 }
+sound dbcls  { dehackednum = 6 }
+sound dbload { dehackednum = 7 }
+sound plasma { dehackednum = 8 }
+sound bfg    { dehackednum = 9 }
+sound sawup  { dehackednum = 10 }
+sound sawidl { priority = 118; dehackednum = 11 }
+sound sawful { dehackednum = 12 }
+sound sawhit { dehackednum = 13 }
+sound rlaunc { dehackednum = 14 }
+sound rxplod { priority = 70; dehackednum = 15 }
+sound firsht { priority = 70; dehackednum = 16 }
+sound firxpl { priority = 70; dehackednum = 17 }
+sound pstart { priority = 100; dehackednum = 18 }
+sound pstop  { priority = 100; dehackednum = 19 }
+sound doropn { priority = 100; dehackednum = 20 }
+sound dorcls { priority = 100; dehackednum = 21 }
+sound stnmov { priority = 119; dehackednum = 22 }
+sound swtchn { priority = 78; dehackednum = 23 }
+sound swtchx { priority = 78; dehackednum = 24 }
+sound plpain { priority = 96; skinindex = sk_plpain; dehackednum = 25 }
+sound dmpain { priority = 96; dehackednum = 26 }
+sound popain { priority = 96; dehackednum = 27 }
+sound vipain { priority = 96; dehackednum = 28 }
+sound mnpain { priority = 96; dehackednum = 29 }
+sound pepain { priority = 96; dehackednum = 30 }
+sound slop   { priority = 78; skinindex = sk_slop; dehackednum = 31 }
+sound itemup { singularity = sg_itemup; priority = 78; dehackednum = 32 }
+sound wpnup  { singularity = sg_wpnup;  priority = 78; dehackednum = 33 }
+sound oof    { singularity = sg_oof;    priority = 96; skinindex = sk_oof; dehackednum = 34 }
+sound telept { priority = 32; dehackednum = 35 }
+sound posit1 { priority = 98; dehackednum = 36 }
+sound posit2 { priority = 98; dehackednum = 37 }
+sound posit3 { priority = 98; dehackednum = 38 }
+sound bgsit1 { priority = 98; dehackednum = 39 }
+sound bgsit2 { priority = 98; dehackednum = 40 }
+sound sgtsit { priority = 98; dehackednum = 41 }
+sound cacsit { priority = 98; dehackednum = 42 }
+sound brssit { priority = 94; dehackednum = 43 }
+sound cybsit { priority = 92; dehackednum = 44 }
+sound spisit { priority = 90; dehackednum = 45 }
+sound bspsit { priority = 90; dehackednum = 46 }
+sound kntsit { priority = 90; dehackednum = 47 }
+sound vilsit { priority = 90; dehackednum = 48 }
+sound mansit { priority = 90; dehackednum = 49 }
+sound pesit  { priority = 90; dehackednum = 50 }
+sound sklatk { priority = 70; dehackednum = 51 }
+sound sgtatk { priority = 70; dehackednum = 52 }
+sound skepch { priority = 70; dehackednum = 53 }
+sound vilatk { priority = 70; dehackednum = 54 }
+sound claw   { priority = 70; dehackednum = 55 }
+sound skeswg { priority = 70; dehackednum = 56 }
+sound pldeth { priority = 32; skinindex = sk_pldeth; dehackednum = 57 }
+sound pdiehi { priority = 32; skinindex = sk_pdiehi; dehackednum = 58 }
+sound podth1 { priority = 70; dehackednum = 59 }
+sound podth2 { priority = 70; dehackednum = 60 }
+sound podth3 { priority = 70; dehackednum = 61 }
+sound bgdth1 { priority = 70; dehackednum = 62 }
+sound bgdth2 { priority = 70; dehackednum = 63 }
+sound sgtdth { priority = 70; dehackednum = 64 }
+sound cacdth { priority = 70; dehackednum = 65 }
+sound skldth { priority = 70; dehackednum = 66 }
+sound brsdth { priority = 32; dehackednum = 67 }
+sound cybdth { priority = 32; dehackednum = 68 }
+sound spidth { priority = 32; dehackednum = 69 }
+sound bspdth { priority = 32; dehackednum = 70 }
+sound vildth { priority = 32; dehackednum = 71 }
+sound kntdth { priority = 32; dehackednum = 72 }
+sound pedth  { priority = 32; dehackednum = 73 }
+sound skedth { priority = 32; dehackednum = 74 }
+sound posact { priority = 120; dehackednum = 75 }
+sound bgact  { priority = 120; dehackednum = 76 }
+sound dmact  { priority = 120; dehackednum = 77 }
+sound bspact { priority = 100; dehackednum = 78 }
+sound bspwlk { priority = 100; dehackednum = 79 }
+sound vilact { priority = 100; dehackednum = 80 }
+sound noway  { singularity = sg_oof; priority = 78; skinindex = sk_oof; dehackednum = 81 }
+sound barexp { priority = 60; dehackednum = 82 }
+sound punch  { skinindex = sk_punch; dehackednum = 83 }
+sound hoof   { priority = 70; dehackednum = 84 }
+sound metal  { priority = 70; dehackednum = 85 }
+sound chgun  { link = pistol; linkvol = 150; linkpitch = 0; dehackednum = 86 }
+sound tink   { priority = 60; dehackednum = 87 }
+sound bdopn  { priority = 100; dehackednum = 88 }
+sound bdcls  { priority = 100; dehackednum = 89 }
+sound itmbk  { priority = 100; dehackednum = 90 }
+sound flame  { priority = 32; dehackednum = 91 }
+sound flamst { priority = 32; dehackednum = 92 }
+sound getpow { singularity = sg_getpow; priority = 60; dehackednum = 93 }
+sound bospit { priority = 70; dehackednum = 94 }
+sound boscub { priority = 70; dehackednum = 95 }
+sound bossit { priority = 70; dehackednum = 96 }
+sound bospn  { priority = 70; dehackednum = 97 }
+sound bosdth { priority = 70; dehackednum = 98 }
+sound manatk { priority = 70; dehackednum = 99 }
+sound mandth { priority = 70; dehackednum = 100 }
+sound sssit  { priority = 70; dehackednum = 101 }
+sound ssdth  { priority = 70; dehackednum = 102 }
+sound keenpn { priority = 70; dehackednum = 103 }
+sound keendt { priority = 70; dehackednum = 104 }
+sound skeact { priority = 70; dehackednum = 105 }
+sound skesit { priority = 70; dehackednum = 106 }
+sound skeatk { priority = 70; dehackednum = 107 }
+sound radio  { priority = 60; dehackednum = 108 }
+
+# killough 11/98: dog sounds
+
+sound dgsit  { priority = 98; dehackednum = 109 }
+sound dgatk  { priority = 70; dehackednum = 110 }
+sound dgact  { priority = 120; dehackednum = 111 }
+sound dgdth  { priority = 70; dehackednum = 112 }
+sound dgpain { priority = 96; dehackednum = 113 }
+
+# WARNING: all sounds below are not standardized yet -- if you use them, your mods
+# will break when used with future versions of Eternity, so don't use them.
+
+# haleyjd 10/08/02: heretic sounds
+
+ifenabled(HERETIC)
+
+sound ht_gldhit { lump = "gldhit"; prefix = false; priority = 32; dehackednum = 114 }
+sound ht_telept { lump = "telept"; prefix = false; priority = 50; dehackednum = 115 }
+sound ht_chat   { lump = "chat";   prefix = false; priority = 100; dehackednum = 116 }
+sound ht_keyup  { lump = "keyup";  prefix = false; priority = 50; dehackednum = 117 }
+sound ht_itemup { lump = "itemup"; prefix = false; priority = 32; dehackednum = 118 }
+sound ht_mumsit { lump = "mumsit"; prefix = false; priority = 32; dehackednum = 119 }
+sound ht_mumat1 { lump = "mumat1"; prefix = false; priority = 32; dehackednum = 120 }
+sound ht_mumat2 { lump = "mumat2"; prefix = false; priority = 32; dehackednum = 121 }
+sound ht_mumpai { lump = "mumpai"; prefix = false; priority = 32; dehackednum = 122 }
+sound ht_mumdth { lump = "mumdth"; prefix = false; priority = 80; dehackednum = 123 }
+sound ht_mumhed { lump = "mumhed"; prefix = false; priority = 32; dehackednum = 124 }
+sound ht_clksit { lump = "clksit"; prefix = false; priority = 32; dehackednum = 125 }
+sound ht_clkatk { lump = "clkatk"; prefix = false; priority = 32; dehackednum = 126 }
+sound ht_clkpai { lump = "clkpai"; prefix = false; priority = 32; dehackednum = 127 }
+sound ht_clkdth { lump = "clkdth"; prefix = false; priority = 80; dehackednum = 128 }
+sound ht_clkact { lump = "clkact"; prefix = false; priority = 20; dehackednum = 129 }
+sound ht_wizsit { lump = "wizsit"; prefix = false; priority = 32; dehackednum = 130 }
+sound ht_wizatk { lump = "wizatk"; prefix = false; priority = 32; dehackednum = 131 }
+sound ht_wizdth { lump = "wizdth"; prefix = false; priority = 80; dehackednum = 132 }
+sound ht_wizact { lump = "wizact"; prefix = false; priority = 20; dehackednum = 133 }
+sound ht_wizpai { lump = "wizpai"; prefix = false; priority = 32; dehackednum = 134 }
+sound ht_sorzap { lump = "sorzap"; prefix = false; priority = 32; dehackednum = 135 }
+sound ht_sorrise { lump = "sorrise"; prefix = false; priority = 32; dehackednum = 136 }
+sound ht_sorsit { lump = "sorsit"; prefix = false; priority = 200; dehackednum = 137 }
+sound ht_soratk { lump = "soratk"; prefix = false; priority = 32; dehackednum = 138 }
+sound ht_sorpai { lump = "sorpai"; prefix = false; priority = 200; dehackednum = 139 }
+sound ht_soract { lump = "soract"; prefix = false; priority = 200; dehackednum = 140 }
+sound ht_sordsph { lump = "sordsph"; prefix = false; priority = 200; dehackednum = 141 }
+sound ht_sordexp { lump = "sordexp"; prefix = false; priority = 200; dehackednum = 142 }
+sound ht_sordbon { lump = "sordbon"; prefix = false; priority = 200; dehackednum = 143 }
+sound ht_wind    { lump = "wind";    prefix = false; priority = 16; dehackednum = 144 }
+sound ht_waterfl { lump = "waterfl"; prefix = false; priority = 16; dehackednum = 145 }
+sound ht_podexp { lump = "podexp"; prefix = false; priority = 40; dehackednum = 146 }
+sound ht_newpod { lump = "newpod"; prefix = false; priority = 16; dehackednum = 147 }
+sound ht_kgtsit { lump = "kgtsit"; prefix = false; priority = 32; dehackednum = 148 }
+sound ht_kgtatk { lump = "kgtatk"; prefix = false; priority = 32; dehackednum = 149 }
+sound ht_kgtat2 { lump = "kgtat2"; prefix = false; priority = 32; dehackednum = 150 }
+sound ht_kgtdth { lump = "kgtdth"; prefix = false; priority = 80; dehackednum = 151 }
+sound ht_kgtpai { lump = "kgtpai"; prefix = false; priority = 32; dehackednum = 152 }
+sound ht_hrnhit { lump = "hrnhit"; prefix = false; priority = 32; dehackednum = 153 }
+sound ht_bstsit { lump = "bstsit"; prefix = false; priority = 32; dehackednum = 154 }
+sound ht_bstatk { lump = "bstatk"; prefix = false; priority = 32; dehackednum = 155 }
+sound ht_bstpai { lump = "bstpai"; prefix = false; priority = 32; dehackednum = 156 }
+sound ht_bstdth { lump = "bstdth"; prefix = false; priority = 80; dehackednum = 157 }
+sound ht_bstact { lump = "bstact"; prefix = false; priority = 20; dehackednum = 158 }
+sound ht_snksit { lump = "snksit"; prefix = false; priority = 32; dehackednum = 159 }
+sound ht_snkatk { lump = "snkatk"; prefix = false; priority = 32; dehackednum = 160 }
+sound ht_snkpai { lump = "snkpai"; prefix = false; priority = 32; dehackednum = 161 }
+sound ht_snkdth { lump = "snkdth"; prefix = false; priority = 80; dehackednum = 162 }
+sound ht_snkact { lump = "snkact"; prefix = false; priority = 20; dehackednum = 163 }
+sound ht_doropn { lump = "doropn"; prefix = false; priority = 40; dehackednum = 164 }
+sound ht_dorcls { lump = "dorcls"; prefix = false; priority = 40; dehackednum = 165 }
+sound ht_switch { lump = "switch"; prefix = false; priority = 40; dehackednum = 166 }
+sound ht_pstart { lump = "pstart"; prefix = false; priority = 40; dehackednum = 167 }
+sound ht_pstop  { lump = "pstop";  prefix = false; priority = 40; dehackednum = 168 }
+sound ht_stnmov { lump = "stnmov"; prefix = false; priority = 40; dehackednum = 169 }
+sound ht_sbtpai { lump = "sbtpai"; prefix = false; priority = 32; dehackednum = 170 }
+sound ht_sbtdth { lump = "sbtdth"; prefix = false; priority = 80; dehackednum = 171 }
+sound ht_sbtact { lump = "sbtact"; prefix = false; priority = 20; dehackednum = 172 }
+
+endif()
+
+# Eternity TC Sounds -- these may be changed or removed without warning!
+# Some of these sounds are used by engine features too, though, and thus will be
+# moved up eventually.
+
+sound minsit { priority = 92; dehackednum = 173 }
+sound minat1 { priority = 98; dehackednum = 174 }
+sound minat2 { priority = 98; dehackednum = 175 }
+sound minat3 { priority = 98; dehackednum = 176 }
+sound minpai { priority = 96; dehackednum = 177 }
+sound mindth { priority = 32; dehackednum = 178 }
+sound minact { priority = 94; dehackednum = 179 }
+sound stfpow { priority = 92; dehackednum = 180 }
+sound phohit { priority = 60; dehackednum = 181 }
+sound clratk { priority = 120; dehackednum = 182 }
+sound clrpn  { priority = 96; dehackednum = 183 }
+sound clrdth { priority = 32; dehackednum = 184 }
+sound cblsht { priority = 70; dehackednum = 185 }
+sound cblexp { priority = 70; dehackednum = 186 }
+sound gloop  { priority = 32; dehackednum = 187 }
+sound thundr { priority = 96; dehackednum = 188 }
+sound muck   { priority = 32; dehackednum = 189 }
+sound clrdef { priority = 60; dehackednum = 190 } 
+sound dfdth  { priority = 70; dehackednum = 191 }
+sound dwrfpn { priority = 96; dehackednum = 192 }
+sound dfsit1 { priority = 98; dehackednum = 193 }
+sound dfsit2 { priority = 98; dehackednum = 194 }
+sound fdsit  { priority = 98; dehackednum = 195 }
+sound fdpn   { priority = 96; dehackednum = 196 }
+sound fddth  { priority = 70; dehackednum = 197 }
+sound heal   { priority = 60; dehackednum = 198 }
+sound harp   { priority = 60; dehackednum = 199 }
+sound wofp   { priority = 60; dehackednum = 200 }
+sound burn   { priority = 32; dehackednum = 201 }
+sound cone3  { priority = 60; dehackednum = 202 }
+sound icedth { priority = 96; dehackednum = 203 }
+sound plfeet { singularity = sg_oof; priority = 96; skinindex = sk_plfeet; dehackednum = 204}
+sound plfall { priority = 96; skinindex = sk_plfall; dehackednum = 205 }
+sound fallht { priority = 96; skinindex = sk_fallht; dehackednum = 206 }
+sound clsit1 { priority = 92; dehackednum = 207 }
+sound clsit2 { priority = 92; dehackednum = 208 }
+sound clsit3 { priority = 92; dehackednum = 209 }
+sound clsit4 { priority = 92; dehackednum = 210 }
