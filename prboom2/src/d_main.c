@@ -156,6 +156,9 @@ void D_DoAdvanceDemo (void);
 
 void D_PostEvent(event_t *ev)
 {
+  /* cph - suppress all input events at game start
+   * FIXME: This is a lousy kludge */
+  if (gametic < 3) return;
   M_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
@@ -384,7 +387,8 @@ static void D_DoomLoop(void)
         TryRunTics (); // will run at least one tic
 
       // killough 3/16/98: change consoleplayer to displayplayer
-      S_UpdateSounds(players[displayplayer].mo);// move positional sounds
+      if (players[displayplayer].mo) // cph 2002/08/10
+	S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
       // Update display, next frame, with current state.
       D_Display();
