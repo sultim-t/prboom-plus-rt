@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.45 2002/08/11 14:21:53 proff_fs Exp $
+ * $Id: gl_main.c,v 1.46 2002/11/15 17:21:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,8 +50,8 @@ int gl_mipmap_filter = GL_LINEAR;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
-int gl_use_paletted_texture = 1;
-int gl_use_shared_texture_palette = 1;
+int gl_use_paletted_texture = 0;
+int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
 
@@ -235,26 +235,10 @@ static void gld_StaticLightAlpha(float light, float alpha)
   player_t *player;
   player = &players[displayplayer];
 
-  if (gl_shared_texture_palette) {
-    if (player->fixedcolormap)
-    {
-      p_glColor4f(1.0f, 1.0f, 1.0f, alpha);
-      return;
-    }
-  } else {
-    if (player->fixedcolormap == 32)
-    {
-      p_glColor4f(0.5f, 1.0f, 0.0f, alpha);
-      return;
-    }
-    else
-      if (player->fixedcolormap)
-      {
-        p_glColor4f(1.0f, 1.0f, 1.0f, alpha);
-        return;
-      }
-  }
-  p_glColor4f(light, light, light, alpha);
+  if (player->fixedcolormap)
+    p_glColor4f(1.0f, 1.0f, 1.0f, alpha);
+  else
+    p_glColor4f(light, light, light, alpha);
 }
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
@@ -757,19 +741,19 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 
 void gld_SetPalette(int palette)
 {
+  static int last_palette = 0;
   extra_red=0.0f;
   extra_green=0.0f;
   extra_blue=0.0f;
   extra_alpha=0.0f;
+  if (palette < 0)
+    palette = last_palette;
+  last_palette = palette;
   if (gl_shared_texture_palette) {
-    static int last_palette = 0;
     const unsigned char *playpal;
     unsigned char pal[1024];
     int i;
 
-    if (palette < 0)
-      palette = last_palette;
-    last_palette = palette;
     playpal = W_CacheLumpName("PLAYPAL");
     playpal += (768*palette);
     for (i=0; i<256; i++) {
@@ -1885,6 +1869,7 @@ void gld_StartDrawScene(void)
 
 void gld_EndDrawScene(void)
 {
+  player_t *player = &players[displayplayer];
   extern void R_DrawPlayerSprites (void);
 
 	p_glDisable(GL_POLYGON_SMOOTH);
@@ -1898,6 +1883,21 @@ void gld_EndDrawScene(void)
   {	// don't draw on side views
 		R_DrawPlayerSprites ();
 	}
+
+  if (player->fixedcolormap == 32) {
+		p_glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
+		p_glColor4f(1,1,1,1);
+    p_glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
+    p_glBegin(GL_TRIANGLE_STRIP);
+  		p_glVertex2f( 0.0f, 0.0f);
+	  	p_glVertex2f( 0.0f, (float)SCREENHEIGHT);
+		  p_glVertex2f( (float)SCREENWIDTH, 0.0f);
+		  p_glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
+    p_glEnd();
+		p_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
   if (extra_alpha>0.0f)
   {
     p_glDisable(GL_ALPHA_TEST);
