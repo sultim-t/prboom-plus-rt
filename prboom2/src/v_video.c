@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.36 2002/11/24 00:48:47 proff_fs Exp $
+ * $Id: v_video.c,v 1.37 2002/11/24 15:09:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.36 2002/11/24 00:48:47 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.37 2002/11/24 15:09:11 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -285,7 +285,6 @@ void WRAP_gld_DrawLine(fline_t* fl, int color)
 // Function pointers for normal access to any of the bit-depth versions
 TFunc_V_CopyRect        V_CopyRect;
 TFunc_V_FillRect        V_FillRect;
-TFunc_V_DrawMemPatch    V_DrawMemPatch;
 TFunc_V_DrawNumPatch    V_DrawNumPatch;
 TFunc_V_DrawBlock       V_DrawBlock;
 TFunc_V_DrawBackground  V_DrawBackground;
@@ -306,7 +305,6 @@ void vid_initMode(TVidMode vd) {
   if (vidMode == VID_MODE8) {
     V_FillRect = V_FillRect8;
     V_CopyRect = V_CopyRect8;
-    V_DrawMemPatch = V_DrawMemPatch8;
     V_DrawNumPatch = V_DrawNumPatch8;
     V_DrawBlock = V_DrawBlock8;
     V_PlotPixel = V_PlotPixel8;
@@ -319,7 +317,6 @@ void vid_initMode(TVidMode vd) {
   else if (vidMode == VID_MODE16) {
     V_FillRect = V_FillRect16;
     V_CopyRect = V_CopyRect16;
-    V_DrawMemPatch = V_DrawMemPatch16;
     V_DrawNumPatch = V_DrawNumPatch16;
     V_DrawBlock = V_DrawBlock16;
     V_PlotPixel = V_PlotPixel16;
@@ -332,7 +329,6 @@ void vid_initMode(TVidMode vd) {
   else if (vidMode == VID_MODE32) {
     V_FillRect = V_FillRect32;
     V_CopyRect = V_CopyRect32;
-    V_DrawMemPatch = V_DrawMemPatch32;
     V_DrawNumPatch = V_DrawNumPatch32;
     V_DrawBlock = V_DrawBlock32;
     V_PlotPixel = V_PlotPixel32;
@@ -346,7 +342,6 @@ void vid_initMode(TVidMode vd) {
   else if (vidMode == VID_MODEGL) {
     V_FillRect = WRAP_gld_FillRect;
     V_CopyRect = WRAP_gld_CopyRect;
-    V_DrawMemPatch = WRAP_gld_DrawPatchFromMem;
     V_DrawNumPatch = WRAP_gld_DrawNumPatch;
     V_DrawBlock = WRAP_gld_DrawBlock;
     V_PlotPixel = V_PlotPixelGL;
@@ -632,7 +627,7 @@ byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, u
   screens[1].data = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
 
   patch = W_CacheLumpName(name);
-  V_DrawMemPatch8(SHORT(patch->leftoffset), SHORT(patch->topoffset),1, patch, cm, flags);
+  V_DrawNumPatch8(SHORT(patch->leftoffset), SHORT(patch->topoffset),1, W_GetNumForName(name), cm, flags);
 
 #ifdef RANGECHECK
   if (flags & VPT_STRETCH)

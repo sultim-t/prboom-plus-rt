@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.23 2002/11/24 00:48:47 proff_fs Exp $
+ * $Id: v_video.h,v 1.24 2002/11/24 15:09:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -167,10 +167,6 @@ extern TFunc_V_CopyRect V_CopyRect;
 // V_FillRect
 typedef void (*TFunc_V_FillRect)(int,int,int,int,int,byte);
 extern TFunc_V_FillRect V_FillRect;
-
-// V_DrawMemPatch
-typedef void (*TFunc_V_DrawMemPatch)(int,int,int,const patch_t *,int,enum patch_translation_e);
-extern TFunc_V_DrawMemPatch V_DrawMemPatch;
 
 // V_DrawNumPatch
 typedef void (*TFunc_V_DrawNumPatch)(int,int,int,int,int,enum patch_translation_e);

@@ -513,7 +513,7 @@ byte *FUNC_V_GetPlottedTexture(
 //---------------------------------------------------------------------------
 // V_DrawMemPatch
 //---------------------------------------------------------------------------
-void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) {
+static void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) {
   int width, height;
   const byte *trans;  
   TPlotRect destRect;

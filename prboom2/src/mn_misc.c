@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_misc.c,v 1.3 2002/11/24 00:48:46 proff_fs Exp $
+ * $Id: mn_misc.c,v 1.4 2002/11/24 15:09:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_misc.c,v 1.3 2002/11/24 00:48:46 proff_fs Exp $";
+  "$Id: mn_misc.c,v 1.4 2002/11/24 15:09:11 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -396,13 +396,6 @@ int selected_colour;
 void MN_MapColourDrawer()
 {
   int x, y;
-  unsigned char curchip[] = {
-    9,0,9,0,0,0,0,0,44,0,0,0,58,0,0,0,69,0,0,0,80,0,0,0,91,0,0,0,102,0,0,0,113,0,
-    0,0,124,0,0,0,135,0,0,0,0,9,0,4,4,4,4,4,4,4,4,4,0,255,0,1,0,4,0,8,1,0,4,0,
-    255,0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,
-    0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,0,9,
-    0,4,4,4,4,4,4,4,4,4,0,255
-  };
 
   // draw the menu in the background
 
@@ -420,7 +413,7 @@ void MN_MapColourDrawer()
 
   // draw block
   // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-  V_DrawMemPatch(x, y, 0, (patch_t *)curchip, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(x, y, 0, "M_PALSEL", CR_DEFAULT, VPT_STRETCH);
 
   if(!selected_colour)
     V_DrawNamePatch(x+1, y+1, 0, "M_PALNO", CR_DEFAULT, VPT_STRETCH);

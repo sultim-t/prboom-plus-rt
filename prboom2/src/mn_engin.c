@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_engin.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $
+ * $Id: mn_engin.c,v 1.3 2002/11/24 15:09:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_engin.c,v 1.2 2002/08/11 17:06:03 proff_fs Exp $";
+  "$Id: mn_engin.c,v 1.3 2002/11/24 15:09:11 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -344,9 +344,9 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	colour = *(int *)item->var->variable;
 
 	// draw it
-	
-  V_DrawMemPatch(x+GAP, y-1, 0, M_MakeColChip((byte)colour, PAL_BLACK),
-                  CR_DEFAULT,VPT_STRETCH);
+
+  V_FillRect(0, (x+GAP)*SCREENWIDTH/320, y*SCREENHEIGHT/200, 8*SCREENWIDTH/320, 8*SCREENHEIGHT/200, (byte)colour);
+  //V_DrawNamePatch(x+GAP, y-1, 0, "M_PALSEL", CR_DEFAULT,VPT_STRETCH);
 	
 	if(!colour)
 	  {
