@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: i_sound.c,v 1.3 2000/05/19 12:26:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.3 2000/05/19 12:26:16 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -88,9 +88,6 @@ static int SAMPLECOUNT=		512;
 
 #define SAMPLERATE		11025	// Hz
 
-// The actual lengths of all sound effects.
-int 		lengths[NUMSFX];
-
 // The actual output device.
 int	audio_fd;
 
@@ -102,8 +99,8 @@ unsigned int	channelstepremainder[NUM_CHANNELS];
 
 
 // The channel data pointers, start and end.
-unsigned char*	channels[NUM_CHANNELS];
-unsigned char*	channelsend[NUM_CHANNELS];
+const unsigned char*	channels[NUM_CHANNELS];
+const unsigned char*	channelsend[NUM_CHANNELS];
 
 
 // Time/gametic that the channel started playing,
@@ -112,12 +109,6 @@ unsigned char*	channelsend[NUM_CHANNELS];
 // In case number of active sounds exceeds
 //  available channels.
 int		channelstart[NUM_CHANNELS];
-
-// The sound in channel handles,
-//  determined on registration,
-//  might be used to unregister/stop/modify,
-//  currently unused.
-int 		channelhandles[NUM_CHANNELS];
 
 // SFX id of the playing sound effect.
 // Used to catch duplicates (like chainsaw).
@@ -133,83 +124,16 @@ int		vol_lookup[128*256];
 int*		channelleftvol_lookup[NUM_CHANNELS];
 int*		channelrightvol_lookup[NUM_CHANNELS];
 
+/* cph 
+ * stopchan
+ * Stops a sound, unlocks the data 
+ */
 
-
-//
-// This function loads the sound data from the WAD lump,
-//  for single sound.
-//
-void*
-getsfx
-( const char*         sfxname,
-  int*          len )
+static void stopchan(int i)
 {
-    unsigned char*      sfx;
-    unsigned char*      paddedsfx;
-    int                 i;
-    int                 size;
-    int                 paddedsize;
-    char                name[20];
-    int                 sfxlump;
-
-    
-    // Get the sound data from the WAD, allocate lump
-    //  in zone memory.
-    sprintf(name, "ds%s", sfxname);
-
-    // Now, there is a severe problem with the
-    //  sound handling, in it is not (yet/anymore)
-    //  gamemode aware. That means, sounds from
-    //  DOOM II will be requested even with DOOM
-    //  shareware.
-    // The sound list is wired into sounds.c,
-    //  which sets the external variable.
-    // I do not do runtime patches to that
-    //  variable. Instead, we will use a
-    //  default sound for replacement.
-    if ( W_CheckNumForName(name) == -1 )
-      sfxlump = W_GetNumForName("dspistol");
-    else
-      sfxlump = W_GetNumForName(name);
-    
-    size = W_LumpLength( sfxlump );
-
-    // Debug.
-    // fprintf( stderr, "." );
-    //fprintf( stderr, " -loading  %s (lump %d, %d bytes)\n",
-    //	     sfxname, sfxlump, size );
-    //fflush( stderr );
-    
-    sfx = (unsigned char*)W_CacheLumpNum(sfxlump);
-
-    // Pads the sound effect out to the mixing buffer size.
-    // The original realloc would interfere with zone memory.
-    paddedsize = ((size-8 + (SAMPLECOUNT-1)) / SAMPLECOUNT) * SAMPLECOUNT;
-
-    // Allocate from zone memory.
-    paddedsfx = (unsigned char*)Z_Malloc( paddedsize+8, PU_STATIC, 0 );
-    // ddt: (unsigned char *) realloc(sfx, paddedsize+8);
-    // This should interfere with zone memory handling,
-    //  which does not kick in in the soundserver.
-
-    // Now copy and pad.
-    memcpy(  paddedsfx, sfx, size );
-    for (i=size ; i<paddedsize+8 ; i++)
-        paddedsfx[i] = 128;
-
-    // Remove the cached lump.
-    Z_Free( sfx );
-    
-    // Preserve padded length.
-    *len = paddedsize;
-
-    // Return allocated padded data.
-    return (void *) (paddedsfx + 8);
+  channels[i]=0;
+  W_UnlockLumpNum(S_sfx[channelids[i]].lumpnum);
 }
-
-
-
-
 
 //
 // This function adds a sound to the
@@ -220,22 +144,13 @@ getsfx
 //
 int
 addsfx
-( int		sfxid,
-  int		volume,
-  int		step,
-  int		seperation )
+( int		sfxid)
 {
-    static unsigned short	handlenums = 0;
- 
     int		i;
-    int		rc = -1;
     
     int		oldest = gametic;
     int		oldestnum = 0;
     int		slot;
-
-    int		rightvol;
-    int		leftvol;
 
     // Chainsaw troubles.
     // Play these sound effects only one at a time.
@@ -254,7 +169,7 @@ addsfx
 		 && (channelids[i] == sfxid) )
 	    {
 		// Reset.
-		channels[i] = 0;
+		stopchan(i);
 		// We are sure that iff,
 		//  there will only be one.
 		break;
@@ -284,39 +199,62 @@ addsfx
     // Okay, in the less recent channel,
     //  we will handle the new SFX.
     // Set pointer to raw data.
-    channels[slot] = (unsigned char *) S_sfx[sfxid].data;
-    // Set pointer to end of raw data.
-    channelsend[slot] = channels[slot] + lengths[sfxid];
+    {
+      int lump = S_sfx[sfxid].lumpnum;
+      size_t len = W_LumpLength(lump);
 
-    // Reset current handle number, limited to 0..100.
-    if (!handlenums)
-	handlenums = 100;
+      /* Find padded length */
+      len = (((len-8) + (SAMPLECOUNT-1)) / SAMPLECOUNT) * SAMPLECOUNT + 8;
+      channels[slot] = W_CacheLumpNumPadded(lump, len, 128);
+      
+      /* Set pointer to end of raw data. */
+      channelsend[slot] = channels[slot] + len;
+      channels[slot] += 8; /* Skip header */
+    }
 
-    // Assign current handle number.
-    // Preserved so sounds could be stopped (unused).
-    channelhandles[slot] = rc = handlenums++;
-
-    // Set stepping???
-    // Kinda getting the impression this is never used.
-    channelstep[slot] = step;
     // ???
     channelstepremainder[slot] = 0;
     // Should be gametic, I presume.
     channelstart[slot] = gametic;
 
+    // Preserve sound SFX id,
+    //  e.g. for avoiding duplicates of chainsaw.
+    channelids[slot] = sfxid;
+
+    /* cph - generate useful handle */
+    return (slot + NUM_CHANNELS*sfxid);
+}
+
+void
+I_UpdateSoundParams
+( int	handle,
+  int	volume,
+  int	seperation,
+  int	pitch)
+{
+    int         slot = handle & (NUM_CHANNELS-1);
+    int		rightvol;
+    int		leftvol;
+    int         step = steptable[pitch];
+
+    // Set stepping???
+    // Kinda getting the impression this is never used.
+    channelstep[slot] = step;
+
     // Separation, that is, orientation/stereo.
     //  range is: 1 - 256
     seperation += 1;
+    seperation *= seperation;
 
     // Per left/right channel.
     //  x^2 seperation,
     //  adjust volume properly.
     volume *= 8;
     leftvol =
-	volume - ((volume*seperation*seperation) >> 16); ///(256*256);
+	volume - ((volume*seperation) >> 16);
     seperation = seperation - 257;
     rightvol =
-	volume - ((volume*seperation*seperation) >> 16);	
+	volume - ((volume*seperation) >> 16);	
 
     // Sanity check, clamp volume.
     if (rightvol < 0 || rightvol > 127)
@@ -330,16 +268,7 @@ addsfx
     channelleftvol_lookup[slot] = &vol_lookup[leftvol*256];
     channelrightvol_lookup[slot] = &vol_lookup[rightvol*256];
 
-    // Preserve sound SFX id,
-    //  e.g. for avoiding duplicates of chainsaw.
-    channelids[slot] = sfxid;
-
-    // You tell me.
-    return rc;
 }
-
-
-
 
 
 //
@@ -379,7 +308,6 @@ void I_SetChannels()
   for (i=0 ; i<128 ; i++)
     for (j=0 ; j<256 ; j++) {
       vol_lookup[i*256+j] = (i*(j-128)*256)/127;
-//fprintf(stderr, "vol_lookup[%d*256+%d] = %d\n", i, j, vol_lookup[i*256+j]);
     }
 }	
 
@@ -434,7 +362,8 @@ I_StartSound
     
     // Returns a handle (not used).
     SDL_LockAudio();
-    id = addsfx( id, vol, steptable[pitch], sep );
+    id = addsfx( id);
+    I_UpdateSoundParams(id, vol, sep, pitch);
     SDL_UnlockAudio();
 
     // fprintf( stderr, "/handle is %d\n", id );
@@ -446,20 +375,17 @@ I_StartSound
 
 void I_StopSound (int handle)
 {
-  // You need the handle returned by StartSound.
-  // Would be looping all channels,
-  //  tracking down the handle,
-  //  an setting the channel to zero.
-  
-  // UNUSED.
-  handle = 0;
+  SDL_LockAudio();
+  stopchan(handle & (NUM_CHANNELS-1));
+  SDL_UnlockAudio();
 }
 
 
 boolean I_SoundIsPlaying(int handle)
 {
-    // Ouch.
-    return gametic < handle;
+  int chan = handle & (NUM_CHANNELS-1);
+  return (channels[chan] && 
+	  channelids[chan] == (handle / NUM_CHANNELS));
 }
 
 
@@ -544,7 +470,7 @@ extern void music_mixer(void *udata, Uint8 *stream, int len);
 
 		// Check whether we are done.
 		if (channels[ chan ] >= channelsend[ chan ])
-		    channels[ chan ] = 0;
+		  stopchan(chan);
 	    }
 	}
 	
@@ -575,23 +501,6 @@ extern void music_mixer(void *udata, Uint8 *stream, int len);
     }
 }
 
-void
-I_UpdateSoundParams
-( int	handle,
-  int	vol,
-  int	sep,
-  int	pitch)
-{
-  // I fail too see that this is used.
-  // Would be using the handle to identify
-  //  on which channel the sound might be active,
-  //  and resetting the channel parameters.
-
-  // UNUSED.
-  handle = vol = sep = pitch = 0;
-}
-
-
 void I_ShutdownSound(void)
 {    
   fprintf(stderr, "I_ShutdownSound: ");
@@ -604,8 +513,6 @@ static SDL_AudioSpec audio;
 void
 I_InitSound()
 { 
-  int i;
-  
   // Secure and configure sound device first.
   fprintf( stderr, "I_InitSound: ");
  
@@ -630,28 +537,6 @@ I_InitSound()
   SAMPLECOUNT = audio.samples;
   fprintf(stderr, " configured audio device with %d samples/slice\n", SAMPLECOUNT);
 
-    
-  // Initialize external data (all sounds) at start, keep static.
-  fprintf( stderr, "I_InitSound: ");
-  
-  for (i=1 ; i<NUMSFX ; i++)
-  { 
-    // Alias? Example is the chaingun sound linked to pistol.
-    if (!S_sfx[i].link)
-    {
-      // Load data from WAD file.
-      S_sfx[i].data = getsfx( S_sfx[i].name, &lengths[i] );
-    }	
-    else
-    {
-      // Previously loaded already?
-      S_sfx[i].data = S_sfx[i].link->data;
-      lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
-    }
-  }
-
-  fprintf( stderr, " pre-cached all sound data\n");
-  
   atexit(I_ShutdownSound);
 
   if (!nomusicparm)
