@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.7 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: gl_main.c,v 1.8 2000/05/13 05:54:04 jessh Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -48,6 +48,13 @@ extern void R_DrawPlayerSprites (void);
 
 #define SCALE_X(x)		((flags & VPT_STRETCH)?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
 #define SCALE_Y(y)		((flags & VPT_STRETCH)?((float)y)*(float)SCREENHEIGHT/200.0f:(float)y)
+
+#ifndef max
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
 
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags)
 { 
