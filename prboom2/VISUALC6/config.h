@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.3 2001/02/18 15:41:11 proff_fs Exp $
+ * $Id: config.h,v 1.4 2001/07/01 22:01:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -121,7 +121,7 @@
 #define DOGS 1
 
 /* Define if you want to have boomlump.wad in the exe  */
-#define ALL_IN_ONE 1
+//#define ALL_IN_ONE 1
 
 /* Define if you want to compile with SDL  */
 #define USE_SDL 1
