@@ -167,10 +167,22 @@
 				RelativePath="..\src\lprintf.h">
 			</File>
 			<File
+				RelativePath="..\src\m_fcvt.c">
+			</File>
+			<File
+				RelativePath="..\src\m_fcvt.h">
+			</File>
+			<File
 				RelativePath="..\src\m_swap.h">
 			</File>
 			<File
 				RelativePath="..\src\protocol.h">
+			</File>
+			<File
+				RelativePath="..\src\psnprntf.c">
+			</File>
+			<File
+				RelativePath="..\src\psnprntf.h">
 			</File>
 		</Filter>
 	</Files>

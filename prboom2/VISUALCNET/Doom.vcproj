@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../VisualCNET,../src"
-				PreprocessorDefinitions="NDEBUG,I386_ASM,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
+				PreprocessorDefinitions="NDEBUG,I386_ASM,WIN32,_WINDOWS,HAVE_CONFIG_H"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -83,7 +83,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../VisualCNET,../src"
-				PreprocessorDefinitions="NDEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
+				PreprocessorDefinitions="NDEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -145,7 +145,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../VisualCNET,../src"
-				PreprocessorDefinitions="I386_ASM,_DEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
+				PreprocessorDefinitions="I386_ASM,_DEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Debug/Doom.pch"
@@ -208,7 +208,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../VisualCNET,../src"
-				PreprocessorDefinitions="_DEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H,GL_DOOM,COMPILE_VIDD"
+				PreprocessorDefinitions="_DEBUG,WIN32,_WINDOWS,HAVE_CONFIG_H"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\DebugNOASM/Doom.pch"
@@ -295,6 +295,12 @@
 			</File>
 			<File
 				RelativePath="..\src\protocol.h">
+			</File>
+			<File
+				RelativePath="..\src\psnprntf.c">
+			</File>
+			<File
+				RelativePath="..\src\psnprntf.h">
 			</File>
 			<File
 				RelativePath="..\src\s_sound.c">
@@ -609,6 +615,12 @@
 				</File>
 				<File
 					RelativePath="..\src\m_cheat.h">
+				</File>
+				<File
+					RelativePath="..\src\m_fcvt.c">
+				</File>
+				<File
+					RelativePath="..\src\m_fcvt.h">
 				</File>
 				<File
 					RelativePath="..\src\m_fixed.h">

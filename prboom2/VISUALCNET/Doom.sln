@@ -1,7 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Doom", "Doom.vcproj", "{26318E77-45CA-437D-9374-0B5D1CF21E1C}"
 	ProjectSection(ProjectDependencies) = postProject
-		{66D01346-E2E0-4509-878C-6B5B448F0179} = {66D01346-E2E0-4509-878C-6B5B448F0179}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prboom_server", "prboom_server.vcproj", "{DBB0AE6D-3F8C-42C3-8170-081BB7EEBCE7}"

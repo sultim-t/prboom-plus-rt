@@ -27,7 +27,7 @@
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *  This is the config file for Windows (VisualC 2002)
+ *  This is the config file for Windows (VisualC .NET 2003)
  *
  *-----------------------------------------------------------------------------*/
 
@@ -129,6 +129,10 @@
 #define USE_SDL 1
 
 #define MONITOR_VISIBILITY 1
+
+#define GL_DOOM
+
+//#define COMPILE_VIDD
 
 /* Name of package */
 #define PACKAGE "prboom"
