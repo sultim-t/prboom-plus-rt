@@ -1,0 +1,19 @@
+#menu {
+  float: left;
+  width: 10em;
+}
+
+#menu h1 {
+  font-size: 120%;
+}
+
+#menu ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#content {
+  margin-left: 10em;
+}
+
