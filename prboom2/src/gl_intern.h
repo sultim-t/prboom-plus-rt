@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.16 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.17 2002/08/11 14:21:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,12 +43,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include "SDL.h"
+#include "SDL_opengl.h"
 #include "doomtype.h"
 #include "w_wad.h"
 #include "m_argv.h"
+#include "z_zone.h"
 #include "d_event.h"
 #include "v_video.h"
 #include "doomstat.h"
@@ -59,6 +59,7 @@
 #include "r_plane.h"
 #include "r_data.h"
 #include "p_maputl.h"
+#include "p_tick.h"
 #include "m_bbox.h"
 #include "lprintf.h"
 
@@ -90,9 +91,14 @@ extern char *gl_tex_format_string;
 extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;
-#ifdef USE_GLU_MIPMAP
+extern int gl_texture_filter_anisotropic;
+extern int gl_paletted_texture;
+extern int gl_shared_texture_palette;
 extern boolean use_mipmapping;
-#endif
+extern int transparent_pal_index;
+extern unsigned char gld_palmap[256];
+extern GLTexture *last_gltexture;
+extern int last_cm;
   
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
 void gld_BindTexture(GLTexture *gltexture);
@@ -100,6 +106,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm);
 void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterFlat(int lump, boolean mipmap);
 void gld_BindFlat(GLTexture *gltexture);
+void gld_InitPalettedTextures(void);
 
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
@@ -117,5 +124,7 @@ void gld_BindFlat(GLTexture *gltexture);
 
 #define PROTOTYPE(ret, func, param) extern ret (APIENTRY *p_##func) param;
 #include "glu_funcs.h"
+
+PFNGLCOLORTABLEEXTPROC p_glColorTableEXT;
 
 #endif // _GL_INTERN_H

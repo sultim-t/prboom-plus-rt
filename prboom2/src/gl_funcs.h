@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_funcs.h,v 1.1 2001/02/05 11:28:31 proff_fs Exp $
+ * $Id: gl_funcs.h,v 1.2 2002/08/11 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -81,6 +81,7 @@ PROTOTYPE(void, glTexGenf, (GLenum, GLenum, GLfloat))
 PROTOTYPE(void, glTexGenfv, (GLenum, GLenum, const GLfloat *))
 PROTOTYPE(void, glTexImage2D, (GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid *))
 PROTOTYPE(void, glTexParameteri, (GLenum, GLenum, GLint))
+PROTOTYPE(void, glTexParameterf, (GLenum, GLenum, GLfloat))
 PROTOTYPE(void, glTranslatef, (GLfloat, GLfloat, GLfloat))
 PROTOTYPE(void, glVertex2f, (GLfloat, GLfloat))
 PROTOTYPE(void, glVertex2i, (GLint, GLint))

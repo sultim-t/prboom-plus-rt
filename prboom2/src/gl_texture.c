@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.18 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.19 2002/08/11 14:21:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,9 +43,7 @@ static GLTexture **gld_GLTextures=NULL;
 /* PATCHES FLATS SPRITES */
 static GLTexture **gld_GLPatchTextures=NULL;
 
-#ifdef USE_GLU_MIPMAP
 boolean use_mipmapping=false;
-#endif
 
 int gld_max_texturesize=0;
 char *gl_tex_format_string = "GL_RGB5_A1";
@@ -55,8 +53,36 @@ int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA2;
 
 GLTexture *last_gltexture=NULL;
-int last_cm=0;
+int last_cm=-1;
 
+int transparent_pal_index;
+unsigned char gld_palmap[256];
+
+void gld_InitPalettedTextures(void)
+{
+  const unsigned char *playpal;
+  int pal[256];
+  int i,j;
+
+  playpal=W_CacheLumpName("PLAYPAL");
+  for (i=0; i<256; i++) {
+    pal[i] = (playpal[i*3+0] << 16) | (playpal[i*3+1] << 8) | playpal[i*3+2];
+    gld_palmap[i] = i;
+  }
+  transparent_pal_index = -1;
+  for (i=0; i<256; i++) {
+    for (j=i+1; j<256; j++) {
+      if (pal[i] == pal[j]) {
+        transparent_pal_index = j;
+        gld_palmap[j] = i;
+        break;
+      }
+    }
+    if (transparent_pal_index >= 0)
+      break;
+  }
+  W_UnlockLumpName("PLAYPAL");
+}
 int gld_GetTexDimension(int value)
 {
   int i;
@@ -109,7 +135,28 @@ static GLTexture *gld_AddNewGLPatchTexture(int lump)
   return gld_GLPatchTextures[lump];
 }
 
-static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy)
+void gld_SetTexturePalette(GLenum target)
+{
+  const unsigned char *playpal;
+  unsigned char pal[1024];
+  int i;
+
+  playpal=W_CacheLumpName("PLAYPAL");
+  for (i=0; i<256; i++) {
+    pal[i*4+0] = playpal[i*3+0];
+    pal[i*4+1] = playpal[i*3+1];
+    pal[i*4+2] = playpal[i*3+2];
+    pal[i*4+3] = 255;
+  }
+  pal[transparent_pal_index*4+0]=0;
+  pal[transparent_pal_index*4+1]=0;
+  pal[transparent_pal_index*4+2]=0;
+  pal[transparent_pal_index*4+3]=0;
+  p_glColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+  W_UnlockLumpName("PLAYPAL");
+}
+
+static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int paletted)
 {
   int x,y,j;
   int xs,xe;
@@ -159,6 +206,20 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
       if ((je+y)>gltexture->realtexheight)
         je+=(gltexture->realtexheight-(je+y));
 			p_bColumn=(byte *)p_bColumn_t + 3;
+      if (paletted) {
+        pos=(((js+y)*gltexture->buffer_width)+x+originx);
+        for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
+        {
+#ifdef RANGECHECK
+          if (pos>=gltexture->buffer_size)
+          {
+            lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+            return;
+          }
+#endif
+          buffer[pos]=gld_palmap[p_bColumn[j]];
+        }
+      } else {
       pos=4*(((js+y)*gltexture->buffer_width)+x+originx);
 			for (j=js;j<je;j++,pos+=(4*gltexture->buffer_width))
 			{	
@@ -174,6 +235,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
 				buffer[pos+2]=playpal[p_bColumn[j]*3+2];
         buffer[pos+3]=255;
 			}
+      }
 nextrun:
 			p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
 		}
@@ -181,7 +243,7 @@ nextrun:
   W_UnlockLumpName("PLAYPAL");
 }
 
-void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm)
+void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted)
 {
   int x,y,j;
   int xs,xe;
@@ -199,7 +261,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
     return;
   if ((cm==CR_DEFAULT) || (cm==CR_LIMIT))
   {
-    gld_AddPatchToTexture_UnTranslated(gltexture,buffer,patch,originx,originy);
+    gld_AddPatchToTexture_UnTranslated(gltexture,buffer,patch,originx,originy, paletted);
     return;
   }
   if (cm<CR_LIMIT)
@@ -242,6 +304,20 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
       if ((je+y)>gltexture->realtexheight)
         je+=(gltexture->realtexheight-(je+y));
 			p_bColumn=(byte *)p_bColumn_t + 3;
+      if (paletted) {
+        pos=(((js+y)*gltexture->buffer_width)+x+originx);
+        for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
+        {
+#ifdef RANGECHECK
+          if (pos>=gltexture->buffer_size)
+          {
+            lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+            return;
+          }
+#endif
+          buffer[pos]=gld_palmap[outr[p_bColumn[j]]];
+        }
+      } else {
       pos=4*(((js+y)*gltexture->buffer_width)+x+originx);
 			for (j=js;j<je;j++,pos+=(4*gltexture->buffer_width))
 			{	
@@ -257,6 +333,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
 				buffer[pos+2]=playpal[outr[p_bColumn[j]]*3+2];
         buffer[pos+3]=255;
 			}
+      }
 nextrun:
 			p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
 		}
@@ -264,7 +341,7 @@ nextrun:
   W_UnlockLumpName("PLAYPAL");
 }
 
-static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, const unsigned char *flat)
+static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, const unsigned char *flat, int paletted)
 {
   int x,y,pos;
   const unsigned char *playpal;
@@ -273,6 +350,23 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
     return;
   if (!flat)
     return;
+  if (paletted) {
+    for (y=0;y<gltexture->realtexheight;y++)
+    {
+      pos=(y*gltexture->buffer_width);
+      for (x=0;x<gltexture->realtexwidth;x++,pos++)
+      {
+#ifdef RANGECHECK
+        if (pos>=gltexture->buffer_size)
+        {
+          lprintf(LO_ERROR,"gld_AddFlatToTexture pos>=size (%i >= %i)\n",pos,gltexture->buffer_size);
+          return;
+        }
+#endif
+        buffer[pos]=gld_palmap[flat[y*64+x]];
+      }
+    }
+  } else {
   playpal=W_CacheLumpName("PLAYPAL");
   for (y=0;y<gltexture->realtexheight;y++)
   {
@@ -293,6 +387,7 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
     }
   }
   W_UnlockLumpName("PLAYPAL");
+  }
 }
 
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
@@ -331,7 +426,6 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
     gltexture->buffer_width=gltexture->realtexwidth;
     gltexture->buffer_height=gltexture->realtexheight;
 #endif
-#ifdef USE_GLU_MIPMAP
     if (gltexture->mipmap & use_mipmapping)
     {
       gltexture->width=gltexture->tex_width;
@@ -339,7 +433,6 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
       gltexture->buffer_width=gltexture->realtexwidth;
       gltexture->buffer_height=gltexture->realtexheight;
     }
-#endif
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     if (gltexture->realtexwidth>gltexture->buffer_width)
       return gltexture;
@@ -360,15 +453,19 @@ void gld_BindTexture(GLTexture *gltexture)
   if (gltexture==last_gltexture)
     return;
   last_gltexture=gltexture;
-  if (!gltexture)
-    return;
-  if (gltexture->textype!=GLDT_TEXTURE)
-  {
-    p_glDisable(GL_TEXTURE_2D);
+  if (!gltexture) {
+    p_glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
-  else
-    p_glEnable(GL_TEXTURE_2D);
+  if (gltexture->textype!=GLDT_TEXTURE)
+  {
+    p_glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
+    return;
+  }
   if (gltexture->glTexID[CR_DEFAULT]!=0)
   {
    	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
@@ -381,7 +478,10 @@ void gld_BindTexture(GLTexture *gltexture)
       return;
   }
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  memset(buffer,0,gltexture->buffer_size);
+  if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
   texture=textures[gltexture->index];
   for (i=0; i<texture->patchcount; i++)
   {
@@ -389,7 +489,7 @@ void gld_BindTexture(GLTexture *gltexture)
     gld_AddPatchToTexture(gltexture, buffer, patch,
                           texture->patches[i].originx,
                           texture->patches[i].originy,
-                          CR_DEFAULT);
+                          CR_DEFAULT, !(gltexture->mipmap & use_mipmapping) & gl_paletted_texture);
     W_UnlockLumpNum(texture->patches[i].patch);
   }
   if (gltexture->glTexID[CR_DEFAULT]==0)
@@ -405,6 +505,8 @@ void gld_BindTexture(GLTexture *gltexture)
     p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
+    if (gl_texture_filter_anisotropic)
+      p_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
   }
   else
 #endif /* USE_GLU_MIPMAP */
@@ -434,9 +536,16 @@ void gld_BindTexture(GLTexture *gltexture)
     else
 #endif /* USE_GLU_IMAGESCALE */
     {
-      p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+      if (gl_paletted_texture) {
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        p_glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
+      } else {
+        p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+      }
     }
 	  p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	  p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -503,11 +612,11 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
     return;
   if (gltexture->textype!=GLDT_PATCH)
   {
-    p_glDisable(GL_TEXTURE_2D);
+    p_glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
-  else
-    p_glEnable(GL_TEXTURE_2D);
   if (gltexture->glTexID[cm]!=0)
   {
  	  p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
@@ -521,8 +630,11 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
   patch=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  memset(buffer,0,gltexture->buffer_size);
-  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
+  if (gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
+  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
   if (gltexture->glTexID[cm]==0)
 	  p_glGenTextures(1,&gltexture->glTexID[cm]);
 	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
@@ -551,9 +663,16 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   else
 #endif /* USE_GLU_IMAGESCALE */
   {
-    p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
-                  gltexture->buffer_width, gltexture->buffer_height,
-                  0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+      if (gl_paletted_texture) {
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        p_glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
+      } else {
+        p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+      }
   }
 	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -591,7 +710,6 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
     gltexture->buffer_width=gltexture->realtexwidth;
     gltexture->buffer_height=gltexture->realtexheight;
 #endif
-#ifdef USE_GLU_MIPMAP
     if (gltexture->mipmap & use_mipmapping)
     {
       gltexture->width=gltexture->tex_width;
@@ -599,7 +717,6 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
       gltexture->buffer_width=gltexture->realtexwidth;
       gltexture->buffer_height=gltexture->realtexheight;
     }
-#endif
     gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
     if (gltexture->realtexwidth>gltexture->buffer_width)
       return gltexture;
@@ -623,11 +740,11 @@ void gld_BindFlat(GLTexture *gltexture)
     return;
   if (gltexture->textype!=GLDT_FLAT)
   {
-    p_glDisable(GL_TEXTURE_2D);
+    p_glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     return;
   }
-  else
-    p_glEnable(GL_TEXTURE_2D);
   if (gltexture->glTexID[CR_DEFAULT]!=0)
   {
    	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
@@ -641,8 +758,11 @@ void gld_BindFlat(GLTexture *gltexture)
   }
   flat=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  memset(buffer,0,gltexture->buffer_size);
-  gld_AddFlatToTexture(gltexture, buffer, flat);
+  if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
+  gld_AddFlatToTexture(gltexture, buffer, flat, !(gltexture->mipmap & use_mipmapping) & gl_paletted_texture);
   if (gltexture->glTexID[CR_DEFAULT]==0)
   	p_glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
 	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
@@ -656,6 +776,8 @@ void gld_BindFlat(GLTexture *gltexture)
     p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
     p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
+    if (gl_texture_filter_anisotropic)
+      p_glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
   }
   else
 #endif /* USE_GLU_MIPMAP */
@@ -685,9 +807,16 @@ void gld_BindFlat(GLTexture *gltexture)
     else
 #endif /* USE_GLU_IMAGESCALE */
     {
-      p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+      if (gl_paletted_texture) {
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        p_glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
+      } else {
+        p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+      }
     }
 	  p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	  p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

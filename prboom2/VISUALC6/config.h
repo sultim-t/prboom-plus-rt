@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.7 2002/01/07 15:45:22 proff_fs Exp $
+ * $Id: config.h,v 1.8 2002/08/11 14:21:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -135,7 +135,7 @@
 #define USE_GLU_TESS 1
 
 /* Define if you want to use gluImageScale  */
-#define USE_GLU_IMAGESCALE 1
+//#define USE_GLU_IMAGESCALE 1
 
 /* Define if you want to use gluBuild2DMipmaps  */
 #define USE_GLU_MIPMAP 1

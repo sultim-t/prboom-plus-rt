@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.44 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: gl_main.c,v 1.45 2002/08/11 14:21:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,6 +49,11 @@ int gl_tex_filter = GL_LINEAR;
 int gl_mipmap_filter = GL_LINEAR;
 int gl_drawskys=true;
 int gl_sortsprites=true;
+int gl_texture_filter_anisotropic = 0;
+int gl_use_paletted_texture = 1;
+int gl_use_shared_texture_palette = 1;
+int gl_paletted_texture = 0;
+int gl_shared_texture_palette = 0;
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -226,27 +231,82 @@ static const float lighttable[5][256] =
 #define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][max(min((lightlevel),255),0)])
 
 static void gld_StaticLightAlpha(float light, float alpha)
-{ 
+{
   player_t *player;
-	player = &players[displayplayer];
+  player = &players[displayplayer];
 
-	if (player->fixedcolormap == 32)
-  {
-    p_glColor4f(0.5f, 1.0f, 0.0f, alpha);
-    return;
-  }
-	else
-  	if (player->fixedcolormap)
+  if (gl_shared_texture_palette) {
+    if (player->fixedcolormap)
     {
       p_glColor4f(1.0f, 1.0f, 1.0f, alpha);
       return;
     }
+  } else {
+    if (player->fixedcolormap == 32)
+    {
+      p_glColor4f(0.5f, 1.0f, 0.0f, alpha);
+      return;
+    }
+    else
+      if (player->fixedcolormap)
+      {
+        p_glColor4f(1.0f, 1.0f, 1.0f, alpha);
+        return;
+      }
+  }
   p_glColor4f(light, light, light, alpha);
 }
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 
 void gld_SetVertexArrays(void);
+
+void gld_InitExtensions(const char *_extensions)
+{
+  char *extensions;
+  char *extension;
+  char *p;
+
+  if (!_extensions)
+    return;
+
+  extensions = malloc(strlen(_extensions) + 1);
+  if (!extensions)
+    return;
+  memcpy(extensions, _extensions, strlen(_extensions) + 1);
+
+  p = extensions;
+  extension = p;
+
+  do {
+    while ((*p != ' ') && (*p != '\0'))
+      p++;
+    if (*p != '\0')
+      *p++ = '\0';
+    while (*p == ' ')
+      p++;
+
+    if (strcasecmp(extension, "GL_EXT_texture_filter_anisotropic") == 0)
+      gl_texture_filter_anisotropic = true;
+    else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
+      if (gl_use_paletted_texture) {
+        gl_paletted_texture = true;
+        p_glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+        lprintf(LO_INFO,"using GL_EXT_paletted_texture\n");
+      }
+    }
+    else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
+      if (gl_use_shared_texture_palette) {
+        gl_shared_texture_palette = true;
+        p_glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+        lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n");
+      }
+
+    extension = p;
+  } while (*extension != '\0');
+
+  free(extensions);
+}
 
 void gld_Init(int width, int height)
 { 
@@ -257,6 +317,11 @@ void gld_Init(int width, int height)
   lprintf(LO_INFO,"GL_RENDERER: %s\n",p_glGetString(GL_RENDERER));
   lprintf(LO_INFO,"GL_VERSION: %s\n",p_glGetString(GL_VERSION));
   lprintf(LO_INFO,"GL_EXTENSIONS: %s\n",p_glGetString(GL_EXTENSIONS));
+
+  gld_InitExtensions(p_glGetString(GL_EXTENSIONS));
+  //gl_shared_texture_palette = false;
+  gld_InitPalettedTextures();
+
 	p_glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT); 
 
   p_glClearColor(0.0f, 0.5f, 0.5f, 1.0f); 
@@ -288,11 +353,11 @@ void gld_Init(int width, int height)
 	p_glHint (GL_FOG_HINT, GL_NICEST);
 	p_glFogf (GL_FOG_START, 0.0f);
 	p_glFogf (GL_FOG_END, 1.0f);
+
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_NEAREST"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
     lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_NEAREST for mipmap textures.\n");
     gl_tex_filter=GL_NEAREST;
@@ -301,9 +366,8 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_NEAREST"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
     lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_NEAREST for mipmap textures.\n");
     gl_tex_filter=GL_LINEAR;
@@ -312,9 +376,8 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_LINEAR"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
     lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_LINEAR for mipmap textures.\n");
     gl_tex_filter=GL_NEAREST;
@@ -323,9 +386,8 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_LINEAR"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
     lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_LINEAR for mipmap textures.\n");
     gl_tex_filter=GL_LINEAR;
@@ -334,22 +396,22 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=false;
-#endif
     lprintf(LO_INFO,"Using GL_NEAREST for textures.\n");
     gl_tex_filter=GL_NEAREST;
     gl_mipmap_filter=GL_NEAREST;
   }
   else
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=false;
-#endif
     lprintf(LO_INFO,"Using GL_LINEAR for textures.\n");
     gl_tex_filter=GL_LINEAR;
     gl_mipmap_filter=GL_LINEAR;
   }
+
+#ifndef USE_GLU_MIPMAP
+	use_mipmapping = false;
+#endif
 
   if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
   {
@@ -465,7 +527,8 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
 { 
   extern int gld_GetTexDimension(int value);
-  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm);
+  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted);
+  extern void gld_SetTexturePalette(GLenum target);
 
   GLTexture *gltexture;
   unsigned char *buffer;
@@ -498,10 +561,15 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   if (gltexture->realtexheight>gltexture->buffer_height)
     return;
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  memset(buffer,0,gltexture->buffer_size);
-  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
+  if (gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
+  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
 	p_glGenTextures(1,&gltexture->glTexID[cm]);
 	p_glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
+  last_gltexture = NULL;
+  last_cm = -1;
 #ifdef USE_GLU_IMAGESCALE
   if ((gltexture->buffer_width>gltexture->tex_width) ||
       (gltexture->buffer_height>gltexture->tex_height)
@@ -527,9 +595,16 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   else
 #endif /* USE_GLU_IMAGESCALE */
   {
-    p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
-                  gltexture->buffer_width, gltexture->buffer_height,
-                  0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    if (gl_paletted_texture) {
+      gld_SetTexturePalette(GL_TEXTURE_2D);
+      p_glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
+                    gltexture->buffer_width, gltexture->buffer_height,
+                    0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
+    } else {
+      p_glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
+                    gltexture->buffer_width, gltexture->buffer_height,
+                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    }
   }
 	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -596,7 +671,9 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
 {
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
-	p_glDisable(GL_TEXTURE_2D);
+  p_glBindTexture(GL_TEXTURE_2D, 0);
+  last_gltexture = NULL;
+  last_cm = -1;
 	p_glColor3f((float)playpal[3*BaseColor]/255.0f,
 			      (float)playpal[3*BaseColor+1]/255.0f,
 			      (float)playpal[3*BaseColor+2]/255.0f);
@@ -604,7 +681,6 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
 		p_glVertex2i( x0, y0 );
 		p_glVertex2i( x1, y1 );
 	p_glEnd();
-	p_glEnable(GL_TEXTURE_2D);
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -663,7 +739,9 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 {
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
-	p_glDisable(GL_TEXTURE_2D);
+  p_glBindTexture(GL_TEXTURE_2D, 0);
+  last_gltexture = NULL;
+  last_cm = -1;
 	p_glColor3f((float)playpal[3*col]/255.0f,
 			      (float)playpal[3*col+1]/255.0f,
 			      (float)playpal[3*col+2]/255.0f);
@@ -673,7 +751,6 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 		p_glVertex2i( x+width, y );
 		p_glVertex2i( x+width, y+height );
 	p_glEnd();
-	p_glEnable(GL_TEXTURE_2D);
 	p_glColor3f(1.0f,1.0f,1.0f);
   W_UnlockLumpName("PLAYPAL");
 }
@@ -684,41 +761,74 @@ void gld_SetPalette(int palette)
   extra_green=0.0f;
   extra_blue=0.0f;
   extra_alpha=0.0f;
-  if (palette>0)
-  {
-    if (palette<=8)
-    {
-      extra_red=(float)palette/2.0f;
-      extra_green=0.0f;
-      extra_blue=0.0f;
-      extra_alpha=(float)palette/10.0f;
+  if (gl_shared_texture_palette) {
+    static int last_palette = 0;
+    const unsigned char *playpal;
+    unsigned char pal[1024];
+    int i;
+
+    if (palette < 0)
+      palette = last_palette;
+    last_palette = palette;
+    playpal = W_CacheLumpName("PLAYPAL");
+    playpal += (768*palette);
+    for (i=0; i<256; i++) {
+      int col;
+
+      if (fixedcolormap)
+        col = fixedcolormap[i];
+      else if (fullcolormap)
+        col = fullcolormap[i];
+      else
+        col = i;
+      pal[i*4+0] = playpal[col*3+0];
+      pal[i*4+1] = playpal[col*3+1];
+      pal[i*4+2] = playpal[col*3+2];
+      pal[i*4+3] = 255;
     }
-    else
-      if (palette<=12)
+    pal[transparent_pal_index*4+0]=0;
+    pal[transparent_pal_index*4+1]=0;
+    pal[transparent_pal_index*4+2]=0;
+    pal[transparent_pal_index*4+3]=0;
+    p_glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+    W_UnlockLumpName("PLAYPAL");
+  } else {
+    if (palette>0)
+    {
+      if (palette<=8)
       {
-        palette=palette-8;
-        extra_red=(float)palette*1.0f;
-        extra_green=(float)palette*0.8f;
-        extra_blue=(float)palette*0.1f;
-        extra_alpha=(float)palette/11.0f;
+        extra_red=(float)palette/2.0f;
+        extra_green=0.0f;
+        extra_blue=0.0f;
+        extra_alpha=(float)palette/10.0f;
       }
       else
-        if (palette==13)
+        if (palette<=12)
         {
-          extra_red=0.4f;
-          extra_green=1.0f;
-          extra_blue=0.0f;
-          extra_alpha=0.2f;
+          palette=palette-8;
+          extra_red=(float)palette*1.0f;
+          extra_green=(float)palette*0.8f;
+          extra_blue=(float)palette*0.1f;
+          extra_alpha=(float)palette/11.0f;
         }
+        else
+          if (palette==13)
+          {
+            extra_red=0.4f;
+            extra_green=1.0f;
+            extra_blue=0.0f;
+            extra_alpha=0.2f;
+          }
+    }
+    if (extra_red>1.0f)
+      extra_red=1.0f;
+    if (extra_green>1.0f)
+      extra_green=1.0f;
+    if (extra_blue>1.0f)
+      extra_blue=1.0f;
+    if (extra_alpha>1.0f)
+      extra_alpha=1.0f;
   }
-  if (extra_red>1.0f)
-    extra_red=1.0f;
-  if (extra_green>1.0f)
-    extra_green=1.0f;
-  if (extra_blue>1.0f)
-    extra_blue=1.0f;
-  if (extra_alpha>1.0f)
-    extra_alpha=1.0f;
 }
 
 void gld_ReadScreen (byte* scr)
@@ -1720,6 +1830,10 @@ void gld_StartDrawScene(void)
   extern int screenblocks;
   int height;
 
+  if (gl_shared_texture_palette)
+    p_glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+  gld_SetPalette(-1);
+
   if (screenblocks == 11)
     height = SCREENHEIGHT;
   else if (screenblocks == 10)
@@ -1788,19 +1902,22 @@ void gld_EndDrawScene(void)
   {
     p_glDisable(GL_ALPHA_TEST);
 	  p_glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
-    p_glDisable(GL_TEXTURE_2D);
+    p_glBindTexture(GL_TEXTURE_2D, 0);
+    last_gltexture = NULL;
+    last_cm = -1;
     p_glBegin(GL_TRIANGLE_STRIP);
   		p_glVertex2f( 0.0f, 0.0f);
 	  	p_glVertex2f( 0.0f, (float)SCREENHEIGHT);
 		  p_glVertex2f( (float)SCREENWIDTH, 0.0f);
 		  p_glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
     p_glEnd();
-    p_glEnable(GL_TEXTURE_2D);
     p_glEnable(GL_ALPHA_TEST);
   }
 
 	p_glColor3f(1.0f,1.0f,1.0f);
   p_glDisable(GL_SCISSOR_TEST);
+  if (gl_shared_texture_palette)
+    p_glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
 }
 
 static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
@@ -1848,13 +1965,8 @@ static void gld_DrawWall(GLWall *wall)
 {
   if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
     wall->gltexture=NULL;
-  if (wall->gltexture)
-  {
-    gld_BindTexture(wall->gltexture);
-  }
-  else
-  {
-    p_glDisable(GL_TEXTURE_2D);
+  gld_BindTexture(wall->gltexture);
+  if (!wall->gltexture) {
 #ifdef _DEBUG
     p_glColor4f(1.0f,0.0f,0.0f,1.0f);
 #endif
@@ -1893,8 +2005,6 @@ static void gld_DrawWall(GLWall *wall)
       p_glTexCoord2f(wall->ur,wall->vb); p_glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     p_glEnd();
   }
-  if (!wall->gltexture)
-    p_glEnable(GL_TEXTURE_2D);
 }
 
 #define LINE seg->linedef
@@ -2510,6 +2620,8 @@ void gld_DrawScene(player_t *player)
           continue;
         if ( (gl_drawskys) && (k==GLDWF_SKY) )
         {
+          if (comp[comp_skymap] && gl_shared_texture_palette)
+            p_glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
           p_glEnable(GL_TEXTURE_GEN_S);
           p_glEnable(GL_TEXTURE_GEN_T);
           p_glEnable(GL_TEXTURE_GEN_Q);
@@ -2527,6 +2639,8 @@ void gld_DrawScene(player_t *player)
           p_glDisable(GL_TEXTURE_GEN_Q);
           p_glDisable(GL_TEXTURE_GEN_T);
           p_glDisable(GL_TEXTURE_GEN_S);
+          if (comp[comp_skymap] && gl_shared_texture_palette)
+            p_glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
         }
       }
       break;
