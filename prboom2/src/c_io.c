@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.11 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: c_io.c,v 1.12 2002/11/22 19:51:19 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.11 2002/11/18 22:54:32 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.12 2002/11/22 19:51:19 dukope Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -90,11 +90,7 @@ int c_speed=10;       // pixels/tic it moves
 int current_target = 0;
 int current_height = 0;
 boolean c_showprompt;
-#ifndef GL_DOOM
-static TScreenVars backdrop = {NULL,0,0};
-#else
 static int backdrop_lumpnum;
-#endif
 static char inputtext[INPUTLENGTH];
 static char *input_point;      // left-most point you see of the command line
 
@@ -125,23 +121,8 @@ static void C_InitBackdrop()
 
   if(W_CheckNumForName("CONSOLE") >= 0)
     lumpname = "CONSOLE";
-  
-#ifndef GL_DOOM
-  if(backdrop.data) {
-    free(backdrop.data);
-    backdrop.data = NULL;
-  }
-  backdrop.data = malloc((C_SCREENHEIGHT+10)*C_SCREENWIDTH*vid_getDepth());
-  
-  oldscreen = screens[1]; screens[1] = backdrop;  // hack to write to
-  
-  // backdrop
-  V_DrawNamePatch(0, 0, 1, lumpname, CR_DEFAULT, VPT_STRETCH);
-  
-  screens[1] = oldscreen;
-#else
+
   backdrop_lumpnum = W_GetNumForName(lumpname);
-#endif
 }
 
 // input_point is the leftmost point of the inputtext which
@@ -416,14 +397,8 @@ void C_Drawer()
 
 
   // draw backdrop
-#ifndef GL_DOOM
-  memcpy(screens[0].data,
-	 (byte*)backdrop.data + (C_SCREENHEIGHT-(current_height*SCREENHEIGHT/200))*C_SCREENWIDTH*vid_getDepth(),
-	 (current_height*(SCREENHEIGHT-1)/200)*C_SCREENWIDTH*vid_getDepth());
-#else
-  V_DrawNumPatch(0, current_height-200, 1, backdrop_lumpnum, CR_DEFAULT, VPT_STRETCH);
-#endif
-
+  V_DrawNumPatch(0, current_height-200, 0, backdrop_lumpnum, CR_DEFAULT, VPT_STRETCH);
+  
   //////////////////////////////////////////////////////////////////////
   // draw text messages
   

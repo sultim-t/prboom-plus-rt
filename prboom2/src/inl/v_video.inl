@@ -274,7 +274,7 @@ void FUNC_V_PlotPatch(
   byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
   const column_t *column, *nextcolumn, *prevcolumn;
-  fixed_t yfrac, xfrac, srcX;
+  fixed_t yfrac, xfrac, srcX, srcYShift;
   int srcColumnIndex, dx;
   void (*columnFunc)();
   int patchHasHolesOrIsNonRectangular;
@@ -309,13 +309,16 @@ void FUNC_V_PlotPatch(
   
   for (dx=destRect.left; dx<destRect.right; dx++) {
     dcvars.x = dx;
-    if (dcvars.x < clampRect.left) continue;
     if (dcvars.x >= clampRect.right) break;
     
     dcvars.texu = srcX % (patch->width<<FRACBITS);
     srcColumnIndex = (srcX>>FRACBITS) % patch->width;
     srcX += FixedDiv(FRACUNIT, xfrac);
 
+    // ignore this column if it's to the left of our clampRect
+    // only after we've updated our source X coord
+    if (dcvars.x < clampRect.left) continue;
+    
     column = (const column_t *)((const byte *)patch + patch->columnofs[srcColumnIndex]);
     prevcolumn = ((srcColumnIndex-1) < 0) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex-1]));
     
@@ -332,14 +335,24 @@ void FUNC_V_PlotPatch(
       dcvars.yl = destRect.top + ((FixedMul(column->topdelta<<FRACBITS, yfrac))>>FRACBITS);
       dcvars.yh = destRect.top + ((FixedMul((column->topdelta+column->length)<<FRACBITS, yfrac))>>FRACBITS);
 
-      // clamp
-      if (dcvars.yh >= clampRect.bottom) dcvars.yh = clampRect.bottom-1;
-      if (dcvars.yl < clampRect.top) dcvars.yl = clampRect.top;
-      
-      // set up our top and bottom sloping
-      dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
-      dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);
-      
+      // clamp and set up our sloping
+      if (dcvars.yh >= clampRect.bottom) {
+        dcvars.yh = clampRect.bottom-1;
+        dcvars.bottomslope = 0;
+      }
+      else {
+        dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);      
+      }
+      if (dcvars.yl < clampRect.top) {
+        srcYShift = (clampRect.top - dcvars.yl) <<FRACBITS;
+        dcvars.yl = clampRect.top;
+        dcvars.topslope = 0;
+      }
+      else {
+        srcYShift = 0;
+        dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
+      }
+            
       dcvars.texheight = column->length;
       dcvars.source = (const byte*)column + 3;
       if (!patchHasHolesOrIsNonRectangular && nextcolumn) dcvars.nextsource = (const byte*)nextcolumn + 3;
@@ -347,10 +360,10 @@ void FUNC_V_PlotPatch(
       
       if (filter == RDRAW_FILTER_LINEAR) {
         // (FRACUNIT>>1) = empirical shift
-        dcvars.texturemid = - (FRACUNIT>>1) - (dcvars.yl-centery)*dcvars.iscale;
+        dcvars.texturemid = srcYShift - (FRACUNIT>>1) - (dcvars.yl-centery)*dcvars.iscale;
       }
       else {
-        dcvars.texturemid = -(dcvars.yl-centery)*dcvars.iscale;
+        dcvars.texturemid = srcYShift - (dcvars.yl-centery)*dcvars.iscale;
       }
       
       columnFunc();
@@ -498,10 +511,18 @@ void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, e
   
   x -= patch->leftoffset;
   y -= patch->topoffset;
-  destRect.left = (x) * SCREENWIDTH / 320;
-  destRect.right = (x+width) * SCREENWIDTH / 320;
-  destRect.top = (y) * SCREENHEIGHT / 200;
-  destRect.bottom = (y+height) * SCREENHEIGHT / 200;
+  
+  destRect.left = x;
+  destRect.right = x+width;
+  destRect.top = y;
+  destRect.bottom = y+height;
+  
+  if (flags & VPT_STRETCH) {
+    destRect.left = destRect.left * SCREENWIDTH / 320;
+    destRect.right = destRect.right * SCREENWIDTH / 320;
+    destRect.top = destRect.top * SCREENHEIGHT / 200;
+    destRect.bottom = destRect.bottom * SCREENHEIGHT / 200;
+  }
   
   if (flags & VPT_TRANS) {
     if (cm<CR_LIMIT) trans = colrngs[cm];

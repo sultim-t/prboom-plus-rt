@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.7 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: f_finale.c,v 1.8 2002/11/22 19:51:19 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.7 2002/11/18 22:54:32 proff_fs Exp $";
+rcsid[] = "$Id: f_finale.c,v 1.8 2002/11/22 19:51:19 dukope Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -603,25 +603,9 @@ static void F_BunnyScroll (void)
     } else if (scrolled >= 320) {
       V_DrawNamePatch(0, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
     } else {
-#define SCRN 2
-
-#ifdef GL_DOOM
-      V_DrawNamePatch(320-scrolled, 0, SCRN, pfub1, CR_DEFAULT, VPT_STRETCH);
-      V_DrawNamePatch(-scrolled, 0, SCRN, pfub2, CR_DEFAULT, VPT_STRETCH);
-#else
       int realscrolled = (SCREENWIDTH * scrolled) / 320;
-
-      screens[SCRN].width = SCREENWIDTH;
-      screens[SCRN].height = SCREENHEIGHT;
-      V_AllocScreen(&screens[SCRN]);
-      V_DrawNamePatch(0, 0, SCRN, pfub2, CR_DEFAULT, VPT_STRETCH);
-      V_CopyRect(realscrolled, 0, SCRN, SCREENWIDTH-realscrolled, SCREENHEIGHT, 0, 0, 0, VPT_NONE);
-      V_DrawNamePatch(0, 0, SCRN, pfub1, CR_DEFAULT, VPT_STRETCH);
-      V_CopyRect(0, 0, SCRN, realscrolled, SCREENHEIGHT, SCREENWIDTH-realscrolled, 0, 0, VPT_NONE);
-      V_FreeScreen(&screens[SCRN]);
-      screens[SCRN].width = 0;
-      screens[SCRN].height = 0;
-#endif
+      V_DrawNamePatch(320-scrolled, 0, 0, pfub1, CR_DEFAULT, VPT_STRETCH);
+      V_DrawNamePatch(-scrolled, 0, 0, pfub2, CR_DEFAULT, VPT_STRETCH);
     }
   }
 
