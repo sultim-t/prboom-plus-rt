@@ -70,9 +70,15 @@ void I_uSleep(unsigned long usecs)
     SDL_Delay(usecs/1000);
 }
 
+int ms_to_next_tick;
+
 int I_GetTime_RealTime (void)
 {
-  return (SDL_GetTicks()*TICRATE)/1000;
+  int t = SDL_GetTicks();
+  int i = t*(TICRATE/5)/200;
+  ms_to_next_tick = (i+1)*200/(TICRATE/5) - t;
+  if (ms_to_next_tick > 1000/TICRATE || ms_to_next_tick<1) ms_to_next_tick = 1;
+  return (SDL_GetTicks()*(TICRATE/5))/200;
 }
 
 /*
