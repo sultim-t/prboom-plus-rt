@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.7 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_spec.c,v 1.7.2.1 2001/05/19 15:42:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.7 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.7.2.1 2001/05/19 15:42:56 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -78,14 +78,7 @@ typedef struct
 //
 //      source animation definition
 //
-#ifdef _MSC_VER
-#define GCC_PACKED
-#else //_MSC_VER
-/* we might want to make this sensitive to whether configure has detected
-   a build with GCC */
-#define GCC_PACKED __attribute__((packed))
-#endif //_MSC_VER
-
+//
 #ifdef _MSC_VER // proff: This is the same as __attribute__ ((packed)) in GNUC
 #pragma pack(push)
 #pragma pack(1)
@@ -101,7 +94,7 @@ typedef struct
   char        endname[9];           //  if false, it is a flat
   char        startname[9];
   int         speed;
-} GCC_PACKED animdef_t; //jff 3/23/98 pack to read from memory
+} PACKEDATTR animdef_t; //jff 3/23/98 pack to read from memory
 
 #if defined(__MWERKS__)
 #pragma options align=reset

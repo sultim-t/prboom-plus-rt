@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.26 2000/12/27 18:42:34 cph Exp $
+ * $Id: m_misc.c,v 1.26.2.4 2001/10/07 12:37:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,12 +33,14 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.26 2000/12/27 18:42:34 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26.2.4 2001/10/07 12:37:47 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
 
+#include <stdio.h>
+#include <errno.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -310,13 +312,14 @@ default_t defaults[] =
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
   {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
+  {"samplerate",{&snd_samplerate},{22050},11025,48000, def_int,ss_none}, 
   {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none}, 
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{2},0,2, // CPhipps - music pausing
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
   {"sounddev", {NULL,&snd_device}, {0,"/dev/dsp"},UL,UL,
    def_str,ss_none}, // sound output device (UNIX)
-  {"snd_channels",{&numChannels},{32},1,UL,
+  {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -337,8 +340,8 @@ default_t defaults[] =
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
-  {"use_vsync",{&use_vsync},{1},0,1,             // killough 2/8/98
-   def_bool,ss_none}, // enable wait for vsync to avoid display tearing (fullscreen)
+  {"use_doublebuffer",{&use_doublebuffer},{1},0,1,             // proff 2001-7-4
+   def_bool,ss_none}, // enable doublebuffer to avoid display tearing (fullscreen)
   {"translucency",{&default_translucency},{1},0,1,   // phares
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{66},0,100,         // killough 2/21/98
@@ -873,14 +876,6 @@ typedef unsigned long dword_t;
 typedef long     long_t;
 typedef unsigned char ubyte_t;
 
-#ifdef _MSC_VER
-#define GCC_PACKED
-#else //_MSC_VER
-/* we might want to make this sensitive to whether configure has detected
-   a build with GCC */
-#define GCC_PACKED __attribute__((packed))
-#endif //_MSC_VER
-
 #ifdef _MSC_VER // proff: This is the same as __attribute__ ((packed)) in GNUC
 #pragma pack(push)
 #pragma pack(1)
@@ -897,7 +892,7 @@ typedef struct tagBITMAPFILEHEADER
   unsigned short  bfReserved1;
   unsigned short  bfReserved2;
   dword_t bfOffBits;
-  } GCC_PACKED BITMAPFILEHEADER;
+  } PACKEDATTR BITMAPFILEHEADER;
 
 typedef struct tagBITMAPINFOHEADER
   {
@@ -912,7 +907,7 @@ typedef struct tagBITMAPINFOHEADER
   long_t  biYPelsPerMeter;
   dword_t biClrUsed;
   dword_t biClrImportant;
-  } GCC_PACKED BITMAPINFOHEADER;
+  } PACKEDATTR BITMAPINFOHEADER;
 
 #if defined(__MWERKS__)
 #pragma options align=reset

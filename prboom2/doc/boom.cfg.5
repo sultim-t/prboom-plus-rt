@@ -188,6 +188,11 @@ pitched_sounds
 If enabled by this variable, this enables `pitching' (making pitch adjustments to the 
 playing sounds) for 16 bit sound cards.
 .TP
+samplerate
+The samplerate for soundmixing and timidity. The sound quality is much better at
+higher samplerates, but if you use timidity then higher samplerates need much
+more CPU power. Usefull values are 11025, 22050, 44100 and 48000.
+.TP
 sfx_volume
 Sound effects volume. This is best adjusted in the game.
 .TP
@@ -220,12 +225,10 @@ If set, this causes PrBoom to try to go full screen. Depending on your
 video driver and mode, this may include changing screen resolution to 
 better match the game's screen resolution.
 .TP
-use_vsync
-For versions of PrBoom that have access to the hardware at this low a level, 
-this tells PrBoom to wait to update the screen until a vertical retrace of
-the CRT screen. This means that the screen is updated while nothing is being 
-drawn, giving a smoother animation and faster redraws. However it does lower 
-the frame-rate.
+use_doublebuffer
+Use double buffering to reduce tearing. On some machines this is even faster
+than the normal method, but on others this makes problems, so you have to try
+out which setting works best.
 .TP
 translucency
 Causes PrBoom to display certain objects as translucent.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: i_sound.c,v 1.2.2.1 2001/10/04 07:26:14 proff_fs Exp $
  *
  *  Sound interface from the original linuxdoom, extensively modified
  *  for LxDoom, a Doom port for Linux/Unix
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.2.2.1 2001/10/04 07:26:14 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -300,7 +300,7 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 // Starting a sound means sending a message to
 // the sound server to start the numbered sound
 //
-int I_StartSound(int id, int vol, int sep, int pitch, int priority)
+int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
   // UNUSED
   priority = 0; 

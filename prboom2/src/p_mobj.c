@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.12 2000/11/08 22:02:34 cph Exp $
+ * $Id: p_mobj.c,v 1.12.2.1 2001/05/26 17:02:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.12 2000/11/08 22:02:34 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.12.2.1 2001/05/26 17:02:10 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -491,13 +491,18 @@ floater:
     /* Note (id):
      *  somebody left this after the setting momz to 0,
      *  kinda useless there.
-     * cph - This was the (a?) bug in the linuxdoom-1.10 source which
-     *  caused it not to sync v1.9 demos. Someone (bg@games.org I guess)
+     * cph - This was the a bug in the linuxdoom-1.10 source which
+     *  caused it not to sync Doom 2 v1.9 demos. Someone
      *  added the above comment and moved up the following code. So 
      *  demos would desync in close lost soul fights.
-     * Compatibility optioned. */
+     * Note that this only applies to original Doom 1 or Doom2 demos -
+     *  Final Doom and Ultimate Doom.  So we test demo_compatibility *and*
+     *  gamemission. (Note we assume that Doom1 is always Ult Doom, which
+     *  seems to hold for most published demos.)
+     */
+    int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
 
-    if (!demo_compatibility && mo->flags & MF_SKULLFLY)
+    if (correct_lost_soul_bounce && mo->flags & MF_SKULLFLY)
       mo->momz = -mo->momz; // the skull slammed into something
 
     if (mo->momz < 0)
@@ -521,6 +526,15 @@ floater:
 	mo->momz = 0;
       }
     mo->z = mo->floorz;
+
+    /* cph 2001/05/26 -
+     * See lost soul bouncing comment above. We need this here for bug
+     * compatibility with original Doom2 v1.9 - if a soul is charging and
+     * hit by a raising floor this incorrectly reverses its Y momentum.
+     */
+    if (!correct_lost_soul_bounce && mo->flags & MF_SKULLFLY)
+      mo->momz = -mo->momz; // the skull slammed into something
+
     if ( (mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP) )
       {
       P_ExplodeMissile (mo);

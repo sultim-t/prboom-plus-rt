@@ -7,11 +7,12 @@ recording demos, you're strongly advised to read this.
 
 To play demos, you of course use "prboom -playdemo demoname" (the .lmp is
 optional). To the best of my knowledge, PrBoom should play all MBF and new
-PrBoom demos perfectly. It also plays most Doom v1.9 demos (significantly
-more than Boom or MBF); in fact, I don't know of any example v1.9 demos that 
-desync within 5 minutes - if you find any, send me an URL. It should play most 
-Boom v2.01 and v2.02 demos, although I don't know of that many to test with. 
-It will also try to play older Doom demos, LxDoom demos, and Boom v2.00 demos.
+PrBoom demos perfectly. It also plays most Doom v1.9 demos (significantly more
+than Boom or MBF); almost all demos recorded with ultimate doom or doom2.exe
+version v1.9 should work (please let me know if you find ones that don't), but
+there are still problems with doom95 and final doom though. It should play most
+Boom v2.01 and v2.02 demos, although I don't know of that many to test with. It
+will also try to play older Doom demos, LxDoom demos, and Boom v2.00 demos.
 
 Recording demos is done with "prboom -record demoname". **IMPORTANT** PrBoom
 will record to a number of demo formats, namely Doom v1.9, Boom v2.02, MBF,

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.13 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: r_data.c,v 1.13.2.1 2001/05/19 15:42:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.13 2000/11/22 21:46:48 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.13.2.1 2001/05/19 15:42:56 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -64,7 +64,7 @@ typedef struct
   short patch;
   short stepdir;         // unused in Doom but might be used in Phase 2 Boom
   short colormap;        // unused in Doom but might be used in Phase 2 Boom
-} mappatch_t __attribute__((packed));
+} PACKEDATTR mappatch_t;
 
 
 typedef struct
@@ -76,7 +76,7 @@ typedef struct
   char       pad[4];       // unused in Doom but might be used in Boom Phase 2
   short      patchcount;
   mappatch_t patches[1];
-} maptexture_t __attribute__((packed));
+} PACKEDATTR maptexture_t;
 
 // A maptexturedef_t describes a rectangular texture, which is composed
 // of one or more mappatch_t structures that arrange graphic patches.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35 2000/11/14 21:22:49 cph Exp $
+ * $Id: gl_main.c,v 1.35.2.2 2001/06/17 17:57:39 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -430,10 +430,10 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   gltexture=(GLTexture *)Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
   if (!gltexture)
     return;
-  gltexture->realtexwidth=patch->width;
-  gltexture->realtexheight=patch->height;
-  gltexture->leftoffset=patch->leftoffset;
-  gltexture->topoffset=patch->topoffset;
+  gltexture->realtexwidth=SHORT(patch->width);
+  gltexture->realtexheight=SHORT(patch->height);
+  gltexture->leftoffset=SHORT(patch->leftoffset);
+  gltexture->topoffset=SHORT(patch->topoffset);
   gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
   gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
   gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
@@ -1920,7 +1920,7 @@ static void gld_DrawWall(GLWall *wall)
 	  const side_t *s = *l->sidenum + sides;\
     wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
 	  wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
-	  wall.skyymid = 200.0f/320.0f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
+	  wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
 	  wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
   }\
   else\
@@ -1930,14 +1930,14 @@ static void gld_DrawWall(GLWall *wall)
 	  const side_t *s = *l->sidenum + sides;\
     wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
 	  wall.skyyaw=-2.0f*((-(float)((viewangle+s->textureoffset)>>ANGLETOFINESHIFT)*360.0f/FINEANGLES)/90.0f);\
-	  wall.skyymid = 200.0f/320.0f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
+	  wall.skyymid = 200.0f/319.5f*(((float)s->rowoffset/(float)FRACUNIT - 28.0f)/100.0f);\
 	  wall.flag = l->special==272 ? GLDWF_SKY : GLDWF_SKYFLIP;\
   }\
   else\
   {\
     wall.gltexture=gld_RegisterTexture(skytexture, false);\
 	  wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
-	  wall.skyymid = 200.0f/320.0f*((100.0f)/100.0f);\
+	  wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
 	  wall.flag = GLDWF_SKY;\
   }
 

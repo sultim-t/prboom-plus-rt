@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.6 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: doomdef.h,v 1.6.2.1 2001/02/18 17:19:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -262,7 +262,7 @@ typedef enum {
 #define KEYD_HOME       0xc7
 #define KEYD_PAGEUP     0xc9
 #define KEYD_PAGEDOWN   0xd1
-#define KEYD_DEL        KEYD_BACKSPACE
+#define KEYD_DEL        0xc8
 #define KEYD_END        0xcf
 #define KEYD_SCROLLLOCK 0xc6
 #define KEYD_SPACEBAR   0x20

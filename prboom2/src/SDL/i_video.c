@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.18 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: i_video.c,v 1.18.2.4 2001/10/07 12:34:42 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.18 2000/11/22 21:46:48 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18.2.4 2001/10/07 12:34:42 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -73,13 +73,11 @@ int gl_depthbuffer_bits=16;
 
 extern void M_QuitDOOM(int choice);
 
-int use_vsync = 0; // Included not to break m_misc, but not relevant to SDL
+int use_doublebuffer = 0; // Included not to break m_misc, but not relevant to SDL
 int use_fullscreen;
 static SDL_Surface *screen;
 
-typedef unsigned char* pval;
-// This is the pointer to the buffer to blit
-pval     *      out_buffer = NULL;
+unsigned char* out_buffer = NULL;
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code 
@@ -120,8 +118,13 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_F10:	rc = KEYD_F10;		break;
   case SDLK_F11:	rc = KEYD_F11;		break;
   case SDLK_F12:	rc = KEYD_F12;		break;
-  case SDLK_BACKSPACE:
-  case SDLK_DELETE:	rc = KEYD_BACKSPACE;	break;
+  case SDLK_BACKSPACE:	rc = KEYD_BACKSPACE;	break;
+  case SDLK_DELETE:	rc = KEYD_DEL;	break;
+  case SDLK_INSERT:	rc = KEYD_INSERT;	break;
+  case SDLK_PAGEUP:	rc = KEYD_PAGEUP;	break;
+  case SDLK_PAGEDOWN:	rc = KEYD_PAGEDOWN;	break;
+  case SDLK_HOME:	rc = KEYD_HOME;	break;
+  case SDLK_END:	rc = KEYD_END;	break;
   case SDLK_PAUSE:	rc = KEYD_PAUSE;	break;
   case SDLK_EQUALS:	rc = KEYD_EQUALS;	break;
   case SDLK_MINUS:	rc = KEYD_MINUS;	break;
@@ -140,6 +143,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_KP_DIVIDE:	rc = KEYD_KEYPADDIVIDE;	break;
   case SDLK_KP_MULTIPLY: rc = KEYD_KEYPADMULTIPLY; break;
   case SDLK_KP_ENTER:	rc = KEYD_KEYPADENTER;	break;
+  case SDLK_KP_PERIOD:	rc = KEYD_KEYPADPERIOD;	break;
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:	rc = KEYD_RSHIFT;	break;
   case SDLK_LCTRL:
@@ -410,6 +414,32 @@ void I_FinishUpdate (void)
 #endif
   
 #ifndef GL_DOOM
+  if (screen->pixels != screens[0])
+  {
+    if (screen->pixels == NULL)
+    {
+      int h;
+      int w;
+      char *src;
+      char *dest;
+
+      if (SDL_LockSurface(screen) >= 0)
+      {
+        //dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
+        dest=(char *)screen->pixels;
+        src=screens[0];
+        w=(screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w);
+        h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
+        for (; h>0; h--)
+        {
+          memcpy(dest,src,w);
+          dest+=screen->pitch;
+          src+=SCREENWIDTH;
+        }
+        SDL_UnlockSurface(screen);
+      }
+    }
+  }
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
   if (newpal != NO_PALETTE_CHANGE) { 
@@ -471,21 +501,38 @@ void I_SetRes(unsigned int width, unsigned int height)
 
 void I_InitGraphics(void)
 {
-  int           w, h;
-  Uint32        init_flags;
   char titlebuffer[2048];
-#ifdef GL_DOOM
-  int temp;
-#endif
+  static int		firsttime=1;
   
+  if (firsttime)
   {  
-    static int		firsttime=1;
-    
-    if (!firsttime) {
-      return;
-    }
     firsttime = 0;
+    
+    atexit(I_ShutdownGraphics);
+    lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+
+    out_buffer=screens[0];
+
+    /* Set the video mode */
+    I_UpdateVideoMode();
+
+    /* Setup the window title */
+    strcpy(titlebuffer,PACKAGE);
+    strcat(titlebuffer," ");
+    strcat(titlebuffer,VERSION);
+    SDL_WM_SetCaption(titlebuffer, titlebuffer);
+
+    /* Initialize the input system */
+    I_InitInputs();
   }
+}
+
+void I_UpdateVideoMode(void)
+{
+  unsigned int w, h;
+  int init_flags;
+
+  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
@@ -494,12 +541,17 @@ void I_InitGraphics(void)
 #ifdef GL_DOOM
   init_flags = SDL_OPENGL;
 #else
-  init_flags = SDL_SWSURFACE|SDL_HWPALETTE;
+  if (use_doublebuffer)
+    init_flags = SDL_SWSURFACE | SDL_DOUBLEBUF;
+  else
+    init_flags = SDL_SWSURFACE;
+#ifndef _DEBUG
+  init_flags |= SDL_HWPALETTE;
 #endif
-  if ( ((M_CheckParm("-fullscreen")) || (use_fullscreen)) && (!M_CheckParm("-nofullscreen")) )
-  {
+#endif
+  if ( use_fullscreen )
     init_flags |= SDL_FULLSCREEN;
-  }
+
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
   SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
@@ -511,46 +563,44 @@ void I_InitGraphics(void)
   SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
   SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-  //SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 0 );
   SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
-#ifdef USE_OWN_TRANSLATION_CODE
-  if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) { 
+  screen = SDL_SetVideoMode(w, h, 8, init_flags);
 #endif
-    screen = SDL_SetVideoMode(w, h, 8, init_flags);
-#ifdef USE_OWN_TRANSLATION_CODE
-  } else {
-    screen = SDL_SetVideoMode(w, h, 0, init_flags);
-  }
-#endif
-#endif
+
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
-  strcpy(titlebuffer,PACKAGE);
-  strcat(titlebuffer," ");
-  strcat(titlebuffer,VERSION);
-  SDL_WM_SetCaption(titlebuffer, titlebuffer);
 
-  lprintf(LO_INFO,"I_InitGraphics:");
+  //mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
-  out_buffer = (pval *)screen->pixels;
+  if (screen->pixels != NULL)
   {
-    // Render directly into SDL display memory
-    Z_Free(screens[0]);
+    if (out_buffer)
+      free(out_buffer);
+    out_buffer=NULL;
     screens[0] = (unsigned char *) (screen->pixels); 
   }
+  else
+  {
+    if (!out_buffer)
+      free(out_buffer);
+    out_buffer = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
+    screens[0] = out_buffer;
+  }
 
-  atexit(I_ShutdownGraphics);
+  // Hide pointer while over this window
+  SDL_ShowCursor(0);
 
-  // Initialize the input system
-  I_InitInputs();
+  R_InitBuffer(w,h);
 
 #ifdef GL_DOOM
-  lprintf(LO_INFO,"\nSDL OpenGL PixelFormat:\n");
+  {
+  int temp;
+    lprintf(LO_INFO,"SDL OpenGL PixelFormat:\n");
   SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
   lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
   SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
@@ -573,9 +623,7 @@ void I_InitGraphics(void)
   lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
   SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
   lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
-  gld_Init(SCREENWIDTH, SCREENHEIGHT);
+    gld_Init(SCREENWIDTH, SCREENHEIGHT);
+  }
 #endif
-  // Hide pointer while over this window
-  SDL_ShowCursor(0);
 }
-

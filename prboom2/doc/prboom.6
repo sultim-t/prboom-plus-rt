@@ -2,11 +2,9 @@
 .TH PRBOOM 6 local
 .SH NAME
 prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
-.PP
-xprboom \- A version of Doom for the X window system
 .SH SYNOPSIS
 .ll +8
-.B {prboom,xprboom}
+.B prboom
 [ \-complevel \fIlvl\fR ]
 .BR
 [ \-width \fIw\fR ] [ \-height \fIh\fR ]
@@ -179,7 +177,9 @@ instead of ~/.prboom/.
 .SH Debugging/Profiling Options
 .TP
 \-devparm
-Development mode. This used to be required for many things, but is almost redundant now. It's only significant effect (to my knowledge) is to show a series of white dots in the lower left corner of the prboom window. The current frame rate is (I think) 35 / (number of dots).
+Development mode. Mostly redundant these days, but it does force non-lazy
+generation of texture lookups which can be useful for level authors debugging
+PWADs.
 .TP
 \-debugfile \fIdebug_file\fR
 Causes some debugging information, mainly network info I believe, to be written to the named file as prboom runs.
