@@ -1037,8 +1037,6 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 {
   fixed_t     x,y;
   subsector_t *ss;
-  unsigned    an;
-  mobj_t      *mo;
   int         i;
 
   if (!players[playernum].mo)
@@ -1092,13 +1090,44 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 
   // spawn a teleport fog
   ss = R_PointInSubsector (x,y);
-  an = ( ANG45 * ((unsigned)mthing->angle/45) ) >> ANGLETOFINESHIFT;
+  { // Teleport fog at respawn point
+    fixed_t xa,ya;
+    int an;
+    mobj_t      *mo;
 
-  mo = P_SpawnMobj(x+20*finecosine[an], y+20*finesine[an],
-                   ss->sector->floorheight, MT_TFOG);
+/* BUG: an can end up negative, because mthing->angle is (signed) short.
+ * We have to emulate original Doom's behaviour, deferencing past the start
+ * of the array, into the previous array (finetangent) */
+    an = ( ANG45 * ((signed)mthing->angle/45) ) >> ANGLETOFINESHIFT;
+    switch (an) {
+    case -4096: xa = finetangent[2048];   // finecosine[-4096]
+		ya = finetangent[0];      // finesine[-4096]
+		break;
+    case -3072: xa = finetangent[3072];   // finecosine[-3072]
+		ya = finetangent[1024];   // finesine[-3072]
+		break;
+    case -2048: xa = finesine[0];   // finecosine[-2048]
+		ya = finetangent[2048];   // finesine[-2048]
+		break;
+    case -1024:	xa = finesine[1024];     // finecosine[-1024]
+		ya = finetangent[3072];  // finesine[-1024]
+		break;
+    case 1024:
+    case 2048:
+    case 3072:
+    case 4096:
+    case 0:	xa = finecosine[an];
+		ya = finesine[an];
+		break;
+    default: I_Error("G_CheckSpot: unexpected angle %d\n",an);
+    }
 
-  if (players[consoleplayer].viewz != 1)
-    S_StartSound(mo, sfx_telept);  // don't start sound on first frame
+
+    mo = P_SpawnMobj(x+20*xa, y+20*ya, ss->sector->floorheight, MT_TFOG);
+
+    if (players[consoleplayer].viewz != 1)
+      S_StartSound(mo, sfx_telept);  // don't start sound on first frame
+  }
 
   return true;
 }
