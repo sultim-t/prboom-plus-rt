@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_inter.c,v 1.3 2000/05/11 23:22:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.3 2000/05/11 23:22:20 cph Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -45,6 +45,9 @@ rcsid[] = "$Id: p_inter.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
 #include "d_deh.h"  // Ty 03/22/98 - externalized strings
 #include "p_tick.h"
 #include "lprintf.h"
+
+#include "p_inter.h"
+#include "p_enemy.h"
 
 #ifdef __GNUG__
 #pragma implementation "p_inter.h"
@@ -734,12 +737,18 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 {
   player_t *player;
+  boolean justhit;          /* killough 11/98 */
 
-  if (!(target->flags & MF_SHOOTABLE))
+  /* killough 8/31/98: allow bouncers to take damage */
+  if (!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))
     return; // shouldn't happen...
 
   if (target->health <= 0)
     return;
+  
+  /* proff 11/22/98: Andy Baker's Stealth monsters */
+  if (target->flags & MF_STEALTH)
+    P_BecomeVisible(target);
 
   if (target->flags & MF_SKULLFLY)
     target->momx = target->momy = target->momz = 0;
@@ -773,13 +782,15 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       ang >>= ANGLETOFINESHIFT;
       target->momx += FixedMul (thrust, finecosine[ang]);
       target->momy += FixedMul (thrust, finesine[ang]);
+
+      /* killough 11/98: thrust objects hanging off ledges */
+      if (target->intflags & MIF_FALLING && target->gear >= MAXGEAR)
+      	target->gear = 0;
     }
 
   // player specific
   if (player)
     {
-      int temp;
-
       // end of game hell hack
       if (target->subsector->sector->special == 11 && damage >= target->health)
         damage = target->health - 1;
@@ -814,13 +825,6 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
       if (player->damagecount > 100)
         player->damagecount = 100;  // teleport stomp does 10k points...
-
-      temp = damage < 100 ? damage : 100;
-
-#if 0
-      if (player == &players[consoleplayer])
-        I_Tactile (40,10,40+temp*2);
-#endif
     }
 
   // do the damage
@@ -831,27 +835,58 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       return;
     }
 
-  if ((P_Random (pr_painchance) < target->info->painchance)
-      && !(target->flags&MF_SKULLFLY) )
+  // killough 9/7/98: keep track of targets so that friends can help friends
+  if (mbf_features)
     {
-      target->flags |= MF_JUSTHIT;    // fight back!
-      P_SetMobjState(target, target->info->painstate);
+      /* If target is a player, set player's target to source,
+       * so that a friend can tell who's hurting a player
+       */
+      if (player)
+	P_SetTarget(&target->target, source);
+      
+      /* killough 9/8/98:
+       * If target's health is less than 50%, move it to the front of its list.
+       * This will slightly increase the chances that enemies will choose to
+       * "finish it off", but its main purpose is to alert friends of danger.
+       */
+      if (target->health*2 < target->info->spawnhealth)
+	{
+	  thinker_t *cap = &thinkerclasscap[target->flags & MF_FRIEND ? 
+					   th_friends : th_enemies];
+	  (target->thinker.cprev->cnext = target->thinker.cnext)->cprev =
+	    target->thinker.cprev;
+	  (target->thinker.cnext = cap->cnext)->cprev = &target->thinker;
+	  (target->thinker.cprev = cap)->cnext = &target->thinker;
+	}
     }
+
+  if ((justhit = (P_Random (pr_painchance) < target->info->painchance &&
+		  !(target->flags & MF_SKULLFLY)))) //killough 11/98: see below
+    P_SetMobjState(target, target->info->painstate);
 
   target->reactiontime = 0;           // we're awake now...
 
-  if ((!target->threshold || target->type == MT_VILE)
-      && source && /*->*/ source != target /* <- suicide bugfix? killough */
-      && source->type != MT_VILE)
+  /* killough 9/9/98: cleaned up, made more consistent: */
+
+  if (source && source != target && source->type != MT_VILE &&
+      (!target->threshold || target->type == MT_VILE) &&
+      ((source->flags ^ target->flags) & MF_FRIEND || 
+       monster_infighting || 
+       !mbf_features))
     {
-      // if not intent on another player, chase after this one
+      /* if not intent on another player, chase after this one
+       *
+       * killough 2/15/98: remember last enemy, to prevent
+       * sleeping early; 2/21/98: Place priority on players
+       * killough 9/9/98: cleaned up, made more consistent:
+       */
 
-      // killough 2/15/98: remember last enemy, to prevent
-      // sleeping early; 2/21/98: Place priority on players
-
-      if (!target->lastenemy || !target->lastenemy->player ||
-          target->lastenemy->health <= 0)
-        P_SetTarget(&target->lastenemy, target->target); // remember last enemy - killough
+      if (!target->lastenemy || target->lastenemy->health <= 0 ||
+	  (!mbf_features ? 
+	   !target->lastenemy->player :
+	   !((target->flags ^ target->lastenemy->flags) & MF_FRIEND) &&
+	   target->target != source)) // remember last enemy - killough
+	P_SetTarget(&target->lastenemy, target->target);
 
       P_SetTarget(&target->target, source);       // killough 11/98
       target->threshold = BASETHRESHOLD;
@@ -859,4 +894,9 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
           && target->info->seestate != S_NULL)
         P_SetMobjState (target, target->info->seestate);
     }
+
+  /* killough 11/98: Don't attack a friend, unless hit by that friend. */
+  if (justhit && (target->target == source || !target->target ||
+		  !(target->flags & target->target->flags & MF_FRIEND)))
+    target->flags |= MF_JUSTHIT;    // fight back!
 }

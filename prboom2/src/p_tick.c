@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.5 2000/05/11 20:09:06 proff_fs Exp $
+ * $Id: p_tick.c,v 1.6 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,13 +33,12 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.5 2000/05/11 20:09:06 proff_fs Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.6 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h"
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
-#include "lprintf.h"
 
 int leveltime;
 
@@ -54,10 +53,10 @@ int leveltime;
 // Both the head and tail of the thinker list.
 thinker_t thinkercap;
 
-// Make currentthinker external, so that P_RemoveThinkerDelayed
-// can adjust currentthinker when thinkers self-remove.
+// killough 8/29/98: we maintain several separate threads, each containing
+// a special class of thinkers, to allow more efficient searches. 
 
-static thinker_t *currentthinker;
+thinker_t thinkerclasscap[NUMTHCLASS];
 
 //
 // P_InitThinkers
@@ -65,7 +64,42 @@ static thinker_t *currentthinker;
 
 void P_InitThinkers(void)
 {
+  int i;
+
+  for (i=0; i<NUMTHCLASS; i++)  // killough 8/29/98: initialize threaded lists
+    thinkerclasscap[i].cprev = thinkerclasscap[i].cnext = &thinkerclasscap[i];
+
   thinkercap.prev = thinkercap.next  = &thinkercap;
+}
+
+//
+// killough 8/29/98:
+// 
+// We maintain separate threads of friends and enemies, to permit more
+// efficient searches.
+//
+
+void P_UpdateThinker(thinker_t *thinker)
+{
+  // find the class the thinker belongs to
+  
+  int class = thinker->function == P_MobjThinker && 
+    ((mobj_t *) thinker)->health > 0 && 
+    (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
+     ((mobj_t *) thinker)->type == MT_SKULL) ?
+    ((mobj_t *) thinker)->flags & MF_FRIEND ?
+    th_friends : th_enemies : th_misc;
+
+  // Remove from current thread
+  thinker_t *th = thinker->cnext;
+  (th->cprev = thinker->cprev)->cnext = th;
+  
+  // Add to appropriate thread
+  th = &thinkerclasscap[class];
+  th->cprev->cnext = thinker;
+  thinker->cnext = th;
+  thinker->cprev = th->cprev;
+  th->cprev = thinker;
 }
 
 //
@@ -81,25 +115,19 @@ void P_AddThinker(thinker_t* thinker)
   thinkercap.prev = thinker;
 
   thinker->references = 0;    // killough 11/98: init reference counter to 0
+
+  // killough 8/29/98: set sentinel pointers, and then add to appropriate list
+  thinker->cnext = thinker->cprev = thinker;
+  P_UpdateThinker(thinker);
 }
 
 //
-// CPhipps - reference counting for mobjs from MBF
+// killough 11/98:
 //
+// Make currentthinker external, so that P_RemoveThinkerDelayed
+// can adjust currentthinker when thinkers self-remove.
 
-void P_SetTarget(mobj_t **mop, mobj_t *targ) 
-{
-  if (*mop) {            // If there was a target already, decrease its refcount
-#ifdef SIMPLECHECKS
-    if (!((*mop)->thinker.references--)) 
-      lprintf(LO_ERROR,"P_SetTarget: Bad reference count decrement\n");
-#else
-    (*mop)->thinker.references--;
-#endif
-  }
-  if ((*mop = targ))    // Set new target and if non-NULL, increase its counter
-    targ->thinker.references++;
-}
+static thinker_t *currentthinker;
 
 //
 // P_RemoveThinkerDelayed()
@@ -112,30 +140,15 @@ void P_SetTarget(mobj_t **mop, mobj_t *targ)
 // that the next step in P_RunThinkers() will get its successor.
 //
 
-// cph - separate function for mobj deletion, to worry about references
-
-static void P_RemoveThinkerDelayed(thinker_t *thinker)
+void P_RemoveThinkerDelayed(thinker_t *thinker)
 {
-/*
-  thinker_t *next = thinker->next;
-  (next->prev = currentthinker = thinker->prev)->next = next;
-  Z_Free(thinker);
-*/
   if (!thinker->references)
-  {
-    thinker_t *next = thinker->next;
-    (next->prev = currentthinker = thinker->prev)->next = next;
-    Z_Free(thinker);
-  }
+    {
+      thinker_t *next = thinker->next;
+      (next->prev = currentthinker = thinker->prev)->next = next;
+      Z_Free(thinker);
+    }
 }
-
-/*
-static void P_RemoveMobjDelayed(mobj_t *mobj)
-{
-  if (!mobj->references)
-    P_RemoveThinkerDelayed((thinker_t *)mobj);
-}
-*/
 
 //
 // P_RemoveThinker
@@ -147,19 +160,35 @@ static void P_RemoveMobjDelayed(mobj_t *mobj)
 //
 // Instead of marking the function with -1 value cast to a function pointer,
 // set the function to P_RemoveThinkerDelayed(), so that later, it will be
-// promoted to P_RemoveThinker() automatically as part of the thinker process.
+// removed automatically as part of the thinker process.
 //
 
 void P_RemoveThinker(thinker_t *thinker)
 {
-  /* cph - Different removal function if it's an mobj
-   * since for an mobj we have to check references first */
   thinker->function = P_RemoveThinkerDelayed;
+
+  // killough 8/29/98: remove immediately from threaded list
+  (thinker->cnext->cprev = thinker->cprev)->cnext = thinker->cnext;
+}
+
 /*
-  thinker->function = 
-    (thinker->function == P_MobjThinker) 
-    ? P_RemoveMobjDelayed : P_RemoveThinkerDelayed;
-*/
+ * P_SetTarget
+ *
+ * This function is used to keep track of pointer references to mobj thinkers.
+ * In Doom, objects such as lost souls could sometimes be removed despite 
+ * their still being referenced. In Boom, 'target' mobj fields were tested
+ * during each gametic, and any objects pointed to by them would be prevented
+ * from being removed. But this was incomplete, and was slow (every mobj was
+ * checked during every gametic). Now, we keep a count of the number of
+ * references, and delay removal until the count is 0.
+ */
+
+void P_SetTarget(mobj_t **mop, mobj_t *targ)
+{
+  if (*mop)             // If there was a target already, decrease its refcount
+    (*mop)->thinker.references--;
+  if ((*mop = targ))    // Set new target and if non-NULL, increase its counter
+    targ->thinker.references++;
 }
 
 //
@@ -202,9 +231,17 @@ void P_Ticker (void)
 {
   int i;
 
-  // pause if in menu and at least one tic has been run
-  if (paused || (!netgame && menuactive && !demoplayback &&
-                  players[consoleplayer].viewz != 1))
+  /* pause if in menu and at least one tic has been run
+   *
+   * killough 9/29/98: note that this ties in with basetic,
+   * since G_Ticker does the pausing during recording or
+   * playback, and compenates by incrementing basetic.
+   * 
+   * All of this complicated mess is used to preserve demo sync.
+   */
+
+  if (paused || (menuactive && !demoplayback && !netgame &&
+		 players[consoleplayer].viewz != 1))
     return;
 
   for (i=0; i<MAXPLAYERS; i++)
@@ -216,3 +253,4 @@ void P_Ticker (void)
   P_RespawnSpecials();
   leveltime++;                       // for par times
 }
+

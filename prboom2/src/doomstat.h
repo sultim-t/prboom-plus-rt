@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: doomstat.h,v 1.4 2000/05/11 23:22:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -81,12 +81,15 @@ enum {
   boom_compatibility_compatibility,      // Boom's compatibility mode
   boom_compatibility,                    // Compatible with Boom
   lxdoom_1_compatibility,                // LxDoom v1.3.2+
+  mbf_compatibility,                     /* MBF */
+  prboom_1_compatibility,                /* PrBoom 2.03+? */
   MAX_COMPATIBILITY_LEVEL                // Must be last entry
 };
 
 // CPhipps - old compatibility testing flags aliased to new handling
 #define compatibility (compatibility_level<=boom_compatibility_compatibility)
 #define demo_compatibility (!compatibility_level)
+#define mbf_features (compatibility_level>=mbf_compatibility)
 
 // v1.1-like pitched sounds
 extern int pitched_sounds, default_pitched_sounds;        // killough
@@ -199,6 +202,7 @@ extern  int totalsecret;
 
 // Timer, for scores.
 extern  int levelstarttic;  // gametic at level start
+extern  int basetic;    /* killough 9/29/98: levelstarttic, adjusted */
 extern  int leveltime;  // tics in game play for par
 
 // --------------------------------------
@@ -311,5 +315,34 @@ extern int default_weapon_recoil;
 
 extern int player_bobbing;  // whether player bobs or not   // phares 2/25/98
 extern int default_player_bobbing;  // killough 3/1/98: make local to each game
+
+#ifdef DOGS
+extern int dogs, default_dogs;     // killough 7/19/98: Marine's best friend :)
+extern int dog_jumping, default_dog_jumping;   // killough 10/98
+#endif
+
+/* killough 8/8/98: distance friendly monsters tend to stay from player */
+extern int distfriend, default_distfriend;
+
+/* killough 9/8/98: whether monsters are allowed to strafe or retreat */
+extern int monster_backing, default_monster_backing;
+
+/* killough 9/9/98: whether monsters intelligently avoid hazards */
+extern int monster_avoid_hazards, default_monster_avoid_hazards;
+
+/* killough 10/98: whether monsters are affected by friction */
+extern int monster_friction, default_monster_friction;
+
+/* killough 9/9/98: whether monsters help friends */
+extern int help_friends, default_help_friends;
+
+extern int flashing_hom; // killough 10/98
+
+extern int doom_weapon_toggles;   // killough 10/98
+
+/* killough 7/19/98: whether monsters should fight against each other */
+extern int monster_infighting, default_monster_infighting;
+
+extern int monkeys, default_monkeys;
 
 #endif

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_pspr.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_pspr.c,v 1.4 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_pspr.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_pspr.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -133,7 +133,9 @@ static void P_BringUpWeapon(player_t *player)
   newstate = weaponinfo[player->pendingweapon].upstate;
 
   player->pendingweapon = wp_nochange;
-  player->psprites[ps_weapon].sy = WEAPONBOTTOM;
+  // killough 12/98: prevent pistol from starting visibly at bottom of screen:
+  player->psprites[ps_weapon].sy = 
+    mbf_features ? WEAPONBOTTOM+FRACUNIT*2 : WEAPONBOTTOM;
 
   P_SetPsprite(player, ps_weapon, newstate);
 }
@@ -492,7 +494,13 @@ void A_Punch(player_t *player, pspdef_t *psp)
   // killough 5/5/98: remove dependence on order of evaluation:
   t = P_Random(pr_punchangle);
   angle += (t - P_Random(pr_punchangle))<<18;
-  slope = P_AimLineAttack(player->mo, angle, MELEERANGE);
+
+  /* killough 8/2/98: make autoaiming prefer enemies */
+  if (!mbf_features ||
+      (slope = P_AimLineAttack(player->mo, angle, MELEERANGE, MF_FRIEND),
+       !linetarget))
+    slope = P_AimLineAttack(player->mo, angle, MELEERANGE, 0);
+
   P_LineAttack(player->mo, angle, MELEERANGE, slope, damage);
 
   if (!linetarget)
@@ -518,8 +526,13 @@ void A_Saw(player_t *player, pspdef_t *psp)
   int t = P_Random(pr_saw);
   angle += (t - P_Random(pr_saw))<<18;
 
-  // Use meleerange + 1 so that the puff doesn't skip the flash
-  slope = P_AimLineAttack(player->mo, angle, MELEERANGE+1);
+  /* Use meleerange + 1 so that the puff doesn't skip the flash
+   * killough 8/2/98: make autoaiming prefer enemies */
+  if (!mbf_features ||
+      (slope = P_AimLineAttack(player->mo, angle, MELEERANGE+1, MF_FRIEND),
+       !linetarget))
+    slope = P_AimLineAttack(player->mo, angle, MELEERANGE+1, 0);
+
   P_LineAttack(player->mo, angle, MELEERANGE+1, slope, damage);
 
   if (!linetarget)
@@ -569,6 +582,20 @@ void A_FireBFG(player_t *player, pspdef_t *psp)
   P_SpawnPlayerMissile(player->mo, MT_BFG);
 }
 
+/*
+ * A_FireOldBFG
+ *
+ * This function emulates Doom's Pre-Beta BFG
+ * By Lee Killough 6/6/98, 7/11/98, 7/19/98, 8/20/98
+ *
+ * This code may not be used in other mods without appropriate credit given.
+ * Code leeches will be telefragged.
+ */
+
+void A_FireOldBFG(player_t *player, pspdef_t *psp)
+{
+}
+
 //
 // A_FirePlasma
 //
@@ -593,18 +620,18 @@ static void P_BulletSlope(mobj_t *mo)
 {
   angle_t an = mo->angle;    // see which target is to be aimed at
 
-  bulletslope = P_AimLineAttack(mo, an, 16*64*FRACUNIT);
+  /* killough 8/2/98: make autoaiming prefer enemies */
+  uint_64_t mask = mbf_features ? MF_FRIEND : 0;
 
-  if (!linetarget)
+  do
     {
-      an += 1<<26;
-      bulletslope = P_AimLineAttack(mo, an, 16*64*FRACUNIT);
+      bulletslope = P_AimLineAttack(mo, an, 16*64*FRACUNIT, mask);
       if (!linetarget)
-        {
-          an -= 2<<26;
-          bulletslope = P_AimLineAttack(mo, an, 16*64*FRACUNIT);
-        }
+	bulletslope = P_AimLineAttack(mo, an += 1<<26, 16*64*FRACUNIT, mask);
+      if (!linetarget)
+	bulletslope = P_AimLineAttack(mo, an -= 2<<26, 16*64*FRACUNIT, mask);
     }
+  while (mask && (mask=0, !linetarget));  /* killough 8/2/98 */
 }
 
 //
@@ -743,7 +770,11 @@ void A_BFGSpray(mobj_t *mo)
 
       // mo->target is the originator (player) of the missile
 
-      P_AimLineAttack(mo->target, an, 16*64*FRACUNIT);
+      // killough 8/2/98: make autoaiming prefer enemies
+      if (!mbf_features ||
+         (P_AimLineAttack(mo->target, an, 16*64*FRACUNIT, MF_FRIEND),
+         !linetarget))
+	      P_AimLineAttack(mo->target, an, 16*64*FRACUNIT, 0);
 
       if (!linetarget)
         continue;

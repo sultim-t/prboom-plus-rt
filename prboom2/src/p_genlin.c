@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_genlin.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: p_genlin.c,v 1.4 2000/05/11 23:22:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_genlin.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $";
+rcsid[] = "$Id: p_genlin.c,v 1.4 2000/05/11 23:22:20 cph Exp $";
 
 #include "doomstat.h" //jff 6/19/98 for demo_compatibility
 #include "r_main.h"
@@ -759,6 +759,7 @@ manual_stair:
         if (!Igno && tsec->floorpic != texture)
           continue;
 
+	/* cph - DEMOSYNC - MBF includes a fix here, don't understand it */
         if (demo_compatibility) // jff 6/19/98 prevent double stepsize
           height += floor->direction * stairsize;
 
@@ -970,6 +971,11 @@ manual_locked:
     door->topheight -= 4*FRACUNIT;
     door->direction = 1;
 
+    /* killough 10/98: implement gradual lighting */
+    door->lighttag = mbf_features && 
+      (line->special&6) == 6 &&
+      line->special > GenLockedBase ? line->tag : 0;
+
     // setup speed of door motion
     switch(Sped)
     {
@@ -1104,6 +1110,11 @@ manual_door:
         break;
     }
     door->line = line; // jff 1/31/98 remember line that triggered us
+
+    /* killough 10/98: implement gradual lighting */
+    door->lighttag = mbf_features && 
+      (line->special&6) == 6 &&
+      line->special > GenLockedBase ? line->tag : 0;
 
     // set kind of door, whether it opens then close, opens, closes etc.
     // assign target heights accordingly

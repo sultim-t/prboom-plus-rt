@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_telept.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_telept.c,v 1.4 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_telept.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_telept.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomdef.h"
 #include "p_spec.h"
@@ -78,7 +78,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
           if (player && player->mo != thing)
             player = NULL;
 
-          if (!P_TeleportMove(thing, m->x, m->y))
+          if (!P_TeleportMove(thing, m->x, m->y, false)) /* killough 8/9/98 */
             return 0;
 
           thing->z = thing->floorz;  // fixme: not needed?
@@ -97,12 +97,16 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
                                    thing->z, MT_TFOG),
                        sfx_telept);
 
-          if (player)                    // don't move for a bit
+          if (thing->player)       // don't move for a bit // killough 10/98
             thing->reactiontime = 18;
 
           thing->angle = m->angle;
 
           thing->momx = thing->momy = thing->momz = 0;
+
+	  /* killough 10/98: kill all bobbing momentum too */
+	  if (player)
+	    player->momx = player->momy = 0;
 
           return 1;
         }
@@ -155,7 +159,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
           player_t *player = thing->player;
 
           // Attempt to teleport, aborting if blocked
-          if (!P_TeleportMove(thing, m->x, m->y))
+          if (!P_TeleportMove(thing, m->x, m->y, false)) /* killough 8/9/98 */
             return 0;
 
           // Rotate thing according to difference in angles
@@ -279,7 +283,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
             x += l->dy < 0 != side ? -1 : 1;
 
         // Attempt to teleport, aborting if blocked
-        if (!P_TeleportMove(thing, x, y))
+        if (!P_TeleportMove(thing, x, y, false)) /* killough 8/9/98 */
           return 0;
 
         // Adjust z position to be same height above ground as before.

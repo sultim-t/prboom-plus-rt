@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $
+ * $Id: g_game.c,v 1.6 2000/05/11 23:22:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.5 2000/05/10 23:32:47 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.6 2000/05/11 23:22:20 cph Exp $";
 
 #include <stdarg.h>
 
@@ -111,6 +111,7 @@ int             consoleplayer; // player taking events and displaying
 int             displayplayer; // view being displayed
 int             gametic;
 int             levelstarttic; // gametic at level start
+int             basetic;       /* killough 9/29/98: for demo sync */
 int             totalkills, totalitems, totalsecret;    // for intermission
 boolean         demorecording;
 boolean         demoplayback;
@@ -513,7 +514,7 @@ void G_RestartLevel(void)
 
 extern gamestate_t wipegamestate;
 
-void G_DoLoadLevel (void)
+static void G_DoLoadLevel (void)
 {
   int i;
 
@@ -556,6 +557,9 @@ void G_DoLoadLevel (void)
       }//jff 3/27/98 end sky setting fix
 
   levelstarttic = gametic;        // for time calculation
+
+  if (!demo_compatibility && !mbf_features)   // killough 9/29/98
+    basetic = gametic;
 
   if (wipegamestate == GS_LEVEL)
     wipegamestate = -1;             // force a wipe
@@ -622,50 +626,69 @@ boolean G_Responder (event_t* ev)
 {
   // allow spy mode changes even during the demo
   // killough 2/22/98: even during DM demo
+  //
+  // killough 11/98: don't autorepeat spy mode switch
 
-  if (gamestate == GS_LEVEL && ev->type == ev_keydown
-      && ev->data1 == key_spy /* phares */ &&
-      (demoplayback /* killough */ || !deathmatch) )
-    {                                                          // spy mode
-      do
-        if (++displayplayer == MAXPLAYERS)
-          displayplayer = 0;
-      while (!playeringame[displayplayer] && displayplayer != consoleplayer);
-      ST_Start();    // killough 3/7/98: switch status bar views too
-      HU_Start();
-      S_UpdateSounds(players[displayplayer].mo);
+  if (ev->data1 == key_spy && netgame && (demoplayback || !deathmatch) &&
+      gamestate == GS_LEVEL)
+    {
+      if (ev->type == ev_keyup)
+	gamekeydown[key_spy] = false;
+      if (ev->type == ev_keydown && !gamekeydown[key_spy])
+	{
+	  gamekeydown[key_spy] = true;
+	  do                                          // spy mode
+	    if (++displayplayer >= MAXPLAYERS)
+	      displayplayer = 0;
+	  while (!playeringame[displayplayer] && displayplayer!=consoleplayer);
+
+	  ST_Start();    // killough 3/7/98: switch status bar views too
+	  HU_Start();
+	  S_UpdateSounds(players[displayplayer].mo);
+	}
       return true;
     }
 
+  // killough 9/29/98: reformatted
+  if (gamestate == GS_LEVEL && (HU_Responder(ev) ||  // chat ate the event
+				ST_Responder(ev) ||  // status window ate it
+				AM_Responder(ev)))   // automap ate it
+    return true;
+
   // any other key pops up menu if in demos
-  if (gameaction == ga_nothing && !singledemo &&
-      (demoplayback || gamestate == GS_DEMOSCREEN))
+  //
+  // killough 8/2/98: enable automap in -timedemo demos
+  //
+  // killough 9/29/98: make any key pop up menu regardless of
+  // which kind of demo, and allow other events during playback
+
+  if (gameaction == ga_nothing && (demoplayback || gamestate == GS_DEMOSCREEN))
     {
-      if (ev->type == ev_keydown ||
-          (ev->type == ev_mouse && ev->data1) ||
-          (ev->type == ev_joystick && ev->data1) )
-        {
-          M_StartControlPanel ();
-          return true;
-        }
-      return false;
+      // killough 9/29/98: allow user to pause demos during playback
+      if (ev->type == ev_keydown && ev->data1 == key_pause)
+	{
+	  if (paused ^= 2)
+	    S_PauseSound();
+	  else
+	    S_ResumeSound();
+	  return true;
+	}
+
+      // killough 10/98:
+      // Don't pop up menu, if paused in middle
+      // of demo playback, or if automap active.
+      // Don't suck up keys, which may be cheats
+
+      return gamestate == GS_DEMOSCREEN &&
+	!(paused & 2) && !(automapmode & am_active) &&
+	((ev->type == ev_keydown) ||
+	 (ev->type == ev_mouse && ev->data1) ||
+	 (ev->type == ev_joystick && ev->data1)) ?
+	M_StartControlPanel(), true : false;
     }
 
-  if (gamestate == GS_LEVEL)
-    {
-      if (HU_Responder (ev))
-        return true;  // chat ate the event
-      if (ST_Responder (ev))
-        return true;  // status window ate it
-      if (AM_Responder (ev))
-        return true;  // automap ate it
-    }
-
-  if (gamestate == GS_FINALE)
-    {
-      if (F_Responder (ev))
-        return true;  // finale ate the event
-    }
+  if (gamestate == GS_FINALE && F_Responder(ev))
+    return true;  // finale ate the event
 
   switch (ev->type)
     {
@@ -1409,9 +1432,14 @@ static const struct {
   const char* ver_printf;
   int version;
 } version_headers[] = {
+  { mbf_compatibility, "MBF %d", 204},
+  { prboom_1_compatibility, "PrBoom %d", 260}
+#if 0
   { boom_compatibility, "BoomVer %d", 202 },
   { lxdoom_1_compatibility, "LxD %d", 203 },
-  { boom_compatibility_compatibility, "BoomVer %d", 202 }};
+  { boom_compatibility_compatibility, "BoomVer %d", 202 }
+#endif
+};
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
 
@@ -2133,6 +2161,8 @@ void G_DoPlayDemo (void)
   int i, episode, map;
   char basename[9];
   int demover;
+
+  basetic = gametic;  // killough 9/29/98
 
   ExtractFileBase(defdemoname,basename);           // killough
   gameaction = ga_nothing;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_user.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_user.c,v 1.3 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_user.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_user.c,v 1.3 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -71,6 +71,23 @@ void P_Thrust(player_t* player,angle_t angle,fixed_t move)
   }
 
 
+/*
+ * P_Bob
+ * Same as P_Thrust, but only affects bobbing.
+ *
+ * killough 10/98: We apply thrust separately between the real physical player
+ * and the part which affects bobbing. This way, bobbing only comes from player
+ * motion, nothing external, avoiding many problems, e.g. bobbing should not
+ * occur on conveyors, unless the player walks on one, and bobbing should be
+ * reduced at a regular rate, even on ice (where the player coasts).
+ */
+
+void P_Bob(player_t *player, angle_t angle, fixed_t move)
+{
+  player->momx += FixedMul(move,finecosine[angle >>= ANGLETOFINESHIFT]);
+  player->momy += FixedMul(move,finesine[angle]);
+}
+
 //
 // P_CalcHeight
 // Calculate the walking / running height adjustment
@@ -88,27 +105,20 @@ void P_CalcHeight (player_t* player)
   // Note: a LUT allows for effects
   //  like a ramp with low health.
 
-  if (!demo_compatibility && !player_bobbing)               // phares 2/26/98
-    player->bob = 0;                                        //   |
-  else                                                      //   V
-    {
-    player->bob = FixedMul(player->mo->momx,player->mo->momx)
-                + FixedMul(player->mo->momy,player->mo->momy);
-    player->bob >>= 2;
 
-    // phares 9/9/98: If player is standing on ice, reduce his bobbing.
+  /* killough 10/98: Make bobbing depend only on player-applied motion.
+   *
+   * Note: don't reduce bobbing here if on ice: if you reduce bobbing here,
+   * it causes bobbing jerkiness when the player moves from ice to non-ice,
+   * and vice-versa.
+   */
+  player->bob = player_bobbing ? (FixedMul(player->momx,player->momx) + 
+				  FixedMul(player->momy,player->momy))>>2 : 0;
 
-    if (player->mo->friction > ORIG_FRICTION) // ice?
-      {
-      if (player->bob > (MAXBOB>>2))
-        player->bob = MAXBOB>>2;
-      }
-    else                                                    //   ^
-      if (player->bob > MAXBOB)                             //   |
-        player->bob = MAXBOB;                               // phares 2/26/98
-    }
+  if (player->bob > MAXBOB)                             
+    player->bob = MAXBOB;
 
-  if ((player->cheats & CF_NOMOMENTUM) || !onground)
+  if (!onground || player->cheats & CF_NOMOMENTUM)
     {
     player->viewz = player->mo->z + VIEWHEIGHT;
 
@@ -164,34 +174,53 @@ void P_CalcHeight (player_t* player)
 // P_MovePlayer
 //
 // Adds momentum if the player is not in the air
+//
+// killough 10/98: simplified
 
 void P_MovePlayer (player_t* player)
-  {
-  ticcmd_t* cmd;
-  int       movefactor;       // movement factor                    // phares
-  mobj_t*   thismo;           // local object                       // phares
-  boolean   onobject = false; // on top of an object?               // phares
+{
+  ticcmd_t *cmd = &player->cmd;
+  mobj_t *mo = player->mo;
 
-  cmd = &player->cmd;
+  mo->angle += cmd->angleturn << 16;
+  onground = mo->z <= mo->floorz;
 
-  thismo = player->mo;                                              // phares
-  thismo->angle += (cmd->angleturn<<16);                            //   |
-                                                                    //   V
-// Do not let the player control movement if not on ground.
+  // killough 10/98:
+  //
+  // We must apply thrust to the player and bobbing separately, to avoid
+  // anomalies. The thrust applied to bobbing is always the same strength on
+  // ice, because the player still "works just as hard" to move, while the
+  // thrust applied to the movement varies with 'movefactor'.
 
-  onground = (thismo->z <= thismo->floorz);
-  if (onground || onobject)
+  if (cmd->forwardmove | cmd->sidemove) // killough 10/98
     {
-    movefactor = P_GetMoveFactor(thismo);
-    if (cmd->forwardmove)
-      P_Thrust(player,thismo->angle,cmd->forwardmove*movefactor);
-    if (cmd->sidemove)
-      P_Thrust(player,thismo->angle-ANG90,cmd->sidemove*movefactor);
+      if (onground || mo->flags & MF_BOUNCES) // killough 8/9/98
+    	{
+    	  int friction, movefactor = P_GetMoveFactor(mo, &friction);
+
+	      // killough 11/98:
+	      // On sludge, make bobbing depend on efficiency.
+	      // On ice, make it depend on effort.
+
+	      int bobfactor =
+	        friction < ORIG_FRICTION ? movefactor : ORIG_FRICTION_FACTOR;
+
+	      if (cmd->forwardmove)
+	      {
+	        P_Bob(player,mo->angle,cmd->forwardmove*bobfactor);
+	        P_Thrust(player,mo->angle,cmd->forwardmove*movefactor);
+	      }
+
+	      if (cmd->sidemove)
+	      {
+	        P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
+	        P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
+	      }
+	    }
+      if (mo->state == states+S_PLAY)
+      	P_SetMobjState(mo,S_PLAY_RUN1);
     }
-  if ((cmd->forwardmove || cmd->sidemove) &&
-    (thismo->state == &states[S_PLAY]))                             //   ^
-    P_SetMobjState(thismo,S_PLAY_RUN1);                             //   |
-  }                                                                 // phares
+}
 
 #define ANG5 (ANG90/18)
 

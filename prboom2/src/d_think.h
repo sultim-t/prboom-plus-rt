@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_think.h,v 1.4 2000/05/11 20:09:53 proff_fs Exp $
+ * $Id: d_think.h,v 1.5 2000/05/11 23:22:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -80,8 +80,15 @@ typedef struct thinker_s
   struct thinker_s*   next;
   think_t             function;
     
-  // killough 11/98: count of how many other objects reference
-  // this one using pointers. Used for garbage collection.
+  /* killough 8/29/98: we maintain thinkers in several equivalence classes,
+   * according to various criteria, so as to allow quicker searches.
+   */
+
+  struct thinker_s *cnext, *cprev; /* Next, previous thinkers in same class */
+
+  /* killough 11/98: count of how many other objects reference
+   * this one using pointers. Used for garbage collection.
+   */
   unsigned references;
 } thinker_t;
 

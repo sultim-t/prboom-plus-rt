@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_spec.h,v 1.3 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -634,6 +634,9 @@ typedef struct
   
   //jff 1/31/98 keep track of line door is triggered by
   line_t *line;
+
+  /* killough 10/98: sector tag for gradual lighting effects */
+  int lighttag; 
 } vldoor_t;
 
 // p_doors

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_spec.c,v 1.4 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -41,7 +41,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -2841,7 +2841,7 @@ static void P_SpawnScrollers(void)
 // FRICTION EFFECTS
 //
 // phares 3/12/98: Start of friction effects
-
+//
 // As the player moves, friction is applied by decreasing the x and y
 // momentum values on each tic. By varying the percentage of decrease,
 // we can simulate muddy or icy conditions. In mud, the player slows
@@ -2863,109 +2863,83 @@ static void P_SpawnScrollers(void)
 // their sectors, looking for players whose feet are at the same level as
 // their floors. Players satisfying this condition are given new friction
 // values that are applied by the player movement code later.
-
-/////////////////////////////
 //
-// Add a friction thinker to the thinker list
+// killough 8/28/98:
 //
-// Add_Friction adds a new friction thinker to the list of active thinkers.
+// Completely redid code, which did not need thinkers, and which put a heavy
+// drag on CPU. Friction is now a property of sectors, NOT objects inside
+// them. All objects, not just players, are affected by it, if they touch
+// the sector's floor. Code simpler and faster, only calling on friction
+// calculations when an object needs friction considered, instead of doing
+// friction calculations on every sector during every tic.
 //
-
-static void Add_Friction(int friction, int movefactor, int affectee)
-    {
-    friction_t *f = Z_Malloc(sizeof *f, PU_LEVSPEC, 0);
-
-    f->thinker.function = T_Friction;
-    f->friction = friction;
-    f->movefactor = movefactor;
-    f->affectee = affectee;
-    P_AddThinker(&f->thinker);
-    }
-
-/////////////////////////////
+// Although this -might- ruin Boom demo sync involving friction, it's the only
+// way, short of code explosion, to fix the original design bug. Fixing the
+// design bug in Boom's original friction code, while maintaining demo sync
+// under every conceivable circumstance, would double or triple code size, and
+// would require maintenance of buggy legacy code which is only useful for old
+// demos. Doom demos, which are more important IMO, are not affected by this
+// change.
 //
-// This is where abnormal friction is applied to objects in the sectors.
-// A friction thinker has been spawned for each sector where less or
-// more friction should be applied. The amount applied is proportional to
-// the length of the controlling linedef.
-
-void T_Friction(friction_t *f)
-    {
-    sector_t *sec;
-    mobj_t   *thing;
-    msecnode_t* node;
-
-    if (compatibility || !variable_friction)
-        return;
-
-    sec = sectors + f->affectee;
-
-    // Be sure the special sector type is still turned on. If so, proceed.
-    // Else, bail out; the sector type has been changed on us.
-
-    if (!(sec->special & FRICTION_MASK))
-        return;
-
-    // Assign the friction value to players on the floor, non-floating,
-    // and clipped. Normally the object's friction value is kept at
-    // ORIG_FRICTION and this thinker changes it for icy or muddy floors.
-
-    // In Phase II, you can apply friction to Things other than players.
-
-    // When the object is straddling sectors with the same
-    // floorheight that have different frictions, use the lowest
-    // friction value (muddy has precedence over icy).
-
-    node = sec->touching_thinglist; // things touching this sector
-    while (node)
-        {
-        thing = node->m_thing;
-        if (thing->player &&
-            !(thing->flags & (MF_NOGRAVITY | MF_NOCLIP)) &&
-            thing->z <= sec->floorheight)
-            {
-            if ((thing->friction == ORIG_FRICTION) ||     // normal friction?
-                (f->friction < thing->friction))
-                {
-                thing->friction   = f->friction;
-                thing->movefactor = f->movefactor;
-                }
-            }
-        node = node->m_snext;
-        }
-    }
-
 /////////////////////////////
 //
 // Initialize the sectors where friction is increased or decreased
 
 static void P_SpawnFriction(void)
+{
+  int i;
+  line_t *l = lines;
+
+  // killough 8/28/98: initialize all sectors to normal friction first
+  for (i = 0; i < numsectors; i++)
     {
-    int i;
-    line_t *l = lines;
-    register int s;
-    int length;     // line length controls magnitude
-    int friction;   // friction value to be applied during movement
-    int movefactor; // applied to each player move to simulate inertia
-
-    for (i = 0 ; i < numlines ; i++,l++)
-        if (l->special == 223)
-            {
-            length = P_AproxDistance(l->dx,l->dy)>>FRACBITS;
-            friction = (0x1EB8*length)/0x80 + 0xD000;
-
-            // The following check might seem odd. At the time of movement,
-            // the move distance is multiplied by 'friction/0x10000', so a
-            // higher friction value actually means 'less friction'.
-
-            if (friction > ORIG_FRICTION)       // ice
-                movefactor = ((0x10092 - friction)*(0x70))/0x158;
-            else
-                movefactor = ((friction - 0xDB34)*(0xA))/0x80;
-            for (s = -1; (s = P_FindSectorFromLineTag(l,s)) >= 0 ; )
-                Add_Friction(friction,movefactor,s);
-            }
+      sectors[i].friction = ORIG_FRICTION;
+      sectors[i].movefactor = ORIG_FRICTION_FACTOR;
     }
+
+  for (i = 0 ; i < numlines ; i++,l++)
+    if (l->special == 223)
+      {
+        int length = P_AproxDistance(l->dx,l->dy)>>FRACBITS;
+        int friction = (0x1EB8*length)/0x80 + 0xD000;
+        int movefactor, s;
+
+        // The following check might seem odd. At the time of movement,
+        // the move distance is multiplied by 'friction/0x10000', so a
+        // higher friction value actually means 'less friction'.
+
+        if (friction > ORIG_FRICTION)       // ice
+          movefactor = ((0x10092 - friction)*(0x70))/0x158;
+        else
+          movefactor = ((friction - 0xDB34)*(0xA))/0x80;
+
+        if (mbf_features)
+          { // killough 8/28/98: prevent odd situations
+            if (friction > FRACUNIT)
+              friction = FRACUNIT;
+            if (friction < 0)
+              friction = 0;
+            if (movefactor < 32)
+              movefactor = 32;
+          }
+
+        for (s = -1; (s = P_FindSectorFromLineTag(l,s)) >= 0 ; )
+          {
+            // killough 8/28/98:
+            //
+            // Instead of spawning thinkers, which are slow and expensive,
+            // modify the sector's own friction values. Friction should be
+            // a property of sectors, not objects which reside inside them.
+            // Original code scanned every object in every friction sector
+            // on every tic, adjusting its friction, putting unnecessary
+            // drag on CPU. New code adjusts friction of sector only once
+            // at level startup, and then uses this friction value.
+
+            sectors[s].friction = friction;
+            sectors[s].movefactor = movefactor;
+          }
+      }
+}
 
 //
 // phares 3/12/98: End of friction effects
@@ -3050,40 +3024,57 @@ static void Add_Pusher(int type, int x_mag, int y_mag, mobj_t* source, int affec
 //
 // tmpusher belongs to the point source (MT_PUSH/MT_PULL).
 //
+// killough 10/98: allow to affect things besides players
 
 pusher_t* tmpusher; // pusher structure for blockmap searches
 
 boolean PIT_PushThing(mobj_t* thing)
+{
+  /* killough 10/98: made more general */
+  if (!mbf_features ?
+      thing->player && !(thing->flags & (MF_NOCLIP | MF_NOGRAVITY)) :
+      (sentient(thing) || thing->flags & MF_SHOOTABLE) &&
+      !(thing->flags & MF_NOCLIP))
     {
-    if (thing->player &&
-        !(thing->flags & (MF_NOGRAVITY | MF_NOCLIP)))
+      angle_t pushangle;
+      fixed_t speed;
+      fixed_t sx = tmpusher->x;
+      fixed_t sy = tmpusher->y;
+
+      speed = (tmpusher->magnitude -
+               ((P_AproxDistance(thing->x - sx,thing->y - sy)
+                 >>FRACBITS)>>1))<<(FRACBITS-PUSH_FACTOR-1);
+
+      // killough 10/98: make magnitude decrease with square
+      // of distance, making it more in line with real nature,
+      // so long as it's still in range with original formula.
+      //
+      // Removes angular distortion, and makes effort required
+      // to stay close to source, grow increasingly hard as you
+      // get closer, as expected. Still, it doesn't consider z :(
+
+      if (speed > 0 && mbf_features)
         {
-        angle_t pushangle;
-        int dist;
-        int speed;
-        int sx,sy;
-
-        sx = tmpusher->x;
-        sy = tmpusher->y;
-        dist = P_AproxDistance(thing->x - sx,thing->y - sy);
-        speed = (tmpusher->magnitude -
-                 ((dist>>FRACBITS)>>1))<<(FRACBITS-PUSH_FACTOR-1);
-
-        // If speed <= 0, you're outside the effective radius. You also have
-        // to be able to see the push/pull source point.
-
-        if ((speed > 0) && (P_CheckSight(thing,tmpusher->source)))
-            {
-            pushangle = R_PointToAngle2(thing->x,thing->y,sx,sy);
-            if (tmpusher->source->type == MT_PUSH)
-                pushangle += ANG180;    // away
-            pushangle >>= ANGLETOFINESHIFT;
-            thing->momx += FixedMul(speed,finecosine[pushangle]);
-            thing->momy += FixedMul(speed,finesine[pushangle]);
-            }
+          int x = (thing->x-sx) >> FRACBITS;
+          int y = (thing->y-sy) >> FRACBITS;
+          speed = (int)(((uint_64_t) tmpusher->magnitude << 23) / (x*x+y*y+1));
         }
-    return true;
+
+      // If speed <= 0, you're outside the effective radius. You also have
+      // to be able to see the push/pull source point.
+
+      if (speed > 0 && P_CheckSight(thing,tmpusher->source))
+        {
+          pushangle = R_PointToAngle2(thing->x,thing->y,sx,sy);
+          if (tmpusher->source->type == MT_PUSH)
+            pushangle += ANG180;    // away
+          pushangle >>= ANGLETOFINESHIFT;
+          thing->momx += FixedMul(speed,finecosine[pushangle]);
+          thing->momy += FixedMul(speed,finesine[pushangle]);
+        }
     }
+  return true;
+}
 
 /////////////////////////////
 //
@@ -3125,10 +3116,6 @@ void T_Pusher(pusher_t *p)
     // 3) Affected Thing is below the ground (underwater effect).
     //
     //    Apply no force if wind, full force if current.
-    //
-    // Apply the effect to clipped players only for now.
-    //
-    // In Phase II, you can apply these effects to Things other than players.
 
     if (p->type == p_push)
         {

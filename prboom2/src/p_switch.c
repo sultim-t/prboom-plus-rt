@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_switch.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_switch.c,v 1.3 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_switch.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_switch.c,v 1.3 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -399,7 +399,16 @@ P_UseSpecialLine
       break;
         
     case 11:
-      // Exit level
+      /* Exit level
+       * killough 10/98: prevent zombies from exiting levels
+       */
+      if (mbf_features &&
+	  thing->player && thing->player->health <= 0)
+      {
+        S_StartSound(thing, sfx_noway);
+        return false;
+      }
+
       P_ChangeSwitchTexture(line,0);
       G_ExitLevel ();
       break;
@@ -471,7 +480,16 @@ P_UseSpecialLine
       break;
         
     case 51:
-      // Secret EXIT
+      /* Secret EXIT
+       * killough 10/98: prevent zombies from exiting levels
+       */
+      if (mbf_features &&
+	  thing->player && thing->player->health <= 0) 
+      {
+        S_StartSound(thing, sfx_noway);
+        return false;
+      }
+
       P_ChangeSwitchTexture(line,0);
       G_SecretExitLevel ();
       break;

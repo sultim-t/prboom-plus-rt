@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_lights.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_lights.c,v 1.4 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_lights.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_lights.c,v 1.4 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h" //jff 5/18/98
 #include "doomdef.h"
@@ -397,3 +397,47 @@ int EV_LightTurnOn(line_t *line, int bright)
     }
   return 1;
 }
+
+/* killough 10/98:
+ *
+ * EV_LightTurnOnPartway()
+ *
+ * Turn sectors tagged to line lights on to specified or max neighbor level
+ *
+ * Passed the activating line, and a light level fraction between 0 and 1.
+ * Sets the light to min on 0, max on 1, and interpolates in-between.
+ * Used for doors with gradual lighting effects.
+ *
+ * Returns true
+ */
+
+int EV_LightTurnOnPartway(line_t *line, fixed_t level)
+{
+  int i;
+
+  if (level < 0)          // clip at extremes 
+    level = 0;
+  if (level > FRACUNIT)
+    level = FRACUNIT;
+
+  // search all sectors for ones with same tag as activating line
+  for (i = -1; (i = P_FindSectorFromLineTag(line,i)) >= 0;)
+    {
+      sector_t *temp, *sector = sectors+i;
+      int j, bright = 0, min = sector->lightlevel;
+
+      for (j = 0; j < sector->linecount; j++)
+	if ((temp = getNextSector(sector->lines[j],sector)))
+	  {
+	    if (temp->lightlevel > bright)
+	      bright = temp->lightlevel;
+	    if (temp->lightlevel < min)
+	      min = temp->lightlevel;
+	  }
+
+      sector->lightlevel =   // Set level in-between extremes
+	(level * bright + (FRACUNIT-level) * min) >> FRACBITS;
+    }
+  return 1;
+}
+

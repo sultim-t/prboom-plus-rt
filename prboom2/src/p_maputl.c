@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_maputl.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_maputl.c,v 1.3 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_maputl.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_maputl.c,v 1.3 2000/05/11 23:22:21 cph Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -212,15 +212,17 @@ void P_UnsetThingPosition (mobj_t *thing)
 {
   if (!(thing->flags & MF_NOSECTOR))
     {
-      // inert things don't need to be in blockmap?
-      // unlink from subsector
-      if (thing->snext)
-        thing->snext->sprev = thing->sprev;
+      /* invisible things don't need to be in sector list
+       * unlink from subsector
+       *
+       * killough 8/11/98: simpler scheme using pointers-to-pointers for prev
+       * pointers, allows head node pointers to be treated like everything else
+       */
 
-      if (thing->sprev)
-        thing->sprev->snext = thing->snext;
-      else
-        thing->subsector->sector->thinglist = thing->snext;
+      mobj_t **sprev = thing->sprev;
+      mobj_t  *snext = thing->snext;
+      if ((*sprev = snext))  // unlink from sector list
+	      snext->sprev = sprev;
 
         // phares 3/14/98
         //
@@ -241,21 +243,20 @@ void P_UnsetThingPosition (mobj_t *thing)
 
   if (!(thing->flags & MF_NOBLOCKMAP))
     {
-      // inert things don't need to be in blockmap
+      /* inert things don't need to be in blockmap
+       *
+       * killough 8/11/98: simpler scheme using pointers-to-pointers for prev
+       * pointers, allows head node pointers to be treated like everything else
+       *
+       * Also more robust, since it doesn't depend on current position for
+       * unlinking. Old method required computing head node based on position
+       * at time of unlinking, assuming it was the same position as during
+       * linking.
+       */
 
-      if (thing->bnext) // unlink from block map
-        thing->bnext->bprev = thing->bprev;
-
-      if (thing->bprev)
-        thing->bprev->bnext = thing->bnext;
-      else
-        {
-          int blockx = (thing->x - bmaporgx)>>MAPBLOCKSHIFT;
-          int blocky = (thing->y - bmaporgy)>>MAPBLOCKSHIFT;
-          if (blockx>=0 && blockx < bmapwidth &&
-              blocky>=0 && blocky <bmapheight)
-            blocklinks[blocky*bmapwidth+blockx] = thing->bnext;
-        }
+      mobj_t *bnext, **bprev = thing->bprev;
+      if (bprev && (*bprev = bnext = thing->bnext))  // unlink from block map
+      	bnext->bprev = bprev;
     }
 }
 
@@ -273,15 +274,16 @@ void P_SetThingPosition(mobj_t *thing)
   if (!(thing->flags & MF_NOSECTOR))
     {
       // invisible things don't go into the sector links
-      sector_t *sec = ss->sector;
 
-      thing->sprev = NULL;
-      thing->snext = sec->thinglist;
+      // killough 8/11/98: simpler scheme using pointer-to-pointer prev
+      // pointers, allows head nodes to be treated like everything else
 
-      if (sec->thinglist)
-        sec->thinglist->sprev = thing;
-
-      sec->thinglist = thing;
+      mobj_t **link = &ss->sector->thinglist;
+      mobj_t *snext = *link;
+      if ((thing->snext = snext))
+      	snext->sprev = &thing->snext;
+      thing->sprev = link;
+      *link = thing;
 
       // phares 3/16/98
       //
@@ -309,15 +311,18 @@ void P_SetThingPosition(mobj_t *thing)
       int blocky = (thing->y - bmaporgy)>>MAPBLOCKSHIFT;
       if (blockx>=0 && blockx < bmapwidth && blocky>=0 && blocky < bmapheight)
         {
-          mobj_t **link = &blocklinks[blocky*bmapwidth+blockx];
-          thing->bprev = NULL;
-          thing->bnext = *link;
-          if (*link)
-            (*link)->bprev = thing;
-          *link = thing;
-        }
+    	  // killough 8/11/98: simpler scheme using pointer-to-pointer prev
+	      // pointers, allows head nodes to be treated like everything else
+
+        mobj_t **link = &blocklinks[blocky*bmapwidth+blockx];
+	      mobj_t *bnext = *link;
+        if ((thing->bnext = bnext))
+	        bnext->bprev = &thing->bnext;
+	      thing->bprev = link;
+        *link = thing;
+      }
       else        // thing is off the map
-        thing->bnext = thing->bprev = NULL;
+        thing->bnext = NULL, thing->bprev = NULL;
     }
 }
 

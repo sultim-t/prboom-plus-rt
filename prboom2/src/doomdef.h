@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: doomdef.h,v 1.3 2000/05/11 23:22:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -161,6 +161,13 @@ typedef enum {
 #define MTF_HARD                4
 // Deaf monsters/do not react to sound.
 #define MTF_AMBUSH              8
+
+/* killough 11/98 */
+#define MTF_NOTSINGLE          16
+#define MTF_NOTDM              32
+#define MTF_NOTCOOP            64
+#define MTF_FRIEND            128
+#define MTF_RESERVED          256
 
 typedef enum {
   sk_none=-1, //jff 3/24/98 create unpicked skill setting

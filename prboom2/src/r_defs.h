@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: r_defs.h,v 1.6 2000/05/11 23:22:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -101,6 +101,12 @@ typedef struct
   degenmobj_t soundorg;  // origin for any sounds played by the sector
   int validcount;        // if == validcount, already checked
   mobj_t *thinglist;     // list of mobjs in sector
+
+  /* killough 8/28/98: friction is a sector property, not an mobj property.
+   * these fields used to be in mobj_t, but presented performance problems
+   * when processed as mobj properties. Fix is to make them sector properties.
+   */
+  int friction,movefactor;
 
   // thinker_t for reversable actions
   void *floordata;    // jff 2/22/98 make thinkers on
