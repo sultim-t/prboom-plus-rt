@@ -129,7 +129,7 @@ static void HU_MessageDraw()
   x = chat_active ? 8 : 0;
 
   for(i=0; i<current_messages; i++, x += 8)
-    V_WriteText(hu_messages[i], 0, x, 0);
+    V_WriteText(hu_messages[i], 0, x);
 }
 
 static void HU_MessageClear()
@@ -355,7 +355,7 @@ static void HU_WidgetsDraw()
 	    if (widgets[i]->font)
         HU_WriteTextColoured(widgets[i]->message, widgets[i]->fontcolour, widgets[i]->x, widgets[i]->y);
       else
-        V_WriteTextColoured(widgets[i]->message, widgets[i]->fontcolour, widgets[i]->x, widgets[i]->y, 0);
+        V_WriteTextColoured(widgets[i]->message, widgets[i]->fontcolour, widgets[i]->x, widgets[i]->y);
   }
 }
 
@@ -427,7 +427,7 @@ void HU_CentreMsg(char *s)
   strcpy(centremsg, s);
 
   hu_centremessage.message = centremsg;
-  hu_centremessage.x = (SCREENWIDTH-V_StringWidth(s, 0)) / 2;
+  hu_centremessage.x = (SCREENWIDTH-V_StringWidth(s)) / 2;
   hu_centremessage.y = (SCREENHEIGHT-V_StringHeight(s) - ((viewheight==SCREENHEIGHT) ? 0 : ST_SCALED_HEIGHT-8)) / 2;
   hu_centremessage.cleartic = leveltime + (centremessage_timer * 35) / 1000;
 

@@ -64,15 +64,22 @@
 #define FC_ERRORVALUE    0x8e
 #define FC_LASTVALUE     0x8e
 
-void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patchnum_t font[]);
-void V_WriteTextFont(const char *s, int x, int y, int gap, patchnum_t font[]);
-void V_WriteTextXYGap(const char *s, int x, int y, int xgap, int ygap);
-void V_WriteText(const char *s, int x, int y, int gap);
-void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap);
-void V_WriteTextFontColoured(const char *s, int colour, int x, int y, int gap, patchnum_t font[]);
-int V_StringWidthFont(const char *s, int gap, patchnum_t font[]);
-int V_StringWidth(const char *s, int gap);
+void V_WriteTextXYGapFontColoured(const char *s, int colour, int x, int y, int xgap, int ygap, patchnum_t *font);
+#define V_WriteTextXYGapFont(s, x, y, xg, yg, f) V_WriteTextXYGapFontColoured(s, CR_DEFAULT, x, y, xg, yg, f)
+#define V_WriteTextXYGapColoured(s, c, x, y, xg, yg) V_WriteTextXYGapFontColoured(s, c, x, y, xg, yg, NULL)
+#define V_WriteTextXYGap(s, x, y, xg, yg) V_WriteTextXYGapFontColoured(s, CR_DEFAULT, x, y, xg, yg, NULL)
+#define V_WriteTextFontColoured(s, c, x, y, f) V_WriteTextXYGapFontColoured(s, c, x, y, 0, 0, f)
+#define V_WriteTextFont(s, x, y, f) V_WriteTextXYGapFontColoured(s, CR_DEFAULT, x, y, 0, 0, f)
+#define V_WriteTextColoured(s, c, x, y) V_WriteTextXYGapFontColoured(s, c, x, y, 0, 0, NULL)
+#define V_WriteText(s, x, y) V_WriteTextXYGapFontColoured(s, CR_DEFAULT, x, y, 0, 0, NULL)
+
+int V_StringWidthGapFont(const char *s, int gap, patchnum_t *font);
+#define V_StringWidthFont(s, f) V_StringWidthGapFont(s, 0, f)
+#define V_StringWidthGap(s, g) V_StringWidthGapFont(s, g, NULL)
+#define V_StringWidth(s) V_StringWidthGapFont(s, 0, NULL)
+
 int V_StringHeight(const char *s);
+
 boolean V_IsPrint(unsigned char c);
 
 //--------------------------------------------------------------------------

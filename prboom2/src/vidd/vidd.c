@@ -220,7 +220,7 @@ int VIDD_handleDraw() {
   if (!infoMsg[0]) return true;
 
   V_FillRect(0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
-  V_WriteText(infoMsg, 8, 8, 0);
+  V_WriteText(infoMsg, 8, 8);
   I_FinishUpdate();
   
   return true;

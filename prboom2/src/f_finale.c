@@ -487,7 +487,7 @@ boolean F_CastResponder (event_t* ev)
 
 static void F_CastPrint (const char* text) // CPhipps - static, const char*
 {
-  V_WriteText(text, 160-V_StringWidth(text, 0)/2, 180, 0);
+  V_WriteText(text, 160-V_StringWidth(text)/2, 180);
 }
 
 

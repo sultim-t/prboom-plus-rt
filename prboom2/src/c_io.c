@@ -133,7 +133,7 @@ void C_InitBackdrop(void)
 static void C_UpdateInputPoint(void)
 {
   for(input_point=inputtext;
-      V_StringWidth(input_point, 0) > 320-20; input_point++);
+      V_StringWidth(input_point) > 320-20; input_point++);
 }
 
 // initialise the console
@@ -430,7 +430,7 @@ void C_Drawer(void)
       if(y < 0) break;        // past top of screen?
       
       // draw this line
-      V_WriteText(messages[count], 0, y, 0);
+      V_WriteText(messages[count], 0, y);
     }
 
   //////////////////////////////////
@@ -447,7 +447,7 @@ void C_Drawer(void)
     if(message_pos == message_last)
 	    psnprintf(tempstr, LINELENGTH, "%s%s_", inputprompt, input_point);
       
-    V_WriteText(tempstr, 0, current_height-8, 0);
+    V_WriteText(tempstr, 0, current_height-8);
   }
 }
 
@@ -494,7 +494,7 @@ static void C_AddChar(unsigned char c)
 
   if( c=='\t' || (c>31 && c<127) || c>=128)  // >=128 for colours
     {
-      if(V_StringWidth(messages[message_last], 0) > SCREENWIDTH-9)
+      if(V_StringWidth(messages[message_last]) > SCREENWIDTH-9)
 	{
 	  // might possibly over-run, go onto next line
 	  C_ScrollUp();

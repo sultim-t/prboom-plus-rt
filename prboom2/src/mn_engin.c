@@ -193,22 +193,22 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
   {
     // if it_title, we draw the description centered
 
-    V_WriteTextColoured (
+    V_WriteTextXYGapColoured (
       item->description,
       colour,
-      (320-V_StringWidth(item->description, -1))/2,
-	    y, -1
+      (320-V_StringWidthGap(item->description, -1))/2,
+	    y, -1, 0
 	  );
   }
   else
   {
       
     // write description
-    V_WriteTextColoured (
+    V_WriteTextXYGapColoured (
       item->description,
       colour,
-      x - (leftaligned ? 0 : V_StringWidth(item->description, -1)),
-	    y, -1
+      x - (leftaligned ? 0 : V_StringWidthGap(item->description, -1)),
+	    y, -1, 0
 	  );
   }
 
@@ -238,12 +238,12 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	 }
 	  
 	 // write variable value text
-	 V_WriteTextColoured
+	 V_WriteTextXYGapColoured
 	   (
 	    boundkeys,
 	    colour,
-	    x + (leftaligned ? V_StringWidth(item->description, -1): 0),
-	    y, -1
+	    x + (leftaligned ? V_StringWidthGap(item->description, -1): 0),
+	    y, -1, 0
 	   );
 	 
 	 break;
@@ -276,12 +276,12 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	  }
 
         // draw it
-        V_WriteTextColoured
+        V_WriteTextXYGapColoured
 	  (
 	   varvalue,
            colour,
-           x + (leftaligned ? V_StringWidth(item->description, -1) : 0),
-	   y, -1
+           x + (leftaligned ? V_StringWidthGap(item->description, -1) : 0),
+	   y, -1, 0
 	   );
 	break;
       }
@@ -421,13 +421,13 @@ void MN_DrawMenu(menu_t *menu)
   if(menu_error_message[0])             // error message takes priority
     {
       // make it flash
-      V_WriteTextColoured
+      V_WriteTextXYGapColoured
 	(
 	 menu_error_message,
 	 CR_TAN,
 	 10,
 	 200 - V_StringHeight(menu_error_message),
-   -1
+   -1, 0
 	 );
     }
   else
@@ -444,7 +444,7 @@ void MN_DrawMenu(menu_t *menu)
 	{
 	    helpmsg = "use left/right to change value";
 	}
-      V_WriteTextColoured(helpmsg, CR_GOLD, 10, 200 - V_StringHeight(helpmsg), -1);
+      V_WriteTextXYGapColoured(helpmsg, CR_GOLD, 10, 200 - V_StringHeight(helpmsg), -1, 0);
     }
 }
 

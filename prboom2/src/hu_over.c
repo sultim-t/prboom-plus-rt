@@ -138,19 +138,19 @@ void HU_LoadFont()
 
 void HU_WriteText(unsigned char *s, int x, int y)
 {
-  V_WriteTextFont(s, x, y, 0, hu_font);
+  V_WriteTextFont(s, x, y, hu_font);
 }
 
 void HU_WriteTextColoured(unsigned char *s, int colour, int x, int y)
 {
-  V_WriteTextFontColoured(s, colour, x, y, 0, hu_font);
+  V_WriteTextFontColoured(s, colour, x, y, hu_font);
 }
 
 // the width in pixels of a string in heads-up font
 
 int HU_StringWidth(unsigned char *s)
 {
-  return V_StringWidthFont(s, 0, hu_font);
+  return V_StringWidthFont(s, hu_font);
 }
 
 #define BARSIZE 15

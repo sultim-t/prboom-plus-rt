@@ -105,7 +105,7 @@ void HU_FragsDrawer()
 	      sortedplayers[i]==players+consoleplayer ? FC_GRAY : FC_RED,
 	      sortedplayers[i]->name);
       
-      V_WriteText(tempstr, NAMEX - V_StringWidth(tempstr, 0), y, 0);
+      V_WriteText(tempstr, NAMEX - V_StringWidth(tempstr), y);
       
       // box behind frag pic
       
@@ -113,7 +113,7 @@ void HU_FragsDrawer()
 
       // draw the frags
       psnprintf(tempstr, 50, "%i", sortedplayers[i]->totalfrags);
-      V_WriteText(tempstr, FRAGNUMX + 16 - V_StringWidth(tempstr, 0)/2, y, 0);
+      V_WriteText(tempstr, FRAGNUMX + 16 - V_StringWidth(tempstr)/2, y);
       y += 10;
     }
 }

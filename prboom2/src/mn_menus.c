@@ -1586,7 +1586,7 @@ void MN_FrameRateDrawer()
 
   psnprintf(tempstr, 50, "%i.%i fps",
 	  this_framerate/10, this_framerate%10);
-  V_WriteText(tempstr, 50, 80, -1);
+  V_WriteTextXYGap(tempstr, 50, 80, -1, 0);
 }
 
 void MN_ShowFrameRate(int framerate)

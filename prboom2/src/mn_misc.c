@@ -92,8 +92,8 @@ static void WriteCentredText(char *message)
       if(*rover == '\n')
 	{
 	  *addrover = 0;  // end string
-	  x = (320 - V_StringWidth(tempbuf, 0)) / 2;
-	  V_WriteText(tempbuf, x, y, 0);
+	  x = (320 - V_StringWidth(tempbuf)) / 2;
+	  V_WriteText(tempbuf, x, y);
 	  addrover = tempbuf;  // reset addrover
 	  y += 7; // next line
 	}
@@ -108,8 +108,8 @@ static void WriteCentredText(char *message)
   // dont forget the last line.. prob. not \n terminated
 
   *addrover = 0;
-  x = (320 - V_StringWidth(tempbuf, 0)) / 2;
-  V_WriteText(tempbuf, x, y, 0);
+  x = (320 - V_StringWidth(tempbuf)) / 2;
+  V_WriteText(tempbuf, x, y);
 }
 
 void MN_PopupDrawer()
@@ -299,7 +299,7 @@ void MN_DrawCredits(void)
 	            FC_TAN "Michael 'Kodak' Ryssen" FC_GRAY " - " FC_GREEN "DOOMGL\n"
 	            FC_TAN "all contributors (see AUTHORS file)\n"
 	            FC_GOLD "\nhttp://prboom.sourceforge.net",
-              10, 25, 0);
+              10, 25);
 }
 
 void MN_HelpDrawer()

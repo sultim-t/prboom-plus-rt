@@ -74,7 +74,7 @@ void V_LoadFont()
   }
 }
 
-void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patchnum_t font[])
+void V_WriteTextXYGapFontColoured(const char *s, int default_colour, int x, int y, int xgap, int ygap, patchnum_t *font)
 {
   int   w, h;
   const unsigned char* ch;
@@ -84,10 +84,21 @@ void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patch
   int   cx;
   int   cy;
 
+  if (!font)
+    font = v_font;
+
   ch = (const unsigned char *)s;
   cx = x;
   cy = y;
-  
+
+  if (default_colour < 0 || default_colour > CR_LIMIT)
+    I_Error("V_WriteText: invalid colour %i\n", default_colour);
+  else
+    if (default_colour == CR_TRANS)
+      translucent = !translucent;
+    else
+      colour = default_colour;
+
   while(1)
   {
     c = *ch++;
@@ -178,21 +189,6 @@ void V_WriteTextXYGapFont(const char *s, int x, int y, int xgap, int ygap, patch
   }
 }
 
-void V_WriteTextFont(const char *s, int x, int y, int gap, patchnum_t font[])
-{
-  V_WriteTextXYGapFont(s, x, y, gap, 0, font);
-}
-
-void V_WriteTextXYGap(const char *s, int x, int y, int xgap, int ygap)
-{
-  V_WriteTextXYGapFont(s, x, y, xgap, ygap, v_font);
-}
-
-void V_WriteText(const char *s, int x, int y, int gap)
-{
-  V_WriteTextFont(s, x, y, gap, v_font);
-}
-
 // isprint() function
 
 boolean V_IsPrint(unsigned char c)
@@ -214,21 +210,6 @@ boolean V_IsPrint(unsigned char c)
   return v_font[c].lumpnum >= 0;
 }
 
-// write text in a particular colour
-
-void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap)
-{
-  V_WriteTextFontColoured(s, colour, x, y, gap, v_font);
-}
-
-void V_WriteTextFontColoured(const char *s, int colour, int x, int y, int gap, patchnum_t font[])
-{
-  char *tempstr = malloc(strlen(s)+3);
-  psnprintf(tempstr, strlen(s)+3, "%c%s", FC_BASEVALUE+colour, s);
-  V_WriteTextFont(tempstr, x, y, gap, font);
-  free(tempstr);
-}
-
 // find height(in pixels) of a string
 int V_StringHeight(const char *s)
 {
@@ -242,11 +223,14 @@ int V_StringHeight(const char *s)
   return height;
 }
 
-int V_StringWidthFont(const char *s, int gap, patchnum_t font[])
+int V_StringWidthGapFont(const char *s, int gap, patchnum_t *font)
 {
   int length = 0; // current line width
   int longest_width = 0; // line with longest width so far
   unsigned char c;
+
+  if (!font)
+    font = v_font;
 
   for(; *s; s++)
   {
@@ -273,11 +257,6 @@ int V_StringWidthFont(const char *s, int gap, patchnum_t font[])
     longest_width = length; // check last line
 
   return longest_width;
-}
-
-int V_StringWidth(const char *s, int gap)
-{
-  return V_StringWidthFont(s, gap, v_font);
 }
 
 
@@ -349,7 +328,7 @@ void V_DrawLoading()
 
   if(!loading_message) return;
 
-  wid = V_StringWidth(loading_message, 0) + 20;
+  wid = V_StringWidth(loading_message) + 20;
   if(wid < 100)
     wid = 100;
 
@@ -362,8 +341,8 @@ void V_DrawLoading()
   if(loading_total)
     {
       V_WriteText(loading_message,
-      (320 - V_StringWidth(loading_message, 0)) / 2,
-      (200 - V_StringHeight(loading_message)) / 2 - 4, 0);
+      (320 - V_StringWidth(loading_message)) / 2,
+      (200 - V_StringHeight(loading_message)) / 2 - 4);
       /*
       x = (320 / 2) - 45;
       y = (200 / 2) + 12;
@@ -378,8 +357,8 @@ void V_DrawLoading()
     }
   else
     V_WriteText(loading_message,
-    (320 - V_StringWidth(loading_message, 0)) / 2,
-    (200 - V_StringHeight(loading_message)) / 2, 0);
+    (320 - V_StringWidth(loading_message)) / 2,
+    (200 - V_StringHeight(loading_message)) / 2);
 
     
   I_FinishUpdate();

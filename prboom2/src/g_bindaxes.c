@@ -324,7 +324,7 @@ void G_BindAxisDrawer()
   // create message
   strcpy(temp, "\n -= move desired axis away from center, then press a key =- \n");
 
-  wid = V_StringWidth(temp, 0);
+  wid = V_StringWidth(temp);
   height = V_StringHeight(temp);
 
   // draw box
@@ -332,8 +332,7 @@ void G_BindAxisDrawer()
   // write text in box
   V_WriteText(temp,
       (320 - wid) / 2,
-      (200 - height) /2,
-      0);
+      (200 - height) /2);
 }
 
 //
