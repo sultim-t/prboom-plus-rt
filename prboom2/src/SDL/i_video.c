@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.35 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: i_video.c,v 1.36 2002/01/12 14:37:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.35 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.36 2002/01/12 14:37:48 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -135,7 +135,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_KP2:	rc = KEYD_KEYPAD2;	break;
   case SDLK_KP3:	rc = KEYD_KEYPAD3;	break;
   case SDLK_KP4:	rc = KEYD_KEYPAD4;	break;
-  case SDLK_KP5:	rc = KEYD_KEYPAD0;	break;
+  case SDLK_KP5:	rc = KEYD_KEYPAD5;	break;
   case SDLK_KP6:	rc = KEYD_KEYPAD6;	break;
   case SDLK_KP7:	rc = KEYD_KEYPAD7;	break;
   case SDLK_KP8:	rc = KEYD_KEYPAD8;	break;
@@ -447,7 +447,7 @@ static void I_UploadNewPalette(int pal)
 #endif
   
   // store the colors to the current display
-  SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
+  SDL_SetPalette(SDL_GetVideoSurface(),SDL_PHYSPAL,colours+256*pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -512,7 +512,7 @@ void I_FinishUpdate (void)
   if (newpal != NO_PALETTE_CHANGE) { 
     I_UploadNewPalette(newpal);
     newpal = NO_PALETTE_CHANGE;
-  } else
+  }
     SDL_Flip(screen);
 #else
   // proff 04/05/2000: swap OpenGL buffers
