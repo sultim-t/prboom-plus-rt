@@ -348,7 +348,7 @@ void NetUpdate(void)
     }
   }
 }
-#endif // HAVE_NET
+#else
 
 void D_BuildNewTiccmds()
 {
@@ -363,6 +363,7 @@ void D_BuildNewTiccmds()
       maketic++;
     }
 }
+#endif
 
 #ifdef HAVE_NET
 /* cph - data passed to this must be in the Doom (little-) endian */
@@ -441,16 +442,6 @@ void TryRunTics (void)
 
   // Wait for tics to run
   while (1) {
-    if (I_GetTime() - entertime > 5) {
-      remotesend--;
-      {
-	char buf[sizeof(packet_header_t)+1];
-	packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
-	buf[sizeof(buf)-1] = consoleplayer;
-	I_SendPacket((packet_header_t *)buf, sizeof buf);
-      }
-      M_Ticker(); return;
-    }
 #ifdef HAVE_NET
     NetUpdate();
 #else
@@ -461,6 +452,13 @@ void TryRunTics (void)
       if (server) I_WaitForPacket(ms_to_next_tick);
       else I_uSleep(ms_to_next_tick*1000);
       if (I_GetTime() - entertime > 10) {
+        remotesend--;
+	{
+	  char buf[sizeof(packet_header_t)+1];
+	  packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
+	  buf[sizeof(buf)-1] = consoleplayer;
+	  I_SendPacket((packet_header_t *)buf, sizeof buf);
+	}
         M_Ticker(); return;
       }
     } else break;
