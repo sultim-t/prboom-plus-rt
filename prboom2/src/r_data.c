@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.10 2000/11/12 14:59:29 cph Exp $
+ * $Id: r_data.c,v 1.11 2000/11/18 18:03:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.10 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.11 2000/11/18 18:03:29 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -651,22 +651,6 @@ void R_InitSpriteLumps(void)
 // killough 4/4/98: Add support for C_START/C_END markers
 //
 
-// CPhipps - reinstate 256-byte alignment of colourmaps for I386 targets
-static void* R_GetColourmaps(int lump)
-{
-#ifdef I386_ASM
-  // Load in the light tables, 
-  //  256 byte align tables.
-  void  *colormaps;
-  size_t length = W_LumpLength (lump) + 255; 
-  colormaps = Z_Malloc (length, PU_STATIC, 0); 
-  colormaps = (byte *)( ((int)colormaps + 255)&~0xff); 
-  W_ReadLump (lump,colormaps); 
-  return colormaps;
-#else
-  return W_CacheLumpNum(lump);
-#endif
-}
 void R_InitColormaps(void)
 {
   int i;
@@ -674,9 +658,9 @@ void R_InitColormaps(void)
   lastcolormaplump  = W_GetNumForName("C_END");
   numcolormaps = lastcolormaplump - firstcolormaplump;
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps, PU_STATIC, 0);
-  colormaps[0] = R_GetColourmaps(W_GetNumForName("COLORMAP"));
+  colormaps[0] = W_CacheLumpName("COLORMAP");
   for (i=1; i<numcolormaps; i++)
-    colormaps[i] = R_GetColourmaps(i+firstcolormaplump); 
+    colormaps[i] = W_CacheLumpNum(i+firstcolormaplump); 
   // cph - always lock
 }
 
