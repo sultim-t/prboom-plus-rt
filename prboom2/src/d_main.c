@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.45 2001/07/30 20:19:15 cph Exp $
+ * $Id: d_main.c,v 1.46 2001/09/02 10:27:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.45 2001/07/30 20:19:15 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.46 2001/09/02 10:27:11 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -218,6 +218,7 @@ static void D_Wipe(void)
 gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern boolean setsizeneeded;
 extern int     showMessages;
+camera_t       *camera;
 
 void D_Display (void)
 {
@@ -273,6 +274,7 @@ void D_Display (void)
       oldgamestate = -1;            // force background redraw
     }
 
+    if (camera == &chasecam) P_ChaseTicker();
     // Work out if the player view is visible, and if there is a border
     viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) && !inhelpscreens;
     isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens && (automapmode & am_active)); 
@@ -298,7 +300,7 @@ void D_Display (void)
 
     // Now do the drawing
     if (viewactive)
-      R_RenderPlayerView (&players[displayplayer]);
+      R_RenderPlayerView (&players[displayplayer], camera);
     if (automapmode & am_active)
       AM_Drawer();
     ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);

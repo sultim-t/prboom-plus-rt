@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.15 2001/04/15 15:05:37 cph Exp $
+ * $Id: doomstat.h,v 1.16 2001/09/02 10:27:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,6 +45,7 @@
 
 // We need the playr data structure as well.
 #include "d_player.h"
+#include "p_chase.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -210,6 +211,7 @@ extern  int viewangleoffset;
 // Player taking events, and displaying.
 extern  int consoleplayer;
 extern  int displayplayer;
+extern camera_t* camera;
 
 // -------------------------------------
 // Scores, rating.

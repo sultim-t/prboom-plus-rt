@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.22 2001/07/12 20:55:54 cph Exp $
+# $Id: Makefile.am,v 1.23 2001/09/02 10:27:11 proff_fs Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -57,7 +57,8 @@ COMMON_SRC = \
  f_finale.h     p_map.c            r_main.c         z_bmalloc.h \
  f_wipe.c       p_map.h            r_main.h         z_zone.c    \
  c_cmd.c        c_io.c             c_io.h           c_runcmd.c  c_runcmd.h  \
- f_wipe.h       p_maputl.c         r_plane.c        z_zone.h
+ f_wipe.h       p_maputl.c         r_plane.c        z_zone.h    \
+ p_chase.c      p_chase.h
 
 if SDL_NET
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c

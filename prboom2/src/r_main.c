@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.17 2001/07/07 18:17:10 cph Exp $
+ * $Id: r_main.c,v 1.18 2001/09/02 10:27:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.17 2001/07/07 18:17:10 cph Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.18 2001/09/02 10:27:11 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -74,6 +74,8 @@ angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 player_t *viewplayer;
 extern lighttable_t **walllights;
+camera_t* viewcamera;
+int viewheightsec;
 
 //
 // precalculated math tables
@@ -462,26 +464,39 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 // R_SetupFrame
 //
 
-void R_SetupFrame (player_t *player)
+void R_SetupFrame (player_t *player, camera_t* camera)
 {               
   int i, cm;
     
   viewplayer = player;
-  viewx = player->mo->x;
-  viewy = player->mo->y;
-  viewangle = player->mo->angle + viewangleoffset;
+  viewcamera = camera;
+  if(!camera)
+  {
+    viewx = player->mo->x;
+    viewy = player->mo->y;
+    viewz = player->viewz;
+    viewangle = player->mo->angle;
+    viewheightsec = player->mo->subsector->sector->heightsec;
+  }
+  else
+  {
+    viewx = camera->x;
+    viewy = camera->y;
+    viewz = camera->z;
+    viewangle = camera->angle;
+    viewheightsec = R_PointInSubsector(viewx, viewy)->sector->heightsec;
+  }
+
   extralight = player->extralight;
 
-  viewz = player->viewz;
-    
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
-  if (player->mo->subsector->sector->heightsec != -1)
+  if (viewheightsec != -1)
     {
-      const sector_t *s = player->mo->subsector->sector->heightsec + sectors;
+      const sector_t *s = viewheightsec + sectors;
       cm = viewz < s->floorheight ? s->bottommap : viewz > s->ceilingheight ?
         s->topmap : s->midmap;
       if (cm < 0 || cm > numcolormaps)
@@ -544,9 +559,9 @@ static void R_ShowStats(void)
 //
 // R_RenderView
 //
-void R_RenderPlayerView (player_t* player)
+void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 {       
-  R_SetupFrame (player);
+  R_SetupFrame (player, viewcamera);
 
   // Clear buffers.
   R_ClearClipSegs ();

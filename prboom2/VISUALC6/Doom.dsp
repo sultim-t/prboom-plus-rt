@@ -637,6 +637,14 @@ SOURCE=..\src\p_ceilng.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\p_chase.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_chase.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\p_doors.c
 # End Source File
 # Begin Source File

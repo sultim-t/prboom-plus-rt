@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: r_things.c,v 1.15 2001/09/02 10:27:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.15 2001/09/02 10:27:11 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -755,6 +755,8 @@ void R_DrawPlayerSprites(void)
   int i, lightnum;
   pspdef_t *psp;
 
+  if (viewcamera) return;
+  
   // get light level
   lightnum = (viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT)
     + extralight;
