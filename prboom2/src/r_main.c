@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.20 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: r_main.c,v 1.21 2002/08/11 13:49:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.20 2002/01/07 15:56:19 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.21 2002/08/11 13:49:41 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -612,9 +612,18 @@ CONSOLE_INT(r_tranpct, tran_filter_pct, NULL, 0, 100, NULL, 0)
   R_ResetTrans();
 }
 
+VARIABLE_INT(usegamma, NULL,                    0, 4, NULL);
+
+CONSOLE_VARIABLE(gamma, usegamma, 0)
+{
+        // change to new gamma val
+    V_SetPalette(0);
+}
+
 void R_AddCommands()
 {
   C_AddCommand(r_trans);
   C_AddCommand(r_tranpct);
+   C_AddCommand(gamma);
 }
 
