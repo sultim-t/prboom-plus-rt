@@ -873,10 +873,6 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   if (target->health <= 0)
     return;
   
-  /* proff 11/22/98: Andy Baker's Stealth monsters */
-  if (target->flags & MF_STEALTH)
-    P_BecomeVisible(target);
-
   if (target->flags & MF_SKULLFLY)
     target->momx = target->momy = target->momz = 0;
 
