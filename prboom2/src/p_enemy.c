@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.5 2000/05/11 23:22:20 cph Exp $
+ * $Id: p_enemy.c,v 1.6 2000/05/12 12:23:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.5 2000/05/11 23:22:20 cph Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.6 2000/05/12 12:23:49 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -1125,9 +1125,8 @@ void A_Chase(mobj_t *actor)
 
   if (!actor->target || !(actor->target->flags&MF_SHOOTABLE))
     {
-      if (P_LookForPlayers(actor,true))    // look for a new target
-        return;                            // got a new target
-      P_SetMobjState(actor, actor->info->spawnstate);
+      if (!P_LookForTargets(actor,true)) // look for a new target
+	P_SetMobjState(actor, actor->info->spawnstate); // no new target
       return;
     }
 
