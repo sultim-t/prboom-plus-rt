@@ -4,17 +4,19 @@
 <head>
  <title>PrBoom - Project Homepage</title>
  <meta name="author" content="Colin Phipps" />
- <meta name="generator" content="emacs muhahaha!" />
- <meta name="CVSID" content="$Id: about.html,v 1.3 2000/09/30 17:45:44 proff_fs Exp $" />
+ <meta name="generator" content="vi (Debian/GNU Linux; i386" />
+ <meta name="CVSID" content="$Id: about.html,v 1.4 2000/12/08 20:40:08 cph Exp $" />
  <link rel="stylesheet" href="main.css" type="text/css" />
 </head>
-<body text="#000000" bgcolor="#FFFFFF" link="#FF0000" alink="#FF0000" vlink="#FF0000">
+<body>
 
 <a href="http://sourceforge.net">
 <img src="http://sourceforge.net/sflogo.php?group_id=3396&type=1" width="88" height="31" />
 </a>
 
-<h1>History</h1>
+<h1>About PrBoom</h1>
+
+<h2>History</h2>
 
 PrBoom is the culmination of years of work by various people and projects on
 the Doom source code. PrBoom includes work from all of the following
@@ -72,7 +74,7 @@ projects:
  xdoom, and Eternity.
 </p>
 
-<h1>Features</h1>
+<h2>Features</h2>
 
 <p>
  This is all the features PrBoom has compared to the original Doom game -
@@ -87,7 +89,7 @@ projects:
  compatible with).
 </p>
 <!-- something like TeamTNT's categories -->
-<h2>Playing the game</h2>
+<h3>Playing the game</h3>
  <ul>
   <li>Supports loading dehacked files at the command line, or in WADs
    (<a href="#boom">BOOM</a>, <a href="#mbf">MBF</a>)</li>
@@ -97,7 +99,7 @@ projects:
   <li>Savegames store list of loaded WAD files, warning if wrong files loaded
    (<a href="#boom">BOOM</a>, <a href="#mbf">MBF</a>)</li>
  </ul>
-<h2>Game engine</h2>
+<h3>Game engine</h3>
  <ul>
   <li>Player bobbing improved, optional
    (<a href="#boom">BOOM</a>, <a href="#mbf">MBF</a>)</li>
@@ -125,7 +127,7 @@ projects:
    (<a href="#boom">BOOM</a>, <a href="#mbf">MBF</a>, <a href="#lxdoom">LxDoom</a>)</li>
   <li>Support arbitrary texture heights (<a href="#boom">BOOM</a>)</li>
  </ul>
-<h2>Screen</h2>
+<h3>Screen</h3>
  <ul>
   <li>High resolution support (<a href="#prboom">PrBoom</a>)</li>
   <li>Optional message console, multiple message lines (<a href="#boom">BOOM</a>)</li>
@@ -134,13 +136,13 @@ projects:
    (<a href="#boom">BOOM</a>)</li>
   <li>OpenGL renderer which renders as original to software Doom as possible while greatly improving the visual quality (<a href="#prboom">PrBoom</a>)</li>
  </ul>
-<h2>Multiplayer</h2>
+<h3>Multiplayer</h3>
  <ul>
   <li>Spy mode improved (<a href="#boom">BOOM</a>)</li>
   <li>Support for loadgame in a net game (<a href="#lxdoom">LxDoom</a>)</li>
   <li>Client server style network games (<a href="#lxdoom">LxDoom</a>)</li>
  </ul>
-<h2>Automap</h2>
+<h3>Automap</h3>
  <ul>
   <li>No limit on marks (<a href="#boom">BOOM</a>)</li>
   <li>Rotation and overlay modes
@@ -151,18 +153,18 @@ projects:
   <li>Keys, secrets visible on map with cheat codes (<a href="#boom">BOOM</a>)</li>
   <li>Colours fully configurable from menus (<a href="#boom">BOOM</a>)</li>
  </ul>
-<h2>Intermission screens</h2>
+<h3>Intermission screens</h3>
  <ul>
   <li>Par times hidden when not relevant (<a href="#boom">BOOM</a>)</li>
   <li>Total episode time shown (<a href="#lxdoom">LxDoom</a>)</li>
  </ul>
-<h2>Menus</h2>
+<h3>Menus</h3>
  <ul>
   <li>F1 help screen shows current key setup (<a href="#boom">BOOM</a>)</li>
-  <li>Key bindings, monster behavior, and compatibility settings all set in menus
+  <li>Key bindings, monster behaviour, and compatibility settings all set in menus
    (<a href="#boom">BOOM</a>, <a href="#mbf">MBF</a>)</li>
  </ul>
-<h2>Compatibility</h2>
+<h3>Compatibility</h3>
  <ul>
   <li>Game is capable of behaving like any of:
    original Doom v1.9, Boom v2.02, MBF (<a href="#boom">BOOM</a>,
@@ -172,18 +174,18 @@ projects:
    everything should work).</li>
   <li>Plays some DosDoom, earlier Doom, earlier Boom, and LxDoom demos.</li>
   <li>Plays all MBF demos.</li>
-  <li>Autocorrection of common bugs in old levels (<a href="#mbf">MBF</a>),
+  <li>Auto-correction of common bugs in old levels (<a href="#mbf">MBF</a>),
    with warnings (<a href="#lxdoom">LxDoom</a>)</li>
   <li>Fine control of options controlling compatibility and new features
    (<a href="#mbf">MBF</a>)</li>
  </ul>
-<h2>Controls</h2>
+<h3>Controls</h3>
  <ul>
   <li>Greater control of key bindings from in game menus (<a href="#boom">BOOM</a>)</li>
   <li>More accurate mouse sensitivity control (<a href="#boom">BOOM</a>,
    <a href="#lxdoom">LxDoom</a>)</li>
  </ul>
-<h2>Misc</h2>
+<h3>Misc</h3>
  <ul>
   <li>Screenshot code improved, supports BMPs (<a href="#boom">BOOM</a>)</li>
   <li>Support for ENDOOM and ENDBOOM
@@ -194,7 +196,7 @@ projects:
   <li>Various extra cheat codes (<a href="#boom">BOOM</a>,
    <a href="#lxdoom">LxDoom</a>)</li>
  </ul>
-<h2>Internals</h2>
+<h3>Internals</h3>
  <ul>
   <li>Greatly improved internal memory management
    (<a href="#boom">BOOM</a>, <a href="#lxdoom">LxDoom</a>)</li>

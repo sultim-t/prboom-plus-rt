@@ -1,3 +1,14 @@
 body {
  font-family: Arial;
+ color: black;
+ background-color: white;
+}
+h1 {
+ text-align: center;
+}
+a:link {
+ color: red;
+}
+a:visited {
+ color: red;
 }

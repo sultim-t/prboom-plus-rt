@@ -268,7 +268,7 @@
    <h3>Game logic bugs</h3>
     <p>Note that some of these bug fixes are only for fixing demo sync, 
      and so some people won't be interested in them. Also, some of these bug
-     fixes change the game behavior and so people might not like them. 
+     fixes change the game behaviour and so people might not like them. 
      It's your choice.</p>
     <h4>Medikit health</h4>
      <p>
@@ -321,7 +321,7 @@
            S_StartSound(player->mo,sfx_oof);             // killough 3/20/98
       </pre><p>
        Although you might prefer a more complicated fix which allowed for 
-       compatibility with MBF's buggy behavior.
+       compatibility with MBF's buggy behaviour.
       </p>
      <h4>Compatibility bug in T_MovePlane</h4>
       <p>
@@ -331,7 +331,7 @@
        is an object standing on the floor which is stuck in the ceiling. In
        Boom and MBF, the floor will not be stuck, even in compatibility mode.
       </p><p>
-       Fix is easy, reintroduce the old behavior in compatibility mode:
+       Fix is easy, reintroduce the old behaviour in compatibility mode:
 </p><pre>
 ***************
 *** 101,106 ****
@@ -503,7 +503,7 @@
 +    *  is being used by several different functions calling
 +    *  P_BlockThingIterator, including functions that can be called *from*
 +    *  P_BlockThingIterator. Using a global tmthing is not reentrant. 
-+    * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
++    * OTOH for Boom/MBF demos we have to preserve the buggy behaviour.
 +    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
 +    */
 +   if ((compatibility_level < boom_compatibility_compatibility) ||
