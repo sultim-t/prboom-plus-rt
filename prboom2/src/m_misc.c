@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.29 2001/02/03 22:54:48 cph Exp $
+ * $Id: m_misc.c,v 1.30 2001/02/18 17:11:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.29 2001/02/03 22:54:48 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.30 2001/02/18 17:11:58 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -801,9 +801,9 @@ void M_LoadDefaults (void)
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
 #ifdef GL_DOOM
-    snprintf(defaultfile,PATH_MAX,"%s/glboom.cfg", D_DoomExeDir());
+    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", D_DoomExeDir());
 #else
-    snprintf(defaultfile,PATH_MAX,"%s/prboom.cfg", D_DoomExeDir());
+    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", D_DoomExeDir());
 #endif
   }
 
