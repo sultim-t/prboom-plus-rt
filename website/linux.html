@@ -4,8 +4,8 @@
 <head>
  <title>PrBoom - Linux/UNIX Installation</title>
  <meta name="author" content="Colin Phipps" />
- <meta name="generator" content="vi (FreeBSD 4.1-STABLE i686)" />
- <meta name="CVSID" content="$Id: linux.html,v 1.9 2000/12/17 18:27:03 cph Exp $" />
+ <meta name="generator" content="vi (gvim Debian/GNU Linux 2.3 (testing) i686)" />
+ <meta name="CVSID" content="$Id: linux.html,v 1.10 2000/12/30 15:31:30 cph Exp $" />
  <link rel="stylesheet" href="main.css" type="text/css" />
 </head>
 <body>
@@ -48,9 +48,9 @@
  <p>
   We test and recommend the following RPM's to use with PrBoom:
  </p><ul>
-  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL-1.1.4-7mdk.i586.rpm">http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL-1.1.4-7mdk.i586.rpm</a></li>
-  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_mixer-1.0.6-2mdk.i586.rpm">http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_mixer-1.0.6-2mdk.i586.rpm</a></li>
-  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_net-1.1.1-1mdk.i586.rpm">http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_net-1.1.1-1mdk.i586.rpm</a></li>
+  <li><a href="http://www.libsdl.org/release/SDL-1.1.6-1.i386.rpm">SDL-1.1.6-1.i386.rpm</a> (the latest SDL development RPM)</li>
+  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_mixer-1.0.6-2mdk.i586.rpm">SDL_mixer-1.0.6-2mdk.i586.rpm</a> (from Mandrake)</li>
+  <li><a href="http://mirror.uklinux.net/mandrake/7.2/i586/Mandrake/RPMS/SDL_net-1.1.1-1mdk.i586.rpm">SDL_net-1.1.1-1mdk.i586.rpm</a> (from Mandrake)</li>
  </ul>
  <p>To install these, you use <code>rpm</code>. E.g. if you downloaded all
   of the above RPMs into one directory, <code>cd</code> to that directory
@@ -63,20 +63,24 @@
    You no longer need the smpeg library to use PrBoom. PrBoom itself has 
    never used smpeg, but the SDL RPM's we used to recommend needed it.
   </li><li>
-   The RPMs we recommend are those shipped with Mandrake 7.2. If you're a 
-   Mandrake user, you already have them, and they were installed by default 
-   if you selected a workstation setup (at least, they were here...). If not, 
-   you can install them off the Mandrake CDs.
+   If you're a Mandrake user, you can use the SDL RPM's included with 
+   Mandrake 7.2. They were installed by default 
+   if you selected a workstation setup (at least, they were here...). 
+   If not, you can install them off the Mandrake CDs.
   </li><li>
-   There are newer versions of some of these libraries available from their 
+   There may be newer versions of some of these libraries available from their 
    respective homepages. It's generally OK to use these. The main exception is 
    SDL_mixer... the latest upstream RPMs have (needlessly) changed the soname 
-   of the library, rendering their new RPMs useless. Use the Mandrake one 
-   we recommend.
+   of the library, rendering their new RPMs useless.
+   Use the Mandrake one we recommend.
   </li><li>
    If you are using a partiularly stripped down setup, you might need to 
    install a few more RPMs required by these ones. They should be on your 
-   CDs.
+   distribution CDs.
+  </li><li>
+   No source RPM (SRPM) is provided for PrBoom.
+   The RPM is built from the source tarball unmodified:
+   see the <code>INSTALL</code> file in the source tarball for details.
   </li>
  </ul>
 <h2><a name="debian">Debian</a></h2>
@@ -87,7 +91,7 @@
    You also need the SDL_net library, which is not
    yet packaged for Debian; get the source from
    <a href="http://www.libsdl.org/projects/SDL_net/">the SDL_net homepage</a>.
-   Get the prboom source code <code>prboom-2.1.1.tar.gz</code> from our
+   Get the prboom source code <code>prboom-2.1.2.tar.gz</code> from our
    <a href="#download">download page</a>, extract, and then follow the
    included <code>INSTALL</code> instructions.</dd>
  </p><p>
@@ -109,7 +113,7 @@
    <code>ln -s ../SDL/SDL_net.h /usr/local/include/SDL11/SDL_net.h</code>
    or something similar.
  </p><p>
-  Finally, get <code>prboom-2.1.1.tar.gz</code> the PrBoom source, extract,
+  Finally, get <code>prboom-2.1.2.tar.gz</code> the PrBoom source, extract,
   and follow the included <code>INSTALL</code> instructions.
  </p>
 <h2><a name="unix">Generic UNIX</a></h2>
@@ -129,7 +133,7 @@
    page</a>.</li>
  </ul>
  <p>
-  Then get <code>prboom-2.1.1.tar.gz</code> the PrBoom source, extract,
+  Then get <code>prboom-2.1.2.tar.gz</code> the PrBoom source, extract,
   and follow the included <code>INSTALL</code> instructions.
  </p>
 <h2><a name="download">Download page</h2>
