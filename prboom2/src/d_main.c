@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.47 2001/09/25 09:56:10 proff_fs Exp $
+ * $Id: d_main.c,v 1.48 2001/11/19 20:48:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.47 2001/09/25 09:56:10 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.48 2001/11/19 20:48:16 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1441,6 +1441,8 @@ void D_DoomMainSetup(void)
   // the deh patch author that this is actually part of the EXE itself
   // Using -deh in BOOM, others use -dehacked.
   // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
+
+  D_BuildBEXTables(); // haleyjd
 
 #ifndef DREAMCAST
   p = M_CheckParm ("-deh");

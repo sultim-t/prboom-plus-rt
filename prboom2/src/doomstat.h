@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.16 2001/09/02 10:27:11 proff_fs Exp $
+ * $Id: doomstat.h,v 1.17 2001/11/19 20:48:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -364,5 +364,7 @@ extern int doom_weapon_toggles;   // killough 10/98
 extern int monster_infighting, default_monster_infighting;
 
 extern int monkeys, default_monkeys;
+
+extern int HelperThing;          // type of thing to use for helper
 
 #endif

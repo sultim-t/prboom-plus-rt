@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.17 2001/08/14 17:12:58 cph Exp $
+ * $Id: p_mobj.c,v 1.18 2001/11/19 20:48:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.17 2001/08/14 17:12:58 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.18 2001/11/19 20:48:16 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1140,13 +1140,28 @@ void P_SpawnMapThing (const mapthing_t* mthing)
 	{  // use secretcount to avoid multiple dogs in case of multiple starts
 	  players[mthing->type-1].secretcount = 1;
 
+  
 	  // killough 10/98: force it to be a friend
-	  options |= MTF_FRIEND;
-	  i = MT_DOGS;
+	  mthing->options |= MTF_FRIEND;
+          if(HelperThing != -1) // haleyjd 9/22/99: deh substitution
+          {
+            int type = HelperThing - 1;
+            if(type >= 0 && type < NUMMOBJTYPES)
+            {
+              i = type;
+            }
+            else
+            {
+              doom_printf("Invalid value %i for helper, ignored.", HelperThing);
+              i = MT_DOGS;
+            }
+          }
+          else {
+            i = MT_DOGS;
+          }
 	  goto spawnit;
 	}
 #endif
-
     // save spots for respawning in coop games
     playerstarts[mthing->type-1] = *mthing;
     playerstarts[mthing->type-1].options = 1;

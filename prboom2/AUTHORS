@@ -36,6 +36,11 @@ following people who contributed code to LxDoom or PrBoom:
 Simon "fraggle" Howard <fraggle@alkali.org>
 Console/keymapping code from SMMU, as well as some MBF bug fixes.
 
+James "Quasar" Haley <haleyjd@concentric.net>
+Ever willing to talk about source ideas, and has pointed me in the direction of
+a lot of Boom and MBF bugs; also various bits code from his port Eternity have
+been used, such as the BEX enhancements.
+
 Gady Kozma	gady@math.tau.ac.il
 Added hires to the SVGALib version of LxDoom, and other useful patches.
 
@@ -98,10 +103,6 @@ If you have sent in patches and I forgot to list you, I apologise. Please email
 me and I will add you.
 
 Also, thanks to the following people who have helped in various ways:
-
-James "Quasar" Haley <haleyjd@concentric.net>
-Ever willing to talk about source ideas, and has pointed me in the direction of
-a lot of Boom and MBF bugs.
 
 Adam Hegyi <ha211@hszk.bme.hu>
 Prompted me to hunt down those last few demo sync bugs, and provided some useful

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.12 2001/07/16 15:05:16 proff_fs Exp $
+ * $Id: p_enemy.c,v 1.13 2001/11/19 20:48:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.12 2001/07/16 15:05:16 proff_fs Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.13 2001/11/19 20:48:16 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -449,7 +449,10 @@ static boolean P_SmartMove(mobj_t *actor)
   // and only if the target is immediately on the other side of the line.
 
 #ifdef DOGS
-  if (actor->type == MT_DOGS && target && dog_jumping &&
+  // haleyjd: allow all friends of HelperType to also jump down
+
+  if ((actor->type == MT_DOGS || (actor->type == (HelperThing-1) && actor->flags&MF_FRIEND))
+      && target && dog_jumping &&
       !((target->flags ^ actor->flags) & MF_FRIEND) &&
       P_AproxDistance(actor->x - target->x,
 		      actor->y - target->y) < FRACUNIT*144 &&

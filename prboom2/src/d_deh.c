@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.11 2001/07/02 22:46:46 proff_fs Exp $
+ * $Id: d_deh.c,v 1.12 2001/11/19 20:48:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.11 2001/07/02 22:46:46 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.12 2001/11/19 20:48:16 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -111,6 +111,8 @@ int dehfgetc(DEHFILE *fp)
 }
 #endif //DREAMCAST
 
+// haleyjd 9/22/99
+int HelperThing = -1;     // in P_SpawnMapThing to substitute helper thing
 
 // variables used in other routines
 boolean deh_pars = FALSE; // in wi_stuff to allow pars in modified games
@@ -990,6 +992,11 @@ void deh_procPars(DEHFILE *, FILE*, char *);
 void deh_procStrings(DEHFILE *, FILE*, char *);
 void deh_procError(DEHFILE *, FILE*, char *);
 void deh_procBexCodePointers(DEHFILE *, FILE*, char *);
+void deh_procHelperThing(DEHFILE *, FILE *, char *); // haleyjd 9/22/99
+// haleyjd: handlers to fully deprecate the DeHackEd text section
+void deh_procBexSounds(DEHFILE *, FILE *, char *);
+void deh_procBexMusic(DEHFILE *, FILE *, char *);
+void deh_procBexSprites(DEHFILE *, FILE *, char *);
 
 // Structure deh_block is used to hold the block names that can
 // be encountered, and the routines to use to decipher them
@@ -1025,7 +1032,11 @@ static const deh_block deh_blocks[] = { // CPhipps - static const
   /* 10 */ {"[STRINGS]",deh_procStrings}, // new string changes
   /* 11 */ {"[PARS]",deh_procPars}, // alternative block marker
   /* 12 */ {"[CODEPTR]",deh_procBexCodePointers}, // bex codepointers by mnemonic
-  /* 13 */ {"",deh_procError} // dummy to handle anything else
+   /* 13 */ {"[HELPER]", deh_procHelperThing}, // helper thing substitution haleyjd 9/22/99
+   /* 14 */ {"[SPRITES]", deh_procBexSprites}, // bex style sprites
+   /* 15 */ {"[SOUNDS]", deh_procBexSounds},   // bex style sounds
+   /* 16 */ {"[MUSIC]", deh_procBexMusic},     // bex style music
+   /* 17 */ {"", deh_procError} // dummy to handle anything else
 };
 
 // flag to skip included deh-style text, used with INCLUDE NOTEXT directive
@@ -1177,8 +1188,6 @@ static const char *deh_sfxinfo[] = // CPhipps - static const*
 // MUSICINFO is not supported in Dehacked.  Ignored here.
 // * music entries are base zero but have a dummy #0
 
-#if 0
-// CPhipps - unused?
 // SPRITE - Dehacked block name = "Sprite"
 // Usage = Sprite nn
 // Sprite redirection by offset into the text area - unsupported by BOOM
@@ -1188,7 +1197,6 @@ static const char *deh_sprite[] = // CPhipps - static const*
 {
   "Offset"      // supposed to be the offset into the text section
 };
-#endif
 
 // AMMO - Dehacked block name = "Ammo"
 // usage = Ammo n (name)
@@ -1442,6 +1450,34 @@ static const deh_bexptr deh_bexptrs[] = // CPhipps - static const
 // to hold startup code pointers from INFO.C
 // CPhipps - static
 static actionf_t deh_codeptr[NUMSTATES];
+
+// haleyjd: support for BEX SPRITES, SOUNDS, and MUSIC
+char *deh_spritenames[NUMSPRITES + 1];
+char *deh_musicnames[NUMMUSIC + 1];
+char *deh_soundnames[NUMSFX + 1];
+
+void D_BuildBEXTables(void)
+{
+   int i;
+
+   for(i = 0; i < NUMSPRITES; i++)
+   {
+      deh_spritenames[i] = strdup(sprnames[i]);
+   }
+   deh_spritenames[NUMSPRITES] = NULL;
+
+   for(i = 1; i < NUMMUSIC; i++)
+   {
+      deh_musicnames[i] = strdup(S_music[i].name);
+   }
+   deh_musicnames[0] = deh_musicnames[NUMMUSIC] = NULL;
+
+   for(i = 1; i < NUMSFX; i++)
+   {
+      deh_soundnames[i] = strdup(S_sfx[i].name);
+   }
+   deh_soundnames[0] = deh_soundnames[NUMSFX] = NULL;
+}
 
 // ====================================================================
 // ProcessDehFile
@@ -2652,6 +2688,226 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
                        "Could not find '%.12s'\n",key ? key: lookfor);
 
   return found;
+}
+
+//========================================================================
+// haleyjd 9/22/99
+//
+// deh_procHelperThing
+//
+// Allows handy substitution of any thing for helper dogs.  DEH patches
+// are being made frequently for this purpose and it requires a complete
+// rewiring of the DOG thing.  I feel this is a waste of effort, and so
+// have added this new [HELPER] BEX block
+
+void deh_procHelperThing(DEHFILE *fpin, FILE *fpout, char *line)
+{
+  char key[DEH_MAXKEYLEN];
+  char inbuffer[DEH_BUFFERMAX];
+  uint_64_t value;      // All deh values are ints or longs
+
+  strncpy(inbuffer,line,DEH_BUFFERMAX);
+  while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
+  {
+      if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
+      lfstrip(inbuffer);
+      if (!*inbuffer) break;    
+      if (!deh_GetData(inbuffer,key,&value,NULL,fpout)) // returns TRUE if ok
+      {
+          if (fpout) fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
+          continue;
+      }
+      // Otherwise it's ok
+      if (fpout)
+      {
+        fprintf(fpout,"Processing Helper Thing item '%s'\n", key);
+        fprintf(fpout,"value is %i", (int)value);
+      }
+      if (!strncasecmp(key, "type", 4))
+        HelperThing = (int)value;
+  }
+  return;
+}
+
+//
+// deh_procBexSprites
+//
+// Supports sprite name substitutions without requiring use
+// of the DeHackEd Text block
+//
+void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
+{
+   char key[DEH_MAXKEYLEN];
+   char inbuffer[DEH_BUFFERMAX];
+   uint_64_t value;    // All deh values are ints or longs
+   char *strval;  // holds the string value of the line
+   char candidate[5];
+   int  rover;
+
+   if(fpout)
+      fprintf(fpout,"Processing sprite name substitution\n");
+   
+   strncpy(inbuffer,line,DEH_BUFFERMAX);
+
+   while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
+   {
+      if(!dehfgets(inbuffer, sizeof(inbuffer), fpin))
+	 break;
+      if(*inbuffer == '#')
+	 continue;  // skip comment lines
+      lfstrip(inbuffer);
+      if(!*inbuffer) 
+	 break;  // killough 11/98
+      if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
+      {
+	 if(fpout)
+	    fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
+	 continue;
+      }
+      // do it
+      memset(candidate, 0, 7);
+      strncpy(candidate, ptr_lstrip(strval), 4);
+      if(strlen(candidate) != 4)
+      {
+	 if(fpout)
+	    fprintf(fpout, "Bad length for sprite name '%s'\n",
+	            candidate);
+	 continue;
+      }
+
+      rover = 0;
+      while(deh_spritenames[rover])
+      {
+	 if(!strncasecmp(deh_spritenames[rover], key, 4))
+	 {
+	    if(fpout)
+	       fprintf(fpout, "Substituting '%s' for sprite '%s'\n",
+	               candidate, deh_spritenames[rover]);
+
+	    sprnames[rover] = strdup(candidate);
+	    break;
+	 }
+	 rover++;
+      }
+   }
+}
+
+// ditto for sound names
+void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
+{
+   char key[DEH_MAXKEYLEN];
+   char inbuffer[DEH_BUFFERMAX];
+   uint_64_t value;    // All deh values are ints or longs
+   char *strval;  // holds the string value of the line
+   char candidate[7];
+   int  rover, len;
+   
+   if(fpout)
+      fprintf(fpout,"Processing sound name substitution\n");
+   
+   strncpy(inbuffer,line,DEH_BUFFERMAX);
+
+   while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
+   {
+      if(!dehfgets(inbuffer, sizeof(inbuffer), fpin))
+	 break;
+      if(*inbuffer == '#')
+	 continue;  // skip comment lines
+      lfstrip(inbuffer);
+      if(!*inbuffer) 
+	 break;  // killough 11/98
+      if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
+      {
+	 if(fpout)
+	    fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
+	 continue;
+      }
+      // do it
+      memset(candidate, 0, 7);
+      strncpy(candidate, ptr_lstrip(strval), 6);
+      len = strlen(candidate);
+      if(len < 1 || len > 6)
+      {
+	 if(fpout)
+	    fprintf(fpout, "Bad length for sound name '%s'\n",
+	            candidate);
+	 continue;
+      }
+
+      rover = 1;
+      while(deh_soundnames[rover])
+      {
+	 if(!strncasecmp(deh_soundnames[rover], key, 6))
+	 {
+	    if(fpout)
+	       fprintf(fpout, "Substituting '%s' for sound '%s'\n",
+	               candidate, deh_soundnames[rover]);
+
+	    S_sfx[rover].name = strdup(candidate);
+	    break;
+	 }
+	 rover++;
+      }
+   }
+}
+
+// ditto for music names
+void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
+{
+   char key[DEH_MAXKEYLEN];
+   char inbuffer[DEH_BUFFERMAX];
+   uint_64_t value;    // All deh values are ints or longs
+   char *strval;  // holds the string value of the line
+   char candidate[7];
+   int  rover, len;
+   
+   if(fpout)
+      fprintf(fpout,"Processing music name substitution\n");
+   
+   strncpy(inbuffer,line,DEH_BUFFERMAX);
+
+   while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
+   {
+      if(!dehfgets(inbuffer, sizeof(inbuffer), fpin))
+	 break;
+      if(*inbuffer == '#')
+	 continue;  // skip comment lines
+      lfstrip(inbuffer);
+      if(!*inbuffer) 
+	 break;  // killough 11/98
+      if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
+      {
+	 if(fpout)
+	    fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
+	 continue;
+      }
+      // do it
+      memset(candidate, 0, 7);
+      strncpy(candidate, ptr_lstrip(strval), 6);
+      len = strlen(candidate);
+      if(len < 1 || len > 6)
+      {
+	 if(fpout)
+	    fprintf(fpout, "Bad length for music name '%s'\n",
+	            candidate);
+	 continue;
+      }
+
+      rover = 1;
+      while(deh_musicnames[rover])
+      {
+	 if(!strncasecmp(deh_musicnames[rover], key, 6))
+	 {
+	    if(fpout)
+	       fprintf(fpout, "Substituting '%s' for music '%s'\n",
+	               candidate, deh_musicnames[rover]);
+
+	    S_music[rover].name = strdup(candidate);
+	    break;
+	 }
+	 rover++;
+      }
+   }
 }
 
 // ====================================================================

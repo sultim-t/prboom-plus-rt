@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.h,v 1.3 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_deh.h,v 1.4 2001/11/19 20:48:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1124,5 +1124,7 @@ extern const char* startup5;
 
 // from g_game.c, prefix for savegame name like "boomsav"
 extern const char* savegamename;
+
+void D_BuildBEXTables(void);
 
 #endif
