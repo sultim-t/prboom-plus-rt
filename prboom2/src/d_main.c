@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.42 2001/07/11 18:12:36 proff_fs Exp $
+ * $Id: d_main.c,v 1.43 2001/07/13 23:05:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.42 2001/07/11 18:12:36 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.43 2001/07/13 23:05:32 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -596,11 +596,26 @@ void D_StartTitle (void)
 //         - modified to allocate & use new wadfiles array
 void D_AddFile (const char *file, wad_source_t source)
 {
+  char *gwa_filename=NULL;
+
   wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
   wadfiles[numwadfiles].name =
     AddDefaultExtension(strcpy(malloc(strlen(file)+5), file), ".wad");
   wadfiles[numwadfiles].src = source; // Ty 08/29/98
   numwadfiles++;
+  // proff: automatically try to add the gwa files
+  // proff - moved from w_wad.c
+  gwa_filename=AddDefaultExtension(strcpy(malloc(strlen(file)+5), file), ".wad");
+  if (strlen(gwa_filename)>4)
+    if (!strcasecmp(gwa_filename+(strlen(gwa_filename)-4),".wad"))
+    {
+      gwa_filename[strlen(gwa_filename)-4]='\0';
+      AddDefaultExtension(gwa_filename, ".gwa");
+      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+      wadfiles[numwadfiles].name = gwa_filename;
+      wadfiles[numwadfiles].src = source; // Ty 08/29/98
+      numwadfiles++;
+    }
 }
 
 // Return the path where the executable lies -- Lee Killough

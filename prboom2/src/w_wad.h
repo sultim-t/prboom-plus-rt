@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.h,v 1.7 2001/07/12 20:55:54 cph Exp $
+ * $Id: w_wad.h,v 1.8 2001/07/13 23:05:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -72,6 +72,21 @@ typedef enum {
   source_net        // CPhipps
 } wad_source_t;
 
+// CPhipps - changed wad init
+// We _must_ have the wadfiles[] the same as those actually loaded, so there 
+// is no point having these separate entities. This belongs here.
+typedef struct {
+  const char* name;
+  wad_source_t src;
+  int handle;
+} wadfile_info_t;
+
+extern wadfile_info_t *wadfiles;
+
+extern size_t numwadfiles; // CPhipps - size of the wadfiles array
+
+void W_Init(void); // CPhipps - uses the above array
+
 typedef struct
 {
   // WARNING: order of some fields important (see info.c).
@@ -91,27 +106,13 @@ typedef struct
     ns_prboom
   } namespace;
 
-  int handle;
+  wadfile_info_t *wadfile;
   int position;
   wad_source_t source;
 } lumpinfo_t;
 
 extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
-
-// CPhipps - changed wad init
-// We _must_ have the wadfiles[] the same as those actually loaded, so there 
-// is no point having these separate entities. This belongs here.
-struct wadfile_info {
-  const char* name;
-  wad_source_t src;
-};
-
-extern struct wadfile_info *wadfiles;
-
-extern size_t numwadfiles; // CPhipps - size of the wadfiles array
-
-void W_Init(void); // CPhipps - uses the above array
 
 // killough 4/17/98: if W_CheckNumForName() called with only
 // one argument, pass ns_global as the default namespace

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.21 2001/07/12 21:29:27 proff_fs Exp $
+ * $Id: w_wad.c,v 1.22 2001/07/13 23:05:32 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.21 2001/07/12 21:29:27 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.22 2001/07/13 23:05:32 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -140,14 +140,13 @@ char *AddDefaultExtension(char *path, const char *ext)
 // Reload hack removed by Lee Killough
 // CPhipps - source is an enum
 //
-
-static void W_AddFile(const char *filename, wad_source_t source) 
+// proff - changed using pointer to wadfile_info_t
+static void W_AddFile(wadfile_info_t *wadfile) 
 // killough 1/31/98: static, const
 {
   wadinfo_t   header;
   lumpinfo_t* lump_p;
   unsigned    i;
-  int         handle;
   int         length;
   int         startlump;
   filelump_t  *fileinfo, *fileinfo2free=NULL; //killough
@@ -156,66 +155,66 @@ static void W_AddFile(const char *filename, wad_source_t source)
   // open the file and add to directory
 
 #ifdef DREAMCAST
-  handle = fslib->open(filename,O_RDONLY);
-  if (handle==0) handle=-1;
+  wadfile->handle = fslib->open(wadfile->name,O_RDONLY);
+  if (wadfile->handle==0) wadfile->handle=-1;
 #else
-  handle = open(filename,O_RDONLY | O_BINARY);
+  wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
 #endif
 
 #ifdef HAVE_NET
-  if (handle == -1 && D_NetGetWad(filename)) // CPhipps
-    handle = open(filename,O_RDONLY | O_BINARY);
+  if (wadfile->handle == -1 && D_NetGetWad(wadfile->name)) // CPhipps
+    wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
 #endif
     
-  if (handle == -1) 
+  if (wadfile->handle == -1) 
     {
-      if (  strlen(filename)<=4 ||      // add error check -- killough
-	         (strcasecmp(filename+strlen(filename)-4 , ".lmp" ) &&
-	          strcasecmp(filename+strlen(filename)-4 , ".gwa" ) )
+      if (  strlen(wadfile->name)<=4 ||      // add error check -- killough
+	         (strcasecmp(wadfile->name+strlen(wadfile->name)-4 , ".lmp" ) &&
+	          strcasecmp(wadfile->name+strlen(wadfile->name)-4 , ".gwa" ) )
          )
-	I_Error("W_AddFile: couldn't open %s",filename);
+	I_Error("W_AddFile: couldn't open %s",wadfile->name);
       return;
     }
 
   //jff 8/3/98 use logical output routine
-  lprintf (LO_INFO," adding %s\n",filename);
+  lprintf (LO_INFO," adding %s\n",wadfile->name);
   startlump = numlumps;
 
-  if (  strlen(filename)<=4 || 
+  if (  strlen(wadfile->name)<=4 || 
 	      (
-          strcasecmp(filename+strlen(filename)-4,".wad") && 
-	        strcasecmp(filename+strlen(filename)-4,".gwa")
+          strcasecmp(wadfile->name+strlen(wadfile->name)-4,".wad") && 
+	        strcasecmp(wadfile->name+strlen(wadfile->name)-4,".gwa")
         )
      )
     {
       // single lump file
       fileinfo = &singleinfo;
       singleinfo.filepos = 0;
-      singleinfo.size = LONG(W_Filelength(handle));
-      ExtractFileBase(filename, singleinfo.name);
+      singleinfo.size = LONG(W_Filelength(wadfile->handle));
+      ExtractFileBase(wadfile->name, singleinfo.name);
       numlumps++;
     }
   else
     {
       // WAD file
 #ifdef DREAMCAST
-      fslib->read(handle, &header, sizeof(header));
+      fslib->read(wadfile->handle, &header, sizeof(header));
 #else
-      read(handle, &header, sizeof(header));
+      read(wadfile->handle, &header, sizeof(header));
 #endif
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
-        I_Error("W_AddFile: Wad file %s doesn't have IWAD or PWAD id", filename);
+        I_Error("W_AddFile: Wad file %s doesn't have IWAD or PWAD id", wadfile->name);
       header.numlumps = LONG(header.numlumps);
       header.infotableofs = LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
       fileinfo2free = fileinfo = malloc(length);    // killough
 #ifdef DREAMCAST
-      fslib->seek(handle, header.infotableofs, SEEK_SET);
-      fslib->read(handle, fileinfo, length);
+      fslib->seek(wadfile->handle, header.infotableofs, SEEK_SET);
+      fslib->read(wadfile->handle, fileinfo, length);
 #else
-      lseek(handle, header.infotableofs, SEEK_SET);
-      read(handle, fileinfo, length);
+      lseek(wadfile->handle, header.infotableofs, SEEK_SET);
+      read(wadfile->handle, fileinfo, length);
 #endif
       numlumps += header.numlumps;
     }
@@ -227,12 +226,12 @@ static void W_AddFile(const char *filename, wad_source_t source)
 
     for (i=startlump ; (int)i<numlumps ; i++,lump_p++, fileinfo++)
       {
-        lump_p->handle = handle;                    //  killough 4/25/98
+        lump_p->wadfile = wadfile;                    //  killough 4/25/98
         lump_p->position = LONG(fileinfo->filepos);
         lump_p->size = LONG(fileinfo->size);
         lump_p->namespace = ns_global;              // killough 4/17/98
         strncpy (lump_p->name, fileinfo->name, 8);
-	lump_p->source = source;                    // Ty 08/29/98
+	lump_p->source = wadfile->src;                    // Ty 08/29/98
       }
 
     free(fileinfo2free);      // killough
@@ -269,7 +268,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
             strncpy(marked->name, start_marker, 8);
             marked->size = 0;  // killough 3/20/98: force size to be 0
             marked->namespace = ns_global;        // killough 4/17/98
-            marked->handle = 0;
+            marked->wadfile = NULL;
             num_marked = 1;
           }
         is_marked = 1;                            // start marking lumps
@@ -299,7 +298,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
   if (mark_end)                                   // add end marker
     {
       lumpinfo[numlumps].size = 0;  // killough 3/20/98: force size to be 0
-      lumpinfo[numlumps].handle = 0;
+      lumpinfo[numlumps].wadfile = NULL;
       lumpinfo[numlumps].namespace = ns_global;   // killough 4/17/98
       strncpy(lumpinfo[numlumps++].name, end_marker, 8);
     }
@@ -420,14 +419,12 @@ int W_GetNumForName (const char* name)     // killough -- const added
 //
 // CPhipps - modified to use the new wadfiles array
 //
-struct wadfile_info *wadfiles=NULL;
+wadfile_info_t *wadfiles=NULL;
 
 size_t numwadfiles = 0; // CPhipps - size of the wadfiles array (dynamic, no limit)
 
 void W_Init(void)
 {
-  char *gwa_filename=NULL;
-
   // CPhipps - start with nothing
 
   numlumps = 0; lumpinfo = malloc(0);
@@ -436,21 +433,7 @@ void W_Init(void)
     // open all the files, load headers, and count lumps
     int i;
     for (i=0; (size_t)i<numwadfiles; i++)
-    {
-      W_AddFile(wadfiles[i].name, wadfiles[i].src);
-      // proff: automatically try to add the gwa files
-      if (strlen(wadfiles[i].name)>4)
-        if (!strcasecmp(wadfiles[i].name+(strlen(wadfiles[i].name)-4),".wad"))
-        {
-          gwa_filename=malloc(strlen(wadfiles[i].name));
-          strncpy(gwa_filename,wadfiles[i].name,strlen(wadfiles[i].name)-4);
-          gwa_filename[strlen(wadfiles[i].name)-4]='\0';
-          AddDefaultExtension(gwa_filename, ".gwa");
-          W_AddFile(gwa_filename, source_pwad);
-          free(gwa_filename);
-          gwa_filename=NULL;
-        }
-    }
+      W_AddFile(&wadfiles[i]);
   }
 
   if (!numlumps)
@@ -469,6 +452,7 @@ void W_Init(void)
   W_HashLumps();
 
   /* cph 2001/07/07 - separated cache setup */
+  lprintf(LO_INFO,"W_InitCache\n");
   W_InitCache();
 }
 
@@ -501,15 +485,18 @@ void W_ReadLump(int lump, void *dest)
     {
       int c;
 
+      if (l->wadfile)
+      {
 #ifdef DREAMCAST
-      fslib->seek(l->handle, l->position, SEEK_SET);
-      c = fslib->read(l->handle, dest, l->size);
+        fslib->seek(l->wadfile->handle, l->position, SEEK_SET);
+        c = fslib->read(l->wadfile->handle, dest, l->size);
 #else
-      lseek(l->handle, l->position, SEEK_SET);
-      c = read(l->handle, dest, l->size);
+        lseek(l->wadfile->handle, l->position, SEEK_SET);
+        c = read(l->wadfile->handle, dest, l->size);
 #endif
-      if (c < l->size)
-        I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
+        if (c < l->size)
+          I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
+      }
     }
 }
 
