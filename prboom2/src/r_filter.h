@@ -6,6 +6,13 @@
 extern unsigned int filter_fracu;
 extern unsigned int filter_tempColor;
 
+#ifndef max
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
+
 //---------------------------------------------------------------------------
 // Select the dither matrix. See r_filter.c for more detail. Most of these
 // are either very similar or too wonky for real use.
@@ -160,7 +167,7 @@ void filter_init();
 // dud-conditionals (false?0:statement) to get all the statements executed. 
 // - POPE
 //---------------------------------------------------------------------------
-__inline byte *filter_getScale2xQuadColors(byte e, byte b, byte f, byte h, byte d) {
+static inline byte *filter_getScale2xQuadColors(byte e, byte b, byte f, byte h, byte d) {
   // A B C
   // D E F
   // G H I
