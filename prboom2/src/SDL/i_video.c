@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.18.2.2 2001/02/18 18:29:38 proff_fs Exp $
+ * $Id: i_video.c,v 1.18.2.3 2001/06/16 15:16:39 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.18.2.2 2001/02/18 18:29:38 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18.2.3 2001/06/16 15:16:39 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -480,9 +480,6 @@ void I_InitGraphics(void)
   int           w, h;
   Uint32        init_flags;
   char titlebuffer[2048];
-#ifdef GL_DOOM
-  int temp;
-#endif
   
   {  
     static int		firsttime=1;
@@ -524,15 +521,7 @@ void I_InitGraphics(void)
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
-#ifdef USE_OWN_TRANSLATION_CODE
-  if(SDL_VideoModeOK(w, h, 8, init_flags) == 8) { 
-#endif
-    screen = SDL_SetVideoMode(w, h, 8, init_flags);
-#ifdef USE_OWN_TRANSLATION_CODE
-  } else {
-    screen = SDL_SetVideoMode(w, h, 0, init_flags);
-  }
-#endif
+  screen = SDL_SetVideoMode(w, h, 8, init_flags);
 #endif
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
@@ -553,30 +542,34 @@ void I_InitGraphics(void)
   atexit(I_ShutdownGraphics);
 
 #ifdef GL_DOOM
-  lprintf(LO_INFO,"SDL OpenGL PixelFormat:\n");
-  SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
-  lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
-  gld_Init(SCREENWIDTH, SCREENHEIGHT);
+  {
+    int gl_attribute;
+
+    lprintf(LO_INFO,"SDL OpenGL PixelFormat:\n");
+    SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",gl_attribute);
+    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &gl_attribute );
+    lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",gl_attribute);
+    gld_Init(SCREENWIDTH, SCREENHEIGHT);
+  }
 #endif
   // Initialize the input system
   I_InitInputs();
