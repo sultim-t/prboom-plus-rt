@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.13 2001/11/19 20:48:16 cph Exp $
+ * $Id: p_enemy.c,v 1.14 2002/01/13 17:45:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2000,2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.13 2001/11/19 20:48:16 cph Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.14 2002/01/13 17:45:05 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -1927,10 +1927,8 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
     {
       // count total number of skulls currently on the level
       int count = 0;
-      thinker_t *currentthinker;
-      for (currentthinker = thinkercap.next;
-           currentthinker != &thinkercap;
-           currentthinker = currentthinker->next)
+      thinker_t *currentthinker = NULL;
+      while ((currentthinker = P_NextThinker(currentthinker,th_all)) != NULL)
         if ((currentthinker->function == P_MobjThinker)
             && ((mobj_t *)currentthinker)->type == MT_SKULL)
           count++;

@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.18 2001/11/25 15:03:11 cph Exp $
+ * $Id: doomstat.h,v 1.19 2002/01/13 17:45:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -314,8 +314,6 @@ extern  int        maketic;
 
 extern  ticcmd_t   netcmds[][BACKUPTICS];
 extern  int        ticdup;
-
-extern thinker_t thinkercap;  // Both the head and tail of the thinker list
 
 //-----------------------------------------------------------------------------
 

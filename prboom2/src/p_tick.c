@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.8 2002/01/13 14:25:45 cph Exp $
+ * $Id: p_tick.c,v 1.9 2002/01/13 17:45:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.8 2002/01/13 14:25:45 cph Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.9 2002/01/13 17:45:05 cph Exp $";
 
 #include "doomstat.h"
 #include "p_user.h"
@@ -48,13 +48,11 @@ int leveltime;
 // but the first element must be thinker_t.
 //
 
-// Both the head and tail of the thinker list.
-thinker_t thinkercap;
+/* killough 8/29/98: we maintain several separate threads, each containing
+ * a special class of thinkers, to allow more efficient searches. 
+ */
 
-// killough 8/29/98: we maintain several separate threads, each containing
-// a special class of thinkers, to allow more efficient searches. 
-
-thinker_t thinkerclasscap[NUMTHCLASS];
+thinker_t thinkerclasscap[th_all+1];
 
 //
 // P_InitThinkers
@@ -182,6 +180,17 @@ void P_RemoveThinker(thinker_t *thinker)
   thinker->function = P_RemoveThinkerDelayed;
 
   P_UpdateThinker(thinker);
+}
+
+/* cph 2002/01/13 - iterator for thinker list
+ * WARNING: Do not modify thinkers between calls to this functin
+ */
+thinker_t* P_NextThinker(thinker_t* th, th_class cl)
+{
+  thinker_t* top = &thinkerclasscap[cl];
+  if (!th) th = top;
+  th = cl == th_all ? th->next : th->cnext;
+  return th == top ? NULL : th;
 }
 
 /*

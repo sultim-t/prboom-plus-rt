@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.7 2000/12/24 10:54:35 cph Exp $
+ * $Id: m_cheat.c,v 1.8 2002/01/13 17:45:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -31,12 +31,13 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.7 2000/12/24 10:54:35 cph Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.8 2002/01/13 17:45:05 cph Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
 #include "r_data.h"
 #include "p_inter.h"
+#include "p_tick.h"
 #include "m_cheat.h"
 #include "m_argv.h"
 #include "s_sound.h"
@@ -514,13 +515,13 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   // fixed lost soul bug (LSs left behind when PEs are killed)
 
   int killcount=0;
-  thinker_t *currentthinker=&thinkercap;
+  thinker_t *currentthinker = NULL;
   extern void A_PainDie(mobj_t *);
 
   // killough 7/20/98: kill friendly monsters only if no others to kill
   uint_64_t mask = MF_FRIEND;
   do
-    while ((currentthinker=currentthinker->next)!=&thinkercap)
+    while ((currentthinker = P_NextThinker(currentthinker,th_all)) != NULL)
     if (currentthinker->function == P_MobjThinker &&
 	!(((mobj_t *) currentthinker)->flags & mask) && // killough 7/20/98
         (((mobj_t *) currentthinker)->flags & MF_COUNTKILL ||

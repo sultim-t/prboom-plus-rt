@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.19 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: r_data.c,v 1.20 2002/01/13 17:45:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2001 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.19 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.20 2002/01/13 17:45:05 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -40,6 +40,7 @@ rcsid[] = "$Id: r_data.c,v 1.19 2002/01/07 15:56:19 proff_fs Exp $";
 #include "r_sky.h"
 #include "r_bsp.h"
 #include "r_things.h"
+#include "p_tick.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 
 //
@@ -978,8 +979,8 @@ void R_PrecacheLevel(void)
   memset(hitlist, 0, numsprites);
 
   {
-    thinker_t *th;
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    thinker_t *th = NULL;
+    while (th = P_NextThinker(th,th_all))
       if (th->function == P_MobjThinker)
         hitlist[((mobj_t *)th)->sprite] = 1;
   }

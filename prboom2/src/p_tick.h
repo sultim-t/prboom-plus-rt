@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.h,v 1.5 2002/01/13 14:25:45 cph Exp $
+ * $Id: p_tick.h,v 1.6 2002/01/13 17:45:05 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,8 +43,6 @@
 
 void P_Ticker(void);
 
-extern thinker_t thinkercap;  // Both the head and tail of the thinker list
-
 void P_InitThinkers(void);
 void P_AddThinker(thinker_t *thinker);
 void P_RemoveThinker(thinker_t *thinker);
@@ -63,9 +61,14 @@ typedef enum {
   th_misc,
   th_friends,
   th_enemies,
-  NUMTHCLASS
+  NUMTHCLASS,
+  th_all = NUMTHCLASS, /* For P_NextThinker, indicates "any class" */
 } th_class;
 
 extern thinker_t thinkerclasscap[];
+#define thinkercap thinkerclasscap[th_all]
+
+/* cph 2002/01/13 - iterator for thinker lists */
+thinker_t* P_NextThinker(thinker_t*,th_class);
 
 #endif
