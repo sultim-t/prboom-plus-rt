@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.14 2000/10/03 19:57:25 proff_fs Exp $
+ * $Id: i_video.c,v 1.15 2000/10/08 15:51:52 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.14 2000/10/03 19:57:25 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.15 2000/10/08 15:51:52 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -407,6 +407,9 @@ void I_UpdateNoBlit (void)
 //
 // I_FinishUpdate
 //
+static int newpal = 0;
+#define NO_PALETTE_CHANGE 1000
+
 void I_FinishUpdate (void)
 {
   if (I_SkipFrame()) return;
@@ -418,8 +421,13 @@ void I_FinishUpdate (void)
 #endif
   
 #ifndef GL_DOOM
-  // Update the display buffer (flipping video pages if supported)
-  SDL_Flip(screen);
+  /* Update the display buffer (flipping video pages if supported)
+   * If we need to change palette, that implicitely does a flip */
+  if (newpal != NO_PALETTE_CHANGE) { 
+    I_UploadNewPalette(newpal);
+    newpal = NO_PALETTE_CHANGE;
+  } else
+    SDL_Flip(screen);
 #else
   // proff 04/05/2000: swap OpenGL buffers
   gld_Finish();
@@ -439,7 +447,7 @@ void I_ReadScreen (byte* scr)
 //
 void I_SetPalette (int pal)
 {
-    I_UploadNewPalette(pal);
+  newpal = pal;
 }
 
 // I_PreInitGraphics
