@@ -294,7 +294,7 @@ int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source,
   if (!approx_dist)  // killough 11/98: handle zero-distance as special case
     {
       *sep = NORM_SEP;
-      *vol = snd_SfxVolume;
+      *vol = snd_SfxVolume * 8;
       return *vol > 0;
     }
 
@@ -314,10 +314,10 @@ int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source,
 
   // volume calculation
   if (approx_dist < S_CLOSE_DIST)
-    *vol = snd_SfxVolume;
+    *vol = snd_SfxVolume*8;
   else
     // distance effect
-    *vol = (snd_SfxVolume * ((S_CLIPPING_DIST-approx_dist)>>FRACBITS))
+    *vol = (snd_SfxVolume * ((S_CLIPPING_DIST-approx_dist)>>FRACBITS) * 8)
       / S_ATTENUATOR;
 
   return (*vol > 0);
@@ -411,9 +411,10 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx, int sfx_id)
   // Check to see if it is audible, modify the params
   // killough 3/7/98, 4/25/98: code rearranged slightly
 
-  if (!origin || origin == players[displayplayer].mo)
+  if (!origin || origin == players[displayplayer].mo) {
     sep = NORM_SEP;
-  else
+    volume *= 8;
+  } else
     if (!S_AdjustSoundParams(players[displayplayer].mo, origin, &volume,
                              &sep, &pitch))
       return;

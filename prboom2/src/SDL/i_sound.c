@@ -192,7 +192,6 @@ static void updateSoundParams(int handle, int volume, int seperation, int pitch)
   // Per left/right channel.
   //  x^2 seperation,
   //  adjust volume properly.
-  volume *= 8;
   leftvol = volume - ((volume*seperation*seperation) >> 16);
   seperation = seperation - 257;
   rightvol= volume - ((volume*seperation*seperation) >> 16);  
