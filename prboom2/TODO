@@ -118,14 +118,9 @@ Colin: It's frankly a disaster area, which I can say with confidence
 30. (2000/11/13) Port joystick stuff to SDL
 
 --------------------------------------------------------------------------
-31. (2000/11/14) inline vs __inline
+33. (2000/12/24) Single key quit
 
-Colin: Looks like Proff got them all. Much neater.
-
---------------------------------------------------------------------------
-32. (2000/12/03) Update Linux install instructions
-
-Colin: Mandrake 7.2 is the first Linux distro to ship with a usable SDL
- (SDL-1.1.4). It has SDL_net too, so I can drop my own package and use 
- their one. Install instructions will need overhauling though.
+Colin: opulent wants the old 'q quits demo recording' feature back. 
+ I suggest making it a configurable key setting, not bound to any 
+ key by default.
 
