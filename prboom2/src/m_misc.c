@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.18 2000/09/18 11:36:38 proff_fs Exp $
+ * $Id: m_misc.c,v 1.19 2000/09/30 00:09:23 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.18 2000/09/18 11:36:38 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.19 2000/09/30 00:09:23 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -170,6 +170,9 @@ extern int mousebforward;
 extern int viewwidth;
 extern int viewheight;
 extern int fake_contrast;
+#ifdef USE_GLU_MIPMAP
+extern boolean use_mipmapping;
+#endif
 
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 
@@ -322,10 +325,18 @@ default_t defaults[] =
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
   // CPhipps - default screensize for targets that support high-res
+#ifndef GL_DOOM
   {"screen_width",{&desired_screenwidth},{320}, 320, 1600, 
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{200},200,1200,
    def_int,ss_none},  
+#else
+  /* proff - 640x480 for OpenGL */
+  {"screen_width",{&desired_screenwidth},{640}, 320, 1600, 
+   def_int,ss_none},
+  {"screen_height",{&desired_screenheight},{480},200,1200,
+   def_int,ss_none},  
+#endif
   {"fake_contrast",{&fake_contrast},{1},0,1,
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
@@ -342,6 +353,13 @@ default_t defaults[] =
    def_int,ss_none}, // gamma correction level // killough 1/18/98
   {"X_options",{&X_opt},{0},0,3, // CPhipps - misc X options
    def_hex,ss_none}, // X options, see l_video_x.c  
+
+#ifdef GL_DOOM
+  {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
+#ifdef USE_GLU_MIPMAP
+  {"use_mipmapping",{&use_mipmapping},{0},0,1,def_bool,ss_none},
+#endif
+#endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"use_mouse",{&usemouse},{1},0,1,

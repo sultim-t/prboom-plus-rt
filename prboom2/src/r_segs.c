@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.9 2000/09/29 16:20:25 proff_fs Exp $
+ * $Id: r_segs.c,v 1.10 2000/09/30 00:09:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.9 2000/09/29 16:20:25 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.10 2000/09/30 00:09:24 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -466,10 +466,7 @@ void R_StoreWallRange(const int start, const int stop)
 #ifdef GL_DOOM
   // proff 11/99: the rest of the calculations is not needed for OpenGL
   ds_p++->curline = curline;
-/*
-  if (usingGLNodes)
-    gld_AddWall(curline);
-*/
+  gld_AddWall(curline);
   if(curline->miniseg == false) // figgi -- skip minisegs
   	curline->linedef->flags |= ML_MAPPED;
   return;

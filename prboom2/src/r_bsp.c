@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.16 2000/09/29 16:20:25 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.17 2000/09/30 00:09:23 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.16 2000/09/29 16:20:25 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.17 2000/09/30 00:09:23 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -374,10 +374,7 @@ static void R_AddLine (seg_t *line)
       }
       ds_p->curline = curline;
       ds_p++;
-/*
-      if (usingGLNodes)
-        gld_AddWall(curline);
-*/
+      gld_AddWall(curline);
       return;
     }
   }
@@ -626,22 +623,20 @@ static void R_Subsector(int num)
   // real sector, or you must account for the lighting in some other way, 
   // like passing it as an argument.
 
+#ifdef GL_DOOM
+  R_AddSprites(sub->sector, (floorlightlevel+ceilinglightlevel)/2);
+   // figgi -- fix for glBsp 
+  for (i = 0; i < sub->numlines; i++)
+  {
+    if (sub->segs[i].miniseg == false)
+		  R_AddLine (&sub->segs[i]);
+  }
+  gld_AddPlane(num, floorplane, ceilingplane);
+#else
   R_AddSprites(sub->sector, (floorlightlevel+ceilinglightlevel)/2);
 
-#ifdef GL_DOOM
-   // figgi -- fix for glBsp 
- for (i = 0; i < sub->numlines; i++)
- {
-	if (sub->segs[i].miniseg == false)
-		R_AddLine (&sub->segs[i]);
- }
-#else
   while (count--)
     R_AddLine (line++);
-#endif
-
-#ifdef GL_DOOM
-  gld_DrawPlane(num, floorplane, ceilingplane);
 #endif
 }
 

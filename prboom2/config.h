@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.11 2000/09/24 13:46:49 proff_fs Exp $
+ * $Id: config.h,v 1.12 2000/09/30 00:09:21 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -122,7 +122,7 @@
 #define vsnprintf _vsnprintf
 
 /* Define for support for MBF helper dogs */
-#define DOGS
+#define DOGS 1
 
 /* Define if you want to have boomlump.wad in the exe  */
 #define ALL_IN_ONE 1
@@ -130,10 +130,10 @@
 /* Define if you want to compile with SDL  */
 #define USE_SDL 1
 
-#define MONITOR_VISIBILITY
+#define MONITOR_VISIBILITY 1
 
 /* Define if you want to use the gluTesselator  */
-//#define USE_GLU_TESS // figgi
+#define USE_GLU_TESS 1
 
 /* Define if you want to use gluImageScale  */
 #define USE_GLU_IMAGESCALE 1

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.9 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.10 2000/09/30 00:09:23 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -42,7 +42,7 @@ static GLTexture **gld_GLTextures=NULL;
 static GLTexture **gld_GLPatchTextures=NULL;
 
 #ifdef USE_GLU_MIPMAP
-boolean use_mipmaping=false;
+boolean use_mipmapping=false;
 #endif
 
 int gld_max_texturesize=0;
@@ -322,7 +322,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
     gltexture->buffer_height=gltexture->realtexheight;
 #endif
 #ifdef USE_GLU_MIPMAP
-    if (gltexture->mipmap & use_mipmaping)
+    if (gltexture->mipmap & use_mipmapping)
     {
       gltexture->width=gltexture->tex_width;
       gltexture->height=gltexture->tex_height;
@@ -383,7 +383,7 @@ void gld_BindTexture(GLTexture *gltexture)
     glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
 	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
 #ifdef USE_GLU_MIPMAP
-  if (gltexture->mipmap & use_mipmaping)
+  if (gltexture->mipmap & use_mipmapping)
   {
 	  gluBuild2DMipmaps(GL_TEXTURE_2D, 4,
 					            gltexture->buffer_width, gltexture->buffer_height,
@@ -575,7 +575,7 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
     gltexture->buffer_height=gltexture->realtexheight;
 #endif
 #ifdef USE_GLU_MIPMAP
-    if (gltexture->mipmap & use_mipmaping)
+    if (gltexture->mipmap & use_mipmapping)
     {
       gltexture->width=gltexture->tex_width;
       gltexture->height=gltexture->tex_height;
@@ -627,7 +627,7 @@ void gld_BindFlat(GLTexture *gltexture)
   	glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
 	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
 #ifdef USE_GLU_MIPMAP
-  if (gltexture->mipmap & use_mipmaping)
+  if (gltexture->mipmap & use_mipmapping)
   {
 	  gluBuild2DMipmaps(GL_TEXTURE_2D, 4,
                       gltexture->buffer_width, gltexture->buffer_height,

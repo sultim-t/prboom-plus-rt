@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.10 2000/09/29 18:04:09 proff_fs Exp $
+ * $Id: p_setup.c,v 1.11 2000/09/30 00:09:23 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.10 2000/09/29 18:04:09 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.11 2000/09/30 00:09:23 proff_fs Exp $";
 
 #include <math.h>
 
@@ -1403,8 +1403,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 	  P_LoadVertexes  (lumpnum+ML_VERTEXES,-1);
   P_LoadSectors   (lumpnum+ML_SECTORS);
   P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             
-  P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             
   P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             
+  P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             
 
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )

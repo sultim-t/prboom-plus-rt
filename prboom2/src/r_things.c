@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.8 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: r_things.c,v 1.9 2000/09/30 00:09:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.8 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.9 2000/09/30 00:09:24 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -1000,7 +1000,7 @@ void R_DrawMasked(void)
 
   rendered_vissprites = num_vissprite;
   for (i = num_vissprite ;--i>=0; )
-    gld_DrawSprite(vissprite_ptrs[i]);
+    gld_AddSprite(vissprite_ptrs[i]);
 #else
   int i;
   drawseg_t *ds;
