@@ -37,8 +37,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomstat.h"
 #include "p_spec.h"
 #include "p_tick.h"

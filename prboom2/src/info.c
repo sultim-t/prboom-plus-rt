@@ -35,8 +35,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #include "doomdef.h"
 #include "sounds.h"
 #include "m_fixed.h"

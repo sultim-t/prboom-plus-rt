@@ -29,8 +29,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomdef.h"
 #include "doomstat.h"
 #include "m_random.h"

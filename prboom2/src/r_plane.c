@@ -48,8 +48,6 @@
 
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
-static const char
-
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"

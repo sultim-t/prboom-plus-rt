@@ -30,8 +30,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 // killough 5/3/98: reformatted
 
 #ifdef HAVE_CONFIG_H

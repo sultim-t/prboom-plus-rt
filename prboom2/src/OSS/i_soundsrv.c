@@ -30,8 +30,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #include <stdio.h>
 #include <stddef.h>
 #include <time.h>

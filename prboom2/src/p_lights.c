@@ -31,8 +31,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomstat.h" //jff 5/18/98
 #include "doomdef.h"
 #include "m_random.h"

@@ -32,8 +32,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #ifdef __GNUG__
 #pragma implementation "r_sky.h"
 #endif

@@ -29,8 +29,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomstat.h"
 #include "m_bbox.h"
 #include "i_system.h"

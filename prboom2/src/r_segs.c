@@ -31,8 +31,6 @@
 //
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
-static const char
-
 #include "doomstat.h"
 #include "r_main.h"
 #include "r_bsp.h"

@@ -30,8 +30,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #ifdef __GNUG__
 #pragma implementation "doomstat.h"
 #endif

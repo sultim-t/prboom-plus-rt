@@ -33,8 +33,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #include "doomdef.h"
 #include "r_main.h"
 #include "r_draw.h"

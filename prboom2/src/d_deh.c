@@ -32,8 +32,6 @@
  *
  *--------------------------------------------------------------------*/
 
-static const char
-
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
 #include "doomtype.h"

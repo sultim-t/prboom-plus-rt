@@ -31,8 +31,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomstat.h"
 #include "d_event.h"
 #include "r_main.h"

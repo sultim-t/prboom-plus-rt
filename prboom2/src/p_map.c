@@ -30,8 +30,6 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char
-
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_mobj.h"
