@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.23 2001/02/05 16:20:19 proff_fs Exp $
+ * $Id: i_video.c,v 1.24 2001/02/18 17:13:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.23 2001/02/05 16:20:19 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.24 2001/02/18 17:13:26 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -118,8 +118,13 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_F10:	rc = KEYD_F10;		break;
   case SDLK_F11:	rc = KEYD_F11;		break;
   case SDLK_F12:	rc = KEYD_F12;		break;
-  case SDLK_BACKSPACE:
-  case SDLK_DELETE:	rc = KEYD_BACKSPACE;	break;
+  case SDLK_BACKSPACE:	rc = KEYD_BACKSPACE;	break;
+  case SDLK_DELETE:	rc = KEYD_DEL;	break;
+  case SDLK_INSERT:	rc = KEYD_INSERT;	break;
+  case SDLK_PAGEUP:	rc = KEYD_PAGEUP;	break;
+  case SDLK_PAGEDOWN:	rc = KEYD_PAGEDOWN;	break;
+  case SDLK_HOME:	rc = KEYD_HOME;	break;
+  case SDLK_END:	rc = KEYD_END;	break;
   case SDLK_PAUSE:	rc = KEYD_PAUSE;	break;
   case SDLK_EQUALS:	rc = KEYD_EQUALS;	break;
   case SDLK_MINUS:	rc = KEYD_MINUS;	break;
@@ -138,6 +143,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_KP_DIVIDE:	rc = KEYD_KEYPADDIVIDE;	break;
   case SDLK_KP_MULTIPLY: rc = KEYD_KEYPADMULTIPLY; break;
   case SDLK_KP_ENTER:	rc = KEYD_KEYPADENTER;	break;
+  case SDLK_KP_PERIOD:	rc = KEYD_KEYPADPERIOD;	break;
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:	rc = KEYD_RSHIFT;	break;
   case SDLK_LCTRL:
