@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.6 2002/07/20 18:08:34 proff_fs Exp $
+ * $Id: g_game.c,v 1.30.2.7 2002/07/21 11:58:30 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.6 2002/07/20 18:08:34 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.7 2002/07/21 11:58:30 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -2192,6 +2192,8 @@ void G_RecordDemo (const char* name)
 // byte(s) should still be skipped over or padded with 0's.
 // Lee Killough 3/1/98
 
+extern int forceOldBsp;
+
 byte *G_WriteOptions(byte *demo_p)
 {
   byte *target = demo_p + GAME_OPTION_SIZE;
@@ -2258,6 +2260,8 @@ byte *G_WriteOptions(byte *demo_p)
     for (i=0; i < COMP_TOTAL; i++)
       *demo_p++ = comp[i] != 0;
   }
+
+  *demo_p++ = (compatibility_level >= prboom_2_compatibility) && forceOldBsp; // cph 2002/07/20
 
   //----------------
   // Padding at end
@@ -2349,6 +2353,8 @@ const byte *G_ReadOptions(const byte *demo_p)
   for (i=0; i < COMP_TOTAL; i++)
     comp[i] = *demo_p++;
       }
+
+      forceOldBsp = *demo_p++; // cph 2002/07/20
     }
   else  /* defaults for versions <= 2.02 */
     {
