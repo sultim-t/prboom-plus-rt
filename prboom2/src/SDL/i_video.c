@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.6 2000/05/20 11:47:58 proff_fs Exp $
+ * $Id: i_video.c,v 1.7 2000/05/21 12:05:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.6 2000/05/20 11:47:58 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.7 2000/05/21 12:05:45 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -77,6 +77,7 @@ void (*R_DrawTLColumn)(void);
 extern void M_QuitDOOM(int choice);
 
 int use_vsync = 0; // Included not to break m_misc, but not relevant to SDL
+int use_fullscreen;
 static SDL_Surface *screen;
 
 // This is the pointer to the buffer to blit
@@ -210,7 +211,7 @@ static void I_GetEvent(SDL_Event *Event)
       ((Event->motion.x != screen->w/2)||(Event->motion.y != screen->h/2)))
   {
     /* Warp the mouse back to the center */
-    if (grabMouse) {
+    if (grabMouse && !(paused || (gamestate != GS_LEVEL) || demoplayback)) {
       if ( (Event->motion.x < ((screen->w/2)-(screen->w/4))) ||
            (Event->motion.x > ((screen->w/2)+(screen->w/4))) ||
            (Event->motion.y < ((screen->h/2)-(screen->h/4))) ||
@@ -222,8 +223,8 @@ static void I_GetEvent(SDL_Event *Event)
       | (Event->motion.state & SDL_BUTTON(1) ? 1 : 0)
       | (Event->motion.state & SDL_BUTTON(2) ? 2 : 0)
       | (Event->motion.state & SDL_BUTTON(3) ? 4 : 0);
-    event.data2 = Event->motion.xrel << 2;
-    event.data3 = -Event->motion.yrel << 2;
+    event.data2 = Event->motion.xrel << 5;
+    event.data3 = -Event->motion.yrel << 5;
     D_PostEvent(&event);
   }
   break;
@@ -497,7 +498,8 @@ void I_InitGraphics(void)
 #else
   init_flags = SDL_SWSURFACE|SDL_HWPALETTE;
 #endif
-  if ( M_CheckParm("-fullscreen") ) {
+  if ( ((M_CheckParm("-fullscreen")) || (use_fullscreen)) && (!M_CheckParm("-nofullscreen")) )
+  {
     init_flags |= SDL_FULLSCREEN;
   }
 #ifdef GL_DOOM
