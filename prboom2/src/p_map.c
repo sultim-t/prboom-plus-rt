@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.11 2001/06/09 10:12:35 cph Exp $
+ * $Id: p_map.c,v 1.12 2001/10/20 19:18:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.11 2001/06/09 10:12:35 cph Exp $";
+rcsid[] = "$Id: p_map.c,v 1.12 2001/10/20 19:18:57 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -765,7 +765,7 @@ boolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT))) {
 	if (comp[comp_dropoff])
 	  {
-	    if (tmfloorz - tmdropoffz > 24*FRACUNIT)
+	    if ((compatibility || !dropoff) && (tmfloorz - tmdropoffz > 24*FRACUNIT))
 	      return false;                      // don't stand over a dropoff
 	  }
 	else
