@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.14.2.4 2002/07/15 01:37:55 proff_fs Exp $
+ * $Id: config.h,v 1.14.2.5 2002/07/27 16:00:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -146,4 +146,4 @@
 #define PACKAGE "prboom"
 
 /* Version number of package */
-#define VERSION "2.2.2"
+#define VERSION "2.2.3"
