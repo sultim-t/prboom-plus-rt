@@ -85,6 +85,9 @@ Cleanup patches
 Julian <julian@jplan.cjb.net>
 Fixed inline asm for gcc-2.95 (from Eternity)
 
+Paul S Jenner <psj@firstlinux.net>
+Nice patch to make RPM building easier
+
 If you sent me patches for LxDoom which were included, and I forgot to
 list you, I apologise. Please email me and I will add you.
 
