@@ -3,6 +3,23 @@ For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
 Changes from v2.3.0 to v2.3.1
+- several keys didn't work in demo playback
+- fixed levelname and other widgets on automap
+- load opengl library only once to prevent error on mode switching
+- fix savegame handling
+- unavailable IWADs are disabled in the load wad menu
+- several small fixes to the new software renderer
+- reimplemented multipatch textures on two sided lines
+- fixed buffer overflow on intermission texts
+- filenames with dots beside the one on the extension work better now
+- fixed texture pegging of upper textures in OpenGL
+- correctly search prboom.wad
+- removed hubs and fragglescript as they are too buggy
+- fixed savegame root directory
+- more compatibility fixes
+- fixed several endian problems (for PowerPC and Sparc)
+- added more options to menus
+- fixed some default config values
 - load OpenGL libraries only when needed
 - autorun available in key bindings menu
 
