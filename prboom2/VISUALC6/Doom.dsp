@@ -114,8 +114,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseGL/glboom.exe"
-# SUBTRACT LINK32 /profile /debug
+# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /profile /machine:I386 /out:"ReleaseGL/glboom.exe"
+# SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
 
