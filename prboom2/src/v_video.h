@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: v_video.h,v 1.5 2000/05/10 17:43:57 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -170,6 +170,7 @@ void V_SetPalette(int pal);
 
 // CPhipps - function to plot a pixel
 // Proff - added __inline for VisualC
+/*
 #ifdef _MSC_VER
 __inline
 #else
@@ -178,6 +179,11 @@ inline
 static const void V_PlotPixel(int scrn, int x, int y, byte colour) {
   screens[scrn][x+SCREENWIDTH*y] = colour;
 }
+*/
+
+#ifndef GL_DOOM
+#define V_PlotPixel(s,x,y,c) screens[s][x+SCREENWIDTH*y]=c
+#endif
 
 #define V_AllocScreen(scrn) screens[scrn] = malloc(SCREENWIDTH*SCREENHEIGHT)
 #define V_FreeScreen(scrn) free(screens[scrn]); screens[scrn] = NULL

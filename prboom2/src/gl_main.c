@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.4 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: gl_main.c,v 1.5 2000/05/10 17:43:57 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -2143,7 +2143,7 @@ void gld_EndDrawScene(void)
 
 	if (viewangleoffset <= 1024<<ANGLETOFINESHIFT || 
 	 	viewangleoffset >=-1024<<ANGLETOFINESHIFT)
-  	{	// don't draw on side views
+  {	// don't draw on side views
 		R_DrawPlayerSprites ();
 	}
   if (extra_alpha>0.0f)

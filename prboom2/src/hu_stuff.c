@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -68,10 +68,12 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_TITLEX 0
 //jff 2/16/98 change 167 to ST_Y-1
 // CPhipps - changed to ST_TY
-#define HU_TITLEY (ST_TY - 1 - SHORT(hu_font[0].height)) 
+// proff - changed to 200-ST_HEIGHT for stretching
+#define HU_TITLEY ((200-ST_HEIGHT) - 1 - SHORT(hu_font[0].height)) 
 
 //jff 2/16/98 add coord text widget coordinates
-#define HU_COORDX (SCREENWIDTH - 13*SHORT(hu_font2['A'-HU_FONTSTART].width))
+// proff - changed to SCREENWIDTH to 320 for stretching
+#define HU_COORDX (320 - 13*SHORT(hu_font2['A'-HU_FONTSTART].width))
 //jff 3/3/98 split coord widget into three lines in upper right of screen
 #define HU_COORDX_Y (1 + 0*SHORT(hu_font['A'-HU_FONTSTART].height))
 #define HU_COORDY_Y (2 + 1*SHORT(hu_font['A'-HU_FONTSTART].height))

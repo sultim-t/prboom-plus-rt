@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: am_map.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
+  "$Id: am_map.c,v 1.4 2000/05/10 17:43:57 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1018,6 +1018,7 @@ boolean AM_clipMline
 // Passed the frame coordinates of line, and the color to be drawn
 // Returns nothing
 //
+#ifndef GL_DOOM
 void AM_drawFline
 ( fline_t*  fl,
   int   color )
@@ -1096,6 +1097,7 @@ void AM_drawFline
     }
   }
 }
+#endif
 
 //
 // AM_drawMline()
@@ -1120,7 +1122,11 @@ void AM_drawMline
     color=0;
 
   if (AM_clipMline(ml, &fl))
+#ifdef GL_DOOM
+    gld_DrawLine(fl.a.x, fl.a.y, fl.b.x, fl.b.y, (byte)color);
+#else
     AM_drawFline(&fl, color); // draws it on frame buffer using fb coords
+#endif
 }
 
 //
@@ -1694,7 +1700,12 @@ inline
 static void AM_drawCrosshair(int color)
 {
   // single point for now
+#ifdef GL_DOOM
+  gld_DrawLine((f_w/2)-1, (f_h/2), (f_w/2)+1, (f_h/2), (byte)color);
+  gld_DrawLine((f_w/2), (f_h/2)-1, (f_w/2), (f_h/2)+1, (byte)color);
+#else
   V_PlotPixel(FB, f_w/2, f_h/2, (byte)color);
+#endif
 }
 
 //
