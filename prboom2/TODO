@@ -30,7 +30,7 @@ stage. It may be simpler to rewrite it.
 2001/02/18 Proff: New directory was added by Colin some time ago
 
 --------------------------------------------------------------------------
-15. Hardware music synth support for SDL target. timidity is
+*15. Hardware music synth support for SDL target. timidity is
     nice, but some of the music sounds no good (notably MAP01).
     I suggest a cheat code to toggle software vs hardware.
     At least, for Linux this is easy, just call the old music
@@ -40,6 +40,7 @@ Proff:
 This will be added to SDL_mixer, so we can do that after the release with
 an updated dll.
 2001/02/18 Proff: Released new SDL_mixer_beta.dll
+2002/07/28 Proff: This is in SDL_mixer for some time now
 
 --------------------------------------------------------------------------
 21. Bug with the CapsLock key.
@@ -77,6 +78,8 @@ Colin: It's frankly a disaster area, which I can say with confidence
 30. (2000/11/13) Port joystick stuff to SDL
 
 2001/02/18 proff: Done, but this whole input crap should be redone.
+2002/07/28 proff: partly redone with the console system and the new axes
+ stuff
 
 --------------------------------------------------------------------------
 33. (2000/12/24) Single key quit
@@ -112,12 +115,14 @@ part with it, but I may have a go, might try reverse engineering it first.
 39. (2001/07/01) w_wad.c/z_zone.c reorganisation
 
 Colin: 
+Proff: Isn't this partly done already?
 
 --------------------------------------------------------------------------
 40. (2001/07/01) Doom v1.2 support
 
 Colin: new compatibility level and option went in awhile ago, just have to do
 the actual supporting code. (And no, not planning to support v1.2 demos :)
+Proff: How much is there to do?
 
 --------------------------------------------------------------------------
 41. (2001/07/28) Chasecam?
@@ -137,6 +142,8 @@ dehfgets stuff.
 Colin: From a discussion on #sdl I learned SDL does its own gamma correction -
 we can save a few kb and some code by using theirs and dumping our own gamma
 correction.
+Proff: Should work for all paletted targets. Maybe it doesn't work in some SDL
+ implementations? Have to ask on the SDL list and look into documentation.
 
 --------------------------------------------------------------------------
 44. (2001/10/20) Fix wall/floor brightness calcs
@@ -147,3 +154,27 @@ distinct sector brightness levels, the extra levels are used only for light
 diminishing).
 
 --------------------------------------------------------------------------
+45. (2002/07/28) OpenGL currently seems to be broken
+
+Proff: Fix that and add improvements from 2.2.x
+
+--------------------------------------------------------------------------
+46. (2002/07/28) Fix all current loose ends
+
+Proff:
+- fix new menu system
+- fix config system
+- sort the config file alphabetically
+- fix new axes support
+- add everything new from 2.2.x
+
+--------------------------------------------------------------------------
+47. (2002/07/28) Wishlist for the future
+
+Proff:
+- ingame selection of wads and demos
+- I thought about using morton order (z-order or n-order) for the screen
+  buffer. This might speed up the rendering at higher resolutions. But
+  after some source browsing, I think it's too much work which might not
+  even bring the speed up.
+
