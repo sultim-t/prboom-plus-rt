@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.16 2001/11/18 12:27:28 cph Exp $
+ * $Id: r_data.c,v 1.17 2002/01/03 21:39:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.16 2001/11/18 12:27:28 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.17 2002/01/03 21:39:35 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -97,9 +97,6 @@ static texture_t **textures;
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
-
-// needed for pre-rendering
-fixed_t   *spritewidth, *spriteoffset, *spritetopoffset;
 
 //
 // MAPTEXTURE_T CACHING
@@ -626,29 +623,9 @@ void R_InitFlats(void)
 //
 void R_InitSpriteLumps(void)
 {
-  int i;
-  const patch_t *patch;
-
   firstspritelump = W_GetNumForName("S_START") + 1;
   lastspritelump = W_GetNumForName("S_END") - 1;
   numspritelumps = lastspritelump - firstspritelump + 1;
-
-  // killough 4/9/98: make columnd offsets 32-bit;
-  // clean up malloc-ing to use sizeof
-
-  spritewidth = Z_Malloc(numspritelumps*sizeof*spritewidth, PU_STATIC, 0);
-  spriteoffset = Z_Malloc(numspritelumps*sizeof*spriteoffset, PU_STATIC, 0);
-  spritetopoffset =
-    Z_Malloc(numspritelumps*sizeof*spritetopoffset, PU_STATIC, 0);
-
-  for (i=0 ; i< numspritelumps ; i++)
-    {
-      patch = W_CacheLumpNum(firstspritelump+i);
-      spritewidth[i] = SHORT(patch->width)<<FRACBITS;
-      spriteoffset[i] = SHORT(patch->leftoffset)<<FRACBITS;
-      spritetopoffset[i] = SHORT(patch->topoffset)<<FRACBITS;
-      W_UnlockLumpNum(firstspritelump+i);
-    }
 }
 
 //

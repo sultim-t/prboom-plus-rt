@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_state.h,v 1.3 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: r_state.h,v 1.4 2002/01/03 21:39:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,12 +50,6 @@
 
 // needed for texture pegging
 extern fixed_t *textureheight;
-
-// needed for pre rendering (fracs)
-extern fixed_t *spritewidth;
-
-extern fixed_t *spriteoffset;
-extern fixed_t *spritetopoffset;
 
 extern lighttable_t **colormaps;          // killough 3/20/98, 4/4/98
 extern lighttable_t *fullcolormap;        // killough 3/20/98
