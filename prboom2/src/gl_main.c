@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.19 2000/05/24 15:37:13 proff_fs Exp $
+ * $Id: gl_main.c,v 1.20 2000/05/30 19:56:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1069,7 +1069,8 @@ static void CALLBACK ntessBegin( GLenum type )
   sectorloops[ currentsector ].loopcount++;
   // reallocate to get space for another loop
   // PU_LEVEL is used, so this gets freed before a new level is loaded
-  sectorloops[ currentsector ].loops=GLRealloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount);
+  sectorloops[ currentsector ].loops=
+    Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount,PU_LEVEL,0);
   // set initial values for current loop
   // currentloop is -> sectorloops[currentsector].loopcount-1
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=type;
@@ -1131,7 +1132,7 @@ static void CALLBACK ntessVertex( vertex_t *vert )
   // increase vertex count
   vertexcount++;
   // realloc memory to get space for new vertex
-  gl_vertexes=GLRealloc(gl_vertexes, vertexcount*sizeof(GLVertex));
+  gl_vertexes=Z_Realloc(gl_vertexes, vertexcount*sizeof(GLVertex),PU_LEVEL,0);
   // add the new vertex (vert is the second argument of gluTessVertex)
   gl_vertexes[vertexcount-1].u=( (float)vert->x/(float)FRACUNIT)/64.0f;
   gl_vertexes[vertexcount-1].v=(-(float)vert->y/(float)FRACUNIT)/64.0f;
@@ -1759,7 +1760,6 @@ static void gld_DrawWall(GLWall *wall)
 
 #define CALC_TEX_VALUES_MIDDLE1S(w, seg, peg)\
   (w).ou=((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width;\
-  /*(w).ov=0.0f;*/\
   (w).ov=((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height;\
   (w).ul=0.0f;\
   (w).ur=(float)gl_segs[(w).segnum].linelength/(float)(w).gltexture->buffer_width;\
@@ -1775,7 +1775,6 @@ static void gld_DrawWall(GLWall *wall)
 #define CALC_TEX_VALUES_MIDDLE2S(w, seg, peg)\
   (w).ou=((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width;\
   (w).ov=0.0f;\
-  /*(w).ov=((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_height;*/\
   (w).ul=0.0f;\
   (w).ur=(float)gl_segs[(w).segnum].linelength/(float)(w).gltexture->buffer_width;\
   (peg)?\
