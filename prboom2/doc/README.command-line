@@ -184,11 +184,11 @@ WAD Options
               Specifies  a  list  of  PWAD  files to load in addition to the IWAD
               file. PWAD files modify the existing Doom game, by adding levels or
               new  sounds  or graphics. PWAD files are widely available for down-
-              load; try ftp.cdrom.com/pub/idgames for starters. .TP -deh deh_file
+              load; try ftp.cdrom.com/pub/idgames for starters.
+
+       -deh deh_file
               Tells PrBoom to load the dehacked patch deh_file. .SH Game Options
 
-       -loadgame {0,1,2,3,4,5,6,7}
-              Instructs PrBoom to load the specified saved game immediately.
 
 
 
@@ -202,21 +202,28 @@ WAD Options
 PRBOOM(6)                                               PRBOOM(6)
 
 
+       -loadgame {0,1,2,3,4,5,6,7}
+              Instructs PrBoom to load the specified saved game immediately.
+
        -warp { map | epis level }
-              Tells  PrBoom  to begin a new game immediately. For Doom 1 or Ulti-
-              mate Doom, you must specify the episode and level number  to  begin
-              at  (epis  is  1 for Knee-Deep in the Dead, 2 for Shores of Hell, 3
-              for Inferno, 4 for Ultimate Doom; level is between 1  and  9).  For
-              Doom  ][ or Final Doom, you must specify the map to begin at, which
-              is between 1 and 32 (30 for german Doom ][).  .TP  -skill  n  Tells
-              PrBoom  to  begin the game at skill level n (1 for ITYTD, 2 for Not
-              Too Rough, 3 for Hurt Me Plenty, 4 for Ultraviolent, 5  for  Night-
-              mare).
+              Tells PrBoom to begin a new game immediately. For Doom 1  or  Ulti-
+              mate  Doom,  you must specify the episode and level number to begin
+              at (epis is 1 for Knee-Deep in the Dead, 2 for Shores  of  Hell,  3
+              for  Inferno,  4  for Ultimate Doom; level is between 1 and 9). For
+              Doom ][ or Final Doom, you must specify the map to begin at,  which
+              is between 1 and 32 (30 for german Doom ][).
+
+       -skill n
+              Tells PrBoom to begin the game at skill level n (1 for ITYTD, 2 for
+              Not Too Rough, 3 for Hurt Me Plenty,  4  for  Ultraviolent,  5  for
+              Nightmare).
 
        -respawn Tells PrBoom that
               monsters that die should respawn (come back to life) after a while.
-              Not for the inexperienced. .TP -fast Tells PrBoom to make  all  the
-              monsters move  react faster. Not for the inexperienced.
+              Not for the inexperienced.
+
+       -fast  Tells PrBoom to make all the monsters move  react faster.  Not  for
+              the inexperienced.
 
        -nomonsters
               Tells PrBoom to include no monsters in the game.
@@ -249,13 +256,6 @@ Multiplayer Options
 
        -altdeath
               Similar  to  -deathmatch,  but implies a different set of rules for
-              the deathmatch game. No longer used (specified by the server).
-
-       -timer mins
-              No longer used. Specifies that levels will end after  mins  minutes
-              of  play  if  the level is still being played, but is overridden by
-              the server in a netgame. Not really useful for single play.
-
 
 
 
@@ -267,6 +267,13 @@ Multiplayer Options
 
 PRBOOM(6)                                               PRBOOM(6)
 
+
+              the deathmatch game. No longer used (specified by the server).
+
+       -timer mins
+              No longer used. Specifies that levels will end after  mins  minutes
+              of  play  if  the level is still being played, but is overridden by
+              the server in a netgame. Not really useful for single play.
 
        -avg   Equivalent to -timer 20
 
@@ -316,13 +323,6 @@ I/O Options
               in  the  config file for prboom).  If this window is too small, try
               using -2 or -3 to enlarge the window.
 
-Configuration
-       -config myconf
-              Loads an alternative configuration file, named myconf. The  default
-              is  boom.cfg, taken from the same directory as PrBoom was run from.
-
-
-
 
 
                               local                             3
@@ -333,6 +333,11 @@ Configuration
 
 PRBOOM(6)                                               PRBOOM(6)
 
+
+Configuration
+       -config myconf
+              Loads an alternative configuration file, named myconf. The  default
+              is  boom.cfg, taken from the same directory as PrBoom was run from.
 
        -save savedir
               Causes prboom to save games in the directory specified  by  savedir
@@ -375,11 +380,6 @@ More Information
 
 Author
        See the file AUTHORS included with the PrBoom distribution.
-
-
-
-
-
 
 
 

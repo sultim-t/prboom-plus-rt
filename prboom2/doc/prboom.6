@@ -54,13 +54,15 @@ height must be greater than 200.
 Specifies the location of the IWAD file, typically doom.wad or doom2.wad (or
 doom2f.wad). This tells prboom where the main .wad file that came with the
 version of Doom that you own is. 
-.TP 
+.TP
 \-file \fIwad1 \&...\fR
 Specifies a list of PWAD files to load in addition to the IWAD file. PWAD
 files modify the existing Doom game, by adding levels or new sounds or
 graphics. PWAD files are widely available for download; try
-ftp.cdrom.com/pub/idgames for starters. .TP \-deh \fIdeh_file\fR Tells PrBoom
-to load the dehacked patch \fIdeh_file\fR. .SH Game Options
+ftp.cdrom.com/pub/idgames for starters.
+.TP
+\-deh \fIdeh_file\fR
+Tells PrBoom to load the dehacked patch \fIdeh_file\fR. .SH Game Options
 .TP
 \-loadgame {0,1,2,3,4,5,6,7}
 Instructs PrBoom to load the specified saved game immediately. 
@@ -71,13 +73,19 @@ you must specify the \fIepis\fRode and \fIlevel\fR number to begin at
 (\fIepis\fR is 1 for Knee-Deep in the Dead, 2 for Shores of Hell, 3 for
 Inferno, 4 for Ultimate Doom; \fIlevel\fR is between 1 and 9). For Doom ][ or
 Final Doom, you must specify the \fImap\fR to begin at, which is between 1 and
-32 (30 for german Doom ][). .TP \-skill \fIn\fR Tells PrBoom to begin the game
+32 (30 for german Doom ][).
+.TP
+\-skill \fIn\fR
+Tells PrBoom to begin the game
 at skill level \fIn\fR (1 for ITYTD, 2 for Not Too Rough, 3 for Hurt Me
 Plenty, 4 for Ultraviolent, 5 for Nightmare). 
-.TP 
+.TP
 \-respawn Tells PrBoom that
 monsters that die should respawn (come back to life) after a while. Not for
-the inexperienced. .TP \-fast Tells PrBoom to make all the monsters move \&
+the inexperienced.
+.TP
+\-fast
+Tells PrBoom to make all the monsters move \&
 react faster. Not for the inexperienced. 
 .TP
 \-nomonsters
