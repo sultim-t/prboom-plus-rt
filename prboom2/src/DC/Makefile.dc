@@ -3,15 +3,16 @@
 # src/dc/Makefile.dc
 # (c)2001 Florian Schulze
 #   
-# $Id: Makefile.dc,v 1.2 2001/07/16 15:35:16 proff_fs Exp $
+# $Id: Makefile.dc,v 1.3 2002/02/10 20:59:44 proff_fs Exp $
 
 all: libdcdoom.a
 
 include $(KOS_BASE)/Makefile.rules
 
-OBJS = i_system.o sqrt.o
+OBJS = i_system.o # sqrt.o
 
-KOS_CFLAGS += -I. -I../. -I../../. -DHAVE_CONFIG_H -DDREAMCAST --fast-math -nostdlib -O3
+#KOS_CFLAGS += -I. -I../. -I../../. -nostdlib -DHAVE_CONFIG_H -DDREAMCAST --fast-math -O0
+KOS_CFLAGS += -I. -I../. -I../../. -DHAVE_CONFIG_H -DDREAMCAST
 
 libdcdoom.a: $(OBJS)
 	$(KOS_AR) rcs libdcdoom.a $(OBJS)

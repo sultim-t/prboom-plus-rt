@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.4 2001/07/16 15:35:16 proff_fs Exp $
+ * $Id: i_system.c,v 1.5 2002/02/10 20:59:44 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,144 +32,72 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.4 2001/07/16 15:35:16 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.5 2002/02/10 20:59:44 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
-#include <dc/ta.h>
-#include <kos/thread.h>
 #include "config.h"
 #endif
+#include <kos.h>
+#include <GL/gl.h>
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
 #include "v_video.h"
+#include "lprintf.h"
 
 #define TEX_SIZE 512
 
-int __errno;
-unsigned int video_tex;
-uint8 *tex_mem;
-unsigned texture_pool;
+GLuint video_tex;
+uint16 *tex_mem;
+uint32 txr;
 uint16 tex_pal[256];
 
-void exit(int i)
+void setbuf(FILE *f, char *fn)
 {
-	arch_exit();
 }
 
-#define	_U	01
-#define	_L	02
-#define	_N	04
-#define	_S	010
-#define _P	020
-#define _C	040
-#define _X	0100
-#define	_B	0200
+#define    F_OK    0    /* Check for file existence */
+#define    W_OK    2    /* Check for write permission */
+#define    R_OK    4    /* Check for read permission */
 
-const char _ctype_[1 + 256] = {
-	0,
-	_C,	_C,	_C,	_C,	_C,	_C,	_C,	_C,
-	_C,	_C|_S,	_C|_S,	_C|_S,	_C|_S,	_C|_S,	_C,	_C,
-	_C,	_C,	_C,	_C,	_C,	_C,	_C,	_C,
-	_C,	_C,	_C,	_C,	_C,	_C,	_C,	_C,
-	_S|_B,	_P,	_P,	_P,	_P,	_P,	_P,	_P,
-	_P,	_P,	_P,	_P,	_P,	_P,	_P,	_P,
-	_N,	_N,	_N,	_N,	_N,	_N,	_N,	_N,
-	_N,	_N,	_P,	_P,	_P,	_P,	_P,	_P,
-	_P,	_U|_X,	_U|_X,	_U|_X,	_U|_X,	_U|_X,	_U|_X,	_U,
-	_U,	_U,	_U,	_U,	_U,	_U,	_U,	_U,
-	_U,	_U,	_U,	_U,	_U,	_U,	_U,	_U,
-	_U,	_U,	_U,	_P,	_P,	_P,	_P,	_P,
-	_P,	_L|_X,	_L|_X,	_L|_X,	_L|_X,	_L|_X,	_L|_X,	_L,
-	_L,	_L,	_L,	_L,	_L,	_L,	_L,	_L,
-	_L,	_L,	_L,	_L,	_L,	_L,	_L,	_L,
-	_L,	_L,	_L,	_P,	_P,	_P,	_P,	_C
-};
-
-int isalpha(int c){ return ((_ctype_+1)[(unsigned)(c)]&(_U|_L));}
-int isupper(int c){ return ((_ctype_+1)[(unsigned)(c)]&_U);}
-int islower(int c){ return ((_ctype_+1)[(unsigned)(c)]&_L);}
-int isdigit(int c){ return ((_ctype_+1)[(unsigned)(c)]&_N);}
-int isxdigit(int c){ return ((_ctype_+1)[(unsigned)(c)]&(_X|_N));}
-int isspace(int c){ return ((_ctype_+1)[(unsigned)(c)]&_S);}
-int ispunct(int c){ return ((_ctype_+1)[(unsigned)(c)]&_P);}
-int isalnum(int c){ return ((_ctype_+1)[(unsigned)(c)]&(_U|_L|_N));}
-//int isprint(int c){ return ((_ctype_+1)[(unsigned)(c)]&(_P|_U|_L|_N|_B));}
-int isgraph(int c){ return ((_ctype_+1)[(unsigned)(c)]&(_P|_U|_L|_N));}
-int iscntrl(int c){ return ((_ctype_+1)[(unsigned)(c)]&_C);}
-
-int toupper(int c)
-{ 
-	return islower(c) ? (c - 'a' + 'A') : c;
-}
-
-/*
-int tolower(int c)
-{ 
-	return isupper(c) ? (c - 'A' + 'a') : c;
-}
-*/
-
-int atoi(const char *s)
+int access(const char *path, int mode)
 {
-	register unsigned long acc;
-	register int c;
-	register unsigned long cutoff;
-	register int neg = 0, any, cutlim;
-	int base;
-	
-	do {
-		c = *s++;
-	} while (isspace(c));
-	if (c == '-') {
-		neg = 1;
-		c = *s++;
-	} else if (c == '+')
-		c = *s++;
-	base = 10;
-	cutoff = neg ? -(unsigned long)LONG_MIN : LONG_MAX;
-	cutlim = cutoff % (unsigned long)base;
-	cutoff /= (unsigned long)base;
-	for (acc = 0, any = 0;; c = *s++) {
-		if (isdigit(c))
-			c -= '0';
-		else if (isalpha(c))
-			c -= isupper(c) ? 'A' - 10 : 'a' - 10;
-		else
-			break;
-		if (c >= base)
-			break;
-		if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
-			any = -1;
-		else {
-			any = 1;
-			acc *= base;
-			acc += c;
-		}
-	}
-	if (any < 0) {
-		acc = neg ? LONG_MIN : LONG_MAX;
-	} else if (neg)
-		acc = -acc;
-	return (acc);
+	uint32 handle=0;
+
+	if ((mode==F_OK) || (mode==R_OK))
+		handle=fs_open(path,O_RDONLY);
+	if (mode==W_OK)
+		handle=fs_open(path,O_WRONLY);
+	if (handle)
+		fs_close(handle);
+	return (handle==0)?(-1):(0);
 }
 
-int puts(const char * s)
+int sscanf(const char *buf, const char *fmt, ...)
 {
-    return printf("%s",s);
+	return 0;
 }
 
-int putchar(const char c)
+long strtol(const char *nptr, char **endptr, int def)
 {
-    return printf("%c",c);
+	return def;
+}
+
+uint32 open(const char *fn, int mode)
+{
+	uint32 handle;
+
+	handle = fs_open(fn,mode);
+
+	if (handle==0)
+		return -1;
+
+	return handle;
 }
 
 void *signal(int sig, void *func)
 {
-}
-
-void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
-{
+	return NULL;
 }
 
 void I_InitSound(void)
@@ -272,22 +200,60 @@ void I_uSleep(unsigned long usecs)
 {
 }
 
-unsigned int texture_alloc(uint32 size)
+// I_SkipFrame
+//
+// Returns true if it thinks we can afford to skip this frame
+
+inline static boolean I_SkipFrame(void)
 {
-    unsigned int rv;
-    
-    rv = texture_pool;
-    
-    /* Align to 8 bytes */  
-    size = (size + 7) & (~7);
-    texture_pool += size;
-    
-    printf("Allocating texture at %08x\r\n", rv);
-    return rv;
+  static int frameno;
+
+  frameno++;
+  switch (gamestate) {
+  case GS_LEVEL:
+    if (!paused)
+      return false;
+  default:
+    // Skip odd frames
+    return (frameno & 1) ? true : false;
+  }
 }
 
 void I_FinishUpdate (void)
 {
+	int x,y;
+	uint8 *s;
+	uint16 *d;
+
+  if (I_SkipFrame()) return;
+
+	s=screens[0];
+	for (y=0; y<SCREENHEIGHT; y++)
+	{
+		d=&tex_mem[y*TEX_SIZE];
+		for (x=0; x<SCREENWIDTH; x++)
+		{
+			*d++=tex_pal[*s++];
+		}
+	}
+
+	//printf("I_FinishUpdate %i %i %p %p\n",SCREENWIDTH,SCREENHEIGHT,txr,tex_mem);
+
+	glKosBeginFrame();
+
+	ta_txr_load(txr, tex_mem, TEX_SIZE * TEX_SIZE * 2);
+
+	glBindTexture(GL_TEXTURE_2D, video_tex);
+
+	glBegin(GL_QUADS);
+	glVertex3f(-1.0f, -1.0f, 0.5f);
+	glVertex3f(10.0f, -1.0f, 0.5f);
+	glVertex3f(10.0f, 10.0f, 0.5f);
+	glVertex3f(-1.0f, 10.0f, 0.5f);
+	glEnd();
+
+	glKosFinishFrame();
+#if 0
     poly_hdr_t poly;
 	int x,y;
 	uint8 *s;
@@ -349,6 +315,7 @@ void I_FinishUpdate (void)
     /* Finish up */
     ta_commit_eol();
     ta_finish_frame();
+#endif
 }
 
 void I_UpdateNoBlit (void)
@@ -361,25 +328,32 @@ void I_StartFrame (void)
 
 void I_StartTic (void)
 {
+	cont_cond_t cond;
+	uint8	c;
+	
+	c = maple_first_controller();
+	/* Check key status */
+	if (cont_get_cond(c, &cond) < 0) {
+		printf("Error reading controller\n");
+		exit(0);
+	}
+	if (!(cond.buttons & CONT_START))
+		exit(0);
 }
 
 void I_PreInitGraphics(void)
 {
-	printf("Initializing ta\n");
-	ta_init(TA_LIST_OPAQUE_POLYS | TA_LIST_TRANS_POLYS,
-		TA_POLYBUF_32, 512*1024);
-	irq_enable();
-
-    texture_pool = 0;
-
-	printf("Allocating texture\r\n");
-    video_tex = texture_alloc(TEX_SIZE*TEX_SIZE*2);
-    tex_mem = ta_txr_map(video_tex);
-	*((vuint32*)(0xa05f8108)) = 1;
+    kos_init_all(IRQ_ENABLE | TA_ENABLE, ROMDISK_NONE);
+	/* Get basic stuff initialized */
+	glKosInit();
 }
 
 void I_SetRes(unsigned int width, unsigned int height)
 {
+  SCREENWIDTH = (width+3) & ~3;
+  SCREENHEIGHT = (height+3) & ~3;
+
+  lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
 
 void I_InitGraphics (void)
@@ -392,10 +366,25 @@ void I_InitGraphics (void)
 	for (n=0; n<256; n++)
 		tex_pal[n] = (uint16)((((uint8)spal[n*3]>>3)<<11) || (((uint8)spal[n*3+1]>>2)<<5) || ((uint8)spal[n*3+2]>>3));
     W_UnlockLumpNum(lump);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0.0, 320.0, 200.0, 0.0, -1.0, 1.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_KOS_AUTO_UV);
+	glDisable(GL_CULL_FACE);
+	glGenTextures(1, &video_tex);
+	tex_mem=malloc(TEX_SIZE * TEX_SIZE * 2);
+	txr=ta_txr_allocate(TEX_SIZE * TEX_SIZE * 2);
+	glBindTexture(GL_TEXTURE_2D, video_tex);
+	glKosTex2D(GL_RGB565, TEX_SIZE, TEX_SIZE, txr);
 }
 
 void I_UpdateVideoMode(void)
 {
+  screens[0]=malloc(SCREENWIDTH*SCREENHEIGHT);
+  R_InitBuffer(SCREENWIDTH,SCREENHEIGHT);
 }
 
 void I_ShutdownGraphics(void)
@@ -404,6 +393,7 @@ void I_ShutdownGraphics(void)
 
 void I_ReadScreen (byte* scr)
 {
+  memcpy(scr, screens[0], SCREENWIDTH*SCREENHEIGHT);
 }
 
 void I_SetPalette(int pal)
@@ -418,8 +408,36 @@ void I_SetPalette(int pal)
     W_UnlockLumpNum(lump);
 }
 
+/*
+ * I_Filelength
+ *
+ * Return length of an open file.
+ */
 
-int use_doublebuffer;
-int use_fullscreen;
-int snd_card, mus_card;
-int snd_samplerate;
+/* 
+ * I_Read
+ *
+ * cph 2001/11/18 - wrapper for read(2) which handles partial reads and aborts
+ * on error.
+ */
+void I_Read(int fd, void* buf, size_t sz)
+{
+  while (sz) {
+    int rc = fs_read(fd,buf,sz);
+    if (rc <= 0) {
+      I_Error("I_Read: read failed: %s", /*rc ? strerror(errno) :*/ "EOF");
+    }
+    sz -= rc; (unsigned char *)buf += rc;
+  }
+}
+
+int I_Filelength(int handle)
+{
+	return fs_total(handle);
+}
+
+int use_doublebuffer = 0;
+int use_fullscreen = 0;
+int snd_card = -1;
+int mus_card = -1;
+int snd_samplerate = 11025;

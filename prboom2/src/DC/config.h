@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.2 2001/07/03 12:17:04 proff_fs Exp $
+ * $Id: config.h,v 1.3 2002/02/10 20:59:44 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,36 +32,33 @@
  *
  *-----------------------------------------------------------------------------*/
 
-/* Define if you have the ANSI C header files.  */
-#define STDC_HEADERS 1
-
 /* Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).  */
 #undef WORDS_BIGENDIAN
 
 /* Define to strcasecmp, if we have it */
-//#define stricmp strcasecmp
+#define stricmp strcasecmp
 
 /* Define to strncasecmp, if we have it */
-//#define strnicmp strncasecmp
+#define strnicmp strncasecmp
 
 /* Define on targets supporting 386 Assembly */
 /* This is in the project settings */
 /* #define I386_ASM 1 */
 
 /* Define to enable internal range checking */
-//#define RANGECHECK 1
+#define RANGECHECK 1
 
 /* Define this to see real-time memory allocation
  * statistics, and enable extra debugging features 
  */
-//#define INSTRUMENTED 1
+#define INSTRUMENTED 1
 
 /* Uncomment this to exhaustively run memory checks
  * while the game is running (this is EXTREMELY slow).
  * Only useful if INSTRUMENTED is also defined.
  */
-//#define CHECKHEAP 1
+#define CHECKHEAP 1
 
 /* Uncomment this to cause heap dumps to be generated.
  * Only useful if INSTRUMENTED is also defined.
@@ -71,12 +68,12 @@
 /* Uncomment this to perform id checks on zone blocks,
  * to detect corrupted and illegally freed blocks
  */
-//#define ZONEIDCHECK 1
+#define ZONEIDCHECK 1
 
 /* CPhipps - some debugging macros for the new wad lump handling code */
 /* Defining this causes quick checks which only impose an overhead if a 
  *  posible error is detected. */
-//#define SIMPLECHECKS 1
+#define SIMPLECHECKS 1
 
 /* Defining this causes time stamps to be created each time a lump is locked, and 
  *  lumps locked for long periods of time are reported */
@@ -137,7 +134,3 @@
 
 /* Version number of package */
 #define VERSION "2.3.0"
-
-#define FILE void
-
-#undef SIGPIPE
