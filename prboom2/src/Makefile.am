@@ -1,14 +1,19 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.2 2000/05/05 13:51:50 cph Exp $
+# $Id: Makefile.am,v 1.3 2000/05/07 22:44:25 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
 #
+
+EXTRA_SUBDIRS = Posix OSS X11
+
+SUBDIRS = @BUILD_DIRS@
+
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = lxdoom lsdoom sndserv lsdldoom lxdoom-game-server
-games_PROGRAMS = @BUILD_LSDOOM@ @BUILD_LXDOOM@ @BUILD_SNDSERV@ @BUILD_SDLDOOM@ @BUILD_SERVER@
+EXTRA_PROGRAMS = lxdoom lsdldoom lxdoom-game-server
+games_PROGRAMS = @BUILD_LXDOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
 
 if I386_ASM
 ASMS = drawspan.s drawcol.s drawasm.h
@@ -18,12 +23,8 @@ endif
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-sndserv_SOURCES = version.c l_soundsrv.c sounds.c l_soundgen.c \
-	l_system.c i_system.h l_soundsrv.h l_soundgen.h
-sndserv_LDADD = @LIB_SND@
-
-lxdoom_game_server_SOURCES = d_server.c l_udp.c protocol.h l_system.c
-lxdoom_game_server_LDADD = 
+lxdoom_game_server_SOURCES = d_server.c l_udp.c protocol.h
+lxdoom_game_server_LDADD = POSIX/libposixdoom.a 
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
@@ -66,43 +67,6 @@ endif
 lsdldoom_SOURCES = l_video_trans.h l_video_trans.c l_video_sdl.c l_sound_sdl.c qmus2mid.c qmus2mid.h l_system_sdl.c $(COMMON_SRC) $(NET_CLIENT_SRC)
 lsdldoom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm
 
-lxdoom_SOURCES = l_video_trans.h   l_video_trans.c  l_video_x.c l_system.c l_sound.c $(COMMON_SRC) $(NET_CLIENT_SRC)
-lxdoom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@
+lxdoom_SOURCES = l_video_trans.h   l_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
+lxdoom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ POSIX/libposixdoom.a X11/libx11doom.a OSS/libossdoom.a
 
-lsdoom_SOURCES = l_video_svgalib.c l_system.c l_sound.c $(COMMON_SRC) $(NET_CLIENT_SRC)
-lsdoom_LDADD = -lvga
-
-
-#
-# $Log: Makefile.am,v $
-# Revision 1.2  2000/05/05 13:51:50  cph
-# Get SDL configuration and compilation working on POSIX
-#
-# Revision 1.7.2.1  2000/03/28 17:13:43  cph
-# Remove old makefile
-#
-# Revision 1.7  2000/03/19 20:14:32  cph
-# Sound code cleaning: DosDoom, IPC and such unused code removed
-#
-# Revision 1.6  1999/12/13 17:24:08  cphipps
-# Add i_main.h to lxdoom/lsdoom
-#
-# Revision 1.5  1999/10/31 16:32:21  cphipps
-# Added l_system.c to lxdoom-game-server
-#
-# Revision 1.4  1999/10/27 07:41:53  cphipps
-# Remove overriding of CFLAGS, so configure can set them according to
-# architecture
-#
-# Revision 1.3  1999/10/02 15:00:48  cphipps
-# Added X_CFLAGS to the compile flags, so autoconf can pass the path to
-# the X11 include files for systems that don't put them in the main include
-# tree (fixes compile problem on FreeBSD)
-#
-# Revision 1.2  1999/09/16 22:19:22  cphipps
-# Add missing header files for sound and netgame servers
-#
-# Revision 1.1  1999/09/10 20:10:47  cphipps
-# Initial revision
-#
-#
