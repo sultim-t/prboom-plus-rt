@@ -1532,6 +1532,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   memset(playerstarts,0,sizeof(playerstarts));
   deathmatch_p = deathmatchstarts;
 
+  P_MapStart();
   P_LoadThings(lumpnum+ML_THINGS);
 
   // if deathmatch, randomly spawn the active players
@@ -1552,6 +1553,8 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
 
   // set up world state
   P_SpawnSpecials();
+
+  P_MapEnd();
 
 #ifdef COMPILE_VIDD
   } // if (!VIDD_PLAY_inProgress()) { // POPE
