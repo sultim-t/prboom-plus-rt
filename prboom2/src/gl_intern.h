@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.19 2002/11/23 01:11:04 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.20 2003/03/28 21:04:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -114,6 +114,134 @@ void gld_InitPalettedTextures(void);
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-// PFNGLCOLORTABLEEXTPROC p_glColorTableEXT;
+typedef struct
+{
+  GLfloat x;
+  GLfloat y;
+  GLfloat z;
+} GLVertex;
+
+typedef struct
+{
+  GLfloat u;
+  GLfloat v;
+} GLTexcoord;
+
+extern GLVertex *gld_vertexes;
+extern GLTexcoord *gld_texcoords;
+
+/* GLLoopDef is the struct for one loop. A loop is a list of vertexes
+ * for triangles, which is calculated by the p_gluTesselator in gld_PrecalculateSector
+ * and in gld_PreprocessCarvedFlat
+ */
+typedef struct
+{
+  GLenum mode; // GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
+  int vertexcount; // number of vertexes in this loop
+  int vertexindex; // index into vertex list
+} GLLoopDef;
+
+// GLSector is the struct for a sector with a list of loops.
+
+typedef struct
+{
+  int loopcount; // number of loops for this sector
+  GLLoopDef *loops; // the loops itself
+} GLSector;
+
+extern GLSector *sectorloops;
+
+typedef struct
+{
+  float x1,x2;
+  float z1,z2;
+} GLSeg;
+
+extern GLSeg *gl_segs;
+
+#define GLDWF_TOP 1
+#define GLDWF_M1S 2
+#define GLDWF_M2S 3
+#define GLDWF_BOT 4
+#define GLDWF_SKY 5
+#define GLDWF_SKYFLIP 6
+
+typedef struct
+{
+  GLSeg *glseg;
+  float ytop,ybottom;
+  float ul,ur,vt,vb;
+  float light;
+  float alpha;
+  float skyymid;
+  float skyyaw;
+  GLTexture *gltexture;
+  byte flag;
+} GLWall;
+
+typedef struct
+{
+  int sectornum;
+  float light; // the lightlevel of the flat
+  float uoffs,voffs; // the texture coordinates
+  float z; // the z position of the flat (height)
+  GLTexture *gltexture;
+  boolean ceiling;
+} GLFlat;
+
+typedef struct
+{
+  int cm;
+  float x,y,z;
+  float vt,vb;
+  float ul,ur;
+  float x1,y1;
+  float x2,y2;
+	float light;
+  fixed_t scale;
+  GLTexture *gltexture;
+  boolean shadow;
+  boolean trans;
+} GLSprite;
+
+typedef enum
+{
+  GLDIT_NONE,
+  GLDIT_WALL,
+  GLDIT_FLAT,
+  GLDIT_SPRITE
+} GLDrawItemType;
+
+typedef struct
+{
+  GLDrawItemType itemtype;
+  int itemcount;
+  int firstitemindex;
+  byte rendermarker;
+} GLDrawItem;
+
+typedef struct
+{
+  GLWall *walls;
+  int num_walls;
+  int max_walls;
+  GLFlat *flats;
+  int num_flats;
+  int max_flats;
+  GLSprite *sprites;
+  int num_sprites;
+  int max_sprites;
+  GLDrawItem *drawitems;
+  int num_drawitems;
+  int max_drawitems;
+} GLDrawInfo;
+
+extern GLDrawInfo gld_drawinfo;
+
+extern byte *sectorrendered; // true if sector rendered (only here for malloc)
+extern byte *segrendered; // true if sector rendered (only here for malloc)
+
+#define MAP_COEFF 128.0f
+#define MAP_SCALE	(MAP_COEFF*(float)FRACUNIT)
 
 #endif // _GL_INTERN_H
