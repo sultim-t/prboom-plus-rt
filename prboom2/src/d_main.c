@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.66 2003/02/15 17:23:38 dukope Exp $
+ * $Id: d_main.c,v 1.67 2003/02/16 15:52:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.66 2003/02/15 17:23:38 dukope Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.67 2003/02/16 15:52:20 cph Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -1395,8 +1395,6 @@ void D_DoomMainSetup(void)
     }
 
   modifiedgame = false;
-
-  D_BuildBEXTables(); // haleyjd
 
   // get skill / episode / map from parms
 
