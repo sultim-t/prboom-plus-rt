@@ -99,6 +99,9 @@ Send bug reports and patches for Solaris/Sparc.
 Lionel Ulmer <lionel.ulmer@free.fr>
 Patch to fix alignment problems on ARM processors.
 
+Steven Elliot <selliot4@users.sourceforge.net>
+Misc patches.
+
 If you have sent in patches and I forgot to list you, I apologise. Please email
 me and I will add you.
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.22 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.23 2002/08/09 21:53:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.22 2002/08/05 17:44:58 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.23 2002/08/09 21:53:21 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1060,6 +1060,33 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     }
   }
 
+/*
+ * P_IsDoomnumAllowed()
+ * Based on code taken from P_LoadThings() in src/p_setup.c  Return TRUE
+ * if the thing in question is expected to be available in the gamemode used.
+ */
+
+boolean P_IsDoomnumAllowed(int doomnum)
+{
+  // Do not spawn cool, new monsters if !commercial
+  if (gamemode != commercial)
+    switch(doomnum)
+      {
+      case 64:  // Archvile
+      case 65:  // Former Human Commando
+      case 66:  // Revenant
+      case 67:  // Mancubus
+      case 68:  // Arachnotron
+      case 69:  // Hell Knight
+      case 71:  // Pain Elemental
+      case 84:  // Wolf SS
+      case 88:  // Boss Brain
+      case 89:  // Boss Shooter
+        return false;
+      }
+
+  return true;
+}
 
 //
 // P_SpawnMapThing

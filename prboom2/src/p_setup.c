@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.21 2002/08/05 19:10:46 cph Exp $
+ * $Id: p_setup.c,v 1.22 2002/08/09 21:53:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.21 2002/08/05 19:10:46 cph Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.22 2002/08/09 21:53:21 cph Exp $";
 
 #include <math.h>
 
@@ -562,22 +562,8 @@ static void P_LoadThings (int lump)
       mt.type = SHORT(mt.type);
       mt.options = SHORT(mt.options);
 
-      // Do not spawn cool, new monsters if !commercial
-      if (gamemode != commercial)
-        switch(mt.type)
-          {
-          case 68:  // Arachnotron
-          case 64:  // Archvile
-          case 88:  // Boss Brain
-          case 89:  // Boss Shooter
-          case 69:  // Hell Knight
-          case 67:  // Mancubus
-          case 71:  // Pain Elemental
-          case 65:  // Former Human Commando
-          case 66:  // Revenant
-          case 84:  // Wolf SS
-            continue;
-          }
+      if (!P_IsDoomnumAllowed(mt.type))
+        continue;
 
       // Do spawn all other stuff.
       P_SpawnMapThing (&mt);

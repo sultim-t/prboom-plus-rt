@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.19 2002/08/05 17:44:59 proff_fs Exp $
+ * $Id: r_things.c,v 1.20 2002/08/09 21:53:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.19 2002/08/05 17:44:59 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.20 2002/08/09 21:53:21 cph Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -475,6 +475,11 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
 #endif
 
   sprframe = &sprdef->spriteframes[thing->frame & FF_FRAMEMASK];
+
+  // If sprframe is NULL the sprite is not in the IWAD.
+  if (!sprframe)
+    I_Error ("R_ProjectSprite: Missing spriteframes %i : %i", thing->sprite,
+             thing->frame);
 
   if (sprframe->rotate)
     {
