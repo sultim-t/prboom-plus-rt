@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.35 2001/07/07 15:00:29 proff_fs Exp $
+ * $Id: m_misc.c,v 1.36 2001/07/07 17:28:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.35 2001/07/07 15:00:29 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.36 2001/07/07 17:28:55 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -346,6 +346,7 @@ default_t defaults[] =
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
   {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
+  {"samplerate",{&snd_samplerate},{44100},11025,48000, def_int,ss_none}, 
   {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none}, 
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{2},0,2, // CPhipps - music pausing

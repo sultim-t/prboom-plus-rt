@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.h,v 1.6 2001/07/07 15:00:29 proff_fs Exp $
+ * $Id: i_sound.h,v 1.7 2001/07/07 17:28:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -109,5 +109,6 @@ extern int mus_card;
 extern const char* sndserver_filename;
 extern const char* snd_device;
 extern const char* musserver_filename; 
+extern int snd_samplerate;
 
 #endif
