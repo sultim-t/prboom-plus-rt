@@ -34,6 +34,7 @@
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
+#include "p_map.h"
 #ifdef FRAGGLE_SCRIPT
 #include "t_script.h"
 #endif
