@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.28 2000/11/08 22:02:34 cph Exp $
+ * $Id: d_main.c,v 1.29 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.28 2000/11/08 22:02:34 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.29 2000/11/12 14:59:29 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -727,10 +727,10 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         free(fileinfo);
       }
       else // missing IWAD tag in header
-        I_Error("IWAD tag not present: %s\n",iwadname);
+        I_Error("CheckIWAD: IWAD tag %s not present", iwadname);
     }
     else // error from open call
-      I_Error("Can't open IWAD: %s\n",iwadname);
+      I_Error("CheckIWAD: Can't open IWAD %s", iwadname);
 
     // Determine game mode from levels present
     // Must be a full set for whichever mode is present
@@ -751,10 +751,11 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
       *gmode = shareware;
   }
   else // error from access call
-    I_Error("IWAD not readable: %s\n",iwadname);
+    I_Error("CheckIWAD: IWAD %s not readable", iwadname);
 }
 
-//
+
+
 // NormalizeSlashes
 //
 // Remove trailing slashes, translate backslashes to slashes
@@ -869,7 +870,7 @@ static char* FindWADFile(const char* wfname, const char* ext)
       break;
 #ifdef SIMPLECHECKS
     default:
-      I_Error("FindWADFile: internal failure");
+      I_Error("FindWADFile: Internal failure");
 #endif
     }
 
@@ -1023,11 +1024,12 @@ void IdentifyVersion (void)
     free(iwad);
   }
   else
-    I_Error("IWAD not found\n");
+    I_Error("IdentifyVersion: IWAD not found\n");
 }
 
-// killough 5/3/98: old code removed
 
+
+// killough 5/3/98: old code removed
 //
 // Find a Response File
 //
@@ -1349,7 +1351,7 @@ void D_DoomMainSetup(void)
             {
               AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
               if (access(file, F_OK))  // still nope
-                I_Error("Cannot find .deh or .bex file named %s",myargv[p]);
+                I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",myargv[p]);
             }
           // during the beta we have debug output to dehout.txt
           ProcessDehFile(file,D_dehout(),0);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.21 2000/10/04 19:53:10 proff_fs Exp $
+ * $Id: m_misc.c,v 1.22 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.21 2000/10/04 19:53:10 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.22 2000/11/12 14:59:29 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -137,12 +137,8 @@ int M_ReadFile(char const* name,byte** buffer)
   byte   *buf;
   
   handle = open (name, O_RDONLY | O_BINARY, 0666);
-  if (handle == -1)
-    I_Error ("Couldn't read file %s", name);
-  if (fstat (handle,&fileinfo) == -1) {
-    close(handle);
-    I_Error ("Couldn't read file %s", name);
-  }
+  if ((handle == -1) || (fstat (handle,&fileinfo) == -1))
+    I_Error ("M_ReadFile: Couldn't read file %s", name);
 
   length = fileinfo.st_size;
   buf = Z_Malloc (length, PU_STATIC, NULL);
@@ -150,7 +146,7 @@ int M_ReadFile(char const* name,byte** buffer)
   close (handle);
   
   if (count < length)
-    I_Error ("Couldn't read file %s", name);
+    I_Error ("M_ReadFile: Couldn't read file %s", name);
     
   *buffer = buf;
   return length;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.12 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: r_things.c,v 1.13 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.12 2000/10/08 18:42:20 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.13 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -404,7 +404,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 
 #ifdef RANGECHECK
       if (texturecolumn < 0 || texturecolumn >= SHORT(patch->width))
-        I_Error ("R_DrawSpriteRange: bad texturecolumn");
+        I_Error ("R_DrawSpriteRange: Bad texturecolumn");
 #endif
 
       column = (const column_t *)((const byte *) patch +
@@ -461,14 +461,14 @@ void R_ProjectSprite (mobj_t* thing)
     // decide which patch to use for sprite relative to player
 #ifdef RANGECHECK
   if ((unsigned) thing->sprite >= (unsigned)numsprites)
-    I_Error ("R_ProjectSprite: invalid sprite number %i ", thing->sprite);
+    I_Error ("R_ProjectSprite: Invalid sprite number %i", thing->sprite);
 #endif
 
   sprdef = &sprites[thing->sprite];
 
 #ifdef RANGECHECK
   if ((thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
-    I_Error ("R_ProjectSprite: invalid sprite frame %i : %i ", thing->sprite,
+    I_Error ("R_ProjectSprite: Invalid sprite frame %i : %i", thing->sprite,
              thing->frame);
 #endif
 
@@ -646,14 +646,14 @@ void R_DrawPSprite (pspdef_t *psp)
 
 #ifdef RANGECHECK
   if ( (unsigned)psp->state->sprite >= (unsigned)numsprites)
-    I_Error ("R_ProjectSprite: invalid sprite number %i ", psp->state->sprite);
+    I_Error ("R_ProjectSprite: Invalid sprite number %i", psp->state->sprite);
 #endif
 
   sprdef = &sprites[psp->state->sprite];
 
 #ifdef RANGECHECK
   if ( (psp->state->frame & FF_FRAMEMASK)  >= sprdef->numframes)
-    I_Error ("R_ProjectSprite: invalid sprite frame %i : %li ",
+    I_Error ("R_ProjectSprite: Invalid sprite frame %i : %li",
              psp->state->sprite, psp->state->frame);
 #endif
 

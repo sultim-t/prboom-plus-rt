@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_saveg.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_saveg.c,v 1.9 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_saveg.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_saveg.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -432,7 +432,7 @@ void P_UnArchiveThinkers (void)
       }
 
     if (*--save_p != tc_end)
-      I_Error ("Unknown tclass %i in savegame", *save_p);
+      I_Error ("P_UnArchiveThinkers: Unknown tclass %i in savegame", *save_p);
 
     // first table entry special: 0 maps to NULL
     *(mobj_p = malloc(size * sizeof *mobj_p)) = 0;   // table of pointers
@@ -911,8 +911,7 @@ void P_UnArchiveSpecials (void)
         }
 
       default:
-        I_Error ("P_UnarchiveSpecials:Unknown tclass %i "
-                 "in savegame",tclass);
+        I_Error("P_UnarchiveSpecials: Unknown tclass %i in savegame", tclass);
       }
 }
 

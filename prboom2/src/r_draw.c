@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.11 2000/10/18 18:54:05 proff_fs Exp $
+ * $Id: r_draw.c,v 1.12 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.11 2000/10/18 18:54:05 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.12 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -181,7 +181,7 @@ void R_DrawColumn (void)
   if ((unsigned)dc_x >= SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
-    I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.
@@ -333,7 +333,7 @@ void R_DrawTLColumn (void)
   if ((unsigned)dc_x >= SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
-    I_Error ("R_DrawTLColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error("R_DrawTLColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.
@@ -457,8 +457,7 @@ void R_DrawFuzzColumn(void)
   if ((unsigned) dc_x >= (unsigned)SCREENWIDTH
       || dc_yl < 0 
       || (unsigned)dc_yh >= (unsigned)SCREENHEIGHT)
-    I_Error ("R_DrawFuzzColumn: %i to %i at %i",
-             dc_yl, dc_yh, dc_x);
+    I_Error("R_DrawFuzzColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
 #endif
 
   // Keep till detailshift bug in blocky mode fixed,
@@ -526,8 +525,7 @@ void R_DrawTranslatedColumn (void)
   if ((unsigned)dc_x >= (unsigned)SCREENWIDTH
       || dc_yl < 0
       || (unsigned)dc_yh >= (unsigned)SCREENHEIGHT)
-    I_Error ( "R_DrawColumn: %i to %i at %i",
-              dc_yl, dc_yh, dc_x);
+    I_Error("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x);
 #endif 
 
   // FIXME. As above.

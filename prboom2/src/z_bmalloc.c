@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.6 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: z_bmalloc.c,v 1.7 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -87,7 +87,7 @@ void* Z_BMalloc(struct block_memory_alloc_s *pzone)
       int n = p - (*pool)->used;
 #ifdef SIMPLECHECKS
       if ((n<0) || ((size_t)n>=(*pool)->blocks)) 
-	I_Error("Z_BMalloc: memchr returned pointer outside of array!");
+	I_Error("Z_BMalloc: memchr returned pointer outside of array");
 #endif
       (*pool)->used[n] = used_block;
       return getelem(*pool, pzone->size, n);
@@ -120,7 +120,7 @@ void Z_BFree(struct block_memory_alloc_s *pzone, void* p)
     if (n >= 0) {
 #ifdef SIMPLECHECKS
       if ((*pool)->used[n] == unused_block)
-	I_Error("Z_BFree: refree in zone %s\n", pzone->desc);
+	I_Error("Z_BFree: Refree in zone %s", pzone->desc);
 #endif
       (*pool)->used[n] = unused_block;
       if (memchr(((*pool)->used), used_block, (*pool)->blocks) == NULL) {
@@ -132,5 +132,5 @@ void Z_BFree(struct block_memory_alloc_s *pzone, void* p)
       return;
     } else pool = &((*pool)->nextpool);
   }
-  I_Error("Z_BFree: free not in zone %s\n", pzone->desc);
+  I_Error("Z_BFree: Free not in zone %s", pzone->desc);
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.10 2000/11/06 23:16:26 cph Exp $
+ * $Id: p_enemy.c,v 1.11 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.10 2000/11/06 23:16:26 cph Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.11 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -329,7 +329,7 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) /* killough 9/12/98 */
 
 #ifdef RANGECHECK
   if ((unsigned)actor->movedir >= 8)
-    I_Error ("Weird actor->movedir!");
+    I_Error ("P_Move: Weird actor->movedir!");
 #endif
   
   // killough 10/98: make monsters get affected by ice and sludge too:

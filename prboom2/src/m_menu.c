@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.17 2000/11/08 22:02:34 cph Exp $
+ * $Id: m_menu.c,v 1.18 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.17 2000/11/08 22:02:34 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.18 2000/11/12 14:59:29 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -3547,7 +3547,7 @@ static void M_InitDefaults(void)
       for (t = *p; !(t->m_flags & S_END); t++)
 	if (t->m_flags & S_HASDEFPTR)
 	  if (!(dp = M_LookupDefault(t->var.name)))
-	    I_Error("Could not find config variable \"%s\"", t->var.name);
+	    I_Error("M_InitDefaults: Couldn't find config variable %s", t->var.name);
 	  else
 	    (t->var.def = dp)->setup_menu = t;
 }

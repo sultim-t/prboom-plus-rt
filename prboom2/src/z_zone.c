@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.8 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.8 2000/10/08 18:42:20 proff_fs Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -273,7 +273,7 @@ void Z_Init(void)
 
 #ifdef INSTRUMENTED
   if (!(HEADER_SIZE >= sizeof(memblock_t) && MIN_RAM > LEAVE_ASIDE)) 
-    I_Error("Z_Init: sanity check failed!");
+    I_Error("Z_Init: Sanity check failed");
 #endif
 
   atexit(Z_Close);            // exit handler
@@ -285,7 +285,7 @@ void Z_Init(void)
   while (!(zonebase=(malloc)(zonebase_size=size + HEADER_SIZE + CACHE_ALIGN)))
     if (size < (MIN_RAM-LEAVE_ASIDE < RETRY_AMOUNT ? RETRY_AMOUNT :
                                                      MIN_RAM-LEAVE_ASIDE))
-      I_Error("Z_Init: failed on allocation of %lu bytes",(unsigned long)
+      I_Error("Z_Init: Failed on allocation of %lu bytes",(unsigned long)
               zonebase_size);
     else
       size -= RETRY_AMOUNT;
@@ -349,7 +349,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 
 #ifdef ZONEIDCHECK
   if (tag >= PU_PURGELEVEL && !user)
-    I_Error ("Z_Malloc: an owner is required for purgable blocks\n"
+    I_Error ("Z_Malloc: An owner is required for purgable blocks"
 #ifdef INSTRUMENTED
              "Source: %s:%d", file, line
 #endif
@@ -518,9 +518,9 @@ void (Z_Free)(void *p
 
 #ifdef ZONEIDCHECK
       if (block->id != ZONEID)
-        I_Error("Z_Free: freed a pointer without ZONEID\n"
+        I_Error("Z_Free: freed a pointer without ZONEID"
 #ifdef INSTRUMENTED
-                "Source: %s:%d"
+                "\nSource: %s:%d"
                 "\nSource of malloc: %s:%d"
                 , file, line, block->file, block->line
 #endif
@@ -648,9 +648,9 @@ void (Z_FreeTags)(int lowtag, int hightag
 
 #ifdef ZONEIDCHECK
         if (block->id != ZONEID)
-          I_Error("Z_Free: freed a pointer without ZONEID\n"
+          I_Error("Z_Free: freed a pointer without ZONEID"
 #ifdef INSTRUMENTED
-                  "Source: %s:%d"
+                  "\nSource: %s:%d"
                   "\nSource of malloc: %s:%d"
                   , file, line, block->file, block->line
 #endif

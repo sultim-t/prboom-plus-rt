@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: tables.c,v 1.4 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: tables.c,v 1.5 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,7 +45,7 @@
  */
 
 static const char
-rcsid[] = "$Id: tables.c,v 1.4 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: tables.c,v 1.5 2000/11/12 14:59:29 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -2144,32 +2144,31 @@ const angle_t tantoangle[2049] = {
 #include "m_swap.h"
 #include "lprintf.h"
 
-//
-// R_LoadTrigTables
-//
-// Load trig tables from a wad file lump
-//
-// CPhipps 24/12/98 - fix endianness (!)
 
+
+// R_LoadTrigTables
+// Load trig tables from a wad file lump
+// CPhipps 24/12/98 - fix endianness (!)
+//
 void R_LoadTrigTables(void)
 {
   int lump;
   {
     lump = W_GetNumForName("SINETABL");
     if (W_LumpLength(lump) != sizeof(finesine))
-      I_Error("Invalid SINETABL\n");
+      I_Error("R_LoadTrigTables: Invalid SINETABL");
     W_ReadLump(lump,(unsigned char*)finesine);
   }
   {
     lump = W_GetNumForName("TANGTABL");
     if (W_LumpLength(lump) != sizeof(finetangent))
-      I_Error("Invalid TANGTABL\n");
+      I_Error("R_LoadTrigTables: Invalid TANGTABL");
     W_ReadLump(lump,(unsigned char*)finetangent);
   }
   {
     lump = W_GetNumForName("TANTOANG");
     if (W_LumpLength(lump) != sizeof(tantoangle))
-      I_Error("Invalid TANTOANG\n");
+      I_Error("R_LoadTrigTables: Invalid TANTOANG");
     W_ReadLump(lump,(unsigned char*)tantoangle);
   }
   // Endianness correction - might still be non-portable, but is fast where possible

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.8 2000/10/08 16:03:11 cph Exp $
+ * $Id: i_main.c,v 1.9 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.8 2000/10/08 16:03:11 cph Exp $";
+rcsid[] = "$Id: i_main.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -81,17 +81,23 @@ static int I_GetTime_Scaled(void)
   return (int)( (int_64_t) I_GetTime_RealTime() * I_GetTime_Scale >> 24);
 }
 
+
+
 static int  I_GetTime_FastDemo(void)
 {
   static int fasttic;
   return fasttic++;
 }
 
+
+
 static int I_GetTime_Error(void)
 {
-  I_Error("Error: GetTime() used before initialization");
+  I_Error("I_GetTime_Error: GetTime() used before initialization");
   return 0;
 }
+
+
 
 int (*I_GetTime)(void) = I_GetTime_Error;
 
@@ -142,8 +148,10 @@ static void I_SignalHandler(int s)
   if (s==SIGSEGV || s==SIGILL || s==SIGFPE)
     Z_DumpHistory(buf);
 
-  I_Error("%s",buf);
+  I_Error("I_SignalHandler: %s", buf);
 }
+
+
 
 /* killough 2/22/98: Add support for ENDBOOM, which is PC-specific
  *

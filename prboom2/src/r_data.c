@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.9 2000/10/10 19:37:12 cph Exp $
+ * $Id: r_data.c,v 1.10 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.9 2000/10/10 19:37:12 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.10 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -310,7 +310,7 @@ static void R_GenerateLookup(int texnum, int *const errors)
                     "\nR_GenerateLookup: Column %d is without a patch in texture %.8s",
                     x, texture->name);
             if (errors) ++*errors;
-	    else I_Error("R_GenerateLookup failed");
+	    else I_Error("R_GenerateLookup: Failed");
           }
         if (count[x].patches > 1)       // killough 4/9/98
           {
@@ -479,7 +479,7 @@ void R_InitTextures (void)
       offset = LONG(*directory);
 
       if (offset > maxoff)
-        I_Error("R_InitTextures: bad texture directory");
+        I_Error("R_InitTextures: Bad texture directory");
 
       mtexture = (maptexture_t *) ( (byte *)maptex + offset);
 
@@ -556,7 +556,7 @@ void R_InitTextures (void)
       W_UnlockLumpNum(maptex_lump[i]);
 
   if (errors)
-    I_Error("\n\n%d errors.", errors);
+    I_Error("R_InitTextures: %d errors", errors);
     
   // Precalculate whatever possible.
   if (devparm) // cph - If in development mode, generate now so all errors are found at once
@@ -564,7 +564,7 @@ void R_InitTextures (void)
       R_GenerateLookup(i, &errors);
 
   if (errors)
-    I_Error("\n\n%d errors.", errors);
+    I_Error("R_InitTextures: %d errors", errors);
 
   // Create translation table for global animation.
   // killough 4/9/98: make column offsets 32-bit;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_lib.c,v 1.5 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: st_lib.c,v 1.6 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_lib.c,v 1.5 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: st_lib.c,v 1.6 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -132,7 +132,7 @@ static void STlib_drawNum
 
 #ifdef RANGECHECK
   if (n->y - ST_Y < 0)
-    I_Error("drawNum: n->y - ST_Y < 0");
+    I_Error("STlib_drawNum: n->y - ST_Y < 0");
 #endif
 
   V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG, VPT_STRETCH);
@@ -295,7 +295,7 @@ void STlib_updateMultIcon
 
 #ifdef RANGECHECK
       if (y - ST_Y < 0)
-        I_Error("updateMultIcon: y - ST_Y < 0");
+        I_Error("STlib_updateMultIcon: y - ST_Y < 0");
 #endif
 
       V_CopyRect(x, y-ST_Y, BG, w, h, x, y, FG, VPT_STRETCH);
@@ -363,7 +363,7 @@ void STlib_updateBinIcon
 
 #ifdef RANGECHECK
     if (y - ST_Y < 0)
-      I_Error("updateBinIcon: y - ST_Y < 0");
+      I_Error("STlib_updateBinIcon: y - ST_Y < 0");
 #endif
 
     if (*bi->val)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.10 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_server.c,v 1.11 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -194,10 +194,9 @@ char** myargv;
 
 void I_Error(const char *error, ...) // killough 3/20/98: add const
 {
-  char errmsg[1000];
   va_list argptr;
   va_start(argptr,error);
-  vsnprintf(errmsg,sizeof(errmsg),error,argptr);
+  vfprintf(stderr,error,argptr);
   va_end(argptr);
   exit(-1);
 }

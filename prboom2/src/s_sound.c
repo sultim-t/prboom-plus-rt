@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.3 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: s_sound.c,v 1.4 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.3 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.4 2000/11/12 14:59:29 cph Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -218,7 +218,7 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
 
   // check for bogus sound #
   if (sfx_id < 1 || sfx_id > NUMSFX)
-    I_Error("Bad sfx #: %d", sfx_id);
+    I_Error("S_StartSoundAtVolume: Bad sfx #: %d", sfx_id);
 
   sfx = &S_sfx[sfx_id];
 
@@ -403,16 +403,20 @@ void S_UpdateSounds(void* listener_p)
     }
 }
 
+
+
 void S_SetMusicVolume(int volume)
 {
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
     return;
   if (volume < 0 || volume > 15)
-    I_Error("Attempt to set music volume at %d", volume);
+    I_Error("S_SetMusicVolume: Attempt to set music volume at %d", volume);
   I_SetMusicVolume(volume);
   snd_MusicVolume = volume;
 }
+
+
 
 void S_SetSfxVolume(int volume)
 {
@@ -420,11 +424,12 @@ void S_SetSfxVolume(int volume)
   if (!snd_card || nosfxparm)
     return;
   if (volume < 0 || volume > 127)
-    I_Error("Attempt to set sfx volume at %d", volume);
+    I_Error("S_SetSfxVolume: Attempt to set sfx volume at %d", volume);
   snd_SfxVolume = volume;
 }
 
-//
+
+
 // Starts some music with the music id found in sounds.h.
 //
 void S_StartMusic(int m_id)
@@ -435,6 +440,8 @@ void S_StartMusic(int m_id)
   S_ChangeMusic(m_id, false);
 }
 
+
+
 void S_ChangeMusic(int musicnum, int looping)
 {
   musicinfo_t *music;
@@ -444,7 +451,7 @@ void S_ChangeMusic(int musicnum, int looping)
     return;
 
   if (musicnum <= mus_None || musicnum >= NUMMUSIC)
-    I_Error("Bad music number %d", musicnum);
+    I_Error("S_ChangeMusic: Bad music number %d", musicnum);
 
   music = &S_music[musicnum];
 
@@ -492,6 +499,8 @@ void S_StopMusic(void)
       mus_playing = 0;
     }
 }
+
+
 
 void S_StopChannel(int cnum)
 {

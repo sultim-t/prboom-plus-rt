@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.33 2000/10/08 18:42:19 proff_fs Exp $
+ * $Id: gl_main.c,v 1.34 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -895,6 +895,7 @@ static void gld_CalcIntersectionVertex(vertex_t *s, vertex_t *e, divline_t *d, v
 #undef FIX2DBL
 
 // Returns a pointer to the list of points. It must be used.
+//
 static vertex_t *gld_FlatEdgeClipper(int *numpoints, vertex_t *points, int numclippers, divline_t *clippers)
 {
 	unsigned char	sidelist[MAX_CC_SIDES];
@@ -925,7 +926,8 @@ static vertex_t *gld_FlatEdgeClipper(int *numpoints, vertex_t *points, int numcl
 
 				// Add the new vertex. Also modify the sidelist.
 				points = (vertex_t*)Z_Realloc(points,(++num)*sizeof(vertex_t),PU_LEVEL,0);
-				if(num >= MAX_CC_SIDES) I_Error("Too many points in carver.\n");
+				if(num >= MAX_CC_SIDES)
+					I_Error("gld_FlatEdgeClipper: Too many points in carver");
 
 				// Make room for the new vertex.
 				memmove(&points[endIdx+1], &points[endIdx],
@@ -1561,22 +1563,22 @@ void gld_PreprocessSectors(void)
 
   sectorclosed=Z_Malloc(numsectors*sizeof(boolean),PU_LEVEL,0);
   if (!sectorclosed)
-    I_Error("Not enough memory for array (sectorclosed)\n");
+    I_Error("gld_PreprocessSectors: Not enough memory for array sectorclosed");
   memset(sectorclosed, 0, sizeof(boolean)*numsectors);
 
   sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_LEVEL,0);
   if (!sectorloops)
-    I_Error("Not enough memory for array (sectorloops)\n");
+    I_Error("gld_PreprocessSectors: Not enough memory for array sectorloops");
   memset(sectorloops, 0, sizeof(GLSector)*numsectors);
 
   sectorrendered=Z_Malloc(numsectors*sizeof(byte),PU_LEVEL,0);
   if (!sectorrendered)
-    I_Error("Not enough memory for array (sectorrendered)\n");
+    I_Error("gld_PreprocessSectors: Not enough memory for array sectorrendered");
   memset(sectorrendered, 0, numsectors*sizeof(byte));
 
   segrendered=Z_Malloc(numsegs*sizeof(byte),PU_LEVEL,0);
   if (!segrendered)
-    I_Error("Not enough memory for array (segrendered)\n");
+    I_Error("gld_PreprocessSectors: Not enough memory for array segrendered");
   memset(segrendered, 0, numsegs*sizeof(byte));
 
   gld_vertexes=NULL;
@@ -1590,7 +1592,7 @@ void gld_PreprocessSectors(void)
   if (!vertexcheck)
   {
     if (levelinfo) fclose(levelinfo);
-    I_Error("Not enough memory for array (vertexcheck)\n");
+    I_Error("gld_PreprocessSectors: Not enough memory for array vertexcheck");
     return;
   }
 

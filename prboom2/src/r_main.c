@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.13 2000/10/04 19:53:10 proff_fs Exp $
+ * $Id: r_main.c,v 1.14 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.13 2000/10/04 19:53:10 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.14 2000/11/12 14:59:29 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -428,7 +428,8 @@ void R_Init (void)
   // CPhipps - R_DrawColumn isn't constant anymore, so must 
   //  initialise in code
   colfunc = R_DrawColumn;     // current column draw function
-  if (SCREENWIDTH<320) I_Error("Screenwidth(%d) < 320)",SCREENWIDTH);
+  if (SCREENWIDTH<320)
+    I_Error("R_Init: Screenwidth(%d) < 320",SCREENWIDTH);
 #if defined TABLES_AS_LUMPS && defined NO_PREDEFINED_LUMPS
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
   R_LoadTrigTables();
@@ -559,7 +560,7 @@ void R_RenderPlayerView (player_t* player)
 #ifdef GL_DOOM
   // proff 11/99: clear buffers
   gld_InitDrawScene();
-#else /* GL_DOOM */
+#else /* not GL_DOOM */
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       char c[47*47];
@@ -630,7 +631,7 @@ void R_RenderPlayerView (player_t* player)
                     viewwindowy + viewheight/2 - 24, 0, 47, 47, c, VPT_NONE);
       R_DrawViewBorder();
     }
-#endif /* GL_DOOM */
+#endif /* not GL_DOOM */
 
 #ifdef GL_DOOM
   // proff 11/99: switch to perspective mode

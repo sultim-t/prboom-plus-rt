@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.29 2000/10/24 22:01:49 cph Exp $
+ * $Id: g_game.c,v 1.30 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.29 2000/10/24 22:01:49 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30 2000/11/12 14:59:29 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -849,8 +849,8 @@ void G_Ticker (void)
             {
               if (gametic > BACKUPTICS
                   && consistancy[i][buf] != cmd->consistancy)
-                I_Error ("consistency failure (%i should be %i)",
-                         cmd->consistancy, consistancy[i][buf]);
+                I_Error("G_Ticker: Consistency failure (%i should be %i)",
+						cmd->consistancy, consistancy[i][buf]);
               if (players[i].mo)
                 consistancy[i][buf] = players[i].mo->x;
               else
@@ -1108,18 +1108,18 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
   return true;
 }
 
-//
+
 // G_DeathMatchSpawnPlayer
 // Spawns a player at one of the random death match spots
 // called at level load and each death
 //
-
 void G_DeathMatchSpawnPlayer (int playernum)
 {
   int j, selections = deathmatch_p - deathmatchstarts;
 
   if (selections < MAXPLAYERS)
-    I_Error("Only %i deathmatch spots, %d required", selections, MAXPLAYERS);
+    I_Error("G_DeathMatchSpawnPlayer: Only %i deathmatch spots, %d required",
+		selections, MAXPLAYERS);
 
   for (j=0 ; j<20 ; j++)
     {
@@ -1606,7 +1606,7 @@ void G_DoLoadGame(void)
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
 
   if (*save_p != 0xe6)
-    I_Error ("Bad savegame");
+    I_Error ("G_DoLoadGame: Bad savegame");
 
   // done
   Z_Free (savebuffer);
@@ -2161,7 +2161,7 @@ void G_RecordDemo (const char* name)
 	  if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
 	    slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
       } while (rc == /* sizeof(buf) is out of scope here */ 4 );
-      if (slot == -1) I_Error("No save in demo, can't continue");
+      if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
       fseek(demofp, -rc, SEEK_CUR);
       G_LoadGame(slot, false);
       autostart = false;
@@ -2415,7 +2415,7 @@ void G_BeginRecording (void)
     case boom_compatibility_compatibility: v = 202, c = 1; break;
     case boom_201_compatibility: v = 201; c = 0; break;
     case boom_202_compatibility: v = 202, c = 0; break;
-    default: I_Error("Boom compatibility level level unrecognised?");
+    default: I_Error("G_BeginRecording: Boom compatibility level unrecognised?");
     }
     *demo_p++ = v;
     
@@ -2462,9 +2462,10 @@ void G_BeginRecording (void)
   }
 
   if (fwrite(demostart, 1, demo_p-demostart, demofp) != (size_t)(demo_p-demostart))
-    I_Error("G_BeginRecording: error writing demo header");
+    I_Error("G_BeginRecording: Error writing demo header");
   free(demostart);
 }
+
 //
 // G_PlayDemo
 //
@@ -2670,21 +2671,18 @@ void G_TimeDemo(const char *name) // CPhipps - const char*
   gameaction = ga_playdemo;
 }
 
-//===================
-//=
-//= G_CheckDemoStatus
-//=
-//= Called after a death or level completion to allow demos to be cleaned up
-//= Returns true if a new demo loop action will take place
-//===================
-
+/* G_CheckDemoStatus
+ *
+ * Called after a death or level completion to allow demos to be cleaned up
+ * Returns true if a new demo loop action will take place
+ */
 boolean G_CheckDemoStatus (void)
 {
   if (demorecording)
     {
       demorecording = false;
       fputc(DEMOMARKER, demofp);
-      I_Error("Demo recorded");
+      I_Error("G_CheckDemoStatus: Demo recorded");
       return false;  // killough
     }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.13 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: w_wad.c,v 1.14 2000/11/12 14:59:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.13 2000/10/08 18:42:20 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.14 2000/11/12 14:59:29 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -92,13 +92,17 @@ void W_PrintLump(FILE* fp, void* p) {
 }
 #endif
 
+
+
 static int W_Filelength(int handle)
 {
   struct stat   fileinfo;
   if (fstat(handle,&fileinfo) == -1)
-    I_Error("Error fstating");
+    I_Error("W_Filelength: Error fstating");
   return fileinfo.st_size;
 }
+
+
 
 void ExtractFileBase (const char *path, char *dest)
 {
@@ -117,7 +121,7 @@ void ExtractFileBase (const char *path, char *dest)
 
   while (*src && *src != '.')
     if (++length == 9)
-      I_Error ("Filename base of %s >8 chars",path);
+      I_Error ("ExtractFileBase: Filename base of %s >8 chars",path);
     else
       *dest++ = toupper(*src++);
 }
@@ -183,7 +187,7 @@ static void W_AddFile(const char *filename, wad_source_t source)
 	         (strcasecmp(filename+strlen(filename)-4 , ".lmp" ) &&
 	          strcasecmp(filename+strlen(filename)-4 , ".gwa" ) )
          )
-	I_Error("Error: couldn't open %s\n",filename);  // killough
+	I_Error("W_AddFile: couldn't open %s",filename);
       return;
     }
 
@@ -211,7 +215,7 @@ static void W_AddFile(const char *filename, wad_source_t source)
       read(handle, &header, sizeof(header));
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
-        I_Error ("Wad file %s doesn't have IWAD or PWAD id\n", filename);
+        I_Error("W_AddFile: Wad file %s doesn't have IWAD or PWAD id", filename);
       header.numlumps = LONG(header.numlumps);
       header.infotableofs = LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
@@ -394,20 +398,21 @@ static void W_InitLumpHash(void)
 
 // End of lump hashing -- killough 1/31/98
 
-//
+
+
 // W_GetNumForName
 // Calls W_CheckNumForName, but bombs out if not found.
 //
-
 int W_GetNumForName (const char* name)     // killough -- const added
 {
   int i = W_CheckNumForName (name);
   if (i == -1)
-    I_Error ("W_GetNumForName: %.8s not found!", name); // killough .8 added
+    I_Error("W_GetNumForName: %.8s not found", name);
   return i;
 }
 
-//
+
+
 // W_Init
 // Loads each of the files in the wadfiles array.
 // All files are optional, but at least one file
@@ -472,7 +477,7 @@ void W_Init(void)
   }
 
   if (!numlumps)
-    I_Error ("W_InitFiles: no files found");
+    I_Error ("W_Init: No files found");
 
   //jff 1/23/98
   // get all the sprites and flats into one marked block each
@@ -489,7 +494,7 @@ void W_Init(void)
   lumpcache = calloc(sizeof *lumpcache, numlumps); // killough
 
   if (!lumpcache)
-    I_Error ("Couldn't allocate lumpcache");
+    I_Error ("W_Init: Couldn't allocate lumpcache");
 
   // killough 1/31/98: initialize lump hash table
   W_InitLumpHash();
@@ -699,8 +704,8 @@ void WritePredefinedLumpWad(const char *filename)
       write(handle, predefined_lumps[i].data, predefined_lumps[i].size);
 
     close(handle);
-    I_Error("Predefined lumps wad, %s written, exiting\n", filename);
+  I_Error("WritePredefinedLumpWad: Predefined lumps wad, %s written", filename);
   }
- I_Error("Cannot open predefined lumps wad %s for output\n", filename);
+ I_Error("WritePredefinedLumpWad: Can't open predefined lumps wad %s for output", filename);
 }
 #endif
