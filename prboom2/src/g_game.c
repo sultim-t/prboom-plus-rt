@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.22 2000/08/21 19:44:30 cph Exp $
+ * $Id: g_game.c,v 1.23 2000/09/11 21:42:13 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.22 2000/08/21 19:44:30 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.23 2000/09/11 21:42:13 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -2143,6 +2143,7 @@ void G_RecordDemo (const char* name)
     demofp = fopen(demoname, "r+");
     if (demofp) {
       int slot = -1;
+      int rc;
       {
 	byte buf[200];
 	size_t len;
@@ -2151,16 +2152,16 @@ void G_RecordDemo (const char* name)
 	len = G_ReadDemoHeader(buf) - buf;
 	fseek(demofp, len, SEEK_SET);
       }
-      for (;;) {
+      do {
 	byte buf[4];
-	fread(buf, 1, sizeof(buf), demofp);
+	rc = fread(buf, 1, sizeof(buf), demofp);
 	if (buf[0] == DEMOMARKER) break;
 	if (buf[3] & BT_SPECIAL)
 	  if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
 	    slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
-      }
+      } while (rc == /* sizeof(buf) is out of scope here */ 4 );
       if (slot == -1) I_Error("No save in demo, can't continue");
-      fseek(demofp, -1, SEEK_CUR);
+      fseek(demofp, -rc, SEEK_CUR);
       G_LoadGame(slot, false);
       autostart = false;
     }
