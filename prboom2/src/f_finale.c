@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: f_finale.c,v 1.5.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: f_finale.c,v 1.5.2.1 2002/07/20 18:08:34 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -94,7 +94,7 @@ void F_StartFinale (void)
     case retail:
     {
       S_ChangeMusic(mus_victor, true);
-      
+
       switch (gameepisode)
       {
         case 1:
@@ -103,7 +103,7 @@ void F_StartFinale (void)
              break;
         case 2:
              finaleflat = bgflatE2;
-             finaletext = s_E2TEXT; // Ty 03/23/98 - Same stuff for each 
+             finaletext = s_E2TEXT; // Ty 03/23/98 - Same stuff for each
              break;
         case 3:
              finaleflat = bgflatE3;
@@ -119,7 +119,7 @@ void F_StartFinale (void)
       }
       break;
     }
-    
+
     // DOOM II and missions packs with E1, M34
     case commercial:
     {
@@ -164,7 +164,7 @@ void F_StartFinale (void)
       }
       break;
       // Ty 08/27/98 - end gamemission logic
-    } 
+    }
 
     // Indeterminate.
     default:  // Ty 03/30/98 - not externalized
@@ -173,7 +173,7 @@ void F_StartFinale (void)
          finaletext = s_C1TEXT;  // FIXME - other text, music?
          break;
   }
-  
+
   finalestage = 0;
   finalecount = 0;
 }
@@ -184,7 +184,7 @@ boolean F_Responder (event_t *event)
 {
   if (finalestage == 2)
     return F_CastResponder (event);
-        
+
   return false;
 }
 
@@ -193,7 +193,7 @@ boolean F_Responder (event_t *event)
 
 static float Get_TextSpeed(void)
 {
-  return midstage ? NEWTEXTSPEED : (midstage=acceleratestage) ? 
+  return midstage ? NEWTEXTSPEED : (midstage=acceleratestage) ?
     acceleratestage=0, NEWTEXTSPEED : TEXTSPEED;
 }
 
@@ -224,7 +224,7 @@ void F_Ticker(void)
 
   // advance animation
   finalecount++;
- 
+
   if (finalestage == 2)
     F_CastTicker();
 
@@ -234,7 +234,7 @@ void F_Ticker(void)
       /* killough 2/28/98: changed to allow acceleration */
       if (finalecount > strlen(finaletext)*speed +
           (midstage ? NEWTEXTWAIT : TEXTWAIT) ||
-          (midstage && acceleratestage)) {       
+          (midstage && acceleratestage)) {
         if (gamemode != commercial)       // Doom 1 / Ultimate Doom episode end
           {                               // with enough time, it's automatic
             finalecount = 0;
@@ -281,30 +281,30 @@ void F_TextWrite (void)
     const char* ch = finaletext; // CPhipps - const
     int         count = (int)((float)(finalecount - 10)/Get_TextSpeed()); // phares
     int         w;
-    
+
     if (count < 0)
       count = 0;
-    
+
     for ( ; count ; count-- ) {
       int       c = *ch++;
-      
+
       if (!c)
-	break;
+  break;
       if (c == '\n') {
-	cx = 10;
-	cy += 11;
-	continue;
+  cx = 10;
+  cy += 11;
+  continue;
       }
-              
+
       c = toupper(c) - HU_FONTSTART;
       if (c < 0 || c> HU_FONTSIZE) {
-	cx += 4;
-	continue;
+  cx += 4;
+  continue;
       }
-      
+
       w = SHORT (hu_font[c].width);
       if (cx+w > SCREENWIDTH)
-	break;
+  break;
       // CPhipps - patch drawing updated
       V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
       cx+=w;
@@ -342,7 +342,7 @@ static const castinfo_t castorder[] = { // CPhipps - static const, initialised h
   { &s_CC_SPIDER,  MT_SPIDER },
   { &s_CC_CYBER,   MT_CYBORG },
   { &s_CC_HERO,    MT_PLAYER },
-  { NULL,         0} 
+  { NULL,         0}
   };
 
 int             castnum;
@@ -366,7 +366,7 @@ void F_StartCast (void)
   caststate = &states[mobjinfo[castorder[castnum].type].seestate];
   casttics = caststate->tics;
   castdeath = false;
-  finalestage = 2;    
+  finalestage = 2;
   castframes = 0;
   castonmelee = 0;
   castattacking = false;
@@ -381,10 +381,10 @@ void F_CastTicker (void)
 {
   int st;
   int sfx;
-      
+
   if (--casttics > 0)
     return;                 // not time to change state yet
-              
+
   if (caststate->tics == -1 || caststate->nextstate == S_NULL)
   {
     // switch from deathstate to next monster
@@ -405,7 +405,7 @@ void F_CastTicker (void)
     st = caststate->nextstate;
     caststate = &states[st];
     castframes++;
-      
+
     // sound hacks....
     switch (st)
     {
@@ -437,11 +437,11 @@ void F_CastTicker (void)
       case S_PAIN_ATK3:     sfx = sfx_sklatk; break;
       default: sfx = 0; break;
     }
-            
+
     if (sfx)
       S_StartSound (NULL, sfx);
   }
-      
+
   if (castframes == 12)
   {
     // go into attack frame
@@ -461,7 +461,7 @@ void F_CastTicker (void)
           &states[mobjinfo[castorder[castnum].type].missilestate];
     }
   }
-      
+
   if (castattacking)
   {
     if (castframes == 24
@@ -473,7 +473,7 @@ void F_CastTicker (void)
       caststate = &states[mobjinfo[castorder[castnum].type].seestate];
     }
   }
-      
+
   casttics = caststate->tics;
   if (casttics == -1)
       casttics = 15;
@@ -488,10 +488,10 @@ boolean F_CastResponder (event_t* ev)
 {
   if (ev->type != ev_keydown)
     return false;
-                
+
   if (castdeath)
     return true;                    // already in dying frames
-                
+
   // go into death frame
   castdeath = true;
   caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
@@ -500,7 +500,7 @@ boolean F_CastResponder (event_t* ev)
   castattacking = false;
   if (mobjinfo[castorder[castnum].type].deathsound)
     S_StartSound (NULL, mobjinfo[castorder[castnum].type].deathsound);
-        
+
   return true;
 }
 
@@ -512,11 +512,11 @@ static void F_CastPrint (const char* text) // CPhipps - static, const char*
   int         cx;
   int         w;
   int         width;
-  
+
   // find width
   ch = text;
   width = 0;
-      
+
   while (ch)
   {
     c = *ch++;
@@ -528,11 +528,11 @@ static void F_CastPrint (const char* text) // CPhipps - static, const char*
       width += 4;
       continue;
     }
-            
+
     w = SHORT (hu_font[c].width);
     width += w;
   }
-  
+
   // draw it
   cx = 160-width/2;
   ch = text;
@@ -547,7 +547,7 @@ static void F_CastPrint (const char* text) // CPhipps - static, const char*
       cx += 4;
       continue;
     }
-              
+
     w = SHORT (hu_font[c].width);
     // CPhipps - patch drawing updated
     V_DrawNumPatch(cx, 180, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
@@ -566,13 +566,13 @@ void F_CastDrawer (void)
   spriteframe_t*      sprframe;
   int                 lump;
   boolean             flip;
-    
+
   // erase the entire screen to a background
   // CPhipps - patch drawing updated
   V_DrawNamePatch(0,0,0, bgcastcall, CR_DEFAULT, VPT_STRETCH); // Ty 03/30/98 bg texture extern
 
   F_CastPrint (*(castorder[castnum].name));
-    
+
   // draw the current frame in the middle of the screen
   sprdef = &sprites[caststate->sprite];
   sprframe = &sprdef->spriteframes[ caststate->frame & FF_FRAMEMASK];
@@ -580,8 +580,8 @@ void F_CastDrawer (void)
   flip = (boolean)sprframe->flip[0];
 
   // CPhipps - patch drawing updated
-  V_DrawNumPatch(160, 170, 0, lump+firstspritelump, CR_DEFAULT, 
-		 VPT_STRETCH | (flip ? VPT_FLIP : 0));
+  V_DrawNumPatch(160, 170, 0, lump+firstspritelump, CR_DEFAULT,
+     VPT_STRETCH | (flip ? VPT_FLIP : 0));
 }
 
 //
@@ -631,7 +631,7 @@ static void F_BunnyScroll (void)
     laststage = 0;
     return;
   }
-      
+
   stage = (finalecount-1180) / 5;
   if (stage > 6)
     stage = 6;
@@ -640,7 +640,7 @@ static void F_BunnyScroll (void)
     S_StartSound (NULL, sfx_pistol);
     laststage = stage;
   }
-      
+
   sprintf (name,"END%i",stage);
   // CPhipps - patch drawing updated
   V_DrawNamePatch((320-13*8)/2, (200-8*8)/2, 0, name, CR_DEFAULT, VPT_STRETCH);

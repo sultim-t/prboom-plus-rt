@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.h,v 1.6 2000/11/13 21:24:12 cph Exp $
+ * $Id: m_misc.h,v 1.6.2.1 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,13 +22,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *  External non-system-specific stuff, like storing config settings, 
+ *  External non-system-specific stuff, like storing config settings,
  *  simple file handling, and saving screnshots.
- *    
+ *
  *-----------------------------------------------------------------------------*/
 
 
@@ -65,13 +65,13 @@ struct default_s *M_LookupDefault(const char *name);     /* killough 11/98 */
 typedef struct default_s
 {
   const char* name;
-  /* cph - 
-   * The location struct holds the pointer to the variable holding the 
+  /* cph -
+   * The location struct holds the pointer to the variable holding the
    *  setting. For int's we do nothing special.
    * For strings, the string is actually stored on our heap with Z_Strdup()
-   *  BUT we don't want the rest of the program to be able to modify them, 
-   *  so we declare it const. It's not really const though, and m_misc.c and 
-   *  m_menu.c cast it back when they need to change it. Possibly this is 
+   *  BUT we don't want the rest of the program to be able to modify them,
+   *  so we declare it const. It's not really const though, and m_misc.c and
+   *  m_menu.c cast it back when they need to change it. Possibly this is
    *  more trouble than it's worth.
    */
   struct {
@@ -87,7 +87,7 @@ typedef struct default_s
   int   maxvalue;         // jff 3/3/98 maximum allowed value
   enum {
     def_none, // Dummy entry
-    def_str,  // A string 
+    def_str,  // A string
     def_int,  // Integer
     def_hex,  // Integer (write in hex)
     def_bool = def_int,  // Boolean

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_user.c,v 1.4.2.1 2001/07/22 18:40:24 cph Exp $
+ * $Id: p_user.c,v 1.4.2.2 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_user.c,v 1.4.2.1 2001/07/22 18:40:24 cph Exp $";
+rcsid[] = "$Id: p_user.c,v 1.4.2.2 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -110,13 +110,13 @@ void P_CalcHeight (player_t* player)
    * it causes bobbing jerkiness when the player moves from ice to non-ice,
    * and vice-versa.
    */
-  player->bob = !mbf_features ? 
+  player->bob = !mbf_features ?
     (FixedMul (player->mo->momx, player->mo->momx)
      + FixedMul (player->mo->momy,player->mo->momy))>>2 :
-    player_bobbing ? (FixedMul(player->momx,player->momx) + 
+    player_bobbing ? (FixedMul(player->momx,player->momx) +
         FixedMul(player->momy,player->momy))>>2 : 0;
 
-  if (player->bob > MAXBOB)                             
+  if (player->bob > MAXBOB)
     player->bob = MAXBOB;
 
   if (!onground || player->cheats & CF_NOMOMENTUM)
@@ -196,30 +196,30 @@ void P_MovePlayer (player_t* player)
   if (cmd->forwardmove | cmd->sidemove) // killough 10/98
     {
       if (onground || mo->flags & MF_BOUNCES) // killough 8/9/98
-    	{
-    	  int friction, movefactor = P_GetMoveFactor(mo, &friction);
+      {
+        int friction, movefactor = P_GetMoveFactor(mo, &friction);
 
-	      // killough 11/98:
-	      // On sludge, make bobbing depend on efficiency.
-	      // On ice, make it depend on effort.
+        // killough 11/98:
+        // On sludge, make bobbing depend on efficiency.
+        // On ice, make it depend on effort.
 
-	      int bobfactor =
-	        friction < ORIG_FRICTION ? movefactor : ORIG_FRICTION_FACTOR;
+        int bobfactor =
+          friction < ORIG_FRICTION ? movefactor : ORIG_FRICTION_FACTOR;
 
-	      if (cmd->forwardmove)
-	      {
-	        P_Bob(player,mo->angle,cmd->forwardmove*bobfactor);
-	        P_Thrust(player,mo->angle,cmd->forwardmove*movefactor);
-	      }
+        if (cmd->forwardmove)
+        {
+          P_Bob(player,mo->angle,cmd->forwardmove*bobfactor);
+          P_Thrust(player,mo->angle,cmd->forwardmove*movefactor);
+        }
 
-	      if (cmd->sidemove)
-	      {
-	        P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
-	        P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
-	      }
-	    }
+        if (cmd->sidemove)
+        {
+          P_Bob(player,mo->angle-ANG90,cmd->sidemove*bobfactor);
+          P_Thrust(player,mo->angle-ANG90,cmd->sidemove*movefactor);
+        }
+      }
       if (mo->state == states+S_PLAY)
-      	P_SetMobjState(mo,S_PLAY_RUN1);
+        P_SetMobjState(mo,S_PLAY_RUN1);
     }
 }
 

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.9 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_deh.c,v 1.9.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.9 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.9.2.1 2002/07/20 18:08:34 proff_fs Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -366,9 +366,9 @@ const char *s_AMSTR_GRIDOFF      = AMSTR_GRIDOFF;
 const char *s_AMSTR_MARKEDSPOT   = AMSTR_MARKEDSPOT;
 const char *s_AMSTR_MARKSCLEARED = AMSTR_MARKSCLEARED;
 // CPhipps - automap rotate & overlay
-const char* s_AMSTR_ROTATEON     = AMSTR_ROTATEON; 
+const char* s_AMSTR_ROTATEON     = AMSTR_ROTATEON;
 const char* s_AMSTR_ROTATEOFF    = AMSTR_ROTATEOFF;
-const char* s_AMSTR_OVERLAYON    = AMSTR_OVERLAYON; 
+const char* s_AMSTR_OVERLAYON    = AMSTR_OVERLAYON;
 const char* s_AMSTR_OVERLAYOFF   = AMSTR_OVERLAYOFF;
 const char *s_STSTR_MUS          = STSTR_MUS;
 const char *s_STSTR_NOMUS        = STSTR_NOMUS;
@@ -789,7 +789,7 @@ const char *deh_newlevel = "NEWLEVEL"; // CPhipps - const
 
 // DOOM shareware/registered/retail (Ultimate) names.
 // CPhipps - const**const
-const char **const mapnames[] =  
+const char **const mapnames[] =
 {
   &s_HUSTR_E1M1,
   &s_HUSTR_E1M2,
@@ -1071,7 +1071,7 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
 
 #define DEH_MOBJFLAGMAX (sizeof deh_mobjflags/sizeof*deh_mobjflags)
 
-struct deh_mobjflags_s { 
+struct deh_mobjflags_s {
   const char *name; // CPhipps - const*
   uint_64_t value;
 };
@@ -1104,7 +1104,7 @@ static const struct deh_mobjflags_s deh_mobjflags[] = {
   {"COUNTITEM",    MF_COUNTITEM}, // count toward the items total
   {"SKULLFLY",     MF_SKULLFLY}, // special handling for flying skulls
   {"NOTDMATCH",    MF_NOTDMATCH}, // do not spawn in deathmatch
-  
+
   // killough 10/98: TRANSLATION consists of 2 bits, not 1:
 
   {"TRANSLATION",  MF_TRANSLATION1}, // for Boom bug-compatibility
@@ -1886,7 +1886,7 @@ void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
         {
           states[indexnum].action = deh_codeptr[value];
           if (fpout) fprintf(fpout," - applied from codeptr[%lld] to states[%d]\n",
-			     value,indexnum);
+           value,indexnum);
           // Write BEX-oriented line to match:
           for (i=0;i<NUMSTATES;i++)
             {
@@ -2260,7 +2260,7 @@ void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
                         !strncasecmp(cheat[i].cheat,
                                      cheat[iy].cheat,
                                      strlen(cheat[i].cheat)) && i != iy)
-		      cheat[i].deh_modified = true;
+          cheat[i].deh_modified = true;
                 }
 #endif
                 cheat[iy].cheat = strdup(p);
@@ -2421,13 +2421,13 @@ void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
 
               // killough 10/98: but it's an array of pointers, so we must
               // use strdup unless we redeclare sprnames and change all else
-	      {
-		// CPhipps - fix constness problem
-		char *s;
-		sprnames[i] = s = strdup(sprnames[i]);
+        {
+    // CPhipps - fix constness problem
+    char *s;
+    sprnames[i] = s = strdup(sprnames[i]);
 
-		strncpy(s,&inbuffer[fromlen],tolen);
-	      }
+    strncpy(s,&inbuffer[fromlen],tolen);
+        }
               found = TRUE;
               break;  // only one will match--quit early
             }
@@ -2547,7 +2547,7 @@ void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
         }
       while (strlen(holdstring) + strlen(inbuffer) > (size_t)maxstrlen) // Ty03/29/98 - fix stupid error
         {
-	  // killough 11/98: allocate enough the first time
+    // killough 11/98: allocate enough the first time
           maxstrlen += strlen(holdstring) + strlen(inbuffer) - maxstrlen;
           if (fpout) fprintf(fpout,
                              "* increased buffer from to %d for buffer size %d\n",
@@ -2605,7 +2605,7 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
 
       if (found)
         {
-	  char *t;
+    char *t;
           *deh_strlookup[i].ppstr = t = strdup(newstring); // orphan originalstring
           found = true;
           // Handle embedded \n's in the incoming string, convert to 0x0a's
@@ -2614,7 +2614,7 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
             for (s=*deh_strlookup[i].ppstr; *s; ++s, ++t)
               {
                 if (*s == '\\' && (s[1] == 'n' || s[1] == 'N')) //found one
-		  ++s, *t = '\n';  // skip one extra for second character
+      ++s, *t = '\n';  // skip one extra for second character
                 else
                   *t = *s;
               }
@@ -2672,7 +2672,7 @@ char *dehReformatStr(char *string)
   while (*s)
     {
       if (*s == '\n')
-        ++s, *t++ = '\\', *t++ = 'n', *t++ = '\\', *t++='\n'; 
+        ++s, *t++ = '\\', *t++ = 'n', *t++ = '\\', *t++='\n';
       else
         *t++ = *s++;
     }

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.9.2.1 2002/01/12 14:09:16 cph Exp $
+ * $Id: z_zone.c,v 1.9.2.2 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.9.2.1 2002/01/12 14:09:16 cph Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.9.2.2 2002/07/20 18:08:37 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -73,7 +73,7 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.9.2.1 2002/01/12 14:09:16 cph Exp
 #define LEAVE_ASIDE (128*1024)
 
 // Minimum RAM machine is assumed to have
-  /* cph - Select zone size. 6megs is usable, but with the SDL version 
+  /* cph - Select zone size. 6megs is usable, but with the SDL version
    * storing sounds in the zone, 8 is more sensible */
 #ifndef GL_DOOM
 #define MIN_RAM (8*1024*1024)
@@ -174,7 +174,7 @@ void Z_DumpMemory(void)
   fp = fopen(buf, "w");
   do {
     switch (block->tag) {
-    case PU_FREE: 
+    case PU_FREE:
       fprintf(fp, "free %d\n", block->size);
       total_free += block->size;
       break;
@@ -196,8 +196,8 @@ void Z_DumpMemory(void)
     block=block->next;
   } while (block != zone);
   fprintf(fp, "malloc %d, cache %d, free %d, total %d\n",
-	  total_malloc, total_cache, total_free, 
-	  total_malloc + total_cache + total_free);
+    total_malloc, total_cache, total_free,
+    total_malloc + total_cache + total_free);
   fclose(fp);
 }
 #endif
@@ -259,12 +259,12 @@ void Z_Init(void)
     int p;
     if ((p=M_CheckParm("-heapsize")))
       if (++p < myargc) {
-	size = atol(myargv[p]) << 20;
+  size = atol(myargv[p]) << 20;
       }
-    
+
     if ((p=M_CheckParm("-heapkb")))
       if (++p < myargc) {
-	size = atol(myargv[p]) << 10; 
+  size = atol(myargv[p]) << 10;
       }
   }
 #endif
@@ -274,7 +274,7 @@ void Z_Init(void)
   size -= LEAVE_ASIDE;        // Leave aside some for other libraries
 
 #ifdef INSTRUMENTED
-  if (!(HEADER_SIZE >= sizeof(memblock_t) && MIN_RAM > LEAVE_ASIDE)) 
+  if (!(HEADER_SIZE >= sizeof(memblock_t) && MIN_RAM > LEAVE_ASIDE))
     I_Error("Z_Init: Sanity check failed");
 #endif
 
@@ -319,20 +319,20 @@ void Z_Init(void)
 /* Z_Malloc
  * You can pass a NULL user if the tag is < PU_PURGELEVEL.
  *
- * cph - the algorithm here was a very simple first-fit round-robin 
- *  one - just keep looping around, freeing everything we can until 
+ * cph - the algorithm here was a very simple first-fit round-robin
+ *  one - just keep looping around, freeing everything we can until
  *  we get a large enough space
  *
- * This has been changed now; we still do the round-robin first-fit, 
- * but we only free the blocks we actually end up using; we don't 
+ * This has been changed now; we still do the round-robin first-fit,
+ * but we only free the blocks we actually end up using; we don't
  * free all the stuff we just pass on the way.
  */
 
 void *(Z_Malloc)(size_t size, int tag, void **user
 #ifdef INSTRUMENTED
-		 , const char *file, int line
+     , const char *file, int line
 #endif
-		 )
+     )
 {
   register memblock_t *block;
   memblock_t *start, *first_of_free;
@@ -355,7 +355,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 #ifdef INSTRUMENTED
              "Source: %s:%d", file, line
 #endif
-	     );
+       );
 #endif
 
   if (!size)
@@ -385,7 +385,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 
       /* First fit */
       if (contig_free >= size)
-	break;
+  break;
     }
   }
   while ((block = block->next) != start);   // detect cycles as failure
@@ -395,17 +395,17 @@ void *(Z_Malloc)(size_t size, int tag, void **user
     block = first_of_free;
 
     /* If the previous block is adjacent and free, step back and include it */
-    if (block != zone && block->prev->tag == PU_FREE) 
+    if (block != zone && block->prev->tag == PU_FREE)
       block = block->prev;
 
     /* Free current block if needed */
     if (block->tag != PU_FREE) Z_Free((char *) block + HEADER_SIZE);
 
-    /* Note: guaranteed that block->prev is either 
-     * not free or not contiguous 
+    /* Note: guaranteed that block->prev is either
+     * not free or not contiguous
      *
-     * At every step, block->next must be not free, else it would 
-     *  have been merged with our block 
+     * At every step, block->next must be not free, else it would
+     *  have been merged with our block
      * No range check needed because we know it works by the previous loop */
     while (block->size < size)
       Z_Free((char *)(block->next) + HEADER_SIZE);
@@ -414,52 +414,52 @@ void *(Z_Malloc)(size_t size, int tag, void **user
     {
       size_t extra = block->size - size;
       if (extra >= MIN_BLOCK_SPLIT + HEADER_SIZE) {
-	memblock_t *newb = (memblock_t *)((char *) block +
-					  HEADER_SIZE + size);
-	
-	(newb->next = block->next)->prev = newb;
-	(newb->prev = block)->next = newb;          // Split up block
-	block->size = size;
-	newb->size = extra - HEADER_SIZE;
-	newb->tag = PU_FREE;
-	newb->vm = 0;
-	
+  memblock_t *newb = (memblock_t *)((char *) block +
+            HEADER_SIZE + size);
+
+  (newb->next = block->next)->prev = newb;
+  (newb->prev = block)->next = newb;          // Split up block
+  block->size = size;
+  newb->size = extra - HEADER_SIZE;
+  newb->tag = PU_FREE;
+  newb->vm = 0;
+
 #ifdef INSTRUMENTED
-	inactive_memory += HEADER_SIZE;
-	free_memory -= HEADER_SIZE;
+  inactive_memory += HEADER_SIZE;
+  free_memory -= HEADER_SIZE;
 #endif
       }
-      
+
       rover = block->next;           // set roving pointer for next search
-      
+
 #ifdef INSTRUMENTED
       inactive_memory += block->extra = block->size - size_orig;
       if (tag >= PU_PURGELEVEL)
-	purgable_memory += size_orig;
+  purgable_memory += size_orig;
       else
-	active_memory += size_orig;
+  active_memory += size_orig;
       free_memory -= block->size;
 #endif
     }
   } else {
-    /* Allocate a vm block * 
+    /* Allocate a vm block *
      * We've run out of physical memory, or so we think.
      * Although less efficient, we'll just use ordinary malloc.
      * This will squeeze the remaining juice out of this machine
      * and start cutting into virtual memory if it has it.
      */
-    
+
     while (!(block = (malloc)(size + HEADER_SIZE))) {
       if (!blockbytag[PU_CACHE])
         I_Error ("Z_Malloc: Failure trying to allocate %lu bytes"
 #ifdef INSTRUMENTED
                  "\nSource: %s:%d"
 #endif
-		 ,(unsigned long) size
+     ,(unsigned long) size
 #ifdef INSTRUMENTED
-		 , file, line
+     , file, line
 #endif
-		 );
+     );
       Z_FreeTags(PU_CACHE,PU_CACHE);
     }
 
@@ -468,20 +468,20 @@ void *(Z_Malloc)(size_t size, int tag, void **user
     blockbytag[tag] = block;
     block->prev = (memblock_t *) &blockbytag[tag];
     block->vm = 1;
-    
+
 #ifdef INSTRUMENTED
     virtual_memory += size + HEADER_SIZE;
 #endif
-    /* cph - the next line was lost in the #ifdef above, and also added an 
+    /* cph - the next line was lost in the #ifdef above, and also added an
      *  extra HEADER_SIZE to block->size, which was incorrect */
-    block->size = size; 
+    block->size = size;
   }
 
 #ifdef INSTRUMENTED
   block->file = file;
   block->line = line;
 #endif
-  
+
 #ifdef ZONEIDCHECK
   block->id = ZONEID;         // signature required in block header
 #endif
@@ -490,7 +490,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
   block = (memblock_t *)((char *) block + HEADER_SIZE);
   if (user)                   // if there is a user
     *user = block;            // set user to point to new block
-  
+
 #ifdef INSTRUMENTED
   Z_PrintStats();           // print memory allocation stats
   // scramble memory -- weed out any bugs
@@ -501,9 +501,9 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 
 void (Z_Free)(void *p
 #ifdef INSTRUMENTED
-	      , const char *file, int line
+        , const char *file, int line
 #endif
-	      )
+        )
 {
 #ifdef INSTRUMENTED
 #ifdef CHECKHEAP
@@ -603,11 +603,11 @@ void (Z_Free)(void *p
 
 void (Z_FreeTags)(int lowtag, int hightag
 #ifdef INSTRUMENTED
-		  , const char *file, int line
+      , const char *file, int line
 #endif
-		  )
+      )
 {
-  /* cph - move rover to start of zone; we like to encourage static 
+  /* cph - move rover to start of zone; we like to encourage static
    * data to stay in one place, at the start of the heap
    */
   memblock_t *block = rover = zone;
@@ -628,14 +628,14 @@ void (Z_FreeTags)(int lowtag, int hightag
 #else
         (Z_Free)((char *) block + HEADER_SIZE);
 #endif
-	/* cph - be more careful here, we were skipping blocks!
-	 * If the current block was not merged with the previous, 
-	 *  cur is still a valid pointer, prev->next == cur, and cur is 
-	 *  already free so skip to the next.
-	 * If the current block was merged with the previous, 
-	 *  the next block to analyse is prev->next.
-	 * Note that the while() below does the actual step forward 
-	 */
+  /* cph - be more careful here, we were skipping blocks!
+   * If the current block was not merged with the previous,
+   *  cur is still a valid pointer, prev->next == cur, and cur is
+   *  already free so skip to the next.
+   * If the current block was merged with the previous,
+   *  the next block to analyse is prev->next.
+   * Note that the while() below does the actual step forward
+   */
         block = (prev->next == cur) ? cur : prev;
       }
   while ((block=block->next) != zone);
@@ -676,9 +676,9 @@ void (Z_FreeTags)(int lowtag, int hightag
 
 void (Z_ChangeTag)(void *ptr, int tag
 #ifdef INSTRUMENTED
-		   , const char *file, int line
+       , const char *file, int line
 #endif
-		   )
+       )
 {
   memblock_t *block = (memblock_t *)((char *) ptr - HEADER_SIZE);
 
@@ -741,7 +741,7 @@ void *(Z_Realloc)(void *ptr, size_t n, int tag, void **user
 #ifdef INSTRUMENTED
                   , const char *file, int line
 #endif
-		  )
+      )
 {
   void *p = (Z_Malloc)(n, tag, user DA(file, line));
   if (ptr)
@@ -759,7 +759,7 @@ void *(Z_Calloc)(size_t n1, size_t n2, int tag, void **user
 #ifdef INSTRUMENTED
                  , const char *file, int line
 #endif
-		 )
+     )
 {
   return
     (n1*=n2) ? memset((Z_Malloc)(n1, tag, user DA(file, line)), 0, n1) : NULL;
@@ -769,16 +769,16 @@ char *(Z_Strdup)(const char *s, int tag, void **user
 #ifdef INSTRUMENTED
                  , const char *file, int line
 #endif
-		 )
+     )
 {
   return strcpy((Z_Malloc)(strlen(s)+1, tag, user DA(file, line)), s);
 }
 
 void (Z_CheckHeap)(
 #ifdef INSTRUMENTED
-		   const char *file, int line
+       const char *file, int line
 #endif
-		   )
+       )
 {
   memblock_t *block = zone;   // Start at base of zone mem
   do                          // Consistency check (last node treated special)

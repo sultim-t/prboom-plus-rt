@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: f_wipe.c,v 1.5.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.5 2000/09/16 20:20:35 proff_fs Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.5.2.1 2002/07/20 18:08:34 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -143,7 +143,7 @@ static int wipe_doMelt(int width, int height, int ticks)
   return done;
 }
 
-// CPhipps - modified to allocate and deallocate screens[2 to 3] as needed, saving memory 
+// CPhipps - modified to allocate and deallocate screens[2 to 3] as needed, saving memory
 
 static int wipe_exitMelt(int width, int height, int ticks)
 {

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_saveg.c,v 1.9 2000/11/12 14:59:29 cph Exp $
+ * $Id: p_saveg.c,v 1.9.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_saveg.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: p_saveg.c,v 1.9.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -117,18 +117,18 @@ void P_ArchiveWorld (void)
 
   // killough 3/22/98: fix bug caused by hoisting save_p too early
   // killough 10/98: adjust size for changes below
-  size_t size = 
-    (sizeof(short)*5 + sizeof sec->floorheight + sizeof sec->ceilingheight) 
+  size_t size =
+    (sizeof(short)*5 + sizeof sec->floorheight + sizeof sec->ceilingheight)
     * numsectors + sizeof(short)*3*numlines + 4;
 
   for (i=0; i<numlines; i++)
     {
       if (lines[i].sidenum[0] != -1)
         size +=
-	  sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
+    sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
       if (lines[i].sidenum[1] != -1)
-	size +=
-	  sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
+  size +=
+    sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
     }
 
   CheckSaveGame(size); // killough
@@ -165,15 +165,15 @@ void P_ArchiveWorld (void)
       for (j=0; j<2; j++)
         if (li->sidenum[j] != -1)
           {
-	    si = &sides[li->sidenum[j]];
+      si = &sides[li->sidenum[j]];
 
-	    // killough 10/98: save full sidedef offsets,
-	    // preserving fractional scroll offsets
+      // killough 10/98: save full sidedef offsets,
+      // preserving fractional scroll offsets
 
-	    memcpy(put, &si->textureoffset, sizeof si->textureoffset);
-	    put = (void *)((char *) put + sizeof si->textureoffset);
-	    memcpy(put, &si->rowoffset, sizeof si->rowoffset);
-	    put = (void *)((char *) put + sizeof si->rowoffset);
+      memcpy(put, &si->textureoffset, sizeof si->textureoffset);
+      put = (void *)((char *) put + sizeof si->textureoffset);
+      memcpy(put, &si->rowoffset, sizeof si->rowoffset);
+      put = (void *)((char *) put + sizeof si->rowoffset);
 
             *put++ = si->toptexture;
             *put++ = si->bottomtexture;
@@ -233,12 +233,12 @@ void P_UnArchiveWorld (void)
           {
             side_t *si = &sides[li->sidenum[j]];
 
-	    // killough 10/98: load full sidedef offsets, including fractions
+      // killough 10/98: load full sidedef offsets, including fractions
 
-	    memcpy(&si->textureoffset, get, sizeof si->textureoffset);
-	    get = (void *)((char *) get + sizeof si->textureoffset);
-	    memcpy(&si->rowoffset, get, sizeof si->rowoffset);
-	    get = (void *)((char *) get + sizeof si->rowoffset);
+      memcpy(&si->textureoffset, get, sizeof si->textureoffset);
+      get = (void *)((char *) get + sizeof si->textureoffset);
+      memcpy(&si->rowoffset, get, sizeof si->rowoffset);
+      get = (void *)((char *) get + sizeof si->rowoffset);
 
             si->toptexture = *get++;
             si->bottomtexture = *get++;
@@ -371,11 +371,11 @@ void P_ArchiveThinkers (void)
     CheckSaveGame(numsectors * sizeof(mobj_t *));       // killough 9/14/98
     for (i = 0; i < numsectors; i++)
       {
-	mobj_t *target = sectors[i].soundtarget;
-	if (target)
-	  target = (mobj_t *) target->thinker.prev;
-	memcpy(save_p, &target, sizeof target);
-	save_p += sizeof target;
+  mobj_t *target = sectors[i].soundtarget;
+  if (target)
+    target = (mobj_t *) target->thinker.prev;
+  memcpy(save_p, &target, sizeof target);
+  save_p += sizeof target;
       }
   }
 }
@@ -497,10 +497,10 @@ void P_UnArchiveThinkers (void)
     int i;
     for (i = 0; i < numsectors; i++)
       {
-	mobj_t *target;
-	memcpy(&target, save_p, sizeof target);
-	save_p += sizeof target;
-	P_SetNewTarget(&sectors[i].soundtarget, mobj_p[(size_t) target]);
+  mobj_t *target;
+  memcpy(&target, save_p, sizeof target);
+  save_p += sizeof target;
+  P_SetNewTarget(&sectors[i].soundtarget, mobj_p[(size_t) target]);
       }
   }
 

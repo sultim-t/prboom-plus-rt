@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_genlin.c,v 1.7 2000/09/23 12:50:02 cph Exp $
+ * $Id: p_genlin.c,v 1.7.2.1 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_genlin.c,v 1.7 2000/09/23 12:50:02 cph Exp $";
+rcsid[] = "$Id: p_genlin.c,v 1.7.2.1 2002/07/20 18:08:36 proff_fs Exp $";
 
 #include "doomstat.h" //jff 6/19/98 for demo_compatibility
 #include "r_main.h"
@@ -98,7 +98,7 @@ int EV_DoGenFloor
   {
     sec = &sectors[secnum];
 
-manual_floor:                
+manual_floor:
     // Do not start another function if floor already moving
     if (P_SectorActive(floor_special,sec))
     {
@@ -301,7 +301,7 @@ int EV_DoGenCeiling
   {
     sec = &sectors[secnum];
 
-manual_ceiling:                
+manual_ceiling:
     // Do not start another function if ceiling already moving
     if (P_SectorActive(ceiling_special,sec)) //jff 2/22/98
     {
@@ -399,7 +399,7 @@ manual_ceiling:
 
         //jff 5/23/98 find model with floor at target height if target
         //is a floor type
-        sec = (Targ==CtoHnF || Targ==CtoF)?         
+        sec = (Targ==CtoHnF || Targ==CtoF)?
           P_FindModelFloorSector(targheight,secnum) :
           P_FindModelCeilingSector(targheight,secnum);
         if (sec)
@@ -490,7 +490,7 @@ int EV_DoGenLift
 
   if (Targ==LnF2HnF)
     P_ActivateInStasis(line->tag);
-        
+
   // check if a manual trigger, if so do just the sector on the backside
   manual = false;
   if (Trig==PushOnce || Trig==PushMany)
@@ -516,12 +516,12 @@ manual_lift:
       else
         return rtn;
     }
-      
+
     // Setup the plat thinker
     rtn = 1;
     plat = Z_Malloc( sizeof(*plat), PU_LEVSPEC, 0);
     P_AddThinker(&plat->thinker);
-              
+
     plat->sector = sec;
     plat->sector->floordata = plat;
     plat->thinker.function = T_PlatRaise;
@@ -627,12 +627,12 @@ int EV_DoGenStairs
   int                   ok;
   int                   rtn;
   boolean               manual;
-    
+
   sector_t*             sec;
   sector_t*             tsec;
 
   floormove_t*  floor;
-    
+
   fixed_t               stairsize;
   fixed_t               speed;
 
@@ -665,7 +665,7 @@ int EV_DoGenStairs
   {
     sec = &sectors[secnum];
 
-manual_stair:          
+manual_stair:
     //Do not start another function if floor already moving
     //jff 2/26/98 add special lockout condition to wait for entire
     //staircase to build before retriggering
@@ -676,7 +676,7 @@ manual_stair:
       else
         return rtn;
     }
-      
+
     // new floor thinker
     rtn = 1;
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
@@ -733,7 +733,7 @@ manual_stair:
     sec->nextsec = -1;
     sec->prevsec = -1;
 
-    osecnum = secnum;            //jff 3/4/98 preserve loop index  
+    osecnum = secnum;            //jff 3/4/98 preserve loop index
     // Find next sector to raise
     // 1.     Find 2-sided line with same sector side[0]
     // 2.     Other side is the next sector to raise
@@ -744,10 +744,10 @@ manual_stair:
       {
         if ( !((sec->lines[i])->backsector) )
           continue;
-                                  
+
         tsec = (sec->lines[i])->frontsector;
         newsecnum = tsec-sectors;
-          
+
         if (secnum != newsecnum)
           continue;
 
@@ -764,7 +764,7 @@ manual_stair:
         //jff 2/26/98 special lockout condition for retriggering
         if (P_SectorActive(floor_special,tsec) || tsec->stairlock)
           continue;
-        
+
         /* jff 6/19/98 increase height AFTER continue */
         if (compatibility_level >= boom_202_compatibility)
           height += floor->direction * stairsize;
@@ -851,7 +851,7 @@ int EV_DoGenCrusher
   {
     sec = &sectors[secnum];
 
-manual_crusher:                
+manual_crusher:
     // Do not start another function if ceiling already moving
     if (P_SectorActive(ceiling_special,sec)) //jff 2/22/98
     {
@@ -941,7 +941,7 @@ int EV_DoGenLockedDoor
 
   secnum = -1;
   rtn = 0;
-  
+
   // if not manual do all sectors tagged the same as the line
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
@@ -955,7 +955,7 @@ manual_locked:
       else
         return rtn;
     }
-  
+
     // new door thinker
     rtn = 1;
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
@@ -971,7 +971,7 @@ manual_locked:
     door->direction = 1;
 
     /* killough 10/98: implement gradual lighting */
-    door->lighttag = !comp[comp_doorlight] && 
+    door->lighttag = !comp[comp_doorlight] &&
       (line->special&6) == 6 &&
       line->special > GenLockedBase ? line->tag : 0;
 
@@ -1050,7 +1050,7 @@ int EV_DoGenDoor
 
   secnum = -1;
   rtn = 0;
-  
+
   // if not manual do all sectors tagged the same as the line
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
@@ -1064,7 +1064,7 @@ manual_door:
       else
         return rtn;
     }
-  
+
     // new door thinker
     rtn = 1;
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
@@ -1111,7 +1111,7 @@ manual_door:
     door->line = line; // jff 1/31/98 remember line that triggered us
 
     /* killough 10/98: implement gradual lighting */
-    door->lighttag = !comp[comp_doorlight] && 
+    door->lighttag = !comp[comp_doorlight] &&
       (line->special&6) == 6 &&
       line->special > GenLockedBase ? line->tag : 0;
 

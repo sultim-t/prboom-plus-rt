@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: doomtype.h,v 1.4 2000/12/24 11:40:35 cph Exp $
+ * $Id: doomtype.h,v 1.4.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -49,8 +49,8 @@ typedef unsigned char byte;
  * Except I don't know what to test as it's compiler specific
  * Proff - I fixed it */
 #ifndef _MSC_VER
-typedef signed long long int_64_t; 
-typedef unsigned long long uint_64_t; 
+typedef signed long long int_64_t;
+typedef unsigned long long uint_64_t;
 #else
 typedef __int64 int_64_t;
 typedef unsigned __int64 uint_64_t;
@@ -66,9 +66,9 @@ typedef unsigned __int64 uint_64_t;
 
 /* cph - move compatibility levels here so we can use them in d_server.c */
 typedef enum {
-  doom_12_compatibility, /* Behave like early doom versions */ 
-  doom_demo_compatibility, /* As compatible as possible for 
-			    * playing original Doom demos */
+  doom_12_compatibility, /* Behave like early doom versions */
+  doom_demo_compatibility, /* As compatible as possible for
+          * playing original Doom demos */
   doom_compatibility,      /* Compatible with original Doom levels */
   boom_compatibility_compatibility,      /* Boom's compatibility mode */
   boom_201_compatibility,                /* Compatible with Boom v2.01 */

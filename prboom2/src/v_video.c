@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: v_video.c,v 1.15.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.15.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -257,7 +257,7 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 //
 // V_DrawBlock
 //
-// Draw a linear block of pixels into the view buffer. 
+// Draw a linear block of pixels into the view buffer.
 //
 // The bytes at src are copied in linear order to the screen rectangle
 // at x,y in screenbuffer scrn, with size width by height.
@@ -265,13 +265,13 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 // The destination rectangle is marked dirty.
 //
 // No return.
-// 
-// CPhipps - modified  to take the patch translation flags. For now, only stretching is 
+//
+// CPhipps - modified  to take the patch translation flags. For now, only stretching is
 //  implemented, to support highres in the menus
 //
 #ifndef GL_DOOM
-void V_DrawBlock(int x, int y, int scrn, int width, int height, 
-		 const byte *src, enum patch_translation_e flags)
+void V_DrawBlock(int x, int y, int scrn, int width, int height,
+     const byte *src, enum patch_translation_e flags)
 {
   byte *dest;
 
@@ -290,27 +290,27 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
     byte   *dest;
     int     s_width;
     fixed_t dx = (320 << FRACBITS) / SCREENWIDTH;
-    
+
     x = (x * SCREENWIDTH) / 320; y = (y * SCREENHEIGHT) / 200;
     s_width = (width * SCREENWIDTH) / 320; height = (height * SCREENHEIGHT) / 200;
-    
+
     if (!scrn)
       V_MarkRect (x, y, width, height);
 
     dest = screens[scrn] + y*SCREENWIDTH+x;
     // x & y no longer needed
-    
+
     while (height--) {
       const byte *const src_row = src + width * ((height * 200) / SCREENHEIGHT);
       byte       *const dst_row = dest + SCREENWIDTH * height;
       fixed_t           tx;
-      
+
       for (x=0, tx=0; x<s_width; x++, tx+=dx)
-	dst_row[x] = src_row[tx >> FRACBITS];
+  dst_row[x] = src_row[tx >> FRACBITS];
     }
   } else {
     V_MarkRect (x, y, width, height);
-    
+
     dest = screens[scrn] + y*SCREENWIDTH+x;
 
     while (height--) {
@@ -325,7 +325,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
 /*
  * V_DrawBackground tiles a 64x64 patch over the entire screen, providing the
  * background for the Help and Setup screens, and plot text betwen levels.
- * cphipps - used to have M_DrawBackground, but that was used the framebuffer 
+ * cphipps - used to have M_DrawBackground, but that was used the framebuffer
  * directly, so this is my code from the equivalent function in f_finale.c
  */
 #ifndef GL_DOOM
@@ -335,16 +335,16 @@ void V_DrawBackground(const char* flatname, int scrn)
   const byte *src;
   int         x,y;
   int         lump;
-  
-  // killough 4/17/98: 
+
+  // killough 4/17/98:
   src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
-  
+
   V_DrawBlock(0, 0, scrn, 64, 64, src, 0);
-  
+
   for (y=0 ; y<SCREENHEIGHT ; y+=64)
     for (x=y ? 0 : 64; x<SCREENWIDTH ; x+=64)
-      V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64, 
-		 ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
+      V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64,
+     ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
   W_UnlockLumpNum(lump);
 }
 #endif
@@ -412,15 +412,15 @@ void V_Init (void)
 // CPhipps - unifying patch drawing routine, handles all cases and combinations
 //  of stretching, flipping and translating
 //
-// This function is big, hopefully not too big that gcc can't optimise it well. 
-// In fact it packs pretty well, there is no big performance lose for all this merging; 
-// the inner loops themselves are just the same as they always were 
+// This function is big, hopefully not too big that gcc can't optimise it well.
+// In fact it packs pretty well, there is no big performance lose for all this merging;
+// the inner loops themselves are just the same as they always were
 // (indeed, laziness of the people who wrote the 'clones' of the original V_DrawPatch
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
 #ifndef GL_DOOM
-void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, 
-		    int cm, enum patch_translation_e flags)
+void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
+        int cm, enum patch_translation_e flags)
 {
   const byte *trans;
 
@@ -455,81 +455,81 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     const column_t *column;
     byte           *desttop = screens[scrn]+y*SCREENWIDTH+x;
     unsigned int    w = SHORT(patch->width);
-    
+
     if (!scrn)
       V_MarkRect (x, y, w, SHORT(patch->height));
-    
+
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
-    
+
     for (col=0 ; (unsigned int)col<=w ; desttop++, col++) {
-      column = (column_t *)((byte *)patch + 
-			    LONG(patch->columnofs[(flags & VPT_FLIP) ? w-col : col]));
-      
-	// step through the posts in a column
+      column = (column_t *)((byte *)patch +
+          LONG(patch->columnofs[(flags & VPT_FLIP) ? w-col : col]));
+
+  // step through the posts in a column
       while (column->topdelta != 0xff ) {
-	// killough 2/21/98: Unrolled and performance-tuned
-	
-	register const byte *source = (byte *)column + 3;
-	register byte *dest = desttop + column->topdelta*SCREENWIDTH;
-	register int count = column->length;
-	
-	if (!(flags & VPT_TRANS)) {
-	  if ((count-=4)>=0)
-	    do {
-	      register byte s0,s1;
-	      s0 = source[0];
-	      s1 = source[1];
-	      dest[0] = s0;
-	      dest[SCREENWIDTH] = s1;
-	      dest += SCREENWIDTH*2;
-	      s0 = source[2];
-	      s1 = source[3];
-	      source += 4;
-	      dest[0] = s0;
-	      dest[SCREENWIDTH] = s1;
-	      dest += SCREENWIDTH*2;
-	    } while ((count-=4)>=0);
-	  if (count+=4)
-	    do {
-	      *dest = *source++;
-	      dest += SCREENWIDTH;
-	    } while (--count);
-	  column = (column_t *)(source+1); //killough 2/21/98 even faster
-	} else {
-	  // CPhipps - merged translation code here
-	  if ((count-=4)>=0)
-	    do {
-	      register byte s0,s1;
-	      s0 = source[0];
-	      s1 = source[1];
-	      s0 = trans[s0];
-	      s1 = trans[s1];
-	      dest[0] = s0;
-	      dest[SCREENWIDTH] = s1;
-	      dest += SCREENWIDTH*2;
-	      s0 = source[2];
-	      s1 = source[3];
-	      s0 = trans[s0];
-	      s1 = trans[s1];
-	      source += 4;
-	      dest[0] = s0;
-	      dest[SCREENWIDTH] = s1;
-	      dest += SCREENWIDTH*2;
-	    } while ((count-=4)>=0);
-	  if (count+=4)
-	    do {
-	      *dest = trans[*source++];
-	      dest += SCREENWIDTH;
-	    } while (--count);
-	  column = (column_t *)(source+1);
-	}
+  // killough 2/21/98: Unrolled and performance-tuned
+
+  register const byte *source = (byte *)column + 3;
+  register byte *dest = desttop + column->topdelta*SCREENWIDTH;
+  register int count = column->length;
+
+  if (!(flags & VPT_TRANS)) {
+    if ((count-=4)>=0)
+      do {
+        register byte s0,s1;
+        s0 = source[0];
+        s1 = source[1];
+        dest[0] = s0;
+        dest[SCREENWIDTH] = s1;
+        dest += SCREENWIDTH*2;
+        s0 = source[2];
+        s1 = source[3];
+        source += 4;
+        dest[0] = s0;
+        dest[SCREENWIDTH] = s1;
+        dest += SCREENWIDTH*2;
+      } while ((count-=4)>=0);
+    if (count+=4)
+      do {
+        *dest = *source++;
+        dest += SCREENWIDTH;
+      } while (--count);
+    column = (column_t *)(source+1); //killough 2/21/98 even faster
+  } else {
+    // CPhipps - merged translation code here
+    if ((count-=4)>=0)
+      do {
+        register byte s0,s1;
+        s0 = source[0];
+        s1 = source[1];
+        s0 = trans[s0];
+        s1 = trans[s1];
+        dest[0] = s0;
+        dest[SCREENWIDTH] = s1;
+        dest += SCREENWIDTH*2;
+        s0 = source[2];
+        s1 = source[3];
+        s0 = trans[s0];
+        s1 = trans[s1];
+        source += 4;
+        dest[0] = s0;
+        dest[SCREENWIDTH] = s1;
+        dest += SCREENWIDTH*2;
+      } while ((count-=4)>=0);
+    if (count+=4)
+      do {
+        *dest = trans[*source++];
+        dest += SCREENWIDTH;
+      } while (--count);
+    column = (column_t *)(source+1);
+  }
       }
     }
-  }  
+  }
   else {
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
-    
+
     byte *desttop;
     int   col;
     int   w = (SHORT( patch->width ) << 16) - 1; // CPhipps - -1 for faster flipping
@@ -539,44 +539,44 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     int   DY  = (SCREENHEIGHT<<16) / 200;
     register int DYI = (200<<16)   / SCREENHEIGHT;
     int   DY2, DYI2;
-    
+
     stretchx = ( x * DX ) >> 16;
     stretchy = ( y * DY ) >> 16;
     DY2  = DY / 2;
     DYI2 = DYI* 2;
-    
+
     if (!scrn)
       V_MarkRect ( stretchx, stretchy, (SHORT( patch->width ) * DX ) >> 16,
-		   (SHORT( patch->height) * DY ) >> 16 );
-    
+       (SHORT( patch->height) * DY ) >> 16 );
+
     desttop = screens[scrn] + stretchy * SCREENWIDTH +  stretchx;
-    
+
     for ( col = 0; col <= w; x++, col+=DXI, desttop++ ) {
       const column_t *column;
       {
-	unsigned int d = patch->columnofs[(flags & VPT_FLIP) ? ((w - col)>>16): (col>>16)];
-	column = (column_t*)((byte*)patch + LONG(d));
+  unsigned int d = patch->columnofs[(flags & VPT_FLIP) ? ((w - col)>>16): (col>>16)];
+  column = (column_t*)((byte*)patch + LONG(d));
       }
-      
+
       while ( column->topdelta != 0xff ) {
-	register const byte *source = ( byte* ) column + 3;
-	register byte       *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
-	register int         count  = ( column->length * DY ) >> 16;
-	register int         srccol = 0x8000;
-	
-	if (flags & VPT_TRANS)
-	  while (count--) {
-	    *dest  =  trans[source[srccol>>16]];
-	    dest  +=  SCREENWIDTH;
-	    srccol+=  DYI;
-	  }
-	else
-	  while (count--) {
-	    *dest  =  source[srccol>>16];
-	    dest  +=  SCREENWIDTH;
-	    srccol+=  DYI;
-	  }
-	column = ( column_t* ) (( byte* ) column + ( column->length ) + 4 );
+  register const byte *source = ( byte* ) column + 3;
+  register byte       *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
+  register int         count  = ( column->length * DY ) >> 16;
+  register int         srccol = 0x8000;
+
+  if (flags & VPT_TRANS)
+    while (count--) {
+      *dest  =  trans[source[srccol>>16]];
+      dest  +=  SCREENWIDTH;
+      srccol+=  DYI;
+    }
+  else
+    while (count--) {
+      *dest  =  source[srccol>>16];
+      dest  +=  SCREENWIDTH;
+      srccol+=  DYI;
+    }
+  column = ( column_t* ) (( byte* ) column + ( column->length ) + 4 );
       }
     }
   }
@@ -585,7 +585,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
 
 // CPhipps - some simple, useful wrappers for that function, for drawing patches from wads
 
-// CPhipps - GNU C only suppresses generating a copy of a function if it is 
+// CPhipps - GNU C only suppresses generating a copy of a function if it is
 // static inline; other compilers have different behaviour.
 // This inline is _only_ for the function below
 
@@ -593,11 +593,11 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
 #ifdef __GNUC__
 inline
 #endif
-void V_DrawNumPatch(int x, int y, int scrn, int lump, 
-			   int cm, enum patch_translation_e flags)
+void V_DrawNumPatch(int x, int y, int scrn, int lump,
+         int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump), 
-		 cm, flags);
+  V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump),
+     cm, flags);
   W_UnlockLumpNum(lump);
 }
 #endif // GL_DOOM
@@ -608,10 +608,10 @@ void V_DrawNumPatch(int x, int y, int scrn, int lump,
  *
  * Doesn't really belong here, but is often used in conjunction with
  *  this code.
- * This is needed to reduce the number of patches being held locked 
- *  in memory, since a lot of code was locking and holding pointers 
- *  to graphics in order to get this info easily. Also, we do endian 
- *  correction here, which reduces the chance of other code forgetting 
+ * This is needed to reduce the number of patches being held locked
+ *  in memory, since a lot of code was locking and holding pointers
+ *  to graphics in order to get this info easily. Also, we do endian
+ *  correction here, which reduces the chance of other code forgetting
  *  this.
  */
 int V_NamePatchWidth(const char* name)
@@ -637,13 +637,13 @@ int V_NamePatchHeight(const char* name)
 // CPhipps -
 // V_PatchToBlock
 //
-// Returns a simple bitmap which contains the patch. See-through parts of the 
+// Returns a simple bitmap which contains the patch. See-through parts of the
 // patch will be undefined (in fact black for now)
 
 #ifndef GL_DOOM
-byte *V_PatchToBlock(const char* name, int cm, 
-			      enum patch_translation_e flags, 
-			      unsigned short* width, unsigned short* height)
+byte *V_PatchToBlock(const char* name, int cm,
+            enum patch_translation_e flags,
+            unsigned short* width, unsigned short* height)
 {
   byte          *oldscr = screens[1];
   byte          *block;
@@ -652,11 +652,11 @@ byte *V_PatchToBlock(const char* name, int cm,
   screens[1] = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
 
   patch = W_CacheLumpName(name);
-  V_DrawMemPatch(SHORT(patch->leftoffset), SHORT(patch->topoffset), 
-		  1, patch, cm, flags);
+  V_DrawMemPatch(SHORT(patch->leftoffset), SHORT(patch->topoffset),
+      1, patch, cm, flags);
 
 #ifdef RANGECHECK
-  if (flags & VPT_STRETCH) 
+  if (flags & VPT_STRETCH)
     I_Error("V_PatchToBlock: Stretching not supported");
 #endif
 
@@ -664,8 +664,8 @@ byte *V_PatchToBlock(const char* name, int cm,
 
   W_UnlockLumpName(name);
 
-  V_GetBlock(0, 0, 1, *width, *height, 
-	     block = malloc((long)(*width) * (*height)));
+  V_GetBlock(0, 0, 1, *width, *height,
+       block = malloc((long)(*width) * (*height)));
 
   free(screens[1]);
   screens[1] = oldscr;
@@ -689,7 +689,7 @@ void V_SetPalette(int pal)
 #endif
 }
 
-// 
+//
 // V_FillRect
 //
 // CPhipps - New function to fill a rectangle with a given colour

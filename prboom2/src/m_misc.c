@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.26.2.5 2002/07/04 22:18:43 proff_fs Exp $
+ * $Id: m_misc.c,v 1.26.2.6 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.26.2.5 2002/07/04 22:18:43 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26.2.6 2002/07/20 18:08:36 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -88,7 +88,7 @@ int M_DrawText(int x,int y,boolean direct,char* string)
       x += 4;
       continue;
     }
-    
+
     w = SHORT (hu_font[c].width);
     if (x+w > SCREENWIDTH)
       break;
@@ -110,7 +110,7 @@ boolean M_WriteFile(char const* name,void* source,int length)
 {
   int handle;
   int count;
-  
+
   handle = open ( name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 
   if (handle == -1)
@@ -118,12 +118,12 @@ boolean M_WriteFile(char const* name,void* source,int length)
 
   count = write (handle, source, length);
   close (handle);
-  
+
   if (count < length) {
     unlink(name); // CPhipps - no corrupt data files around, they only confuse people.
     return false;
   }
-    
+
   return true;
 }
 
@@ -137,7 +137,7 @@ int M_ReadFile(char const* name,byte** buffer)
   int handle, count, length;
   struct stat fileinfo;
   byte   *buf;
-  
+
   handle = open (name, O_RDONLY | O_BINARY, 0666);
   if ((handle == -1) || (fstat (handle,&fileinfo) == -1))
     I_Error ("M_ReadFile: Couldn't read file %s", name);
@@ -146,10 +146,10 @@ int M_ReadFile(char const* name,byte** buffer)
   buf = Z_Malloc (length, PU_STATIC, NULL);
   count = read (handle, buf, length);
   close (handle);
-  
+
   if (count < length)
     I_Error ("M_ReadFile: Couldn't read file %s", name);
-    
+
   *buffer = buf;
   return length;
 }
@@ -210,7 +210,7 @@ default_t defaults[] =
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_compatibility_level",{&default_compatibility_level},
    {-1},-1,MAX_COMPATIBILITY_LEVEL-1,
-   def_int,ss_none}, // compatibility level" - CPhipps  
+   def_int,ss_none}, // compatibility level" - CPhipps
   {"realtic_clock_rate",{&realtic_clock_rate},{100},0,UL,
    def_int,ss_none}, // percentage of normal speed (35 fps) realtic clock runs at
   {"max_player_corpse", {&bodyquesize}, {32},-1,UL,   // killough 2/8/98
@@ -223,53 +223,53 @@ default_t defaults[] =
    def_hex, ss_none}, // 0, +1 for colours, +2 for non-ascii chars, +4 for skip-last-line
   {"level_precache",{(int*)&precache},{0},0,1,
    def_bool,ss_none}, // precache level data?
-  
+
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
-  /* cph - MBF-like wad/deh/bex autoload code 
+  /* cph - MBF-like wad/deh/bex autoload code
    * POSIX targets need to get lumps from prboom.wad */
   {"wadfile_1",{NULL,&wad_files[0]},{0,
 #ifdef ALL_IN_ONE
-				     ""
+             ""
 #else
-				     "prboom.wad"
+             "prboom.wad"
 #endif
                                          },UL,UL,def_str,ss_none},
   {"wadfile_2",{NULL,&wad_files[1]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_1",{NULL,&deh_files[0]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_2",{NULL,&deh_files[1]},{0,""},UL,UL,def_str,ss_none},
-  
+
   {"Game settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_skill",{&defaultskill},{3},1,5, // jff 3/24/98 allow default skill setting
    def_int,ss_none}, // selects default skill 1=TYTD 2=NTR 3=HMP 4=UV 5=NM
   {"weapon_recoil",{&default_weapon_recoil},{1},0,1,
-   def_bool,ss_weap, &weapon_recoil}, 
+   def_bool,ss_weap, &weapon_recoil},
   /* killough 10/98 - toggle between SG/SSG and Fist/Chainsaw */
-  {"doom_weapon_toggles",{&doom_weapon_toggles}, {1}, 0, 1, 
-   def_bool, ss_weap }, 
+  {"doom_weapon_toggles",{&doom_weapon_toggles}, {1}, 0, 1,
+   def_bool, ss_weap },
   {"player_bobbing",{&default_player_bobbing},{1},0,1,         // phares 2/25/98
    def_bool,ss_weap, &player_bobbing},
   {"monsters_remember",{&default_monsters_remember},{1},0,1,   // killough 3/1/98
    def_bool,ss_enem, &monsters_remember},
    /* MBF AI enhancement options */
-  {"monster_infighting",{&default_monster_infighting}, {1}, 0, 1, 
-   def_bool, ss_enem, &monster_infighting}, 
-  {"monster_backing",{&default_monster_backing}, {1}, 0, 1, 
-   def_bool, ss_enem, &monster_backing}, 
-  {"monster_avoid_hazards",{&default_monster_avoid_hazards}, {1}, 0, 1, 
-   def_bool, ss_enem, &monster_avoid_hazards}, 
-  {"monkeys",{&default_monkeys}, {1}, 0, 1, 
-   def_bool, ss_enem, &monkeys}, 
-  {"monster_friction",{&default_monster_friction}, {1}, 0, 1, 
-   def_bool, ss_enem, &monster_friction}, 
-  {"help_friends",{&default_help_friends}, {1}, 0, 1, 
-   def_bool, ss_enem, &help_friends}, 
+  {"monster_infighting",{&default_monster_infighting}, {1}, 0, 1,
+   def_bool, ss_enem, &monster_infighting},
+  {"monster_backing",{&default_monster_backing}, {1}, 0, 1,
+   def_bool, ss_enem, &monster_backing},
+  {"monster_avoid_hazards",{&default_monster_avoid_hazards}, {1}, 0, 1,
+   def_bool, ss_enem, &monster_avoid_hazards},
+  {"monkeys",{&default_monkeys}, {1}, 0, 1,
+   def_bool, ss_enem, &monkeys},
+  {"monster_friction",{&default_monster_friction}, {1}, 0, 1,
+   def_bool, ss_enem, &monster_friction},
+  {"help_friends",{&default_help_friends}, {1}, 0, 1,
+   def_bool, ss_enem, &help_friends},
 #ifdef DOGS
-  {"player_helpers",{&default_dogs}, {0}, 0, 3, 
-   def_bool, ss_enem }, 
-  {"friend_distance",{&default_distfriend}, {128}, 0, 999, 
-   def_int, ss_enem, &distfriend}, 
-  {"dog_jumping",{&default_dog_jumping}, {1}, 0, 1, 
-   def_bool, ss_enem, &dog_jumping}, 
+  {"player_helpers",{&default_dogs}, {0}, 0, 3,
+   def_bool, ss_enem },
+  {"friend_distance",{&default_distfriend}, {128}, 0, 999,
+   def_int, ss_enem, &distfriend},
+  {"dog_jumping",{&default_dog_jumping}, {1}, 0, 1,
+   def_bool, ss_enem, &dog_jumping},
 #endif
    /* End of MBF AI extras */
   {"sts_always_red",{&sts_always_red},{0},0,1, // no color changes on status bar
@@ -278,7 +278,7 @@ default_t defaults[] =
    def_bool,ss_stat}, // makes percent signs on status bar always gray
   {"sts_traditional_keys",{&sts_traditional_keys},{0},0,1,  // killough 2/28/98
    def_bool,ss_stat}, // disables doubled card and skull key display on status bar
-  {"traditional_menu",{&traditional_menu},{0},0,1, 
+  {"traditional_menu",{&traditional_menu},{0},0,1,
    def_bool,ss_none}, // force use of Doom's main menu ordering // killough 4/17/98
   {"show_messages",{&showMessages},{1},0,1,
    def_bool,ss_none}, // enables message display
@@ -309,13 +309,13 @@ default_t defaults[] =
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
-   def_int,ss_none}, // select sounds driver (DOS), -1 is autodetect, 0 is none; in Linux, non-zero enables sound 
+   def_int,ss_none}, // select sounds driver (DOS), -1 is autodetect, 0 is none; in Linux, non-zero enables sound
   {"music_card",{&mus_card},{-1},-1,9,       //  to be set,  -1 = autodetect
    def_int,ss_none}, // select music driver (DOS), -1 is autodetect, 0 is none"; in Linux, non-zero enables music
   {"pitched_sounds",{&pitched_sounds},{0},0,1, // killough 2/21/98
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
-  {"samplerate",{&snd_samplerate},{22050},11025,48000, def_int,ss_none}, 
-  {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none}, 
+  {"samplerate",{&snd_samplerate},{22050},11025,48000, def_int,ss_none},
+  {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none},
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{2},0,2, // CPhipps - music pausing
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
@@ -327,16 +327,16 @@ default_t defaults[] =
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
   // CPhipps - default screensize for targets that support high-res
 #ifndef GL_DOOM
-  {"screen_width",{&desired_screenwidth},{320}, 320, 1600, 
+  {"screen_width",{&desired_screenwidth},{320}, 320, 1600,
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{200},200,1200,
-   def_int,ss_none},  
+   def_int,ss_none},
 #else
   /* proff - 640x480 for OpenGL */
-  {"screen_width",{&desired_screenwidth},{640}, 320, 1600, 
+  {"screen_width",{&desired_screenwidth},{640}, 320, 1600,
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{480},200,1200,
-   def_int,ss_none},  
+   def_int,ss_none},
 #endif
   {"fake_contrast",{&fake_contrast},{1},0,1,
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
@@ -347,13 +347,13 @@ default_t defaults[] =
   {"translucency",{&default_translucency},{1},0,1,   // phares
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{66},0,100,         // killough 2/21/98
-   def_int,ss_none}, // set percentage of foreground/background translucency mix  
+   def_int,ss_none}, // set percentage of foreground/background translucency mix
   {"screenblocks",{&screenblocks},{10},3,11,  // killough 2/21/98: default to 10
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98
   {"X_options",{&X_opt},{0},0,3, // CPhipps - misc X options
-   def_hex,ss_none}, // X options, see l_video_x.c  
+   def_hex,ss_none}, // X options, see l_video_x.c
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -392,7 +392,7 @@ default_t defaults[] =
   {"mouseb_forward",{&mousebforward},{2},-1,MAX_MOUSEB,
    def_int,ss_keys}, // mouse button number to use for forward motion
   //jff 3/8/98 end of lower range change for -1 allowed in mouse binding
-  
+
 // For key bindings, the values stored in the key_* variables       // phares
 // are the internal Doom Codes. The values stored in the default.cfg
 // file are the keyboard codes.
@@ -425,7 +425,7 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to strafe left
   {"key_straferight", {&key_straferight},    {'.'}           ,
    0,MAX_KEY,def_key,ss_keys}, // key to strafe right
-  
+
   {"key_fire",        {&key_fire},           {KEYD_RCTRL}     ,
    0,MAX_KEY,def_key,ss_keys}, // duh
   {"key_use",         {&key_use},            {' '}           ,
@@ -434,7 +434,7 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to use with arrows to strafe
   {"key_speed",       {&key_speed},          {KEYD_RSHIFT}    ,
    0,MAX_KEY,def_key,ss_keys}, // key to run
-  
+
   {"key_savegame",    {&key_savegame},       {KEYD_F2}        ,
    0,MAX_KEY,def_key,ss_keys}, // key to save current game
   {"key_loadgame",    {&key_loadgame},       {KEYD_F3}        ,
@@ -530,11 +530,11 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys}, // key to switch to weapon 8 (chainsaw)        //    |
   {"key_weapon9",     {&key_weapon9},         {'9'}            ,
    0,MAX_KEY,def_key,ss_keys}, // key to switch to weapon 9 (supershotgun)    // phares
-  
+
   // killough 2/22/98: screenshot key
   {"key_screenshot",  {&key_screenshot},      {'*'}            ,
    0,MAX_KEY,def_key,ss_keys}, // key to take a screenshot
-  
+
   {"Joystick settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"use_joystick",{&usejoystick},{0},0,2,
    def_int,ss_none}, // number of joystick to use (0 for none)
@@ -572,7 +572,7 @@ default_t defaults[] =
    def_str,ss_chat}, // chat string associated with 8 key
   {"chatmacro9", {0,&chat_macros[9]}, {0,HUSTR_CHATMACRO9},UL,UL,
    def_str,ss_chat}, // chat string associated with 9 key
-  
+
   {"Automap settings",{NULL},{0},UL,UL,def_none,ss_none},
   //jff 1/7/98 defaults for automap colors
   //jff 4/3/98 remove -1 in lower range, 0 now disables new map features
@@ -628,7 +628,7 @@ default_t defaults[] =
   //jff 1/7/98 end additions for automap
   {"automapmode", {(int*)&automapmode}, {0}, 0, 31, // CPhipps - remember automap mode
    def_hex,ss_none}, // automap mode
-  
+
   {"Heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},
   //jff 2/16/98 defaults for color ranges in hud and status
   {"hudcolor_titl", {&hudcolor_titl}, {5},0,9,  // gold range
@@ -664,7 +664,7 @@ default_t defaults[] =
    def_int,ss_stat}, // percent of ammo for red to yellow transition
   {"ammo_yellow",   {&ammo_yellow}  , {50},0,100, // below 50% is yellow, above green
    def_int,ss_stat}, // percent of ammo for yellow to green transition
-  
+
   //jff 2/16/98 HUD and status feature controls
   {"hud_active",    {&hud_active}, {2},0,2, // 0=off, 1=small, 2=full
    def_int,ss_none}, // 0 for HUD off, 1 for HUD small, 2 for full HUD
@@ -673,25 +673,25 @@ default_t defaults[] =
    def_bool,ss_none}, // enables display of HUD
   {"hud_nosecrets", {&hud_nosecrets},  {0},0,1, // no secrets/items/kills HUD line
    def_bool,ss_stat}, // disables display of kills/items/secrets on HUD
-  
+
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:
   {"weapon_choice_1", {&weapon_preferences[0][0]}, {6}, 0,9,
    def_int,ss_weap}, // first choice for weapon (best)
   {"weapon_choice_2", {&weapon_preferences[0][1]}, {9}, 0,9,
-   def_int,ss_weap}, // second choice for weapon 
+   def_int,ss_weap}, // second choice for weapon
   {"weapon_choice_3", {&weapon_preferences[0][2]}, {4}, 0,9,
-   def_int,ss_weap}, // third choice for weapon 
+   def_int,ss_weap}, // third choice for weapon
   {"weapon_choice_4", {&weapon_preferences[0][3]}, {3}, 0,9,
-   def_int,ss_weap}, // fourth choice for weapon 
+   def_int,ss_weap}, // fourth choice for weapon
   {"weapon_choice_5", {&weapon_preferences[0][4]}, {2}, 0,9,
-   def_int,ss_weap}, // fifth choice for weapon 
+   def_int,ss_weap}, // fifth choice for weapon
   {"weapon_choice_6", {&weapon_preferences[0][5]}, {8}, 0,9,
-   def_int,ss_weap}, // sixth choice for weapon 
+   def_int,ss_weap}, // sixth choice for weapon
   {"weapon_choice_7", {&weapon_preferences[0][6]}, {5}, 0,9,
-   def_int,ss_weap}, // seventh choice for weapon 
+   def_int,ss_weap}, // seventh choice for weapon
   {"weapon_choice_8", {&weapon_preferences[0][7]}, {7}, 0,9,
-   def_int,ss_weap}, // eighth choice for weapon 
+   def_int,ss_weap}, // eighth choice for weapon
   {"weapon_choice_9", {&weapon_preferences[0][8]}, {1}, 0,9,
    def_int,ss_weap}, // ninth choice for weapon (worst)
 
@@ -844,7 +844,7 @@ void M_SaveDefaults (void)
   {
   int   i;
   FILE* f;
-  
+
   f = fopen (defaultfile, "w");
   if (!f)
     return; // can't write the file, but don't complain
@@ -866,16 +866,16 @@ void M_SaveDefaults (void)
       // CPhipps - remove keycode hack
       // killough 3/6/98: use spaces instead of tabs for uniform justification
       if (defaults[i].type == def_hex)
-	fprintf (f,"%-25s 0x%x\n",defaults[i].name,*(defaults[i].location.pi));
+  fprintf (f,"%-25s 0x%x\n",defaults[i].name,*(defaults[i].location.pi));
       else
-	fprintf (f,"%-25s %5i\n",defaults[i].name,*(defaults[i].location.pi));
+  fprintf (f,"%-25s %5i\n",defaults[i].name,*(defaults[i].location.pi));
       }
     else
       {
       fprintf (f,"%-25s \"%s\"\n",defaults[i].name,*(defaults[i].location.ppsz));
       }
     }
-  
+
   fclose (f);
   }
 
@@ -911,17 +911,17 @@ void M_LoadDefaults (void)
   char* newstring = NULL;   // killough
   int   parm;
   boolean isstring;
-    
+
   // set everything to base values
 
   numdefaults = sizeof(defaults)/sizeof(defaults[0]);
   for (i = 0 ; i < numdefaults ; i++) {
-    if (defaults[i].location.ppsz) 
+    if (defaults[i].location.ppsz)
       *defaults[i].location.ppsz = strdup(defaults[i].defaultvalue.psz);
     if (defaults[i].location.pi)
       *defaults[i].location.pi = defaults[i].defaultvalue.i;
   }
-    
+
   // check for a custom default file
 
   i = M_CheckParm ("-config");
@@ -956,22 +956,22 @@ void M_LoadDefaults (void)
           newstring = (char *) malloc(len);
           strparm[len-1] = 0; // clears trailing double-quote mark
           strcpy(newstring, strparm+1); // clears leading double-quote mark
-	} else if ((strparm[0] == '0') && (strparm[1] == 'x')) {
-	  // CPhipps - allow ints to be specified in hex
-	  sscanf(strparm+2, "%x", &parm);
-	} else {
+  } else if ((strparm[0] == '0') && (strparm[1] == 'x')) {
+    // CPhipps - allow ints to be specified in hex
+    sscanf(strparm+2, "%x", &parm);
+  } else {
           sscanf(strparm, "%i", &parm);
-	  // Keycode hack removed
-	}
+    // Keycode hack removed
+  }
 
         for (i = 0 ; i < numdefaults ; i++)
           if ((defaults[i].type != def_none) && !strcmp(def, defaults[i].name))
             {
-	    // CPhipps - safety check
+      // CPhipps - safety check
             if (isstring != IS_STRING(defaults[i])) {
-	      lprintf(LO_WARN, "M_LoadDefaults: Type mismatch reading %s\n", defaults[i].name);
-	      continue;
-	    }
+        lprintf(LO_WARN, "M_LoadDefaults: Type mismatch reading %s\n", defaults[i].name);
+        continue;
+      }
             if (!isstring)
               {
 
@@ -990,7 +990,7 @@ void M_LoadDefaults (void)
             }
         }
       }
-    
+
     fclose (f);
     }
   //jff 3/4/98 redundant range checks for hud deleted here
@@ -1051,7 +1051,7 @@ typedef struct tagBITMAPINFOHEADER
 #if defined(__MWERKS__)
 #pragma options align=reset
 #endif
-  
+
 #ifdef _MSC_VER
 #pragma pack(pop)
 #endif //_MSC_VER
@@ -1071,8 +1071,8 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
 //
 
 // CPhipps - static, const on parameters
-static void WriteBMPfile(const char* filename, const byte* data, 
-			 const int width, const int height, const byte* palette)
+static void WriteBMPfile(const char* filename, const byte* data,
+       const int width, const int height, const byte* palette)
 {
   int i,wid;
   BITMAPFILEHEADER bmfh;
@@ -1151,8 +1151,8 @@ static void WriteBMPfile(const char* filename, const byte* data,
 //
 
 // CPhipps - static, const on parameters
-static void WriteTGAfile(const char* filename, const byte* data, 
-			 const int width, const int height)
+static void WriteTGAfile(const char* filename, const byte* data,
+       const int width, const int height)
 {
   unsigned char c;
   unsigned short s;
@@ -1240,7 +1240,7 @@ void M_DoScreenShot (const char* fname)
 
   // killough 4/18/98: make palette stay around (PU_CACHE could cause crash)
   pal = W_CacheLumpNum (pplump);
-    
+
   // save the bmp file
 
   WriteBMPfile
@@ -1261,13 +1261,13 @@ void M_ScreenShot(void)
   static int shot;
   char       lbmname[32];
   int        startshot;
-  
+
   screenshot_write_error = false;
 
   if (access(".",2)) screenshot_write_error = true;
 
   startshot = shot; // CPhipps - prevent infinite loop
-    
+
   do
 #ifdef GL_DOOM
     sprintf(lbmname,"DOOM%02d.TGA", shot++);
@@ -1280,9 +1280,9 @@ void M_ScreenShot(void)
 
   if (screenshot_write_error) {
 #ifdef GL_DOOM
-    doom_printf ("M_ScreenShot: Couldn't create a TGA"); 
+    doom_printf ("M_ScreenShot: Couldn't create a TGA");
 #else
-    doom_printf ("M_ScreenShot: Couldn't create a BMP"); 
+    doom_printf ("M_ScreenShot: Couldn't create a BMP");
 #endif
     // killough 4/18/98
     return;
@@ -1290,5 +1290,5 @@ void M_ScreenShot(void)
 
   M_DoScreenShot(lbmname); // cph
 
-  S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink); 
+  S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
 }

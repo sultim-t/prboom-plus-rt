@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.20 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.20.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.20 2000/10/08 18:42:20 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.20.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -70,16 +70,16 @@ void R_ClearDrawSegs(void)
   ds_p = drawsegs;
 }
 
-// CPhipps - 
-// Instead of clipsegs, let's try using an array with one entry for each column, 
+// CPhipps -
+// Instead of clipsegs, let's try using an array with one entry for each column,
 // indicating whether it's blocked by a solid wall yet or not.
 
 byte solidcol[MAX_SCREENWIDTH];
 
-// CPhipps - 
+// CPhipps -
 // R_ClipWallSegment
 //
-// Replaces the old R_Clip*WallSegment functions. It draws bits of walls in those 
+// Replaces the old R_Clip*WallSegment functions. It draws bits of walls in those
 // columns which aren't solid, and updates the solidcol[] array appropriately
 
 void R_ClipWallSegment(int first, int last, boolean solid)
@@ -95,9 +95,9 @@ void R_ClipWallSegment(int first, int last, boolean solid)
       else to = p - solidcol;
       R_StoreWallRange(first, to-1);
       if (solid) {
-	memset(solidcol+first,1,to-first);
+  memset(solidcol+first,1,to-first);
       }
-	first = to;
+  first = to;
     }
   }
 }
@@ -114,7 +114,7 @@ void R_ClearClipSegs (void)
 // killough 1/18/98 -- This function is used to fix the automap bug which
 // showed lines behind closed doors simply because the door had a dropoff.
 //
-// cph - converted to R_RecalcLineFlags. This recalculates all the flags for 
+// cph - converted to R_RecalcLineFlags. This recalculates all the flags for
 // a line, including closure and texture tiling.
 
 static void R_RecalcLineFlags(void)
@@ -122,25 +122,25 @@ static void R_RecalcLineFlags(void)
   linedef->r_validcount = gametic;
 
   /* First decide if the line is closed, normal, or invisible */
-  if (!(linedef->flags & ML_TWOSIDED) 
+  if (!(linedef->flags & ML_TWOSIDED)
       || backsector->ceilingheight <= frontsector->floorheight
       || backsector->floorheight >= frontsector->ceilingheight
       || (
-	  // if door is closed because back is shut:
-	  backsector->ceilingheight <= backsector->floorheight
-	  
-	  // preserve a kind of transparent door/lift special effect:
-	  && (backsector->ceilingheight >= frontsector->ceilingheight ||
-	      curline->sidedef->toptexture)
-	  
-	  && (backsector->floorheight <= frontsector->floorheight ||
-	      curline->sidedef->bottomtexture)
-	  
-	  // properly render skies (consider door "open" if both ceilings are sky):
-	  && (backsector->ceilingpic !=skyflatnum ||
-	      frontsector->ceilingpic!=skyflatnum)
-	  )
-      ) 
+    // if door is closed because back is shut:
+    backsector->ceilingheight <= backsector->floorheight
+
+    // preserve a kind of transparent door/lift special effect:
+    && (backsector->ceilingheight >= frontsector->ceilingheight ||
+        curline->sidedef->toptexture)
+
+    && (backsector->floorheight <= frontsector->floorheight ||
+        curline->sidedef->bottomtexture)
+
+    // properly render skies (consider door "open" if both ceilings are sky):
+    && (backsector->ceilingpic !=skyflatnum ||
+        frontsector->ceilingpic!=skyflatnum)
+    )
+      )
     linedef->r_flags = RF_CLOSED;
   else {
     // Reject empty lines used for triggers
@@ -150,16 +150,16 @@ static void R_RecalcLineFlags(void)
     // and no middle texture.
     // CPhipps - recode for speed, not certain if this is portable though
     if (backsector->ceilingheight != frontsector->ceilingheight
-	|| backsector->floorheight != frontsector->floorheight
-	|| curline->sidedef->midtexture
-	|| memcmp(&backsector->floor_xoffs, &frontsector->floor_xoffs,
-		  sizeof(frontsector->floor_xoffs) + sizeof(frontsector->floor_yoffs) +
-		  sizeof(frontsector->ceiling_xoffs) + sizeof(frontsector->ceiling_yoffs) +
-		  sizeof(frontsector->ceilingpic) + sizeof(frontsector->floorpic) + 
-		  sizeof(frontsector->lightlevel) + sizeof(frontsector->floorlightsec) + 
-		  sizeof(frontsector->ceilinglightsec))) {
+  || backsector->floorheight != frontsector->floorheight
+  || curline->sidedef->midtexture
+  || memcmp(&backsector->floor_xoffs, &frontsector->floor_xoffs,
+      sizeof(frontsector->floor_xoffs) + sizeof(frontsector->floor_yoffs) +
+      sizeof(frontsector->ceiling_xoffs) + sizeof(frontsector->ceiling_yoffs) +
+      sizeof(frontsector->ceilingpic) + sizeof(frontsector->floorpic) +
+      sizeof(frontsector->lightlevel) + sizeof(frontsector->floorlightsec) +
+      sizeof(frontsector->ceilinglightsec))) {
       linedef->r_flags = 0; return;
-    } else 
+    } else
       linedef->r_flags = RF_IGNORE;
   }
 
@@ -169,21 +169,21 @@ static void R_RecalcLineFlags(void)
   /* Now decide on texture tiling */
   if (linedef->flags & ML_TWOSIDED) {
     int c;
-    
+
     /* Does top texture need tiling */
-    if ((c = frontsector->ceilingheight - backsector->ceilingheight) > 0 && 
-	 (textureheight[texturetranslation[curline->sidedef->toptexture]] > c))
+    if ((c = frontsector->ceilingheight - backsector->ceilingheight) > 0 &&
+   (textureheight[texturetranslation[curline->sidedef->toptexture]] > c))
       linedef->r_flags |= RF_TOP_TILE;
 
     /* Does bottom texture need tiling */
-    if ((c = frontsector->floorheight - backsector->floorheight) > 0 && 
-	 (textureheight[texturetranslation[curline->sidedef->bottomtexture]] > c))
+    if ((c = frontsector->floorheight - backsector->floorheight) > 0 &&
+   (textureheight[texturetranslation[curline->sidedef->bottomtexture]] > c))
       linedef->r_flags |= RF_BOT_TILE;
   } else {
     int c;
     /* Does middle texture need tiling */
-    if ((c = frontsector->ceilingheight - frontsector->floorheight) > 0 && 
-	 (textureheight[texturetranslation[curline->sidedef->midtexture]] > c))
+    if ((c = frontsector->ceilingheight - frontsector->floorheight) > 0 &&
+   (textureheight[texturetranslation[curline->sidedef->midtexture]] > c))
       linedef->r_flags |= RF_MID_TILE;
   }
 }
@@ -236,16 +236,16 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
 
           if (underwater) {
             if (s->ceilingpic == skyflatnum) {
-	      tempsec->floorheight   = tempsec->ceilingheight+1;
-	      tempsec->ceilingpic    = tempsec->floorpic;
+        tempsec->floorheight   = tempsec->ceilingheight+1;
+        tempsec->ceilingpic    = tempsec->floorpic;
                 tempsec->ceiling_xoffs = tempsec->floor_xoffs;
                 tempsec->ceiling_yoffs = tempsec->floor_yoffs;
-	    } else {
-	      tempsec->ceilingpic    = s->ceilingpic;
-	      tempsec->ceiling_xoffs = s->ceiling_xoffs;
-	      tempsec->ceiling_yoffs = s->ceiling_yoffs;
-	    }
-	  }
+      } else {
+        tempsec->ceilingpic    = s->ceilingpic;
+        tempsec->ceiling_xoffs = s->ceiling_xoffs;
+        tempsec->ceiling_yoffs = s->ceiling_yoffs;
+      }
+    }
 
           tempsec->lightlevel  = s->lightlevel;
 
@@ -392,7 +392,7 @@ static void R_AddLine (seg_t *line)
     backsector = R_FakeFlat(backsector, &tempsec, NULL, NULL, true);
 
   /* cph - roll up linedef properties in flags */
-  if ((linedef = curline->linedef)->r_validcount != gametic) 
+  if ((linedef = curline->linedef)->r_validcount != gametic)
     R_RecalcLineFlags();
 
   if (linedef->r_flags & RF_IGNORE)
@@ -426,22 +426,22 @@ static const int checkcoord[12][4] = // killough -- static const
 };
 
 // killough 1/28/98: static // CPhipps - const parameter, reformatted
-static boolean R_CheckBBox(const fixed_t *bspcoord) 
+static boolean R_CheckBBox(const fixed_t *bspcoord)
 {
   angle_t angle1, angle2;
 
   {
     int        boxpos;
     const int* check;
-    
+
     // Find the corners of the box
     // that define the edges from current viewpoint.
     boxpos = (viewx <= bspcoord[BOXLEFT] ? 0 : viewx < bspcoord[BOXRIGHT ] ? 1 : 2) +
       (viewy >= bspcoord[BOXTOP ] ? 0 : viewy > bspcoord[BOXBOTTOM] ? 4 : 8);
-    
+
     if (boxpos == 5)
       return true;
-    
+
     check = checkcoord[boxpos];
     angle1 = R_PointToAngle (bspcoord[check[0]], bspcoord[check[1]]) - viewangle;
     angle2 = R_PointToAngle (bspcoord[check[2]], bspcoord[check[3]]) - viewangle;
@@ -450,7 +450,7 @@ static boolean R_CheckBBox(const fixed_t *bspcoord)
   // cph - replaced old code, which was unclear and badly commented
   // Much more efficient code now
   if ((signed)angle1 < (signed)angle2) { /* it's "behind" us */
-    /* Either angle1 or angle2 is behind us, so it doesn't matter if we 
+    /* Either angle1 or angle2 is behind us, so it doesn't matter if we
      * change it to the corect sign
      */
     if ((angle1 >= ANG180) && (angle1 < ANG270))
@@ -478,7 +478,7 @@ static boolean R_CheckBBox(const fixed_t *bspcoord)
     if (sx1 == sx2)
       return false;
 
-    if (!memchr(solidcol+sx1, 0, sx2-sx1)) return false; 
+    if (!memchr(solidcol+sx1, 0, sx2-sx1)) return false;
     // All columns it covers are already solidly covered
   }
 
@@ -528,8 +528,8 @@ static void R_Subsector(int num)
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].ceilingpic == skyflatnum) ?
     R_FindPlane(frontsector->floorheight,
-            		frontsector->floorpic == skyflatnum &&  // kilough 10/98
-		            frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+                frontsector->floorpic == skyflatnum &&  // kilough 10/98
+                frontsector->sky & PL_SKYFLAT ? frontsector->sky :
                 frontsector->floorpic,
                 floorlightlevel,                // killough 3/16/98
                 frontsector->floor_xoffs,       // killough 3/7/98
@@ -541,8 +541,8 @@ static void R_Subsector(int num)
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].floorpic == skyflatnum) ?
     R_FindPlane(frontsector->ceilingheight,     // killough 3/8/98
-            		frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
-            		frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+                frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
+                frontsector->sky & PL_SKYFLAT ? frontsector->sky :
                 frontsector->ceilingpic,
                 ceilinglightlevel,              // killough 4/11/98
                 frontsector->ceiling_xoffs,     // killough 3/7/98
@@ -610,7 +610,7 @@ static void R_Subsector(int num)
   }
 #endif
 
-  // killough 9/18/98: Fix underwater slowdown, by passing real sector 
+  // killough 9/18/98: Fix underwater slowdown, by passing real sector
   // instead of fake one. Improve sprite lighting by basing sprite
   // lightlevels on floor & ceiling lightlevels in the surrounding area.
   //
@@ -620,7 +620,7 @@ static void R_Subsector(int num)
   // That is part of the 242 effect!!!  If you simply pass sub->sector to
   // the old code you will not get correct lighting for underwater sprites!!!
   // Either you must pass the fake sector and handle validcount here, on the
-  // real sector, or you must account for the lighting in some other way, 
+  // real sector, or you must account for the lighting in some other way,
   // like passing it as an argument.
 
   R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: info.h,v 1.4 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: info.h,v 1.4.2.1 2002/07/20 18:08:35 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -41,7 +41,7 @@
 /********************************************************************
  * Sprite name enumeration - must match info.c                      *
  ********************************************************************/
-typedef enum                                  
+typedef enum
 {
   SPR_TROO,
   SPR_SHTG,
@@ -1169,7 +1169,7 @@ typedef enum
   S_GRENADE,   /* killough 8/9/98: grenade launcher */
   S_DETONATE,  /* killough 8/9/98: detonation of objects */
   S_DETONATE2,
-  S_DETONATE3, 
+  S_DETONATE3,
 
 #ifdef DOGS
   S_DOGS_STND,      /* killough 7/19/98: Marine's best friend :) */
@@ -1405,48 +1405,48 @@ typedef enum {
 typedef struct
 {
   int doomednum;    /* Thing number used in id's editor, and now
-			 probably by every other editor too */
+       probably by every other editor too */
   int spawnstate;   /* The state (frame) index when this Thing is
-		       first created */
+           first created */
   int spawnhealth;  /* The initial hit points for this Thing */
   int seestate;     /* The state when it sees you or wakes up */
   int seesound;     /* The sound it makes when waking */
   int reactiontime; /* How many tics it waits after it wakes up
-		       before it will start to attack, in normal
-		       skills (halved for nightmare) */
+           before it will start to attack, in normal
+           skills (halved for nightmare) */
   int attacksound;  /* The sound it makes when it attacks */
   int painstate;    /* The state to indicate pain */
   int painchance;   /* A number that is checked against a random
-		       number 0-255 to see if the Thing is supposed
-		       to go to its painstate or not.  Note this
-		       has absolutely nothing to do with the chance
-		       it will get hurt, just the chance of it
-		       reacting visibly. */
+           number 0-255 to see if the Thing is supposed
+           to go to its painstate or not.  Note this
+           has absolutely nothing to do with the chance
+           it will get hurt, just the chance of it
+           reacting visibly. */
   int painsound;    /* The sound it emits when it feels pain */
   int meleestate;   /* Melee==close attack */
   int missilestate; /* What states to use when it's in the air, if
-		       in fact it is ever used as a missile */
+           in fact it is ever used as a missile */
   int deathstate;   /* What state begins the death sequence */
   int xdeathstate;  /* What state begins the horrible death sequence
-		       like when a rocket takes out a trooper */
+           like when a rocket takes out a trooper */
   int deathsound;   /* The death sound.  See also A_Scream() in
-		       p_enemy.c for some tweaking that goes on
-		       for certain monsters */
+           p_enemy.c for some tweaking that goes on
+           for certain monsters */
   int speed;        /* How fast it moves.  Too fast and it can miss
-		       collision logic. */
+           collision logic. */
   int radius;       /* An often incorrect radius */
   int height;       /* An often incorrect height, used only to see
-		       if a monster can enter a sector */
+           if a monster can enter a sector */
   int mass;         /* How much an impact will move it.  Cacodemons
-		       seem to retreat when shot because they have
-		       very little mass and are moved by impact */
+           seem to retreat when shot because they have
+           very little mass and are moved by impact */
   int damage;       /* If this is a missile, how much does it hurt? */
   int activesound;  /* What sound it makes wandering around, once
-		       in a while.  Chance is 3/256 it will. */
+           in a while.  Chance is 3/256 it will. */
   uint_64_t flags;  /* Bit masks for lots of things.  See p_mobj.h */
   int raisestate;   /* The first state for an Archvile or respawn
-		       resurrection.  Zero means it won't come
-		       back to life. */
+           resurrection.  Zero means it won't come
+           back to life. */
 } mobjinfo_t;
 
 /* See p_mobj_h for addition more technical info */

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_doors.c,v 1.6.2.1 2001/04/05 21:03:42 cph Exp $
+ * $Id: p_doors.c,v 1.6.2.2 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,16 +22,16 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION: 
+ * DESCRIPTION:
  *   Door animation code (opening/closing)
  *
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.6.2.1 2001/04/05 21:03:42 cph Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.6.2.2 2002/07/20 18:08:36 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -51,11 +51,11 @@ rcsid[] = "$Id: p_doors.c,v 1.6.2.1 2001/04/05 21:03:42 cph Exp $";
 //
 // T_VerticalDoor
 //
-// Passed a door structure containing all info about the door. 
+// Passed a door structure containing all info about the door.
 // See P_SPEC.H for fields.
 // Returns nothing.
 //
-// jff 02/08/98 all cases with labels beginning with gen added to support 
+// jff 02/08/98 all cases with labels beginning with gen added to support
 // generalized line type behaviors.
 
 void T_VerticalDoor (vldoor_t* door)
@@ -148,7 +148,7 @@ void T_VerticalDoor (vldoor_t* door)
           case blazeClose:
           case genBlazeRaise:
           case genBlazeClose:
-            door->sector->ceilingdata = NULL;  //jff 2/22/98 
+            door->sector->ceilingdata = NULL;  //jff 2/22/98
             P_RemoveThinker (&door->thinker);  // unlink and free
             // killough 4/15/98: remove double-closing sound of blazing doors
             if (comp[comp_blazing])
@@ -249,7 +249,7 @@ void T_VerticalDoor (vldoor_t* door)
         }
 
         /* jff 1/31/98 turn lighting on in tagged sectors of manual doors
-	 * killough 10/98: replaced with gradual lighting code */
+   * killough 10/98: replaced with gradual lighting code */
       }
       break;
   }
@@ -266,7 +266,7 @@ void T_VerticalDoor (vldoor_t* door)
 //
 // Handle opening a tagged locked door
 //
-// Passed the line activating the door, the type of door, 
+// Passed the line activating the door, the type of door,
 // and the thing that activated the line
 // Returns true if a thinker created
 //
@@ -279,7 +279,7 @@ int EV_DoLockedDoor
 
   // only players can open locked doors
   p = thing->player;
-  if (!p)                     
+  if (!p)
     return 0;
 
   // check type of linedef, and if key is possessed to open it
@@ -313,7 +313,7 @@ int EV_DoLockedDoor
         S_StartSound(p->mo,sfx_oof);         // killough 3/20/98
         return 0;
       }
-      break;  
+      break;
   }
 
   // got the key, so open the door
@@ -326,7 +326,7 @@ int EV_DoLockedDoor
 //
 // Handle opening a tagged door
 //
-// Passed the line activating the door and the type of door 
+// Passed the line activating the door and the type of door
 // Returns true if a thinker created
 //
 int EV_DoDoor
@@ -339,7 +339,7 @@ int EV_DoDoor
 
   secnum = -1;
   rtn = 0;
-  
+
   // open all doors with the same tag as the activating line
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
@@ -347,7 +347,7 @@ int EV_DoDoor
     // if the ceiling already moving, don't start the door action
     if (P_SectorActive(ceiling_special,sec)) //jff 2/22/98
         continue;
- 
+
     // new door thinker
     rtn = 1;
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
@@ -361,7 +361,7 @@ int EV_DoDoor
     door->speed = VDOORSPEED;
     door->line = line; // jff 1/31/98 remember line that triggered us
     door->lighttag = 0; /* killough 10/98: no light effects with tagged doors */
-    
+
     // setup door parameters according to type of door
     switch(type)
     {
@@ -372,20 +372,20 @@ int EV_DoDoor
         door->speed = VDOORSPEED * 4;
         S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdcls);
         break;
-      
+
       case close:
         door->topheight = P_FindLowestCeilingSurrounding(sec);
         door->topheight -= 4*FRACUNIT;
         door->direction = -1;
         S_StartSound((mobj_t *)&door->sector->soundorg,sfx_dorcls);
         break;
-      
+
       case close30ThenOpen:
         door->topheight = sec->ceilingheight;
         door->direction = -1;
         S_StartSound((mobj_t *)&door->sector->soundorg,sfx_dorcls);
         break;
-      
+
       case blazeRaise:
       case blazeOpen:
         door->direction = 1;
@@ -395,7 +395,7 @@ int EV_DoDoor
         if (door->topheight != sec->ceilingheight)
           S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdopn);
         break;
-      
+
       case normal:
       case open:
         door->direction = 1;
@@ -404,7 +404,7 @@ int EV_DoDoor
         if (door->topheight != sec->ceilingheight)
           S_StartSound((mobj_t *)&door->sector->soundorg,sfx_doropn);
         break;
-      
+
       default:
         break;
     }
@@ -414,7 +414,7 @@ int EV_DoDoor
 
 
 //
-// EV_VerticalDoor 
+// EV_VerticalDoor
 //
 // Handle opening a door manually, no tag value
 //
@@ -434,7 +434,7 @@ int EV_VerticalDoor
 
   //  Check for locks
   player = thing->player;
-  
+
   switch(line->special)
   {
     case 26: // Blue Lock
@@ -448,7 +448,7 @@ int EV_VerticalDoor
           return 0;
       }
       break;
-  
+
     case 27: // Yellow Lock
     case 34:
       if ( !player )
@@ -460,7 +460,7 @@ int EV_VerticalDoor
           return 0;
       }
       break;
-  
+
     case 28: // Red Lock
     case 33:
       if ( !player )
@@ -476,7 +476,7 @@ int EV_VerticalDoor
     default:
       break;
   }
-  
+
   // if the wrong side of door is pushed, give oof sound
   if (line->sidenum[1]==-1)                     // killough
   {
@@ -489,11 +489,11 @@ int EV_VerticalDoor
   secnum = sec-sectors;
 
   /* if door already has a thinker, use it
-   * cph 2001/04/05 - 
+   * cph 2001/04/05 -
    * Ok, this is a disaster area. We're assuming that sec->ceilingdata
    *  is a vldoor_t! What if this door is controlled by both DR lines
    *  and by switches? I don't know how to fix that.
-   * Secondly, original Doom didn't distinguish floor/lighting/ceiling 
+   * Secondly, original Doom didn't distinguish floor/lighting/ceiling
    *  actions, so we need to do the same in demo compatibility mode.
    */
   door = sec->ceilingdata;
@@ -516,13 +516,13 @@ int EV_VerticalDoor
         {
           if (!thing->player)
             return 0;           // JDC: bad guys never close doors
-    
+
           door->direction = -1; // start going down immediately
         }
         return 1;
     }
   }
-  
+
   // emit proper sound
   switch(line->special)
   {
@@ -540,7 +540,7 @@ int EV_VerticalDoor
       S_StartSound((mobj_t *)&sec->soundorg,sfx_doropn);
       break;
   }
-  
+
   // new door thinker
   door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
   P_AddThinker (&door->thinker);
@@ -587,7 +587,7 @@ int EV_VerticalDoor
       door->lighttag = 0;   // killough 10/98
       break;
   }
-  
+
   // find the top and bottom of the movement range
   door->topheight = P_FindLowestCeilingSurrounding(sec);
   door->topheight -= 4*FRACUNIT;
@@ -645,7 +645,7 @@ void P_SpawnDoorRaiseIn5Mins
   vldoor_t* door;
 
   door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
-  
+
   P_AddThinker (&door->thinker);
 
   sec->ceilingdata = door; //jff 2/22/98

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.11 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: v_video.h,v 1.11.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -111,15 +111,15 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour);
 #ifdef GL_DOOM
 #define V_DrawMemPatch(x,y,s,p,t,f) gld_DrawPatchFromMem(x,y,p,t,f)
 #else
-void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, 
-		    int cm, enum patch_translation_e flags);
+void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
+        int cm, enum patch_translation_e flags);
 #endif
 // V_DrawNumPatch - Draws the patch from lump num
 #ifdef GL_DOOM
 #define V_DrawNumPatch(x,y,s,l,t,f) gld_DrawNumPatch(x,y,l,t,f)
 #else
-void V_DrawNumPatch(int x, int y, int scrn, int lump, 
-		    int cm, enum patch_translation_e flags);
+void V_DrawNumPatch(int x, int y, int scrn, int lump,
+        int cm, enum patch_translation_e flags);
 #endif
 // V_DrawNamePatch - Draws the patch from lump "name"
 #ifdef GL_DOOM
@@ -140,8 +140,8 @@ int V_NamePatchHeight(const char* name);
 
 // CPhipps - added const's, patch translation flags for stretching
 #ifndef GL_DOOM
-void V_DrawBlock(int x, int y, int scrn, int width, int height, 
-		 const byte *src, enum patch_translation_e flags);
+void V_DrawBlock(int x, int y, int scrn, int width, int height,
+     const byte *src, enum patch_translation_e flags);
 #endif
 
 /* cphipps 10/99: function to tile a flat over the screen */
@@ -160,9 +160,9 @@ void V_MarkRect(int x, int y, int width,int height);
 
 // CPhipps - function to convert a patch_t into a simple block bitmap
 // Returns pointer to the malloc()'ed bitmap, and its width and height
-byte *V_PatchToBlock(const char* name, int cm, 
-		     enum patch_translation_e flags, 
-		     unsigned short* width, unsigned short* height);
+byte *V_PatchToBlock(const char* name, int cm,
+         enum patch_translation_e flags,
+         unsigned short* width, unsigned short* height);
 #else
 #define V_MarkRect(x,y,w,h)
 #define V_PatchToBlock(n,cm,f,w,h) NULL

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_swap.h,v 1.4.2.1 2001/09/09 12:50:02 cph Exp $
+ * $Id: m_swap.h,v 1.4.2.2 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -70,10 +70,10 @@
 #ifndef doom_swap_s
 #define doom_swap_s(x) \
         ((short int)((((unsigned short int)(x) & 0x00ff) << 8) | \
-                              (((unsigned short int)(x) & 0xff00) >> 8))) 
+                              (((unsigned short int)(x) & 0xff00) >> 8)))
 #endif
 
-/* CPhipps - now the endianness handling, converting input or output to/from 
+/* CPhipps - now the endianness handling, converting input or output to/from
  * the machine's endianness to that wanted for this type of I/O
  *
  * To find our own endianness, use config.h
@@ -83,8 +83,8 @@
 #include "../config.h"
 #endif
 
-/* Macros are named doom_XtoYT, where 
- * X is thing to convert from, Y is thing to convert to, chosen from 
+/* Macros are named doom_XtoYT, where
+ * X is thing to convert from, Y is thing to convert to, chosen from
  * n for network, h for host (i.e our machine's), w for WAD (Doom data files)
  * and T is the type, l or s for long or short
  *

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.4.2.2 2002/07/04 22:18:43 proff_fs Exp $
+ * $Id: s_sound.c,v 1.4.2.3 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  Platform-independent sound code
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.4.2.2 2002/07/04 22:18:43 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.4.2.3 2002/07/20 18:08:37 proff_fs Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -130,7 +130,7 @@ void S_Init(int sfxVolume, int musicVolume)
   if (snd_card && !nosfxparm)
   {
     int i;
-    
+
     lprintf(LO_CONFIRM, "S_Init: default sfx volume %d\n", sfxVolume);
 
     // Whatever these did with DMX, these are rather dummies now.
@@ -404,7 +404,7 @@ void S_UpdateSounds(void* listener_p)
                   S_StopChannel(cnum);
                 else
                   I_UpdateSoundParams(c->handle, volume, sep, pitch);
-	      }
+        }
             }
           else   // if channel is allocated but sound has stopped, free it
             S_StopChannel(cnum);
@@ -525,7 +525,7 @@ void S_StopMusic(void)
       I_StopSong(mus_playing->handle);
       I_UnRegisterSong(mus_playing->handle);
       if (mus_playing->lumpnum >= 0)
-	W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
+  W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
 
       mus_playing->data = 0;
       mus_playing = 0;

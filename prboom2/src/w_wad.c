@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.15.2.2 2001/02/25 20:13:00 proff_fs Exp $
+ * $Id: w_wad.c,v 1.15.2.3 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.15.2.2 2001/02/25 20:13:00 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.15.2.3 2002/07/20 18:08:37 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -73,8 +73,8 @@ static void W_ReportLocks(void)
   lprintf(LO_DEBUG, "W_ReportLocks:\nLump     Size   Locks  Tics\n");
   for (i=0; i<numlumps; i++) {
     if (lumpinfo[i].locks)
-      lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name, 
-	      W_LumpLength(i), lumpinfo[i].locks, gametic - locktic[i]);
+      lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name,
+        W_LumpLength(i), lumpinfo[i].locks, gametic - locktic[i]);
   }
 }
 #endif
@@ -84,8 +84,8 @@ void W_PrintLump(FILE* fp, void* p) {
   int i;
   for (i=0; i<numlumps; i++)
     if (lumpcache[i] == p) {
-      fprintf(fp, " %8.8s %6u %2d %6d", lumpinfo[i].name, 
-	      W_LumpLength(i), lumpinfo[i].locks, gametic - locktic[i]);
+      fprintf(fp, " %8.8s %6u %2d %6d", lumpinfo[i].name,
+        W_LumpLength(i), lumpinfo[i].locks, gametic - locktic[i]);
       return;
     }
   fprintf(fp, " not found");
@@ -160,7 +160,7 @@ char *AddDefaultExtension(char *path, const char *ext)
 // CPhipps - source is an enum
 //
 
-static void W_AddFile(const char *filename, wad_source_t source) 
+static void W_AddFile(const char *filename, wad_source_t source)
 // killough 1/31/98: static, const
 {
   wadinfo_t   header;
@@ -180,14 +180,14 @@ static void W_AddFile(const char *filename, wad_source_t source)
   if (handle == -1 && D_NetGetWad(filename)) // CPhipps
     handle = open(filename,O_RDONLY | O_BINARY);
 #endif
-    
-  if (handle == -1) 
+
+  if (handle == -1)
     {
       if (  strlen(filename)<=4 ||      // add error check -- killough
-	         (strcasecmp(filename+strlen(filename)-4 , ".lmp" ) &&
-	          strcasecmp(filename+strlen(filename)-4 , ".gwa" ) )
+           (strcasecmp(filename+strlen(filename)-4 , ".lmp" ) &&
+            strcasecmp(filename+strlen(filename)-4 , ".gwa" ) )
          )
-	I_Error("W_AddFile: couldn't open %s",filename);
+  I_Error("W_AddFile: couldn't open %s",filename);
       return;
     }
 
@@ -195,10 +195,10 @@ static void W_AddFile(const char *filename, wad_source_t source)
   lprintf (LO_INFO," adding %s\n",filename);
   startlump = numlumps;
 
-  if (  strlen(filename)<=4 || 
-	      (
-          strcasecmp(filename+strlen(filename)-4,".wad") && 
-	        strcasecmp(filename+strlen(filename)-4,".gwa")
+  if (  strlen(filename)<=4 ||
+        (
+          strcasecmp(filename+strlen(filename)-4,".wad") &&
+          strcasecmp(filename+strlen(filename)-4,".gwa")
         )
      )
     {
@@ -240,8 +240,8 @@ static void W_AddFile(const char *filename, wad_source_t source)
 #endif
         lump_p->namespace = ns_global;              // killough 4/17/98
         strncpy (lump_p->name, fileinfo->name, 8);
-	lump_p->source = source;                    // Ty 08/29/98
-	lump_p->locks = 0;                   // CPhipps - initialise locks
+  lump_p->source = source;                    // Ty 08/29/98
+  lump_p->locks = 0;                   // CPhipps - initialise locks
       }
 
     free(fileinfo2free);      // killough
@@ -456,7 +456,7 @@ void W_Init(void)
   numlumps = 0; lumpinfo = malloc(0);
 #endif
 
-  { // CPhipps - new wadfiles array used 
+  { // CPhipps - new wadfiles array used
     // open all the files, load headers, and count lumps
     int i;
     for (i=0; (size_t)i<numwadfiles; i++)
@@ -579,21 +579,21 @@ const void * (W_CacheLumpNum)(int lump, unsigned short locks)
 
 #ifdef SIMPLECHECKS
   if (!((lumpinfo[lump].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n", 
-	    lumpinfo[lump].name, lumpinfo[lump].locks);
+    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n",
+      lumpinfo[lump].name, lumpinfo[lump].locks);
 #endif
 
   // CPhipps - if not locked, can't give you a pointer
   return (locks ? lumpcache[lump] : NULL);
 }
 
-/* cph - 
+/* cph -
  * W_CacheLumpNumPadded
  *
  * Caches a lump and pads the memory following it.
- * The thing returned is *only* guaranteed to be padded if 
- *  the lump isn't already cached (otherwise, you get whatever is 
- *  currently cached, which if it was cached by a previous call 
+ * The thing returned is *only* guaranteed to be padded if
+ *  the lump isn't already cached (otherwise, you get whatever is
+ *  currently cached, which if it was cached by a previous call
  *  to this will also be padded)
  */
 
@@ -623,8 +623,8 @@ const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad)
 
 #ifdef SIMPLECHECKS
   if (!((lumpinfo[lump].locks+1) & 0xf))
-    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n", 
-	    lumpinfo[lump].name, lumpinfo[lump].locks);
+    lprintf(LO_DEBUG, "W_CacheLumpNum: High lock on %8s (%d)\n",
+      lumpinfo[lump].name, lumpinfo[lump].locks);
 #endif
 
   return lumpcache[lump];
@@ -639,11 +639,11 @@ void (W_UnlockLumpNum)(int lump, signed short unlocks)
 {
 #ifdef SIMPLECHECKS
   if ((signed short)lumpinfo[lump].locks < unlocks)
-    lprintf(LO_DEBUG, "W_UnlockLumpNum: Excess unlocks on %8s (%d-%d)\n", 
-	    lumpinfo[lump].name, lumpinfo[lump].locks, unlocks);
+    lprintf(LO_DEBUG, "W_UnlockLumpNum: Excess unlocks on %8s (%d-%d)\n",
+      lumpinfo[lump].name, lumpinfo[lump].locks, unlocks);
 #endif
   lumpinfo[lump].locks -= unlocks;
-  // cph - Note: must only tell z_zone to make purgeable if currently locked, 
+  // cph - Note: must only tell z_zone to make purgeable if currently locked,
   // else it might already have been purged
   if (unlocks && !lumpinfo[lump].locks)
     Z_ChangeTag(lumpcache[lump], PU_CACHE);

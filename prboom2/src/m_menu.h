@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.h,v 1.4 2000/09/16 20:20:40 proff_fs Exp $
+ * $Id: m_menu.h,v 1.4.2.1 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,12 +22,12 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
  *   Menu widget stuff, episode selection and such.
- *    
+ *
  *-----------------------------------------------------------------------------*/
 
 #ifndef __M_MENU__
@@ -78,7 +78,7 @@ void M_DrawCredits(void);    // killough 11/98
 
 /* killough 8/15/98: warn about changes not being committed until next game */
 #define warn_about_changes(x) (warning_about_changes=(x), \
-			       print_warning_about_changes = 2)
+             print_warning_about_changes = 2)
 
 extern int warning_about_changes, print_warning_about_changes;
 
@@ -151,7 +151,7 @@ typedef enum {
  *
  * killough 11/98:
  *
- * Restructured to allow simpler table entries, 
+ * Restructured to allow simpler table entries,
  * and to Xref with defaults[] array in m_misc.c.
  * Moved from m_menu.c to m_menu.h so that m_misc.c can use it.
  */
@@ -163,7 +163,7 @@ typedef struct setup_menu_s
   setup_group m_group;  /* Group */
   short       m_x;      /* screen x position (left is 0) */
   short       m_y;      /* screen y position (top is 0) */
-  
+
   union  /* killough 11/98: The first field is a union of several types */
   {
     const void          *var;   /* generic variable */
@@ -178,4 +178,4 @@ typedef struct setup_menu_s
   void (*action)(void); /* killough 10/98: function to call after changing */
 } setup_menu_t;
 
-#endif    
+#endif

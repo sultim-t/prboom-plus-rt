@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.6 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.6.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  Heads-up displays
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.6 2000/09/16 20:20:36 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.6.2.1 2002/07/20 18:08:34 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -47,7 +47,7 @@ rcsid[] = "$Id: hu_stuff.c,v 1.6 2000/09/16 20:20:36 proff_fs Exp $";
 
 // global heads up display controls
 
-int hud_active;       //jff 2/17/98 controls heads-up display mode 
+int hud_active;       //jff 2/17/98 controls heads-up display mode
 int hud_displayed;    //jff 2/23/98 turns heads-up display on/off
 int hud_nosecrets;    //jff 2/18/98 allows secrets line to be disabled in HUD
 int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
@@ -67,7 +67,7 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 //jff 2/16/98 change 167 to ST_Y-1
 // CPhipps - changed to ST_TY
 // proff - changed to 200-ST_HEIGHT for stretching
-#define HU_TITLEY ((200-ST_HEIGHT) - 1 - SHORT(hu_font[0].height)) 
+#define HU_TITLEY ((200-ST_HEIGHT) - 1 - SHORT(hu_font[0].height))
 
 //jff 2/16/98 add coord text widget coordinates
 // proff - changed to SCREENWIDTH to 320 for stretching
@@ -84,7 +84,7 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_HUDY (200-HU_HUDHEIGHT-1)
 #define HU_MONSECX (HU_HUDX)
 #define HU_MONSECY (HU_HUDY+0*HU_GAPY)
-#define HU_KEYSX   (HU_HUDX) 
+#define HU_KEYSX   (HU_HUDX)
 //jff 3/7/98 add offset for graphic key widget
 #define HU_KEYSGX  (HU_HUDX+4*SHORT(hu_font2['A'-HU_FONTSTART].width))
 #define HU_KEYSY   (HU_HUDY+1*HU_GAPY)
@@ -133,7 +133,7 @@ extern int  key_escape;
 extern int  key_enter;
 extern int  destination_keys[MAXPLAYERS];                           // phares
 
-const char* chat_macros[] =    
+const char* chat_macros[] =
 // Ty 03/27/98 - *not* externalized
 // CPhipps - const char*
 {
@@ -149,7 +149,7 @@ const char* chat_macros[] =
   HUSTR_CHATMACRO9
 };
 
-const char* player_names[] =     
+const char* player_names[] =
 // Ty 03/27/98 - *not* externalized
 // CPhipps - const char*
 {
@@ -246,7 +246,7 @@ extern char **mapnamesp[];
 extern char **mapnamest[];
 
 // key tables
-// jff 5/10/98 french support removed, 
+// jff 5/10/98 french support removed,
 // as it was not being used and couldn't be easily tested
 //
 const char* shiftxform;
@@ -373,7 +373,7 @@ void HU_Init(void)
     sprintf(buffer, "BOX%c%c", "UCL"[i/3], "LCR"[i%3]);
     R_SetPatchNum(&hu_msgbg[i], buffer);
   }
-    
+
   // CPhipps - load patches for keys and double keys
   for (i=0; i<6; i++) {
     sprintf(buffer, "STKEYS%d", i);
@@ -446,7 +446,7 @@ void HU_Start(void)
   );
 
   // create the hud health widget
-  // bargraph and number for amount of health, 
+  // bargraph and number for amount of health,
   // lower left or upper right of screen
   HUlib_initTextLine
   (
@@ -459,7 +459,7 @@ void HU_Start(void)
   );
 
   // create the hud armor widget
-  // bargraph and number for amount of armor, 
+  // bargraph and number for amount of armor,
   // lower left or upper right of screen
   HUlib_initTextLine
   (
@@ -472,7 +472,7 @@ void HU_Start(void)
   );
 
   // create the hud ammo widget
-  // bargraph and number for amount of ammo for current weapon, 
+  // bargraph and number for amount of ammo for current weapon,
   // lower left or lower right of screen
   HUlib_initTextLine
   (
@@ -570,7 +570,7 @@ void HU_Start(void)
 
     case commercial:
     default:  // Ty 08/27/98 - modified to check mission for TNT/Plutonia
-      s = (gamemission==pack_tnt)  ? HU_TITLET : 
+      s = (gamemission==pack_tnt)  ? HU_TITLET :
           (gamemission==pack_plut) ? HU_TITLEP : HU_TITLE2;
       break;
   } else s = "";
@@ -607,7 +607,7 @@ void HU_Start(void)
     HU_FONTSTART,
     hudcolor_xyco
   );
-  
+
   // initialize the automaps coordinate widget
   //jff 3/3/98 split coordstr widget into 3 parts
   sprintf(hud_coordstrx,"X: %-5d",0); //jff 2/22/98 added z
@@ -714,19 +714,19 @@ void HU_MoveHud(void)
   //jff 3/4/98 move displays around on F5 changing hud_distributed
   if (hud_distributed!=ohud_distributed)
   {
-    w_ammo.x =    hud_distributed? HU_AMMOX_D   : HU_AMMOX; 
+    w_ammo.x =    hud_distributed? HU_AMMOX_D   : HU_AMMOX;
     w_ammo.y =    hud_distributed? HU_AMMOY_D   : HU_AMMOY;
-    w_weapon.x =  hud_distributed? HU_WEAPX_D   : HU_WEAPX; 
+    w_weapon.x =  hud_distributed? HU_WEAPX_D   : HU_WEAPX;
     w_weapon.y =  hud_distributed? HU_WEAPY_D   : HU_WEAPY;
-    w_keys.x =    hud_distributed? HU_KEYSX_D   : HU_KEYSX; 
+    w_keys.x =    hud_distributed? HU_KEYSX_D   : HU_KEYSX;
     w_keys.y =    hud_distributed? HU_KEYSY_D   : HU_KEYSY;
-    w_gkeys.x =   hud_distributed? HU_KEYSGX_D  : HU_KEYSGX; 
+    w_gkeys.x =   hud_distributed? HU_KEYSGX_D  : HU_KEYSGX;
     w_gkeys.y =   hud_distributed? HU_KEYSY_D   : HU_KEYSY;
-    w_monsec.x =  hud_distributed? HU_MONSECX_D : HU_MONSECX; 
+    w_monsec.x =  hud_distributed? HU_MONSECX_D : HU_MONSECX;
     w_monsec.y =  hud_distributed? HU_MONSECY_D : HU_MONSECY;
-    w_health.x =  hud_distributed? HU_HEALTHX_D : HU_HEALTHX; 
+    w_health.x =  hud_distributed? HU_HEALTHX_D : HU_HEALTHX;
     w_health.y =  hud_distributed? HU_HEALTHY_D : HU_HEALTHY;
-    w_armor.x =   hud_distributed? HU_ARMORX_D  : HU_ARMORX; 
+    w_armor.x =   hud_distributed? HU_ARMORX_D  : HU_ARMORX;
     w_armor.y =   hud_distributed? HU_ARMORY_D  : HU_ARMORY;
   }
   ohud_distributed = hud_distributed;
@@ -773,10 +773,10 @@ void HU_Drawer(void)
       HUlib_addCharToTextLine(&w_coordy, *(s++));
     HUlib_drawTextLine(&w_coordy, false);
 
-    //jff 3/3/98 split coord display into x,y,z lines  
+    //jff 3/3/98 split coord display into x,y,z lines
     //jff 2/22/98 added z
     // z-coord
-    sprintf(hud_coordstrz,"Z: %-5d", (plr->mo->z)>>FRACBITS);  
+    sprintf(hud_coordstrz,"Z: %-5d", (plr->mo->z)>>FRACBITS);
     HUlib_clearTextLine(&w_coordz);
     s = hud_coordstrz;
     while (*s)
@@ -786,7 +786,7 @@ void HU_Drawer(void)
 
   // draw the weapon/health/ammo/armor/kills/keys displays if optioned
   //jff 2/17/98 allow new hud stuff to be turned off
-  // killough 2/21/98: really allow new hud stuff to be turned off COMPLETELY  
+  // killough 2/21/98: really allow new hud stuff to be turned off COMPLETELY
   if
   (
     hud_active>0 &&                  // hud optioned on
@@ -802,8 +802,8 @@ void HU_Drawer(void)
 
       // do the hud ammo display
       // clear the widgets internal line
-      HUlib_clearTextLine(&w_ammo);  
-      strcpy(hud_ammostr,"AMM ");    
+      HUlib_clearTextLine(&w_ammo);
+      strcpy(hud_ammostr,"AMM ");
       if (weaponinfo[plr->readyweapon].ammo == am_noammo)
       { // special case for weapon with no ammo selected - blank bargraph + N/A
         strcat(hud_ammostr,"\x7f\x7f\x7f\x7f\x7f\x7f\x7f N/A");
@@ -821,7 +821,7 @@ void HU_Drawer(void)
         // build the bargraph string
         // full bargraph chars
         for (i=4;i<4+ammobars/4;)
-          hud_ammostr[i++] = 123;     
+          hud_ammostr[i++] = 123;
         // plus one last character with 0,1,2,3 bars
         switch(ammobars%4)
         {
@@ -858,7 +858,7 @@ void HU_Drawer(void)
     }
     // display the ammo widget every frame
     HUlib_drawTextLine(&w_ammo, false);
-    
+
     // do the hud health display
     if (doit)
     {
@@ -866,7 +866,7 @@ void HU_Drawer(void)
       int healthbars = health>100? 25 : health/4;
 
       // clear the widgets internal line
-      HUlib_clearTextLine(&w_health);    
+      HUlib_clearTextLine(&w_health);
 
       // build the numeric amount init string
       sprintf(healthstr,"%3d",health);
@@ -1001,7 +1001,7 @@ void HU_Drawer(void)
         ammo = plr->ammo[weaponinfo[w].ammo];
         fullammo = plr->maxammo[weaponinfo[w].ammo];
         ammopct=0;
-        
+
         // skip weapons not currently posessed
         if (!plr->weaponowned[w])
           continue;
@@ -1054,7 +1054,7 @@ void HU_Drawer(void)
         }
         hud_gkeysstr[i]='\0';
       }
-      else // not possible in current code, unless deathmatching, 
+      else // not possible in current code, unless deathmatching,
       {
         i=4;
         hud_keysstr[i] = '\0';  //jff 3/7/98 make sure deleted keys go away
@@ -1292,7 +1292,7 @@ void HU_Erase(void)
     HUlib_eraseSText(&w_message);
   else
     HUlib_eraseMText(&w_rtext);
-  
+
   // erase the interactive text buffer for chat entry
   HUlib_eraseIText(&w_chat);
 
@@ -1543,15 +1543,15 @@ boolean HU_Responder(event_t *ev)
       if (c > 9)
         return false;
       macromessage = chat_macros[c];
-      
+
       // kill last message with a '\n'
         HU_queueChatChar((char)key_enter); // DEBUG!!!                // phares
-      
+
       // send the macro message
       while (*macromessage)
         HU_queueChatChar(*macromessage++);
       HU_queueChatChar((char)key_enter);                            // phares
-      
+
       // leave chat mode and notify that it was sent
       chat_on = false;
       strcpy(lastmessage, chat_macros[c]);

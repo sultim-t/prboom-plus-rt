@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.18.2.6 2002/01/27 18:18:32 cph Exp $
+ * $Id: i_video.c,v 1.18.2.7 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,17 +22,17 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *	DOOM graphics stuff for SDL
+ *  DOOM graphics stuff for SDL
  *
  *-----------------------------------------------------------------------------
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.18.2.6 2002/01/27 18:18:32 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18.2.7 2002/07/20 18:08:37 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -80,8 +80,8 @@ static SDL_Surface *screen;
 unsigned char* out_buffer = NULL;
 
 ////////////////////////////////////////////////////////////////////////////
-// Input code 
-int             leds_always_off = 0; // Expected by m_misc, not relevant 
+// Input code
+int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
@@ -98,61 +98,61 @@ static int I_TranslateKey(SDL_keysym* key)
   int rc = 0;
 
   switch (key->sym) {
-  case SDLK_LEFT:	rc = KEYD_LEFTARROW;	break;
-  case SDLK_RIGHT:	rc = KEYD_RIGHTARROW;	break;
-  case SDLK_DOWN:	rc = KEYD_DOWNARROW;	break;
-  case SDLK_UP:		rc = KEYD_UPARROW;	break;
-  case SDLK_ESCAPE:	rc = KEYD_ESCAPE;	break;
-  case SDLK_RETURN:	rc = KEYD_ENTER;	break;
-  case SDLK_TAB:	rc = KEYD_TAB;		break;
-  case SDLK_F1:		rc = KEYD_F1;		break;
-  case SDLK_F2:		rc = KEYD_F2;		break;
-  case SDLK_F3:		rc = KEYD_F3;		break;
-  case SDLK_F4:		rc = KEYD_F4;		break;
-  case SDLK_F5:		rc = KEYD_F5;		break;
-  case SDLK_F6:		rc = KEYD_F6;		break;
-  case SDLK_F7:		rc = KEYD_F7;		break;
-  case SDLK_F8:		rc = KEYD_F8;		break;
-  case SDLK_F9:		rc = KEYD_F9;		break;
-  case SDLK_F10:	rc = KEYD_F10;		break;
-  case SDLK_F11:	rc = KEYD_F11;		break;
-  case SDLK_F12:	rc = KEYD_F12;		break;
-  case SDLK_BACKSPACE:	rc = KEYD_BACKSPACE;	break;
-  case SDLK_DELETE:	rc = KEYD_DEL;	break;
-  case SDLK_INSERT:	rc = KEYD_INSERT;	break;
-  case SDLK_PAGEUP:	rc = KEYD_PAGEUP;	break;
-  case SDLK_PAGEDOWN:	rc = KEYD_PAGEDOWN;	break;
-  case SDLK_HOME:	rc = KEYD_HOME;	break;
-  case SDLK_END:	rc = KEYD_END;	break;
-  case SDLK_PAUSE:	rc = KEYD_PAUSE;	break;
-  case SDLK_EQUALS:	rc = KEYD_EQUALS;	break;
-  case SDLK_MINUS:	rc = KEYD_MINUS;	break;
-  case SDLK_KP0:	rc = KEYD_KEYPAD0;	break;
-  case SDLK_KP1:	rc = KEYD_KEYPAD1;	break;
-  case SDLK_KP2:	rc = KEYD_KEYPAD2;	break;
-  case SDLK_KP3:	rc = KEYD_KEYPAD3;	break;
-  case SDLK_KP4:	rc = KEYD_KEYPAD4;	break;
-  case SDLK_KP5:	rc = KEYD_KEYPAD5;	break;
-  case SDLK_KP6:	rc = KEYD_KEYPAD6;	break;
-  case SDLK_KP7:	rc = KEYD_KEYPAD7;	break;
-  case SDLK_KP8:	rc = KEYD_KEYPAD8;	break;
-  case SDLK_KP9:	rc = KEYD_KEYPAD9;	break;
-  case SDLK_KP_PLUS:	rc = KEYD_KEYPADPLUS;	break;
-  case SDLK_KP_MINUS:	rc = KEYD_KEYPADMINUS;	break;
-  case SDLK_KP_DIVIDE:	rc = KEYD_KEYPADDIVIDE;	break;
+  case SDLK_LEFT: rc = KEYD_LEFTARROW;  break;
+  case SDLK_RIGHT:  rc = KEYD_RIGHTARROW; break;
+  case SDLK_DOWN: rc = KEYD_DOWNARROW;  break;
+  case SDLK_UP:   rc = KEYD_UPARROW;  break;
+  case SDLK_ESCAPE: rc = KEYD_ESCAPE; break;
+  case SDLK_RETURN: rc = KEYD_ENTER;  break;
+  case SDLK_TAB:  rc = KEYD_TAB;    break;
+  case SDLK_F1:   rc = KEYD_F1;   break;
+  case SDLK_F2:   rc = KEYD_F2;   break;
+  case SDLK_F3:   rc = KEYD_F3;   break;
+  case SDLK_F4:   rc = KEYD_F4;   break;
+  case SDLK_F5:   rc = KEYD_F5;   break;
+  case SDLK_F6:   rc = KEYD_F6;   break;
+  case SDLK_F7:   rc = KEYD_F7;   break;
+  case SDLK_F8:   rc = KEYD_F8;   break;
+  case SDLK_F9:   rc = KEYD_F9;   break;
+  case SDLK_F10:  rc = KEYD_F10;    break;
+  case SDLK_F11:  rc = KEYD_F11;    break;
+  case SDLK_F12:  rc = KEYD_F12;    break;
+  case SDLK_BACKSPACE:  rc = KEYD_BACKSPACE;  break;
+  case SDLK_DELETE: rc = KEYD_DEL;  break;
+  case SDLK_INSERT: rc = KEYD_INSERT; break;
+  case SDLK_PAGEUP: rc = KEYD_PAGEUP; break;
+  case SDLK_PAGEDOWN: rc = KEYD_PAGEDOWN; break;
+  case SDLK_HOME: rc = KEYD_HOME; break;
+  case SDLK_END:  rc = KEYD_END;  break;
+  case SDLK_PAUSE:  rc = KEYD_PAUSE;  break;
+  case SDLK_EQUALS: rc = KEYD_EQUALS; break;
+  case SDLK_MINUS:  rc = KEYD_MINUS;  break;
+  case SDLK_KP0:  rc = KEYD_KEYPAD0;  break;
+  case SDLK_KP1:  rc = KEYD_KEYPAD1;  break;
+  case SDLK_KP2:  rc = KEYD_KEYPAD2;  break;
+  case SDLK_KP3:  rc = KEYD_KEYPAD3;  break;
+  case SDLK_KP4:  rc = KEYD_KEYPAD4;  break;
+  case SDLK_KP5:  rc = KEYD_KEYPAD5;  break;
+  case SDLK_KP6:  rc = KEYD_KEYPAD6;  break;
+  case SDLK_KP7:  rc = KEYD_KEYPAD7;  break;
+  case SDLK_KP8:  rc = KEYD_KEYPAD8;  break;
+  case SDLK_KP9:  rc = KEYD_KEYPAD9;  break;
+  case SDLK_KP_PLUS:  rc = KEYD_KEYPADPLUS; break;
+  case SDLK_KP_MINUS: rc = KEYD_KEYPADMINUS;  break;
+  case SDLK_KP_DIVIDE:  rc = KEYD_KEYPADDIVIDE; break;
   case SDLK_KP_MULTIPLY: rc = KEYD_KEYPADMULTIPLY; break;
-  case SDLK_KP_ENTER:	rc = KEYD_KEYPADENTER;	break;
-  case SDLK_KP_PERIOD:	rc = KEYD_KEYPADPERIOD;	break;
+  case SDLK_KP_ENTER: rc = KEYD_KEYPADENTER;  break;
+  case SDLK_KP_PERIOD:  rc = KEYD_KEYPADPERIOD; break;
   case SDLK_LSHIFT:
-  case SDLK_RSHIFT:	rc = KEYD_RSHIFT;	break;
+  case SDLK_RSHIFT: rc = KEYD_RSHIFT; break;
   case SDLK_LCTRL:
-  case SDLK_RCTRL:	rc = KEYD_RCTRL;	break;
+  case SDLK_RCTRL:  rc = KEYD_RCTRL;  break;
   case SDLK_LALT:
   case SDLK_LMETA:
   case SDLK_RALT:
-  case SDLK_RMETA:	rc = KEYD_RALT;		break;
+  case SDLK_RMETA:  rc = KEYD_RALT;   break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
-  default:		rc = key->sym;		break;
+  default:    rc = key->sym;    break;
   }
 
   return rc;
@@ -243,16 +243,16 @@ void I_StartTic (void)
   SDL_Event Event;
   {
     int should_be_grabbed = usemouse &&
-	    !(paused || (gamestate != GS_LEVEL) || demoplayback); 
+      !(paused || (gamestate != GS_LEVEL) || demoplayback);
 
     if (mouse_currently_grabbed != should_be_grabbed)
-      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed) 
-		      ? SDL_GRAB_ON : SDL_GRAB_OFF);
+      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed)
+          ? SDL_GRAB_ON : SDL_GRAB_OFF);
   }
 
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
-  
+
   I_PollJoystick();
 }
 
@@ -300,7 +300,7 @@ static void I_UploadNewPalette(int pal)
   // This is used to replace the current 256 colour cmap with a new one
   // Used by 256 colour PseudoColor modes
 
-  // Array of SDL_Color structs used for setting the 256-colour palette 
+  // Array of SDL_Color structs used for setting the 256-colour palette
   static SDL_Color* colours;
   static int cachedgamma;
   static size_t num_pals;
@@ -329,17 +329,17 @@ static void I_UploadNewPalette(int pal)
       colours[i].b = gtable[palette[2]];
       palette += 3;
     }
-  
+
     W_UnlockLumpNum(lump);
     num_pals/=256;
   }
 
 #ifdef RANGECHECK
-  if ((size_t)pal >= num_pals) 
-    I_Error("I_UploadNewPalette: Palette number out of range (%d>=%d)", 
-	    pal, num_pals);
+  if ((size_t)pal >= num_pals)
+    I_Error("I_UploadNewPalette: Palette number out of range (%d>=%d)",
+      pal, num_pals);
 #endif
-  
+
   // store the colors to the current display
   SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
 }
@@ -373,7 +373,7 @@ void I_FinishUpdate (void)
     return;
   }
 #endif
-  
+
 #ifndef GL_DOOM
   if (screen->pixels != screens[0])
   {
@@ -401,7 +401,7 @@ void I_FinishUpdate (void)
   }
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
-  if (newpal != NO_PALETTE_CHANGE) { 
+  if (newpal != NO_PALETTE_CHANGE) {
     I_UploadNewPalette(newpal);
     newpal = NO_PALETTE_CHANGE;
   } else
@@ -432,8 +432,8 @@ void I_SetPalette (int pal)
 
 void I_ShutdownSDL(void)
 {
-	SDL_Quit();
-	return;
+  SDL_Quit();
+  return;
 }
 
 void I_PreInitGraphics(void)
@@ -442,7 +442,7 @@ void I_PreInitGraphics(void)
   if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
-  
+
   atexit(I_ShutdownSDL);
 }
 
@@ -461,12 +461,12 @@ void I_SetRes(unsigned int width, unsigned int height)
 void I_InitGraphics(void)
 {
   char titlebuffer[2048];
-  static int		firsttime=1;
-  
+  static int    firsttime=1;
+
   if (firsttime)
-  {  
+  {
     firsttime = 0;
-    
+
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 
@@ -495,7 +495,7 @@ void I_UpdateVideoMode(void)
 
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
-  
+
   // Initialize SDL with this graphics mode
 #ifdef GL_DOOM
   init_flags = SDL_OPENGL;
@@ -541,7 +541,7 @@ void I_UpdateVideoMode(void)
     if (out_buffer)
       free(out_buffer);
     out_buffer=NULL;
-    screens[0] = (unsigned char *) (screen->pixels); 
+    screens[0] = (unsigned char *) (screen->pixels);
   }
   else
   {

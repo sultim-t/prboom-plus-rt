@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.h,v 1.5 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: w_wad.h,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -58,9 +58,9 @@ typedef struct
 
 #ifndef ALL_IN_ONE
 
-// NO_PREDEFINED_LUMPS causes none of the predefined lumps in info.c to be 
+// NO_PREDEFINED_LUMPS causes none of the predefined lumps in info.c to be
 // included, and removes all extra code which is only there for them
-// Saves a little memory normally, lots if any were overridden, and makes 
+// Saves a little memory normally, lots if any were overridden, and makes
 // the executable smaller
 #define NO_PREDEFINED_LUMPS
 
@@ -74,7 +74,7 @@ typedef struct
 // Ty 08/29/98 - add source field to identify where this lump came from
 typedef enum {
   // CPhipps - define elements in order of 'how new/unusual'
-  source_iwad=0,    // iwad file load 
+  source_iwad=0,    // iwad file load
   source_pre,       // predefined lump
   source_auto_load, // lump auto-loaded by config file
   source_pwad,      // pwad file load
@@ -118,7 +118,7 @@ extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
 
 // CPhipps - changed wad init
-// We _must_ have the wadfiles[] the same as those actually loaded, so there 
+// We _must_ have the wadfiles[] the same as those actually loaded, so there
 // is no point having these separate entities. This belongs here.
 struct wadfile_info {
   const char* name;

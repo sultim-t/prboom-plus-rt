@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.13.2.2 2002/07/04 22:16:50 proff_fs Exp $
+ * $Id: r_data.c,v 1.13.2.3 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.13.2.2 2002/07/04 22:16:50 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.13.2.3 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -245,10 +245,10 @@ static void R_GenerateLookup(int texnum, int *const errors)
   // killough 4/9/98: make column offsets 32-bit;
   // clean up malloc-ing to use sizeof
   // CPhipps - moved allocing here
-  short *collump = texture->columnlump = 
+  short *collump = texture->columnlump =
     Z_Malloc(texture->width*sizeof(*texture->columnlump), PU_STATIC,0);
-  unsigned *colofs = texture->columnofs = 
-    Z_Malloc(texture->width*sizeof(*texture->columnofs), PU_STATIC,0); 
+  unsigned *colofs = texture->columnofs =
+    Z_Malloc(texture->width*sizeof(*texture->columnofs), PU_STATIC,0);
 
   // killough 4/9/98: keep count of posts in addition to patches.
   // Part of fix for medusa bug for multipatched 2s normals.
@@ -285,7 +285,7 @@ static void R_GenerateLookup(int texnum, int *const errors)
             colofs[x] = LONG(cofs[x])+3;
           }
 
-	W_UnlockLumpNum(pat);
+  W_UnlockLumpNum(pat);
       }
   }
 
@@ -311,7 +311,7 @@ static void R_GenerateLookup(int texnum, int *const errors)
                     "\nR_GenerateLookup: Column %d is without a patch in texture %.8s",
                     x, texture->name);
             if (errors) ++*errors;
-	    else I_Error("R_GenerateLookup: Failed");
+      else I_Error("R_GenerateLookup: Failed");
           }
         if (count[x].patches > 1)       // killough 4/9/98
           {
@@ -346,7 +346,7 @@ const byte *R_GetColumn(int tex, int col)
   {
   int lump = texture->columnlump[col &= texture->widthmask];
   int ofs  = texture->columnofs[col]; // cph - WARNING: must be after the above line
-  // cph - remember the last lump, so we can unlock it if no longer needed, 
+  // cph - remember the last lump, so we can unlock it if no longer needed,
   //  or reuse it if possible to reduce lump locking/unlocking
   static int lastlump = -1;
   static const byte* lastlumpdata;
@@ -395,7 +395,7 @@ void R_InitTextures (void)
   const int  *maptex1, *maptex2;
   char name[9];
   int names_lump; // cph - new wad lump handling
-  const char *names; // cph - 
+  const char *names; // cph -
   const char *name_p;// const*'s
   int  *patchlookup;
   int  totalwidth;
@@ -502,15 +502,15 @@ void R_InitTextures (void)
          * to be aligned. Technically a gcc bug, but I can't blame it when
          * it's stressed with that amount of
          * non-standard nonsense."
-	 * So in short the unaligned struct confuses gcc's optimizer so
-	 * i took the memcpy out alltogether to avoid future problems-Jess
+   * So in short the unaligned struct confuses gcc's optimizer so
+   * i took the memcpy out alltogether to avoid future problems-Jess
          */
       /* The above was #ifndef SPARC, but i got a mail from
        * Putera Joseph F NPRI <PuteraJF@Npt.NUWC.Navy.Mil> containing:
        *   I had to use the memcpy function on a sparc machine.  The
        *   other one would give me a core dump.
-       * cph - I find it hard to believe that sparc memcpy is broken, 
-       * but I don't believe the pointers to memcpy have to be aligned 
+       * cph - I find it hard to believe that sparc memcpy is broken,
+       * but I don't believe the pointers to memcpy have to be aligned
        * either. Use fast memcpy on other machines anyway.
        */
 /*
@@ -523,10 +523,10 @@ void R_InitTextures (void)
       memcpy(texture->name, mtexture->name, sizeof(texture->name));
 #else
 */
-      { 
-	      int j; 
-	      for(j=0;j<sizeof(texture->name);j++) 
-	        texture->name[j]=mtexture->name[j]; 
+      {
+        int j;
+        for(j=0;j<sizeof(texture->name);j++)
+          texture->name[j]=mtexture->name[j];
       }
 /* #endif */
 
@@ -556,7 +556,7 @@ void R_InitTextures (void)
 
       totalwidth += texture->width;
     }
- 
+
   free(patchlookup);         // killough
 
   for (i=0; i<2; i++) // cph - release the TEXTUREx lumps
@@ -565,7 +565,7 @@ void R_InitTextures (void)
 
   if (errors)
     I_Error("R_InitTextures: %d errors", errors);
-    
+
   // Precalculate whatever possible.
   if (devparm) // cph - If in development mode, generate now so all errors are found at once
     for (i=0 ; i<numtextures ; i++)
@@ -668,7 +668,7 @@ void R_InitColormaps(void)
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps, PU_STATIC, 0);
   colormaps[0] = (lighttable_t *)W_CacheLumpName("COLORMAP");
   for (i=1; i<numcolormaps; i++)
-    colormaps[i] = (lighttable_t *)W_CacheLumpNum(i+firstcolormaplump); 
+    colormaps[i] = (lighttable_t *)W_CacheLumpNum(i+firstcolormaplump);
   // cph - always lock
 }
 
@@ -732,8 +732,8 @@ void R_InitTranMap(int progress)
           long w1 = ((unsigned long) tran_filter_pct<<TSC)/100;
           long w2 = (1l<<TSC)-w1;
 
-	  if (progress)
-	    lprintf(LO_INFO, "Tranmap build [        ]\x08\x08\x08\x08\x08\x08\x08\x08\x08");
+    if (progress)
+      lprintf(LO_INFO, "Tranmap build [        ]\x08\x08\x08\x08\x08\x08\x08\x08\x08");
 
           // First, convert playpal into long int type, and transpose array,
           // for fast inner-loop calculations. Precompute tot array.
@@ -792,13 +792,13 @@ void R_InitTranMap(int progress)
               fseek(cachefp, 0, SEEK_SET);
               fwrite(&cache, 1, sizeof cache, cachefp);
               fwrite(main_tranmap, 256, 256, cachefp);
-	      // CPhipps - leave close for a few lines...
+        // CPhipps - leave close for a few lines...
             }
         }
 
       if (cachefp)              // killough 11/98: fix filehandle leak
         fclose(cachefp);
- 
+
       W_UnlockLumpName("PLAYPAL");
     }
 }

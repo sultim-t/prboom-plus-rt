@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_plats.c,v 1.5 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_plats.c,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_plats.c,v 1.5 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_plats.c,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -51,7 +51,7 @@ platlist_t *activeplats;       // killough 2/14/98: made global again
 // Passed a plat structure containing all pertinent information about the move
 // No return
 //
-// jff 02/08/98 all cases with labels beginning with gen added to support 
+// jff 02/08/98 all cases with labels beginning with gen added to support
 // generalized line type behaviors.
 
 void T_PlatRaise(plat_t* plat)
@@ -63,7 +63,7 @@ void T_PlatRaise(plat_t* plat)
   {
     case up: // plat moving up
       res = T_MovePlane(plat->sector,plat->speed,plat->high,plat->crush,0,1);
-                                        
+
       // if a pure raise type, make the plat moving sound
       if (plat->type == raiseAndChange
           || plat->type == raiseToNearestAndChange)
@@ -71,8 +71,8 @@ void T_PlatRaise(plat_t* plat)
         if (!(leveltime&7))
           S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_stnmov);
       }
-      
-      // if encountered an obstacle, and not a crush type, reverse direction                    
+
+      // if encountered an obstacle, and not a crush type, reverse direction
       if (res == crushed && (!plat->crush))
       {
         plat->count = plat->wait;
@@ -92,7 +92,7 @@ void T_PlatRaise(plat_t* plat)
           }
           else // else go into stasis awaiting next toggle activation
           {
-            plat->oldstatus = plat->status;//jff 3/14/98 after action wait  
+            plat->oldstatus = plat->status;//jff 3/14/98 after action wait
             plat->status = in_stasis;      //for reactivation of toggle
           }
 
@@ -112,7 +112,7 @@ void T_PlatRaise(plat_t* plat)
         }
       }
       break;
-        
+
     case down: // plat moving down
       res = T_MovePlane(plat->sector,plat->speed,plat->low,false,0,-1);
 
@@ -128,7 +128,7 @@ void T_PlatRaise(plat_t* plat)
         }
         else // instant toggles go into stasis awaiting next activation
         {
-          plat->oldstatus = plat->status;//jff 3/14/98 after action wait  
+          plat->oldstatus = plat->status;//jff 3/14/98 after action wait
           plat->status = in_stasis;      //for reactivation of toggle
         }
 
@@ -204,11 +204,11 @@ int EV_DoPlat
       P_ActivateInStasis(line->tag);
       rtn=1;
       break;
-        
+
     default:
       break;
   }
-      
+
   // act on all sectors tagged the same as the activating linedef
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
@@ -217,12 +217,12 @@ int EV_DoPlat
     // don't start a second floor function if already moving
     if (P_SectorActive(floor_special,sec)) //jff 2/23/98 multiple thinkers
       continue;
-      
+
     // Create a thinker
     rtn = 1;
     plat = Z_Malloc( sizeof(*plat), PU_LEVSPEC, 0);
     P_AddThinker(&plat->thinker);
-              
+
     plat->type = type;
     plat->sector = sec;
     plat->sector->floordata = plat; //jff 2/23/98 multiple thinkers
@@ -234,7 +234,7 @@ int EV_DoPlat
     //going down forever -- default low to plat height when triggered
     plat->low = sec->floorheight;
 
-    // set up plat according to type  
+    // set up plat according to type
     switch(type)
     {
       case raiseToNearestAndChange:
@@ -245,11 +245,11 @@ int EV_DoPlat
         plat->status = up;
         sec->special = 0;
         //jff 3/14/98 clear old field as well
-        sec->oldspecial = 0;               
+        sec->oldspecial = 0;
 
         S_StartSound((mobj_t *)&sec->soundorg,sfx_stnmov);
         break;
-          
+
       case raiseAndChange:
         plat->speed = PLATSPEED/2;
         sec->floorpic = sides[line->sidenum[0]].sector->floorpic;
@@ -259,7 +259,7 @@ int EV_DoPlat
 
         S_StartSound((mobj_t *)&sec->soundorg,sfx_stnmov);
         break;
-          
+
       case downWaitUpStay:
         plat->speed = PLATSPEED * 4;
         plat->low = P_FindLowestFloorSurrounding(sec);
@@ -272,7 +272,7 @@ int EV_DoPlat
         plat->status = down;
         S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
         break;
-          
+
       case blazeDWUS:
         plat->speed = PLATSPEED * 8;
         plat->low = P_FindLowestFloorSurrounding(sec);
@@ -285,7 +285,7 @@ int EV_DoPlat
         plat->status = down;
         S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
         break;
-          
+
       case perpetualRaise:
         plat->speed = PLATSPEED;
         plat->low = P_FindLowestFloorSurrounding(sec);
@@ -326,7 +326,7 @@ int EV_DoPlat
 // The following were all rewritten by Lee Killough
 // to use the new structure which places no limits
 // on active plats. It also avoids spending as much
-// time searching for active plats. Previously a 
+// time searching for active plats. Previously a
 // fixed-size array was used, with NULL indicating
 // empty entries, while now a doubly-linked list
 // is used.
@@ -334,7 +334,7 @@ int EV_DoPlat
 //
 // P_ActivateInStasis()
 //
-// Activate a plat that has been put in stasis 
+// Activate a plat that has been put in stasis
 // (stopped perpetual floor, instant floor/ceil toggle)
 //
 // Passed the tag of the plat that should be reactivated
@@ -346,7 +346,7 @@ void P_ActivateInStasis(int tag)
   for (pl=activeplats; pl; pl=pl->next)   // search the active plats
   {
     plat_t *plat = pl->plat;              // for one in stasis with right tag
-    if (plat->tag == tag && plat->status == in_stasis) 
+    if (plat->tag == tag && plat->status == in_stasis)
     {
       if (plat->type==toggleUpDn) //jff 3/14/98 reactivate toggle type
         plat->status = plat->oldstatus==up? down : up;
@@ -430,7 +430,7 @@ void P_RemoveActivePlat(plat_t* plat)
 void P_RemoveAllActivePlats(void)
 {
   while (activeplats)
-  {  
+  {
     platlist_t *next = activeplats->next;
     free(activeplats);
     activeplats = next;

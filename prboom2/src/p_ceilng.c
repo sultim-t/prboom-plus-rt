@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_ceilng.c,v 1.4 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_ceilng.c,v 1.4.2.1 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,16 +22,16 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION:  
+ * DESCRIPTION:
  *   Ceiling aninmation (lowering, crushing, raising)
  *
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_ceilng.c,v 1.4 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_ceilng.c,v 1.4.2.1 2002/07/20 18:08:36 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -57,7 +57,7 @@ ceilinglist_t *activeceilings;
 // Passed a ceiling_t structure that contains all the info about the move.
 // see P_SPEC.H for fields. No return.
 //
-// jff 02/08/98 all cases with labels beginning with gen added to support 
+// jff 02/08/98 all cases with labels beginning with gen added to support
 // generalized line type behaviors.
 //
 void T_MoveCeiling (ceiling_t* ceiling)
@@ -133,7 +133,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
         }
       }
       break;
-  
+
     case -1:
       // Ceiling moving down
       res = T_MovePlane
@@ -177,12 +177,12 @@ void T_MoveCeiling (ceiling_t* ceiling)
           // except generalized ones, reset speed, start back up
           case silentCrushAndRaise:
             S_StartSound((mobj_t *)&ceiling->sector->soundorg,sfx_pstop);
-          case crushAndRaise: 
+          case crushAndRaise:
             ceiling->speed = CEILSPEED;
           case fastCrushAndRaise:
             ceiling->direction = 1;
             break;
-          
+
           // in the case of ceiling mover/changer, change the texture
           // then remove the active ceiling
           case genCeilingChgT:
@@ -216,7 +216,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
           switch(ceiling->type)
           {
             //jff 02/08/98 slow down slow crushers on obstacle
-            case genCrusher:  
+            case genCrusher:
             case genSilentCrusher:
               if (ceiling->oldspeed < CEILSPEED*3)
                 ceiling->speed = CEILSPEED / 8;
@@ -269,7 +269,7 @@ int EV_DoCeiling
     default:
       break;
   }
-  
+
   // affects all sectors with the same tag as the linedef
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
@@ -278,7 +278,7 @@ int EV_DoCeiling
     // if ceiling already moving, don't start a second function on it
     if (P_SectorActive(ceiling_special,sec))  //jff 2/22/98
       continue;
-  
+
     // create a new ceiling thinker
     rtn = 1;
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
@@ -287,7 +287,7 @@ int EV_DoCeiling
     ceiling->thinker.function = T_MoveCeiling;
     ceiling->sector = sec;
     ceiling->crush = false;
-  
+
     // setup ceiling structure according to type of function
     switch(type)
     {
@@ -333,7 +333,7 @@ int EV_DoCeiling
       default:
         break;
     }
-    
+
     // add the ceiling to the active list
     ceiling->tag = sec->tag;
     ceiling->type = type;
@@ -353,7 +353,7 @@ int EV_DoCeiling
 // The following were all rewritten by Lee Killough
 // to use the new structure which places no limits
 // on active ceilings. It also avoids spending as much
-// time searching for active ceilings. Previously a 
+// time searching for active ceilings. Previously a
 // fixed-size array was used, with NULL indicating
 // empty entries, while now a doubly-linked list
 // is used.
@@ -460,7 +460,7 @@ void P_RemoveActiveCeiling(ceiling_t* ceiling)
 void P_RemoveAllActiveCeilings(void)
 {
   while (activeceilings)
-  {  
+  {
     ceilinglist_t *next = activeceilings->next;
     free(activeceilings);
     activeceilings = next;

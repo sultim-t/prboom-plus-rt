@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.6.2.1 2002/07/04 22:17:21 proff_fs Exp $
+ * $Id: i_system.c,v 1.6.2.2 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.6.2.1 2002/07/04 22:17:21 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.6.2.2 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -69,7 +69,7 @@ rcsid[] = "$Id: i_system.c,v 1.6.2.1 2002/07/04 22:17:21 proff_fs Exp $";
 
 void I_uSleep(unsigned long usecs)
 {
-	  SDL_Delay(usecs/1000);
+    SDL_Delay(usecs/1000);
 }
 
 int I_GetTime_RealTime (void)
@@ -83,13 +83,13 @@ int I_GetTime_RealTime (void)
  * CPhipps - extracted from G_ReloadDefaults because it is O/S based
  */
 unsigned long I_GetRandomTimeSeed(void)
-{                            
+{
 /* This isnt very random */
   return(SDL_GetTicks());
 }
 
 /* cphipps - I_GetVersionString
- * Returns a version string in the given buffer 
+ * Returns a version string in the given buffer
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
@@ -165,7 +165,7 @@ char *I_DoomExeDir(void)
 }
 #endif
 
-/* 
+/*
  * HasTrailingSlash
  *
  * cphipps - simple test for trailing slash on dir names
@@ -176,34 +176,34 @@ static boolean HasTrailingSlash(const char* dn)
   return (dn[strlen(dn)-1] == '/');
 }
 
-/* 
+/*
  * I_FindFile
  *
  * proff_fs 2002-07-04 - moved to i_system
  *
- * cphipps 19/1999 - writen to unify the logic in FindIWADFile and the WAD 
- * 			autoloading code.
+ * cphipps 19/1999 - writen to unify the logic in FindIWADFile and the WAD
+ *      autoloading code.
  * Searches the standard dirs for a named WAD file
- * The dirs are: 
- * . 
- * DOOMWADDIR 
- * ~/doom 
- * /usr/share/games/doom 
+ * The dirs are:
+ * .
+ * DOOMWADDIR
+ * ~/doom
+ * /usr/share/games/doom
  * /usr/local/share/games/doom
  * ~
  */
 
 char* I_FindFile(const char* wfname, const char* ext)
 {
-  int		i;
+  int   i;
   /* Precalculate a length we will need in the loop */
-  size_t	pl = strlen(wfname) + strlen(ext) + 4;
+  size_t  pl = strlen(wfname) + strlen(ext) + 4;
 
   for (i=0; i<8; i++) {
-    char	*	p;
-    const char	*	d = NULL;
-    const char	*	s = NULL;
-    /* Each entry in the switch sets d to the directory to look in, 
+    char  * p;
+    const char  * d = NULL;
+    const char  * s = NULL;
+    /* Each entry in the switch sets d to the directory to look in,
      * and optionally s to a subdirectory of d */
     switch(i) {
     case 1:

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: protocol.h,v 1.6 2000/12/27 18:46:59 cph Exp $
+ * $Id: protocol.h,v 1.6.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -33,7 +33,7 @@
 #include "d_ticcmd.h"
 #include "m_swap.h"
 
-enum packet_type_e { 
+enum packet_type_e {
   PKT_INIT,    // initial packet to server
   PKT_SETUP,   // game information packet
   PKT_GO,      // game has started
@@ -79,8 +79,8 @@ inline static void RawToTic(ticcmd_t* dst, const void* src)
 
 inline static void TicToRaw(void* dst, const ticcmd_t* src)
 {
-  /* We have to make a copy of the source struct, then do byte swaps, 
-   * and fnially copy to the destination (can't do the swaps in the 
+  /* We have to make a copy of the source struct, then do byte swaps,
+   * and fnially copy to the destination (can't do the swaps in the
    * destination, because it might not be aligned).
    */
   ticcmd_t tmp = *src;

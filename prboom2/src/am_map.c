@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.11 2000/11/19 20:24:10 proff_fs Exp $
+ * $Id: am_map.c,v 1.11.2.1 2002/07/20 18:08:33 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,17 +22,17 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION:  
+ * DESCRIPTION:
  *   the automap code
  *
  *-----------------------------------------------------------------------------
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.11 2000/11/19 20:24:10 proff_fs Exp $";
+  "$Id: am_map.c,v 1.11.2.1 2002/07/20 18:08:33 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -224,7 +224,7 @@ static fixed_t  m_h;
 
 // based on level size
 static fixed_t  min_x;
-static fixed_t  min_y; 
+static fixed_t  min_y;
 static fixed_t  max_x;
 static fixed_t  max_y;
 
@@ -370,7 +370,7 @@ void AM_addMark(void)
 
   if (markpointnum >= markpointnum_max)
     markpoints = realloc(markpoints,
-                        (markpointnum_max = markpointnum_max ? 
+                        (markpointnum_max = markpointnum_max ?
                          markpointnum_max*2 : 16) * sizeof(*markpoints));
 
   markpoints[markpointnum].x = m_x + m_w/2;
@@ -502,7 +502,7 @@ void AM_initVariables(void)
 
 //
 // AM_loadPics()
-// 
+//
 void AM_loadPics(void)
 {
   // cph - mark numbers no longer needed cached
@@ -573,8 +573,8 @@ void AM_Stop (void)
 
 //
 // AM_Start()
-// 
-// Start up automap operations, 
+//
+// Start up automap operations,
 //  if a new level, or game start, (re)initialize level variables
 //  init map variables
 //  load mark patches
@@ -707,19 +707,19 @@ boolean AM_Responder
       automapmode ^= am_follow;     // CPhipps - put all automap mode stuff into one enum
       f_oldloc.x = INT_MAX;
       // Ty 03/27/98 - externalized
-      plr->message = (automapmode & am_follow) ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF;  
+      plr->message = (automapmode & am_follow) ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF;
     }
     else if (ch == key_map_grid)
     {
       automapmode ^= am_grid;      // CPhipps
       // Ty 03/27/98 - *not* externalized
-      plr->message = (automapmode & am_grid) ? s_AMSTR_GRIDON : s_AMSTR_GRIDOFF;  
+      plr->message = (automapmode & am_grid) ? s_AMSTR_GRIDON : s_AMSTR_GRIDOFF;
     }
     else if (ch == key_map_mark)
     {
-      // Ty 03/27/98 - *not* externalized     
-#ifdef HAVE_SNPRINTF 
-      snprintf(buffer, sizeof(buffer), "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);  
+      // Ty 03/27/98 - *not* externalized
+#ifdef HAVE_SNPRINTF
+      snprintf(buffer, sizeof(buffer), "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
 #else
       sprintf(buffer, "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
 #endif
@@ -733,11 +733,11 @@ boolean AM_Responder
     }                                                           //    |
     else if (ch == key_map_rotate) {
       automapmode ^= am_rotate;
-      plr->message = (automapmode & am_rotate) ? s_AMSTR_ROTATEON : s_AMSTR_ROTATEOFF;  
+      plr->message = (automapmode & am_rotate) ? s_AMSTR_ROTATEON : s_AMSTR_ROTATEOFF;
     }
     else if (ch == key_map_overlay) {
       automapmode ^= am_overlay;
-      plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;  
+      plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;
     }
     else                                                        // phares
     {
@@ -797,7 +797,7 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t
     FixedMul(*x - xorig,finecosine[a>>ANGLETOFINESHIFT])
       - FixedMul(*y - yorig,finesine[a>>ANGLETOFINESHIFT]);
 
-  *y   = yorig + 
+  *y   = yorig +
     FixedMul(*x - xorig,finesine[a>>ANGLETOFINESHIFT])
       + FixedMul(*y - yorig,finecosine[a>>ANGLETOFINESHIFT]);
 
@@ -902,7 +902,7 @@ boolean AM_clipMline
   int   dx;
   int   dy;
 
-    
+
 #define DOOUTCODE(oc, mx, my) \
   (oc) = 0; \
   if ((my) < 0) (oc) |= TOP; \
@@ -910,7 +910,7 @@ boolean AM_clipMline
   if ((mx) < 0) (oc) |= LEFT; \
   else if ((mx) >= f_w) (oc) |= RIGHT;
 
-    
+
   // do trivial rejects and outcodes
   if (ml->a.y > m_y2)
   outcode1 = TOP;
@@ -1032,7 +1032,7 @@ void AM_drawFline
   register int ay;
   register int d;
 
-#ifdef RANGECHECK         // killough 2/22/98    
+#ifdef RANGECHECK         // killough 2/22/98
   static int fuck = 0;
 
   // For debugging only
@@ -1334,7 +1334,7 @@ void AM_drawWalls(void)
         // jff 1/10/98 add color change for all teleporter types
         if
         (
-            mapcolor_tele && !(lines[i].flags & ML_SECRET) && 
+            mapcolor_tele && !(lines[i].flags & ML_SECRET) &&
             (lines[i].special == 39 || lines[i].special == 97 ||
             lines[i].special == 125 || lines[i].special == 126)
         )
@@ -1347,7 +1347,7 @@ void AM_drawWalls(void)
         }
         else if
         (
-            mapcolor_clsd &&  
+            mapcolor_clsd &&
             !(lines[i].flags & ML_SECRET) &&    // non-secret closed door
             ((lines[i].backsector->floorheight==lines[i].backsector->ceilingheight) ||
             (lines[i].frontsector->floorheight==lines[i].frontsector->ceilingheight))
@@ -1362,7 +1362,7 @@ void AM_drawWalls(void)
               (map_secret_after &&
                (
                 (P_WasSecret(lines[i].frontsector)
-                 && !P_IsSecret(lines[i].frontsector)) || 
+                 && !P_IsSecret(lines[i].frontsector)) ||
                 (P_WasSecret(lines[i].backsector)
                  && !P_IsSecret(lines[i].backsector))
                )
@@ -1389,8 +1389,8 @@ void AM_drawWalls(void)
           AM_drawMline(&l, mapcolor_cchg); // ceiling level change
         }
         else if (mapcolor_flat && ddt_cheating)
-        { 
-          AM_drawMline(&l, mapcolor_flat); //2S lines that appear only in IDDT  
+        {
+          AM_drawMline(&l, mapcolor_flat); //2S lines that appear only in IDDT
         }
       }
     } // now draw the lines only visible because the player has computermap
@@ -1479,7 +1479,7 @@ void AM_drawLineCharacter
 //
 // AM_drawPlayers()
 //
-// Draws the player arrow in single player, 
+// Draws the player arrow in single player,
 // or all the player arrows in a netgame.
 //
 // Passed nothing, returns nothing
@@ -1500,7 +1500,7 @@ void AM_drawPlayers(void)
         mapcolor_sngl,      //jff color
         plr->mo->x,
         plr->mo->y
-      ); 
+      );
     else
       AM_drawLineCharacter
       (
@@ -1510,25 +1510,25 @@ void AM_drawPlayers(void)
         plr->mo->angle,
         mapcolor_sngl,      //jff color
         plr->mo->x,
-        plr->mo->y);        
+        plr->mo->y);
     return;
   }
 
   for (i=0;i<MAXPLAYERS;i++) {
     player_t* p = &players[i];
-    
+
     if ( (deathmatch && !singledemo) && p != plr)
       continue;
 
     if (playeringame[i]) {
       fixed_t x = p->mo->x, y = p->mo->y;
       if (automapmode & am_rotate)
-	AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, p->mo->angle,
-			    p->powers[pw_invisibility] ? 246 /* *close* to black */ 
-			    : mapcolor_plyr[i], //jff 1/6/98 use default color
-			    x, y);
+          p->powers[pw_invisibility] ? 246 /* *close* to black */
+          : mapcolor_plyr[i], //jff 1/6/98 use default color
+          x, y);
     }
   }
 }
@@ -1557,7 +1557,7 @@ void AM_drawThings
       fixed_t x = t->x, y = t->y;
 
       if (automapmode & am_rotate)
-	AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
 
       //jff 1/5/98 case over doomednum of thing being drawn
       if (mapcolor_rkey || mapcolor_ykey || mapcolor_bkey)
@@ -1655,11 +1655,11 @@ void AM_drawMarks(void)
           fx++;
 
         if (fx >= f_x && fx < f_w - w && fy >= f_y && fy < f_h - h) {
-	  // cph - construct patch name and draw marker
-	  char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
-	  
+    // cph - construct patch name and draw marker
+    char namebuf[] = { 'A', 'M', 'M', 'N', 'U', 'M', '0'+d, 0 };
+
           V_DrawNamePatch(fx, fy, FB, namebuf, CR_DEFAULT, VPT_NONE);
-	}
+  }
         fx -= w-1;          // killough 2/22/98: 1 space backwards
         j /= 10;
       }

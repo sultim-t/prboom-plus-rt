@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_inter.c,v 1.6.2.1 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.6.2.1 2002/07/20 18:08:36 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -634,39 +634,39 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
     }
     else
       if (target->flags & MF_COUNTKILL) { /* Add to kills tally */
-	if ((compatibility_level < lxdoom_1_compatibility) || !netgame) {
-	  if (!netgame)
-	    // count all monster deaths,
-	    // even those caused by other monsters
-	    players[0].killcount++;
-	} else
-	  if (!deathmatch) {
-	    // try and find a player to give the kill to, otherwise give the
-	    // kill to a random player.  this fixes the missing monsters bug
-	    // in coop - rain
-	    // CPhipps - not a bug as such, but certainly an inconsistency. 
-	    if (target->lastenemy && target->lastenemy->health > 0 
-		&& target->lastenemy->player) // Fighting a player
-  	      target->lastenemy->player->killcount++;
-  	    else {
-	      // cph - randomely choose a player in the game to be credited
-	      //  and do it uniformly between the active players
-	      unsigned int activeplayers = 0, player, i;
-	      
-	      for (player = 0; player<MAXPLAYERS; player++)
-		if (playeringame[player])
-		  activeplayers++;
+  if ((compatibility_level < lxdoom_1_compatibility) || !netgame) {
+    if (!netgame)
+      // count all monster deaths,
+      // even those caused by other monsters
+      players[0].killcount++;
+  } else
+    if (!deathmatch) {
+      // try and find a player to give the kill to, otherwise give the
+      // kill to a random player.  this fixes the missing monsters bug
+      // in coop - rain
+      // CPhipps - not a bug as such, but certainly an inconsistency.
+      if (target->lastenemy && target->lastenemy->health > 0
+    && target->lastenemy->player) // Fighting a player
+          target->lastenemy->player->killcount++;
+        else {
+        // cph - randomely choose a player in the game to be credited
+        //  and do it uniformly between the active players
+        unsigned int activeplayers = 0, player, i;
 
-	      if (activeplayers) {
-		player = P_Random(pr_friends) % activeplayers;
+        for (player = 0; player<MAXPLAYERS; player++)
+    if (playeringame[player])
+      activeplayers++;
 
-		for (i=0; i<MAXPLAYERS; i++)
-		  if (playeringame[i])
-		    if (!player--)
-		      players[i].killcount++;
-	      }
-	    }
-	  }
+        if (activeplayers) {
+    player = P_Random(pr_friends) % activeplayers;
+
+    for (i=0; i<MAXPLAYERS; i++)
+      if (playeringame[i])
+        if (!player--)
+          players[i].killcount++;
+        }
+      }
+    }
       }
 
   if (target->player)
@@ -743,7 +743,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
   if (target->health <= 0)
     return;
-  
+
   /* proff 11/22/98: Andy Baker's Stealth monsters */
   if (target->flags & MF_STEALTH)
     P_BecomeVisible(target);
@@ -783,7 +783,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
       /* killough 11/98: thrust objects hanging off ledges */
       if (target->intflags & MIF_FALLING && target->gear >= MAXGEAR)
-      	target->gear = 0;
+        target->gear = 0;
     }
 
   // player specific
@@ -840,26 +840,26 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
        * so that a friend can tell who's hurting a player
        */
       if (player)
-	P_SetTarget(&target->target, source);
-      
+  P_SetTarget(&target->target, source);
+
       /* killough 9/8/98:
        * If target's health is less than 50%, move it to the front of its list.
        * This will slightly increase the chances that enemies will choose to
        * "finish it off", but its main purpose is to alert friends of danger.
        */
       if (target->health*2 < target->info->spawnhealth)
-	{
-	  thinker_t *cap = &thinkerclasscap[target->flags & MF_FRIEND ? 
-					   th_friends : th_enemies];
-	  (target->thinker.cprev->cnext = target->thinker.cnext)->cprev =
-	    target->thinker.cprev;
-	  (target->thinker.cnext = cap->cnext)->cprev = &target->thinker;
-	  (target->thinker.cprev = cap)->cnext = &target->thinker;
-	}
+  {
+    thinker_t *cap = &thinkerclasscap[target->flags & MF_FRIEND ?
+             th_friends : th_enemies];
+    (target->thinker.cprev->cnext = target->thinker.cnext)->cprev =
+      target->thinker.cprev;
+    (target->thinker.cnext = cap->cnext)->cprev = &target->thinker;
+    (target->thinker.cprev = cap)->cnext = &target->thinker;
+  }
     }
 
   if ((justhit = (P_Random (pr_painchance) < target->info->painchance &&
-		  !(target->flags & MF_SKULLFLY)))) //killough 11/98: see below
+      !(target->flags & MF_SKULLFLY)))) //killough 11/98: see below
     P_SetMobjState(target, target->info->painstate);
 
   target->reactiontime = 0;           // we're awake now...
@@ -868,8 +868,8 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
   if (source && source != target && source->type != MT_VILE &&
       (!target->threshold || target->type == MT_VILE) &&
-      ((source->flags ^ target->flags) & MF_FRIEND || 
-       monster_infighting || 
+      ((source->flags ^ target->flags) & MF_FRIEND ||
+       monster_infighting ||
        !mbf_features))
     {
       /* if not intent on another player, chase after this one
@@ -880,11 +880,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
        */
 
       if (!target->lastenemy || target->lastenemy->health <= 0 ||
-	  (!mbf_features ? 
-	   !target->lastenemy->player :
-	   !((target->flags ^ target->lastenemy->flags) & MF_FRIEND) &&
-	   target->target != source)) // remember last enemy - killough
-	P_SetTarget(&target->lastenemy, target->target);
+    (!mbf_features ?
+     !target->lastenemy->player :
+     !((target->flags ^ target->lastenemy->flags) & MF_FRIEND) &&
+     target->target != source)) // remember last enemy - killough
+  P_SetTarget(&target->lastenemy, target->target);
 
       P_SetTarget(&target->target, source);       // killough 11/98
       target->threshold = BASETHRESHOLD;
@@ -895,6 +895,6 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
   /* killough 11/98: Don't attack a friend, unless hit by that friend. */
   if (justhit && (target->target == source || !target->target ||
-		  !(target->flags & target->target->flags & MF_FRIEND)))
+      !(target->flags & target->target->flags & MF_FRIEND)))
     target->flags |= MF_JUSTHIT;    // fight back!
 }

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_lib.c,v 1.4 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: hu_lib.c,v 1.4.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  heads-up text and input code
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_lib.c,v 1.4 2000/09/16 20:20:36 proff_fs Exp $";
+rcsid[] = "$Id: hu_lib.c,v 1.4.2.1 2002/07/20 18:08:34 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -87,7 +87,7 @@ void HUlib_clearTextLine(hu_textline_t* t)
 // Returns nothing
 //
 void HUlib_initTextLine(hu_textline_t* t, int x, int y,
-			const patchnum_t* f, int sc, int cm  )
+      const patchnum_t* f, int sc, int cm  )
   //jff 2/16/98 add color range parameter
 {
   t->x = x;
@@ -116,7 +116,7 @@ boolean HUlib_addCharToTextLine
   else
   {
     t->linelen++;
-    if (ch == '\n') 
+    if (ch == '\n')
       t->linelen=0;
 
     t->l[t->len++] = ch;
@@ -239,7 +239,7 @@ void HUlib_eraseTextLine(hu_textline_t* l)
       else
       {
         // erase left border
-        R_VideoErase(yoffset, viewwindowx); 
+        R_VideoErase(yoffset, viewwindowx);
         // erase right border
         R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
       }
@@ -358,7 +358,7 @@ void HUlib_drawSText(hu_stext_t* s)
     idx = s->cl - i;
     if (idx < 0)
       idx += s->h; // handle queue of lines
-  
+
     l = &s->l[idx];
 
     // need a decision made here on whether to skip the draw
@@ -391,14 +391,14 @@ void HUlib_eraseSText(hu_stext_t* s)
 //
 // Scrolling message review widget
 //
-// jff added 2/26/98 
+// jff added 2/26/98
 //
 ////////////////////////////////////////////////////////
 
 //
 // HUlib_initMText()
 //
-// Initialize a hu_mtext_t widget. Set the position, width, number of lines, 
+// Initialize a hu_mtext_t widget. Set the position, width, number of lines,
 // font, start char of the font, color range, background font, and whether
 // enabled.
 //
@@ -406,8 +406,8 @@ void HUlib_eraseSText(hu_stext_t* s)
 // Returns nothing
 //
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h,
-		     const patchnum_t* font, int startchar, int cm,
-		     const patchnum_t* bgfont, boolean *on)
+         const patchnum_t* font, int startchar, int cm,
+         const patchnum_t* bgfont, boolean *on)
 {
   int i;
 
@@ -500,7 +500,7 @@ void HUlib_drawMBg
   // top rows
   V_DrawNumPatch(x, y, FG, bgp[0].lumpnum, CR_DEFAULT, VPT_STRETCH);    // ul
   for (j=x+xs;j<x+w-xs;j+=xs)           // uc
-    V_DrawNumPatch(j, y, FG, bgp[1].lumpnum, CR_DEFAULT, VPT_STRETCH);  
+    V_DrawNumPatch(j, y, FG, bgp[1].lumpnum, CR_DEFAULT, VPT_STRETCH);
   V_DrawNumPatch(j, y, FG, bgp[2].lumpnum, CR_DEFAULT, VPT_STRETCH);    // ur
 
   // middle rows
@@ -508,14 +508,14 @@ void HUlib_drawMBg
   {
     V_DrawNumPatch(x, i, FG, bgp[3].lumpnum, CR_DEFAULT, VPT_STRETCH);    // cl
     for (j=x+xs;j<x+w-xs;j+=xs)           // cc
-      V_DrawNumPatch(j, i, FG, bgp[4].lumpnum, CR_DEFAULT, VPT_STRETCH);  
+      V_DrawNumPatch(j, i, FG, bgp[4].lumpnum, CR_DEFAULT, VPT_STRETCH);
     V_DrawNumPatch(j, i, FG, bgp[5].lumpnum, CR_DEFAULT, VPT_STRETCH);    // cr
   }
 
   // bottom row
   V_DrawNumPatch(x, i, FG, bgp[6].lumpnum, CR_DEFAULT, VPT_STRETCH);    // ll
   for (j=x+xs;j<x+w-xs;j+=xs)           // lc
-    V_DrawNumPatch(j, i, FG, bgp[7].lumpnum, CR_DEFAULT, VPT_STRETCH);  
+    V_DrawNumPatch(j, i, FG, bgp[7].lumpnum, CR_DEFAULT, VPT_STRETCH);
   V_DrawNumPatch(j, i, FG, bgp[8].lumpnum, CR_DEFAULT, VPT_STRETCH);    // lr
 }
 
@@ -544,16 +544,16 @@ void HUlib_drawMText(hu_mtext_t* m)
     idx = m->cl - i;
     if (idx < 0)
       idx += m->nl; // handle queue of lines
-  
+
     l = &m->l[idx];
     if (hud_list_bgon)
     {
-      l->x = m->x + 4;                      
+      l->x = m->x + 4;
       l->y = m->y + (i+1)*HU_REFRESHSPACING;
     }
     else
     {
-      l->x = m->x;                      
+      l->x = m->x;
       l->y = m->y + i*HU_REFRESHSPACING;
     }
 
@@ -593,7 +593,7 @@ static void HUlib_eraseMBg(hu_mtext_t* m)
         R_VideoErase(yoffset, viewwindowx);
         // erase right border
         R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
-        
+
       }
     }
   }
@@ -611,7 +611,7 @@ void HUlib_eraseMText(hu_mtext_t* m)
 {
   int i;
 
-  if (hud_list_bgon)  
+  if (hud_list_bgon)
     HUlib_eraseMBg(m);
 
   for (i=0 ; i< m->nl ; i++)
@@ -630,7 +630,7 @@ void HUlib_eraseMText(hu_mtext_t* m)
 //
 // HUlib_initIText()
 //
-// Initialize a hu_itext_t widget. Set the position, font, 
+// Initialize a hu_itext_t widget. Set the position, font,
 // start char of the font, color range, and whether enabled.
 //
 // Passed a hu_itext_t, and the values used to initialize
@@ -727,11 +727,11 @@ boolean HUlib_keyInIText
   unsigned char ch )
 {
 
-  if (ch >= ' ' && ch <= '_') 
+  if (ch >= ' ' && ch <= '_')
     HUlib_addCharToTextLine(&it->l, (char) ch);
-  else if (ch == key_backspace)                   // phares 
+  else if (ch == key_backspace)                   // phares
     HUlib_delCharFromIText(it);
-  else if (ch != key_enter)                       // phares 
+  else if (ch != key_enter)                       // phares
     return false;                                 // did not eat key
 
   return true;                                    // ate the key

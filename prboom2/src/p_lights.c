@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_lights.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_lights.c,v 1.6.2.1 2002/07/20 18:08:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_lights.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_lights.c,v 1.6.2.1 2002/07/20 18:08:36 proff_fs Exp $";
 
 #include "doomstat.h" //jff 5/18/98
 #include "doomdef.h"
@@ -59,7 +59,7 @@ rcsid[] = "$Id: p_lights.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
 void T_FireFlicker (fireflicker_t* flick)
 {
   int amount;
-  
+
   if (--flick->count)
     return;
 
@@ -251,7 +251,7 @@ void P_SpawnStrobeFlash
   flash->thinker.function = T_StrobeFlash;
   flash->maxlight = sector->lightlevel;
   flash->minlight = P_FindMinSurroundingLight(sector, sector->lightlevel);
-  
+
   if (flash->minlight == flash->maxlight)
     flash->minlight = 0;
 
@@ -337,7 +337,7 @@ int EV_StartLightStrobing(line_t* line)
 int EV_TurnTagLightsOff(line_t* line)
 {
   int j;
-  
+
   // search sectors for those with same tag as activating line
 
   // killough 10/98: replaced inefficient search with fast search
@@ -347,9 +347,9 @@ int EV_TurnTagLightsOff(line_t* line)
       int i, min = sector->lightlevel;
       // find min neighbor light level
       for (i = 0;i < sector->linecount; i++)
-	if ((tsec = getNextSector(sector->lines[i], sector)) &&
-	    tsec->lightlevel < min)
-	  min = tsec->lightlevel;
+  if ((tsec = getNextSector(sector->lines[i], sector)) &&
+      tsec->lightlevel < min)
+    min = tsec->lightlevel;
       sector->lightlevel = min;
     }
   return 1;
@@ -381,17 +381,17 @@ int EV_LightTurnOn(line_t *line, int bright)
       // bright = 0 means to search for highest light level surrounding sector
 
       if (!bright)
-	for (j = 0;j < sector->linecount; j++)
-	  if ((temp = getNextSector(sector->lines[j],sector)) &&
-	      temp->lightlevel > tbright)
-	    tbright = temp->lightlevel;
+  for (j = 0;j < sector->linecount; j++)
+    if ((temp = getNextSector(sector->lines[j],sector)) &&
+        temp->lightlevel > tbright)
+      tbright = temp->lightlevel;
 
       sector->lightlevel = tbright;
-      
-      //jff 5/17/98 unless compatibility optioned 
+
+      //jff 5/17/98 unless compatibility optioned
       //then maximum near ANY tagged sector
       if (comp[comp_model])
-	bright = tbright;
+  bright = tbright;
     }
   return 1;
 }
@@ -413,7 +413,7 @@ int EV_LightTurnOnPartway(line_t *line, fixed_t level)
 {
   int i;
 
-  if (level < 0)          // clip at extremes 
+  if (level < 0)          // clip at extremes
     level = 0;
   if (level > FRACUNIT)
     level = FRACUNIT;
@@ -425,16 +425,16 @@ int EV_LightTurnOnPartway(line_t *line, fixed_t level)
       int j, bright = 0, min = sector->lightlevel;
 
       for (j = 0; j < sector->linecount; j++)
-	if ((temp = getNextSector(sector->lines[j],sector)))
-	  {
-	    if (temp->lightlevel > bright)
-	      bright = temp->lightlevel;
-	    if (temp->lightlevel < min)
-	      min = temp->lightlevel;
-	  }
+  if ((temp = getNextSector(sector->lines[j],sector)))
+    {
+      if (temp->lightlevel > bright)
+        bright = temp->lightlevel;
+      if (temp->lightlevel < min)
+        min = temp->lightlevel;
+    }
 
       sector->lightlevel =   // Set level in-between extremes
-	(level * bright + (FRACUNIT-level) * min) >> FRACBITS;
+  (level * bright + (FRACUNIT-level) * min) >> FRACBITS;
     }
   return 1;
 }

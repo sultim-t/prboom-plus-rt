@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.h,v 1.3.2.2 2002/07/04 22:18:43 proff_fs Exp $
+ * $Id: i_sound.h,v 1.3.2.3 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -90,7 +90,7 @@ void I_ResumeSong(int handle);
 // Registers a song handle to song data.
 int I_RegisterSong(const void *data, size_t len);
 
-// cournia - tries to load a music file 
+// cournia - tries to load a music file
 int I_RegisterMusic( const char* filename, musicinfo_t *music );
 
 // Called by anything that wishes to start music.
@@ -111,7 +111,7 @@ extern int mus_card;
 // CPhipps - put these in config file
 extern const char* sndserver_filename;
 extern const char* snd_device;
-extern const char* musserver_filename; 
+extern const char* musserver_filename;
 extern int snd_samplerate;
 
 #endif

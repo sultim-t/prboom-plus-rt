@@ -1,13 +1,13 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_network.c,v 1.3 2000/11/12 14:59:29 cph Exp $
+ * $Id: i_network.c,v 1.3.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
- *  New UDP networking code for LxDoom, based in part on 
+ *  New UDP networking code for LxDoom, based in part on
  *  the original linuxdoom networking
  *  Copyright (C) 1993-1996 by id Software
  *  Copyright (C) 1999-2000 by Colin Phipps
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -20,11 +20,11 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *  UDP network client stuff. Mainly the code to set up sockets and 
+ *  UDP network client stuff. Mainly the code to set up sockets and
  * contact the server.
  *
  *-----------------------------------------------------------------------------*/
@@ -67,7 +67,7 @@ static int GetInAddr(const char* host, struct sockaddr *s_addr)
   } else addr->sin_port = doom_htons(5030 /* Default server port */);
 
   if (isalpha(hostname[0])) {
-    struct hostent*    hostentry;  
+    struct hostent*    hostentry;
     if (!(hostentry = gethostbyname(hostname))) return 0;
     addr->sin_addr.s_addr = *(unsigned long int*)hostentry->h_addr;
   } else {
@@ -93,9 +93,9 @@ void I_InitNetwork(const char* serv, int pn)
   struct { packet_header_t head; short pn; char myaddr[200]; } initpacket;
 
   // Get local & remote network addresses
-  if (!GetInAddr(serv, &sendtoaddr)) 
+  if (!GetInAddr(serv, &sendtoaddr))
     I_Error("I_InitNetwork: Unable to locate server");
-  if (gethostname(initpacket.myaddr, 200)<0) 
+  if (gethostname(initpacket.myaddr, 200)<0)
     strcpy(initpacket.myaddr, "too.long");
 
   { /* Set up our socket */

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: i_main.c,v 1.10.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,19 +22,19 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *      Startup and quit functions. Handles signals, inits the 
- *      memory management, then calls D_DoomMain. Also contains 
+ *      Startup and quit functions. Handles signals, inits the
+ *      memory management, then calls D_DoomMain. Also contains
  *      I_Init which does other system-related startup stuff.
  *
  *-----------------------------------------------------------------------------
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.10.2.1 2002/07/20 18:08:34 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -115,7 +115,7 @@ void I_Init(void)
     else
       I_GetTime = I_GetTime_RealTime;
 
-  { 
+  {
     /* killough 2/21/98: avoid sound initialization if no sound & no music */
     extern boolean nomusicparm, nosfxparm;
     if (!(nomusicparm && nosfxparm))
@@ -155,7 +155,7 @@ static void I_SignalHandler(int s)
 
 /* killough 2/22/98: Add support for ENDBOOM, which is PC-specific
  *
- * this converts BIOS color codes to ANSI codes.  
+ * this converts BIOS color codes to ANSI codes.
  * Its not pretty, but it does the job - rain
  * CPhipps - made static
  */
@@ -189,8 +189,8 @@ inline static int convert(int color, int *bold)
 
 /* CPhipps - flags controlling ENDOOM behaviour */
 enum {
-  endoom_colours = 1, 
-  endoom_nonasciichars = 2, 
+  endoom_colours = 1,
+  endoom_nonasciichars = 2,
   endoom_droplastline = 4
 };
 
@@ -214,15 +214,15 @@ static void I_EndDoom(void)
   lump_eb = W_CheckNumForName("ENDBOOM");/* jff 4/1/98 sign our work    */
   lump_ed = W_CheckNumForName("ENDOOM"); /* CPhipps - also maybe ENDOOM */
 
-  if (lump_eb == -1) 
+  if (lump_eb == -1)
     lump = lump_ed;
-  else if (lump_ed == -1) 
+  else if (lump_ed == -1)
     lump = lump_eb;
   else
   { /* Both ENDOOM and ENDBOOM are present */
 #define LUMP_IS_NEW(num) (!((lumpinfo[num].source == source_iwad) || (lumpinfo[num].source == source_auto_load)))
-    switch ((LUMP_IS_NEW(lump_ed) ? 1 : 0 ) | 
-	    (LUMP_IS_NEW(lump_eb) ? 2 : 0)) {
+    switch ((LUMP_IS_NEW(lump_ed) ? 1 : 0 ) |
+      (LUMP_IS_NEW(lump_eb) ? 2 : 0)) {
     case 1:
       lump = lump_ed;
       break;
@@ -245,7 +245,7 @@ static void I_EndDoom(void)
     int oldbg = -1, oldcolor = -1, bold = 0, oldbold = -1, color = 0;
 #ifndef _WIN32
     if (endoom_mode & endoom_nonasciichars)
-	    /* switch to secondary charset, and set to cp437 (IBM charset) */
+      /* switch to secondary charset, and set to cp437 (IBM charset) */
       printf("\e)K\016");
 #endif /* _WIN32 */
 
@@ -278,16 +278,16 @@ static void I_EndDoom(void)
           color = convert(color, &bold);
           if (oldbold != bold)
           {
-	          oldbold = bold;
-		  printf("\e[%cm", bold + '0');
-		  if (!bold) oldbg = -1;
+            oldbold = bold;
+      printf("\e[%cm", bold + '0');
+      if (!bold) oldbg = -1;
           }
           /* we buffer everything or output is horrendously slow */
           printf("\e[%dm", color + 30);
           bold = 0;
         }
         /* background color */
-        color = endoom[i][1] / 16; 
+        color = endoom[i][1] / 16;
         if (color != oldbg)
         {
           oldbg = color;
@@ -322,7 +322,7 @@ static void I_EndDoom(void)
 static int has_exited;
 
 /* I_SafeExit
- * This function is called instead of exit() by functions that might be called 
+ * This function is called instead of exit() by functions that might be called
  * during the exit process (i.e. after exit() has already been called)
  * Prevent infinitely recursive exits -- killough
  */
@@ -331,7 +331,7 @@ void I_SafeExit(int rc)
 {
   if (!has_exited)    /* If it hasn't exited yet, exit now -- killough */
     {
-      has_exited=rc ? 2 : 1;   
+      has_exited=rc ? 2 : 1;
       exit(rc);
     }
 }
@@ -359,8 +359,8 @@ int main(int argc, char **argv)
 #ifdef SECURE_UID
   /* First thing, revoke setuid status (if any) */
   stored_euid = geteuid();
-  if (getuid() != stored_euid) 
-    if (seteuid(getuid()) < 0) 
+  if (getuid() != stored_euid)
+    if (seteuid(getuid()) < 0)
       fprintf(stderr, "Failed to revoke setuid\n");
     else
       fprintf(stderr, "Revoked uid %d\n",stored_euid);

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_switch.c,v 1.5 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_switch.c,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_switch.c,v 1.5 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_switch.c,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -77,7 +77,7 @@ void P_InitSwitchList(void)
   const switchlist_t *alphSwitchList;         //jff 3/23/98 pointer to switch table
   int lump = W_GetNumForName("SWITCHES"); // cph - new wad lump handling
 
-  //jff 3/23/98 read the switch table from a predefined lump             
+  //jff 3/23/98 read the switch table from a predefined lump
   alphSwitchList = (const switchlist_t *)W_CacheLumpNum(lump);
 
   for (i=0;;i++)
@@ -116,12 +116,12 @@ void P_StartButton
   int           time )
 {
   int           i;
-    
+
   // See if button is already pressed
   for (i = 0;i < MAXBUTTONS;i++)
     if (buttonlist[i].btimer && buttonlist[i].line == line)
       return;
-    
+
   for (i = 0;i < MAXBUTTONS;i++)
     if (!buttonlist[i].btimer)    // use first unused element of list
     {
@@ -132,7 +132,7 @@ void P_StartButton
       buttonlist[i].soundorg = (mobj_t *)&line->frontsector->soundorg;
       return;
     }
-    
+
   I_Error("P_StartButton: no button slots left!");
 }
 
@@ -166,7 +166,7 @@ void P_ChangeSwitchTexture
   sound = sfx_swtchn;
 
   // EXIT SWITCH?
-  if (line->special == 11)                
+  if (line->special == 11)
     sound = sfx_swtchx;
 
   for (i = 0;i < numswitches*2;i++)
@@ -334,14 +334,14 @@ P_UseSpecialLine
           return false;
       }
   }
-    
+
   // Switches that other things can activate.
   if (!thing->player)
   {
     // never open secret doors
     if (line->flags & ML_SECRET)
       return false;
-      
+
     switch(line->special)
     {
       case 1:         // MANUAL DOOR RAISE
@@ -354,7 +354,7 @@ P_UseSpecialLine
       case 210:       // silent switch teleporters
       case 209:
         break;
-          
+
       default:
         return false;
         break;
@@ -382,7 +382,7 @@ P_UseSpecialLine
     case 118:           // Blazing door open
       EV_VerticalDoor (line, thing);
       break;
-        
+
     // Switches (non-retriggerable)
     case 7:
       // Build Stairs
@@ -395,7 +395,7 @@ P_UseSpecialLine
       if (EV_DoDonut(line))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 11:
       /* Exit level
        * killough 10/98: prevent zombies from exiting levels
@@ -409,73 +409,73 @@ P_UseSpecialLine
       P_ChangeSwitchTexture(line,0);
       G_ExitLevel ();
       break;
-        
+
     case 14:
       // Raise Floor 32 and change texture
       if (EV_DoPlat(line,raiseAndChange,32))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 15:
       // Raise Floor 24 and change texture
       if (EV_DoPlat(line,raiseAndChange,24))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 18:
       // Raise Floor to next highest floor
       if (EV_DoFloor(line, raiseFloorToNearest))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 20:
       // Raise Plat next highest floor and change texture
       if (EV_DoPlat(line,raiseToNearestAndChange,0))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 21:
       // PlatDownWaitUpStay
       if (EV_DoPlat(line,downWaitUpStay,0))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 23:
       // Lower Floor to Lowest
       if (EV_DoFloor(line,lowerFloorToLowest))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 29:
       // Raise Door
       if (EV_DoDoor(line,normal))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 41:
       // Lower Ceiling to Floor
       if (EV_DoCeiling(line,lowerToFloor))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 71:
       // Turbo Lower Floor
       if (EV_DoFloor(line,turboLower))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 49:
       // Ceiling Crush And Raise
       if (EV_DoCeiling(line,crushAndRaise))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 50:
       // Close Door
       if (EV_DoDoor(line,close))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 51:
       /* Secret EXIT
        * killough 10/98: prevent zombies from exiting levels
@@ -489,67 +489,67 @@ P_UseSpecialLine
       P_ChangeSwitchTexture(line,0);
       G_SecretExitLevel ();
       break;
-        
+
     case 55:
       // Raise Floor Crush
       if (EV_DoFloor(line,raiseFloorCrush))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 101:
       // Raise Floor
       if (EV_DoFloor(line,raiseFloor))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 102:
       // Lower Floor to Surrounding floor height
       if (EV_DoFloor(line,lowerFloor))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 103:
       // Open Door
       if (EV_DoDoor(line,open))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 111:
       // Blazing Door Raise (faster than TURBO!)
       if (EV_DoDoor (line,blazeRaise))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 112:
       // Blazing Door Open (faster than TURBO!)
       if (EV_DoDoor (line,blazeOpen))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 113:
       // Blazing Door Close (faster than TURBO!)
       if (EV_DoDoor (line,blazeClose))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 122:
       // Blazing PlatDownWaitUpStay
       if (EV_DoPlat(line,blazeDWUS,0))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 127:
       // Build Stairs Turbo 16
       if (EV_BuildStairs(line,turbo16))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 131:
       // Raise Floor Turbo
       if (EV_DoFloor(line,raiseFloorTurbo))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 133:
       // BlzOpenDoor BLUE
     case 135:
@@ -559,7 +559,7 @@ P_UseSpecialLine
       if (EV_DoLockedDoor (line,blazeOpen,thing))
         P_ChangeSwitchTexture(line,0);
       break;
-        
+
     case 140:
       // Raise Floor 512
       if (EV_DoFloor(line,raiseFloor512))
@@ -589,7 +589,7 @@ P_UseSpecialLine
             if (EV_DoFloor(line,lowerAndChange))
               P_ChangeSwitchTexture(line,0);
             break;
-        
+
           case 160:
             // Raise Floor 24 and change
             // 160 S1  EV_DoFloor(raiseFloor24AndChange)
@@ -726,7 +726,7 @@ P_UseSpecialLine
 
           case 209:
             // killough 1/31/98: silent teleporter
-            //jff 209 S1 SilentTeleport 
+            //jff 209 S1 SilentTeleport
             if (EV_SilentTeleport(line, side, thing))
               P_ChangeSwitchTexture(line,0);
             break;
@@ -771,7 +771,7 @@ P_UseSpecialLine
 
           //jff 1/29/98 added linedef types to fill all functions out so that
           // all possess SR, S1, WR, W1 types
-            
+
           case 78: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Numeric)
             // 78 SR Change Texture/Type Only
@@ -937,7 +937,7 @@ P_UseSpecialLine
 
           case 210:
             // killough 1/31/98: silent teleporter
-            //jff 210 SR SilentTeleport 
+            //jff 210 SR SilentTeleport
             if (EV_SilentTeleport(line, side, thing))
               P_ChangeSwitchTexture(line,1);
             break;
@@ -1002,115 +1002,115 @@ P_UseSpecialLine
       if (EV_DoDoor(line,close))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 43:
       // Lower Ceiling to Floor
       if (EV_DoCeiling(line,lowerToFloor))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 45:
       // Lower Floor to Surrounding floor height
       if (EV_DoFloor(line,lowerFloor))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 60:
       // Lower Floor to Lowest
       if (EV_DoFloor(line,lowerFloorToLowest))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 61:
       // Open Door
       if (EV_DoDoor(line,open))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 62:
       // PlatDownWaitUpStay
       if (EV_DoPlat(line,downWaitUpStay,1))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 63:
       // Raise Door
       if (EV_DoDoor(line,normal))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 64:
       // Raise Floor to ceiling
       if (EV_DoFloor(line,raiseFloor))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 66:
       // Raise Floor 24 and change texture
       if (EV_DoPlat(line,raiseAndChange,24))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 67:
       // Raise Floor 32 and change texture
       if (EV_DoPlat(line,raiseAndChange,32))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 65:
       // Raise Floor Crush
       if (EV_DoFloor(line,raiseFloorCrush))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 68:
       // Raise Plat to next highest floor and change texture
       if (EV_DoPlat(line,raiseToNearestAndChange,0))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 69:
       // Raise Floor to next highest floor
       if (EV_DoFloor(line, raiseFloorToNearest))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 70:
       // Turbo Lower Floor
       if (EV_DoFloor(line,turboLower))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 114:
       // Blazing Door Raise (faster than TURBO!)
       if (EV_DoDoor (line,blazeRaise))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 115:
       // Blazing Door Open (faster than TURBO!)
       if (EV_DoDoor (line,blazeOpen))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 116:
       // Blazing Door Close (faster than TURBO!)
       if (EV_DoDoor (line,blazeClose))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 123:
       // Blazing PlatDownWaitUpStay
       if (EV_DoPlat(line,blazeDWUS,0))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 132:
       // Raise Floor Turbo
       if (EV_DoFloor(line,raiseFloorTurbo))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 99:
       // BlzOpenDoor BLUE
     case 134:
@@ -1120,13 +1120,13 @@ P_UseSpecialLine
       if (EV_DoLockedDoor (line,blazeOpen,thing))
         P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 138:
       // Light Turn On
       EV_LightTurnOn(line,255);
       P_ChangeSwitchTexture(line,1);
       break;
-        
+
     case 139:
       // Light Turn Off
       EV_LightTurnOn(line,35);

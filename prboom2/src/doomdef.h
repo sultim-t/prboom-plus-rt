@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.6.2.1 2001/02/18 17:19:50 proff_fs Exp $
+ * $Id: doomdef.h,v 1.6.2.2 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -255,7 +255,7 @@ typedef enum {
 #define KEYD_RCTRL      (0x80+0x1d)
 #define KEYD_RALT       (0x80+0x38)
 #define KEYD_LALT       KEYD_RALT
-#define KEYD_CAPSLOCK   0xba                                        // phares 
+#define KEYD_CAPSLOCK   0xba                                        // phares
 
 // phares 3/2/98:
 #define KEYD_INSERT     0xd2
@@ -271,8 +271,8 @@ typedef enum {
 #define KEYD_NUMLOCK    0xC5                 // killough 3/6/98
 
 // cph - Add the numeric keypad keys, as suggested by krose 4/22/99:
-// The way numbers are assigned to keys is a mess, but it's too late to 
-// change that easily. At least these additions are don neatly. 
+// The way numbers are assigned to keys is a mess, but it's too late to
+// change that easily. At least these additions are don neatly.
 // Codes 0x100-0x200 are reserved for number pad
 
 #define KEYD_KEYPAD0      (0x100 + '0')

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.13 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: r_defs.h,v 1.13.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -119,7 +119,7 @@ typedef struct
   int stairlock;   // -2 on first locked -1 after thinker done 0 normally
   int prevsec;     // -1 or number of sector for previous step
   int nextsec;     // -1 or number of next step sector
-  
+
   // killough 3/7/98: support flat heights drawn at another sector's heights
   int heightsec;    // other sector, or -1 if no other sector
 
@@ -127,13 +127,13 @@ typedef struct
 
   // list of mobjs that are at least partially in the sector
   // thinglist is a subset of touching_thinglist
-  struct msecnode_s *touching_thinglist;               // phares 3/14/98  
+  struct msecnode_s *touching_thinglist;               // phares 3/14/98
 
   int linecount;
   struct line_s **lines;
 
   // killough 10/98: support skies coming from sidedefs. Allows scrolling
-  // skies and other effects. No "level info" kind of lump is needed, 
+  // skies and other effects. No "level info" kind of lump is needed,
   // because you can use an arbitrary number of skies per level with this
   // method. This field only applies when skyflatnum is used for floorpic
   // or ceilingpic, because the rest of Doom needs to know which is sky
@@ -164,7 +164,7 @@ typedef struct
 {
   fixed_t textureoffset; // add this to the calculated texture column
   fixed_t rowoffset;     // add this to the calculated texture top
-  short toptexture;      // Texture indices. We do not maintain names here. 
+  short toptexture;      // Texture indices. We do not maintain names here.
   short bottomtexture;
   short midtexture;
   sector_t* sector;      // Sector the SideDef is facing.
@@ -196,13 +196,13 @@ typedef struct line_s
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
   short flags;           // Animation related.
-  short special;         
+  short special;
   short tag;
   short sidenum[2];      // Visual appearance: SideDefs.
   fixed_t bbox[4];       // A bounding box, for the linedef's extent
   slopetype_t slopetype; // To aid move clipping.
   sector_t *frontsector; // Front and back sector.
-  sector_t *backsector; 
+  sector_t *backsector;
   int validcount;        // if == validcount, already checked
   void *specialdata;     // thinker_t for reversable actions
   int tranlump;          // killough 4/11/98: translucency filter, -1 == none
@@ -257,13 +257,13 @@ typedef struct
   line_t* linedef;
 
 #ifdef GL_DOOM
-  int iSegID;	// proff 11/05/2000: needed for OpenGL
+  int iSegID; // proff 11/05/2000: needed for OpenGL
   // figgi -- needed for glnodes
-  float			length;
+  float     length;
 #endif
-  boolean		miniseg;
+  boolean   miniseg;
 
-  
+
   // Sector references.
   // Could be retrieved from linedef, too
   // (but that would be slower -- killough)
@@ -318,7 +318,7 @@ typedef post_t column_t;
 // from darkening PLAYPAL to all black.
 // Could use even more than 32 levels.
 
-typedef byte  lighttable_t; 
+typedef byte  lighttable_t;
 
 //
 // Masked 2s linedefs
@@ -347,11 +347,11 @@ typedef struct drawseg_s
 // of patches.
 //
 
-typedef struct 
-{ 
-  short width, height;  // bounding box size 
-  short leftoffset;     // pixels to the left of origin 
-  short topoffset;      // pixels below the origin 
+typedef struct
+{
+  short width, height;  // bounding box size
+  short leftoffset;     // pixels to the left of origin
+  short topoffset;      // pixels below the origin
   int columnofs[8];     // only [width] used
 } patch_t;
 
@@ -386,12 +386,12 @@ typedef struct vissprite_s
 
   // for color translation and shadow draw, maxbright frames as well
   lighttable_t *colormap;
-   
+
   // killough 3/27/98: height sector for underwater/fake ceiling support
   int heightsec;
 } vissprite_t;
 
-//  
+//
 // Sprites are patches with a special naming convention
 //  so they can be recognized by R_InitSprites.
 // The base name is NNNNFx or NNNNFxFx, with

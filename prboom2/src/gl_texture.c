@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.13.2.4 2002/07/15 01:37:55 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.13.2.5 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -59,26 +59,26 @@ unsigned char gld_palmap[256];
 void gld_InitPalettedTextures(void)
 {
   const unsigned char *playpal;
-	int pal[256];
-	int i,j;
+  int pal[256];
+  int i,j;
 
   playpal=W_CacheLumpName("PLAYPAL");
-	for (i=0; i<256; i++) {
-		pal[i] = (playpal[i*3+0] << 16) | (playpal[i*3+1] << 8) | playpal[i*3+2];
-		gld_palmap[i] = i;
-	}
-	transparent_pal_index = -1;
-	for (i=0; i<256; i++) {
-		for (j=i+1; j<256; j++) {
-			if (pal[i] == pal[j]) {
-				transparent_pal_index = j;
-				gld_palmap[j] = i;
-				break;
-			}
-		}
-		if (transparent_pal_index >= 0)
-			break;
-	}
+  for (i=0; i<256; i++) {
+    pal[i] = (playpal[i*3+0] << 16) | (playpal[i*3+1] << 8) | playpal[i*3+2];
+    gld_palmap[i] = i;
+  }
+  transparent_pal_index = -1;
+  for (i=0; i<256; i++) {
+    for (j=i+1; j<256; j++) {
+      if (pal[i] == pal[j]) {
+        transparent_pal_index = j;
+        gld_palmap[j] = i;
+        break;
+      }
+    }
+    if (transparent_pal_index >= 0)
+      break;
+  }
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -137,21 +137,21 @@ static GLTexture *gld_AddNewGLPatchTexture(int lump)
 static void gld_SetTexturePalette(GLenum target)
 {
   const unsigned char *playpal;
-	unsigned char pal[1024];
-	int i;
+  unsigned char pal[1024];
+  int i;
 
   playpal=W_CacheLumpName("PLAYPAL");
-	for (i=0; i<256; i++) {
-		pal[i*4+0] = playpal[i*3+0];
-		pal[i*4+1] = playpal[i*3+1];
-		pal[i*4+2] = playpal[i*3+2];
-		pal[i*4+3] = 255;
-	}
-	pal[transparent_pal_index*4+0]=0;
-	pal[transparent_pal_index*4+1]=0;
-	pal[transparent_pal_index*4+2]=0;
-	pal[transparent_pal_index*4+3]=0;
-	glColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+  for (i=0; i<256; i++) {
+    pal[i*4+0] = playpal[i*3+0];
+    pal[i*4+1] = playpal[i*3+1];
+    pal[i*4+2] = playpal[i*3+2];
+    pal[i*4+3] = 255;
+  }
+  pal[transparent_pal_index*4+0]=0;
+  pal[transparent_pal_index*4+1]=0;
+  pal[transparent_pal_index*4+2]=0;
+  pal[transparent_pal_index*4+3]=0;
+  glColorTableEXT(target, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -181,8 +181,8 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
   p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[0]));
-	for (x=xs;x<xe;x++)
-	{
+  for (x=xs;x<xe;x++)
+  {
 #ifdef RANGECHECK
     if (x>=SHORT(patch->width))
     {
@@ -192,7 +192,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
 #endif
     p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[x]));
     while (p_bColumn_t->topdelta != 0xff)
-  	{
+    {
       y=(p_bColumn_t->topdelta+originy);
       js=0;
       je=p_bColumn_t->length;
@@ -204,41 +204,41 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
         js=-y;
       if ((je+y)>gltexture->realtexheight)
         je+=(gltexture->realtexheight-(je+y));
-			p_bColumn=(byte *)p_bColumn_t + 3;
-			if (paletted) {
-				pos=(((js+y)*gltexture->buffer_width)+x+originx);
-				for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
-				{	
+      p_bColumn=(byte *)p_bColumn_t + 3;
+      if (paletted) {
+        pos=(((js+y)*gltexture->buffer_width)+x+originx);
+        for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
+        {
 #ifdef RANGECHECK
-					if (pos>=gltexture->buffer_size)
-					{
-						lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
-						return;
-					}
+          if (pos>=gltexture->buffer_size)
+          {
+            lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+            return;
+          }
 #endif
-					buffer[pos]=gld_palmap[p_bColumn[j]];
-				}
-			} else {
+          buffer[pos]=gld_palmap[p_bColumn[j]];
+        }
+      } else {
         pos=4*(((js+y)*gltexture->buffer_width)+x+originx);
-				for (j=js;j<je;j++,pos+=(4*gltexture->buffer_width))
-				{	
+        for (j=js;j<je;j++,pos+=(4*gltexture->buffer_width))
+        {
 #ifdef RANGECHECK
-					if ((pos+3)>=gltexture->buffer_size)
-					{
-						lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos+3>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
-						return;
-					}
+          if ((pos+3)>=gltexture->buffer_size)
+          {
+            lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos+3>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+            return;
+          }
 #endif
-					buffer[pos]=playpal[p_bColumn[j]*3];
-					buffer[pos+1]=playpal[p_bColumn[j]*3+1];
-					buffer[pos+2]=playpal[p_bColumn[j]*3+2];
-					buffer[pos+3]=255;
-				}
-			}
+          buffer[pos]=playpal[p_bColumn[j]*3];
+          buffer[pos+1]=playpal[p_bColumn[j]*3+1];
+          buffer[pos+2]=playpal[p_bColumn[j]*3+2];
+          buffer[pos+3]=255;
+        }
+      }
 nextrun:
-			p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
-		}
-	}
+      p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
+    }
+  }
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -279,8 +279,8 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
   p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[0]));
-	for (x=xs;x<xe;x++)
-	{
+  for (x=xs;x<xe;x++)
+  {
 #ifdef RANGECHECK
     if (x>=SHORT(patch->width))
     {
@@ -290,7 +290,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
 #endif
     p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[x]));
     while (p_bColumn_t->topdelta != 0xff)
-  	{
+    {
       y=(p_bColumn_t->topdelta+originy);
       js=0;
       je=p_bColumn_t->length;
@@ -302,41 +302,41 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
         js=-y;
       if ((je+y)>gltexture->realtexheight)
         je+=(gltexture->realtexheight-(je+y));
-			p_bColumn=(byte *)p_bColumn_t + 3;
-			if (paletted) {
-				pos=(((js+y)*gltexture->buffer_width)+x+originx);
-				for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
-				{	
+      p_bColumn=(byte *)p_bColumn_t + 3;
+      if (paletted) {
+        pos=(((js+y)*gltexture->buffer_width)+x+originx);
+        for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
+        {
 #ifdef RANGECHECK
-					if (pos>=gltexture->buffer_size)
-					{
-						lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
-						return;
-					}
+          if (pos>=gltexture->buffer_size)
+          {
+            lprintf(LO_ERROR,"gld_AddPatchToTexture_UnTranslated pos>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+            return;
+          }
 #endif
-					buffer[pos]=gld_palmap[outr[p_bColumn[j]]];
-				}
-			} else {
-				pos=4*(((js+y)*gltexture->buffer_width)+x+originx);
-				for (j=js;j<je;j++,pos+=(4*gltexture->buffer_width))
-				{	
-	#ifdef RANGECHECK
-					if ((pos+3)>=gltexture->buffer_size)
-					{
-						lprintf(LO_ERROR,"gld_AddPatchToTexture pos+3>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
-						return;
-					}
-	#endif
-					buffer[pos]=playpal[outr[p_bColumn[j]]*3];
-					buffer[pos+1]=playpal[outr[p_bColumn[j]]*3+1];
-					buffer[pos+2]=playpal[outr[p_bColumn[j]]*3+2];
-					buffer[pos+3]=255;
-				}
-			}
+          buffer[pos]=gld_palmap[outr[p_bColumn[j]]];
+        }
+      } else {
+        pos=4*(((js+y)*gltexture->buffer_width)+x+originx);
+        for (j=js;j<je;j++,pos+=(4*gltexture->buffer_width))
+        {
+  #ifdef RANGECHECK
+          if ((pos+3)>=gltexture->buffer_size)
+          {
+            lprintf(LO_ERROR,"gld_AddPatchToTexture pos+3>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+            return;
+          }
+  #endif
+          buffer[pos]=playpal[outr[p_bColumn[j]]*3];
+          buffer[pos+1]=playpal[outr[p_bColumn[j]]*3+1];
+          buffer[pos+2]=playpal[outr[p_bColumn[j]]*3+2];
+          buffer[pos+3]=255;
+        }
+      }
 nextrun:
-			p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
-		}
-	}
+      p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
+    }
+  }
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -350,43 +350,43 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
   if (!flat)
     return;
   if (paletted) {
-		for (y=0;y<gltexture->realtexheight;y++)
-		{
-			pos=(y*gltexture->buffer_width);
-			for (x=0;x<gltexture->realtexwidth;x++,pos++)
-			{
+    for (y=0;y<gltexture->realtexheight;y++)
+    {
+      pos=(y*gltexture->buffer_width);
+      for (x=0;x<gltexture->realtexwidth;x++,pos++)
+      {
 #ifdef RANGECHECK
-				if (pos>=gltexture->buffer_size)
-				{
-					lprintf(LO_ERROR,"gld_AddFlatToTexture pos>=size (%i >= %i)\n",pos,gltexture->buffer_size);
-					return;
-				}
+        if (pos>=gltexture->buffer_size)
+        {
+          lprintf(LO_ERROR,"gld_AddFlatToTexture pos>=size (%i >= %i)\n",pos,gltexture->buffer_size);
+          return;
+        }
 #endif
-  			buffer[pos]=gld_palmap[flat[y*64+x]];
-			}
-		}
-	} else {
+        buffer[pos]=gld_palmap[flat[y*64+x]];
+      }
+    }
+  } else {
     playpal=W_CacheLumpName("PLAYPAL");
-		for (y=0;y<gltexture->realtexheight;y++)
-		{
-			pos=4*(y*gltexture->buffer_width);
-			for (x=0;x<gltexture->realtexwidth;x++,pos+=4)
-			{
+    for (y=0;y<gltexture->realtexheight;y++)
+    {
+      pos=4*(y*gltexture->buffer_width);
+      for (x=0;x<gltexture->realtexwidth;x++,pos+=4)
+      {
 #ifdef RANGECHECK
-				if ((pos+3)>=gltexture->buffer_size)
-				{
-					lprintf(LO_ERROR,"gld_AddFlatToTexture pos+3>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
-					return;
-				}
+        if ((pos+3)>=gltexture->buffer_size)
+        {
+          lprintf(LO_ERROR,"gld_AddFlatToTexture pos+3>=size (%i >= %i)\n",pos+3,gltexture->buffer_size);
+          return;
+        }
 #endif
-  			buffer[pos]=playpal[flat[y*64+x]*3];
-				buffer[pos+1]=playpal[flat[y*64+x]*3+1];
-	  		buffer[pos+2]=playpal[flat[y*64+x]*3+2];
-				buffer[pos+3]=255;
-			}
-		}
+        buffer[pos]=playpal[flat[y*64+x]*3];
+        buffer[pos+1]=playpal[flat[y*64+x]*3+1];
+        buffer[pos+2]=playpal[flat[y*64+x]*3+2];
+        buffer[pos+3]=255;
+      }
+    }
     W_UnlockLumpName("PLAYPAL");
-	}
+  }
 }
 
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
@@ -463,7 +463,7 @@ void gld_BindTexture(GLTexture *gltexture)
   }
   if (gltexture->glTexID[CR_DEFAULT]!=0)
   {
-   	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
+    glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -473,10 +473,10 @@ void gld_BindTexture(GLTexture *gltexture)
       return;
   }
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-	if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
-		memset(buffer,transparent_pal_index,gltexture->buffer_size);
-	else
-		memset(buffer,0,gltexture->buffer_size);
+  if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
   texture=textures[gltexture->index];
   for (i=0; i<texture->patchcount; i++)
   {
@@ -489,13 +489,13 @@ void gld_BindTexture(GLTexture *gltexture)
   }
   if (gltexture->glTexID[CR_DEFAULT]==0)
     glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
-	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
+  glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
-	  gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
-					            gltexture->buffer_width, gltexture->buffer_height,
-					            GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
+                      gltexture->buffer_width, gltexture->buffer_height,
+                      GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
@@ -532,20 +532,20 @@ void gld_BindTexture(GLTexture *gltexture)
 #endif /* USE_GLU_IMAGESCALE */
     {
       if (gl_paletted_texture) {
-				gld_SetTexturePalette(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, 
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
                       gltexture->buffer_width, gltexture->buffer_height,
                       0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
       } else {
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
                       0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
       }
     }
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   }
   Z_Free(buffer);
 }
@@ -612,7 +612,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
   if (gltexture->glTexID[cm]!=0)
   {
- 	  glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
+    glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -623,14 +623,14 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   }
   patch=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-	if (gl_paletted_texture)
-		memset(buffer,transparent_pal_index,gltexture->buffer_size);
-	else
-		memset(buffer,0,gltexture->buffer_size);
+  if (gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
   if (gltexture->glTexID[cm]==0)
-	  glGenTextures(1,&gltexture->glTexID[cm]);
-	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
+    glGenTextures(1,&gltexture->glTexID[cm]);
+  glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
 #ifdef USE_GLU_IMAGESCALE
   if ((gltexture->buffer_width>gltexture->tex_width) ||
       (gltexture->buffer_height>gltexture->tex_height)
@@ -657,20 +657,20 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
 #endif /* USE_GLU_IMAGESCALE */
   {
       if (gl_paletted_texture) {
-				gld_SetTexturePalette(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, 
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
                       gltexture->buffer_width, gltexture->buffer_height,
                       0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
       } else {
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
                       0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
       }
   }
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   Z_Free(buffer);
   W_UnlockLumpNum(gltexture->index);
 }
@@ -738,7 +738,7 @@ void gld_BindFlat(GLTexture *gltexture)
   }
   if (gltexture->glTexID[CR_DEFAULT]!=0)
   {
-   	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
+    glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
     glGetTexParameteriv(GL_TEXTURE_2D,GL_TEXTURE_RESIDENT,&i);
 #ifdef _DEBUG
     if (i!=GL_TRUE)
@@ -749,20 +749,20 @@ void gld_BindFlat(GLTexture *gltexture)
   }
   flat=W_CacheLumpNum(gltexture->index);
   buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-	if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
-		memset(buffer,transparent_pal_index,gltexture->buffer_size);
-	else
-		memset(buffer,0,gltexture->buffer_size);
+  if (!(gltexture->mipmap & use_mipmapping) & gl_paletted_texture)
+    memset(buffer,transparent_pal_index,gltexture->buffer_size);
+  else
+    memset(buffer,0,gltexture->buffer_size);
   gld_AddFlatToTexture(gltexture, buffer, flat, !(gltexture->mipmap & use_mipmapping) & gl_paletted_texture);
   if (gltexture->glTexID[CR_DEFAULT]==0)
-  	glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
+    glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
   glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)
   {
-	  gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
+    gluBuild2DMipmaps(GL_TEXTURE_2D, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
-					            GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                      GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
@@ -799,20 +799,20 @@ void gld_BindFlat(GLTexture *gltexture)
 #endif /* USE_GLU_IMAGESCALE */
     {
       if (gl_paletted_texture) {
-				gld_SetTexturePalette(GL_TEXTURE_2D);
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT, 
+        gld_SetTexturePalette(GL_TEXTURE_2D);
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
                       gltexture->buffer_width, gltexture->buffer_height,
                       0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
       } else {
-        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format, 
+        glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                       gltexture->buffer_width, gltexture->buffer_height,
                       0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
       }
     }
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   }
   Z_Free(buffer);
   W_UnlockLumpNum(gltexture->index);

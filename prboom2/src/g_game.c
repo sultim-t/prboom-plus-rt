@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.5 2002/01/27 18:18:32 cph Exp $
+ * $Id: g_game.c,v 1.30.2.6 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,20 +22,20 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  none
  *  The original Doom description was none, basically because this file
- *  has everything. This ties up the game logic, linking the menu and 
- *  input code to the underlying game by creating & respawning players, 
+ *  has everything. This ties up the game logic, linking the menu and
+ *  input code to the underlying game by creating & respawning players,
  *  building game tics, calling the underlying thing logic.
  *
  *-----------------------------------------------------------------------------
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.5 2002/01/27 18:18:32 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.6 2002/07/20 18:08:34 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -509,7 +509,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   }
 }
 
-// 
+//
 // G_RestartLevel
 //
 
@@ -644,26 +644,26 @@ boolean G_Responder (event_t* ev)
       gamestate == GS_LEVEL)
     {
       if (ev->type == ev_keyup)
-	gamekeydown[key_spy] = false;
+  gamekeydown[key_spy] = false;
       if (ev->type == ev_keydown && !gamekeydown[key_spy])
-	{
-	  gamekeydown[key_spy] = true;
-	  do                                          // spy mode
-	    if (++displayplayer >= MAXPLAYERS)
-	      displayplayer = 0;
-	  while (!playeringame[displayplayer] && displayplayer!=consoleplayer);
+  {
+    gamekeydown[key_spy] = true;
+    do                                          // spy mode
+      if (++displayplayer >= MAXPLAYERS)
+        displayplayer = 0;
+    while (!playeringame[displayplayer] && displayplayer!=consoleplayer);
 
-	  ST_Start();    // killough 3/7/98: switch status bar views too
-	  HU_Start();
-	  S_UpdateSounds(players[displayplayer].mo);
-	}
+    ST_Start();    // killough 3/7/98: switch status bar views too
+    HU_Start();
+    S_UpdateSounds(players[displayplayer].mo);
+  }
       return true;
     }
 
   // killough 9/29/98: reformatted
   if (gamestate == GS_LEVEL && (HU_Responder(ev) ||  // chat ate the event
-				ST_Responder(ev) ||  // status window ate it
-				AM_Responder(ev)))   // automap ate it
+        ST_Responder(ev) ||  // status window ate it
+        AM_Responder(ev)))   // automap ate it
     return true;
 
   // any other key pops up menu if in demos
@@ -677,13 +677,13 @@ boolean G_Responder (event_t* ev)
     {
       // killough 9/29/98: allow user to pause demos during playback
       if (ev->type == ev_keydown && ev->data1 == key_pause)
-	{
-	  if (paused ^= 2)
-	    S_PauseSound();
-	  else
-	    S_ResumeSound();
-	  return true;
-	}
+  {
+    if (paused ^= 2)
+      S_PauseSound();
+    else
+      S_ResumeSound();
+    return true;
+  }
 
       // killough 10/98:
       // Don't pop up menu, if paused in middle
@@ -691,11 +691,11 @@ boolean G_Responder (event_t* ev)
       // Don't suck up keys, which may be cheats
 
       return gamestate == GS_DEMOSCREEN &&
-	!(paused & 2) && !(automapmode & am_active) &&
-	((ev->type == ev_keydown) ||
-	 (ev->type == ev_mouse && ev->data1) ||
-	 (ev->type == ev_joystick && ev->data1)) ?
-	M_StartControlPanel(), true : false;
+  !(paused & 2) && !(automapmode & am_active) &&
+  ((ev->type == ev_keydown) ||
+   (ev->type == ev_mouse && ev->data1) ||
+   (ev->type == ev_joystick && ev->data1)) ?
+  M_StartControlPanel(), true : false;
     }
 
   if (gamestate == GS_FINALE && F_Responder(ev))
@@ -780,9 +780,9 @@ void G_Ticker (void)
       switch (gameaction)
         {
         case ga_loadlevel:
-	  // force players to be initialized on level reload
-	  for (i=0 ; i<MAXPLAYERS ; i++)
-	    players[i].playerstate = PST_REBORN;
+    // force players to be initialized on level reload
+    for (i=0 ; i<MAXPLAYERS ; i++)
+      players[i].playerstate = PST_REBORN;
           G_DoLoadLevel ();
           break;
         case ga_newgame:
@@ -839,8 +839,8 @@ void G_Ticker (void)
           if ((netgame || demoplayback) && cmd->forwardmove > TURBOTHRESHOLD &&
               !(gametic&31) && ((gametic>>5)&3) == i )
             {
-	      extern char *player_names[];
-	      /* cph - don't use sprintf, use doom_printf */
+        extern char *player_names[];
+        /* cph - don't use sprintf, use doom_printf */
               doom_printf ("%s is turbo!", player_names[i]);
             }
 
@@ -849,7 +849,7 @@ void G_Ticker (void)
               if (gametic > BACKUPTICS
                   && consistancy[i][buf] != cmd->consistancy)
                 I_Error("G_Ticker: Consistency failure (%i should be %i)",
-						cmd->consistancy, consistancy[i][buf]);
+            cmd->consistancy, consistancy[i][buf]);
               if (players[i].mo)
                 consistancy[i][buf] = players[i].mo->x;
               else
@@ -882,23 +882,23 @@ void G_Ticker (void)
                   gameaction = ga_savegame;
                   break;
 
-		  // CPhipps - remote loadgame request
-                case BTS_LOADGAME: 
+      // CPhipps - remote loadgame request
+                case BTS_LOADGAME:
                   savegameslot =
                     (players[i].cmd.buttons & BTS_SAVEMASK)>>BTS_SAVESHIFT;
                   gameaction = ga_loadgame;
-		  forced_loadgame = netgame; // Force if a netgame 
-		  command_loadgame = false;
+      forced_loadgame = netgame; // Force if a netgame
+      command_loadgame = false;
                   break;
 
-		  // CPhipps - Restart the level
-		case BTS_RESTARTLEVEL:
+      // CPhipps - Restart the level
+    case BTS_RESTARTLEVEL:
                   if (demoplayback || (compatibility_level < lxdoom_1_compatibility))
                     break;     // CPhipps - Ignore in demos or old games
- 		  gameaction = ga_loadlevel;
-		  break;
+      gameaction = ga_loadlevel;
+      break;
                 }
-	      players[i].cmd.buttons = 0;
+        players[i].cmd.buttons = 0;
             }
         }
     }
@@ -963,7 +963,7 @@ void G_PlayerFinishLevel(int player)
 
 // CPhipps - G_SetPlayerColour
 // Player colours stuff
-// 
+//
 // G_SetPlayerColour
 
 #include "r_draw.h"
@@ -983,7 +983,7 @@ void G_ChangedPlayerColour(int pn, int cl)
   for (i=0; i<MAXPLAYERS; i++) {
     if ((gamestate == GS_LEVEL) && playeringame[i] && (players[i].mo != NULL)) {
       players[i].mo->flags &= ~MF_TRANSLATION;
-      players[i].mo->flags |= playernumtotrans[i] << MF_TRANSSHIFT;      
+      players[i].mo->flags |= playernumtotrans[i] << MF_TRANSSHIFT;
     }
   }
 }
@@ -1118,7 +1118,7 @@ void G_DeathMatchSpawnPlayer (int playernum)
 
   if (selections < MAXPLAYERS)
     I_Error("G_DeathMatchSpawnPlayer: Only %i deathmatch spots, %d required",
-		selections, MAXPLAYERS);
+    selections, MAXPLAYERS);
 
   for (j=0 ; j<20 ; j++)
     {
@@ -1240,7 +1240,7 @@ void G_DoCompleted (void)
   if (gamemode != commercial) // kilough 2/7/98
     switch(gamemap)
       {
-	// cph - Remove ExM8 special case, so it gets summary screen displayed
+  // cph - Remove ExM8 special case, so it gets summary screen displayed
       case 9:
         for (i=0 ; i<MAXPLAYERS ; i++)
           players[i].didsecret = true;
@@ -1404,11 +1404,11 @@ static uint_64_t G_UpdateSignature(uint_64_t s, const char *name)
   if (lump != -1 && (i = lump+10) < numlumps)
     do
       {
-	int size = W_LumpLength(i);
-	const byte *p = W_CacheLumpNum(i);
-	while (size--)
-	  s <<= 1, s += *p++;
-	W_UnlockLumpNum(i);
+  int size = W_LumpLength(i);
+  const byte *p = W_CacheLumpNum(i);
+  while (size--)
+    s <<= 1, s += *p++;
+  W_UnlockLumpNum(i);
       }
     while (--i > lump);
   return s;
@@ -1428,9 +1428,9 @@ static uint_64_t G_Signature(void)
       sprintf(name, "map%02d", map), s = G_UpdateSignature(s, name);
    else
     for (episode = gamemode==retail ? 4 :
-	   gamemode==shareware ? 1 : 3; episode; episode--)
+     gamemode==shareware ? 1 : 3; episode; episode--)
       for (map = 9; map; map--)
-	sprintf(name, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
+  sprintf(name, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
   }
   return s;
 }
@@ -1441,7 +1441,7 @@ static uint_64_t G_Signature(void)
 
 void G_ForcedLoadGame(void)
 {
-  // CPhipps - net loadgames are always forced, so we only reach here 
+  // CPhipps - net loadgames are always forced, so we only reach here
   //  in single player
   gameaction = ga_loadgame;
   forced_loadgame = true;
@@ -1455,7 +1455,7 @@ void G_LoadGame(int slot, boolean command)
     // CPhipps - handle savegame filename in G_DoLoadGame
     //         - Delay load so it can be communicated in net game
     //         - store info in special_event
-    special_event = BT_SPECIAL | (BTS_LOADGAME & BT_SPECIALMASK) | 
+    special_event = BT_SPECIAL | (BTS_LOADGAME & BT_SPECIALMASK) |
       ((slot << BTS_SAVESHIFT) & BTS_SAVEMASK);
     forced_loadgame = netgame; // CPhipps - always force load netgames
   } else {
@@ -1485,9 +1485,9 @@ static void G_LoadGameErr(const char *msg)
 // CPhipps - size of version header
 #define VERSIONSIZE   16
 
-const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
-{ "doom v1.2", "demo", "doom", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
-  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", 
+const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
+{ "doom v1.2", "demo", "doom", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
+  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1",
   "Current PrBoom"  };
 
 static const struct {
@@ -1539,7 +1539,7 @@ void G_DoLoadGame(void)
 
   save_p += VERSIONSIZE;
 
-  // CPhipps - always check savegames even when forced, 
+  // CPhipps - always check savegames even when forced,
   //  only print a warning if forced
   {  // killough 3/16/98: check lump name checksum (independent of order)
     uint_64_t checksum = 0;
@@ -1556,8 +1556,8 @@ void G_DoLoadGame(void)
         G_LoadGameErr(msg);
         free(msg);
         return;
-      } else 
-	lprintf(LO_WARN, "G_DoLoadGame: Incompatible savegame\n");
+      } else
+  lprintf(LO_WARN, "G_DoLoadGame: Incompatible savegame\n");
     }
     save_p += sizeof checksum;
    }
@@ -1643,14 +1643,14 @@ void G_SaveGame(int slot, char *description)
 {
   strcpy(savedescription, description);
   if (demoplayback) {
-    /* cph - We're doing a user-initiated save game while a demo is 
-     * running so, go outside normal mechanisms 
+    /* cph - We're doing a user-initiated save game while a demo is
+     * running so, go outside normal mechanisms
      */
     savegameslot = slot;
     G_DoSaveGame(true);
   }
   // CPhipps - store info in special_event
-  special_event = BT_SPECIAL | (BTS_SAVEGAME & BT_SPECIALMASK) | 
+  special_event = BT_SPECIAL | (BTS_SAVEGAME & BT_SPECIALMASK) |
     ((slot << BTS_SAVESHIFT) & BTS_SAVEMASK);
 #ifdef HAVE_NET
   D_NetSendMisc(nm_savegamename, strlen(savedescription)+1, savedescription);
@@ -1669,7 +1669,7 @@ void CheckSaveGame(size_t size)
 
 /* killough 3/22/98: form savegame name in one location
  * (previously code was scattered around in multiple places)
- * cph - Avoid possible buffer overflow problems by passing 
+ * cph - Avoid possible buffer overflow problems by passing
  * size to this function and using snprintf */
 
 void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
@@ -1677,7 +1677,7 @@ void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
   const char* sgn = demoplayback ? "demosav" : savegamename;
 #ifdef HAVE_SNPRINTF
   snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
-#else 
+#else
   sprintf (name, "%s/%s%d.dsg", basesavegame, sgn, slot);
 #endif
 }
@@ -1689,7 +1689,7 @@ static void G_DoSaveGame (boolean menu)
   char *description;
   int  length, i;
 
-  gameaction = ga_nothing; // cph - cancel savegame at top of this function, 
+  gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
 
   G_SaveGameName(name,sizeof(name),savegameslot, demoplayback && !menu);
@@ -1714,8 +1714,8 @@ static void G_DoSaveGame (boolean menu)
 
   if ((size_t)i == num_version_headers) {
     doom_printf("No savegame signature known for\nthis compatibility level\n"
-		"%d/%d, %u registered", compatibility_level, 
-		MAX_COMPATIBILITY_LEVEL, num_version_headers);
+    "%d/%d, %u registered", compatibility_level,
+    MAX_COMPATIBILITY_LEVEL, num_version_headers);
     free(savebuffer); // cph - free data
     return;
   }
@@ -1734,7 +1734,7 @@ static void G_DoSaveGame (boolean menu)
     int i = 0;
     for (*save_p = 0; (size_t)i<numwadfiles; i++)
       {
-	const char *const w = wadfiles[i].name;
+  const char *const w = wadfiles[i].name;
         CheckSaveGame(strlen(w)+2);
         strcat(strcat(save_p, w), "\n");
       }
@@ -1792,7 +1792,7 @@ static void G_DoSaveGame (boolean menu)
 
   // phares 9/13/98: Move index->mobj_t out of P_ArchiveThinkers, simply
   // for symmetry with the P_ThinkerToIndex call above.
-  
+
   P_IndexToThinker();
 
   Z_CheckHeap();
@@ -1806,9 +1806,9 @@ static void G_DoSaveGame (boolean menu)
   length = save_p - savebuffer;
 
   Z_CheckHeap();
-  doom_printf( "%s", M_WriteFile(name, savebuffer, length) 
-	       ? s_GGSAVED /* Ty - externalised */
-	       : "Game save failed!"); // CPhipps - not externalised
+  doom_printf( "%s", M_WriteFile(name, savebuffer, length)
+         ? s_GGSAVED /* Ty - externalised */
+         : "Game save failed!"); // CPhipps - not externalised
 
   free(savebuffer);  // killough
   savebuffer = save_p = NULL;
@@ -1841,7 +1841,7 @@ extern int default_player_bobbing;    // whether player bobs or not
 
 extern int monsters_remember, default_monsters_remember;
 
-/* cph - 
+/* cph -
  * G_Compatibility
  *
  * Initialises the comp[] array based on the compatibility_level
@@ -1849,46 +1849,46 @@ extern int monsters_remember, default_monsters_remember;
  * for (i=0; i < COMP_TOTAL; i++)
  *   comp[i] = compatibility;
  *
- * Instead, we have a lookup table showing at what version a fix was 
+ * Instead, we have a lookup table showing at what version a fix was
  *  introduced.
  */
 
 static void G_Compatibility(void)
 {
   static const complevel_t fix_levels[COMP_NUM] = {
-    mbf_compatibility, /* comp_telefrag - monsters used to telefrag only 
-			* on MAP30, now they do it for spawners only */
+    mbf_compatibility, /* comp_telefrag - monsters used to telefrag only
+      * on MAP30, now they do it for spawners only */
     mbf_compatibility, /* comp_dropoff - MBF encourages things to drop
-			* off of overhangs */
-    boom_compatibility,/* comp_vile - original Doom archville bugs like 
-			* ghosts */
+      * off of overhangs */
+    boom_compatibility,/* comp_vile - original Doom archville bugs like
+      * ghosts */
     boom_compatibility,/* comp_pain - original Doom limits Pain Elements
-			* from spawning too many skulls */
-    boom_compatibility,/* comp_skull - original Doom let skulls be spit 
-			* through walls by Pain Elementals */
-    boom_compatibility,/* comp_blazing - original Doom duplicated 
-			* blazing door sound */
-    mbf_compatibility, /* comp_doorlight - MBF made door lighting changes 
-			* more gradual */
+      * from spawning too many skulls */
+    boom_compatibility,/* comp_skull - original Doom let skulls be spit
+      * through walls by Pain Elementals */
+    boom_compatibility,/* comp_blazing - original Doom duplicated
+      * blazing door sound */
+    mbf_compatibility, /* comp_doorlight - MBF made door lighting changes
+      * more gradual */
     boom_compatibility,/* comp_model - improvements to the game physics */
     boom_compatibility,/* comp_god - fixes to God mode */
     mbf_compatibility, /* comp_falloff - MBF encourages things to drop
-			* off of overhangs */
+      * off of overhangs */
     boom_compatibility_compatibility,
                        /* comp_floors - fixes for moving floors bugs */
     boom_compatibility,/* comp_skymap */
     mbf_compatibility, /* comp_pursuit - MBF AI change, limited pursuit? */
     boom_compatibility,/* comp_doorstuck - monsters stuck in doors fix */
     mbf_compatibility, /* comp_staylift - MBF AI change, monsters try
-			* to stay on lifts */
-    lxdoom_1_compatibility, /* comp_zombie - prevent dead players 
-			     * triggering stuff */
+      * to stay on lifts */
+    lxdoom_1_compatibility, /* comp_zombie - prevent dead players
+           * triggering stuff */
     boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
     mbf_compatibility, /* comp_infcheat - FIXME */
     boom_compatibility,/* comp_zerotags - allow zero tags in wads */
-    lxdoom_1_compatibility, /* comp_moveblock - enables keygrab and 
-			     * mancubi shots going thru walls */
-    prboom_2_compatibility, /* comp_respawn - objects which aren't on the map 
+    lxdoom_1_compatibility, /* comp_moveblock - enables keygrab and
+           * mancubi shots going thru walls */
+    prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
   };
   int i;
@@ -1970,12 +1970,12 @@ void G_ReloadDefaults(void)
     int i = M_CheckParm("-complevel");
     if (i && (1+i) < myargc) compatibility_level = atoi(myargv[i+1]);
   }
-  if (compatibility_level == -1) 
+  if (compatibility_level == -1)
     compatibility_level = MAX_COMPATIBILITY_LEVEL-1;
 
   if (mbf_features)
     memcpy(comp, default_comp, sizeof comp);
-  else 
+  else
     G_Compatibility();
 
   // killough 3/31/98, 4/5/98: demo sync insurance
@@ -2146,7 +2146,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 void G_RecordDemo (const char* name)
 {
   char     demoname[PATH_MAX];
-  usergame = false;  
+  usergame = false;
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
   demorecording = true;
   /* cph - Record demos straight to file
@@ -2160,20 +2160,20 @@ void G_RecordDemo (const char* name)
       int slot = -1;
       int rc;
       {
-	byte buf[200];
-	size_t len;
-	fread(buf, 1, sizeof(buf), demofp);
-	
-	len = G_ReadDemoHeader(buf) - buf;
-	fseek(demofp, len, SEEK_SET);
+  byte buf[200];
+  size_t len;
+  fread(buf, 1, sizeof(buf), demofp);
+
+  len = G_ReadDemoHeader(buf) - buf;
+  fseek(demofp, len, SEEK_SET);
       }
       do {
-	byte buf[4];
-	rc = fread(buf, 1, sizeof(buf), demofp);
-	if (buf[0] == DEMOMARKER) break;
-	if (buf[3] & BT_SPECIAL)
-	  if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
-	    slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+  byte buf[4];
+  rc = fread(buf, 1, sizeof(buf), demofp);
+  if (buf[0] == DEMOMARKER) break;
+  if (buf[3] & BT_SPECIAL)
+    if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
+      slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
       } while (rc == /* sizeof(buf) is out of scope here */ 4 );
       if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
       fseek(demofp, -rc, SEEK_CUR);
@@ -2234,8 +2234,8 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = 0;
   *demo_p++ = 0;
 
-  *demo_p++ = (distfriend >> 8) & 0xff;  // killough 8/8/98  
-  *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98  
+  *demo_p++ = (distfriend >> 8) & 0xff;  // killough 8/8/98
+  *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98
 
   *demo_p++ = monster_backing;         // killough 9/8/98
 
@@ -2345,9 +2345,9 @@ const byte *G_ReadOptions(const byte *demo_p)
       monkeys = *demo_p++;
 
       {   // killough 10/98: a compatibility vector now
-	int i;
-	for (i=0; i < COMP_TOTAL; i++)
-	  comp[i] = *demo_p++;
+  int i;
+  for (i=0; i < COMP_TOTAL; i++)
+    comp[i] = *demo_p++;
       }
     }
   else  /* defaults for versions <= 2.02 */
@@ -2357,7 +2357,7 @@ const byte *G_ReadOptions(const byte *demo_p)
       monster_infighting = 1;           // killough 7/19/98
 
       monster_backing = 0;              // killough 9/8/98
-      
+
       monster_avoid_hazards = 0;        // killough 9/9/98
 
       monster_friction = 0;             // killough 10/98
@@ -2386,13 +2386,13 @@ void G_BeginRecording (void)
     { /* Write version code into demo */
       unsigned char v;
       switch(compatibility_level) {
-	      case mbf_compatibility: v = 204; break;
-	      case prboom_2_compatibility: v = 210; break;
-	      case prboom_3_compatibility: v = 211; break;
+        case mbf_compatibility: v = 204; break;
+        case prboom_2_compatibility: v = 210; break;
+        case prboom_3_compatibility: v = 211; break;
       }
       *demo_p++ = v;
     }
-    
+
     // signature
     *demo_p++ = 0x1d;
     *demo_p++ = 'M';
@@ -2400,26 +2400,26 @@ void G_BeginRecording (void)
     *demo_p++ = 'F';
     *demo_p++ = 0xe6;
     *demo_p++ = '\0';
-    
+
     /* killough 2/22/98: save compatibility flag in new demos
      * cph - FIXME? MBF demos will always be not in compat. mode */
     *demo_p++ = 0;
-    
+
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
     *demo_p++ = deathmatch;
     *demo_p++ = consoleplayer;
-    
+
     demo_p = G_WriteOptions(demo_p); // killough 3/1/98: Save game options
-    
+
     for (i=0 ; i<MAXPLAYERS ; i++)
       *demo_p++ = playeringame[i];
-    
+
     // killough 2/28/98:
     // We always store at least MIN_MAXPLAYERS bytes in demo, to
     // support enhancements later w/o losing demo compatibility
-    
+
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
 
@@ -2432,7 +2432,7 @@ void G_BeginRecording (void)
     default: I_Error("G_BeginRecording: Boom compatibility level unrecognised?");
     }
     *demo_p++ = v;
-    
+
     // signature
     *demo_p++ = 0x1d;
     *demo_p++ = 'B';
@@ -2440,25 +2440,25 @@ void G_BeginRecording (void)
     *demo_p++ = 'o';
     *demo_p++ = 'm';
     *demo_p++ = 0xe6;
-    
+
     /* CPhipps - save compatibility level in demos */
-    *demo_p++ = c; 
-    
+    *demo_p++ = c;
+
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
     *demo_p++ = deathmatch;
     *demo_p++ = consoleplayer;
-    
+
     demo_p = G_WriteOptions(demo_p); // killough 3/1/98: Save game options
-    
+
     for (i=0 ; i<MAXPLAYERS ; i++)
       *demo_p++ = playeringame[i];
 
     // killough 2/28/98:
     // We always store at least MIN_MAXPLAYERS bytes in demo, to
     // support enhancements later w/o losing demo compatibility
-    
+
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
   } else { // cph - write old v1.9 demos (might even sync)
@@ -2530,7 +2530,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 #endif
 
       monster_backing = 0;              // killough 9/8/98
-      
+
       monster_avoid_hazards = 0;        // killough 9/9/98
 
       monster_friction = 0;             // killough 10/98
@@ -2566,38 +2566,38 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       case 200: /* BOOM */
       case 201:
         if (!*demo_p++)
-	  compatibility_level = boom_201_compatibility;
+    compatibility_level = boom_201_compatibility;
         else
-	  compatibility_level = boom_compatibility_compatibility;
-	break;
+    compatibility_level = boom_compatibility_compatibility;
+  break;
       case 202:
         if (!*demo_p++)
-	  compatibility_level = boom_202_compatibility; 
+    compatibility_level = boom_202_compatibility;
         else
-	  compatibility_level = boom_compatibility_compatibility;
-	break;
+    compatibility_level = boom_compatibility_compatibility;
+  break;
       case 203:
-	/* LxDoom or MBF - determine from signature
-	 * cph - load compatibility level */
-	switch (demobuffer[2]) {
-	case 'B': /* LxDoom */
-	/* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
-	  compatibility_level = lxdoom_1_compatibility;
-	  break;
-	case 'M':
-	  compatibility_level = mbf_compatibility;
-	  demo_p++;
-	  break;
-	}
-	break;
+  /* LxDoom or MBF - determine from signature
+   * cph - load compatibility level */
+  switch (demobuffer[2]) {
+  case 'B': /* LxDoom */
+  /* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
+    compatibility_level = lxdoom_1_compatibility;
+    break;
+  case 'M':
+    compatibility_level = mbf_compatibility;
+    demo_p++;
+    break;
+  }
+  break;
       case 210:
-	compatibility_level = prboom_2_compatibility;
-	demo_p++;
-	break;
+  compatibility_level = prboom_2_compatibility;
+  demo_p++;
+  break;
       case 211:
-	compatibility_level = prboom_3_compatibility;
-	demo_p++;
-	break;
+  compatibility_level = prboom_3_compatibility;
+  demo_p++;
+  break;
       }
       G_Compatibility();
       skill = *demo_p++;
@@ -2608,7 +2608,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
       /* killough 11/98: save option pointer for below */
       if (mbf_features)
-	option_p = demo_p;
+  option_p = demo_p;
 
       demo_p = G_ReadOptions(demo_p);  // killough 3/1/98: Read game options
 
@@ -2616,8 +2616,8 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
         demo_p += 128-GAME_OPTION_SIZE;
     }
 
-  lprintf(LO_INFO, "G_DoPlayDemo: playing demo with %s compatibility\n", 
-	  comp_lev_str[compatibility_level]);
+  lprintf(LO_INFO, "G_DoPlayDemo: playing demo with %s compatibility\n",
+    comp_lev_str[compatibility_level]);
 
   if (demo_compatibility)  // only 4 players can exist in old demos
     {
@@ -2649,12 +2649,12 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
   return demo_p;
 }
 
-void G_DoPlayDemo(void) 
+void G_DoPlayDemo(void)
 {
   char basename[9];
 
   ExtractFileBase(defdemoname,basename);           // killough
-  demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));  
+  demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));
   /* cph - store lump number for unlocking later */
 
   demo_p = G_ReadDemoHeader(demo_p);
@@ -2708,9 +2708,9 @@ boolean G_CheckDemoStatus (void)
         exit(0);  // killough
 
       if (demolumpnum != -1) {
-	// cph - unlock the demo lump
-	W_UnlockLumpNum(demolumpnum);
-	demolumpnum = -1;
+  // cph - unlock the demo lump
+  W_UnlockLumpNum(demolumpnum);
+  demolumpnum = -1;
       }
       G_ReloadDefaults();    // killough 3/1/98
       netgame = false;       // killough 3/29/98

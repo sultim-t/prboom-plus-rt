@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: p_sight.c,v 1.10.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.10.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -110,92 +110,92 @@ static boolean P_CrossSubsector(int num)
   for (count = subsectors[num].numlines; --count >= 0; seg++) { // check lines
     line_t *line = seg->linedef;
     divline_t divl;
-    
-	 if(!line) // figgi -- skip minisegs 
-	   continue;
+
+   if(!line) // figgi -- skip minisegs
+     continue;
 
     // allready checked other side?
     if (line->validcount == validcount)
       continue;
-    
+
     line->validcount = validcount;
-    
+
     /* OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
-     * cph - this is causing demo desyncs on original Doom demos. 
+     * cph - this is causing demo desyncs on original Doom demos.
      *  Who knows why. Exclude test for those.
      */
     if (!demo_compatibility)
     if (line->bbox[BOXLEFT  ] > los.bbox[BOXRIGHT ] ||
-	line->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
-	line->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
-	line->bbox[BOXTOP]    < los.bbox[BOXBOTTOM])
+  line->bbox[BOXRIGHT ] < los.bbox[BOXLEFT  ] ||
+  line->bbox[BOXBOTTOM] > los.bbox[BOXTOP   ] ||
+  line->bbox[BOXTOP]    < los.bbox[BOXBOTTOM])
       continue;
-    
+
     // cph - do what we can before forced to check intersection
     if (line->flags & ML_TWOSIDED) {
 
       // no wall to block sight with?
       if ((front = seg->frontsector)->floorheight ==
-	  (back = seg->backsector)->floorheight   &&
-	  front->ceilingheight == back->ceilingheight)
-	continue;
-      
+    (back = seg->backsector)->floorheight   &&
+    front->ceilingheight == back->ceilingheight)
+  continue;
+
       // possible occluder
       // because of ceiling height differences
       opentop = front->ceilingheight < back->ceilingheight ?
-	front->ceilingheight : back->ceilingheight ;
-      
+  front->ceilingheight : back->ceilingheight ;
+
       // because of floor height differences
       openbottom = front->floorheight > back->floorheight ?
-	front->floorheight : back->floorheight ;
-      
+  front->floorheight : back->floorheight ;
+
       // cph - reject if does not intrude in the z-space of the possible LOS
-      if ((opentop >= los.maxz) && (openbottom <= los.minz)) 
-	continue;
+      if ((opentop >= los.maxz) && (openbottom <= los.minz))
+  continue;
     }
-    
+
     { // Forget this line if it doesn't cross the line of sight
       const vertex_t *v1,*v2;
-      
+
       v1 = line->v1;
       v2 = line->v2;
-      
+
       if (P_DivlineSide(v1->x, v1->y, &los.strace) ==
           P_DivlineSide(v2->x, v2->y, &los.strace))
         continue;
-      
+
       divl.dx = v2->x - (divl.x = v1->x);
       divl.dy = v2->y - (divl.y = v1->y);
-      
+
       // line isn't crossed?
       if (P_DivlineSide(los.strace.x, los.strace.y, &divl) ==
-	  P_DivlineSide(los.t2x, los.t2y, &divl))
-	continue;
+    P_DivlineSide(los.t2x, los.t2y, &divl))
+  continue;
     }
-    
+
     // cph - if bottom >= top or top < minz or bottom > maxz then it must be
     // solid wrt this LOS
-    if (!(line->flags & ML_TWOSIDED) || (openbottom >= opentop) || 
-	(opentop < los.minz) || (openbottom > los.maxz))
-	return false;
+    if (!(line->flags & ML_TWOSIDED) || (openbottom >= opentop) ||
+  (opentop < los.minz) || (openbottom > los.maxz))
+  return false;
 
     { // crosses a two sided line
       fixed_t frac = P_InterceptVector2(&los.strace, &divl);
-      
+
       if (front->floorheight != back->floorheight)
-	{
-	  fixed_t slope = FixedDiv(openbottom - los.sightzstart , frac);
-	  if (slope > los.bottomslope)
+  {
+    fixed_t slope = FixedDiv(openbottom - los.sightzstart , frac);
+    if (slope > los.bottomslope)
             los.bottomslope = slope;
-	}
-      
+  }
+
       if (front->ceilingheight != back->ceilingheight)
         {
           fixed_t slope = FixedDiv(opentop - los.sightzstart , frac);
           if (slope < los.topslope)
             los.topslope = slope;
         }
-      
+
       if (los.topslope <= los.bottomslope)
         return false;               // stop
     }
@@ -210,8 +210,8 @@ static boolean P_CrossSubsector(int num)
 //  if strace crosses the given node successfully.
 //
 // killough 4/20/98: rewritten to remove tail recursion, clean up, and optimize
-// cph - Made to use R_PointOnSide instead of P_DivlineSide, since the latter 
-//  could return 2 which was ambigous, and the former is 
+// cph - Made to use R_PointOnSide instead of P_DivlineSide, since the latter
+//  could return 2 which was ambigous, and the former is
 //  better optimised; also removes two casts :-)
 
 static boolean P_CrossBSPNode_LxDoom(int bspnum)
@@ -220,8 +220,8 @@ static boolean P_CrossBSPNode_LxDoom(int bspnum)
     {
       register const node_t *bsp = nodes + bspnum;
       int side,side2;
-	    side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
-	    side2 = R_PointOnSide(los.t2x, los.t2y, bsp);
+      side = R_PointOnSide(los.strace.x, los.strace.y, bsp);
+      side2 = R_PointOnSide(los.t2x, los.t2y, bsp);
       if (side == side2)
          bspnum = bsp->children[side]; // doesn't touch the other side
       else         // the partition plane is crossed here
@@ -239,8 +239,8 @@ static boolean P_CrossBSPNode_PrBoom(int bspnum)
     {
       register const node_t *bsp = nodes + bspnum;
       int side,side2;
-	    side = P_DivlineSide(los.strace.x,los.strace.y,(divline_t *)bsp)&1;
-	    side2= P_DivlineSide(los.t2x, los.t2y, (divline_t *) bsp);
+      side = P_DivlineSide(los.strace.x,los.strace.y,(divline_t *)bsp)&1;
+      side2= P_DivlineSide(los.t2x, los.t2y, (divline_t *) bsp);
       if (side == side2)
          bspnum = bsp->children[side]; // doesn't touch the other side
       else         // the partition plane is crossed here
@@ -330,7 +330,7 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
     los.bbox[BOXTOP] = t2->y, los.bbox[BOXBOTTOM] = t1->y;
 
   /* cph - calculate min and max z of the potential line of sight
-   * For old demos, we disable this optimisation by setting them to 
+   * For old demos, we disable this optimisation by setting them to
    * the extremes */
   switch (compatibility_level) {
   case lxdoom_1_compatibility:

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: r_things.c,v 1.14.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.14.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -743,7 +743,7 @@ void R_DrawPSprite (pspdef_t *psp)
     }
     gld_DrawWeapon(lump,vis,lightlevel);
   }
-#endif	
+#endif
 }
 
 //
@@ -933,7 +933,7 @@ void R_DrawSprite (vissprite_t* spr)
   // Clip the sprite against deep water and/or fake ceilings.
   // killough 4/9/98: optimize by adding mh
   // killough 4/11/98: improve sprite clipping for underwater/fake ceilings
-  // killough 11/98: fix disappearing sprites 
+  // killough 11/98: fix disappearing sprites
 
   if (spr->heightsec != -1)  // only things in specially marked sectors
     {
@@ -949,10 +949,10 @@ void R_DrawSprite (vissprite_t* spr)
                 clipbot[x] = h;
           }
         else                        // clip top
-	  if (phs != -1 && viewz <= sectors[phs].floorheight) // killough 11/98
-	    for (x=spr->x1 ; x<=spr->x2 ; x++)
-	      if (cliptop[x] == -2 || h > cliptop[x])
-		cliptop[x] = h;
+    if (phs != -1 && viewz <= sectors[phs].floorheight) // killough 11/98
+      for (x=spr->x1 ; x<=spr->x2 ; x++)
+        if (cliptop[x] == -2 || h > cliptop[x])
+    cliptop[x] = h;
       }
 
       if ((mh = sectors[spr->heightsec].ceilingheight) < spr->gzt &&
@@ -978,7 +978,7 @@ void R_DrawSprite (vissprite_t* spr)
   for (x = spr->x1 ; x<=spr->x2 ; x++) {
     if (clipbot[x] == -2)
       clipbot[x] = viewheight;
-    
+
     if (cliptop[x] == -2)
       cliptop[x] = -1;
   }

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.h,v 1.3 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_deh.h,v 1.3.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * Dehacked file support
@@ -46,7 +46,7 @@
 //      comments in this file
 //      New string names all start with an extra s_ to avoid conflicts,
 //      but are otherwise identical to the original including uppercase.
-//      This is partly to keep the changes simple and partly for easier 
+//      This is partly to keep the changes simple and partly for easier
 //      identification of the locations in which they're used.
 //
 //      Printed strings for translation
@@ -865,7 +865,7 @@ extern const char* s_C5TEXT; // = C5TEXT;
 extern const char* s_C6TEXT; // = C6TEXT;
 
 
-// after map 06 
+// after map 06
 
 /*
 #define P1TEXT  \

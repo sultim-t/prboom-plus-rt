@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.5 2000/10/10 19:37:12 cph Exp $
+ * $Id: r_draw.h,v 1.5.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -48,7 +48,7 @@ extern fixed_t  dc_texturemid;
 extern int      dc_texheight;    // killough
 
 // first pixel in a column
-extern const byte     *dc_source;         
+extern const byte     *dc_source;
 
 // The span blitting interface.
 // Hook in assembler or system specific BLT here.
@@ -75,7 +75,7 @@ extern fixed_t ds_xstep;
 extern fixed_t ds_ystep;
 
 // start of a 64*64 tile image
-extern const byte *ds_source;              
+extern const byte *ds_source;
 extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
 extern const byte *translationtables;
 extern const byte *dc_translation;
@@ -96,7 +96,7 @@ void R_FillBackScreen(void);
 // If the view size is not full screen, draws a border around it.
 void R_DrawViewBorder(void);
 
-extern const byte *tranmap;         // translucency filter maps 256x256  // phares 
+extern const byte *tranmap;         // translucency filter maps 256x256  // phares
 extern const byte *main_tranmap;    // killough 4/11/98
 
 #endif

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.7 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: r_plane.c,v 1.7.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.7 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.7.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -330,92 +330,92 @@ static void R_DoDrawPlane(visplane_t *pl)
     if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT) { // sky flat
       int texture;
       angle_t an, flip;
-  
+
       // killough 10/98: allow skies to come from sidedefs.
       // Allows scrolling and/or animated skies, as well as
       // arbitrary multiple skies per level without having
       // to use info lumps.
-      
+
       an = viewangle;
-      
+
       if (pl->picnum & PL_SKYFLAT)
       {
-	      // Sky Linedef
-	      const line_t *l = &lines[pl->picnum & ~PL_SKYFLAT];
-	      
-	      // Sky transferred from first sidedef
-	      const side_t *s = *l->sidenum + sides;
-	      
-	      // Texture comes from upper texture of reference sidedef
-	      texture = texturetranslation[s->toptexture];
-	      
-	      // Horizontal offset is turned into an angle offset,
-	      // to allow sky rotation as well as careful positioning.
-	      // However, the offset is scaled very small, so that it
-	      // allows a long-period of sky rotation.
-	      
-	      an += s->textureoffset;
-	      
-	      // Vertical offset allows careful sky positioning.
-	      
-	      dc_texturemid = s->rowoffset - 28*FRACUNIT;
-	      
-	      // We sometimes flip the picture horizontally.
-	      //
-	      // Doom always flipped the picture, so we make it optional,
-	      // to make it easier to use the new feature, while to still
-	      // allow old sky textures to be used.
-	      
-	      flip = l->special==272 ? 0u : ~0u;
+        // Sky Linedef
+        const line_t *l = &lines[pl->picnum & ~PL_SKYFLAT];
+
+        // Sky transferred from first sidedef
+        const side_t *s = *l->sidenum + sides;
+
+        // Texture comes from upper texture of reference sidedef
+        texture = texturetranslation[s->toptexture];
+
+        // Horizontal offset is turned into an angle offset,
+        // to allow sky rotation as well as careful positioning.
+        // However, the offset is scaled very small, so that it
+        // allows a long-period of sky rotation.
+
+        an += s->textureoffset;
+
+        // Vertical offset allows careful sky positioning.
+
+        dc_texturemid = s->rowoffset - 28*FRACUNIT;
+
+        // We sometimes flip the picture horizontally.
+        //
+        // Doom always flipped the picture, so we make it optional,
+        // to make it easier to use the new feature, while to still
+        // allow old sky textures to be used.
+
+        flip = l->special==272 ? 0u : ~0u;
       }
       else
       {    // Normal Doom sky, only one allowed per level
-	      dc_texturemid = skytexturemid;    // Default y-offset
-	      texture = skytexture;             // Default texture
-	      flip = 0;                         // Doom flips it
+        dc_texturemid = skytexturemid;    // Default y-offset
+        texture = skytexture;             // Default texture
+        flip = 0;                         // Doom flips it
       }
       // Sky is always drawn full bright, i.e. colormaps[0] is used.
       // Because of this hack, sky is not affected by INVUL inverse mapping.
-      
-      if (!(dc_colormap = fixedcolormap)) 
-	dc_colormap = fullcolormap;          // killough 3/20/98
+
+      if (!(dc_colormap = fixedcolormap))
+  dc_colormap = fullcolormap;          // killough 3/20/98
       //dc_texturemid = skytexturemid;
       dc_texheight = textureheight[skytexture]>>FRACBITS; // killough
       // proff 09/21/98: Changed for high-res
       dc_iscale = FRACUNIT*200/viewheight;
-      
-	// killough 10/98: Use sky scrolling offset, and possibly flip picture
+
+  // killough 10/98: Use sky scrolling offset, and possibly flip picture
         for (x = pl->minx; (dc_x = x) <= pl->maxx; x++)
           if ((dc_yl = pl->top[x]) <= (dc_yh = pl->bottom[x]))
             {
               dc_source = R_GetColumn(texture, ((an + xtoviewangle[x])^flip) >>
-				      ANGLETOSKYSHIFT);
+              ANGLETOSKYSHIFT);
               colfunc();
             }
     } else {     // regular flat
-     
+
       int stop, light;
-      
+
       ds_source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
-      
+
       xoffs = pl->xoffs;  // killough 2/28/98: Add offsets
       yoffs = pl->yoffs;
       planeheight = D_abs(pl->height-viewz);
       light = (pl->lightlevel >> LIGHTSEGSHIFT) + extralight;
-      
+
       if (light >= LIGHTLEVELS)
-	light = LIGHTLEVELS-1;
-      
+  light = LIGHTLEVELS-1;
+
       if (light < 0)
-	light = 0;
-      
+  light = 0;
+
       stop = pl->maxx + 1;
       planezlight = zlight[light];
       pl->top[pl->minx-1] = pl->top[stop] = 0xffff;
-      
+
       for (x = pl->minx ; x <= stop ; x++)
-	R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],pl->top[x],pl->bottom[x]);
-      
+  R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],pl->top[x],pl->bottom[x]);
+
       W_UnlockLumpNum(firstflat + flattranslation[pl->picnum]);
     }
   }

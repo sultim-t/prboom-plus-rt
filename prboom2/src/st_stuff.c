@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.9 2000/11/08 22:02:34 cph Exp $
+ * $Id: st_stuff.c,v 1.9.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.9 2000/11/08 22:02:34 cph Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.9.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -404,8 +404,8 @@ void ST_refreshBackground(void)
       if (netgame)
       {
         V_DrawNumPatch(ST_FX, y, BG, faceback.lumpnum,
-		       displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT, 
-		       displayplayer ? (VPT_TRANS | VPT_STRETCH) : VPT_STRETCH);
+           displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT,
+           displayplayer ? (VPT_TRANS | VPT_STRETCH) : VPT_STRETCH);
       }
 
       V_CopyRect(ST_X, y, screen, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
@@ -827,7 +827,7 @@ void ST_diffDraw(void)
 
 void ST_Drawer(boolean st_statusbaron, boolean refresh)
 {
-  /* cph - let status bar on be controlled 
+  /* cph - let status bar on be controlled
    * completely by the call from D_Display
    * proff - really do it
    */
@@ -836,7 +836,7 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh)
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
 #ifdef GL_DOOM
-  /* proff 05/17/2000: always draw everything in OpenGL, because there 
+  /* proff 05/17/2000: always draw everything in OpenGL, because there
    * is no backbuffer
    */
   if (st_statusbaron)
@@ -863,7 +863,7 @@ static void ST_loadGraphics(boolean doload)
 {
   int  i, facenum;
   char namebuf[9];
-  // cph - macro that either acquires a pointer and lock for a lump, or 
+  // cph - macro that either acquires a pointer and lock for a lump, or
   // unlocks it. var is referenced exactly once in either case, so ++ in arg works
 /*
 #define LOADORFREE(var,name) \
@@ -880,7 +880,7 @@ else var = (const patch_t*)W_CacheLumpName(name)
       R_SetPatchNum(&shortnum[i],namebuf);
     }
 
-  // Load percent key. 
+  // Load percent key.
   R_SetPatchNum(&tallpercent,"STTPRCNT");
 
   // key cards
@@ -912,8 +912,8 @@ else var = (const patch_t*)W_CacheLumpName(name)
 
   // status bar background bits
   if (doload)
-    sbar = V_PatchToBlock("STBAR", CR_DEFAULT, VPT_NONE, 
-		  &sbar_width, &sbar_height);
+    sbar = V_PatchToBlock("STBAR", CR_DEFAULT, VPT_NONE,
+      &sbar_width, &sbar_height);
   else {
     free(sbar); sbar=NULL;
   }

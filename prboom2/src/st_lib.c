@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: st_lib.c,v 1.6 2000/11/12 14:59:29 cph Exp $
+ * $Id: st_lib.c,v 1.6.2.1 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_lib.c,v 1.6 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: st_lib.c,v 1.6.2.1 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -82,8 +82,8 @@ void STlib_initNum
 
 /*
  * STlib_drawNum()
- * 
- * A fairly efficient way to draw a number based on differences from the 
+ *
+ * A fairly efficient way to draw a number based on differences from the
  * old number.
  *
  * Passed a st_number_t widget, a color range for output, and a flag
@@ -147,16 +147,16 @@ static void STlib_drawNum
   // in the special case of 0, you draw 0
   if (!num)
     // CPhipps - patch drawing updated, reformatted
-    V_DrawNumPatch(x - w, n->y, FG, n->p[0].lumpnum, cm, 
-		   (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
+    V_DrawNumPatch(x - w, n->y, FG, n->p[0].lumpnum, cm,
+       (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
 
   // draw the new number
   //jff 2/16/98 add color translation to digit output
   while (num && numdigits--) {
     // CPhipps - patch drawing updated, reformatted
     x -= w;
-    V_DrawNumPatch(x, n->y, FG, n->p[num % 10].lumpnum, cm, 
-		   (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
+    V_DrawNumPatch(x, n->y, FG, n->p[num % 10].lumpnum, cm,
+       (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
     num /= 10;
   }
 
@@ -164,8 +164,8 @@ static void STlib_drawNum
   //jff 2/16/98 add color translation to digit output
   // cph - patch drawing updated, load by name instead of acquiring pointer earlier
   if (neg)
-    V_DrawNamePatch(x - w, n->y, FG, "STTMINUS", cm, 
-		   (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
+    V_DrawNamePatch(x - w, n->y, FG, "STTMINUS", cm,
+       (((cm!=CR_DEFAULT) && !sts_always_red) ? VPT_TRANS : VPT_NONE) | VPT_STRETCH);
 }
 
 /*
@@ -227,13 +227,13 @@ void STlib_updatePercent
   int cm,
   int refresh )
 {
-  if (*per->n.on && (refresh || (per->n.oldnum != *per->n.num))) { 
+  if (*per->n.on && (refresh || (per->n.oldnum != *per->n.num))) {
     // killough 2/21/98: fix percents not updated;
     /* CPhipps - make %'s only be updated if number changed */
     // CPhipps - patch drawing updated
-    V_DrawNumPatch(per->n.x, per->n.y, FG, per->p->lumpnum, 
-		   sts_pct_always_gray ? CR_GRAY : cm, 
-		   (sts_always_red ? VPT_NONE : VPT_TRANS) | VPT_STRETCH);
+    V_DrawNumPatch(per->n.x, per->n.y, FG, per->p->lumpnum,
+       sts_pct_always_gray ? CR_GRAY : cm,
+       (sts_always_red ? VPT_NONE : VPT_TRANS) | VPT_STRETCH);
   }
 
   STlib_updateNum(&per->n, cm, refresh);

@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.7.2.1 2001/05/19 15:42:56 cph Exp $
+ * $Id: p_spec.c,v 1.7.2.2 2002/07/20 18:08:37 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.7.2.1 2001/05/19 15:42:56 cph Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.7.2.2 2002/07/20 18:08:37 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -496,7 +496,7 @@ fixed_t P_FindLowestCeilingSurrounding(sector_t* sec)
   fixed_t             height = INT_MAX;
 
   /* jff 3/12/98 avoid ovf in height calculations */
-  if (!comp[comp_model]) height = 32000*FRACUNIT; 
+  if (!comp[comp_model]) height = 32000*FRACUNIT;
 
   for (i=0 ;i < sec->linecount ; i++)
   {
@@ -532,7 +532,7 @@ fixed_t P_FindHighestCeilingSurrounding(sector_t* sec)
   /* jff 1/26/98 Fix initial value for floor to not act differently
    * in sections of wad that are below 0 units
    * jff 3/12/98 avoid ovf in height calculations */
-  if (!comp[comp_model]) height = -32000*FRACUNIT; 
+  if (!comp[comp_model]) height = -32000*FRACUNIT;
 
   for (i=0 ;i < sec->linecount ; i++)
   {
@@ -1404,7 +1404,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       // EXIT!
       // killough 10/98: prevent zombies from exiting levels
       if (!(thing->player && thing->player->health <= 0 && !comp[comp_zombie]))
-	G_ExitLevel ();
+  G_ExitLevel ();
       break;
 
     case 53:
@@ -1490,7 +1490,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       // killough 10/98: prevent zombies from exiting levels
       // CPhipps - change for lxdoom's compatibility handling
       if (!(thing->player && thing->player->health <= 0 && !comp[comp_zombie]))
-	G_SecretExitLevel ();
+  G_SecretExitLevel ();
       break;
 
     case 125:

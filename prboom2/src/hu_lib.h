@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_lib.h,v 1.4 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: hu_lib.h,v 1.4.2.1 2002/07/20 18:08:34 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  none
@@ -78,7 +78,7 @@ typedef struct
   int   len;                            // current line length
 
   // whether this line needs to be udpated
-  int   needsupdate;        
+  int   needsupdate;
 
 } hu_textline_t;
 
@@ -128,7 +128,7 @@ typedef struct
   int     lm;
 
   // pointer to boolean stating whether to update window
-  boolean*    on; 
+  boolean*    on;
   boolean   laston;   // last value of *->on;
 
 } hu_itext_t;
@@ -168,7 +168,7 @@ boolean HUlib_delCharFromTextLine(hu_textline_t *t);
 void HUlib_drawTextLine(hu_textline_t *l, boolean drawcursor);
 
 // erases text line
-void HUlib_eraseTextLine(hu_textline_t *l); 
+void HUlib_eraseTextLine(hu_textline_t *l);
 
 
 //
@@ -187,7 +187,7 @@ void HUlib_initSText
   boolean*  on );
 
 // add a new line
-void HUlib_addLineToSText(hu_stext_t* s);  
+void HUlib_addLineToSText(hu_stext_t* s);
 
 // add a text message to an stext widget
 void HUlib_addMessageToSText(hu_stext_t* s, const char* prefix, const char* msg);
@@ -201,7 +201,7 @@ void HUlib_eraseSText(hu_stext_t* s);
 //jff 2/26/98 message refresh widget
 // initialize refresh text widget
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, const patchnum_t* font,
-		     int startchar, int cm, const patchnum_t* bgfont, boolean *on);
+         int startchar, int cm, const patchnum_t* bgfont, boolean *on);
 
 //jff 2/26/98 message refresh widget
 // add a text line to refresh text widget
@@ -260,6 +260,6 @@ boolean HUlib_keyInIText
 void HUlib_drawIText(hu_itext_t* it);
 
 // erases all itext lines
-void HUlib_eraseIText(hu_itext_t* it); 
+void HUlib_eraseIText(hu_itext_t* it);
 
 #endif
