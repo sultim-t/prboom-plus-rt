@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $
+ * $Id: z_zone.c,v 1.9.2.1 2002/01/12 14:09:16 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.9.2.1 2002/01/12 14:09:16 cph Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -62,9 +62,6 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
 
 // Alignment of zone memory (benefit may be negated by HEADER_SIZE, CHUNK_SIZE)
 #define CACHE_ALIGN 32
-
-// size of block header
-#define HEADER_SIZE 32
 
 // Minimum chunk size at which blocks are allocated
 #define CHUNK_SIZE 32
@@ -114,6 +111,11 @@ typedef struct memblock {
 #endif
 
 } memblock_t;
+
+/* size of block header
+ * cph - base on sizeof(memblock_t), which can be larger than CHUNK_SIZE on
+ * 64bit architectures */
+static const size_t HEADER_SIZE = (sizeof(memblock_t)+CHUNK_SIZE-1) & ~(CHUNK_SIZE-1);
 
 static memblock_t *rover;                // roving pointer to memory blocks
 static memblock_t *zone;                 // pointer to first block
