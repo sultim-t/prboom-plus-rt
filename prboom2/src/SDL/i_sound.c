@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.8 2000/06/25 11:51:48 proff_fs Exp $
+ * $Id: i_sound.c,v 1.9 2000/07/22 14:46:42 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.8 2000/06/25 11:51:48 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.9 2000/07/22 14:46:42 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -511,40 +511,40 @@ void I_UpdateSound(void *unused, Uint8 *stream, int len)
 
 void I_ShutdownSound(void)
 {    
-  fprintf(stderr, "I_ShutdownSound: ");
+  lprintf(LO_DEBUG, "I_ShutdownSound: ");
 #ifdef HAVE_MIXER
   Mix_CloseAudio();
 #else
   SDL_CloseAudio();
 #endif
-  fprintf(stderr, "\n");
+  lprintf(LO_DEBUG, "\n");
 }
 
-static SDL_AudioSpec audio;
+//static SDL_AudioSpec audio;
 
 void
 I_InitSound()
 { 
 #ifdef HAVE_MIXER
-	int audio_rate;
-	Uint16 audio_format;
-	int audio_channels;
-	int audio_buffers;
+  int audio_rate;
+  Uint16 audio_format;
+  int audio_channels;
+  int audio_buffers;
 
   // Secure and configure sound device first.
   fprintf( stderr, "I_InitSound: ");
  
-	/* Initialize variables */
-	audio_rate = SAMPLERATE;
-  #if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
-    audio_format = AUDIO_S16MSB;
-  #else
-    audio_format = AUDIO_S16LSB;
-  #endif
-	audio_channels = 2;
-	audio_buffers = SAMPLECOUNT;
-
-	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
+  /* Initialize variables */
+  audio_rate = SAMPLERATE;
+#if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
+  audio_format = AUDIO_S16MSB;
+#else
+  audio_format = AUDIO_S16LSB;
+#endif
+  audio_channels = 2;
+  audio_buffers = SAMPLECOUNT;
+  
+  if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
     fprintf(stderr, "couldn't open audio with desired format\n");
     return;
   }
@@ -553,14 +553,14 @@ I_InitSound()
 #else
   // Secure and configure sound device first.
   fprintf( stderr, "I_InitSound: ");
- 
+  
   // Open the audio device
   audio.freq = SAMPLERATE;
-  #if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
-    audio.format = AUDIO_S16MSB;
-  #else
-    audio.format = AUDIO_S16LSB;
-  #endif
+#if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
+  audio.format = AUDIO_S16MSB;
+#else
+  audio.format = AUDIO_S16LSB;
+#endif
   audio.channels = 2;
   audio.samples = SAMPLECOUNT;
   audio.callback = I_UpdateSound;
@@ -571,9 +571,9 @@ I_InitSound()
   SAMPLECOUNT = audio.samples;
   fprintf(stderr, " configured audio device with %d samples/slice\n", SAMPLECOUNT);
 #endif
-
+  
   atexit(I_ShutdownSound);
-
+  
   if (!nomusicparm)
     I_InitMusic();
   
@@ -593,44 +593,47 @@ I_InitSound()
 
 #ifdef HAVE_MIXER
 #include "SDL_mixer.h"
-//#include "qmus2mid.h"
 #include "mmus2mid.h"
 
-/* FIXME: Make this file instance-specific */
-#ifdef _WIN32
-	#define MIDI_TMPFILE	"doom.mid"
-#else
-	#define MIDI_TMPFILE	"/tmp/.lsdlmidi"
-#endif
-
 static Mix_Music *music[2] = { NULL, NULL };
+
+char* music_tmp; /* cph - name of music temporary file */
+
 #endif
 
 void I_ShutdownMusic(void) 
 {
 #ifdef HAVE_MIXER
-  //close_music();
+  if (music_tmp) {
+    unlink(music_tmp);
+    lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s", music_tmp);
+    free(music_tmp);
+  }
 #endif
-  fprintf(stderr, "I_ShutdownMusic: shut down\n");
 }
 
 void I_InitMusic(void)
 {
 #ifdef HAVE_MIXER
-/*
-  if ( open_music(&audio) < 0 ) {
-    fprintf(stderr, "Unable to open music: %s\n", Mix_GetError());
-    return;
+#ifndef _WIN32
+  music_tmp = strdup("/tmp/prboom-music-XXXXXX");
+  {
+    int fd = mkstemp(music_tmp);
+    if (fd<0) {
+      lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
+      free(music_tmp); return;
+    } else 
+      close(fd);
   }
-*/
-  fprintf(stderr, "I_InitMusic: music initialized\n");
+#else /* !_WIN32 */
+  music_tmp = strdup("doom.tmp");
+#endif
 #endif
   atexit(I_ShutdownMusic);
 }
 
 void I_PlaySong(int handle, int looping)
 {
-//printf("Playing song %d (%d loops)\n", handle, looping);
 #ifdef HAVE_MIXER
   if ( music[handle] ) {
     Mix_FadeInMusic(music[handle], looping ? -1 : 0, 500);
@@ -659,7 +662,6 @@ lprintf(LO_INFO,"Pausing song %d (pause)\n", handle);
 
 void I_ResumeSong (int handle)
 {
-//printf("Resuming song %d\n", handle);
 #ifdef HAVE_MIXER
   Mix_ResumeMusic();
 #endif
@@ -667,7 +669,6 @@ void I_ResumeSong (int handle)
 
 void I_StopSong(int handle)
 {
-//printf("Stopping song %d\n", handle);
 #ifdef HAVE_MIXER
   Mix_FadeOutMusic(500);
 #endif
@@ -675,13 +676,11 @@ void I_StopSong(int handle)
 
 void I_UnRegisterSong(int handle)
 {
-//printf("Unregistering song %d\n", handle);
 #ifdef HAVE_MIXER
   if ( music[handle] ) {
     Mix_FreeMusic(music[handle]);
     music[handle] = NULL;
   }
-  unlink(MIDI_TMPFILE);
 #endif
 }
 
@@ -691,12 +690,9 @@ int I_RegisterSong(const void *data, size_t len)
   MIDI mididata;
   FILE *midfile;
 
-//printf("Registering song {%c%c%c}\n", ((unsigned char *)data)[0],
-//                                      ((unsigned char *)data)[1],
-//                                      ((unsigned char *)data)[2]);
-  midfile = fopen(MIDI_TMPFILE, "wb");
+  midfile = fopen(music_tmp, "wb");
   if ( midfile == NULL ) {
-    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", MIDI_TMPFILE);
+    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);
     return 0;
   }
   /* Convert MUS chunk to MIDI? */
@@ -709,16 +705,16 @@ int I_RegisterSong(const void *data, size_t len)
     memset(&mididata,0,sizeof(MIDI));
     mmus2mid(data, &mididata, 89, 0);
     MIDIToMidi(&mididata,&mid,&midlen);
-    M_WriteFile(MIDI_TMPFILE,mid,midlen);
+    M_WriteFile(music_tmp,mid,midlen);
     free(mid);
   } else {
     fwrite(data, len, 1, midfile);
   }
   fclose(midfile);
 
-  music[0] = Mix_LoadMUS(MIDI_TMPFILE);
+  music[0] = Mix_LoadMUS(music_tmp);
   if ( music[0] == NULL ) {
-    lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", MIDI_TMPFILE, Mix_GetError());
+    lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", music_tmp, Mix_GetError());
   }
 #endif
   return (0);
@@ -726,7 +722,6 @@ int I_RegisterSong(const void *data, size_t len)
 
 void I_SetMusicVolume(int volume)
 {
-//printf("Setting music volume to %d\n", volume);
 #ifdef HAVE_MIXER
   Mix_VolumeMusic(volume*8);
 #endif
