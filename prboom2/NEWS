@@ -2,6 +2,7 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.2.3 to v2.2.4
+- fixed sky-over-sky HOM
 - shared texture palette isn't the default anymore
 - better invulnerabilty rendering for non paletted OpenGL
 - small compilation fixed for OpenGL on some unix platforms
