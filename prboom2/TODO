@@ -230,35 +230,24 @@ Proff: Only happens to me????
 
 54. From the doomworld comments
 
-[QUOTE][i]ukiro said:[/i]
-[B]I'm too lazy to contact the author(s)... so here are some bugs (se my system specs at the bottom):
-
-"test framerate" won't work if you've changed resolution unless you restart
-[/B][/QUOTE]
-Have to look at that.
-[QUOTE][B]
-"always run" setting omitted from menus (available through console though)
-[/B][/QUOTE]
-Thanks for pointing out that it works from the console.
-[QUOTE][B]
-when doing -fastdemo and starting a game while demo is running, game speed it set to that of the fastdemo
-
--timedemo doesn't give me a result; where am I supposed to see the # of gametics?
-[/B][/QUOTE]
-It's printed to the console, but I don't know if PrBoom quits after -timedemo (writing this without being able to test).
-[QUOTE][B]
-the IWAD loading is very very buggy, hardly works at all
-[/B][/QUOTE]
-Hmm, have to test that again. If you don't set -iwad on the commandline it should work.
-[QUOTE][B]
-OpenGL mode took a while to find in the BPP settings... why hide it there?
-[/B][/QUOTE]
-Tell me a better place.
-[QUOTE][B]
-in full view (no statbar) weapons are drawn too high
-[/B][/QUOTE]
-Have to look at that.
-[QUOTE][B]
-also I'm getting desynch problems with Final DOOM demos, even when loading DOOM2.WAD as IWAD and TNT.WAD/PLUTONIA.WAD as PWAD. Still testing ways to get that to work though.
-[/B][/QUOTE]
-It should work if you set tnt/plutonia as the iwad, otherwise PrBoom doesn't recognize them. If not, please send a link to an offending demo.
+- "test framerate" won't work if you've changed resolution unless you restart
+- "always run" setting omitted from menus (available through console though)
+- when doing -fastdemo and starting a game while demo is running, game speed it set to that of the fastdemo
+- timedemo doesn't give me a result; where am I supposed to see the # of gametics?
+> It's printed to the console, but I don't know if PrBoom quits after -timedemo (writing this without being able to test).
+- the IWAD loading is very very buggy, hardly works at all
+    1. start prboom with default IWAD set to doom2 in prboom.config
+    2. load ultimate doom iwad through in-game menu
+    3. run around a bit in E1M1
+    4. load plutonia from in-game menu
+- OpenGL mode took a while to find in the BPP settings... why hide it there?
+    I'd like to see something like "rendering mode" where you can select between
+    openGL and software, and depending on what you choose, the settings for that
+    mode appear below (wall drawing filter, floor drawing filter, depth drawing
+    filter, patch drawing filter, sprites borders slope, patch borders slope,
+    texture format, texture filter, use fog and fog density). I think this will
+    also make all these settings a little easier to understand.
+- in full view (no statbar) weapons are drawn too high
+- also I'm getting desynch problems with Final DOOM demos, even when loading DOOM2.WAD as IWAD and TNT.WAD/PLUTONIA.WAD as PWAD. Still testing ways to get that to work though.
+    prboom.exe -iwad tnt.wad -playdemo ev10-239.lmp
+> works from commandline, but not with play command
