@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.9 2000/05/15 07:16:17 proff_fs Exp $
+ * $Id: v_video.c,v 1.10 2000/05/17 21:09:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.9 2000/05/15 07:16:17 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.10 2000/05/17 21:09:10 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -212,10 +212,21 @@ void V_MarkRect(int x, int y, int width, int height)
 // No return.
 //
 void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
-                int height, int destx, int desty, int destscrn )
+                int height, int destx, int desty, int destscrn,
+                enum patch_translation_e flags)
 {
   byte *src;
   byte *dest;
+
+  if (flags & VPT_STRETCH)
+  {
+    srcx=srcx*SCREENWIDTH/320;
+    srcy=srcy*SCREENHEIGHT/200;
+    width=width*SCREENWIDTH/320;
+    height=height*SCREENHEIGHT/200;
+    destx=destx*SCREENWIDTH/320;
+    desty=desty*SCREENHEIGHT/200;
+  }
 
 #ifdef RANGECHECK
   if (srcx<0
@@ -314,7 +325,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
  * directly, so this is my code from the equivalent function in f_finale.c
  */
 #ifndef GL_DOOM
-void V_DrawBackground(const char* flatname)
+void V_DrawBackground(const char* flatname, int scrn)
 {
   /* erase the entire screen to a tiled background */
   const byte *src;
@@ -324,12 +335,12 @@ void V_DrawBackground(const char* flatname)
   // killough 4/17/98: 
   src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
   
-  V_DrawBlock(0, 0, 0, 64, 64, src, 0);
+  V_DrawBlock(0, 0, scrn, 64, 64, src, 0);
   
   for (y=0 ; y<SCREENHEIGHT ; y+=64)
     for (x=y ? 0 : 64; x<SCREENWIDTH ; x+=64)
-      V_CopyRect(0, 0, 0, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64, 
-		 ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, 0);
+      V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64, 
+		 ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
   W_UnlockLumpNum(lump);
 }
 #endif

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.6 2000/05/11 07:44:48 cph Exp $
+ * $Id: v_video.h,v 1.7 2000/05/17 21:09:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -87,7 +87,8 @@ void V_InitColorTranslation(void);
 void V_Init (void);
 
 void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
-                int destx, int desty, int destscrn);
+                int destx, int desty, int destscrn,
+                enum patch_translation_e flags);
 
 #ifdef GL_DOOM
 #define V_FillRect(s,x,y,w,h,c) gld_FillBlock(x,y,w,h,c)
@@ -145,9 +146,9 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height,
 
 /* cphipps 10/99: function to tile a flat over the screen */
 #ifdef GL_DOOM
-#define V_DrawBackground gld_DrawBackground
+#define V_DrawBackground(n,s) gld_DrawBackground(n)
 #else
-void V_DrawBackground(const char* flatname);
+void V_DrawBackground(const char* flatname, int scrn);
 #endif
 
 // Reads a linear block of pixels into the view buffer.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.5 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: m_menu.c,v 1.6 2000/05/17 21:09:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.5 2000/05/09 21:45:38 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.6 2000/05/17 21:09:10 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -2433,7 +2433,7 @@ void M_DrawKeybnd(void)
 
   // Set up the Key Binding screen 
 
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(84, 2, 0, "M_KEYBND", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2524,7 +2524,7 @@ void M_DrawWeapons(void)
   {
   inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
 
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(109, 2, 0, "M_WEAP", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2621,7 +2621,7 @@ void M_DrawStatusHUD(void)
   {
   inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
 
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(59, 2, 0, "M_STAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2775,7 +2775,7 @@ void M_DrawAutoMap(void)
   {
   inhelpscreens = true;    // killough 4/6/98: Force status bar redraw
 
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // CPhipps - patch drawing updated
   V_DrawNamePatch(109, 2, 0, "M_AUTO", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2854,7 +2854,7 @@ void M_DrawEnemy(void)
   {
   inhelpscreens = true;
 
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // proff/nicolas 09/20/98 -- changed for hi-res
   V_DrawNamePatch(114, 2, 0, "M_ENEM", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -2933,7 +2933,7 @@ void M_DrawMessages(void)
 
   {
   inhelpscreens = true;
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // CPhipps - patch drawing updated
   V_DrawNamePatch(103, 2, 0, "M_MESS", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3008,7 +3008,7 @@ void M_DrawChatStrings(void)
 
   {
   inhelpscreens = true;
-  M_DrawBackground("FLOOR4_6"); // Draw background
+  M_DrawBackground("FLOOR4_6", 0); // Draw background
   // CPhipps - patch drawing updated
   V_DrawNamePatch(83, 2, 0, "M_CHAT", CR_DEFAULT, VPT_STRETCH);
   M_DrawInstructions();
@@ -3436,7 +3436,7 @@ int M_GetPixelWidth(char* ch)
 
 void M_DrawHelp (void)
   {
-  M_DrawBackground("FLOOR4_6");
+  M_DrawBackground("FLOOR4_6", 0);
 
   V_MarkRect (0,0,SCREENWIDTH,SCREENHEIGHT);
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: f_wipe.c,v 1.4 2000/05/17 21:09:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.4 2000/05/17 21:09:09 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -161,15 +161,15 @@ static int wipe_exitMelt(int width, int height, int ticks)
 int wipe_StartScreen(int x, int y, int width, int height)
 {
   wipe_scr_start = screens[SRC_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT);
-  V_CopyRect(x, y, 0,       width, height, x, y, SRC_SCR ); // Copy start screen to buffer
+  V_CopyRect(x, y, 0,       width, height, x, y, SRC_SCR, VPT_NONE ); // Copy start screen to buffer
   return 0;
 }
 
 int wipe_EndScreen(int x, int y, int width, int height)
 {
   wipe_scr_end = screens[DEST_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT);
-  V_CopyRect(x, y, 0,       width, height, x, y, DEST_SCR); // Copy end screen to buffer
-  V_CopyRect(x, y, SRC_SCR, width, height, x, y, 0       ); // restore start screen
+  V_CopyRect(x, y, 0,       width, height, x, y, DEST_SCR, VPT_NONE); // Copy end screen to buffer
+  V_CopyRect(x, y, SRC_SCR, width, height, x, y, 0       , VPT_NONE); // restore start screen
   return 0;
 }
 
