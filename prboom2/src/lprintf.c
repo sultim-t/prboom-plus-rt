@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.9 2000/05/20 11:47:09 proff_fs Exp $
+ * $Id: lprintf.c,v 1.10 2000/05/21 13:34:38 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.9 2000/05/20 11:47:09 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.10 2000/05/21 13:34:38 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -189,7 +189,7 @@ static int I_ConPrintString (const char *outline)
 	return strlen (outline);
 }
 
-void I_ConTextAttr(byte a)
+void I_ConTextAttr(unsigned char a)
 {
   int r,g,b,col;
   HDC conDC;

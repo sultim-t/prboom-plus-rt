@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.h,v 1.5 2000/05/11 20:01:06 proff_fs Exp $
+ * $Id: lprintf.h,v 1.6 2000/05/21 13:34:38 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -60,7 +60,7 @@ extern int cons_error_mask;
 void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));
 
 #ifdef _WIN32
-void I_ConTextAttr(byte a);
+void I_ConTextAttr(unsigned char a);
 int Init_ConsoleWin(void);
 void Done_ConsoleWin(void);
 #endif
