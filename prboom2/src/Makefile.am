@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.11 2000/08/06 12:04:56 cph Exp $
+# $Id: Makefile.am,v 1.12 2000/08/19 17:14:18 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -30,7 +30,7 @@ UDP_SRC = i_udp.c
 endif
 
 prboom_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
-prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@
+prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
