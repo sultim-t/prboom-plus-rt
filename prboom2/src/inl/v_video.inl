@@ -467,7 +467,7 @@ byte *FUNC_V_GetPlottedPatch(
   FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);  
   
 #if V_VIDEO_BITS == 32
-  finalizeTrueColorBuffer(destBuffer, bufferSize/V_VIDEO_BITS, convertToBGRA);
+  finalizeTrueColorBuffer(destBuffer, bufferSize*8/V_VIDEO_BITS, convertToBGRA);
 #endif
 
   return destBuffer;
@@ -504,7 +504,7 @@ byte *FUNC_V_GetPlottedTexture(
   FUNC_V_PlotTextureNum(textureNum, 0, 0, plotWidth, plotHeight, filter, destBuffer, bufferWidth, bufferHeight);
 
 #if V_VIDEO_BITS == 32
-  finalizeTrueColorBuffer(destBuffer, bufferSize/V_VIDEO_BITS, convertToBGRA);
+  finalizeTrueColorBuffer(destBuffer, bufferSize*8/V_VIDEO_BITS, convertToBGRA);
 #endif
     
   return destBuffer;

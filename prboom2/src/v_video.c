@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.29 2002/11/22 21:57:12 dukope Exp $
+ * $Id: v_video.c,v 1.30 2002/11/22 22:51:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.29 2002/11/22 21:57:12 dukope Exp $";
+rcsid[] = "$Id: v_video.c,v 1.30 2002/11/22 22:51:02 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -206,18 +206,20 @@ void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA)
     r = color & (0x000000ff);
     g = (color & (0x0000ff00)) >> 8;
     b = (color & (0x00ff0000)) >> 16;
-    a = (color & (0xff000000));
+    a = (color & (0xff000000)) >> 24;
     
     // if alpha is 0xff, then nothing was plotted to this pixel
-    if (a == 0xff) {
+    if (a) {
       destBufferAsInt[i] = 0; 
       continue;
     }
     
     // alpha was zero, which means R_DrawColumn plotted a pixel
-    a = 0xff;      
-    if (convertToBGRA) destBufferAsInt[i] = ((b<<24) | (g<<16) | (r<<8) | a);
-    else destBufferAsInt[i] = ((r<<24) | (g<<16) | (b<<8) | a);      
+    a = 0xff;
+    if (convertToBGRA)
+      destBufferAsInt[i] = ((a<<24) | (r<<16) | (g<<8) | b);
+    else
+      destBufferAsInt[i] = ((a<<24) | (b<<16) | (g<<8) | r);
   }
 }
 
@@ -264,6 +266,7 @@ TFunc_V_PlotTextureNum  V_PlotTextureNum;
 //---------------------------------------------------------------------------
 // Set Function Pointers
 void vid_initMode(TVidMode vd) {
+#ifndef GL_DOOM  
   vidMode = vd;
   if (vidMode == VID_MODE8) {
     V_FillRect = V_FillRect8;
@@ -301,8 +304,8 @@ void vid_initMode(TVidMode vd) {
     V_PlotPatchNum = V_PlotPatchNum32;
     V_PlotTextureNum = V_PlotTextureNum32;
   }
-  else if (vidMode == VID_MODEGL) {
-#ifdef GL_DOOM  
+#else // GL_DOOM  
+  //else if (vidMode == VID_MODEGL) {
     V_FillRect = nullFunc_void;
     V_CopyRect = nullFunc_void;
     V_DrawMemPatch = WRAP_gld_DrawPatchFromMem;
@@ -310,8 +313,8 @@ void vid_initMode(TVidMode vd) {
     V_DrawBlock = nullFunc_void;
     V_PlotPixel = V_PlotPixelGL;
     V_DrawBackground = WRAP_gld_DrawBackground;
+  //}
 #endif    
-  }
 }
 
 //---------------------------------------------------------------------------
