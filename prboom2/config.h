@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.3 2000/05/15 23:05:31 proff_fs Exp $
+ * $Id: config.h,v 1.4 2000/05/16 21:45:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -100,9 +100,6 @@
 /* Define if you have struct sockaddr_in6 */
 /* #define HAVE_IPv6 1 */
 
-/* Define if you want to build with OpenGL support */
-/* #undef GL_DOOM */
-
 /* Define if you have the inet_aton function.  */
 /* #define HAVE_INET_ATON 1 */
 
@@ -122,6 +119,9 @@
 /* Define if you have the vsnprintf function.  */
 #define HAVE_VSNPRINTF 1
 #define vsnprintf _vsnprintf
+
+/* Define if you want to have boomlump.wad in the exe  */
+#define ALL_IN_ONE 1
 
 /* Define if you want to compile with SDL  */
 #define USE_SDL 1
