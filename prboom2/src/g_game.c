@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.35 2001/04/18 18:18:46 cph Exp $
+ * $Id: g_game.c,v 1.36 2001/07/01 21:41:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.35 2001/04/18 18:18:46 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.36 2001/07/01 21:41:03 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -2490,8 +2490,11 @@ static int demolumpnum = -1;
 static int G_GetOriginalDoomCompatLevel(int ver)
 {
   {
+    int lev;
     int i = M_CheckParm("-complevel");
-    if (i && (i+1 < myargc)) return atoi(myargv[i+1]);
+    if (i && (i+1 < myargc)) lev = atoi(myargv[i+1]);
+    if (lev>=0)
+      return lev;
   }
   if (ver < 107) return doom_1666_compatibility;
   return ((gamemode == retail || gamemission >= pack_tnt)
