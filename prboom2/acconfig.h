@@ -128,3 +128,5 @@
 /* Define if you want to have prboom.wad in the exe  */
 #undef ALL_IN_ONE
 
+#undef USE_ULL_SUFFIX
+

@@ -172,6 +172,16 @@ AC_SUBST(ac_aux_dir)
 
 AC_DEFINE(GL_DOOM)
 
+AC_MSG_CHECKING(whether compiler supports ULL number suffix)
+AC_TRY_COMPILE(,[
+
+#define STUFF 0x0000000000000001ULL
+
+],[
+  AC_DEFINE(USE_ULL_SUFFIX)
+  AC_MSG_RESULT(yes)
+],[AC_MSG_RESULT(no)])
+
 dnl --- output
 AC_OUTPUT(Makefile src/Makefile src/inl/Makefile src/POSIX/Makefile src/SDL/Makefile src/vidd/Makefile doc/Makefile data/Makefile ICONS/Makefile ViddSys/Makefile ViddSys/bzlib/Makefile ViddSys/XML/Makefile ViddSys/zlib/Makefile VISUALC5/Makefile VISUALC6/Makefile VISUALCNET/Makefile prboom.spec)
 # src/OSS/Makefile src/X11/Makefile
