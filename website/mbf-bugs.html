@@ -524,7 +524,7 @@ PrBoom's p_floor.c:EV_BuildStairs for my fix.</p>
 
 <h4>Super shotgun reloads when out of ammo</h4>
 
-<p>Affects: MBF, PrBoom up to and including v2.2.3</p>
+<p>Affects: MBF, PrBoom up to and including v2.2.4</p>
 
 <p>Description: This is one of those bugs that I miss because I play with the
 original exe so rarely. In original Doom, if you run out of ammo while firing
@@ -629,6 +629,72 @@ compatibility-option the fix; in PrBoom v2.3.0 I will put this under the new
 
    if (!player-&gt;ammo[weaponinfo[player-&gt;readyweapon].ammo])
      return;</pre>
+</blockquote>
+
+<h4>Other players' weapon pickup sounds are audible</h4>
+
+<p>Affects: Boom, MBF, PrBoom up to and including 2.2.3</p>
+
+<p>Description: In original Doom, the weapon pickup sounds are like item
+pickup sounds — they are considered to be an interface noise (like the
+clunks in the menus, and the radio beep for mesages), and not part of the
+game. Players therefore do not hear other players' weapon pickup sounds. Boom
+changed this behaviour, making these sounds audible to other players. Old
+school DM players don't like this: it changes the gameplay on tight DM
+maps.</p>
+
+<p>PrBoom 2.2.4 added a comp_sound option that toggles this and other old
+sound behaviours.</p>
+
+<blockquote>
+  <pre>--- ../release-2.2.3/prboom-2.2.3/src/p_inter.c Sun Jul 21 11:15:33 2002
++++ ./prboom-2.2.4/src/p_inter.c        Tue Aug 19 16:31:25 2003
+@@ -186,6 +182,9 @@ boolean P_GiveWeapon(player_t *player, w
+       P_GiveAmmo(player, weaponinfo[weapon].ammo, deathmatch ? 5 : 2);
+
+       player-&gt;pendingweapon = weapon;
++      /* cph 20028/10 - for old-school DM addicts, allow old behavior
++       * where only consoleplayer's pickup sounds are heard */
++      if (!comp[comp_sound] || player == &amp;players[consoleplayer])
+       S_StartSound (player-&gt;mo, sfx_wpnup|PICKUP_SOUND); // killough 4/25/98
+       return false;
+     }
+@@ -604,6 +603,9 @@ void P_TouchSpecialThing(mobj_t *special
+   P_RemoveMobj (special);
+   player-&gt;bonuscount += BONUSADD;
+
++  /* cph 20028/10 - for old-school DM addicts, allow old behavior
++   * where only consoleplayer's pickup sounds are heard */
++  if (!comp[comp_sound] || player == &amp;players[consoleplayer])
+   S_StartSound (player-&gt;mo, sound | PICKUP_SOUND);   // killough 4/25/98
+ }
+  </pre>
+</blockquote>
+
+<h4>Flipped sprite offsets are incorrect</h4>
+
+<p>Affects: Doom, Boom, MBF, PrBoom up to and including 2.2.3</p>
+
+<p>Description: Fraggle tells me that, with sprites with a large offset that
+are used flipped, Doom gets the offset wrong for the flipped version. It
+should be reversed.</p>
+
+<blockquote>
+  <pre>--- ../release-2.2.3/prboom-2.2.3/src/r_things.c        Sun Jul 21 11:15:59 2002
++++ ./prboom-2.2.4/src/r_things.c       Sun Aug 10 19:58:50 2003
+@@ -491,8 +487,10 @@ void R_ProjectSprite (mobj_t* thing)
+       flip = (boolean) sprframe-&gt;flip[0];
+     }
+
+-  // calculate edges of the shape
+-  tx -= spriteoffset[lump];
++  /* calculate edges of the shape
++   * cph 2003/08/1 - fraggle points out that this offset must be flipped if the
++   * sprite is flipped; e.g. FreeDoom imp is messed up by this. */
++  tx -= flip ? spritewidth[lump] - spriteoffset[lump] : spriteoffset[lump];
+   x1 = (centerxfrac + FixedMul(tx,xscale)) &gt;&gt;FRACBITS;
+
+     // off the right side?</pre>
 </blockquote>
 
 <h3>Demo sync bugs</h3>
@@ -781,12 +847,13 @@ others to be missed.</p>
 <p>The fix, as far as demos are concerned, is to restore the global variables
 after any call to a blockmap iterator which is not present in the original
 Doom; this seems to be only <code>P_CreateSecNodeList</code>. For my fix I
-actually removed the <code>tmflags</code> variable to save work; also this
-fix is complicated by the fact that I forgot to save the <code>tmx</code>
-&amp; <code>tmy</code> variables when I first tried to fix the bug. Note that
-this fix <em>improves</em> the accuracy of the engine: we are correcting a
-Boom bug and restoring things to the correct original Doom behaviour, so if
-you don't care about MBF/Boom demos you can make the fix unconditional.</p>
+actually removed the <var>tmflags</var> variable to save work; also this fix
+is complicated by the fact that I forgot to save the <var>tmx</var>,
+<var>tmy</var>, and <var>tmbbox</var> variables when I first tried to fix the
+bug. Note that this fix <em>improves</em> the accuracy of the engine: we are
+correcting a Boom bug and restoring things to the correct original Doom
+behaviour, so if you don't care about MBF/Boom demos you can make the fix
+unconditional.</p>
 <pre>*** 50,56 ****
   #include "lprintf.h"
   
@@ -889,10 +956,18 @@ you don't care about MBF/Boom demos you can make the fix unconditional.</p>
 +   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
 +       (compatibility_level &gt;= prboom_3_compatibility))
 +     tmthing = saved_tmthing;
-+   /* And, duh, the same for tmx/y - cph 2002/09/22 */
++   /* And, duh, the same for tmx/y - cph 2002/09/22
++    * And for tmbbox - cph 2003/08/10*/
 +   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
-+       (compatibility_level &gt;= prboom_4_compatibility))
++       (compatibility_level &gt;= prboom_4_compatibility)) {
 +     tmx = saved_tmx, tmy = saved_tmy;
++     if (tmthing) {
++       tmbbox[BOXTOP]  = tmy + tmthing-&gt;radius;
++       tmbbox[BOXBOTTOM] = tmy - tmthing-&gt;radius;
++       tmbbox[BOXRIGHT]  = tmx + tmthing-&gt;radius;
++       tmbbox[BOXLEFT]   = tmx - tmthing-&gt;radius;
++     }
++   }
     }
       </pre>
 
