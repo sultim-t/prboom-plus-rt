@@ -1079,7 +1079,10 @@ static void P_LoadBlockMap (int lump)
 {
   long count;
 
-  if (M_CheckParm("-blockmap") || (count = W_LumpLength(lump)/2) >= 0x10000)
+	// sf: -blockmap checkparm made into variable
+	// also checking for levels without blockmaps (0 length)
+  if (r_blockmap || W_LumpLength(lump)==0 ||
+	(count = W_LumpLength(lump)/2) >= 0x10000)
     P_CreateBlockMap();
   else
     {

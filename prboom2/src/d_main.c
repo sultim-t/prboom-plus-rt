@@ -108,6 +108,8 @@ boolean clrespawnparm;  // checkparm of -respawn
 boolean clfastparm;     // checkparm of -fast
 // jff 1/24/98 end definition of command line version of play mode switches
 
+int r_blockmap = false;       // -blockmap command line
+
 boolean nomonsters;     // working -nomonsters
 boolean respawnparm;    // working -respawn
 boolean fastparm;       // working -fast
@@ -1684,6 +1686,10 @@ void D_DoomMainSetup(void)
       //jff 9/3/98 use logical output routine
       lprintf (LO_CONFIRM,"External statistics registered.\n");
     }
+
+  // sf: -blockmap option as a variable now
+  if(M_CheckParm("-blockmap"))
+    r_blockmap = true;
 
   // start the apropriate game based on parms
 

@@ -59,6 +59,8 @@
 
 #define MAXDRAWSEGS   256
 
+extern int r_blockmap;
+
 //
 // INTERNAL MAP TYPES
 //  used by play and refresh
