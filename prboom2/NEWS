@@ -7,6 +7,7 @@ Changes from v2.2.5 to v2.2.6
 - fix memory leak in netgame server
 - fix fuzz drawing for hi-res
 - fix dehacked NOSECTOR/NOBLOCKMAP effects
+- fix player spawn sound
 
 Changes from v2.2.4 to v2.2.5
 - fix crash caused by long messages in HUD
