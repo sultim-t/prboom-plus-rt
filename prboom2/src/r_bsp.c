@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.11 2000/05/21 12:08:22 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.12 2000/05/22 23:31:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.11 2000/05/21 12:08:22 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.12 2000/05/22 23:31:10 cph Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -390,14 +390,14 @@ static void R_AddLine (seg_t *line)
 
   backsector = line->backsector;
 
-  /* cph - roll up linedef properties in flags */
-  if ((linedef = curline->linedef)->r_validcount != gametic) 
-    R_RecalcLineFlags();
-
   // Single sided line?
   if (backsector)
     // killough 3/8/98, 4/4/98: hack for invisible ceilings / deep water
     backsector = R_FakeFlat(backsector, &tempsec, NULL, NULL, true);
+
+  /* cph - roll up linedef properties in flags */
+  if ((linedef = curline->linedef)->r_validcount != gametic) 
+    R_RecalcLineFlags();
 
   if (linedef->r_flags & RF_IGNORE)
   {
