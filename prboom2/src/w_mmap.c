@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_mmap.c,v 1.6 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: w_mmap.c,v 1.7 2002/01/12 16:15:15 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_mmap.c,v 1.6 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: w_mmap.c,v 1.7 2002/01/12 16:15:15 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -181,10 +181,27 @@ void W_InitCache(void)
       if (lumpinfo[i].wadfile) {
         int fd = lumpinfo[i].wadfile->handle;
         if (!mapped_wad[fd])
-          if (!(mapped_wad[fd] = mmap(NULL,I_Filelength(fd),PROT_READ,MAP_SHARED,fd,0))) 
+          if ((mapped_wad[fd] = mmap(NULL,I_Filelength(fd),PROT_READ,MAP_SHARED,fd,0)) == MAP_FAILED) 
             I_Error("W_InitCache: failed to mmap");
       }
   }
+}
+
+void W_DoneCache(void)
+{
+  {
+    int i;
+    for (i=0; i<numlumps; i++)
+      if (lumpinfo[i].wadfile) {
+        int fd = lumpinfo[i].wadfile->handle;
+        if (mapped_wad[fd]) {
+          if (munmap(mapped_wad[fd],I_Filelength(fd))) 
+            I_Error("W_DoneCache: failed to munmap");
+          mapped_wad[fd] = NULL;
+        }
+      }
+  }
+  free(mapped_wad);
 }
 
 const void* W_CacheLumpNum(int lump)

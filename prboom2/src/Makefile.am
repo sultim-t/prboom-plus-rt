@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.24 2001/12/09 17:26:00 cph Exp $
+# $Id: Makefile.am,v 1.25 2002/01/12 16:15:15 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -32,8 +32,8 @@ COMMON_SRC = \
  d_items.c      i_network.h        m_cheat.c        p_setup.c   s_sound.c   \
  d_items.h      i_sound.h          m_cheat.h        p_setup.h   s_sound.h   \
  d_main.c       i_system.h         m_fixed.h        p_sight.c   sounds.c    \
- d_main.h       i_video.h          m_menu.c         p_spec.c    sounds.h    \
- i_joy.h        info.c             m_menu.h         p_spec.h    st_lib.c    \
+ d_main.h       i_video.h          p_spec.c    sounds.h    \
+ i_joy.h        info.c             p_spec.h    st_lib.c    \
  d_net.h        info.h             m_misc.c         p_switch.c  st_lib.h    \
  d_player.h     m_misc.h           p_telept.c       st_stuff.c  \
  m_random.c     p_tick.c           st_stuff.h       i_main.c    i_main.h    \
@@ -52,7 +52,11 @@ COMMON_SRC = \
  f_wipe.c       p_map.h            r_main.h         z_zone.c    \
  c_cmd.c        c_io.c             c_io.h           c_runcmd.c  c_runcmd.h  \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h    \
- p_chase.c      p_chase.h
+ p_chase.c      p_chase.h	\
+ mn_engin.c	mn_engin.h	\
+ mn_menus.c	mn_menus.h	\
+ mn_misc.c	mn_misc.h	\
+ g_cmd.c
 
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
 
