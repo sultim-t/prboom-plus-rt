@@ -1,0 +1,73 @@
+Killough 02/08/98:
+
+These limits are probably acceptable static limits, and can be increased when
+necessary:
+
+#define MAXARGVS        100
+char*           wadfiles[MAXWADFILES];
+am_map.c:static mpoint_t markpoints[AM_NUMMARKPOINTS]; // where the points are
+d_items.c:weaponinfo_t	weaponinfo[NUMWEAPONS] =
+d_main.c:event_t         events[MAXEVENTS];
+d_net.c:ticcmd_t	localcmds[BACKUPTICS];
+d_net.c:ticcmd_t        netcmds[MAXPLAYERS][BACKUPTICS];
+g_game.c:player_t        players[MAXPLAYERS]; 
+g_game.c:static short    consistancy[MAXPLAYERS][BACKUPTICS]; 
+g_game.c:mobj_t*		bodyque[BODYQUESIZE]; 
+g_game.c:    int		frags[MAXPLAYERS]; 
+hu_stuff.c:patch_t*		hu_font[HU_FONTSIZE];
+hu_stuff.c:static hu_itext_t w_inputbuffer[MAXPLAYERS];
+info.c:state_t	states[NUMSTATES] = {
+info.c:mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
+m_misc.c:    unsigned char	palette[48];
+p_enemy.c:    dirtype_t	d[3];
+p_inter.c:  static const int tics[NUMPOWERS] = { 
+p_mobj.c:mapthing_t	itemrespawnque[ITEMQUESIZE];
+r_bsp.c:static cliprange_t	solidsegs[MAXSEGS];
+r_main.c:lighttable_t*		scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
+r_main.c:lighttable_t*		scalelightfixed[MAXLIGHTSCALE];
+r_main.c:lighttable_t*		zlight[LIGHTLEVELS][MAXLIGHTZ];
+r_plane.c:short			floorclip[SCREENWIDTH];
+r_plane.c:short			ceilingclip[SCREENWIDTH];
+r_plane.c:fixed_t			yslope[SCREENHEIGHT];
+r_plane.c:fixed_t			distscale[SCREENWIDTH];
+r_plane.c:fixed_t			cachedheight[SCREENHEIGHT];
+r_plane.c:fixed_t			cacheddistance[SCREENHEIGHT];
+r_plane.c:fixed_t			cachedxstep[SCREENHEIGHT];
+r_plane.c:fixed_t			cachedystep[SCREENHEIGHT];
+r_things.c:short		negonearray[SCREENWIDTH];
+r_things.c:short		screenheightarray[SCREENWIDTH];
+r_things.c:static spriteframe_t	sprtemp[MAX_SPRITE_FRAMES];
+r_things.c:    short		clipbot[SCREENWIDTH];
+r_things.c:    short		cliptop[SCREENWIDTH];
+st_stuff.c:static patch_t*		keys[NUMCARDS]; 
+st_stuff.c:static patch_t*		faces[ST_NUMFACES];
+st_stuff.c:static patch_t*		arms[6][2]; 
+st_stuff.c:static st_multicon_t	w_arms[6];
+st_stuff.c:static st_multicon_t	w_keyboxes[3];
+st_stuff.c:static st_number_t	w_ammo[4];
+st_stuff.c:static st_number_t	w_maxammo[4]; 
+st_stuff.c:static int	keyboxes[3]; 
+st_stuff.c:unsigned char	cheat_powerup_seq[7][10] =
+st_stuff.c:cheatseq_t	cheat_powerup[7] =
+wi_stuff.c:    patch_t*	p[3]; 
+wi_stuff.c:static point_t lnodes[NUMEPISODES][NUMMAPS] =
+wi_stuff.c:static int NUMANIMS[NUMEPISODES] =
+wi_stuff.c:static anim_t *anims[NUMEPISODES] =
+wi_stuff.c:static int		cnt_kills[MAXPLAYERS];
+wi_stuff.c:static int		cnt_items[MAXPLAYERS];
+wi_stuff.c:static int		cnt_secret[MAXPLAYERS];
+wi_stuff.c:static patch_t*		yah[2]; 
+wi_stuff.c:static patch_t*		num[10];
+wi_stuff.c:static patch_t*		p[MAXPLAYERS];
+wi_stuff.c:static patch_t*		bp[MAXPLAYERS];
+wi_stuff.c:static int		dm_frags[MAXPLAYERS][MAXPLAYERS];
+wi_stuff.c:static int		dm_totals[MAXPLAYERS];
+wi_stuff.c:static int	cnt_frags[MAXPLAYERS];
+
+These should probably be removed eventually:
+
+p_ceilng.c:ceiling_t*	activeceilings[MAXCEILINGS];
+p_doors.c:slidename_t	slideFrameNames[MAXSLIDEDOORS] =
+p_doors.c:slideframe_t slideFrames[MAXSLIDEDOORS];
+p_switch.c:button_t        buttonlist[MAXBUTTONS];
+

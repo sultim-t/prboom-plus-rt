@@ -1,0 +1,43 @@
+Enhanced Boom support for DCK
+
+These copies of doom17.dat and doom19.dat replace the ones which come with
+DCK2.2-f and DCK3.*, respectively, and they add most of the linedef, thing,
+and sector types new to Boom, except for the "generalized" linedef types
+(ones whose function is based on various bitfields in the linedef's type).
+
+DCK2.2-f and later versions have bugs which made it difficult to add support
+for Boom's new linedef types:
+
+1) Both DCK2.2-f and DCK3.62 have a limit on the number of linedef types they
+can handle at a time, which makes Boom have too many linedef types. Some of
+the entries in doom17.dat and doom19.dat are thus commented out -- they were
+chosen based on their expected usefulness. When there are too many linedef
+types, DCK2.2-f says so, but DCK3.62 prints a cryptic exception traceback.
+
+2) All versions of DCK starting with 3.0, but not DCK2.2-f, have a bug where
+the largest linedef type that DCK can process correctly is 255. Somewhere in
+DCK3.0 and later, the linedef type is being truncated to a single byte and
+thus it becomes reduced MOD 256 (256=0, 257=1, etc.). If you edit wads with
+DCK3.0 or later, linedef types >= 256 will be ruined if the wad is saved. The
+only workaround is to use DCK2.2-f, or to only use linedef types < 256. Boom
+has tried to keep as many useful linedef types under 256 as possible, the
+most notable exception being 260 (translucency).
+
+To make use of the new linedef, thing, and sector types available in Boom,
+copy either doom17.dat or doom19.dat into your DCK directory, overwriting
+the original (DCK2.2-f uses doom17.dat; later versions use doom19.dat).
+
+WATERMAP.WAD is included to allow you to enter WATERMAP as a texture name
+for underwater colormap effects. Add WATERMAP.WAD to DCK's list of texture
+resources, and WATERMAP will be allowed to be entered as a texture name.
+Other colormap names, as well as translucency filter names (see boomref.txt),
+may need to be added to a wad as fake texture names, if DCK is to allow you
+to enter them in sidedefs.
+
+If you are unfamiliar with DCK2.2-f, it's the last freeware version of DCK,
+and it is preferred over later versions by many wad authors including myself.
+There is a copy of DCK2.2-f on my web page.
+
+Lee Killough
+http://classicgaming.com/doom/
+http://www.teamtnt.com

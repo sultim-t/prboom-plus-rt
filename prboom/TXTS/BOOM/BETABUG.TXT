@@ -1,0 +1,282 @@
+!1) Exit from level as zombie with 0 health
+
+!7) Exiting BOOM to Win'95 in 15bit color on Hercules 128 crashes
+
+!11) After some seconds, mouseleft is ignored until button is pressed
+     Problem not present under Win'95
+
+!13) Need better documentation on setting up DIGIMID driver
+
+!107) Always spawn in the same spot in DM.
+
+!117) Allegro leaving stuff in memory on EX16 exit, or Seg Viol from BOOM
+
+----------------------------------------------------------------------
+
+?12) Allegro fails to autodetect SBPRO/OPL3 ESS1686 PnP or ESS 688
+     Note: apparently fixed by rebooting
+
+?21) In some Allegro configurations balance music/sfx is poor
+
+?22) Exiting BOOM, running CSHOW crashed - OpenDOS system with EMM386
+
+?24) BOOM progressed from no music to poor music to better music on
+     successive runs
+
+?25) On naked boot in OpenDOS - no sfx
+
+?32) Should : and _ be allowed savename characters?
+
+?33) Gamma default changed back to DOOM's?
+
+?34) Binding of mouse middle button and double-click actions
+    [Suggestion: map mouse buttons as keys with pseudo-scancodes,
+     then you can map them to anything and everyone's happy -- Lee]
+
+?36) Memento Mori music sounds strange, wrong key (one step above)? (rez)
+
+?37) Sound not balanced between L and R? (rez)
+
+?38) Addition of crosshair for aiming?
+
+?39) Look up/down and true aiming?
+
+?40) Stacked sectors?
+
+?41) weapon recoil annoying, default off?
+
+?42) WinDeu, WadAuthor, DCK, DeeP97 and EdMap support for editing?
+
+?43) BOOM is slower than DOOM on slow systems playing slow levels
+
+?47) Mouse bindings too limited - only three functions supported,
+     better if mouse buttons could be bound to mouse functions (not
+     vice versa)
+
+?49) Allegro fails to detect SB16 w AWE32 add-on, 
+
+?50) flip 90 left/90 right keys?
+
+?51) Generate list of keys used by DOOM and their codes
+
+?53) Switch to using scan codes so keypad/normal keys different functions?
+
+?54) All tracks start simultaneously after mus->mid conversion
+     -mm2mus.wad idclev03
+
+?60) Slime lines appear worse with BOOM - more in E1M6
+
+?61) MM 29 behaves very differently under BOOM cf Rez 3:00 3/5/98
+
+?62) Partial sound-effect in MARINE1.WAD
+
+?63) Show all four ammo types in HUD scatter mode?
+
+?64) Widescreen mode?
+
+?66) Intermittent fuzzy display/no music
+
+?68) Stereo reversal on some cards - document flip_pan better?
+
+?71) Fast like option with ranges and alterable behavior - movement/fireball
+
+?73) With Logitech Marble trackball first mouse fire doesn't work, others do
+
+?75) Awe32 does not play in DOS, no sound for doors or switches in 95
+
+?82) HUD F5 is ignored initially - goes away after first play?
+
+?84) On spy mode entry, frags stop updating - LMP specific
+
+?85) Medusa not fixed Evilution 27
+
+?87) Ensoniq Vivo-90 sound/music problems cf Kurt Schulenburg 4:34PM 3/6
+
+?88) HUD not status bar in automap - needs option
+
+?89) Add soundcard autodetect results to init printout
+
+?90) Face display in HUD
+
+?92) Unlimited range for mouse sensitivity? Crash protection in menu then?
+
+?98) Implement more help screens for further F1 presses
+
+?99) Automap flip/rotate?
+
+?101) Check disk full handling during cfg, save or demo recording
+
+?105) Create left/right channel identifier
+
+?106) Make allegro.txt available?
+
+?113) Animated tally screen at end of BOOM missing features present in DOOM
+      (DOOM 1 wad)
+
+?115) Link mouse buttons to key functions in bindings
+      [Good idea -- see above -- Lee]
+
+?119) "Block monsters" means block everthing but players/projectiles
+
+?120) Barrel jumped up on shelf behind it when pistoled
+
+----------------------------------------------------------------------
+
+F116) Make intermission screen teletype till space, then exit on next space
+
+F111) Make lava sectors always full brightness?
+
+F100) In E2M8, cyber shot thru crack killed player - ESC crashed
+
+F103) When a passable object on a conveyor hits an impassible, it stops
+
+F31) backspace does not autorepeat in savegame window. menu sliders
+
+F110) On "spy" mode - switch palette changes, messages
+
+F97) When save loaded without PWAD, BOOM crashes
+
+F114) IDMUS XX exits game with "music number -128"
+
+F102) Conveyors near each with different dirn or speed create slime
+      trails(sp) between each other
+
+F48) Rendering problems with moving floor/ceiling cf Ingo 5:54PM 3/4/98
+     [Duplicate of #102]
+
+F28) Add blank line after the adding wads/lmps lines?
+
+F5) On dying in IDCLIP and respawning, voodoo dolls remain in IDCLIP
+
+F77) boom -warp xx -nomonsters , load save w monsters, exit
+     reports kills much above 100%
+
+F78) Start in nightmare mode, load save, monsters remain in nightmare
+
+F2) Map coordinate jitter
+
+F6) SNDDRVR.TXT refers to DEFAULT.CFG
+
+F8) Last row of translucent columns isn't drawn translucent
+
+F9) On demo record and warp games player options like bobbing not correct
+
+F14) E2M8 Cyberdemon sounds are full volume irregardless of position
+
+F35) Do away with current weapon brackets on HUD
+
+F46) HUD update times too slow
+
+F55) Hud scattered over display
+
+F57) Use of multiple tagged sectors on conveyors causes game lockup
+
+F59) Silent teleporters don't teleport monsters or barrels
+
+F67) Occasional music notes at full volume
+
+F69) Stair builder type doesn't trigger multiple stairs reliably
+
+F80) Gamma resets from 4 due to bad range in misc.c
+
+F91) Graphic keys in HUD
+
+F93) Keys in HUD remain when removed with cheats
+
+F94) Need more space for automap coords
+
+F81) Automap variables not settable to -1 due to misc.c ranges
+
+F108) mouse config variables not disabled due to misc_c ranges
+
+F109) HUD crashes when ammo/fullammo pumped to 100000/100000 with DEH
+      patch
+
+F52) Generate program to output key codes on keys being struck
+
+F16) Keyboard LEDs and capslock state indeterminate on BOOM exit
+
+F17) Cannot stop init process with Ctrl-C/Ctrl-Break
+
+F29) Need notification of whats happening during translucency table
+     calculation
+
+F44) On "spy" mode - switch statusbar
+
+F76) Revenant fireball tracks irregular (random)
+
+F58) Imp 103 In Eternal Map02 visible wrong height, disappers on door close
+
+F74) TNTEM during pain elemental death still spawns souls
+
+F10) Menu and automap keys are redefined when motion keys are
+
+F70) Automap option to not show secret sector lines till AFTER secret bagged
+
+F30) When in menu or load game and built-in demo starts, BOOM crashes
+
+F20) Boom crashes on load with <8M memory
+
+F19) In DM mouse/keyboard settings in BOOM.CFG are ignored for defaults
+     fixed by F9?
+
+F23) add -iwad iwadname[.wad] commandline parameter?
+
+F45) Create linedef reference, document using extended types with
+     CLED/TRIGCALC
+
+F56) Rendering differences - barrel in Map02 appears from all angles (better?)
+     [Probably same as disappearing imp bug, recent fixed -- Lee]
+
+F65) Intermittent sticking in IDDT-IDDT, some menus like Quit cranky
+
+F72) Crushers slow down level play enormously
+
+F86) Conveyors need to carry monsters over cliffs
+
+F95) HUD-style frag counter for all players in DM
+
+F96) Things appearing with wrong height in four places in Eternal DOOM
+     [Probably same as disappearing imp bug, recent fixed -- Lee]
+
+
+----------------------------------------------------------------------
+
+N104) Blood spats (etc) can move thru walls with conveyors
+   [Not reproducable?]
+
+N112) HOM at end of deepwater trench worse under BOOM? cf. Rez 5:27PM 3/9/98
+    [HOM-compatibility?  I think not :)  Anyway, Boom has much better
+    underwater support now than Doom ever did, for new wads at least
+    -- Lee]
+
+N15) IDDQD keeps player alive at end of ExM8
+    [Not a bug -- can be turned off with compatibility mode -- Lee]
+
+N79) Cheats work in nightmare mode
+    [Not a bug -- Lee]
+
+N4) Following voodoo doll thru teleporter in IDDQD gets you stuck
+    [That's the price of cheating in non-compatibility god mode -- Lee]
+
+N3) Silent teleport to height higher than ceiling or lower than dest room
+    [Another tester said it works fine, "robust" in fact -- Lee]
+
+N26) BOOM leaving palette in the enhanced palette on exit?
+    [Not a complaint from Rez -- a compliment, in fact -- Lee]
+
+N83) On entry to MM03 triangular section of floor jumps back and forth
+    [A node builder bug, not an engine or wad bug -- happens on dosdoom
+    and v1.9 as well, and rebuilding the map with BSP23x fixes it on all
+    engines -- Lee]
+
+N18) pitched_sounds does not apply to monster sounds (others?)
+     [We're just enabling what was already in the linux port -- Lee]
+
+N27) Existing v1.9 LMPS play with 33% success rate or so
+
+N109) Cybedemon loudness fix makes him hard to hear now
+     [Loudness fix had to do with MAP08, not cyberdemon specifically]
+
+N118) Barrel attracts fire - leave it alone I think, JF. [I agree -- Lee]
+
