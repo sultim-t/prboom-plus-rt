@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.1 2000/05/04 08:15:01 proff_fs Exp $
+ * $Id: p_tick.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,12 +30,13 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.1 2000/05/04 08:15:01 proff_fs Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
+#include "lprintf.h"
 
 int leveltime;
 
@@ -86,7 +87,7 @@ void P_SetTarget(mobj_t **mop, mobj_t *targ)
   if (*mop) {            // If there was a target already, decrease its refcount
 #ifdef SIMPLECHECKS
     if (!((*mop)->references--)) 
-      printf("P_SetTarget: Bad reference count decrement\n");
+      lprintf(LO_ERROR,"P_SetTarget: Bad reference count decrement\n");
 #else
     (*mop)->references--;
 #endif
@@ -201,8 +202,12 @@ void P_Ticker (void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_tick.c,v $
-// Revision 1.1  2000/05/04 08:15:01  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 11:23:01  proff_fs
+// added an textwindow for Win32 and
+// changed some printfs to lprintfs
+//
+// Revision 1.1.1.1  2000/05/04 08:15:01  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.5  1999/10/12 13:01:13  cphipps
 // Changed header to GPL

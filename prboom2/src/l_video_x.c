@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_video_x.c,v 1.1 2000/05/04 08:08:40 proff_fs Exp $
+ * $Id: l_video_x.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_video_x.c,v 1.1 2000/05/04 08:08:40 proff_fs Exp $";
+rcsid[] = "$Id: l_video_x.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -1010,7 +1010,7 @@ void I_SetRes(unsigned int width, unsigned int height)
     R_DrawTLColumn = R_DrawTLColumn_HighRes;
   }
 #endif
-  printf("I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+  lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
 
 void I_InitGraphics(void)
@@ -1314,8 +1314,12 @@ void I_InitGraphics(void)
 
 //
 // $Log: l_video_x.c,v $
-// Revision 1.1  2000/05/04 08:08:40  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 11:23:01  proff_fs
+// added an textwindow for Win32 and
+// changed some printfs to lprintfs
+//
+// Revision 1.1.1.1  2000/05/04 08:08:40  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.31  2000/05/01 15:16:47  Proff
 // added __inline for VisualC

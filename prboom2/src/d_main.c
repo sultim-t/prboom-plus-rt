@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.1 2000/05/04 08:00:41 proff_fs Exp $
+ * $Id: d_main.c,v 1.2 2000/05/04 11:23:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.1 2000/05/04 08:00:41 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.2 2000/05/04 11:23:00 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -914,8 +914,11 @@ void IdentifyVersion (void)
   char *iwad;
 
   // get config file from same directory as executable
-
+#ifdef _MSC_VER
+  sprintf(basedefault,"%sboom.cfg", D_DoomExeDir());  // killough
+#else
   sprintf(basedefault,"%s/boom.cfg", D_DoomExeDir());  // killough
+#endif
 
   // set save path to -save parm or current dir
 
@@ -1776,8 +1779,12 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: d_main.c,v $
-// Revision 1.1  2000/05/04 08:00:41  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 11:23:00  proff_fs
+// added an textwindow for Win32 and
+// changed some printfs to lprintfs
+//
+// Revision 1.1.1.1  2000/05/04 08:00:41  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.48  2000/05/01 17:50:33  Proff
 // made changes to compile with VisualC and SDL

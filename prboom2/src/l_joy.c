@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_joy.c,v 1.1 2000/05/04 08:07:12 proff_fs Exp $
+ * $Id: l_joy.c,v 1.2 2000/05/04 11:23:00 proff_fs Exp $
  *
  *  New module for LxDoom, a Doom port for Linux/Unix
  *  Copyright (C) 1999 by Colin Phipps
@@ -28,7 +28,7 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: l_joy.c,v 1.1 2000/05/04 08:07:12 proff_fs Exp $";
+static const char rcsid[] = "$Id: l_joy.c,v 1.2 2000/05/04 11:23:00 proff_fs Exp $";
 #endif /* lint */
 
 #include "doomdef.h"
@@ -187,19 +187,19 @@ void I_InitJoystick(void)
     lprintf(LO_INFO, "%sopened %s\n", fname, jdev);
     if ((joyup == joydown) || (joyleft == joyright)) {
       int joyt, joyl, joyb, joyr, joycx, joycy;
-      printf("Invalid joystick calibration. Calbrating now...\n");
+      lprintf(LO_INFO,"Invalid joystick calibration. Calbrating now...\n");
       
-      printf("Move joystick to top-left and press a button\n");
+      lprintf(LO_INFO,"Move joystick to top-left and press a button\n");
       fflush(stdin);
       if (!I_WaitButton()) return;
       joyt = jdata.y; joyl = jdata.x;
       
-      printf("Move joystick to bottom right and press a button\n");
+      lprintf(LO_INFO,"Move joystick to bottom right and press a button\n");
       fflush(stdin);
       if (!I_WaitButton()) return;
       joyb = jdata.y; joyr = jdata.x;
       
-      printf("Move joystick to centre and press a button\n");
+      lprintf(LO_INFO,"Move joystick to centre and press a button\n");
       fflush(stdin);
       if (!I_WaitButton()) return;
       joycy = jdata.y; joycx = jdata.x;
@@ -213,8 +213,12 @@ void I_InitJoystick(void)
 
 /*
  * $Log: l_joy.c,v $
- * Revision 1.1  2000/05/04 08:07:12  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/04 11:23:00  proff_fs
+ * added an textwindow for Win32 and
+ * changed some printfs to lprintfs
+ *
+ * Revision 1.1.1.1  2000/05/04 08:07:12  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.12  1999/10/31 09:12:17  cphipps
  * Fix comment typo

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_main.c,v 1.1 2000/05/04 08:07:18 proff_fs Exp $
+ * $Id: l_main.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
  *
  *  Hybrid of the Boom i_main.c and original linuxdoom i_main.c
  *
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_main.c,v 1.1 2000/05/04 08:07:18 proff_fs Exp $";
+rcsid[] = "$Id: l_main.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "m_argv.h"
@@ -50,6 +50,7 @@ rcsid[] = "$Id: l_main.c,v 1.1 2000/05/04 08:07:18 proff_fs Exp $";
 #include "m_misc.h"
 #include "i_sound.h"
 #include "i_main.h"
+#include "lprintf.h"
 #ifdef USE_SDL
 #include "SDL.h"
 #endif
@@ -191,7 +192,7 @@ unsigned int endoom_mode;
 static void PrintVer(void)
 {
   char vbuf[200];
-  printf("%s\n",I_GetVersionString(vbuf,200));
+  lprintf(LO_INFO,"%s\n",I_GetVersionString(vbuf,200));
 }
 
 /* I_EndDoom
@@ -339,6 +340,11 @@ int main(int argc, const char * const * argv)
     else
       fprintf(stderr, "Revoked uid %d\n",stored_euid);
 #endif
+#ifdef _MSC_VER
+  /* initialize the console window */
+  Init_ConsoleWin();
+  atexit(Done_ConsoleWin);
+#endif
   /* Version info */
   putchar('\n');
   PrintVer();
@@ -391,8 +397,12 @@ int main(int argc, const char * const * argv)
 /*----------------------------------------------------------------------------
  *
  * $Log: l_main.c,v $
- * Revision 1.1  2000/05/04 08:07:18  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/04 11:23:01  proff_fs
+ * added an textwindow for Win32 and
+ * changed some printfs to lprintfs
+ *
+ * Revision 1.1.1.1  2000/05/04 08:07:18  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.16  2000/05/01 17:50:34  Proff
  * made changes to compile with VisualC and SDL

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.1 2000/05/04 08:19:30 proff_fs Exp $
+ * $Id: z_zone.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.1 2000/05/04 08:19:30 proff_fs Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -285,7 +285,7 @@ void Z_Init(void)
     else
       size -= RETRY_AMOUNT;
 
-  printf("Z_Init : Allocated %luKb zone memory\n", (long unsigned)size >> 10);
+  lprintf(LO_INFO,"Z_Init : Allocated %luKb zone memory\n", (long unsigned)size >> 10);
 
   // Align on cache boundary
 
@@ -752,8 +752,12 @@ void (Z_CheckHeap)(
 //-----------------------------------------------------------------------------
 //
 // $Log: z_zone.c,v $
-// Revision 1.1  2000/05/04 08:19:30  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 11:23:01  proff_fs
+// added an textwindow for Win32 and
+// changed some printfs to lprintfs
+//
+// Revision 1.1.1.1  2000/05/04 08:19:30  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.13  2000/04/10 17:19:21  cph
 // Remove file & line debugging from z_zone.* when not debugging

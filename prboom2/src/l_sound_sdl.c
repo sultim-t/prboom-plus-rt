@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: l_sound_sdl.c,v 1.1 2000/05/04 08:07:38 proff_fs Exp $
+// $Id: l_sound_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -20,7 +20,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: l_sound_sdl.c,v 1.1 2000/05/04 08:07:38 proff_fs Exp $";
+rcsid[] = "$Id: l_sound_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 
 #include <math.h>
 #ifdef HAVE_UNISTD
@@ -706,11 +706,11 @@ void I_PauseSong (int handle)
 #ifdef HAVE_MIXER
   switch(mus_pause_opt) {
   case 0:
-printf("Stopping song %d (pause)\n", handle);
+lprintf(LO_INFO,"Stopping song %d (pause)\n", handle);
     I_StopSong(handle);
     break;
   case 1:
-printf("Pausing song %d (pause)\n", handle);
+lprintf(LO_INFO,"Pausing song %d (pause)\n", handle);
     Mix_PauseMusic();
     break;
   }
@@ -756,7 +756,7 @@ int I_RegisterSong(void *data, size_t len)
 //                                      ((unsigned char *)data)[2]);
   midfile = fopen(MIDI_TMPFILE, "wb");
   if ( midfile == NULL ) {
-    printf("Couldn't write MIDI to %s\n", MIDI_TMPFILE);
+    lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", MIDI_TMPFILE);
     return 0;
   }
   /* Convert MUS chunk to MIDI? */
@@ -769,7 +769,7 @@ int I_RegisterSong(void *data, size_t len)
 
   music[0] = Mix_LoadMUS(MIDI_TMPFILE);
   if ( music[0] == NULL ) {
-    printf("Couldn't load MIDI from %s: %s\n", MIDI_TMPFILE, Mix_GetError());
+    lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", MIDI_TMPFILE, Mix_GetError());
   }
 #endif
   return (0);
@@ -785,8 +785,12 @@ void I_SetMusicVolume(int volume)
 
 //
 // $Log: l_sound_sdl.c,v $
-// Revision 1.1  2000/05/04 08:07:38  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 11:23:01  proff_fs
+// added an textwindow for Win32 and
+// changed some printfs to lprintfs
+//
+// Revision 1.1.1.1  2000/05/04 08:07:38  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.1  2000/05/01 15:29:24  Proff
 // initial revision

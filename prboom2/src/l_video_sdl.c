@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_video_sdl.c,v 1.1 2000/05/04 08:08:10 proff_fs Exp $
+ * $Id: l_video_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
  *
  *  SDL display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_video_sdl.c,v 1.1 2000/05/04 08:08:10 proff_fs Exp $";
+rcsid[] = "$Id: l_video_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 
 #include <stdlib.h>
 #ifdef HAVE_UNISTD
@@ -436,7 +436,7 @@ void I_SetRes(unsigned int width, unsigned int height)
     R_DrawColumn = R_DrawColumn_HighRes;
     R_DrawTLColumn = R_DrawTLColumn_HighRes;
   }
-  printf("I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+  lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
 
 void I_InitGraphics(void)
@@ -517,8 +517,12 @@ void I_InitGraphics(void)
 
 //
 // $Log: l_video_sdl.c,v $
-// Revision 1.1  2000/05/04 08:08:10  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 11:23:01  proff_fs
+// added an textwindow for Win32 and
+// changed some printfs to lprintfs
+//
+// Revision 1.1.1.1  2000/05/04 08:08:10  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.2  2000/05/01 17:50:35  Proff
 // made changes to compile with VisualC and SDL

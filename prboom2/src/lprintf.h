@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.h,v 1.1 2000/05/04 08:08:40 proff_fs Exp $
+ * $Id: lprintf.h,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -55,13 +55,22 @@ extern int cons_error_mask;
  * cphipps 01/11- moved from i_system.h */
 void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));
 
+#ifdef _MSC_VER
+int Init_ConsoleWin(void);
+void Done_ConsoleWin(void);
+#endif
+
 #endif
 
 /*----------------------------------------------------------------------------
  *
  * $Log: lprintf.h,v $
- * Revision 1.1  2000/05/04 08:08:40  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/04 11:23:01  proff_fs
+ * added an textwindow for Win32 and
+ * changed some printfs to lprintfs
+ *
+ * Revision 1.1.1.1  2000/05/04 08:08:40  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.4  1999/10/31 12:54:09  cphipps
  * Moved I_Error to lprintf.c
