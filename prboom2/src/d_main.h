@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.h,v 1.6 2001/02/04 15:39:46 cph Exp $
+ * $Id: d_main.h,v 1.7 2001/07/01 21:47:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -77,7 +77,11 @@ void D_DoomMain(void);
 void D_AddFile (const char *file, wad_source_t source);
 
 /* cph - MBF-like wad/deh/bex autoload code */
-#define MAXLOADFILES 2
+/* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
+   doesn't overlap with the cfg settings */
+#define MAXLOADFILES 3
+/* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
+   doesn't overlap with the cfg settings */
 extern const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 #endif

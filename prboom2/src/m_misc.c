@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.31 2001/06/17 13:14:09 cph Exp $
+ * $Id: m_misc.c,v 1.32 2001/07/01 21:47:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.31 2001/06/17 13:14:09 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.32 2001/07/01 21:47:07 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -121,7 +121,7 @@ boolean M_WriteFile(char const *name, void *source, int length)
     return 0;                          // Could not open file for writing
 
   I_BeginRead();                       // Disk icon on
-  length = fwrite(source, 1, length, fp) == length;   // Write data
+  length = fwrite(source, 1, length, fp) == (size_t)length;   // Write data
   fclose(fp);
   I_EndRead();                         // Disk icon off
 
@@ -255,13 +255,7 @@ default_t defaults[] =
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code 
    * POSIX targets need to get lumps from prboom.wad */
-  {"wadfile_1",{NULL,&wad_files[0]},{0,
-#ifdef ALL_IN_ONE
-				     ""
-#else
-				     "prboom.wad"
-#endif
-                                         },UL,UL,def_str,ss_none},
+  {"wadfile_1",{NULL,&wad_files[0]},{0,""},UL,UL,def_str,ss_none},
   {"wadfile_2",{NULL,&wad_files[1]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_1",{NULL,&deh_files[0]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_2",{NULL,&deh_files[1]},{0,""},UL,UL,def_str,ss_none},
@@ -887,6 +881,9 @@ void M_LoadDefaults (void)
     fclose (f);
     }
   //jff 3/4/98 redundant range checks for hud deleted here
+  /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
+     doesn't overlap with the cfg settings */
+  wad_files[MAXLOADFILES-1]="prboom.wad";
 }
 
 
