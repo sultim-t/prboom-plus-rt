@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.14 2001/07/04 14:59:52 uid24111 Exp $
+ * $Id: i_main.c,v 1.15 2001/11/18 20:20:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.14 2001/07/04 14:59:52 uid24111 Exp $";
+rcsid[] = "$Id: i_main.c,v 1.15 2001/11/18 20:20:10 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -61,13 +61,8 @@ rcsid[] = "$Id: i_main.c,v 1.14 2001/07/04 14:59:52 uid24111 Exp $";
 #endif
 
 #include <signal.h>
-#ifdef DREAMCAST
-#undef SIGPIPE
-#endif
 #include <stdio.h>
 #include <stdlib.h>
-
-int broken_pipe;
 
 /* Most of the following has been rewritten by Lee Killough
  *
@@ -132,14 +127,6 @@ static void I_SignalHandler(int s)
 {
   char buf[2048];
 
-#ifdef SIGPIPE
-  /* CPhipps - report but don't crash on SIGPIPE */
-  if (s == SIGPIPE) {
-    fprintf(stderr, "Broken pipe\n");
-    broken_pipe = 1;
-    return;
-  }
-#endif
   signal(s,SIG_IGN);  /* Ignore future instances of this signal.*/
 
   strcpy(buf,"Exiting on signal: ");
@@ -400,9 +387,6 @@ int main(int argc, char **argv)
 
   atexit(I_Quit);
   signal(SIGSEGV, I_SignalHandler);
-#ifdef SIGPIPE
-  signal(SIGPIPE, I_SignalHandler); /* CPhipps - add SIGPIPE, as this is fatal */
-#endif
   signal(SIGTERM, I_SignalHandler);
   signal(SIGFPE,  I_SignalHandler);
   signal(SIGILL,  I_SignalHandler);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.20 2001/07/11 22:30:27 cph Exp $
+ * $Id: i_sound.c,v 1.21 2001/11/18 20:20:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.20 2001/07/11 22:30:27 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.21 2001/11/18 20:20:10 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -75,8 +75,6 @@ rcsid[] = "$Id: i_sound.c,v 1.20 2001/07/11 22:30:27 cph Exp $";
 //  the samples calculated for each mixing step,
 //  the size of the 16bit, 2 hardware channel (stereo)
 //  mixing buffer, and the samplerate of the raw data.
-
-#define PIPE_CHECK(fh) if (broken_pipe) { fclose(fh); fh = NULL; broken_pipe = 0; }
 
 // Variables used by Boom from Allegro
 // created here to avoid changes to core Boom files
@@ -148,9 +146,6 @@ static void stopchan(int i)
 //
 int addsfx(int sfxid, int channel)
 {
-  int oldest = gametic;
-  int oldestnum = 0;
-
   stopchan(channel);
 
   // We will handle the new SFX.
