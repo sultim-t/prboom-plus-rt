@@ -11,13 +11,13 @@
     <meta name="generator"
     content="vi (gvim Debian/GNU Linux 2.3 (testing) i686)" />
     <meta name="CVSID"
-    content="$Id: linux.html,v 1.14 2001/06/04 17:35:17 proff_fs Exp $" />
+    content="$Id: linux.html,v 1.15 2001/06/23 12:26:43 cph Exp $" />
     <link rel="stylesheet" href="main.css" type="text/css" />
   </head>
 
   <body>
     <a href="http://sourceforge.net"><img
-    src="http://sourceforge.net/sflogo.php?group_id=3396&type=1"
+    src="http://sourceforge.net/sflogo.php?group_id=3396&amp;type=1"
      width="88" height="31" alt="Sourceforge logo" /></a> 
 
     <h1>Installation on Linux and UNIX Systems</h1>
@@ -69,18 +69,9 @@
     PrBoom:</p>
 
     <ul>
-      <li><a
-      href="http://www.libsdl.org/release/SDL-1.1.6-1.i386.rpm">
-      SDL-1.1.6-1.i386.rpm</a> (the latest SDL development
-      RPM)</li>
-
-      <li><a
-      href="http://www.mirror.ac.uk/sites/sunsite.uio.no/pub/unix/Linux/Mandrake/7.2/i586/Mandrake/RPMS/SDL_mixer-1.0.6-2mdk.i586.rpm">
-      SDL_mixer-1.0.6-2mdk.i586.rpm</a> (from Mandrake)</li>
-
-      <li><a
-      href="http://www.mirror.ac.uk/sites/sunsite.uio.no/pub/unix/Linux/Mandrake/7.2/i586/Mandrake/RPMS/SDL_net-1.1.1-1mdk.i586.rpm">
-      SDL_net-1.1.1-1mdk.i586.rpm</a> (from Mandrake)</li>
+  <li><a href="http://www.libsdl.org/release/SDL-1.2.0-1.i386.rpm">SDL-1.2.0-1.i386.rpm</a>.</li>
+  <li><a href="http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-1.2.0-1.i386.rpm">SDL_mixer-1.2.0-1.i386.rpm</a>.</li>
+  <li><a href="http://www.libsdl.org/projects/SDL_net/release/SDL_net-1.2.0-1.i386.rpm">SDL_net-1.2.0-1.i386.rpm</a>.</li>
     </ul>
 
     <p>To install these, you use <code>rpm</code>. E.g. if you
@@ -92,22 +83,16 @@
     <p> Notes:</p>
 
     <ul>
-      <li>You no longer need the smpeg library to use PrBoom.
-      PrBoom itself has never used smpeg, but the SDL RPM's we used
-      to recommend needed it.</li>
-
-      <li>If you're a Mandrake user, you can use the SDL RPM's
-      included with Mandrake 7.2. They were installed by default if
-      you selected a workstation setup (at least, they were
-      here...). If not, you can install them off the Mandrake
-      CDs.</li>
+      <li>
+      If you're a Mandrake user, you can't any more just use the SDL version
+      shipped with Mandrake (Mandrake 8.0 only ships with SDL-1.1 I believe).
+      I'm sure the next Mandrake release will catch up though.
+      </li>
 
       <li>There may be newer versions of some of these libraries
-      available from their respective homepages. It's generally OK
-      to use these. The main exception is SDL_mixer... the latest
-      upstream RPMs have (needlessly) changed the soname of the
-      library, rendering their new RPMs useless. Use the Mandrake
-      one we recommend.</li>
+      available from their websites;
+      anything in the 1.2 series should work fine, let us know if not.
+      </li>
 
       <li>If you are using a partiularly stripped down setup, you
       might need to install a few more RPMs required by these ones.
@@ -126,14 +111,14 @@
 
     <p> Alteratively, you can build the latest PrBoom from source
     on Debian very easily. Install the <a
-    href="http://packages.debian.org/libsdl1.1">libsdl1.1</a>, <a
-    href="http://packages.debian.org/libsdl-mixer1.1">
-    libsdl-mixer1.1</a> and <a
-    href="http://packages.debian.org/libsdl-net1.1">
-    libsdl-net1.1</a> packages and the corresponding -dev versions
+    href="http://packages.debian.org/libsdl1.2">libsdl1.2</a>, <a
+    href="http://packages.debian.org/libsdl-mixer1.2">
+    libsdl-mixer1.2</a> and <a
+    href="http://packages.debian.org/libsdl-net1.2">
+    libsdl-net1.2</a> packages and the corresponding -dev versions
     - these are all available in Debian woody and above (and should
     compile from source fine for potato). Get the prboom source
-    code <code>prboom-2.2.0.tar.gz</code> from our <a
+    code <code>prboom-2.2.1.tar.gz</code> from our <a
     href="#download">download page</a>, extract, and then follow
     the included <code>INSTALL</code> instructions.</p>
 
@@ -156,7 +141,7 @@
     ../SDL/SDL_net.h /usr/local/include/SDL11/SDL_net.h</code> or
     something similar.</p>
 
-    <p> Finally, get <code>prboom-2.2.0.tar.gz</code> the PrBoom
+    <p> Finally, get <code>prboom-2.2.1.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
@@ -165,8 +150,8 @@
     <p> You need to get and install the following libraries:</p>
 
     <ul>
-      <li>SDL 1.1.x, from <a
-      href="http://www.libsdl.org/download-1.1.html">the SDL 1.1
+      <li>SDL 1.2.x, from <a
+      href="http://www.libsdl.org/download-1.2.html">the SDL 1.2
       download page</a>.</li>
 
       <li>
@@ -188,7 +173,7 @@
       page</a>.</li>
     </ul>
 
-    <p> Then get <code>prboom-2.2.0.tar.gz</code> the PrBoom
+    <p> Then get <code>prboom-2.2.1.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
