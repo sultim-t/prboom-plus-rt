@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.6 2000/05/21 12:45:23 cph Exp $
+ * $Id: d_deh.c,v 1.7 2000/09/11 10:28:29 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.6 2000/05/21 12:45:23 cph Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.7 2000/09/11 10:28:29 proff_fs Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -56,7 +56,7 @@ rcsid[] = "$Id: d_deh.c,v 1.6 2000/05/21 12:45:23 cph Exp $";
 #define TRUE 1
 #define FALSE 0
 
-#ifndef DJGPP
+#if ((!defined DJGPP) && (!defined _MSC_VER))
 // CPhipps - hmm, odd...
 #include <ctype.h>
 
