@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: i_video.c,v 1.6 2000/05/20 11:47:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.6 2000/05/20 11:47:58 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -81,10 +81,6 @@ static SDL_Surface *screen;
 
 // This is the pointer to the buffer to blit
 pval     *      out_buffer = NULL;
-
-// Common const strings
-static const char lcase_lxdoom[] = { "lsdldoom" };
-static const char ucase_lxdoom[] = { "LSDLDOOM" };
 
 ////////////////////////////////////////////////////////////////////////////
 // Input code 
@@ -472,6 +468,7 @@ void I_InitGraphics(void)
   int           w, h;
   int		n;
   Uint32        init_flags;
+  char titlebuffer[2048];
   
   {  
     static int		firsttime=1;
@@ -519,7 +516,10 @@ void I_InitGraphics(void)
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
   dest_bpp = screen->format->BitsPerPixel;
-  SDL_WM_SetCaption(lcase_lxdoom, ucase_lxdoom);
+  strcpy(titlebuffer,PACKAGE);
+  strcat(titlebuffer," ");
+  strcat(titlebuffer,VERSION);
+  SDL_WM_SetCaption(titlebuffer, titlebuffer);
 
   I_InitImageTranslation();
   if (true_color) {
