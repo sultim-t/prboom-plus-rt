@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.20 2001/02/18 18:34:10 proff_fs Exp $
+# $Id: Makefile.am,v 1.21 2001/07/11 09:19:38 proff_fs Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -43,8 +43,8 @@ COMMON_SRC = \
  d_net.h        info.h             m_misc.c         p_switch.c  st_lib.h    \
  d_player.h     m_misc.h           p_telept.c       st_stuff.c  \
  m_random.c     p_tick.c           st_stuff.h       i_main.c    i_main.h    \
- d_think.h      m_random.h         p_tick.h         tables.c    \
- d_ticcmd.h     m_swap.h           p_user.c         tables.h     \
+ d_think.h      m_random.h         p_tick.h         tables.c    g_bind.c    \
+ d_ticcmd.h     m_swap.h           p_user.c         tables.h    g_bind.h    \
  doomdata.h     p_ceilng.c         p_user.h         v_video.c   \
  doomdef.c      p_doors.c          protocol.h       v_video.h   \
  doomdef.h      p_enemy.c          r_bsp.c          version.c   \
@@ -56,6 +56,7 @@ COMMON_SRC = \
  f_finale.c     p_lights.c         r_draw.h         z_bmalloc.c \
  f_finale.h     p_map.c            r_main.c         z_bmalloc.h \
  f_wipe.c       p_map.h            r_main.h         z_zone.c    \
+ c_cmd.c        c_io.c             c_io.h           c_runcmd.c  c_runcmd.h  \
  f_wipe.h       p_maputl.c         r_plane.c        z_zone.h
 
 if SDL_NET
