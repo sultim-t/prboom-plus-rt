@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.4 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: m_misc.c,v 1.5 2000/05/09 18:44:47 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.4 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.5 2000/05/09 18:44:47 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -199,8 +199,8 @@ int X_opt;
 const default_t defaults[] =
 {
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"compatibility_level",{&default_compatibility_level},
-   {MAX_COMPATIBILITY_LEVEL-1},0,MAX_COMPATIBILITY_LEVEL-1,
+  {"default_compatibility_level",{&default_compatibility_level},
+   {-1},-1,MAX_COMPATIBILITY_LEVEL-1,
    def_int,ss_none}, // compatibility level" - CPhipps  
   {"realtic_clock_rate",{&realtic_clock_rate},{100},0,UL,
    def_int,ss_none}, // percentage of normal speed (35 fps) realtic clock runs at
@@ -993,6 +993,9 @@ void M_ScreenShot(void)
 
 //
 // $Log: m_misc.c,v $
+// Revision 1.5  2000/05/09 18:44:47  cph
+// Better compatibility config file option
+//
 // Revision 1.4  2000/05/07 20:19:33  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.
