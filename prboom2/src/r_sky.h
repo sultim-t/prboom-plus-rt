@@ -50,4 +50,7 @@ extern int skytexturemid;
 /* Called whenever the view size changes. */
 void R_InitSkyMap(void);
 
+// init sky at start of level
+void R_StartSky();
+
 #endif
