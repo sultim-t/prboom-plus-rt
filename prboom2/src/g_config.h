@@ -1,14 +1,15 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.h,v 1.3 2002/02/08 23:53:41 cph Exp $
+ * $Id: g_config.h,v 1.1 2002/02/08 23:53:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright (C) 2002 by Robert Sherwood
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -27,36 +28,14 @@
  *
  * DESCRIPTION:
  *
- * Key Bindings
+ * Load/Save defaults
+ *
+ * By Simon Howard, Revised by James Haley, added to PrBoom by Florian Schulze.
+ * Split to a separate file by Robert Sherwood & Colin Phipps.
  *
  *-----------------------------------------------------------------------------
  */
 
-#ifndef __G_BIND_H__
-#define __G_BIND_H__
-
-void G_InitKeyBindings(void);
-boolean G_KeyResponder(event_t *ev);
-
-void G_EditBinding(char *action);
-char *G_BoundKeys(char *action);
-void G_WriteBindings(FILE* file);
-
-// action variables
-
-extern int action_forward,  action_backward;
-extern int action_left,     action_right;
-extern int action_moveleft, action_moveright;
-extern int action_use;
-extern int action_speed;
-extern int action_attack;
-extern int action_strafe;
-extern int action_flip;
-
-extern int action_weapon1, action_weapon2, action_weapon3;
-extern int action_weapon4, action_weapon5, action_weapon6;
-extern int action_weapon7, action_weapon8, action_weapon9;
-extern int action_toggleweapon;
-
-#endif
+void G_LoadDefaults(const char *file);
+void G_SaveDefaults(void);
 

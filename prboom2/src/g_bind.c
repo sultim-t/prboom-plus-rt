@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.7 2002/01/12 16:16:40 cph Exp $
+ * $Id: g_bind.c,v 1.8 2002/02/08 23:53:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.7 2002/01/12 16:16:40 cph Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.8 2002/02/08 23:53:41 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -601,63 +601,14 @@ void G_EditBinding(char *action)
   binding_action = action;
 }
 
-//===========================================================================
-//
-// Load/Save defaults
-//
-//===========================================================================
+/*
+ * Save bindings
+ * cph - split from G_SaveDefaults
+ */
 
-// default script:
-
-static char *cfg_file = NULL; 
-
-void G_LoadDefaults(const char *file)
+void G_WriteBindings(FILE* file)
 {
-  byte *cfg_data;
-
-  cfg_file = strdup(file);
-
-  if(M_ReadFile(cfg_file, &cfg_data) <= 0)
-  {
-      C_Printf("cfg not found.\n");
-      //C_Printf("cfg not found. using default\n");
-      //cfg_data = W_CacheLumpName("DEFAULT", PU_STATIC);
-  } else {
-    C_RunScript(cfg_data);
-
-    free(cfg_data);
-  }
-}
-
-void G_SaveDefaults()
-{
-  FILE *file;
-  command_t *cmd;
   int i;
-
-  if(!cfg_file)         // check defaults have been loaded
-     return;
-
-  file = fopen(cfg_file, "w");
-
-  // write console variables
-  
-  for(i=0; i<CMDCHAINS; i++)
-  {
-    for(cmd = cmdroots[i]; cmd; cmd = cmd->next)
-	  {
-	    if(cmd->type != ct_variable)    // only write variables
-	      continue;
-	    if(cmd->flags & cf_nosave)      // do not save if cf_nosave set
-	      continue;
-	    
-	    fprintf(file, "%s \"%s\"\n", cmd->name,
-		    C_VariableValue(cmd->variable));
-	  }
-  }
-
-  // write key bindings
-
   for(i=0; i<NUM_KEYS; i++)
     {
       if(keybindings[i].binding)
@@ -668,8 +619,6 @@ void G_SaveDefaults()
 	}
     }
 
-  
-  fclose(file);
 }
 
 //===========================================================================

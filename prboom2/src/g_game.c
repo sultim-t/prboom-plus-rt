@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: g_game.c,v 1.50 2002/02/08 23:53:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.49 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.50 2002/02/08 23:53:41 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -2545,6 +2545,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 	break;
       case 211:
 	compatibility_level = prboom_3_compatibility;
+	demo_p++;
+	break;
+      case 212:
+	compatibility_level = prboom_4_compatibility;
 	demo_p++;
 	break;
       }

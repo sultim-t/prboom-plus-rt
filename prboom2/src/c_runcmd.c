@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.4 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: c_runcmd.c,v 1.5 2002/02/08 23:53:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.4 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.5 2002/02/08 23:53:41 cph Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1142,3 +1142,25 @@ void C_RunScriptFromFile(char *filename)
      C_RunScript(filedata);
   }
 }
+
+/* cph - split console variable saving code to here */
+void C_WriteVariables(FILE *file)
+{
+  int i;
+  command_t *cmd;
+
+  for(i=0; i<CMDCHAINS; i++)
+  {
+    for(cmd = cmdroots[i]; cmd; cmd = cmd->next)
+	  {
+	    if(cmd->type != ct_variable)    // only write variables
+	      continue;
+	    if(cmd->flags & cf_nosave)      // do not save if cf_nosave set
+	      continue;
+	    
+	    fprintf(file, "%s \"%s\"\n", cmd->name,
+		    C_VariableValue(cmd->variable));
+	  }
+  }
+}
+

@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.16 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: i_main.c,v 1.17 2002/02/08 23:53:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.16 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.17 2002/02/08 23:53:41 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -52,8 +52,7 @@ rcsid[] = "$Id: i_main.c,v 1.16 2002/01/07 15:56:19 proff_fs Exp $";
 #include "m_random.h"
 #include "doomstat.h"
 #include "g_game.h"
-#include "g_bind.h"
-//#include "m_misc.h"
+#include "g_config.h"
 #include "i_sound.h"
 #include "i_main.h"
 #include "lprintf.h"

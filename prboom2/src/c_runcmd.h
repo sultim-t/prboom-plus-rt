@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.h,v 1.4 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: c_runcmd.h,v 1.5 2002/02/08 23:53:41 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -295,6 +295,7 @@ extern command_t *cmdroots[CMDCHAINS];   // the commands in hash chains
 void (C_AddCommand)(command_t *command);
 void C_AddCommandList(command_t *list);
 void C_AddCommands();
+void C_WriteVariables(FILE* file);
 command_t *C_GetCmdForName(char *cmdname);
 
 /***** define strings for variables *****/
