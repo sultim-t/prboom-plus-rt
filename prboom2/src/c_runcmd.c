@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_runcmd.c,v 1.5 2002/02/08 23:53:41 cph Exp $
+ * $Id: c_runcmd.c,v 1.6 2002/02/11 19:20:42 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_runcmd.c,v 1.5 2002/02/08 23:53:41 cph Exp $";
+rcsid[] = "$Id: c_runcmd.c,v 1.6 2002/02/11 19:20:42 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1019,7 +1019,11 @@ command_t *cmdroots[CMDCHAINS];
 static int CmdHashKey(const char *s)
 {
   int key=0;
-  while(*s) key += tolower(*s++);
+  while(*s)
+  {
+    key += tolower(*s);
+    *s++;
+  }
   return key % CMDCHAINS;
 }
 
