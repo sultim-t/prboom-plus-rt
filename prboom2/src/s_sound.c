@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.10 2002/11/13 18:53:27 proff_fs Exp $
+ * $Id: s_sound.c,v 1.11 2002/11/21 20:50:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.10 2002/11/13 18:53:27 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.11 2002/11/21 20:50:41 dukope Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -142,6 +142,9 @@ CONSOLE_STRING(mus_ultima, S_music_files[mus_ultima], NULL, 20, 0) {}
 CONSOLE_STRING(mus_read_m, S_music_files[mus_read_m], NULL, 20, 0) {}
 CONSOLE_STRING(mus_dm2ttl, S_music_files[mus_dm2ttl], NULL, 20, 0) {}
 CONSOLE_STRING(mus_dm2int, S_music_files[mus_dm2int], NULL, 20, 0) {}
+
+
+CONSOLE_INT(s_samplerate, snd_samplerate, NULL, 11025, 44100, NULL, 0) {}
 
 typedef struct
 {
@@ -827,6 +830,7 @@ void S_AddCommands()
 	C_AddCommand(s_pitched);
 	C_AddCommand(snd_channels);
 	C_AddCommand(sfx_volume);
+	C_AddCommand(s_samplerate);
 	C_AddCommand(music_volume);
 	C_AddCommand(mus_e1m1);
 	C_AddCommand(mus_e1m2);
