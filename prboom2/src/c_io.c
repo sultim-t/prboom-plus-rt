@@ -102,7 +102,7 @@ int console_enabled = true;
 // ticker, responder, drawer, init etc.
 //
 
-static void C_InitBackdrop()
+void C_InitBackdrop()
 {
   const char *lumpname;
   TScreenVars oldscreen = {NULL,0,0};
@@ -615,9 +615,9 @@ void C_SetConsole()
   current_height = SCREENHEIGHT;
   current_target = SCREENHEIGHT;
   
-  //  C_Update();
-  //S_StopMusic();                  // stop music if any
-  //S_StopSounds();                 // and sounds
+  C_Update();
+  S_StopMusic();                  // stop music if any
+  S_StopSounds();                 // and sounds
   //G_StopDemo();                   // stop demo playing
 }
 

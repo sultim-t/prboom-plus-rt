@@ -507,9 +507,7 @@ int menutime = 0;
 // menu widget for alternate drawer + responder
 menuwidget_t *current_menuwidget = NULL; 
 
-
-        // init menu
-void MN_Init()
+void MN_LoadData(void)
 {
   R_SetPatchNum(&skulls[0], "M_SKULL1");
   R_SetPatchNum(&skulls[1], "M_SKULL2");
@@ -520,7 +518,12 @@ void MN_Init()
   R_SetPatchNum(&slider_gfx[slider_right], "M_SLIDER");
   R_SetPatchNum(&slider_gfx[slider_mid], "M_SLIDEM");
   R_SetPatchNum(&slider_gfx[slider_slider], "M_SLIDEO");
+}
 
+        // init menu
+void MN_Init()
+{
+  MN_LoadData();
   MN_InitMenus();   // create menu commands in mn_menus.c
 }
 

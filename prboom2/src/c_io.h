@@ -38,6 +38,7 @@
 #define INPUTLENGTH 512
 #define LINELENGTH 96
 
+void C_InitBackdrop();
 void C_Init();
 void C_Ticker();
 void C_Drawer();

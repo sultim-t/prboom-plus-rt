@@ -76,7 +76,7 @@ short screenheightarray[MAX_SCREENWIDTH];  // change to MAX_*
 
 // variables used to look up and range check thing_t sprites patches
 
-spritedef_t *sprites;
+spritedef_t *sprites = NULL;
 int numsprites;
 
 #define MAX_SPRITE_FRAMES 29          /* Macroized -- killough 1/25/98 */
@@ -121,6 +121,22 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
     }
 }
 
+void R_FreeSpriteDefs(void)
+{
+  int i;
+
+  if (!sprites)
+    return;
+  for (i=0 ; i<numsprites ; i++)
+    if (sprites[i].spriteframes)
+    {
+      Z_Free(sprites[i].spriteframes);
+      sprites[i].spriteframes = NULL;
+    }
+  Z_Free(sprites);
+  sprites = NULL;
+}
+
 //
 // R_InitSpriteDefs
 // Pass a null terminated list of sprite names
@@ -156,6 +172,8 @@ void R_InitSpriteDefs(const char * const * namelist)
   if (!numentries || !*namelist)
     return;
 
+  R_FreeSpriteDefs();
+
   // count the number of sprite names
   for (i=0; namelist[i]; i++)
     ;
@@ -163,6 +181,7 @@ void R_InitSpriteDefs(const char * const * namelist)
   numsprites = i;
 
   sprites = Z_Malloc(numsprites *sizeof(*sprites), PU_STATIC, NULL);
+  memset(sprites, 0, numsprites *sizeof(*sprites));
 
   // Create hash table based on just the first four letters of each sprite
   // killough 1/31/98

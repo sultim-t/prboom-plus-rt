@@ -325,8 +325,6 @@ void I_SafeExit(int rc)
     }
 }
 
-extern void W_DoneCache(void);
-
 void I_Quit (void)
 {
   if (!has_exited)

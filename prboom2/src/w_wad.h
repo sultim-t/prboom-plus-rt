@@ -85,6 +85,8 @@ extern wadfile_info_t *wadfiles;
 extern size_t numwadfiles; // CPhipps - size of the wadfiles array
 
 void W_Init(void); // CPhipps - uses the above array
+void W_ReleaseAllWads(void); // Proff - Added for iwad switching
+void W_DoneCache(void);
 
 typedef struct
 {

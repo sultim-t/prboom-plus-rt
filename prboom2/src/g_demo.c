@@ -711,6 +711,15 @@ void G_TimeDemo(const char *name) // CPhipps - const char*
   timedemo_menuscreen = cmdtype == c_menu;
 }
 
+void G_StopDemo()
+{
+  if(!demorecording && !demoplayback) return;
+  
+  G_CheckDemoStatus();
+  advancedemo = false;
+  //C_SetConsole();
+}
+
 /* G_CheckDemoStatus
  *
  * Called after a death or level completion to allow demos to be cleaned up

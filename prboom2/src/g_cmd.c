@@ -36,10 +36,14 @@
 #include "f_wipe.h"
 #include "g_game.h"
 #include "hu_stuff.h"
+#include "st_stuff.h"
 #include "mn_engin.h"
 #include "m_random.h"
 #include "p_inter.h"
 #include "w_wad.h"
+#include "i_system.h"
+#include "r_main.h"
+#include "p_setup.h"
 
 #include "s_sound.h"  // haleyjd: restored exit sounds
 #include "sounds.h"   // haleyjd: restored exit sounds
@@ -224,6 +228,42 @@ CONSOLE_COMMAND(listwads, 0)
   D_ListWads();
 }
 */
+
+CONSOLE_COMMAND(iwad, cf_buffered)
+{
+  char *iwad;
+  if (c_argc != 1) 
+  {
+    C_Printf("usage: iwad wadname\n");
+    return;
+  }
+  iwad = I_FindFile(c_argv[0], ".wad");
+  if (!iwad) 
+  {
+    C_Printf("'%s' not found!\n", c_argv[0]);
+    return;
+  }
+  C_Printf("'%s' found!\n", iwad);
+  S_StopMusic();
+  S_StopSounds();
+  G_StopDemo();
+  W_ReleaseAllWads();
+  D_SetVersionFromIWAD(iwad);
+  D_AutoLoad();
+  W_Init();
+  C_InitBackdrop();
+  V_InitColorTranslation();
+  R_Init();
+  P_Init();
+  MN_LoadData();
+  HU_Init();
+  ST_loadData();
+  MN_ClearMenus();
+//  C_SetConsole();
+  gamestate = GS_CONSOLE;         
+  gameaction = ga_nothing;
+  D_StartTitle();
+}
 
 // random seed
 
@@ -565,6 +605,7 @@ void G_AddCommands()
   //C_AddCommand(exitlevel);
   //C_AddCommand(addfile);
   //C_AddCommand(listwads);
+  C_AddCommand(iwad);
   C_AddCommand(rngseed);
   //C_AddCommand(kill);
   //C_AddCommand(map);

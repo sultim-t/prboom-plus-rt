@@ -818,30 +818,9 @@ char *D_FindIWADFile(void)
   return iwad;
 }
 
-//
-// IdentifyVersion
-//
-// Set the location of the defaults file and the savegame root
-// Locate and validate an IWAD file
-// Determine gamemode from the IWAD
-// 
-// supports IWADs with custom names. Also allows the -iwad parameter to
-// specify which iwad is being searched for if several exist in one dir.
-// The -iwad parm may specify:
-//
-// 1) a specific pathname, which must exist (.wad optional)
-// 2) or a directory, which must contain a standard IWAD,
-// 3) or a filename, which must be found in one of the standard places:
-//   a) current dir,
-//   b) exe dir
-//   c) $DOOMWADDIR
-//   d) or $HOME
-//
-// jff 4/19/98 rewritten to use a more advanced search algorithm
-
-void IdentifyVersion (void)
+// Set the location of the savegame root
+void D_SetSavegameRoot(void)
 {
-  char *iwad;
   int         i;    //jff 3/24/98 index of args on commandline
 #ifndef DREAMCAST
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
@@ -870,45 +849,78 @@ void IdentifyVersion (void)
     else lprintf(LO_ERROR,"Error: -save path does not exist, using %s\n", basesavegame);
   }
 #endif // DREAMCAST
+}
 
-  // locate the IWAD and determine game mode from it
+void D_SetVersionFromIWAD(const char *iwad)
+{
+  int         i;    //jff 3/24/98 index of args on commandline
+
+  // determine game mode from IWAD
+  //jff 9/3/98 use logical output routine
+  lprintf(LO_CONFIRM,"IWAD found: %s\n",iwad); //jff 4/20/98 print only if found
+  CheckIWAD(iwad,&gamemode,&haswolflevels);
+
+  /* jff 8/23/98 set gamemission global appropriately in all cases
+   * cphipps 12/1999 - no version output here, leave that to the caller 
+   */
+  switch(gamemode)
+  {
+    case retail:
+    case registered:
+    case shareware:
+      gamemission = doom;
+      break;
+    case commercial:
+      i = strlen(iwad);
+      gamemission = doom2;
+      if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
+        language=french;
+      else if (i>=7 && !strnicmp(iwad+i-7,"tnt.wad",7))
+        gamemission = pack_tnt;
+      else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
+        gamemission = pack_plut;
+      break;
+    default:
+      gamemission = none;
+      break;
+  }
+  if (gamemode == indetermined)
+    //jff 9/3/98 use logical output routine
+    lprintf(LO_WARN,"Unknown Game Version, may not work\n");
+  D_AddFile(iwad,source_iwad);
+}
+
+//
+// IdentifyVersion
+//
+// Set the location of the defaults file and the savegame root
+// Locate and validate an IWAD file
+// Determine gamemode from the IWAD
+// 
+// supports IWADs with custom names. Also allows the -iwad parameter to
+// specify which iwad is being searched for if several exist in one dir.
+// The -iwad parm may specify:
+//
+// 1) a specific pathname, which must exist (.wad optional)
+// 2) or a directory, which must contain a standard IWAD,
+// 3) or a filename, which must be found in one of the standard places:
+//   a) current dir,
+//   b) exe dir
+//   c) $DOOMWADDIR
+//   d) or $HOME
+//
+// jff 4/19/98 rewritten to use a more advanced search algorithm
+
+void IdentifyVersion (void)
+{
+  char *iwad;
+
+  // locate the IWAD
 
   iwad = D_FindIWADFile();
-
   if (iwad && *iwad)
   {
-    //jff 9/3/98 use logical output routine
-    lprintf(LO_CONFIRM,"IWAD found: %s\n",iwad); //jff 4/20/98 print only if found
-    CheckIWAD(iwad,&gamemode,&haswolflevels);
-
-    /* jff 8/23/98 set gamemission global appropriately in all cases
-     * cphipps 12/1999 - no version output here, leave that to the caller 
-     */
-    switch(gamemode)
-    {
-      case retail:
-      case registered:
-      case shareware:
-        gamemission = doom;
-        break;
-      case commercial:
-        i = strlen(iwad);
-        gamemission = doom2;
-        if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
-          language=french;
-        else if (i>=7 && !strnicmp(iwad+i-7,"tnt.wad",7))
-          gamemission = pack_tnt;
-        else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
-          gamemission = pack_plut;
-        break;
-      default:
-        gamemission = none;
-        break;
-    }
-    if (gamemode == indetermined)
-      //jff 9/3/98 use logical output routine
-      lprintf(LO_WARN,"Unknown Game Version, may not work\n");
-    D_AddFile(iwad,source_iwad);
+    D_SetVersionFromIWAD(iwad);
 #ifndef DREAMCAST
 /* proff 2001/7/2 - On Dreamcast the free crashes. There is a bug somewhere. */
     free(iwad);
@@ -1175,6 +1187,38 @@ const char *deh_files[MAXLOADFILES] = {"",""};
 // CPhipps - misc screen stuff
 unsigned int desired_screenwidth = 320;
 unsigned int desired_screenheight = 200;
+
+void D_AutoLoad(void)
+{
+  // CPhipps - autoloading of wads
+  // Designed to be general, instead of specific to boomlump.wad
+  // Some people might find this useful
+  // cph - support MBF -noload parameter
+  if (!M_CheckParm("-noload")) {
+    int i;
+
+    for (i=0; i<MAXLOADFILES*2; i++) {
+      const char *fname = (i < MAXLOADFILES) ? wad_files[i] 
+	: deh_files[i - MAXLOADFILES];
+      char *fpath;
+
+      if (!(fname && *fname)) continue;
+      // Filename is now stored as a zero terminated string
+      fpath = I_FindFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
+      if (!fpath)
+        lprintf(LO_WARN, "Failed to autoload %s\n", fname);
+      else {
+        if (i >= MAXLOADFILES) 
+          ProcessDehFile(fpath, D_dehout(), 0);
+        else {
+          D_AddFile(fpath,source_auto_load);
+        }
+        modifiedgame = true; 
+        free(fpath);
+      }
+    }
+  }
+}
 
 //
 // D_DoomMainSetup
@@ -1505,34 +1549,7 @@ void D_DoomMainSetup(void)
   lprintf(LO_INFO,"V_Init: allocate screens.\n");
   V_Init();
 
-  // CPhipps - autoloading of wads
-  // Designed to be general, instead of specific to boomlump.wad
-  // Some people might find this useful
-  // cph - support MBF -noload parameter
-  if (!M_CheckParm("-noload")) {
-    int i;
-
-    for (i=0; i<MAXLOADFILES*2; i++) {
-      const char *fname = (i < MAXLOADFILES) ? wad_files[i] 
-	: deh_files[i - MAXLOADFILES];
-      char *fpath;
-
-      if (!(fname && *fname)) continue;
-      // Filename is now stored as a zero terminated string
-      fpath = I_FindFile(fname, (i < MAXLOADFILES) ? ".wad" : ".bex");
-      if (!fpath)
-        lprintf(LO_WARN, "Failed to autoload %s\n", fname);
-      else {
-        if (i >= MAXLOADFILES) 
-          ProcessDehFile(fpath, D_dehout(), 0);
-        else {
-          D_AddFile(fpath,source_auto_load);
-        }
-        modifiedgame = true; 
-        free(fpath);
-      }
-    }
-  }
+  D_AutoLoad();
 
   // add any files specified on the command line with -file wadfile
   // to the wad list

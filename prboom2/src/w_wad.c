@@ -435,6 +435,17 @@ void W_Init(void)
   W_InitCache();
 }
 
+void W_ReleaseAllWads(void)
+{
+	W_DoneCache();
+	numwadfiles = 0;
+	free(wadfiles);
+	wadfiles = NULL;
+	numlumps = 0;
+	free(lumpinfo);
+	lumpinfo = NULL;
+}
+
 //
 // W_LumpLength
 // Returns the buffer size needed to load the given lump.

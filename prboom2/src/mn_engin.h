@@ -52,6 +52,8 @@ void MN_Ticker (void);
 void MN_DrawMenu(menu_t *menu);
 void MN_Drawer (void);
 
+void MN_LoadData(void);
+
 // Called by D_DoomMain,
 // loads the config file.
 

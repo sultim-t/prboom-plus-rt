@@ -64,6 +64,8 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh);
 // Called when the console player is spawned on each level.
 void ST_Start(void);
 
+void ST_loadData(void);
+
 // Called by startup code.
 void ST_Init(void);
 

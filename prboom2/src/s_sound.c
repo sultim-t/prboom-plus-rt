@@ -640,6 +640,15 @@ void S_StopMusic(void)
 }
 
 
+void S_StopSounds()
+{
+  int cnum;
+
+  for (cnum=0 ; cnum<numChannels ; cnum++)
+    if (channels[cnum].sfxinfo)
+      S_StopChannel(cnum);
+}
+
 
 void S_StopChannel(int cnum)
 {
