@@ -294,6 +294,37 @@ typedef struct {
   unsigned short posts_used;
 } count_t;
 
+static void switchPosts(TPatchPost *post1, TPatchPost *post2) {
+  TPatchPost dummy;
+
+  dummy.startY = post1->startY;
+  dummy.length = post1->length;
+  dummy.edgeSloping = post1->edgeSloping;
+  post1->startY = post2->startY;
+  post1->length = post2->length;
+  post1->edgeSloping = post2->edgeSloping;
+  post2->startY = dummy.startY;
+  post2->length = dummy.length;
+  post2->edgeSloping = dummy.edgeSloping;
+}
+
+static void removePostFromColumn(TPatchColumn *column, int post) {
+  int i;
+#ifdef RANGECHECK
+  if (post >= column->numPosts)
+    I_Error("removePostFromColumn: invalid post index");
+#endif
+  if (post < column->numPosts)
+    for (i=post; i<(column->numPosts-1); i++) {
+      TPatchPost *post1 = &column->posts[i];
+      TPatchPost *post2 = &column->posts[i+1];
+      post1->startY = post2->startY;
+      post1->length = post2->length;
+      post1->edgeSloping = post2->edgeSloping;
+    }
+  column->numPosts--;
+}
+
 //---------------------------------------------------------------------------
 static void createTextureCompositePatch(int id) {
   TPatch *composite_patch;
@@ -387,8 +418,6 @@ static void createTextureCompositePatch(int id) {
 
   for (x=0; x<texture->width; x++) {
       // setup the column's data
-      if (countsInColumn[x].patches > 1)
-        I_Error("Multipatch columns not supported yet, please report the WAD file to the authors, so it can be fixed.");
       composite_patch->columns[x].pixels = composite_patch->pixels + (x*composite_patch->height);
       composite_patch->columns[x].numPosts = countsInColumn[x].posts;
       composite_patch->columns[x].posts = composite_patch->posts + numPostsUsedSoFar;
@@ -424,20 +453,20 @@ static void createTextureCompositePatch(int id) {
       while (oldColumn->topdelta != 0xff) {
         TPatchPost *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
         // set up the post's data
-        post->startY = oldColumn->topdelta;
+        post->startY = oldColumn->topdelta + texpatch->originy;
         post->length = oldColumn->length;
-        if ((texpatch->originy + post->startY + post->length) > composite_patch->height) {
-          if ((texpatch->originy + post->startY) > composite_patch->height)
+        if ((post->startY + post->length) > composite_patch->height) {
+          if ((post->startY) > composite_patch->height)
             post->length = 0;
           else
-            post->length = composite_patch->height - (texpatch->originy + post->startY);
+            post->length = composite_patch->height - post->startY;
         }
-        if ((texpatch->originy + post->startY) < 0) {
+        if (post->startY < 0) {
           post->startY = 0;
-          if ((texpatch->originy + post->startY + post->length) <= 0)
+          if ((post->startY + post->length) <= 0)
             post->length = 0;
           else
-            post->length -= (texpatch->originy + post->startY);
+            post->length -= post->startY;
         }
         post->edgeSloping = 0;
 
@@ -467,6 +496,35 @@ static void createTextureCompositePatch(int id) {
     }
 
     W_UnlockLumpNum(patchNum);
+  }
+
+  for (x=0; x<texture->width; x++) {
+    TPatchColumn *column;
+
+    if (countsInColumn[x].patches <= 1)
+      continue;
+
+    // cleanup posts on multipatch columns
+    column = &composite_patch->columns[x];
+
+    i = 0;
+    while (i<(column->numPosts-1)) {
+      TPatchPost *post1 = &column->posts[i];
+      TPatchPost *post2 = &column->posts[i+1];
+      int length;
+
+      if ((post2->startY - post1->startY) < 0)
+        switchPosts(post1, post2);
+
+      if ((post1->startY + post1->length) >= post2->startY) {
+        length = (post1->length + post2->length) - ((post1->startY + post1->length) - post2->startY);
+        if (post1->length < length)
+          post1->length = length;
+        removePostFromColumn(column, i+1);
+        continue;
+      }
+      i++;
+    }
   }
 
   free(countsInColumn);
