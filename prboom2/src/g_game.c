@@ -973,6 +973,41 @@ void G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
  * of savegame compatibility warnings, and options lookups.
  */
 
+static uint_64_t G_UpdateSignature(uint_64_t s, const char *name)
+{
+  int i, lump = W_CheckNumForName(name);
+  if (lump != -1 && (i = lump+10) < numlumps)
+    do
+      {
+  int size = W_LumpLength(i);
+  const byte *p = W_CacheLumpNum(i);
+  while (size--)
+    s <<= 1, s += *p++;
+  W_UnlockLumpNum(i);
+      }
+    while (--i > lump);
+  return s;
+}
+
+// proff - Keep old function for savegame compatibility
+static uint_64_t G_Signature_old(void)
+{
+  static uint_64_t s = 0;
+  char name[9];
+  int episode, map;
+
+  if (gamemode == commercial)
+    for (map = haswolflevels ? 32 : 30; map; map--)
+      sprintf(name, "map%02d", map), s = G_UpdateSignature(s, name);
+  else
+    for (episode = gamemode==retail ? 4 :
+         gamemode==shareware ? 1 : 3; episode; episode--)
+      for (map = 9; map; map--)
+        sprintf(name, "E%dM%d", episode, map), s = G_UpdateSignature(s, name);
+
+  return s;
+}
+
 // killough 12/98: use faster algorithm which has less IO
 
 static uint_64_t G_Signature(void)
@@ -1135,6 +1170,7 @@ void G_DoLoadGame(void)
   // CPhipps - do savegame filename stuff here
   char name[PATH_MAX+1];     // killough 3/22/98
   int savegame_compatibility = -1;
+  int savegame_version = 0;
 
   G_SaveGameName(name,sizeof(name),savegameslot, demoplayback);
 
@@ -1153,6 +1189,7 @@ void G_DoLoadGame(void)
 
     if (!strncmp(save_p, vcheck, VERSIONSIZE)) {
       savegame_compatibility = version_headers[i].comp_level;
+      savegame_version = version_headers[i].version;
       i = num_version_headers;
     }
   }
@@ -1169,6 +1206,7 @@ void G_DoLoadGame(void)
 
   // sf: use string rather than episode, map
 
+  if (savegame_version >= 211)
   {
     int i;
     
@@ -1178,16 +1216,19 @@ void G_DoLoadGame(void)
     for(i=0; i<8; i++)
       gamemapname[i] = *save_p++;
     gamemapname[8] = 0;        // ending NULL
-  }
 
-  G_SetGameMap();       // get gameepisode, map
+    G_SetGameMap();       // get gameepisode, map
+  }
 
   // CPhipps - always check savegames even when forced,
   //  only print a warning if forced
   {  // killough 3/16/98: check lump name checksum (independent of order)
     uint_64_t checksum = 0;
 
-    checksum = G_Signature();
+    if (savegame_version >= 211)
+      checksum = G_Signature();
+    else
+      checksum = G_Signature_old();
 
     if (memcmp(&checksum, save_p, sizeof checksum)) {
       if (!forced_loadgame) {
@@ -1212,6 +1253,16 @@ void G_DoLoadGame(void)
     ? *save_p : savegame_compatibility;
   save_p++;
 
+  if (savegame_version < 211)
+  {
+    gameskill = *save_p++;
+    gameepisode = *save_p++;
+    gamemap = *save_p++;
+    if(gamemapname) free(gamemapname);    //sf
+    gamemapname = malloc(10);
+    strcpy(gamemapname, G_GetNameForMap(gameepisode, gamemap));
+  }
+
   for (i=0 ; i<MAXPLAYERS ; i++)
     playeringame[i] = *save_p++;
   save_p += MIN_MAXPLAYERS-MAXPLAYERS;         // killough 2/28/98
@@ -1225,7 +1276,7 @@ void G_DoLoadGame(void)
   save_p = (char*)G_ReadOptions(save_p);
 
   // load a base level
-  G_InitNewNum(gameskill, gameepisode, gamemap);
+  G_InitNew(gameskill, gamemapname);
 
   /* get the times - killough 11/98: save entire word */
   memcpy(&leveltime, save_p, sizeof leveltime);
@@ -1250,7 +1301,13 @@ void G_DoLoadGame(void)
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
 
   if (*save_p != 0xe6)
-    I_Error ("G_DoLoadGame: Bad savegame");
+    {
+      C_SetConsole();
+      C_Printf("bad savegame: offset 0x%x is 0x%x\n",
+	       save_p-savebuffer, *save_p);
+      Z_Free(savebuffer);
+      return; 
+    }
 
   // done
   free (savebuffer);
@@ -2143,8 +2200,11 @@ void G_InitNew(skill_t skill, char *name)
 
   totalleveltimes = 0; // cph
 
-  if(gamemapname) free(gamemapname);    //sf
-  gamemapname = strdup(name);
+  if (gamemapname != name)
+  {
+    if(gamemapname) free(gamemapname);    //sf
+    gamemapname = strdup(name);
+  }
   G_SetGameMap();  // sf
 
   //jff 4/16/98 force marks on automap cleared every new level start
