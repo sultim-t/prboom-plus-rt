@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35.2.2 2001/06/17 17:57:39 proff_fs Exp $
+ * $Id: gl_main.c,v 1.35.2.3 2002/07/15 01:37:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -46,6 +46,9 @@ int gl_tex_filter;
 int gl_mipmap_filter;
 int gl_drawskys=true;
 int gl_sortsprites=true;
+int gl_texture_filter_anisotropic = 0;
+int gl_paletted_texture = 0;
+int gl_shared_texture_palette = 0;
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -217,21 +220,69 @@ static void gld_StaticLightAlpha(float light, float alpha)
   player_t *player;
 	player = &players[displayplayer];
 
-	if (player->fixedcolormap == 32)
-  {
-    glColor4f(0.5f, 1.0f, 0.0f, alpha);
-    return;
-  }
-	else
-  	if (player->fixedcolormap)
-    {
-      glColor4f(1.0f, 1.0f, 1.0f, alpha);
-      return;
-    }
+	if (gl_shared_texture_palette) {
+ 		if (player->fixedcolormap)
+		{
+			glColor4f(1.0f, 1.0f, 1.0f, alpha);
+			return;
+		}
+	} else {
+		if (player->fixedcolormap == 32)
+		{
+			glColor4f(0.5f, 1.0f, 0.0f, alpha);
+			return;
+		}
+		else
+  		if (player->fixedcolormap)
+			{
+				glColor4f(1.0f, 1.0f, 1.0f, alpha);
+				return;
+			}
+	}
   glColor4f(light, light, light, alpha);
 }
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
+
+void gld_InitExtensions(const char *_extensions)
+{
+	char *extensions;
+	char *extension;
+	char *p;
+
+	if (!_extensions)
+		return;
+
+	extensions = malloc(strlen(_extensions) + 1);
+	if (!extensions)
+		return;
+	memcpy(extensions, _extensions, strlen(_extensions) + 1);
+
+	p = extensions;
+	extension = p;
+
+	do {
+		while ((*p != ' ') && (*p != '\0'))
+			p++;
+		if (*p != '\0')
+			*p++ = '\0';
+		while (*p == ' ')
+			p++;
+
+		if (strcasecmp(extension, "GL_EXT_texture_filter_anisotropic") == 0)
+			gl_texture_filter_anisotropic = true;
+		else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
+			gl_paletted_texture = true;
+			glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
+		}
+		else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
+			gl_shared_texture_palette = true;
+
+		extension = p;
+	} while (*extension != '\0');
+
+	free(extensions);
+}
 
 void gld_Init(int width, int height)
 { 
@@ -242,6 +293,11 @@ void gld_Init(int width, int height)
   lprintf(LO_INFO,"GL_RENDERER: %s\n",glGetString(GL_RENDERER));
   lprintf(LO_INFO,"GL_VERSION: %s\n",glGetString(GL_VERSION));
   lprintf(LO_INFO,"GL_EXTENSIONS: %s\n",glGetString(GL_EXTENSIONS));
+
+  gld_InitExtensions(glGetString(GL_EXTENSIONS));
+  //gl_shared_texture_palette = false;
+	gld_InitPalettedTextures();
+
 	glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT); 
 
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f); 
@@ -275,9 +331,8 @@ void gld_Init(int width, int height)
 	glFogf (GL_FOG_END, 1.0f);
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_NEAREST"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
     lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_NEAREST for mipmap textures.\n");
     gl_tex_filter=GL_NEAREST;
@@ -286,9 +341,8 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_NEAREST"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
     lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_NEAREST for mipmap textures.\n");
     gl_tex_filter=GL_LINEAR;
@@ -297,9 +351,8 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST_MIPMAP_LINEAR"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_NEAREST for normal textures.\n");
     lprintf(LO_INFO,"Using GL_NEAREST_MIPMAP_LINEAR for mipmap textures.\n");
     gl_tex_filter=GL_NEAREST;
@@ -308,9 +361,8 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_LINEAR_MIPMAP_LINEAR"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=true;
-#endif
+    gl_shared_texture_palette = false;
     lprintf(LO_INFO,"Using GL_LINEAR for normal textures.\n");
     lprintf(LO_INFO,"Using GL_LINEAR_MIPMAP_LINEAR for mipmap textures.\n");
     gl_tex_filter=GL_LINEAR;
@@ -319,22 +371,22 @@ void gld_Init(int width, int height)
   else
   if (!strcasecmp(gl_tex_filter_string,"GL_NEAREST"))
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=false;
-#endif
     lprintf(LO_INFO,"Using GL_NEAREST for textures.\n");
     gl_tex_filter=GL_NEAREST;
     gl_mipmap_filter=GL_NEAREST;
   }
   else
   {
-#ifdef USE_GLU_MIPMAP
     use_mipmapping=false;
-#endif
     lprintf(LO_INFO,"Using GL_LINEAR for textures.\n");
     gl_tex_filter=GL_LINEAR;
     gl_mipmap_filter=GL_LINEAR;
   }
+
+#ifndef USE_GLU_MIPMAP
+  use_mipmapping = false;
+#endif
 
   if (!strcasecmp(gl_tex_format_string,"GL_RGBA8"))
   {
@@ -550,7 +602,7 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
 {
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
-	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glColor3f((float)playpal[3*BaseColor]/255.0f,
 			      (float)playpal[3*BaseColor+1]/255.0f,
 			      (float)playpal[3*BaseColor+2]/255.0f);
@@ -558,7 +610,6 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
 		glVertex2i( x0, y0 );
 		glVertex2i( x1, y1 );
 	glEnd();
-	glEnable(GL_TEXTURE_2D);
   W_UnlockLumpName("PLAYPAL");
 }
 
@@ -617,7 +668,7 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 {
   const unsigned char *playpal=W_CacheLumpName("PLAYPAL");
 
-	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glColor3f((float)playpal[3*col]/255.0f,
 			      (float)playpal[3*col+1]/255.0f,
 			      (float)playpal[3*col+2]/255.0f);
@@ -627,7 +678,6 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 		glVertex2i( x+width, y );
 		glVertex2i( x+width, y+height );
 	glEnd();
-	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f,1.0f,1.0f);
   W_UnlockLumpName("PLAYPAL");
 }
@@ -638,41 +688,74 @@ void gld_SetPalette(int palette)
   extra_green=0.0f;
   extra_blue=0.0f;
   extra_alpha=0.0f;
-  if (palette>0)
-  {
-    if (palette<=8)
-    {
-      extra_red=(float)palette/2.0f;
-      extra_green=0.0f;
-      extra_blue=0.0f;
-      extra_alpha=(float)palette/10.0f;
-    }
-    else
-      if (palette<=12)
-      {
-        palette=palette-8;
-        extra_red=(float)palette*1.0f;
-        extra_green=(float)palette*0.8f;
-        extra_blue=(float)palette*0.1f;
-        extra_alpha=(float)palette/11.0f;
-      }
-      else
-        if (palette==13)
-        {
-          extra_red=0.4f;
-          extra_green=1.0f;
-          extra_blue=0.0f;
-          extra_alpha=0.2f;
-        }
-  }
-  if (extra_red>1.0f)
-    extra_red=1.0f;
-  if (extra_green>1.0f)
-    extra_green=1.0f;
-  if (extra_blue>1.0f)
-    extra_blue=1.0f;
-  if (extra_alpha>1.0f)
-    extra_alpha=1.0f;
+	if (gl_shared_texture_palette) {
+		static int last_palette = 0;
+		const unsigned char *playpal;
+		unsigned char pal[1024];
+		int i;
+
+		if (palette < 0)
+			palette = last_palette;
+		last_palette = palette;
+		playpal = W_CacheLumpName("PLAYPAL");
+		playpal += (768*palette);
+		for (i=0; i<256; i++) {
+			int col;
+
+			if (fixedcolormap)
+				col = fixedcolormap[i];
+			else if (fullcolormap)
+				col = fullcolormap[i];
+			else
+				col = i;
+			pal[i*4+0] = playpal[col*3+0];
+			pal[i*4+1] = playpal[col*3+1];
+			pal[i*4+2] = playpal[col*3+2];
+			pal[i*4+3] = 255;
+		}
+		pal[transparent_pal_index*4+0]=0;
+		pal[transparent_pal_index*4+1]=0;
+		pal[transparent_pal_index*4+2]=0;
+		pal[transparent_pal_index*4+3]=0;
+		glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+		W_UnlockLumpName("PLAYPAL");
+	} else {
+		if (palette>0)
+		{
+			if (palette<=8)
+			{
+				extra_red=(float)palette/2.0f;
+				extra_green=0.0f;
+				extra_blue=0.0f;
+				extra_alpha=(float)palette/10.0f;
+			}
+			else
+				if (palette<=12)
+				{
+					palette=palette-8;
+					extra_red=(float)palette*1.0f;
+					extra_green=(float)palette*0.8f;
+					extra_blue=(float)palette*0.1f;
+					extra_alpha=(float)palette/11.0f;
+				}
+				else
+					if (palette==13)
+					{
+						extra_red=0.4f;
+						extra_green=1.0f;
+						extra_blue=0.0f;
+						extra_alpha=0.2f;
+					}
+		}
+		if (extra_red>1.0f)
+			extra_red=1.0f;
+		if (extra_green>1.0f)
+			extra_green=1.0f;
+		if (extra_blue>1.0f)
+			extra_blue=1.0f;
+		if (extra_alpha>1.0f)
+			extra_alpha=1.0f;
+	}
 }
 
 void gld_ReadScreen (byte* scr)
@@ -1674,6 +1757,10 @@ void gld_StartDrawScene(void)
   extern int screenblocks;
   int height;
 
+	if (gl_shared_texture_palette)
+		glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+	gld_SetPalette(-1);
+
   if (screenblocks == 11)
     height = SCREENHEIGHT;
   else if (screenblocks == 10)
@@ -1742,19 +1829,20 @@ void gld_EndDrawScene(void)
   {
     glDisable(GL_ALPHA_TEST);
 	  glColor4f(extra_red, extra_green, extra_blue, extra_alpha);
-    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBegin(GL_TRIANGLE_STRIP);
   		glVertex2f( 0.0f, 0.0f);
 	  	glVertex2f( 0.0f, (float)SCREENHEIGHT);
 		  glVertex2f( (float)SCREENWIDTH, 0.0f);
 		  glVertex2f( (float)SCREENWIDTH, (float)SCREENHEIGHT);
     glEnd();
-    glEnable(GL_TEXTURE_2D);
     glEnable(GL_ALPHA_TEST);
   }
 
 	glColor3f(1.0f,1.0f,1.0f);
   glDisable(GL_SCISSOR_TEST);
+	if (gl_shared_texture_palette)
+		glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
 }
 
 static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
@@ -1802,13 +1890,9 @@ static void gld_DrawWall(GLWall *wall)
 {
   if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
     wall->gltexture=NULL;
-  if (wall->gltexture)
+  gld_BindTexture(wall->gltexture);
+  if (!wall->gltexture)
   {
-    gld_BindTexture(wall->gltexture);
-  }
-  else
-  {
-    glDisable(GL_TEXTURE_2D);
 #ifdef _DEBUG
     glColor4f(1.0f,0.0f,0.0f,1.0f);
 #endif
@@ -1847,8 +1931,6 @@ static void gld_DrawWall(GLWall *wall)
       glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
   }
-  if (!wall->gltexture)
-    glEnable(GL_TEXTURE_2D);
 }
 
 #define LINE seg->linedef
@@ -2464,6 +2546,10 @@ void gld_DrawScene(player_t *player)
           continue;
         if ( (gl_drawskys) && (k==GLDWF_SKY) )
         {
+/*
+					if (gl_shared_texture_palette)
+						glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
+*/
           glEnable(GL_TEXTURE_GEN_S);
           glEnable(GL_TEXTURE_GEN_T);
           glEnable(GL_TEXTURE_GEN_Q);
@@ -2481,6 +2567,10 @@ void gld_DrawScene(player_t *player)
           glDisable(GL_TEXTURE_GEN_Q);
           glDisable(GL_TEXTURE_GEN_T);
           glDisable(GL_TEXTURE_GEN_S);
+/*
+					if (gl_shared_texture_palette)
+						glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+*/
         }
       }
       break;

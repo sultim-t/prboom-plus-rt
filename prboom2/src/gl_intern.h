@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.13 2000/10/08 18:42:19 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.13.2.1 2002/07/15 01:37:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -43,9 +43,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include "SDL.h"
+#include "SDL_opengl.h"
 #include "doomtype.h"
 #include "w_wad.h"
 #include "m_argv.h"
@@ -91,9 +90,12 @@ extern char *gl_tex_format_string;
 extern int gl_tex_format;
 extern int gl_tex_filter;
 extern int gl_mipmap_filter;
-#ifdef USE_GLU_MIPMAP
+extern int gl_texture_filter_anisotropic;
+extern int gl_paletted_texture;
+extern int gl_shared_texture_palette;
 extern boolean use_mipmapping;
-#endif
+extern int transparent_pal_index;
+extern unsigned char gld_palmap[256];
   
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
 void gld_BindTexture(GLTexture *gltexture);
@@ -101,6 +103,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm);
 void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterFlat(int lump, boolean mipmap);
 void gld_BindFlat(GLTexture *gltexture);
+void gld_InitPalettedTextures(void);
 
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
@@ -109,4 +112,5 @@ void gld_BindFlat(GLTexture *gltexture);
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
+PFNGLCOLORTABLEEXTPROC glColorTableEXT;
 #endif // _GL_INTERN_H
