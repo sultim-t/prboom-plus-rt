@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.20 2000/05/30 19:56:47 proff_fs Exp $
+ * $Id: gl_main.c,v 1.21 2000/06/01 11:45:44 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1910,7 +1910,8 @@ void gld_AddWall(seg_t *seg)
         }
         else
           //if ( backsector->ceilingpic != skyflatnum )
-          if (backsector->ceilingheight <= frontsector->floorheight)
+          if ( (backsector->ceilingheight <= frontsector->floorheight) ||
+               (backsector->ceilingpic != skyflatnum) )
           {
             wall.ybottom=(float)backsector->ceilingheight/(float)MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
@@ -1989,7 +1990,8 @@ bottomtexture:
         }
         else
           //if ( backsector->floorpic != skyflatnum )
-          if (backsector->floorheight >= frontsector->ceilingheight)
+          if ( (backsector->floorheight >= frontsector->ceilingheight) ||
+               (backsector->floorpic != skyflatnum) )
           {
             wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
