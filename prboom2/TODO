@@ -1,3 +1,5 @@
+Entrys marked by a * are fixed.
+
 --------------------------------------------------------------------------
 3.  Testing on Voodoo.
 
@@ -73,7 +75,7 @@ Colin: there will probably be some FAQs to go in here, like "how to
 That's not as easy as I thought.
 
 --------------------------------------------------------------------------
-25. (2000/10/04) Loading gl_nodes in softwaremode for higher accuracy
+*25. (2000/10/04) Loading gl_nodes in softwaremode for higher accuracy
 
 2000/10/08 Proff:
 Did it.
@@ -98,12 +100,13 @@ dependant on the size of level how much is allocated. I just can't find
 the leak.
 
 --------------------------------------------------------------------------
-28. (2000/10/08) SigSegv on 30uv1617.lmp and hrdem2\hr22-uv.lmp
+*28. (2000/10/08) SigSegv on 30uv1617.lmp and hrdem2\hr22-uv.lmp
 
 2000/10/08 Proff:
 I was able to reproduce those SigSegv, it happens in the assembler
 version of R_DrawColumn_Normal in drawasm.nas
 Have to check that.
+2000/12/24 Proff: This was fixed by removing the assembler drawing functions.
 
 --------------------------------------------------------------------------
 29. (2000/11/08) Rewrite the networking (medium term todo)
