@@ -1,14 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
  <head>
   <title>MBF Source Notes</title>
   <meta name="author" content="Colin Phipps" />
-  <LINK rel="STYLESHEET"
-        href="main.css"
-        Type="text/css" />
+  <link rel="STYLESHEET"
+        href="main.css" 
+	type="text/css" />
  </head>
  <body>
-  <img src="http://sourceforge.net/themes/forged/images/sflogo-hammer1.jpg" />
   <h1>MBF Code Notes</h1>
    <h2>What this is</h2>
     <p>
@@ -424,48 +424,112 @@
 
            break;
 </pre>
-     <h4>Compatibility bug in P_ZMovement</h4>
+     <h4>Bouncing Lost Souls</h4>
       <p>
-       Affects: All source ports
+       Affects: All source ports, Final Doom, Doom95
       </p><p>
-       The Doom source release was, as we know, not the Doom v1.9 source,
-       but a derived version with quite a few changes. One (or more?) of these
-       broke Doom v1.9 demo sync by fixing a game logic bug. Back then there
-       was no notion of a compatibility mode, but nowadays we can compatibility
+       Lost souls that are charging were intended to bounce off of floors
+       and ceilings, but due to a coding error in the original Doom source
+       (the test was placed after the momentum was already set to zero), 
+       they did not.
+       This bug was corrected in the source code for Doom95 and 
+       Final/Ultimate Doom, and in the v1.10 source that was released
+       and forms the basis for all of the source ports.
+       This fix broke a lot of v1.9 Doom 2 demos.
+      </p>
+      <p>
+       The same coding error was made with lost souls bouncing off of 
+       ceilings and this was never fixed, it seems.
+      </p>
+      <p>
+       Back then there 
+       was no notion of a compatibility mode, but nowadays we can compatibility 
        option the fix so old demos will work.
+       Note however that the fix below breaks Final Doom and Doom95 demos,
+       so really we need separate compatibility modes for Doom 2 and 
+       Final Doom/Doom95.
       </p><pre>
-*** p_mobj.c.old        Sat Oct  7 11:43:55 2000
---- p_mobj.c    Mon Oct  2 22:34:29 2000
-*************** floater:
-*** 500,510 ****
-      {
-      // hit the floor
-
-!     // Note (id):
-!     //  somebody left this after the setting momz to 0,
-!     //  kinda useless there.
-
-!     if (mo->flags & MF_SKULLFLY)
-        mo->momz = -mo->momz; // the skull slammed into something
-
-      if (mo->momz < 0)
---- 500,515 ----
-      {
-      // hit the floor
-
-!     /* Note (id):
-!      *  somebody left this after the setting momz to 0,
-!      *  kinda useless there.
-!      * cph - This was the (a?) bug in the linuxdoom-1.10 source which
-!      *  caused it not to sync v1.9 demos. Someone (bk@games.org I guess)
-!      *  added the above comment and moved up the following code. So
-!      *  demos would desync in close lost soul fights.
-!      * Compatibility optioned. */
-
-!     if (!demo_compatibility && mo->flags & MF_SKULLFLY)
-        mo->momz = -mo->momz; // the skull slammed into something
-
-      if (mo->momz < 0)
+--- /home/cph/doom/prboom/dev/src/p_mobj.c.old	Sun Apr 15 17:00:02 2001
++++ /home/cph/doom/prboom/dev/src/p_mobj.c	Sun Apr 15 16:05:37 2001
+@@ -488,11 +488,27 @@ floater:
+     {
+     // hit the floor
+ 
+-    // Note (id):
+-    //  somebody left this after the setting momz to 0,
+-    //  kinda useless there.
+-
+-    if (mo-&gt;flags &amp; MF_SKULLFLY)
++    /* Note (id):
++     *  somebody left this after the setting momz to 0,
++     *  kinda useless there.
++     * cph - revised 2001/04/15 -
++     * This was a bug in the Doom/Doom 2 source; the following code
++     *  is meant to make charging lost souls bounce off of floors, but it 
++     *  was incorrectly placed after momz was set to 0.
++     *  However, this bug was fixed in Doom95, Final/Ultimate Doom, and 
++     *  the v1.10 source release (which is one reason why it failed to sync 
++     *  some Doom2 v1.9 demos)
++     * I've added a comp_soul compatibility option to make this behavior 
++     *  selectable for PrBoom v2.3+. For older demos, we do this here only 
++     *  if we're in a compatibility level above Doom 2 v1.9 (in which case we
++     *  mimic the bug and do it further down instead)
++     */
++
++    if (mo-&gt;flags &amp; MF_SKULLFLY &amp;&amp;
++	(!comp[comp_soul] ||
++	 (compatibility_level &gt;= finaldoom_compatibility &amp;&amp;
++	  compatibility_level &lt; prboom_4_compatibility)
++	))
+       mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
+ 
+     if (mo-&gt;momz &lt; 0)
+@@ -516,6 +532,17 @@ floater:
+ 	mo-&gt;momz = 0;
+       }
+     mo-&gt;z = mo-&gt;floorz;
++
++    /* cph 2001/04/15 - 
++     * This is the buggy lost-soul bouncing code referenced above.
++     * We've already set momz = 0 normally by this point, so it's useless.
++     * However we might still have upward momentum, in which case this will
++     * incorrectly reverse it, so we might still need this for demo sync
++     */
++    if (mo-&gt;flags &amp; MF_SKULLFLY &amp;&amp;
++	compatibility_level &lt; finaldoom_compatibility)
++      mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
++
+     if ( (mo-&gt;flags &amp; MF_MISSILE) &amp;&amp; !(mo-&gt;flags &amp; MF_NOCLIP) )
+       {
+       P_ExplodeMissile (mo);
+@@ -532,6 +559,13 @@ floater:
+ 
+   if (mo-&gt;z + mo-&gt;height &gt; mo-&gt;ceilingz)
+     {
++    /* cph 2001/04/15 - 
++     * Lost souls were meant to bounce off of ceilings;
++     *  new comp_soul compatibility option added
++     */
++    if (!comp[comp_soul] &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
++      mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
++
+     // hit the ceiling
+ 
+     if (mo-&gt;momz &gt; 0)
+@@ -539,7 +573,12 @@ floater:
+ 
+     mo-&gt;z = mo-&gt;ceilingz - mo-&gt;height;
+ 
+-    if (mo-&gt;flags &amp; MF_SKULLFLY)
++    /* cph 2001/04/15 - 
++     * We might have hit a ceiling but had downward momentum (e.g. ceiling is 
++     *  lowering on us), so for old demos we must still do the buggy 
++     *  momentum reversal here
++     */
++    if (comp[comp_soul] &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
+       mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
+ 
+     if ( (mo-&gt;flags &amp; MF_MISSILE) &amp;&amp; !(mo-&gt;flags &amp; MF_NOCLIP) )
       </pre>
      <h4>Overlapping uses of global variables in p_map.c</h4>
       <p>
