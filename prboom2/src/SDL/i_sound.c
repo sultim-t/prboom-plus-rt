@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.3 2000/05/19 12:26:16 cph Exp $
+ * $Id: i_sound.c,v 1.4 2000/05/20 08:38:48 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.3 2000/05/19 12:26:16 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.4 2000/05/20 08:38:48 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -177,7 +177,8 @@ addsfx
 	}
     }
 
-    // Loop all channels to find oldest SFX.
+    /* Loop all channels to find either an unused one 
+     * or the one playing for the longest time */
     for (i=0; (i<NUM_CHANNELS) && (channels[i]); i++)
     {
 	if (channelstart[i] < oldest)
@@ -187,12 +188,8 @@ addsfx
 	}
     }
 
-    // Tales from the cryptic.
-    // If we found a channel, fine.
-    // If not, we simply overwrite the first one, 0.
-    // Probably only happens at startup.
     if (i == NUM_CHANNELS)
-	slot = oldestnum;
+      stopchan(slot = oldestnum);
     else
 	slot = i;
 
