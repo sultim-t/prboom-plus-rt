@@ -1,4 +1,4 @@
-/* $Id: gl_polytest.c,v 1.1 2002/11/16 11:02:06 proff_fs Exp $ */
+/* $Id: gl_polytest.c,v 1.2 2002/11/16 23:02:19 proff_fs Exp $ */
 
 /*
  * Mesa 3-D graphics library

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.47 2002/11/16 11:02:00 proff_fs Exp $
+ * $Id: gl_main.c,v 1.48 2002/11/16 23:02:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1328,7 +1328,7 @@ static void gld_PrecalculateSector(int num)
   p_gluTessCallback(tess, GLU_TESS_BEGIN, ntessBegin);
   p_gluTessCallback(tess, GLU_TESS_VERTEX, ntessVertex);
   p_gluTessCallback(tess, GLU_TESS_ERROR, ntessError);
-  p_gluTessCallback(tess, GLU_TESS_COMBINE, ntessCombine);
+  //p_gluTessCallback(tess, GLU_TESS_COMBINE, ntessCombine);
   p_gluTessCallback(tess, GLU_TESS_END, ntessEnd);
   if (levelinfo) fprintf(levelinfo, "sector %i, %i lines in sector\n", num, sectors[num].linecount);
   // remove any line which has both sides in the same sector (i.e. Doom2 Map01 Sector 1)

@@ -1,4 +1,4 @@
-/* $Id: gl_tesselat.c,v 1.1 2002/11/16 11:02:09 proff_fs Exp $ */
+/* $Id: gl_tesselat.c,v 1.2 2002/11/16 23:02:19 proff_fs Exp $ */
 
 /*
  * Mesa 3-D graphics library
@@ -30,10 +30,12 @@
 #ifdef PC_HEADER
 #include "all.h"
 #else
-#include "gl_tess.h"
 #include <stdlib.h>
 #include <math.h>
+#include "gl_tess.h"
 #endif
+
+
 
 static GLboolean edge_flag;
 

@@ -1,4 +1,4 @@
-/* $Id: gl_glup.h,v 1.1 2002/11/16 11:01:58 proff_fs Exp $ */
+/* $Id: gl_glup.h,v 1.2 2002/11/16 23:02:19 proff_fs Exp $ */
 
 /*
  * Mesa 3-D graphics library
@@ -30,31 +30,19 @@
 #ifndef GLUP_H
 #define GLUP_H
 
-#include "gl_intern.h"
 #include <string.h>
+#include "gl_dyn.h"
 
-#define GLAPI
-#define GLAPIENTRY
-#define GLCALLBACK
+#  define GLAPIENTRY
+#  define GLCALLBACK
+#  define GLAPI
 
 #ifndef GLU_TESS_ERROR9
    /* If we're using the real OpenGL header files... */
 #  define GLU_TESS_ERROR9	100159
 #endif
 
-
 #define GLU_NO_ERROR		GL_NO_ERROR
-
-
-/* for Sun: */
-#ifdef SUNOS4
-#define MEMCPY( DST, SRC, BYTES) \
-	memcpy( (char *) (DST), (char *) (SRC), (int) (BYTES) )
-#else
-#define MEMCPY( DST, SRC, BYTES) \
-	memcpy( (void *) (DST), (void *) (SRC), (size_t) (BYTES) )
-#endif
-
 
 #ifndef NULL
 #  define NULL 0

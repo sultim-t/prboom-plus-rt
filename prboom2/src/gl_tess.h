@@ -1,4 +1,4 @@
-/* $Id: gl_tess.h,v 1.1 2002/11/16 11:02:08 proff_fs Exp $ */
+/* $Id: gl_tess.h,v 1.2 2002/11/16 23:02:19 proff_fs Exp $ */
 
 /*
  * Mesa 3-D graphics library
@@ -95,6 +95,7 @@ struct GLUtesselator
    GLdouble A, B, C, D;
    projection_type projection;
 };
+
 
 extern void tess_call_user_error(GLUtriangulatorObj *, GLenum);
 extern void tess_test_polygon(GLUtriangulatorObj *);

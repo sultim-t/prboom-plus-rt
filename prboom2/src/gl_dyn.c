@@ -10,11 +10,13 @@
 	express or implied, in the hopes that others will use it instead of
 	other less-evolved hacks which usually don't work right.  ;)
 */
-static const char rcsid[] = "$Id: gl_dyn.c,v 1.1 2002/11/16 11:01:49 proff_fs Exp $";
+static const char rcsid[] = "$Id: gl_dyn.c,v 1.2 2002/11/16 23:02:18 proff_fs Exp $";
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "z_zone.h"
 
 #include "SDL.h"
 

@@ -1,4 +1,4 @@
-/* $Id: gl_tess.c,v 1.1 2002/11/16 11:02:07 proff_fs Exp $ */
+/* $Id: gl_tess.c,v 1.2 2002/11/16 23:02:19 proff_fs Exp $ */
 
 /*
  * Mesa 3-D graphics library
@@ -74,7 +74,7 @@ tess_call_user_error(GLUtriangulatorObj * tobj, GLenum gluerr)
       (tobj->callbacks.error) (gluerr);
 }
 
-void *GLAPIENTRY
+GLUtriangulatorObj *GLAPIENTRY
 p_gluNewTess(void)
 {
    GLUtriangulatorObj *tobj;
@@ -314,15 +314,4 @@ delete_contours(GLUtriangulatorObj * tobj)
    }
    tobj->contours = tobj->last_contour = NULL;
    tobj->contour_cnt = 0;
-}
-
-
-void GLAPIENTRY
-p_gluTessNormal(GLUtriangulatorObj *tess, GLdouble valueX, GLdouble valueY, GLdouble valueZ)
-{
-   /* dummy function */
-   (void) tess;
-   (void) valueX;
-   (void) valueY;
-   (void) valueZ;
 }
