@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.12 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.13 2002/11/13 18:53:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.12 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.13 2002/11/13 18:53:27 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -49,6 +49,7 @@ rcsid[] = "$Id: st_stuff.c,v 1.12 2002/01/07 15:56:20 proff_fs Exp $";
 #include "sounds.h"
 #include "dstrings.h"
 #include "r_draw.h"
+#include "c_runcmd.h"
 
 //
 // STATUS BAR DATA
@@ -1146,4 +1147,35 @@ void ST_Init(void)
   ST_loadData();
 // proff 08/18/98: Changed for high-res
   screens[4] = malloc(SCREENWIDTH*(ST_SCALED_HEIGHT+1));
+}
+
+CONSOLE_INT(ammo_red, ammo_red, NULL, 0, 100, NULL, 0) { }
+CONSOLE_INT(ammo_yellow, ammo_yellow, NULL, 0, 100, NULL, 0) { }
+CONSOLE_INT(health_red, health_red, NULL, 0, 200, NULL, 0) { }
+CONSOLE_INT(health_yellow, health_yellow, NULL, 0, 200, NULL, 0) { }
+CONSOLE_INT(health_green, health_green, NULL, 0, 200, NULL, 0) { }
+CONSOLE_INT(armor_red, armor_red, NULL, 0, 200, NULL, 0) { }
+CONSOLE_INT(armor_yellow, armor_yellow, NULL, 0, 200, NULL, 0) { }
+CONSOLE_INT(armor_green, armor_green, NULL, 0, 200, NULL, 0) { }
+
+CONSOLE_BOOLEAN(st_graypct, sts_pct_always_gray, NULL, yesno, 0) { }
+CONSOLE_BOOLEAN(st_rednum, sts_always_red, NULL, yesno, 0) {}
+CONSOLE_BOOLEAN(st_singlekey, sts_traditional_keys, NULL, yesno, 0) { }
+
+void ST_AddCommands()
+{
+  C_AddCommand(ammo_red);
+  C_AddCommand(ammo_yellow);
+  
+  C_AddCommand(health_red);
+  C_AddCommand(health_yellow);
+  C_AddCommand(health_green);
+  
+  C_AddCommand(armor_red);
+  C_AddCommand(armor_yellow);
+  C_AddCommand(armor_green);
+  
+  C_AddCommand(st_graypct);
+  C_AddCommand(st_rednum);
+  C_AddCommand(st_singlekey);
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.3 2002/08/22 20:33:21 cph Exp $
+ * $Id: mn_menus.c,v 1.4 2002/11/13 18:53:27 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.3 2002/08/22 20:33:21 cph Exp $";
+  "$Id: mn_menus.c,v 1.4 2002/11/13 18:53:27 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -1235,12 +1235,15 @@ menu_t menu_mouse =
 {
   {
     {it_title,      FC_GOLD "mouse",                NULL,   "m_mouse"},
-      {it_gap},
-      {it_toggle,     "enable mouse",                 "use_mouse"},
+//      {it_gap},
+//      {it_toggle,     "enable mouse",                 "use_mouse"},
       {it_gap},
       {it_info,       FC_GOLD "sensitivity"},
+      {it_gap},
       {it_slider,     "horizontal",                   "sens_horiz"},
+      {it_gap},
       {it_slider,     "vertical",                     "sens_vert"},
+/*
       {it_gap},
       {it_info,       FC_GOLD "misc."},
       {it_toggle,     "invert mouse",                 "invertmouse"},
@@ -1250,6 +1253,7 @@ menu_t menu_mouse =
       {it_info,       FC_GOLD"mouselook"},
       {it_toggle,     "always mouselook",             "alwaysmlook"},
       {it_toggle,     "stretch sky",                  "r_stretchsky"},
+*/
       {it_end},
   },
   200, 15,                      // x, y offset
