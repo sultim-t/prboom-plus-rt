@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.22 2000/11/12 14:59:29 cph Exp $
+ * $Id: m_misc.c,v 1.23 2000/11/13 21:24:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.22 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.23 2000/11/13 21:24:12 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -756,6 +756,7 @@ struct default_s *M_LookupDefault(const char *name)
     if ((defaults[i].type != def_none) && !strcmp(name, defaults[i].name))
       return &defaults[i];
   I_Error("M_LookupDefault: %s not found",name);
+  return NULL;
 }
 
 //
@@ -778,31 +779,18 @@ void M_LoadDefaults (void)
   // set everything to base values
 
   numdefaults = sizeof(defaults)/sizeof(defaults[0]);
-  for (i = 0 ; i < numdefaults ; i++)
-    {
+  for (i = 0 ; i < numdefaults ; i++) {
     if (defaults[i].location.ppsz) 
-      *defaults[i].location.ppsz = defaults[i].defaultvalue.psz;
+      *defaults[i].location.ppsz = strdup(defaults[i].defaultvalue.psz);
     if (defaults[i].location.pi)
       *defaults[i].location.pi = defaults[i].defaultvalue.i;
-
-    // phares 4/13/98:
-    // provide default strings with their own malloced memory so that when
-    // we leave this routine, that's what we're dealing with whether there
-    // was a config file or not, and whether there were chat definitions
-    // in it or not. This provides consistency later on when/if we need to
-    // edit these strings (i.e. chat macros in the Chat Strings Setup screen).
-
-    if (IS_STRING(defaults[i]))
-      *(defaults[i].location.ppsz) = strdup(*(defaults[i].location.ppsz));
-    }
+  }
     
   // check for a custom default file
 
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
-    {
     defaultfile = myargv[i+1];
-    }
   else
     defaultfile = basedefault;
 
@@ -860,7 +848,7 @@ void M_LoadDefaults (void)
               }
             else
               {
-              free((char*)*(defaults[i].location.ppsz));    // phares 4/13/98
+              free((char*)*(defaults[i].location.ppsz));  /* phares 4/13/98 */
               *(defaults[i].location.ppsz) = newstring;
               }
             break;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.18 2000/11/12 14:59:29 cph Exp $
+ * $Id: m_menu.c,v 1.19 2000/11/13 21:24:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.18 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.19 2000/11/13 21:24:12 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -114,12 +114,12 @@ static int allow_changes(void)
 static void M_UpdateCurrent(default_t* def) 
 {
   /* cph - requires rewrite of m_misc.c */
-  if (def->current)
+  if (def->current) {
     if (allow_changes())  /* killough 8/15/98 */
-      *def->current = *def->location.pi;
-    else
-      if (*def->current != *def->location.pi)
+	*def->current = *def->location.pi;
+    else if (*def->current != *def->location.pi)
 	warn_about_changes(S_LEVWARN); /* killough 8/15/98 */
+  }
 }
 
 int warning_about_changes, print_warning_about_changes;
@@ -1941,7 +1941,6 @@ void M_DrawSetting(const setup_menu_t* s)
   if (flags & S_COLOR) // Automap paint chip
     {
       int ch;
-      char *ptr = colorblock;
 
       ch = *s->var.def->location.pi;
       // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
@@ -1958,7 +1957,8 @@ void M_DrawSetting(const setup_menu_t* s)
   // killough 10/98: or a filename?
 
   if (flags & S_STRING) {
-    char *text = *s->var.def->location.ppsz;
+    /* cph - cast to char* as it's really a Z_Strdup'd string (see m_misc.h) */
+    char *text = (char*)*s->var.def->location.ppsz;
     
     // Are we editing this string? If so, display a cursor under
     // the correct character.
@@ -2013,31 +2013,21 @@ void M_DrawSetting(const setup_menu_t* s)
 // CPhipps - static, const parameter, formatting
 static void M_DrawScreenItems(const setup_menu_t* src)
 {
-  if (print_warning_about_changes > 0)   // killough 8/15/98: print warning
-    if (warning_about_changes & S_BADVAL)
-      {
+  if (print_warning_about_changes > 0) { /* killough 8/15/98: print warning */
+    if (warning_about_changes & S_BADVAL) {
 	strcpy(menu_buffer, "Value out of Range");
 	M_DrawMenuString(100,176,CR_RED);
-      }
-    else
-      if (warning_about_changes & S_PRGWARN)
-	{
-	  strcpy(menu_buffer,
-		 "Warning: Program must be restarted to see changes");
-	  M_DrawMenuString(3, 176, CR_RED);
-	}
-      else
-	if (warning_about_changes & S_BADVID)
-	  {
-	    strcpy(menu_buffer, "Video mode not supported");
-	    M_DrawMenuString(80,176,CR_RED);
-	  }
-	else
-	  {
-	    strcpy(menu_buffer,
-		   "Warning: Changes are pending until next game");
-	    M_DrawMenuString(18,184,CR_RED);
-	  }
+    } else if (warning_about_changes & S_PRGWARN) {
+        strcpy(menu_buffer, "Warning: Program must be restarted to see changes");
+	M_DrawMenuString(3, 176, CR_RED);
+    } else if (warning_about_changes & S_BADVID) {
+        strcpy(menu_buffer, "Video mode not supported");
+	M_DrawMenuString(80,176,CR_RED);
+    } else {
+	strcpy(menu_buffer, "Warning: Changes are pending until next game");
+        M_DrawMenuString(18,184,CR_RED);
+    }
+  }
 
   while (!(src->m_flags & S_END)) {
 
@@ -3500,7 +3490,7 @@ void M_ResetDefaults()
 		p->m_joy == dp->location.pi)
 	      {
 		if (IS_STRING(*dp))
-		  free(*dp->location.ppsz),
+		  free((char*)*dp->location.ppsz),
 		    *dp->location.ppsz = strdup(dp->defaultvalue.psz);
 		else
 		  *dp->location.pi = dp->defaultvalue.i;
@@ -3545,11 +3535,12 @@ static void M_InitDefaults(void)
   for (i = 0; i < ss_max-1; i++)
     for (p = setup_screens[i]; *p; p++)
       for (t = *p; !(t->m_flags & S_END); t++)
-	if (t->m_flags & S_HASDEFPTR)
+	if (t->m_flags & S_HASDEFPTR) {
 	  if (!(dp = M_LookupDefault(t->var.name)))
 	    I_Error("M_InitDefaults: Couldn't find config variable %s", t->var.name);
 	  else
 	    (t->var.def = dp)->setup_menu = t;
+	}
 }
 
 //
@@ -3619,28 +3610,24 @@ void M_InitExtendedHelp(void)
   char namebfr[] = { "HELPnn"} ;
 
   extended_help_count = 0;
-  for (index = 1 ; index < 100 ; index++)
-    {
-      namebfr[4] = index/10 + 0x30;
-      namebfr[5] = index%10 + 0x30;
-      i = W_CheckNumForName(namebfr);
-      if (i == -1)
-	{
-	  if (extended_help_count)
-	    if (gamemode == commercial)
-	      {
-		ExtHelpDef.prevMenu  = &ReadDef1; // previous menu
-		ReadMenu1[0].routine = M_ExtHelp;
-	      }
-	    else
-	      {
-		ExtHelpDef.prevMenu  = &ReadDef2; // previous menu
-		ReadMenu2[0].routine = M_ExtHelp;
-	      }
-	  return;
+  for (index = 1 ; index < 100 ; index++) {
+    namebfr[4] = index/10 + 0x30;
+    namebfr[5] = index%10 + 0x30;
+    i = W_CheckNumForName(namebfr);
+    if (i == -1) {
+      if (extended_help_count) {
+        if (gamemode == commercial) {
+          ExtHelpDef.prevMenu  = &ReadDef1; /* previous menu */
+          ReadMenu1[0].routine = M_ExtHelp;
+	} else {
+          ExtHelpDef.prevMenu  = &ReadDef2; /* previous menu */
+          ReadMenu2[0].routine = M_ExtHelp;
 	}
-      extended_help_count++;
+      }
+      return;
     }
+    extended_help_count++;
+  }
 
 }
 
@@ -4803,7 +4790,7 @@ boolean M_Responder (event_t* ev) {
 	      // set chat table pointer to working buffer
 	      // and free old string's memory.
 
-	      free(*ptr1->var.def->location.ppsz);
+	      free((char*)*ptr1->var.def->location.ppsz);
 	      *ptr1->var.def->location.ppsz = chat_string_buffer;
 	      chat_index = 0; // current cursor position in chat_string_buffer
 	    }
