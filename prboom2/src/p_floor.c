@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_floor.c,v 1.5 2000/05/12 22:51:54 cph Exp $
+ * $Id: p_floor.c,v 1.6 2000/05/21 21:49:22 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.5 2000/05/12 22:51:54 cph Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.6 2000/05/21 21:49:22 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -107,7 +107,7 @@ result_e T_MovePlane
 	    /* cph - make more compatible with original Doom, by
 	     *  reintroducing this code. This means floors can't lower 
 	     *  if objects are stuck in the ceiling */
-	    if ((flag == true) && (compatibility_level <= doom_compatibility)) {
+	    if ((flag == true) && comp[comp_floors]) {
 	      sector->floorheight = lastpos;
 	      P_ChangeSector(sector,crush);
 	      return crushed;
