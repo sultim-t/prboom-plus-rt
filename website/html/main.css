@@ -22,6 +22,9 @@ ul.changes li {
 #navigation #menu {
     font-weight: bold;
 }
+#navigation #menu a {
+    display: block;
+}
 #navigation #menu div {
     background-color: #eeeeee;
     margin-top: 3px;
