@@ -263,6 +263,22 @@ static const byte* G_ReadDemoHeader(const byte* demo_p);
 // or reads it from the demo buffer.
 // If recording a demo, write it out
 //
+static inline signed char fudgef(signed char b)
+{
+  static int c;
+  if (!b || !demo_compatibility || longtics) return b;
+  if (++c & 0x1f) return b;
+  b |= 1; if (b>2) b-=2;
+  return b;
+}
+
+static inline signed short fudgea(signed short b)
+{
+  if (!b || !demo_compatibility || !longtics) return b;
+  b |= 1; if (b>2) b-=2;
+  return b;
+}
+
 
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
@@ -497,8 +513,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else if (side < -MAXPLMOVE)
     side = -MAXPLMOVE;
 
-  cmd->forwardmove += forward;
+  cmd->forwardmove += fudgef(forward);
   cmd->sidemove += side;
+  cmd->angleturn = fudgea(cmd->angleturn);
 
   // CPhipps - special events (game new/load/save/pause)
   if (special_event & BT_SPECIAL) {
@@ -2142,33 +2159,17 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 /* Demo limits removed -- killough
  * cph - record straight to file
  */
-static inline signed char fudgef(signed char b)
-{
-  static int c;
-  if (!b || !demo_compatibility || longtics) return b;
-  if (++c & 0x1f) return b;
-  b |= 1; if (b>2) b-=2;
-  return b;
-}
-
-static inline signed short fudgea(signed short b)
-{
-  if (!b || !demo_compatibility || !longtics) return b;
-  b |= 1; if (b>2) b-=2;
-  return b;
-}
-
 void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
   char buf[5];
   char *p = buf;
 
-  *p++ = fudgef(cmd->forwardmove);
+  *p++ = cmd->forwardmove;
   *p++ = cmd->sidemove;
   if (!longtics) {
     *p++ = (cmd->angleturn+128)>>8;
   } else {
-    signed short a = fudgea(cmd->angleturn);
+    signed short a = cmd->angleturn;
     *p++ = a & 0xff;
     *p++ = (a >> 8) & 0xff;
   }
