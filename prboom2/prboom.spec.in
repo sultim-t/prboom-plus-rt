@@ -4,7 +4,7 @@ Name: %{doomname}
 Summary: Doom - classic 3D shoot-em-up game
 Version: @VERSION@
 Release: 1
-Source: ftp://download.sourceforge.net//prboom//@PACKAGE@-@VERSION@.tar.gz
+Source: ftp://download.sourceforge.net/prboom/@PACKAGE@-@VERSION@.tar.gz
 URL: http://prboom.sourceforge.net/
 Group: Amusements/Games
 BuildRoot: /var/tmp/%{doomname}-buildroot
@@ -28,22 +28,31 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 %build
-export DOOMDIR=%{_prefix}
-./configure --without-x \
-	--prefix=$DOOMDIR --disable-cpu-opt \
-	--with-install-root=$RPM_BUILD_ROOT
-
-make CXXFLAGS="$RPM_OPT_FLAGS -DNO_DEBUG -DNDEBUG"
+./configure --disable-cpu-opt \
+ 	--prefix=/usr \
+	--exec-prefix=/usr \
+	--bindir=/usr/bin \
+	--sbindir=/usr/sbin \
+	--sysconfdir=/etc \
+	--datadir=/usr/share \
+	--includedir=/usr/include \
+	--libdir=/usr/lib \
+	--libexecdir=/usr/lib \
+	--localstatedir=/var/lib \
+	--sharedstatedir=/usr/com \
+	--mandir=/usr/share/man \
+	--infodir=/usr/share/info
+make
 
 %install
-make install-strip prefix=$RPM_BUILD_ROOT%{_prefix}
+%makeinstall
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
-/usr/man/man5/*
-/usr/man/man6/*
+%doc %{_mandir}/man5/*
+%doc %{_mandir}/man6/*
 %doc NEWS
 %doc AUTHORS
 %doc README
@@ -54,5 +63,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc doc/MBFFAQ.txt
 %doc doc/boom.txt
 /usr/games/*
-/usr/share/games/doom/prboom.wad
+%{_datadir}/games/doom/prboom.wad
 
