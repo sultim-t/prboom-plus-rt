@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_engin.h,v 1.1 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: mn_engin.h,v 1.2 2002/08/11 13:21:07 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -104,16 +104,16 @@ struct menuitem_s
   } type;
   
   // the describing name of this item
-  char *description;
+  const char *description;
 
   // useful data for the item:
   // console command if console
   // variable name if variable, etc
 
-  char *data;         
+  const char *data;         
 
   // patch to use or NULL
-  char *patch;
+  const char *patch;
 
                   /*** internal stuff used by menu code ***/
                   // messing with this is a bad idea(prob)
