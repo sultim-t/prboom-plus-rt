@@ -42,6 +42,41 @@
 
     <h2>News</h2>
 
+    <h3>21th September 2003</h3>
+
+    <p>Version 2.3.0 released.</p>
+<pre>
+The following list of changes is probably incomplete:
+
+Changes from v2.2.4 to v2.3.0
+- the OpenGL libs are loaded dynamically
+- only one executable for software rendering and OpenGL
+- option for sound compatibility with original Doom
+- added more compatibility levels (check frontend configurations!)
+- in game switching between fullscreen and windowed mode
+- fix super-shotgun reload on last shot
+- intermission demo sync bug fixed
+- support for more and less then 8 channels
+- improved response file parser
+- replaced use_vsync with use_doublebuffer in cfg file and implemented
+  double buffering
+- removed old Doom v1.2 lumps from prboom.wad
+- windows also uses prboom.wad now
+- removed lumps and tables which are in prboom.wad from source
+- fix translucency map file handle leak
+- added a quake like console
+- new menu code and much more options available through it
+- reworked software renderer
+- bilinear filter for software rendering
+- AdvanceScale2x like filter, but working on individual lines not fullscreen
+- smooth edges on masked textures and sprites
+- 16bit and 32bit software rendering
+- sound and video settings changeable while running (Software <-> OpenGL)
+- VIDD (Version Independant Doom Demo) support
+
+
+</pre>
+
     <h3>20th September 2003</h3>
 
     <p>Version 2.2.4 is released. This is just another release fixing bugs and
@@ -110,7 +145,7 @@ Changes from v2.2.1 to v2.2.2
 <pre>
 Changes from v2.2.0 to v2.2.1
 - improved fix for demo sync problems with lost souls bouncing off floors
-- fixed bug where loading a -fast or -respawn savegame failed to restore those options properly 
+- fixed bug where loading a -fast or -respawn savegame failed to restore those options properly
 - fixed demo sync bug with doors also tagged to lift triggers
 - fix some endianness problems in the OpenGL renderer
 - hopefully fixed some problems compiling for Linux/ARM
