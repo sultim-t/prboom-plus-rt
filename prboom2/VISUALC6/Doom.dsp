@@ -973,65 +973,15 @@ SOURCE=..\src\z_zone.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\src\gl_dll.c
-
-!IF  "$(CFG)" == "Doom - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
-
-!ENDIF 
-
+SOURCE=..\src\gl_dyn.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\gl_dll.h
+SOURCE=..\src\gl_dyn.h
+# End Source File
+# Begin Source File
 
-!IF  "$(CFG)" == "Doom - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
-
-!ENDIF 
-
+SOURCE=..\src\gl_error.c
 # End Source File
 # Begin Source File
 
@@ -1063,6 +1013,10 @@ SOURCE=..\src\gl_funcs.h
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_glup.h
 # End Source File
 # Begin Source File
 
@@ -1132,6 +1086,14 @@ SOURCE=..\src\gl_main.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\gl_mipmap.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_polytest.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\gl_struct.h
 
 !IF  "$(CFG)" == "Doom - Win32 Release"
@@ -1162,6 +1124,18 @@ SOURCE=..\src\gl_struct.h
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_tess.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_tess.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\gl_tesselat.c
 # End Source File
 # Begin Source File
 

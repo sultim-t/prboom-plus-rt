@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: glu_funcs.h,v 1.1 2001/02/05 11:28:31 proff_fs Exp $
+ * $Id: glu_funcs.h,v 1.2 2002/11/16 11:02:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,21 +30,17 @@
  *---------------------------------------------------------------------
  */
 
-#ifndef PROTOTYPE
-#define PROTOTYPE(ret, func, param)
-#endif
+#define PROTOTYPE(ret, func, param) extern ret p_##func param;
 
-PROTOTYPE(int, gluBuild2DMipmaps, (GLenum, GLint, GLint, GLint, GLenum, GLenum, const void *))
-PROTOTYPE(void, gluDeleteTess, (GLUtesselator *))
+PROTOTYPE(GLint, gluBuild2DMipmaps, (GLenum, GLint, GLint, GLint, GLenum, GLenum, const void *))
+PROTOTYPE(void, gluDeleteTess, (void *))
 PROTOTYPE(const GLubyte *, gluErrorString, (GLenum))
-PROTOTYPE(GLUtesselator *, gluNewTess, (void))
-PROTOTYPE(void, gluPerspective, (GLdouble, GLdouble, GLdouble, GLdouble))
-PROTOTYPE(int, gluScaleImage, (GLenum, GLint, GLint, GLenum, const void *, GLint, GLint, GLenum, void *))
-PROTOTYPE(void, gluTessBeginContour, (GLUtesselator *))
-PROTOTYPE(void, gluTessBeginPolygon, (GLUtesselator *, void *))
-PROTOTYPE(void, gluTessCallback, (GLUtesselator *, GLenum, void *))
-PROTOTYPE(void, gluTessEndContour, (GLUtesselator *))
-PROTOTYPE(void, gluTessEndPolygon, (GLUtesselator *))
-PROTOTYPE(void, gluTessVertex, (GLUtesselator *, GLdouble *, void *))
+PROTOTYPE(void *, gluNewTess, (void))
+PROTOTYPE(GLint, gluScaleImage, (GLenum, GLint, GLint, GLenum, const void *, GLint, GLint, GLenum, void *))
+PROTOTYPE(void, gluNextContour, (void *, GLenum))
+PROTOTYPE(void, gluBeginPolygon, (void *))
+PROTOTYPE(void, gluTessCallback, (void *, GLenum, void *))
+PROTOTYPE(void, gluEndPolygon, (void *))
+PROTOTYPE(void, gluTessVertex, (void *, GLdouble *, void *))
 
 #undef PROTOTYPE

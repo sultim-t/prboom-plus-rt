@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.17 2002/08/11 14:21:53 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.18 2002/11/16 11:01:59 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -44,7 +44,8 @@
 #include <string.h>
 #include <math.h>
 #include "SDL.h"
-#include "SDL_opengl.h"
+#include "gl_dyn.h"
+#include "glu_funcs.h"
 #include "doomtype.h"
 #include "w_wad.h"
 #include "m_argv.h"
@@ -115,16 +116,6 @@ void gld_InitPalettedTextures(void);
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-
-#define PROTOTYPE(ret, func, param) extern ret (APIENTRY *p_##func) param;
-#include "gl_funcs.h"
-
-#define PROTOTYPE(ret, func, param) extern ret (APIENTRY *p_##func) param;
-#include "glu_funcs.h"
-
-PFNGLCOLORTABLEEXTPROC p_glColorTableEXT;
+// PFNGLCOLORTABLEEXTPROC p_glColorTableEXT;
 
 #endif // _GL_INTERN_H

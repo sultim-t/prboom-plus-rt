@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.37 2002/08/10 18:23:09 proff_fs Exp $
+ * $Id: i_video.c,v 1.38 2002/11/16 11:02:12 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.37 2002/08/10 18:23:09 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.38 2002/11/16 11:02:12 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -42,6 +42,14 @@ rcsid[] = "$Id: i_video.c,v 1.37 2002/08/10 18:23:09 proff_fs Exp $";
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef GL_DOOM
+#include "gl_intern.h"
+
+int gl_colorbuffer_bits=16;
+int gl_depthbuffer_bits=16;
+
 #endif
 
 #include "SDL.h"
@@ -63,14 +71,6 @@ rcsid[] = "$Id: i_video.c,v 1.37 2002/08/10 18:23:09 proff_fs Exp $";
 #include "w_wad.h"
 #include "lprintf.h"
 #include "c_runcmd.h"
-
-#ifdef GL_DOOM
-#include "gl_struct.h"
-
-int gl_colorbuffer_bits=16;
-int gl_depthbuffer_bits=16;
-
-#endif
 
 extern void M_QuitDOOM(int choice);
 
@@ -629,6 +629,10 @@ void I_PreInitGraphics(void)
   
   atexit(I_ShutdownSDL);
   
+  if (DynGL_LoadLibrary("OpenGL32.DLL") == SDL_FALSE) {
+    I_Error("DynGL_LoadLibrary failed: %s\n", SDL_GetError());
+  }
+
   I_InitInputs();
 }
 
@@ -708,6 +712,7 @@ void I_UpdateVideoMode(void)
   SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
+
 #else
   screen = SDL_SetVideoMode(w, h, 8, init_flags);
 #endif
@@ -715,6 +720,12 @@ void I_UpdateVideoMode(void)
   if (screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
+
+#ifdef GL_DOOM
+  if (DynGL_GetFunctions(NULL) == SDL_FALSE) {
+    I_Error("DynGL_GetFunctions failed: %s\n", SDL_GetError());
+  }
+#endif
 
   mouse_currently_grabbed = false;
 

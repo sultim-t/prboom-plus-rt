@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.46 2002/11/15 17:21:22 proff_fs Exp $
+ * $Id: gl_main.c,v 1.47 2002/11/16 11:02:00 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,6 @@
 #include "z_zone.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
-#include "gl_dll.h"
 
 extern int tran_filter_pct;
 
@@ -50,8 +49,8 @@ int gl_mipmap_filter = GL_LINEAR;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
-int gl_use_paletted_texture = 0;
-int gl_use_shared_texture_palette = 0;
+int gl_use_paletted_texture = 1;
+int gl_use_shared_texture_palette = 1;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
 
@@ -66,16 +65,6 @@ GLfloat gl_whitecolor[4]={1.0f,1.0f,1.0f,1.0f};
 
 #define MAP_COEFF 128.0f
 #define MAP_SCALE	(MAP_COEFF*(float)FRACUNIT)
-
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-
-#define PROTOTYPE(ret, func, param) ret (APIENTRY *p_##func) param;
-#include "gl_funcs.h"
-
-#define PROTOTYPE(ret, func, param) ret (APIENTRY *p_##func) param;
-#include "glu_funcs.h"
 
 /*
  * lookuptable for lightvalues
@@ -247,49 +236,18 @@ void gld_SetVertexArrays(void);
 
 void gld_InitExtensions(const char *_extensions)
 {
-  char *extensions;
-  char *extension;
-  char *p;
-
-  if (!_extensions)
-    return;
-
-  extensions = malloc(strlen(_extensions) + 1);
-  if (!extensions)
-    return;
-  memcpy(extensions, _extensions, strlen(_extensions) + 1);
-
-  p = extensions;
-  extension = p;
-
-  do {
-    while ((*p != ' ') && (*p != '\0'))
-      p++;
-    if (*p != '\0')
-      *p++ = '\0';
-    while (*p == ' ')
-      p++;
-
-    if (strcasecmp(extension, "GL_EXT_texture_filter_anisotropic") == 0)
-      gl_texture_filter_anisotropic = true;
-    else if (strcasecmp(extension, "GL_EXT_paletted_texture") == 0) {
-      if (gl_use_paletted_texture) {
-        gl_paletted_texture = true;
-        p_glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
-        lprintf(LO_INFO,"using GL_EXT_paletted_texture\n");
-      }
-    }
-    else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
-      if (gl_use_shared_texture_palette) {
-        gl_shared_texture_palette = true;
-        p_glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
-        lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n");
-      }
-
-    extension = p;
-  } while (*extension != '\0');
-
-  free(extensions);
+	if (DynGL_HasExtension("GL_EXT_texture_filter_anisotropic"))
+		gl_texture_filter_anisotropic = true;
+	if (DynGL_HasExtension("GL_EXT_paletted_texture"))
+		if (gl_use_paletted_texture) {
+			gl_paletted_texture = true;
+			lprintf(LO_INFO,"using GL_EXT_paletted_texture\n");
+		}
+	if (DynGL_HasExtension("GL_EXT_shared_texture_palette"))
+		if (gl_use_shared_texture_palette) {
+			gl_shared_texture_palette = true;
+			lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n");
+		}
 }
 
 void gld_Init(int width, int height)
@@ -431,35 +389,6 @@ void gld_Init(int width, int height)
 
 void gld_InitCommandLine()
 {
-#ifdef DYNAMIC_GL
-  DLL_HANDLE gl_handle;
-  DLL_HANDLE glu_handle;
-
-  gl_handle=DLL_LoadLibrary(LIBGL_NAME);
-  if (!gl_handle) {
-    I_Error("%s: disabling opengl\n", DLL_ErrorMessage());
-  }
-
-#define PROTOTYPE(ret, func, param) p_##func = DLL_GetProcAddress(gl_handle,#func);
-#include "gl_funcs.h"
-
-  glu_handle=DLL_LoadLibrary(LIBGLU_NAME);
-  if (!glu_handle) {
-    I_Error("%s: disabling opengl\n", DLL_ErrorMessage());
-  }
-
-#define PROTOTYPE(ret, func, param) p_##func = DLL_GetProcAddress(glu_handle,#func);
-#include "glu_funcs.h"
-
-#else /* DYNAMIC_GL */
-
-#define PROTOTYPE(ret, func, param) p_##func = &(func);
-#include "gl_funcs.h"
-
-#define PROTOTYPE(ret, func, param) p_##func = &(func);
-#include "glu_funcs.h"
-
-#endif /* DYNAMIC_GL */
 }
 
 #define SCALE_X(x)		((flags & VPT_STRETCH)?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
@@ -1375,7 +1304,7 @@ static void gld_PrecalculateSector(int num)
   angle_t angle;
   angle_t bestangle;
   sector_t *backsector;
-  GLUtesselator *tess;
+  GLUtriangulatorObj *tess;
   double *v=NULL;
   int maxvertexnum;
   int vertexnum;
@@ -1426,9 +1355,9 @@ static void gld_PrecalculateSector(int num)
   maxvertexnum=0;
   // start tesselator
   if (levelinfo) fprintf(levelinfo, "p_gluTessBeginPolygon\n");
-  p_gluTessBeginPolygon(tess, NULL);
+  p_gluBeginPolygon(tess);
   if (levelinfo) fprintf(levelinfo, "\tp_gluTessBeginContour\n");
-  p_gluTessBeginContour(tess);
+  p_gluNextContour(tess, GLU_UNKNOWN);
   while (linecount)
   {
     // if there is no connected line, then start new loop
@@ -1448,11 +1377,10 @@ static void gld_PrecalculateSector(int num)
           if (oldline!=0)
           {
             if (levelinfo) fprintf(levelinfo, "\tp_gluTessEndContour\n");
-            p_gluTessEndContour(tess);
 //            if (levelinfo) fprintf(levelinfo, "\tp_gluNextContour\n");
 //            p_gluNextContour(tess, GLU_CW);
             if (levelinfo) fprintf(levelinfo, "\tp_gluTessBeginContour\n");
-            p_gluTessBeginContour(tess);
+            p_gluNextContour(tess, GLU_UNKNOWN);
           }
           break;
         }
@@ -1563,9 +1491,8 @@ static void gld_PrecalculateSector(int num)
   }
   // let the tesselator calculate the loops
   if (levelinfo) fprintf(levelinfo, "\tp_gluTessEndContour\n");
-  p_gluTessEndContour(tess);
   if (levelinfo) fprintf(levelinfo, "p_gluTessEndPolygon\n");
-  p_gluTessEndPolygon(tess);
+  p_gluEndPolygon(tess);
   // clean memory
   p_gluDeleteTess(tess);
   Z_Free(v);
@@ -1806,6 +1733,31 @@ static float yaw      = 0.0f;
 static float inv_yaw  = 0.0f;
 static float pitch    = 0.0f;
 
+#define __glPi 3.14159265358979323846
+
+void gldPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
+{
+    GLdouble m[4][4];
+    double sine, cotangent, deltaZ;
+    double radians = fovy / 2 * __glPi / 180;
+
+    deltaZ = zFar - zNear;
+    sine = sin(radians);
+    if ((deltaZ == 0) || (sine == 0) || (aspect == 0)) {
+	return;
+    }
+    cotangent = cos(radians) / sine;
+
+    p_glLoadIdentity();
+    m[0][0] = cotangent / aspect;
+    m[1][1] = cotangent;
+    m[2][2] = -(zFar + zNear) / deltaZ;
+    m[2][3] = -1;
+    m[3][2] = -2 * zNear * zFar / deltaZ;
+    m[3][3] = 0;
+    p_glMultMatrixd(&m[0][0]);
+}
+
 void gld_StartDrawScene(void)
 {
   float trY ;
@@ -1847,7 +1799,7 @@ void gld_StartDrawScene(void)
   p_glMatrixMode(GL_PROJECTION);
 	p_glLoadIdentity();
 
-	p_gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
+	gldPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
 
 	p_glMatrixMode(GL_MODELVIEW);
 	p_glLoadIdentity();
