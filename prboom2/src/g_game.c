@@ -313,7 +313,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   cmd->angleturn += angleturn[1] * axis_turn_value / 256;
 
     // buttons
-  cmd->chatchar = HU_dequeueChatChar();
+  //cmd->chatchar = HU_dequeueChatChar(); FIXME
 
   if (action_attack)
     cmd->buttons |= BT_ATTACK;
@@ -728,9 +728,8 @@ void G_Ticker (void)
           if ((netgame || demoplayback) && cmd->forwardmove > TURBOTHRESHOLD &&
               !(gametic&31) && ((gametic>>5)&3) == i )
             {
-	      extern char *player_names[];
-	      /* cph - don't use sprintf, use doom_printf */
-              doom_printf ("%s is turbo!", player_names[i]);
+	            /* cph - don't use sprintf, use doom_printf */
+              doom_printf ("%s is turbo!", players[i].name);
             }
 
           if (netgame && !netdemo && !(gametic%ticdup) )
@@ -2019,7 +2018,7 @@ void doom_printf(const char *s, ...)
   vsprintf(msg,s,v);
 #endif
   va_end(v);
-  players[consoleplayer].message = msg;  // set new message
+  HU_PlayerMsg(msg);
 }
 
 // sf: printf to a particular player only

@@ -24,43 +24,19 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
  *  02111-1307, USA.
  *
- * DESCRIPTION:  Head up display
+ * By Simon Howard, added to PrBoom by Florian Schulze
  *
- *-----------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------------------
+ */
 
-#ifndef __HU_STUFF_H__
-#define __HU_STUFF_H__
+#ifndef __HU_FRAGS_H__
+#define __HU_FRAGS_H__
 
-#include "d_event.h"
-#include "v_video.h"
+void HU_FragsInit();
 
-#define MAXHUDMESSAGES 16
-
-#define MAXWIDGETS 16
-
-typedef struct textwidget_s textwidget_t;
-
-struct textwidget_s
-{
-  int x, y;       // co-ords on screen
-  int font;       // 0 = normal red text 1 = heads up font
-  char *message;
-  void (*handler)();      // controller function
-  int cleartic;   // gametic in which to clear the widget (0=never)
-};
-
-void HU_Init(void);
-void HU_Drawer(void);
-void HU_Ticker(void);
-boolean HU_Responder(event_t* ev);
-char HU_dequeueChatChar(void);
-
-void HU_Start(void);
-void HU_End(void);
-
-void HU_WriteText(unsigned char *s, int x, int y);
-void HU_PlayerMsg(char *s);
-void HU_CentreMsg(char *s);
-void HU_Erase(void);
+void HU_FragsDump();
+void HU_FragsUpdate();
+void HU_FragsDrawer();
+void HU_FragsErase();
 
 #endif

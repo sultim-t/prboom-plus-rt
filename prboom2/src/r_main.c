@@ -46,6 +46,7 @@
 #include "st_stuff.h"
 #include "i_main.h"
 #include "c_runcmd.h"
+#include "hu_over.h"
 
 
 void R_LoadTrigTables(void);
@@ -639,7 +640,13 @@ CONSOLE_INT(gamma, usegamma, NULL, 0, 4, NULL, 0)
 
 CONSOLE_INT(screensize, screenblocks, NULL, 3, 11, NULL, 0)
 {
-  R_SetViewSize(screenblocks);
+  if(gamestate == GS_LEVEL) // not in intercam
+  {
+    R_SetViewSize (screenblocks);
+  }
+
+  if(screenblocks == 11)        // fullscreen
+    HU_ToggleHUD();
 }
 
 static char *str_filter[] =

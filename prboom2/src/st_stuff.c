@@ -296,7 +296,7 @@ static patchnum_t shortnum[10];
 
 // 3 key-cards, 3 skulls, 3 card/skull combos
 // jff 2/24/98 extend number of patches by three skull/card combos
-static patchnum_t keys[NUMCARDS+3];
+patchnum_t keys[NUMCARDS+3];
 
 // face status patches
 static patchnum_t faces[ST_NUMFACES];

@@ -24,7 +24,7 @@
 #include "g_game.h"
 #include "d_main.h"
 #include "i_system.h"
-#include "hu_lib.h"
+//#include "hu_lib.h"
 #include "vidd_util.h"
 #include "vidd_prop.h"
 #include <stdio.h>

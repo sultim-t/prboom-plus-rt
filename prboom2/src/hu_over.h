@@ -24,43 +24,59 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
  *  02111-1307, USA.
  *
- * DESCRIPTION:  Head up display
+ * By Simon Howard, added to PrBoom by Florian Schulze
  *
- *-----------------------------------------------------------------------------*/
+ *-----------------------------------------------------------------------------
+ */
 
-#ifndef __HU_STUFF_H__
-#define __HU_STUFF_H__
+#ifndef __HU_OVER_H__
+#define __HU_OVER_H__
 
-#include "d_event.h"
-#include "v_video.h"
+//---------------------------------------------------------------------------
+//
+// Heads up font
+//
 
-#define MAXHUDMESSAGES 16
+// copied from v_misc.h
+#define HU_FONTSTART    '!'     /* the first font characters */
+#define HU_FONTEND      (0x7f) /*jff 2/16/98 '_' the last font characters */
 
-#define MAXWIDGETS 16
+// Calculate # of glyphs in font.
+#define HU_FONTSIZE     (HU_FONTEND - HU_FONTSTART + 1) 
 
-typedef struct textwidget_s textwidget_t;
+void HU_LoadFont();
+void HU_WriteText(unsigned char *s, int x, int y);
+int HU_StringWidth(unsigned char *s);
 
-struct textwidget_s
+//--------------------------------------------------------------------------
+//
+// Overlay drawing
+//
+
+typedef struct overlay_s overlay_t;
+
+struct overlay_s
 {
-  int x, y;       // co-ords on screen
-  int font;       // 0 = normal red text 1 = heads up font
-  char *message;
-  void (*handler)();      // controller function
-  int cleartic;   // gametic in which to clear the widget (0=never)
+  int x, y;
+  void (*drawer)(int x, int y);
 };
 
-void HU_Init(void);
-void HU_Drawer(void);
-void HU_Ticker(void);
-boolean HU_Responder(event_t* ev);
-char HU_dequeueChatChar(void);
+enum
+{
+  ol_health,
+  ol_ammo,
+  ol_armor,
+  ol_weap,
+  ol_key,
+  ol_frag,
+  ol_status,
+  NUMOVERLAY
+};
 
-void HU_Start(void);
-void HU_End(void);
+extern overlay_t overlay[NUMOVERLAY];
 
-void HU_WriteText(unsigned char *s, int x, int y);
-void HU_PlayerMsg(char *s);
-void HU_CentreMsg(char *s);
-void HU_Erase(void);
+void HU_OverlayDraw();
+void HU_OverlayStyle();
+void HU_ToggleHUD();
 
 #endif

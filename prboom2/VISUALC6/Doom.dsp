@@ -7,21 +7,21 @@
 CFG=Doom - Win32 Release
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "Doom.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "Doom.mak" CFG="Doom - Win32 Release"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "Doom - Win32 Release" (basierend auf  "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Debug" (basierend auf  "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Release NOASM" (basierend auf  "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Debug NOASM" (basierend auf  "Win32 (x86) Application")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -142,7 +142,7 @@ LINK32=link.exe
 # ADD LINK32 user32.lib gdi32.lib kernel32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom.exe" /pdbtype:sept
 # SUBTRACT LINK32 /profile
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 
@@ -153,6 +153,18 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
+# Begin Group "am_"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\am_map.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\am_map.h
+# End Source File
+# End Group
 # Begin Group "c_"
 
 # PROP Default_Filter ""
@@ -241,38 +253,6 @@ SOURCE=..\src\d_think.h
 SOURCE=..\src\d_ticcmd.h
 # End Source File
 # End Group
-# Begin Group "f_"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\src\f_finale.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_finale.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_wipe.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\f_wipe.h
-# End Source File
-# End Group
-# Begin Group "am_"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\src\am_map.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\am_map.h
-# End Source File
-# End Group
 # Begin Group "doom"
 
 # PROP Default_Filter ""
@@ -299,6 +279,26 @@ SOURCE=..\src\doomstat.h
 # Begin Source File
 
 SOURCE=..\src\doomtype.h
+# End Source File
+# End Group
+# Begin Group "f_"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\f_finale.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\f_finale.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\f_wipe.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\f_wipe.h
 # End Source File
 # End Group
 # Begin Group "g_"
@@ -350,11 +350,19 @@ SOURCE=..\src\g_game.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\src\hu_lib.c
+SOURCE=..\src\hu_frags.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\hu_lib.h
+SOURCE=..\src\hu_frags.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\hu_over.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\hu_over.h
 # End Source File
 # Begin Source File
 
@@ -883,6 +891,14 @@ SOURCE=..\src\tables.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\v_misc.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\v_misc.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\v_video.c
 # End Source File
 # Begin Source File
@@ -969,7 +985,7 @@ SOURCE=..\src\gl_intern.h
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF 
+!ENDIF
 
 # End Source File
 # Begin Source File
@@ -988,7 +1004,7 @@ SOURCE=..\src\gl_main.c
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF 
+!ENDIF
 
 # End Source File
 # Begin Source File
@@ -1011,7 +1027,7 @@ SOURCE=..\src\gl_struct.h
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF 
+!ENDIF
 
 # End Source File
 # Begin Source File
@@ -1030,7 +1046,7 @@ SOURCE=..\src\gl_texture.c
 
 # PROP BASE Exclude_From_Build 1
 
-!ENDIF 
+!ENDIF
 
 # End Source File
 # End Group
