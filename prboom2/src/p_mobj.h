@@ -371,7 +371,8 @@ struct mobj_s
 #define VIEWHEIGHT      (41*FRACUNIT)
 #define PLAYERRADIUS    (16*FRACUNIT)
 
-#define GRAVITY         FRACUNIT
+                // sf: gravity >>> defaultgravity
+#define DEFAULTGRAVITY  FRACUNIT
 #define MAXMOVE         (30*FRACUNIT)
 
 #define ONFLOORZ        INT_MIN
@@ -397,6 +398,7 @@ extern mapthing_t itemrespawnque[];
 extern int itemrespawntime[];
 extern int iquehead;
 extern int iquetail;
+extern int gravity;
 
 void    P_RespawnSpecials(void);
 mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);

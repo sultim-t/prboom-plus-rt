@@ -46,6 +46,8 @@
 #include "p_inter.h"
 #include "lprintf.h"
 
+int gravity=DEFAULTGRAVITY;
+
 //
 // P_SetMobjState
 // Returns true if the mobj is still present.
@@ -137,14 +139,7 @@ void P_XYMovement (mobj_t* mo)
   {
   player_t *player;
   fixed_t xmove, ymove;
-#if 0
-  fixed_t   ptryx;
-  fixed_t   ptryy;
-  fixed_t   xmove;
-  fixed_t   ymove;
-  fixed_t   oldx,oldy; // phares 9/10/98: reducing bobbing/momentum on ice
-                       // when up against walls
-#endif
+
   if (!(mo->momx | mo->momy)) // Any momentum?
     {
     if (mo->flags & MF_SKULLFLY)
@@ -174,12 +169,6 @@ void P_XYMovement (mobj_t* mo)
 
   xmove = mo->momx;
   ymove = mo->momy;
-
-#if 0
-  oldx = mo->x; // phares 9/10/98: new code to reduce bobbing/momentum
-  oldy = mo->y; // when on ice & up against wall. These will be compared
-                // to your x,y values later to see if you were able to move
-#endif
 
   do
     {
@@ -396,7 +385,7 @@ static void P_ZMovement (mobj_t* mo)
 	    FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
 		  
 	  /* Bring it to rest below a certain speed */
-	  if (D_abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
+	  if (D_abs(mo->momz) <= mo->info->mass*(gravity*4/256))
 	    mo->momz = 0;
 	}
 
@@ -426,7 +415,7 @@ static void P_ZMovement (mobj_t* mo)
       }
     } else {
       if (!(mo->flags & MF_NOGRAVITY))      /* free-fall under gravity */
-	      mo->momz -= mo->info->mass*(GRAVITY/256);
+	      mo->momz -= mo->info->mass*(gravity/256);
 
       if (mo->flags & MF_FLOAT && sentient(mo)) goto floater;
       return;
@@ -515,7 +504,7 @@ floater:
 	  P_DamageMobj(mo, NULL, NULL, mo->health);
 	else
 	  if (mo->player && /* killough 5/12/98: exclude voodoo dolls */
-	      mo->player->mo == mo && mo->momz < -GRAVITY*8)
+	      mo->player->mo == mo && mo->momz < -gravity*8)
 	    {
 	      // Squat down.
 	      // Decrease viewheight for a moment
@@ -550,8 +539,8 @@ floater:
     if (!(mo->flags & MF_NOGRAVITY))
       {
 	if (!mo->momz)
-	  mo->momz = -GRAVITY;
-        mo->momz -= GRAVITY;
+	  mo->momz = -gravity;
+        mo->momz -= gravity;
       }
 
   if (mo->z + mo->height > mo->ceilingz)
@@ -658,7 +647,8 @@ void P_NightmareRespawn(mobj_t* mobj)
 
   mo = P_SpawnMobj (x,y,z, mobj->type);
   mo->spawnpoint = mobj->spawnpoint;
-  mo->angle = ANG45 * (mthing->angle/45);
+                // sf: use R_WadToAngle
+  mo->angle = R_WadToAngle(mthing->angle);
 
   if (mthing->options & MTF_AMBUSH)
     mo->flags |= MF_AMBUSH;
