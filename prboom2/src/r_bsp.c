@@ -350,6 +350,7 @@ static void R_AddLine (seg_t *line)
   x2 = viewangletox[angle2];
 
 #ifdef GL_DOOM
+
   // proff 11/99: we have to add these segs to avoid gaps in OpenGL
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
   {
@@ -372,7 +373,6 @@ static void R_AddLine (seg_t *line)
     else
       return;
   }
-  else
 #else
   // Does not cross a pixel?
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
@@ -496,6 +496,10 @@ static void R_Subsector(int num)
   sector_t    tempsec;              // killough 3/7/98: deep water hack
   int         floorlightlevel;      // killough 3/16/98: set floor lightlevel
   int         ceilinglightlevel;    // killough 4/11/98
+#ifdef GL_DOOM
+  visplane_t  dummyfloorplane;
+  visplane_t  dummyceilingplane;
+#endif
 
 #ifdef RANGECHECK
   if (num>=numsubsectors)
@@ -539,13 +543,10 @@ static void R_Subsector(int num)
                 frontsector->ceiling_xoffs,     // killough 3/7/98
                 frontsector->ceiling_yoffs
                 ) : NULL;
-
+#ifdef GL_DOOM
   // check if the sector is faked
   if ((frontsector==sub->sector) && (V_GetMode() == VID_MODEGL))
   {
-    visplane_t dummyfloorplane;
-    visplane_t dummyceilingplane;
-
     // if the sector has bottomtextures, then the floorheight will be set to the
     // highest surounding floorheight
     if ((frontsector->no_bottomtextures) || (!floorplane))
@@ -602,6 +603,7 @@ static void R_Subsector(int num)
         ceilingplane=&dummyceilingplane;
     }
   }
+#endif
 
   // killough 9/18/98: Fix underwater slowdown, by passing real sector 
   // instead of fake one. Improve sprite lighting by basing sprite
