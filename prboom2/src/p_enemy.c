@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.6 2000/05/12 12:23:49 cph Exp $
+ * $Id: p_enemy.c,v 1.7 2000/05/12 13:14:23 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.6 2000/05/12 12:23:49 cph Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.7 2000/05/12 13:14:23 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -2418,7 +2418,7 @@ void A_SpawnFly(mobj_t *mo)
   /* killough 8/29/98: add to appropriate thread */
   P_UpdateThinker(&newmobj->thinker);
 
-  if (P_LookForPlayers(newmobj, true) )
+  if (P_LookForTargets(newmobj,true))      /* killough 9/4/98 */
     P_SetMobjState(newmobj, newmobj->info->seestate);
 
     // telefrag anything in this spot
