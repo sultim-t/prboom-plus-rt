@@ -125,10 +125,27 @@ unsigned NetbufferChecksum (void* p, size_t l)
 int ipxs, udps;
 
 int consoleplayer;
+int basetic;
+
+int ExpandTics (int low, int maketic)
+{
+    int delta;
+        
+    delta = low - (maketic&0xff);
+        
+    if (delta >= -64 && delta <= 64)
+        return (maketic&~0xff) + low;
+    if (delta > 64)
+        return (maketic&~0xff) - 256 + low;
+    if (delta < -64)
+        return (maketic&~0xff) + 256 + low;
+    fprintf(stderr,"ExpandTics strange value %i at maketic %i\n",low,maketic);
+    exit(-2);
+}
 
 void send_udp_packet(enum packet_type_e type, unsigned tic, void* data, size_t len) {
   packet_header_t* p = calloc(sizeof(packet_header_t)+len+1,1);
-  p->tic = doom_htonl(tic); p->type = type;
+  p->tic = doom_htonl(basetic = tic); p->type = type;
   if (!data) {
     data = (void*)&consoleplayer; len = 1;
   }
@@ -138,7 +155,6 @@ void send_udp_packet(enum packet_type_e type, unsigned tic, void* data, size_t l
 }
 
 int connected;
-int basetic;
 int ipxcounter;
 
 void ipx_receive(int s) {
@@ -172,9 +188,7 @@ void ipx_receive(int s) {
 	      outbuf[1] = buf.u.d.player;
               for (int i=0; i< tics; i++)
 		TicToRaw(outbuf+2+i*sizeof(ticcmd_t),&buf.u.d.cmds[i]);
-	      send_udp_packet(PKT_TICC,buf.u.d.starttic+basetic,outbuf,2+tics*sizeof(ticcmd_t));
-	      // Allow for wraparound
-	      if (((buf.u.d.starttic + tics) & 0xff) < buf.u.d.starttic) basetic+=0x100;
+	      send_udp_packet(PKT_TICC, ExpandTics(buf.u.d.starttic, basetic), outbuf, 2+tics*sizeof(ticcmd_t));
       }
     }
   }
@@ -230,16 +244,14 @@ void udp_receive(int s) {
 			    for (int t=0; t<tics; t++) {
 			      int players = *pp++;
 			      for (int i=0; i<players; i++) {
-				if (i != consoleplayer) {
-				  if (*pp++ == pkt.u.d.player)
-				    RawToTic(&pkt.u.d.cmds[t],pp);
-				}
+				if (*pp++ == pkt.u.d.player)
+				  RawToTic(&pkt.u.d.cmds[t],pp);
 				pp += sizeof(ticcmd_t);
 			      }
 			    }
 			    pkt.u.d.retransmitfrom = 0;
 			    len = 12+tics*sizeof(ticcmd_t);
-			    len = (len+15)&0xff0; // round up to next 16
+			    len = (len+7)&0xff8; // round up to next 16
 			    pkt.u.d.checksum = NetbufferChecksum(&pkt.u.d.retransmitfrom, len-8);
 			    write(ipxs,&pkt,len);
 		    }
