@@ -222,4 +222,4 @@ website/html/DOOM04.jpg -text
 website/html/DOOM05.jpg -text
 website/html/DOOM06.jpg -text
 website/html/OGL.gif -text
-website/src/index.ht -text svneol=native#unset
+website/web.config -text
