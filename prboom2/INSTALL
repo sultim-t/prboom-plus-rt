@@ -54,6 +54,16 @@ Basic Installation
      See the README file for information about getting the Timidity 
      patches needed for music support, and more.
 
+Building an RPM
+===============
+
+If you are on a system which uses the RPM packaging format, you might prefer 
+to build an RPM containing the PrBoom binaries rather than installing them 
+directly. Follow steps 1 and 2 above, then run a "make rpm". This performs 
+the usual proceedure for building the rpm in /usr/src/redhat/. Note that
+the RPM sets its own parameters to ./configure; if you want to override 
+them you'll have to edit the build scripts yourself.
+
 Installation Details
 ====================
 
