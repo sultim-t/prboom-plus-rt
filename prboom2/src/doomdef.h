@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.3 2000/05/11 23:22:20 cph Exp $
+ * $Id: doomdef.h,v 1.4 2000/05/16 11:29:24 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -319,6 +319,8 @@ typedef enum {
   ss_enem,
   ss_mess,
   ss_chat,
+  ss_gen,       /* killough 10/98 */
+  ss_comp,      /* killough 10/98 */
   ss_max
 } ss_types;
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.7 2000/05/10 17:47:11 proff_fs Exp $
+ * $Id: m_misc.c,v 1.8 2000/05/16 11:29:24 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.7 2000/05/10 17:47:11 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.8 2000/05/16 11:29:24 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -209,6 +209,8 @@ const default_t defaults[] =
    def_int,ss_none}, // percentage of normal speed (35 fps) realtic clock runs at
   {"max_player_corpse", {&bodyquesize}, {32},-1,UL,   // killough 2/8/98
    def_int,ss_none}, // number of dead bodies in view supported (-1 = no limit)
+  {"flashing_hom",{&flashing_hom},{0},0,1,
+   def_bool,ss_none}, // killough 10/98 - enable flashing HOM indicator
   {"demo_insurance",{&default_demo_insurance},{2},0,2,  // killough 3/31/98
    def_int,ss_none}, // 1=take special steps ensuring demo sync, 2=only during recordings
   {"endoom_mode", {&endoom_mode},{5},0,7, // CPhipps - endoom flags
@@ -225,11 +227,36 @@ const default_t defaults[] =
   {"default_skill",{&defaultskill},{3},1,5, // jff 3/24/98 allow default skill setting
    def_int,ss_none}, // selects default skill 1=TYTD 2=NTR 3=HMP 4=UV 5=NM
   {"weapon_recoil",{&default_weapon_recoil},{1},0,1,
-   def_bool,ss_weap}, // enables recoil from weapon fire   // phares
+   def_bool,ss_weap}, // enables recoil from weapon fire   // phares 
+  /* killough 10/98 - toggle between SG/SSG and Fist/Chainsaw */
+  {"doom_weapon_toggles",{&doom_weapon_toggles}, {1}, 0, 1, 
+   def_bool, ss_weap }, 
   {"player_bobbing",{&default_player_bobbing},{1},0,1,         // phares 2/25/98
    def_bool,ss_weap}, // enables player bobbing (view randomly moving up/down slightly)
   {"monsters_remember",{&default_monsters_remember},{1},0,1,   // killough 3/1/98
    def_bool,ss_enem}, // enables monsters remembering enemies after killing others
+   /* MBF AI enhancement options */
+  {"monster_infighting",{&default_monster_infighting}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+  {"monster_backing",{&default_monster_backing}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+  {"monster_avoid_hazards",{&default_monster_avoid_hazards}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+  {"monkeys",{&default_monkeys}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+  {"monster_friction",{&default_monster_friction}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+  {"help_friends",{&default_help_friends}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+#ifdef DOGS
+  {"player_helpers",{&default_dogs}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+  {"friend_distance",{&default_distfriend}, {128}, 0, 999, 
+   def_int, ss_enem }, 
+  {"dog_jumping",{&default_dog_jumping}, {1}, 0, 1, 
+   def_bool, ss_enem }, 
+#endif
+   /* End of MBF AI extras */
   {"sts_always_red",{&sts_always_red},{0},0,1, // no color changes on status bar
    def_bool,ss_stat},
   {"sts_pct_always_gray",{&sts_pct_always_gray},{1},0,1, // 2/23/98 chg default
@@ -242,6 +269,27 @@ const default_t defaults[] =
    def_bool,ss_none}, // enables message display
   {"autorun",{&autorun},{0},0,1,  // killough 3/6/98: preserve autorun across games
    def_bool,ss_none},
+
+  {"Compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"comp_zombie",{&default_comp[comp_zombie]},{0},0,1,def_bool,ss_comp},
+  {"comp_infcheat",{&default_comp[comp_infcheat]},{0},0,1,def_bool,ss_comp},
+  {"comp_stairs",{&default_comp[comp_stairs]},{0},0,1,def_bool,ss_comp},
+  {"comp_telefrag",{&default_comp[comp_telefrag]},{0},0,1,def_bool,ss_comp},
+  {"comp_dropoff",{&default_comp[comp_dropoff]},{0},0,1,def_bool,ss_comp},
+  {"comp_falloff",{&default_comp[comp_falloff]},{0},0,1,def_bool,ss_comp},
+  {"comp_staylift",{&default_comp[comp_staylift]},{0},0,1,def_bool,ss_comp},
+  {"comp_doorstuck",{&default_comp[comp_doorstuck]},{0},0,1,def_bool,ss_comp},
+  {"comp_pursuit",{&default_comp[comp_pursuit]},{0},0,1,def_bool,ss_comp},
+  {"comp_vile",{&default_comp[comp_vile]},{0},0,1,def_bool,ss_comp},
+  {"comp_pain",{&default_comp[comp_pain]},{0},0,1,def_bool,ss_comp},
+  {"comp_skull",{&default_comp[comp_skull]},{0},0,1,def_bool,ss_comp},
+  {"comp_blazing",{&default_comp[comp_blazing]},{0},0,1,def_bool,ss_comp},
+  {"comp_doorlight",{&default_comp[comp_doorlight]},{0},0,1,def_bool,ss_comp},
+  {"comp_god",{&default_comp[comp_god]},{0},0,1,def_bool,ss_comp},
+  {"comp_skymap",{&default_comp[comp_skymap]},{0},0,1,def_bool,ss_comp},
+  {"comp_floors",{&default_comp[comp_floors]},{0},0,1,def_bool,ss_comp},
+  {"comp_model",{&default_comp[comp_model]},{0},0,1,def_bool,ss_comp},
+  {"comp_zerotags",{&default_comp[comp_zerotags]},{0},0,1,def_bool,ss_comp},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
