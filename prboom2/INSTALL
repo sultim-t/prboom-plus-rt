@@ -25,6 +25,10 @@ section.
 
   5. Run the 'bootstrap' script in order to create the 'configure' script.
         ./bootstrap
+     If you get this error:
+        aclocal: configure.in: 153: macro `AM_PATH_SDL' not found in library
+     Then you have to locate sdl.m4 and copy it to ./autotools/sdl.m4 in your
+     prboom directory.
 
   6. If the 'configure' script was created by step 5 then proceed to the
      "Basic Installation" section.
