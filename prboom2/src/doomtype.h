@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomtype.h,v 1.8 2002/02/10 21:03:45 proff_fs Exp $
+ * $Id: doomtype.h,v 1.9 2002/08/08 20:50:57 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -95,7 +95,7 @@ typedef enum {
   mbf_compatibility,                     /* MBF */
   prboom_1_compatibility,                /* PrBoom 2.03beta? */
   prboom_2_compatibility,                /* PrBoom 2.1.0-2.1.1 */
-  prboom_3_compatibility,                /* PrBoom 2.1.2-2.2.0 */
+  prboom_3_compatibility,                /* PrBoom 2.1.2-2.2.3 */
   prboom_4_compatibility,                /* Latest PrBoom */
   MAX_COMPATIBILITY_LEVEL,               /* Must be last entry */
   /* Aliases follow */
