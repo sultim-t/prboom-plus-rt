@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.23 2000/09/11 21:42:13 cph Exp $
+ * $Id: g_game.c,v 1.24 2000/09/12 19:46:31 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.23 2000/09/11 21:42:13 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.24 2000/09/12 19:46:31 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1588,12 +1588,14 @@ void G_DoLoadGame(void)
   save_p = (char*)G_ReadOptions(save_p);
 
   /* get the times - killough 11/98: save entire word */
-  memcpy(&leveltime, save_p, sizeof save_p);
-  save_p += sizeof save_p;
+  memcpy(&leveltime, save_p, sizeof leveltime);
+  save_p += sizeof leveltime;
 
   /* cph - total episode time */
-  if (compatibility_level >= prboom_2_compatibility)
+  if (compatibility_level >= prboom_2_compatibility) {
     memcpy(&totalleveltimes, save_p, sizeof totalleveltimes);
+    save_p += sizeof totalleveltimes;
+  }
   else totalleveltimes = 0;
 
   // killough 11/98: load revenant tracer state
@@ -1759,12 +1761,15 @@ static void G_DoSaveGame (boolean menu)
   save_p = G_WriteOptions(save_p);    // killough 3/1/98: save game options
 
   /* cph - FIXME - endianness? */
-  memcpy(save_p, &leveltime, sizeof save_p); //killough 11/98: save entire word
-  save_p += sizeof save_p;
+  /* killough 11/98: save entire word */
+  memcpy(save_p, &leveltime, sizeof leveltime);
+  save_p += sizeof leveltime;
 
   /* cph - total episode time */
-  if (compatibility_level >= prboom_2_compatibility)
+  if (compatibility_level >= prboom_2_compatibility) {
     memcpy(save_p, &totalleveltimes, sizeof totalleveltimes);
+    save_p += sizeof totalleveltimes;
+  }
   else totalleveltimes = 0;
 
   // killough 11/98: save revenant tracer state
