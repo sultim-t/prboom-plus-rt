@@ -440,6 +440,13 @@ void TryRunTics (void)
   while (1) {
     if (I_GetTime() - entertime > 5)
     {
+      remotesend--;
+      {
+        char buf[sizeof(packet_header_t)+1];
+        packet_set(&buf, PKT_RETRANS, remotetic);
+        buf[sizeof(buf)-1] = consoleplayer;
+        I_SendPacket(buf, sizeof buf);
+      }
       C_Ticker();
       MN_Ticker();
       return;
