@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.3 2000/05/04 12:37:56 proff_fs Exp $
+ * $Id: lprintf.c,v 1.4 2000/05/06 20:46:15 jessh Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,10 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.3 2000/05/04 12:37:56 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.4 2000/05/06 20:46:15 jessh Exp $";
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -40,16 +43,12 @@ static const char rcsid[] = "$Id: lprintf.c,v 1.3 2000/05/04 12:37:56 proff_fs E
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#ifdef HAVE_UNISTD
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include "doomtype.h"
 #include "lprintf.h"
 #include "i_main.h"
-
-#ifdef HAVE_CONFIG_H
-#include "../config.h"
-#endif
 
 int cons_error_mask = -1-LO_INFO; /* all but LO_INFO when redir'd */
 int cons_output_mask = -1;        /* all output enabled */
@@ -322,6 +321,9 @@ void I_Error(const char *error, ...)
 /*----------------------------------------------------------------------------
  *
  * $Log: lprintf.c,v $
+ * Revision 1.4  2000/05/06 20:46:15  jessh
+ * Minor header file fixing
+ *
  * Revision 1.3  2000/05/04 12:37:56  proff_fs
  * removed the messagebox, because in
  * fullscreen-mode it doesn't work correctly
