@@ -93,4 +93,5 @@ On my list.
 22. Bug in Gostbuster TC. Works with PrBoom 2.02 but not in the current.
 
 Proff:
-On my list.
+It's not a bug, but a mbf_feature, the compatibility needs to be set to boom_compatibility.
+Maybe this should be added to the compatibility menu with a extra option, like some other stuff.
