@@ -48,7 +48,7 @@ preference):
 
 If the compatibility level is MBF or better, the detailed compatibility
 settings are read from the comp_* config file options, as in MBF. Otherwise,
-the settings are put the the defaults for that game version.
+the settings are put to the defaults for that game version.
 
 You can adjust the compatibility settings during play from the menus
 (Options->Setup->Doom Compatibility). 
@@ -56,17 +56,17 @@ You can adjust the compatibility settings during play from the menus
 The sort of people interested in these things will already know the MBF
 options, so I'll just list the changes:
 - comp_floors now also causes the original Doom behavior of objects stuck in
-a ceiling preventing the flor below lowering.
+a ceiling preventing the floor below lowering.
 - new option comp_moveblock enables the old movement clipping bug which
 allows things to go through walls sometimes (mancubus shots, and key
 grabbing tricks)
 
-PrBoom can also record old demos with some sucess (demo players see the
+PrBoom can also record old demos with some success (demo players see the
 comp_moveblock note above):
 
 prboom -complevel 0 -record test
 
-records a doom v1.9 compatibile demo
+records a doom v1.9 compatible demo
 
 prboom -complevel 3 -record whatever
 
@@ -81,3 +81,5 @@ Doom demos will often but not always work. Boom support is being worked on;
 MBF support should be perfect.
 
 - Colin
+
+

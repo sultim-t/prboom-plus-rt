@@ -1,10 +1,10 @@
 .PU
-.TH LXDOOM-GAME-SERVER 6 local
+.TH PRBOOM-GAME-SERVER 6 local
 .SH NAME
-lxdoom-game-server \- Server for network games of LxDoom.
+prboom-game-server \- Server for network games of PrBoom.
 .SH SYNOPSIS
 .ll +8
-.B lxdoom-game-sever
+.B prboom-game-sever
 [ \-adfnrv ] [ \-e \fIepis\fR ] [ \-l \fIlevel\fR ] [ \-t \fIticdup\fR ]
 .BR
 [ \-x \fIxtics\fR ] [ \-p \fIport\fR ] [ \-s \fIskill\fR ] [ \-N \fIplayers\fR ]
@@ -12,20 +12,20 @@ lxdoom-game-server \- Server for network games of LxDoom.
 [ \-w \fIwadname\fR[,\fIdl_url\fR ]]
 .SH DESCRIPTION
 .PP
-.B LxDoom
+.B PrBoom
 is a version of the 3D shoot'em'up Doom, originally by id software. 
 It includes, amongst other things, the ability to play with several players 
-connected by a tcp/ip network. lxdoom-game-server is the `server', that is the 
+connected by a tcp/ip network. prboom-game-server is the `server', that is the 
 program that passes data between the different players in the game.
 .PP
 To start a network game (often abbreviated to `netgame'), first the server 
-is started. lxdoom-game-server accepts various parameters to control the 
+is started. prboom-game-server accepts various parameters to control the 
 type of game (the skill level, number of players, level to play, optional 
 WAD file(s) to load, etc).
 .PP
-Then each player that wishes to participate runs lxdoom -net \fIhostname\fR, 
+Then each player that wishes to participate runs prboom -net \fIhostname\fR, 
 where \fIhostname\fR is the name of the machine on which the server is 
-running. Each copy of lxdoom retrieves information about the game from 
+running. Each copy of prboom retrieves information about the game from 
 the server, and when the specified number of players have joined, the game 
 begins.
 
@@ -66,10 +66,10 @@ Respawn mode. If you don't know what this is, you don't want to ;-).
 \-w \fIwadname\fR[,\fIdl_url\fR]
 Specifies a WAD file to play. This is added to the internal list that the 
 server keeps. When a client connects, the server sends the list of WADs; 
-LxDoom will then add this to the list of WADs specified on its command line. 
-Optionally, an url to the file can be given too; if when LxDoom connects 
+PrBoom will then add this to the list of WADs specified on its command line. 
+Optionally, an url to the file can be given too; if when PrBoom connects 
 it cannot find the named WAD, it will attempt to retrieve the file 
-from the given url, extracting it if necessary. See lxdoom(1) for information 
+from the given url, extracting it if necessary. See prboom(1) for information 
 about the supported url types and compression formats.
 .TP
 \-t \fIticdup\fR
@@ -80,27 +80,23 @@ This causes extra information to be sent with each network packet; this
 will help on networks with high packet loss, but will use more bandwidth.
 .TP
 \-p \fIport\fR
-Tells lxdoom\-game\-server what port number to communicate via (default 5030). 
+Tells prboom\-game\-server what port number to communicate via (default 5030). 
 Note that if you change this from the default, then all the clients will 
 also need to specify this number when they try to connect (the default 
-programmed into lxdoom is also 5030).
+programmed into prboom is also 5030).
 .TP
 \-v
 Increases verbosity level; causes more diagnostics to be printed, the more 
 times \-v is specified.
 .SH More Information
-lxdoom(6), boom.cfg(5)
+prboom(6), boom.cfg(5)
 .PP
-For more information, see the README that came with LxDoom.
+For more information, see the README that came with PrBoom.
 .PP
 Doom is a registered trademark of id software (http://www.idsoftware.com).
 .SH Author
-LxDoom was ported to Linux and is maintained by Colin Phipps 
-(cph@lxdoom.linuxgames.com).
-.PP
-Boom was based on an early version of DosDoom (http://frag.com/dosdoom) which 
-was based on the original Doom source code as released by id Software 
-(http://www.idsoftware.com). See the file AUTHORS for more details.
+See the file AUTHORS included with the PrBoom distribution. 
+This man page was written by Colin Phipps (cph@lxdoom.linuxgames.com).
 
 
 

@@ -1,14 +1,12 @@
 .PU
 .TH LXDOOM 6 local
 .SH NAME
-lxdoom \- A version of Doom for XFree86
+prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 .PP
-lsdoom \- A version of Doom for Linux SVGALib
-.PP
-sndserv \- Sound server for LxDoom
+xprboom \- A version of Doom for the X window system
 .SH SYNOPSIS
 .ll +8
-.B {lxdoom,lsdoom}
+.B {prboom,xprboom}
 [ \-complevel \fIlvl\fR ]
 .BR
 [ \-width \fIw\fR ] [ \-height \fIh\fR ]
@@ -29,68 +27,70 @@ sndserv \- Sound server for LxDoom
 .BR
 [ \-bexout \fIbexdbg\fR ] [ \-debugfile \fIdebug_file\fR ] [ \-devparm ] [ \-noblit ] [ \-nodrawers ]
 .SH DESCRIPTION
-.B LxDoom
+.B PrBoom
 is a version of the 3D shoot'em'up Doom, originally by iD software. 
-It is based on Boom, a version of Doom adapted by TeamTNT (http://www.teamtnt.com) for DOS. lxdoom is a port of Boom to Linux, which runs under 
+It is based on Boom, a version of Doom adapted by TeamTNT (http://www.teamtnt.com) for DOS.
+
+ lxdoom is a port of Boom to Linux, which runs under 
 XFree86. lsdoom is the same program but compiled to run under SVGALib. They 
 support the same command line parameters (with a few exceptions as noted 
 below).
 .SH Options
 .TP
 \-complevel \fIlvl\fR
-This sets the compatibility mode that LxDoom runs in. 4 levels are 
-supported: 0 (Doom v1.9 compatibility), 1 (Boom demo-compatibility), 2 (Boom 
-compatibility) and 3 (LxDoom compatibility). The default is set in the 
-config file, usually LxDoom compatibility which means most features and 
-fewest bugs. If you want to record demos specifically including or 
-demonstrating bugs, or compatible/playable with older buggy versions 
-of Doom/LxDoom, then use this option. Playing demos/loading games is 
-handled on-the-fly overriding this option.
+This sets the compatibility mode that PrBoom runs in. If you need to change
+this, see README.compat.
+
 .SH Video Options
 .TP
 \-width \fIw\fR
-Specifies the width of the lxdoom window, in pixels. Default is 320, the width must be
-greater than 320. Not supported by lsdoom.
+Specifies the width of the PrBoom window, in pixels. Default is 320, the
+width must be greater than 320..
 .TP
 \-height \fIh\fR
-Specifies the height of the lxdoom window, in pixels. Default is 200, the height must be
-greater than 200. Not supported by lsdoom.
+Specifies the height of the PrBoom window, in pixels. Default is 200, the
+height must be greater than 200.
 .SH WAD Options
 .TP
 \-iwad \fIiwadname\fR
-Specifies the location of the IWAD file, typically doom.wad or doom2.wad (or doom2f.wad). This tells lxdoom where the main .wad file that came with the version of Doom that you own is.
-.TP
+Specifies the location of the IWAD file, typically doom.wad or doom2.wad (or
+doom2f.wad). This tells lxdoom where the main .wad file that came with the
+version of Doom that you own is. 
+.TP 
 \-file \fIwad1 \&...\fR
-Specifies a list of PWAD files to load in addition to the IWAD file. PWAD files modify the existing Doom game, by adding levels or new sounds or graphics. PWAD files are widely available for download; try ftp.cdrom.com/pub/idgames for starters.
-.TP
-\-deh \fIdeh_file\fR
-Tells lxdoom to load the dehacked patch \fIdeh_file\fR.
-.SH Game Options
+Specifies a list of PWAD files to load in addition to the IWAD file. PWAD
+files modify the existing Doom game, by adding levels or new sounds or
+graphics. PWAD files are widely available for download; try
+ftp.cdrom.com/pub/idgames for starters. .TP \-deh \fIdeh_file\fR Tells PrBoom
+to load the dehacked patch \fIdeh_file\fR. .SH Game Options
 .TP
 \-loadgame {0,1,2,3,4,5,6,7}
-Instructs LxDoom to load the specified saved game immediately. 
+Instructs PrBoom to load the specified saved game immediately. 
 .TP
 \-warp { \fImap\fR | \fIepis\fR \fIlevel\fR }
-Tells LxDoom to begin a new game immediately. For Doom 1 or Ultimate Doom, you must specify the \fIepis\fRode and \fIlevel\fR number to begin at (\fIepis\fR is 1 for Knee-Deep in the Dead, 2 for Shores of Hell, 3 for Inferno, 4 for Ultimate Doom; \fIlevel\fR is between 1 and 9). For Doom ][ or Final Doom, you must specify the \fImap\fR to begin at, which is between 1 and 32 (30 for german Doom ][).
-.TP
-\-skill \fIn\fR
-Tells LxDoom to begin the game at skill level \fIn\fR (1 for ITYTD, 2 for Not Too Rough, 3 for Hurt Me Plenty, 4 for Ultraviolent, 5 for Nightmare).
-.TP
-\-respawn
-Tells LxDoom that monsters that die should respawn (come back to life) after a while. Not for the inexperienced.
-.TP
-\-fast
-Tells LxDoom to make all the monsters move \& react faster. Not for the inexperienced.
+Tells PrBoom to begin a new game immediately. For Doom 1 or Ultimate Doom,
+you must specify the \fIepis\fRode and \fIlevel\fR number to begin at
+(\fIepis\fR is 1 for Knee-Deep in the Dead, 2 for Shores of Hell, 3 for
+Inferno, 4 for Ultimate Doom; \fIlevel\fR is between 1 and 9). For Doom ][ or
+Final Doom, you must specify the \fImap\fR to begin at, which is between 1 and
+32 (30 for german Doom ][). .TP \-skill \fIn\fR Tells LxDoom to begin the game
+at skill level \fIn\fR (1 for ITYTD, 2 for Not Too Rough, 3 for Hurt Me
+Plenty, 4 for Ultraviolent, 5 for Nightmare). 
+.TP 
+\-respawn Tells LxDoom that
+monsters that die should respawn (come back to life) after a while. Not for
+the inexperienced. .TP \-fast Tells LxDoom to make all the monsters move \&
+react faster. Not for the inexperienced. 
 .TP
 \-nomonsters
-Tells LxDoom to include no monsters in the game.
+Tells PrBoom to include no monsters in the game.
 .SH Multiplayer Options
 .TP
 \-net \fIhostname\fR[:\fIport\fR]
 Specifies that a TCP/IP network game is to be started. \fIhostname\fR is the 
 name of the machine on which the network game server is running 
-(lxdoom-game-server). For more information about this, see 
-lxdoom-game-server(6) and the README that came with lxdoom. \fIport\fR is the 
+(prboom-game-server). For more information about this, see 
+prboom-game-server(6) and the README that came with lxdoom. \fIport\fR is the 
 port number on the remote machine to which to connect; if not specified, the 
 default of 5030 (which is the default for lxdoom-game-server(6)) is assumed. 
 The server will configure your LxDoom settings, so that all tha players have 
