@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.4 2000/05/12 08:38:45 cph Exp $
+ * $Id: m_cheat.c,v 1.5 2000/05/20 08:39:21 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.4 2000/05/12 08:38:45 cph Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.5 2000/05/20 08:39:21 cph Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
@@ -519,8 +519,12 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   thinker_t *currentthinker=&thinkercap;
   extern void A_PainDie(mobj_t *);
 
-  while ((currentthinker=currentthinker->next)!=&thinkercap)
+  // killough 7/20/98: kill friendly monsters only if no others to kill
+  uint_64_t mask = MF_FRIEND;
+  do
+    while ((currentthinker=currentthinker->next)!=&thinkercap)
     if (currentthinker->function == P_MobjThinker &&
+	!(((mobj_t *) currentthinker)->flags & mask) && // killough 7/20/98
         (((mobj_t *) currentthinker)->flags & MF_COUNTKILL ||
          ((mobj_t *) currentthinker)->type == MT_SKULL))
       { // killough 3/6/98: kill even if PE is dead
@@ -535,6 +539,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
             P_SetMobjState ((mobj_t *) currentthinker, S_PAIN_DIE6);
           }
       }
+  while (!killcount && mask ? mask=0, 1 : 0); // killough 7/20/98
   // killough 3/22/98: make more intelligent about plural
   // Ty 03/27/98 - string(s) *not* externalized
   doom_printf("%d Monster%s Killed", killcount, killcount==1 ? "" : "s");
