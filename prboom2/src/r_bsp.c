@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.1 2000/05/04 08:15:25 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.1 2000/05/04 08:15:25 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -356,9 +356,32 @@ static void R_AddLine (seg_t *line)
   x1 = viewangletox[angle1];
   x2 = viewangletox[angle2];
 
+#ifdef GL_DOOM
+  {
+    // proff 11/99: we have to add these segs to avoid gaps in OpenGL
+    if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
+    {
+#ifndef _DEBUG
+      if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
+      {
+        unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
+        unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
+        drawsegs = realloc(drawsegs,newmax*sizeof(*drawsegs));
+        //ds_p = drawsegs+maxdrawsegs;
+        ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
+        maxdrawsegs = newmax;
+      }
+      ds_p->curline = curline;
+      ds_p++;
+#endif
+      return;
+    }
+  }
+#else
   // Does not cross a pixel?
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
     return;
+#endif
 
   backsector = line->backsector;
 
@@ -371,8 +394,27 @@ static void R_AddLine (seg_t *line)
     // killough 3/8/98, 4/4/98: hack for invisible ceilings / deep water
     backsector = R_FakeFlat(backsector, &tempsec, NULL, NULL, true);
 
-  if (linedef->r_flags & RF_IGNORE) return;
-  else R_ClipWallSegment (x1, x2, linedef->r_flags & RF_CLOSED);
+  if (linedef->r_flags & RF_IGNORE)
+  {
+#ifdef GL_DOOM
+#ifndef _DEBUG
+      if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
+      {
+        unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
+        unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
+        drawsegs = realloc(drawsegs,newmax*sizeof(*drawsegs));
+        //ds_p = drawsegs+maxdrawsegs;
+        ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
+        maxdrawsegs = newmax;
+      }
+      ds_p->curline = curline;
+      ds_p++;
+#endif
+#endif
+    return;
+  }
+  else
+    R_ClipWallSegment (x1, x2, linedef->r_flags & RF_CLOSED);
 }
 
 //
@@ -568,8 +610,14 @@ void R_RenderBSPNode(int bspnum)
 //----------------------------------------------------------------------------
 //
 // $Log: r_bsp.c,v $
-// Revision 1.1  2000/05/04 08:15:25  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:15:25  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.13  1999/10/17 09:35:14  cphipps
 // Fixed hanging else(s)

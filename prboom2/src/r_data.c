@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.1 2000/05/04 08:15:39 proff_fs Exp $
+ * $Id: r_data.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.1 2000/05/04 08:15:39 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -66,11 +66,6 @@ typedef struct
 } mappatch_t __attribute__((packed));
 
 
-//
-// Texture definition.
-// A DOOM wall texture is a list of patches
-// which are to be combined in a predefined order.
-//
 typedef struct
 {
   char       name[8];
@@ -82,35 +77,8 @@ typedef struct
   mappatch_t patches[1];
 } maptexture_t __attribute__((packed));
 
-
-// A single patch from a texture definition, basically
-// a rectangular area within the texture rectangle.
-typedef struct
-{
-  int originx, originy;  // Block origin, which has already accounted
-  int patch;             // for the internal origin of the patch.
-} texpatch_t __attribute__((packed));
-
-
 // A maptexturedef_t describes a rectangular texture, which is composed
 // of one or more mappatch_t structures that arrange graphic patches.
-
-typedef struct
-{
-  char  name[8];         // Keep name for switch changing, etc.
-  int   next, index;     // killough 1/31/98: used in hashing algorithm
-  // CPhipps - moved arrays with per-texture entries to elements here
-  unsigned  widthmask;
-  size_t    compositesize;
-  byte     *composite;
-  short    *columnlump;
-  unsigned *columnofs;
-  // CPhipps - end of additions
-  short width, height;
-  short patchcount;      // All the patches[patchcount] are drawn
-  texpatch_t patches[1]; // back-to-front into the cached texture.
-} texture_t;
-
 
 // killough 4/17/98: make firstcolormaplump,lastcolormaplump external
 int firstcolormaplump, lastcolormaplump;      // killough 4/17/98
@@ -118,7 +86,8 @@ int firstcolormaplump, lastcolormaplump;      // killough 4/17/98
 int       firstflat, lastflat, numflats;
 int       firstspritelump, lastspritelump, numspritelumps;
 int       numtextures;
-static texture_t **textures;
+texture_t **textures; // proff - 04/05/2000 removed static for OpenGL
+//static texture_t **textures;
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
@@ -999,8 +968,14 @@ void R_PrecacheLevel(void)
 //-----------------------------------------------------------------------------
 //
 // $Log: r_data.c,v $
-// Revision 1.1  2000/05/04 08:15:39  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:15:39  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.14  2000/05/01 17:50:36  Proff
 // made changes to compile with VisualC and SDL

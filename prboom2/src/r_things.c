@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.1 2000/05/04 08:16:48 proff_fs Exp $
+ * $Id: r_things.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.1 2000/05/04 08:16:48 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -40,6 +40,9 @@ rcsid[] = "$Id: r_things.c,v 1.1 2000/05/04 08:16:48 proff_fs Exp $";
 #include "r_draw.h"
 #include "r_things.h"
 #include "lprintf.h"
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 
 #define MINZ        (FRACUNIT*4)
 #define BASEYCENTER 100
@@ -574,6 +577,10 @@ void R_ProjectSprite (mobj_t* thing)
         index = MAXLIGHTSCALE-1;
       vis->colormap = spritelights[index];
     }
+#ifdef GL_DOOM
+  // proff 11/99: add sprite for OpenGL
+  gld_AddSpriteToRenderQueue(thing,lump,flip);
+#endif
 }
 
 //
@@ -702,7 +709,35 @@ void R_DrawPSprite (pspdef_t *psp)
   else
     vis->colormap = spritelights[MAXLIGHTSCALE-1];  // local light
 
+  // proff 11/99: don't use software stuff in OpenGL
+#ifndef GL_DOOM
   R_DrawVisSprite(vis, vis->x1, vis->x2);
+#else
+#ifdef _DEBUG
+  R_DrawVisSprite(vis, vis->x1, vis->x2);
+#endif
+  {
+    int lightlevel;
+    sector_t tmpsec;
+    int floorlightlevel, ceilinglightlevel;
+
+    if ((vis->colormap==fixedcolormap) || (vis->colormap==fullcolormap))
+      lightlevel=255;
+    else
+    {
+//      lightlevel = (viewplayer->mo->subsector->sector->lightlevel) + (extralight << LIGHTSEGSHIFT);
+      R_FakeFlat( viewplayer->mo->subsector->sector, &tmpsec,
+                  &floorlightlevel, &ceilinglightlevel, false);
+      lightlevel = ((floorlightlevel+ceilinglightlevel) >> 1) + (extralight << LIGHTSEGSHIFT);
+
+      if (lightlevel < 0)
+        lightlevel = 0;
+      else if (lightlevel >= 255)
+        lightlevel = 255;
+    }
+    gld_DrawWeapon(lump,vis,lightlevel);
+  }
+#endif	
 }
 
 //
@@ -985,8 +1020,14 @@ void R_DrawMasked(void)
 //----------------------------------------------------------------------------
 //
 // $Log: r_things.c,v $
-// Revision 1.1  2000/05/04 08:16:48  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:16:48  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.12  2000/05/01 14:37:34  Proff
 // changed abs to D_abs

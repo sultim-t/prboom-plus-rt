@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.1 2000/05/04 08:13:41 proff_fs Exp $
+ * $Id: p_setup.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.1 2000/05/04 08:13:41 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include <math.h>
 
@@ -50,6 +50,9 @@ rcsid[] = "$Id: p_setup.c,v 1.1 2000/05/04 08:13:41 proff_fs Exp $";
 #include "p_enemy.h"
 #include "s_sound.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 
 //
 // MAP related Lookup tables.
@@ -239,6 +242,7 @@ static void P_LoadSectors (int lump)
       sector_t *ss = sectors + i;
       const mapsector_t *ms = (mapsector_t *) data + i;
 
+  		ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL and used in debugmode by the HUD to draw sectornum
       ss->floorheight = SHORT(ms->floorheight)<<FRACBITS;
       ss->ceilingheight = SHORT(ms->ceilingheight)<<FRACBITS;
       ss->floorpic = R_FlatNumForName(ms->floorpic);
@@ -419,6 +423,7 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXTOP] = v1->y;
         }
 
+  		ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
@@ -1102,6 +1107,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     rejectlump = -1;
   }
 
+#ifdef GL_DOOM
+// proff 11/99: clean the memory from textures etc.
+  gld_CleanMemory();
+#endif	
+
   P_InitThinkers();
 
   // if working with a devlopment map, reload it
@@ -1176,6 +1186,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // preload graphics
   if (precache)
     R_PrecacheLevel();
+#ifdef GL_DOOM
+  // proff 11/99: calculate all OpenGL specific tables etc.
+  gld_PreprocessLevel();
+#endif	
 }
 
 //
@@ -1191,8 +1205,14 @@ void P_Init (void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_setup.c,v $
-// Revision 1.1  2000/05/04 08:13:41  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:13:41  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.15  2000/05/01 14:39:44  Proff
 // changed long long to int_64_t for portability

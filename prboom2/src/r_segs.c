@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.1 2000/05/04 08:16:31 proff_fs Exp $
+ * $Id: r_segs.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.1 2000/05/04 08:16:31 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -454,6 +454,16 @@ void R_StoreWallRange(const int start, const int stop)
       maxdrawsegs = newmax;
     }
 
+#ifdef GL_DOOM
+#ifndef _DEBUG
+  // proff 11/99: the rest of the calculations is not needed for OpenGL
+  ds_p->curline = curline;
+  ds_p++;
+  curline->linedef->flags |= ML_MAPPED;
+  return;
+#endif
+#endif
+
 #ifdef RANGECHECK
   if (start >=viewwidth || start > stop)
     I_Error ("Bad R_RenderWallRange: %i to %i", start , stop);
@@ -831,8 +841,14 @@ void R_StoreWallRange(const int start, const int stop)
 //----------------------------------------------------------------------------
 //
 // $Log: r_segs.c,v $
-// Revision 1.1  2000/05/04 08:16:31  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:16:31  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.16  2000/05/01 14:37:34  Proff
 // changed abs to D_abs

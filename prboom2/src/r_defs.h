@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.1 2000/05/04 08:15:46 proff_fs Exp $
+ * $Id: r_defs.h,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -88,6 +88,7 @@ typedef struct
 
 typedef struct
 {
+  int iSectorID; // proff 04/05/2000: needed for OpenGL and used in debugmode by the HUD to draw sectornum
   fixed_t floorheight;
   fixed_t ceilingheight;
   int nexttag,firsttag;  // killough 1/30/98: improves searches for tags.
@@ -178,6 +179,7 @@ typedef enum
 
 typedef struct line_s
 {
+  int iLineID;           // proff 04/05/2000: needed for OpenGL
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
   short flags;           // Animation related.
@@ -420,8 +422,14 @@ typedef struct visplane
 //----------------------------------------------------------------------------
 //
 // $Log: r_defs.h,v $
-// Revision 1.1  2000/05/04 08:15:46  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:15:46  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.6  1999/10/12 13:01:16  cphipps
 // Changed header to GPL

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.1 2000/05/04 08:16:10 proff_fs Exp $
+ * $Id: r_main.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.1 2000/05/04 08:16:10 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -46,6 +46,10 @@ static const char rcsid[] = "$Id: r_main.c,v 1.1 2000/05/04 08:16:10 proff_fs Ex
 #include "lprintf.h"
 #include "st_stuff.h"
 #include "i_main.h"
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
+
 
 void R_LoadTrigTables(void);
 
@@ -591,6 +595,10 @@ void R_RenderPlayerView (player_t* player)
   R_ClearSprites ();
     
   rendered_segs = rendered_visplanes = 0;
+#ifdef GL_DOOM
+  // proff 11/99: clear buffers
+  gld_InitDrawScene();
+#endif
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       char c[47*47];
@@ -662,6 +670,11 @@ void R_RenderPlayerView (player_t* player)
       R_DrawViewBorder();
     }
 
+#ifdef GL_DOOM
+  // proff 11/99: switch to perspective mode
+  gld_StartDrawScene();
+#endif
+
   // check for new console commands.
 #ifdef HAVE_NET  
   NetUpdate ();
@@ -675,28 +688,52 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
     
+#ifdef GL_DOOM
+#ifdef _DEBUG
   R_DrawPlanes ();
+#endif
+#else
+  R_DrawPlanes ();
+#endif
     
   // Check for new console commands.
 #ifdef HAVE_NET  
   NetUpdate ();
 #endif
-    
+
+#ifdef GL_DOOM
+#ifdef _DEBUG
   R_DrawMasked ();
+#endif
+#else
+  R_DrawMasked ();
+#endif
 
   // Check for new console commands.
 #ifdef HAVE_NET  
   NetUpdate ();
 #endif
 
+#ifdef GL_DOOM
+  // proff 11/99: draw the scene
+	gld_DrawScene(player);
+  // proff 11/99: finishing off
+  gld_EndDrawScene();
+#endif
   if (rendering_stats) R_ShowStats();
 }
 
 //----------------------------------------------------------------------------
 //
 // $Log: r_main.c,v $
-// Revision 1.1  2000/05/04 08:16:10  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
+// Revision 1.1.1.1  2000/05/04 08:16:10  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.22  2000/05/01 17:50:36  Proff
 // made changes to compile with VisualC and SDL

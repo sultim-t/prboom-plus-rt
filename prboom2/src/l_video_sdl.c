@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: l_video_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
+ * $Id: l_video_sdl.c,v 1.3 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  SDL display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: l_video_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
+rcsid[] = "$Id: l_video_sdl.c,v 1.3 2000/05/04 16:40:00 proff_fs Exp $";
 
 #include <stdlib.h>
 #ifdef HAVE_UNISTD
@@ -55,6 +55,9 @@ rcsid[] = "$Id: l_video_sdl.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
 #include "sounds.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 
 extern void M_QuitDOOM(int choice);
 
@@ -296,6 +299,9 @@ static void I_UploadNewPalette(int pal)
   static int cachedgamma;
   static size_t num_pals;
 
+#ifdef GL_DOOM
+  return;
+#endif
   if ((colours == NULL) || (cachedgamma != usegamma)) {
     int            lump = W_GetNumForName("PLAYPAL");
     const byte *palette = W_CacheLumpNum(lump);
@@ -365,12 +371,17 @@ void I_FinishUpdate (void)
   }
 #endif
   
+#ifndef GL_DOOM
   // scales the screen size before blitting it
   if (expand_buffer)
     (*I_ExpandImage)(out_buffer, screens[0]);
   
   // Update the display buffer (flipping video pages if supported)
   SDL_Flip(screen);
+#else
+  // proff 04/05/2000: swap OpenGL buffers
+  gld_Finish();
+#endif
 }
 
 //
@@ -467,8 +478,11 @@ void I_InitGraphics(void)
   h = SCREENHEIGHT * multiply;
   
   // Initialize SDL with this graphics mode
-
+#ifdef GL_DOOM
+  init_flags = SDL_OPENGL;
+#else
   init_flags = SDL_SWSURFACE|SDL_HWPALETTE;
+#endif
   if ( M_CheckParm("-fullscreen") ) {
     init_flags |= SDL_FULLSCREEN;
   }
@@ -479,7 +493,14 @@ void I_InitGraphics(void)
     screen = SDL_SetVideoMode(w, h, 0, init_flags);
   }
 */
+#ifdef GL_DOOM
+  SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
+  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+  SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+  screen = SDL_SetVideoMode(w, h, 16, init_flags);
+#else
   screen = SDL_SetVideoMode(w, h, 8, init_flags);
+#endif
   if(screen == NULL || !I_QueryImageTranslation()) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
@@ -511,12 +532,21 @@ void I_InitGraphics(void)
   // Initialize the input system
   I_InitInputs();
 
+#ifdef GL_DOOM
+  gld_Init(SCREENWIDTH, SCREENHEIGHT);
+#endif
   // Hide pointer while over this window
   SDL_ShowCursor(0);
 }
 
 //
 // $Log: l_video_sdl.c,v $
+// Revision 1.3  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
 // Revision 1.2  2000/05/04 11:23:01  proff_fs
 // added an textwindow for Win32 and
 // changed some printfs to lprintfs

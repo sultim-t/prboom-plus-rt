@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.3 2000/05/04 12:36:24 proff_fs Exp $
+ * $Id: d_main.c,v 1.4 2000/05/04 16:40:00 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.3 2000/05/04 12:36:24 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.4 2000/05/04 16:40:00 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -77,6 +77,9 @@ static const char rcsid[] = "$Id: d_main.c,v 1.3 2000/05/04 12:36:24 proff_fs Ex
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
+#ifdef GL_DOOM
+#include "gl_struct.h"
+#endif
 
 // DEHacked support - Ty 03/09/97 // CPhipps - const char*'s
 void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
@@ -1508,6 +1511,11 @@ void D_DoomMainSetup(void)
     I_SetRes(w, h);
   }
 
+#ifdef GL_DOOM
+  // proff 04/05/2000: for GL-specific switches
+ 	gld_InitCommandLine();
+#endif
+
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"V_Init: allocate screens.\n");
   V_Init();
@@ -1825,6 +1833,12 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: d_main.c,v $
+// Revision 1.4  2000/05/04 16:40:00  proff_fs
+// added OpenGL stuff. Not complete yet.
+// Only the playerview is rendered.
+// The normal output is displayed in a small window.
+// The level is only drawn in debugmode to the window.
+//
 // Revision 1.3  2000/05/04 12:36:24  proff_fs
 // added support for include response files and
 // fixed some related bugs
