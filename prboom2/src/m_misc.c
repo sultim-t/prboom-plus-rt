@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.30 2001/02/18 17:11:58 proff_fs Exp $
+ * $Id: m_misc.c,v 1.31 2001/06/17 13:14:09 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,12 +33,14 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.30 2001/02/18 17:11:58 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.31 2001/06/17 13:14:09 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
 
+#include <stdio.h>
+#include <errno.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -99,56 +101,70 @@ int M_DrawText(int x,int y,boolean direct,char* string)
   return x;
 }
 
-//
-// M_WriteFile
-//
+/* cph - disk icon not implemented */
+static inline void I_BeginRead(void) {}
+static inline void I_EndRead(void) {}
 
-boolean M_WriteFile(char const* name,void* source,int length)
+/*
+ * M_WriteFile
+ *
+ * killough 9/98: rewritten to use stdio and to flash disk icon
+ */
+
+boolean M_WriteFile(char const *name, void *source, int length)
 {
-  int handle;
-  int count;
-  
-  handle = open ( name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+  FILE *fp;
 
-  if (handle == -1)
-    return false;
-
-  count = write (handle, source, length);
-  close (handle);
+  errno = 0;
   
-  if (count < length) {
-    unlink(name); // CPhipps - no corrupt data files around, they only confuse people.
-    return false;
-  }
-    
-  return true;
+  if (!(fp = fopen(name, "wb")))       // Try opening file
+    return 0;                          // Could not open file for writing
+
+  I_BeginRead();                       // Disk icon on
+  length = fwrite(source, 1, length, fp) == length;   // Write data
+  fclose(fp);
+  I_EndRead();                         // Disk icon off
+
+  if (!length)                         // Remove partially written file
+    remove(name);
+
+  return length;
 }
 
+/*
+ * M_ReadFile
+ *
+ * killough 9/98: rewritten to use stdio and to flash disk icon
+ */
 
-//
-// M_ReadFile
-//
-
-int M_ReadFile(char const* name,byte** buffer)
+int M_ReadFile(char const *name, byte **buffer)
 {
-  int handle, count, length;
-  struct stat fileinfo;
-  byte   *buf;
-  
-  handle = open (name, O_RDONLY | O_BINARY, 0666);
-  if ((handle == -1) || (fstat (handle,&fileinfo) == -1))
-    I_Error ("M_ReadFile: Couldn't read file %s", name);
+  FILE *fp;
 
-  length = fileinfo.st_size;
-  buf = Z_Malloc (length, PU_STATIC, NULL);
-  count = read (handle, buf, length);
-  close (handle);
-  
-  if (count < length)
-    I_Error ("M_ReadFile: Couldn't read file %s", name);
-    
-  *buffer = buf;
-  return length;
+  errno = 0;
+
+  if ((fp = fopen(name, "rb")))
+    {
+      size_t length;
+
+      I_BeginRead();
+      fseek(fp, 0, SEEK_END);
+      length = ftell(fp);
+      fseek(fp, 0, SEEK_SET);
+      *buffer = Z_Malloc(length, PU_STATIC, 0);
+      if (fread(*buffer, 1, length, fp) == length)
+        {
+          fclose(fp);
+          I_EndRead();
+          return length;
+        }
+      fclose(fp);
+    }
+
+  I_Error("Couldn't read file %s: %s", name, 
+	  errno ? strerror(errno) : "(Unknown Error)");
+
+  return 0;
 }
 
 //
@@ -218,7 +234,7 @@ int usejoystick, joybfire,joybstrafe,joybspeed,joybuse;
 default_t defaults[] =
 {
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"default_compatibility_level",{&default_compatibility_level},
+  {"default_compatibility_level",{(int*)&default_compatibility_level},
    {-1},-1,MAX_COMPATIBILITY_LEVEL-1,
    def_int,ss_none}, // compatibility level" - CPhipps  
   {"realtic_clock_rate",{&realtic_clock_rate},{100},0,UL,
