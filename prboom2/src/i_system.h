@@ -36,6 +36,7 @@
 #pragma interface
 #endif
 
+extern int ms_to_next_tick;
 int I_GetTime_RealTime(void);     /* killough */
 
 unsigned long I_GetRandomTimeSeed(void); /* cphipps */
