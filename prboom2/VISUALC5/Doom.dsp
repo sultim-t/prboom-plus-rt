@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /I "..\src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "HIGHRES" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /I "..\src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "..\src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "HIGHRES" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "..\src" /D "_DEBUG" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -97,7 +97,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "HIGHRES" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /I "..\src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "GL_DOOM" /D "HIGHRES" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /I "..\src" /D "NDEBUG" /D "GL_DOOM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -107,7 +107,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib opengl32.lib glu32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib opengl32.lib glu32.lib /nologo /subsystem:windows /profile /machine:I386
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
 
@@ -124,7 +124,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "HIGHRES" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "..\src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "GL_DOOM" /D "HIGHRES" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "..\src" /D "_DEBUG" /D "GL_DOOM" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -154,6 +154,10 @@ SOURCE=..\src\am_map.c
 # Begin Source File
 
 SOURCE=..\src\am_map.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\config.h
 # End Source File
 # Begin Source File
 
@@ -285,7 +289,15 @@ SOURCE=..\src\hu_stuff.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\i_joy.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\i_joy.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_main.c
 # End Source File
 # Begin Source File
 
@@ -330,22 +342,6 @@ SOURCE=..\src\info.c
 # Begin Source File
 
 SOURCE=..\src\info.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\i_joy.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\i_main.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\v_video_trans.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\v_video_trans.h
 # End Source File
 # Begin Source File
 
@@ -669,6 +665,14 @@ SOURCE=..\src\v_video.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\v_video_trans.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\v_video_trans.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\version.c
 # End Source File
 # Begin Source File
@@ -783,6 +787,49 @@ SOURCE=..\src\gl_texture.c
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
+
+!ENDIF 
+
+# End Source File
+# End Group
+# Begin Group "Asm Source Files"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\Drawasm.nas
+
+!IF  "$(CFG)" == "Doom - Win32 Release"
+
+# Begin Custom Build - Compiling drawasm.nas
+IntDir=.\Release
+InputPath=..\src\Drawasm.nas
+InputName=Drawasm
+
+"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
+
+# Begin Custom Build - Compiling drawasm.nas
+IntDir=.\Debug
+InputPath=..\src\Drawasm.nas
+InputName=Drawasm
+
+"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
+
+# PROP Exclude_From_Build 1
 
 !ENDIF 
 
