@@ -503,15 +503,15 @@ void gld_Precache(void)
   extern int firstflat, lastflat, numflats;
   extern int firstspritelump, lastspritelump, numspritelumps;
   extern int numtextures;
-  register int i;
-  register byte *hitlist;
+  int i;
+  byte *hitlist;
 
   if (demoplayback)
     return;
 
   {
     size_t size = numflats > numsprites  ? numflats : numsprites;
-    hitlist = Z_Malloc((size_t)numtextures > size ? numtextures : size,PU_LEVEL,0);
+    hitlist = malloc((size_t)numtextures > size ? numtextures : size);
   }
 
   // Precache flats.
@@ -570,7 +570,7 @@ void gld_Precache(void)
             while (--k >= 0);
           }
       }
-  Z_Free(hitlist);
+  free(hitlist);
 }
 
 void gld_CleanMemory(void)
