@@ -107,19 +107,20 @@ static const size_t HEADER_SIZE = (sizeof(memblock_t)+CHUNK_SIZE-1) & ~(CHUNK_SI
 
 static memblock_t *blockbytag[PU_MAX];
 
-static int free_memory = /*8192*/4096*1024;
+static int memory_size = 8192*1024;
+static int free_memory = 0;
 
 #ifdef INSTRUMENTED
 
 // statistics for evaluating performance
-static int active_memory;
-static int purgable_memory;
+static int active_memory = 0;
+static int purgable_memory = 0;
 
 void Z_DrawStats(void)            // Print allocation statistics
 {
   char buffer[1024];
 
-  unsigned long total_memory = free_memory + active_memory + purgable_memory;
+  unsigned long total_memory = free_memory + memory_size + active_memory + purgable_memory;
   double s = 100.0 / total_memory;
 
   if (gamestate != GS_LEVEL)
@@ -132,7 +133,7 @@ void Z_DrawStats(void)            // Print allocation statistics
           "%-5li\n",
           active_memory,
           purgable_memory,
-          free_memory,
+          free_memory + memory_size,
           total_memory
           );
   V_WriteTextXYGap(buffer, 0, 16, -1, -1);
@@ -142,7 +143,7 @@ void Z_DrawStats(void)            // Print allocation statistics
           "%6.01f%%\n",
           active_memory*s,
           purgable_memory*s,
-          free_memory*s
+          (free_memory + memory_size)*s
           );
   V_WriteTextXYGap(buffer, 45, 16, -1, -1);
   V_WriteTextXYGap(FC_GRAY
@@ -352,7 +353,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 
   size = (size+CHUNK_SIZE-1) & ~(CHUNK_SIZE-1);  // round to chunk size
 
-  if (free_memory < (int)(size + HEADER_SIZE))
+  if ((free_memory + memory_size) < (int)(size + HEADER_SIZE))
   {
     memblock_t *end_block;
     block = blockbytag[PU_CACHE];
@@ -367,7 +368,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 #else
         (Z_Free)((char *) block + HEADER_SIZE);
 #endif
-        if ((free_memory >= (int)(size + HEADER_SIZE)) || (block == end_block))
+        if (((free_memory + memory_size) >= (int)(size + HEADER_SIZE)) || (block == end_block))
           break;
         block = next;               // Advance to next block
       }
