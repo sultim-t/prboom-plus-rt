@@ -4,12 +4,12 @@ Name: %{doomname}
 Summary: Doom - classic 3D shoot-em-up game
 Version: @VERSION@
 Release: 1
-Source: ftp://download.sourceforge.net//prboom//@PACKAGE@-@VERSION@.tar.gz
+Source: ftp://download.sourceforge.net/pub/sourceforge/prboom/@PACKAGE@-@VERSION@.tar.gz
 URL: http://prboom.sourceforge.net/
 Group: Amusements/Games
 BuildRoot: /var/tmp/%{doomname}-buildroot
 Copyright: GPL
-Packager: Colin Phipps <cphipps@doomworld.com>
+Packager: Colin Phipps <cph@cph.demon.co.uk>
 Prefix: %{_prefix}
 Autoreq: 0
 Requires: libSDL-1.2.so.0, libSDL_mixer-1.2.so.0, libSDL_net-1.2.so.0, libm.so.6, libc.so.6
