@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_doors.c,v 1.7 2001/04/15 14:59:36 cph Exp $
+ * $Id: p_doors.c,v 1.8 2001/07/07 11:15:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.7 2001/04/15 14:59:36 cph Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.8 2001/07/07 11:15:56 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -490,10 +490,7 @@ int EV_VerticalDoor
 
   /* if door already has a thinker, use it
    * cph 2001/04/05 - 
-   * Ok, this is a disaster area. We're assuming that sec->ceilingdata
-   *  is a vldoor_t! What if this door is controlled by both DR lines
-   *  and by switches? I don't know how to fix that.
-   * Secondly, original Doom didn't distinguish floor/lighting/ceiling 
+   * Original Doom didn't distinguish floor/lighting/ceiling 
    *  actions, so we need to do the same in demo compatibility mode.
    */
   door = sec->ceilingdata;
@@ -501,28 +498,29 @@ int EV_VerticalDoor
     if (!door) door = sec->floordata;
     if (!door) door = sec->lightingdata;
   }
-  if (door)
-  {
-    switch(line->special)
-    {
-      case  1: // only for "raise" doors, not "open"s
-      case  26:
-      case  27:
-      case  28:
-      case  117:
-        if (door->direction == -1)
-          door->direction = 1;  // go back up
-        else
-        {
-          if (!thing->player)
-            return 0;           // JDC: bad guys never close doors
-    
-          door->direction = -1; // start going down immediately
-        }
-        return 1;
+  if (door) {
+    /* If the current action is a T_VerticalDoor and we're back in
+     * EV_VerticalDoor, it must have been a repeatable line, so I've dropped
+     * that check. For old demos we have to emulate the old buggy behavior and
+     * mess up non-T_VerticalDoor actions.
+     */
+    if (compatibility_level < prboom_4_compatibility || 
+        door->thinker.function == T_VerticalDoor) {
+      /* An already moving repeatable door which is being re-pressed, or a
+       * monster is trying to open a closing door - so change direction
+       */
+      if (door->direction == -1) {
+        door->direction = 1; return 1; /* go back up */
+      } else if (player) {
+        door->direction = -1; return 1; /* go back down */
+      }
     }
+    /* Either we're in prboom >=v2.3 and it's not a door, or it's a door but
+     * we're a monster and don't want to shut it; exit with no action.
+     */
+    return 0;
   }
-  
+
   // emit proper sound
   switch(line->special)
   {
@@ -531,12 +529,7 @@ int EV_VerticalDoor
       S_StartSound((mobj_t *)&sec->soundorg,sfx_bdopn);
       break;
 
-    case 1:   // normal door sound
-    case 31:
-      S_StartSound((mobj_t *)&sec->soundorg,sfx_doropn);
-      break;
-
-    default:  // locked door sound
+    default:  // normal or locked door sound
       S_StartSound((mobj_t *)&sec->soundorg,sfx_doropn);
       break;
   }
