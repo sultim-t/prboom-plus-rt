@@ -133,7 +133,7 @@ Done!
 Proff:
 - fix new menu system
 - fix config system
-- sort the config file alphabetically
+*- sort the config file alphabetically
 *- fix new axes support
 - add everything new from 2.2.x - Done?
 
