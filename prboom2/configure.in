@@ -106,9 +106,6 @@ esac
 
 dnl - SDL
 AM_PATH_SDL(1.1.3, sdl_main="yes")
-AC_CHECK_LIB(smpeg,SMPEG_playAudio,[
-    MIXER_LIBS=-lsmpeg
-],,$SDL_LIBS)
 AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
     AC_DEFINE(HAVE_LIBSDL_MIXER)
     MIXER_LIBS="$MIXER_LIBS -lSDL_mixer"
