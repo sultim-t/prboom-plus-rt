@@ -10,6 +10,7 @@ Changes from v2.2.3 to v2.2.4
 - fixed name clash when compiling for some unix platforms
 - flag counted items with different colour on the IDDT automap
 - fixed extra shot sound when chaingun runs out of ammo
+- fixed offsets for flipped sprites
 
 Changes from v2.2.2 to v2.2.3
 - improved mouse handling

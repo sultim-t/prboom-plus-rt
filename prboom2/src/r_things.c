@@ -487,8 +487,10 @@ void R_ProjectSprite (mobj_t* thing)
       flip = (boolean) sprframe->flip[0];
     }
 
-  // calculate edges of the shape
-  tx -= spriteoffset[lump];
+  /* calculate edges of the shape
+   * cph 2003/08/1 - fraggle points out that this offset must be flipped if the
+   * sprite is flipped; e.g. FreeDoom imp is messed up by this. */
+  tx -= flip ? spritewidth[lump] - spriteoffset[lump] : spriteoffset[lump];
   x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
 
     // off the right side?
