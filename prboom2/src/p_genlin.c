@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_genlin.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_genlin.c,v 1.7 2000/09/23 12:50:02 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_genlin.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_genlin.c,v 1.7 2000/09/23 12:50:02 cph Exp $";
 
 #include "doomstat.h" //jff 6/19/98 for demo_compatibility
 #include "r_main.h"
@@ -757,16 +757,16 @@ manual_stair:
         if (!Igno && tsec->floorpic != texture)
           continue;
 
-	/* cph - DEMOSYNC - MBF includes a fix here, don't understand it 
-	 * I think it's only for Boom v2.01 demos, worth it? */
-        if (demo_compatibility) // jff 6/19/98 prevent double stepsize
+        /* jff 6/19/98 prevent double stepsize */
+        if (compatibility_level < boom_202_compatibility)
           height += floor->direction * stairsize;
 
         //jff 2/26/98 special lockout condition for retriggering
         if (P_SectorActive(floor_special,tsec) || tsec->stairlock)
           continue;
         
-        if (!demo_compatibility) // jff 6/19/98 increase height AFTER continue
+        /* jff 6/19/98 increase height AFTER continue */
+        if (compatibility_level >= boom_202_compatibility)
           height += floor->direction * stairsize;
 
         // jff 2/26/98

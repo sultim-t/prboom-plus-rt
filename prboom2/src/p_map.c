@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_map.c,v 1.7 2000/09/23 12:50:02 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.6 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_map.c,v 1.7 2000/09/23 12:50:02 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -1236,11 +1236,13 @@ void P_SlideMove(mobj_t *mo)
 	   * while on ice.
 	   *
 	   * killough 10/98: keep buggy code around for old Boom demos
+	   *
+	   * cph 2000/09//23: buggy code was only in Boom v2.01
 	   */
 
 	  if (!P_TryMove(mo, mo->x, mo->y + mo->momy, true))
 	    if (!P_TryMove(mo, mo->x + mo->momx, mo->y, true))
-	      if (!mbf_features && !compatibility)
+	      if (compatibility_level == boom_201_compatibility)
 		mo->momx = mo->momy = 0;
 
 	  break;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.26 2000/09/21 18:53:57 cph Exp $
+ * $Id: g_game.c,v 1.27 2000/09/23 12:50:01 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.26 2000/09/21 18:53:57 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.27 2000/09/23 12:50:01 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1482,7 +1482,7 @@ static void G_LoadGameErr(const char *msg)
 #define VERSIONSIZE   16
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
-{ "demo", "doom", "\"boom compatibility\"", "boom", "lxdoom v1.3.2+", 
+{ "doom v1.2", "demo", "doom", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
   "MBF", "PrBoom 2.03beta", "New PrBoom"  };
 
 static const struct {
@@ -2406,7 +2406,14 @@ void G_BeginRecording (void)
       *demo_p++ = 0;
 
   } else if (compatibility_level > doom_compatibility) {
-    *demo_p++ = (compatibility_level < lxdoom_1_compatibility) ? 202 : 203;
+    byte v, c; /* Nominally, version and compatibility bits */
+    switch (compatibility_level) {
+    case boom_compatibility_compatibility: v = 202, c = 1; break;
+    case boom_201_compatibility: v = 201; c = 0; break;
+    case boom_202_compatibility: v = 202, c = 0; break;
+    default: I_Error("Boom compatibility level level unrecognised?");
+    }
+    *demo_p++ = v;
     
     // signature
     *demo_p++ = 0x1d;
@@ -2417,7 +2424,7 @@ void G_BeginRecording (void)
     *demo_p++ = 0xe6;
     
     /* CPhipps - save compatibility level in demos */
-    *demo_p++ = boom_compatibility_compatibility + 1 - compatibility_level; 
+    *demo_p++ = c; 
     
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
@@ -2537,19 +2544,26 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
     {
       demo_p += 6;               // skip signature;
       switch (demover) {
-      case 200:
+      case 200: /* BOOM */
       case 201:
+        if (!*demo_p++)
+	  compatibility_level = boom_201_compatibility;
+        else
+	  compatibility_level = boom_compatibility_compatibility;
+	break;
       case 202:
-	/* BOOM */
-	compatibility_level = (*demo_p++) ? boom_compatibility_compatibility
-	  : boom_compatibility;
+        if (!*demo_p++)
+	  compatibility_level = boom_202_compatibility; 
+        else
+	  compatibility_level = boom_compatibility_compatibility;
 	break;
       case 203:
 	/* LxDoom or MBF - determine from signature
 	 * cph - load compatibility level */
 	switch (demobuffer[2]) {
 	case 'B': /* LxDoom */
-	  compatibility_level = boom_compatibility_compatibility + 1 - (signed char)(*demo_p++);
+	/* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
+	  compatibility_level = lxdoom_1_compatibility;
 	  break;
 	case 'M':
 	  compatibility_level = mbf_compatibility;
