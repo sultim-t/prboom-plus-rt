@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.14 2000/05/16 21:44:36 proff_fs Exp $
+ * $Id: gl_main.c,v 1.15 2000/05/20 21:29:51 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -711,13 +711,9 @@ static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
     gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
     if (!gltexture)
       return;
-    // get the lightlevel
-    light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
     // calculate texture offsets
     uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
     voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
-    // get height
-    z=(float)sector->floorheight/(float)MAP_SCALE;
   }
   else // if it is a ceiling ...
   {
@@ -728,19 +724,16 @@ static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
     gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
     if (!gltexture)
       return;
-    // get the lightlevel
-    light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
     // calculate texture offsets
     uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
     voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
-    // get height
-    z=(float)sector->ceilingheight/(float)MAP_SCALE;
   }
-  if (plane)
-  {
-    z=(float)plane->height/(float)MAP_SCALE;
-    light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
-  }
+  
+  // get height from plane
+  z=(float)plane->height/(float)MAP_SCALE;
+  // get the lightlevel from plane
+  light=gld_CalcLightLevel(plane->lightlevel+(extralight<<5));
+
   gld_BindFlat(gltexture);
   gld_StaticLight(light);
   glMatrixMode(GL_MODELVIEW);
@@ -1231,6 +1224,38 @@ static void gld_PrecalculateSector(int num)
           if (levelinfo) fprintf(levelinfo, "line %4i (iLineID %4i) has both sides in same sector (removed)\n", i, sectors[num].lines[i]->iLineID);
         }
   }
+
+  // the following is for specialeffects. see r_bsp.c in R_Subsector
+  sectors[num].no_toptextures=true;
+  sectors[num].no_bottomtextures=true;
+  linecount=0;
+  for (i=0; i<sectors[num].linecount; i++)
+  {
+    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
+         (sectors[num].lines[i]->sidenum[1]>=0) )
+    {
+      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
+        sectors[num].no_toptextures=false;
+      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=R_TextureNumForName("-"))
+        sectors[num].no_bottomtextures=false;
+      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=R_TextureNumForName("-"))
+        sectors[num].no_toptextures=false;
+      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=R_TextureNumForName("-"))
+        sectors[num].no_bottomtextures=false;
+    }
+    else
+    {
+      sectors[num].no_toptextures=false;
+      sectors[num].no_bottomtextures=false;
+    }
+  }
+#ifdef _DEBUG
+  if (sectors[num].no_toptextures)
+    lprintf(LO_INFO,"Sector %i has no toptextures\n",num);
+  if (sectors[num].no_bottomtextures)
+    lprintf(LO_INFO,"Sector %i has no bottomtextures\n",num);
+#endif
+
   // initialize variables
   linecount=sectors[num].linecount;
   oldline=0;
@@ -1484,7 +1509,9 @@ void gld_PreprocessSectors(void)
     }
     if (sectors[i].linecount<3)
     {
+#ifdef _DEBUG
       lprintf(LO_ERROR, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
+#endif
       if (levelinfo) fprintf(levelinfo, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
       sectorclosed[i]=false;
     }
@@ -1495,7 +1522,9 @@ void gld_PreprocessSectors(void)
       {
         if ((vertexcheck[j]==1) || (vertexcheck[j]==2))
         {
+#ifdef _DEBUG
           lprintf(LO_ERROR, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+#endif
           if (levelinfo) fprintf(levelinfo, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
           sectorclosed[i]=false;
         }
@@ -1562,11 +1591,11 @@ void gld_StartDrawScene(void)
 	yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
 	inv_yaw=-90.0f+(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
 
+#ifdef _DEBUG
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glClear(GL_DEPTH_BUFFER_BIT);
-	// SKY
-	//gld_StaticLight3f(1.0f,1.0f,1.0f);
-	//gld_DrawSky(yaw);
+#else
+	glClear(GL_DEPTH_BUFFER_BIT);
+#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
@@ -1869,12 +1898,9 @@ void gld_AddWall(seg_t *seg)
     if (frontsector->ceilingpic==skyflatnum)
     {
       wall.ytop=255.0f;
-      if (   (floor_height==backsector->floorheight)
-          && (backsector->ceilingpic==skyflatnum)
-          && (   (texturetranslation[seg->sidedef->toptexture]==R_TextureNumForName("-"))
-              || (texturetranslation[seg->sidedef->bottomtexture]==R_TextureNumForName("-"))
-              || (texturetranslation[seg->sidedef->midtexture]==R_TextureNumForName("-"))
-             )
+      if (
+          (backsector->ceilingheight==backsector->floorheight) &&
+          (backsector->ceilingpic==skyflatnum)
          )
       {
         wall.ybottom=(float)backsector->floorheight/(float)MAP_SCALE;
@@ -1883,13 +1909,22 @@ void gld_AddWall(seg_t *seg)
         gld_DrawWall(&wall);
       }
       else
-        if (backsector->ceilingpic!=skyflatnum)
+      {
+        if ( (texturetranslation[seg->sidedef->toptexture]!=R_TextureNumForName("-")) )
         {
-          wall.ybottom=(float)ceiling_height/(float)MAP_SCALE;
+          wall.ybottom=(float)frontsector->ceilingheight/(float)MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           wall.sky=true;
           gld_DrawWall(&wall);
         }
+        else
+        {
+          wall.ybottom=(float)backsector->ceilingheight/(float)MAP_SCALE;
+          SKYTEXTURE(frontsector->sky,backsector->sky);
+          wall.sky=true;
+          gld_DrawWall(&wall);
+        }
+      }
     }
     if (floor_height<ceiling_height)
     {
@@ -1937,13 +1972,36 @@ bottomtexture:
     /* bottomtexture */
     ceiling_height=backsector->floorheight;
     floor_height=frontsector->floorheight;
-    if ((frontsector->floorpic==skyflatnum) && (backsector->floorpic!=skyflatnum))
+    if (frontsector->floorpic==skyflatnum)
     {
-      wall.ytop=(float)floor_height/(float)MAP_SCALE;
       wall.ybottom=-255.0f;
-      SKYTEXTURE(frontsector->sky,backsector->sky);
-      wall.sky=true;
-      gld_DrawWall(&wall);
+      if (
+          (backsector->ceilingheight==backsector->floorheight) &&
+          (backsector->floorpic==skyflatnum)
+         )
+      {
+        wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
+        SKYTEXTURE(frontsector->sky,backsector->sky);
+        wall.sky=true;
+        gld_DrawWall(&wall);
+      }
+      else
+      {
+        if ( (texturetranslation[seg->sidedef->toptexture]!=R_TextureNumForName("-")) )
+        {
+          wall.ytop=(float)frontsector->floorheight/(float)MAP_SCALE;
+          SKYTEXTURE(frontsector->sky,backsector->sky);
+          wall.sky=true;
+          gld_DrawWall(&wall);
+        }
+        else
+        {
+          wall.ytop=(float)backsector->floorheight/(float)MAP_SCALE;
+          SKYTEXTURE(frontsector->sky,backsector->sky);
+          wall.sky=true;
+          gld_DrawWall(&wall);
+        }
+      }
     }
     if (floor_height<ceiling_height)
     {
@@ -2006,9 +2064,11 @@ void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceiling
     // enable backside removing
     glEnable(GL_CULL_FACE);
     // render the floor
-    gld_DrawFlat(sector->iSectorID, false, floorplane);
+    if (floorplane)
+      gld_DrawFlat(sector->iSectorID, false, floorplane);
     // render the ceiling
-    gld_DrawFlat(sector->iSectorID, true, ceilingplane);
+    if (ceilingplane)
+      gld_DrawFlat(sector->iSectorID, true, ceilingplane);
     // set rendered true
     sectorrendered[sector->iSectorID]=true;
     // disable backside removing

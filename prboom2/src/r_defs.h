@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.7 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: r_defs.h,v 1.8 2000/05/20 21:29:52 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -93,6 +93,8 @@ typedef struct
 {
 #ifdef GL_DOOM
   int iSectorID; // proff 04/05/2000: needed for OpenGL and used in debugmode by the HUD to draw sectornum
+  boolean no_toptextures;
+  boolean no_bottomtextures;
 #endif
   fixed_t floorheight;
   fixed_t ceilingheight;
