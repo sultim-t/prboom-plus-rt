@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.11 2000/09/16 20:20:45 proff_fs Exp $
+ * $Id: i_sound.c,v 1.12 2000/09/24 13:46:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.11 2000/09/16 20:20:45 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.12 2000/09/24 13:46:50 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -438,7 +438,7 @@ void I_UpdateSound(void *unused, Uint8 *stream, int len)
 
     // Determine end, for left channel only
     //  (right channel is implicit).
-    leftend = leftout + SAMPLECOUNT*step;
+    leftend = leftout + (len/4)*step;
 
     // Mix sounds into the mixing buffer.
     // Loop over step*SAMPLECOUNT,
@@ -531,7 +531,7 @@ I_InitSound()
 
   // Secure and configure sound device first.
   fprintf( stderr, "I_InitSound: ");
- 
+
   /* Initialize variables */
   audio_rate = SAMPLERATE;
 #if ( SDL_BYTEORDER == SDL_BIG_ENDIAN )
@@ -546,9 +546,12 @@ I_InitSound()
     fprintf(stderr, "couldn't open audio with desired format\n");
     return;
   }
+  SAMPLECOUNT = audio_buffers;
   Mix_SetPostMix(I_UpdateSound, NULL);
   fprintf(stderr, " configured audio device with %d samples/slice\n", SAMPLECOUNT);
 #else
+  SDL_AudioSpec audio;
+
   // Secure and configure sound device first.
   fprintf( stderr, "I_InitSound: ");
   

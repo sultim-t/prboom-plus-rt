@@ -1,4 +1,4 @@
-PrBoom 2.1.0
+PrBoom 2.1.1
 ============
 
 PrBoom is a version of the classic 3D shoot'em'up game Doom, originally 
@@ -205,3 +205,11 @@ Editing features are not covered in the docs with this package. We plan
 to bundle the editings docs as a separate download. Watch our website 
 for news.
 
+What's new?
+-----------
+
+since prboom 2.1.0
+     * fullscreen is now default for new boom.cfg.
+     * included sdl_mixer.dll plays midi-files now.
+     * if waveout is used for sound (Windows NT4) the sound doesn't
+       stutter anymore.
