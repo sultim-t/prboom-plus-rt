@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 #
-# $Id: genlin.cgi,v 1.2 2000/11/26 16:52:22 cph Exp $
+# $Id: genlin.cgi,v 1.3 2000/12/10 15:03:42 cph Exp $
 #
 # Copyright (C) 2000 by Colin Phipps <cphipps@doomworld.com>
 #
@@ -36,15 +36,20 @@ my %field_name = (
 	ceil_target => 'Target height',
 	crush => 'Crushing',
 	delay => 'Wait delay (seconds)',
+	delay_plat => 'Wait delay (seconds)',
 	direction => 'Direction',
 	floor_target => 'Target height',
+	igntxt => 'Ignore floor texture changes',
 	kind => 'Mechanism',
 	locked_kind => 'Mechanism',
 	lock => 'Needs keys',
 	model => 'Model sector selection algorithm',
 	monster => 'Monsters can activate',
+	plat_target => 'Target height(s)',
+	silent => 'Silent',
 	skck => 'Skull keys and card keys considered equivalent',
 	speed => 'Speed',
+	step => 'Step size',
 	repeatable => 'Repeatable',
 	texchg => 'Texture/sector change',
 	trigger => 'Trigger',
@@ -59,11 +64,13 @@ my %field_value = (
 		'Move 32 units' ],
 	crush => $bool,
 	delay => [ 1, 4, 9, 30],
+	delay_plat => [ 1, 3, 5, 10], # Bah!
 	direction => [ qw/ Down Up / ],
 	floor_target => [ 'Highest neighbour floor', 'Lowest neighbour floor',
 		'Next neighbour floor', 'Lowest neighbour ceiling', 
 		'Own ceiling', 'Shortest side texture', 'Move 24 units', 
 		'Move 32 units' ],
+	igntxt => $bool,
 	kind => [ 'Open-wait-close', 'Open and stay',
 		'Close-wait-open', 'Close and stay' ],
 	locked_kind => [ 'Open-wait-close', 'Open and stay'],
@@ -73,8 +80,13 @@ my %field_value = (
 		'All keys' ],
 	model => [ qw/ Trigger Numeric / ],
 	monster => $bool,
+	plat_target => [ 'Lowest Neighbor Floor', 'Next Lowest Neighbor Floor',
+		'Lowest Neighbor Ceiling',
+		'Lowest and Highest Floor (perpetual)'],
+	silent => $bool,
 	skck => $bool,
 	speed => [ qw/Slow Normal Fast Turbo/ ],
+	step => [ 4,8,16,24 ],
 	repeatable => $bool,
 	texchg => [ 'Choose change type','Change texture and zero sector type',
 		'Change texture only', 'Change texture and sector type' ],
@@ -118,6 +130,23 @@ my %line_classes = (
 			direction => 0x40, ceil_target => 0x380,
 			texchg => 0xc00, crush => 0x1000, },
 	},
+	Platform => { start => 0x3400, 
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, monster => 0x20,
+			delay_plat => 0xc0, plat_target => 0x300, },
+	},
+	Crusher => { start => 0x2f80,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, monster => 0x20,
+			silent => 0x40, },
+	},
+	Stairs => { start => 0x3000,
+		fields => { repeatable => 0x1, trigger => 0x6,
+			speed => 0x18, monster => 0x20,
+			step => 0xc0, direction => 0x100,
+			igntxt => 0x200,
+			},
+	},
 	);
 
 sub mshift ($) {
@@ -140,8 +169,14 @@ if (param('source')) {
 	close SELF;
 	exit 0;
 }
-print header, start_html('Boom generalised linedef calculator');
 
+print header, start_html(-title=>'Boom generalised linedef calculator',
+	-head=>Link({
+		-rel=>'stylesheet',
+		-href=>'http://prboom.sourceforge.net/main.css',
+		-type=>'text/css'
+		})
+	);
 
 print p('This program written by <a href="mailto:cphipps@doomworld.com">Colin Phipps</a>. You can ',
 	a({href=> (url(-relative=>1) . '?source=1')},"download the source"),
