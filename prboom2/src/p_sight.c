@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: p_sight.c,v 1.11 2001/08/15 18:53:00 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.11 2001/08/15 18:53:00 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -71,21 +71,6 @@ inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
     (right = ((y - node->y) >> FRACBITS) * (node->dx >> FRACBITS)) <
     (left  = ((x - node->x) >> FRACBITS) * (node->dy >> FRACBITS)) ? 0 :
     right == left ? 2 : 1;
-}
-
-//
-// P_InterceptVector2
-// Returns the fractional intercept point
-// along the first divline.
-//
-// killough 4/19/98: made static, cleaned up
-
-static fixed_t P_InterceptVector2(const divline_t *v2, const divline_t *v1)
-{
-  fixed_t den;
-  return (den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy)) ?
-    FixedDiv(FixedMul((v1->x - v2->x)>>8, v1->dy) +
-             FixedMul((v2->y - v1->y)>>8, v1->dx), den) : 0;
 }
 
 //
@@ -180,7 +165,7 @@ static boolean P_CrossSubsector(int num)
 	return false;
 
     { // crosses a two sided line
-      fixed_t frac = P_InterceptVector2(&los.strace, &divl);
+      fixed_t frac = P_InterceptVector(&los.strace, &divl);
       
       if (front->floorheight != back->floorheight)
 	{

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_maputl.c,v 1.6 2001/07/02 23:04:03 proff_fs Exp $
+ * $Id: p_maputl.c,v 1.7 2001/08/15 18:53:00 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_maputl.c,v 1.6 2001/07/02 23:04:03 proff_fs Exp $";
+rcsid[] = "$Id: p_maputl.c,v 1.7 2001/08/15 18:53:00 cph Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -142,9 +142,16 @@ void P_MakeDivline(const line_t *li, divline_t *dl)
 
 fixed_t CONSTFUNC P_InterceptVector(const divline_t *v2, const divline_t *v1)
 {
+ if (compatibility_level < prboom_4_compatibility) {
   fixed_t den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy);
   return den ? FixedDiv((FixedMul((v1->x-v2->x)>>8, v1->dy) +
                          FixedMul((v2->y-v1->y)>>8, v1->dx)), den) : 0;
+ } else {
+  long long den = (long long)v1->dy * v2->dx - (long long)v1->dx * v2->dy;
+  den >>= 16;
+  if (!den) return 0;
+  return ((long long)(v1->x - v2->x) * v1->dy - (long long)(v1->y - v2->y) * v1->dx) / den;
+ }
 }
 
 //
