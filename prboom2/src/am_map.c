@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.11.2.1 2002/07/20 18:08:33 proff_fs Exp $
+ * $Id: am_map.c,v 1.11.2.2 2003/04/02 21:00:13 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.11.2.1 2002/07/20 18:08:33 proff_fs Exp $";
+  "$Id: am_map.c,v 1.11.2.2 2003/04/02 21:00:13 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -71,6 +71,7 @@ int mapcolor_exit;    // jff 4/23/98 add exit line color
 int mapcolor_unsn;    // computer map unseen line color
 int mapcolor_flat;    // line with no floor/ceiling changes
 int mapcolor_sprt;    // general sprite color
+int mapcolor_item;    // item sprite color
 int mapcolor_frnd;    // friendly sprite color
 int mapcolor_hair;    // crosshair color
 int mapcolor_sngl;    // single player arrow color
@@ -1613,7 +1614,9 @@ void AM_drawThings
         NUMTHINTRIANGLEGUYLINES,
         16<<FRACBITS,
         t->angle,
-        t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : mapcolor_sprt,
+	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
+        /* bbm 2/28/03 Show countable items in yellow. */
+          t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
         x, y
       );
       t = t->snext;

@@ -59,7 +59,7 @@ Found the bug causing slight noise at the start of sounds playing, and other
 patches.
 
 Barry Mead <bmead@surfree.com>
-Improvements to the mouse code.
+Improvements to the mouse code and other odd patches.
 
 Mattias Kunkel <mattias@kunkel.freeservers.com>
 Made the lxdoom.spec file for creating LxDoom RPMs.
@@ -99,7 +99,7 @@ His port xdoom is very portable, and I referred to his code sometimes for help
 with the X stuff; also his collection of Doom tools (XWadTools) is the 
 definitive tools collection for Linux.
 
-Andre Majorel	amajorel@teaser.fr
+Andre Majorel	<amajorel@teaser.fr>
 For Yadex, so I can debug those problematic levels more easily.
 
 Michael Heasley	
@@ -111,6 +111,10 @@ Helped with the music server program for LxDoom
 Frederic Oghdayan
 For useful feedback on LxDoom v1.0.1, and repeating his bug reports until I 
 believed them :-).
+
+Adam Hegyi <ha211@hszk.bme.hu>
+Prompted me to hunt down those last few demo sync bugs, and provided some useful
+insights and example demos to help.
 
 Adam Williamson
 Pointing me toward yet another compatibility bug.

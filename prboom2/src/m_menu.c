@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.20.2.3 2002/07/20 18:08:36 proff_fs Exp $
+ * $Id: m_menu.c,v 1.20.2.4 2003/04/02 21:00:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.20.2.3 2002/07/20 18:08:36 proff_fs Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.20.2.4 2003/04/02 21:00:29 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -2642,9 +2642,10 @@ setup_menu_t auto_settings2[] =  // 2nd AutoMap Settings screen
   {"computer map unseen line"       ,S_COLOR ,m_null,AU_X,AU_Y+ 3*8, {"mapcolor_unsn"}},
   {"line w/no floor/ceiling changes",S_COLOR ,m_null,AU_X,AU_Y+ 4*8, {"mapcolor_flat"}},
   {"general sprite"                 ,S_COLOR ,m_null,AU_X,AU_Y+ 5*8, {"mapcolor_sprt"}},
-  {"crosshair"                      ,S_COLOR ,m_null,AU_X,AU_Y+ 6*8, {"mapcolor_hair"}},
-  {"single player arrow"            ,S_COLOR ,m_null,AU_X,AU_Y+ 7*8, {"mapcolor_sngl"}},
-  {"your colour in multiplayer"     ,S_COLOR ,m_null,AU_X,AU_Y+ 8*8, {"mapcolor_me"}},
+  {"countable item sprite"          ,S_COLOR ,m_null,AU_X,AU_Y+ 6*8, {"mapcolor_item"}},       // mead 3/4/2003
+  {"crosshair"                      ,S_COLOR ,m_null,AU_X,AU_Y+ 7*8, {"mapcolor_hair"}},
+  {"single player arrow"            ,S_COLOR ,m_null,AU_X,AU_Y+ 8*8, {"mapcolor_sngl"}},
+  {"your colour in multiplayer"     ,S_COLOR ,m_null,AU_X,AU_Y+ 9*8, {"mapcolor_me"}},
 
   {"friends"                        ,S_COLOR ,m_null,AU_X,AU_Y+12*8, {"mapcolor_frnd"}},        // killough 8/8/98
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.26.2.8 2003/03/29 18:47:03 proff_fs Exp $
+ * $Id: m_misc.c,v 1.26.2.9 2003/04/02 21:00:42 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.26.2.8 2003/03/29 18:47:03 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26.2.9 2003/04/02 21:00:42 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -618,6 +618,8 @@ default_t defaults[] =
    def_colour,ss_auto}, // color used for lines with no height changes
   {"mapcolor_sprt", {&mapcolor_sprt}, {112},0,255,  // green
    def_colour,ss_auto}, // color used as things
+  {"mapcolor_item", {&mapcolor_item}, {231},0,255,  // yellow
+   def_colour,ss_auto}, // color used for counted items
   {"mapcolor_hair", {&mapcolor_hair}, {208},0,255,  // white
    def_colour,ss_auto}, // color used for dot crosshair denoting center of map
   {"mapcolor_sngl", {&mapcolor_sngl}, {208},0,255,  // white
