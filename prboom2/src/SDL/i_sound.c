@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.25 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: i_sound.c,v 1.26 2002/11/17 18:44:14 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.25 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.26 2002/11/17 18:44:14 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -152,13 +152,25 @@ static void updateSoundParams(int handle, int volume, int seperation, int pitch)
   seperation = seperation - 257;
   rightvol= volume - ((volume*seperation*seperation) >> 16);  
 
+#ifdef RANGECHECK
   // Sanity check, clamp volume.
   if (rightvol < 0 || rightvol > 255)
     I_Error("rightvol out of bounds");
-    
+
   if (leftvol < 0 || leftvol > 255)
     I_Error("leftvol out of bounds");
-    
+#else
+  if (rightvol < 0)
+    rightvol = 0;
+  if (rightvol > 255)
+    rightvol = 255;
+
+  if (leftvol < 0)
+    leftvol = 0;
+  if (leftvol > 255)
+    leftvol = 255;
+#endif
+
   Mix_SetPanning(handle, leftvol, rightvol);
 }
 
