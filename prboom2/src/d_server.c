@@ -199,8 +199,16 @@ void I_Error(const char *error, ...) // killough 3/20/98: add const
 }
 
 int playerjoingame[MAXPLAYERS], playerleftgame[MAXPLAYERS];
-#define playeringame(i) ((playerjoingame[i] < INT_MAX) && (playerleftgame[i] == INT_MAX))
+#define playeringame(i) (playerstate[i] == pc_playing)
 UDP_CHANNEL remoteaddr[MAXPLAYERS];
+enum { pc_unused, pc_connected, pc_ready, pc_confirmedready, pc_playing, pc_quit } playerstate[MAXPLAYERS];
+
+boolean n_players_in_state(int n, int ps) {
+	int i,j;
+	for (i=j=0;i<MAXPLAYERS;i++)
+		if (playerstate[i] == ps) j++;
+	return (j == n);
+}
 
 void BroadcastPacket(packet_header_t *packet, size_t len)
 {
@@ -405,8 +413,11 @@ int main(int argc, char** argv)
 
   { // no players initially
     int i;
-    for (i=0; i<MAXPLAYERS; i++)
-      playerjoingame[i] = INT_MAX; playerleftgame[i] = 0;
+    for (i=0; i<MAXPLAYERS; i++) {
+      playerjoingame[i] = INT_MAX;
+      playerleftgame[i] = 0;
+      playerstate[i] = pc_unused;
+    }
 
     // Print wads
     for (i=0; i<numwads; i++)
@@ -428,10 +439,11 @@ int main(int argc, char** argv)
     int remoteticto[MAXPLAYERS] = { 0, 0, 0, 0 };
     int backoffcounter[MAXPLAYERS] = { 0, 0, 0, 0 };
     int curplayers = 0;
+    int confirming = 0;
     boolean ingame = false;
     ticcmd_t netcmds[MAXPLAYERS][BACKUPTICS];
 
-    while (1) {
+    while (1)
       {
   packet_header_t *packet = malloc(10000);
   size_t len;
@@ -449,12 +461,12 @@ int main(int argc, char** argv)
     /* Find player number and add to the game */
     n = *(short*)(packet+1);
 
-    if (badplayer(n) || playeringame(n))
-     for (n=0; n<MAXPLAYERS; n++)
-      if (playerjoingame[n] == INT_MAX) break;
+    if (badplayer(n) || playerstate[n] != pc_unused)
+     for (n=0; n<numplayers; n++)
+      if (playerstate[n] == pc_unused) break;
 
-    if (n == MAXPLAYERS) break; // Full game
-    playerjoingame[n] = 0;
+    if (n == numplayers) break; // Full game
+    playerstate[n] = pc_connected;
 #ifndef USE_SDL_NET
     remoteaddr[n] = sentfrom;
 #else
@@ -494,20 +506,14 @@ int main(int argc, char** argv)
         int from = *(byte*)(packet+1);
 
 	// Note: cannot user playeringame() here, as the player is still joining
-	if (badplayer(from) || playerjoingame[from] == INT_MAX || playerleftgame[from] == INT_MAX) break;
-        playerleftgame[from] = INT_MAX;
-	printf("player %d ready\n",from);
-        if (++curplayers == numplayers) {
-    ingame=true;
-    printf("All players joined, beginning game.\n");
-    packet_set(packet, PKT_GO, 0);
-    BroadcastPacket(packet, sizeof *packet);
-    I_uSleep(10000);
-    BroadcastPacket(packet, sizeof *packet);
-    I_uSleep(100000);
-        } else {
-	  printf("%d of %d players ready\n", curplayers, numplayers);
-	}
+	if (badplayer(from) || playerstate[from] == pc_unused) break;
+	if (confirming) {
+		if (playerstate[from] != pc_confirmedready) curplayers++;
+		playerstate[from] = pc_confirmedready;
+	} else
+		playerstate[from] = pc_ready;
+	printf("player %d ready, \n",from);
+	printf("%d of %d players ready\n", curplayers, numplayers);
       }
       break;
     case PKT_TICC:
@@ -518,7 +524,7 @@ int main(int argc, char** argv)
 	if (badplayer(from)) break;
 
         if (verbose>2)
-            printf("tics %d - %d from %d\n", ptic(packet), ptic(packet) + tics - 1, from);
+            printf("tics %ld - %ld from %d\n", ptic(packet), ptic(packet) + tics - 1, from);
         if (ptic(packet) > remoteticfrom[from]) {
             // Missed tics, so request a resend
             packet_set(packet, PKT_RETRANS, remoteticfrom[from]);
@@ -546,17 +552,17 @@ int main(int argc, char** argv)
         int from = *(byte*)(packet+1);
 	if (badplayer(from)) break;
 
-	if (!ingame && playerjoingame[from] != INT_MAX) {
+	if (!ingame && playerstate[from] != pc_unused) {
 	  // If we already got a PKT_GO, we have to remove this player frmo the count of ready players. And we then flag this player slot as vacant.
 	  printf("player %d pulls out\n", from);
-	  if (playerleftgame[from] == INT_MAX) curplayers--;
-	  playerleftgame[from] = 0;
-	  playerjoingame[from] = INT_MAX;
+	  if (playerstate[from] == pc_confirmedready) curplayers--;
+	  playerstate[from] = pc_unused;
 	} else
         if (playerleftgame[from] == INT_MAX) { // In the game
-	  if (verbose>2) printf("%d quits at %d\n", from, ptic(packet));
 	  playerleftgame[from] = ptic(packet);
-	  if (ingame && !--curplayers) exit(0); // All players have exited
+	  --curplayers;
+	  if (verbose) printf("%d quits at %d (%d left)\n", from, ptic(packet),curplayers);
+	  if (ingame && !curplayers) exit(0); // All players have exited
         }
       }
       // Fall through and broadcast it
@@ -602,8 +608,38 @@ int main(int argc, char** argv)
       break;
     }
   }
+  if (!ingame && n_players_in_state(numplayers,pc_confirmedready)) {
+    int i;
+    ingame=true;
+    printf("All players joined, beginning game.\n");
+    for (i=0; i<MAXPLAYERS; i++) {
+      if (playerstate[i] == pc_confirmedready) {
+	      playerjoingame[i] = 0;
+	      playerleftgame[i] = INT_MAX;
+	      playerstate[i] = pc_playing;
+      }
+    }
+    packet->type = PKT_GO; packet->tic = 0;
+    BroadcastPacket(packet, sizeof *packet);
+    I_uSleep(10000);
+    BroadcastPacket(packet, sizeof *packet);
+    I_uSleep(10000);
+  }
+  if (confirming && !--confirming && !ingame) {
+    int i;
+    curplayers = 0;
+    for (i=0; i<MAXPLAYERS; i++) {
+      if (playerstate[i] == pc_ready) {
+	      playerstate[i] = pc_unused;
+	      printf("Player %d dropped, no PKT_GO received in confirmation\n", i);
+      }
+      if (playerstate[i] == pc_confirmedready) playerstate[i] = pc_ready;
+  }
   free(packet);
       }
+  if (!ingame && n_players_in_state(numplayers,pc_ready)) {
+	  confirming = 100;
+  }
 
       if (ingame) { // Run some tics
   int lowtic = INT_MAX;
