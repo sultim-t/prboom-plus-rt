@@ -190,7 +190,11 @@ AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6))
 dnl --- Options
 dnl - Always use highres mode, unless explicitely --disabled
 AC_ARG_ENABLE(highres,[  --disable-highres        disables support for resulutions greater than 320x200],,AC_DEFINE(HIGHRES))
-AC_ARG_ENABLE(dogs,[  --disable-dogs        disables support for helper dogs],,AC_DEFINE(DOGS))
+AC_ARG_ENABLE(dogs,[  --disable-dogs        disables support for helper dogs],
+if test x"$enable_dogs" = xyes
+then
+	AC_DEFINE(DOGS)
+fi,AC_DEFINE(DOGS))
 dnl - By default, simple checks with little overhead are done to catch memory corruption, or
 dnl - problems with new code
 AC_ARG_ENABLE(checks,[  --disable-checks          disables some basic internal sanity checks],,
