@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.21 2003/02/16 11:46:09 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.22 2003/03/28 21:02:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -457,6 +457,7 @@ void gld_BindFlat(GLTexture *gltexture)
 static void gld_CleanTextures(void)
 {
   int i,j;
+  int result;
 
   if (!gld_GLTextures)
     return;
@@ -464,8 +465,13 @@ static void gld_CleanTextures(void)
   {
     if (gld_GLTextures[i])
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
-        p_glDeleteTextures(1,&(gld_GLTextures[i]->glTexID[j]));
+      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++) {
+        if (p_glIsTexture(gld_GLTextures[i]->glTexID[j]))
+          p_glDeleteTextures(1,&(gld_GLTextures[i]->glTexID[j]));
+        result = p_glGetError();
+        if (result)
+          lprintf(LO_WARN, "glGetError: %i", result);
+      }
       Z_Free(gld_GLTextures[i]);
     }
   }
@@ -475,6 +481,7 @@ static void gld_CleanTextures(void)
 static void gld_CleanPatchTextures(void)
 {
   int i,j;
+  int result;
 
   if (!gld_GLPatchTextures)
     return;
@@ -482,8 +489,13 @@ static void gld_CleanPatchTextures(void)
   {
     if (gld_GLPatchTextures[i])
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++)
-        p_glDeleteTextures(1,&(gld_GLPatchTextures[i]->glTexID[j]));
+      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++) {
+        if (p_glIsTexture(gld_GLPatchTextures[i]->glTexID[j]))
+          p_glDeleteTextures(1,&(gld_GLPatchTextures[i]->glTexID[j]));
+        result = p_glGetError();
+        if (result)
+          lprintf(LO_WARN, "glGetError: %i", result);
+      }
       Z_Free(gld_GLPatchTextures[i]);
     }
   }

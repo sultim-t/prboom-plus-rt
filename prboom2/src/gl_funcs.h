@@ -29,7 +29,7 @@
 	WARRANTY whatsoever, express or implied, in the hopes that others will use
 	it instead of other less-evolved hacks which usually don't work right.  ;)
 
-	$Id: gl_funcs.h,v 1.4 2002/11/24 01:37:49 proff_fs Exp $
+	$Id: gl_funcs.h,v 1.5 2003/03/28 21:02:24 proff_fs Exp $
 */
 
 // *INDENT-OFF*
@@ -91,10 +91,12 @@ DYNGL_NEED (void, glFogi, (GLenum pname, GLint param))
 DYNGL_NEED (void, glFrustum, (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val))
 DYNGL_NEED (void, glGenTextures, (GLsizei n, GLuint * textures))
 DYNGL_NEED (void, glGetDoublev, (GLenum pname, GLdouble * params))
+DYNGL_NEED (GLenum, glGetError, (void))
 DYNGL_NEED (void, glGetIntegerv, (GLenum pname, GLint * params))
 DYNGL_NEED (void, glGetTexParameteriv, (GLenum target, GLenum pname, GLint * params))
 DYNGL_NEED (const GLubyte *, glGetString, (GLenum name))
 DYNGL_NEED (void, glHint, (GLenum target, GLenum mode))
+DYNGL_NEED (GLboolean, glIsTexture, (GLuint texture))
 DYNGL_NEED (void, glLoadIdentity, (void))
 DYNGL_EXT (void, glLockArraysEXT, (GLint, GLsizei), "GL_EXT_compiled_vertex_array")
 DYNGL_NEED (void, glMatrixMode, (GLenum mode))
