@@ -608,7 +608,7 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 
 void R_ResetTrans()
 {
-  if (general_translucency)
+  if (default_translucency)
     R_InitTranMap(0);
 }
 
@@ -618,8 +618,9 @@ void R_ResetTrans()
 
 extern int tran_filter_pct;
 
-CONSOLE_BOOLEAN(r_trans, general_translucency, NULL, onoff, 0)
+CONSOLE_BOOLEAN(r_trans, default_translucency, NULL, onoff, 0)
 {
+  general_translucency = default_translucency;
   R_ResetTrans();
 }
 

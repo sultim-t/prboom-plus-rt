@@ -34,6 +34,7 @@
  */
 
 #include "doomdef.h"
+#include "doomstat.h"
 #include "r_main.h"
 #include "r_draw.h"
 #include "m_bbox.h"

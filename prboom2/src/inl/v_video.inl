@@ -536,8 +536,8 @@ void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
     trans = 0;
   }
 
-  if (flags & VPT_TRANSLUCENT)
-	translucent = true;
+  if ((flags & VPT_TRANSLUCENT) && general_translucency)
+	  translucent = true;
 
   FUNC_V_PlotPatch(
     patch, destRect, clampRect, 
