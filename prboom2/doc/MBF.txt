@@ -1,0 +1,366 @@
+Marine's Best Friend
+
+-------------------------------------------------------------------------------
+
+Programmer:         Lee Killough
+
+Artist:             Len Pitre    
+
+PlayTesters:        Ky (Rez) Moffet, Len Pitre, James (Quasar) Haley
+
+Canine Consulting:  Longplain Kennels, Reg'd
+
+Sound Code:         Shawn Hargreaves & Allegro Team
+
+Additional Credit:  id Software, TeamTNT
+
+Special Thanks To:  John Romero, Joel Murdoch
+
+-------------------------------------------------------------------------------
+
+Marine's Best Friend is a modification of the Doom source.
+
+Features
+
+* Friendly Monster AI
+  + Friends attack enemies like players
+  + Friendliness is a mobj property, like NOGRAVITY or SOLID
+  + Friendly single-player helpers (dogs) can fill in coop starts
+  + Friendliness is transferred by Arch-Vile, Pain Elemental, and Boss Spawner
+  + Player autoaiming avoids friends if enemies are in range
+  + Friends with missiles return one shot if shot by friends
+  + Friends stay a "comfortable distance" away from players
+  + Friends indicated by different color in automap
+
+* AI Improvements
+  + Avoid hazards (e.g. crushing ceilings)
+  + Stop what they're doing and rescue dying friends
+  + Follow enemies up lifts, instead of wandering off randomly
+  + Back away from nearby enemies if advantageous
+  + Avoid shooting friends who get in their way
+  + Infighting when provoked by own kind (i.e. Doom's behavior) made optional
+  + (Development) Code and data restructured to allow more efficient AI
+
+* Doom Pre-Beta ("Press Release") Version Emulation
+  + Classic BFG, Plasma Rifle, Chaingun, Rocket Launcher
+  + Classic BFG allowed in regular (non-emulation) mode
+  + Original Flaming Skulls
+  + The 3 demo levels, "remastered"
+  + Nightvision goggles, skullchests, demonic daggers, unholy bibles, etc.
+  + Other Press Release version behaviors (e.g. invisibility, invulnerability)
+
+* Improved Video Options
+ 
+  + 640x400 high-detail mode, without bad side effects:
+    - Doom world scenes and automap are rendered in 640x400 for higher detail
+    - Doom's aspect ratio is preserved exactly (no elongated textures/sprites)
+    - Status bar, menus, text, intermission screens all remain full-sized
+    - Optional hardware page-flipping
+
+  + Wait-free page-flipped 320x200 ModeX for smoother play on slow machines
+
+  + Doom flashing disk icon reimplemented (was removed in linux port)
+
+  + Video options can be changed in realtime in General menu
+    - Hires
+    - Page-flipping
+    - Wait for vertical retrace
+    - Translucency enable
+    - Translucency percentage
+    - PCX vs. BMP screenshots
+    - Doom flashing disk icon
+    - HOM cheat code optionally flashing or solid red
+
+* DEH/BEX files embedded inside of wads (DEHACKED lump)
+
+* OPTIONS lump for overriding config settings inside wads
+  + Allows wad authors to set game options inside wads
+  + Options are still editable by player, and are remembered on a per-wad basis
+  + Doesn't interfere with the player's own defaults when not playing the wad
+
+* Menu option to load up to two WAD and two DEH/BEX files at program startup
+  + -noload command-line override switch
+
+* Improved Menus
+
+  + Informative warnings printed on menu screens when:
+    - changed option doesn't take effect until next new game or idclev
+    - changed option doesn't take effect until entire program is restarted
+    - option's current setting (e.g. loadgame) differs from its default setting
+
+  + New "General" option menu, allows changing of many settings inside game
+    - Video
+    - Sound & Music
+    - Input Devices
+    - .WAD and .DEH/.BEX Files Preloaded at Startup
+    - Miscellaneous
+
+  + New "Doom Compatibility" setup menu allows fine-control of all Doom
+    compatibility settings, instead of having only one "compatibility"
+    variable.
+
+  + Numeric input improved
+    - Negative values are allowed
+    - Setup does not change game variables until input is "committed"
+    - Illegal or aborted input leaves game variables unchanged
+    - Backspace allowed during input
+
+  + SSG weapon preferences allowed to be edited while playing Ultimate Doom
+
+  + New hotkey for entering Setup Menu in one stroke during game
+
+  + (Development) Filenames allowed to be entered
+
+  + (Development) Menu items can span multiple lines on the screen
+
+  + (Development) Action functions can be called after items are edited,
+    such as to change video mode in real-time
+
+* Shotgun and Fist may be selected without toggling with the SSG/Chainsaw
+
+* .lmp extension optional with -file if .wad file doesn't also exist
+
+* Improved Automap
+  + Option to display pointer coordinates instead of player coordinates
+  + Automap setup menu rearranged for easier use
+
+* Improved Demos
+  + Pause allowed during demo playback
+  + Single-player games can be saved during demo playback, to take snapshots
+  + -recordfrom option added back, allowing demos to start from a saved game
+  + Demos don't desync just because menu is accessed during recording
+  + During demo playback, automap and menu are easier to use
+  + No switching out of automap when player dies during demo playback
+  + (Development) demo_version global variable to help preserve demo sync
+
+* Improved Movement Clipping
+  + Players can get out of 1s or 2s walls when they are otherwise stuck
+  + Monsters do not get stuck hanging partially off of tall ledges
+  + Monsters can move up and down stairs more easily (compatibility-optioned)
+
+* More Realism (compatibility-optioned)
+  + Non-sentient objects fall down under their own weight when their balance
+    is upset and they are more than halfway off of a ledge
+  + Objects falling off tall ledges follow parabolic trajectory
+  + Live monsters may be pushed off ledges, and intelligently try to recover
+
+* New Bouncy Things (mobj) Flag
+  + Missiles bounce off of floors and ceilings, such as classic BFG fireballs
+  + Floating "bouncy" monsters bounce up and down if under gravity
+  + Solid objects bounce off of walls and roll up and down stairs
+  + DEH frames support bouncing grenades/pipebombs
+
+* Touchy Things (mobj) Flag
+  + Mines which detonate when touched or disturbed
+  + Monsters which die when touched
+
+* Doom Bugs Fixed (compatibility-optioned, where appropriate)
+  + Fireballs (especially Mancubus) going through walls
+  + Monsters stuck at doortracks or hanging over tall ledges
+  + Slime trails reduced (caused by WAD coordinate system's limited precision)
+  + Zombie players exiting levels, forever remaining zombies
+  + Sky is unaffected by invulnerability colormap
+  + On MAP30, any monster can telefrag anyone else
+  + Boss spawners can't telefrag on any levels except MAP30
+  + Soundtargets not remembered across savegames
+  + Flickering light not remembered across savegames
+  + Fractional floor & ceiling heights and xy offsets not saved in savegames
+  + Revenant Tracers' tracking state not preserved across savegames
+  + Raise to shortest texture considers "-" == "AASHITTY"
+  + SSG shows reload frame while firing frame is still displayed
+  + SSG neck is not lit up correctly when SSG is fired in a dark room
+  + Demo desync if menu is accessed in the middle of recording a demo
+  + Illegal menu activities during demos (e.g. loadgame during recording)
+  + Arch-Vile hellfire spawned in wrong position
+  + Voodoo dolls push up against wall as long as the real player is moving
+  + Deleted thinkers referenced by monster targets/tracers, or soundtargets
+  + Top of pistol appears at the bottom of screen when game starts
+  + Monsters sometimes fire missiles back at wrong player when hit painfully
+  + Extra-hard player death sound not working in Registered / Ultimate Doom
+
+* Boom Bugs Fixed (Note: these are not TeamTNT fixes)
+
+  + Doom incompatibilities fixed, with new option switches
+    - Stairbuilding
+    - Cheat code infinite duration
+    - God mode cheat is absolute
+    - Linedef effects with tag 0, e.g. all-lights-off effects
+
+  + Bobbing / friction 
+    - Bobbing based only on player-applied thrust, instead of total speed
+    - Friction algorithm made more efficient, and made sector-based
+    - Fixed bug which stopped all momentum when up against wall
+    - Friction (and wall-bouncing on ice) work on all objects, not just players
+    - Bobbing does not jerk when player moves in and out of icy sectors (v2.02)
+    - Sludge slowdown fixed
+    - Wall-running restored to Doom efficiency
+
+  + Wind affects all sentient / shootable objects
+
+  + Player corpse queue =traversal order= (caused weapon pickup problems in DM)
+
+  + Fix opening limit removal
+
+  + Response files
+    - Optional .rsp extension
+    - Correct error-handling (page faulted before)
+
+  + Fix underwater slowdown
+
+  + Fix sudden light changes over water sectors
+
+  + Fix things disappearing over water sectors
+
+  + Fix underwater sprite lighting (Two bugs: One in v2.01, another in v2.02)
+
+  + Menu reset-to-defaults code made more robust, to prevent "false resets"
+
+  + Monsters-stuck-on-doortracks have less turning (v2.02 bug)
+
+  + Fixed message review w/ background messing up in smaller screen size
+
+  + Aliasing of wall scrolling speeds > a certain speed, due to silent overflow
+
+  + Fix new map thing flags' causing incompatibility with certain Doom wads
+
+  + Fix filehandle leak in translucency code
+
+  + Default skill level not remembered correctly across multiple games
+
+  + Netgame inconsistencies if options are chosen differently (v2.02)
+
+  + Referencing freed data pointed to by monsters' lastenemy field
+
+  + Tagged DR doors' lighting effects made gradual, instead of totally on/off
+
+  + Menu confirmation messages (yes/no) no longer limited to 40 characters 
+    (Garbage at end of QuickLoad message fixed)
+
+  + Sounds heard randomly in wrong locations (e.g. weapons fire, player death)
+
+  + HUD counter update problem
+
+  + Coop mode slowdown, a.k.a. Monster Medusa
+
+  + Inconsistent use of stdout/stderr in output messages
+
+  + SegViol if key_enter held down during program startup (message review)
+
+  + Verbose "missing patch" error messages not printed unless -devparm used
+
+  + Setup menu backspace
+
+  + Indigo/Brown default chat keys reversed
+
+  + Final Doom support
+
+  + DEH
+    - Writing to dehout.txt replaced with -dehout option
+    - Fixed thing flag mnemonics bugs (TRANSLATION1/2, error detection)
+    - Hex allowed in numeric input (e.g. 0x1234abcd)
+    - Blank separation-line handling fixed
+    - Fixed memory leak
+    - Several SegViols fixed
+    - -bex may be used as a synonym of -deh
+
+  + Screenshot, .cfg file, and savegame error-handling improved
+    - User-friendly messages printed when error occurs (e.g. "Disk Full")
+    - Original .cfg file left intact if new one cannot be written safely
+
+  + Music
+    - Random noise heard in music (e.g. MM2 MAP23)
+    - MUS2MID programming errors (array size too small & undefined C behavior)
+    - Overall music quality improved
+
+* WAD error autocorrection, to prevent game crashes
+  + Clear 2s flag in one-sided linedefs
+  + Fill in missing right sidedefs with dummy sidedef
+
+* Improved Messages
+  + Message review list may scroll up or down
+  + Message review list may be temporary or permanent when activated
+  + Message review list and normal Doom messages toggled more intuitively
+  + Message timers are configurable (normal, review, chat)
+
+* Blockmap
+  + Blockmap generation algorithm rewritten (Note: this is not TeamTNT's)
+  + Improved dynamic blockmap list maintenance (more robust and faster)
+
+* Multiple -file and -deh options may be used on command-line / response file
+
+* User-comments allowed to be embedded inside of .cfg files, and are preserved
+
+* Performance Tuning
+  + Assembly blit routines tuned for machines above and below P6-class 
+  + Monster target searches made faster by way of a multithreaded target list
+  + Fixed-point arithmetic made faster
+  + Sprite edge sorting made faster
+  + Tuned register allocation and other compiler optimization flags
+  + Sound FX code rewritten to be more efficient (in both memory and speed)
+  + Gameplay more responsive
+
+* Mobj pointer reference-counting added, to fix bugs and make game faster
+
+* New code pointers
+  + Variable-damage explosion
+  + Mushroom cloud explosion
+  + Linedef activation via code pointers
+  + Object spawning code pointer
+
+* New sky property-transfer linedef types (271-272)
+  + Arbitrary opaque wall textures can be transferred to skies
+  + Unlimited number of sky textures per level
+  + No external info lumps necessary, no "per-level" programming required
+  + Textures optionally flipped horizontally (as in Doom)
+  + Long-period rotating skies (e.g. moon's orbit, starfield)
+  + Animated skies
+
+* Removed all references to TeamTNT/Boom (except in source comments and docs)
+
+  + TNT cheat code prefixes removed
+    - TNTEM replaced with KILLEM
+    - TNTKA replaced with IDK, without introducing .deh incompatibilities
+  
+  + "Boom" filename strings replaced (boomsav[0-7].dsg, boom.cfg, etc.)
+  
+  + ENDBOOM lump replaced with ENDOOM, restoring Doom behavior on end screens
+
+-------------------------------------------------------------------------------
+
+MBF Files
+
+      File      Description
+
+     mbf.exe    MBF executable
+betagrph.wad    Graphics for beta emulation
+betalevl.wad    The 3 Demo levels for beta emulation
+ mbfedit.txt    Describes the WAD/DEH editing features new to MBF
+ options.txt    Describes the command-line/setup menu options new to MBF
+  mbffaq.txt    FAQ about MBF
+     mbf.txt    This file
+  asetup.exe    Allegro setup program
+ snddrvr.txt    Notes concerning sound drivers (from Boom distribution)
+  doom17.dat    DCK2.2-f configuration file for editing MBF wads
+  common.cfg    DETH configuration file for editing MBF wads
+ cwsdpmi.exe    CWS DPMI host
+examples.zip    Small demonstrations of MBF features
+  copying.dj    DJ Delorie Copyleft stuff
+     copying    GPL license stuff
+
+-------------------------------------------------------------------------------
+
+DISCLAIMERS 
+
+MBF is unsupported software. There are no warranties as to its fitness for any
+particular purpose. There are also no plans for future updates.
+
+MBF is a single-player game. Multiplayer games may or may not work (some people
+say they do work). Support files for multiplayer games (e.g. sersetup.exe) are
+not included, but might be available elsewhere.
+
+MBF is based on the Boom v2.02 source, but it is not supported by TeamTNT or
+id Software. Don't ask them about MBF.
+
+-------------------------------------------------------------------------------
+Lee Killough		                                Last Updated 12/22/1998
+
