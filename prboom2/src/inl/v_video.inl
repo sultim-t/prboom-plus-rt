@@ -373,8 +373,9 @@ void FUNC_V_PlotPatchNum(
   const byte *colorTranslationTable, boolean translucent,
   byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
-  const TPatch *patch = R_GetPatch(patchNum);
+  const TPatch *patch = R_CachePatchNum(patchNum);
   FUNC_V_PlotPatch(patch, destRect, clampRect, filter, slope, colorTranslationTable, translucent, destBuffer, bufferWidth, bufferHeight);
+  R_UnlockPatchNum(patchNum);
 }
 
 //---------------------------------------------------------------------------
@@ -400,7 +401,7 @@ void FUNC_V_PlotTextureNum(
   
   for (p=0; p<texture->patchcount; p++) {
     patchNum = texture->patches[p].patch;
-    patch = R_GetPatch(patchNum);
+    patch = R_CachePatchNum(patchNum);
     patchWidth = patch->width;
     patchHeight = patch->height;
     
@@ -414,6 +415,7 @@ void FUNC_V_PlotTextureNum(
       patch, destRect, clampRect, filter, slope, 0, false,
       destBuffer, bufferWidth, bufferHeight
     );
+    R_UnlockPatchNum(patchNum);
   }
 }
 
@@ -503,7 +505,7 @@ byte *FUNC_V_GetPlottedTexture(
 void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
          int cm, enum patch_translation_e flags) {
 
-  const TPatch *patch = R_GetPatch(lump);
+  const TPatch *patch = R_CachePatchNum(lump);
   int width, height;
   const byte *trans;  
   boolean translucent = false;
@@ -548,6 +550,7 @@ void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
     vid_drawPatchFilterType, vid_drawPatchSlopeType, 
     trans, translucent, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT
   );
+  R_UnlockPatchNum(lump);
 }
 
 //---------------------------------------------------------------------------

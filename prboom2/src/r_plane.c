@@ -342,6 +342,7 @@ static void R_DoDrawPlane(visplane_t *pl)
   if (pl->minx <= pl->maxx) {
     if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT) { // sky flat
       int texture;
+      const TPatch *tex_patch;
       angle_t an, flip;
 
       // killough 10/98: allow skies to come from sidedefs.
@@ -403,18 +404,23 @@ static void R_DoDrawPlane(visplane_t *pl)
       // proff 09/21/98: Changed for high-res
       dcvars.iscale = FRACUNIT*200/viewheight;
 
+      tex_patch = R_CacheTextureCompositePatchNum(texture);
+
   // killough 10/98: Use sky scrolling offset, and possibly flip picture
         for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
           if ((dcvars.yl = pl->top[x]) <= (dcvars.yh = pl->bottom[x]))
             {
-              dcvars.source = R_GetTextureColumn(texture, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
+              dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
               
-              dcvars.nextsource = R_GetTextureColumn(texture, ((an + xtoviewangle[x+1])^flip) >> ANGLETOSKYSHIFT);
+              dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x+1])^flip) >> ANGLETOSKYSHIFT);
               
-              dcvars.prevsource = R_GetTextureColumn(texture, ((an + xtoviewangle[x-1])^flip) >> ANGLETOSKYSHIFT);
+              dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x-1])^flip) >> ANGLETOSKYSHIFT);
               
               colfunc();
             }
+
+      R_UnlockTextureCompositePatchNum(texture);
+
     } else {     // regular flat
 
       int stop, light;

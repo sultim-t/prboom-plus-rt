@@ -390,7 +390,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 {
   int      texturecolumn;
   fixed_t  frac;
-  const TPatch *patch = R_GetPatch(vis->patch+firstspritelump);
+  const TPatch *patch = R_CachePatchNum(vis->patch+firstspritelump);
   
   dcvars.colormap = vis->colormap;
   dcvars.nextcolormap = dcvars.colormap; // POPE
@@ -439,7 +439,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
     }
   
   colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
-  //W_UnlockLumpNum(vis->patch+firstspritelump); // cph - release lump
+  R_UnlockPatchNum(vis->patch+firstspritelump); // cph - release lump
 }
 
 //
@@ -522,7 +522,7 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
     }
 
   {
-    const TPatch *patch = R_GetPatch(lump+firstspritelump);
+    const TPatch *patch = R_CachePatchNum(lump+firstspritelump);
 
     // calculate edges of the shape
     tx -= patch->leftOffset<<FRACBITS;
@@ -533,6 +533,7 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
     gzt = thing->z + (patch->topOffset<<FRACBITS);
     width = patch->width;
+    R_UnlockPatchNum(lump+firstspritelump);
   }
 
   // off the side?
@@ -692,7 +693,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   flip = (boolean) sprframe->flip[0];
 
   {
-    const TPatch *patch = R_GetPatch(lump+firstspritelump);
+    const TPatch *patch = R_CachePatchNum(lump+firstspritelump);
     
     // calculate edges of the shape
     fixed_t       tx;
@@ -707,6 +708,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
     topoffset = patch->topOffset<<FRACBITS;
+    R_UnlockPatchNum(lump+firstspritelump);
   }
 
   // off the side

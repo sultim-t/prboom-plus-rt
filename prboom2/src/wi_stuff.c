@@ -592,14 +592,14 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     int            top;
     int            right;
     int            bottom;
-    int            lump = W_GetNumForName(c[i]);
-    const TPatch *patch = R_GetPatch(lump); // POPE
+    const TPatch *patch = R_CachePatchName(c[i]); // POPE
 
     left = lnodes[wbs->epsd][n].x - patch->leftOffset;
     top = lnodes[wbs->epsd][n].y - patch->topOffset;
     right = left + patch->width;
     bottom = top + patch->height;
   
+    R_UnlockPatchName(c[i]);
     if (left >= 0
        && right < SCREENWIDTH
        && top >= 0

@@ -253,6 +253,7 @@ CONSOLE_STRING(iwad, g_iwad, NULL, 126, cf_buffered)
     C_Printf("'%s' not found!\n", c_argv[0]);
     return;
   }
+  R_FreeData();
   S_StopMusic();
   S_StopSounds();
   G_StopDemo();

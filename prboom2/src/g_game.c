@@ -509,7 +509,6 @@ void G_DoLoadLevel (void)
   // killough 5/13/98: in case netdemo has consoleplayer other than green
   ST_Start();
   HU_Start();
-  R_FlushAllPatches();
 
   C_InstaPopup();  // pop up the console
 

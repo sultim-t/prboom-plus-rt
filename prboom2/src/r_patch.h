@@ -19,6 +19,7 @@ typedef struct {
 typedef struct {
   int width;
   int height;
+  unsigned  widthmask;
     
   unsigned char isNotTileable;
   
@@ -34,18 +35,27 @@ typedef struct {
   TPatchColumn *columns;
   TPatchPost *posts;
 
+#ifdef TIMEDIAG
+  int locktic;
+#endif
+  unsigned int locks;
 } TPatch;
 
 //---------------------------------------------------------------------------
-const TPatch *R_GetPatch(int id);
-const TPatch *R_GetTextureCompositePatch(int id);
+const TPatch *R_CachePatchNum(int id);
+void R_UnlockPatchNum(int id);
+#define R_CachePatchName(name) R_CachePatchNum(W_GetNumForName(name))
+#define R_UnlockPatchName(name) R_UnlockPatchNum(W_GetNumForName(name))
+
+const TPatch *R_CacheTextureCompositePatchNum(int id);
+void R_UnlockTextureCompositePatchNum(int id);
 
 //---------------------------------------------------------------------------
 // Size query funcs
 int R_NumPatchWidth(int lump) ;
 int R_NumPatchHeight(int lump);
-int R_NamePatchWidth(const char *n);
-int R_NamePatchHeight(const char *n);
+#define R_NamePatchWidth(name) R_NumPatchWidth(W_GetNumForName(name))
+#define R_NamePatchHeight(name) R_NumPatchHeight(W_GetNumForName(name))
 
 //---------------------------------------------------------------------------
 const TPatchColumn *R_GetPatchColumnWrapped(const TPatch *patch, int columnIndex);

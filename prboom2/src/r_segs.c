@@ -182,7 +182,7 @@ void R_RenderMaskedSegRange(drawseg_t *seg, int x1, int x2)
   // just render one single patch for now - POPE
   //patch = R_GetPatch(textures[texnum]->patches[0].patch);
   // proff - implemented multipatch textures
-  patch = R_GetTextureCompositePatch(texnum);
+  patch = R_CacheTextureCompositePatchNum(texnum);
 
   // draw the columns
   for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep) {
@@ -236,6 +236,7 @@ void R_RenderMaskedSegRange(drawseg_t *seg, int x1, int x2)
   // Except for main_tranmap, mark others purgable at this point
   if (curline->linedef->tranlump > 0 && general_translucency)
     W_UnlockLumpNum(curline->linedef->tranlump-1); // cph - unlock it
+  R_UnlockTextureCompositePatchNum(texnum);
   curline = NULL; // cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things
 }
 
@@ -253,6 +254,7 @@ static int didsolidcol; /* True if at least one column was marked solid */
 
 static void R_RenderSegLoop (void)
 {
+  const TPatch *tex_patch;
   fixed_t  texturecolumn = 0;   // shut up compiler warning
   rendered_segs++;
   for ( ; rw_x < rw_stopx ; rw_x++)
@@ -329,11 +331,14 @@ static void R_RenderSegLoop (void)
           dcvars.yl = yl;     // single sided line
           dcvars.yh = yh;
           dcvars.texturemid = rw_midtexturemid;
-          dcvars.source = R_GetTextureColumn(midtexture, texturecolumn);
-          dcvars.nextsource = R_GetTextureColumn(midtexture, texturecolumn+1); // POPE
-          dcvars.prevsource = R_GetTextureColumn(midtexture, texturecolumn-1); // POPE
+          tex_patch = R_CacheTextureCompositePatchNum(midtexture);
+          dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
+          dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1); // POPE
+          dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1); // POPE
 	        dcvars.texheight = midtexheight;
           colfunc ();
+          R_UnlockTextureCompositePatchNum(midtexture);
+          tex_patch = NULL;
           ceilingclip[rw_x] = viewheight;
           floorclip[rw_x] = -1;
         }
@@ -355,11 +360,14 @@ static void R_RenderSegLoop (void)
                   dcvars.yl = yl;
                   dcvars.yh = mid;
                   dcvars.texturemid = rw_toptexturemid;
-                  dcvars.source = R_GetTextureColumn(toptexture,texturecolumn);
-                  dcvars.nextsource = R_GetTextureColumn(toptexture, texturecolumn+1); // POPE
-                  dcvars.prevsource = R_GetTextureColumn(toptexture, texturecolumn-1); // POPE
+                  tex_patch = R_CacheTextureCompositePatchNum(toptexture);
+                  dcvars.source = R_GetTextureColumn(tex_patch,texturecolumn);
+                  dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1); // POPE
+                  dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1); // POPE
 		              dcvars.texheight = toptexheight;
                   colfunc ();
+                  R_UnlockTextureCompositePatchNum(toptexture);
+                  tex_patch = NULL;
                   ceilingclip[rw_x] = mid;
                 }
               else
@@ -386,11 +394,14 @@ static void R_RenderSegLoop (void)
                   dcvars.yl = mid;
                   dcvars.yh = yh;
                   dcvars.texturemid = rw_bottomtexturemid;
-                  dcvars.source = R_GetTextureColumn(bottomtexture, texturecolumn);
-                  dcvars.nextsource = R_GetTextureColumn(bottomtexture, texturecolumn+1); // POPE
-                  dcvars.prevsource = R_GetTextureColumn(bottomtexture, texturecolumn-1); // POPE
+                  tex_patch = R_CacheTextureCompositePatchNum(bottomtexture);
+                  dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
+                  dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1); // POPE
+                  dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1); // POPE
                   dcvars.texheight = bottomtexheight;
                   colfunc ();
+                  R_UnlockTextureCompositePatchNum(bottomtexture);
+                  tex_patch = NULL;
                   floorclip[rw_x] = mid;
                 }
               else

@@ -1652,9 +1652,6 @@ void D_DoomMainSetup(void)
   if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
     ProcessDehFile(NULL, D_dehout(), p);
 
-  V_InitMisc();
-  V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
-
   // killough 2/22/98: copyright / "modified game" / SPA banners removed
 
   // Ty 04/08/98 - Add 5 lines of misc. data, only if nonblank
@@ -1667,10 +1664,6 @@ void D_DoomMainSetup(void)
   if (*startup5) lprintf(LO_INFO,"%s",startup5);
   // End new startup strings
 
-  //jff 9/3/98 use logical output routine
-  lprintf(LO_INFO,"M_Init: Init miscellaneous info.\n");
-  MN_Init();
-
 #ifdef HAVE_NET
   // CPhipps - now wait for netgame start
   D_CheckNetGame();
@@ -1679,6 +1672,15 @@ void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"R_Init: Init DOOM refresh daemon - ");
   R_Init();
+
+  lprintf(LO_INFO,"MN_Init: Init menues.\n");
+  MN_Init();
+
+  lprintf(LO_INFO,"V_InitMisc: Init miscellaneous video stuff.\n");
+  V_InitMisc();
+
+  lprintf(LO_INFO,"V_InitColorTranslation: Load color translation lumps.\n");
+  V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"\nP_Init: Init Playloop state.\n");
@@ -1805,14 +1807,12 @@ void D_DoomMain(void)
 
 void D_ReInitWadfiles()
 {
-/*
   R_FreeData();
   R_Init();
   P_Init();
-  ST_reloadData();
-  MN_ReloadGraphics();
-  P_ClearThingHash();
-*/
+  ST_loadData();
+  //MN_ReloadGraphics();
+  //P_ClearThingHash();
 }
 
 boolean wad_level;  // set true if most recently loaded wad contains a level

@@ -100,13 +100,12 @@ int       *texturetranslation;
 
 #include "v_video.h"
 
-const byte *R_GetTextureColumn(int tex, int col) {
-  texture_t *texture = textures[tex];
+const byte *R_GetTextureColumn(const TPatch *texpatch, int col) {
+  while (col < 0)
+    col += texpatch->width;
+  col &= texpatch->widthmask;
   
-  while (col < 0) col += texture->width;
-  col &= texture->widthmask;
-  
-  return R_GetTextureCompositePatch(tex)->columns[col].pixels;
+  return texpatch->columns[col].pixels;
 }
 
 //
@@ -299,8 +298,11 @@ void R_InitTextures (void)
   // Precalculate whatever possible.
   if (devparm) // cph - If in development mode, generate now so all errors are found at once
     for (i=0 ; i<numtextures ; i++)
+    {
       // proff - This is for the new renderer now
-      R_GetTextureCompositePatch(i);
+      R_CacheTextureCompositePatchNum(i);
+      R_UnlockTextureCompositePatchNum(i);
+    }
 
   if (errors)
     I_Error("R_InitTextures: %d errors", errors);
@@ -721,11 +723,16 @@ void R_SetPatchNum(patchnum_t *patchnum, const char *name)
   //patch_t *patch;
   //patch = (patch_t *) W_CacheLumpName(name);
   
-  const TPatch *patch = R_GetPatch(W_GetNumForName(name));
+  const TPatch *patch = R_CachePatchName(name);
   patchnum->width = patch->width;
   patchnum->height = patch->height;
   patchnum->leftoffset = patch->leftOffset;
   patchnum->topoffset = patch->topOffset;
   patchnum->lumpnum = W_GetNumForName(name);
-  //W_UnlockLumpName(name);
+  R_UnlockPatchName(name);
+}
+
+void R_FreeData(void)
+{
+  R_FlushAllPatches();
 }

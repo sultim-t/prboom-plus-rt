@@ -34,9 +34,6 @@
 #include "gl_intern.h"
 #include "gl_struct.h"
 
-extern int numtextures;
-extern texture_t **textures;
-
 /* TEXTURES */
 static GLTexture **gld_GLTextures=NULL;
 /* PATCHES FLATS SPRITES */
@@ -241,7 +238,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     return NULL;
   if (gltexture->textype==GLDT_UNREGISTERED)
   {
-    patch=R_GetPatch(lump);
+    patch=R_CachePatchNum(lump);
     if (!patch)
       return NULL;
     gltexture->textype=GLDT_BROKEN;
@@ -256,6 +253,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
     gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
     gltexture->textype=GLDT_PATCH;
+    R_UnlockPatchNum(lump);
   }
   return gltexture;
 }

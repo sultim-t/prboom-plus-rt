@@ -69,11 +69,12 @@ typedef struct
 } texture_t;
 
 // Retrieve column data for span blitting.
-const byte *R_GetTextureColumn(int tex, int col);
+const byte *R_GetTextureColumn(const TPatch *texpatch, int col);
 
 
 // I/O, setting up the stuff.
 void R_InitData (void);
+void R_FreeData(void);
 void R_PrecacheLevel (void);
 
 
@@ -98,6 +99,7 @@ extern const byte *main_tranmap, *tranmap;
 /* Proff - Added for OpenGL - cph - const char* param */
 void R_SetPatchNum(patchnum_t *patchnum, const char *name);
 
+extern int numtextures;
 extern texture_t **textures; // POPE
 
 #endif
