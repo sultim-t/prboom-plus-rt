@@ -108,20 +108,42 @@ thereof, only Yonatan has the source for it and may need some persuading to
 part with it, but I may have a go, might try reverse engineering it first.
 
 --------------------------------------------------------------------------
-38. (2001/07/01) Cleanup RPM building
-
-Colin: Done.
-
---------------------------------------------------------------------------
 
 39. (2001/07/01) w_wad.c/z_zone.c reorganisation
 
-Colin: Should be fun :-)
+Colin: 
 
 --------------------------------------------------------------------------
 40. (2001/07/01) Doom v1.2 support
 
 Colin: new compatibility level and option went in awhile ago, just have to do
 the actual supporting code. (And no, not planning to support v1.2 demos :)
+
+--------------------------------------------------------------------------
+41. (2001/07/28) Chasecam?
+
+Colin: I did a quick hack and got the chasecam from SMMU working in prboom.
+Seems to be fairly simple, altho its logic is in need of refinement
+
+--------------------------------------------------------------------------
+42. (2001/10/14) d_deh.c improvements
+
+Colin: Proff's merge of the Eternity BEX extensions, and get rid of the old
+dehfgets stuff.
+
+--------------------------------------------------------------------------
+43. (2001/10/14) Gamma correction
+
+Colin: From a discussion on #sdl I learned SDL does its own gamma correction -
+we can save a few kb and some code by using theirs and dumping our own gamma
+correction.
+
+--------------------------------------------------------------------------
+44. (2001/10/20) Fix wall/floor brightness calcs
+
+Colin: Fix the current madness based on screen scale, dump the pointless lookup
+tables, and use all 32 light graduations available (currently there are only 16
+distinct sector brightness levels, the extra levels are used only for light
+diminishing).
 
 --------------------------------------------------------------------------
