@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.7 2000/05/21 03:17:08 jessh Exp $
+ * $Id: acconfig.h,v 1.8 2000/06/16 01:39:38 jessh Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -111,3 +111,6 @@
 
 /* Define if you want to use gluBuild2DMipmaps  */
 #undef USE_GLU_MIPMAP
+
+/* Define if you want to have prboom.wad in the exe  */
+#undef ALL_IN_ONE
