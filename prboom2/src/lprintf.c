@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
+ * $Id: lprintf.c,v 1.3 2000/05/04 12:37:56 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.3 2000/05/04 12:37:56 proff_fs Exp $";
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -307,16 +307,25 @@ void I_Error(const char *error, ...)
 #endif
   va_end(argptr);
   fprintf(stderr,"%s\n",errmsg);
+/*
 #ifdef _MSC_VER
-  MessageBox(NULL,errmsg,"PrBoom",0);
+  {
+    extern void I_ShutdownSDL(void);
+    I_ShutdownSDL();
+    MessageBox(NULL,errmsg,"PrBoom",0);
+  }
 #endif
-
+*/
   I_SafeExit(-1);
 }
 
 /*----------------------------------------------------------------------------
  *
  * $Log: lprintf.c,v $
+ * Revision 1.3  2000/05/04 12:37:56  proff_fs
+ * removed the messagebox, because in
+ * fullscreen-mode it doesn't work correctly
+ *
  * Revision 1.2  2000/05/04 11:23:01  proff_fs
  * added an textwindow for Win32 and
  * changed some printfs to lprintfs
