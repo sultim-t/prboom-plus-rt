@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_telept.c,v 1.1 2000/05/04 08:14:56 proff_fs Exp $
+ * $Id: p_telept.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_telept.c,v 1.1 2000/05/04 08:14:56 proff_fs Exp $";
+rcsid[] = "$Id: p_telept.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "p_spec.h"
@@ -64,7 +64,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
 
   for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;)
     for (thinker=thinkercap.next; thinker!=&thinkercap; thinker=thinker->next)
-      if (thinker->function.acp1 == (actionf_p1) P_MobjThinker &&
+      if (thinker->function == P_MobjThinker &&
           (m = (mobj_t *) thinker)->type == MT_TELEPORTMAN  &&
             m->subsector->sector-sectors == i)
         {
@@ -126,7 +126,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
 
   for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;)
     for (th = thinkercap.next; th != &thinkercap; th = th->next)
-      if (th->function.acp1 == (actionf_p1) P_MobjThinker &&
+      if (th->function == P_MobjThinker &&
           (m = (mobj_t *) th)->type == MT_TELEPORTMAN  &&
           m->subsector->sector-sectors == i)
         {
@@ -319,8 +319,13 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
 //----------------------------------------------------------------------------
 //
 // $Log: p_telept.c,v $
-// Revision 1.1  2000/05/04 08:14:56  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:14:56  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.3  2000/05/01 14:37:33  Proff
 // changed abs to D_abs

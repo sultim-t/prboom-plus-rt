@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_pspr.c,v 1.1 2000/05/04 08:13:05 proff_fs Exp $
+ * $Id: p_pspr.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_pspr.c,v 1.1 2000/05/04 08:13:05 proff_fs Exp $";
+rcsid[] = "$Id: p_pspr.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -99,9 +99,9 @@ static void P_SetPsprite(player_t *player, int position, statenum_t stnum)
 
       // Call action routine.
       // Modified handling.
-      if (state->action.acp2)
+      if (state->action)
         {
-          state->action.acp2(player, psp);
+          state->action(player, psp);
           if (!psp->state)
             break;
         }
@@ -807,8 +807,13 @@ void P_MovePsprites(player_t *player)
 //----------------------------------------------------------------------------
 //
 // $Log: p_pspr.c,v $
-// Revision 1.1  2000/05/04 08:13:05  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:13:05  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.4  1999/10/12 13:01:13  cphipps
 // Changed header to GPL

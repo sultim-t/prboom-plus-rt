@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_think.h,v 1.1 2000/05/04 08:00:53 proff_fs Exp $
+ * $Id: d_think.h,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -44,13 +44,16 @@
  *  we will need to handle the various
  *  action functions cleanly.
  */
-typedef  void (*actionf_v)();
-typedef  void (*actionf_p1)( void* );
-typedef  void (*actionf_p2)( void*, void* );
+// killough 11/98: convert back to C instead of C++
+typedef  void (*actionf_t)();
+//typedef  void (*actionf_v)();
+//typedef  void (*actionf_p1)( void* );
+//typedef  void (*actionf_p2)( void*, void* );
 
 /* Note: In d_deh.c you will find references to these
  * wherever code pointers and function handlers exist
  */
+/*
 typedef union
 {
   actionf_p1    acp1;
@@ -58,6 +61,7 @@ typedef union
   actionf_p2    acp2;
 
 } actionf_t;
+*/
 
 /* Historically, "think_t" is yet another
  *  function pointer to a routine to handle
@@ -80,8 +84,13 @@ typedef struct thinker_s
 /*----------------------------------------------------------------------------
  *
  * $Log: d_think.h,v $
- * Revision 1.1  2000/05/04 08:00:53  proff_fs
- * Initial revision
+ * Revision 1.2  2000/05/07 10:26:16  proff_fs
+ * changed think_t and action_f in d_think.h
+ * this fixes many compiler warnings in VisualC
+ * I took it this fix from MBF
+ *
+ * Revision 1.1.1.1  2000/05/04 08:00:53  proff_fs
+ * initial login on sourceforge as prboom2
  *
  * Revision 1.2  1999/10/12 13:00:56  cphipps
  * Changed header to GPL, converted C++ comments to C

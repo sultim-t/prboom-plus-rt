@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_ceilng.c,v 1.1 2000/05/04 08:10:42 proff_fs Exp $
+ * $Id: p_ceilng.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_ceilng.c,v 1.1 2000/05/04 08:10:42 proff_fs Exp $";
+rcsid[] = "$Id: p_ceilng.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -283,7 +283,7 @@ int EV_DoCeiling
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling;               //jff 2/22/98
-    ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
+    ceiling->thinker.function = T_MoveCeiling;
     ceiling->sector = sec;
     ceiling->crush = false;
   
@@ -377,7 +377,7 @@ int P_ActivateInStasisCeiling(line_t *line)
     if (ceiling->tag == line->tag && ceiling->direction == 0)
     {
       ceiling->direction = ceiling->olddirection;
-      ceiling->thinker.function.acp1 = (actionf_p1) T_MoveCeiling;
+      ceiling->thinker.function = T_MoveCeiling;
       //jff 4/5/98 return if activated
       rtn=1;
     }
@@ -405,7 +405,7 @@ int EV_CeilingCrushStop(line_t* line)
     {
       ceiling->olddirection = ceiling->direction;
       ceiling->direction = 0;
-      ceiling->thinker.function.acv = (actionf_v)NULL;
+      ceiling->thinker.function = NULL;
       rtn=1;
     }
   }
@@ -469,8 +469,13 @@ void P_RemoveAllActiveCeilings(void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_ceilng.c,v $
-// Revision 1.1  2000/05/04 08:10:42  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:10:42  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.2  1999/10/12 13:01:12  cphipps
 // Changed header to GPL

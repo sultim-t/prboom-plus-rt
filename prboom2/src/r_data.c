@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $
+ * $Id: r_data.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.2 2000/05/04 16:40:00 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -945,7 +945,7 @@ void R_PrecacheLevel(void)
   {
     thinker_t *th;
     for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
-      if (th->function.acp1 == (actionf_p1)P_MobjThinker)
+      if (th->function == P_MobjThinker)
         hitlist[((mobj_t *)th)->sprite] = 1;
   }
 
@@ -968,6 +968,11 @@ void R_PrecacheLevel(void)
 //-----------------------------------------------------------------------------
 //
 // $Log: r_data.c,v $
+// Revision 1.3  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
 // Revision 1.2  2000/05/04 16:40:00  proff_fs
 // added OpenGL stuff. Not complete yet.
 // Only the playerview is rendered.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_lights.c,v 1.1 2000/05/04 08:11:59 proff_fs Exp $
+ * $Id: p_lights.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_lights.c,v 1.1 2000/05/04 08:11:59 proff_fs Exp $";
+rcsid[] = "$Id: p_lights.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h" //jff 5/18/98
 #include "doomdef.h"
@@ -187,7 +187,7 @@ void P_SpawnFireFlicker (sector_t*  sector)
 
   P_AddThinker (&flick->thinker);
 
-  flick->thinker.function.acp1 = (actionf_p1) T_FireFlicker;
+  flick->thinker.function = T_FireFlicker;
   flick->sector = sector;
   flick->maxlight = sector->lightlevel;
   flick->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel)+16;
@@ -213,7 +213,7 @@ void P_SpawnLightFlash (sector_t* sector)
 
   P_AddThinker (&flash->thinker);
 
-  flash->thinker.function.acp1 = (actionf_p1) T_LightFlash;
+  flash->thinker.function = T_LightFlash;
   flash->sector = sector;
   flash->maxlight = sector->lightlevel;
 
@@ -247,7 +247,7 @@ void P_SpawnStrobeFlash
   flash->sector = sector;
   flash->darktime = fastOrSlow;
   flash->brighttime = STROBEBRIGHT;
-  flash->thinker.function.acp1 = (actionf_p1) T_StrobeFlash;
+  flash->thinker.function = T_StrobeFlash;
   flash->maxlight = sector->lightlevel;
   flash->minlight = P_FindMinSurroundingLight(sector, sector->lightlevel);
   
@@ -282,7 +282,7 @@ void P_SpawnGlowingLight(sector_t*  sector)
   g->sector = sector;
   g->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel);
   g->maxlight = sector->lightlevel;
-  g->thinker.function.acp1 = (actionf_p1) T_Glow;
+  g->thinker.function = T_Glow;
   g->direction = -1;
 
   sector->special &= ~31; //jff 3/14/98 clear non-generalized sector type
@@ -398,8 +398,13 @@ int EV_LightTurnOn(line_t *line, int bright)
 //----------------------------------------------------------------------------
 //
 // $Log: p_lights.c,v $
-// Revision 1.1  2000/05/04 08:11:59  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:11:59  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.3  1999/10/12 13:01:12  cphipps
 // Changed header to GPL

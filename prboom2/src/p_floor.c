@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_floor.c,v 1.1 2000/05/04 08:11:24 proff_fs Exp $
+ * $Id: p_floor.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.1 2000/05/04 08:11:24 proff_fs Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -440,7 +440,7 @@ int EV_DoFloor
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
     P_AddThinker (&floor->thinker);
     sec->floordata = floor; //jff 2/22/98
-    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+    floor->thinker.function = T_MoveFloor;
     floor->type = floortype;
     floor->crush = false;
 
@@ -726,7 +726,7 @@ int EV_BuildStairs
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
     P_AddThinker (&floor->thinker);
     sec->floordata = floor;
-    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+    floor->thinker.function = T_MoveFloor;
     floor->direction = 1;
     floor->sector = sec;
     floor->type = buildStair;   //jff 3/31/98 do not leave uninited
@@ -799,7 +799,7 @@ int EV_BuildStairs
         P_AddThinker (&floor->thinker);
 
         sec->floordata = floor; //jff 2/22/98
-        floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+        floor->thinker.function = T_MoveFloor;
         floor->direction = 1;
         floor->sector = sec;
         floor->speed = speed;
@@ -877,7 +877,7 @@ int EV_DoDonut(line_t*  line)
       floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
       P_AddThinker (&floor->thinker);
       s2->floordata = floor; //jff 2/22/98
-      floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+      floor->thinker.function = T_MoveFloor;
       floor->type = donutRaise;
       floor->crush = false;
       floor->direction = 1;
@@ -891,7 +891,7 @@ int EV_DoDonut(line_t*  line)
       floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
       P_AddThinker (&floor->thinker);
       s1->floordata = floor; //jff 2/22/98
-      floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+      floor->thinker.function = T_MoveFloor;
       floor->type = lowerFloor;
       floor->crush = false;
       floor->direction = -1;
@@ -939,7 +939,7 @@ int EV_DoElevator
     P_AddThinker (&elevator->thinker);
     sec->floordata = elevator; //jff 2/22/98
     sec->ceilingdata = elevator; //jff 2/22/98
-    elevator->thinker.function.acp1 = (actionf_p1) T_MoveElevator;
+    elevator->thinker.function = T_MoveElevator;
     elevator->type = elevtype;
 
     // set up the fields according to the type of elevator action
@@ -988,8 +988,13 @@ int EV_DoElevator
 //----------------------------------------------------------------------------
 //
 // $Log: p_floor.c,v $
-// Revision 1.1  2000/05/04 08:11:24  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:11:24  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.4  1999/10/12 13:01:12  cphipps
 // Changed header to GPL

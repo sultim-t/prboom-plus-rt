@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.1 2000/05/04 08:11:09 proff_fs Exp $
+ * $Id: p_enemy.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.1 2000/05/04 08:11:09 proff_fs Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -499,7 +499,7 @@ void A_KeenDie(mobj_t* mo)
   // scan the remaining thinkers to see if all Keens are dead
 
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
-    if (th->function.acp1 == (actionf_p1)P_MobjThinker)
+    if (th->function == P_MobjThinker)
       {
         mobj_t *mo2 = (mobj_t *) th;
         if (mo2 != mo && mo2->type == mo->type && mo2->health > 0)
@@ -1312,7 +1312,7 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
       for (currentthinker = thinkercap.next;
            currentthinker != &thinkercap;
            currentthinker = currentthinker->next)
-        if ((currentthinker->function.acp1 == (actionf_p1) P_MobjThinker)
+        if ((currentthinker->function == P_MobjThinker)
             && ((mobj_t *)currentthinker)->type == MT_SKULL)
           count++;
       if (count > 20)                                               // phares
@@ -1537,7 +1537,7 @@ void A_BossDeath(mobj_t *mo)
     // scan the remaining thinkers to see
     // if all bosses are dead
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
-    if (th->function.acp1 == (actionf_p1)P_MobjThinker)
+    if (th->function == P_MobjThinker)
       {
         mobj_t *mo2 = (mobj_t *) th;
         if (mo2 != mo && mo2->type == mo->type && mo2->health > 0)
@@ -1653,7 +1653,7 @@ void P_SpawnBrainTargets(void)  // killough 3/26/98: renamed old function
   for (thinker = thinkercap.next ;
        thinker != &thinkercap ;
        thinker = thinker->next)
-    if (thinker->function.acp1 == (actionf_p1)P_MobjThinker)
+    if (thinker->function == P_MobjThinker)
       {
         mobj_t *m = (mobj_t *) thinker;
 
@@ -1927,8 +1927,13 @@ void A_LineEffect(mobj_t *mo)
 //----------------------------------------------------------------------------
 //
 // $Log: p_enemy.c,v $
-// Revision 1.1  2000/05/04 08:11:09  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:11:09  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.13  2000/05/01 14:37:33  Proff
 // changed abs to D_abs

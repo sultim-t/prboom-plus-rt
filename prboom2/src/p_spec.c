@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.1 2000/05/04 08:14:28 proff_fs Exp $
+ * $Id: p_spec.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.1 2000/05/04 08:14:28 proff_fs Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -2699,7 +2699,7 @@ static void Add_Scroller(int type, fixed_t dx, fixed_t dy,
                          int control, int affectee, int accel)
 {
   scroll_t *s = Z_Malloc(sizeof *s, PU_LEVSPEC, 0);
-  s->thinker.function.acp1 = (actionf_p1) T_Scroll;
+  s->thinker.function = T_Scroll;
   s->type = type;
   s->dx = dx;
   s->dy = dy;
@@ -2872,7 +2872,7 @@ static void Add_Friction(int friction, int movefactor, int affectee)
     {
     friction_t *f = Z_Malloc(sizeof *f, PU_LEVSPEC, 0);
 
-    f->thinker.function.acp1 = (actionf_p1) T_Friction;
+    f->thinker.function = T_Friction;
     f->friction = friction;
     f->movefactor = movefactor;
     f->affectee = affectee;
@@ -3024,7 +3024,7 @@ static void Add_Pusher(int type, int x_mag, int y_mag, mobj_t* source, int affec
     {
     pusher_t *p = Z_Malloc(sizeof *p, PU_LEVSPEC, 0);
 
-    p->thinker.function.acp1 = (actionf_p1) T_Pusher;
+    p->thinker.function = T_Pusher;
     p->source = source;
     p->type = type;
     p->x_mag = x_mag>>FRACBITS;
@@ -3283,8 +3283,13 @@ static void P_SpawnPushers(void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_spec.c,v $
-// Revision 1.1  2000/05/04 08:14:28  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:14:28  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.16  2000/05/01 17:50:36  Proff
 // made changes to compile with VisualC and SDL

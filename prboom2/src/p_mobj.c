@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.1 2000/05/04 08:12:43 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.1 2000/05/04 08:12:43 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -87,8 +87,8 @@ boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
     // Modified handling.
     // Call action functions when the state is set
 
-    if (st->action.acp1)
-      st->action.acp1(mobj);
+    if (st->action)
+      st->action(mobj);
 
     seenstate[state] = 1 + st->nextstate;   // killough 4/9/98
 
@@ -494,14 +494,14 @@ void P_MobjThinker (mobj_t* mobj)
   if (mobj->momx | mobj->momy || mobj->flags & MF_SKULLFLY)
     {
       P_XYMovement(mobj);
-      if (mobj->thinker.function.acv != P_MobjThinker) // cph - Must've been removed
+      if (mobj->thinker.function != P_MobjThinker) // cph - Must've been removed
 	return;       // killough - mobj was removed
     }
 
   if (mobj->z != mobj->floorz || mobj->momz)
     {
       P_ZMovement(mobj);
-      if (mobj->thinker.function.acv != P_MobjThinker) // cph - Must've been removed
+      if (mobj->thinker.function != P_MobjThinker) // cph - Must've been removed
 	return;       // killough - mobj was removed
     }
 
@@ -599,7 +599,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   else
     mobj->z = z;
 
-  mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
+  mobj->thinker.function = P_MobjThinker;
   mobj->above_thing = 0;                                            // phares
   mobj->below_thing = 0;                                            // phares
   mobj->friction    = ORIG_FRICTION;                        // phares 3/17/98
@@ -1145,8 +1145,13 @@ void P_SpawnPlayerMissile(mobj_t* source,mobjtype_t type)
 //----------------------------------------------------------------------------
 //
 // $Log: p_mobj.c,v $
-// Revision 1.1  2000/05/04 08:12:43  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:12:43  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.13  1999/10/17 09:35:58  cphipps
 // Fixed hanging else(s)

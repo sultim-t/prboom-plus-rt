@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_plats.c,v 1.1 2000/05/04 08:12:56 proff_fs Exp $
+ * $Id: p_plats.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_plats.c,v 1.1 2000/05/04 08:12:56 proff_fs Exp $";
+rcsid[] = "$Id: p_plats.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -225,7 +225,7 @@ int EV_DoPlat
     plat->type = type;
     plat->sector = sec;
     plat->sector->floordata = plat; //jff 2/23/98 multiple thinkers
-    plat->thinker.function.acp1 = (actionf_p1) T_PlatRaise;
+    plat->thinker.function = T_PlatRaise;
     plat->crush = false;
     plat->tag = line->tag;
 
@@ -351,7 +351,7 @@ void P_ActivateInStasis(int tag)
         plat->status = plat->oldstatus==up? down : up;
       else
         plat->status = plat->oldstatus;
-      plat->thinker.function.acp1 = (actionf_p1) T_PlatRaise;
+      plat->thinker.function = T_PlatRaise;
     }
   }
 }
@@ -376,7 +376,7 @@ int EV_StopPlat(line_t* line)
     {
       plat->oldstatus = plat->status;    // put it in stasis
       plat->status = in_stasis;
-      plat->thinker.function.acv = (actionf_v)NULL;
+      plat->thinker.function = NULL;
     }
   }
   return 1;
@@ -439,8 +439,13 @@ void P_RemoveAllActivePlats(void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_plats.c,v $
-// Revision 1.1  2000/05/04 08:12:56  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:12:56  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.2  1999/10/12 13:01:13  cphipps
 // Changed header to GPL

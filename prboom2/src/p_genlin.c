@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_genlin.c,v 1.1 2000/05/04 08:11:36 proff_fs Exp $
+ * $Id: p_genlin.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_genlin.c,v 1.1 2000/05/04 08:11:36 proff_fs Exp $";
+rcsid[] = "$Id: p_genlin.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h" //jff 6/19/98 for demo_compatibility
 #include "r_main.h"
@@ -112,7 +112,7 @@ manual_floor:
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
     P_AddThinker (&floor->thinker);
     sec->floordata = floor;
-    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+    floor->thinker.function = T_MoveFloor;
     floor->crush = Crsh;
     floor->direction = Dirn? 1 : -1;
     floor->sector = sec;
@@ -315,7 +315,7 @@ manual_ceiling:
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling; //jff 2/22/98
-    ceiling->thinker.function.acp1 = (actionf_p1) T_MoveCeiling;
+    ceiling->thinker.function = T_MoveCeiling;
     ceiling->crush = Crsh;
     ceiling->direction = Dirn? 1 : -1;
     ceiling->sector = sec;
@@ -523,7 +523,7 @@ manual_lift:
               
     plat->sector = sec;
     plat->sector->floordata = plat;
-    plat->thinker.function.acp1 = (actionf_p1) T_PlatRaise;
+    plat->thinker.function = T_PlatRaise;
     plat->crush = false;
     plat->tag = line->tag;
 
@@ -681,7 +681,7 @@ manual_stair:
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
     P_AddThinker (&floor->thinker);
     sec->floordata = floor;
-    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+    floor->thinker.function = T_MoveFloor;
     floor->direction = Dirn? 1 : -1;
     floor->sector = sec;
 
@@ -781,7 +781,7 @@ manual_stair:
         P_AddThinker (&floor->thinker);
 
         sec->floordata = floor;
-        floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+        floor->thinker.function = T_MoveFloor;
         floor->direction = Dirn? 1 : -1;
         floor->sector = sec;
         floor->speed = speed;
@@ -863,7 +863,7 @@ manual_crusher:
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling; //jff 2/22/98
-    ceiling->thinker.function.acp1 = (actionf_p1) T_MoveCeiling;
+    ceiling->thinker.function = T_MoveCeiling;
     ceiling->crush = true;
     ceiling->direction = -1;
     ceiling->sector = sec;
@@ -959,7 +959,7 @@ manual_locked:
     P_AddThinker (&door->thinker);
     sec->ceilingdata = door; //jff 2/22/98
 
-    door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
+    door->thinker.function = T_VerticalDoor;
     door->sector = sec;
     door->topwait = VDOORWAIT;
     door->line = line;
@@ -1063,7 +1063,7 @@ manual_door:
     P_AddThinker (&door->thinker);
     sec->ceilingdata = door; //jff 2/22/98
 
-    door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
+    door->thinker.function = T_VerticalDoor;
     door->sector = sec;
     // setup delay for door remaining open/closed
     switch(Dely)
@@ -1148,8 +1148,13 @@ manual_door:
 //----------------------------------------------------------------------------
 //
 // $Log: p_genlin.c,v $
-// Revision 1.1  2000/05/04 08:11:36  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:11:36  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.4  1999/10/12 13:01:12  cphipps
 // Changed header to GPL

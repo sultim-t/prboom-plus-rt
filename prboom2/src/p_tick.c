@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
+ * $Id: p_tick.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.2 2000/05/04 11:23:01 proff_fs Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_user.h"
@@ -139,9 +139,9 @@ void P_RemoveThinker(thinker_t *thinker)
 {
   /* cph - Different removal function if it's an mobj
    * since for an mobj we have to check references first */
-  thinker->function.acv = 
-    (thinker->function.acp1 == (actionf_p1) P_MobjThinker) 
-    ? (actionf_v)P_RemoveMobjDelayed : (actionf_v)P_RemoveThinkerDelayed;
+  thinker->function = 
+    (thinker->function == P_MobjThinker) 
+    ? P_RemoveMobjDelayed : P_RemoveThinkerDelayed;
 }
 
 //
@@ -172,8 +172,8 @@ static void P_RunThinkers (void)
   for (currentthinker = thinkercap.next;
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
-    if (currentthinker->function.acp1)
-      currentthinker->function.acp1(currentthinker);
+    if (currentthinker->function)
+      currentthinker->function(currentthinker);
 }
 
 //
@@ -202,6 +202,11 @@ void P_Ticker (void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_tick.c,v $
+// Revision 1.3  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
 // Revision 1.2  2000/05/04 11:23:01  proff_fs
 // added an textwindow for Win32 and
 // changed some printfs to lprintfs

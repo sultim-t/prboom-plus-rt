@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_doors.c,v 1.1 2000/05/04 08:10:47 proff_fs Exp $
+ * $Id: p_doors.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.1 2000/05/04 08:10:47 proff_fs Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -373,7 +373,7 @@ int EV_DoDoor
     P_AddThinker (&door->thinker);
     sec->ceilingdata = door; //jff 2/22/98
 
-    door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
+    door->thinker.function = T_VerticalDoor;
     door->sector = sec;
     door->type = type;
     door->topwait = VDOORWAIT;
@@ -552,7 +552,7 @@ int EV_VerticalDoor
   door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
   P_AddThinker (&door->thinker);
   sec->ceilingdata = door; //jff 2/22/98
-  door->thinker.function.acp1 = (actionf_p1) T_VerticalDoor;
+  door->thinker.function = T_VerticalDoor;
   door->sector = sec;
   door->direction = 1;
   door->speed = VDOORSPEED;
@@ -620,7 +620,7 @@ void P_SpawnDoorCloseIn30 (sector_t* sec)
   sec->ceilingdata = door; //jff 2/22/98
   sec->special = 0;
 
-  door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
+  door->thinker.function = T_VerticalDoor;
   door->sector = sec;
   door->direction = 0;
   door->type = normal;
@@ -650,7 +650,7 @@ void P_SpawnDoorRaiseIn5Mins
   sec->ceilingdata = door; //jff 2/22/98
   sec->special = 0;
 
-  door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
+  door->thinker.function = T_VerticalDoor;
   door->sector = sec;
   door->direction = 2;
   door->type = raiseIn5Mins;
@@ -665,8 +665,13 @@ void P_SpawnDoorRaiseIn5Mins
 //----------------------------------------------------------------------------
 //
 // $Log: p_doors.c,v $
-// Revision 1.1  2000/05/04 08:10:47  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:10:47  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.2  1999/10/12 13:01:12  cphipps
 // Changed header to GPL

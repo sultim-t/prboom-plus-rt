@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.1 2000/05/04 08:08:59 proff_fs Exp $
+ * $Id: m_cheat.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.1 2000/05/04 08:08:59 proff_fs Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
@@ -520,7 +520,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   extern void A_PainDie(mobj_t *);
 
   while ((currentthinker=currentthinker->next)!=&thinkercap)
-    if (currentthinker->function.acp1 == (actionf_p1) P_MobjThinker &&
+    if (currentthinker->function == P_MobjThinker &&
         (((mobj_t *) currentthinker)->flags & MF_COUNTKILL ||
          ((mobj_t *) currentthinker)->type == MT_SKULL))
       { // killough 3/6/98: kill even if PE is dead
@@ -739,8 +739,13 @@ boolean M_FindCheats(int key)
 //----------------------------------------------------------------------------
 //
 // $Log: m_cheat.c,v $
-// Revision 1.1  2000/05/04 08:08:59  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/07 10:26:16  proff_fs
+// changed think_t and action_f in d_think.h
+// this fixes many compiler warnings in VisualC
+// I took it this fix from MBF
+//
+// Revision 1.1.1.1  2000/05/04 08:08:59  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.12  1999/10/17 09:35:58  cphipps
 // Fixed hanging else(s)
