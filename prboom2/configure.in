@@ -143,9 +143,6 @@ savelibs="$LIBS"
 LIBS="$LIBS $SDL_LIBS"
 AC_CHECK_FUNCS(SDL_JoystickGetAxis)
 LIBS="$savelibs"
-AC_CHECK_LIB(smpeg,SMPEG_playAudio,[
-    MIXER_LIBS=-lsmpeg
-],,$SDL_LIBS)
 AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
     AC_DEFINE(HAVE_LIBSDL_MIXER)
     MIXER_LIBS="$MIXER_LIBS -lSDL_mixer"
