@@ -58,9 +58,12 @@
 
     <h2>Bugs</h2>
 
-    <p> I've divided them into programming bugs, which cause the
-    game to lose data, crash, or such, and game logic bugs, which
-    cause things in the game to behave wrongly.</p>
+    <p> I've divided them into three sections now:</p>
+    <ul> 
+    <li>Programming bugs, which cause the game to lose data, crash, or such.</li>
+    <li>Game logic bugs, which cause things in the game to behave wrongly.</li>
+    <li>Demo sync bugs, which cause original Doom demos to fail to play back correctly.</li>
+    </ul>
 
     <h3>Programming bugs</h3>
 
@@ -289,9 +292,8 @@
 
     <h3>Game logic bugs</h3>
 
-    <p>Note that some of these bug fixes are only for fixing demo
-    sync, and so some people won't be interested in them. Also,
-    some of these bug fixes change the game behaviour and so people
+    <p>
+    Some of these bug fixes change the game behaviour and so people
     might not like them. It's your choice.</p>
 
     <h4>Medikit health</h4>
@@ -352,244 +354,6 @@
 
     <p> Although you might prefer a more complicated fix which
     allowed for compatibility with MBF's buggy behaviour.</p>
-
-    <h4>Compatibility bug in T_MovePlane</h4>
-
-    <p> Affects: Boom, MBF</p>
-
-    <p> Description: In original doom, a lowering floor will be
-    stuck if there is an object standing on the floor which is
-    stuck in the ceiling. In Boom and MBF, the floor will not be
-    stuck, even in compatibility mode.</p>
-
-    <p> Fix is easy, reintroduce the old behaviour in compatibility
-    mode:</p>
-<pre>
---- p_floor.c   Tue Feb 15 16:20:46 2000
-+++ p_floor.c-fixed Sat May 26 20:03:42 2001
-@@ -81,42 +81,51 @@ result_e T_MovePlane
-       switch(direction)
-       {
-         case -1:
-           // Moving a floor down
-           if (sector-&gt;floorheight - speed &lt; dest)
-           {
-             lastpos = sector-&gt;floorheight;
-             sector-&gt;floorheight = dest;
-             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
-             if (flag == true)                   
-             {
-               sector-&gt;floorheight =lastpos;
-               P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
-             }
-             return pastdest;
-           }
-           else
-           {
-             lastpos = sector-&gt;floorheight;
-             sector-&gt;floorheight -= speed;
-             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
-+
-+            /* cph - make more compatible with original Doom, by
-+             *  reintroducing this code. This means floors can't lower
-+             *  if objects are stuck in the ceiling */
-+            if ((flag == true) &amp;&amp; compatibility) {
-+              sector-&gt;floorheight = lastpos;
-+              P_ChangeSector(sector,crush);
-+              return crushed;
-+            }
-           }
-           break;
-                                                 
-         case 1:
-           // Moving a floor up
-</pre>
-
-    <h4>Compatibility bug in P_CheckSight</h4>
-
-    <p> Affects: MBF</p>
-
-    <p> Description: An optimisation in P_CheckSight needs to be
-    compatibility optioned, or some demos (HR06-UV.LMP for example)
-    desync.</p>
-<pre>
---- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
-+++ fixed.p_sight.c        Sun Aug 27 17:31:01 2000
-@@ -258,8 +258,11 @@ H_boolean P_CheckSight(mobj_t *t1, mobj_
-          t1-&gt;z + t2-&gt;height &lt;= sectors[s2-&gt;heightsec].ceilingheight))))
-     return false;
-
--  // killough 11/98: shortcut for melee situations
--  if (t1-&gt;subsector == t2-&gt;subsector) // same subsector? obviously visible
-+  /* killough 11/98: shortcut for melee situations
-+   * same subsector? obviously visible
-+   * cph - compatibility optioned for demo sync, cf HR06-UV.LMP */
-+  if ((t1-&gt;subsector == t2-&gt;subsector) &amp;&amp;
-+      !demo_compatibility)
-     return true;
-
-   // An unobstructed LOS is possible.
-</pre>
-
-    <h4>Compatibility bug in P_CrossSubsector</h4>
-
-    <p> Affects: MBF</p>
-
-    <p> Description: An optimisation in P_CrossSubsector needs to
-    be compatibility optioned, or some demos (MAP02 of 30nm4048.lmp
-    I think is an example) desync.</p>
-<pre>
---- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
-+++ fixed.p_sight.c        Sun Aug 27 17:03:48 2000
-@@ -117,8 +117,12 @@ static H_boolean P_CrossSubsector(int nu
-
-       line-&gt;validcount = validcount;
-
--      // OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
-+    /* OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
-+     * cph - this is causing demo desyncs on original Doom demos.
-+     *  Who knows why. Exclude test for those.
-+     */
-
-+      if (!demo_compatibility)
-       if (line-&gt;bbox[BOXLEFT  ] &gt; los-&gt;bbox[BOXRIGHT ] ||
-           line-&gt;bbox[BOXRIGHT ] &lt; los-&gt;bbox[BOXLEFT  ] ||
-           line-&gt;bbox[BOXBOTTOM] &gt; los-&gt;bbox[BOXTOP   ] ||
-</pre>
-
-    <h4>Compatibility bug in P_SlideMove</h4>
-
-    <p> Affects: MBF</p>
-
-    <p> Description: MBF includes some cruft in P_SlideMove to be
-    backward compatible with Boom. Unfortunately it's only back
-    compatible with Boom v2.01, because in v2.02 the cruft was
-    removed. So the compatibility check needs fixing:</p>
-<pre>
---- p_map.c        Tue Feb 15 16:17:12 2000
-+++ p_map.c.fixed        Sat Sep 23 18:47:22 2000
-@@ -1199,7 +1199,7 @@ void P_SlideMove(mobj_t *mo)
-
-           if (!P_TryMove(mo, mo-&gt;x, mo-&gt;y + mo-&gt;momy, true))
-             if (!P_TryMove(mo, mo-&gt;x + mo-&gt;momx, mo-&gt;y, true))
--              if (demo_version &lt; 203 &amp;&amp; !compatibility)
-+              if (demo_version == 201)
-                 mo-&gt;momx = mo-&gt;momy = 0;
-
-           break;
-</pre>
-
-    <h4>Bouncing Lost Souls</h4>
-
-    <p> Affects: All source ports, Final Doom, Doom95</p>
-
-    <p> Lost souls that are charging were intended to bounce off of
-    floors and ceilings, but due to a coding error in the original
-    Doom source (the test was placed after the momentum was already
-    set to zero), they did not. This bug was corrected in the
-    source code for Doom95 and Final/Ultimate Doom, and in the
-    v1.10 source that was released and forms the basis for all of
-    the source ports. This fix broke a lot of v1.9 Doom 2
-    demos.</p>
-
-    <p> The same coding error was made with lost souls bouncing off
-    of ceilings and this was never fixed, it seems.</p>
-
-    <p> Back then there was no notion of a compatibility mode, but
-    nowadays we can compatibility option the fix so old demos will
-    work. We use the <code>gamemission</code> variable to guess
-    whether this demo is Doom2 or Ult/Final Doom - it's crude but
-    works for all the Compet-n demos I've tried.</p>
-<pre>
---- p_mobj.c    Tue Feb 15 16:16:34 2000
-+++ p_mobj.c-fixed  Sat May 26 19:34:52 2001
-@@ -471,7 +471,21 @@ floater:
-     {
-       // hit the floor
- 
--      if (mo-&gt;flags &amp; MF_SKULLFLY)
-+      /* Note (id):
-+       *  somebody left this after the setting momz to 0,
-+       *  kinda useless there.
-+       * cph - This was the a bug in the linuxdoom-1.10 source which
-+       *  caused it not to sync Doom 2 v1.9 demos. Someone
-+       *  added the above comment and moved up the following code. So 
-+       *  demos would desync in close lost soul fights.
-+       * Note that this only applies to original Doom 1 or Doom2 demos - not
-+       *  Final Doom and Ultimate Doom.  So we test demo_compatibility *and*
-+       *  gamemission. (Note we assume that Doom1 is always Ult Doom, which
-+       *  seems to hold for most published demos.)
-+       */
-+      int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
-+
-+      if (correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
-    mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
- 
-       if (mo-&gt;momz &lt; 0)
-@@ -497,6 +511,14 @@ floater:
-    }
- 
-       mo-&gt;z = mo-&gt;floorz;
-+
-+      /* cph 2001/05/26 -
-+       * See lost soul bouncing comment above. We need this here for bug
-+       * compatibility with original Doom2 v1.9 - if a soul is charging and
-+       * hit by a raising floor this incorrectly reverses its Y momentum.
-+       */
-+      if (!correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
-+        mo-&gt;momz = -mo-&gt;momz;
- 
-       if (!((mo-&gt;flags ^ MF_MISSILE) &amp; (MF_MISSILE | MF_NOCLIP)))
-    {
-      
-</pre>
-
-    <h4>Overlapping uses of global variables in p_map.c</h4>
-
-    <p> Affects: Boom, MBF, PrBoom up to v2.1.1</p>
-
-    <p> The global variable <code>tmthing</code> is used by a
-    number of functions in p_map.c. However these functions can
-    also call each other (indirectly), so they can disrupt each
-    other's use of <code>tmthing</code>.</p>
-
-    <p> Amazingly, the only symptom I've seen so far is that it
-    causes original Doom demos to to desync (cf hruvlmp2.zip
-    hr22-uv.lmp).</p>
-<pre>
-*** p_map.c     2000/09/23 12:50:02     1.7
---- p_map.c     2000/10/02 21:34:29     1.8
-***************
-*** 2130,2135 ****
---- 2130,2136 ----
-    int bx;
-    int by;
-    msecnode_t* node;
-+   mobj_t* saved_tmthing = tmthing; /* cph - see comment at func end */
-
-    // First, clear out the existing m_thing fields. As each node is
-    // added or verified as needed, m_thing will be set properly. When
-***************
-*** 2184,2187 ****
---- 2185,2200 ----
-      else
-        node = node-&gt;m_tnext;
-      }
-+
-+   /* cph -
-+    * This is the strife we get into for using global variables. tmthing
-+    *  is being used by several different functions calling
-+    *  P_BlockThingIterator, including functions that can be called *from*
-+    *  P_BlockThingIterator. Using a global tmthing is not reentrant.
-+    * OTOH for Boom/MBF demos we have to preserve the buggy behaviour.
-+    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
-+    */
-+   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
-+       (compatibility_level &gt;= prboom_3_compatibility))
-+     tmthing = saved_tmthing;
-    }
-      
-</pre>
 
     <h4>Spawned monsters respawn at 0,0</h4>
 
@@ -782,6 +546,273 @@ diff -p -u -r1.6 p_doors.c
    // get the times
       
 </pre>
+    <h4>Compatibility bug in EV_BuildStairs</h4>
+
+    <p> Affects: Boom, MBF</p>
+
+    <p> Description: There are three different ways this function has, during
+    its history, stepped through all the stairs to be triggered by a single
+    switch:</p>
+    <ul>
+     <li>original Doom used a linear P_FindSectorFromLineTag, but failed to
+     preserve the index of the previous sector found, so instead it would
+     restart its linear search from the last sector of the previous
+     staircase</li>
+     <li>MBF/PrBoom with comp_stairs fail to emulate this, because their
+     P_FindSectorFromLineTag is a chained hash table implementation. Instead
+     they start following the hash chain from the last sector of the previous
+     staircase, which will (probably) have the wrong tag, so they miss any
+     further stairs</li>
+     <li>Boom fixed the bug, and MBF/PrBoom without comp_stairs work right
+    </ul>
+    <p>Fixing MBF's comp_stairs requires an elaborate fix, and remaining
+    compatible with the buggy behavior of old MBF demos is tricky too. See
+    PrBoom's p_floor.c:EV_BuildStairs for my fix.</p>
+
+   <h3>Demo sync bugs</h3>
+    <p>
+     This section contains fixes for problems which only (or primarily) cause
+     problems playing back old Doom demos. Most people probably aren't
+     interested in these.
+    </p>
+    <h4>Compatibility bug in T_MovePlane</h4>
+
+    <p> Affects: Boom, MBF</p>
+
+    <p> Description: In original doom, a lowering floor will be
+    stuck if there is an object standing on the floor which is
+    stuck in the ceiling. In Boom and MBF, the floor will not be
+    stuck, even in compatibility mode.</p>
+
+    <p> Fix is easy, reintroduce the old behaviour in compatibility
+    mode:</p>
+<pre>
+--- p_floor.c   Tue Feb 15 16:20:46 2000
++++ p_floor.c-fixed Sat May 26 20:03:42 2001
+@@ -81,42 +81,51 @@ result_e T_MovePlane
+       switch(direction)
+       {
+         case -1:
+           // Moving a floor down
+           if (sector-&gt;floorheight - speed &lt; dest)
+           {
+             lastpos = sector-&gt;floorheight;
+             sector-&gt;floorheight = dest;
+             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
+             if (flag == true)                   
+             {
+               sector-&gt;floorheight =lastpos;
+               P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
+             }
+             return pastdest;
+           }
+           else
+           {
+             lastpos = sector-&gt;floorheight;
+             sector-&gt;floorheight -= speed;
+             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
++
++            /* cph - make more compatible with original Doom, by
++             *  reintroducing this code. This means floors can't lower
++             *  if objects are stuck in the ceiling */
++            if ((flag == true) &amp;&amp; compatibility) {
++              sector-&gt;floorheight = lastpos;
++              P_ChangeSector(sector,crush);
++              return crushed;
++            }
+           }
+           break;
+                                                 
+         case 1:
+           // Moving a floor up
+</pre>
+
+    <h4>Compatibility bug in P_CheckSight</h4>
+
+    <p> Affects: MBF</p>
+
+    <p> Description: An optimisation in P_CheckSight needs to be
+    compatibility optioned, or some demos (HR06-UV.LMP for example)
+    desync.</p>
+<pre>
+--- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
++++ fixed.p_sight.c        Sun Aug 27 17:31:01 2000
+@@ -258,8 +258,11 @@ H_boolean P_CheckSight(mobj_t *t1, mobj_
+          t1-&gt;z + t2-&gt;height &lt;= sectors[s2-&gt;heightsec].ceilingheight))))
+     return false;
+
+-  // killough 11/98: shortcut for melee situations
+-  if (t1-&gt;subsector == t2-&gt;subsector) // same subsector? obviously visible
++  /* killough 11/98: shortcut for melee situations
++   * same subsector? obviously visible
++   * cph - compatibility optioned for demo sync, cf HR06-UV.LMP */
++  if ((t1-&gt;subsector == t2-&gt;subsector) &amp;&amp;
++      !demo_compatibility)
+     return true;
+
+   // An unobstructed LOS is possible.
+</pre>
+
+    <h4>Compatibility bug in P_CrossSubsector</h4>
+
+    <p> Affects: MBF</p>
+
+    <p> Description: An optimisation in P_CrossSubsector needs to
+    be compatibility optioned, or some demos (MAP02 of 30nm4048.lmp
+    I think is an example) desync.</p>
+<pre>
+--- mbf.p_sight.c        Sun Aug 27 17:00:25 2000
++++ fixed.p_sight.c        Sun Aug 27 17:03:48 2000
+@@ -117,8 +117,12 @@ static H_boolean P_CrossSubsector(int nu
+
+       line-&gt;validcount = validcount;
+
+-      // OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
++    /* OPTIMIZE: killough 4/20/98: Added quick bounding-box rejection test
++     * cph - this is causing demo desyncs on original Doom demos.
++     *  Who knows why. Exclude test for those.
++     */
+
++      if (!demo_compatibility)
+       if (line-&gt;bbox[BOXLEFT  ] &gt; los-&gt;bbox[BOXRIGHT ] ||
+           line-&gt;bbox[BOXRIGHT ] &lt; los-&gt;bbox[BOXLEFT  ] ||
+           line-&gt;bbox[BOXBOTTOM] &gt; los-&gt;bbox[BOXTOP   ] ||
+</pre>
+
+    <h4>Compatibility bug in P_SlideMove</h4>
+
+    <p> Affects: MBF</p>
+
+    <p> Description: MBF includes some cruft in P_SlideMove to be
+    backward compatible with Boom. Unfortunately it's only back
+    compatible with Boom v2.01, because in v2.02 the cruft was
+    removed. So the compatibility check needs fixing:</p>
+<pre>
+--- p_map.c        Tue Feb 15 16:17:12 2000
++++ p_map.c.fixed        Sat Sep 23 18:47:22 2000
+@@ -1199,7 +1199,7 @@ void P_SlideMove(mobj_t *mo)
+
+           if (!P_TryMove(mo, mo-&gt;x, mo-&gt;y + mo-&gt;momy, true))
+             if (!P_TryMove(mo, mo-&gt;x + mo-&gt;momx, mo-&gt;y, true))
+-              if (demo_version &lt; 203 &amp;&amp; !compatibility)
++              if (demo_version == 201)
+                 mo-&gt;momx = mo-&gt;momy = 0;
+
+           break;
+</pre>
+
+    <h4>Overlapping uses of global variables in p_map.c</h4>
+
+    <p> Affects: Boom, MBF, PrBoom up to v2.1.1</p>
+
+    <p> The global variable <code>tmthing</code> is used by a
+    number of functions in p_map.c. However these functions can
+    also call each other (indirectly), so they can disrupt each
+    other's use of <code>tmthing</code>.</p>
+
+    <p> Amazingly, the only symptom I've seen so far is that it
+    causes original Doom demos to to desync (cf hruvlmp2.zip
+    hr22-uv.lmp).</p>
+<pre>
+*** p_map.c     2000/09/23 12:50:02     1.7
+--- p_map.c     2000/10/02 21:34:29     1.8
+***************
+*** 2130,2135 ****
+--- 2130,2136 ----
+    int bx;
+    int by;
+    msecnode_t* node;
++   mobj_t* saved_tmthing = tmthing; /* cph - see comment at func end */
+
+    // First, clear out the existing m_thing fields. As each node is
+    // added or verified as needed, m_thing will be set properly. When
+***************
+*** 2184,2187 ****
+--- 2185,2200 ----
+      else
+        node = node-&gt;m_tnext;
+      }
++
++   /* cph -
++    * This is the strife we get into for using global variables. tmthing
++    *  is being used by several different functions calling
++    *  P_BlockThingIterator, including functions that can be called *from*
++    *  P_BlockThingIterator. Using a global tmthing is not reentrant.
++    * OTOH for Boom/MBF demos we have to preserve the buggy behaviour.
++    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
++    */
++   if ((compatibility_level &lt; boom_compatibility_compatibility) ||
++       (compatibility_level &gt;= prboom_3_compatibility))
++     tmthing = saved_tmthing;
+    }
+      
+</pre>
+
+    <h4>Bouncing Lost Souls</h4>
+
+    <p> Affects: All source ports, Final Doom, Doom95</p>
+
+    <p> Lost souls that are charging were intended to bounce off of
+    floors and ceilings, but due to a coding error in the original
+    Doom source (the test was placed after the momentum was already
+    set to zero), they did not. This bug was corrected in the
+    source code for Doom95 and Final/Ultimate Doom, and in the
+    v1.10 source that was released and forms the basis for all of
+    the source ports. This fix broke a lot of v1.9 Doom 2
+    demos.</p>
+
+    <p> The same coding error was made with lost souls bouncing off
+    of ceilings and this was never fixed, it seems.</p>
+
+    <p> Back then there was no notion of a compatibility mode, but
+    nowadays we can compatibility option the fix so old demos will
+    work. We use the <code>gamemission</code> variable to guess
+    whether this demo is Doom2 or Ult/Final Doom - it's crude but
+    works for all the Compet-n demos I've tried.</p>
+<pre>
+--- p_mobj.c    Tue Feb 15 16:16:34 2000
++++ p_mobj.c-fixed  Sat May 26 19:34:52 2001
+@@ -471,7 +471,21 @@ floater:
+     {
+       // hit the floor
+ 
+-      if (mo-&gt;flags &amp; MF_SKULLFLY)
++      /* Note (id):
++       *  somebody left this after the setting momz to 0,
++       *  kinda useless there.
++       * cph - This was the a bug in the linuxdoom-1.10 source which
++       *  caused it not to sync Doom 2 v1.9 demos. Someone
++       *  added the above comment and moved up the following code. So 
++       *  demos would desync in close lost soul fights.
++       * Note that this only applies to original Doom 1 or Doom2 demos - not
++       *  Final Doom and Ultimate Doom.  So we test demo_compatibility *and*
++       *  gamemission. (Note we assume that Doom1 is always Ult Doom, which
++       *  seems to hold for most published demos.)
++       */
++      int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
++
++      if (correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
+    mo-&gt;momz = -mo-&gt;momz; // the skull slammed into something
+ 
+       if (mo-&gt;momz &lt; 0)
+@@ -497,6 +511,14 @@ floater:
+    }
+ 
+       mo-&gt;z = mo-&gt;floorz;
++
++      /* cph 2001/05/26 -
++       * See lost soul bouncing comment above. We need this here for bug
++       * compatibility with original Doom2 v1.9 - if a soul is charging and
++       * hit by a raising floor this incorrectly reverses its Y momentum.
++       */
++      if (!correct_lost_soul_bounce &amp;&amp; mo-&gt;flags &amp; MF_SKULLFLY)
++        mo-&gt;momz = -mo-&gt;momz;
+ 
+       if (!((mo-&gt;flags ^ MF_MISSILE) &amp; (MF_MISSILE | MF_NOCLIP)))
+    {
+      
+</pre>
+
     <h4>MBF player bobbing rewrite causes demo sync problems</h4>
 
     <p> Affects: MBF, PrBoom up to and including v2.2.1</p>
@@ -816,11 +847,50 @@ diff -p -u -r1.4 p_user.c
    if (player-&gt;bob &gt; MAXBOB)                             
      player-&gt;bob = MAXBOB;
 </pre>
+    <h4>Final Doom teleport demo desyncs</h4>
+
+    <p>Thanks to Adam Hegyi for pointing me in the direction of this one<./p>
+
+    <p>Description: It's been known for a long time that Final Doom wasn't
+    compatible with Doom 2 demos and visa versa. The original Doom source
+    release was based on a fork of the Doom 2 code, which didn't contain
+    whatever changes were made to Final Doom, so it doesn't play all FInal Doom
+    demos.</p>
+
+    <p>Having fixed all the other demo sync problems, I'd given up hope of
+    finding this one, but Adam Hegyi persisted and uncovered a useful note in an
+    old Compet-n demo by Kai-Uwe Humpert -</p>
+    <blockquote><p>
+One of my beloved maps, I've played it for the gmcol, and the previous
+COMPET-N record was mine two. Since the lmp doesn't playback with
+doom2.exe (because of the different style teleporters work), I had to
+learn it again.
+    </p></blockquote>
+    <p>Given this lead, I quickly spotted an interesting comment in p_telept.c:
+    <code>thing-&gt;z = thing-&gt;floorz;  // fixme: not needed?</code>. It
+    turns out that this line was removed in Final Doom, with the result that
+    teleports don't set the Z-coordinate of an object that is teleported - very
+    noticable when you know what to look for.</p>
+    <p>The following patch enables the Final Doom behavior for demo
+    compatibility when a Final Doom IWAD is loaded.</p>
+    <pre>
+--- p_telept.c-orig	Sun Jul 22 14:39:36 2001
++++ p_telept.c	Sun Jul 22 14:40:45 2001
+@@ -79,7 +79,8 @@ int EV_Teleport(line_t *line, int side, 
+           if (!P_TeleportMove(thing, m-&gt;x, m-&gt;y, false)) /* killough 8/9/98 */
+             return 0;
+ 
+-          thing-&gt;z = thing-&gt;floorz;  // fixme: not needed?
++          if (!(demo_compatibility &amp;&amp; gamemission &gt;= pack_tnt))
++            thing-&gt;z = thing-&gt;floorz;
+ 
+           if (player)
+             player-&gt;viewz = thing-&gt;z + player-&gt;viewheight;
+    </pre>
 
     <h2>Author</h2>
 
-    <p>Colin Phipps &lt;<a
-    href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
+    <p>Colin Phipps &lt;<a href="mailto:cphipps@doomworld.com">cphipps@doomworld.com</a>&gt;</p>
   </body>
 </html>
 
