@@ -54,45 +54,11 @@
 //  and the total size == width*height*depth/8.,
 //
 
-byte *viewimage;
 int  viewwidth;
 int  scaledviewwidth;
 int  viewheight;
 int  viewwindowx;
 int  viewwindowy;
-
-// leban 1/17/99:
-//
-// these next two are pre-calculated to help the speed of the inner
-// loops.  however, they're not a win on a powerpc, and probably not
-// on any other modern cpu that isn't afraid of multiplies.
-//
-// consider ylookup.  below, it's initialized in a loop as
-//    columnofs[i] = viewwindowx + i;
-// that's one addition.  indexing into an array is one addition.
-// but since columnofs is an array with global scope, loading usually
-// is another instruction.  on powerpc, the value is stored in the
-// TOC instead of the address.  i think x86 does something similar,
-// as someone added a bunch of local copies of similar variables below.
-// that tactic can move an extra load out of an inner loop.
-//
-// but wait, there's more, as an array offset must be converted into
-// array units, which in this case is most likely a shift left.  that's
-// one more instruction wasted per array index.
-//
-// there's also an extra benefit on powerpc:  the number of registers
-// used in R_DrawColumn is reduced, and a stack frame is no longer
-// needed.  there's another two instructions saved.
-//
-// i'll leave these two in for now, but they could eventually get
-// removed.  columnofs[] is actually referenced elsewhere.  topleft
-// isn't static to work around a metrowerks compiler bug.
-//
-// XXX
-//
-// CPhipps - also to use it in the i386 asm I need it global
-byte *ylookup[MAXHEIGHT];
-//int  columnofs[MAXWIDTH];
 
 // Color tables for different players,
 //  translate a limited part to another
@@ -651,12 +617,6 @@ void R_InitBuffer(int width, int height) {
 
   dcvars.targetwidth = SCREENWIDTH;
   dcvars.targetheight = SCREENHEIGHT;
-  
-  // Preclaculate all row offsets.
-  // CPhipps - merge viewwindowx into here
-
-  for (i=0 ; i<height ; i++)
-    ylookup[i] = (byte*)screens[0].data + ((i+viewwindowy)*SCREENWIDTH + viewwindowx)*V_GetDepth();
 }
 
 //---------------------------------------------------------------------------
