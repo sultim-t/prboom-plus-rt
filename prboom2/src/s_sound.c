@@ -46,6 +46,7 @@
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "p_info.h"
+#include "g_game.h"
 
 #ifdef COMPILE_VIDD
 #include "vidd/vidd.h"

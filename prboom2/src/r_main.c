@@ -47,6 +47,7 @@
 #include "i_main.h"
 #include "c_runcmd.h"
 #include "hu_over.h"
+#include "g_game.h"
 
 
 void R_LoadTrigTables(void);

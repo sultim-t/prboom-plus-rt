@@ -70,6 +70,7 @@ static char *gl_library_str;
 #include "c_runcmd.h"
 #include "c_io.h"
 #include "st_stuff.h"
+#include "g_game.h"
 
 extern void M_QuitDOOM(int choice);
 
