@@ -388,7 +388,7 @@ int main(int argc, char** argv)
 	packet_header_t *packet = malloc(10000);
 	size_t len;
 	
-	I_WaitForPacket();
+	I_WaitForPacket(120*1000);
 	while ((len = I_GetPacket(packet, 10000))) {
 	  if (verbose>2) printf("Received packet:");
 	  switch (packet->type) {
