@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.6 2000/09/16 20:20:40 proff_fs Exp $
+ * $Id: m_cheat.c,v 1.7 2000/12/24 10:54:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.6 2000/09/16 20:20:40 proff_fs Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.7 2000/12/24 10:54:35 cph Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
@@ -151,19 +151,19 @@ struct cheat_s cheat[] = {
   {"idbeholdr",  "Radiation Suit",    not_net | not_demo,
    cheat_pw,  pw_ironfeet        },
 
-  {"idbeholda",  "Auto-map",          not_net | not_demo,
+  {"idbeholda",  "Auto-map",          not_dm,
    cheat_pw,  pw_allmap          },
 
-  {"idbeholdl",  "Lite-Amp Goggles",  not_net | not_demo,
+  {"idbeholdl",  "Lite-Amp Goggles",  not_dm,
    cheat_pw,  pw_infrared        },
 
-  {"idbehold",   "BEHOLD menu",       not_net | not_demo,
+  {"idbehold",   "BEHOLD menu",       not_dm,
    cheat_behold   },
 
   {"idclev",     "Level Warp",        not_net | not_demo | not_menu,
    cheat_clev,    -2},
 
-  {"idmypos",    "Player Position",   not_net | not_demo,
+  {"idmypos",    "Player Position",   not_dm,
    cheat_mypos    },
 
   {"idrate",     "Frame rate",        0,
@@ -175,10 +175,10 @@ struct cheat_s cheat[] = {
   {"tntem",      NULL,                not_net | not_demo,
    cheat_massacre },     // jff 2/01/98 kill all monsters
 
-  {"iddt",       "Map cheat",         not_dm  | not_demo,
+  {"iddt",       "Map cheat",         not_dm,
    cheat_ddt      },     // killough 2/07/98: moved from am_map.c
 
-  {"tnthom",     NULL,                not_net | not_demo,
+  {"tnthom",     NULL,                always,
    cheat_hom      },     // killough 2/07/98: HOM autodetector
 
   {"tntkey",     NULL,                not_net | not_demo, 
