@@ -37,3 +37,25 @@ Colin: opulent wants the old 'q quits demo recording' feature back.
  I suggest making it a configurable key setting, not bound to any 
  key by default.
 
+--------------------------------------------------------------------------
+34. (2002/07/28) Fix documentation
+
+Proff:
+- add mp3 stuff
+- add new opengl options
+- update FAQ?
+
+--------------------------------------------------------------------------
+35. (2002/07/28) Fix OpenGL segfault on Linux
+
+Proff:
+Possibly caused by using gluImageScale when paletted textures used.
+Either write my own scaling functions, which would allow mipmapping
+for paletted textures, or just kick the scaling. I'm for the first
+if I get the time. Small fix would be disabling gluImageScale when
+paletted textures used.
+
+--------------------------------------------------------------------------
+36. (2002/07/28) Add option to move backward with second mousebutton
+
+Proff: like it was in my old prboom version
