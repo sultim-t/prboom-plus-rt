@@ -49,6 +49,8 @@
 #include "d_main.h"
 #include "doomdef.h"
 #include "g_game.h"
+#include "g_bind.h"
+#include "g_bindaxes.h"
 #include "hu_stuff.h"
 #include "i_system.h"
 #include "i_video.h"
@@ -57,9 +59,6 @@
 #include "w_wad.h"
 #include "s_sound.h"
 #include "sounds.h"
-
-#include "g_bind.h"
-#include "g_bindaxes.h"
 
 #define MESSAGES 384
 // keep the last 32 typed commands
@@ -155,6 +154,7 @@ void C_Ticker()
       
     if(current_height != current_target)
 	    redrawsbar = true;
+      
     // move the console toward its target
     if(D_abs(current_height-current_target)>=c_speed)
 	    current_height += current_target<current_height ? -c_speed : c_speed;
@@ -185,13 +185,10 @@ void C_Ticker()
 
 static void C_AddToHistory(char *s)
 {
-  const char *t;
-  const char *a_prompt;
+  char *t;
   
   // display the command in console
-  a_prompt = inputprompt;
-
-  C_Printf("%s%s\n", a_prompt, s);
+  C_Printf("%s%s\n", inputprompt, s);
   
   t = s;                  // check for nothing typed
   while(*t==' ') t++;     // or just spaces
@@ -239,7 +236,8 @@ int C_Responder(event_t* ev)
     }
   
   // only interested in keypresses
-  if(ev->type != ev_keydown) return 0;
+  if(ev->type != ev_keydown)
+    return false;
   
   //////////////////////////////////
   // Check for special keypresses
@@ -280,6 +278,7 @@ int C_Responder(event_t* ev)
     }
   
   // run command
+
   if(ev->data1 == KEYD_ENTER)
     {
       C_AddToHistory(inputtext);      // add to history
@@ -331,6 +330,12 @@ int C_Responder(event_t* ev)
       return true;
     }
 
+  if(ev->data1 == KEYD_END)
+    {
+      message_pos = message_last;
+      return true;
+    }
+
   /////////////////////////////////////////
   // Normal Text Input
   //
@@ -353,8 +358,9 @@ int C_Responder(event_t* ev)
 
   // only care about valid characters
   // dont allow too many characters on one command line
+  // sf 19/6 V_IsPrint
   
-  if(ch>31 && ch<127 && strlen(inputtext) < INPUTLENGTH-3)
+  if(V_IsPrint(ch) && strlen(inputtext) < INPUTLENGTH-3)
     {
       sprintf(inputtext, "%s%c", inputtext, ch);
       
@@ -419,16 +425,11 @@ void C_Drawer()
   
   if(current_height > 8 && c_showprompt && message_pos == message_last)
   {
-    const char *a_prompt;
     unsigned char tempstr[LINELENGTH];
       
     // if we are scrolled back, dont draw the input line
     if(message_pos == message_last)
-    {
-	    a_prompt = inputprompt;
-
-	    sprintf(tempstr, "%s%s_", a_prompt, input_point);
-    }
+	    sprintf(tempstr, "%s%s_", inputprompt, input_point);
       
     V_WriteText(tempstr, 0, current_height-8, 0);
   }
@@ -627,3 +628,4 @@ void C_InstaPopup()
 {
   current_target = current_height = 0;
 }
+
