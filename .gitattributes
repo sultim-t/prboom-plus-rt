@@ -1,10 +1,4 @@
 * text=auto !eol
-prboom/ICONS/BARREL.ICO -text svneol=native#unset
-prboom/ICONS/FOUCH.ICO svneol=native#unset
-prboom/ICONS/GOD.ICO svneol=native#unset
-prboom/ICONS/Heada1.ico -text
-prboom/ICONS/ICONS.APS -text svneol=native#unset
-prboom/ICONS/SKULL.ICO svneol=native#unset
 prboom/LUMPS/GRAPHICS/COLCHIP.BMP svneol=native#unset
 prboom/LUMPS/GRAPHICS/CURCHIP.BMP svneol=native#unset
 prboom/LUMPS/GRAPHICS/DOOM.ACT svneol=native#unset
