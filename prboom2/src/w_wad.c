@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: w_wad.c,v 1.8 2000/05/16 21:37:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.7 2000/05/11 22:44:35 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.8 2000/05/16 21:37:13 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -622,7 +622,7 @@ void WritePredefinedLumpWad(const char *filename)
     write(handle, &header, sizeof(header));
 
     // write directory
-    for (i=0;i<num_predefined_lumps;i++)
+    for (i=0;(size_t)i<num_predefined_lumps;i++)
     {
       filelump_t fileinfo = {0};
       fileinfo.filepos = LONG(filepos);
@@ -633,7 +633,7 @@ void WritePredefinedLumpWad(const char *filename)
     }
 
     // write lumps
-    for (i=0;i<num_predefined_lumps;i++)
+    for (i=0;(size_t)i<num_predefined_lumps;i++)
       write(handle, predefined_lumps[i].data, predefined_lumps[i].size);
 
     close(handle);
