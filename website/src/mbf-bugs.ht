@@ -689,7 +689,7 @@ should be reversed.</p>
 
 <h4>Blazing door rebound noise</h4>
 
-<p>Affects: All prior to proom 2.2.5 and 2.3.1</p>
+<p>Affects: All prior to PrBoom 2.2.5 and 2.3.1</p>
 
 <p>When a blazing door closes on a monster or player, it reopens, like a normal door, but it makes a normal door opening noise &mdash; in contrast to the fast door closing noise. Trivial oversight in p_doors.c:</p>
 
@@ -711,6 +711,19 @@ should be reversed.</p>
            default:             // other types bounce off the obstruction
              door-&gt;direction = 1;
              S_StartSound((mobj_t *)&amp;door-&gt;sector-&gt;soundorg,sfx_doropn);
+</pre>
+
+<h4>Spawn fog in wrong location</h4>
+<p>Affects: All prior to PrBoom 2.2.6 and 2.3.2</p>
+<p>Found by: <a href="mailto:vv&#64;ydin.org">Ville Vuorinen</a></p>
+<p>
+ Doom tries to offset the green fog when a player respawns so that it is in front of them (so that they can see it clearly). It does this by offsetting it at the angle of the player start object. However, when calculating this angle, it accidentally treats the angle as signed instead of unsigned, resulting in a negative offset into the trigonometry arrays. This in turn causes the fog to be spawned completely out of position.
+</p>
+<p>
+ The fix is to force the value in <code>g_game.c:G_CheckSpot</code> to be unsigned:
+</p>
+<pre>
+ an = ( ANG45 * ((unsigned)mthing-&gt;angle/45) ) &gt;&gt; ANGLETOFINESHIFT;
 </pre>
 
 <h3>Demo sync bugs</h3>
