@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35.2.9 2003/03/29 19:00:41 proff_fs Exp $
+ * $Id: gl_main.c,v 1.35.2.10 2003/04/06 21:26:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -1765,6 +1765,45 @@ static float yaw      = 0.0f;
 static float inv_yaw  = 0.0f;
 static float pitch    = 0.0f;
 
+#define __glPi 3.14159265358979323846
+
+void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
+{
+	GLdouble left, right, bottom, top;
+	GLdouble m[16];
+
+	top = znear * tan(fovy * __glPi / 360.0);
+	bottom = -top;
+	left = bottom * aspect;
+	right = top * aspect;
+
+	//qglFrustum(left, right, bottom, top, znear, zfar);
+
+	m[ 0] = (2 * znear) / (right - left);
+	m[ 4] = 0;
+	m[ 8] = (right + left) / (right - left);
+	m[12] = 0;
+
+	m[ 1] = 0;
+	m[ 5] = (2 * znear) / (top - bottom);
+	m[ 9] = (top + bottom) / (top - bottom);
+	m[13] = 0;
+
+	m[ 2] = 0;
+	m[ 6] = 0;
+	//m[10] = - (zfar + znear) / (zfar - znear);
+	//m[14] = - (2 * zfar * znear) / (zfar - znear);
+	m[10] = -1;
+	m[14] = -2 * znear;
+
+	m[ 3] = 0;
+	m[ 7] = 0;
+	m[11] = -1;
+	m[15] = 0;
+
+	glMultMatrixd(m);
+}
+
 void gld_StartDrawScene(void)
 {
   float trY ;
@@ -1806,7 +1845,8 @@ void gld_StartDrawScene(void)
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
+  //gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
+  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
