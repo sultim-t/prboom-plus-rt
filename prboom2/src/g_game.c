@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.18 2000/05/22 09:21:50 cph Exp $
+ * $Id: g_game.c,v 1.19 2000/05/22 15:19:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,15 +37,25 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.18 2000/05/22 09:21:50 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.19 2000/05/22 15:19:53 cph Exp $";
 
+#include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#ifdef _MSC_VER
+#define    F_OK    0    /* Check for file existence */
+#define    W_OK    2    /* Check for write permission */
+#define    R_OK    4    /* Check for read permission */
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+#include <fcntl.h>
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
 
-#include <stdio.h>
 #include "doomstat.h"
 #include "f_finale.h"
 #include "m_argv.h"
@@ -248,7 +258,8 @@ mobj_t **bodyque = 0;                   // phares 8/10/98
 
 void   *statcopy;       // for statistics driver
 
-void G_DoSaveGame (boolean menu);
+static void G_DoSaveGame (boolean menu);
+static const byte* G_ReadDemoHeader(const byte* demo_p);
 
 //
 // G_BuildTiccmd
@@ -1608,7 +1619,16 @@ void G_DoLoadGame(void)
   // draw the pattern into the back screen
   R_FillBackScreen ();
 
-  /* cph - FIXME - import MBF -recordfrom support? */
+  /* killough 12/98: support -recordfrom and -loadgame -playdemo */
+  if (!command_loadgame)
+    singledemo = false;  /* Clear singledemo flag if loading from menu */
+  else
+    if (singledemo) {
+      gameaction = ga_loadgame; /* Mark that we're loading a game before demo */
+      G_DoPlayDemo();           /* This will detect it and won't reinit level */
+    } else /* Command line + record means it's a recordfrom */
+      if (demorecording)
+        G_BeginRecording();
 }
 
 //
@@ -2109,9 +2129,39 @@ void G_RecordDemo (const char* name)
   char     demoname[PATH_MAX];
   usergame = false;  
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
-  demofp = fopen(demoname, "wb");
-  if (!demofp) I_Error("G_RecordDemo: failed to open %s", name);
   demorecording = true;
+  /* cph - Record demos straight to file
+   * If file already exists, try to continue existing demo
+   */
+  if (access(demoname, F_OK)) {
+    demofp = fopen(demoname, "wb");
+  } else {
+    demofp = fopen(demoname, "r+");
+    if (demofp) {
+      int slot = -1;
+      {
+	byte buf[200];
+	size_t len;
+	fread(buf, 1, sizeof(buf), demofp);
+	
+	len = G_ReadDemoHeader(buf) - buf;
+	fseek(demofp, len, SEEK_SET);
+      }
+      for (;;) {
+	byte buf[4];
+	fread(buf, 1, sizeof(buf), demofp);
+	if (buf[0] == DEMOMARKER) break;
+	if (buf[3] & BT_SPECIAL)
+	  if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
+	    slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+      }
+      if (slot == -1) I_Error("No save in demo, can't continue");
+      fseek(demofp, -1, SEEK_CUR);
+      G_LoadGame(slot, false);
+      autostart = false;
+    }
+  }
+  if (!demofp) I_Error("G_RecordDemo: failed to open %s", name);
 }
 
 // These functions are used to read and write game-specific options in demos
@@ -2412,20 +2462,14 @@ void G_DeferedPlayDemo (const char* name)
 
 static int demolumpnum = -1;
 
-void G_DoPlayDemo (void)
+static const byte* G_ReadDemoHeader(const byte *demo_p)
 {
   skill_t skill;
   int i, episode, map;
-  char basename[9];
   int demover;
   const byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
-
-  ExtractFileBase(defdemoname,basename);           // killough
-  gameaction = ga_nothing;
-  demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));  
-  // cph - store lump number for unlocking later
 
   // killough 2/22/98, 2/28/98: autodetect old demos and act accordingly.
   // Old demos turn on demo_compatibility => compatibility; new demos load
@@ -2503,14 +2547,14 @@ void G_DoPlayDemo (void)
 	  break;
 	case 'M':
 	  compatibility_level = mbf_compatibility;
-	  *demo_p++;
+	  demo_p++;
 	  break;
 	}
 	break;
       case 210:
 	/* PrBoom? */
 	compatibility_level = prboom_2_compatibility;
-	*demo_p++;
+	demo_p++;
 	break;
       }
       G_Compatibility();
@@ -2565,12 +2609,26 @@ void G_DoPlayDemo (void)
       G_ReadOptions(option_p);
   }
 
+  for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98
+    players[i].cheats = 0;
+
+  return demo_p;
+}
+
+void G_DoPlayDemo(void) 
+{
+  char basename[9];
+
+  ExtractFileBase(defdemoname,basename);           // killough
+  demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));  
+  /* cph - store lump number for unlocking later */
+
+  demo_p = G_ReadDemoHeader(demo_p);
+
+  gameaction = ga_nothing;
   usergame = false;
 
   demoplayback = true;
-
-  for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98
-    players[i].cheats = 0;
 }
 
 //

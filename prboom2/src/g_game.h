@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.h,v 1.4 2000/05/18 08:38:13 cph Exp $
+ * $Id: g_game.h,v 1.5 2000/05/22 15:19:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -67,22 +67,20 @@ void G_EndGame(void); /* cph - make m_menu.c call a G_* function for this */
 void G_Ticker(void);
 void G_ScreenShot(void);
 void G_ReloadDefaults(void);     // killough 3/1/98: loads game defaults
-void G_SaveGameName(char *, size_t, int); /* killough 3/22/98: sets savegame filename */
+void G_SaveGameName(char *, size_t, int, boolean); /* killough 3/22/98: sets savegame filename */
 void G_SetFastParms(int);        // killough 4/10/98: sets -fast parameters
 void G_DoNewGame(void);
 void G_DoReborn(int playernum);
 void G_DoPlayDemo(void);
 void G_DoCompleted(void);
-void G_DoSaveGame(void);
 void G_ReadDemoTiccmd(ticcmd_t *cmd);
 void G_WriteDemoTiccmd(ticcmd_t *cmd);
 void G_DoWorldDone(void);
-byte *G_ReadOptions(byte *demo_p);         // killough 3/1/98
+const byte *G_ReadOptions(const byte *demo_p);   /* killough 3/1/98 - cph: const byte* */
 byte *G_WriteOptions(byte *demo_p);        // killough 3/1/98
 void G_PlayerReborn(int player);
 void G_InitNew(skill_t skill, int episode, int map);
 void G_RestartLevel(void); // CPhipps - menu involked level restart
-void G_DoLoadLevel(void  );
 void G_DoLoadGame(void);
 void G_DoVictory(void);
 void G_BuildTiccmd (ticcmd_t* cmd); // CPhipps - move decl to header
