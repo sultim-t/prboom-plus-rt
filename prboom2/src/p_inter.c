@@ -743,6 +743,106 @@ void P_KillMobj(mobj_t *source, mobj_t *target)
 }
 
 //
+// DEATH MESSAGES
+//
+// the %c at the beginning of each string is used to change the
+// colour to the obituary colour
+//
+
+char *deathmess1[] ={
+  "%c%s was punched to death",           // fist
+  "%c%s died from pistol wounds",        // pistol
+  "%c%s got shotgun-blasted",            // shotgun
+  "%c%s got chaingunned to death",       // chaingun
+  "%c%s failed to avoid the rocket",      // rockets
+  "%c%s admires the pretty blue stuff..",// plasma
+  "%c%s saw the green flash",           // bfg
+  "%c%s got chopped up",                 // chainsaw
+  "%c%s got two shells in the chest",    // 2x shotgun
+  "%c%s died",                           // default
+};
+
+char *deathmess2[] = {
+  "%c%s performed G.B.H. on %s",         // fist
+  "%c%s took out %s with a pistol",      // pistol
+  "%c%s blasted %s away",                // shotgun
+  "%c%s chaingunned down %s",            // chaingun
+  "%c%s blew %s away",                   // rockets
+  "%c%s burned %s",                      // plasma
+  "%c%s bfg'ed %s",                      // bfg
+  "%c%s mistook %s for a tree",          // chainsaw
+  "%c%s shows %s his double barrels",    // 2x shotgun
+  "%c%s killed %s",                      // default
+};
+
+//sf: obituaries
+void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
+{
+  int killweapon, messtype;
+  
+  if(!target->player) return;     // not a player
+  if(!obituaries) return;         // obituaries off
+  
+  if(!source || !source->player) // killed by a monster or environment
+    {
+      doom_printf("%c%s died", 128+obcolour,
+		  target->player->name);
+      return;
+    }
+  
+  if(source == inflictor)         // killed by shooting etc.
+    killweapon = source->player->readyweapon;
+  else
+    // find what weapon caused the kill
+    {
+      if(inflictor)
+	switch(inflictor->type)
+	  {
+	    case MT_BFG: killweapon = wp_bfg; break;
+	    case MT_ROCKET: killweapon = wp_missile; break;
+	    case MT_PLASMA: killweapon = wp_plasma; break;
+	    default: killweapon = NUMWEAPONS; break;
+	  }
+      else
+	killweapon = NUMWEAPONS;
+    }
+  
+  if(source->player == target->player)    // suicide ?
+    {
+      // inflictor: only use message if an inflictor is used
+      if(inflictor)
+	{
+	  if(killweapon == wp_missile)
+	    {
+	      doom_printf("%c%s should have stood back", 128+obcolour,
+			  source->player->name);
+	      return;
+	    }
+	  else if(killweapon == wp_bfg)
+	    {
+	      doom_printf("%c%s used a bfg close-up",
+			  128+obcolour, source->player->name);
+	      return;
+	    }
+	}
+      
+      doom_printf("%c%s suicides", 128+obcolour,
+		  source->player->name);
+      return;
+    }
+  
+  //  choose a message type, 0 or 1
+  messtype = M_Random() % 2;
+  
+  if(messtype)
+    doom_printf(deathmess1[killweapon], 128+obcolour,
+		target->player->name, source->player->name);
+  else
+    doom_printf(deathmess2[killweapon], 128+obcolour,
+		source->player->name, target->player->name);
+}
+
+//
 // P_DamageMobj
 // Damages both enemies and players
 // "inflictor" is the thing that caused the damage
@@ -855,6 +955,8 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   target->health -= damage;
   if (target->health <= 0)
     {
+      if(target->player)        // death messages for players
+              P_DeathMessage(source, target, inflictor);
       P_KillMobj (source, target);
       return;
     }
