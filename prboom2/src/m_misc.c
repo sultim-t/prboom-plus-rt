@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.25 2000/11/19 10:16:59 cph Exp $
+ * $Id: m_misc.c,v 1.26 2000/12/27 18:42:34 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.25 2000/11/19 10:16:59 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26 2000/12/27 18:42:34 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -312,7 +312,7 @@ default_t defaults[] =
    def_bool,ss_none}, // enables variable pitch in sound effects (from id's original code)
   {"sfx_volume",{&snd_SfxVolume},{8},0,15, def_int,ss_none}, 
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
-  {"mus_pause_opt",{&mus_pause_opt},{0},0,2, // CPhipps - music pausing
+  {"mus_pause_opt",{&mus_pause_opt},{2},0,2, // CPhipps - music pausing
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
   {"sounddev", {NULL,&snd_device}, {0,"/dev/dsp"},UL,UL,
    def_str,ss_none}, // sound output device (UNIX)
