@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.h,v 1.1 2000/05/04 08:14:36 proff_fs Exp $
+ * $Id: p_spec.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -1140,110 +1143,3 @@ int P_ActivateInStasisCeiling
 mobj_t* P_GetPushThing(int);                                // phares 3/23/98
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_spec.h,v $
-// Revision 1.1  2000/05/04 08:14:36  proff_fs
-// Initial revision
-//
-// Revision 1.5  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.4  1999/01/07 10:46:08  cphipps
-// Fix struct alignment for Metrowerks
-// Fix incorrect enum specified to EV_DoElevator
-//
-// Revision 1.3  1998/12/27 13:25:49  cphipps
-// Change params for P_CrossSpecialLine
-// (take line pointer instead of index, as in MBF)
-//
-// Revision 1.2  1998/10/27 18:41:54  cphipps
-// Boom v2.02 update
-//
-// Revision 1.31  1998/08/08  15:19:04  jim
-// flicker special restora
-//
-// Revision 1.30  1998/05/04  02:22:23  jim
-// formatted p_specs, moved a coupla routines to p_floor
-//
-// Revision 1.28  1998/04/17  10:25:04  killough
-// Add P_FindLineFromLineTag()
-//
-// Revision 1.27  1998/04/14  18:49:50  jim
-// Added monster only and reverse teleports
-//
-// Revision 1.26  1998/04/12  02:05:54  killough
-// Add ceiling light setting, start ceiling carriers
-//
-// Revision 1.25  1998/04/05  13:54:03  jim
-// fixed switch change on second activation
-//
-// Revision 1.24  1998/03/31  16:52:09  jim
-// Fixed uninited type field in stair builders
-//
-// Revision 1.23  1998/03/23  18:38:39  jim
-// Switch and animation tables now lumps
-//
-// Revision 1.22  1998/03/23  15:24:47  phares
-// Changed pushers to linedef control
-//
-// Revision 1.21  1998/03/20  14:24:48  jim
-// Gen ceiling target now shortest UPPER texture
-//
-// Revision 1.20  1998/03/20  00:30:27  phares
-// Changed friction to linedef control
-//
-// Revision 1.19  1998/03/19  16:49:00  jim
-// change sector bits to combine ice and sludge
-//
-// Revision 1.18  1998/03/16  12:39:08  killough
-// Add accelerative scrollers
-//
-// Revision 1.17  1998/03/15  14:39:39  jim
-// added pure texture change linedefs & generalized sector types
-//
-// Revision 1.16  1998/03/14  17:18:56  jim
-// Added instant toggle floor type
-//
-// Revision 1.15  1998/03/09  07:24:40  killough
-// Add scroll_t for generalized scrollers
-//
-// Revision 1.14  1998/03/02  12:11:35  killough
-// Add scroll_effect_offset declaration
-//
-// Revision 1.13  1998/02/27  19:20:42  jim
-// Fixed 0 tag trigger activation
-//
-// Revision 1.12  1998/02/23  23:47:15  jim
-// Compatibility flagged multiple thinker support
-//
-// Revision 1.11  1998/02/23  00:42:12  jim
-// Implemented elevators
-//
-// Revision 1.9  1998/02/17  06:20:32  killough
-// Add prototypes, redefine MAXBUTTONS
-//
-// Revision 1.8  1998/02/13  03:28:17  jim
-// Fixed W1,G1 linedefs clearing untriggered special, cosmetic changes
-//
-// Revision 1.7  1998/02/09  03:09:37  killough
-// Remove limit on switches
-//
-// Revision 1.6  1998/02/08  05:35:48  jim
-// Added generalized linedef types
-//
-// Revision 1.4  1998/02/02  13:43:55  killough
-// Add silent teleporter
-//
-// Revision 1.3  1998/01/30  14:44:03  jim
-// Added gun exits, right scrolling walls and ceiling mover specials
-//
-// Revision 1.2  1998/01/26  19:27:29  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:01  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

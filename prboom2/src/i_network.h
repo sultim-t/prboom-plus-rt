@@ -1,12 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_network.h,v 1.1 2000/05/04 08:02:58 proff_fs Exp $
+ * $Id: i_network.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  New low level networking code for LxDoom, based in part on 
- *  the original linuxdoom networking
- *  Copyright (C) 1993-1996 by id Software
- *  Copyright (C) 1999-2000 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -41,33 +45,3 @@ extern int v4socket, v6socket;
 #endif
 
 extern size_t sentbytes, recvdbytes;
-
-/*
- * $Log: i_network.h,v $
- * Revision 1.1  2000/05/04 08:02:58  proff_fs
- * Initial revision
- *
- * Revision 1.6  2000/04/03 17:06:10  cph
- * Split client specific stuff from l_udp.c to new l_network.c
- * Move server specific stuff from l_udp.c to d_server.c
- * Update copyright notices
- * Restructure ready for IPv6 support
- * Use fcntl instead of ioctl to set socket non-blocking
- *
- * Revision 1.5  2000/03/28 10:43:21  cph
- * Pass wanted player number in init packet
- *
- * Revision 1.4  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.3  1999/09/05 10:48:30  cphipps
- * Added sentfrom address so server can work out client addresses
- * when they connect.
- *
- * Revision 1.2  1999/04/01 09:38:09  cphipps
- * Add variables holding stats
- *
- * Revision 1.1  1999/03/29 11:55:09  cphipps
- * Initial revision
- *
- */

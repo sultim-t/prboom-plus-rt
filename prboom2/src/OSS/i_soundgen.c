@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_soundgen.c,v 1.1 2000/05/07 22:12:20 cph Exp $
+ * $Id: i_soundgen.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
  *  Sound server for LxDoom, based on the sound server sources released
  *   with the original linuxdoom.
@@ -29,7 +29,7 @@
  */
 
 static const char 
-rcsid[] = "$Id: i_soundgen.c,v 1.1 2000/05/07 22:12:20 cph Exp $";
+rcsid[] = "$Id: i_soundgen.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -554,46 +554,3 @@ void I_InitSoundGen(const char* snd_dev)
     }
   }
 }
-
-/*
- * $Log: i_soundgen.c,v $
- * Revision 1.1  2000/05/07 22:12:20  cph
- * OSS audio output code renamed and in new directory
- *
- * Revision 1.1.1.1  2000/05/04 08:07:43  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.21  2000/05/01 17:50:34  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.20  2000/04/05 10:47:31  cph
- * Remove dead #ifdef magic, rely on config.h now
- * Make sndserv work on (Open|Net)BSD, using libossaudio
- * Make --enable-debug compile with -g
- * Make asm stuff only compile on Linux and FreeBSD
- * (draw(col|span).s failed on OpenBSD, linker troubles)
- *
- * Revision 1.19  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.18  1999/09/08 21:24:24  cphipps
- * Changed to use autoconf-made config.h to detect the sound driver header
- *
- * Revision 1.17  1999/05/16 08:43:53  cphipps
- * Use endianness detection from m_swap.h
- *
- * Revision 1.16  1999/04/30 09:49:42  cphipps
- * Fix clicking at start of sounds (was playing the sound header by mistake)
- *
- * Revision 1.15  1999/01/27 19:58:02  cphipps
- * Fix headers to avoid FreeBSD warnings
- *
- * Revision 1.14  1998/12/25 17:16:15  cphipps
- * Actively clamp volumes to the range where needed, to prevent static
- * on volume-too-high errors
- *
- * Revision 1.13  1998/12/25 17:04:07  cphipps
- * Add log
- * Scale signed-word volumes to avoid garbage
- *
- */

@@ -1,12 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: d_deh.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
- *  Ty Halderman, Lee Killough, Colin Phipps
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -32,7 +36,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -2764,85 +2768,3 @@ boolean deh_GetData(char *s, char *k, long *l, char **strval, FILE *fpout)
 
   return(okrc);
 }
-
-//---------------------------------------------------------------------
-//
-// $Log: d_deh.c,v $
-// Revision 1.2  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 07:59:43  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.19  2000/05/01 17:50:33  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.18  2000/04/29 16:15:01  cph
-// Revert new netgame stuff
-//
-// Revision 1.16  1999/10/27 18:35:50  cphipps
-// Made W_CacheLump* return a const pointer
-//
-// Revision 1.15  1999/10/12 13:01:09  cphipps
-// Changed header to GPL
-//
-// Revision 1.14  1999/03/07 22:17:07  cphipps
-// New automap rotation/overlay toggling strings
-//
-// Revision 1.13  1999/01/13 08:08:31  cphipps
-// Use logical output routine
-// Remove non-portable #defines of file stream funcs
-//
-// Revision 1.12  1999/01/01 13:32:13  cphipps
-// Fixed for new wad lump handling
-//
-// Revision 1.11  1998/12/28 13:15:11  cphipps
-// Fix savegame filename variable to be initialised
-//
-// Revision 1.10  1998/12/27 15:42:34  cphipps
-// Add restart level warning string
-//
-// Revision 1.9  1998/12/27 13:23:57  cphipps
-// Imported updated d_deh.c from MBF
-// Refixed const'ness problems
-// Added strlwr as before
-//
-// Revision 1.20  1998/06/01  22:30:38  thldrmn
-// fix .acv pointer for new GCC version
-//
-// Revision 1.19  1998/05/17  09:39:48  thldrmn
-// Bug fix to avoid processing last line twice
-//
-// Revision 1.17  1998/05/04  21:36:21  thldrmn
-// commenting, reformatting and savegamename change
-//
-// Revision 1.16  1998/05/03  22:09:59  killough
-// use p_inter.h for extern declarations and fix a pointer cast
-//
-// Revision 1.15  1998/04/26  14:46:24  thldrmn
-// BEX code pointer additions
-//
-// Revision 1.14  1998/04/24  23:49:35  thldrmn
-// Strings continuation fix
-//
-// Revision 1.13  1998/04/19  01:18:58  killough
-// Change deh cheat code handling to use new cheat table
-//
-// Revision 1.12  1998/04/11  14:47:31  thldrmn
-// Added include, fixed pars
-//
-// Revision 1.11  1998/04/10  06:49:15  killough
-// Fix CVS stuff
-//
-// Revision 1.10  1998/04/09  09:17:00  thldrmn
-// Update to text handling
-//
-// Revision 1.00  1998/04/07  04:43:59  ty
-// First time with cvs revision info
-//
-//---------------------------------------------------------------------

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.h,v 1.1 2000/05/04 08:02:51 proff_fs Exp $
+ * $Id: hu_stuff.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -85,35 +88,3 @@ extern int hud_active;      /* hud mode 0=off, 1=small, 2=full          */
 extern int hud_nosecrets;   /* status does not list secrets/items/kills */
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: hu_stuff.h,v $
- * Revision 1.1  2000/05/04 08:02:51  proff_fs
- * Initial revision
- *
- * Revision 1.2  1999/10/12 13:00:56  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.6  1998/05/10  19:03:50  jim
- * formatted/documented hu_stuff
- *
- * Revision 1.5  1998/05/03  22:25:03  killough
- * add external declarations for hud options
- *
- * Revision 1.4  1998/02/18  00:59:04  jim
- * Addition of HUD
- *
- * Revision 1.3  1998/02/15  02:48:12  phares
- * User-defined keys
- *
- * Revision 1.2  1998/01/26  19:26:54  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:02:56  rand
- * Lee's Jan 19 sources
- *
- *----------------------------------------------------------------------------*/

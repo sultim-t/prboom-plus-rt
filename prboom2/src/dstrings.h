@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: dstrings.h,v 1.1 2000/05/04 08:01:22 proff_fs Exp $
+ * $Id: dstrings.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -76,30 +79,3 @@ extern const size_t NUM_QUITMESSAGES;  /* Calculated in dstrings.c */
 extern const char* const endmsg[];   /* killough 1/18/98 const added */
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: dstrings.h,v $
- * Revision 1.1  2000/05/04 08:01:22  proff_fs
- * Initial revision
- *
- * Revision 1.2  1999/10/12 13:00:56  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.5  1998/05/04  22:00:43  thldrmn
- * savegamename globalization
- *
- * Revision 1.3  1998/03/23  03:12:58  killough
- * Rename doomsav to boomsav
- *
- * Revision 1.2  1998/01/26  19:26:45  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:02:51  rand
- * Lee's Jan 19 sources
- *
- *
- *----------------------------------------------------------------------------*/

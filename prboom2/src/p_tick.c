@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_tick.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.3 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_user.h"
@@ -198,57 +201,3 @@ void P_Ticker (void)
   P_RespawnSpecials();
   leveltime++;                       // for par times
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_tick.c,v $
-// Revision 1.3  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.2  2000/05/04 11:23:01  proff_fs
-// added an textwindow for Win32 and
-// changed some printfs to lprintfs
-//
-// Revision 1.1.1.1  2000/05/04 08:15:01  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.5  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.4  1999/10/02 12:00:41  cphipps
-// Disable mobj reference count checking if SIMPLECHECKS not set
-//
-// Revision 1.3  1999/06/20 20:04:07  cphipps
-// Fix bug where mobj references weren't preventing them being freed (d'oh)
-// Made the P_Remove* functions static
-//
-// Revision 1.2  1999/02/04 15:21:59  cphipps
-// New thinker deletion algorithm from MBF
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.7  1998/05/15  00:37:56  killough
-// Remove unnecessary crash hack, fix demo sync
-//
-// Revision 1.6  1998/05/13  22:57:59  killough
-// Restore Doom bug compatibility for demos
-//
-// Revision 1.5  1998/05/03  22:49:01  killough
-// Get minimal includes at top
-//
-// Revision 1.4  1998/04/29  16:19:16  killough
-// Fix typo causing game to not pause correctly
-//
-// Revision 1.3  1998/04/27  01:59:58  killough
-// Fix crashes caused by thinkers being used after freed
-//
-// Revision 1.2  1998/01/26  19:24:32  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:01  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

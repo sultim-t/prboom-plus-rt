@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.2 2000/05/09 18:43:44 cph Exp $
+ * $Id: doomstat.h,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -310,83 +313,3 @@ extern int player_bobbing;  // whether player bobs or not   // phares 2/25/98
 extern int default_player_bobbing;  // killough 3/1/98: make local to each game
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: doomstat.h,v $
-// Revision 1.2  2000/05/09 18:43:44  cph
-// Improve original Doom compatibility
-//
-// Revision 1.1.1.1  2000/05/04 08:01:08  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.11  2000/03/28 08:47:48  cph
-// New free join/parting for network games
-//
-// Revision 1.10  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.9  1999/08/31 19:46:20  cphipps
-// Removed old viewactive variable
-//
-// Revision 1.8  1999/03/28 11:30:39  cphipps
-// Removed a couple of network things from global scope
-//
-// Revision 1.7  1999/03/26 11:09:52  cphipps
-// Added elements to the automapmode_e enum for other automap mode stuff
-//
-// Revision 1.6  1999/03/22 20:13:56  cphipps
-// Made nettics not global
-//
-// Revision 1.5  1999/03/07 22:15:26  cphipps
-// New automap mode variable
-//
-// Revision 1.4  1998/12/26 11:55:01  cphipps
-// New compatibility stuff
-//
-// Revision 1.3  1998/12/16 22:33:54  cphipps
-// Add default screen size config vars
-//
-// Revision 1.2  1998/10/27 15:32:24  cphipps
-// Substituted new Boom v2.02 version
-//
-// Revision 1.14  1998/08/11  19:31:46  phares
-// DM Weapon bug fix
-//
-// Revision 1.13  1998/05/12  12:47:28  phares
-// Removed OVER_UNDER code
-//
-// Revision 1.12  1998/05/06  16:05:34  jim
-// formatting and documenting
-//
-// Revision 1.11  1998/05/05  16:28:51  phares
-// Removed RECOIL and OPT_BOBBING defines
-//
-// Revision 1.10  1998/05/03  23:12:52  killough
-// beautify, move most global switch variable decls here
-//
-// Revision 1.9  1998/04/06  04:54:55  killough
-// Add demo_insurance
-//
-// Revision 1.8  1998/03/02  11:26:25  killough
-// Remove now-dead monster_ai mask idea
-//
-// Revision 1.7  1998/02/23  04:17:38  killough
-// fix bad translucency flag
-//
-// Revision 1.5  1998/02/20  21:56:29  phares
-// Preliminarey sprite translucency
-//
-// Revision 1.4  1998/02/19  16:55:30  jim
-// Optimized HUD and made more configurable
-//
-// Revision 1.3  1998/02/18  00:58:54  jim
-// Addition of HUD
-//
-// Revision 1.2  1998/01/26  19:26:41  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:09  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: r_segs.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -32,7 +35,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -837,138 +840,3 @@ void R_StoreWallRange(const int start, const int stop)
     }
   ds_p++;
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: r_segs.c,v $
-// Revision 1.3  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:16:31  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.16  2000/05/01 14:37:34  Proff
-// changed abs to D_abs
-//
-// Revision 1.15  2000/04/27 14:15:33  cph
-// Allow lousy fake contrast to be disabled
-//
-// Revision 1.14  1999/10/17 08:52:04  cphipps
-// Fixed odd tutti fruiti with non-power of two height non-tiling textures
-// (see ChangeLog).
-//
-// Revision 1.13  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.12  1999/10/05 21:20:10  cphipps
-// Fix 2S closed line clipping (removal of doorclosed wasn't done right)
-// Fixed typo in new code for 2S blocking line clipping
-//
-// Revision 1.11  1999/10/03 18:28:32  cphipps
-// Improved solidcol[] marking by using mark{floor|ceiling} instead of
-//  {top|bottom}texture
-// Added flag passed by R_RenderSegLoop back to R_StoreWallRange to indicate
-//  whether any solid columns were added
-// Added new code to R_StoreWallRange so if a solid column is created, extra
-//  clipping info is stored for that line, to eliminate problems with sprites
-//  showing under opening/closing doors etc.
-//
-// Revision 1.10  1999/09/19 10:32:31  cphipps
-// Linedef based rendering flags used for info like closure,
-// and whether textures need tiling
-//
-// Revision 1.9  1999/09/04 16:48:29  cphipps
-// Added code to help the new r_bsp.c solid columns code, to mark when
-// 2s lines block a column due to height
-//
-// Revision 1.8  1999/06/17 10:08:22  cphipps
-// Keep track of segs rendered
-//
-// Revision 1.7  1999/06/08 17:26:31  cphipps
-// Change long long references to int_64_t's
-//
-// Revision 1.6  1999/03/06 09:17:25  cphipps
-// Moved R_ScaleFromGlobalAngle here, made static
-//
-// Revision 1.5  1999/01/25 15:57:40  cphipps
-// Change int limit macros to newer limits.h macros from depreciated
-//  values.h macros
-//
-// Revision 1.4  1998/12/31 22:51:03  cphipps
-// New wad lump handling
-//
-// Revision 1.3  1998/10/27 18:52:57  cphipps
-// Boom v2.02 version imported
-//
-// Revision 1.20  1998/10/05  21:46:31  phares
-// Cleanup fireline checkin
-//
-// Revision 1.19  1998/10/05  21:29:32  phares
-// Fixed firelines
-//
-// Revision 1.18  1998/09/11  16:19:17  jim
-// Fixed startup on vertex segviol
-//
-// Revision 1.17  1998/08/11  07:58:58  jim
-// Added ZDoom's fix to opening limit removal
-//
-// Revision 1.16  1998/05/03  23:02:01  killough
-// Move R_PointToDist from r_main.c, fix #includes
-//
-// Revision 1.15  1998/04/27  01:48:37  killough
-// Program beautification
-//
-// Revision 1.14  1998/04/17  10:40:31  killough
-// Fix 213, 261 (floor/ceiling lighting)
-//
-// Revision 1.13  1998/04/16  06:24:20  killough
-// Prevent 2s sectors from bleeding across deep water or fake floors
-//
-// Revision 1.12  1998/04/14  08:17:16  killough
-// Fix light levels on 2s textures
-//
-// Revision 1.11  1998/04/12  02:01:41  killough
-// Add translucent walls, add insurance against SIGSEGV
-//
-// Revision 1.10  1998/04/07  06:43:05  killough
-// Optimize: use external doorclosed variable
-//
-// Revision 1.9  1998/03/28  18:04:31  killough
-// Reduce texture offsets vertically
-//
-// Revision 1.8  1998/03/16  12:41:09  killough
-// Fix underwater / dual ceiling support
-//
-// Revision 1.7  1998/03/09  07:30:25  killough
-// Add primitive underwater support, fix scrolling flats
-//
-// Revision 1.6  1998/03/02  11:52:58  killough
-// Fix texturemapping overflow, add scrolling walls
-//
-// Revision 1.5  1998/02/09  03:17:13  killough
-// Make closed door clipping more consistent
-//
-// Revision 1.4  1998/02/02  13:27:02  killough
-// fix openings bug
-//
-// Revision 1.3  1998/01/26  19:24:47  phares
-// First rev with no ^Ms
-//
-// Revision 1.2  1998/01/26  06:10:42  killough
-// Discard old Medusa hack -- fixed in r_data.c now
-//
-// Revision 1.1.1.1  1998/01/19  14:03:03  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_ceilng.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_ceilng.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_ceilng.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_ceilng.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -465,56 +468,3 @@ void P_RemoveAllActiveCeilings(void)
     activeceilings = next;
   }
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_ceilng.c,v $
-// Revision 1.2  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.1.1.1  2000/05/04 08:10:42  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.2  1999/10/12 13:01:12  cphipps
-// Changed header to GPL
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.14  1998/05/09  10:58:10  jim
-// formatted/documented p_ceilng
-//
-// Revision 1.13  1998/05/03  23:07:43  killough
-// Fix #includes at the top, nothing else
-//
-// Revision 1.12  1998/04/05  13:54:17  jim
-// fixed switch change on second activation
-//
-// Revision 1.11  1998/03/15  14:40:26  jim
-// added pure texture change linedefs & generalized sector types
-//
-// Revision 1.10  1998/02/23  23:46:35  jim
-// Compatibility flagged multiple thinker support
-//
-// Revision 1.9  1998/02/23  00:41:31  jim
-// Implemented elevators
-//
-// Revision 1.7  1998/02/13  03:28:22  jim
-// Fixed W1,G1 linedefs clearing untriggered special, cosmetic changes
-//
-// Revision 1.5  1998/02/08  05:35:18  jim
-// Added generalized linedef types
-//
-// Revision 1.4  1998/01/30  14:44:12  jim
-// Added gun exits, right scrolling walls and ceiling mover specials
-//
-// Revision 1.2  1998/01/26  19:23:56  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:58  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

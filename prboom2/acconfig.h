@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.3 2000/05/07 08:18:23 jessh Exp $
+ * $Id: acconfig.h,v 1.4 2000/05/09 21:45:35 proff_fs Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -96,33 +96,3 @@
 
 /* Define if you have struct sockaddr_in6 */
 #undef HAVE_IPv6
-
-/* 
- * $Log: acconfig.h,v $
- * Revision 1.3  2000/05/07 08:18:23  jessh
- * Fix Configure, Moved I_InitGraphics fixing BIG bug
- *
- * Revision 1.2  2000/05/05 13:51:49  cph
- * Get SDL configuration and compilation working on POSIX
- *
- * Revision 1.1.1.1  2000/05/04 07:53:31  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.5  2000/04/09 13:39:43  cph
- * Get ./configure heap dumping option working
- * Fix w_wad.c check
- *
- * Revision 1.4  2000/04/03 21:47:35  cph
- * Better detection fo IPv6
- * Minor header file corrections
- *
- * Revision 1.3  2000/01/25 21:33:22  cphipps
- * Fix security in case of being setuid
- *
- * Revision 1.2  1999/10/02 11:43:37  cphipps
- * Added autoconf options to control diagnostics
- *
- * Revision 1.1  1999/09/10 20:09:11  cphipps
- * Initial revision
- *
- */

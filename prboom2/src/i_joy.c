@@ -1,10 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $
+ * $Id: i_joy.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  New module for LxDoom, a Doom port for Linux/Unix
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -28,7 +34,7 @@
  */
 
 #ifndef lint
-static const char rcsid[] = "$Id: i_joy.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $";
+static const char rcsid[] = "$Id: i_joy.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $";
 #endif /* lint */
 
 #include "doomdef.h"
@@ -210,45 +216,3 @@ void I_InitJoystick(void)
   }
 #endif
 }
-
-/*
- * $Log: i_joy.c,v $
- * Revision 1.1  2000/05/09 20:47:07  proff_fs
- * renamed
- *
- * Revision 1.2  2000/05/04 11:23:00  proff_fs
- * added an textwindow for Win32 and
- * changed some printfs to lprintfs
- *
- * Revision 1.1.1.1  2000/05/04 08:07:12  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.12  1999/10/31 09:12:17  cphipps
- * Fix comment typo
- *
- * Revision 1.11  1999/10/31 09:10:10  cphipps
- * Applied path from Benjamin McGee to reopen the joystick device on read
- * errors.
- * Same patch fixes a typo in the joystick calibration stuff.
- * Changed a lot of fprintf's to lprintf's.
- * Fixed last C++ comment.
- *
- * Revision 1.10  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.9  1999/09/10 18:08:11  cphipps
- * Modified to use autoconf generated define to decide whether joystick header is
- * available. Thanks to Josh Parsons.
- *
- * Revision 1.8  1999/01/04 19:30:00  cphipps
- * Remove duplicate joystick variable instances
- *
- * Revision 1.7  1998/12/16 22:27:12  cphipps
- * Fix warnings when NO_JOY_CODE is defined by making the static unused functions not even be defined in that case
- *
- */
-
-
-
-
-

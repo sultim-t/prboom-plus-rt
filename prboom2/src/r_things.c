@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: r_things.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -1016,129 +1019,3 @@ void R_DrawMasked(void)
   if (!viewangleoffset)
     R_DrawPlayerSprites ();
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: r_things.c,v $
-// Revision 1.3  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:16:48  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.12  2000/05/01 14:37:34  Proff
-// changed abs to D_abs
-//
-// Revision 1.11  1999/11/01 17:09:14  cphipps
-// Added lprintf.h (needed for RANGECHECK debugging I_Error calls)
-//
-// Revision 1.10  1999/10/17 09:35:14  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.9  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.8  1999/06/17 09:59:32  cphipps
-// Remember number of sprites for the stats
-//
-// Revision 1.7  1998/12/31 23:06:38  cphipps
-// New wad lump handling
-// const'ness problems fixed
-//
-// Revision 1.6  1998/12/24 10:08:35  cphipps
-// Fix underwater sprite lighting (imported from MBF)
-//
-// Revision 1.5  1998/12/21 21:23:04  cphipps
-// Imported and patched in various fixes from MBF
-// New merge sort based vissprite sorting from MBF imported
-//
-// Revision 1.4  1998/11/17 12:12:26  cphipps
-// Hi-res changes
-//
-// Revision 1.3  1998/10/16 23:11:05  cphipps
-// *** empty log message ***
-//
-// Revision 1.2  1998/10/16 21:47:14  cphipps
-// Remove hanging else, const's
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.22  1998/05/03  22:46:41  killough
-// beautification
-//
-// Revision 1.21  1998/05/01  15:26:50  killough
-// beautification
-//
-// Revision 1.20  1998/04/27  02:04:43  killough
-// Fix incorrect I_Error format string
-//
-// Revision 1.19  1998/04/24  11:03:26  jim
-// Fixed bug in sprites in PWAD
-//
-// Revision 1.18  1998/04/13  09:45:30  killough
-// Fix sprite clipping under fake ceilings
-//
-// Revision 1.17  1998/04/12  02:02:19  killough
-// Fix underwater sprite clipping, add wall translucency
-//
-// Revision 1.16  1998/04/09  13:18:48  killough
-// minor optimization, plus fix ghost sprites due to huge z-height diffs
-//
-// Revision 1.15  1998/03/31  19:15:27  killough
-// Fix underwater sprite clipping bug
-//
-// Revision 1.14  1998/03/28  18:15:29  killough
-// Add true deep water / fake ceiling sprite clipping
-//
-// Revision 1.13  1998/03/23  03:41:43  killough
-// Use 'fullcolormap' for fully-bright colormap
-//
-// Revision 1.12  1998/03/16  12:42:37  killough
-// Optimize away some function pointers
-//
-// Revision 1.11  1998/03/09  07:28:16  killough
-// Add primitive underwater support
-//
-// Revision 1.10  1998/03/02  11:48:59  killough
-// Add failsafe against texture mapping overflow crashes
-//
-// Revision 1.9  1998/02/23  04:55:52  killough
-// Remove some comments
-//
-// Revision 1.8  1998/02/20  22:53:22  phares
-// Moved TRANMAP initialization to w_wad.c
-//
-// Revision 1.7  1998/02/20  21:56:37  phares
-// Preliminarey sprite translucency
-//
-// Revision 1.6  1998/02/09  03:23:01  killough
-// Change array decl to use MAX screen width/height
-//
-// Revision 1.5  1998/02/02  13:32:49  killough
-// Performance tuning, program beautification
-//
-// Revision 1.4  1998/01/26  19:24:50  phares
-// First rev with no ^Ms
-//
-// Revision 1.3  1998/01/26  06:13:58  killough
-// Performance tuning
-//
-// Revision 1.2  1998/01/23  20:28:14  jim
-// Basic sprite/flat functionality in PWAD added
-//
-// Revision 1.1.1.1  1998/01/19  14:03:06  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

@@ -1,12 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: qmus2mid.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: qmus2mid.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  Sound server for LxDoom, based on the sound server sources released
- *   with the original linuxdoom.
- *  Copyright (C) 1993-1996 by id Software
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -51,7 +55,7 @@
 */
 
 static const char 
-rcsid[] = "$Id: qmus2mid.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: qmus2mid.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include <ctype.h>
 #include <stdio.h>
@@ -551,20 +555,3 @@ int qmus2mid( void *mus, size_t len, FILE *file_mid,
 
   return 0 ;
 }
-
-//
-// $Log: qmus2mid.c,v $
-// Revision 1.2  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:15:13  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.1  2000/05/01 15:36:38  Proff
-// initial revision
-//

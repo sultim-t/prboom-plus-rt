@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.1 2000/05/07 22:12:20 cph Exp $
+ * $Id: i_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
  *  Sound interface from the original linuxdoom, extensively modified
  *  for LxDoom, a Doom port for Linux/Unix
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.1 2000/05/07 22:12:20 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -432,177 +432,3 @@ void I_UpdateSound(void) { };
 void I_SetCDMusicVolume(int vol) { };
 
 #endif
-/*
- * $Log: i_sound.c,v $
- * Revision 1.1  2000/05/07 22:12:20  cph
- * OSS audio output code renamed and in new directory
- *
- * Revision 1.2  2000/05/06 08:49:55  cph
- * Minor header file fixing
- *
- * Revision 1.1.1.1  2000/05/04 08:07:27  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.41  2000/04/09 13:23:24  cph
- * Remove PCX screenshot support
- * Remove DOS-specific config file options
- * Add level_precache option
- *
- * Revision 1.40  2000/04/03 22:10:12  cph
- * Const parameter to I_RegisterSong
- * Reduce duplication of music data
- *
- * Revision 1.39  2000/03/19 20:14:32  cph
- * Sound code cleaning: DosDoom, IPC and such unused code removed
- *
- * Revision 1.38  1999/12/18 22:23:35  cphipps
- * Fix bug where music only played once after a resume from pause when
- *  mus_pause_opt was 0
- *
- * Revision 1.37  1999/10/31 16:27:59  cphipps
- * Change i_system.h include to i_main.h to get system stuff
- * Minor comment editing
- *
- * Revision 1.36  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.35  1999/09/05 21:26:00  cphipps
- * Imported a fix from Gady Kozma, which edits the MUS lump header to reflect the true length of
- * the data; this means no data is lost in passing to the music server with buggy MUS lumps
- * (e.g. Requiem, Memento Mori, ...)
- *
- * Revision 1.34  1999/07/03 13:14:49  cphipps
- * Added code to check for broken pipes and close them
- *
- * Revision 1.33  1999/03/23 13:05:24  cphipps
- * Remove more DosDoom stuff
- * Use the length specified in the MUS lump rather than the lump length from the WAD, to
- * be consistent with lxmusserver; report mismatches
- *
- * Revision 1.32  1999/03/13 10:06:51  cphipps
- * Interface changes for new musserver, from Rafael Reilova
- *
- * Revision 1.31  1999/03/02 13:33:09  cphipps
- * Music pausing/unpausing enabled
- *
- * Revision 1.30  1999/01/10 13:05:36  cphipps
- * More DosDoom sound stuff
- *
- * Revision 1.29  1999/01/03 12:02:20  cphipps
- * Wad lump handling updated
- *
- * Revision 1.28  1998/12/25 17:15:22  cphipps
- * Scale volumes from Doom internal scale to soundserver scale
- *
- * Revision 1.27  1998/12/07 17:14:41  cphipps
- * Sound now works for dosdoom
- *
- * Revision 1.26  1998/12/07 09:58:39  cphipps
- * Use option variable from m_misc to determine what to do to music
- * when the game is paused
- *
- * Revision 1.25  1998/12/02 18:52:50  cphipps
- * Add spaces between params to musserver :)
- * Add I_ShutdownSound call for DosDoom
- *
- * Revision 1.24  1998/12/02 08:48:55  cphipps
- * Allow parameter passing to the musserver
- * Verified new musserver is working
- *
- * Revision 1.23  1998/12/01 23:06:27  cphipps
- * Fix parameters for new musserver
- * Pass NUMSFX to sound server
- *
- * Revision 1.22  1998/11/25 17:27:11  cphipps
- * Mask non-mus musics
- * Disable music pausing for now, always stop
- *
- * Revision 1.21  1998/11/17 16:38:16  cphipps
- * Sound updates so DosDoom compiles
- *
- * Revision 1.20  1998/10/31 08:58:17  cphipps
- * Pass volume messages
- *
- * Revision 1.19  1998/10/26 19:45:08  cphipps
- * The music server will need GENMIDI to set up the instruments,
- * so now pass that immediately on starting it.
- *
- * Revision 1.18  1998/10/22 17:19:12  cphipps
- * Fix music passing struct
- *
- * Revision 1.17  1998/10/22 17:06:42  cphipps
- * Remove l_musserver.h
- *
- * Revision 1.16  1998/10/20 19:39:23  cphipps
- * Minor music server fix
- *
- * Revision 1.15  1998/10/20 19:35:36  cphipps
- * Pass -devparm to music server
- * Move music server filename to config file
- *
- * Revision 1.14  1998/10/20 14:44:45  cphipps
- * Add length parameter to I_RegisterSong
- *
- * Revision 1.13  1998/10/18 19:17:23  cphipps
- * Removed all redundant code: functions from the Sfx and Mus API's that Boom
- * didn't use, and all the timer/internal sound code.
- * Removed most of the #ifdef's, so everything is more readable now :-)
- *
- * Revision 1.12  1998/10/18 19:01:27  cphipps
- * Removed sound-generation related headers, only l_soundgen.c needs them
- * Remarked out some redundant functions
- * Specified a couple of prototypes better
- * Minor fixes to allow non-SNDSERV code to compile
- *
- * Revision 1.11  1998/10/15 07:08:50  cphipps
- * Pass devparm parameter on to sound server
- *
- * Revision 1.10  1998/10/13 17:54:32  cphipps
- * Both IPC and pipe data passing code is compiled, and choice made at run time by
- * user
- *
- * Revision 1.9  1998/10/11 08:18:57  cphipps
- * Pass sound data via pipe instead of IPC
- *
- * Revision 1.8  1998/10/10 20:34:47  cphipps
- * Pass sound device to sound server
- *
- * Revision 1.7  1998/10/06 17:10:13  cphipps
- * Musserver load and communication written in, yet to be used/tested.
- * Added some headers that xdoom uses, may help people compiling for other platforms.
- *
- * Revision 1.6  1998/10/01 08:21:22  cphipps
- * Fixed warning by gcc due to the stupid type of pointer needed by shmdt
- *
- * Revision 1.5  1998/09/27 13:13:35  cphipps
- * Added timeout to soundserver IPC
- *
- * Revision 1.4  1998/09/20 16:09:05  cphipps
- * Implemented IPC shared memory method of passing sound data to sndserv. This
- * enables sounds-in-a-PWAD (which were not supported under the original
- * soundserver), and removed a lot of redundancy in the code for the soundserver.
- *
- * Revision 1.3  1998/09/20 11:02:03  cphipps
- * Extracted linux sound output code to l_soundgen.c.
- *
- * This file now does only this:
- * - interfaces to w_wad.c for getting sound data
- * - provides the sound & music APIs, mostly dummies
- * - calls sndserv for separate soundserver if that is the selected method of output
- * - provides the timer for asynchronous sound output if that is the selected mathod of sound output (this bit needs working on)
- *
- * Revision 1.2  1998/09/18 15:44:45  cphipps
- * Got internal and timer based sound generation working. Quality is still
- * very poor though.
- *
- * Allocate internal sound mixing structures dynamically, to save memory when
- * using -nosound.
- *
- * Do not include any internal mixing structures or subroutines when using
- * sound server.
- *
- * Made many functions static, added I_ to some internal functions
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- */

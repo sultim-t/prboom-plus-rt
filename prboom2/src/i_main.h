@@ -1,15 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.h,v 1.1 2000/05/04 08:02:55 proff_fs Exp $
+ * $Id: i_main.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  Parts of the Boom i_system.h and original linuxdoom i_system.h
- *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -47,22 +48,3 @@ extern uid_t stored_euid; /* UID that the SVGALib I_InitGraphics switches to bef
 #endif
 
 #endif
-
-/*-----------------------------------------------------------------------------
- * $Log: i_main.h,v $
- * Revision 1.1  2000/05/04 08:02:55  proff_fs
- * Initial revision
- *
- * Revision 1.4  2000/05/01 17:50:34  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.3  2000/03/16 13:27:29  cph
- * Clean up uid stuff
- *
- * Revision 1.2  1999/11/01 17:11:43  cphipps
- * Added I_Init for d_main.c
- *
- * Revision 1.1  1999/11/01 07:27:20  cphipps
- * Added new header
- *
- *-----------------------------------------------------------------------------*/

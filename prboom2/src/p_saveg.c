@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_saveg.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: p_saveg.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_saveg.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: p_saveg.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -1058,109 +1061,3 @@ void P_UnArchiveMap(void)
       save_p += markpointnum * sizeof *markpoints;
     }
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_saveg.c,v $
-// Revision 1.3  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.1.1.1  2000/05/04 08:13:22  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.11  1999/10/31 11:52:23  cphipps
-// Include lprintf.h for I_Error
-//
-// Revision 1.10  1999/10/17 09:35:14  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.9  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.8  1999/08/31 19:48:09  cphipps
-// Removed old viewactive variable, replaced with 'true' in savegames
-//
-// Revision 1.7  1999/03/26 11:10:25  cphipps
-// Removed a couple of depreciated automap mode variables from game saving, replaced by 0's
-//
-// Revision 1.6  1999/03/07 22:16:36  cphipps
-// Change automap state variable name
-//
-// Revision 1.5  1999/02/04 15:31:53  cphipps
-// Changes for mobj pointer reference counting like MBF.
-// Also changed mobj saving to remain compatible with old savegames.
-//
-// Revision 1.4  1999/02/04 10:31:06  cphipps
-// Use new target-setting macros to enable pointer reference counting
-//
-// Revision 1.3  1998/12/28 15:32:23  cphipps
-// Import MBF savegame improvements for lxdoom_1_compatibility
-// Fix potential buffer overrun in saving boom v2.02 savegames
-//
-// Revision 1.2  1998/10/27 18:33:26  cphipps
-// Import Boom v2.02 source
-//
-// Revision 1.19  1998/09/16  06:59:39  phares
-// Save soundtarget across savegames
-//
-// Revision 1.18  1998/08/08  15:18:53  jim
-// flicker special restora
-//
-// Revision 1.17  1998/05/03  23:10:22  killough
-// beautification
-//
-// Revision 1.16  1998/04/19  01:16:06  killough
-// Fix boss brain spawn crashes after loadgames
-//
-// Revision 1.15  1998/03/28  18:02:17  killough
-// Fix boss spawner savegame crash bug
-//
-// Revision 1.14  1998/03/23  15:24:36  phares
-// Changed pushers to linedef control
-//
-// Revision 1.13  1998/03/23  03:29:54  killough
-// Fix savegame crash caused in P_ArchiveWorld
-//
-// Revision 1.12  1998/03/20  00:30:12  phares
-// Changed friction to linedef control
-//
-// Revision 1.11  1998/03/09  07:20:23  killough
-// Add generalized scrollers
-//
-// Revision 1.10  1998/03/02  12:07:18  killough
-// fix stuck-in wall loadgame bug, automap status
-//
-// Revision 1.9  1998/02/24  08:46:31  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.8  1998/02/23  04:49:42  killough
-// Add automap marks and properties to saved state
-//
-// Revision 1.7  1998/02/23  01:02:13  jim
-// fixed elevator size, comments
-//
-// Revision 1.4  1998/02/17  05:43:33  killough
-// Fix savegame crashes and monster sleepiness
-// Save new RNG info
-// Fix original plats height bug
-//
-// Revision 1.3  1998/02/02  22:17:55  jim
-// Extended linedef types
-//
-// Revision 1.2  1998/01/26  19:24:21  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:07  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

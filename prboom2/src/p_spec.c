@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_spec.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -38,7 +41,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -3278,211 +3281,3 @@ static void P_SpawnPushers(void)
 // phares 3/20/98: End of Pusher effects
 //
 ////////////////////////////////////////////////////////////////////////////
-
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_spec.c,v $
-// Revision 1.2  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.1.1.1  2000/05/04 08:14:28  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.16  2000/05/01 17:50:36  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.15  2000/05/01 14:37:33  Proff
-// changed abs to D_abs
-//
-// Revision 1.14  1999/10/31 11:52:23  cphipps
-// Include lprintf.h for I_Error
-//
-// Revision 1.13  1999/10/17 09:35:14  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.12  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.11  1999/02/02 09:17:13  cphipps
-// Add MBF enhanced skies support
-//
-// Revision 1.10  1999/01/27 16:04:56  cphipps
-// Use newer limits.h integer limit macros instead of depreciated values.h ones
-//
-// Revision 1.9  1999/01/13 19:07:31  cphipps
-// Fix signedness in animdef_t
-//
-// Revision 1.8  1999/01/07 10:43:10  cphipps
-// Fix struct packing for Metrowerks
-//
-// Revision 1.7  1998/12/31 20:56:09  cphipps
-// Updated for new wad lump handling
-//
-// Revision 1.6  1998/12/27 13:26:10  cphipps
-// Modify P_CrossSpecialLine to take line pointer instead of index, as in MBF
-//
-// Revision 1.5  1998/12/26 20:02:17  cphipps
-// Compatibility option scroller overflow fix
-// Add fix for zombies exiting levels (fix from MBF), compatibility optioned
-//
-// Revision 1.4  1998/12/24 12:08:40  cphipps
-// MBF fix for overflow in wall scroller calcs
-//
-// Revision 1.3  1998/10/27 18:40:44  cphipps
-// Boom v2.02 updated version
-//
-// Revision 1.57  1998/08/14  11:27:27  jim
-// Fixed raise shortest texture linedefs
-//
-// Revision 1.56  1998/05/25  10:40:30  killough
-// Fix wall scrolling bug
-//
-// Revision 1.55  1998/05/23  10:23:32  jim
-// Fix numeric changer loop corruption
-//
-// Revision 1.54  1998/05/11  06:52:56  phares
-// Documentation
-//
-// Revision 1.53  1998/05/07  00:51:34  killough
-// beautification
-//
-// Revision 1.52  1998/05/04  11:47:23  killough
-// Add #include d_deh.h
-//
-// Revision 1.51  1998/05/04  02:22:06  jim
-// formatted p_specs, moved a coupla routines to p_floor
-//
-// Revision 1.50  1998/05/03  22:06:30  killough
-// Provide minimal required headers at top (no other changes)
-//
-// Revision 1.49  1998/04/17  18:57:51  killough
-// fix comment
-//
-// Revision 1.48  1998/04/17  18:49:02  killough
-// Fix lack of animation in flats
-//
-// Revision 1.47  1998/04/17  10:24:47  killough
-// Add P_FindLineFromLineTag(), add CARRY_CEILING macro
-//
-// Revision 1.46  1998/04/14  18:49:36  jim
-// Added monster only and reverse teleports
-//
-// Revision 1.45  1998/04/12  02:05:25  killough
-// Add ceiling light setting, start ceiling carriers
-//
-// Revision 1.44  1998/04/06  11:05:23  jim
-// Remove LEESFIXES, AMAP bdg->247
-//
-// Revision 1.43  1998/04/06  04:39:04  killough
-// Make scroll carriers carry all things underwater
-//
-// Revision 1.42  1998/04/01  16:39:11  jim
-// Fix keyed door message on gunfire
-//
-// Revision 1.41  1998/03/29  20:13:35  jim
-// Fixed use of 2S flag in Donut linedef
-//
-// Revision 1.40  1998/03/28  18:13:24  killough
-// Fix conveyor bug (carry objects not touching but overhanging)
-//
-// Revision 1.39  1998/03/28  05:32:48  jim
-// Text enabling changes for DEH
-//
-// Revision 1.38  1998/03/23  18:38:48  jim
-// Switch and animation tables now lumps
-//
-// Revision 1.37  1998/03/23  15:24:41  phares
-// Changed pushers to linedef control
-//
-// Revision 1.36  1998/03/23  03:32:36  killough
-// Make "oof" sounds have true mobj origins (for spy mode hearing)
-// Make carrying floors carry objects hanging over edges of sectors
-//
-// Revision 1.35  1998/03/20  14:24:36  jim
-// Gen ceiling target now shortest UPPER texture
-//
-// Revision 1.34  1998/03/20  00:30:21  phares
-// Changed friction to linedef control
-//
-// Revision 1.33  1998/03/18  23:14:02  jim
-// Deh text additions
-//
-// Revision 1.32  1998/03/16  15:43:33  killough
-// Add accelerative scrollers, merge Jim's changes
-//
-// Revision 1.29  1998/03/13  14:05:44  jim
-// Fixed arith overflow in some linedef types
-//
-// Revision 1.28  1998/03/12  21:54:12  jim
-// Freed up 12 linedefs for use as vectors
-//
-// Revision 1.26  1998/03/09  10:57:55  jim
-// Allowed Lee's change to 0 tag trigger compatibility
-//
-// Revision 1.25  1998/03/09  07:23:43  killough
-// Add generalized scrollers, renumber some linedefs
-//
-// Revision 1.24  1998/03/06  12:34:39  jim
-// Renumbered 300+ linetypes under 256 for DCK
-//
-// Revision 1.23  1998/03/05  16:59:10  jim
-// Fixed inability of monsters/barrels to use new teleports
-//
-// Revision 1.22  1998/03/04  07:33:04  killough
-// Fix infinite loop caused by multiple carrier references
-//
-// Revision 1.21  1998/03/02  15:32:57  jim
-// fixed errors in numeric model sector search and 0 tag trigger defeats
-//
-// Revision 1.20  1998/03/02  12:13:57  killough
-// Add generalized scrolling flats & walls, carrying floors
-//
-// Revision 1.19  1998/02/28  01:24:53  jim
-// Fixed error in 0 tag trigger fix
-//
-// Revision 1.17  1998/02/24  08:46:36  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.16  1998/02/23  23:47:05  jim
-// Compatibility flagged multiple thinker support
-//
-// Revision 1.15  1998/02/23  04:52:33  killough
-// Allow god mode cheat to work on E1M8 unless compatibility
-//
-// Revision 1.14  1998/02/23  00:42:02  jim
-// Implemented elevators
-//
-// Revision 1.12  1998/02/17  05:55:06  killough
-// Add silent teleporters
-// Change RNG calling sequence
-// Cosmetic changes
-//
-// Revision 1.11  1998/02/13  03:28:06  jim
-// Fixed W1,G1 linedefs clearing untriggered special, cosmetic changes
-//
-// Revision 1.10  1998/02/08  05:35:39  jim
-// Added generalized linedef types
-//
-// Revision 1.8  1998/02/02  13:34:26  killough
-// Performance tuning, program beautification
-//
-// Revision 1.7  1998/01/30  14:43:54  jim
-// Added gun exits, right scrolling walls and ceiling mover specials
-//
-// Revision 1.4  1998/01/27  16:19:29  jim
-// Fixed subroutines used by linedef triggers and a NULL ref in Donut
-//
-// Revision 1.3  1998/01/26  19:24:26  phares
-// First rev with no ^Ms
-//
-// Revision 1.2  1998/01/25  20:24:45  jim
-// Fixed crusher floor, lowerandChange floor types, and unknown sector special error
-//
-// Revision 1.1.1.1  1998/01/19  14:03:01  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

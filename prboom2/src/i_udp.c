@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $
+ * $Id: i_udp.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
  *  New UDP networking code for LxDoom, based in part on 
  *  the original linuxdoom networking
@@ -212,76 +212,3 @@ void I_PrintAddress(FILE* fp, struct sockaddr* addr)
   fprintf(fp, "(system lacks inet_ntop)");
 #endif
 }
-
-/*
- * $Log: i_udp.c,v $
- * Revision 1.1  2000/05/09 20:47:07  proff_fs
- * renamed
- *
- * Revision 1.1.1.1  2000/05/04 08:07:55  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.16  2000/05/01 17:50:35  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.15  2000/04/23 20:48:21  cph
- * More IPv6 work
- *
- * Revision 1.14  2000/04/03 21:47:39  cph
- * Better detection fo IPv6
- * Minor header file corrections
- *
- * Revision 1.13  2000/04/03 17:06:10  cph
- * Split client specific stuff from l_udp.c to new l_network.c
- * Move server specific stuff from l_udp.c to d_server.c
- * Update copyright notices
- * Restructure ready for IPv6 support
- * Use fcntl instead of ioctl to set socket non-blocking
- *
- * Revision 1.12  2000/03/28 10:42:29  cph
- * Send and receive using the same socket
- * Do not transmit port with init packet, server determines it
- * Client searches for a free port instead of needing -port
- * Transmit player number wanted to server and act on it
- * Remove more diagnostics
- *
- * Revision 1.11  2000/01/26 08:44:24  cphipps
- * Support filio.h so Solaris can get the non-blocking socket ioctl
- *
- * Revision 1.10  1999/12/26 17:46:18  cphipps
- * Always set socket to non-blocking, using an ioctl if nothing better
- *
- * Revision 1.9  1999/12/18 15:48:10  cphipps
- * Use autoconf script to detect inet_aton
- *
- * Revision 1.8  1999/10/31 16:25:22  cphipps
- * Change i_system.h include to lprintf.h, where I_Error is now
- *
- * Revision 1.7  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.6  1999/09/05 13:57:38  cphipps
- * Added pointer cast for libc5
- *
- * Revision 1.5  1999/09/05 10:49:52  cphipps
- * I_GetPacket stores the address that sent the packet, used
- * by server during startup
- * Init packet no longer contains the full machine address, instead
- * just the port, and the hostname just for display
- * Failure to lookup local hostname is no longer a fatal error
- *
- * Revision 1.4  1999/04/01 09:46:05  cphipps
- * Sort out default port numbers
- * Add accounting (count sent/rec'ved bytes)
- *
- * Revision 1.3  1999/03/30 06:52:49  cphipps
- * Add cast to sendto(2) parameter to satisfy fussy libc5 headers
- * Fix endianness of port send in PKT_INIT packet by client
- *
- * Revision 1.2  1999/03/29 12:11:38  cphipps
- * Fix endianness of port numbers
- *
- * Revision 1.1  1999/03/29 11:55:30  cphipps
- * Initial revision
- *
- */

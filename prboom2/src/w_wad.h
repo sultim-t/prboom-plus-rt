@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.h,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: w_wad.h,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -157,82 +160,3 @@ unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
 extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: w_wad.h,v $
-// Revision 1.2  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:18:58  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.10  1999/10/27 18:35:50  cphipps
-// Made W_CacheLump* return a const pointer
-//
-// Revision 1.9  1999/10/12 13:01:16  cphipps
-// Changed header to GPL
-//
-// Revision 1.8  1999/04/01 21:58:24  cphipps
-// Add new wad_source_t class, for pwads added by a network server
-//
-// Revision 1.7  1999/01/01 15:32:45  cphipps
-// New wad lump locking system decls
-//
-// Revision 1.6  1998/12/22 20:56:26  cphipps
-// Declare source enum separately
-// New wadfiles array declared
-// W_Init prototype changed
-//
-// Revision 1.5  1998/10/27 19:05:26  cphipps
-// Boom v2.02 update: wad source tags
-//
-// Revision 1.4  1998/10/17 14:52:18  cphipps
-// A couple of const's
-//
-// Revision 1.3  1998/10/13 14:16:22  cphipps
-// Allow NO_PREDEFINED_LUMPS to be overridden from makefile
-//
-// Revision 1.2  1998/09/14 19:20:18  cphipps
-// Removed predefined lumps
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.10  1998/05/06  11:32:05  jim
-// Moved predefined lump writer info->w_wad
-//
-// Revision 1.9  1998/05/03  22:43:45  killough
-// remove unnecessary #includes
-//
-// Revision 1.8  1998/05/01  14:55:54  killough
-// beautification
-//
-// Revision 1.7  1998/04/27  02:05:30  killough
-// Program beautification
-//
-// Revision 1.6  1998/04/19  01:14:36  killough
-// Reinstate separate namespaces
-//
-// Revision 1.5  1998/04/17  16:52:21  killough
-// back out namespace changes temporarily
-//
-// Revision 1.4  1998/04/17  10:33:50  killough
-// Macroize W_CheckNumForName(), add namespace parameter to functional version
-//
-// Revision 1.3  1998/02/02  13:35:13  killough
-// Improve lump hashing, add predefine lumps
-//
-// Revision 1.2  1998/01/26  19:28:01  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:07  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

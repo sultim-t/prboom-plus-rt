@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -606,124 +609,3 @@ void R_RenderBSPNode(int bspnum)
     }
   R_Subsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: r_bsp.c,v $
-// Revision 1.3  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:15:25  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.13  1999/10/17 09:35:14  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.12  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.11  1999/10/08 07:17:33  cphipps
-// Change problematic angle sign correction code in R_CheckBBox,
-// to fix HOM when standing exactly on the edge of a BBox
-//
-// Revision 1.10  1999/10/03 17:13:54  cphipps
-// Remove "further reduce tail recursion" change 1.1->1.2, since it meant
-//  R_CheckBBox was being called before walls were rendered in the nearer
-//  subsector, so wasn't able to reject sectors which would have been concealed
-//  by those walls. D'oh!
-// Added code to deal with the case of a BBox "behind" us in R_CheckBBox
-//
-// Revision 1.9  1999/09/19 10:31:46  cphipps
-// Linedef based rendering flags used to store info like closure and invisibility
-//
-// Revision 1.8  1999/09/05 10:18:37  cphipps
-// New code to handle solid columns (replacing clipsegs). Fixes bugs with
-// the automap showing rooms up/down a vertical shaft, saves the renderer
-// visiting such rooms, and solves a crash with out-of-range y coordinates
-// in drawcol.s. Slight performance loss in unaffected areas though.
-//
-// Revision 1.7  1999/08/16 21:38:55  cphipps
-// Further optimising to R_CheckBBox
-//
-// Revision 1.6  1999/02/08 20:17:39  cphipps
-// Faster line sector testing in R_AddLine()
-//
-// Revision 1.5  1999/02/02 09:18:21  cphipps
-// Enhanced skies stuff from MBF
-//
-// Revision 1.4  1998/12/24 10:09:15  cphipps
-// Imported underwater sprite lighting fixes from MBF
-//
-// Revision 1.3  1998/10/27 18:47:06  cphipps
-// Add Boom v2.02 underwater fireball fix
-//
-// Revision 1.2  1998/10/16 21:38:01  cphipps
-// Reformatted R_CheckBBox, added const static stuff to it
-// Further reduced tail recursion in R_RenderBSPNode, and reformatted and added const
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.17  1998/05/03  22:47:33  killough
-// beautification
-//
-// Revision 1.16  1998/04/23  12:19:50  killough
-// Testing untabify feature
-//
-// Revision 1.15  1998/04/17  10:22:22  killough
-// Fix 213, 261 (floor/ceiling lighting)
-//
-// Revision 1.14  1998/04/14  08:15:55  killough
-// Fix light levels on 2s textures
-//
-// Revision 1.13  1998/04/13  09:44:40  killough
-// Fix head-over ceiling effects
-//
-// Revision 1.12  1998/04/12  01:57:18  killough
-// Fix deep water effects
-//
-// Revision 1.11  1998/04/07  06:41:14  killough
-// Fix disappearing things, AASHITTY sky wall HOM, remove obsolete HOM detector
-//
-// Revision 1.10  1998/04/06  04:37:48  killough
-// Make deep water / fake ceiling handling more consistent
-//
-// Revision 1.9  1998/03/28  18:14:27  killough
-// Improve underwater support
-//
-// Revision 1.8  1998/03/16  12:40:11  killough
-// Fix underwater effects, floor light levels from other sectors
-//
-// Revision 1.7  1998/03/09  07:22:41  killough
-// Add primitive underwater support
-//
-// Revision 1.6  1998/03/02  11:50:53  killough
-// Add support for scrolling flats
-//
-// Revision 1.5  1998/02/17  06:21:57  killough
-// Change commented-out code to #if'ed out code
-//
-// Revision 1.4  1998/02/09  03:14:55  killough
-// Make HOM detector under control of TNTHOM cheat
-//
-// Revision 1.3  1998/02/02  13:31:23  killough
-// Performance tuning, add HOM detector
-//
-// Revision 1.2  1998/01/26  19:24:36  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:02  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

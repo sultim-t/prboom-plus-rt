@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_fixed.h,v 1.1 2000/05/04 08:09:03 proff_fs Exp $
+ * $Id: m_fixed.h,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -188,63 +191,3 @@ static const fixed_t FixedMod(fixed_t a, fixed_t b)
 }
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: m_fixed.h,v $
- * Revision 1.1  2000/05/04 08:09:03  proff_fs
- * Initial revision
- *
- * Revision 1.13  2000/05/01 17:50:35  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.12  2000/05/01 15:16:47  Proff
- * added __inline for VisualC
- *
- * Revision 1.11  2000/05/01 14:37:33  Proff
- * changed abs to D_abs
- *
- * Revision 1.10  1999/10/31 10:23:48  cphipps
- * Fixed #include to get just the data types
- *
- * Revision 1.9  1999/10/17 08:50:06  cphipps
- * Added FixedMod
- *
- * Revision 1.8  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.7  1999/10/09 16:20:18  cphipps
- * Fixed inline asm() to conform to gcc 2.95.1's stricter checking
- *
- * Revision 1.6  1999/06/08 17:27:48  cphipps
- * Change long long references to int_64_t's
- *
- * Revision 1.5  1999/01/25 15:47:05  cphipps
- * Use newer limit macros from limits.h instead of depreciated values.h macros
- *
- * Revision 1.4  1999/01/13 07:57:35  cphipps
- * Remove non-gnu compiler global subs
- *
- * Revision 1.3  1998/12/21 21:51:22  cphipps
- * Imported MBF m_fixed.h
- * Added const keywords
- * Changed __inline__'s to inline's, as guided by gcc's docs
- * Changed DJGPP defines to I386's
- *
- * Revision 1.5  1998/05/10  23:42:22  killough
- * Add inline assembly for djgpp (x86) target
- *
- * Revision 1.4  1998/04/27  01:53:37  killough
- * Make gcc extensions #ifdef'ed
- *
- * Revision 1.3  1998/02/02  13:30:35  killough
- * move fixed point arith funcs to m_fixed.h
- *
- * Revision 1.2  1998/01/26  19:27:09  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:02:53  rand
- * Lee's Jan 19 sources
- *
- *----------------------------------------------------------------------------*/
-

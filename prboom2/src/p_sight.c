@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.2 2000/05/09 18:34:30 cph Exp $
+ * $Id: p_sight.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.2 2000/05/09 18:34:30 cph Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -305,51 +308,3 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
   // the head node is the last node output
   return P_CrossBSPNode(numnodes-1);
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_sight.c,v $
-// Revision 1.2  2000/05/09 18:34:30  cph
-// Demo sync fixes
-//
-// Revision 1.1.1.1  2000/05/04 08:13:46  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.5  2000/04/15 14:30:05  cph
-// Make optimisation in P_CrossSubsector less aggressive
-//  (restoring demo sync in mm.wad DEMO3)
-//
-// Revision 1.4  1999/11/01 17:09:15  cphipps
-// Added lprintf.h (needed for RANGECHECK debugging I_Error calls)
-//
-// Revision 1.3  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.2  1999/08/21 09:18:14  cphipps
-// Various optimisations
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.7  1998/05/07  00:55:55  killough
-// Make monsters directly tangent to water surface blind
-//
-// Revision 1.6  1998/05/03  22:34:33  killough
-// beautification, header cleanup
-//
-// Revision 1.5  1998/05/01  14:52:09  killough
-// beautification
-//
-// Revision 1.4  1998/04/24  11:43:08  killough
-// minor optimization
-//
-// Revision 1.3  1998/04/20  11:13:41  killough
-// Fix v1.9 demo sync probs, make monsters blind across water
-//
-// Revision 1.2  1998/01/26  19:24:24  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:00  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

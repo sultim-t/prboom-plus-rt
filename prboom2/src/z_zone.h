@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.h,v 1.2 2000/05/06 08:52:25 cph Exp $
+ * $Id: z_zone.h,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -111,13 +114,3 @@ void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
 void Z_ZoneHistory(char *);
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: z_zone.h,v $
- * Revision 1.2  2000/05/06 08:52:25  cph
- * Minor header file fixing
- *
- * Revision 1.1.1.1  2000/05/04 08:19:31  proff_fs
- * initial login on sourceforge as prboom2
- */

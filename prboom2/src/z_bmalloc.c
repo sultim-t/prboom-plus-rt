@@ -1,10 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: z_bmalloc.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  Block memory allocator for LxDoom, 
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -130,42 +136,3 @@ void Z_BFree(struct block_memory_alloc_s *pzone, void* p)
   }
   I_Error("Z_BFree: free not in zone %s\n", pzone->desc);
 }
-
-/*
- * $Log: z_bmalloc.c,v $
- * Revision 1.3  2000/05/07 20:19:34  proff_fs
- * changed use of colormaps from pointers to numbers.
- * That's needed for OpenGL.
- * The OpenGL part is slightly better now.
- * Added some typedefs to reduce warnings in VisualC.
- * Messages are also scaled now, because at 800x600 and
- * above you can't read them even on a 21" monitor.
- *
- * Revision 1.2  2000/05/06 08:49:55  cph
- * Minor header file fixing
- *
- * Revision 1.1.1.1  2000/05/04 08:19:19  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.7  2000/05/01 15:16:48  Proff
- * added __inline for VisualC
- *
- * Revision 1.6  2000/05/01 14:09:41  Proff
- * fixed #ifdef SIMPECHECKS to SIMPLECHECKS
- *
- * Revision 1.5  1999/10/31 16:25:22  cphipps
- * Change i_system.h include to lprintf.h, where I_Error is now
- *
- * Revision 1.4  1999/10/12 13:01:15  cphipps
- * Changed header to GPL
- *
- * Revision 1.3  1999/01/13 08:03:34  cphipps
- * Fix iselem() pointer casts
- *
- * Revision 1.2  1999/01/02 17:53:56  cphipps
- * Remove temporary debugging stuff
- *
- * Revision 1.1  1999/01/02 17:53:16  cphipps
- * Initial revision
- *
- */

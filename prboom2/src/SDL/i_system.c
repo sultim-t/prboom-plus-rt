@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.1 2000/05/08 23:58:37 jessh Exp $
+ * $Id: i_system.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -32,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.1 2000/05/08 23:58:37 jessh Exp $";
+rcsid[] = "$Id: i_system.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -104,21 +107,3 @@ const char* I_SigString(char* buf, size_t sz, int signum)
     sprintf(buf,"signal %d",signum);
   return buf;
 }
-
-
-/********************************************************************************************
- * $Log: i_system.c,v $
- * Revision 1.1  2000/05/08 23:58:37  jessh
- * Moved SDL Target to src/SDL
- *
- * Revision 1.1.1.1  2000/05/04 08:07:52  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.2  2000/05/01 17:50:35  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.1  2000/05/01 16:18:41  Proff
- * initial revision
- *
- *
- ********************************************************************************************/

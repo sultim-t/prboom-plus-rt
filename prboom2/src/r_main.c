@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: r_main.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -722,140 +725,3 @@ void R_RenderPlayerView (player_t* player)
 #endif
   if (rendering_stats) R_ShowStats();
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: r_main.c,v $
-// Revision 1.3  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:16:10  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.22  2000/05/01 17:50:36  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.21  2000/05/01 14:37:33  Proff
-// changed abs to D_abs
-//
-// Revision 1.20  1999/10/31 15:51:45  cphipps
-// Added i_main.h include for time function
-//
-// Revision 1.19  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.18  1999/09/05 16:45:21  cphipps
-// Independent x and y scaling of the status bar, adapted from patch by Gady Kozma <gady@math.tau.ac.il>
-// Removed scale reducing of status bar, added check that SCREENWIDTH>=320
-//
-// Revision 1.17  1999/09/03 20:08:02  cphipps
-// Fixed walls in hires being brighter than normal res
-// (previous fix was only for floors)
-//
-// Revision 1.16  1999/08/31 19:31:53  cphipps
-// Moved R_CopyStatusBar call to D_Display
-//
-// Revision 1.15  1999/06/17 10:21:46  cphipps
-// Add rendering stats
-//
-// Revision 1.14  1999/03/06 09:19:46  cphipps
-// Fixed hires being brighter than normal res
-// Fixed status bar not hiding at full screen when scaled
-// Removed R_ScaleFromGlobalAngle (localised to r_segs.c)
-//
-// Revision 1.13  1999/02/08 09:09:12  cphipps
-// Add status bar width variable
-//
-// Revision 1.12  1999/02/08 08:47:40  cphipps
-// Status bar scaling
-//
-// Revision 1.11  1998/12/31 11:25:59  cphipps
-// Block drawing updated
-//
-// Revision 1.10  1998/12/24 18:01:14  cphipps
-// Clean up output in R_Init
-//
-// Revision 1.9  1998/11/17 16:37:37  cphipps
-// Changed initialisation of colfunc so it works with non-fixed
-// R_DrawColumn.
-//
-// Revision 1.8  1998/11/17 11:51:16  cphipps
-// Hi-res changes
-//
-// Revision 1.7  1998/10/27 19:18:03  cphipps
-// Fix typo
-//
-// Revision 1.6  1998/10/27 18:50:57  cphipps
-// Logical output system for Boom v2.02 update
-//
-// Revision 1.5  1998/10/16 21:39:06  cphipps
-// Make R_PointOnSide and R_PointOnSegSide cnost and take const * 's
-//
-// Revision 1.4  1998/09/18 15:45:19  cphipps
-// Only call I_SubmitSound for internal non-timer based sound generation
-//
-// Revision 1.3  1998/09/17 11:46:30  cphipps
-// Put R_LoadTrigTables before all other R_Init routines.
-//
-// Revision 1.3  1998/09/17 11:37:55  cphipps
-// Made sure that R_LoadTrigTables is called before it is ever needed.
-//
-// Revision 1.2  1998/09/16 19:53:38  cphipps
-// Added call to R_LoadTrigTables, which loads the predefined trig tables from
-// lumps if NO_PREDEFINED_LUMPS and TABLES_AS_LUMPS
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.13  1998/05/07  00:47:52  killough
-// beautification
-//
-// Revision 1.12  1998/05/03  23:00:14  killough
-// beautification, fix #includes and declarations
-//
-// Revision 1.11  1998/04/07  15:24:15  killough
-// Remove obsolete HOM detector
-//
-// Revision 1.10  1998/04/06  04:47:46  killough
-// Support dynamic colormaps
-//
-// Revision 1.9  1998/03/23  03:37:14  killough
-// Add support for arbitrary number of colormaps
-//
-// Revision 1.8  1998/03/16  12:44:12  killough
-// Optimize away some function pointers
-//
-// Revision 1.7  1998/03/09  07:27:19  killough
-// Avoid using FP for point/line queries
-//
-// Revision 1.6  1998/02/17  06:22:45  killough
-// Comment out audible HOM alarm for now
-//
-// Revision 1.5  1998/02/10  06:48:17  killough
-// Add flashing red HOM indicator for TNTHOM cheat
-//
-// Revision 1.4  1998/02/09  03:22:17  killough
-// Make TNTHOM control HOM detector, change array decl to MAX_*
-//
-// Revision 1.3  1998/02/02  13:29:41  killough
-// comment out dead code, add HOM detector
-//
-// Revision 1.2  1998/01/26  19:24:42  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:02  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

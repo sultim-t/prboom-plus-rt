@@ -1,11 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: protocol.h,v 1.1 2000/05/04 08:15:07 proff_fs Exp $
+ * $Id: protocol.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
- *  New LxDoom network protocol, based partly on the old linuxdoom networking
- *  Copyright (C) 1999 by id Software, Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -73,32 +78,3 @@ static void GetTicSwap(ticcmd_t* dst, const ticcmd_t* src)
   dst->angleturn = doom_ntohs(dst->angleturn);
   dst->consistancy = doom_ntohs(dst->consistancy);
 }
-
-/*
- * $Log: protocol.h,v $
- * Revision 1.1  2000/05/04 08:15:07  proff_fs
- * Initial revision
- *
- * Revision 1.7  2000/05/01 15:16:47  Proff
- * added __inline for VisualC
- *
- * Revision 1.6  2000/04/29 16:15:01  cph
- * Revert new netgame stuff
- *
- * Revision 1.5  2000/03/28 10:40:00  cph
- * Explicitely state 1 byte for packet type
- *
- * Revision 1.4  2000/03/28 08:47:48  cph
- * New free join/parting for network games
- *
- * Revision 1.3  1999/10/12 13:01:15  cphipps
- * Changed header to GPL
- *
- * Revision 1.2  1999/04/02 10:26:14  cphipps
- * Add new packet types for sending WAD info, and starting the game
- * Added info to startup packets about wad files
- *
- * Revision 1.1  1999/04/01 18:37:51  cphipps
- * Initial revision
- *
- */

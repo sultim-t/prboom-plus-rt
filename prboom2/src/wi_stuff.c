@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: wi_stuff.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: wi_stuff.c,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: wi_stuff.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: wi_stuff.c,v 1.3 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -2000,121 +2003,3 @@ void WI_Start(wbstartstruct_t* wbstartstruct)
   else
     WI_initStats();
 }
-
-
-//----------------------------------------------------------------------------
-//
-// $Log: wi_stuff.c,v $
-// Revision 1.2  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:19:18  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.19  2000/04/09 14:11:01  cph
-// Remove unused NUMCMAPS
-// Fix entering level title position
-//
-// Revision 1.18  2000/04/04 11:15:31  cph
-// Remove lnames[]
-// New function returns the name of the graphic lump for a given level
-// DrawLF and DrawEL now use this to get just the name graphic they need
-//
-// Revision 1.17  2000/04/04 10:56:06  cph
-// Use V_DrawNamePatch and use patch names rather than holding pointers
-//  to most graphics
-//
-// Revision 1.16  2000/04/04 10:03:53  cph
-// Start using new patch width function
-// Use more graphics by name instead of holding pointers to them
-//
-// Revision 1.15  2000/04/03 22:13:35  cph
-// Check WI data unloaded only if RANGECHECKing
-//
-// Revision 1.14  1999/10/27 18:35:50  cphipps
-// Made W_CacheLump* return a const pointer
-//
-// Revision 1.13  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.12  1999/09/01 20:10:21  cphipps
-// Moved clean up code from WI_loadData to WI_unloadData where it belongs.
-// Remove WI_End calls here, instead it's called from g_game.c only after
-// the gamestate has actually changed.
-//
-// Revision 1.11  1999/07/20 18:40:58  cphipps
-// Separate game time display code from WI_drawStats to a new function
-// Add time displayto coop game stats, space permitting
-//
-// Revision 1.10  1999/06/20 12:27:16  cphipps
-// Make sure no "Entering..." shown after ExM8
-//
-// Revision 1.9  1999/03/24 14:13:58  cphipps
-// Draw player colours by translating the player 1 colour through the particular player's
-// translation table, instead of using the (fixed) per-player image as doom used to.
-//
-// Revision 1.8  1999/01/17 09:02:37  cphipps
-// Modified time drawing so it draws hours (up to 100 hours when it goes back to "sucks")
-//  and changed spacings slightly to allow for this.
-//
-// Revision 1.7  1999/01/02 16:42:06  cphipps
-// Added total time display
-//
-// Revision 1.6  1999/01/01 12:21:37  cphipps
-// WI_loadData and WI_unloadData improved
-// New wad lump handling
-//
-// Revision 1.5  1998/12/31 12:08:47  cphipps
-// Patch drawing updated
-//
-// Revision 1.4  1998/12/28 20:23:39  cphipps
-// Allocate coop & deathmatch stats data structs dynamically when needed
-// Remove dead code
-// Functions made static
-//
-// Revision 1.3  1998/11/17 15:52:13  cphipps
-// Imported updated PrBoom v2.02 source into LxDoom
-//
-// Revision 1.12  1998/09/07  20:10:39  jim
-// Logical output routine added
-//
-// Revision 1.11  1998/05/04  21:36:02  thldrmn
-// commenting and reformatting
-//
-// Revision 1.10  1998/05/03  22:45:35  killough
-// Provide minimal correct #include's at top; nothing else
-//
-// Revision 1.9  1998/04/27  02:11:44  killough
-// Fix lnames being freed too early causing crashes
-//
-// Revision 1.8  1998/04/26  14:55:38  jim
-// Fixed animated back bug
-//
-// Revision 1.7  1998/04/11  14:49:52  thldrmn
-// Fixed par display logic
-//
-// Revision 1.6  1998/03/28  18:12:03  killough
-// Make acceleratestage external so it can be used for teletype
-//
-// Revision 1.5  1998/03/28  05:33:12  jim
-// Text enabling changes for DEH
-//
-// Revision 1.4  1998/03/18  23:14:14  jim
-// Deh text additions
-//
-// Revision 1.3  1998/02/23  05:00:19  killough
-// Fix Secret percentage, avoid par times on pwads
-//
-// Revision 1.2  1998/01/26  19:25:12  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:05  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.1 2000/05/04 08:17:03 proff_fs Exp $
+ * $Id: s_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -29,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.1 2000/05/04 08:17:03 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -619,81 +622,3 @@ static int S_getChannel(void *origin, sfxinfo_t *sfxinfo, int is_pickup)
   c->is_pickup = is_pickup;         // killough 4/25/98
   return cnum;
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: s_sound.c,v $
-// Revision 1.1  2000/05/04 08:17:03  proff_fs
-// Initial revision
-//
-// Revision 1.11  2000/05/01 14:37:34  Proff
-// changed abs to D_abs
-//
-// Revision 1.10  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.9  1999/03/01 07:51:29  cphipps
-// Fix obvious stupid stuff in S_SetMusicVolume, like bad volume range
-// and volume being set to 127 before any change. Thanks to Rafael for
-// pointing this out
-//
-// Revision 1.8  1999/01/01 13:03:14  cphipps
-// Fix releasing music lump problem
-//
-// Revision 1.7  1999/01/01 10:30:24  cphipps
-// Music no longer retained in memory
-// Wad lump handling updated
-//
-// Revision 1.6  1998/12/24 10:25:59  cphipps
-// Minor fixes from MBF
-// Reformatted S_Init slightly
-//
-// Revision 1.5  1998/10/27 19:19:35  cphipps
-// Fix typo
-//
-// Revision 1.4  1998/10/27 18:56:15  cphipps
-// Logical output console stuff for Boom v2.02 update patched in
-//
-// Revision 1.3  1998/10/20 14:45:28  cphipps
-// Pass length to I_RegisterSong
-//
-// Revision 1.2  1998/10/16 22:00:57  cphipps
-// Removed hanging else
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.11  1998/05/03  22:57:06  killough
-// beautification, #include fix
-//
-// Revision 1.10  1998/04/27  01:47:28  killough
-// Fix pickups silencing player weapons
-//
-// Revision 1.9  1998/03/23  03:39:12  killough
-// Fix spy-mode sound effects
-//
-// Revision 1.8  1998/03/17  20:44:25  jim
-// fixed idmus non-restore, space bug
-//
-// Revision 1.7  1998/03/09  07:32:57  killough
-// ATTEMPT to support hearing with displayplayer's hears
-//
-// Revision 1.6  1998/03/04  07:46:10  killough
-// Remove full-volume sound hack from MAP08
-//
-// Revision 1.5  1998/03/02  11:45:02  killough
-// Make missing sounds non-fatal
-//
-// Revision 1.4  1998/02/02  13:18:48  killough
-// stop incorrect looping of music (e.g. bunny scroll)
-//
-// Revision 1.3  1998/01/26  19:24:52  phares
-// First rev with no ^Ms
-//
-// Revision 1.2  1998/01/23  01:50:49  jim
-// Added music/sound options, and enables
-//
-// Revision 1.1.1.1  1998/01/19  14:03:04  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.1 2000/05/04 08:00:53 proff_fs Exp $
+ * $Id: d_server.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -431,71 +431,3 @@ int main(int argc, char** argv)
     }
   }
 }
-
-//
-// $Log: d_server.c,v $
-// Revision 1.1  2000/05/04 08:00:53  proff_fs
-// Initial revision
-//
-// Revision 1.16  2000/04/29 16:15:01  cph
-// Revert new netgame stuff
-//
-// Revision 1.15  2000/04/03 21:47:39  cph
-// Better detection fo IPv6
-// Minor header file corrections
-//
-// Revision 1.14  2000/04/03 17:06:10  cph
-// Split client specific stuff from l_udp.c to new l_network.c
-// Move server specific stuff from l_udp.c to d_server.c
-// Update copyright notices
-// Restructure ready for IPv6 support
-// Use fcntl instead of ioctl to set socket non-blocking
-//
-// Revision 1.13  2000/03/28 10:42:29  cph
-// Send and receive using the same socket
-// Do not transmit port with init packet, server determines it
-// Client searches for a free port instead of needing -port
-// Transmit player number wanted to server and act on it
-// Remove more diagnostics
-//
-// Revision 1.12  2000/03/28 08:47:48  cph
-// New free join/parting for network games
-//
-// Revision 1.11  2000/02/26 19:21:00  cph
-// Remove server stats file; be safe with error message printing
-//
-// Revision 1.10  2000/01/26 08:51:53  cphipps
-// Fix random number seed (cures SIGBUS on Sparc, removes endianness ambiguity
-//
-// Revision 1.9  1999/10/31 16:31:37  cphipps
-// Changed signal handler to use function from l_system.c to get the signal
-// name. Added #include for that.
-//
-// Revision 1.8  1999/10/12 13:01:09  cphipps
-// Changed header to GPL
-//
-// Revision 1.7  1999/09/05 10:50:40  cphipps
-// Server deduces remote address of a new client from the packet
-// sent-from address, instead of the startup packet contents.
-//
-// Revision 1.6  1999/04/02 11:21:21  cphipps
-// Wait for a PKT_GO from each player before starting the game
-//
-// Revision 1.5  1999/04/02 10:55:44  cphipps
-// Send PKT_GO packets when the game starts
-// Extra packets sent in case of packet loss in game startup
-//
-// Revision 1.4  1999/04/01 21:57:32  cphipps
-// Add wad file specifying/listing to the server
-//
-// Revision 1.3  1999/04/01 10:11:37  cphipps
-// Added exit/signal handling
-// Fix counting of players leaving (again :/)
-//
-// Revision 1.2  1999/03/29 12:12:35  cphipps
-// Misc endian fixes
-//
-// Revision 1.1  1999/03/29 11:54:34  cphipps
-// Initial revision
-//
-//

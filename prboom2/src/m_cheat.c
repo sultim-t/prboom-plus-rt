@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: m_cheat.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.3 2000/05/09 21:45:38 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
@@ -735,66 +738,3 @@ boolean M_FindCheats(int key)
     }
   return ret;
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: m_cheat.c,v $
-// Revision 1.2  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.1.1.1  2000/05/04 08:08:59  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.12  1999/10/17 09:35:58  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.11  1999/10/12 13:01:12  cphipps
-// Changed header to GPL
-//
-// Revision 1.10  1999/06/17 10:21:39  cphipps
-// Add rendering stats toggle cheat
-//
-// Revision 1.9  1999/06/08 17:27:54  cphipps
-// Change long long references to int_64_t's
-//
-// Revision 1.8  1999/03/10 15:12:22  cphipps
-// New health and armour cheat codes
-//
-// Revision 1.7  1999/03/07 22:21:44  cphipps
-// Change for new automap mode variable
-//
-// Revision 1.6  1999/01/11 16:04:18  cphipps
-// TNTCOMP cheat updated for new compatibility handling
-//
-// Revision 1.4  1998/10/27 16:04:53  cphipps
-// Boom v2.02 version
-// Changed dprintf's to doom_printf's
-//
-// Revision 1.8  1998/08/14  19:51:45  jim
-// Clamp IDCLEV to 32 Maps
-//
-// Revision 1.7  1998/05/12  12:47:00  phares
-// Removed OVER_UNDER code
-//
-// Revision 1.6  1998/05/07  01:08:11  killough
-// Make TNTAMMO ammo ordering more natural
-//
-// Revision 1.5  1998/05/03  22:10:53  killough
-// Cheat engine, moved from st_stuff
-//
-// Revision 1.4  1998/05/01  14:38:06  killough
-// beautification
-//
-// Revision 1.3  1998/02/09  03:03:05  killough
-// Rendered obsolete by st_stuff.c
-//
-// Revision 1.2  1998/01/26  19:23:44  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:58  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

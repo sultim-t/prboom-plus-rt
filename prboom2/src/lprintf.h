@@ -1,12 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.h,v 1.2 2000/05/04 11:23:01 proff_fs Exp $
+ * $Id: lprintf.h,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
- *  Console output wrapper.
- *  Copyright (C) 1999 by Jim Flynn, Rand Phares, Ty Halderman, Colin Phipps
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -61,32 +65,3 @@ void Done_ConsoleWin(void);
 #endif
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: lprintf.h,v $
- * Revision 1.2  2000/05/04 11:23:01  proff_fs
- * added an textwindow for Win32 and
- * changed some printfs to lprintfs
- *
- * Revision 1.1.1.1  2000/05/04 08:08:40  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.4  1999/10/31 12:54:09  cphipps
- * Moved I_Error to lprintf.c
- * Finished off C++ comments
- *
- * Revision 1.3  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.2  1999/01/07 10:21:01  cphipps
- * Fix __attribute__ handling for non-gnu compilers
- *
- * Revision 1.1  1998/10/27 20:52:29  cphipps
- * Initial revision
- *
- * Revision 1.2  1998/09/09  21:21:43  phares
- * Added Log line
- *
- *
- *----------------------------------------------------------------------------*/

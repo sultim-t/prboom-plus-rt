@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.3 2000/05/06 09:26:30 cph Exp $
+ * $Id: z_zone.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -38,7 +41,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.3 2000/05/06 09:26:30 cph Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -752,21 +755,3 @@ void (Z_CheckHeap)(
               );
   while ((block=block->next) != zone);
 }
-
-/*-----------------------------------------------------------------------------
- *
- * $Log: z_zone.c,v $
- * Revision 1.3  2000/05/06 09:26:30  cph
- * Fix Z_Malloc heap walking bug
- * Increase zone size, SDL version needs more
- * Make heap dumping more useful
- * Clean up CVS log
- *
- * Revision 1.2  2000/05/04 11:23:01  proff_fs
- * added an textwindow for Win32 and
- * changed some printfs to lprintfs
- *
- * Revision 1.1.1.1  2000/05/04 08:19:30  proff_fs
- * initial login on sourceforge as prboom2
- *
- */

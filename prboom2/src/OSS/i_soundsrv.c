@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_soundsrv.c,v 1.1 2000/05/07 22:12:20 cph Exp $
+ * $Id: i_soundsrv.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
  *  Sound server for LxDoom, based on the sound server released with the 
  *   original linuxdoom sources.
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_soundsrv.c,v 1.1 2000/05/07 22:12:20 cph Exp $";
+rcsid[] = "$Id: i_soundsrv.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stddef.h>
@@ -262,67 +262,3 @@ int main(int argc, const char** argv)
     I_EndSoundGen();
     return 0;
 }
-
-/*
- * $Log: i_soundsrv.c,v $
- * Revision 1.1  2000/05/07 22:12:20  cph
- * OSS audio output code renamed and in new directory
- *
- * Revision 1.1.1.1  2000/05/04 08:07:48  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.17  2000/03/19 20:14:32  cph
- * Sound code cleaning: DosDoom, IPC and such unused code removed
- *
- * Revision 1.16  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.15  1999/09/06 19:40:27  cphipps
- * Include config.h for autoconf stuff
- *
- * Revision 1.14  1999/01/27 19:57:48  cphipps
- * Fix headers to avoid FreeBSD warnings
- *
- * Revision 1.13  1999/01/03 13:00:32  cphipps
- * Improve bad command diagnostics
- *
- * Revision 1.12  1998/12/25 17:17:13  cphipps
- * Remove redundant 'waitingtofinish' code
- *
- * Revision 1.11  1998/12/02 20:31:49  cphipps
- * Sounds above the NUMSFX limit are correctly flushed from the pipe now
- *
- * Revision 1.10  1998/12/01 23:12:32  cphipps
- * Read the number of sounds from the pipe
- * Clamp sound numbers to NUMSFX
- *
- * Revision 1.9  1998/10/20 07:26:23  cphipps
- * Add sys/time.h for glibc systems
- *
- * Revision 1.8  1998/10/15 18:47:00  cphipps
- * Added #define SNDSERV so it will compile without errors even if unused
- *
- * Revision 1.7  1998/10/15 11:47:46  cphipps
- * Use STDIN_FILENO macro instead of 0 for portability
- *
- * Revision 1.6  1998/10/15 10:44:47  cphipps
- * Use select
- * Make diagnostics selectable with -devparm
- *
- * Revision 1.5  1998/10/13 17:54:54  cphipps
- * Both IPC and pipe data passing is supported, selected by command line param
- *
- * Revision 1.4  1998/10/11 08:18:38  cphipps
- * Switch to passing sound data via the pipe, instead of IPC
- *
- * Revision 1.3  1998/10/10 19:55:29  cphipps
- * Accept command-line parameter of sound device.
- *
- * Revision 1.2  1998/09/27 13:27:39  cphipps
- * Get rid of select() call, use non-blocking IO instead on stdin.
- * Add timeout on IPC
- *
- * Revision 1.1  1998/09/20 16:09:22  cphipps
- * Initial revision
- *
- */

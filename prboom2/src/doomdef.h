@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.1 2000/05/04 08:01:05 proff_fs Exp $
+ * $Id: doomdef.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -323,101 +326,3 @@ typedef enum {
 #define ORIG_FRICTION_FACTOR   2048        // original value
 
 #endif          // __DOOMDEF__
-
-//----------------------------------------------------------------------------
-//
-// $Log: doomdef.h,v $
-// Revision 1.1  2000/05/04 08:01:05  proff_fs
-// Initial revision
-//
-// Revision 1.7  1999/11/01 00:19:29  cphipps
-// Remove __inline__ handling (not needed, superceded by config.h)
-//
-// Revision 1.6  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.5  1999/09/06 19:34:12  cphipps
-// Minor changes for autoconf setup, by Josh Parsons <josh@schlick.anu.edu.au>
-//
-// Revision 1.4  1999/05/14 08:05:29  cphipps
-// Added codes for the numeric keypad
-//
-// Revision 1.3  1999/02/04 19:19:57  cphipps
-// Housekeeping: Removed old SCREEN_MUL #define, RCS log cleaning
-//
-// Revision 1.2  1998/11/16 18:59:36  cphipps
-// Hi-res changes added
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.23  1998/05/14  08:02:00  phares
-// Added Player Starts 5-8 (4001-4004)
-//
-// Revision 1.22  1998/05/05  15:34:48  phares
-// Documentation and Reformatting changes
-//
-// Revision 1.21  1998/05/03  22:39:56  killough
-// beautification
-//
-// Revision 1.20  1998/04/27  01:50:51  killough
-// Make gcc's __attribute__ mean nothing on other compilers
-//
-// Revision 1.19  1998/04/22  13:45:23  phares
-// Added Setup screen Reset to Defaults
-//
-// Revision 1.18  1998/03/24  15:59:13  jim
-// Added default_skill parameter to config file
-//
-// Revision 1.17  1998/03/23  15:23:34  phares
-// Changed pushers to linedef control
-//
-// Revision 1.16  1998/03/20  00:29:34  phares
-// Changed friction to linedef control
-//
-// Revision 1.15  1998/03/12  14:28:36  phares
-// friction and IDCLIP changes
-//
-// Revision 1.14  1998/03/09  18:27:16  phares
-// Fixed bug in neighboring variable friction sectors
-//
-// Revision 1.13  1998/03/09  07:08:30  killough
-// Add numlock key scancode
-//
-// Revision 1.12  1998/03/04  21:26:27  phares
-// Repaired syntax error (left-over conflict marker)
-//
-// Revision 1.11  1998/03/04  21:02:16  phares
-// Dynamic HELP screen
-//
-// Revision 1.10  1998/03/02  11:25:52  killough
-// Remove now-dead monster_ai mask idea
-//
-// Revision 1.9  1998/02/24  08:45:32  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.8  1998/02/23  04:15:50  killough
-// New monster AI option mask enums
-//
-// Revision 1.7  1998/02/15  02:48:06  phares
-// User-defined keys
-//
-// Revision 1.6  1998/02/09  02:52:01  killough
-// Make SCREENWIDTH/HEIGHT more flexible
-//
-// Revision 1.5  1998/02/02  13:22:47  killough
-// user new version files
-//
-// Revision 1.4  1998/01/30  18:48:07  phares
-// Changed textspeed and textwait to functions
-//
-// Revision 1.3  1998/01/30  16:09:06  phares
-// Faster end-mission text display
-//
-// Revision 1.2  1998/01/26  19:26:39  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:51  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

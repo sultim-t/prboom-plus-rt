@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: p_setup.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.3 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include <math.h>
 
@@ -1201,125 +1204,3 @@ void P_Init (void)
   P_InitPicAnims();
   R_InitSprites(sprnames);
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_setup.c,v $
-// Revision 1.3  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:13:41  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.15  2000/05/01 14:39:44  Proff
-// changed long long to int_64_t for portability
-//
-// Revision 1.14  1999/11/04 12:33:38  cphipps
-// Switch from the Boom fireline-recuding code to the MBF fireline code.
-//
-// Revision 1.13  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.12  1999/09/05 13:42:50  cphipps
-// Print warnings when fixing errors in wad files
-//
-// Revision 1.11  1999/08/18 22:17:43  cphipps
-// Partly rewrote P_GroupLines, to eliminate a bad algorithm causing
-// big levels to take seconds to load.
-//
-// Revision 1.10  1999/02/02 09:18:37  cphipps
-// Enhanced skies stuff from MBF
-//
-// Revision 1.9  1999/01/25 16:17:31  cphipps
-// Include math.h
-//
-// Revision 1.8  1999/01/01 16:12:51  cphipps
-// Fix erroneous release of lump 0 in first level load
-//
-// Revision 1.7  1998/12/31 20:53:04  cphipps
-// New wad lump handling changes
-// rejectmatrix made const*
-//
-// Revision 1.6  1998/12/27 15:19:17  cphipps
-// Use memset to clear body queue
-//
-// Revision 1.5  1998/12/26 20:09:21  cphipps
-// Compatibility option the 'fix common wad errors' code
-//
-// Revision 1.4  1998/12/23 16:16:11  cphipps
-// Fix common wad errors - MBF code imported
-// Made P_Load* funcs static
-// Replaced a lot of malloc,memset pairs by calloc
-//
-// Revision 1.3  1998/10/27 18:36:01  cphipps
-// Boom v2.02 updated source imported
-//
-// Revision 1.21  1998/10/13  03:19:21  jim
-// Rand's segadjust chosen, Blockmap tweak
-//
-// Revision 1.18  1998/10/05  21:29:21  phares
-// Fixed firelines
-//
-// Revision 1.17  1998/08/11  19:32:07  phares
-// DM Weapon bug fix
-//
-// Revision 1.16  1998/05/07  00:56:49  killough
-// Ignore translucency lumps that are not exactly 64K long
-//
-// Revision 1.15  1998/05/03  23:04:01  killough
-// beautification
-//
-// Revision 1.14  1998/04/12  02:06:46  killough
-// Improve 242 colomap handling, add translucent walls
-//
-// Revision 1.13  1998/04/06  04:47:05  killough
-// Add support for overloading sidedefs for special uses
-//
-// Revision 1.12  1998/03/31  10:40:42  killough
-// Remove blockmap limit
-//
-// Revision 1.11  1998/03/28  18:02:51  killough
-// Fix boss spawner savegame crash bug
-//
-// Revision 1.10  1998/03/20  00:30:17  phares
-// Changed friction to linedef control
-//
-// Revision 1.9  1998/03/16  12:35:36  killough
-// Default floor light level is sector's
-//
-// Revision 1.8  1998/03/09  07:21:48  killough
-// Remove use of FP for point/line queries and add new sector fields
-//
-// Revision 1.7  1998/03/02  11:46:10  killough
-// Double blockmap limit, prepare for when it's unlimited
-//
-// Revision 1.6  1998/02/27  11:51:05  jim
-// Fixes for stairs
-//
-// Revision 1.5  1998/02/17  22:58:35  jim
-// Fixed bug of vanishinb secret sectors in automap
-//
-// Revision 1.4  1998/02/02  13:38:48  killough
-// Comment out obsolete reload hack
-//
-// Revision 1.3  1998/01/26  19:24:22  phares
-// First rev with no ^Ms
-//
-// Revision 1.2  1998/01/26  05:02:21  killough
-// Generalize and simplify level name generation
-//
-// Revision 1.1.1.1  1998/01/19  14:03:00  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

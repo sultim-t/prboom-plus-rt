@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.h,v 1.1 2000/05/04 08:16:51 proff_fs Exp $
+ * $Id: r_things.h,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -64,43 +67,3 @@ void R_DrawMasked(void);
 void R_ClipVisSprite(vissprite_t *vis, int xl, int xh);
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: r_things.h,v $
- * Revision 1.1  2000/05/04 08:16:51  proff_fs
- * Initial revision
- *
- * Revision 1.6  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.5  1998/12/31 23:06:56  cphipps
- * R_DrawMaskedColumn takes a const column_t*
- *
- * Revision 1.4  1998/12/24 10:10:30  cphipps
- * Parameter change for R_AddSprites
- * (undeerwater sprite lighting fix from MBF)
- *
- * Revision 1.3  1998/11/17 12:13:21  cphipps
- * Hi-res additions
- *
- * Revision 1.2  1998/10/16 23:11:37  cphipps
- * Made R_InitSprites take a const * const * parameter
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.4  1998/05/03  22:46:19  killough
- * beautification
- *
- * Revision 1.3  1998/02/09  03:23:27  killough
- * Change array decl to use MAX screen width/height
- *
- * Revision 1.2  1998/01/26  19:27:49  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:03:09  rand
- * Lee's Jan 19 sources
- *
- *
-*----------------------------------------------------------------------------*/

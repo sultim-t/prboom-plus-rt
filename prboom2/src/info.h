@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: info.h,v 1.1 2000/05/04 08:07:12 proff_fs Exp $
+ * $Id: info.h,v 1.2 2000/05/09 21:45:37 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -1394,51 +1397,3 @@ typedef struct
 extern mobjinfo_t mobjinfo[NUMMOBJTYPES];
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: info.h,v $
- * Revision 1.1  2000/05/04 08:07:12  proff_fs
- * Initial revision
- *
- * Revision 1.3  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.2  1998/10/16 23:05:47  cphipps
- * Added const specifiers to data structs where relevant
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.10  1998/05/12  12:47:31  phares
- * Removed OVER_UNDER code
- *
- * Revision 1.9  1998/05/06  11:31:53  jim
- * Moved predefined lump writer info->w_wad
- *
- * Revision 1.8  1998/05/04  21:35:54  thldrmn
- * commenting and reformatting
- *
- * Revision 1.7  1998/04/22  06:33:58  killough
- * Add const to WritePredefinedLumpWad() parm
- *
- * Revision 1.6  1998/04/21  23:47:10  jim
- * Predefined lump dumper option
- *
- * Revision 1.5  1998/03/23  15:24:09  phares
- * Changed pushers to linedef control
- *
- * Revision 1.4  1998/03/09  18:30:43  phares
- * Added invisible sprite for MT_PUSH
- *
- * Revision 1.3  1998/02/24  08:45:53  phares
- * Pushers, recoil, new friction, and over/under work
- *
- * Revision 1.2  1998/01/26  19:27:02  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:02:57  rand
- * Lee's Jan 19 sources
- *
- *
- *----------------------------------------------------------------------------*/

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_net.h,v 1.1 2000/05/04 08:00:44 proff_fs Exp $
+ * $Id: d_net.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -211,59 +214,3 @@ void D_NetSendMisc(netmisctype_t type, size_t len, void* data);
 boolean D_NetGetWad(const char* name);
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: d_net.h,v $
-// Revision 1.1  2000/05/04 08:00:44  proff_fs
-// Initial revision
-//
-// Revision 1.8  2000/05/01 17:50:33  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.7  2000/04/29 16:15:01  cph
-// Revert new netgame stuff
-//
-// Revision 1.5  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.4  1999/04/02 10:46:17  cphipps
-// Add prototypes for new functions for new style netgame init and WAD pulling
-//
-// Revision 1.3  1999/03/22 16:00:38  cphipps
-// Added extended data packets for optional netgame enhancements
-//
-// Revision 1.2  1998/10/16 19:29:33  cphipps
-// Added D_CheckNetGame to header
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.8  1998/05/21  12:12:16  jim
-// Removed conditional from net code
-//
-// Revision 1.7  1998/05/16  09:52:21  jim
-// add temporary switch for Lee/Stan's code in d_net.c
-//
-// Revision 1.6  1998/05/03  23:40:38  killough
-// Fix net consistency problems, using G_WriteOptions/G_Readoptions
-//
-// Revision 1.5  1998/04/13  10:40:53  stan
-// Now synch up all items identified by Lee Killough as essential to
-// game synch (including bobbing, recoil, rngseed).  Commented out
-// code in g_game.c so rndseed is always set even in netgame.
-//
-// Revision 1.4  1998/02/05  12:14:33  phares
-// removed dummy comment
-//
-// Revision 1.3  1998/01/26  19:26:29  phares
-// First rev with no ^Ms
-//
-// Revision 1.2  1998/01/19  16:38:12  rand
-// Added dummy comments to be reomved later
-//
-// Revision 1.1.1.1  1998/01/19  14:03:07  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

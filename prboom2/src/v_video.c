@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.4 2000/05/09 20:49:32 proff_fs Exp $
+ * $Id: v_video.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -34,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.4 2000/05/09 20:49:32 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -696,132 +699,3 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
   }
 }
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: v_video.c,v $
-// Revision 1.4  2000/05/09 20:49:32  proff_fs
-// reorganised the gl-stuff a little bit and made it ready for Linux
-//
-// Revision 1.3  2000/05/08 09:54:37  cph
-// Fix range of colrngs array
-//
-// Revision 1.2  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:18:37  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.22  2000/05/01 17:50:37  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.21  2000/05/01 15:16:47  Proff
-// added __inline for VisualC
-//
-// Revision 1.20  2000/04/04 10:55:33  cph
-// Also add patch height function
-//
-// Revision 1.19  2000/04/04 10:03:00  cph
-// New patch width function
-//
-// Revision 1.18  1999/10/27 18:38:03  cphipps
-// Updated for W_Cache'd lumps being properly const
-// Made colour translation tables be referenced by const byte*'s
-// Updated various V_* functions for this change
-//
-// Revision 1.17  1999/10/27 11:59:49  cphipps
-// Added V_DrawBackground, which draws a tiled flat over the screen
-// (taken from M_DrawBackground and similar code in f_finale.c)
-//
-// Revision 1.16  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.15  1999/10/02 12:34:45  cphipps
-// Remove RANGECHECK checks which erroneously thought 4 was the highest
-//  screen number
-// Fixed bad V_GetBlock RANGECHECK error message
-//
-// Revision 1.14  1999/09/05 16:07:05  cphipps
-// Fixed bug with flipped high-res patch drawing, thanks to Gady Kozma <gady@math.tau.ac.il>
-//
-// Revision 1.13  1999/08/30 12:48:35  cphipps
-// Added V_FillRect, to fill a rectangle on screen to a given colour
-//
-// Revision 1.12  1999/03/26 11:58:10  cphipps
-// Remove I_AllocLow() call
-// Allocate screens separately
-//
-// Revision 1.11  1999/02/04 21:38:23  cphipps
-// Extra pointer in screens[] ready for status bar scaling
-//
-// Revision 1.10  1999/02/01 09:10:13  cphipps
-// Pass palette number to I_SetPalette
-//
-// Revision 1.9  1999/01/13 08:00:49  cphipps
-// Fix inlining for nono-gnu compilers
-//
-// Revision 1.8  1999/01/01 13:34:53  cphipps
-// Added i_video.h
-// Fix palette handling function
-//
-// Revision 1.7  1998/12/31 20:19:52  cphipps
-// Added palette handling function
-//
-// Revision 1.6  1998/12/31 14:13:19  cphipps
-// Merged all patch drawing functions into 1 function, flags selectnig stretching, translating
-// etc.
-// Merged block drawing functions similarly.
-// New V_PatchToBlock function to convert patches to simple bitmap block images.
-// Added const to many parameters.
-//
-// Revision 1.5  1998/12/28 21:24:57  cphipps
-// Don't allocate screens[2 to 3] in startup
-// Made gamma correction tables const
-//
-// Revision 1.4  1998/12/24 20:41:11  cphipps
-// Stretched block drawing routine added
-// Added const to some paramters
-//
-// Revision 1.3  1998/12/22 21:14:01  cphipps
-// Fixed a few missing SHORT()'s
-//
-// Revision 1.2  1998/11/17 12:26:39  cphipps
-// Updated version from PrBoom v2.02 incorporated into LxDoom
-//
-// Revision 1.10  1998/05/06  11:12:48  jim
-// Formattted v_video.*
-//
-// Revision 1.9  1998/05/03  22:53:16  killough
-// beautification, simplify translation lookup
-//
-// Revision 1.8  1998/04/24  08:09:39  jim
-// Make text translate tables lumps
-//
-// Revision 1.7  1998/03/02  11:41:58  killough
-// Add cr_blue_status for blue statusbar numbers
-//
-// Revision 1.6  1998/02/24  01:40:12  jim
-// Tuned HUD font
-//
-// Revision 1.5  1998/02/23  04:58:17  killough
-// Fix performance problems
-//
-// Revision 1.4  1998/02/19  16:55:00  jim
-// Optimized HUD and made more configurable
-//
-// Revision 1.3  1998/02/17  23:00:36  jim
-// Added color translation machinery and data
-//
-// Revision 1.2  1998/01/26  19:25:08  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:05  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------
-

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.h,v 1.1 2000/05/04 08:10:03 proff_fs Exp $
+ * $Id: m_menu.h,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -69,30 +72,3 @@ void M_ForcedLoadGame(const char *msg); // killough 5/15/98: forced loadgames
 extern int traditional_menu;  // display the menu traditional way
 
 #endif    
-
-//----------------------------------------------------------------------------
-//
-// $Log: m_menu.h,v $
-// Revision 1.1  2000/05/04 08:10:03  proff_fs
-// Initial revision
-//
-// Revision 1.2  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.4  1998/05/16  09:17:18  killough
-// Make loadgame checksum friendlier
-//
-// Revision 1.3  1998/05/03  21:56:53  killough
-// Add traditional_menu declaration
-//
-// Revision 1.2  1998/01/26  19:27:11  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:58  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

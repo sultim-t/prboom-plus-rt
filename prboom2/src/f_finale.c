@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: f_finale.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: f_finale.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -676,109 +679,3 @@ void F_Drawer (void)
     }
   }
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: f_finale.c,v $
-// Revision 1.2  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:01:30  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.14  1999/10/27 12:01:44  cphipps
-// Moved flat background tiling code to V_DrawBackground in v_video.c
-//
-// Revision 1.13  1999/10/17 09:35:15  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.12  1999/10/12 13:01:09  cphipps
-// Changed header to GPL
-//
-// Revision 1.11  1999/08/31 19:47:23  cphipps
-// Removed old comments at the top regarding the old variables to hold the intermission
-// text messages
-// Removed old viewactive variable references
-//
-// Revision 1.10  1999/08/30 14:46:45  cphipps
-// Removed direct screen accesses, use V_* stuff instead
-// Removed F_DrawPatchCol*, use V_DrawPatch instead
-//
-// Revision 1.9  1999/03/07 22:22:09  cphipps
-// Changed for new automap mode variable
-//
-// Revision 1.8  1998/12/31 20:10:40  cphipps
-// Updated wad lump handling
-// Reformatting and beautifying
-//
-// Revision 1.7  1998/12/30 22:06:36  cphipps
-// Updated for new patch drawing
-//
-// Revision 1.6  1998/12/28 20:41:32  cphipps
-// Make castorder[] a static const structure, initialised directly instead of in code
-//
-// Revision 1.5  1998/11/16 21:38:42  cphipps
-// Hi-res updates
-//
-// Revision 1.4  1998/10/27 15:39:34  cphipps
-// Patched in Boom v2.02 version
-// Added various const's where needed
-//
-// Revision 1.17  1998/08/29  23:00:55  thldrmn
-// Gamemission fixes for TNT and Plutonia
-//
-// Revision 1.16  1998/05/10  23:39:25  killough
-// Restore v1.9 demo sync on text intermission screens
-//
-// Revision 1.15  1998/05/04  21:34:30  thldrmn
-// commenting and reformatting
-//
-// Revision 1.14  1998/05/03  23:25:05  killough
-// Fix #includes at the top, nothing else
-//
-// Revision 1.13  1998/04/19  01:17:18  killough
-// Tidy up last fix's code
-//
-// Revision 1.12  1998/04/17  15:14:10  killough
-// Fix showstopper flat bug
-//
-// Revision 1.11  1998/03/31  16:19:25  killough
-// Fix minor merge glitch
-//
-// Revision 1.10  1998/03/31  11:41:21  jim
-// Fix merge glitch in f_finale.c
-//
-// Revision 1.9  1998/03/31  00:37:56  jim
-// Ty's finale.c fixes
-//
-// Revision 1.8  1998/03/28  17:51:33  killough
-// Allow use/fire to accelerate teletype messages
-//
-// Revision 1.7  1998/02/05  12:15:06  phares
-// cleaned up comments
-//
-// Revision 1.6  1998/02/02  13:43:30  killough
-// Relax endgame message speed to demo_compatibility
-//
-// Revision 1.5  1998/01/31  01:47:39  phares
-// Removed textspeed and textwait externs
-//
-// Revision 1.4  1998/01/30  18:48:18  phares
-// Changed textspeed and textwait to functions
-//
-// Revision 1.3  1998/01/30  16:08:56  phares
-// Faster end-mission text display
-//
-// Revision 1.2  1998/01/26  19:23:14  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:54  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

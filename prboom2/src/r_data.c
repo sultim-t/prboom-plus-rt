@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: r_data.c,v 1.5 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.5 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -978,146 +981,3 @@ void R_SetPatchNum(patchnum_t *patchnum, char *name)
   patchnum->lumpnum = W_GetNumForName(name);
   W_UnlockLumpName(name);
 }
-
-//-----------------------------------------------------------------------------
-//
-// $Log: r_data.c,v $
-// Revision 1.4  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.3  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:15:39  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.14  2000/05/01 17:50:36  Proff
-// made changes to compile with VisualC and SDL
-//
-// Revision 1.13  2000/01/25 22:40:45  cphipps
-// Revert SPARC memcpy patch
-//
-// Revision 1.12  1999/10/27 18:38:14  cphipps
-// Made W_CacheLump* return a const pointer
-//
-// Revision 1.11  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.10  1999/09/06 19:38:03  cphipps
-// Struct packing and other portability stuff, by Josh Parsons <josh@schlick.anu.edu.au>
-//
-// Revision 1.9  1999/09/05 13:34:24  cphipps
-// In development mode, texture lookups are all calculated initially,
-// so all errors are shown at once
-//
-// Revision 1.8  1999/03/23 10:37:12  cphipps
-// Lazy creation of the composite texture information for textures; instead of
-// doing them all at startup, do only when needed.
-// Changed startup progress indicators, since only tranmap building is slow now
-//
-// Revision 1.7  1999/03/23 09:54:11  cphipps
-// Removed a lot of arrays with 1 entry per texture, merging their data into the
-// texture_t for that texture.
-// Made texture_t *textures; static
-//
-// Revision 1.6  1999/01/25 20:22:36  cphipps
-// Reinstate 256-byte alignment for colourmaps
-//
-// Revision 1.5  1999/01/23 07:36:57  cphipps
-// Fix crash generating translucancy map
-//
-// Revision 1.4  1999/01/01 13:34:17  cphipps
-// Made R_GetColumn return a const*
-// Modified for new wad lump handling
-// R_GetColumn remembers last lump used, only locks/unlocks if a different lump is needed.
-// Modified so translucency tables can be const
-//
-// Revision 1.3  1998/12/22 21:18:18  cphipps
-// Fix file handle leak, using MBF fix
-//
-// Revision 1.2  1998/10/27 18:47:56  cphipps
-// Boom v2.02 update imported
-//
-// Revision 1.24  1998/09/07  20:11:45  jim
-// Logical output routine added
-//
-// Revision 1.23  1998/05/23  08:05:57  killough
-// Reformatting
-//
-// Revision 1.21  1998/05/07  00:52:03  killough
-// beautification
-//
-// Revision 1.20  1998/05/03  22:55:15  killough
-// fix #includes at top
-//
-// Revision 1.19  1998/05/01  18:23:06  killough
-// Make error messages look neater
-//
-// Revision 1.18  1998/04/28  22:56:07  killough
-// Improve error handling of bad textures
-//
-// Revision 1.17  1998/04/27  01:58:08  killough
-// Program beautification
-//
-// Revision 1.16  1998/04/17  10:38:58  killough
-// Tag lumps with namespace tags to resolve collisions
-//
-// Revision 1.15  1998/04/16  10:47:40  killough
-// Improve missing flats error message
-//
-// Revision 1.14  1998/04/14  08:12:31  killough
-// Fix seg fault
-//
-// Revision 1.13  1998/04/12  09:52:51  killough
-// Fix ?bad merge? causing seg fault
-//
-// Revision 1.12  1998/04/12  02:03:51  killough
-// rename tranmap main_tranmap, better colormap support
-//
-// Revision 1.11  1998/04/09  13:19:35  killough
-// Fix Medusa for transparent middles, and remove 64K composite texture size limit
-//
-// Revision 1.10  1998/04/06  04:39:58  killough
-// Support multiple colormaps and C_START/C_END
-//
-// Revision 1.9  1998/03/23  03:33:29  killough
-// Add support for an arbitrary number of colormaps, e.g. WATERMAP
-//
-// Revision 1.8  1998/03/09  07:26:03  killough
-// Add translucency map caching
-//
-// Revision 1.7  1998/03/02  11:54:26  killough
-// Don't initialize tranmap until needed
-//
-// Revision 1.6  1998/02/23  04:54:03  killough
-// Add automatic translucency filter generator
-//
-// Revision 1.5  1998/02/02  13:35:36  killough
-// Improve hashing algorithm
-//
-// Revision 1.4  1998/01/26  19:24:38  phares
-// First rev with no ^Ms
-//
-// Revision 1.3  1998/01/26  06:11:42  killough
-// Fix Medusa bug, tune hash function
-//
-// Revision 1.2  1998/01/22  05:55:56  killough
-// Improve hashing algorithm
-//
-// Revision 1.3  1997/01/29 20:10
-// ???
-//
-//-----------------------------------------------------------------------------

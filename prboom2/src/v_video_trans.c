@@ -1,12 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video_trans.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $
+ * $Id: v_video_trans.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  Video mode translation for LxDoom, 
- *   parts from the original linuxdoom i_video.c
- *  Copyright (C) 1994-1996 by id Software
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -28,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 #ifndef lint
-static const char rcsid[] = "$Id: v_video_trans.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $";
+static const char rcsid[] = "$Id: v_video_trans.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 #endif /* lint */
 
 #ifdef HAVE_LINUX_BITOPS_H
@@ -509,59 +513,3 @@ size_t I_InitImageTranslation(void)
 void I_EndImageTranslation(void)
 {
 }
-
-/*
- * $Log: v_video_trans.c,v $
- * Revision 1.1  2000/05/09 20:47:07  proff_fs
- * renamed
- *
- * Revision 1.1.1.1  2000/05/04 08:08:23  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.19  2000/05/01 17:50:35  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.18  2000/05/01 15:16:47  Proff
- * added __inline for VisualC
- *
- * Revision 1.17  2000/04/05 10:47:31  cph
- * Remove dead #ifdef magic, rely on config.h now
- * Make sndserv work on (Open|Net)BSD, using libossaudio
- * Make --enable-debug compile with -g
- * Make asm stuff only compile on Linux and FreeBSD
- * (draw(col|span).s failed on OpenBSD, linker troubles)
- *
- * Revision 1.16  1999/12/13 17:22:43  cphipps
- * Reduce .align 16's to .align 8's to allow compiling on OpenBSD
- *
- * Revision 1.15  1999/10/31 12:49:44  cphipps
- * Use lprintf.h for I_Error
- *
- * Revision 1.14  1999/10/12 13:01:11  cphipps
- * Changed header to GPL
- *
- * Revision 1.13  1999/08/27 17:26:19  cphipps
- * I386 assembler optimisations for Copyto 16 and 32 bpp buffers
- *
- * Revision 1.12  1999/05/16 08:44:07  cphipps
- * Use endianness detection from m_swap.h
- *
- * Revision 1.11  1999/03/30 06:19:27  cphipps
- * Improved 24bpp stuff
- *
- * Revision 1.10  1999/01/04 19:39:02  cphipps
- * Made portable ffz() static const
- * Added instance of I_ExpandImage
- *
- * Revision 1.9  1998/12/28 21:12:47  cphipps
- * Fix gamma correction table const'ness
- *
- * Revision 1.8  1998/12/03 16:30:14  cphipps
- * Implement 24bpp and 32bpp conversion routines
- *
- * Revision 1.7  1998/11/18 20:13:48  cphipps
- * Fixed 16 bpp problems with hi-res
- *
- * Revision 1.6  1998/11/18 19:38:01  cphipps
- * Fixing stuff for hi-res, headers
- */

@@ -1,17 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $
+ * $Id: i_main.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  Hybrid of the Boom i_main.c and original linuxdoom i_main.c
- *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by Colin Phipps (cph@lxdoom.linuxgames.com), 
- *                             Jess Haas (JessH@lbjhs.net),
- *                         and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -37,7 +36,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -401,22 +400,3 @@ int main(int argc, char **argv)
   D_DoomMain ();
   return 0;
 }
-
-//
-// $Log: i_main.c,v $
-// Revision 1.1  2000/05/09 20:47:07  proff_fs
-// renamed
-//
-// Revision 1.5  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.4  2000/05/05 13:02:07  proff_fs
-// Readded the CVS-Log and
-// changed the definition of main()
-//
-//

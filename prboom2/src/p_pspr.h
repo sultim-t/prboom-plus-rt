@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_pspr.h,v 1.1 2000/05/04 08:13:08 proff_fs Exp $
+ * $Id: p_pspr.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -91,32 +94,3 @@ void P_MovePsprites(struct player_s *curplayer);
 void P_DropWeapon(struct player_s *player);
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: p_pspr.h,v $
- * Revision 1.1  2000/05/04 08:13:08  proff_fs
- * Initial revision
- *
- * Revision 1.2  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.5  1998/05/03  22:54:44  killough
- * beautification, add external decls formerly in p_local.h
- *
- * Revision 1.4  1998/02/15  02:48:15  phares
- * User-defined keys
- *
- * Revision 1.3  1998/02/09  03:06:18  killough
- * Add player weapon preference options
- *
- * Revision 1.2  1998/01/26  19:27:25  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:03:09  rand
- * Lee's Jan 19 sources
- *
- *----------------------------------------------------------------------------*/

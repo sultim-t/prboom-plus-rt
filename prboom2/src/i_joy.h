@@ -1,10 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_joy.h,v 1.1 2000/05/04 08:02:55 proff_fs Exp $
+ * $Id: i_joy.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  New joystick code for LxDoom
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -40,15 +46,3 @@ extern int usejoystick;
 
 void I_InitJoystick();
 void I_PollJoystick();
-
-/*
- * $Log: i_joy.h,v $
- * Revision 1.1  2000/05/04 08:02:55  proff_fs
- * Initial revision
- *
- * Revision 1.2  1999/10/12 13:00:56  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- */
-
-

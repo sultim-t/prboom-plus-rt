@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_maputl.c,v 1.1 2000/05/04 08:12:31 proff_fs Exp $
+ * $Id: p_maputl.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -33,7 +36,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_maputl.c,v 1.1 2000/05/04 08:12:31 proff_fs Exp $";
+rcsid[] = "$Id: p_maputl.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -696,65 +699,3 @@ boolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
   // go through the sorted list
   return P_TraverseIntercepts(trav, FRACUNIT);
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_maputl.c,v $
-// Revision 1.1  2000/05/04 08:12:31  proff_fs
-// Initial revision
-//
-// Revision 1.5  2000/05/01 14:37:33  Proff
-// changed abs to D_abs
-//
-// Revision 1.4  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.3  1999/01/27 16:05:50  cphipps
-// Use new integer limit macros
-//
-// Revision 1.2  1998/10/04 13:44:25  cphipps
-// Added const attribute to many functions and their parameters.
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.13  1998/05/03  22:16:48  killough
-// beautification
-//
-// Revision 1.12  1998/03/20  00:30:03  phares
-// Changed friction to linedef control
-//
-// Revision 1.11  1998/03/19  14:37:12  killough
-// Fix ThingIsOnLine()
-//
-// Revision 1.10  1998/03/19  00:40:52  killough
-// Change ThingIsOnLine() comments
-//
-// Revision 1.9  1998/03/16  12:34:45  killough
-// Add ThingIsOnLine() function
-//
-// Revision 1.8  1998/03/09  18:27:10  phares
-// Fixed bug in neighboring variable friction sectors
-//
-// Revision 1.7  1998/03/09  07:19:26  killough
-// Remove use of FP for point/line queries
-//
-// Revision 1.6  1998/03/02  12:03:43  killough
-// Change blockmap offsets to 32-bit
-//
-// Revision 1.5  1998/02/23  04:45:24  killough
-// Relax blockmap iterator to demo_compatibility
-//
-// Revision 1.4  1998/02/02  13:41:38  killough
-// Fix demo sync programs caused by last change
-//
-// Revision 1.3  1998/01/30  23:13:10  phares
-// Fixed delimiting 0 bug in P_BlockLinesIterator
-//
-// Revision 1.2  1998/01/26  19:24:11  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:00  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

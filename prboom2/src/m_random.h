@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_random.h,v 1.1 2000/05/04 08:10:35 proff_fs Exp $
+ * $Id: m_random.h,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -146,48 +149,3 @@ int P_Random(pr_class_t);
 void M_ClearRandom(void);
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: m_random.h,v $
-// Revision 1.1  2000/05/04 08:10:35  proff_fs
-// Initial revision
-//
-// Revision 1.3  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.2  1998/12/27 13:24:26  cphipps
-// Add MBF RNG local blocks
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.9  1998/05/01  14:20:31  killough
-// beautification
-//
-// Revision 1.8  1998/03/31  10:43:07  killough
-// Fix (supposed) RNG problems, add new demo_insurance
-//
-// Revision 1.7  1998/03/28  17:56:02  killough
-// Improve RNG by adding external seed
-//
-// Revision 1.6  1998/03/09  07:16:39  killough
-// Remove unused pr_class (don't do this after 1st release)
-//
-// Revision 1.5  1998/03/02  11:37:47  killough
-// fix misspelling in comment
-//
-// Revision 1.4  1998/02/23  04:42:01  killough
-// Add pr_atracer type
-//
-// Revision 1.3  1998/02/17  05:40:12  killough
-// Make RNGs local to each calling block, for demo sync
-//
-// Revision 1.2  1998/01/26  19:27:14  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:58  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

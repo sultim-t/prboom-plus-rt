@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.1 2000/05/07 22:27:15 cph Exp $
+ * $Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.1 2000/05/07 22:27:15 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -1311,16 +1311,3 @@ void I_InitGraphics(void)
 
   I_XInitInputs();
 }
-
-/*
- * $Log: i_video.c,v $
- * Revision 1.1  2000/05/07 22:27:15  cph
- * X11 target files renamed and moved to own dir
- *
- * Revision 1.2  2000/05/04 11:23:01  proff_fs
- * added an textwindow for Win32 and
- * changed some printfs to lprintfs
- *
- * Revision 1.1.1.1  2000/05/04 08:08:40  proff_fs
- * initial login on sourceforge as prboom2
- */

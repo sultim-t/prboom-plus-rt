@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: p_enemy.c,v 1.4 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -32,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.3 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.4 2000/05/09 21:45:38 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -1923,131 +1926,3 @@ void A_LineEffect(mobj_t *mo)
   mo->state->misc1 = junk.special;
   mo->player = oldplayer;
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_enemy.c,v $
-// Revision 1.3  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.1.1.1  2000/05/04 08:11:09  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.13  2000/05/01 14:37:33  Proff
-// changed abs to D_abs
-//
-// Revision 1.12  1999/10/31 11:50:07  cphipps
-// Include lprintf.h for I_Error
-// Comment out I_Tactile call (unused)
-//
-// Revision 1.11  1999/10/17 09:35:14  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.10  1999/10/12 13:01:12  cphipps
-// Changed header to GPL
-//
-// Revision 1.9  1999/06/20 19:57:46  cphipps
-// Fix corpse target reset to ue P_SetTarget
-//
-// Revision 1.8  1999/06/08 17:26:21  cphipps
-// Change long long references to int_64_t's
-//
-// Revision 1.7  1999/02/04 15:33:43  cphipps
-// Change target/tracer/lastenemy handling for pointer reference counting like MBF.
-//
-// Revision 1.6  1999/01/16 14:07:29  cphipps
-// Fix possible ambiguous code
-// Minor optimisation
-//
-// Revision 1.5  1998/12/27 13:24:57  cphipps
-// Add new MBF codepointer functions
-// Minor fixes (removing friendlyness from those)
-//
-// Revision 1.4  1998/12/26 21:17:58  cphipps
-// Import archville fog coords fix from MBF
-//
-// Revision 1.3  1998/10/27 18:24:36  cphipps
-// Boom v2.02 version imported
-//
-// Revision 1.23  1998/08/13  15:27:26  jim
-// Doorjamb fix
-//
-// Revision 1.22  1998/05/12  12:47:10  phares
-// Removed OVER_UNDER code
-//
-// Revision 1.21  1998/05/07  00:50:55  killough
-// beautification, remove dependence on evaluation order
-//
-// Revision 1.20  1998/05/03  22:28:02  killough
-// beautification, move declarations and includes around
-//
-// Revision 1.19  1998/04/01  12:58:44  killough
-// Disable boss brain if no targets
-//
-// Revision 1.18  1998/03/28  17:57:05  killough
-// Fix boss spawn savegame bug
-//
-// Revision 1.17  1998/03/23  15:18:03  phares
-// Repaired AV ghosts stuck together bug
-//
-// Revision 1.16  1998/03/16  12:33:12  killough
-// Use new P_TryMove()
-//
-// Revision 1.15  1998/03/09  07:17:58  killough
-// Fix revenant tracer bug
-//
-// Revision 1.14  1998/03/02  11:40:52  killough
-// Use separate monsters_remember flag instead of bitmask
-//
-// Revision 1.13  1998/02/24  08:46:12  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.12  1998/02/23  04:43:44  killough
-// Add revenant p_atracer, optioned monster ai_vengence
-//
-// Revision 1.11  1998/02/17  06:04:55  killough
-// Change RNG calling sequences
-// Fix minor icon landing bug
-// Use lastenemy to make monsters remember former targets, and fix player look
-//
-// Revision 1.10  1998/02/09  03:05:22  killough
-// Remove icon landing limit
-//
-// Revision 1.9  1998/02/05  12:15:39  phares
-// tighten lost soul wall fix to compatibility
-//
-// Revision 1.8  1998/02/02  13:42:54  killough
-// Relax lost soul wall fix to demo_compatibility
-//
-// Revision 1.7  1998/01/28  13:21:01  phares
-// corrected Option3 in AV bug
-//
-// Revision 1.6  1998/01/28  12:22:17  phares
-// AV bug fix and Lost Soul trajectory bug fix
-//
-// Revision 1.5  1998/01/26  19:24:00  phares
-// First rev with no ^Ms
-//
-// Revision 1.4  1998/01/23  14:51:51  phares
-// No content change. Put ^Ms back.
-//
-// Revision 1.3  1998/01/23  14:42:14  phares
-// No content change. Removed ^Ms for experimental checkin.
-//
-// Revision 1.2  1998/01/19  14:45:01  rand
-// Temporary line for checking checkins
-//
-// Revision 1.1.1.1  1998/01/19  14:02:59  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

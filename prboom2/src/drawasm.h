@@ -1,32 +1,36 @@
-// Emacs style mode select   -*- C++ -*- 
-//-----------------------------------------------------------------------------
-//
-// $Id: drawasm.h,v 1.1 2000/05/04 08:01:13 proff_fs Exp $
-//
-//  Sound server for LxDoom, based on the sound server sources released
-//   with the original linuxdoom.
-//  Copyright (C) 1993-1996 by id Software
-//  Copyright (C) 1999 by Colin Phipps
-//  
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
-// DESCRIPTION:
-//
-//-----------------------------------------------------------------------------
-//
+/* Emacs style mode select   -*- C++ -*- 
+ *-----------------------------------------------------------------------------
+ *
+ * $Id: drawasm.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ *
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  02111-1307, USA.
+ *
+ * DESCRIPTION:
+ *
+ *-----------------------------------------------------------------------------
+ */
 
 #ifndef _DRAWASM_H_
 #define _DRAWASM_H_
@@ -62,12 +66,3 @@
 #endif
 
 #endif /* _DRAWASM_H_ */
-
-//
-// $Log: drawasm.h,v $
-// Revision 1.1  2000/05/04 08:01:13  proff_fs
-// Initial revision
-//
-// Revision 1.1  2000/05/01 15:36:38  Proff
-// initial revision
-//

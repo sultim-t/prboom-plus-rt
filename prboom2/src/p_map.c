@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.1 2000/05/04 08:12:21 proff_fs Exp $
+ * $Id: p_map.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.1 2000/05/04 08:12:21 proff_fs Exp $";
+rcsid[] = "$Id: p_map.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -1922,148 +1925,3 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
       node = node->m_tnext;
     }
   }
-
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_map.c,v $
-// Revision 1.1  2000/05/04 08:12:21  proff_fs
-// Initial revision
-//
-// Revision 1.8  2000/05/01 15:16:47  Proff
-// added __inline for VisualC
-//
-// Revision 1.7  2000/05/01 14:37:33  Proff
-// changed abs to D_abs
-//
-// Revision 1.6  1999/11/01 17:09:15  cphipps
-// Added lprintf.h (needed for RANGECHECK debugging I_Error calls)
-//
-// Revision 1.5  1999/10/12 13:01:12  cphipps
-// Changed header to GPL
-//
-// Revision 1.4  1999/01/03 16:36:40  cphipps
-// Modified the secnode lists to use the block memory allocator
-//
-// Revision 1.3  1998/12/27 13:25:20  cphipps
-// Pass line pointer instead of index to P_CrossSpecialLine as in MBF
-//
-// Revision 1.2  1998/10/27 18:30:04  cphipps
-// Boom v2.02 source imported
-//
-// Revision 1.40  1998/09/10  20:12:48  phares
-// Fix DM Stuck bug and refix ice-bobbing/momentum
-//
-// Revision 1.39  1998/09/09  14:29:38  jim
-// Back out 1S Wall fix
-//
-// Revision 1.38  1998/08/21  10:09:52  jim
-// into/outof wall fix
-//
-// Revision 1.36  1998/08/08  15:19:44  jim
-// 1S wall embedding escape
-//
-// Revision 1.35  1998/05/12  12:47:16  phares
-// Removed OVER_UNDER code
-//
-// Revision 1.34  1998/05/07  00:52:38  killough
-// beautification
-//
-// Revision 1.33  1998/05/05  15:35:10  phares
-// Documentation and Reformatting changes
-//
-// Revision 1.32  1998/05/04  12:29:27  phares
-// Eliminate player bobbing when stuck against wall
-//
-// Revision 1.31  1998/05/03  23:22:19  killough
-// Fix #includes and remove unnecessary decls at the top, make some vars static
-//
-// Revision 1.30  1998/04/20  11:12:59  killough
-// Make topslope, bottomslope local
-//
-// Revision 1.29  1998/04/12  01:56:51  killough
-// Prevent no-clipping objects from blocking things
-//
-// Revision 1.28  1998/04/07  11:39:21  jim
-// Skip MF_NOBLOCK things in P_CheckSector to get puffs back
-//
-// Revision 1.27  1998/04/07  06:52:36  killough
-// Simplify sector_thinglist traversal to use simpler markers
-//
-// Revision 1.26  1998/04/06  11:05:11  jim
-// Remove LEESFIXES, AMAP bdg->247
-//
-// Revision 1.25  1998/04/06  04:46:13  killough
-// Fix CheckSector problems
-//
-// Revision 1.24  1998/04/05  10:08:51  jim
-// changed crusher check back to old code
-//
-// Revision 1.23  1998/04/03  14:44:14  jim
-// Fixed P_CheckSector problem
-//
-// Revision 1.21  1998/04/01  14:46:48  jim
-// Prevent P_CheckSector from passing NULL things
-//
-// Revision 1.20  1998/03/29  20:14:35  jim
-// Fixed use of deleted link in P_CheckSector
-//
-// Revision 1.19  1998/03/28  18:00:14  killough
-// Fix telefrag/spawnfrag bug, and use sidedefs rather than 2s flag
-//
-// Revision 1.18  1998/03/23  15:24:25  phares
-// Changed pushers to linedef control
-//
-// Revision 1.17  1998/03/23  06:43:14  jim
-// linedefs reference initial version
-//
-// Revision 1.16  1998/03/20  02:10:43  jim
-// Improved crusher code with new mobj data structures
-//
-// Revision 1.15  1998/03/20  00:29:57  phares
-// Changed friction to linedef control
-//
-// Revision 1.14  1998/03/16  12:25:17  killough
-// Allow conveyors to push things off ledges
-//
-// Revision 1.13  1998/03/12  14:28:42  phares
-// friction and IDCLIP changes
-//
-// Revision 1.12  1998/03/11  17:48:24  phares
-// New cheats, clean help code, friction fix
-//
-// Revision 1.11  1998/03/09  22:27:23  phares
-// Fixed friction problem when teleporting
-//
-// Revision 1.10  1998/03/09  18:27:00  phares
-// Fixed bug in neighboring variable friction sectors
-//
-// Revision 1.9  1998/03/02  12:05:56  killough
-// Add demo_compatibility switch around moveangle+=10
-//
-// Revision 1.8  1998/02/24  08:46:17  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.7  1998/02/17  06:01:51  killough
-// Use new RNG calling sequence
-//
-// Revision 1.6  1998/02/05  12:15:03  phares
-// cleaned up comments
-//
-// Revision 1.5  1998/01/28  23:42:02  phares
-// Bug fix to PE->LS code; better line checking
-//
-// Revision 1.4  1998/01/28  17:36:06  phares
-// Expanded comments on Pit_CrossLine
-//
-// Revision 1.3  1998/01/28  12:22:21  phares
-// AV bug fix and Lost Soul trajectory bug fix
-//
-// Revision 1.2  1998/01/26  19:24:09  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:59  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: tables.c,v 1.1 2000/05/04 08:18:25 proff_fs Exp $
+ * $Id: tables.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -44,7 +47,7 @@
  */
 
 static const char
-rcsid[] = "$Id: tables.c,v 1.1 2000/05/04 08:18:25 proff_fs Exp $";
+rcsid[] = "$Id: tables.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #include <stddef.h>
 #include "w_wad.h"
@@ -2190,39 +2193,3 @@ void R_LoadTrigTables(void)
   }
 }
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: tables.c,v $
-// Revision 1.1  2000/05/04 08:18:25  proff_fs
-// Initial revision
-//
-// Revision 1.6  1999/10/12 13:01:14  cphipps
-// Changed header to GPL
-//
-// Revision 1.5  1999/01/07 11:10:33  cphipps
-// Use new endianness macros to complete boomlump.wad endianness correction
-//
-// Revision 1.4  1998/12/24 12:36:39  cphipps
-// Fix endianness problems in loading trig tables from boomlump.wad with different endianness.
-//
-// Revision 1.3  1998/09/17 11:47:10  cphipps
-// Finished off load-trig-from-lumps code
-//
-// Revision 1.2  1998/09/16 19:52:21  cphipps
-// Added code to load tables from lumps if TABLES_AS_LUMPS and
-// NO_PREDEFINED_LUMPS are defined.
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.3  1998/05/03  22:58:48  killough
-// beautification
-//
-// Revision 1.2  1998/01/26  19:25:03  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:04  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

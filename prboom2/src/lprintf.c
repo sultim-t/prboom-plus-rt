@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.4 2000/05/06 20:46:15 jessh Exp $
+ * $Id: lprintf.c,v 1.5 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.4 2000/05/06 20:46:15 jessh Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.5 2000/05/09 21:45:38 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -317,46 +320,3 @@ void I_Error(const char *error, ...)
 */
   I_SafeExit(-1);
 }
-
-/*----------------------------------------------------------------------------
- *
- * $Log: lprintf.c,v $
- * Revision 1.4  2000/05/06 20:46:15  jessh
- * Minor header file fixing
- *
- * Revision 1.3  2000/05/04 12:37:56  proff_fs
- * removed the messagebox, because in
- * fullscreen-mode it doesn't work correctly
- *
- * Revision 1.2  2000/05/04 11:23:01  proff_fs
- * added an textwindow for Win32 and
- * changed some printfs to lprintfs
- *
- * Revision 1.1.1.1  2000/05/04 08:08:40  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.5  2000/05/01 17:50:35  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.4  2000/02/26 19:17:54  cph
- * Prevent buffer overflows
- *
- * Revision 1.3  1999/10/31 12:54:09  cphipps
- * Moved I_Error to lprintf.c
- * Finished off C++ comments
- *
- * Revision 1.2  1999/10/12 13:01:12  cphipps
- * Changed header to GPL
- *
- * Revision 1.1  1998/10/27 20:51:53  cphipps
- * Initial revision
- *
- * Revision 1.2  1998/09/14  18:49:49  jim
- * fix log comments
- *
- * Revision 1.1  1998/09/07  20:10:56  jim
- * Logical output routine added
- *
- *
- *----------------------------------------------------------------------------*/
-

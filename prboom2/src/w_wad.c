@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: w_wad.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by Colin Phipps (cph@lxdoom.linuxgames.com)
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -31,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.4 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -635,18 +638,3 @@ void WritePredefinedLumpWad(const char *filename)
  I_Error("Cannot open predefined lumps wad %s for output\n", filename);
 }
 #endif
-
-//
-// $Log: w_wad.c,v $
-// Revision 1.4  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.3  2000/05/05 13:00:46  proff_fs
-// Readded the CVS-Log
-//
-//

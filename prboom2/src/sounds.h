@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: sounds.h,v 1.1 2000/05/04 08:17:08 proff_fs Exp $
+ * $Id: sounds.h,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -291,40 +294,3 @@ typedef enum {
 } sfxenum_t;
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: sounds.h,v $
-// Revision 1.1  2000/05/04 08:17:08  proff_fs
-// Initial revision
-//
-// Revision 1.6  1999/11/04 13:02:52  cphipps
-// Make music data pointer in musicinfo_t a const void*
-//
-// Revision 1.5  1999/10/12 13:01:16  cphipps
-// Changed header to GPL
-//
-// Revision 1.4  1998/10/16 22:12:29  cphipps
-// Added const to structure members where possible
-//
-// Revision 1.3  1998/10/11 08:19:48  cphipps
-// Move Linux-specific stuff about sound server to l_soundsrv.h
-//
-// Revision 1.2  1998/09/20 16:10:35  cphipps
-// Since this is the one shared header file between the sound server and main
-// sound code, I put here some declares for the IPC between them. Probably
-// a bad place, but I put #ifdef LINUX around them at least.
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.3  1998/05/03  22:44:30  killough
-// beautification
-//
-// Revision 1.2  1998/01/26  19:27:53  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:03  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

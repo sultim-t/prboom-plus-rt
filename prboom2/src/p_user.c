@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_user.c,v 1.1 2000/05/04 08:15:05 proff_fs Exp $
+ * $Id: p_user.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -32,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_user.c,v 1.1 2000/05/04 08:15:05 proff_fs Exp $";
+rcsid[] = "$Id: p_user.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"
@@ -389,66 +392,3 @@ void P_PlayerThink (player_t* player)
     player->powers[pw_invulnerability] & 8 ? INVERSECOLORMAP :
     player->powers[pw_infrared] > 4*32 || player->powers[pw_infrared] & 8;
   }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_user.c,v $
-// Revision 1.1  2000/05/04 08:15:05  proff_fs
-// Initial revision
-//
-// Revision 1.4  2000/03/29 09:59:19  cph
-// Reorganise game special event code
-// Allow endgame in a netgame
-//
-// Revision 1.3  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.2  1998/10/27 18:44:38  cphipps
-// Boom v2.02 update patched in
-//
-// Revision 1.15  1998/09/10  20:13:01  phares
-// Fix DM Stuck bug and refix ice-bobbing/momentum
-//
-// Revision 1.14  1998/05/12  12:47:25  phares
-// Removed OVER_UNDER code
-//
-// Revision 1.13  1998/05/10  23:38:04  killough
-// Add #include p_user.h to ensure consistent prototypes
-//
-// Revision 1.12  1998/05/05  15:35:20  phares
-// Documentation and Reformatting changes
-//
-// Revision 1.11  1998/05/03  23:21:04  killough
-// Fix #includes and remove unnecessary decls at the top, nothing else
-//
-// Revision 1.10  1998/03/23  15:24:50  phares
-// Changed pushers to linedef control
-//
-// Revision 1.9  1998/03/23  03:35:24  killough
-// Move weapons changes to G_BuildTiccmd, fix idclip
-//
-// Revision 1.8  1998/03/12  14:28:50  phares
-// friction and IDCLIP changes
-//
-// Revision 1.7  1998/03/09  18:26:55  phares
-// Fixed bug in neighboring variable friction sectors
-//
-// Revision 1.6  1998/02/27  08:10:08  phares
-// Added optional player bobbing
-//
-// Revision 1.5  1998/02/24  08:46:42  phares
-// Pushers, recoil, new friction, and over/under work
-//
-// Revision 1.4  1998/02/15  02:47:57  phares
-// User-defined keys
-//
-// Revision 1.3  1998/02/09  03:13:20  killough
-// Improve weapon control and add preferences
-//
-// Revision 1.2  1998/01/26  19:24:34  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:01  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

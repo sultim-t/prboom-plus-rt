@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.1 2000/05/04 08:11:48 proff_fs Exp $
+ * $Id: p_inter.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.1 2000/05/04 08:11:48 proff_fs Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -857,71 +860,3 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
         P_SetMobjState (target, target->info->seestate);
     }
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_inter.c,v $
-// Revision 1.1  2000/05/04 08:11:48  proff_fs
-// Initial revision
-//
-// Revision 1.9  1999/10/31 11:51:23  cphipps
-// Comment out I_Tactile call (unused)
-// Include lprintf.h for I_Error
-//
-// Revision 1.8  1999/10/17 09:35:15  cphipps
-// Fixed hanging else(s)
-//
-// Revision 1.7  1999/10/12 13:01:12  cphipps
-// Changed header to GPL
-//
-// Revision 1.6  1999/06/20 16:17:33  cphipps
-// Fixed the "medikit you REALLY needed!" message
-// (bug spotted by Quasar`)
-//
-// Revision 1.5  1999/03/07 22:16:50  cphipps
-// Change for new automap mode variable
-//
-// Revision 1.4  1999/02/04 15:34:17  cphipps
-// Added pointer reference counting from MBF
-//
-// Revision 1.3  1999/01/01 18:49:36  cphipps
-// Minor MBF optimisations
-// Coop monster kills `fix' - from rain
-//
-// Revision 1.2  1998/10/16 21:16:00  cphipps
-// Fix hanging else
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.10  1998/05/03  23:09:29  killough
-// beautification, fix #includes, move some global vars here
-//
-// Revision 1.9  1998/04/27  01:54:43  killough
-// Prevent pickup sounds from silencing player weapons
-//
-// Revision 1.8  1998/03/28  17:58:27  killough
-// Fix spawn telefrag bug
-//
-// Revision 1.7  1998/03/28  05:32:41  jim
-// Text enabling changes for DEH
-//
-// Revision 1.6  1998/03/23  03:25:44  killough
-// Fix weapon pickup sounds in spy mode
-//
-// Revision 1.5  1998/03/10  07:15:10  jim
-// Initial DEH support added, minus text
-//
-// Revision 1.4  1998/02/23  04:44:33  killough
-// Make monsters smarter
-//
-// Revision 1.3  1998/02/17  06:00:54  killough
-// Save last enemy, change RNG calling sequence
-//
-// Revision 1.2  1998/01/26  19:24:05  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:59  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

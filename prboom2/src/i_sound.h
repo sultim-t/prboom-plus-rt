@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.h,v 1.1 2000/05/04 08:02:58 proff_fs Exp $
+ * $Id: i_sound.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -112,76 +115,3 @@ extern const char* snd_device;
 extern const char* musserver_filename; 
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: i_sound.h,v $
-// Revision 1.1  2000/05/04 08:02:58  proff_fs
-// Initial revision
-//
-// Revision 1.13  2000/04/09 13:24:44  cph
-// Remove DOS-only options
-//
-// Revision 1.12  2000/04/03 22:10:12  cph
-// Const parameter to I_RegisterSong
-// Reduce duplication of music data
-//
-// Revision 1.11  1999/10/31 16:35:19  cphipps
-// Include doomtype.h
-//
-// Revision 1.10  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.9  1998/11/17 15:59:21  cphipps
-// Changed I_SoundIsPlaying to an boolean (int)
-// since it's more logical, to match DosDoom
-//
-// Revision 1.8  1998/10/20 18:15:51  cphipps
-// Make config'able sound/music stuff const char*'s
-// Added musserver path as extern var
-//
-// Revision 1.7  1998/10/20 14:45:01  cphipps
-// Added length parameter to I_RegisterSong
-//
-// Revision 1.6  1998/10/16 13:34:02  cphipps
-// Fix prototypes
-//
-// Revision 1.5  1998/10/10 20:34:22  cphipps
-// Add variable decl for sound device
-//
-// Revision 1.4  1998/09/21 08:52:00  cphipps
-// Minor fixes.
-//
-// Revision 1.3  1998/09/20 11:03:39  cphipps
-// Removed decls for internal functions to l_soundgen.h
-// This is included if the sound generation is not external
-//
-// Revision 1.2  1998/09/18 15:42:39  cphipps
-// More rigidly define functions according to choice of sound method
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.3  1998/09/13 15:32:51  cphipps
-// Added sndserver_filename
-//
-// Revision 1.2  1998/09/12 16:54:07  cphipps
-// Removed ^M's
-// Removed allegro.h
-//
-// Revision 1.1  1998/09/11 18:37:35  develop
-// Initial revision
-//
-// Revision 1.4  1998/05/03  22:31:58  killough
-// beautification, add some external declarations
-//
-// Revision 1.3  1998/02/23  04:27:08  killough
-// Add variable pitched sound support
-//
-// Revision 1.2  1998/01/26  19:26:57  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:58  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

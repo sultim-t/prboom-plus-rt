@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.h,v 1.1 2000/05/04 08:11:48 proff_fs Exp $
+ * $Id: p_inter.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -75,27 +78,3 @@ extern int bfgcells;
 extern int maxammo[], clipammo[];
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: p_inter.h,v $
- * Revision 1.1  2000/05/04 08:11:48  proff_fs
- * Initial revision
- *
- * Revision 1.2  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.3  1998/05/03  23:08:57  killough
- * beautification, add of the DEH parameter declarations
- *
- * Revision 1.2  1998/01/26  19:27:19  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:03:08  rand
- * Lee's Jan 19 sources
- *
- *
- *----------------------------------------------------------------------------*/

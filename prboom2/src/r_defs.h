@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.3 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: r_defs.h,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -426,98 +429,3 @@ typedef struct visplane
 } visplane_t;
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: r_defs.h,v $
-// Revision 1.3  2000/05/07 20:19:34  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.2  2000/05/04 16:40:00  proff_fs
-// added OpenGL stuff. Not complete yet.
-// Only the playerview is rendered.
-// The normal output is displayed in a small window.
-// The level is only drawn in debugmode to the window.
-//
-// Revision 1.1.1.1  2000/05/04 08:15:46  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.6  1999/10/12 13:01:16  cphipps
-// Changed header to GPL
-//
-// Revision 1.5  1999/09/19 10:29:39  cphipps
-// Add rendering flags to line_t
-//
-// Revision 1.4  1999/02/08 20:18:23  cphipps
-// Reorder structure elements for optimisations in R_AddLine
-//
-// Revision 1.3  1999/02/02 09:18:04  cphipps
-// Add field for marking MBF enhanced skies
-//
-// Revision 1.2  1999/01/25 16:00:34  cphipps
-// Remove global math.h include
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.18  1998/04/27  02:12:59  killough
-// Program beautification
-//
-// Revision 1.17  1998/04/17  10:36:44  killough
-// Improve linedef tag searches (see p_spec.c)
-//
-// Revision 1.16  1998/04/12  02:08:31  killough
-// Add ceiling light property, translucent walls
-//
-// Revision 1.15  1998/04/07  06:52:40  killough
-// Simplify sector_thinglist traversal to use simpler markers
-//
-// Revision 1.14  1998/04/06  04:42:42  killough
-// Add dynamic colormaps, thinglist_validcount
-//
-// Revision 1.13  1998/03/28  18:03:26  killough
-// Add support for underwater sprite clipping
-//
-// Revision 1.12  1998/03/23  03:34:11  killough
-// Add support for an arbitrary number of colormaps
-//
-// Revision 1.11  1998/03/20  00:30:33  phares
-// Changed friction to linedef control
-//
-// Revision 1.10  1998/03/16  12:41:54  killough
-// Add support for floor lightlevel from other sector
-//
-// Revision 1.9  1998/03/09  07:33:44  killough
-// Add scroll effect fields, remove FP for point/line queries
-//
-// Revision 1.8  1998/03/02  11:49:58  killough
-// Support for flats scrolling
-//
-// Revision 1.7  1998/02/27  11:50:49  jim
-// Fixes for stairs
-//
-// Revision 1.6  1998/02/23  00:42:24  jim
-// Implemented elevators
-//
-// Revision 1.5  1998/02/17  22:58:30  jim
-// Fixed bug of vanishinb secret sectors in automap
-//
-// Revision 1.4  1998/02/09  03:21:20  killough
-// Allocate MAX screen height/width in arrays
-//
-// Revision 1.3  1998/02/02  14:19:49  killough
-// Improve searching of matching sector tags
-//
-// Revision 1.2  1998/01/26  19:27:36  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:09  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

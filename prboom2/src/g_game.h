@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.h,v 1.1 2000/05/04 08:02:19 proff_fs Exp $
+ * $Id: g_game.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -177,85 +180,3 @@ extern int cpars[32];    // hardcoded array size
 extern char savedescription[SAVEDESCLEN];  // Description to save in savegame
 
 #endif
-
-//----------------------------------------------------------------------------
-//
-// $Log: g_game.h,v $
-// Revision 1.1  2000/05/04 08:02:19  proff_fs
-// Initial revision
-//
-// Revision 1.14  2000/04/29 15:01:17  cph
-// Further newgame stuff
-//
-// Revision 1.13  2000/03/29 09:59:19  cph
-// Reorganise game special event code
-// Allow endgame in a netgame
-//
-// Revision 1.12  2000/02/26 19:19:52  cph
-// Use doom_printf for turbo warnings; pass buffer size to G_SaveGameName
-//
-// Revision 1.11  1999/10/12 13:01:15  cphipps
-// Changed header to GPL
-//
-// Revision 1.10  1999/03/24 12:50:16  cphipps
-// Removed player_colours variable
-// Finished player colour support
-//
-// Revision 1.9  1999/03/22 15:59:28  cphipps
-// Added player colour function and variables
-//
-// Revision 1.8  1999/03/10 14:58:24  cphipps
-// Add new automap key variables
-//
-// Revision 1.7  1998/12/27 15:44:28  cphipps
-// Add G_RestartLevel
-//
-// Revision 1.6  1998/12/19 11:47:53  cphipps
-// Modify G_LoadGame parameters (savegame filename is no longer needed)
-//
-// Revision 1.5  1998/10/20 06:54:56  cphipps
-// Renamed dprintf to doom_printf
-//
-// Revision 1.4  1998/10/16 20:53:45  cphipps
-// Const on string params to demo functions
-//
-// Revision 1.3  1998/10/16 19:36:51  cphipps
-// Added G_BuildTiccmd to header file
-//
-// Revision 1.2  1998/10/16 13:28:56  cphipps
-// Add const to D_DeferedPlayDemo string parameter
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.10  1998/05/16  09:17:02  killough
-// Make loadgame checksum friendlier
-//
-// Revision 1.9  1998/05/06  15:15:59  jim
-// Documented IWAD routines
-//
-// Revision 1.8  1998/05/03  22:15:50  killough
-// Add all external declarations in g_game.c
-//
-// Revision 1.7  1998/04/27  02:00:53  killough
-// Add gcc __attribute__ to check dprintf() format string
-//
-// Revision 1.6  1998/04/10  06:34:35  killough
-// Fix -fast parameter bugs
-//
-// Revision 1.5  1998/03/23  03:15:02  killough
-// Add G_SaveGameName()
-//
-// Revision 1.4  1998/03/16  12:29:53  killough
-// Remember savegame slot when loading
-//
-// Revision 1.3  1998/03/02  11:28:46  killough
-// Add G_ReloadDefaults() prototype
-//
-// Revision 1.2  1998/01/26  19:26:51  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:55  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

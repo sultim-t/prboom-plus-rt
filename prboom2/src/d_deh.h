@@ -1,18 +1,44 @@
-//--------------------------------------------------------------------
-//
-// $Id: d_deh.h,v 1.1 2000/05/04 08:00:00 proff_fs Exp $
-//
-// Dehacked file support
-// New for the TeamTNT "Boom" engine
-//
-// Author: Ty Halderman, TeamTNT
-//
-// Description: This file translates the #defined string constants
-// to named variables to externalize them for deh/bex changes.
-// Should be able to compile with D_FRENCH (for example) and still
-// work (untested).
-//
-//--------------------------------------------------------------------
+/* Emacs style mode select   -*- C++ -*- 
+ *-----------------------------------------------------------------------------
+ *
+ * $Id: d_deh.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ *
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  02111-1307, USA.
+ *
+ * Dehacked file support
+ * New for the TeamTNT "Boom" engine
+ *
+ * Author: Ty Halderman, TeamTNT
+ *
+ * Description: This file translates the #defined string constants
+ * to named variables to externalize them for deh/bex changes.
+ * Should be able to compile with D_FRENCH (for example) and still
+ * work (untested).
+ *
+ *-----------------------------------------------------------------------------
+*/
 
 #ifndef __D_DEH__
 #define __D_DEH__
@@ -1102,38 +1128,3 @@ extern const char* startup5;
 extern const char* savegamename;
 
 #endif
-
-//--------------------------------------------------------------------
-//
-// $Log: d_deh.h,v $
-// Revision 1.1  2000/05/04 08:00:00  proff_fs
-// Initial revision
-//
-// Revision 1.6  1999/03/07 22:16:19  cphipps
-// Strings for automap rotation/overlay toggling
-//
-// Revision 1.5  1998/12/27 15:42:55  cphipps
-// Add restart level warning string var
-//
-// Revision 1.4  1998/10/27 19:09:42  cphipps
-// Fixed misplaced comment ending
-//
-// Revision 1.3  1998/10/16 23:10:11  cphipps
-// Made strings const
-//
-// Revision 1.2  1998/10/06 08:16:49  cphipps
-// Changed multi-line comments, to /* ... */ instead of //, because pgcc moans
-// otherwise
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.5  1998/05/04  21:36:33  thldrmn
-// commenting, reformatting and savegamename change
-//
-// Revision 1.4  1998/04/10  06:47:29  killough
-// Fix CVS stuff
-//   
-//
-//--------------------------------------------------------------------
-

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_telept.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $
+ * $Id: p_telept.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_telept.c,v 1.2 2000/05/07 10:26:16 proff_fs Exp $";
+rcsid[] = "$Id: p_telept.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "p_spec.h"
@@ -315,64 +318,3 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
       }
   return 0;
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_telept.c,v $
-// Revision 1.2  2000/05/07 10:26:16  proff_fs
-// changed think_t and action_f in d_think.h
-// this fixes many compiler warnings in VisualC
-// I took it this fix from MBF
-//
-// Revision 1.1.1.1  2000/05/04 08:14:56  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.3  2000/05/01 14:37:33  Proff
-// changed abs to D_abs
-//
-// Revision 1.2  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.13  1998/05/12  06:10:43  killough
-// Fix silent teleporter bugs
-//
-// Revision 1.12  1998/05/10  23:41:37  killough
-// Fix silent teleporters, add lots of comments
-//
-// Revision 1.11  1998/05/07  00:55:08  killough
-// Fix exit position of reversed teleporters
-//
-// Revision 1.10  1998/05/03  22:36:39  killough
-// beautification, #includes
-//
-// Revision 1.9  1998/04/17  10:27:56  killough
-// Use P_FindLineFromLineTag() to improve speed, add FUDGEFACTOR macro
-//
-// Revision 1.8  1998/04/16  06:31:51  killough
-// Fix double-teleportation problems
-//
-// Revision 1.7  1998/04/14  22:03:18  killough
-// add parens
-//
-// Revision 1.6  1998/04/14  18:49:56  jim
-// Added monster only and reverse teleports
-//
-// Revision 1.5  1998/03/20  00:30:31  phares
-// Changed friction to linedef control
-//
-// Revision 1.4  1998/02/17  06:18:19  killough
-// Add silent teleporter w/ exit thing, rename other
-//
-// Revision 1.3  1998/02/02  13:16:59  killough
-// Add silent teleporter
-//
-// Revision 1.2  1998/01/26  19:24:30  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:01  rand
-// Lee's Jan 19 sources
-//
-//----------------------------------------------------------------------------

@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_lib.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: hu_lib.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_lib.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: hu_lib.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -768,80 +771,3 @@ void HUlib_eraseIText(hu_itext_t* it)
   HUlib_eraseTextLine(&it->l);
   it->laston = *it->on;
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: hu_lib.c,v $
-// Revision 1.2  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:02:29  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.6  1999/10/12 13:01:10  cphipps
-// Changed header to GPL
-//
-// Revision 1.5  1999/03/07 22:18:06  cphipps
-// Changed for new automap mode variable
-//
-// Revision 1.4  1999/01/01 10:28:03  cphipps
-// Made many pointers into const*'s
-//
-// Revision 1.3  1998/12/31 13:37:51  cphipps
-// Patch drawing updated
-//
-// Revision 1.2  1998/10/16 21:58:44  cphipps
-// Changed a couple of functions to take const string parameters
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.1  1998/09/11 18:37:35  develop
-// Initial revision
-//
-// Revision 1.13  1998/05/11  10:13:26  jim
-// formatted/documented hu_lib
-//
-// Revision 1.12  1998/05/03  22:24:13  killough
-// Provide minimal headers at top; nothing else
-//
-// Revision 1.11  1998/04/29  09:24:33  jim
-// Fix compiler warning
-//
-// Revision 1.10  1998/04/28  15:53:46  jim
-// Fix message list bug in small screen mode
-//
-// Revision 1.9  1998/03/27  21:25:41  jim
-// Commented change of \ to ESC
-//
-// Revision 1.8  1998/03/26  20:06:24  jim
-// Fixed escape confusion in HU text drawer
-//
-// Revision 1.7  1998/02/26  22:58:33  jim
-// Added message review display to HUD
-//
-// Revision 1.6  1998/02/19  16:55:15  jim
-// Optimized HUD and made more configurable
-//
-// Revision 1.5  1998/02/18  00:59:01  jim
-// Addition of HUD
-//
-// Revision 1.4  1998/02/15  02:47:44  phares
-// User-defined keys
-//
-// Revision 1.3  1998/01/26  19:23:20  phares
-// First rev with no ^Ms
-//
-// Revision 1.2  1998/01/26  05:50:22  killough
-// Support more lines, and tab stops, in messages
-//
-// Revision 1.1.1.1  1998/01/19  14:02:55  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

@@ -1,11 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.1 2000/05/08 23:58:37 jessh Exp $
+ * $Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  SDL display code for LxDoom. Based on the original linuxdoom i_video.c
- *  Copyright (C) 1993-1996 by id Software
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -29,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.1 2000/05/08 23:58:37 jessh Exp $";
+rcsid[] = "$Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -57,7 +62,7 @@ void (*R_DrawTLColumn)(void);
 #include "r_draw.h"
 #include "d_main.h"
 #include "d_event.h"
-#include "l_video_trans.h"
+#include "v_video_trans.h"
 #include "i_joy.h"
 #include "i_video.h"
 #include "z_zone.h"

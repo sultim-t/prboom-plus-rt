@@ -1,10 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.h,v 1.1 2000/05/04 08:19:22 proff_fs Exp $
+ * $Id: z_bmalloc.h,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
  *
- *  LxDoom block memory allocator
- *  Copyright (C) 1999 by Colin Phipps
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  based on BOOM, a modified and improved DOOM engine
+ *  Copyright (C) 1999 by
+ *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -51,20 +57,3 @@ static void* Z_BCalloc(struct block_memory_alloc_s *pzone)
 { void *p = Z_BMalloc(pzone); memset(p,0,pzone->size); return p; }
 
 void Z_BFree(struct block_memory_alloc_s *pzone, void* p);
-
-/*
- * $Log: z_bmalloc.h,v $
- * Revision 1.1  2000/05/04 08:19:22  proff_fs
- * Initial revision
- *
- * Revision 1.3  2000/05/01 15:16:48  Proff
- * added __inline for VisualC
- *
- * Revision 1.2  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.1  1999/01/02 17:52:52  cphipps
- * Initial revision
- *
- */
-

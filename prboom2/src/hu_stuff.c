@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.2 2000/05/07 20:19:33 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -1578,131 +1581,3 @@ boolean HU_Responder(event_t *ev)
   }
   return eatkey;
 }
-
-
-//----------------------------------------------------------------------------
-//
-// $Log: hu_stuff.c,v $
-// Revision 1.2  2000/05/07 20:19:33  proff_fs
-// changed use of colormaps from pointers to numbers.
-// That's needed for OpenGL.
-// The OpenGL part is slightly better now.
-// Added some typedefs to reduce warnings in VisualC.
-// Messages are also scaled now, because at 800x600 and
-// above you can't read them even on a 21" monitor.
-//
-// Revision 1.1.1.1  2000/05/04 08:02:51  proff_fs
-// initial login on sourceforge as prboom2
-//
-// Revision 1.12  2000/04/09 16:31:43  cph
-// Fix SEGV when exiting a setup menu before first level/demo loaded with retail/registered Doom
-//
-// Revision 1.11  2000/02/26 19:18:54  cph
-// Do some s/sprintf/strcpy/g for neatness
-//
-// Revision 1.10  1999/10/12 13:01:10  cphipps
-// Changed header to GPL
-//
-// Revision 1.9  1999/03/24 17:57:53  cphipps
-// Fix SHIFT and ALT to used the fixed KEYD_ values, not the speed keys (!)
-//
-// Revision 1.8  1999/03/07 22:18:34  cphipps
-// Changed for new automap mode variable
-//
-// Revision 1.7  1999/02/08 08:27:53  cphipps
-// Modified to use true status bar size instead of logical (for status bar scaling)
-//
-// Revision 1.6  1999/01/01 10:31:54  cphipps
-// New wad lump handling
-// Slightly nicer code in HU_Init()
-//
-// Revision 1.5  1998/12/24 11:44:43  cphipps
-// Import MBF fix, no chat in demo playback
-//
-// Revision 1.4  1998/11/16 21:52:09  cphipps
-// Hi-res updates
-//
-// Revision 1.3  1998/10/27 15:50:57  cphipps
-// Substitute Boom v2.02 source
-// Redo const'ness fixes
-//
-// Revision 1.30  1998/09/07  20:05:25  jim
-// Added logical output routine
-//
-// Revision 1.29  1998/08/29  23:01:05  thldrmn
-// Gamemission fixes for TNT and Plutonia
-//
-// Revision 1.28  1998/08/08  15:17:58  jim
-// HUD update fixes
-//
-// Revision 1.27  1998/05/10  19:03:41  jim
-// formatted/documented hu_stuff
-//
-// Revision 1.26  1998/05/03  22:25:24  killough
-// Provide minimal headers at top; nothing else
-//
-// Revision 1.25  1998/04/28  15:53:58  jim
-// Fix message list bug in small screen mode
-//
-// Revision 1.24  1998/04/22  12:50:14  jim
-// Fix lockout from dynamic message change
-//
-// Revision 1.23  1998/04/05  10:09:51  jim
-// added STCFN096 lump
-//
-// Revision 1.22  1998/03/28  05:32:12  jim
-// Text enabling changes for DEH
-//
-// Revision 1.19  1998/03/17  20:45:23  jim
-// added frags to HUD
-//
-// Revision 1.18  1998/03/15  14:42:16  jim
-// added green fist/chainsaw in HUD when berserk
-//
-// Revision 1.17  1998/03/10  07:07:15  jim
-// Fixed display glitch in HUD cycle
-//
-// Revision 1.16  1998/03/09  11:01:48  jim
-// fixed string overflow for DEH, added graphic keys
-//
-// Revision 1.15  1998/03/09  07:10:09  killough
-// Use displayplayer instead of consoleplayer
-//
-// Revision 1.14  1998/03/05  00:57:37  jim
-// Scattered HUD
-//
-// Revision 1.13  1998/03/04  11:50:48  jim
-// Change automap coord display
-//
-// Revision 1.12  1998/02/26  22:58:26  jim
-// Added message review display to HUD
-//
-// Revision 1.11  1998/02/23  14:20:51  jim
-// Merged HUD stuff, fixed p_plats.c to support elevators again
-//
-// Revision 1.10  1998/02/23  04:26:07  killough
-// really allow new hud stuff to be turned off COMPLETELY
-//
-// Revision 1.9  1998/02/22  12:51:26  jim
-// HUD control on F5, z coord, spacing change
-//
-// Revision 1.7  1998/02/20  18:46:51  jim
-// cleanup of HUD control
-//
-// Revision 1.6  1998/02/19  16:54:53  jim
-// Optimized HUD and made more configurable
-//
-// Revision 1.5  1998/02/18  11:55:55  jim
-// Fixed issues with HUD and reduced screen size
-//
-// Revision 1.3  1998/02/15  02:47:47  phares
-// User-defined keys
-//
-// Revision 1.2  1998/01/26  19:23:22  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:02:55  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

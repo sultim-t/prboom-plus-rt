@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_switch.c,v 1.1 2000/05/04 08:14:53 proff_fs Exp $
+ * $Id: p_switch.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_switch.c,v 1.1 2000/05/04 08:14:53 proff_fs Exp $";
+rcsid[] = "$Id: p_switch.c,v 1.2 2000/05/09 21:45:39 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -1118,92 +1121,3 @@ P_UseSpecialLine
   }
   return true;
 }
-
-
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_switch.c,v $
-// Revision 1.1  2000/05/04 08:14:53  proff_fs
-// Initial revision
-//
-// Revision 1.4  1999/12/13 17:23:12  cphipps
-// Add lprintf.h include to get I_Error
-//
-// Revision 1.3  1999/10/12 13:01:13  cphipps
-// Changed header to GPL
-//
-// Revision 1.2  1998/12/31 20:57:47  cphipps
-// Updated for new wad lump handling
-//
-// Revision 1.1  1998/09/13 16:49:50  cphipps
-// Initial revision
-//
-// Revision 1.1  1998/09/11 18:37:35  develop
-// Initial revision
-//
-// Revision 1.25  1998/06/01  14:48:19  jim
-// Fix switch use from back side
-//
-// Revision 1.24  1998/05/11  14:04:46  jim
-// Fix endianess of speed field in SWITCH predefined lump
-//
-// Revision 1.23  1998/05/07  21:30:40  jim
-// formatted/documented p_switch
-//
-// Revision 1.22  1998/05/03  23:17:44  killough
-// Fix #includes at the top, nothing else
-//
-// Revision 1.21  1998/03/24  22:10:32  jim
-// Fixed switch won't light problem in UDOOM
-//
-// Revision 1.20  1998/03/23  18:39:45  jim
-// Switch and animation tables now lumps
-//
-// Revision 1.19  1998/03/16  15:47:18  killough
-// Merge Jim's linedef changes
-//
-// Revision 1.18  1998/03/15  14:39:58  jim
-// added pure texture change linedefs & generalized sector types
-//
-// Revision 1.17  1998/03/14  17:19:15  jim
-// Added instant toggle floor type
-//
-// Revision 1.16  1998/03/12  21:54:23  jim
-// Freed up 12 linedefs for use as vectors
-//
-// Revision 1.15  1998/03/05  16:59:22  jim
-// Fixed inability of monsters/barrels to use new teleports
-//
-// Revision 1.14  1998/03/02  15:33:10  jim
-// fixed errors in numeric model sector search and 0 tag trigger defeats
-//
-// Revision 1.13  1998/02/28  01:25:06  jim
-// Fixed error in 0 tag trigger fix
-//
-// Revision 1.11  1998/02/23  00:42:17  jim
-// Implemented elevators
-//
-// Revision 1.10  1998/02/13  03:28:49  jim
-// Fixed W1,G1 linedefs clearing untriggered special, cosmetic changes
-//
-// Revision 1.9  1998/02/09  03:11:03  killough
-// Remove limit on switches
-//
-// Revision 1.8  1998/02/08  05:35:54  jim
-// Added generalized linedef types
-//
-// Revision 1.6  1998/02/02  13:39:27  killough
-// Program beautification
-//
-// Revision 1.5  1998/01/30  14:44:20  jim
-// Added gun exits, right scrolling walls and ceiling mover specials
-//
-// Revision 1.2  1998/01/26  19:24:28  phares
-// First rev with no ^Ms
-//
-// Revision 1.1.1.1  1998/01/19  14:03:01  rand
-// Lee's Jan 19 sources
-//
-//
-//----------------------------------------------------------------------------

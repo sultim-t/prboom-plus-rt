@@ -1,13 +1,16 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_swap.h,v 1.2 2000/05/06 03:54:47 jessh Exp $
+ * $Id: m_swap.h,v 1.3 2000/05/09 21:45:38 proff_fs Exp $
  *
- *  LxDoom, a Doom port for Linux/Unix
+ *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *   and Colin Phipps
+ *  Copyright (C) 1999-2000 by
+ *  Colin Phipps (cph@lxdoom.linuxgames.com), 
+ *  Jess Haas (JessH@lbjhs.net)
+ *  and Florian Schulze (florian.proff.schulze@gmx.net)
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -123,58 +126,3 @@
 #define SHORT(x) doom_htows(x)
 
 #endif
-
-/*----------------------------------------------------------------------------
- *
- * $Log: m_swap.h,v $
- * Revision 1.2  2000/05/06 03:54:47  jessh
- * Use fast assembly byte swaping macros on Linux
- *
- * Revision 1.1.1.1  2000/05/04 08:10:35  proff_fs
- * initial login on sourceforge as prboom2
- *
- * Revision 1.9  2000/05/01 17:50:36  Proff
- * made changes to compile with VisualC and SDL
- *
- * Revision 1.8  2000/04/05 10:47:31  cph
- * Remove dead #ifdef magic, rely on config.h now
- * Make sndserv work on (Open|Net)BSD, using libossaudio
- * Make --enable-debug compile with -g
- * Make asm stuff only compile on Linux and FreeBSD
- * (draw(col|span).s failed on OpenBSD, linker troubles)
- *
- * Revision 1.7  1999/10/12 13:00:57  cphipps
- * Changed header to GPL, converted C++ comments to C
- *
- * Revision 1.6  1999/05/16 08:51:00  cphipps
- * Detect endianness using systen headers on Linux
- *
- * Revision 1.5  1999/01/10 16:01:45  cphipps
- * Remove "unsigned" from macro result casts
- *
- * Revision 1.4  1999/01/10 15:38:33  cphipps
- * Rewrote endianness handling
- * Make new endianness macros available
- * Clear distinction between host, network and data endiannesses
- *
- * Revision 1.3  1998/12/31 16:44:28  cphipps
- * Fast endianness handling for I386 targets
- *
- * Revision 1.2  1998/12/22 21:12:39  cphipps
- * Changed __inline__'s to inline's, as specified in gcc's docs
- * Added const's
- *
- * Revision 1.1  1998/09/13 16:49:50  cphipps
- * Initial revision
- *
- * Revision 1.3  1998/05/03  23:14:03  killough
- * Make endian independent, beautify
- *
- * Revision 1.2  1998/01/26  19:27:15  phares
- * First rev with no ^Ms
- *
- * Revision 1.1.1.1  1998/01/19  14:03:08  rand
- * Lee's Jan 19 sources
- *
- *
- *----------------------------------------------------------------------------*/
