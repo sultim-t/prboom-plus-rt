@@ -397,7 +397,8 @@ void C_Drawer(void)
   int count;
   static int oldscreenheight=0;
   
-  if(!consoleactive) return;   // dont draw if not active
+  if(!consoleactive)
+    return;   // dont draw if not active
 
   if (backdrop_lumpnum < 0)
     C_InitBackdrop();
@@ -455,7 +456,7 @@ void C_Drawer(void)
 // useful for functions that get input without using the gameloop
 // eg. serial code
 
-void C_Update()
+void C_Update(void)
 {
   C_Drawer();
   I_FinishUpdate();
@@ -468,95 +469,159 @@ void C_Update()
 
 // scroll console up
 
-static void C_ScrollUp()
+static void C_ScrollUp(void)
 {
-  if(message_last == message_pos) message_pos++;
+  if(message_last == message_pos)
+    message_pos++;
   message_last++;
 
   if(message_last >= MESSAGES)       // past the end of the string
-    {
-      int i;      // cut off the oldest 128 messages
-      for(i=0; i<MESSAGES-128; i++)
-	strcpy(messages[i], messages[i+128]);
-      
-      message_last-=128;      // move the message boundary
-      message_pos-=128;       // move the view
-    }
+  {
+    // cut off the oldest 128 messages
+    int i;
 
-  messages[message_last] [0] = 0;  // new line is empty
+    // haleyjd 03/02/02: fixed code that assumed MESSAGES == 256
+    for(i = 128; i < MESSAGES; i++)
+      strcpy(messages[i - 128], messages[i]);
+
+    message_last -= 128;      // move the message boundary
+
+    // haleyjd 09/04/02: set message_pos to message_last
+    // to avoid problems with console flooding
+    message_pos = message_last;
+  }
+
+  messages[message_last][0] = '\0';  // new line is empty
 }
 
-// add a character to the console
-
-static void C_AddChar(unsigned char c)
+// 
+// C_AddMessage
+//
+// haleyjd:
+// Add a message to the console.
+// Replaced C_AddChar.
+//
+static void C_AddMessage(const char *s)
 {
-  char *end;
+  const unsigned char *c;
+  unsigned char *end;
+  unsigned char linecolor = CR_RED + FC_BASEVALUE;
 
-  if( c=='\t' || (c>31 && c<127) || c>=128)  // >=128 for colours
+  // haleyjd 09/04/02: set color to default at beginning
+  if(V_StringWidth(messages[message_last]) > SCREENWIDTH-9 ||
+     strlen(messages[message_last]) >= LINELENGTH - 1)
+  {
+    C_ScrollUp();
+  }
+  end = messages[message_last] + strlen(messages[message_last]);
+  *end++ = linecolor;
+  *end = '\0';
+
+  for(c = (const unsigned char *)s; *c; c++)
+  {
+    // >= 128 for colours
+    if(*c == '\t' || (*c > 31 && *c < 127) || *c >= 128)
     {
-      if(V_StringWidth(messages[message_last]) > SCREENWIDTH-9)
-	{
-	  // might possibly over-run, go onto next line
-	  C_ScrollUp();
-	}
+      if(*c >= 128)
+        linecolor = *c;
 
+      if(V_StringWidth(messages[message_last]) > SCREENWIDTH-9 ||
+         strlen(messages[message_last]) >= LINELENGTH - 1)
+      {
+        // might possibly over-run, go onto next line
+        C_ScrollUp();
+        end = messages[message_last] + strlen(messages[message_last]);
+        *end++ = linecolor; // keep current color on next line
+        *end = '\0';
+      }
+         
       end = messages[message_last] + strlen(messages[message_last]);
-      *end = c; end++;
-      *end = 0;
+      *end++ = *c;
+      *end = '\0';
     }
-  if(c == '\a') // alert
+    if(*c == '\a') // alert
     {
-      S_StartSound(NULL, sfx_tink);   // 'tink'!
+      S_StartSound(NULL, sfx_tink); // 'tink'!
     }
-  if(c == '\n')
+    if(*c == '\n')
     {
       C_ScrollUp();
+      end = messages[message_last] + strlen(messages[message_last]);
+      *end++ = linecolor; // keep current color on next line
+      *end = '\0';
     }
+  }
 }
 
-// haleyjd: C_AddChar seems to be a bit naive about how much
-// text can fit on a line, and I have no idea how to fix it. A better
-// solution than me hacking it is to make this function -- it attempts
-// to break up formatted strings into segments no more than the defined
-// number of characters long. It'll succeed as long as the string in
-// question doesn't contain that number of consecutive characters 
-// without a space, tab, or line-break, so like, don't print stupidness 
+// haleyjd: this function attempts to break up formatted strings 
+// into segments no more than a gamemode-dependent number of 
+// characters long. It'll succeed as long as the string in question 
+// doesn't contain that number of consecutive characters without a 
+// space, tab, or line-break, so like, don't print stupidness 
 // like that. Its a console, not a hex editor...
 
 #define MAX_MYCHARSPERLINE 45
 
 static void C_AdjustLineBreaks(char *str)
 {
-   int i, count, lastspace, len;
+  int i, count, firstspace, lastspace, len;
 
-   count = lastspace = 0;
+  firstspace = -1;
 
-   len = strlen(str);
+  count = lastspace = 0;
 
-   for(i=0; i<len; i++)
-   {
-      if(str[i] == ' ' || str[i] == '\t')
-	 lastspace = i;
-      
-      if(str[i] == '\n')
-	 count = lastspace = 0;
-      else
-	 count++;
+  len = strlen(str);
 
-      if(count == MAX_MYCHARSPERLINE)
+  for(i = 0; i < len; ++i)
+  {
+    if(str[i] == ' ' || str[i] == '\t')
+    {
+      if(firstspace == -1)
+      firstspace = i;
+
+      lastspace = i;
+    }
+
+    if(str[i] == '\n')
+      count = lastspace = 0;
+    else
+      count++;
+
+    if(count == MAX_MYCHARSPERLINE)
+    {
+      // 03/16/01: must add length since last space to new line
+      count = i - (lastspace + 1);
+
+      // replace last space with \n
+      // if no last space, we're screwed
+      if(lastspace)
       {
-	 // 03/16/01: must add length since last space to new line
-	 count = i - (lastspace + 1);
-
-	 // replace last space with \n
-	 // if no last space, we're screwed
-	 if(lastspace)
-	 {
-	    str[lastspace] = '\n';
-	    lastspace = 0;
-	 }
+        if(lastspace == firstspace)
+          firstspace = 0;
+        str[lastspace] = '\n';
+        lastspace = 0;
       }
-   }
+    }
+  }
+
+  if(firstspace)
+  {      
+    // temporarily put a \0 in the first space
+    char temp = str[firstspace];
+    str[firstspace] = '\0';
+
+    // if the first segment of the string doesn't fit on the 
+    // current line, move the console up one line in advance
+
+    if(V_StringWidth(str) + V_StringWidth(messages[message_last]) > SCREENWIDTH - 9
+       || strlen(str) + strlen(messages[message_last]) >= LINELENGTH - 1)
+    {
+      C_ScrollUp();
+    }
+
+    // restore the string to normal
+    str[firstspace] = temp;
+  }
 }
 
 /* C_Printf -
@@ -569,10 +634,11 @@ static void C_AdjustLineBreaks(char *str)
 void C_Printf(const char *s, ...)
 {
   va_list args;
-  char *c, *t;
+  char *t;
   
   // haleyjd: sanity check
-  if(!s) return;
+  if(!s)
+    return;
   
   // difficult to remove limit
   va_start(args, s);
@@ -589,8 +655,8 @@ void C_Printf(const char *s, ...)
 
   C_AdjustLineBreaks(t); // haleyjd
 
-  for(c = t; *c; c++)
-    C_AddChar(*c);
+  C_AddMessage(t);
+  
   (free)(t);
 }
 
@@ -614,7 +680,7 @@ void C_Seperator()
 
 // put smmu into console mode
 
-void C_SetConsole()
+void C_SetConsole(void)
 {
   gamestate = GS_CONSOLE;         
   gameaction = ga_nothing;
@@ -629,14 +695,14 @@ void C_SetConsole()
 
 // make the console go up
 
-void C_Popup()
+void C_Popup(void)
 {
   current_target = 0;
 }
 
 // make the console disappear
 
-void C_InstaPopup()
+void C_InstaPopup(void)
 {
   current_target = current_height = 0;
 }
