@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $
+ * $Id: i_sound.c,v 1.16 2000/12/24 11:36:52 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.16 2000/12/24 11:36:52 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -646,11 +646,9 @@ void I_PauseSong (int handle)
 #ifdef HAVE_MIXER
   switch(mus_pause_opt) {
   case 0:
-lprintf(LO_INFO,"Stopping song %d (pause)\n", handle);
     I_StopSong(handle);
     break;
   case 1:
-lprintf(LO_INFO,"Pausing song %d (pause)\n", handle);
     Mix_PauseMusic();
     break;
   }
@@ -661,8 +659,16 @@ lprintf(LO_INFO,"Pausing song %d (pause)\n", handle);
 void I_ResumeSong (int handle)
 {
 #ifdef HAVE_MIXER
-  Mix_ResumeMusic();
+  switch(mus_pause_opt) {
+  case 0:
+    I_PlaySong(handle,1);
+    break;
+  case 1:
+    Mix_ResumeMusic();
+    break;
+  }
 #endif
+  /* Otherwise, music wasn't stopped */
 }
 
 void I_StopSong(int handle)
