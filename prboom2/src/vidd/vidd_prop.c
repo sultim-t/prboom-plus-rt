@@ -1,5 +1,6 @@
 #ifdef COMPILE_VIDD
 
+#include "p_mobj.h"
 #include "vidd_prop.h"
 #include "vidd_util.h"
 #include "vidd.h"

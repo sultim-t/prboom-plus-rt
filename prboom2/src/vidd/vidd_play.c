@@ -1,8 +1,8 @@
 #ifdef COMPILE_VIDD
 
+#include "p_mobj.h"
 #include "vidd.h"
 #include "../ViddSys/ViddSys.h"
-#include "p_mobj.h"
 #include "i_main.h"
 #include "lprintf.h"
 #include "info.h"

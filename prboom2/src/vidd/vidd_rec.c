@@ -1,8 +1,8 @@
 #ifdef COMPILE_VIDD
 
+#include "p_mobj.h"
 #include "vidd.h"
 #include "../ViddSys/ViddSys.h"
-#include "p_mobj.h"
 #include "i_main.h"
 #include "lprintf.h"
 #include "info.h"
@@ -197,8 +197,7 @@ int VIDD_REC_checkDemoStatus() {
 }  
 
 //---------------------------------------------------------------------------
-void VIDD_REC_registerSound(int soundId, void *origin) {
-  mobj_t *mobj;
+void VIDD_REC_registerSound(int soundId, const mobj_t *origin) {
   sector_t *sector;
   int i;
   TVIDDElementHandle handle;
@@ -211,9 +210,8 @@ void VIDD_REC_registerSound(int soundId, void *origin) {
     return;
   }
   
-  mobj = (mobj_t*)origin;
   handle.type = qcb.TYPE_MOBJ;
-  handle.id = (TVIDDElementId)mobj;
+  handle.id = (TVIDDElementId)origin;
   
   if (!viddRecorder_getElementExists(handle)) {
     // see if it's a sector making the noise

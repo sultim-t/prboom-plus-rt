@@ -29,7 +29,7 @@ void VIDD_REC_open(const char *lmpname);
 void VIDD_REC_openFromCommandLineParams();
 void VIDD_REC_initDuringSecondParamCheck();
 int VIDD_REC_checkDemoStatus();
-void VIDD_REC_registerSound(int soundId, void *origin);
+void VIDD_REC_registerSound(int soundId, const mobj_t *origin);
 void VIDD_REC_registerLevelLoad(int episode, int map, int skill);
 void VIDD_REC_updatePlayerMessage(void *player, const char *msg);
 void VIDD_REC_registerElementDestruction(void *ptr);
