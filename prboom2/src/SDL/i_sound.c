@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.23 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: i_sound.c,v 1.24 2002/08/11 12:33:31 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.23 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.24 2002/08/11 12:33:31 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -621,6 +621,31 @@ int I_RegisterSong(const void *data, size_t len)
     lprintf(LO_ERROR,"Couldn't load MIDI from %s: %s\n", music_tmp, Mix_GetError());
   }
   return (0);
+}
+
+// cournia - try to load a music file into SDL_Mixer
+//           returns true if could not load the file
+int I_RegisterMusic( const char* filename, musicinfo_t *song )
+{
+#ifdef HAVE_MIXER
+  if (!filename) return 1;
+  if (!song) return 1;
+  music[0] = Mix_LoadMUS(filename);
+  if (music[0] == NULL)
+    {
+      lprintf(LO_WARN,"Couldn't load music from %s: %s\nAttempting to load default MIDI music.\n", filename, Mix_GetError());
+      return 1;
+    }
+  else
+    {
+      song->data = 0;
+      song->handle = 0;
+      song->lumpnum = -1; //this doesn't seem to cause problems
+      return 0;
+    }
+#else
+  return 1;
+#endif
 }
 
 void I_SetMusicVolume(int volume)

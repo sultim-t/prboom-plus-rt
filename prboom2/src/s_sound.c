@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.8 2002/08/10 20:57:57 cph Exp $
+ * $Id: s_sound.c,v 1.9 2002/08/11 12:33:31 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,14 +30,19 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.8 2002/08/10 20:57:57 cph Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.9 2002/08/11 12:33:31 proff_fs Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
+
 #include "doomstat.h"
 #include "s_sound.h"
 #include "i_sound.h"
+#include "i_system.h"
 #include "r_main.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -67,6 +72,145 @@ rcsid[] = "$Id: s_sound.c,v 1.8 2002/08/10 20:57:57 cph Exp $";
 extern int snd_card, mus_card;
 extern boolean nosfxparm, nomusicparm;
 //jff end sound enabling variables readable here
+
+const char S_music_files[NUMMUSIC][21] = {
+	"",
+	"e1m1.mp3",
+	"e1m2.mp3",
+	"e1m3.mp3",
+	"e1m4.mp3",
+	"e1m5.mp3",
+	"e1m6.mp3",
+	"e1m7.mp3",
+	"e1m8.mp3",
+	"e1m9.mp3",
+	"e2m1.mp3",
+	"e2m2.mp3",
+	"e2m3.mp3",
+	"e2m4.mp3",
+	"e1m7.mp3",
+	"e2m6.mp3",
+	"e2m7.mp3",
+	"e2m8.mp3",
+	"e3m1.mp3",
+	"e3m1.mp3",
+	"e3m2.mp3",
+	"e3m3.mp3",
+	"e1m8.mp3",
+	"e1m7.mp3",
+	"e1m6.mp3",
+	"e2m7.mp3",
+	"e3m8.mp3",
+	"e1m9.mp3",
+	"e2m3.mp3",
+	"intro.mp3",
+	"bunny.mp3",
+	"victor.mp3",
+	"intro.mp3",
+	"runnin.mp3",
+	"stalks.mp3",
+	"countd.mp3",
+	"betwee.mp3",
+	"doom.mp3",
+	"the_da.mp3",
+	"shawn.mp3",
+	"ddtblu.mp3",
+	"in_cit.mp3",
+	"dead.mp3",
+	"stalks.mp3",
+	"the_da.mp3",
+	"doom.mp3",
+	"ddtblu.mp3",
+	"runnin.mp3",
+	"dead.mp3",
+	"stalks.mp3",
+	"romero.mp3",
+	"shawn.mp3",
+	"messag.mp3",
+	"countd.mp3",
+	"ddtblu.mp3",
+	"ampie.mp3",
+	"the_da.mp3",
+	"adrian.mp3",
+	"messag.mp3",
+	"romero.mp3",
+	"tense.mp3",
+	"shawn.mp3",
+	"openin.mp3",
+	"evil.mp3",
+	"ultima.mp3",
+	"read_m.mp3",
+	"dm2ttl.mp3",
+	"dm2int.mp3"
+}; // cournia - stores music file names
+
+CONSOLE_STRING(mus_e1m1, S_music_files[mus_e1m1], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m2, S_music_files[mus_e1m2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m3, S_music_files[mus_e1m3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m4, S_music_files[mus_e1m4], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m5, S_music_files[mus_e1m5], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m6, S_music_files[mus_e1m6], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m7, S_music_files[mus_e1m7], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m8, S_music_files[mus_e1m8], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e1m9, S_music_files[mus_e1m9], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m1, S_music_files[mus_e2m1], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m2, S_music_files[mus_e2m2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m3, S_music_files[mus_e2m3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m4, S_music_files[mus_e2m4], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m5, S_music_files[mus_e2m5], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m6, S_music_files[mus_e2m6], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m7, S_music_files[mus_e2m7], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m8, S_music_files[mus_e2m8], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e2m9, S_music_files[mus_e2m9], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m1, S_music_files[mus_e3m1], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m2, S_music_files[mus_e3m2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m3, S_music_files[mus_e3m3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m4, S_music_files[mus_e3m4], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m5, S_music_files[mus_e3m5], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m6, S_music_files[mus_e3m6], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m7, S_music_files[mus_e3m7], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m8, S_music_files[mus_e3m8], NULL, 20, 0) {}
+CONSOLE_STRING(mus_e3m9, S_music_files[mus_e3m9], NULL, 20, 0) {}
+CONSOLE_STRING(mus_inter, S_music_files[mus_inter], NULL, 20, 0) {}
+CONSOLE_STRING(mus_intro, S_music_files[mus_intro], NULL, 20, 0) {}
+CONSOLE_STRING(mus_bunny, S_music_files[mus_bunny], NULL, 20, 0) {}
+CONSOLE_STRING(mus_victor, S_music_files[mus_victor], NULL, 20, 0) {}
+CONSOLE_STRING(mus_introa, S_music_files[mus_introa], NULL, 20, 0) {}
+CONSOLE_STRING(mus_runnin, S_music_files[mus_runnin], NULL, 20, 0) {}
+CONSOLE_STRING(mus_stalks, S_music_files[mus_stalks], NULL, 20, 0) {}
+CONSOLE_STRING(mus_countd, S_music_files[mus_countd], NULL, 20, 0) {}
+CONSOLE_STRING(mus_betwee, S_music_files[mus_betwee], NULL, 20, 0) {}
+CONSOLE_STRING(mus_doom, S_music_files[mus_doom], NULL, 20, 0) {}
+CONSOLE_STRING(mus_the_da, S_music_files[mus_the_da], NULL, 20, 0) {}
+CONSOLE_STRING(mus_shawn, S_music_files[mus_shawn], NULL, 20, 0) {}
+CONSOLE_STRING(mus_ddtblu, S_music_files[mus_ddtblu], NULL, 20, 0) {}
+CONSOLE_STRING(mus_in_cit, S_music_files[mus_in_cit], NULL, 20, 0) {}
+CONSOLE_STRING(mus_dead, S_music_files[mus_dead], NULL, 20, 0) {}
+CONSOLE_STRING(mus_stlks2, S_music_files[mus_stlks2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_theda2, S_music_files[mus_theda2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_doom2, S_music_files[mus_doom2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_ddtbl2, S_music_files[mus_ddtbl2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_runni2, S_music_files[mus_runni2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_dead2, S_music_files[mus_dead2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_stlks3, S_music_files[mus_stlks3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_romero, S_music_files[mus_romero], NULL, 20, 0) {}
+CONSOLE_STRING(mus_shawn2, S_music_files[mus_shawn2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_messag, S_music_files[mus_messag], NULL, 20, 0) {}
+CONSOLE_STRING(mus_count2, S_music_files[mus_count2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_ddtbl3, S_music_files[mus_ddtbl3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_ampie, S_music_files[mus_ampie], NULL, 20, 0) {}
+CONSOLE_STRING(mus_theda3, S_music_files[mus_theda3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_adrian, S_music_files[mus_adrian], NULL, 20, 0) {}
+CONSOLE_STRING(mus_messg2, S_music_files[mus_messg2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_romer2, S_music_files[mus_romer2], NULL, 20, 0) {}
+CONSOLE_STRING(mus_tense, S_music_files[mus_tense], NULL, 20, 0) {}
+CONSOLE_STRING(mus_shawn3, S_music_files[mus_shawn3], NULL, 20, 0) {}
+CONSOLE_STRING(mus_openin, S_music_files[mus_openin], NULL, 20, 0) {}
+CONSOLE_STRING(mus_evil, S_music_files[mus_evil], NULL, 20, 0) {}
+CONSOLE_STRING(mus_ultima, S_music_files[mus_ultima], NULL, 20, 0) {}
+CONSOLE_STRING(mus_read_m, S_music_files[mus_read_m], NULL, 20, 0) {}
+CONSOLE_STRING(mus_dm2ttl, S_music_files[mus_dm2ttl], NULL, 20, 0) {}
+CONSOLE_STRING(mus_dm2int, S_music_files[mus_dm2int], NULL, 20, 0) {}
 
 typedef struct
 {
@@ -449,6 +593,8 @@ void S_StartMusic(int m_id)
 void S_ChangeMusic(int musicnum, int looping)
 {
   musicinfo_t *music;
+  int music_file_failed; // cournia - if true load the default MIDI music
+  char* music_filename;  // cournia
 
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
@@ -473,9 +619,29 @@ void S_ChangeMusic(int musicnum, int looping)
       music->lumpnum = W_GetNumForName(namebuf);
     }
 
-  // load & register it
-  music->data = W_CacheLumpNum(music->lumpnum);
-  music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+  music_file_failed = 1;
+
+  // proff_fs - only load when from IWAD
+  if (lumpinfo[music->lumpnum].source == source_iwad)
+    {
+      // cournia - check to see if we can play a higher quality music file
+      //           rather than the default MIDI
+      music_filename = I_FindFile((const char *)S_music_files[musicnum], "");
+      if (music_filename)
+        {
+          music_file_failed = I_RegisterMusic(music_filename, music);
+          free(music_filename);
+        }
+    }
+
+  if (music_file_failed)
+    {
+      //cournia - could not load music file, play default MIDI music
+
+      // load & register it
+      music->data = W_CacheLumpNum(music->lumpnum);
+      music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+    }
 
   // play it
   I_PlaySong(music->handle, looping);
@@ -497,7 +663,8 @@ void S_StopMusic(void)
 
       I_StopSong(mus_playing->handle);
       I_UnRegisterSong(mus_playing->handle);
-      W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
+       if (mus_playing->lumpnum >= 0)
+     W_UnlockLumpNum(mus_playing->lumpnum); // cph - release the music data
 
       mus_playing->data = 0;
       mus_playing = 0;
@@ -662,4 +829,73 @@ void S_AddCommands()
   C_AddCommand(snd_channels);
   C_AddCommand(sfx_volume);
   C_AddCommand(music_volume);
+/*
+  C_AddCommand(mus_e1m1);
+  C_AddCommand(mus_e1m2);
+  C_AddCommand(mus_e1m3);
+  C_AddCommand(mus_e1m4);
+  C_AddCommand(mus_e1m5);
+  C_AddCommand(mus_e1m6);
+  C_AddCommand(mus_e1m7);
+  C_AddCommand(mus_e1m8);
+  C_AddCommand(mus_e1m9);
+  C_AddCommand(mus_e2m1);
+  C_AddCommand(mus_e2m2);
+  C_AddCommand(mus_e2m3);
+  C_AddCommand(mus_e2m4);
+  C_AddCommand(mus_e2m5);
+  C_AddCommand(mus_e2m6);
+  C_AddCommand(mus_e2m7);
+  C_AddCommand(mus_e2m8);
+  C_AddCommand(mus_e2m9);
+  C_AddCommand(mus_e3m1);
+  C_AddCommand(mus_e3m2);
+  C_AddCommand(mus_e3m3);
+  C_AddCommand(mus_e3m4);
+  C_AddCommand(mus_e3m5);
+  C_AddCommand(mus_e3m6);
+  C_AddCommand(mus_e3m7);
+  C_AddCommand(mus_e3m8);
+  C_AddCommand(mus_e3m9);
+  C_AddCommand(mus_inter);
+  C_AddCommand(mus_intro);
+  C_AddCommand(mus_bunny);
+  C_AddCommand(mus_victor);
+  C_AddCommand(mus_introa);
+  C_AddCommand(mus_runnin);
+  C_AddCommand(mus_stalks);
+  C_AddCommand(mus_countd);
+  C_AddCommand(mus_betwee);
+  C_AddCommand(mus_doom);
+  C_AddCommand(mus_the_da);
+  C_AddCommand(mus_shawn);
+  C_AddCommand(mus_ddtblu);
+  C_AddCommand(mus_in_cit);
+  C_AddCommand(mus_dead);
+  C_AddCommand(mus_stlks2);
+  C_AddCommand(mus_theda2);
+  C_AddCommand(mus_doom2);
+  C_AddCommand(mus_ddtbl2);
+  C_AddCommand(mus_runni2);
+  C_AddCommand(mus_dead2);
+  C_AddCommand(mus_stlks3);
+  C_AddCommand(mus_romero);
+  C_AddCommand(mus_shawn2);
+  C_AddCommand(mus_messag);
+  C_AddCommand(mus_count2);
+  C_AddCommand(mus_ddtbl3);
+  C_AddCommand(mus_ampie);
+  C_AddCommand(mus_theda3);
+  C_AddCommand(mus_adrian);
+  C_AddCommand(mus_messg2);
+  C_AddCommand(mus_romer2);
+  C_AddCommand(mus_tense);
+  C_AddCommand(mus_shawn3);
+  C_AddCommand(mus_openin);
+  C_AddCommand(mus_evil);
+  C_AddCommand(mus_ultima);
+  C_AddCommand(mus_read_m);
+  C_AddCommand(mus_dm2ttl);
+  C_AddCommand(mus_dm2int);
+*/
 }
