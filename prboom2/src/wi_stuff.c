@@ -1965,7 +1965,7 @@ void WI_unloadData(void)
   for (i=0;i<10;i++) {
     // numbers 0-9
     sprintf(name, "WINUM%d", i);     
-    W_UnlockLumpName(name);
+    //W_UnlockLumpName(name);
   }
 }
 

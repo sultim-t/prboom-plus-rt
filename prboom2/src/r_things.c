@@ -444,7 +444,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
     }
   
   colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
-  W_UnlockLumpNum(vis->patch+firstspritelump); // cph - release lump
+  //W_UnlockLumpNum(vis->patch+firstspritelump); // cph - release lump
 }
 
 //
