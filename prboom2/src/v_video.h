@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.19 2002/11/22 21:57:12 dukope Exp $
+ * $Id: v_video.h,v 1.20 2002/11/23 00:56:15 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -75,7 +75,7 @@ typedef enum
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
 typedef struct {
-  void *data; // pointer to the screen content
+  byte *data; // pointer to the screen content
   boolean not_on_heap; // if set, no malloc or free is preformed and
                        // data never set to NULL. Used i.e. with SDL doublebuffer.
   int width;           // the width of the surface, used when mallocing

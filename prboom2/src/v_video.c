@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.30 2002/11/22 22:51:02 proff_fs Exp $
+ * $Id: v_video.c,v 1.31 2002/11/23 00:56:15 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.30 2002/11/22 22:51:02 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.31 2002/11/23 00:56:15 dukope Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -199,8 +199,8 @@ void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA)
   byte r,g,b,a;
   unsigned int color;
   int i;
-  int *destBufferAsInt = (int*)destBuffer;   
-  
+  unsigned int *destBufferAsInt = (int*)destBuffer;   
+
   for (i=0; i<numPixels; i++) {
     color = destBufferAsInt[i];
     r = color & (0x000000ff);
@@ -368,8 +368,12 @@ void V_UpdateTrueColorPalette(TVidMode mode) {
   
   int pplump = W_GetNumForName("PLAYPAL");
   int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
-  register const byte * pal = W_CacheLumpNum(pplump);
-  register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*(usegamma);
+  register const byte *pal = W_CacheLumpNum(pplump);
+  // opengl doesn't use the gamma
+  register const byte *const gtable = 
+    (const byte *)W_CacheLumpNum(gtlump) + 
+    (vid_getMode() == VID_MODEGL ? 0 : 256*(usegamma))
+  ;
 
   int numPals = W_LumpLength(pplump) / (3*256);
   const float dontRoundAbove = 220;

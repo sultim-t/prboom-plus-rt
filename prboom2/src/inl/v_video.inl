@@ -417,11 +417,11 @@ void FUNC_V_PlotTextureNum(
     patchHeight = patch->height;
     W_UnlockLumpNum(patchNum);
     
-    destRect.left = x + (FixedDiv(texture->patches[p].originx<<FRACBITS, xfrac)>>FRACBITS);
-    destRect.right = destRect.left + (FixedDiv(patchWidth<<FRACBITS, xfrac)>>FRACBITS);
+    destRect.left = x + ((FixedDiv(texture->patches[p].originx<<FRACBITS, xfrac)+(FRACUNIT>>1))>>FRACBITS);
+    destRect.right = destRect.left + ((FixedDiv(patchWidth<<FRACBITS, xfrac)+(FRACUNIT>>1))>>FRACBITS);
     
-    destRect.top = y + (FixedDiv(texture->patches[p].originy<<FRACBITS, yfrac)>>FRACBITS);
-    destRect.bottom = destRect.top + (FixedDiv(patchHeight<<FRACBITS, yfrac)>>FRACBITS);
+    destRect.top = y + ((FixedDiv(texture->patches[p].originy<<FRACBITS, yfrac)+(FRACUNIT>>1))>>FRACBITS);
+    destRect.bottom = destRect.top + ((FixedDiv(patchHeight<<FRACBITS, yfrac)+(FRACUNIT>>1))>>FRACBITS);
     
     FUNC_V_PlotPatchNum(
       texture->patches[p].patch, destRect, clampRect, filter, 0,
@@ -467,7 +467,7 @@ byte *FUNC_V_GetPlottedPatch(
   FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);  
   
 #if V_VIDEO_BITS == 32
-  finalizeTrueColorBuffer(destBuffer, bufferSize*8/V_VIDEO_BITS, convertToBGRA);
+  finalizeTrueColorBuffer(destBuffer, bufferWidth*bufferHeight, convertToBGRA);
 #endif
 
   return destBuffer;
@@ -504,7 +504,7 @@ byte *FUNC_V_GetPlottedTexture(
   FUNC_V_PlotTextureNum(textureNum, 0, 0, plotWidth, plotHeight, filter, destBuffer, bufferWidth, bufferHeight);
 
 #if V_VIDEO_BITS == 32
-  finalizeTrueColorBuffer(destBuffer, bufferSize*8/V_VIDEO_BITS, convertToBGRA);
+  finalizeTrueColorBuffer(destBuffer, bufferWidth*bufferHeight, convertToBGRA);
 #endif
     
   return destBuffer;
