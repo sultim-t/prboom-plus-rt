@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.13 2000/11/25 19:19:17 cph Exp $
+ * $Id: d_server.c,v 1.14 2000/12/24 11:40:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -270,7 +270,7 @@ int main(int argc, char** argv)
 {
   int localport = 5030, numplayers = 2, xtratics = 0, ticdup = 1;
   int exectics = 0; // gametics completed
-  struct setup_packet_s setupinfo = { 2, 0, 1, 1, 1, 0, 7, 0, 0};
+  struct setup_packet_s setupinfo = { 2, 0, 1, 1, 1, 0, best_compatibility, 0, 0};
   char**wadname = NULL;
   char**wadget = NULL;
   int numwads = 0;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomtype.h,v 1.3 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: doomtype.h,v 1.4 2000/12/24 11:40:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -63,4 +63,25 @@ typedef unsigned __int64 uint_64_t;
 
 /* CPhipps - use limits.h instead of depreciated values.h */
 #include <limits.h>
+
+/* cph - move compatibility levels here so we can use them in d_server.c */
+typedef enum {
+  doom_12_compatibility, /* Behave like early doom versions */ 
+  doom_demo_compatibility, /* As compatible as possible for 
+			    * playing original Doom demos */
+  doom_compatibility,      /* Compatible with original Doom levels */
+  boom_compatibility_compatibility,      /* Boom's compatibility mode */
+  boom_201_compatibility,                /* Compatible with Boom v2.01 */
+  boom_202_compatibility,                /* Compatible with Boom v2.01 */
+  lxdoom_1_compatibility,                /* LxDoom v1.3.2+ */
+  mbf_compatibility,                     /* MBF */
+  prboom_1_compatibility,                /* PrBoom 2.03beta? */
+  prboom_2_compatibility,                /* PrBoom 2.1.0-2.1.1 */
+  prboom_3_compatibility,                /* Latest PrBoom */
+  MAX_COMPATIBILITY_LEVEL,               /* Must be last entry */
+  /* Aliases follow */
+  boom_compatibility = boom_201_compatibility, /* Alias used by G_Compatibility */
+  best_compatibility = prboom_3_compatibility,
+} complevel_t;
+
 #endif

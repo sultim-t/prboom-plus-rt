@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.h,v 1.12 2000/10/02 21:34:29 cph Exp $
+ * $Id: doomstat.h,v 1.13 2000/12/24 11:40:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -70,25 +70,7 @@ extern GameMission_t  gamemission;
 extern  boolean modifiedgame;
 
 // CPhipps - new compatibility handling
-extern int compatibility_level, default_compatibility_level;
-
-typedef enum {
-  doom_12_compatibility, /* Behave like early doom versions */ 
-  doom_demo_compatibility, /* As compatible as possible for 
-			    * playing original Doom demos */
-  doom_compatibility,      /* Compatible with original Doom levels */
-  boom_compatibility_compatibility,      // Boom's compatibility mode
-  boom_201_compatibility,                /* Compatible with Boom v2.01 */
-  boom_202_compatibility,                /* Compatible with Boom v2.01 */
-  lxdoom_1_compatibility,                // LxDoom v1.3.2+
-  mbf_compatibility,                     /* MBF */
-  prboom_1_compatibility,                /* PrBoom 2.03beta? */
-  prboom_2_compatibility,                /* PrBoom 2.1.0-2.1.1 */
-  prboom_3_compatibility,                /* Latest PrBoom */
-  MAX_COMPATIBILITY_LEVEL,               // Must be last entry
-  /* Aliases follow */
-  boom_compatibility = boom_201_compatibility, /* Alias used by G_Compatibility */
-} complevel_t;
+extern complevel_t compatibility_level, default_compatibility_level;
 
 // CPhipps - old compatibility testing flags aliased to new handling
 #define compatibility (compatibility_level<=boom_compatibility_compatibility)

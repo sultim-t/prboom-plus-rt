@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomstat.c,v 1.6 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: doomstat.c,v 1.7 2000/12/24 11:40:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: doomstat.c,v 1.6 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: doomstat.c,v 1.7 2000/12/24 11:40:35 cph Exp $";
 
 #ifdef __GNUG__
 #pragma implementation "doomstat.h"
@@ -52,7 +52,7 @@ boolean modifiedgame;
 //-----------------------------------------------------------------------------
 
 // CPhipps - compatibility vars
-int compatibility_level, default_compatibility_level;
+complevel_t compatibility_level, default_compatibility_level;
 
 int comp[COMP_TOTAL], default_comp[COMP_TOTAL];    // killough 10/98
 
