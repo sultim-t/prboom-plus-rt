@@ -110,10 +110,10 @@ enum {
   comp_zerotags,
   comp_moveblock,
   comp_respawn,  /* cph - this is the inverse of comp_respawnfix from eternity */
+  comp_sound,
   comp_666,
   comp_soul,
   comp_maskedanim,
-  comp_sound,
   COMP_NUM,      /* cph - should be last in sequence */
   COMP_TOTAL=32  // Some extra room for additional variables
 };
