@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.10 2002/11/23 22:20:10 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.11 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.10 2002/11/23 22:20:10 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.11 2003/02/15 17:23:40 dukope Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -45,6 +45,10 @@ rcsid[] = "$Id: hu_stuff.c,v 1.10 2002/11/23 22:20:10 proff_fs Exp $";
 #include "dstrings.h"
 #include "sounds.h"
 #include "d_deh.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 // global heads up display controls
 
@@ -1347,6 +1351,10 @@ void HU_Ticker(void)
       message_dontfuckwithme = 0;
     }
   }
+
+#ifdef COMPILE_VIDD
+  if (VIDD_REC_inProgress()) VIDD_REC_updatePlayerMessage(plr, message_on ? w_message.l[0].l : ""); // POPE
+#endif
 
   // check for incoming chat characters
   if (netgame)

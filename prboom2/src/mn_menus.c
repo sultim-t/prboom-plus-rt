@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.7 2002/11/24 22:38:49 proff_fs Exp $
+ * $Id: mn_menus.c,v 1.8 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.7 2002/11/24 22:38:49 proff_fs Exp $";
+  "$Id: mn_menus.c,v 1.8 2003/02/15 17:23:40 dukope Exp $";
 
 #include <stdarg.h>
 
@@ -869,12 +869,12 @@ void MN_DrawLoadBox(int x, int y)
   int i;
 
   V_DrawNamePatch(x, y, 0, "M_LSLEFT", CR_DEFAULT, VPT_STRETCH);
-  x += V_NamePatchWidth("M_LSLEFT");
+  x += R_NamePatchWidth("M_LSLEFT");
 
   for(i=0; i<24; i++)
     {
       V_DrawNamePatch(x, y, 0, "M_LSCNTR", CR_DEFAULT, VPT_STRETCH);
-      x += V_NamePatchWidth("M_LSCNTR");
+      x += R_NamePatchWidth("M_LSCNTR");
     }
 
   V_DrawNamePatch(x, y, 0, "M_LSRGHT", CR_DEFAULT, VPT_STRETCH);

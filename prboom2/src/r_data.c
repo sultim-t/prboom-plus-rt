@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.27 2002/11/21 20:53:10 dukope Exp $
+ * $Id: r_data.c,v 1.28 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.27 2002/11/21 20:53:10 dukope Exp $";
+rcsid[] = "$Id: r_data.c,v 1.28 2003/02/15 17:23:41 dukope Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -116,7 +116,7 @@ int       *texturetranslation;
 //
 // Rewritten by Lee Killough for performance and to fix Medusa bug
 //
-
+/*
 void R_DrawColumnInCache(const column_t *patch, byte *cache,
                          int originy, int cacheheight, byte *marks)
 {
@@ -148,7 +148,7 @@ void R_DrawColumnInCache(const column_t *patch, byte *cache,
       patch = (column_t *)((byte *) patch + patch->length + 4);
     }
 }
-
+*/
 //
 // R_GenerateComposite
 // Using the texture definition,
@@ -157,8 +157,9 @@ void R_DrawColumnInCache(const column_t *patch, byte *cache,
 //
 // Rewritten by Lee Killough for performance and to fix Medusa bug
 
-void R_GenerateComposite(int texnum)
-{
+//void R_GenerateComposite(int texnum)
+//{
+/*
   texture_t *texture = textures[texnum];
   byte *block = Z_Malloc(texture->compositesize, PU_STATIC,
                          (void **)&texture->composite);
@@ -227,7 +228,8 @@ void R_GenerateComposite(int texnum)
   // it is purgable from zone memory.
 
   Z_ChangeTag(block, PU_CACHE);
-}
+  */
+//}
 
 //
 // R_GenerateLookup
@@ -235,9 +237,13 @@ void R_GenerateComposite(int texnum)
 // Rewritten by Lee Killough for performance and to fix Medusa bug
 //
 
-static void R_GenerateLookup(int texnum, int *const errors)
-{
-  texture_t *texture = textures[texnum];
+//static void R_GenerateLookup(int texnum, int *const errors)
+//{
+
+
+  //V_GetPlottedTexture8(
+
+  /*
 
   // killough 4/9/98: make column offsets 32-bit;
   // clean up malloc-ing to use sizeof
@@ -330,12 +336,89 @@ static void R_GenerateLookup(int texnum, int *const errors)
     texture->compositesize = csize;
   }
   free(count);                    // killough 4/9/98
-}
+  */
+//}
 
 //
 // R_GetTextureColumn
 //
 
+#include "v_video.h"
+
+const byte *R_GetTextureColumn(int tex, int col) {
+  texture_t *texture = textures[tex];
+  
+  while (col < 0) col += texture->width;
+  col &= texture->widthmask;
+  
+  if (texture->hasSinglePatchAtOrigin) {
+    return R_GetPatch(texture->patches[0].patch)->columns[col].pixels;
+  }
+  
+  if (!texture->composite) {
+    // plot to buffer
+    int x, y;
+    byte *plotted = V_GetPlottedTexture8(
+      tex, texture->width, texture->height, 
+      texture->width, texture->height, 
+      RDRAW_FILTER_POINT, RDRAW_MASKEDCOLUMNEDGE_SQUARE, 0
+    );
+    
+    // rotate 90 degrees (to column-major format)
+    texture->composite = malloc(texture->width*texture->height);
+    
+    for (y=0; y<texture->height; y++) {
+      for (x=0; x<texture->width; x++) {
+        texture->composite[x*texture->height+y] = plotted[y*texture->width+x];
+      }
+    }
+    
+    free(plotted);
+  }
+  
+  return texture->composite + (col*texture->height);
+  /*
+  if (!texture->columnlump) R_GenerateLookup(tex, NULL);
+  {
+  // cph - remember the last lump, so we can unlock it if no longer needed, 
+  //  or reuse it if possible to reduce lump locking/unlocking
+  static int lastlump = -1;
+  static const byte* lastlumpdata;
+  int lump, ofs;
+  
+  while (col < 0) col += texture->width;
+  col &= texture->widthmask;
+  lump = texture->columnlump[col];
+  ofs  = texture->columnofs[col];
+  
+  if ((lump<=0) && (lastlump<=0))
+    lump = lastlump; // cph - force equal
+
+  if (lump != lastlump) {
+    // cph - must change the cached lump
+    if (lastlump>0)
+      W_UnlockLumpNum(lastlump);
+
+    if ((lastlump = lump) > 0)
+      lastlumpdata = W_CacheLumpNum(lump);
+#ifdef RANGECHECK
+    else
+      lastlumpdata = NULL;
+#endif
+  }
+
+  if (lump > 0)
+    return lastlumpdata + ofs;
+
+  if (!texture->composite)
+    R_GenerateComposite(tex);
+
+  return texture->composite + ofs;
+  }
+  */
+}
+
+/*
 const byte *R_GetTextureColumn(int tex, int col)
 {
   const texture_t *texture = textures[tex];
@@ -377,6 +460,7 @@ const byte *R_GetTextureColumn(int tex, int col)
   return texture->composite + ofs;
   }
 }
+*/
 
 //
 // R_InitTextures
@@ -548,7 +632,14 @@ void R_InitTextures (void)
             }
         }
 
-      texture->columnofs = NULL; texture->columnlump = NULL;
+      //texture->columnofs = NULL; texture->columnlump = NULL;
+      texture->composite = 0;
+      
+      if (texture->patchcount == 1 && texture->patches[0].originx == 0 && texture->patches[0].originy == 0) 
+        texture->hasSinglePatchAtOrigin = 1;
+      else 
+        texture->hasSinglePatchAtOrigin = 0;
+        
 
       for (j=1; j*2 <= texture->width; j<<=1)
         ;
@@ -568,9 +659,9 @@ void R_InitTextures (void)
     I_Error("R_InitTextures: %d errors", errors);
     
   // Precalculate whatever possible.
-  if (devparm) // cph - If in development mode, generate now so all errors are found at once
-    for (i=0 ; i<numtextures ; i++)
-      R_GenerateLookup(i, &errors);
+//  if (devparm) // cph - If in development mode, generate now so all errors are found at once
+//    for (i=0 ; i<numtextures ; i++)
+//      R_GenerateLookup(i, &errors);
 
   if (errors)
     I_Error("R_InitTextures: %d errors", errors);
@@ -1000,13 +1091,14 @@ void R_PrecacheLevel(void)
 // Proff - Added for OpenGL
 void R_SetPatchNum(patchnum_t *patchnum, const char *name)
 {
-  patch_t *patch;
-
-  patch = (patch_t *) W_CacheLumpName(name);
+  //patch_t *patch;
+  //patch = (patch_t *) W_CacheLumpName(name);
+  
+  const TPatch *patch = R_GetPatch(W_GetNumForName(name));
   patchnum->width = patch->width;
   patchnum->height = patch->height;
-  patchnum->leftoffset = patch->leftoffset;
-  patchnum->topoffset = patch->topoffset;
+  patchnum->leftoffset = patch->leftOffset;
+  patchnum->topoffset = patch->topOffset;
   patchnum->lumpnum = W_GetNumForName(name);
   W_UnlockLumpName(name);
 }

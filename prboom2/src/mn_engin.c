@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_engin.c,v 1.3 2002/11/24 15:09:11 proff_fs Exp $
+ * $Id: mn_engin.c,v 1.4 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_engin.c,v 1.3 2002/11/24 15:09:11 proff_fs Exp $";
+  "$Id: mn_engin.c,v 1.4 2003/02/15 17:23:40 dukope Exp $";
 
 #include <stdarg.h>
 
@@ -60,6 +60,10 @@ static const char rcsid[] =
 #include "v_video.h"
 
 #include "g_bind.h"    // haleyjd: dynamic key bindings
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 // useful macro: finds if a particular item can be selected on the menu
 #define selectable(it)   (                  \
@@ -143,6 +147,7 @@ static void MN_DrawSlider(int x, int y, int pct)
   V_DrawNumPatch(x + draw_x, y, 0, slider_gfx[slider_slider].lumpnum, CR_DEFAULT, VPT_STRETCH);
 }
 
+/*
 // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
 #define PAL_BLACK   0
 #define PAL_WHITE   4
@@ -172,6 +177,7 @@ static patch_t *M_MakeColChip(byte chipcol, byte framecol)
       colchip[i]=colchipsrc[i];
   return (patch_t *)colchip;
 }
+*/
 
 // draw a menu item. returns the height in pixels
 
@@ -198,14 +204,14 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	  {
 	    int height;
 	  
-	    height = V_NumPatchHeight(lumpnum);
+	    height = R_NumPatchHeight(lumpnum);
 	  
 	    // check for left-aligned
-	    if(!leftaligned) x-= V_NumPatchWidth(lumpnum);
+	    if(!leftaligned) x-= R_NumPatchWidth(lumpnum);
 	    
 	    // adjust x if a centered title
 	    if(item->type == it_title)
-	      x = (320-V_NumPatchWidth(lumpnum))/2;
+	      x = (320-R_NumPatchWidth(lumpnum))/2;
 	    
 	    V_DrawNumPatch(x, y, 0, lumpnum, colour, VPT_STRETCH | VPT_TRANS);
 	    
@@ -646,7 +652,10 @@ boolean MN_Responder (event_t *ev)
   if(ev->data1 == key_escape)
     {
       // toggle menu
-      
+#ifdef COMPILE_VIDD
+      if (VIDD_handleKeyInput(key_escape, 1)) return false; // POPE
+#endif
+
       // start up main menu or kill menu
       if(menuactive) MN_ClearMenus();
       else MN_StartControlPanel();

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.25 2002/11/26 22:24:45 proff_fs Exp $
+ * $Id: p_setup.c,v 1.26 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.25 2002/11/26 22:24:45 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.26 2003/02/15 17:23:40 dukope Exp $";
 
 #include <math.h>
 
@@ -53,6 +53,10 @@ rcsid[] = "$Id: p_setup.c,v 1.25 2002/11/26 22:24:45 proff_fs Exp $";
 #include "s_sound.h"
 #include "v_video.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 //
 // MAP related Lookup tables.
@@ -1315,6 +1319,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   char  gl_lumpname[9];
   int   gl_lumpnum;
 
+#ifdef COMPILE_VIDD
+  if (VIDD_REC_inProgress()) VIDD_REC_registerLevelLoad(episode, map, skill); // POPE
+#endif
 
   totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
   wminfo.partime = 180;
@@ -1431,6 +1438,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   if (bodyque)
     memset(bodyque, 0, bodyquesize * sizeof (*bodyque)); // CPhipps - use memset
 
+#ifdef COMPILE_VIDD
+  if (!VIDD_PLAY_inProgress()) { // POPE
+#endif
+
   /* cph - reset all multiplayer starts */
   memset(playerstarts,0,sizeof(playerstarts));
   deathmatch_p = deathmatchstarts;
@@ -1456,12 +1467,16 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // set up world state
   P_SpawnSpecials();
 
+#ifdef COMPILE_VIDD
+  } // if (!VIDD_PLAY_inProgress()) { // POPE
+#endif
+  
   // preload graphics
   if (precache)
     R_PrecacheLevel();
 
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
   {
     // proff 11/99: calculate all OpenGL specific tables etc.
     gld_PreprocessLevel();

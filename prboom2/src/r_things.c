@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.22 2002/11/26 22:24:47 proff_fs Exp $
+ * $Id: r_things.c,v 1.23 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.22 2002/11/26 22:24:47 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.23 2003/02/15 17:23:41 dukope Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -317,45 +317,27 @@ fixed_t spryscale;
 fixed_t sprtopscreen;
 
 //---------------------------------------------------------------------------
-// Determines whether a column is solid or masked at a given y delta (spot) 
-// - POPE
-//---------------------------------------------------------------------------
-int getIsSolidAtSpot(const column_t *column, int spot) {
-  if (!column) return 0;
-  while (column->topdelta != 0xff) {
-    if (spot < column->topdelta) return 0;
-    if ((spot >= column->topdelta) && (spot <= column->topdelta + column->length)) return 1;
-    column = (const column_t*)((const byte*)column + 3 + column->length + 1);
-  }
-  return 0;
-}
-
-//---------------------------------------------------------------------------
-// Used to determine whether a column edge (top or bottom) should slope
-// up or down for smoothed masked edges - POPE
-//---------------------------------------------------------------------------
-int R_GetColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextcolumn, int spot) {
-  int holeToLeft = !getIsSolidAtSpot(prevcolumn, spot);
-  int holeToRight = !getIsSolidAtSpot(nextcolumn, spot);
-  
-  if (holeToLeft && !holeToRight) return 1;
-  if (!holeToLeft && holeToRight) return -1;
-  return 0;
-}
-
-//---------------------------------------------------------------------------
-void R_DrawMaskedColumn(const column_t *column, const column_t *prevcolumn, const column_t *nextcolumn) // POPE
-{
+void R_DrawMaskedColumn(
+  const TPatch *patch,
+  const TPatchColumn *column, 
+  const TPatchColumn *prevColumn, 
+  const TPatchColumn *nextColumn
+) {
   int     topscreen;
   int     bottomscreen;
   fixed_t basetexturemid = dcvars.texturemid;
-
-  dcvars.texheight = 0; // killough 11/98
-  while (column->topdelta != 0xff)
-    {
+  
+  int i;
+  
+  dcvars.texheight = patch->height;//0; // killough 11/98
+  for (i=0; i<column->numPosts; i++) {
+    const TPatchPost *post = &column->posts[i]; 
+  
+  //while (column->topdelta != 0xff)
+  //  {
       // calculate unclipped screen coordinates for post
-      topscreen = sprtopscreen + spryscale*column->topdelta;
-      bottomscreen = topscreen + spryscale*column->length;
+      topscreen = sprtopscreen + spryscale*post->startY;
+      bottomscreen = sprtopscreen + spryscale*(post->startY+post->length-1);
 
       dcvars.yl = (topscreen+FRACUNIT-1)>>FRACBITS;
       dcvars.yh = (bottomscreen-1)>>FRACBITS;
@@ -368,15 +350,15 @@ void R_DrawMaskedColumn(const column_t *column, const column_t *prevcolumn, cons
 
       if (dcvars.yl <= dcvars.yh && dcvars.yh < viewheight)
         {
-          dcvars.source = (const byte *)column + 3;
-          dcvars.nextsource = dcvars.source;
-          dcvars.texturemid = basetexturemid - (column->topdelta<<FRACBITS);
+          dcvars.source = column->pixels + post->startY;
+          
+          dcvars.nextsource = nextColumn->pixels + post->startY;
+          dcvars.prevsource = prevColumn->pixels + post->startY;
+          dcvars.texturemid = basetexturemid - (post->startY<<FRACBITS);
 
           if (rdrawvars.maskedColumnEdgeType == RDRAW_MASKEDCOLUMNEDGE_SLOPED) { // POPE
-            // set up our top and bottom sloping - POPE
-            dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
-            dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);
-          }  
+            dcvars.edgeSlope = post->edgeSloping;
+          }
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
           dcvars.drawingmasked = 1; // POPE
@@ -384,7 +366,7 @@ void R_DrawMaskedColumn(const column_t *column, const column_t *prevcolumn, cons
           dcvars.drawingmasked = 0; // POPE
         }
 
-      column = (const column_t *)(  (byte *)column + column->length + 4);
+      //column = (const column_t *)(  (byte *)column + column->length + 4);
     }
   dcvars.texturemid = basetexturemid;
 }
@@ -396,11 +378,10 @@ void R_DrawMaskedColumn(const column_t *column, const column_t *prevcolumn, cons
 // CPhipps - new wad lump handling, *'s to const*'s
 void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 {
-  const column_t *column, *prevcolumn, *nextcolumn; // POPE
   int      texturecolumn;
   fixed_t  frac;
-  const patch_t *patch = W_CacheLumpNum (vis->patch+firstspritelump);
-
+  const TPatch *patch = R_GetPatch(vis->patch+firstspritelump);
+  
   dcvars.colormap = vis->colormap;
   dcvars.nextcolormap = dcvars.colormap; // POPE
 
@@ -442,13 +423,14 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
         I_Error ("R_DrawSpriteRange: Bad texturecolumn");
 #endif
 
-      column = (const column_t *)((const byte *) patch + LONG(patch->columnofs[texturecolumn]));
-      
-      prevcolumn = ((texturecolumn-1) < 0) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[texturecolumn-1])); // POPE
-      nextcolumn = ((texturecolumn+1) >= patch->width) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[texturecolumn+1])); // POPE
-      
-      R_DrawMaskedColumn(column, prevcolumn, nextcolumn); // POPE
+      R_DrawMaskedColumn(
+        patch, 
+        R_GetPatchColumnClamped(patch, texturecolumn),
+        R_GetPatchColumnClamped(patch, texturecolumn-1),
+        R_GetPatchColumnClamped(patch, texturecolumn+1)
+      );
     }
+  
   colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
   W_UnlockLumpNum(vis->patch+firstspritelump); // cph - release lump
 }
@@ -533,18 +515,17 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
     }
 
   {
-    const patch_t* p = W_CacheLumpNum(lump+firstspritelump);
+    const TPatch *patch = R_GetPatch(lump+firstspritelump);
 
     // calculate edges of the shape
-    tx -= SHORT(p->leftoffset)<<FRACBITS;
+    tx -= SHORT(patch->leftOffset)<<FRACBITS;
     x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
 
-    tx += SHORT(p->width)<<FRACBITS;
+    tx += SHORT(patch->width)<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
-    gzt = thing->z + (SHORT(p->topoffset)<<FRACBITS);
-    width = SHORT(p->width);
-    W_UnlockLumpNum(lump+firstspritelump);
+    gzt = thing->z + (SHORT(patch->topOffset)<<FRACBITS);
+    width = SHORT(patch->width);
   }
 
   // off the side?
@@ -579,7 +560,7 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis = R_NewVisSprite ();
 
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
   {
     // proff 11/99: add sprite for OpenGL
     vis->thing = thing;
@@ -703,20 +684,20 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   flip = (boolean) sprframe->flip[0];
 
   {
-    const patch_t* p = W_CacheLumpNum(lump+firstspritelump);
+    const TPatch *patch = R_GetPatch(lump+firstspritelump);
+    
     // calculate edges of the shape
     fixed_t       tx;
     tx = psp->sx-160*FRACUNIT;
 
-    tx -= SHORT(p->leftoffset)<<FRACBITS;
+    tx -= SHORT(patch->leftOffset)<<FRACBITS;
     x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
 
-    tx += SHORT(p->width)<<FRACBITS;
+    tx += SHORT(patch->width)<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
-    width = SHORT(p->width);
-    topoffset = SHORT(p->topoffset)<<FRACBITS;
-    W_UnlockLumpNum(lump+firstspritelump);
+    width = SHORT(patch->width);
+    topoffset = SHORT(patch->topOffset)<<FRACBITS;
   }
 
   // off the side
@@ -761,7 +742,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
 
   // proff 11/99: don't use software stuff in OpenGL
-  if (vid_getMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL)
   {
     R_DrawVisSprite(vis, vis->x1, vis->x2);
   }

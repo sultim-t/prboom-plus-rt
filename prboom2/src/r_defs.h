@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.15 2002/11/24 23:20:09 proff_fs Exp $
+ * $Id: r_defs.h,v 1.16 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -291,15 +291,6 @@ typedef struct
   unsigned short children[2];    // If NF_SUBSECTOR its a subsector.
 } node_t;
 
-// posts are runs of non masked source pixels
-typedef struct
-{
-  byte topdelta; // -1 is the last post in a column
-  byte length;   // length data bytes follows
-} post_t;
-
-// column_t is a list of 0 or more post_t, (byte)-1 terminated
-typedef post_t column_t;
 
 //
 // OTHER TYPES
@@ -326,6 +317,9 @@ typedef struct drawseg_s
   fixed_t bsilheight;                   // do not clip sprites above this
   fixed_t tsilheight;                   // do not clip sprites below this
 
+  // Added for filtering (fractional texture u coord) support - POPE
+  fixed_t rw_offset, rw_distance, rw_centerangle; 
+  
   // Pointers to lists for sprite clipping,
   // all three adjusted so [x1] is first value.
 
@@ -340,6 +334,18 @@ typedef struct drawseg_s
 // of patches.
 //
 
+/*
+//---------------------------------------------------------------------------
+// Legacy patch format, moved to private in r_patch.c - POPE
+// posts are runs of non masked source pixels
+//---------------------------------------------------------------------------
+typedef struct {
+  byte topdelta; // -1 is the last post in a column
+  byte length;   // length data bytes follows
+} post_t;
+// column_t is a list of 0 or more post_t, (byte)-1 terminated
+typedef post_t column_t;
+
 typedef struct 
 { 
   short width, height;  // bounding box size 
@@ -347,6 +353,8 @@ typedef struct
   short topoffset;      // pixels below the origin 
   int columnofs[8];     // only [width] used
 } patch_t;
+//---------------------------------------------------------------------------
+*/
 
 // proff: Added for OpenGL
 typedef struct

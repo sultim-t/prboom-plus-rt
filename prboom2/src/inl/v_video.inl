@@ -269,15 +269,15 @@ void FUNC_V_DrawBackground(const char* flatname, int scrn)
 // V_PlotPatch
 //---------------------------------------------------------------------------
 void FUNC_V_PlotPatch(
-  const patch_t *patch, TPlotRect destRect, const TPlotRect clampRect,
-  TRDrawFilterType filter, const byte *colorTranslationTable,
+  const TPatch *patch, TPlotRect destRect, const TPlotRect clampRect,
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, 
+  const byte *colorTranslationTable, 
   byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
-  const column_t *column, *nextcolumn, *prevcolumn;
+  const TPatchColumn *column, *nextColumn, *prevColumn;
   fixed_t yfrac, xfrac, srcX, srcYShift;
-  int srcColumnIndex, dx;
+  int srcColumnIndex, dx, postIndex;
   void (*columnFunc)();
-  int patchHasHolesOrIsNonRectangular;
   
   // choose the right R_DrawColumn pipeline  
   columnFunc = R_GetExactDrawFunc(
@@ -285,8 +285,6 @@ void FUNC_V_PlotPatch(
     V_VIDEO_BITS, filter, RDRAW_FILTER_POINT
   );
   
-  patchHasHolesOrIsNonRectangular = getPatchHasAHoleOrIsNonRectangular(patch);
-
   // calc the fractional stepping  
   xfrac = FixedDiv((destRect.right-destRect.left)<<FRACBITS, patch->width<<FRACBITS);
   yfrac = FixedDiv((destRect.bottom-destRect.top)<<FRACBITS, patch->height<<FRACBITS);
@@ -295,12 +293,12 @@ void FUNC_V_PlotPatch(
   repointDrawColumnGlobals(
     destBuffer, bufferWidth, bufferHeight, 
     FixedDiv(FRACUNIT, yfrac), colorTranslationTable, 
-    patchHasHolesOrIsNonRectangular && filter == RDRAW_FILTER_LINEAR
+    patch->isNotTileable, slope
   );
   
-  if (false && filter == RDRAW_FILTER_LINEAR) {
+  if (filter == RDRAW_FILTER_LINEAR) {
     // bias the texture u coordinate
-    if (patchHasHolesOrIsNonRectangular) srcX = (FRACUNIT>>1);
+    if (patch->isNotTileable) srcX = (FRACUNIT>>1);
     else srcX = (patch->width<<FRACBITS)-(FRACUNIT>>1);
   }
   else {
@@ -319,57 +317,46 @@ void FUNC_V_PlotPatch(
     // only after we've updated our source X coord
     if (dcvars.x < clampRect.left) continue;
     
-    column = (const column_t *)((const byte *)patch + patch->columnofs[srcColumnIndex]);
-    prevcolumn = ((srcColumnIndex-1) < 0) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex-1]));
-    
-    if ((srcColumnIndex+1) < patch->width) {
-      // no loop for nextcolumn
-      nextcolumn = (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex+1]));
-    }
-    else {
-      // nextcolumn would loop around or if we're nonrectangular, there is no nextcolumn
-      nextcolumn = patchHasHolesOrIsNonRectangular ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[0]));
-    }
+    column = R_GetPatchColumn(patch, srcColumnIndex);
+    prevColumn = R_GetPatchColumn(patch, srcColumnIndex-1);
+    nextColumn = R_GetPatchColumn(patch, srcColumnIndex+1);
       
-    while (column->topdelta != 0xff) {
-      dcvars.yl = destRect.top + ((FixedMul(column->topdelta<<FRACBITS, yfrac))>>FRACBITS);
-      dcvars.yh = destRect.top + ((FixedMul((column->topdelta+column->length)<<FRACBITS, yfrac))>>FRACBITS);
-
+    for (postIndex=0; postIndex<column->numPosts; postIndex++) {
+      const TPatchPost *post = &column->posts[postIndex];
+      
+      dcvars.yl = destRect.top + ((FixedMul(post->startY<<FRACBITS, yfrac))>>FRACBITS);
+      // -FRACUNIT/2 == rounding factor
+      dcvars.yh = destRect.top + ((FixedMul((post->startY+post->length)<<FRACBITS, yfrac)-FRACUNIT/2)>>FRACBITS);
+      dcvars.edgeSlope = post->edgeSloping;
+      
       // clamp and set up our sloping
       if (dcvars.yh >= clampRect.bottom) {
         dcvars.yh = clampRect.bottom-1;
-        dcvars.bottomslope = 0;
-      }
-      else {
-        dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);      
+        dcvars.edgeSlope &= ~RDRAW_EDGESLOPE_BOT_MASK;
       }
       if (dcvars.yl < clampRect.top) {
         srcYShift = FixedDiv((clampRect.top - dcvars.yl)<<FRACBITS, yfrac);
         dcvars.yl = clampRect.top;
-        dcvars.topslope = 0;
+        dcvars.edgeSlope &= ~RDRAW_EDGESLOPE_TOP_MASK;
       }
       else {
         srcYShift = 0;
-        dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
       }
             
-      dcvars.texheight = column->length;
-      dcvars.source = (const byte*)column + 3;
-      if (!patchHasHolesOrIsNonRectangular && nextcolumn) dcvars.nextsource = (const byte*)nextcolumn + 3;
-      else dcvars.nextsource = dcvars.source;
+      dcvars.texheight = patch->height;
+      dcvars.source = column->pixels + post->startY;
+      dcvars.nextsource = nextColumn ? nextColumn->pixels + post->startY : dcvars.source;
+      dcvars.prevsource = prevColumn ? prevColumn->pixels + post->startY : dcvars.source;
       
       if (filter == RDRAW_FILTER_LINEAR) {
         // (FRACUNIT>>1) = empirical shift
         dcvars.texturemid = srcYShift - (FRACUNIT>>1) - (dcvars.yl-centery)*dcvars.iscale;
       }
       else {
-        dcvars.texturemid = srcYShift - (dcvars.yl-centery)*dcvars.iscale;
+        dcvars.texturemid = (srcYShift - (dcvars.yl-centery)*dcvars.iscale);
       }
       
       columnFunc();
-      
-      // move to next post
-      column = (const column_t *)((byte *)column + column->length + 4);  
     }
   }  
  
@@ -381,12 +368,12 @@ void FUNC_V_PlotPatch(
 //---------------------------------------------------------------------------
 void FUNC_V_PlotPatchNum(
   int patchNum, TPlotRect destRect, const TPlotRect clampRect,
-  TRDrawFilterType filter, const byte *colorTranslationTable,
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, 
+  const byte *colorTranslationTable,
   byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
-  const patch_t *patch = (const patch_t*)W_CacheLumpNum(patchNum);
-  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);
-  W_UnlockLumpNum(patchNum);  
+  const TPatch *patch = R_GetPatch(patchNum);
+  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, slope, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);
 }
 
 //---------------------------------------------------------------------------
@@ -394,11 +381,11 @@ void FUNC_V_PlotPatchNum(
 //---------------------------------------------------------------------------
 void FUNC_V_PlotTextureNum(
   int textureNum, int x, int y, int width, int height, TRDrawFilterType filter,
-  byte *destBuffer, int bufferWidth, int bufferHeight
+  TRDrawColumnMaskedEdgeType slope, byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
   texture_t *texture = textures[textureNum];
   int p, patchWidth, patchHeight, patchNum;
-  const patch_t *patch;
+  const TPatch *patch;
   fixed_t xfrac, yfrac;
   TPlotRect destRect, clampRect;
   
@@ -412,10 +399,9 @@ void FUNC_V_PlotTextureNum(
   
   for (p=0; p<texture->patchcount; p++) {
     patchNum = texture->patches[p].patch;
-    patch = (const patch_t*)W_CacheLumpNum(patchNum);
+    patch = R_GetPatch(patchNum);
     patchWidth = patch->width;
     patchHeight = patch->height;
-    W_UnlockLumpNum(patchNum);
     
     destRect.left = x + ((FixedDiv(texture->patches[p].originx<<FRACBITS, xfrac)+(FRACUNIT>>1))>>FRACBITS);
     destRect.right = destRect.left + ((FixedDiv(patchWidth<<FRACBITS, xfrac)+(FRACUNIT>>1))>>FRACBITS);
@@ -423,8 +409,8 @@ void FUNC_V_PlotTextureNum(
     destRect.top = y + ((FixedDiv(texture->patches[p].originy<<FRACBITS, yfrac)+(FRACUNIT>>1))>>FRACBITS);
     destRect.bottom = destRect.top + ((FixedDiv(patchHeight<<FRACBITS, yfrac)+(FRACUNIT>>1))>>FRACBITS);
     
-    FUNC_V_PlotPatchNum(
-      texture->patches[p].patch, destRect, clampRect, filter, 0,
+    FUNC_V_PlotPatch(
+      patch, destRect, clampRect, filter, slope, 0,
       destBuffer, bufferWidth, bufferHeight
     );
   }
@@ -434,8 +420,8 @@ void FUNC_V_PlotTextureNum(
 //---------------------------------------------------------------------------
 byte *FUNC_V_GetPlottedPatch(
   int patchNum, int plotWidth, int plotHeight, 
-  int bufferWidth, int bufferHeight, 
-  TRDrawFilterType filter, const byte *colorTranslationTable    
+  int bufferWidth, int bufferHeight, TRDrawFilterType filter, 
+  TRDrawColumnMaskedEdgeType slope, const byte *colorTranslationTable    
 #if V_VIDEO_BITS == 8  
 , byte clearColor
 #elif V_VIDEO_BITS == 32
@@ -464,7 +450,7 @@ byte *FUNC_V_GetPlottedPatch(
   memset(destBuffer, 0xff, bufferSize);
 #endif
   
-  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);  
+  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, slope, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);  
   
 #if V_VIDEO_BITS == 32
   finalizeTrueColorBuffer(destBuffer, bufferWidth*bufferHeight, convertToBGRA);
@@ -478,7 +464,7 @@ byte *FUNC_V_GetPlottedPatch(
 byte *FUNC_V_GetPlottedTexture(
   int textureNum, int plotWidth, int plotHeight, 
   int bufferWidth, int bufferHeight, 
-  TRDrawFilterType filter
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope
 #if V_VIDEO_BITS == 8  
 , byte clearColor
 #elif V_VIDEO_BITS == 32
@@ -501,7 +487,7 @@ byte *FUNC_V_GetPlottedTexture(
   memset(destBuffer, 0xff, bufferSize);
 #endif
   
-  FUNC_V_PlotTextureNum(textureNum, 0, 0, plotWidth, plotHeight, filter, destBuffer, bufferWidth, bufferHeight);
+  FUNC_V_PlotTextureNum(textureNum, 0, 0, plotWidth, plotHeight, filter, slope, destBuffer, bufferWidth, bufferHeight);
 
 #if V_VIDEO_BITS == 32
   finalizeTrueColorBuffer(destBuffer, bufferWidth*bufferHeight, convertToBGRA);
@@ -511,9 +497,12 @@ byte *FUNC_V_GetPlottedTexture(
 }
 
 //---------------------------------------------------------------------------
-// V_DrawMemPatch
+// V_DrawNumPatch
 //---------------------------------------------------------------------------
-static void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) {
+void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
+         int cm, enum patch_translation_e flags) {
+
+  const TPatch *patch = R_GetPatch(lump);
   int width, height;
   const byte *trans;  
   TPlotRect destRect;
@@ -522,8 +511,8 @@ static void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, in
   width = patch->width;
   height = patch->height;
   
-  x -= patch->leftoffset;
-  y -= patch->topoffset;
+  x -= patch->leftOffset;
+  y -= patch->topOffset;
   
   destRect.left = x;
   destRect.right = x+width;
@@ -531,10 +520,10 @@ static void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, in
   destRect.bottom = y+height;
   
   if (flags & VPT_STRETCH) {
-    destRect.left = destRect.left * SCREENWIDTH / 320;
-    destRect.right = destRect.right * SCREENWIDTH / 320;
-    destRect.top = destRect.top * SCREENHEIGHT / 200;
-    destRect.bottom = destRect.bottom * SCREENHEIGHT / 200;
+    destRect.left = (destRect.left * SCREENWIDTH + 160) / 320;
+    destRect.right = (destRect.right * SCREENWIDTH + 160) / 320;
+    destRect.top = (destRect.top * SCREENHEIGHT + 100) / 200;
+    destRect.bottom = (destRect.bottom * SCREENHEIGHT + 100) / 200;
   }
   
   if (flags & VPT_TRANS) {
@@ -545,17 +534,11 @@ static void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, in
     trans = 0;
   }
 
-  FUNC_V_PlotPatch(patch, destRect, clampRect, RDRAW_FILTER_POINT, trans, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT);
-}
-
-//---------------------------------------------------------------------------
-// V_DrawNumPatch
-//---------------------------------------------------------------------------
-void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
-         int cm, enum patch_translation_e flags) {
-  
-  FUNC_V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump), cm, flags);
-  W_UnlockLumpNum(lump); 
+  FUNC_V_PlotPatch(
+    patch, destRect, clampRect, 
+    vid_drawPatchFilterType, vid_drawPatchSlopeType, 
+    trans, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT
+  );
 }
 
 //---------------------------------------------------------------------------

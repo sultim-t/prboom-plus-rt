@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: wi_stuff.c,v 1.9 2002/11/24 15:09:12 proff_fs Exp $
+ * $Id: wi_stuff.c,v 1.10 2003/02/15 17:23:42 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: wi_stuff.c,v 1.9 2002/11/24 15:09:12 proff_fs Exp $";
+rcsid[] = "$Id: wi_stuff.c,v 1.10 2003/02/15 17:23:42 dukope Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -45,6 +45,10 @@ rcsid[] = "$Id: wi_stuff.c,v 1.9 2002/11/24 15:09:12 proff_fs Exp $";
 #include "sounds.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "r_draw.h"
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 // Ty 03/17/98: flag that new par times have been loaded in d_deh
 extern boolean deh_pars;  
@@ -91,7 +95,7 @@ extern boolean deh_pars;
 
 // NET GAME STUFF
 #define NG_STATSY     50
-#define NG_STATSX     (32 + V_NamePatchWidth(star)/2 + 32*!dofrags)
+#define NG_STATSX     (32 + R_NamePatchWidth(star)/2 + 32*!dofrags)
 
 #define NG_SPACINGX   64
 
@@ -455,14 +459,14 @@ void WI_drawLF(void)
   /* cph - get the graphic lump name and use it */
   WI_levelNameLump(wbs->epsd, wbs->last, lname);
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(lname))/2, y, 
+  V_DrawNamePatch((320 - R_NamePatchWidth(lname))/2, y, 
 		 FB, lname, CR_DEFAULT, VPT_STRETCH);
 
   // draw "Finished!"
-  y += (5*V_NamePatchHeight(lname))/4;
+  y += (5*R_NamePatchHeight(lname))/4;
   
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(finished))/2, y, 
+  V_DrawNamePatch((320 - R_NamePatchWidth(finished))/2, y, 
 		 FB, finished, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -483,14 +487,14 @@ void WI_drawEL(void)
 
   // draw "Entering"
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(entering))/2, 
+  V_DrawNamePatch((320 - R_NamePatchWidth(entering))/2, 
 		  y, FB, entering, CR_DEFAULT, VPT_STRETCH);
 
   // draw level
-  y += (5*V_NamePatchHeight(lname))/4;
+  y += (5*R_NamePatchHeight(lname))/4;
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch((320 - V_NamePatchWidth(lname))/2, y, FB, 
+  V_DrawNamePatch((320 - R_NamePatchWidth(lname))/2, y, FB, 
 		 lname, CR_DEFAULT, VPT_STRETCH);
 }
 
@@ -518,13 +522,12 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     int            right;
     int            bottom;
     int            lump = W_GetNumForName(c[i]);
-    const patch_t* p = W_CacheLumpNum(lump);
+    const TPatch *patch = R_GetPatch(lump); // POPE
 
-    left = lnodes[wbs->epsd][n].x - SHORT(p->leftoffset);
-    top = lnodes[wbs->epsd][n].y - SHORT(p->topoffset);
-    right = left + SHORT(p->width);
-    bottom = top + SHORT(p->height);
-    W_UnlockLumpNum(lump);
+    left = lnodes[wbs->epsd][n].x - SHORT(patch->leftOffset);
+    top = lnodes[wbs->epsd][n].y - SHORT(patch->topOffset);
+    right = left + SHORT(patch->width);
+    bottom = top + SHORT(patch->height);
   
     if (left >= 0
        && right < SCREENWIDTH
@@ -779,7 +782,7 @@ static void WI_drawTime(int x, int y, int t)
     for(;;) {
       n = t % 60;
       t /= 60;
-      x = WI_drawNum(x, y, n, (t || n>9) ? 2 : 1) - V_NamePatchWidth(colon);
+      x = WI_drawNum(x, y, n, (t || n>9) ? 2 : 1) - R_NamePatchWidth(colon);
 
       // draw
       if (t)
@@ -788,7 +791,7 @@ static void WI_drawTime(int x, int y, int t)
       else break;
     } 
   else // "sucks" (maybe should be "addicted", even I've never had a 100 hour game ;)
-    V_DrawNamePatch(x - V_NamePatchWidth(sucks), 
+    V_DrawNamePatch(x - R_NamePatchWidth(sucks), 
 		    y, FB, sucks, CR_DEFAULT, VPT_STRETCH); 
 }
 
@@ -1178,7 +1181,7 @@ void WI_drawDeathmatchStats(void)
   int   w;
   
   int   lh; // line height
-  int   halfface = V_NamePatchWidth(facebackp)/2;
+  int   halfface = R_NamePatchWidth(facebackp)/2;
 
   lh = WI_SPACINGY;
 
@@ -1189,7 +1192,7 @@ void WI_drawDeathmatchStats(void)
   WI_drawLF();
 
   // draw stat titles (top line)
-  V_DrawNamePatch(DM_TOTALSX-V_NamePatchWidth(total)/2,
+  V_DrawNamePatch(DM_TOTALSX-R_NamePatchWidth(total)/2,
 		 DM_MATRIXY-WI_SPACINGY+10, FB, total, CR_DEFAULT, VPT_STRETCH);
   
   V_DrawNamePatch(DM_KILLERSX, DM_KILLERSY, FB, killers, CR_DEFAULT, VPT_STRETCH);
@@ -1480,8 +1483,8 @@ void WI_drawNetgameStats(void)
   int   i;
   int   x;
   int   y;
-  int   pwidth = V_NamePatchWidth(percent);
-  int   fwidth = V_NamePatchWidth(facebackp);
+  int   pwidth = R_NamePatchWidth(percent);
+  int   fwidth = R_NamePatchWidth(facebackp);
 
   WI_slamBackground();
   
@@ -1491,21 +1494,21 @@ void WI_drawNetgameStats(void)
   WI_drawLF();
 
   // draw stat titles (top line)
-  V_DrawNamePatch(NG_STATSX+NG_SPACINGX-V_NamePatchWidth(kills),
+  V_DrawNamePatch(NG_STATSX+NG_SPACINGX-R_NamePatchWidth(kills),
 		 NG_STATSY, FB, kills, CR_DEFAULT, VPT_STRETCH);
 
-  V_DrawNamePatch(NG_STATSX+2*NG_SPACINGX-V_NamePatchWidth(items),
+  V_DrawNamePatch(NG_STATSX+2*NG_SPACINGX-R_NamePatchWidth(items),
 		 NG_STATSY, FB, items, CR_DEFAULT, VPT_STRETCH);
 
-  V_DrawNamePatch(NG_STATSX+3*NG_SPACINGX-V_NamePatchWidth(secret),
+  V_DrawNamePatch(NG_STATSX+3*NG_SPACINGX-R_NamePatchWidth(secret),
 		 NG_STATSY, FB, secret, CR_DEFAULT, VPT_STRETCH);
   
   if (dofrags)
-    V_DrawNamePatch(NG_STATSX+4*NG_SPACINGX-V_NamePatchWidth(frags),
+    V_DrawNamePatch(NG_STATSX+4*NG_SPACINGX-R_NamePatchWidth(frags),
 		   NG_STATSY, FB, frags, CR_DEFAULT, VPT_STRETCH);
 
   // draw stats
-  y = NG_STATSY + V_NamePatchHeight(kills);
+  y = NG_STATSY + R_NamePatchHeight(kills);
 
   for (i=0 ; i<MAXPLAYERS ; i++)
   {
@@ -1731,6 +1734,13 @@ void WI_checkForAccelerate(void)
 {
   int   i;
   player_t  *player;
+
+#ifdef COMPILE_VIDD
+  if (sp_state != 10 && VIDD_PLAY_inProgress() || VIDD_MENU_getAdvanceIntermission()) { // POPE
+    acceleratestage = 1;
+    return;
+  }
+#endif
 
   // check for button presses to skip delays
   for (i=0, player = players ; i<MAXPLAYERS ; i++, player++)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.22 2002/11/24 23:20:09 proff_fs Exp $
+ * $Id: r_draw.c,v 1.23 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.22 2002/11/24 23:20:09 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.23 2003/02/15 17:23:41 dukope Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -373,10 +373,10 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_PointZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_LinearZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ)
 #include "inl/r_drawcolumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_PointUV_PointZ
@@ -392,10 +392,10 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_RoundedUV_PointZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_PLAYER)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_RoundedUV_LinearZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#define R_DRAWCOLUMN_PIPELINE (RDC_16BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_PLAYER)
 #include "inl/r_drawcolumn.inl"
 // 32 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_PointUV_PointZ
@@ -411,10 +411,10 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_RoundedUV_PointZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_TRANSLUCENT)
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_PLAYER)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn32_RoundedUV_LinearZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_TRANSLUCENT)
+#define R_DRAWCOLUMN_PIPELINE (RDC_32BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_PLAYER)
 #include "inl/r_drawcolumn.inl"
 
 //---------------------------------------------------------------------------
@@ -602,7 +602,7 @@ TRDrawFilterType filteruv, TRDrawFilterType filterz
   if (bitDepth == 16 && !vid_shortPalette) V_UpdateTrueColorPalette(VID_MODE16);
   if (bitDepth == 32 && !vid_intPalette) V_UpdateTrueColorPalette(VID_MODE32);
   return plFuncs[
-    vid_getModeForNumBits(bitDepth)*(6*RDRAW_PIPELINE_MAXFUNCS) +
+    V_GetModeForNumBits(bitDepth)*(6*RDRAW_PIPELINE_MAXFUNCS) +
     type*6 +
     filteruv*2 +
     filterz
@@ -613,12 +613,12 @@ TRDrawFilterType filteruv, TRDrawFilterType filterz
 static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type) {
   // This lets us select point sampling when minifying and the global
   // filtering method when magnifying - POPE
-  return R_GetExactDrawFunc(type, vid_getNumBits(), RDRAW_FILTER_POINT, rdrawvars.filterz);
+  return R_GetExactDrawFunc(type, V_GetNumBits(), RDRAW_FILTER_POINT, rdrawvars.filterz);
 }
 
 //---------------------------------------------------------------------------
 TVoidFunc R_GetDrawFunc(TRDrawPipelineType type) {
-  return R_GetExactDrawFunc(type, vid_getNumBits(), rdrawvars.filteruv, rdrawvars.filterz);
+  return R_GetExactDrawFunc(type, V_GetNumBits(), rdrawvars.filteruv, rdrawvars.filterz);
 }
 
 //---------------------------------------------------------------------------
@@ -649,7 +649,7 @@ void R_InitBuffer(int width, int height) {
   // CPhipps - merge viewwindowx into here
 
   for (i=0 ; i<height ; i++)
-    ylookup[i] = (byte*)screens[0].data + ((i+viewwindowy)*SCREENWIDTH + viewwindowx)*vid_getDepth();
+    ylookup[i] = (byte*)screens[0].data + ((i+viewwindowy)*SCREENWIDTH + viewwindowx)*V_GetDepth();
 }
 
 //---------------------------------------------------------------------------
@@ -737,8 +737,8 @@ void R_FillBackScreen(void) {
 // Copy a screen buffer.
 //---------------------------------------------------------------------------
 void R_VideoErase(unsigned ofs, int count) {
-  if (vid_getMode() != VID_MODEGL)
-    memcpy((byte*)screens[0].data+ofs*vid_getDepth(), (byte*)screens[1].data+ofs*vid_getDepth(), count*vid_getDepth());   // LFB copy.
+  if (V_GetMode() != VID_MODEGL)
+    memcpy((byte*)screens[0].data+ofs*V_GetDepth(), (byte*)screens[1].data+ofs*V_GetDepth(), count*V_GetDepth());   // LFB copy.
 }
 
 //---------------------------------------------------------------------------
@@ -747,7 +747,7 @@ void R_VideoErase(unsigned ofs, int count) {
 //  for different size windows?
 //---------------------------------------------------------------------------
 void R_DrawViewBorder(void) {
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     R_FillBackScreen();
   } else {
   // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this

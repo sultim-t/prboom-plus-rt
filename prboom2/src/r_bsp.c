@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.24 2002/11/26 22:24:46 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.25 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.24 2002/11/26 22:24:46 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.25 2003/02/15 17:23:40 dukope Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -357,7 +357,7 @@ static void R_AddLine (seg_t *line)
   // proff 11/99: we have to add these segs to avoid gaps in OpenGL
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
   {
-    if (vid_getMode() == VID_MODEGL)
+    if (V_GetMode() == VID_MODEGL)
     {
       if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
       {
@@ -545,7 +545,7 @@ static void R_Subsector(int num)
                 ) : NULL;
 
   // check if the sector is faked
-  if ((frontsector==sub->sector) && (vid_getMode() == VID_MODEGL))
+  if ((frontsector==sub->sector) && (V_GetMode() == VID_MODEGL))
   {
     visplane_t dummyfloorplane;
     visplane_t dummyceilingplane;
@@ -629,7 +629,7 @@ static void R_Subsector(int num)
     curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
   }
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
     gld_AddPlane(num, floorplane, ceilingplane);
 #endif
 }

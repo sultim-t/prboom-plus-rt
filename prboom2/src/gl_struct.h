@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_struct.h,v 1.14 2002/11/24 22:38:49 proff_fs Exp $
+ * $Id: gl_struct.h,v 1.15 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,6 @@ extern boolean usingGLNodes;
 void gld_Init(int width, int height);
 
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags);
-void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags);
 void gld_DrawBackground(const char* name);
 void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor);
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_inter.c,v 1.7 2002/08/10 20:57:57 cph Exp $
+ * $Id: p_inter.c,v 1.8 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.7 2002/08/10 20:57:57 cph Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.8 2003/02/15 17:23:40 dukope Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -51,6 +51,10 @@ rcsid[] = "$Id: p_inter.c,v 1.7 2002/08/10 20:57:57 cph Exp $";
 #pragma implementation "p_inter.h"
 #endif
 #include "p_inter.h"
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 #define BONUSADD        6
 
@@ -742,6 +746,10 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 {
   player_t *player;
   boolean justhit;          /* killough 11/98 */
+
+#ifdef COMPILE_VIDD
+  if (VIDD_PLAY_inProgress()) return; // POPE
+#endif
 
   /* killough 8/31/98: allow bouncers to take damage */
   if (!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.20 2002/11/26 22:24:47 proff_fs Exp $
+ * $Id: r_segs.c,v 1.21 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.20 2002/11/26 22:24:47 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.21 2003/02/15 17:23:41 dukope Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -112,21 +112,23 @@ static fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
     64*FRACUNIT : num < 256 ? 256 : num : 64*FRACUNIT;
 }
 
+//---------------------------------------------------------------------------
 //
 // R_RenderMaskedSegRange
 //
 
-void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
+void R_RenderMaskedSegRange(drawseg_t *seg, int x1, int x2)
 {
-  const column_t *col, *nextcolumn, *prevcolumn; // POPE
   int      texnum;
+  const TPatch *patch;
   sector_t tempsec;      // killough 4/13/98
+  angle_t angle;
 
   // Calculate light table.
   // Use different light tables
   //   for horizontal / vertical / diagonal. Diagonal?
 
-  curline = ds->curline;  // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
+  curline = seg->curline;  // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
 
   // killough 4/11/98: draw translucent 2s normal textures
 
@@ -145,7 +147,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   frontsector = curline->frontsector;
   backsector = curline->backsector;
 
-  /* cph 2001/11/25 - middle textures did not animate in v1.2 */
+  // cph 2001/11/25 - middle textures did not animate in v1.2
   texnum = curline->sidedef->midtexture;
   if (!comp[comp_maskedanim])
     texnum = texturetranslation[texnum];
@@ -153,12 +155,12 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   // killough 4/13/98: get correct lightlevel for 2s normal textures
   rw_lightlevel = R_FakeFlat(frontsector, &tempsec, NULL, NULL, false) ->lightlevel;
 
-  maskedtexturecol = ds->maskedtexturecol;
+  maskedtexturecol = seg->maskedtexturecol;
 
-  rw_scalestep = ds->scalestep;
-  spryscale = ds->scale1 + (x1 - ds->x1)*rw_scalestep;
-  mfloorclip = ds->sprbottomclip;
-  mceilingclip = ds->sprtopclip;
+  rw_scalestep = seg->scalestep;
+  spryscale = seg->scale1 + (x1 - seg->x1)*rw_scalestep;
+  mfloorclip = seg->sprbottomclip;
+  mceilingclip = seg->sprtopclip;
 
   // find positioning
   if (curline->linedef->flags & ML_DONTPEGBOTTOM)
@@ -181,57 +183,63 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
     dcvars.nextcolormap = dcvars.colormap; // POPE
   }
 
+  // just render one single patch for now - POPE
+  patch = R_GetPatch(textures[texnum]->patches[0].patch);
+  
   // draw the columns
-  for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
-    if (maskedtexturecol[dcvars.x] != SHRT_MAX)
-      {
-        if (!fixedcolormap) dcvars.z = spryscale; // POPE
-        dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
-        dcvars.nextcolormap = R_ColourMap(rw_lightlevel+1,spryscale); // POPE
+  for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep) {
+    if (maskedtexturecol[dcvars.x] == SHRT_MAX) continue;
+    
+    // calculate texture offset - POPE
+    angle =(seg->rw_centerangle+xtoviewangle[dcvars.x])>>ANGLETOFINESHIFT;
+    dcvars.texu = seg->rw_offset-FixedMul(finetangent[angle],seg->rw_distance);
+          
+    if (!fixedcolormap) dcvars.z = spryscale; // POPE
+    dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
+    dcvars.nextcolormap = R_ColourMap(rw_lightlevel+1,spryscale); // POPE
 
-        // killough 3/2/98:
-        //
-        // This calculation used to overflow and cause crashes in Doom:
-        //
-        // sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid, spryscale);
-        //
-        // This code fixes it, by using double-precision intermediate
-        // arithmetic and by skipping the drawing of 2s normals whose
-        // mapping to screen coordinates is totally out of range:
+    // killough 3/2/98:
+    //
+    // This calculation used to overflow and cause crashes in Doom:
+    //
+    // sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid, spryscale);
+    //
+    // This code fixes it, by using double-precision intermediate
+    // arithmetic and by skipping the drawing of 2s normals whose
+    // mapping to screen coordinates is totally out of range:
 
-        {
-          int_64_t t = ((int_64_t) centeryfrac << FRACBITS) -
-            (int_64_t) dcvars.texturemid * spryscale;
-          if (t + (int_64_t) textureheight[texnum] * spryscale < 0 ||
-              t > (int_64_t) MAX_SCREENHEIGHT << FRACBITS*2)
-            continue;        // skip if the texture is out of screen's range
-          sprtopscreen = (long)(t >> FRACBITS);
-        }
+    {
+      int_64_t t = ((int_64_t) centeryfrac << FRACBITS) -
+        (int_64_t) dcvars.texturemid * spryscale;
+      if (t + (int_64_t) textureheight[texnum] * spryscale < 0 ||
+          t > (int_64_t) MAX_SCREENHEIGHT << FRACBITS*2)
+        continue;        // skip if the texture is out of screen's range
+      
+      sprtopscreen = (long)(t >> FRACBITS);
+      
+      // I'm not sure why this is needed, but columns drawn
+      // by R_DrawMaskedColumn are shifted up one pixel on the screen
+      // otherwise
+      sprtopscreen += spryscale; // POPE      
+    }
 
-        dcvars.iscale = 0xffffffffu / (unsigned) spryscale;
+    dcvars.iscale = 0xffffffffu / (unsigned) spryscale;
 
-        // killough 1/25/98: here's where Medusa came in, because
-        // it implicitly assumed that the column was all one patch.
-        // Originally, Doom did not construct complete columns for
-        // multipatched textures, so there were no header or trailer
-        // bytes in the column referred to below, which explains
-        // the Medusa effect. The fix is to construct true columns
-        // when forming multipatched textures (see r_data.c).
-
-        // draw the texture
-        col = (column_t *)((byte *)R_GetTextureColumn(texnum,maskedtexturecol[dcvars.x]) - 3); // POPE
-        nextcolumn = 0;  // POPE //(column_t *)((byte *)R_GetTextureColumn(texnum,maskedtexturecol[(dcvars.x+1) >= x2 ? x1 : dcvars.x+1]) - 3);
-        prevcolumn = 0;  // POPE //(column_t *)((byte *)R_GetTextureColumn(texnum,maskedtexturecol[(dcvars.x-1) <= x1 ? x2-1 : dcvars.x-1]) - 3);
+    // draw the masked column (always wrapped)
+    R_DrawMaskedColumn(
+      patch, 
+      R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]),
+      R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]-1),
+      R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x]+1)
+    );
         
-        R_DrawMaskedColumn(col, prevcolumn, nextcolumn);  // POPE
-
-        maskedtexturecol[dcvars.x] = SHRT_MAX;
-      }
+    maskedtexturecol[dcvars.x] = SHRT_MAX;
+  }
 
   // Except for main_tranmap, mark others purgable at this point
   if (curline->linedef->tranlump > 0 && general_translucency)
     W_UnlockLumpNum(curline->linedef->tranlump-1); // cph - unlock it
-  curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
+  curline = NULL; // cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things
 }
 
 //
@@ -453,7 +461,7 @@ void R_StoreWallRange(const int start, const int stop)
   	curline->linedef->flags |= ML_MAPPED;
 
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
   {
     // proff 11/99: the rest of the calculations is not needed for OpenGL
     ds_p++->curline = curline;
@@ -499,7 +507,7 @@ void R_StoreWallRange(const int start, const int stop)
     size_t need = (rw_stopx - start)*4 + pos;
     if (need > maxopenings)
       {
-        drawseg_t *ds;                //jff 8/9/98 needed for fix from ZDoom
+        drawseg_t *seg;                //jff 8/9/98 needed for fix from ZDoom
         short *oldopenings = openings;
         short *oldlast = lastopening;
 
@@ -512,10 +520,10 @@ void R_StoreWallRange(const int start, const int stop)
       // jff 8/9/98 borrowed fix for openings from ZDOOM1.14
       // [RH] We also need to adjust the openings pointers that
       //    were already stored in drawsegs.
-      for (ds = drawsegs; ds < ds_p; ds++)
+      for (seg = drawsegs; seg < ds_p; seg++)
         {
-#define ADJUST(p) if (ds->p + ds->x1 >= oldopenings && ds->p + ds->x1 <= oldlast)\
-            ds->p = ds->p - oldopenings + openings;
+#define ADJUST(p) if (seg->p + seg->x1 >= oldopenings && seg->p + seg->x1 <= oldlast)\
+            seg->p = seg->p - oldopenings + openings;
           ADJUST (maskedtexturecol);
           ADJUST (sprtopclip);
           ADJUST (sprbottomclip);
@@ -697,14 +705,20 @@ void R_StoreWallRange(const int start, const int stop)
   if (segtextured)
     {
       rw_offset = FixedMul (hyp, -finesine[offsetangle >>ANGLETOFINESHIFT]);
-
+      
       rw_offset += sidedef->textureoffset + curline->offset;
-
+      
       rw_centerangle = ANG90 + viewangle - rw_normalangle;
 
       rw_lightlevel = frontsector->lightlevel;
     }
 
+  // Remember the vars used to determine fractional U texture
+  // coords for later - POPE
+  ds_p->rw_offset = rw_offset;
+  ds_p->rw_distance = rw_distance;
+  ds_p->rw_centerangle = rw_centerangle;
+      
   // if a floor / ceiling plane is on the wrong side of the view
   // plane, it is definitely invisible and doesn't need to be marked.
 

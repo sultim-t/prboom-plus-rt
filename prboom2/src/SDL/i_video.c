@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.47 2002/11/26 22:24:48 proff_fs Exp $
+ * $Id: i_video.c,v 1.48 2003/02/15 17:23:43 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.47 2002/11/26 22:24:48 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.48 2003/02/15 17:23:43 dukope Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -485,7 +485,7 @@ static void I_UploadNewPalette(int pal)
   static int cachedgamma;
   static size_t num_pals;
 
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
     return;
 
   if ((colours == NULL) || (cachedgamma != usegamma)) {
@@ -557,7 +557,7 @@ void I_FinishUpdate (void)
 #endif
   
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     // proff 04/05/2000: swap OpenGL buffers
     gld_Finish();
     return;
@@ -577,13 +577,13 @@ void I_FinishUpdate (void)
         //dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
         dest=(char *)screen->pixels;
         src=screens[0].data;
-        w=vid_getDepth()*((screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w));
+        w=V_GetDepth()*((screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w));
         h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
         for (; h>0; h--)
         {
           memcpy(dest,src,w);
           dest+=screen->pitch;
-          src+=SCREENWIDTH*vid_getDepth();
+          src+=SCREENWIDTH*V_GetDepth();
         }
         SDL_UnlockSurface(screen);
       }
@@ -604,7 +604,7 @@ void I_FinishUpdate (void)
 int I_ScreenShot (const char* fname)
 {
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     unsigned char *pixel_data;
     SDL_Surface *surface;
     int result;
@@ -727,7 +727,7 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
-  vid_initMode(r_videomode);
+  V_InitMode(r_videomode);
   V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
 
@@ -737,7 +737,7 @@ void I_UpdateVideoMode(void)
   h = SCREENHEIGHT;
   
   // Initialize SDL with this graphics mode
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     init_flags = SDL_OPENGL;
   } else {
     if (use_doublebuffer && use_fullscreen)
@@ -752,7 +752,7 @@ void I_UpdateVideoMode(void)
   if (use_fullscreen)
     init_flags |= SDL_FULLSCREEN;
 
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
@@ -767,7 +767,7 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
     screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
   } else {
-    screen = SDL_SetVideoMode(w, h, vid_getNumBits(), init_flags); // POPE
+    screen = SDL_SetVideoMode(w, h, V_GetNumBits(), init_flags); // POPE
   }
 
   if (screen == NULL) {
@@ -775,7 +775,7 @@ void I_UpdateVideoMode(void)
   }
 
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
     if (DynGL_GetFunctions(NULL) == SDL_FALSE)
       I_Error("DynGL_GetFunctions failed: %s\n", SDL_GetError());
 #endif
@@ -793,7 +793,7 @@ void I_UpdateVideoMode(void)
     screens[0].not_on_heap = false;
   }
 
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     lprintf(LO_INFO,"    SDL OpenGL PixelFormat:\n");
     SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
     lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
@@ -885,7 +885,7 @@ void I_Video_AddCommands()
 	gl_library_str = Z_Strdup("libGL.so.1", PU_STATIC, 0);
 #endif
   C_AddCommand(r_fullscreen);
-  r_videomode = vid_getMode();
+  r_videomode = V_GetMode();
   C_AddCommand(r_videomode);
   C_AddCommand(r_width);
   C_AddCommand(r_height);

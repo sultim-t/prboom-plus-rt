@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.12 2002/11/24 23:20:10 proff_fs Exp $
+ * $Id: r_plane.c,v 1.13 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.12 2002/11/24 23:20:10 proff_fs Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.13 2003/02/15 17:23:41 dukope Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -179,7 +179,7 @@ static void R_MapPlane(int y, int x1, int x2)
   dsvars.x1 = x1;
   dsvars.x2 = x2;
 
-  if (vid_getMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL)
     R_GetDrawFunc(RDRAW_PIPELINE_SPAN)(); //R_DrawSpan();
 }
 

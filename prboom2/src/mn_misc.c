@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_misc.c,v 1.4 2002/11/24 15:09:11 proff_fs Exp $
+ * $Id: mn_misc.c,v 1.5 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_misc.c,v 1.4 2002/11/24 15:09:11 proff_fs Exp $";
+  "$Id: mn_misc.c,v 1.5 2003/02/15 17:23:40 dukope Exp $";
 
 #include <stdarg.h>
 
@@ -403,8 +403,8 @@ void MN_MapColourDrawer()
 
   // draw colours table
 
-  x = (320 - V_NamePatchWidth("M_COLORS")) / 2;
-  y = (200 - V_NamePatchHeight("M_COLORS")) / 2;
+  x = (320 - R_NamePatchWidth("M_COLORS")) / 2;
+  y = (200 - R_NamePatchHeight("M_COLORS")) / 2;
 
   V_DrawNamePatch(x, y, 0, "M_COLORS", CR_DEFAULT, VPT_STRETCH);
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.61 2002/11/28 13:35:04 proff_fs Exp $
+ * $Id: g_game.c,v 1.62 2003/02/15 17:23:38 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.61 2002/11/28 13:35:04 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.62 2003/02/15 17:23:38 dukope Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -90,6 +90,10 @@ rcsid[] = "$Id: g_game.c,v 1.61 2002/11/28 13:35:04 proff_fs Exp $";
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -544,6 +548,7 @@ static void G_DoLoadLevel (void)
   // killough 5/13/98: in case netdemo has consoleplayer other than green
   ST_Start();
   HU_Start();
+  R_FlushAllPatches();
 
   // killough: make -timedemo work on multilevel demos
   // Move to end of function to minimize noise -- killough 2/22/98:
@@ -567,6 +572,15 @@ static void G_DoLoadLevel (void)
 
 boolean G_Responder (event_t* ev)
 {
+
+#ifdef COMPILE_VIDD
+  if (VIDD_inProgress() && (ev->type == ev_keydown || ev->type == ev_keyup)) { // POPE
+    if (VIDD_handleKeyInput(ev->data1, (ev->type == ev_keydown))) {
+      ev->data1 = 0;
+    }
+  }
+#endif
+  
   // allow spy mode changes even during the demo
   // killough 2/22/98: even during DM demo
   //
@@ -816,6 +830,15 @@ void G_Ticker (void)
   if (gamestate != prevgamestate) {
     switch (prevgamestate) {
     case GS_LEVEL:
+#ifdef COMPILE_VIDD
+      // During playback, VIDD does its own cleanup of the level memory
+      // in a graceful (non-flush) way - POPE
+      if (VIDD_PLAY_inProgress()) break;      
+#endif
+
+      // In general, this seems like a pretty bad move here. This invalidates
+      // hordes of structures pointed to elsewhere that aren't cleaned
+      // up immediately - POPE
       Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
       break;
     case GS_INTERMISSION:
@@ -1249,6 +1272,10 @@ void G_WorldDone (void)
 {
   gameaction = ga_worlddone;
 
+#ifdef COMPILE_VIDD
+  if (VIDD_PLAY_inProgress()) return; // POPE
+#endif
+  
   if (secretexit)
     players[consoleplayer].didsecret = true;
 
@@ -1274,6 +1301,10 @@ void G_WorldDone (void)
 
 void G_DoWorldDone (void)
 {
+#ifdef COMPILE_VIDD
+  if (VIDD_PLAY_inProgress()) { VIDD_PLAY_doWorldDone(); return; } // POPE
+#endif
+
   idmusnum = -1;             //jff 3/17/98 allow new level's music to be loaded
   gamestate = GS_LEVEL;
   gamemap = wminfo.next+1;
@@ -2640,6 +2671,10 @@ boolean G_CheckDemoStatus (void)
       return false;  // killough
     }
 
+#ifdef COMPILE_VIDD
+  if (VIDD_checkDemoStatus()) return true; // POPE
+#endif
+
   if (timingdemo)
     {
       int endtime = I_GetTime_RealTime ();
@@ -2652,8 +2687,9 @@ boolean G_CheckDemoStatus (void)
 
   if (demoplayback)
     {
-      if (singledemo)
+      if (singledemo) {
         exit(0);  // killough
+      }
 
       if (demolumpnum != -1) {
 	// cph - unlock the demo lump

@@ -230,7 +230,7 @@
 #endif
 
 //---------------------------------------------------------------------------
-// 8-bit filtering needs an incrementing screen Y coord
+// dither filtering needs an incrementing screen Y coord
 #if (R_DRAWCOLUMN_PIPELINE & RDC_DITHERZ) || ((R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR) && (R_DRAWCOLUMN_PIPELINE & RDC_8BITS))
   #define INCSCREENY screenY++;
 #else
@@ -286,7 +286,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
   if (count < 0) return; // Zero length, column does not exceed a pixel.
 
   count++;
-  
+
   screenY = dcvars.yl;
 
 #ifdef RANGECHECK
@@ -316,17 +316,17 @@ void R_DRAWCOLUMN_FUNCNAME() {
 
   if (dcvars.drawingmasked && rdrawvars.maskedColumnEdgeType == RDRAW_MASKEDCOLUMNEDGE_SLOPED) {
     // slope the top and bottom column edge based on the fractional u coordinate
-    // and dcvars.topslope and dcvars.bottomslope, which were set in R_DrawMaskedColumn
+    // and dcvars.edgeSlope, which were set in R_DrawMaskedColumn
     // in r_things.c
     if (dcvars.yl != 0) {
-      if (dcvars.topslope > 0) {
+      if (dcvars.edgeSlope & RDRAW_EDGESLOPE_TOP_UP) {
         // [/#]
         int shift = ((0xffff-(dcvars.texu&0xffff))/dcvars.iscale);
         dest += dcvars.targetwidth * shift;
         count -= shift;
         frac += 0xffff-(dcvars.texu&0xffff);
       }
-      else if (dcvars.topslope < 0) {
+      else if (dcvars.edgeSlope & RDRAW_EDGESLOPE_TOP_DOWN) {
         // [#\]
         int shift = ((dcvars.texu&0xffff)/dcvars.iscale);
         dest += dcvars.targetwidth * shift;
@@ -335,11 +335,11 @@ void R_DRAWCOLUMN_FUNCNAME() {
       }
     }
     if (dcvars.yh != viewheight-1) {
-      if (dcvars.bottomslope > 0) {
+      if (dcvars.edgeSlope & RDRAW_EDGESLOPE_BOT_UP) {
         // [#/]
         count -= ((0xffff-(dcvars.texu&0xffff))/dcvars.iscale);
       }
-      else if (dcvars.bottomslope < 0) {
+      else if (dcvars.edgeSlope & RDRAW_EDGESLOPE_BOT_DOWN) {
         // [\#]
         count -= ((dcvars.texu&0xffff)/dcvars.iscale);
       }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.10 2002/08/05 17:44:58 proff_fs Exp $
+ * $Id: p_tick.c,v 1.11 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,13 +31,17 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.10 2002/08/05 17:44:58 proff_fs Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.11 2003/02/15 17:23:40 dukope Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
 #include "p_user.h"
 #include "p_spec.h"
 #include "p_tick.h"
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 int leveltime;
 
@@ -53,7 +57,7 @@ int leveltime;
  * a special class of thinkers, to allow more efficient searches. 
  */
 
-thinker_t thinkerclasscap[th_all+1];
+thinker_t thinkerclasscap[NUMTHCLASS]; // Dim on actual size - POPE
 
 //
 // P_InitThinkers
@@ -146,6 +150,10 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 {
   if (!thinker->references)
     {
+#ifdef COMPILE_VIDD    
+      if (VIDD_REC_inProgress()) VIDD_REC_registerElementDestruction(thinker); // POPE
+#endif
+    
       { /* Remove from main thinker list */
         thinker_t *next = thinker->next;
         /* Note that currentthinker is guaranteed to point to us,
@@ -267,9 +275,17 @@ void P_Ticker (void)
 		 players[consoleplayer].viewz != 1))
     return;
 
+#ifdef COMPILE_VIDD
+  if (!VIDD_PLAY_inProgress()) { // POPE
+#endif
+
   for (i=0; i<MAXPLAYERS; i++)
     if (playeringame[i])
       P_PlayerThink(&players[i]);
+
+#ifdef COMPILE_VIDD
+  } // if (!VIDD_PLAY_inProgress()) { // POPE
+#endif
 
   P_RunThinkers();
   P_UpdateSpecials();

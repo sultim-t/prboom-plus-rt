@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.16 2002/11/24 23:20:10 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.17 2003/02/15 17:23:42 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.16 2002/11/24 23:20:10 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.17 2003/02/15 17:23:42 dukope Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -391,7 +391,7 @@ void ST_refreshBackground(void)
   if (st_statusbaron)
     {
       // proff 05/17/2000: draw to the frontbuffer in OpenGL
-      if (vid_getMode() == VID_MODEGL)
+      if (V_GetMode() == VID_MODEGL)
         y=ST_Y;
       V_DrawNamePatch(ST_X, y, screen, "STBAR", CR_DEFAULT, VPT_STRETCH);
 
@@ -742,7 +742,7 @@ void ST_doPaletteStuff(void)
     
     // have to redraw the entire status bar when the palette changes
     // in truecolor modes - POPE
-    if (vid_getMode() == VID_MODE16 || vid_getMode() == VID_MODE32) st_firsttime = true;
+    if (V_GetMode() == VID_MODE16 || V_GetMode() == VID_MODE32) st_firsttime = true;
   }
 }
 
@@ -836,7 +836,7 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh)
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
   if (st_statusbaron) {
-    if (st_firsttime || (vid_getMode() == VID_MODEGL))
+    if (st_firsttime || (V_GetMode() == VID_MODEGL))
       ST_doRefresh();     /* If just after ST_Start(), refresh all */
     else
       ST_diffDraw();      /* Otherwise, update as little as possible */

@@ -146,6 +146,10 @@ CONSOLE_VARIABLE(sens_vert, mouseSensitivity_vert, 0) {}
 VARIABLE_BOOLEAN(player_bobbing, NULL,      onoff);
 CONSOLE_VARIABLE(bobbing, player_bobbing, 0) {}
 
+
+VARIABLE_BOOLEAN(autorun, NULL,      onoff);
+CONSOLE_VARIABLE(autorun, autorun, 0) {}
+
 // turbo scale
 
 int turbo_scale = 100;
@@ -538,6 +542,7 @@ void G_AddCommands()
   C_AddCommand(turbo);
   C_AddCommand(playdemo);
   C_AddCommand(timedemo);
+  C_AddCommand(autorun);
   //C_AddCommand(cooldemo);
   //C_AddCommand(stopdemo);
   //C_AddCommand(exitlevel);

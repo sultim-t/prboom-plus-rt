@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.h,v 1.9 2002/11/18 13:35:49 proff_fs Exp $
+ * $Id: r_data.h,v 1.10 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,6 +37,7 @@
 
 #include "r_defs.h"
 #include "r_state.h"
+#include "r_patch.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -62,10 +63,11 @@ typedef struct
   int   next, index;     // killough 1/31/98: used in hashing algorithm
   // CPhipps - moved arrays with per-texture entries to elements here
   unsigned  widthmask;
-  size_t    compositesize;
+  //size_t    compositesize;
   byte     *composite;
-  short    *columnlump;
-  unsigned *columnofs;
+  int hasSinglePatchAtOrigin;
+  //short    *columnlump;
+  //unsigned *columnofs;
   // CPhipps - end of additions
   short width, height;
   short patchcount;      // All the patches[patchcount] are drawn
@@ -73,10 +75,7 @@ typedef struct
 } texture_t;
 
 // Retrieve column data for span blitting.
-const byte*
-R_GetTextureColumn
-( int           tex,
-  int           col );
+const byte *R_GetTextureColumn(int tex, int col);
 
 
 // I/O, setting up the stuff.

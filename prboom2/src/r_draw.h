@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.10 2002/11/23 22:19:00 proff_fs Exp $
+ * $Id: r_draw.h,v 1.11 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -57,8 +57,7 @@ typedef struct {
   const lighttable_t *nextcolormap; // the next farthest z-depth colormap
   fixed_t z; // the current column z coord
   fixed_t texu; // the current column u coord
-  int topslope; // 0, -1, or 1 for specifying the slope of the top masked column edge
-  int bottomslope; // 0, -1, or 1 for specifying the slope of the bottom masked column edge
+  int edgeSlope; // OR'ed TPostEdgeSloping
   int drawingmasked; // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
   int targetwidth; // normally SCREENWIDTH
   int targetheight; // normally SCREENHEIGHT
@@ -85,6 +84,18 @@ typedef struct {
 } TRDrawSpanVars;
 
 extern TRDrawSpanVars dsvars;
+
+//---------------------------------------------------------------------------
+// Used to specify the sloping of the top and bottom of a column post
+//---------------------------------------------------------------------------
+typedef enum {
+  RDRAW_EDGESLOPE_TOP_UP   = (1<<0),
+  RDRAW_EDGESLOPE_TOP_DOWN = (1<<1),
+  RDRAW_EDGESLOPE_BOT_UP   = (1<<2),
+  RDRAW_EDGESLOPE_BOT_DOWN = (1<<3),
+  RDRAW_EDGESLOPE_TOP_MASK = 0x3,
+  RDRAW_EDGESLOPE_BOT_MASK = 0xc,  
+} TRDrawEdgeSlope;
 
 //---------------------------------------------------------------------------
 // Used to specify what kind of filering you want

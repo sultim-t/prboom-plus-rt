@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.h,v 1.5 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: r_things.h,v 1.6 2003/02/15 17:23:42 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -53,7 +53,7 @@ extern fixed_t pspriteiscale;
 /* proff 11/06/98: Added for high-res */
 extern fixed_t pspriteyscale;
 
-void R_DrawMaskedColumn(const column_t *column, const column_t *prevcolumn, const column_t *nextcolumn); // POPE
+void R_DrawMaskedColumn(const TPatch *patch, const TPatchColumn *column, const TPatchColumn *prevColumn, const TPatchColumn *nextColumn);
 void R_SortVisSprites(void);
 void R_AddSprites(subsector_t* subsec, int lightlevel);
 void R_AddPSprites(void);
@@ -61,7 +61,6 @@ void R_DrawSprites(void);
 void R_InitSprites(const char * const * namelist);
 void R_ClearSprites(void);
 void R_DrawMasked(void);
-int R_GetColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextcolumn, int spot); // POPE
 
 void R_ClipVisSprite(vissprite_t *vis, int xl, int xh);
 

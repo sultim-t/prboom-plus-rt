@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.53 2002/11/24 22:38:49 proff_fs Exp $
+ * $Id: gl_main.c,v 1.54 2003/02/15 17:23:39 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -428,10 +428,6 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 		p_glTexCoord2f(fU2, fV1); p_glVertex2f((xpos+width),(ypos));
 		p_glTexCoord2f(fU2, fV2); p_glVertex2f((xpos+width),(ypos+height));
 	p_glEnd();
-}
-
-void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
-{
 }
 
 #undef SCALE_X

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.25 2002/11/24 23:20:10 proff_fs Exp $
+ * $Id: v_video.h,v 1.26 2003/02/15 17:23:42 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -122,16 +122,20 @@ typedef enum {
 //---------------------------------------------------------------------------
 // Vid mode set interface. This should only be called once per program
 // execution, since other systems query the mode only once at the start
-void vid_initMode(TVidMode vd);
+void V_InitMode(TVidMode vd);
 
 // Vid mode query interface
-TVidMode vid_getMode();
-int vid_getNumBits();
-int vid_getDepth();
+TVidMode V_GetMode();
+int V_GetNumBits();
+int V_GetDepth();
 
 // general mode funcs
-TVidMode vid_getModeForNumBits(int numBits);
-int vid_getModePixelDepth(TVidMode mode);
+TVidMode V_GetModeForNumBits(int numBits);
+int V_GetModePixelDepth(TVidMode mode);
+
+//---------------------------------------------------------------------------
+extern TRDrawFilterType vid_drawPatchFilterType;
+extern TRDrawColumnMaskedEdgeType vid_drawPatchSlopeType;
 
 //---------------------------------------------------------------------------
 // Palettes for converting from 8 bit color to 16 and 32 bit. Also
@@ -187,31 +191,28 @@ typedef void (*TFunc_V_PlotPixel)(int,int,int,byte);
 extern TFunc_V_PlotPixel V_PlotPixel;
 
 // V_PlotPatch
-typedef void (*TFunc_V_PlotPatch)(const patch_t*,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
+typedef void (*TFunc_V_PlotPatch)(const TPatch*,TPlotRect,const TPlotRect,TRDrawFilterType,TRDrawColumnMaskedEdgeType,const byte*,byte*,int,int);
 extern TFunc_V_PlotPatch V_PlotPatch;
 
 // V_PlotPatchNum
-typedef void (*TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
+typedef void (*TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,TRDrawFilterType,const byte*,byte*,int,int);
 extern TFunc_V_PlotPatchNum V_PlotPatchNum;
 
 // V_PlotTextureNum
-typedef void (*TFunc_V_PlotTextureNum)(int,int,int,int,int,TRDrawFilterType,byte*,int,int);
+typedef void (*TFunc_V_PlotTextureNum)(int,int,int,int,int,TRDrawFilterType,TRDrawFilterType,byte*,int,int);
 extern TFunc_V_PlotTextureNum V_PlotTextureNum;
 
-// V_PatchToBlock
-byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, unsigned short* width, unsigned short* height);
-
-typedef struct
-{
-    int x, y;
+//---------------------------------------------------------------------------
+// V_DrawLine
+//---------------------------------------------------------------------------
+typedef struct {
+  int x, y;
 } fpoint_t;
 
-typedef struct
-{
-    fpoint_t a, b;
+typedef struct {
+  fpoint_t a, b;
 } fline_t;
 
-// V_DrawLine
 typedef void (*TFunc_V_DrawLine)(fline_t* , int);
 extern TFunc_V_DrawLine V_DrawLine;
 
@@ -223,17 +224,6 @@ void V_FreeScreen(TScreenVars *scrn);
 void V_FreeScreens();
 void V_SetPalette(int pal);
 void V_MarkRect(int x, int y, int width, int height);
-//---------------------------------------------------------------------------
-
-/* cph -
- * Functions to return width & height of a patch.
- * Doesn't really belong here, but is often used in conjunction with
- * this code.
- */
-int V_NumPatchWidth(int lump);
-int V_NumPatchHeight(int lump);
-#define V_NamePatchWidth(n) V_NumPatchWidth(W_GetNumForName(n))
-#define V_NamePatchHeight(n) V_NumPatchHeight(W_GetNumForName(n))
 
 //---------------------------------------------------------------------------
 // These functions use the R_DrawColumn* pipelines to plot filtered
@@ -242,23 +232,25 @@ int V_NumPatchHeight(int lump);
 byte *V_GetPlottedPatch32(
   int patchNum, int plotWidth, int plotHeight, 
   int bufferWidth, int bufferHeight, 
-  TRDrawFilterType filter, const byte *colorTranslationTable, int convertToBGRA
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope,
+  const byte *colorTranslationTable, int convertToBGRA
 );
 byte *V_GetPlottedPatch8(
   int patchNum, int plotWidth, int plotHeight, 
   int bufferWidth, int bufferHeight,
-  TRDrawFilterType filter, const byte *colorTranslationTable, byte clearColor
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope,
+  const byte *colorTranslationTable, byte clearColor
 );
 
 byte *V_GetPlottedTexture32(
   int textureNum, int plotWidth, int plotHeight, 
   int bufferWidth, int bufferHeight, 
-  TRDrawFilterType filter, int convertToBGRA
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, int convertToBGRA
 );
 byte *V_GetPlottedTexture8(
   int textureNum, int plotWidth, int plotHeight, 
   int bufferWidth, int bufferHeight, 
-  TRDrawFilterType filter, byte clearColor
+  TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, byte clearColor
 );
 
 //---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.29 2002/11/26 22:24:47 proff_fs Exp $
+ * $Id: r_main.c,v 1.30 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.29 2002/11/26 22:24:47 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.30 2003/02/15 17:23:41 dukope Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -420,6 +420,8 @@ void R_Init (void)
   R_InitSkyMap();
   lprintf(LO_INFO, "R_InitTranslationsTables ");
   R_InitTranslationTables();
+  lprintf(LO_INFO, "R_InitPatches ");
+  R_InitPatches();  
 }
 
 //
@@ -509,7 +511,7 @@ static void R_ShowStats(void)
   int now = I_GetTime();
 
   if (now - showtime > 35) {
-    doom_printf((vid_getMode() == VID_MODEGL)
+    doom_printf((V_GetMode() == VID_MODEGL)
                 ?"Frame rate %d fps\nWalls %d, Flats %d, Sprites %d"
                 :"Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
 		(35*KEEPTIMES)/(now - keeptime[0]), rendered_segs, 
@@ -536,7 +538,7 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
     
   rendered_segs = rendered_visplanes = 0;
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
   {
     // proff 11/99: clear buffers
     gld_InitDrawScene();
@@ -566,7 +568,7 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
   NetUpdate ();
 #endif
     
-  if (vid_getMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL)
     R_DrawPlanes ();
     
   // Check for new console commands.
@@ -574,7 +576,7 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
   NetUpdate ();
 #endif
 
-  if (vid_getMode() != VID_MODEGL)
+  if (V_GetMode() != VID_MODEGL)
     R_DrawMasked ();
 
   // Check for new console commands.
@@ -583,7 +585,7 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 #endif
 
 #ifdef GL_DOOM
-  if (vid_getMode() == VID_MODEGL)
+  if (V_GetMode() == VID_MODEGL)
   {
     // proff 11/99: draw the scene
     gld_DrawScene(player);

@@ -93,7 +93,26 @@ void filter_init();
       ((filter_fracu>>(8-FILTER_UVBITS))<<FILTER_UVBITS) + \
       ((((texV)>>8) & 0xff)>>(8-FILTER_UVBITS)) \
     ] ]
+
+/*
+static inline byte *filter_getScale2xQuadColors(byte e, byte b, byte f, byte h, byte d);
+static inline byte filter_getRoundedForColumn(texV, nextRowTexV)  {
+  byte *colors = filter_getScale2xQuadColors(
+    dcvars.source[      ((texV)>>FRACBITS)              ],
+    dcvars.source[      (max(0, ((texV)>>FRACBITS)-1))  ],
+    dcvars.nextsource[  ((texV)>>FRACBITS)              ],
+    dcvars.source[      ((nextRowTexV)>>FRACBITS)       ],
+    dcvars.prevsource[  ((texV)>>FRACBITS)              ]
+  );
   
+  return colors
+    [ filter_roundedUVMap[
+      ((filter_fracu>>(8-FILTER_UVBITS))<<FILTER_UVBITS) +
+      ((((texV)>>8) & 0xff)>>(8-FILTER_UVBITS))
+    ] ];
+}
+*/
+
 //---------------------------------------------------------------------------
 // This is the horrendous macro version of the function commented out of 
 // r_filter.c. It does a bilinear blend on the four source texels for a 

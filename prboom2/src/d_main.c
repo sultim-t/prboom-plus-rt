@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.65 2002/11/26 22:50:38 dukope Exp $
+ * $Id: d_main.c,v 1.66 2003/02/15 17:23:38 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.65 2002/11/26 22:50:38 dukope Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.66 2003/02/15 17:23:38 dukope Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -90,6 +90,10 @@ int access(const char *path, int mode);
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 // DEHacked support - Ty 03/09/97 // CPhipps - const char*'s
 void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
@@ -230,11 +234,15 @@ void D_Display (void)
   boolean wipe;
   boolean viewactive = false, isborder = false;
 
+#ifdef COMPILE_VIDD
+  if (VIDD_handleDraw()) return;
+#endif
+
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
   // save the current screen if about to wipe
-  if ((wipe = gamestate != wipegamestate) && (vid_getMode() != VID_MODEGL))
+  if ((wipe = gamestate != wipegamestate) && (V_GetMode() != VID_MODEGL))
     wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
   if (gamestate != GS_LEVEL) { // Not a level
@@ -288,7 +296,7 @@ void D_Display (void)
       // and there is a menu being displayed
       borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
     }
-    if (redrawborderstuff || redrawborder || (vid_getMode() == VID_MODEGL))
+    if (redrawborderstuff || redrawborder || (V_GetMode() == VID_MODEGL))
       R_DrawViewBorder();
 
     // Now do the drawing
@@ -297,7 +305,7 @@ void D_Display (void)
     if (automapmode & am_active)
       AM_Drawer();
     ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff || redrawsbar);
-    if (vid_getMode() != VID_MODEGL)
+    if (V_GetMode() != VID_MODEGL)
       R_DrawViewBorder();
     HU_Drawer();
   }
@@ -310,7 +318,7 @@ void D_Display (void)
   if (paused) {
     // Simplified the "logic" here and no need for x-coord caching - POPE
     V_DrawNamePatch(
-      (320 - V_NamePatchWidth("M_PAUSE"))/2, 4,
+      (320 - R_NamePatchWidth("M_PAUSE"))/2, 4,
 		    0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH
 		);
   }
@@ -325,7 +333,7 @@ void D_Display (void)
 #endif
   
   // normal update
-  if (!wipe || (vid_getMode() == VID_MODEGL))
+  if (!wipe || (V_GetMode() == VID_MODEGL))
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
@@ -362,6 +370,10 @@ static void D_DoomLoop(void)
 
   for (;;)
     {
+#ifdef COMPILE_VIDD
+      if (VIDD_inProgress()) VIDD_beginFrame(); // POPE
+#endif
+    
       // frame syncronous IO operations
       I_StartFrame ();
 
@@ -380,6 +392,10 @@ static void D_DoomLoop(void)
         }
       else
         TryRunTics (); // will run at least one tic
+
+#ifdef COMPILE_VIDD
+      if (VIDD_inProgress()) VIDD_endFrame(); // POPE
+#endif
 
       // killough 3/16/98: change consoleplayer to displayplayer
       if (players[displayplayer].mo) // cph 2002/08/10
@@ -547,6 +563,13 @@ void D_DoAdvanceDemo(void)
   pagetic = TICRATE * 11;         /* killough 11/98: default behavior */
   gamestate = GS_DEMOSCREEN;
 
+#ifdef COMPILE_VIDD
+  if (VIDD_inProgress()) { // POPE
+    demosequence = 0;
+    return;
+  }
+#endif
+  
   if (netgame && !demoplayback) {
     demosequence = 0;
   } else
@@ -776,11 +799,17 @@ boolean WadFileStatus(char *filename,boolean *isdir)
  * CPhipps	- static, proper prototype
  *		- 12/1999 - rewritten to use I_FindFile
  */
-static char *FindIWADFile(void)
+char *D_FindIWADFile(void)
 {
   int		i;
   char	*	iwad	= NULL;
 
+#ifdef COMPILE_VIDD
+  if (VIDD_inProgress()) { // POPE
+    return I_FindFile(VIDD_getIWad(), ".wad");
+  }
+#endif
+  
   i = M_CheckParm("-iwad");
   if (i && (++i < myargc)) {
     iwad = I_FindFile(myargv[i], ".wad");
@@ -846,11 +875,11 @@ void IdentifyVersion (void)
 
   // locate the IWAD and determine game mode from it
 
-  iwad = FindIWADFile();
+  iwad = D_FindIWADFile();
 
 #ifdef _DEBUG
   // proff 11/99: used for debugging
-  if (vid_getMode() == VID_MODEGL) {
+  if (V_GetMode() == VID_MODEGL) {
     FILE *f;
     f=fopen("levelinfo.txt","w");
     if (f)
@@ -1188,6 +1217,10 @@ void D_DoomMainSetup(void)
       FindResponseFile();
     } while (rsp_found==true);
   }
+  
+#ifdef COMPILE_VIDD
+  VIDD_checkStartupParamsFirst(); // POPE
+#endif
 
   lprintf(LO_INFO,"C_Init: Init console.\n");
   C_Init();
@@ -1549,6 +1582,16 @@ void D_DoomMainSetup(void)
       lprintf(LO_CONFIRM,"Playing demo %s\n",file);
     }
 
+#ifdef COMPILE_VIDD
+  // the location of this function call is extremely fragile.
+  // it must come after a bunch of defaults have been set
+  // (so whatever we set here won't be overwritten), and before
+  // some other init stuff that loads graphics, etc.
+  // the complications exist almost solely because the VIDD
+  // system is allowed to start demoplayback
+  VIDD_checkStartupParamsSecond(); // POPE
+#endif
+  
   // internal translucency set to config file value               // phares
   general_translucency = default_translucency;                    // phares
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.11 2002/11/21 20:50:41 dukope Exp $
+ * $Id: s_sound.c,v 1.12 2003/02/15 17:23:42 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.11 2002/11/21 20:50:41 dukope Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.12 2003/02/15 17:23:42 dukope Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -49,6 +49,10 @@ rcsid[] = "$Id: s_sound.c,v 1.11 2002/11/21 20:50:41 dukope Exp $";
 #include "lprintf.h"
 #include "c_io.h"
 #include "c_runcmd.h"
+
+#ifdef COMPILE_VIDD
+#include "vidd/vidd.h"
+#endif
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -291,6 +295,13 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   sfxinfo_t *sfx;
   mobj_t *origin = (mobj_t *) origin_p;
 
+#ifdef COMPILE_VIDD
+  if (VIDD_REC_inProgress()) {
+    VIDD_REC_registerSound(sfx_id, origin); // POPE
+    return;
+  }
+#endif
+
   //jff 1/22/98 return if sound is not enabled
   if (!snd_card || nosfxparm)
     return;
@@ -468,6 +479,10 @@ void S_UpdateSounds(void* listener_p)
                     if (volume > snd_SfxVolume)
                       volume = snd_SfxVolume;
                 }
+
+#ifdef COMPILE_VIDD
+              if (VIDD_PLAY_inProgress()) pitch = VIDD_PLAY_getSoundPitch(); // POPE
+#endif
 
               // check non-local sounds for distance clipping
               // or modify their params

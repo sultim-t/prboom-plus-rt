@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.39 2002/11/26 22:24:48 proff_fs Exp $
+ * $Id: v_video.c,v 1.40 2003/02/15 17:23:42 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.39 2002/11/26 22:24:48 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.40 2003/02/15 17:23:42 dukope Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -104,13 +104,19 @@ void V_InitColorTranslation(void) {
 //---------------------------------------------------------------------------
 static TVidMode vidMode = VID_MODE8;
 
-//---------------------------------------------------------------------------
-TVidMode vid_getMode() { return vidMode; }
-int vid_getNumBits() { return vid_getModePixelDepth(vidMode) * 8; }
-int vid_getDepth() { return vid_getModePixelDepth(vidMode); }
+TRDrawFilterType vid_drawPatchFilterType = RDRAW_FILTER_ROUNDED;
+TRDrawColumnMaskedEdgeType vid_drawPatchSlopeType = RDRAW_MASKEDCOLUMNEDGE_SLOPED;
+
+int *vid_intPalette = 0;
+short *vid_shortPalette = 0;
 
 //---------------------------------------------------------------------------
-int vid_getModePixelDepth(TVidMode mode) {
+TVidMode V_GetMode() { return vidMode; }
+int V_GetNumBits() { return V_GetModePixelDepth(vidMode) * 8; }
+int V_GetDepth() { return V_GetModePixelDepth(vidMode); }
+
+//---------------------------------------------------------------------------
+int V_GetModePixelDepth(TVidMode mode) {
   switch (mode) {
     case VID_MODE8: return 1;
     case VID_MODE16: return 2;
@@ -120,7 +126,7 @@ int vid_getModePixelDepth(TVidMode mode) {
 }
 
 //---------------------------------------------------------------------------
-TVidMode vid_getModeForNumBits(int numBits) {
+TVidMode V_GetModeForNumBits(int numBits) {
   switch (numBits) {
     case 8: return VID_MODE8;
     case 16: return VID_MODE16;
@@ -130,14 +136,10 @@ TVidMode vid_getModeForNumBits(int numBits) {
 }
 
 //---------------------------------------------------------------------------
-int *vid_intPalette = 0;
-short *vid_shortPalette = 0;
-
-//---------------------------------------------------------------------------
 // Small util funcs to save the R_DrawColumn state - POPE
 // (Welcome to the state-machine)
 //---------------------------------------------------------------------------
-void pushOrPopRDrawState(int push) {
+static void pushOrPopRDrawState(int push) {
   static TRDrawColumnVars dcvars_saved;
   static TRDrawVars rdrawvars_saved;
     
@@ -152,11 +154,16 @@ void pushOrPopRDrawState(int push) {
 }
 
 //---------------------------------------------------------------------------
-void repointDrawColumnGlobals(byte *topleft, int targetwidth, int targetheight, fixed_t iscale, const byte *translation, int drawingmasked) {
+static void repointDrawColumnGlobals(
+  byte *topleft, int targetwidth, int targetheight, 
+  fixed_t iscale, const byte *translation, int drawingmasked,
+  TRDrawColumnMaskedEdgeType maskedColumnEdgeType
+) {
   pushOrPopRDrawState(1);
   rdrawvars.topleft_byte = topleft;
   rdrawvars.topleft_int = (int*)topleft;
-  rdrawvars.topleft_short = (short*)topleft;  
+  rdrawvars.topleft_short = (short*)topleft;
+  rdrawvars.maskedColumnEdgeType = maskedColumnEdgeType;
   dcvars.targetwidth = targetwidth;
   dcvars.targetheight = targetheight;
   dcvars.drawingmasked = drawingmasked;
@@ -167,31 +174,12 @@ void repointDrawColumnGlobals(byte *topleft, int targetwidth, int targetheight, 
 }
 
 //---------------------------------------------------------------------------
-void revertDrawColumnGlobals() {
+static void revertDrawColumnGlobals() {
   pushOrPopRDrawState(0);
 }
 
 //---------------------------------------------------------------------------
-int getPatchHasAHoleOrIsNonRectangular(const patch_t *patch) {
-  int x=0, numPosts, lastColumnDelta = 0;
-  const column_t *column;
-  
-  for (x=0; x<patch->width; x++) {
-    column = (const column_t *)((const byte *)patch + patch->columnofs[x]);
-    if (!x) lastColumnDelta = column->topdelta;
-    else if (lastColumnDelta != column->topdelta) return 1;
-    
-    numPosts = 0;
-    while (column->topdelta != 0xff) {
-      if (numPosts++) return 1;
-      column = (const column_t *)((byte *)column + column->length + 4);
-    }
-  }
-  return 0;    
-}
-
-//---------------------------------------------------------------------------
-void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA) {
+static void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA) {
   byte r,g,b,a;
   unsigned int color;
   int i;
@@ -219,6 +207,7 @@ void finalizeTrueColorBuffer(byte *destBuffer, int numPixels, int convertToBGRA)
   }
 }
 
+//---------------------------------------------------------------------------
 void WRAP_V_DrawLine(fline_t* fl, int color);
 
 //---------------------------------------------------------------------------
@@ -237,10 +226,6 @@ void WRAP_gld_DrawBackground(const char *flatname, int n)
 {
   gld_DrawBackground(flatname);
 }
-void WRAP_gld_DrawPatchFromMem(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags)
-{
-  gld_DrawPatchFromMem(x,y,patch,cm,flags);
-}
 void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
   gld_DrawNumPatch(x,y,lump,cm,flags);
@@ -250,9 +235,6 @@ void V_PlotPixelGL(int scrn, int x, int y, byte color) {
   gld_DrawLine(x, y-1, x, y+1, color);
 }
 void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
-{
-}
-void WRAP_gld_PlotPatch(const patch_t *patch, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
 {
 }
 void WRAP_gld_PlotPatchNum(int patchNum, TPlotRect destRect, const TPlotRect clampRect, TRDrawFilterType filter, const byte *colorTranslationTable, byte *destBuffer, int bufferWidth, int bufferHeight)
@@ -292,7 +274,7 @@ TFunc_V_DrawLine        V_DrawLine;
 
 //---------------------------------------------------------------------------
 // Set Function Pointers
-void vid_initMode(TVidMode vd) {
+void V_InitMode(TVidMode vd) {
 #ifndef GL_DOOM
   if (vd == VID_MODEGL)
     return;
@@ -354,7 +336,7 @@ void vid_initMode(TVidMode vd) {
 void V_AllocScreen(TScreenVars *scrn) {
   if (!scrn->not_on_heap)
     if ((scrn->width * scrn->height) > 0)
-      scrn->data = malloc(scrn->width*scrn->height*vid_getDepth());
+      scrn->data = malloc(scrn->width*scrn->height*V_GetDepth());
 }
 
 //---------------------------------------------------------------------------
@@ -397,7 +379,7 @@ void V_UpdateTrueColorPalette(TVidMode mode) {
   byte r,g,b;
   int nr,ng,nb;
   float t;
-  int paletteNum = (vid_getMode() == VID_MODEGL ? 0 : currentPaletteIndex);
+  int paletteNum = (V_GetMode() == VID_MODEGL ? 0 : currentPaletteIndex);
   
   int pplump = W_GetNumForName("PLAYPAL");
   int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
@@ -405,7 +387,7 @@ void V_UpdateTrueColorPalette(TVidMode mode) {
   // opengl doesn't use the gamma
   register const byte *const gtable = 
     (const byte *)W_CacheLumpNum(gtlump) + 
-    (vid_getMode() == VID_MODEGL ? 0 : 256*(usegamma))
+    (V_GetMode() == VID_MODEGL ? 0 : 256*(usegamma))
   ;
 
   int numPals = W_LumpLength(pplump) / (3*256);
@@ -504,8 +486,8 @@ void V_DestroyTrueColorPalette(TVidMode mode) {
 
 //---------------------------------------------------------------------------
 void V_DestroyUnusedTrueColorPalettes() {
-  if (vid_getMode() != VID_MODE16) V_DestroyTrueColorPalette(VID_MODE16);
-  if (vid_getMode() != VID_MODE32) V_DestroyTrueColorPalette(VID_MODE32);  
+  if (V_GetMode() != VID_MODE16) V_DestroyTrueColorPalette(VID_MODE16);
+  if (V_GetMode() != VID_MODE32) V_DestroyTrueColorPalette(VID_MODE32);  
 }
 
 //---------------------------------------------------------------------------
@@ -541,7 +523,7 @@ void V_Init (void)
 {
   int i;
 
-  vid_initMode(vidMode);
+  V_InitMode(vidMode);
   filter_init();
 
   // reset the all
@@ -554,94 +536,6 @@ void V_Init (void)
 }
 
 //---------------------------------------------------------------------------
-/* cph -
- * V_NamePatchWidth - returns width of a patch.
- * V_NamePatchHeight- returns height of a patch.
- *
- * Doesn't really belong here, but is often used in conjunction with
- *  this code.
- * This is needed to reduce the number of patches being held locked
- *  in memory, since a lot of code was locking and holding pointers
- *  to graphics in order to get this info easily. Also, we do endian
- *  correction here, which reduces the chance of other code forgetting
- *  this.
- */
-//---------------------------------------------------------------------------
-int V_NumPatchWidth(int lump) {
-  int w;
-  w = SHORT(((const patch_t*)W_CacheLumpNum(lump))->width);
-  W_UnlockLumpNum(lump);
-  return w;
-}
-
-//---------------------------------------------------------------------------
-int V_NumPatchHeight(int lump) {
-  int w;
-  w = SHORT(((const patch_t*)W_CacheLumpNum(lump))->height);
-  W_UnlockLumpNum(lump);
-  return w;
-}
-
-//---------------------------------------------------------------------------
-// V_GetBlock
-//---------------------------------------------------------------------------
-// Gets a linear block of pixels from the view buffer.
-//
-// The pixels in the rectangle at x,y in screenbuffer scrn with size
-// width by height are linearly packed into the buffer dest.
-//---------------------------------------------------------------------------
-void V_GetBlock8(int x, int y, int scrn, int width, int height, byte *dest) {
-  byte *src;
-#ifdef RANGECHECK
-  if (x<0 ||x+width >SCREENWIDTH || y<0 || y+height>SCREENHEIGHT) I_Error ("V_GetBlock: Bad arguments");
-#endif
-  src = (byte*)screens[scrn].data + y*SCREENWIDTH+x;
-  while (height--) {
-    memcpy (dest, src, width);
-    src += SCREENWIDTH;
-    dest += width;
-  }
-}
-
-//---------------------------------------------------------------------------
-// CPhipps -
-// V_PatchToBlock
-//
-// Returns a simple bitmap which contains the patch. See-through parts of the
-// patch will be undefined (in fact black for now)
-//---------------------------------------------------------------------------
-// This always draws to and returns an 8-bit byte* buffer - POPE
-//---------------------------------------------------------------------------
-byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, unsigned short* width, unsigned short* height) {
-  TScreenVars    oldscr = screens[1];
-  byte          *block;
-  const patch_t *patch;
-
-  if (vidMode == VID_MODEGL) return 0;
-  
-  screens[1].data = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
-
-  patch = W_CacheLumpName(name);
-  V_DrawNumPatch8(SHORT(patch->leftoffset), SHORT(patch->topoffset),1, W_GetNumForName(name), cm, flags);
-
-#ifdef RANGECHECK
-  if (flags & VPT_STRETCH)
-    I_Error("V_PatchToBlock: Stretching not supported");
-#endif
-
-  *width = SHORT(patch->width); *height = SHORT(patch->height);
-
-  W_UnlockLumpName(name);
-
-  V_GetBlock8(0, 0, 1, *width, *height,
-       block = malloc((long)(*width) * (*height)));
-  
-  free(screens[1].data);
-  screens[1] = oldscr;
-  return block;
-}
-
-//
 // V_drawLine()
 //
 // Draw a line in the frame buffer.
@@ -649,7 +543,7 @@ byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, u
 //
 // Passed the frame coordinates of line, and the color to be drawn
 // Returns nothing
-//
+//---------------------------------------------------------------------------
 void WRAP_V_DrawLine(fline_t* fl, int color)
 {
   register int x;
@@ -727,71 +621,6 @@ void WRAP_V_DrawLine(fline_t* fl, int color)
   }
 }
 
-/*
-//---------------------------------------------------------------------------
-byte *V_GetPlottedPatch8(int patchNum, int width, int height, byte clearColor) {
-  byte *destBuffer;
-  int bufferSize = width*height;
-  TPlotRect rect = { 0, 0, width, height };
-  
-  destBuffer = malloc(bufferSize);
-  memset(destBuffer, clearColor, bufferSize);  
-  V_PlotPatch(patchNum, rect, rect, destBuffer, VID_MODE8, width, height);  
-  return destBuffer;
-}
-
-//---------------------------------------------------------------------------
-byte *V_GetPlottedPatch32(int patchNum, int width, int height) {
-  byte *destBuffer;
-  int bufferSize = width*height*4, i;
-  TPlotRect rect = { 0, 0, width, height };
-  
-  destBuffer = malloc(bufferSize);
-  
-  // when plotting, alpha's will be cleared
-  memset(destBuffer, 0xff, bufferSize);
-  
-  V_PlotPatch(patchNum, rect, rect, destBuffer, VID_MODE32, width, height);  
-  
-  // invert alphas (assumes ARGB or ABGR)
-  for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
-  
-  return destBuffer;
-}
-
-
-//---------------------------------------------------------------------------
-byte *V_GetPlottedTexture8(int textureNum, int width, int height, TRDrawFilterType filter, byte clearColor) {
-  byte *destBuffer;
-  int bufferSize = width*height;
-  
-  destBuffer = malloc(bufferSize);  
-  memset(destBuffer, clearColor, bufferSize);  
-  
-  V_PlotTexture(textureNum, 0, 0, width, height, destBuffer, VID_MODE8, width, height);
-  
-  return destBuffer;
-}
-
-//---------------------------------------------------------------------------
-byte *V_GetPlottedTexture32(int textureNum, int width, int height, TRDrawFilterType filter) {
-  byte *destBuffer;
-  int bufferSize = width*height*4, i;
-  
-  destBuffer = malloc(bufferSize);  
-  
-  // when plotting, alpha's will be cleared
-  memset(destBuffer, 0xff, bufferSize);
-  
-  V_PlotTexture32(textureNum, 0, 0, width, height, destBuffer, width, height);
-  
-  // invert alphas (assumes ARGB or ABGR)
-  for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
-  
-  return destBuffer;
-}
-*/
-
 //---------------------------------------------------------------------------
 // Font
 //---------------------------------------------------------------------------
@@ -842,14 +671,14 @@ void V_WriteText(const char *s, int x, int y, int gap)
     // haleyjd: was no cx<0 check
 
     w = SHORT(hu_font[c].width);
-    if(cx < 0 || cx+w > 320)
-	    break;
+    if (cx < 0 || cx+w > 320)
+	    continue;
 
     // haleyjd: was no y checking at all!
 
     h = SHORT(hu_font[c].height);
-    if(cy < 0 || cy+h > 200)
-	    break;
+    if (cy < 0 || cy+h > 200)
+	    continue;
 
     V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, colour, VPT_STRETCH | VPT_TRANS);
     //V_DrawPatchTranslated(cx, cy, 0, patch, colour, 0);

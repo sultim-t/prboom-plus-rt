@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.10 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: f_wipe.c,v 1.11 2003/02/15 17:23:38 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.10 2002/11/18 22:54:32 proff_fs Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.11 2003/02/15 17:23:38 dukope Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -67,7 +67,7 @@ static int wipe_initMelt(int width, int height, int ticks)
   int i;
 
   // copy start screen to main screen
-  memcpy(wipe_scr.data, wipe_scr_start.data, width*height*vid_getDepth());
+  memcpy(wipe_scr.data, wipe_scr_start.data, width*height*V_GetDepth());
 
   // setup initial column positions (y<0 => not ready to scroll yet)
   y = (int *) malloc(width*sizeof(int));
@@ -89,7 +89,7 @@ static int wipe_doMelt(int width, int height, int ticks)
 {
   boolean done = true;
   int i;
-  const int depth = vid_getDepth();
+  const int depth = V_GetDepth();
 
   width /= 2;
 
@@ -184,7 +184,7 @@ int wipe_ScreenWipe(int x, int y, int width, int height, int ticks)
   static boolean go = 0;                               // when zero, stop the wipe
   
   if (M_CheckParm("-nowipe")) { // POPE  
-    memcpy(screens[0].data, wipe_scr_end.data, width*height*vid_getDepth());
+    memcpy(screens[0].data, wipe_scr_end.data, width*height*V_GetDepth());
     return 1;
   }
   
