@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_maputl.h,v 1.3 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_maputl.h,v 1.4 2001/07/02 12:46:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -83,6 +83,7 @@ void    P_UnsetThingPosition(mobj_t *thing);
 void    P_SetThingPosition(mobj_t *thing);
 boolean P_BlockLinesIterator (int x, int y, boolean func(line_t *));
 boolean P_BlockThingsIterator(int x, int y, boolean func(mobj_t *));
+/* proff 2001/7/2 - What is correct now, with or without CONSTFUNC ??? */
 boolean ThingIsOnLine(const mobj_t *t, const line_t *l);  /* killough 3/15/98 */
 boolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, boolean trav(intercept_t *));

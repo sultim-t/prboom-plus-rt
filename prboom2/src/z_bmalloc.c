@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.8 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: z_bmalloc.c,v 1.9 2001/07/02 12:46:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,10 @@
 #include "../config.h"
 #endif
 
-#include <memory.h>
+/* proff 2001/7/2 - DREAMCAST
+   Can this be removed completely?
+   It's not needed in Windows either */
+//#include <memory.h>
 
 #include "doomtype.h"
 #include "z_zone.h"

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_maputl.c,v 1.4 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_maputl.c,v 1.5 2001/07/02 12:46:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_maputl.c,v 1.4 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_maputl.c,v 1.5 2001/07/02 12:46:43 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -328,6 +328,7 @@ void P_SetThingPosition(mobj_t *thing)
 //
 // A fast function for testing intersections between things and linedefs.
 
+/* proff 2001/7/2 - What is correct now, with or without CONSTFUNC ??? */
 boolean CONSTFUNC ThingIsOnLine(const mobj_t *t, const line_t *l)
 {
   int dx = l->dx >> FRACBITS;                             // Linedef vector

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.9 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: d_deh.c,v 1.10 2001/07/02 12:46:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,8 +34,11 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.9 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.10 2001/07/02 12:46:43 proff_fs Exp $";
 
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
+#endif
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
 #include "doomtype.h"
