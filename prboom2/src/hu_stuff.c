@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.9 2002/11/18 17:46:48 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.10 2002/11/23 22:20:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.9 2002/11/18 17:46:48 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.10 2002/11/23 22:20:10 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -234,7 +234,7 @@ extern int armor_red;
 extern int armor_yellow;
 extern int armor_green;
 
-int showMessages;    // Show messages has default, 0 = off, 1 = on
+int showMessages = 1;    // Show messages has default, 0 = off, 1 = on
 
 //
 // Builtin map names.
