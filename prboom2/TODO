@@ -51,7 +51,7 @@ so I think we can leave this until after a first release.
     bit of code to import, but mostly done)
 
 Colin:
-I'll investigate. Not crucial before a release though.
+Done.
 
 --------------------------------------------------------------------------
 10. Rename linux targets (SDL target could be prboom,
@@ -109,6 +109,7 @@ instructions.
 
 Colin:
 send patch
+Proff comitted patch
 
 --------------------------------------------------------------------------
 17. SDL sound sample handling.
