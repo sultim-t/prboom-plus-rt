@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_items.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: d_items.c,v 1.3 2000/05/12 21:45:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,9 +34,10 @@
  */
 
 static const char
-rcsid[] = "$Id: d_items.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $";
+rcsid[] = "$Id: d_items.c,v 1.3 2000/05/12 21:45:18 proff_fs Exp $";
 
 // We are referring to sprite numbers.
+#include "doomtype.h"
 #include "info.h"
 
 #ifdef __GNUG__
