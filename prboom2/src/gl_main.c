@@ -1049,7 +1049,7 @@ void gld_AddWall(seg_t *seg)
           wall.gltexture=temptex;
           CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
           CALC_TEX_VALUES_TOP(
-            wall, seg, (LINE->flags & (ML_DONTPEGBOTTOM | ML_DONTPEGTOP))==0,
+            wall, seg, (LINE->flags & ML_DONTPEGTOP)==0,
             segs[seg->iSegID].length, lineheight
           );
           ADDWALL(&wall);
