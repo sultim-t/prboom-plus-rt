@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.2 2000/05/04 11:23:00 proff_fs Exp $
+ * $Id: d_main.c,v 1.3 2000/05/04 12:36:24 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.2 2000/05/04 11:23:00 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.3 2000/05/04 12:36:24 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1012,19 +1012,53 @@ void FindResponseFile (void)
         char *file;
         const char **moreargs = malloc(myargc * sizeof(const char*));
         const char **newargv;
+        // proff 04/05/2000: Added for searching responsefile
+        char fname[PATH_MAX+1];
+
+        strcpy(fname,&myargv[i][1]);
+        AddDefaultExtension(fname,".rsp");
 
         // READ THE RESPONSE FILE INTO MEMORY
-        handle = fopen (&myargv[i][1],"rb");
+        //handle = fopen (&myargv[i][1],"rb");
+        // proff 04/05/2000: changed for searching responsefile
+        handle = fopen (fname,"rb");
+        // proff 04/05/2000: Added for searching responsefile
         if (!handle)
-          {
+        {
+          strcat(strcpy(fname,D_DoomExeDir()),&myargv[i][1]);
+          AddDefaultExtension(fname,".rsp");
+          handle = fopen (fname,"rb");
+        }
+        if (!handle)
+        {
             //jff 9/3/98 use logical output routine
-            lprintf(LO_FATAL,"\nNo such response file!\n");
-            exit(1);
-          }
+            // proff 04/05/2000: Changed from LO_FATAL
+            lprintf(LO_ERROR,"\nNo such response file!\n");
+            // proff 04/05/2000: Simply removed the exit(1);
+            //exit(1);
+        }
         //jff 9/3/98 use logical output routine
         lprintf(LO_CONFIRM,"Found response file %s!\n",&myargv[i][1]);
         fseek(handle,0,SEEK_END);
         size = ftell(handle);
+        // proff 04/05/2000: Added check for empty rsp file
+        if (size<=0)
+        {
+          lprintf(LO_ERROR,"\nResponse file empty!\n");
+          fclose(handle);
+	        {
+	          const char *firstargv = myargv[0];
+	          newargv = calloc(sizeof(char *),MAXARGVS);
+	          newargv[0] = firstargv;
+  	      }
+          for (k = 1,index = 1;k < myargc;k++)
+          {
+            if (i!=k)
+              newargv[index++] = myargv[k];
+          }
+          myargc = index; myargv = newargv;
+          return;
+        }
         fseek(handle,0,SEEK_SET);
         file = malloc (size);
         fread(file,size,1,handle);
@@ -1034,11 +1068,11 @@ void FindResponseFile (void)
         for (index = 0,k = i+1; k < myargc; k++)
           moreargs[index++] = myargv[k];
 
-	{
-	  const char *firstargv = myargv[0];
-	  newargv = calloc(sizeof(char *),MAXARGVS);
-	  newargv[0] = firstargv;
-	}
+	      {
+	        const char *firstargv = myargv[0];
+	        newargv = calloc(sizeof(char *),MAXARGVS);
+	        newargv[0] = firstargv;
+	      }
 
         infile = file;
         indexinfile = k = 0;
@@ -1231,7 +1265,19 @@ void D_DoomMainSetup(void)
 
   setbuf(stdout,NULL);
 
-  FindResponseFile();
+  // proff 04/05/2000: Added support for include response files
+  {
+    boolean rsp_found;
+    int i;
+
+    do {
+      rsp_found=false;
+      for (i=0; i<myargc; i++)
+        if (myargv[i][0]=='@')
+          rsp_found=true;
+      FindResponseFile();
+    } while (rsp_found==true);
+  }
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
@@ -1779,6 +1825,10 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: d_main.c,v $
+// Revision 1.3  2000/05/04 12:36:24  proff_fs
+// added support for include response files and
+// fixed some related bugs
+//
 // Revision 1.2  2000/05/04 11:23:00  proff_fs
 // added an textwindow for Win32 and
 // changed some printfs to lprintfs
