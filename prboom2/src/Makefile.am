@@ -66,7 +66,8 @@ COMMON_SRC = \
  w_wad.c         w_wad.h         wi_stuff.c      wi_stuff.h \
  z_bmalloc.c     z_bmalloc.h     z_zone.c        z_zone.h \
  gl_dyn.c        gl_dyn.h        gl_funcs.h      gl_intern.h \
- gl_main.c       gl_preprocess.c gl_struct.h     gl_texture.c
+ gl_main.c       gl_preprocess.c gl_struct.h     gl_texture.c \
+ psnprntf.c      psnprntf.h      m_fcvt.c        m_fcvt.h
 
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
 
