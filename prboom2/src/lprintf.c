@@ -50,6 +50,7 @@
 #include "doomtype.h"
 #include "lprintf.h"
 #include "i_main.h"
+#include "c_io.h"
 
 int cons_error_mask = -1-LO_INFO; /* all but LO_INFO when redir'd */
 int cons_output_mask = -1;        /* all output enabled */
@@ -319,7 +320,7 @@ int lprintf(OutputLevels pri, const char *s, ...)
 #else // DREAMCAST
   r=printf("%s",msg);
 #endif // DREAMCAST
-
+  C_Printf("%s",msg);
   return r;
 }
 
