@@ -144,6 +144,10 @@ Another bug spotter.
 Ralf Engels
 Fix for crash when trying to load empty slot.
 
+Lucas Pope <pope@jeffsys.net>
+Reworked the software renderer and added all those filters.
+Also made the VIDD System.
+
 Everyone who contributed indirectly to MBF and Boom and Doom; see the
 respective documentation files.
 
