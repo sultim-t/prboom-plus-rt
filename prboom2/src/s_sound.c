@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: s_sound.c,v 1.5 2001/07/07 15:00:29 proff_fs Exp $
+ * $Id: s_sound.c,v 1.6 2001/07/22 15:12:46 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,7 +30,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: s_sound.c,v 1.5 2001/07/07 15:00:29 proff_fs Exp $";
+rcsid[] = "$Id: s_sound.c,v 1.6 2001/07/22 15:12:46 cph Exp $";
 
 // killough 3/7/98: modified to allow arbitrary listeners in spy mode
 // killough 5/2/98: reindented, removed useless code, beautified
@@ -136,7 +136,7 @@ void S_Init(int sfxVolume, int musicVolume)
     // simultaneously) within zone memory.
     // CPhipps - calloc
     channels =
-      (channel_t *) Z_Calloc(numChannels,sizeof(channel_t), PU_STATIC, 0);
+      (channel_t *) calloc(numChannels,sizeof(channel_t));
 
     // Note that sounds have not been cached (yet).
     for (i=1 ; i<NUMSFX ; i++)
