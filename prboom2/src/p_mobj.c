@@ -1130,7 +1130,8 @@ void P_SpawnMapThing (const mapthing_t* mthing)
 
   // count deathmatch start positions
 
-  if (mthing->type == 11)
+  // doom2.exe has at most 10 deathmatch starts
+  if (mthing->type == 11 && (!compatibility || deathmatch_p-deathmatchstarts < 10))
     {
     // 1/11/98 killough -- new code removes limit on deathmatch starts:
 
