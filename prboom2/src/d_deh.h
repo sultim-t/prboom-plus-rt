@@ -1124,6 +1124,8 @@ extern const char* startup5;
 // from g_game.c, prefix for savegame name like "boomsav"
 extern const char* savegamename;
 
+extern boolean deh_loaded; // sf
+
 void D_BuildBEXTables(void);
 
 #endif

@@ -109,6 +109,7 @@ int HelperThing = -1;     // in P_SpawnMapThing to substitute helper thing
 
 // variables used in other routines
 boolean deh_pars = FALSE; // in wi_stuff to allow pars in modified games
+boolean deh_loaded = false; // sf
 
 // #include "d_deh.h" -- we don't do that here but we declare the
 // variables.  This externalizes everything that there is a string
@@ -775,7 +776,7 @@ static const deh_strs deh_strlookup[] = {
   {&bgflat31,"BGFLAT31"},
   {&bgcastcall,"BGCASTCALL"},
   // Ty 04/08/98 - added 5 general purpose startup announcement
-  // strings for hacker use.  See m_menu.c
+  // strings for hacker use.  See mn_menu.c
   {&startup1,"STARTUP1"},
   {&startup2,"STARTUP2"},
   {&startup3,"STARTUP3"},
@@ -1531,6 +1532,8 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
     for (; i<NUMSTATES; i++)  // remember what they start as for deh xref
       deh_codeptr[i] = states[i].action;
   }
+
+  deh_loaded = true;
 
   // loop until end of file
 
