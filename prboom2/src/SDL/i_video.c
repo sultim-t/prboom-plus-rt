@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.21 2001/02/03 22:54:48 cph Exp $
+ * $Id: i_video.c,v 1.22 2001/02/04 23:55:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.21 2001/02/03 22:54:48 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.22 2001/02/04 23:55:10 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -231,16 +231,17 @@ static void I_GetEvent(SDL_Event *Event)
 //
 // I_StartTic
 //
+static int mouse_currently_grabbed;
+
 void I_StartTic (void)
 {
   SDL_Event Event;
   {
-    static int currently_grabbed;
     int should_be_grabbed = usemouse &&
 	    !(paused || (gamestate != GS_LEVEL) || demoplayback); 
 
-    if (currently_grabbed != should_be_grabbed)
-      SDL_WM_GrabInput((currently_grabbed = should_be_grabbed) 
+    if (mouse_currently_grabbed != should_be_grabbed)
+      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed) 
 		      ? SDL_GRAB_ON : SDL_GRAB_OFF);
   }
 
@@ -579,9 +580,16 @@ void I_UpdateVideoMode(void)
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
 
+  mouse_currently_grabbed = false;
+
   // Get the info needed to render to the display
   out_buffer = (pval *)screen->pixels;
   screens[0] = (unsigned char *) (screen->pixels); 
+
+  // Hide pointer while over this window
+  SDL_ShowCursor(0);
+
+  R_InitBuffer(w,h);
 
 #ifdef GL_DOOM
   {

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35 2000/11/14 21:22:49 cph Exp $
+ * $Id: gl_main.c,v 1.36 2001/02/04 23:55:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -233,6 +233,8 @@ static void gld_StaticLightAlpha(float light, float alpha)
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 
+void gld_SetVertexArrays(void);
+
 void gld_Init(int width, int height)
 { 
   GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
@@ -364,6 +366,8 @@ void gld_Init(int width, int height)
     gl_tex_format=GL_RGBA;
     lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
   }
+  gld_CleanMemory();
+  gld_SetVertexArrays();
 }
 
 void gld_InitCommandLine()
@@ -2525,6 +2529,11 @@ void gld_PreprocessLevel(void)
   gld_PreprocessSectors();
   gld_PreprocessSegs();
   memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
+  gld_SetVertexArrays();
+}
+
+void gld_SetVertexArrays(void)
+{
   glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
   glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
 }
