@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.1 2000/05/04 07:58:46 proff_fs Exp $
+ * $Id: d_client.c,v 1.2 2000/05/06 20:49:43 jessh Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,13 +49,16 @@
 #include "i_main.h"
 #include "i_video.h"
 #include "m_argv.h"
-
 #include "lprintf.h"
-#ifdef HAVE_UNISTD
-#include <unistd.h>
+
+#ifdef HAVE_CONFIG_H
+#include "../config.h"
 #endif
 #include <sys/types.h>
-#ifdef HAVE_SYS_WAIT
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
 
@@ -466,8 +469,11 @@ void D_QuitNetGame (void)
 
 //
 // $Log: d_client.c,v $
-// Revision 1.1  2000/05/04 07:58:46  proff_fs
-// Initial revision
+// Revision 1.2  2000/05/06 20:49:43  jessh
+// Minor header file fix
+//
+// Revision 1.1.1.1  2000/05/04 07:58:46  proff_fs
+// initial login on sourceforge as prboom2
 //
 // Revision 1.18  2000/05/01 17:50:33  Proff
 // made changes to compile with VisualC and SDL
