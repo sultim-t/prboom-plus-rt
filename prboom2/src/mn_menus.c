@@ -339,10 +339,12 @@ menu_t menu_features =
     {it_title,  FC_GOLD "features",     NULL,                   "M_FEAT"},
     {it_gap},
     {it_gap},
+/*
     {it_runcmd, "multiplayer",          "mn_multi",              "M_MULTI"},
     {it_gap},
     {it_runcmd, "load wad",             "mn_loadwad",            "M_WAD"},
     {it_gap},
+*/
     {it_runcmd, "demos",                "mn_demos",              "M_DEMOS"},
     {it_gap},
     {it_runcmd, "about",                "credits",               "M_ABOUT"},
@@ -376,12 +378,12 @@ menu_t menu_demos =
     {it_gap},
     {it_runcmd,     "play demo",              "mn_clearmenus; playdemo %mn_demoname"},
     {it_runcmd,     "time demo",              "mn_clearmenus; timedemo %mn_demoname"},
-    {it_runcmd,     "stop playing demo",      "mn_clearmenus; stopdemo"},
+    //{it_runcmd,     "stop playing demo",      "mn_clearmenus; stopdemo"},
     {it_gap},
     {it_info,       FC_GOLD "cameras"},
-    {it_toggle,     "viewpoint changes",      "cooldemo"},
+    //{it_toggle,     "viewpoint changes",      "cooldemo"},
     {it_toggle,     "chasecam",               "chasecam"},
-    {it_toggle,     "walkcam",                "walkcam"},
+    //{it_toggle,     "walkcam",                "walkcam"},
     {it_gap},
     {it_end},
   },
@@ -1083,14 +1085,10 @@ menu_t menu_video =
     {it_toggle,       "doublebuffer",                 "r_doublebuffer"},
     {it_toggle,       "fullscreen",                   "r_fullscreen"},
     {it_runcmd,       "apply changes",                "r_setmode"},
-    {it_gap},
-    {it_info,         FC_GOLD "mode"},
-//    {it_toggle,       "wait for retrace",             "v_retrace"},
-//    {it_runcmd,       "test framerate..",             "timedemo demo2; mn_clearmenus"},
-    {it_slider,       "gamma correction",             "gamma"},
 
     {it_gap},
     {it_info,         FC_GOLD "rendering"},
+    {it_slider,       "gamma correction",             "gamma"},
     {it_slider,       "screen size",                  "screensize"},
     {it_toggle,       "hom detector flashes",         "r_homflash"},
     {it_toggle,       "translucency",                 "r_trans"},
@@ -1101,8 +1099,6 @@ menu_t menu_video =
     {it_gap},
     {it_info,         FC_GOLD "misc."},
     {it_toggle,       "\"loading\" disk icon",        "v_diskicon"},
-    {it_toggle,       "screenshot format",            "shot_type"},
-    {it_toggle,       "text mode startup",            "textmode_startup"},
 */
     {it_end},
   },
@@ -1124,7 +1120,7 @@ void MN_VideoModeDrawer()
   sprframe = &sprdef->spriteframes[0];
   lump = sprframe->lump[0];
 
-  V_DrawNumPatch(282, 140, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
+  V_DrawNumPatch(282, 124, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
 }
 
 CONSOLE_COMMAND(mn_video, 0)
@@ -1136,6 +1132,8 @@ menu_t menu_video_settings =
 {
   {
     {it_title,        FC_GOLD "video",                NULL, "m_video"},
+    {it_gap},
+    {it_runcmd,       "test framerate..",             "timedemo demo2; mn_clearmenus"},
     {it_gap},
     {it_info,         FC_GOLD "render options"},
     {it_toggle,       "wall drawing filter",          "r_filteruv"},
@@ -1162,70 +1160,6 @@ CONSOLE_COMMAND(mn_vidsettings, 0)
 {
   MN_StartMenu(&menu_video_settings);
 }
-
-/////////////////////////////////////////////////////////////////
-//
-// Set vid mode
-
-#if 0
-void MN_VidModeDrawer();
-
-menu_t menu_vidmode =
-  {
-    {
-      {it_title,        FC_GOLD "video",                NULL, "m_video"},
-      {it_gap},
-      {it_info,         FC_GOLD "current mode:"},
-      {it_info,         "(current mode)"},
-      {it_gap},
-      {it_info,         FC_GOLD "select video mode:"},
-      // .... video modes filled in by console cmd function ......
-      {it_end},
-    },
-    50, 15,              // x,y offset
-    7,                    // start on first selectable
-    mf_leftaligned|mf_background,        // full-screen menu
-    MN_VidModeDrawer,
-  };
-
-void MN_VidModeDrawer()
-{
-  //menu_vidmode.menuitems[3].description = videomodes[v_mode].description;
-}
-
-CONSOLE_COMMAND(mn_vidmode, 0)
-{
-  static boolean menu_built = false;
-
-  // dont build multiple times
-  if(!menu_built)
-    {
-      int menuitem;//, vidmode;
-      //char tempstr[20];
-
-      // start on item 6
-
-/*
-      for(menuitem=6, vidmode=0; videomodes[vidmode].description;
-	  menuitem++, vidmode++)
-	{
-	  menu_vidmode.menuitems[menuitem].type = it_runcmd;
-	  menu_vidmode.menuitems[menuitem].description =
-	    videomodes[vidmode].description;
-	  sprintf(tempstr, "v_mode %i", vidmode);
-	  menu_vidmode.menuitems[menuitem].data = strdup(tempstr);
-	}
-*/
-
-      menuitem=6;
-      menu_vidmode.menuitems[menuitem].type = it_end; // mark end
-
-      menu_built = true;
-    }
-
-  MN_StartMenu(&menu_vidmode);
-}
-#endif
 
 CONSOLE_COMMAND(screenshot, cf_notnet | cf_buffered)
 {
@@ -1609,8 +1543,6 @@ CONSOLE_COMMAND(mn_enemies, 0)
 // computer on demo2. When you finish you are presented with
 // this menu
 
-// test framerates
-int framerates[] = {2462, 1870, 2460, 698, 489};
 int this_framerate;
 void MN_FrameRateDrawer();
 
@@ -1619,16 +1551,12 @@ menu_t menu_framerate =
   {
     {it_title,    FC_GOLD "framerate"},
     {it_gap},
-    {it_info,     "this graph shows your framerate against that"},
-    {it_info,     "of a fast modern computer (using the same"},
-    {it_info,     "vidmode)"},
-    {it_gap},
     {it_runcmd,   "ok",          "mn_prevmenu"},
     {it_gap},
     {it_end},
   },
   15, 15,                                // x, y
-  6,                                     // starting item
+  1,                                     // starting item
   mf_background | mf_leftaligned,        // align left
   MN_FrameRateDrawer,
 };
@@ -1637,26 +1565,13 @@ menu_t menu_framerate =
 
 void MN_FrameRateDrawer()
 {
-  int y;
-  int scrwidth = 320;
-  int linelength;
   char tempstr[50];
 
   // fast computers framerate is always 3/4 of screen
 
-  sprintf(tempstr, "your computer: %i.%i fps",
+  sprintf(tempstr, "%i.%i fps",
 	  this_framerate/10, this_framerate%10);
   V_WriteText(tempstr, 50, 80, -1);
-
-  y = 93;
-  linelength = (3 * scrwidth * this_framerate) / (4 * framerates[0]);
-  if(linelength > scrwidth) linelength = scrwidth-2;
-
-  sprintf(tempstr, "fast computer (k6-2 450): %i.%i fps",
-	  framerates[0]/10, framerates[0]%10);
-  V_WriteText(tempstr, 50, 110, -1);
-
-  y = 103;
 }
 
 void MN_ShowFrameRate(int framerate)
