@@ -11,6 +11,9 @@ Changes from v2.2.2 to v2.2.3
 - fix numpad 5 key
 - allow compilation on systems where SDL is built without joystick support
 - fix comp_skymap
+- using anisotropic filtering when the OpenGL extension is available
+- using paletted textures when the OpenGL extension is available
+- using shared texture palette when the OpenGL extension is available
 
 Changes from v2.2.1 to v2.2.2
 - more demo sync problems for original Doom and Boom fixed
