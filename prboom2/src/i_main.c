@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.4 2000/05/11 20:01:06 proff_fs Exp $
+ * $Id: i_main.c,v 1.5 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.4 2000/05/11 20:01:06 proff_fs Exp $";
+rcsid[] = "$Id: i_main.c,v 1.5 2000/07/28 15:40:05 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -395,6 +395,7 @@ int main(int argc, char **argv)
   Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
   atexit(I_Quit);
+#ifndef _DEBUG
   signal(SIGSEGV, I_SignalHandler);
 #ifdef SIGPIPE
   signal(SIGPIPE, I_SignalHandler); /* CPhipps - add SIGPIPE, as this is fatal */
@@ -405,6 +406,7 @@ int main(int argc, char **argv)
   signal(SIGILL,  I_SignalHandler);
   signal(SIGINT,  I_SignalHandler);  /* killough 3/6/98: allow CTRL-BRK during init */
   signal(SIGABRT, I_SignalHandler);
+#endif
 
   /* cphipps - call to video specific startup code */
   I_PreInitGraphics();

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: i_udp.c,v 1.3 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  New UDP networking code for LxDoom, based in part on 
  *  the original linuxdoom networking
@@ -77,7 +77,7 @@ static boolean BindToLocalPort( int s, int port, int family )
       memset (&address, 0, sizeof(address));
       address.sin_family = family;
       address.sin_addr.s_addr = INADDR_ANY;
-      address.sin_port = htons(port);
+      address.sin_port = doom_htons(port);
       
       return (bind(s, (struct sockaddr *)&address, sizeof(address)) != -1);
     }
@@ -89,7 +89,7 @@ static boolean BindToLocalPort( int s, int port, int family )
       memset (&address, 0, sizeof(address));
       address.sin6_family = family;
       address.sin6_addr = in6addr_any;
-      address.sin6_port = htons(port);
+      address.sin6_port = doom_htons(port);
 
       return (bind(s, (struct sockaddr *)&address, sizeof(address)) != -1);
     }
@@ -149,7 +149,7 @@ static byte ChecksumPacket(const packet_header_t* buffer, size_t len)
   return sum;
 }
 
-struct sockaddr sentfrom;
+UDP_SOCKET sentfrom;
 
 size_t I_GetPacket(packet_header_t* buffer, size_t buflen)
 {

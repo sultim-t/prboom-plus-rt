@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_network.h,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: i_network.h,v 1.3 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,16 +31,44 @@
  *  Low level network interface. 
  *-----------------------------------------------------------------------------*/
 
-void I_InitNetwork(const char* serv, int pn);
+#ifdef HAVE_CONFIG_H 
+#include "../config.h"
+#endif
+
+#ifdef USE_SDL_NET
+ #include "SDL.h"
+ #include "SDL_net.h"
+ #define UDP_SOCKET UDPsocket
+ #define UDP_PACKET UDPpacket
+ #define AF_INET
+ #define UDP_CHANNEL int
+ extern UDP_SOCKET udp_socket;
+#else
+ #define UDP_CHANNEL struct sockaddr
+#endif
+
+#ifndef IPPORT_RESERVED
+        #define IPPORT_RESERVED 1024
+#endif
+
+void I_InitNetwork(void);
 size_t I_GetPacket(packet_header_t* buffer, size_t buflen);
 void I_SendPacket(packet_header_t* packet, size_t len);
 
-#ifdef AF_INET
-void I_SendPacketTo(packet_header_t* packet, size_t len, struct sockaddr* to);
-void I_SetupSocket(int sock, int port, int family);
-void I_PrintAddress(FILE* fp, struct sockaddr* addr);
+#ifdef USE_SDL_NET
+UDP_SOCKET I_Socket(Uint16 port);
+int I_ConnectToServer(const char *serv);
+UDP_CHANNEL I_RegisterPlayer(IPaddress *ipaddr);
+void I_UnRegisterPlayer(UDP_CHANNEL channel);
+extern IPaddress sentfrom_addr;
+#endif
 
-extern struct sockaddr sentfrom;
+#ifdef AF_INET
+void I_SendPacketTo(packet_header_t* packet, size_t len, UDP_CHANNEL *to);
+void I_SetupSocket(int sock, int port, int family);
+void I_PrintAddress(FILE* fp, UDP_CHANNEL *addr);
+
+extern UDP_CHANNEL sentfrom;
 extern int v4socket, v6socket;
 #endif
 

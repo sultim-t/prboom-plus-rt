@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_network.c,v 1.1 2000/05/09 20:47:07 proff_fs Exp $
+ * $Id: i_network.c,v 1.2 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  New UDP networking code for LxDoom, based in part on 
  *  the original linuxdoom networking
@@ -63,8 +63,8 @@ static int GetInAddr(const char* host, struct sockaddr *s_addr)
   // Alternative port support
   strcpy(hostname, host); p = strchr(hostname, ':');
   if (p) {
-    *p++=0; addr->sin_port = htons(atoi(p));
-  } else addr->sin_port = htons(5030 /* Default server port */);
+    *p++=0; addr->sin_port = doom_htons(atoi(p));
+  } else addr->sin_port = doom_htons(5030 /* Default server port */);
 
   if (isalpha(hostname[0])) {
     struct hostent*    hostentry;  
@@ -109,7 +109,7 @@ void I_InitNetwork(const char* serv, int pn)
     }
   }
   // Send init packet
-  initpacket.pn = htons(pn);
+  initpacket.pn = doom_htons(pn);
   initpacket.head.type = PKT_INIT; initpacket.head.tic = 0;
   I_SendPacket(&initpacket.head, sizeof(initpacket));
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.7 2000/05/21 13:37:46 proff_fs Exp $
+ * $Id: config.h,v 1.8 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -95,7 +95,8 @@
 #define HAVE_LIBSDL_MIXER 1
 
 /* Define if you want networkg ame support */
-/* #define HAVE_NET 1 */
+#define HAVE_NET 1
+#define USE_SDL_NET 1
 
 /* Define if you have struct sockaddr_in6 */
 /* #define HAVE_IPv6 1 */

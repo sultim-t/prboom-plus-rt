@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.3 2000/05/24 12:04:59 cph Exp $
+ * $Id: d_server.c,v 1.4 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,16 +34,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <limits.h>
 #include <string.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+//#include <sys/socket.h>
+//#include <netinet/in.h>
 
 #include "doomtype.h"
 #include "protocol.h"
@@ -70,7 +70,7 @@ void I_Error(const char *error, ...) // killough 3/20/98: add const
 
 int playerjoingame[MAXPLAYERS], playerleftgame[MAXPLAYERS];
 #define playeringame(i) ((playerjoingame[i] < INT_MAX) && (playerleftgame[i] == INT_MAX))
-struct sockaddr remoteaddr[MAXPLAYERS];
+UDP_CHANNEL remoteaddr[MAXPLAYERS];
 
 void BroadcastPacket(packet_header_t *packet, size_t len)
 {
@@ -119,11 +119,19 @@ void doexit(void)
   BroadcastPacket(&packet, sizeof packet);
 }
 
+#ifndef USE_SDL_NET
 static void I_InitSockets(int v4port)
 {
   v4socket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
   I_SetupSocket(v4socket, v4port, AF_INET);
 }
+#else
+static void I_InitSockets(Uint16 port)
+{
+  I_InitNetwork();
+  udp_socket = I_Socket(port);
+}
+#endif
 
 int main(int argc, char** argv)
 {
@@ -133,6 +141,7 @@ int main(int argc, char** argv)
   char**wadname = NULL;
   char**wadget = NULL;
   int numwads = 0;
+/*
   {
     int opt;
     byte *gameopt = setupinfo.game_options;
@@ -192,6 +201,9 @@ int main(int argc, char** argv)
 	break;
       }
   }
+*/
+  
+  verbose=3;
 
   setupinfo.ticdup = ticdup; setupinfo.extratic = xtratics;
   { /* Random number seed 
@@ -223,9 +235,11 @@ int main(int argc, char** argv)
   atexit(doexit); // heh
   signal(SIGTERM, sig_handler);
   signal(SIGINT , sig_handler);
+#ifndef USE_SDL_NET
   signal(SIGQUIT, sig_handler);
   signal(SIGKILL, sig_handler);
   signal(SIGHUP , sig_handler);
+#endif
   
   {
     int remoteticfrom[MAXPLAYERS] = { 0, 0, 0, 0 };
@@ -239,7 +253,7 @@ int main(int argc, char** argv)
 	packet_header_t *packet = malloc(10000);
 	size_t len;
 	
-	usleep(10000);
+	I_uSleep(10000);
 	while ((len = I_GetPacket(packet, 10000))) {
 	  if (verbose>2) printf("Received packet:");
 	  switch (packet->type) {
@@ -260,7 +274,12 @@ int main(int argc, char** argv)
 
 		if (n == MAXPLAYERS) break; // Full game
 		playerjoingame[n] = 0;
+#ifndef USE_SDL_NET
 		remoteaddr[n] = sentfrom;
+#else
+    if (sentfrom==-1)
+      remoteaddr[n]=I_RegisterPlayer(&sentfrom_addr);
+#endif
 
 		if (!memchr(rname,0,1000)) rname = "Invalid";
 		printf("Join by %s ", rname);
@@ -281,7 +300,7 @@ int main(int argc, char** argv)
 		  }
 		  I_SendPacketTo(packet, sizeof *packet + sizeof setupinfo + extrabytes, 
 				 remoteaddr+n);
-		  usleep(10000);
+		  I_uSleep(10000);
 		  I_SendPacketTo(packet, sizeof *packet + sizeof setupinfo + extrabytes, 
 				 remoteaddr+n);
 		}
@@ -299,9 +318,9 @@ int main(int argc, char** argv)
 		printf("All players joined, beginning game.\n");
 		packet->type = PKT_GO; packet->tic = 0;
 		BroadcastPacket(packet, sizeof *packet);
-		usleep(10000);
+		I_uSleep(10000);
 		BroadcastPacket(packet, sizeof *packet);
-		usleep(100000);
+		I_uSleep(100000);
 	      }
 	    }
 	    break;

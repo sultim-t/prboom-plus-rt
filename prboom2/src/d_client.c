@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.4 2000/05/24 12:04:59 cph Exp $
+ * $Id: d_client.c,v 1.5 2000/07/28 15:40:05 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -96,12 +96,26 @@ void D_InitNetGame (void)
     // Get game info from server
     packet_header_t *packet = Z_Malloc(1000, PU_STATIC, NULL);
     struct setup_packet_s *sinfo = (void*)(packet+1);
+  struct { packet_header_t head; short pn; char myaddr[200]; } initpacket;
 
-    I_InitNetwork(myargv[i], wanted_player_number);
+    I_InitNetwork();
+  udp_socket = I_Socket(0);
+  I_ConnectToServer(myargv[i]);
+  // Send init packet
+  initpacket.pn = doom_htons(wanted_player_number);
+  initpacket.head.type = PKT_INIT; initpacket.head.tic = 0;
+  I_SendPacket(&initpacket.head, sizeof(initpacket));
 
-    do {
-      while (!I_GetPacket(packet, 1000)) 
-	I_uSleep(10000);
+    do
+    {
+      while (!I_GetPacket(packet, 1000))
+      {
+	      I_uSleep(10000);
+        lprintf(LO_INFO,".");
+      }
+      {
+        printf("type: %d\n",packet->type);
+      }
     } while (packet->type != PKT_SETUP);
 
     // Get info from the setup packet
@@ -161,10 +175,10 @@ void D_CheckNetGame(void)
   if (server) {
     lprintf(LO_INFO, "D_CheckNetGame: waiting for server to signal game start\n");
     do {
-      while (!I_GetPacket(packet, sizeof *packet)) {
+      while (!I_GetPacket(packet, sizeof(packet_header_t)+1)) {
 	packet->tic = 0; packet->type = PKT_GO; 
 	*(byte*)(packet+1) = consoleplayer;
-	I_SendPacket(packet, 1 + sizeof *packet);
+	I_SendPacket(packet, sizeof(packet_header_t)+1);
 	I_uSleep(100000);
       }
     } while (packet->type != PKT_GO);
