@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.13 2000/09/30 15:50:26 proff_fs Exp $
+ * $Id: i_sound.c,v 1.14 2000/11/17 20:41:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.13 2000/09/30 15:50:26 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.14 2000/11/17 20:41:36 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -248,17 +248,14 @@ I_UpdateSoundParams
     // Separation, that is, orientation/stereo.
     //  range is: 1 - 256
     seperation += 1;
-    seperation *= seperation;
 
     // Per left/right channel.
     //  x^2 seperation,
     //  adjust volume properly.
     volume *= 8;
-    leftvol =
-	volume - ((volume*seperation) >> 16);
+    leftvol = volume - ((volume*seperation*seperation) >> 16);
     seperation = seperation - 257;
-    rightvol =
-	volume - ((volume*seperation) >> 16);	
+    rightvol= volume - ((volume*seperation*seperation) >> 16);	
 
     // Sanity check, clamp volume.
     if (rightvol < 0 || rightvol > 127)
