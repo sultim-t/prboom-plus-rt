@@ -14,6 +14,12 @@ prboom2/VISUALC6/Doom.dsp eol=crlf
 prboom2/VISUALC6/Doom.dsw eol=crlf
 prboom2/VISUALC6/prboom_server.dsp eol=crlf
 prboom2/VISUALC6/viddsys.dsp eol=crlf
+prboom2/VISUALCNET/Doom.sln eol=crlf
+prboom2/VISUALCNET/Doom.vcproj eol=crlf
+prboom2/VISUALCNET/Makefile.am -text
+prboom2/VISUALCNET/config.h -text
+prboom2/VISUALCNET/prboom_server.vcproj eol=crlf
+prboom2/VISUALCNET/viddsys.vcproj eol=crlf
 prboom2/data/graphics/boxcc.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxcl.ppm -text svneol=unset#application/octet-stream
 prboom2/data/graphics/boxcr.ppm -text svneol=unset#application/octet-stream
