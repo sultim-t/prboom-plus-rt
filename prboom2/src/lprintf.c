@@ -130,60 +130,61 @@ static void I_PrintStr (int xp, const char *cp, int count, BOOL scroll) {
 
 static int I_ConPrintString (const char *outline)
 {
-	const char *cp, *newcp;
-	static int xp = 0;
-	int newxp;
-	BOOL scroll;
+  const char *cp, *newcp;
+  static int xp = 0;
+  int newxp;
+  BOOL scroll;
 
   if (!console_inited)
     return 0;
-	cp = outline;
-	while (*cp) {
-		for (newcp = cp, newxp = xp;
-			*newcp != '\n' && *newcp != '\0' && newxp < 80;
-			 newcp++, newxp++) {
-			if (*newcp == '\x8') {
-				if (xp) xp--;
-				newxp = xp;
-				cp++;
-			}
-		}
+  cp = outline;
+  while (*cp) {
+    for (newcp = cp, newxp = xp;
+      *newcp != '\n' && *newcp != '\0' && newxp < 80;
+       newcp++) {
+      if (*newcp == '\x08') {
+        newxp--;
+        break;
+      }
+      else
+        newxp++;
+    }
 
-		if (*cp) {
-			const char *poop;
-			int x;
+    if (*cp) {
+      const char *poop;
+      int x;
 
-			for (x = xp, poop = cp; poop < newcp; poop++, x++) {
+      for (x = xp, poop = cp; poop < newcp; poop++, x++) {
         Last[x+2] = ((*poop) < 32) ? 32 : (*poop);
-			}
+      }
 
-			if (Last[1] < xp + (newcp - cp))
-				Last[1] = xp + (newcp - cp);
+      if (Last[1] < xp + (newcp - cp))
+        Last[1] = xp + (newcp - cp);
 
-			if (*newcp == '\n' || xp == 80) {
-				if (*newcp != '\n') {
-					Last[0] = 1;
-				}
-				memmove (Lines, Lines + (80 + 2), (80 + 2) * (25 - 1));
-				Last[0] = 0;
-				Last[1] = 0;
-				newxp = 0;
-				scroll = TRUE;
-			} else {
-				scroll = FALSE;
-			}
-			I_PrintStr (xp, cp, newcp - cp, scroll);
+      if (*newcp == '\n' || xp == 80) {
+        if (*newcp != '\n') {
+          Last[0] = 1;
+        }
+        memmove (Lines, Lines + (80 + 2), (80 + 2) * (25 - 1));
+        Last[0] = 0;
+        Last[1] = 0;
+        newxp = 0;
+        scroll = TRUE;
+      } else {
+        scroll = FALSE;
+      }
+      I_PrintStr (xp, cp, newcp - cp, scroll);
 
-			xp = newxp;
+      xp = newxp;
 
-			if (*newcp == '\n')
-				cp = newcp + 1;
-			else
-				cp = newcp;
-		}
-	}
+      if ((*newcp == '\n') || (*newcp == '\x08'))
+        cp = newcp + 1;
+      else
+        cp = newcp;
+    }
+  }
 
-	return strlen (outline);
+  return strlen (outline);
 }
 
 void I_ConTextAttr(unsigned char a)
