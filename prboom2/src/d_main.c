@@ -629,8 +629,9 @@ void D_AddFile (const char *file, wad_source_t source)
   if (strlen(gwa_filename)>4)
     if (!strcasecmp(gwa_filename+(strlen(gwa_filename)-4),".wad"))
     {
-      gwa_filename[strlen(gwa_filename)-4]='\0';
-      AddDefaultExtension(gwa_filename, ".gwa");
+      char *ext;
+      ext = &gwa_filename[strlen(gwa_filename)-4];
+      ext[1] = 'g'; ext[2] = 'w'; ext[3] = 'a';
       wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
       wadfiles[numwadfiles].name = gwa_filename;
       wadfiles[numwadfiles].src = source; // Ty 08/29/98
