@@ -268,7 +268,7 @@ char buf[3];
   if (!isdigit(buf[0]) || !isdigit(buf[1]))
     return;
 
-  plyr->message = s_STSTR_MUS; // Ty 03/27/98 - externalized
+  doom_printf(s_STSTR_MUS); // Ty 03/27/98 - externalized
   
   if (gamemode == commercial)
     {
@@ -276,7 +276,7 @@ char buf[3];
           
       //jff 4/11/98 prevent IDMUS00 in DOOMII and IDMUS36 or greater
       if (musnum < mus_runnin ||  ((buf[0]-'0')*10 + buf[1]-'0') > 35)
-        plyr->message = s_STSTR_NOMUS; // Ty 03/27/98 - externalized
+        doom_printf(s_STSTR_NOMUS); // Ty 03/27/98 - externalized
       else
         {
           S_ChangeMusic(musnum, 1);
@@ -289,7 +289,7 @@ char buf[3];
           
       //jff 4/11/98 prevent IDMUS0x IDMUSx0 in DOOMI and greater than introa
       if (buf[0] < '1' || buf[1] < '1' || ((buf[0]-'1')*9 + buf[1]-'1') > 31)
-        plyr->message = s_STSTR_NOMUS; // Ty 03/27/98 - externalized
+        doom_printf(s_STSTR_NOMUS); // Ty 03/27/98 - externalized
       else
         {
           S_ChangeMusic(musnum, 1);
@@ -303,7 +303,7 @@ static void cheat_choppers()
 {
   plyr->weaponowned[wp_chainsaw] = true;
   plyr->powers[pw_invulnerability] = true;
-  plyr->message = s_STSTR_CHOPPERS; // Ty 03/27/98 - externalized
+  doom_printf(s_STSTR_CHOPPERS); // Ty 03/27/98 - externalized
 }
 
 static void cheat_god()
@@ -315,10 +315,10 @@ static void cheat_god()
         plyr->mo->health = god_health;  // Ty 03/09/98 - deh
           
       plyr->health = god_health;
-      plyr->message = s_STSTR_DQDON; // Ty 03/27/98 - externalized
+      doom_printf(s_STSTR_DQDON); // Ty 03/27/98 - externalized
     }
   else 
-    plyr->message = s_STSTR_DQDOFF; // Ty 03/27/98 - externalized
+    doom_printf(s_STSTR_DQDOFF); // Ty 03/27/98 - externalized
 }
 
 // CPhipps - new health and armour cheat codes
@@ -328,7 +328,7 @@ static void cheat_health()
     if (plyr->mo)
       plyr->mo->health = mega_health;
     plyr->health = mega_health;
-    plyr->message = s_STSTR_BEHOLDX; // Ty 03/27/98 - externalized
+    doom_printf(s_STSTR_BEHOLDX); // Ty 03/27/98 - externalized
   }
 }
 
@@ -336,7 +336,7 @@ static void cheat_megaarmour()
 {
   plyr->armorpoints = idfa_armor;      // Ty 03/09/98 - deh
   plyr->armortype = idfa_armor_class;  // Ty 03/09/98 - deh
-  plyr->message = s_STSTR_BEHOLDX; // Ty 03/27/98 - externalized
+  doom_printf(s_STSTR_BEHOLDX); // Ty 03/27/98 - externalized
 }
 
 static void cheat_fa()
@@ -363,7 +363,7 @@ static void cheat_fa()
     if (i!=am_cell || gamemode!=shareware)
       plyr->ammo[i] = plyr->maxammo[i];
 
-  plyr->message = s_STSTR_FAADDED;
+  doom_printf(s_STSTR_FAADDED);
 }
 
 static void cheat_k()
@@ -373,7 +373,7 @@ static void cheat_k()
     if (!plyr->cards[i])     // only print message if at least one key added
       {                      // however, caller may overwrite message anyway
         plyr->cards[i] = true;
-        plyr->message = "Keys Added";
+        doom_printf("Keys Added");
       }
 }
 
@@ -381,7 +381,7 @@ static void cheat_kfa()
 {
   cheat_k();
   cheat_fa();
-  plyr->message = STSTR_KFAADDED;
+  doom_printf(STSTR_KFAADDED);
 }
 
 static void cheat_noclip()
@@ -389,8 +389,8 @@ static void cheat_noclip()
   // Simplified, accepting both "noclip" and "idspispopd".
   // no clipping mode cheat
 
-  plyr->message = (plyr->cheats ^= CF_NOCLIP) & CF_NOCLIP ? 
-    s_STSTR_NCON : s_STSTR_NCOFF; // Ty 03/27/98 - externalized
+  doom_printf((plyr->cheats ^= CF_NOCLIP) & CF_NOCLIP ? 
+    s_STSTR_NCON : s_STSTR_NCOFF); // Ty 03/27/98 - externalized
 }
 
 // 'behold?' power-up cheats (modified for infinite duration -- killough)
@@ -404,13 +404,13 @@ static void cheat_pw(pw)
       if (pw != pw_strength)
         plyr->powers[pw] = -1;      // infinite duration -- killough
     }
-  plyr->message = s_STSTR_BEHOLDX; // Ty 03/27/98 - externalized
+  doom_printf(s_STSTR_BEHOLDX); // Ty 03/27/98 - externalized
 }
 
 // 'behold' power-up menu
 static void cheat_behold()
 {
-  plyr->message = s_STSTR_BEHOLD; // Ty 03/27/98 - externalized 
+  doom_printf(s_STSTR_BEHOLD); // Ty 03/27/98 - externalized 
 }
 
 // 'clev' change-level cheat
@@ -442,7 +442,7 @@ char buf[3];
 
   idmusnum = -1; //jff 3/17/98 revert to normal level music on IDCLEV
 
-  plyr->message = s_STSTR_CLEV; // Ty 03/27/98 - externalized
+  doom_printf(s_STSTR_CLEV); // Ty 03/27/98 - externalized
 
   G_DeferedInitNew(gameskill, epsd, map);
 }
@@ -477,9 +477,9 @@ static void cheat_comp()
 // variable friction cheat
 static void cheat_friction()
 {
-  plyr->message =                       // Ty 03/27/98 - *not* externalized
+  doom_printf(                      // Ty 03/27/98 - *not* externalized
     (variable_friction = !variable_friction) ? "Variable Friction enabled" : 
-                                               "Variable Friction disabled";
+                                               "Variable Friction disabled");
 }
 
 
@@ -487,16 +487,16 @@ static void cheat_friction()
 // phares 3/10/98
 static void cheat_pushers()
 {
-  plyr->message =                      // Ty 03/27/98 - *not* externalized
-    (allow_pushers = !allow_pushers) ? "Pushers enabled" : "Pushers disabled";
+  doom_printf(                     // Ty 03/27/98 - *not* externalized
+    (allow_pushers = !allow_pushers) ? "Pushers enabled" : "Pushers disabled");
 }
 
 // translucency cheat
 static void cheat_tnttran()
 {
-  plyr->message =                      // Ty 03/27/98 - *not* externalized
+  doom_printf(                     // Ty 03/27/98 - *not* externalized
     (general_translucency = !general_translucency) ? "Translucency enabled" :
-                                                     "Translucency disabled";
+                                                     "Translucency disabled");
 
   // killough 3/1/98, 4/11/98: cache translucency map on a demand basis
   if (general_translucency && !main_tranmap)
@@ -554,41 +554,41 @@ static void cheat_ddt()
 static void cheat_hom()
 {
   extern int autodetect_hom;           // Ty 03/27/98 - *not* externalized
-  plyr->message = (autodetect_hom = !autodetect_hom) ? "HOM Detection On" :
-    "HOM Detection Off";
+  doom_printf((autodetect_hom = !autodetect_hom) ? "HOM Detection On" :
+    "HOM Detection Off");
 }
 
 // killough 3/6/98: -fast parameter toggle
 static void cheat_fast()
 {
-  plyr->message = (fastparm = !fastparm) ? "Fast Monsters On" : 
-    "Fast Monsters Off";  // Ty 03/27/98 - *not* externalized
+  doom_printf((fastparm = !fastparm) ? "Fast Monsters On" : 
+    "Fast Monsters Off");  // Ty 03/27/98 - *not* externalized
   G_SetFastParms(fastparm); // killough 4/10/98: set -fast parameter correctly
 }
 
 // killough 2/16/98: keycard/skullkey cheat functions
 static void cheat_tntkey()
 {
-  plyr->message = "Red, Yellow, Blue";  // Ty 03/27/98 - *not* externalized
+  doom_printf("Red, Yellow, Blue");  // Ty 03/27/98 - *not* externalized
 }
 
 static void cheat_tntkeyx()
 {
-  plyr->message = "Card, Skull";        // Ty 03/27/98 - *not* externalized
+  doom_printf("Card, Skull");        // Ty 03/27/98 - *not* externalized
 }
 
 static void cheat_tntkeyxx(key)
 {
-  plyr->message = (plyr->cards[key] = !plyr->cards[key]) ? 
-    "Key Added" : "Key Removed";  // Ty 03/27/98 - *not* externalized
+  doom_printf((plyr->cards[key] = !plyr->cards[key]) ? 
+    "Key Added" : "Key Removed");  // Ty 03/27/98 - *not* externalized
 }
 
 // killough 2/16/98: generalized weapon cheats
 
 static void cheat_tntweap()
 {                                   // Ty 03/27/98 - *not* externalized
-  plyr->message = gamemode==commercial ?           // killough 2/28/98
-    "Weapon number 1-9" : "Weapon number 1-8";
+  doom_printf(gamemode==commercial ?           // killough 2/28/98
+    "Weapon number 1-9" : "Weapon number 1-8");
 }
 
 static void cheat_tntweapx(buf)
@@ -605,11 +605,11 @@ char buf[3];
   else
     if (w >= 0 && w < NUMWEAPONS) {
       if ((plyr->weaponowned[w] = !plyr->weaponowned[w]))
-        plyr->message = "Weapon Added";  // Ty 03/27/98 - *not* externalized
+        doom_printf("Weapon Added");  // Ty 03/27/98 - *not* externalized
       else 
         {
           int P_SwitchWeapon(player_t *player);
-          plyr->message = "Weapon Removed"; // Ty 03/27/98 - *not* externalized
+          doom_printf("Weapon Removed"); // Ty 03/27/98 - *not* externalized
           if (w==plyr->readyweapon)         // maybe switch if weapon removed
             plyr->pendingweapon = P_SwitchWeapon(plyr);
         }
@@ -619,7 +619,7 @@ char buf[3];
 // killough 2/16/98: generalized ammo cheats
 static void cheat_tntammo()
 {
-  plyr->message = "Ammo 1-4, Backpack";  // Ty 03/27/98 - *not* externalized
+  doom_printf("Ammo 1-4, Backpack");  // Ty 03/27/98 - *not* externalized
 }
 
 static void cheat_tntammox(buf)
@@ -628,10 +628,10 @@ char buf[1];
   int a = *buf - '1';
   if (*buf == 'b')  // Ty 03/27/98 - strings *not* externalized
     if ((plyr->backpack = !plyr->backpack))
-      for (plyr->message = "Backpack Added",   a=0 ; a<NUMAMMO ; a++)
+      for (doom_printf("Backpack Added"),   a=0 ; a<NUMAMMO ; a++)
         plyr->maxammo[a] <<= 1;
     else
-      for (plyr->message = "Backpack Removed", a=0 ; a<NUMAMMO ; a++)
+      for (doom_printf("Backpack Removed"), a=0 ; a<NUMAMMO ; a++)
         {
           if (plyr->ammo[a] > (plyr->maxammo[a] >>= 1))
             plyr->ammo[a] = plyr->maxammo[a];
@@ -640,23 +640,23 @@ char buf[1];
     if (a>=0 && a<NUMAMMO)  // Ty 03/27/98 - *not* externalized
       { // killough 5/5/98: switch plasma and rockets for now -- KLUDGE 
         a = a==am_cell ? am_misl : a==am_misl ? am_cell : a;  // HACK
-        plyr->message = (plyr->ammo[a] = !plyr->ammo[a]) ? 
-          plyr->ammo[a] = plyr->maxammo[a], "Ammo Added" : "Ammo Removed";
+        doom_printf((plyr->ammo[a] = !plyr->ammo[a]) ? 
+          plyr->ammo[a] = plyr->maxammo[a], "Ammo Added" : "Ammo Removed");
       }
 }
 
 static void cheat_smart()
 {
   extern int monsters_remember;  // Ty 03/27/98 - *not* externalized
-  plyr->message = (monsters_remember = !monsters_remember) ? 
-    "Smart Monsters Enabled" : "Smart Monsters Disabled";
+  doom_printf((monsters_remember = !monsters_remember) ? 
+    "Smart Monsters Enabled" : "Smart Monsters Disabled");
 }
 
 static void cheat_pitch()
 {
   extern int pitched_sounds;  // Ty 03/27/98 - *not* externalized
-  plyr->message=(pitched_sounds = !pitched_sounds) ? "Pitch Effects Enabled" :
-    "Pitch Effects Disabled";
+  doom_printf((pitched_sounds = !pitched_sounds) ? "Pitch Effects Enabled" :
+    "Pitch Effects Disabled");
 }
 
 //-----------------------------------------------------------------------------

@@ -90,7 +90,6 @@ void P_UnArchivePlayers (void)
 
         // will be set when unarc thinker
         players[i].mo = NULL;
-        players[i].message = NULL;
         players[i].attacker = NULL;
 
         for (j=0 ; j<NUMPSPRITES ; j++)

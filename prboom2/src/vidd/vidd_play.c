@@ -240,7 +240,8 @@ void VIDD_PLAY_endFrame() {
       player->ammo[am_misl] = viddPlayer_getIntProp(handle, qcb.PLAYER_AMMO_MISSLE, VAS_STEP);
       player->ammo[am_cell] = viddPlayer_getIntProp(handle, qcb.PLAYER_AMMO_CELL, VAS_STEP); 
       player->readyweapon = viddPlayer_getIntProp(handle, qcb.PLAYER_READYWEAPON, VAS_STEP); 
-      player->message = viddPlayer_getStringProp(handle, qcb.PLAYER_MESSAGE);
+      //player->message = viddPlayer_getStringProp(handle, qcb.PLAYER_MESSAGE); FIXME
+      doom_printf(viddPlayer_getStringProp(handle, qcb.PLAYER_MESSAGE));
       attackerHandle.id = viddPlayer_getIntProp(handle, qcb.PLAYER_ATTACKERID, VAS_STEP);
       attackerHandle.type = qcb.TYPE_MOBJ;
       player->attacker = (mobj_t*)viddPlayer_getElementUserData(attackerHandle);

@@ -154,7 +154,8 @@ struct player_s
   int                 secretcount;
 
   // Hint messages. // CPhipps - const
-  const char*         message;        
+  // sf: now done with doom_printf and player_printf
+  // const char*         message;        
   
   // For screen flashing (red or bright).
   int                 damagecount;

@@ -49,6 +49,15 @@ struct textwidget_s
   int cleartic;   // gametic in which to clear the widget (0=never)
 };
 
+extern int show_vpo;
+
+extern boolean chat_on;
+extern int obituaries;
+extern int obcolour;       // the colour of death messages
+extern int showMessages;   // Show messages has default, 0 = off, 1 = on
+extern int mess_colour;    // the colour of normal messages
+extern char *chat_macros[10];
+
 void HU_Init(void);
 void HU_Drawer(void);
 void HU_Ticker(void);

@@ -569,13 +569,13 @@ const char *VIDD_MENU_getInterfaceString() {
     // add the cursegment attributes string
     appendString(str, VIDD_MENU_getCurSegmentAttributesString(), VIDD_MAXSTRLEN);
   }
-  
+/* FIXME use new HUD  
   if (players[displayplayer].message) {
     // tack on the previous player->message
     appendColoredString(str, players[consoleplayer].message, COLOR_RED, VIDD_MAXSTRLEN);
     appendString(str, "\n", VIDD_MAXSTRLEN);
   }
-  
+*/
   return str;
 }
 

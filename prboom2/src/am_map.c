@@ -767,13 +767,13 @@ boolean AM_Responder
       automapmode ^= am_follow;     // CPhipps - put all automap mode stuff into one enum
       f_oldloc.x = INT_MAX;
       // Ty 03/27/98 - externalized
-      plr->message = (automapmode & am_follow) ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF;  
+      doom_printf((automapmode & am_follow) ? s_AMSTR_FOLLOWON : s_AMSTR_FOLLOWOFF);
     }
     else if (ch == key_map_grid)
     {
       automapmode ^= am_grid;      // CPhipps
       // Ty 03/27/98 - *not* externalized
-      plr->message = (automapmode & am_grid) ? s_AMSTR_GRIDON : s_AMSTR_GRIDOFF;  
+      doom_printf((automapmode & am_grid) ? s_AMSTR_GRIDON : s_AMSTR_GRIDOFF);
     }
     else if (ch == key_map_mark)
     {
@@ -785,15 +785,15 @@ boolean AM_Responder
     else if (ch == key_map_clear)
     {
       AM_clearMarks();  // Ty 03/27/98 - *not* externalized
-      plr->message = s_AMSTR_MARKSCLEARED;                      //    ^
+      doom_printf(s_AMSTR_MARKSCLEARED);                        //    ^
     }                                                           //    |
     else if (ch == key_map_rotate) {
       automapmode ^= am_rotate;
-      plr->message = (automapmode & am_rotate) ? s_AMSTR_ROTATEON : s_AMSTR_ROTATEOFF;  
+      doom_printf((automapmode & am_rotate) ? s_AMSTR_ROTATEON : s_AMSTR_ROTATEOFF);
     }
     else if (ch == key_map_overlay) {
       automapmode ^= am_overlay;
-      plr->message = (automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF;  
+      doom_printf((automapmode & am_overlay) ? s_AMSTR_OVERLAYON : s_AMSTR_OVERLAYOFF);
     }
     else                                                        // phares
     {
