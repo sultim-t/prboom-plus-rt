@@ -1403,7 +1403,7 @@ void WI_updateNetgameStats(void)
 
       // killough 2/22/98: Make secrets = 100% if maxsecret = 0:
 
-      if (cnt_secret[i] >= (wbs->maxsecret ? (plrs[i].ssecret * 100) / wbs->maxsecret : 100))
+      if (cnt_secret[i] >= (wbs->maxsecret ? (plrs[i].ssecret * 100) / wbs->maxsecret : compatibility_level < lxdoom_1_compatibility ? 0 : 100))
         cnt_secret[i] = wbs->maxsecret ? (plrs[i].ssecret * 100) / wbs->maxsecret : 100;
       else
         stillticking = true;
@@ -1622,7 +1622,8 @@ void WI_updateStats(void)
       S_StartSound(0, sfx_pistol);
 
     // killough 2/22/98: Make secrets = 100% if maxsecret = 0:
-    if (cnt_secret[0] >= (wbs->maxsecret ?
+    if ((!wbs->maxsecret && compatibility_level < lxdoom_1_compatibility) ||
+	cnt_secret[0] >= (wbs->maxsecret ?
       (plrs[me].ssecret * 100) / wbs->maxsecret : 100))
     {
       cnt_secret[0] = (wbs->maxsecret ?
@@ -1956,12 +1957,6 @@ void WI_initVariables(wbstartstruct_t* wbstartstruct)
 
   if (!wbs->maxitems)
     wbs->maxitems = 1;
-
-  // killough 2/22/98: Keep maxsecret=0 if it's zero, so
-  // we can detect 0/0 as as a special case and print 100%.
-  //
-  //    if (!wbs->maxsecret)
-  //  wbs->maxsecret = 1;
 
   if ( gamemode != retail )
     if (wbs->epsd > 2)
