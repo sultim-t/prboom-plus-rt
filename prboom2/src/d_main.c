@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.10 2000/05/10 17:47:11 proff_fs Exp $
+ * $Id: d_main.c,v 1.11 2000/05/11 19:55:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.10 2000/05/10 17:47:11 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.11 2000/05/11 19:55:16 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -60,7 +60,9 @@ static const char rcsid[] = "$Id: d_main.c,v 1.10 2000/05/10 17:47:11 proff_fs E
 #include "s_sound.h"
 #include "v_video.h"
 #include "f_finale.h"
+#ifndef GL_DOOM
 #include "f_wipe.h"
+#endif /* GL_DOOM */
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -190,6 +192,7 @@ void D_ProcessEvents (void)
 // The screens to wipe between are already stored, this just does the timing
 // and screen updating
 
+#ifndef GL_DOOM
 static void D_Wipe(void)
 {
   boolean done;
@@ -200,7 +203,7 @@ static void D_Wipe(void)
       int nowtime, tics;
       do
         {
-	  I_uSleep(10000); // CPhipps - don't thrash cpu in this loop
+	        I_uSleep(5000); // CPhipps - don't thrash cpu in this loop
           nowtime = I_GetTime();
           tics = nowtime - wipestart;
         }
@@ -213,6 +216,7 @@ static void D_Wipe(void)
     }
   while (!done);
 }
+#endif /* GL_DOOM */
 
 //
 // D_Display
@@ -230,14 +234,19 @@ void D_Display (void)
   static boolean isborderstate        = false;
   static boolean borderwillneedredraw = false;
   static gamestate_t oldgamestate = -1;
-  boolean wipe, viewactive = false, isborder = false;
+#ifndef GL_DOOM
+  boolean wipe;
+#endif
+  boolean viewactive = false, isborder = false;
 
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
+#ifndef GL_DOOM
   // save the current screen if about to wipe
   if ((wipe = gamestate != wipegamestate))
     wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+#endif /* GL_DOOM */
 
   if (gamestate != GS_LEVEL) { // Not a level
     switch (oldgamestate) {
@@ -330,6 +339,7 @@ void D_Display (void)
   D_BuildNewTiccmds();
 #endif
   
+#ifndef GL_DOOM
   // normal update
   if (!wipe)
     I_FinishUpdate ();              // page flip or blit buffer
@@ -338,6 +348,9 @@ void D_Display (void)
     wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
     D_Wipe();
   }
+#else
+  I_FinishUpdate ();              // page flip or blit buffer
+#endif /* GL_DOOM */
 }
 
 // CPhipps - Auto screenshot Variables
