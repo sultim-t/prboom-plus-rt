@@ -29,7 +29,7 @@
 	WARRANTY whatsoever, express or implied, in the hopes that others will use
 	it instead of other less-evolved hacks which usually don't work right.  ;)
 
-	$Id: gl_funcs.h,v 1.3 2002/11/16 11:01:56 proff_fs Exp $
+	$Id: gl_funcs.h,v 1.4 2002/11/24 01:37:49 proff_fs Exp $
 */
 
 // *INDENT-OFF*
@@ -113,6 +113,7 @@ DYNGL_EXT (void, glSecondaryColorPointerEXT, (GLint size, GLenum type, GLsizei s
 DYNGL_NEED (void, glShadeModel, (GLenum mode))
 DYNGL_NEED (void, glTexCoordPointer, (GLint size, GLenum type, GLsizei stride, const GLvoid * ptr))
 DYNGL_NEED (void, glTexCoord2f, (GLfloat x, GLfloat y))
+DYNGL_NEED (void, glTexCoord2fv, (const GLfloat *v))
 DYNGL_NEED (void, glTexGenf, (GLenum target, GLenum pname, GLfloat param))
 DYNGL_NEED (void, glTexGenfv, (GLenum target, GLenum pname, const GLfloat *param))
 DYNGL_NEED (void, glTexEnvi, (GLenum target, GLenum pname, GLint param))
