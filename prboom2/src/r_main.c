@@ -616,6 +616,8 @@ CONSOLE_INT(r_tranpct, tran_filter_pct, NULL, 0, 100, NULL, 0)
   R_ResetTrans();
 }
 
+CONSOLE_BOOLEAN(r_homflash, autodetect_hom, NULL, onoff, 0) {}
+
 CONSOLE_INT(gamma, usegamma, NULL, 0, 4, NULL, 0)
 {
         // change to new gamma val
@@ -645,6 +647,7 @@ void R_AddCommands()
 {
   C_AddCommand(r_trans);
   C_AddCommand(r_tranpct);
+  C_AddCommand(r_homflash);
   C_AddCommand(gamma);
   C_AddCommand(screensize);
   C_AddCommand(r_filteruv);
