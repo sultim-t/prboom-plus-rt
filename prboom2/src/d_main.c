@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.20 2000/08/08 13:11:05 proff_fs Exp $
+ * $Id: d_main.c,v 1.21 2000/08/08 14:43:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.20 2000/08/08 13:11:05 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.21 2000/08/08 14:43:18 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -627,7 +627,7 @@ char *D_DoomExeDir(void)
 #else
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
-static const char lxdoom_dir[] = {"/.prboom/"};
+static const char prboom_dir[] = {"/.prboom/"};
 
 char *D_DoomExeDir(void)
 {
@@ -637,11 +637,11 @@ char *D_DoomExeDir(void)
       char *home = getenv("HOME");
       size_t len = strlen(home);
 
-      base = malloc(len + strlen(lxdoom_dir) + 1);
+      base = malloc(len + strlen(prboom_dir) + 1);
       strcpy(base, home);
       // I've had trouble with trailing slashes before...
       if (base[len-1] == '/') base[len-1] = 0;
-      strcat(base, lxdoom_dir);
+      strcat(base, prboom_dir);
       mkdir(base, S_IRUSR | S_IWUSR | S_IXUSR); // Make sure it exists
     }
   return base;
@@ -1396,8 +1396,8 @@ void D_DoomMainSetup(void)
     }
 
     /* cphipps - the main display. This shows the build date, copyright, and game type */
-    lprintf(LO_ALWAYS,"LxDoom (built %s), playing: %s\n"
-	    "LxDoom is released under the GNU General Public license v2.0.\n"
+    lprintf(LO_ALWAYS,"PrBoom (built %s), playing: %s\n"
+	    "PrBoom is released under the GNU General Public license v2.0.\n"
 	    "You are welcome to redistribute it under certain conditions.\n"
 	    "It comes with ABSOLUTELY NO WARRANTY. See the file COPYING for details.\n",
 	    version_date, doomverstr);

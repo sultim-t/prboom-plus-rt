@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: version.h,v 1.3 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: version.h,v 1.4 2000/08/08 14:43:18 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,9 +35,6 @@
 
 #ifndef __DOOMVERSION__
 #define __DOOMVERSION__
-
-// DOOM version
-enum { LXDOOM_VERSION =  204 };
 
 extern const char version_date[];
 
