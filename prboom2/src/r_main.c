@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.22 2002/11/13 18:53:27 proff_fs Exp $
+ * $Id: r_main.c,v 1.23 2002/11/17 18:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.22 2002/11/13 18:53:27 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.23 2002/11/17 18:34:54 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -110,7 +110,7 @@ lighttable_t **colormaps;
 
 int extralight;                           // bumped light from gun blasts
 
-void (*colfunc)(void);
+void (*colfunc)(); // Removed void parameter - POPE
 
 //
 // R_PointOnSide
@@ -402,7 +402,7 @@ void R_Init (void)
 {
   // CPhipps - R_DrawColumn isn't constant anymore, so must 
   //  initialise in code
-  colfunc = R_DrawColumn;     // current column draw function
+  colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
   if (SCREENWIDTH<320)
     I_Error("R_Init: Screenwidth(%d) < 320",SCREENWIDTH);
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
@@ -523,6 +523,9 @@ static void R_ShowStats(void)
 //
 // R_RenderView
 //
+
+//#include "sdl.h" // for the test stuff below
+
 void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 {       
   R_SetupFrame (player, viewcamera);
@@ -589,6 +592,39 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
   gld_EndDrawScene();
 #endif
   if (rendering_stats) R_ShowStats();
+  
+  /*
+  // V_Plot* testing
+  
+  //V_PlotPatch(firstspritelump + 500, 200, 100, 512, 512, screens[0], vid_getMode(), SCREENWIDTH, SCREENHEIGHT);
+  
+  {
+  static int textureNum = 1503;//295;
+  static int nextSwitchTime = 0;
+  int i;
+  const int width = 500, height = 300;
+  byte *buffer;
+  
+  if (!textureNum) textureNum = firstspritelump;
+  
+  if (SDL_GetKeyState(NULL)['n']) textureNum--;
+  if (SDL_GetKeyState(NULL)['m']) textureNum++;
+  lprintf(LO_INFO, "%i\n", textureNum);
+  
+  //V_PlotTexture(textureNum, 50, 50, 500, 300, screens[0], vid_getMode(), SCREENWIDTH, SCREENHEIGHT);
+  
+  //buffer = V_GetPlottedTexture(textureNum, width, height, vid_getMode());
+  //buffer = V_GetPlottedPatch32(textureNum, width, height);
+  buffer = V_GetPlottedPatch8(textureNum, width, height, 0);
+  
+  for (i=0; i<height; i++) {
+    memcpy(screens[0] + i*SCREENWIDTH*vid_getDepth(), buffer+i*width*vid_getDepth(), width*vid_getDepth());
+  }
+  free(buffer);
+  
+  }
+  */
+  
 }
 
 void R_ResetTrans()

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.h,v 1.7 2001/11/18 12:27:28 cph Exp $
+ * $Id: r_data.h,v 1.8 2002/11/17 18:34:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -104,5 +104,7 @@ extern const byte *main_tranmap, *tranmap;
 
 /* Proff - Added for OpenGL - cph - const char* param */
 void R_SetPatchNum(patchnum_t *patchnum, const char *name);
+
+extern texture_t **textures; // POPE
 
 #endif

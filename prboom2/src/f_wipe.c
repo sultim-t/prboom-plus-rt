@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: f_wipe.c,v 1.8 2001/07/29 16:55:36 cph Exp $
+ * $Id: f_wipe.c,v 1.9 2002/11/17 18:34:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.8 2001/07/29 16:55:36 cph Exp $";
+static const char rcsid[] = "$Id: f_wipe.c,v 1.9 2002/11/17 18:34:53 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -48,6 +48,9 @@ static const char rcsid[] = "$Id: f_wipe.c,v 1.8 2001/07/29 16:55:36 cph Exp $";
 // SCREEN WIPE PACKAGE
 //
 
+// Parts re-written to support true-color video modes. Column-major
+// formatting removed. - POPE
+
 // CPhipps - macros for the source and destination screens
 #define SRC_SCR 2
 #define DEST_SCR 3
@@ -56,31 +59,15 @@ static byte *wipe_scr_start;
 static byte *wipe_scr_end;
 static byte *wipe_scr;
 
-static void wipe_shittyColMajorXform(short *array, int width, int height)
-{
-  short *dest = malloc(width*height*sizeof(short));
-  int x, y;
-
-  for(y=0;y<height;y++)
-    for(x=0;x<width;x++)
-      dest[x*height+y] = array[y*width+x];
-  memcpy(array, dest, width*height*sizeof(short));
-  free(dest);
-}
-
 static int *y;
+
 
 static int wipe_initMelt(int width, int height, int ticks)
 {
   int i;
 
   // copy start screen to main screen
-  memcpy(wipe_scr, wipe_scr_start, width*height);
-
-  // makes this wipe faster (in theory)
-  // to have stuff in column-major format
-  wipe_shittyColMajorXform((short*)wipe_scr_start, width/2, height);
-  wipe_shittyColMajorXform((short*)wipe_scr_end, width/2, height);
+  memcpy(wipe_scr, wipe_scr_start, width*height*vid_getDepth());
 
   // setup initial column positions (y<0 => not ready to scroll yet)
   y = (int *) malloc(width*sizeof(int));
@@ -102,53 +89,52 @@ static int wipe_doMelt(int width, int height, int ticks)
 {
   boolean done = true;
   int i;
+  const int depth = vid_getDepth();
 
   width /= 2;
 
-  while (ticks--)
-    for (i=0;i<width;i++)
-      if (y[i]<0)
-        {
-          y[i]++;
-          done = false;
-        }
-      else
-        if (y[i] < height)
-          {
-            short *s, *d;
-            int j, dy, idx;
+  while (ticks--) {
+    for (i=0;i<width;i++) {
+      if (y[i]<0) {
+        y[i]++;
+        done = false;
+        continue;
+      }
+      if (y[i] < height) {
+        byte *s, *d;
+        int j, k, dy;
 
-            /* cph 2001/07/29 -
-             *  The original melt rate was 8 pixels/sec, i.e. 25 frames to melt
-             *  the whole screen, so make the melt rate depend on SCREENHEIGHT
-             *  so it takes no longer in high res
-             */
-            dy = (y[i] < 16) ? y[i]+1 : SCREENHEIGHT/25;
-            if (y[i]+dy >= height)
-              dy = height - y[i];
-            s = &((short *)wipe_scr_end)[i*height+y[i]];
-            d = &((short *)wipe_scr)[y[i]*width+i];
-            idx = 0;
-            for (j=dy;j;j--)
-              {
-                d[idx] = *(s++);
-                idx += width;
-              }
-            y[i] += dy;
-            s = &((short *)wipe_scr_start)[i*height];
-            d = &((short *)wipe_scr)[y[i]*width+i];
-            idx = 0;
-            for (j=height-y[i];j;j--)
-              {
-                d[idx] = *(s++);
-                idx += width;
-              }
-            done = false;
-          }
+        /* cph 2001/07/29 -
+          *  The original melt rate was 8 pixels/sec, i.e. 25 frames to melt
+          *  the whole screen, so make the melt rate depend on SCREENHEIGHT
+          *  so it takes no longer in high res
+          */
+        dy = (y[i] < 16) ? y[i]+1 : SCREENHEIGHT/25;
+        if (y[i]+dy >= height) dy = height - y[i];
+        
+        s = wipe_scr_end    + (y[i]*width+i)  *depth*2;
+        d = wipe_scr        + (y[i]*width+i)  *depth*2;
+        for (j=dy;j;j--) {
+          for (k=0; k<depth*2; k++) d[k] = s[k];
+          d += width*depth*2;
+          s += width*depth*2;
+        }
+        y[i] += dy;
+        s = wipe_scr_start  + (i)             *depth*2;
+        d = wipe_scr        + (y[i]*width+i)  *depth*2;
+        for (j=height-y[i];j;j--) {
+          for (k=0; k<depth*2; k++) d[k] = s[k];
+          d += width*depth*2;
+          s += width*depth*2;
+        }
+        done = false;
+      }
+    }
+  }
   return done;
 }
 
-// CPhipps - modified to allocate and deallocate screens[2 to 3] as needed, saving memory 
+// CPhipps - modified to allocate and deallocate screens[2 to 3] as needed, saving memory
 
 static int wipe_exitMelt(int width, int height, int ticks)
 {
@@ -163,30 +149,38 @@ static int wipe_exitMelt(int width, int height, int ticks)
 
 int wipe_StartScreen(int x, int y, int width, int height)
 {
-  wipe_scr_start = screens[SRC_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT);
+  wipe_scr_start = screens[SRC_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT * vid_getDepth());
   V_CopyRect(x, y, 0,       width, height, x, y, SRC_SCR, VPT_NONE ); // Copy start screen to buffer
   return 0;
 }
 
 int wipe_EndScreen(int x, int y, int width, int height)
 {
-  wipe_scr_end = screens[DEST_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT);
+  wipe_scr_end = screens[DEST_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT * vid_getDepth());
   V_CopyRect(x, y, 0,       width, height, x, y, DEST_SCR, VPT_NONE); // Copy end screen to buffer
   V_CopyRect(x, y, SRC_SCR, width, height, x, y, 0       , VPT_NONE); // restore start screen
   return 0;
 }
 
+
+#include "m_argv.h" // for M_CheckParm - POPE
+
 // killough 3/5/98: reformatted and cleaned up
 int wipe_ScreenWipe(int x, int y, int width, int height, int ticks)
 {
-  static boolean go;                               // when zero, stop the wipe
+  static boolean go = 0;                               // when zero, stop the wipe
+  
+  if (M_CheckParm("-nowipe")) { // POPE  
+    memcpy(screens[0], wipe_scr_end, width*height*vid_getDepth());
+    return 1;
+  }
+  
   if (!go)                                         // initial stuff
     {
       go = 1;
       wipe_scr = screens[0];
       wipe_initMelt(width, height, ticks);
     }
-  // do a piece of wipe-in
   if (wipe_doMelt(width, height, ticks))     // final stuff
     {
       wipe_exitMelt(width, height, ticks);

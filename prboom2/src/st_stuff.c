@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.13 2002/11/13 18:53:27 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.14 2002/11/17 18:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.13 2002/11/13 18:53:27 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.14 2002/11/17 18:34:54 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -738,8 +738,13 @@ void ST_doPaletteStuff(void)
       else
         palette = 0;
 
-  if (palette != st_palette)
+  if (palette != st_palette) {
     V_SetPalette(st_palette = palette); // CPhipps - use new palette function
+    
+    // have to redraw the entire status bar when the palette changes
+    // in truecolor modes - POPE
+    if (vid_getMode() == VID_MODE16 || vid_getMode() == VID_MODE32) st_firsttime = true;
+  }
 }
 
 void ST_drawWidgets(boolean refresh)
@@ -1146,7 +1151,8 @@ void ST_Init(void)
   veryfirsttime = 0;
   ST_loadData();
 // proff 08/18/98: Changed for high-res
-  screens[4] = malloc(SCREENWIDTH*(ST_SCALED_HEIGHT+1));
+  screens[4] = malloc(SCREENWIDTH*(ST_SCALED_HEIGHT+1)*vid_getDepth()); // POPE
+
 }
 
 CONSOLE_INT(ammo_red, ammo_red, NULL, 0, 100, NULL, 0) { }

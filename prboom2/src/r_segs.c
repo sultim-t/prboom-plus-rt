@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.16 2001/12/23 11:47:05 cph Exp $
+ * $Id: r_segs.c,v 1.17 2002/11/17 18:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.16 2001/12/23 11:47:05 cph Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.17 2002/11/17 18:34:54 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -120,7 +120,7 @@ static fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 
 void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
-  column_t *col;
+  const column_t *col, *nextcolumn, *prevcolumn; // POPE
   int      texnum;
   sector_t tempsec;      // killough 4/13/98
 
@@ -132,10 +132,12 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
   // killough 4/11/98: draw translucent 2s normal textures
 
-  colfunc = R_DrawColumn;
+  colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
+
   if (curline->linedef->tranlump >= 0 && general_translucency)
     {
-      colfunc = R_DrawTLColumn;
+      colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_TRANSLUCENT); // POPE
+
       tranmap = main_tranmap;
       if (curline->linedef->tranlump > 0)
         tranmap = W_CacheLumpNum(curline->linedef->tranlump-1);
@@ -163,33 +165,37 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   // find positioning
   if (curline->linedef->flags & ML_DONTPEGBOTTOM)
     {
-      dc_texturemid = frontsector->floorheight > backsector->floorheight
+      dcvars.texturemid = frontsector->floorheight > backsector->floorheight
         ? frontsector->floorheight : backsector->floorheight;
-      dc_texturemid = dc_texturemid + textureheight[texnum] - viewz;
+      dcvars.texturemid = dcvars.texturemid + textureheight[texnum] - viewz;
     }
   else
     {
-      dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
+      dcvars.texturemid =frontsector->ceilingheight<backsector->ceilingheight
         ? frontsector->ceilingheight : backsector->ceilingheight;
-      dc_texturemid = dc_texturemid - viewz;
+      dcvars.texturemid = dcvars.texturemid - viewz;
     }
 
-  dc_texturemid += curline->sidedef->rowoffset;
+  dcvars.texturemid += curline->sidedef->rowoffset;
 
-  if (fixedcolormap)
-    dc_colormap = fixedcolormap;
+  if (fixedcolormap) {
+    dcvars.colormap = fixedcolormap;
+    dcvars.nextcolormap = dcvars.colormap; // POPE
+  }
 
   // draw the columns
-  for (dc_x = x1 ; dc_x <= x2 ; dc_x++, spryscale += rw_scalestep)
-    if (maskedtexturecol[dc_x] != SHRT_MAX)
+  for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
+    if (maskedtexturecol[dcvars.x] != SHRT_MAX)
       {
-        dc_colormap = R_ColourMap(rw_lightlevel,spryscale);
+        if (!fixedcolormap) dcvars.z = spryscale; // POPE
+        dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
+        dcvars.nextcolormap = R_ColourMap(rw_lightlevel+1,spryscale); // POPE
 
         // killough 3/2/98:
         //
         // This calculation used to overflow and cause crashes in Doom:
         //
-        // sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
+        // sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid, spryscale);
         //
         // This code fixes it, by using double-precision intermediate
         // arithmetic and by skipping the drawing of 2s normals whose
@@ -197,14 +203,14 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
         {
           int_64_t t = ((int_64_t) centeryfrac << FRACBITS) -
-            (int_64_t) dc_texturemid * spryscale;
+            (int_64_t) dcvars.texturemid * spryscale;
           if (t + (int_64_t) textureheight[texnum] * spryscale < 0 ||
               t > (int_64_t) MAX_SCREENHEIGHT << FRACBITS*2)
             continue;        // skip if the texture is out of screen's range
           sprtopscreen = (long)(t >> FRACBITS);
         }
 
-        dc_iscale = 0xffffffffu / (unsigned) spryscale;
+        dcvars.iscale = 0xffffffffu / (unsigned) spryscale;
 
         // killough 1/25/98: here's where Medusa came in, because
         // it implicitly assumed that the column was all one patch.
@@ -215,10 +221,13 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         // when forming multipatched textures (see r_data.c).
 
         // draw the texture
-        col = (column_t *)((byte *)
-                           R_GetColumn(texnum,maskedtexturecol[dc_x]) - 3);
-        R_DrawMaskedColumn (col);
-        maskedtexturecol[dc_x] = SHRT_MAX;
+        col = (column_t *)((byte *)R_GetColumn(texnum,maskedtexturecol[dcvars.x]) - 3); // POPE
+        nextcolumn = 0;  // POPE //(column_t *)((byte *)R_GetColumn(texnum,maskedtexturecol[(dcvars.x+1) >= x2 ? x1 : dcvars.x+1]) - 3);
+        prevcolumn = 0;  // POPE //(column_t *)((byte *)R_GetColumn(texnum,maskedtexturecol[(dcvars.x-1) <= x1 ? x2-1 : dcvars.x-1]) - 3);
+        
+        R_DrawMaskedColumn(col, prevcolumn, nextcolumn);  // POPE
+
+        maskedtexturecol[dcvars.x] = SHRT_MAX;
       }
 
   // Except for main_tranmap, mark others purgable at this point
@@ -296,22 +305,27 @@ static void R_RenderSegLoop (void)
           angle_t angle =(rw_centerangle+xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
 
           texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance);
+          dcvars.texu = texturecolumn; // POPE
           texturecolumn >>= FRACBITS;
 
-          dc_colormap = R_ColourMap(rw_lightlevel,rw_scale);
-          dc_x = rw_x;
-          dc_iscale = 0xffffffffu / (unsigned)rw_scale;
+          dcvars.colormap = R_ColourMap(rw_lightlevel,rw_scale);
+          dcvars.nextcolormap = R_ColourMap(rw_lightlevel+1,rw_scale); // POPE
+          dcvars.z = rw_scale; // POPE
+
+          dcvars.x = rw_x;
+          dcvars.iscale = 0xffffffffu / (unsigned)rw_scale;
         }
 
       // draw the wall tiers
       if (midtexture)
         {
 
-          dc_yl = yl;     // single sided line
-          dc_yh = yh;
-          dc_texturemid = rw_midtexturemid;
-          dc_source = R_GetColumn(midtexture, texturecolumn);
-	  dc_texheight = midtexheight;
+          dcvars.yl = yl;     // single sided line
+          dcvars.yh = yh;
+          dcvars.texturemid = rw_midtexturemid;
+          dcvars.source = R_GetColumn(midtexture, texturecolumn);
+          dcvars.nextsource = R_GetColumn(midtexture, texturecolumn+1); // POPE
+	        dcvars.texheight = midtexheight;
           colfunc ();
           ceilingclip[rw_x] = viewheight;
           floorclip[rw_x] = -1;
@@ -331,11 +345,12 @@ static void R_RenderSegLoop (void)
 
               if (mid >= yl)
                 {
-                  dc_yl = yl;
-                  dc_yh = mid;
-                  dc_texturemid = rw_toptexturemid;
-                  dc_source = R_GetColumn(toptexture,texturecolumn);
-		  dc_texheight = toptexheight;
+                  dcvars.yl = yl;
+                  dcvars.yh = mid;
+                  dcvars.texturemid = rw_toptexturemid;
+                  dcvars.source = R_GetColumn(toptexture,texturecolumn);
+                  dcvars.nextsource = R_GetColumn(toptexture, texturecolumn+1); // POPE
+		              dcvars.texheight = toptexheight;
                   colfunc ();
                   ceilingclip[rw_x] = mid;
                 }
@@ -360,12 +375,12 @@ static void R_RenderSegLoop (void)
 
               if (mid <= yh)
                 {
-                  dc_yl = mid;
-                  dc_yh = yh;
-                  dc_texturemid = rw_bottomtexturemid;
-                  dc_source = R_GetColumn(bottomtexture,
-                                          texturecolumn);
-                  dc_texheight = bottomtexheight;
+                  dcvars.yl = mid;
+                  dcvars.yh = yh;
+                  dcvars.texturemid = rw_bottomtexturemid;
+                  dcvars.source = R_GetColumn(bottomtexture, texturecolumn);
+                  dcvars.nextsource = R_GetColumn(bottomtexture, texturecolumn+1); // POPE
+                  dcvars.texheight = bottomtexheight;
                   colfunc ();
                   floorclip[rw_x] = mid;
                 }

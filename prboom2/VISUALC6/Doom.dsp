@@ -833,6 +833,22 @@ SOURCE=..\src\r_draw.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\inl\r_drawcolumn.inl
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\inl\r_drawspan.inl
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_filter.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_filter.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\r_main.c
 # End Source File
 # Begin Source File
@@ -922,6 +938,10 @@ SOURCE=..\src\v_video.c
 # Begin Source File
 
 SOURCE=..\src\v_video.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\inl\v_video.inl
 # End Source File
 # Begin Source File
 

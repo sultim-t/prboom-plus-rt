@@ -1,7 +1,7 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.15 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: v_video.h,v 1.16 2002/11/17 18:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -9,7 +9,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -22,7 +22,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -74,6 +74,8 @@ typedef enum
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
 extern byte      *screens[6];
+extern int        dirtybox[4];
+extern const byte gammatable[5][256];
 extern int        usegamma;
 
 //jff 4/24/98 loads color translation lumps
@@ -89,42 +91,99 @@ enum patch_translation_e {
   VPT_STRETCH = 4, // Stretch to compensate for high-res
 };
 
-#ifndef GL_DOOM
-void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
-                int destx, int desty, int destscrn,
-                enum patch_translation_e flags);
-#else
-#define V_CopyRect(sx,sy,ss,w,h,dx,dy,ds,f)
-#endif /* GL_DOOM */
+//---------------------------------------------------------------------------
+// Varying bit-depth support -POPE
+//---------------------------------------------------------------------------
+// For bilinear filtering, each palette color is pre-weighted and put in a
+// table for fast blending operations. These macros decide how many weights
+// to create for each color. The lower the number, the lower the blend
+// accuracy, which can produce very bad artifacts in texture filtering.
+#define VID_NUMCOLORWEIGHTS 64
+#define VID_COLORWEIGHTMASK (VID_NUMCOLORWEIGHTS-1)
+#define VID_COLORWEIGHTBITS 6
 
-#ifdef GL_DOOM
-#define V_FillRect(s,x,y,w,h,c) gld_FillBlock(x,y,w,h,c)
-#else
-void V_FillRect(int scrn, int x, int y, int width, int height, byte colour);
-#endif
+//---------------------------------------------------------------------------
+// The available bit-depth modes
+typedef enum {
+  VID_MODE8   = 0,
+  VID_MODE16  = 1,
+  VID_MODE32  = 2,
+  VID_MODEGL  = 3
+} TVidMode;
 
-// CPhipps - patch drawing
-// Consolidated into the 3 really useful functions:
-// V_DrawMemPatch - Draws the given patch_t
-#ifdef GL_DOOM
-#define V_DrawMemPatch(x,y,s,p,t,f) gld_DrawPatchFromMem(x,y,p,t,f)
-#else
-void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, 
-		    int cm, enum patch_translation_e flags);
-#endif
-// V_DrawNumPatch - Draws the patch from lump num
-#ifdef GL_DOOM
-#define V_DrawNumPatch(x,y,s,l,t,f) gld_DrawNumPatch(x,y,l,t,f)
-#else
-void V_DrawNumPatch(int x, int y, int scrn, int lump, 
-		    int cm, enum patch_translation_e flags);
-#endif
-// V_DrawNamePatch - Draws the patch from lump "name"
-#ifdef GL_DOOM
-#define V_DrawNamePatch(x,y,s,n,t,f) gld_DrawNumPatch(x,y,W_GetNumForName(n),t,f)
-#else
+//---------------------------------------------------------------------------
+// Vid mode set interface. This should only be called once per program
+// execution, since other systems query the mode only once at the start
+void vid_initMode(TVidMode vd);
+
+// Vid mode query interface
+TVidMode vid_getMode();
+int vid_getNumBits();
+int vid_getDepth();
+int vid_getModePixelDepth(TVidMode mode);
+
+//---------------------------------------------------------------------------
+// Palettes for converting from 8 bit color to 16 and 32 bit. Also
+// contains the weighted versions of each palette color for filtering
+// operations
+//extern int vid_intPalette[256][VID_NUMCOLORWEIGHTS];
+//extern short vid_shortPalette[256][VID_NUMCOLORWEIGHTS];
+extern int *vid_intPalette;
+extern short *vid_shortPalette;
+
+#define VID_INTPAL(color, weight) vid_intPalette[ (color)*VID_NUMCOLORWEIGHTS + (weight) ]
+#define VID_SHORTPAL(color, weight) vid_shortPalette[ (color)*VID_NUMCOLORWEIGHTS + (weight) ]
+
+//---------------------------------------------------------------------------
+void V_UpdateTrueColorPalette(TVidMode mode);
+void V_DestroyTrueColorPalette(TVidMode mode);
+void V_DestroyUnusedTrueColorPalettes();
+
+//---------------------------------------------------------------------------
+// Since we now have many different bit-depth functions to select from,
+// We use function pointers to preselect the correct ones for the chosen
+// video mode for speed and ease-of-use/compatibility reasons
+//---------------------------------------------------------------------------
+// V_CopyRect
+typedef void (__cdecl *TFunc_V_CopyRect)(int,int,int,int,int,int,int,int, enum patch_translation_e);
+extern TFunc_V_CopyRect V_CopyRect;
+
+// V_FillRect
+typedef void (__cdecl *TFunc_V_FillRect)(int,int,int,int,int,byte);
+extern TFunc_V_FillRect V_FillRect;
+
+// V_DrawMemPatch
+typedef void (__cdecl *TFunc_V_DrawMemPatch)(int,int,int,const patch_t *,int,enum patch_translation_e);
+extern TFunc_V_DrawMemPatch V_DrawMemPatch;
+
+// V_DrawNumPatch
+typedef void (__cdecl *TFunc_V_DrawNumPatch)(int,int,int,int,int,enum patch_translation_e);
+extern TFunc_V_DrawNumPatch V_DrawNumPatch;
+
 #define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatch(x,y,s,W_GetNumForName(n),t,f)
-#endif
+
+// V_DrawBlock
+typedef void (__cdecl *TFunc_V_DrawBlock)(int,int,int,int,int,const byte*,enum patch_translation_e);
+extern TFunc_V_DrawBlock V_DrawBlock;
+
+// V_DrawBackground
+typedef void (__cdecl *TFunc_V_DrawBackground)(const char*,int);
+extern TFunc_V_DrawBackground V_DrawBackground;
+
+// V_PlotPixel
+typedef void (__cdecl *TFunc_V_PlotPixel)(int,int,int,byte);
+extern TFunc_V_PlotPixel V_PlotPixel;
+
+// V_PatchToBlock
+byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, unsigned short* width, unsigned short* height);
+
+//---------------------------------------------------------------------------
+// These functions are now bit-depth aware
+void V_AllocScreen(int scrn);
+void V_FreeScreen(int scrn);
+void V_SetPalette(int pal);
+void V_MarkRect(int x, int y, int width, int height);
+//---------------------------------------------------------------------------
 
 /* cph -
  * Functions to return width & height of a patch.
@@ -136,27 +195,37 @@ int V_NumPatchHeight(int lump);
 #define V_NamePatchWidth(n) V_NumPatchWidth(W_GetNumForName(n))
 #define V_NamePatchHeight(n) V_NumPatchHeight(W_GetNumForName(n))
 
-/* cphipps 10/99: function to tile a flat over the screen */
-#ifdef GL_DOOM
-#define V_DrawBackground(n,s) gld_DrawBackground(n)
-#else
-void V_DrawBackground(const char* flatname, int scrn);
-#endif
 
-// CPhipps - function to set the palette to palette number pal.
-void V_SetPalette(int pal);
+//---------------------------------------------------------------------------
+typedef struct {
+  int left, top, right, bottom;
+} TPlotRect;
 
-// CPhipps - function to plot a pixel
+//---------------------------------------------------------------------------
+// These functions use the R_DrawColumn* pipelines to plot filtered
+// patches and textures to a destination buffer
+//---------------------------------------------------------------------------
+void V_PlotPatch(
+  int patchNum, const TPlotRect destRect, const TPlotRect clampRect,
+  byte *destBuffer, TVidMode bufferMode, int bufferWidth, int bufferHeight
+);
 
-#ifndef GL_DOOM
-#define V_PlotPixel(s,x,y,c) screens[s][x+SCREENWIDTH*y]=c
-#endif
+//---------------------------------------------------------------------------
+void V_PlotTexture(
+  int textureNum, int x, int y, int width, int height,
+  byte *destBuffer, TVidMode bufferMode, int bufferWidth, int bufferHeight
+);
 
-#define V_AllocScreen(scrn) screens[scrn] = malloc(SCREENWIDTH*SCREENHEIGHT)
-#define V_FreeScreen(scrn) free(screens[scrn]); screens[scrn] = NULL
+//---------------------------------------------------------------------------
+byte *V_GetPlottedPatch32(int patchNum, int width, int height);
+byte *V_GetPlottedPatch8(int patchNum, int width, int height, byte clearColor);
 
-/* Font */
+byte *V_GetPlottedTexture32(int textureNum, int width, int height);
+byte *V_GetPlottedTexture8(int textureNum, int width, int height, byte clearColor);
 
+//---------------------------------------------------------------------------
+// Font
+//---------------------------------------------------------------------------
 /* font colours (CR_ colors + 0x80 as char) */
 #define FC_BASEVALUE     0x80
 #define FC_BRICK        "\x80"
@@ -175,8 +244,11 @@ void V_WriteText(unsigned char *s, int x, int y, int gap);
 void V_WriteTextColoured(unsigned char *s, int colour, int x, int y, int gap);
 int V_StringWidth(unsigned char *s, int gap);
 int V_StringHeight(unsigned char *s);
+//---------------------------------------------------------------------------
+
 
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+
 #endif

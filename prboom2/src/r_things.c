@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.20 2002/08/09 21:53:21 cph Exp $
+ * $Id: r_things.c,v 1.21 2002/11/17 18:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.20 2002/08/09 21:53:21 cph Exp $";
+rcsid[] = "$Id: r_things.c,v 1.21 2002/11/17 18:34:54 proff_fs Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -318,41 +318,77 @@ short   *mceilingclip;
 fixed_t spryscale;
 fixed_t sprtopscreen;
 
-void R_DrawMaskedColumn(const column_t *column)
+//---------------------------------------------------------------------------
+// Determines whether a column is solid or masked at a given y delta (spot) 
+// - POPE
+//---------------------------------------------------------------------------
+int getIsSolidAtSpot(const column_t *column, int spot) {
+  if (!column) return 0;
+  while (column->topdelta != 0xff) {
+    if (spot < column->topdelta) return 0;
+    if ((spot >= column->topdelta) && (spot <= column->topdelta + column->length)) return 1;
+    column = (const column_t*)((const byte*)column + 3 + column->length + 1);
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+// Used to determine whether a column edge (top or bottom) should slope
+// up or down for smoothed masked edges - POPE
+//---------------------------------------------------------------------------
+int R_GetColumnEdgeSlope(const column_t *prevcolumn, const column_t *nextcolumn, int spot) {
+  int holeToLeft = !getIsSolidAtSpot(prevcolumn, spot);
+  int holeToRight = !getIsSolidAtSpot(nextcolumn, spot);
+  
+  if (holeToLeft && !holeToRight) return 1;
+  if (!holeToLeft && holeToRight) return -1;
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+void R_DrawMaskedColumn(const column_t *column, const column_t *prevcolumn, const column_t *nextcolumn) // POPE
 {
   int     topscreen;
   int     bottomscreen;
-  fixed_t basetexturemid = dc_texturemid;
+  fixed_t basetexturemid = dcvars.texturemid;
 
-  dc_texheight = 0; // killough 11/98
+  dcvars.texheight = 0; // killough 11/98
   while (column->topdelta != 0xff)
     {
       // calculate unclipped screen coordinates for post
       topscreen = sprtopscreen + spryscale*column->topdelta;
       bottomscreen = topscreen + spryscale*column->length;
 
-      dc_yl = (topscreen+FRACUNIT-1)>>FRACBITS;
-      dc_yh = (bottomscreen-1)>>FRACBITS;
+      dcvars.yl = (topscreen+FRACUNIT-1)>>FRACBITS;
+      dcvars.yh = (bottomscreen-1)>>FRACBITS;
 
-      if (dc_yh >= mfloorclip[dc_x])
-        dc_yh = mfloorclip[dc_x]-1;
+      if (dcvars.yh >= mfloorclip[dcvars.x])
+        dcvars.yh = mfloorclip[dcvars.x]-1;
 
-      if (dc_yl <= mceilingclip[dc_x])
-        dc_yl = mceilingclip[dc_x]+1;
+      if (dcvars.yl <= mceilingclip[dcvars.x])
+        dcvars.yl = mceilingclip[dcvars.x]+1;
 
-      // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
-      if (dc_yl <= dc_yh && dc_yh < viewheight)
+      if (dcvars.yl <= dcvars.yh && dcvars.yh < viewheight)
         {
-          dc_source = (const byte *)column + 3;
-          dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
+          dcvars.source = (const byte *)column + 3;
+          dcvars.nextsource = dcvars.source;
+          dcvars.texturemid = basetexturemid - (column->topdelta<<FRACBITS);
 
+          if (rdrawvars.maskedColumnEdgeType == RDRAW_MASKEDCOLUMNEDGE_SLOPED) { // POPE
+            // set up our top and bottom sloping - POPE
+            dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
+            dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);
+          }  
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
+          dcvars.drawingmasked = 1; // POPE
           colfunc ();
+          dcvars.drawingmasked = 0; // POPE
         }
+
       column = (const column_t *)(  (byte *)column + column->length + 4);
     }
-  dc_texturemid = basetexturemid;
+  dcvars.texturemid = basetexturemid;
 }
 
 //
@@ -362,55 +398,60 @@ void R_DrawMaskedColumn(const column_t *column)
 // CPhipps - new wad lump handling, *'s to const*'s
 void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 {
-  const column_t *column;
+  const column_t *column, *prevcolumn, *nextcolumn; // POPE
   int      texturecolumn;
   fixed_t  frac;
   const patch_t *patch = W_CacheLumpNum (vis->patch+firstspritelump);
 
-  dc_colormap = vis->colormap;
+  dcvars.colormap = vis->colormap;
+  dcvars.nextcolormap = dcvars.colormap; // POPE
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
 
-  if (!dc_colormap)   // NULL colormap = shadow draw
-    colfunc = R_DrawFuzzColumn;    // killough 3/14/98
+  if (!dcvars.colormap)   // NULL colormap = shadow draw
+    colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_FUZZ); // POPE
   else
     if (vis->mobjflags & MF_TRANSLATION)
       {
-        colfunc = R_DrawTranslatedColumn;
-        dc_translation = translationtables - 256 +
+        colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_TRANSLATED); // POPE
+        dcvars.translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
       }
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
         {
-          colfunc = R_DrawTLColumn;
+          colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_TRANSLUCENT); // POPE
           tranmap = main_tranmap;       // killough 4/11/98
         }
       else
-        colfunc = R_DrawColumn;         // killough 3/14/98, 4/11/98
+        colfunc =R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
 
 // proff 11/06/98: Changed for high-res
-  dc_iscale = FixedDiv (FRACUNIT, vis->scale);
-  dc_texturemid = vis->texturemid;
+  dcvars.iscale = FixedDiv (FRACUNIT, vis->scale);
+  dcvars.texturemid = vis->texturemid;
   frac = vis->startfrac;
   spryscale = vis->scale;
-  sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
+  sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
-  for (dc_x=vis->x1 ; dc_x<=vis->x2 ; dc_x++, frac += vis->xiscale)
+  for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;
+      dcvars.texu = frac;
 
 #ifdef RANGECHECK
       if (texturecolumn < 0 || texturecolumn >= SHORT(patch->width))
         I_Error ("R_DrawSpriteRange: Bad texturecolumn");
 #endif
 
-      column = (const column_t *)((const byte *) patch +
-                            LONG(patch->columnofs[texturecolumn]));
-      R_DrawMaskedColumn (column);
+      column = (const column_t *)((const byte *) patch + LONG(patch->columnofs[texturecolumn]));
+      
+      prevcolumn = ((texturecolumn-1) < 0) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[texturecolumn-1])); // POPE
+      nextcolumn = ((texturecolumn+1) >= patch->width) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[texturecolumn+1])); // POPE
+      
+      R_DrawMaskedColumn(column, prevcolumn, nextcolumn); // POPE
     }
-  colfunc = R_DrawColumn;         // killough 3/14/98
+  colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_STANDARD); // POPE
   W_UnlockLumpNum(vis->patch+firstspritelump); // cph - release lump
 }
 

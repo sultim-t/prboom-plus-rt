@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.24 2002/08/11 11:29:43 proff_fs Exp $
+ * $Id: r_data.c,v 1.25 2002/11/17 18:34:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.24 2002/08/11 11:29:43 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.25 2002/11/17 18:34:53 proff_fs Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -92,11 +92,7 @@ int firstcolormaplump, lastcolormaplump;      // killough 4/17/98
 int       firstflat, lastflat, numflats;
 int       firstspritelump, lastspritelump, numspritelumps;
 int       numtextures;
-#ifdef GL_DOOM
-texture_t **textures; // proff - 04/05/2000 removed static for OpenGL
-#else
-static texture_t **textures;
-#endif
+texture_t **textures; // proff - 04/05/2000 removed static for OpenGL (Now for all) - POPE
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
@@ -710,6 +706,8 @@ const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale)
           ((256-lightlevel)*2*NUMCOLORMAPS/256) - 4
           - (FixedMul(spryscale,pspriteiscale)/2 >> LIGHTSCALESHIFT)
           )*256;
+          
+        //(0x100-lightLevel * NUMCOLORMAPS >> 7) - 4 - FixedMul(spryscale,pspriteiscale) >> 1 >> LIGHTSCALESHIFT
   }
 }
 

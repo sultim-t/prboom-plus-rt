@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.h,v 1.6 2001/11/18 12:27:28 cph Exp $
+ * $Id: r_main.h,v 1.7 2002/11/17 18:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -105,7 +105,7 @@ extern lighttable_t *fixedcolormap;
 // Function pointer to switch refresh/drawing functions.
 //
 
-extern void (*colfunc)(void);
+extern void (*colfunc)(); // Removed void parameter - POPE
 
 //
 // Utility functions.
