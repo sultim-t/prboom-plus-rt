@@ -11,6 +11,8 @@ from.
 PrBoom is made available under the GNU General Public License. See the 
 file COPYING included in this distribution for details. 
 
+Please see the NEWS file included for changes since the previous version.
+
 Game data - WADs
 ----------------
 
@@ -29,7 +31,7 @@ PrBoom also supports playing Doom add-on levels, called "PWADs", which
 are small extra .wad files which just contain extra levels or other 
 resources. PWADs are ONLY ADD-ONS, you still need the original IWAD 
 that they are designed to work with. In practice, most PWADs on the 
-internet require doom2.wad (although some work with doom.wad). 
+Internet require doom2.wad (although some work with doom.wad). 
 
 If you don't own any of the Doom games, get the shareware doom1.wad 
 from Doomworld's shareware download page. You won't be able to play 
@@ -68,6 +70,26 @@ Once you've done that, you'll need to copy your IWAD file (see the section
 above if you don't know what this is) to a directory where PrBoom can find 
 it. Make /usr/local/share/games/doom/, and copy you IWAD (all of your 
 IWADs, if you own more than one) to that directory. 
+
+First Use
+---------
+
+If it's the first time you've run PrBoom, you'll need to do some configuring 
+to get the controls and display right for you. 
+
+By default, PrBoom runs at Doom's normal 320x200 resolution. This is rather 
+low by modern standards :-). You can use the -width and -height parameters to 
+select a higher resolution, e.g.:
+
+prboom -width 640 -height 400
+
+sets the resolution. This setting is remembered for future sessions. For 
+other parameters, see the included README.command-line.
+
+You may also wish to customise the key bindings. PrBoom's default keybindings 
+are the same as the original Doom; unlike original Doom, you can change key 
+bindings in the game. In the in-game menus, go to Options, Settings, Key 
+Bindings.
 
 Features
 --------
@@ -139,7 +161,7 @@ Automap
      * Rotation and overlay modes (DOSDoom, LxDoom)
      * Map shows coordinates (BOOM), optionally follow pointer
        (MBF)
-     * Teleport lines, key doors marked specially (BOOM)
+     * Teleport lines, key doors and switches marked specially (BOOM)
      * Keys, secrets visible on map with cheat codes (BOOM)
      * Colours fully configurable from menus (BOOM)
        
@@ -151,7 +173,7 @@ Intermission screens
 Menus
 
      * F1 help screen shows current key setup (BOOM)
-     * Key bindings, monster behavior, and compatibility settings all set
+     * Key bindings, monster behaviour, and compatibility settings all set
        in menus (BOOM, MBF)
        
 Compatibility
@@ -161,9 +183,9 @@ Compatibility
      * Plays most original Doom v1.9 demos (more than Boom or MBF)
      * Plays most Boom v2.02 demos (apart from levels with friction
        effects everything should work).
-     * Plays some DosDoom, earlier Doom, earlier Boom, and LxDoom demos.
+     * Plays some DOSDoom, earlier Doom, earlier Boom, and LxDoom demos.
      * Plays all MBF demos.
-     * Autocorrection of common bugs in old levels (MBF), with
+     * Auto-correction of common bugs in old levels (MBF), with
        warnings (LxDoom)
      * Fine control of options controlling compatibility and new features
        (MBF)
@@ -202,21 +224,6 @@ README.command-line	gives a command line reference for prboom,
 			On UNIX/Linux systems use the man pages instead.
 
 Editing features are not covered in the docs with this package. We plan 
-to bundle the editings docs as a separate download. Watch our website 
+to bundle the editing docs as a separate download. Watch our website 
 for news.
 
-What's new?
------------
-
-since prboom 2.1.0
-     * fullscreen is now default for new boom.cfg
-     * included sdl_mixer.dll now plays midi-files
-     * if waveout is used for sound (Windows NT4) the sound doesn't
-       stutter anymore
-     * redid parts of the OpenGL renderer
-       + sprites behind translucent walls are rendered correctly
-       + translucent walls are rendered correctly
-       + support for glBSP nodes
-       + compliant to glBSP spec v2
-       + use_mipmapping option in boom.cfg
-       + the default for zone memory in OpenGL is now 16MB
