@@ -31,8 +31,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char
-
 #include <stdio.h>
 
 #include <stdarg.h>
@@ -159,6 +157,8 @@ int I_Filelength(int handle)
   return fileinfo.st_size;
 }
 
+#ifndef PRBOOM_SERVER
+
 extern void I_Video_AddCommands();
 //extern void I_Sound_AddCommands();
 //extern void I_Input_AddCommands();
@@ -174,8 +174,6 @@ void I_AddCommands()
   //I_Sound_AddCommands();
   //Ser_AddCommands();
 }
-
-#ifndef PRBOOM_SERVER
 
 // Return the path where the executable lies -- Lee Killough
 #ifdef _WIN32
