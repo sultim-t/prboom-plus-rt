@@ -208,7 +208,7 @@ prboom2/src/c_cmd.c -text svneol=native#unset
 prboom2/src/c_net.c -text svneol=native#unset
 prboom2/src/d_main.c -text svneol=native#unset
 prboom2/src/d_main.h -text svneol=native#unset
-prboom2/src/inl/makefile.am -text
+prboom2/src/inl/Makefile.am -text
 prboom2/src/mn_menus.c -text svneol=native#unset
 prboom2/src/p_cmd.c -text svneol=native#unset
 prboom2/src/p_enemy.c -text svneol=native#unset
