@@ -375,10 +375,7 @@ void I_FinishUpdate (void)
 #endif
 
 #ifndef GL_DOOM
-  if (screen->pixels != screens[0])
-  {
-    if (screen->pixels == NULL)
-    {
+  if (SDL_MUSTLOCK(screen)) {
       int h;
       int w;
       char *src;
@@ -397,7 +394,6 @@ void I_FinishUpdate (void)
         src+=SCREENWIDTH;
       }
       SDL_UnlockSurface(screen);
-    }
   }
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
@@ -533,10 +529,12 @@ void I_UpdateVideoMode(void)
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
 
+  lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
+
   mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
-  if (screen->pixels != NULL)
+  if (!SDL_MUSTLOCK(screen))
   {
     if (out_buffer)
       free(out_buffer);
