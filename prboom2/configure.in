@@ -142,7 +142,8 @@ AC_CHECK_LIB(smpeg,SMPEG_playAudio,[
 AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
     AC_DEFINE(HAVE_LIBSDL_MIXER)
     MIXER_LIBS="$MIXER_LIBS -lSDL_mixer"
-],,$SDL_LIBS $MIXER_LIBS)
+],echo "*** Compiling without SDL_mixer installed probably won't work"
+,$SDL_LIBS $MIXER_LIBS)
 AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
     AC_DEFINE(HAVE_LIBSDL_NET)
     AC_DEFINE(USE_SDL_NET)
@@ -162,6 +163,13 @@ AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
     CFLAGS="$save_CFLAGS"
 ],,$SDL_LIBS)
 AM_CONDITIONAL(SDL_NET, test "$sdl_net" = yes)
+
+if test "$BUILD_SDLDOOM" != "prboom" || test "$sdl_net" != yes
+then
+ echo "*** You must have the SDL libraries installed before you can compile prboom"
+ echo "*** See http://prboom.sourceforge.net/linux.html"
+ exit 1
+fi
 
 dnl - Net
 AC_CHECK_FUNC(socket,[
