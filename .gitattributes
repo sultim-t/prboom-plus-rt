@@ -220,6 +220,7 @@ prboom2/src/p_enemy.c -text svneol=native#unset
 prboom2/src/p_inter.c -text svneol=native#unset
 prboom2/src/p_pspr.h -text svneol=native#unset
 prboom2/src/p_saveg.c -text svneol=native#unset
+prboom2/src/p_spec.h -text svneol=native#unset
 prboom2/src/p_telept.c -text svneol=native#unset
 prboom2/src/r_things.c -text svneol=native#unset
 prboom2/src/t_func.c -text svneol=native#unset
