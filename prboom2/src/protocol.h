@@ -43,6 +43,7 @@ enum packet_type_e {
   PKT_QUIT,    // Player quit game
   PKT_DOWN,    // Server downed
   PKT_WAD,     // Wad file request
+  PKT_BACKOFF, // Request for client back-off
 };
 
 typedef struct {

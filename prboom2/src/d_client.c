@@ -245,6 +245,7 @@ boolean D_NetGetWad(const char* name)
 
 void NetUpdate(void)
 {
+  static int lastmadetic;
   if (server) { // Receive network packets
     size_t recvlen;
     packet_header_t *packet = Z_Malloc(10000, PU_STATIC, NULL);
@@ -295,6 +296,13 @@ void NetUpdate(void)
   queuedpacket[numqueuedpackets-1] = Z_Malloc(recvlen, PU_STATIC, NULL);
   memcpy(queuedpacket[numqueuedpackets-1], packet, recvlen);
   break;
+      case PKT_BACKOFF:
+        /* cph 2003-09-18 -
+	 * The server sends this when we have got ahead of the other clients. We should
+	 * stall the input side on this client, to allow other clients to catch up.
+	 */
+        lastmadetic++;
+	break;
       default: // Other packet, unrecognised or redundant
   break;
       }
@@ -302,9 +310,8 @@ void NetUpdate(void)
     Z_Free(packet);
   }
   { // Build new ticcmds
-    static int lastmadetic;
     int newtics = I_GetTime() - lastmadetic;
-
+    newtics = (newtics > 0 ? newtics : 0);
     lastmadetic += newtics;
     while (newtics--) {
       I_StartTic();
@@ -463,6 +470,7 @@ void TryRunTics (void)
     NetUpdate(); // Keep sending our tics to avoid stalling remote nodes
 #endif
   }
+  doom_printf("lag: %d",maketic-gametic);
 }
 
 #ifdef HAVE_NET

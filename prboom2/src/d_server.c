@@ -424,6 +424,7 @@ int main(int argc, char** argv)
   {
     int remoteticfrom[MAXPLAYERS] = { 0, 0, 0, 0 };
     int remoteticto[MAXPLAYERS] = { 0, 0, 0, 0 };
+    int backoffcounter[MAXPLAYERS] = { 0, 0, 0, 0 };
     int curplayers = 0;
     boolean ingame = false;
     ticcmd_t netcmds[MAXPLAYERS][BACKUPTICS];
@@ -462,6 +463,9 @@ int main(int argc, char** argv)
 
     printf("Join by ");
     I_PrintAddress(stdout, &remoteaddr[n]);
+#ifdef USE_SDL_NET
+    printf(" (channel %d)",remoteaddr[n]);
+#endif
     putc('\n', stdout);
     {
       int i;
@@ -626,6 +630,19 @@ int main(int argc, char** argv)
         }
         I_SendPacketTo(packet, p - ((byte*)packet), remoteaddr+i);
         free(packet);
+      }
+      {
+        if (remoteticfrom[i] == remoteticto[i]) {
+	  backoffcounter[i] = 0;
+	} else if (remoteticfrom[i] > remoteticto[i]+1) {
+	  if ((backoffcounter[i] += remoteticfrom[i] - remoteticto[i] - 1) > 100) {
+	    packet_header_t *packet = malloc(sizeof(packet_header_t));
+	    packet->type = PKT_BACKOFF; packet->tic = doom_htonl(remoteticto[i]);
+	    I_SendPacketTo(packet,sizeof *packet,remoteaddr+i);
+	    backoffcounter[i] = 0;
+	    if (verbose) fprintf(stderr,"telling client %d to back off\n",i);
+	  }
+	}
       }
     }
       }
