@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.16 2000/05/21 12:46:37 cph Exp $
+ * $Id: g_game.c,v 1.17 2000/05/21 21:44:08 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.16 2000/05/21 12:46:37 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.17 2000/05/21 21:44:08 cph Exp $";
 
 #include <stdarg.h>
 
@@ -1853,15 +1853,16 @@ static void G_Compatibility(void)
     boom_compatibility,/* comp_doorstuck - monsters stuck in doors fix */
     mbf_compatibility, /* comp_staylift - MBF AI change, monsters try
 			* to stay on lifts */
-    boom_compatibility,/* comp_zerotags - allow zero tags in wads */
-    boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
-    mbf_compatibility, /* comp_infcheat - FIXME */
     lxdoom_1_compatibility, /* comp_zombie - prevent dead players 
 			     * triggering stuff */
+    boom_compatibility_compatibility,  /* comp_stairs - see p_floor.c */
+    mbf_compatibility, /* comp_infcheat - FIXME */
+    boom_compatibility,/* comp_zerotags - allow zero tags in wads */
   };
   int i;
   for (i=0; i<COMP_NUM; i++)
     comp[i] = compatibility_level < fix_levels[i];
+  for (; i<COMP_TOTAL; i++) comp[i] = 1;
 }
 
 #ifdef DOGS
