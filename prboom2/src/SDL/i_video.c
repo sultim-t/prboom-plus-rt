@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.29 2001/07/08 17:34:02 proff_fs Exp $
+ * $Id: i_video.c,v 1.30 2001/07/11 17:49:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.29 2001/07/08 17:34:02 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.30 2001/07/11 17:49:47 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -487,22 +487,21 @@ void I_FinishUpdate (void)
       char *src;
       char *dest;
 
-      if (SDL_LockSurface(screen) < 0)
-        I_Error("I_FinishUpdate: Couldn't lock screen surface");
-      //dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
-      dest=(char *)screen->pixels;
-      src=screens[0];
-      //w=(screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w);
-      //h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
-      w=screen->w;
-      h=screen->h;
-      for (; h>0; h--)
+      if (SDL_LockSurface(screen) >= 0)
       {
-        memcpy(dest,src,w);
-        dest+=screen->pitch;
-        src+=SCREENWIDTH;
+        //dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
+        dest=(char *)screen->pixels;
+        src=screens[0];
+        w=(screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w);
+        h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
+        for (; h>0; h--)
+        {
+          memcpy(dest,src,w);
+          dest+=screen->pitch;
+          src+=SCREENWIDTH;
+        }
+        SDL_UnlockSurface(screen);
       }
-      SDL_UnlockSurface(screen);
     }
   }
   /* Update the display buffer (flipping video pages if supported)
