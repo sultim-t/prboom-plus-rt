@@ -208,6 +208,7 @@ prboom2/data/sprites/dogsl0.ppm -text
 prboom2/data/sprites/dogsm0.ppm -text
 prboom2/data/sprites/dogsn0.ppm -text
 prboom2/data/sprites/tnt1a0.ppm -text
+prboom2/doc/network_details.txt -text
 prboom2/doc/vidd.gif -text
 prboom2/src/SDL/i_video.c -text svneol=native#unset
 prboom2/src/c_cmd.c -text svneol=native#unset
