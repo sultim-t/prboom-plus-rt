@@ -60,9 +60,9 @@ extern _SCREENWIDTH
 
 global _R_DrawSpan
 
-global _R_DrawColumn_Normal
+global _R_DrawColumn
 
-global _R_DrawTLColumn_Normal
+global _R_DrawTLColumn
 
 _R_DrawSpan: ; basic label
 push     ebp
@@ -272,7 +272,7 @@ ret
  ; //
  ; //================
 
-_R_DrawColumn_Normal: ; basic label
+_R_DrawColumn: ; basic label
 
 push     ebp
 push     esi
@@ -388,7 +388,7 @@ ret
  ; //================
 
 
-_R_DrawTLColumn_Normal: ; basic label
+_R_DrawTLColumn: ; basic label
 
 push     ebp
 push     esi
