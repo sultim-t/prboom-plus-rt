@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.15 2000/10/08 18:42:20 proff_fs Exp $
+ * $Id: p_setup.c,v 1.16 2001/07/07 18:06:53 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.15 2000/10/08 18:42:20 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.16 2001/07/07 18:06:53 cph Exp $";
 
 #include <math.h>
 
@@ -536,23 +536,32 @@ static void P_LoadNodes (int lump)
 }
 
 
-//
-// P_LoadThings
-//
-// killough 5/3/98: reformatted, cleaned up
+/*
+ * P_LoadThings
+ *
+ * killough 5/3/98: reformatted, cleaned up
+ * cph 2001/07/07 - don't write into the lump cache, especially non-idepotent
+ * changes like byte order reversals. Take a copy to edit.
+ */
 
 static void P_LoadThings (int lump)
 {
   int  i, numthings = W_LumpLength (lump) / sizeof(mapthing_t);
-  const byte *data = W_CacheLumpNum (lump); // cph - wad lump handling updated, const*
+  const mapthing_t *data = W_CacheLumpNum (lump);
 
   for (i=0; i<numthings; i++)
     {
-      mapthing_t *mt = (mapthing_t *) data + i;
+      mapthing_t mt = data[i];
+
+      mt.x = SHORT(mt.x);
+      mt.y = SHORT(mt.y);
+      mt.angle = SHORT(mt.angle);
+      mt.type = SHORT(mt.type);
+      mt.options = SHORT(mt.options);
 
       // Do not spawn cool, new monsters if !commercial
       if (gamemode != commercial)
-        switch(mt->type)
+        switch(mt.type)
           {
           case 68:  // Arachnotron
           case 64:  // Archvile
@@ -568,13 +577,7 @@ static void P_LoadThings (int lump)
           }
 
       // Do spawn all other stuff.
-      mt->x = SHORT(mt->x);
-      mt->y = SHORT(mt->y);
-      mt->angle = SHORT(mt->angle);
-      mt->type = SHORT(mt->type);
-      mt->options = SHORT(mt->options);
-
-      P_SpawnMapThing (mt);
+      P_SpawnMapThing (&mt);
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
