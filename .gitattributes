@@ -227,4 +227,5 @@ website/html/prboom2.gif -text
 website/src/index.ht -text svneol=native#unset
 website/src/mailinglists.ht -text
 website/src/mbf-bugs.ht -text
+website/templates/template.html -text
 website/web.config -text
