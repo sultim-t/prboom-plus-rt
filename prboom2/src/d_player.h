@@ -33,6 +33,7 @@
 #ifndef __D_PLAYER__
 #define __D_PLAYER__
 
+typedef struct player_s player_t;
 
 // The player data structure depends on a number
 // of other structs: items (internal inventory),
@@ -88,7 +89,7 @@ typedef enum
 //
 // Extended player object info: player_t
 //
-typedef struct player_s
+struct player_s
 {
   mobj_t*             mo;
   playerstate_t       playerstate;
@@ -126,6 +127,7 @@ typedef struct player_s
   
   // Frags, kills of other players.
   int                 frags[MAXPLAYERS];
+  int                 totalfrags;
   weapontype_t        readyweapon;
   
   // Is wp_nochange if not changing.
@@ -179,7 +181,7 @@ typedef struct player_s
   boolean             didsecret;      
 
   char                name[20];
-} player_t;
+};
 
 
 //
