@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.46 2002/11/24 23:20:10 proff_fs Exp $
+ * $Id: i_video.c,v 1.47 2002/11/26 22:24:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.46 2002/11/24 23:20:10 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.47 2002/11/26 22:24:48 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -775,9 +775,9 @@ void I_UpdateVideoMode(void)
   }
 
 #ifdef GL_DOOM
-  if (DynGL_GetFunctions(NULL) == SDL_FALSE) {
-    I_Error("DynGL_GetFunctions failed: %s\n", SDL_GetError());
-  }
+  if (vid_getMode() == VID_MODEGL)
+    if (DynGL_GetFunctions(NULL) == SDL_FALSE)
+      I_Error("DynGL_GetFunctions failed: %s\n", SDL_GetError());
 #endif
 
   mouse_currently_grabbed = false;
@@ -854,8 +854,6 @@ CONSOLE_INT(r_videomode, r_videomode, NULL, 0, 3, str_vidmode, cf_buffered)
 #ifndef GL_DOOM
   if (r_videomode == 3)
     r_videomode = 0;
-#else
-  r_videomode = 3;
 #endif
   if (graphics_inited)
     I_UpdateVideoMode();

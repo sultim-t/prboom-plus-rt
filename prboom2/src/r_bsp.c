@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.23 2001/11/18 17:15:52 cph Exp $
+ * $Id: r_bsp.c,v 1.24 2002/11/26 22:24:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.23 2001/11/18 17:15:52 cph Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.24 2002/11/26 22:24:46 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -40,10 +40,8 @@ rcsid[] = "$Id: r_bsp.c,v 1.23 2001/11/18 17:15:52 cph Exp $";
 #include "r_plane.h"
 #include "r_things.h"
 #include "r_bsp.h" // cph - sanity checking
+#include "v_video.h"
 #include "lprintf.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 seg_t     *curline;
 side_t    *sidedef;
@@ -356,9 +354,10 @@ static void R_AddLine (seg_t *line)
   x2 = viewangletox[angle2];
 
 #ifdef GL_DOOM
+  // proff 11/99: we have to add these segs to avoid gaps in OpenGL
+  if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
   {
-    // proff 11/99: we have to add these segs to avoid gaps in OpenGL
-    if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
+    if (vid_getMode() == VID_MODEGL)
     {
       if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
       {
@@ -374,7 +373,10 @@ static void R_AddLine (seg_t *line)
       gld_AddWall(curline);
       return;
     }
+    else
+      return;
   }
+  else
 #else
   // Does not cross a pixel?
   if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
@@ -498,10 +500,6 @@ static void R_Subsector(int num)
   sector_t    tempsec;              // killough 3/7/98: deep water hack
   int         floorlightlevel;      // killough 3/16/98: set floor lightlevel
   int         ceilinglightlevel;    // killough 4/11/98
-#ifdef GL_DOOM
-  visplane_t dummyfloorplane;
-  visplane_t dummyceilingplane;
-#endif
 
 #ifdef RANGECHECK
   if (num>=numsubsectors)
@@ -545,10 +543,13 @@ static void R_Subsector(int num)
                 frontsector->ceiling_xoffs,     // killough 3/7/98
                 frontsector->ceiling_yoffs
                 ) : NULL;
-#ifdef GL_DOOM
+
   // check if the sector is faked
-  if (frontsector==sub->sector)
+  if ((frontsector==sub->sector) && (vid_getMode() == VID_MODEGL))
   {
+    visplane_t dummyfloorplane;
+    visplane_t dummyceilingplane;
+
     // if the sector has bottomtextures, then the floorheight will be set to the
     // highest surounding floorheight
     if ((frontsector->no_bottomtextures) || (!floorplane))
@@ -605,7 +606,6 @@ static void R_Subsector(int num)
         ceilingplane=&dummyceilingplane;
     }
   }
-#endif
 
   // killough 9/18/98: Fix underwater slowdown, by passing real sector 
   // instead of fake one. Improve sprite lighting by basing sprite
@@ -629,7 +629,8 @@ static void R_Subsector(int num)
     curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
   }
 #ifdef GL_DOOM
-  gld_AddPlane(num, floorplane, ceilingplane);
+  if (vid_getMode() == VID_MODEGL)
+    gld_AddPlane(num, floorplane, ceilingplane);
 #endif
 }
 

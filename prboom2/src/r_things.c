@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.21 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: r_things.c,v 1.22 2002/11/26 22:24:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.21 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.22 2002/11/26 22:24:47 proff_fs Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -41,10 +41,8 @@ rcsid[] = "$Id: r_things.c,v 1.21 2002/11/17 18:34:54 proff_fs Exp $";
 #include "r_segs.h"
 #include "r_draw.h"
 #include "r_things.h"
+#include "v_video.h"
 #include "lprintf.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 #define MINZ        (FRACUNIT*4)
 #define BASEYCENTER 100
@@ -472,9 +470,6 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
   int       lump;
   boolean   flip;
   vissprite_t *vis;
-#ifndef GL_DOOM
-  fixed_t   iscale;
-#endif
   int heightsec;      // killough 3/27/98
 
   // transform the origin point
@@ -584,56 +579,64 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis = R_NewVisSprite ();
 
 #ifdef GL_DOOM
-  // proff 11/99: add sprite for OpenGL
-  vis->thing = thing;
-  vis->flip = flip;
-  vis->scale = FixedDiv(projectiony, tz);
-  vis->patch = lump;
-  gld_AddSprite(vis);
-  return;
-#else
-  // killough 3/27/98: save sector for special clipping later
-  vis->heightsec = heightsec;
+  if (vid_getMode() == VID_MODEGL)
+  {
+    // proff 11/99: add sprite for OpenGL
+    vis->thing = thing;
+    vis->flip = flip;
+    vis->scale = FixedDiv(projectiony, tz);
+    vis->patch = lump;
+    gld_AddSprite(vis);
 
-  vis->mobjflags = thing->flags;
-// proff 11/06/98: Changed for high-res
-  vis->scale = FixedDiv(projectiony, tz);
-  vis->gx = thing->x;
-  vis->gy = thing->y;
-  vis->gz = thing->z;
-  vis->gzt = gzt;                          // killough 3/27/98
-  vis->texturemid = vis->gzt - viewz;
-  vis->x1 = x1 < 0 ? 0 : x1;
-  vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-  iscale = FixedDiv (FRACUNIT, xscale);
-
-  if (flip)
-    {
-      vis->startfrac = (width<<FRACBITS)-1;
-      vis->xiscale = -iscale;
-    }
+    return;
+  }
   else
-    {
-      vis->startfrac = 0;
-      vis->xiscale = iscale;
-    }
-
-  if (vis->x1 > x1)
-    vis->startfrac += vis->xiscale*(vis->x1-x1);
-  vis->patch = lump;
-
-  // get light level
-  if (thing->flags & MF_SHADOW)
-      vis->colormap = NULL;             // shadow draw
-  else if (fixedcolormap)
-    vis->colormap = fixedcolormap;      // fixed map
-  else if (thing->frame & FF_FULLBRIGHT)
-    vis->colormap = fullcolormap;     // full bright  // killough 3/20/98
-  else
-    {      // diminished light
-      vis->colormap = R_ColourMap(lightlevel,xscale);
-    }
 #endif
+  {
+    fixed_t   iscale;
+
+    // killough 3/27/98: save sector for special clipping later
+    vis->heightsec = heightsec;
+
+    vis->mobjflags = thing->flags;
+    // proff 11/06/98: Changed for high-res
+    vis->scale = FixedDiv(projectiony, tz);
+    vis->gx = thing->x;
+    vis->gy = thing->y;
+    vis->gz = thing->z;
+    vis->gzt = gzt;                          // killough 3/27/98
+    vis->texturemid = vis->gzt - viewz;
+    vis->x1 = x1 < 0 ? 0 : x1;
+    vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
+    iscale = FixedDiv (FRACUNIT, xscale);
+
+    if (flip)
+      {
+        vis->startfrac = (width<<FRACBITS)-1;
+        vis->xiscale = -iscale;
+      }
+    else
+      {
+        vis->startfrac = 0;
+        vis->xiscale = iscale;
+      }
+
+    if (vis->x1 > x1)
+      vis->startfrac += vis->xiscale*(vis->x1-x1);
+    vis->patch = lump;
+
+    // get light level
+    if (thing->flags & MF_SHADOW)
+        vis->colormap = NULL;             // shadow draw
+    else if (fixedcolormap)
+      vis->colormap = fixedcolormap;      // fixed map
+    else if (thing->frame & FF_FULLBRIGHT)
+      vis->colormap = fullcolormap;     // full bright  // killough 3/20/98
+    else
+      {      // diminished light
+        vis->colormap = R_ColourMap(lightlevel,xscale);
+      }
+  }
 }
 
 //
@@ -758,9 +761,12 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
 
   // proff 11/99: don't use software stuff in OpenGL
-#ifndef GL_DOOM
-  R_DrawVisSprite(vis, vis->x1, vis->x2);
-#else
+  if (vid_getMode() != VID_MODEGL)
+  {
+    R_DrawVisSprite(vis, vis->x1, vis->x2);
+  }
+#ifdef GL_DOOM
+  else
   {
     int lightlevel;
     sector_t tmpsec;
@@ -770,7 +776,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
       lightlevel=255;
     else
     {
-//      lightlevel = (viewplayer->mo->subsector->sector->lightlevel) + (extralight << LIGHTSEGSHIFT);
+      //lightlevel = (viewplayer->mo->subsector->sector->lightlevel) + (extralight << LIGHTSEGSHIFT);
       R_FakeFlat( viewplayer->mo->subsector->sector, &tmpsec,
                   &floorlightlevel, &ceilinglightlevel, false);
       lightlevel = ((floorlightlevel+ceilinglightlevel) >> 1) + (extralight << LIGHTSEGSHIFT);

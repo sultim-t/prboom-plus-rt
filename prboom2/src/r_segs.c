@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.19 2002/11/21 20:53:10 dukope Exp $
+ * $Id: r_segs.c,v 1.20 2002/11/26 22:24:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.19 2002/11/21 20:53:10 dukope Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.20 2002/11/26 22:24:47 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -42,10 +42,8 @@ rcsid[] = "$Id: r_segs.c,v 1.19 2002/11/21 20:53:10 dukope Exp $";
 #include "r_things.h"
 #include "r_draw.h"
 #include "w_wad.h"
+#include "v_video.h"
 #include "lprintf.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -455,10 +453,14 @@ void R_StoreWallRange(const int start, const int stop)
   	curline->linedef->flags |= ML_MAPPED;
 
 #ifdef GL_DOOM
-  // proff 11/99: the rest of the calculations is not needed for OpenGL
-  ds_p++->curline = curline;
-  gld_AddWall(curline);
-  return;
+  if (vid_getMode() == VID_MODEGL)
+  {
+    // proff 11/99: the rest of the calculations is not needed for OpenGL
+    ds_p++->curline = curline;
+    gld_AddWall(curline);
+
+    return;
+  }
 #endif
 
 

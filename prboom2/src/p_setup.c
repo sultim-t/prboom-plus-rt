@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.24 2002/11/24 23:20:09 proff_fs Exp $
+ * $Id: p_setup.c,v 1.25 2002/11/26 22:24:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.24 2002/11/24 23:20:09 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.25 2002/11/26 22:24:45 proff_fs Exp $";
 
 #include <math.h>
 
@@ -51,10 +51,8 @@ rcsid[] = "$Id: p_setup.c,v 1.24 2002/11/24 23:20:09 proff_fs Exp $";
 #include "p_tick.h"
 #include "p_enemy.h"
 #include "s_sound.h"
+#include "v_video.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 //
 // MAP related Lookup tables.
@@ -1463,10 +1461,12 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     R_PrecacheLevel();
 
 #ifdef GL_DOOM
- // proff 11/99: calculate all OpenGL specific tables etc.
-  gld_PreprocessLevel();
+  if (vid_getMode() == VID_MODEGL)
+  {
+    // proff 11/99: calculate all OpenGL specific tables etc.
+    gld_PreprocessLevel();
+  }
 #endif	
-
 }
 
 //

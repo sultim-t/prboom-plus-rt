@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.38 2002/11/24 23:20:10 proff_fs Exp $
+ * $Id: v_video.c,v 1.39 2002/11/26 22:24:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.38 2002/11/24 23:20:10 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.39 2002/11/26 22:24:48 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "hu_stuff.h"
@@ -102,11 +102,7 @@ void V_InitColorTranslation(void) {
 }
 
 //---------------------------------------------------------------------------
-#ifdef GL_DOOM
-static TVidMode vidMode = VID_MODEGL;
-#else
 static TVidMode vidMode = VID_MODE8;
-#endif
 
 //---------------------------------------------------------------------------
 TVidMode vid_getMode() { return vidMode; }
@@ -300,10 +296,8 @@ void vid_initMode(TVidMode vd) {
 #ifndef GL_DOOM
   if (vd == VID_MODEGL)
     return;
-  vidMode = vd;
-#else // GL_DOOM
-  vidMode = VID_MODEGL;
 #endif
+  vidMode = vd;
   if (vidMode == VID_MODE8) {
     V_FillRect = V_FillRect8;
     V_CopyRect = V_CopyRect8;

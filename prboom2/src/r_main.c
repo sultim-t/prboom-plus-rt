@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.28 2002/11/24 23:20:10 proff_fs Exp $
+ * $Id: r_main.c,v 1.29 2002/11/26 22:24:47 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.28 2002/11/24 23:20:10 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.29 2002/11/26 22:24:47 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -47,9 +47,6 @@ static const char rcsid[] = "$Id: r_main.c,v 1.28 2002/11/24 23:20:10 proff_fs E
 #include "lprintf.h"
 #include "st_stuff.h"
 #include "i_main.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 #include "c_runcmd.h"
 
 
@@ -539,19 +536,22 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
     
   rendered_segs = rendered_visplanes = 0;
 #ifdef GL_DOOM
-  // proff 11/99: clear buffers
-  gld_InitDrawScene();
+  if (vid_getMode() == VID_MODEGL)
+  {
+    // proff 11/99: clear buffers
+    gld_InitDrawScene();
 
-  // proff 11/99: switch to perspective mode
-  gld_StartDrawScene();
-#else
+    // proff 11/99: switch to perspective mode
+    gld_StartDrawScene();
+  }
+  else
+#endif
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
       //memset(screens[0].data+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
       R_DrawViewBorder();
     }
-#endif
 
   // check for new console commands.
 #ifdef HAVE_NET  
@@ -583,10 +583,13 @@ void R_RenderPlayerView (player_t* player, camera_t* viewcamera)
 #endif
 
 #ifdef GL_DOOM
-  // proff 11/99: draw the scene
-  gld_DrawScene(player);
-  // proff 11/99: finishing off
-  gld_EndDrawScene();
+  if (vid_getMode() == VID_MODEGL)
+  {
+    // proff 11/99: draw the scene
+    gld_DrawScene(player);
+    // proff 11/99: finishing off
+    gld_EndDrawScene();
+  }
 #endif
   if (rendering_stats) R_ShowStats();
 }
