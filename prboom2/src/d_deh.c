@@ -966,7 +966,7 @@ const char **const mapnamest[] = // TNT WAD map names.
 void    lfstrip(char *);     // strip the \r and/or \n off of a line
 void    rstrip(char *);      // strip trailing whitespace
 char *  ptr_lstrip(char *);  // point past leading whitespace
-boolean deh_GetData(char *, char *, uint_64_t *, char **, FILE *);
+boolean deh_GetData(char *, char *, long *, char **, FILE *);
 boolean deh_procStringSub(char *, char *, char *, FILE *);
 char *  dehReformatStr(char *);
 
@@ -1006,7 +1006,7 @@ typedef struct
 // killough 8/9/98: make DEH_BLOCKMAX self-adjusting
 #define DEH_BLOCKMAX (sizeof deh_blocks/sizeof*deh_blocks)  // size of array
 #define DEH_MAXKEYLEN 32 // as much of any key as we'll look at
-#define DEH_MOBJINFOMAX 24 // number of ints in the mobjinfo_t structure (!)
+#define DEH_MOBJINFOMAX 23 // number of ints in the mobjinfo_t structure (!)
 
 // Put all the block header values, and the function to be called when that
 // one is encountered, in this array:
@@ -1069,7 +1069,6 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
   "Missile damage",      // .damage
   "Action sound",        // .activesound
   "Bits",                // .flags
-  "Bits2",               // .flags
   "Respawn frame"        // .raisestate
 };
 
@@ -1086,7 +1085,7 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
 
 struct deh_mobjflags_s { 
   const char *name; // CPhipps - const*
-  uint_64_t value;
+  long value;
 };
 
 // CPhipps - static const
@@ -1124,17 +1123,13 @@ static const struct deh_mobjflags_s deh_mobjflags[] = {
   {"TRANSLATION1", MF_TRANSLATION1}, // use translation table for color (players)
   {"TRANSLATION2", MF_TRANSLATION2}, // use translation table for color (players)
   {"UNUSED1",      MF_TRANSLATION2}, // unused bit # 1 -- For Boom bug-compatibility
-  {"UNUSED2",      MF_STEALTH}, // unused bit # 2 -- For Boom compatibility
-  {"STEALTH",      MF_STEALTH}, // for stealth monsters
-  {"UNUSED3",      MF_TRANSLUC25}, // unused bit # 3 -- For Boom compatibility
-  {"UNUSED4",      MF_TRANSLUC50}, // unused bit # 4 -- For Boom compatibility
-  {"TRANSLUC25",   MF_TRANSLUC25}, // Translucency 25%
-  {"TRANSLUC50",   MF_TRANSLUC50}, // Translucency 50%
-  {"TRANSLUC75",   MF_TRANSLUC75}, // Translucency 25% + Translucency 50% = 75%
-  {"TRANSLUCENT",  MF_TRANSLUCENT}, // apply translucency to sprite (BOOM)
+  {"UNUSED2",      MF_TOUCHY}, // unused bit # 2 -- For Boom compatibility
+  {"UNUSED3",      MF_BOUNCES}, // unused bit # 3 -- For Boom compatibility
+  {"UNUSED4",      MF_FRIEND}, // unused bit # 4 -- For Boom compatibility
   {"TOUCHY",       MF_TOUCHY},// dies on contact with solid objects (MBF)
   {"BOUNCES",      MF_BOUNCES},// bounces off floors, ceilings and maybe walls
   {"FRIEND",       MF_FRIEND},// a friend of the player(s) (MBF)
+  {"TRANSLUCENT",  MF_TRANSLUCENT}, // apply translucency to sprite (BOOM)
 };
 
 // STATE - Dehacked block name = "Frame" and "Pointer"
@@ -1690,8 +1685,8 @@ static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
 // To be on the safe, compatible side, we manually convert DEH bitflags
 // to prboom types - POPE
 //---------------------------------------------------------------------------
-uint_64_t getConvertedDEHBits(uint_64_t bits) {
-  static const uint_64_t bitMap[32] = {
+unsigned long getConvertedDEHBits(unsigned long bits) {
+  static const unsigned long bitMap[32] = {
     // from http://www.btinternet.com/~Enjay001/deh05.htm:
     MF_SPECIAL, // 0 Can be picked up – When touched the thing can be picked up.
     MF_SOLID, // 1 Obstacle – The thing is solid and will not let you (or others) pass through it
@@ -1727,8 +1722,8 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
     0
   };
   int i;
-  uint_64_t shiftBits = bits;
-  uint_64_t convertedBits = 0;
+  unsigned long shiftBits = bits;
+  unsigned long convertedBits = 0;
   for (i=0; i<32; i++) {
     if (shiftBits & 0x1) convertedBits |= bitMap[i];
     shiftBits >>= 1;
@@ -1739,7 +1734,7 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
 //---------------------------------------------------------------------------
 // See usage below for an explanation of this function's existence - POPE
 //---------------------------------------------------------------------------
-void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
+void setMobjInfoValue(int mobjInfoIndex, int keyIndex, unsigned long value) {
   mobjinfo_t *mi;
   if (mobjInfoIndex >= NUMMOBJTYPES || mobjInfoIndex < 0) return;
   mi = &mobjinfo[mobjInfoIndex];
@@ -1765,7 +1760,7 @@ void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
     case 18: mi->mass = (int)value; return;
     case 19: mi->damage = (int)value; return;
     case 20: mi->activesound = (int)value; return;
-    case 21: mi->flags = value; return;
+    case 21: mi->flags = (int)value; return;
     case 22: mi->raisestate = (int)value; return;
     default: return;
   }
@@ -1787,7 +1782,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   int indexnum;
   int ix;
   char *strval;
@@ -1904,7 +1899,7 @@ static void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -1984,7 +1979,7 @@ static void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   int indexnum;
   int i; // looper
 
@@ -2059,7 +2054,7 @@ static void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -2127,7 +2122,7 @@ static void deh_procAmmo(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -2173,7 +2168,7 @@ static void deh_procWeapon(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -2351,7 +2346,7 @@ static void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
   char ch = 0; // CPhipps - `writable' null string to initialise...
   char *strval = &ch;  // pointer to the value area
   int ix, iy;   // array indices
@@ -2428,7 +2423,7 @@ static void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -2657,7 +2652,7 @@ static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;    // All deh values are ints or longs
+  long value;    // All deh values are ints or longs
   char *strval;      // holds the string value of the line
   static int maxstrlen = 128; // maximum string length, bumped 128 at
   // a time as needed
@@ -2804,7 +2799,7 @@ static void deh_procHelperThing(DEHFILE *fpin, FILE *fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  uint_64_t value;      // All deh values are ints or longs
+  long value;      // All deh values are ints or longs
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -2839,7 +2834,7 @@ static void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
 {
    char key[DEH_MAXKEYLEN];
    char inbuffer[DEH_BUFFERMAX];
-   uint_64_t value;    // All deh values are ints or longs
+   long value;    // All deh values are ints or longs
    char *strval;  // holds the string value of the line
    char candidate[5];
    int  rover;
@@ -2897,7 +2892,7 @@ static void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
 {
    char key[DEH_MAXKEYLEN];
    char inbuffer[DEH_BUFFERMAX];
-   uint_64_t value;    // All deh values are ints or longs
+   long value;    // All deh values are ints or longs
    char *strval;  // holds the string value of the line
    char candidate[7];
    int  rover, len;
@@ -2956,7 +2951,7 @@ static void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
 {
    char key[DEH_MAXKEYLEN];
    char inbuffer[DEH_BUFFERMAX];
-   uint_64_t value;    // All deh values are ints or longs
+   long value;    // All deh values are ints or longs
    char *strval;  // holds the string value of the line
    char candidate[7];
    int  rover, len;
@@ -3098,7 +3093,7 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
 //          as a long just in case.  The passed pointer to hold
 //          the key must be DEH_MAXKEYLEN in size.
 
-boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
+boolean deh_GetData(char *s, char *k, long *l, char **strval, FILE *fpout)
 {
   char *t;  // current char
   long val; // to hold value of pair

@@ -802,8 +802,6 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
     mobj->ceilingz - mobj->height : z;
 
   mobj->thinker.function = P_MobjThinker;
-  mobj->above_thing = 0;                                            // phares
-  mobj->below_thing = 0;                                            // phares
 
   mobj->target = mobj->tracer = mobj->lastenemy = NULL;
   P_AddThinker (&mobj->thinker);
