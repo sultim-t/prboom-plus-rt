@@ -1,357 +1,193 @@
-LxDoom v1.4.4
-=============
+PrBoom 2.1.0
+============
 
-Doom is a 3d shoot'em'up game, written by id Software, first released in
-1993. 
+PrBoom is a version of the classic 3D shoot'em'up game Doom, originally 
+written by id Software. 
 
-LxDoom is a version of Doom, designed to run on Linux either under XFree86 or 
-using SVGALib. It will also run under various Unix variants. Doom is a 3D 
-game originally by id software.
+See the file AUTHORS in this distribution for a list of authors and 
+other contributors, and a history of the projects PrBoom is derived 
+from.
 
-LxDoom is based on Boom, a freely available port of Doom for DOS, written by 
-TeamTNT (http://www.teamtnt.com/).
+PrBoom is made available under the GNU General Public License. See the 
+file COPYING included in this distribution for details. 
 
-LxDoom is released and maintained by Colin Phipps (that's me). See the 
-LxDoom home-page at http://lxdoom.linuxgames.com/ for information about 
-Doom and LxDoom.
+Game data - WADs
+----------------
 
-If you have comments, contributions, or bug reports about LxDoom, please 
-go to http://lxdoom.linuxgames.com/contact.html, which will direct 
-you to the right place to ask.
+(This section is aimed at people not familiar with Doom and the 
+data files it uses.)
 
-LxDoom is free software - see the files AUTHORS and COPYING for details.
+PrBoom is a game engine - it provides a program to play Doom levels, but 
+it doesn't include any levels itself. More importantly, you need all the 
+sounds, sprites, and other graphics that make up the Doom environment. 
+So to play PrBoom, you need one of the main Doom date files from id 
+Software - either doom.wad, doom2.wad, tnt.wad or plutonia.wad from one 
+of the commercial Doom games, or the shareware doom1.wad. This file 
+is called the IWAD.
 
-Release Notes
--------------
+PrBoom also supports playing Doom add-on levels, called "PWADs", which 
+are small extra .wad files which just contain extra levels or other 
+resources. PWADs are ONLY ADD-ONS, you still need the original IWAD 
+that they are designed to work with. In practice, most PWADs on the 
+internet require doom2.wad (although some work with doom.wad). 
 
-If you have used older versions of LxDoom, you can remove the old doom wad
-references from /usr/local/games/wads. Also, save games and config files are
-now stored in ~/.lxdoom/
+If you don't own any of the Doom games, get the shareware doom1.wad 
+from Doomworld's shareware download page. You won't be able to play 
+most add-ons.
+http://www.doomworld.com/shareware
 
-You will also need to recalibrate your mouse sensitivity, since LxDoom v1.4.3 
-changes te sensitivity scale in order to give more fine control.
+FIXME Windows Installation
+--------------------
 
-Requirements
-------------
+Do we need this section?
 
-- a copy of Doom, Doom ][, Ultimate Doom or Final Doom. The only file you
-  need from these is the "IWAD file", the main Doom data file, called
-  doom.wad or doom2.wad. Or, you can use the doom1.wad from the shareware
-  release of Doom.
-- a suitable UNIX system to run LxDoom on. I use Debian GNU/Linux 2.1, and
-  have tested LxDoom on several Linux variants.
-- either a working Xwindows setup, or SVGALib. You need the header files for
-  those installed in order to compile LxDoom.
+Linux Installation
+------------------
 
-See the file INSTALL for instructions for installing LxDoom.
+For UNIX, Linux, and other POSIX systems, you need the SDL libraries in 
+order to use PrBoom. If you haven't already done so, visit 
+http://prboom.sourceforge.net/linux.html and follow the instructions there 
+for your system, downloading the necessary libraries, and either 
+installing the binary RPM package or compiling PrBoom from source.
+
+Once you've done that, you'll need to copy your IWAD file (see the section 
+above if you don't know what this is) to a directory where PrBoom can find 
+it. Make /usr/local/share/games/doom/, and copy you IWAD (all of your 
+IWADs, if you own more than one) to that directory. 
 
 Features
 --------
 
-* Boom compatible:
-
-LxDoom is directly based on the source code for Boom (final release 
-2.02). That means that
-
-- all the original Doom & Doom ][ levels work
-- virtually all bug-less Doom & Doom ][ PWAD files should work
-- the majority of Doom & Doom ][ v1.9 demos should work (maybe others too)
-- all Boom PWAD files and demos (for v2.02) should work
-- Dehacked patches and BEX patches are supported using -deh parameter
-
-The command line parameters for all these features are the same as for Boom.
-
-* Enhancements from Boom:
-
-LxDoom has been substantially enhanced since Boom, with lots of improvements:
-
-- lots of bug fixes and code improvements, many incorporated from MBF
-- support for MBF's enhanced Dehacked support, skies and new code pointers
-- configurable multi-player colours
-- total game time shown on intermission screens
-- made more portable so it will run on different OS's and architectures
-- auto-loading of wads
-- games can be loaded or the level restarted during a net-game
-
-* X windows - LxDoom uses XFree86 to display the Doom screen, as well as 
-collect keyboard and mouse input. So if you can use XFree86, you should have 
-no problems using LxDoom. 
-
-* SVGALib version - nearly as fast as DOS Boom with normal video card, and 
-should use the acceleration on accelerated cards supported by SVGALib (not 
-tested yet)
-
-* High-res - LxDoom can run at resolutions higher than old Doom's fixed 
-320x200, in fact as high as 1600x1200 in theory.
-
-* Sound support: If your OS provides /dev/dsp support for your sound card, 
-then LxDoom can also give you the Doom sounds too. Or if you use an 
-alternative driver, which provides equivalent support on a different 
-device (e.g the PC speaker driver) then LxDoom can use that instead. 8 bit 
-sound cards are supported too.
-
-* Networking: Network support is included for net-games over TCP/IP based 
-networks. 
-
-* Better diagnostics: More error messages and warnings are given than old 
-Doom used to, e.g.: warnings when a screen-shot or saving a game fails, or 
-when loading a game with different WAD files loaded, or when LxDoom fixes
-errors in buggy PWADs.
-
-* Automap overlay and rotation; just press O and R in the automap to see what 
-I mean. I haven't got around to adding those keys to the menu, but you can 
-change them in the config file.
-
-* Misc: Joystick support, 'multitasking-friendly'. Also a few new cheat 
-codes, IDBEHOLDM for a mega-armour, and IDBEHOLDH for 200% health, and that's 
-in addition to all the cheat codes that Boom added. Also IDRATE shows the
-current framerate and some other rendering stats, which are useful to
-developers.
-
-* Music interface: Using a compatible music server LxDoom can now play music. 
-You can get a compatible version of musserver from my site.
-
-XFree86 version
----------------
-
-The XFree86 version of LxDoom is the program lxdoom. You can probably just use 
-your existing XFree86 configuration to run lxdoom with few changes.
-
-LxDoom now has hi-res! To set the resolution to use, specify the -width and 
--height parameters to lxdoom. So:
-
-lxdoom <other parameters> -width 640 -height 480
-
-gives you a 640x480 window. Bear in mind though that a larger window means that 
-LxDoom has to do more work rendering, so it will run slower on old computers. 
-
-lxdoom remembers the last screen resolution set in this way, so you don't need to 
-add these parameters every time. However, should you wish to override the 
-resolution for the current time you run lxdoom only, you can use the -geometry 
-parameter, e.g. lxdoom -geom 320x200. 
-
-LxDoom can display to most Xwindows displays. It is fastest on 256 colour
-PseudoColor displays (since this is what Doom was originally written for).
-To change the colour depth of your XFree86 setup, edit your 
-/etc/XF86Config file, and replace any existing DefaultColorDepth lines with:
-
-DefaultColorDepth 8
-
-(Remember to take a backup).
-
-Alternatively, if you don't want the change to be permanent, just use 
-'startx -- -bpp 8' when starting X, instead of the usual 'startx'.
-
-If you normally use X at 24bpp, and LxDoom displays wrongly when used at 24bpp, 
-edit the config file ~/.lxdoom/boom.cfg and change the X_options variable to 
-have value 2. This makes LxDoom work right on my test machines.
-
-If you use a high graphics resolution or a small monitor, the lxdoom window 
-may be too small for LxDoom to be comfortably playable. In that case, if you 
-have a powerful PC, try running lxdoom with the -2 parameter. This makes the 
-window twice as big in both directions. If that is still too small, try the 
--3 parameter instead.
-
-The problem with the -2 and -3 parameters is that they slow down lxdoom 
-considerably, particularly in high-colour modes. I suggest that you reduce
-the size of your Xwindows display instead while playing LxDoom (in XFree86,
-normally CRTL-ALT-+/- change the display size). 
-
-For really old machines (low end pentiums, 486's), it is hard to find a
-compromise - lxdoom will either be displayed too small, or will run too
-slow. For these machines, you can either reduce your screen size in X to
-320x200 (see appendix), or use the SVGALib version.
-
-lxdoom now only grabs your mouse pointer while actually playing, and it can 
-be released at any time by PAUSEing. If you don't want to use a mouse, use 
-the -nomouse parameter when launching lxdoom.
-
-Some combinations of keys used by lxdoom may be trapped by your window
-manager. If you have trouble with the strafe key ALT sticking on for
-example, this is probably due to your window manager grabbing the key
-presses. There are two solutions: change your window manager config, so it
-doesn't trap those keys, or select different keys in lxdoom, via the Key
-Bindings menu.
-
-SVGALib Version
----------------
-
-SVGALib is a graphics library developed specifically for Linux/i386, which 
-provides games like LxDoom high-performance graphics functions.
-
-You have to have a compiled version of SVGALib installed to use the SVGALib 
-version of LxDoom, which is the file lsdoom. 
-
-To get higher screen resolutions, you use the -width and -height command line 
-parameters. Just like the Xwindows version, the previous settings are 
-remembered between sessions.
-
-* Security:
-SVGALib provides near-direct hardware access for games that run using it. 
-That is why it is faster than XFree86 for games. BUT that means that you have 
-to be the superuser (root) to run anything that uses it.
-
-So you can run lsdoom as root, _or_ you can make lsdoom always run as root. 
-To do the latter, do the commands (as superuser):
-
-chown root /usr/local/games/lsdoom ; chmod a+rxs /usr/local/games/lsdoom
-
-This tells Linux to always run lsdoom with root privileges, regardless of who 
-runs it. Recent versions of SVGALib will release these privileges once the 
-game is running; however I will not pretend that this is safe, since lsdoom 
-does most of the file reading/writing before it is in graphics mode. It is, 
-however, better than always running it as superuser.
-
-Note: I found that I also had to 'chmod a+r /dev/mouse'; other devices may 
-also require this
-
-* Setup:
-Read the SVGALib documentation for information on configuring your screen, 
-video card and mouse to work nuder it. LxDoom asks SVGALib for all those 
-settings, so you have to edit /etc/vga/libvga.config to set them up. Most 
-video cards are auto-detected, and /dev/mouse and Microsoft serial mouse are 
-usually the default.
-
-Note: A badly configured SVGALib can be a security hazard, can cause your 
-machine to lose keyboard input (try telnetting if possible if this happens, 
-else you have to reboot), or can damage your monitor. I cannot be responsible 
-for any damage caused by improper use of SVGALib, even if my code is directly 
-or indirectly responsible.
-
-Other Devices
--------------
-
-Items in this section relate to other input/output devices supported by either 
-version of LxDoom.
-
-* Sound:
-You can disable sound support with the '-nosound' parameter. You may want to do 
-this if:
-- you have no sound card
-- your kernel is not compiled with sound support
-- the kernel driver for your card does not provide /dev/dsp support
-- your computer is too slow to cope with sound processing
-- you want to run multiple copies of LxDoom
-
-If you use have an alternative device for producing sound, which is compatible 
-with /dev/dsp, LxDoom can use that as well. You could just symlink /dev/dsp to 
-your other device, or you can:
-
-1) Run LxDoom once with the -nosound parameter.
-2) Exit normally
-3) Edit boom.cfg
-4) Change the line snddevice to the device that sound output should be sent to
-5) Save boom.cfg and try it out!
-
-* Joystick:
-If your system is Linux, and you had the Linux joystick headers available
-when you ompiled LxDoom, then LxDoom was compiled with joystick support.
-To use a joystick in LxDoom, run LxDoom once first and then exit. This creates 
-~/.lxdoom/boom.cfg. 
-
-Edit boom.cfg. There is a use_joystick line - change the number on this line to the 
-number of your joystick (usually 1, maybe 2 if you have 2 joystick ports).
-
-To disable the joystick for an individual session, us the '-nojoy' parameter.
-
-Multi-player - Over a TCP/IP network
------------
-
-As of v1.3.7, LxDoom has a client-server system for network games. There is a 
-server program, lxdoom-game-server, that comes with lxdoom. To play a network 
-game, follow these steps:
-
-- on one computer, which I will call the server, run the lxdoom-game-server 
-program. The parameters you specify to this program control the type of game 
-to be played. So for example lxdoom-game-server -dnN 2 -e 4 -l 3 specifies 
-that there will be 2 players, playing episode 4 level 3; -dn specifies 
-death-match and no monsters respectively. For more details of the parameters 
-lxdoom-game-server accepts, see the man page for it; but these should be 
-enough to start with.
-
-- Each player to take part in the game runs lxdoom with the parameter 
--net server, where server is the host name of the server. lxdoom will wait for 
-the specified number of players to join, and then will start.
-
-So an example: at home I have 2 machines, called vale and portico. To start a 
-nice coop game of Doom 2, I run
-
-on vale: 
-lxdoom-game-server -N 2 -l 1 &
-lxdoom -net localhost
-
-on portico:
-lxdoom -net vale
-
-Happy fragging... but here are some notes:
-
-- packet loss and limited bandwidth may make a network game unplayable. A LAN 
-is great; just don't expect good play over the Internet, especially if you 
-connect via a modem. This is being worked on.
-- all the players' machines must be connected to the server machine via a 
-TCP/IP network, and able to exchange UDP packets with the server. Some 
-routers and firewalls may block UDP packets, so you will not be able to play 
-across such obstacles.
-- maximum number of players is currently 4.
-
-Appendix - Making XFree86 run in 320x200x8bpp
-=============================================
-
-This is only recommended if you have manually edited your /etc/X11/XF86Config 
-file before, and have a rough idea what the sections are for.
-
-- Back up XF86Config
-- Make sure that you are using the SVGA server. If you are not, you may be
-out of luck. You could try running the xf86config program to select the SVGA
-server, but I haven't tried this and don't know if it will work.
-- Edit XF86Config
-- Find the section that begins
-Section "Screen"
-    Driver      "svga"
-
-- find the Modes line for the 8 bpp colour depth
-- add a mode "320x200"
-- Find the section that begins
-Section "Device" 
-- Add a line 
-    Option "clkdiv2"
-- save and try it out. You should be able to cycle through modes (on my
-server it's CTRL+ALT+<+/-> and find the low-res one.
-
-If that doesn't work, it may be because your card driver doesn't support a
-compatible clock setting. You can try changing to the Generic VGA device, by
-editing your Screen section to look a bit like this...
-
-Section "Screen"
-    Driver      "svga"
-    # Use Device "Generic VGA" for Standard VGA 320x200x256
-    Device      "Generic VGA"
-    # Device      "VidCard"
-    Monitor     "Monitor"
-    DefaultColorDepth 8
-    Subsection "Display"
-        Depth       8
-        # Omit the Modes line for the "Generic VGA" device
-        Modes       "320x200"
-        ViewPort    0 0
-        Virtual   320 200  
-...
-
-As you can see, the xf86config script with my XFree86 puts in a lot of
-helpful comments. If yours has done too, do whatever it says for the
-'Standard VGA 320x200x256' mode (after all, all I am doing is following
-those same instructions).
-
-However, remember that doing this will probably make X unusable for anything
-but Doom. Personally I'd recommend putting up with a small window, using
-<CTRL>-<ALT><+/-> to step down to 640x480 for lxdoom.
-
-At least, you could write a short shell script to swap XF86Config's
-according to whether you want lxdoom or serious X.
-
-WARNING: Fiddling with XF86Config is dangerous. If you have configured your    
-monitor or video card incorrectly, then damage to your monitor or even worse   
-could result. I cannot be held responsible for any such damage. Please read
-the relevant XFree86 docs before trying anything like this; they have similar
-warnings and disclaimers.
+   This is all the features PrBoom has compared to the original Doom game
+   - it's intended to give you an idea of the enhancements, rather than
+   burying you in details.
+   
+   See http://prboom.sourceforge.net/about.html for an HTML version of 
+   this list.
+
+   This is shamelessly modelled on Boom's changes pages. By each
+   change, there's the name of the port the feature comes from (so it's
+   compatible with).
+   
+Playing the game
+
+     * Supports loading dehacked files at the command line, or in WADs
+       (BOOM, MBF)
+     * Supports PWADs containing sprites and flats (BOOM)
+     * Save games and demos completely store game parameters (BOOM,
+       MBF)
+     * Savegames store list of loaded WAD files, warning if wrong files
+       loaded (BOOM, MBF)
+       
+Game engine
+
+     * Player bobbing improved, optional (BOOM, MBF)
+     * Friction effects (BOOM), affecting players and monsters
+       (MBF)
+     * Wind, current, conveyor effects (BOOM)
+     * Far more flexible scrolling wall/floor types (BOOM)
+     * Always run (BOOM)
+     * Weapon change logic overhauled and improved (BOOM)
+     * Support for friendly monsters, helper dogs (MBF)
+     * Monster target finding code improved (MBF)
+     * AI improvements (MBF)
+     * Bouncy and touchy things (MBF)
+     * New code pointers (MBF)
+     * Per-level and animated skies (MBF)
+     * Generalised line types system gives complete flexibility
+       (BOOM)
+     * Elevators (BOOM)
+     * Translucent sprites, walls (BOOM)
+     * Independent floor and ceiling lighting (BOOM)
+     * Silent teleports (BOOM)
+     * Deep water, true underwater areas (BOOM)
+     * Icon of Sin telefragging made more consistent (MBF)
+     * Fix large numbers of game bugs (BOOM, MBF, LxDoom)
+     * Support arbitrary texture heights (BOOM)
+       
+Screen
+
+     * High resolution support (PrBoom)
+     * Optional message console, multiple message lines (BOOM)
+     * Status bar shows health/armour/ammo in colours (BOOM)
+     * Heads up display, showing ammo, health, keys overlayed on view
+       (BOOM)
+       
+Multiplayer
+
+     * Spy mode improved (BOOM)
+     * Support for loadgame in a net game (LxDoom)
+     * Client server style network games (LxDoom)
+       
+Automap
+
+     * No limit on marks (BOOM)
+     * Rotation and overlay modes (DOSDoom, LxDoom)
+     * Map shows coordinates (BOOM), optionally follow pointer
+       (MBF)
+     * Teleport lines, key doors marked specially (BOOM)
+     * Keys, secrets visible on map with cheat codes (BOOM)
+     * Colours fully configurable from menus (BOOM)
+       
+Intermission screens
+
+     * Par times hidden when not relevant (BOOM)
+     * Total episode time shown (LxDoom)
+       
+Menus
+
+     * F1 help screen shows current key setup (BOOM)
+     * Key bindings, monster behavior, and compatibility settings all set
+       in menus (BOOM, MBF)
+       
+Compatibility
+
+     * Game is capable of behaving like any of: original Doom v1.9, Boom
+       v2.02, MBF (BOOM, MBF, LxDoom)
+     * Plays most original Doom v1.9 demos (more than Boom or MBF)
+     * Plays most Boom v2.02 demos (apart from levels with friction
+       effects everything should work).
+     * Plays some DosDoom, earlier Doom, earlier Boom, and LxDoom demos.
+     * Plays all MBF demos.
+     * Autocorrection of common bugs in old levels (MBF), with
+       warnings (LxDoom)
+     * Fine control of options controlling compatibility and new features
+       (MBF)
+       
+Controls
+
+     * Greater control of key bindings from in game menus (BOOM)
+     * More accurate mouse sensitivity control (BOOM, LxDoom)
+       
+Misc
+
+     * Screenshot code improved, supports BMPs (BOOM)
+     * Support for ENDOOM and ENDBOOM (BOOM, LxDoom)
+     * -timedemo and -fastdemo options (BOOM)
+     * Real time frame rate, segs, visplanes, sprites display
+       (LxDoom)
+     * Various extra cheat codes (BOOM, LxDoom)
+       
+Internals
+
+     * Greatly improved internal memory management (BOOM, LxDoom)
+     * Startup time greatly shortened by lazy generation of some lookups
+       (DOSDoom, LxDoom)
+     * Removed internal limits (BOOM)
+
+Details
+-------
+
+Details on these extra features are split into sepate text files:
+
+README.demos		provides a guide to PrBoom's demo support
+README.compatibility	describes PrBoom's various compatibility 
+			options and modes
+README.command-line	gives a command line reference for prboom, 
+			prboom-game-server, and the format of boom.cfg.
+			On UNIX/Linux systems use the man pages instead.
+
+Editing features are not covered in the docs with this package. We plan 
+to bundle the editings docs as a separate download. Watch our website 
+for news.
 

@@ -99,10 +99,26 @@ Maybe this should be added to the compatibility menu with a extra option, like s
 --------------------------------------------------------------------------
 23. Update the README
 
+Colin: I've made a start... probably needs some windows related bits. 
+ Does the Windows version need Timidity patches in order to get music? If 
+ so, we should probably info on that into the README.
+
 --------------------------------------------------------------------------
 24. totalleveltimes isn't working
+
+Colin: fixed.
 
 --------------------------------------------------------------------------
 25. Screen melt transition isn't perfect (at least on X11, the new screen 
  is flashed briefly before the melt)
+
+Colin: it appears that SDL_SetColors does an implicit SDL_Flip. Which is bad 
+ news, because what we currently have in our screen buffer isn't always what 
+ we want drawn, in particular when wr're between a wipe_StartScreen and a 
+ wipe_EndScreen.
+
+ I tried a couple of quick hacks without success. Only easy solution I can 
+ see without checking the SDL source is to delay all palette changes so that 
+ the actual change is done in I_FinishUpdate. I'm not making a fix for this 
+ until I've given chance for someone to have a better idea :-)
 
