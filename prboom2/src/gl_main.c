@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.39 2001/02/12 06:34:55 proff_fs Exp $
+ * $Id: gl_main.c,v 1.40 2001/06/17 17:56:31 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -469,10 +469,10 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   gltexture=(GLTexture *)Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
   if (!gltexture)
     return;
-  gltexture->realtexwidth=patch->width;
-  gltexture->realtexheight=patch->height;
-  gltexture->leftoffset=patch->leftoffset;
-  gltexture->topoffset=patch->topoffset;
+  gltexture->realtexwidth=SHORT(patch->width);
+  gltexture->realtexheight=SHORT(patch->height);
+  gltexture->leftoffset=SHORT(patch->leftoffset);
+  gltexture->topoffset=SHORT(patch->topoffset);
   gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
   gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
   gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
