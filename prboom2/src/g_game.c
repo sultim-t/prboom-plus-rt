@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.7 2002/07/21 11:58:30 cph Exp $
+ * $Id: g_game.c,v 1.30.2.8 2002/07/21 16:43:22 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.7 2002/07/21 11:58:30 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.8 2002/07/21 16:43:22 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -761,7 +761,7 @@ void G_Ticker (void)
   static gamestate_t prevgamestate;
 
   // CPhipps - player colour changing
-  if (mapcolor_plyr[consoleplayer] != mapcolor_me) {
+  if (!demoplayback && mapcolor_plyr[consoleplayer] != mapcolor_me) {
     // Changed my multiplayer colour - Inform the whole game
     int net_cl = LONG(mapcolor_me);
 #ifdef HAVE_NET

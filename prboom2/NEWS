@@ -6,6 +6,7 @@ Changes from v2.2.2 to v2.2.3
 - intermission demo sync bug fixed
 - framebuffer update fixes (solves flicker on fbcon)
 - -forceoldbsp allowed in non-GL version, and saved in demos
+- fix player colours in multiplayer demos
 - apply workarounds for buggy pwads even during demo playback
 - fix numpad 5 key
 
