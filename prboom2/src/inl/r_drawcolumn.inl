@@ -136,7 +136,6 @@
 #define GETTRUECOLORFILTERED32_NORMAL(colormap, texV, nextRowTexV) filter_getFilteredForColumn32(colormap, texV, nextRowTexV)
 #define GETTRUECOLORFILTERED32_PLAYER(colormap, texV, nextRowTexV) filter_getFilteredForColumn32_Translated(dcvars.translation,colormap, texV, nextRowTexV) 
 
-
 #if (R_DRAWCOLUMN_PIPELINE & RDC_PLAYER)
   #define GETCOL8_MAPPED(col) GETCOL8_MAPPED_PLAYER(col)
   #define GETTRUECOLORFILTERED16(colormap, texV, nextRowTexV) GETTRUECOLORFILTERED16_PLAYER(colormap, texV, nextRowTexV)
@@ -167,17 +166,24 @@
 // UV filter macros
 #define GETCOL8_LINEAR(texV, nextRowTexV) GETCOL8_DEPTH(filter_getDitheredForColumn(dcvars.x,screenY,texV,nextRowTexV))
 #define GETCOL8_POINT(texV, nextRowTexV) GETCOL8_DEPTH(dcvars.source[(texV)>>FRACBITS])
+#define GETCOL8_ROUNDED(texV, nextRowTexV) GETCOL8_DEPTH(filter_getRoundedForColumn(texV,nextRowTexV))
 
 #define GETCOL16_LINEAR(texV, nextRowTexV) GETTRUECOLORFILTERED16(GETMAP_DEPTH, texV, nextRowTexV)
 #define GETCOL16_POINT(texV, nextRowTexV) VID_SHORTPAL(GETCOL8_DEPTH(GETCOL8_MAPPED(dcvars.source[(texV)>>FRACBITS])), VID_COLORWEIGHTMASK)
+#define GETCOL16_ROUNDED(texV, nextRowTexV) VID_SHORTPAL(GETCOL8_DEPTH(GETCOL8_MAPPED(filter_getRoundedForColumn(texV,nextRowTexV))), VID_COLORWEIGHTMASK)
 
 #define GETCOL32_LINEAR(texV, nextRowTexV) GETTRUECOLORFILTERED32(GETMAP_DEPTH, texV, nextRowTexV)
 #define GETCOL32_POINT(texV, nextRowTexV) VID_INTPAL(GETCOL8_DEPTH(GETCOL8_MAPPED(dcvars.source[(texV)>>FRACBITS])), VID_COLORWEIGHTMASK)
+#define GETCOL32_ROUNDED(texV, nextRowTexV) VID_INTPAL(GETCOL8_DEPTH(GETCOL8_MAPPED(filter_getRoundedForColumn(texV,nextRowTexV))), VID_COLORWEIGHTMASK)
 
 #if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
   #define GETCOL8(texV, nextRowTexV) GETCOL8_LINEAR(texV, nextRowTexV)
   #define GETCOL16(texV, nextRowTexV) GETCOL16_LINEAR(texV, nextRowTexV)
   #define GETCOL32(texV, nextRowTexV) GETCOL32_LINEAR(texV, nextRowTexV)
+#elif (R_DRAWCOLUMN_PIPELINE & RDC_ROUNDED)
+  #define GETCOL8(texV, nextRowTexV) GETCOL8_ROUNDED(texV, nextRowTexV)
+  #define GETCOL16(texV, nextRowTexV) GETCOL16_ROUNDED(texV, nextRowTexV)
+  #define GETCOL32(texV, nextRowTexV) GETCOL32_ROUNDED(texV, nextRowTexV)
 #else
   #define GETCOL8(texV, nextRowTexV) GETCOL8_POINT(texV, nextRowTexV)
   #define GETCOL16(texV, nextRowTexV) GETCOL16_POINT(texV, nextRowTexV)
@@ -235,9 +241,9 @@
 // R_DrawColumn*
 //---------------------------------------------------------------------------
 void R_DRAWCOLUMN_FUNCNAME() {
-  int              count;
-  register R_DRAWCOLUMN_SCRNTYPE    *dest;            // killough
-  register fixed_t frac;            // killough
+  int count;
+  register R_DRAWCOLUMN_SCRNTYPE *dest;
+  register fixed_t frac;
   int screenY;
   
 #if (R_DRAWCOLUMN_PIPELINE & RDC_DITHERZ)
@@ -249,7 +255,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
   R_DRAWCOLUMN_SCRNTYPE srcColor;
 #endif
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
+#if (R_DRAWCOLUMN_PIPELINE & (RDC_BILINEAR|RDC_ROUNDED))
   const byte *sourceAndNextSource[2] = { dcvars.source, dcvars.nextsource };
 
   // drop back to point filtering if we're minifying
@@ -269,7 +275,6 @@ void R_DRAWCOLUMN_FUNCNAME() {
   // removed the + 1 here, adjusted the if test, and added an increment
   // later.  this helps a compiler pipeline a bit better.  the x86
   // assembler also does this.
-
   count = dcvars.yh - dcvars.yl;
 
   // leban 1/17/99:
@@ -278,8 +283,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
   // be moved down and might save instructions overall.  since there are
   // probably different wads that favor one way or the other, i'll leave
   // this alone for now.
-  if (count < 0)    // Zero length, column does not exceed a pixel.
-    return;
+  if (count < 0) return; // Zero length, column does not exceed a pixel.
 
   count++;
   
@@ -300,9 +304,9 @@ void R_DRAWCOLUMN_FUNCNAME() {
   frac = dcvars.texturemid + (dcvars.yl-centery)*fracstep;
 
 
-#if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
-  #if (R_DRAWCOLUMN_PIPELINE & RDC_8BITS)
-    // 8 bit dithering uses filter_fracu: 0 -> 0xff
+#if (R_DRAWCOLUMN_PIPELINE & (RDC_BILINEAR|RDC_ROUNDED))
+  #if ((R_DRAWCOLUMN_PIPELINE & RDC_ROUNDED) || (R_DRAWCOLUMN_PIPELINE & RDC_8BITS))
+    // 8 bit dithering and rounded filtering uses filter_fracu: 0 -> 0xff
     filter_fracu = (dcvars.source == dcvars.nextsource) ? 0 : (dcvars.texu>>8) & 0xff;
   #else
     // true-color filtering uses filter_fracu: 0 -> 0xffff    
@@ -344,10 +348,6 @@ void R_DRAWCOLUMN_FUNCNAME() {
   }
       
   // Inner loop that does the actual texture mapping,
-  //  e.g. a DDA-lile scaling.
-  // This is as fast as it gets.       (Yeah, right!!! -- killough)
-  //
-  // killough 2/1/98: more performance tuning
   if (dcvars.texheight == 128) {
     #define FIXEDT_128MASK ((127<<FRACBITS)|0xffff)
     while (count--) {
@@ -358,7 +358,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
     }
   } 
   else if (dcvars.texheight == 0) {
-    /* cph - another special case */
+    // cph - another special case
     while (count--) {
       SETDESTCOL(frac, (frac+FRACUNIT));
       INCSCREENY
@@ -390,7 +390,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
 
 #define INCFRAC(f) if ((f += fracstep) >= (int)heightmask) f -= heightmask;
       
-#if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
+#if (R_DRAWCOLUMN_PIPELINE & (RDC_BILINEAR|RDC_ROUNDED))
       nextfrac = frac + FRACUNIT;
       while (nextfrac >= (int)heightmask) nextfrac -= heightmask;
 #endif
@@ -401,7 +401,7 @@ void R_DRAWCOLUMN_FUNCNAME() {
         INCSCREENY      
         dest += dcvars.targetwidth;
         INCFRAC(frac);
-#if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
+#if (R_DRAWCOLUMN_PIPELINE & (RDC_BILINEAR|RDC_ROUNDED))
         INCFRAC(nextfrac); 
 #endif     
         count--;

@@ -346,11 +346,11 @@ void FUNC_V_PlotPatch(
       else dcvars.nextsource = dcvars.source;
       
       if (filter == RDRAW_FILTER_LINEAR) {
-        // -(FRACUNIT+(FRACUNIT>>1)) = empirical shift
+        // (FRACUNIT>>1) = empirical shift
         dcvars.texturemid = - (FRACUNIT>>1) - (dcvars.yl-centery)*dcvars.iscale;
       }
       else {
-        dcvars.texturemid =  - (dcvars.yl-centery)*dcvars.iscale;
+        dcvars.texturemid = -(dcvars.yl-centery)*dcvars.iscale;
       }
       
       columnFunc();
@@ -358,8 +358,7 @@ void FUNC_V_PlotPatch(
       // move to next post
       column = (const column_t *)((byte *)column + column->length + 4);  
     }
-  }
-  
+  }  
  
   revertDrawColumnGlobals();
 }
@@ -505,8 +504,8 @@ void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, e
   destRect.bottom = (y+height) * SCREENHEIGHT / 200;
   
   if (flags & VPT_TRANS) {
-    if (cm<CR_LIMIT) trans=colrngs[cm];
-    else trans=translationtables + 256*((cm-CR_LIMIT)-1);
+    if (cm<CR_LIMIT) trans = colrngs[cm];
+    else trans = translationtables + 256*((cm-CR_LIMIT)-1);
   }
   else {
     trans = 0;
