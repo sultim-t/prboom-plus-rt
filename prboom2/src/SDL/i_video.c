@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.24 2001/02/18 17:13:26 proff_fs Exp $
+ * $Id: i_video.c,v 1.25 2001/07/01 21:37:38 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.24 2001/02/18 17:13:26 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.25 2001/07/01 21:37:38 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -413,9 +413,15 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   // Initialize SDL
+#ifdef _DEBUG
+  if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0 ) {
+    I_Error("Could not initialize SDL [%s]", SDL_GetError());
+  }
+#else
   if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
+#endif
   
   atexit(I_ShutdownSDL);
 }
