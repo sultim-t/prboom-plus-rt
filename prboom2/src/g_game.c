@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.38 2001/07/02 22:46:46 proff_fs Exp $
+ * $Id: g_game.c,v 1.39 2001/07/07 18:10:09 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.38 2001/07/02 22:46:46 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.39 2001/07/07 18:10:09 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1035,8 +1035,6 @@ void G_PlayerReborn (int player)
 // at the given mapthing_t spot
 // because something is occupying it
 //
-
-void P_SpawnPlayer(mapthing_t *mthing);
 
 boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 {

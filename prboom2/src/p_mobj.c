@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.13 2001/04/15 15:05:37 cph Exp $
+ * $Id: p_mobj.c,v 1.14 2001/07/07 18:10:09 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2001 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.13 2001/04/15 15:05:37 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.14 2001/07/07 18:10:09 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -993,7 +993,7 @@ void P_RespawnSpecials (void)
 
 extern byte playernumtotrans[MAXPLAYERS];
 
-void P_SpawnPlayer (mapthing_t* mthing)
+void P_SpawnPlayer (const mapthing_t* mthing)
   {
   player_t* p;
   fixed_t   x;
@@ -1062,7 +1062,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
 // already be in host byte order.
 //
 
-void P_SpawnMapThing (mapthing_t* mthing)
+void P_SpawnMapThing (const mapthing_t* mthing)
   {
   int     i;
   //int     bit;
@@ -1070,6 +1070,7 @@ void P_SpawnMapThing (mapthing_t* mthing)
   fixed_t x;
   fixed_t y;
   fixed_t z;
+  int options = mthing->options; /* cph 2001/07/07 - make writable copy */
 
   // killough 2/26/98: Ignore type-0 things as NOPs
   // phares 5/14/98: Ignore Player 5-8 starts (for now)
@@ -1094,11 +1095,11 @@ void P_SpawnMapThing (mapthing_t* mthing)
 
   if (demo_compatibility || 
       (compatibility_level >= lxdoom_1_compatibility  && 
-       mthing->options & MTF_RESERVED)) {
+       options & MTF_RESERVED)) {
     if (!demo_compatibility) // cph - Add warning about bad thing flags
       lprintf(LO_WARN, "P_SpawnMapThing: correcting bad flags (%u) (thing type %d)\n",
-	      mthing->options, mthing->type);
-    mthing->options &= MTF_EASY|MTF_NORMAL|MTF_HARD|MTF_AMBUSH|MTF_NOTSINGLE;
+	      options, mthing->type);
+    options &= MTF_EASY|MTF_NORMAL|MTF_HARD|MTF_AMBUSH|MTF_NOTSINGLE;
   }
 
   // count deathmatch start positions
@@ -1134,7 +1135,7 @@ void P_SpawnMapThing (mapthing_t* mthing)
 	  players[mthing->type-1].secretcount = 1;
 
 	  // killough 10/98: force it to be a friend
-	  mthing->options |= MTF_FRIEND;
+	  options |= MTF_FRIEND;
 	  i = MT_DOGS;
 	  goto spawnit;
 	}
@@ -1152,24 +1153,24 @@ void P_SpawnMapThing (mapthing_t* mthing)
   // check for apropriate skill level
 
   /* jff "not single" thing flag */
-  if (!netgame && mthing->options & MTF_NOTSINGLE) 
+  if (!netgame && options & MTF_NOTSINGLE) 
     return;
 
   //jff 3/30/98 implement "not deathmatch" thing flag
 
-  if (netgame && deathmatch && mthing->options & MTF_NOTDM)
+  if (netgame && deathmatch && options & MTF_NOTDM)
     return;
 
   //jff 3/30/98 implement "not cooperative" thing flag
 
-  if (netgame && !deathmatch && mthing->options & MTF_NOTCOOP)
+  if (netgame && !deathmatch && options & MTF_NOTCOOP)
     return;
 
   // killough 11/98: simplify
   if (gameskill == sk_baby || gameskill == sk_easy ? 
-      !(mthing->options & MTF_EASY) :
+      !(options & MTF_EASY) :
       gameskill == sk_hard || gameskill == sk_nightmare ?
-      !(mthing->options & MTF_HARD) : !(mthing->options & MTF_NORMAL))
+      !(options & MTF_HARD) : !(options & MTF_NORMAL))
     return;
 
   // find which type to spawn
@@ -1217,7 +1218,7 @@ spawnit:
     mobj->tics = 1 + (P_Random (pr_spawnthing) % mobj->tics);
 
   if (!(mobj->flags & MF_FRIEND) &&
-      mthing->options & MTF_FRIEND && 
+      options & MTF_FRIEND && 
       mbf_features)
     {
       mobj->flags |= MF_FRIEND;            // killough 10/98:
@@ -1232,7 +1233,7 @@ spawnit:
     totalitems++;
 
   mobj->angle = ANG45 * (mthing->angle/45);
-  if (mthing->options & MTF_AMBUSH)
+  if (options & MTF_AMBUSH)
     mobj->flags |= MF_AMBUSH;
   }
 
