@@ -1,7 +1,7 @@
 .PU
 .TH BOOM.CFG 5 local
 .SH NAME
-boom.cfg, prboom.cfg \- Configuration file for PrBoom v2.1.0 onwards
+boom.cfg, glboom.cfg \- Configuration file for PrBoom v2.1.0 onwards
 .SH USAGE
 When a version of PrBoom is
 run, it  searches for this configuration file to modify its default settings.
@@ -9,7 +9,7 @@ Every time PrBoom exits, it rewrites the configuration file, updating any
 settings that have been changed using the in-game menus.
 .PP
 PrBoom expects the config file to be  ~/.prboom/boom.cfg, or 
-~/.prboom/prboom.cfg if compiled with GL support. Alternatively, it 
+~/.prboom/glboom.cfg if compiled with GL support. Alternatively, it 
 can be made to look elsewhere by using a command-line parameter:
 .PP
 .B {prboom,xprboom}
@@ -285,10 +285,11 @@ GL_RGBA8 - means
 than GL_RGB5_A1 and slower on most cards)
 .TP
 gl_drawskys
-Whether to draw skies (?)
+If 0, disables drawing skies, which may be needed with some problematic 
+3D cards.
 .TP
 gl_sortsprites
-Whether to sort sprites (?)
+Experimental option, possibly faster but less reliable. 
 
 .SH MOUSE SETTINGS
 .PP

@@ -401,7 +401,7 @@ BOOM.CFG(5)                                           BOOM.CFG(5)
 
 
 NAME
-       boom.cfg, prboom.cfg - Configuration file for PrBoom v2.1.0 onwards
+       boom.cfg, glboom.cfg - Configuration file for PrBoom v2.1.0 onwards
 
 USAGE
        When a version of PrBoom is run, it  searches for this configuration  file
@@ -410,7 +410,7 @@ USAGE
        in-game menus.
 
        PrBoom   expects   the   config   file   to   be   ~/.prboom/boom.cfg,  or
-       ~/.prboom/prboom.cfg if compiled with GL support. Alternatively, it can be
+       ~/.prboom/glboom.cfg if compiled with GL support. Alternatively, it can be
        made to look elsewhere by using a command-line parameter:
 
        {prboom,xprboom} [ -config myconf ]
@@ -752,38 +752,38 @@ BOOM.CFG(5)                                           BOOM.CFG(5)
               GL_RGB5_A1 and slower on most cards)
 
        gl_drawskys
-              Whether to draw skies (?)
+              If 0, disables drawing skies, which may be needed with  some  prob-
+              lematic 3D cards.
 
        gl_sortsprites
-              Whether to sort sprites (?)
+              Experimental option, possibly faster but less reliable.
 
 
 MOUSE SETTINGS
-       This section specifies settings for using a mouse with PrBoom.  There  are
-       several  settings  that  control  button bindings (what action each button
-       causes in the game); these are easiest set from the in-game  menus,  these
+       This  section  specifies settings for using a mouse with PrBoom. There are
+       several settings that control button bindings  (what  action  each  button
+       causes  in  the game); these are easiest set from the in-game menus, these
        config entries are to preserve the settings between games.
 
        use_mouse
               Enable or disable the use of a mouse with PrBoom.
 
        mouse_sensitivity_horiz, mouse_sensitivity_vert
-              Sets  the  sensitivity  of the mouse in PrBoom. Easier set from the
+              Sets the sensitivity of the mouse in PrBoom. Easier  set  from  the
               in-game menus.
 
 
 KEY BINDINGS
-       These specify the keys that trigger various actions in PrBoom.  The  codes
-       used  for keys are internal to PrBoom, though many keys are represented by
-       their ASCII codes. It is easiest to modify these  via  the  in-game  menus
-       (OPTIONS->SETUP->KEY  BINDINGS).  These  config  file entries preserve the
+       These  specify  the keys that trigger various actions in PrBoom. The codes
+       used for keys are internal to PrBoom, though many keys are represented  by
+       their  ASCII  codes.  It  is easiest to modify these via the in-game menus
+       (OPTIONS->SETUP->KEY BINDINGS). These config  file  entries  preserve  the
        settings from this menu between game sessions.
 
 
 JOYSTICK SETTINGS
        There are the trigger variables here, which are calculated during joystick
-       calibration  (the  values received from the kernel driver outside of which
-       movement is caused in the game). Also there are the button-bindings, again
+       calibration (the values received from the kernel driver outside  of  which
 
 
 
@@ -796,47 +796,47 @@ JOYSTICK SETTINGS
 BOOM.CFG(5)                                           BOOM.CFG(5)
 
 
+       movement is caused in the game). Also there are the button-bindings, again
        best adjusted using the in-game menus.
 
        use_joystick
-              This  selects  the  number  of the joystick to use, or 0 selects no
+              This selects the number of the joystick to use,  or  0  selects  no
               joystick. You have to have the relevant device files (/dev/js0 etc)
               and the kernel driver loaded.
 
 
 CHAT MACROS
-       These  are pre-written text strings for quick transmission to players in a
-       network game (consult your Doom documentation). Easiest set  via  the  in-
+       These are pre-written text strings for quick transmission to players in  a
+       network  game  (consult  your Doom documentation). Easiest set via the in-
        game menus (OPTIONS->SETUP->CHAT MACROS).
 
 
 AUTOMAP SETTINGS
-       These  are  settings  related  to  the automap. These are easiest set from
+       These are settings related to the automap.  These  are  easiest  set  from
        within the game.
 
 
 HEADS_UP DISPLAY SETTINGS
-       These are settings related to  the  heads-up  display,  that  is  messages
-       received  while  playing  and  the heads-up display of your current status
-       obtained by pressing + while the view is full-screen in  PrBoom.  See  the
-       Boom  documentation for details. All controlled best from within the game.
+       These  are  settings  related  to  the  heads-up display, that is messages
+       received while playing and the heads-up display  of  your  current  status
+       obtained  by  pressing  + while the view is full-screen in PrBoom. See the
+       Boom documentation for details. All controlled best from within the  game.
 
 
 WEAPON PREFERENCES
-       Here  are   the   settings   from   the   Weapons   menu   in   the   game
+       Here   are   the   settings   from   the   Weapons   menu   in   the  game
        (OPTIONS->SETUP->WEAPONS).
 
 
 ALSO SEE
-       prboom(6),  PrBoom's  documentation (including the Boom and MBF documenta-
+       prboom(6), PrBoom's documentation (including the Boom and  MBF  documenta-
        tion) and your Doom documentation.
 
 
 AUTHOR
-       This config  file  reference  written  by  Colin  Phipps  (cph@lxdoom.lin-
-       uxgames.com).   See  the  file  AUTHORS included with PrBoom for a list of
+       This  config  file  reference  written  by  Colin  Phipps (cph@lxdoom.lin-
+       uxgames.com).  See the file AUTHORS included with PrBoom  for  a  list  of
        contributors to PrBoom.
-
 
 
 
