@@ -65,9 +65,6 @@
 // keep the last 32 typed commands
 #define HISTORY 32
 
-#define C_SCREENHEIGHT SCREENHEIGHT
-#define C_SCREENWIDTH SCREENWIDTH
-
 extern const char* shiftxform;
 
 // the messages (what you see in the console window)
@@ -86,7 +83,7 @@ int c_speed=10;       // pixels/tic it moves
 int current_target = 0;
 int current_height = 0;
 boolean c_showprompt;
-static int backdrop_lumpnum;
+static int backdrop_lumpnum = -1;
 static char inputtext[INPUTLENGTH];
 static char *input_point;      // left-most point you see of the command line
 
@@ -380,16 +377,12 @@ void C_Drawer()
   
   if(!consoleactive) return;   // dont draw if not active
 
-  // Check for change in screen res
-
-  if(oldscreenheight != C_SCREENHEIGHT)
-    {
-      C_InitBackdrop();       // re-init to the new screen size
-      oldscreenheight = C_SCREENHEIGHT;
-    }
+  if (backdrop_lumpnum < 0)
+    C_InitBackdrop();
 
   // fullscreen console for fullscreen mode
-  if(gamestate == GS_CONSOLE) current_height = SCREENHEIGHT;
+  if (gamestate == GS_CONSOLE)
+    current_height = 200;
 
 
   // draw backdrop
@@ -612,8 +605,8 @@ void C_SetConsole()
 {
   gamestate = GS_CONSOLE;         
   gameaction = ga_nothing;
-  current_height = SCREENHEIGHT;
-  current_target = SCREENHEIGHT;
+  current_height = 200;
+  current_target = 200;
   
   C_Update();
   S_StopMusic();                  // stop music if any
