@@ -2435,11 +2435,21 @@ void G_BeginRecording (void)
 // G_PlayDemo
 //
 
-static const char *defdemoname;
+static const char *defdemoname = NULL;
+
+static set_defdemoname(const char *name)
+{
+	if (defdemoname)
+		free(defdemoname);
+	defdemoname = malloc(strlen(name)+1);
+	if (!defdemoname)
+		I_Error("set_defdemoname: not enough memory!");
+	strcpy(defdemoname, name);
+}
 
 void G_DeferedPlayDemo (const char* name)
 {
-  defdemoname = name;
+  set_defdemoname(name);
   gameaction = ga_playdemo;
 }
 
@@ -2648,7 +2658,7 @@ void G_TimeDemo(const char *name) // CPhipps - const char*
 {
   timingdemo = true;
   singletics = true;
-  defdemoname = name;
+  set_defdemoname(name);
   gameaction = ga_playdemo;
 }
 
