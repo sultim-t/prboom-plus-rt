@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: d_client.c,v 1.4 2000/05/24 12:04:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -90,7 +90,7 @@ void D_InitNetGame (void)
   i = M_CheckParm("-net");
   if (i && i < myargc-1) i++;
 
-  if (!(server =  !!i)) {
+  if (!(netgame = server =  !!i)) {
     playeringame[consoleplayer = 0] = true;
   } else {
     // Get game info from server
@@ -114,7 +114,6 @@ void D_InitNetGame (void)
     ticdup = sinfo->ticdup;
     xtratics = sinfo->extratic;
     G_ReadOptions(sinfo->game_options);
-    Z_Free(packet);
 
     lprintf(LO_INFO, "\tjoined game as player %d/%d; %d WADs specified\n", 
 	    consoleplayer+1, numplayers = sinfo->players, sinfo->numwads);
@@ -127,6 +126,7 @@ void D_InitNetGame (void)
 	p += strlen(p) + 1;
       }
     }
+    Z_Free(packet);
   }
   localcmds = netcmds[displayplayer = consoleplayer];
   for (i=0; i<numplayers; i++)

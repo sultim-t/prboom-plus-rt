@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.17 2000/05/22 09:21:50 cph Exp $
+ * $Id: d_main.c,v 1.18 2000/05/24 12:04:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.17 2000/05/22 09:21:50 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.18 2000/05/24 12:04:59 cph Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1751,7 +1751,7 @@ void D_DoomMainSetup(void)
     }
   else
     if (!singledemo) {                  /* killough 12/98 */
-      if (autostart)
+      if (autostart || netgame)
 	{
 	  G_InitNew(startskill, startepisode, startmap);
 	  if (demorecording)

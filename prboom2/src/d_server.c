@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.2 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: d_server.c,v 1.3 2000/05/24 12:04:59 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -90,8 +90,12 @@ byte def_game_options[GAME_OPTIONS_SIZE] = \
   1, // player bobbing
   0, 0, 0, // respawn, fast, nomonsters
   1, // demo insurance
-  // 4 bytes of random number seed
-}; // Zeroes to the end
+  0, 0, 0, 0, // 4 bytes of random number seed
+  1, 0, 0, 0, 
+  0, 128, /* distfriend */
+  1, 1, 1, 1, 1, 1,
+  /* Zeroes for all compatibility stuff */
+};
 
 int verbose;
 
@@ -125,7 +129,7 @@ int main(int argc, char** argv)
 {
   int localport = 5030, numplayers = 2, xtratics = 0, ticdup = 1;
   int exectics = 0; // gametics completed
-  struct setup_packet_s setupinfo = { 2, 0, 1, 1, 1, 0, 3};
+  struct setup_packet_s setupinfo = { 2, 0, 1, 1, 1, 0, 7, 0, 0};
   char**wadname = NULL;
   char**wadget = NULL;
   int numwads = 0;
