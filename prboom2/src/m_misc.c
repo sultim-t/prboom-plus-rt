@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.9 2000/05/16 21:42:13 proff_fs Exp $
+ * $Id: m_misc.c,v 1.10 2000/05/18 07:43:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.9 2000/05/16 21:42:13 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.10 2000/05/18 07:43:29 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -194,12 +194,13 @@ extern const char* auto_load_wads;
 extern int endoom_mode;
 int X_opt;
 
-#define UL (-123456789) /* magic number for no min or max for parameter */
+/* cph - Some MBF stuff parked here for now
+ * killough 10/98
+ */
+int map_point_coordinates;
+int mapcolor_frnd;
 
-//jff 3/3/98 added min, max, and help string to all entries
-//jff 4/10/98 added isstr field to specify whether value is string or int
-// CPhipps - const
-const default_t defaults[] =
+default_t defaults[] =
 {
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"default_compatibility_level",{&default_compatibility_level},
@@ -577,9 +578,13 @@ const default_t defaults[] =
    def_colour,ss_auto}, // color used for the single player arrow
   {"mapcolor_me",   {&mapcolor_me}, {112},0,255, // green
    def_colour,ss_auto}, // your (player) colour
+  {"mapcolor_frnd",   {&mapcolor_frnd}, {112},0,255,
+   def_colour,ss_auto},
   //jff 3/9/98 add option to not show secrets til after found
   {"map_secret_after", {&map_secret_after}, {0},0,1, // show secret after gotten
    def_bool,ss_auto}, // prevents showing secret sectors till after entered
+  {"map_point_coord", {&map_point_coordinates}, {0},0,1,
+   def_bool,ss_auto},
   //jff 1/7/98 end additions for automap
   {"automapmode", {(int*)&automapmode}, {0}, 0, 31, // CPhipps - remember automap mode
    def_hex,ss_none}, // automap mode
@@ -697,6 +702,20 @@ void M_SaveDefaults (void)
   fclose (f);
   }
 
+/*
+ * M_LookupDefault
+ *
+ * cph - mimic MBF function for now. Yes it's crap.
+ */
+
+struct default_s *M_LookupDefault(const char *name)
+{
+  int i;
+  for (i = 0 ; i < numdefaults ; i++)
+    if ((defaults[i].type != def_none) && !strcmp(name, defaults[i].name))
+      return &defaults[i];
+  I_Error("M_LookupDefault: %s not found",name);
+}
 
 //
 // M_LoadDefaults
