@@ -1082,7 +1082,7 @@ menu_t menu_video =
     {it_gap},
     {it_info,         FC_GOLD "mode"},
     {it_toggle,       "wait for retrace",             "v_retrace"},
-    {it_runcmd,       "test framerate..",             "timedemo demo2; mn_clearmenus"},
+//    {it_runcmd,       "test framerate..",             "timedemo demo2; mn_clearmenus"},
     {it_slider,       "gamma correction",             "gamma"},
 
     {it_gap},
@@ -1119,7 +1119,7 @@ void MN_VideoModeDrawer()
   lump = sprframe->lump[0];
 
   //V_DrawBox(270, 110, 20, 20);
-  V_DrawNumPatch(282, 122, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH);
+  V_DrawNumPatch(282, 122, 0, lump + firstspritelump, CR_DEFAULT, VPT_STRETCH | VPT_TRANSLUCENT);
 }
 
 CONSOLE_COMMAND(mn_video, 0)

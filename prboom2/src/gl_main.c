@@ -385,6 +385,8 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   float width,height;
   float xpos, ypos;
 
+  if (flags & VPT_TRANSLUCENT)
+    p_glColor4f(1.0f, 1.0f, 1.0f, (float)tran_filter_pct/100.0f);
   if (flags & VPT_TRANS)
   {
     gltexture=gld_RegisterPatch(lump,cm);
@@ -419,6 +421,8 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 		p_glTexCoord2f(fU2, fV1); p_glVertex2f((xpos+width),(ypos));
 		p_glTexCoord2f(fU2, fV2); p_glVertex2f((xpos+width),(ypos+height));
 	p_glEnd();
+  if (flags & VPT_TRANSLUCENT)
+    p_glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 #undef SCALE_X

@@ -96,6 +96,7 @@ enum patch_translation_e {
   VPT_FLIP    = 1, // Flip image horizontally
   VPT_TRANS   = 2, // Translate image via a translation table
   VPT_STRETCH = 4, // Stretch to compensate for high-res
+  VPT_TRANSLUCENT = 8 // Translucent drawing
 };
 
 //---------------------------------------------------------------------------
@@ -190,11 +191,11 @@ typedef void (*TFunc_V_PlotPixel)(int,int,int,byte);
 extern TFunc_V_PlotPixel V_PlotPixel;
 
 // V_PlotPatch
-typedef void (*TFunc_V_PlotPatch)(const TPatch*,TPlotRect,const TPlotRect,TRDrawFilterType,TRDrawColumnMaskedEdgeType,const byte*,byte*,int,int);
+typedef void (*TFunc_V_PlotPatch)(const TPatch*,TPlotRect,const TPlotRect,TRDrawFilterType,TRDrawColumnMaskedEdgeType,const byte*,boolean,byte*,int,int);
 extern TFunc_V_PlotPatch V_PlotPatch;
 
 // V_PlotPatchNum
-typedef void (*TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,TRDrawFilterType,const byte*,byte*,int,int);
+typedef void (*TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,TRDrawFilterType,const byte*,boolean,byte*,int,int);
 extern TFunc_V_PlotPatchNum V_PlotPatchNum;
 
 // V_PlotTextureNum

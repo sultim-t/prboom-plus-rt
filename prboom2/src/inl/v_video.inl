@@ -271,19 +271,26 @@ void FUNC_V_DrawBackground(const char* flatname, int scrn)
 void FUNC_V_PlotPatch(
   const TPatch *patch, TPlotRect destRect, const TPlotRect clampRect,
   TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, 
-  const byte *colorTranslationTable, 
+  const byte *colorTranslationTable, boolean translucent,
   byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
   const TPatchColumn *column, *nextColumn, *prevColumn;
   fixed_t yfrac, xfrac, srcX, srcYShift;
   int srcColumnIndex, dx, postIndex;
+  TRDrawPipelineType type;
   void (*columnFunc)();
   
   // choose the right R_DrawColumn pipeline  
-  columnFunc = R_GetExactDrawFunc(
-    colorTranslationTable ? RDRAW_PIPELINE_COL_TRANSLATED : RDRAW_PIPELINE_COL_STANDARD, 
-    V_VIDEO_BITS, filter, RDRAW_FILTER_POINT
-  );
+  if (translucent) {
+    type = RDRAW_PIPELINE_COL_TRANSLUCENT;
+	tranmap = main_tranmap;
+  } else {
+    if (colorTranslationTable)
+      type = RDRAW_PIPELINE_COL_TRANSLATED;
+    else
+      type = RDRAW_PIPELINE_COL_STANDARD;
+  }
+  columnFunc = R_GetExactDrawFunc(type, V_VIDEO_BITS, filter, RDRAW_FILTER_POINT);
   
   // calc the fractional stepping  
   xfrac = FixedDiv((destRect.right-destRect.left)<<FRACBITS, patch->width<<FRACBITS);
@@ -369,11 +376,11 @@ void FUNC_V_PlotPatch(
 void FUNC_V_PlotPatchNum(
   int patchNum, TPlotRect destRect, const TPlotRect clampRect,
   TRDrawFilterType filter, TRDrawColumnMaskedEdgeType slope, 
-  const byte *colorTranslationTable,
+  const byte *colorTranslationTable, boolean translucent,
   byte *destBuffer, int bufferWidth, int bufferHeight
 ) {
   const TPatch *patch = R_GetPatch(patchNum);
-  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, slope, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);
+  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, slope, colorTranslationTable, translucent, destBuffer, bufferWidth, bufferHeight);
 }
 
 //---------------------------------------------------------------------------
@@ -410,7 +417,7 @@ void FUNC_V_PlotTextureNum(
     destRect.bottom = destRect.top + ((FixedDiv(patchHeight<<FRACBITS, yfrac)+(FRACUNIT>>1))>>FRACBITS);
     
     FUNC_V_PlotPatch(
-      patch, destRect, clampRect, filter, slope, 0,
+      patch, destRect, clampRect, filter, slope, 0, false,
       destBuffer, bufferWidth, bufferHeight
     );
   }
@@ -450,7 +457,7 @@ byte *FUNC_V_GetPlottedPatch(
   memset(destBuffer, 0xff, bufferSize);
 #endif
   
-  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, slope, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);  
+  FUNC_V_PlotPatchNum(patchNum, destRect, clampRect, filter, slope, colorTranslationTable, false, destBuffer, bufferWidth, bufferHeight);  
   
 #if V_VIDEO_BITS == 32
   finalizeTrueColorBuffer(destBuffer, bufferWidth*bufferHeight, convertToBGRA);
@@ -505,6 +512,7 @@ void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
   const TPatch *patch = R_GetPatch(lump);
   int width, height;
   const byte *trans;  
+  boolean translucent = false;
   TPlotRect destRect;
   TPlotRect clampRect = { 0, 0, SCREENWIDTH, SCREENHEIGHT };
 
@@ -534,10 +542,13 @@ void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
     trans = 0;
   }
 
+  if (flags & VPT_TRANSLUCENT)
+	translucent = true;
+
   FUNC_V_PlotPatch(
     patch, destRect, clampRect, 
     vid_drawPatchFilterType, vid_drawPatchSlopeType, 
-    trans, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT
+    trans, translucent, screens[scrn].data, SCREENWIDTH, SCREENHEIGHT
   );
 }
 
