@@ -3,19 +3,18 @@
 # src/dc/Makefile.dc
 # (c)2001 Florian Schulze
 #   
-# $Id: Makefile.dc,v 1.1 2001/07/02 22:46:46 proff_fs Exp $
-
-include ../../../../Makefile.globals
-
-OBJS = i_system.o
-INCS += -I. -I../. -I../../. -I../../../include
-CFLAGS += -DHAVE_CONFIG_H -DDREAMCAST --fast-math -nostdlib -O3
+# $Id: Makefile.dc,v 1.2 2001/07/16 15:35:16 proff_fs Exp $
 
 all: libdcdoom.a
+
+include $(KOS_BASE)/Makefile.rules
+
+OBJS = i_system.o sqrt.o
+
+KOS_CFLAGS += -I. -I../. -I../../. -DHAVE_CONFIG_H -DDREAMCAST --fast-math -nostdlib -O3
+
 libdcdoom.a: $(OBJS)
-	$(AR) rcs libdcdoom.a $(OBJS)
+	$(KOS_AR) rcs libdcdoom.a $(OBJS)
 
 clean:
-	-rm -f *.bck *.o *.klf libdcdoom.a
-
-include ../../../../Makefile.rules
+	-rm -f *.o *.klf libdcdoom.a

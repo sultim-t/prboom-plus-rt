@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.22 2001/07/13 23:05:32 proff_fs Exp $
+ * $Id: w_wad.c,v 1.23 2001/07/16 15:35:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.22 2001/07/13 23:05:32 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.23 2001/07/16 15:35:16 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -45,9 +45,7 @@ rcsid[] = "$Id: w_wad.c,v 1.22 2001/07/13 23:05:32 proff_fs Exp $";
 #include <io.h>
 #endif
 #ifdef DREAMCAST
-#include <kallisti/libk.h>
-#include <kallisti/abi/fs.h>
-extern abi_fs_t *fslib;
+#include <kos/fs.h>
 #else
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -155,7 +153,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
   // open the file and add to directory
 
 #ifdef DREAMCAST
-  wadfile->handle = fslib->open(wadfile->name,O_RDONLY);
+  wadfile->handle = fs_open(wadfile->name,O_RDONLY);
   if (wadfile->handle==0) wadfile->handle=-1;
 #else
   wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
@@ -198,7 +196,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
     {
       // WAD file
 #ifdef DREAMCAST
-      fslib->read(wadfile->handle, &header, sizeof(header));
+      fs_read(wadfile->handle, &header, sizeof(header));
 #else
       read(wadfile->handle, &header, sizeof(header));
 #endif
@@ -210,8 +208,8 @@ static void W_AddFile(wadfile_info_t *wadfile)
       length = header.numlumps*sizeof(filelump_t);
       fileinfo2free = fileinfo = malloc(length);    // killough
 #ifdef DREAMCAST
-      fslib->seek(wadfile->handle, header.infotableofs, SEEK_SET);
-      fslib->read(wadfile->handle, fileinfo, length);
+      fs_seek(wadfile->handle, header.infotableofs, SEEK_SET);
+      fs_read(wadfile->handle, fileinfo, length);
 #else
       lseek(wadfile->handle, header.infotableofs, SEEK_SET);
       read(wadfile->handle, fileinfo, length);
@@ -488,8 +486,8 @@ void W_ReadLump(int lump, void *dest)
       if (l->wadfile)
       {
 #ifdef DREAMCAST
-        fslib->seek(l->wadfile->handle, l->position, SEEK_SET);
-        c = fslib->read(l->wadfile->handle, dest, l->size);
+        fs_seek(l->wadfile->handle, l->position, SEEK_SET);
+        c = fs_read(l->wadfile->handle, dest, l->size);
 #else
         lseek(l->wadfile->handle, l->position, SEEK_SET);
         c = read(l->wadfile->handle, dest, l->size);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.3 2001/07/07 15:00:29 proff_fs Exp $
+ * $Id: i_system.c,v 1.4 2001/07/16 15:35:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,11 +32,11 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.3 2001/07/07 15:00:29 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.4 2001/07/16 15:35:16 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
-#include <kallisti/libk.h>
-#include <kallisti/abi/ta.h>
+#include <dc/ta.h>
+#include <kos/thread.h>
 #include "config.h"
 #endif
 #include "doomdef.h"
@@ -45,8 +45,8 @@ rcsid[] = "$Id: i_system.c,v 1.3 2001/07/07 15:00:29 proff_fs Exp $";
 #include "v_video.h"
 
 #define TEX_SIZE 512
-abi_ta_t	*ta = NULL;
 
+int __errno;
 unsigned int video_tex;
 uint8 *tex_mem;
 unsigned texture_pool;
@@ -54,7 +54,7 @@ uint16 tex_pal[256];
 
 void exit(int i)
 {
-	(*(void(**)(int))0x8c0000e0)(-3);
+	arch_exit();
 }
 
 #define	_U	01
@@ -139,7 +139,7 @@ int atoi(const char *s)
 			break;
 		if (c >= base)
 			break;
-		if (any < 0 || acc > cutoff || acc == cutoff && c > cutlim)
+		if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
 			any = -1;
 		else {
 			any = 1;
@@ -237,7 +237,7 @@ void I_UnRegisterSong(int handle)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-  sprintf(buf,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
+  sprintf(buf,"%s v%s (dreamcast experimental) (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
   return buf;
 }
 
@@ -305,11 +305,11 @@ void I_FinishUpdate (void)
 		}
 	}
     /* Begin opaque polygons */
-    ta->begin_render();
+    ta_begin_render();
     
     /* Send polygon header to the TA using store queues */
-    ta->poly_hdr_txr(&poly, TA_TRANSLUCENT, TA_RGB565, TEX_SIZE, TEX_SIZE, video_tex, TA_BILINEAR_FILTER);
-    ta->commit_poly_hdr(&poly);
+    ta_poly_hdr_txr(&poly, TA_TRANSLUCENT, TA_RGB565, TEX_SIZE, TEX_SIZE, video_tex, TA_BILINEAR_FILTER);
+    ta_commit_poly_hdr(&poly);
 
     /* Draw frame */
     
@@ -322,33 +322,33 @@ void I_FinishUpdate (void)
     vert.y = 479.0f;
     vert.u = 0.0;
     vert.v = (float)SCREENHEIGHT/(float)TEX_SIZE;
-    ta->commit_vertex(&vert, sizeof(vert));
+    ta_commit_vertex(&vert, sizeof(vert));
     
     vert.x = 0.0f;
     vert.y = 0.0f;
     vert.u = 0.0;
     vert.v = 0.0;
-    ta->commit_vertex(&vert, sizeof(vert));
+    ta_commit_vertex(&vert, sizeof(vert));
     
     vert.x = 639.0f;
     vert.y = 479.0f;
     vert.u = (float)SCREENWIDTH/(float)TEX_SIZE;
     vert.v = (float)SCREENHEIGHT/(float)TEX_SIZE;
-    ta->commit_vertex(&vert, sizeof(vert));
+    ta_commit_vertex(&vert, sizeof(vert));
     
     vert.x = 639.0f;
     vert.y = 0.0f;
     vert.u = (float)SCREENWIDTH/(float)TEX_SIZE;
     vert.v = 0.0;
     vert.flags = TA_VERTEX_EOL;
-    ta->commit_vertex(&vert, sizeof(vert));
+    ta_commit_vertex(&vert, sizeof(vert));
     
     /* Begin translucent polygons */
-    ta->commit_eol();
+    ta_commit_eol();
     
     /* Finish up */
-    ta->commit_eol();
-    ta->finish_frame();
+    ta_commit_eol();
+    ta_finish_frame();
 }
 
 void I_UpdateNoBlit (void)
@@ -365,15 +365,16 @@ void I_StartTic (void)
 
 void I_PreInitGraphics(void)
 {
-	printf("Opening TA lib\r\n");
-	if (ta == NULL) ta = lib_open("ta");
-    if (ta == NULL) { printf("Can't open TA lib\r\n"); exit(1); }
+	printf("Initializing ta\n");
+	ta_init(TA_LIST_OPAQUE_POLYS | TA_LIST_TRANS_POLYS,
+		TA_POLYBUF_32, 512*1024);
+	irq_enable();
 
     texture_pool = 0;
 
 	printf("Allocating texture\r\n");
     video_tex = texture_alloc(TEX_SIZE*TEX_SIZE*2);
-    tex_mem = ta->txr_map(video_tex);
+    tex_mem = ta_txr_map(video_tex);
 	*((vuint32*)(0xa05f8108)) = 1;
 }
 
@@ -421,9 +422,4 @@ void I_SetPalette(int pal)
 int use_doublebuffer;
 int use_fullscreen;
 int snd_card, mus_card;
-
-int test(int argc, const char *argv[])
-{
-  D_DoomMain ();
-  return 0;
-}
+int snd_samplerate;

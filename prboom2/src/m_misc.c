@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.37 2001/07/08 17:34:02 proff_fs Exp $
+ * $Id: m_misc.c,v 1.38 2001/07/16 15:35:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.37 2001/07/08 17:34:02 proff_fs Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.38 2001/07/16 15:35:16 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -222,7 +222,7 @@ int map_point_coordinates;
  * proff - OpenGL needs even more ram at least 16megs are allocated
  */
 #ifdef DREAMCAST
-#define MIN_RAM (6*1024)
+#define MIN_RAM (12*1024)
 #else // DREAMCAST
 #ifndef GL_DOOM
 #define MIN_RAM (8*1024)

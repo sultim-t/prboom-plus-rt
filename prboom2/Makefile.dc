@@ -3,22 +3,18 @@
 # Makefile.dc
 # (c)2001 Florian Schulze
 #   
-# $Id: Makefile.dc,v 1.1 2001/07/02 22:46:46 proff_fs Exp $
+# $Id: Makefile.dc,v 1.2 2001/07/16 15:35:16 proff_fs Exp $
 
-all: prboom.klf
-
-prboom.klf:
+all:
 	-ln -s src/dc/config.h config.h >nul
 	$(MAKE) -C src -f makefile.dc
-	-cp src/prboom.klf prboom.klf
-	-sh-elf-strip -g prboom.klf
+	-cp src/prboom.elf prboom.elf
+	-sh-elf-strip -g prboom.elf
 
-run: prboom.klf
-	-cp prboom.klf ../../kernel/romdisk_boot/prboom.klf
-	$(MAKE) -C ../../kernel all
-	-dc-tool -p -x ../../kernel/kallistios.elf
+run: all
+	-dc-tool -x prboom.elf
 
 clean:
 	$(MAKE) -C src -f makefile.dc clean
-	-rm -f prboom.klf
+	-rm -f prboom.elf
 	-rm -f config.h

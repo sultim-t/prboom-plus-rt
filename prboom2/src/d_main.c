@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.43 2001/07/13 23:05:32 proff_fs Exp $
+ * $Id: d_main.c,v 1.44 2001/07/16 15:35:16 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.43 2001/07/13 23:05:32 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.44 2001/07/16 15:35:16 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -45,8 +45,9 @@ static const char rcsid[] = "$Id: d_main.c,v 1.43 2001/07/13 23:05:32 proff_fs E
 #include <unistd.h>
 #endif
 #ifdef DREAMCAST
-#include <kallisti/libk.h>
-#include <kallisti/abi/fs.h>
+#include <kos/fs.h>
+#include <dc/dcload.h>
+#include <dc/fs_iso9660.h>
 #else // DREAMCAST
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -125,9 +126,6 @@ skill_t startskill;
 int     startepisode;
 int     startmap;
 boolean autostart;
-#ifdef DREAMCAST
-abi_fs_t *fslib = NULL;
-#endif // DREAMCAST
 FILE    *debugfile;
 
 boolean advancedemo;
@@ -706,7 +704,7 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 
     // Identify IWAD correctly
 #ifdef DREAMCAST
-    if ( (handle = fslib->open (iwadname,O_RDONLY)) != 0)
+    if ( (handle = fs_open (iwadname,O_RDONLY)) <= 0)
 #else // DREAMCAST
     if ( (handle = open (iwadname,O_RDONLY | O_BINARY)) != -1)
 #endif // DREAMCAST
@@ -715,7 +713,7 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 
       // read IWAD header
 #ifdef DREAMCAST
-      fslib->read (handle, &header, sizeof(header));
+      fs_read (handle, &header, sizeof(header));
 #else // DREAMCAST
       read (handle, &header, sizeof(header));
 #endif // DREAMCAST
@@ -730,9 +728,9 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
 #ifdef DREAMCAST
-        fslib->seek (handle, header.infotableofs, SEEK_SET);
-        fslib->read (handle, fileinfo, length*sizeof(filelump_t));
-        fslib->close(handle);
+        fs_seek (handle, header.infotableofs, SEEK_SET);
+        fs_read (handle, fileinfo, length*sizeof(filelump_t));
+        fs_close(handle);
 #else // DREAMCAST
         lseek (handle, header.infotableofs, SEEK_SET);
         read (handle, fileinfo, length*sizeof(filelump_t));
@@ -951,15 +949,15 @@ static char* FindWADFile(const char* wfname, const char* ext)
 	    int handle;
 		
 		printf("trying %s\n\r",p);
-    	if ( (handle = fslib->open (p,O_RDONLY)) == 0)
+    	if ( (handle = fs_open (p,O_RDONLY)) == 0)
       		strcat(p, ext);
     	else
-    		fslib->close(handle);
+    		fs_close(handle);
     		
-    	if ( (handle = fslib->open (p,O_RDONLY)) != 0)
+    	if ( (handle = fs_open (p,O_RDONLY)) != 0)
     	{
     		lprintf(LO_INFO, " found %s\n", p);
-    		fslib->close(handle);
+    		fs_close(handle);
     		return p;
     	}
     }
@@ -1380,8 +1378,14 @@ void D_DoomMainSetup(void)
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
 #ifdef DREAMCAST
-  fslib = lib_open("fs");
-  if (!fslib) { printf("Can't open fs library\r\n"); return; }
+	printf("Initializing fs\n");
+	fs_init();
+
+	printf("Initializing fs_dcload\n");
+	fs_dcload_init();
+
+	printf("Initializing fs_iso9660\n");
+	fs_iso9660_init();
 #endif // DREAMCAST
 
   // proff 04/05/2000: Added support for include response files
