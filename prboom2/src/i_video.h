@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.h,v 1.7 2002/11/18 22:54:32 proff_fs Exp $
+ * $Id: i_video.h,v 1.8 2002/11/24 22:38:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -51,7 +51,7 @@ void I_SetPalette(int pal); /* CPhipps - pass down palette number */
 void I_UpdateNoBlit (void);
 void I_FinishUpdate (void);
 
-void I_ReadScreen (byte* scr);
+int I_ScreenShot (const char* fname);
 
 /* I_StartTic
  * Called by D_DoomLoop,

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.44 2002/11/24 12:23:17 cph Exp $
+ * $Id: i_video.c,v 1.45 2002/11/24 22:36:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.44 2002/11/24 12:23:17 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.45 2002/11/24 22:36:26 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -523,7 +523,7 @@ static void I_UploadNewPalette(int pal)
 #endif
   
   // store the colors to the current display
-  SDL_SetPalette(SDL_GetVideoSurface(),SDL_PHYSPAL,colours+256*pal, 0, 256);
+  SDL_SetPalette(SDL_GetVideoSurface(),SDL_LOGPAL | SDL_PHYSPAL,colours+256*pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -597,11 +597,31 @@ void I_FinishUpdate (void)
 }
 
 //
-// I_ReadScreen
+// I_ScreenShot
 //
-void I_ReadScreen (byte* scr)
+int I_ScreenShot (const char* fname)
 {
-  memcpy(scr, screens[0].data, screens[0].width*screens[0].height*vid_getDepth()); // POPE
+#ifdef GL_DOOM
+  if (vid_getMode() == VID_MODEGL) {
+    unsigned char *pixel_data;
+    SDL_Surface *surface;
+    int result;
+
+    pixel_data = gld_ReadScreen();
+    if (pixel_data == NULL)
+      return -1;
+    surface = SDL_CreateRGBSurfaceFrom(pixel_data, SCREENWIDTH, SCREENHEIGHT, 24, SCREENWIDTH*3, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+    if (!surface) {
+      free(pixel_data);
+      return -1;
+    }
+    result = SDL_SaveBMP(surface, fname);
+    SDL_FreeSurface(surface);
+    free(pixel_data);
+    return result;
+  } else
+#endif
+    return SDL_SaveBMP(SDL_GetVideoSurface(), fname);
 }
 
 //

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.52 2002/11/24 01:37:49 proff_fs Exp $
+ * $Id: gl_main.c,v 1.53 2002/11/24 22:38:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -384,10 +384,6 @@ void gld_Init(int width, int height)
   gld_SetVertexArrays();
 }
 
-void gld_InitCommandLine()
-{
-}
-
 #define SCALE_X(x)		((flags & VPT_STRETCH)?((float)x)*(float)SCREENWIDTH/320.0f:(float)x)
 #define SCALE_Y(y)		((flags & VPT_STRETCH)?((float)y)*(float)SCREENHEIGHT/200.0f:(float)y)
 
@@ -629,9 +625,22 @@ void gld_SetPalette(int palette)
   }
 }
 
-void gld_ReadScreen (byte* scr)
+byte *gld_ReadScreen(void)
 {
+  byte *scr;
+  byte buffer[MAX_SCREENWIDTH*3];
+  int i;
+
+  scr = malloc(SCREENWIDTH * SCREENHEIGHT * 3);
+  if (!scr)
+    return NULL;
   p_glReadPixels(0,0,SCREENWIDTH,SCREENHEIGHT,GL_RGB,GL_UNSIGNED_BYTE,scr);
+  for (i=0; i<SCREENHEIGHT/2; i++) {
+    memcpy(buffer, &scr[i*SCREENWIDTH*3], SCREENWIDTH*3);
+    memcpy(&scr[i*SCREENWIDTH*3], &scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], SCREENWIDTH*3);
+    memcpy(&scr[(SCREENHEIGHT-(i+1))*SCREENWIDTH*3], buffer, SCREENWIDTH*3);
+  }
+  return scr;
 }
 
 GLvoid gld_Set2DMode()

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.6 2002/11/24 12:30:55 cph Exp $
+ * $Id: mn_menus.c,v 1.7 2002/11/24 22:38:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.6 2002/11/24 12:30:55 cph Exp $";
+  "$Id: mn_menus.c,v 1.7 2002/11/24 22:38:49 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -1187,7 +1187,7 @@ CONSOLE_COMMAND(mn_vidmode, 0)
   MN_StartMenu(&menu_vidmode);
 }
 
-CONSOLE_COMMAND(screenshot, cf_notnet)
+CONSOLE_COMMAND(screenshot, cf_notnet | cf_buffered)
 {
   M_ScreenShot();
 }
