@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: wi_stuff.c,v 1.6.2.1 2002/07/20 18:08:37 proff_fs Exp $
+ * $Id: wi_stuff.c,v 1.6.2.2 2002/07/28 19:06:17 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: wi_stuff.c,v 1.6.2.1 2002/07/20 18:08:37 proff_fs Exp $";
+rcsid[] = "$Id: wi_stuff.c,v 1.6.2.2 2002/07/28 19:06:17 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -1648,7 +1648,7 @@ void WI_updateStats(void)
     cnt_total_time += 3;
 
     if (cnt_total_time >= wbs->totaltimes / TICRATE)
-      cnt_time = plrs[me].stime / TICRATE;
+      cnt_total_time = wbs->totaltimes / TICRATE;
 
     cnt_par += 3;
 
@@ -1656,7 +1656,7 @@ void WI_updateStats(void)
     {
       cnt_par = wbs->partime / TICRATE;
 
-      if ((cnt_time >= plrs[me].stime / TICRATE) && (cnt_total_time >= wbs->totaltimes / TICRATE))
+      if ((cnt_time >= plrs[me].stime / TICRATE) && (compatibility_level < lxdoom_1_compatibility || cnt_total_time >= wbs->totaltimes / TICRATE))
       {
         S_StartSound(0, sfx_barexp);
         sp_state++;
