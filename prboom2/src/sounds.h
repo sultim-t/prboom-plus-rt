@@ -49,7 +49,16 @@ struct sfxinfo_s
   const char *name; // CPhipps - const
 
   // Sfx singularity (only one at a time)
-  int singularity;
+  // killough 12/98: implement separate classes of singularity
+  enum
+  {
+    sg_none,
+    sg_itemup,
+    sg_wpnup,
+    sg_oof,
+    sg_getpow
+  }
+  singularity;
 
   // Sfx priority
   int priority;
@@ -73,6 +82,10 @@ struct sfxinfo_s
 
   // lump number of sfx
   int lumpnum;
+
+  int length;   // lump length
+
+  sfxinfo_t *next;      // next in hash chain
 };
 
 //
@@ -306,5 +319,7 @@ typedef enum {
 
   NUMSFX
 } sfxenum_t;
+
+extern sfxinfo_t chgun;
 
 #endif

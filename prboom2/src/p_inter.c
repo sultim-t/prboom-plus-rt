@@ -192,7 +192,7 @@ boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropped)
       /* cph 20028/10 - for old-school DM addicts, allow old behavior where only
        * consoleplayer's pickup sounds are heard */
       if (!comp[comp_sound] || player == &players[consoleplayer])
-	S_StartSound (player->mo, sfx_wpnup|PICKUP_SOUND); // killough 4/25/98
+	S_StartSound (player->mo, sfx_wpnup); // killough 4/25/98
       return false;
     }
 
@@ -621,7 +621,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   /* cph 20028/10 - for old-school DM addicts, allow old behavior where only
    * consoleplayer's pickup sounds are heard */
   if (!comp[comp_sound] || player == &players[consoleplayer])
-    S_StartSound (player->mo, sound | PICKUP_SOUND);   // killough 4/25/98
+    S_StartSound (player->mo, sound);   // killough 4/25/98
 }
 
 //

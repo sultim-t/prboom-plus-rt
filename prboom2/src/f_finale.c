@@ -89,7 +89,7 @@ void F_StartFinale (void)
     case registered:
     case retail:
     {
-      S_ChangeMusic(mus_victor, true);
+      S_ChangeMusicNum(mus_victor, true);
       
       switch (gameepisode)
       {
@@ -119,7 +119,7 @@ void F_StartFinale (void)
     // DOOM II and missions packs with E1, M34
     case commercial:
     {
-      S_ChangeMusic(mus_read_m, true);
+      S_ChangeMusicNum(mus_read_m, true);
 
       // Ty 08/27/98 - added the gamemission logic
       switch (gamemap)
@@ -164,7 +164,7 @@ void F_StartFinale (void)
 
     // Indeterminate.
     default:  // Ty 03/30/98 - not externalized
-         S_ChangeMusic(mus_read_m, true);
+         S_ChangeMusicNum(mus_read_m, true);
          finaleflat = "F_SKY1"; // Not used anywhere else.
          finaletext = s_C1TEXT;  // FIXME - other text, music?
          break;
@@ -336,7 +336,7 @@ void F_StartCast (void)
   castframes = 0;
   castonmelee = 0;
   castattacking = false;
-  S_ChangeMusic(mus_evil, true);
+  S_ChangeMusicNum(mus_evil, true);
 }
 
 

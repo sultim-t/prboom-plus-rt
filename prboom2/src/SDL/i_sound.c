@@ -87,9 +87,7 @@ int snd_samplerate=11025;
 int audio_fd;
 
 typedef struct {
-  // SFX id of the playing sound effect.
-  // Used to catch duplicates (like chainsaw).
-  int id;
+  int lumpnum;
   // The channel step amount...
   unsigned int step;
   // ... and a 0.16 bit remainder of last step.
@@ -127,7 +125,7 @@ static void stopchan(int i)
   if (channelinfo[i].data) /* cph - prevent excess unlocks */
   {
     channelinfo[i].data=NULL;
-    W_UnlockLumpNum(S_sfx[channelinfo[i].id].lumpnum);
+    W_UnlockLumpNum(channelinfo[i].lumpnum);
   }
 }
 
@@ -138,33 +136,30 @@ static void stopchan(int i)
 //  (eight, usually) of internal channels.
 // Returns a handle.
 //
-int addsfx(int sfxid, int channel)
+int addsfx(sfxinfo_t *sfx, int channel)
 {
   stopchan(channel);
 
   // We will handle the new SFX.
   // Set pointer to raw data.
   {
-    int lump = S_sfx[sfxid].lumpnum;
-    size_t len = W_LumpLength(lump);
+    int lumpnum = sfx->lumpnum;
+    size_t len = W_LumpLength(lumpnum);
 
     /* Find padded length */
     len -= 8;
-    channelinfo[channel].data = W_CacheLumpNum(lump);
+    channelinfo[channel].data = W_CacheLumpNum(lumpnum);
       
     /* Set pointer to end of raw data. */
     channelinfo[channel].enddata = channelinfo[channel].data + len - 1;
     channelinfo[channel].samplerate = (channelinfo[channel].data[3]<<8)+channelinfo[channel].data[2];
     channelinfo[channel].data += 8; /* Skip header */
+    channelinfo[channel].lumpnum = lumpnum;
   }
 
   channelinfo[channel].stepremainder = 0;
   // Should be gametic, I presume.
   channelinfo[channel].starttime = gametic;
-
-  // Preserve sound SFX id,
-  //  e.g. for avoiding duplicates of chainsaw.
-  channelinfo[channel].id = sfxid;
 
   return channel;
 }
@@ -300,7 +295,7 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 // Pitching (that is, increased speed of playback)
 //  is set, but currently not used by mixing.
 //
-int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
+int I_StartSound(sfxinfo_t *sfx, int channel, int vol, int sep, int pitch, int priority)
 {
   int handle;
 
@@ -312,7 +307,7 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
     
   SDL_LockAudio();
   // Returns a handle (not used).
-  handle = addsfx(id,channel);
+  handle = addsfx(sfx,channel);
 #ifdef RANGECHECK
   if (handle>=MAX_CHANNELS)
     I_Error("I_StartSound: handle out of range");

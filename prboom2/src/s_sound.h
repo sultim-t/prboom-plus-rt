@@ -32,6 +32,8 @@
 #ifndef __S_SOUND__
 #define __S_SOUND__
 
+#include "sounds.h"
+
 #ifdef __GNUG__
 #pragma interface
 #endif
@@ -57,21 +59,19 @@ void S_Start(void);
 //
 void S_StartSound(const mobj_t *origin, int sound_id);
 void S_StartSoundName(const mobj_t *origin, char *name);
-
-// Will start a sound at a given volume.
-void S_StartSoundAtVolume(const mobj_t *origin, int sound_id, int volume);
-
-// killough 4/25/98: mask used to indicate sound origin is player item pickup
-#define PICKUP_SOUND (0x8000)
+//void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx);
 
 // Stop sound for thing at <origin>
 void S_StopSound(const mobj_t* origin);
 
 // Start music using <music_id> from sounds.h
 void S_StartMusic(int music_id);
+void S_StartRandomMusic();
 
 // Start music using <music_id> from sounds.h, and set whether looping
-void S_ChangeMusic(int music_id, int looping);
+void S_ChangeMusicNum(int music_id, int looping);
+void S_ChangeMusicName(char *name, int looping);
+void S_ChangeMusic(musicinfo_t *music, int looping);
 
 // Stops the music fer sure.
 void S_StopMusic(void);
@@ -80,6 +80,13 @@ void S_StopSounds(void);
 // Stop and resume music, during game PAUSE.
 void S_PauseSound(void);
 void S_ResumeSound(void);
+
+sfxinfo_t *S_SfxInfoForName(char *name);
+void S_UpdateSound(int lumpnum);
+void S_Chgun();
+
+musicinfo_t *S_MusicForName(char *name);
+void S_UpdateMusic(int lumpnum);
 
 //
 // Updates music & sounds

@@ -1800,9 +1800,9 @@ void WI_Ticker(void)
   {
     // intermission music
     if ( gamemode == commercial )
-      S_ChangeMusic(mus_dm2int, true);
+      S_ChangeMusicNum(mus_dm2int, true);
     else
-      S_ChangeMusic(mus_inter, true); 
+      S_ChangeMusicNum(mus_inter, true); 
   }
 
   WI_checkForAccelerate();
