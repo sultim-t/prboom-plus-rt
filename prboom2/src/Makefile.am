@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.5 2000/05/09 20:50:41 proff_fs Exp $
+# $Id: Makefile.am,v 1.6 2000/05/11 23:14:59 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -64,7 +64,13 @@ else
 NET_CLIENT_SRC = d_client.c
 endif
 
-lsdldoom_SOURCES = v_video_trans.h v_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC)
+if BUILD_GL
+GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
+else
+GL_SRC = 
+endif
+
+lsdldoom_SOURCES = v_video_trans.h v_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(GL_SRC)
 lsdldoom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm SDL/libsdldoom.a
 
 lxdoom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
