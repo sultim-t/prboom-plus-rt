@@ -455,7 +455,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
      */
     
 #ifdef HAVE_LIBDMALLOC
-    while (!(block = _malloc_leap(file,line,size + HEADER_SIZE))) {
+    while (!(block = dmalloc_malloc(file,line,size + HEADER_SIZE,DMALLOC_FUNC_MALLOC,0,0))) {
 #else
     while (!(block = (malloc)(size + HEADER_SIZE))) {
 #endif
@@ -555,7 +555,7 @@ void (Z_Free)(void *p
           virtual_memory -= block->size + HEADER_SIZE;
 #endif
 #ifdef HAVE_LIBDMALLOC
-          _free_leap(file,line,block);
+          dmalloc_free(file,line,block,DMALLOC_FUNC_MALLOC);
 #else
           (free)(block);
 #endif
