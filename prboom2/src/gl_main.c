@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.24 2000/09/27 11:30:26 proff_fs Exp $
+ * $Id: gl_main.c,v 1.25 2000/09/29 16:20:24 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -48,10 +48,6 @@ static float extra_alpha=0.0f;
 
 #define MAP_COEFF 128
 #define MAP_SCALE	(MAP_COEFF<<FRACBITS) // 6553600 -- nicolas
-
-//figgi -- some globals, externals and forwards
-extern boolean usingGLNodes;
-void gld_GetSubSectorVertices(void);
 
 /*
  * lookuptable for lightvalues
@@ -230,8 +226,16 @@ static void gld_StaticLight(float light)
       glColor3f(1.0f, 1.0f, 1.0f);
       return;
     }
-  //glColor4f(light, light, light, 0.5f);
+#ifdef _DEBUG
+/*
+  if (usingGLNodes)
+    glColor4f(light, light, light, 0.7f);
+  else
+*/
+    glColor3f(light, light, light);
+#else
   glColor3f(light, light, light);
+#endif
 }
 
 static void gld_StaticLightAlpha(float light, float alpha)
@@ -258,6 +262,9 @@ void gld_Init(int width, int height)
   GLfloat params[4]={0.0f,0.0f,1.0f,0.0f};
 	GLfloat BlackFogColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+  lprintf(LO_INFO,"\nGL_VENDOR:\n%s\n",glGetString(GL_VENDOR));
+  lprintf(LO_INFO,"GL_RENDERER:\n%s\n",glGetString(GL_RENDERER));
+  lprintf(LO_INFO,"GL_VERSION:\n%s\n",glGetString(GL_VERSION));
 	glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT); 
 
   glClearColor(0.0f, 0.5f, 0.5f, 1.0f); 
@@ -269,7 +276,7 @@ void gld_Init(int width, int height)
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // proff_dis
   glShadeModel(GL_FLAT);
 	glEnable(GL_TEXTURE_2D);
@@ -675,15 +682,23 @@ typedef struct
   GLuint gl_list;
 } GLSector;
 
+typedef struct
+{
+  GLLoopDef loop; // the loops itself
+  GLuint gl_list;
+} GLSubSector;
+
 // this is the list for all sectors to the loops
 static GLSector *sectorloops=NULL;
+// this is the list for all subsectors
+static GLSubSector *subsectorloops=NULL;
 
-// gld_DrawFlat
+// gld_DrawSectorFlat
 //
 // This draws on flat for the sector "num"
 // The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
 
-static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
+static void gld_DrawSectorFlat(int num, boolean ceiling, visplane_t *plane)
 {
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
@@ -794,7 +809,120 @@ static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
   glPopMatrix();
 }
 
+// gld_DrawSubSectorFlat
+//
+// This draws on flat for the subsector "num"
+// The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
+
+static void gld_DrawSubSectorFlat(int num, boolean ceiling, visplane_t *plane)
+{
+  GLLoopDef *currentloop; // the current loop
+  int vertexnum; // the current vertexnumber
+  GLVertex *currentvertex; // the current vertex
+  subsector_t *subsector; // the sector we want to draw
+  sector_t *sector; // the sector we want to draw
+  sector_t tempsec; // needed for R_FakeFlat
+  float light; // the lightlevel of the flat
+  GLTexture *gltexture; // the texture
+  float uoffs,voffs; // the texture coordinates
+  float z; // the z position of the flat (height)
+  int floorlightlevel;      // killough 3/16/98: set floor lightlevel
+  int ceilinglightlevel;    // killough 4/11/98
+
+  subsector=&subsectors[num]; // get the subsector
+  sector=&sectors[subsector->sector->iSectorID]; // get the sector
+  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
+  if (!ceiling) // if it is a floor ...
+    glCullFace(GL_FRONT);
+  else
+    glCullFace(GL_BACK);
+  if (!ceiling) // if it is a floor ...
+  {
+    if (sector->floorpic == skyflatnum) // don't draw if sky
+      return;
+    // get the texture. flattranslation is maintained by doom and
+    // contains the number of the current animation frame
+    gltexture=gld_RegisterFlat(flattranslation[sector->floorpic], true);
+    if (!gltexture)
+      return;
+    // get the lightlevel from floorlightlevel
+    light=gld_CalcLightLevel(floorlightlevel+(extralight<<5));
+    // calculate texture offsets
+    uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
+    voffs=(float)sector->floor_yoffs/(float)FRACUNIT;
+  }
+  else // if it is a ceiling ...
+  {
+    if (sector->ceilingpic == skyflatnum) // don't draw if sky
+      return;
+    // get the texture. flattranslation is maintained by doom and
+    // contains the number of the current animation frame
+    gltexture=gld_RegisterFlat(flattranslation[sector->ceilingpic], true);
+    if (!gltexture)
+      return;
+    // get the lightlevel from ceilinglightlevel
+    light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<5));
+    // calculate texture offsets
+    uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
+    voffs=(float)sector->ceiling_yoffs/(float)FRACUNIT;
+  }
+  
+  // get height from plane
+  z=(float)plane->height/(float)MAP_SCALE;
+
+  gld_BindFlat(gltexture);
+  gld_StaticLight(light);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glTranslatef(0.0f,z,0.0f);
+  glMatrixMode(GL_TEXTURE);
+  glPushMatrix();
+  glTranslatef(uoffs/64.0f,voffs/64.0f,0.0f);
+  // go through all loops of this sector
+  if (!subsectorloops[num].gl_list)
+  {
+    if (use_display_lists)
+    {
+      subsectorloops[num].gl_list=glGenLists(1);
+      if (!subsectorloops[num].gl_list)
+      {
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+        return;
+      }
+      glNewList(subsectorloops[num].gl_list,GL_COMPILE_AND_EXECUTE);
+    }
+    // set the current loop
+    currentloop=&subsectorloops[num].loop;
+    // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
+    glBegin(currentloop->mode);
+    // go through all vertexes of this loop
+    for (vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
+    {
+      // set the current vertex
+      currentvertex=&currentloop->gl_vertexes[vertexnum];
+      if (!currentvertex)
+        continue;
+      // set texture coordinate of this vertex
+      glTexCoord2f(currentvertex->u,currentvertex->v);
+      // set vertex coordinate
+      glVertex3f(currentvertex->x,0.0f,currentvertex->y);
+    }
+    // end of loop
+    glEnd();
+    if (use_display_lists)
+      glEndList();
+  }
+  else
+    glCallList(subsectorloops[num].gl_list);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+}
+
 static boolean *sectorrendered=NULL; // true if sector rendered (only here for malloc)
+static boolean *subsectorrendered=NULL; // true if subsector rendered (only here for malloc)
 
 /* proff - 05/15/2000
  * The idea and algorithm to compute the flats with nodes and subsectors is
@@ -896,8 +1024,9 @@ static vertex_t *gld_FlatEdgeClipper(int *numpoints, vertex_t *points, int numcl
 	return points;
 }
 
-static void gld_FlatConvexCarver(subsector_t *ssec, int num, divline_t *list)
+static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 {
+  subsector_t *ssec=&subsectors[ssidx];
 	int numclippers = num+ssec->numlines;
 	divline_t *clippers;
 	int i, numedgepoints;
@@ -916,30 +1045,10 @@ static void gld_FlatConvexCarver(subsector_t *ssec, int num, divline_t *list)
 	for(i=num; i<numclippers; i++)
 	{
 		seg_t *seg = &segs[ssec->firstline+i-num];
-/*
-    if (seg->frontsector==seg->linedef->frontsector)
-    {
-		  clippers[i].x = seg->linedef->v1->x;
-		  clippers[i].y = seg->linedef->v1->y;
-		  clippers[i].dx = seg->linedef->dx;
-		  clippers[i].dy = seg->linedef->dy;
-    }
-    else
-//      if (seg->frontsector==seg->linedef->backsector)
-      {
-		    clippers[i].x = seg->linedef->v2->x;
-		    clippers[i].y = seg->linedef->v2->y;
-		    clippers[i].dx = -seg->linedef->dx;
-		    clippers[i].dy = -seg->linedef->dy;
-      }
-      else
-*/
-      {
-		    clippers[i].x = seg->v1->x;
-		    clippers[i].y = seg->v1->y;
-		    clippers[i].dx = seg->v2->x-seg->v1->x;
-		    clippers[i].dy = seg->v2->y-seg->v1->y;
-      }
+		clippers[i].x = seg->v1->x;
+		clippers[i].y = seg->v1->y;
+		clippers[i].dx = seg->v2->x-seg->v1->x;
+		clippers[i].dy = seg->v2->y-seg->v1->y;
 	}
 
 	// Setup the 'worldwide' polygon.
@@ -1011,7 +1120,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
 		// the partition lines that carve out the subsector.
 		int ssidx = bspnode & (~NF_SUBSECTOR);
     if (!sectorclosed[subsectors[ssidx].sector->iSectorID])
-  		gld_FlatConvexCarver(&subsectors[ssidx], numdivlines, divlines);
+  		gld_FlatConvexCarver(ssidx, numdivlines, divlines);
 		return;
 	}
 
@@ -1420,6 +1529,61 @@ static void gld_PrecalculateSector(int num)
 
 //#endif /* USE_GLU_TESS */
 
+/********************************************
+ * Name     : gld_GetSubSectorVertices	    *
+ * created  : 08/13/00					            *
+ * modified : 09/18/00, adapted for PrBoom  *
+ * author   : figgi						              *
+ * what		  : prepares subsectorvertices    *
+ *            (glnodes only)			          *
+ ********************************************/
+
+void gld_GetSubSectorVertices(void)
+{
+	int			 i, j;
+  int			 numedgepoints;
+	subsector_t* ssector;
+	GLVertex*    vtx;
+		
+	for(i = 0; i < numsubsectors; i++)
+	{
+		ssector = &subsectors[i];
+
+		numedgepoints  = ssector->numlines;
+
+ 		vtx = Z_Malloc(sizeof(GLVertex) * numedgepoints, PU_LEVEL, 0);	
+
+    if (vtx)
+    {
+/*
+			int currentsector = ssector->sector->iSectorID;
+
+			sectorloops[currentsector].loopcount++;
+			sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].mode		 = GL_TRIANGLE_FAN;
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexcount = numedgepoints;
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].gl_vertexes = vtx;
+*/
+#ifdef _DEBUG
+      if (subsectorloops[ i ].loop.gl_vertexes)
+        lprintf(LO_INFO,"subsector %i already carved\n",i);
+#endif
+
+      subsectorloops[ i ].loop.mode=GL_TRIANGLE_FAN;
+      subsectorloops[ i ].loop.vertexcount=numedgepoints;
+      subsectorloops[ i ].loop.gl_vertexes=vtx;
+
+			for(j = 0;  j < numedgepoints; j++)
+			{
+        vtx[j].x = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
+        vtx[j].y =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
+        vtx[j].u =( (float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
+        vtx[j].v =(-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
+			}
+	  }
+  }
+}
+
 // gld_PreprocessLevel
 //
 // this checks all sectors if they are closed and calls gld_PrecalculateSector to
@@ -1454,18 +1618,9 @@ void gld_PreprocessSectors(void)
 //#endif
 
 #ifdef _DEBUG
-  char buffer[MAX_PATH];
-
-  levelinfo=fopen("levelinfo.txt","r");
+  levelinfo=fopen("levelinfo.txt","a");
   if (levelinfo)
   {
-    fscanf(levelinfo,"%s\n",&buffer);
-    fclose(levelinfo);
-  }
-  levelinfo=fopen("levelinfo.txt","w");
-  if (levelinfo)
-  {
-    fprintf(levelinfo,"%s\n",&buffer);
     if (gamemode==commercial)
       fprintf(levelinfo,"MAP%02i\n",gamemap);
     else
@@ -1488,6 +1643,17 @@ void gld_PreprocessSectors(void)
   sectorrendered=GLMalloc(numsectors*sizeof(boolean));
   if (!sectorrendered)
     I_Error("Not enough memory for array (sectorrendered)\n");
+
+  GLFree(subsectorloops);
+  subsectorloops=GLMalloc(sizeof(GLSubSector)*numsubsectors);
+  if (!subsectorloops)
+    I_Error("Not enough memory for array (subsectorloops)\n");
+  memset(subsectorloops, 0, sizeof(GLSubSector)*numsubsectors);
+
+  GLFree(subsectorrendered);
+  subsectorrendered=GLMalloc(numsubsectors*sizeof(boolean));
+  if (!subsectorrendered)
+    I_Error("Not enough memory for array (subsectorrendered)\n");
 
   //#ifdef USE_GLU_TESS
   if (usingGLNodes == false)
@@ -1601,7 +1767,12 @@ void gld_StartDrawScene(void)
 	glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 
-	glEnable(GL_DEPTH_TEST);
+/*
+  if (usingGLNodes)
+	  glDisable(GL_DEPTH_TEST);
+  else
+*/
+	  glEnable(GL_DEPTH_TEST);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
@@ -1621,6 +1792,8 @@ void gld_StartDrawScene(void)
     glDisable(GL_FOG);
   // set all sectors to not rendered
   memset(sectorrendered, 0, numsectors*sizeof(boolean));
+  // set all subsectors to not rendered
+  memset(subsectorrendered, 0, numsubsectors*sizeof(boolean));
 }
 
 void gld_EndDrawScene(void)
@@ -2066,26 +2239,54 @@ static void gld_PreprocessSegs(void)
  *               *
  *****************/
 
-void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceilingplane)
+void gld_DrawPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingplane)
 {
+  subsector_t *subsector;
+
   // check if all arrays are allocated
   if (!sectorrendered)
     return;
+  if (!subsectorrendered)
+    return;
 
-  if (!sectorrendered[sector->iSectorID]) // if not already rendered
+  if (usingGLNodes)
   {
-    // enable backside removing
-    glEnable(GL_CULL_FACE);
-    // render the floor
-    if (floorplane)
-      gld_DrawFlat(sector->iSectorID, false, floorplane);
-    // render the ceiling
-    if (ceilingplane)
-      gld_DrawFlat(sector->iSectorID, true, ceilingplane);
-    // set rendered true
-    sectorrendered[sector->iSectorID]=true;
-    // disable backside removing
-    glDisable(GL_CULL_FACE);
+    if (!subsectorrendered[subsectornum]) // if not already rendered
+    {
+      // enable backside removing
+      glEnable(GL_CULL_FACE);
+      // render the floor
+      if (floorplane)
+        gld_DrawSubSectorFlat(subsectornum, false, floorplane);
+      // render the ceiling
+      if (ceilingplane)
+        gld_DrawSubSectorFlat(subsectornum, true, ceilingplane);
+      // set rendered true
+      subsectorrendered[subsectornum]=true;
+      // disable backside removing
+      glDisable(GL_CULL_FACE);
+    }
+  }
+  else
+  {
+    subsector = &subsectors[subsectornum];
+    if (!subsector)
+      return;
+    if (!sectorrendered[subsector->sector->iSectorID]) // if not already rendered
+    {
+      // enable backside removing
+      glEnable(GL_CULL_FACE);
+      // render the floor
+      if (floorplane)
+        gld_DrawSectorFlat(subsector->sector->iSectorID, false, floorplane);
+      // render the ceiling
+      if (ceilingplane)
+        gld_DrawSectorFlat(subsector->sector->iSectorID, true, ceilingplane);
+      // set rendered true
+      sectorrendered[subsector->sector->iSectorID]=true;
+      // disable backside removing
+      glDisable(GL_CULL_FACE);
+    }
   }
 }
 
@@ -2179,57 +2380,12 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
+/*
 #ifdef _DEBUG
   void gld_Precache(void);
   gld_Precache();
 #endif
+*/
   gld_PreprocessSectors();
   gld_PreprocessSegs();
-}
-
-
-
-/*******************************************
- * Name     : gld_GetSubSectorVertices	   *
- * created  : 08/13/00					   *
- * modified : 09/18/00, adapted for PrBoom *
- * author   : figgi						   *
- * what		: prepares subsectorvertices   *
- *            (glnodes only)			   *
- *******************************************/
-
-void gld_GetSubSectorVertices(void)
-{
-	int			 i, j;
-    int			 numedgepoints;
-	subsector_t* ssector;
-	GLVertex*    vtx;
-		
-	for(i = 0; i < numsubsectors; i++)
-	{
-		ssector = &subsectors[i];
-
-		numedgepoints  = ssector->numlines;
-
- 		vtx = Z_Malloc(sizeof(GLVertex) * numedgepoints, PU_LEVEL, 0);	
-
-        if (vtx)
-        {
-			int currentsector = ssector->sector->iSectorID;
-
-			sectorloops[currentsector].loopcount++;
-			sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
-			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].mode		 = GL_TRIANGLE_FAN;
-			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexcount = numedgepoints;
-			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].gl_vertexes = vtx;
-
-			for(j = 0;  j < numedgepoints; j++)
-			{
-			   vtx[j].x = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
-			   vtx[j].y =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
-			   vtx[j].u = ((float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
- 			   vtx[j].v = (-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
-			}
-		 }
-    }
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_struct.h,v 1.10 2000/09/21 10:47:45 proff_fs Exp $
+ * $Id: gl_struct.h,v 1.11 2000/09/29 16:20:25 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,6 +33,8 @@
 #ifndef _GL_STRUCT_H
 #define _GL_STRUCT_H
 
+extern boolean usingGLNodes;
+
 void gld_Init(int width, int height);
 void gld_InitCommandLine();
 
@@ -52,7 +54,8 @@ void gld_GetSubSectorVertices(void); // figgi
 void gld_Set2DMode();
 void gld_InitDrawScene(void);
 void gld_StartDrawScene(void);
-void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceilingplane);
+void gld_DrawPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingplane);
+void gld_AddWall(seg_t *seg);
 void gld_DrawSprite(vissprite_t *vspr);
 void gld_DrawScene(player_t *player);
 void gld_EndDrawScene(void);
