@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.9.2.3 2003/03/29 18:36:29 proff_fs Exp $
+ * $Id: d_deh.c,v 1.9.2.4 2003/04/05 20:02:07 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.9.2.3 2003/03/29 18:36:29 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.9.2.4 2003/04/05 20:02:07 cph Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -1636,7 +1636,7 @@ void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
                                  deh_bexptrs[i].lookup,i,indexnum);
               found = TRUE;
             }
-        } while (!found && (deh_bexptrs[i].lookup != NULL));
+        } while (!found && (deh_bexptrs[i].cptr != NULL));
 
       if (!found)
         if (fpout) fprintf(fpout,
