@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.17 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: r_segs.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.17 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -221,9 +221,9 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         // when forming multipatched textures (see r_data.c).
 
         // draw the texture
-        col = (column_t *)((byte *)R_GetColumn(texnum,maskedtexturecol[dcvars.x]) - 3); // POPE
-        nextcolumn = 0;  // POPE //(column_t *)((byte *)R_GetColumn(texnum,maskedtexturecol[(dcvars.x+1) >= x2 ? x1 : dcvars.x+1]) - 3);
-        prevcolumn = 0;  // POPE //(column_t *)((byte *)R_GetColumn(texnum,maskedtexturecol[(dcvars.x-1) <= x1 ? x2-1 : dcvars.x-1]) - 3);
+        col = (column_t *)((byte *)R_GetTextureColumn(texnum,maskedtexturecol[dcvars.x]) - 3); // POPE
+        nextcolumn = 0;  // POPE //(column_t *)((byte *)R_GetTextureColumn(texnum,maskedtexturecol[(dcvars.x+1) >= x2 ? x1 : dcvars.x+1]) - 3);
+        prevcolumn = 0;  // POPE //(column_t *)((byte *)R_GetTextureColumn(texnum,maskedtexturecol[(dcvars.x-1) <= x1 ? x2-1 : dcvars.x-1]) - 3);
         
         R_DrawMaskedColumn(col, prevcolumn, nextcolumn);  // POPE
 
@@ -323,8 +323,8 @@ static void R_RenderSegLoop (void)
           dcvars.yl = yl;     // single sided line
           dcvars.yh = yh;
           dcvars.texturemid = rw_midtexturemid;
-          dcvars.source = R_GetColumn(midtexture, texturecolumn);
-          dcvars.nextsource = R_GetColumn(midtexture, texturecolumn+1); // POPE
+          dcvars.source = R_GetTextureColumn(midtexture, texturecolumn);
+          dcvars.nextsource = R_GetTextureColumn(midtexture, texturecolumn+1); // POPE
 	        dcvars.texheight = midtexheight;
           colfunc ();
           ceilingclip[rw_x] = viewheight;
@@ -348,8 +348,8 @@ static void R_RenderSegLoop (void)
                   dcvars.yl = yl;
                   dcvars.yh = mid;
                   dcvars.texturemid = rw_toptexturemid;
-                  dcvars.source = R_GetColumn(toptexture,texturecolumn);
-                  dcvars.nextsource = R_GetColumn(toptexture, texturecolumn+1); // POPE
+                  dcvars.source = R_GetTextureColumn(toptexture,texturecolumn);
+                  dcvars.nextsource = R_GetTextureColumn(toptexture, texturecolumn+1); // POPE
 		              dcvars.texheight = toptexheight;
                   colfunc ();
                   ceilingclip[rw_x] = mid;
@@ -378,8 +378,8 @@ static void R_RenderSegLoop (void)
                   dcvars.yl = mid;
                   dcvars.yh = yh;
                   dcvars.texturemid = rw_bottomtexturemid;
-                  dcvars.source = R_GetColumn(bottomtexture, texturecolumn);
-                  dcvars.nextsource = R_GetColumn(bottomtexture, texturecolumn+1); // POPE
+                  dcvars.source = R_GetTextureColumn(bottomtexture, texturecolumn);
+                  dcvars.nextsource = R_GetTextureColumn(bottomtexture, texturecolumn+1); // POPE
                   dcvars.texheight = bottomtexheight;
                   colfunc ();
                   floorclip[rw_x] = mid;

@@ -15,7 +15,14 @@
 #undef FUNC_V_DrawBlock
 #undef FUNC_V_DrawBackground
 #undef FUNC_V_PlotPixel
-
+#undef FUNC_V_PlotPatch
+#undef FUNC_V_PlotTexture
+#undef FUNC_V_PlotPatch
+#undef FUNC_V_PlotPatchNum
+#undef FUNC_V_PlotTextureNum
+#undef FUNC_V_GetPlottedPatch
+#undef FUNC_V_GetPlottedTexture
+  
 //---------------------------------------------------------------------------
 #if (V_VIDEO_BITS == 32)
   // 32 bit
@@ -28,6 +35,11 @@
   #define FUNC_V_DrawBlock      V_DrawBlock32
   #define FUNC_V_DrawBackground V_DrawBackground32
   #define FUNC_V_PlotPixel      V_PlotPixel32
+  #define FUNC_V_PlotPatch      V_PlotPatch32
+  #define FUNC_V_PlotPatchNum   V_PlotPatchNum32
+  #define FUNC_V_PlotTextureNum V_PlotTextureNum32
+  #define FUNC_V_GetPlottedPatch    V_GetPlottedPatch32
+  #define FUNC_V_GetPlottedTexture  V_GetPlottedTexture32
 #elif  (V_VIDEO_BITS == 16)
   // 16 bit
   #define V_VIDEO_SCRNTYPE short
@@ -39,8 +51,14 @@
   #define FUNC_V_DrawBlock      V_DrawBlock16
   #define FUNC_V_DrawBackground V_DrawBackground16
   #define FUNC_V_PlotPixel      V_PlotPixel16
+  #define FUNC_V_PlotPatch      V_PlotPatch16
+  #define FUNC_V_PlotPatchNum   V_PlotPatchNum16
+  #define FUNC_V_PlotTextureNum V_PlotTextureNum16
+  #define FUNC_V_GetPlottedPatch    V_GetPlottedPatch16
+  #define FUNC_V_GetPlottedTexture  V_GetPlottedTexture16
 #else
   // 8 bit
+  #define V_VIDEO_BITS 8
   #define V_VIDEO_SCRNTYPE byte
   #define V_VIDEO_GETCOL(col) col
   #define FUNC_V_CopyRect       V_CopyRect8
@@ -50,191 +68,13 @@
   #define FUNC_V_DrawBlock      V_DrawBlock8
   #define FUNC_V_DrawBackground V_DrawBackground8
   #define FUNC_V_PlotPixel      V_PlotPixel8
+  #define FUNC_V_PlotPatch      V_PlotPatch8
+  #define FUNC_V_PlotPatchNum   V_PlotPatchNum8
+  #define FUNC_V_PlotTextureNum V_PlotTextureNum8
+  #define FUNC_V_GetPlottedPatch    V_GetPlottedPatch8
+  #define FUNC_V_GetPlottedTexture  V_GetPlottedTexture8
 #endif
 
-
-//---------------------------------------------------------------------------
-// V_DrawMemPatch
-//---------------------------------------------------------------------------
-// CPhipps - unifying patch drawing routine, handles all cases and combinations
-//  of stretching, flipping and translating
-//
-// This function is big, hopefully not too big that gcc can't optimise it well.
-// In fact it packs pretty well, there is no big performance lose for all this merging;
-// the inner loops themselves are just the same as they always were
-// (indeed, laziness of the people who wrote the 'clones' of the original V_DrawPatch
-//  means that their inner loops weren't so well optimised, so merging code may even speed them).
-//---------------------------------------------------------------------------
-void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) {
-  const byte *trans;
-  
-  if (cm<CR_LIMIT)
-    trans=colrngs[cm];
-  else
-    trans=translationtables + 256*((cm-CR_LIMIT)-1);
-  y -= SHORT(patch->topoffset);
-  x -= SHORT(patch->leftoffset);
-
-  // CPhipps - auto-no-stretch if not high-res
-  if (flags & VPT_STRETCH)
-    if ((SCREENWIDTH==320) && (SCREENHEIGHT==200))
-      flags &= ~VPT_STRETCH;
-
-  // CPhipps - null translation pointer => no translation
-  if (!trans)
-    flags &= ~VPT_TRANS;
-
-#ifdef RANGECHECK
-  if (x<0
-      ||x+SHORT(patch->width) > ((flags & VPT_STRETCH) ? 320 : SCREENWIDTH)
-      || y<0
-      || y+SHORT(patch->height) > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT))
-    // killough 1/19/98: improved error message:
-    I_Error("V_DrawMemPatch: Patch origin %d,%d exceeds LFB"
-            "Bad V_DrawMemPatch (flags=%u)", x, y, flags);
-#endif
-
-  if (!(flags & VPT_STRETCH)) {
-    int             col;
-    const column_t *column;
-    V_VIDEO_SCRNTYPE      *desttop = (V_VIDEO_SCRNTYPE*)(screens[scrn])+y*SCREENWIDTH+x;
-    unsigned int    w = SHORT(patch->width);
-
-    //if (!scrn) V_MarkRect (x, y, w, SHORT(patch->height));
-
-    w--; // CPhipps - note: w = width-1 now, speeds up flipping
-
-    for (col=0 ; (unsigned int)col<=w ; desttop++, col++) {
-      column = (column_t *)((byte *)patch +
-          LONG(patch->columnofs[(flags & VPT_FLIP) ? w-col : col]));
-
-  // step through the posts in a column
-      while (column->topdelta != 0xff ) {
-  // killough 2/21/98: Unrolled and performance-tuned
-
-  register const byte *source = (byte *)column + 3;
-  register V_VIDEO_SCRNTYPE *dest = desttop + column->topdelta*SCREENWIDTH;
-  register int count = column->length;
-
-  if (!(flags & VPT_TRANS)) {
-    if ((count-=4)>=0)
-      do {
-        register byte s0,s1;
-        s0 = source[0];
-        s1 = source[1];
-        dest[0] = V_VIDEO_GETCOL(s0);
-        dest[SCREENWIDTH] = V_VIDEO_GETCOL(s1);
-        dest += SCREENWIDTH*2;
-        s0 = source[2];
-        s1 = source[3];
-        source += 4;
-        dest[0] = V_VIDEO_GETCOL(s0);
-        dest[SCREENWIDTH] = V_VIDEO_GETCOL(s1);
-        dest += SCREENWIDTH*2;
-      } while ((count-=4)>=0);
-    if (count+=4)
-      do {
-        *dest = V_VIDEO_GETCOL(*source++);
-        dest += SCREENWIDTH;
-      } while (--count);
-    column = (column_t *)(source+1); //killough 2/21/98 even faster
-  } else {
-    // CPhipps - merged translation code here
-    if ((count-=4)>=0)
-      do {
-        register byte s0,s1;
-        s0 = source[0];
-        s1 = source[1];
-        s0 = trans[s0];
-        s1 = trans[s1];
-        dest[0] = V_VIDEO_GETCOL(s0);
-        dest[SCREENWIDTH] = V_VIDEO_GETCOL(s1);
-        dest += SCREENWIDTH*2;
-        s0 = source[2];
-        s1 = source[3];
-        s0 = trans[s0];
-        s1 = trans[s1];
-        source += 4;
-        dest[0] = V_VIDEO_GETCOL(s0);
-        dest[SCREENWIDTH] = V_VIDEO_GETCOL(s1);
-        dest += SCREENWIDTH*2;
-      } while ((count-=4)>=0);
-    if (count+=4)
-      do {
-        *dest = V_VIDEO_GETCOL(trans[*source++]);
-        dest += SCREENWIDTH;
-      } while (--count);
-    column = (column_t *)(source+1);
-  }
-      }
-    }
-  }
-  else {
-    // CPhipps - move stretched patch drawing code here
-    //         - reformat initialisers, move variables into inner blocks
-
-    V_VIDEO_SCRNTYPE *desttop;
-    int   col;
-    int   w = (SHORT( patch->width ) << 16) - 1; // CPhipps - -1 for faster flipping
-    int   stretchx, stretchy;
-    int   DX  = (SCREENWIDTH<<16)  / 320;
-    int   DXI = (320<<16)          / SCREENWIDTH;
-    int   DY  = (SCREENHEIGHT<<16) / 200;
-    register int DYI = (200<<16)   / SCREENHEIGHT;
-    int   DY2, DYI2;
-
-    stretchx = ( x * DX ) >> 16;
-    stretchy = ( y * DY ) >> 16;
-    DY2  = DY / 2;
-    DYI2 = DYI* 2;
-
-    //if (!scrn) V_MarkRect ( stretchx, stretchy, (SHORT( patch->width ) * DX ) >> 16, (SHORT( patch->height) * DY ) >> 16 );
-
-    desttop = (V_VIDEO_SCRNTYPE*)(screens[scrn]) + stretchy * SCREENWIDTH +  stretchx;
-
-    for ( col = 0xf; col <= w; x++, col+=DXI, desttop++ ) {
-      const column_t *column;
-      {
-  unsigned int d = patch->columnofs[(flags & VPT_FLIP) ? ((w - col)>>16): (col>>16)];
-  column = (column_t*)((byte*)patch + LONG(d));
-      }
-
-      while ( column->topdelta != 0xff ) {
-	int toprow = ((column->topdelta*DY)>>16);
-  register const byte *source = ( byte* ) column + 3;
-  register V_VIDEO_SCRNTYPE  *dest = desttop + toprow * SCREENWIDTH;
-  register int         count  = ( column->length * DY ) >> 16;
-  register int         srccol = 0xf;
-
-	if ( toprow+count >= SCREENHEIGHT ) // fix by John Popplewell
-		count = SCREENHEIGHT-toprow-1; // proff - I couldn't find a better fix
-
-  if (flags & VPT_TRANS)
-    while (count--) {
-      *dest  =  V_VIDEO_GETCOL(trans[source[srccol>>16]]);
-      dest  +=  SCREENWIDTH;
-      srccol+=  DYI;
-    }
-  else
-    while (count--) {
-      *dest  =  V_VIDEO_GETCOL(source[srccol>>16]);
-      dest  +=  SCREENWIDTH;
-      srccol+=  DYI;
-    }
-  column = ( column_t* ) (( byte* ) column + ( column->length ) + 4 );
-      }
-    }
-  }
-}
-
-//---------------------------------------------------------------------------
-// V_DrawNumPatch
-//---------------------------------------------------------------------------
-void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
-         int cm, enum patch_translation_e flags) {
-  FUNC_V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump), cm, flags);
-  W_UnlockLumpNum(lump);
-}
 
 //---------------------------------------------------------------------------
 // V_PlotPixel
@@ -423,6 +263,266 @@ void FUNC_V_DrawBackground(const char* flatname, int scrn)
       V_CopyRect(0, 0, scrn, ((SCREENWIDTH-x) < 64) ? (SCREENWIDTH-x) : 64,
      ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
   W_UnlockLumpNum(lump);
+}
+
+//---------------------------------------------------------------------------
+// V_PlotPatch
+//---------------------------------------------------------------------------
+void FUNC_V_PlotPatch(
+  const patch_t *patch, TPlotRect destRect, const TPlotRect clampRect,
+  TRDrawFilterType filter, const byte *colorTranslationTable,
+  byte *destBuffer, int bufferWidth, int bufferHeight
+) {
+  const column_t *column, *nextcolumn, *prevcolumn;
+  fixed_t yfrac, xfrac, srcX;
+  int srcColumnIndex, dx;
+  void (*columnFunc)();
+  int patchHasHolesOrIsNonRectangular;
+  
+  // choose the right R_DrawColumn pipeline  
+  columnFunc = R_GetExactDrawFunc(
+    colorTranslationTable ? RDRAW_PIPELINE_COL_TRANSLATED : RDRAW_PIPELINE_COL_STANDARD, 
+    V_VIDEO_BITS, filter, RDRAW_FILTER_POINT
+  );
+  
+  patchHasHolesOrIsNonRectangular = getPatchHasAHoleOrIsNonRectangular(patch);
+
+  // calc the fractional stepping  
+  xfrac = FixedDiv((destRect.right-destRect.left)<<FRACBITS, patch->width<<FRACBITS);
+  yfrac = FixedDiv((destRect.bottom-destRect.top)<<FRACBITS, patch->height<<FRACBITS);
+  
+  // setup R_DrawColumn globals for our needs
+  repointDrawColumnGlobals(
+    destBuffer, bufferWidth, bufferHeight, 
+    FixedDiv(FRACUNIT, yfrac), colorTranslationTable, 
+    patchHasHolesOrIsNonRectangular && filter == RDRAW_FILTER_LINEAR
+  );
+  
+  if (false && filter == RDRAW_FILTER_LINEAR) {
+    // bias the texture u coordinate
+    if (patchHasHolesOrIsNonRectangular) srcX = (FRACUNIT>>1);
+    else srcX = (patch->width<<FRACBITS)-(FRACUNIT>>1);
+  }
+  else {
+    srcX = 0;
+  }
+  
+  for (dx=destRect.left; dx<destRect.right; dx++) {
+    dcvars.x = dx;
+    if (dcvars.x < clampRect.left) continue;
+    if (dcvars.x >= clampRect.right) break;
+    
+    dcvars.texu = srcX % (patch->width<<FRACBITS);
+    srcColumnIndex = (srcX>>FRACBITS) % patch->width;
+    srcX += FixedDiv(FRACUNIT, xfrac);
+
+    column = (const column_t *)((const byte *)patch + patch->columnofs[srcColumnIndex]);
+    prevcolumn = ((srcColumnIndex-1) < 0) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex-1]));
+    
+    if ((srcColumnIndex+1) < patch->width) {
+      // no loop for nextcolumn
+      nextcolumn = (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex+1]));
+    }
+    else {
+      // nextcolumn would loop around or if we're nonrectangular, there is no nextcolumn
+      nextcolumn = patchHasHolesOrIsNonRectangular ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[0]));
+    }
+      
+    while (column->topdelta != 0xff) {
+      dcvars.yl = destRect.top + ((FixedMul(column->topdelta<<FRACBITS, yfrac))>>FRACBITS);
+      dcvars.yh = destRect.top + ((FixedMul((column->topdelta+column->length)<<FRACBITS, yfrac))>>FRACBITS);
+
+      // clamp
+      if (dcvars.yh >= clampRect.bottom) dcvars.yh = clampRect.bottom-1;
+      if (dcvars.yl < clampRect.top) dcvars.yl = clampRect.top;
+      
+      // set up our top and bottom sloping
+      dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
+      dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);
+      
+      dcvars.texheight = column->length;
+      dcvars.source = (const byte*)column + 3;
+      if (!patchHasHolesOrIsNonRectangular && nextcolumn) dcvars.nextsource = (const byte*)nextcolumn + 3;
+      else dcvars.nextsource = dcvars.source;
+      
+      if (filter == RDRAW_FILTER_LINEAR) {
+        // -(FRACUNIT+(FRACUNIT>>1)) = empirical shift
+        dcvars.texturemid = - (FRACUNIT>>1) - (dcvars.yl-centery)*dcvars.iscale;
+      }
+      else {
+        dcvars.texturemid =  - (dcvars.yl-centery)*dcvars.iscale;
+      }
+      
+      columnFunc();
+      
+      // move to next post
+      column = (const column_t *)((byte *)column + column->length + 4);  
+    }
+  }
+  
+ 
+  revertDrawColumnGlobals();
+}
+
+//---------------------------------------------------------------------------
+// FUNC_V_PlotPatchNum
+//---------------------------------------------------------------------------
+void FUNC_V_PlotPatchNum(
+  int patchNum, TPlotRect destRect, const TPlotRect clampRect,
+  TRDrawFilterType filter, const byte *colorTranslationTable,
+  byte *destBuffer, int bufferWidth, int bufferHeight
+) {
+  const patch_t *patch = (const patch_t*)W_CacheLumpNum(patchNum);
+  FUNC_V_PlotPatch(patch, destRect, clampRect, filter, colorTranslationTable, destBuffer, bufferWidth, bufferHeight);
+  W_UnlockLumpNum(patchNum);  
+}
+
+//---------------------------------------------------------------------------
+// V_PlotTexture
+//---------------------------------------------------------------------------
+void FUNC_V_PlotTextureNum(
+  int textureNum, int x, int y, int width, int height, TRDrawFilterType filter,
+  byte *destBuffer, int bufferWidth, int bufferHeight
+) {
+  texture_t *texture = textures[textureNum];
+  int p, patchWidth, patchHeight, patchNum;
+  const patch_t *patch;
+  fixed_t xfrac, yfrac;
+  TPlotRect destRect, clampRect;
+  
+  xfrac = FixedDiv(texture->width<<FRACBITS, width<<FRACBITS);
+  yfrac = FixedDiv(texture->height<<FRACBITS, height<<FRACBITS);
+  
+  clampRect.left = max(0, x);
+  clampRect.right = min(bufferWidth, x+width);
+  clampRect.top = max(0,y);
+  clampRect.bottom = min(bufferHeight, y+height);
+  
+  for (p=0; p<texture->patchcount; p++) {
+    patchNum = texture->patches[p].patch;
+    patch = (const patch_t*)W_CacheLumpNum(patchNum);
+    patchWidth = patch->width;
+    patchHeight = patch->height;
+    W_UnlockLumpNum(patchNum);
+    
+    destRect.left = x + (FixedDiv(texture->patches[p].originx<<FRACBITS, xfrac)>>FRACBITS);
+    destRect.right = destRect.left + (FixedDiv(patchWidth<<FRACBITS, xfrac)>>FRACBITS);
+    
+    destRect.top = y + (FixedDiv(texture->patches[p].originy<<FRACBITS, yfrac)>>FRACBITS);
+    destRect.bottom = destRect.top + (FixedDiv(patchHeight<<FRACBITS, yfrac)>>FRACBITS);
+    
+    FUNC_V_PlotPatchNum(
+      texture->patches[p].patch, destRect, clampRect, filter, 0,
+      destBuffer, bufferWidth, bufferHeight
+    );
+  }
+}
+
+
+//---------------------------------------------------------------------------
+byte *FUNC_V_GetPlottedPatch(int patchNum, int width, int height, TRDrawFilterType filter, const byte *colorTranslationTable
+#if V_VIDEO_BITS == 8  
+, byte clearColor) {
+#else
+) {
+#endif
+  byte *destBuffer;
+  int bufferSize = width*height*sizeof(V_VIDEO_SCRNTYPE);
+  TPlotRect rect = { 0, 0, width, height };
+  
+  destBuffer = malloc(bufferSize);
+  
+#if V_VIDEO_BITS == 8  
+  memset(destBuffer, clearColor, bufferSize);  
+#else
+  // when plotting, alpha's will be cleared
+  memset(destBuffer, 0xff, bufferSize);
+#endif
+  
+  FUNC_V_PlotPatchNum(patchNum, rect, rect, filter, colorTranslationTable, destBuffer, width, height);  
+  
+#if V_VIDEO_BITS == 32
+  {
+    int i;
+    // invert alphas (assumes ARGB or ABGR)
+    for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
+  }
+#endif
+
+  return destBuffer;
+}
+
+
+//---------------------------------------------------------------------------
+byte *FUNC_V_GetPlottedTexture(int textureNum, int width, int height, TRDrawFilterType filter
+#if V_VIDEO_BITS == 8  
+, byte clearColor) {
+#else
+) {
+#endif
+  byte *destBuffer;
+  int bufferSize = width*height*sizeof(V_VIDEO_SCRNTYPE);
+
+  destBuffer = malloc(bufferSize);
+  
+#if V_VIDEO_BITS == 8  
+  memset(destBuffer, clearColor, bufferSize);  
+#else
+  // when plotting, alpha's will be cleared
+  memset(destBuffer, 0xff, bufferSize);
+#endif
+  
+  FUNC_V_PlotTextureNum(textureNum, 0, 0, width, height, filter, destBuffer, width, height);  
+
+#if V_VIDEO_BITS == 32
+  {
+    int i;
+    // invert alphas (assumes ARGB or ABGR)
+    for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
+  }
+#endif
+    
+  return destBuffer;
+}
+
+//---------------------------------------------------------------------------
+// V_DrawMemPatch
+//---------------------------------------------------------------------------
+void FUNC_V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) {
+  int width, height;
+  const byte *trans;  
+  TPlotRect destRect;
+  TPlotRect clampRect = { 0, 0, SCREENWIDTH, SCREENHEIGHT };
+
+  width = patch->width;
+  height = patch->height;
+  
+  x -= patch->leftoffset;
+  y -= patch->topoffset;
+  destRect.left = (x) * SCREENWIDTH / 320;
+  destRect.right = (x+width) * SCREENWIDTH / 320;
+  destRect.top = (y) * SCREENHEIGHT / 200;
+  destRect.bottom = (y+height) * SCREENHEIGHT / 200;
+  
+  if (flags & VPT_TRANS) {
+    if (cm<CR_LIMIT) trans=colrngs[cm];
+    else trans=translationtables + 256*((cm-CR_LIMIT)-1);
+  }
+  else {
+    trans = 0;
+  }
+
+  FUNC_V_PlotPatch(patch, destRect, clampRect, RDRAW_FILTER_POINT, trans, screens[scrn], SCREENWIDTH, SCREENHEIGHT);
+}
+
+//---------------------------------------------------------------------------
+// V_DrawNumPatch
+//---------------------------------------------------------------------------
+void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
+         int cm, enum patch_translation_e flags) {
+  
+  FUNC_V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump), cm, flags);
+  W_UnlockLumpNum(lump); 
 }
 
 //---------------------------------------------------------------------------

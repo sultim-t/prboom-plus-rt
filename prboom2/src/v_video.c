@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.25 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: v_video.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.25 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $";
 
 #include "hu_stuff.h"
 #include "doomdef.h"
@@ -109,6 +109,8 @@ static TVidMode vidMode = VID_MODE8;
 
 //---------------------------------------------------------------------------
 TVidMode vid_getMode() { return vidMode; }
+int vid_getNumBits() { return vid_getModePixelDepth(vidMode) * 8; }
+int vid_getDepth() { return vid_getModePixelDepth(vidMode); }
 
 //---------------------------------------------------------------------------
 int vid_getModePixelDepth(TVidMode mode) {
@@ -121,19 +123,75 @@ int vid_getModePixelDepth(TVidMode mode) {
 }
 
 //---------------------------------------------------------------------------
-int vid_getNumBits() {
-  return vid_getModePixelDepth(vidMode) * 8;
+TVidMode vid_getModeForNumBits(int numBits) {
+  switch (numBits) {
+    case 8: return VID_MODE8;
+    case 16: return VID_MODE16;
+    case 32: return VID_MODE32;
+  }
+  return 0;
 }
-
-//---------------------------------------------------------------------------
-int vid_getDepth() {
-  return vid_getModePixelDepth(vidMode);
-}
-
 
 //---------------------------------------------------------------------------
 int *vid_intPalette = 0;
 short *vid_shortPalette = 0;
+
+//---------------------------------------------------------------------------
+// Small util funcs to save the R_DrawColumn state - POPE
+// (Welcome to the state-machine)
+//---------------------------------------------------------------------------
+void pushOrPopRDrawState(int push) {
+  static TRDrawColumnVars dcvars_saved;
+  static TRDrawVars rdrawvars_saved;
+    
+  if (push) {
+    dcvars_saved = dcvars;
+    rdrawvars_saved = rdrawvars;
+  }
+  else {
+    rdrawvars = rdrawvars_saved;
+    dcvars = dcvars_saved;
+  }
+}
+
+//---------------------------------------------------------------------------
+void repointDrawColumnGlobals(byte *topleft, int targetwidth, int targetheight, fixed_t iscale, const byte *translation, int drawingmasked) {
+  pushOrPopRDrawState(1);
+  rdrawvars.topleft_byte = topleft;
+  rdrawvars.topleft_int = (int*)topleft;
+  rdrawvars.topleft_short = (short*)topleft;  
+  dcvars.targetwidth = targetwidth;
+  dcvars.targetheight = targetheight;
+  dcvars.drawingmasked = drawingmasked;
+  dcvars.colormap = dcvars.nextcolormap = colormaps[0];  
+  dcvars.iscale = iscale;
+  dcvars.translation = translation;  
+  dcvars.z = 0;
+}
+
+//---------------------------------------------------------------------------
+void revertDrawColumnGlobals() {
+  pushOrPopRDrawState(0);
+}
+
+//---------------------------------------------------------------------------
+int getPatchHasAHoleOrIsNonRectangular(const patch_t *patch) {
+  int x=0, numPosts, lastColumnDelta = 0;
+  const column_t *column;
+  
+  for (x=0; x<patch->width; x++) {
+    column = (const column_t *)((const byte *)patch + patch->columnofs[x]);
+    if (!x) lastColumnDelta = column->topdelta;
+    else if (lastColumnDelta != column->topdelta) return 1;
+    
+    numPosts = 0;
+    while (column->topdelta != 0xff) {
+      if (numPosts++) return 1;
+      column = (const column_t *)((byte *)column + column->length + 4);
+    }
+  }
+  return 0;    
+}
 
 //---------------------------------------------------------------------------
 // GL wrapping funcs so the parameters match up to the function pointer
@@ -171,6 +229,9 @@ TFunc_V_DrawNumPatch    V_DrawNumPatch;
 TFunc_V_DrawBlock       V_DrawBlock;
 TFunc_V_DrawBackground  V_DrawBackground;
 TFunc_V_PlotPixel       V_PlotPixel;
+TFunc_V_PlotPatch       V_PlotPatch;
+TFunc_V_PlotPatchNum    V_PlotPatchNum;
+TFunc_V_PlotTextureNum  V_PlotTextureNum;
 
 //---------------------------------------------------------------------------
 // Set Function Pointers
@@ -184,6 +245,9 @@ void vid_initMode(TVidMode vd) {
     V_DrawBlock = V_DrawBlock8;
     V_PlotPixel = V_PlotPixel8;
     V_DrawBackground = V_DrawBackground8; 
+    V_PlotPatch = V_PlotPatch8;
+    V_PlotPatchNum = V_PlotPatchNum8;
+    V_PlotTextureNum = V_PlotTextureNum8;
   }
   else if (vidMode == VID_MODE16) {
     V_FillRect = V_FillRect16;
@@ -193,6 +257,9 @@ void vid_initMode(TVidMode vd) {
     V_DrawBlock = V_DrawBlock16;
     V_PlotPixel = V_PlotPixel16;
     V_DrawBackground = V_DrawBackground16;
+    V_PlotPatch = V_PlotPatch16;
+    V_PlotPatchNum = V_PlotPatchNum16;
+    V_PlotTextureNum = V_PlotTextureNum16;
   }
   else if (vidMode == VID_MODE32) {
     V_FillRect = V_FillRect32;
@@ -202,6 +269,9 @@ void vid_initMode(TVidMode vd) {
     V_DrawBlock = V_DrawBlock32;
     V_PlotPixel = V_PlotPixel32;
     V_DrawBackground = V_DrawBackground32;
+    V_PlotPatch = V_PlotPatch32;
+    V_PlotPatchNum = V_PlotPatchNum32;
+    V_PlotTextureNum = V_PlotTextureNum32;
   }
   else if (vidMode == VID_MODEGL) {
 #ifdef GL_DOOM  
@@ -485,187 +555,7 @@ byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, u
   screens[1] = oldscr;
   return block;
 }
-
-//---------------------------------------------------------------------------
-// Small util to save the R_DrawColumn state - POPE
-// (Welcome to the state-machine)
-//---------------------------------------------------------------------------
-void pushOrPopRDrawState(int push) {
-  static TRDrawColumnVars dcvars_saved;
-  static TRDrawVars rdrawvars_saved;
-    
-  if (push) {
-    dcvars_saved = dcvars;
-    rdrawvars_saved = rdrawvars;
-  }
-  else {
-    rdrawvars = rdrawvars_saved;
-    dcvars = dcvars_saved;
-  }
-}
-
-//---------------------------------------------------------------------------
-void repointDrawColumnGlobals(byte *topleft, int targetwidth, int targetheight, fixed_t iscale, int drawingmasked) {
-  pushOrPopRDrawState(1);
-
-  rdrawvars.topleft_byte = topleft;
-  rdrawvars.topleft_int = (int*)topleft;
-  rdrawvars.topleft_short = (short*)topleft;
-  
-  dcvars.targetwidth = targetwidth;
-  dcvars.targetheight = targetheight;
-  dcvars.drawingmasked = drawingmasked;
-  dcvars.colormap = dcvars.nextcolormap = fullcolormap;
-  
-  dcvars.iscale = iscale;
-  
-  dcvars.z = 0;
-}
-
-//---------------------------------------------------------------------------
-void revertDrawColumnGlobals() {
-  pushOrPopRDrawState(0);
-}
-
-//---------------------------------------------------------------------------
-int getPatchHasAHoleOrIsNonRectangular(const patch_t *patch) {
-  int x=0, numPosts, lastColumnDelta = 0;
-  const column_t *column;
-  
-  for (x=0; x<patch->width; x++) {
-    column = (const column_t *)((const byte *)patch + patch->columnofs[x]);
-    if (!x) lastColumnDelta = column->topdelta;
-    else if (lastColumnDelta != column->topdelta) return 1;
-    
-    numPosts = 0;
-    while (column->topdelta != 0xff) {
-      if (numPosts++) return 1;
-      column = (const column_t *)((byte *)column + column->length + 4);
-    }
-  }
-  return 0;    
-}
-
-//---------------------------------------------------------------------------
-// V_PlotPatch
-//---------------------------------------------------------------------------
-void V_PlotPatch(
-  int patchNum, const TPlotRect destRect, const TPlotRect clampRect,
-  byte *destBuffer, TVidMode bufferMode, int bufferWidth, int bufferHeight
-) {  
-  const column_t *column, *nextcolumn, *prevcolumn;
-  const patch_t *patch = (const patch_t*)W_CacheLumpNum(patchNum);
-  fixed_t yfrac, xfrac, srcX;
-  int srcColumnIndex, dx, destWidth = (destRect.right-destRect.left);
-  void (*columnFunc)() = R_GetExactDrawFunc(RDRAW_PIPELINE_COL_STANDARD, bufferMode, RDRAW_FILTER_LINEAR, RDRAW_FILTER_POINT);
-  int patchHasHolesOrIsNonRectangular = getPatchHasAHoleOrIsNonRectangular(patch);
-  
-  xfrac = FixedDiv(patch->width<<FRACBITS, destWidth<<FRACBITS);
-  yfrac = FixedDiv(patch->height<<FRACBITS, (destRect.bottom-destRect.top)<<FRACBITS);
-  
-  repointDrawColumnGlobals(destBuffer, bufferWidth, bufferHeight, yfrac, patchHasHolesOrIsNonRectangular);
-  if (patchHasHolesOrIsNonRectangular) srcX = 0;
-  else {
-    srcX = (patch->width<<FRACBITS)-(FRACUNIT>>1);
-  }
-  
-  for (dx=0; dx<destWidth; dx++) {
-    dcvars.x = destRect.left + dx;
-    if (dcvars.x < clampRect.left) continue;
-    if (dcvars.x >= clampRect.right) break;
-    
-    dcvars.texu = srcX % (patch->width<<FRACBITS);
-    srcColumnIndex = srcX>>FRACBITS;
-    
-    srcColumnIndex %= patch->width;
-    
-    srcX += xfrac;    
-
-    column = (const column_t *)((const byte *)patch + patch->columnofs[srcColumnIndex]);
-    prevcolumn = ((srcColumnIndex-1) < 0) ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex-1]));
-    
-    if ((srcColumnIndex+1) < patch->width) {
-      // no loop for nextcolumn
-      nextcolumn = (const column_t*)((const byte*)patch + LONG(patch->columnofs[srcColumnIndex+1]));
-    }
-    else {
-      // nextcolumn would loop around or if we're nonrectangular, there is no nextcolumn
-      nextcolumn = patchHasHolesOrIsNonRectangular ? 0 : (const column_t*)((const byte*)patch + LONG(patch->columnofs[0]));
-    }
-      
-    while (column->topdelta != 0xff) {
-      dcvars.yl = destRect.top + (FixedDiv(column->topdelta<<FRACBITS, yfrac)>>FRACBITS);
-      dcvars.yh = dcvars.yl + (FixedDiv(column->length<<FRACBITS, yfrac)>>FRACBITS);
-      
-      // clamp
-      if (dcvars.yh >= clampRect.bottom) dcvars.yh = clampRect.bottom-1;
-      if (dcvars.yl < clampRect.top) dcvars.yl = clampRect.top;
-      
-      // set up our top and bottom sloping
-      dcvars.topslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta);
-      dcvars.bottomslope = R_GetColumnEdgeSlope(prevcolumn, nextcolumn, column->topdelta+column->length);
-      
-      dcvars.texheight = column->length;
-      dcvars.source = (const byte*)column + 4;
-      if (!patchHasHolesOrIsNonRectangular && nextcolumn) dcvars.nextsource = (const byte*)nextcolumn + 4;
-      else dcvars.nextsource = dcvars.source;
-      
-      // -(FRACUNIT+(FRACUNIT>>1)) = empirical shift
-      dcvars.texturemid = -(FRACUNIT+(FRACUNIT>>1)) - (dcvars.yl-centery)*dcvars.iscale;
-      
-      columnFunc();
-      
-      column = (const column_t *)((byte *)column + column->length + 4);  
-    }
-  }
-  
-  W_UnlockLumpNum(patchNum);
-  
-  revertDrawColumnGlobals();
-}
-
-
-//---------------------------------------------------------------------------
-// V_PlotTexture
-//---------------------------------------------------------------------------
-void V_PlotTexture(
-  int textureNum, int x, int y, int width, int height,
-  byte *destBuffer, TVidMode bufferMode, int bufferWidth, int bufferHeight
-) {
-  texture_t *texture = textures[textureNum];
-  int p, patchWidth, patchHeight, patchNum;
-  const patch_t *patch;
-  fixed_t xfrac, yfrac;
-  TPlotRect destRect, clampRect;
-  
-  xfrac = FixedDiv(texture->width<<FRACBITS, width<<FRACBITS);
-  yfrac = FixedDiv(texture->height<<FRACBITS, height<<FRACBITS);
-  
-  clampRect.left = max(0, x);
-  clampRect.right = min(bufferWidth, x+width);
-  clampRect.top = max(0,y);
-  clampRect.bottom = min(bufferHeight, y+height);
-  
-  for (p=0; p<texture->patchcount; p++) {
-    patchNum = texture->patches[p].patch;
-    patch = (const patch_t*)W_CacheLumpNum(patchNum);
-    patchWidth = patch->width;
-    patchHeight = patch->height;
-    W_UnlockLumpNum(patchNum);
-    
-    destRect.left = x + (FixedDiv(texture->patches[p].originx<<FRACBITS, xfrac)>>FRACBITS);
-    destRect.right = destRect.left + (FixedDiv(patchWidth<<FRACBITS, xfrac)>>FRACBITS);
-    
-    destRect.top = y + (FixedDiv(texture->patches[p].originy<<FRACBITS, yfrac)>>FRACBITS);
-    destRect.bottom = destRect.top + (FixedDiv(patchHeight<<FRACBITS, yfrac)>>FRACBITS);
-        
-    V_PlotPatch(
-      texture->patches[p].patch, destRect, clampRect,
-      destBuffer, bufferMode, bufferWidth, bufferHeight
-    );
-  }
-}
-
+/*
 //---------------------------------------------------------------------------
 byte *V_GetPlottedPatch8(int patchNum, int width, int height, byte clearColor) {
   byte *destBuffer;
@@ -699,7 +589,7 @@ byte *V_GetPlottedPatch32(int patchNum, int width, int height) {
 
 
 //---------------------------------------------------------------------------
-byte *V_GetPlottedTexture8(int textureNum, int width, int height, byte clearColor) {
+byte *V_GetPlottedTexture8(int textureNum, int width, int height, TRDrawFilterType filter, byte clearColor) {
   byte *destBuffer;
   int bufferSize = width*height;
   
@@ -712,7 +602,7 @@ byte *V_GetPlottedTexture8(int textureNum, int width, int height, byte clearColo
 }
 
 //---------------------------------------------------------------------------
-byte *V_GetPlottedTexture32(int textureNum, int width, int height) {
+byte *V_GetPlottedTexture32(int textureNum, int width, int height, TRDrawFilterType filter) {
   byte *destBuffer;
   int bufferSize = width*height*4, i;
   
@@ -721,13 +611,14 @@ byte *V_GetPlottedTexture32(int textureNum, int width, int height) {
   // when plotting, alpha's will be cleared
   memset(destBuffer, 0xff, bufferSize);
   
-  V_PlotTexture(textureNum, 0, 0, width, height, destBuffer, VID_MODE32, width, height);
+  V_PlotTexture32(textureNum, 0, 0, width, height, destBuffer, width, height);
   
   // invert alphas (assumes ARGB or ABGR)
   for (i=3; i<bufferSize; i+=4) destBuffer[i] = 0xff-destBuffer[i];
   
   return destBuffer;
 }
+*/
 
 //---------------------------------------------------------------------------
 // Font

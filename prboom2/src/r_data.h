@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.h,v 1.8 2002/11/17 18:34:53 proff_fs Exp $
+ * $Id: r_data.h,v 1.9 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -74,7 +74,7 @@ typedef struct
 
 // Retrieve column data for span blitting.
 const byte*
-R_GetColumn
+R_GetTextureColumn
 ( int           tex,
   int           col );
 

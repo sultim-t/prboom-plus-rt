@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.17 2002/11/17 18:34:53 proff_fs Exp $
+ * $Id: r_draw.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.17 2002/11/17 18:34:53 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.18 2002/11/18 13:35:49 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -521,11 +521,11 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type) {
 //---------------------------------------------------------------------------
 // Use the table above to get the requested pipeline function
 //---------------------------------------------------------------------------
-TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, TVidMode mode, TRDrawFilterType filteruv, TRDrawFilterType filterz) {
-  if (mode == VID_MODE16 && !vid_shortPalette) V_UpdateTrueColorPalette(VID_MODE16);
-  if (mode == VID_MODE32 && !vid_intPalette) V_UpdateTrueColorPalette(VID_MODE32);
+TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, int bitDepth, TRDrawFilterType filteruv, TRDrawFilterType filterz) {
+  if (bitDepth == 16 && !vid_shortPalette) V_UpdateTrueColorPalette(VID_MODE16);
+  if (bitDepth == 32 && !vid_intPalette) V_UpdateTrueColorPalette(VID_MODE32);
   return plFuncs[
-    mode*(4*RDRAW_PIPELINE_MAXFUNCS)+
+    vid_getModeForNumBits(bitDepth)*(4*RDRAW_PIPELINE_MAXFUNCS)+
     type*4+
     filteruv*2+
     filterz
@@ -534,7 +534,7 @@ TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, TVidMode mode, TRDrawFilte
 
 //---------------------------------------------------------------------------
 TVoidFunc R_GetDrawFunc(TRDrawPipelineType type) {
-  return R_GetExactDrawFunc(type, vid_getMode(), rdrawvars.filteruv, rdrawvars.filterz);
+  return R_GetExactDrawFunc(type, vid_getNumBits(), rdrawvars.filteruv, rdrawvars.filterz);
 }
 
 //---------------------------------------------------------------------------

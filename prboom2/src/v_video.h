@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.h,v 1.16 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: v_video.h,v 1.17 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -40,6 +40,7 @@
 #include "doomdef.h"
 // Needed because we are refering to patches.
 #include "r_data.h"
+#include "r_draw.h"
 
 //
 // VIDEO
@@ -120,6 +121,9 @@ void vid_initMode(TVidMode vd);
 TVidMode vid_getMode();
 int vid_getNumBits();
 int vid_getDepth();
+
+// general mode funcs
+TVidMode vid_getModeForNumBits(int numBits);
 int vid_getModePixelDepth(TVidMode mode);
 
 //---------------------------------------------------------------------------
@@ -138,6 +142,11 @@ extern short *vid_shortPalette;
 void V_UpdateTrueColorPalette(TVidMode mode);
 void V_DestroyTrueColorPalette(TVidMode mode);
 void V_DestroyUnusedTrueColorPalettes();
+
+//---------------------------------------------------------------------------
+typedef struct {
+  int left, top, right, bottom;
+} TPlotRect;
 
 //---------------------------------------------------------------------------
 // Since we now have many different bit-depth functions to select from,
@@ -174,6 +183,18 @@ extern TFunc_V_DrawBackground V_DrawBackground;
 typedef void (__cdecl *TFunc_V_PlotPixel)(int,int,int,byte);
 extern TFunc_V_PlotPixel V_PlotPixel;
 
+// V_PlotPatch
+typedef void (__cdecl *TFunc_V_PlotPatch)(const patch_t*,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
+extern TFunc_V_PlotPatch V_PlotPatch;
+
+// V_PlotPatchNum
+typedef void (__cdecl *TFunc_V_PlotPatchNum)(int,TPlotRect,const TPlotRect,TRDrawFilterType,const byte*,byte*,int,int);
+extern TFunc_V_PlotPatchNum V_PlotPatchNum;
+
+// V_PlotTextureNum
+typedef void (__cdecl *TFunc_V_PlotTextureNum)(int,int,int,int,int,TRDrawFilterType,byte*,int,int);
+extern TFunc_V_PlotTextureNum V_PlotTextureNum;
+
 // V_PatchToBlock
 byte *V_PatchToBlock(const char* name, int cm, enum patch_translation_e flags, unsigned short* width, unsigned short* height);
 
@@ -195,33 +216,15 @@ int V_NumPatchHeight(int lump);
 #define V_NamePatchWidth(n) V_NumPatchWidth(W_GetNumForName(n))
 #define V_NamePatchHeight(n) V_NumPatchHeight(W_GetNumForName(n))
 
-
-//---------------------------------------------------------------------------
-typedef struct {
-  int left, top, right, bottom;
-} TPlotRect;
-
 //---------------------------------------------------------------------------
 // These functions use the R_DrawColumn* pipelines to plot filtered
 // patches and textures to a destination buffer
 //---------------------------------------------------------------------------
-void V_PlotPatch(
-  int patchNum, const TPlotRect destRect, const TPlotRect clampRect,
-  byte *destBuffer, TVidMode bufferMode, int bufferWidth, int bufferHeight
-);
+byte *V_GetPlottedPatch32(int patchNum, int width, int height, TRDrawFilterType filter, const byte *colorTranslationTable);
+byte *V_GetPlottedPatch8(int patchNum, int width, int height, TRDrawFilterType filter, const byte *colorTranslationTable, byte clearColor);
 
-//---------------------------------------------------------------------------
-void V_PlotTexture(
-  int textureNum, int x, int y, int width, int height,
-  byte *destBuffer, TVidMode bufferMode, int bufferWidth, int bufferHeight
-);
-
-//---------------------------------------------------------------------------
-byte *V_GetPlottedPatch32(int patchNum, int width, int height);
-byte *V_GetPlottedPatch8(int patchNum, int width, int height, byte clearColor);
-
-byte *V_GetPlottedTexture32(int textureNum, int width, int height);
-byte *V_GetPlottedTexture8(int textureNum, int width, int height, byte clearColor);
+byte *V_GetPlottedTexture32(int textureNum, int width, int height, TRDrawFilterType filter);
+byte *V_GetPlottedTexture8(int textureNum, int width, int height, TRDrawFilterType filter, byte clearColor);
 
 //---------------------------------------------------------------------------
 // Font

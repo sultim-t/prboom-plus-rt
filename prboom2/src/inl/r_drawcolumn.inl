@@ -47,6 +47,13 @@
 #undef GETMAP_DEPTH_LINEAR 
 #undef GETMAP_DEPTH
 
+#undef GETTRUECOLORFILTERED16_NORMAL
+#undef GETTRUECOLORFILTERED16_PLAYER
+#undef GETTRUECOLORFILTERED32_NORMAL
+#undef GETTRUECOLORFILTERED32_PLAYER
+#undef GETTRUECOLORFILTERED16
+#undef GETTRUECOLORFILTERED32
+
 #undef GETCOL8_LINEAR
 #undef GETCOL8_POINT
 #undef GETCOL8
@@ -123,10 +130,21 @@
 #define GETCOL8_MAPPED_NORMAL(col) (col)
 #define GETCOL8_MAPPED_PLAYER(col) dcvars.translation[(col)]
 
+#define GETTRUECOLORFILTERED16_NORMAL(colormap, texV, nextRowTexV) filter_getFilteredForColumn16(colormap, texV, nextRowTexV)
+#define GETTRUECOLORFILTERED16_PLAYER(colormap, texV, nextRowTexV) filter_getFilteredForColumn16_Translated(dcvars.translation,colormap, texV, nextRowTexV) 
+
+#define GETTRUECOLORFILTERED32_NORMAL(colormap, texV, nextRowTexV) filter_getFilteredForColumn32(colormap, texV, nextRowTexV)
+#define GETTRUECOLORFILTERED32_PLAYER(colormap, texV, nextRowTexV) filter_getFilteredForColumn32_Translated(dcvars.translation,colormap, texV, nextRowTexV) 
+
+
 #if (R_DRAWCOLUMN_PIPELINE & RDC_PLAYER)
   #define GETCOL8_MAPPED(col) GETCOL8_MAPPED_PLAYER(col)
+  #define GETTRUECOLORFILTERED16(colormap, texV, nextRowTexV) GETTRUECOLORFILTERED16_PLAYER(colormap, texV, nextRowTexV)
+  #define GETTRUECOLORFILTERED32(colormap, texV, nextRowTexV) GETTRUECOLORFILTERED32_PLAYER(colormap, texV, nextRowTexV)
 #else
   #define GETCOL8_MAPPED(col) GETCOL8_MAPPED_NORMAL(col)
+  #define GETTRUECOLORFILTERED16(colormap, texV, nextRowTexV) GETTRUECOLORFILTERED16_NORMAL(colormap, texV, nextRowTexV)
+  #define GETTRUECOLORFILTERED32(colormap, texV, nextRowTexV) GETTRUECOLORFILTERED32_NORMAL(colormap, texV, nextRowTexV)
 #endif
  
 //---------------------------------------------------------------------------
@@ -150,11 +168,11 @@
 #define GETCOL8_LINEAR(texV, nextRowTexV) GETCOL8_DEPTH(filter_getDitheredForColumn(dcvars.x,screenY,texV,nextRowTexV))
 #define GETCOL8_POINT(texV, nextRowTexV) GETCOL8_DEPTH(dcvars.source[(texV)>>FRACBITS])
 
-#define GETCOL16_LINEAR(texV, nextRowTexV) filter_getFilteredForColumn16(GETMAP_DEPTH, texV, nextRowTexV)
-#define GETCOL16_POINT(texV, nextRowTexV) VID_SHORTPAL(GETCOL8_DEPTH(dcvars.source[(texV)>>FRACBITS]), VID_COLORWEIGHTMASK)
+#define GETCOL16_LINEAR(texV, nextRowTexV) GETTRUECOLORFILTERED16(GETMAP_DEPTH, texV, nextRowTexV)
+#define GETCOL16_POINT(texV, nextRowTexV) VID_SHORTPAL(GETCOL8_DEPTH(GETCOL8_MAPPED(dcvars.source[(texV)>>FRACBITS])), VID_COLORWEIGHTMASK)
 
-#define GETCOL32_LINEAR(texV, nextRowTexV) filter_getFilteredForColumn32(GETMAP_DEPTH, texV, nextRowTexV)
-#define GETCOL32_POINT(texV, nextRowTexV) VID_INTPAL(GETCOL8_DEPTH(dcvars.source[(texV)>>FRACBITS]), VID_COLORWEIGHTMASK)
+#define GETCOL32_LINEAR(texV, nextRowTexV) GETTRUECOLORFILTERED32(GETMAP_DEPTH, texV, nextRowTexV)
+#define GETCOL32_POINT(texV, nextRowTexV) VID_INTPAL(GETCOL8_DEPTH(GETCOL8_MAPPED(dcvars.source[(texV)>>FRACBITS])), VID_COLORWEIGHTMASK)
 
 #if (R_DRAWCOLUMN_PIPELINE & RDC_BILINEAR)
   #define GETCOL8(texV, nextRowTexV) GETCOL8_LINEAR(texV, nextRowTexV)

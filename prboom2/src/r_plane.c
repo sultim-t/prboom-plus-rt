@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.10 2002/11/17 18:34:54 proff_fs Exp $
+ * $Id: r_plane.c,v 1.11 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.10 2002/11/17 18:34:54 proff_fs Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.11 2002/11/18 13:35:49 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -395,10 +395,10 @@ static void R_DoDrawPlane(visplane_t *pl)
         for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
           if ((dcvars.yl = pl->top[x]) <= (dcvars.yh = pl->bottom[x]))
             {
-              dcvars.source = R_GetColumn(texture, ((an + xtoviewangle[x])^flip) >>
+              dcvars.source = R_GetTextureColumn(texture, ((an + xtoviewangle[x])^flip) >>
               ANGLETOSKYSHIFT);
               
-              dcvars.nextsource = R_GetColumn(texture, ((an + xtoviewangle[x+1])^flip) >>
+              dcvars.nextsource = R_GetTextureColumn(texture, ((an + xtoviewangle[x+1])^flip) >>
               ANGLETOSKYSHIFT);
               
               colfunc();

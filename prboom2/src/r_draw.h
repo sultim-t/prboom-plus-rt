@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.6 2002/11/17 18:34:53 proff_fs Exp $
+ * $Id: r_draw.h,v 1.7 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,6 @@
 #define __R_DRAW__
 
 #include "r_defs.h"
-#include "v_video.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -141,7 +140,7 @@ typedef enum {
 } TRDrawPipelineType;
 
 TVoidFunc R_GetDrawFunc(TRDrawPipelineType type);
-TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, TVidMode mode, TRDrawFilterType filteruv, TRDrawFilterType filterz);
+TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, int bitDepth, TRDrawFilterType filteruv, TRDrawFilterType filterz);
 //---------------------------------------------------------------------------
 
 void R_VideoErase(unsigned ofs, int count);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.60 2002/08/11 13:09:50 cph Exp $
+ * $Id: d_main.c,v 1.61 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.60 2002/08/11 13:09:50 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.61 2002/11/18 13:35:49 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -327,10 +327,7 @@ void D_Display (void)
       static int x;
 
       if (!x) { // Cache results of x pos calc
-	int lump = W_GetNumForName("M_PAUSE");
-	const patch_t* p = W_CacheLumpNum(lump);
-	x = (320 - SHORT(p->width))/2;
-	W_UnlockLumpNum(lump);
+	      x = (320 - SHORT(V_NamePatchWidth("M_PAUSE"))/2);
       }
 
       // CPhipps - updated for new patch drawing

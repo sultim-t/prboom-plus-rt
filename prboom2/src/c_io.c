@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.9 2002/08/10 18:23:07 proff_fs Exp $
+ * $Id: c_io.c,v 1.10 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.9 2002/08/10 18:23:07 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.10 2002/11/18 13:35:49 proff_fs Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -414,9 +414,11 @@ void C_Drawer()
 
   // draw backdrop
 #ifndef GL_DOOM
+/*
   memcpy(screens[0],
 	 backdrop + (C_SCREENHEIGHT-(current_height*SCREENHEIGHT/200))*C_SCREENWIDTH,
 	 (current_height*(SCREENHEIGHT-1)/200)*C_SCREENWIDTH);
+*/
 #else
   V_DrawNumPatch(0, current_height-200, 1, backdrop_lumpnum, CR_DEFAULT, VPT_STRETCH);
 #endif

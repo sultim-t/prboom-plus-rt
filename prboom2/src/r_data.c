@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.25 2002/11/17 18:34:53 proff_fs Exp $
+ * $Id: r_data.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.25 2002/11/17 18:34:53 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.26 2002/11/18 13:35:49 proff_fs Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -333,10 +333,10 @@ static void R_GenerateLookup(int texnum, int *const errors)
 }
 
 //
-// R_GetColumn
+// R_GetTextureColumn
 //
 
-const byte *R_GetColumn(int tex, int col)
+const byte *R_GetTextureColumn(int tex, int col)
 {
   const texture_t *texture = textures[tex];
   if (!texture->columnlump) R_GenerateLookup(tex, NULL);

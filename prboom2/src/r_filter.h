@@ -106,6 +106,21 @@ extern byte filter_ditherMatrix[DITHER_DIM][DITHER_DIM];
 
 
 //---------------------------------------------------------------------------
+// Now for translated...
+#define filter_getFilteredForColumn32_Translated(transmap, colormap, texV, nextRowTexV) ( \
+  VID_INTPAL( colormap[ transmap[dcvars.nextsource[(nextRowTexV)>>FRACBITS]] ],   (filter_fracu*((texV)&0xffff))>>(32-VID_COLORWEIGHTBITS) ) + \
+  VID_INTPAL( colormap[ transmap[dcvars.source[(nextRowTexV)>>FRACBITS]] ],       ((0xffff-filter_fracu)*((texV)&0xffff))>>(32-VID_COLORWEIGHTBITS) ) + \
+  VID_INTPAL( colormap[ transmap[dcvars.source[(texV)>>FRACBITS]] ],              ((0xffff-filter_fracu)*(0xffff-((texV)&0xffff)))>>(32-VID_COLORWEIGHTBITS) ) + \
+  VID_INTPAL( colormap[ transmap[dcvars.nextsource[(texV)>>FRACBITS]] ],          (filter_fracu*(0xffff-((texV)&0xffff)))>>(32-VID_COLORWEIGHTBITS) ))
+
+//---------------------------------------------------------------------------
+#define filter_getFilteredForColumn16_Translated(transmap, colormap, texV, nextRowTexV) ( \
+  VID_SHORTPAL( colormap[ transmap[dcvars.nextsource[(nextRowTexV)>>FRACBITS ]] ],  (filter_fracu*((texV)&0xffff))>>(32-VID_COLORWEIGHTBITS) ) + \
+  VID_SHORTPAL( colormap[ transmap[dcvars.source[(nextRowTexV)>>FRACBITS]] ],       ((0xffff-filter_fracu)*((texV)&0xffff))>>(32-VID_COLORWEIGHTBITS) ) + \
+  VID_SHORTPAL( colormap[ transmap[dcvars.source[(texV)>>FRACBITS]] ],              ((0xffff-filter_fracu)*(0xffff-((texV)&0xffff)))>>(32-VID_COLORWEIGHTBITS) ) + \
+  VID_SHORTPAL( colormap[ transmap[dcvars.nextsource[(texV)>>FRACBITS]] ],          (filter_fracu*(0xffff-((texV)&0xffff)))>>(32-VID_COLORWEIGHTBITS) ))
+
+//---------------------------------------------------------------------------
 // The above macros were implemented originally as functions, then compressed
 // to macros for speed concerns. The function definitions are left commented
 // in this header and r_filter.c for legible reference.
