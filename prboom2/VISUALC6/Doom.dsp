@@ -319,6 +319,10 @@ SOURCE=..\src\g_config.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\g_demo.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\g_game.c
 # End Source File
 # Begin Source File

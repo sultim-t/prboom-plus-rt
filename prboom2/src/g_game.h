@@ -34,6 +34,8 @@
 #include "d_event.h"
 #include "d_ticcmd.h"
 
+#define MIN_MAXPLAYERS 32
+
 //
 // GAME
 //
