@@ -112,6 +112,9 @@ void D_InitNetGame (void)
       if (packet->type == PKT_DOWN) I_Error("Server aborted the game");
     } while (packet->type != PKT_SETUP);
 
+    // Once we have been accepted by the server, we should tell it when we leave
+    atexit(D_QuitNetGame);
+
     // Get info from the setup packet
     consoleplayer = sinfo->yourplayer;
     compatibility_level = sinfo->complevel;

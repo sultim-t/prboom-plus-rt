@@ -377,10 +377,6 @@ static void D_DoomLoop(void)
 {
   basetic = gametic;
 
-#ifdef HAVE_NET
-  atexit(D_QuitNetGame);       // killough
-#endif
-
   for (;;)
     {
       // frame syncronous IO operations
