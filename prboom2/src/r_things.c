@@ -401,11 +401,10 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
   if (!dcvars.colormap)   // NULL colormap = shadow draw
     colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_FUZZ); // POPE
   else
-    if (vis->mobjflags & MF_TRANSLATION)
+    if (vis->colour)
       {
         colfunc = R_GetDrawFunc(RDRAW_PIPELINE_COL_TRANSLATED); // POPE
-        dcvars.translation = translationtables - 256 +
-          ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
+        dcvars.translation = translationtables[vis->colour - 1];
       }
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
@@ -588,6 +587,7 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
     vis->heightsec = heightsec;
 
     vis->mobjflags = thing->flags;
+    vis->colour = thing->colour;
     // proff 11/06/98: Changed for high-res
     vis->scale = FixedDiv(projectiony, tz);
     vis->gx = thing->x;
@@ -723,6 +723,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 // proff 11/06/98: Added for high-res
   vis->scale = pspriteyscale;
+  vis->colour = 0;
 
   if (flip)
     {

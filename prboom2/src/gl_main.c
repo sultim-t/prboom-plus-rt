@@ -1349,7 +1349,7 @@ void gld_AddSprite(vissprite_t *vspr)
 		sprite.light = 1.0f;
 	else
 		sprite.light = gld_CalcLightLevel(pSpr->subsector->sector->lightlevel+(extralight<<5));
-  sprite.cm=CR_LIMIT+(int)((pSpr->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT));
+  sprite.cm=CR_LIMIT+pSpr->colour;
   sprite.gltexture=gld_RegisterPatch(vspr->patch+firstspritelump,sprite.cm);
   if (!sprite.gltexture)
     return;

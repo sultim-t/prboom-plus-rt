@@ -330,10 +330,8 @@ menu_t menu_features =
     {it_title,  FC_GOLD "features",     NULL,                   "M_FEAT"},
     {it_gap},
     {it_gap},
-/*
     {it_runcmd, "multiplayer",          "mn_multi",              "M_MULTI"},
     {it_gap},
-*/
     {it_runcmd, "load wad",             "mn_loadwad",            "M_WAD"},
     {it_gap},
     {it_runcmd, "demos",                "mn_demos",              "M_DEMOS"},
@@ -752,7 +750,7 @@ void MN_PlayerDrawer()
 
   V_DrawBox(SPRITEBOX_X, SPRITEBOX_Y, 80, 80);
 
-  sprdef = &sprites[players[consoleplayer].mo->sprite];
+  sprdef = &sprites[SPR_PLAY];
 
   sprframe = &sprdef->spriteframes[0];
   lump = sprframe->lump[1];

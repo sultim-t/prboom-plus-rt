@@ -669,6 +669,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       netdemo = true;
     }
 
+  // proff - set default colours for demo playback
+  for (i=0; i<MAXPLAYERS;i++)
+    players[i].colormap = i % TRANSLATIONCOLOURS;
+
   if (gameaction != ga_loadgame) { /* killough 12/98: support -loadgame */
     G_InitNewNum(skill, episode, map);
   }

@@ -297,7 +297,7 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   else if (cm<CR_LIMIT)
     trans = colrngs[cm];
   else
-    trans = translationtables + 256 * ((cm-CR_LIMIT) - 1);
+    trans = translationtables[(cm-CR_LIMIT) - 1];;
   buffer = V_GetPlottedPatch32(gltexture->index, gltexture->width, gltexture->height, gltexture->tex_width, gltexture->tex_height, RDRAW_FILTER_POINT, RDRAW_MASKEDCOLUMNEDGE_SLOPED, trans, true);
   if (gltexture->glTexID[cm]==0)
 	  p_glGenTextures(1,&gltexture->glTexID[cm]);
@@ -461,7 +461,7 @@ static void gld_CleanTextures(void)
   {
     if (gld_GLTextures[i])
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++) {
+      for (j=0; j<(CR_LIMIT+TRANSLATIONCOLOURS); j++) {
         if (p_glIsTexture(gld_GLTextures[i]->glTexID[j]))
           p_glDeleteTextures(1,&(gld_GLTextures[i]->glTexID[j]));
         result = p_glGetError();
@@ -485,7 +485,7 @@ static void gld_CleanPatchTextures(void)
   {
     if (gld_GLPatchTextures[i])
     {
-      for (j=0; j<(CR_LIMIT+MAXPLAYERS); j++) {
+      for (j=0; j<(CR_LIMIT+TRANSLATIONCOLOURS); j++) {
         if (p_glIsTexture(gld_GLPatchTextures[i]->glTexID[j]))
           p_glDeleteTextures(1,&(gld_GLPatchTextures[i]->glTexID[j]));
         result = p_glGetError();

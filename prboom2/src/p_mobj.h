@@ -408,6 +408,8 @@ struct mobj_s
     mobjtype_t          type;
     mobjinfo_t*         info;   // &mobjinfo[mobj->type]
     
+    int colour; // sf: the sprite colour
+
     int                 tics;   // state tic counter
     state_t*            state;
     uint_64_t           flags;

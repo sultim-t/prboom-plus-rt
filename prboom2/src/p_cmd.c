@@ -88,7 +88,7 @@ CONSOLE_BOOLEAN(devparm, devparm, NULL, onoff, 0) {}
 //
 
 // player colour
-#if 0
+
 VARIABLE_INT(default_colour, NULL, 0, TRANSLATIONCOLOURS-1, colournames);
 CONSOLE_NETVAR(colour, default_colour, cf_handlerset, netcmd_colour)
 {
@@ -120,7 +120,7 @@ CONSOLE_NETVAR(skill, gameskill, cf_server, netcmd_skill)
   if(cmdsrc == consoleplayer)
     defaultskill = gameskill + 1;
 }
-#endif
+
 // autoaiming
 
 //VARIABLE_BOOLEAN(autoaim, &default_autoaim,         onoff);
@@ -212,9 +212,9 @@ void P_Info_AddCommands();             // p_info.c
 void P_AddCommands()
 {
   C_AddCommand(devparm);
-  //C_AddCommand(colour);
-  //C_AddCommand(deathmatch);
-  //C_AddCommand(skill);
+  C_AddCommand(colour);
+  C_AddCommand(deathmatch);
+  C_AddCommand(skill);
   //C_AddCommand(allowmlook);
   //C_AddCommand(bfgtype);
   //C_AddCommand(autoaim);

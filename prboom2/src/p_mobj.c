@@ -807,8 +807,11 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   mobj->target = mobj->tracer = mobj->lastenemy = NULL;
   P_AddThinker (&mobj->thinker);
+
+  mobj->colour = (int)((info->flags & MF_TRANSLATION) >> MF_TRANSSHIFT);
+
   return mobj;
-  }
+}
 
 
 static mapthing_t itemrespawnque[ITEMQUESIZE];
@@ -1011,7 +1014,10 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
 
   // set color translations for player sprites
 
-  mobj->flags |= playernumtotrans[n]<<MF_TRANSSHIFT;
+  // mobj->flags |= playernumtotrans[n]<<MF_TRANSSHIFT;
+
+  // sf: set color translations for player sprites   
+  mobj->colour = players[mthing->type - 1].colormap;
 
   mobj->angle      = ANG45 * (mthing->angle/45);
   mobj->player     = p;

@@ -78,8 +78,8 @@ typedef struct
   int leftoffset,topoffset;
   int realtexwidth, realtexheight;
   int tex_width,tex_height;
-	int width,height;
-  int glTexID[CR_LIMIT+MAXPLAYERS];
+  int width,height;
+  int glTexID[CR_LIMIT+TRANSLATIONCOLOURS];
   GLTexType textype;
   boolean mipmap;
 } GLTexture;

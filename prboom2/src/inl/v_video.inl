@@ -529,8 +529,12 @@ void FUNC_V_DrawNumPatch(int x, int y, int scrn, int lump,
   }
   
   if (flags & VPT_TRANS) {
-    if (cm<CR_LIMIT) trans = colrngs[cm];
-    else trans = translationtables + 256*((cm-CR_LIMIT)-1);
+    if (cm<CR_LIMIT)
+      trans = colrngs[cm];
+    else if (cm == CR_LIMIT)
+      trans = NULL;
+    else
+      trans = translationtables[(cm-CR_LIMIT) - 1];
   }
   else {
     trans = 0;

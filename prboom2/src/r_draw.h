@@ -39,6 +39,8 @@
 #endif
 
 
+#define TRANSLATIONCOLOURS 15
+
 //---------------------------------------------------------------------------
 // Packaged into a struct - POPE
 //---------------------------------------------------------------------------
@@ -162,8 +164,7 @@ TVoidFunc R_GetExactDrawFunc(TRDrawPipelineType type, int bitDepth, TRDrawFilter
 
 void R_VideoErase(unsigned ofs, int count);
 
-extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
-extern byte *translationtables;
+extern byte *translationtables[TRANSLATIONCOLOURS];
 
 
 void R_InitBuffer(int width, int height);
@@ -176,8 +177,5 @@ void R_FillBackScreen(void);
 
 // If the view size is not full screen, draws a border around it.
 void R_DrawViewBorder(void);
-
-extern const byte *tranmap;         // translucency filter maps 256x256  // phares
-extern const byte *main_tranmap;    // killough 4/11/98
 
 #endif

@@ -385,7 +385,9 @@ typedef struct vissprite_s
   uint_64_t mobjflags;
 
   // for color translation and shadow draw, maxbright frames as well
+        // sf: also coloured lighting
   const lighttable_t *colormap;
+  int colour;   //sf: translated colour
    
   // killough 3/27/98: height sector for underwater/fake ceiling support
   int heightsec;

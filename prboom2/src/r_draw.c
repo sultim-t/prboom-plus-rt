@@ -85,9 +85,9 @@ static const int fuzzoffset[FUZZTABLE] = {
 };
 
 static int fuzzpos = 0;
-byte *translationtables;
+byte *translationtables[TRANSLATIONCOLOURS];
+static byte *translation_data = NULL;
 
-byte playernumtotrans[MAXPLAYERS];
 extern lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
 
 //---------------------------------------------------------------------------
@@ -619,47 +619,57 @@ void R_InitBuffer(int width, int height) {
   dcvars.targetheight = SCREENHEIGHT;
 }
 
-//---------------------------------------------------------------------------
-// R_InitTranslationTables
-// Creates the translation tables to map
-//  the green color ramp to gray, brown, red.
-// Assumes a given structure of the PLAYPAL.
-// Could be read from a lump instead.
-//---------------------------------------------------------------------------
-void R_InitTranslationTables (void) {
-  int i, j;
-#define MAXTRANS 3
-  byte transtocolour[MAXTRANS];
+typedef struct
+{
+  int start;      // start of the sequence of colours
+  int number;     // number of colours
+} translat_t;
 
-  // killough 5/2/98:
-  // Remove dependency of colormaps aligned on 256-byte boundary
+translat_t translations[TRANSLATIONCOLOURS] =
+{
+  {96,  16},     // indigo
+  {64,  16},     // brown
+  {32,  16},     // red
+  
+  //--------------------------
+  // New colours
+  
+  {176, 16},     // tomato
+  {128, 16},     // dirt
+  {200, 8},      // blue
+  {160, 8},      // gold
+  {152, 8},      // sea
+  {0,   1},      // bleeacckk!!
+  {250, 5},      // purple
+  //  {168, 8}, // bright pink, kinda
+  {216, 8},      // vomit yellow
+  {16,  16},     // pink
+  {56,  8},      // cream
+  {88,  8},      // white
+};
 
-  if (translationtables == NULL) // CPhipps - allow multiple calls
-    translationtables = malloc(256*MAXTRANS);
+// sf : rewritten
 
-  for (i=0; i<MAXTRANS; i++) transtocolour[i] = 255;
-
-  for (i=0; i<MAXPLAYERS; i++) {
-    byte wantcolour = mapcolor_plyr[i];
-    playernumtotrans[i] = 0;
-    if (wantcolour != 0x70) // Not green, would like translation
-      for (j=0; j<MAXTRANS; j++)
-  if (transtocolour[j] == 255) {
-    transtocolour[j] = wantcolour; playernumtotrans[i] = j+1; break;
+void R_InitTranslationTables (void)
+{
+  int i, c;
+  
+  if (!translation_data) {
+    translation_data = Z_Malloc(256 * TRANSLATIONCOLOURS, PU_STATIC, 0);
+    for(i=0; i<TRANSLATIONCOLOURS; i++)
+      translationtables[i] = translation_data + i*256;
   }
-  }
+  
+  for(i=0; i<TRANSLATIONCOLOURS; i++)
+  {
+    byte *transtbl = translationtables[i];
 
-  // translate just the 16 green colors
-  for (i=0; i<256; i++)
-    if (i >= 0x70 && i<= 0x7f)
-      {
-  // CPhipps - configurable player colours
-        translationtables[i] = colormaps[0][((i&0xf)<<9) + transtocolour[0]];
-        translationtables[i+256] = colormaps[0][((i&0xf)<<9) + transtocolour[1]];
-        translationtables[i+512] = colormaps[0][((i&0xf)<<9) + transtocolour[2]];
-      }
-    else  // Keep all other colors as is.
-      translationtables[i]=translationtables[i+256]=translationtables[i+512]=i;
+    for(c=0; c<256; c++)
+      if (c < 0x70 || c > 0x7f)
+	      transtbl[c] = c;
+      else
+        transtbl[c] = translations[i].start + ((c & 0xf) * (translations[i].number-1))/15;
+  }
 }
 
 //---------------------------------------------------------------------------

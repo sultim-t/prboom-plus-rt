@@ -1557,24 +1557,17 @@ void G_Ticker (void)
 //
 // G_SetPlayerColour
 
-#include "r_draw.h"
-extern byte playernumtotrans[MAXPLAYERS];
-
 void G_ChangedPlayerColour(int pn, int cl)
 {
   int i;
-
-  if (!netgame) return;
-
-  mapcolor_plyr[pn] = cl;
 
   // Rebuild colour translation tables accordingly
   R_InitTranslationTables();
   // Change translations on existing player mobj's
   for (i=0; i<MAXPLAYERS; i++) {
     if ((gamestate == GS_LEVEL) && playeringame[i] && (players[i].mo != NULL)) {
-      players[i].mo->flags &= ~MF_TRANSLATION;
-      players[i].mo->flags |= playernumtotrans[i] << MF_TRANSSHIFT;
+      players[i].colormap = cl;
+      players[i].mo->colour = cl;
     }
   }
 }
@@ -1590,14 +1583,22 @@ void G_PlayerReborn (int player)
   player_t *p;
   int i;
   int frags[MAXPLAYERS];
+  int totalfrags;
   int killcount;
   int itemcount;
   int secretcount;
+  char playername[20];
+  int playercolour;
+  //skin_t *playerskin;
 
   memcpy (frags, players[player].frags, sizeof frags);
   killcount = players[player].killcount;
   itemcount = players[player].itemcount;
   secretcount = players[player].secretcount;
+  strncpy(playername, players[player].name, 20);
+  playercolour = players[player].colormap;
+  totalfrags=players[player].totalfrags;
+  //playerskin=players[player].skin;
 
   p = &players[player];
 
@@ -1609,9 +1610,13 @@ void G_PlayerReborn (int player)
   }
 
   memcpy(players[player].frags, frags, sizeof(players[player].frags));
+  players[player].colormap = playercolour;
+  strcpy(players[player].name, playername);
   players[player].killcount = killcount;
   players[player].itemcount = itemcount;
   players[player].secretcount = secretcount;
+  players[player].totalfrags = totalfrags;
+  //players[player].skin=playerskin;
 
   p->usedown = p->attackdown = true;  // don't do anything immediately
   p->playerstate = PST_LIVE;
