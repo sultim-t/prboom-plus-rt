@@ -5,8 +5,15 @@ Colin:
 The BSD-sockets net code works. Jess is working on the SDL version. The
 Linux SDL version current compiles using the BSD-sockets code fine though.
 
+Proff:
+This seems to work now.
+
 --------------------------------------------------------------------------
 3.  Testing on Voodoo.
+
+Proff:
+It runs, but on Voodoo1 cards it's very very slow. Other cards aren't tested,
+but I guess on Voodoo3s and above it should work.
 
 --------------------------------------------------------------------------
 4.  Compiling on Linux with OpenGL
@@ -63,12 +70,9 @@ Colin: will do after we release
     At least, for Linux this is easy, just call the old music
     server. (Not essential for first release).
 
---------------------------------------------------------------------------
-16. SDL mouse sens.
-
-Colin:
-send patch
-Proff comitted patch
+Proff:
+This will be added to SDL_mixer, so we can do that after the release with
+an updated dll.
 
 --------------------------------------------------------------------------
 18. Website.
@@ -79,3 +83,14 @@ Proff comitted patch
 Colin:
 On my list.
 
+--------------------------------------------------------------------------
+21. Bug with the CapsLock key.
+
+Proff:
+On my list.
+
+--------------------------------------------------------------------------
+22. Bug in Gostbuster TC. Works with PrBoom 2.02 but not in the current.
+
+Proff:
+On my list.
