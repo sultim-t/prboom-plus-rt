@@ -1,14 +1,15 @@
 .PU
 .TH BOOM.CFG 5 local
 .SH NAME
-boom.cfg \- Configuration file for PrBoom v2.1.0 onwards
+boom.cfg, prboom.cfg \- Configuration file for PrBoom v2.1.0 onwards
 .SH USAGE
 When a version of PrBoom is
 run, it  searches for this configuration file to modify its default settings.
 Every time PrBoom exits, it rewrites the configuration file, updating any
 settings that have been changed using the in-game menus.
 .PP
-PrBoom expects the config file to be  ~/.prboom/boom.cfg. Alternatively, it 
+PrBoom expects the config file to be  ~/.prboom/boom.cfg, or 
+~/.prboom/prboom.cfg if compiled with GL support. Alternatively, it 
 can be made to look elsewhere by using a command-line parameter:
 .PP
 .B {prboom,xprboom}
@@ -214,6 +215,11 @@ For versions of PrBoom which support high-res, these specify the default
 screen or window size for PrBoom. These settings are ignored and preserved by 
 versions of PrBoom which do not do high-res (they assume 320x200).
 .TP
+use_fullscreen
+If set, this causes PrBoom to try to go full screen. Depending on your 
+video driver and mode, this may include changing screen resolution to 
+better match the game's screen resolution.
+.TP
 use_vsync
 For versions of PrBoom that have access to the hardware at this low a level, 
 this tells PrBoom to wait to update the screen until a vertical retrace of
@@ -243,6 +249,46 @@ X_options
 Sets various misc options used by the X version, xprboom. Default is
 0;  add 1 to disable MitSHM, add 2 to select alternate 24bpp code (use this if 
 xprboom has video corruption in 24bpp visuals).
+
+.SH OPENGL SETTINGS
+.PP
+If you are knowledgable about OpenGL, you can tweak various aspects of the 
+GL rendering engine.
+.TP
+gl_nearclip
+The near clipping plane *100.
+.TP
+gl_farclip
+The far clipping plane *100.
+.TP
+gl_colorbuffer_bits
+The bit depth for the framebuffer. (16, 24 or 32 bits)
+.TP
+gl_depthbuffer_bits
+The bit depth for the z-buffer. (16, 24 or 32 bits)
+.TP
+gl_tex_filter_string
+A string, one of the following: GL_NEAREST or GL_LINEAR (no mipmapping), 
+or one of 
+GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR, 
+GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR 
+with mipmapping.
+.TP
+gl_tex_format_string
+One of the following strings:
+GL_RGBA - means format selected by driver (not so good),
+GL_RGBA2 - means 2 bits for each component (bad),
+GL_RGBA4 - means 4 bits for each component (like GL_RGBA on most cards), 
+GL_RGB5_A1 - means 5 bits for each color component 1 bit for the alpha channel (default),
+GL_RGBA8 - means 
+8 bits for each component (best quality, but only a little bit better
+than GL_RGB5_A1 and slower on most cards)
+.TP
+gl_drawskys
+Whether to draw skies (?)
+.TP
+gl_sortsprites
+Whether to sort sprites (?)
 
 .SH MOUSE SETTINGS
 .PP
