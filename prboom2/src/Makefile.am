@@ -22,7 +22,7 @@ prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
 COMMON_SRC = \
 	am_map.c        am_map.h        c_cmd.c         c_io.c \
 	c_io.h          c_net.c         c_net.h         c_runcmd.c \
-	c_runcmd.h      d_client.c      d_deh.c         d_deh.h \
+	c_runcmd.h      d_deh.c         d_deh.h \
 	d_englsh.h      d_event.h       d_items.c       d_items.h \
 	d_main.c        d_main.h        d_net.h         d_player.h \
 	d_think.h       d_ticcmd.h      doomdata.h      doomdef.c \
@@ -30,7 +30,7 @@ COMMON_SRC = \
 	dstrings.c      dstrings.h      f_finale.c      f_finale.h \
 	f_wipe.c        f_wipe.h        g_bind.c        g_bind.h \
 	g_bindaxes.c    g_bindaxes.h    g_cmd.c         g_config.c \
-	g_config.c      g_config.h      g_config.h      g_game.c \
+	g_config.h      g_demo.c        g_game.c \
 	g_game.h        hu_frags.c      hu_frags.h      hu_over.c \
 	hu_over.h       hu_stuff.c      hu_stuff.h      i_axes.h \
 	i_main.c        i_main.h        i_net.h         i_network.h \

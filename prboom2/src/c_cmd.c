@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -48,7 +48,7 @@ CONSOLE_COMMAND(alias, 0)
 {
   alias_t *alias;
   char *temp;
-  
+
   if(!c_argc)
     {
       // list em
@@ -63,7 +63,7 @@ CONSOLE_COMMAND(alias, 0)
       if(alias==aliases) C_Printf("(empty)\n");
       return;
     }
-  
+
   if(c_argc == 1)  // only one, remove alias
     {
       C_RemoveAlias(c_argv[0]);
@@ -71,10 +71,10 @@ CONSOLE_COMMAND(alias, 0)
     }
 
   // find it or make a new one
-  
+
   temp = c_args + strlen(c_argv[0]);
   while(*temp == ' ') temp++;
-  
+
   C_NewAlias(c_argv[0], temp);
 }
 
@@ -89,10 +89,10 @@ CONSOLE_COMMAND(cmdlist, 0)
   command_t *current;
   int i;
   int charnum;
-  
+
   // list each command from the hash chains
-  
-  //  5/8/99 change: use hash table and 
+
+  //  5/8/99 change: use hash table and
   //  alphabetical order by first letter
 
   for(charnum=33; charnum < 'z'; charnum++) // go thru each char in alphabet
@@ -183,7 +183,7 @@ void C_AddCommands()
   C_AddCommand(opt);
   C_AddCommand(echo);
   C_AddCommand(flood);
-  
+
   // add commands in other modules
   AM_AddCommands();
   Cheat_AddCommands();
@@ -201,7 +201,9 @@ void C_AddCommands()
 //  PE_AddCommands();  // haleyjd
   G_Bind_AddCommands();
   G_BindAxes_AddCommands();
+#ifdef GL_DOOM
   GL_AddCommands();
+#endif
 }
 
 
