@@ -49,6 +49,7 @@
 #include "p_enemy.h"
 #include "s_sound.h"
 #include "v_video.h"
+#include "t_script.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
 
 #ifdef COMPILE_VIDD
@@ -59,6 +60,10 @@
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
 //
+
+int      newlevel = false;
+int      doom1level = false;    // doom 1 level running under doom 2
+char     *levelmapname;
 
 int      numvertexes;
 vertex_t *vertexes;
@@ -1346,6 +1351,9 @@ boolean P_CheckLevel(int lumpnum)
 }
 
 
+void P_LoadOlo();
+extern int level_error;
+
 //
 // P_SetupLevel
 //
@@ -1415,7 +1423,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // killough 4/4/98: split load of sidedefs into two parts,
   // to allow texture names to be used in special linedefs
 
-#if 1
   // figgi 10/19/00 -- check for gl lumps and load them
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
     usingGLNodes = true;
@@ -1446,21 +1453,6 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 	  P_LoadSegs(lumpnum + ML_SEGS);
 	  lprintf(LO_INFO,"Using normal BSP nodes!\n");
   }
-
-#else
-
-  P_LoadVertexes  (lumpnum+ML_VERTEXES);
-  P_LoadSectors   (lumpnum+ML_SECTORS);
-  P_LoadSideDefs  (lumpnum+ML_SIDEDEFS);             // killough 4/4/98
-  P_LoadLineDefs  (lumpnum+ML_LINEDEFS);             //       |
-  P_LoadSideDefs2 (lumpnum+ML_SIDEDEFS);             //       |
-  P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             // killough 4/4/98
-  P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);             // killough 3/1/98
-  P_LoadSubsectors(lumpnum+ML_SSECTORS);
-  P_LoadNodes     (lumpnum+ML_NODES);
-  P_LoadSegs      (lumpnum+ML_SEGS);
-
-#endif
 
   if (rejectlump != -1)
     W_UnlockLumpNum(rejectlump);
