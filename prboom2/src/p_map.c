@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.7 2000/09/23 12:50:02 cph Exp $
+ * $Id: p_map.c,v 1.8 2000/10/02 21:34:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.7 2000/09/23 12:50:02 cph Exp $";
+rcsid[] = "$Id: p_map.c,v 1.8 2000/10/02 21:34:29 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -2130,6 +2130,7 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
   int bx;
   int by;
   msecnode_t* node;
+  mobj_t* saved_tmthing = tmthing; /* cph - see comment at func end */
 
   // First, clear out the existing m_thing fields. As each node is
   // added or verified as needed, m_thing will be set properly. When
@@ -2184,4 +2185,16 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
     else
       node = node->m_tnext;
     }
+
+  /* cph -
+   * This is the strife we get into for using global variables. tmthing 
+   *  is being used by several different functions calling
+   *  P_BlockThingIterator, including functions that can be called *from*
+   *  P_BlockThingIterator. Using a global tmthing is not reentrant. 
+   * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
+   *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
+   */
+  if ((compatibility_level < boom_compatibility_compatibility) ||
+      (compatibility_level >= prboom_3_compatibility))
+    tmthing = saved_tmthing;
   }

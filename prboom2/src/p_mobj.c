@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.10 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.11 2000/10/02 21:34:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.10 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.11 2000/10/02 21:34:29 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -500,11 +500,16 @@ floater:
     {
     // hit the floor
 
-    // Note (id):
-    //  somebody left this after the setting momz to 0,
-    //  kinda useless there.
+    /* Note (id):
+     *  somebody left this after the setting momz to 0,
+     *  kinda useless there.
+     * cph - This was the (a?) bug in the linuxdoom-1.10 source which
+     *  caused it not to sync v1.9 demos. Someone (bg@games.org I guess)
+     *  added the above comment and moved up the following code. So 
+     *  demos would desync in close lost soul fights.
+     * Compatibility optioned. */
 
-    if (mo->flags & MF_SKULLFLY)
+    if (!demo_compatibility && mo->flags & MF_SKULLFLY)
       mo->momz = -mo->momz; // the skull slammed into something
 
     if (mo->momz < 0)

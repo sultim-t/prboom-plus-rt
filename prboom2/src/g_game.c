@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.27 2000/09/23 12:50:01 cph Exp $
+ * $Id: g_game.c,v 1.28 2000/10/02 21:34:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.27 2000/09/23 12:50:01 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.28 2000/10/02 21:34:29 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1483,7 +1483,8 @@ static void G_LoadGameErr(const char *msg)
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
 { "doom v1.2", "demo", "doom", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
-  "MBF", "PrBoom 2.03beta", "New PrBoom"  };
+  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", 
+  "Current PrBoom"  };
 
 static const struct {
   int comp_level;
@@ -1491,12 +1492,7 @@ static const struct {
   int version;
 } version_headers[] = {
   { prboom_1_compatibility, "PrBoom %d", 260},
-  { prboom_2_compatibility, "PrBoom %d", 210}
-#if 0
-  { boom_compatibility, "BoomVer %d", 202 },
-  { lxdoom_1_compatibility, "LxD %d", 203 },
-  { boom_compatibility_compatibility, "BoomVer %d", 202 }
-#endif
+  { prboom_3_compatibility, "PrBoom %d", 210}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
