@@ -810,6 +810,9 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   mobj->colour = (int)((info->flags & MF_TRANSLATION) >> MF_TRANSSHIFT);
 
+  if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+    totallive++;
+
   return mobj;
 }
 

@@ -366,10 +366,11 @@ void HU_DrawStatus(int x, int y)
   
   
   sprintf(tempstr,
-	  FC_RED "K" FC_GREEN " %i/%i "
+	  FC_RED "K" FC_GREEN " %i "
+	  FC_RED "M" FC_GREEN " %i "
 	  FC_RED "I" FC_GREEN " %i/%i "
 	  FC_RED "S" FC_GREEN " %i/%i ",
-	  players[displayplayer].killcount, totalkills,
+	  players[displayplayer].killcount, totallive,
 	  players[displayplayer].itemcount, totalitems,
 	  players[displayplayer].secretcount, totalsecret
 	  );

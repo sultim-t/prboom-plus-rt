@@ -218,7 +218,7 @@ extern camera_t* camera;
 // Scores, rating.
 // Statistics on a given map, for intermission.
 //
-extern  int totalkills;
+extern  int totalkills, totallive;
 extern  int totalitems;
 extern  int totalsecret;
 

@@ -643,6 +643,9 @@ void P_KillMobj(mobj_t *source, mobj_t *target)
   target->flags |= MF_CORPSE|MF_DROPOFF;
   target->height >>= 2;
 
+  if (!((target->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+    totallive--;
+
   if (source && source->player)
     {
       // count for intermission

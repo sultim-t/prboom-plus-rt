@@ -126,7 +126,7 @@ int             displayplayer; // view being displayed
 int             gametic;
 int             levelstarttic; // gametic at level start
 int             basetic;       /* killough 9/29/98: for demo sync */
-int             totalkills, totalitems, totalsecret;    // for intermission
+int             totalkills, totallive, totalitems, totalsecret;    // for intermission
 wbstartstruct_t wminfo;               // parms for world map / intermission
 boolean         haswolflevels = false;// jff 4/18/98 wolf levels present
 static byte     *savebuffer;          // CPhipps - static
