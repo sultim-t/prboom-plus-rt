@@ -154,6 +154,22 @@ int map_secret_after = 0;
 // drawing stuff
 #define FB    0
 
+// automap key binding
+int key_map_right = KEYD_RIGHTARROW;
+int key_map_left = KEYD_LEFTARROW;
+int key_map_up = KEYD_UPARROW;
+int key_map_down = KEYD_DOWNARROW;
+int key_map_zoomin = '=';
+int key_map_zoomout = '-';
+int key_map = KEYD_TAB;
+int key_map_gobig = '0';
+int key_map_follow = 'f';
+int key_map_mark = 'm';
+int key_map_clear = 'c';
+int key_map_grid = 'g';
+int key_map_overlay = 'o'; // cph - map overlay
+int key_map_rotate = 'r';  // cph - map rotation
+
 // scale on entry
 #define INITSCALEMTOF (.2*FRACUNIT)
 // how much the automap moves window per tic in frame-buffer coordinates

@@ -43,7 +43,7 @@ static boolean PTR_chasetraverse (intercept_t * in);
 
 camera_t chasecam;
 static long chaseviewz;
-static int chasecam_active = 0;
+int chasecam_active = 0;
 static long targetx, targety, targetz;
 int chasecam_turnoff = 0;
 
