@@ -58,6 +58,7 @@ void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));
 
 #ifdef _WIN32
 void I_ConTextAttr(unsigned char a);
+void I_UpdateConsole(void);
 int Init_ConsoleWin(void);
 void Done_ConsoleWin(void);
 #endif
