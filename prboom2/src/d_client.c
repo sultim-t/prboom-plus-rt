@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.5 2000/07/28 15:40:05 proff_fs Exp $
+ * $Id: d_client.c,v 1.6 2000/08/06 11:46:51 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -108,11 +108,7 @@ void D_InitNetGame (void)
 
     do
     {
-      while (!I_GetPacket(packet, 1000))
-      {
-	      I_uSleep(10000);
-        lprintf(LO_INFO,".");
-      }
+      do { I_WaitForPacket(); } while (!I_GetPacket(packet, 1000));
       {
         printf("type: %d\n",packet->type);
       }

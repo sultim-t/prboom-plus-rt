@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_server.c,v 1.4 2000/07/28 15:40:05 proff_fs Exp $
+ * $Id: d_server.c,v 1.5 2000/08/06 11:46:50 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
 //#include <sys/time.h>
 #include <limits.h>
 #include <string.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -141,7 +141,6 @@ int main(int argc, char** argv)
   char**wadname = NULL;
   char**wadget = NULL;
   int numwads = 0;
-/*
   {
     int opt;
     byte *gameopt = setupinfo.game_options;
@@ -201,7 +200,6 @@ int main(int argc, char** argv)
 	break;
       }
   }
-*/
   
   verbose=3;
 
@@ -253,7 +251,7 @@ int main(int argc, char** argv)
 	packet_header_t *packet = malloc(10000);
 	size_t len;
 	
-	I_uSleep(10000);
+	I_WaitForPacket();
 	while ((len = I_GetPacket(packet, 10000))) {
 	  if (verbose>2) printf("Received packet:");
 	  switch (packet->type) {

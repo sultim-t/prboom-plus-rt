@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp_sdl.c,v 1.1 2000/07/28 18:54:47 proff_fs Exp $
+ * $Id: i_udp_sdl.c,v 1.2 2000/08/06 11:46:51 cph Exp $
  *
  *  New UDP networking code for LxDoom, based in part on 
  *  the original linuxdoom networking
@@ -84,7 +84,7 @@ void I_InitNetwork()
 {
 	int status = SDLNet_Init();
 	atexit(I_ShutdownNetwork);
-	udp_packet = SDLNet_AllocPacket(1000);
+	udp_packet = SDLNet_AllocPacket(10000);
 }
 
 UDP_PACKET *I_AllocPacket(int size)
@@ -97,6 +97,17 @@ void I_FreePacket(UDP_PACKET *packet)
 	SDLNet_FreePacket(packet);
 }
 
+
+/* cph - I_WaitForPacket - use select(2) via SDL_net's interface 
+ * No more I_uSleep loop kludge */
+
+void I_WaitForPacket(void)
+{
+  SDLNet_SocketSet ss = SDLNet_AllocSocketSet(1);
+  SDLNet_UDP_AddSocket(ss, udp_socket);
+  SDLNet_CheckSockets(ss,-1);
+  SDLNet_FreeSocketSet(ss);
+}
 
 /* I_ConnectToServer
  *
@@ -196,6 +207,7 @@ static byte ChecksumPacket(const packet_header_t* buffer, size_t len)
 {
   const byte* p = (void*)buffer; 
   byte sum = 0;
+  size_t initlen = len;
 
   if (len==0)
     return 0;
@@ -219,30 +231,29 @@ size_t I_GetPacket(packet_header_t* buffer, size_t buflen)
   if ( (status!=0) && (len>0) )
     memcpy(buffer, udp_packet->data, len);
   sentfrom=udp_packet->channel;
-  sentfrom_addr=udp_packet->src;
+  sentfrom_addr=udp_packet->address;
   checksum=buffer->checksum;
   buffer->checksum=0;
-//  if ( (status!=0) && (udp_packet->len>0) && (checksum == ChecksumPacket(buffer, udp_packet->len)) )
-  if ( (status!=0) && (len>0) )
-    return len;
-  else
-    return 0;
+  if ( (status!=0) && (len>0)) {
+    byte psum = ChecksumPacket(buffer, udp_packet->len);
+/*    fprintf(stderr, "recvlen = %u, stolen = %u, csum = %u, psum = %u\n", 
+	udp_packet->len, len, checksum, psum); */
+    if (psum == checksum) return len;
+  }
+  return 0;
 }
 
 void I_SendPacket(packet_header_t* packet, size_t len)
 {
-  memcpy(udp_packet->data, packet, len);
-  packet->checksum=0;
   packet->checksum = ChecksumPacket(packet, len);
-  udp_packet->len=len;
+  memcpy(udp_packet->data, packet, udp_packet->len = len);
 	SDLNet_UDP_Send(udp_socket, 0, udp_packet);
 }
 
 void I_SendPacketTo(packet_header_t* packet, size_t len, UDP_CHANNEL *to)
 {
-  memcpy(udp_packet->data, packet, len);
-  packet->checksum=0;
   packet->checksum = ChecksumPacket(packet, len);
+  memcpy(udp_packet->data, packet, udp_packet->len = len);
 	SDLNet_UDP_Send(udp_socket, *to, udp_packet);
 }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_network.h,v 1.3 2000/07/28 15:40:05 proff_fs Exp $
+ * $Id: i_network.h,v 1.4 2000/08/06 11:46:51 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -54,6 +54,7 @@
 void I_InitNetwork(void);
 size_t I_GetPacket(packet_header_t* buffer, size_t buflen);
 void I_SendPacket(packet_header_t* packet, size_t len);
+void I_WaitForPacket(void);
 
 #ifdef USE_SDL_NET
 UDP_SOCKET I_Socket(Uint16 port);
