@@ -11,7 +11,7 @@
     <meta name="generator"
     content="vi (vim; Mandrake GNU/Linux 8.1 (Enigma); i686)" />
     <meta name="CVSID"
-    content="$Id: linux.html,v 1.17 2002/08/17 18:01:53 cph Exp $" />
+    content="$Id: linux.html,v 1.18 2002/12/05 21:18:49 cph Exp $" />
     <link rel="stylesheet" href="main.css" type="text/css" />
   </head>
 
@@ -71,9 +71,9 @@
     <p>Several of the main desktop Linux distributions ship with and install all the
     required libraries by default. Both RedHat 7.2 and Mandrake 8.1 come with
     all the required libraries. So you can just grab the RPM of PrBoom,
-    <code>prboom-2.2.2-1.i386.rpm</code>, and install it with the following
+    <code>prboom-2.2.3-1.i386.rpm</code>, and install it with the following
     command (as root):</p>
-    <blockquote><p><code>rpm -ivh prboom-2.2.2-1.i386.rpm</code></p></blockquote>
+    <blockquote><p><code>rpm -ivh prboom-2.2.3-1.i386.rpm</code></p></blockquote>
     <p>You can then run PrBoom as <code>
       /usr/games/prboom</code> (or just <code>prboom</code> if the games are in
     your <code>PATH</code>).</p>
@@ -130,7 +130,7 @@
     libsdl-net1.2</a> packages and the corresponding -dev versions
     - these are all available in Debian woody and above (and should
     compile from source fine for potato). Get the prboom source
-    code <code>prboom-2.2.1.tar.gz</code> from our <a
+    code <code>prboom-2.2.3.tar.gz</code> from our <a
     href="#download">download page</a>, extract, and then follow
     the included <code>INSTALL</code> instructions.</p>
 
@@ -153,13 +153,13 @@
     ../SDL/SDL_net.h /usr/local/include/SDL11/SDL_net.h</code> or
     something similar.</p>
 
-    <p> Finally, get <code>prboom-2.2.1.tar.gz</code> the PrBoom
+    <p> Finally, get <code>prboom-2.2.3.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
     <h2><a id="unix" name="unix">Generic UNIX</a></h2>
 
-    <p> You need to get and install the following libraries:</p>
+    <p>You need to get and install the following libraries:</p>
 
     <ul>
       <li>SDL 1.2.x, from <a
@@ -185,9 +185,13 @@
       page</a>.</li>
     </ul>
 
-    <p> Then get <code>prboom-2.2.1.tar.gz</code> the PrBoom
+    <p> Then get <code>prboom-2.2.3.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
+    <p>On some Unix systems, there is a minor symbol conflict with the
+    <code>time</code> symbol during linking. You may also have to specify extra
+    linking options to link with the threading-enabled or real-time C library in
+    order for SDL to run. See for example <a href="http://cloud.prohosting.com/patos/docs/prboom_on_hpux11.00.htm">these instructions for compiling on HP-UX</a>.</p>
 
     <h2><a id="download" name="download">Download page</a></h2>
 
