@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: i_video.c,v 1.3 2000/05/10 04:53:38 jessh Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.3 2000/05/10 04:53:38 jessh Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -55,7 +55,7 @@ rcsid[] = "$Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
 #include "r_draw.h"
 #include "d_main.h"
 #include "d_event.h"
-#include "l_video_trans.h"
+#include "v_video_trans.h"
 #include "i_joy.h"
 #include "i_video.h"
 #include "z_zone.h"
