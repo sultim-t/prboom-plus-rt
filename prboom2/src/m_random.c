@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_random.c,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: m_random.c,v 1.3 2000/05/13 08:20:09 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: m_random.c,v 1.2 2000/05/09 21:45:38 proff_fs Exp $";
+static const char rcsid[] = "$Id: m_random.c,v 1.3 2000/05/13 08:20:09 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -109,12 +109,16 @@ int P_Random(pr_class_t pr_class)
 
   boom >>= 20;
 
-  // killough 3/30/98: use gametic-levelstarttic to shuffle RNG
-  // killough 3/31/98: but only if demo insurance requested,
-  // since it's unnecessary for random shuffling otherwise
+  /* killough 3/30/98: use gametic-levelstarttic to shuffle RNG
+   * killough 3/31/98: but only if demo insurance requested,
+   * since it's unnecessary for random shuffling otherwise
+   * killough 9/29/98: but use basetic now instead of levelstarttic
+   * cph - DEMOSYNC - this change makes MBF demos work,
+   *       but does it break Boom ones?
+   */
 
   if (demo_insurance)
-    boom += (gametic-levelstarttic)*7;
+    boom += (gametic-basetic)*7;
 
   return boom & 255;
 }
