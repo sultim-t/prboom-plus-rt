@@ -3,6 +3,7 @@ For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.2.5 to v2.2.6
 - fix Inferno intermission screen crash
+- fix lockup for other netgame clients when one client quits
 - fix fuzz drawing for hi-res
 
 Changes from v2.2.4 to v2.2.5

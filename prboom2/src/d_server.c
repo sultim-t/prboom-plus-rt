@@ -199,7 +199,6 @@ void I_Error(const char *error, ...) // killough 3/20/98: add const
 }
 
 int playerjoingame[MAXPLAYERS], playerleftgame[MAXPLAYERS];
-#define playeringame(i) (playerstate[i] == pc_playing)
 UDP_CHANNEL remoteaddr[MAXPLAYERS];
 enum { pc_unused, pc_connected, pc_ready, pc_confirmedready, pc_playing, pc_quit } playerstate[MAXPLAYERS];
 
@@ -214,7 +213,7 @@ void BroadcastPacket(packet_header_t *packet, size_t len)
 {
   int i;
   for (i=0; i<MAXPLAYERS; i++)
-    if (playeringame(i))
+    if (playerstate[i] != pc_unused && playerstate[i] != pc_quit)
       I_SendPacketTo(packet, len, &remoteaddr[i]);
 }
 
@@ -505,7 +504,6 @@ int main(int argc, char** argv)
       if (!ingame) {
         int from = *(byte*)(packet+1);
 
-	// Note: cannot user playeringame() here, as the player is still joining
 	if (badplayer(from) || playerstate[from] == pc_unused) break;
 	if (confirming) {
 		if (playerstate[from] != pc_confirmedready) curplayers++;
@@ -580,7 +578,7 @@ int main(int argc, char** argv)
         size_t size = sizeof(packet_header_t);
         packet_header_t *reply;
 
-	if (badplayer(from) || !playeringame(from)) break;
+	if (badplayer(from) || playerstate[from] != pc_unused) break;
 
         if (verbose) printf("Request for %s ", name);
         for (i=0; i<numwads; i++)
@@ -645,9 +643,10 @@ int main(int argc, char** argv)
   int lowtic = INT_MAX;
   int i;
   for (i=0; i<MAXPLAYERS; i++)
-    if (playeringame(i))
-      if (remoteticfrom[i]<lowtic)
+    if (playerstate[i] == pc_playing || playerstate[i] == pc_quit) {
+      if (remoteticfrom[i] < playerleftgame[i]-1 && remoteticfrom[i]<lowtic)
         lowtic = remoteticfrom[i];
+    }
 
   if (verbose>1) printf("%d new tics can be run\n", lowtic - exectics);
 
@@ -655,7 +654,7 @@ int main(int argc, char** argv)
     exectics = lowtic; // count exec'ed tics
   // Now send all tics up to lowtic
   for (i=0; i<MAXPLAYERS; i++)
-    if (playeringame(i)) {
+    if (playerstate[i] == pc_playing) {
       int tics;
       if (lowtic <= remoteticto[i]) continue;
       if ((remoteticto[i] -= xtratics) < 0) remoteticto[i] = 0;
