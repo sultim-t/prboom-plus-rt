@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.4 2000/05/11 20:09:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.4 2000/05/11 20:09:53 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -561,7 +561,7 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
   mobj = Z_Malloc (sizeof(*mobj), PU_LEVEL, NULL);
   memset (mobj, 0, sizeof (*mobj));
   info = &mobjinfo[type];
-  mobj->references = 0;
+  //mobj->references = 0;
   mobj->type = type;
   mobj->info = info;
   mobj->x = x;
@@ -673,7 +673,8 @@ void P_RemoveMobj (mobj_t* mobj)
   }
   // free block
   
-  P_RemoveThinker ((thinker_t*)mobj);
+//  P_RemoveThinker ((thinker_t*)mobj);
+  P_RemoveThinker (&mobj->thinker);
   }
 
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_mobj.h,v 1.3 2000/05/11 20:09:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -328,7 +328,7 @@ typedef struct mobj_s
 
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 
-    int references;
+    // int references;
 
 } mobj_t;
 

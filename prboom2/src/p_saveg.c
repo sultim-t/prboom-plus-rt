@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_saveg.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_saveg.c,v 1.5 2000/05/11 20:09:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_saveg.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_saveg.c,v 1.5 2000/05/11 20:09:53 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -488,7 +488,7 @@ void P_UnArchiveThinkers (void)
       PADSAVEP();
       memcpy (mobj, save_p, mobjsize);
       save_p += mobjsize;
-      mobj->references = 0;
+      //mobj->references = 0;
       mobj->state = states + (int) mobj->state;
 
       if (mobj->player)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_tick.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_tick.c,v 1.5 2000/05/11 20:09:06 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_tick.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_tick.c,v 1.5 2000/05/11 20:09:06 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "p_user.h"
@@ -79,6 +79,8 @@ void P_AddThinker(thinker_t* thinker)
   thinker->next = &thinkercap;
   thinker->prev = thinkercap.prev;
   thinkercap.prev = thinker;
+
+  thinker->references = 0;    // killough 11/98: init reference counter to 0
 }
 
 //
@@ -89,14 +91,14 @@ void P_SetTarget(mobj_t **mop, mobj_t *targ)
 {
   if (*mop) {            // If there was a target already, decrease its refcount
 #ifdef SIMPLECHECKS
-    if (!((*mop)->references--)) 
+    if (!((*mop)->thinker.references--)) 
       lprintf(LO_ERROR,"P_SetTarget: Bad reference count decrement\n");
 #else
-    (*mop)->references--;
+    (*mop)->thinker.references--;
 #endif
   }
   if ((*mop = targ))    // Set new target and if non-NULL, increase its counter
-    targ->references++;
+    targ->thinker.references++;
 }
 
 //
@@ -114,16 +116,26 @@ void P_SetTarget(mobj_t **mop, mobj_t *targ)
 
 static void P_RemoveThinkerDelayed(thinker_t *thinker)
 {
+/*
   thinker_t *next = thinker->next;
   (next->prev = currentthinker = thinker->prev)->next = next;
   Z_Free(thinker);
+*/
+  if (!thinker->references)
+  {
+    thinker_t *next = thinker->next;
+    (next->prev = currentthinker = thinker->prev)->next = next;
+    Z_Free(thinker);
+  }
 }
 
+/*
 static void P_RemoveMobjDelayed(mobj_t *mobj)
 {
   if (!mobj->references)
     P_RemoveThinkerDelayed((thinker_t *)mobj);
 }
+*/
 
 //
 // P_RemoveThinker
@@ -142,9 +154,12 @@ void P_RemoveThinker(thinker_t *thinker)
 {
   /* cph - Different removal function if it's an mobj
    * since for an mobj we have to check references first */
+  thinker->function = P_RemoveThinkerDelayed;
+/*
   thinker->function = 
     (thinker->function == P_MobjThinker) 
     ? P_RemoveMobjDelayed : P_RemoveThinkerDelayed;
+*/
 }
 
 //

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: p_setup.c,v 1.5 2000/05/11 20:09:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.5 2000/05/11 20:09:53 proff_fs Exp $";
 
 #include <math.h>
 
@@ -179,6 +179,8 @@ static void P_LoadSegs (int lump)
 
       int side, linedef;
       line_t *ldef;
+
+      li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
