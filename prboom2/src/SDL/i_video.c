@@ -157,6 +157,7 @@ static int I_TranslateKey(SDL_keysym* key)
   case SDLK_RALT:
   case SDLK_RMETA:	rc = KEYD_RALT;		break;
   case SDLK_CAPSLOCK: rc = KEYD_CAPSLOCK; break;
+  case SDLK_CARET:
   case SDLK_BACKQUOTE: rc = KEYD_CONSOLE; break;
   default:		rc = key->sym;		break;
   }
