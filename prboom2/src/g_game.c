@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.57 2002/08/10 18:23:07 proff_fs Exp $
+ * $Id: g_game.c,v 1.58 2002/08/10 20:01:51 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.57 2002/08/10 18:23:07 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.58 2002/08/10 20:01:51 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -865,7 +865,7 @@ void G_PlayerFinishLevel(int player)
   player_t *p = &players[player];
   memset(p->powers, 0, sizeof p->powers);
   memset(p->cards, 0, sizeof p->cards);
-  p->mo->flags &= ~MF_SHADOW;   // cancel invisibility
+  p->mo = NULL;           // cph - this is allocated PU_LEVEL so it's gone
   p->extralight = 0;      // cancel gun flashes
   p->fixedcolormap = 0;   // cancel ir gogles
   p->damagecount = 0;     // no palette changes
