@@ -109,9 +109,7 @@ Did it.
 It seems like that in G_BeginRecording the version for new recorded Demos
 is still 210. Is that correct, or does it have to be 211.
 
-2000/10/21 colin: Hmmm. It looks like I was trying to be clever here and 
- avoid changing the code for demos. But I think it does need changing. If 
- I can't remember what my reasoning was, I'll change it.
+2000/10/24 colin: Done, just needs some more testing
 
 --------------------------------------------------------------------------
 27. (2000/10/08) There is a memory leak in the OpenGL part.
