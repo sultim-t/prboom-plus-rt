@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_bind.c,v 1.2 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: g_bind.c,v 1.3 2001/07/11 18:12:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_bind.c,v 1.2 2001/07/09 14:21:52 proff_fs Exp $";
+rcsid[] = "$Id: g_bind.c,v 1.3 2001/07/11 18:12:36 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -492,13 +492,14 @@ boolean G_KeyResponder(event_t *ev)
 
 void G_SetKeyBindings()
 {
+/*
   int i;
 
   for(i=0; i<NUM_KEYS; i++)
   {
     keybindings[i].binding = NULL;
   }
-
+*/
   G_BindKeyToAction(keybindings[key_up].name, "forward");
   G_BindKeyToAction(keybindings[key_down].name, "backward");
   G_BindKeyToAction(keybindings[key_left].name, "left");

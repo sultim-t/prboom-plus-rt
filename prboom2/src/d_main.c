@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.41 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: d_main.c,v 1.42 2001/07/11 18:12:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.41 2001/07/09 14:21:52 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.42 2001/07/11 18:12:36 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -1757,9 +1757,6 @@ void D_DoomMainSetup(void)
   if (*startup5) lprintf(LO_INFO,"%s",startup5);
   // End new startup strings
 
-  lprintf(LO_INFO,"C_Init: Init console.\n");
-  C_Init();
-
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"M_Init: Init miscellaneous info.\n");
   M_Init();
@@ -1793,6 +1790,9 @@ void D_DoomMainSetup(void)
   HU_Init();
 
   I_InitGraphics();
+
+  lprintf(LO_INFO,"C_Init: Init console.\n");
+  C_Init();
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"ST_Init: Init status bar.\n");

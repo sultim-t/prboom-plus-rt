@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.1 2001/07/09 14:21:52 proff_fs Exp $
+ * $Id: c_io.c,v 1.2 2001/07/11 18:12:36 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.1 2001/07/09 14:21:52 proff_fs Exp $";
+rcsid[] = "$Id: c_io.c,v 1.2 2001/07/11 18:12:36 proff_fs Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,7 +89,7 @@ int current_target = 0;
 int current_height = 0;
 boolean c_showprompt;
 #ifndef GL_DOOM
-static char *backdrop;
+static char *backdrop=NULL;
 #else
 static int backdrop_lumpnum;
 #endif
@@ -126,7 +126,7 @@ static void C_InitBackdrop()
   
 #ifndef GL_DOOM
   if(backdrop) Z_Free(backdrop);
-  backdrop = Z_Malloc(C_SCREENHEIGHT*C_SCREENWIDTH, PU_STATIC, 0);
+  backdrop = Z_Malloc((C_SCREENHEIGHT+10)*C_SCREENWIDTH, PU_STATIC, 0);
   
   oldscreen = screens[1]; screens[1] = backdrop;  // hack to write to
   
@@ -161,9 +161,6 @@ void C_Init()
   
   C_AddCommands();
   C_UpdateInputPoint();
-
-  // haleyjd
-  G_InitKeyBindings();
 }
 
 // called every tic
@@ -398,7 +395,7 @@ void C_Drawer()
 {
   int y;
   int count;
-  static int oldscreenheight;
+  static int oldscreenheight=0;
   
   if(!consoleactive) return;   // dont draw if not active
 
