@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.22 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: v_video.c,v 1.23 2002/11/12 23:05:04 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.22 2002/01/07 15:56:20 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.23 2002/11/12 23:05:04 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -342,12 +342,9 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     int   DXI = (320<<16)          / SCREENWIDTH;
     int   DY  = (SCREENHEIGHT<<16) / 200;
     register int DYI = (200<<16)   / SCREENHEIGHT;
-    int   DY2, DYI2;
     
     stretchx = ( x * DX ) >> 16;
     stretchy = ( y * DY ) >> 16;
-    DY2  = DY / 2;
-    DYI2 = DYI* 2;
     
     desttop = screens[scrn] + stretchy * SCREENWIDTH +  stretchx;
     
@@ -359,11 +356,19 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
       }
       
       while ( column->topdelta != 0xff ) {
+	int toprow = ((column->topdelta*DY)>>16);
 	register const byte *source = ( byte* ) column + 3;
-	register byte       *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
+	register byte       *dest = desttop + toprow * SCREENWIDTH;
 	register int         count  = ( column->length * DY ) >> 16;
 	register int         srccol = 0x8000;
 	
+#ifdef RANGECHECK
+	if ( toprow+count >= SCREENHEIGHT )
+		I_Error("V_DrawMemPatch: column exceeds screenheight (toprow %i, count %i)"
+			"Bad V_DrawMemPatch (flags=%u)", toprow, count, flags);
+		// count = SCREENHEIGHT-toprow-1; This is a possible fix
+#endif
+
 	if (flags & VPT_TRANS)
 	  while (count--) {
 	    *dest  =  trans[source[srccol>>16]];
