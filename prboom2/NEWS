@@ -6,7 +6,10 @@ Changes from v2.2.0 to v2.2.1
 - fixed bug where loading a -fast or -respawn savegame failed to restore
  those options properly 
 - fixed demo sync bug with doors also tagged to lift triggers
+- fix some endianness problems in the OpenGL renderer
 - hopefully fixed some problems compiling for Linux/ARM
+- fix multi-level demo time totals to agree with compet-n
+- linux rpm is now a bit more standardised
 
 Changes from v2.1.2 to v2.2.0
 - fix compiling problem on alpha processors (size_t != unsigned long)
