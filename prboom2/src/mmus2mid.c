@@ -353,7 +353,7 @@ int mmus2mid(const UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
     track[i].velocity = 64;
     track[i].deltaT = 0;
     track[i].lastEvt = 0;
-    free(mididata->track[i].data);//jff 3/5/98 remove old allocations
+    //free(mididata->track[i].data);//jff 3/5/98 remove old allocations
     mididata->track[i].data=NULL;
     track[i].alloced = 0;
     mididata->track[i].len = 0;
@@ -540,6 +540,15 @@ int mmus2mid(const UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
     }
 
   return 0;
+}
+
+void free_mididata(MIDI *mid)
+{
+  int i;
+
+  for (i = 0; i < MIDI_TRACKS; i++)
+    if (mid->track[i].data)
+      free(mid->track[i].data);
 }
 
 //

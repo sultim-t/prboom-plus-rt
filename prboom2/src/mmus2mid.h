@@ -65,6 +65,7 @@ typedef struct MIDI                    /* a midi file */
 #endif /* !MSDOS */
 
 extern int mmus2mid(const UBYTE *mus,MIDI *mid, UWORD division, int nocomp);
+extern void free_mididata(MIDI *mid);
 extern int MIDIToMidi(MIDI *mididata,UBYTE **mid,int *midlen);
 extern int MidiToMIDI(UBYTE *mid,MIDI *mididata);
 
