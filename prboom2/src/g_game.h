@@ -32,6 +32,7 @@
 
 #include "doomdef.h"
 #include "d_event.h"
+#include "d_player.h"
 #include "d_ticcmd.h"
 
 #define MIN_MAXPLAYERS 32
@@ -59,6 +60,7 @@ void G_BeginRecording(void);
 void G_RecordDemo(const char *name);          // Only called by startup code.
 void G_PlayDemo(const char *name);
 void G_TimeDemo(const char *name);
+void G_StopDemo();
 void G_ExitLevel(void);
 void G_SecretExitLevel(void);
 void G_WorldDone(void);
@@ -89,6 +91,8 @@ void G_MakeSpecialEvent(buttoncode_t bc, ...); /* cph - new event stuff */
 // killough 1/18/98: Doom-style printf;   killough 4/25/98: add gcc attributes
 // CPhipps - renames to doom_printf to avoid name collision with glibc
 void doom_printf(const char *, ...) __attribute__((format(printf,1,2)));
+// sf: player_printf
+void player_printf(player_t *player, const char *s, ...);
 
 // killough 5/2/98: moved from m_misc.c:
 

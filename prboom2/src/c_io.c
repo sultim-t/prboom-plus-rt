@@ -43,7 +43,7 @@
 
 #include "c_io.h"
 #include "c_runcmd.h"
-//#include "c_net.h"
+#include "c_net.h"
 
 #include "d_event.h"
 #include "d_main.h"

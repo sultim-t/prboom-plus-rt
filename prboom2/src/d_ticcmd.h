@@ -44,6 +44,9 @@
  * plus a checksum for internal state consistency.
  * CPhipps - explicitely signed the elements, since they have to be signed to work right
  */
+
+#define CONS_BYTES 7
+
 typedef struct
 {
   signed char	forwardmove;	/* *2048 for move       */
@@ -52,6 +55,7 @@ typedef struct
   short	consistancy;	        /* checks for net game  */ 
   byte	chatchar;
   byte	buttons;
+  byte  consdata[CONS_BYTES];      // console data
 } ticcmd_t;
 
 #endif

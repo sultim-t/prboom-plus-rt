@@ -269,6 +269,7 @@ byte *V_GetPlottedTexture8(
 #define FC_ORANGE       "\x88"
 #define FC_YELLOW       "\x89"
 #define FC_BLUE2        "\x8a"
+#define FC_TRANS        "\x8b"
 
 void V_WriteText(const char *s, int x, int y, int gap);
 void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap);

@@ -61,7 +61,7 @@ int access(const char *path, int mode);
 #include "z_zone.h"
 #include "c_runcmd.h"
 #include "c_io.h"
-//#include "c_net.h"
+#include "c_net.h"
 #include "w_wad.h"
 #include "s_sound.h"
 #include "v_video.h"
@@ -125,7 +125,6 @@ skill_t startskill;
 int     startepisode;
 int     startmap;
 boolean autostart;
-FILE    *debugfile;
 
 boolean advancedemo;
 

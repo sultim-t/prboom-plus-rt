@@ -617,7 +617,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 // KillMobj
 //
 // killough 11/98: make static
-static void P_KillMobj(mobj_t *source, mobj_t *target)
+// sf 9/99: globaled for FraggleScript
+
+void P_KillMobj(mobj_t *source, mobj_t *target)
 {
   mobjtype_t item;
   mobj_t     *mo;

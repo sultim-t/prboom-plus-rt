@@ -80,6 +80,8 @@ line_t   *lines;
 int      numsides;
 side_t   *sides;
 
+int      numthings;
+mobj_t   **spawnedthings;               // array of spawned things
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
@@ -533,9 +535,10 @@ static void P_LoadNodes (int lump)
 
 static void P_LoadThings (int lump)
 {
-  int  i, numthings = W_LumpLength (lump) / sizeof(mapthing_t);
+  int  i;
   const mapthing_t *data = W_CacheLumpNum (lump);
 
+  numthings = W_LumpLength (lump) / sizeof(mapthing_t);
   for (i=0; i<numthings; i++)
     {
       mapthing_t mt = data[i];

@@ -748,6 +748,15 @@ typedef struct {
   int affectee;        // Number of affected sector
 } pusher_t;
 
+// sf: direction plat moving
+
+enum
+{
+  plat_stop     = 0,
+  plat_up       = 1,
+  plat_down     = -1,
+};
+
 //////////////////////////////////////////////////////////////////
 //
 // external data declarations
@@ -836,6 +845,8 @@ int P_FindSectorFromLineTag
 int P_FindLineFromLineTag
 ( const line_t *line,
   int start );   // killough 4/17/98
+
+int P_FindSectorFromTag(const int tag, int start);        // sf
 
 int P_FindMinSurroundingLight
 ( sector_t* sector,

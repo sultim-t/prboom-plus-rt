@@ -279,9 +279,6 @@ extern int maxammo[];
 // Internal parameters, used for engine.
 //
 
-// File handling stuff.
-extern  FILE   *debugfile;
-
 // if true, load all graphics at level load
 extern  boolean precache;
 

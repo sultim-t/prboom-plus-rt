@@ -43,28 +43,15 @@
 
 #include "c_io.h"
 #include "c_runcmd.h"
-//#include "c_net.h"
+#include "c_net.h"
 
 #include "doomdef.h"
 #include "doomstat.h"
 #include "mn_engin.h"
-//#include "t_script.h"
+#include "t_script.h"
 #include "g_game.h"
 #include "z_zone.h"
 #include "lprintf.h"
-
-/* proff - dummys */
-
-mobj_t *t_trigger;
-command_t *c_netcmds[20];
-int cmdsrc = 0;           // the source of a network console command
-#define CN_BROADCAST 128
-
-void C_SendCmd(int dest, int cmdnum, const char *s,...)
-{
-}
-
-/* proff - end of dummys */
 
 static void C_EchoValue(command_t *command);
 static void C_SetVariable(command_t *command);
@@ -194,11 +181,9 @@ static boolean C_CheckFlags(command_t *command)
   // demo sync too
   if((command->flags & cf_netvar) && demoplayback)
     {
-/*
       if(cmdtype == c_menu)    // if called from menu, stop demo playback
 	G_StopDemo();
       else
-*/
     errormsg = "not during demo playback";
     }
   
@@ -370,8 +355,7 @@ static int C_Sync(command_t *command)
       // dont get stuck repeatedly sending the same command
       if(cmdtype != c_netcmd)
 	{                               // send to sync
-	  C_SendCmd(CN_BROADCAST, command->netcmd,
-		    "%s", C_QuotedArgvToArgs());
+	  C_SendCmd(command->netcmd, C_QuotedArgvToArgs());
 	  return true;
 	}
     }

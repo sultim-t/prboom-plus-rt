@@ -307,12 +307,4 @@ extern char *colournames[];
 extern char *textcolours[];
 extern char *skills[];
 
-/* proff - dummys */
-
-#define CN_BROADCAST 128
-
-void C_SendCmd(int dest, int, const char *s,...);
-
-/* proff - end of dummys */
-
 #endif

@@ -2021,3 +2021,21 @@ void doom_printf(const char *s, ...)
   va_end(v);
   players[consoleplayer].message = msg;  // set new message
 }
+
+// sf: printf to a particular player only
+// to make up for the loss of player->msg = ...
+
+void player_printf(player_t *player, const char *s, ...)
+{
+  static char msg[MAX_MESSAGE_SIZE];
+  va_list v;
+  va_start(v,s);
+#ifdef HAVE_VSNPRINTF
+  vsnprintf(msg,sizeof(msg),s,v);        /* print message in buffer */
+#else
+  vsprintf(msg,s,v);
+#endif
+  va_end(v);
+  if(player == &players[consoleplayer])
+    doom_printf(msg);
+}

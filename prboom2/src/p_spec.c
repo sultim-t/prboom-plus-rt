@@ -742,6 +742,17 @@ int P_FindLineFromLineTag(const line_t *line, int start)
   return start;
 }
 
+// sf: same thing but from just a number
+
+int P_FindSectorFromTag(const int tag, int start)
+{
+  start = start >= 0 ? sectors[start].nexttag :
+    sectors[(unsigned) tag % (unsigned) numsectors].firsttag;
+  while (start >= 0 && sectors[start].tag != tag)
+    start = sectors[start].nexttag;
+  return start;
+}
+
 // Hash the sector tags across the sectors and linedefs.
 static void P_InitTagLists(void)
 {

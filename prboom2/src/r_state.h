@@ -95,6 +95,8 @@ extern line_t           *lines;
 extern int              numsides;
 extern side_t           *sides;
 
+int                     numthings;
+extern mobj_t           **spawnedthings;
 
 //
 // POV data.
