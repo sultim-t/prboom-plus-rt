@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.h,v 1.3 2000/05/17 21:13:46 proff_fs Exp $
+ * $Id: st_stuff.h,v 1.4 2000/05/24 15:34:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -62,7 +62,7 @@ boolean ST_Responder(event_t* ev);
 void ST_Ticker(void);
 
 // Called by main loop.
-void ST_Drawer(boolean fullscreen, boolean refresh);
+void ST_Drawer(boolean st_statusbaron, boolean refresh);
 
 // Called when the console player is spawned on each level.
 void ST_Start(void);

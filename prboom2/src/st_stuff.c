@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.6 2000/05/21 12:11:13 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.7 2000/05/24 15:34:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.6 2000/05/21 12:11:13 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.7 2000/05/24 15:34:09 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -827,10 +827,11 @@ void ST_diffDraw(void)
   ST_drawWidgets(false);
 }
 
-void ST_Drawer(boolean fullscreen, boolean refresh)
+void ST_Drawer(boolean st_statusbaron, boolean refresh)
 {
-  st_statusbaron = !fullscreen; /* cph - let status bar on be controlled 
-				 * completely by the call from D_Display */
+  /* cph - let status bar on be controlled 
+	 * completely by the call from D_Display
+   * proff - really do it */
   st_firsttime = st_firsttime || refresh;
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
@@ -840,10 +841,11 @@ void ST_Drawer(boolean fullscreen, boolean refresh)
   if (st_statusbaron)
     ST_doRefresh();
 #else
-  if (st_firsttime)
-    ST_doRefresh();     // If just after ST_Start(), refresh all
-  else
-    ST_diffDraw();      // Otherwise, update as little as possible
+  if (st_statusbaron)
+    if (st_firsttime)
+      ST_doRefresh();     // If just after ST_Start(), refresh all
+    else
+      ST_diffDraw();      // Otherwise, update as little as possible
 #endif
 }
 

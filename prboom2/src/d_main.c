@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.18 2000/05/24 12:04:59 cph Exp $
+ * $Id: d_main.c,v 1.19 2000/05/24 15:34:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.18 2000/05/24 12:04:59 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.19 2000/05/24 15:34:09 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -308,7 +308,7 @@ void D_Display (void)
       R_RenderPlayerView (&players[displayplayer]);
     if (automapmode & am_active)
       AM_Drawer();
-    ST_Drawer(viewheight == SCREENHEIGHT, redrawborderstuff);
+    ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);
 #ifndef GL_DOOM
     R_DrawViewBorder();
 #endif
