@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.15 2000/12/27 18:40:21 cph Exp $
+ * $Id: w_wad.c,v 1.16 2001/02/13 20:54:30 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.15 2000/12/27 18:40:21 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.16 2001/02/13 20:54:30 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -429,7 +429,7 @@ int W_GetNumForName (const char* name)     // killough -- const added
 //
 struct wadfile_info *wadfiles=NULL;
 
-unsigned int numwadfiles = 0; // CPhipps - size of the wadfiles array (dynamic, no limit)
+size_t numwadfiles = 0; // CPhipps - size of the wadfiles array (dynamic, no limit)
 
 void W_Init(void)
 {
