@@ -218,15 +218,3 @@ void P_AddCommands()
   //P_Skin_AddCommands();
   //P_Info_AddCommands();
 }
-
-//----------------------------------------------------------------------------
-//
-// $Log: p_cmd.c,v $
-// Revision 1.1  2003/07/29 20:41:08  proff_fs
-// Added p_cmd.c and made small related changes. This adds monster settings and other console variables.
-//
-// Revision 1.1.1.1  2000/04/30 19:12:08  fraggle
-// initial import
-//
-//
-//----------------------------------------------------------------------------
