@@ -25,6 +25,10 @@ section.
 
   5. Run the 'bootstrap' script in order to create the 'configure' script.
         ./bootstrap
+     If you get this error:
+        aclocal: configure.in: 153: macro `AM_PATH_SDL' not found in library
+     Then you have to locate sdl.m4 and copy it to ./autotools/sdl.m4 in your
+     prboom directory.
 
   6. If the 'configure' script was created by step 5 then proceed to the
      "Basic Installation" section.
@@ -32,9 +36,9 @@ section.
 Basic Installation
 ==================
 
-  1. To compile PrBoom, you need the SDL development headers and libraries 
-     installed (SDL, SDL_mixer, SDL_net). See 
-     http://prboom.sourceforge.net/linux.html for information on downloading 
+  1. To compile PrBoom, you need the SDL development headers and libraries
+     installed (SDL, SDL_mixer, SDL_net). See
+     http://prboom.sourceforge.net/linux.html for information on downloading
      the right libraries for your system.
 
   2. `cd' to the directory containing the PrBoom distribution (the directory
@@ -53,21 +57,21 @@ Basic Installation
      good doom levels to play when it's finished :-).
 
      This should work on all Linux systems, but systems that have a make
-     utility other than GNU make may have problems. E.g. you might need to 
-     install GNU make, and then use it instead of make for these 
+     utility other than GNU make may have problems. E.g. you might need to
+     install GNU make, and then use it instead of make for these
      instructions. I have tested BSD pmake and it works fine.
 
-  4. Type `make install-strip' as root, to install the programs, data files 
-     and man pages for PrBoom. If you don't have root access on the machine, 
-     you should ask the syadmin to do this and the next step for you. 
+  4. Type `make install-strip' as root, to install the programs, data files
+     and man pages for PrBoom. If you don't have root access on the machine,
+     you should ask the syadmin to do this and the next step for you.
 
   5. Copy your Doom, Doom 2, Ultimate Doom or Final Doom IWAD (doom.wad or
-     doom2.wad) to /usr/local/share/games/doom/ (or symlink it from there). 
-     Or if you don't have any of those, use the shareware IWAD, which you can 
+     doom2.wad) to /usr/local/share/games/doom/ (or symlink it from there).
+     Or if you don't have any of those, use the shareware IWAD, which you can
      get from http://www.doomworld.com/ or http://www.idsoftware.com/.
 
-     If you have a system with many users, you should read the license for 
-     your version of Doom, and make sure only those users allowed to use it 
+     If you have a system with many users, you should read the license for
+     your version of Doom, and make sure only those users allowed to use it
      can access the IWAD file.
 
   6. You can remove the program binaries and object files from the
@@ -82,17 +86,17 @@ Basic Installation
   7. PrBoom is now ready for use. If /usr/local/games is in your path,
      you can just run prboom; otherwise give the full path.
 
-     See the README file for information about getting the Timidity 
+     See the README file for information about getting the Timidity
      patches needed for music support, and more.
 
 Building an RPM
 ===============
 
-If you are on a system which uses the RPM packaging format, you might prefer 
-to build an RPM containing the PrBoom binaries rather than installing them 
-directly. Follow steps 1 and 2 above, then run a "make rpm". This performs 
+If you are on a system which uses the RPM packaging format, you might prefer
+to build an RPM containing the PrBoom binaries rather than installing them
+directly. Follow steps 1 and 2 above, then run a "make rpm". This performs
 the usual proceedure for building the rpm in /usr/src/redhat/. Note that
-the RPM sets its own parameters to ./configure; if you want to override 
+the RPM sets its own parameters to ./configure; if you want to override
 them you'll have to edit the build scripts yourself.
 
 Installation Details
