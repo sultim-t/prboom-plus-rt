@@ -217,8 +217,9 @@ prboom2/src/inl/Makefile.am -text
 prboom2/src/mn_menus.c -text svneol=native#unset
 prboom2/src/p_spec.h -text svneol=native#unset
 prboom2/src/vidd/Makefile.am -text
-website/DOOM04.jpg -text
-website/DOOM05.jpg -text
-website/DOOM06.jpg -text
-website/OGL.gif -text
-website/index.html -text svneol=native#unset
+website/cgi-bin/genlin.cgi -text
+website/html/DOOM04.jpg -text
+website/html/DOOM05.jpg -text
+website/html/DOOM06.jpg -text
+website/html/OGL.gif -text
+website/src/index.html -text svneol=native#unset
