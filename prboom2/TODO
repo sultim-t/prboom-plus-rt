@@ -1,7 +1,7 @@
 Entrys marked by a * are fixed.
 
 --------------------------------------------------------------------------
-3.  Testing on Voodoo.
+*3.  Testing on Voodoo.
 
 Proff:
 It runs, but on Voodoo1 cards it's very very slow. Other cards aren't tested,
@@ -51,6 +51,7 @@ Colin: It's frankly a disaster area, which I can say with confidence
 2001/02/18 proff: Done, but this whole input crap should be redone.
 2002/07/28 proff: partly redone with the console system and the new axes
  stuff
+proff: Just needs a nice menu.
 
 --------------------------------------------------------------------------
 34. (2001/03/29) Dreamcast port
@@ -61,10 +62,11 @@ Proff: I have to get off my ass and do the Dreamcast port of this.
 35. (2001/03/29) FraggleScript and DDF?
 
 --------------------------------------------------------------------------
-36. (2001/06/16) The Dynamic OpenGL loading doesn't work correctly.
+*36. (2001/06/16) The Dynamic OpenGL loading doesn't work correctly.
 
 Proff: I noticed that it doesn't work as expected. Also seems to cause
 problems on Sparc, but this is not certain.
+Proff: New version seems to work fine, needs field testing.
 
 --------------------------------------------------------------------------
 37. (2001/07/01) TASDoom demo support
@@ -122,20 +124,25 @@ Colin: done for walls & sprites; lookups remain for floors so far, which is a it
 trickier to change.
 
 --------------------------------------------------------------------------
-*45. (2002/07/28) OpenGL currently seems to be broken
-
-Proff: Fix that and add improvements from 2.2.x
-Done!
-
---------------------------------------------------------------------------
 46. (2002/07/28) Fix all current loose ends
 
 Proff:
 - fix new menu system
+  - Options
+  - Features
+    - FEATURES graphic
+  - VIDD ?
 - fix config system
+  proff: The system itself seems to work fine now, but many options are still
+         missing.
 *- sort the config file alphabetically
 *- fix new axes support
 - add everything new from 2.2.x - Done?
+  - RANGECHECK in v_video.c for pbuf* etc.
+  - Don't treat linedef types in the 0x8000-0xffff range as generalised
+    floor types.
+  - Fix SEGV on failed lookup for BEX codepointer.
+  - Mead's/Colin's countable item automap highlighting.
 
 --------------------------------------------------------------------------
 47. (2002/07/28) Wishlist for the future
@@ -174,7 +181,9 @@ prboom.cfg to get the options. Or we could implement in-game game launching, the
 big option.
 
 --------------------------------------------------------------------------
-50. (2002/08/10) make SLOWTURNTICS configureable
+*50. (2002/08/10) make SLOWTURNTICS configureable
+
+Proff: done. (g_slowturntics)
 
 --------------------------------------------------------------------------
 51. (2002/08/14) new demo format for prboom 2.3.0
