@@ -468,10 +468,11 @@ void I_ShutdownSound(void)
 //static SDL_AudioSpec audio;
 
 void
-I_InitSound()
+I_InitSound(boolean first)
 { 
   int audio_buffers;
 
+  if (!first && !sound_inited) return;
   if (sound_inited)
 	  I_ShutdownSound();
 

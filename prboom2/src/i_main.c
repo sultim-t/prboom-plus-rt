@@ -120,7 +120,7 @@ void I_Init(void)
     /* killough 2/21/98: avoid sound initialization if no sound & no music */
     extern boolean nomusicparm, nosfxparm;
     if (!(nomusicparm && nosfxparm))
-      I_InitSound();
+      I_InitSound(true);
   }
 }
 

@@ -185,7 +185,7 @@ CONSOLE_INT(snd_samplerate, desired_samplerate, NULL, 0, 2, samplerate_str, cf_b
 		snd_samplerate = 44100;
 		break;
 	}
-	I_InitSound();
+	I_InitSound(false);
 }
 
 typedef struct
@@ -1072,7 +1072,7 @@ void S_ResetVolume()
 CONSOLE_BOOLEAN(s_pitched, pitched_sounds, NULL,   onoff, 0) {}
 CONSOLE_INT(snd_channels, default_numChannels, NULL, 1, 32, NULL, 0)
 {
-	I_InitSound();
+	I_InitSound(false);
 }
 CONSOLE_INT(sfx_volume, snd_SfxVolume, NULL,         0, 15, NULL, 0)
 {

@@ -43,7 +43,7 @@
 #endif
 
 // Init at program start...
-void I_InitSound(void);
+void I_InitSound(boolean first);
 
 // ... shut down and relase at program termination.
 void I_ShutdownSound(void);
