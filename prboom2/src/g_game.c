@@ -2113,8 +2113,18 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
 /* Demo limits removed -- killough
  * cph - record straight to file
  */
-static inline signed char fudge(signed char b)
+static inline signed char fudgef(signed char b)
 {
+  static int c;
+  if (!b || !demo_compatibility || longtics) return b;
+  if (++c & 0x1f) return b;
+  b |= 1; if (b>2) b-=2;
+  return b;
+}
+
+static inline signed short fudgea(signed short b)
+{
+  if (!b || !demo_compatibility || !longtics) return b;
   b |= 1; if (b>2) b-=2;
   return b;
 }
@@ -2124,14 +2134,14 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   char buf[5];
   char *p = buf;
 
-  *p++ = (cmd->forwardmove && demo_compatibility) ?
-    fudge(cmd->forwardmove) : cmd->forwardmove;
+  *p++ = fudgef(cmd->forwardmove);
   *p++ = cmd->sidemove;
   if (!longtics) {
     *p++ = (cmd->angleturn+128)>>8;
   } else {
-    *p++ = cmd->angleturn & 0xff;
-    *p++ = (cmd->angleturn >> 8) & 0xff;
+    signed short a = fudgea(cmd->angleturn);
+    *p++ = a & 0xff;
+    *p++ = (a >> 8) & 0xff;
   }
   *p++ = cmd->buttons;
   if (fwrite(buf, p-buf, 1, demofp) != 1)
