@@ -1,183 +1,205 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id: configure.in,v 1.13 2000/05/19 22:34:12 cph Exp $
 AC_INIT(src/d_main.c)
+
+dnl --- Set version strings
+PR_MAJOR_VERSION=2
+PR_MINOR_VERSION=1
+PR_MICRO_VERSION=0
+PR_VERSION=$PR_MAJOR_VERSION.$PR_MINOR_VERSION.$PR_MICRO_VERSION
+
+AC_SUBST(PR_VERSION)
 
 dnl --- Check for system type
 AC_CANONICAL_SYSTEM
 
+use_i386_asm=no 
 case "$target" in
-	*-linux)
-                AC_DEFINE(SECURE_UID)
-                ;;
-	*-linux-*)
-		AC_DEFINE(SECURE_UID)
-		;;
+        i?86-*) AC_DEFINE(I386) use_i386_asm=yes ;;
 esac
-
-use_i386_asm=no
-case "$target" in
-	i?86-*) AC_DEFINE(I386) use_i386_asm=yes ;;
-esac
-
-echo "checking whether can use x86 asm versions of some functions..." $use_i386_asm
+AC_ARG_ENABLE(i386-asm,[  --disable-i386-asm      Do not use i386 assembly], use_i386_asm=no)
+echo "checking whether to use x86 asm versions of some functions..." $use_i386_asm
 if test "$use_i386_asm" = yes; then
-	AC_DEFINE(I386_ASM)
+        AC_DEFINE(I386_ASM)
 fi
 AM_CONDITIONAL(I386_ASM, test "$use_i386_asm" = yes)
 
-CFLAGS_OPT="-O2 -fomit-frame-pointer"
+dnl --- Fire up automake
+AM_INIT_AUTOMAKE(prboom,$PR_VERSION)
+AM_CONFIG_HEADER(config.h)
+
+dnl --- Compiler characteristics
+AC_C_CONST
+AC_C_INLINE
+if test "$cross_compiling" != "yes"; then
+        AC_C_BIGENDIAN
+fi
+
+
+CFLAGS_OPT="-O2 -fomit-frame-pointer -ffast-math"
 dnl --- Option to enable debugging
-AC_ARG_ENABLE(debug,[  --enable-debug	  turns on various debugging features, like range checking and internal heap diagnostics],
+AC_ARG_ENABLE(debug,[  --enable-debug     turns on various debugging features, like range checking and internal heap diagnostics],
 AC_DEFINE(RANGECHECK)
 AC_DEFINE(INSTRUMENTED)
 AC_DEFINE(TIMEDIAG)
-CFLAGS_OPT="-g"
+CFLAGS_OPT="-g -ffast-math"
+) 
+AC_ARG_ENABLE(profile,[  --enable-profile         turns on profiling],
+CFLAGS_OPT="-pg -ffast-math"
 )
-AC_ARG_ENABLE(profile,[  --enable-profile	  turns on profiling],
-CFLAGS_OPT="-pg"
-)
-dnl --- some defaults for CFLAGS : josh
-if test -z "$CFLAGS" ; then 
-	CFLAGS="$CFLAGS_OPT -Wall -Winline -Wcast-align -Wwrite-strings -ffast-math -I`pwd`/src"
-fi
-export CFLAGS
-
-dnl --- Fire up automake
-AM_INIT_AUTOMAKE(prboom,2.1.0)
-AM_CONFIG_HEADER(config.h)
-
-dnl --- Checks for programs.
-AC_PROG_CC
-AC_PROG_RANLIB
 
 dnl --- Try for processor optimisations
-AC_ARG_ENABLE(cpu-opt,[  --disable-cpu-opt	  turns off cpu specific optimisations],,[
+AC_ARG_ENABLE(cpu-opt,[  --disable-cpu-opt        turns off cpu specific optimisations],,[
 case "$target" in
-	# marginal gains from aligning code
+        # marginal gains from aligning code
 i386-*) SYS_CFLAGS="-m386" ;;
 i486-*) SYS_CFLAGS="-m486" ;;
-	# nothing special for pentium
-	# CMOV op on ppro/II/686 can help us
+        # nothing special for pentium  
+        # CMOV op on ppro/II/686 can help us
 i686-*) SYS_CFLAGS="-mcpu=i686 -march=i686" ;;
 esac
 
 echo -n "checking whether $CC supports CPU optimisations $SYS_CFLAGS..."
 echo 'void f(){}' > conftest.c
 if test -z "`${CC-cc} $SYS_CFLAGS -c conftest.c 2>&1`"; then
-	CFLAGS="$CFLAGS $SYS_CFLAGS"
-	echo "yes"
+        SYS_CFLAGS="$SYS_CFLAGS"
+        echo "yes"
 else
-	echo "no"
+        echo "no"
+	SYS_CFLAGS=""
 fi
 ])
 
-dnl --- Checks for typedefs
-AC_TYPE_SIZE_T
-AC_TYPE_PID_T
-AC_TYPE_UID_T
-
-AC_DECL_SYS_SIGLIST
-
-dnl --- Compiler characteristics
-AC_C_CONST
-AC_C_INLINE
-if test "$cross_compiling" != "yes"; then
-	AC_C_BIGENDIAN
+dnl --- some defaults for CFLAGS : josh
+if test -z "$CFLAGS" ; then
+        CFLAGS="$SYS_CFLAGS $CFLAGS_OPT -Wall -Winline -Wcast-align -Wwrite-strings -I\$(top_srcdir)/src"
 fi
 
-BUILD_DIRS=
+dnl --- Check for programs
+AC_PROG_CC
+AC_PROG_LN_S
+AC_PROG_RANLIB
 
-dnl --- Libraries
-AC_PATH_X
-AC_PATH_XTRA
-if test "x$x_includes" != x; then
-  CFLAGS="$CFLAGS -I$x_includes"
+dnl --- Check for libraries
+dnl - system specific stuff
+case "$target" in
+    *-*-cygwin* | *-*-mingw32*)
+        MATHLIB=""
+        SYS_GL_LIBS="-lopengl32"
+        ;;
+    *-*-beos*)
+        MATHLIB=""
+        SYS_GL_LIBS="-lGL -lGLU"
+        ;;
+    *-*-aix*)
+        if test x$ac_cv_prog_gcc = xyes; then
+            CFLAGS="-mthreads"
+        fi
+        ;;
+    *)
+        MATHLIB="-lm"
+	SYS_GL_LIBS="-lGL -lGLU"
+	;;
+esac
+
+dnl - X11
+ AC_PATH_X
+ AC_PATH_XTRA
+ if test "x$x_includes" != x; then
+   CFLAGS="$CFLAGS -I$x_includes"
+ else
+   CFLAGS="$CFLAGS"
+ fi
+ LIBS="$LIBS $X_LIBS $X_EXTRA_LIBS"
+ AC_CHECK_LIB(Xext,XShmCreateImage,AC_DEFINE(HAVE_LIBXEXT) LIB_XEXT=-lXext,LIB_XEXT=,-lXext -lX11)
+
+dnl - GL
+AC_ARG_ENABLE(gl,[  --enable-gl         enable GL code],
+AC_MSG_CHECKING(for OpenGL support)   
+have_opengl=no
+AC_TRY_COMPILE([
+ #include <GL/gl.h>
+],[
+],[ 
+have_opengl=yes  
+])
+AC_MSG_RESULT($have_opengl)
+if test x$have_opengl = xyes; then
+    AC_DEFINE(GL_DOOM)
+    AC_DEFINE(USE_GLU_IMAGESCALE)
+    AC_DEFINE(USE_GLU_MIPMAP)
+    GL_LIBS="$SYS_GL_LIBS"
 else
-  CFLAGS="$CFLAGS"
-fi
-LIBS="$LIBS $X_LIBS $X_EXTRA_LIBS"
-dnl --- cphipps - no longer need sqrt(3) AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(Xext,XShmCreateImage,AC_DEFINE(HAVE_LIBXEXT) LIB_XEXT=-lXext,LIB_XEXT=,-lXext -lX11)
-dnl --- CPhipps - disable XFree86 DGA support for release
-dnl AC_CHECK_LIB(Xxf86dga,XF86DGADirectVideo,AC_DEFINE(HAVE_LIBXXF86DGA) LIB_XDGA=-lXxf86dga,LIB_XDGA=,-lXxf86dga -lXext -lX11)
-dnl cph - disable lsdoom for now
-dnl Check OSS audio emulation lib for (Net|Open)BSD
-AC_CHECK_LIB(ossaudio,_oss_ioctl,LIB_SND=-lossaudio,LIB_SND=)
+    GL_LIBS=""
+fi,
+enable_gl="no"
+)
+AM_CONDITIONAL(BUILD_GL,test "$enable_gl" = "yes")
 
-
+dnl - SDL
 AM_PATH_SDL(1.0.1, BUILD_SDLDOOM=prboom, BUILD_SDLDOOM=)
-
 AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
     AC_DEFINE(HAVE_LIBSDL_MIXER)
     MIXER_LIBS=-lSDL_mixer
 ],,$SDL_LIBS)
 
-AC_ARG_ENABLE(gl,[  --enable-gl	  	enable GL code],
-enable_gl="yes"
-SDL_LIBS="$SDL_LIBS -lGL -lGLU"
-AC_DEFINE(GL_DOOM),
-enable_gl="no"
-)
-
-AM_CONDITIONAL(BUILD_GL,test "$enable_gl" = "yes")
-
+dnl - Net
 AC_CHECK_FUNC(socket,[
      has_net=yes
      BUILD_SERVER=prboom-game-server
 ],)
-AC_ARG_ENABLE(net-game,[  --disable-net-game      turns off network game
-support],[
-     has_net=no
-     BUILD_SERVER=
-],) 
 AM_CONDITIONAL(HAVE_NET, test "$has_net" = yes)
 if test "$has_net" = yes
 then
  AC_DEFINE(HAVE_NET)
 fi
+AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6))
 
 dnl --- Library functions
-AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp)) 
-AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp)) 
+AC_FUNC_ALLOCA
+AC_PROG_GCC_TRADITIONAL
+AC_FUNC_MEMCMP
+AC_TYPE_SIGNAL
+AC_FUNC_VPRINTF
+AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp))
+AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp))
 AC_CHECK_FUNCS(inet_aton inet_pton inet_ntop setsockopt vsnprintf snprintf)
+AC_CHECK_FUNCS(gethostname mkdir select socket strcspn strdup strtol)
 
-dnl --- Check for headers
-dnl - First, joystick
-AC_CHECK_HEADERS(linux/joystick.h)
+dnl --- Check for header files
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h limits.h sys/ioctl.h sys/time.h unistd.h)
+AC_CHECK_HEADERS(linux/joystick.h)  
 dnl - want ffz()
 AC_CHECK_HEADERS(linux/bitops.h)
 dnl - fast byte swaping code
 AC_CHECK_HEADERS(asm/byteorder.h)
-dnl - more standard stuff
-AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(unistd.h)
 dnl - Check for soundcard.h
 BUILD_SNDSERV=
 AC_CHECK_HEADERS(sys/soundcard.h,BUILD_SNDSERV=sndserv)
 AC_CHECK_HEADERS(machine/soundcard.h,BUILD_SNDSERV=sndserv)
 AC_CHECK_HEADERS(soundcard.h,BUILD_SNDSERV=sndserv)
 
-dnl --- Check for IPv6 stuff
-AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6))
-
-dnl --- Always use highres mode, unless explicitely --disabled
-AC_ARG_ENABLE(highres,[  --disable-highres	  disables support for resulutions greater than 320x200],,AC_DEFINE(HIGHRES))
-AC_ARG_ENABLE(dogs,[  --disable-dogs	    disables support for helper dogs],,AC_DEFINE(DOGS))
-dnl --- By default, simple checks with little overhead are done to catch memory corruption, or
-dnl --- problems with new code
-AC_ARG_ENABLE(checks,[  --disable-checks	  disables some basic internal sanity checks],,
+dnl --- Options
+dnl - Always use highres mode, unless explicitely --disabled
+AC_ARG_ENABLE(highres,[  --disable-highres        disables support for resulutions greater than 320x200],,AC_DEFINE(HIGHRES))
+AC_ARG_ENABLE(dogs,[  --disable-dogs        disables support for helper dogs],,AC_DEFINE(DOGS))
+dnl - By default, simple checks with little overhead are done to catch memory corruption, or
+dnl - problems with new code
+AC_ARG_ENABLE(checks,[  --disable-checks          disables some basic internal sanity checks],,
 AC_DEFINE(SIMPLECHECKS)
 AC_DEFINE(ZONEIDCHECK))
-AC_ARG_ENABLE(heapcheck,[  --enable-heapcheck	  turns on continuous heap checking (very slow)],AC_DEFINE(CHECKHEAP))
-AC_ARG_ENABLE(heapdump,[  --enable-heapdump	  turns on dumping the heap state for debugging],AC_DEFINE(HEAPDUMP))
+AC_ARG_ENABLE(heapcheck,[  --enable-heapcheck     turns on continuous heap checking (very slow)],AC_DEFINE(CHECKHEAP))
+AC_ARG_ENABLE(heapdump,[  --enable-heapdump       turns on dumping the heap state for debugging],AC_DEFINE(HEAPDUMP))
 
 dnl --- Decide what programs to build
 if test "$no_x" != yes && test "$enable_gl" != "yes"
- then 
+ then
  BUILD_XPRBOOM=xprboom
  BUILD_DIRS="$BUILD_DIRS X11"
 else
  BUILD_XPRBOOM=
+ BUILD_SNDSERV=
 fi
 
 if test "$BUILD_SDLDOOM" = "prboom"
@@ -189,7 +211,7 @@ if test "$BUILD_SNDSERV" = "sndserv"
 then
  BUILD_DIRS="$BUILD_DIRS OSS"
  dnl --- Nasty hack follows, sounds.c used by two dirs
- ln -fs ../sounds.c src/OSS/sounds.c
+ $LN_S ../sounds.c src/OSS/sounds.c
 fi
 
 if test "$BUILD_SNDSERV" = "sndserv" || test "$BUILD_XPRBOOM" = "xprboom"
@@ -209,6 +231,9 @@ AC_SUBST(NET_LIBS)
 AC_SUBST(LIB_XEXT)
 AC_SUBST(LIB_XDGA)
 AC_SUBST(LIB_SND)
+AC_SUBST(MATH_LIB)
+AC_SUBST(GL_LIBS)
+AC_SUBST(CFLAGS)
 
 dnl --- Pass install dirs to C pre-processor
 dnl --- YUCK! but I can't see a better way to do this
@@ -220,7 +245,7 @@ then exec_prefix=$prefix
 fi
 
 dnl --- decide directories
-gamesdir=$prefix/games
+gamesdir=$prefix/games 
 exp_gamesdir=`eval "echo $gamesdir"`
 exp_datadir=`eval "echo $datadir"`
 waddir=$exp_datadir/games/doom
