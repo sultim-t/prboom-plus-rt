@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.8 2000/05/18 09:52:44 cph Exp $
+ * $Id: m_menu.c,v 1.9 2000/05/18 11:32:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.8 2000/05/18 09:52:44 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.9 2000/05/18 11:32:40 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -5078,7 +5078,10 @@ void M_Drawer (void)
   // killough 9/29/98: simplified code, removed 40-character width limit
   if (messageToPrint)
     {
-      char *p = messageString;
+      /* cph - strdup string to writable memory */
+      char *ms = strdup(messageString);
+      char *p = ms;
+
       int y = 100 - M_StringHeight(messageString)/2;
       while (*p)
 	{
@@ -5091,6 +5094,7 @@ void M_Drawer (void)
 	  if ((*p = c))
 	    p++;
 	}
+      free(ms);
     }
   else
     if (menuactive)
@@ -5282,7 +5286,7 @@ int M_StringHeight(const char* string)
 void M_WriteText (int x,int y,const char* string)
 {
   int   w;
-  char* ch;
+  const char* ch;
   int   c;
   int   cx;
   int   cy;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: r_data.c,v 1.7 2000/05/18 11:32:40 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.7 2000/05/18 11:32:40 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -972,7 +972,7 @@ void R_PrecacheLevel(void)
 }
 
 // Proff - Added for OpenGL
-void R_SetPatchNum(patchnum_t *patchnum, char *name)
+void R_SetPatchNum(patchnum_t *patchnum, const char *name)
 {
   patch_t *patch;
 
