@@ -51,6 +51,7 @@ enum
   netcmd_skill,
   netcmd_skin,
   netcmd_allowmlook,
+  netcmd_bobbing, // haleyjd
   netcmd_autoaim,
   netcmd_bfglook,
   netcmd_bfgtype,
@@ -71,6 +72,7 @@ enum
   netcmd_nukage,
   netcmd_timelimit,
   netcmd_fraglimit,
+  netcmd_dmflags, // haleyjd 04/14/03
   netcmd_comp_0,
   netcmd_comp_1,
   netcmd_comp_2,

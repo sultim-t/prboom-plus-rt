@@ -113,7 +113,9 @@ void F_StartFinale (void)
              finaletext = s_E4TEXT;
              break;
         default:
-             // Ouch.
+             // haleyjd: use reasonable defaults
+             finaleflat = bgflatE1;
+             finaletext = "error: no intermission text defined";
              break;
       }
       break;
@@ -158,11 +160,13 @@ void F_StartFinale (void)
                           (gamemission==pack_plut) ? s_P6TEXT : s_C6TEXT;
              break;
         default:
-             // Ouch.
+             // haleyjd: use reasonable defaults
+             finaleflat = bgflat06;
+             finaletext = "error: no intermission text defined";
              break;
       }
-      break;
       // Ty 08/27/98 - end gamemission logic
+      break;
     } 
 
     // Indeterminate.
@@ -173,9 +177,17 @@ void F_StartFinale (void)
          break;
   }
   
+  // haleyjd 12/13/01: fixed problem with info_backdrop being 
+  // dependent on info_intertext and being inappropriately set
+  // to F_SKY1 even if it was already set above
+
+  if(info_backdrop)
+  {
+     finaleflat = info_backdrop;
+  }
+
   if(info_intertext)
   {
-        finaleflat = info_backdrop ? info_backdrop : "F_SKY1";
         finaletext = info_intertext;
   }
 
@@ -339,7 +351,7 @@ boolean         castattacking;
 //
 extern  gamestate_t     wipegamestate;
 
-void F_StartCast (void)
+void F_StartCast(void)
 {
   wipegamestate = -1;         // force a screen wipe
   castnum = 0;
@@ -357,7 +369,7 @@ void F_StartCast (void)
 //
 // F_CastTicker
 //
-void F_CastTicker (void)
+void F_CastTicker(void)
 {
   int st;
   int sfx;

@@ -1357,16 +1357,17 @@ boolean P_CheckLevel(int lumpnum)
 
   for(i=ML_THINGS; i<=ML_BLOCKMAP; i++)
     {
+      // haleyjd 03/28/03: walked 1 off the end of lumpinfo (> -> >=)
       ln = lumpnum+i;
-      if(ln > numlumps ||     // past the last lump
-	 strncmp(lumpinfo[ln].name, levellumps[i], 8) )
-	return false;
+      if(ln >= numlumps ||     // past the last lump
+	       strncmp(lumpinfo[ln].name, levellumps[i], 8) )
+	      return false;
     }
   return true;    // all right
 }
 
 
-void P_LoadOlo();
+void P_LoadOlo(void);
 extern int level_error;
 
 //

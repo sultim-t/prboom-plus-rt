@@ -124,8 +124,6 @@ int quitsounds2[8] =
 CONSOLE_COMMAND(quit, cf_buffered)
 {
   // haleyjd: re-added code for playing random sound before exit
-  //          fixed for portability
-//#ifdef DJGPP
   extern int snd_card;
   
   if((!netgame || demoplayback) && !nosfxparm && snd_card)
@@ -134,10 +132,8 @@ CONSOLE_COMMAND(quit, cf_buffered)
   	  S_StartSound(NULL, quitsounds2[(gametic>>2)&7]);
   	else 			   // anything else
   	  S_StartSound(NULL, quitsounds[(gametic>>2)&7]);
-//  	I_WaitVBL(105);
     I_uSleep(800000);
   }
-//#endif
   
   exit(0);
 }
@@ -152,10 +148,10 @@ CONSOLE_VARIABLE(sens_horiz, mouseSensitivity_horiz, 0) {}
 VARIABLE_INT(mouseSensitivity_vert, NULL, 0, 48, NULL);
 CONSOLE_VARIABLE(sens_vert, mouseSensitivity_vert, 0) {}
 
-// player bobbing
+// player bobbing -- haleyjd: altered to read default, use netcmd
 
-VARIABLE_BOOLEAN(player_bobbing, NULL,      onoff);
-CONSOLE_VARIABLE(bobbing, player_bobbing, 0) {}
+VARIABLE_BOOLEAN(player_bobbing, &default_player_bobbing, onoff);
+CONSOLE_NETVAR(bobbing, player_bobbing, cf_server, netcmd_bobbing) {}
 
 
 VARIABLE_BOOLEAN(autorun, NULL,      onoff);
@@ -176,7 +172,11 @@ CONSOLE_VARIABLE(turbo, turbo_scale, cf_nosave)
 
 CONSOLE_NETCMD(exitlevel, cf_server|cf_level, netcmd_exitlevel)
 {
-  G_ExitLevel();
+  // haleyjd 09/04/02: prevent exit if dead, unless comp flag on
+  player_t *player = &players[cmdsrc];
+
+  if((player->health > 0) || comp[comp_zombie])
+    G_ExitLevel();
 }
 
 //////////////////////////////////////
@@ -197,12 +197,10 @@ CONSOLE_COMMAND(playdemo, cf_notnet)
 }
 
 
-/*
 CONSOLE_COMMAND(stopdemo, cf_notnet)
 {
   G_StopDemo();
 }
-*/
 
 CONSOLE_COMMAND(timedemo, cf_notnet)
 {
@@ -210,10 +208,9 @@ CONSOLE_COMMAND(timedemo, cf_notnet)
 }
 
 // 'cool' demo
-/*
+
 VARIABLE_BOOLEAN(cooldemo, NULL,            onoff);
 CONSOLE_VARIABLE(cooldemo, cooldemo, 0) {}
-*/
 
 ///////////////////////////////////////////////////
 //
@@ -222,7 +219,7 @@ CONSOLE_VARIABLE(cooldemo, cooldemo, 0) {}
 
 // load new wad
 // buffered command: r_init during load
-/*
+
 CONSOLE_COMMAND(addfile, cf_notnet|cf_buffered)
 {
   D_AddNewFile(c_argv[0]);
@@ -234,7 +231,6 @@ CONSOLE_COMMAND(listwads, 0)
 {
   D_ListWads();
 }
-*/
 
 //CONSOLE_COMMAND(iwad, cf_buffered)
 CONSOLE_STRING(iwad, g_iwad, NULL, 126, cf_buffered)
@@ -285,7 +281,7 @@ CONST_INT(rngseed);
 CONSOLE_CONST(rngseed, rngseed);
 
 // suicide
-/*
+
 CONSOLE_NETCMD(kill, cf_level, netcmd_kill)
 {
   mobj_t *mobj;
@@ -297,12 +293,15 @@ CONSOLE_NETCMD(kill, cf_level, netcmd_kill)
   P_DamageMobj(mobj, NULL, mobj,
 	       2*(players[playernum].health+players[playernum].armorpoints) );
   mobj->momx = mobj->momy = mobj->momz = 0;
+   players[playernum].momx = players[playernum].momy = 0;
 }
-*/
 
 // change level
+
 CONSOLE_NETCMD(map, cf_server, netcmd_map)
 {
+   int lumpnum;
+
   if(!c_argc)
     {
       C_Printf("usage: map <mapname>\n"
@@ -314,7 +313,7 @@ CONSOLE_NETCMD(map, cf_server, netcmd_map)
   
   // check for .wad files
   // i'm not particularly a fan of this myself, but..
-/*  
+
   if(strlen(c_argv[0]) > 4)
     {
       char *extension;
@@ -323,17 +322,24 @@ CONSOLE_NETCMD(map, cf_server, netcmd_map)
 	{
 	  if(D_AddNewFile(c_argv[0]))
 	    {
-	      G_InitNew(gameskill, firstlevel);
+	      G_DeferedInitNew(gameskill, firstlevel);
 	    }
 	  return;
 	}
     }
-*/
-  G_InitNew(gameskill, c_argv[0]);
+
+   // haleyjd 02/23/04: strict error checking
+   lumpnum = W_CheckNumForName(c_argv[0]);
+
+   if(lumpnum != -1 && P_CheckLevel(lumpnum))
+   {   
+      G_DeferedInitNew(gameskill, c_argv[0]);
+   }
+   else
+      C_Printf(FC_ERROR"%s not found or is not a valid map\n", c_argv[0]);
 }
 
         // player name
-/*
 VARIABLE_STRING(default_name, NULL,             18);
 CONSOLE_NETVAR(name, default_name, cf_handlerset, netcmd_name)
 {
@@ -348,7 +354,7 @@ CONSOLE_NETVAR(name, default_name, cf_handlerset, netcmd_name)
       default_name = strdup(c_argv[0]);
     }
 }
-*/
+
 
 // demo insurance
 
@@ -365,7 +371,7 @@ CONSOLE_VARIABLE(smooth_turning, smooth_turning, 0) {}
 // haleyjd: new stuff
 
 #ifdef DOGS
-VARIABLE_INT(dogs, NULL, 0, 3, NULL);
+VARIABLE_INT(dogs, &default_dogs, 0, 3, NULL);
 CONSOLE_VARIABLE(numhelpers, dogs, cf_notnet)
 {
    int count;
@@ -389,8 +395,8 @@ CONSOLE_VARIABLE(numhelpers, dogs, cf_notnet)
 //
 // Chat Macros
 //
-/*
-void G_AddChatMacros()
+
+void G_AddChatMacros(void)
 {
   int i;
 
@@ -398,7 +404,9 @@ void G_AddChatMacros()
     {
       variable_t *variable;
       command_t *command;
-      char tempstr[10];
+      char tempstr[32];
+
+      memset(tempstr, 0, 32);
       
       // create the variable first
       variable = malloc(sizeof(*variable));
@@ -423,7 +431,6 @@ void G_AddChatMacros()
       (C_AddCommand)(command); // hook into cmdlist
     }
 }
-*/
 
 ///////////////////////////////////////////////////////////////
 //
@@ -455,7 +462,7 @@ void G_WeapPrefHandler(void)
   G_SetWeapPref(prefnum, atoi(c_argv[0]));
 }
 
-void G_AddWeapPrefs()
+void G_AddWeapPrefs(void)
 {
   int i;
 
@@ -463,7 +470,9 @@ void G_AddWeapPrefs()
     {
       variable_t *variable;
       command_t *command;
-      char tempstr[13]; // haleyjd: increased size -- bug fix!
+      char tempstr[16]; // haleyjd: increased size -- bug fix!
+
+      memset(tempstr, 0, 16);
       
       // create the variable first
       variable = malloc(sizeof(*variable));
@@ -477,7 +486,7 @@ void G_AddWeapPrefs()
       // now the command
       command = malloc(sizeof(*command));
 
-      psnprintf(tempstr, 13, "weappref_%i", i+1);
+      psnprintf(tempstr, sizeof(tempstr), "weappref_%i", i+1);
       command->name = strdup(tempstr);
       command->type = ct_variable;
       command->flags = cf_handlerset;
@@ -558,7 +567,7 @@ const char *comp_strings[COMP_NUM] =
   "maskedanim",
 };
 
-void G_AddCompat()
+void G_AddCompat(void)
 {
   int i;
 
@@ -580,7 +589,7 @@ void G_AddCompat()
       // now the command
       command = malloc(sizeof(*command));
 
-      psnprintf(tempstr, 32, "comp_%s", comp_strings[i]);
+      psnprintf(tempstr, sizeof(tempstr), "comp_%s", comp_strings[i]);
       command->name = strdup(tempstr);
       command->type = ct_variable;
       command->flags = cf_server | cf_netvar;
@@ -598,7 +607,7 @@ void G_AddCompat()
 extern int slowturntics;
 CONSOLE_INT(g_slowturntics, slowturntics, NULL, 0, 50, NULL, 0) {}
 
-void G_AddCommands()
+void G_AddCommands(void)
 {
   C_AddCommand(i_error);
   C_AddCommand(starttitle);
@@ -612,16 +621,16 @@ void G_AddCommands()
   C_AddCommand(playdemo);
   C_AddCommand(timedemo);
   C_AddCommand(autorun);
-  //C_AddCommand(cooldemo);
-  //C_AddCommand(stopdemo);
-  //C_AddCommand(exitlevel);
-  //C_AddCommand(addfile);
-  //C_AddCommand(listwads);
+  C_AddCommand(cooldemo);
+  C_AddCommand(stopdemo);
+  C_AddCommand(exitlevel);
+  C_AddCommand(addfile);
+  C_AddCommand(listwads);
   C_AddCommand(iwad);
   C_AddCommand(rngseed);
-  //C_AddCommand(kill);
+  C_AddCommand(kill);
   C_AddCommand(map);
-  //C_AddCommand(name);
+  C_AddCommand(name);
   C_AddCommand(demo_insurance);
   //C_AddCommand(smooth_turning);
 
@@ -633,7 +642,7 @@ void G_AddCommands()
 
   C_AddCommand(g_slowturntics);
 
-  //G_AddChatMacros();
+  G_AddChatMacros();
   G_AddWeapPrefs();
   G_AddCompat();
 }

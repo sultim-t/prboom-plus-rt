@@ -38,6 +38,7 @@
 #pragma interface
 #endif
 
+boolean P_CheckLevel(int lumpnum); // haleyjd: now used in d_main.c
 void P_SetupLevel(const char *, int playermask, skill_t skill);
 void P_Init(void);               /* Called by startup code. */
 

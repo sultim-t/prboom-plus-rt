@@ -651,7 +651,7 @@ CONSOLE_COMMAND(bind, 0)
   {
      int key = G_KeyForName(c_argv[0]);
      if(key < 0)
-	C_Printf("no such key!\n");
+       C_Printf(FC_ERROR"no such key!\n");
      else
      {
 	if(keybindings[key].binding)
@@ -721,6 +721,27 @@ CONSOLE_COMMAND(unbindall, 0)
    }
 }   	
 
+//
+// bindings
+//
+// haleyjd 12/11/01
+// list all active bindings to the console
+//
+CONSOLE_COMMAND(bindings, 0)
+{
+   int i;
+
+   for(i = 0; i < NUM_KEYS; i++)
+   {
+      if(keybindings[i].binding)
+      {
+         C_Printf("%s : %s\n",
+                  keybindings[i].name,
+                  keybindings[i].binding->name);
+      }
+   }
+}
+
 void G_Bind_AddCommands()
 {
   C_AddCommand(bind);
@@ -728,4 +749,5 @@ void G_Bind_AddCommands()
   C_AddCommand(listkeys);
   C_AddCommand(unbind);
   C_AddCommand(unbindall);
+   C_AddCommand(bindings);
 }
