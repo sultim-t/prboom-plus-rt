@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.32 2000/10/05 22:35:02 proff_fs Exp $
+ * $Id: gl_main.c,v 1.33 2000/10/08 18:42:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,15 +37,7 @@ extern int tran_filter_pct;
 
 #define USE_VERTEX_ARRAYS
 
-#ifdef USE_VERTEX_ARRAYS
-#undef USE_DISPLAY_LISTS
-#endif
-
 boolean use_fog=false;
-#ifdef USE_DISPLAY_LISTS
-boolean use_maindisplay_list=false;
-boolean use_display_lists=false;
-#endif
 
 int gl_nearclip=5;
 int gl_farclip=6400;
@@ -220,41 +212,26 @@ static const float lighttable[5][256] =
 
 #define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][max(min((lightlevel),255),0)])
 
-static void gld_StaticLightAlpha(float light, float alpha, GLfloat *light_p)
+static void gld_StaticLightAlpha(float light, float alpha)
 { 
   player_t *player;
 	player = &players[displayplayer];
 
 	if (player->fixedcolormap == 32)
   {
-    if (!light_p)
-      glColor4f(0.5f, 1.0f, 0.0f, alpha);
-    else
-    {
-      light_p[0]=0.5f; light_p[1]=1.0f; light_p[2]=0.0f; light_p[3]=alpha;
-    }
+    glColor4f(0.5f, 1.0f, 0.0f, alpha);
     return;
   }
 	else
   	if (player->fixedcolormap)
     {
-      if (!light_p)
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
-      else
-      {
-        light_p[0]=1.0f; light_p[1]=1.0f; light_p[2]=1.0f; light_p[3]=alpha;
-      }
+      glColor4f(1.0f, 1.0f, 1.0f, alpha);
       return;
     }
-  if (!light_p)
-    glColor4f(light, light, light, alpha);
-  else
-  {
-    light_p[0]=light; light_p[1]=light; light_p[2]=light; light_p[3]=alpha;
-  }
+  glColor4f(light, light, light, alpha);
 }
 
-#define gld_StaticLight(light, light_p) gld_StaticLightAlpha(light, 1.0f, light_p)
+#define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 
 void gld_Init(int width, int height)
 { 
@@ -450,7 +427,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   float width,height;
   float xpos, ypos;
 
-  gltexture=(GLTexture *)GLMalloc(sizeof(GLTexture));
+  gltexture=(GLTexture *)Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
   if (!gltexture)
     return;
   gltexture->realtexwidth=patch->width;
@@ -474,7 +451,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
     return;
   if (gltexture->realtexheight>gltexture->buffer_height)
     return;
-  buffer=(unsigned char*)GLMalloc(gltexture->buffer_size);
+  buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
   memset(buffer,0,gltexture->buffer_size);
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
 	glGenTextures(1,&gltexture->glTexID[cm]);
@@ -486,7 +463,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   {
     unsigned char *scaledbuffer;
 
-    scaledbuffer=(unsigned char*)GLMalloc(gltexture->tex_width*gltexture->tex_height*4);
+    scaledbuffer=(unsigned char*)Z_Malloc(gltexture->tex_width*gltexture->tex_height*4,PU_STATIC,0);
     if (scaledbuffer)
     {
       gluScaleImage(GL_RGBA,
@@ -494,7 +471,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
                     GL_UNSIGNED_BYTE,buffer,
                     gltexture->tex_width, gltexture->tex_height,
                     GL_UNSIGNED_BYTE,scaledbuffer);
-      GLFree(buffer);
+      Z_Free(buffer);
       buffer=scaledbuffer;
       glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
                     gltexture->tex_width, gltexture->tex_height,
@@ -512,7 +489,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-  GLFree(buffer);
+  Z_Free(buffer);
 
   fV1=0.0f;
   fV2=(float)gltexture->height/(float)gltexture->tex_height;
@@ -539,7 +516,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
 	glEnd();
 
 	glDeleteTextures(1,&gltexture->glTexID[cm]);
-  GLFree(gltexture);
+  Z_Free(gltexture);
 }
 
 #undef SCALE_X
@@ -618,9 +595,9 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   else
   {
 		if (viewplayer->mo->flags & MF_TRANSLUCENT)
-      gld_StaticLightAlpha(light,(float)tran_filter_pct/100.0f, NULL);
+      gld_StaticLightAlpha(light,(float)tran_filter_pct/100.0f);
     else
-  		gld_StaticLight(light, NULL);
+  		gld_StaticLight(light);
   }
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(fU1, fV1); glVertex2f((float)(x1),(float)(y1));
@@ -722,27 +699,10 @@ GLvoid gld_Set2DMode()
 
 void gld_InitDrawScene(void)
 {
-#ifdef USE_DISPLAY_LISTS
-  if (use_maindisplay_list)
-  {
-    if (gld_DisplayList==0)
-      gld_DisplayList=glGenLists(1);
-    if (gld_DisplayList)
-      glNewList(gld_DisplayList,GL_COMPILE);
-  }
-#endif
 }
 
 void gld_Finish()
 {
-#ifdef USE_DISPLAY_LISTS
-  if (use_maindisplay_list)
-    if (gld_DisplayList)
-    {
-      glEndList();
-      glCallList(gld_DisplayList);
-    }
-#endif
   gld_Set2DMode();
   glFinish();
 	SDL_GL_SwapBuffers();
@@ -754,6 +714,34 @@ void gld_Finish()
  *               *
  *****************/
 
+typedef struct
+{
+  GLfloat x;
+  GLfloat y;
+  GLfloat z;
+} GLVertex;
+
+typedef struct
+{
+  GLfloat u;
+  GLfloat v;
+} GLTexcoord;
+
+int gld_max_vertexes=0;
+int gld_num_vertexes=0;
+GLVertex *gld_vertexes=NULL;
+GLTexcoord *gld_texcoords=NULL;
+
+static void gld_AddGlobalVertexes(int count)
+{
+  if ((gld_num_vertexes+count)>=gld_max_vertexes)
+  {
+    gld_max_vertexes+=count+1024;
+    gld_vertexes=Z_Realloc(gld_vertexes,gld_max_vertexes*sizeof(GLVertex),PU_LEVEL,0);
+    gld_texcoords=Z_Realloc(gld_texcoords,gld_max_vertexes*sizeof(GLTexcoord),PU_LEVEL,0);
+  }
+}
+
 /* GLLoopDef is the struct for one loop. A loop is a list of vertexes
  * for triangles, which is calculated by the gluTesselator in gld_PrecalculateSector
  * and in gld_PreprocessCarvedFlat
@@ -762,8 +750,7 @@ typedef struct
 {
   GLenum mode; // GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN
   int vertexcount; // number of vertexes in this loop
-  GLfloat *gl_vertexes; // list of pointers to GLfloats
-  GLfloat *gl_texcoords; // list of pointers to GLfloats
+  int vertexindex; // index into vertex list
 } GLLoopDef;
 
 // GLSector is the struct for a sector with a list of loops.
@@ -772,17 +759,11 @@ typedef struct
 {
   int loopcount; // number of loops for this sector
   GLLoopDef *loops; // the loops itself
-#ifdef USE_DISPLAY_LISTS
-  GLuint gl_list;
-#endif
 } GLSector;
 
 typedef struct
 {
   GLLoopDef loop; // the loops itself
-#ifdef USE_DISPLAY_LISTS
-  GLuint gl_list;
-#endif
 } GLSubSector;
 
 typedef struct
@@ -802,37 +783,40 @@ GLSeg *gl_segs=NULL;
 
 typedef struct
 {
-  GLfloat texture[4][2];
-  GLfloat vertex[4][3];
-  GLfloat light[4];
-  byte flag;
+  GLSeg *glseg;
+  float ytop,ybottom;
+  float ul,ur,vt,vb;
+  float light;
+  float alpha;
   float skyymid;
   float skyyaw;
   GLTexture *gltexture;
+  byte flag;
 } GLWall;
 
 typedef struct
 {
   int sectornum;
-  int subsectornum;
-  boolean ceiling;
   float light; // the lightlevel of the flat
   float uoffs,voffs; // the texture coordinates
   float z; // the z position of the flat (height)
   GLTexture *gltexture;
+  boolean ceiling;
 } GLFlat;
 
 typedef struct
 {
   int cm;
-  boolean shadow;
-  boolean trans;
   float x,y,z;
-  GLfloat texture[4][2];
-  GLfloat vertex[4][3];
+  float vt,vb;
+  float ul,ur;
+  float x1,y1;
+  float x2,y2;
 	float light;
   fixed_t scale;
   GLTexture *gltexture;
+  boolean shadow;
+  boolean trans;
 } GLSprite;
 
 typedef enum
@@ -848,6 +832,7 @@ typedef struct
   GLDrawItemType itemtype;
   int itemcount;
   int firstitemindex;
+  byte rendermarker;
 } GLDrawItem;
 
 typedef struct
@@ -870,12 +855,9 @@ static GLDrawInfo gld_drawinfo;
 
 // this is the list for all sectors to the loops
 static GLSector *sectorloops;
-// this is the list for all subsectors
-static GLSubSector *subsectorloops;
 
 byte rendermarker=0;
 static byte *sectorrendered; // true if sector rendered (only here for malloc)
-static byte *subsectorrendered; // true if subsector rendered (only here for malloc)
 static byte *segrendered; // true if sector rendered (only here for malloc)
 
 static FILE *levelinfo;
@@ -942,7 +924,7 @@ static vertex_t *gld_FlatEdgeClipper(int *numpoints, vertex_t *points, int numcl
         gld_CalcIntersectionVertex(&points[startIdx], &points[endIdx], curclip, &newvert);
 
 				// Add the new vertex. Also modify the sidelist.
-				points = (vertex_t*)GLRealloc(points,(++num)*sizeof(vertex_t));
+				points = (vertex_t*)Z_Realloc(points,(++num)*sizeof(vertex_t),PU_LEVEL,0);
 				if(num >= MAX_CC_SIDES) I_Error("Too many points in carver.\n");
 
 				// Make room for the new vertex.
@@ -994,7 +976,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 	int i, numedgepoints;
 	vertex_t *edgepoints;
 	
-  clippers=(divline_t*)GLMalloc(numclippers*sizeof(divline_t));
+  clippers=(divline_t*)Z_Malloc(numclippers*sizeof(divline_t),PU_LEVEL,0);
   if (!clippers)
     return;
 	for(i=0; i<num; i++)
@@ -1015,7 +997,7 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 
 	// Setup the 'worldwide' polygon.
 	numedgepoints = 4;
-	edgepoints = (vertex_t*)GLMalloc(numedgepoints*sizeof(vertex_t));
+	edgepoints = (vertex_t*)Z_Malloc(numedgepoints*sizeof(vertex_t),PU_LEVEL,0);
 	
 	edgepoints[0].x = INT_MIN;
 	edgepoints[0].y = INT_MAX;
@@ -1040,12 +1022,8 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
 	{
 	  if(numedgepoints >= 3)
     {
-      GLfloat *gl_vertexes;
-      GLfloat *gl_texcoords;
-
-      gl_vertexes=Z_Malloc(numedgepoints*sizeof(GLfloat)*3,PU_LEVEL,0);
-      gl_texcoords=Z_Malloc(numedgepoints*sizeof(GLfloat)*2,PU_LEVEL,0);
-      if ((gl_vertexes) && (gl_texcoords))
+      gld_AddGlobalVertexes(numedgepoints);
+      if ((gld_vertexes) && (gld_texcoords))
       {
         int currentsector=ssec->sector->iSectorID;
 
@@ -1053,23 +1031,23 @@ static void gld_FlatConvexCarver(int ssidx, int num, divline_t *list)
         sectorloops[ currentsector ].loops=Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_LEVEL, 0);
         sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=GL_TRIANGLE_FAN;
         sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=numedgepoints;
-        sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_vertexes=gl_vertexes;
-        sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_texcoords=gl_texcoords;
+        sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexindex=gld_num_vertexes;
 
 	      for(i = 0;  i < numedgepoints; i++)
 	      {
-		      gl_texcoords[i*2  ] = ( (float)edgepoints[i].x/(float)FRACUNIT)/64.0f;
-		      gl_texcoords[i*2+1] = (-(float)edgepoints[i].y/(float)FRACUNIT)/64.0f;
-          gl_vertexes[i*3  ] = -(float)edgepoints[i].x/MAP_SCALE;
-          gl_vertexes[i*3+1] = 0.0f;
-          gl_vertexes[i*3+2] =  (float)edgepoints[i].y/MAP_SCALE;
+		      gld_texcoords[gld_num_vertexes].u = ( (float)edgepoints[i].x/(float)FRACUNIT)/64.0f;
+		      gld_texcoords[gld_num_vertexes].v = (-(float)edgepoints[i].y/(float)FRACUNIT)/64.0f;
+          gld_vertexes[gld_num_vertexes].x = -(float)edgepoints[i].x/MAP_SCALE;
+          gld_vertexes[gld_num_vertexes].y = 0.0f;
+          gld_vertexes[gld_num_vertexes].z =  (float)edgepoints[i].y/MAP_SCALE;
+          gld_num_vertexes++;
 	      }
       }
     }
 	}
 	// We're done, free the edgepoints memory.
-	GLFree(edgepoints);
-  GLFree(clippers);
+	Z_Free(edgepoints);
+  Z_Free(clippers);
 }
 
 static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, boolean *sectorclosed)
@@ -1094,7 +1072,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
 	nod = nodes + bspnode;
 
 	// Allocate a new list for each child.
-	childlist = (divline_t*)GLMalloc(childlistsize*sizeof(divline_t));
+	childlist = (divline_t*)Z_Malloc(childlistsize*sizeof(divline_t),PU_LEVEL,0);
 
 	// Copy the previous lines.
 	if(divlines) memcpy(childlist,divlines,numdivlines*sizeof(divline_t));
@@ -1114,7 +1092,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
 	gld_CarveFlats(nod->children[1],childlistsize,childlist,sectorclosed);
 
 	// We are finishing with this node, free the allocated list.
-	GLFree(childlist);
+	Z_Free(childlist);
 }
 
 #ifdef USE_GLU_TESS
@@ -1151,7 +1129,7 @@ static void CALLBACK ntessBegin( GLenum type )
   // currentloop is -> sectorloops[currentsector].loopcount-1
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].mode=type;
   sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=0;
-  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_vertexes=NULL;
+  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexindex=gld_num_vertexes;
 }
 
 // ntessError
@@ -1193,36 +1171,22 @@ static void CALLBACK ntessCombine( GLdouble coords[3], vertex_t *vert[4], GLfloa
 
 static void CALLBACK ntessVertex( vertex_t *vert )
 {
-  GLfloat *gl_vertexes;
-  GLfloat *gl_texcoords;
-  int vertexcount;
-
 #ifdef _DEBUG
   if (levelinfo)
     fprintf(levelinfo, "\t\tVertex : x %10i, y %10i\n", vert->x>>FRACBITS, vert->y>>FRACBITS);
 #endif
-  // set vertexcount and vertexes variables to the values for the current loop, so the
-  // rest of this function isn't to complicated
-  vertexcount=sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount;
-  gl_vertexes=sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_vertexes;
-  gl_texcoords=sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_texcoords;
+  // increase vertex count
+  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount++;
 
   // increase vertex count
-  vertexcount++;
-  // realloc memory to get space for new vertex
-  gl_vertexes=Z_Realloc(gl_vertexes, vertexcount*sizeof(GLfloat)*3,PU_LEVEL,0);
-  gl_texcoords=Z_Realloc(gl_texcoords, vertexcount*sizeof(GLfloat)*2,PU_LEVEL,0);
+  gld_AddGlobalVertexes(1);
   // add the new vertex (vert is the second argument of gluTessVertex)
-  gl_texcoords[(vertexcount-1)*2  ]=( (float)vert->x/(float)FRACUNIT)/64.0f;
-  gl_texcoords[(vertexcount-1)*2+1]=(-(float)vert->y/(float)FRACUNIT)/64.0f;
-  gl_vertexes[(vertexcount-1)*3  ]=-(float)vert->x/MAP_SCALE;
-  gl_vertexes[(vertexcount-1)*3+1]=0.0f;
-  gl_vertexes[(vertexcount-1)*3+2]= (float)vert->y/MAP_SCALE;
-
-  // set values of the loop to new values
-  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].vertexcount=vertexcount;
-  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_vertexes=gl_vertexes;
-  sectorloops[ currentsector ].loops[ sectorloops[currentsector].loopcount-1 ].gl_texcoords=gl_texcoords;
+  gld_texcoords[gld_num_vertexes].u=( (float)vert->x/(float)FRACUNIT)/64.0f;
+  gld_texcoords[gld_num_vertexes].v=(-(float)vert->y/(float)FRACUNIT)/64.0f;
+  gld_vertexes[gld_num_vertexes].x=-(float)vert->x/MAP_SCALE;
+  gld_vertexes[gld_num_vertexes].y=0.0f;
+  gld_vertexes[gld_num_vertexes].z= (float)vert->y/MAP_SCALE;
+  gld_num_vertexes++;
 }
 
 // ntessEnd
@@ -1275,7 +1239,7 @@ static void gld_PrecalculateSector(int num)
   int vertexnum;
 
   currentsector=num;
-  lineadded=GLRealloc(lineadded,sectors[num].linecount*sizeof(boolean));
+  lineadded=Z_Malloc(sectors[num].linecount*sizeof(boolean),PU_LEVEL,0);
   if (!lineadded)
   {
     if (levelinfo) fclose(levelinfo);
@@ -1286,7 +1250,7 @@ static void gld_PrecalculateSector(int num)
   if (!tess)
   {
     if (levelinfo) fclose(levelinfo);
-    GLFree(lineadded);
+    Z_Free(lineadded);
     return;
   }
   // set callbacks
@@ -1381,7 +1345,7 @@ static void gld_PrecalculateSector(int num)
     if (vertexnum>=maxvertexnum)
     {
       maxvertexnum+=512;
-      v=GLRealloc(v,maxvertexnum*3*sizeof(double));
+      v=Z_Realloc(v,maxvertexnum*3*sizeof(double),PU_LEVEL,0);
     }
     // calculate coordinates for the glu tesselation functions
     v[vertexnum*3+0]=-(double)currentvertex->x/(double)MAP_SCALE;
@@ -1462,8 +1426,8 @@ static void gld_PrecalculateSector(int num)
   gluTessEndPolygon(tess);
   // clean memory
   gluDeleteTess(tess);
-  GLFree(v);
-  GLFree(lineadded);
+  Z_Free(v);
+  Z_Free(lineadded);
 }
 
 #endif /* USE_GLU_TESS */
@@ -1477,51 +1441,40 @@ static void gld_PrecalculateSector(int num)
  *            (glnodes only)			          *
  ********************************************/
 
-void gld_GetSubSectorVertices(void)
+void gld_GetSubSectorVertices(boolean *sectorclosed)
 {
 	int			 i, j;
   int			 numedgepoints;
 	subsector_t* ssector;
-  GLfloat *gl_vertexes;
-  GLfloat *gl_texcoords;
 		
 	for(i = 0; i < numsubsectors; i++)
 	{
 		ssector = &subsectors[i];
 
+    if (sectorclosed[ssector->sector->iSectorID])
+      continue;
+
 		numedgepoints  = ssector->numlines;
 
-    gl_vertexes=Z_Malloc(numedgepoints*sizeof(GLfloat)*3,PU_LEVEL,0);
-    gl_texcoords=Z_Malloc(numedgepoints*sizeof(GLfloat)*2,PU_LEVEL,0);
+    gld_AddGlobalVertexes(numedgepoints);
 
-    if ((gl_vertexes) && (gl_texcoords))
+    if ((gld_vertexes) && (gld_texcoords))
     {
-/*
 			int currentsector = ssector->sector->iSectorID;
 
 			sectorloops[currentsector].loopcount++;
-			sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
+			sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_LEVEL, 0);
 			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].mode		 = GL_TRIANGLE_FAN;
 			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexcount = numedgepoints;
-			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].gl_vertexes = vtx;
-*/
-#ifdef _DEBUG
-      if (subsectorloops[ i ].loop.gl_vertexes)
-        lprintf(LO_INFO,"subsector %i already carved\n",i);
-#endif
-
-      subsectorloops[ i ].loop.mode=GL_TRIANGLE_FAN;
-      subsectorloops[ i ].loop.vertexcount=numedgepoints;
-      subsectorloops[ i ].loop.gl_vertexes=gl_vertexes;
-      subsectorloops[ i ].loop.gl_texcoords=gl_texcoords;
-
-			for(j = 0;  j < numedgepoints; j++)
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexindex = gld_num_vertexes;
+      for(j = 0;  j < numedgepoints; j++)
 			{
-        gl_vertexes[j*3  ] = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
-        gl_vertexes[j*3+1] = 0.0f;
-        gl_vertexes[j*3+2] =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
-        gl_texcoords[j*2  ] =( (float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
-        gl_texcoords[j*2+1] =(-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
+        gld_texcoords[gld_num_vertexes].u =( (float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
+        gld_texcoords[gld_num_vertexes].v =(-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
+        gld_vertexes[gld_num_vertexes].x = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
+        gld_vertexes[gld_num_vertexes].y = 0.0f;
+        gld_vertexes[gld_num_vertexes].z =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
+        gld_num_vertexes++;
 			}
 	  }
   }
@@ -1606,103 +1559,91 @@ void gld_PreprocessSectors(void)
   }
 #endif
 
-  sectorclosed=GLMalloc(numsectors*sizeof(boolean));
+  sectorclosed=Z_Malloc(numsectors*sizeof(boolean),PU_LEVEL,0);
   if (!sectorclosed)
     I_Error("Not enough memory for array (sectorclosed)\n");
   memset(sectorclosed, 0, sizeof(boolean)*numsectors);
 
-  GLFree(sectorloops);
-  sectorloops=GLMalloc(sizeof(GLSector)*numsectors);
+  sectorloops=Z_Malloc(sizeof(GLSector)*numsectors,PU_LEVEL,0);
   if (!sectorloops)
     I_Error("Not enough memory for array (sectorloops)\n");
   memset(sectorloops, 0, sizeof(GLSector)*numsectors);
 
-  GLFree(sectorrendered);
-  sectorrendered=GLMalloc(numsectors*sizeof(byte));
+  sectorrendered=Z_Malloc(numsectors*sizeof(byte),PU_LEVEL,0);
   if (!sectorrendered)
     I_Error("Not enough memory for array (sectorrendered)\n");
   memset(sectorrendered, 0, numsectors*sizeof(byte));
 
-  GLFree(subsectorloops);
-  subsectorloops=GLMalloc(sizeof(GLSubSector)*numsubsectors);
-  if (!subsectorloops)
-    I_Error("Not enough memory for array (subsectorloops)\n");
-  memset(subsectorloops, 0, sizeof(GLSubSector)*numsubsectors);
-
-  GLFree(subsectorrendered);
-  subsectorrendered=GLMalloc(numsubsectors*sizeof(byte));
-  if (!subsectorrendered)
-    I_Error("Not enough memory for array (subsectorrendered)\n");
-  memset(subsectorrendered, 0, numsubsectors*sizeof(byte));
-
-  GLFree(segrendered);
-  segrendered=GLMalloc(numsegs*sizeof(byte));
+  segrendered=Z_Malloc(numsegs*sizeof(byte),PU_LEVEL,0);
   if (!segrendered)
     I_Error("Not enough memory for array (segrendered)\n");
   memset(segrendered, 0, numsegs*sizeof(byte));
 
-#ifdef USE_GLU_TESS
-  if (usingGLNodes == false)
-  {
-    vertexcheck=GLMalloc(numvertexes*sizeof(char));
-    if (!vertexcheck)
-    {
-      if (levelinfo) fclose(levelinfo);
-      I_Error("Not enough memory for array (vertexcheck)\n");
-      return;
-    }
+  gld_vertexes=NULL;
+  gld_texcoords=NULL;
+  gld_max_vertexes=0;
+  gld_num_vertexes=0;
+  gld_AddGlobalVertexes(numvertexes*2);
 
-    for (i=0; i<numsectors; i++)
+#ifdef USE_GLU_TESS
+  vertexcheck=Z_Malloc(numvertexes*sizeof(char),PU_LEVEL,0);
+  if (!vertexcheck)
+  {
+    if (levelinfo) fclose(levelinfo);
+    I_Error("Not enough memory for array (vertexcheck)\n");
+    return;
+  }
+
+  for (i=0; i<numsectors; i++)
+  {
+    memset(vertexcheck,0,numvertexes*sizeof(char));
+    for (j=0; j<sectors[i].linecount; j++)
     {
-      memset(vertexcheck,0,numvertexes*sizeof(char));
-      for (j=0; j<sectors[i].linecount; j++)
-      {
-        v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
-        v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
-        if ((v1num>=numvertexes) || (v2num>=numvertexes))
-          continue;
-        if (sectors[i].lines[j]->sidenum[0]>=0)
-          if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
-          {
-            vertexcheck[v1num]|=1;
-            vertexcheck[v2num]|=2;
-          }
-        if (sectors[i].lines[j]->sidenum[1]>=0)
-          if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
-          {
-            vertexcheck[v1num]|=2;
-            vertexcheck[v2num]|=1;
-          }
-      }
-      if (sectors[i].linecount<3)
-      {
-#ifdef _DEBUG
-        lprintf(LO_ERROR, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
-#endif
-        if (levelinfo) fprintf(levelinfo, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
-        sectorclosed[i]=false;
-      }
-      else
-      {
-        sectorclosed[i]=true;
-        for (j=0; j<numvertexes; j++)
+      v1num=((int)sectors[i].lines[j]->v1-(int)vertexes)/sizeof(vertex_t);
+      v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
+      if ((v1num>=numvertexes) || (v2num>=numvertexes))
+        continue;
+      if (sectors[i].lines[j]->sidenum[0]>=0)
+        if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
         {
-          if ((vertexcheck[j]==1) || (vertexcheck[j]==2))
-          {
+          vertexcheck[v1num]|=1;
+          vertexcheck[v2num]|=2;
+        }
+      if (sectors[i].lines[j]->sidenum[1]>=0)
+        if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
+        {
+          vertexcheck[v1num]|=2;
+          vertexcheck[v2num]|=1;
+        }
+    }
+    if (sectors[i].linecount<3)
+    {
 #ifdef _DEBUG
-            lprintf(LO_ERROR, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+      lprintf(LO_ERROR, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
 #endif
-            if (levelinfo) fprintf(levelinfo, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
-            sectorclosed[i]=false;
-          }
+      if (levelinfo) fprintf(levelinfo, "sector %i is not closed! %i lines in sector\n", i, sectors[i].linecount);
+      sectorclosed[i]=false;
+    }
+    else
+    {
+      sectorclosed[i]=true;
+      for (j=0; j<numvertexes; j++)
+      {
+        if ((vertexcheck[j]==1) || (vertexcheck[j]==2))
+        {
+#ifdef _DEBUG
+          lprintf(LO_ERROR, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+#endif
+          if (levelinfo) fprintf(levelinfo, "sector %i is not closed at vertex %i ! %i lines in sector\n", i, j, sectors[i].linecount);
+          sectorclosed[i]=false;
         }
       }
-	    // figgi -- adapted for glnodes
-      if ( (sectorclosed[i]) && (usingGLNodes == false) )
-        gld_PrecalculateSector(i);	
     }
-    GLFree(vertexcheck);
+	  // figgi -- adapted for glnodes
+    if (sectorclosed[i])
+      gld_PrecalculateSector(i);	
   }
+  Z_Free(vertexcheck);
 #endif /* USE_GLU_TESS */
 
   for (i=0; i<numsectors; i++)
@@ -1712,10 +1653,10 @@ void gld_PreprocessSectors(void)
   if (usingGLNodes == false)
 	  gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
   else
-	  gld_GetSubSectorVertices();
+	  gld_GetSubSectorVertices(sectorclosed);
 
   if (levelinfo) fclose(levelinfo);
-  GLFree(sectorclosed);
+  Z_Free(sectorclosed);
 }
 
 static float roll     = 0.0f;
@@ -1779,8 +1720,6 @@ void gld_StartDrawScene(void)
   gld_drawinfo.num_flats=0;
   gld_drawinfo.num_sprites=0;
   gld_drawinfo.num_drawitems=0;
-  if (gld_drawinfo.max_drawitems>0)
-    memset(gld_drawinfo.drawitems,0,gld_drawinfo.max_drawitems*sizeof(GLDrawItem));
 }
 
 void gld_EndDrawScene(void)
@@ -1822,11 +1761,17 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
   if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
   {
     gld_drawinfo.max_drawitems+=64;
-    gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLWall),PU_LEVEL,0);
+    gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem),PU_LEVEL,0);
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=itemtype;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount=1;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].firstitemindex=itemindex;
+    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker=rendermarker;
     return;
+  }
+  if (gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker!=rendermarker)
+  {
+    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=GLDIT_NONE;
+    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker=rendermarker;
   }
   if (gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype!=itemtype)
   {
@@ -1835,11 +1780,12 @@ static void gld_AddDrawItem(GLDrawItemType itemtype, int itemindex)
     if (gld_drawinfo.num_drawitems>=gld_drawinfo.max_drawitems)
     {
       gld_drawinfo.max_drawitems+=64;
-      gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLWall),PU_LEVEL,0);
+      gld_drawinfo.drawitems=Z_Realloc(gld_drawinfo.drawitems,gld_drawinfo.max_drawitems*sizeof(GLDrawItem),PU_LEVEL,0);
     }
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemtype=itemtype;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount=1;
     gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].firstitemindex=itemindex;
+    gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].rendermarker=rendermarker;
     return;
   }
   gld_drawinfo.drawitems[gld_drawinfo.num_drawitems].itemcount++;
@@ -1879,10 +1825,10 @@ static void gld_DrawWall(GLWall *wall)
       glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
     }
     glBegin(GL_TRIANGLE_STRIP);
-      glVertex3fv(wall->vertex[0]);
-      glVertex3fv(wall->vertex[1]);
-      glVertex3fv(wall->vertex[2]);
-      glVertex3fv(wall->vertex[3]);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
     if ( wall->gltexture )
     {
@@ -1892,12 +1838,12 @@ static void gld_DrawWall(GLWall *wall)
   }
   else
   {
-    glColor4fv(wall->light);
+    gld_StaticLightAlpha(wall->light, wall->alpha);
     glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2fv(wall->texture[0]); glVertex3fv(wall->vertex[0]);
-      glTexCoord2fv(wall->texture[1]); glVertex3fv(wall->vertex[1]);
-      glTexCoord2fv(wall->texture[2]); glVertex3fv(wall->vertex[2]);
-      glTexCoord2fv(wall->texture[3]); glVertex3fv(wall->vertex[3]);
+      glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glTexCoord2f(wall->ul,wall->vb); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glTexCoord2f(wall->ur,wall->vt); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
   }
   if (!wall->gltexture)
@@ -1906,8 +1852,8 @@ static void gld_DrawWall(GLWall *wall)
 
 #define LINE seg->linedef
 #define CALC_Y_VALUES(w, lineheight, floor_height, ceiling_height)\
-  (w).vertex[0][1]=(w).vertex[2][1]=(((float)(ceiling_height)/MAP_SCALE)+0.001f);\
-  (w).vertex[1][1]=(w).vertex[3][1]=(((float)(floor_height)/MAP_SCALE)-0.001f);\
+  (w).ytop=((float)(ceiling_height)/(float)MAP_SCALE)+0.001f;\
+  (w).ybottom=((float)(floor_height)/(float)MAP_SCALE)-0.001f;\
   lineheight=((float)fabs(((ceiling_height)/(float)FRACUNIT)-((floor_height)/(float)FRACUNIT)))
 
 #define OU(w,seg) (((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->buffer_width)
@@ -1916,54 +1862,54 @@ static void gld_DrawWall(GLWall *wall)
 
 #define CALC_TEX_VALUES_TOP(w, seg, peg, linelength, lineheight)\
   (w).flag=GLDWF_TOP;\
-  (w).texture[0][0]=(w).texture[1][0]=OU((w),(seg))+(0.0f);\
-  (w).texture[2][0]=(w).texture[3][0]=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
+  (w).ul=OU((w),(seg))+(0.0f);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
   (peg)?\
   (\
-    (w).texture[1][1]=(w).texture[3][1]=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).texture[0][1]=(w).texture[2][1]=((w).texture[1][1]-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vb=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
-    (w).texture[0][1]=(w).texture[2][1]=OV((w),(seg))+(0.0f),\
-    (w).texture[1][1]=(w).texture[3][1]=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vt=OV((w),(seg))+(0.0f),\
+    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
 #define CALC_TEX_VALUES_MIDDLE1S(w, seg, peg, linelength, lineheight)\
   (w).flag=GLDWF_M1S;\
-  (w).texture[0][0]=(w).texture[1][0]=OU((w),(seg))+(0.0f);\
-  (w).texture[2][0]=(w).texture[3][0]=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
+  (w).ul=OU((w),(seg))+(0.0f);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
   (peg)?\
   (\
-    (w).texture[1][1]=(w).texture[3][1]=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).texture[0][1]=(w).texture[2][1]=((w).texture[1][1]-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vb=OV((w),(seg))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
-    (w).texture[0][1]=(w).texture[2][1]=OV((w),(seg))+(0.0f),\
-    (w).texture[1][1]=(w).texture[3][1]=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vt=OV((w),(seg))+(0.0f),\
+    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
 #define CALC_TEX_VALUES_MIDDLE2S(w, seg, peg, linelength, lineheight)\
   (w).flag=GLDWF_M2S;\
-  (w).texture[0][0]=(w).texture[1][0]=OU((w),(seg))+(0.0f);\
-  (w).texture[2][0]=(w).texture[3][0]=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
+  (w).ul=OU((w),(seg))+(0.0f);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->buffer_width);\
   (peg)?\
   (\
-    (w).texture[1][1]=(w).texture[3][1]=((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).texture[0][1]=(w).texture[2][1]=((w).texture[1][1]-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vb=((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
-    (w).texture[0][1]=(w).texture[2][1]=(0.0f),\
-    (w).texture[1][1]=(w).texture[3][1]=((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vt=(0.0f),\
+    (w).vb=((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
 #define CALC_TEX_VALUES_BOTTOM(w, seg, peg, linelength, lineheight, v_offset)\
   (w).flag=GLDWF_BOT;\
-  (w).texture[0][0]=(w).texture[1][0]=OU((w),(seg))+(0.0f);\
-  (w).texture[2][0]=(w).texture[3][0]=OU((w),(seg))+((linelength)/(float)(w).gltexture->realtexwidth);\
+  (w).ul=OU((w),(seg))+(0.0f);\
+  (w).ur=OU((w),(seg))+((linelength)/(float)(w).gltexture->realtexwidth);\
   (peg)?\
   (\
-    (w).texture[1][1]=(w).texture[3][1]=OV_PEG((w),(seg),(v_offset))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
-    (w).texture[0][1]=(w).texture[2][1]=((w).texture[1][1]-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
+    (w).vb=OV_PEG((w),(seg),(v_offset))+((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vt=((w).vb-((float)(lineheight)/(float)(w).gltexture->buffer_height))\
   ):(\
-    (w).texture[0][1]=(w).texture[2][1]=OV((w),(seg))+(0.0f),\
-    (w).texture[1][1]=(w).texture[3][1]=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
+    (w).vt=OV((w),(seg))+(0.0f),\
+    (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
 #define SKYTEXTURE(sky1,sky2)\
@@ -2025,27 +1971,25 @@ void gld_AddWall(seg_t *seg)
   frontsector=R_FakeFlat(seg->frontsector, &ftempsec, NULL, NULL, false); // for boom effects
   if (!frontsector)
     return;
-  wall.vertex[0][0]=wall.vertex[1][0]=gl_segs[seg->iSegID].x1;
-  wall.vertex[0][2]=wall.vertex[1][2]=gl_segs[seg->iSegID].z1;
-  wall.vertex[2][0]=wall.vertex[3][0]=gl_segs[seg->iSegID].x2;
-  wall.vertex[2][2]=wall.vertex[3][2]=gl_segs[seg->iSegID].z2;
+  wall.glseg=&gl_segs[seg->iSegID];
 
-  gld_StaticLight(gld_CalcLightLevel(frontsector->lightlevel+(extralight<<5)), wall.light);
+  wall.light=gld_CalcLightLevel(frontsector->lightlevel+(extralight<<5));
+  wall.alpha=1.0f;
   wall.gltexture=NULL;
 
   if (!seg->backsector) /* onesided */
   {
     if (frontsector->ceilingpic==skyflatnum)
     {
-      wall.vertex[0][1]=wall.vertex[2][1]=255.0f;
-      wall.vertex[1][1]=wall.vertex[3][1]=(float)frontsector->ceilingheight/MAP_SCALE;
+      wall.ytop=255.0f;
+      wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
       SKYTEXTURE(frontsector->sky,frontsector->sky);
       ADDWALL(&wall);
     }
     if (frontsector->floorpic==skyflatnum)
     {
-      wall.vertex[0][1]=wall.vertex[2][1]=(float)frontsector->floorheight/MAP_SCALE;
-      wall.vertex[1][1]=wall.vertex[3][1]=-255.0f;
+      wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
+      wall.ybottom=-255.0f;
       SKYTEXTURE(frontsector->sky,frontsector->sky);
       ADDWALL(&wall);
     }
@@ -2073,13 +2017,13 @@ void gld_AddWall(seg_t *seg)
     floor_height=backsector->ceilingheight;
     if (frontsector->ceilingpic==skyflatnum)
     {
-      wall.vertex[0][1]=wall.vertex[2][1]=255.0f;
+      wall.ytop=255.0f;
       if (
           (backsector->ceilingheight==backsector->floorheight) &&
           (backsector->ceilingpic==skyflatnum)
          )
       {
-        wall.vertex[1][1]=wall.vertex[3][1]=(float)backsector->floorheight/MAP_SCALE;
+        wall.ybottom=(float)backsector->floorheight/MAP_SCALE;
         SKYTEXTURE(frontsector->sky,backsector->sky);
         ADDWALL(&wall);
       }
@@ -2087,7 +2031,7 @@ void gld_AddWall(seg_t *seg)
       {
         if ( (texturetranslation[seg->sidedef->toptexture]!=R_TextureNumForName("-")) )
         {
-          wall.vertex[1][1]=wall.vertex[3][1]=(float)frontsector->ceilingheight/MAP_SCALE;
+          wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           ADDWALL(&wall);
         }
@@ -2095,7 +2039,7 @@ void gld_AddWall(seg_t *seg)
           if ( (backsector->ceilingheight <= frontsector->floorheight) ||
                (backsector->ceilingpic != skyflatnum) )
           {
-            wall.vertex[1][1]=wall.vertex[3][1]=(float)backsector->ceilingheight/MAP_SCALE;
+            wall.ybottom=(float)backsector->ceilingheight/MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
             ADDWALL(&wall);
           }
@@ -2144,9 +2088,9 @@ void gld_AddWall(seg_t *seg)
         segs[seg->iSegID].length, lineheight
       );
       if (seg->linedef->tranlump >= 0 && general_translucency)
-        wall.light[3]=(float)tran_filter_pct/100.0f;
+        wall.alpha=(float)tran_filter_pct/100.0f;
       ADDWALL(&wall);
-      wall.light[3]=1.0f;
+      wall.alpha=1.0f;
     }
 bottomtexture:
     /* bottomtexture */
@@ -2154,13 +2098,13 @@ bottomtexture:
     floor_height=frontsector->floorheight;
     if (frontsector->floorpic==skyflatnum)
     {
-      wall.vertex[1][1]=wall.vertex[3][1]=-255.0f;
+      wall.ybottom=-255.0f;
       if (
           (backsector->ceilingheight==backsector->floorheight) &&
           (backsector->floorpic==skyflatnum)
          )
       {
-        wall.vertex[0][1]=wall.vertex[2][1]=(float)backsector->floorheight/MAP_SCALE;
+        wall.ytop=(float)backsector->floorheight/MAP_SCALE;
         SKYTEXTURE(frontsector->sky,backsector->sky);
         ADDWALL(&wall);
       }
@@ -2168,7 +2112,7 @@ bottomtexture:
       {
         if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
         {
-          wall.vertex[0][1]=wall.vertex[2][1]=(float)frontsector->floorheight/MAP_SCALE;
+          wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           ADDWALL(&wall);
         }
@@ -2176,7 +2120,7 @@ bottomtexture:
           if ( (backsector->floorheight >= frontsector->ceilingheight) ||
                (backsector->floorpic != skyflatnum) )
           {
-            wall.vertex[0][1]=wall.vertex[2][1]=(float)backsector->floorheight/MAP_SCALE;
+            wall.ytop=(float)backsector->floorheight/MAP_SCALE;
             SKYTEXTURE(frontsector->sky,backsector->sky);
             ADDWALL(&wall);
           }
@@ -2215,15 +2159,14 @@ bottomtexture:
 static void gld_PreprocessSegs(void)
 {
   int i;
-  
-  GLFree(gl_segs);
-  gl_segs=GLMalloc(numsegs*sizeof(GLSeg));
+
+  gl_segs=Z_Malloc(numsegs*sizeof(GLSeg),PU_LEVEL,0);
   for (i=0; i<numsegs; i++)
   {
-    gl_segs[i].x1=-(float)segs[i].v1->x/MAP_SCALE;
-    gl_segs[i].z1= (float)segs[i].v1->y/MAP_SCALE;
-    gl_segs[i].x2=-(float)segs[i].v2->x/MAP_SCALE;
-    gl_segs[i].z2= (float)segs[i].v2->y/MAP_SCALE;
+    gl_segs[i].x1=-(float)segs[i].v1->x/(float)MAP_SCALE;
+    gl_segs[i].z1= (float)segs[i].v1->y/(float)MAP_SCALE;
+    gl_segs[i].x2=-(float)segs[i].v2->x/(float)MAP_SCALE;
+    gl_segs[i].z2= (float)segs[i].v2->y/(float)MAP_SCALE;
   }
 }
 
@@ -2237,9 +2180,12 @@ static void gld_DrawFlat(GLFlat *flat)
 {
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
+#ifndef USE_VERTEX_ARRAYS
+  int vertexnum;
+#endif
 
   gld_BindFlat(flat->gltexture);
-  gld_StaticLight(flat->light, NULL);
+  gld_StaticLight(flat->light);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatef(0.0f,flat->z,0.0f);
@@ -2249,115 +2195,33 @@ static void gld_DrawFlat(GLFlat *flat)
   if (flat->sectornum>=0)
   {
     // go through all loops of this sector
-#ifdef USE_DISPLAY_LISTS
-    if (!sectorloops[flat->sectornum].gl_list)
-    {
-      if (use_display_lists)
-      {
-        sectorloops[flat->sectornum].gl_list=glGenLists(1);
-        if (!sectorloops[flat->sectornum].gl_list)
-        {
-          glPopMatrix();
-          glMatrixMode(GL_MODELVIEW);
-          glPopMatrix();
-          return;
-        }
-        glNewList(sectorloops[flat->sectornum].gl_list,GL_COMPILE_AND_EXECUTE);
-      }
-#endif
 #ifndef USE_VERTEX_ARRAYS
-      for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
-      {
-        // set the current loop
-        currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-        if (!currentloop)
-          continue;
-        // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
-        glBegin(currentloop->mode);
-        // go through all vertexes of this loop
-        for (int vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
-        {
-          // set texture coordinate of this vertex
-          glTexCoord2fv(&currentloop->gl_texcoords[vertexnum*2]);
-          // set vertex coordinate
-          glVertex3fv(&currentloop->gl_vertexes[vertexnum*3]);
-        }
-        // end of loop
-        glEnd();
-      }
-#else
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
-      {
-        // set the current loop
-        currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-        glTexCoordPointer(2,GL_FLOAT,0,currentloop->gl_texcoords);
-        glVertexPointer(3,GL_FLOAT,0,currentloop->gl_vertexes);
-        glDrawArrays(currentloop->mode,0,currentloop->vertexcount);
-      }
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
-#endif
-#ifdef USE_DISPLAY_LISTS
-      if (use_display_lists)
-        glEndList();
-    }
-    else
-      glCallList(sectorloops[flat->sectornum].gl_list);
-#endif
-  }
-  if (flat->subsectornum>=0)
-  {
-    // go through all loops of this sector
-#ifdef USE_DISPLAY_LISTS
-    if (!subsectorloops[flat->subsectornum].gl_list)
+    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
     {
-      if (use_display_lists)
-      {
-        subsectorloops[flat->subsectornum].gl_list=glGenLists(1);
-        if (!subsectorloops[flat->subsectornum].gl_list)
-        {
-          glPopMatrix();
-          glMatrixMode(GL_MODELVIEW);
-          glPopMatrix();
-          return;
-        }
-        glNewList(subsectorloops[flat->subsectornum].gl_list,GL_COMPILE_AND_EXECUTE);
-      }
-#endif
-#ifndef USE_VERTEX_ARRAYS
       // set the current loop
-      currentloop=&subsectorloops[flat->subsectornum].loop;
+      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+      if (!currentloop)
+        continue;
       // set the mode (GL_TRIANGLES, GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN)
       glBegin(currentloop->mode);
       // go through all vertexes of this loop
-      for (vertexnum=0; vertexnum<currentloop->vertexcount; vertexnum++)
+      for (vertexnum=currentloop->vertexindex; vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
       {
         // set texture coordinate of this vertex
-        glTexCoord2fv(&currentloop->gl_texcoords[vertexnum*2]);
+        glTexCoord2fv(&gld_texcoords[vertexnum*2]);
         // set vertex coordinate
-        glVertex3fv(&currentloop->gl_vertexes[vertexnum*3]);
+        glVertex3fv(&gld_vertexes[vertexnum*3]);
       }
       // end of loop
       glEnd();
-#else
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      // set the current loop
-      currentloop=&subsectorloops[flat->subsectornum].loop;
-      glTexCoordPointer(2,GL_FLOAT,0,currentloop->gl_texcoords);
-      glVertexPointer(3,GL_FLOAT,0,currentloop->gl_vertexes);
-      glDrawArrays(currentloop->mode,0,currentloop->vertexcount);
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
-#endif
-#ifdef USE_DISPLAY_LISTS
-      if (use_display_lists)
-        glEndList();
     }
-    else
-      glCallList(subsectorloops[flat->subsectornum].gl_list);
+#else
+    for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+    {
+      // set the current loop
+      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+    }
 #endif
   }
   glPopMatrix();
@@ -2370,24 +2234,17 @@ static void gld_DrawFlat(GLFlat *flat)
 // This draws on flat for the sector "num"
 // The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
 
-static void gld_AddFlat(int subsectornum, int sectornum, boolean ceiling, visplane_t *plane)
+static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
 {
-  subsector_t *subsector; // the subsector we want to draw
   sector_t *sector; // the sector we want to draw
   sector_t tempsec; // needed for R_FakeFlat
   int floorlightlevel;      // killough 3/16/98: set floor lightlevel
   int ceilinglightlevel;    // killough 4/11/98
   GLFlat flat;
 
-  flat.subsectornum=subsectornum;
-  flat.sectornum=sectornum;
-  if (subsectornum>=0)
-  {
-    subsector=&subsectors[subsectornum]; // get the subsector
-    sectornum=subsector->sector->iSectorID;
-  }
   if (sectornum<0)
     return;
+  flat.sectornum=sectornum;
   sector=&sectors[sectornum]; // get the sector
   sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
   flat.ceiling=ceiling;
@@ -2441,39 +2298,20 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
   // check if all arrays are allocated
   if (!sectorrendered)
     return;
-  if (!subsectorrendered)
-    return;
 
-  if (usingGLNodes)
+  subsector = &subsectors[subsectornum];
+  if (!subsector)
+    return;
+  if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
   {
-    if (subsectorrendered[subsectornum]!=rendermarker) // if not already rendered
-    {
-      // render the floor
-      if (floorplane)
-        gld_AddFlat(subsectornum, -1, false, floorplane);
-      // render the ceiling
-      if (ceilingplane)
-        gld_AddFlat(subsectornum, -1, true, ceilingplane);
-      // set rendered true
-      subsectorrendered[subsectornum]=rendermarker;
-    }
-  }
-  else
-  {
-    subsector = &subsectors[subsectornum];
-    if (!subsector)
-      return;
-    if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
-    {
-      // render the floor
-      if (floorplane)
-        gld_AddFlat(-1, subsector->sector->iSectorID, false, floorplane);
-      // render the ceiling
-      if (ceilingplane)
-        gld_AddFlat(-1, subsector->sector->iSectorID, true, ceilingplane);
-      // set rendered true
-      sectorrendered[subsector->sector->iSectorID]=rendermarker;
-    }
+    // render the floor
+    if (floorplane)
+      gld_AddFlat(subsector->sector->iSectorID, false, floorplane);
+    // render the ceiling
+    if (ceilingplane)
+      gld_AddFlat(subsector->sector->iSectorID, true, ceilingplane);
+    // set rendered true
+    sectorrendered[subsector->sector->iSectorID]=rendermarker;
   }
 }
 
@@ -2500,15 +2338,15 @@ static void gld_DrawSprite(GLSprite *sprite)
   else
   {
 		if(sprite->trans)
-      gld_StaticLightAlpha(sprite->light,(float)tran_filter_pct/100.0f, NULL);
+      gld_StaticLightAlpha(sprite->light,(float)tran_filter_pct/100.0f);
 		else
-      gld_StaticLight(sprite->light, NULL);
+      gld_StaticLight(sprite->light);
   }
   glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2fv(sprite->texture[0]); glVertex3fv(sprite->vertex[0]);
-		glTexCoord2fv(sprite->texture[1]); glVertex3fv(sprite->vertex[1]);
-		glTexCoord2fv(sprite->texture[2]); glVertex3fv(sprite->vertex[2]);
-  	glTexCoord2fv(sprite->texture[3]); glVertex3fv(sprite->vertex[3]);
+		glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
+		glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
+		glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
+		glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
 	glEnd();
 		
   glPopMatrix();
@@ -2541,25 +2379,24 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.y= (float)pSpr->z/MAP_SCALE;
   sprite.z= (float)pSpr->y/MAP_SCALE;
 
-  sprite.texture[0][1]=sprite.texture[1][1]=0.0f;
-  sprite.texture[2][1]=sprite.texture[3][1]=(float)sprite.gltexture->height/(float)sprite.gltexture->tex_height;
+  sprite.vt=0.0f;
+  sprite.vb=(float)sprite.gltexture->height/(float)sprite.gltexture->tex_height;
   if (vspr->flip)
   {
-    sprite.texture[0][0]=sprite.texture[2][0]=0.0f;
-    sprite.texture[1][0]=sprite.texture[3][0]=(float)sprite.gltexture->width/(float)sprite.gltexture->tex_width;
+    sprite.ul=0.0f;
+    sprite.ur=(float)sprite.gltexture->width/(float)sprite.gltexture->tex_width;
   }
   else
   {
-    sprite.texture[0][0]=sprite.texture[2][0]=(float)sprite.gltexture->width/(float)sprite.gltexture->tex_width;
-    sprite.texture[1][0]=sprite.texture[3][0]=0.0f;
+    sprite.ul=(float)sprite.gltexture->width/(float)sprite.gltexture->tex_width;
+    sprite.ur=0.0f;
   }
   hoff=(float)sprite.gltexture->leftoffset/(float)(MAP_COEFF);
   voff=(float)sprite.gltexture->topoffset/(float)(MAP_COEFF);
-  sprite.vertex[1][0]=sprite.vertex[3][0]=hoff;
-  sprite.vertex[0][0]=sprite.vertex[2][0]=hoff-((float)sprite.gltexture->realtexwidth/(float)(MAP_COEFF));
-  sprite.vertex[0][1]=sprite.vertex[1][1]=voff;
-  sprite.vertex[2][1]=sprite.vertex[3][1]=voff-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
-  sprite.vertex[0][2]=sprite.vertex[1][2]=sprite.vertex[2][2]=sprite.vertex[3][2]=0.0f;
+  sprite.x1=hoff-((float)sprite.gltexture->realtexwidth/(float)(MAP_COEFF));
+  sprite.x2=hoff;
+  sprite.y1=voff;
+  sprite.y2=voff-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
 
   if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
   {
@@ -2583,7 +2420,37 @@ void gld_DrawScene(player_t *player)
   int i,j,k,count;
   fixed_t max_scale;
 
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glEnableClientState(GL_VERTEX_ARRAY);
   rendered_visplanes = rendered_segs = rendered_vissprites = 0;
+  for (i=gld_drawinfo.num_drawitems; i>=0; i--)
+  {
+    switch (gld_drawinfo.drawitems[i].itemtype)
+    {
+    case GLDIT_FLAT:
+      // enable backside removing
+      glEnable(GL_CULL_FACE);
+      // floors
+      glCullFace(GL_FRONT);
+      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+        if (!gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
+        {
+          rendered_visplanes++;
+          gld_DrawFlat(&gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex]);
+        }
+      // ceilings
+      glCullFace(GL_BACK);
+      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+        if (gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
+        {
+          rendered_visplanes++;
+          gld_DrawFlat(&gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex]);
+        }
+      // disable backside removing
+      glDisable(GL_CULL_FACE);
+      break;
+    }
+  }
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
     switch (gld_drawinfo.drawitems[i].itemtype)
@@ -2616,28 +2483,6 @@ void gld_DrawScene(player_t *player)
         }
       }
       break;
-    case GLDIT_FLAT:
-      // enable backside removing
-      glEnable(GL_CULL_FACE);
-      // floors
-      glCullFace(GL_FRONT);
-      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
-        if (!gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
-        {
-          rendered_visplanes++;
-          gld_DrawFlat(&gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex]);
-        }
-      // ceilings
-      glCullFace(GL_BACK);
-      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
-        if (gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
-        {
-          rendered_visplanes++;
-          gld_DrawFlat(&gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex]);
-        }
-      // disable backside removing
-      glDisable(GL_CULL_FACE);
-      break;
     case GLDIT_SPRITE:
       if (gl_sortsprites)
       {
@@ -2667,17 +2512,18 @@ void gld_DrawScene(player_t *player)
       break;
     }
   }
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void gld_PreprocessLevel(void)
 {
-/*
-#ifdef _DEBUG
   void gld_Precache(void);
-  gld_Precache();
-#endif
-*/
+  if (precache)
+    gld_Precache();
   gld_PreprocessSectors();
   gld_PreprocessSegs();
   memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
+  glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
+  glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_struct.h,v 1.12 2000/09/30 00:09:23 proff_fs Exp $
+ * $Id: gl_struct.h,v 1.13 2000/10/08 18:42:19 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,7 +49,6 @@ void gld_ReadScreen (byte* scr);
 
 void gld_CleanMemory(void);
 void gld_PreprocessLevel(void);
-void gld_GetSubSectorVertices(void); // figgi
 
 void gld_Set2DMode();
 void gld_InitDrawScene(void);

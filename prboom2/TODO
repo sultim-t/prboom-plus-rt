@@ -24,7 +24,12 @@ release.
 
 Colin: will do after we release
 ... guess that means now. I'll begin thinking about it.
-    
+
+2000/10/08 Proff:
+We support nearly everything of MBF, like multiple skys etc.
+All that needs to be mentioned in the docs. Maybe we should combine the
+boomedit and mbfedit docs.
+
 --------------------------------------------------------------------------
 15. Hardware music synth support for SDL target. timidity is
     nice, but some of the music sounds no good (notably MAP01).
@@ -61,21 +66,57 @@ Works, but you have to press it twice to change running speed (why?).
 
 Colin: there will probably be some FAQs to go in here, like "how to 
  get higher resolutions", but we'll see.
-2000/10/04 Proff: The version needs to be corrected in boom.cfg.5 and
+
+2000/10/04 Proff:
+The version needs to be corrected in boom.cfg.5 and
 README.command-line
 Maybe README.command-line should be renamed to README.options.
 From the next release on I will add .txt to all text files.
+
 2000/10/08 Colin: OK added a bit on the GL options, not that I know 
 	much about them myself :-)
+
+2000/10/08 Proff:
+The cfg-file for glboom is called glboom.cfg not prboom.cfg.
+This needs to be fixed.
+gl_drawskys is indeed the option to turn sky drawing on and off, it's
+there so I can let people test if that's causing the problems on Voodoos.
+gl_sortsprites might speed up with the cost of sorting errors with
+transparent sprites. But the speedup is not very high.
 
 --------------------------------------------------------------------------
 24. (2000/10/04) Seperating segs and gl_segs etc.
 
+2000/10/08 Proff:
+That's not as easy as I thought.
+
 --------------------------------------------------------------------------
 25. (2000/10/04) Loading gl_nodes in softwaremode for higher accuracy
+
+2000/10/08 Proff:
+Did it.
 
 --------------------------------------------------------------------------
 26. (2000/10/04) Is the current version for demos updated to 211?
 
 2000/10/07 colin: I added a new compatibility level, yes.
 
+2000/10/08 Proff:
+It seems like that in G_BeginRecording the version for new recorded Demos
+is still 210. Is that correct, or does it have to be 211.
+
+--------------------------------------------------------------------------
+27. (2000/10/08) There is a memory leak in the OpenGL part.
+
+2000/10/08 Proff:
+Everytime a level is loaded some bytes more are allocated. It seems to be
+dependant on the size of level how much is allocated. I just can't find
+the leak.
+
+--------------------------------------------------------------------------
+28. (2000/10/08) SigSegv on 30uv1617.lmp and hrdem2\hr22-uv.lmp
+
+2000/10/08 Proff:
+I was able to reproduce those SigSegv, it happens in the assembler
+version of R_DrawColumn_Normal in drawasm.nas
+Have to check that.

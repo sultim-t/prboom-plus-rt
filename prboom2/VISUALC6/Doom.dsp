@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
-CFG=Doom - Win32 Debug OpenGL
+CFG=Doom - Win32 Debug OpenGL NOASM
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,7 +13,7 @@ CFG=Doom - Win32 Debug OpenGL
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Doom.mak" CFG="Doom - Win32 Debug OpenGL"
+!MESSAGE NMAKE /f "Doom.mak" CFG="Doom - Win32 Debug OpenGL NOASM"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -23,6 +23,8 @@ CFG=Doom - Win32 Debug OpenGL
 !MESSAGE "Doom - Win32 Debug OpenGL" (based on "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Release NOASM" (based on "Win32 (x86) Application")
 !MESSAGE "Doom - Win32 Release OpenGL NOASM" (based on "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Debug NOASM" (based on "Win32 (x86) Application")
+!MESSAGE "Doom - Win32 Debug OpenGL NOASM" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -200,6 +202,64 @@ LINK32=link.exe
 # ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASMGL/glboom.exe"
 # SUBTRACT LINK32 /profile /debug
 
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Doom___Win32_Debug_NOASM"
+# PROP BASE Intermediate_Dir "Doom___Win32_Debug_NOASM"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "DebugNOASM"
+# PROP Intermediate_Dir "DebugNOASM"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /YX /FD /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x407 /d "_DEBUG"
+# ADD RSC /l 0x407 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom.exe" /pdbtype:sept
+# SUBTRACT BASE LINK32 /profile
+# ADD LINK32 user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom.exe" /pdbtype:sept
+# SUBTRACT LINK32 /profile
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Doom___Win32_Debug_OpenGL_NOASM"
+# PROP BASE Intermediate_Dir "Doom___Win32_Debug_OpenGL_NOASM"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "DebugNOASMGL"
+# PROP Intermediate_Dir "DebugNOASMGL"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\src" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\src" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /YX /FD /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x407 /d "_DEBUG"
+# ADD RSC /l 0x407 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom.exe"
+# SUBTRACT BASE LINK32 /profile
+# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASMGL/glboom.exe"
+# SUBTRACT LINK32 /profile
+
 !ENDIF 
 
 # Begin Target
@@ -210,6 +270,8 @@ LINK32=link.exe
 # Name "Doom - Win32 Debug OpenGL"
 # Name "Doom - Win32 Release NOASM"
 # Name "Doom - Win32 Release OpenGL NOASM"
+# Name "Doom - Win32 Debug NOASM"
+# Name "Doom - Win32 Debug OpenGL NOASM"
 # Begin Group "Source Files"
 
 # PROP Default_Filter ""
@@ -343,6 +405,13 @@ SOURCE=..\src\f_wipe.c
 
 # PROP Exclude_From_Build 1
 
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
 !ENDIF 
 
 # End Source File
@@ -366,6 +435,13 @@ SOURCE=..\src\f_wipe.h
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
 
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+# PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ENDIF 
@@ -850,6 +926,13 @@ SOURCE=..\src\gl_intern.h
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
 
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
 !ENDIF 
 
 # End Source File
@@ -875,6 +958,13 @@ SOURCE=..\src\gl_main.c
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
 
 !ENDIF 
 
@@ -902,6 +992,13 @@ SOURCE=..\src\gl_struct.h
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
 
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
 !ENDIF 
 
 # End Source File
@@ -927,6 +1024,13 @@ SOURCE=..\src\gl_texture.c
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
 
 !ENDIF 
 
@@ -978,6 +1082,16 @@ InputName=Drawasm
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
 
 # PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
 
 !ENDIF 
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.12 2000/09/27 11:30:26 proff_fs Exp $
+ * $Id: w_wad.c,v 1.13 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.12 2000/09/27 11:30:26 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.13 2000/10/08 18:42:20 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -191,17 +191,12 @@ static void W_AddFile(const char *filename, wad_source_t source)
   lprintf (LO_INFO," adding %s\n",filename);
   startlump = numlumps;
 
-  // figgi -- added support for glBsp .gwa files
-#ifdef GL_DOOM
   if (  strlen(filename)<=4 || 
 	      (
           strcasecmp(filename+strlen(filename)-4,".wad") && 
 	        strcasecmp(filename+strlen(filename)-4,".gwa")
         )
      )
-#else
-	if (strlen(filename)<=4 || strcasecmp(filename+strlen(filename)-4, ".wad" ))
-#endif
     {
       // single lump file
       fileinfo = &singleinfo;
@@ -433,9 +428,8 @@ unsigned int numwadfiles = 0; // CPhipps - size of the wadfiles array (dynamic, 
 
 void W_Init(void)
 {
-#ifdef GL_DOOM
   char *gwa_filename=NULL;
-#endif
+
 #ifndef NO_PREDEFINED_LUMPS
   // killough 1/31/98: add predefined lumps first
 
@@ -463,7 +457,7 @@ void W_Init(void)
     for (i=0; (size_t)i<numwadfiles; i++)
     {
       W_AddFile(wadfiles[i].name, wadfiles[i].src);
-#ifdef GL_DOOM
+      // proff: automatically try to add the gwa files
       if (strlen(wadfiles[i].name)>4)
         if (!strcasecmp(wadfiles[i].name+(strlen(wadfiles[i].name)-4),".wad"))
         {
@@ -474,7 +468,6 @@ void W_Init(void)
           free(gwa_filename);
           gwa_filename=NULL;
         }
-#endif
     }
   }
 

@@ -279,8 +279,8 @@ push     esi
 push     edi
 push     ebx
 mov     esi,    dword [_dc_yh]
-inc     esi
 mov     edx,    dword [_dc_yl]
+inc     esi
 mov     ebx,    dword [_SCREENWIDTH]
 sub     esi,    edx
 imul    ebx, edx

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.11 2000/09/30 17:31:13 proff_fs Exp $
+ * $Id: r_things.c,v 1.12 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.11 2000/09/30 17:31:13 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.12 2000/10/08 18:42:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -606,11 +606,8 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   //  subsectors during BSP building.
   // Thus we check whether its already added.
 
-#ifdef GL_DOOM
-  if (!usingGLNodes)
-#endif
-    if (sec->validcount == validcount)
-      return;
+  if (sec->validcount == validcount)
+    return;
 
   // Well, now it will be done.
   sec->validcount = validcount;
@@ -627,15 +624,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   // Handle all things in sector.
 
   for (thing = sec->thinglist; thing; thing = thing->snext)
-#ifdef GL_DOOM
-    if (usingGLNodes)
-    {
-      if (subsec==thing->subsector)
-        R_ProjectSprite(thing);
-    }
-    else
-#endif
-      R_ProjectSprite(thing);
+    R_ProjectSprite(thing);
 }
 
 //

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.7 2000/09/30 00:09:24 proff_fs Exp $
+ * $Id: z_zone.c,v 1.8 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.7 2000/09/30 00:09:24 proff_fs Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.8 2000/10/08 18:42:20 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -76,7 +76,14 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.7 2000/09/30 00:09:24 proff_fs Ex
 #define LEAVE_ASIDE (128*1024)
 
 // Minimum RAM machine is assumed to have
-#define MIN_RAM (4*1024*1024)
+  /* cph - Select zone size. 6megs is usable, but with the SDL version 
+   * storing sounds in the zone, 8 is more sensible */
+#ifndef GL_DOOM
+#define MIN_RAM (8*1024*1024)
+#else
+  /* proff - OpenGL needs even more ram at least 16megs are allocated */
+#define MIN_RAM (16*1024*1024)
+#endif
 
 // Amount to subtract when retrying failed attempts to allocate initial pool
 #define RETRY_AMOUNT (256*1024)
@@ -245,14 +252,7 @@ void Z_Init(void)
 #ifdef DJGPP
   size_t size = _go32_dpmi_remaining_physical_memory();    // Get free RAM
 #else
-  /* cph - Select zone size. 6megs is usable, but with the SDL version 
-   * storing sounds in the zone, 8 is more sensible */
-#ifndef GL_DOOM
-  size_t size = MIN_RAM*2;
-#else
-  /* proff - OpenGL needs even more ram at least 16megs are allocated */
-  size_t size = MIN_RAM*4;
-#endif
+  size_t size = MIN_RAM;
   {  /* cph - allow -heapsize or -heapkb parameters */
     int p;
     if ((p=M_CheckParm("-heapsize")))

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.12 2000/09/30 17:31:13 proff_fs Exp $
+ * $Id: r_defs.h,v 1.13 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -260,8 +260,8 @@ typedef struct
   int iSegID;	// proff 11/05/2000: needed for OpenGL
   // figgi -- needed for glnodes
   float			length;
-  boolean		miniseg;
 #endif
+  boolean		miniseg;
 
   
   // Sector references.

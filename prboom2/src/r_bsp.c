@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.19 2000/09/30 17:31:13 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.20 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.19 2000/09/30 17:31:13 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.20 2000/10/08 18:42:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -623,7 +623,6 @@ static void R_Subsector(int num)
   // real sector, or you must account for the lighting in some other way, 
   // like passing it as an argument.
 
-#ifdef GL_DOOM
   R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);
   while (count--)
   {
@@ -631,12 +630,8 @@ static void R_Subsector(int num)
       R_AddLine (line);
     line++;
   }
+#ifdef GL_DOOM
   gld_AddPlane(num, floorplane, ceilingplane);
-#else
-  R_AddSprites(sub, (floorlightlevel+ceilinglightlevel)/2);
-
-  while (count--)
-    R_AddLine (line++);
 #endif
 }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: r_draw.c,v 1.9 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.9 2000/10/08 18:42:20 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -176,7 +176,7 @@ void R_DrawColumn_Normal (void)
   if ((unsigned)dc_x >= SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
-    I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error ("R_DrawColumn_Normal: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.
@@ -323,7 +323,7 @@ void R_DrawTLColumn_Normal (void)
   if ((unsigned)dc_x >= SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= SCREENHEIGHT) 
-    I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error ("R_DrawTLColumn_Normal: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_setup.c,v 1.14 2000/10/05 22:35:03 proff_fs Exp $
+ * $Id: p_setup.c,v 1.15 2000/10/08 18:42:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_setup.c,v 1.14 2000/10/05 22:35:03 proff_fs Exp $";
+rcsid[] = "$Id: p_setup.c,v 1.15 2000/10/08 18:42:20 proff_fs Exp $";
 
 #include <math.h>
 
@@ -323,8 +323,8 @@ static void P_LoadSegs (int lump)
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
 
-#ifdef GL_DOOM
   	  li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
+#ifdef GL_DOOM
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
 #endif
       li->angle = (SHORT(ml->angle))<<16;
@@ -355,7 +355,6 @@ static void P_LoadSegs (int lump)
  * author   : figgi						   *
  * what		: support for gl nodes		   *
  *******************************************/
-#ifdef GL_DOOM
 static void P_LoadGLSegs(int lump)
 {
 	const byte	*data;
@@ -373,7 +372,9 @@ static void P_LoadGLSegs(int lump)
 	{							// check for gl-vertices
 		segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
 		segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
+#ifdef GL_DOOM
 		segs[i].iSegID  = i;
+#endif
 							
 		if(ml->linedef != -1) // skip minisegs 
 		{
@@ -383,7 +384,9 @@ static void P_LoadGLSegs(int lump)
   		segs[i].angle = R_PointToAngle2(segs[i].v1->x,segs[i].v1->y,segs[i].v2->x,segs[i].v2->y);
 
 			segs[i].sidedef = &sides[ldef->sidenum[ml->side]];
+#ifdef GL_DOOM
 			segs[i].length  = GetDistance(segs[i].v2->x - segs[i].v1->x, segs[i].v2->y - segs[i].v1->y);
+#endif
 			segs[i].frontsector = sides[ldef->sidenum[ml->side]].sector;
 			if (ldef->flags & ML_TWOSIDED)
 				segs[i].backsector = sides[ldef->sidenum[ml->side^1]].sector;
@@ -400,6 +403,9 @@ static void P_LoadGLSegs(int lump)
 			segs[i].miniseg = true;
   		segs[i].angle  = 0;
 			segs[i].offset  = 0;
+#ifdef GL_DOOM
+			segs[i].length  = 0;
+#endif
 			segs[i].linedef = NULL;
 			segs[i].sidedef = NULL;
 			segs[i].frontsector = NULL;
@@ -409,7 +415,6 @@ static void P_LoadGLSegs(int lump)
 	}
 	W_UnlockLumpNum(lump);
 }
-#endif
 
 //
 // P_LoadSubsectors
@@ -1290,10 +1295,8 @@ void P_RemoveSlimeTrails(void)                // killough 10/98
   {
     const line_t *l;
 
-#ifdef GL_DOOM
 	  if (segs[i].miniseg == true)			  //figgi -- skip minisegs
 		  return;
-#endif
 
 	  l = segs[i].linedef;					  // The parent linedef
     if (l->dx && l->dy)                     // We can ignore orthogonal lines
@@ -1386,9 +1389,13 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // killough 4/4/98: split load of sidedefs into two parts,
   // to allow texture names to be used in special linedefs
 
-#ifdef GL_DOOM
+#if 1
   // figgi 10/19/00 -- check for gl lumps and load them
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
+    usingGLNodes = true;
+  else
+    usingGLNodes = false;
+  if (usingGLNodes)
 	  P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
   else
 	  P_LoadVertexes  (lumpnum+ML_VERTEXES);
@@ -1399,21 +1406,19 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);             
   P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
 
-  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
+  if (usingGLNodes)
   { 
-    usingGLNodes = true;
 	  P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-	  lprintf(LO_INFO,"Using GL BSP NODES!!!\n");
+	  lprintf(LO_INFO,"Using glBSP nodes!\n");
   }
   else
   {
-	  usingGLNodes = false;
 	  P_LoadSubsectors(lumpnum + ML_SSECTORS);
 	  P_LoadNodes(lumpnum + ML_NODES);
 	  P_LoadSegs(lumpnum + ML_SEGS);
-	  lprintf(LO_INFO,"Using classic BSP NODES!!!\n");
+	  lprintf(LO_INFO,"Using normal BSP nodes!\n");
   }
 
 #else
