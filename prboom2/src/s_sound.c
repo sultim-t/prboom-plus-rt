@@ -668,8 +668,8 @@ void S_ChangeMusic(musicinfo_t *music, int looping)
   // get lumpnum if neccessary
   if (!music->lumpnum)
     {
-      char namebuf[9];
-      psnprintf(namebuf, 9, "d_%s", music->name);
+      char namebuf[10];
+      psnprintf(namebuf, 10, "d_%s", music->name);
       music->lumpnum = W_GetNumForName(namebuf);
     }
 

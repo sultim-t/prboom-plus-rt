@@ -1458,8 +1458,8 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
 
   lprintf(LO_DEBUG, "P_SetupLevel: sky done\n");
 
-  gl_mapname = malloc(strlen(mapname)+4);
-	psnprintf(gl_mapname, strlen(mapname)+4, "GL_%s", mapname);
+  gl_mapname = malloc(strlen(mapname)+5);
+	psnprintf(gl_mapname, strlen(mapname)+5, "GL_%s", mapname);
   gl_lumpnum = W_CheckNumForName(gl_mapname); // figgi
   free(gl_mapname);
 

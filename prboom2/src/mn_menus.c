@@ -809,7 +809,7 @@ void MN_CreateSaveCmds()
     {
       command_t *save_command;
       variable_t *save_variable;
-      char tempstr[10];
+      char tempstr[12];
 
       // create the variable first
       save_variable = Z_Malloc(sizeof(*save_variable), PU_STATIC, 0); // haleyjd
@@ -823,7 +823,7 @@ void MN_CreateSaveCmds()
       // now the command
       save_command = Z_Malloc(sizeof(*save_command), PU_STATIC, 0); // haleyjd
 
-      psnprintf(tempstr, 10, "savegame_%i", i);
+      psnprintf(tempstr, 12, "savegame_%i", i);
       save_command->name = strdup(tempstr);
       save_command->type = ct_variable;
       save_command->flags = cf_nosave;
