@@ -18,6 +18,9 @@ texture Ram, but newer cards should work.
 
 Proff:
 Works, but you have to press it twice to change running speed (why?).
+2001/06/16:
+Just read that this is a problem with SDL in Windows, should be no problem
+in X11 etc. Might also get fixed soon by the SDL people.
 
 --------------------------------------------------------------------------
 27. (2000/10/08) There is a memory leak in the OpenGL part.
