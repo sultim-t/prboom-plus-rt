@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: protocol.h,v 1.5 2000/11/25 18:22:09 cph Exp $
+ * $Id: protocol.h,v 1.6 2000/12/27 18:46:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -64,12 +64,27 @@ struct setup_packet_s {
   byte wadnames[1]; // Actually longer
 };
 
-inline static void GetTicSwap(ticcmd_t* dst, const ticcmd_t* src)
+/* cph - convert network byte stream to usable ticcmd_t and visa-versa
+ *     - the functions are functionally identical apart from parameters
+ *     - the void* param can be unaligned. By using void* as the parameter
+ *       it means gcc won't assume alignment so won't make false assumptions
+ *       when optimising. So I'm told.
+ */
+inline static void RawToTic(ticcmd_t* dst, const void* src)
 {
-  dst->forwardmove = src->forwardmove;
-  dst->sidemove = src->sidemove;
-  dst->angleturn = doom_ntohs(src->angleturn);
-  dst->consistancy = doom_ntohs(src->consistancy);
-  dst->chatchar = src->chatchar;
-  dst->buttons = src->buttons;
+  memcpy(dst,src,sizeof *dst);
+  dst->angleturn = doom_ntohs(dst->angleturn);
+  dst->consistancy = doom_ntohs(dst->consistancy);
+}
+
+inline static void TicToRaw(void* dst, const ticcmd_t* src)
+{
+  /* We have to make a copy of the source struct, then do byte swaps, 
+   * and fnially copy to the destination (can't do the swaps in the 
+   * destination, because it might not be aligned).
+   */
+  ticcmd_t tmp = *src;
+  tmp.angleturn = doom_ntohs(tmp.angleturn);
+  tmp.consistancy = doom_ntohs(tmp.consistancy);
+  memcpy(dst,&tmp,sizeof tmp);
 }

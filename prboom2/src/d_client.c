@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.10 2000/11/29 19:42:20 cph Exp $
+ * $Id: d_client.c,v 1.11 2000/12/27 18:46:59 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -266,7 +266,7 @@ void NetUpdate(void)
 	      int players = *p++;
 	      while (players--) {
 		int n = *p++;
-		GetTicSwap(&netcmds[n][remotetic%BACKUPTICS], (void*)p);
+		RawToTic(&netcmds[n][remotetic%BACKUPTICS], p);
 		p += sizeof(ticcmd_t);
 	      }
 	      remotetic++;
@@ -325,8 +325,11 @@ void NetUpdate(void)
 	*(byte*)(packet+1) = sendtics;
 	*(((byte*)(packet+1))+1) = consoleplayer;
 	{
-	  ticcmd_t *tic = (void*)(((char*)(packet+1)) +2);
-	  while (sendtics--) GetTicSwap(tic++, &localcmds[remotesend++%BACKUPTICS]);
+	  void *tic = ((byte*)(packet+1)) +2;
+	  while (sendtics--) {
+	    TicToRaw(tic, &localcmds[remotesend++%BACKUPTICS]);
+	    tic += sizeof(ticcmd_t);
+	  }
 	}
 	I_SendPacket(packet, pkt_size);
 	Z_Free(packet);
