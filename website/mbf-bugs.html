@@ -647,9 +647,9 @@
     <p> (Note that the above requires a new compatibility option,
     comp_respawn.)</p>
 
-    <h4>Floor thinker should prevent DR door opening</h4>
+    <h4>DR doors corrupt other actions</h4>
 
-    <p> Affects: Boom, MBF, PrBoom up to and including v2.2.0</p>
+    <p> Affects: Boom, MBF, PrBoom up to and including v2.2.1</p>
 
     <p> Found by: <a href="mailto:adam@scisoft.force9.co.uk">Adam
     Williamson</a></p>
@@ -666,52 +666,76 @@
     the direction. But if there's a different type of action going
     on, it will be corrupting some field in that action.</p>
 
-    <p> Original Doom didn't even separate floor, ceilnig and
-    lighting actions though, so it would do this for floor and
-    lighting actions too. I made the following change to PrBoom to
-    add compatibility with the old Doom behaviour for demos:</p>
 <pre>
+Index: p_doors.c
 ===================================================================
 RCS file: /cvsroot/prboom/prboom2/src/p_doors.c,v
 retrieving revision 1.6
-diff -p -c -r1.6 p_doors.c
-*** p_doors.c        2000/09/16 20:20:41        1.6
---- p_doors.c        2001/04/05 20:51:17
-*************** int EV_VerticalDoor
-*** 488,497 ****
-    sec = sides[line-&gt;sidenum[1]].sector;
-    secnum = sec-sectors;
-
-!   // if door already has a thinker, use it
-!   if (sec-&gt;ceilingdata)      //jff 2/22/98
-    {
--     door = sec-&gt;ceilingdata; //jff 2/22/98
-      switch(line-&gt;special)
-      {
-        case  1: // only for "raise" doors, not "open"s
---- 488,508 ----
-    sec = sides[line-&gt;sidenum[1]].sector;
-    secnum = sec-sectors;
-
-!   /* if door already has a thinker, use it
-!    * cph 2001/04/05 -
-!    * Ok, this is a disaster area. We're assuming that sec-&gt;ceilingdata
-!    *  is a vldoor_t! What if this door is controlled by both DR lines
-!    *  and by switches? I don't know how to fix that.
-!    * Secondly, original Doom didn't distinguish floor/lighting/ceiling
-!    *  actions, so we need to do the same in demo compatibility mode.
-!    */
-!   door = sec-&gt;ceilingdata;
-!   if (demo_compatibility) {
-!     if (!door) door = sec-&gt;floordata;
-!     if (!door) door = sec-&gt;lightingdata;
-!   }
-!   if (door)
-    {
-      switch(line-&gt;special)
-      {
-        case  1: // only for "raise" doors, not "open"s
-      
+diff -p -u -r1.6 p_doors.c
+--- p_doors.c	2000/09/16 20:20:41	1.6
++++ p_doors.c	2001/06/29 20:45:24
+@@ -488,30 +488,39 @@ int EV_VerticalDoor
+   sec = sides[line-&gt;sidenum[1]].sector;
+   secnum = sec-sectors;
+ 
+-  // if door already has a thinker, use it
+-  if (sec-&gt;ceilingdata)      //jff 2/22/98
+-  {
+-    door = sec-&gt;ceilingdata; //jff 2/22/98
+-    switch(line-&gt;special)
+-    {
+-      case  1: // only for &quot;raise&quot; doors, not &quot;open&quot;s
+-      case  26:
+-      case  27:
+-      case  28:
+-      case  117:
+-        if (door-&gt;direction == -1)
+-          door-&gt;direction = 1;  // go back up
+-        else
+-        {
+-          if (!thing-&gt;player)
+-            return 0;           // JDC: bad guys never close doors
+-    
+-          door-&gt;direction = -1; // start going down immediately
+-        }
+-        return 1;
++  /* if door already has a thinker, use it
++   * cph 2001/04/05 - 
++   * Original Doom didn't distinguish floor/lighting/ceiling 
++   *  actions, so we need to do the same in demo compatibility mode.
++   */
++  door = sec-&gt;ceilingdata;
++  if (demo_compatibility) {
++    if (!door) door = sec-&gt;floordata;
++    if (!door) door = sec-&gt;lightingdata;
++  }
++  if (door) {
++    /* If the current action is a T_VerticalDoor and we're back in
++     * EV_VerticalDoor, it must have been a repeatable line, so I've dropped
++     * that check. For old demos we have to emulate the old buggy behavior and
++     * mess up non-T_VerticalDoor actions.
++     */
++    if (compatibility_level &lt; prboom_4_compatibility || 
++        door-&gt;thinker.function == T_VerticalDoor) {
++      /* An already moving repeatable door which is being re-pressed, or a
++       * monster is trying to open a closing door - so change direction
++       */
++      if (door-&gt;direction == -1) {
++        door-&gt;direction = 1; return 1; /* go back up */
++      } else if (player) {
++        door-&gt;direction = -1; return 1; /* go back down */
++      }
+     }
++    /* Either we're in prboom &gt;=v2.3 and it's not a door, or it's a door but
++     * we're a monster and don't want to shut it; exit with no action.
++     */
++    return 0;
+   }
+-  
++
+   // emit proper sound
+   switch(line-&gt;special)
+   {
 </pre>
 
     <h4>Fast and respawn options not reloaded from savegames
@@ -757,6 +781,40 @@ diff -p -c -r1.6 p_doors.c
  
    // get the times
       
+</pre>
+    <h4>MBF player bobbing rewrite causes demo sync problems</h4>
+
+    <p> Affects: MBF, PrBoom up to and including v2.2.1</p>
+
+    <p> Description: The code that drives the player bobbing was overhauled in 
+    MBF, such that the bobbing was driven separately from the player's momentum
+    (this was needed so bobbing doesn't break hopelessly on ice/sludge). However
+    the bobbing affects the height of the player's weapon, which affects how
+    long it takes to change weapon, which affects demo sync. Argh. The easy
+    (albeit slightly cheating) fix is to drive the bobbing from the momentum as
+    Doom used to when playing demos.</p>
+<pre>
+Index: p_user.c
+===================================================================
+RCS file: /cvsroot/prboom/prboom2/src/p_user.c,v
+retrieving revision 1.4
+diff -p -u -r1.4 p_user.c
+--- p_user.c	2000/09/16 20:20:42	1.4
++++ p_user.c	2001/06/28 22:35:30
+@@ -110,8 +110,11 @@ void P_CalcHeight (player_t* player)
+    * it causes bobbing jerkiness when the player moves from ice to non-ice,
+    * and vice-versa.
+    */
+-  player-&gt;bob = player_bobbing ? (FixedMul(player-&gt;momx,player-&gt;momx) + 
+-				  FixedMul(player-&gt;momy,player-&gt;momy))&gt;&gt;2 : 0;
++  player-&gt;bob = demo_compatibility ? 
++    (FixedMul (player-&gt;mo-&gt;momx, player-&gt;mo-&gt;momx)
++     + FixedMul (player-&gt;mo-&gt;momy,player-&gt;mo-&gt;momy))&gt;&gt;2 :
++    player_bobbing ? (FixedMul(player-&gt;momx,player-&gt;momx) + 
++        FixedMul(player-&gt;momy,player-&gt;momy))&gt;&gt;2 : 0;
+ 
+   if (player-&gt;bob &gt; MAXBOB)                             
+     player-&gt;bob = MAXBOB;
 </pre>
 
     <h2>Author</h2>
