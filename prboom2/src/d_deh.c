@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.9.2.4 2003/04/05 20:02:07 cph Exp $
+ * $Id: d_deh.c,v 1.9.2.5 2003/04/05 20:32:29 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.9.2.4 2003/04/05 20:02:07 cph Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.9.2.5 2003/04/05 20:32:29 cph Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -1057,6 +1057,7 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
   "Missile damage",      // .damage
   "Action sound",        // .activesound
   "Bits",                // .flags
+  "Bits2",               // .flags
   "Respawn frame"        // .raisestate
 };
 
