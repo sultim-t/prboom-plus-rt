@@ -125,6 +125,7 @@ boolean         haswolflevels = false;// jff 4/18/98 wolf levels present
 static byte     *savebuffer;          // CPhipps - static
 int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
+int		longtics;
 
 //
 // controls (have defaults)
@@ -2096,7 +2097,12 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
     {
       cmd->forwardmove = ((signed char)*demo_p++);
       cmd->sidemove = ((signed char)*demo_p++);
-      cmd->angleturn = ((unsigned char)*demo_p++)<<8;
+      if (!longtics) {
+        cmd->angleturn = ((unsigned char)*demo_p++)<<8;
+      } else {
+	unsigned int lowbyte = (unsigned char)*demo_p++;
+        cmd->angleturn = (((signed int)(*demo_p++))<<8) + lowbyte;
+      }
       cmd->buttons = (unsigned char)*demo_p++;
     }
 }
@@ -2112,14 +2118,20 @@ static inline signed char fudge(signed char b)
 
 void G_WriteDemoTiccmd (ticcmd_t* cmd)
 {
-  char buf[4];
+  char buf[5];
+  char *p = buf;
 
-  buf[0] = (cmd->forwardmove && demo_compatibility) ?
+  *p++ = (cmd->forwardmove && demo_compatibility) ?
     fudge(cmd->forwardmove) : cmd->forwardmove;
-  buf[1] = cmd->sidemove;
-  buf[2] = (cmd->angleturn+128)>>8;
-  buf[3] = cmd->buttons;
-  if (fwrite(buf, sizeof(buf), 1, demofp) != 1)
+  *p++ = cmd->sidemove;
+  if (!longtics) {
+    *p++ = (cmd->angleturn+128)>>8;
+  } else {
+    *p++ = cmd->angleturn & 0xff;
+    *p++ = (cmd->angleturn >> 8) & 0xff;
+  }
+  *p++ = cmd->buttons;
+  if (fwrite(buf, p-buf, 1, demofp) != 1)
     I_Error("G_WriteDemoTiccmd: error writing demo");
 
   /* cph - alias demo_p to it so we can read it back */
@@ -2456,7 +2468,8 @@ void G_BeginRecording (void)
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
   } else { // cph - write old v1.9 demos (might even sync)
-    *demo_p++ = 109; // v1.9 has best chance of syncing these
+    longtics = M_CheckParm("-longtics");
+    *demo_p++ = longtics ? 111 : 109; // v1.9 has best chance of syncing these
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
@@ -2506,6 +2519,8 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
   if (demover < 200)     // Autodetect old demos
     {
       compatibility_level = doom_demo_compatibility;
+      if (demover >= 111) longtics = 1;
+
       G_Compatibility();
 
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
