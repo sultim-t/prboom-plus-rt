@@ -1,41 +1,12 @@
 Entrys marked by a * are fixed.
 
 --------------------------------------------------------------------------
-3.  Testing on Voodoo.
-
-Proff:
-It runs, but on Voodoo1 cards it's very very slow. Other cards aren't tested,
-but I guess on Voodoo3s and above it should work.
-2000/10/04:
-It does work with the beta OpenGL driver, but with the normal drivers only at
-a very low framerate. Further testing needed.
-2001/06/15:
-It does work with Mesa3D with Gilde support. Voodoo I doesn't have enough
-texture Ram, but newer cards should work.
-
---------------------------------------------------------------------------
-21. Bug with the CapsLock key.
-
-Proff:
-Works, but you have to press it twice to change running speed (why?).
-2001/06/16:
-Just read that this is a problem with SDL in Windows, should be no problem
-in X11 etc. Might also get fixed soon by the SDL people.
-
---------------------------------------------------------------------------
-27. (2000/10/08) There is a memory leak in the OpenGL part.
-
-2000/10/08 Proff:
-Everytime a level is loaded some bytes more are allocated. It seems to be
-dependant on the size of level how much is allocated. I just can't find
-the leak.
-
---------------------------------------------------------------------------
 33. (2000/12/24) Single key quit
 
 Colin: opulent wants the old 'q quits demo recording' feature back. 
  I suggest making it a configurable key setting, not bound to any 
  key by default.
+Proff: For 2.2.4?
 
 --------------------------------------------------------------------------
 34. (2002/07/28) Fix documentation
@@ -46,7 +17,7 @@ Proff:
 - update FAQ?
 
 --------------------------------------------------------------------------
-35. (2002/07/28) Fix OpenGL segfault on Linux
+*35. (2002/07/28) Fix OpenGL segfault on Linux
 
 Proff:
 Possibly caused by using gluImageScale when paletted textures used.
@@ -54,8 +25,10 @@ Either write my own scaling functions, which would allow mipmapping
 for paletted textures, or just kick the scaling. I'm for the first
 if I get the time. Small fix would be disabling gluImageScale when
 paletted textures used.
+Proff: Will hopefully be fixed in 2.3.x
 
 --------------------------------------------------------------------------
-36. (2002/07/28) Add option to move backward with second mousebutton
+*36. (2002/07/28) Add option to move backward with second mousebutton
 
 Proff: like it was in my old prboom version
+Proff: 2.3.x
