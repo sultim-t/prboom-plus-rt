@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.15 2001/07/16 15:05:16 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.16 2001/07/21 22:16:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.15 2001/07/16 15:05:16 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.16 2001/07/21 22:16:49 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -506,7 +506,7 @@ floater:
 
     if (mo->flags & MF_SKULLFLY &&
 	(!comp[comp_soul] ||
-	 (compatibility_level >= finaldoom_compatibility &&
+	 (compatibility_level > doom2_19_compatibility &&
 	  compatibility_level < prboom_4_compatibility)
 	))
       mo->momz = -mo->momz; // the skull slammed into something
@@ -540,7 +540,7 @@ floater:
      * incorrectly reverse it, so we might still need this for demo sync
      */
     if (mo->flags & MF_SKULLFLY &&
-	compatibility_level < finaldoom_compatibility)
+	compatibility_level <= doom2_19_compatibility)
       mo->momz = -mo->momz; // the skull slammed into something
 
     if ( (mo->flags & MF_MISSILE) && !(mo->flags & MF_NOCLIP) )

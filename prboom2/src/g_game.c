@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.41 2001/07/08 17:34:02 proff_fs Exp $
+ * $Id: g_game.c,v 1.42 2001/07/21 22:16:49 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.41 2001/07/08 17:34:02 proff_fs Exp $";
+rcsid[] = "$Id: g_game.c,v 1.42 2001/07/21 22:16:49 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -1396,8 +1396,9 @@ static void G_LoadGameErr(const char *msg)
 // CPhipps - size of version header
 #define VERSIONSIZE   16
 
-const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
-{ "doom v1.2", "doom v1.666", "doom2 v1.9", "final/ultimate doom/doom95", 
+const char * comp_lev_str[] = 
+{ "doom v1.2", "doom v1.666", "doom2 v1.9",
+  "ultimate doom v1.9", "final doom/doom95", 
   "early DosDoom", "TASDoom",
   "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
   "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.0",
@@ -1769,7 +1770,7 @@ extern int monsters_remember, default_monsters_remember;
  */
 
 static byte comp_options_by_version[] = 
- { 0,0,0,0, /* Original Doom's don't have comp[] */
+ { 0,0,0,0,0, /* Original Doom's don't have comp[] */
    0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
    19,19, /* MBF and early PrBoom had 19 */
    21,21, /* PrBoom v2.1-v2.2 have 21 */
@@ -2433,9 +2434,10 @@ static int G_GetOriginalDoomCompatLevel(int ver)
         return lev;
     }
   }
-  if (ver < 107) return doom_1666_compatibility;
-  return ((gamemode == retail || gamemission >= pack_tnt)
-		  ? finaldoom_compatibility : doom2_19_compatibility);
+  return (ver < 107 ? doom_1666_compatibility :
+      (gamemode == retail) ? ultdoom_compatibility :
+      (gamemission >= pack_tnt) ? finaldoom_compatibility :
+      doom2_19_compatibility);
 }
 
 static const byte* G_ReadDemoHeader(const byte *demo_p)
