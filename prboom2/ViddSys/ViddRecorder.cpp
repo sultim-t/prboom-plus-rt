@@ -1,10 +1,11 @@
 #include "stdafx.h"
-#include "ViddRecorder.h"
 #include <fstream>
-#include "XML\AdvXMLParser.h"
 #include <stdio.h>
 
 #include <windows.h>
+
+#include "ViddRecorder.h"
+#include "XML\AdvXMLParser.h"
 
 TViddRecorder viddRecorder;
 
@@ -47,6 +48,7 @@ void recurseValues(TViddFileOut &out, const std::string &prefix, AdvXMLParser::E
   //  person1_mother1_name  =>    sue  
   
   char buf[VIDD_MAXSTRLEN];
+  int null = 0;
   
   for (int a=0;; a++) {
     AdvXMLParser::Attribute &attrib = elem.GetAttribute(a);
@@ -78,7 +80,7 @@ void recurseValues(TViddFileOut &out, const std::string &prefix, AdvXMLParser::E
     countMap[subelem.GetName()]++;
   }
   
-  if (&elem.GetElement((int)0) != &AdvXMLParser::Element::null) return;  
+  if (&elem.GetElement(null) != &AdvXMLParser::Element::null) return;  
   if (!prefix.length() || !elem.GetValue().length()) return;
   
   std::string key = prefix.substr(0, prefix.length()-1);
