@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.35.2.7 2002/08/13 16:26:21 proff_fs Exp $
+ * $Id: gl_main.c,v 1.35.2.8 2003/03/29 18:27:17 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -47,8 +47,8 @@ int gl_mipmap_filter;
 int gl_drawskys=true;
 int gl_sortsprites=true;
 int gl_texture_filter_anisotropic = 0;
-int gl_use_paletted_texture = 1;
-int gl_use_shared_texture_palette = 1;
+int gl_use_paletted_texture = 0;
+int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
 
