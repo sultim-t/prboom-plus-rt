@@ -2544,7 +2544,7 @@ void A_RandomJump(mobj_t *mo)
 
 void A_LineEffect(mobj_t *mo)
 {
-  line_t junk = *lines;
+  static line_t junk = *lines;
   player_t player;
   player_t *oldplayer = mo->player;
   mo->player = &player;
