@@ -37,7 +37,8 @@ typedef struct variable_s variable_t;
 
 #define MAXTOKENS 32
 #define MAXTOKENLENGTH 64
-#define CMDCHAINS 16
+// the following is used for hasing, so it's better to use a prime number
+#define CMDCHAINS 31
 
 // zdoom _inspired_:
 
@@ -252,6 +253,7 @@ extern char c_args[128];
 
 void C_RunCommand(command_t *command, const char *options);
 void C_RunTextCmd(const char *cmdname);
+void C_RunTextCmdf(const char *cmdname, ...);
 
 const char *C_VariableValue(variable_t *command);
 const char *C_VariableStringValue(variable_t *command);

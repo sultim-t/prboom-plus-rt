@@ -421,6 +421,35 @@ void C_RunTextCmd(const char *command)
   C_RunIndivTextCmd(command);
 }
 
+void C_RunTextCmdf(const char *s, ...)
+{
+  va_list args;
+  char *t;
+  
+  // haleyjd: sanity check
+  if(!s) return;
+  
+  // difficult to remove limit
+  va_start(args, s);
+#ifdef HAVE_VASPRINTF
+  vasprintf(&t, s, args);
+#else
+  /* cph 2001/08/05 - since we use the libc vasprintf above, which uses the libc
+   * malloc, we must force the libc malloc(3) here and free(3) below
+   */
+  t = (malloc)(2048);
+#ifdef HAVE_VSNPRINTF
+  vsnprintf(t,2047,s,args);
+#else
+  vsprintf(t,s,args);
+#endif
+#endif
+  va_end(args);
+
+  C_RunTextCmd(t);
+  (free)(t);
+}
+
 // get the literal value of a variable (ie. "1" not "on")
 
 const char *C_VariableValue(variable_t *variable)
@@ -1022,10 +1051,39 @@ static int CmdHashKey(const char *s)
   return key % CMDCHAINS;
 }
 
+static int c_addcommand_calls;
+CONSOLE_COMMAND(c_addcommand_stats, 0)
+{
+  int i, numCommands=0;
+  int c[CMDCHAINS];
+  command_t *cmd;
+
+  C_Printf("c_addcommand_calls: %i\n", c_addcommand_calls);
+  for (i=0; i<CMDCHAINS; i++) {
+    c[i]=0;
+    for (cmd = cmdroots[i]; cmd; cmd = cmd->next)
+    {
+      c[i]++;
+      numCommands++;
+    }
+    C_Printf("cmdroots[%i]: %i\n", i, c[i]);
+  }
+  C_Printf("numCommands: %i\n", numCommands);
+}
+
 void (C_AddCommand)(command_t *command)
 {
   int hash;
+  static int first = 1;
   
+  if (first)
+  {
+    first = 0;
+    C_AddCommand(c_addcommand_stats);
+  }
+
+  c_addcommand_calls++;
+
   hash = CmdHashKey(command->name);
   
   command->next = cmdroots[hash]; // hook it in at the start of
@@ -1058,7 +1116,7 @@ command_t *C_GetCmdForName(const char *cmdname)
   // start hashing
   
   hash = CmdHashKey(cmdname);
-  
+
   current = cmdroots[hash];
   while(current)
     {
@@ -1161,7 +1219,8 @@ void C_WriteVariables(FILE *file)
 
   // count number of commands 
   for (i=0; i<CMDCHAINS; i++) {
-    for (cmd = cmdroots[i]; cmd; cmd = cmd->next) numCommands++;
+    for (cmd = cmdroots[i]; cmd; cmd = cmd->next)
+      numCommands++;
   }
   
   // put em into a single array
