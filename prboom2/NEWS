@@ -2,10 +2,12 @@ This file shows a history of changes between PrBoom versions since v2.2.0.
 For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
-Changes from v2.2.1 to v2.3.0
+Changes from v2.2.3 to v2.3.0
 - the OpenGL libs are loaded dynamically
 - added more compatibility levels (check frontend configurations!)
 - in game switching between fullscreen and windowed mode
+- fix super-shotgun reload on last shot
+- intermission demo sync bug fixed
 - support for more and less then 8 channels
 - replaced use_vsync with use_doublebuffer in cfg file and implemented
   double buffering
@@ -13,8 +15,29 @@ Changes from v2.2.1 to v2.3.0
 - windows also uses prboom.wad now
 - removed lumps and tables which are in prboom.cfg from source
 
------------------------------------------------------------------------------
-This file shows a history of changes between PrBoom versions since v2.1.0.
+Changes from v2.2.2 to v2.2.3
+- improved mouse handling
+- framebuffer update fixes (solves flicker on fbcon)
+- -forceoldbsp allowed in non-GL version, and saved in demos
+- fix player colours in multiplayer demos
+- apply workarounds for buggy pwads even during demo playback
+- fix numpad 5 key
+- allow compilation on systems where SDL is built without joystick support
+- fix comp_skymap
+- using anisotropic filtering when the OpenGL extension is available
+- using paletted textures when the OpenGL extension is available
+- added gl_use_paletted_texture option to glboom configuration file
+- using shared texture palette when the OpenGL extension is available
+- added gl_use_shared_texture_palette option to glboom configuration file
+
+Changes from v2.2.1 to v2.2.2
+- more demo sync problems for original Doom and Boom fixed
+- added changeable samplerate for soundmixing
+- added fullscreen/window toggle in option menu
+- added double buffering
+- floor rendering made more accurate
+- Win32 config file handling fixed
+- fix endian conversion problem on Linux/PPC
 
 Changes from v2.2.0 to v2.2.1
 - improved fix for demo sync problems with lost souls bouncing off floors
