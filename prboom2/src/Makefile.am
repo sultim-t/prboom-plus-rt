@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.15 2000/11/13 21:19:29 cph Exp $
+# $Id: Makefile.am,v 1.16 2000/11/18 13:21:20 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -14,14 +14,6 @@ SUBDIRS = @BUILD_DIRS@
 gamesdir=$(prefix)/games
 EXTRA_PROGRAMS = prboom prboom-game-server
 games_PROGRAMS = @BUILD_XPRBOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
-
-ASM_SRC = drawspan.S drawcol.S drawasm.h
-
-if I386_ASM
-ASMS = $(ASM_SRC)
-else
-ASMS = 
-endif
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
@@ -64,7 +56,7 @@ COMMON_SRC = \
  f_finale.c     p_lights.c         r_draw.h         z_bmalloc.c \
  f_finale.h     p_map.c            r_main.c         z_bmalloc.h \
  f_wipe.c       p_map.h            r_main.h         z_zone.c    \
- f_wipe.h       p_maputl.c         r_plane.c        z_zone.h    $(ASMS)
+ f_wipe.h       p_maputl.c         r_plane.c        z_zone.h
 
 if SDL_NET
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
@@ -88,5 +80,5 @@ prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
 
 # Must remember to include 'optional' sources in the tarball
-EXTRA_prboom_SOURCES = $(GL_SRC) $(ASM_SRC)
+EXTRA_prboom_SOURCES = $(GL_SRC)
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.12 2000/11/12 14:59:29 cph Exp $
+ * $Id: r_draw.c,v 1.13 2000/11/18 13:21:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.12 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.13 2000/11/18 13:21:20 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -129,25 +129,11 @@ byte    *dc_source;      // first pixel in a column (possibly virtual)
 //  be used. It has also been used with Wolfenstein 3D.
 // 
 
-#if ((defined I386_ASM) && (!defined _WIN32))
-#ifdef GL_DOOM
-void R_DrawColumn (void) 
-{
-}
-#endif
-#else
 void R_DrawColumn (void) 
 {
   int              count; 
   register byte    *dest;            // killough
   register fixed_t frac;            // killough
-  fixed_t          fracstep;     
-
-  // leban 1/17/99:
-  // on powerpc, this routine currently does not have a stack frame,
-  // but it's right at the point.  check out the assembler if it
-  // gets changed.
-
 
   // leban 1/17/99:
   // removed the + 1 here, adjusted the if test, and added an increment
@@ -166,16 +152,6 @@ void R_DrawColumn (void)
     return; 
 
   count++;
- {
-    // leban 1/5/99:
-    // making local copies of these variables allows
-    // compilers to optimize out a few instructions.  in the
-    // powerpc case, the values sit in registers instead of
-    // being loaded thru the TOC.
-    register int                   scrwid = SCREENWIDTH;
-    register const byte *source = dc_source;            
-    register const lighttable_t *colormap = dc_colormap; 
-
 
 #ifdef RANGECHECK 
   if ((unsigned)dc_x >= SCREENWIDTH
@@ -185,15 +161,10 @@ void R_DrawColumn (void)
 #endif 
 
   // Framebuffer destination address.
-  // Use ylookup LUT to avoid multiply with ScreenWidth.
-  // Use columnofs LUT for subwindows? 
-
-//  dest = ylookup[dc_yl] + columnofs[dc_x];  
-  dest = topleft + dc_yl*scrwid + dc_x;  
+  dest = topleft + dc_yl*SCREENWIDTH + dc_x;  
 
   // Determine scaling, which is the only mapping to be done.
-
-  fracstep = dc_iscale; 
+#define  fracstep dc_iscale 
   frac = dc_texturemid + (dc_yl-centery)*fracstep; 
 
   // Inner loop that does the actual texture mapping,
@@ -202,66 +173,28 @@ void R_DrawColumn (void)
   //
   // killough 2/1/98: more performance tuning
 
-    // leban 1/17/99:
-    // changing this to heightmask == 127 causes a stack frame to
-    // be created...using too many registers at once, i think.
-    // strange.
-
-    if(dc_texheight == 128)
-    {
-        // leban 1/5/99:
-        // no tutti-frutti possible.  most textures are of this variety.
-        // the x86 assembler already performs this optimization.
-        // yes, the silliness with "count" in the loop is for a reason:
-        // the metrowerks powerpc compiler generates the bdnz (branch
-        // and decrement on non-zero) instruction.  that's one add
-        // and a conditional branch in one.  zero-cycle branch in
-        // this case.
-        //
-        // about unrolling (and inlining)...modern cpu makers put a
-        // great deal of silicon into prefetching instructions,
-        // detecting branches, predicting branches, and executing
-        // spectulatively.  in the world of "free" branches,
-        // mindlessly unrolling or inlining can increase the code
-        // size with no benefit.  on machines with small caches,
-        // this is particularly important.
-        //
-        // note the word "mindlessly."  unrolling a loop to combine
-        // reads or writes is quite valid (see R_DrawSpan below).
-        // here, since consecutive *dests are not sucessive in
-        // memory and the reads aren't consistent, unrolling the
-        // loop doesn't help much.  cpu makers have also been
-        // known to combine writes anyway.
-        //
-        // the metrowerks compiler utterly refuses to generate
-        // dbnz for any do/while loop but the one you see here.
-        // or i can't get it to.  this loop should be written
-        // as a do{}while(count>0), since we've tested for
-        // the count<=0 case above.  that's two extra instructions
-        // for each while() in the wrong place.  the ppc assembler
-        // for this routine takes these two instructions out and
-        // leaves everything else the same.
-        //
-        // oh yeah, this loop is about 20% of doom on my 2x603 66mhz
-        // bebox.  six instructions in the loop.
-
-        while(count>0)
+    if (dc_texheight == 128) {
+        while(count--)
         {
-                *dest = colormap[source[(frac>>FRACBITS)&127]];
-                dest += scrwid; 
+                *dest = dc_colormap[dc_source[(frac>>FRACBITS)&127]];
+                dest += SCREENWIDTH; 
                 frac += fracstep;
-                count--;
         }
-    }
-    else
-    {
+    } else if (dc_texheight == 0) {
+	/* cph - another special case */
+	while (count--) {
+		*dest = dc_colormap[dc_source[frac>>FRACBITS]];
+		dest += SCREENWIDTH;
+		frac += fracstep;
+	}
+    } else {
      register unsigned heightmask = dc_texheight-1; // CPhipps - specify type
      if (! (dc_texheight & heightmask) )   // power of 2 -- killough
      {
          while (count>0)   // texture height is a power of 2 -- killough
            {
-             *dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-             dest += scrwid; 
+             *dest = dc_colormap[dc_source[(frac>>FRACBITS) & heightmask]];
+             dest += SCREENWIDTH; 
              frac += fracstep;
             count--;
            }
@@ -284,18 +217,16 @@ void R_DrawColumn (void)
              
              // heightmask is the Tutti-Frutti fix -- killough
              
-             *dest = colormap[source[frac>>FRACBITS]];
-             dest += scrwid; 
+             *dest = dc_colormap[dc_source[frac>>FRACBITS]];
+             dest += SCREENWIDTH; 
              if ((frac += fracstep) >= (int)heightmask)
                frac -= heightmask;
             count--;
            } 
      }
     }
- }
 }
-
-#endif
+#undef fracstep
 
 // Here is the version of R_DrawColumn that deals with translucent  // phares
 // textures and sprites. It's identical to R_DrawColumn except      //    |
@@ -309,19 +240,11 @@ void R_DrawColumn (void)
 // opaque' decision is made outside this routine, not down where the
 // actual code differences are.
 
-#if ((defined I386_ASM) && (!defined _WIN32))
-#ifdef GL_DOOM
-void R_DrawTLColumn (void) 
-{
-}
-#endif
-#else
 void R_DrawTLColumn (void)                                           
 { 
   int              count; 
   register byte    *dest;           // killough
   register fixed_t frac;            // killough
-  fixed_t          fracstep;
 
   count = dc_yh - dc_yl + 1; 
 
@@ -337,15 +260,11 @@ void R_DrawTLColumn (void)
 #endif 
 
   // Framebuffer destination address.
-  // Use ylookup LUT to avoid multiply with ScreenWidth.
-  // Use columnofs LUT for subwindows? 
-
   dest = topleft + dc_yl*SCREENWIDTH + dc_x;  
   
   // Determine scaling,
   //  which is the only mapping to be done.
-
-  fracstep = dc_iscale; 
+#define  fracstep dc_iscale 
   frac = dc_texturemid + (dc_yl-centery)*fracstep; 
 
   // Inner loop that does the actual texture mapping,
@@ -399,8 +318,7 @@ void R_DrawTLColumn (void)
       }
   }
 } 
-
-#endif  // killough 2/21/98: converted to x86 asm
+#undef fracstep
 
 //
 // Spectre/Invisibility.
@@ -627,13 +545,6 @@ fixed_t ds_ystep;
 // start of a 64*64 tile image 
 byte *ds_source;        
 
-#if ((defined I386_ASM) && (!defined _WIN32))
-#ifdef GL_DOOM
-void R_DrawSpan (void) 
-{
-}
-#endif
-#else
 void R_DrawSpan (void) 
 { 
   register unsigned position;
@@ -701,8 +612,6 @@ void R_DrawSpan (void)
       count--;
     } 
 } 
-
-#endif
 
 //
 // R_InitBuffer 
