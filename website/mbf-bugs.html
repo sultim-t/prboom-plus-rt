@@ -887,6 +887,51 @@ learn it again.
            if (player)
              player-&gt;viewz = thing-&gt;z + player-&gt;viewheight;
     </pre>
+    <h4>Super shotgun reloads when out of ammo</h4>
+    <p>Affects: MBF, PrBoom up to and including v2.2.3</p>
+    <p>
+     Description:
+     This is one of those bugs that I miss because I play with the original exe
+     so rarely. In original Doom, ifyou run out of ammo while firing the super
+     shotgun, the very last firing animation is cut short so that you don't see
+     the marine reloading the weapon - because he's got no ammo to do so.
+    </p><p>
+     In Boom, the weapon change logic was moved out of <code>P_CheckAmmo</code>
+     into <code>G_BuildTiccmd</code>, so that even weapon changes caused by ammo
+     shortages would be transmitted in netgames, so players' weapon preferences
+     would be honoured by all nodes.
+     However, in doing so the code to start lowering the existing weapon was
+     removed from <code>P_CheckAmmo</code>, relying on
+     <code>A_WeaponReady</code> to call it instead.
+     But in the case of the double shotgun we want the weapon to begin lowering
+     earlier, at <code>A_CheckReload</code> - in Boom, this had accidentally
+     been made into a no-op by the <code>P_CheckAmmo</code> change. So in Boom,
+     the player has to watch the marine reload a gun for which he has no ammo,
+     before the weapon change occurs.
+    </p>
+    <p>
+     Fix is to start lowering the weapon in <code>A_CheckReload</code>:
+    </p>
+    <pre>
+--- p_pspr.c	7 Jul 2001 18:17:10 -0000	1.6
++++ p_pspr.c	8 Aug 2002 20:54:13 -0000
+@@ -377,7 +377,14 @@ void A_ReFire(player_t *player, pspdef_t
+ 
+ void A_CheckReload(player_t *player, pspdef_t *psp)
+ {
+-  P_CheckAmmo(player);
++  if (!P_CheckAmmo(player) &amp;&amp; compatibility_level &gt;= prboom_4_compatibility) {
++    /* cph 2002/08/08 - In old Doom, P_CheckAmmo would start the weapon lowering
++     * immediately. This was lost in Boom when the weapon switching logic was
++     * rewritten. But we must tell Doom that we don't need to complete the
++     * reload frames for the weapon here. G_BuildTiccmd will set -&gt;pendingweapon
++     * for us later on. */
++    P_SetPsprite(player,ps_weapon,weaponinfo[player-&gt;readyweapon].downstate);
++  }
+ }
+ 
+ //
+    </pre>
 
     <h2>Author</h2>
 
