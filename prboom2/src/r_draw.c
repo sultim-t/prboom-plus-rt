@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: r_draw.c,v 1.4 2000/05/10 23:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.3 2000/05/09 21:45:39 proff_fs Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.4 2000/05/10 23:34:54 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -135,7 +135,7 @@ byte    *dc_source;      // first pixel in a column (possibly virtual)
 //  be used. It has also been used with Wolfenstein 3D.
 // 
 
-#ifndef I386     // killough 2/15/98
+#ifndef I386_ASM     // killough 2/15/98
 
 void R_DrawColumn_Normal (void) 
 {
@@ -310,7 +310,7 @@ void R_DrawColumn_Normal (void)
 // opaque' decision is made outside this routine, not down where the
 // actual code differences are.
 
-#ifndef I386                       // killough 2/21/98: converted to x86 asm
+#ifndef I386_ASM                       // killough 2/21/98: converted to x86 asm
 
 void R_DrawTLColumn_Normal (void)                                           
 { 
@@ -625,7 +625,7 @@ fixed_t ds_ystep;
 // start of a 64*64 tile image 
 byte *ds_source;        
 
-#ifndef I386      // killough 2/15/98
+#ifndef I386_ASM      // killough 2/15/98
 
 void R_DrawSpan (void) 
 { 

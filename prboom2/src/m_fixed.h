@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_fixed.h,v 1.2 2000/05/09 21:45:38 proff_fs Exp $
+ * $Id: m_fixed.h,v 1.3 2000/05/10 23:34:54 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -54,6 +54,20 @@ typedef int fixed_t;
  */
 
 #ifdef _MSC_VER
+# ifdef I386_ASM
+#pragma warning( disable : 4035 )
+__inline static int D_abs(int x)
+{
+    __asm
+    {
+        mov eax,x
+        cdq
+        xor eax,edx
+        sub eax,edx
+    }
+}
+#pragma warning( default : 4035 )
+# else /* I386_asm */
 __inline static int D_abs(int x)
 {
     if (x>0)
@@ -61,27 +75,36 @@ __inline static int D_abs(int x)
     else
         return -x;
 }
-#endif
-
-#ifdef I386
-#define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
-#endif /* I386 */
+# endif /* I386_asm */
+#else /* _MSC_VER */
+# ifdef I386
+#  define D_abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
+# endif /* I386 */
+#endif /* _MSC_VER */
 
 /*
  * Fixed Point Multiplication
  */
 
-#ifdef I386
-
+#ifdef I386_ASM
+# ifdef _MSC_VER
+#pragma warning( disable : 4035 )
+__inline static fixed_t FixedMul(fixed_t a, fixed_t b)
+{
+//    return (fixed_t)((longlong) a*b >> FRACBITS);
+    __asm
+    {
+        mov  eax,a
+        imul b
+        shrd eax,edx,16
+    }
+}
+#pragma warning( default : 4035 )
+# else /* _MSC_VER */
 /* killough 5/10/98: In djgpp, use inlined assembly for performance
  * CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
 inline
-#endif
 static const fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   fixed_t result;
@@ -100,8 +123,9 @@ static const fixed_t FixedMul(fixed_t a, fixed_t b)
 
   return result;
 }
+# endif /* _MSC_VER */
 
-#else /* I386 */
+#else /* I386_ASM */
 
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
@@ -116,24 +140,39 @@ static const fixed_t FixedMul(fixed_t a, fixed_t b)
   return (fixed_t)((int_64_t) a*b >> FRACBITS);
 }
 
-#endif /* I386 */
+#endif /* I386_ASM */
 
 /*
  * Fixed Point Division
  */
 
-#ifdef I386
+#ifdef I386_ASM
 
+# ifdef _MSC_VER
+#pragma warning( disable : 4035 )
+__inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
+{
+    if (D_abs(a) >> 14 >= D_abs(b))
+        return (a^b)<0 ? INT_MIN : INT_MAX;
+    __asm
+    {
+        mov  eax,a
+        mov  ebx,b        
+        mov  edx,eax
+        shl  eax,16     // proff 11/06/98: Changed from sal to shl, I think
+                        // this is better
+        sar  edx,16
+        idiv ebx        // This is needed, because when I used 'idiv b' the
+                        // compiler produced wrong code in a different place
+    }
+}
+#pragma warning( default : 4035 )
+# else /* _MSC_VER */
 /* killough 5/10/98: In djgpp, use inlined assembly for performance
  * killough 9/5/98: optimized to reduce the number of branches
  * CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
 inline
-#endif
 static const fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   if (D_abs(a) >> 14 < D_abs(b))
@@ -153,8 +192,9 @@ static const fixed_t FixedDiv(fixed_t a, fixed_t b)
     }
   return ((a^b)>>31) ^ INT_MAX;
 }
+# endif /* _MSC_VER */
 
-#else /* I386 */
+#else /* I386_ASM */
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
 // Proff - added __inline for VisualC
@@ -169,7 +209,7 @@ static const fixed_t FixedDiv(fixed_t a, fixed_t b)
     (fixed_t)(((int_64_t) a << FRACBITS) / b);
 }
 
-#endif /* I386 */
+#endif /* I386_ASM */
 
 /* CPhipps - 
  * FixedMod - returns a % b, guaranteeing 0<=a<b
