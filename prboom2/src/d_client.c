@@ -114,6 +114,7 @@ void D_InitNetGame (void)
     // Get info from the setup packet
     consoleplayer = sinfo->yourplayer;
     compatibility_level = sinfo->complevel;
+    G_Compatibility();
     startskill = sinfo->skill;
     deathmatch = sinfo->deathmatch;
     startmap = sinfo->level;

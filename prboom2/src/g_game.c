@@ -1849,7 +1849,7 @@ extern int monsters_remember, default_monsters_remember;
  *  introduced.
  */
 
-static void G_Compatibility(void)
+void G_Compatibility(void)
 {
   static const complevel_t fix_levels[COMP_NUM] = {
     mbf_compatibility, /* comp_telefrag - monsters used to telefrag only

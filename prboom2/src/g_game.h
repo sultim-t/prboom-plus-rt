@@ -73,6 +73,7 @@ void G_DoCompleted(void);
 void G_ReadDemoTiccmd(ticcmd_t *cmd);
 void G_WriteDemoTiccmd(ticcmd_t *cmd);
 void G_DoWorldDone(void);
+void G_Compatibility(void);
 const byte *G_ReadOptions(const byte *demo_p);   /* killough 3/1/98 - cph: const byte* */
 byte *G_WriteOptions(byte *demo_p);        // killough 3/1/98
 void G_PlayerReborn(int player);
