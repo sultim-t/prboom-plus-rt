@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $
+ * $Id: v_video.c,v 1.3 2000/05/08 09:54:37 cph Exp $
  *
  *  LxDoom, a Doom port for Linux/Unix
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.2 2000/05/07 20:19:34 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.3 2000/05/08 09:54:37 cph Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -65,8 +65,8 @@ const byte *cr_blue_status;
 const byte *cr_orange;
 const byte *cr_yellow;
 
-//jff 4/24/98 initialize this at runtime
-const byte *colrngs[10];
+/* jff 4/24/98 initialize this at runtime */
+const byte *colrngs[CR_LIMIT];
 
 // Now where did these came from?
 const byte gammatable[5][256] = // CPhipps - const
@@ -717,6 +717,9 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
 //----------------------------------------------------------------------------
 //
 // $Log: v_video.c,v $
+// Revision 1.3  2000/05/08 09:54:37  cph
+// Fix range of colrngs array
+//
 // Revision 1.2  2000/05/07 20:19:34  proff_fs
 // changed use of colormaps from pointers to numbers.
 // That's needed for OpenGL.
