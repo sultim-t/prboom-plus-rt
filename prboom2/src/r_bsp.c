@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_bsp.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: r_bsp.c,v 1.7 2000/05/14 10:55:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.6 2000/05/12 21:31:20 proff_fs Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.7 2000/05/14 10:55:26 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -538,6 +538,36 @@ static void R_Subsector(int num)
   // killough 3/16/98: add floorlightlevel
   // killough 10/98: add support for skies transferred from sidedefs
 
+#ifdef GL_DOOM
+  if (frontsector->floorheight < viewz || // killough 3/7/98
+      (frontsector->heightsec != -1 &&
+      sectors[frontsector->heightsec].ceilingpic == skyflatnum)
+     )
+    floorplane= R_FindPlane(
+                  frontsector->floorheight,
+            		  frontsector->floorpic == skyflatnum &&  // kilough 10/98
+		              frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+                  frontsector->floorpic,
+                  floorlightlevel,                // killough 3/16/98
+                  frontsector->floor_xoffs,       // killough 3/7/98
+                  frontsector->floor_yoffs
+                );
+
+  if (frontsector->ceilingheight > viewz ||
+      frontsector->ceilingpic == skyflatnum ||
+      (frontsector->heightsec != -1 &&
+      sectors[frontsector->heightsec].floorpic == skyflatnum)
+     )
+    ceilingplane= R_FindPlane(
+                    frontsector->ceilingheight,     // killough 3/8/98
+            		    frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
+            		    frontsector->sky & PL_SKYFLAT ? frontsector->sky :
+                    frontsector->ceilingpic,
+                    ceilinglightlevel,              // killough 4/11/98
+                    frontsector->ceiling_xoffs,     // killough 3/7/98
+                    frontsector->ceiling_yoffs
+                  );
+#else
   floorplane = frontsector->floorheight < viewz || // killough 3/7/98
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].ceilingpic == skyflatnum) ?
@@ -562,6 +592,7 @@ static void R_Subsector(int num)
                 frontsector->ceiling_xoffs,     // killough 3/7/98
                 frontsector->ceiling_yoffs
                 ) : NULL;
+#endif
 
   // killough 9/18/98: Fix underwater slowdown, by passing real sector 
   // instead of fake one. Improve sprite lighting by basing sprite
@@ -582,7 +613,7 @@ static void R_Subsector(int num)
     R_AddLine (line++);
 
 #ifdef GL_DOOM
-  gld_DrawPlane(frontsector, floorplane, ceilingplane);
+  gld_DrawPlane(sub->sector, floorplane, ceilingplane);
 #endif
 }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.10 2000/05/13 18:39:55 proff_fs Exp $
+ * $Id: gl_main.c,v 1.11 2000/05/14 10:55:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -211,47 +211,43 @@ float gld_CalcLightLevel(int lightlevel)
   return ((float)max(min(lightlevel,255),0)*(0.75f+0.25f*(float)usegamma))/255.0f;
 }
 
-void gld_StaticLight3f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue)
+void gld_StaticLight(float light)
 { 
   player_t *player;
 	player = &players[displayplayer];
 
 	if (player->fixedcolormap == 32)
   {
-    fRed=1.0f;
-    fGreen=1.0f;
-    fBlue=0.0f;
+    glColor3f(0.5f, 1.0f, 0.0f);
+    return;
   }
 	else
   	if (player->fixedcolormap)
     {
-      fRed=1.0f;
-      fGreen=1.0f;
-      fBlue=1.0f;
+      glColor3f(1.0f, 1.0f, 1.0f);
+      return;
     }
-  //glColor4f(fRed, fGreen, fBlue, 0.5f);
-  glColor3f(fRed, fGreen, fBlue);
+  //glColor4f(light, light, light, 0.5f);
+  glColor3f(light, light, light);
 }
 
-void gld_StaticLight4f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue, GLfloat fAlpha)
+void gld_StaticLightAlpha(float light, float alpha)
 { 
   player_t *player;
 	player = &players[displayplayer];
 
 	if (player->fixedcolormap == 32)
   {
-    fRed=1.0f;
-    fGreen=1.0f;
-    fBlue=0.0f;
+    glColor4f(0.5f, 1.0f, 0.0f, alpha);
+    return;
   }
 	else
   	if (player->fixedcolormap)
     {
-      fRed=1.0f;
-      fGreen=1.0f;
-      fBlue=1.0f;
+      glColor4f(1.0f, 1.0f, 1.0f, alpha);
+      return;
     }
-  glColor4f(fRed, fGreen, fBlue, fAlpha);
+  glColor4f(light, light, light, alpha);
 }
 
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
@@ -277,17 +273,17 @@ void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel)
   y2=y1+(int)((float)gltexture->height*scale)+1;
   light=gld_CalcLightLevel(lightlevel);
 
-  if(viewplayer->mo->flags & MF_SHADOW)
+  if (viewplayer->mo->flags & MF_SHADOW)
   {
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-    gld_StaticLight4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
   }
   else
   {
-		if(viewplayer->mo->flags & MF_TRANSLUCENT)
-      gld_StaticLight4f(light,light,light,(float)tran_filter_pct/100.0f);
+		if (viewplayer->mo->flags & MF_TRANSLUCENT)
+      gld_StaticLightAlpha(light,(float)tran_filter_pct/100.0f);
     else
-  		gld_StaticLight3f(light,light,light);
+  		gld_StaticLight(light);
   }
 	glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(fU1, fV1); glVertex2f((float)(x1),(float)(y1));
@@ -759,7 +755,7 @@ static GLSector *sectorloops=NULL;
 // This draws on flat for the sector "num"
 // The ceiling boolean indicates if the flat is a floor(false) or a ceiling(true)
 
-static void gld_DrawFlat(int num, boolean ceiling)
+static void gld_DrawFlat(int num, boolean ceiling, visplane_t *plane)
 {
   int loopnum; // current loop number
   GLLoopDef *currentloop; // the current loop
@@ -771,9 +767,15 @@ static void gld_DrawFlat(int num, boolean ceiling)
   GLTexture *gltexture; // the texture
   float uoffs,voffs; // the texture coordinates
   float z; // the z position of the flat (height)
+  int floorlightlevel;      // killough 3/16/98: set floor lightlevel
+  int ceilinglightlevel;    // killough 4/11/98
 
   sector=&sectors[num]; // get the sector
-  sector=R_FakeFlat(sector, &tempsec, NULL, NULL, false); // for boom effects
+  sector=R_FakeFlat(sector, &tempsec, &floorlightlevel, &ceilinglightlevel, false); // for boom effects
+  if (!ceiling) // if it is a floor ...
+    glCullFace(GL_FRONT);
+  else
+    glCullFace(GL_BACK);
   if (!ceiling) // if it is a floor ...
   {
     glCullFace(GL_FRONT);
@@ -788,12 +790,13 @@ static void gld_DrawFlat(int num, boolean ceiling)
         return;
       gld_BindFlat(gltexture);
       // get the lightlevel
+/*
       if (sector->floorlightsec!=-1)
         light=gld_CalcLightLevel(sectors[sector->floorlightsec].lightlevel+(extralight<<LIGHTSEGSHIFT));
       else
         light=gld_CalcLightLevel(sector->lightlevel+(extralight<<LIGHTSEGSHIFT));
-      // set it
-      gld_StaticLight3f(light, light, light);
+*/
+      light=gld_CalcLightLevel(floorlightlevel+(extralight<<LIGHTSEGSHIFT));
     }
     // calculate texture offsets
     uoffs=(float)sector->floor_xoffs/(float)FRACUNIT;
@@ -815,12 +818,13 @@ static void gld_DrawFlat(int num, boolean ceiling)
         return;
       gld_BindFlat(gltexture);
       // get the lightlevel
+/*
       if (sector->ceilinglightsec!=-1)
         light=gld_CalcLightLevel(sectors[sector->ceilinglightsec].lightlevel+(extralight<<LIGHTSEGSHIFT));
       else
         light=gld_CalcLightLevel(sector->lightlevel+(extralight<<LIGHTSEGSHIFT));
-      // set it
-      gld_StaticLight3f(light, light, light);
+*/
+      light=gld_CalcLightLevel(ceilinglightlevel+(extralight<<LIGHTSEGSHIFT));
     }
     // calculate texture offsets
     uoffs=(float)sector->ceiling_xoffs/(float)FRACUNIT;
@@ -828,6 +832,12 @@ static void gld_DrawFlat(int num, boolean ceiling)
     // get height
     z=(float)sector->ceilingheight/(float)MAP_SCALE;
   }
+  if (plane)
+  {
+    z=(float)plane->height/(float)MAP_SCALE;
+    light=gld_CalcLightLevel(plane->lightlevel+(extralight<<LIGHTSEGSHIFT));
+  }
+  gld_StaticLight(light);
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glTranslatef(0.0f,z,0.0f);
@@ -1580,9 +1590,9 @@ static void gld_DrawWall(GLWall *wall)
     gld_BindTexture(wall->gltexture);
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
     if (wall->trans)
-      gld_StaticLight4f(wall->light, wall->light, wall->light, (float)tran_filter_pct/100.0f);
+      gld_StaticLightAlpha(wall->light, (float)tran_filter_pct/100.0f);
     else
-      gld_StaticLight3f(wall->light, wall->light, wall->light);
+      gld_StaticLight(wall->light);
   }
   else
   {
@@ -1649,10 +1659,25 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=(float)(w).lineheight/(float)(w).gltexture->tex_height\
   )
 
-#define CALC_TEX_VALUES_MIDDLE(w, seg, peg)\
+#define CALC_TEX_VALUES_MIDDLE1S(w, seg, peg)\
+  (w).ou=((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->tex_width;\
+  /*(w).ov=0.0f;*/\
+  (w).ov=((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->tex_height;\
+  (w).ul=0.0f;\
+  (w).ur=(float)gl_segs[(w).segnum].linelength/(float)(w).gltexture->tex_width;\
+  (peg)?\
+  (\
+    (w).vb=((float)(w).gltexture->height/(float)(w).gltexture->tex_height),\
+    (w).vt=(w).vb-((float)(w).lineheight/(float)(w).gltexture->tex_height)\
+  ):(\
+    (w).vt=0.0f,\
+    (w).vb=(float)(w).lineheight/(float)(w).gltexture->tex_height\
+  )
+
+#define CALC_TEX_VALUES_MIDDLE2S(w, seg, peg)\
   (w).ou=((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->tex_width;\
   (w).ov=0.0f;\
-  (w).ov=((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->tex_height;\
+  /*(w).ov=((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->tex_height;*/\
   (w).ul=0.0f;\
   (w).ur=(float)gl_segs[(w).segnum].linelength/(float)(w).gltexture->tex_width;\
   (peg)?\
@@ -1742,7 +1767,7 @@ void gld_AddWall(seg_t *seg)
     {
       wall.gltexture=temptex;
       CALC_Y_VALUES(wall, FRONTSECTOR->floorheight, FRONTSECTOR->ceilingheight);
-      CALC_TEX_VALUES_MIDDLE(wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0);
+      CALC_TEX_VALUES_MIDDLE1S(wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0);
       wall.sky=false;
       gld_DrawWall(&wall);
     }
@@ -1762,12 +1787,11 @@ void gld_AddWall(seg_t *seg)
       wall.ytop=255.0f;
       if (   (floor_height==BACKSECTOR->floorheight)
           && (BACKSECTOR->ceilingpic==skyflatnum)
-/*
           && (   (texturetranslation[seg->sidedef->toptexture]==R_TextureNumForName("-"))
               || (texturetranslation[seg->sidedef->bottomtexture]==R_TextureNumForName("-"))
+              || (texturetranslation[seg->sidedef->midtexture]==R_TextureNumForName("-"))
              )
-*/
-          && (texturetranslation[seg->sidedef->midtexture]==R_TextureNumForName("-"))
+//          && (texturetranslation[seg->sidedef->midtexture]==R_TextureNumForName("-"))
          )
       {
         wall.ybottom=(float)BACKSECTOR->floorheight/(float)MAP_SCALE;
@@ -1820,7 +1844,7 @@ void gld_AddWall(seg_t *seg)
         floor_height=ceiling_height-(wall.gltexture->height<<FRACBITS);
       }
       CALC_Y_VALUES(wall, floor_height, ceiling_height);
-      CALC_TEX_VALUES_MIDDLE(wall, seg, false);
+      CALC_TEX_VALUES_MIDDLE2S(wall, seg, /*(LINE->flags & ML_DONTPEGBOTTOM)>0*/false);
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.trans=1;
       wall.sky=false;
@@ -1904,9 +1928,9 @@ void gld_DrawPlane(sector_t *sector, visplane_t *floorplane, visplane_t *ceiling
       if (sectorclosed[sector->iSectorID]) // check if sector is closed
       {
         // render the floor
-        gld_DrawFlat(sector->iSectorID, false);
+        gld_DrawFlat(sector->iSectorID, false, floorplane);
         // render the ceiling
-        gld_DrawFlat(sector->iSectorID, true);
+        gld_DrawFlat(sector->iSectorID, true, ceilingplane);
         // set rendered true
         sectorrendered[sector->iSectorID]=true;
       }
@@ -1971,14 +1995,14 @@ void gld_DrawSprite(vissprite_t *vspr)
 	if(shadow)
   {
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-    gld_StaticLight4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
+    glColor4f(0.2f,0.2f,0.2f,(float)tran_filter_pct/100.0f);
   }
   else
   {
 		if(trans)
-      gld_StaticLight4f(light,light,light,(float)tran_filter_pct/100.0f);
+      gld_StaticLightAlpha(light,(float)tran_filter_pct/100.0f);
 		else
-      gld_StaticLight3f(light,light,light);
+      gld_StaticLight(light);
   }
   glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(ul, vt); glVertex3f( hoff-w, voff  , 0.0f);
