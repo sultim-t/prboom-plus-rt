@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.16 2001/07/03 12:17:03 proff_fs Exp $
+ * $Id: r_main.c,v 1.17 2001/07/07 18:17:10 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.16 2001/07/03 12:17:03 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.17 2001/07/07 18:17:10 cph Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -561,7 +561,6 @@ void R_RenderPlayerView (player_t* player)
 #else /* not GL_DOOM */
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
-      extern int lastshottic;
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
       memset(*screens+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
       R_DrawViewBorder();
