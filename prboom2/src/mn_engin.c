@@ -40,6 +40,7 @@
 #include "doomstat.h"
 #include "c_io.h"
 #include "c_runcmd.h"
+#include "lprintf.h"
 #include "d_main.h"
 #include "g_game.h"
 //#include "hu_over.h"
@@ -212,7 +213,9 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
 	    V_DrawNumPatch(x, y, 0, lumpnum, colour, VPT_STRETCH | VPT_TRANS);
 	    
 	    return height + 1;   // 1 pixel gap
-  	}
+	} else {
+		lprintf(LO_WARN, "mn_engin.c: patch %s not found.\n", item->patch);
+	}
   }
 
   // draw description text
@@ -472,11 +475,12 @@ void MN_DrawMenu(menu_t *menu)
 	{
 	  // enter to change boolean variables
 	  // left/right otherwise
-
+#if 0
 	  if(menuitem->var->type == vt_int &&
 	     menuitem->var->max - menuitem->var->min == 1)
 	    helpmsg = "press enter to change";
 	  else
+#endif
 	    helpmsg = "use left/right to change value";
 	}
       V_WriteTextColoured(helpmsg, CR_GOLD, 10, 192, -1);
@@ -511,12 +515,12 @@ void MN_Init()
   R_SetPatchNum(&skulls[1], "M_SKULL2");
   
   // load slider gfx
-  
-  R_SetPatchNum(&slider_gfx[slider_left], "M_THERML");
-  R_SetPatchNum(&slider_gfx[slider_right], "M_THERMR");
-  R_SetPatchNum(&slider_gfx[slider_mid], "M_THERMM");
-  R_SetPatchNum(&slider_gfx[slider_slider], "M_THERMO");
-  
+
+  R_SetPatchNum(&slider_gfx[slider_left], "M_SLIDEL");
+  R_SetPatchNum(&slider_gfx[slider_right], "M_SLIDER");
+  R_SetPatchNum(&slider_gfx[slider_mid], "M_SLIDEM");
+  R_SetPatchNum(&slider_gfx[slider_slider], "M_SLIDEO");
+
   MN_InitMenus();   // create menu commands in mn_menus.c
 }
 
@@ -715,7 +719,7 @@ boolean MN_Responder (event_t *ev)
 	    C_RunTextCmd(menuitem->data);
 	    break;
 	  }
-	
+#if 0	
 	case it_toggle:
 	  {
 	    // boolean values only toggled on enter
@@ -730,7 +734,7 @@ boolean MN_Responder (event_t *ev)
 	    S_StartSound(NULL,sfx_pistol);  // make sound
 	    break;
 	  }
-	
+#endif
 	case it_variable:
 	  {
 	    menuitem_t *menuitem =
@@ -778,8 +782,8 @@ boolean MN_Responder (event_t *ev)
 	case it_toggle:
 	  {
 	    // no on-off int values
-	    if(menuitem->var->type == vt_int &&
-	       menuitem->var->max-menuitem->var->min == 1) break;
+	    //if(menuitem->var->type == vt_int &&
+	    //   menuitem->var->max-menuitem->var->min == 1) break;
 	    
 	    // change variable
 	    sprintf(tempstr, "%s -", menuitem->data);
@@ -805,8 +809,8 @@ boolean MN_Responder (event_t *ev)
 	case it_toggle:
 	  {
 	    // no on-off int values
-	    if(menuitem->var->type == vt_int &&
-	       menuitem->var->max-menuitem->var->min == 1) break;
+	    //if(menuitem->var->type == vt_int &&
+	    //   menuitem->var->max-menuitem->var->min == 1) break;
 	    
 	    // change variable
 	    sprintf(tempstr, "%s +", menuitem->data);
