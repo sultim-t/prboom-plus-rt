@@ -4162,11 +4162,12 @@ boolean M_Responder (event_t* ev) {
     return true;
   }
 
-  // killough 2/22/98: add support for screenshot key:
-
+  /* killough 2/22/98: add support for screenshot key:
+   * cph 2001/02/04: no need for this to be a gameaction, just do it
+   */
   if (ch == key_screenshot)
     {
-    G_ScreenShot ();
+    M_ScreenShot ();
     return true;
     }
 

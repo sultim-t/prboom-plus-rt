@@ -796,10 +796,6 @@ void G_Ticker (void)
         case ga_worlddone:
           G_DoWorldDone ();
           break;
-        case ga_screenshot:
-          M_ScreenShot ();
-          gameaction = ga_nothing;
-          break;
         case ga_nothing:
           break;
         }
@@ -1173,11 +1169,6 @@ void G_DoReborn (int playernum)
         }
       P_SpawnPlayer (&playerstarts[playernum]);
     }
-}
-
-void G_ScreenShot (void)
-{
-  gameaction = ga_screenshot;
 }
 
 // DOOM Par Times
