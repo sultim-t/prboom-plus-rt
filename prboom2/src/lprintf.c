@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: lprintf.c,v 1.8 2000/05/11 20:01:06 proff_fs Exp $
+ * $Id: lprintf.c,v 1.9 2000/05/20 11:47:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: lprintf.c,v 1.8 2000/05/11 20:01:06 proff_fs Exp $";
+static const char rcsid[] = "$Id: lprintf.c,v 1.9 2000/05/20 11:47:09 proff_fs Exp $";
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
 #endif
@@ -228,6 +228,7 @@ int Init_ConsoleWin(void)
     int width,height;
     int scr_width,scr_height;
     HINSTANCE hInstance;
+    char titlebuffer[2048];
 
     hInstance = GetModuleHandle(NULL);
     Init_Console();
@@ -248,7 +249,11 @@ int Init_ConsoleWin(void)
 
     width=100;
     height=100;
-    con_hWnd = CreateWindow(szConName, szConName, 
+    strcpy(titlebuffer,PACKAGE);
+    strcat(titlebuffer," ");
+    strcat(titlebuffer,VERSION);
+    strcat(titlebuffer," console");
+    con_hWnd = CreateWindow(szConName, titlebuffer,
              WS_CAPTION | WS_POPUP,
              0, 0, width, height,
              NULL, NULL, hInstance, NULL);
