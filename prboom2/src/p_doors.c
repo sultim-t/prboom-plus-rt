@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_doors.c,v 1.4 2000/05/12 22:51:54 cph Exp $
+ * $Id: p_doors.c,v 1.5 2000/05/13 08:50:12 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.4 2000/05/12 22:51:54 cph Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.5 2000/05/13 08:50:12 cph Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -132,6 +132,14 @@ void T_VerticalDoor (vldoor_t* door)
               door->direction
             );
 
+      /* killough 10/98: implement gradual lighting effects */
+      if (door->lighttag && door->topheight - door->sector->floorheight)
+        EV_LightTurnOnPartway(door->line,
+                              FixedDiv(door->sector->ceilingheight -
+                                       door->sector->floorheight,
+                                       door->topheight -
+                                       door->sector->floorheight));
+
       // handle door reaching bottom
       if (res == pastdest)
       {
@@ -172,28 +180,10 @@ void T_VerticalDoor (vldoor_t* door)
           default:
             break;
         }
-
-        //jff 1/31/98 turn lighting off in tagged sectors of manual doors
-        if (!compatibility && door->line && door->line->tag)
-        {
-          if (door->line->special > GenLockedBase &&
-              (door->line->special&6)==6)       //jff 3/9/98 all manual doors
-            EV_TurnTagLightsOff(door->line);
-          else
-            switch (door->line->special)
-            {
-              case 1: case 31:
-              case 26:
-              case 27: case 28:
-              case 32: case 33:
-              case 34: case 117:
-              case 118:
-                EV_TurnTagLightsOff(door->line);
-              default:
-              break;
-            }
-        }
       }
+      /* jff 1/31/98 turn lighting off in tagged sectors of manual doors
+       * killough 10/98: replaced with gradual lighting code
+       */
       else if (res == crushed) // handle door meeting obstruction on way down
       {
         switch(door->type)
@@ -224,6 +214,14 @@ void T_VerticalDoor (vldoor_t* door)
               door->direction
             );
 
+      /* killough 10/98: implement gradual lighting effects */
+      if (door->lighttag && door->topheight - door->sector->floorheight)
+        EV_LightTurnOnPartway(door->line,
+                              FixedDiv(door->sector->ceilingheight -
+                                       door->sector->floorheight,
+                                       door->topheight -
+                                       door->sector->floorheight));
+
       // handle door reaching the top
       if (res == pastdest)
       {
@@ -252,26 +250,8 @@ void T_VerticalDoor (vldoor_t* door)
             break;
         }
 
-        //jff 1/31/98 turn lighting on in tagged sectors of manual doors
-        if (!compatibility && door->line && door->line->tag)
-        {
-          if (door->line->special > GenLockedBase &&
-              (door->line->special&6)==6)     //jff 3/9/98 all manual doors
-            EV_LightTurnOn(door->line,0);
-          else
-            switch (door->line->special)
-            {
-              case 1: case 31:
-              case 26:
-              case 27: case 28:
-              case 32: case 33:
-              case 34: case 117:
-              case 118:
-                EV_LightTurnOn(door->line,0);
-              default:
-                break;
-            }
-        }
+        /* jff 1/31/98 turn lighting on in tagged sectors of manual doors
+	 * killough 10/98: replaced with gradual lighting code */
       }
       break;
   }
@@ -382,6 +362,7 @@ int EV_DoDoor
     door->topwait = VDOORWAIT;
     door->speed = VDOORSPEED;
     door->line = line; // jff 1/31/98 remember line that triggered us
+    door->lighttag = 0; /* killough 10/98: no light effects with tagged doors */
     
     // setup door parameters according to type of door
     switch(type)
@@ -592,6 +573,10 @@ int EV_VerticalDoor
       line->special = 0;
       door->speed = VDOORSPEED*4;
       break;
+
+    default:
+      door->lighttag = 0;   // killough 10/98
+      break;
   }
   
   // find the top and bottom of the movement range
@@ -633,6 +618,7 @@ void P_SpawnDoorCloseIn30 (sector_t* sec)
   door->speed = VDOORSPEED;
   door->topcountdown = 30 * 35;
   door->line = NULL; // jff 1/31/98 remember line that triggered us
+  door->lighttag = 0; /* killough 10/98: no lighting changes */
 }
 
 //
@@ -666,4 +652,5 @@ void P_SpawnDoorRaiseIn5Mins
   door->topwait = VDOORWAIT;
   door->topcountdown = 5 * 60 * 35;
   door->line = NULL; // jff 1/31/98 remember line that triggered us
+  door->lighttag = 0; /* killough 10/98: no lighting changes */
 }
