@@ -523,9 +523,9 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     W_UnlockLumpNum(lump);
 
     if (left >= 0
-       && right < SCREENWIDTH
+       && right < 320
        && top >= 0
-       && bottom < SCREENHEIGHT)
+       && bottom < 200)
     {
       fits = true;
     }
