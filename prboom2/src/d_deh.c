@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $
+ * $Id: d_deh.c,v 1.4 2000/05/12 12:22:44 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.3 2000/05/09 21:45:36 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.4 2000/05/12 12:22:44 cph Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -963,7 +963,7 @@ const char **const mapnamest[] = // TNT WAD map names.
 void    lfstrip(char *);     // strip the \r and/or \n off of a line
 void    rstrip(char *);      // strip trailing whitespace
 char *  ptr_lstrip(char *);  // point past leading whitespace
-boolean deh_GetData(char *, char *, long *, char **, FILE *);
+boolean deh_GetData(char *, char *, uint_64_t *, char **, FILE *);
 boolean deh_procStringSub(char *, char *, char *, FILE *);
 char *  dehReformatStr(char *);
 
@@ -1073,51 +1073,55 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
 
 struct deh_mobjflags_s { 
   const char *name; // CPhipps - const*
-  long value;
+  uint_64_t value;
 };
 
 // CPhipps - static const
 static const struct deh_mobjflags_s deh_mobjflags[] = {
-  {"SPECIAL",      0x00000001}, // call  P_Specialthing when touched
-  {"SOLID",        0x00000002}, // block movement
-  {"SHOOTABLE",    0x00000004}, // can be hit
-  {"NOSECTOR",     0x00000008}, // invisible but touchable
-  {"NOBLOCKMAP",   0x00000010}, // inert but displayable
-  {"AMBUSH",       0x00000020}, // deaf monster
-  {"JUSTHIT",      0x00000040}, // will try to attack right back
-  {"JUSTATTACKED", 0x00000080}, // take at least 1 step before attacking
-  {"SPAWNCEILING", 0x00000100}, // initially hang from ceiling
-  {"NOGRAVITY",    0x00000200}, // don't apply gravity during play
-  {"DROPOFF",      0x00000400}, // can jump from high places
-  {"PICKUP",       0x00000800}, // will pick up items
-  {"NOCLIP",       0x00001000}, // goes through walls
-  {"SLIDE",        0x00002000}, // keep info about sliding along walls
-  {"FLOAT",        0x00004000}, // allow movement to any height
-  {"TELEPORT",     0x00008000}, // don't cross lines or look at heights
-  {"MISSILE",      0x00010000}, // don't hit same species, explode on block
-  {"DROPPED",      0x00020000}, // dropped, not spawned (like ammo clip)
-  {"SHADOW",       0x00040000}, // use fuzzy draw like spectres
-  {"NOBLOOD",      0x00080000}, // puffs instead of blood when shot
-  {"CORPSE",       0x00100000}, // so it will slide down steps when dead
-  {"INFLOAT",      0x00200000}, // float but not to target height
-  {"COUNTKILL",    0x00400000}, // count toward the kills total
-  {"COUNTITEM",    0x00800000}, // count toward the items total
-  {"SKULLFLY",     0x01000000}, // special handling for flying skulls
-  {"NOTDMATCH",    0x02000000}, // do not spawn in deathmatch
+  {"SPECIAL",      MF_SPECIAL}, // call  P_Specialthing when touched
+  {"SOLID",        MF_SOLID}, // block movement
+  {"SHOOTABLE",    MF_SHOOTABLE}, // can be hit
+  {"NOSECTOR",     MF_NOSECTOR}, // invisible but touchable
+  {"NOBLOCKMAP",   MF_NOBLOCKMAP}, // inert but displayable
+  {"AMBUSH",       MF_AMBUSH}, // deaf monster
+  {"JUSTHIT",      MF_JUSTHIT}, // will try to attack right back
+  {"JUSTATTACKED", MF_JUSTATTACKED}, // take at least 1 step before attacking
+  {"SPAWNCEILING", MF_SPAWNCEILING}, // initially hang from ceiling
+  {"NOGRAVITY",    MF_NOGRAVITY}, // don't apply gravity during play
+  {"DROPOFF",      MF_DROPOFF}, // can jump from high places
+  {"PICKUP",       MF_PICKUP}, // will pick up items
+  {"NOCLIP",       MF_NOCLIP}, // goes through walls
+  {"SLIDE",        MF_SLIDE}, // keep info about sliding along walls
+  {"FLOAT",        MF_FLOAT}, // allow movement to any height
+  {"TELEPORT",     MF_TELEPORT}, // don't cross lines or look at heights
+  {"MISSILE",      MF_MISSILE}, // don't hit same species, explode on block
+  {"DROPPED",      MF_DROPPED}, // dropped, not spawned (like ammo clip)
+  {"SHADOW",       MF_SHADOW}, // use fuzzy draw like spectres
+  {"NOBLOOD",      MF_NOBLOOD}, // puffs instead of blood when shot
+  {"CORPSE",       MF_CORPSE}, // so it will slide down steps when dead
+  {"INFLOAT",      MF_INFLOAT}, // float but not to target height
+  {"COUNTKILL",    MF_COUNTKILL}, // count toward the kills total
+  {"COUNTITEM",    MF_COUNTITEM}, // count toward the items total
+  {"SKULLFLY",     MF_SKULLFLY}, // special handling for flying skulls
+  {"NOTDMATCH",    MF_NOTDMATCH}, // do not spawn in deathmatch
   
   // killough 10/98: TRANSLATION consists of 2 bits, not 1:
 
-  {"TRANSLATION",  0x04000000}, // for Boom bug-compatibility
-  {"TRANSLATION1", 0x04000000}, // use translation table for color (players)
-  {"TRANSLATION2", 0x08000000}, // use translation table for color (players)
-  {"UNUSED1",      0x08000000}, // unused bit # 1 -- For Boom bug-compatibility
-  {"UNUSED2",      0x10000000}, // unused bit # 2 -- For Boom compatibility
-  {"UNUSED3",      0x20000000}, // unused bit # 3 -- For Boom compatibility
-  {"UNUSED4",      0x40000000}, // unused bit # 4 -- For Boom compatibility
-  {"TOUCHY",       0x10000000}, // dies on contact with solid objects (MBF)
-  {"BOUNCES",      0x20000000}, // bounces off floors, ceilings and maybe walls
-  {"FRIEND",       0x40000000}, // a friend of the player(s) (MBF)
-  {"TRANSLUCENT",  0x80000000}, // apply translucency to sprite (BOOM)
+  {"TRANSLATION",  MF_TRANSLATION1}, // for Boom bug-compatibility
+  {"TRANSLATION1", MF_TRANSLATION1}, // use translation table for color (players)
+  {"TRANSLATION2", MF_TRANSLATION2}, // use translation table for color (players)
+  {"UNUSED1",      MF_TRANSLATION2}, // unused bit # 1 -- For Boom bug-compatibility
+  {"UNUSED2",      MF_STEALTH}, // unused bit # 2 -- For Boom compatibility
+  {"STEALTH",      MF_STEALTH}, // for stealth monsters
+  {"UNUSED3",      MF_TRANSLUC25}, // unused bit # 3 -- For Boom compatibility
+  {"UNUSED4",      MF_TRANSLUC50}, // unused bit # 4 -- For Boom compatibility
+  {"TRANSLUC25",   MF_TRANSLUC25}, // Translucency 25%
+  {"TRANSLUC50",   MF_TRANSLUC50}, // Translucency 50%
+  {"TRANSLUC75",   MF_TRANSLUC75}, // Translucency 25% + Translucency 50% = 75%
+  {"TRANSLUCENT",  MF_TRANSLUCENT}, // apply translucency to sprite (BOOM)
+  {"TOUCHY",       MF_TOUCHY},// dies on contact with solid objects (MBF)
+  {"BOUNCES",      MF_BOUNCES},// bounces off floors, ceilings and maybe walls
+  {"FRIEND",       MF_FRIEND},// a friend of the player(s) (MBF)
 };
 
 // STATE - Dehacked block name = "Frame" and "Pointer"
@@ -1340,93 +1344,93 @@ typedef struct {
 
 static const deh_bexptr deh_bexptrs[] = // CPhipps - static const
 {
-  {{A_Light0},         "A_Light0"},
-  {{A_WeaponReady},    "A_WeaponReady"},
-  {{A_Lower},          "A_Lower"},
-  {{A_Raise},          "A_Raise"},
-  {{A_Punch},          "A_Punch"},
-  {{A_ReFire},         "A_ReFire"},
-  {{A_FirePistol},     "A_FirePistol"},
-  {{A_Light1},         "A_Light1"},
-  {{A_FireShotgun},    "A_FireShotgun"},
-  {{A_Light2},         "A_Light2"},
-  {{A_FireShotgun2},   "A_FireShotgun2"},
-  {{A_CheckReload},    "A_CheckReload"},
-  {{A_OpenShotgun2},   "A_OpenShotgun2"},
-  {{A_LoadShotgun2},   "A_LoadShotgun2"},
-  {{A_CloseShotgun2},  "A_CloseShotgun2"},
-  {{A_FireCGun},       "A_FireCGun"},
-  {{A_GunFlash},       "A_GunFlash"},
-  {{A_FireMissile},    "A_FireMissile"},
-  {{A_Saw},            "A_Saw"},
-  {{A_FirePlasma},     "A_FirePlasma"},
-  {{A_BFGsound},       "A_BFGsound"},
-  {{A_FireBFG},        "A_FireBFG"},
-  {{A_BFGSpray},       "A_BFGSpray"},
-  {{A_Explode},        "A_Explode"},
-  {{A_Pain},           "A_Pain"},
-  {{A_PlayerScream},   "A_PlayerScream"},
-  {{A_Fall},           "A_Fall"},
-  {{A_XScream},        "A_XScream"},
-  {{A_Look},           "A_Look"},
-  {{A_Chase},          "A_Chase"},
-  {{A_FaceTarget},     "A_FaceTarget"},
-  {{A_PosAttack},      "A_PosAttack"},
-  {{A_Scream},         "A_Scream"},
-  {{A_SPosAttack},     "A_SPosAttack"},
-  {{A_VileChase},      "A_VileChase"},
-  {{A_VileStart},      "A_VileStart"},
-  {{A_VileTarget},     "A_VileTarget"},
-  {{A_VileAttack},     "A_VileAttack"},
-  {{A_StartFire},      "A_StartFire"},
-  {{A_Fire},           "A_Fire"},
-  {{A_FireCrackle},    "A_FireCrackle"},
-  {{A_Tracer},         "A_Tracer"},
-  {{A_SkelWhoosh},     "A_SkelWhoosh"},
-  {{A_SkelFist},       "A_SkelFist"},
-  {{A_SkelMissile},    "A_SkelMissile"},
-  {{A_FatRaise},       "A_FatRaise"},
-  {{A_FatAttack1},     "A_FatAttack1"},
-  {{A_FatAttack2},     "A_FatAttack2"},
-  {{A_FatAttack3},     "A_FatAttack3"},
-  {{A_BossDeath},      "A_BossDeath"},
-  {{A_CPosAttack},     "A_CPosAttack"},
-  {{A_CPosRefire},     "A_CPosRefire"},
-  {{A_TroopAttack},    "A_TroopAttack"},
-  {{A_SargAttack},     "A_SargAttack"},
-  {{A_HeadAttack},     "A_HeadAttack"},
-  {{A_BruisAttack},    "A_BruisAttack"},
-  {{A_SkullAttack},    "A_SkullAttack"},
-  {{A_Metal},          "A_Metal"},
-  {{A_SpidRefire},     "A_SpidRefire"},
-  {{A_BabyMetal},      "A_BabyMetal"},
-  {{A_BspiAttack},     "A_BspiAttack"},
-  {{A_Hoof},           "A_Hoof"},
-  {{A_CyberAttack},    "A_CyberAttack"},
-  {{A_PainAttack},     "A_PainAttack"},
-  {{A_PainDie},        "A_PainDie"},
-  {{A_KeenDie},        "A_KeenDie"},
-  {{A_BrainPain},      "A_BrainPain"},
-  {{A_BrainScream},    "A_BrainScream"},
-  {{A_BrainDie},       "A_BrainDie"},
-  {{A_BrainAwake},     "A_BrainAwake"},
-  {{A_BrainSpit},      "A_BrainSpit"},
-  {{A_SpawnSound},     "A_SpawnSound"},
-  {{A_SpawnFly},       "A_SpawnFly"},
-  {{A_BrainExplode},   "A_BrainExplode"},
-  {{A_Detonate},       "A_Detonate"},       // killough 8/9/98
-  {{A_Mushroom},       "A_Mushroom"},       // killough 10/98
-  {{A_Die},            "A_Die"},            // killough 11/98
-  {{A_Spawn},          "A_Spawn"},          // killough 11/98
-  {{A_Turn},           "A_Turn"},           // killough 11/98
-  {{A_Face},           "A_Face"},           // killough 11/98
-  {{A_Scratch},        "A_Scratch"},        // killough 11/98
-  {{A_PlaySound},      "A_PlaySound"},      // killough 11/98
-  {{A_RandomJump},     "A_RandomJump"},     // killough 11/98
-  {{A_LineEffect},     "A_LineEffect"},     // killough 11/98
+  {A_Light0,          "A_Light0"},
+  {A_WeaponReady,     "A_WeaponReady"},
+  {A_Lower,           "A_Lower"},
+  {A_Raise,           "A_Raise"},
+  {A_Punch,           "A_Punch"},
+  {A_ReFire,          "A_ReFire"},
+  {A_FirePistol,      "A_FirePistol"},
+  {A_Light1,          "A_Light1"},
+  {A_FireShotgun,     "A_FireShotgun"},
+  {A_Light2,          "A_Light2"},
+  {A_FireShotgun2,    "A_FireShotgun2"},
+  {A_CheckReload,     "A_CheckReload"},
+  {A_OpenShotgun2,    "A_OpenShotgun2"},
+  {A_LoadShotgun2,    "A_LoadShotgun2"},
+  {A_CloseShotgun2,   "A_CloseShotgun2"},
+  {A_FireCGun,        "A_FireCGun"},
+  {A_GunFlash,        "A_GunFlash"},
+  {A_FireMissile,     "A_FireMissile"},
+  {A_Saw,             "A_Saw"},
+  {A_FirePlasma,      "A_FirePlasma"},
+  {A_BFGsound,        "A_BFGsound"},
+  {A_FireBFG,         "A_FireBFG"},
+  {A_BFGSpray,        "A_BFGSpray"},
+  {A_Explode,         "A_Explode"},
+  {A_Pain,            "A_Pain"},
+  {A_PlayerScream,    "A_PlayerScream"},
+  {A_Fall,            "A_Fall"},
+  {A_XScream,         "A_XScream"},
+  {A_Look,            "A_Look"},
+  {A_Chase,           "A_Chase"},
+  {A_FaceTarget,      "A_FaceTarget"},
+  {A_PosAttack,       "A_PosAttack"},
+  {A_Scream,          "A_Scream"},
+  {A_SPosAttack,      "A_SPosAttack"},
+  {A_VileChase,       "A_VileChase"},
+  {A_VileStart,       "A_VileStart"},
+  {A_VileTarget,      "A_VileTarget"},
+  {A_VileAttack,      "A_VileAttack"},
+  {A_StartFire,       "A_StartFire"},
+  {A_Fire,            "A_Fire"},
+  {A_FireCrackle,     "A_FireCrackle"},
+  {A_Tracer,          "A_Tracer"},
+  {A_SkelWhoosh,      "A_SkelWhoosh"},
+  {A_SkelFist,        "A_SkelFist"},
+  {A_SkelMissile,     "A_SkelMissile"},
+  {A_FatRaise,        "A_FatRaise"},
+  {A_FatAttack1,      "A_FatAttack1"},
+  {A_FatAttack2,      "A_FatAttack2"},
+  {A_FatAttack3,      "A_FatAttack3"},
+  {A_BossDeath,       "A_BossDeath"},
+  {A_CPosAttack,      "A_CPosAttack"},
+  {A_CPosRefire,      "A_CPosRefire"},
+  {A_TroopAttack,     "A_TroopAttack"},
+  {A_SargAttack,      "A_SargAttack"},
+  {A_HeadAttack,      "A_HeadAttack"},
+  {A_BruisAttack,     "A_BruisAttack"},
+  {A_SkullAttack,     "A_SkullAttack"},
+  {A_Metal,           "A_Metal"},
+  {A_SpidRefire,      "A_SpidRefire"},
+  {A_BabyMetal,       "A_BabyMetal"},
+  {A_BspiAttack,      "A_BspiAttack"},
+  {A_Hoof,            "A_Hoof"},
+  {A_CyberAttack,     "A_CyberAttack"},
+  {A_PainAttack,      "A_PainAttack"},
+  {A_PainDie,         "A_PainDie"},
+  {A_KeenDie,         "A_KeenDie"},
+  {A_BrainPain,       "A_BrainPain"},
+  {A_BrainScream,     "A_BrainScream"},
+  {A_BrainDie,        "A_BrainDie"},
+  {A_BrainAwake,      "A_BrainAwake"},
+  {A_BrainSpit,       "A_BrainSpit"},
+  {A_SpawnSound,      "A_SpawnSound"},
+  {A_SpawnFly,        "A_SpawnFly"},
+  {A_BrainExplode,    "A_BrainExplode"},
+  {A_Detonate,        "A_Detonate"},       // killough 8/9/98
+  {A_Mushroom,        "A_Mushroom"},       // killough 10/98
+  {A_Die,             "A_Die"},            // killough 11/98
+  {A_Spawn,           "A_Spawn"},          // killough 11/98
+  {A_Turn,            "A_Turn"},           // killough 11/98
+  {A_Face,            "A_Face"},           // killough 11/98
+  {A_Scratch,         "A_Scratch"},        // killough 11/98
+  {A_PlaySound,       "A_PlaySound"},      // killough 11/98
+  {A_RandomJump,      "A_RandomJump"},     // killough 11/98
+  {A_LineEffect,      "A_LineEffect"},     // killough 11/98
 
   // This NULL entry must be the last in the list
-  {{NULL},             "A_NULL"},  // Ty 05/16/98
+  {NULL,              "A_NULL"},  // Ty 05/16/98
 };
 
 // to hold startup code pointers from INFO.C
@@ -1655,11 +1659,11 @@ void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
 // bit masks for monster attributes
 //
 
-void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   int indexnum;
   int ix;
   int *pix;  // Ptr to int, since all Thing structure entries are ints
@@ -1715,8 +1719,8 @@ void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
                         if (!strcasecmp(strval,deh_mobjflags[iy].name))
                           {
                             if (fpout)
-                              fprintf(fpout, "ORed value 0x%08lx %s\n",
-                                      deh_mobjflags[iy].value, strval);
+                              fprintf(fpout, "ORed value 0x%08lX%08lX %s\n",
+                                      (unsigned int)(deh_mobjflags[iy].value>>32) & 0xffffffff, (unsigned int)deh_mobjflags[iy].value & 0xffffffff, strval);
                             value |= deh_mobjflags[iy].value;
                             break;
                           }
@@ -1726,13 +1730,20 @@ void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
                     }
 
                   // Don't worry about conversion -- simply print values
-                  if (fpout) fprintf(fpout, "Bits = 0x%08lX = %ld \n",
-                                     value, value);
+                  if (fpout) fprintf(fpout, "Bits = 0x%08lX%08lX\n",
+                                     (unsigned int)(value>>32) & 0xffffffff, (unsigned int)value & 0xffffffff);
                 }
-              pix = (int *)&mobjinfo[indexnum];
-              pix[ix] = (int)value;
-              if (fpout) fprintf(fpout,"Assigned %d to %s(%d) at index %d\n",
-                                 (int)value, key, indexnum, ix);
+              if (!strcasecmp(key,"bits")) // proff
+              {
+                mobjinfo[indexnum].flags = value;
+              }
+              else
+              {
+                pix = (int *)&mobjinfo[indexnum];
+                pix[ix] = (int)value;
+              }
+              if (fpout) fprintf(fpout,"Assigned 0x%08lx%08lx to %s(%d) at index %d\n",
+                                 (unsigned int)(value>>32) & 0xffffffff, (unsigned int)value & 0xffffffff, key, indexnum, ix);
             }
         }
     }
@@ -1751,7 +1762,7 @@ void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -1774,25 +1785,25 @@ void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
         }
       if (!strcasecmp(key,deh_state[0]))  // Sprite number
         {
-          if (fpout) fprintf(fpout," - sprite = %ld\n",value);
+          if (fpout) fprintf(fpout," - sprite = %lld\n",value);
           states[indexnum].sprite = (spritenum_t)value;
         }
       else
         if (!strcasecmp(key,deh_state[1]))  // Sprite subnumber
           {
-            if (fpout) fprintf(fpout," - frame = %ld\n",value);
+            if (fpout) fprintf(fpout," - frame = %lld\n",value);
             states[indexnum].frame = value; // long
           }
         else
           if (!strcasecmp(key,deh_state[2]))  // Duration
             {
-              if (fpout) fprintf(fpout," - tics = %ld\n",value);
+              if (fpout) fprintf(fpout," - tics = %lld\n",value);
               states[indexnum].tics = value; // long
             }
           else
             if (!strcasecmp(key,deh_state[3]))  // Next frame
               {
-                if (fpout) fprintf(fpout," - nextstate = %ld\n",value);
+                if (fpout) fprintf(fpout," - nextstate = %lld\n",value);
                 states[indexnum].nextstate = (statenum_t)value;
               }
             else
@@ -1804,13 +1815,13 @@ void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
               else
                 if (!strcasecmp(key,deh_state[5]))  // Unknown 1
                   {
-                    if (fpout) fprintf(fpout," - misc1 = %ld\n",value);
+                    if (fpout) fprintf(fpout," - misc1 = %lld\n",value);
                     states[indexnum].misc1 = value; // long
                   }
                 else
                   if (!strcasecmp(key,deh_state[6]))  // Unknown 2
                     {
-                      if (fpout) fprintf(fpout," - misc2 = %ld\n",value);
+                      if (fpout) fprintf(fpout," - misc2 = %lld\n",value);
                       states[indexnum].misc2 = value; // long
                     }
                   else
@@ -1831,7 +1842,7 @@ void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   int indexnum;
   int i; // looper
 
@@ -1867,14 +1878,14 @@ void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
       if (value < 0 || value >= NUMSTATES)
         {
           if (fpout)
-            fprintf(fpout,"Bad pointer number %ld of %d\n",value, NUMSTATES);
+            fprintf(fpout,"Bad pointer number %lld of %d\n",value, NUMSTATES);
           return;
         }
 
       if (!strcasecmp(key,deh_state[4]))  // Codep frame (not set in Frame deh block)
         {
           states[indexnum].action = deh_codeptr[value];
-          if (fpout) fprintf(fpout," - applied from codeptr[%ld] to states[%d]\n",
+          if (fpout) fprintf(fpout," - applied from codeptr[%lld] to states[%d]\n",
 			     value,indexnum);
           // Write BEX-oriented line to match:
           for (i=0;i<NUMSTATES;i++)
@@ -1888,7 +1899,7 @@ void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
             }
         }
       else
-        if (fpout) fprintf(fpout,"Invalid frame pointer index for '%s' at %ld\n",
+        if (fpout) fprintf(fpout,"Invalid frame pointer index for '%s' at %lld\n",
                            key, value);
     }
   return;
@@ -1906,7 +1917,7 @@ void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -1974,7 +1985,7 @@ void deh_procAmmo(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -2020,7 +2031,7 @@ void deh_procWeapon(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   int indexnum;
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
@@ -2198,7 +2209,7 @@ void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
   char ch = 0; // CPhipps - `writable' null string to initialise...
   char *strval = &ch;  // pointer to the value area
   int ix, iy;   // array indices
@@ -2275,7 +2286,7 @@ void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;      // All deh values are ints or longs
+  uint_64_t value;      // All deh values are ints or longs
 
   strncpy(inbuffer,line,DEH_BUFFERMAX);
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -2504,7 +2515,7 @@ void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
-  long value;    // All deh values are ints or longs
+  uint_64_t value;    // All deh values are ints or longs
   char *strval;      // holds the string value of the line
   static int maxstrlen = 128; // maximum string length, bumped 128 at
   // a time as needed
@@ -2725,7 +2736,7 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
 //          as a long just in case.  The passed pointer to hold
 //          the key must be DEH_MAXKEYLEN in size.
 
-boolean deh_GetData(char *s, char *k, long *l, char **strval, FILE *fpout)
+boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
 {
   char *t;  // current char
   long val; // to hold value of pair
