@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.2 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: r_draw.h,v 1.3 2000/05/10 23:30:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -84,8 +84,10 @@ extern void (*R_DrawTLColumn)(void);
 void (*R_DrawColumn)(void);
 void (*R_DrawTLColumn)(void);
 
+#ifndef GL_DOOM
 void R_DrawColumn_Normal(void);
 void R_DrawTLColumn_Normal(void);
+#endif
 
 #define R_DrawColumn_HighRes R_DrawColumn_Normal
 #define R_DrawTLColumn_HighRes R_DrawTLColumn_Normal
@@ -117,7 +119,9 @@ extern const byte *translationtables;
 extern const byte *dc_translation;
 
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
+#ifndef GL_DOOM
 void R_DrawSpan(void);
+#endif
 
 void R_InitBuffer(int width, int height);
 

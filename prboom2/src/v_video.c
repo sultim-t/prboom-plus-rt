@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: v_video.c,v 1.6 2000/05/10 23:30:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.5 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.6 2000/05/10 23:30:58 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -683,6 +683,10 @@ byte *V_PatchToBlock(const char* name, int cm,
 void V_SetPalette(int pal)
 {
   I_SetPalette(pal);
+#ifdef GL_DOOM
+  // proff 11/99: update the palette
+  gld_SetPalette(pal);
+#endif
 }
 
 // 

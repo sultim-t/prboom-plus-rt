@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: r_things.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.4 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: r_things.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -716,9 +716,6 @@ void R_DrawPSprite (pspdef_t *psp)
 #ifndef GL_DOOM
   R_DrawVisSprite(vis, vis->x1, vis->x2);
 #else
-#ifdef _DEBUG
-  R_DrawVisSprite(vis, vis->x1, vis->x2);
-#endif
   {
     int lightlevel;
     sector_t tmpsec;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_main.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $
+ * $Id: r_main.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *
  *-----------------------------------------------------------------------------*/
 
-static const char rcsid[] = "$Id: r_main.c,v 1.4 2000/05/09 21:45:39 proff_fs Exp $";
+static const char rcsid[] = "$Id: r_main.c,v 1.5 2000/05/10 23:30:58 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -691,11 +691,7 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
     
-#ifdef GL_DOOM
-#ifdef _DEBUG
-  R_DrawPlanes ();
-#endif
-#else
+#ifndef GL_DOOM
   R_DrawPlanes ();
 #endif
     
@@ -704,11 +700,7 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
 
-#ifdef GL_DOOM
-#ifdef _DEBUG
-  R_DrawMasked ();
-#endif
-#else
+#ifndef GL_DOOM
   R_DrawMasked ();
 #endif
 
