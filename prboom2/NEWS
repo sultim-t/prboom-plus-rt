@@ -1,6 +1,12 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.2.1 to v2.2.2
+- more demo sync problems for original Doom and Boom fixed
+- floor rendering made more accurate
+- Win32 config file handling fixed
+- fix endian conversion problem on Linux/PPC
+
 Changes from v2.2.0 to v2.2.1
 - improved fix for demo sync problems with lost souls bouncing off floors
 - fixed bug where loading a -fast or -respawn savegame failed to restore
