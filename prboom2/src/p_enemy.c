@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_enemy.c,v 1.9 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: p_enemy.c,v 1.10 2000/11/06 23:16:26 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_enemy.c,v 1.9 2000/09/16 20:20:41 proff_fs Exp $";
+rcsid[] = "$Id: p_enemy.c,v 1.10 2000/11/06 23:16:26 cph Exp $";
 
 #include "doomstat.h"
 #include "m_random.h"
@@ -648,10 +648,12 @@ static void P_NewChaseDir(mobj_t *actor)
 
   actor->strafecount = 0;
 
-  if (mbf_features)
+  if (mbf_features) {
     if (actor->floorz - actor->dropoffz > FRACUNIT*24 &&
-	actor->z <= actor->floorz && !(actor->flags & (MF_DROPOFF|MF_FLOAT)) &&
-	!comp[comp_dropoff] && P_AvoidDropoff(actor)) /* Move away from dropoff */
+	actor->z <= actor->floorz &&
+	!(actor->flags & (MF_DROPOFF|MF_FLOAT)) &&
+	!comp[comp_dropoff] &&
+	P_AvoidDropoff(actor)) /* Move away from dropoff */
       {
 	P_DoNewChaseDir(actor, dropoff_deltax, dropoff_deltay);
 
@@ -671,8 +673,9 @@ static void P_NewChaseDir(mobj_t *actor)
 	if (actor->flags & target->flags & MF_FRIEND &&
 	    distfriend << FRACBITS > dist && 
 	    !P_IsOnLift(target) && !P_IsUnderDamage(actor))
+	{
 	  deltax = -deltax, deltay = -deltay;
-	else
+	} else
 	  if (target->health > 0 && (actor->flags ^ target->flags) & MF_FRIEND)
 	    {   // Live enemy target
 	      if (monster_backing &&
@@ -687,6 +690,7 @@ static void P_NewChaseDir(mobj_t *actor)
 		}
 	    }
       }
+  }
 
   P_DoNewChaseDir(actor, deltax, deltay);
 
@@ -1160,46 +1164,51 @@ void A_Chase(mobj_t *actor)
           return;
         }
 
-  if (!actor->threshold)
+  if (!actor->threshold) {
     if (!mbf_features)
       {   /* killough 9/9/98: for backward demo compatibility */
 	if (netgame && !P_CheckSight(actor, actor->target) &&
 	    P_LookForPlayers(actor, true))
 	  return;  
       }
-    else  /* killough 7/18/98, 9/9/98: new monster AI */
-      if (help_friends && P_HelpFriend(actor))
-	return;      /* killough 9/8/98: Help friends in need */
-      else  /* Look for new targets if current one is bad or is out of view */
-	if (actor->pursuecount)
-	  actor->pursuecount--;
-	else
-	  {
-	    actor->pursuecount = BASETHRESHOLD;
+    /* killough 7/18/98, 9/9/98: new monster AI */
+    else if (help_friends && P_HelpFriend(actor))
+      return;      /* killough 9/8/98: Help friends in need */
+    /* Look for new targets if current one is bad or is out of view */
+    else if (actor->pursuecount)
+      actor->pursuecount--;
+    else {
+	/* Our pursuit time has expired. We're going to think about 
+	 * changing targets */
+	actor->pursuecount = BASETHRESHOLD;
 	    
-	    /* If current target is bad and a new one is found, return: */
+	/* Unless (we have a live target
+	 *         and it's not friendly
+	 *         and we can see it)
+	 *  try to find a new one; return if sucessful */
 
-	    if (!(actor->target && actor->target->health > 0 &&
-		  ((comp[comp_pursuit] && !netgame) || 
-		   (((actor->target->flags ^ actor->flags) & MF_FRIEND ||
-		     (!(actor->flags & MF_FRIEND) && monster_infighting)) &&
-		    P_CheckSight(actor, actor->target)))) &&
-		P_LookForTargets(actor, true))
+	if (!(actor->target && actor->target->health > 0 &&
+	      ((comp[comp_pursuit] && !netgame) || 
+	       (((actor->target->flags ^ actor->flags) & MF_FRIEND ||
+		 (!(actor->flags & MF_FRIEND) && monster_infighting)) &&
+		P_CheckSight(actor, actor->target))))
+	    && P_LookForTargets(actor, true))
 	      return;
 	    
-	    /* (Current target was good, or no new target was found.)
-	     *
-	     * If monster is a missile-less friend, give up pursuit and
-	     * return to player, if no attacks have occurred recently.
-	     */
+	/* (Current target was good, or no new target was found.)
+	 *
+	 * If monster is a missile-less friend, give up pursuit and
+	 * return to player, if no attacks have occurred recently.
+	 */
 
-	    if (!actor->info->missilestate && actor->flags & MF_FRIEND)
-	      if (actor->flags & MF_JUSTHIT)        /* if recent action, */
-		actor->flags &= ~MF_JUSTHIT;        /* keep fighting */
-	      else
-		if (P_LookForPlayers(actor, true))  /* else return to player */
-		  return;
-	  }
+	if (!actor->info->missilestate && actor->flags & MF_FRIEND) {
+	  if (actor->flags & MF_JUSTHIT)          /* if recent action, */
+	    actor->flags &= ~MF_JUSTHIT;          /* keep fighting */
+	  else if (P_LookForPlayers(actor, true)) /* else return to player */
+	    return;
+	}
+    }
+  }
   
   if (actor->strafecount)
     actor->strafecount--;
@@ -1299,11 +1308,12 @@ void A_CPosRefire(mobj_t *actor)
     goto stop;
 
   /* killough 11/98: prevent refiring on friends continuously */
-  if (P_Random(pr_cposrefire) < 40)
+  if (P_Random(pr_cposrefire) < 40) {
     if (actor->target && actor->flags & actor->target->flags & MF_FRIEND)
       goto stop;
     else
       return;
+  }
 
   if (!actor->target || actor->target->health <= 0
       || !P_CheckSight(actor, actor->target))

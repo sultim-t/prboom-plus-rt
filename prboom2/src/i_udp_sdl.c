@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp_sdl.c,v 1.6 2000/09/30 08:57:12 proff_fs Exp $
+ * $Id: i_udp_sdl.c,v 1.7 2000/11/06 23:16:26 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -86,7 +86,7 @@ void I_ShutdownNetwork(void)
  */
 void I_InitNetwork()
 {
-	int status = SDLNet_Init();
+	SDLNet_Init();
 	atexit(I_ShutdownNetwork);
 	udp_packet = SDLNet_AllocPacket(10000);
 }
@@ -211,7 +211,6 @@ static byte ChecksumPacket(const packet_header_t* buffer, size_t len)
 {
   const byte* p = (void*)buffer; 
   byte sum = 0;
-  size_t initlen = len;
 
   if (len==0)
     return 0;
