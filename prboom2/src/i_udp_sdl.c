@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp_sdl.c,v 1.3 2000/09/02 11:02:15 cph Exp $
+ * $Id: i_udp_sdl.c,v 1.4 2000/09/10 13:45:18 cph Exp $
  *
  *  New UDP networking code for LxDoom, based in part on 
  *  the original linuxdoom networking
@@ -105,7 +105,7 @@ void I_WaitForPacket(void)
 {
   SDLNet_SocketSet ss = SDLNet_AllocSocketSet(1);
   SDLNet_UDP_AddSocket(ss, udp_socket);
-  SDLNet_CheckSockets(ss,-1);
+  SDLNet_CheckSockets(ss,1<<30);
   SDLNet_FreeSocketSet(ss);
 }
 
