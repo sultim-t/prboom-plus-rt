@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.8 2000/05/13 05:54:04 jessh Exp $
+ * $Id: gl_main.c,v 1.9 2000/05/13 10:23:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -101,11 +101,10 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
 { 
-  extern int gld_GetTexHeightGL(int value);
+  extern int gld_GetTexDimension(int value);
   extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm);
 
   GLTexture *gltexture;
-  int size;
   unsigned char *buffer;
   float fU1,fU2,fV1,fV2;
   float width,height;
@@ -118,11 +117,11 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   gltexture->height=patch->height;
   gltexture->leftoffset=patch->leftoffset;
   gltexture->topoffset=patch->topoffset;
-  gltexture->tex_width=gld_GetTexHeightGL(gltexture->width);
-  gltexture->tex_height=gld_GetTexHeightGL(gltexture->height);
-  size=gltexture->tex_width*gltexture->tex_height*4;
-  buffer=(unsigned char*)GLMalloc(size);
-  memset(buffer,0,size);
+  gltexture->tex_width=gld_GetTexDimension(gltexture->width);
+  gltexture->tex_height=gld_GetTexDimension(gltexture->height);
+  gltexture->size=gltexture->tex_width*gltexture->tex_height*4;
+  buffer=(unsigned char*)GLMalloc(gltexture->size);
+  memset(buffer,0,gltexture->size);
   gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm);
 	glGenTextures(1,&gltexture->glTexID[cm]);
 	glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
@@ -767,14 +766,14 @@ static void gld_DrawFlat(int num, boolean ceiling)
   int vertexnum; // the current vertexnumber
   GLVertex *currentvertex; // the current vertex
   sector_t *sector; // the sector we want to draw
-  //sector_t tempsec; // needed for R_FakeFlat
+  sector_t tempsec; // needed for R_FakeFlat
   float light; // the lightlevel of the flat
   GLTexture *gltexture; // the texture
   float uoffs,voffs; // the texture coordinates
   float z; // the z position of the flat (height)
 
   sector=&sectors[num]; // get the sector
-  //sector=R_FakeFlat(sector, &tempsec, NULL, NULL, false); // for boom effects
+  sector=R_FakeFlat(sector, &tempsec, NULL, NULL, false); // for boom effects
   if (!ceiling) // if it is a floor ...
   {
     glCullFace(GL_FRONT);
@@ -834,7 +833,7 @@ static void gld_DrawFlat(int num, boolean ceiling)
   glTranslatef(0.0f,z,0.0f);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(uoffs/64.0f,voffs/64.0f,0.0f);
+  glTranslatef(-uoffs/64.0f,-voffs/64.0f,0.0f);
   // go through all loops of this sector
   if (!sectorloops[num].gl_list)
   {
@@ -1002,8 +1001,8 @@ static void CALLBACK ntessVertex( vertex_t *vert )
   // realloc memory to get space for new vertex
   gl_vertexes=Z_Realloc(gl_vertexes, vertexcount*sizeof(GLVertex),PU_LEVEL,0);
   // add the new vertex (vert is the second argument of gluTessVertex)
-  gl_vertexes[vertexcount-1].u=(-(float)vert->x/(float)FRACUNIT)/64.0f;
-  gl_vertexes[vertexcount-1].v=( (float)vert->y/(float)FRACUNIT)/64.0f;
+  gl_vertexes[vertexcount-1].u=( (float)vert->x/(float)FRACUNIT)/64.0f;
+  gl_vertexes[vertexcount-1].v=(-(float)vert->y/(float)FRACUNIT)/64.0f;
   gl_vertexes[vertexcount-1].x=-(float)vert->x/(float)MAP_SCALE;
   gl_vertexes[vertexcount-1].y= (float)vert->y/(float)MAP_SCALE;
 
@@ -1461,6 +1460,8 @@ void gld_Init(int width, int height)
 	glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
   glClearDepth(1.0f);
 
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1564,6 +1565,7 @@ typedef struct
   boolean trans;
   boolean sky;
   boolean skyflip;
+  float skyymid;
   GLTexture *gltexture;
 } GLWall;
 
@@ -1593,9 +1595,11 @@ static void gld_DrawWall(GLWall *wall)
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
     if (wall->skyflip)
-      glScalef(-1.0f,3.5f,1.0f);
+      glScalef(-0.5f,((float)SCREENHEIGHT/(float)SCREENWIDTH)*(200.0f/(float)wall->gltexture->tex_height),1.0f);
     else
-      glScalef(1.0f,3.5f,1.0f);
+      glScalef(0.5f,((float)SCREENHEIGHT/(float)SCREENWIDTH)*(200.0f/(float)wall->gltexture->tex_height),1.0f);
+//    glTranslatef(-((float)SCREENWIDTH/(float)SCREENHEIGHT)*(yaw/90.0f),-1.0f,0.0f);
+    glTranslatef(0.0f,(wall->skyymid/100.0f)-2.0f,0.0f);
     glColor4f(1.0f,1.0f,1.0f,1.0f);
     glBegin(GL_TRIANGLE_STRIP);
       glVertex3f(glseg->x1,wall->ytop,glseg->z1);
@@ -1647,6 +1651,7 @@ static void gld_DrawWall(GLWall *wall)
 #define CALC_TEX_VALUES_MIDDLE(w, seg, peg)\
   (w).ou=((float)((seg)->sidedef->textureoffset+(seg)->offset)/(float)FRACUNIT)/(float)(w).gltexture->tex_width;\
   (w).ov=0.0f;\
+  (w).ov=((float)((seg)->sidedef->rowoffset)/(float)FRACUNIT)/(float)(w).gltexture->tex_height;\
   (w).ul=0.0f;\
   (w).ur=(float)gl_segs[(w).segnum].linelength/(float)(w).gltexture->tex_width;\
   (peg)?\
@@ -1681,6 +1686,7 @@ static void gld_DrawWall(GLWall *wall)
         wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
 	      /* an += s->textureoffset;*/\
 	      /* dc_texturemid = s->rowoffset - 28*FRACUNIT;*/\
+	      wall.skyymid = (float)s->rowoffset/(float)FRACUNIT - 28.0f;\
 	      wall.skyflip = l->special==272 ? false : true;\
       }\
       else\
@@ -1690,12 +1696,13 @@ static void gld_DrawWall(GLWall *wall)
 	      const side_t *s = *l->sidenum + sides;\
         wall.gltexture=gld_RegisterTexture(texturetranslation[s->toptexture], false);\
 	      /* an += s->textureoffset;*/\
-	      /* dc_texturemid = s->rowoffset - 28*FRACUNIT;*/\
+	      wall.skyymid = (float)s->rowoffset/(float)FRACUNIT - 28.0f;\
 	      wall.skyflip = l->special==272 ? false : true;\
       }\
       else\
       {\
         wall.gltexture=gld_RegisterTexture(skytexture, false);\
+	      wall.skyymid = 100.0f;\
 	      wall.skyflip = false;\
       }
 
@@ -1752,13 +1759,22 @@ void gld_AddWall(seg_t *seg)
 //    if ((FRONTSECTOR->ceilingpic==skyflatnum) || (BACKSECTOR->ceilingpic==skyflatnum))
     {
       wall.ytop=255.0f;
-      if (floor_height==BACKSECTOR->floorheight)
+      if ((floor_height==BACKSECTOR->floorheight)
+          && (texturetranslation[seg->sidedef->toptexture]==R_TextureNumForName("-")))
+      {
         wall.ybottom=(float)BACKSECTOR->floorheight/(float)MAP_SCALE;
+        SKYTEXTURE(FRONTSECTOR->sky,BACKSECTOR->sky);
+        wall.sky=true;
+        gld_DrawWall(&wall);
+      }
       else
-        wall.ybottom=(float)ceiling_height/(float)MAP_SCALE;
-      SKYTEXTURE(FRONTSECTOR->sky,BACKSECTOR->sky);
-      wall.sky=true;
-      gld_DrawWall(&wall);
+        if (BACKSECTOR->ceilingpic!=skyflatnum)
+        {
+          wall.ybottom=(float)ceiling_height/(float)MAP_SCALE;
+          SKYTEXTURE(FRONTSECTOR->sky,BACKSECTOR->sky);
+          wall.sky=true;
+          gld_DrawWall(&wall);
+        }
     }
     if (floor_height<ceiling_height)
     {
@@ -1806,9 +1822,9 @@ bottomtexture:
     /* bottomtexture */
     ceiling_height=BACKSECTOR->floorheight;
     floor_height=FRONTSECTOR->floorheight;
-//    if ((FRONTSECTOR->floorpic==skyflatnum) && (BACKSECTOR->floorpic!=skyflatnum))
+    if ((FRONTSECTOR->floorpic==skyflatnum) && (BACKSECTOR->floorpic!=skyflatnum))
 //    if ((FRONTSECTOR->floorpic==skyflatnum) && (BACKSECTOR->floorpic==skyflatnum))
-    if (FRONTSECTOR->floorpic==skyflatnum)
+//    if (FRONTSECTOR->floorpic==skyflatnum)
     {
       wall.ytop=(float)floor_height/(float)MAP_SCALE;
       wall.ybottom=-255.0f;
@@ -1993,6 +2009,11 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
+#ifdef _DEBUG
+  void gld_Precache(void);
+
+  gld_Precache();
+#endif
   gld_PreprocessSectors();
   gld_PreprocessSegs();
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.6 2000/05/12 21:31:20 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.7 2000/05/13 10:23:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -61,7 +61,6 @@
 #include "r_plane.h"
 #include "m_bbox.h"
 #include "lprintf.h"
-#include "z_bmalloc.h"
 
 #define GLMalloc(n) Z_Malloc(n,PU_STATIC,0)
 #define GLRealloc(p,n) Z_Realloc(p,n,PU_STATIC,0)
@@ -80,6 +79,8 @@ typedef struct
   int glTexID[CR_LIMIT+MAXPLAYERS];
 } GLTexture;
 
+extern int gld_max_texturesize;
+  
 GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap);
 void gld_BindTexture(GLTexture *gltexture);
 GLTexture *gld_RegisterPatch(int lump, int cm);

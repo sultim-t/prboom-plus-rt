@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.5 2000/05/11 22:44:35 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.6 2000/05/13 10:23:20 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -44,33 +44,18 @@ static GLTexture **gld_GLTextures=NULL;
 static GLTexture **gld_GLPatchTextures=NULL;
 
 boolean use_mipmaping;
+int gld_max_texturesize=0;
 
-int gld_GetTexHeightGL(int value)
+int gld_GetTexDimension(int value)
 {
-/*	if (M_CheckParm("-3dfx")&&(height>256))
-		return 256; PROFF_GL_FIX */
-	if (value<=1)
-		return 1;
-	if (value<=2)
-		return 2;
-	if (value<=4)
-		return 4;
-	if (value<=8)
-		return 8;
-	if (value<=16)
-		return 16;
-	if (value<=32)
-		return 32;
-	if (value<=64)
-		return 64;
-	if (value<=128)
-		return 128;
-	if (value<=256)
-		return 256;
-	if (value<=512)
-		return 512;
+  int i;
 
-	return 1024; // nicolas --  shut up compiler warning!
+  i=1;
+  while (i<value)
+    i*=2;
+  if (i>gld_max_texturesize)
+    i=gld_max_texturesize;
+  return i;
 }
 
 static GLTexture *gld_AddNewGLTexture(int texture_num)
@@ -116,6 +101,8 @@ static GLTexture *gld_AddNewGLPatchTexture(int lump)
 static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy)
 {
   int x,y,j;
+  int xs,xe;
+  int js,je;
   column_t *p_bColumn_t;
   byte *p_bColumn;
   int pos;
@@ -126,34 +113,57 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     return;
   if (!patch)
     return;
+  if (gltexture->width>gltexture->tex_width)
+    return;
+  if (gltexture->height>gltexture->tex_height)
+    return;
   playpal=W_CacheLumpName("PLAYPAL");
-  size=gltexture->tex_width*gltexture->tex_height*4;
+  size=gltexture->size;
+  xs=0;
+  xe=patch->width;
+  if ((xs+originx)>=gltexture->width)
+    return;
+  if ((xe+originx)<=0)
+    return;
+  if ((xs+originx)<0)
+    xs=-originx;
+  if ((xe+originx)>gltexture->width)
+    xe+=(gltexture->width-(xe+originx));
   p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
-	for (x=0;x<patch->width;x++)
-	{ 
-    if ((x+originx)<0)
-      continue;
-    if ((x+originx)>gltexture->width)
-      continue;
+	for (x=xs;x<xe;x++)
+	{
+#ifdef RANGECHECK
+    if (x>=patch->width)
+      I_Error("gld_AddPatchToTexture_UnTranslated x>=patch->width (%i >= %i)",x,patch->width);
+#endif
     p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[x]);
     while (p_bColumn_t->topdelta != 0xff)
   	{
+      y=(p_bColumn_t->topdelta+originy);
+      js=0;
+      je=p_bColumn_t->length;
+      if ((js+y)>=gltexture->height)
+        goto nextrun;
+      if ((je+y)<=0)
+        goto nextrun;
+      if ((js+y)<0)
+        js=-y;
+      if ((je+y)>gltexture->height)
+        je+=(gltexture->height-(je+y));
 			p_bColumn=(byte *)p_bColumn_t + 3;
-			for (j=0;j<p_bColumn_t->length;j++)
+      pos=4*(((js+y)*gltexture->tex_width)+x+originx);
+			for (j=js;j<je;j++,pos+=(4*gltexture->tex_width))
 			{	
-        y=(j+p_bColumn_t->topdelta+originy);
-        if (y<0)
-          continue;
-        if (y>gltexture->height)
-          continue;
-        pos=4*((y*gltexture->tex_width)+x+originx);
+#ifdef RANGECHECK
         if ((pos+3)>=size)
-          continue;
+          I_Error("gld_AddPatchToTexture_UnTranslated pos+3>=size (%i >= %i)",pos+3,size);
+#endif
 				buffer[pos]=playpal[p_bColumn[j]*3];
 				buffer[pos+1]=playpal[p_bColumn[j]*3+1];
 				buffer[pos+2]=playpal[p_bColumn[j]*3+2];
         buffer[pos+3]=255;
 			}
+nextrun:
 			p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
 		}
 	}
@@ -163,6 +173,8 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
 void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm)
 {
   int x,y,j;
+  int xs,xe;
+  int js,je;
   column_t *p_bColumn_t;
   byte *p_bColumn;
   int pos;
@@ -171,6 +183,14 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
   extern const unsigned char *colrngs[];
   const unsigned char *outr;
 
+  if (!gltexture)
+    return;
+  if (!patch)
+    return;
+  if (gltexture->width>gltexture->tex_width)
+    return;
+  if (gltexture->height>gltexture->tex_height)
+    return;
   if ((cm==CR_DEFAULT) || (cm==CR_LIMIT))
   {
     gld_AddPatchToTexture_UnTranslated(gltexture,buffer,patch,originx,originy);
@@ -180,38 +200,53 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
     outr=colrngs[cm];
   else
     outr=translationtables + 256*((cm-CR_LIMIT)-1);
-  if (!gltexture)
-    return;
-  if (!patch)
-    return;
   playpal=W_CacheLumpName("PLAYPAL");
-  size=gltexture->tex_width*gltexture->tex_height*4;
+  size=gltexture->size;
+  xs=0;
+  xe=patch->width;
+  if ((xs+originx)>=gltexture->width)
+    return;
+  if ((xe+originx)<=0)
+    return;
+  if ((xs+originx)<0)
+    xs=-originx;
+  if ((xe+originx)>gltexture->width)
+    xe+=(gltexture->width-(xe+originx));
   p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[0]);
-	for (x=0;x<patch->width;x++)
-	{ 
-    if ((x+originx)<0)
-      continue;
-    if ((x+originx)>gltexture->width)
-      continue;
+	for (x=xs;x<xe;x++)
+	{
+#ifdef RANGECHECK
+    if (x>=patch->width)
+      I_Error("gld_AddPatchToTexture x>=patch->width (%i >= %i)",x,patch->width);
+#endif
     p_bColumn_t=(column_t *)((byte *)patch+patch->columnofs[x]);
     while (p_bColumn_t->topdelta != 0xff)
   	{
+      y=(p_bColumn_t->topdelta+originy);
+      js=0;
+      je=p_bColumn_t->length;
+      if ((js+y)>=gltexture->height)
+        goto nextrun;
+      if ((je+y)<=0)
+        goto nextrun;
+      if ((js+y)<0)
+        js=-y;
+      if ((je+y)>gltexture->height)
+        je+=(gltexture->height-(je+y));
 			p_bColumn=(byte *)p_bColumn_t + 3;
-			for (j=0;j<p_bColumn_t->length;j++)
+      pos=4*(((js+y)*gltexture->tex_width)+x+originx);
+			for (j=js;j<je;j++,pos+=(4*gltexture->tex_width))
 			{	
-        y=(j+p_bColumn_t->topdelta+originy);
-        if (y<0)
-          continue;
-        if (y>gltexture->height)
-          continue;
-        pos=4*((y*gltexture->tex_width)+x+originx);
+#ifdef RANGECHECK
         if ((pos+3)>=size)
-          continue;
+          I_Error("gld_AddPatchToTexture pos+3>=size (%i >= %i)",pos+3,size);
+#endif
 				buffer[pos]=playpal[outr[p_bColumn[j]]*3];
 				buffer[pos+1]=playpal[outr[p_bColumn[j]]*3+1];
 				buffer[pos+2]=playpal[outr[p_bColumn[j]]*3+2];
         buffer[pos+3]=255;
 			}
+nextrun:
 			p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
 		}
 	}
@@ -227,12 +262,16 @@ static void gld_AddFlatToTexture(GLTexture *gltexture, unsigned char *buffer, co
     return;
   if (!flat)
     return;
+  if (gltexture->width>gltexture->tex_width)
+    return;
+  if (gltexture->height>gltexture->tex_height)
+    return;
   playpal=W_CacheLumpName("PLAYPAL");
   for (y=0;y<gltexture->height;y++)
   {
-    for (x=0;x<gltexture->width;x++)
+    pos=4*(y*gltexture->tex_width);
+    for (x=0;x<gltexture->width;x++,pos+=4)
     {
-      pos=4*((y*gltexture->tex_width)+x);
   		buffer[pos]=playpal[flat[y*64+x]*3];
 			buffer[pos+1]=playpal[flat[y*64+x]*3+1];
 	  	buffer[pos+2]=playpal[flat[y*64+x]*3+2];
@@ -262,8 +301,8 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
     gltexture->height=gltexture->texture->height;
     gltexture->leftoffset=0;
     gltexture->topoffset=0;
-    gltexture->tex_width=gld_GetTexHeightGL(gltexture->width);
-    gltexture->tex_height=gld_GetTexHeightGL(gltexture->height);
+    gltexture->tex_width=gld_GetTexDimension(gltexture->width);
+    gltexture->tex_height=gld_GetTexDimension(gltexture->height);
     gltexture->size=gltexture->tex_width*gltexture->tex_height*4;
   }
   return gltexture;
@@ -295,13 +334,15 @@ void gld_BindTexture(GLTexture *gltexture)
   for (i=0; i<gltexture->texture->patchcount; i++)
   {
     patch=W_CacheLumpNum(gltexture->texture->patches[i].patch);
+/*
     if (gltexture->texture==textures[skytexture])
       gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, CR_DEFAULT);
     else
-      gld_AddPatchToTexture(gltexture, buffer, patch,
-                            gltexture->texture->patches[i].originx,
-                            gltexture->texture->patches[i].originy,
-                            CR_DEFAULT);
+*/
+    gld_AddPatchToTexture(gltexture, buffer, patch,
+                          gltexture->texture->patches[i].originx,
+                          gltexture->texture->patches[i].originy,
+                          CR_DEFAULT);
     W_UnlockLumpNum(gltexture->texture->patches[i].patch);
   }
   if (gltexture->glTexID[CR_DEFAULT]==0)
@@ -349,8 +390,8 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->height=patch->height;
     gltexture->leftoffset=patch->leftoffset;
     gltexture->topoffset=patch->topoffset;
-    gltexture->tex_width=gld_GetTexHeightGL(gltexture->width);
-    gltexture->tex_height=gld_GetTexHeightGL(gltexture->height);
+    gltexture->tex_width=gld_GetTexDimension(gltexture->width);
+    gltexture->tex_height=gld_GetTexDimension(gltexture->height);
     gltexture->size=gltexture->tex_width*gltexture->tex_height*4;
     W_UnlockLumpNum(lump);
   }
@@ -411,8 +452,8 @@ GLTexture *gld_RegisterFlat(int lump, boolean mipmap)
     gltexture->height=64;
     gltexture->leftoffset=0;
     gltexture->topoffset=0;
-    gltexture->tex_width=gld_GetTexHeightGL(gltexture->width);
-    gltexture->tex_height=gld_GetTexHeightGL(gltexture->height);
+    gltexture->tex_width=gld_GetTexDimension(gltexture->width);
+    gltexture->tex_height=gld_GetTexDimension(gltexture->height);
     gltexture->size=gltexture->tex_width*gltexture->tex_height*4;
   }
   return gltexture;
@@ -505,6 +546,20 @@ static void gld_CleanPatchTextures(void)
   }
   memset(gld_GLPatchTextures,0,numlumps*sizeof(GLTexture *));
 }
+
+#ifdef _DEBUG
+void gld_Precache(void)
+{
+  int i;
+  GLTexture* gltexture;
+
+  for (i=0;i<numtextures;i++)
+  {
+    gltexture=gld_RegisterTexture(i,false);
+    gld_BindTexture(gltexture);
+  }
+}
+#endif
 
 void gld_CleanMemory(void)
 {
