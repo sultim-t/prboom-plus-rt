@@ -325,7 +325,7 @@ void R_DrawTLColumn (void)
 //#define FUZZOFF (SCREENWIDTH)
 #define FUZZOFF 1
 
-static const int fuzzoffset[FUZZTABLE] = {
+static const int fuzzoffset_org[FUZZTABLE] = {
   FUZZOFF,-FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
   FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,
   FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,
@@ -334,6 +334,8 @@ static const int fuzzoffset[FUZZTABLE] = {
   FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,
   FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF,FUZZOFF,-FUZZOFF,FUZZOFF
 };
+
+static int fuzzoffset[FUZZTABLE];
 
 static int fuzzpos = 0;
 
@@ -597,6 +599,9 @@ void R_InitBuffer(int width, int height)
 
   for (i=0 ; i<height ; i++)
     ylookup[i] = screens[0] + (i+viewwindowy)*SCREENWIDTH + viewwindowx;
+
+  for (i=0; i<FUZZTABLE; i++)
+    fuzzoffset[i] = fuzzoffset_org[i]*SCREENWIDTH;
 }
 
 //
