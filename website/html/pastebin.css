@@ -1,3 +1,5 @@
+@import url(main.css);
+
 #menu {
   float: left;
   width: 10em;
@@ -15,5 +17,13 @@
 
 #content {
   margin-left: 10em;
+}
+
+code {
+  white-space: nowrap;
+}
+
+.codeedit {
+  white-space: nowrap;
 }
 

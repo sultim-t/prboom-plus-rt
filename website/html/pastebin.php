@@ -86,7 +86,7 @@ This code has no other file dependancies aside from a css stylesheet.
 
 //----------------------------------------------------------------------------
 //site title
-$title="php pastebin - collaborative irc debugging";
+$title="prboom pastebin - collaborative irc debugging";
 
 //----------------------------------------------------------------------------
 //database type - either mysql or postgres
@@ -99,12 +99,14 @@ $dbname="*****";
 $dbuser="*****";
 $dbpass="*****";
 
+include_once("/home/groups/p/pr/prboom/pastepass.php");
+
 //----------------------------------------------------------------------------
 //format of urls to pastebin entries - %d is the placeholder for
 //the entry id.
 
 //  1. for shortest possible url generation in conjuction with mod_rewrite:
-$url_format="/%d";
+$url_format="/pastebin.php?show=%d";
 
 //  2. if using pastebin with mod_rewrite, but within a subdir, you'd use
 //     something like this:
@@ -117,7 +119,7 @@ $url_format="/%d";
 //----------------------------------------------------------------------------
 //syntax highlighter can be either "php" or "none" - choose none if you aren't
 //use this for php code
-$syntax_highlighter="php";
+$syntax_highlighter="none";
 
 
 //----------------------------------------------------------------------------
@@ -572,20 +574,6 @@ echo "<li><a href=\"pastebin.php\">Make new post</a></li>\n";
 echo "</ul>";
 ?>
 
-
-<form method="get" action="http://www.php.net/search.php">
-<h1>PHP Manual</h1>
-<input type="text" size="9" name="pattern"/>
-<input type="hidden" name="show" value="quickref"/>
-<input type="submit" value="go"/>
-</form>
-
-<form method="get" action="http://www.mysql.com/doc/search.php">
-<h1>MySQL Manual</h1>
-<input type="text" size="9" name="q"/>
-<input type="submit" value="go"/>
-</form>
-
 <p>
     <a href="http://validator.w3.org/check/referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10"
@@ -744,6 +732,16 @@ Include comments to indicate what you need feedback on.<br />
 </textarea>
 
 </form>
+
+<div class="discreet">
+
+<a href="http://prboom.sourceforge.net">
+Click here to learn more about PrBoom</a>
+-
+Script from
+<a href="http://www.pastebin.com">
+pastebin.com</a> - thanks, guys!
+</div>
 
 </div>
 
