@@ -1,13 +1,13 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.19 2002/01/07 15:45:22 proff_fs Exp $
+ * $Id: p_mobj.c,v 1.20 2002/02/09 12:41:36 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2001 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.19 2002/01/07 15:45:22 proff_fs Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.20 2002/02/09 12:41:36 cph Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -830,12 +830,12 @@ int        iquehead;
 int        iquetail;
 
 
-//
-// P_RemoveMobj
-//
+/*
+ * P_RemoveMobj
+ */
 
 void P_RemoveMobj (mobj_t* mobj)
-  {
+{
   if ((mobj->flags & MF_SPECIAL)
       && !(mobj->flags & MF_DROPPED)
       && (mobj->type != MT_INV)
@@ -885,9 +885,8 @@ void P_RemoveMobj (mobj_t* mobj)
   }
   // free block
   
-//  P_RemoveThinker ((thinker_t*)mobj);
   P_RemoveThinker (&mobj->thinker);
-  }
+}
 
 
 /*
