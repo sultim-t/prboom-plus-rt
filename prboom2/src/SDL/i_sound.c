@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.16.2.1 2001/03/29 13:32:53 proff_fs Exp $
+ * $Id: i_sound.c,v 1.16.2.2 2001/03/29 13:37:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.16.2.1 2001/03/29 13:32:53 proff_fs Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.16.2.2 2001/03/29 13:37:09 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -87,7 +87,9 @@ int detect_voices = 0; // God knows
 static int SAMPLECOUNT=		512;
 #define NUM_CHANNELS		8
 
-#define SAMPLERATE		11025	// Hz
+// MWM 2000-01-08: Sample rate in samples/second
+// Shouldn't use a comment to the right of the define like that, tsk tsk
+#define SAMPLERATE 11025
 
 // The actual output device.
 int	audio_fd;
