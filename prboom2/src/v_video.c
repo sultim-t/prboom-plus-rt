@@ -100,8 +100,8 @@ void V_InitColorTranslation(void) {
 //---------------------------------------------------------------------------
 static TVidMode vidMode = VID_MODE8;
 
-TRDrawFilterType vid_drawPatchFilterType = RDRAW_FILTER_ROUNDED;
-TRDrawColumnMaskedEdgeType vid_drawPatchSlopeType = RDRAW_MASKEDCOLUMNEDGE_SLOPED;
+TRDrawFilterType vid_drawPatchFilterType = RDRAW_FILTER_POINT;
+TRDrawColumnMaskedEdgeType vid_drawPatchSlopeType = RDRAW_MASKEDCOLUMNEDGE_SQUARE;
 
 int *vid_intPalette = 0;
 short *vid_shortPalette = 0;
