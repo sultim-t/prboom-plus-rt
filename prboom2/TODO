@@ -65,7 +65,8 @@ Colin: there will probably be some FAQs to go in here, like "how to
 README.command-line
 Maybe README.command-line should be renamed to README.options.
 From the next release on I will add .txt to all text files.
-2000/10/07 Colin: gl options into boom.cfg.5, will make a start on this.
+2000/10/08 Colin: OK added a bit on the GL options, not that I know 
+	much about them myself :-)
 
 --------------------------------------------------------------------------
 24. (2000/10/04) Seperating segs and gl_segs etc.
