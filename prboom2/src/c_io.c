@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.5 2001/07/22 14:57:43 cph Exp $
+ * $Id: c_io.c,v 1.6 2001/08/05 22:12:00 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +38,7 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.5 2001/07/22 14:57:43 cph Exp $";
+rcsid[] = "$Id: c_io.c,v 1.6 2001/08/05 22:12:00 cph Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -592,7 +592,15 @@ void C_Printf(const char *s, ...)
   
   // difficult to remove limit
   va_start(args, s);
+#ifdef HAVE_VASPRINTF
   vasprintf(&t, s, args);
+#else
+  /* cph 2001/08/05 - since we use the libc vasprintf above, which uses the libc
+   * malloc, we must force the libc malloc(3) here and free(3) below
+   */
+  t = (malloc)(2048);
+  vsnprintf(t,2047,s,args);
+#endif
   va_end(args);
 
   C_AdjustLineBreaks(t); // haleyjd
