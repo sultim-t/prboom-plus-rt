@@ -176,13 +176,13 @@ void D_PostEvent(event_t *ev)
   if (gametic < 3) return;
   MN_Responder(ev) ||
   C_Responder(ev) ||
-  G_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||
 				     ST_Responder(ev) ||
 				     AM_Responder(ev)
 				     )
-	  );
+	  ) ||
+  G_Responder(ev);
 }
 
 //
