@@ -915,6 +915,8 @@ CONSOLE_COMMAND(r_setmode, cf_buffered)
 
 CONSOLE_STRING(gl_library, gl_library_str, NULL, 126, 0) {}
 
+CONSOLE_BOOLEAN(use_mouse, usemouse, NULL, yesno, 0) {}
+
 void I_Video_AddCommands()
 {
 #ifdef _WIN32
@@ -930,4 +932,5 @@ void I_Video_AddCommands()
   C_AddCommand(r_videomode);
   C_AddCommand(r_setmode);
   C_AddCommand(gl_library);
+  C_AddCommand(use_mouse);
 }
