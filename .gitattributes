@@ -10,19 +10,3 @@ prboom2/ICONS/god.ico -text
 prboom2/ICONS/heada1.ico -text
 prboom2/ICONS/skull.ico -text
 prboom2/data/prboom.wad -text
-prboom2/prboom2/ICONS/barrel.ico -text svneol=native#unset
-prboom2/prboom2/ICONS/fouch.ico svneol=native#unset
-prboom2/prboom2/ICONS/god.ico svneol=native#unset
-prboom2/prboom2/ICONS/heada1.ico -text svneol=native#unset
-prboom2/prboom2/ICONS/skull.ico svneol=native#unset
-prboom2/prboom2/config.h -text svneol=native#unset
-prboom2/prboom2/data/prboom.wad -text svneol=native#unset
-prboom2/prboom2/src/d_main.c -text svneol=native#unset
-prboom2/prboom2/src/gl_main.c -text svneol=native#unset
-prboom2/prboom2/src/gl_struct.h -text svneol=native#unset
-prboom2/prboom2/src/p_setup.c -text svneol=native#unset
-prboom2/prboom2/src/p_sight.c -text svneol=native#unset
-prboom2/prboom2/src/r_bsp.c -text svneol=native#unset
-prboom2/prboom2/src/r_defs.h -text svneol=native#unset
-prboom2/prboom2/src/r_segs.c -text svneol=native#unset
-prboom2/prboom2/src/w_wad.c -text svneol=native#unset
