@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: R_draw.c,v 1.1 2000/04/09 18:01:30 proff_fs Exp $
+// $Id: R_draw.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -32,7 +32,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: R_draw.c,v 1.1 2000/04/09 18:01:30 proff_fs Exp $";
+rcsid[] = "$Id: R_draw.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -98,9 +98,15 @@ byte    *dc_source;      // first pixel in a column (possibly virtual)
 //  be used. It has also been used with Wolfenstein 3D.
 // 
 
+#ifdef GL_DOOM
+// proff 11/99: not needed in OpenGL
+void R_DrawColumn (void)
+{
+}
+
 // proff: This is in drawasm.nas
 // proff 06/30/98: I forgot NOASM
-#if !defined(DJGPP) && !defined(_WIN32) || defined(NOASM)
+#elif !defined(DJGPP) && !defined(_WIN32) || defined(NOASM)
 //#ifndef DJGPP      // killough 2/15/98
 
 void R_DrawColumn (void) 
@@ -803,8 +809,14 @@ void R_DrawViewBorder(void)
 //----------------------------------------------------------------------------
 //
 // $Log: R_draw.c,v $
-// Revision 1.1  2000/04/09 18:01:30  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:03  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:01:30  proff_fs
+// Initial login
 //
 // Revision 1.16  1998/05/03  22:41:46  killough
 // beautification

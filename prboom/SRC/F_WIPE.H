@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: F_WIPE.H,v 1.1 2000/04/09 17:59:16 proff_fs Exp $
+// $Id: F_WIPE.H,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -36,6 +36,9 @@
 // SCREEN WIPE PACKAGE
 //
 
+#ifndef GL_DOOM
+// proff 11/99: not needed in OpenGL
+
 enum {
   // simple gradual pixel change for 8-bit only
   wipe_ColorXForm,
@@ -48,13 +51,21 @@ int wipe_ScreenWipe (int wipeno,
 int wipe_StartScreen(int x, int y, int width, int height);
 int wipe_EndScreen  (int x, int y, int width, int height);
 
+#endif // GL_DOOM
+
 #endif
 
 //----------------------------------------------------------------------------
 //
 // $Log: F_WIPE.H,v $
-// Revision 1.1  2000/04/09 17:59:16  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 17:59:16  proff_fs
+// Initial login
 //
 // Revision 1.3  1998/05/03  22:11:27  killough
 // beautification

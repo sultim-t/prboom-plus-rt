@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: M_menu.c,v 1.1 2000/04/09 18:12:29 proff_fs Exp $
+// $Id: M_menu.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -34,7 +34,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: M_menu.c,v 1.1 2000/04/09 18:12:29 proff_fs Exp $";
+rcsid[] = "$Id: M_menu.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 #include <fcntl.h>
 #ifdef _MSC_VER // proff
@@ -3901,6 +3901,58 @@ int M_GetKeyString(int c,int offset)
 	case KEYD_PAUSE:
 	  s = "PAUS";
 	  break;
+// proff - added keypad-keys
+	case KEYD_NUMLOCK:
+	  s = "NUML";
+	  break;
+	case KEYD_KEYPAD0:
+	  s = "KP0";
+	  break;
+	case KEYD_KEYPAD1:
+	  s = "KP1";
+	  break;
+	case KEYD_KEYPAD2:
+	  s = "KP2";
+	  break;
+	case KEYD_KEYPAD3:
+	  s = "KP3";
+	  break;
+	case KEYD_KEYPAD4:
+	  s = "KP4";
+	  break;
+	case KEYD_KEYPAD5:
+	  s = "KP5";
+	  break;
+	case KEYD_KEYPAD6:
+	  s = "KP6";
+	  break;
+	case KEYD_KEYPAD7:
+	  s = "KP7";
+	  break;
+	case KEYD_KEYPAD8:
+	  s = "KP8";
+	  break;
+	case KEYD_KEYPAD9:
+	  s = "KP9";
+	  break;
+	case KEYD_KEYPADENTER:
+	  s = "KPEN";
+	  break;
+	case KEYD_KEYPADDIVIDE:
+	  s = "KP/";
+	  break;
+	case KEYD_KEYPADMULTIPLY:
+	  s = "KP*";
+	  break;
+	case KEYD_KEYPADMINUS:
+	  s = "KP-";
+	  break;
+	case KEYD_KEYPADPLUS:
+	  s = "KP+";
+	  break;
+	case KEYD_KEYPADPERIOD:
+	  s = "KP.";
+	  break;
 	default:
 	  s = "JUNK";
 	  break;
@@ -5595,8 +5647,14 @@ void M_ResetMenu(void)
 //----------------------------------------------------------------------------
 //
 // $Log: M_menu.c,v $
-// Revision 1.1  2000/04/09 18:12:29  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:12:29  proff_fs
+// Initial login
 //
 // Revision 1.54  1998/05/28  05:27:13  killough
 // Fix some load / save / end game handling r.w.t. demos

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: D_main.c,v 1.1 2000/04/09 18:05:20 proff_fs Exp $
+// $Id: D_main.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -32,7 +32,7 @@
 //
 //-----------------------------------------------------------------------------
 
-static const char rcsid[] = "$Id: D_main.c,v 1.1 2000/04/09 18:05:20 proff_fs Exp $";
+static const char rcsid[] = "$Id: D_main.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 #ifdef _MSC_VER //proff
 #include <direct.h>
@@ -356,6 +356,9 @@ void D_Display (void)
       return;
     }
 
+#ifndef GL_DOOM
+// proff 11/99: not needed in OpenGL
+
   // wipe update
   wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
@@ -377,6 +380,7 @@ void D_Display (void)
       I_FinishUpdate();             // page flip or blit buffer
     }
   while (!done);
+#endif // GL_DOOM
 }
 
 //
@@ -1938,8 +1942,14 @@ void GetFirstMap(int *ep, int *map)
 //----------------------------------------------------------------------------
 //
 // $Log: D_main.c,v $
-// Revision 1.1  2000/04/09 18:05:20  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:05:20  proff_fs
+// Initial login
 //
 // Revision 1.55  1998/11/20  23:15:49  phares
 // New Fireline fix

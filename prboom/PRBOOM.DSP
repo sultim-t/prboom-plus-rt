@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G4 /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "DOGS" /YX /FD /c
+# ADD CPP /nologo /G4 /MT /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "DOGS" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -55,7 +55,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib dsound.lib ddraw.lib wsock32.lib /nologo /subsystem:windows /machine:I386 /out:"bin/win32/prboom.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib wsock32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /machine:I386 /out:"bin/win32/prboom.exe"
 # SUBTRACT LINK32 /profile /incremental:yes /debug
 
 !ELSEIF  "$(CFG)" == "prboom - Win32 Debug"
@@ -72,7 +72,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "INSTRUMENTED" /D "RANGECHECK" /D "ZONEIDCHECK" /D "WIN32" /D "_WINDOWS" /D "DOGS" /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "INSTRUMENTED" /D "RANGECHECK" /D "ZONEIDCHECK" /D "WIN32" /D "_WINDOWS" /D "DOGS" /YX /FD /c
 # SUBTRACT CPP /WX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
@@ -83,8 +83,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib ddraw.lib dsound.lib wsock32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /out:"bindebug/win32/prboom.exe"
-# SUBTRACT LINK32 /profile
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib wsock32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /out:"bindebug/win32/prboom.exe"
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "prboom - Win32 Release_NOASM"
 
@@ -112,7 +112,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib dsound.lib ddraw.lib wsock32.lib /nologo /subsystem:windows /machine:I386 /out:"bin/win32/prboom.exe"
 # SUBTRACT BASE LINK32 /profile /debug
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib dsound.lib ddraw.lib wsock32.lib /nologo /subsystem:windows /machine:I386 /out:"bin/win32woasm/prboom.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib wsock32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /machine:I386 /out:"bin/win32woasm/prboom.exe"
 # SUBTRACT LINK32 /profile /debug
 
 !ELSEIF  "$(CFG)" == "prboom - Win32 Release GL"
@@ -142,7 +142,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib dsound.lib ddraw.lib wsock32.lib /nologo /subsystem:windows /machine:I386 /out:"bin/win32/prboom.exe"
 # SUBTRACT BASE LINK32 /profile /incremental:yes /debug
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib dsound.lib ddraw.lib wsock32.lib opengl32.lib glu32.lib /nologo /subsystem:windows /profile /machine:I386 /out:"bin/win32gl/glboom.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib wsock32.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /profile /machine:I386 /out:"bin/win32gl/glboom.exe"
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
@@ -172,7 +172,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib ddraw.lib dsound.lib wsock32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /out:"bindebug/win32/prboom.exe"
 # SUBTRACT BASE LINK32 /profile
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib ddraw.lib dsound.lib wsock32.lib opengl32.lib glu32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /out:"bindebug/win32gl/glboom.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winmm.lib wsock32.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /out:"bindebug/win32gl/glboom.exe"
 # SUBTRACT LINK32 /profile
 
 !ENDIF 
@@ -309,29 +309,15 @@ InputName=drawasm
 
 !ELSEIF  "$(CFG)" == "prboom - Win32 Release_NOASM"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "prboom - Win32 Release GL"
 
-# Begin Custom Build - Compiling drawasm.nas
-IntDir=.\obj/win32gl
-InputPath=.\src\drawasm.nas
-InputName=drawasm
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
 
-# Begin Custom Build - Compiling drawasm.nas
-IntDir=.\objdebug/win32gl
-InputPath=.\src\drawasm.nas
-InputName=drawasm
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
+# PROP Exclude_From_Build 1
 
 !ENDIF 
 
@@ -763,59 +749,7 @@ SOURCE=.\src\Version.h
 # Begin Source File
 
 SOURCE=.\src\vscale.nas
-
-!IF  "$(CFG)" == "prboom - Win32 Release"
-
-# Begin Custom Build - Compiling vscale.nas
-IntDir=.\obj/win32
-InputPath=.\src\vscale.nas
-InputName=vscale
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Debug"
-
-# Begin Custom Build - Compiling vscale.nas
-IntDir=.\objdebug/win32
-InputPath=.\src\vscale.nas
-InputName=vscale
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Release_NOASM"
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Release GL"
-
-# Begin Custom Build - Compiling vscale.nas
-IntDir=.\obj/win32gl
-InputPath=.\src\vscale.nas
-InputName=vscale
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
-
-# Begin Custom Build - Compiling vscale.nas
-IntDir=.\objdebug/win32gl
-InputPath=.\src\vscale.nas
-InputName=vscale
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
-
-!ENDIF 
-
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
@@ -988,6 +922,19 @@ SOURCE=.\icons\Heada1.ico
 # Begin Source File
 
 SOURCE=.\icons\icons.rc
+
+!IF  "$(CFG)" == "prboom - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "prboom - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "prboom - Win32 Release_NOASM"
+
+!ELSEIF  "$(CFG)" == "prboom - Win32 Release GL"
+
+!ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -1089,52 +1036,6 @@ SOURCE=.\src\gl_struct.h
 !ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
 
 # PROP BASE Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\OpenGL.c
-
-!IF  "$(CFG)" == "prboom - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Release_NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Release GL"
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\opengl.h
-
-!IF  "$(CFG)" == "prboom - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Release_NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Release GL"
-
-!ELSEIF  "$(CFG)" == "prboom - Win32 Debug GL"
 
 !ENDIF 
 

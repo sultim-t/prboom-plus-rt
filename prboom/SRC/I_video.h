@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: I_video.h,v 1.1 2000/04/09 18:19:01 proff_fs Exp $
+// $Id: I_video.h,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -62,9 +62,6 @@ void I_ResetScreen(void);
 extern int vidFullScreen;  // proff
 // proff 11/24/98: Added page_flip
 extern int page_flip;
-extern int vidMultiply;
-extern int vidNoModesEnum;
-extern int vidDirectDrawDevice;
 #endif
 extern int use_vsync;  // killough 2/8/98: controls whether vsync is called
 
@@ -73,8 +70,14 @@ extern int use_vsync;  // killough 2/8/98: controls whether vsync is called
 //----------------------------------------------------------------------------
 //
 // $Log: I_video.h,v $
-// Revision 1.1  2000/04/09 18:19:01  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:19:01  proff_fs
+// Initial login
 //
 // Revision 1.4  1998/05/03  22:40:58  killough
 // beautification

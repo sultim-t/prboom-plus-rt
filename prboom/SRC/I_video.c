@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: I_video.c,v 1.1 2000/04/09 18:15:46 proff_fs Exp $
+// $Id: I_video.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: I_video.c,v 1.1 2000/04/09 18:15:46 proff_fs Exp $";
+rcsid[] = "$Id: I_video.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 #ifdef _WIN32 // proff: Video-routines for Windows
               // this file works together with winstuff.c
@@ -55,6 +55,7 @@ void I_StartFrame (void)
 {
 }
 
+#if 0
 unsigned char key_ascii_table[128] =
 {
 /* 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F             */
@@ -101,6 +102,16 @@ int I_DoomCode2ScanCode (int a)
     inverse[I_ScanCode2DoomCode(cache)]=cache;
   return inverse[a];
 }
+#endif
+int I_ScanCode2DoomCode (int a)
+{
+  return a;
+}
+
+int I_DoomCode2ScanCode (int a)
+{
+  return a;
+}
 
 void I_StartTic (void)
 {
@@ -132,8 +143,9 @@ void I_FinishUpdate (void)
         for ( ; i<20*2 ; i+=2)
             screens[0][ (SCREENHEIGHT-1)*SCREENWIDTH + i] = 0x0;
     }
+#ifndef GL_DOOM
     V_EndFrame();
-#ifdef GL_DOOM
+#else
     // proff 11/99: swap OpenGL buffers
  	  gld_Finish();
 #endif
@@ -143,7 +155,10 @@ void I_ReadScreen (byte* scr)
 {
   if (!in_graphics_mode)
     return;
+#ifdef GL_DOOM
+#else
   memcpy (scr, screens[0], SCREENWIDTH*SCREENHEIGHT);
+#endif
 }
 
 void I_SetPalette (byte* palette)
@@ -514,8 +529,14 @@ void I_InitGraphics(void)
 //----------------------------------------------------------------------------
 //
 // $Log: I_video.c,v $
-// Revision 1.1  2000/04/09 18:15:46  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:15:46  proff_fs
+// Initial login
 //
 // Revision 1.12  1998/05/03  22:40:35  killough
 // beautification

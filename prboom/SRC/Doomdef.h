@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: Doomdef.h,v 1.1 2000/04/09 18:18:04 proff_fs Exp $
+// $Id: Doomdef.h,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -267,6 +267,29 @@ typedef enum {
 
 #define KEYD_NUMLOCK    0xC5                 // killough 3/6/98
 
+// proff - I have taken this from lsdldoom
+// cph - Add the numeric keypad keys, as suggested by krose 4/22/99:
+// The way numbers are assigned to keys is a mess, but it's too late to 
+// change that easily. At least these additions are don neatly. 
+// Codes 0x100-0x200 are reserved for number pad
+
+#define KEYD_KEYPAD0      (0x100 + '0')
+#define KEYD_KEYPAD1      (0x100 + '1')
+#define KEYD_KEYPAD2      (0x100 + '2')
+#define KEYD_KEYPAD3      (0x100 + '3')
+#define KEYD_KEYPAD4      (0x100 + '4')
+#define KEYD_KEYPAD5      (0x100 + '5')
+#define KEYD_KEYPAD6      (0x100 + '6')
+#define KEYD_KEYPAD7      (0x100 + '7')
+#define KEYD_KEYPAD8      (0x100 + '8')
+#define KEYD_KEYPAD9      (0x100 + '9')
+#define KEYD_KEYPADENTER  (0x100 + KEYD_ENTER)
+#define KEYD_KEYPADDIVIDE (0x100 + '/')
+#define KEYD_KEYPADMULTIPLY (0x100 + '*')
+#define KEYD_KEYPADMINUS  (0x100 + '-')
+#define KEYD_KEYPADPLUS   (0x100 + '+')
+#define KEYD_KEYPADPERIOD (0x100 + '.')
+
 // phares 4/19/98:
 // Defines Setup Screen groups that config variables appear in.
 // Used when resetting the defaults for every item in a Setup group.
@@ -300,8 +323,14 @@ typedef enum {
 //----------------------------------------------------------------------------
 //
 // $Log: Doomdef.h,v $
-// Revision 1.1  2000/04/09 18:18:04  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:18:04  proff_fs
+// Initial login
 //
 // Revision 1.23  1998/05/14  08:02:00  phares
 // Added Player Starts 5-8 (4001-4004)

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: WINSTUFF.C,v 1.1 2000/04/09 18:03:26 proff_fs Exp $
+// $Id: WINSTUFF.C,v 1.2 2000/04/26 20:00:03 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -34,26 +34,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <stdlib.h>
-// proff 07/04/98: Added for CYGWIN32 compatibility
-#if defined (_MSC_VER) || defined (__MINGW32__)
-#ifndef GL_DOOM
-#define DIRECTX
-#endif
-#endif
-/*
-#if defined (DIRECTX) && !defined (__MINGW32__)
-#define __BYTEBOOL__
-#define false 0
-#define true !false
-#endif
-*/
-#if defined (DIRECTX)
-#include <ddraw.h>
-#endif
-#ifdef GL_DOOM
-#include "opengl.h"
-#include "gl_struct.h"
-#endif
+#include "SDL.h"
 #include "doomtype.h"
 #include "doomdef.h"
 #include "m_argv.h"
@@ -63,50 +44,13 @@
 #include "i_system.h"
 #include "lprintf.h"
 
-extern int usemouse;
 extern char title[128];
 char szTitle[256];
 char szGLTitle[256];
 char szConTitle[256];
 
-#ifdef GL_DOOM
-char szGLName[] = "PrBoomGLWinClass";
-HDC GL_DC = 0;
-HGLRC gl_hRC  = 0;
-    static PIXELFORMATDESCRIPTOR pfd = {
-        sizeof(PIXELFORMATDESCRIPTOR),  // size of this pfd
-        1,                              // version number
-        PFD_DRAW_TO_WINDOW |            // support window
-        PFD_SUPPORT_OPENGL |            // support OpenGL
-        PFD_DOUBLEBUFFER ,              // double buffered
-        PFD_TYPE_RGBA,                  // RGBA type
-        16,                             // 16-bit color depth
-        0, 0, 0, 0, 0, 0,               // color bits ignored
-        0,                              // no alpha buffer
-        0,                              // shift bit ignored
-        0,                              // no accumulation buffer
-        0, 0, 0, 0,                     // accum bits ignored
-        16,                             // 32-bit z-buffer      
-        0,                              // no stencil buffer
-        0,                              // no auxiliary buffer
-        PFD_MAIN_PLANE,                 // main layer
-        0,                              // reserved
-        0, 0, 0                         // layer masks ignored
-    };
-#endif
-
 HWND ghWnd;
-char szAppName[] = "PrBoomWinClass";
-HINSTANCE win_hInstance;
-int frameX, frameY, capY;
-// proff 06/30/98: Changed form constant value to defined value
-// proff 08/17/98: Changed for high-res
-//int MainWinWidth=SCREENWIDTH, MainWinHeight=SCREENHEIGHT;
-int MainWinWidth;
-int MainWinHeight;
-int vidMultiply=1;
-int vidNoModesEnum=0;
-int vidDirectDrawDevice=0;
+
 H_boolean page_flip=true;
 int use_vsync = 1;
 
@@ -119,198 +63,15 @@ char szConName[] = "PrBoomConWinClass";
 char Lines[(80+2)*25+1];
 char *Last = NULL;
 
-BITMAPINFO *View_bmi;
-BYTE *ViewMem;
-BYTE *ScaledVMem;
-// proff 06/30/98: Changed form constant value to defined value
-// proff 08/17/98: Changed for high-res
-//int ViewMemPitch=SCREENWIDTH;
-int ViewMemPitch;
-RECT ViewRect;
-HDC ViewDC = 0;
-enum {
-    Scale_None,
-    Scale_Windows,
-    Scale_Own
-} ViewScale;
-
+SDL_Surface *sdl_screen;
 H_boolean fActive = false;
 // proff: Removed fFullscreen
 int vidFullScreen = 0;
 
+extern int usemouse;
 H_boolean noMouse = false;
 H_boolean grabMouse = false;
-int MouseButtons = 0;
 extern int usejoystick;
-
-H_boolean noidle=false;
-
-//H_boolean noDDraw = true;
-#ifdef DIRECTX
-LPDIRECTDRAW lpDD;
-LPDIRECTDRAWSURFACE lpDDPSF;
-LPDIRECTDRAWSURFACE lpDDBSF;
-LPDIRECTDRAWPALETTE lpDDPal;
-PALETTEENTRY ADDPal[256];
-int BestWidth,BestHeight;
-// proff 11/21/98: Added DirectDraw device selection
-LPGUID DeviceGUIDs[16];
-int DeviceCount=0;
-int DDrawDevice=0;
-#endif
-
-int I_ScanCode2DoomCode (int a);
-void V_GetMessages (void);
-
-void (*FullscreenProc)(int fullscreen);
-
-static void WinFullscreen(int fullscreen)
-{
-    vidFullScreen=0;
-    lprintf(LO_WARN,"Fullscreen-Mode not available\n");
-}
-
-static CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
-{
-    event_t event;
-    H_boolean AltDown;
-    RECT rect;
-    RECT rectc;
-    RECT rectw;
-
-    switch (iMsg) {
-// proff 07/29/98: Added WM_CLOSE
-    case WM_CLOSE:
-    return 1;
-    break;
-    case WM_MOVE:
-    case WM_SIZE:
-/*
-        if ((!noMouse) && (grabMouse))
-        {
-            ClipCursor(NULL);
-            GetWindowRect(ghWnd, &rectw);
-            GetClientRect(ghWnd, &rectc);
-            rect.left = rectw.left + frameX;
-            rect.top = rectw.top + frameY + capY;
-            rect.right = rect.left + (rectc.right - rectc.left);
-            rect.bottom = rect.top + (rectc.bottom - rectc.top);
-            ClipCursor(&rect);
-        }
-*/        
-        break;
-		case WM_KILLFOCUS:
-      // proff 08/18/98: This sets the priority-class
-			if (!noidle)
-				SetPriorityClass (GetCurrentProcess(), IDLE_PRIORITY_CLASS);
-      break;
-		case WM_SETFOCUS:
-      // proff 08/18/98: This sets the priority-class
-			SetPriorityClass (GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
-      break;
-    case WM_DESTROY:
-      // proff 08/18/98: This sets the priority-class
-			SetPriorityClass (GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
-//      PostQuitMessage(0);
-      break;
-    case WM_ACTIVATE:
-        fActive = (H_boolean)LOWORD(wParam);
-        if (fActive)
-        {
-            #ifdef _DEBUG
-            lprintf (LO_DEBUG, "WM_ACTIVATE true\n");
-            #endif
-            event.type = ev_keyup;
-            event.data1 = KEYD_RCTRL;
-            event.data2 = 0;
-            event.data3 = 0;
-            D_PostEvent(&event);
-            event.data1 = KEYD_RALT;
-            D_PostEvent(&event);
-            MouseButtons=0;
-            event.type = ev_mouse;
-            event.data1 = MouseButtons;
-            event.data2 = 0;
-            event.data3 = 0;
-            D_PostEvent(&event);
-            ShowCursor(FALSE);
-            if ((!noMouse) && (grabMouse))
-            {
-                ClipCursor(NULL);
-                GetWindowRect(ghWnd, &rectw);
-                GetClientRect(ghWnd, &rectc);
-                rect.left = rectw.left + frameX;
-                rect.top = rectw.top + frameY + capY;
-                rect.right = rect.left + (rectc.right - rectc.left);
-                rect.bottom = rect.top + (rectc.bottom - rectc.top);
-                ClipCursor(&rect);
-            }
-        }
-        else
-        {
-            #ifdef _DEBUG
-            lprintf (LO_DEBUG, "WM_ACTIVATE false\n");
-            #endif
-            ShowCursor(TRUE);
-            if ((!noMouse) && (grabMouse))
-            {
-                ClipCursor(NULL);
-            }
-        }
-        break;
-    case WM_SYSKEYDOWN:
-    case WM_KEYDOWN:
-        event.type = ev_keydown;
-        event.data1 = I_ScanCode2DoomCode(((lParam >> 16) & 0x00ff));
-        // proff 08/18/98: Now the pause-key works
-        if (wParam==VK_PAUSE)
-          event.data1=KEYD_PAUSE;
-        event.data2 = 0;
-        event.data3 = 0;
-        if ( event.data1 != 0 )
-            D_PostEvent(&event);
-        AltDown = (GetAsyncKeyState(VK_MENU) < 0);
-        if ((AltDown) & (wParam == VK_RETURN))
-        {
-            vidFullScreen = 1-vidFullScreen;
-            if (FullscreenProc)
-                FullscreenProc(vidFullScreen);
-        }
-       break;
-    case WM_SYSKEYUP:
-    case WM_KEYUP:
-        event.type = ev_keyup;
-        event.data1 = I_ScanCode2DoomCode(((lParam >> 16) & 0x00ff));
-        // proff 08/18/98: Now the pause-key works
-        if (wParam==VK_PAUSE)
-          event.data1=KEYD_PAUSE;
-        event.data2 = 0;
-        event.data3 = 0;
-        if ( event.data1 != 0 )
-            D_PostEvent(&event);
-       break;
-    case WM_LBUTTONDOWN:
-    case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_MBUTTONUP:
-    case WM_RBUTTONUP:
-      if (noMouse)
-        break;
-      MouseButtons = 0;
-      if (wParam & MK_LBUTTON)
-        MouseButtons += 1;
-      if (wParam & MK_RBUTTON)
-        MouseButtons += 2;
-      if (wParam & MK_MBUTTON)
-        MouseButtons += 4;
-      break;
-    default:
-        return(DefWindowProc(hwnd,iMsg,wParam,lParam));
-    }
-// proff 08/18/98: Removed because I think it's useless
-//    return(DefWindowProc(hwnd,iMsg,wParam,lParam));
-}
 
 static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -320,12 +81,6 @@ static CALLBACK ConWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
   switch (iMsg) {
   case WM_CLOSE:
     return 1;
-    break;
-  case WM_SYSKEYDOWN:
-  case WM_KEYDOWN:
-  case WM_SYSKEYUP:
-  case WM_KEYUP:
-    SendMessage(ghWnd,iMsg,wParam,lParam);
     break;
   case WM_PAINT:
 	  if (dc = BeginPaint (con_hWnd, &paint))
@@ -431,47 +186,13 @@ int I_ConPrintString (const char *outline)
 	return strlen (outline);
 }
 
-void V_SetPal(unsigned char *pal)
-{
-    int c;
-    int col;
-
-    if (View_bmi == NULL)
-        return;
-#ifdef DIRECTX
-    if ((vidFullScreen) & (lpDDPal != NULL) & (lpDDBSF != NULL))
-    {
-        col = 0;
-        for (c=0; c<256; c++)
-        {
-            ADDPal[c].peRed = pal[col++];
-            ADDPal[c].peGreen = pal[col++];
-            ADDPal[c].peBlue = pal[col++];
-            ADDPal[c].peFlags = 0;
-        }
-        lpDDPal->lpVtbl->SetEntries(lpDDPal,0,0,256,ADDPal);
-    }
-    else
-#endif
-    {
-        col = 0;
-        for (c=0; c<256; c++)
-        {
-            View_bmi->bmiColors[c].rgbRed = pal[col++];
-            View_bmi->bmiColors[c].rgbGreen = pal[col++];
-            View_bmi->bmiColors[c].rgbBlue = pal[col++];
-            View_bmi->bmiColors[c].rgbReserved = 0;
-        }
-    }
-}
-
 void Init_Console(void)
 {
   memset(Lines,0,25*(80+2)+1);
 	Last = Lines + (25 - 1) * (80 + 2);
 }
 
-int Init_ConsoleWin(HINSTANCE hInstance)
+int Init_ConsoleWin(void)
 {
     HDC conDC;
     WNDCLASS wndclass;
@@ -479,16 +200,17 @@ int Init_ConsoleWin(HINSTANCE hInstance)
 	  RECT cRect;
     int width,height;
     int scr_width,scr_height;
+    HINSTANCE hInstance;
 
+    hInstance = GetModuleHandle(NULL);
     Init_Console();
-    win_hInstance = hInstance;
     /* Register the frame class */
     wndclass.style         = CS_OWNDC;
     wndclass.lpfnWndProc   = (WNDPROC)ConWndProc;
     wndclass.cbClsExtra    = 0;
     wndclass.cbWndExtra    = 0;
     wndclass.hInstance     = hInstance;
-    wndclass.hIcon         = LoadIcon (win_hInstance, IDI_WINLOGO);
+    wndclass.hIcon         = LoadIcon (hInstance, IDI_WINLOGO);
     wndclass.hCursor       = LoadCursor (NULL,IDC_ARROW);
     wndclass.hbrBackground = (HBRUSH)GetStockObject (BLACK_BRUSH);
     wndclass.lpszMenuName  = szConName;
@@ -527,91 +249,35 @@ int Init_ConsoleWin(HINSTANCE hInstance)
     UpdateWindow(con_hWnd);
 }
 
-int Init_Win()
+void Done_ConsoleWin()
 {
-    WNDCLASS wndclass;
-
-    FullscreenProc = WinFullscreen;
-    MainWinWidth=SCREENWIDTH;
-    MainWinHeight=SCREENHEIGHT;
-
-// proff 08/18/98: This disables the setting of the priority-class
-    if (M_CheckParm("-noidle"))
-      noidle=true;
-
-    /* Register the frame class */
-    wndclass.style         = 0;
-    wndclass.lpfnWndProc   = (WNDPROC)WndProc;
-    wndclass.cbClsExtra    = 0;
-    wndclass.cbWndExtra    = 0;
-    wndclass.hInstance     = win_hInstance;
-    wndclass.hIcon         = LoadIcon (win_hInstance, IDI_WINLOGO);
-    wndclass.hCursor       = LoadCursor (NULL,IDC_ARROW);
-//    wndclass.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-    wndclass.hbrBackground = NULL;
-    wndclass.lpszMenuName  = szAppName;
-    wndclass.lpszClassName = szAppName;
-
-    if (!RegisterClass(&wndclass))
-        return FALSE;
-
-    ghWnd = CreateWindow(szAppName, szAppName, 
-             WS_CAPTION | WS_POPUP,
-// proff 06/30/98: Changed form constant value to variable
-             0, 0, MainWinWidth, MainWinHeight,
-             NULL, NULL, win_hInstance, NULL);
-    ShowWindow(ghWnd, SW_HIDE);
-    UpdateWindow(ghWnd);
+  DestroyWindow(con_hWnd);
+  UnregisterClass(szConName,GetModuleHandle(NULL));
+  con_hWnd=0;
 }
 
-#ifdef GL_DOOM
+void V_SetPal(unsigned char *pal)
+{
+  int c;
+  int col;
+  SDL_Color *orig_colors;
 
-int Init_GLWin(void)
-{  
-    BYTE openglLib[256];
-    WNDCLASS wndclass;
+  if (sdl_screen == NULL)
+    return;
+  
+  orig_colors = (SDL_Color *)malloc(256*sizeof(SDL_Color));
+  if (orig_colors == NULL)
+    return;
 
-    OpenGLFindDriver(openglLib);
-    if (OpenGLInit(openglLib)) {
-      MessageBox(NULL, "Unable to load opengl dll", "OpenGLInit Error", MB_ICONERROR); 
-      return false;
-    }
-    lprintf(LO_INFO, "Using OpenGL Driver: %s\n", openglLib);
-
-    FullscreenProc = WinFullscreen;
-    MainWinWidth=SCREENWIDTH;
-    MainWinHeight=SCREENHEIGHT;
-
-// proff 08/18/98: This disables the setting of the priority-class
-    if (M_CheckParm("-noidle"))
-      noidle=true;
-
-    wndclass.style         = 0;
-    wndclass.lpfnWndProc   = (WNDPROC)WndProc;
-    wndclass.cbClsExtra    = 0;
-    wndclass.cbWndExtra    = 0;
-    wndclass.hInstance     = win_hInstance;
-    wndclass.hIcon         = LoadIcon (win_hInstance, IDI_WINLOGO);
-    wndclass.hCursor       = LoadCursor (NULL,IDC_ARROW);
-    wndclass.hbrBackground = (HBRUSH)GetStockObject( BLACK_BRUSH );
-    wndclass.lpszMenuName  = szGLName;
-    wndclass.lpszClassName = szGLName;
-
-    if (!RegisterClass(&wndclass))
-        I_Error("RegisterClass() failed!");
-/* PROFF_GL
-		if (M_CheckParm("-fullscreen"))
-			fn_vChangeScreenResolution();
-*/
-    ghWnd = CreateWindow(szGLName, szGLName, 
-             WS_CAPTION | WS_POPUP,
-             400, 0, MainWinWidth, MainWinHeight,
-             NULL, NULL, win_hInstance, NULL);
-    ShowWindow(ghWnd, SW_HIDE);
-    UpdateWindow(ghWnd);
-    return true;
+  col = 0;
+  for ( c=0; c<256; ++c )
+  {
+    orig_colors[c].r = ((int)pal[col++]);
+    orig_colors[c].g = ((int)pal[col++]);
+    orig_colors[c].b = ((int)pal[col++]);
+  }
+  SDL_SetColors(sdl_screen, orig_colors, 0, 256);
 }
-#endif
 
 void Set_Title(void)
 {
@@ -632,11 +298,6 @@ void Set_Title(void)
             VERSION/100,VERSION%100);
   }
 #endif
-// proff 11/06/98: Added setting of console title
-  memset(szConTitle,0,sizeof(szConTitle));
-  sprintf(szConTitle,
-          "PrBoom Console %i.%02i - ",
-          VERSION/100,VERSION%100);
 
   p = title;
   pEnd = p + strlen(title) - 1;
@@ -651,14 +312,12 @@ void Set_Title(void)
 #else
     memcpy(&szTitle[strlen(szTitle)],p,strlen(p));
 #endif
-    memcpy(&szConTitle[strlen(szConTitle)],p,strlen(p));
   }
 #ifdef GL_DOOM
-  SetWindowText(ghWnd,szGLTitle);
+  SDL_WM_SetCaption(szGLTitle,szGLTitle);
 #else
-  SetWindowText(ghWnd,szTitle);
+  SDL_WM_SetCaption(szTitle,szTitle);
 #endif
-  SetWindowText(con_hWnd,szConTitle);
 }
 
 void Init_Mouse(void)
@@ -672,798 +331,210 @@ void Init_Mouse(void)
       noMouse=(usemouse==0);
 }
 
-void Init_Dib(void)
-{
-    View_bmi=malloc(sizeof(BITMAPINFO)+256*4);
-    memset(View_bmi,0,40);
-    View_bmi->bmiHeader.biSize = 40;
-    View_bmi->bmiHeader.biPlanes = 1;
-    View_bmi->bmiHeader.biBitCount = 8;
-    View_bmi->bmiHeader.biCompression = BI_RGB;
-    if (ViewScale==Scale_Own)
-    {
-        View_bmi->bmiHeader.biWidth = SCREENWIDTH*2;
-        View_bmi->bmiHeader.biHeight = SCREENHEIGHT*2;
-        ViewMem = malloc((SCREENWIDTH*2)*(SCREENHEIGHT*2));
-    }
-    else if (ViewScale==Scale_Windows)
-    {
-        View_bmi->bmiHeader.biWidth = SCREENWIDTH;
-        View_bmi->bmiHeader.biHeight = -SCREENHEIGHT;
-        ViewMem=NULL;
-    }
-    else
-    {
-        View_bmi->bmiHeader.biWidth = SCREENWIDTH;
-        View_bmi->bmiHeader.biHeight = -SCREENHEIGHT;
-        ViewMem=NULL;
-    }
-    ViewDC = GetDC(ghWnd);
-//    SetStretchBltMode(ViewDC,COLORONCOLOR);
-}
-
-#ifdef DIRECTX
-static void Done_DDraw(void)
-{
-    if (lpDD)
-        lpDD->lpVtbl->RestoreDisplayMode(lpDD);
-    if (lpDD)
-        lpDD->lpVtbl->SetCooperativeLevel(lpDD,NULL,DDSCL_NORMAL);
-    if (lpDDPal)
-        lpDDPal->lpVtbl->Release(lpDDPal);
-    if (lpDDPSF)
-        lpDDPSF->lpVtbl->Release(lpDDPSF);
-    if (lpDD)
-        lpDD->lpVtbl->Release(lpDD);
-    lpDDPal=NULL;
-    lpDDPSF=NULL;
-    lpDD=NULL;
-    MoveWindow(ghWnd,0,0,MainWinWidth,MainWinHeight,TRUE);
-    BringWindowToTop(ghWnd);
-}
-
-static void DDrawFullscreen(int fullscreen)
-{
-  HRESULT error;
-  DDSURFACEDESC ddSD;
-  DDSCAPS ddSDC;
-  int c;
-
-  if (fullscreen)
-  {
-    vidFullScreen = 0;
-    // proff 11/21/98: Added DirectDraw device selection
-    error = DirectDrawCreate(DeviceGUIDs[DDrawDevice],&lpDD,NULL);
-    if (error != DD_OK)
-    {
-      lprintf(LO_WARN,"Error: DirectDrawCreate failed!\n");
-      FullscreenProc=WinFullscreen;
-      Done_DDraw();
-      return;
-    }
-    error = lpDD->lpVtbl->SetCooperativeLevel(lpDD,ghWnd,DDSCL_ALLOWMODEX | DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
-    if (error != DD_OK)
-    {
-      lprintf(LO_WARN,"Error: DirectDraw_SetCooperativeLevel failed!\n");
-      FullscreenProc=WinFullscreen;
-      Done_DDraw();
-      return;
-    }
-    error = lpDD->lpVtbl->SetDisplayMode(lpDD,BestWidth,BestHeight,8);
-    if (error != DD_OK)
-    {
-      lprintf(LO_WARN,"Error: DirectDraw_SetDisplayMode %ix%ix8 failed!\n",BestWidth,BestHeight);
-      FullscreenProc=WinFullscreen;
-      Done_DDraw();
-      return;
-    }
-    else
-      dprintf("DDrawMode %ix%i",BestWidth,BestHeight);
-    ddSD.dwSize = sizeof(ddSD);
-    ddSD.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
-    ddSD.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-    ddSD.dwBackBufferCount = 1;
-    error = lpDD->lpVtbl->CreateSurface(lpDD,&ddSD,&lpDDPSF,NULL);
-    if (error != DD_OK)
-    {
-      lpDDPSF = NULL;
-      lprintf(LO_WARN,"Error: DirectDraw_CreateSurface failed!\n");
-      FullscreenProc=WinFullscreen;
-      Done_DDraw();
-      return;
-    }
-    ddSDC.dwCaps = DDSCAPS_BACKBUFFER;
-    error = lpDDPSF->lpVtbl->GetAttachedSurface(lpDDPSF,&ddSDC,&lpDDBSF);
-    if (error != DD_OK)
-    {
-      lpDDBSF = NULL;
-      lprintf(LO_WARN,"Error: DirectDraw_GetAttachedSurface failed!\n");
-      FullscreenProc=WinFullscreen;
-      Done_DDraw();
-      return;
-    }
-    error = lpDD->lpVtbl->CreatePalette(lpDD,DDPCAPS_8BIT | DDPCAPS_ALLOW256,ADDPal,&lpDDPal,NULL);
-    if (error != DD_OK)
-    {
-      lpDDPal = NULL;
-      lprintf(LO_WARN,"Error: DirectDraw_CreatePal failed!\n");
-      FullscreenProc=WinFullscreen;
-      Done_DDraw();
-      return;
-    }
-    error = lpDDPSF->lpVtbl->SetPalette(lpDDPSF,lpDDPal);
-    error = lpDDBSF->lpVtbl->SetPalette(lpDDBSF,lpDDPal);
-    for (c=0; c<256; c++)
-    {
-      ADDPal[c].peRed = View_bmi->bmiColors[c].rgbRed;
-      ADDPal[c].peGreen = View_bmi->bmiColors[c].rgbGreen;
-      ADDPal[c].peBlue = View_bmi->bmiColors[c].rgbBlue;
-      ADDPal[c].peFlags = 0;
-    }
-    lpDDPal->lpVtbl->SetEntries(lpDDPal,0,0,256,ADDPal);
-    vidFullScreen = 1;
-    lprintf(LO_INFO,"Fullscreen-Mode\n");
-  }
-  else
-  {
-    Done_DDraw();
-    if (ViewScale==Scale_Own)
-      ViewMemPitch=SCREENWIDTH*2;
-    else
-      ViewMemPitch=SCREENWIDTH;
-    for (c=0; c<256; c++)
-    {
-      View_bmi->bmiColors[c].rgbRed = ADDPal[c].peRed;
-      View_bmi->bmiColors[c].rgbGreen = ADDPal[c].peGreen;
-      View_bmi->bmiColors[c].rgbBlue = ADDPal[c].peBlue;
-    }
-    lprintf(LO_INFO,"Windows-Mode\n");
-  }
-}
-
-HRESULT WINAPI MyEnumModesCallback(LPDDSURFACEDESC lpDDSDesc, LPVOID lpContext)
-{
-  int SearchedWidth,SearchedHeight;
-
-  SearchedWidth=SCREENWIDTH;
-  if (ViewScale!=Scale_None)
-    SearchedWidth*=2;
-  SearchedHeight=SCREENHEIGHT;
-  if (ViewScale!=Scale_None)
-    SearchedHeight*=2;
-  lprintf(LO_INFO,"W: %4i",lpDDSDesc->dwWidth);
-  lprintf(LO_INFO,", H: %4i",lpDDSDesc->dwHeight);
-  lprintf(LO_INFO,"\n");
-  if (((int)lpDDSDesc->dwWidth>=SearchedWidth) & ((int)lpDDSDesc->dwHeight>=SearchedHeight))
-    if ((BestWidth>(int)lpDDSDesc->dwWidth) & (BestHeight>(int)lpDDSDesc->dwHeight))
-    {
-      BestWidth=lpDDSDesc->dwWidth;
-      BestHeight=lpDDSDesc->dwHeight;
-    }
-  return DDENUMRET_OK;
-}
-
-// proff 11/21/98: Added DirectDraw device selection
-HRESULT WINAPI MyDDEnumCallback(GUID FAR *lpGUID, LPSTR  lpDriverDescription,
-                      LPSTR  lpDriverName, LPVOID lpContext)
-{
-  if (DeviceCount==16)
-    return DDENUMRET_CANCEL;
-  lprintf(LO_INFO,"Device %i: %s\n",DeviceCount,lpDriverDescription);
-  DeviceGUIDs[DeviceCount]=lpGUID;
-  DeviceCount++;
-  return DDENUMRET_OK;
-}
-
-void Init_DDraw(void)
-{
-  HRESULT error;
-  DDSURFACEDESC DDSDesc;
-  int i;
-
-  // proff 11/21/98: Added DirectDraw device selection
-  i = M_CheckParm ("-ddrawdevice");
-  if ((i) || (vidDirectDrawDevice))
-  {
-    DirectDrawEnumerate(&MyDDEnumCallback,NULL);
-    DDrawDevice=vidDirectDrawDevice;
-    if (i)
-      DDrawDevice=atoi(myargv[i+1]);
-    DDrawDevice=(DDrawDevice<0) ? 0 : ((DDrawDevice>=DeviceCount) ? 0 : DDrawDevice);
-  }
-
-  FullscreenProc = DDrawFullscreen;
-  BestWidth=INT_MAX;
-  BestHeight=INT_MAX;
-  if (!vidNoModesEnum)
-  {
-    error = DirectDrawCreate(DeviceGUIDs[DDrawDevice],&lpDD,NULL);
-    // proff 11/21/98: End of additions and changes
-    if (error != DD_OK)
-    {
-      lprintf(LO_WARN,"Error: DirectDrawCreate failed!\n");
-      FullscreenProc=WinFullscreen;
-      return;
-    }
-    error = lpDD->lpVtbl->SetCooperativeLevel(lpDD,ghWnd,DDSCL_ALLOWMODEX | DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
-    if (error != DD_OK)
-    {
-      lprintf(LO_WARN,"Error: DirectDraw_SetCooperativeLevel failed!\n");
-      FullscreenProc=WinFullscreen;
-      if (lpDD)
-      {
-        lpDD->lpVtbl->Release(lpDD);
-        lpDD=NULL;
-      }
-      return;
-    }
-    DDSDesc.dwSize=sizeof(DDSURFACEDESC);
-    DDSDesc.dwFlags=DDSD_PIXELFORMAT;
-    DDSDesc.ddpfPixelFormat.dwSize=sizeof(DDPIXELFORMAT);
-    DDSDesc.ddpfPixelFormat.dwFlags=DDPF_PALETTEINDEXED8 | DDPF_RGB;
-#ifdef _MSC_VER
-    DDSDesc.ddpfPixelFormat.dwRGBBitCount=8;
-#else
-    DDSDesc.ddpfPixelFormat.u1.dwRGBBitCount=8;
-#endif
-    lpDD->lpVtbl->EnumDisplayModes(lpDD,0,&DDSDesc,NULL,&MyEnumModesCallback);
-    if (((BestWidth==INT_MAX) | (BestHeight==INT_MAX)) & (ViewScale!=Scale_None))
-    {
-      ViewScale=Scale_None;
-      BestWidth=INT_MAX;
-      BestHeight=INT_MAX;
-      lpDD->lpVtbl->EnumDisplayModes(lpDD,0,&DDSDesc,NULL,&MyEnumModesCallback);
-    }
-  }
-  if ((BestWidth==INT_MAX) | (BestHeight==INT_MAX))
-  {
-    BestWidth=0;
-    BestHeight=0;
-    lprintf(LO_WARN,"Error: No DirectDraw mode, which suits the needs, found!\n");
-    lprintf(LO_WARN,"Searched Mode: W: %4i, H: %4i, BPP 8\n",SCREENWIDTH*(ViewScale!=Scale_None?2:1),SCREENHEIGHT*(ViewScale!=Scale_None?2:1));
-    if (vidNoModesEnum)
-    {
-      lprintf(LO_WARN,"But we will try to set the searched mode!\n");
-      BestWidth=SCREENWIDTH*(ViewScale!=Scale_None?2:1);
-      BestHeight=SCREENHEIGHT*(ViewScale!=Scale_None?2:1);
-    }
-    else
-      FullscreenProc=WinFullscreen;
-  }
-  else
-  {
-    lprintf(LO_INFO,"SearchedWidth: %4i, SearchedHeight: %4i\n",SCREENWIDTH*(ViewScale!=Scale_None?2:1),SCREENHEIGHT*(ViewScale!=Scale_None?2:1));
-    lprintf(LO_INFO,"FoundWidth   : %4i, FoundHeight   : %4i\n",BestWidth,BestHeight);
-  }
-  if (lpDD)
-    lpDD->lpVtbl->SetCooperativeLevel(lpDD,NULL,DDSCL_NORMAL);
-  if (lpDD)
-    lpDD->lpVtbl->Release(lpDD);
-  lpDD=NULL;
-  MoveWindow(ghWnd,0,0,MainWinWidth,MainWinHeight,TRUE);
-  BringWindowToTop(ghWnd);
-}
-#endif
-
-#ifdef GL_DOOM
-BOOL SetupOpenGL(HDC hdc)
-{
-    int  pixelFormat;
-
-    pixelFormat = OpenGLChoosePixelFormat(hdc, &pfd);
-
-    if ( !pixelFormat )
-	{
-		I_Error("ChoosePixelFormat failed!");
-		return FALSE;
-	}
-	if ( OpenGLSetPixelFormat(hdc, pixelFormat, &pfd) == FALSE ) 
-	{
-		I_Error("SetPixelFormat failed!");
-		return FALSE;
-	}
-    return TRUE;
-}
-
-static void DisplayGLInfo()
-{
-  char info[2048];
-//  const unsigned char *extension = glGetString(GL_EXTENSIONS);
-  lprintf(LO_INFO, "Init GL Stuff.....\n"); 
-  sprintf(info,"GL vendor    : %s\n", (char*)glGetString(GL_VENDOR));
-  lprintf(LO_INFO, info); 
-  sprintf(info,"GL version   : %s\n", (char*)glGetString(GL_VERSION));
-  lprintf(LO_INFO, info); 
-  sprintf(info,"GL renderer  : %s\n", (char*)glGetString(GL_RENDERER));
-  lprintf(LO_INFO, info); 
-  sprintf(info,"GL extensions: %s\n", (char*)glGetString(GL_EXTENSIONS));
-  lprintf(LO_INFO, info); 
-//  if (!strstr((char *)extension,"GL_EXT_paletted_texture"))
-//  {
-//	  lprintf(LO_INFO,"OpenGL ICD doesn't support paletted textures\n");
-//  //	  g_bPaletteTexture = FALSE;
-//  }
-}
-
-static void Done_GL(void)
-{
-  gld_CleanMemory();
-  //	fn_vDesinitMemory();
-	OpenGLMakeCurrent(NULL, NULL);
-	if (gl_hRC)
-  	OpenGLDeleteContext(gl_hRC);
-//	fn_vRestoreScreenResolution();
-  if (GL_DC)
-    ReleaseDC(ghWnd,GL_DC);
-}
-
-static void GLFullscreen(int fullscreen)
-{
-  DEVMODE dmScreenSettings;       // Developer Mode
-  if (fullscreen)
-  {
-    memset(&dmScreenSettings, 0, sizeof(DEVMODE));
-    dmScreenSettings.dmSize         = sizeof(DEVMODE);
-    dmScreenSettings.dmPelsWidth    = SCREENWIDTH;
-    dmScreenSettings.dmPelsHeight   = SCREENHEIGHT;
-    dmScreenSettings.dmFields       = DM_PELSWIDTH | DM_PELSHEIGHT;
-    switch (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN))
-    {
-    case DISP_CHANGE_SUCCESSFUL:
-      vidFullScreen=1;
-      break;
-    case DISP_CHANGE_BADFLAGS:
-      lprintf(LO_WARN,"ChangeDisplaySettings returned DISP_CHANGE_BADFLAGS\n");
-      vidFullScreen=0;
-      break;
-    case DISP_CHANGE_BADPARAM:
-      lprintf(LO_WARN,"ChangeDisplaySettings returned DISP_CHANGE_BADPARAM\n");
-      vidFullScreen=0;
-      break;
-    case DISP_CHANGE_BADMODE:
-      lprintf(LO_WARN,"ChangeDisplaySettings returned DISP_CHANGE_BADMODE\n");
-      vidFullScreen=0;
-      break;
-    default:
-      lprintf(LO_WARN,"ChangeDisplaySettings failed\n");
-      vidFullScreen=0;
-      break;
-    }
-  }
-  else
-  {
-    ChangeDisplaySettings(NULL, 0);
-    vidFullScreen=0;
-  }
-  if (vidFullScreen)
-  {
-    SetWindowLong(ghWnd,GWL_STYLE,WS_POPUP);
-    SetWindowPos(ghWnd,0,0,0,SCREENWIDTH,SCREENHEIGHT,SWP_SHOWWINDOW);
-  }
-  else
-  {
-    SetWindowLong(ghWnd,GWL_STYLE,WS_CAPTION | WS_POPUP);
-    SetWindowPos(ghWnd,0,0,0,MainWinWidth,MainWinHeight,SWP_SHOWWINDOW);
-  }
-}
-
-void Init_GL(void)
-{
-  GL_DC = GetDC(ghWnd);
-	SetupOpenGL(GL_DC);
-  gl_hRC = OpenGLCreateContext(GL_DC);
-  OpenGLMakeCurrent(GL_DC, gl_hRC);
-	DisplayGLInfo();
-  gld_Init(SCREENWIDTH, SCREENHEIGHT);
-  FullscreenProc = GLFullscreen;
-}
-#endif
-
 int Init_Winstuff(void)
 {
-    int multiply;
-
-    ShowWindow(ghWnd, SW_SHOW);
-    V_GetMessages();
-    Init_Mouse();
-    if (vidMultiply==3)
-      ViewScale= Scale_Own;
-    else if (vidMultiply==2)
-      ViewScale= Scale_Windows;
-    else
-      ViewScale= Scale_None;
-    if (M_CheckParm("-m2"))
-        ViewScale= Scale_Own;
-    else if (M_CheckParm("-2"))
-        ViewScale= Scale_Windows;
-
-    // Set the windowtitle
-    Set_Title();
-#ifdef DIRECTX
-    if (!M_CheckParm("-noddraw"))
-      Init_DDraw();
-#endif
-    if (ViewScale==Scale_Own)
-    {
-        multiply=2;
-        ViewMemPitch=SCREENWIDTH*2;
-    }
-    else if (ViewScale==Scale_Windows)
-    {
-        multiply=2;
-        ViewMemPitch=SCREENWIDTH;
-    }
-    else
-    {
-        multiply=1;
-        ViewScale= Scale_None;
-        ViewMemPitch=SCREENWIDTH;
-    }
-#ifdef GL_DOOM
-	  Init_GL();
+  Done_ConsoleWin();
+  Init_Mouse();
+  // Set the windowtitle
+  Set_Title();
+  // proff 07/22/98: Added options -fullscr and -nofullscr
+  if (M_CheckParm("-fullscr"))
+    vidFullScreen=1;
+  if (M_CheckParm("-nofullscr"))
+    vidFullScreen=0;
+#ifndef GL_DOOM
+  if (vidFullScreen)
+    sdl_screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 8, SDL_HWSURFACE | SDL_HWPALETTE | SDL_FULLSCREEN);
+  else
+    sdl_screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 8, SDL_HWSURFACE | SDL_HWPALETTE);
+  if ( sdl_screen == NULL )
+  {
+    I_Error("Couldn't set 640x480x8 video mode: %s\n",SDL_GetError());
+  }
 #else
-    Init_Dib();
+  SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
+  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+  SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+  if (vidFullScreen)
+    sdl_screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 16, SDL_OPENGL | SDL_FULLSCREEN);
+  else
+    sdl_screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 16, SDL_OPENGL);
+  if ( sdl_screen == NULL )
+  {
+    I_Error("Couldn't set 640x480x8 video mode: %s\n",SDL_GetError());
+  }
+  gld_Init(SCREENWIDTH, SCREENHEIGHT);
 #endif
-
-    frameX = GetSystemMetrics(SM_CXFIXEDFRAME);
-    frameY = GetSystemMetrics(SM_CYFIXEDFRAME);
-    capY = GetSystemMetrics(SM_CYCAPTION);
-    GetClientRect(ghWnd, &ViewRect);
-    #ifdef _DEBUG
-    lprintf( LO_DEBUG, "I_InitGraphics: Client area: %ux%u\n",
-             ViewRect.right-ViewRect.left, ViewRect.bottom-ViewRect.top);
-    #endif
-    if ( (ViewRect.right-ViewRect.left) != (SCREENWIDTH *multiply) )
-      MainWinWidth += (SCREENWIDTH *multiply) - (ViewRect.right -ViewRect.left);
-    if ( (ViewRect.bottom-ViewRect.top) != (SCREENHEIGHT*multiply) )
-      MainWinHeight+= (SCREENHEIGHT*multiply) - (ViewRect.bottom-ViewRect.top );
-//    MainWinWidth =(frameX*2)+(SCREENWIDTH *multiply);
-//    MainWinHeight=(frameY*2)+(SCREENHEIGHT*multiply)+capY;
-    MoveWindow(ghWnd, 0, 0, MainWinWidth, MainWinHeight, TRUE);
-    GetClientRect(ghWnd, &ViewRect);
-    #ifdef _DEBUG
-    lprintf( LO_DEBUG, "I_InitGraphics: Client area: %ux%u\n",
-             ViewRect.right-ViewRect.left, ViewRect.bottom-ViewRect.top);
-    #endif
-
-    // proff 07/22/98: Added options -fullscr and -nofullscr
-    if (M_CheckParm("-fullscr"))
-        vidFullScreen=1;
-    if (M_CheckParm("-nofullscr"))
-        vidFullScreen=0;
-    FullscreenProc(vidFullScreen);
-#ifdef GL_DOOM
-    BringWindowToTop(ghWnd);
-#endif
-    return TRUE;
+  SDL_ShowCursor(0);
+  return TRUE;
 }
 
 void Done_Winstuff(void)
 {
-    if (FullscreenProc)
-        FullscreenProc(false);
-#ifdef DIRECTX
-    Done_DDraw();
-#endif
-    if (ViewDC)
-        ReleaseDC(ghWnd,ViewDC);
-#ifdef GL_DOOM
-    Done_GL();
-#endif
-    DestroyWindow(ghWnd);
-    if ((!noMouse) && (grabMouse))
-    {
-        ClipCursor(NULL);
-    }
 }
-
-void V_ScaleBy2D (void)
-{
-    unsigned int *olineptrs[2];
-    register unsigned int *ilineptr;
-    int x, y;
-    register unsigned int twoopixels;
-    register unsigned int twomoreopixels;
-    register unsigned int fouripixels;
-
-    ilineptr = (unsigned int *) screens[0];
-    olineptrs[0] = (unsigned int *) &ScaledVMem[0];
-    olineptrs[1] = (unsigned int *) &ScaledVMem[ViewMemPitch];
-
-// proff 06/30/98: Changed form constant value to defined value
-    for (y=SCREENHEIGHT; y>0; y--)
-    {
-// proff 06/30/98: Changed form constant value to defined value
-        for (x=(SCREENWIDTH/4); x>0; x--)
-        {
-        fouripixels = *ilineptr++;
-        twoopixels =    (fouripixels & 0xff000000)
-            |    ((fouripixels>>8) & 0xffff00)
-            |    ((fouripixels>>16) & 0xff);
-        twomoreopixels =    ((fouripixels<<16) & 0xff000000)
-            |    ((fouripixels<<8) & 0xffff00)
-            |    (fouripixels & 0xff);
-        *olineptrs[0]++ = twomoreopixels;
-        *olineptrs[0]++ = twoopixels;
-        *olineptrs[1]++ = twomoreopixels;
-        *olineptrs[1]++ = twoopixels;
-        }
-        olineptrs[0] += ViewMemPitch>>2;
-        olineptrs[1] += ViewMemPitch>>2;
-    }
-}
-
-void V_ScaleBy2U (void)
-{
-    unsigned int *olineptrs[2];
-    register unsigned int *ilineptr;
-    int x, y;
-    register unsigned int twoopixels;
-    register unsigned int twomoreopixels;
-    register unsigned int fouripixels;
-
-// proff 06/30/98: Changed form constant value to defined value
-    ilineptr = (unsigned int *) &screens[0][SCREENWIDTH*(SCREENHEIGHT-1)];
-    olineptrs[0] = (unsigned int *) &ScaledVMem[0];
-    olineptrs[1] = (unsigned int *) &ScaledVMem[ViewMemPitch];
-
-// proff 06/30/98: Changed form constant value to defined value
-    for (y=SCREENHEIGHT; y>0; y--)
-    {
-// proff 06/30/98: Changed form constant value to defined value
-        for (x=(SCREENWIDTH/4); x>0; x--)
-        {
-        fouripixels = *ilineptr++;
-        twoopixels =    (fouripixels & 0xff000000)
-            |    ((fouripixels>>8) & 0xffff00)
-            |    ((fouripixels>>16) & 0xff);
-        twomoreopixels =    ((fouripixels<<16) & 0xff000000)
-            |    ((fouripixels<<8) & 0xffff00)
-            |    (fouripixels & 0xff);
-        *olineptrs[0]++ = twomoreopixels;
-        *olineptrs[0]++ = twoopixels;
-        *olineptrs[1]++ = twomoreopixels;
-        *olineptrs[1]++ = twoopixels;
-        }
-// proff 06/30/98: Changed form constant value to defined value
-        ilineptr -= (SCREENWIDTH/2);
-        olineptrs[0] += ViewMemPitch>>2;
-        olineptrs[1] += ViewMemPitch>>2;
-    }
-}
-
-#ifndef NOASM
-void V_ScaleBy2Da(void);
-void V_ScaleBy2Ua(void);
-#endif //NOASM
 
 void V_EndFrame (void)
 {
-#ifdef DIRECTX
-    HRESULT error;
-    DDSURFACEDESC ddSD;
-    int y;
-    static int SurfaceLost=2;
-    int *Surface,*doommem;
+  int y;
+  int *Surface,*doommem;
 
-    if ((vidFullScreen) & (lpDDPSF != NULL) & (lpDDBSF != NULL))
-    {
-        ddSD.dwSize = sizeof(ddSD);
-        error = lpDDPSF->lpVtbl->GetSurfaceDesc(lpDDPSF,&ddSD);
-        while (1)
-        {
-          error = lpDDPSF->lpVtbl->Lock(lpDDPSF,NULL,&ddSD,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY | DDLOCK_WAIT,NULL);
-          if (error == DDERR_SURFACELOST)
-          {
-            SurfaceLost=2;
-            lpDDPSF->lpVtbl->Restore(lpDDPSF);
-            break;
-          }
-          if (error != DDERR_WASSTILLDRAWING)
-            break;
-        }
-        if (error != DD_OK)
-            return;
-        if (SurfaceLost)
-        {
-            Surface = ddSD.lpSurface;
-            for (y=0; (DWORD)y<ddSD.dwHeight; y++)
-            {
-                memset(Surface,0,ddSD.dwWidth);
-#ifdef _MSC_VER
-                Surface += ddSD.lPitch/4;
-#else
-                Surface += ddSD.u1.lPitch/4;
-#endif
-            }
-            SurfaceLost--;
-        }
-        if (ViewScale==Scale_None)
-        {
-#ifdef _MSC_VER
-            Surface = (int *)((char *)ddSD.lpSurface
-                        +(((ddSD.dwHeight-SCREENHEIGHT)/2)*ddSD.lPitch)
-                        +((ddSD.dwWidth-SCREENWIDTH)/2));
-#else
-            Surface = (int *)((char *)ddSD.lpSurface
-                        +(((ddSD.dwHeight-SCREENHEIGHT)/2)*ddSD.u1.lPitch)
-                        +((ddSD.dwWidth-SCREENWIDTH)/2));
-#endif
-            doommem = (int *)screens[0];
-#ifdef _MSC_VER
-            if (ddSD.lPitch==SCREENWIDTH)
-#else
-            if (ddSD.u1.lPitch==SCREENWIDTH)
-#endif
-              memcpy(Surface,doommem,SCREENWIDTH*SCREENHEIGHT);
-            else
-              for (y=0; y<SCREENHEIGHT; y++)
-              {
-                memcpy(Surface,doommem,SCREENWIDTH);
-#ifdef _MSC_VER
-                Surface += ddSD.lPitch/4;
-#else
-                Surface += ddSD.u1.lPitch/4;
-#endif
-                doommem += SCREENWIDTH/4;
-              }
-        }
-        else
-        {
-#ifdef _MSC_VER
-            ViewMemPitch = ddSD.lPitch;
-            ScaledVMem =(char *)ddSD.lpSurface
-                        +(((ddSD.dwHeight-(SCREENHEIGHT*2))/2)*ddSD.lPitch)
-                        +((ddSD.dwWidth-(SCREENWIDTH*2))/2);
-#else
-            ViewMemPitch = ddSD.u1.lPitch;
-            ScaledVMem =(char *)ddSD.lpSurface
-                        +(((ddSD.dwHeight-(SCREENHEIGHT*2))/2)*ddSD.u1.lPitch)
-                        +((ddSD.dwWidth-(SCREENWIDTH*2))/2);
-#endif
-#ifndef NOASM
-            V_ScaleBy2Da();
-#else
-            V_ScaleBy2D();
-#endif
-        }
-        error = lpDDPSF->lpVtbl->Unlock(lpDDPSF,ddSD.lpSurface);
-        if (error != DD_OK)
-        {
-          lprintf(LO_DEBUG,"UnlockError\n");
-            return;
-        }
-        if (page_flip)
-        {
-          error = lpDDPSF->lpVtbl->Flip(lpDDPSF,NULL,DDFLIP_WAIT);
-          if (error != DD_OK)
-            return;
-        }
-    }
-    else
-#endif
-    {
-        if (ViewScale==Scale_None)
-        {
-            if ( SetDIBitsToDevice(    ViewDC, 0, 0, SCREENWIDTH, SCREENHEIGHT,
-                                    0, 0, 0, SCREENHEIGHT,
-                                    screens[0], View_bmi, DIB_RGB_COLORS)
-                == GDI_ERROR )
-                I_Error("SetDIBitsToDevice failed");
-        }
-        else if (ViewScale==Scale_Windows)
-        {
-            if ( StretchDIBits(    ViewDC, 0, 0, SCREENWIDTH*2, SCREENHEIGHT*2,
-                                0, 0, SCREENWIDTH, SCREENHEIGHT,
-                                screens[0], View_bmi, DIB_RGB_COLORS, SRCCOPY)
-                == GDI_ERROR )
-                I_Error("StretchDIBits failed");
-        }
-        else if (ViewScale==Scale_Own)
-        {
-            ScaledVMem=ViewMem;
-#ifndef NOASM
-            V_ScaleBy2Ua();
-#else
-            V_ScaleBy2U();
-#endif
-            if ( SetDIBitsToDevice(    ViewDC, 0, 0, SCREENWIDTH*2, SCREENHEIGHT*2,
-                                    0, 0, 0, SCREENHEIGHT*2,
-                                    ScaledVMem, View_bmi, DIB_RGB_COLORS)
-                == GDI_ERROR )
-                I_Error("SetDIBitsToDevice failed");
-        }
-        GdiFlush();    
-    }
+  if (!sdl_screen)
+    return;
+
+  if ( SDL_MUSTLOCK(sdl_screen) )
+  {
+    if ( SDL_LockSurface(sdl_screen) < 0 )
+      return;
+  }
+  Surface = (int *)((char *)sdl_screen->pixels
+            +(((sdl_screen->h-SCREENHEIGHT)/2)*sdl_screen->pitch)
+            +((sdl_screen->w-SCREENWIDTH)/2));
+  doommem = (int *)screens[0];
+  for (y=0; y<SCREENHEIGHT; y++)
+  {
+    memcpy(Surface,doommem,SCREENWIDTH);
+    Surface += sdl_screen->pitch/4;
+    doommem += SCREENWIDTH/4;
+  }
+
+  if ( SDL_MUSTLOCK(sdl_screen) )
+  {
+    SDL_UnlockSurface(sdl_screen);
+  }
+  SDL_UpdateRect(sdl_screen, 0, 0, SCREENWIDTH, SCREENHEIGHT);
+}
+
+// proff - I have taken this from lsdldoom
+static int I_TranslateKey(SDL_keysym* key)
+{
+  int rc = 0;
+
+  switch (key->sym) {
+  case SDLK_LEFT:	rc = KEYD_LEFTARROW;	break;
+  case SDLK_RIGHT:	rc = KEYD_RIGHTARROW;	break;
+  case SDLK_DOWN:	rc = KEYD_DOWNARROW;	break;
+  case SDLK_UP:		rc = KEYD_UPARROW;	break;
+  case SDLK_ESCAPE:	rc = KEYD_ESCAPE;	break;
+  case SDLK_RETURN:	rc = KEYD_ENTER;	break;
+  case SDLK_TAB:	rc = KEYD_TAB;		break;
+  case SDLK_F1:		rc = KEYD_F1;		break;
+  case SDLK_F2:		rc = KEYD_F2;		break;
+  case SDLK_F3:		rc = KEYD_F3;		break;
+  case SDLK_F4:		rc = KEYD_F4;		break;
+  case SDLK_F5:		rc = KEYD_F5;		break;
+  case SDLK_F6:		rc = KEYD_F6;		break;
+  case SDLK_F7:		rc = KEYD_F7;		break;
+  case SDLK_F8:		rc = KEYD_F8;		break;
+  case SDLK_F9:		rc = KEYD_F9;		break;
+  case SDLK_F10:	rc = KEYD_F10;		break;
+  case SDLK_F11:	rc = KEYD_F11;		break;
+  case SDLK_F12:	rc = KEYD_F12;		break;
+  case SDLK_BACKSPACE:
+  case SDLK_DELETE:	rc = KEYD_BACKSPACE;	break;
+  case SDLK_PAUSE:	rc = KEYD_PAUSE;	break;
+  case SDLK_EQUALS:	rc = KEYD_EQUALS;	break;
+  case SDLK_MINUS:	rc = KEYD_MINUS;	break;
+  case SDLK_KP0:	rc = KEYD_KEYPAD0;	break;
+  case SDLK_KP1:	rc = KEYD_KEYPAD1;	break;
+  case SDLK_KP2:	rc = KEYD_KEYPAD2;	break;
+  case SDLK_KP3:	rc = KEYD_KEYPAD3;	break;
+  case SDLK_KP4:	rc = KEYD_KEYPAD4;	break;
+  case SDLK_KP5:	rc = KEYD_KEYPAD0;	break;
+  case SDLK_KP6:	rc = KEYD_KEYPAD6;	break;
+  case SDLK_KP7:	rc = KEYD_KEYPAD7;	break;
+  case SDLK_KP8:	rc = KEYD_KEYPAD8;	break;
+  case SDLK_KP9:	rc = KEYD_KEYPAD9;	break;
+  case SDLK_KP_PLUS:	rc = KEYD_KEYPADPLUS;	break;
+  case SDLK_KP_MINUS:	rc = KEYD_KEYPADMINUS;	break;
+  case SDLK_KP_DIVIDE:	rc = KEYD_KEYPADDIVIDE;	break;
+  case SDLK_KP_MULTIPLY: rc = KEYD_KEYPADMULTIPLY; break;
+  case SDLK_KP_ENTER:	rc = KEYD_KEYPADENTER;	break;
+  case SDLK_KP_PERIOD:	rc = KEYD_KEYPADPERIOD;	break;
+  case SDLK_NUMLOCK:	rc = KEYD_NUMLOCK;	break;
+  case SDLK_SCROLLOCK:	rc = KEYD_SCROLLLOCK;	break;
+  case SDLK_CAPSLOCK:	rc = KEYD_CAPSLOCK;	break;
+  case SDLK_LSHIFT:
+  case SDLK_RSHIFT:	rc = KEYD_RSHIFT;	break;
+  case SDLK_LCTRL:
+  case SDLK_RCTRL:	rc = KEYD_RCTRL;	break;
+  case SDLK_LALT:
+  case SDLK_LMETA:
+  case SDLK_RALT:
+  case SDLK_RMETA:	rc = KEYD_RALT;		break;
+  default:		rc = key->sym;		break;
+  }
+
+  //lprintf(LO_INFO,"Key: %i %s\n",key->sym,SDL_GetKeyName(key->sym));
+  return rc;
+
 }
 
 void V_GetMessages (void)
 {
-  MSG msg;
-  POINT point;
-  static LONG prevX=0, prevY=0;
-  static LONG prevDX=0, prevDY=0;
-  static int hadMouse = 0;
+  SDL_Event sdl_event;
   event_t event;
-  RECT rectw;
-#ifdef DIRECTX
-  JOYINFO JoyInfo;
-  int joyX,joyY;
-#endif // DIRECTX
 
-  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-//    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
-
-#ifdef DIRECTX
-  if (usejoystick)
-    if (joyGetPos(JOYSTICKID1,&JoyInfo)==JOYERR_NOERROR)
-    {
-      event.type = ev_joystick;
-      event.data1 = 0;
-      if (JoyInfo.wButtons&JOY_BUTTON1)
-        event.data1 |= 1;
-      if (JoyInfo.wButtons&JOY_BUTTON2)
-        event.data1 |= 2;
-      if (JoyInfo.wButtons&JOY_BUTTON3)
-        event.data1 |= 4;
-      if (JoyInfo.wButtons&JOY_BUTTON4)
-        event.data1 |= 8;
-      joyX=((int)JoyInfo.wXpos-32768)/2048;
-      joyY=((int)JoyInfo.wYpos-32768)/2048;
-      if (joyX < -4)
-        event.data2 = -1;
-      else if (joyX > 4)
-        event.data2 = 1;
-      else
-        event.data2 = 0;
-      if (joyY < -4)
-        event.data3 = -1;
-      else if (joyY > 4)
-        event.data3 = 1;
-      else
-        event.data3 = 0;
-      // post what you found
-      D_PostEvent(&event);
-    }
-#endif // DIRECTX
-    
-  if (!noMouse)
+  //SDL_PumpEvents();
+  while (SDL_PollEvent(&sdl_event))
   {
-    if ( !GetCursorPos(&point) )
-      I_Error("GetCursorPos() failed");
-    if (hadMouse && fActive)
+    switch (sdl_event.type)
     {
-      event.type = ev_mouse;
-      event.data1 = MouseButtons;
-      event.data2 = 0;
-      event.data3 = 0;
-      if ( (prevX != point.x) || (prevY != point.y) )
-      {
-        event.data2 = ((point.x - prevX)+prevDX)/2;
-        event.data3 = ((prevY - point.y)+prevDY)/2;
-        prevDX = (point.x - prevX);
-        prevDY = (prevY - point.y);
-        prevX = point.x;
-        prevY = point.y;
-      }
-      D_PostEvent(&event);
+    case SDL_KEYDOWN:
+      event.type = ev_keydown;
+      event.data1 = I_TranslateKey(&sdl_event.key.keysym);
+      if (event.data1)
+        D_PostEvent(&event);
+      break;
 
-      if ( grabMouse )
+    case SDL_KEYUP:
+      event.type = ev_keyup;
+      event.data1 = I_TranslateKey(&sdl_event.key.keysym);
+      if (event.data1)
+        D_PostEvent(&event);
+      break;
+
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+      if (usemouse)
       {
-        GetWindowRect(ghWnd, &rectw);
-        prevX = (rectw.left + rectw.right) / 2;
-        prevY = (rectw.top + rectw.bottom) / 2;
-        if ( !SetCursorPos(prevX,prevY) )
-          I_Error("SetCursorPos() failed");
+        Uint8 buttonstate;
+        buttonstate = SDL_GetMouseState(NULL, NULL);
+        event.type = ev_mouse;
+        event.data1 = 0
+          | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
+          | (buttonstate & SDL_BUTTON(2) ? 2 : 0)
+          | (buttonstate & SDL_BUTTON(3) ? 4 : 0);
+        event.data2 = event.data3 = 0;
+        D_PostEvent(&event);
       }
-    }
-    else
-    {
-      prevX = point.x;
-      prevY = point.y;
-      hadMouse = 1;
+      break;
+
+    case SDL_MOUSEMOTION:
+      /* Ignore mouse warp events */
+      if (usemouse && ((sdl_event.motion.x != sdl_screen->w/2)||(sdl_event.motion.y != sdl_screen->h/2)))
+      {
+        /* Warp the mouse back to the center */
+        if (grabMouse)
+        {
+          if ((sdl_event.motion.x < ((sdl_screen->w/2)-(sdl_screen->w/4))) ||
+              (sdl_event.motion.x > ((sdl_screen->w/2)+(sdl_screen->w/4))) ||
+              (sdl_event.motion.y < ((sdl_screen->h/2)-(sdl_screen->h/4))) ||
+              (sdl_event.motion.y > ((sdl_screen->h/2)+(sdl_screen->h/4))) )
+          SDL_WarpMouse(sdl_screen->w/2, sdl_screen->h/2);
+        }
+        event.type = ev_mouse;
+        event.data1 = 0
+          | (sdl_event.motion.state & SDL_BUTTON(1) ? 1 : 0)
+          | (sdl_event.motion.state & SDL_BUTTON(2) ? 2 : 0)
+          | (sdl_event.motion.state & SDL_BUTTON(3) ? 4 : 0);
+        event.data2 = sdl_event.motion.xrel << 2;
+        event.data3 = -sdl_event.motion.yrel << 2;
+        D_PostEvent(&event);
+      }
+      break;
+
+    default:
+      break;
     }
   }
 }

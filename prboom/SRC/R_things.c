@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: R_things.c,v 1.1 2000/04/09 18:01:42 proff_fs Exp $
+// $Id: R_things.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: R_things.c,v 1.1 2000/04/09 18:01:42 proff_fs Exp $";
+rcsid[] = "$Id: R_things.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $";
 
 #ifdef GL_DOOM
 #include "gl_struct.h"
@@ -755,8 +755,8 @@ void R_DrawPSprite (pspdef_t *psp)
 
       if (lightlevel < 0)
         lightlevel = 0;
-      else if (lightlevel >= 256)
-        lightlevel = 256;
+      else if (lightlevel >= 255)
+        lightlevel = 255;
     }
     gld_DrawWeapon(lump,vis,lightlevel);
   }
@@ -1048,8 +1048,14 @@ void R_DrawMasked(void)
 //----------------------------------------------------------------------------
 //
 // $Log: R_things.c,v $
-// Revision 1.1  2000/04/09 18:01:42  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:03  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:01:42  proff_fs
+// Initial login
 //
 // Revision 1.22  1998/05/03  22:46:41  killough
 // beautification

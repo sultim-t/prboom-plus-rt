@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// $Id: Version.h,v 1.1 2000/04/09 18:00:15 proff_fs Exp $
+// $Id: Version.h,v 1.2 2000/04/26 20:00:03 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -32,7 +32,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 // DOOM version
-enum { VERSION =  250 };
+enum { VERSION =  260 };
 
 extern const char version_date[];
 
@@ -41,8 +41,14 @@ extern const char version_date[];
 //----------------------------------------------------------------------------
 //
 // $Log: Version.h,v $
-// Revision 1.1  2000/04/09 18:00:15  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:03  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:00:15  proff_fs
+// Initial login
 //
 // Revision 1.5  1998/11/20  23:16:19  phares
 // New Fireline fix

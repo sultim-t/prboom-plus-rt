@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: I_sound.c,v 1.1 2000/04/09 18:03:40 proff_fs Exp $
+// $Id: I_sound.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,10 +30,252 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: I_sound.c,v 1.1 2000/04/09 18:03:40 proff_fs Exp $";
+rcsid[] = "$Id: I_sound.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 // proff 07/04/98: Changed from _MSC_VER to _WIN32 for CYGWIN32 compatibility
 #ifdef _WIN32 // proff: Sound-routines using DirectSound
+
+#include "SDL.h"
+
+#include "doomdef.h"
+#include "doomstat.h"
+#include "mmus2mid.h"
+#include "i_sound.h"
+#include "w_wad.h"
+#include "m_misc.h"
+// proff 11/21/98: Added DirectSound device selection
+#include "m_argv.h"
+#include "lprintf.h"
+
+int snd_card;
+int snd_freq;
+int snd_bits;
+int snd_stereo;
+int snd_mididevice=0;
+int mus_card;
+
+extern H_boolean nosfxparm, nomusicparm;
+
+extern  int  numChannels;
+extern  int  default_numChannels;
+
+H_boolean noSound=true;
+
+typedef struct {
+  int id;
+  int samplerate;
+  int vol;
+  int sep;
+  int playing;
+  Uint8 *sampledata;
+  int pos;
+  int size;
+  int step;
+} channel_info_t;
+
+channel_info_t *ChannelInfo;
+
+#define MIXBUFFERSIZE 2048
+int mixbuffer[MIXBUFFERSIZE];
+
+int mix_channel(int channel,int len)
+{
+  int count;
+  int pos;
+  int size;
+
+  pos=0;
+  if (len>MIXBUFFERSIZE)
+    len=MIXBUFFERSIZE;
+  size=(ChannelInfo[channel].size-ChannelInfo[channel].pos)/ChannelInfo[channel].step;
+  if (size<len)
+    count=size;
+  else
+    count=len;
+  while (count>=0)
+  {
+    mixbuffer[pos]+=(ChannelInfo[channel].sampledata[ChannelInfo[channel].pos]-128)*ChannelInfo[channel].vol;
+    ChannelInfo[channel].pos+=ChannelInfo[channel].step;
+    pos++;
+    count--;
+  }
+  if (ChannelInfo[channel].pos>=ChannelInfo[channel].size)
+    ChannelInfo[channel].playing=false;
+  return len;
+}
+
+void fill_audio(void *udata, Uint8 *streamdata, int len)
+{
+  int i;
+  int count;
+  Sint16 *stream;
+
+  len=len/2;
+  stream=(Sint16 *)streamdata;
+  memset(mixbuffer,0,MIXBUFFERSIZE*sizeof(int));
+  if (noSound == false)
+  {
+    for (i=0; i<numChannels; i++)
+      if (ChannelInfo[i].playing)
+      {
+        count=len;
+        while (count>0)
+          count-=mix_channel(i,count);
+      }
+  }
+  for (i=0; i<len; i++)
+  {
+    mixbuffer[i]*=8;
+    if (mixbuffer[i]>SHRT_MAX)
+      mixbuffer[i]=SHRT_MAX;
+    if (mixbuffer[i]<SHRT_MIN)
+      mixbuffer[i]=-SHRT_MIN;
+    stream[i]=mixbuffer[i];
+  }
+}
+
+void I_UpdateSound( void )
+{
+}
+
+void I_SubmitSound(void)
+{
+}
+
+void I_ShutdownSound(void)
+{
+  SDL_CloseAudio();
+}
+
+void I_InitSound(void)
+{
+  SDL_AudioSpec desired;
+
+  if (nosfxparm)
+    return;
+
+  noSound = false;
+
+  desired.freq = 11025;
+  desired.format = AUDIO_S16;
+  desired.samples = 1024;
+  desired.channels = 1;
+  desired.callback = fill_audio;
+
+  if ( SDL_OpenAudio(&desired, NULL) < 0 )
+  {
+    lprintf(LO_ERROR, "Couldn't open audio: %s\n", SDL_GetError());
+    noSound = true;
+    return;
+  }
+
+  numChannels = default_numChannels;
+
+  ChannelInfo=malloc(sizeof(channel_info_t)*numChannels);
+  if (ChannelInfo)
+    memset(ChannelInfo,0,sizeof(channel_info_t)*numChannels);
+  else
+  {
+    noSound = true;
+    return;
+  }
+
+  SDL_PauseAudio(0);
+
+  atexit(I_ShutdownSound); 
+}
+
+int I_StartSound(int id, int channel, char *snddata,
+         int vol, int sep, int pitch, int priority )
+{
+  char *sound_data;
+  int length;
+
+  if (noSound == true)
+    return channel;
+
+  SDL_LockAudio();
+  ChannelInfo[channel].playing=false;
+  sound_data=&snddata[8];
+  length=(int)(((unsigned short *)snddata)[2]);
+  ChannelInfo[channel].samplerate = (snddata[3]<<8)+snddata[2];
+  ChannelInfo[channel].step = ChannelInfo[channel].samplerate / 11025;
+  if (ChannelInfo[channel].step<1)
+    ChannelInfo[channel].step=1;
+  if (ChannelInfo[channel].step>4)
+    ChannelInfo[channel].step=4;
+  if (id!=ChannelInfo[channel].id)
+  {
+    ChannelInfo[channel].id=id;
+    ChannelInfo[channel].sampledata=realloc(ChannelInfo[channel].sampledata,length);
+    if (ChannelInfo[channel].sampledata)
+      memcpy(ChannelInfo[channel].sampledata,sound_data,length);
+    ChannelInfo[channel].size=length;
+  }
+  ChannelInfo[channel].vol=vol;
+  ChannelInfo[channel].sep=sep;
+  ChannelInfo[channel].pos=0;
+  if (ChannelInfo[channel].sampledata)
+    ChannelInfo[channel].playing=true;
+  SDL_UnlockAudio();
+  return channel;
+}
+
+void I_StopSound(int channel)
+{
+  if (noSound == true)
+    return;
+  SDL_LockAudio();
+  ChannelInfo[channel].playing=false;
+  SDL_UnlockAudio();
+}
+
+void I_UpdateSoundParams(int channel, int vol, int sep, int pitch)
+{
+  if (noSound == true)
+    return;
+  SDL_LockAudio();
+  ChannelInfo[channel].vol=vol;
+  ChannelInfo[channel].sep=sep;
+  SDL_UnlockAudio();
+}
+
+int I_SoundIsPlaying(int channel)
+{
+  if (noSound == true)
+    return false;
+  return ChannelInfo[channel].playing;
+}
+
+void I_PlaySong(int handle, int looping)
+{
+}
+
+void I_SetMusicVolume(int volume)
+{
+}
+
+void I_PauseSong(int handle)
+{
+}
+
+void I_ResumeSong(int handle)
+{
+}
+
+void I_StopSong(int handle)
+{
+}
+
+void I_UnRegisterSong(int handle)
+{
+}
+
+int I_RegisterSong(void *data)
+{
+}
+
+/*
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
@@ -482,12 +724,12 @@ static void MidiTracktoStream(void)
     atime+=getvl();
     event=mididata.track[CurrentTrack].data[CurrentPos];
     CurrentPos++;
-    if(event==0xF0 || event == 0xF7) /* SysEx event */
+    if(event==0xF0 || event == 0xF7) // SysEx event
     {
       len=getvl();
       CurrentPos+=len;
     }
-    else if(event==0xFF) /* Meta event */
+    else if(event==0xFF) // Meta event
     {
       type=mididata.track[CurrentTrack].data[CurrentPos];
       CurrentPos++;
@@ -496,7 +738,7 @@ static void MidiTracktoStream(void)
         {
         case 0x2f:
           return;
-        case 0x51: /* Tempo */
+        case 0x51: // Tempo
           a=mididata.track[CurrentTrack].data[CurrentPos];
           CurrentPos++;
           b=mididata.track[CurrentTrack].data[CurrentPos];
@@ -513,7 +755,7 @@ static void MidiTracktoStream(void)
     else
     {
       a=event;
-      if (a & 0x80) /* status byte */
+      if (a & 0x80) // status byte
       {
         lastchan=a & 0x0F;
         laststatus=(a>>4) & 0x07;
@@ -523,45 +765,45 @@ static void MidiTracktoStream(void)
       }
       switch(laststatus)
       {
-      case 0: /* Note off */
+      case 0: // Note off
         b=mididata.track[CurrentTrack].data[CurrentPos];
         CurrentPos++;
         b &= 0x7F;
         AddEvent(atime, MEVT_SHORTMSG, (byte)((laststatus<<4)+lastchan+0x80), a, b);
         break;
 
-      case 1: /* Note on */
+      case 1: // Note on
         b=mididata.track[CurrentTrack].data[CurrentPos];
         CurrentPos++;
         b &= 0x7F;
         AddEvent(atime, MEVT_SHORTMSG, (byte)((laststatus<<4)+lastchan+0x80), a, b);
         break;
 
-      case 2: /* Key Pressure */
+      case 2: // Key Pressure
         b=mididata.track[CurrentTrack].data[CurrentPos];
         CurrentPos++;
         b &= 0x7F;
         AddEvent(atime, MEVT_SHORTMSG, (byte)((laststatus<<4)+lastchan+0x80), a, b);
         break;
 
-      case 3: /* Control change */
+      case 3: // Control change
         b=mididata.track[CurrentTrack].data[CurrentPos];
         CurrentPos++;
         b &= 0x7F;
         AddEvent(atime, MEVT_SHORTMSG, (byte)((laststatus<<4)+lastchan+0x80), a, b);
         break;
 
-      case 4: /* Program change */
+      case 4: // Program change
         a &= 0x7f;
         AddEvent(atime, MEVT_SHORTMSG, (byte)((laststatus<<4)+lastchan+0x80), a, 0);
         break;
 
-      case 5: /* Channel pressure */
+      case 5: // Channel pressure
         a &= 0x7f;
         AddEvent(atime, MEVT_SHORTMSG, (byte)((laststatus<<4)+lastchan+0x80), a, 0);
         break;
 
-      case 6: /* Pitch wheel */
+      case 6: // Pitch wheel
         b=mididata.track[CurrentTrack].data[CurrentPos];
         CurrentPos++;
         b &= 0x7F;
@@ -1009,7 +1251,7 @@ void I_InitMusic(void)
   }
   atexit(I_ShutdownMusic);
 }
-
+*/
 #else //_WIN32
 
 #include <stdio.h>
@@ -1428,8 +1670,14 @@ int I_QrySongPlaying(int handle)
 //----------------------------------------------------------------------------
 //
 // $Log: I_sound.c,v $
-// Revision 1.1  2000/04/09 18:03:40  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:03:40  proff_fs
+// Initial login
 //
 // Revision 1.16  1998/09/07  20:06:36  jim
 // Added logical output routine

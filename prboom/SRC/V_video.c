@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: V_video.c,v 1.1 2000/04/09 18:18:49 proff_fs Exp $
+// $Id: V_video.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -33,7 +33,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: V_video.c,v 1.1 2000/04/09 18:18:49 proff_fs Exp $";
+rcsid[] = "$Id: V_video.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -273,7 +273,6 @@ void V_CopyRectStretched(int srcx, int srcy, int srcscrn, int width,
       dest += SCREENWIDTH;
     }
 }
-#endif // GL_DOOM
 
 //
 // V_DrawPatch
@@ -524,6 +523,7 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
       dest += width;
     }
 }
+#endif // GL_DOOM
 
 //
 // V_FillBlock
@@ -569,15 +569,12 @@ void V_FillBlock(int x, int y, int scrn, int width, int height, int col)
 
 void V_Init (void)
 {
+// proff 11/99: not needed in OpenGL
+#ifndef GL_DOOM
   int  i;
   static byte *base=NULL;
 
   // stick these in low dos memory on PCs
-
-#ifdef GL_DOOM
-  return;
-// proff 11/99: not needed in OpenGL
-#endif
 
   if (base)
     free(base);
@@ -588,10 +585,13 @@ void V_Init (void)
 
   for (i=1 ; i<4 ; i++)
     screens[i] = base + i*SCREENWIDTH*SCREENHEIGHT;
+#endif
 }
 
 // proff/nicolas 09/20/98: Added for stretching patches in high-res
 
+#ifndef GL_DOOM
+// proff 11/99: not needed in OpenGL
 void V_DrawPatchStretchedGeneral( int x, int y, int scrn, patch_t* patch,
                                   H_boolean flipped)
 {
@@ -763,14 +763,21 @@ void V_DrawPatchTransStretched( int x, int y, int scrn, patch_t* patch, int cm )
     }
   }
 }
+#endif // GL_DOOM
 
 // proff/nicolas 09/20/98: End of additions
 
 //----------------------------------------------------------------------------
 //
 // $Log: V_video.c,v $
-// Revision 1.1  2000/04/09 18:18:49  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:03  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:18:49  proff_fs
+// Initial login
 //
 // Revision 1.10  1998/05/06  11:12:48  jim
 // Formattted v_video.*

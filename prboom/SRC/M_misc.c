@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: M_misc.c,v 1.1 2000/04/09 17:59:57 proff_fs Exp $
+// $Id: M_misc.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -32,7 +32,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: M_misc.c,v 1.1 2000/04/09 17:59:57 proff_fs Exp $";
+rcsid[] = "$Id: M_misc.c,v 1.2 2000/04/26 20:00:03 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "m_argv.h"
@@ -100,7 +100,6 @@ extern int showMessages;
 extern int snd_freq;
 extern int snd_bits;
 extern int snd_stereo;
-extern int snd_dsounddevice;
 extern int snd_mididevice;
 #endif // _WIN32
 
@@ -177,33 +176,9 @@ default_t defaults[] = {
   },
 
   {
-    "vid_multiply", &vidMultiply, NULL,
-    1, {1,3}, number, ss_gen, wad_no,
-    "Screen multiply 1=no, 2=by windows, 3=own scale routine"
-  },
-
-  {
-    "vid_nomodesenum", &vidNoModesEnum, NULL,
-    0, {0,1}, number, ss_gen, wad_no,
-    "0=enumerate available display modes, 1=don't enumerate"
-  },
-
-  {
-    "vid_directdrawdevice", &vidDirectDrawDevice, NULL,
-    0, {0,UL}, number, ss_gen, wad_no,
-    "0=primary video device"
-  },
-
-  {
     "sound_card", &snd_card, NULL,
     1, {0,1}, number, ss_gen, wad_no,
     "0=No Sound, 1=DirectSound"
-  },
-
-  {
-    "snd_dsounddevice", &snd_dsounddevice, NULL,
-    0, {0,UL}, number, ss_gen, wad_no,
-    "0=primary sound device"
   },
 
   {
@@ -2398,6 +2373,7 @@ static H_boolean WriteBMPfile(char *filename, byte *data, int width,
 
 void M_ScreenShot (void)
 {
+#ifndef GL_DOOM
   H_boolean success = false;
 
   errno = 0;
@@ -2452,13 +2428,20 @@ void M_ScreenShot (void)
                gamemode==commercial ? sfx_radio : sfx_tink);
 
 
+#endif // GL_DOOM
 }
 
 //----------------------------------------------------------------------------
 //
 // $Log: M_misc.c,v $
-// Revision 1.1  2000/04/09 17:59:57  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:03  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 17:59:57  proff_fs
+// Initial login
 //
 // Revision 1.60  1998/06/03  20:32:12  jim
 // Fixed mispelling of key_chat string

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: F_wipe.c,v 1.1 2000/04/09 18:17:41 proff_fs Exp $
+// $Id: F_wipe.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -29,7 +29,7 @@
 //
 //-----------------------------------------------------------------------------
 
-static const char rcsid[] = "$Id: F_wipe.c,v 1.1 2000/04/09 18:17:41 proff_fs Exp $";
+static const char rcsid[] = "$Id: F_wipe.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "i_video.h"
@@ -40,6 +40,9 @@ static const char rcsid[] = "$Id: F_wipe.c,v 1.1 2000/04/09 18:17:41 proff_fs Ex
 //
 // SCREEN WIPE PACKAGE
 //
+
+#ifndef GL_DOOM
+// proff 11/99: not needed in OpenGL
 
 static byte *wipe_scr_start;
 static byte *wipe_scr_end;
@@ -211,12 +214,19 @@ int wipe_ScreenWipe(int wipeno, int x, int y, int width, int height, int ticks)
     }
   return !go;
 }
+#endif // GL_DOOM
 
 //----------------------------------------------------------------------------
 //
 // $Log: F_wipe.c,v $
-// Revision 1.1  2000/04/09 18:17:41  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:17:41  proff_fs
+// Initial login
 //
 // Revision 1.3  1998/05/03  22:11:24  killough
 // beautification

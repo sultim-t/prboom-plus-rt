@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: GL_PROFF.C,v 1.2 2000/04/10 21:13:13 proff_fs Exp $
+// $Id: GL_PROFF.C,v 1.3 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -578,7 +578,8 @@ void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor)
 
 float gld_CalcLightLevel(int lightlevel)
 {
-  return (float)max(min(lightlevel,256),0)/256.0f;
+  // return (float)max(min(lightlevel,256),0)/256.0f;
+  return ((float)max(min(lightlevel,255),0)*(0.8f+0.25f*(float)usegamma))/255.0f;
 }
 
 void gld_StaticLight3f(GLfloat fRed, GLfloat fGreen, GLfloat fBlue)
@@ -803,15 +804,13 @@ GLvoid gld_Set2DMode()
 
 void gld_Finish()
 {
-  extern HDC GL_DC;
-
   if (gld_DisplayList)
   {
     glEndList();
     glCallList(gld_DisplayList);
   }
   glFinish();
-	OpenGLSwapBuffers(GL_DC);
+	SDL_GL_SwapBuffers();
 }
 
 void gld_InitCommandLine()
@@ -856,6 +855,12 @@ static void gld_DrawWalldef(walldef_t *walldef)
     glDisable(GL_TEXTURE_2D);
     glColor4f(0.0f,0.0f,0.0f,0.0f);
   }
+  if (walldef->light==-1)
+    gld_StaticLight3f(1.0f, 0.0f, 0.0f);
+  if (walldef->light==-2)
+    gld_StaticLight3f(0.0f, 1.0f, 0.0f);
+  if (walldef->light==-3)
+    gld_StaticLight3f(0.0f, 0.0f, 1.0f);
   walldef->ytop+=0.001f;
   walldef->ybottom-=0.001f;
   glBegin(GL_TRIANGLE_STRIP);
@@ -1001,6 +1006,7 @@ static void gld_DrawSeg(drawseg_t *drawseg, H_boolean sky_only)
 
         gld_CalcYCoords(&walldef, floor_height, ceiling_height);
         gld_CalcTextureCoords(&walldef, seg, (line->flags & ML_DONTPEGBOTTOM)>0, false, 0);
+          walldef.light=-3;
         gld_DrawWalldef(&walldef);
       }
     }
@@ -2060,6 +2066,12 @@ void gld_FillBlock(int x, int y, int width, int height, int col)
 //-----------------------------------------------------------------------------
 //
 // $Log: GL_PROFF.C,v $
+// Revision 1.3  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
 // Revision 1.2  2000/04/10 21:13:13  proff_fs
 // added Log to OpenGL files
 //

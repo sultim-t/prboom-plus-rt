@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: I_main.c,v 1.1 2000/04/09 18:14:41 proff_fs Exp $
+// $Id: I_main.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: I_main.c,v 1.1 2000/04/09 18:14:41 proff_fs Exp $";
+rcsid[] = "$Id: I_main.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 #ifdef _WIN32 // proff: includes for Windows
 
@@ -38,6 +38,7 @@ rcsid[] = "$Id: I_main.c,v 1.1 2000/04/09 18:14:41 proff_fs Exp $";
 #include <windows.h>
 #include <stdio.h>
 #include <signal.h>
+#include "SDL.h"
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
@@ -47,11 +48,7 @@ rcsid[] = "$Id: I_main.c,v 1.1 2000/04/09 18:14:41 proff_fs Exp $";
 #include "i_system.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 
-extern int Init_ConsoleWin(HINSTANCE hInstance);
-extern int Init_Win();
-#ifdef GL_DOOM
-extern int Init_GLWin();
-#endif
+extern int Init_ConsoleWin(void);
 extern void FindResponseFile (void);
 
 #else //_WIN32
@@ -94,107 +91,12 @@ static void handler(int s)
 
 void I_Quit(void);
 
-// proff 07/04/98: Added for CYGWIN32 compatibility
-#if defined(_WIN32) && !defined(_MSC_VER)
-#define MAX_ARGC 128
-static char    *argvbuf[MAX_ARGC];
-static char    *cmdLineBuffer;
-
-static char ** commandLineToArgv(int *pArgc)
-{
-    char    *p, *pEnd;
-    int     argc = 0;
-
-    cmdLineBuffer=GetCommandLine();
-    if (cmdLineBuffer == NULL)
-        I_Error("No commandline!");
-
-    p = cmdLineBuffer;
-    pEnd = p + strlen(cmdLineBuffer);
-    if (pEnd >= &cmdLineBuffer[1022]) pEnd = &cmdLineBuffer[1022];
-
-    while (1) {
-        while ((*p == ' ') && (p<pEnd)) p++;
-        if (p >= pEnd) break;
-
-        if (*p=='\"')
-        {
-            p++;
-            if (p >= pEnd) break;
-            argvbuf[argc++] = p;
-            if (argc >= MAX_ARGC) break;
-            while (*p && (*p != ' ') && (*p != '\"')) p++;
-            if ((*p == ' ') | (*p == '\"')) *p++ = 0;
-        }
-        else
-        {
-            argvbuf[argc++] = p;
-            if (argc >= MAX_ARGC) break;
-            while (*p && (*p != ' ')) p++;
-            if (*p == ' ') *p++ = 0;
-        }
-    }
-
-    *pArgc = argc;
-    return argvbuf;
-}
-#endif
-
-#ifdef _WIN32  // proff: main-procedure for Windows
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-PSTR szCmdLine, int iCmdShow)
+int main(int argc, char **argv)
 {
   int i;
   int rsp_found;
-  char fname[PATH_MAX+1];
+//  char fname[PATH_MAX+1];
 
-    Z_Init();                  // 1/18/98 killough: start up memory stuff first
-    atexit(I_Quit);
-    signal(SIGSEGV, handler);
-    signal(SIGTERM, handler);
-    signal(SIGILL,  handler);
-    signal(SIGFPE,  handler);
-    signal(SIGILL,  handler);
-    signal(SIGINT,  handler);
-    signal(SIGABRT, handler);
-// proff 07/04/98: Added for CYGWIN32 compatibility
-#ifdef _MSC_VER
-    myargc = __argc; 
-    myargv = __argv; 
-#else
-    myargv = commandLineToArgv(&myargc);
-#endif
-    if (M_CheckParm("-condump"))
-    {
-        freopen(strcat(strcpy(fname,D_DoomExeDir()),"disp.txt"),"w",stdout);
-        freopen(strcat(strcpy(fname,D_DoomExeDir()),"error.txt"),"w",stderr);
-    }
-    do {
-      rsp_found=false;
-      for (i=0; i<myargc; i++)
-        if (myargv[i][0]=='@')
-          rsp_found=true;
-      FindResponseFile();
-    } while (rsp_found==true);
-    Init_ConsoleWin(hInstance);
-#ifdef GL_DOOM
-    // proff 11/99: for OpenGL use Init_GLWin()
-    if (!Init_GLWin())
-      return 0;
-#else
-    // proff 11/99: for software use Init_Win()
-    Init_Win();
-#endif
-
-    D_DoomMain (); 
-
-    return 0;
-}
-
-#else //_WIN32
-
-int main(int argc, char **argv)
-{
   myargc = argc;
   myargv = argv;
 
@@ -214,7 +116,9 @@ int main(int argc, char **argv)
      left in an unstable state.
   */
 
+#ifndef _WIN32  // proff: main-procedure for Windows
   allegro_init();
+#endif
   Z_Init();                  // 1/18/98 killough: start up memory stuff first
   atexit(I_Quit);
   signal(SIGSEGV, handler);
@@ -225,6 +129,23 @@ int main(int argc, char **argv)
   signal(SIGINT,  handler);  // killough 3/6/98: allow CTRL-BRK during init
   signal(SIGABRT, handler);
 
+/*
+  if (M_CheckParm("-condump"))
+  {
+    freopen(strcat(strcpy(fname,D_DoomExeDir()),"disp.txt"),"w",stdout);
+    freopen(strcat(strcpy(fname,D_DoomExeDir()),"error.txt"),"w",stderr);
+  }
+*/
+  do {
+    rsp_found=false;
+    for (i=0; i<myargc; i++)
+      if (myargv[i][0]=='@')
+        rsp_found=true;
+    FindResponseFile();
+  } while (rsp_found==true);
+
+#ifndef _WIN32  // proff: main-procedure for Windows
+
   // 2/2/98 Stan
   // Must call this here.  It's required by both netgames and i_video.c.
 
@@ -233,16 +154,35 @@ int main(int argc, char **argv)
   else  //jff 8/3/98 use logical output routine
     lprintf (LO_FATAL,"Failed trying to allocate DOS near pointers.\n");
 
+#else // _WIN32
+
+	/* Initialize SDL */
+	if ( SDL_Init(SDL_INIT_VIDEO) < 0 )
+		lprintf(LO_FATAL, "Couldn't initialize SDL: %s\n",SDL_GetError());
+	else
+  {
+    /* Clean up on exit */
+    atexit(SDL_Quit);
+    Init_ConsoleWin();
+    D_DoomMain ();
+  }
+
+#endif // _WIN32
+
   return 0;
 }
-
-#endif //_WIN32
 
 //----------------------------------------------------------------------------
 //
 // $Log: I_main.c,v $
-// Revision 1.1  2000/04/09 18:14:41  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:14:41  proff_fs
+// Initial login
 //
 // Revision 1.9  1998/09/07  20:10:02  jim
 // Logical output routine added

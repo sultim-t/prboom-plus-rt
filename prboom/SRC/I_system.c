@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: I_system.c,v 1.1 2000/04/09 18:00:32 proff_fs Exp $
+// $Id: I_system.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $
 //
 //  PRBOOM/GLBOOM (C) Florian 'Proff' Schulze (florian.proff.schulze@gmx.net)
 //  based on
@@ -29,7 +29,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: I_system.c,v 1.1 2000/04/09 18:00:32 proff_fs Exp $";
+rcsid[] = "$Id: I_system.c,v 1.2 2000/04/26 20:00:02 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -393,6 +393,9 @@ void I_Error(const char *error, ...) // killough 3/20/98: add const
 
 // killough 2/22/98: Add support for ENDOOM, which is PC-specific
 #ifdef _WIN32 // proff: Functions to access the console
+
+extern int Init_ConsoleWin(void);
+
 extern HWND con_hWnd;
 
 void textattr(byte a)
@@ -423,6 +426,9 @@ void textattr(byte a)
 void I_EndDoom(void)
 {
   int lump = W_CheckNumForName("ENDOOM"); //jff 4/1/98 sign our work
+#ifdef _WIN32
+  Init_ConsoleWin();
+#endif
   if (lump != -1)
     {
       const char (*endoom)[2] = W_CacheLumpNum(lump, PU_STATIC);
@@ -447,8 +453,14 @@ void I_EndDoom(void)
 //----------------------------------------------------------------------------
 //
 // $Log: I_system.c,v $
-// Revision 1.1  2000/04/09 18:00:32  proff_fs
-// Initial revision
+// Revision 1.2  2000/04/26 20:00:02  proff_fs
+// now using SDL for video and sound output.
+// sound output is currently mono only.
+// Get SDL from:
+// http://www.devolution.com/~slouken/SDL/
+//
+// Revision 1.1.1.1  2000/04/09 18:00:32  proff_fs
+// Initial login
 //
 // Revision 1.15  1998/09/07  20:06:44  jim
 // Added logical output routine
