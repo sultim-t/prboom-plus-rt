@@ -3,7 +3,9 @@
 #include <string.h> /* for memset */
 #include <stdlib.h> /* for fcvt */
 
+#ifndef PRBOOM_SERVER
 #include "lprintf.h"
+#endif
 
 /* Windows stdlib defines fcvt differently <sigh> */
 
@@ -295,7 +297,7 @@ int pvsnprintf(char *str, size_t nmax, const char *format, va_list ap)
         nmax -= 1;
     }
 
-#ifdef RANGECHECK
+#if (defined RANGECHECK && !defined PRBOOM_SERVER)
     if (!nmax)
       lprintf(LO_DEBUG, "pvsnprintf: String hit the maximum length!\nnmax:%i, str:%s\n", orig_nmax, str);
 #endif

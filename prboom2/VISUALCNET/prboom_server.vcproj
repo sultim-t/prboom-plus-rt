@@ -164,9 +164,6 @@
 				RelativePath="..\src\i_udp_sdl.c">
 			</File>
 			<File
-				RelativePath="..\src\lprintf.h">
-			</File>
-			<File
 				RelativePath="..\src\m_fcvt.c">
 			</File>
 			<File

@@ -127,11 +127,23 @@ SOURCE=..\src\lprintf.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\m_fcvt.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\m_fcvt.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\m_swap.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\protocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\psnprntf.c
 # End Source File
 # End Group
 # End Target
