@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.6 2000/05/11 23:14:59 cph Exp $
+# $Id: Makefile.am,v 1.7 2000/05/19 22:34:52 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -12,8 +12,8 @@ EXTRA_SUBDIRS = Posix OSS X11 SDL
 SUBDIRS = @BUILD_DIRS@
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = lxdoom lsdldoom lxdoom-game-server
-games_PROGRAMS = @BUILD_LXDOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
+EXTRA_PROGRAMS = xprboom prboom prboom-game-server
+games_PROGRAMS = @BUILD_XPRBOOM@ @BUILD_SDLDOOM@ @BUILD_SERVER@
 
 if I386_ASM
 ASMS = drawspan.s drawcol.s drawasm.h
@@ -23,8 +23,8 @@ endif
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-lxdoom_game_server_SOURCES = d_server.c i_udp.c protocol.h
-lxdoom_game_server_LDADD = POSIX/libposixdoom.a 
+prboom_game_server_SOURCES = d_server.c i_udp.c protocol.h
+prboom_game_server_LDADD = POSIX/libposixdoom.a 
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
@@ -70,8 +70,8 @@ else
 GL_SRC = 
 endif
 
-lsdldoom_SOURCES = v_video_trans.h v_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(GL_SRC)
-lsdldoom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm SDL/libsdldoom.a
+prboom_SOURCES = v_video_trans.h v_video_trans.c qmus2mid.c qmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(GL_SRC)
+prboom_LDADD = @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ -lm SDL/libsdldoom.a
 
-lxdoom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
-lxdoom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ -lm POSIX/libposixdoom.a X11/libx11doom.a OSS/libossdoom.a
+xprboom_SOURCES = v_video_trans.h   v_video_trans.c  $(COMMON_SRC) $(NET_CLIENT_SRC)
+xprboom_LDADD = @X_LIBS@ @X_PRE_LIBS@ -lX11 @X_EXTRA_LIBS@ @LIB_XEXT@ @LIB_XDGA@ -lm POSIX/libposixdoom.a X11/libx11doom.a OSS/libossdoom.a
