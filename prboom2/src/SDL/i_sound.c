@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.4 2000/05/20 08:38:48 cph Exp $
+ * $Id: i_sound.c,v 1.5 2000/05/21 12:14:55 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.4 2000/05/20 08:38:48 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.5 2000/05/21 12:14:55 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -96,6 +96,7 @@ int	audio_fd;
 unsigned int	channelstep[NUM_CHANNELS];
 // ... and a 0.16 bit remainder of last step.
 unsigned int	channelstepremainder[NUM_CHANNELS];
+unsigned int	channelsamplerate[NUM_CHANNELS];
 
 
 // The channel data pointers, start and end.
@@ -206,6 +207,7 @@ addsfx
       
       /* Set pointer to end of raw data. */
       channelsend[slot] = channels[slot] + len;
+      channelsamplerate[slot] = (channels[slot][3]<<8)+channels[slot][2];
       channels[slot] += 8; /* Skip header */
     }
 
@@ -236,7 +238,10 @@ I_UpdateSoundParams
 
     // Set stepping???
     // Kinda getting the impression this is never used.
-    channelstep[slot] = step;
+    if (pitched_sounds)
+      channelstep[slot] = step + (((channelsamplerate[slot]/11025)-1)<<16);
+    else
+      channelstep[slot] = ((channelsamplerate[slot]/11025)<<16);
 
     // Separation, that is, orientation/stereo.
     //  range is: 1 - 256
