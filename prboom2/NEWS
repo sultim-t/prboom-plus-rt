@@ -1,6 +1,32 @@
+This file shows a history of changes between PrBoom versions since v2.1.0.
+For historical reference, the complete LxDoom changelog follows it.
+
+* Changes from v2.1.0 to v2.1.1
+- config file is now prboom.cfg for the non-GL version, glboom.cfg
+  for the GL version. If you have used PrBoom (or LxDoom) before, 
+  rename your old config file (boom.cfg) appropriately.
+- fullscreen is now default for new prboom.cfg
+- included sdl_mixer.dll now plays midi-files
+- if waveout is used for sound (Windows NT4) the sound doesn't stutter anymore
+- redid parts of the OpenGL renderer
+  - sprites behind translucent walls are rendered correctly
+  - translucent walls are rendered correctly
+  - support for glBSP nodes
+  - compliant to glBSP spec v2
+  - use_mipmapping option in boom.cfg
+  - the default for zone memory in OpenGL is now 16MB
+- fix screen melt transition
+- most Boom demos should now work
+- a lot more original Doom demos work
+- keycard switches are shown coloured on the map, like doors
+- improved ENDOOM rendering
+- non-highres rendering functions dropped
+
+-----------------------------------------------------------------------------
 This file is a log of all the changes to LxDoom since v1.0.0.
 Note that LxDoom v0.* was a seperate line of development.
 
+* Changes from v1.4.4 to the PrBoom merger
 - Fix rare demo sync problem (LxDoom v1.4.x bug, only noticed on Memento
  Mori DEMO3)
 - Fix memory management bugs
