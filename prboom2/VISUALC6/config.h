@@ -138,4 +138,4 @@
 #define PACKAGE "prboom"
 
 /* Version number of package */
-#define VERSION "2.3.2 (win32 experimental)"
+#define VERSION "2.4.0 (win32 experimental)"

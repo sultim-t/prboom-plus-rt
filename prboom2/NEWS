@@ -2,6 +2,8 @@ This file shows a history of changes between PrBoom versions since v2.2.0.
 For historical reference, the changes since v2.1.0 and the complete LxDoom
 changelog follows it.
 
+Changes from 2.3.2 to 2.4.0
+
 Changes from v2.3.1 to v2.3.2
 - fix Inferno intermission screens
 - don't play music when volume is 0
