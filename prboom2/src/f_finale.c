@@ -263,49 +263,19 @@ void F_Ticker(void)
 // text can be increased, and there's still time to read what's     //   |
 // written.                                                         // phares
 // CPhipps - reformatted
-
-#include "hu_stuff.h"
-extern patchnum_t hu_font[HU_FONTSIZE];
-
+// proff - using V_WriteTextXYGap
 
 void F_TextWrite (void)
 {
+  char *temp;
+  int count = (int)((float)(finalecount - 10)/Get_TextSpeed()); // phares
+
   V_DrawBackground(finaleflat, 0);
-  { // draw some of the text onto the screen
-    int         cx = 10;
-    int         cy = 10;
-    const char* ch = finaletext; // CPhipps - const
-    int         count = (int)((float)(finalecount - 10)/Get_TextSpeed()); // phares
-    int         w;
-    
-    if (count < 0)
-      count = 0;
-    
-    for ( ; count ; count-- ) {
-      int       c = *ch++;
-      
-      if (!c)
-	break;
-      if (c == '\n') {
-	cx = 10;
-	cy += 11;
-	continue;
-      }
-              
-      c = toupper(c) - HU_FONTSTART;
-      if (c < 0 || c> HU_FONTSIZE) {
-	cx += 4;
-	continue;
-      }
-      
-      w = SHORT (hu_font[c].width);
-      if (cx+w > SCREENWIDTH)
-	break;
-      // CPhipps - patch drawing updated
-      V_DrawNumPatch(cx, cy, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
-      cx+=w;
-    }
-  }
+  temp = strdup(finaletext);
+  if (count < 0)
+    count = 0;
+  temp[count] = 0;
+  V_WriteTextXYGap(temp, 10, 10, 0, 3);
 }
 
 //
@@ -503,52 +473,7 @@ boolean F_CastResponder (event_t* ev)
 
 static void F_CastPrint (const char* text) // CPhipps - static, const char*
 {
-  const char* ch; // CPhipps - const
-  int         c;
-  int         cx;
-  int         w;
-  int         width;
-  
-  // find width
-  ch = text;
-  width = 0;
-      
-  while (ch)
-  {
-    c = *ch++;
-    if (!c)
-      break;
-    c = toupper(c) - HU_FONTSTART;
-    if (c < 0 || c> HU_FONTSIZE)
-    {
-      width += 4;
-      continue;
-    }
-            
-    w = SHORT (hu_font[c].width);
-    width += w;
-  }
-  
-  // draw it
-  cx = 160-width/2;
-  ch = text;
-  while (ch)
-  {
-    c = *ch++;
-    if (!c)
-      break;
-    c = toupper(c) - HU_FONTSTART;
-    if (c < 0 || c> HU_FONTSIZE)
-    {
-      cx += 4;
-      continue;
-    }
-              
-    w = SHORT (hu_font[c].width);
-    // CPhipps - patch drawing updated
-    V_DrawNumPatch(cx, 180, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
-    cx+=w;
-  }
+  V_WriteText(text, 160-V_StringWidth(text, 0)/2, 180, 0);
 }
 
 
