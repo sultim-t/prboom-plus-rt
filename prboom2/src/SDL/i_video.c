@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.43 2002/11/24 00:45:39 proff_fs Exp $
+ * $Id: i_video.c,v 1.44 2002/11/24 12:23:17 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.43 2002/11/24 00:45:39 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.44 2002/11/24 12:23:17 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -819,7 +819,7 @@ CONSOLE_INT(r_fullscreen, use_fullscreen, NULL, 0, 1, yesno, cf_buffered)
   }
 }
 
-static char *str_vidmode[] = {
+static const char *str_vidmode[] = {
   "8bit",
   "16bit",
   "32bit"
