@@ -654,7 +654,7 @@ void I_UnRegisterSong(int handle)
 int I_RegisterSong(const void *data, size_t len)
 {
 #ifdef HAVE_MIXER
-  MIDI mididata;
+  MIDI *mididata;
   FILE *midfile;
 
   if ( music_tmp == NULL )
@@ -670,11 +670,13 @@ int I_RegisterSong(const void *data, size_t len)
     UBYTE *mid;
     int midlen;
 
-    memset(&mididata,0,sizeof(MIDI));
-    mmus2mid(data, &mididata, 89, 0);
-    MIDIToMidi(&mididata,&mid,&midlen);
+    mididata = malloc(sizeof(MIDI));
+    mmus2mid(data, mididata, 89, 0);
+    MIDIToMidi(mididata,&mid,&midlen);
     M_WriteFile(music_tmp,mid,midlen);
     free(mid);
+    free_mididata(mididata);
+    free(mididata);
   } else {
     fwrite(data, len, 1, midfile);
   }
