@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_client.c,v 1.11 2000/12/27 18:46:59 cph Exp $
+ * $Id: d_client.c,v 1.12 2000/12/28 11:28:00 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -328,7 +328,7 @@ void NetUpdate(void)
 	  void *tic = ((byte*)(packet+1)) +2;
 	  while (sendtics--) {
 	    TicToRaw(tic, &localcmds[remotesend++%BACKUPTICS]);
-	    tic += sizeof(ticcmd_t);
+	    tic = (byte *)tic + sizeof(ticcmd_t);
 	  }
 	}
 	I_SendPacket(packet, pkt_size);
