@@ -72,6 +72,7 @@ typedef enum
 //jff 1/16/98 end palette color range additions
 
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
+#define CR_TRANS CR_LIMIT /* use limit as translucent -- for text */
 
 typedef struct {
   byte *data; // pointer to the screen content
@@ -254,29 +255,9 @@ byte *V_GetPlottedTexture8(
 );
 
 //---------------------------------------------------------------------------
-// Font
-//---------------------------------------------------------------------------
-/* font colours (CR_ colors + 0x80 as char) */
-#define FC_BASEVALUE     0x80
-#define FC_BRICK        "\x80"
-#define FC_TAN          "\x81"
-#define FC_GRAY         "\x82"
-#define FC_GREEN        "\x83"
-#define FC_BROWN        "\x84"
-#define FC_GOLD         "\x85"
-#define FC_RED          "\x86"
-#define FC_BLUE         "\x87"
-#define FC_ORANGE       "\x88"
-#define FC_YELLOW       "\x89"
-#define FC_BLUE2        "\x8a"
-#define FC_TRANS        "\x8b"
-
-void V_WriteText(const char *s, int x, int y, int gap);
-void V_WriteTextColoured(const char *s, int colour, int x, int y, int gap);
-int V_StringWidth(const char *s, int gap);
-int V_StringHeight(const char *s);
-//---------------------------------------------------------------------------
 
 #include "gl_struct.h"
+
+#include "v_misc.h"
 
 #endif
