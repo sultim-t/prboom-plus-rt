@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_deh.c,v 1.5 2000/05/12 21:45:18 proff_fs Exp $
+ * $Id: d_deh.c,v 1.6 2000/05/21 12:45:23 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,7 +36,7 @@
  *--------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.5 2000/05/12 21:45:18 proff_fs Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.6 2000/05/21 12:45:23 cph Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -445,8 +445,9 @@ const char *startup3     = "";
 const char *startup4     = "";
 const char *startup5     = "";
 
-// Ty 05/03/98 - externalized
-const char *savegamename = "BOOMSAV";
+/* Ty 05/03/98 - externalized
+ * cph - updated for prboom */
+const char *savegamename = "prbmsav";
 
 // end d_deh.h variable declarations
 // ====================================================================
