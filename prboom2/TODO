@@ -175,3 +175,12 @@ big option.
 
 --------------------------------------------------------------------------
 50. (2002/08/10) make SLOWTURNTICS configureable
+
+--------------------------------------------------------------------------
+51. (2002/08/14) new demo format for prboom 2.3.0
+
+Colin: Time to ditch the "compression" in Doom demos where the low byte of
+cmd->angleturn is thrown away, this very significantly degrades the playabiity
+of the game when recording. Secondly, possibly we could allow sync critical
+options to change in demos by recording the console commands executed.
+
