@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.3 2000/05/11 20:02:23 proff_fs Exp $
+ * $Id: i_system.c,v 1.4 2000/05/21 05:24:46 jessh Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.3 2000/05/11 20:02:23 proff_fs Exp $";
+rcsid[] = "$Id: i_system.c,v 1.4 2000/05/21 05:24:46 jessh Exp $";
 
 #include <stdio.h>
 
@@ -75,12 +75,7 @@ int I_GetTime_RealTime (void)
  */
 unsigned long I_GetRandomTimeSeed(void)
 {                            
-/*  / killough 3/26/98: shuffle random seed, use the clock / 
-  struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv,&tz);
-  return (tv.tv_sec*1000ul + tv.tv_usec/1000ul);
-*/
+/* This isnt very random */
   return(SDL_GetTicks());
 }
 
@@ -89,7 +84,11 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
+#ifdef HAVE_SNPRINTF
   snprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
+#else
+  snprintf(buf,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
+#endif
   return buf;
 }
 
