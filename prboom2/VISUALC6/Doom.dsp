@@ -1036,67 +1036,6 @@ SOURCE=..\src\gl_texture.c
 
 # End Source File
 # End Group
-# Begin Group "Asm Source Files"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=..\src\Drawasm.nas
-
-!IF  "$(CFG)" == "Doom - Win32 Release"
-
-# Begin Custom Build - Compiling drawasm.nas
-IntDir=.\Release
-InputPath=..\src\Drawasm.nas
-InputName=Drawasm
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
-
-# Begin Custom Build - Compiling drawasm.nas
-IntDir=.\Debug
-InputPath=..\src\Drawasm.nas
-InputName=Drawasm
-
-"$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasmw -o $(IntDir)\$(InputName).obj -f win32 $(InputPath)
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter ""
