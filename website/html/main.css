@@ -24,6 +24,7 @@ ul.changes li {
 }
 #navigation #menu a {
     display: block;
+    text-decoration: none;
 }
 #navigation #menu div {
     background-color: #eeeeee;
@@ -40,15 +41,11 @@ ul.changes li {
 }
 #navigation {
     vertical-align: top;
-    width: 200px;
-    float: left;
+    width: 190px;
     background-color: #ffffff;
-    padding-right: 10px;
-/*
     position: absolute;
     left: 10px;
     top: 10px;
-*/
 }
 #content {
     vertical-align: top;
