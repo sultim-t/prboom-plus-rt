@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.40 2001/06/17 17:56:31 proff_fs Exp $
+ * $Id: gl_main.c,v 1.41 2001/06/17 18:49:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -384,18 +384,23 @@ void gld_Init(int width, int height)
 void gld_InitCommandLine()
 {
 #ifdef DYNAMIC_GL
-  if (DLL_LoadLibrary(LIBGL_NAME)) {
+  DLL_HANDLE gl_handle;
+  DLL_HANDLE glu_handle;
+
+  gl_handle=DLL_LoadLibrary(LIBGL_NAME);
+  if (!gl_handle) {
     I_Error("%s: disabling opengl\n", DLL_ErrorMessage());
   }
 
-#define PROTOTYPE(ret, func, param) p_##func = DLL_GetProcAddress(#func);
+#define PROTOTYPE(ret, func, param) p_##func = DLL_GetProcAddress(gl_handle,#func);
 #include "gl_funcs.h"
 
-  if (DLL_LoadLibrary(LIBGLU_NAME)) {
+  glu_handle=DLL_LoadLibrary(LIBGLU_NAME);
+  if (!glu_handle) {
     I_Error("%s: disabling opengl\n", DLL_ErrorMessage());
   }
 
-#define PROTOTYPE(ret, func, param) p_##func = DLL_GetProcAddress(#func);
+#define PROTOTYPE(ret, func, param) p_##func = DLL_GetProcAddress(glu_handle,#func);
 #include "glu_funcs.h"
 
 #else /* DYNAMIC_GL */

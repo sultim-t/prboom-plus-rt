@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_dll.c,v 1.1 2001/02/05 11:28:31 proff_fs Exp $
+ * $Id: gl_dll.c,v 1.2 2001/06/17 18:49:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,16 +34,14 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "gl_dll.h"
 
-static HINSTANCE handle;
-
-int DLL_LoadLibrary(const char *name)
+DLL_HANDLE DLL_LoadLibrary(const char *name)
 {
-  handle = LoadLibrary(name);
-  return (handle == 0) ? -1 : 0;
+  return LoadLibrary(name);
 }
 
-void * DLL_GetProcAddress(const char *symbol)
+void * DLL_GetProcAddress(DLL_HANDLE handle, const char *symbol)
 {
   return GetProcAddress(handle, symbol);
 }
@@ -57,16 +55,14 @@ char * DLL_ErrorMessage(void)
 
 #include <dlfcn.h>
 #include <stdio.h>
+#include "gl_dll.h"
 
-static void *handle;
-
-int DLL_LoadLibrary(const char *name)
+DLL_HANDLE DLL_LoadLibrary(const char *name)
 {
-  handle = dlopen(name, RTLD_LAZY | RTLD_GLOBAL);
-  return (handle == NULL) ? -1 : 0;
+  return dlopen(name, RTLD_LAZY | RTLD_GLOBAL);
 }
 
-void * DLL_GetProcAddress(const char *symbol)
+void * DLL_GetProcAddress(DLL_HANDLE handle, const char *symbol)
 {
   return dlsym(handle, symbol);
 }

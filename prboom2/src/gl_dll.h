@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_dll.h,v 1.1 2001/02/05 11:28:31 proff_fs Exp $
+ * $Id: gl_dll.h,v 1.2 2001/06/17 18:49:50 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -36,13 +36,15 @@
 #ifdef _WIN32
 #define LIBGL_NAME "OpenGL32.DLL"
 #define LIBGLU_NAME "GLU32.DLL"
+#define DLL_HANDLE HINSTANCE
 #else
 #define LIBGL_NAME "libGL.so"
 #define LIBGLU_NAME "libGLU.so"
+#define DLL_HANDLE void *
 #endif
 
-int    DLL_LoadLibrary(const char *name);
-void * DLL_GetProcAddress(const char *symbol);
-char * DLL_ErrorMessage(void);
+DLL_HANDLE DLL_LoadLibrary(const char *name);
+void *     DLL_GetProcAddress(DLL_HANDLE handle, const char *symbol);
+char *     DLL_ErrorMessage(void);
 
 #endif // _GL_DLL_H
