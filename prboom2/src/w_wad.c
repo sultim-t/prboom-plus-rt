@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.16 2001/02/13 20:54:30 proff_fs Exp $
+ * $Id: w_wad.c,v 1.17 2001/02/25 20:19:51 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.16 2001/02/13 20:54:30 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.17 2001/02/25 20:19:51 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -468,6 +468,7 @@ void W_Init(void)
         {
           gwa_filename=malloc(strlen(wadfiles[i].name));
           strncpy(gwa_filename,wadfiles[i].name,strlen(wadfiles[i].name)-4);
+          gwa_filename[strlen(wadfiles[i].name)-4]='\0';
           AddDefaultExtension(gwa_filename, ".gwa");
           W_AddFile(gwa_filename, source_pwad);
           free(gwa_filename);
