@@ -7,10 +7,11 @@ recording demos, you're strongly advised to read this.
 
 To play demos, you of course use "prboom -playdemo demoname" (the .lmp is
 optional). To the best of my knowledge, PrBoom should play all MBF and new
-PrBoom demos perfecty. It also plays most Doom v1.9 demos (significantly
-more than Boom or MBF). It also will try to play older Doom demos, LxDoom
-demos, and Boom demos. Boom demo support will be improved in a later
-version.
+PrBoom demos perfectly. It also plays most Doom v1.9 demos (significantly
+more than Boom or MBF); in fact, I don't know of any example v1.9 demos that 
+desync within 5 minutes - if you find any, send me an URL. It should play most 
+Boom v2.01 and v2.02 demos, although I don't know of that many to test with. 
+It will also try to play older Doom demos, LxDoom demos, and Boom v2.00 demos.
 
 Recording demos is done with "prboom -record demoname". **IMPORTANT** PrBoom
 will record to a number of demo formats, namely Doom v1.9, Boom v2.02, MBF,
@@ -33,7 +34,7 @@ don't overwrite your own saves. Saves when recording, do. You can load games
 during recording, but they'd better be games saved during the same
 recording, otherwise it won't play back.
 
-PrBoom supports continuation of recorded demos. This is the senario this
+PrBoom supports continuation of recorded demos. This is the scenario this
 feature is designed for: say you're beta testing a level for someone, and
 you want to send them a *complete* demo of how the level went (saves, deaths
 and reloads and all). You start with "prboom test.wad -record test", play

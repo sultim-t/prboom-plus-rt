@@ -9,17 +9,21 @@ determine how to behave in various circumstances. The supported levels are
 currently:
 
 Number	Name			Description
-0	doom_demo_compatibility	As compatible as possible for playing original 
+0	doom_12_compatibility	Not implemented (you can guess what it will
+				become, though :-)
+1	doom_demo_compatibility	As compatible as possible for playing original 
 				Doom demos, tries to emulate the poorer RNG
 				and LOS algorithms
-1	doom_compatibility	Compatible with original Doom levels -
+2	doom_compatibility	Compatible with original Doom levels -
 				emulates all original game bugs
-2 	boom_compatibility_compatibility	Emulates Boom's compatibility mode
-3	boom_compatibility,	Emulates Boom
-4	lxdoom_1_compatibility,	Emulates LxDoom v1.4.x
-5	mbf_compatibility	Emulates MBF
-6	prboom_1_compatibility	Emulates PrBoom v2.03beta
-7	prboom_2_compatibility	PrBoom v2.1, current version
+3 	boom_compatibility_compatibility	Emulates Boom's compatibility mode
+4	boom_201_compatibility,	Emulates Boom v2.01
+5	boom_202_compatibility,	Emulates Boom v2.02
+6	lxdoom_1_compatibility,	Emulates LxDoom v1.4.x
+7	mbf_compatibility	Emulates MBF
+8	prboom_1_compatibility	Emulates PrBoom v2.03beta
+9	prboom_2_compatibility	PrBoom v2.1.0
+10	prboom_3_compatibility	PrBoom v2.1.1, latest version
 
 You can cycle through the compatibility levels in the game using the TNTCOMP
 cheat. There's also the default_compatibility_level config file option, and
@@ -31,7 +35,7 @@ time you upgrade. Most people should just leave default_compatibility_level
 set to -1 in the config file, which means "use most recent" which has most
 features, most bug fixes, etc.
 
-But some people want to test the behavior of levels with older versions, and
+But some people want to test the behaviour of levels with older versions, and
 will find it helpful to not have to load a dozen games to do so. Some people
 like me play a lot of old levels, so need to be able to enable compatibility
 with some old bugs. And some people may want to record demos for older game
@@ -55,7 +59,7 @@ You can adjust the compatibility settings during play from the menus
 
 The sort of people interested in these things will already know the MBF
 options, so I'll just list the changes:
-- comp_floors now also causes the original Doom behavior of objects stuck in
+- comp_floors now also causes the original Doom behaviour of objects stuck in
 a ceiling preventing the floor below lowering.
 - new option comp_moveblock enables the old movement clipping bug which
 allows things to go through walls sometimes (mancubus shots, and key
@@ -64,22 +68,20 @@ grabbing tricks)
 PrBoom can also record old demos with some success (demo players see the
 comp_moveblock note above):
 
-prboom -complevel 0 -record test
+prboom -complevel 1 -record test
 
 records a doom v1.9 compatible demo
 
-prboom -complevel 3 -record whatever
+prboom -complevel 5 -record whatever
 
-records a Boom demo (health warning: support isn't good yet)
+records a Boom (v2.02) demo
 
-prboom -complevel 5 -record blah
+prboom -complevel 7 -record blah
 
 records an MBF demo.
 
 Of course, demo recording is no more reliable than demo playback; original
-Doom demos will often but not always work. Boom support is being worked on;
-MBF support should be perfect.
+Doom demos will usually but not always work. MBF support should be perfect.
 
-- Colin
-
+- Colin <cphipps@doomworld.com>
 
