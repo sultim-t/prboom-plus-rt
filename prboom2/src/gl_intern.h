@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_intern.h,v 1.15 2001/02/05 16:20:19 proff_fs Exp $
+ * $Id: gl_intern.h,v 1.16 2002/08/05 17:44:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,7 +49,6 @@
 #include "doomtype.h"
 #include "w_wad.h"
 #include "m_argv.h"
-#include "z_zone.h"
 #include "d_event.h"
 #include "v_video.h"
 #include "doomstat.h"

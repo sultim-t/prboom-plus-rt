@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.h,v 1.9 2001/11/18 15:37:49 cph Exp $
+ * $Id: z_zone.h,v 1.10 2002/08/05 17:44:59 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,6 +45,7 @@
 // Include system definitions so that prototypes become
 // active before macro replacements below are in effect.
 
+#include "../config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

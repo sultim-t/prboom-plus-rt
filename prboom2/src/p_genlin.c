@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_genlin.c,v 1.7 2000/09/23 12:50:02 cph Exp $
+ * $Id: p_genlin.c,v 1.8 2002/08/05 17:44:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,8 +32,9 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_genlin.c,v 1.7 2000/09/23 12:50:02 cph Exp $";
+rcsid[] = "$Id: p_genlin.c,v 1.8 2002/08/05 17:44:58 proff_fs Exp $";
 
+#include "z_zone.h"
 #include "doomstat.h" //jff 6/19/98 for demo_compatibility
 #include "r_main.h"
 #include "p_spec.h"

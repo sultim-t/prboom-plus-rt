@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.17 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.18 2002/08/05 17:44:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -30,6 +30,8 @@
  *---------------------------------------------------------------------
  */
 
+#include "../config.h"
+#include "z_zone.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
 
@@ -783,14 +785,14 @@ void gld_Precache(void)
 
   // Precache sprites.
   memset(hitlist, 0, numsprites);
-
+/*
   {
     thinker_t *th;
     for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
       if (th->function == P_MobjThinker)
         hitlist[((mobj_t *)th)->sprite] = 1;
   }
-
+*/
   for (i=numsprites; --i >= 0;)
     if (hitlist[i])
       {

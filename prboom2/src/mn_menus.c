@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.1 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: mn_menus.c,v 1.2 2002/08/05 17:44:58 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,12 +37,13 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.1 2002/01/07 15:56:19 proff_fs Exp $";
+  "$Id: mn_menus.c,v 1.2 2002/08/05 17:44:58 proff_fs Exp $";
 
 #include <stdarg.h>
 
 #include "doomdef.h"
 #include "doomstat.h"
+#include "z_zone.h"
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "d_deh.h"

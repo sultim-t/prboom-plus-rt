@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.14 2002/01/07 15:56:20 proff_fs Exp $
+ * $Id: z_zone.c,v 1.15 2002/08/05 17:44:59 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +39,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.14 2002/01/07 15:56:20 proff_fs Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.15 2002/08/05 17:44:59 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -177,11 +177,16 @@ void Z_DumpMemory(void)
     default:
       fprintf(fp, "malloc %s:%d:%d", block->file, block->line, block->size);
       total_malloc += block->size;
-      if (!strcmp(block->file,"w_wad.c")) W_PrintLump(fp, (char*)block + HEADER_SIZE);
+      if (block->file)
+        if (strstr(block->file,"w_wad.c"))
+	  W_PrintLump(fp, (char*)block + HEADER_SIZE);
       fputc('\n', fp);
       break;
     }
     block=block->next;
+    if (((int)block->file < 0x00001000) && (block->file != NULL) && (block->tag != 0)) {
+	    block->file = NULL;
+    }
   } while (block != zone);
   fprintf(fp, "malloc %d, cache %d, free %d, total %d\n",
 	  total_malloc, total_cache, total_free, 
@@ -768,7 +773,7 @@ void (Z_CheckHeap)(
 {
   memblock_t *block = zone;   // Start at base of zone mem
   if (block)
-  do                          // Consistency check (last node treated special)
+  do {                        // Consistency check (last node treated special)
     if ((block->next != zone &&
          (memblock_t *)((char *) block+HEADER_SIZE+block->size) != block->next)
         || block->next->prev != block || block->prev->next != block)
@@ -779,5 +784,8 @@ void (Z_CheckHeap)(
               , file, line, block->file, block->line
 #endif
               );
-  while ((block=block->next) != zone);
+    if (((int)block->file < 0x00001000) && (block->file != NULL) && (block->tag != 0)) {
+	    block->file = NULL;
+    }
+  } while ((block=block->next) != zone);
 }
