@@ -249,9 +249,10 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
   // Check to see if it is audible, modify the params
   // killough 3/7/98, 4/25/98: code rearranged slightly
 
-  if (!origin || origin == players[displayplayer].mo)
+  if (!origin || origin == players[displayplayer].mo) {
     sep = NORM_SEP;
-  else
+    volume *= 8;
+  } else
     if (!S_AdjustSoundParams(players[displayplayer].mo, origin, &volume,
                              &sep, &pitch))
       return;
@@ -605,10 +606,10 @@ int S_AdjustSoundParams(mobj_t *listener, mobj_t *source,
 
   // volume calculation
   if (approx_dist < S_CLOSE_DIST)
-    *vol = snd_SfxVolume;
+    *vol = snd_SfxVolume*8;
   else
     // distance effect
-    *vol = (snd_SfxVolume * ((S_CLIPPING_DIST-approx_dist)>>FRACBITS))
+    *vol = (snd_SfxVolume * ((S_CLIPPING_DIST-approx_dist)>>FRACBITS) * 8)
       / S_ATTENUATOR;
 
   return (*vol > 0);
