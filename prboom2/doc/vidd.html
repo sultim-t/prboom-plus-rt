@@ -1,0 +1,398 @@
+<html>
+
+<head>
+<title>V I D D</title>
+
+<style type="text/css">
+
+a {
+  color: #804000;
+  font-style: normal;
+  text-decoration: none
+}
+table, body {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: justify;
+  color: #202020;
+  font-size: 8pt;
+  line-height: 11pt;
+}
+.centertable {
+  border: 1px #000000 solid;
+  background-color: #ffffff;
+}
+.maintitle {
+  font-weight: bold;
+  font-size: 12pt;
+  text-align: center;
+}
+.subtitle {
+  font-weight: bold;
+  font-style: italic;
+  font-size: 11pt;
+  text-align: left;
+}
+.xmltable {
+  font-family: "Courier New", mono-spaced, fixed;
+  border: 1px #e0e0e0 solid;
+  background-color: #f0f0f0;
+}
+.xmlspace {
+  padding-left: 10pt;
+}
+
+</style>
+</head>
+
+<body bgcolor="#f0f0f0">
+
+<div align=center >
+
+<table width=604 cellpadding=0 cellspacing=0 style="border: 2px #c0c0c0 solid;" bgcolor=#e0e0e0><tr><td>
+<table width=602 cellpadding=0 cellspacing=0 style="border: 5px #c0c0c0 dashed;"><tr><td>
+
+
+<table width=600 cellpadding=4 cellspacing=0 class=centertable>
+  <tr>
+    <td valign=top class=maintitle>
+      <br>
+      Version Independent Doom Demo (VIDD) System<br>&nbsp;<br>
+      <img src="vidd.gif">
+    </td>
+  </tr>
+
+  <tr>
+    <td align=center style="font-size: 8pt">
+      <i>Version 1.1</i><br>&nbsp;
+    </td>
+  </tr>
+
+  <tr>
+    <td align=center style="font-size: 8pt">
+      Copyright © 2002<br><a href="mailto:pope@jeffsys.net">Lucas Pope</a><br>&nbsp;
+    </td>
+  </tr>
+
+
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>INTRO<br>&nbsp;</td></tr>
+
+  <tr>
+    <td valign=top>
+      The VIDD system intends to do the following things relative to Doom ".lmp" demos:
+      <ul type="square">
+        <li>remove the syncing problems during playback associated with current and future Doom ports</li>
+        <li>allow demos to be more self-sufficient packages for easier distribution and viewing</li>
+        <li>support random access to any point in a demo during playback</li>
+      </ul>
+      <br>&nbsp;
+    </td>
+  </tr>
+
+
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>TECHNOLOGY<br>&nbsp;</td></tr>
+
+  <tr>
+    <td valign=top>
+  <p>
+  VIDD employs a general keyframe system to record the absolute position and properties of all
+  the objects in a Doom world every frame. Using this system allows perfect
+  playback of the events that took place during the recording in an
+  application-independent way. Because it is a general format with a supplied
+  API, it is possible to incorporate demo playback into ports of Doom that
+  have absolutely no code-level relation to the original Doom.
+  </p>
+  <p>
+  Since they contain absolute information for an entire Doom demo, VIDDs are
+  roughly 20 times larger than their corresponding .lmp would be. This is after
+  employing strict size optimizations and tight compression. Although it may
+  sound like a lot coming from the .lmp world (where a typical demo is under
+  100K), VIDDs are comparable in size to Quake demos (in the megabyte
+  neighborhood).
+  </p>
+  <br>&nbsp;
+
+    </td>
+  </tr>
+
+
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>INSTALLATION<br>&nbsp;</td></tr>
+<tr><td>
+<p>
+Install the latest PrBoom distribution (2.2.3 available at <a href="http://prboom.sourceforge.net">prboom.sourceforge.net</a>) and get it working properly. In the prboom.cfg file, make sure <i>default_compatibility_level</i> is set to <i>-1</i> and <i>demo_insurance</i> is set to <i>2</i>.
+</p><p>
+Since this is an initial release of the VIDD system, you can unzip it into the same directory and it will overwrite both prboom.exe and glboom.exe with VIDD-enabled versions of the 2.2.3 source tree. It will also update the SDL libraries to compatible versions. I realize this isn't exactly a polished install process, but it'll have to do for now.
+</p>
+<br><br>
+</td></tr>
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>USAGE<br>&nbsp;</td></tr>
+
+  <tr>
+    <td valign=top>
+
+<p>
+VIDD recording and playback is currently only supported with an extended version of the
+Win32 PrBoom source port of Doom (<a href="http://prboom.sourceforge.net">prboom.sourceforge.net</a>). This means that .lmp
+demos that do not play back properly in this port will currently not be
+convertable to VIDDs. PrBoom is a very true doom port, but unfortunately it does not
+play back Plutonia and Evilution demos properly in all cases. If
+anyone has any source-level knowledge of why this is so, please contact me.
+</p>
+<p><b>To play a VIDD:</b></p>
+<blockquote>
+  This part is easy. Either drag and drop the .vidd file onto the
+  VIDD-supporting port of PrBoom (or associate .vidd files with prboom.exe
+  so they can be double-clicked), or type:
+  <blockquote>
+    <code>prboom -viddplay demo.vidd</code>
+  </blockquote>
+  <p>
+  Where "demo.vidd" is the filename of the VIDD you want to play. The VIDD
+  system will automatically load all required wads, and will notify you
+  if any of these wads are not available.
+  </p><p>
+  Pressing the up or down arrow keys during playback will bring up the VIDD Playback Menu. 
+  From here you can adjust a number of parameters with the arrow keys. 
+  </p>
+</blockquote>
+<p><b>To record a VIDD:</b></p>
+<blockquote>
+  <p>This part is harder.</p>
+  <p>
+  The VIDD recording system is designed only to convert .lmp demos to .vidd
+  files. This means you must first record the demo in the traditional manner
+  with doom or doom2 using the <i>-record</i> command line parameter. Once you
+  have a working .lmp, you can then convert that to a VIDD.
+  </p><p>
+  In addition, the VIDD format contains some information not found in the
+  original lmp. Most notably, it includes the filenames of the custom wads required to play the demo
+  back, the names of those who recorded the demo, the date it was recorded,
+  annotations within the demo, and more. These extra properties are set in
+  an XML file that is fed to the VIDD system during conversion. Once this
+  XML file has been properly created, you can either drag and drop it onto prboom.exe
+  or process it like so:
+  </p>
+  <blockquote>
+    <code>prboom -viddrecord demo.xml</code>
+  </blockquote>
+</blockquote>
+  <br>&nbsp;
+    </td>
+  </tr>
+
+
+
+
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>PARAMETER FILE FORMAT<br>&nbsp;</td></tr>
+
+  <tr>
+    <td valign=top>
+<p>
+Since there are more parameters to generating a VIDD file than will practically
+fit on the command line, the VIDD system reads these parameters from a
+standard-syntax XML file. The best way to describe the file format is with an
+example.
+</p>
+demo.xml:
+<table class=xmltable width="100%"><tr><td>
+  <font color=blue>&lt;vidd</font><br>
+  <font class=xmlspace></font> name=<font color=gray>"demo.vidd"</font> compress=<font color=gray>"gzip"</font><br>
+  <font class=xmlspace></font> iwad=<font color=gray>"doom.wad"</font> pwad1=<font color=gray>"mm2.wad"</font><br>
+  <font color=blue>&gt;</font>
+  <blockquote>
+  <font color=blue>&lt;lmp</font> file=<font color=gray>"demo.lmp"</font> style=<font color=blue><font color=gray>"tyson"</font>&gt;</font><br>
+  <font class=xmlspace></font><font color=blue>&lt;runner&gt;</font>Lucas Pope<font color=blue>&lt;/runner&gt;</font><br>
+  <font class=xmlspace></font><font color=blue>&lt;event&gt;</font>Big Day In<font color=blue>&lt;/event&gt;</font><br>
+  <font color=blue>&lt;/lmp&gt;</font><br>
+  <br>
+  <font color=blue>&lt;annotation</font> segment=<font color=gray>"0"</font> time=<font color=gray>"0"</font><font color=blue>&gt;</font><br>
+  <font class=xmlspace></font>A litte bit of text to describe the demo, normally found<br>
+  <font class=xmlspace></font>in a separate text file packaged with the lmp.<br>
+  <font color=blue>&lt;/annotation&gt;</font><br>
+  <br>
+  </blockquote>
+  <font color=blue>&lt;/vidd&gt;</font>
+</td></tr></table>
+
+
+<br>&nbsp;<br>
+<p><b>First, we start with the main "vidd" block, which has a few important attributes:</b></p>
+
+<table class=xmltable width="100%"><tr><td>
+  <font color=blue>&lt;vidd</font><br>
+  <font class=xmlspace></font> name=<font color=gray>"demo.vidd"</font> compress=<font color=gray>"gzip"</font><br>
+  <font class=xmlspace></font> iwad=<font color=gray>"doom.wad"</font> pwad1=<font color=gray>"mm2.wad"</font><br>
+  <font color=blue>&gt;</font>
+</td></tr></table>
+
+<table width="90%" cellpadding=2>
+  <tr>
+    <td valign=top width=100><i>name</i></td><td>the name of the VIDD file you want to generate</td>
+  </tr>
+  <tr>
+    <td valign=top><i>compress</i></td><td>the type of compression you want to use on the VIDD segments (levels).
+    Valid values for <i>compress</i> are "none", "gzip", or "bzip". If <i>compress</i> is not
+    specified, it defaults to "none". "bzip" always generates the smallest files, but is a
+    very slow compression algorithm (although decompression is fast) and can take a very long time to
+    finish. "gzip" is a good middle-ground between compression speed and size.</td>
+  </tr>
+  <tr>
+    <td valign=top><i>iwad</i></td><td>the original game wad used to record the demo. The value of <i>iwad</i> is used to determine which game the demo was recorded with.</td>
+  </tr>
+  <tr>
+    <td valign=top width=100><i>pwad1, pwad2, ... pwad10</i></td><td>these are optional and can be used to specify any custom
+    wads that are required to play the demo.</td>
+  </tr>
+</table>
+
+<br>&nbsp;<br>
+<p><b>Next, we have to specify which lmps will be converted, and any number of optional name/value pairs
+  that describe the recorded missions:</b></p>
+
+<table class=xmltable width="100%"><tr><td>
+  <font color=blue>&lt;lmp</font> file=<font color=gray>"demo.lmp"</font> style=<font color=blue><font color=gray>"tyson"</font>&gt;</font><br>
+  <font class=xmlspace></font><font color=blue>&lt;runner&gt;</font>Lucas Pope<font color=blue>&lt;/runner&gt;</font><br>
+  <font class=xmlspace></font><font color=blue>&lt;event&gt;</font>Big Day In<font color=blue>&lt;/event&gt;</font><br>
+  <font color=blue>&lt;/lmp&gt;</font><br>
+</td></tr></table>
+
+<table width="90%" cellpadding=2>
+  <tr>
+    <td valign=top width=100><i>file</i></td><td>the filename of the lmp to convert.</td>
+  </tr>
+  <tr>
+    <td valign=top width=100><i>runner, event, style, etc...</i></td><td>these are all optional attributes that
+    are simply displayed on the screen as the demo plays back. You can create your own attribute
+    names with whatever values you want or you can ommit them completely and have only the
+    <i>file</i> attribute specified.</td>
+  </tr>
+</table>
+&nbsp;<br>
+As long as the .lmp files were all recorded with the same <i>iwad</i> and <i>pwads</i>,
+you can have multiple &lt;lmp&gt; blocks within the main &lt;vidd&gt; element.
+
+<br>&nbsp;<br>
+<p><b>Optionally, you can add "annotations" that will appear onscreen as the demo is being
+viewed.</b></p>
+
+<table class=xmltable width="100%"><tr><td>
+  <font color=blue>&lt;annotation</font> segment=<font color=gray>"0"</font> time=<font color=gray>"0"</font><font color=blue>&gt;</font><br>
+  <font class=xmlspace></font>A litte bit of text to describe the demo, normally found<br>
+  <font class=xmlspace></font>in a separate text file packaged with the lmp.<br>
+  <font color=blue>&lt;/annotation&gt;</font><br>
+</td></tr></table>
+
+<table width="90%" cellpadding=2>
+  <tr>
+    <td valign=top width=100><i>segment</i></td><td>the level (starting from "0") where you
+    want the annotation to appear. Note that lmps can contain multiple-level recordings,
+    so annotations are tied to the entire VIDD, not individual lmps. For instance,
+    if you want to convert two lmps, one that spans 3 levels, and one that spans 2, you
+    can display an annotation on the 1st level of the second lmp by referencing segment
+    "3".
+    </td>
+  </tr>
+  <tr>
+    <td valign=top width=100><i>time</i></td><td>the number of seconds into the level when the
+    annotation should appear. A value of "0" makes it appear immediately at the start.
+    A value beyond the level completion time will cause the annotation to be ignored.</td>
+  </tr>
+</table>
+
+
+<br>&nbsp;<br>
+<p><b>Finally, you must close the "vidd" block:</b></p>
+
+<table class=xmltable width="100%"><tr><td>
+  <font color=blue>&lt;/vidd&gt;</font>
+</td></tr></table>
+
+<br><br><br>
+
+</td></tr>
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>RELEASE HISTORY<br>&nbsp;</td></tr>
+<tr><td>
+
+
+<table width="100%" cellpadding=0 cellpadding=0>
+<tr><td>1.1: <i>August 5, 2002</i></td></tr>
+<tr><td>
+<ul>
+<li>Updated to use the latest version of PrBoom (2.2.3)</li>
+<li>Source code included</li>
+<li>Allow any iwad specification</li>
+<li>VIDD menu pauses demo playback when active</li>
+<li>Arrow keys ignored in HGWells Mode (must press ESC to exit mode)</li>
+<li>Generalized all element types and properties. Now adding new properties or element types no longer requires changes to the ViddSys library</li>
+<li>Added drag and drop support for recording</li>
+<li>VIDD menu default control shows current segment</li>
+<li>Fixed a small bug in XML reading that prevented attributes and elements from being interchangable</li>
+<li>Redirected stdout to vidd.log to facilitate progress monitoring (paving the way for a form-based frontend for VIDD recording)</li>
+</ul>
+</td></tr>
+</table>
+
+
+<table width="100%" cellpadding=0 cellpadding=0>
+<tr><td>1.01: <i>June 21, 2002</i></td></tr>
+<tr><td>
+<ul>
+<li>Added ANNOT control to the VIDD menu to skip annotations</li>
+<li>Changed seconds display to include the colon</li>
+</ul>
+</td></tr>
+</table>
+
+
+<table width="100%" cellpadding=0 cellpadding=0>
+<tr><td>1.0: <i>June 19, 2002</i></td></tr>
+<tr><td>
+<ul>
+<li>Initial release</li>
+<li>This release does not contain source code, which is forthcoming. Anyone interested in getting the source code immediately can email me for it.</li>
+</ul>
+</td></tr>
+</table>
+
+<br><br><br>
+
+</td></tr>
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>KNOWN BUGS<br>&nbsp;</td></tr>
+<tr><td>
+<ul>
+<li>Lost Souls are sometimes frozen in their last death frame during playback</li>
+</ul>
+
+<br><br><br>
+
+</td></tr>
+  <tr><td bgcolor=#000000></td></tr>
+  <tr><td class=subtitle valign=top>FUTURE PLANS<br>&nbsp;</td></tr>
+<tr><td>
+<ul>
+<li>Either merge with the PrBoom source-tree or diverge into a separate package (requiring an overwrite of prboom.exe and glboom.exe doesn't cut it)</li>
+<li>Make the ViddSys library platform-independent to support systems other than Win32</li>
+<li>Fix PrBoom so it plays Final Doom demos properly</li>
+</ul>
+
+<br>
+
+</td></tr>
+</table>
+
+
+
+</td></tr></table>
+</td></tr></table>
+
+
+</div>
+
+</body>
+</html>
