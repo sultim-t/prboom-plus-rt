@@ -39,6 +39,15 @@ AC_PROG_CC
 AC_PROG_LN_S
 AC_PROG_RANLIB
 
+if test "x$GCC" == "xyes"; then
+  AC_DEFINE(PACKEDATTR,[__attribute__((packed))])
+else
+  AC_DEFINE(PACKEDATTR,[])
+  echo "-!- Your compiler is not gcc. We probably don't know how to force"
+  echo '    structures to be packed with your compiler. You may have to edit'
+  echo '    the source to insert the relevant pragmas so structures are packed.'
+fi
+
 dnl --- cph: work out flags to pass to compiler
 CFLAGS_OPT="-O2 -fomit-frame-pointer"
 dnl --- Option to enable debugging
@@ -85,11 +94,9 @@ AC_CHECK_LIB(m,pow)
 dnl - system specific stuff
 case "$target" in
     *-*-cygwin* | *-*-mingw32*)
-        MATHLIB=""
         SYS_GL_LIBS="-lopengl32"
         ;;
     *-*-beos*)
-        MATHLIB=""
         SYS_GL_LIBS="-lGL -lGLU"
         ;;
     *-*-aix*)
@@ -98,11 +105,15 @@ case "$target" in
         fi
         ;;
     *)
-        MATHLIB="-lm"
 	SYS_GL_LIBS="-lGL -lGLU"
 	;;
 esac
 
+dnl - find paths necessary for X libs, because the GL stuff is sometimes
+dnl   stored under the X dirs
+AC_PATH_XTRA
+CFLAGS="$CFLAGS $X_CFLAGS"
+LDFLAGS="$LDFLAGS $X_LIBS"
 dnl - GL
 AC_ARG_ENABLE(gl,[  --enable-gl         enable GL code],
 AC_MSG_CHECKING(for OpenGL support)   

@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.11 2000/09/03 13:05:52 cph Exp $
+ * $Id: acconfig.h,v 1.11.2.1 2001/05/19 15:42:55 cph Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -129,4 +129,8 @@
 /* Define if you want to poll the mouse rather than rely on 
  * (unreliable) X11 mouse motion events */
 #undef POLL_MOUSE
+
+/* Set to the attribute to apply to struct definitions to make them packed */
+#undef PACKEDATTR
+
 

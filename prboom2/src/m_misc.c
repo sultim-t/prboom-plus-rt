@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_misc.c,v 1.26 2000/12/27 18:42:34 cph Exp $
+ * $Id: m_misc.c,v 1.26.2.1 2001/05/19 15:42:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.26 2000/12/27 18:42:34 cph Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.26.2.1 2001/05/19 15:42:56 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -873,14 +873,6 @@ typedef unsigned long dword_t;
 typedef long     long_t;
 typedef unsigned char ubyte_t;
 
-#ifdef _MSC_VER
-#define GCC_PACKED
-#else //_MSC_VER
-/* we might want to make this sensitive to whether configure has detected
-   a build with GCC */
-#define GCC_PACKED __attribute__((packed))
-#endif //_MSC_VER
-
 #ifdef _MSC_VER // proff: This is the same as __attribute__ ((packed)) in GNUC
 #pragma pack(push)
 #pragma pack(1)
@@ -897,7 +889,7 @@ typedef struct tagBITMAPFILEHEADER
   unsigned short  bfReserved1;
   unsigned short  bfReserved2;
   dword_t bfOffBits;
-  } GCC_PACKED BITMAPFILEHEADER;
+  } PACKEDATTR BITMAPFILEHEADER;
 
 typedef struct tagBITMAPINFOHEADER
   {
@@ -912,7 +904,7 @@ typedef struct tagBITMAPINFOHEADER
   long_t  biYPelsPerMeter;
   dword_t biClrUsed;
   dword_t biClrImportant;
-  } GCC_PACKED BITMAPINFOHEADER;
+  } PACKEDATTR BITMAPINFOHEADER;
 
 #if defined(__MWERKS__)
 #pragma options align=reset

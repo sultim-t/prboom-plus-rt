@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.h,v 1.6 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: r_data.h,v 1.6.2.1 2001/05/19 15:42:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -48,7 +48,7 @@ typedef struct
 {
   int originx, originy;  // Block origin, which has already accounted
   int patch;             // for the internal origin of the patch.
-} texpatch_t __attribute__((packed));
+} texpatch_t;
 
 //
 // Texture definition.

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_spec.h,v 1.5 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_spec.h,v 1.5.2.1 2001/05/19 15:42:56 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -522,7 +522,7 @@ typedef struct
   char name1[9];
   char name2[9];
   short episode;
-} __attribute__ ((packed)) switchlist_t; //jff 3/23/98 pack to read from memory
+} PACKEDATTR switchlist_t; //jff 3/23/98 pack to read from memory
 
 #if defined(__MWERKS__)
 #pragma options align=reset

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.14.2.1 2000/12/31 10:44:36 proff_fs Exp $
+ * $Id: config.h,v 1.14.2.2 2001/05/19 15:42:55 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -136,6 +136,11 @@
 
 /* Define if you want to use gluBuild2DMipmaps  */
 #define USE_GLU_MIPMAP 1
+
+/* Set to the attribute to apply to struct definitions to make them packed.
+ * For MSVC++ we can't do it like this, there are pragma's in the source 
+ * instead. */
+#define PACKEDATTR
 
 /* Name of package */
 #define PACKAGE "prboom"
