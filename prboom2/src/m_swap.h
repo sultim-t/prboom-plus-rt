@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_swap.h,v 1.4 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: m_swap.h,v 1.5 2001/09/09 12:42:20 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -52,10 +52,10 @@
 #ifdef HAVE_ASM_BYTEORDER_H
 #include <asm/byteorder.h>
 #ifdef __arch__swab16
-#define doom_swap_s  __arch__swab16
+#define doom_swap_s  (signed short)__arch__swab16
 #endif
 #ifdef __arch__swab32
-#define doom_swap_l  __arch__swab32
+#define doom_swap_l  (signed long)__arch__swab32
 #endif
 #endif /* HAVE_ASM_BYTEORDER_H */
 
