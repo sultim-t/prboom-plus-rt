@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_defs.h,v 1.9 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: r_defs.h,v 1.10 2000/09/21 10:47:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -217,19 +217,6 @@ typedef struct line_s
   } r_flags;
 } line_t;
 
-//
-// A SubSector.
-// References a Sector.
-// Basically, this is a list of LineSegs,
-//  indicating the visible walls that define
-//  (all or some) sides of a convex BSP leaf.
-//
-
-typedef struct subsector_s
-{
-  sector_t *sector;
-  short numlines, firstline;
-} subsector_t;
 
 // phares 3/14/98
 //
@@ -261,16 +248,19 @@ typedef struct msecnode_s
 //
 // The LineSeg.
 //
-typedef struct
+typedef struct seg_s // figgi -- needed fpr glBsp
 {
-#ifdef GL_DOOM
-  int iSegID; // proff 11/05/2000: needed for OpenGL
-#endif
   vertex_t *v1, *v2;
   fixed_t offset;
   angle_t angle;
   side_t* sidedef;
   line_t* linedef;
+
+// figgi -- needed for glnodes
+  int iSegID;	// proff 11/05/2000: needed for OpenGL
+  float			length;
+  boolean		miniseg;
+
   
   // Sector references.
   // Could be retrieved from linedef, too
@@ -279,6 +269,23 @@ typedef struct
 
   sector_t *frontsector, *backsector;
 } seg_t;
+
+
+//
+// A SubSector.
+// References a Sector.
+// Basically, this is a list of LineSegs,
+//  indicating the visible walls that define
+//  (all or some) sides of a convex BSP leaf.
+//
+
+typedef struct subsector_s
+{
+  struct seg_s*	segs;    // figgi -- needed for glBsp
+  sector_t *sector;
+  short numlines, firstline;
+} subsector_t;
+
 
 //
 // BSP node.

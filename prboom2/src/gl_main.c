@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_main.c,v 1.22 2000/09/16 20:20:36 proff_fs Exp $
+ * $Id: gl_main.c,v 1.23 2000/09/21 10:47:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -48,6 +48,10 @@ static float extra_alpha=0.0f;
 
 #define MAP_COEFF 128
 #define MAP_SCALE	(MAP_COEFF<<FRACBITS) // 6553600 -- nicolas
+
+//figgi -- some globals, externals and forwards
+extern boolean usingGLNodes;
+void gld_GetSubSectorVertices(void);
 
 /*
  * lookuptable for lightvalues
@@ -256,7 +260,7 @@ void gld_Init(int width, int height)
 
 	glViewport(0, 0, SCREENWIDTH, SCREENHEIGHT); 
 
-	glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
+  glClearColor(0.0f, 0.5f, 0.5f, 1.0f); 
   glClearDepth(1.0f);
 
   glGetIntegerv(GL_MAX_TEXTURE_SIZE,&gld_max_texturesize);
@@ -1038,7 +1042,7 @@ static void gld_CarveFlats(int bspnode, int numdivlines, divline_t *divlines, bo
 	GLFree(childlist);
 }
 
-#ifdef USE_GLU_TESS
+//#ifdef USE_GLU_TESS
 
 static int currentsector; // the sector which is currently tesselated
 
@@ -1414,7 +1418,7 @@ static void gld_PrecalculateSector(int num)
   GLFree(lineadded);
 }
 
-#endif /* USE_GLU_TESS */
+//#endif /* USE_GLU_TESS */
 
 // gld_PreprocessLevel
 //
@@ -1441,13 +1445,13 @@ static void gld_PrecalculateSector(int num)
 void gld_PreprocessSectors(void)
 {
   boolean *sectorclosed;
-#ifdef USE_GLU_TESS
+//#ifdef USE_GLU_TESS // figgi
   int i;
   char *vertexcheck;
   int v1num;
   int v2num;
   int j;
-#endif
+//#endif
 
 #ifdef _DEBUG
   char buffer[MAX_PATH];
@@ -1485,7 +1489,9 @@ void gld_PreprocessSectors(void)
   if (!sectorrendered)
     I_Error("Not enough memory for array (sectorrendered)\n");
 
-#ifdef USE_GLU_TESS
+//#ifdef USE_GLU_TESS
+if(usingGLNodes == false)
+{
   vertexcheck=GLMalloc(numvertexes*sizeof(char));
   if (!vertexcheck)
   {
@@ -1539,13 +1545,20 @@ void gld_PreprocessSectors(void)
         }
       }
     }
-    if (sectorclosed[i])
-      gld_PrecalculateSector(i);
+	// figgi -- adapted for glnodes
+    if (sectorclosed[i] && usingGLNodes == false)
+      gld_PrecalculateSector(i);	
   }
   GLFree(vertexcheck);
-#endif /* USE_GLU_TESS */
+//#endif /* USE_GLU_TESS */
+}
 
-  gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
+// figgi -- adapted for glnodes
+  if(usingGLNodes == false)
+	gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
+  else
+	gld_GetSubSectorVertices();
+
   if (levelinfo) fclose(levelinfo);
   GLFree(sectorclosed);
 }
@@ -1842,6 +1855,7 @@ void gld_AddWall(seg_t *seg)
   if (!frontsector)
     return;
   wall.segnum=seg->iSegID;
+
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+(extralight<<5));
   wall.gltexture=NULL;
   wall.trans=0;
@@ -2025,20 +2039,24 @@ bottomtexture:
 static void gld_PreprocessSegs(void)
 {
   int i;
-
+  
   GLFree(gl_segs);
   gl_segs=GLMalloc(numsegs*sizeof(GLSeg));
   for (i=0; i<numsegs; i++)
   {
-    float dx,dy;
-
+    //float dx,dy;
     gl_segs[i].x1=-(float)segs[i].v1->x/(float)MAP_SCALE;
     gl_segs[i].z1= (float)segs[i].v1->y/(float)MAP_SCALE;
     gl_segs[i].x2=-(float)segs[i].v2->x/(float)MAP_SCALE;
     gl_segs[i].z2= (float)segs[i].v2->y/(float)MAP_SCALE;
+	gl_segs[i].linelength = segs[i].length; 
+
+	// figgi -- seg-length is calculated in P_Load(GL)Segs
+	/*
     dx=((float)segs[i].v2->x/(float)FRACUNIT)-((float)segs[i].v1->x/(float)FRACUNIT);
     dy=((float)segs[i].v2->y/(float)FRACUNIT)-((float)segs[i].v1->y/(float)FRACUNIT);
-    gl_segs[i].linelength=(float)sqrt(dx*dx+dy*dy);
+	gl_segs[i].linelength=(float)sqrt(dx*dx+dy*dy);
+	*/
   }
 }
 
@@ -2153,21 +2171,65 @@ void gld_DrawSprite(vissprite_t *vspr)
 void gld_DrawScene(player_t *player)
 {
   extern drawseg_t	*drawsegs, *ds_p;
-	drawseg_t *ds;
+  drawseg_t *ds;
 
   for (ds=ds_p ; ds-- > drawsegs ; )  // new -- killough
-	{
     gld_AddWall(ds->curline);
-	}
 }
 
 void gld_PreprocessLevel(void)
 {
 #ifdef _DEBUG
   void gld_Precache(void);
-
-  //gld_Precache();
+  gld_Precache();
 #endif
   gld_PreprocessSectors();
   gld_PreprocessSegs();
+}
+
+
+
+/*******************************************
+ * Name     : gld_GetSubSectorVertices	   *
+ * created  : 08/13/00					   *
+ * modified : 09/18/00, adapted for PrBoom *
+ * author   : figgi						   *
+ * what		: prepares subsectorvertices   *
+ *            (glnodes only)			   *
+ *******************************************/
+
+void gld_GetSubSectorVertices(void)
+{
+	int			 i, j;
+    int			 numedgepoints;
+	subsector_t* ssector;
+	GLVertex*    vtx;
+		
+	for(i = 0; i < numsubsectors; i++)
+	{
+		ssector = &subsectors[i];
+
+		numedgepoints  = ssector->numlines;
+
+ 		vtx = Z_Malloc(sizeof(GLVertex) * numedgepoints, PU_LEVEL, 0);	
+
+        if (vtx)
+        {
+			int currentsector = ssector->sector->iSectorID;
+
+			sectorloops[currentsector].loopcount++;
+			sectorloops[currentsector].loops = Z_Realloc(sectorloops[currentsector].loops,sizeof(GLLoopDef)*sectorloops[currentsector].loopcount, PU_STATIC, 0);
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].mode		 = GL_TRIANGLE_FAN;
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].vertexcount = numedgepoints;
+			sectorloops[currentsector].loops[sectorloops[currentsector].loopcount-1].gl_vertexes = vtx;
+
+			for(j = 0;  j < numedgepoints; j++)
+			{
+			   vtx[j].x = -(float)(segs[ssector->firstline + j].v1->x)/MAP_SCALE;
+			   vtx[j].y =  (float)(segs[ssector->firstline + j].v1->y)/MAP_SCALE;
+			   vtx[j].u = ((float)(segs[ssector->firstline + j].v1->x)/FRACUNIT)/64.0f;
+ 			   vtx[j].v = (-(float)(segs[ssector->firstline + j].v1->y)/FRACUNIT)/64.0f;
+			}
+		 }
+    }
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.10 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: w_wad.c,v 1.11 2000/09/21 10:47:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.10 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.11 2000/09/21 10:47:45 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -189,8 +189,14 @@ static void W_AddFile(const char *filename, wad_source_t source)
   lprintf (LO_INFO," adding %s\n",filename);
   startlump = numlumps;
 
-  // killough:
-  if (strlen(filename)<=4 || strcasecmp(filename+strlen(filename)-4, ".wad" ))
+  // figgi -- added support for glBsp .gwa files
+#ifdef GL_DOOM
+   	if( strlen(filename)<=4 || 
+	   (stricmp(filename+strlen(filename)-3,"wad") && 
+	    stricmp(filename+strlen(filename)-3,"gwa")))
+#else
+	if (strlen(filename)<=4 || strcasecmp(filename+strlen(filename)-4, ".wad" ))
+#endif
     {
       // single lump file
       fileinfo = &singleinfo;

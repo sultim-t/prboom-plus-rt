@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $
+ * $Id: p_sight.c,v 1.9 2000/09/21 10:47:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.8 2000/09/16 20:20:42 proff_fs Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.9 2000/09/21 10:47:45 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -116,6 +116,9 @@ static boolean P_CrossSubsector(int num)
     line_t *line = seg->linedef;
     divline_t divl;
     
+	 if(!line) // figgi -- skip minisegs 
+	   continue;
+
     // allready checked other side?
     if (line->validcount == validcount)
       continue;

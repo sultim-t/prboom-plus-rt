@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_segs.c,v 1.7 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: r_segs.c,v 1.8 2000/09/21 10:47:45 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.7 2000/09/16 20:20:43 proff_fs Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.8 2000/09/21 10:47:45 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -458,18 +458,21 @@ void R_StoreWallRange(const int start, const int stop)
       unsigned pos = ds_p - drawsegs; // jff 8/9/98 fix from ZDOOM1.14a
       unsigned newmax = maxdrawsegs ? maxdrawsegs*2 : 128; // killough
       drawsegs = realloc(drawsegs,newmax*sizeof(*drawsegs));
-//      ds_p = drawsegs+maxdrawsegs;
       ds_p = drawsegs + pos;          // jff 8/9/98 fix from ZDOOM1.14a
       maxdrawsegs = newmax;
     }
 
+
 #ifdef GL_DOOM
   // proff 11/99: the rest of the calculations is not needed for OpenGL
-  ds_p->curline = curline;
-  ds_p++;
-  curline->linedef->flags |= ML_MAPPED;
+  ds_p++->curline = curline;
+
+  if(curline->miniseg == false) // figgi -- skip minisegs
+	curline->linedef->flags |= ML_MAPPED;
   return;
+
 #endif
+
 
 #ifdef RANGECHECK
   if (start >=viewwidth || start > stop)
