@@ -445,9 +445,9 @@ void TryRunTics (void)
       remotesend--;
       {
 	char buf[sizeof(packet_header_t)+1];
-	packet_set(&buf, PKT_RETRANS, remotetic);
+	packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
 	buf[sizeof(buf)-1] = consoleplayer;
-	I_SendPacket(buf, sizeof buf);
+	I_SendPacket((packet_header_t *)buf, sizeof buf);
       }
       M_Ticker(); return;
     }

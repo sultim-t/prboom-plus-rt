@@ -1315,7 +1315,7 @@ void HU_Ticker(void)
     message_nottobefuckedwith = false;
   }
   if (bsdown && bscounter++ > 9) {
-    HUlib_keyInIText(&w_chat, key_backspace);
+    HUlib_keyInIText(&w_chat, (unsigned char)key_backspace);
     bscounter = 8;
   }
 
