@@ -9,6 +9,9 @@ a:link {
 a:visited {
     color: #a00000;
 }
+a:hover {
+    background-color: #dddddd;
+}
 img {
     border: 0px;
 }
