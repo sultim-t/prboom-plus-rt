@@ -1138,6 +1138,7 @@ CONSOLE_COMMAND(mn_video, 0)
 //
 // Set vid mode
 
+#if 0
 void MN_VidModeDrawer();
 
 menu_t menu_vidmode =
@@ -1195,6 +1196,7 @@ CONSOLE_COMMAND(mn_vidmode, 0)
 
   MN_StartMenu(&menu_vidmode);
 }
+#endif
 
 CONSOLE_COMMAND(screenshot, cf_notnet | cf_buffered)
 {
@@ -1246,8 +1248,8 @@ menu_t menu_mouse =
 {
   {
     {it_title,      FC_GOLD "mouse",                NULL,   "m_mouse"},
-//      {it_gap},
-//      {it_toggle,     "enable mouse",                 "use_mouse"},
+      {it_gap},
+      {it_toggle,     "enable mouse",                 "use_mouse"},
       {it_gap},
       {it_info,       FC_GOLD "sensitivity"},
       {it_gap},
@@ -1304,7 +1306,7 @@ menu_t menu_hud =
     {it_info,       FC_GOLD "misc."},
     {it_toggle,     "crosshair type",               "crosshair"},
     {it_toggle,     "show frags in DM",             "show_scores"},
-    {it_toggle,     "automap coords follow pointer",   "map_coords"},
+    {it_toggle,     "automap coords follow pointer","map_coords"},
     {it_end},
   },
   200, 15,                             // x,y offset
@@ -1410,7 +1412,7 @@ menu_t menu_weapons =
     {it_title,      FC_GOLD "weapons",              NULL,        "m_weap"},
     {it_gap},
     {it_info,       FC_GOLD "weapon options"},
-    {it_toggle,     "bfg type",                       "bfgtype"},
+    //{it_toggle,     "bfg type",                       "bfgtype"},
     {it_toggle,     "bobbing",                        "bobbing"},
     {it_toggle,     "recoil",                         "recoil"},
     {it_info,       FC_BRICK "fist/chainsaw switch"},
@@ -1448,34 +1450,57 @@ menu_t menu_compat =
     {it_title,      FC_GOLD "compatibility",        NULL,        "m_compat"},
     {it_gap},
     //{it_toggle,   "use start map",                          "use_startmap"},
+    {it_toggle,   "default compatibility level",            "default_compatibility_level"},
+    {it_toggle,   "compatibility level",                    "compatibility_level"},
+    {it_gap},
 
+    {it_toggle,   "any monster can telefrag on map30",      "comp_telefrag"},
     {it_toggle,   "some objects don't hang over cliffs",    "comp_dropoff"},
-    {it_toggle,   "torque simulation disabled",             "comp_falloff"},
-
-    {it_toggle,   "god mode isn't absolute",                "comp_god"},
-    {it_toggle,   "power-up cheats have limited duration",  "comp_infcheat"},
-
-    {it_toggle,   "sky unaffected by invulnerability",      "comp_skymap"},
-
-    {it_toggle,   "blazing doors, double closing sound",    "comp_blazing"},
-    {it_toggle,   "tagged door lighting effect off",        "comp_doorlight"},
-
+    {it_toggle,   "vile resurrects invincible ghosts",      "comp_vile"},
     {it_toggle,   "pain elemental 20 lost soul limit",      "comp_pain"},
     {it_toggle,   "lost souls get stuck behind walls",      "comp_skull"},
-    {it_toggle,   "monsters walk off lifts",                "comp_staylift"},
-    {it_toggle,   "monsters get stuck to doortracks",       "comp_doorstuck"},
-    {it_toggle,   "monsters don't give up pursuit",         "comp_pursuit"},
-    {it_toggle,   "any monster can telefrag on map30",      "comp_telefrag"},
-    {it_toggle,   "arch-vile resurrects invincible ghosts", "comp_vile"},
-
-    {it_toggle,   "zombie players can exit levels",         "comp_zombie"},
-    {it_toggle,   "use doom's stairbuilding method",        "comp_stairs"},
-    {it_toggle,   "use doom's floor motion behaviour",      "comp_floors"},
+    {it_toggle,   "blazing doors, double closing sound",    "comp_blazing"},
+    {it_toggle,   "tagged door lighting effect off",        "comp_doorlight"},
     {it_toggle,   "use doom's linedef trigger model",       "comp_model"},
-    {it_toggle,   "linedef effects with sector tag = 0",    "comp_zerotags"},
+    {it_toggle,   "god mode isn't absolute",                "comp_god"},
+    {it_toggle,   "torque simulation disabled",             "comp_falloff"},
+    {it_toggle,   "use doom's floor motion behaviour",      "comp_floors"},
+    {it_toggle,   "sky unaffected by invulnerability",      "comp_skymap"},
+    {it_gap},
+	{it_runcmd,   "go to page 2",                           "mn_compat2"},
     {it_end},
   },
-  270, 5,                     // x,y
+  230, 5,                     // x,y
+  2,                           // starting item
+  mf_background,               // full screen
+};
+
+menu_t menu_compat2 =
+{
+  {
+    {it_title,      FC_GOLD "compatibility",        NULL,        "m_compat"},
+    {it_gap},
+    {it_toggle,   "default compatibility level",            "default_compatibility_level"},
+    {it_toggle,   "compatibility level",                    "compatibility_level"},
+    {it_gap},
+
+    {it_toggle,   "monsters don't give up pursuit",         "comp_pursuit"},
+    {it_toggle,   "monsters get stuck to doortracks",       "comp_doorstuck"},
+    {it_toggle,   "monsters walk off lifts",                "comp_staylift"},
+    {it_toggle,   "zombie players can exit levels",         "comp_zombie"},
+    {it_toggle,   "use doom's stairbuilding method",        "comp_stairs"},
+    {it_toggle,   "powerup cheats have limited duration",   "comp_infcheat"},
+    {it_toggle,   "linedef effects with sector tag = 0",    "comp_zerotags"},
+
+    {it_toggle,   "comp_moveblock",    "comp_moveblock"},
+    {it_toggle,   "comp_respawn",    "comp_respawn"},
+    {it_toggle,   "comp_666",    "comp_666"},
+    {it_toggle,   "comp_soul",    "comp_soul"},
+    {it_toggle,   "comp_maskedanim",    "comp_maskedanim"},
+    {it_toggle,   "comp_sound",    "comp_sound"},
+    {it_end},
+  },
+  230, 5,                     // x,y
   2,                           // starting item
   mf_background,               // full screen
 };
@@ -1483,6 +1508,11 @@ menu_t menu_compat =
 CONSOLE_COMMAND(mn_compat, 0)
 {
   MN_StartMenu(&menu_compat);
+}
+
+CONSOLE_COMMAND(mn_compat2, 0)
+{
+  MN_StartMenu(&menu_compat2);
 }
 
 // haleyjd: New compatibility/functionality options for Eternity
@@ -1631,11 +1661,13 @@ menu_t menu_keybindings =
 	{it_binding,      "strafe right",          "moveright"},
 	{it_binding,      "180 degree turn",       "flip"},
 	{it_gap},
+/*
 	{it_binding,      "mlook on",              "mlook"},
 	{it_binding,      "look up",               "lookup"},
 	{it_binding,      "look down",             "lookdown"},
 	{it_binding,      "center view",           "center"},
 	{it_gap},
+*/
 	{it_binding,      "use",                   "use"},
 	{it_end},
     },
@@ -1754,12 +1786,13 @@ void MN_AddMenus()
   C_AddCommand(mn_options);
   C_AddCommand(mn_mouse);
   C_AddCommand(mn_video);
-  C_AddCommand(mn_vidmode);
+  //C_AddCommand(mn_vidmode);
   C_AddCommand(screenshot);
   C_AddCommand(mn_sound);
   C_AddCommand(mn_weapons);
   C_AddCommand(mn_compat);
-  C_AddCommand(mn_etccompat); // haleyjd: new eternity options menu
+  C_AddCommand(mn_compat2);
+  //C_AddCommand(mn_etccompat); // haleyjd: new eternity options menu
   C_AddCommand(mn_enemies);
   C_AddCommand(mn_hud);
   C_AddCommand(mn_status);
