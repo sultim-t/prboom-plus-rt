@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_fixed.h,v 1.9 2001/06/17 17:47:37 proff_fs Exp $
+ * $Id: m_fixed.h,v 1.10 2001/07/01 15:10:13 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -98,22 +98,21 @@ __inline static fixed_t FixedMul(fixed_t a, fixed_t b)
 # else /* _MSC_VER */
 /* killough 5/10/98: In djgpp, use inlined assembly for performance
  * CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const */
+ * Also made const. Also __asm__ to asm, as in docs. 
+ * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
+ */
 inline
 static const fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   fixed_t result;
-  int dummy;
 
-  asm("  imull %3 ;"
-      "  shrdl $16,%1,%0 ;"
-      : "=a" (result),          /* eax is always the result */
-        "=d" (dummy)		/* cphipps - fix compile problem with gcc-2.95.1
-				   edx is clobbered, but it might be an input */
+  asm (
+      "  imull %2 ;"
+      "  shrdl $16,%%edx,%0 ;"
+      : "=a" (result)           /* eax is always the result */
       : "0" (a),                /* eax is also first operand */
-        "r" (b)                 /* second operand could be mem or reg before,
-				   but gcc compile problems mean i can only us reg */
-      : "%cc"                   /* edx and condition codes clobbered */
+        "rm" (b)                /* second operand can be reg or mem */
+      : "%edx", "%cc"           /* edx and condition codes clobbered */
       );
 
   return result;
@@ -161,21 +160,21 @@ __inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
 /* killough 5/10/98: In djgpp, use inlined assembly for performance
  * killough 9/5/98: optimized to reduce the number of branches
  * CPhipps - made __inline__ to inline, as specified in the gcc docs
- * Also made const */
+ * Also made const, also __asm__ to asm as in docs.
+ * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
+ */
 inline
 static const fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   if (D_abs(a) >> 14 < D_abs(b))
     {
       fixed_t result;
-      int dummy;
-      asm(" idivl %4 ;"
-	  : "=a" (result),
-	    "=d" (dummy)  /* cphipps - fix compile problems with gcc 2.95.1
-			     edx is clobbered, but also an input */
+      asm (
+          " idivl %3 ;"
+	  : "=a" (result)
 	  : "0" (a<<16),
-	    "1" (a>>16),
-	    "r" (b)
+	    "d" (a>>16),
+	    "rm" (b)
 	  : "%cc"
 	  );
       return result;
