@@ -4,5 +4,10 @@ prboom/ICON/barrel.ico -text
 prboom/ICON/fouch.ico -text
 prboom/ICON/god.ico -text
 prboom/ICON/skull.ico -text
+prboom2/ICONS/barrel.ico -text
+prboom2/ICONS/fouch.ico -text
+prboom2/ICONS/god.ico -text
+prboom2/ICONS/heada1.ico -text
+prboom2/ICONS/skull.ico -text
 prboom2/data/boomlump.wad -text
 prboom2/doc/old-source-docs.tar.gz -text
