@@ -853,14 +853,6 @@ SOURCE=..\src\v_video.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\v_video_trans.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\v_video_trans.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\version.c
 # End Source File
 # Begin Source File

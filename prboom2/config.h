@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.12 2000/09/30 00:09:21 proff_fs Exp $
+ * $Id: config.h,v 1.13 2000/11/19 20:24:08 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,6 +32,8 @@
  *
  *-----------------------------------------------------------------------------*/
 
+#define inline __inline
+
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 
@@ -44,9 +46,6 @@
 
 /* Define to strncasecmp, if we have it */
 #define strnicmp strncasecmp
-
-/* Define on I386 target */
-#define I386 1
 
 /* Define on targets supporting 386 Assembly */
 /* This is in the project settings */

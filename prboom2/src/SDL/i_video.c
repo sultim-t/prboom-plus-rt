@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.16 2000/10/10 19:37:15 cph Exp $
+ * $Id: i_video.c,v 1.17 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.16 2000/10/10 19:37:15 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.17 2000/11/19 20:24:11 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -312,13 +312,7 @@ static void I_InitInputs(void)
 //
 // Returns true if it thinks we can afford to skip this frame
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static boolean I_SkipFrame(void)
+inline static boolean I_SkipFrame(void)
 {
   static int frameno;
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.c,v 1.7 2000/11/12 14:59:29 cph Exp $
+ * $Id: z_bmalloc.c,v 1.8 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -47,24 +47,12 @@ typedef struct bmalpool_s {
   byte               used[0];
 } bmalpool_t;
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static void* getelem(bmalpool_t *p, size_t size, size_t n)
+inline static void* getelem(bmalpool_t *p, size_t size, size_t n)
 {
   return (((byte*)p) + sizeof(bmalpool_t) + sizeof(byte)*(p->blocks) + size*n);
 }
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static const int iselem(const bmalpool_t *pool, size_t size, const void* p)
+inline static const int iselem(const bmalpool_t *pool, size_t size, const void* p)
 {
   // CPhipps - need portable # of bytes between pointers
   int dif = (const char*)p - (const char*)pool;

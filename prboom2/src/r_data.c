@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.11 2000/11/18 18:03:29 cph Exp $
+ * $Id: r_data.c,v 1.12 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.11 2000/11/18 18:03:29 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.12 2000/11/19 20:24:11 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -658,9 +658,9 @@ void R_InitColormaps(void)
   lastcolormaplump  = W_GetNumForName("C_END");
   numcolormaps = lastcolormaplump - firstcolormaplump;
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps, PU_STATIC, 0);
-  colormaps[0] = W_CacheLumpName("COLORMAP");
+  colormaps[0] = (lighttable_t *)W_CacheLumpName("COLORMAP");
   for (i=1; i<numcolormaps; i++)
-    colormaps[i] = W_CacheLumpNum(i+firstcolormaplump); 
+    colormaps[i] = (lighttable_t *)W_CacheLumpNum(i+firstcolormaplump); 
   // cph - always lock
 }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.13 2000/11/12 14:59:29 cph Exp $
+ * $Id: v_video.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.13 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: v_video.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -592,7 +592,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
 // CPhipps - GNU C only suppresses generating a copy of a function if it is 
 // static inline; other compilers have different behaviour.
 // This inline is _only_ for the function below
-// Proff - added __inline for VisualC
+
 #ifndef GL_DOOM
 #ifdef __GNUC__
 inline

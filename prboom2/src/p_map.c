@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_map.c,v 1.9 2000/11/06 23:16:26 cph Exp $
+ * $Id: p_map.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.9 2000/11/06 23:16:26 cph Exp $";
+rcsid[] = "$Id: p_map.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -1949,26 +1949,14 @@ boolean P_CheckSector(sector_t* sector,boolean crunch)
 
 IMPLEMENT_BLOCK_MEMORY_ALLOC_ZONE(secnodezone, sizeof(msecnode_t), PU_LEVEL, 32, "SecNodes");
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static msecnode_t* P_GetSecnode(void)
+inline static msecnode_t* P_GetSecnode(void)
 {
   return (msecnode_t*)Z_BMalloc(&secnodezone);
 }
 
 // P_PutSecnode() returns a node to the freelist.
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static void P_PutSecnode(msecnode_t* node)
+inline static void P_PutSecnode(msecnode_t* node)
 {
   Z_BFree(&secnodezone, node);
 }

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_main.c,v 1.9 2000/11/12 14:59:29 cph Exp $
+ * $Id: i_main.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_main.c,v 1.9 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: i_main.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -160,13 +160,7 @@ static void I_SignalHandler(int s)
  * CPhipps - made static
  */
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static int convert(int color, int *bold)
+inline static int convert(int color, int *bold)
 {
   if (color > 7) {
     color -= 8;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.13 2000/11/12 14:59:29 cph Exp $
+ * $Id: r_things.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.13 2000/11/12 14:59:29 cph Exp $";
+rcsid[] = "$Id: r_things.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -432,7 +432,9 @@ void R_ProjectSprite (mobj_t* thing)
   int       lump;
   boolean   flip;
   vissprite_t *vis;
+#ifndef GL_DOOM
   fixed_t   iscale;
+#endif
   int heightsec;      // killough 3/27/98
 
   // transform the origin point

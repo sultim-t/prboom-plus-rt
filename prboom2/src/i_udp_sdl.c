@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_udp_sdl.c,v 1.7 2000/11/06 23:16:26 cph Exp $
+ * $Id: i_udp_sdl.c,v 1.8 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -224,7 +224,7 @@ static byte ChecksumPacket(const packet_header_t* buffer, size_t len)
 size_t I_GetPacket(packet_header_t* buffer, size_t buflen)
 {
   int checksum;
-  int len;
+  size_t len;
   int status;
 
 	status = SDLNet_UDP_Recv(udp_socket, udp_packet);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_bmalloc.h,v 1.3 2000/09/16 20:20:43 proff_fs Exp $
+ * $Id: z_bmalloc.h,v 1.4 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,13 +45,7 @@ struct block_memory_alloc_s name = { NULL, size, num, tag, desc}
 
 void* Z_BMalloc(struct block_memory_alloc_s *pzone);
 
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static void* Z_BCalloc(struct block_memory_alloc_s *pzone)
+inline static void* Z_BCalloc(struct block_memory_alloc_s *pzone)
 { void *p = Z_BMalloc(pzone); memset(p,0,pzone->size); return p; }
 
 void Z_BFree(struct block_memory_alloc_s *pzone, void* p);

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_fixed.h,v 1.5 2000/11/18 18:00:31 cph Exp $
+ * $Id: m_fixed.h,v 1.6 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,6 +33,7 @@
 #ifndef __M_FIXED__
 #define __M_FIXED__
 
+#include "../config.h"
 #include "doomtype.h"
 
 /*
@@ -127,13 +128,8 @@ static const fixed_t FixedMul(fixed_t a, fixed_t b)
 
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static const fixed_t FixedMul(fixed_t a, fixed_t b)
+
+inline static const fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   return (fixed_t)((int_64_t) a*b >> FRACBITS);
 }
@@ -195,13 +191,8 @@ static const fixed_t FixedDiv(fixed_t a, fixed_t b)
 #else /* I386_ASM */
 /* CPhipps - made __inline__ to inline, as specified in the gcc docs
  * Also made const */
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static const fixed_t FixedDiv(fixed_t a, fixed_t b)
+
+inline static const fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   return (D_abs(a)>>14) >= D_abs(b) ? ((a^b)>>31) ^ INT_MAX :
     (fixed_t)(((int_64_t) a << FRACBITS) / b);
@@ -213,13 +204,8 @@ static const fixed_t FixedDiv(fixed_t a, fixed_t b)
  * FixedMod - returns a % b, guaranteeing 0<=a<b
  * (notice that the C standard for % does not guarantee this)
  */
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static const fixed_t FixedMod(fixed_t a, fixed_t b)
+
+inline static const fixed_t FixedMod(fixed_t a, fixed_t b)
 {
   if (b & (b-1)) {
     fixed_t r = a % b;

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_sight.c,v 1.9 2000/09/21 10:47:45 proff_fs Exp $
+ * $Id: p_sight.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_sight.c,v 1.9 2000/09/21 10:47:45 proff_fs Exp $";
+rcsid[] = "$Id: p_sight.c,v 1.10 2000/11/19 20:24:11 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -61,13 +61,8 @@ static los_t los; // cph - made static
 // Returns side 0 (front), 1 (back), or 2 (on).
 //
 // killough 4/19/98: made static, cleaned up
-// proff - made inline for speedup
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
+
+inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 {
   fixed_t left, right;
   return

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: am_map.c,v 1.10 2000/09/23 19:12:15 cph Exp $
+ * $Id: am_map.c,v 1.11 2000/11/19 20:24:10 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: am_map.c,v 1.10 2000/09/23 19:12:15 cph Exp $";
+  "$Id: am_map.c,v 1.11 2000/11/19 20:24:10 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -1676,13 +1676,8 @@ void AM_drawMarks(void)
 // Returns nothing
 //
 // CPhipps - made static inline, and use the general pixel plotter function
-// Proff - added __inline for VisualC
-#ifdef _MSC_VER
-__inline
-#else
-inline
-#endif
-static void AM_drawCrosshair(int color)
+
+inline static void AM_drawCrosshair(int color)
 {
   // single point for now
 #ifdef GL_DOOM
