@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*- 
+/* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *  
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
  * DESCRIPTION:  definitions, declarations and prototypes for specials
@@ -63,7 +63,7 @@
 // killough 2/14/98: redefine in terms of MAXPLAYERS
 #define MAXBUTTONS    (MAXPLAYERS*4)
 
-// 1 second, in ticks. 
+// 1 second, in ticks.
 #define BUTTONTIME  TICRATE
 
 // p_lights
@@ -84,7 +84,7 @@
 #define PUSH_MASK       0x200
 #define PUSH_SHIFT      9
 
-//jff 02/04/98 Define masks, shifts, for fields in 
+//jff 02/04/98 Define masks, shifts, for fields in
 // generalized linedef types
 
 #define GenFloorBase          0x6000
@@ -113,7 +113,7 @@
 #define FloorDirectionShift        6
 #define FloorModelShift            5
 #define FloorSpeedShift            3
-                               
+
 // define masks and shifts for the ceiling type fields
 
 #define CeilingCrush          0x1000
@@ -352,7 +352,7 @@ typedef enum
   raiseToNearestAndChange,
   blazeDWUS,
   genLift,      //jff added to support generalized Plat types
-  genPerpetual, 
+  genPerpetual,
   toggleUpDn,   //jff 3/14/98 added to support instant toggle type
 
 } plattype_e;
@@ -412,16 +412,16 @@ typedef enum
 {
   // lower floor to highest surrounding floor
   lowerFloor,
-  
+
   // lower floor to lowest surrounding floor
   lowerFloorToLowest,
-  
+
   // lower floor to highest surrounding floor VERY FAST
   turboLower,
-  
+
   // raise floor to lowest surrounding CEILING
   raiseFloor,
-  
+
   // raise floor to next highest surrounding floor
   raiseFloorToNearest,
 
@@ -436,7 +436,7 @@ typedef enum
 
   // raise floor to shortest height texture around it
   raiseToTexture,
-  
+
   // lower floor to lowest surrounding floor
   //  and change floorpic
   lowerAndChange,
@@ -450,7 +450,7 @@ typedef enum
   raiseFloorCrush,
 
   // raise to next highest floor, turbo-speed
-  raiseFloorTurbo,       
+  raiseFloorTurbo,
   donutRaise,
   raiseFloor512,
 
@@ -469,7 +469,7 @@ typedef enum
 {
   build8, // slowly build by 8
   turbo16 // quickly build by 16
-    
+
 } stair_e;
 
 typedef enum
@@ -610,7 +610,7 @@ typedef struct
 // New limit-free plat structure -- killough
 
 typedef struct platlist {
-  plat_t *plat; 
+  plat_t *plat;
   struct platlist *next,**prev;
 } platlist_t;
 
@@ -626,18 +626,18 @@ typedef struct
 
   // 1 = up, 0 = waiting at top, -1 = down
   int direction;
-  
+
   // tics to wait at the top
   int topwait;
   // (keep in case a door going down is reset)
   // when it reaches 0, start going down
   int topcountdown;
-  
+
   //jff 1/31/98 keep track of line door is triggered by
   line_t *line;
 
   /* killough 10/98: sector tag for gradual lighting effects */
-  int lighttag; 
+  int lighttag;
 } vldoor_t;
 
 // p_doors
@@ -662,13 +662,13 @@ typedef struct
   int direction;
 
   // ID
-  int tag;                   
+  int tag;
   int olddirection;
   struct ceilinglist *list;   // jff 2/22/98 copied from killough's plats
 } ceiling_t;
 
 typedef struct ceilinglist {
-  ceiling_t *ceiling; 
+  ceiling_t *ceiling;
   struct ceilinglist *next,**prev;
 } ceilinglist_t;
 
@@ -775,7 +775,7 @@ extern  int levelTimeCount;
 
 extern  int levelTime;
 extern  int levelTimeLimit;
-extern  int levelFragLimit;
+extern  boolean levelFragLimit;
 
 // list of retriggerable buttons active
 extern button_t buttonlist[MAXBUTTONS];
@@ -818,7 +818,7 @@ fixed_t P_FindShortestUpperAround(int secnum); // jff 2/04/98
 
 sector_t* P_FindModelFloorSector(fixed_t floordestheight, int secnum); //jff 02/04/98
 
-sector_t* P_FindModelCeilingSector(fixed_t ceildestheight, int secnum); //jff 02/04/98 
+sector_t* P_FindModelCeilingSector(fixed_t ceildestheight, int secnum); //jff 02/04/98
 
 int P_FindSectorFromLineTag(const line_t *line, int start); // killough 4/17/98
 
@@ -1034,7 +1034,7 @@ void P_AddActiveCeiling(ceiling_t* c);
 
 void P_RemoveActiveCeiling(ceiling_t* c);
 
-int P_ActivateInStasisCeiling(line_t* line); 
+int P_ActivateInStasisCeiling(line_t* line);
 
 mobj_t* P_GetPushThing(int);                                // phares 3/23/98
 

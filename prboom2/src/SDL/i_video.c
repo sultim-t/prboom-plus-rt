@@ -725,9 +725,11 @@ void I_UpdateVideoMode(void)
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
+#ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
 	  if (V_GetMode() != r_rendermode)
 		  gld_CleanMemory();
+#endif
 
   V_InitMode(r_rendermode);
   V_DestroyUnusedTrueColorPalettes();

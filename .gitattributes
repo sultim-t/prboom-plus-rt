@@ -197,6 +197,8 @@ prboom2/data/sprites/dogsm0.ppm -text
 prboom2/data/sprites/dogsn0.ppm -text
 prboom2/data/sprites/tnt1a0.ppm -text
 prboom2/doc/vidd.gif -text
+prboom2/src/Makefile.am -text svneol=native#unset
+prboom2/src/SDL/i_video.c -text svneol=native#unset
 prboom2/src/c_net.c -text svneol=native#unset
 prboom2/src/d_main.c -text svneol=native#unset
 prboom2/src/d_main.h -text svneol=native#unset
