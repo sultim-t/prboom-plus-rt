@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mn_menus.c,v 1.4 2002/11/13 18:53:27 proff_fs Exp $
+ * $Id: mn_menus.c,v 1.5 2002/11/15 17:20:30 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  */
 
 static const char rcsid[] =
-  "$Id: mn_menus.c,v 1.4 2002/11/13 18:53:27 proff_fs Exp $";
+  "$Id: mn_menus.c,v 1.5 2002/11/15 17:20:30 proff_fs Exp $";
 
 #include <stdarg.h>
 
@@ -53,6 +53,7 @@ static const char rcsid[] =
 //#include "hu_over.h"
 #include "i_video.h"
 #include "m_random.h"
+#include "m_misc.h"
 #include "mn_engin.h"
 #include "mn_misc.h"
 #include "r_defs.h"
@@ -1034,7 +1035,7 @@ menu_t menu_options =
     {it_gap},
     {it_info,   FC_GOLD "game options"},
     {it_runcmd, "compatibility",                "mn_compat"},
-    {it_runcmd, "eternity options",		"mn_etccompat"}, // haleyjd
+    //{it_runcmd, "eternity options",		"mn_etccompat"}, // haleyjd
     {it_runcmd, "enemies",                      "mn_enemies"},
     {it_runcmd, "weapons",                      "mn_weapons"},
     {it_runcmd, "end game",                     "mn_endgame"},
@@ -1160,8 +1161,8 @@ CONSOLE_COMMAND(mn_vidmode, 0)
   // dont build multiple times
   if(!menu_built)
     {
-      int menuitem, vidmode;
-      char tempstr[20];
+      int menuitem;//, vidmode;
+      //char tempstr[20];
       
       // start on item 6
       
@@ -1436,7 +1437,7 @@ menu_t menu_compat =
   {
     {it_title,      FC_GOLD "compatibility",        NULL,        "m_compat"},
     {it_gap},
-    {it_toggle,   "use start map",                          "use_startmap"},
+    //{it_toggle,   "use start map",                          "use_startmap"},
     
     {it_toggle,   "some objects don't hang over cliffs",    "comp_dropoff"},
     {it_toggle,   "torque simulation disabled",             "comp_falloff"},
@@ -1567,7 +1568,7 @@ menu_t menu_framerate =
 
 void MN_FrameRateDrawer()
 {
-  int x, y;
+  int y;
   int scrwidth = 320;
   int linelength;
   char tempstr[50];

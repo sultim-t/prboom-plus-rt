@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.8 2002/01/13 17:45:05 cph Exp $
+ * $Id: m_cheat.c,v 1.9 2002/11/15 17:20:30 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,9 +31,10 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.8 2002/01/13 17:45:05 cph Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.9 2002/11/15 17:20:30 proff_fs Exp $";
 
 #include "doomstat.h"
+#include "c_runcmd.h"
 #include "g_game.h"
 #include "r_data.h"
 #include "p_inter.h"
@@ -739,3 +740,28 @@ boolean M_FindCheats(int key)
     }
   return ret;
 }
+
+CONSOLE_COMMAND(noclip, cf_notnet|cf_level)
+{
+	cheat_noclip();
+}
+
+CONSOLE_COMMAND(god, cf_notnet|cf_level)
+{
+	cheat_god();
+}
+
+/*
+CONSOLE_NETCMD(nuke, cf_server|cf_level, netcmd_nuke)
+{
+	cheat_massacre();
+}
+*/
+
+void Cheat_AddCommands()
+{
+   C_AddCommand(god);
+   C_AddCommand(noclip);
+   //C_AddCommand(nuke);
+}
+

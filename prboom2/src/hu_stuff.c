@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.7 2002/01/07 15:56:19 proff_fs Exp $
+ * $Id: hu_stuff.c,v 1.8 2002/11/15 17:20:28 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,11 +31,12 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.7 2002/01/07 15:56:19 proff_fs Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.8 2002/11/15 17:20:28 proff_fs Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
 #include "doomstat.h"
+#include "c_runcmd.h"
 #include "hu_stuff.h"
 #include "hu_lib.h"
 #include "st_stuff.h" /* jff 2/16/98 need loc of status bar */
@@ -1582,4 +1583,36 @@ boolean HU_Responder(event_t *ev)
     }
   }
   return eatkey;
+}
+
+//CONSOLE_BOOLEAN(obituaries, obituaries, NULL, onoff, 0) {}
+//CONSOLE_INT(obcolour, obcolour, NULL, 0, CR_LIMIT-1, NULL, 0) {}
+
+//CONSOLE_BOOLEAN(show_vpo, show_vpo, NULL, onoff, 0) {}
+CONSOLE_BOOLEAN(messages, showMessages, NULL, onoff, 0) {}
+//CONSOLE_INT(mess_colour, mess_colour, NULL, 0, CR_LIMIT-1, NULL, 0) {}
+
+CONSOLE_INT(mess_lines, hud_msg_lines, NULL, 0, 14, NULL, 0) {}
+//CONSOLE_BOOLEAN(mess_scrollup, hud_msg_scrollup, NULL, yesno, 0) {}
+//CONSOLE_INT(mess_timer, message_timer, NULL, 0, 100000, NULL, 0) {}
+
+extern void HU_FragsAddCommands();
+extern void HU_OverAddCommands();
+
+void HU_AddCommands()
+{
+  //C_AddCommand(obituaries);
+  //C_AddCommand(obcolour);
+  //C_AddCommand(crosshair);
+  //C_AddCommand(show_vpo);
+  C_AddCommand(messages);
+  //C_AddCommand(mess_colour);
+  //C_AddCommand(say);
+  
+  C_AddCommand(mess_lines);
+  //C_AddCommand(mess_scrollup);
+  //C_AddCommand(mess_timer);
+  
+  //HU_FragsAddCommands();
+  //HU_OverAddCommands();
 }
