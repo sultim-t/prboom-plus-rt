@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.c,v 1.3 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: doomdef.c,v 1.4 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: doomdef.c,v 1.3 2000/09/16 20:20:35 proff_fs Exp $";
+rcsid[] = "$Id: doomdef.c,v 1.4 2000/11/22 21:46:48 proff_fs Exp $";
 
 #ifdef __GNUG__
 #pragma implementation "doomdef.h"
@@ -44,8 +44,6 @@ rcsid[] = "$Id: doomdef.c,v 1.3 2000/09/16 20:20:35 proff_fs Exp $";
 // Location for any defines turned variables.
 // None.
 
-#ifdef HIGHRES
 // proff 08/17/98: Changed for high-res
 int SCREENWIDTH=320;
 int SCREENHEIGHT=200;
-#endif

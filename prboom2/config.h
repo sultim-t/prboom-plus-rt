@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.13 2000/11/19 20:24:08 proff_fs Exp $
+ * $Id: config.h,v 1.14 2000/11/22 21:46:46 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,9 +50,6 @@
 /* Define on targets supporting 386 Assembly */
 /* This is in the project settings */
 /* #define I386_ASM 1 */
-
-/* Define for high resolution support */
-#define HIGHRES 1
 
 /* Define to enable internal range checking */
 /* #undef RANGECHECK */

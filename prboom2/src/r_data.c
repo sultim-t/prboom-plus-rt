@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.12 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: r_data.c,v 1.13 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.12 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: r_data.c,v 1.13 2000/11/22 21:46:48 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -512,15 +512,22 @@ void R_InitTextures (void)
        * but I don't believe the pointers to memcpy have to be aligned 
        * either. Use fast memcpy on other machines anyway.
        */
+/*
+  proff - I took this out, because Oli Kraus (olikraus@yahoo.com) told
+  me the memcpy produced a buserror. Since this function isn't time-
+  critical I'm using the for loop now.
+*/
+/*
 #ifndef GCC
       memcpy(texture->name, mtexture->name, sizeof(texture->name));
 #else
+*/
       { 
-	 int j; 
-	 for(j=0;j<sizeof(texture->name);j++) 
-	    texture->name[j]=mtexture->name[j]; 
+	      int j; 
+	      for(j=0;j<sizeof(texture->name);j++) 
+	        texture->name[j]=mtexture->name[j]; 
       }
-#endif
+/* #endif */
 
       mpatch = mtexture->patches;
       patch = texture->patches;

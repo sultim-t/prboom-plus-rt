@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_sound.c,v 1.14 2000/11/17 20:41:36 cph Exp $
+ * $Id: i_sound.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_sound.c,v 1.14 2000/11/17 20:41:36 cph Exp $";
+rcsid[] = "$Id: i_sound.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -688,6 +688,8 @@ int I_RegisterSong(const void *data, size_t len)
   MIDI mididata;
   FILE *midfile;
 
+  if ( music_tmp == NULL )
+    return 0;
   midfile = fopen(music_tmp, "wb");
   if ( midfile == NULL ) {
     lprintf(LO_ERROR,"Couldn't write MIDI to %s\n", music_tmp);

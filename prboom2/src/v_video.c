@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: v_video.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: v_video.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.14 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: v_video.c,v 1.15 2000/11/22 21:46:48 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -431,12 +431,10 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
   y -= SHORT(patch->topoffset);
   x -= SHORT(patch->leftoffset);
 
-#ifdef HIGHRES
   // CPhipps - auto-no-stretch if not high-res
   if (flags & VPT_STRETCH)
     if ((SCREENWIDTH==320) && (SCREENHEIGHT==200))
       flags &= ~VPT_STRETCH;
-#endif
 
   // CPhipps - null translation pointer => no translation
   if (!trans)
@@ -528,7 +526,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
       }
     }
   }  
-#ifdef HIGHRES
   else {
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
@@ -583,7 +580,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
       }
     }
   }
-#endif
 }
 #endif // GL_DOOM
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mmus2mid.c,v 1.5 2000/09/16 20:20:41 proff_fs Exp $
+ * $Id: mmus2mid.c,v 1.6 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -47,7 +47,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: mmus2mid.c,v 1.5 2000/09/16 20:20:41 proff_fs Exp $";
+static const char rcsid[] = "$Id: mmus2mid.c,v 1.6 2000/11/22 21:46:48 proff_fs Exp $";
 
 #include <ctype.h>
 #include <stdio.h>
@@ -64,6 +64,7 @@ static const char rcsid[] = "$Id: mmus2mid.c,v 1.5 2000/09/16 20:20:41 proff_fs 
 
 //#define STANDALONE  /* uncomment this to make MMUS2MID.EXE */
 #ifndef STANDALONE
+#include "m_swap.h"
 #include "z_zone.h"
 #endif
 
@@ -332,6 +333,11 @@ int mmus2mid(const UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
   // copy the MUS header from the MUS buffer to the MUSh header structure
 
   memcpy(&MUSh,mus,sizeof(MUSheader));
+  MUSh.ScoreLength = doom_wtohs(MUSh.ScoreLength);
+  MUSh.ScoreStart  = doom_wtohs(MUSh.ScoreStart);
+  MUSh.channels    = doom_wtohs(MUSh.channels);
+  MUSh.SecChannels = doom_wtohs(MUSh.SecChannels);
+  MUSh.InstrCnt    = doom_wtohs(MUSh.InstrCnt);
 
   // check some things and set length of MUS buffer from internal data
 

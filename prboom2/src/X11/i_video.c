@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.5 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: i_video.c,v 1.6 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  X11 display code for LxDoom. Based on the original linuxdoom i_video.c
  *  Copyright (C) 1993-1996 by id Software
@@ -29,7 +29,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.5 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.6 2000/11/22 21:46:48 proff_fs Exp $";
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -981,15 +981,9 @@ void I_PreInitGraphics(void)
 
 void I_SetRes(unsigned int width, unsigned int height)
 {
-#ifdef HIGHRES
-  SCREENWIDTH = 
-#endif
-    X_width = (width+3) & ~3;
+  SCREENWIDTH = X_width = (width+3) & ~3;
 
-#ifdef HIGHRES
-  SCREENHEIGHT = 
-#endif
-    X_height = (height+3) & ~3;
+  SCREENHEIGHT = X_height = (height+3) & ~3;
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }

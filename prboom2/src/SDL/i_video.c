@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.17 2000/11/19 20:24:11 proff_fs Exp $
+ * $Id: i_video.c,v 1.18 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.17 2000/11/19 20:24:11 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18 2000/11/22 21:46:48 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -463,12 +463,10 @@ void I_PreInitGraphics(void)
 
 void I_SetRes(unsigned int width, unsigned int height)
 {
-#ifdef HIGHRES
   SCREENWIDTH = (width+3) & ~3;
   SCREENHEIGHT = (height+3) & ~3;
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
-#endif
 }
 
 void I_InitGraphics(void)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.h,v 1.5 2000/09/16 20:20:35 proff_fs Exp $
+ * $Id: doomdef.h,v 1.6 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -105,24 +105,12 @@ typedef enum {
 // allows us to avoid the overhead of dynamic allocation
 // when multiple screen sizes are supported
 
-#ifndef HIGHRES
-
-#define MAX_SCREENWIDTH  320
-#define MAX_SCREENHEIGHT 200
-
-#define SCREENWIDTH      320
-#define SCREENHEIGHT     200
-
-#else
-
 // proff 08/17/98: Changed for high-res
 #define MAX_SCREENWIDTH  1600
 #define MAX_SCREENHEIGHT 1200
 
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
-
-#endif
 
 // The maximum number of players, multiplayer/networking.
 #define MAXPLAYERS       4

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.29 2000/11/12 14:59:29 cph Exp $
+ * $Id: d_main.c,v 1.30 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.29 2000/11/12 14:59:29 cph Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.30 2000/11/22 21:46:48 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -856,6 +856,7 @@ static char* FindWADFile(const char* wfname, const char* ext)
     case 1:
       if (!(d = getenv("DOOMWADDIR"))) continue;
     case 0:
+      d = DOOMWADDIR;
       break;
     case 3:
       d = "/usr/share/games/doom";
