@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $
+ * $Id: i_video.c,v 1.3 2000/05/10 23:38:07 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.2 2000/05/09 21:45:40 proff_fs Exp $";
+rcsid[] = "$Id: i_video.c,v 1.3 2000/05/10 23:38:07 proff_fs Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -455,6 +455,7 @@ void I_SetRes(unsigned int width, unsigned int height)
 #endif
     (height+3) & ~3;
 
+#ifndef GL_DOOM
   if (SCREENWIDTH == 320) {
     R_DrawColumn = R_DrawColumn_Normal;
     R_DrawTLColumn = R_DrawTLColumn_Normal;
@@ -462,6 +463,7 @@ void I_SetRes(unsigned int width, unsigned int height)
     R_DrawColumn = R_DrawColumn_HighRes;
     R_DrawTLColumn = R_DrawTLColumn_HighRes;
   }
+#endif
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
 
