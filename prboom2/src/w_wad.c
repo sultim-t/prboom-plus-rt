@@ -206,7 +206,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
         lump_p->wadfile = wadfile;                    //  killough 4/25/98
         lump_p->position = LONG(fileinfo->filepos);
         lump_p->size = LONG(fileinfo->size);
-        lump_p->namespace = ns_global;              // killough 4/17/98
+        lump_p->li_namespace = ns_global;              // killough 4/17/98
         strncpy (lump_p->name, fileinfo->name, 8);
 	lump_p->source = wadfile->src;                    // Ty 08/29/98
       }
@@ -230,7 +230,7 @@ static int IsMarker(const char *marker, const char *name)
 // killough 4/17/98: add namespace tags
 
 static void W_CoalesceMarkedResource(const char *start_marker,
-                                     const char *end_marker, int namespace)
+                                     const char *end_marker, int li_namespace)
 {
   lumpinfo_t *marked = malloc(sizeof(*marked) * numlumps);
   size_t i, num_marked = 0, num_unmarked = 0;
@@ -244,7 +244,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
           {
             strncpy(marked->name, start_marker, 8);
             marked->size = 0;  // killough 3/20/98: force size to be 0
-            marked->namespace = ns_global;        // killough 4/17/98
+            marked->li_namespace = ns_global;        // killough 4/17/98
             marked->wadfile = NULL;
             num_marked = 1;
           }
@@ -260,7 +260,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
         if (is_marked)                            // if we are marking lumps,
           {                                       // move lump to marked list
             marked[num_marked] = *lump;
-            marked[num_marked++].namespace = namespace;  // killough 4/17/98
+            marked[num_marked++].li_namespace = li_namespace;  // killough 4/17/98
           }
         else
           lumpinfo[num_unmarked++] = *lump;       // else move down THIS list
@@ -276,7 +276,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
     {
       lumpinfo[numlumps].size = 0;  // killough 3/20/98: force size to be 0
       lumpinfo[numlumps].wadfile = NULL;
-      lumpinfo[numlumps].namespace = ns_global;   // killough 4/17/98
+      lumpinfo[numlumps].li_namespace = ns_global;   // killough 4/17/98
       strncpy(lumpinfo[numlumps++].name, end_marker, 8);
     }
 }
@@ -320,7 +320,7 @@ unsigned W_LumpNameHash(const char *s)
 // between different resources such as flats, sprites, colormaps
 //
 
-int (W_CheckNumForName)(register const char *name, register int namespace)
+int (W_CheckNumForName)(register const char *name, register int li_namespace)
 {
   // Hash function maps the name to one of possibly numlump chains.
   // It has been tuned so that the average chain length never exceeds 2.
@@ -335,7 +335,7 @@ int (W_CheckNumForName)(register const char *name, register int namespace)
   // Doom wads.
 
   while (i >= 0 && (strncasecmp(lumpinfo[i].name, name, 8) ||
-                    lumpinfo[i].namespace != namespace))
+                    lumpinfo[i].li_namespace != li_namespace))
     i = lumpinfo[i].next;
 
   // Return the matching lump, or -1 if none found.

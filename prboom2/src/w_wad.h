@@ -92,7 +92,7 @@ typedef struct
 {
   // WARNING: order of some fields important (see info.c).
 
-  char  name[8];
+  char  name[9];
   int   size;
 
   // killough 1/31/98: hash table fields, used for ultra-fast hash table lookup
@@ -105,7 +105,7 @@ typedef struct
     ns_flats,
     ns_colormaps,
     ns_prboom
-  } namespace;
+  } li_namespace; // haleyjd 05/21/02: renamed from "namespace"
 
   wadfile_info_t *wadfile;
   int position;
