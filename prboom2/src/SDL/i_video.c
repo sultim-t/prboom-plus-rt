@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_video.c,v 1.18.2.5 2002/01/12 14:10:53 cph Exp $
+ * $Id: i_video.c,v 1.18.2.6 2002/01/27 18:18:32 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_video.c,v 1.18.2.5 2002/01/12 14:10:53 cph Exp $";
+rcsid[] = "$Id: i_video.c,v 1.18.2.6 2002/01/27 18:18:32 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"
@@ -85,7 +85,6 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 
 // Mouse handling
 extern int     usemouse;        // config file var
-static boolean grabMouse;       // internal var
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -214,57 +213,13 @@ static void I_GetEvent(SDL_Event *Event)
   break;
 
   case SDL_MOUSEMOTION:
-#ifndef POLL_MOUSE
-  /* Ignore mouse warp events */
-  if (usemouse &&
-      ((Event->motion.x != screen->w/2)||(Event->motion.y != screen->h/2)))
-  {
-    /* Warp the mouse back to the center */
-    if (grabMouse && !(paused || (gamestate != GS_LEVEL) || demoplayback)) {
-      if ( (Event->motion.x < ((screen->w/2)-(screen->w/4))) ||
-           (Event->motion.x > ((screen->w/2)+(screen->w/4))) ||
-           (Event->motion.y < ((screen->h/2)-(screen->h/4))) ||
-           (Event->motion.y > ((screen->h/2)+(screen->h/4))) )
-        SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
-    }
+  if (usemouse) {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
     event.data2 = Event->motion.xrel << 5;
     event.data3 = -Event->motion.yrel << 5;
     D_PostEvent(&event);
   }
-#else
-  /* cph - under X11 fullscreen, SDL's MOUSEMOTION events are just too
-   *  unreliable. Deja vu, I had similar trouble in the early LxDoom days
-   *  with X11 mouse motion events. Except SDL makes it worse, because
-   *  it feeds SDL_WarpMouse events back to us. */
-  if (usemouse) {
-    static int px,py;
-    static int was_grabbed;
-    int x,y,dx,dy;
-    Uint8 buttonstate = SDL_GetMouseState(&x,&y);
-    if (was_grabbed) { /* Previous position saved */
-      dx = x - px; dy = y - py;
-      if (!(dx | dy)) break; /* No motion, not interesting */
-      event.type = ev_mouse;
-      event.data1 = I_SDLtoDoomMouseState(buttonstate);
-      event.data2 = dx << 5; event.data3 = -dy << 5;
-      D_PostEvent(&event);
-    }
-    /* Warp the mouse back to the center */
-    was_grabbed = 0;
-    if (grabMouse && !(paused || (gamestate != GS_LEVEL) || demoplayback)) {
-      if ( (x < (screen->w/4)) ||
-           (x > (3*screen->w/4)) ||
-           (y < (screen->h/4)) ||
-           (y > (3*screen->h/4)) ) {
-        SDL_WarpMouse((Uint16)(screen->w/2), (Uint16)(screen->h/2));
-      } else {
-        px = x; py = y; was_grabbed = 1;
-      }
-    }
-  }
-#endif
   break;
 
 
@@ -281,9 +236,19 @@ static void I_GetEvent(SDL_Event *Event)
 //
 // I_StartTic
 //
+static int mouse_currently_grabbed;
+
 void I_StartTic (void)
 {
   SDL_Event Event;
+  {
+    int should_be_grabbed = usemouse &&
+	    !(paused || (gamestate != GS_LEVEL) || demoplayback); 
+
+    if (mouse_currently_grabbed != should_be_grabbed)
+      SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed) 
+		      ? SDL_GRAB_ON : SDL_GRAB_OFF);
+  }
 
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
@@ -304,10 +269,6 @@ void I_StartFrame (void)
 
 static void I_InitInputs(void)
 {
-  // check if the user wants to grab the mouse (quite unnice)
-  grabMouse = M_CheckParm("-nomouse") ? false : 
-    usemouse ? true : false;
-
   I_InitJoystick();
 }
 /////////////////////////////////////////////////////////////////////////////
@@ -423,21 +384,19 @@ void I_FinishUpdate (void)
       char *src;
       char *dest;
 
-      if (SDL_LockSurface(screen) >= 0)
+      if (SDL_LockSurface(screen) < 0)
+        I_Error("I_FinishUpdate: Couldn't lock screen surface");
+      dest=(char *)screen->pixels;
+      src=screens[0];
+      w=screen->w;
+      h=screen->h;
+      for (; h>0; h--)
       {
-        //dest=(char *)(screen->pixels)+(screen->clip_rect.y*screen->pitch)+screen->clip_rect.x;
-        dest=(char *)screen->pixels;
-        src=screens[0];
-        w=(screen->clip_rect.w>SCREENWIDTH)?(SCREENWIDTH):(screen->clip_rect.w);
-        h=(screen->clip_rect.h>SCREENHEIGHT)?(SCREENHEIGHT):(screen->clip_rect.h);
-        for (; h>0; h--)
-        {
-          memcpy(dest,src,w);
-          dest+=screen->pitch;
-          src+=SCREENWIDTH;
-        }
-        SDL_UnlockSurface(screen);
+        memcpy(dest,src,w);
+        dest+=screen->pitch;
+        src+=SCREENWIDTH;
       }
+      SDL_UnlockSurface(screen);
     }
   }
   /* Update the display buffer (flipping video pages if supported)
@@ -574,7 +533,7 @@ void I_UpdateVideoMode(void)
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
 
-  //mouse_currently_grabbed = false;
+  mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
   if (screen->pixels != NULL)

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.30.2.4 2001/09/29 11:20:22 cph Exp $
+ * $Id: g_game.c,v 1.30.2.5 2002/01/27 18:18:32 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.30.2.4 2001/09/29 11:20:22 cph Exp $";
+rcsid[] = "$Id: g_game.c,v 1.30.2.5 2002/01/27 18:18:32 cph Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -482,7 +482,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks2 = 0;
         dclickstate2 = 0;
       }
-  mousey = (mousey > 0) ? mousey : mousey / 6; /* mead desense backward moves. */
   forward += mousey;
   if (strafe)
     side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
@@ -730,8 +729,8 @@ boolean G_Responder (event_t* ev)
        * Removed the mouseSensitivity "*4" to allow more low end
        * sensitivity resolution especially for lsdoom users.
        */
-      mousex = (ev->data2*(mouseSensitivity_horiz))/10;  /* killough */
-      mousey = (ev->data3*(mouseSensitivity_vert))/10;  /*Mead rm *4 */
+      mousex += (ev->data2*(mouseSensitivity_horiz))/10;  /* killough */
+      mousey += (ev->data3*(mouseSensitivity_vert))/10;  /*Mead rm *4 */
       return true;    // eat events
 
     case ev_joystick:
