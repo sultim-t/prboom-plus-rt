@@ -1,7 +1,7 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.28 2002/12/05 21:57:40 cph Exp $
+# $Id: Makefile.am,v 1.29 2003/02/16 15:52:43 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #
@@ -58,7 +58,7 @@ COMMON_SRC = \
  mn_misc.c	mn_misc.h	\
  g_cmd.c	\
  g_config.c	g_config.h	\
- gl_dyn.c	r_filter.c
+ gl_dyn.c	r_filter.c	r_patch.c
 
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
 
