@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: sounds.c,v 1.4 2000/09/16 20:20:43 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +31,6 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: sounds.c,v 1.4 2000/09/16 20:20:43 proff_fs Exp $";
 
 // killough 5/3/98: reformatted
 

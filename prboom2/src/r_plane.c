@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.14 2003/04/19 06:35:26 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +49,6 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.14 2003/04/19 06:35:26 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"

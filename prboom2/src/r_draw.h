@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
- * $Id: r_draw.h,v 1.11 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine

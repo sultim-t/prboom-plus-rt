@@ -1,7 +1,6 @@
 #
 # Top level automake Makefile.am for LxDoom
 #
-# $Id: Makefile.am,v 1.7 2001/07/07 10:38:31 cph Exp $
 #
 
 # From "GNU autoconf, automake and libtool" Vaughan, Elliston, 

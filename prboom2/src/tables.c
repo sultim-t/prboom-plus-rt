@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: tables.c,v 1.7 2001/07/21 16:36:35 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,7 +44,6 @@
  */
 
 static const char
-rcsid[] = "$Id: tables.c,v 1.7 2001/07/21 16:36:35 cph Exp $";
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"

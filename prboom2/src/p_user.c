@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_user.c,v 1.5 2001/06/28 22:37:54 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +32,6 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_user.c,v 1.5 2001/06/28 22:37:54 cph Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"

@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: doomdef.c,v 1.4 2000/11/22 21:46:48 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +32,6 @@
  */
 
 static const char
-rcsid[] = "$Id: doomdef.c,v 1.4 2000/11/22 21:46:48 proff_fs Exp $";
 
 #ifdef __GNUG__
 #pragma implementation "doomdef.h"

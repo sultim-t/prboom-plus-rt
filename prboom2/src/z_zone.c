@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: z_zone.c,v 1.17 2002/11/13 18:52:33 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -39,7 +38,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.17 2002/11/13 18:52:33 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H

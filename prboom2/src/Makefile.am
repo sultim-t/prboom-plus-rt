@@ -1,7 +1,6 @@
 #
 # automake Makefile.am for the LxDoom source directory
 #
-# $Id: Makefile.am,v 1.29 2003/02/16 15:52:43 cph Exp $
 #
 # Process this file with automake to produce Makefile.in
 #

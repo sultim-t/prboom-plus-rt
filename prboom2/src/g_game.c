@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_game.c,v 1.62 2003/02/15 17:23:38 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +34,6 @@
  */
 
 static const char
-rcsid[] = "$Id: g_game.c,v 1.62 2003/02/15 17:23:38 dukope Exp $";
 
 #include <stdio.h>
 #include <stdarg.h>

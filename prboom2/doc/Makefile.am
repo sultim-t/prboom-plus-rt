@@ -2,7 +2,6 @@
 #
 # Makefile.am for LxDoom doc directory
 #
-# $Id: Makefile.am,v 1.6 2000/08/27 16:25:29 cph Exp $
 #
 
 docdir=$(prefix)/share/doc/@PACKAGE@

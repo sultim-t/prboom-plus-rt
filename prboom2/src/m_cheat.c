@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_cheat.c,v 1.9 2002/11/15 17:20:30 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +30,6 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.9 2002/11/15 17:20:30 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "c_runcmd.h"

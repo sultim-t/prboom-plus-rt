@@ -1,4 +1,3 @@
-# $Id: Makefile.am,v 1.4 2002/08/10 20:25:35 cph Exp $
 #
 # Copyright (C) 2000 by Colin Phipps (cph@lxdoom.linuxgames.com)
 # License: GPL

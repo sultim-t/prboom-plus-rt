@@ -1,6 +1,5 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.13 2001/02/05 11:28:29 proff_fs Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,

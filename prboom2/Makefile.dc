@@ -3,7 +3,6 @@
 # Makefile.dc
 # (c)2001 Florian Schulze
 #   
-# $Id: Makefile.dc,v 1.2 2001/07/16 15:35:16 proff_fs Exp $
 
 all:
 	-ln -s src/dc/config.h config.h >nul

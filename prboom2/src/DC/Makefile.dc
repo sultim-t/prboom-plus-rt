@@ -3,7 +3,6 @@
 # src/dc/Makefile.dc
 # (c)2001 Florian Schulze
 #   
-# $Id: Makefile.dc,v 1.4 2002/02/11 14:45:12 proff_fs Exp $
 
 all: libdcdoom.a
 

@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_things.c,v 1.23 2003/02/15 17:23:41 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +30,6 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.23 2003/02/15 17:23:41 dukope Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"

@@ -29,7 +29,6 @@
 	whatsoever, express or implied, in the hopes that others will use it
 	instead of other less-evolved hacks which usually don't work right.  ;)
 
-	$Id: gl_dyn.h,v 1.1 2002/11/16 11:01:52 proff_fs Exp $
 */
 
 #ifndef __dyngl_h

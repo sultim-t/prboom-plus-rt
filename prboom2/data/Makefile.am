@@ -1,5 +1,4 @@
 #
-# $Id: Makefile.am,v 1.4 2001/11/13 21:38:02 cph Exp $
 #
 # Install boomlump.wad to /usr/local/share/doom
 #
@@ -14,6 +13,10 @@ prboom.wad      :       prboom.txt $(wildcard graphics/*.ppm sprites/*.ppm lumps
 
 #
 # $Log: Makefile.am,v $
+# Revision 1.5  2003/07/19 11:45:51  proff_fs
+# Removed $Id: $ lines.
+# This is for the future switch to subversion.
+#
 # Revision 1.4  2001/11/13 21:38:02  cph
 # Must distribute prboom.txt so the make can pass prboom.wad
 #

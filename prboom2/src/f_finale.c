@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: f_finale.c,v 1.8 2002/11/22 19:51:19 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +31,6 @@
  */
 
 static const char
-rcsid[] = "$Id: f_finale.c,v 1.8 2002/11/22 19:51:19 dukope Exp $";
 
 #include "doomstat.h"
 #include "d_event.h"

@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: hu_stuff.c,v 1.11 2003/02/15 17:23:40 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +30,6 @@
  */
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.11 2003/02/15 17:23:40 dukope Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 

@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.68 2003/03/28 21:00:09 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +33,6 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.68 2003/03/28 21:00:09 proff_fs Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */

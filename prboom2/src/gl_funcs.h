@@ -29,7 +29,6 @@
 	WARRANTY whatsoever, express or implied, in the hopes that others will use
 	it instead of other less-evolved hacks which usually don't work right.  ;)
 
-	$Id: gl_funcs.h,v 1.5 2003/03/28 21:02:24 proff_fs Exp $
 */
 
 // *INDENT-OFF*

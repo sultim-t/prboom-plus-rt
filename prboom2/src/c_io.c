@@ -1,7 +1,6 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: c_io.c,v 1.12 2002/11/22 19:51:19 dukope Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -38,7 +37,6 @@
  */
 
 static const char
-rcsid[] = "$Id: c_io.c,v 1.12 2002/11/22 19:51:19 dukope Exp $";
 
 #define _GNU_SOURCE
 #include <stdio.h>
