@@ -369,10 +369,10 @@ static TVoidFunc getPointFilteredUVFunc(TRDrawPipelineType type);
 #define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_PLAYER | RDC_BILINEAR | RDC_DITHERZ)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_PointZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED)
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_PLAYER)
 #include "inl/r_drawcolumn.inl"
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_LinearZ
-#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ)
+#define R_DRAWCOLUMN_PIPELINE (RDC_8BITS | RDC_ROUNDED | RDC_DITHERZ | RDC_PLAYER)
 #include "inl/r_drawcolumn.inl"
 // 16 bit
 #define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn16_PointUV_PointZ
