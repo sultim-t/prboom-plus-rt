@@ -687,6 +687,32 @@ should be reversed.</p>
      // off the right side?</pre>
 </blockquote>
 
+<h4>Blazing door rebound noise</h4>
+
+<p>Affects: All prior to proom 2.2.5 and 2.3.1</p>
+
+<p>When a blazing door closes on a monster or player, it reopens, like a normal door, but it makes a normal door opening noise &mdash; in contrast to the fast door closing noise. Trivial oversight in p_doors.c:</p>
+
+<pre>
+--- src/p_doors.c       (revision 1135)
++++ src/p_doors.c       (revision 1136)
+@@ -188,6 +188,14 @@
+           case close:          // Close types do not bounce, merely wait
+             break;
+ 
++          case blazeRaise:
++          case genBlazeRaise:
++            door-&gt;direction = 1;
++           if (!comp[comp_blazing]) {
++             S_StartSound((mobj_t *)&amp;door-&gt;sector-&gt;soundorg,sfx_bdopn);
++             break;
++           }
++
+           default:             // other types bounce off the obstruction
+             door-&gt;direction = 1;
+             S_StartSound((mobj_t *)&amp;door-&gt;sector-&gt;soundorg,sfx_doropn);
+</pre>
+
 <h3>Demo sync bugs</h3>
 
 <p>This section contains fixes for problems which only (or primarily) cause
