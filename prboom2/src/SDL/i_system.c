@@ -50,6 +50,8 @@
 
 #include "SDL.h"
 
+#include "psnprntf.h"
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -100,11 +102,7 @@ unsigned long I_GetRandomTimeSeed(void)
  */
 const char* I_GetVersionString(char* buf, size_t sz)
 {
-#ifdef HAVE_SNPRINTF
-  snprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
-#else
-  sprintf(buf,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
-#endif
+  psnprintf(buf,sz,"%s v%s (http://prboom.sourceforge.net/)",PACKAGE,VERSION);
   return buf;
 }
 
