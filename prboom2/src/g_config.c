@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: g_config.c,v 1.2 2002/08/10 18:23:07 proff_fs Exp $
+ * $Id: g_config.c,v 1.3 2002/08/11 13:09:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -45,6 +45,7 @@
 #include "g_config.h"
 #include "g_bind.h"
 #include "g_bindaxes.h"
+#include "w_wad.h"
 
 //===========================================================================
 //
@@ -56,7 +57,7 @@
 
 static char *cfg_file = NULL; 
 
-void G_LoadDefaults(const char *file)
+boolean G_LoadDefaults(const char *file)
 {
   byte *cfg_data;
 
@@ -64,9 +65,13 @@ void G_LoadDefaults(const char *file)
 
   if(M_ReadFile(cfg_file, &cfg_data) <= 0)
   {
-      C_Printf("cfg not found.\n");
-      //C_Printf("cfg not found. using default\n");
-      //cfg_data = W_CacheLumpName("DEFAULT", PU_STATIC);
+    const char* default_config;
+    int lump = (W_CheckNumForName)("DCONFIG", ns_prboom);
+    if (lump == -1) return false;
+    default_config = W_CacheLumpNum(lump);
+    C_RunScript(default_config);
+    C_Printf("cfg not found, using defaults.\n");
+    W_UnlockLumpNum(lump);
   } else {
     C_RunScript(cfg_data);
 
@@ -75,6 +80,7 @@ void G_LoadDefaults(const char *file)
 
   //Add G_SaveDefaults as an exit handler
   atexit(G_SaveDefaults);
+  return true;
 }
 
 void G_SaveDefaults()

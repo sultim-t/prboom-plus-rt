@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.59 2002/08/11 11:31:27 proff_fs Exp $
+ * $Id: d_main.c,v 1.60 2002/08/11 13:09:50 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.59 2002/08/11 11:31:27 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.60 2002/08/11 13:09:50 cph Exp $";
 
 #if ((defined _MSC_VER) || (defined DREAMCAST))
 #define    F_OK    0    /* Check for file existence */
@@ -1200,6 +1200,7 @@ void D_DoomMainSetup(void)
 {
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
+  boolean need_defaults;
 
   // proff 04/05/2000: Added support for include response files
   /* proff 2001/7/1 - Moved up, so -config can be in response files */
@@ -1240,7 +1241,7 @@ void D_DoomMainSetup(void)
   //M_LoadDefaults();              // load before initing other systems
 
   lprintf(LO_INFO,"G_LoadDefaults: Load system defaults.\n");
-  G_LoadDefaults(defaultfile);
+  need_defaults = !G_LoadDefaults(defaultfile);
 
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
      doesn't overlap with the cfg settings */
@@ -1594,6 +1595,7 @@ void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"W_Init: Init WADfiles.\n");
   W_Init(); // CPhipps - handling of wadfiles init changed
+  if (need_defaults) G_LoadDefaults(defaultfile);
 
   lprintf(LO_INFO,"\n");     // killough 3/6/98: add a newline, by popular demand :)
 
