@@ -79,11 +79,7 @@ void D_AutoLoad(void);
 void IdentifyVersion(void);
 
 /* cph - MBF-like wad/deh/bex autoload code */
-/* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
-   doesn't overlap with the cfg settings */
-#define MAXLOADFILES 3
-/* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
-   doesn't overlap with the cfg settings */
+#define MAXLOADFILES 2
 extern const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 #endif
