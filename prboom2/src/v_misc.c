@@ -430,7 +430,7 @@ void V_FPSDrawer()
     for(cy=0, y = Y_OFFSET; cy<CHART_HEIGHT; y++, cy++)
       {
 	i = cy > (CHART_HEIGHT-history[cx]) ? BLACK : WHITE;
-	//screens[0][y*(SCREENWIDTH<<hires) +x] = i;
+  V_PlotPixel(0, x, y, i);
       }
 }
 
@@ -466,12 +466,10 @@ void V_ClassicFPSDrawer()
   if (tics > 20)
     tics = 20;
 
-/*
   for (i=0 ; i<tics*2 ; i+=2)
-	  s[(SCREENHEIGHT-1)*SCREENWIDTH + i] = 0xff;
+    V_PlotPixel(0, i, SCREENHEIGHT-1, 0xff);
   for ( ; i<20*2 ; i+=2)
-	  s[(SCREENHEIGHT-1)*SCREENWIDTH + i] = 0x0;
-*/
+    V_PlotPixel(0, i, SCREENHEIGHT-1, 0x00);
 }
 
 void V_InitMisc(void)

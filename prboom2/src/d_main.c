@@ -331,6 +331,10 @@ void D_Display (void)
   D_BuildNewTiccmds();
 #endif
   
+  // sf: now system independent
+  if(v_ticker)
+    V_FPSDrawer();
+
   // normal update
   if (!wipe || (V_GetMode() == VID_MODEGL))
     I_FinishUpdate ();              // page flip or blit buffer

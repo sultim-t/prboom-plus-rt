@@ -461,6 +461,7 @@ void TryRunTics (void)
     C_Ticker ();
     MN_Ticker ();
     G_Ticker ();
+    V_FPSTicker();
     gametic++;
 #ifdef HAVE_NET
     NetUpdate(); // Keep sending our tics to avoid stalling remote nodes
