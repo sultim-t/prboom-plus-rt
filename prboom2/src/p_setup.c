@@ -1433,7 +1433,17 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   if (rejectlump != -1)
     W_UnlockLumpNum(rejectlump);
-  rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
+  rejectlump = lumpnum+ML_REJECT;
+  {
+    int rjlen = W_LumpLength(rejectlump);
+    int rjreq = (numsectors*numsectors+7)/8;
+    if (rjlen < rjreq) {
+      lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
+      rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);
+    } else {
+      rejectmatrix = W_CacheLumpNum(rejectlump);
+    }
+  }
   P_GroupLines();
 
   P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad

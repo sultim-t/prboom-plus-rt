@@ -8,6 +8,7 @@ Changes from v2.2.4 to v2.2.5
 - improved response file parser
 - fast forward to given map # in demo playback
 - fixes for various sound bugs
+- and more compatibility and demo fixes
 
 Changes from v2.2.3 to v2.2.4
 - fixed sky-over-sky HOM
