@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# $Id: bootstrap,v 1.1 2000/11/12 15:14:54 cph Exp $
+# cphipps - short script to start building from a maintainer-clean'ed tree
+#
+mkdir autotools
+aclocal && autoheader && automake --add-missing && autoconf

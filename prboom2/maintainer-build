@@ -1,6 +1,0 @@
-#!/bin/sh
-#
-# $Id: maintainer-build,v 1.1.1.2 2000/09/20 09:38:23 figgi Exp $
-# cphipps - short script to start building from a maintainer-clean'ed tree
-#
-aclocal && autoheader && automake --include-deps && autoconf
