@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_mobj.c,v 1.18 2001/11/19 20:48:16 cph Exp $
+ * $Id: p_mobj.c,v 1.19 2002/01/07 15:45:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -31,7 +31,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.18 2001/11/19 20:48:16 cph Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.19 2002/01/07 15:45:22 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -1142,7 +1142,7 @@ void P_SpawnMapThing (const mapthing_t* mthing)
 
   
 	  // killough 10/98: force it to be a friend
-	  mthing->options |= MTF_FRIEND;
+	  ((mapthing_t *)mthing)->options |= MTF_FRIEND;
           if(HelperThing != -1) // haleyjd 9/22/99: deh substitution
           {
             int type = HelperThing - 1;

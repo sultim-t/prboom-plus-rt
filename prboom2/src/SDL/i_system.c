@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: i_system.c,v 1.7 2001/11/18 15:46:10 cph Exp $
+ * $Id: i_system.c,v 1.8 2002/01/07 15:45:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  */
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.7 2001/11/18 15:46:10 cph Exp $";
+rcsid[] = "$Id: i_system.c,v 1.8 2002/01/07 15:45:22 proff_fs Exp $";
 
 #include <stdio.h>
 
@@ -44,7 +44,7 @@ rcsid[] = "$Id: i_system.c,v 1.7 2001/11/18 15:46:10 cph Exp $";
 #include "SDL.h"
 
 #ifdef HAVE_CONFIG_H
-#include "../../config.h"
+#include "../config.h"
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -135,7 +135,7 @@ void I_Read(int fd, void* buf, size_t sz)
     if (rc <= 0) {
       I_Error("I_Read: read failed: %s", rc ? strerror(errno) : "EOF");
     }
-    sz -= rc; buf += rc;
+    sz -= rc; (unsigned char *)buf += rc;
   }
 }
 

@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: config.h,v 1.6 2001/07/06 09:35:20 proff_fs Exp $
+ * $Id: config.h,v 1.7 2002/01/07 15:45:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -120,6 +120,8 @@
 /* Define if you have the vsnprintf function.  */
 #define HAVE_VSNPRINTF 1
 #define vsnprintf _vsnprintf
+
+#define HAVE_STRLWR
 
 /* Define for support for MBF helper dogs */
 #define DOGS 1

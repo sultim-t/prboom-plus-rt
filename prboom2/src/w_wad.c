@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: w_wad.c,v 1.26 2001/11/18 15:46:09 cph Exp $
+ * $Id: w_wad.c,v 1.27 2002/01/07 15:45:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  */
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.26 2001/11/18 15:46:09 cph Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.27 2002/01/07 15:45:22 proff_fs Exp $";
 
 // use config.h if autoconf made one -- josh
 #ifdef HAVE_CONFIG_H
@@ -42,6 +42,7 @@ rcsid[] = "$Id: w_wad.c,v 1.26 2001/11/18 15:46:09 cph Exp $";
 #include <unistd.h>
 #endif
 #ifdef _MSC_VER
+#include <stddef.h>
 #include <io.h>
 #endif
 #ifdef DREAMCAST

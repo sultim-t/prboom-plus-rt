@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_data.c,v 1.17 2002/01/03 21:39:35 cph Exp $
+ * $Id: r_data.c,v 1.18 2002/01/07 15:45:22 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -32,7 +32,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.17 2002/01/03 21:39:35 cph Exp $";
+rcsid[] = "$Id: r_data.c,v 1.18 2002/01/07 15:45:22 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -671,11 +671,13 @@ int R_ColormapNumForName(const char *name)
  */
 int fake_contrast;
 
-static inline int between(int l,int u,int x)
-{ return (l > x ? l : x > u ? u : x); }
+#ifndef between
+#define between(l,u,x) ( ((l) > (x)) ? (l) : ( ((x) > (u)) ? (u) : (x)) )
+#endif
 
-static inline int min(int x, int y)
-{ return (x>y ? y : x); }
+#ifndef min
+#define min(x,y) ( ((x)>(y)) ? (y) : (x) )
+#endif
 
 const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale)
 {
