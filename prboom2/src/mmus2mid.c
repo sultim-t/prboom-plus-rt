@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: mmus2mid.c,v 1.3 2000/05/21 15:08:03 cph Exp $
+ * $Id: mmus2mid.c,v 1.4 2000/08/19 17:28:46 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -49,7 +49,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: mmus2mid.c,v 1.3 2000/05/21 15:08:03 cph Exp $";
+static const char rcsid[] = "$Id: mmus2mid.c,v 1.4 2000/08/19 17:28:46 cph Exp $";
 
 #include <ctype.h>
 #include <stdio.h>
@@ -57,7 +57,7 @@ static const char rcsid[] = "$Id: mmus2mid.c,v 1.3 2000/05/21 15:08:03 cph Exp $
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <malloc.h>
+#include <stdlib.h>
 #ifdef MSDOS /* proff: I don't use allegro in windows */
 #include <allegro.h>
 #endif /* !MSDOS */
