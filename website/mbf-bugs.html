@@ -70,11 +70,12 @@
      <p>
       Affects: MBF, Boom v2.02, PrBoom v2.02
      </p><p>
-      Symptoms: Saving a game in a large level (savegame would have to be 
-      >64k) for the first time, when memory is tight and fragmented, produces 
-      a corrupt savegame file. Also, on machines with tight memory, when 
-      INSTRUMENTED is defined, the libc heap (not the Doom heap) can 
-      become corrupted.
+      Symptoms: Saving a game in a large level, or loading a large 
+      savegame (savegame would have to be >64k) 
+      for the first time, when memory is tight and fragmented, produces 
+      a corrupt savegame file if writing, or loses data when reading. 
+      Also, on machines with tight memory, when INSTRUMENTED is defined, 
+      the libc heap (not the Doom heap) can become corrupted.
      </p><p>
       Description: cf MBF, z_zone.c Z_Malloc, line 371. The Z_Malloc code 
       fails to store the block size in the header for memory blocks allocated 
@@ -101,7 +102,7 @@
      </pre>
     <h4>SEGV when falling down long vertical shaft</h4>
      <p>
-      Affects: Doom, Boom, and PrBoom v2.02 might experience problems
+      Affects: MBF, and probably Boom
      </p><p>
       Symptoms: E.g. MAP26 of Hell Revealed. Play with -nomonsters. Walk north
       east from the start until you teleport. You are in a weird corridor, 
