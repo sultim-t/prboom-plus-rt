@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: p_saveg.c,v 1.6 2000/05/11 23:22:21 cph Exp $
+ * $Id: p_saveg.c,v 1.7 2000/05/14 08:44:45 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -33,7 +33,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: p_saveg.c,v 1.6 2000/05/11 23:22:21 cph Exp $";
+rcsid[] = "$Id: p_saveg.c,v 1.7 2000/05/14 08:44:45 cph Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -299,14 +299,16 @@ void P_IndexToThinker(void)
 void P_ArchiveThinkers (void)
 {
   thinker_t *th;
-  size_t    size = 0;
 
   CheckSaveGame(sizeof brain);      // killough 3/26/98: Save boss brain state
   memcpy(save_p, &brain, sizeof brain);
   save_p += sizeof brain;
 
-  // check that enough room is available in savegame buffer
-  CheckSaveGame(size*(sizeof(mobj_t)+4));       // killough 2/14/98
+  /* check that enough room is available in savegame buffer
+   * - killough 2/14/98
+   * cph - use number_of_thinkers saved by P_ThinkerToIndex above
+   */
+  CheckSaveGame(number_of_thinkers*(sizeof(mobj_t)+4));
 
   // save off the current thinkers
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
