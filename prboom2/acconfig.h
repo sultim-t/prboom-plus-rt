@@ -1,6 +1,6 @@
 /* acconfig.h for LxDoom
  *
- * $Id: acconfig.h,v 1.8 2000/06/16 01:39:38 jessh Exp $
+ * $Id: acconfig.h,v 1.9 2000/08/20 13:28:31 cph Exp $
  * Parts Copyright (C) 1993-1996 by id Software, Inc.
  *
  * Process this file with autoheader to produce config.h.in,
@@ -94,8 +94,14 @@
 /* Define if you have the SDL mixer library -lSDL_mixer */
 #undef HAVE_LIBSDL_MIXER
 
+/* Define if you have the SDL net library -lSDL_net */
+#undef HAVE_LIBSDL_NET
+
 /* Define if you want networkg ame support */
 #undef HAVE_NET
+
+/* Define if you want to use the SDL net lib */
+#undef USE_SDL_NET
 
 /* Define if you have struct sockaddr_in6 */
 #undef HAVE_IPv6
