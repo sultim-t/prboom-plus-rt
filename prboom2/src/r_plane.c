@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: r_plane.c,v 1.8 2001/12/22 16:15:35 cph Exp $
+ * $Id: r_plane.c,v 1.9 2002/08/11 11:35:53 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -50,7 +50,7 @@
 #include "z_zone.h"  /* memory allocation wrappers -- killough */
 
 static const char
-rcsid[] = "$Id: r_plane.c,v 1.8 2001/12/22 16:15:35 cph Exp $";
+rcsid[] = "$Id: r_plane.c,v 1.9 2002/08/11 11:35:53 proff_fs Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -370,10 +370,11 @@ static void R_DoDrawPlane(visplane_t *pl)
 	      texture = skytexture;             // Default texture
 	      flip = 0;                         // Doom flips it
       }
-      // Sky is always drawn full bright, i.e. colormaps[0] is used.
-      // Because of this hack, sky is not affected by INVUL inverse mapping.
+      /* Sky is always drawn full bright, i.e. colormaps[0] is used.
+       * Because of this hack, sky is not affected by INVUL inverse mapping.
+       * Until Boom fixed this. Compat option added in MBF. */
       
-      if (!(dc_colormap = fixedcolormap)) 
+      if (comp[comp_skymap] || !(dc_colormap = fixedcolormap)) 
 	dc_colormap = fullcolormap;          // killough 3/20/98
       //dc_texturemid = skytexturemid;
       dc_texheight = textureheight[skytexture]>>FRACBITS; // killough
