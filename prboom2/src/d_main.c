@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.26 2000/10/05 22:35:02 proff_fs Exp $
+ * $Id: d_main.c,v 1.27 2000/10/26 15:09:17 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.26 2000/10/05 22:35:02 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.27 2000/10/26 15:09:17 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -942,7 +942,7 @@ void IdentifyVersion (void)
 #ifdef GL_DOOM
   sprintf(basedefault,"%s/glboom.cfg", D_DoomExeDir());  // killough
 #else
-  sprintf(basedefault,"%s/boom.cfg", D_DoomExeDir());  // killough
+  sprintf(basedefault,"%s/prboom.cfg", D_DoomExeDir());  // killough
 #endif
 
   // set save path to -save parm or current dir
