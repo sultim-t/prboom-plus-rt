@@ -209,6 +209,7 @@ prboom2/src/c_cmd.c -text svneol=native#unset
 prboom2/src/c_net.c -text svneol=native#unset
 prboom2/src/d_main.c -text svneol=native#unset
 prboom2/src/d_main.h -text svneol=native#unset
+prboom2/src/inl/makefile.am -text
 prboom2/src/mn_menus.c -text svneol=native#unset
 prboom2/src/p_cmd.c -text svneol=native#unset
 prboom2/src/p_enemy.c -text svneol=native#unset
@@ -220,6 +221,7 @@ prboom2/src/r_things.c -text svneol=native#unset
 prboom2/src/t_func.c -text svneol=native#unset
 prboom2/src/t_parse.c -text svneol=native#unset
 prboom2/src/t_script.c -text svneol=native#unset
+prboom2/src/vidd/makefile.am -text
 prboom2/src/wi_stuff.c -text svneol=native#unset
 website/DOOM04.jpg -text
 website/DOOM05.jpg -text

@@ -6,7 +6,7 @@
 #
 #
 
-SUBDIRS = SDL POSIX
+SUBDIRS = SDL POSIX inl vidd
 
 gamesdir=$(prefix)/games
 EXTRA_PROGRAMS = prboom
