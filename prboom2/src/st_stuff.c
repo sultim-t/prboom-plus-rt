@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: st_stuff.c,v 1.5 2000/05/17 21:13:46 proff_fs Exp $
+ * $Id: st_stuff.c,v 1.6 2000/05/21 12:11:13 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -35,7 +35,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: st_stuff.c,v 1.5 2000/05/17 21:13:46 proff_fs Exp $";
+rcsid[] = "$Id: st_stuff.c,v 1.6 2000/05/21 12:11:13 proff_fs Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -407,7 +407,7 @@ void ST_refreshBackground(void)
       {
         V_DrawNumPatch(ST_FX, y, BG, faceback.lumpnum,
 		       displayplayer ? CR_LIMIT+displayplayer : CR_DEFAULT, 
-		       displayplayer ? VPT_TRANS : VPT_NONE);
+		       displayplayer ? (VPT_TRANS | VPT_STRETCH) : VPT_STRETCH);
       }
 
       V_CopyRect(ST_X, y, screen, ST_SCALED_WIDTH, ST_SCALED_HEIGHT, ST_X, ST_SCALED_Y, FG, VPT_NONE);
