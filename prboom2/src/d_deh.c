@@ -1006,7 +1006,7 @@ typedef struct
 // killough 8/9/98: make DEH_BLOCKMAX self-adjusting
 #define DEH_BLOCKMAX (sizeof deh_blocks/sizeof*deh_blocks)  // size of array
 #define DEH_MAXKEYLEN 32 // as much of any key as we'll look at
-#define DEH_MOBJINFOMAX 23 // number of ints in the mobjinfo_t structure (!)
+#define DEH_MOBJINFOMAX 24 // number of ints in the mobjinfo_t structure (!)
 
 // Put all the block header values, and the function to be called when that
 // one is encountered, in this array:
@@ -1069,6 +1069,7 @@ static const char *deh_mobjinfo[DEH_MOBJINFOMAX] =
   "Missile damage",      // .damage
   "Action sound",        // .activesound
   "Bits",                // .flags
+  "Bits2",               // .flags
   "Respawn frame"        // .raisestate
 };
 
@@ -1675,7 +1676,7 @@ static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
                                  deh_bexptrs[i].lookup,i,indexnum);
               found = TRUE;
             }
-        } while (!found && (deh_bexptrs[i].lookup != NULL));
+        } while (!found && (deh_bexptrs[i].cptr != NULL));
 
       if (!found)
         if (fpout) fprintf(fpout,
