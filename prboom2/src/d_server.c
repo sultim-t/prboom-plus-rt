@@ -272,6 +272,7 @@ static void I_InitSockets(Uint16 port)
 {
   I_InitNetwork();
   udp_socket = I_Socket(port);
+  if (!udp_socket) I_Error("I_InitSockets: failed to open UDP port %d\n",port);
 }
 #endif
 
@@ -308,6 +309,8 @@ void read_config_file(FILE* fp, struct setup_packet_s* sp)
     }
   }
 }
+
+static int badplayer(int n) { return (n < 0 || n >= MAXPLAYERS); }
 
 int main(int argc, char** argv)
 {
@@ -448,7 +451,7 @@ int main(int argc, char** argv)
     /* Find player number and add to the game */
     n = *(short*)(packet+1);
 
-    if (playeringame(n))
+    if (badplayer(n) || playeringame(n))
      for (n=0; n<MAXPLAYERS; n++)
       if (playerjoingame[n] == INT_MAX) break;
 
@@ -493,7 +496,7 @@ int main(int argc, char** argv)
       if (!ingame) {
         int from = *(byte*)(packet+1);
 
-        if (playerleftgame[from] == INT_MAX) break;
+	if (badplayer(from) || !playeringame(from) || playerleftgame[from] == INT_MAX) break;
         playerleftgame[from] = INT_MAX;
         if (++curplayers == numplayers) {
     ingame=true;
@@ -510,6 +513,8 @@ int main(int argc, char** argv)
       {
         byte tics = *(byte*)(packet+1);
         int from = *(((byte*)(packet+1))+1);
+
+	if (badplayer(from)) break;
 
         if (verbose>2)
             printf("tics %d - %d from %d\n", ptic(packet), ptic(packet) + tics - 1, from);
@@ -530,6 +535,8 @@ int main(int argc, char** argv)
     case PKT_RETRANS:
       {
         int from = *(byte*)(packet+1);
+	if (badplayer(from)) break;
+
         if (verbose>2) printf("%d requests resend from %d\n", from, ptic(packet));
         remoteticto[from] = ptic(packet);
       }
@@ -537,6 +544,7 @@ int main(int argc, char** argv)
     case PKT_QUIT:
       {
         int from = *(byte*)(packet+1);
+	if (badplayer(from)) break;
 
         if (verbose>2) printf("%d quits at %d\n", from, ptic(packet));
         if (playerleftgame[from] == INT_MAX) { // In the game
@@ -558,6 +566,8 @@ int main(int argc, char** argv)
         char *name = 1 + (char*)(packet+1);
         size_t size = sizeof(packet_header_t);
         packet_header_t *reply;
+
+	if (badplayer(from) || !playeringame(from)) break;
 
         if (verbose) printf("Request for %s ", name);
         for (i=0; i<numwads; i++)
