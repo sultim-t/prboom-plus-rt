@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: m_menu.c,v 1.7 2000/05/18 08:38:42 cph Exp $
+ * $Id: m_menu.c,v 1.8 2000/05/18 09:52:44 cph Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -37,7 +37,7 @@
  *-----------------------------------------------------------------------------*/
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.7 2000/05/18 08:38:42 cph Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.8 2000/05/18 09:52:44 cph Exp $";
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -133,7 +133,6 @@ int warning_about_changes, print_warning_about_changes;
 
 // we are going to be entering a savegame string
 
-int key_setup;
 int saveStringEnter;              
 int saveSlot;        // which slot to save in
 int saveCharIndex;   // which char we're editing
