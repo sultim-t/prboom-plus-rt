@@ -68,6 +68,10 @@ int mess_colour = CR_RED;      // the colour of normal messages
 
 extern char *levelname;        // p_info.c
 
+#ifdef INSTRUMENTED
+static boolean z_drawstats = 1;
+#endif
+
 //==========================================================================
 //
 // Normal Messages
@@ -674,7 +678,8 @@ void HU_Drawer()
 #ifdef INSTRUMENTED
   {
     extern void Z_DrawStats(void);
-    Z_DrawStats();           // draw memory allocation stats
+    if (z_drawstats)
+      Z_DrawStats();           // draw memory allocation stats
   }
 #endif
 }
@@ -805,6 +810,10 @@ CONSOLE_NETCMD(say, cf_netvar, netcmd_chat)
   doom_printf("%s: %s", players[cmdsrc].name, c_args);
 }
 
+#ifdef INSTRUMENTED
+CONSOLE_BOOLEAN(z_drawstats, z_drawstats, NULL, onoff, 0) {}
+#endif
+
 extern void HU_FragsAddCommands(void);
 extern void HU_OverAddCommands(void);
 
@@ -821,6 +830,10 @@ void HU_AddCommands(void)
   C_AddCommand(mess_lines);
   C_AddCommand(mess_scrollup);
   C_AddCommand(mess_timer);
+
+#ifdef INSTRUMENTED
+  C_AddCommand(z_drawstats);
+#endif
 
   HU_FragsAddCommands();
   HU_OverAddCommands();
