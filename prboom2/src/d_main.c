@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: d_main.c,v 1.25 2000/10/03 19:57:23 proff_fs Exp $
+ * $Id: d_main.c,v 1.26 2000/10/05 22:35:02 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -34,7 +34,7 @@
  *-----------------------------------------------------------------------------
  */
 
-static const char rcsid[] = "$Id: d_main.c,v 1.25 2000/10/03 19:57:23 proff_fs Exp $";
+static const char rcsid[] = "$Id: d_main.c,v 1.26 2000/10/05 22:35:02 proff_fs Exp $";
 
 #ifdef _MSC_VER
 #define    F_OK    0    /* Check for file existence */
@@ -613,7 +613,7 @@ char *D_DoomExeDir(void)
   if (!base)        // cache multiple requests
     {
       size_t len = strlen(*myargv);
-      char *p = (base = malloc(len+1)) + len;
+      char *p = (base = malloc(len+1)) + len - 1;
       strcpy(base,*myargv);
       while (p > base && *p!='/' && *p!='\\')
         *p--=0;

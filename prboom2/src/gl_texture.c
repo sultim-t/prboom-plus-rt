@@ -1,7 +1,7 @@
 /* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
- * $Id: gl_texture.c,v 1.11 2000/10/03 19:57:24 proff_fs Exp $
+ * $Id: gl_texture.c,v 1.12 2000/10/05 22:35:03 proff_fs Exp $
  *
  *  PrBoom a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
@@ -51,6 +51,8 @@ char *gl_tex_format_string;
 int gl_tex_format=GL_RGB5_A1;
 //int gl_tex_format=GL_RGBA4;
 //int gl_tex_format=GL_RGBA2;
+
+GLTexture *last_gltexture=NULL;
 
 int gld_GetTexDimension(int value)
 {
@@ -352,6 +354,9 @@ void gld_BindTexture(GLTexture *gltexture)
   unsigned char *buffer;
   texture_t *texture;
 
+  if (gltexture==last_gltexture)
+    return;
+  last_gltexture=gltexture;
   if (!gltexture)
     return;
   if (gltexture->textype!=GLDT_TEXTURE)
@@ -487,6 +492,9 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
   int i;
   unsigned char *buffer;
 
+  if (gltexture==last_gltexture)
+    return;
+  last_gltexture=gltexture;
   if (!gltexture)
     return;
   if (gltexture->textype!=GLDT_PATCH)
@@ -604,6 +612,9 @@ void gld_BindFlat(GLTexture *gltexture)
   int i;
   unsigned char *buffer;
 
+  if (gltexture==last_gltexture)
+    return;
+  last_gltexture=gltexture;
   if (!gltexture)
     return;
   if (gltexture->textype!=GLDT_FLAT)
