@@ -1390,7 +1390,7 @@ void P_SetupLevel(const char *mapname, int playermask, skill_t skill)
   // FIXME if (VIDD_REC_inProgress()) VIDD_REC_registerLevelLoad(episode, map, skill); // POPE
 #endif
 
-  totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
+  totallive = totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
   wminfo.partime = 180;
 
   for (i=0; i<MAXPLAYERS; i++)
