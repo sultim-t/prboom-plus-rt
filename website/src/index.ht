@@ -2,6 +2,23 @@ title: Project Homepage
 
     <h1>News</h1>
 
+    <h3>7th October 2004</h3>
+
+    <p>Version 2.2.6 is released. This is just another release fixing bugs and
+    making minor improvements:</p>
+    <ul class="changes">
+        <li>fix Inferno intermission screen crash</li>
+        <li>fix lockup for other netgame clients when one client quits</li>
+        <li>fix memory leak in netgame server</li>
+        <li>fix SDL_LockScreen crashes on Win32</li>
+        <li>fix fuzz drawing for hi-res</li>
+        <li>network games should survive temporary loss of connection</li>
+        <li>fix dehacked NOSECTOR/NOBLOCKMAP effects</li>
+        <li>fix player spawn sound</li>
+    </ul>
+    <p>The compiled Windows and Linux versions, and the source code, are now
+    available to <a href="#download">download</a>.</p>
+
     <h3>25th September 2004</h3>
 
     <p>Version 2.3.1 is released. This is still experimental, but should be much
