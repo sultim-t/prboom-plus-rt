@@ -322,6 +322,8 @@ void NetUpdate(void)
     while (newtics--) {
       I_StartTic();
       if (maketic - gametic > BACKUPTICS/2) break;
+      //if (maketic - gametic > BACKUPTICS/2 && realtic_clock_rate > 200) break;
+      //else if (maketic - gametic) break;
       G_BuildTiccmd(&localcmds[maketic%BACKUPTICS]);
       maketic++;
     }
@@ -451,9 +453,9 @@ void TryRunTics (void)
 #endif
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
+      if (!movement_smooth)//e6y
       if (server) I_WaitForPacket(ms_to_next_tick);
-      //e6y else I_uSleep(ms_to_next_tick*1000);
-      else if (!movement_smooth) I_uSleep(ms_to_next_tick*1000);//e6y
+      else I_uSleep(ms_to_next_tick*1000);
       if (I_GetTime() - entertime > 10) {
         if (server) {//e6y
         remotesend--;

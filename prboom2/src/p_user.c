@@ -183,11 +183,12 @@ void P_MovePlayer (player_t* player)
   mo->angle += cmd->angleturn << 16;
 
   //e6y
-  if (demo_smoothturns && players && &players[displayplayer] == player)
+  if (demo_smoothturns && player == &players[displayplayer])
     AddSmoothViewAngel(cmd->angleturn << 16);
-  if (GetMouseLook())
+  if (GetMouseLook() && player == &players[displayplayer])
   {
-    mo->pitch += (cmd->pitchturn << 16);
+    if(!(automapmode & am_active))
+      mo->pitch += (mlooky << 16);
     CheckPitch((signed int *) &mo->pitch);
   }
   else

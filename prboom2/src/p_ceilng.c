@@ -35,6 +35,7 @@
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "e6y.h"//e6y
 
 // the list of ceilings moving currently, including crushers
 ceilinglist_t *activeceilings;
@@ -253,6 +254,7 @@ int EV_DoCeiling
   secnum = -1;
   rtn = 0;
 
+  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_ceiling; else return rtn;//e6y
   // Reactivate in-stasis ceilings...for certain types.
   // This restarts a crusher after it has been stopped
   switch(type)
@@ -271,9 +273,10 @@ int EV_DoCeiling
   {
     sec = &sectors[secnum];
 
+manual_ceiling://e6y
     // if ceiling already moving, don't start a second function on it
     if (P_SectorActive(ceiling_special,sec))  //jff 2/22/98
-      continue;
+      if (!zerotag_manual) continue; else  return rtn;//e6y
 
     // create a new ceiling thinker
     rtn = 1;
@@ -334,6 +337,7 @@ int EV_DoCeiling
     ceiling->tag = sec->tag;
     ceiling->type = type;
     P_AddActiveCeiling(ceiling);
+    if (zerotag_manual) return rtn; //e6y
   }
   return rtn;
 }

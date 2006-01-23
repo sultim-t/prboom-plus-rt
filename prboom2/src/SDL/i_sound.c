@@ -154,6 +154,7 @@ int addsfx(int sfxid, int channel)
     {
       int lump = S_sfx[sfxid].lumpnum;
       size_t len = W_LumpLength(lump);
+      if (len==0) return -1;//e6y
 
       /* Find padded length */
     len -= 8;
@@ -323,6 +324,7 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
   if (handle>=MAX_CHANNELS)
     I_Error("I_StartSound: handle out of range");
 #endif
+  if (handle!=-1)
   updateSoundParams(handle, vol, sep, pitch);
     SDL_UnlockAudio();
 

@@ -2102,7 +2102,7 @@ void A_BossDeath(mobj_t *mo)
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_BRUISER)
+          if (compatibility_level >= ultdoom_compatibility && mo->type != MT_BRUISER)//e6y
             return;
           break;
 

@@ -72,7 +72,7 @@ extern complevel_t compatibility_level, default_compatibility_level;
 
 // CPhipps - old compatibility testing flags aliased to new handling
 #define compatibility (compatibility_level<=boom_compatibility_compatibility)
-#define demo_compatibility (compatibility_level <= doom_demo_compatibility)
+#define demo_compatibility (compatibility_level < boom_compatibility_compatibility)//e6y
 #define mbf_features (compatibility_level>=mbf_compatibility)
 
 // v1.1-like pitched sounds
@@ -109,6 +109,10 @@ enum {
   comp_moveblock,
   comp_respawn,  /* cph - this is the inverse of comp_respawnfix from eternity */
   comp_sound,
+  //e6y
+  comp_666,
+  comp_maxhealth,
+
   COMP_NUM,      /* cph - should be last in sequence */
   COMP_TOTAL=32  // Some extra room for additional variables
 };

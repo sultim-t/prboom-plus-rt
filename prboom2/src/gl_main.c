@@ -2712,11 +2712,7 @@ static void gld_DrawSprite(GLSprite *sprite)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
-  //e6y
-  if (render_smartitemsclipping)
-    glTranslatef(sprite->x,sprite->y,sprite->z);
-  else
-
+  if (render_smartitemsclipping) glTranslatef(sprite->x,sprite->y,sprite->z); else//e6y
   glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
   glRotatef(inv_yaw,0.0f,1.0f,0.0f);
   if(sprite->shadow)
@@ -2854,7 +2850,7 @@ void gld_AddSprite(vissprite_t *vspr)
   //e6y
   if (render_smartitemsclipping)
   {
-    if(sprite.y2 < 0 && !(vspr->thing->flags & MF_CORPSE))
+    if(sprite.y2 < 0 && !(vspr->thing->flags & (MF_CORPSE|MF_SPAWNCEILING|MF_FLOAT)))
     {
       sprite.y1 -= sprite.y2;
       sprite.y2 = 0.0f;

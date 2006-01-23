@@ -525,14 +525,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclickstate2 = 0;
       }
 
-  //e6y
-  if (!GetMouseLook())
-    forward += mousey;
-  else
-    if(!(automapmode & am_active))
-      cmd->pitchturn += PitchSign * (mousey);
-
-//e6y  forward += mousey;
+  forward += mousey;
   if (strafe)
     side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
   else
@@ -675,6 +668,7 @@ static void G_DoLoadLevel (void)
   memset (gamekeydown, 0, sizeof(gamekeydown));
   joyxmove = joyymove = 0;
   mousex = mousey = 0;
+  mlooky = 0;//e6y
   special_event = 0; paused = false;
   memset (mousebuttons, 0, sizeof(mousebuttons));
   memset (joybuttons, 0, sizeof(joybuttons));
@@ -803,7 +797,10 @@ boolean G_Responder (event_t* ev)
       //e6y
       mousex += (AccelerateMouse(ev->data2)*(mouseSensitivity_horiz))/10;  /* killough */
       if(GetMouseLook())
-        mousey += (AccelerateMouse(ev->data3)*(mouseSensitivity_mlook))/10;
+        if (movement_mouseinvert)
+          mlooky += (AccelerateMouse(ev->data3)*(mouseSensitivity_mlook))/10;
+        else
+          mlooky -= (AccelerateMouse(ev->data3)*(mouseSensitivity_mlook))/10;
       else
         mousey += (AccelerateMouse(ev->data3)*(mouseSensitivity_vert))/40;
 
@@ -995,6 +992,7 @@ void G_Ticker (void)
     case GS_LEVEL:
       P_Ticker ();
       P_WalkTicker();//e6y
+      mlooky = 0;//e6y
       ST_Ticker ();
       AM_Ticker ();
       HU_Ticker ();
@@ -1597,9 +1595,19 @@ static void G_LoadGameErr(const char *msg)
 // CPhipps - size of version header
 #define VERSIONSIZE   16
 
+//e6y
+/*
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
 { "doom v1.2", "demo", "doom", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
   "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1",
+  "Current PrBoom"  };
+  */
+const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
+{ "doom v1.2", "doom v1.666", "doom2 v1.9",
+  "ultimate doom v1.9", "final doom/doom95", 
+  "early DosDoom", "TASDoom",
+  "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
+  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", //"PrBoom v2.1.2-v2.2.3",
   "Current PrBoom"  };
 
 static const struct {
@@ -1612,15 +1620,19 @@ static const struct {
    *  the file format is unchanged. */
   { prboom_3_compatibility, "PrBoom %d", 210}
   //e6y
-  ,{ doom_12_compatibility, "PrBoom %d", 100}
-  ,{ doom_demo_compatibility, "PrBoom %d", 110}
-  ,{ doom_compatibility, "PrBoom %d", 120}
-  ,{ boom_compatibility_compatibility, "PrBoom %d", 130}
-  ,{ boom_201_compatibility, "PrBoom %d", 140}
-  ,{ boom_202_compatibility, "PrBoom %d", 150}
-  ,{ lxdoom_1_compatibility, "PrBoom %d", 160}
-  ,{ mbf_compatibility, "PrBoom %d", 170}
-  ,{ prboom_2_compatibility, "PrBoom %d", 190}
+  ,{ doom_12_compatibility,  "PrBoom %d", 100}
+  ,{ doom_1666_compatibility,"PrBoom %d", 101}
+  ,{ doom2_19_compatibility, "PrBoom %d", 102}
+  ,{ ultdoom_compatibility,  "PrBoom %d", 103}
+  ,{ finaldoom_compatibility,"PrBoom %d", 104}
+  ,{ dosdoom_compatibility,  "PrBoom %d", 105}
+  ,{ tasdoom_compatibility,  "PrBoom %d", 106}
+  ,{ boom_compatibility_compatibility, "PrBoom %d", 107}
+  ,{ boom_201_compatibility, "PrBoom %d", 108}
+  ,{ boom_202_compatibility, "PrBoom %d", 109}
+  ,{ lxdoom_1_compatibility, "PrBoom %d", 110}
+  ,{ mbf_compatibility, "PrBoom %d", 111}
+  ,{ prboom_2_compatibility, "PrBoom %d", 113}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
@@ -1977,6 +1989,15 @@ extern int monsters_remember, default_monsters_remember;
  *  introduced.
  */
 
+//e6y
+static byte comp_options_by_version[] =
+ { 0,0,0,0,0, /* Original Doom's don't have comp[] */
+   0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
+   19,19, /* MBF and early PrBoom had 19 */
+   21,21, /* PrBoom v2.1-v2.2 have 21 */
+//   25, /* PrBoom v2.3 still counting... */
+ };
+
 void G_Compatibility(void)
 {
   static const complevel_t fix_levels[COMP_NUM] = {
@@ -2015,11 +2036,21 @@ void G_Compatibility(void)
     prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
     boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
+    //e6y
+    doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
+//    prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
+//    doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
+    boom_compatibility_compatibility, //comp_maxhealth 
   };
   int i;
-  for (i=0; i<COMP_NUM; i++)
+  //e6y
+  if (sizeof(comp_options_by_version) != MAX_COMPATIBILITY_LEVEL)
+    I_Error("G_Compatibility: consistency error");
+
+  for (i=comp_options_by_version[compatibility_level]; i<COMP_NUM; i++)//e6y
     comp[i] = compatibility_level < fix_levels[i];
   for (; i<COMP_TOTAL; i++) comp[i] = 1;
+  e6y_G_Compatibility();//e6y
 }
 
 #ifdef DOGS
@@ -2107,6 +2138,7 @@ void G_ReloadDefaults(void)
   demo_insurance = default_demo_insurance == 1;
 
   rngseed += I_GetRandomTimeSeed() + gametic; // CPhipps
+  e6y_G_Compatibility();//e6y
 }
 
 void G_DoNewGame (void)
@@ -2257,6 +2289,7 @@ void GetCurrentTurnsSum(void)
 
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
+  unsigned char at;//e6y
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
   else
@@ -2264,12 +2297,21 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
       cmd->forwardmove = ((signed char)*demo_p++);
       cmd->sidemove = ((signed char)*demo_p++);
       if (!longtics) {
-        cmd->angleturn = ((unsigned char)*demo_p++)<<8;
+        cmd->angleturn = ((unsigned char)(at = *demo_p++))<<8;//e6y
       } else {
 	unsigned int lowbyte = (unsigned char)*demo_p++;
         cmd->angleturn = (((signed int)(*demo_p++))<<8) + lowbyte;
       }
       cmd->buttons = (unsigned char)*demo_p++;
+      //e6y
+      if (compatibility_level == tasdoom_compatibility)
+      {
+        signed char k = cmd->forwardmove;
+        cmd->forwardmove = cmd->sidemove;
+        cmd->sidemove = (signed char)at;
+        cmd->angleturn = ((unsigned char)cmd->buttons)<<8;
+        cmd->buttons = (byte)k;
+      }
     }
 }
 
@@ -2281,6 +2323,15 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   char buf[5];
   char *p = buf;
 
+  //e6y
+  if (compatibility_level == tasdoom_compatibility)
+  {
+    *p++ = cmd->buttons;
+    *p++ = cmd->forwardmove;
+    *p++ = cmd->sidemove;
+    *p++ = (cmd->angleturn+128)>>8;
+  } else {
+
   *p++ = cmd->forwardmove;
   *p++ = cmd->sidemove;
   if (!longtics) {
@@ -2291,6 +2342,9 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
     *p++ = (a >> 8) & 0xff;
   }
   *p++ = cmd->buttons;
+
+  }//e6y
+
   if (fwrite(buf, p-buf, 1, demofp) != 1)
     I_Error("G_WriteDemoTiccmd: error writing demo");
 
@@ -2312,7 +2366,7 @@ void G_RecordDemo (const char* name)
   /* cph - Record demos straight to file
    * If file already exists, try to continue existing demo
    */
-  if (access(demoname, F_OK)||demo_recordfromto) {//e6y
+  if (access(demoname, F_OK)||demo_recordfromto||demo_compatibility) {//e6y
     demofp = fopen(demoname, "wb");
   } else {
     demofp = fopen(demoname, "r+");
@@ -2599,7 +2653,7 @@ void G_BeginRecording (void)
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
 
-  } else if (compatibility_level > doom_compatibility) {
+  } else if (compatibility_level >= boom_compatibility_compatibility) { //e6y
     byte v, c; /* Nominally, version and compatibility bits */
     switch (compatibility_level) {
     case boom_compatibility_compatibility: v = 202, c = 1; break;
@@ -2639,7 +2693,7 @@ void G_BeginRecording (void)
       *demo_p++ = 0;
   } else { // cph - write old v1.9 demos (might even sync)
     longtics = M_CheckParm("-longtics");
-    *demo_p++ = longtics ? 111 : 109; // v1.9 has best chance of syncing these
+    *demo_p++ = longtics ? 111 : (compatibility_level==tasdoom_compatibility?110:109); //e6y// v1.9 has best chance of syncing these
     *demo_p++ = gameskill;
     *demo_p++ = gameepisode;
     *demo_p++ = gamemap;
@@ -2689,10 +2743,10 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
 
   if (demover < 200)     // Autodetect old demos
     {
-      compatibility_level = doom_demo_compatibility;
+//e6y      compatibility_level = doom_demo_compatibility;
       if (demover >= 111) longtics = 1;
 
-      G_Compatibility();
+      //e6y G_Compatibility();
 
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
 
@@ -2722,6 +2776,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
 
       if ((skill=demover) >= 100)         // For demos from versions >= 1.4
         {
+          compatibility_level = G_GetOriginalDoomCompatLevel(demover);//e6y
           skill = *demo_p++;
           episode = *demo_p++;
           map = *demo_p++;
@@ -2733,11 +2788,13 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
         }
       else
         {
+          compatibility_level = doom_12_compatibility;//e6y
           episode = *demo_p++;
           map = *demo_p++;
           deathmatch = respawnparm = fastparm =
             nomonsters = consoleplayer = 0;
         }
+      G_Compatibility();//e6y
     }
   else    // new versions of demos
     {
@@ -3008,7 +3065,7 @@ void P_WalkTicker()
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
   if(GetMouseLook())
   {
-    walkcamera.pitch += PitchSign * ((mousey / 8) << ANGLETOFINESHIFT);
+    walkcamera.pitch += ((mlooky / 8) << ANGLETOFINESHIFT);
     CheckPitch((signed int *) &walkcamera.pitch);
   }
 

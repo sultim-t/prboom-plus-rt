@@ -37,6 +37,7 @@
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "e6y.h"//e6y
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -431,14 +432,17 @@ int EV_DoFloor
 
   secnum = -1;
   rtn = 0;
+  
+  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_floor; else return rtn;//e6y
   // move all floors with the same tag as the linedef
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
     sec = &sectors[secnum];
 
+manual_floor://e6y
     // Don't start a second thinker on the same floor
     if (P_SectorActive(floor_special,sec)) //jff 2/23/98
-      continue;
+      if (!zerotag_manual) continue; else  return rtn;//e6y
 
     // new floor thinker
     rtn = 1;
@@ -627,6 +631,7 @@ int EV_DoFloor
       default:
         break;
     }
+    if (zerotag_manual) return rtn; //e6y
   }
   return rtn;
 }
@@ -729,13 +734,21 @@ int EV_BuildStairs
   int                   minssec = -1;
   int                   rtn = 0;
 
+  //e6y
+  int           secnum = -1;
+  sector_t*     sec;
+  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_stair; else return rtn;//e6y
+
   // start a stair at each sector tagged the same as the linedef
   while ((ssec = P_FindSectorFromLineTagWithLowerBound(line,ssec,minssec)) >= 0)
   {
-   int           secnum = ssec;
-   sector_t*     sec = &sectors[secnum];
+   //e6y int           
+   secnum = ssec;
+   //e6y sector_t*     
+   sec = &sectors[secnum];
 
-    // don't start a stair if the first step's floor is already moving
+manual_stair://e6y
+   // don't start a stair if the first step's floor is already moving
    if (!P_SectorActive(floor_special,sec)) { //jff 2/22/98
     floormove_t*  floor;
     int           texture, height;
@@ -860,6 +873,7 @@ int EV_BuildStairs
        ssec = -1; minssec = secnum;
      }
    }
+    if (zerotag_manual) return rtn; //e6y
   }
   return rtn;
 }

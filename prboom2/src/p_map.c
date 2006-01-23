@@ -1634,7 +1634,7 @@ boolean PTR_UseTraverse (intercept_t* in)
   //WAS can't use for than one special line in a row
   //jff 3/21/98 NOW multiple use allowed with enabling line flag
 
-  return (!demo_compatibility && (in->d.line->flags&ML_PASSUSE))?
+  return (!demo_compatibility && ((in->d.line->flags&ML_PASSUSE) || compbad_get(&comperr_passuse)))?//e6y
           true : false;
 }
 

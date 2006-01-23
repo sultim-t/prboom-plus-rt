@@ -299,7 +299,13 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
     sfx->usefulness = 1;
 
   // Assigns the handle to one of the channels in the mix/output buffer.
-  channels[cnum].handle = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
+  //e6y channels[cnum].handle = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
+  //e6y
+  {
+    int h;
+    h = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
+    if (h!=-1) channels[cnum].handle = h;
+  }
 }
 
 void S_StartSound(void *origin, int sfx_id)

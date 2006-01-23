@@ -345,13 +345,15 @@ int EV_DoDoor
   secnum = -1;
   rtn = 0;
 
+  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_door; else return rtn;//e6y
   // open all doors with the same tag as the activating line
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
     sec = &sectors[secnum];
+manual_door://e6y
     // if the ceiling already moving, don't start the door action
     if (P_SectorActive(ceiling_special,sec)) //jff 2/22/98
-        continue;
+      if (!zerotag_manual) continue; else  return rtn;//e6y
 
     // new door thinker
     rtn = 1;
@@ -413,6 +415,7 @@ int EV_DoDoor
       default:
         break;
     }
+    if (zerotag_manual) return rtn; //e6y
   }
   return rtn;
 }

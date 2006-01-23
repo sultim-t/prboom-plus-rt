@@ -2559,12 +2559,14 @@ void M_DrawWeapons(void)
 setup_menu_t stat_settings1[];
 setup_menu_t stat_settings2[]; //e6y
 setup_menu_t stat_settings3[]; //e6y
+setup_menu_t stat_settings4[]; //e6y
 
 setup_menu_t* stat_settings[] =
 {
   stat_settings1,
   stat_settings2, //e6y
   stat_settings3, //e6y
+  stat_settings4, //e6y
   NULL
 };
 
@@ -2609,19 +2611,17 @@ setup_menu_t stat_settings2[] =
   {"OVERWRITE EXISTING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"demo_overwriteexisting"}},
   {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"WARN ON SPECHITS OVERRUN"    ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"misc_spechitoverrun_warn"}, 0, 0, M_ChangeSpechitOverrun_Warn},
-  {"TRY TO EMULATE IT"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 12*8, {"misc_spechitoverrun_emulate"}},
-  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+14*8},
-  {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
+  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
+  {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
 #ifdef GL_DOOM
-  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 19*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-#else
+  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
   {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
   {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-  {"FIX TURN-SNAPPING ISSUE"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"misc_fixfirstmousemotion"}},
+#else
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  {"FIX TURN-SNAPPING ISSUE"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"misc_fixfirstmousemotion"}},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
@@ -2650,6 +2650,21 @@ setup_menu_t stat_settings3[] =
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings4}},
+  {0,S_SKIP|S_END,m_null}
+};
+setup_menu_t stat_settings4[] =
+{
+  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+1*8},
+  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 2*8, {"misc_spechitoverrun_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 3*8, {"misc_spechitoverrun_emulate"}},
+  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 4*8, {"misc_rejectoverrun_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 5*8, {"misc_rejectoverrun_emulate"}},
+  {"COMPATIBILITY WITH COMMON MAPPING ERRORS"                 ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+7*8},
+  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 8*8, {"comperr_zerotag"}},
+  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null ,E_ST_X,ST_Y+9*8, {"comperr_passuse"}},
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings3}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3206,11 +3221,13 @@ void M_DrawGeneral(void)
 #define C_NEXTPREV 131
 
 setup_menu_t comp_settings1[], comp_settings2[];
+setup_menu_t comp_settings3[];//e6y
 
 setup_menu_t* comp_settings[] =
 {
   comp_settings1,
   comp_settings2,
+  comp_settings3,//e6y
   NULL
 };
 
@@ -3237,6 +3254,9 @@ enum
   compat_model,
   compat_zerotags,
   compat_menu,
+  //e6y
+  compat_maxhealth = 0,
+  compat_666,
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3315,10 +3335,22 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
   {"Use Doom's main menu ordering", S_YESNO, m_null, C_X,
    C_Y + compat_menu * COMP_SPC, {"traditional_menu"}, 0, 0, M_ResetMenu},
 
+  {"NEXT ->",S_SKIP|S_NEXT, m_null, KB_NEXT, C_Y+C_NEXTPREV, {comp_settings3}},//e6y
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings1}},
 
   // Final entry
 
+  {0,S_SKIP|S_END,m_null}
+};
+
+//e6y
+setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
+{
+  {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
+   C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
+//  {"Enables tag 666 in non-E1Mx levels", S_YESNO, m_null, C_X,
+//   C_Y + compat_666 * COMP_SPC, {"comp_666"}},
+  {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings2}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -4406,19 +4438,19 @@ boolean M_Responder (event_t* ev) {
       }
 
     //e6y
-    if (ch == key_speed_default)               
+    if (ch == key_speed_default && !netgame)               
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 0, speed_step, 3, 10000, 100);
       I_Init2();
       return true;
     }
-    if (ch == key_speed_up)               
+    if (ch == key_speed_up && !netgame)               
     {                                 
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 1, speed_step, 3, 10000, 100);
       I_Init2();
       return true;
     }
-    if (ch == key_speed_down)               
+    if (ch == key_speed_down && !netgame)               
     {                                 
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, -1, speed_step, 3, 10000, 100);
       I_Init2();
@@ -5596,7 +5628,6 @@ void M_Init(void)
   M_ChangeMouseInvert();
   M_ChangeFOV();
   M_ChangeDemoSmoothTurns();
-  M_ChangeSpechitOverrun_Warn();
   M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
 }

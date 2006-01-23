@@ -66,9 +66,19 @@ typedef unsigned __int64 uint_64_t;
 /* cph - move compatibility levels here so we can use them in d_server.c */
 typedef enum {
   doom_12_compatibility, /* Behave like early doom versions */
-  doom_demo_compatibility, /* As compatible as possible for
-          * playing original Doom demos */
-  doom_compatibility,      /* Compatible with original Doom levels */
+  
+  //e6y
+  doom_1666_compatibility,	/* Doom & Doom2, v1.666 */
+  doom2_19_compatibility,	/* Doom 2 doom2.exe v1.9 */
+  ultdoom_compatibility,	/* Ultimate Doom v1.9 */
+  finaldoom_compatibility,	/* Final Doom doom2.exe (and Doom95?) */
+  /* Compatibility with various early Doom ports */
+  dosdoom_compatibility,
+  tasdoom_compatibility,
+
+  //e6y doom_demo_compatibility, /* As compatible as possible for
+  //e6y         * playing original Doom demos */
+  //e6y doom_compatibility,      /* Compatible with original Doom levels */
   boom_compatibility_compatibility,      /* Boom's compatibility mode */
   boom_201_compatibility,                /* Compatible with Boom v2.01 */
   boom_202_compatibility,                /* Compatible with Boom v2.01 */

@@ -39,6 +39,8 @@
 #define FOV_CORRECTION_FACTOR (1.13776f)
 #define FOV90 (90)
 
+#define E_ST_X 284
+
 typedef struct
 {
   const char *wadname;
@@ -118,6 +120,8 @@ extern int demo_smoothturnsfactor;
 extern int demo_overwriteexisting;
 extern int misc_fixfirstmousemotion;
 extern int misc_spechitoverrun_warn;
+extern int misc_rejectoverrun_warn;
+extern int misc_rejectoverrun_emulate;
 extern int misc_spechitoverrun_emulate;
 
 extern int test_sky1;
@@ -188,7 +192,6 @@ const byte* G_ReadDemoHeader(const byte* demo_p);
 void M_ChangeAltMouseHandling(void);
 void M_ChangeSmooth(void);
 void M_ChangeDemoSmoothTurns(void);
-void M_ChangeSpechitOverrun_Warn(void);
 void M_ChangeSpeed(void);
 void M_ChangeMouseLook(void);
 void M_ChangeMouseInvert(void);
@@ -296,7 +299,6 @@ int StepwiseSum(int value, int direction, int step, int minval, int maxval, int 
 boolean StrToInt(char *s, long *l);
 
 void CheckForSpechitsOverrun(line_t* ld);
-void ShowSpechitsOverrunningWarning(const char *msg);
 void SwitchToGameWindow(void);
 
 enum
@@ -348,6 +350,29 @@ void UngrabMouse_Win32(void);
 void e6y_I_InitInputs(void);
 int AccelerateMouse(int val);
 void MouseAccelChanging(void);
+
+extern int rjlen;
+extern int rjreq;
+void AddIntForRejectOverflow(int k);
+
+extern int mlooky;
+extern int realtic_clock_rate;
+extern boolean IsDehMaxHealth;
+extern int maxhealthbonus;
+extern int deh_maxhealth;
+void e6y_G_Compatibility(void);
+
+extern boolean zerotag_manual;
+extern int comperr_zerotag;
+extern int comperr_passuse;
+
+boolean compbad_get(int *compbad);
+//boolean CompErrZeroTag(void);
+//boolean CompErrPassUse(void);
+
+int G_GetOriginalDoomCompatLevel(int ver);
+
+boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
 //extern int viewMaxY;
 

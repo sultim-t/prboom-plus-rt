@@ -35,6 +35,7 @@
 #include "p_setup.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "e6y.h"
 
 //
 // P_CheckSight

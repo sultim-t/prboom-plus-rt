@@ -2411,7 +2411,7 @@ void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
           initial_bullets = (int)value;
         else
           if (!strcasecmp(key,deh_misc[2]))  // Max Health
-            maxhealth = (int)value;
+            IsDehMaxHealth = true, deh_maxhealth = (int)value;//e6y
           else
             if (!strcasecmp(key,deh_misc[3]))  // Max Armor
               max_armor = (int)value;
@@ -2877,7 +2877,7 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
       if (!StrToInt(t,&val))
       {
         val = 0;
-        okrc = FALSE;
+        //okrc = FALSE;
       }
     }
 

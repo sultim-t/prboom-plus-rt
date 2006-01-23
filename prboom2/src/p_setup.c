@@ -1202,6 +1202,14 @@ void P_GroupLines (void)
 
   {  // allocate line tables for each sector
     line_t **linebuffer = Z_Malloc(total*sizeof(line_t *), PU_LEVEL, 0);
+    //e6y
+    if (demo_compatibility)
+    {
+      AddIntForRejectOverflow(((total*4+3)&~3)+24);
+      AddIntForRejectOverflow(0);
+      AddIntForRejectOverflow(50);//DOOM_CONST_PU_LEVEL
+      AddIntForRejectOverflow(0x1d4a11);//DOOM_CONST_ZONEID
+    }
 
     for (i=0, sector = sectors; i<numsectors; i++, sector++)
     {
@@ -1456,8 +1464,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     W_UnlockLumpNum(rejectlump);
   rejectlump = lumpnum+ML_REJECT;
   {
-    int rjlen = W_LumpLength(rejectlump);
-    int rjreq = (numsectors*numsectors+7)/8;
+    //e6y int 
+    rjlen = W_LumpLength(rejectlump);
+    //e6y int
+    rjreq = (numsectors*numsectors+7)/8;
     if (rjlen < rjreq) {
       lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
       rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);

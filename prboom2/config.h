@@ -133,7 +133,7 @@
 #define USE_GLU_TESS 1
 
 /* Define if you want to use gluImageScale  */
-#define USE_GLU_IMAGESCALE 1
+//#define USE_GLU_IMAGESCALE 1
 
 /* Define if you want to use gluBuild2DMipmaps  */
 #define USE_GLU_MIPMAP 1

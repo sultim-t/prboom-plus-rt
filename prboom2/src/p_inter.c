@@ -330,8 +330,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
         // bonus items
     case SPR_BON1:
       player->health++;               // can go over 100%
-      if (player->health > (maxhealth * 2))
-        player->health = (maxhealth * 2);
+      if (player->health > (maxhealthbonus))//e6y
+        player->health = (maxhealthbonus);//e6y
       player->mo->health = player->health;
       player->message = s_GOTHTHBONUS; // Ty 03/22/98 - externalized
       break;

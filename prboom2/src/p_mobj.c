@@ -497,7 +497,8 @@ floater:
      *  gamemission. (Note we assume that Doom1 is always Ult Doom, which
      *  seems to hold for most published demos.)
      */
-    int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
+    //e6y int correct_lost_soul_bounce = !demo_compatibility || (gamemission != doom2);
+    int correct_lost_soul_bounce = compatibility_level > doom2_19_compatibility;//e6y
 
     if (correct_lost_soul_bounce && mo->flags & MF_SKULLFLY)
       mo->momz = -mo->momz; // the skull slammed into something

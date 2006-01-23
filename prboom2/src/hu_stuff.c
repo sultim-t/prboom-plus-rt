@@ -1272,7 +1272,7 @@ void HU_Drawer(void)
           plr->secretcount,totalsecret
         );
         */
-        if (!hudadd_smarttotals)
+        if (!hudadd_smarttotals || deathmatch)
         {
           sprintf
           (

@@ -36,6 +36,7 @@
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "e6y.h"//e6y
 
 platlist_t *activeplats;       // killough 2/14/98: made global again
 
@@ -188,7 +189,7 @@ int EV_DoPlat
   secnum = -1;
   rtn = 0;
 
-
+  if (ProcessNoTagLines(line, &sec, &secnum)) if (zerotag_manual) goto manual_plat; else return rtn;//e6y
   // Activate all <type> plats that are in_stasis
   switch(type)
   {
@@ -210,9 +211,10 @@ int EV_DoPlat
   {
     sec = &sectors[secnum];
 
+manual_plat://e6y
     // don't start a second floor function if already moving
     if (P_SectorActive(floor_special,sec)) //jff 2/23/98 multiple thinkers
-      continue;
+      if (!zerotag_manual) continue; else  return rtn;//e6y
 
     // Create a thinker
     rtn = 1;
@@ -315,6 +317,7 @@ int EV_DoPlat
         break;
     }
     P_AddActivePlat(plat);  // add plat to list of active plats
+    if (zerotag_manual) return rtn; //e6y
   }
   return rtn;
 }

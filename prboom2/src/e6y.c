@@ -85,6 +85,8 @@ int demo_overwriteexisting;
 int misc_fixfirstmousemotion;
 int misc_spechitoverrun_warn;
 int misc_spechitoverrun_emulate;
+int misc_rejectoverrun_warn;
+int misc_rejectoverrun_emulate;
 
 int test_sky1;
 int test_sky2;
@@ -120,7 +122,6 @@ fixed_t oviewz;
 angle_t oviewangle;
 angle_t oviewpitch;
 
-int PitchSign;
 int mouseSensitivity_mlook;
 angle_t viewpitch;
 float fovscale;
@@ -292,8 +293,10 @@ void M_ChangeMouseLook(void)
 boolean GetMouseLook(void)
 {
 #ifdef GL_DOOM
-  boolean ret = (demoplayback||demorecording)&&walkcamera.type==0?false:movement_mouselook;
-  if (!ret) viewpitch = 0;
+//  boolean ret = (demoplayback||demorecording)&&walkcamera.type==0?false:movement_mouselook;
+  boolean ret = (demoplayback)&&walkcamera.type==0?false:movement_mouselook;
+  if (!ret) 
+    viewpitch = 0;
   return ret;
 #else
   return false;
@@ -313,10 +316,6 @@ void CheckPitch(signed int *pitch)
 
 void M_ChangeMouseInvert(void)
 {
-  if(movement_mouseinvert)
-    PitchSign = +1;
-  else
-    PitchSign = -1;
 }
 
 void M_ChangeFOV(void)
@@ -400,7 +399,6 @@ unsigned int TicNext;
 unsigned int TicStep;
 float TicksInMSec;
 
-extern int realtic_clock_rate;
 extern int_64_t I_GetTime_Scale;
 
 void e6y_I_Init(void)
@@ -455,7 +453,6 @@ void I_GetTime_SaveMS(void)
 //------------
 
 int numinterpolations = 0;
-int startofdynamicinterpolations = 0;
 fixed_t oldipos[MAXINTERPOLATIONS][1];
 fixed_t bakipos[MAXINTERPOLATIONS][1];
 FActiveInterpolation curipos[MAXINTERPOLATIONS];
@@ -621,7 +618,8 @@ void setinterpolation(EInterpType type, void *posptr)
   int i;
   if (!movement_smooth)
     return;
-  if (numinterpolations >= MAXINTERPOLATIONS) return;
+  if (numinterpolations >= MAXINTERPOLATIONS)
+    return;
   for(i = numinterpolations-1; i >= 0; i--)
     if (curipos[i].Address == posptr && curipos[i].Type == type)
       return;
@@ -638,7 +636,7 @@ void stopinterpolation(EInterpType type, void *posptr)
   if (!movement_smooth)
     return;
 
-  for(i=numinterpolations-1; i>= startofdynamicinterpolations; --i)
+  for(i=numinterpolations-1; i>= 0; --i)
   {
     if (curipos[i].Address == posptr && curipos[i].Type == type)
     {
@@ -658,7 +656,7 @@ void stopallinterpolation(void)
   if (!movement_smooth)
     return;
 
-  for(i=numinterpolations-1; i>= startofdynamicinterpolations; --i)
+  for(i=numinterpolations-1; i>= 0; --i)
   {
     numinterpolations--;
     oldipos[i][0] = oldipos[numinterpolations][0];
@@ -727,8 +725,9 @@ void P_ActivateAllInterpolations()
 void SetInterpolationIfNew(thinker_t *th)
 {
   void *posptr = NULL;
-  EInterpType type;
-  int i;
+  void *posptr2 = NULL;
+  EInterpType type, type2;
+//  int i;
 
   if (!movement_smooth)
     return;
@@ -756,21 +755,32 @@ void SetInterpolationIfNew(thinker_t *th)
     type = INTERP_SectorCeiling;
     posptr = ((vldoor_t *)th)->sector;
   }
+  else
+  if (th->function == T_MoveElevator)
+  {
+    type = INTERP_SectorFloor;
+    posptr = ((elevator_t *)th)->sector;
+    type2 = INTERP_SectorCeiling;
+    posptr2 = ((elevator_t *)th)->sector;
+  }
 
   if(posptr)
   {
-    for(i=numinterpolations-1; i>= startofdynamicinterpolations; --i)
-      if (curipos[i].Address == posptr)
-        return;
-
+//    for(i=numinterpolations-1; i>= 0; --i)
+//      if (curipos[i].Address == posptr)
+//        return;
     setinterpolation (type, posptr);
+    
+    if(posptr2)
+      setinterpolation (type2, posptr2);
   }
 }
 
 void StopInterpolationIfNeeded(thinker_t *th)
 {
   void *posptr = NULL;
-  EInterpType type;
+  void *posptr2 = NULL;
+  EInterpType type, type2;
 
   if (!movement_smooth)
     return;
@@ -798,10 +808,20 @@ void StopInterpolationIfNeeded(thinker_t *th)
     type = INTERP_SectorCeiling;
     posptr = ((vldoor_t *)th)->sector;
   }
+  else
+  if (th->function == T_MoveElevator)
+  {
+    type = INTERP_SectorFloor;
+    posptr = ((elevator_t *)th)->sector;
+    type2 = INTERP_SectorCeiling;
+    posptr2 = ((elevator_t *)th)->sector;
+  }
 
   if(posptr)
   {
     stopinterpolation (type, posptr);
+    if(posptr2)
+      stopinterpolation (type2, posptr2);
   }
 }
 
@@ -962,11 +982,6 @@ void M_ChangeDemoSmoothTurns(void)
   else
     stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
 
-  ClearSmoothViewAngels();
-}
-
-void M_ChangeSpechitOverrun_Warn(void)
-{
   ClearSmoothViewAngels();
 }
 
@@ -1189,25 +1204,25 @@ void SwitchToGameWindow()
 #endif
 }
 
-void ShowSpechitsOverrunningWarning(const char *msg)
+void ShowSpechitsOverrunningWarning(boolean fatal)
 {
   static char buffer[1024];
-  static boolean OverrunPromted = false;
+  static boolean SpechitsOverrunPromted = false;
   extern line_t **spechit;
 
-  if (!OverrunPromted)
+  if (!SpechitsOverrunPromted)
   {
-    OverrunPromted = true;
+    SpechitsOverrunPromted = true;
 
     sprintf(buffer,
-      "%s The demo can be desync %s. "
+      "%s%s"
 #ifdef GL_DOOM
-      "The list of LinesID leading to overrun: "
-      "%d, %d, %d, %d, %d, %d, %d, %d, %d. "
+      " The list of LinesID leading to overrun: %d, %d, %d, %d, %d, %d, %d, %d, %d."
 #endif
-      "You can disable this warning through: "
-      "\\Options\\Setup\\Status Bar / HUD\\Warn on Spechits Overrun"
-      ,msg, demoplayback?"soon":"on playback with vanilla doom2 engine"
+      " You can disable this warning through: \\Options\\Setup\\Status Bar / HUD\\Warn on Spechits Overflow."
+
+      ,fatal?"Too big spechits overflow for emulation was detected.":"Spechits overflow has been detected."
+      ," Desync may occur soon if you're viewing demo at the moment. In case you're recording demo desync may occur during playback with vanilla engine."
 #ifdef GL_DOOM
       ,spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID
       ,spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID
@@ -1233,7 +1248,7 @@ void CheckForSpechitsOverrun(line_t* ld)
     && (misc_spechitoverrun_warn || misc_spechitoverrun_emulate))
   {
     if (misc_spechitoverrun_warn)
-      ShowSpechitsOverrunningWarning("Spechits overflow has been detected.");
+      ShowSpechitsOverrunningWarning(numspechit > 20);
 
     if (misc_spechitoverrun_emulate)
     {
@@ -1257,7 +1272,6 @@ void CheckForSpechitsOverrun(line_t* ld)
       case 20: la_damage = addr; break;
 
       default:
-        ShowSpechitsOverrunningWarning("Too big spechits overflow for emulation was detected.");
         break;
       }
     }
@@ -1537,4 +1551,122 @@ int AccelerateMouse(int val)
   if (val < 0)
     return -AccelerateMouse(-val);
   return (int) pow(val, mouse_accelfactor);
+}
+
+int rjreq, rjlen;
+
+void ShowRejectOverrunningWarning(boolean fatal)
+{
+  static char buffer[1024];
+  static boolean RejectOverrunPromted = false;
+
+  if (!RejectOverrunPromted)
+  {
+    RejectOverrunPromted = true;
+
+    sprintf(buffer,
+      "%s"
+      " You can disable this warning through: \\Options\\Setup\\Status Bar / HUD\\Warn on Reject Overflow.",
+
+      fatal?
+      "Too big reject overflow for emulation was detected. Desync may occur soon if you're viewing demo at the moment. In case you're recording demo desync may occur during playback with vanilla engine.":
+      "Reject overflow has been detected."
+      );
+    I_Warning(buffer);
+  }
+}
+
+void AddIntForRejectOverflow(int k)
+{
+  extern byte *rejectmatrix;
+  int i = 0;
+
+  if (rjlen < rjreq && demo_compatibility
+    && (misc_rejectoverrun_warn || misc_rejectoverrun_emulate))
+  {
+    if (misc_rejectoverrun_warn)
+      ShowRejectOverrunningWarning(rjreq - rjlen > 16);
+    
+    if (misc_rejectoverrun_emulate)
+    {
+      while (rjlen < rjreq)
+      {
+        rejectmatrix[rjlen++] = (k & 0x000000ff);
+        k >>= 8;
+        if ((++i)==4) break;
+      }
+    }
+  }
+}
+
+int mlooky;
+
+boolean IsDehMaxHealth = false;
+int deh_maxhealth;
+int maxhealthbonus;
+void e6y_G_Compatibility(void)
+{
+  extern int maxhealth;
+
+  if (comp[comp_maxhealth]) 
+  {
+    maxhealth = 100;
+    maxhealthbonus = (IsDehMaxHealth?deh_maxhealth:200);
+  }
+  else 
+  {
+    maxhealth = (IsDehMaxHealth?deh_maxhealth:100);
+    maxhealthbonus = maxhealth * 2;
+  }
+}
+
+boolean zerotag_manual;
+int comperr_zerotag;
+int comperr_passuse;
+
+boolean compbad_get(int *compbad)
+{
+  return !demo_compatibility && (*compbad) && !demorecording && !demoplayback;
+}
+
+/*boolean CompErrZeroTag(void)
+{
+  return !demo_compatibility && comperr_zerotag && !demorecording && !demoplayback;
+}
+
+boolean CompErrPassUse(void)
+{
+  return !demo_compatibility && comperr_passuse && !demorecording && !demoplayback;
+}*/
+
+int G_GetOriginalDoomCompatLevel(int ver)
+{
+  {
+    int lev;
+    int i = M_CheckParm("-complevel");
+    if (i && (i+1 < myargc))
+    {
+      lev = atoi(myargv[i+1]);
+      if (lev>=0)
+        return lev;
+    }
+  }
+  return (ver < 107 ? doom_1666_compatibility :
+      (gamemode == retail) ? ultdoom_compatibility :
+      (gamemission >= pack_tnt) ? finaldoom_compatibility :
+      doom2_19_compatibility);
+}
+
+boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
+{
+  zerotag_manual = false;
+  if (line->tag == 0 && compbad_get(&comperr_zerotag))
+  {
+    if (!(*sec=line->backsector))
+      return true;
+    *secnum = *sec-sectors;
+    zerotag_manual = true;
+    return true;
+  }
+  return false;
 }

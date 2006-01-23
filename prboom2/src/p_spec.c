@@ -1034,7 +1034,7 @@ int P_CheckTag(line_t *line)
 {
   /* tag not zero, allowed, or
    * killough 11/98: compatibility option */
-  if (comp[comp_zerotags] || line->tag)
+  if (comp[comp_zerotags] || line->tag || compbad_get(&comperr_zerotag))//e6y
     return 1;
 
   switch(line->special)
