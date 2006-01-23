@@ -48,7 +48,6 @@ int key_speed_down;
 int key_speed_default;
 int key_demo_jointogame;
 int key_demo_nextlevel;
-int speed_step;
 int key_walkcamera;
 
 int hudadd_gamespeed;
@@ -56,13 +55,11 @@ int hudadd_leveltime;
 int hudadd_secretarea;
 int hudadd_smarttotals;
 int movement_mouselook;
-int _movement_mouselook;
 int movement_mouseinvert;
 int movement_strafe50;
 int movement_strafe50onturns;
 int movement_smooth;
-int view_fov;
-int _view_fov;
+int render_fov;
 int render_usedetail;
 int render_detailwalls;
 int render_detailflats;
@@ -121,6 +118,8 @@ boolean SkyDrawed;
 boolean isExtraDDisplay = false;
 boolean skipDDisplay = false;
 unsigned int DDisplayTime;
+
+float internal_render_fov = FOV90;
 
 int idDetail;
 boolean gl_arb_multitexture;
@@ -190,12 +189,18 @@ void M_ChangeSpeed(void)
 
 void M_ChangeMouseLook(void)
 {
-#ifdef GL_DOOM
-  movement_mouselook = _movement_mouselook;
-#else
-  movement_mouselook = false;
-#endif
   viewpitch = 0;
+}
+
+boolean GetMouseLook(void)
+{
+#ifdef GL_DOOM
+  boolean ret = (demoplayback||demorecording)&&walkcamera.type==0?false:movement_mouselook;
+  if (!ret) viewpitch = 0;
+  return ret;
+#else
+  return false;
+#endif
 }
 
 void CheckPitch(signed int *pitch)
@@ -220,21 +225,24 @@ void M_ChangeMouseInvert(void)
 void M_ChangeFOV(void)
 {
   float f1, f2;
+
 #ifdef GL_DOOM
-  view_fov = _view_fov;
+  internal_render_fov = (float)render_fov;
 #else
-  view_fov = 64;
+  internal_render_fov = (float)FOV90;
 #endif
-  fovscale = 64.0f/(float)view_fov;
+
+  internal_render_fov = internal_render_fov/1.6f*FOV_CORRECTION_FACTOR;
+  fovscale = FOV90/(float)render_fov;
 
   f1 = (float)(320.0f/200.0f/fovscale-0.2f);
-  f2 = (float)tan(view_fov/2.0f*Pi/180.0f);
+  f2 = (float)tan(internal_render_fov/2.0f*Pi/180.0f);
   if (f1-f2<1)
     skyUpAngle = (float)-asin(f1-f2)*180.0f/Pi;
   else
     skyUpAngle = -90.0f;
 
-  skyUpShift = (float)tan((view_fov/2.0f)*Pi/180.0f);
+  skyUpShift = (float)tan((internal_render_fov/2.0f)*Pi/180.0f);
 }
 
 void M_ChangeUseDetail(void)
@@ -281,9 +289,16 @@ void M_DemosBrowse(void)
 
 unsigned int TicStart;
 unsigned int TicNext;
+unsigned int TicStep;
+float TicksInMSec;
 
 extern int realtic_clock_rate;
 extern int_64_t I_GetTime_Scale;
+
+void e6y_I_Init(void)
+{
+  TicksInMSec = realtic_clock_rate * TICRATE / 100000.0f;
+}
 
 void Extra_D_Display(void)
 {
@@ -302,18 +317,15 @@ void Extra_D_Display(void)
 fixed_t I_GetTimeFrac (void)
 {
   unsigned long now;
-  unsigned int step;
   fixed_t frac;
-
 
   now = SDL_GetTicks();
 
-  step = TicNext - TicStart;
-  if (step == 0)
+  if (TicStep == 0)
     return FRACUNIT;
   else
   {
-    frac = (fixed_t)((now - TicStart + DDisplayTime) * FRACUNIT / (float)step);
+    frac = (fixed_t)((now - TicStart + DDisplayTime) * FRACUNIT / TicStep);
     if (frac < 0)
       frac = 0;
     if (frac > FRACUNIT)
@@ -324,14 +336,12 @@ fixed_t I_GetTimeFrac (void)
 
 void I_GetTime_SaveMS(void)
 {
-  float d;
-
   if (!movement_smooth)
     return;
 
   TicStart = SDL_GetTicks();
-  d = realtic_clock_rate * TICRATE / 100000.0f;
-  TicNext = (unsigned int) ((TicStart * d + 1.0f) / d);
+  TicNext = (unsigned int) ((TicStart * TicksInMSec + 1.0f) / TicksInMSec);
+  TicStep = TicNext - TicStart;
 }
 
 //------------
@@ -389,14 +399,8 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      //static FILE* f = NULL;
-
       viewangle = oviewangle + FixedMul (frac, GetSmoothViewAngel(player->mo->angle) + viewangleoffset - oviewangle);
       viewpitch = oviewpitch + FixedMul (frac, player->mo->pitch /*+ viewangleoffset*/ - oviewpitch);
-
-      //if (!f)
-      //  f = fopen("info.txt", "wb");
-      //fprintf(f, "%.10d: %.10d-%.10d-%.10d\n", gametic, oviewangle, viewangle, player->mo->angle);
     }
   }
   else
@@ -488,6 +492,18 @@ void DoAnInterpolation (int i, fixed_t smoothratio)
 
   pos = bakipos[i][0] = *adr1;
   *adr1 = oldipos[i][0] + FixedMul (pos - oldipos[i][0], smoothratio);
+  /*{
+    static FILE *f = NULL;
+    if (!f) f = fopen("d:\\a.txt", "wb");
+    fprintf(f, "%.10d:%.10d:%.10d %.10d-%.10d, %f-%f\n", gametic, smoothratio, DDisplayTime, oldipos[i][0], *adr1, oldipos[i][0]/65536.0f, *adr1/65536.0f);
+  }*/
+/*
+  {
+    static FILE *f = NULL;
+    if (!f) f = fopen("d:\\b.txt", "wb");
+    fprintf(f, "%.10d\n", gametic);
+  }
+  */
 }
 
 void updateinterpolations()
@@ -942,6 +958,57 @@ void e6y_MultisamplingPrint(void)
   lprintf(LO_INFO,"    SDL_GL_MULTISAMPLESAMPLES: %i\n",temp);
   SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
   lprintf(LO_INFO,"    SDL_GL_MULTISAMPLEBUFFERS: %i\n",temp);
+}
+
+int force_monster_avoid_hazards = false;
+
+void ChangeSpeed(int direction)
+{
+  int delta = 0;
+  int value = realtic_clock_rate;
+  int minvalue = 3;
+
+  switch (direction)
+  {
+    case 0:
+      realtic_clock_rate = 100;
+      I_Init2();
+      break;
+    case 1:
+      if (value >= 10000)
+        delta = 0;
+      else if (value >= 1000)
+        delta = 1000;
+      else if (value >= 500)
+        delta = 100;
+      else if (value >= 100)
+        delta = 50;
+      else if (value >= 10)
+        delta = 10;
+      else
+        delta = 10 - value;
+      realtic_clock_rate += delta;
+      I_Init2();
+      break;
+    case -1:
+      if (value <= minvalue)
+        delta = 0;
+      else if (value <= 10)
+        delta = value - minvalue;
+      else if (value <= 100)
+        delta = 10;
+      else if (value <= 500)
+        delta = 50;
+      else if (value <= 1000)
+        delta = 100;
+      else if (value <= 10000)
+        delta = 1000;
+      else
+        delta = value - 10000;
+      realtic_clock_rate -= delta;
+      I_Init2();
+      break;
+  }
 }
 
 //int viewMaxY;

@@ -526,7 +526,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       }
 
   //e6y
-  if (!movement_mouselook || demoplayback || demorecording)
+  if (!GetMouseLook())
     forward += mousey;
   else
     if(!(automapmode & am_active))
@@ -823,7 +823,7 @@ boolean G_Responder (event_t* ev)
       mousex += (ev->data2*(mouseSensitivity_horiz))/10;  /* killough */
 
       //e6y
-      if(movement_mouselook && !demoplayback && !demorecording)
+      if(GetMouseLook())
         mousey += (ev->data3*(mouseSensitivity_mlook))/10;
       else
         mousey += (ev->data3*(mouseSensitivity_vert))/40;  /*Mead rm *4 */
@@ -3015,7 +3015,7 @@ void P_WalkTicker()
   angturn -= mousex;
 
   walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
-  if(movement_mouselook)
+  if(GetMouseLook())
   {
     walkcamera.pitch += PitchSign * ((mousey / 8) << ANGLETOFINESHIFT);
     CheckPitch((signed int *) &walkcamera.pitch);

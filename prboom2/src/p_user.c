@@ -185,7 +185,7 @@ void P_MovePlayer (player_t* player)
   //e6y
   if (demo_smoothturns && players && &players[displayplayer] == player)
     AddSmoothViewAngel(cmd->angleturn << 16);
-  if (movement_mouselook)
+  if (GetMouseLook())
   {
     mo->pitch += (cmd->pitchturn << 16);
     CheckPitch((signed int *) &mo->pitch);

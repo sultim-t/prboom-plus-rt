@@ -119,6 +119,7 @@ void I_Init(void)
     if (!(nomusicparm && nosfxparm))
       I_InitSound();
   }
+  e6y_I_Init();//e6y
 }
 
 //e6y
@@ -138,6 +139,7 @@ void I_Init2(void)
   {
     otic = 0;
   }
+  e6y_I_Init();
 }
 
 /* cleanup handling -- killough:

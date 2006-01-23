@@ -1900,7 +1900,7 @@ void gld_StartDrawScene(void)
 
 //e6y
 //  viewMaxY = viewz;
-  if((!movement_mouselook || demoplayback) && view_fov == 64)
+  if(!GetMouseLook && render_fov == FOV90)
     pitch=0.0f;
   else
   {
@@ -1923,7 +1923,7 @@ void gld_StartDrawScene(void)
 
   //gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
 //e6y  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
-  infinitePerspective((float)view_fov,320.0f/200.0f, (float)gl_nearclip/100.0f);//e6y
+  infinitePerspective(internal_render_fov,320.0f/200.0f, (float)gl_nearclip/100.0f);//e6y
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -2054,7 +2054,7 @@ static void gld_DrawWall(GLWall *wall)
     {
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
-      if ((!movement_mouselook || demoplayback) && view_fov == 64) {//e6y
+      if (!GetMouseLook() && render_fov == FOV90) {//e6y
       if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
         glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
       else
@@ -2082,7 +2082,7 @@ static void gld_DrawWall(GLWall *wall)
           glTranslatef(skyXShift,skyYShift,0.0f);
         }
       }
-      if (movement_mouselook && !demoplayback && !SkyDrawed)
+      if (GetMouseLook() && !SkyDrawed)
       {             
         //float skytop = wall->ytop;
         float skytop = 255.0f;

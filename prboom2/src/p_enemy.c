@@ -432,6 +432,7 @@ static boolean P_SmartMove(mobj_t *actor)
 {
   mobj_t *target = actor->target;
   int on_lift, dropoff = false, under_damage;
+  int tmp_monster_avoid_hazards = (force_monster_avoid_hazards?true:(demo_compatibility?false:monster_avoid_hazards));//e6y
 
   /* killough 9/12/98: Stay on a lift if target is on one */
   on_lift = !comp[comp_staylift]
@@ -439,9 +440,7 @@ static boolean P_SmartMove(mobj_t *actor)
     && target->subsector->sector->tag==actor->subsector->sector->tag &&
     P_IsOnLift(actor);
 
-  if(!demo_compatibility)//e6y
-  under_damage = monster_avoid_hazards && P_IsUnderDamage(actor);
-  else under_damage = false;//e6y
+  under_damage = tmp_monster_avoid_hazards && P_IsUnderDamage(actor);//e6y
 
   // killough 10/98: allow dogs to drop off of taller ledges sometimes.
   // dropoff==1 means always allow it, dropoff==2 means only up to 128 high,
@@ -464,8 +463,7 @@ static boolean P_SmartMove(mobj_t *actor)
       (on_lift && P_Random(pr_stayonlift) < 230 &&      // Stay on lift
        !P_IsOnLift(actor))
       ||
-      (!demo_compatibility) &&//e6y
-      (monster_avoid_hazards && !under_damage &&  // Get away from damage
+      (tmp_monster_avoid_hazards && !under_damage &&//e6y  // Get away from damage
        (under_damage = P_IsUnderDamage(actor)) &&
        (under_damage < 0 || P_Random(pr_avoidcrush) < 200))
       )

@@ -519,7 +519,7 @@ void R_ProjectSprite (mobj_t* thing)
   x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
 
     // off the right side?
-  if((!movement_mouselook || demoplayback) && view_fov <= 64)//e6y
+  if(!GetMouseLook() && render_fov <= FOV90)//e6y
 
   if (x1 > viewwidth)
     return;
@@ -528,7 +528,7 @@ void R_ProjectSprite (mobj_t* thing)
   x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
     // off the left side
-  if((!movement_mouselook || demoplayback) && view_fov <= 64)//e6y
+  if(!GetMouseLook() && render_fov <= FOV90)//e6y
 
   if (x2 < 0)
     return;
@@ -537,7 +537,7 @@ void R_ProjectSprite (mobj_t* thing)
   gzt = fz + spritetopoffset[lump]; //e6y
 
   // killough 4/9/98: clip things which are out of view due to height
-  if((!movement_mouselook || demoplayback) && view_fov <= 64)//e6y
+  if(!GetMouseLook() && render_fov <= FOV90)//e6y
 
   if (thing->z > viewz + FixedDiv(centeryfrac, xscale) ||
       gzt      < viewz - FixedDiv(centeryfrac-viewheight, xscale))

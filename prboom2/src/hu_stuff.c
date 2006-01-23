@@ -1354,7 +1354,7 @@ void HU_Drawer(void)
     {
       if (hudadd_gamespeed||hudadd_leveltime)
       {
-		extern int realtic_clock_rate;
+	extern int realtic_clock_rate;
         hud_timestr[0] = 0;
         if (hudadd_gamespeed)
           sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31speed \x1b\x33%.2d ", realtic_clock_rate);

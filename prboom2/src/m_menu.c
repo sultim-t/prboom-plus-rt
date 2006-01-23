@@ -2375,12 +2375,11 @@ setup_menu_t keys_settings5[] =  // Key Binding screen strings
   {"GAME"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y},
   {"SPEED UP"             ,S_KEY     ,m_scrn,KB_X,KB_Y+ 1*8,{&key_speed_up}},
   {"SPEED DOWN"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 2*8,{&key_speed_down}},
-  {"STEP OF SPEED CHANGE" ,S_NUM, m_null, KB_X,KB_Y+ 3*8, {"speed_step"}},
-  {"SET SPEED TO DEFAULT" ,S_KEY     ,m_scrn,KB_X,KB_Y+ 4*8,{&key_speed_default}},
-  {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+5*8},
-  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_nextlevel}},
-  {"WALK CAMERA"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_walkcamera}},
-  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_demo_jointogame}},
+  {"SET SPEED TO DEFAULT" ,S_KEY     ,m_scrn,KB_X,KB_Y+ 3*8,{&key_speed_default}},
+  {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+4*8},
+  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 5*8,{&key_demo_nextlevel}},
+  {"WALK CAMERA"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_walkcamera}},
+  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_demo_jointogame}},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
   // Final entry
@@ -2607,7 +2606,7 @@ setup_menu_t stat_settings2[] =
 #ifdef GL_DOOM
   {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
   {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 16*8, {"view_fov"}, 0, 0, M_ChangeFOV},
+  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 16*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
   {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
 #else
@@ -4392,22 +4391,18 @@ boolean M_Responder (event_t* ev) {
 
     //e6y
     if (ch == key_speed_default)               
-    {                                 
-      realtic_clock_rate = 100;
-      I_Init2();
+    {
+      ChangeSpeed(0);
       return true;
     }
     if (ch == key_speed_up)               
     {                                 
-      realtic_clock_rate += speed_step;
-      I_Init2();
+      ChangeSpeed(1);
       return true;
     }
     if (ch == key_speed_down)               
     {                                 
-      realtic_clock_rate -= speed_step;
-      if (realtic_clock_rate <= 0) realtic_clock_rate = 10;
-      I_Init2();
+      ChangeSpeed(-1);
       return true;
     }
     if (ch == key_demo_nextlevel)

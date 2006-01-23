@@ -296,7 +296,7 @@ void D_Display (void)
 #endif
 
     // Now do the drawing
-    if (viewactive)
+//e6y    if (viewactive)
       R_RenderPlayerView (&players[displayplayer]);
 
     if (automapmode & am_active)
@@ -1414,6 +1414,7 @@ void D_DoomMainSetup(void)
   if ((p = M_CheckParm("-framescapture")) && (p < myargc-2))
     if ((avi_shot_count = avi_shot_time = atoi(myargv[p+1])))
       avi_shot_fname = myargv[p+2];
+  force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
 
 #ifndef NO_PREDEFINED_LUMPS
   // jff 4/21/98 allow writing predefined lumps out as a wad

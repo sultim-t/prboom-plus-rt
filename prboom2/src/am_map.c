@@ -1572,7 +1572,7 @@ void AM_drawThings
             (
               cross_mark,
               NUMCROSSMARKLINES,
-              16<<FRACBITS,
+              16<<MAPBITS,//e6y
               t->angle,
               mapcolor_rkey!=-1? mapcolor_rkey : mapcolor_sprt,
               x, y
@@ -1584,7 +1584,7 @@ void AM_drawThings
             (
               cross_mark,
               NUMCROSSMARKLINES,
-              16<<FRACBITS,
+              16<<MAPBITS,//e6y
               t->angle,
               mapcolor_ykey!=-1? mapcolor_ykey : mapcolor_sprt,
               x, y
@@ -1596,7 +1596,7 @@ void AM_drawThings
             (
               cross_mark,
               NUMCROSSMARKLINES,
-              16<<FRACBITS,
+              16<<MAPBITS,//e6y
               t->angle,
               mapcolor_bkey!=-1? mapcolor_bkey : mapcolor_sprt,
               x, y

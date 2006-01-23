@@ -687,9 +687,6 @@ default_t defaults[] =
   {"mouse_sensitivity_mlook",{&mouseSensitivity_mlook},{10},0,UL,
    def_int,ss_none},
 
-  {"speed_step",{&speed_step},{10},0,100,
-   def_int,ss_none},
-
   {"key_speedup",     {&key_speed_up},         {KEYD_KEYPADPLUS}                ,
    0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate += 10                   
   {"key_speeddown",     {&key_speed_down},         {KEYD_KEYPADMINUS}           ,
@@ -713,7 +710,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_smooth", {&movement_smooth},  {0},0,1,
    def_bool,ss_stat},
-  {"movement_mouselook", {&_movement_mouselook},  {0},0,1,
+  {"movement_mouselook", {&movement_mouselook},  {0},0,1,
    def_bool,ss_stat},
   {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
@@ -721,7 +718,7 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
    def_bool,ss_stat},
-  {"view_fov", {&_view_fov},  {64},20,120,
+  {"render_fov", {&render_fov},  {90},20,160,
    def_int,ss_stat},
   {"render_usedetail", {&render_usedetail},  {0},0,1,
    def_bool,ss_stat},

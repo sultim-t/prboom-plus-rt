@@ -658,11 +658,11 @@ void R_RenderPlayerView (player_t* player)
   //e6y R_RenderBSPNode (numnodes-1);
 
   //e6y
-  if ((view_fov > 64) || (movement_mouselook && !demoplayback && viewpitch))
+  if ((render_fov > FOV90) || (GetMouseLook() && viewpitch))
   {
     unsigned int oldviewangle;
     oldviewangle = viewangle;
-    if (view_fov > 64 || trasparentpresent)//FIXME!!!
+    if (render_fov > FOV90 || trasparentpresent)//FIXME!!!
     {
       R_RenderBSPNode (numnodes-1);
       viewangle += ANG90;

@@ -35,6 +35,9 @@
 
 #define NO_INDEX ((unsigned short)-1)
 
+#define FOV_CORRECTION_FACTOR (1.13776f)
+#define FOV90 (90)
+
 typedef struct camera_s
 {
   long x;
@@ -72,7 +75,6 @@ extern int key_speed_down;
 extern int key_speed_default;
 extern int key_demo_jointogame;
 extern int key_demo_nextlevel;
-extern int speed_step;
 extern int key_walkcamera;
 
 extern int hudadd_gamespeed;
@@ -80,13 +82,11 @@ extern int hudadd_leveltime;
 extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
 extern int movement_mouselook;
-extern int _movement_mouselook;
 extern int movement_mouseinvert;
 extern int movement_strafe50;
 extern int movement_strafe50onturns;
 extern int movement_smooth;
-extern int view_fov;
-extern int _view_fov;
+extern int render_fov;
 extern int render_usedetail;
 extern int render_detailwalls;
 extern int render_detailflats;
@@ -138,6 +138,9 @@ extern boolean skipDDisplay;
 extern unsigned int DDisplayTime;
 extern unsigned int TicStart;
 extern unsigned int TicNext;
+extern float TicksInMSec;
+
+extern float internal_render_fov;
 
 extern boolean gl_arb_multitexture;
 extern int idDetail;
@@ -146,6 +149,8 @@ extern hu_textline_t  w_hudadd;
 extern hu_textline_t  w_centermsg;
 extern char hud_timestr[80];
 extern char hud_centermsg[80];
+
+void e6y_I_Init(void);
 
 void P_WalkTicker ();
 void P_ResetWalkcam ();
@@ -166,6 +171,7 @@ void M_MouseMLook(int choice);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
 void D_Display(void);
+boolean GetMouseLook(void);
 
 void Extra_D_Display(void);
 fixed_t I_GetTimeFrac (void);
@@ -251,6 +257,10 @@ void R_SetupFrame (player_t *player);
 void e6y_MultisamplingCheck(void);
 void e6y_MultisamplingSet(void);
 void e6y_MultisamplingPrint(void);
+
+extern int force_monster_avoid_hazards;
+
+void ChangeSpeed(int direction);
 
 //extern int viewMaxY;
 
