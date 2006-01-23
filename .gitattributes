@@ -14,11 +14,6 @@ eternity/Source/obj/obj_temp.txt -text
 eternity/Source/objdebug/objdebug_temp.txt -text
 eternity/Source/rules.make -text
 eternity/Source/sdl/Makefile -text
-prboom/ICON/Heada1.ico -text
-prboom/ICON/barrel.ico -text
-prboom/ICON/fouch.ico -text
-prboom/ICON/god.ico -text
-prboom/ICON/skull.ico -text
 pyboom/main.py -text
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text
