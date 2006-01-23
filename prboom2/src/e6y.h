@@ -21,6 +21,7 @@
 #define MAXINTERPOLATIONS 2048
 
 #define S_CANT_GL_ARB_MULTITEXTURE 0x10000000
+#define S_CANT_GL_ARB_MULTISAMPLEFACTOR  0x20000000
 
 #define E6Y_CALC_TEX_VALUES_MIDDLE2S(w, seg, peg, linelength, lineheight, deltaceiling, deltafloor)\
   (w).flag=GLDWF_M2S;\
@@ -31,6 +32,8 @@
 
 #define GL_COMBINE_ARB                    0x8570
 #define GL_RGB_SCALE_ARB                  0x8573
+
+#define NO_INDEX ((unsigned short)-1)
 
 typedef struct camera_s
 {
@@ -91,6 +94,8 @@ extern int render_detailsprites;
 extern int render_usedetailwalls;
 extern int render_usedetailflats;
 extern int render_usedetailsprites;
+extern int render_multisampling;
+extern int render_smartitemsclipping;
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
 extern int demo_overwriteexisting;
@@ -156,6 +161,7 @@ void M_ChangeMouseLook(void);
 void M_ChangeMouseInvert(void);
 void M_ChangeFOV(void);
 void M_ChangeUseDetail(void);
+void M_ChangeMultiSample(void);
 void M_MouseMLook(int choice);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
@@ -242,6 +248,9 @@ void R_ClearClipSegs (void);
 void R_RenderBSPNode(int bspnum);
 void R_SetupFrame (player_t *player);
 
+void e6y_MultisamplingCheck(void);
+void e6y_MultisamplingSet(void);
+void e6y_MultisamplingPrint(void);
 
 //extern int viewMaxY;
 

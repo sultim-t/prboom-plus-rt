@@ -523,6 +523,7 @@ void I_UpdateVideoMode(void)
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
   SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
   SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+  e6y_MultisamplingSet();//e6y
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
   screen = SDL_SetVideoMode(w, h, 8, init_flags);
@@ -531,6 +532,7 @@ void I_UpdateVideoMode(void)
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", w, h, SDL_GetError());
   }
+  e6y_MultisamplingCheck();//e6y
 
   lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
@@ -583,6 +585,7 @@ void I_UpdateVideoMode(void)
   lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
   SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
   lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
+  e6y_MultisamplingPrint();//e6y
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
   }
 #endif

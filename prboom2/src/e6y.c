@@ -21,6 +21,7 @@
 #include "m_menu.h"
 #include "p_spec.h"
 #include "lprintf.h"
+#include "d_think.h"
 #include "e6y.h"
 
 #define Pi 3.14159265358979323846f
@@ -70,6 +71,8 @@ int render_detailanims;
 int render_usedetailwalls;
 int render_usedetailflats;
 int render_usedetailsprites;
+int render_multisampling;
+int render_smartitemsclipping;
 int demo_smoothturns;
 int demo_smoothturnsfactor;
 int demo_overwriteexisting;
@@ -257,6 +260,12 @@ void M_ChangeUseDetail(void)
     stat_settings3[7].m_flags |= (S_SKIP|S_SELECT);
 //    stat_settings3[8].m_flags |= (S_SKIP|S_SELECT);
   }
+#endif
+}
+
+void M_ChangeMultiSample(void)
+{
+#ifdef GL_DOOM
 #endif
 }
 
@@ -497,7 +506,8 @@ void setinterpolation(EInterpType type, void *posptr)
     return;
   if (numinterpolations >= MAXINTERPOLATIONS) return;
   for(i = numinterpolations-1; i >= 0; i--)
-    if (curipos[i].Address == posptr && curipos[i].Type == type) return;
+    if (curipos[i].Address == posptr && curipos[i].Type == type)
+      return;
   curipos[numinterpolations].Address = posptr;
   curipos[numinterpolations].Type = type;
   CopyInterpToOld (numinterpolations);
@@ -882,6 +892,57 @@ void e6y_AfterTeleporting(void)
 float viewPitch;
 boolean WasRenderedInTryRunTics;
 boolean trasparentpresent;
+
+void e6y_MultisamplingCheck(void)
+{
+#ifdef GL_DOOM
+  if (render_multisampling)
+  {
+    int test = -1;
+    SDL_GL_GetAttribute (SDL_GL_MULTISAMPLESAMPLES, &test);
+    if (test!=render_multisampling)
+    {
+      void M_SaveDefaults (void);
+      void I_Error(const char *error, ...);
+      int i=render_multisampling;
+      render_multisampling = 0;
+      M_SaveDefaults ();
+      I_Error("Couldn't set %dX multisamples for %dx%d video mode", i, SCREENWIDTH, SCREENHEIGHT);
+    }
+  }
+#endif //GL_DOOM
+}
+
+void e6y_MultisamplingSet(void)
+{
+#ifdef GL_DOOM
+  if (render_multisampling)
+  {
+    extern int use_fullscreen;
+    extern int gl_colorbuffer_bits;
+    extern int gl_depthbuffer_bits;
+    
+    gl_colorbuffer_bits = 32;
+    SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
+  
+    if (gl_depthbuffer_bits!=8 && gl_depthbuffer_bits!=16 && gl_depthbuffer_bits!=24)
+      gl_depthbuffer_bits = 16;
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+
+    SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, render_multisampling );
+    SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLEBUFFERS, 1 );
+  }
+#endif //GL_DOOM
+}
+
+void e6y_MultisamplingPrint(void)
+{
+  int temp;
+  SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &temp );
+  lprintf(LO_INFO,"    SDL_GL_MULTISAMPLESAMPLES: %i\n",temp);
+  SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
+  lprintf(LO_INFO,"    SDL_GL_MULTISAMPLEBUFFERS: %i\n",temp);
+}
 
 //int viewMaxY;
 

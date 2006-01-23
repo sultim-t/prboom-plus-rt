@@ -2035,6 +2035,10 @@ static void M_DrawScreenItems(const setup_menu_t* src)
   strcpy(menu_buffer, "Extension GL_ARB_multitexture not found");
   M_DrawMenuString(30,176,CR_RED);
   } else
+    if (warning_about_changes & S_CANT_GL_ARB_MULTISAMPLEFACTOR) {
+  strcpy(menu_buffer, "Mast be even number like 0-none, 2, 4, 6");
+  M_DrawMenuString(30,176,CR_RED);
+  } else
 
     if (warning_about_changes & S_BADVAL) {
   strcpy(menu_buffer, "Value out of Range");
@@ -2622,11 +2626,13 @@ setup_menu_t stat_settings3[] =
   {"ON BONUS"                    ,S_YESNO     ,m_null,ST_X,ST_Y+3*8,  {"palette_onbonus"}},
   {"ON POWERS"                   ,S_YESNO     ,m_null,ST_X,ST_Y+4*8, {"palette_onpowers"}},
 #ifdef GL_DOOM
-  {"BUMP MAPPING"                ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+6*8},
-  {"USE DETAIL TEXTURE"         ,S_YESNO|S_CANT_GL_ARB_MULTITEXTURE       ,m_null,ST_X,ST_Y+7*8, {"render_usedetail"}, 0, 0, M_ChangeUseDetail},
-  {"FOR WALLS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+ 8*8, {"render_detailwalls"}, 0, 0, M_ChangeUseDetail},
-  {"FOR FLATS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+ 9*8, {"render_detailflats"}, 0, 0, M_ChangeUseDetail},
+  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"USE DETAIL TEXTURE"          ,S_YESNO|S_CANT_GL_ARB_MULTITEXTURE       ,m_null,ST_X,ST_Y+8*8, {"render_usedetail"}, 0, 0, M_ChangeUseDetail},
+  {"FOR WALLS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+9*8, {"render_detailwalls"}, 0, 0, M_ChangeUseDetail},
+  {"FOR FLATS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+10*8, {"render_detailflats"}, 0, 0, M_ChangeUseDetail},
 //  {"FOR SPRITES"                 ,S_YESNO       ,m_null,ST_X,ST_Y+ 10*8, {"render_detailsprites"}, 0, 0, M_ChangeUseDetail},
+  {"SMART ITEMS CLIPPING"        ,S_YESNO ,m_null,ST_X,ST_Y+12*8, {"render_smartitemsclipping"}},
+
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
@@ -4528,7 +4534,7 @@ boolean M_Responder (event_t* ev) {
         ptr1->action();
       
       //e6y
-      if (ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE && !gl_arb_multitexture)
+      if ((ptr1->m_flags&S_CANT_GL_ARB_MULTITEXTURE) && !gl_arb_multitexture)
         warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
 
     }
@@ -4565,6 +4571,11 @@ boolean M_Responder (event_t* ev) {
 
       gather_buffer[gather_count] = 0;
       value = atoi(gather_buffer);  // Integer value
+
+      //e6y
+      if ((ptr1->m_flags&S_CANT_GL_ARB_MULTISAMPLEFACTOR) && value%2!=0)
+        warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTISAMPLEFACTOR);
+      else
 
       if ((ptr1->var.def->minvalue != UL &&
            value < ptr1->var.def->minvalue) ||

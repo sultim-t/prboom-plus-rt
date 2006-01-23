@@ -38,6 +38,7 @@
 #include "p_maputl.h"
 #include "p_map.h"
 #include "p_setup.h"
+#include "e6y.h"//e6y
 
 //
 // P_AproxDistance
@@ -163,7 +164,7 @@ sector_t *openbacksector;  // made global
 
 void P_LineOpening(const line_t *linedef)
 {
-  if (linedef->sidenum[1] == (unsigned short)-1)//e6y      // single sided line
+  if (linedef->sidenum[1] == NO_INDEX)//e6y      // single sided line
     {
       openrange = 0;
       return;

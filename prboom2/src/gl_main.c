@@ -1427,8 +1427,8 @@ static void gld_PrecalculateSector(int num)
     lineadded[i]=false;
 //e6y    if (sectors[num].lines[i]->sidenum[0]>=0)
 //e6y      if (sectors[num].lines[i]->sidenum[1]>=0)
-    if (sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1)//e6y
-      if (sectors[num].lines[i]->sidenum[1]!=(unsigned short)-1)//e6y
+    if (sectors[num].lines[i]->sidenum[0]!=NO_INDEX)//e6y
+      if (sectors[num].lines[i]->sidenum[1]!=NO_INDEX)//e6y
         if (sides[sectors[num].lines[i]->sidenum[0]].sector
           ==sides[sectors[num].lines[i]->sidenum[1]].sector)
         {
@@ -1461,7 +1461,7 @@ static void gld_PrecalculateSector(int num)
         {
           currentline=i;
           currentloop++;
-          if ((sectors[num].lines[currentline]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+          if ((sectors[num].lines[currentline]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
             startvertex=sectors[num].lines[currentline]->v1;
           else
             startvertex=sectors[num].lines[currentline]->v2;
@@ -1483,7 +1483,7 @@ static void gld_PrecalculateSector(int num)
     // add current line
     lineadded[currentline]=true;
     // check if currentsector is on the front side of the line ...
-    if ((sectors[num].lines[currentline]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+    if ((sectors[num].lines[currentline]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
     {
       // v2 is ending vertex
       currentvertex=sectors[num].lines[currentline]->v2;
@@ -1527,7 +1527,7 @@ static void gld_PrecalculateSector(int num)
     bestline=-1; // set to start values
     bestlinecount=0;
     // set backsector if there is one
-    if (sectors[num].lines[currentline]->sidenum[1]!=(unsigned short)-1)//e6y
+    if (sectors[num].lines[currentline]->sidenum[1]!=NO_INDEX)//e6y
       backsector=sides[sectors[num].lines[currentline]->sidenum[1]].sector;
     else
       backsector=NULL;
@@ -1538,7 +1538,7 @@ static void gld_PrecalculateSector(int num)
         if ((sectors[num].lines[i]->v1==currentvertex) || (sectors[num].lines[i]->v2==currentvertex))
         {
           // calculate the angle of this best line candidate
-          if ((sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+          if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
             angle = R_PointToAngle2(sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y,sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y);
           else
             angle = R_PointToAngle2(sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y,sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y);
@@ -1546,7 +1546,7 @@ static void gld_PrecalculateSector(int num)
           if (angle>=180)
             angle=angle-360;
           // check if line is flipped ...
-          if ((sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+          if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
           {
             // when the line is not flipped and startvertex is not the currentvertex then skip this line
             if (sectors[num].lines[i]->v1!=currentvertex)
@@ -1654,8 +1654,8 @@ static void gld_PrepareSectorSpecialEffects(int num)
   {
 //e6y    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
 //e6y         (sectors[num].lines[i]->sidenum[1]>=0) )
-    if ( (sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1) &&//e6y
-         (sectors[num].lines[i]->sidenum[1]!=(unsigned short)-1) )//e6y
+    if ( (sectors[num].lines[i]->sidenum[0]!=NO_INDEX) &&//e6y
+         (sectors[num].lines[i]->sidenum[1]!=NO_INDEX) )//e6y
     {
       if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
         sectors[num].no_toptextures=false;
@@ -1768,13 +1768,13 @@ void gld_PreprocessSectors(void)
       v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
       if ((v1num>=numvertexes) || (v2num>=numvertexes))
         continue;
-      if (sectors[i].lines[j]->sidenum[0]!=(unsigned short)-1)//e6y
+      if (sectors[i].lines[j]->sidenum[0]!=NO_INDEX)//e6y
         if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
         {
           vertexcheck[v1num]|=1;
           vertexcheck[v2num]|=2;
         }
-      if (sectors[i].lines[j]->sidenum[1]!=(unsigned short)-1)//e6y
+      if (sectors[i].lines[j]->sidenum[1]!=NO_INDEX)//e6y
         if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
         {
           vertexcheck[v1num]|=2;
@@ -2119,9 +2119,16 @@ static void gld_DrawWall(GLWall *wall)
     float w, h, s;
     glActiveTextureARB(GL_TEXTURE1_ARB);
     glEnable(GL_TEXTURE_2D);
-    s = 1.0f/anim_textures[wall->gltexture->index].count*
-      (anim_textures[wall->gltexture->index].index);
-    if (s < 0.001) s = 0.0f;
+    if (anim_textures[wall->gltexture->index].count==0)
+    {
+      s = 0.0f;
+    }
+    else
+    {
+      s = 1.0f/anim_textures[wall->gltexture->index].count*
+        (anim_textures[wall->gltexture->index].index);
+      if (s < 0.001) s = 0.0f;
+    }
     w = s + wall->gltexture->realtexwidth / 18.0f;
     h = s + wall->gltexture->realtexheight / 18.0f;
     gld_StaticLightAlpha(wall->light, wall->alpha);
@@ -2537,11 +2544,16 @@ static void gld_DrawFlat(GLFlat *flat)
     glActiveTextureARB(GL_TEXTURE1_ARB);
     glEnable(GL_TEXTURE_2D);
     gld_StaticLight(flat->light);
-    
-    s = 1.0f/anim_flats[flat->gltexture->index - firstflat].count*
-      (anim_flats[flat->gltexture->index - firstflat].index);
-    if (s < 0.001) s = 0.0f;
-    
+    if (anim_flats[flat->gltexture->index - firstflat].count==0)
+    {
+      s = 0.0f;
+    }
+    else
+    {
+      s = 1.0f/anim_flats[flat->gltexture->index - firstflat].count*
+        (anim_flats[flat->gltexture->index - firstflat].index);
+      if (s < 0.001) s = 0.0f;
+    }
     glPushMatrix();
     glTranslatef(s + flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
     glScalef(4.0f, 4.0f, 1.0f);
@@ -2695,6 +2707,11 @@ static void gld_DrawSprite(GLSprite *sprite)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
+  //e6y
+  if (render_smartitemsclipping)
+    glTranslatef(sprite->x,sprite->y,sprite->z);
+  else
+
   glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
   glRotatef(inv_yaw,0.0f,1.0f,0.0f);
   if(sprite->shadow)
@@ -2828,6 +2845,16 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.x2=hoff;
   sprite.y1=voff;
   sprite.y2=voff-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
+  
+  //e6y
+  if (render_smartitemsclipping)
+  {
+    if(sprite.y2 < 0 && !(vspr->thing->flags & MF_CORPSE))
+    {
+      sprite.y1 -= sprite.y2;
+      sprite.y2 = 0.0f;
+    }
+  }
 
   if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
   {

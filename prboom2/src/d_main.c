@@ -298,6 +298,7 @@ void D_Display (void)
     // Now do the drawing
     if (viewactive)
       R_RenderPlayerView (&players[displayplayer]);
+
     if (automapmode & am_active)
       AM_Drawer();
 

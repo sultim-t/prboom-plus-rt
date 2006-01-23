@@ -39,6 +39,7 @@
 #include "am_map.h"
 #include "p_enemy.h"
 #include "lprintf.h"
+#include "e6y.h"//e6y
 
 byte *save_p;
 
@@ -119,10 +120,10 @@ void P_ArchiveWorld (void)
 
   for (i=0; i<numlines; i++)
     {
-      if (lines[i].sidenum[0] != (unsigned short)-1)//e6y
+      if (lines[i].sidenum[0] != NO_INDEX)//e6y
         size +=
     sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
-      if (lines[i].sidenum[1] != (unsigned short)-1)//e6y
+      if (lines[i].sidenum[1] != NO_INDEX)//e6y
   size +=
     sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
     }
@@ -159,7 +160,7 @@ void P_ArchiveWorld (void)
       *put++ = li->tag;
 
       for (j=0; j<2; j++)
-        if (li->sidenum[j] != (unsigned short)-1)//e6y
+        if (li->sidenum[j] != NO_INDEX)//e6y
           {
       si = &sides[li->sidenum[j]];
 
@@ -225,7 +226,7 @@ void P_UnArchiveWorld (void)
       li->special = *get++;
       li->tag = *get++;
       for (j=0 ; j<2 ; j++)
-        if (li->sidenum[j] != (unsigned short)-1)//e6y
+        if (li->sidenum[j] != NO_INDEX)//e6y
           {
             side_t *si = &sides[li->sidenum[j]];
 

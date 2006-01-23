@@ -1070,22 +1070,6 @@ SOURCE=..\Icons\skull.ico
 # End Group
 # Begin Source File
 
-SOURCE=.\aaa.rct
-# End Source File
-# Begin Source File
-
-SOURCE=..\ICONS\bitmap1.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=..\ICONS\bitmap256.bmp
-# End Source File
-# Begin Source File
-
-SOURCE=..\ICONS\DETAIL.BMP
-# End Source File
-# Begin Source File
-
 SOURCE=..\ICONS\detail256.bmp
 # End Source File
 # End Target

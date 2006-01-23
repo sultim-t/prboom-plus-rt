@@ -37,6 +37,7 @@
 #include "r_main.h"
 #include "dstrings.h"
 #include "d_deh.h"  // Ty 03/27/98 - externalized
+#include "e6y.h"//e6y
 
 ///////////////////////////////////////////////////////////////
 //
@@ -482,7 +483,7 @@ int EV_VerticalDoor
   }
 
   // if the wrong side of door is pushed, give oof sound
-  if (line->sidenum[1]==(unsigned short)-1)//e6y                     // killough
+  if (line->sidenum[1]==NO_INDEX)//e6y                     // killough
   {
     S_StartSound(player->mo,sfx_oof);           // killough 3/20/98
     return 0;
