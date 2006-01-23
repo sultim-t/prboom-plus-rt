@@ -183,6 +183,7 @@ static void D_Wipe(void)
   boolean done;
   int wipestart = I_GetTime () - 1;
 
+  if (!render_wipescreen) return;//e6y
   do
     {
       int nowtime, tics;
@@ -340,8 +341,7 @@ void D_Display (void)
 
 #ifndef GL_DOOM
   // normal update
-//e6y if (!wipe)
-  if (isExtraDDisplay || !wipe) //e6y
+  if (!wipe)
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
@@ -407,7 +407,13 @@ static void D_DoomLoop(void)
         S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
       // Update display, next frame, with current state.
-      if (!movement_smooth || !WasRenderedInTryRunTics)//e6y
+//e6y
+#ifdef GL_DOOM
+      if (!movement_smooth || !WasRenderedInTryRunTics)
+#else
+      if (!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate)
+#endif
+
       D_Display();
 
       // CPhipps - auto screenshot
@@ -1636,28 +1642,7 @@ void D_DoomMainSetup(void)
   // Support -loadgame with -record and reimplement -recordfrom.
 
   if ((slot = M_CheckParm("-recordfrom")) && (p = slot+2) < myargc)
-  //e6y
-    {
-      slot = 0;
-      _demofp = fopen(myargv[p-1], "rb");
-      if (_demofp)
-      {
-        byte buf[200];
-        byte *demo_p = buf;
-        size_t len;
-        fread(buf, 1, sizeof(buf), _demofp);
-        len = G_ReadDemoHeader(buf) - buf;
-        if (demo_compatibility)
-        {
-          fseek(_demofp, len, SEEK_SET);
-          singledemo = true;
-          autostart = true;
-          G_RecordDemo(myargv[p]);
-          G_BeginRecording();
-        }
-      }
-    }
-//e6y    G_RecordDemo(myargv[p]);
+    G_RecordDemo(myargv[p]);
   else
     {
       slot = M_CheckParm("-loadgame");
@@ -1690,6 +1675,7 @@ void D_DoomMainSetup(void)
     singledemo = true;          // quit after one demo
   }
 
+  e6y_D_DoomMainSetup();//e6y
   if (slot && ++slot < myargc)
     {
       slot = atoi(myargv[slot]);        // killough 3/16/98: add slot info
@@ -1715,7 +1701,6 @@ void D_DoomMainSetup(void)
 void D_DoomMain(void)
 {
   D_DoomMainSetup(); // CPhipps - setup out of main execution stack
-  e6y_D_DoomMainSetup();//e6y
 
   D_DoomLoop ();  // never returns
 }

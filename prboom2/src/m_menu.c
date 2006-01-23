@@ -1218,6 +1218,8 @@ enum
 //e6y
   mouse_mlook,
   mouse_empty3,
+  mouse_accel,
+  mouse_empty4,
 
   mouse_end
 } mouse_e;
@@ -1234,6 +1236,8 @@ menuitem_t MouseMenu[]=
   //e6y
   ,
   {2,"M_LOKSEN",M_MouseMLook,'l'},
+  {-1,"",0},
+  {2,"M_ACCEL",M_MouseAccel,'a'},
   {-1,"",0}
 };
 
@@ -1243,7 +1247,7 @@ menu_t MouseDef =
   &OptionsDef,
   MouseMenu,
   M_DrawMouse,
-  60,64,
+  60,48,//e6y
   0
 };
 
@@ -1261,7 +1265,7 @@ void M_DrawMouse(void)
   int mhmx,mvmx; /* jff 4/3/98 clamp drawn position    99max mead */
 
   // CPhipps - patch drawing updated
-  V_DrawNamePatch(60, 38, 0, "M_MSENS", CR_DEFAULT, VPT_STRETCH);
+  V_DrawNamePatch(60, 22, 0, "M_MSENS", CR_DEFAULT, VPT_STRETCH);//e6y
 
   //jff 4/3/98 clamp horizontal sensitivity display
   mhmx = mouseSensitivity_horiz>99? 99 : mouseSensitivity_horiz; /*mead*/
@@ -1275,6 +1279,8 @@ void M_DrawMouse(void)
     int mpmx;
     mpmx = mouseSensitivity_mlook>99? 99 : mouseSensitivity_mlook;
     M_DrawThermo(MouseDef.x,MouseDef.y+LINEHEIGHT*(mouse_mlook+1),100,mpmx);
+    mpmx = mouse_acceleration>99? 99 : mouse_acceleration;
+    M_DrawThermo(MouseDef.x,MouseDef.y+LINEHEIGHT*(mouse_accel+1),100,mpmx);
   }
 }
 
@@ -2603,8 +2609,8 @@ setup_menu_t stat_settings2[] =
   {"OVERWRITE EXISTING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"demo_overwriteexisting"}},
   {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"DETECT SPECHITS OVERRUN"     ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"misc_detectspechitoverrun"}, 0, 0, M_ChangeDetectSpechitOverrun},
-  {"WARN IF CAN'T BE EMULATED"   ,S_YESNO     ,m_null,ST_X,ST_Y+ 12*8, {"misc_warnatspechitoverrun"}},
+  {"WARN ON SPECHITS OVERRUN"    ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"misc_spechitoverrun_warn"}, 0, 0, M_ChangeSpechitOverrun_Warn},
+  {"TRY TO EMULATE IT"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 12*8, {"misc_spechitoverrun_emulate"}},
   {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+14*8},
   {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
 #ifdef GL_DOOM
@@ -2637,7 +2643,10 @@ setup_menu_t stat_settings3[] =
   {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+10*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
   {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 11*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"SMART ITEMS CLIPPING"        ,S_YESNO ,m_null,ST_X,ST_Y+12*8, {"render_smartitemsclipping"}},
-
+  {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+14*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+#else
+  {"WIPE SCREEN EFFECT"          ,S_YESNO ,m_null,ST_X,ST_Y+6*8, {"render_wipescreen"}},
+  {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+7*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
@@ -3134,6 +3143,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 
 void M_Trans(void) // To reset translucency after setting it in menu
 {
+  general_translucency = default_translucency;//e6y
   if (general_translucency)
     R_InitTranMap(0);
 }
@@ -4414,7 +4424,7 @@ boolean M_Responder (event_t* ev) {
       I_Init2();
       return true;
     }
-    if (demoplayback && !doSkip)
+    if (demoplayback && !doSkip && singledemo)
     {
       if (ch == key_demo_nextlevel)
       {
@@ -5586,7 +5596,8 @@ void M_Init(void)
   M_ChangeMouseInvert();
   M_ChangeFOV();
   M_ChangeDemoSmoothTurns();
-  M_ChangeDetectSpechitOverrun();
+  M_ChangeSpechitOverrun_Warn();
+  M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
 }
 

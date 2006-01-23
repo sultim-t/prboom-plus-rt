@@ -797,15 +797,15 @@ boolean G_Responder (event_t* ev)
        * Removed the mouseSensitivity "*4" to allow more low end
        * sensitivity resolution especially for lsdoom users.
        */
-      mousex += (ev->data2*(mouseSensitivity_horiz))/10;  /* killough */
+      //e6y mousex += (ev->data2*(mouseSensitivity_horiz))/10;  /* killough */
+      //e6y mousey += (ev->data3*(mouseSensitivity_vert))/10;  /*Mead rm *4 */
 
       //e6y
+      mousex += (AccelerateMouse(ev->data2)*(mouseSensitivity_horiz))/10;  /* killough */
       if(GetMouseLook())
-        mousey += (ev->data3*(mouseSensitivity_mlook))/10;
+        mousey += (AccelerateMouse(ev->data3)*(mouseSensitivity_mlook))/10;
       else
-        mousey += (ev->data3*(mouseSensitivity_vert))/40;  /*Mead rm *4 */
-
-      //e6y mousey += (ev->data3*(mouseSensitivity_vert))/100;  /*Mead rm *4 */
+        mousey += (AccelerateMouse(ev->data3)*(mouseSensitivity_vert))/40;
 
       return true;    // eat events
 
@@ -1611,6 +1611,16 @@ static const struct {
   /* cph - we don't need a new version_header for prboom_3_comp/v2.1.1, since
    *  the file format is unchanged. */
   { prboom_3_compatibility, "PrBoom %d", 210}
+  //e6y
+  ,{ doom_12_compatibility, "PrBoom %d", 100}
+  ,{ doom_demo_compatibility, "PrBoom %d", 110}
+  ,{ doom_compatibility, "PrBoom %d", 120}
+  ,{ boom_compatibility_compatibility, "PrBoom %d", 130}
+  ,{ boom_201_compatibility, "PrBoom %d", 140}
+  ,{ boom_202_compatibility, "PrBoom %d", 150}
+  ,{ lxdoom_1_compatibility, "PrBoom %d", 160}
+  ,{ mbf_compatibility, "PrBoom %d", 170}
+  ,{ prboom_2_compatibility, "PrBoom %d", 190}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
@@ -2302,7 +2312,7 @@ void G_RecordDemo (const char* name)
   /* cph - Record demos straight to file
    * If file already exists, try to continue existing demo
    */
-  if (access(demoname, F_OK)) {
+  if (access(demoname, F_OK)||demo_recordfromto) {//e6y
     demofp = fopen(demoname, "wb");
   } else {
     demofp = fopen(demoname, "r+");
@@ -2859,6 +2869,7 @@ void G_TimeDemo(const char *name) // CPhipps - const char*
  */
 boolean G_CheckDemoStatus (void)
 {
+  e6y_G_CheckDemoStatus();//e6y
   if (demorecording)
     {
       demorecording = false;

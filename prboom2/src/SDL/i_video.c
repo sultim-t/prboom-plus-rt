@@ -172,7 +172,8 @@ int I_ScanCode2DoomCode(int c)
 // Main input code
 
 /* cph - pulled out common button code logic */
-static int I_SDLtoDoomMouseState(Uint8 buttonstate)
+//e6y static 
+int I_SDLtoDoomMouseState(Uint8 buttonstate)
 {
   return 0
       | (buttonstate & SDL_BUTTON(1) ? 1 : 0)
@@ -231,6 +232,16 @@ static void I_GetEvent(SDL_Event *Event)
   }
   break;
 
+  //e6y
+  case SDL_ACTIVEEVENT:
+    if (movement_altmousesupport)
+    {
+      if (Event->active.gain)
+        GrabMouse_Win32();
+      else
+        UngrabMouse_Win32();
+    }
+    break;
 
   case SDL_QUIT:
     S_StartSound(NULL, sfx_swtchn);
@@ -250,6 +261,7 @@ static int mouse_currently_grabbed;
 void I_StartTic (void)
 {
   SDL_Event Event;
+  if (!movement_altmousesupport)
   {
     int should_be_grabbed = grabMouse &&
       !(paused || (gamestate != GS_LEVEL) || demoplayback);
@@ -259,6 +271,7 @@ void I_StartTic (void)
           ? SDL_GRAB_ON : SDL_GRAB_OFF);
   }
 
+  e6y_I_GetEvent();//e6y
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
 
@@ -282,6 +295,7 @@ static void I_InitInputs(void)
   grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
 
   I_InitJoystick();
+  e6y_I_InitInputs();//e6y
 }
 /////////////////////////////////////////////////////////////////////////////
 

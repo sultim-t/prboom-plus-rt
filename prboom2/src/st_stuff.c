@@ -848,10 +848,10 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh)
     ST_doRefresh();
 #else
   if (st_statusbaron) {
-    if (st_firsttime)
+//e6y    if (st_firsttime)
       ST_doRefresh();     /* If just after ST_Start(), refresh all */
-    else
-      ST_diffDraw();      /* Otherwise, update as little as possible */
+//e6y    else
+//e6y      ST_diffDraw();      /* Otherwise, update as little as possible */
   }
 #endif
 }

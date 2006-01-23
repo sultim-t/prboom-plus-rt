@@ -57,6 +57,7 @@
  * statistics, and enable extra debugging features
  */
 /* #undef INSTRUMENTED */
+//#define INSTRUMENTED 1
 
 /* Uncomment this to exhaustively run memory checks
  * while the game is running (this is EXTREMELY slow).
@@ -68,6 +69,7 @@
  * Only useful if INSTRUMENTED is also defined.
  */
 /* #undef HEAPDUMP */
+
 
 /* Uncomment this to perform id checks on zone blocks,
  * to detect corrupted and illegally freed blocks
@@ -131,7 +133,7 @@
 #define USE_GLU_TESS 1
 
 /* Define if you want to use gluImageScale  */
-//#define USE_GLU_IMAGESCALE 1
+#define USE_GLU_IMAGESCALE 1
 
 /* Define if you want to use gluBuild2DMipmaps  */
 #define USE_GLU_MIPMAP 1

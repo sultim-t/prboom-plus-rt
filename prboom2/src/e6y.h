@@ -3,6 +3,7 @@
 
 #include "hu_lib.h"
 #include "SDL_timer.h"
+#include "SDL_events.h"
 
 #define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
 
@@ -60,11 +61,14 @@ typedef struct camera_s
   int type;
 } camera_t;
 
+extern boolean wasWiped;
+
 extern int totalleveltimes;
 
 extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
+extern int demo_recordfromto;
 
 extern int avi_shot_count;
 extern int avi_shot_time;
@@ -96,6 +100,7 @@ extern int movement_mouseinvert;
 extern int movement_strafe50;
 extern int movement_strafe50onturns;
 extern int movement_smooth;
+extern int movement_altmousesupport;
 extern int render_fov;
 extern int render_usedetail;
 extern int render_detailwalls;
@@ -106,12 +111,17 @@ extern int render_usedetailflats;
 extern int render_usedetailsprites;
 extern int render_multisampling;
 extern int render_smartitemsclipping;
+extern int render_wipescreen;
+extern int mouse_acceleration;
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
 extern int demo_overwriteexisting;
-extern int misc_warnatspechitoverrun;
-extern int misc_detectspechitoverrun;
 extern int misc_fixfirstmousemotion;
+extern int misc_spechitoverrun_warn;
+extern int misc_spechitoverrun_emulate;
+
+extern int test_sky1;
+extern int test_sky2;
 
 extern int palette_ondamage;
 extern int palette_onbonus;
@@ -163,6 +173,8 @@ extern hu_textline_t  w_centermsg;
 extern char hud_timestr[80];
 extern char hud_centermsg[80];
 
+void e6y_assert(const char *format, ...);
+
 void e6y_D_DoomMainSetup(void);
 void e6y_I_Init(void);
 
@@ -173,9 +185,10 @@ void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 const byte* G_ReadDemoHeader(const byte* demo_p);
+void M_ChangeAltMouseHandling(void);
 void M_ChangeSmooth(void);
 void M_ChangeDemoSmoothTurns(void);
-void M_ChangeDetectSpechitOverrun(void);
+void M_ChangeSpechitOverrun_Warn(void);
 void M_ChangeSpeed(void);
 void M_ChangeMouseLook(void);
 void M_ChangeMouseInvert(void);
@@ -183,6 +196,7 @@ void M_ChangeFOV(void);
 void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
 void M_MouseMLook(int choice);
+void M_MouseAccel(int choice);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
 void D_Display(void);
@@ -322,9 +336,18 @@ typedef struct timetable_s
 
 extern int stats_level;
 void e6y_G_DoCompleted(void);
+void e6y_G_CheckDemoStatus(void);
 void e6y_WriteStats(void);
 
 void e6y_G_DoWorldDone(void);
+
+void e6y_I_GetEvent(void);
+void CenterMouse_Win32(long x, long y);
+void GrabMouse_Win32(void);
+void UngrabMouse_Win32(void);
+void e6y_I_InitInputs(void);
+int AccelerateMouse(int val);
+void MouseAccelChanging(void);
 
 //extern int viewMaxY;
 

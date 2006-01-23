@@ -33,6 +33,7 @@ boolean wasWiped = false;
 int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
+int demo_recordfromto = false;
 
 int avi_shot_count;
 int avi_shot_time;
@@ -64,6 +65,7 @@ int movement_mouseinvert;
 int movement_strafe50;
 int movement_strafe50onturns;
 int movement_smooth;
+int movement_altmousesupport;
 int render_fov;
 int render_usedetail;
 int render_detailwalls;
@@ -75,16 +77,23 @@ int render_usedetailflats;
 int render_usedetailsprites;
 int render_multisampling;
 int render_smartitemsclipping;
+int render_wipescreen;
+int mouse_acceleration;
 int demo_smoothturns;
 int demo_smoothturnsfactor;
 int demo_overwriteexisting;
 int misc_fixfirstmousemotion;
-int misc_detectspechitoverrun;
-int misc_warnatspechitoverrun;
+int misc_spechitoverrun_warn;
+int misc_spechitoverrun_emulate;
+
+int test_sky1;
+int test_sky2;
 
 int palette_ondamage;
 int palette_onbonus;
 int palette_onpowers;
+
+float mouse_accelfactor;
 
 camera_t walkcamera;
 mobj_t *oviewer;
@@ -127,6 +136,7 @@ boolean isExtraDDisplay = false;
 boolean skipDDisplay = false;
 unsigned int DDisplayTime;
 
+
 float internal_render_fov = FOV90;
 
 int idDetail;
@@ -141,12 +151,60 @@ static boolean saved_nodrawers;
 static boolean saved_nosfxparm;
 static boolean saved_nomusicparm;
 
+//--------------------------------------------------
+#ifdef _WIN32
+static HWND GetHWND(void);
+#endif
+//--------------------------------------------------
+
+void e6y_assert(const char *format, ...) 
+{
+  static FILE *f = NULL;
+  va_list argptr;
+  va_start(argptr,format);
+  //if (!f)
+    f = fopen("d:\\a.txt", "a+");
+  vfprintf(f, format, argptr);
+  fclose(f);
+  va_end(argptr);
+}
+
 void e6y_D_DoomMainSetup(void)
 {
+  void G_RecordDemo (const char* name);
+  void G_BeginRecording (void);
+
   int p;
+  
+  if ((p = M_CheckParm("-recordfromto")) && (p < myargc - 2))
+  {
+    _demofp = fopen(myargv[p+1], "rb");
+    if (_demofp)
+    {
+      byte buf[200];
+      byte *demo_p = buf;
+      size_t len;
+      fread(buf, 1, sizeof(buf), _demofp);
+      len = G_ReadDemoHeader(buf) - buf;
+      fseek(_demofp, len, SEEK_SET);
+      if (demo_compatibility)
+      {
+        demo_recordfromto = true;
+        singledemo = true;
+        autostart = true;
+        G_RecordDemo(myargv[p+2]);
+        G_BeginRecording();
+      }
+      else
+      {
+        fclose(_demofp);
+      }
+    }
+  }
+
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
     demo_skiptics = (int)(atof(myargv[p+1]) * 35);
-  if ((gameaction == ga_playdemo) && (startmap > 1 || demo_skiptics))
+  if ((gameaction == ga_playdemo||demo_recordfromto) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-framescapture")) && (p < myargc-2))
     if ((avi_shot_count = avi_shot_time = atoi(myargv[p+1])))
@@ -186,6 +244,22 @@ void G_SkipDemoStop(void)
   I_Init();
   S_Init(snd_SfxVolume, snd_MusicVolume);
   S_Start();
+}
+
+void M_ChangeAltMouseHandling(void)
+{
+  if (movement_altmousesupport)
+  {
+    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+    SDL_WM_GrabInput(SDL_GRAB_OFF);
+    GrabMouse_Win32();
+  }
+  else
+  {
+    SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
+    UngrabMouse_Win32();
+  }
 }
 
 void M_ChangeSmooth(void)
@@ -306,6 +380,17 @@ void M_MouseMLook(int choice)
   M_Mouse(choice, &mouseSensitivity_mlook);
 }
 
+void M_MouseAccel(int choice)
+{
+  M_Mouse(choice, &mouse_acceleration);
+  MouseAccelChanging();
+}
+
+void MouseAccelChanging(void)
+{
+  mouse_accelfactor = (float)mouse_acceleration/100.0f+1.0f;
+}
+
 void M_DemosBrowse(void)
 {
 }
@@ -328,7 +413,7 @@ void Extra_D_Display(void)
 #ifdef GL_DOOM
   if (movement_smooth)
 #else
-  if (movement_smooth && gamestate==wipegamestate)
+    if (movement_smooth && gamestate==wipegamestate)
 #endif
   {
     isExtraDDisplay = true;
@@ -864,7 +949,8 @@ void e6y_ProcessDemoHeader(void)
   int i;
   playerscount = 0;
   for (i=0; i < MAXPLAYERS; i++)
-    if (playeringame[i]) playerscount++;
+    if (playeringame[i])
+      playerscount++;
 }
 
 void M_ChangeDemoSmoothTurns(void)
@@ -879,15 +965,8 @@ void M_ChangeDemoSmoothTurns(void)
   ClearSmoothViewAngels();
 }
 
-void M_ChangeDetectSpechitOverrun(void)
+void M_ChangeSpechitOverrun_Warn(void)
 {
-  extern setup_menu_t stat_settings2[];
-
-  if (misc_detectspechitoverrun)
-    stat_settings2[10].m_flags &= ~(S_SKIP|S_SELECT);
-  else
-    stat_settings2[10].m_flags |= (S_SKIP|S_SELECT);
-
   ClearSmoothViewAngels();
 }
 
@@ -1089,12 +1168,7 @@ boolean StrToInt(char *s, long *l)
 void SwitchToGameWindow()
 {
 #ifdef _WIN32
-  SDL_SysWMinfo wminfo;
-  HWND hwnd; 
-
-  SDL_VERSION(&wminfo.version);
-  SDL_GetWMInfo(&wminfo);
-  hwnd = wminfo.window;
+  HWND hwnd = GetHWND();
 
   if (hwnd)
   {
@@ -1115,22 +1189,13 @@ void SwitchToGameWindow()
 #endif
 }
 
-buf_overrun_item_t overrun_data[] = 
-{
-  {"HR.WAD",        18, 0x01C09C98},
-  {"STRAIN.WAD",    07, 0x01D6CF98},
-  {NULL,            00, 0x00000000},
-};
-
-static int curr_overrun_item = -1;
-
 void ShowSpechitsOverrunningWarning(const char *msg)
 {
   static char buffer[1024];
   static boolean OverrunPromted = false;
   extern line_t **spechit;
 
-  if (misc_warnatspechitoverrun && curr_overrun_item == -1 && !OverrunPromted)
+  if (!OverrunPromted)
   {
     OverrunPromted = true;
 
@@ -1141,7 +1206,7 @@ void ShowSpechitsOverrunningWarning(const char *msg)
       "%d, %d, %d, %d, %d, %d, %d, %d, %d. "
 #endif
       "You can disable this warning through: "
-      "\"Ingame Menu\\Options\\Setup\\Status Bar / HUD\\Warn If Can't Be Emulated\""
+      "\\Options\\Setup\\Status Bar / HUD\\Warn on Spechits Overrun"
       ,msg, demoplayback?"soon":"on playback with vanilla doom2 engine"
 #ifdef GL_DOOM
       ,spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID
@@ -1157,29 +1222,22 @@ void CheckForSpechitsOverrun(line_t* ld)
 {
   extern int numspechit;
   extern fixed_t tmbbox[4];
+  extern boolean crushchange, nofit;
+  extern mobj_t *bombsource, *bombspot;
+  extern int bombdamage;
+  extern mobj_t* usething;
+  extern int la_damage;
+  extern fixed_t attackrange;
 
-  if (numspechit>8 && misc_detectspechitoverrun && demo_compatibility &&
-    (demorecording || demoplayback))
+  if (numspechit>8 && demo_compatibility
+    && (misc_spechitoverrun_warn || misc_spechitoverrun_emulate))
   {
-    size_t i, j;
-    buf_overrun_item_t *item; 
-   
-    if(curr_overrun_item == -1 || overrun_data[curr_overrun_item].map != gamemap)
-    {
-      curr_overrun_item = -1;
-      for (i = 0; i < numwadfiles; i++)
-      {
-        if (wadfiles[i].src == source_pwad)
-          for (j = 0, item = &overrun_data[0]; item->wadname; j++, item++)
-            if (item->map == gamemap && !strcasecmp(item->wadname, GetFileName((char*)wadfiles[i].name)))
-              curr_overrun_item = j;
-      }
-      ShowSpechitsOverrunningWarning("Spechits overflow has been detected but it not supported for this map.");
-    }
+    if (misc_spechitoverrun_warn)
+      ShowSpechitsOverrunningWarning("Spechits overflow has been detected.");
 
-    if (curr_overrun_item != -1)
+    if (misc_spechitoverrun_emulate)
     {
-      int addr = overrun_data[curr_overrun_item].address + (ld - lines) * 0x3E;
+      int addr = 0x01C09C98 + (ld - lines) * 0x3E;
     
       switch(numspechit)
       {
@@ -1189,6 +1247,15 @@ void CheckForSpechitsOverrun(line_t* ld)
       case 12:
         tmbbox[numspechit-9] = addr;
         break;
+      case 13: crushchange = addr; break;
+      case 14: nofit = addr; break;
+      case 15: bombsource = (mobj_t*)addr; break;
+      case 16: bombdamage = addr; break;
+      case 17: bombspot = (mobj_t*)addr; break;
+      case 18: usething = (mobj_t*)addr; break;
+      case 19: attackrange = addr; break;
+      case 20: la_damage = addr; break;
+
       default:
         ShowSpechitsOverrunningWarning("Too big spechits overflow for emulation was detected.");
         break;
@@ -1201,6 +1268,12 @@ int stats_level;
 int numlevels = 0;
 int levels_max = 0;
 timetable_t *stats = NULL;
+
+void e6y_G_CheckDemoStatus(void)
+{
+  if (doSkip && (demo_stoponend || demo_stoponnext))
+    G_SkipDemoStop();
+}
 
 void e6y_G_DoCompleted(void)
 {
@@ -1357,7 +1430,111 @@ void e6y_G_DoWorldDone(void)
   }
 }
 
-//int viewMaxY;
+//--------------------------------------------------
 
-//int t_count;
-//TRec t_list[128];
+#ifdef _WIN32
+static long MousePrevX, MousePrevY;
+static boolean MakeMouseEvents;
+HWND GetHWND(void)
+{
+  static HWND Window = NULL; 
+  if(!Window)
+  {
+    SDL_SysWMinfo wminfo;
+    SDL_VERSION(&wminfo.version);
+    SDL_GetWMInfo(&wminfo);
+    Window = wminfo.window;
+  }
+  return Window;
+}
+#endif
+
+void CenterMouse_Win32(long x, long y)
+{
+#ifdef _WIN32
+  RECT rect;
+  HWND hwnd = GetHWND();
+	
+  GetWindowRect (hwnd, &rect);
+
+  MousePrevX = (rect.left + rect.right) >> 1;
+  MousePrevY = (rect.top + rect.bottom) >> 1;
+
+  if (MousePrevX != x || MousePrevY != y)
+  {
+    SetCursorPos (MousePrevX, MousePrevY);
+  }
+#endif
+}
+
+void e6y_I_GetEvent(void)
+{
+#ifdef _WIN32
+  extern int usemouse;
+  int I_SDLtoDoomMouseState(Uint8 buttonstate);
+
+  if (movement_altmousesupport && usemouse && MakeMouseEvents)
+  {
+    POINT pos;
+    int x, y;
+    GetCursorPos (&pos);
+    
+    x = pos.x - MousePrevX;
+    y = MousePrevY - pos.y;
+    
+    if (x | y)
+    {
+      event_t event;
+      CenterMouse_Win32(pos.x, pos.y);
+      
+      event.type = ev_mouse;
+      event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
+      event.data2 = x << 5;
+      event.data3 = y << 5;
+      D_PostEvent (&event);
+    }
+  }
+#endif
+}
+
+void GrabMouse_Win32(void)
+{
+#ifdef _WIN32
+  RECT rect;
+  HWND hwnd = GetHWND();
+
+  ClipCursor (NULL);
+  GetClientRect (hwnd, &rect);
+
+  ClientToScreen (hwnd, (LPPOINT)&rect.left);
+  ClientToScreen (hwnd, (LPPOINT)&rect.right);
+
+  ClipCursor (&rect);
+  CenterMouse_Win32(-1, -1);
+  MakeMouseEvents = true;
+#endif
+}
+
+void UngrabMouse_Win32(void)
+{
+#ifdef _WIN32
+  ClipCursor(NULL);
+  MakeMouseEvents = false;
+#endif
+}
+
+void e6y_I_InitInputs(void)
+{
+  M_ChangeAltMouseHandling();
+  MouseAccelChanging();
+}
+
+int AccelerateMouse(int val)
+{
+  if (!mouse_acceleration)
+    return val;
+
+  if (val < 0)
+    return -AccelerateMouse(-val);
+  return (int) pow(val, mouse_accelfactor);
+}

@@ -41,6 +41,7 @@
 #include "v_video.h"
 #include "m_random.h"
 #include "f_wipe.h"
+#include "e6y.h"//e6y
 
 //
 // SCREEN WIPE PACKAGE
@@ -156,6 +157,8 @@ static int wipe_exitMelt(int width, int height, int ticks)
 
 int wipe_StartScreen(int x, int y, int width, int height)
 {
+  if(!render_wipescreen||wasWiped) return 0;//e6y
+  wasWiped = true;//e6y
   wipe_scr_start = screens[SRC_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT);
   V_CopyRect(x, y, 0,       width, height, x, y, SRC_SCR, VPT_NONE ); // Copy start screen to buffer
   return 0;
@@ -163,6 +166,8 @@ int wipe_StartScreen(int x, int y, int width, int height)
 
 int wipe_EndScreen(int x, int y, int width, int height)
 {
+  if(!render_wipescreen||!wasWiped) return 0;//e6y
+  wasWiped = false;//e6y
   wipe_scr_end = screens[DEST_SCR] = malloc(SCREENWIDTH * SCREENHEIGHT);
   V_CopyRect(x, y, 0,       width, height, x, y, DEST_SCR, VPT_NONE); // Copy end screen to buffer
   V_CopyRect(x, y, SRC_SCR, width, height, x, y, 0       , VPT_NONE); // restore start screen
@@ -173,6 +178,7 @@ int wipe_EndScreen(int x, int y, int width, int height)
 int wipe_ScreenWipe(int x, int y, int width, int height, int ticks)
 {
   static boolean go;                               // when zero, stop the wipe
+  if(!render_wipescreen) return 0;//e6y
   if (!go)                                         // initial stuff
     {
       go = 1;

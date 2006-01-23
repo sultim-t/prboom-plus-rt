@@ -1699,8 +1699,10 @@ void P_UseLines (player_t*  player)
 // RADIUS ATTACK
 //
 
-static mobj_t *bombsource, *bombspot;
-static int bombdamage;
+//e6y static 
+mobj_t *bombsource, *bombspot;
+//e6y static 
+int bombdamage;
 
 
 //
@@ -1801,7 +1803,8 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
 //  to undo the changes.
 //
 
-static boolean crushchange, nofit;
+//e6y static 
+boolean crushchange, nofit;
 
 //
 // PIT_ChangeSector
