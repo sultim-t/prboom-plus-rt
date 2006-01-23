@@ -74,7 +74,7 @@
   /* cph - Select zone size. 6megs is usable, but with the SDL version
    * storing sounds in the zone, 8 is more sensible */
 #ifndef GL_DOOM
-#define MIN_RAM (8*1024*1024)
+#define MIN_RAM (16*1024*1024)//e6y
 #else
   /* proff - OpenGL needs even more ram at least 16megs are allocated */
 #define MIN_RAM (16*1024*1024)

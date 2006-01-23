@@ -146,7 +146,7 @@ void e6y_D_DoomMainSetup(void)
   int p;
   if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
     demo_skiptics = (int)(atof(myargv[p+1]) * 35);
-  if (startmap > 1 || demo_skiptics)
+  if ((gameaction == ga_playdemo) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
   if ((p = M_CheckParm("-framescapture")) && (p < myargc-2))
     if ((avi_shot_count = avi_shot_time = atoi(myargv[p+1])))

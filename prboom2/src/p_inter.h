@@ -72,6 +72,7 @@ extern int idfa_armor_class;
 extern int idkfa_armor;
 extern int idkfa_armor_class;
 extern int bfgcells;
+extern int monsters_infight;//e6y
 extern int maxammo[], clipammo[];
 
 #endif

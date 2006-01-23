@@ -455,6 +455,7 @@ void TryRunTics (void)
       //e6y else I_uSleep(ms_to_next_tick*1000);
       else if (!movement_smooth) I_uSleep(ms_to_next_tick*1000);//e6y
       if (I_GetTime() - entertime > 10) {
+        if (server) {//e6y
         remotesend--;
 	{
 	  char buf[sizeof(packet_header_t)+1];
@@ -462,6 +463,7 @@ void TryRunTics (void)
 	  buf[sizeof(buf)-1] = consoleplayer;
 	  I_SendPacket((packet_header_t *)buf, sizeof buf);
 	}
+	}//e6y
         M_Ticker(); return;
       }
       //e6y

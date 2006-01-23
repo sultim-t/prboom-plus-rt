@@ -1406,8 +1406,6 @@ void D_DoomMainSetup(void)
   nodrawers = M_CheckParm ("-nodraw");
   noblit = M_CheckParm ("-noblit");
 
-  e6y_D_DoomMainSetup();//e6y
-
 #ifndef NO_PREDEFINED_LUMPS
   // jff 4/21/98 allow writing predefined lumps out as a wad
   if ((p = M_CheckParm("-dumplumps")) && p < myargc-1)
@@ -1717,6 +1715,7 @@ void D_DoomMainSetup(void)
 void D_DoomMain(void)
 {
   D_DoomMainSetup(); // CPhipps - setup out of main execution stack
+  e6y_D_DoomMainSetup();//e6y
 
   D_DoomLoop ();  // never returns
 }
