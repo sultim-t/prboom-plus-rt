@@ -64,6 +64,7 @@
 #include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
+#include "e6y.h"//e6y
 
 //
 // M_DrawText
@@ -681,6 +682,67 @@ default_t defaults[] =
    def_bool,ss_none}, // enables display of HUD
   {"hud_nosecrets", {&hud_nosecrets},  {0},0,1, // no secrets/items/kills HUD line
    def_bool,ss_stat}, // disables display of kills/items/secrets on HUD
+
+//e6y
+  {"mouse_sensitivity_mlook",{&mouseSensitivity_mlook},{10},0,UL,
+   def_int,ss_none},
+
+  {"speed_step",{&speed_step},{10},0,100,
+   def_int,ss_none},
+
+  {"key_speedup",     {&key_speed_up},         {KEYD_KEYPADPLUS}                ,
+   0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate += 10                   
+  {"key_speeddown",     {&key_speed_down},         {KEYD_KEYPADMINUS}           ,
+   0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate -= 10
+  {"key_speeddefault",     {&key_speed_default},         {KEYD_KEYPADMULTIPLY}  ,
+   0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate = 100
+  {"key_demo_jointogame",     {&key_demo_jointogame},         {KEYD_LALT}       ,
+   0,MAX_KEY,def_key,ss_keys}, // join from demo to game
+  {"key_demo_nextlevel",     {&key_demo_nextlevel},         {KEYD_PAGEDOWN}     ,
+   0,MAX_KEY,def_key,ss_keys}, // join from demo to game
+  {"key_walkcamera",     {&key_walkcamera},         {KEYD_LALT}     ,
+   0,MAX_KEY,def_key,ss_keys}, // join from demo to game
+
+  {"hudadd_gamespeed", {&hudadd_gamespeed},  {0},0,1,
+   def_bool,ss_stat},
+  {"hudadd_leveltime", {&hudadd_leveltime},  {0},0,1,
+   def_bool,ss_stat},
+  {"hudadd_secretarea", {&hudadd_secretarea},  {0},0,1,
+   def_bool,ss_stat},
+  {"hudadd_smarttotals", {&hudadd_smarttotals},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_smooth", {&movement_smooth},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_mouselook", {&_movement_mouselook},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_strafe50", {&movement_strafe50},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
+   def_bool,ss_stat},
+  {"view_fov", {&_view_fov},  {64},20,120,
+   def_int,ss_stat},
+  {"render_usedetail", {&render_usedetail},  {0},0,1,
+   def_bool,ss_stat},
+  {"render_detailwalls", {&render_detailwalls},  {1},0,1,
+   def_bool,ss_stat},
+  {"render_detailflats", {&render_detailflats},  {0},0,1,
+   def_bool,ss_stat},
+  {"render_detailsprites", {&render_detailsprites},  {0},0,1,
+   def_bool,ss_stat},
+  {"palette_ondamage", {&palette_ondamage},  {1},0,1,
+   def_bool,ss_stat},
+  {"palette_onbonus", {&palette_onbonus},  {1},0,1,
+   def_bool,ss_stat},
+  {"palette_onpowers", {&palette_onpowers},  {1},0,1,
+   def_bool,ss_stat},
+  {"demo_overwriteexisting", {&demo_overwriteexisting},  {0},0,1,
+   def_bool,ss_stat},
+  {"demo_smoothturns", {&demo_smoothturns},  {0},0,1,
+   def_bool,ss_stat},
+  {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,MAX_DEMOS_SMOOTHFACTOR,
+   def_int,ss_stat},
 
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:

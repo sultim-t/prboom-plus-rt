@@ -56,6 +56,7 @@
 #include "d_deh.h"
 #include "r_plane.h"
 #include "lprintf.h"
+#include "e6y.h"//e6y
 
 //
 // Animating textures and planes
@@ -114,6 +115,50 @@ static void P_SpawnPushers(void);     // phares 3/20/98
 
 extern int allow_pushers;
 extern int variable_friction;         // phares 3/20/98
+
+//e6y
+void MarkAnimatedTextures(void)
+{
+#ifdef GL_DOOM
+  extern texture_t **textures;
+  extern int numtextures;
+  extern int numflats;
+
+  int i;
+  anim_t* anim;
+
+  anim_textures = (TAnimItemParam*)malloc(numtextures * sizeof(TAnimItemParam));
+  anim_flats = (TAnimItemParam*)malloc(numflats * sizeof(TAnimItemParam));
+
+  for (i = 0; i < numtextures ; i++)
+  {
+    anim_textures[i].count = 0;
+    anim_textures[i].index = 0;
+  }
+  for (i = 0; i < numflats ; i++)
+  {
+    anim_flats[i].count = 0;
+    anim_flats[i].index = 0;
+  }
+
+  for (anim = anims ; anim < lastanim ; anim++)
+  {
+    for (i = 0; i < anim->numpics ; i++)
+    {
+      if (anim->istexture)
+      {
+        anim_textures[anim->basepic + i].index = i + 1;
+        anim_textures[anim->basepic + i].count = anim->numpics;
+      }
+      else
+      {
+        anim_flats[anim->basepic + i].index = i + 1;
+        anim_flats[anim->basepic + i].count = anim->numpics;
+      }
+    }
+  }
+#endif GL_DOOM
+}
 
 //
 // P_InitPicAnims
@@ -189,6 +234,7 @@ void P_InitPicAnims (void)
     lastanim++;
   }
   W_UnlockLumpNum(lump);
+  MarkAnimatedTextures();//e6y
 }
 
 ///////////////////////////////////////////////////////////////
@@ -252,7 +298,7 @@ int twoSided
   return comp[comp_model] ?
     (sectors[sector].lines[line])->flags & ML_TWOSIDED
     :
-    (sectors[sector].lines[line])->sidenum[1] != -1;
+    (sectors[sector].lines[line])->sidenum[1] != (unsigned short)-1;//e6y
 }
 
 
@@ -2227,6 +2273,13 @@ void P_PlayerInSpecialSector (player_t* player)
         // Tally player in secret sector, clear secret special
         player->secretcount++;
         sector->special = 0;
+        //e6y
+        if (hudadd_secretarea)
+        {
+          player->centermessage = STSTR_SECRETFOUND;
+          S_StartSound(NULL,sfx_itmbk);
+        }
+
         break;
 
       case 11:
@@ -2277,6 +2330,12 @@ void P_PlayerInSpecialSector (player_t* player)
       sector->special &= ~SECRET_MASK;
       if (sector->special<32) // if all extended bits clear,
         sector->special=0;    // sector is not special anymore
+      //e6y
+      if (hudadd_secretarea)
+      {
+        player->centermessage = STSTR_SECRETFOUND;
+        S_StartSound(NULL,sfx_itmbk);
+      }
     }
 
     // phares 3/19/98:
@@ -2310,7 +2369,6 @@ void P_UpdateSpecials (void)
   anim_t*     anim;
   int         pic;
   int         i;
-
   // Downcount level timer, exit level if elapsed
   if (levelTimer == true)
   {

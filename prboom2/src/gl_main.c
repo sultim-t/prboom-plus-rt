@@ -59,6 +59,12 @@
 #include "lprintf.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
+#include "e6y.h"//e6y
+//e6y
+extern PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB;
+extern PFNGLMULTITEXCOORD2FVARBPROC     glMultiTexCoord2fvARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB;
+extern PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB;
 
 extern int tran_filter_pct;
 
@@ -466,6 +472,7 @@ void gld_Init(int width, int height)
     gl_tex_format=GL_RGBA;
     lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
   }
+  e6y_InitExtensions();//e6y
 }
 
 void gld_InitCommandLine()
@@ -510,6 +517,7 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   ypos=SCALE_Y(y-gltexture->topoffset);
   width=SCALE_X(gltexture->realtexwidth);
   height=SCALE_Y(gltexture->realtexheight);
+
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
     glTexCoord2f(fU1, fV2); glVertex2f((xpos),(ypos+height));
@@ -623,6 +631,7 @@ void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch
   width=SCALE_X(gltexture->realtexwidth);
   height=SCALE_Y(gltexture->realtexheight);
   glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
+
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
     glTexCoord2f(fU1, fV2); glVertex2f((xpos),(ypos+height));
@@ -1416,8 +1425,10 @@ static void gld_PrecalculateSector(int num)
   for (i=0; i<sectors[num].linecount; i++)
   {
     lineadded[i]=false;
-    if (sectors[num].lines[i]->sidenum[0]>=0)
-      if (sectors[num].lines[i]->sidenum[1]>=0)
+//e6y    if (sectors[num].lines[i]->sidenum[0]>=0)
+//e6y      if (sectors[num].lines[i]->sidenum[1]>=0)
+    if (sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1)//e6y
+      if (sectors[num].lines[i]->sidenum[1]!=(unsigned short)-1)//e6y
         if (sides[sectors[num].lines[i]->sidenum[0]].sector
           ==sides[sectors[num].lines[i]->sidenum[1]].sector)
         {
@@ -1450,7 +1461,7 @@ static void gld_PrecalculateSector(int num)
         {
           currentline=i;
           currentloop++;
-          if ((sectors[num].lines[currentline]->sidenum[0]!=-1) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)
+          if ((sectors[num].lines[currentline]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
             startvertex=sectors[num].lines[currentline]->v1;
           else
             startvertex=sectors[num].lines[currentline]->v2;
@@ -1472,7 +1483,7 @@ static void gld_PrecalculateSector(int num)
     // add current line
     lineadded[currentline]=true;
     // check if currentsector is on the front side of the line ...
-    if ((sectors[num].lines[currentline]->sidenum[0]!=-1) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)
+    if ((sectors[num].lines[currentline]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
     {
       // v2 is ending vertex
       currentvertex=sectors[num].lines[currentline]->v2;
@@ -1516,7 +1527,7 @@ static void gld_PrecalculateSector(int num)
     bestline=-1; // set to start values
     bestlinecount=0;
     // set backsector if there is one
-    if (sectors[num].lines[currentline]->sidenum[1]!=-1)
+    if (sectors[num].lines[currentline]->sidenum[1]!=(unsigned short)-1)//e6y
       backsector=sides[sectors[num].lines[currentline]->sidenum[1]].sector;
     else
       backsector=NULL;
@@ -1527,7 +1538,7 @@ static void gld_PrecalculateSector(int num)
         if ((sectors[num].lines[i]->v1==currentvertex) || (sectors[num].lines[i]->v2==currentvertex))
         {
           // calculate the angle of this best line candidate
-          if ((sectors[num].lines[i]->sidenum[0]!=-1) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)
+          if ((sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
             angle = R_PointToAngle2(sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y,sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y);
           else
             angle = R_PointToAngle2(sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y,sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y);
@@ -1535,7 +1546,7 @@ static void gld_PrecalculateSector(int num)
           if (angle>=180)
             angle=angle-360;
           // check if line is flipped ...
-          if ((sectors[num].lines[i]->sidenum[0]!=-1) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)
+          if ((sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
           {
             // when the line is not flipped and startvertex is not the currentvertex then skip this line
             if (sectors[num].lines[i]->v1!=currentvertex)
@@ -1641,8 +1652,10 @@ static void gld_PrepareSectorSpecialEffects(int num)
   sectors[num].no_bottomtextures=true;
   for (i=0; i<sectors[num].linecount; i++)
   {
-    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
-         (sectors[num].lines[i]->sidenum[1]>=0) )
+//e6y    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
+//e6y         (sectors[num].lines[i]->sidenum[1]>=0) )
+    if ( (sectors[num].lines[i]->sidenum[0]!=(unsigned short)-1) &&//e6y
+         (sectors[num].lines[i]->sidenum[1]!=(unsigned short)-1) )//e6y
     {
       if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
         sectors[num].no_toptextures=false;
@@ -1755,13 +1768,13 @@ void gld_PreprocessSectors(void)
       v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
       if ((v1num>=numvertexes) || (v2num>=numvertexes))
         continue;
-      if (sectors[i].lines[j]->sidenum[0]>=0)
+      if (sectors[i].lines[j]->sidenum[0]!=(unsigned short)-1)//e6y
         if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
         {
           vertexcheck[v1num]|=1;
           vertexcheck[v2num]|=2;
         }
-      if (sectors[i].lines[j]->sidenum[1]>=0)
+      if (sectors[i].lines[j]->sidenum[1]!=(unsigned short)-1)//e6y
         if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
         {
           vertexcheck[v1num]|=2;
@@ -1858,7 +1871,7 @@ void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 void gld_StartDrawScene(void)
 {
   float trY ;
-  float xCamera,yCamera;
+  //e6y float xCamera,yCamera;
 
   extern int screenblocks;
   int height;
@@ -1885,6 +1898,18 @@ void gld_StartDrawScene(void)
   yaw=270.0f-(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
   inv_yaw=-90.0f+(float)(viewangle>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
 
+//e6y
+//  viewMaxY = viewz;
+  if((!movement_mouselook || demoplayback) && view_fov == 64)
+    pitch=0.0f;
+  else
+  {
+    pitch=(float)(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+    viewPitch = (pitch>180 ? pitch-360 : pitch);
+    skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
+    skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
+  }
+
 #ifdef _DEBUG
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #else
@@ -1897,7 +1922,8 @@ void gld_StartDrawScene(void)
   glLoadIdentity();
 
   //gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
-  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
+//e6y  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
+  infinitePerspective((float)view_fov,320.0f/200.0f, (float)gl_nearclip/100.0f);//e6y
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -2014,6 +2040,7 @@ static void gld_DrawWall(GLWall *wall)
 {
   if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
     wall->gltexture=NULL;
+  
   gld_BindTexture(wall->gltexture);
   if (!wall->gltexture)
   {
@@ -2027,11 +2054,47 @@ static void gld_DrawWall(GLWall *wall)
     {
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
+      if ((!movement_mouselook || demoplayback) && view_fov == 64) {//e6y
       if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
         glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
       else
         glScalef(128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
       glTranslatef(wall->skyyaw,wall->skyymid,0.0f);
+
+      //e6y
+      }
+      else 
+      {
+        if (wall->gltexture->buffer_width == 256)
+        {
+          if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
+            glScalef(-64.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
+          else
+            glScalef(+64.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
+          glTranslatef(skyXShift,skyYShift,0.0f);
+        }
+        else
+        {
+          if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
+            glScalef(-128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*2.0f*fovscale,1.0f);
+          else
+            glScalef(+128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*2.0f*fovscale,1.0f);
+          glTranslatef(skyXShift,skyYShift,0.0f);
+        }
+      }
+      if (movement_mouselook && !demoplayback && !SkyDrawed)
+      {             
+        //float skytop = wall->ytop;
+        float skytop = 255.0f;
+        SkyDrawed = true;
+        glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(-100,skytop,100);
+          glVertex3f(100,skytop,100);
+          glVertex3f(-100,skytop,-100);
+          glVertex3f(100,skytop,-100);
+        glEnd();
+      }
+
     }
     glBegin(GL_TRIANGLE_STRIP);
       glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
@@ -2047,6 +2110,41 @@ static void gld_DrawWall(GLWall *wall)
   }
   else
   {
+  //e6y
+  if (gl_arb_multitexture && render_usedetailwalls &&
+      distance2piece(xCamera, yCamera, 
+        wall->glseg->x1, wall->glseg->z1,
+        wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
+  {
+    float w, h, s;
+    glActiveTextureARB(GL_TEXTURE1_ARB);
+    glEnable(GL_TEXTURE_2D);
+    s = 1.0f/anim_textures[wall->gltexture->index].count*
+      (anim_textures[wall->gltexture->index].index);
+    if (s < 0.001) s = 0.0f;
+    w = s + wall->gltexture->realtexwidth / 18.0f;
+    h = s + wall->gltexture->realtexheight / 18.0f;
+    gld_StaticLightAlpha(wall->light, wall->alpha);
+    glBegin(GL_TRIANGLE_STRIP);
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vt*h);
+      glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vb); 
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vb*h);
+      glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vt); 
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vt*h);
+      glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vb); 
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vb*h);
+      glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glActiveTextureARB(GL_TEXTURE0_ARB);
+  }
+  else
+  {
+
     gld_StaticLightAlpha(wall->light, wall->alpha);
     glBegin(GL_TRIANGLE_STRIP);
       glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
@@ -2055,6 +2153,8 @@ static void gld_DrawWall(GLWall *wall)
       glTexCoord2f(wall->ur,wall->vb); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
   }
+
+  }//e6y
 }
 
 #define LINE seg->linedef
@@ -2289,11 +2389,42 @@ void gld_AddWall(seg_t *seg)
         ceiling_height=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
-      CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
-      CALC_TEX_VALUES_MIDDLE2S(
-        wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
-        segs[seg->iSegID].length, lineheight
-      );
+//e6y      CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
+//e6y      CALC_TEX_VALUES_MIDDLE2S(
+//e6y        wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
+//e6y        segs[seg->iSegID].length, lineheight
+//e6y      );
+      
+      //e6y
+      {
+        int floormax, ceilingmin, linelen;
+        float mip;
+        mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
+//        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
+        if (seg->sidedef->bottomtexture)
+          floormax=max(seg->frontsector->floorheight,seg->backsector->floorheight);
+        else
+          floormax=floor_height;
+        if (seg->sidedef->toptexture)
+          ceilingmin=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
+        else
+          ceilingmin=ceiling_height;
+        linelen=abs(ceiling_height-floor_height);
+        wall.ytop=((float)min(ceilingmin, ceiling_height)/(float)MAP_SCALE)+0.001f;
+        wall.ybottom=((float)max(floormax, floor_height)/(float)MAP_SCALE)-0.001f;
+        wall.flag=GLDWF_M2S;
+        wall.ul=OU((wall),(seg))+(0.0f);
+        wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);
+        if (floormax<=floor_height)
+          wall.vb=1.0f;
+        else
+          wall.vb=mip*((float)(ceiling_height - floormax))/linelen;
+        if (ceilingmin>=ceiling_height)
+          wall.vt=0.0f;
+        else
+          wall.vt=mip*((float)(ceiling_height - ceilingmin))/linelen;
+      }
+   
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
       ADDWALL(&wall);
@@ -2390,7 +2521,6 @@ static void gld_DrawFlat(GLFlat *flat)
 #ifndef USE_VERTEX_ARRAYS
   int vertexnum;
 #endif
-
   gld_BindFlat(flat->gltexture);
   gld_StaticLight(flat->light);
   glMatrixMode(GL_MODELVIEW);
@@ -2399,6 +2529,25 @@ static void gld_DrawFlat(GLFlat *flat)
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glTranslatef(flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
+  
+//e6y
+  if (gl_arb_multitexture && render_usedetailflats)
+  {
+    float s;
+    glActiveTextureARB(GL_TEXTURE1_ARB);
+    glEnable(GL_TEXTURE_2D);
+    gld_StaticLight(flat->light);
+    
+    s = 1.0f/anim_flats[flat->gltexture->index - firstflat].count*
+      (anim_flats[flat->gltexture->index - firstflat].index);
+    if (s < 0.001) s = 0.0f;
+    
+    glPushMatrix();
+    glTranslatef(s + flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
+    glScalef(4.0f, 4.0f, 1.0f);
+    //      glTranslatef(0.0f,flat->z,0.0f);
+  }
+
   if (flat->sectornum>=0)
   {
     // go through all loops of this sector
@@ -2415,7 +2564,7 @@ static void gld_DrawFlat(GLFlat *flat)
       for (vertexnum=currentloop->vertexindex; vertexnum<(currentloop->vertexindex+currentloop->vertexcount); vertexnum++)
       {
         // set texture coordinate of this vertex
-        glTexCoord2fv(&gld_texcoords[vertexnum*2]);
+	    glTexCoord2fv(&gld_texcoords[vertexnum*2]);
         // set vertex coordinate
         glVertex3fv(&gld_vertexes[vertexnum*3]);
       }
@@ -2426,11 +2575,21 @@ static void gld_DrawFlat(GLFlat *flat)
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
     {
       // set the current loop
-      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+      currentloop = &sectorloops[flat->sectornum].loops[loopnum];
+      glDrawArrays(currentloop->mode, currentloop->vertexindex, currentloop->vertexcount);
     }
 #endif
   }
+
+  //e6y
+  if (gl_arb_multitexture && render_usedetailflats)
+  {
+    //glMatrixMode(GL_TEXTURE);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glActiveTextureARB(GL_TEXTURE0_ARB);
+  }
+
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
@@ -2512,9 +2671,11 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
   if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
   {
     // render the floor
+    //if (subsector->sector->floorheight < viewMaxY)//e6y
     if (floorplane)
       gld_AddFlat(subsector->sector->iSectorID, false, floorplane);
     // render the ceiling
+    //if (subsector->sector->ceilingheight > viewMaxY)//e6y
     if (ceilingplane)
       gld_AddFlat(subsector->sector->iSectorID, true, ceilingplane);
     // set rendered true
@@ -2550,12 +2711,62 @@ static void gld_DrawSprite(GLSprite *sprite)
     else
       gld_StaticLight(sprite->light);
   }
+  //e6y
+  if (gl_arb_multitexture)
+  {
+    if (render_usedetailsprites)
+    {
+      float w, h;
+
+      glActiveTextureARB(GL_TEXTURE1_ARB);
+      glEnable(GL_TEXTURE_2D);
+
+      w = sprite->gltexture->realtexwidth / 18.0f;
+      h = sprite->gltexture->realtexheight / 18.0f;
+
+      glBegin(GL_TRIANGLE_STRIP);
+    
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ul,sprite->vt);
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ul*w,sprite->vt*h);
+      glVertex3f(sprite->x1, sprite->y1, 0.0f);
+    
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ur,sprite->vt); 
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ur*w,sprite->vt*h);
+      glVertex3f(sprite->x2, sprite->y1, 0.0f);
+    
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ul,sprite->vb); 
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ul*w,sprite->vb*h);
+      glVertex3f(sprite->x1, sprite->y2, 0.0f);
+    
+      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ur,sprite->vb); 
+      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ur*w,sprite->vb*h);
+      glVertex3f(sprite->x2, sprite->y2, 0.0f);
+      glEnd();
+    
+      glDisable(GL_TEXTURE_2D);
+      glActiveTextureARB(GL_TEXTURE0_ARB);
+    }
+    else
+    {
+      glBegin(GL_TRIANGLE_STRIP);
+      glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
+      glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
+      glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
+      glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
+      glEnd();
+    }
+  }
+  else
+  {
+  
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
   glEnd();
+
+  }//e6y
 
   glPopMatrix();
 
@@ -2583,9 +2794,21 @@ void gld_AddSprite(vissprite_t *vspr)
     return;
   sprite.shadow = (pSpr->flags & MF_SHADOW) != 0;
   sprite.trans  = (pSpr->flags & MF_TRANSLUCENT) != 0;
+//e6y
+  if (movement_smooth)
+  {
+    sprite.x = (float)(-pSpr->PrevX + FixedMul (r_TicFrac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
+    sprite.y = (float)(pSpr->PrevZ + FixedMul (r_TicFrac, pSpr->z - pSpr->PrevZ))/MAP_SCALE;
+    sprite.z = (float)(pSpr->PrevY + FixedMul (r_TicFrac, pSpr->y - pSpr->PrevY))/MAP_SCALE;
+  }
+  else
+  {
+
   sprite.x=-(float)pSpr->x/MAP_SCALE;
   sprite.y= (float)pSpr->z/MAP_SCALE;
   sprite.z= (float)pSpr->y/MAP_SCALE;
+
+  }//e6y
 
   sprite.vt=0.0f;
   sprite.vb=(float)sprite.gltexture->height/(float)sprite.gltexture->tex_height;
@@ -2623,6 +2846,116 @@ void gld_AddSprite(vissprite_t *vspr)
 
 extern int rendered_visplanes, rendered_segs, rendered_vissprites;
 
+//e6y
+void e6y_DrawAdd(void)
+{
+  int i, j, k;
+
+  if (render_usedetailwalls || render_usedetailflats)
+  {
+    glBindTexture(GL_TEXTURE_2D, idDetail);
+    glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBlendFunc (GL_DST_COLOR, GL_SRC_COLOR);
+    
+    if (render_usedetailflats)
+    {
+      for (i=gld_drawinfo.num_drawitems; i>=0; i--)
+      {
+        switch (gld_drawinfo.drawitems[i].itemtype)
+        {
+        case GLDIT_FLAT:
+          glEnable(GL_CULL_FACE);
+          glCullFace(GL_FRONT);
+          for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+            if (!gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
+            {
+              GLFlat *flat;
+              int loopnum;
+              GLLoopDef *currentloop;
+              flat = &gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex];
+              
+              gld_StaticLight(flat->light);
+              glPushMatrix();
+              glTranslatef(0.0f,flat->z,0.0f);
+              if (flat->sectornum>=0)
+              {
+                for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+                {
+                  currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+                  glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+                }
+              }
+              glPopMatrix();
+            }
+            glCullFace(GL_BACK);
+            for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+              if (gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
+              {
+                GLFlat *flat;
+                int loopnum;
+                GLLoopDef *currentloop;
+                flat = &gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex];
+                
+                gld_StaticLight(flat->light);
+                glPushMatrix();
+                glTranslatef(0.0f,flat->z,0.0f);
+                if (flat->sectornum>=0)
+                {
+                  for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
+                  {
+                    currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+                    glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
+                  }
+                }
+                glPopMatrix();
+              }
+              
+              break;
+        }
+      }
+    }
+    if (render_usedetailwalls)
+    {
+      for (i=gld_drawinfo.num_drawitems; i>=0; i--)
+      {
+        switch (gld_drawinfo.drawitems[i].itemtype)
+        {
+        case GLDIT_WALL:
+          for (k=GLDWF_TOP; k<GLDWF_SKY; k++)
+          {
+            for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+            {
+              if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
+              {
+                float w, h;
+                GLWall *wall = &gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
+                
+                if (distance2piece(xCamera, yCamera, 
+                  wall->glseg->x1, wall->glseg->z1,
+                  wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
+                {
+                  w = wall->gltexture->realtexwidth / 18.0f;
+                  h = wall->gltexture->realtexheight / 18.0f;
+                  gld_StaticLightAlpha(wall->light, wall->alpha);
+                  glBegin(GL_TRIANGLE_STRIP);
+                  glTexCoord2f(wall->ul*w,wall->vt*h); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
+                  glTexCoord2f(wall->ul*w,wall->vb*h); glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
+                  glTexCoord2f(wall->ur*w,wall->vt*h); glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
+                  glTexCoord2f(wall->ur*w,wall->vb*h); glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
+                  glEnd();
+                }
+              }
+            }
+          }
+          break;
+        }
+      } 
+    }
+    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
+}
+
 void gld_DrawScene(player_t *player)
 {
   int i,j,k,count;
@@ -2659,6 +2992,7 @@ void gld_DrawScene(player_t *player)
       break;
     }
   }
+  SkyDrawed = false;//e6y
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
     switch (gld_drawinfo.drawitems[i].itemtype)
@@ -2678,6 +3012,7 @@ void gld_DrawScene(player_t *player)
           glEnable(GL_TEXTURE_GEN_Q);
           glColor4fv(gl_whitecolor);
         }
+
         for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
           if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
           {
@@ -2724,6 +3059,11 @@ void gld_DrawScene(player_t *player)
       break;
     }
   }
+//e6y
+  if (!gl_arb_multitexture)
+    if (render_usedetailwalls || render_usedetailflats)
+      e6y_DrawAdd();
+
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);
 }
@@ -2736,6 +3076,7 @@ void gld_PreprocessLevel(void)
   gld_PreprocessSectors();
   gld_PreprocessSegs();
   memset(&gld_drawinfo,0,sizeof(GLDrawInfo));
+  e6y_PreprocessLevel();//e6y
   glTexCoordPointer(2,GL_FLOAT,0,gld_texcoords);
   glVertexPointer(3,GL_FLOAT,0,gld_vertexes);
 }

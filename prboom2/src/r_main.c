@@ -48,7 +48,7 @@
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
-
+#include "e6y.h"//e6y
 
 void R_LoadTrigTables(void);
 
@@ -467,15 +467,28 @@ void R_SetupFrame (player_t *player)
   int i, cm;
 
   viewplayer = player;
-  viewx = player->mo->x;
-  viewy = player->mo->y;
-  viewangle = player->mo->angle + viewangleoffset;
+//e6y  viewx = player->mo->x;
+//e6y  viewy = player->mo->y;
+//e6y  viewangle = player->mo->angle + viewangleoffset;
+//e6y
+  if (player->mo != oviewer || r_NoInterpolate)
+  {
+    R_ResetViewInterpolation ();
+    oviewer = player->mo;
+  }
+  r_TicFrac = I_GetTimeFrac ();
+  if (r_NoInterpolate)
+    r_TicFrac = FRACUNIT;
+  R_InterpolateView (player, r_TicFrac);
+
   extralight = player->extralight;
 
-  viewz = player->viewz;
+//e6y  viewz = player->viewz;
 
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
+
+  dointerpolations(r_TicFrac);//e6y
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
@@ -642,7 +655,52 @@ void R_RenderPlayerView (player_t* player)
 #endif
 
   // The head node is the last node output.
-  R_RenderBSPNode (numnodes-1);
+  //e6y R_RenderBSPNode (numnodes-1);
+
+  //e6y
+  if ((view_fov > 64) || (movement_mouselook && !demoplayback && viewpitch))
+  {
+    unsigned int oldviewangle;
+    oldviewangle = viewangle;
+    if (view_fov > 64 || trasparentpresent)//FIXME!!!
+    {
+      R_RenderBSPNode (numnodes-1);
+      viewangle += ANG90;
+      R_ClearClipSegs();
+      R_RenderBSPNode(numnodes - 1);
+      viewangle += ANG90;
+      if (((int) viewpitch > ANG45 || (int) viewpitch < -ANG45))
+      {
+        R_ClearClipSegs();
+        R_RenderBSPNode(numnodes - 1);
+      }
+      viewangle += ANG90;
+      R_ClearClipSegs();
+      R_RenderBSPNode(numnodes - 1);
+    }
+    else
+    {
+      viewangle -= ANG45;
+      R_RenderBSPNode(numnodes - 1);
+      viewangle += ANG90;
+      R_ClearClipSegs();
+      R_RenderBSPNode(numnodes - 1);
+      if (((int) viewpitch > ANG45 || (int) viewpitch < -ANG45))
+      {
+        viewangle += ANG90;
+        R_ClearClipSegs();
+        R_RenderBSPNode(numnodes - 1);
+        viewangle += ANG90;
+        R_ClearClipSegs();
+        R_RenderBSPNode(numnodes - 1);
+      }
+    }
+    viewangle = oldviewangle;
+  } 
+  else
+  {
+    R_RenderBSPNode (numnodes-1);
+  } 
 
   // Check for new console commands.
 #ifdef HAVE_NET
@@ -674,4 +732,6 @@ void R_RenderPlayerView (player_t* player)
   gld_EndDrawScene();
 #endif
   if (rendering_stats) R_ShowStats();
+  
+  restoreinterpolations ();//e6y
 }

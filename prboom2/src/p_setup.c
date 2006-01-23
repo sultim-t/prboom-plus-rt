@@ -50,6 +50,7 @@
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+#include "e6y.h"//e6y
 
 //
 // MAP related Lookup tables.
@@ -333,7 +334,7 @@ static void P_LoadSegs (int lump)
       li->frontsector = sides[ldef->sidenum[side]].sector;
 
       // killough 5/3/98: ignore 2s flag if second sidedef missing:
-      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=-1)
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=(unsigned short)-1)//e6y
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
@@ -663,26 +664,27 @@ static void P_LoadLineDefs2(int lump)
       { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
   // killough 11/98: fix common wad errors (missing sidedefs):
 
-  if (ld->sidenum[0] == -1) {
+  if (ld->sidenum[0] == (unsigned short)-1) {//e6y
     ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
     // cph - print a warning about the bug
     lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i);
   }
 
-  if ((ld->sidenum[1] == -1) && (ld->flags & ML_TWOSIDED)) {
+  if ((ld->sidenum[1] == (unsigned short)-1) && (ld->flags & ML_TWOSIDED)) {//e6y
     ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
     // cph - print a warning about the bug
     lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i);
   }
       }
 
-      ld->frontsector = ld->sidenum[0]!=-1 ? sides[ld->sidenum[0]].sector : 0;
-      ld->backsector  = ld->sidenum[1]!=-1 ? sides[ld->sidenum[1]].sector : 0;
+      ld->frontsector = ld->sidenum[0]!=(unsigned short)-1 ? sides[ld->sidenum[0]].sector : 0;//e6y
+      ld->backsector  = ld->sidenum[1]!=(unsigned short)-1 ? sides[ld->sidenum[1]].sector : 0;//e6y
       switch (ld->special)
         {                       // killough 4/11/98: handle special types
           int lump, j;
 
         case 260:               // killough 4/11/98: translucent 2s textures
+            trasparentpresent = true;//e6y
             lump = sides[*ld->sidenum].special; // translucency from sidedef
             if (!ld->tag)                       // if tag==0,
               ld->tranlump = lump;              // affect this linedef only
@@ -787,6 +789,8 @@ typedef struct linelist_t        // type used to list lines in each block
 // It simply returns if the line is already in the block
 //
 
+linelist_t **e6y_BlockMap;//e6y
+int e6y_BlockMapIndex;//e6y
 static void AddBlockLine
 (
   linelist_t **lists,
@@ -801,7 +805,11 @@ static void AddBlockLine
   if (done[blockno])
     return;
 
-  l = malloc(sizeof(linelist_t));
+//e6y  
+  l=malloc(sizeof(linelist_t));
+//  l=e6y_BlockMap+(e6y_BlockMapIndex++);//e6y
+//  l=e6y_BlockMap[e6y_BlockMapIndex++];//e6y
+
   l->num = lineno;
   l->next = lists[blockno];
   lists[blockno] = l;
@@ -831,6 +839,8 @@ void P_CreateBlockMap()
   int map_miny=INT_MAX;
   int map_maxx=INT_MIN;
   int map_maxy=INT_MIN;
+  e6y_BlockMapIndex=0;//e6y
+  e6y_BlockMap = NULL;//e6y
 
   // scan for map limits, which the blockmap must enclose
 
@@ -868,6 +878,8 @@ void P_CreateBlockMap()
   blocklists = calloc(NBlocks,sizeof(linelist_t *));
   blockcount = calloc(NBlocks,sizeof(int));
   blockdone = malloc(NBlocks*sizeof(int));
+  e6y_BlockMap = malloc((NBlocks*3+4)*sizeof(linelist_t));//e6y
+  memset(e6y_BlockMap, 0, (NBlocks*3+4)*sizeof(linelist_t));
 
   // initialize each blocklist, and enter the trailing -1 in all blocklists
   // note the linked list of lines grows backwards
@@ -1064,7 +1076,8 @@ void P_CreateBlockMap()
     {
       linelist_t *tmp = bl->next;
       blockmaplump[offs++] = bl->num;
-      free(bl);
+      free(bl);//e6y
+      //free(e6y_BlockMap[i]);
       bl = tmp;
     }
   }
@@ -1074,6 +1087,7 @@ void P_CreateBlockMap()
   free (blocklists);
   free (blockcount);
   free (blockdone);
+  //free(e6y_BlockMap);
 }
 
 // jff 10/6/98
@@ -1332,12 +1346,19 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   char  gl_lumpname[9];
   int   gl_lumpnum;
 
+  //e6y
+  totallive = 0;
+  stopallinterpolation();
+  trasparentpresent = false;
 
   totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
   wminfo.partime = 180;
 
   for (i=0; i<MAXPLAYERS; i++)
+  {//e6y
     players[i].killcount = players[i].secretcount = players[i].itemcount = 0;
+    players[i].resurectedkillcount = 0;//e6y
+  }//e6y
 
   // Initial height of PointOfView will be set by player think.
   players[consoleplayer].viewz = 1;
@@ -1485,7 +1506,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
  // proff 11/99: calculate all OpenGL specific tables etc.
   gld_PreprocessLevel();
 #endif
-
+  //e6y
+  P_ResetWalkcam();
+  ClearSmoothViewAngels();
 }
 
 //

@@ -59,6 +59,7 @@
 #include "lprintf.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
+#include "e6y.h" //e6y
 
 extern int numtextures;
 extern texture_t **textures;
@@ -520,6 +521,7 @@ void gld_BindTexture(GLTexture *gltexture)
   }
   if (gltexture->glTexID[CR_DEFAULT]==0)
     glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
+    
   glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)

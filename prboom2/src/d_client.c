@@ -61,6 +61,7 @@
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
+#include "e6y.h" //e6y
 
 static boolean   server;
 static int       remotetic; // Tic expected from the remote
@@ -250,6 +251,7 @@ boolean D_NetGetWad(const char* name)
 void NetUpdate(void)
 {
   static int lastmadetic;
+  if (isExtraDDisplay) return;//e6y
   if (server) { // Receive network packets
     size_t recvlen;
     packet_header_t *packet = Z_Malloc(10000, PU_STATIC, NULL);
@@ -314,7 +316,7 @@ void NetUpdate(void)
   }
   { // Build new ticcmds
     int newtics = I_GetTime() - lastmadetic;
-    newtics = (newtics > 0 ? newtics : 0);
+//e6y    newtics = (newtics > 0 ? newtics : 0);
     lastmadetic += newtics;
     if (ffmap) newtics++;
     while (newtics--) {
@@ -450,7 +452,8 @@ void TryRunTics (void)
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
       if (server) I_WaitForPacket(ms_to_next_tick);
-      else I_uSleep(ms_to_next_tick*1000);
+      //e6y else I_uSleep(ms_to_next_tick*1000);
+      else if (!movement_smooth) I_uSleep(ms_to_next_tick*1000);//e6y
       if (I_GetTime() - entertime > 10) {
         remotesend--;
 	{
@@ -461,6 +464,13 @@ void TryRunTics (void)
 	}
         M_Ticker(); return;
       }
+      //e6y
+      //if ((DDisplayTime) < (TicNext-SDL_GetTicks()))
+      {
+        WasRenderedInTryRunTics = true;
+        Extra_D_Display();
+      }
+
     } else break;
   }
 
@@ -471,6 +481,7 @@ void TryRunTics (void)
     if (advancedemo)
       D_DoAdvanceDemo ();
     M_Ticker ();
+    I_GetTime_SaveMS();//e6y
     G_Ticker ();
     gametic++;
 #ifdef HAVE_NET

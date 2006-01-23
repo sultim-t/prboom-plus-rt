@@ -47,6 +47,7 @@
 #include "d_deh.h"    // Ty 03/27/98 - externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
+#include "e6y.h"
 
 //jff 1/7/98 default automap colors added
 int mapcolor_back;    // map background
@@ -341,8 +342,8 @@ void AM_restoreScaleAndLoc(void)
   }
   else
   {
-    m_x = plr->mo->x - m_w/2;
-    m_y = plr->mo->y - m_h/2;
+    m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
+    m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
   }
   m_x2 = m_x + m_w;
   m_y2 = m_y + m_h;
@@ -405,8 +406,8 @@ void AM_findMinMaxBoundaries(void)
       max_y = vertexes[i].y;
   }
 
-  max_w = max_x - min_x;
-  max_h = max_y - min_y;
+  max_w = (max_x >>= FRACTOMAPBITS) - (min_x >>= FRACTOMAPBITS);//e6y
+  max_h = (max_y >>= FRACTOMAPBITS) - (min_y >>= FRACTOMAPBITS);//e6y
 
   min_w = 2*PLAYERRADIUS; // const? never changed?
   min_h = 2*PLAYERRADIUS;
@@ -483,8 +484,8 @@ void AM_initVariables(void)
   break;
 
   plr = &players[pnum];
-  m_x = plr->mo->x - m_w/2;
-  m_y = plr->mo->y - m_h/2;
+  m_x = (plr->mo->x >> FRACTOMAPBITS) - m_w/2;//e6y
+  m_y = (plr->mo->y >> FRACTOMAPBITS) - m_h/2;//e6y
   AM_changeWindowLoc();
 
   // for saving & restoring
@@ -790,6 +791,10 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t
 {
   fixed_t tmpx;
 
+  //e6y
+  xorig>>=FRACTOMAPBITS;
+  yorig>>=FRACTOMAPBITS;
+
   tmpx =
     FixedMul(*x - xorig,finecosine[a>>ANGLETOFINESHIFT])
       - FixedMul(*y - yorig,finesine[a>>ANGLETOFINESHIFT]);
@@ -833,8 +838,8 @@ void AM_doFollowPlayer(void)
 {
   if (f_oldloc.x != plr->mo->x || f_oldloc.y != plr->mo->y)
   {
-    m_x = FTOM(MTOF(plr->mo->x)) - m_w/2;
-    m_y = FTOM(MTOF(plr->mo->y)) - m_h/2;
+    m_x = FTOM(MTOF(plr->mo->x >> FRACTOMAPBITS)) - m_w/2;//e6y
+    m_y = FTOM(MTOF(plr->mo->y >> FRACTOMAPBITS)) - m_h/2;//e6y
     m_x2 = m_x + m_w;
     m_y2 = m_y + m_h;
     f_oldloc.x = plr->mo->x;
@@ -1141,15 +1146,15 @@ void AM_drawGrid(int color)
 
   // Figure out start of vertical gridlines
   start = m_x;
-  if ((start-bmaporgx)%(MAPBLOCKUNITS<<FRACBITS))
-    start += (MAPBLOCKUNITS<<FRACBITS)
-      - ((start-bmaporgx)%(MAPBLOCKUNITS<<FRACBITS));
+  if ((start-bmaporgx)%(MAPBLOCKUNITS<<MAPBITS))//e6y
+    start += (MAPBLOCKUNITS<<MAPBITS)//e6y
+      - ((start-bmaporgx)%(MAPBLOCKUNITS<<MAPBITS));//e6y
   end = m_x + m_w;
 
   // draw vertical gridlines
   ml.a.y = m_y;
   ml.b.y = m_y+m_h;
-  for (x=start; x<end; x+=(MAPBLOCKUNITS<<FRACBITS))
+  for (x=start; x<end; x+=(MAPBLOCKUNITS<<MAPBITS))//e6y
   {
     ml.a.x = x;
     ml.b.x = x;
@@ -1158,15 +1163,15 @@ void AM_drawGrid(int color)
 
   // Figure out start of horizontal gridlines
   start = m_y;
-  if ((start-bmaporgy)%(MAPBLOCKUNITS<<FRACBITS))
-    start += (MAPBLOCKUNITS<<FRACBITS)
-      - ((start-bmaporgy)%(MAPBLOCKUNITS<<FRACBITS));
+  if ((start-bmaporgy)%(MAPBLOCKUNITS<<MAPBITS))//e6y
+    start += (MAPBLOCKUNITS<<MAPBITS)//e6y
+      - ((start-bmaporgy)%(MAPBLOCKUNITS<<MAPBITS));//e6y
   end = m_y + m_h;
 
   // draw horizontal gridlines
   ml.a.x = m_x;
   ml.b.x = m_x + m_w;
-  for (y=start; y<end; y+=(MAPBLOCKUNITS<<FRACBITS))
+  for (y=start; y<end; y+=(MAPBLOCKUNITS<<MAPBITS))//e6y
   {
     ml.a.y = y;
     ml.b.y = y;
@@ -1239,10 +1244,10 @@ void AM_drawWalls(void)
   // draw the unclipped visible portions of all lines
   for (i=0;i<numlines;i++)
   {
-    l.a.x = lines[i].v1->x;
-    l.a.y = lines[i].v1->y;
-    l.b.x = lines[i].v2->x;
-    l.b.y = lines[i].v2->y;
+    l.a.x = lines[i].v1->x >> FRACTOMAPBITS;//e6y
+    l.a.y = lines[i].v1->y >> FRACTOMAPBITS;//e6y
+    l.b.x = lines[i].v2->x >> FRACTOMAPBITS;//e6y
+    l.b.y = lines[i].v2->y >> FRACTOMAPBITS;//e6y
 
     if (automapmode & am_rotate) {
       AM_rotate(&l.a.x, &l.a.y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
@@ -1495,8 +1500,8 @@ void AM_drawPlayers(void)
         0,
         plr->mo->angle,
         mapcolor_sngl,      //jff color
-        plr->mo->x,
-        plr->mo->y
+        plr->mo->x >> FRACTOMAPBITS,//e6y
+        plr->mo->y >> FRACTOMAPBITS//e6y
       );
     else
       AM_drawLineCharacter
@@ -1506,8 +1511,8 @@ void AM_drawPlayers(void)
         0,
         plr->mo->angle,
         mapcolor_sngl,      //jff color
-        plr->mo->x,
-        plr->mo->y);
+        plr->mo->x >> FRACTOMAPBITS,//e6y
+        plr->mo->y >> FRACTOMAPBITS);//e6y
     return;
   }
 
@@ -1518,9 +1523,9 @@ void AM_drawPlayers(void)
       continue;
 
     if (playeringame[i]) {
-      fixed_t x = p->mo->x, y = p->mo->y;
+      fixed_t x = p->mo->x >> FRACTOMAPBITS, y = p->mo->y >> FRACTOMAPBITS;//e6y
       if (automapmode & am_rotate)
-  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
+  AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x >> FRACTOMAPBITS, plr->mo->y >> FRACTOMAPBITS);
 
       AM_drawLineCharacter (player_arrow, NUMPLYRLINES, 0, p->mo->angle,
           p->powers[pw_invisibility] ? 246 /* *close* to black */
@@ -1551,7 +1556,7 @@ void AM_drawThings
     t = sectors[i].thinglist;
     while (t) // for all things in that sector
     {
-      fixed_t x = t->x, y = t->y;
+      fixed_t x = t->x >> FRACTOMAPBITS, y = t->y >> FRACTOMAPBITS;//e6y
 
       if (automapmode & am_rotate)
   AM_rotate(&x, &y, ANG90-plr->mo->angle, plr->mo->x, plr->mo->y);
@@ -1608,7 +1613,7 @@ void AM_drawThings
       (
         thintriangle_guy,
         NUMTHINTRIANGLEGUYLINES,
-        16<<FRACBITS,
+        16<<MAPBITS,//e6y
         t->angle,
 	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
         /* bbm 2/28/03 Show countable items in yellow. */

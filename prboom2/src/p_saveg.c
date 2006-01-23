@@ -119,10 +119,10 @@ void P_ArchiveWorld (void)
 
   for (i=0; i<numlines; i++)
     {
-      if (lines[i].sidenum[0] != -1)
+      if (lines[i].sidenum[0] != (unsigned short)-1)//e6y
         size +=
     sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
-      if (lines[i].sidenum[1] != -1)
+      if (lines[i].sidenum[1] != (unsigned short)-1)//e6y
   size +=
     sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
     }
@@ -159,7 +159,7 @@ void P_ArchiveWorld (void)
       *put++ = li->tag;
 
       for (j=0; j<2; j++)
-        if (li->sidenum[j] != -1)
+        if (li->sidenum[j] != (unsigned short)-1)//e6y
           {
       si = &sides[li->sidenum[j]];
 
@@ -225,7 +225,7 @@ void P_UnArchiveWorld (void)
       li->special = *get++;
       li->tag = *get++;
       for (j=0 ; j<2 ; j++)
-        if (li->sidenum[j] != -1)
+        if (li->sidenum[j] != (unsigned short)-1)//e6y
           {
             side_t *si = &sides[li->sidenum[j]];
 

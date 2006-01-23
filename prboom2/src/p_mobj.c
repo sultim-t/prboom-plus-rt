@@ -44,6 +44,7 @@
 #include "g_game.h"
 #include "p_inter.h"
 #include "lprintf.h"
+#include "e6y.h"//e6y
 
 //
 // P_SetMobjState
@@ -664,6 +665,33 @@ void P_MobjThinker (mobj_t* mobj)
   // removed old code which looked at target references
   // (we use pointer reference counting now)
 
+  //e6y
+  mobj->PrevX = mobj->x;
+  mobj->PrevY = mobj->y;
+  mobj->PrevZ = mobj->z;
+  ////e6y
+  /*if (mobj->type == MT_CYBORG)
+  {
+    int i, index = t_count;
+    boolean present = false;
+    for (i = 0; i < t_count; i++)
+    {
+      if (t_list[i].index == (int)mobj->thinker.prev)
+      {
+        index = i;
+        present = true;
+        break;
+      }
+    }
+    if (!present)
+    {
+      index = t_count;
+      t_count++;
+    }
+    t_list[index].health = mobj->health;
+    t_list[index].index = (int)mobj->thinker.prev;
+  }*/
+
   // momentum movement
   if (mobj->momx | mobj->momy || mobj->flags & MF_SKULLFLY)
     {
@@ -790,6 +818,11 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
 
   mobj->z = z == ONFLOORZ ? mobj->floorz : z == ONCEILINGZ ?
     mobj->ceilingz - mobj->height : z;
+  
+  //e6y
+  mobj->PrevX = mobj->x;
+  mobj->PrevY = mobj->y;
+  mobj->PrevZ = mobj->z;
 
   mobj->thinker.function = P_MobjThinker;
   mobj->above_thing = 0;                                            // phares
@@ -1032,6 +1065,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
     ST_Start(); // wake up the status bar
     HU_Start(); // wake up the heads up text
     }
+    ClearSmoothViewAngels();//e6y
   }
 
 

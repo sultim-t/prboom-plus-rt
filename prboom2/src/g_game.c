@@ -80,6 +80,7 @@
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
+#include "e6y.h" //e6y
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -88,7 +89,8 @@ static size_t   savegamesize = SAVEGAMESIZE; // killough
 static boolean  netdemo;
 static const byte *demobuffer;   /* cph - only used for playback */
 static FILE    *demofp; /* cph - record straight to file */
-static const byte *demo_p;
+//e6y static 
+const byte *demo_p;
 static short    consistancy[MAXPLAYERS][BACKUPTICS];
 
 gameaction_t    gameaction;
@@ -126,7 +128,7 @@ boolean         haswolflevels = false;// jff 4/18/98 wolf levels present
 static byte     *savebuffer;          // CPhipps - static
 int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
-int		longtics;
+int             longtics;
 
 //
 // controls (have defaults)
@@ -255,7 +257,8 @@ mobj_t **bodyque = 0;                   // phares 8/10/98
 void   *statcopy;       // for statistics driver
 
 static void G_DoSaveGame (boolean menu);
-static const byte* G_ReadDemoHeader(const byte* demo_p);
+//e6y static
+const byte* G_ReadDemoHeader(const byte* demo_p);
 
 //
 // G_BuildTiccmd
@@ -268,14 +271,14 @@ static inline signed char fudgef(signed char b)
   static int c;
   if (!b || !demo_compatibility || longtics) return b;
   if (++c & 0x1f) return b;
-  b |= 1; if (b>2) b-=2;
+//e6y  b |= 1; if (b>2) b-=2;
   return b;
 }
 
 static inline signed short fudgea(signed short b)
 {
   if (!b || !demo_compatibility || !longtics) return b;
-  b |= 1; if (b>2) b-=2;
+//e6y   b |= 1; if (b>2) b-=2;
   return b;
 }
 
@@ -299,6 +302,31 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   forward = side = 0;
 
+  if ((doSkip) &&
+     ((demo_skiptics>0 && gametic>demo_skiptics) ||
+     (demo_warp && gametic-levelstarttic>demo_skiptics)))
+    G_SkipDemoStop();
+  if (_demofp && !feof(_demofp))
+  {
+    char buf[4];
+    int readed = fread(&buf[0], sizeof(char), sizeof(buf), _demofp);
+    if (readed == sizeof(buf))
+    {
+      cmd->forwardmove = buf[0];
+      cmd->sidemove = buf[1];
+      cmd->angleturn = buf[2]<<8;
+      cmd->buttons = buf[3];
+    }
+
+    if (readed != sizeof(buf) || gamekeydown[key_demo_jointogame] || joybuttons[joybuse])
+    {
+      _demofp = 0;
+    }
+
+    mousex = mousey = 0;
+  }
+  else
+  {
     // use two stage accelerative turning
     // on the keyboard and joystick
   if (joyxmove < 0 || joyxmove > 0 ||
@@ -496,24 +524,47 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks2 = 0;
         dclickstate2 = 0;
       }
-  forward += mousey;
+
+  //e6y
+  if (!movement_mouselook || demoplayback || demorecording)
+    forward += mousey;
+  else
+    if(!(automapmode & am_active))
+      cmd->pitchturn += PitchSign * (mousey);
+
+//e6y  forward += mousey;
   if (strafe)
     side += mousex / 4;       /* mead  Don't want to strafe as fast as turns.*/
   else
     cmd->angleturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
-  mousex = mousey = 0;
+//e6y  mousex = mousey = 0;
 
   if (forward > MAXPLMOVE)
     forward = MAXPLMOVE;
   else if (forward < -MAXPLMOVE)
     forward = -MAXPLMOVE;
-  if (side > MAXPLMOVE)
-    side = MAXPLMOVE;
-  else if (side < -MAXPLMOVE)
-    side = -MAXPLMOVE;
+//e6y  if (side > MAXPLMOVE)
+//e6y    side = MAXPLMOVE;
+//e6y  else if (side < -MAXPLMOVE)
+//e6y    side = -MAXPLMOVE;
+//e6y
+  if(mousex == 0 || movement_strafe50onturns && movement_strafe50)
+  {
+    if (side > MAXPLMOVE)
+      side = MAXPLMOVE;
+    else if (side < -MAXPLMOVE)
+      side = -MAXPLMOVE;
+  }
+  else
+  {
+    if (side > sidemove_normal[1])
+      side = sidemove_normal[1];
+    else if (side < -sidemove_normal[1])
+      side = -sidemove_normal[1];
+  }
 
-  cmd->forwardmove += fudgef(forward);
+  cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
   cmd->angleturn = fudgea(cmd->angleturn);
 
@@ -521,6 +572,10 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   if (special_event & BT_SPECIAL) {
     cmd->buttons = special_event;
     special_event = 0;
+  }
+//e6y
+  if (!demoplayback)
+    mousex = mousey = 0;
   }
 }
 
@@ -640,6 +695,29 @@ static void G_DoLoadLevel (void)
           first=0;
         }
     }
+////e6y
+/*  {
+    int i;
+    t_count = 0;
+    for (i = 0; i < 128; i++)
+    {
+      t_list[i].index = 0;
+      t_list[i].health = 0;
+    }
+  }*/
+//e6y
+  if (doSkip)
+  {
+    static int firstmap = 1;
+    demo_warp =
+      demo_stoponnext ||
+      ((gamemode==commercial)?
+        (startmap == gamemap):
+        (startepisode==gameepisode && startmap==gamemap));
+    if (demo_warp && demo_skiptics==0 && !firstmap)
+      G_SkipDemoStop();
+    if (firstmap) firstmap = 0;
+  }
 }
 
 
@@ -671,6 +749,7 @@ boolean G_Responder (event_t* ev)
     ST_Start();    // killough 3/7/98: switch status bar views too
     HU_Start();
     S_UpdateSounds(players[displayplayer].mo);
+    ClearSmoothViewAngels();//e6y
   }
       return true;
     }
@@ -699,12 +778,15 @@ boolean G_Responder (event_t* ev)
       // of demo playback, or if automap active.
       // Don't suck up keys, which may be cheats
 
+//e6y
+  /*
       return gamestate == GS_DEMOSCREEN &&
   !(paused & 2) && !(automapmode & am_active) &&
   ((ev->type == ev_keydown) ||
    (ev->type == ev_mouse && ev->data1) ||
    (ev->type == ev_joystick && ev->data1)) ?
   M_StartControlPanel(), true : false;
+    */
     }
 
   if (gamestate == GS_FINALE && F_Responder(ev))
@@ -739,7 +821,15 @@ boolean G_Responder (event_t* ev)
        * sensitivity resolution especially for lsdoom users.
        */
       mousex += (ev->data2*(mouseSensitivity_horiz))/10;  /* killough */
-      mousey += (ev->data3*(mouseSensitivity_vert))/10;  /*Mead rm *4 */
+
+      //e6y
+      if(movement_mouselook && !demoplayback && !demorecording)
+        mousey += (ev->data3*(mouseSensitivity_mlook))/10;
+      else
+        mousey += (ev->data3*(mouseSensitivity_vert))/40;  /*Mead rm *4 */
+
+      //e6y mousey += (ev->data3*(mouseSensitivity_vert))/100;  /*Mead rm *4 */
+
       return true;    // eat events
 
     case ev_joystick:
@@ -927,6 +1017,7 @@ void G_Ticker (void)
     {
     case GS_LEVEL:
       P_Ticker ();
+      P_WalkTicker();//e6y
       ST_Ticker ();
       AM_Ticker ();
       HU_Ticker ();
@@ -1009,11 +1100,13 @@ void G_PlayerReborn (int player)
   int killcount;
   int itemcount;
   int secretcount;
+  int resurectedkillcount; //e6y
 
   memcpy (frags, players[player].frags, sizeof frags);
   killcount = players[player].killcount;
   itemcount = players[player].itemcount;
   secretcount = players[player].secretcount;
+  resurectedkillcount = players[player].resurectedkillcount; //e6y
 
   p = &players[player];
 
@@ -1028,6 +1121,7 @@ void G_PlayerReborn (int player)
   players[player].killcount = killcount;
   players[player].itemcount = itemcount;
   players[player].secretcount = secretcount;
+  players[player].resurectedkillcount = resurectedkillcount; //e6y
 
   p->usedown = p->attackdown = true;  // don't do anything immediately
   p->playerstate = PST_LIVE;
@@ -1503,6 +1597,7 @@ void G_LoadGame(int slot, boolean command)
     demoplayback = false;
   }
   command_loadgame = command;
+  ClearSmoothViewAngels();//e6y
 }
 
 // killough 5/15/98:
@@ -1645,6 +1740,8 @@ void G_DoLoadGame(void)
   P_UnArchiveSpecials ();
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
+  P_ActivateAllInterpolations();//e6y
+  ClearSmoothViewAngels();//e6y
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
@@ -2032,6 +2129,7 @@ void G_DoNewGame (void)
 
   //jff 4/26/98 wake up the status bar in case were coming out of a DM demo
   ST_Start();
+  walkcamera.type=0; //e6y
 }
 
 // killough 4/10/98: New function to fix bug which caused Doom
@@ -2138,6 +2236,35 @@ void G_InitNew(skill_t skill, int episode, int map)
 
 #define DEMOMARKER    0x80
 
+//e6y
+void GetCurrentTurnsSum(void)
+{
+  int i, first, last;
+  signed short angle;
+  int delta;
+  first = gametic - demo_smoothturnsfactor;
+  last = gametic + demo_smoothturnsfactor;
+  for (i = max(0, first); i <= last; i++)
+  {
+    delta = i - gametic;
+    if (!longtics) {
+      delta = 4*(delta * playerscount + displayplayer) + 2;
+      if (i >= gametic && demo_p+delta < demo_p_end)
+        angle = ((unsigned char)*(demo_p+delta))<<8;
+      else
+        angle = 0;
+    } else {
+      delta = 5*(delta * playerscount + displayplayer) + 2;
+      if (i >= gametic && demo_p+delta+1 < demo_p_end)
+        angle = (unsigned char)*(demo_p+delta) + 
+                (((signed int)(*(demo_p+delta+1)))<<8);
+      else
+        angle = 0;
+    }
+    AddSmoothViewAngel(angle<<16);
+  }
+}
+
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
   if (*demo_p == DEMOMARKER)
@@ -2218,12 +2345,22 @@ void G_RecordDemo (const char* name)
     if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
       slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
       } while (rc == /* sizeof(buf) is out of scope here */ 4 );
+      //e6y
+      if (slot == -1 && demo_overwriteexisting)
+      {
+        fclose(demofp);
+        demofp = fopen(demoname, "wb");
+        goto l_end;
+      }
+
       if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
+
       fseek(demofp, -rc, SEEK_CUR);
       G_LoadGame(slot, false);
       autostart = false;
     }
   }
+l_end: //e6y
   if (!demofp) I_Error("G_RecordDemo: failed to open %s", name);
 }
 
@@ -2544,7 +2681,8 @@ void G_DeferedPlayDemo (const char* name)
 
 static int demolumpnum = -1;
 
-static const byte* G_ReadDemoHeader(const byte *demo_p)
+//e6y static
+const byte* G_ReadDemoHeader(const byte *demo_p)
 {
   skill_t skill;
   int i, episode, map;
@@ -2697,6 +2835,8 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98
     players[i].cheats = 0;
+  
+  e6y_ProcessDemoHeader();//e6y
 
   return demo_p;
 }
@@ -2709,13 +2849,15 @@ void G_DoPlayDemo(void)
   basename[8] = 0;
   demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));
   /* cph - store lump number for unlocking later */
-
+  
+  demo_p_end = demo_p + W_LumpLength(demolumpnum) - 1;//e6y
   demo_p = G_ReadDemoHeader(demo_p);
 
   gameaction = ga_nothing;
   usergame = false;
 
   demoplayback = true;
+  ClearSmoothViewAngels();//e6y
 }
 
 //
@@ -2741,7 +2883,7 @@ boolean G_CheckDemoStatus (void)
     {
       demorecording = false;
       fputc(DEMOMARKER, demofp);
-      I_Error("G_CheckDemoStatus: Demo recorded");
+//e6y      I_Error("G_CheckDemoStatus: Demo recorded");
       return false;  // killough
     }
 
@@ -2795,4 +2937,132 @@ void doom_printf(const char *s, ...)
 #endif
   va_end(v);
   players[consoleplayer].message = msg;  // set new message
+}
+
+//e6y
+void P_WalkTicker()
+{
+  int strafe;
+  int speed;
+  int tspeed;
+  int turnheld;
+  int forward;
+  int side;
+  int angturn;
+
+  if (!walkcamera.type)
+    return;
+
+  strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
+    || joybuttons[joybstrafe];
+  speed = autorun || gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
+
+  forward = side = 0;
+  angturn = 0;
+  turnheld = 0;
+
+    // use two stage accelerative turning
+    // on the keyboard and joystick
+  if (joyxmove < 0 || joyxmove > 0 ||
+      gamekeydown[key_right] || gamekeydown[key_left])
+    turnheld += ticdup;
+  else
+    turnheld = 0;
+
+  if (turnheld < SLOWTURNTICS)
+    tspeed = 0;             // slow turn
+  else
+    tspeed = speed;                                                             // phares
+
+  // let movement keys cancel each other out
+
+  if (strafe)
+    {
+      if (gamekeydown[key_right])
+        side += sidemove[speed];
+      if (gamekeydown[key_left])
+        side -= sidemove[speed];
+      if (joyxmove > 0)
+        side += sidemove[speed];
+      if (joyxmove < 0)
+        side -= sidemove[speed];
+    }
+  else
+    {
+      if (gamekeydown[key_right])
+        angturn -= angleturn[tspeed];
+      if (gamekeydown[key_left])
+        angturn += angleturn[tspeed];
+      if (joyxmove > 0)
+        angturn -= angleturn[tspeed];
+      if (joyxmove < 0)
+        angturn += angleturn[tspeed];
+    }
+
+  if (gamekeydown[key_up])
+    forward += forwardmove[speed];
+  if (gamekeydown[key_down])
+    forward -= forwardmove[speed];
+  if (joyymove < 0)
+    forward += forwardmove[speed];
+  if (joyymove > 0)
+    forward -= forwardmove[speed];
+  if (gamekeydown[key_straferight])
+    side += sidemove[speed];
+  if (gamekeydown[key_strafeleft])
+    side -= sidemove[speed];
+
+  angturn -= mousex;
+
+  walkcamera.angle += ((angturn / 8) << ANGLETOFINESHIFT);
+  if(movement_mouselook)
+  {
+    walkcamera.pitch += PitchSign * ((mousey / 8) << ANGLETOFINESHIFT);
+    CheckPitch((signed int *) &walkcamera.pitch);
+  }
+
+  if (gamekeydown[key_fire] || mousebuttons[mousebfire] ||
+      joybuttons[joybfire])
+  {
+    walkcamera.x = players[0].mo->x;
+    walkcamera.y = players[0].mo->y;
+    walkcamera.angle = players[0].mo->angle;
+    walkcamera.pitch = players[0].mo->pitch;
+  }
+
+  // moving forward
+  walkcamera.x += FixedMul ((ORIG_FRICTION / 4) * forward,
+          finecosine[walkcamera.angle >> ANGLETOFINESHIFT]);
+  walkcamera.y += FixedMul ((ORIG_FRICTION / 4) * forward,
+          finesine[walkcamera.angle >> ANGLETOFINESHIFT]);
+
+  // strafing
+  walkcamera.x += FixedMul ((ORIG_FRICTION / 6) * side,
+          finecosine[(walkcamera.angle -
+          ANG90) >> ANGLETOFINESHIFT]);
+  walkcamera.y += FixedMul ((ORIG_FRICTION / 6) * side,
+        finesine[(walkcamera.angle - ANG90) >> ANGLETOFINESHIFT]);
+
+  {
+    subsector_t *subsec = R_PointInSubsector (walkcamera.x, walkcamera.y);
+    walkcamera.z = subsec->sector->floorheight + 41 * FRACUNIT;
+  }
+
+  mousex = 0;
+  mousey = 0;
+
+}
+
+void P_ResetWalkcam()
+{
+  if (!walkcamera.type)
+    return;
+
+  if (walkcamera.type==1)
+  {
+    walkcamera.angle = players[displayplayer].mo->angle;
+    walkcamera.pitch = players[displayplayer].mo->pitch;
+  }
+  walkcamera.x = players[displayplayer].mo->x;
+  walkcamera.y = players[displayplayer].mo->y;
 }

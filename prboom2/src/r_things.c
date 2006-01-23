@@ -40,6 +40,7 @@
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+#include "e6y.h"//e6y
 
 #define MINZ        (FRACUNIT*4)
 #define BASEYCENTER 100
@@ -434,13 +435,36 @@ void R_ProjectSprite (mobj_t* thing)
   int heightsec;      // killough 3/27/98
 
   // transform the origin point
-  fixed_t tr_x = thing->x - viewx;
-  fixed_t tr_y = thing->y - viewy;
+  //e6y
+  fixed_t tr_x, tr_y;
+  fixed_t fx, fy, fz;
+  fixed_t gxt, gyt;
+  fixed_t tz;
+  if (movement_smooth)
+  {
+    fx = thing->PrevX + FixedMul (r_TicFrac, thing->x - thing->PrevX);
+    fy = thing->PrevY + FixedMul (r_TicFrac, thing->y - thing->PrevY);
+    fz = thing->PrevZ + FixedMul (r_TicFrac, thing->z - thing->PrevZ);
+  }
+  else
+  {
+    fx = thing->x;
+    fy = thing->y;
+    fz = thing->z;
+  }
+  tr_x = fx - viewx;
+  tr_y = fy - viewy;
 
-  fixed_t gxt = FixedMul(tr_x,viewcos);
-  fixed_t gyt = -FixedMul(tr_y,viewsin);
+//e6y  fixed_t tr_x = thing->x - viewx;
+//e6y  fixed_t tr_y = thing->y - viewy;
 
-  fixed_t tz = gxt-gyt;
+  //e6y fixed_t 
+  gxt = FixedMul(tr_x,viewcos);
+  //e6y fixed_t 
+  gyt = -FixedMul(tr_y,viewsin);
+
+  //e6y fixed_t 
+  tz = gxt-gyt;
 
     // thing is behind view plane?
   if (tz < MINZ)
@@ -475,7 +499,8 @@ void R_ProjectSprite (mobj_t* thing)
   if (sprframe->rotate)
     {
       // choose a different rotation based on player view
-      angle_t ang = R_PointToAngle(thing->x, thing->y);
+      //e6y angle_t ang = R_PointToAngle(thing->x, thing->y);
+      angle_t ang = R_PointToAngle(fx, fy); //e6y
       unsigned rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
       lump = sprframe->lump[rot];
       flip = (boolean) sprframe->flip[rot];
@@ -494,6 +519,8 @@ void R_ProjectSprite (mobj_t* thing)
   x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
 
     // off the right side?
+  if((!movement_mouselook || demoplayback) && view_fov <= 64)//e6y
+
   if (x1 > viewwidth)
     return;
 
@@ -501,12 +528,17 @@ void R_ProjectSprite (mobj_t* thing)
   x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
     // off the left side
+  if((!movement_mouselook || demoplayback) && view_fov <= 64)//e6y
+
   if (x2 < 0)
     return;
 
-  gzt = thing->z + spritetopoffset[lump];
+  //e6y gzt = thing->z + spritetopoffset[lump];
+  gzt = fz + spritetopoffset[lump]; //e6y
 
   // killough 4/9/98: clip things which are out of view due to height
+  if((!movement_mouselook || demoplayback) && view_fov <= 64)//e6y
+
   if (thing->z > viewz + FixedDiv(centeryfrac, xscale) ||
       gzt      < viewz - FixedDiv(centeryfrac-viewheight, xscale))
     return;
@@ -531,6 +563,11 @@ void R_ProjectSprite (mobj_t* thing)
         return;
     }
 
+  //e6y FIXME!!!
+  if (thing == players[displayplayer].mo && walkcamera.type != 2)
+//  if (thing->player && thing->player == &players[displayplayer] && walkcamera.type != 2)
+    return;
+
   // store information in a vissprite
   vis = R_NewVisSprite ();
 
@@ -549,9 +586,12 @@ void R_ProjectSprite (mobj_t* thing)
   vis->mobjflags = thing->flags;
 // proff 11/06/98: Changed for high-res
   vis->scale = FixedDiv(projectiony, tz);
-  vis->gx = thing->x;
-  vis->gy = thing->y;
-  vis->gz = thing->z;
+//e6y  vis->gx = thing->x;
+//e6y  vis->gy = thing->y;
+//e6y  vis->gz = thing->z;
+  vis->gx = fx;//e6y
+  vis->gy = fy;//e6y
+  vis->gz = fz;//e6y
   vis->gzt = gzt;                          // killough 3/27/98
   vis->texturemid = vis->gzt - viewz;
   vis->x1 = x1 < 0 ? 0 : x1;
@@ -752,6 +792,8 @@ void R_DrawPlayerSprites(void)
 {
   int i, lightnum;
   pspdef_t *psp;
+
+  if (walkcamera.type != 0) return;//e6y
 
   // get light level
   lightnum = (viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT)

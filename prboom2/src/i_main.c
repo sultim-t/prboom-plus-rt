@@ -59,6 +59,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "e6y.h" //e6y
 
 int broken_pipe;
 
@@ -70,7 +71,8 @@ int broken_pipe;
  */
 
 int realtic_clock_rate = 100;
-static int_64_t I_GetTime_Scale = 1<<24;
+//e6y static 
+int_64_t I_GetTime_Scale = 1<<24;
 
 static int I_GetTime_Scaled(void)
 {
@@ -116,6 +118,25 @@ void I_Init(void)
     extern boolean nomusicparm, nosfxparm;
     if (!(nomusicparm && nosfxparm))
       I_InitSound();
+  }
+}
+
+//e6y
+void I_Init2(void)
+{
+  if (fastdemo)
+    I_GetTime = I_GetTime_FastDemo;
+  else
+    if (realtic_clock_rate != 100)
+      {
+        I_GetTime_Scale = ((int_64_t) realtic_clock_rate << 24) / 100;
+        I_GetTime = I_GetTime_Scaled;
+      }
+    else
+      I_GetTime = I_GetTime_RealTime;
+  if (movement_smooth)
+  {
+    otic = 0;
   }
 }
 
@@ -311,7 +332,7 @@ static void I_EndDoom(void)
     puts("\e[0m"); /* cph - reset colours */
   PrintVer();
 #else /* _WIN32 */
-  I_uSleep(3000000); // CPhipps - don't thrash cpu in this loop
+//e6y  I_uSleep(3000000); // CPhipps - don't thrash cpu in this loop
 #endif /* _WIN32 */
 }
 

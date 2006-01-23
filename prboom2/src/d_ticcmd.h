@@ -52,6 +52,8 @@ typedef struct
   short consistancy;          /* checks for net game  */
   byte  chatchar;
   byte  buttons;
+
+  signed short pitchturn;//e6y
 } ticcmd_t;
 
 #endif

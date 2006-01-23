@@ -45,6 +45,7 @@
 #include "sounds.h"
 #include "dstrings.h"
 #include "r_draw.h"
+#include "e6y.h"//e6y
 
 //
 // STATUS BAR DATA
@@ -738,7 +739,15 @@ void ST_doPaletteStuff(void)
       else
         palette = 0;
 
-  if (palette != st_palette)
+//e6y  if (palette != st_palette)
+//e6y
+  if ((palette != st_palette) && (
+      (palette == 0) || 
+      (palette_ondamage && plyr->damagecount > 0) ||
+      (palette_onbonus && !cnt && plyr->bonuscount > 0) ||
+      (palette_onpowers && palette == STARTREDPALS + 2 && (plyr->powers[pw_strength] || plyr->powers[pw_ironfeet]))
+     ))
+
     V_SetPalette(st_palette = palette); // CPhipps - use new palette function
 }
 

@@ -38,7 +38,7 @@
 
 /* background and foreground screen numbers
  * different from other modules. */
-#define BG      1
+//e6y #define BG      1
 #define FG      0
 
 /* font stuff

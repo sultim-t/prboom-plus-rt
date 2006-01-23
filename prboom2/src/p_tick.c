@@ -34,6 +34,7 @@
 #include "p_spec.h"
 #include "p_tick.h"
 #include "p_map.h"
+#include "e6y.h"//e6y
 
 int leveltime;
 
@@ -114,6 +115,7 @@ void P_AddThinker(thinker_t* thinker)
   // killough 8/29/98: set sentinel pointers, and then add to appropriate list
   thinker->cnext = thinker->cprev = thinker;
   P_UpdateThinker(thinker);
+  NewThinkerPresent = true;//e6y
 }
 
 //
@@ -160,6 +162,7 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 
 void P_RemoveThinker(thinker_t *thinker)
 {
+  StopInterpolationIfNeeded(thinker);//e6y
   thinker->function = P_RemoveThinkerDelayed;
 
   // killough 8/29/98: remove immediately from threaded list
@@ -214,8 +217,15 @@ static void P_RunThinkers (void)
   for (currentthinker = thinkercap.next;
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
+       {//e6y
     if (currentthinker->function)
       currentthinker->function(currentthinker);
+    
+    //e6y
+    if (NewThinkerPresent)
+      SetInterpolationIfNew(currentthinker);
+       }
+  NewThinkerPresent = false;
 }
 
 //
@@ -235,9 +245,17 @@ void P_Ticker (void)
    * All of this complicated mess is used to preserve demo sync.
    */
 
+  //e6y
+  updateinterpolations ();
+  r_NoInterpolate = true;
+  if (paused)
+    return;
+
   if (paused || (menuactive && !demoplayback && !netgame &&
      players[consoleplayer].viewz != 1))
     return;
+
+  r_NoInterpolate = false;//e6y
 
   P_MapStart();
                // not if this is an intermission screen

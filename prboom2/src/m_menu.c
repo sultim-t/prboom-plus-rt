@@ -55,6 +55,7 @@
 #include "i_main.h"
 #include "i_system.h"
 #include "i_video.h"
+#include "e6y.h"//e6y
 
 extern patchnum_t hu_font[HU_FONTSIZE];
 extern boolean  message_dontfuckwithme;
@@ -1089,7 +1090,7 @@ void M_QuitResponse(int ch)
       S_StartSound(NULL,quitsounds2[(gametic>>2)&7]);
     else
       S_StartSound(NULL,quitsounds[(gametic>>2)&7]);
-    I_uSleep(3000000); // cph - 3 s
+//e6y    I_uSleep(3000000); // cph - 3 s
     }
   exit(0); // killough
 }
@@ -1213,6 +1214,11 @@ enum
   mouse_empty1,
   mouse_vert,
   mouse_empty2,
+
+//e6y
+  mouse_mlook,
+  mouse_empty3,
+
   mouse_end
 } mouse_e;
 
@@ -1223,6 +1229,11 @@ menuitem_t MouseMenu[]=
   {2,"M_HORSEN",M_MouseHoriz,'h'},
   {-1,"",0},
   {2,"M_VERSEN",M_MouseVert,'v'},
+  {-1,"",0}
+
+  //e6y
+  ,
+  {2,"M_LOKSEN",M_MouseMLook,'l'},
   {-1,"",0}
 };
 
@@ -1258,6 +1269,13 @@ void M_DrawMouse(void)
   //jff 4/3/98 clamp vertical sensitivity display
   mvmx = mouseSensitivity_vert>99? 99 : mouseSensitivity_vert; /*mead*/
   M_DrawThermo(MouseDef.x,MouseDef.y+LINEHEIGHT*(mouse_vert+1),100,mvmx);
+
+  //e6y
+  {
+    int mpmx;
+    mpmx = mouseSensitivity_mlook>99? 99 : mouseSensitivity_mlook;
+    M_DrawThermo(MouseDef.x,MouseDef.y+LINEHEIGHT*(mouse_mlook+1),100,mpmx);
+  }
 }
 
 void M_ChangeSensitivity(int choice)
@@ -2012,6 +2030,12 @@ void M_DrawSetting(const setup_menu_t* s)
 static void M_DrawScreenItems(const setup_menu_t* src)
 {
   if (print_warning_about_changes > 0) { /* killough 8/15/98: print warning */
+  //e6y
+    if (warning_about_changes & S_CANT_GL_ARB_MULTITEXTURE) {
+  strcpy(menu_buffer, "Extension GL_ARB_multitexture not found");
+  M_DrawMenuString(30,176,CR_RED);
+  } else
+
     if (warning_about_changes & S_BADVAL) {
   strcpy(menu_buffer, "Value out of Range");
   M_DrawMenuString(100,176,CR_RED);
@@ -2155,6 +2179,7 @@ setup_menu_t keys_settings1[];
 setup_menu_t keys_settings2[];
 setup_menu_t keys_settings3[];
 setup_menu_t keys_settings4[];
+setup_menu_t keys_settings5[];//e6y
 
 // The table which gets you from one screen table to the next.
 
@@ -2164,6 +2189,7 @@ setup_menu_t* keys_settings[] =
   keys_settings2,
   keys_settings3,
   keys_settings4,
+  keys_settings5,//e6y
   NULL
 };
 
@@ -2330,11 +2356,31 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
   {"ENTER"      ,S_KEY       ,m_scrn,KB_X,KB_Y+19*8,{&key_enter}},
 
   {"<- PREV" ,S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings3}},
+//e6y
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings5}},
 
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
 
+};
+
+//e6y
+setup_menu_t keys_settings5[] =  // Key Binding screen strings
+{
+  {"GAME"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y},
+  {"SPEED UP"             ,S_KEY     ,m_scrn,KB_X,KB_Y+ 1*8,{&key_speed_up}},
+  {"SPEED DOWN"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 2*8,{&key_speed_down}},
+  {"STEP OF SPEED CHANGE" ,S_NUM, m_null, KB_X,KB_Y+ 3*8, {"speed_step"}},
+  {"SET SPEED TO DEFAULT" ,S_KEY     ,m_scrn,KB_X,KB_Y+ 4*8,{&key_speed_default}},
+  {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+5*8},
+  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_nextlevel}},
+  {"WALK CAMERA"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_walkcamera}},
+  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_demo_jointogame}},
+
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
+  // Final entry
+  {0,S_SKIP|S_END,m_null}
 };
 
 // Setting up for the Key Binding screen. Turn on flags, set pointers,
@@ -2500,10 +2546,14 @@ void M_DrawWeapons(void)
 // Screen table definitions
 
 setup_menu_t stat_settings1[];
+setup_menu_t stat_settings2[]; //e6y
+setup_menu_t stat_settings3[]; //e6y
 
 setup_menu_t* stat_settings[] =
 {
   stat_settings1,
+  stat_settings2, //e6y
+  stat_settings3, //e6y
   NULL
 };
 
@@ -2530,7 +2580,56 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 
+  //e6y
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings2}},
   // Final entry
+  {0,S_SKIP|S_END,m_null}
+};
+
+//e6y
+setup_menu_t stat_settings2[] =
+{
+  {"ADVANCED HUD SETTINGS"       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
+  {"SHOW GAMESPEED"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"hudadd_gamespeed"}},
+  {"SHOW LEVELTIME"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 3*8, {"hudadd_leveltime"}},
+  {"SECRET AREAS"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 4*8, {"hudadd_secretarea"}},
+  {"SMART TOTALS"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"hudadd_smarttotals"}},
+  {"DEMOS"                       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+7*8},
+  {"OVERWRITE EXISTING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"demo_overwriteexisting"}},
+  {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
+  {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
+#ifdef GL_DOOM
+  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 16*8, {"view_fov"}, 0, 0, M_ChangeFOV},
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+#else
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+#endif
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings3}},
+  {0,S_SKIP|S_END,m_null}
+};
+setup_menu_t stat_settings3[] =
+{
+  {"CHANGE PALETTE"              ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
+  {"ON PAIN"                     ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"palette_ondamage"}},
+  {"ON BONUS"                    ,S_YESNO     ,m_null,ST_X,ST_Y+3*8,  {"palette_onbonus"}},
+  {"ON POWERS"                   ,S_YESNO     ,m_null,ST_X,ST_Y+4*8, {"palette_onpowers"}},
+#ifdef GL_DOOM
+  {"BUMP MAPPING"                ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+6*8},
+  {"USE DETAIL TEXTURE"         ,S_YESNO|S_CANT_GL_ARB_MULTITEXTURE       ,m_null,ST_X,ST_Y+7*8, {"render_usedetail"}, 0, 0, M_ChangeUseDetail},
+  {"FOR WALLS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+ 8*8, {"render_detailwalls"}, 0, 0, M_ChangeUseDetail},
+  {"FOR FLATS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+ 9*8, {"render_detailflats"}, 0, 0, M_ChangeUseDetail},
+//  {"FOR SPRITES"                 ,S_YESNO       ,m_null,ST_X,ST_Y+ 10*8, {"render_detailsprites"}, 0, 0, M_ChangeUseDetail},
+#endif
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -4285,6 +4384,52 @@ boolean M_Responder (event_t* ev) {
       return true;                                                  // phares
       }
 
+    //e6y
+    if (ch == key_speed_default)               
+    {                                 
+      realtic_clock_rate = 100;
+      I_Init2();
+      return true;
+    }
+    if (ch == key_speed_up)               
+    {                                 
+      realtic_clock_rate += speed_step;
+      I_Init2();
+      return true;
+    }
+    if (ch == key_speed_down)               
+    {                                 
+      realtic_clock_rate -= speed_step;
+      if (realtic_clock_rate <= 0) realtic_clock_rate = 10;
+      I_Init2();
+      return true;
+    }
+    if (ch == key_demo_nextlevel)
+    {
+      if (demoplayback)
+      {
+        if (!doSkip)
+        {
+          demo_stoponnext = true;
+          //startmap = wminfo.next + 2;
+          G_SkipDemoStart();
+          return true;
+        }
+      }
+    }
+    if (ch == key_walkcamera)
+    {
+      if (demoplayback)
+      {
+        walkcamera.type = (walkcamera.type+1)%3;
+        P_ResetWalkcam ();
+        R_ResetViewInterpolation ();
+        if (walkcamera.type==0)
+          ClearSmoothViewAngels();
+        return true;
+      }
+    }
+
     if (ch == key_hud)   // heads-up mode
       {
       if ((automapmode & am_active) || chat_on)    // jff 2/22/98
@@ -4381,6 +4526,11 @@ boolean M_Responder (event_t* ev) {
 
       if (ptr1->action)      // killough 10/98
         ptr1->action();
+      
+      //e6y
+      if (ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE && !gl_arb_multitexture)
+        warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
+
     }
     M_SelectDone(ptr1);                           // phares 4/17/98
     return true;
@@ -5145,6 +5295,8 @@ void M_ClearMenus (void)
 
   // if (!netgame && usergame && paused)
   //     sendpause = true;
+  
+  r_NoInterpolate = false; //e6y
 }
 
 //
@@ -5409,6 +5561,15 @@ void M_Init(void)
   M_ResetMenu();        // killough 10/98
   M_InitHelpScreen();   // init the help screen       // phares 4/08/98
   M_InitExtendedHelp(); // init extended help screens // phares 3/30/98
+  
+  //e6y
+  M_ChangeSpeed();
+  M_ChangeSmooth();
+  M_ChangeMouseLook();
+  M_ChangeMouseInvert();
+  M_ChangeFOV();
+  M_ChangeDemoSmoothTurns();
+//  M_ChangeUseDetail();
 }
 
 // killough 10/98: allow runtime changing of menu order

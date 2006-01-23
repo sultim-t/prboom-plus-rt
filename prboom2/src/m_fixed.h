@@ -93,6 +93,7 @@ __inline static fixed_t FixedMul(fixed_t a, fixed_t b)
         shrd eax,edx,16
     }
 }
+
 #pragma warning( default : 4035 )
 # else /* _MSC_VER */
 /* killough 5/10/98: In djgpp, use inlined assembly for performance
@@ -154,6 +155,7 @@ __inline static fixed_t FixedDiv(fixed_t a, fixed_t b)
                         // compiler produced wrong code in a different place
     }
 }
+
 #pragma warning( default : 4035 )
 # else /* _MSC_VER */
 /* killough 5/10/98: In djgpp, use inlined assembly for performance

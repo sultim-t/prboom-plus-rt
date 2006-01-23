@@ -82,6 +82,7 @@
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+#include "e6y.h" //e6y
 
 // DEHacked support - Ty 03/09/97 // CPhipps - const char*'s
 void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
@@ -214,6 +215,7 @@ extern int     showMessages;
 
 void D_Display (void)
 {
+  unsigned int entertime;//e6y
   static boolean inhelpscreensstate   = false;
   static boolean isborderstate        = false;
   static boolean borderwillneedredraw = false;
@@ -225,6 +227,12 @@ void D_Display (void)
 
   if (nodrawers)                    // for comparative timing / profiling
     return;
+
+  //e6y
+  if (skipDDisplay)
+    return;
+  entertime = SDL_GetTicks();
+  skipDDisplay = true;
 
 #ifndef GL_DOOM
   // save the current screen if about to wipe
@@ -292,6 +300,7 @@ void D_Display (void)
       R_RenderPlayerView (&players[displayplayer]);
     if (automapmode & am_active)
       AM_Drawer();
+
     ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);
 #ifndef GL_DOOM
     R_DrawViewBorder();
@@ -330,7 +339,8 @@ void D_Display (void)
 
 #ifndef GL_DOOM
   // normal update
-  if (!wipe)
+//e6y if (!wipe)
+  if (isExtraDDisplay || !wipe) //e6y
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
@@ -340,6 +350,10 @@ void D_Display (void)
 #else
   I_FinishUpdate ();              // page flip or blit buffer
 #endif /* GL_DOOM */
+
+  //e6y
+  DDisplayTime = SDL_GetTicks() - entertime;
+  skipDDisplay = false;
 }
 
 // CPhipps - Auto screenshot Variables
@@ -366,6 +380,7 @@ static void D_DoomLoop(void)
 
   for (;;)
     {
+      WasRenderedInTryRunTics = false;//e6y
       // frame syncronous IO operations
       I_StartFrame ();
 
@@ -388,9 +403,10 @@ static void D_DoomLoop(void)
 
       // killough 3/16/98: change consoleplayer to displayplayer
       if (players[displayplayer].mo) // cph 2002/08/10
-	S_UpdateSounds(players[displayplayer].mo);// move positional sounds
+        S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
       // Update display, next frame, with current state.
+      if (!movement_smooth || !WasRenderedInTryRunTics)//e6y
       D_Display();
 
       // CPhipps - auto screenshot
@@ -398,6 +414,15 @@ static void D_DoomLoop(void)
   auto_shot_count = auto_shot_time;
   M_DoScreenShot(auto_shot_fname);
       }
+//e6y
+      if (avi_shot_fname && !--avi_shot_count)
+      {
+        avi_shot_count = avi_shot_time;
+        avi_shot_num++;
+        sprintf(avi_shot_curr_fname, "%s%06.6i.tga", avi_shot_fname, avi_shot_num);
+        M_DoScreenShot(avi_shot_curr_fname);
+      }
+
     }
 }
 
@@ -1008,8 +1033,8 @@ void FindResponseFile (void)
         // DISPLAY ARGS
         //jff 9/3/98 use logical output routine
         lprintf(LO_CONFIRM,"%d command-line args:\n",myargc);
-	for (index=1;index<myargc;index++)
-	  //jff 9/3/98 use logical output routine
+        for (index=1;index<myargc;index++)
+          //jff 9/3/98 use logical output routine
           lprintf(LO_CONFIRM,"%s\n",myargv[index]);
         break;
       }
@@ -1380,6 +1405,15 @@ void D_DoomMainSetup(void)
   nodrawers = M_CheckParm ("-nodraw");
   noblit = M_CheckParm ("-noblit");
 
+//e6y
+  if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
+    demo_skiptics = (int)(atof(myargv[p+1]) * 35);
+  if (startmap > 1 || demo_skiptics)
+    G_SkipDemoStart();
+  if ((p = M_CheckParm("-framescapture")) && (p < myargc-2))
+    if ((avi_shot_count = avi_shot_time = atoi(myargv[p+1])))
+      avi_shot_fname = myargv[p+2];
+
 #ifndef NO_PREDEFINED_LUMPS
   // jff 4/21/98 allow writing predefined lumps out as a wad
   if ((p = M_CheckParm("-dumplumps")) && p < myargc-1)
@@ -1610,7 +1644,28 @@ void D_DoomMainSetup(void)
   // Support -loadgame with -record and reimplement -recordfrom.
 
   if ((slot = M_CheckParm("-recordfrom")) && (p = slot+2) < myargc)
-    G_RecordDemo(myargv[p]);
+  //e6y
+    {
+      slot = 0;
+      _demofp = fopen(myargv[p-1], "rb");
+      if (_demofp)
+      {
+        byte buf[200];
+        byte *demo_p = buf;
+        size_t len;
+        fread(buf, 1, sizeof(buf), _demofp);
+        len = G_ReadDemoHeader(buf) - buf;
+        if (demo_compatibility)
+        {
+          fseek(_demofp, len, SEEK_SET);
+          singledemo = true;
+          autostart = true;
+          G_RecordDemo(myargv[p]);
+          G_BeginRecording();
+        }
+      }
+    }
+//e6y    G_RecordDemo(myargv[p]);
   else
     {
       slot = M_CheckParm("-loadgame");

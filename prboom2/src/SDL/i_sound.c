@@ -575,6 +575,10 @@ void I_ShutdownMusic(void)
 
 void I_InitMusic(void)
 {
+//e6y
+  if (music_tmp)
+    return;
+
 #ifdef HAVE_MIXER
 #ifndef _WIN32
   music_tmp = strdup("/tmp/prboom-music-XXXXXX");

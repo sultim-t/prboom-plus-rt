@@ -40,6 +40,7 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "d_event.h"
+#include "e6y.h"//e6y
 
 #define LOWERSPEED   (FRACUNIT*6)
 #define RAISESPEED   (FRACUNIT*6)
@@ -506,6 +507,7 @@ void A_Punch(player_t *player, pspdef_t *psp)
 
   player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y,
                                       linetarget->x, linetarget->y);
+  ClearSmoothViewAngels();//e6y
 }
 
 //
@@ -554,6 +556,7 @@ void A_Saw(player_t *player, pspdef_t *psp)
   }
 
   player->mo->flags |= MF_JUSTATTACKED;
+  ClearSmoothViewAngels();//e6y
 }
 
 //

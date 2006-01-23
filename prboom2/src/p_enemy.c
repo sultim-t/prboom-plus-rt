@@ -46,6 +46,7 @@
 #include "p_tick.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "e6y.h"//e6y
 
 static mobj_t *current_actor;
 
@@ -438,7 +439,9 @@ static boolean P_SmartMove(mobj_t *actor)
     && target->subsector->sector->tag==actor->subsector->sector->tag &&
     P_IsOnLift(actor);
 
+  if(!demo_compatibility)//e6y
   under_damage = monster_avoid_hazards && P_IsUnderDamage(actor);
+  else under_damage = false;//e6y
 
   // killough 10/98: allow dogs to drop off of taller ledges sometimes.
   // dropoff==1 means always allow it, dropoff==2 means only up to 128 high,
@@ -461,6 +464,7 @@ static boolean P_SmartMove(mobj_t *actor)
       (on_lift && P_Random(pr_stayonlift) < 230 &&      // Stay on lift
        !P_IsOnLift(actor))
       ||
+      (!demo_compatibility) &&//e6y
       (monster_avoid_hazards && !under_damage &&  // Get away from damage
        (under_damage = P_IsUnderDamage(actor)) &&
        (under_damage < 0 || P_Random(pr_avoidcrush) < 200))
@@ -1668,6 +1672,7 @@ void A_VileChase(mobj_t* actor)
        */
       corpsehit->flags =
         (info->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
+      corpsehit->flags = corpsehit->flags | MF_RESSURECTED;//e6y
 
 		  if (!((corpsehit->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
 		    totallive++;

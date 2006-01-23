@@ -47,6 +47,7 @@
 #pragma implementation "p_inter.h"
 #endif
 #include "p_inter.h"
+#include "e6y.h"//e6y
 
 #define BONUSADD        6
 
@@ -633,7 +634,12 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
     {
       // count for intermission
       if (target->flags & MF_COUNTKILL)
+      {//e6y
         source->player->killcount++;
+        //e6y
+        if (target->flags & MF_RESSURECTED)
+          source->player->resurectedkillcount++;
+      }//e6y
       if (target->player)
         source->player->frags[target->player-players]++;
     }
@@ -641,9 +647,41 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
       if (target->flags & MF_COUNTKILL) { /* Add to kills tally */
   if ((compatibility_level < lxdoom_1_compatibility) || !netgame) {
     if (!netgame)
+    {//e6y
       // count all monster deaths,
       // even those caused by other monsters
       players[0].killcount++;
+      //e6y
+      if (target->flags & MF_RESSURECTED)
+        players[0].resurectedkillcount++;
+    //e6y
+    }
+    else
+    {
+      if (!deathmatch) {
+        if (target->lastenemy && target->lastenemy->health > 0 && target->lastenemy->player)
+        {
+          target->lastenemy->player->killcount++;
+          if (target->flags & MF_RESSURECTED)
+            target->lastenemy->player->resurectedkillcount++;
+        }
+        else
+        {
+          unsigned int player;
+          for (player = 0; player<MAXPLAYERS; player++)
+          {
+            if (playeringame[player])
+            {
+              players[player].killcount++;
+              if (target->flags & MF_RESSURECTED)
+                players[player].resurectedkillcount++;
+              break;
+            }
+          }
+        }
+      }
+    }
+
   } else
     if (!deathmatch) {
       // try and find a player to give the kill to, otherwise give the
@@ -652,7 +690,12 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
       // CPhipps - not a bug as such, but certainly an inconsistency.
       if (target->lastenemy && target->lastenemy->health > 0
     && target->lastenemy->player) // Fighting a player
+        {//e6y
           target->lastenemy->player->killcount++;
+         //e6y
+          if (target->flags & MF_RESSURECTED)
+            target->lastenemy->player->resurectedkillcount++;
+        }//e6y
         else {
         // cph - randomely choose a player in the game to be credited
         //  and do it uniformly between the active players
@@ -668,7 +711,12 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
     for (i=0; i<MAXPLAYERS; i++)
       if (playeringame[i])
         if (!player--)
+        {//e6y
           players[i].killcount++;
+          //e6y
+          if (target->flags & MF_RESSURECTED)
+            players[i].resurectedkillcount++;
+        }//e6y
         }
       }
     }

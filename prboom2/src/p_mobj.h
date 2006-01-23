@@ -256,6 +256,12 @@ typedef struct mobj_s
     fixed_t             y;
     fixed_t             z;
 
+    //e6y
+    fixed_t             PrevX;
+    fixed_t             PrevY;
+    fixed_t             PrevZ;
+    angle_t             pitch;  // orientation
+
     // More list: links in sector (if needed)
     struct mobj_s*      snext;
     struct mobj_s**     sprev; // killough 8/10/98: change to ptr-to-ptr
@@ -364,7 +370,7 @@ typedef struct mobj_s
 // External declarations (fomerly in p_local.h) -- killough 5/2/98
 
 #define VIEWHEIGHT      (41*FRACUNIT)
-#define PLAYERRADIUS    (16*FRACUNIT)
+#define PLAYERRADIUS    (16*(1<<MAPBITS))//e6y
 
 #define GRAVITY         FRACUNIT
 #define MAXMOVE         (30*FRACUNIT)

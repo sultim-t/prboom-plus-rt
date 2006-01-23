@@ -37,6 +37,7 @@
 #include "p_map.h"
 #include "p_spec.h"
 #include "p_user.h"
+#include "e6y.h"//e6y
 
 // Index of the special effects (INVUL inverse) map.
 
@@ -180,6 +181,20 @@ void P_MovePlayer (player_t* player)
   mobj_t *mo = player->mo;
 
   mo->angle += cmd->angleturn << 16;
+
+  //e6y
+  if (demo_smoothturns && players && &players[displayplayer] == player)
+    AddSmoothViewAngel(cmd->angleturn << 16);
+  if (movement_mouselook)
+  {
+    mo->pitch += (cmd->pitchturn << 16);
+    CheckPitch((signed int *) &mo->pitch);
+  }
+  else
+  {
+    mo->pitch = 0;
+  }
+
   onground = mo->z <= mo->floorz;
 
   // killough 10/98:
@@ -275,6 +290,7 @@ void P_DeathThink (player_t* player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
+  ClearSmoothViewAngels();//e6y
   }
 
 
@@ -286,6 +302,24 @@ void P_PlayerThink (player_t* player)
   {
   ticcmd_t*    cmd;
   weapontype_t newweapon;
+
+  //e6y
+  if (movement_smooth && players && &players[displayplayer] == player)
+  {
+    oviewx = player->mo->x;
+    oviewy = player->mo->y;
+    oviewz = player->viewz;
+    oviewangle = GetSmoothViewAngel(player->mo->angle) + viewangleoffset;
+    oviewpitch = player->mo->pitch;// + viewpitchoffset;
+    if(walkcamera.type)
+    {
+      walkcamera.PrevX = walkcamera.x;
+      walkcamera.PrevY = walkcamera.y;
+      walkcamera.PrevZ = walkcamera.z;
+      walkcamera.PrevAngle = walkcamera.angle;
+      walkcamera.PrevPitch = walkcamera.pitch;
+    }
+  }
 
   // killough 2/8/98, 3/21/98:
   if (player->cheats & CF_NOCLIP)
@@ -414,7 +448,12 @@ void P_PlayerThink (player_t* player)
   // Handling colormaps.
   // killough 3/20/98: reformat to terse C syntax
 
-  player->fixedcolormap = player->powers[pw_invulnerability] > 4*32 ||
-    player->powers[pw_invulnerability] & 8 ? INVERSECOLORMAP :
+//e6y  player->fixedcolormap = player->powers[pw_invulnerability] > 4*32 ||
+//e6y    player->powers[pw_invulnerability] & 8 ? INVERSECOLORMAP :
+//e6y    player->powers[pw_infrared] > 4*32 || player->powers[pw_infrared] & 8;
+//e6y
+  player->fixedcolormap = palette_onpowers &&
+    (player->powers[pw_invulnerability] > 4*32 ||
+    player->powers[pw_invulnerability] & 8) ? INVERSECOLORMAP :
     player->powers[pw_infrared] > 4*32 || player->powers[pw_infrared] & 8;
   }

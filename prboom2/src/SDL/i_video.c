@@ -58,6 +58,7 @@
 #include "sounds.h"
 #include "w_wad.h"
 #include "lprintf.h"
+#include "e6y.h"//e6y
 
 #ifdef GL_DOOM
 #include "gl_struct.h"

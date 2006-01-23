@@ -43,6 +43,7 @@
 #include "m_random.h"
 #include "m_bbox.h"
 #include "lprintf.h"
+#include "e6y.h"//e6y
 
 static mobj_t    *tmthing;
 static fixed_t   tmx;
@@ -275,6 +276,10 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
   thing->y = y;
 
   P_SetThingPosition (thing);
+//e6y
+  thing->PrevX = x;
+  thing->PrevY = y;
+  thing->PrevZ = thing->floorz;
 
   return true;
   }
