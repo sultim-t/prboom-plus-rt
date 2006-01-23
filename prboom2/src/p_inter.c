@@ -913,7 +913,15 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
   if ((justhit = (P_Random (pr_painchance) < target->info->painchance &&
       !(target->flags & MF_SKULLFLY)))) //killough 11/98: see below
-    P_SetMobjState(target, target->info->painstate);
+  //e6y
+  {
+    if(demo_compatibility)
+      if ((target->target == source || !target->target ||
+         !(target->flags & target->target->flags & MF_FRIEND)))
+        target->flags |= MF_JUSTHIT;    // fight back!
+
+  P_SetMobjState(target, target->info->painstate);
+  }//e6y
 
   target->reactiontime = 0;           // we're awake now...
 
@@ -947,6 +955,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
     }
 
   /* killough 11/98: Don't attack a friend, unless hit by that friend. */
+  if(!demo_compatibility) //e6y
   if (justhit && (target->target == source || !target->target ||
       !(target->flags & target->target->flags & MF_FRIEND)))
     target->flags |= MF_JUSTHIT;    // fight back!

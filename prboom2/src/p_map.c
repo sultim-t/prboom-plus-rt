@@ -82,7 +82,8 @@ static int    tmunstuck;     /* killough 8/1/98: whether to allow unsticking */
 
 // 1/11/98 killough: removed limit on special lines crossed
 line_t **spechit;                // new code -- killough
-static int spechit_max;          // killough
+//e6y static 
+int spechit_max;          // killough
 
 int numspechit;
 
@@ -418,6 +419,7 @@ boolean PIT_CheckLine (line_t* ld)
     spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
   }
       spechit[numspechit++] = ld;
+    CheckForSpechitsOverrun(ld);//e6y
     }
 
   return true;

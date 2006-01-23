@@ -764,7 +764,7 @@ void HU_Drawer(void)
   char armorstr[80]; //jff
   int i,doit;
   //e6y
-  char allkills[200], allitems[200], allsecrets[200];
+  char allkills[200], allsecrets[200];
   int playerscount;
   int  fullkillcount, fullitemcount, fullsecretcount;
   int color, killcolor, itemcolor, secretcolor;
@@ -1285,9 +1285,6 @@ void HU_Drawer(void)
         }
         else
         {
-          strcpy(allkills, "");
-          strcpy(allitems, "");
-          strcpy(allsecrets, "");
           playerscount = 0;
           fullkillcount = 0;
           fullitemcount = 0;

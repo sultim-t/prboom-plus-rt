@@ -2372,14 +2372,16 @@ setup_menu_t keys_settings4[] =  // Key Binding screen strings
 //e6y
 setup_menu_t keys_settings5[] =  // Key Binding screen strings
 {
-  {"GAME"                 ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y},
+  {"GAME SPEED"           ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y},
   {"SPEED UP"             ,S_KEY     ,m_scrn,KB_X,KB_Y+ 1*8,{&key_speed_up}},
   {"SPEED DOWN"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 2*8,{&key_speed_down}},
-  {"SET SPEED TO DEFAULT" ,S_KEY     ,m_scrn,KB_X,KB_Y+ 3*8,{&key_speed_default}},
-  {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+4*8},
-  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 5*8,{&key_demo_nextlevel}},
-  {"WALK CAMERA"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_walkcamera}},
-  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_demo_jointogame}},
+  {"RESET TO DEFAULT"     ,S_KEY     ,m_scrn,KB_X,KB_Y+ 3*8,{&key_speed_default}},
+  {"STEP OF CHANGE (0-AUTO)" ,S_NUM     ,m_null,KB_X,KB_Y+ 4*8, {"speed_step"}},
+  {"DEMOS"                ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+5*8},
+  {"NEXT LEVEL"           ,S_KEY     ,m_scrn,KB_X,KB_Y+ 6*8,{&key_demo_nextlevel}},
+  {"END LEVEL"            ,S_KEY     ,m_scrn,KB_X,KB_Y+ 7*8,{&key_demo_endlevel}},
+  {"CAMERA MODE"          ,S_KEY     ,m_scrn,KB_X,KB_Y+ 8*8,{&key_walkcamera}},
+  {"JOIN"                 ,S_KEY     ,m_scrn,KB_X,KB_Y+ 9*8,{&key_demo_jointogame}},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings4}},
   // Final entry
@@ -2601,17 +2603,19 @@ setup_menu_t stat_settings2[] =
   {"OVERWRITE EXISTING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"demo_overwriteexisting"}},
   {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
-  {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
+  {"DETECT SPECHITS OVERRUN"     ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"misc_detectspechitoverrun"}, 0, 0, M_ChangeDetectSpechitOverrun},
+  {"WARN IF CAN'T BE EMULATED"   ,S_YESNO     ,m_null,ST_X,ST_Y+ 12*8, {"misc_warnatspechitoverrun"}},
+  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+14*8},
+  {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
 #ifdef GL_DOOM
-  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 16*8, {"render_fov"}, 0, 0, M_ChangeFOV},
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 19*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
 #else
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  {"FIX TURN-SNAPPING ISSUE"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 18*8, {"misc_fixfirstmousemotion"}},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
@@ -2625,11 +2629,13 @@ setup_menu_t stat_settings3[] =
   {"ON BONUS"                    ,S_YESNO     ,m_null,ST_X,ST_Y+3*8,  {"palette_onbonus"}},
   {"ON POWERS"                   ,S_YESNO     ,m_null,ST_X,ST_Y+4*8, {"palette_onpowers"}},
 #ifdef GL_DOOM
-  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
-  {"USE DETAIL TEXTURE"          ,S_YESNO|S_CANT_GL_ARB_MULTITEXTURE       ,m_null,ST_X,ST_Y+8*8, {"render_usedetail"}, 0, 0, M_ChangeUseDetail},
-  {"FOR WALLS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+9*8, {"render_detailwalls"}, 0, 0, M_ChangeUseDetail},
-  {"FOR FLATS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+10*8, {"render_detailflats"}, 0, 0, M_ChangeUseDetail},
-//  {"FOR SPRITES"                 ,S_YESNO       ,m_null,ST_X,ST_Y+ 10*8, {"render_detailsprites"}, 0, 0, M_ChangeUseDetail},
+  {"USE DETAIL TEXTURE"          ,S_YESNO|S_CANT_GL_ARB_MULTITEXTURE       ,m_null,ST_X,ST_Y+6*8, {"render_usedetail"}, 0, 0, M_ChangeUseDetail},
+  {"FOR WALLS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+7*8, {"render_detailwalls"}, 0, 0, M_ChangeUseDetail},
+  {"FOR FLATS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+8*8, {"render_detailflats"}, 0, 0, M_ChangeUseDetail},
+//  {"FOR SPRITES"                 ,S_YESNO       ,m_null,ST_X,ST_Y+ 9*8, {"render_detailsprites"}, 0, 0, M_ChangeUseDetail},
+
+  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+10*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 11*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"SMART ITEMS CLIPPING"        ,S_YESNO ,m_null,ST_X,ST_Y+12*8, {"render_smartitemsclipping"}},
 
 #endif
@@ -4392,30 +4398,35 @@ boolean M_Responder (event_t* ev) {
     //e6y
     if (ch == key_speed_default)               
     {
-      ChangeSpeed(0);
+      realtic_clock_rate = StepwiseSum(realtic_clock_rate, 0, speed_step, 3, 10000, 100);
+      I_Init2();
       return true;
     }
     if (ch == key_speed_up)               
     {                                 
-      ChangeSpeed(1);
+      realtic_clock_rate = StepwiseSum(realtic_clock_rate, 1, speed_step, 3, 10000, 100);
+      I_Init2();
       return true;
     }
     if (ch == key_speed_down)               
     {                                 
-      ChangeSpeed(-1);
+      realtic_clock_rate = StepwiseSum(realtic_clock_rate, -1, speed_step, 3, 10000, 100);
+      I_Init2();
       return true;
     }
-    if (ch == key_demo_nextlevel)
+    if (demoplayback && !doSkip)
     {
-      if (demoplayback)
+      if (ch == key_demo_nextlevel)
       {
-        if (!doSkip)
-        {
-          demo_stoponnext = true;
-          //startmap = wminfo.next + 2;
-          G_SkipDemoStart();
-          return true;
-        }
+        demo_stoponnext = true;
+        G_SkipDemoStart();
+        return true;
+      }
+      if (ch == key_demo_endlevel)
+      {
+        demo_stoponend = true;
+        G_SkipDemoStart();
+        return true;
       }
     }
     if (ch == key_walkcamera)
@@ -5575,6 +5586,7 @@ void M_Init(void)
   M_ChangeMouseInvert();
   M_ChangeFOV();
   M_ChangeDemoSmoothTurns();
+  M_ChangeDetectSpechitOverrun();
 //  M_ChangeUseDetail();
 }
 

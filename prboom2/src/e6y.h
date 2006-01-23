@@ -38,6 +38,13 @@
 #define FOV_CORRECTION_FACTOR (1.13776f)
 #define FOV90 (90)
 
+typedef struct
+{
+  const char *wadname;
+  int map;
+  int address;
+} buf_overrun_item_t;
+
 typedef struct camera_s
 {
   long x;
@@ -68,6 +75,7 @@ extern char avi_shot_curr_fname[PATH_MAX];
 extern FILE    *_demofp;
 extern boolean doSkip;
 extern boolean demo_stoponnext;
+extern boolean demo_stoponend;
 extern boolean demo_warp;
 
 extern int key_speed_up;
@@ -75,6 +83,8 @@ extern int key_speed_down;
 extern int key_speed_default;
 extern int key_demo_jointogame;
 extern int key_demo_nextlevel;
+extern int key_demo_endlevel;
+extern int speed_step;
 extern int key_walkcamera;
 
 extern int hudadd_gamespeed;
@@ -99,6 +109,9 @@ extern int render_smartitemsclipping;
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
 extern int demo_overwriteexisting;
+extern int misc_warnatspechitoverrun;
+extern int misc_detectspechitoverrun;
+extern int misc_fixfirstmousemotion;
 
 extern int palette_ondamage;
 extern int palette_onbonus;
@@ -150,6 +163,7 @@ extern hu_textline_t  w_centermsg;
 extern char hud_timestr[80];
 extern char hud_centermsg[80];
 
+void e6y_D_DoomMainSetup(void);
 void e6y_I_Init(void);
 
 void P_WalkTicker ();
@@ -161,6 +175,7 @@ void G_SkipDemoStop(void);
 const byte* G_ReadDemoHeader(const byte* demo_p);
 void M_ChangeSmooth(void);
 void M_ChangeDemoSmoothTurns(void);
+void M_ChangeDetectSpechitOverrun(void);
 void M_ChangeSpeed(void);
 void M_ChangeMouseLook(void);
 void M_ChangeMouseInvert(void);
@@ -258,9 +273,58 @@ void e6y_MultisamplingCheck(void);
 void e6y_MultisamplingSet(void);
 void e6y_MultisamplingPrint(void);
 
+void I_Warning(const char *error, ...);
+
 extern int force_monster_avoid_hazards;
 
-void ChangeSpeed(int direction);
+int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval);
+
+boolean StrToInt(char *s, long *l);
+
+void CheckForSpechitsOverrun(line_t* ld);
+void ShowSpechitsOverrunningWarning(const char *msg);
+void SwitchToGameWindow(void);
+
+enum
+{
+  TT_ALLKILL,
+  TT_ALLITEM,
+  TT_ALLSECRET,
+
+  TT_TIME,
+  TT_TOTALTIME,
+  TT_TOTALKILL,
+  TT_TOTALITEM,
+  TT_TOTALSECRET,
+
+  TT_MAX
+};
+
+typedef struct timetable_s
+{
+  char map[16];
+
+  int kill[MAXPLAYERS];
+  int item[MAXPLAYERS];
+  int secret[MAXPLAYERS];
+  
+  int stat[TT_MAX];
+/*  int allkill;
+  int allitem;
+  int allsecret;
+
+  int time;
+  int totaltime;
+  int totalkill;
+  int totalitem;
+  int totalsecret;*/
+} timetable_t;
+
+extern int stats_level;
+void e6y_G_DoCompleted(void);
+void e6y_WriteStats(void);
+
+void e6y_G_DoWorldDone(void);
 
 //extern int viewMaxY;
 

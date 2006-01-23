@@ -868,13 +868,7 @@ int R_TextureNumForName(const char *name)  // const added -- killough
 {
   int i = R_CheckTextureNumForName(name);
   if (i == -1)
-//e6y    I_Error("R_TextureNumForName: %.8s not found", name);
-//e6y
-  {
-    i = R_CheckTextureNumForName("-");
-    if (i == -1)
-      I_Error("R_TextureNumForName: %.8s not found", name);
-  }
+    I_Error("R_TextureNumForName: %.8s not found", name);
   return i;
 }
 

@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "SDL.h"
+#include <SDL_syswm.h>
 
 #include "hu_lib.h"
 
@@ -22,6 +23,7 @@
 #include "p_spec.h"
 #include "lprintf.h"
 #include "d_think.h"
+#include "m_argv.h"
 #include "e6y.h"
 
 #define Pi 3.14159265358979323846f
@@ -41,6 +43,7 @@ char avi_shot_curr_fname[PATH_MAX];
 FILE    *_demofp;
 boolean doSkip;
 boolean demo_stoponnext;
+boolean demo_stoponend;
 boolean demo_warp;
 
 int key_speed_up;
@@ -48,6 +51,8 @@ int key_speed_down;
 int key_speed_default;
 int key_demo_jointogame;
 int key_demo_nextlevel;
+int key_demo_endlevel;
+int speed_step;
 int key_walkcamera;
 
 int hudadd_gamespeed;
@@ -73,6 +78,9 @@ int render_smartitemsclipping;
 int demo_smoothturns;
 int demo_smoothturnsfactor;
 int demo_overwriteexisting;
+int misc_fixfirstmousemotion;
+int misc_detectspechitoverrun;
+int misc_warnatspechitoverrun;
 
 int palette_ondamage;
 int palette_onbonus;
@@ -133,6 +141,20 @@ static boolean saved_nodrawers;
 static boolean saved_nosfxparm;
 static boolean saved_nomusicparm;
 
+void e6y_D_DoomMainSetup(void)
+{
+  int p;
+  if ((p = M_CheckParm("-skipsec")) && (p < myargc-1))
+    demo_skiptics = (int)(atof(myargv[p+1]) * 35);
+  if (startmap > 1 || demo_skiptics)
+    G_SkipDemoStart();
+  if ((p = M_CheckParm("-framescapture")) && (p < myargc-2))
+    if ((avi_shot_count = avi_shot_time = atoi(myargv[p+1])))
+      avi_shot_fname = myargv[p+2];
+  force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
+  stats_level = M_CheckParm("-levelstat");
+}
+
 void G_SkipDemoStart(void)
 {
   saved_fastdemo = fastdemo;
@@ -156,6 +178,7 @@ void G_SkipDemoStop(void)
   nomusicparm = saved_nomusicparm;
 
   demo_stoponnext = false;
+  demo_stoponend = false;
   demo_warp = false;
   doSkip = false;
   demo_skiptics = 0;
@@ -258,15 +281,15 @@ void M_ChangeUseDetail(void)
 
   if (render_usedetail)
   {
+    stat_settings3[5].m_flags &= ~(S_SKIP|S_SELECT);
     stat_settings3[6].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[7].m_flags &= ~(S_SKIP|S_SELECT);
-//    stat_settings3[8].m_flags &= ~(S_SKIP|S_SELECT);
+//    stat_settings3[7].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
+    stat_settings3[5].m_flags |= (S_SKIP|S_SELECT);
     stat_settings3[6].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[7].m_flags |= (S_SKIP|S_SELECT);
-//    stat_settings3[8].m_flags |= (S_SKIP|S_SELECT);
+//    stat_settings3[7].m_flags |= (S_SKIP|S_SELECT);
   }
 #endif
 }
@@ -497,13 +520,6 @@ void DoAnInterpolation (int i, fixed_t smoothratio)
     if (!f) f = fopen("d:\\a.txt", "wb");
     fprintf(f, "%.10d:%.10d:%.10d %.10d-%.10d, %f-%f\n", gametic, smoothratio, DDisplayTime, oldipos[i][0], *adr1, oldipos[i][0]/65536.0f, *adr1/65536.0f);
   }*/
-/*
-  {
-    static FILE *f = NULL;
-    if (!f) f = fopen("d:\\b.txt", "wb");
-    fprintf(f, "%.10d\n", gametic);
-  }
-  */
 }
 
 void updateinterpolations()
@@ -863,6 +879,18 @@ void M_ChangeDemoSmoothTurns(void)
   ClearSmoothViewAngels();
 }
 
+void M_ChangeDetectSpechitOverrun(void)
+{
+  extern setup_menu_t stat_settings2[];
+
+  if (misc_detectspechitoverrun)
+    stat_settings2[10].m_flags &= ~(S_SKIP|S_SELECT);
+  else
+    stat_settings2[10].m_flags |= (S_SKIP|S_SELECT);
+
+  ClearSmoothViewAngels();
+}
+
 void ClearSmoothViewAngels()
 {
   if (demo_smoothturns && demoplayback)
@@ -962,52 +990,370 @@ void e6y_MultisamplingPrint(void)
 
 int force_monster_avoid_hazards = false;
 
-void ChangeSpeed(int direction)
+int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval)
 {
-  int delta = 0;
-  int value = realtic_clock_rate;
-  int minvalue = 3;
+  static int prev_value = 0;
+  static int prev_direction = 0;
 
-  switch (direction)
+  int newvalue;
+  int val = (direction > 0 ? value : value - 1);
+  
+  if (direction == 0)
+    return defval;
+
+  direction = (direction > 0 ? 1 : -1);
+  
+  if (step != 0)
+    newvalue = (prev_direction * direction < 0 ? prev_value : value + direction * step);
+  else
   {
-    case 0:
-      realtic_clock_rate = 100;
-      I_Init2();
-      break;
-    case 1:
-      if (value >= 10000)
-        delta = 0;
-      else if (value >= 1000)
-        delta = 1000;
-      else if (value >= 500)
-        delta = 100;
-      else if (value >= 100)
-        delta = 50;
-      else if (value >= 10)
-        delta = 10;
-      else
-        delta = 10 - value;
-      realtic_clock_rate += delta;
-      I_Init2();
-      break;
-    case -1:
-      if (value <= minvalue)
-        delta = 0;
-      else if (value <= 10)
-        delta = value - minvalue;
-      else if (value <= 100)
-        delta = 10;
-      else if (value <= 500)
-        delta = 50;
-      else if (value <= 1000)
-        delta = 100;
-      else if (value <= 10000)
-        delta = 1000;
-      else
-        delta = value - 10000;
-      realtic_clock_rate -= delta;
-      I_Init2();
-      break;
+    int exp = 1;
+    while (exp * 10 <= val)
+      exp *= 10;
+    newvalue = direction * (val < exp * 5 && exp > 1 ? exp / 2 : exp);
+    newvalue = (value + newvalue) / newvalue * newvalue;
+  }
+
+  if (newvalue > maxval) newvalue = maxval;
+  if (newvalue < minval) newvalue = minval;
+
+  if (value < defval && newvalue > defval || value > defval && newvalue < defval)
+    newvalue = defval;
+
+  if (newvalue != value)
+  {
+    prev_value = value;
+    prev_direction = direction;
+  }
+
+  return newvalue;
+}
+
+void I_Warning(const char *message, ...)
+{
+  char msg[1024];
+  va_list argptr;
+  va_start(argptr,message);
+#ifdef HAVE_VSNPRINTF
+  vsnprintf(msg,sizeof(msg),message,argptr);
+#else
+  vsprintf(msg,message,argptr);
+#endif
+  va_end(argptr);
+  fprintf(stdout,"%s\n",msg);
+#ifdef _MSC_VER
+  {
+    extern HWND con_hWnd;
+    Init_ConsoleWin();
+    MessageBox(con_hWnd,msg,"PrBoom-Plus",MB_OK | MB_TASKMODAL | MB_TOPMOST);
+    SwitchToGameWindow();
+  }
+#endif
+}
+
+char* GetFileName (char *path)
+{
+  char *src = path + strlen(path) - 1;
+  
+  while (src != path && src[-1] != ':'
+         && *(src-1) != '\\'
+         && *(src-1) != '/')
+    src--;
+
+  return src;
+}
+
+
+boolean StrToInt(char *s, long *l)
+{
+/*  long val;
+  char *p = NULL;
+  boolean b;
+  strcpy(s, "0");
+  val = strtol(s, &p, 0);
+  if (val==0)
+    b = (sscanf(s, " %d", l) == 1);
+  else
+    b = true;
+
+  return b;
+  */
+  return (
+    (sscanf(s, " 0x%x", l) == 1) ||
+    (sscanf(s, " 0X%x", l) == 1) ||
+    (sscanf(s, " 0%o", l) == 1) ||
+    (sscanf(s, " %d", l) == 1)
+  );
+}
+
+void SwitchToGameWindow()
+{
+#ifdef _WIN32
+  SDL_SysWMinfo wminfo;
+  HWND hwnd; 
+
+  SDL_VERSION(&wminfo.version);
+  SDL_GetWMInfo(&wminfo);
+  hwnd = wminfo.window;
+
+  if (hwnd)
+  {
+    SetForegroundWindow(hwnd);
+
+    {
+      typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
+      static TSwitchToThisWindow SwitchToThisWindow = NULL;
+      Sleep(100);
+      
+      if (!SwitchToThisWindow)
+        SwitchToThisWindow = (TSwitchToThisWindow)GetProcAddress(GetModuleHandle("user32.dll"), "SwitchToThisWindow");
+      
+      if (SwitchToThisWindow)
+        SwitchToThisWindow(hwnd, TRUE);
+    }
+  }
+#endif
+}
+
+buf_overrun_item_t overrun_data[] = 
+{
+  {"HR.WAD",        18, 0x01C09C98},
+  {"STRAIN.WAD",    07, 0x01D6CF98},
+  {NULL,            00, 0x00000000},
+};
+
+static int curr_overrun_item = -1;
+
+void ShowSpechitsOverrunningWarning(const char *msg)
+{
+  static char buffer[1024];
+  static boolean OverrunPromted = false;
+  extern line_t **spechit;
+
+  if (misc_warnatspechitoverrun && curr_overrun_item == -1 && !OverrunPromted)
+  {
+    OverrunPromted = true;
+
+    sprintf(buffer,
+      "%s The demo can be desync %s. "
+#ifdef GL_DOOM
+      "The list of LinesID leading to overrun: "
+      "%d, %d, %d, %d, %d, %d, %d, %d, %d. "
+#endif
+      "You can disable this warning through: "
+      "\"Ingame Menu\\Options\\Setup\\Status Bar / HUD\\Warn If Can't Be Emulated\""
+      ,msg, demoplayback?"soon":"on playback with vanilla doom2 engine"
+#ifdef GL_DOOM
+      ,spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID
+      ,spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID
+      ,spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID
+#endif
+      );
+    I_Warning(buffer);
+  }
+}
+
+void CheckForSpechitsOverrun(line_t* ld)
+{
+  extern int numspechit;
+  extern fixed_t tmbbox[4];
+
+  if (numspechit>8 && misc_detectspechitoverrun && demo_compatibility &&
+    (demorecording || demoplayback))
+  {
+    size_t i, j;
+    buf_overrun_item_t *item; 
+   
+    if(curr_overrun_item == -1 || overrun_data[curr_overrun_item].map != gamemap)
+    {
+      curr_overrun_item = -1;
+      for (i = 0; i < numwadfiles; i++)
+      {
+        if (wadfiles[i].src == source_pwad)
+          for (j = 0, item = &overrun_data[0]; item->wadname; j++, item++)
+            if (item->map == gamemap && !strcasecmp(item->wadname, GetFileName((char*)wadfiles[i].name)))
+              curr_overrun_item = j;
+      }
+      ShowSpechitsOverrunningWarning("Spechits overflow has been detected but it not supported for this map.");
+    }
+
+    if (curr_overrun_item != -1)
+    {
+      int addr = overrun_data[curr_overrun_item].address + (ld - lines) * 0x3E;
+    
+      switch(numspechit)
+      {
+      case 9: 
+      case 10:
+      case 11:
+      case 12:
+        tmbbox[numspechit-9] = addr;
+        break;
+      default:
+        ShowSpechitsOverrunningWarning("Too big spechits overflow for emulation was detected.");
+        break;
+      }
+    }
+  }
+}
+
+int stats_level;
+int numlevels = 0;
+int levels_max = 0;
+timetable_t *stats = NULL;
+
+void e6y_G_DoCompleted(void)
+{
+  int i;
+
+  if (doSkip && demo_stoponend)
+    G_SkipDemoStop();
+
+  if(!stats_level)
+    return;
+
+  if (numlevels >= levels_max)
+  {
+    levels_max = levels_max ? levels_max*2 : 32;
+    stats = realloc(stats,sizeof(*stats)*levels_max);
+  }
+
+  memset(&stats[numlevels], 0, sizeof(timetable_t));
+
+  if (gamemode==commercial)
+    sprintf(stats[numlevels].map,"MAP%02i",gamemap);
+  else
+    sprintf(stats[numlevels].map,"E%iM%i",gameepisode,gamemap);
+
+  stats[numlevels].stat[TT_TIME]        = leveltime;
+  stats[numlevels].stat[TT_TOTALTIME]   = totalleveltimes;
+  stats[numlevels].stat[TT_TOTALKILL]   = totalkills;
+  stats[numlevels].stat[TT_TOTALITEM]   = totalitems;
+  stats[numlevels].stat[TT_TOTALSECRET] = totalsecret;
+
+  for (i=0 ; i<MAXPLAYERS ; i++)
+  {
+    if (playeringame[i])
+    {
+      stats[numlevels].kill[i]   = players[i].killcount - players[i].resurectedkillcount;
+      stats[numlevels].item[i]   = players[i].itemcount;
+      stats[numlevels].secret[i] = players[i].secretcount;
+      
+      stats[numlevels].stat[TT_ALLKILL]   += stats[numlevels].kill[i];
+      stats[numlevels].stat[TT_ALLITEM]   += stats[numlevels].item[i];
+      stats[numlevels].stat[TT_ALLSECRET] += stats[numlevels].secret[i];
+    }
+  }
+
+  numlevels++;
+
+  e6y_WriteStats();
+}
+
+typedef struct tmpdata_s
+{
+  char kill[200];
+  char item[200];
+  char secret[200];
+} tmpdata_t;
+
+void e6y_WriteStats(void)
+{
+  FILE *f;
+  char str[200];
+  int i, level, playerscount;
+  timetable_t max;
+  tmpdata_t tmp;
+  tmpdata_t all[32];
+  size_t allkills_len=0, allitems_len=0, allsecrets_len=0;
+
+  f = fopen("levelstat.txt", "wb");
+  
+  memset(&max, 0, sizeof(timetable_t));
+
+  playerscount = 0;
+  for (i=0; i<MAXPLAYERS; i++)
+    if (playeringame[i])
+      playerscount++;
+
+  for (level=0;level<numlevels;level++)
+  {
+    memset(&tmp, 0, sizeof(tmpdata_t));
+    for (i=0 ; i<MAXPLAYERS ; i++)
+    {
+      if (playeringame[i])
+      {
+        strcpy(str, strlen(tmp.kill)==0?"%s%d":"%s+%d");
+        
+        sprintf(tmp.kill,   str, tmp.kill,   stats[level].kill[i]  );
+        sprintf(tmp.item,   str, tmp.item,   stats[level].item[i]  );
+        sprintf(tmp.secret, str, tmp.secret, stats[level].secret[i]);
+      }
+    }
+    if (playerscount<2)
+      memset(&all[level], 0, sizeof(tmpdata_t));
+    else
+    {
+      sprintf(all[level].kill,   " (%s)", tmp.kill  );
+      sprintf(all[level].item,   " (%s)", tmp.item  );
+      sprintf(all[level].secret, " (%s)", tmp.secret);
+    }
+
+    if (strlen(all[level].kill) > allkills_len)
+      allkills_len = strlen(all[level].kill);
+    if (strlen(all[level].item) > allitems_len)
+      allitems_len = strlen(all[level].item);
+    if (strlen(all[level].secret) > allsecrets_len)
+      allsecrets_len = strlen(all[level].secret);
+
+    for(i=0; i<TT_MAX; i++)
+      if (stats[level].stat[i] > max.stat[i])
+        max.stat[i] = stats[level].stat[i];
+  }
+  max.stat[TT_TIME] = max.stat[TT_TIME]/TICRATE/60;
+  max.stat[TT_TOTALTIME] = max.stat[TT_TOTALTIME]/TICRATE/60;
+  
+  for(i=0; i<TT_MAX; i++)
+     max.stat[i] = strlen(itoa( max.stat[i], str, 10));
+
+  for (level=0;level<numlevels;level++)
+  {
+    strcpy(str, "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%ds  I: %%%dd/%%-%dd%%%ds  S: %%%dd/%%-%dd %%%ds\n");
+
+    sprintf(str, str,
+      max.stat[TT_TIME],      max.stat[TT_TOTALTIME],
+      max.stat[TT_ALLKILL],   max.stat[TT_TOTALKILL],   allkills_len,
+      max.stat[TT_ALLITEM],   max.stat[TT_TOTALITEM],   allitems_len,
+      max.stat[TT_ALLSECRET], max.stat[TT_TOTALSECRET], allsecrets_len);
+    
+    fprintf(f, str, stats[level].map, 
+      stats[level].stat[TT_TIME]/TICRATE/60,
+      (float)(stats[level].stat[TT_TIME]%(60*TICRATE))/TICRATE,
+      (stats[level].stat[TT_TOTALTIME])/TICRATE/60, 
+      (stats[level].stat[TT_TOTALTIME]%(60*TICRATE))/TICRATE,
+      stats[level].stat[TT_ALLKILL],  stats[level].stat[TT_TOTALKILL],   all[level].kill,
+      stats[level].stat[TT_ALLITEM],  stats[level].stat[TT_TOTALITEM],   all[level].item,
+      stats[level].stat[TT_ALLSECRET],stats[level].stat[TT_TOTALSECRET], all[level].secret
+      );
+    
+  }
+  
+  fclose(f);
+}
+
+void e6y_G_DoWorldDone(void)
+{
+  if (doSkip)
+  {
+    static int firstmap = 1;
+    demo_warp =
+      demo_stoponnext ||
+      ((gamemode==commercial)?
+        (startmap == gamemap):
+        (startepisode==gameepisode && startmap==gamemap));
+    if (demo_warp && demo_skiptics==0 && !firstmap)
+      G_SkipDemoStop();
+    if (firstmap) firstmap = 0;
   }
 }
 

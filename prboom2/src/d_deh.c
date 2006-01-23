@@ -43,6 +43,7 @@
 #include "g_game.h"
 #include "d_think.h"
 #include "w_wad.h"
+#include "e6y.h"//e6y
 
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
@@ -1768,12 +1769,14 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
   // blank now because it has our incoming key in it
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
     {
+      boolean bGetData;//e6y
       if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
       lfstrip(inbuffer);  // toss the end of line
 
       // killough 11/98: really bail out on blank lines (break != continue)
       if (!*inbuffer) break;  // bail out with blank line between sections
-      if (!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
+      bGetData = deh_GetData(inbuffer,key,&value,&strval,fpout);//e6y
+      if (!bGetData)//e6y // returns TRUE if ok
         {
           if (fpout) fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
           continue;
@@ -1796,7 +1799,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
         }
         else {
           // bit set
-          if (value) { // proff
+          if (bGetData) {//e6y // proff
             value = getConvertedDEHBits(value);
             mobjinfo[indexnum].flags = value;
           }
@@ -2863,7 +2866,13 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
           okrc = FALSE;
         }
       // we've incremented t
-      val = strtol(t,NULL,0);  // killough 8/9/98: allow hex or octal input
+      //e6y val = strtol(t,NULL,0);  // killough 8/9/98: allow hex or octal input
+      //e6y
+      if (!StrToInt(t,&val))
+      {
+        val = 0;
+        okrc = FALSE;
+      }
     }
 
   // go put the results in the passed pointers

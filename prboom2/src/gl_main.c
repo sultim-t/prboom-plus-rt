@@ -3030,7 +3030,7 @@ void gld_DrawScene(player_t *player)
       {
         if (count>=gld_drawinfo.drawitems[i].itemcount)
           continue;
-        if ( (gl_drawskys) && (k==GLDWF_SKY) )
+        if ( (gl_drawskys) && (k>=GLDWF_SKY) )//e6y
         {
           if (comp[comp_skymap] && gl_shared_texture_palette)
             glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);

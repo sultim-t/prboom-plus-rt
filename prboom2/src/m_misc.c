@@ -687,18 +687,22 @@ default_t defaults[] =
   {"mouse_sensitivity_mlook",{&mouseSensitivity_mlook},{10},0,UL,
    def_int,ss_none},
 
-  {"key_speedup",     {&key_speed_up},         {KEYD_KEYPADPLUS}                ,
-   0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate += 10                   
-  {"key_speeddown",     {&key_speed_down},         {KEYD_KEYPADMINUS}           ,
-   0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate -= 10
-  {"key_speeddefault",     {&key_speed_default},         {KEYD_KEYPADMULTIPLY}  ,
-   0,MAX_KEY,def_key,ss_keys}, // realtic_clock_rate = 100
-  {"key_demo_jointogame",     {&key_demo_jointogame},         {KEYD_LALT}       ,
-   0,MAX_KEY,def_key,ss_keys}, // join from demo to game
-  {"key_demo_nextlevel",     {&key_demo_nextlevel},         {KEYD_PAGEDOWN}     ,
-   0,MAX_KEY,def_key,ss_keys}, // join from demo to game
-  {"key_walkcamera",     {&key_walkcamera},         {KEYD_LALT}     ,
-   0,MAX_KEY,def_key,ss_keys}, // join from demo to game
+  {"speed_step",{&speed_step},{0},0,1000,
+   def_int,ss_none},
+  {"key_speedup", {&key_speed_up}, {KEYD_KEYPADPLUS},
+   0,MAX_KEY,def_key,ss_keys},
+  {"key_speeddown", {&key_speed_down}, {KEYD_KEYPADMINUS},
+   0,MAX_KEY,def_key,ss_keys},
+  {"key_speeddefault", {&key_speed_default}, {KEYD_KEYPADMULTIPLY},
+   0,MAX_KEY,def_key,ss_keys},
+  {"key_demo_jointogame", {&key_demo_jointogame}, {KEYD_LALT},
+   0,MAX_KEY,def_key,ss_keys},
+  {"key_demo_nextlevel", {&key_demo_nextlevel}, {KEYD_PAGEDOWN},
+   0,MAX_KEY,def_key,ss_keys},
+  {"key_demo_endlevel", {&key_demo_endlevel}, {KEYD_END},
+   0,MAX_KEY,def_key,ss_keys},
+  {"key_walkcamera", {&key_walkcamera}, {KEYD_LALT},
+   0,MAX_KEY,def_key,ss_keys},
 
   {"hudadd_gamespeed", {&hudadd_gamespeed},  {0},0,1,
    def_bool,ss_stat},
@@ -710,10 +714,12 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_smooth", {&movement_smooth},  {0},0,1,
    def_bool,ss_stat},
+#ifdef GL_DOOM
   {"movement_mouselook", {&movement_mouselook},  {0},0,1,
    def_bool,ss_stat},
   {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
+#endif
   {"movement_strafe50", {&movement_strafe50},  {0},0,1,
    def_bool,ss_stat},
   {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
@@ -744,6 +750,14 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,MAX_DEMOS_SMOOTHFACTOR,
    def_int,ss_stat},
+  {"misc_detectspechitoverrun", {&misc_detectspechitoverrun},  {1},0,1,
+   def_bool,ss_stat},
+  {"misc_warnatspechitoverrun", {&misc_warnatspechitoverrun},  {1},0,1,
+   def_bool,ss_stat},
+#ifndef GL_DOOM
+  {"misc_fixfirstmousemotion", {&misc_fixfirstmousemotion},  {0},0,1,
+   def_bool,ss_stat},
+#endif
 
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:

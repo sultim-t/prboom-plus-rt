@@ -2581,6 +2581,8 @@ void P_SpawnSpecials (void)
 
   P_SpawnScrollers(); // killough 3/7/98: Add generalized scrollers
 
+  if (demo_compatibility) return;//e6y
+
   P_SpawnFriction();  // phares 3/12/98: New friction model using linedefs
 
   P_SpawnPushers();   // phares 3/20/98: New pusher model using linedefs
@@ -2814,6 +2816,7 @@ static void P_SpawnScrollers(void)
       fixed_t dy = l->dy >> SCROLL_SHIFT;
       int control = -1, accel = 0;         // no control sector or acceleration
       int special = l->special;
+      if (demo_compatibility && special!=48) continue;//e6y
 
       // killough 3/7/98: Types 245-249 are same as 250-254 except that the
       // first side's sector's heights cause scrolling when they change, and

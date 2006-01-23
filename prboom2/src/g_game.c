@@ -695,29 +695,6 @@ static void G_DoLoadLevel (void)
           first=0;
         }
     }
-////e6y
-/*  {
-    int i;
-    t_count = 0;
-    for (i = 0; i < 128; i++)
-    {
-      t_list[i].index = 0;
-      t_list[i].health = 0;
-    }
-  }*/
-//e6y
-  if (doSkip)
-  {
-    static int firstmap = 1;
-    demo_warp =
-      demo_stoponnext ||
-      ((gamemode==commercial)?
-        (startmap == gamemap):
-        (startepisode==gameepisode && startmap==gamemap));
-    if (demo_warp && demo_skiptics==0 && !firstmap)
-      G_SkipDemoStop();
-    if (firstmap) firstmap = 0;
-  }
 }
 
 
@@ -1024,7 +1001,7 @@ void G_Ticker (void)
       break;
 
     case GS_INTERMISSION:
-      WI_Ticker ();
+       WI_Ticker ();
       break;
 
     case GS_FINALE:
@@ -1467,6 +1444,8 @@ void G_DoCompleted (void)
   if (statcopy)
     memcpy (statcopy, &wminfo, sizeof(wminfo));
 
+  e6y_G_DoCompleted();//e6y
+
   WI_Start (&wminfo);
 }
 
@@ -1509,6 +1488,7 @@ void G_DoWorldDone (void)
   G_DoLoadLevel();
   gameaction = ga_nothing;
   AM_clearMarks();           //jff 4/12/98 clear any marks on the automap
+  e6y_G_DoWorldDone();//e6y
 }
 
 // killough 2/28/98: A ridiculously large number
