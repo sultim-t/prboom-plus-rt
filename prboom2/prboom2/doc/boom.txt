@@ -1,0 +1,1269 @@
+=====================================================================
+                    BOOM.TXT    10/18/98
+=====================================================================
+
+BOOM v2.02 --- a modified port of the released DOOM source
+
+Final Phase 1 Release
+
+By TeamTNT
+
+Programmers: 
+
+Lee Killough, Jim Flynn, Rand Phares, Ty Halderman, and Stan Gula
+
+
+DoomSource Members:
+
+Andre Majorel           Paul Schmitz
+Bob Evans (odessa)      Richard Nagel (*Weeds*)
+Chris Couleur           Steve McCrea
+Lisa Moore (pup)        William.D.Whitaker
+Adam Landefeld          Dave Brachman           
+Dave Armstrong          Jeremy Wagner
+
+
+Demo Wads:
+
+Gary Gosson (Dawning), Paul Fleschute (Rage)
+
+=====================================================================
+
+Contents
+
+Section 1. Installing BOOM
+Section 2. Configuring BOOM
+Section 3. Playing BOOM in Single Player mode
+Section 4. Playing BOOM in Serial/Network mode
+Section 5. Editing for BOOM
+Section 6. Differences between BOOM and DOOM
+Section 7. Files in the BOOM Distribution
+Section 8. How to report bugs in BOOM
+Section 9. Acknowledgements
+
+=====================================================================
+---------------------------
+Section 1. Installing BOOM
+---------------------------
+
+Requirements:
+-------------
+
+BOOM requires a minimum of a 486DX/33 with 8M of RAM running DOS.  BOOM will
+run under Win'95 in a DOS Window, but 16M RAM is recommended.
+
+Recommended minimum specs are 486DX/66 with 16M or Win'95 with 32M
+
+BOOM requires a copy of DOOM, DOOM II, Ultimate DOOM, or Final DOOM already
+     installed on your system. In the installation instructions below we use
+     C:\DOOM2 to denote the directory it is installed in. Substitute the
+     path to DOOM on your system wherever that appears.
+
+BOOM requires a sound card, it will not play sounds over the PC speaker. If
+you do not have a sound card you MUST run it with the -nosound option on the
+command line.
+
+Suggested installation procedure:
+---------------------------------
+
+1) Unzip the download archive in a new directory, which we will call \BOOM.
+
+2) Type BOOM -iwad C:\DOOM2, the game will start as usual. To avoid having
+   to type -iwad C:\DOOM2, add the line below to your AUTOEXEC.BAT and
+   reboot:
+
+   SET DOOMWADDIR=C:\DOOM2
+
+   Alternately you can unzip the BOOM archive in your DOOM directory and
+   avoid needing -iwad or the change to your AUTOEXEC.BAT file.
+
+   You can also simply copy DOOM1.WAD, DOOM.WAD, or DOOM2.WAD to the BOOM
+   directory.
+
+3) BOOM provides support for joysticks. With the current release, your
+   joystick must be calibrated using the Allegro setup utility ASETUP.EXE.
+
+   3a) run the Allegro setup utility ASETUP.EXE
+   3b) press the Joystick button
+   3c) follow the on-screen instructions to calibrate your joystick
+   3d) when finished, exit, saving configuration
+
+4) If sound and music sound ok, and the mouse and joystick behave properly,
+   you're done!
+
+Sound/Music Troubleshooting
+---------------------------
+
+5) Make sure there is a BLASTER= line in your environment (type SET to see
+the environment in a DOS session or window). If this is missing, consult
+your sound card documentation or technical support.  There is a brief
+description of the line and its parameters in SNDDRVR.TXT.
+
+6) If you have a plug and play sound card and are running under DOS, you
+need to make sure you install plug and play support in DOS; see SNDDRVR.TXT.
+
+7) If your AWE32 does not produce music or sound under DOS make sure you
+have an E parameter in your BLASTER= line. E620 is the default.
+
+8) Run the Allegro setup utility ASETUP.EXE
+   8a) press the Autodetect button.
+   8b) press the Test button.
+   8c) if the test pieces all sound correct exit, saving configuration, else
+     8c1) go back to the main menu and press digi_driver to configure sound
+          effects, or midi_driver to configure music.
+     8c2) in the menu of device drivers shown, the ones checked are
+          possibles.  Try them in bottom to top order, running the Test
+          screen after each until the best results are obtained. Exit,
+          saving configuration.
+   8d) open ALLEGRO.CFG with a text editor like Notepad and note the
+       settings for digi_card and midi_card. Close it and open
+       BOOM.CFG. Transfer the digi_card setting to sound_card and the
+       midi_card setting to music_card in BOOM.CFG. Exit.
+
+9) In the ASETUP.EXE program's sound test screen, the left and right buttons
+are reversed relative to some sound cards. If the sounds in DOOM seem to be
+reversed to you, then change the flip_pan setting in ALLEGRO.CFG from 0 to 1
+or vice-versa.
+
+Mouse Troubleshooting
+---------------------
+
+10) If the mouse fails to work, left motion seems to wait until a button is
+clicked, change the line mouse=logitech in ALLEGRO.CFG to mouse=ms, or add
+the line mouse=ms at the top.
+
+
+----------------------------
+Section 2. Configuring BOOM
+----------------------------
+
+Using the Setup Menus
+---------------------
+
+BOOM provides Setup Menus in the game itself to ease the task of setting
+configuration options. From the Main Menu, select 'Setup' and you'll see the
+following menu:
+
+        Key Bindings
+        Weapons
+        Status Bar / HUD
+        Automap
+        Enemies
+        Messages
+        Chat Strings
+
+Selecting a menu item will present a screen or set of screens from which
+you can set many of the BOOM options.
+
+Note: In general, and by default, the cursor movement keys are used to
+      navigate the menu screens. Exceptions will be noted where appropriate
+      below. If you bind 'menu navigation' keys (i.e. 'down arrow') to
+      something other than the default settings, you'll need to think 'new key'
+      when reading 'default key' in the following text.
+
+      The mouse and joystick may also be used to navigate the menus. 
+
+Note: If a joystick is connected, it's possible that the system may receive
+      false left or right movements when the joystick is idle. This can affect
+      any Setup menus that have multiple screens. If this occurs (sudden switch
+      to previous or next menu) you'll need to recalibrate the joystick, which
+      will make the problem go away. Refer to the calibration instructions in
+      Section 1.
+
+1) Key Bindings
+
+*Multiple Screens*
+
+There are four Key Binding screens. You can move among them using the left
+and right arrow keys. If "NEXT->" appears in the bottom right corner,
+there's another screen.
+
+*Menu Items & Binding*
+
+Each menu item shows the action on the left and the key bound to it on the
+right. If you want to bind an action to a different key, move the 'cursor'
+(where the action is ORANGE) to that action. Press ENTER, the action turns
+WHITE, and you're ready to rebind that action.
+
+Pressing ANY KEY will IMMEDIATELY bind that key to the selected action.
+
+CAVEAT:
+
+Be careful when rebinding keys you use to navigate the menus. If you were to
+change the 'next item' key from 'DOWN ARROW' to 'Z' then you'll need to use
+the 'Z' key from that point on to move to the next menu item.
+
+*Binding Multiple Keys to an Action*
+
+In this release of BOOM, only one key can be bound to an action. In a future
+release, you will be able to bind multiple keys to an action.
+
+*Binding a Key to Multiple Actions*
+
+Under certain circumstances, you can bind a key to several actions. All
+actions are grouped according to game state, which can be 'normal play',
+'in the menu screens', 'in chat mode', and 'looking at the automap'.
+
+If two actions are in the same group, they can't have the same key binding.
+If two actions are in different groups, they can.
+
+For example, you can't bind F1 to both the 'HELP' and 'SAVE GAME' actions
+because both are available during normal play. If F1 is bound to 'HELP' and
+you rebind it to 'SAVE GAME', then whatever key was bound to 'SAVE GAME'
+will move over and be bound to 'HELP'.
+
+As another example, you can bind the 'H' key to 'HELP' for use in normal
+play, and to 'GRID' for use when you have the automap up. Some
+experimentation will show you where you can bind the same key to various
+actions.
+
+*Mouse Buttons*
+
+Where an action shows a Mouse Button setting (MB1,MB2,MB3), that action can
+be bound to a Mouse Button. When the action is selected for rebinding,
+pressing the desired Mouse Button will bind the action to that button.
+
+A future release of BOOM will allow you to set Mouse Buttons to any action.
+
+*Joystick Buttons*
+
+Where an action shows a Joystick Button setting (JSB1,JSB2,JSB3,JSB4),
+that action can be bound to a Joystick Button. When the action is selected
+for rebinding, pressing the desired Joystick Button will bind the action
+to that button.
+
+A future release of BOOM will allow you to set Joystick Buttons to any action.
+
+
+2) Weapons
+
+*Weapon Recoil*
+
+When ON, your weapon will provide you with a little 'kick'. Great fun when
+on an icy floor. When OFF, there is no recoil. Move the cursor to this item
+and press ENTER twice to change it. At the moment, you must start a new
+level in order for this change to take effect.
+
+*Player Bobbing*
+
+When ON, your weapon will bob back and forth, up and down, according to your
+movement. When OFF, there's no movement. Move the cursor to this item and
+press ENTER twice to change it. At the moment, you must start a new level in
+order for this change to take effect.
+
+*Weapon Preferences*
+
+In BOOM, you can declare which weapon you want to grab when you run out of
+ammo for your current one. To change the ordering, move to an item, select
+it with ENTER, then press a number between 1 and 9, where
+
+  1 = FIST
+  2 = PISTOL
+  3 = SHOTGUN
+  4 = CHAINGUN
+  5 = ROCKET LAUNCHER
+  6 = PLASMA RIFLE
+  7 = BFG
+  8 = CHAINSAW
+  9 = SUPER SHOTGUN
+
+You can select only those weapons that are available in the version of the
+DOOM IWAD that you're using. Unavailable weapons will not be shown.
+
+Note this behavior: If Weapon 2 is in the '1st CHOICE WEAPON' slot and
+Weapon 5 is in the '4th CHOICE WEAPON' slot, and you select and change
+'1st CHOICE WEAPON' to Weapon 5, then Weapon 2 moves down to '4th CHOICE
+WEAPON'. In short, they swap places.
+
+
+3) Status Bar / HUD
+
+*Red Numbers*
+
+When ON, the AMMO, HEALTH, and ARMOR numbers on the Status Bar will all be
+red. When OFF, these numbers will display in red, yellow, green, and blue,
+depending on their values.
+
+*% Always Gray*
+
+When ON, the percent signs for HEALTH and ARMOR will always be gray. When
+OFF, the percent signs will be the same color as the HEALTH and ARMOR
+values.
+
+*SINGLE KEYS*
+
+When ON, you'll only see a single key on the Status Bar even if you have the
+same color key from both the card and skull sets. When OFF, you'll see two
+key icons when you have both keys of the same color.
+
+*HIDE SECRETS*
+
+One feature of the new Heads-Up Display is the ability to show your
+KILLS/ITEMS/SECRETS stats as you play, instead of waiting until the level is
+over. If HIDE SECRETS is YES, these are hidden from you. If NO, they'll be
+shown.
+
+*MESSAGE BACKGROUND*
+
+When multiple messages are displayed, if MESSAGE BACKGROUND is ON, there is
+a solid background behind the messages. If OFF, the messages are overlayed
+on whatever action is taking place behind them.
+
+*# MESSAGE LINES*
+
+You can set the number of lines for your overall message display from 1 to
+16. Move the cursor to this item and press ENTER. Now you can enter a number
+w/in the range. If you attempt to enter something outside the range, the key
+that would put you outside is ignored. I.e. If you wanted to set this item
+to '20', you'd start with a '2', but the following '0' would be ignored.
+Press ENTER again to show you're done entering the value. If you don't like
+what you entered ("Hey, 2 is not right!"), then re-enter the correct value.
+
+*HEALTH LOW/OK*
+
+If you're using red/yellow/green/blue colors for your stats, they indicate
+LOW/OK/GOOD/EXTRA AMMO, HEALTH, and ARMOR. 'HEALTH LOW/OK' lets you set
+where yellow changes to red (or where OK changes to LOW).
+
+This value can range between 0 and 200.
+
+*HEALTH OK/GOOD*
+
+Similar to the previous item, but this is where green changes to yellow (or
+where GOOD changes to OK).
+
+*HEALTH GOOD/EXTRA*
+
+Similar to the previous item, but this is where blue changes to green (or
+where EXTRA changes to GOOD).
+
+*ARMOR LOW/OK*
+*ARMOR OK/GOOD*
+*ARMOR GOOD/EXTRA*
+
+Same as the "HEALTH" set, but pertains to ARMOR.
+
+*AMMO LOW/OK*
+*AMMO OK/GOOD*
+
+Similar to the "HEALTH" and "ARMOR" sets, but there's no EXTRA setting, and
+the values should be in the range 0 to 100.
+
+
+4) Automap
+
+This is a collection of color settings for the items that are drawn on the
+Automap (background, lines, Things, etc.).
+
+Each item's color can be changed as follows:
+
+  a) Move the cursor to the item and press ENTER.
+
+  b) A color palette will come up, with a highlight box around the item's
+     current color. Using the menu movement keys (or mouse), move to the new
+     color and press ENTER (or click MB1).
+
+  c) The new color is assigned to that item.
+
+  d) Setting a new feature to the first color, the one at upper left in the
+     array of colors, disables the feature, in case you don't want the extra
+     information. If you actually want to set the color black for a new
+     feature use the black in the middle of the bottom row of colors, color
+     247.
+
+5) Enemies
+
+   Includes config options that have to do with enemies.
+
+
+6) Messages
+
+   Includes config options that have to do with messages.
+
+   For items denoting string color, the value will display in the
+   appropriate color.
+
+
+7) Chat Strings
+
+   You can change the chat strings using this screen.
+
+   To change a chat string, select it and press Enter. You can edit the
+   string using overstrike, DEL, backspace, and you can position the
+   cursor (black underline) using the left and right arrow keys.
+
+   The length of the chat string is limited to what can be shown on this
+   screen, to prevent overflow.
+
+   When you're finished editing, press Enter again.
+
+
+8) Reset to Default Values
+
+   A "Reset to Default Values" button appears in the upper-right-hand
+   corner of each Setup screen (and on the first screen where there are
+   multiple screens). When selected, this button blinks.
+
+   This button allows you to reset all options on this Setup screen (or
+   set of screens) to their default values. This is useful if you've
+   made a number of changes that don't seem to work together, and you'd
+   like to get back to a baseline.
+
+   Pressing Enter will give you a dialogue box that asks you whether you
+   'really' want to reset to the default values. Pressing 'N' exits the
+   dialogue without resetting. Pressing 'Y' resets all values.
+
+Note: Each screen has its own reset button. There is no single reset
+      button that covers _all_ options that appear in all Setup screens. If
+      you want to reset _all_ options to their default values, you'll need
+      to activate each button separately.
+   
+
+
+Editing the BOOM.CFG file
+--------------------------
+
+You can also set BOOM options by editing the BOOM.CFG file with a text
+editor like Notepad. You should not use a word processor like Word or
+WordPerfect.
+
+By default each setting is preceeded by a comment that shows the possible
+range of the parameter and its default value, as well as text briefly
+describing its function. If you do not have these comments, set the
+config_help parameter to value 1 and they will appear after the next
+time you run BOOM. Conversely, to disable them, set config_help to 0.
+
+You can only modify the value on each line, not the comment, nor the
+variable's name. If you mess up, you can always delete BOOM.CFG and it
+will be rewritten with all default values the next time BOOM is run.
+
+Alternate BOOM.CFG file
+-----------------------
+
+You can keep several BOOM.CFG files on your system, named as you please,
+for example MYBOOM.CFG, and select the one you want with the command line
+option: -config MYBOOM.CFG. If several users share the same setup, this can
+be handy.
+
+----------------------------------------------
+Section 3. Playing BOOM in Single Player mode
+----------------------------------------------
+
+BOOM play features
+-------------------
+
+*No Static Limits*
+
+While wad authors are the ones most interested in BOOM's lack of limits,
+players will also benefit by never getting a "Visplane Overflow" or "Too
+Many Plats" message followed by a crash. There will be no 2S HOM's even in
+terrifically detailed areas, and there is no savegame limit. Other less
+commonly known limits have also been removed.
+
+*Heads Up Display*
+
+There is now an in-game heads-up-display (HUD) (Press F5, and keep pressing
+it until you like the display). This shows kills/items/secrets counts just
+like the end-level screen, either keys or frags depending on if you're
+single-play or deathmatch, and weapons, ammo, armor and health.  The HUD
+only displays when in full screen view. Press + in full screen to toggle it
+on and off.
+
+The past N messages can be reviewed by pressing Enter. By default N is 1,
+set hud_msg_lines to a number between 2 and 16 to enable the feature. Set
+hud_list_bgon to 1 for a solid background for the list of past messages, to
+0 for a transparent display. Pressing Enter again returns the display to
+showing the last message only.
+
+The display of kills/secrets/items can be suppressed by setting hud_nosecrets
+to 1, if you prefer the suspense. For both the HUD and the status bar, colors
+are used to indicate transitions to low levels of ammo, health, and armor.
+The levels at which transitions occur can be customized thru the health_green,
+health_yellow, health_red, armor_green, armor_yellow, armor_red, ammo_yellow,
+and ammo_red variables. Note that the weapons line on the hud shows the ammo
+level of each weapon possessed thru its color. If you are berserk the fist
+and chainsaw show in green, not white. If you prefer red numbers only on the
+status bar, set the sts_always_red variable to 1. If you don't like seeing
+doubled keys on the status bar when you have both card and skull set
+sts_traditional_keys to 1.
+
+*Better Key Support*
+
+The F1 screen has been redone to show the new key features (among which are
+/ for 180 turns by keyboarders, and capslock for autorun) and it shows the
+currently CONFIGURED key settings, not just the defaults.
+
+Nearly every key recognized by BOOM is reconfigurable thru the BOOM.CFG
+file, not just some. A utility KEYCODE is provided to determine the config
+file codes for keys.
+
+*Enhanced Automap*
+
+The automap has been enhanced. You can now see secrets, teleporters,
+closed/open doors, keyed doors, and can suppress shadow lines and triggers
+when in IDDT if you wish. All features can be configured off thru setting
+them to -1 in the BOOM.CFG file. In addition the players current x,y,z
+coordinates are available at screen upper right for being exact in those
+playtest reports.
+
+*Weapon Preferences*
+
+Full control thru the config file of the order in which weapons are selected
+when automatically switching from one to another.
+
+*Save Games*
+
+Two more save slots, no such thing as "Save game overflow", game state
+completely restored, saves redirectable to directory of your choice from
+the command line.
+
+*More Cheats*
+
+TNTCOMP to toggle DOOM v1.9 compatibility on or off
+
+TNTKEYxy to add or subtract a specific key, xy=BC BS RC RS YC YS
+
+TNTAMMOx to add or subtract a particular kind of ammo. Abbrev.: TNTAMO
+
+TNTWEAPx to add or subtract a particular weapon
+
+TNTEM to massacre all living monsters
+
+TNTTRAN to toggle translucency enable
+
+TNTFAST to toggle -fast mode
+
+TNTICE to toggle ice/mud effects on or off
+
+TNTPUSH to toggle wind effects on or off
+
+TNTSMART to toggle whether monsters remember their last enemy (you)
+
+TNTPITCH to toggle variable pitched sound effects on or off
+
+TNTHOM to highlight areas containing HOM
+
+TNTKA obtains all keys without adding ammo
+
+*Better Cheats*
+
+IDBEHOLDx to turn on light-amps, radsuits, invisibility, etc. until toggled
+off
+
+IDMUSx now works across netgames and is remembered by savegame
+
+ID[K]FA now includes backpack
+
+*Fewer Bugs*
+
+Archviles don't resurrect ghosts or glue resurrected enemies together
+
+Pain elementals don't spawn heads thru walls and across monster blockers
+
+Players do not get stuck falling off a ledge when restoring
+
+Monsters don't fall asleep after a restore
+
+Floor crushers work
+
+Trigger once functions don't vanish forever if they fail to activate at first
+
+Texture changers and donut functions don't crash the game if not set up right
+
+Using 1s doors or 0 tag triggers doesn't crash game
+
+Multiple tagged rising stairs work properly
+
+Tutti-frutti error has been eliminated -- short textures tile properly
+
+Medusa errors no longer slow the game to a crawl, and it is legal to have
+multipatched textures on 2s normals
+
+If levels have no secrets, 100% secrets is displayed
+
+Par times removed if -file parameter is used, unless .deh modified
+
+Plats remember their heights across savegames correctly
+
+Sprites and flats load from the PWAD
+
+No crash on menu with large mouse sensitivity
+
+Screenshots can go past DOOM99.PCX and no longer display "Screenshot"
+
+Lower textures do not absorb bullets or rockets
+
+IDCLEV is disallowed when in the menus
+
+Crashes left staying in graphics mode are no longer possible
+
+Exclusive linedef functions like floor->highest neighbor floor and
+doors can contain lines referenced to the tagged sector on both sides.
+
+Lights to max neighbor now works properly.
+
+
+Command line parameters
+------------------------
+
+*Configuration Options
+
+-iwad <full path|dirname|iwadname>
+
+ If a full path is specified it must exist, and be a valid IWAD, and
+ becomes the one used.
+
+ If a directory is specified, it is searched for each of DOOM2F.WAD, 
+ DOOM2.WAD, PLUTONIA.WAD, TNT.WAD, DOOM.WAD, or DOOM1.WAD, in that order if
+ multiple IWADs exist there.
+
+ If just an iwad name like DOOM2, DOOM.WAD, PLUTONIA, TNT.WAD, etc is
+ specified, or a custom iwad name is specified, then the current dir,
+ the BOOM exe's dir, the dir specfified by the environment variable
+ DOOMWADDIR, and the dir specified by the environment variable HOME
+ are searched in that order for a file by that name. The file located
+ must have an IWAD tag in the header or an error occurs. Game mode 
+ (Shareware DOOM, Registered DOOM, Ultimate DOOM, or DOOM II) is
+ determined by the levels present in the file, and all appropriate to
+ the mode must be present for correct identification, though. A DOOM II
+ IWAD may be missing Map31 and Map32, to support the German version.
+
+ If -iwad is not specified or an IWAD is not found there, the current
+ directory followed by the directory that BOOM.EXE was found in, then the
+ directory pointed to by the environment variable DOOMWADDIR, and finally
+ the directory pointed to by the environment variable HOME are searched,
+ for any of the standard IWADs.
+
+ This option is new to BOOM, it was not available in DOOM.
+
+-save <dirname>
+
+ If <dirname> exists, and is a directory, it becomes the path where save
+ games are stored, and loaded from. If -save is not specified or the
+ directory does not exist, then the current directory is used.  The
+ parameter -cdrom overrides -save. The -save option is new to BOOM, it was
+ not available in DOOM.
+
+-cdrom
+
+ When this parameter is specified, a directory named c:\doomdata is created
+ (if it doesn't exist) and is used to read and write both the configuration
+ file and savegames. It is not very useful with BOOM because BOOM does not
+ exist on any CDROMs, making this usually unnecessary. It can be used to
+ temporarily switch to a different configuration and savegame set however,
+ and is supported for that reason. Note demos are still recorded and played
+ back from the path you specify, and if none, that is the current directory,
+ even if you are running from a cdrom.
+
+-nosound
+
+ This parameter disables both music and sound during play.
+
+-nomusic
+
+ This parameter just disables music while playing.
+
+-nosfx
+
+ This parameter only disables sound effects when playing.
+
+-config <configfile>
+
+ The -config parameter allows you to use a different configuration file than
+ BOOM.CFG for the DOOM session being started. If -cdrom is specified -config
+ will be ignored. Its primary use is to support different BOOM setups from a
+ single directory, when different people use the same installation and have
+ different preferences. If the configfile specified does not exist it will
+ be created with all default values.
+
+*Play Options
+
+-nomonsters
+
+ This option allows you to eliminate any monsters from the level you are
+ playing, just to check it out first, or during deathmatch where monsters
+ may be a bother. Unlike DOOM -nomonsters will remain in effect after you
+ IDCLEV to another level. This switch will not affect demo playback or
+ savegames you load however, if they had monsters when recorded, they still
+ will.
+
+-respawn
+
+ This option, only for the seriously deranged <g>, causes monsters to come
+ back to life (i.e. respawn) 8 seconds after you kill them.
+
+-fast
+
+ The -fast option gives you the nastier monsters of nightmare skill level
+ without the nasty habit of coming back to life 8 seconds after you kill
+ them. In combination with UV skill, this is another higher skill level,
+ sometimes called "grandmaster" skill.
+
+-turbo <nn>
+
+ The -turbo option allows you to control the speed of your player. The
+ number nn should be in the range 0 to 255, with 100 the default player
+ speed (100%). Use higher values for a speedier player, and smaller values
+ for a slower player. Values higher than 100 are cheating when recording
+ demos or playing deathmatch.
+
+-record <demoname[.LMP]>
+
+ The -record option allows you to make a recording of your play during a
+ DOOM session. The recording will continue thru level exits, you must quit
+ the DOOM session to end the recording. The 'Q' key, which used to terminate
+ demo recording, all too often accidentally, has been disabled. Unlike DOOM
+ you may specify a path to the recording, and the .LMP extension may be
+ specified if desired, though it is not necessary.
+
+-maxdemo <nnn>
+
+ In DOOM the demo buffer was by default 128k, the demo recording session
+ would exit on exceeding this amount (a little over 15 mins), and you could
+ extend it to larger fixed sizes with this parameter, which represents the
+ number of kilobytes allowed for it. This is no longer necessary, the demo
+ buffer will grow as needed during demo recording, as memory permits. You
+ might still want to specify this parameter, if only to avoid any slight
+ pauses at inconvenient moments, but really they should not be noticeable
+ in any case.
+
+
+*Loading Options
+
+ *New: You may specify .wad, .deh, .bex and .lmp files without using
+       the -file, -deh and -playdemo switches, and they will be understood
+       and treated as if their respective switches had been specified.
+       This only works if those files appear on the command line before
+       any switches.  For example,
+          boom fred wilma flint.bex pebbles.lmp
+       is the equivalent of
+          boom -file fred.wad wilma.wad -deh flint.bex -playdemo pebbles.lmp
+       Remember that this won't work:
+          boom -nomonsters fred wilma
+       but this will:
+          boom fred wilma -nomonsters
+       The first -switch on the command line ends the auto-identification
+       functionality.
+
+-file <pwadname> <pwadname>...
+
+ The -file parameter is followed by the names of the PWADs (DOOM levels
+ created by users rather than id) you want to load with the game. The .WAD
+ extension is optional (unlike DOOM). If any file is not found, BOOM will
+ exit, informing you of which was missing. You can specify paths as well as
+ filenames. The order you load PWADs can sometimes be important. Generally
+ speaking if two PWAD files both specify the same resource, the last one on
+ the line is used. Consult the PWAD's documentation for proper loading
+ order.
+
+-warp <e m>
+-warp <m>
+-warp
+
+ The -warp option allows you to "warp" directly to a level rather than going
+ thru the startup menus. In DOOM, two numbers are required, first the
+ episode number 1-4, then the mission number 1-9.  In DOOM2 only a single
+ number is required, the Map or level number 1-32.
+ *New: if no level number is specified with -warp, BOOM will automatically 
+       warp to the first level present in any pwads that have been loaded.
+
+-episode <n>
+
+ The -episode parameter is only useful with DOOM, not DOOM II, and it warps
+ you to the first level of the episode 1-4, that you specify.  It is
+ equivalent to -warp <n> 1.
+
+-skill
+
+ The -skill parameter overrides the default_skill setting in BOOM.CFG if you
+ want to temporarily play at a different skill level.
+
+-deh <dehfile[.DEH or .BEX]>
+
+ The -deh parameter allows you to specify a DEHACKED patch to change default
+ engine behavior. You can specify a .DEH file, which is backward compatible
+ to DEHACKED v3.1 format (patch format 6) outside text changes, or a .BEX
+ file which allows BOOM extensions to DEHACKED. See DEH support in BOOM
+ below for more detail. Note the -deh option is new to BOOM, it did not
+ exist in DOOM.
+
+-playdemo <demoname[.LMP]>
+
+ The -playdemo option loads the demoname and starts it playing. An optional
+ path and .LMP extension can be specified. When the demo ends BOOM will
+ exit. If the demo was recorded with PWADs loaded, you need to load the same
+ PWADs during demo playback. Note that BOOM will play demos from any version
+ of DOOM or DOOM II starting with v1.2, but only demos recorded by
+ the current version of BOOM are guaranteed to work. BOOM will never exit
+ with the message "Demo recorded with wrong DOOM version" however.
+
+-timedemo <demoname[.LMP]>
+
+ The -timedemo option is like -playdemo except that the demo is played much
+ faster, and after the demo exits the video frame rate measured during demo
+ playback is output.
+
+-fastdemo <demoname[.LMP]>
+
+ The -fastdemo option is like -timedemo, except that it runs as fast as
+ possible. The -fastdemo option is new to BOOM -- it did not exist in DOOM.
+
+-loadgame <n>
+
+ The -loadgame option is used to load a savegame directly from the command
+ line, without using the menus or function keys. If the save was recorded
+ with PWADs loaded you need to load the same PWADs with -file when you use
+ -loadgame. If -loadgame is used you may not use -record or any of the demo
+ loading options at the same time. The loadgame parameter is 0-7, to load
+ the first thru eighth savegame slot respectively. Note DOOM only supported
+ 6 savegame slots.
+
+*Debug Options
+
+-devparm
+
+ This option is used during development, or at least it was designed that
+ way. It does two things of interest. It causes dots to be displayed in the
+ lower left corner whose number is inversely proportional to frame rate. It
+ redefines the F1 key to take a screenshot instead of displaying the HELP
+ screen.
+
+-nodraw
+-noblit
+
+ The nodraw and noblit options are primarily used to isolate the video from
+ other processes when measuring BOOM's speed. They should be used with
+ caution, as nothing will display on the screen when they are used and
+ you'll need to exit BOOM "by feel" without the aid of menus.  Press ESC,
+ Q, Enter to do this. The nodraw option suppresses all drawing, while the
+ noblit option simply suppresses the transfer of screen data from the
+ internal buffer to the screen.
+
+-dumplumps <filename[.WAD]>
+
+ The dumplumps option causes the predefined lumps in the BOOM engine
+ to be written out as a .WAD. This is so wad authors can inspect
+ them, understand them, and replace them. BOOM exits after writing
+ the predefined lumps to the file.
+
+*Obsolete Options
+
+-shdev
+-regdev
+-comdev
+
+ These three switches were used by id in their development to switch between
+ shareware, registered, and commercial versions. They do not work in any
+ other context and are not useful for end users.
+
+-wart
+
+ In BOOM -wart is completely equivalent to -warp. In DOOM it was used to
+ support id's development and had many strange and not too useful properties
+ for the end user.
+
+-statcopy <n>
+
+ Not fully understood, has something to do with an external statistics
+ device whose interface must be linked into the program. Unless you have
+ one of those, suggest you leave it alone <g>.
+
+-----------------------------------------------
+Section 4. Playing BOOM in Serial/Network mode
+-----------------------------------------------
+
+IPXBOOM and SERBOOM are provided with the BOOM distribution and provide
+equivalent functions to IPXSETUP and SERSETUP except they recognize BOOM.EXE
+by default. DM.EXE will also work if you change its DM.CFG file to point to
+IPXBOOM.EXE or SERBOOM.EXE.
+
+*Multiplayer Options
+
+-deathmatch
+
+ The -deathmatch parameter tells BOOM to start up in deathmatch mode as
+ opposed to cooperative mode when starting a multiplayer game.
+
+-altdeath
+
+ The -altdeath parameter (must also use the -deathmatch parameter) specifies
+ that items other than invisibility and invulnerability will respawn after
+ being picked up.
+
+-timer <nnn>
+
+ The -timer parameter allows you to set a time limit on the length of a
+ deathmatch game. After nnn minutes have elapsed the level will end and the
+ frag scores will display.
+
+-frags <nn>
+
+ The -frags option allows you to deathmatch until one player achieves nn
+ frags, at which time the level ends and scores are displayed.  If <nn> is
+ not specified the match is to 10 frags. This option is new to BOOM and was
+ not available in DOOM.
+
+-avg
+
+ The Austin Virtual Gaming mode is equivalent to -timer 20.  Deathmatches
+ end after 20 minutes of play.
+
+-extratic
+
+ This option sends an extra copy of the player movements across the network,
+ perhaps making play smoother by redundancy in favor of retransmission,
+ which is slower.
+
+-dup <n>
+
+ Like -extratic this option sends extra copies of the player movements
+ across the network, perhaps making play smoother by redundancy in favor of
+ retransmission, which is slower. This option allows you to specify the
+ number of extra packets sent however, from 1 to 9. If you specify less
+ you'll get 1, if you specify more you'll get 9.
+
+-debugfile
+
+ When used outputs network debug information to debugN.txt where N is the
+ player number of the person who used -debugfile.
+
+
+----------------------------
+Section 5. Editing for BOOM
+----------------------------
+
+Editors with full or partial support for BOOM
+---------------------------------------------
+
+DETH v4.14b (freeware) provides full BOOM support, and is available from the
+same location you obtained BOOM:
+
+http://www.teamtnt.com. 
+
+This program is in beta and should be used with caution. DETH runs under
+DOS, Win'95's MS-DOS mode, or in a FULL SCREEN Win'95 Dos Window.
+
+DCK 2.2f (freeware) will support BOOM, and DOOM17.DAT is provided at the
+TeamTNT site mentioned above. DCK 3.62 (shareware) will NOT work with
+generalized linedef types, they are truncated to 255 on output of the
+wad. Limited support is available thru the DOOM19.DAT file also provided at
+the TeamTNT archive. DCK will only run under DOS, or Win'95s MS-DOS mode.
+
+DeeP '97 (shareware) provides full BOOM support.  DeeP '97 runs in Win'95.
+You may get DeeP '97 from ftp.cdrom.com or http://www.sbsoftware.com.
+
+WadAuthor (shareware) partially supports BOOM thru use of a custom BOOM.WCF 
+file, available at the site above for BOOM and DETH. We are working on
+getting full support for BOOM in WadAuthor soon.
+
+DMapEdit has recently been improved to include some support for BOOM. It
+basically supports direct numeric entry for the new features. The URL
+for the beta version is: http://babtech.com/doom.html.
+
+
+Wad extensions in BOOM phase I
+------------------------------
+
+BOOM has not changed the wad structure in any significant fashion, merely
+made use of previously undefined bits and fields. Nearly any editor will
+work, but not all will allow or support use of the advanced editing features
+of BOOM. See BOOMREF.TXT in the EDTUTIL download for details. In brief, the
+differences are:
+
+1) Linedef types filled out to values 0-269
+2) Generalized linedef types added in range 2F80H - 7FFFH
+3) Generalized sector types using bits 5-11 of the sector type field
+4) New things 5001, 5002 added to support point source wind effect
+5) New thing flags, bit 6 "not in DM", and bit 7 "not in CO-OP"
+6) New linedef flag, bit 9, PassThru, that allows one push to activate
+   several functions simultaneously.
+
+BOOM supports embedding MIDI directly in the WAD file instead of MUS thereby
+eliminating length limitations and improving fidelity.
+
+BOOM recognizes two new lumps, SWITCHES, and ANIMATED. These allow the wad
+designer to extend or replace the list of switches and animated textures and
+flats recognized by the engine. A tool SWANTBLS.EXE is provided to turn a
+simple text file into these lumps, along with the default text file
+definition, DEFSWANI.DAT.
+
+BOOM also recognizes the lump TRANMAP so that authors can create their own
+translucency lookup table for specialized effects.
+
+BOOM supports an arbitrary number of colormaps, defined between the C_START
+and C_END markers, and predefines one called WATERMAP. Any of these colormaps,
+as well as Doom's predefined COLORMAP, can be used with the 242 linedef to
+change the lighting the player sees in normal space, below fake floors (water),
+and above fake ceilings.
+
+BOOM supports replacing sprites and replacing and adding flats directly from
+a PWAD.
+
+
+Using CLED to supplement your editor
+------------------------------------
+
+If your editor will not support the features of BOOM, all may not be lost
+if you are editing for DOOM II. If like DCK 3.x, it changes the fields it
+doesn't understand, it won't be possible, but if like EdMap it ignores them,
+the following will work.
+
+There is a command line DOOM II/BOOM editing tool called CLED, provided at
+the TeamTNT site that can be used supplement your editor. It is used by
+noting the number and kind of object you want to set a field for in your
+regular editor, then after saving and exiting, using CLED to modify the
+parameter your editor doesn't support.
+
+Example: Suppose in Map03 of MYWAD.WAD you want to set linedef #543 to type
+20152. You would type:
+
+CLED MYWAD LINEDEF(3,543).TYPE=20152
+
+CLED comes with documentation containing more examples. It can be used to
+set any of the BOOM-extended fields mentioned above.
+
+TRIGCALC.EXE is also available and will output the generalized linedef type
+number for a function you describe by answering questions.
+
+
+DEH Support in BOOM
+--------------------
+
+The popular program DEHACKED.EXE has been used for some time now to change
+things about the game that are hardcoded into the executable program.
+Dehacked was created by reverse engineering what the internal structures
+and behaviors are, and is a remarkable program for its intended purpose.
+
+Unfortunately, 100% compatibility with all dehacked files is impossible to
+achieve due to the way dehacked works.  In particular, text changes are done
+in a manner that is dangerous and error prone.  To make it easier to alter
+text strings in DOOM (like the level names in the automap, intermissions,
+etc.)  a new format for text has been created for BOOM.  The separate text
+file BOOMDEH.TXT will go into considerably more detail about those items,
+and shows what the current defaults are for all 300+ strings that are
+changeable in BOOM.
+
+DEHACKED.EXE creates files with a .DEH extension, and those are supported
+in BOOM, other than general text string changes.  You also can use a new
+extension, .BEX (Boom EXtended format), which can contain any of the regular
+Dehacked items such as code pointers, frame wiring, etc. as well as the new
+BOOM extended text format.  Although you can put any valid DEH or BEX data
+in a file with any extension (if you specify it on the command line, you can
+use -deh myfile.zyx, if you like), the idea is that a .DEH file will contain
+only items that Dehacked would understand (you can use the rather excellent
+Dehacked interface to adjust those) and that a .BEX file would contain
+string extensions as well.
+
+There is now an "include" directive available to allow a .BEX file to
+include the contents of one or more other .DEH or .BEX files
+
+You can also change par times with .BEX files.
+
+You do need to use a Dehacked file from version 3.0 or 3.1 of DEHACKED.EXE,
+which says in the .DEH file itself that it is a Patch format 6.  We have
+also had success with Patch format 5, though compatibility is not
+guaranteed.
+
+** New: Code pointers may now be changed in a .BEX file by using mnemonic
+(words) for the pointers, such as "Chase" and "Scream".  Pointers may also
+now be put into any frame, whether there was one there before or not, an
+improvement over that limitation in Dehacked.  Extensive information is
+available in BOOMDEH.TXT for code pointers including a listing of the
+original frame information for reference.
+
+See BOOMDEH.TXT for details.
+
+---------------------------------------------
+Section 6. Differences between BOOM and DOOM
+---------------------------------------------
+
+1) Savegames
+
+BOOM does not support compatibility with previous engine's saves at all.
+Only savegames made by BOOM may be loaded in BOOM. If future versions of
+BOOM are released usability of savegames will not be guaranteed.
+
+2) Demos
+
+BOOM supports demos made with previous engines in a limited fashion.
+Some will go out of sync, though none will cause the engine to crash. This 
+is almost unavoidable due to the large number of changes made in the engine. 
+Internal demos may now contain revenants without losing sync.
+
+The demo_insurance option in BOOM.CFG allows one to make tradeoffs between
+demo sync and game chaos. If demo_insurance=0, Boom demos stand a good chance
+of losing sync on the next version of Boom, but the gameplay is more chaotic
+because a single RNG is used for all events. If demo_insurance=1, Boom demos
+stand a greater likelihood of staying in sync across Boom versions, but the
+game is slightly less chaotic as a result. The two goals of demo sync across
+different versions of the game, and chaos during the game, are somewhat
+contradictory. If demo_insurance=2 (the default), then the special steps are
+only taken when demos are being recorded -- normal gameplay is unaffected.
+
+demo_insurance does not affect the playback quality of Doom demos, which were
+recorded without Boom's special sync-preserving measures.
+
+Even when demo_insurance is enabled, the games are fully randomized -- the only
+difference is whether independent game events will use the same RNG and thus
+interact, increasing the chance of demo desync if the slightest change occurs
+in the game, or whether each game event will use its own independent RNG.
+
+3) Wads
+
+BOOM supports playing old wads fully. The only proviso is that those wads
+must not contain serious errors, BOOM cannot play them if they do. Due to
+the more sensitive nature of DPMI protected mode, BOOM is highly sensitive
+to accessing arrays past limit and other illegal memory usages. The usual
+result will be exit from BOOM with the message "Segment Violation". CWSDPMI
+under DOS is more sensitive than Win'95s DPMI, so some wads that won't play
+under DOS may still play under Win'95 in a DOS Window. On the positive side,
+if you test your wads fully under DOS with CWSDPMI, they are very likely to
+play without trouble after uploading. Its also very unlikely that your
+system can be corrupted by BOOM. The config file, BOOM.CFG, contains a
+variable named original_doom_compatibility that will insure that BOOM acts
+as much like DOOM v1.9 as possible, even preserving some bugs in that
+engine.
+
+
+-----------------------------------------
+Section 7. Files in the BOOM Distribution
+-----------------------------------------
+
+BOOM executable archive BOOM201.ZIP
+
+BOOM.EXE..........Executable BOOM program
+ASETUP.EXE........Allegro setup utility
+BOOM.TXT..........This file
+SNDDRVR.TXT.......Additional documentation on setting up sound/music in BOOM
+BOOMDEH.TXT.......Description of BOOM's version of DEH
+BOOMREF.TXT.......Reference for all extended wad features supported by BOOM
+KEYCODE.EXE.......Tool to output keycodes for use in config file
+COLHELP.BMP.......Chart of DOOM colors for use in config file
+SERBOOM.EXE.......SERSETUP for BOOM
+IPXBOOM.EXE.......IPXSETUP for BOOM
+CSDPMI4B.ZIP......DJGPP v2 runtime support including docs and config util
+CWSDPMI.EXE.......DJGPP v2 runtime support executable
+GO32-V2.EXE.......DJGPP tool to provide info on DPMI setup
+COPYING...........DJGPP copyright, DOOM source and binary copyright
+
+DETH for BOOM (optional) DETH415b.ZIP
+
+DETH.EXE..........v4.12 of the freeware editor DETH with full BOOM support
+DETH.FNT..........Font used by DETH
+DETH.INI..........Option and configuration file for DETH
+COMMON.CFG........Options common to DOOM and DOOM II for DETH
+DOOM2.CFG.........Options specific to DOOM II for DETH
+DOOM1.CFG.........Options specific to DOOM for DETH
+INSTALL.TXT.......Brief note on installation of DETH
+KEYS.TXT..........Summary of key functions in DETH
+TEXTURE.TXT.......Brief document on texture alignment
+CHANGES.TXT.......DETH v4.12 release notes
+CSDPMI4B.ZIP......DJGPP v2 runtime support including docs and config util
+CWSDPMI.EXE.......DJGPP v2 runtime support executable
+GO32-V2.EXE.......DJGPP tool to provide info on DPMI setup
+COPYING...........DJGPP copyright and distribution license
+
+EDIT utilities for BOOM (optional) EDITUTIL.ZIP
+
+CLED.EXE..........Command line editor for extended fields in wads
+CLED.TXT..........Documentation for CLED
+TRIGCALC.EXE......Tool to output generalized linedef numbers by Q&A
+MUSPUT.EXE........Tool to embed MIDI files in a wad
+MUSPUT.TXT........Documentation for MUSPUT.EXE
+BOOMREF.TXT.......Reference for all extended wad features supported by BOOM
+CWSDPMI.EXE.......DJGPP v2 runtime support executable
+SWANTBLS.EXE......Creates SWITCHED.LMP and ANIMATED.LMP from input text file
+DEFSWANI.DAT......File for SWANTBLS.EXE containg default switches & animations
+MAKTRLMP.EXE......Converts a TRANMAP.DAT file to a .LMP for wad inclusion
+MAKTRLMP.TXT......Documentation for MAKTRLMP.EXE
+CMAPTOOL.EXE......Tool for creating custom colormaps by editing a BMP
+CMAPTOOL.TXT......Documentation for CMAPTOOL.EXE
+DOOMCOLR.BMP......BMP containing all colors edited for use by CMAPTOOL.EXE
+COLBMPS.ZIP.......Edited examples of DOOMCOLR.BMP
+COLMAPS.ZIP.......Colormap lmps produced by CMAPTOOL from example BMPS
+COLMAPS.WAD.......Add-on WAD containing example colormaps
+
+EDIT configuration for WadAuthor (optional) WACFG.ZIP
+(thanks to Rick (Wildman) Clark and Jonathan (DfA) Campbell)
+BOOM.WCF..........Extended linedef, thing types for WadAuthor
+
+EDIT configuration files for DCK (optional) DCKBOOM.ZIP
+
+DOOM17.DAT........Extended types configuration for DCK2.2f
+DOOM19.DAT........Extended types configuration for DCK3.x
+DCKBOOM.TXT.......Documentation on DCK configuration files
+WATERMAP.WAD......File that allows DCK to insert WATERMAP texture
+
+DEMO wads
+
+DAWNING.ZIP.......BOOM demo wad by Gary Gosson
+RAGE.ZIP..........BOOM demo wad by Paul Fleschute
+BOOMEDIT.ZIP......BOOM editor's tutorial wad by Jim Flynn
+
+--------------------------------------
+Section 8. How to report bugs in BOOM
+--------------------------------------
+
+If an error message during loading is involved in the problem, you'll
+want to report it precisely, as that will help us identify the
+problem. In order to capture the initialization screen completely use
+the following command line:
+
+REDIR -eo BOOM (normal boom command line parameters here) > errlog.txt
+
+After exiting BOOM, the errlog.txt file will contain the full
+initialization script so you can report the error exactly.
+
+If you find a bug in BOOM you should visit
+
+http://www.teamtnt.com
+
+and follow the directions there for reporting it. There will be a bug report
+form, and an e-mail link provided. Please examine the bug report form to see
+what kind of information we are interested in, even if you report it by
+e-mail. This information will help us duplicate the problem, which is an
+important step in fixing it.
+
+Your help in making BOOM bug free is appreciated.
+
+----------------------------
+Section 9. Acknowledgements
+----------------------------
+
+We'd like to thank id Software for this incredible game, and especially John
+Carmack for his release of the source and his encouragement of our efforts.
+
+Credit is due Chi Hoang who sped us on our way with his near instant port of
+the Linux DOOM source to DOS. BOOM is based on v.20 of his port.
+
+Credit also to Steve Bacquet, whose QMUS2MID utility provided the insight we
+needed to get a working MUS to MID converter running.
+
+Thanks to Shawn Hargreaves who wrote Allegro, and made this possible in far
+less time.
+
+Thanks to all the folks who wrote our compiler, DJGPP v2, and who continue
+to support free software.
+
+Thanks to the non-coding DoomSource project members who tested our early
+attempts and made many suggestions to improve the product.
+
+Thanks to BOOM's BETA crew who beat on the engine mercilessly for long hours
+and diligently filled our mailboxes with what they saw.
+
+Gaston (Mordeth) Lahaut    Ky (Rez) Moffet           Jan Van der Veken
+Joachim (Jou) Otahal       Len Pitre                 Doug Freeman
+Chris (Case) Christenson   Jonathan (DfA) Campbell   Ingo Kirsch
+Tom Robinson               Rich Brennan              Kurt Schulenberg
+Justin Madigan             Lorenzo Cricchio          Peter Zahner
+
+Thanks to Rick (Wildman) Clark and Jonathan (DfA) Campbell for creating an
+editor configuration file for WadAuthor.
+
+Thanks to Bruce (DOOMGuy) Benko for his work making DMapEdit work
+with BOOM.
+
+And finally thanks to all the DOOMers still out there who have kept the
+game alive so long, and who gave us many fine ideas thru the newsgroups
+and mail. Keep on Doomin'!
+

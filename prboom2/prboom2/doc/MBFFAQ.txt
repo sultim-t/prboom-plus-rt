@@ -1,0 +1,148 @@
+Marine's Best Friend
+Frequently Asked Questions
+
+-------------------------------------------------------------------------------
+
+Q: Why don't the friendly dogs retaliate when I shoot them?
+
+A1. The dog is a close-attack monster (no missiles), and therefore to attack,
+    it would need to stop whatever it was doing and return to the player, and
+    it might not be able to reach the player before being attacked again by
+    another enemy, which is its prime concern. Even if it could reach the
+    player, it would only bite the player once, since friendly monsters don't
+    turn around and become enemies simply because they are hit once -- they
+    instead use tit-for-tat, returning friendly fire once, for each time they
+    are hit.
+
+A2. This is normal behavior for real dogs, according to one dog expert.
+
+-------------------------------------------------------------------------------
+
+Q: Why do dogs readily go up steep or narrow stairs, but then sometimes won't
+   come back down?
+
+A: According to a canine behavioural expert, this is consistent with the
+   typical behaviour of real dogs.
+
+-------------------------------------------------------------------------------
+
+Q: Why don't I see any new levels with -beta?
+
+A: You must add -file betalevl to your command-line, to load the levels. The
+   levels in betalevl.wad are E1M2, E2M5, and E3M2, exactly as in the Press
+   Release Version of Doom. If you only use -beta, you will be enabling the
+   beta's features, but without the levels.
+
+-------------------------------------------------------------------------------
+
+Q: I get errors when I try to load betalevl.wad
+
+A: betalevl.wad requires Registered Doom I (or Ultimate Doom) as the iwad.
+   However, the -beta command-line option, which enables the graphics and
+   game changes, does not require Doom I to be used, and it can emulate beta
+   features under Doom II.
+
+-------------------------------------------------------------------------------
+
+Q: When using -beta, why is there no teleporter fog?  Or, why does player
+   invisibility look like invulnerability?  Why are there no palette changes
+   when the radsuit is used, and why doesn't it wear off with time?
+
+A: These behaviors are all consistent with the Press Release version of Doom,
+   alternatively called the "beta". See:
+
+   ftp://ftp.cdrom.com/pub/doom/historic/
+
+-------------------------------------------------------------------------------
+
+Q: Why is -beta a command-line option, and why must demos recorded with -beta
+   be played back with -beta?
+
+A: The betagrph.wad file must be loaded, and several internal data structures
+   must be modified, prior to game startup. Allowing -beta to be turned on and
+   off during the game would introduce a lot of complications.
+
+-------------------------------------------------------------------------------
+
+Q: Why is there a separate option for the Classic BFG, but not for all of the
+   other -beta features?
+
+A1. Not enough popular demand, given the complexity. Making individual beta
+    features optionable would require storing each one's selection status in
+    demos, savegames, etc., and it would require work to add them to the menus.
+    Probably only the Classic BFG is in enough demand to make a separate option
+    for it.
+
+A2. The features such as the beta plasma rifle and the beta lost souls, or
+    the green nightvision goggles, require a lot of wad data to be loaded,
+    which -beta does by loading the betagrph.wad file. The Classic BFG only
+    requires two extra fireball sprites, which do not take a lot of memory,
+    and thus can be unconditionally tucked away inside the .exe.
+
+-------------------------------------------------------------------------------
+
+Q: But doesn't the plasma rifle simply need to shoot the alternating fireballs
+   instead of blue plasma, making it no more difficult than the BFG?
+
+A: Actually, no. The plasma rifle sprites in Doom have some blue plasma
+   superimposed around the mouth of the plasma rifle. To remove this blue
+   plasma, new weapon sprites are needed. New weapon sprites are NOT needed
+   for the BFG, however.
+
+-------------------------------------------------------------------------------
+
+Q: Why can't the Unholy Cathedral beta level (E2M5 in betalevl.wad) be
+   finished, and why are some areas inaccessible?
+
+A: This is consistent with the original Press Release version's levels.
+   Wad errors were intentionally not fixed.
+
+-------------------------------------------------------------------------------
+
+Q: But there are some slime trails and HOM in the original levels, which don't
+   show up in betalevl.wad!!!
+
+A: Blatant rendering errors like HOM and slime trails were fixed. Even if they
+   weren't fixed, the slime trails would be hard to reproduce exactly because
+   they are inherently nondeterministic.
+
+   The criteria used when making changes were:
+
+   Rendering errors (e.g. HOM, slime trails): Fixed. 
+
+   Aesthetic errors (e.g. wall texture choices, texture alignment): Not Fixed.
+
+   Level design errors (e.g. inaccessible areas of map): Not Fixed.
+
+-------------------------------------------------------------------------------
+
+Q: Why does the beta chaingun lower when I fire it in fullscreen mode?
+
+A: This is to workaround a problem with the Press Release version's chaingun
+   sprites. The sprites were pre-clipped with respect to the status bar, and
+   the status bar was always turned on in the Press Release version. With 
+   the status bar turned on, the -beta chaingun looks like the original. In
+   fullscreen mode, however, it must be lowered while it is being fired, or
+   else parts of the chaingun will not be updated, and it will look funny.
+
+-------------------------------------------------------------------------------
+
+Q: Why is the music quality so bad?
+
+A1: You might have a file named default.cfg in the same directory as MBF.EXE.
+    Allegro considers this a music configuration file. Refer to Allegro docs.
+
+A2: MBF music on AdLib cards is not the same as Doom, because the FM instrument
+    definitions are different. You may be able to import .IBK files into
+    Allegro to improve the music's quality. See the Allegro docs. Also see
+    snddrvr.txt for other alternatives.
+
+-------------------------------------------------------------------------------
+
+Q: Where do the dogs come from? I don't see any wads!!!
+
+A: Dog sprites & sounds, like many other things, are embedded inside the .exe.
+   However, you can modify them with wads. See mbfedit.txt for details.
+
+-------------------------------------------------------------------------------
+Lee Killough                                            Last Updated 12/22/98

@@ -1,0 +1,360 @@
+.PU
+.TH BOOM.CFG 5 local
+.SH NAME
+boom.cfg, glboom.cfg \- Configuration file for PrBoom v2.1.0 onwards
+.SH USAGE
+When a version of PrBoom is
+run, it  searches for this configuration file to modify its default settings.
+Every time PrBoom exits, it rewrites the configuration file, updating any
+settings that have been changed using the in-game menus.
+.PP
+PrBoom expects the config file to be  ~/.prboom/boom.cfg, or 
+~/.prboom/glboom.cfg if compiled with GL support. Alternatively, it 
+can be made to look elsewhere by using a command-line parameter:
+.PP
+.B {prboom,xprboom}
+[ \-config \fImyconf\fR ]
+.SH FORMAT
+boom.cfg consists of a number of variables and values. Each line is of the following 
+format:
+.PP
+[
+{ 
+{{#,;,[}
+.I comment_text
+,
+.I variable 
+{\fIdecimal_integer\fR, 0x\fIhex_integer\fR, "\fIstring_text\fR"}}]
+.PP
+Any line beginning with a non-alphabetic character is treated as a comment and 
+ignored; for future compatibility you should start comments with a #, ; or [. 
+Note however that when PrBoom rewrites boom.cfg it does not preserve user added 
+comments.
+.PP
+Any line beginning with an alphabetic character is treated as a variable-value pair. 
+The first word (sequence of non-whitespace characters) is the variable name, and 
+everything after the following block of whitespace is taken to be the value 
+assigned to the variable.
+.PP
+Variables not recognised by PrBoom, or which are given an invalid value or a value 
+of an inappropriate type, are ignored. Warning messages are given where relevant.
+.PP
+The variables recognised by PrBoom are described per-section in the following 
+sections. The sections are informal however; when PrBoom rewrites the config file 
+it writes in section headings and puts variables into the relevant sections, but 
+when reading these are ignored.
+
+.SH MISC SETTINGS
+.TP
+compatibility_level
+PrBoom is capable of behaving in a way compatible with earlier versions of Doom and 
+Boom/PrBoom. The value given here selects the version to be compatible with when 
+doing new games/demos. See README.compat for details.
+.TP
+realtic_clock_rate
+Selects the speed that PrBoom runs at, as a percentage of normal game speed. 
+Leave at 100 unless you want to experiment. Note that it is considered 
+`cheating' to use this at any setting below 100 (or above?).
+.TP
+max_player_corpse
+Sets the maximum number of player corpses to leave lying around. If this limit would 
+be exceeded, an old corpse is removed. Useful for big/long Deathmatch games, where the 
+sheer number of corpses could slow the game down.
+.TP
+flashing_hom
+Flag indicating whether a flashing red background is drawn to highlight HOM
+errors in levels (for level developers)
+.TP
+demo_insurance
+Selects a method of protecting demos against `going out of sync' (where the 
+player seems to lose control and behave madly, but in fact the players 
+original instructions as stored in the demo have got out of sync with the 
+game he was playing). 0=No protection, 1=Full protection, 2=Only while 
+recording demos. Safest when left set to 2.
+.TP
+endoom_mode
+This parameter specifies options controlling the display of the credits screen 
+when Doom exits. Currently it is the sum of 3 options: add 1 for colours, 2 for 
+non-ASCII characters to be displayed, and 4 for the last line to be skipped so the 
+top line doesn't scroll off screen.
+.TP
+level_precache
+If set, when loading a new level PrBoom precaches all the graphics the level
+is likely to need in memory. This makes it much slower to load the level,
+but reduces disk activity and slowdowns reading data during play. Most
+systems are fast enough that precaching is not needed.
+
+.SH FILES SETTINGS
+.TP
+wadfile_1, wadfile_2
+The names of 2 .wad files to be automatically loaded when PrBoom is started. 
+A blank string means unused.
+
+.TP
+dehfile_1, dehfile_2
+The names of 2 patch files (.deh or .bex) to be automatically loaded when
+PrBoom is started (empty string for none).
+
+.SH GAME SETTINGS
+.TP
+default_skill
+The default skill level when starting a new game.
+.TP
+weapon_recoil
+Enables recoil from weapon fire.
+.TP
+doom_weapon_toggles
+Flag indicating whether pressing 3 or 1 when that weapon is already selected
+causes the selected shotgun or fist/chainsaw to be toggled, as in original
+Doom. Some people prefer to use a number for each weapon alone.
+.TP
+player_bobbing
+Enables player bobbing (view randomly moving up/down slightly as the player
+runs).
+.TP
+monsters_remember
+Makes monsters remember their previous enemy after killing their current
+target.
+.TP
+monster_infighting
+Whether monsters will fight each other when they injure each other
+accidentally. 
+.TP
+monster_backing
+Whether monsters without close combat weapons will back away from close combat
+(unlike original Doom).
+.TP
+monster_avoid_hazards
+Whether monsters avoid crushing ceilings.
+.TP
+monkeys
+Whether monsters will climb steep stairs.
+.TP
+monster_friction
+Whether monsters are affected by changed floor friction (they should be, but
+weren't in Boom) 
+.TP
+help_friends
+Whether monsters will help out injured monsters by aiding them against their
+attacker. 
+.TP
+player_helpers
+The number of helper dogs to spawn.
+.TP
+friend_distance
+Distance within which friends will generally stay.
+.TP
+dog_jumping
+Whether dogs will jump.
+.TP
+sts_always_red
+PrBoom makes the colour of the text displays on the status bar reflect your
+current status (red=low, yellow=average, green=good, blue=super-charged).
+This option, if set, disables this behavior, returning to the original Doom
+behavior of displaying the numbers in red always, which is slightly faster.
+.TP
+sts_pct_always_gray
+See above, this makes just the percent signs always gray, instead of
+changing colour.
+.TP
+sts_traditional_keys
+Doom and PrBoom have two types of keys; PrBoom will normally display both keys 
+of a given colour if you have both. This option, if enabled, instead makes
+PrBoom only ever display one key of each colour, in the same way Doom did.
+.TP
+traditional_menu
+Changes PrBoom's menu ordering to be the same as original Doom if enabled.
+.TP
+show_messages
+When enabled, text messages are displayed in the top left corner of the screen
+describing events in the game. Can be toggled in the game, this is just to
+preserve the setting.
+.TP
+autorun
+Makes the player always run, without having to hold down a run key. Can be
+toggled in the game, this just preserves the setting.
+
+.SH SOUND SETTINGS
+.TP
+sound_card
+Selects whether sound effects are enabled (non-zero enables). For compatibility reasons 
+with Boom, a range of values are accepted.
+.TP
+music_card
+Selects whether in-game music is enabled (non-zero enables). For compatibility reasons 
+a range of values are accepted.
+.TP
+pitched_sounds
+If enabled by this variable, this enables `pitching' (making pitch adjustments to the 
+playing sounds) for 16 bit sound cards.
+.TP
+samplerate
+The samplerate for soundmixing and timidity. The sound quality is much better at
+higher samplerates, but if you use timidity then higher samplerates need much
+more CPU power. Useful values are 11025, 22050, 44100 and 48000.
+.TP
+sfx_volume
+Sound effects volume. This is best adjusted in the game.
+.TP
+music_volume
+Music volume. This is best adjusted in the game. 
+.TP
+mus_pause_opt
+Selects what PrBoom does to the music when a games is paused. 0=stop the music, 
+1=pause the music (stop it playing, but when resumed resume it at the same 
+place - not implemented), 2=continue playing.
+.TP
+sounddev, snd_channels, soundsrv, musicsrv
+These variables are no longer used by PrBoom, but are kept for compatibility
+reasons.
+
+.SH COMPATIBILITY SETTINGS
+These are settings that let you choose whether the normal game mechanics are
+used, or whether various quirks, bugs and limitations of the original Doom game
+are emulated.
+
+.SH VIDEO SETTINGS
+.TP 
+screen_width, screen_height
+For versions of PrBoom which support high-res, these specify the default 
+screen or window size for PrBoom. These settings are ignored and preserved by 
+versions of PrBoom which do not do high-res (they assume 320x200).
+.TP
+use_fullscreen
+If set, this causes PrBoom to try to go full screen. Depending on your 
+video driver and mode, this may include changing screen resolution to 
+better match the game's screen resolution.
+.TP
+use_doublebuffer
+Use double buffering to reduce tearing. On some machines this is even faster
+than the normal method, but on others this makes problems, so you have to try
+out which setting works best.
+.TP
+translucency
+Causes PrBoom to display certain objects as translucent.
+.TP
+tran_filter_pct
+Selects how translucent objects are when they are translucent. Play with this 
+and see for yourself.
+.TP
+screenblocks
+Selects a reduced screen size inside the PrBoom window (the player's view is 
+surrounded by a border). Normally this is undesirable, but it can help speed 
+up the game. Can be changed in the game with the +/- keys, this variable is
+just to preserve that setting.
+.TP
+usegamma
+Selects a level of gamma correction (extra screen brightening) to correct for a 
+dark monitor or light surroundings. Can be selected in the game with the F11 
+key, this config entry preserves that setting.
+.TP
+X_options
+Sets various misc options used by the X version, xprboom. Default is
+0;  add 1 to disable MitSHM, add 2 to select alternate 24bpp code (use this if 
+xprboom has video corruption in 24bpp visuals).
+
+.SH OPENGL SETTINGS
+.PP
+If you are knowledgable about OpenGL, you can tweak various aspects of the 
+GL rendering engine.
+.TP
+gl_nearclip
+The near clipping plane *100.
+.TP
+gl_farclip
+The far clipping plane *100.
+.TP
+gl_colorbuffer_bits
+The bit depth for the framebuffer. (16, 24 or 32 bits)
+.TP
+gl_depthbuffer_bits
+The bit depth for the z-buffer. (16, 24 or 32 bits)
+.TP
+gl_tex_filter_string
+A string, one of the following: GL_NEAREST or GL_LINEAR (no mipmapping), 
+or one of 
+GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR, 
+GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_LINEAR 
+with mipmapping.
+.TP
+gl_tex_format_string
+One of the following strings:
+GL_RGBA - means format selected by driver (not so good),
+GL_RGBA2 - means 2 bits for each component (bad),
+GL_RGBA4 - means 4 bits for each component (like GL_RGBA on most cards), 
+GL_RGB5_A1 - means 5 bits for each color component 1 bit for the alpha channel (default),
+GL_RGBA8 - means 
+8 bits for each component (best quality, but only a little bit better
+than GL_RGB5_A1 and slower on most cards)
+.TP
+gl_drawskys
+If 0, disables drawing skies, which may be needed with some problematic 
+3D cards.
+.TP
+gl_sortsprites
+Experimental option, possibly faster but less reliable. 
+
+.SH MOUSE SETTINGS
+.PP
+This section specifies settings for using a mouse with PrBoom. There are
+several settings that control button bindings (what action each button causes
+in the game); these are easiest set from the in-game menus, these config
+entries are to preserve the settings between games.
+.TP
+use_mouse
+Enable or disable the use of a mouse with PrBoom.
+.TP
+mouse_sensitivity_horiz, mouse_sensitivity_vert
+Sets the sensitivity of the mouse in PrBoom. Easier set from the in-game menus.
+
+.SH KEY BINDINGS
+.PP
+These specify the keys that trigger various actions in PrBoom. The codes used 
+for keys are internal to PrBoom, though many keys are represented by their 
+ASCII codes. It is easiest to modify these via the in-game menus 
+(OPTIONS->SETUP->KEY BINDINGS). These config file entries preserve the
+settings from this menu between game sessions.
+
+.SH JOYSTICK SETTINGS
+.PP
+There are the trigger variables here, which are calculated during joystick 
+calibration (the values received from the kernel driver outside of which 
+movement is caused in the game). Also there are the button-bindings, again 
+best adjusted using the in-game menus.
+.TP
+use_joystick
+This selects the number of the joystick to use, or 0 selects no joystick. You 
+have to have the relevant device files (/dev/js0 etc) and the kernel driver 
+loaded.
+
+.SH CHAT MACROS
+.PP
+These are pre-written text strings for quick transmission to players in a 
+network game (consult your Doom documentation). Easiest set via the in-game 
+menus (OPTIONS->SETUP->CHAT MACROS).
+
+.SH AUTOMAP SETTINGS
+.PP
+These are settings related to the automap. These are easiest set from 
+within the game.
+
+.SH HEADS_UP DISPLAY SETTINGS
+.PP
+These are settings related to the heads-up display, that is messages received 
+while playing and the heads-up display of your current status obtained by 
+pressing + while the view is full-screen in PrBoom. See the Boom documentation 
+for details. All controlled best from within the game.
+
+.SH WEAPON PREFERENCES
+.PP
+Here are the settings from the Weapons menu in the game 
+(OPTIONS->SETUP->WEAPONS). 
+
+.SH ALSO SEE
+prboom(6), PrBoom's documentation (including the Boom and MBF documentation)
+and your Doom documentation.
+
+.SH AUTHOR
+See the file AUTHORS included with PrBoom for a list of contributors to PrBoom.
+This config file reference written by Colin Phipps (cph at cph.demon.co.uk).
+

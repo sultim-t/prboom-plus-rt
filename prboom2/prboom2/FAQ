@@ -1,0 +1,26 @@
+Compatibility/Demos:
+
+Q: I'm trying to play a demo, but it gets out of sync, what's wrong?
+A: Read README.compatibility if you don't have already.
+A: If everything failes report us which demo got out of sync and where we can
+get it. Don't send it to us directly. Now hope the best that it gets fixed.
+
+Linux:
+
+Q: I get wrong colors when using SVGALib, can't you do your job right?
+A: The SDL Library is broken, bug the SDL people about it.
+
+OpenGL:
+
+Q: I'm trying to get PrBoom with OpenGL working on my 3dfx Voodoo card on
+Windows, but it doesn't work or is very slow.
+A: Use Mesa3D (http://www.mesa3d.org) with 3dfx support.
+
+Q: The sky looks wrong in OpenGL, WTF?
+A: It seems like you are using Mesa3D. Try a newer version and if it's still not
+fixed bug them about it.
+A: Are you using Windows? Try using another glu32.dll.
+
+Q: I get a compile error saying PFNGLCOLORTABLEEXTPROC isn't defined
+A: Get a newer version of your OpenGL headers/drivers. This problem occured on
+nvidia cards. If you still can't get it working, the please tell us.
