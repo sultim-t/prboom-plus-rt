@@ -59,3 +59,7 @@ ul.changes li {
     text-align: center;
     margin-top: 20px;
 }
+#prboom_logo a,
+#sf_logo a {
+    text-decoration: none;
+}
