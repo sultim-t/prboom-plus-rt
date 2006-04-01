@@ -2453,6 +2453,8 @@ void G_BeginRecording (void)
 	case mbf_compatibility: v = 203; break; // e6y: Bug in MBF compatibility mode fixed
         case prboom_2_compatibility: v = 210; break;
         case prboom_3_compatibility: v = 211; break;
+        case prboom_4_compatibility: v = 212; break;
+        case prboom_5_compatibility: v = 213; break;
       }
       *demo_p++ = v;
     }
@@ -2674,6 +2676,14 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 	break;
       case 211:
 	compatibility_level = prboom_3_compatibility;
+	demo_p++;
+	break;
+      case 212:
+	compatibility_level = prboom_4_compatibility;
+	demo_p++;
+	break;
+      case 213:
+	compatibility_level = prboom_5_compatibility;
 	demo_p++;
 	break;
       }
