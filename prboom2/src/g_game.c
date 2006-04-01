@@ -1174,7 +1174,10 @@ void G_DeathMatchSpawnPlayer (int playernum)
     }
 
   // no good spot, so the player will probably get stuck
-  P_SpawnPlayer (&playerstarts[playernum]);
+  if (playerstarts[playernum].type > 0)
+    P_SpawnPlayer (&playerstarts[playernum]);
+  else
+    I_Error("Tried & failed to use co-op start");
 }
 
 //
