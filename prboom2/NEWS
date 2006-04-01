@@ -5,6 +5,10 @@ Changes from v2.2.6 to v2.4.0
 - fix compilation with gcc 4.x
 - fix some more dehacked support problems (e.g. Hacx)
 - fix crash if pwad contains zero-length sound lumps
+- added possibility to use mmap for wad access, this leads to less memory usage
+- simplified the memory handling
+- removed old Doom v1.2 lumps from prboom.wad
+- windows also uses prboom.wad now
 
 Changes from v2.2.5 to v2.2.6
 - fix Inferno intermission screen crash

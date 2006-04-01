@@ -1,6 +1,6 @@
 /**/
 #define PACKAGE "prboom"
-#define VERSION "2.3.2"
+#define VERSION "2.4.0"
 #define DOGS 1
 #define MONITOR_VISIBILITY 1
 #define SIMPLECHECKS
