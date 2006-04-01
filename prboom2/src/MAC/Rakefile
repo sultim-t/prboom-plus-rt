@@ -12,6 +12,8 @@ INCLUDES = '-I. -IMAC `sdl-config --cflags`'
 DEFINES = '-DMACOSX -DHAVE_CONFIG_H'
 CFLAGS = '-g -Wno-pointer-sign -Wno-packed'
 MAKEDEPEND = '/usr/X11R6/bin/makedepend'
+DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
+DEUTEX = 'deutex'
 
 #####################
 # Support functions #
@@ -126,6 +128,7 @@ tables.c
 v_video.c
 version.c
 w_wad.c
+w_mmap.c
 wi_stuff.c
 z_bmalloc.c
 z_zone.c
@@ -160,7 +163,16 @@ task(:bundle => :binary)
 # App data #
 ############
 
-installTask(:data, RESOURCEDIR, '../data/prboom.wad')
+wadfiles = [Dir::glob('../data/graphics/*.ppm'),
+            Dir::glob('../data/sprites/*.ppm'),
+            Dir::glob('../data/lumps/*.lmp'),
+            Dir::glob('../data/Psounds/*.wav')].flatten
+
+file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
+	sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{DEUTEX} -make prboom.txt ../src/#{task.name}")
+end
+
+task(:data => "#{RESOURCEDIR}/prboom.wad")
 installTask(:data, RESOURCEDIR, 'MAC/PrBoom.icns')
 task(:bundle => :data)
 
