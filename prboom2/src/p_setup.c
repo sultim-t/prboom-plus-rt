@@ -1154,6 +1154,26 @@ static void P_AddLineToSector(line_t* li, sector_t* sector)
   M_AddToBox (bbox, li->v2->x, li->v2->y);
 }
 
+// e6y: REJECT overrun emulation code
+// It's emulated successfully if the size of overflow no more than 16 bytes.
+// No more desync on teeth-32.wad\teeth-32.lmp.
+// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+int rjreq, rjlen;
+static void RejectOverrunAddInt(int k)
+{
+  int i = 0;
+
+  if (demo_compatibility)
+  {
+    while (rjlen < rjreq)
+    {
+      ((byte*)rejectmatrix)[rjlen++] = (k & 0x000000ff);
+      k >>= 8;
+      if ((++i)==4) break;
+    }
+  }
+}
+
 void P_GroupLines (void)
 {
   register line_t *li;
@@ -1191,6 +1211,18 @@ void P_GroupLines (void)
 
   {  // allocate line tables for each sector
     line_t **linebuffer = Z_Malloc(total*sizeof(line_t *), PU_LEVEL, 0);
+
+    // e6y: REJECT overrun emulation code
+    // It's emulated successfully if the size of overflow no more than 16 bytes.
+    // No more desync on teeth-32.wad\teeth-32.lmp.
+    // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+    if (demo_compatibility)
+    {
+      RejectOverrunAddInt(((total*4+3)&~3)+24);
+      RejectOverrunAddInt(0);
+      RejectOverrunAddInt(50);//DOOM_CONST_PU_LEVEL
+      RejectOverrunAddInt(0x1d4a11);//DOOM_CONST_ZONEID
+    }
 
     for (i=0, sector = sectors; i<numsectors; i++, sector++)
     {
@@ -1440,8 +1472,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   rejectlump = lumpnum+ML_REJECT;
   {
-    int rjlen = W_LumpLength(rejectlump);
-    int rjreq = (numsectors*numsectors+7)/8;
+    // e6y: Needed for REJECT overrun emulation
+    rjlen = W_LumpLength(rejectlump);
+    // e6y: Needed for REJECT overrun emulation
+    rjreq = (numsectors*numsectors+7)/8;
     if (rjlen < rjreq) {
       lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
       rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);

@@ -284,6 +284,9 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
 // MOVEMENT ITERATOR FUNCTIONS
 //
 
+// e6y: Spechits overrun emulation code
+static void SpechitOverrun(line_t *ld);
+
 //                                                                  // phares
 // PIT_CrossLine                                                    //   |
 // Checks to see if a PE->LS trajectory line crosses a blocking     //   V
@@ -413,6 +416,7 @@ boolean PIT_CheckLine (line_t* ld)
     spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
   }
       spechit[numspechit++] = ld;
+      if (numspechit >= 8) SpechitOverrun(ld); // e6y: Spechits overrun emulation code
     }
 
   return true;
@@ -2205,3 +2209,33 @@ void P_MapEnd(void) {
 	tmthing = NULL;
 }
 
+// e6y
+// Code to emulate the behavior of Vanilla Doom when encountering an overrun
+// of the spechit array.
+// No more desyncs on compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc.
+// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+static void SpechitOverrun(line_t *ld)
+{
+  int addr = 0x01C09C98 + (ld - lines) * 0x3E;
+
+  switch(numspechit)
+  {
+    case 9: 
+    case 10:
+    case 11:
+    case 12:
+      tmbbox[numspechit-9] = addr;
+      break;
+    case 13: 
+      crushchange = addr; 
+      break;
+    case 14: 
+      nofit = addr; 
+      break;
+    default:
+      fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
+                      "an overrun where numspechit=%i\n",
+                      numspechit);
+      break;
+  }
+}
