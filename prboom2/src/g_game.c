@@ -1614,9 +1614,7 @@ void G_DoLoadGame(void)
 
   save_p += strlen(save_p)+1;
 
-  /* cph - FIXME - compatibility flag? */
-  compatibility_level = savegame_compatibility;
-  save_p++;
+  compatibility_level = (savegame_compatibility >= prboom_4_compatibility) ? *save_p++ : savegame_compatibility;
 
   gameskill = *save_p++;
   gameepisode = *save_p++;
@@ -1793,8 +1791,7 @@ static void G_DoSaveGame (boolean menu)
 
   CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+10);
 
-  /* cph - FIXME? - Save compatibility level */
-  *save_p++ = 0;
+  *save_p++ = compatibility_level;
 
   *save_p++ = gameskill;
   *save_p++ = gameepisode;
