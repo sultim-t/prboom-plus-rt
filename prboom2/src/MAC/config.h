@@ -3,7 +3,6 @@
 #define VERSION "2.3.2"
 #define DOGS 1
 #define MONITOR_VISIBILITY 1
-#define ALL_IN_ONE
 #define SIMPLECHECKS
 /*#define DISABLE_LUMP_CACHING*/
 

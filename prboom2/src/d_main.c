@@ -1351,12 +1351,6 @@ void D_DoomMainSetup(void)
   nodrawers = M_CheckParm ("-nodraw");
   noblit = M_CheckParm ("-noblit");
 
-#ifndef NO_PREDEFINED_LUMPS
-  // jff 4/21/98 allow writing predefined lumps out as a wad
-  if ((p = M_CheckParm("-dumplumps")) && p < myargc-1)
-    WritePredefinedLumpWad(myargv[p+1]);
-#endif
-
   //proff 11/22/98: Added setting of viewangleoffset
   p = M_CheckParm("-viewangle");
   if (p)

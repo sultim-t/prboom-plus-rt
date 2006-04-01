@@ -122,9 +122,6 @@
 /* Define if you want to use gluBuild2DMipmaps  */
 #undef USE_GLU_MIPMAP
 
-/* Define if you want to have prboom.wad in the exe  */
-#undef ALL_IN_ONE
-
 /* Define if you want to poll the mouse rather than rely on 
  * (unreliable) X11 mouse motion events */
 #undef POLL_MOUSE

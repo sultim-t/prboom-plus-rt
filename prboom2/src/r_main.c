@@ -429,10 +429,8 @@ void R_Init (void)
   colfunc = R_DrawColumn;     // current column draw function
   if (SCREENWIDTH<320)
     I_Error("R_Init: Screenwidth(%d) < 320",SCREENWIDTH);
-#if defined TABLES_AS_LUMPS && defined NO_PREDEFINED_LUMPS
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
   R_LoadTrigTables();
-#endif
   lprintf(LO_INFO, "\nR_InitData: ");
   R_InitData();
   R_SetViewSize(screenblocks);

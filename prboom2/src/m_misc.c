@@ -224,15 +224,8 @@ default_t defaults[] =
    def_bool,ss_none}, // precache level data?
 
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
-  /* cph - MBF-like wad/deh/bex autoload code
-   * POSIX targets need to get lumps from prboom.wad */
-  {"wadfile_1",{NULL,&wad_files[0]},{0,
-#ifdef ALL_IN_ONE
-             ""
-#else
-             "prboom.wad"
-#endif
-                                         },UL,UL,def_str,ss_none},
+  /* cph - MBF-like wad/deh/bex autoload code */
+  {"wadfile_1",{NULL,&wad_files[0]},{0,""},UL,UL,def_str,ss_none},
   {"wadfile_2",{NULL,&wad_files[1]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_1",{NULL,&deh_files[0]},{0,""},UL,UL,def_str,ss_none},
   {"dehfile_2",{NULL,&deh_files[1]},{0,""},UL,UL,def_str,ss_none},
@@ -1004,6 +997,9 @@ void M_LoadDefaults (void)
     fclose (f);
     }
   //jff 3/4/98 redundant range checks for hud deleted here
+  /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
+     doesn't overlap with the cfg settings */
+  wad_files[MAXLOADFILES-1]="prboom.wad";
 }
 
 
