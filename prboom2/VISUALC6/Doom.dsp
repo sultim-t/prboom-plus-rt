@@ -861,7 +861,7 @@ SOURCE=..\src\version.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\w_memcache.c
+SOURCE=..\src\w_mmap.c
 # End Source File
 # Begin Source File
 
