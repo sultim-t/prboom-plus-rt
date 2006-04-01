@@ -12,6 +12,7 @@ Changes from v2.2.6 to v2.4.0
 - simplified the memory handling
 - removed old Doom v1.2 lumps from prboom.wad
 - windows also uses prboom.wad now
+- add Mac OS X bundle build
 
 Changes from v2.2.5 to v2.2.6
 - fix Inferno intermission screen crash
