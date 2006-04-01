@@ -41,11 +41,6 @@ extern side_t   *sidedef;
 extern line_t   *linedef;
 extern sector_t *frontsector;
 extern sector_t *backsector;
-extern int      rw_x;
-extern int      rw_stopx;
-extern boolean  segtextured;
-extern boolean  markfloor;      /* false if the back side is the same plane */
-extern boolean  markceiling;
 
 /* old code -- killough:
  * extern drawseg_t drawsegs[MAXDRAWSEGS];

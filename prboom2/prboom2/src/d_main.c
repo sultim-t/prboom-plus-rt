@@ -122,8 +122,6 @@ boolean advancedemo;
 
 extern boolean timingdemo, singledemo, demoplayback, fastdemo; // killough
 
-static int      basetic;
-
 char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
 char    basedefault[PATH_MAX+1];   // default file
@@ -362,8 +360,6 @@ extern boolean demorecording;
 
 static void D_DoomLoop(void)
 {
-  basetic = gametic;
-
   for (;;)
     {
       // frame syncronous IO operations
