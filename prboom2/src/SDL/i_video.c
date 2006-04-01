@@ -68,8 +68,11 @@ int gl_depthbuffer_bits=16;
 #endif
 
 extern void M_QuitDOOM(int choice);
-
-int use_doublebuffer = 0; // Included not to break m_misc, but not relevant to SDL
+#ifdef DISABLE_DOUBLEBUFFER
+int use_doublebuffer = 0;
+#else
+int use_doublebuffer = 1; // Included not to break m_misc, but not relevant to SDL
+#endif
 int use_fullscreen;
 static SDL_Surface *screen;
 
