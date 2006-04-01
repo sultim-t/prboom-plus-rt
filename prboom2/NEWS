@@ -5,6 +5,7 @@ Changes from v2.2.6 to v2.4.0
 - emulate reject overflows and spechit overflows - from prboom-plus
 - more original doom compatibility options
 - improve stretched graphics drawing for hires
+- fix super-shotgun reload on last shot
 - fix compilation with gcc 4.x
 - fix some more dehacked support problems (e.g. Hacx)
 - fix crash if pwad contains zero-length sound lumps
@@ -13,6 +14,9 @@ Changes from v2.2.6 to v2.4.0
 - removed old Doom v1.2 lumps from prboom.wad
 - windows also uses prboom.wad now
 - add Mac OS X bundle build
+- removed lumps and tables which are in prboom.wad from source
+- removed old Doom v1.2 lumps from prboom.wad
+- windows also uses prboom.wad now
 
 Changes from v2.2.5 to v2.2.6
 - fix Inferno intermission screen crash
