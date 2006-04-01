@@ -31,7 +31,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 #ifdef HAVE_LIBSDL_MIXER
 #define HAVE_MIXER

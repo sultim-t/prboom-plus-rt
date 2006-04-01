@@ -62,7 +62,7 @@
 #include "i_system.h"
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 
 void I_uSleep(unsigned long usecs)
