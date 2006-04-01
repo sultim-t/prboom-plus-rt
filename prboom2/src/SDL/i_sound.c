@@ -154,6 +154,10 @@ int addsfx(int sfxid, int channel)
     {
       int lump = S_sfx[sfxid].lumpnum;
       size_t len = W_LumpLength(lump);
+      // e6y: Crash with zero-length sounds.
+      // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
+      // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
+      if (len<=8) return -1;
 
       /* Find padded length */
     len -= 8;

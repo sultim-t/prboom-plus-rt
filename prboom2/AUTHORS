@@ -36,6 +36,9 @@ following people who contributed code to LxDoom or PrBoom:
 Gady Kozma	gady@math.tau.ac.il
 Added hires to the SVGALib version of LxDoom, and other useful patches.
 
+Andrey Budko
+Numerous bug fixes and compatibility improvements.
+
 Dick Leban
 Lots of feedback about portability issues and helping get the network code
 working properly back at v1.3.6.
