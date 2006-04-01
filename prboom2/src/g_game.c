@@ -1950,6 +1950,21 @@ void G_Compatibility(void)
   for (i=comp_options_by_version[compatibility_level]; i<COMP_NUM; i++)
     comp[i] = compatibility_level < fix_levels[i];
   for (; i<COMP_TOTAL; i++) comp[i] = 1;
+
+  if (!mbf_features) {
+    monster_infighting = 1;
+    monster_backing = 0;
+    monster_avoid_hazards = 0;
+    monster_friction = 0;
+    help_friends = 0;
+
+#ifdef DOGS
+    dogs = 0;
+    dog_jumping = 0;
+#endif
+
+    monkeys = 0;
+  }
 }
 
 #ifdef DOGS
@@ -2417,22 +2432,7 @@ const byte *G_ReadOptions(const byte *demo_p)
     }
   else  /* defaults for versions <= 2.02 */
     {
-      monster_infighting = 1;           // killough 7/19/98
-
-      monster_backing = 0;              // killough 9/8/98
-
-      monster_avoid_hazards = 0;        // killough 9/9/98
-
-      monster_friction = 0;             // killough 10/98
-
-      help_friends = 0;                 // killough 9/9/98
-
-#ifdef DOGS
-      dogs = 0;                         // killough 7/19/98
-      dog_jumping = 0;                  // killough 10/98
-#endif
-
-      monkeys = 0;
+      /* G_Compatibility will set these */
     }
 
   G_Compatibility();
