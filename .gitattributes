@@ -31,6 +31,11 @@ prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
 prboom2/data/Makefile.am eol=lf
 prboom2/data/prboom.wad -text svneol=unset#application/x-doom-wad-file
 prboom2/doc/Makefile.am eol=lf
+prboom2/src/MAC/Info.plist -text
+prboom2/src/MAC/PrBoom.icns -text
+prboom2/src/MAC/Rakefile -text
+prboom2/src/MAC/config.h -text
+prboom2/src/MAC/i_system.m -text
 prboom2/src/Makefile.am eol=lf
 prboom2/src/OSS/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
