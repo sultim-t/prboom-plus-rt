@@ -42,6 +42,8 @@ prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
 prboom2/src/X11/Makefile.am eol=lf
 prboom2/src/d_ipxgate.c -text
+prboom2/src/w_memcache.c -text
+prboom2/src/w_mmap.c -text
 pyboom/main.py -text
 website/cgi-bin/genlin.cgi -text
 website/html/DOOM04.jpg -text
