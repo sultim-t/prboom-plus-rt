@@ -1083,8 +1083,10 @@ void P_SpawnMapThing (mapthing_t* mthing)
   // count deathmatch start positions
 
   // doom2.exe has at most 10 deathmatch starts
-  if (mthing->type == 11 && (!compatibility || deathmatch_p-deathmatchstarts < 10))
+  if (mthing->type == 11)
     {
+    if (!(!compatibility || deathmatch_p-deathmatchstarts < 10))
+	return;
     // 1/11/98 killough -- new code removes limit on deathmatch starts:
 
     size_t offset = deathmatch_p - deathmatchstarts;
