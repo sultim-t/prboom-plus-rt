@@ -374,7 +374,14 @@ void A_ReFire(player_t *player, pspdef_t *psp)
 
 void A_CheckReload(player_t *player, pspdef_t *psp)
 {
-  P_CheckAmmo(player);
+  if (!P_CheckAmmo(player) && compatibility_level >= prboom_4_compatibility) {
+    /* cph 2002/08/08 - In old Doom, P_CheckAmmo would start the weapon lowering
+     * immediately. This was lost in Boom when the weapon switching logic was
+     * rewritten. But we must tell Doom that we don't need to complete the
+     * reload frames for the weapon here. G_BuildTiccmd will set ->pendingweapon
+     * for us later on. */
+    P_SetPsprite(player,ps_weapon,weaponinfo[player->readyweapon].downstate);
+  }
 }
 
 //
