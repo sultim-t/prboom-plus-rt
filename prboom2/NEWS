@@ -3,6 +3,7 @@ For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.2.6 to v2.4.0
 - fix compilation with gcc 4.x
+- fix some more dehacked support problems (e.g. Hacx)
 - fix crash if pwad contains zero-length sound lumps
 
 Changes from v2.2.5 to v2.2.6
