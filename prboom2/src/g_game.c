@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -1526,19 +1526,29 @@ static void G_LoadGameErr(const char *msg)
 #define VERSIONSIZE   16
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
-{ "doom v1.2", "demo", "doom", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
-  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1",
-  "Current PrBoom"  };
+{ "doom v1.2", "doom v1.666", "doom2 v1.9", "final/ultimate doom/doom95",
+  "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
+  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.6",
+  "PrBoom v2.3.x", "Current PrBoom"  };
+
+static byte comp_options_by_version[] =
+{ 0,0,0,0, /* Original Doom's don't have comp[] */
+  0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
+  19,19, /* MBF and early PrBoom had 19 */
+  21,22, /* PrBoom v2.1-v2.2 have 21 */
+  23,23, /* PrBoom v2.3 has 23 and counting... */
+};
+
 
 static const struct {
   int comp_level;
   const char* ver_printf;
   int version;
 } version_headers[] = {
-  { prboom_1_compatibility, "PrBoom %d", 260},
   /* cph - we don't need a new version_header for prboom_3_comp/v2.1.1, since
    *  the file format is unchanged. */
-  { prboom_3_compatibility, "PrBoom %d", 210}
+  { prboom_3_compatibility, "PrBoom %d", 210},
+  { prboom_5_compatibility, "PrBoom %d", 211}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
@@ -1933,9 +1943,14 @@ void G_Compatibility(void)
     prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
     boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
+    doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
+    prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
+    doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
   };
   int i;
-  for (i=0; i<COMP_NUM; i++)
+  if (sizeof(comp_options_by_version) != MAX_COMPATIBILITY_LEVEL)
+    I_Error("G_Compatibility: consistency error");
+  for (i=comp_options_by_version[compatibility_level]; i<COMP_NUM; i++)
     comp[i] = compatibility_level < fix_levels[i];
   for (; i<COMP_TOTAL; i++) comp[i] = 1;
 }
@@ -2014,12 +2029,11 @@ void G_ReloadDefaults(void)
     if (i && (1+i) < myargc) compatibility_level = atoi(myargv[i+1]);
   }
   if (compatibility_level == -1)
-    compatibility_level = MAX_COMPATIBILITY_LEVEL-1;
+    compatibility_level = best_compatibility;
 
   if (mbf_features)
     memcpy(comp, default_comp, sizeof comp);
-  else
-    G_Compatibility();
+  G_Compatibility();
 
   // killough 3/31/98, 4/5/98: demo sync insurance
   demo_insurance = default_demo_insurance == 1;
@@ -2406,8 +2420,6 @@ const byte *G_ReadOptions(const byte *demo_p)
     }
   else  /* defaults for versions <= 2.02 */
     {
-      /* cph - comp[] has already been set up right by G_Compatibility */
-
       monster_infighting = 1;           // killough 7/19/98
 
       monster_backing = 0;              // killough 9/8/98
@@ -2426,6 +2438,7 @@ const byte *G_ReadOptions(const byte *demo_p)
       monkeys = 0;
     }
 
+  G_Compatibility();
   return target;
 }
 
@@ -2477,7 +2490,7 @@ void G_BeginRecording (void)
     for (; i<MIN_MAXPLAYERS; i++)
       *demo_p++ = 0;
 
-  } else if (compatibility_level > doom_compatibility) {
+  } else if (compatibility_level > boom_compatibility_compatibility) {
     byte v, c; /* Nominally, version and compatibility bits */
     switch (compatibility_level) {
     case boom_compatibility_compatibility: v = 202, c = 1; break;
@@ -2549,6 +2562,17 @@ void G_DeferedPlayDemo (const char* name)
 
 static int demolumpnum = -1;
 
+static int G_GetOriginalDoomCompatLevel(int ver)
+{
+  {
+    int i = M_CheckParm("-complevel");
+    if (i && (i+1 < myargc)) return atoi(myargv[i+1]);
+  }
+  if (ver < 107) return doom_1666_compatibility;
+  return ((gamemode == retail || gamemission >= pack_tnt)
+                 ? finaldoom_compatibility : doom2_19_compatibility);
+}
+
 static const byte* G_ReadDemoHeader(const byte *demo_p)
 {
   skill_t skill;
@@ -2566,10 +2590,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
   if (demover < 200)     // Autodetect old demos
     {
-      compatibility_level = doom_demo_compatibility;
       if (demover >= 111) longtics = 1;
-
-      G_Compatibility();
 
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
 
@@ -2599,6 +2620,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
       if ((skill=demover) >= 100)         // For demos from versions >= 1.4
         {
+	  compatibility_level = G_GetOriginalDoomCompatLevel(demover);
           skill = *demo_p++;
           episode = *demo_p++;
           map = *demo_p++;
@@ -2610,11 +2632,13 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
         }
       else
         {
+	  compatibility_level = doom_12_compatibility;
           episode = *demo_p++;
           map = *demo_p++;
           deathmatch = respawnparm = fastparm =
             nomonsters = consoleplayer = 0;
         }
+      G_Compatibility();
     }
   else    // new versions of demos
     {
@@ -2623,40 +2647,39 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
       case 200: /* BOOM */
       case 201:
         if (!*demo_p++)
-    compatibility_level = boom_201_compatibility;
+	  compatibility_level = boom_201_compatibility;
         else
-    compatibility_level = boom_compatibility_compatibility;
-  break;
+	  compatibility_level = boom_compatibility_compatibility;
+	  break;
       case 202:
         if (!*demo_p++)
-    compatibility_level = boom_202_compatibility;
+	  compatibility_level = boom_202_compatibility;
         else
-    compatibility_level = boom_compatibility_compatibility;
-  break;
+	  compatibility_level = boom_compatibility_compatibility;
+	  break;
       case 203:
-  /* LxDoom or MBF - determine from signature
-   * cph - load compatibility level */
-  switch (demobuffer[2]) {
-  case 'B': /* LxDoom */
-  /* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
-    compatibility_level = lxdoom_1_compatibility;
-    break;
-  case 'M':
-    compatibility_level = mbf_compatibility;
-    demo_p++;
-    break;
-  }
-  break;
+	/* LxDoom or MBF - determine from signature
+	 * cph - load compatibility level */
+	switch (demobuffer[2]) {
+	case 'B': /* LxDoom */
+	  /* cph - DEMOSYNC - LxDoom demos recorded in compatibility modes support dropped */
+	  compatibility_level = lxdoom_1_compatibility;
+	  break;
+	case 'M':
+	  compatibility_level = mbf_compatibility;
+	  demo_p++;
+	  break;
+	}
+	break;
       case 210:
-  compatibility_level = prboom_2_compatibility;
-  demo_p++;
-  break;
+	compatibility_level = prboom_2_compatibility;
+	demo_p++;
+	break;
       case 211:
-  compatibility_level = prboom_3_compatibility;
-  demo_p++;
-  break;
+	compatibility_level = prboom_3_compatibility;
+	demo_p++;
+	break;
       }
-      G_Compatibility();
       skill = *demo_p++;
       episode = *demo_p++;
       map = *demo_p++;
@@ -2665,7 +2688,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
       /* killough 11/98: save option pointer for below */
       if (mbf_features)
-  option_p = demo_p;
+	option_p = demo_p;
 
       demo_p = G_ReadOptions(demo_p);  // killough 3/1/98: Read game options
 
@@ -2673,6 +2696,8 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
         demo_p += 128-GAME_OPTION_SIZE;
     }
 
+  if (sizeof(comp_lev_str)/sizeof(comp_lev_str[0]) != MAX_COMPATIBILITY_LEVEL)
+    I_Error("G_ReadDemoHeader: compatibility level strings incomplete");
   lprintf(LO_INFO, "G_DoPlayDemo: playing demo with %s compatibility\n",
     comp_lev_str[compatibility_level]);
 
