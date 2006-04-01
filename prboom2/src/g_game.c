@@ -513,7 +513,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else if (side < -MAXPLMOVE)
     side = -MAXPLMOVE;
 
-  cmd->forwardmove += fudgef(forward);
+  cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
   cmd->angleturn = fudgea(cmd->angleturn);
 
