@@ -2438,7 +2438,7 @@ void G_BeginRecording (void)
     { /* Write version code into demo */
       unsigned char v;
       switch(compatibility_level) {
-        case mbf_compatibility: v = 204; break;
+	case mbf_compatibility: v = 203; break; // e6y: Bug in MBF compatibility mode fixed
         case prboom_2_compatibility: v = 210; break;
         case prboom_3_compatibility: v = 211; break;
       }
