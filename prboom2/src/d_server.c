@@ -53,7 +53,7 @@
 #ifndef HAVE_GETOPT
 /* The following code for getopt is from the libc-source of FreeBSD,
  * it might be changed a little bit.
- * Florian Schulze (florian.proff.schulze@gmx.net)
+ * Florian Schulze (florian.schulze@gmx.net)
  */
 
 /*
