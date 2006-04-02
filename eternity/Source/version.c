@@ -30,20 +30,20 @@ static const char rcsid[] = "$Id: version.c,v 1.2 1998/05/03 22:59:31 killough E
 #include "version.h"
 
 // sf: made int from define
-int VERSION = 331;
+int VERSION = 333;
 
 // haleyjd: subversion -- range from 0 to 255
-unsigned char SUBVERSION = 10;
+unsigned char SUBVERSION = 2;
 
 const char version_date[] = __DATE__;
 const char version_time[] = __TIME__; // haleyjd
 
 // sf: version name -- at the suggestion of mystican
-const char version_name[] = "Delta";
+const char version_name[] = "Warrior";
 
 // haleyjd: caption for SDL window
 #ifdef _SDL_VER
-const char ee_wmCaption[] = "Eternity Engine v3.31.10";
+const char ee_wmCaption[] = "Eternity Engine v3.33.02 \"Warrior\"";
 #endif
                                              
 // haleyjd: Eternity release history
@@ -62,7 +62,10 @@ const char ee_wmCaption[] = "Eternity Engine v3.31.10";
 // public beta         -- 3.31 public beta 6 02/29/04
 // public beta         -- 3.31 public beta 7 04/11/04
 
-// 3.31.10 -- 01/19/04
+// 3.31.10 'Delta'     -- 01/19/05
+// 3.33.00 'Genesis'   -- 05/26/05
+// 3.33.01 'Outcast'   -- 06/24/05
+// 3.33.02 'Warrior'   -- 10/01/05
 
 // auxilliary releases
 // Caverns of Darkness -- 3.29 dev beta 5 joel-2 04/24/02

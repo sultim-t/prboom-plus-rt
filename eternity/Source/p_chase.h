@@ -33,7 +33,7 @@ typedef struct camera_s
    long y;
    long z;
    angle_t angle;
-   int updownangle;
+   fixed_t pitch;
    int heightsec;  // haleyjd: for deep water handling
 } camera_t;
 
@@ -43,6 +43,10 @@ extern int chasey;
 extern int chasez;
 extern int chaseangle;
 extern int chasecam_active;
+
+extern int chasecam_height;
+extern int chasecam_dist;
+extern int chasecam_speed;
 
 extern int walkcam_active;
 

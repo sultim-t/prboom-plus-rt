@@ -41,7 +41,7 @@ rcsid[] = "$Id: p_maputl.c,v 1.13 1998/05/03 22:16:48 killough Exp $";
 extern int tmfloorpic;
 
 // SoM: monster 3D sides fix
-extern boolean tmtouch3dside;
+extern int tmtouch3dside;
 
 //
 // P_AproxDistance
@@ -175,8 +175,13 @@ sector_t *openbacksector;  // made global
 // haleyjd 10/16/02: floorsec
 sector_t *openfloorsec;
 
+// haleyjd 02/23/05
+boolean open3dmidtex;
+
 void P_LineOpening(line_t *linedef, mobj_t *mo)
 {
+   open3dmidtex = false; // haleyjd: clear this flag before each line
+
    if(linedef->sidenum[1] == -1)      // single sided line
    {
       openrange = 0;
@@ -199,10 +204,6 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
       tmfloorpic = openfrontsector->floorpic;
       // haleyjd
       openfloorsec = openfrontsector;
-      
-      // haleyjd 11/11/04: 3DMidTex: we may no longer be on a 
-      // 3DMidTex line
-      tmtouch3dside = false;
    }
    else
    {
@@ -212,10 +213,6 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
       tmfloorpic = openbacksector->floorpic;
       // haleyjd
       openfloorsec = openbacksector;
-
-      // haleyjd 11/11/04: 3DMidTex: we may no longer be on a 
-      // 3DMidTex line
-      tmtouch3dside = false;
    }
 
 
@@ -255,7 +252,7 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
          return;
       }
       
-      if(mo->z + (mo->info->height/2) < texmid)
+      if(mo->z + (P_ThingInfoHeight(mo->info) / 2) < texmid)
       {
          if(texbot < opentop)
             opentop = texbot;
@@ -270,12 +267,9 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
       }
 
       // SoM 09/07/02: let monsters walk over dropoffs
-      
-      // haleyjd 11/10/04: 3DMidTex: tmtouch3dside is now
-      // used differently, see above and in PIT_CheckLine.
-      // We may be standing on a 3dmidtex line now.
-      tmtouch3dside = true;
-
+      open3dmidtex = true;
+      if(tmtouch3dside == 0)
+         tmtouch3dside = 1; // a 3dmidtex line is at least involved now
    }
 
    openrange = opentop - openbottom;

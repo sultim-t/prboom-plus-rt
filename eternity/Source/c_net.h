@@ -26,6 +26,8 @@
 
 // net command numbers
 
+// NETCODE_FIXME -- CONSOLE_FIXME: Netcmd system must be replaced.
+
 enum
 {
   netcmd_null,       // 0 is empty
@@ -86,7 +88,7 @@ enum
   netcmd_comp_20,   //          respawn fix
   netcmd_comp_21,   //		falling damage
   netcmd_comp_22,   //          lost soul bouncing
-  netcmd_comp_23,   //          currently unused
+  netcmd_comp_23,   //          thing heights fix
   netcmd_comp_24,   //          extended z clipping
   NUMNETCMDS,
 };
@@ -103,7 +105,6 @@ void C_UpdateVar(command_t *command);
 extern command_t *c_netcmds[NUMNETCMDS];
 extern char* default_name;
 extern int default_colour;
-extern int allowmlook;
 extern int cmdsrc;           // the player which started the current command
 
 #define CN_BROADCAST 128

@@ -95,6 +95,16 @@ typedef struct
 //either be shortened, or the net code needs to divide it up
 //automatically into packets. The STARTUPLEN below is non-portable.
 //There's a portable way to do it without having to know the sizes.
+//
+// NETCODE_FIXME: The comment above is the one I make reference to in
+// g_game.c that discusses the fact that this stuff below is pure garbage
+// and that something similar to G_Read/WriteOptions needs to be employed
+// when sending the values of sync-critical variables over the network at
+// game startup. However, if properly designed, the console system should
+// probably handle this itself by iterating over all console variables
+// and transmitting the sync-critical ones. This will require various
+// changes to the netcmds/cvars systems, and will require that ALL sync
+// critical variables have cvars. Some currently may not.
 
 #define STARTUPLEN 12
 typedef struct

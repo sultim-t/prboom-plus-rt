@@ -54,7 +54,7 @@
 #include "mn_htic.h"
 #include "d_gi.h"
 #include "g_dmflag.h"
-#include "e_edf.h"
+#include "e_states.h"
 
 // haleyjd 04/15/02: SDL joystick stuff
 #ifdef _SDL_VER
@@ -284,7 +284,7 @@ int start_episode;
 menu_t menu_episode =
 {
   {
-    {it_title, "which episode?",             NULL,           "M_EPISOD"},
+    {it_title,  "which episode?",            NULL,            "M_EPISOD"},
     {it_gap},
     {it_runcmd, "knee deep in the dead",     "mn_episode 1",  "M_EPI1"},
     {it_runcmd, "the shores of hell",        "mn_episode 2",  "M_EPI2"},
@@ -342,13 +342,37 @@ menu_t menu_newgame =
   mf_skullmenu,         // is a skull menu
 };
 
+static void MN_DoNightmare(void)
+{
+   if(gamemode == commercial && modifiedgame && startOnNewMap)
+   {
+      // start on newest level from wad
+      G_DeferedInitNew(sk_nightmare, firstlevel);
+   }
+   else
+   {
+      // start on first level of selected episode
+      G_DeferedInitNewNum(sk_nightmare, start_episode, 1);
+   }
+   
+   MN_ClearMenus();
+}
+
 CONSOLE_COMMAND(newgame, cf_notnet)
 {
    int skill = gameskill;
    
    // skill level is argv 0
    
-   if(c_argc) skill = atoi(c_argv[0]);
+   if(c_argc)
+      skill = atoi(c_argv[0]);
+
+   // haleyjd 07/27/05: restored nightmare behavior
+   if(skill == sk_nightmare)
+   {
+      MN_QuestionFunc(s_NIGHTMARE, MN_DoNightmare);
+      return;
+   }
    
    // haleyjd 03/02/03: changed to use config variable
    if(gamemode == commercial && modifiedgame && startOnNewMap)
@@ -401,9 +425,9 @@ menu_t menu_optfeat =
       {it_title,  FC_GOLD "options",  NULL,          "M_OPTION"},
       {it_gap},
       {it_gap},
-      {it_runcmd, "setup",            "mn_options",  "M_SETUP"},
+      {it_runcmd, "setup",            "mn_options",  "M_SETUP",  MENUITEM_BIGFONT},
       {it_gap},
-      {it_runcmd, "features",         "mn_features", "M_FEAT"},
+      {it_runcmd, "features",         "mn_features", "M_FEAT",   MENUITEM_BIGFONT},
       {it_end},
    },
    100, 15,
@@ -429,17 +453,17 @@ menu_t menu_features =
       {it_title, FC_GOLD "features", NULL,         "M_FEAT"},
       {it_gap},
       {it_gap},
-      {it_runcmd, "player setup",    "mn_player",  "M_PLAYER"},
+      {it_runcmd, "player setup",    "mn_player",  "M_PLAYER", MENUITEM_BIGFONT},
       {it_gap},
-      {it_runcmd, "game settings",   "mn_gset",    "M_GSET"},
+      {it_runcmd, "game settings",   "mn_gset",    "M_GSET",   MENUITEM_BIGFONT},
       {it_gap},
-      {it_runcmd, "multiplayer",     "mn_multi",   "M_MULTI"},
+      {it_runcmd, "multiplayer",     "mn_multi",   "M_MULTI",  MENUITEM_BIGFONT},
       {it_gap},
-      {it_runcmd, "load wad",        "mn_loadwad", "M_WAD"},
+      {it_runcmd, "load wad",        "mn_loadwad", "M_WAD",    MENUITEM_BIGFONT},
       {it_gap},
-      {it_runcmd, "demos",           "mn_demos",   "M_DEMOS"},
+      {it_runcmd, "demos",           "mn_demos",   "M_DEMOS",  MENUITEM_BIGFONT},
       {it_gap},
-      {it_runcmd, "about",           "credits",    "M_ABOUT"},
+      {it_runcmd, "about",           "credits",    "M_ABOUT",  MENUITEM_BIGFONT},
       {it_end},
    },
    100, 15,
@@ -541,6 +565,15 @@ CONSOLE_COMMAND(mn_loadwad, cf_notnet)
 // Access to the new Multiplayer features of SMMU
 //
 
+//
+// NETCODE_FIXME: Eliminate this and consolidate all unique options into
+// the normal setup menu hierarchy. I do not intend to support the
+// starting of netgames from within the engine, as it never even worked
+// under SMMU to begin with (the one time this was tested, it crashed).
+// Netgames will have to be started from the command line or via use of
+// a launcher utility, like for most other ports.
+//
+
 menu_t menu_multiplayer =
 {
   {
@@ -637,7 +670,10 @@ menu_t menu_advanced =
     {it_toggle,   "respawning monsters",        "respawn"},
     {it_gap},
     {it_toggle,   "allow mlook",                "allowmlook"},
+    /*
+    YSHEAR_FIXME: this feature may return after EDF for weapons
     {it_toggle,   "allow mlook with bfg",       "bfglook"},
+    */
     {it_toggle,   "allow autoaim",              "autoaim"},
     {it_variable, "weapon change time",         "weapspeed"},
     {it_gap},
@@ -658,6 +694,10 @@ CONSOLE_COMMAND(mn_advanced, cf_server)
 
 //
 // Deathmatch Flags Menu
+//
+
+//
+// NETCODE_FIXME -- CONSOLE_FIXME: Dm flags may require special treatment
 //
 
 static void MN_DMFlagsDrawer(void);
@@ -699,7 +739,7 @@ static void MN_DMFlagsDrawer(void)
    menuitem_t *menuitem;
 
    // don't draw anything before the menu has been initialized
-   if(!(menu_dmflags.menuitems[10].posinit))
+   if(!(menu_dmflags.menuitems[10].flags & MENUITEM_POSINIT))
       return;
 
    for(i = 4; i < 9; i++)
@@ -760,6 +800,10 @@ CONSOLE_COMMAND(mn_dfrespsupr, cf_server|cf_hidden)
 // When its done!
 //
 
+//
+// NETCODE_FIXME: Ditch this.
+//
+
 menu_t menu_tcpip =
 {
   {
@@ -782,6 +826,10 @@ CONSOLE_COMMAND(mn_tcpip, 0)
 /////////////////////////////////////////////////////////////////
 //
 // Serial/Modem Game
+//
+
+//
+// NETCODE_FIXME: Ditch this.
 //
 
 menu_t menu_serial =
@@ -936,6 +984,12 @@ CONSOLE_COMMAND(mn_player, 0)
 // Load Game
 //
 
+//
+// NETCODE_FIXME: Ensure that loading/saving are handled properly in
+// netgames when it comes to the menus. Some deficiencies have already
+// been caught in the past, so some may still exist.
+//
+
 // haleyjd: numerous fixes here from 8-17 version of SMMU
 
 #define SAVESTRINGSIZE  24
@@ -1062,12 +1116,12 @@ void MN_DrawLoadBox(int x, int y)
    }
 
    V_DrawPatch(x, y, &vbscreen, patch_left);
-   x += patch_left->width;
+   x += SHORT(patch_left->width);
    
    for(i=0; i<24; i++)
    {
       V_DrawPatch(x, y, &vbscreen, patch_mid);
-      x += patch_mid->width;
+      x += SHORT(patch_mid->width);
    }
    
    V_DrawPatch(x, y, &vbscreen, patch_right);
@@ -1403,7 +1457,7 @@ menu_t menu_video =
   MN_VideoModeDrawer
 };
 
-void MN_VideoModeDrawer()
+void MN_VideoModeDrawer(void)
 {
    int lump, y;
    patch_t *patch;
@@ -1414,7 +1468,7 @@ void MN_VideoModeDrawer()
    // draw an imp fireball
 
    // don't draw anything before the menu has been initialized
-   if(!(menu_video.menuitems[13].posinit))
+   if(!(menu_video.menuitems[13].flags & MENUITEM_POSINIT))
       return;
    
    sprdef = &sprites[states[frame].sprite];
@@ -1588,8 +1642,9 @@ menu_t menu_mouse =
 #endif
       {it_gap},
       {it_info,       FC_GOLD"mouselook"},
+      {it_toggle,     "enable mouselook",             "allowmlook" },
       {it_toggle,     "always mouselook",             "alwaysmlook"},
-      {it_toggle,     "stretch sky",                  "r_stretchsky"},
+      {it_toggle,     "stretch short skies",          "r_stretchsky"},
       {it_end},
    },
    200, 15,                      // x, y offset
@@ -1628,8 +1683,9 @@ menu_t menu_hud =
     {it_gap},
     {it_info,       FC_GOLD "misc."},
     {it_toggle,     "crosshair type",               "crosshair"},
+    {it_toggle,     "crosshair highlighting",       "crosshair_hilite"},
     {it_toggle,     "show frags in DM",             "show_scores"},
-    {it_toggle,     "automap coords follow pointer",   "map_coords"},
+    {it_toggle,     "map coords follow pointer",    "map_coords"},
     {it_end},
   },
   200, 15,                             // x,y offset
@@ -1729,6 +1785,13 @@ CONSOLE_COMMAND(mn_automap, 0)
 // Weapon Options
 //
 
+//
+// NETCODE_FIXME -- WEAPONS_FIXME
+//
+// Weapon prefs and related values may need to change the way they
+// work. See other notes for info about bfg type and autoaiming.
+//
+
 menu_t menu_weapons =
 {
   {
@@ -1765,6 +1828,11 @@ CONSOLE_COMMAND(mn_weapons, 0)
 /////////////////////////////////////////////////////////////////
 //
 // Compatibility vectors
+//
+
+//
+// NETCODE_FIXME -- COMPAT_FIXME: Compatibility system needs
+// overhaul.
 //
 
 menu_t menu_compat =
@@ -1821,6 +1889,7 @@ menu_t menu_etccompat =
     {it_toggle, "creatures may respawn outside map",        "comp_respawnfix"},
     {it_toggle, "falling damage inactive",                  "comp_fallingdmg"},
     {it_toggle, "extended z clipping inactive",             "comp_overunder"},
+    {it_toggle, "some thing heights are inaccurate",        "comp_theights"},
     {it_toggle, "lost souls don't bounce on floors",        "comp_soul"},
     {it_end},
   },
@@ -1875,6 +1944,8 @@ CONSOLE_COMMAND(mn_enemies, 0)
 // Option on "video options" menu allows you to timedemo your
 // computer on demo2. When you finish you are presented with
 // this menu
+
+// FIXME: This is junk and doesn't work right.
 
 // test framerates
 // SoM: ANYRES

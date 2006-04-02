@@ -1,7 +1,7 @@
 // Emacs style mode select -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2004 James Haley, Simon Howard, et al.
+// Copyright(C) 2005 James Haley, Simon Howard, et al.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@
 #include "d_io.h"
 #include "doomstat.h"
 #include "doomdef.h"
+#include "d_dehtbl.h"
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "w_wad.h"
@@ -62,6 +63,8 @@
 #include "d_deh.h"
 #include "e_sound.h"
 #include "g_game.h"
+#include "m_qstr.h"
+#include "m_misc.h"
 
 extern char gamemapname[9];
 
@@ -71,7 +74,6 @@ LevelInfo_t LevelInfo;
 
 static void P_ParseLevelInfo(int lumpnum);
 
-static void P_LowerCase(char *line);
 static void P_StripSpaces(char *line);
 static void P_RemoveEqualses(char *line);
 static void P_CleanLine(char *line);
@@ -101,6 +103,26 @@ static enum limode_e
 } limode;
 
 static boolean foundGlobalMap;
+
+// haleyjd: flag set for boss specials
+static dehflags_t boss_spec_flags[] =
+{
+   { "MAP07_1", BSPEC_MAP07_1 },
+   { "MAP07_2", BSPEC_MAP07_2 },
+   { "E1M8",    BSPEC_E1M8 },
+   { "E2M8",    BSPEC_E2M8 },
+   { "E3M8",    BSPEC_E3M8 },
+   { "E4M6",    BSPEC_E4M6 },
+   { "E4M8",    BSPEC_E4M8 },
+   { "E5M8",    BSPEC_E5M8 },
+   { NULL,      0 }
+};
+
+static dehflagset_t boss_flagset =
+{
+   boss_spec_flags, // flaglist
+   0,               // mode: single flags word
+};
 
 //
 // P_LoadLevelInfo
@@ -164,32 +186,52 @@ void P_LoadLevelInfo(int lumpnum)
 //
 static void P_ParseLevelInfo(int lumpnum)
 {
-   char *lump;
-   char *rover;
-   char *startofline;
+   qstring_t line;
+   char *lump, *rover;
    int  size;
 
-   lump = W_CacheLumpNum(lumpnum, PU_STATIC);
+   // haleyjd 03/12/05: seriously restructured to eliminate last line
+   // problem and to use qstring_t to buffer lines
    
-   rover = startofline = lump;
-   size  = lumpinfo[lumpnum]->size;
+   // if lump is zero size, we are done
+   if(!(size = lumpinfo[lumpnum]->size))
+      return;
+
+   // allocate lump buffer with size + 2 to allow for termination
+   size += 2;
+   lump = Z_Malloc(size, PU_STATIC, NULL);
+   W_ReadLump(lumpnum, lump);
+
+   // terminate lump data with a line break and null character;
+   // this makes uniform parsing much easier
+   lump[size] = '\n';
+   lump[size + 1] = '\0';
+
+   rover = lump;
+
+   // create the line buffer
+   M_QStrInitCreate(&line);
    
-   while(rover < lump + size)
+   while(*rover)
    {
       if(*rover == '\n') // end of line
       {
-         *rover = 0;               // make it an end of string (0)
-         // hack for global mapinfo: if P_ParseInfoCmd returns -1,
+         // hack for global MapInfo: if P_ParseInfoCmd returns -1,
          // we can break out of parsing early
-         if(P_ParseInfoCmd(startofline) == -1)
+         if(P_ParseInfoCmd(M_QStrBuffer(&line)) == -1)
             break;
-         startofline = rover + 1;  // next line
-         *rover = '\n';            // back to end of line
+         M_QStrClear(&line); // clear line buffer
       }
-      rover++;
+      else
+         M_QStrPutc(&line, *rover); // add char to line buffer
+
+      ++rover;
    }
 
-   // contents of the cached lump have been altered, so free it
+   // free the line buffer
+   M_QStrFree(&line);
+
+   // free the lump
    Z_Free(lump);
 }
 
@@ -201,9 +243,8 @@ static void P_ParseLevelInfo(int lumpnum)
 static int P_ParseInfoCmd(char *line)
 {
    P_CleanLine(line);
-
    P_StripSpaces(line);
-   P_LowerCase(line);
+   M_Strlwr(line);
    
    while(*line == ' ') 
       line++;
@@ -212,11 +253,12 @@ static int P_ParseInfoCmd(char *line)
       return 0;
    
    if((line[0] == '/' && line[1] == '/') ||     // comment
-      line[0] == '#' || line[0] == ';') return 0;
+       line[0] == '#' || line[0] == ';') 
+      return 0;
   
    if(*line == '[')                // a new section seperator
    {
-      line++;
+      ++line;
 
       if(limode == LI_MODE_GLOBAL)
       {
@@ -265,6 +307,7 @@ enum
    IVT_STRING,
    IVT_INT,
    IVT_BOOLEAN,
+   IVT_FLAGS,
    IVT_END
 };
 
@@ -273,48 +316,52 @@ typedef struct
    int type;
    char *name;
    void *variable;
+   void *extra;
 } levelvar_t;
 
 levelvar_t levelvars[]=
 {
-   {IVT_STRING, "levelpic",      &LevelInfo.levelPic},
-   {IVT_STRING, "levelname",     &LevelInfo.levelName},
-   {IVT_INT,    "partime",       &LevelInfo.partime},
-   {IVT_STRING, "music",         &LevelInfo.musicName},
-   {IVT_STRING, "skyname",       &LevelInfo.skyName},
-   {IVT_STRING, "creator",       &LevelInfo.creator},
-   {IVT_STRING, "interpic",      &LevelInfo.interPic},
-   {IVT_STRING, "nextlevel",     &LevelInfo.nextLevel},
-   {IVT_INT,    "gravity",       &LevelInfo.gravity},
-   {IVT_STRING, "inter-backdrop",&LevelInfo.backDrop},
-   //{IVT_STRING, "defaultweapons",&info_weapons},
-   {IVT_STRING, "altskyname",    &LevelInfo.altSkyName},
-   {IVT_STRING, "colormap",      &LevelInfo.colorMap},
-   {IVT_BOOLEAN,"fullbright",    &LevelInfo.useFullBright},
-   {IVT_BOOLEAN,"unevenlight",   &LevelInfo.unevenLight},
-   {IVT_BOOLEAN,"lightning",     &LevelInfo.hasLightning},
-   {IVT_STRING, "sky2name",      &LevelInfo.sky2Name},
-   {IVT_BOOLEAN,"doublesky",     &LevelInfo.doubleSky},
-   {IVT_INT,    "skydelta",      &LevelInfo.skyDelta},
-   {IVT_INT,    "sky2delta",     &LevelInfo.sky2Delta},
-   {IVT_STRING, "sound-swtchn",  &LevelInfo.sound_swtchn},
-   {IVT_STRING, "sound-swtchx",  &LevelInfo.sound_swtchx},
-   {IVT_STRING, "sound-stnmov",  &LevelInfo.sound_stnmov},
-   {IVT_STRING, "sound-pstop",   &LevelInfo.sound_pstop},
-   {IVT_STRING, "sound-bdcls",   &LevelInfo.sound_bdcls},
-   {IVT_STRING, "sound-bdopn",   &LevelInfo.sound_bdopn},
-   {IVT_STRING, "sound-dorcls",  &LevelInfo.sound_dorcls},
-   {IVT_STRING, "sound-doropn",  &LevelInfo.sound_doropn},
-   {IVT_STRING, "sound-pstart",  &LevelInfo.sound_pstart},
-   {IVT_STRING, "nextsecret",    &LevelInfo.nextSecret},
-   {IVT_BOOLEAN,"killfinale",    &LevelInfo.killFinale},
-   {IVT_BOOLEAN,"finale-secret", &LevelInfo.finaleSecretOnly},
-   {IVT_BOOLEAN,"endofgame",     &LevelInfo.endOfGame},
-   {IVT_STRING, "intertext",     &LevelInfo.interTextLump}, // haleyjd 12/13/01
-   {IVT_STRING, "intermusic",    &LevelInfo.interMusic},
-   {IVT_STRING, "levelscript",   &LevelInfo.scriptLump}, // haleyjd
-   {IVT_STRING, "extradata",     &LevelInfo.extraData}, // haleyjd 04/02/03
-   {IVT_END,    0,               0}
+   { IVT_STRING,  "levelpic",       &LevelInfo.levelPic },
+   { IVT_STRING,  "levelname",      &LevelInfo.levelName },
+   { IVT_INT,     "partime",        &LevelInfo.partime },
+   { IVT_STRING,  "music",          &LevelInfo.musicName },
+   { IVT_STRING,  "skyname",        &LevelInfo.skyName },
+   { IVT_STRING,  "creator",        &LevelInfo.creator },
+   { IVT_STRING,  "interpic",       &LevelInfo.interPic },
+   { IVT_STRING,  "nextlevel",      &LevelInfo.nextLevel },
+   { IVT_INT,     "gravity",        &LevelInfo.gravity },
+   { IVT_STRING,  "inter-backdrop", &LevelInfo.backDrop },
+   //{ IVT_STRING,  "defaultweapons", &info_weapons },
+   { IVT_STRING,  "altskyname",     &LevelInfo.altSkyName },
+   { IVT_STRING,  "colormap",       &LevelInfo.colorMap },
+   { IVT_BOOLEAN, "fullbright",     &LevelInfo.useFullBright },
+   { IVT_BOOLEAN, "unevenlight",    &LevelInfo.unevenLight },
+   { IVT_BOOLEAN, "lightning",      &LevelInfo.hasLightning },
+   { IVT_STRING,  "sky2name",       &LevelInfo.sky2Name },
+   { IVT_BOOLEAN, "doublesky",      &LevelInfo.doubleSky },
+   { IVT_INT,     "skydelta",       &LevelInfo.skyDelta },
+   { IVT_INT,     "sky2delta",      &LevelInfo.sky2Delta },
+   { IVT_STRING,  "sound-swtchn",   &LevelInfo.sound_swtchn },
+   { IVT_STRING,  "sound-swtchx",   &LevelInfo.sound_swtchx },
+   { IVT_STRING,  "sound-stnmov",   &LevelInfo.sound_stnmov },
+   { IVT_STRING,  "sound-pstop",    &LevelInfo.sound_pstop },
+   { IVT_STRING,  "sound-bdcls",    &LevelInfo.sound_bdcls },
+   { IVT_STRING,  "sound-bdopn",    &LevelInfo.sound_bdopn },
+   { IVT_STRING,  "sound-dorcls",   &LevelInfo.sound_dorcls },
+   { IVT_STRING,  "sound-doropn",   &LevelInfo.sound_doropn },
+   { IVT_STRING,  "sound-pstart",   &LevelInfo.sound_pstart },
+   { IVT_STRING,  "nextsecret",     &LevelInfo.nextSecret },
+   { IVT_BOOLEAN, "killfinale",     &LevelInfo.killFinale },
+   { IVT_BOOLEAN, "killstats",      &LevelInfo.killStats },     // haleyjd 03/24/05
+   { IVT_BOOLEAN, "finale-secret",  &LevelInfo.finaleSecretOnly },
+   { IVT_BOOLEAN, "endofgame",      &LevelInfo.endOfGame },
+   { IVT_STRING,  "intertext",      &LevelInfo.interTextLump }, // haleyjd 12/13/01
+   { IVT_STRING,  "intermusic",     &LevelInfo.interMusic },
+   { IVT_STRING,  "levelscript",    &LevelInfo.scriptLump },    // haleyjd
+   { IVT_STRING,  "extradata",      &LevelInfo.extraData },     // haleyjd 04/02/03
+   { IVT_FLAGS,   "boss-specials",  &LevelInfo.bossSpecs, &boss_flagset }, // haleyjd 03/14/05
+   { IVT_BOOLEAN, "edf-intername",  &LevelInfo.useEDFInterName },
+   { IVT_END,     0,                0}
 };
 
 //
@@ -326,21 +373,50 @@ levelvar_t levelvars[]=
 //
 static void P_ParseLevelVar(char *cmd)
 {
-   char varname[50];
-   char *equals;
+   int state = 0;
+   qstring_t var, value;
+   char c, *varname, *equals, *rover = cmd;
    levelvar_t *current = levelvars;
 
-   if(!*cmd) return;
-   
+   // haleyjd 03/12/05: seriously restructured to remove possible
+   // overflow of static buffer and bad kludges used to separate
+   // the variable and value tokens -- now uses qstring_t.
+
+   if(!*cmd)
+      return;
+
    P_RemoveEqualses(cmd);
-   
-   // right, first find the variable name
-   
-   sscanf(cmd, "%s", varname);
-   
-   // find what it equals
-   equals = cmd+strlen(varname);
-   while(*equals == ' ') equals++; // cut off the leading spaces
+
+   // create qstrings to hold the tokens
+   M_QStrInitCreate(&var);
+   M_QStrInitCreate(&value);
+
+   while((c = *rover++))
+   {
+      switch(state)
+      {
+      case 0: // beginning: variable -- read until whitespace is hit
+         if(c == ' ')
+            state = 1;
+         else
+            M_QStrPutc(&var, c);
+         continue;
+      case 1: // between: skip whitespace -- read until non-whitespace
+         if(c != ' ')
+         {
+            state = 2;
+            M_QStrPutc(&value, c);
+         }
+         continue;
+      case 2: // end: value -- everything else goes into the value
+         M_QStrPutc(&value, c);
+         continue;
+      }
+   }
+
+   // get pointers to qstring buffers to do some C lib stuff below
+   varname = M_QStrBuffer(&var);
+   equals  = M_QStrBuffer(&value);
 
    // TODO: improve linear search? fixed small set, so may not matter
    while(current->type != IVT_END)
@@ -356,16 +432,38 @@ static void P_ParseLevelVar(char *cmd)
          case IVT_INT:
             *(int*)current->variable = atoi(equals);
             break;
-
+            
             // haleyjd 03/15/03: boolean support
          case IVT_BOOLEAN:
             *(boolean *)current->variable = 
                !strcasecmp(equals, "true") ? true : false;
             break;
+
+            // haleyjd 03/14/05: flags support
+         case IVT_FLAGS:
+            {
+               char *buffer, *bufptr;
+               dehflagset_t *flagset = (dehflagset_t *)current->extra;
+               
+               bufptr = buffer = strdup(equals);
+               
+               deh_ParseFlags(flagset, &bufptr, NULL);
+               
+               *(long *)current->variable = flagset->results[0];
+               
+               free(buffer);
+            }
+            break;
+         default:
+            I_Error("P_ParseLevelVar: unknown level variable type\n");
          }
       }
       current++;
    }
+
+   // free the qstrings
+   M_QStrFree(&var);
+   M_QStrFree(&value);
 }
 
 //
@@ -511,7 +609,9 @@ static void P_InfoDefaultFinale(void)
    LevelInfo.interTextLump = NULL;
    LevelInfo.finaleSecretOnly = false;
    LevelInfo.killFinale = false;
+   LevelInfo.killStats = false;
    LevelInfo.endOfGame = false;
+   LevelInfo.useEDFInterName = false;
 
    switch(gamemode)
    {
@@ -596,7 +696,7 @@ static void P_InfoDefaultFinale(void)
          LevelInfo.finaleSecretOnly = true; // only after secret exit
          break;
       default:
-         LevelInfo.backDrop  =  bgflat06;
+         LevelInfo.backDrop  = bgflat06;
          LevelInfo.interText = NULL;
          break;
       }
@@ -606,6 +706,10 @@ static void P_InfoDefaultFinale(void)
    case hereticreg:
       // Heretic modes
       LevelInfo.interMusic = H_music[hmus_cptd].name;
+
+      // "hidden" levels have no statistics intermission
+      if(gameepisode >= gameModeInfo->numEpisodes)
+         LevelInfo.killStats = true;
 
       if((gameepisode >= 1 && gameepisode <= 5) && gamemap == 8)
       {
@@ -642,6 +746,10 @@ static void P_InfoDefaultFinale(void)
 
    default:
       LevelInfo.interMusic = NULL;
+      // haleyjd: note -- this cannot use F_SKY1 like it did in BOOM
+      // because heretic.wad contains an invalid F_SKY1 flat. This 
+      // caused crashes during development of Heretic support, so now
+      // it uses the F_SKY2 flat which is provided in eternity.wad.
       LevelInfo.backDrop   = "F_SKY2";
       LevelInfo.interText  = NULL;
       break;
@@ -721,6 +829,63 @@ static void P_InfoDefaultSky(void)
 }
 
 //
+// P_InfoDefaultBossSpecials
+//
+// haleyjd 03/14/05: Sets the default boss specials for DOOM, DOOM II,
+// and Heretic. These are the actions triggered for various maps by the
+// BossDeath and HticBossDeath codepointers. They can now be enabled for
+// any map by using the boss-specials variable.
+//
+static void P_InfoDefaultBossSpecials(void)
+{
+   // most maps have no specials, so set to zero here
+   LevelInfo.bossSpecs = 0;
+
+   if(gamemode == commercial)
+   {
+      // DOOM II -- MAP07 has two specials
+      if(gamemap == 7)
+         LevelInfo.bossSpecs = BSPEC_MAP07_1 | BSPEC_MAP07_2;
+   }
+   else
+   {
+      // Ultimate DOOM and Heretic can use the same settings,
+      // since the monsters use different codepointers.
+      // E4M6 isn't triggered by HticBossDeath, and E5M8 isn't
+      // triggered by BossDeath.
+      if(gamemap == 8 || (gameepisode == 4 && gamemap == 6))
+      {
+         switch(gameepisode)
+         {
+         case 1:
+            LevelInfo.bossSpecs = BSPEC_E1M8;
+            break;
+         case 2:
+            LevelInfo.bossSpecs = BSPEC_E2M8;
+            break;
+         case 3:
+            LevelInfo.bossSpecs = BSPEC_E3M8;
+            break;
+         case 4:
+            switch(gamemap)
+            {
+            case 6:
+               LevelInfo.bossSpecs = BSPEC_E4M6;
+               break;
+            case 8:
+               LevelInfo.bossSpecs = BSPEC_E4M8;
+               break;
+            }
+            break;
+         case 5:
+            LevelInfo.bossSpecs = BSPEC_E5M8;
+            break;
+         } // end switch
+      } // end if
+   } // end else
+}
+
+//
 // P_SetSky2Texture
 //
 // Post-processing routine.
@@ -784,29 +949,30 @@ static void P_SetParTime(void)
 //
 static void P_ClearLevelVars(void)
 {
-   LevelInfo.levelPic   = "";
-   LevelInfo.musicName  = "";
-   LevelInfo.creator    = "unknown";
-   LevelInfo.interPic   = "INTERPIC";
-   LevelInfo.partime    = -1;
+   LevelInfo.levelPic  = NULL;
+   LevelInfo.musicName = "";
+   LevelInfo.creator   = "unknown";
+   LevelInfo.interPic  = "INTERPIC";
+   LevelInfo.partime   = -1;
 
    LevelInfo.colorMap      = "COLORMAP";
    LevelInfo.useFullBright = true;
    LevelInfo.unevenLight   = true;
    
    LevelInfo.hasLightning = false;
-   LevelInfo.nextSecret = "";
-   //info_weapons       = "";
-   LevelInfo.gravity    = DEFAULTGRAVITY;
-   LevelInfo.hasScripts = false;
-   LevelInfo.scriptLump = NULL;
-   LevelInfo.extraData  = NULL;
+   LevelInfo.nextSecret   = "";
+   //info_weapons         = "";
+   LevelInfo.gravity      = DEFAULTGRAVITY;
+   LevelInfo.hasScripts   = false;
+   LevelInfo.scriptLump   = NULL;
+   LevelInfo.extraData    = NULL;
 
    // haleyjd: construct defaults
    P_InfoDefaultLevelName();
    P_InfoDefaultSoundNames();
    P_InfoDefaultFinale();
    P_InfoDefaultSky();
+   P_InfoDefaultBossSpecials();
    
    // special handling for ExMy maps under DOOM II
    if(gamemode == commercial && isExMy(levelmapname))
@@ -843,19 +1009,6 @@ static void P_CleanLine(char *line)
    
    for(temp = line; *temp; ++temp)
       *temp = *temp < 32 ? ' ' : *temp;
-}
-
-//
-// P_LowerCase
-//
-// Converts the line into lower case for simplicity of comparisons.
-//
-static void P_LowerCase(char *line)
-{
-   char *temp;
-   
-   for(temp = line; *temp; ++temp)
-      *temp = tolower(*temp);
 }
 
 //

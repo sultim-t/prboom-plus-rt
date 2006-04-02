@@ -84,6 +84,10 @@ int default_monster_friction=1;
 int autoaim = 1;  //sf
 int default_autoaim = 1;
 
+// haleyjd: moved here from c_net.c (????)
+int allowmlook = 0;
+int default_allowmlook = 0;
+
 // killough 7/19/98: classic Doom BFG
 bfg_t bfgtype, default_bfgtype;
 

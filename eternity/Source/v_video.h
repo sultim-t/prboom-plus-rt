@@ -118,6 +118,9 @@ void V_DrawPatchTranslated(int x, int y, VBuffer *buffer, patch_t *patch, char *
 void V_DrawPatchTL(int x, int y, VBuffer *buffer, patch_t *patch, 
                    unsigned char *outr, int tl);
 
+void V_DrawPatchAdd(int x, int y, VBuffer *buffer, patch_t *patch,
+                    unsigned char *outr, int tl);
+
 // Draw a linear block of pixels into the view buffer.
 
 void V_DrawBlock(int x, int y, VBuffer *buffer, int width, int height, 
@@ -133,7 +136,9 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest);
 //          game palette
 
 byte V_FindBestColor(const byte *palette, int r, int g, int b);
+
 void V_InitFlexTranTable(const byte *palette);
+
 void V_CacheBlock(int x, int y, int width, int height, byte *src,
                   byte *bdest);
 

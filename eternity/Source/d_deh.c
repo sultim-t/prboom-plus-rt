@@ -45,7 +45,8 @@ rcsid[] = "$Id: d_deh.c,v 1.20 1998/06/01 22:30:38 thldrmn Exp $";
 #include "w_wad.h"
 #include "m_misc.h"
 #include "d_dehtbl.h"
-#include "e_edf.h"
+#include "e_states.h"
+#include "e_things.h"
 #include "e_sound.h"
 
 #ifndef TRUE
@@ -75,7 +76,7 @@ void    rstrip(char *);      // strip trailing whitespace
 char *  ptr_lstrip(char *);  // point past leading whitespace
 boolean deh_GetData(char *, char *, long *, char **, FILE *);
 boolean deh_procStringSub(char *, char *, char *, FILE *);
-char *  dehReformatStr(char *);
+static char *dehReformatStr(char *);
 
 // Prototypes for block processing functions
 // Pointers to these functions are used as the blocks are encountered.
@@ -215,7 +216,7 @@ dehflags_t deh_mobjflags[] =
   // haleyjd: for combined flags fields, the flags3 SLIDE must take
   // precedence, and thus has to be listed up here. This is a bit of
   // a kludge, but it will preserve compatibility perfectly. The flags
-  // SLIDE flag has no effect, as it is never used. I will make a point
+  // SLIDE bit has no effect, as it is never used. I will make a point
   // of avoiding duplicate flag names in the future ;)
 
   {"SLIDE",            0x00000100, 2}, // mobj slides against walls (for real)  
@@ -285,28 +286,33 @@ dehflags_t deh_mobjflags[] =
 
   // flags3 bits
 
-  {"GHOST",            0x00000001, 2}, // mobj is a heretic-style ghost
-  {"THRUGHOST",        0x00000002, 2}, // mobj passes through ghosts
-  {"NODMGTHRUST",      0x00000004, 2}, // mobj doesn't inflict thrust
-  {"ACTSEESOUND",      0x00000008, 2}, // mobj uses see sound randomly
-  {"LOUDACTIVE",       0x00000010, 2}, // mobj has full-volume activesnd
-  {"E5M8BOSS",         0x00000020, 2}, // mobj is boss of E5M8
-  {"DMGIGNORED",       0x00000040, 2}, // mobj's damage is ignored
-  {"BOSSIGNORE",       0x00000080, 2}, // mobj ignores damage by others with flag
+  {"GHOST",            0x00000001, 2}, // heretic-style ghost
+  {"THRUGHOST",        0x00000002, 2}, // passes through ghosts
+  {"NODMGTHRUST",      0x00000004, 2}, // doesn't inflict thrust
+  {"ACTSEESOUND",      0x00000008, 2}, // uses see sound randomly
+  {"LOUDACTIVE",       0x00000010, 2}, // has full-volume activesnd
+  {"E5M8BOSS",         0x00000020, 2}, // boss of E5M8
+  {"DMGIGNORED",       0x00000040, 2}, // damage is ignored
+  {"BOSSIGNORE",       0x00000080, 2}, // ignores damage by others with flag
   // See above for flags3 SLIDE flag
-  {"TELESTOMP",        0x00000200, 2}, // mobj can telestomp
-  {"WINDTHRUST",       0x00000400, 2}, // mobj affected by heretic wind
-  {"FIREDAMAGE",       0x00000800, 2}, // mobj does fire damage
-  {"KILLABLE",         0x00001000, 2}, // mobj is killable, but doesn't count
-  {"DEADFLOAT",        0x00002000, 2}, // mobj keeps NOGRAVITY when dead
-  {"NOTHRESHOLD",      0x00004000, 2}, // mobj has no target threshold
-  {"FLOORMISSILE",     0x00008000, 2}, // mobj is a floor missile
-  {"SUPERITEM",        0x00010000, 2}, // mobj is a super powerup
-  {"NOITEMRESP",       0x00020000, 2}, // mobj won't item respawn
-  {"SUPERFRIEND",      0x00040000, 2}, // mobj won't attack other friends
-  {"INVULNCHARGE",     0x00080000, 2}, // mobj invincible when skull flying
-  {"EXPLOCOUNT",       0x00100000, 2}, // mobj doesn't explode until count expires
-  {"CANNOTPUSH",       0x00200000, 2}, // mobj can't push other things
+  {"TELESTOMP",        0x00000200, 2}, // can telestomp
+  {"WINDTHRUST",       0x00000400, 2}, // affected by heretic wind
+  {"FIREDAMAGE",       0x00000800, 2}, // does fire damage
+  {"KILLABLE",         0x00001000, 2}, // is killable, but doesn't count
+  {"DEADFLOAT",        0x00002000, 2}, // keeps NOGRAVITY when dead
+  {"NOTHRESHOLD",      0x00004000, 2}, // has no target threshold
+  {"FLOORMISSILE",     0x00008000, 2}, // is a floor missile
+  {"SUPERITEM",        0x00010000, 2}, // is a super powerup
+  {"NOITEMRESP",       0x00020000, 2}, // won't item respawn
+  {"SUPERFRIEND",      0x00040000, 2}, // won't attack other friends
+  {"INVULNCHARGE",     0x00080000, 2}, // invincible when skull flying
+  {"EXPLOCOUNT",       0x00100000, 2}, // doesn't explode until count expires
+  {"CANNOTPUSH",       0x00200000, 2}, // can't push other things
+  {"TLSTYLEADD",       0x00400000, 2}, // uses additive translucency
+  {"SPACMONSTER",      0x00800000, 2}, // monster that can activate param lines
+  {"SPACMISSILE",      0x01000000, 2}, // missile that can activate param lines
+  {"NOFRIENDDMG",      0x02000000, 2}, // object isn't hurt by friends
+  {"3DDECORATION",     0x04000000, 2}, // object is a decor. with 3D height info
 
   { NULL,              0 }             // NULL terminator
 };
@@ -711,11 +717,13 @@ void deh_procBexCodePointers(DWFILE *fpin, FILE* fpout, char *line)
 // ============================================================
 // deh_ParseFlags
 // Purpose: Handle thing flag fields in a general manner
-// Args:    dehflags -- pointer to a dehflags_t table
-//          numflags -- number of flag entries in the table
-//          strval   -- ptr-to-ptr to string containing flags
-//          fpout    -- output file stream
-// Returns: long -- flags value
+// Args:    flagset -- pointer to a dehflagset_t object
+//          strval  -- ptr-to-ptr to string containing flags
+//                     Note: MUST be a mutable string pointer!
+//          fpout   -- output file stream
+// Returns: Nothing. Results for each parsing mode are written
+//          into the corresponding index of the results array
+//          within the flagset object.
 //
 // haleyjd 11/03/02: generalized from code that was previously below
 // haleyjd 04/10/03: made global for use in EDF and ExtraData
@@ -723,9 +731,9 @@ void deh_procBexCodePointers(DWFILE *fpin, FILE* fpout, char *line)
 //
 void deh_ParseFlags(dehflagset_t *flagset, char **strval, FILE *fpout)
 {
-   dehflags_t *flaglist = flagset->flaglist;
-   long       *results  = flagset->results;
-   int        mode      = flagset->mode;
+   dehflags_t *flaglist = flagset->flaglist; // get flag list
+   long       *results  = flagset->results;  // pointer to results array
+   int        mode      = flagset->mode;     // get mode
 
    // haleyjd: init all results to zero
    memset(results, 0, MAXFLAGFIELDS * sizeof(long));
@@ -2279,7 +2287,7 @@ void deh_procBexMusic(DWFILE *fpin, FILE *fpout, char *line)
 // Args:    string -- the string to convert
 // Returns: the converted string (converted in a static buffer)
 //
-char *dehReformatStr(char *string)
+static char *dehReformatStr(char *string)
 {
   static char buff[DEH_BUFFERMAX]; // only processing the changed string,
   //  don't need double buffer

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2000 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __D_KEYWDS_H__
-#define __D_KEYWDS_H__
+#ifndef D_KEYWDS_H__
+#define D_KEYWDS_H__
 
 // attribute hints are available only under GNU C
 
@@ -74,6 +74,6 @@
   #endif
 #endif
 
-#endif // __D_KEYWDS_H__
+#endif // D_KEYWDS_H__
 
 // EOF

@@ -54,12 +54,15 @@ rcsid[] = "$Id: p_spec.c,v 1.56 1998/05/25 10:40:30 killough Exp $";
 #include "d_deh.h"
 #include "r_plane.h"  // killough 10/98
 #include "p_info.h"
+#include "c_io.h"
 #include "c_runcmd.h"
 #include "hu_stuff.h"
 #include "r_ripple.h"
 #include "d_gi.h"
 #include "p_user.h"
-#include "e_edf.h"
+#include "e_things.h"
+#include "e_ttypes.h"
+#include "e_exdata.h"
 #include "a_small.h"
 
 //
@@ -79,7 +82,7 @@ typedef struct
 //      source animation definition
 //
 #ifdef _MSC_VER
-#pragma pack(1)
+#pragma pack(push, 1)
 #endif
 
 typedef struct
@@ -91,7 +94,7 @@ typedef struct
 } __attribute__ ((packed)) animdef_t; //jff 3/23/98 pack to read from memory
 
 #ifdef _MSC_VER
-#pragma pack()
+#pragma pack(pop)
 #endif
 
 #define MAXANIMS 32                   // no longer a strict limit -- killough
@@ -1101,6 +1104,7 @@ void P_StartLineScript(line_t *line, mobj_t *thing)
       // set invocation data
       useContext->invocationData.invokeType = SC_INVOKE_LINE;
       useContext->invocationData.trigger = thing;
+      useContext->invocationData.line = line;
 
       // execute
       A_ExecScriptByNumV(&useContext->smallAMX, line->tag);
@@ -1140,6 +1144,13 @@ void P_StartLineScript(line_t *line, mobj_t *thing)
 void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 {
    int ok;
+
+   // haleyjd 02/28/05: check for parameterized specials
+   if(demo_version >= 333 && E_IsParamSpecial(line->special))
+   {
+      P_ActivateParamLine(line, thing, side, SPAC_CROSS);
+      return;
+   }
    
    //  Things that should never trigger lines
    if(!thing->player)
@@ -2047,8 +2058,17 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 // of the line, should the sector already be in motion when the line is
 // impacted. Change is qualified by demo_compatibility.
 //
-void P_ShootSpecialLine(mobj_t *thing, line_t *line)
+// haleyjd 03/13/05: added side argument for param line specials
+//
+void P_ShootSpecialLine(mobj_t *thing, line_t *line, int side)
 {
+   // haleyjd 02/28/05: parameterized specials
+   if(demo_version >= 333 && E_IsParamSpecial(line->special))
+   {
+      P_ActivateParamLine(line, thing, side, SPAC_IMPACT);
+      return;
+   }
+   
    //jff 02/04/98 add check here for generalized linedef
    if(!demo_compatibility)
    {
@@ -2151,11 +2171,11 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
          {
          case GunOnce:
             if (linefunc(line))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             return;
          case GunMany:
             if (linefunc(line))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             return;
          default:  // if not a gun type, do nothing here
             return;
@@ -2186,19 +2206,19 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
    case 24:
       // 24 G1 raise floor to highest adjacent
       if(EV_DoFloor(line,raiseFloor) || demo_compatibility)
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
 
    case 46:
       // 46 GR open door, stay open
       EV_DoDoor(line,doorOpen);
-      P_ChangeSwitchTexture(line,1);
+      P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 47:
       // 47 G1 raise floor to nearest and change texture and type
       if(EV_DoPlat(line,raiseToNearestAndChange,0) || demo_compatibility)
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
       //jff 1/30/98 added new gun linedefs here
@@ -2214,7 +2234,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
             // killough 10/98: prevent zombies from exiting levels
             if(thing->player && thing->player->health<=0 && !comp[comp_zombie])
                break;
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             G_ExitLevel();
             break;
             
@@ -2223,7 +2243,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
             // killough 10/98: prevent zombies from exiting levels
             if(thing->player && thing->player->health<=0 && !comp[comp_zombie])
                break;
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             G_SecretExitLevel();
             break;
             //jff end addition of new gun linedefs
@@ -2271,12 +2291,12 @@ nukage_t nukageValues[4][2] =
 //
 // Changed to ignore sector types the engine does not recognize
 //
-
 void P_PlayerInSpecialSector (player_t *player)
 {
    int dmgAmt, dmgTics, dmgType;
    sector_t *sector = player->mo->subsector->sector;
 
+   // TODO: waterzones should damage whenever you're in them
    // Falling, not all the way down yet?
    // Sector specials don't apply in mid-air
    if(player->mo->z != sector->floorheight)
@@ -2350,6 +2370,7 @@ void P_PlayerInSpecialSector (player_t *player)
       if(enable_nuke)  // killough 12/98: nukage disabling cheat
       {
          // haleyjd 03/12/03: heretic damage selection
+         // HTIC_FIXME: I don't like this.
          if(demo_version >= 331 && (sector->special & HTIC_DMG_MASK))
             dmgType = HTICNUKAGE;
          else
@@ -2378,7 +2399,7 @@ void P_PlayerInSpecialSector (player_t *player)
                   P_DamageMobj(player->mo, NULL, NULL, dmgAmt, MOD_SLIME);
                   
                   if(dmgType == HTICNUKAGE)
-                     P_HitFloor(player->mo);
+                     E_HitFloor(player->mo);
                }
             }
             break;
@@ -2393,7 +2414,7 @@ void P_PlayerInSpecialSector (player_t *player)
                   P_DamageMobj(player->mo, NULL, NULL, dmgAmt, MOD_SLIME);
                   
                   if(dmgType == HTICNUKAGE)
-                     P_HitFloor(player->mo);
+                     E_HitFloor(player->mo);
                }
             }
             break;
@@ -2413,6 +2434,35 @@ void P_PlayerInSpecialSector (player_t *player)
       // If FRICTION_MASK or PUSH_MASK is set, we don't care at this
       // point, since the code to deal with those situations is
       // handled by Thinkers.
+   }
+}
+
+//
+// P_PlayerOnSpecialFlat
+//
+// haleyjd 08/23/05: Inflicts terrain-based environmental damage
+// on players.
+//
+void P_PlayerOnSpecialFlat(player_t *player)
+{
+   sector_t *sector = player->mo->subsector->sector;
+   ETerrain *terrain;
+
+   // TODO: waterzones should damage whenever you're in them
+   // Falling, not all the way down yet?
+   // Sector specials don't apply in mid-air
+   if(player->mo->z != sector->floorheight)
+      return;
+
+   terrain = E_GetThingFloorType(player->mo);
+
+   if(terrain->damageamount && !(leveltime & terrain->damagetimemask))
+   {
+      P_DamageMobj(player->mo, NULL, NULL, terrain->damageamount,
+                   terrain->damagetype);
+
+      if(terrain->splash)
+         S_StartSoundName(player->mo, terrain->splash->sound);
    }
 }
 
@@ -3468,305 +3518,7 @@ static void P_SpawnHereticWind(line_t *line)
 //
 ////////////////////////////////////////////////////////////////////////////
 
-
-//================================
-//
-// haleyjd 3/17/99: TerrainTypes
-//
-//================================
-
-int numterraindefs;
-int *TerrainTypes = NULL; // return to array model; optimization
-
-// haleyjd 11/20/00: restructuring for purposes of adding a
-// customizable data lump
-
-typedef struct terraintype_s
-{
-   char  name[9];
-   short type;
-} terraintype_t; 
-
-terraintype_t *TerrainTypeDefs = NULL;
-
-/*
-   haleyjd 11/20/00: added a really sweet feature, made
-   TerrainTypes editable via the TERTYPES lump. Binary format, needs
-   an external editor utility (which I have written). This code
-   expects to find a lump with the number of terrain definitions,
-   then for each, a 9-character NULL-extended string for the flat
-   name, and a short describing what type of effect to trigger
-   (see p_spec.h, the values are all the same).
-*/
-
-void P_LoadTerrainTypeDefs(void)
-{
-   short *shrtptr, temp;
-   int lumpnum, i, j;
-   char *chrptr, name[9];
-
-   if((lumpnum = W_CheckNumForName("TERTYPES")) == -1)
-   {
-      numterraindefs = 0;
-      return;
-   }
-   else
-   {
-      shrtptr = W_CacheLumpNum(lumpnum, PU_CACHE);
-      numterraindefs = SHORT(*shrtptr);
-      shrtptr++;
-      if(TerrainTypeDefs)
-         Z_Free(TerrainTypeDefs);
-      TerrainTypeDefs = 
-         Z_Malloc((numterraindefs+1)*sizeof(terraintype_t), 
-                  PU_STATIC, NULL);
-      chrptr = (char *)shrtptr;
-      
-      for(i = 0; i < numterraindefs; i++)
-      {
-         // get null-terminated flat name
-         for(j=0; j<9; j++)
-            name[j] = *chrptr++;
-         shrtptr = (short *)chrptr;
-         temp = SHORT(*shrtptr);
-         shrtptr++;
-         strcpy(TerrainTypeDefs[i].name, name);
-         
-         if(temp < 0 || temp > MAXTERRAINDEF)
-            temp = 0;
-         TerrainTypeDefs[i].type = temp;
-         chrptr = (char *)shrtptr;
-      }
-
-      strcpy(TerrainTypeDefs[numterraindefs].name, "END");
-      TerrainTypeDefs[numterraindefs].type = -1;
-   }
-}
-
-// FIXME: this wastes space by allocating an array for all flats,
-// when a hash table could be used
-void P_InitTerrainTypes(void)
-{
-   int i;
-   int lump;
-   int size;
-
-   size = (numflats + 1) * sizeof(int);
-   if(TerrainTypes)
-      Z_Free(TerrainTypes);
-   TerrainTypes = Z_Malloc(size, PU_STATIC, NULL);
-   memset(TerrainTypes, 0, size);
-   
-   if(numterraindefs == 0) // no terrain types defined, leave zero
-     return;
-
-   for(i = 0; TerrainTypeDefs[i].type != -1; i++)
-   {
-      // haleyjd 07/01/99
-      // Change this from R_FlatNumForName to W_CheckNumForName.
-      // Restores Ultimate DOOM to functionality without an added 
-      // flat wad.
-
-      lump = (W_CheckNumForName)(TerrainTypeDefs[i].name, ns_flats);
-      if(lump != -1)
-      {
-         TerrainTypes[lump-firstflat] = TerrainTypeDefs[i].type;
-      }
-   }
-}
-
-//
-// P_GetThingFloorType
-//
-// Note: this returns the floor type of the thing's subsector
-// floorpic, not necessarily the floor the thing is standing on.
-//
-int P_GetThingFloorType(mobj_t *thing)
-{
-   if(demo_version < 329 || comp[comp_terrain])
-      return FLOOR_SOLID;
-
-   return TerrainTypes[thing->subsector->sector->floorpic];
-}
-
-//
-// haleyjd 06/21/02: function to get TerrainType from a point
-//
-int P_GetTerrainTypeForPt(fixed_t x, fixed_t y, int position)
-{
-   subsector_t *subsec = R_PointInSubsector(x, y);
-
-   // can retrieve a TerrainType for either the floor or the
-   // ceiling
-   switch(position)
-   {
-   case 0:
-      return (TerrainTypes[subsec->sector->floorpic]);
-   case 1:
-      return (TerrainTypes[subsec->sector->ceilingpic]);
-   default:
-      return FLOOR_SOLID;
-   }
-}
-
-int P_GetSecTerrainType(sector_t *sector, int position)
-{
-   switch(position)
-   {
-   case 0:
-      return (TerrainTypes[sector->floorpic]);
-   case 1:
-      return (TerrainTypes[sector->ceilingpic]);
-   default:
-      return FLOOR_SOLID;
-   }
-}
-
-//
-// P_TerrainFloorClip
-//
-// Returns whether a TerrainType should clip feet or not
-//
-static boolean P_TerrainFloorClip(int tt)
-{
-   switch(tt)
-   {
-   case FLOOR_WATER:
-   case FLOOR_LAVA:
-   case FLOOR_SLUDGE:
-      return true;
-   default:
-      return false;
-   }
-}
-
-boolean P_SectorFloorClip(sector_t *sector)
-{
-   return P_TerrainFloorClip(TerrainTypes[sector->floorpic]);
-}
-
-static void FloorWater(mobj_t *, fixed_t);
-static void FloorSludge(mobj_t *, fixed_t);
-static void FloorLava(mobj_t *, fixed_t);
-
-int P_HitWater(mobj_t *thing, sector_t *sector)
-{
-   fixed_t z;
-
-   // no TerrainTypes in old demos or if comp enabled
-   if(demo_version < 329 || comp[comp_terrain])
-      return FLOOR_SOLID;
-
-   // some things don't cause splashes
-   if(thing->flags2 & MF2_NOSPLASH)
-      return FLOOR_SOLID;
-
-   z = sector->heightsec != -1 ? 
-         sectors[sector->heightsec].floorheight :
-         sector->floorheight;
-
-   switch(TerrainTypes[sector->floorpic])
-   {
-   case FLOOR_WATER:
-      FloorWater(thing, z);
-      return FLOOR_WATER;
-   case FLOOR_LAVA:
-      FloorLava(thing, z);
-      return FLOOR_LAVA;
-   case FLOOR_SLUDGE:
-      FloorSludge(thing, z);
-      return FLOOR_SLUDGE;
-   default:
-      break;
-   }
-
-   return FLOOR_SOLID;
-}
-
-int P_HitFloor(mobj_t *thing)
-{
-   msecnode_t  *m;
-
-   // no TerrainTypes in old demos or if comp enabled
-   if(demo_version < 329 || comp[comp_terrain])
-      return FLOOR_SOLID;
-
-   // some things don't cause splashes
-   if(thing->flags2 & MF2_NOSPLASH)
-      return FLOOR_SOLID;
-
-   // determine what touched sector the thing is standing on
-   for(m = thing->touching_sectorlist; m; m = m->m_tnext)
-   {
-      if(thing->z == m->m_sector->floorheight)
-         break;
-   }
-
-   // not on a floor or dealing with deep water, return solid
-   if(!m || m->m_sector->heightsec != -1)         
-         return FLOOR_SOLID;
-
-   return P_HitWater(thing, m->m_sector);
-}
-
-// TerrainType implementor functions
-
-//
-// FLOOR_WATER
-//
-static void FloorWater(mobj_t *thing, fixed_t currentz)
-{
-   mobj_t *mo;
-
-   mo = P_SpawnMobj(thing->x, thing->y, currentz, 
-                    E_SafeThingType(MT_SPLASHBASE));
-   S_StartSound(mo, sfx_gloop);
-   
-   mo = P_SpawnMobj(thing->x, thing->y, currentz, 
-                    E_SafeThingType(MT_SPLASH));
-   P_SetTarget(&mo->target, thing);
-   
-   mo->momx = P_SubRandom(pr_splash) << 8;
-   mo->momy = P_SubRandom(pr_splash) << 8;
-   mo->momz = 2*FRACUNIT + (P_Random(pr_splash) << 8);
-}
-
-//
-// FLOOR_LAVA
-//
-static void FloorLava(mobj_t *thing, fixed_t currentz)
-{
-   mobj_t *mo;
-
-   mo = P_SpawnMobj(thing->x, thing->y, currentz, 
-                    E_SafeThingType(MT_LAVASPLASH));
-   S_StartSound(mo, sfx_burn);
-
-   mo = P_SpawnMobj(thing->x, thing->y, currentz, 
-                    E_SafeThingType(MT_LAVASMOKE));
-   mo->momz = FRACUNIT + (P_Random(pr_splash)<<7);
-}
-
-//
-// FLOOR_SLUDGE
-//
-static void FloorSludge(mobj_t *thing, fixed_t currentz)
-{
-   mobj_t *mo;
-
-   mo = P_SpawnMobj(thing->x, thing->y, currentz, 
-                    E_SafeThingType(MT_SLUDGEBASE));
-   S_StartSound(mo, sfx_muck);
-   
-   mo = P_SpawnMobj(thing->x, thing->y, currentz, 
-                    E_SafeThingType(MT_SLUDGECHUNK));
-   P_SetTarget(&mo->target, thing);
-   
-   mo->momx = P_SubRandom(pr_splash) << 8;
-   mo->momy = P_SubRandom(pr_splash) << 8;
-   mo->momz = FRACUNIT + (P_Random(pr_splash) << 8);
-}
-
+// haleyjd 08/22/05: TerrainTypes moved to e_ttypes.c
 
 //==========================
 //
@@ -3812,7 +3564,7 @@ line_t *P_FindLine(int tag, int *searchPosition)
 // Runs through the given attached sector list and scrolls both
 // sides of any linedef it finds with same tag.
 //
-boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, boolean crush)
+boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, int crush)
 {
    boolean  ok = true;
    int      i;
@@ -3843,14 +3595,14 @@ boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, boolea
    // on delta. 
    for(i = 0; i < numattached; ++i)
    {
+#ifdef RANGECHECK  // haleyjd: made RANGECHECK
       if(attached[i] < 0 || attached[i] >= numlines)
          I_Error("P_Scroll3DSides: attached[i] is not a valid linedef index.\n");
+#endif
 
       line = lines + attached[i];
 
-      if(!(line->flags & (ML_TWOSIDED|ML_3DMIDTEX)) ||
-         line->sidenum[0] == -1 ||
-         line->sidenum[1] == -1)
+      if(!(line->flags & (ML_TWOSIDED|ML_3DMIDTEX)) || line->sidenum[1] == -1)
          continue;
 
       sides[line->sidenum[0]].rowoffset += delta;
@@ -4061,7 +3813,7 @@ void P_ConvertHereticSpecials(void)
    // FIXME: try to verify that these are as close as possible --
    // if they are not, new line types might be appropriate
    // convert heretic line specials
-   for(i = 0; i < numlines; i++)
+   for(i = 0; i < numlines; ++i)
    {
       line = &(lines[i]);
 
@@ -4070,8 +3822,12 @@ void P_ConvertHereticSpecials(void)
       case 99:  // Texture scroll right
          line->special = 85;
          break;
-      case 100: // WR raise door turbo -- FIXME: needs spd VDOORSPEED*3
-         line->special = 0x3d91; // gen type 15761
+      case 100: // WR raise door 3*VDOORSPEED
+         line->special  = 300; // Door_Raise
+         line->extflags = EX_ML_CROSS|EX_ML_PLAYER|EX_ML_REPEAT;
+         line->args[0]  = line->tag;
+         line->args[1]  = ((3 * VDOORSPEED) >> FRACBITS) * 8;
+         line->args[2]  = VDOORWAIT;
          break;
       case 105: // W1 secret exit
          line->special = 124;
@@ -4088,7 +3844,7 @@ void P_ConvertHereticSpecials(void)
    }
 
    // sector types
-   for(i = 0; i < numsectors; i++)
+   for(i = 0; i < numsectors; ++i)
    {
       sector = &(sectors[i]);
 
@@ -4327,11 +4083,10 @@ static void P_SpawnPortal(line_t *line,
 // Small Natives
 //
 
-static cell AMX_NATIVE_CALL sm_sectorsetspecial(AMX *amx, cell *params)
+static cell AMX_NATIVE_CALL sm_sectorspecial(AMX *amx, cell *params)
 {   
    int special = (int)params[1];
    int id      = (int)params[2];
-   // TODO: sid support (idtype == params[3])
    int secnum = -1;
 
    if(gamestate != GS_LEVEL)
@@ -4357,7 +4112,6 @@ static cell AMX_NATIVE_CALL sm_sectorcolormap(AMX *amx, cell *params)
    int err, lumpnum;
    int pos    = (int)params[2];
    int id     = (int)params[3];
-   // TODO: sid support (idtype == params[4])
    int secnum = -1;
 
    if(gamestate != GS_LEVEL)
@@ -4419,8 +4173,8 @@ static cell AMX_NATIVE_CALL sm_sectorcolormap(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO pspec_Natives[] =
 {
-   { "SectorSetSpecial", sm_sectorsetspecial },
-   { "SectorColormap",   sm_sectorcolormap },
+   { "_SectorSpecial",  sm_sectorspecial },
+   { "_SectorColormap", sm_sectorcolormap },
    { NULL,               NULL }
 };
 

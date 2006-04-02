@@ -45,7 +45,8 @@ rcsid[] = "$Id: p_map.c,v 1.35 1998/05/12 12:47:16 phares Exp $";
 #include "p_tick.h"
 #include "p_user.h"
 #include "d_gi.h"
-#include "e_edf.h"
+#include "e_states.h"
+#include "e_things.h"
 
 static mobj_t    *tmthing;
 static int       tmflags;
@@ -91,7 +92,11 @@ int       tmfloorpic;
 sector_t *tmfloorsec = NULL; // 10/16/02: floorsec
 
 // SoM 09/07/02: Solution to problem of monsters walking on 3dsides
-boolean   tmtouch3dside = false;
+// haleyjd: values for tmtouch3dside:
+// 0 == no 3DMidTex involved in clipping
+// 1 == 3DMidTex involved but not responsible for floorz
+// 2 == 3DMidTex responsible for floorz
+int tmtouch3dside = 0;
 
 // keep track of the line that lowers the ceiling,
 // so missiles don't explode against sky hack walls
@@ -125,14 +130,24 @@ extern boolean reset_viewz;
 // PIT_StompThing
 //
 
-static boolean telefrag;   // killough 8/9/98: whether to telefrag at exit
+static boolean telefrag; // killough 8/9/98: whether to telefrag at exit
+
+// haleyjd 06/06/05: whether to return false if an inert thing 
+// blocks a teleport. DOOM has allowed you to simply get stuck in
+// such things so far.
+static boolean ignore_inerts = true;
 
 static boolean PIT_StompThing (mobj_t *thing)
 {
    fixed_t blockdist;
    
    if(!(thing->flags & MF_SHOOTABLE)) // Can't shoot it? Can't stomp it!
-      return true;
+   {
+      // haleyjd 06/06/05: some teleports may not want to stick the
+      // object right inside of an inert object at the destination...
+      if(ignore_inerts)
+         return true;
+   }
    
    blockdist = thing->radius + tmthing->radius;
    
@@ -285,7 +300,7 @@ boolean P_TeleportMove(mobj_t *thing, fixed_t x, fixed_t y, boolean boss)
    tmfloorsec = newsubsec->sector;
    
    // SoM 09/07/02: 3dsides monster fix
-   tmtouch3dside = false;
+   tmtouch3dside = 0;
    
    validcount++;
    numspechit = 0;
@@ -332,6 +347,25 @@ boolean P_TeleportMove(mobj_t *thing, fixed_t x, fixed_t y, boolean boss)
    P_SetThingPosition(thing);
    
    return true;
+}
+
+//
+// P_TeleportMoveStrict
+//
+// haleyjd 06/06/05: Sets the ignore_inerts flag to false and calls
+// P_TeleportMove. The result is that things won't get stuck inside
+// inert objects that are at their destination. Rather, the teleport
+// is rejected.
+//
+boolean P_TeleportMoveStrict(mobj_t *thing, fixed_t x, fixed_t y, boolean boss)
+{
+   boolean res;
+
+   ignore_inerts = false;
+   res = P_TeleportMove(thing, x, y, boss);
+   ignore_inerts = true;
+   
+   return res;
 }
 
 //
@@ -387,11 +421,13 @@ static int untouched(line_t *ld)
      P_BoxOnLineSide(tmbbox, ld) != -1;
 }
 
+extern boolean open3dmidtex;
+
 //
 // PIT_CheckLine
+//
 // Adjusts tmfloorz and tmceilingz as lines are contacted
 //
-
 static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
 {
    if(tmbbox[BOXRIGHT] <= ld->bbox[BOXLEFT]
@@ -458,6 +494,22 @@ static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
 
       // haleyjd
       tmfloorsec = openfloorsec;
+
+      // haleyjd: adjust 3DMidTex status
+      if(open3dmidtex)
+      {
+         // a 3dmidtex line adjusted the floor, and we're currently 
+         // standing on it
+         tmtouch3dside = 2;
+      }
+      else
+      {
+         // a non-3dmidtex line adjusted the floor;
+         // if we were marked as standing on one previously, we're
+         // not now, but one is still involved in the clipping
+         if(tmtouch3dside == 2)
+            tmtouch3dside = 1;
+      }
    }
 
    if(lowfloor < tmdropoffz)
@@ -465,7 +517,7 @@ static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
 
    // haleyjd 11/10/04: 3DMidTex fix: never consider dropoffs when
    // touching 3DMidTex lines.
-   if(tmtouch3dside)
+   if(demo_version >= 331 && tmtouch3dside)
       tmdropoffz = tmfloorz;
 
 #ifdef OVER_UNDER
@@ -578,6 +630,21 @@ static boolean P_CanStepUpOn(mobj_t *mover, mobj_t *blocker)
    return true;
 }
 #endif
+
+//
+// P_MissileBlockHeight
+//
+// haleyjd 07/06/05: function that returns the height to be used 
+// when considering an object for missile collisions. Some decorative
+// objects do not want to use their correct 3D height for clipping
+// missiles, since this alters the playability of the game severely
+// in areas of many maps.
+//
+d_inline static int P_MissileBlockHeight(mobj_t *mo)
+{
+   return (demo_version >= 333 && !comp[comp_theights] &&
+           mo->flags3 & MF3_3DDECORATION) ? mo->info->height : mo->height;
+}
 
 //
 // PIT_CheckThing
@@ -709,16 +776,22 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
    if(tmthing->flags & MF_MISSILE || (tmthing->flags & MF_BOUNCES &&
                                       !(tmthing->flags & MF_SOLID)))
    {
+      // haleyjd 07/06/05: some objects may use info->height instead
+      // of their current height value in this situation, to avoid
+      // altering the playability of maps when 3D object clipping
+      // with corrected thing heights is enabled.
+      int height = P_MissileBlockHeight(thing);
+
       // haleyjd: some missiles can go through ghosts
       if(thing->flags3 & MF3_GHOST && tmthing->flags3 & MF3_THRUGHOST)
          return true;
 
       // see if it went over / under
       
-      if(tmthing->z > thing->z + thing->height)
+      if(tmthing->z > thing->z + height) // haleyjd 07/06/05
          return true;    // overhead
       
-      if(tmthing->z+tmthing->height < thing->z)
+      if(tmthing->z + tmthing->height < thing->z)
          return true;    // underneath
 
       if(tmthing->target &&
@@ -915,7 +988,7 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
    // haleyjd 10/16/02: tmfloorsec
    tmfloorsec = newsubsec->sector;
    // SoM: 09/07/02: 3dsides monster fix
-   tmtouch3dside = false;
+   tmtouch3dside = 0;
    validcount++;
    numspechit = 0;
 
@@ -1134,8 +1207,24 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
          // lines that pass over sector dropoffs, as long as the dropoff
          // between the 3DMidTex lines is <= 24 units.
 
-         if(demo_version >= 331 && on3dmidtex && thing->z - tmfloorz > 24*FRACUNIT)
-            return false;
+         if(demo_version >= 331 && on3dmidtex)
+         {
+            // allow appropriate forced dropoff behavior
+            if(!dropoff || 
+               (dropoff == 2 && 
+                (thing->z - tmfloorz > 128*FRACUNIT ||
+                 !thing->target || thing->target->z > tmfloorz)))
+            {
+               // deny any move resulting in a difference > 24
+               if(thing->z - tmfloorz > 24*FRACUNIT)
+                  return false;
+            }
+            else  // dropoff allowed
+            {
+               felldown = !(thing->flags & MF_NOGRAVITY) &&
+                  thing->z - tmfloorz > 24*FRACUNIT;
+            }
+         }
          else if(comp[comp_dropoff])
          {
             if(tmfloorz - tmdropoffz > 24*FRACUNIT)
@@ -1240,6 +1329,8 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 }
 
 //
+// PIT_ApplyTorque
+//
 // killough 9/12/98:
 //
 // Apply "torque" to objects hanging off of ledges, so that they
@@ -1251,7 +1342,6 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 // If more than one linedef is contacted, the effects are cumulative,
 // so balancing is possible.
 //
-
 static boolean PIT_ApplyTorque(line_t *ld)
 {
    if(ld->backsector &&       // If thing touches two-sided pivot linedef
@@ -1371,7 +1461,8 @@ void P_ApplyTorque(mobj_t *mo)
 #ifdef OVER_UNDER
 
 // SoM 10/28/02: Moved this for new 3d object clipping code
-static boolean crushchange, nofit;
+static int crushchange;
+static boolean nofit;
 
 boolean P_ThingMovez(mobj_t *thing, fixed_t zmove)
 {
@@ -1654,7 +1745,7 @@ static void P_CheckLines(mobj_t *thing)
    // haleyjd 10/16/02: tmfloorsec
    tmfloorsec = newsubsec->sector;
    // SoM: 09/07/02: 3dsides monster fix
-   tmtouch3dside = false;
+   tmtouch3dside = 0;
    validcount++;
    numspechit = 0;
 
@@ -2179,6 +2270,46 @@ static boolean PTR_AimTraverse (intercept_t *in)
 }
 
 //
+// P_Shoot2SLine
+//
+// haleyjd 03/13/05: This code checks to see if a bullet is passing
+// a two-sided line, isolated out of PTR_ShootTraverse below to keep it
+// from becoming too messy. There was a problem with DOOM assuming that
+// a bullet had nothing to hit when crossing a 2S line with the same
+// floor and ceiling heights on both sides of it, causing line specials
+// to be activated inappropriately.
+//
+// When running with plane shooting, we must ignore the floor/ceiling
+// sameness checks and only consider the true position of the bullet
+// with respect to the line opening.
+//
+// Returns true if PTR_ShootTraverse should exit, and false otherwise.
+//
+static boolean P_Shoot2SLine(line_t *li, int side, fixed_t dist)
+{
+   // haleyjd: when allowing planes to be shot, we do not care if
+   // the sector heights are the same; we must check against the
+   // line opening, otherwise lines behind the plane will be activated.
+   boolean floorsame = 
+      (li->frontsector->floorheight == li->backsector->floorheight &&
+       demo_version < 333);
+   boolean ceilingsame =
+      (li->frontsector->ceilingheight == li->backsector->ceilingheight &&
+       demo_version < 333);
+
+   if((floorsame   || FixedDiv(openbottom - shootz , dist) <= aimslope) &&
+      (ceilingsame || FixedDiv(opentop - shootz , dist) >= aimslope))
+   {
+      if(li->special && demo_version >= 329)
+         P_ShootSpecialLine(shootthing, li, side);
+      
+      return true;      // shot continues
+   }
+
+   return false;
+}
+
+//
 // PTR_ShootTraverse
 //
 // haleyjd 11/21/01: fixed by SoM to allow bullets to puff on the
@@ -2187,7 +2318,7 @@ static boolean PTR_AimTraverse (intercept_t *in)
 //
 static boolean PTR_ShootTraverse(intercept_t *in)
 {
-   fixed_t slope, dist, thingtopslope, thingbottomslope, x, y, z, frac;
+   fixed_t dist, thingtopslope, thingbottomslope, x, y, z, frac;
    mobj_t *th;
    boolean hitplane = false; // SoM: Remember if the bullet hit a plane.
    int updown = 2; // haleyjd 05/02: particle puff z dist correction
@@ -2195,29 +2326,26 @@ static boolean PTR_ShootTraverse(intercept_t *in)
    if(in->isaline)
    {
       line_t *li = in->d.line;
+
+      // haleyjd 03/13/05: move up point on line side check to here
+      int lineside = P_PointOnLineSide(shootthing->x, shootthing->y, li);
       
       // SoM: Shouldn't be called until A: we know the bullet passed or
       // B: We know it didn't hit a plane first
       if(li->special && demo_version < 329)
-         P_ShootSpecialLine (shootthing, li);
+         P_ShootSpecialLine(shootthing, li, lineside);
       
       if(li->flags & ML_TWOSIDED)
-      {  // crosses a two sided (really 2s) line
-         P_LineOpening (li, NULL);
+      {  
+         // crosses a two sided (really 2s) line
+         P_LineOpening(li, NULL);
          dist = FixedMul(attackrange, in->frac);
          
          // killough 11/98: simplify
-         
-         if((li->frontsector->floorheight==li->backsector->floorheight ||
-            (slope = FixedDiv(openbottom - shootz , dist)) <= aimslope) &&
-            (li->frontsector->ceilingheight==li->backsector->ceilingheight ||
-            (slope = FixedDiv (opentop - shootz , dist)) >= aimslope))
-         {
-            if(li->special && demo_version >= 329)
-               P_ShootSpecialLine (shootthing, li);
-            
-            return true;      // shot continues
-         }
+         // haleyjd 03/13/05: fixed bug that activates 2S line specials
+         // when shots hit the floor
+         if(P_Shoot2SLine(li, lineside, dist))
+            return true;
       }
       
       // hit line
@@ -2231,7 +2359,6 @@ static boolean PTR_ShootTraverse(intercept_t *in)
       if(demo_version >= 329)
       {
          // SoM: Check for colision with a plane.
-         int        lineside = P_PointOnLineSide(shootthing->x, shootthing->y, li);
          sector_t*  sidesector = lineside ? li->backsector : li->frontsector;
          fixed_t    zdiff;
 
@@ -2276,7 +2403,7 @@ static boolean PTR_ShootTraverse(intercept_t *in)
          }
 
          if(!hitplane && li->special)
-            P_ShootSpecialLine (shootthing, li);
+            P_ShootSpecialLine(shootthing, li, lineside);
       }
 
       if(li->frontsector->ceilingpic == skyflatnum ||
@@ -2287,6 +2414,7 @@ static boolean PTR_ShootTraverse(intercept_t *in)
          )
       {
          // don't shoot the sky!
+         // don't shoot ceiling portals either
          
          if(z > li->frontsector->ceilingheight)
             return false;
@@ -2304,6 +2432,7 @@ static boolean PTR_ShootTraverse(intercept_t *in)
       }
       
 #ifdef R_PORTALS
+      // don't shoot portal lines
       if(!hitplane && li->portal)
          return false;
 #endif
@@ -2375,10 +2504,9 @@ static boolean PTR_ShootTraverse(intercept_t *in)
    }
    
    if(la_damage)
-      P_DamageMobj(th, shootthing, shootthing, la_damage,
-                   shootthing->info->mod);
+      P_DamageMobj(th, shootthing, shootthing, la_damage, shootthing->info->mod);
    
-   // don't go any farther
+   // don't go any further
    return false;
 }
 
@@ -2391,6 +2519,7 @@ static boolean PTR_ShootTraverse(intercept_t *in)
 fixed_t P_AimLineAttack(mobj_t *t1,angle_t angle,fixed_t distance,int mask)
 {
    fixed_t x2, y2;
+   fixed_t lookslope = 0;
    
    angle >>= ANGLETOFINESHIFT;
    shootthing = t1;
@@ -2400,9 +2529,26 @@ fixed_t P_AimLineAttack(mobj_t *t1,angle_t angle,fixed_t distance,int mask)
    shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;
    
    // can't shoot outside view angles
-   
-   topslope = 100*FRACUNIT/160;
-   bottomslope = -100*FRACUNIT/160;
+
+   if(!t1->player || demo_version < 333)
+   {
+      topslope = 100*FRACUNIT/160;
+      bottomslope = -100*FRACUNIT/160;
+   }
+   else
+   {
+      // haleyjd 04/05/05: use proper slope range for look slope
+      fixed_t pitch = players[displayplayer].pitch;
+      fixed_t topangle, bottomangle;
+
+      lookslope = finetangent[(ANG90 - pitch)>>ANGLETOFINESHIFT];
+
+      topangle    = pitch - ANGLE_1*32;
+      bottomangle = pitch + ANGLE_1*32;
+
+      topslope = finetangent[(ANG90 - topangle)>>ANGLETOFINESHIFT];
+      bottomslope = finetangent[(ANG90 - bottomangle)>>ANGLETOFINESHIFT];
+   }
    
    attackrange = distance;
    linetarget = NULL;
@@ -2412,13 +2558,7 @@ fixed_t P_AimLineAttack(mobj_t *t1,angle_t angle,fixed_t distance,int mask)
    
    P_PathTraverse(t1->x,t1->y,x2,y2,PT_ADDLINES|PT_ADDTHINGS,PTR_AimTraverse);
    
-   if(linetarget)
-      return aimslope;
-   
-   if(t1->player)
-      return t1->player->updownangle * LOOKSLOPE;
-   
-   return 0;
+   return linetarget ? aimslope : lookslope;
 }
 
 //
@@ -2479,23 +2619,6 @@ static boolean PTR_UseTraverse(intercept_t *in)
       // not a special line, but keep checking
       return true;
    }
-
-/*
-  return in->d.line->special ?
-    P_UseSpecialLine(usething, in->d.line, 
-		     P_PointOnLineSide(usething->x,usething->y,in->d.line)==1),
-
-    //WAS can't use for than one special line in a row
-    //jff 3/21/98 NOW multiple use allowed with enabling line flag
-    
-    !demo_compatibility && in->d.line->flags & ML_PASSUSE :
-
-    (P_LineOpening(in->d.line, NULL), openrange <= 0) ?
-
-    // can't use through a wall / not a special line, but keep checking
-
-    S_StartSound (usething, sfx_noway), false : true;
-*/
 }
 
 // Returns false if a "oof" sound should be made because of a blocking
@@ -2522,9 +2645,9 @@ static boolean PTR_NoWayTraverse(intercept_t *in)
 
 //
 // P_UseLines
+//
 // Looks for special lines in front of the player to activate.
 //
-
 void P_UseLines(player_t *player)
 {
    fixed_t x1, y1, x2, y2;
@@ -2648,10 +2771,10 @@ void P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage, int mod)
 //  to undo the changes.
 //
 
-#ifdef OVER_UNDER
+#ifndef OVER_UNDER
 // SoM 10/28/02: Moved this for new 3d object clipping code
-#else
-static boolean crushchange, nofit;
+static int crushchange;
+static boolean nofit;
 #endif
 //
 // PIT_ChangeSector
@@ -2660,7 +2783,6 @@ static boolean crushchange, nofit;
 static boolean PIT_ChangeSector(mobj_t *thing)
 {
    mobj_t *mo;
-   
 
 #ifdef OVER_UNDER
    // SoM: with the new over_under scheme, this will only
@@ -2671,7 +2793,6 @@ static boolean PIT_ChangeSector(mobj_t *thing)
          return true; // keep checking
    
    // crunch bodies to giblets
-   
    if(thing->health <= 0)
    {
       // sf: clear the skin which will mess things up
@@ -2687,7 +2808,6 @@ static boolean PIT_ChangeSector(mobj_t *thing)
    }
 
    // crunch dropped items
-   
    if(thing->flags & MF_DROPPED)
    {
       P_RemoveMobj(thing);
@@ -2717,15 +2837,15 @@ static boolean PIT_ChangeSector(mobj_t *thing)
 
    nofit = true;
    
-   // haleyjd 6/19/00: fix for invulnerable things -- no crusher effects
+   // haleyjd 06/19/00: fix for invulnerable things -- no crusher effects
+   // haleyjd 05/20/05: allow custom crushing damage
 
-   if(crushchange && !(leveltime&3))
+   if(crushchange > 0 && !(leveltime & 3))
    {
-      if(thing->flags2 & MF2_INVULNERABLE ||
-         thing->flags2 & MF2_DORMANT)
+      if(thing->flags2 & MF2_INVULNERABLE || thing->flags2 & MF2_DORMANT)
          return true;
 
-      P_DamageMobj(thing,NULL,NULL,10,MOD_CRUSH);
+      P_DamageMobj(thing, NULL, NULL, crushchange, MOD_CRUSH);
       
       // spray blood in a random direction
       mo = P_SpawnMobj (thing->x,
@@ -2760,7 +2880,7 @@ static boolean PIT_ChangeSector(mobj_t *thing)
 //
 // haleyjd: removed static; needed in p_floor.c
 //
-boolean P_ChangeSector(sector_t *sector,boolean crunch)
+boolean P_ChangeSector(sector_t *sector, int crunch)
 {
    int x, y;
    
@@ -2786,19 +2906,18 @@ boolean P_ChangeSector(sector_t *sector,boolean crunch)
 // of a moving sector instead of all in bounding box of the
 // sector. Both more accurate and faster.
 //
-
-boolean P_CheckSector(sector_t *sector,boolean crunch)
+boolean P_CheckSector(sector_t *sector, int crunch)
 {
    msecnode_t *n;
    
    // killough 10/98: sometimes use Doom's method
    if(comp[comp_floors] && (demo_version >= 203 || demo_compatibility))
-      return P_ChangeSector(sector,crunch);
+      return P_ChangeSector(sector, crunch);
    
    nofit = false;
    crushchange = crunch;
 
-   #ifdef OVER_UNDER
+#ifdef OVER_UNDER
    if(!comp[comp_overunder] && demo_version >= 331)
    {
       // SoM: Multi-pass method:
@@ -2806,14 +2925,14 @@ boolean P_CheckSector(sector_t *sector,boolean crunch)
       // new surroundings (i.e. floors/ceilings)
       // then check things after every thing has it's set floorz and
       // ceilingz.
-      // Mark all things invalid
    
-      for(n=sector->touching_thinglist; n; n=n->m_snext)
+      // Mark all things invalid
+      for(n = sector->touching_thinglist; n; n = n->m_snext)
          n->visited = false;
 
       do
       {
-         for(n=sector->touching_thinglist; n; n=n->m_snext)
+         for(n = sector->touching_thinglist; n; n = n->m_snext)
          {
             if(!n->visited)               // unprocessed thing found
             {
@@ -2826,57 +2945,53 @@ boolean P_CheckSector(sector_t *sector,boolean crunch)
       }
       while (n);  // repeat from scratch until all things left are marked valid
 
-
-      for(n=sector->touching_thinglist; n; n=n->m_snext)
+      for(n = sector->touching_thinglist; n; n = n->m_snext)
          n->visited = false;
 
       do
       {
          for(n=sector->touching_thinglist; n; n=n->m_snext)
          {
-            if(!n->visited)               // unprocessed thing found
+            if(!n->visited)                   // unprocessed thing found
             {
-               n->visited  = true;          // mark thing as processed
+               n->visited  = true;            // mark thing as processed
                if(!(n->m_thing->flags & MF_NOBLOCKMAP)) //jff 4/7/98 don't do these
-               {
-                  P_AdjustThing(n->m_thing);    // process it
-               }
-               break;                 // exit and start over
+                  P_AdjustThing(n->m_thing);  // process it
+               break;                         // exit and start over
             }
          }
       }
-      while (n);  // repeat from scratch until all things left are marked valid
+      while(n); // repeat from scratch until all things left are marked valid
    }
    else
-   #endif
+#endif
    {
-   // killough 4/4/98: scan list front-to-back until empty or exhausted,
-   // restarting from beginning after each thing is processed. Avoids
-   // crashes, and is sure to examine all things in the sector, and only
-   // the things which are in the sector, until a steady-state is reached.
-   // Things can arbitrarily be inserted and removed and it won't mess up.
-   //
-   // killough 4/7/98: simplified to avoid using complicated counter
-
-   // Mark all things invalid
-   
-   for(n=sector->touching_thinglist; n; n=n->m_snext)
-      n->visited = false;
-
-   do
-   {
-      for(n=sector->touching_thinglist; n; n=n->m_snext)  // go through list
+      // killough 4/4/98: scan list front-to-back until empty or exhausted,
+      // restarting from beginning after each thing is processed. Avoids
+      // crashes, and is sure to examine all things in the sector, and only
+      // the things which are in the sector, until a steady-state is reached.
+      // Things can arbitrarily be inserted and removed and it won't mess up.
+      //
+      // killough 4/7/98: simplified to avoid using complicated counter
+      
+      // Mark all things invalid
+      for(n = sector->touching_thinglist; n; n = n->m_snext)
+         n->visited = false;
+      
+      do
       {
-         if(!n->visited)               // unprocessed thing found
+         for(n = sector->touching_thinglist; n; n = n->m_snext) // go through list
          {
-            n->visited  = true;          // mark thing as processed
-            if(!(n->m_thing->flags & MF_NOBLOCKMAP)) //jff 4/7/98 don't do these
-               PIT_ChangeSector(n->m_thing);    // process it
-            break;                 // exit and start over
+            if(!n->visited)                     // unprocessed thing found
+            {
+               n->visited  = true;              // mark thing as processed
+               if(!(n->m_thing->flags & MF_NOBLOCKMAP)) //jff 4/7/98 don't do these
+                  PIT_ChangeSector(n->m_thing); // process it
+               break;                           // exit and start over
+            }
          }
       }
-   }
-   while (n);  // repeat from scratch until all things left are marked valid
+      while(n); // repeat from scratch until all things left are marked valid
    }
    
    return nofit;

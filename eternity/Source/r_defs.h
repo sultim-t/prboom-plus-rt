@@ -178,7 +178,7 @@ typedef struct
    angle_t hticPushAngle;
    fixed_t hticPushForce;
 
-   particle_t *ptcllist; // haleyjd 02/20/04: list of particles in sector
+   struct particle_s *ptcllist; // haleyjd 02/20/04: list of particles in sector
 } sector_t;
 
 //
@@ -215,25 +215,28 @@ typedef enum
 
 typedef struct line_s
 {
-  vertex_t *v1, *v2;     // Vertices, from v1 to v2.
-  fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
-  short flags;           // Animation related.
-  short special;         
-  short tag;
-  short sidenum[2];      // Visual appearance: SideDefs.
-  fixed_t bbox[4];       // A bounding box, for the linedef's extent
-  slopetype_t slopetype; // To aid move clipping.
-  sector_t *frontsector; // Front and back sector.
-  sector_t *backsector; 
-  int validcount;        // if == validcount, already checked
-  void *specialdata;     // thinker_t for reversable actions
-  int tranlump;          // killough 4/11/98: translucency filter, -1 == none
-  int firsttag,nexttag;  // killough 4/17/98: improves searches for tags.
+   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
+   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
+   short flags;           // Animation related.
+   short special;         
+   short tag;
+   short sidenum[2];      // Visual appearance: SideDefs.
+   fixed_t bbox[4];       // A bounding box, for the linedef's extent
+   slopetype_t slopetype; // To aid move clipping.
+   sector_t *frontsector; // Front and back sector.
+   sector_t *backsector; 
+   int validcount;        // if == validcount, already checked
+   void *specialdata;     // thinker_t for reversable actions
+   int tranlump;          // killough 4/11/98: translucency filter, -1 == none
+   int firsttag,nexttag;  // killough 4/17/98: improves searches for tags.
 
 #ifdef R_PORTALS
-  // SoM 12/10/03: wall portals
-  rportal_t *portal;
+   // SoM 12/10/03: wall portals
+   rportal_t *portal;
 #endif
+   // haleyjd 02/26/05: ExtraData fields
+   long extflags;         // activation flags for param specials
+   long args[5];          // argument values for param specials
 } line_t;
 
 //
@@ -385,7 +388,7 @@ typedef struct vissprite_s
   fixed_t xiscale;             // negative if flipped
   fixed_t texturemid;
   int patch;
-  int mobjflags;
+  int mobjflags, mobjflags3;   // flags, flags3 from thing
 
   // for color translation and shadow draw, maxbright frames as well
         // sf: also coloured lighting

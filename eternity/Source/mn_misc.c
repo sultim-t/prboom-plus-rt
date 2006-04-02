@@ -56,6 +56,13 @@ static boolean popupMenuActive;
 
 static char popup_message[128];
 static char *popup_message_command; // console command to run
+
+//
+// haleyjd 07/27/05: not all questions should have to run console
+// commands. It's inefficient.
+//
+static void (*popup_callback)(void) = NULL;
+
 enum
 {
    popup_alert,
@@ -144,8 +151,16 @@ boolean MN_PopupResponder(event_t *ev)
          // haleyjd 02/24/02: restore saved menuactive state
          // menuactive = false; // kill menu
          menuactive = popupMenuActive;
-         cmdtype = c_menu;
-         C_RunTextCmd(popup_message_command);
+         if(popup_callback)
+         {
+            popup_callback();
+            popup_callback = NULL;
+         }
+         else
+         {
+            cmdtype = c_menu;
+            C_RunTextCmd(popup_message_command);
+         }
          S_StartSound(NULL, menuSounds[MN_SND_COMMAND]);
          redrawsbar = redrawborder = true; // need redraw
          current_menuwidget = NULL;  // kill message
@@ -207,9 +222,23 @@ void MN_Question(char *message, char *command)
    // hook in widget so message will be displayed
    current_menuwidget = &popup_widget;
    
-   strncpy(popup_message, message, 126);
+   strncpy(popup_message, message, 128);
    popup_message_type = popup_question;
    popup_message_command = command;
+}
+
+void MN_QuestionFunc(char *message, void (*handler)(void))
+{
+   popupMenuActive = menuactive;
+   
+   MN_ActivateMenu();
+   
+   // hook in widget so message will be displayed
+   current_menuwidget = &popup_widget;
+   
+   strncpy(popup_message, message, 128);
+   popup_message_type = popup_question;
+   popup_callback = handler;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -315,7 +344,7 @@ void MN_DrawCredits(void)
   V_WriteText(FC_HI "The Eternity Engine\n"
               "\n"
               FC_NORMAL "Enhancements by James 'Quasar' Haley\n"
-              "         and Steven McGranahan\n"
+              "         and Stephen McGranahan\n"
               "\n"
               FC_HI "SMMU:" FC_NORMAL " \"Smack my marine up\"\n"
               "\n"
@@ -458,8 +487,8 @@ void MN_MapColourDrawer(void)
    
    patch = W_CacheLumpName("M_COLORS", PU_CACHE);
    
-   x = (SCREENWIDTH - patch->width) / 2;
-   y = (SCREENHEIGHT - patch->height) / 2;
+   x = (SCREENWIDTH - SHORT(patch->width)) / 2;
+   y = (SCREENHEIGHT - SHORT(patch->height)) / 2;
    
    V_DrawPatch(x, y, &vbscreen, patch);
    

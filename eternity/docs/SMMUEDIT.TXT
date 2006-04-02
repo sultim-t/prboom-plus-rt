@@ -72,8 +72,8 @@ scripting capabilities. FraggleScript is no longer supported by Eternity.
 [3-4] Hubs
 ----------
 
-NOTE: Hubs are temporarily disabled in Eternity v3.31 Delta
-      due to continued development.
+NOTE: Hubs are temporarily disabled in Eternity v3.33 due to continued 
+      development.
 
 [4] Thing options
 =================

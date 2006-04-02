@@ -39,7 +39,7 @@ extern char *startlevel;
 void D_AddFile(char *file);
 void D_ListWads(void);
 void D_ReInitWadfiles(void);
-void D_NewWadLumps(int handle, void (*sndfunc)(int));
+void D_NewWadLumps(int handle, int sound_update_type);
 boolean D_AddNewFile(char *s);
 
 

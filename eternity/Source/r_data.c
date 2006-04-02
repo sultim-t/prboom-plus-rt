@@ -1132,33 +1132,43 @@ void R_FreeData(void)
 
 typedef struct
 {
-  char *doom1;
-  char *doom2;
+   char doom1[9];
+   char doom2[9];
 } doom1text_t;
 
-doom1text_t txtrconv[256];
+doom1text_t *txtrconv;
 int numconvs = 0;
+int numconvsalloc = 0;
 
 #define RemoveEndSpaces(s)      \
         while(*((s)+strlen(s)-1) == ' ') *((s)+strlen(s)-1) = 0;
 
 static void R_LoadDoom1Parse(char *line)
 {
-  while(*line == ' ') line++;
-  if(line[0] == ';') return;      // comment
-  if(!*line || *line<32) return;      // empty line
-  
-  if(!txtrconv[numconvs].doom1)
-    {
-      memset(txtrconv[numconvs].doom1 = malloc(9), 0, 9);
-      memset(txtrconv[numconvs].doom2 = malloc(9), 0, 9);
-    }
-  strncpy(txtrconv[numconvs].doom1, line, 8);
-  RemoveEndSpaces(txtrconv[numconvs].doom1);
-  strncpy(txtrconv[numconvs].doom2, line+9, 8);
-  RemoveEndSpaces(txtrconv[numconvs].doom2);
-  
-  numconvs++;
+   while(*line == ' ')
+      line++;
+   
+   if(line[0] == ';') 
+      return;      // comment
+   
+   if(!*line || *line < 32) 
+      return;      // empty line
+   
+   // haleyjd 09/07/05: this was wasting tons of memory before with
+   // lots of little mallocs; make the whole thing dynamic
+   if(numconvs >= numconvsalloc)
+   {
+      txtrconv = realloc(txtrconv, 
+                         (numconvsalloc = numconvsalloc ?
+                          numconvsalloc*2 : 56) * sizeof *txtrconv);
+   }
+
+   strncpy(txtrconv[numconvs].doom1, line, 8);
+   RemoveEndSpaces(txtrconv[numconvs].doom1);
+   strncpy(txtrconv[numconvs].doom2, line+9, 8);
+   RemoveEndSpaces(txtrconv[numconvs].doom2);
+   
+   numconvs++;
 }
 
 static void R_LoadDoom1(void)

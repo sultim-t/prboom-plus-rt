@@ -43,16 +43,17 @@ DWFILE *currentFile; // haleyjd
 
 // file include stack
 
-#define MAX_INCLUDE_DEPTH 10
+#define MAX_INCLUDE_DEPTH 16
 
-struct cfginclude_s
+static struct cfginclude_s
 {
    DWFILE *dwfile; // haleyjd
    char *filename;
+   int lumpnum;    // haleyjd
    unsigned int line;
 } include_stack[MAX_INCLUDE_DEPTH];
 
-int include_stack_ptr = 0;
+static int include_stack_ptr = 0;
 
 char *mytext; // haleyjd: equivalent to yytext
 
@@ -367,11 +368,11 @@ include:
          D_Fclose(currentFile); // haleyjd
          free(currentFile);
          
-         currentFile = include_stack[include_stack_ptr].dwfile;
-         
+         currentFile   = include_stack[include_stack_ptr].dwfile;
          free(cfg->filename);
          cfg->filename = include_stack[include_stack_ptr].filename;
-         cfg->line = include_stack[include_stack_ptr].line;
+         cfg->line     = include_stack[include_stack_ptr].line;
+         cfg->lumpnum  = include_stack[include_stack_ptr].lumpnum;
 
          state = STATE_NONE; // make sure its not in an odd state
          goto include; // haleyjd: goto -- kill me now!
@@ -381,7 +382,7 @@ include:
    return EOF; // probably not reachable, but whatever
 }
 
-int cfg_lexer_include(cfg_t *cfg, const char *filename)
+int cfg_lexer_include(cfg_t *cfg, const char *filename, int data)
 {
    DWFILE *temp;
    char *xfilename;
@@ -393,9 +394,10 @@ int cfg_lexer_include(cfg_t *cfg, const char *filename)
    }
 
    // haleyjd
-   include_stack[include_stack_ptr].dwfile = currentFile;
+   include_stack[include_stack_ptr].dwfile   = currentFile;
    include_stack[include_stack_ptr].filename = cfg->filename;
-   include_stack[include_stack_ptr].line = cfg->line;
+   include_stack[include_stack_ptr].line     = cfg->line;
+   include_stack[include_stack_ptr].lumpnum  = cfg->lumpnum;
    include_stack_ptr++;
 
    xfilename = cfg_tilde_expand(filename);
@@ -403,10 +405,9 @@ int cfg_lexer_include(cfg_t *cfg, const char *filename)
    // haleyjd: DWFILE handling
    temp = malloc(sizeof(DWFILE));
 
-   // lumps can include other lumps, files can include other files,
-   // but not vice versa
-   if(D_IsLump(currentFile))
-      D_OpenLump(temp, W_GetNumForName(xfilename));
+   // haleyjd 02/09/05: revised include handling for data vs file
+   if(data >= 0)
+      D_OpenLump(temp, data);
    else
       D_OpenFile(temp, xfilename, "r");
 
@@ -423,8 +424,27 @@ int cfg_lexer_include(cfg_t *cfg, const char *filename)
 
    cfg->filename = xfilename;
    cfg->line = 1;
+   cfg->lumpnum = data;
 
    return 0;
+}
+
+//
+// cfg_lexer_source_type
+//
+// haleyjd 02/09/05: function to tell whether current source is
+// data or a physical file. If physical file, it will return -1.
+// If a lump, it returns the lump number.
+//
+int cfg_lexer_source_type(cfg_t *cfg)
+{
+   if(!currentFile)
+   {
+      cfg_error(cfg, "cfg_lexer_source_type: no file is open");
+      return 0;
+   }
+
+   return cfg->lumpnum;
 }
 
 // EOF

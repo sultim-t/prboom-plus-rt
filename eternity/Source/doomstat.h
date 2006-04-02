@@ -127,7 +127,7 @@ enum {
   comp_respawnfix,  // haleyjd 08/09/00: compat. option for nm respawn fix
   comp_fallingdmg,  //         08/09/00: falling damage
   comp_soul,        //         03/23/03: lost soul bounce
-  comp_dummy2,      //         
+  comp_theights,    //         07/06/05: thing heights fix
   comp_overunder,   //         10/19/02: thing z clipping
   COMP_TOTAL=32  // Some extra room for additional variables
 };
@@ -374,6 +374,8 @@ extern int monster_friction, default_monster_friction;
 extern int help_friends, default_help_friends;
 
 extern int autoaim, default_autoaim;
+
+extern int allowmlook, default_allowmlook; // haleyjd
 
 extern int flashing_hom; // killough 10/98
 

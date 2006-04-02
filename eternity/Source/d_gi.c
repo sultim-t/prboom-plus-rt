@@ -36,7 +36,7 @@
 #include "d_gi.h"
 #include "p_info.h"
 #include "info.h"
-#include "e_edf.h"
+#include "e_things.h"
 
 // definitions
 
@@ -157,23 +157,25 @@ static gitextmetric_t giHticFText =
 };
 
 //
-// Intermission function pointer sets
+// Big Font metrics
 //
 
-static giinterfuncs_t giDoomIntrm =
+static gitextmetric_t giDoomBigText =
 {
-   WI_Ticker,
-   WI_DrawBackground,
-   WI_Drawer,
-   WI_Start,
+   0, 0, // x, y, (not used)
+   12,   // cy
+   8,    // space
+   1,    // dw
+   12,   // absh
 };
 
-static giinterfuncs_t giHticIntrm =
+static gitextmetric_t giHticBigText = 
 {
-   HI_Ticker,
-   HI_DrawBackground,
-   HI_Drawer,
-   HI_Start,
+   0, 0, // x, y (not used)
+   20,   // cy
+   8,    // space
+   1,    // dw
+   20,   // absh -- FIXME: may not be correct
 };
 
 //
@@ -270,6 +272,7 @@ gameinfo_t giDoomSW =
    sfx_tink,         // c_BellSound
    sfx_tink,         // c_ChatSound
    &giDoomVText,     // vtextinfo
+   &giDoomBigText,   // btextinfo
    0,                // blackIndex
    4,                // whiteIndex
 
@@ -286,7 +289,7 @@ gameinfo_t giDoomSW =
 
    mus_inter,        // interMusNum
    &giDoomFText,     // ftextinfo
-   &giDoomIntrm,     // interfuncs
+   &DoomIntermission,// interfuncs
 
    S_music,          // s_music
    mus_None,         // musMin
@@ -335,6 +338,7 @@ gameinfo_t giDoomReg =
    sfx_tink,         // c_BellSound
    sfx_tink,         // c_ChatSound
    &giDoomVText,     // vtextinfo
+   &giDoomBigText,   // btextinfo
    0,                // blackIndex
    4,                // whiteIndex
 
@@ -351,7 +355,7 @@ gameinfo_t giDoomReg =
 
    mus_inter,        // interMusNum
    &giDoomFText,     // ftextinfo
-   &giDoomIntrm,     // interfuncs
+   &DoomIntermission,// interfuncs
 
    S_music,          // s_music
    mus_None,         // musMin
@@ -400,6 +404,7 @@ gameinfo_t giDoomRetail =
    sfx_tink,         // c_BellSound
    sfx_tink,         // c_ChatSound
    &giDoomVText,     // vtextinfo
+   &giDoomBigText,   // btextinfo
    0,                // blackIndex
    4,                // whiteIndex
 
@@ -416,7 +421,7 @@ gameinfo_t giDoomRetail =
 
    mus_inter,        // interMusNum
    &giDoomFText,     // ftextinfo
-   &giDoomIntrm,     // interfuncs
+   &DoomIntermission,// interfuncs
 
    S_music,          // s_music
    mus_None,         // musMin
@@ -465,6 +470,7 @@ gameinfo_t giDoomCommercial =
    sfx_tink,         // c_BellSound
    sfx_radio,        // c_ChatSound
    &giDoomVText,     // vtextinfo
+   &giDoomBigText,   // btextinfo
    0,                // blackIndex
    4,                // whiteIndex
 
@@ -481,7 +487,7 @@ gameinfo_t giDoomCommercial =
 
    mus_dm2int,       // interMusNum
    &giDoomFText,     // ftextinfo
-   &giDoomIntrm,     // interfuncs
+   &DoomIntermission,// interfuncs
 
    S_music,          // s_music
    mus_None,         // musMin
@@ -500,7 +506,7 @@ gameinfo_t giDoomCommercial =
 gameinfo_t giHereticSW =
 {
    Game_Heretic,     // type
-   GIF_PAGERAW | GIF_SHAREWARE, // flags
+   GIF_PAGERAW | GIF_SHAREWARE | GIF_MNBIGFONT, // flags
 
    HTICRESWAD,       // resourceFmt
 
@@ -530,6 +536,7 @@ gameinfo_t giHereticSW =
    sfx_chat,         // c_BellSound
    sfx_chat,         // c_ChatSound
    &giHticVText,     // vtextinfo
+   &giHticBigText,   // btextinfo
    0,                // blackIndex
    35,               // whiteIndex
 
@@ -546,7 +553,7 @@ gameinfo_t giHereticSW =
 
    hmus_intr,        // interMusNum
    &giHticFText,     // ftextinfo
-   &giHticIntrm,     // interfuncs
+   &HticIntermission,// interfuncs
 
    H_music,          // s_music
    hmus_None,        // musMin
@@ -562,10 +569,14 @@ gameinfo_t giHereticSW =
 //
 // Heretic Registered / Heretic: Shadow of the Serpent Riders
 //
+// The only difference between registered and SoSR is the
+// number of episodes, which is patched in this structure at
+// runtime.
+//
 gameinfo_t giHereticReg =
 {
    Game_Heretic,     // type   
-   GIF_PAGERAW,      // flags
+   GIF_PAGERAW | GIF_MNBIGFONT, // flags
 
    HTICRESWAD,       // resourceFmt
 
@@ -595,6 +606,7 @@ gameinfo_t giHereticReg =
    sfx_chat,         // c_BellSound
    sfx_chat,         // c_ChatSound
    &giHticVText,     // vtextinfo
+   &giHticBigText,   // btextinfo
    0,                // blackIndex
    35,               // whiteIndex
 
@@ -611,7 +623,7 @@ gameinfo_t giHereticReg =
 
    hmus_intr,        // interMusNum
    &giHticFText,     // ftextinfo
-   &giHticIntrm,     // interfuncs
+   &HticIntermission,// interfuncs
 
    H_music,          // s_music
    hmus_None,        // musMin
@@ -632,15 +644,12 @@ gameinfo_t giHereticReg =
 //
 void D_InitGameInfo(void)
 {
-   int teletype;
-
 #ifdef RANGECHECK
    if(!gameModeInfo)
       I_Error("D_InitGameInfo: called before gameModeInfo set\n");
 #endif
 
-   teletype = gameModeInfo->teleFogType;
-   gameModeInfo->teleFogType = E_SafeThingType(teletype);
+   gameModeInfo->teleFogType = E_SafeThingType(gameModeInfo->teleFogType);
 }
 
 // EOF

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2002 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,11 +29,13 @@
 #include "doomstat.h"
 #include "g_game.h"
 #include "in_lude.h"
+#include "p_info.h"
 #include "v_video.h"
 #include "s_sound.h"
 #include "d_gi.h"
+#include "e_string.h"
 
-extern char **mapnamesh[];
+extern char gamemapname[9];
 
 // Macros
 
@@ -115,9 +117,13 @@ static patch_t *hi_in_yah;
 static int hi_faces[4];
 static int hi_dead_faces[4];
 
+// 03/27/05: EDF strings for intermission level names
+static edf_string_t *mapName;
+static edf_string_t *nextMapName;
+
 // Private functions
 
-void HI_DrawBackground(void);
+static void HI_DrawBackground(void);
 
 static void HI_loadData(void)
 {
@@ -153,6 +159,45 @@ static void HI_loadData(void)
       hi_dead_faces[i] = W_GetNumForName(tempstr);
    }
 
+   // haleyjd 03/27/05: EDF-defined intermission map names
+   mapName = NULL;
+   nextMapName = NULL;
+
+   {
+      char nameBuffer[24];
+      char *basename;
+
+      // set current map
+      psnprintf(nameBuffer, 24, "_IN_NAME_%s", gamemapname);
+      mapName = E_StringForName(nameBuffer);
+
+      // are we going to a secret level?
+      basename = hi_wbs.gotosecret ? LevelInfo.nextSecret : LevelInfo.nextLevel;
+
+      // set next map
+      if(*basename)
+      {
+         psnprintf(nameBuffer, 24, "_IN_NAME_%s", basename);
+
+         nextMapName = E_StringForName(nameBuffer);
+      }
+      else
+      {
+         // try ExMy and MAPxy defaults for normally-named maps
+         if(isExMy(gamemapname))
+         {
+            psnprintf(nameBuffer, 24, "_IN_NAME_E%01dM%01d", 
+                      hi_wbs.epsd + 1, hi_wbs.next + 1);
+            nextMapName = E_StringForName(nameBuffer);
+         }
+         else if(isMAPxy(gamemapname))
+         {
+            psnprintf(nameBuffer, 24, "_IN_NAME_MAP%02d", hi_wbs.next + 1);
+            nextMapName = E_StringForName(nameBuffer);
+         }
+      }
+   }
+
    // draw the background to the back buffer
    HI_DrawBackground();
 }
@@ -177,16 +222,15 @@ static void HI_Stop(void)
 static void HI_drawNewLevelName(int y)
 {
    int x;
-   char *thisLevelName;
+   const char *thisLevelName;
 
    x = (SCREENWIDTH - V_StringWidth(HIS_NOWENTERING)) >> 1;
    V_WriteText(HIS_NOWENTERING, x, y);
 
-   thisLevelName = *mapnamesh[hi_wbs.epsd * 9 + hi_wbs.next];
-
-   // be safe about incrementing past the "ExMx:  "
-   if(strlen(thisLevelName) > 7)
-      thisLevelName += 7;
+   if(nextMapName)
+      thisLevelName = nextMapName->string;
+   else
+      thisLevelName = "hidden level";
 
    x = (SCREENWIDTH - V_StringWidthBig(thisLevelName)) >> 1;
    V_WriteTextBig(thisLevelName, x, y + 10);
@@ -201,13 +245,12 @@ static void HI_drawNewLevelName(int y)
 static void HI_drawOldLevelName(int y)
 {
    int x;
-   char *oldLevelName;
+   const char *oldLevelName;
 
-   oldLevelName = *mapnamesh[hi_wbs.epsd * 9 + hi_wbs.last];
-
-   // be safe about incrementing past the "ExMx:  "
-   if(strlen(oldLevelName) > 7)
-      oldLevelName += 7;
+   if(mapName)
+      oldLevelName = mapName->string;
+   else
+      oldLevelName = "hidden level";
 
    x = (SCREENWIDTH - V_StringWidthBig(oldLevelName)) >> 1;
    V_WriteTextBig(oldLevelName, x, y);
@@ -471,9 +514,7 @@ static void HI_drawSingleStats(void)
    }
 }
 
-// Public functions
-
-void HI_Ticker(void)
+static void HI_Ticker(void)
 {
    if(interstate == INTR_WAITING)
    {
@@ -555,7 +596,7 @@ void HI_Ticker(void)
 // IN_slamBackground is called to swap this to the
 // screen, saving some time.
 //
-void HI_DrawBackground(void)
+static void HI_DrawBackground(void)
 {
    if(interstate > INTR_STATS && hi_interpic)
    {
@@ -568,14 +609,12 @@ void HI_DrawBackground(void)
    }
 }
 
-void HI_Drawer(void)
+static void HI_Drawer(void)
 {
    static interstate_e oldinterstate;
 
    if(interstate == INTR_WAITING)
-   {
       return;
-   }
    
    if(oldinterstate != INTR_GOING && interstate == INTR_GOING)
    {
@@ -615,15 +654,8 @@ void HI_Drawer(void)
    oldinterstate = interstate;
 }
 
-void HI_Start(wbstartstruct_t *wbstartstruct)
+static void HI_Start(wbstartstruct_t *wbstartstruct)
 {
-   // hidden levels will have no intermission
-   if(gameepisode >= gameModeInfo->numEpisodes)
-   {
-      G_WorldDone();
-      return;
-   }
-
    acceleratestage = 0;
    statetime = -1;
    intertime = 0;
@@ -633,6 +665,16 @@ void HI_Start(wbstartstruct_t *wbstartstruct)
 
    HI_loadData();
 }
+
+// Heretic Intermission object
+
+interfns_t HticIntermission =
+{
+   HI_Ticker,
+   HI_DrawBackground,
+   HI_Drawer,
+   HI_Start,
+};
 
 // EOF
 

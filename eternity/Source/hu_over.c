@@ -23,12 +23,6 @@
 //
 // Rewritten and put in a seperate module(seems sensible)
 //
-// haleyjd FIXME: Half of this is still a horrible mess. This code 
-// was the cause of the infamous "two-week bug" which shut down 
-// Eternity development for months -- improper use of string functions
-// was trashing the stack; fixed with liberal use of psnprintf and other
-// safe functions.
-//
 // By Simon Howard
 //
 //----------------------------------------------------------------------------
@@ -79,11 +73,12 @@
 
 // set up an overlay_t
 
-#define setol(o,a,b)          \
-        {                     \
-        overlay[o].x = (a);   \
-        overlay[o].y = (b);   \
-        }
+#define setol(o,a,b) \
+   { \
+      overlay[o].x = (a); \
+      overlay[o].y = (b); \
+   }
+
 #define HUDCOLOUR FC_GRAY
 
 int hud_overlaystyle = 1;
@@ -182,6 +177,17 @@ void HU_WriteText(const char *s, int x, int y)
 int HU_StringWidth(const unsigned char *s)
 {
    return V_FontStringWidth(&hud_font, s);
+}
+
+//
+// HU_StringHeight
+//
+// Calculates the height in pixels of a string in heads-up font
+// haleyjd 01/14/05: now uses vfont engine
+//
+int HU_StringHeight(const unsigned char *s)
+{
+   return V_FontStringHeight(&hud_font, s);
 }
 
 #define BARSIZE 15
@@ -443,11 +449,11 @@ void HU_OverlaySetup(void)
    
    // setup the drawers
    overlay[ol_health].drawer = HU_DrawHealth;
-   overlay[ol_ammo].drawer = HU_DrawAmmo;
-   overlay[ol_weap].drawer = HU_DrawWeapons;
-   overlay[ol_armor].drawer = HU_DrawArmor;
-   overlay[ol_key].drawer = HU_DrawKeys;
-   overlay[ol_frag].drawer = HU_DrawFrag;
+   overlay[ol_ammo].drawer   = HU_DrawAmmo;
+   overlay[ol_weap].drawer   = HU_DrawWeapons;
+   overlay[ol_armor].drawer  = HU_DrawArmor;
+   overlay[ol_key].drawer    = HU_DrawKeys;
+   overlay[ol_frag].drawer   = HU_DrawFrag;
    overlay[ol_status].drawer = HU_DrawStatus;
 
    // now decide where to put all the widgets
@@ -493,7 +499,7 @@ void HU_OverlaySetup(void)
       }
       break;
       
-   case 2:      // 2: all at bottom of screen
+   case 2: // 2: all at bottom of screen
       {
          int x = 0, y = 192;
          
@@ -501,7 +507,14 @@ void HU_OverlaySetup(void)
          {
             if(overlay[i].x != -1)
             {
-               setol(i, x, y);
+               // haleyjd: swap health & armor, keep rest the same
+               int idx = i;
+               if(idx == ol_health)
+                  idx = ol_armor;
+               else if(idx == ol_armor)
+                  idx = ol_health;
+
+               setol(idx, x, y);
                x += 160;
                if(x >= 300)
                {
@@ -513,7 +526,7 @@ void HU_OverlaySetup(void)
       }
       break;
 
-   case 3:// 3: similar to boom 'distributed' style
+   case 3: // 3: similar to boom 'distributed' style
       setol(ol_health, SCREENWIDTH-138, 0);
       setol(ol_armor, SCREENWIDTH-138, 8);
       setol(ol_weap, SCREENWIDTH-138, 184);
@@ -537,17 +550,13 @@ void HU_OverlaySetup(void)
 // heart of the overlay really.
 // draw the overlay, deciding which bits to draw and where
 
-void HU_OverlayDraw()
+void HU_OverlayDraw(void)
 {
    int i;
    
    // SoM 2-4-04: ANYRES
-   if(viewheight != v_height) 
+   if(viewheight != v_height || automapactive || !hud_enabled) 
       return;  // fullscreen only
-   if(automapactive) 
-      return;
-   if(!hud_enabled) 
-      return;
   
    HU_OverlaySetup();
    

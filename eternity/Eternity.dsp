@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "c:\software dev\SDL-1.2.7\include" /I "c:\software dev\sdl_mixer-1.2.5\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_SDL_VER" /D "OVER_UNDER" /D "R_PORTALS" /D "AMX_NODYNALOAD" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "c:\software dev\SDL-1.2.7\include" /I "c:\software dev\sdl_mixer-1.2.6\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_SDL_VER" /D "OVER_UNDER" /D "R_PORTALS" /D "AMX_NODYNALOAD" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -67,7 +67,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "c:\software dev\SDL-1.2.7\include" /I "c:\software dev\sdl_mixer-1.2.5\include" /D "_DEBUG" /D "RANGECHECK" /D "INSTRUMENTED" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_SDL_VER" /D "OVER_UNDER" /D "R_PORTALS" /D "AMX_NODYNALOAD" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "c:\software dev\SDL-1.2.7\include" /I "c:\software dev\sdl_mixer-1.2.6\include" /D "_DEBUG" /D "RANGECHECK" /D "INSTRUMENTED" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "_SDL_VER" /D "OVER_UNDER" /D "R_PORTALS" /D "AMX_NODYNALOAD" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -381,10 +381,6 @@ SOURCE=.\Source\hu_frags.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\Source\hu_fspic.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\Source\hu_over.c
 # End Source File
 # Begin Source File
@@ -489,7 +485,27 @@ SOURCE=.\Source\e_exdata.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\Source\e_lib.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\Source\e_sound.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_states.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_string.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_things.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_ttypes.c
 # End Source File
 # End Group
 # Begin Group "Confuse"
@@ -717,10 +733,6 @@ SOURCE=.\Source\Hu_frags.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Source\hu_fspic.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Source\Hu_over.h
 # End Source File
 # Begin Source File
@@ -770,6 +782,10 @@ SOURCE=.\Source\m_bbox.h
 # Begin Source File
 
 SOURCE=.\Source\m_cheat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\m_dllist.h
 # End Source File
 # Begin Source File
 
@@ -977,12 +993,36 @@ SOURCE=.\Source\e_exdata.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Source\e_lib.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Source\e_sound.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_states.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_string.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_things.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Source\e_ttypes.h
 # End Source File
 # End Group
 # Begin Group "V"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\Source\v_block.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Source\v_font.h

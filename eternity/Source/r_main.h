@@ -56,7 +56,7 @@ extern fixed_t  centerxfrac;
 extern fixed_t  centeryfrac;
 extern fixed_t  projection;
 // ANYRES
-extern fixed_t  yprojection;
+extern fixed_t  yaspectmul;
 
 extern int      validcount;
 extern int      linecount;

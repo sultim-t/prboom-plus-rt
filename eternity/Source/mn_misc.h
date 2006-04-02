@@ -1,7 +1,7 @@
 // Emacs style mode select -*- C++ -*- 
 //----------------------------------------------------------------------------
 //
-// Copyright(C) 2000 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 
 void MN_Alert(char *message, ...);
 void MN_Question(char *message, char *command);
+void MN_QuestionFunc(char *message, void (*handler)(void));
 
 // help screens
 

@@ -101,22 +101,13 @@ enum
 extern int *pickupfx;
 
 void E_ProcessEDF(const char *filename);
-
-int E_StateNumForDEHNum(int dehnum);
-int E_GetStateNumForDEHNum(int dehnum); // fatal error version
-int E_SafeState(int dehnum);            // fallback version
-int E_NullState(void);
-int E_StateNumForName(const char *name);
-int E_GetStateNumForName(const char *name); // fatal error version
-int E_ThingNumForDEHNum(int dehnum);
-int E_GetThingNumForDEHNum(int dehnum); // fatal error version
-int E_SafeThingType(int dehnum);        // fallback versions
-int E_SafeThingName(const char *name);
-int E_ThingNumForName(const char *name);
-int E_GetThingNumForName(const char *name); // fatal error version
-int E_UnknownThing(void);
+void E_ProcessEDFLumps(void);
 
 void E_EDFSetEnableValue(const char *, int); // enables
+
+void E_EDFLogPuts(const char *msg);
+void E_EDFLogPrintf(const char *msg, ...);
+void E_EDFLoggedErr(int lv, const char *msg, ...);
 
 #endif
 

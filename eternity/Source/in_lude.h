@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2002 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,8 +25,17 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __IN_LUDE_H__
-#define __IN_LUDE_H__
+#ifndef IN_LUDE_H__
+#define IN_LUDE_H__
+
+// Intermission object struct
+typedef struct interfns_s
+{
+   void (*Ticker)(void);         // called by IN_Ticker
+   void (*DrawBackground)(void); // called various places
+   void (*Drawer)(void);         // called by IN_Drawer
+   void (*Start)(wbstartstruct_t *wbstartstruct); // called by IN_Start
+} interfns_t;
 
 // intercam
 #define MAXCAMERAS 128
@@ -34,7 +43,7 @@
 extern int intertime;
 extern int acceleratestage;
 
-extern MobjCollection_t camerathings;
+extern MobjCollection camerathings;
 extern mobj_t *wi_camera;
 
 void IN_AddCameras(void);

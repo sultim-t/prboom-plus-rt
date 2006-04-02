@@ -1450,7 +1450,7 @@ d_inline static boolean AM_drawAs2sSecret(line_t *line)
 }
 
 //
-// AM_drawAtTeleporter
+// AM_drawAsTeleporter
 //
 // Returns true if a line is a teleporter and the teleporter map
 // color is defined; returns false otherwise.

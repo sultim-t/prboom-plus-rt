@@ -9,7 +9,7 @@ content="text/html; charset=iso-8859-1">
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine Editing Reference v1.70 -- 8/09/04</h2>
+<h2>Eternity Engine Editing Reference v1.81 -- 9/12/05</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -116,11 +116,16 @@ content="text/html; charset=iso-8859-1">
             <li><a href="#genstairs">Stairs</a>
             <li><a href="#gencrush">Crushers</a>
             </ul>
+        <li><a href="#paramlines">Section 16. Detailed Parameterized Linedef Specification</a>
+            <ul>
+            <li><a href="#paramfloors">Floors</a>
+            <li><a href="#paramdoors">Doors</a>
+            </ul>
         </ul>
     <li><a href="#part2">Part II Sector Types</a>
         <ul>
-        <li><a href="#sectors">Section 16. Regular sector types</a>
-        <li><a href="#gensectors">Section 17. Generalized sector types</a>
+        <li><a href="#sectors">Section 17. Regular sector types</a>
+        <li><a href="#gensectors">Section 18. Generalized sector types</a>
         </ul>
     <li><a href="#part3">Part III Linedef Flags</a>
     <li><a href="#part4">Part IV Thing Flags</a>
@@ -134,7 +139,6 @@ content="text/html; charset=iso-8859-1">
         <li><a href="#colrngs">Color translation tables</a>
         <li><a href="#txtrconv">TXTRCONV format</a>
         <li><a href="#keydefs">KEYDEFS format</a>
-        <li><a href="#tertypes">TERTYPES format</a>
         </ul>
     </ul>
 </ul>
@@ -159,11 +163,35 @@ types. BOOM has three kinds of linedef types:<br>
      affected.
 </ul>
 
+As of Eternity Engine v3.33.00, a new type of linedef special is
+implemented called the Parameterized Line Special. Parameterized
+specials are similar to Extended specials, but they can be given
+fully customizable arguments via the <a href="extradata.html">ExtraData</a>
+linedef field "args". These line types are similar to those in
+the Hexen engine, and are heavily interoperable with the Small
+scripting system. In addition, parameterized specials are subject
+to a completely separate system for determining how they are
+activated and what can activate them that is far more flexible
+than that used by normal lines.
+
 A linedef with non-zero linedef type is called a linedef trigger.
-A linedef trigger is always activated in one of three ways -
-pushing on the first sidedef of the linedef, walking over the
-linedef, or shooting the linedef with an impact weapon (fists,
-chainsaw, pistol, shotgun, double barreled, or chaingun). <br>
+Normal, extended, and generalized linedef triggers are always 
+activated in one of three ways - pushing on the first sidedef of
+the linedef, walking over the linedef, or shooting the linedef 
+with an impact weapon (fists, chainsaw, pistol, shotgun, 
+double barreled, or chaingun). <br>
+<br>
+Parameterized line specials' activation methods are controlled
+by flags in the ExtraData linedef "extflags" field. A parameterized
+line can be activated in multiple ways simultaneously, and can
+also be activated in ways not available for normal lines, including
+being used from the back side and impacted by projectiles. The
+extflags field also controls what classes of objects can perform
+the activation (monsters, missiles, and players), whether or not
+the special activates from the second side of the line, and whether 
+or not the line special is repeatable. See the 
+<a href="extradata.html">ExtraData</a> documentation for full 
+information.<br>
 <br>
 Linedefs activated by pushing on them come in two varieties. A
 manual linedef affects the sector on the second sidedef of the
@@ -172,7 +200,9 @@ same tag field as the linedef that was pushed.<br>
 <br>
 Nearly all switched, walkover, and gun linedefs operate on the
 sectors with the same tag as that in the tag field of the
-linedef.<br>
+linedef. Most parameterized specials take the tag of sectors
+to act on as their first parameter, freeing the line tag for
+use as a line identifier.<br>
 <br>
 Some linedefs are never activated per se, but simply create or
 control an effect thru their existence and properties, usually
@@ -191,7 +221,8 @@ types for linedefs are:<br>
 <pre>
 P1 PR S1 SR W1 WR G1 GR
 </pre>
-
+Note: P1/PR types are also sometimes referred to as D1/DR types.
+<br><br>
 Often linedef actions depend on values in neighboring sectors. A
 neighboring sector is one that shares a linedef in common, just
 sharing a vertex is not sufficient.<br>
@@ -201,7 +232,7 @@ supports one floor action, one ceiling action, and one lighting
 action simultaneously.<br>
 <br>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="doors">
@@ -233,7 +264,7 @@ instantly.<br>
 If a door has a ceiling height BELOW the fully closed height
 (that is the ceiling of the door sector is lower than the floor
 of the door sector) a close door action moves the ceiling to the
-fully closed height instantly.</p>
+fully closed height instantly. 
 
 <p>
 <a name="doorfunc">
@@ -245,7 +276,7 @@ fully closed height instantly.</p>
 <ul>
 <li> Open, Wait, Then Close <br>
      On activation, door opens fully, waits a specified period, then
-     closes fully.<br><br>
+     closes fully. This door type is also known as a "Raise" door.<br><br>
      
 <li> Open and Stay Open<br>
      On activation, door opens fully and remains there.<br><br>
@@ -255,10 +286,19 @@ fully closed height instantly.</p>
      
 <li> Close, Wait, Then Open<br>
      On activation, door closes fully, waits a specified period, then
-     opens fully.
+     opens fully.<br><br>
+
+<li> Wait, Open, Wait, Close<br>
+     Available as a parameterized line special only, this door type waits for
+     a specified countdown period, and then functions as a normal "Raise"
+     door.<br><br>
+
+<li> Wait, Close and Stay Closed<br>
+     Available as a parameterized line special only, this door type waits for
+     a specified countdown period, and then closes fully and remains closed.
 </ul>
 
-</p>
+ 
 
 <p>
 <a name="doorvar">
@@ -276,7 +316,9 @@ Since a push door (P1/PR) has no use for its tag, BOOM has
 extended the functionality to include changing any tagged sectors
 to maximum neighbor lighting on fully opening, then to minimum
 neighbor lighting on fully closing. This is true for regular,
-extended, and generalized doors with push triggers.<br>
+extended, and generalized doors with push triggers. Parameterized
+push doors use a separate argument to control dynamic door
+lighting.<br>
 <br>
 A door trigger can be locked. This means that the door function
 will only operate if the player is in possession of the right
@@ -286,7 +328,8 @@ Generalized door triggers can distinguish between skull and card
 keys, and can also require any key, or all keys in order to
 activate.<br>
 <br>
-A door can have different speeds, slow, normal, fast or turbo.<br>
+A door can have different speeds, slow, normal, fast or turbo.
+Parameterized doors can open at any speed.<br>
 <br>
 A door can wait for different amounts of time.<br>
 <br>
@@ -295,7 +338,7 @@ A door may or may not be activatable by monsters.<br>
 Any door function except Close and Stay Closed, when closing and
 encountering a monster or player's head will bounce harmlessly
 off that head and return to fully open. A Close and Stay Closed
-will rest on the head until it leaves the door sector.</p>
+will rest on the head until it leaves the door sector. 
 
 <p>
 <a name="doorlines">
@@ -404,8 +447,26 @@ Generalized Locked Door Types
                         All3
                         All6
 </pre>
+
+There are currently six types of parameterized door specials, each 
+performing a different type of door action. See the
+<a href="#paramdoors">Parameterized Door Types</a> section for full 
+information on how to use these specials.
+<pre>
+Parameterized Door Types
+-----------------------------------------------------------------
+#        Class   Function                      ExtraData Name
+
+300      Param   Open, Wait, Then Close        Door_Raise
+301      Param   Open and Stay Open            Door_Open
+302      Param   Close and Stay Closed         Door_Close
+303      Param   Close, Wait, Then Open        Door_CloseWaitOpen
+304      Param   Wait, Open, Wait, Close       Door_WaitRaise
+305      Param   Wait, Close and Stay Closed   Door_WaitClose
+</pre>
+
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="floors">
@@ -503,7 +564,21 @@ on direction.<br>
 <li> None<br>
 <br>
 Some pure texture type changes are provided for changing the
-floor texture and/or sector type without moving the floor.</p>
+floor texture and/or sector type without moving the floor. <br>
+<br>
+<li> Up/Down Absolute Param
+<br>
+Only available to parameterized floor specials, this target moves 
+the floor in its indicated direction by the number of units provided
+as a special argument.<br>
+<br>
+<li> To Absolute Height
+<br>
+Only available to parameterized floor specials, this target moves the
+floor to an exact height which is provided as a parameter. This floor
+type always moves either up or down to the given height depending on
+whether it is higher or lower than the floor's current position. This
+means that instantaneous motion is not possible.
 </ul>
 
 <p>
@@ -525,7 +600,7 @@ A floor can move with speeds of Slow, Normal, Fast, or Turbo. If
 the target height specified by the floor function (see Floor
 Targets above) is in the opposite direction to the floor's
 motion, then travel is instantaneous, otherwise its at the speed
-specified.<br>
+specified. Parameterized floor types can move at any speed.<br>
 <br>
 A floor action can be a texture change type, in which case after
 the action the floor texture of the affected floor, and possibly
@@ -557,7 +632,7 @@ they take damage until they die, leave the sector, or the floor
 action is stopped. A floor action never reverses on encountering
 an obstacle, even if the crush property is not true, the floor
 merely remains in the same position until the obstacle is removed
-or dies, then continues.</p>
+or dies, then continues. 
 
 <p>
 <a name="floorlines">
@@ -675,8 +750,36 @@ Tx = Texture copied only           Trg = Trigger Model
 Tx0 = Texture copied and Type->0   Num = Numeric Model
 TxTy = Texture and Type copied
 </pre>
+
+There are currently sixteen types of parameterized floor specials, each 
+performing a different type of floor action. See the 
+<a href="paramfloors">Parameterized Floor Types</a> section for full information
+on how to use these specials.
+<pre>
+Parameterized Floor Types
+------------------------------------------------------------------------------
+#        Class   Function                           ExtraData Name
+
+306      Param   Up to Highest Neighbor Floor       Floor_RaiseToHighest
+307      Param   Down to Highest Neighbor Floor     Floor_LowerToHighest
+308      Param   Up to Lowest Neighbor Floor        Floor_RaiseToLowest
+309      Param   Down to Lowest Neighbor Floor      Floor_LowerToLowest
+310      Param   Up to Next Neighbor Floor          Floor_RaiseToNearest
+311      Param   Down to Next Neighbor Floor        Floor_LowerToNearest
+312      Param   Up to Lowest Neighbor Ceiling      Floor_RaiseToLowestCeiling
+313      Param   Down to Lowest Neighbor Ceiling    Floor_LowerToLowestCeiling
+314      Param   Up to Ceiling                      Floor_RaiseToCeiling
+315      Param   Up Abs Shortest Lower Texture      Floor_RaiseByTexture
+316      Param   Down Abs Shortest Lower Texture    Floor_LowerByTexture
+317      Param   Up Absolute Param                  Floor_RaiseByValue
+318      Param   Down Absolute Param                Floor_LowerByValue
+319      Param   To Absolute Height                 Floor_MoveToValue
+320      Param   Up Absolute Param, Instant         Floor_RaiseInstant
+321      Param   Down Absolute Param, Instant       Floor_LowerInstant
+</pre>
+
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="ceils">
@@ -758,7 +861,7 @@ is not possible with this type. In the case that there is no
 surrounding texture the motion is to -32000 or +32000 depending
 on direction.
 </ul>
-</p>
+ 
 
 <p>
 <a name="ceilvar">
@@ -814,7 +917,7 @@ die, leave the sector, or the ceiling action is stopped. A
 ceiling action never reverses on encountering an obstacle, even
 if the crush property is not true, the ceiling merely remains in
 the same position until the obstacle is removed or dies, then
-continues.</p>
+continues. 
 
 <p>
 <a name="ceillines">
@@ -872,7 +975,7 @@ Tx0 = Texture copied and Type->0   Num = Numeric Model
 TxTy = Texture and Type copied
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="plats">
@@ -889,7 +992,7 @@ height.<br>
 <br>
 The most often used kind of platform is a lift which travels from
 its current height to the target height, then waits a specified
-time and returns to it former height.</p>
+time and returns to it former height. 
 
 <p>
 <a name="plattarg">
@@ -958,7 +1061,7 @@ The &quot;low&quot; height is the original floor height, the
 The &quot;low&quot; height is the original floor height, the
 &quot;high&quot; height is 32 more. 
 </ul>
-</p>
+ 
 
 <p>
 <a name="platvar">
@@ -992,7 +1095,7 @@ change is always the sector on the first sidedef of the trigger
 (trigger model). If a change occurs, floor texture is always
 affected, lighting is never affected, even that corresponding to
 the sector's type, nor is any other sector property other than
-the sector's type.</p>
+the sector's type. 
 
 <p>
 <a name="platlines">
@@ -1055,7 +1158,7 @@ Generalized Lift Types
                G1/GR  10s Turbo       Lowest and Highest Floor (perpetual)
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="crush">
@@ -1103,7 +1206,7 @@ A crusher linedef is provided to stop a crusher in its current
 position. Care should be used that this doesn't lock the player
 out of an area of the wad if the crusher is too low to pass. A
 crusher can be restarted, but not changed, with any crusher
-linedef.</p>
+linedef. 
 
 <p>
 <a name="crushlines">
@@ -1147,7 +1250,7 @@ Generalized Crusher Types
                G1/GR  Turbo       
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="stairs">
@@ -1180,7 +1283,7 @@ on the direction the stairs build, up or down. If the motion is
 in the same direction as the stairs build, it occurs at stair
 build speed, otherwise it is instant.<br>
 <br>
-4) Repeat from step 2 until stair building ceases.</p>
+4) Repeat from step 2 until stair building ceases. 
 
 <p>
 <a name="stairvar">
@@ -1214,7 +1317,7 @@ A stair can stop on encountering a different texture or ignore
 <br>
 Only the regular build fast, stepsize 16 stair has the property
 that monsters and players can be crushed by the motion, all
-others do not crush.</p>
+others do not crush. 
 
 <p>
 <a name="stairlines">
@@ -1248,7 +1351,7 @@ Generalized Stairs Types
                G1/GR      Turbo   24 
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="elevs">
@@ -1261,7 +1364,7 @@ An elevator is a linedef type that moves both floor and ceiling
 together. All elevator linedefs are extended, there are no
 regular or generalized elevator types. Instant elevator motion is
 not possible, and monsters cannot activate elevators. All
-elevator triggers are either switched or walkover.</p>
+elevator triggers are either switched or walkover. 
 
 <p>
 <a name="elevtarg">
@@ -1289,7 +1392,7 @@ The elevator floor moves to the height of the floor on the first
 sidedef of the triggering line, the ceiling remaining the same
 height above the elevator floor.
 </ul>
-</p>
+ 
 
 <p>
 <a name="elevlines">
@@ -1319,7 +1422,7 @@ Extended Elevator types
 235   Ext    W1    Fast   Current Floor
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="lights">
@@ -1330,7 +1433,7 @@ Extended Elevator types
 <br>
 The lighting linedef types change the lighting in the tagged
 sector. All are regular or extended types, there are no
-generalized lighting types. All are switched or walkovers.</p>
+generalized lighting types. All are switched or walkovers. 
 
 <p>
 <a name="lighttarg">
@@ -1371,7 +1474,7 @@ Each tagged sector is set to a light level of 35 units.<br>
 <br>
 Each tagged sector is set to a light level of 255 units.
 </ul>
-</p>
+ 
 
 <p>
 <a name="lightlines">
@@ -1411,7 +1514,7 @@ Regular and Extended Lighting types
 17    Reg    W1    Blinking
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="exits">
@@ -1445,7 +1548,7 @@ secret exit is used in any other level, it brings you back to the
 start of the current level. In DOOM the secret exits go from E1M3
 to E1M9, E2M5 to E2M9, and E3M6 to E3M9. In DOOM II they go from
 15 to 31 and from 31 to 32. In DOOM II a normal exit from 31 or
-32 goes to level 16.</p>
+32 goes to level 16. 
 
 <p>
 <a name="exitlines">
@@ -1468,7 +1571,7 @@ Regular and Extended Exit types
 198   Ext    G1    Secret
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="teles">
@@ -1510,7 +1613,7 @@ besides a player) will not teleport thru it. However if the exit
 of teleporter is blocked a player will, including into a down
 crusher, a monster, or another player. In the latter two cases
 the monster/player occupying the spot dies messily, and this is
-called a telefrag.</p>
+called a telefrag. 
 
 <p>
 <a name="televar">
@@ -1535,7 +1638,7 @@ A teleporter can produce green fog and a whoosh noise, or it can
 be silent, in which case it does neither.<br>
 <br>
 A teleporter can transport monsters only, or both players and
-monsters.</p>
+monsters. 
 
 <p>
 <a name="telelines">
@@ -1575,7 +1678,7 @@ Regular and Extended Teleport types
 264   Ext    W1    Yes    Yes No   Preserve  Line with same tag (reversed)
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <!-- mmm, donuts -->
@@ -1599,7 +1702,7 @@ destination height both for lowering the pillar and raising the
 pool.<br>
 <br>
 No generalized donut linedefs exist, and all are switched or
-walkover.</p>
+walkover. 
 
 <p>
 <a name="donutlines">
@@ -1619,7 +1722,7 @@ Regular and Extended Donut types
 146   Ext    W1
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="props">
@@ -1830,7 +1933,7 @@ normal, lengths greater than 100 are slipperier than normal. The
 effect is only present in the tagged sector when its friction
 enable bit (bit 8) in the sector type is set. This allows the
 flat to be changed in conjunction with turning the effect on or
-off thru texture/type changes.</p>
+off thru texture/type changes. 
 
 <p>=== New to MBF ===<br>
 <br>
@@ -1891,7 +1994,7 @@ and it is intended to make it easier to take existing non-flipped
 wall textures and transfer them to skies.<br>
 <br>
 Sky textures which are different must be separated by non-sky
-textures, or else the results are undefined.</p>
+textures, or else the results are undefined. 
 <br>
 Note for Eternity Engine v3.31 public beta 6 and later: Sky textures
 will be rendered using the maximum of the texture height and the height
@@ -2044,7 +2147,7 @@ The new linedefs are as follows:<br>
 </pre>
 
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="scrolls">
@@ -2105,7 +2208,7 @@ vertically. The length of the component parallel to the wall sets
 the horizontal scroll rate, the length of the component
 perpendicular to the wall sets the vertical scroll rate.
 </ul>
-</p>
+ 
 
 <p>
 <a name="simplescroll">
@@ -2139,7 +2242,7 @@ constant rate of 1 unit per frame.<br>
 A linedef with this type scrolls its first sidedef right at a
 constant rate of 1 unit per frame.
 </ul>
-</p>
+ 
 
 <p>
 <a name="dynscroll">
@@ -2292,7 +2395,7 @@ rate. The rate change is the height change times the trigger
 length, divided by 32.
 </ul>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="portals">
@@ -2482,7 +2585,7 @@ in that manner. Crossing from the second side will have no
 effect.<br>
 <br>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="genlines">
@@ -2566,7 +2669,7 @@ sectors adjoining the tagged sector at the target height, and
 chooses the one across the lowest numbered two sided line for its
 model. If no model exists, no change occurs. Note that in DOOM II
 v1.9, no model meant an illegal sector type was generated.
-</p>
+ 
 
 <p>
 <pre>
@@ -2818,7 +2921,113 @@ Notes:
 2) If silent is 1, the crusher is totally quiet, no start/stop sounds
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+
+<p>
+<a name="paramlines">
+<hr width="75%" align="left">
+<b>Section 16. Detailed Parameterized Linedef Specification</b>
+<hr width="75%" align="left">
+</a>
+<br>
+<pre>
+<a name="paramfloors">Parameterized Floor Types</a>
+------------------------------------------------------------------------------
+#    Function                           ExtraData Name
+
+306  Up to Highest Neighbor Floor       Floor_RaiseToHighest
+307  Down to Highest Neighbor Floor     Floor_LowerToHighest
+308  Up to Lowest Neighbor Floor        Floor_RaiseToLowest
+309  Down to Lowest Neighbor Floor      Floor_LowerToLowest
+310  Up to Next Neighbor Floor          Floor_RaiseToNearest
+311  Down to Next Neighbor Floor        Floor_LowerToNearest
+312  Up to Lowest Neighbor Ceiling      Floor_RaiseToLowestCeiling
+313  Down to Lowest Neighbor Ceiling    Floor_LowerToLowestCeiling
+314  Up to Ceiling                      Floor_RaiseToCeiling
+315  Up Abs Shortest Lower Texture      Floor_RaiseByTexture
+316  Down Abs Shortest Lower Texture    Floor_LowerByTexture
+317  Up Absolute Param                  Floor_RaiseByValue
+318  Down Absolute Param                Floor_LowerByValue
+319  To Absolute Height                 Floor_MoveToValue
+320  Up Absolute Param, Instant         Floor_RaiseInstant
+321  Down Absolute Param, Instant       Floor_LowerInstant
+
+Parameters
+---------------------------------------------------------------
+Floor_RaiseToHighest         tag, speed, change, crush
+Floor_LowerToHighest         tag, speed, change
+Floor_RaiseToLowest          tag, change, crush
+Floor_LowerToLowest          tag, speed, change
+Floor_RaiseToNearest         tag, speed, change, crush
+Floor_LowerToNearest         tag, speed, change
+Floor_RaiseToLowestCeiling   tag, speed, change, crush
+Floor_LowerToLowestCeiling   tag, speed, change
+Floor_RaiseToCeiling         tag, speed, change, crush
+Floor_RaiseByTexture         tag, speed, change, crush
+Floor_LowerByTexture         tag, speed, change
+Floor_RaiseByValue           tag, speed, height, change, crush
+Floor_LowerByValue           tag, speed, height, change
+Floor_MoveToValue            tag, speed, height, change, crush
+Floor_RaiseInstant           tag, height, change, crush
+Floor_LowerInstant           tag, height, change
+
+Values
+---------------------------------------------------------------
+tag    : Tag of the sector(s) to affect. A tag of zero means to
+         affect the sector on the second side of the line.
+speed  : Speed of floor in eights of a unit per tic.
+change : This parameter takes the following values:
+         0 : No texture or type change.
+         1 : Copy texture, zero type; trigger model.
+         2 : Copy texture, zero type; numeric model.
+         3 : Copy texture, preserve type; trigger model.
+         4 : Copy texture, preserve type; numeric model.
+         5 : Copy texture and type; trigger model.
+         6 : Copy texture and type; numeric model.
+crush  : Amount of crushing damage floor inflicts at each
+         crushing event (when gametic % 4 = 0). If this
+         amount is less than or equal to zero, no crushing
+         damage is done.
+height : An integer number of units, either the amount to 
+         move the floor by or the exact z coordinate to move
+         the floor toward. Negative numbers are valid for 
+         the latter case.
+------------------------------------------------------------------------------
+
+<a name="paramdoors">Parameterized Door Types</a>
+------------------------------------------------------------------------------
+#    Function                     ExtraData Name
+
+300  Open, Wait, Then Close       Door_Raise
+301  Open and Stay Open           Door_Open
+302  Close and Stay Closed        Door_Close
+303  Close, Wait, Then Open       Door_CloseWaitOpen
+304  Wait, Open, Wait, Close      Door_WaitRaise
+305  Wait, Close and Stay Closed  Door_WaitClose
+
+Parameters
+---------------------------------------------------------------
+Door_Raise          tag, speed, delay, lighttag 
+Door_Open           tag, speed, lighttag
+Door_Close          tag, speed, lighttag
+Door_CloseWaitOpen  tag, speed, delay, lighttag
+Door_WaitRaise      tag, speed, delay, countdown, lighttag
+Door_WaitClose      tag, speed, countdown, lighttag
+
+Values
+---------------------------------------------------------------
+tag       : Tag of the sector(s) to affect as a door. A tag of 
+            zero means to affect the sector on the second side
+            of the line.
+speed     : Speed of door in eights of a unit per tic.
+delay     : Delay time in tics.
+lighttag  : Tag used to determine what sector will receive the 
+            BOOM dynamic door light effect when this door opens
+            or closes.
+countdown : Delay before action occurs in tics.
+------------------------------------------------------------------------------
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+ 
 
 <p>
 <a name="part2">
@@ -2832,12 +3041,11 @@ BOOM is backward compatible with DOOM's sector types. All types
 reserved for extended sector types, that work like DOOM's and
 share the limitation that only one type can be active in a sector
 at once. No extended sector types are implemented at this time.
-</p>
 
 <p>
 <a name="sectors">
 <hr width="75%" align="left">
-<b>Section 16. Regular Sector types</b>
+<b>Section 17. Regular Sector types</b>
 <hr width="75%" align="left">
 </a>
 <br>
@@ -2875,12 +3083,12 @@ type, as was the case with DOOM. The sector type will merely be
 ignored.<br>
 <br>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="gensectors">
 <hr width="75%" align="left">
-<b>Section 17. Generalized sector types</b>
+<b>Section 18. Generalized sector types</b>
 <hr width="75%" align="left">
 </a>
 <br>
@@ -2963,7 +3171,7 @@ Dec Bit 11     Description
 2048 1         Sounds made by sector floor/ceiling movement suppressed
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="part3">
@@ -3005,7 +3213,7 @@ Dec Bit 10     Description
 1024 1         2S linedef clips objects with respect to mid texture
 </pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="part4">
@@ -3060,7 +3268,7 @@ spawn state until a script calls the objawaken function on them,
 from which point onward they act normally.<br>
 <br>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="part5">
@@ -3129,6 +3337,14 @@ This thing type determines the origin for rendering of a skybox portal.
 See the <a href="#skybxportal">Skybox Portal</a> documentation for complete
 information.
 <br><br>
+<b>EEParticleDrip</b> (5007)<br>
+A parameterized particle drip will be spawned at this mapthing's location with
+properties determined by the mapthing's ExtraData arguments list. See the particlefx
+field documentation in the <a href="edf_ref.html">EDF Documentation</a> for more
+information on thingtype particle effects, and see the 
+<a href="extradata.html">ExtraData Documentation</a> for full information on the
+ExtraData system.
+<br><br>
 <b>EEParticleFountain</b> (9027 - 9033)<br>
 A particle fountain will be spawned at the mapthing's location.
 The fountain color depends on the mapthing number used, as
@@ -3143,7 +3359,7 @@ follows:<br>
 <li> 9033: White
 </ul>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 
 <p>
 <a name="part6">
@@ -3346,10 +3562,10 @@ each 20 bytes long, terminated by an entry (not used) whose last
 9 bytes        Null terminated string naming "off" state texture for switch
 9 bytes        Null terminated string naming "off" state texture for switch
 2 bytes        Short integer for the IWADs switch will work in
-                1=shareware
-    2=registered/retail DOOM or shareware
-    3=DOOM II, registered/retail DOOM, or shareware
-    0=terminates list of known switches
+    1 = shareware
+    2 = registered/retail DOOM or shareware
+    3 = DOOM II, registered/retail DOOM, or shareware
+    0 = terminates list of known switches
 </pre>
 
 <a name="animformat">ANIMATED format:</a><br>
@@ -3426,7 +3642,7 @@ Data Lumps and Scripts
 ----------------------
 TXTRCONV       DOOM -> DOOM II texture conversion table (new to SMMU)
 KEYDEFS        Default keybindings (new to Eternity)
-TERTYPES       TerrainType definitions (new to Eternity)
+STARTSCR       Compiled Small script for start map (new to Eternity)
 </pre>
 
 <a name="txtrconv">TXTRCONV format:</a><br>
@@ -3445,34 +3661,11 @@ terminated with a line break. This lump is ASCII text.
 KEYDEFS contains the engine's default key bindings. This lump is written to file
 as keys.csc when a file by that name cannot be found. Editing of this defaults
 lump is not generally desirable, but it is a simple console script, the syntax
-of which is expounded upon in the <a href="console_full.txt">Eternity Engine
+of which is expounded upon in the <a href="console_ref.html">Eternity Engine
 Console Reference</a>. This lump is ASCII text.
 <br><br>
-
-<a name="tertypes">TERTYPES format:</a><br>
-<br>
-The TERTYPES lump holds TerrainType definitions. It can be generated from a text
-script using the TerrainEd utility. It associates flat names with the desired
-TerrainType effect. The number of TerrainType records is limited to 32768.
-<br>
-<pre>
-Header
-------
-2 bytes        short int, number of TerrainType records in lump
-
-TerrainType Record
-------------------
-9 bytes        null-extended ASCII string, name of flat graphic lump
-2 bytes        short int, index of TerrainType effect as follows:
-               0 = FLOOR_SOLID,  placeholder with no effect
-               1 = FLOOR_WATER,  water TerrainType
-               2 = FLOOR_LAVA,   lava TerrainType
-               3 = FLOOR_SLUDGE, sludge/swamp water TerrainType
-               
-               Higher values are reserved for additional types.
-</pre>
 <a href="#contents">Return to Table of Contents</a>
-</p>
+ 
 </body>
 </html>
 

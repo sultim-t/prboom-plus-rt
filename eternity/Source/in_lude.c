@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2002 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,7 +39,9 @@
 #include "s_sound.h"
 #include "d_gi.h"
 #include "p_enemy.h"
-#include "e_edf.h"
+#include "p_info.h"
+#include "g_game.h"
+#include "e_things.h" 
 
 // Globals
 
@@ -49,7 +51,7 @@ int intertime;
 // used to accelerate or skip a stage
 int acceleratestage; // killough 3/28/98: made global
 
-static giinterfuncs_t *InterFuncs = NULL;
+static interfns_t *InterFuncs = NULL;
 
 //
 // Intermission Camera
@@ -59,7 +61,10 @@ static giinterfuncs_t *InterFuncs = NULL;
 static int realbackdrop = 1;
 camera_t   intercam;
 
-MobjCollection_t camerathings;
+// haleyjd: mobj collection object for intermission cameras
+MobjCollection camerathings;
+
+// chosen camera
 mobj_t *wi_camera;
 
 //
@@ -75,14 +80,19 @@ void IN_AddCameras(void)
 
    P_ReInitMobjCollection(&camerathings, cameratype);
 
+   // no camera view if camera type is undefined or we're in an
+   // older demo.
    if(cameratype == NUMMOBJTYPES || demo_version < 331)
       return;
    
    P_CollectThings(&camerathings);
 }
 
-// set up the intermissions camera
-
+//
+// IN_StartCamera
+//
+// Set up the intermissions camera
+//
 void IN_StartCamera(void)
 {
    int i;
@@ -93,9 +103,6 @@ void IN_StartCamera(void)
 
       // pick a camera at random
       wi_camera = P_CollectionGetRandom(&camerathings, pr_misc);
-      
-      // centre the view
-      players[displayplayer].updownangle = 0;
       
       // remove the player mobjs (look silly in camera view)
       for(i=0; i<MAXPLAYERS; i++)
@@ -113,7 +120,8 @@ void IN_StartCamera(void)
       intercam.x = wi_camera->x;
       intercam.y = wi_camera->y;
       intercam.angle = wi_camera->angle;
-      intercam.updownangle = 0;
+      intercam.pitch = 0;
+
       {
          // haleyjd: camera deep water HOM bug fix
          subsector_t *subsec =
@@ -122,6 +130,7 @@ void IN_StartCamera(void)
          intercam.z = subsec->sector->floorheight + 41*FRACUNIT;
          intercam.heightsec = subsec->sector->heightsec;
       }
+      // FIXME: does this bite the player's setting for the next map?
       R_SetViewSize(11);     // force fullscreen
    }
    else            // no camera, boring interpic
@@ -184,6 +193,13 @@ void IN_checkForAccelerate(void)
    }
 }
 
+//
+// IN_Ticker
+//
+// Runs intermission timer, starts music, checks for acceleration
+// when user presses a key, and runs the level if an intermission
+// camera is active. Gamemode-specific ticker is called.
+//
 void IN_Ticker(void)
 {
    // counter for general background animation
@@ -204,18 +220,46 @@ void IN_Ticker(void)
       P_Ticker();
 }
 
+//
+// IN_Drawer
+//
+// Calls the gamemode-specific intermission drawer.
+//
 void IN_Drawer(void)
 {
    InterFuncs->Drawer();
 }
 
+//
+// IN_DrawBackground
+//
+// Calls the gamemode-specific background drawer. This doesn't
+// use the static global InterFuncs on the off chance that the video 
+// mode could change while the game is in intermission mode, but the 
+// InterFuncs variable hasn't been initialized yet.
+// Called from system-specific code when the video mode changes.
+//
 void IN_DrawBackground(void)
 {
    gameModeInfo->interfuncs->DrawBackground();
 }
 
+//
+// IN_Start
+//
+// Sets up intermission cameras, sets the game to use the proper
+// intermission object for the current gamemode, and then calls the
+// gamemode's start function.
+//
 void IN_Start(wbstartstruct_t *wbstartstruct)
 {
+   // haleyjd 03/24/05: allow skipping stats intermission
+   if(LevelInfo.killStats)
+   {
+      G_WorldDone();
+      return;
+   }
+
    IN_StartCamera();  //set up camera
 
    InterFuncs = gameModeInfo->interfuncs;

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 //
-// Copyright(C) 2000 Simon Howard, James Haley
+// Copyright(C) 2005 Simon Howard, James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,11 +22,13 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __G_BIND_H__
-#define __G_BIND_H__
+#ifndef G_BIND_H__
+#define G_BIND_H__
 
 void G_InitKeyBindings(void);
 boolean G_KeyResponder(event_t *ev, int bclass);
+
+void G_ClearKeyStates(void);
 
 typedef void (*binding_handler)(event_t *ev);
 
@@ -83,7 +85,7 @@ extern int action_map_grid;
 // haleyjd 07/03/04: key binding classes
 enum keyactionclass
 {
-   kac_game,            // game bindings -- handled by G_BuildTicCmd
+   kac_game,            // game bindings -- handled by G_BuildTiccmd
    kac_menu,            // menu bindings -- handled by MN_Responder
    kac_map,             // map  bindings -- handled by AM_Responder
    NUMKEYACTIONCLASSES

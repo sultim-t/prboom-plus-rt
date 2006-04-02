@@ -37,6 +37,7 @@
 #include "sounds.h"
 #include "v_video.h"
 #include "st_stuff.h"
+#include "in_lude.h"
 
 // inspired by, but not taken from, zdoom
 
@@ -71,14 +72,6 @@ typedef struct gitextmetric_s
    int absh;   // absolute maximum height of any character
 } gitextmetric_t;
 
-// Intermission function pointer set
-typedef struct giinterfuncs_s
-{
-   void (*Ticker)(void);         // called by IN_Ticker
-   void (*DrawBackground)(void); // called various places
-   void (*Drawer)(void);         // called by IN_Drawer
-   void (*Start)(wbstartstruct_t *wbstartstruct); // called by IN_Start
-} giinterfuncs_t;
 
 // enum for sound index array used by p_info.c to remap environmental
 // sound defaults
@@ -116,6 +109,7 @@ enum
 
 #define GIF_PAGERAW      0x00000001  // page screens are raw format
 #define GIF_SHAREWARE    0x00000002  // shareware game (no -file)
+#define GIF_MNBIGFONT    0x00000004  // uses big font for menu titles
 
 //
 // Game Mode Types
@@ -159,7 +153,7 @@ typedef struct gameinfo_s
    menu_t *mainMenu;          // pointer to main menu structure
    int *menuSounds;           // menu sound indices
    int transFrame;            // frame DEH # used on video menu
-   int skvAtkSound;            // skin viewer attack sound
+   int skvAtkSound;           // skin viewer attack sound
 
    // border stuff
    char *borderFlat;          // name of flat to fill backscreen
@@ -174,6 +168,7 @@ typedef struct gameinfo_s
    int c_BellSound;           // sound used for \a in console
    int c_ChatSound;           // sound used by say command
    gitextmetric_t *vtextinfo; // v_font text info
+   gitextmetric_t *btextinfo; // big font text info
    unsigned char blackIndex;  // palette index for black {16,16,16}
    unsigned char whiteIndex;  // palette index for white {255,255,255}
 
@@ -194,7 +189,7 @@ typedef struct gameinfo_s
    // Intermission and Finale stuff
    int interMusNum;           // intermission music number
    gitextmetric_t *ftextinfo; // finale text info
-   giinterfuncs_t *interfuncs;// intermission function pointers
+   interfns_t    *interfuncs; // intermission function pointers
 
    // Sound
    musicinfo_t *s_music;      // pointer to musicinfo_t (sounds.h)

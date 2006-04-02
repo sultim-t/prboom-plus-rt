@@ -293,10 +293,6 @@ typedef enum {
 
 // Start Eternity TC New Things
   MT_CLRBALL = 222,           // cleric projectile
-  MT_SPLASH,            // water terrain splashes
-  MT_SPLASHBASE,
-  MT_SLUDGECHUNK,       // sludge terrain splashes
-  MT_SLUDGEBASE,
 
   MT_FOGPATCHS = 228,
   MT_FOGPATCHM,
@@ -306,11 +302,8 @@ typedef enum {
   MT_GRENADE,     // grenade in flight
   
   MT_PHOENIXSHOT = 238,
-  MT_BROKENAXE,   // items discarded by cyberguard
-  MT_BROKENSTAFF,
-  MT_HALIFMUMMY,
-  MT_LAVASPLASH, // lava terraintype (finally)
-  MT_LAVASMOKE,
+  
+  MT_HALIFMUMMY = 241,
 // End Eternity TC New Things
 
   // haleyjd: NUMMOBJTYPES is a variable now
@@ -359,6 +352,9 @@ typedef struct
    int radius;       // An often incorrect radius
    int height;       // An often incorrect height, used only to see
                      //  if a monster can enter a sector
+   int c3dheight;    // haleyjd 07/06/05: a height value corrected for
+                     //  3D object clipping. Used only if non-zero and
+                     //  comp_theights is enabled.
    int mass;         // How much an impact will move it.  Cacodemons
                      //  seem to retreat when shot because they have
                      //  very little mass and are moved by impact

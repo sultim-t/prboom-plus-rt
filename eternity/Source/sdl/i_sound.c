@@ -94,6 +94,8 @@ typedef struct {
   // Hardware left and right channel volume lookup.
   int *leftvol_lookup;
   int *rightvol_lookup;
+  // haleyjd 02/18/05: channel lock -- do not modify when locked!
+  volatile int lock;
 } channel_info_t;
 
 channel_info_t channelinfo[MAX_CHANNELS];
@@ -111,8 +113,16 @@ int vol_lookup[128*256];
 
 static void stopchan(int i)
 {
-   if(!snd_init)
+   // haleyjd 02/18/05: bounds checking
+   if(!snd_init || i < 0 || i >= MAX_CHANNELS)
       return;
+
+   // haleyjd 02/18/05: sound channel locking in case of 
+   // multithreaded access to channelinfo[].data. Make Eternity
+   // sleep for the minimum timeslice to give another thread
+   // chance to clear the lock.
+   while(channelinfo[i].lock)
+      SDL_Delay(1);
 
    if(channelinfo[i].data) /* cph - prevent excess unlocks */
    {
@@ -135,12 +145,18 @@ static void stopchan(int i)
 //
 // haleyjd: needs to take a sfxinfo_t ptr, not a sound id num
 //
-int addsfx(sfxinfo_t *sfx, int channel)
+static int addsfx(sfxinfo_t *sfx, int channel)
 {
    size_t len;
    int lump;
 
-   if(!snd_init)
+#ifdef RANGECHECK
+   if(channel < 0 || channel >= MAX_CHANNELS)
+      I_Error("addsfx: channel out of range!\n");
+#endif
+
+   // haleyjd 02/18/05: null ptr check
+   if(!snd_init || !sfx)
       return channel;
 
    stopchan(channel);
@@ -161,14 +177,19 @@ int addsfx(sfxinfo_t *sfx, int channel)
    len = W_LumpLength(lump);
 
    // haleyjd 10/08/04: do not play zero-length sound lumps!
-   if(len == 0)
-      return 0;
+   if(len <= 0)
+      return channel;
 
    if(!sfx->data)
       sfx->data = W_CacheLumpNum(lump, PU_STATIC);
 
    /* Find padded length */   
    len -= 8;
+
+#ifdef RANGECHECK
+   if(len <= 0)
+      I_Error("addsfx: invalid sound\n");
+#endif
 
    channelinfo[channel].data = sfx->data;
    
@@ -199,7 +220,7 @@ static void updateSoundParams(int handle, int volume, int seperation, int pitch)
       return;
 
 #ifdef RANGECHECK
-   if(handle>=MAX_CHANNELS)
+   if(handle < 0 || handle>=MAX_CHANNELS)
       I_Error("I_UpdateSoundParams: handle out of range");
 #endif
    // Set stepping
@@ -257,9 +278,7 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
    if(!snd_init)
       return;
 
-   SDL_LockAudio();
    updateSoundParams(handle, vol, sep, pitch);
-   SDL_UnlockAudio();
 }
 
 //
@@ -277,7 +296,7 @@ void I_SetChannels(void)
    int *steptablemid = steptable + 128;
    
    // Okay, reset internal mixing channels to zero.
-   for(i = 0; i < MAX_CHANNELS; i++)
+   for(i = 0; i < MAX_CHANNELS; ++i)
    {
       memset(&channelinfo[i], 0, sizeof(channel_info_t));
    }
@@ -352,15 +371,16 @@ int I_StartSound(sfxinfo_t *sound, int cnum, int vol, int sep, int pitch, int pr
    if(++handle >= MAX_CHANNELS)
       handle = 0;
 
-   SDL_LockAudio();
-   
+   // haleyjd 02/18/05: cannot proceed until channel is unlocked
+   while(channelinfo[handle].lock)
+      SDL_Delay(1);
+ 
    // haleyjd 09/03/03: this should use handle, NOT cnum, and
    // the return value is plain redundant. Whoever wrote this was
    // out of it.
    addsfx(sound, handle);
       
    updateSoundParams(handle, vol, sep, pitch);
-   SDL_UnlockAudio();
    
    return handle;
 }
@@ -377,13 +397,11 @@ void I_StopSound(int handle)
       return;
 
 #ifdef RANGECHECK
-   if(handle >= MAX_CHANNELS)
+   if(handle < 0 || handle >= MAX_CHANNELS)
       I_Error("I_StopSound: handle out of range");
 #endif
    
-   SDL_LockAudio();
    stopchan(handle);
-   SDL_UnlockAudio();
 }
 
 //
@@ -433,6 +451,10 @@ static void I_SDLUpdateSound(void *userdata, Uint8 *stream, int len)
    
    // Mixing channel index.
    int chan;
+
+   // haleyjd 02/18/05: error check
+   if(!stream)
+      return;
    
    // Left and right channel
    //  are in audio stream, alternating.
@@ -456,11 +478,16 @@ static void I_SDLUpdateSound(void *userdata, Uint8 *stream, int len)
       // Love thy L2 cache - made this a loop.
       // Now more channels could be set at compile time
       //  as well. Thus loop those  channels.
-      for(chan = 0; chan < MAX_CHANNELS; chan++ )
+      for(chan = 0; chan < MAX_CHANNELS; ++chan)
       {
          // Check channel, if active.
          if(channelinfo[chan].data)
          {
+            // haleyjd 02/18/05: lock the channel to prevent possible race 
+            // conditions in the below loop that could modify 
+            // channelinfo[chan].data while it's being used here.
+            channelinfo[chan].lock = 1;
+
             // Get the raw data from the channel. 
             // no filtering
             // sample = *channelinfo[chan].data;
@@ -484,6 +511,9 @@ static void I_SDLUpdateSound(void *userdata, Uint8 *stream, int len)
             // Limit to LSB???
             channelinfo[chan].stepremainder &= 0xffff;
             
+            // haleyjd 02/18/05: unlock channel
+            channelinfo[chan].lock = 0;
+
             // Check whether we are done.
             if(channelinfo[chan].data >= channelinfo[chan].enddata)
                stopchan(chan);
@@ -618,12 +648,16 @@ void I_InitSound(void)
 #include "../m_misc.h"
 
 static Mix_Music *music[2] = { NULL, NULL };
+static boolean music_playing;
+static boolean music_loaded;
 
 const char *music_name = "eetemp.mid";
 
 void I_ShutdownMusic(void)
 {
-   I_StopSong(0);
+   // haleyjd 02/18/05: unregister and free the song, don't
+   // just stop it
+   I_UnRegisterSong(0);
 }
 
 void I_InitMusic(void)
@@ -644,19 +678,26 @@ void I_InitMusic(void)
 
 void I_PlaySong(int handle, int looping)
 {
-   if(!mus_init)
+   // haleyjd 02/18/05: don't play a song if one's not loaded
+   if(!mus_init || !music_loaded)
       return;
 
    if(handle >= 0 && music[handle])
    {
       if(Mix_PlayMusic(music[handle], looping ? -1 : 0) == -1)
-         I_Error("I_PlaySong: please report this error\n");
+         I_Error("I_PlaySong: Mix_PlayMusic failed\n");
+
+      music_playing = true;
    }
 }
 
 void I_SetMusicVolume(int volume)
 {
-   if(!mus_init)
+   // haleyjd 02/17/05: SDL's native music volume setting function
+   // is only safe to call when a song is actually playing, because
+   // it closes but does not check its device handle when a song is
+   // ended.
+   if(!mus_init || !music_playing)
       return;
 
    Mix_VolumeMusic(volume*8);
@@ -697,21 +738,30 @@ void I_ResumeSong(int handle)
 
 void I_StopSong(int handle)
 {
-   if(!mus_init)
+   // haleyjd 02/17/05: don't halt music we're not playing
+   if(!mus_init || !music_playing)
       return;
    
    Mix_HaltMusic();
+
+   music_playing = false;
 }
 
 void I_UnRegisterSong(int handle)
 {
-   if(!mus_init)
+   // haleyjd 02/17/05: don't unload music that wasn't loaded
+   if(!mus_init || !music_loaded)
       return;
+
+   // haleyjd 02/17/05: stop any music still playing first
+   if(music_playing)
+      I_StopSong(handle);
 
    if(handle >= 0 && music[handle])
    {
       Mix_FreeMusic(music[handle]);
       music[handle] = NULL;
+      music_loaded = false;
    }
 }
 
@@ -726,7 +776,12 @@ int I_RegisterSong(void *data)
    UBYTE *mid;
    int midlen;
 
-   music[0] = NULL; // ensure its null
+   // haleyjd 02/17/05: don't register a song without unregistering
+   // the previous song
+   if(music_loaded)
+      I_UnRegisterSong(0);
+
+   music[0] = NULL; // ensure it's null
 
    // haleyjd: don't return negative music handles
    if(!mus_init)
@@ -769,7 +824,10 @@ int I_RegisterSong(void *data)
       doom_printf(FC_ERROR"Couldn't load MIDI from %s: %s\n", 
                   fullMusicName, 
                   Mix_GetError());
+      return 0;
    }
+
+   music_loaded = true;
    
    return 0;
 }

@@ -2,18 +2,27 @@
 // Particle effects header
 //
 
-#ifndef __P_PARTCL_H__
-#define __P_PARTCL_H__
+#ifndef P_PARTCL_H__
+#define P_PARTCL_H__
 
+#include "m_dllist.h"
 #include "p_mobj.h"
 // haleyjd: particle variables and structures
 
 // particle style flags -- 07/03/03
-#define PS_FULLBRIGHT 0x0001
-#define PS_FLOORCLIP  0x0002
+#define PS_FULLBRIGHT   0x0001
+#define PS_FLOORCLIP    0x0002
+#define PS_FALLTOGROUND 0x0004
+#define PS_HITGROUND    0x0008
+#define PS_SPLASH       0x0010 
 
 typedef struct particle_s
 {
+   // haleyjd 02/20/04: particles now need sector links
+   // haleyjd 08/05/05: use generalized dbl-linked list code
+   mdllistitem_t seclinks;         // sector links
+   struct subsector_s *subsector;
+
    fixed_t x, y, z;
    fixed_t velx, vely, velz;
    fixed_t accx, accy, accz;
@@ -21,14 +30,9 @@ typedef struct particle_s
    byte	trans;
    byte	size;
    byte	fade;
-   int  color;
+   byte color;
    int  next;
    int  styleflags; // haleyjd 07/03/03
-
-   // haleyjd 02/20/04: particles now need sector links
-   struct particle_s **sprev;    // sector links
-   struct particle_s *snext;
-   struct subsector_s *subsector;
 } particle_t;
 
 extern int numParticles;
@@ -41,6 +45,8 @@ extern int particle_trans;
 #define FX_GRENADE		0x00000002
 #define FX_FLIES                0x00000004
 #define FX_BFG                  0x00000008
+#define FX_FLIESONDEATH         0x00000010
+#define FX_DRIP                 0x00000020
 
 #define FX_FOUNTAINMASK		0x00070000
 #define FX_FOUNTAINSHIFT	16

@@ -1,5 +1,5 @@
 ====================================================================
-Eternity Engine v3.31 'Delta' - Frequently Asked Questions
+Eternity Engine v3.33.02 - Frequently Asked Questions
 ====================================================================
 
 This is a FAQ file for the Windows version of the Eternity Engine.
@@ -48,19 +48,19 @@ Q9. Does Eternity support netplay?
 
 QA. Why does Eternity crash if I use certain WADs or IWADs?
 
-QB. Why does Eternity say "eternity.wad not found?"
+QB. Why does Eternity say "eternity.wad not found"?
 
 QC. I jumped off a tall building on "The Industrial Zone" and then
-     the DOOM guy started screaming and I died. Am I crazy or is this
-     some kind of bizarre code mutation? Also, why are there feet
-     sounds when I land off short ledges rather than an "oof" like
-     I'm used to?
+    the DOOM guy started screaming and I died. Am I crazy or is this
+    some kind of bizarre code mutation? Also, why are there feet
+    sounds when I land off short ledges rather than an "oof" like
+    I'm used to?
 
 QD. I tried to use an old config file or savegame from DOS Eternity
-     with Eternity for Windows and it screwed up. What now?
+    with Eternity for Windows and it screwed up. What now?
      
 QE. Why are several of my keyboard keys broken, including the escape
-     key and the enter key for menus?
+    key and the enter key for menus?
      
 QF. What is the keys.csc file, and can I safely edit it to my liking?
 
@@ -89,13 +89,13 @@ Q7. Why does Eternity bomb to the desktop without any error messages?
 Q8. Why does Eternity say "SDL.dll" or "SDL_mixer.dll" not found?
 
 Q9. Does Eternity support dragging and dropping files from the Windows
-    shell yet?
+    shell?
 
 *** Miscellaneous ***
 
 Q1. What's the purpose of Eternity in a world so full of source ports?
 
-Q2. What features can we expect to see in the Eternity Engine v3.31?
+Q2. What features can we expect to see in the Eternity Engine v3.33?
 
 Q3. Whodunnit?
    
@@ -114,26 +114,25 @@ Q1: What are those stupid splashes? They look crazy in my TC/wad/etc
 A1: This is a feature of Eternity called TerrainTypes, which allows the
     engine to keep information about what flats represent what kind of
     terrain -- be it water, lava, swamp muck, or what have you.
-    Currently there are two effects controlled by the TerrainTypes
-    system -- splashes when things touch down on the ground, and a
-    new feature, bullet puff particles change color when you shoot
-    special floors and ceilings.
+    TerrainTypes are now part of the extensive EDF system, and are
+    controlled by definitions in the terrain.edf file, as well as
+    optional ETERRAIN lumps inside wad files.
     
     You have two options when playing wads and TCs that might replace
     flats and make TerrainTypes look inappropriate -- first, you can
     disable them on the Options->Eternity Options menu, by setting
     "Terrain effects inactive" to "YES". This'll get rid of them.
-    Or, instead, you could use the TerrainEd utility, available at the
-    same place you got this engine, to generate a TERTYPES lump
-    customized for your own project or for existing wads. Info on how
-    to use TerrainEd is included with the utility.
+    Or, instead, you could create your own custom EDF which changes,
+    disables, or creates new terrain effects for the wads. See the
+    EDF documentation for full information on TerrainTypes.
 
 =====================================================================    
 Q2. I've heard all about your supercool particles, but I don't see any.
     WTF is up with that?   
 
 A2: The various particle effects can be turned on and off from the
-    Options->Video Options->Particle Options menu ^_^
+    Options->Video Options->Particle Options menu. All effects are
+    off by default, by user request.
 
 =====================================================================    
 Q3. I looked in the configuration file to change some stuff, and all
@@ -151,16 +150,16 @@ A3. This is a known problem which has been with the code base since
     to zero, then run Eternity and exit. The messages will be gone.
     Set the variable to 1 and run Eternity again, and the messages
     will be fine. Its just a temporary problem caused when things
-    get out of sync.
+    get out of sync between different versions of Eternity.
 
 =====================================================================    
 Q4. Gaw, get with the times man. Where's jumping and mlook??
 
-A4. While Eternity doesn't have jumping yet due to concerns other than
-    how it can affect gameplay, it *does* have full mlook and keylook
-    support. look up, look down, and centerview are bound to the
-    page up, page down, and end keys by default. mlook can be enabled
-    on the Options->Mouse Options menu and through console commands.
+A4. While Eternity doesn't have jumping yet, it *does* have full 
+    mlook and keylook support. look up, look down, and centerview are 
+    bound to the page up, page down, and end keys by default. mlook 
+    can be enabled on the Options->Mouse Options menu and through 
+    console commands.
 
 =====================================================================    
 Q5. Where'd the boxed message option from BOOM go?
@@ -212,6 +211,14 @@ A7. Start up Eternity using the -dog or -dogs n command-line
     Example:
     
     eternity -dogs 3
+    
+    You can also summon dogs directly to a map using the "summon"
+    console command with this syntax:
+    
+    summon MBFHelperDog 1
+    
+    Be sure to include the "1", or the dogs will bite you instead of
+    the monsters!
 
 =====================================================================    
 Q8. How do I get Eternity to find my IWAD(s) without copying them
@@ -289,7 +296,7 @@ AB. Eternity has moved all its added resources into an external
     resource wad, eternity.wad -- this file is required to run
     Eternity, and will be loaded automatically before any other 
     wads. Make sure it's in the same directory with any copy of the 
-    EXE file, and do *not* add it with -file, as this is
+    EXE file, and do *not* add it with -file, as this is totally
     unnecessary.
      
 =====================================================================
@@ -437,7 +444,7 @@ A3. This is some type of mysterious driver-specific issue. Make
 =====================================================================
 Q4. Can Eternity use my gamepad devices?
 
-A4. Yes! Eternity v3.31 for Windows includes robust support for
+A4. Yes! Eternity v3.33 for Windows includes robust support for
     game input devices. You should be able to use any device
     recognized by Windows that has at least two axes and four buttons.
     You can enable gamepad usage on the Options->Mouse Options menu,
@@ -450,8 +457,8 @@ A4. Yes! Eternity v3.31 for Windows includes robust support for
 Q5. Starting Eternity from a command line is a bummer. Is there
     another, better way to start it?
 
-A5. Yes! Version 1.1 of the official Eternity Engine Frontend is now
-    available at the Team Eternity website.
+A5. Yes! The latest version of the official Eternity Engine Frontend
+    is now available at the Team Eternity website.
     
     Don't forget about response files, too. You can type up to 100
     command line parameters into a text file, separating each with
@@ -465,12 +472,13 @@ A5. Yes! Version 1.1 of the official Eternity Engine Frontend is now
     
     A new alternative is to use a GFS file. See the GFS documentation
     in the Eternity docs pack for detailed information. Mod authors
-    are encouraged to distribute GFS'es with their multiple-file
+    are encouraged to distribute GFS with their multiple-file
     projects.
     
     As of Eternity Engine v3.31 public beta 4, you can also drag and
     drop WAD, DEH/BEX, EDF, and GFS files onto the Eternity
-    executable. See question Q9 below for more information.
+    executable from the Windows shell. See question Q9 below for more
+    information.
 
 =====================================================================
 Q6. Eternity just got *way* slower. What could be the cause?
@@ -506,20 +514,33 @@ A6. Many things could cause this, but one is that Eternity's zone
 Q7. Why does Eternity bomb to the desktop without any error messages?
 
 A7. This may be an error related to the Windows MCI system, which
-    SDL uses to play MIDI. However, it could also be a bug in
-    Eternity itself, since some fatal signals aren't handled properly
-    for console programs in Windows (division by zero is one such
-    error).  If you can get Eternity to consistently bomb out with
-    no error message by doing something in particular, please report
-    the bug, being as specific as possible, and we'll look into it.
+    SDL uses to play MIDI. Once Eternity has crashed without properly
+    shutting down SDL and its child libraries, which can only happen
+    under extreme circumstances, system resources related to DirectX,
+    MCI, and Windows will be permanently lost. In the case of MCI, 
+    the MIDIMAP.DRV module will be destabilized and MIDI cannot be 
+    played again until the system is rebooted. "BSOD" errors may
+    occur on shutdown of Windows as well.
     
-    If the bug is not consistent, then it is probably MCI-related, or
-    possibly a system-wide stability issue. The only currently known
-    solution for this is rebooting and hoping it won't happen again.
-    An MCI-related error has not been observed to occur in Eternity
-    for several versions now, so it should be rare for this to happen
-    unless the system is already unstable (as when a previous
-    MCI-using program crashed).
+    Please report ANY instance of Eternity not shutting down properly
+    immediately to us and give as much information about the crash as
+    possible. We believe we have repaired a major issue causing these
+    types of crashes as of Eternity Engine v3.33.00, but we can't be
+    sure until the engine is thoroughly tested.
+    
+    To distinguish a proper Eternity exit from a normal crash and
+    from this kind of inappropriate shutdown, look for the following
+    messages in the Win32 console window:
+    
+    Normal Exit (Nothing went wrong):
+       "Thanks for using the Eternity Engine!"
+       
+    Normal Crash (Caught, all system resources released):
+       "SDL Parachute Deployed"
+       "Thanks for using the Eternity Engine!"
+       
+    Inappropriate Shutdown (All system resources lost):
+       No message given
 
 =====================================================================
 Q8. Why does Eternity say "SDL.dll" or "SDL_mixer.dll" not found?
@@ -531,7 +552,7 @@ A8. Eternity uses the SDL and SDL_mixer libraries for portable
 
 =====================================================================
 Q9. Does Eternity support dragging and dropping files from the
-    Windows shell yet?
+    Windows shell?
     
 A9. Yes! Eternity currently supports drag-and-drop loading of any
     number of WADs and DEH/BEX files, and up to one each of EDF and
@@ -540,7 +561,7 @@ A9. Yes! Eternity currently supports drag-and-drop loading of any
     Any file drag-and-dropped onto the executable MUST have the
     appropriate expected extension for its file type. Files without
     a recognized extension will be ignored, and any files with
-    inappropriate extensions may cause errors.
+    inappropriate extensions may cause fatal errors.
     
 =====================================================================
 
@@ -563,16 +584,14 @@ A1. The Eternity Engine aims to provide features that extend the
     the Eternity Engine.
 
 =====================================================================    
-Q2. What features can we expect to see in the Eternity Engine v3.31?
+Q2. What features can we expect to see in the Eternity Engine v3.33?
 
-A2. These features are on the line-up of TODO's for EE v3.31:
+A2. These features are on the line-up of TODO's for EE v3.33:
 
-    * Room-over-room    
-    * Small Scripting (partially implemented)
-    * ExtraData -- extended map data to allow for new effects 
-      (partially implemented)
     * Polyobjects -- moving walls ala Hexen
     * Hubs -- still working on fixing these from SMMU
+    * Full Heretic support
+    * Hexen support
     
     These features will be Windows-only:
     * CD audio support -- DOOM to your favorite tunes
@@ -608,5 +627,5 @@ A3. The Eternity Engine is maintained by James "Quasar" Haley and
     
 =====================================================================
           The Eternity Engine -- A Team Eternity Production          
-                               2004
+                               2005
 =====================================================================

@@ -23,6 +23,7 @@
 #define __V_MISC_H__
 
 #include "v_patch.h"
+#include "v_block.h"
 
 void V_InitMisc(void);
 

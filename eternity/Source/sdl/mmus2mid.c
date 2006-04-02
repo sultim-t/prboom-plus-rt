@@ -39,6 +39,14 @@ static const char rcsid[] = "$Id: mmus2mid.c,v 1.12 1998/09/07 20:09:38 jim Exp 
 #include "../z_zone.h"
 #endif
 
+// haleyjd: handle packing for GCC
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+
 // some macros to decode mus event bit fields
 
 #define last(e)         ((UBYTE)((e) & 0x80))
@@ -61,6 +69,13 @@ typedef enum
 
 // MUS format header structure
 
+// haleyjd 04/05/05: this structure is read directly from memory
+// and so it should be packed
+
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
+
 typedef struct
 {
   char        ID[4];            // identifier "MUS"0x1A
@@ -69,7 +84,11 @@ typedef struct
   UWORD       channels;         // count of primary channels
   UWORD       SecChannels;      // count of secondary channels
   UWORD       InstrCnt;         // number of instruments
-} MUSheader;
+} __attribute__((packed)) MUSheader;
+
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
 // to keep track of information in a MIDI track
 

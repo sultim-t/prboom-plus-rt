@@ -25,7 +25,7 @@
 // editing of that file. Routines for internal table hash chaining
 // and initialization are also here.
 //
-//--------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
 #include "z_zone.h"
 #include "m_argv.h"
@@ -37,6 +37,42 @@
 #include "dhticstr.h"  // haleyjd
 #include "d_dehtbl.h"
 #include "m_queue.h"
+#include "d_mod.h"
+
+//
+// Mod Strings: haleyjd -- stuck here because there's no better
+// place for them ;)
+//
+
+const char *MODNames[NUM_MOD_TYPES] =
+{
+   "UNKNOWN",
+   "FIST",
+   "PISTOL",
+   "SHOTGUN",
+   "CHAINGUN",
+   "ROCKET",
+   "R_SPLASH",
+   "PLASMA",
+   "BFG",
+   "BFG_SPLASH",
+   "CHAINSAW",
+   "SSHOTGUN",
+   "SLIME",
+   "LAVA",
+   "CRUSH",
+   "TELEFRAG",
+   "FALLING",
+   "SUICIDE",
+   "BARREL",
+   "SPLASH",
+   "HIT",
+   "BFG11K_SPLASH",
+   "BETABFG",
+   "BFGBURST",
+   "PLAYERMISC",
+   "GRENADE",
+};
 
 //
 // Text Replacement
@@ -445,6 +481,7 @@ char *s_HAMMOPHOENIXROD2 = HAMMOPHOENIXROD2;
 char *s_OB_SUICIDE = OB_SUICIDE;
 char *s_OB_FALLING = OB_FALLING;
 char *s_OB_CRUSH   = OB_CRUSH;
+char *s_OB_LAVA    = OB_LAVA;
 char *s_OB_SLIME   = OB_SLIME;
 char *s_OB_BARREL  = OB_BARREL;
 char *s_OB_SPLASH  = OB_SPLASH;
@@ -786,11 +823,6 @@ deh_strs deh_strlookup[] =
    {&bgflat15,"BGFLAT15"},
    {&bgflat31,"BGFLAT31"},
    {&bgcastcall,"BGCASTCALL"},
-   {&bgflathE1,"BGFLATHE1"},
-   {&bgflathE2,"BGFLATHE2"},
-   {&bgflathE3,"BGFLATHE3"},
-   {&bgflathE4,"BGFLATHE4"},
-   {&bgflathE5,"BGFLATHE5"},
    // Ty 04/08/98 - added 5 general purpose startup announcement
    // strings for hacker use.
    {&startup1,"STARTUP1"},
@@ -799,6 +831,12 @@ deh_strs deh_strlookup[] =
    {&startup4,"STARTUP4"},
    {&startup5,"STARTUP5"},
    {&savegamename,"SAVEGAMENAME"},  // Ty 05/03/98
+   // haleyjd: Eternity and Heretic strings follow
+   {&bgflathE1,"BGFLATHE1"},
+   {&bgflathE2,"BGFLATHE2"},
+   {&bgflathE3,"BGFLATHE3"},
+   {&bgflathE4,"BGFLATHE4"},
+   {&bgflathE5,"BGFLATHE5"},
    {&s_HHUSTR_E1M1,"HHUSTR_E1M1"},
    {&s_HHUSTR_E1M2,"HHUSTR_E1M2"},
    {&s_HHUSTR_E1M3,"HHUSTR_E1M3"},
@@ -874,6 +912,7 @@ deh_strs deh_strlookup[] =
    {&s_OB_SUICIDE,"OB_SUICIDE"},
    {&s_OB_FALLING,"OB_FALLING"},
    {&s_OB_CRUSH,"OB_CRUSH"},
+   {&s_OB_LAVA, "OB_LAVA"},
    {&s_OB_SLIME,"OB_SLIME"},
    {&s_OB_BARREL,"OB_BARREL"},
    {&s_OB_SPLASH,"OB_SPLASH"},
@@ -1247,6 +1286,11 @@ extern void A_CopyCounter();
 extern void A_CounterOp();
 extern void A_SetTics();
 extern void A_AproxDistance();
+extern void A_ShowMessage();
+extern void A_RandomWalk();
+extern void A_TargetJump();
+extern void A_ThingSummon();
+extern void A_KillChildren();
 
 // haleyjd 10/12/02: Heretic pointers
 extern void A_SpawnGlitter();
@@ -1314,13 +1358,11 @@ extern void A_Cleric2Attack();
 extern void A_ClericBreak();
 extern void A_DwarfDie();
 extern void A_CyberGuardSigh();
-extern void A_CyberGuardWake();
 extern void A_DwarfLDOCMagic();
 extern void A_DwarfFWAEMagic();
 extern void A_DwarfAlterEgoChase();
 extern void A_DwarfAlterEgoAttack();
 extern void A_PhoenixTracer();
-extern void A_AxePieceFall();
 
 // haleyjd 07/13/03: special death actions for killem cheat
 extern void A_PainNukeSpec();
@@ -1445,6 +1487,11 @@ deh_bexptr deh_bexptrs[] =
   {A_CounterOp,         "CounterOp",    BPF_PTHUNK},
   {A_SetTics,           "SetTics",      BPF_PTHUNK},
   {A_AproxDistance,     "AproxDistance",BPF_PTHUNK},
+  {A_ShowMessage,       "ShowMessage",  BPF_PTHUNK},
+  {A_RandomWalk,        "RandomWalk"},
+  {A_TargetJump,        "TargetJump"},
+  {A_ThingSummon,       "ThingSummon",  BPF_PTHUNK},
+  {A_KillChildren,      "KillChildren", BPF_PTHUNK},
   // haleyjd: Heretic pointers
   {A_SpawnGlitter,      "SpawnGlitter", BPF_PTHUNK},
   {A_AccelGlitter,      "AccelGlitter", BPF_PTHUNK},
@@ -1513,13 +1560,11 @@ deh_bexptr deh_bexptrs[] =
   {A_ClericBreak,	"ClericBreak"},
   {A_DwarfDie,		"DwarfDie"},
   {A_CyberGuardSigh,	"CyberGuardSigh"},
-  {A_CyberGuardWake,	"CyberGuardWake"},
   {A_DwarfLDOCMagic,	"DwarfLDOCMagic"},
   {A_DwarfFWAEMagic,	"DwarfFWAEMagic"},
   {A_DwarfAlterEgoChase,  "DwarfAlterEgoChase"},
   {A_DwarfAlterEgoAttack, "DwarfAlterEgoAttack"},
   {A_PhoenixTracer,	"PhoenixTracer"},
-  {A_AxePieceFall,	"AxePieceFall"},
   // This NULL entry must be the last in the list
   {NULL,             "NULL"},  // Ty 05/16/98
 };
@@ -1568,8 +1613,8 @@ unsigned int D_HashTableKey(const char *str)
 // value (DEH style).
 //
 
-// number of strings = 380, 389 = closest greater prime
-#define NUMSTRCHAINS 389
+// number of strings = 416, 419 = closest greater prime
+#define NUMSTRCHAINS 419
 static int bexstrhashchains[NUMSTRCHAINS];
 static int dehstrhashchains[NUMSTRCHAINS];
 
@@ -1735,37 +1780,48 @@ void D_BuildBEXHashChains(void)
 
 // haleyjd: support for BEX SPRITES, SOUNDS, and MUSIC
 char **deh_spritenames;
-char *deh_musicnames[NUMMUSIC + 1];
+char **deh_musicnames;
 
 //
 // D_BuildBEXTables
 //
-// strdup's string values in the sprites, sounds, and music
-// tables for use as unchanging mnemonics
+// strdup's string values in the sprites and music
+// tables for use as unchanging mnemonics. Sounds now
+// store their own mnemonics and thus a table for them
+// is unnecessary.
 //
 void D_BuildBEXTables(void)
 {
    char *spritestr;
+   char *musicstr;
    int i;
 
-   // build sounds, sprites, music lookups
+   // build sprites, music lookups
 
    // haleyjd 03/11/03: must be dynamic now
    // 10/17/03: allocate all the names through a single pointer
    spritestr = Z_Malloc(5 * NUMSPRITES, PU_STATIC, 0);
+   memset(spritestr, 0, 5 * NUMSPRITES);
 
    deh_spritenames = Z_Malloc((NUMSPRITES+1)*sizeof(char *),PU_STATIC,0);
 
-   for(i = 0; i < NUMSPRITES; i++)
+   for(i = 0; i < NUMSPRITES; ++i)
    {
       deh_spritenames[i] = spritestr + i * 5;
       strncpy(deh_spritenames[i], sprnames[i], 4);
    }
    deh_spritenames[NUMSPRITES] = NULL;
 
-   for(i = 1; i < NUMMUSIC; i++)
+   // 09/07/05: allocate all music names through one pointer
+   musicstr = Z_Malloc(7 * NUMMUSIC, PU_STATIC, 0);
+   memset(musicstr, 0, 7 * NUMMUSIC);
+
+   deh_musicnames = Z_Malloc((NUMMUSIC+1)*sizeof(char *), PU_STATIC, 0);
+
+   for(i = 1; i < NUMMUSIC; ++i)
    {
-      deh_musicnames[i] = strdup(S_music[i].name);
+      deh_musicnames[i] = musicstr + i * 7;
+      strncpy(deh_musicnames[i], S_music[i].name, 6);
    }
    deh_musicnames[0] = deh_musicnames[NUMMUSIC] = NULL;
 }

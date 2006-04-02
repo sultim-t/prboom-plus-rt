@@ -70,7 +70,7 @@ void T_PlatRaise(plat_t* plat)
       }
       
       // if encountered an obstacle, and not a crush type, reverse direction
-      if(res == crushed && (!plat->crush))
+      if(res == crushed && (plat->crush <= 0))
       {
          plat->count = plat->wait;
          plat->status = down;
@@ -119,7 +119,7 @@ void T_PlatRaise(plat_t* plat)
       break;
         
    case down: // plat moving down
-      res = T_MovePlane(plat->sector,plat->speed,plat->low,false,0,-1);
+      res = T_MovePlane(plat->sector,plat->speed,plat->low,-1,0,-1);
 
       // handle reaching end of down stroke
       if(res == pastdest)
@@ -236,7 +236,7 @@ int EV_DoPlat
       plat->sector = sec;
       plat->sector->floordata = plat; //jff 2/23/98 multiple thinkers
       plat->thinker.function = T_PlatRaise;
-      plat->crush = false;
+      plat->crush = -1;
       plat->tag = line->tag;
 
       //jff 1/26/98 Avoid raise plat bouncing a head off a ceiling and then
@@ -319,14 +319,14 @@ int EV_DoPlat
          break;
 
       case toggleUpDn: //jff 3/14/98 add new type to support instant toggle
-         plat->speed = PLATSPEED;  //not used
-         plat->wait = 35*PLATWAIT; //not used
-         plat->crush = true; //jff 3/14/98 crush anything in the way
+         plat->speed = PLATSPEED;   //not used
+         plat->wait  = 35*PLATWAIT; //not used
+         plat->crush = 10;          //jff 3/14/98 crush anything in the way
          
          // set up toggling between ceiling, floor inclusive
-         plat->low = sec->ceilingheight;
-         plat->high = sec->floorheight;
-         plat->status =  down;
+         plat->low    = sec->ceilingheight;
+         plat->high   = sec->floorheight;
+         plat->status = down;
          break;
          
       default:

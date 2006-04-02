@@ -61,6 +61,8 @@ enum
    PSTYLE_TLATED,
    PSTYLE_TRANSLUC,
    PSTYLE_TLTRANSLUC,
+   PSTYLE_ADD,
+   PSTYLE_TLADD,
 };
 
 void V_SetPatchColrng(byte *colrng);

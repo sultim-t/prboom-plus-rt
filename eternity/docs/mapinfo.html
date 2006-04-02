@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 
-<h3>Eternity Engine MapInfo Reference v1.0 -- 8/19/04</h3>
+<h3>Eternity Engine MapInfo Reference v1.1 -- 5/24/05</h3>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -72,6 +72,48 @@ in both global and level header MapInfo, and accept the same values in both type
     no sky animation will occur during lightning strikes.<br>
     Example:
     <pre>altskyname = LBOLTSKY</pre>
+    
+<li><b>boss-specials</b><br>
+    A flags field that specifies what formerly level-specific boss "magic codepointer" actions
+    are enabled for this level. This field takes a value in the same format as that used by
+    EDF, DeHackEd/BEX, and ExtraData flag fields, but the format will be reviewed here for
+    completeness.
+        <br><br>
+    A BEX flag list is a string of flag names separated by whitespace, pipe characters, commas, 
+    or plus characters. Flags are combined using bitwise-OR logic, so a flag name can be 
+    specified more than once. Specifying a flag name causes that flag to be turned on. The 
+    default state of all flags is off.
+    <br><br>
+    These are the flag values which are available for this field:
+    <pre>
+    Flag name  Decimal  Hex     Meaning
+    -----------------------------------------------------------------
+    MAP07_1    1        0x0001  MAP07 Special 1 (BossDeath only)
+    MAP07_2    2        0x0002  MAP07 Special 2 (BossDeath only)
+    E1M8       4        0x0004  E1M8 Special
+    E2M8       8        0x0008  E2M8 Special
+    E3M8       16       0x0010  E3M8 Special
+    E4M6       32       0x0020  E4M6 Special (BossDeath only)
+    E4M8       64       0x0040  E4M8 Special
+    E5M8       128      0x0080  E5M8 Special (HticBossDeath Only)
+    -----------------------------------------------------------------</pre>
+    Notes: Actions differ depending on whether monsters use the BossDeath or HticBossDeath
+    codepointers. See the documentation for those specific codepointers to see what actions
+    they perform. The monsters which must be dead for a given special to activate are controlled
+    by various EDF/BEX thingtype flags. Together, these features allow complete customization.
+    <br><br>
+    Example flags fields -- All of these are equivalent:
+    <pre>
+    boss-specials = MAP07_1|MAP07_2
+    boss-specials = MAP07_1 | MAP07_2
+    
+    boss-specials = MAP07_1+MAP07_2
+    boss-specials = MAP07_2 + MAP07_2
+    
+    boss-specials = MAP07_1,MAP07_2
+    boss-specials = MAP07_1, MAP07_2
+
+    boss-specials = MAP07_1 MAP07_2</pre>
 
 <li><b>colormap</b><br>
     Name of a colormap lump to use as the global colormap for this level. This colormap is 
@@ -96,6 +138,23 @@ in both global and level header MapInfo, and accept the same values in both type
     provided will be applied to their respective textures.<br>
     Example:
     <pre>doublesky = true</pre>
+    
+<li><b>edf-intername</b><br>
+    Boolean value which, if true, enables the use of EDF-defined intermission map name
+    strings which will be drawn using the FONTB graphics (provided in eternity.wad for
+    DOOM/DOOM II, and natively supported by Heretic). This feature is meant to obsolete 
+    the levelpic variable and to remove the need for authors to create title graphics for 
+    their maps in DOOM/DOOM II. It also allows intermission map name replacement to work 
+    correctly for the next level and for Heretic without any hacks.<br>
+    The EDF string which will be used as the intermission name for the current map should
+    have the mnemonic _IN_NAME_&lt;mapname&gt;, where &lt;mapname&gt; is the exact name of
+    the map's header lump (Example: _IN_NAME_MAP01).<br>
+    In order for the name of the next map to display correctly, the current level must
+    either define its nextlevel/nextsecret values explicitly, or it must be an ExMy or 
+    MAPxy level.
+    <br>
+    Example:
+    <pre>edf-intername = true</pre>
     
 <li><b>endofgame</b><br>
     Boolean value which, if true, causes a DOOM II cast call to occur when this map is
@@ -170,16 +229,22 @@ in both global and level header MapInfo, and accept the same values in both type
     Example:
     <pre>intertext = MAP04TXT</pre>
     
-<li><b>killfinale</b><br
+<li><b>killfinale</b><br>
     Boolean value that allows built-in text intermission points to be disabled. For example,
     if you do not want text to appear after DOOM II MAP11, set this variable to true.<br>
     Example:
     <pre>killfinale = true</pre>
     
+<li><b>killstats</b><br>
+    Boolean value that allows the statistics intermission between two maps to be disabled.
+    If the map has a finale sequence to be displayed, it will start immediately, otherwise
+    the next map will be loaded.<br>
+    Example:
+    <pre>killstats = true</pre>    
+    
 <li><b>levelname</b><br>
     This is the name of the level which will be displayed in the automap. This value overrides
-    any string provided via DeHackEd. This is not currently fully supported for Heretic, as the 
-    wrong name may appear in the intermission. This is a known bug and will be repaired soon.<br>
+    any string provided via DeHackEd.<br>
     Example:
     <pre>levelname = chadders' lair</pre>
     
@@ -187,8 +252,8 @@ in both global and level header MapInfo, and accept the same values in both type
     This is the name of a graphic lump which will be shown as the level name during the 
     statistics intermission when this map is the previous map which was just beaten. 
     Note: you cannot currently specify the graphic to be shown for the next map. This is 
-    a known bug in MapInfo and will be repaired soon. This value is only used for DOOM and 
-    DOOM II maps.<br>
+    a known bug in MapInfo and may not be repaired due to the new edf-intername feature. 
+    This value is only used for DOOM and DOOM II maps.<br>
     Example:
     <pre>levelpic = E1M1PIC</pre>
     
@@ -487,6 +552,20 @@ Some of the defaults can be edited by DeHackEd as well.
     When this variable is not defined, no animation takes place during lightning strikes,
     so there is effectively no default value.
     <br><br>
+    
+<li><b>boss-specials</b><br>
+    This variable has special defaults for the following maps:
+    <ul>
+    <li> DOOM II MAP07: "MAP07_1 | MAP07_2"
+    <li> DOOM/Heretic E1M8: "E1M8"
+    <li> DOOM/Heretic E2M8: "E2M8"
+    <li> DOOM/Heretic E3M8: "E3M8"
+    <li> DOOM/Heretic E4M6: "E4M6" ** Note: HticBossDeath does not recognize E4M6
+    <li> DOOM/Heretic E4M8: "E4M8"
+    <li> DOOM/Heretic E5M8: "E5M8" ** Note: BossDeath does not recognize E5M8
+    <li> All other maps: No specials are enabled.
+    </ul>
+    <br>
 
 <li><b>colormap</b><br>
     The default value of this variable for all maps is the normal global COLORMAP lump.
@@ -500,6 +579,14 @@ Some of the defaults can be edited by DeHackEd as well.
     
 <li><b>doublesky</b><br>
     The default value of this variable for all maps is "false".
+    <br><br>
+    
+<li><b>edf-intername</b><br>
+    In Heretic, this variable defaults to "true" for all maps and cannot be disabled.
+    Appropriate default values are defined in Eternity's misc.edf file. In all other 
+    gamemodes, this value defaults to "false" for all maps. When this value is "true" 
+    and a proper string object is defined in EDF, the "levelpic" variable will be 
+    completely ignored.
     <br><br>
     
 <li><b>endofgame</b><br>
@@ -621,9 +708,16 @@ Some of the defaults can be edited by DeHackEd as well.
     <li> Undefined gamemode: No default. No text intermission will occur.
     </ul>
     <br>    
+
 <li><b>killfinale</b><br>
     This variable has the default value of "false" for all maps.
-<br><br>
+    <br><br>
+    
+<li><b>killstats</b><br>
+    This variable has the default value of "false" for all maps except for maps in the
+    "hidden" episode of Heretic (Episode 4 in registered Heretic, Episode 6 in Heretic:
+    Shadow of the Serpent Riders) and in any higher episode. Those maps default to "true".
+    <br><br>
     
 <li><b>levelname</b><br>
     This variable has a special default for the following maps. Default values are available
@@ -639,27 +733,29 @@ Some of the defaults can be edited by DeHackEd as well.
     </ul>
     Note that when user wads are added, maps from new wads which do not have a DeHackEd or
     MapInfo level name will use "new level".    
-<br><br>
+    <br><br>
     
 <li><b>levelpic</b><br>
     This variable has the following special default values:
     <ul>
     <li> DOOM maps ExM1 - ExM9: WILVxy where x is the episode number minus 1 and y is the level
          number minus 1.
-    <li> DOOM II maps MAP01 - MAP32: CWILVxx where xx is the 2-digit level number minus 1.
+    <li> DOOM II maps MAP01 - MAP32: CWILVxy where xy is the 2-digit level number minus 1.
     </ul>
-    This value cannot currently be used for Heretic maps.
-<br><br>
+    This value cannot be used for Heretic maps. If the edf-intername variable is set to
+    true, no levelpic will be drawn by the intermission. Instead, text strings defined by
+    EDF with the proper names will be written to the screen using the large font (FONTB).
+    <br><br>
     
 <li><b>levelscript</b><br>
     This variable has no default value. If a Levelscript lump is not defined for a map, that
     map has no Levelscript. Attempted use of the Levelscript under that circumstance may result
     in error messages displayed to the player.
-<br><br>
+    <br><br>
     
 <li><b>lightning</b><br>
     This variable has the default value of "false" for all maps.
-<br><br>
+    <br><br>
     
 <li><b>music</b><br>
     This variable has the following special default values:
@@ -673,17 +769,17 @@ Some of the defaults can be edited by DeHackEd as well.
          stlks2, theda2, doom2, ddtbl2, runni2, dead2, stlks3, romero, shawn2, messag,<br>
          count2, ddtbl3, ampie, theda3, adrian, messg2, romer2, tense, shawn3, openin,<br>
          evil, ultima
-    <li> Heretic maps E1M1-E1M9: E1M1, E1M2, E1M3... E1M9
-    <li> Heretic maps E2M1-E2M9: E2M1, E2M2, E2M3, E2M4, E1M4, E2M6... E2M9
+    <li> Heretic maps E1M1-E1M9: E1M1, E1M2, E1M3, E1M4, E1M5, E1M6, E1M7, E1M8, E1M9
+    <li> Heretic maps E2M1-E2M9: E2M1, E2M2, E2M3, E2M4, E1M4, E2M6, E2M7, E2M8, E2M9
     <li> Heretic maps E3M1-E3M9: E1M1, E3M2, E3M3, E1M6, E1M3, E1M2, E1M5, E1M9, E2M6
     <li> Heretic maps E4M1-E4M9: E1M6, E1M2, E1M3, E1M4, E1M5, E1M1, E1M7, E1M8, E1M9
-    <li> Heretic maps E5M1-E5M9: E2M1, E2M2, E2M3, E2M4, E1M4, E2M6... E2M9
+    <li> Heretic maps E5M1-E5M9: E2M1, E2M2, E2M3, E2M4, E1M4, E2M6, E2M7, E2M8, E2M9
     <li> Heretic maps E6M1-E6M9: E3M2, E3M3, E1M6, TITL, INTR, CPTD, E1M1, E1M1, E1M1
     <li> Other maps: No music will be defined. An error message may be shown to the player.
     </ul>
     Remember that in DOOM gamemodes, a "D_" prefix is added to the music name automatically.
     In Heretic gamemodes, a "MUS_" prefix is added. You should NOT add the prefix yourself.
-<br><br>
+    <br><br>
     
 <li><b>nextlevel</b><br>
     This variable has the following special default values:
@@ -698,8 +794,8 @@ Some of the defaults can be edited by DeHackEd as well.
          defined or an error will occur. Eternity allows playing of ExMy maps under DOOM II,
          but the levels always exit to the next level in numeric order, including secret maps
          and crossing episode boundaries.
+         <br><br>
     </ul>
-<br><br>
     
 <li><b>nextsecret</b><br>
     This variable has the following special default values:
@@ -713,7 +809,7 @@ Some of the defaults can be edited by DeHackEd as well.
     Note: if nextsecret is defined for a map that does not normally have a secret exit,
     the secret map must also define its nextlevel explicitly. Otherwise, the player may 
     become stuck in the secret level.
-    <br>
+    <br><br>
     
 <li><b>partime</b><br>
     This variable has the following special default values:
@@ -732,15 +828,15 @@ Some of the defaults can be edited by DeHackEd as well.
     Also, if DeHackEd/BEX par times are not loaded and a new map does not provide a MapInfo
     par time, the default par time for that map will not be displayed, since it does not
     apply to user-made levels.
-<br><br>
+    <br><br>
     
 <li><b>skydelta</b><br>
     This variable has the default value "0" (zero) for all maps.
-<br><br>
+    <br><br>
     
 <li><b>sky2delta</b><br>
     This variable has the default value "0" (zero) for all maps.
-<br><br>
+    <br><br>
     
 <li><b>skyname</b><br>
     This variable has the following special default values:
@@ -761,13 +857,14 @@ Some of the defaults can be edited by DeHackEd as well.
     <li> All other Heretic maps: SKY1
     </ul>
     In the original engine, levels with undefined sky textures would display the AASTINKY or
-    AASHITTY textures in the sky. This is not supported by Eternity.
-<br><br>
+    AASHITTY textures in the sky via a bug in the texture lookup code. This is not supported 
+    by Eternity, which always defines a suitable default sky texture for all maps.
+    <br><br>
     
 <li><b>sky2name</b><br>
     When this variable is not specified by MapInfo, the value of the normal, primary sky
     texture is copied to it.
-<br><br>
+    <br><br>
     
 <li><b>unevenlight</b><br>
     This variable defaults to the value "true" for all DOOM and Heretic maps.

@@ -1,4 +1,1156 @@
 =====================================================================
+Changes since Eternity Engine v3.33.01
+=====================================================================
+=====================================================================
+09/30/05
+
+Fixed an unapparent bug in the customized libConfuse lexer that would
+have prevented ifdef/endif style functions from working properly in
+one certain case. This bug never occurred because up until now there
+was no valid way to cause it, but it could have become a problem now
+that ifenabled, etc. can accept multiple parameters.
+
+=====================================================================
+09/11/05
+
+Finished up some final adjustments before 3.33.02 launch preparations
+will begin. I cut the number of function calls made during column
+flushing significantly by effectively inlining the calls that were
+being made into new functions. 
+
+The first case improved was when the column buffer needs to be
+flushed before it's full, or when some column inside it is totally
+outside the vertical range of all 3 other columns. This case now
+calls the function pointer R_DrawWholeColumns, which draws up to four
+complete columns out of the buffer.
+
+The second case improved was the head/tail drawing done before a quad
+flush. Eight function calls were made here to R_DrawSingleColumn
+before. Now one call is made to R_DrawHTColumns, which draws the
+heads and tails of all four columns in the buffer if necessary (only
+parts outside the area of the quad flush must be handled).
+
+This is the single most critical path of execution in the game engine
+so I am continuing to find ways to improve it. I have concern about
+word writes being done out of alignment, but I do not know if the
+penalty is worse than doing 4 byte writes or not. SoM is skeptical.
+Only Lee Killough would know this kind of thing unfortunately :(
+
+It should be possible to inline the DrawHTColumns functions into the
+quad flush functions themselves and reduce that case to 1 call. I'm
+putting this off for the time being, however -- mainly in the
+interest of expediting an already very delayed release.
+
+=====================================================================
+09/07/05
+
+Did some more zone heap analysis and noticed that the BEX music names
+table was wasting 3x the needed amount of memory by allocating all
+the music names separately (like the previous issue with sprites).
+Fixed to allocate space for all the music names through one pointer.
+
+Also found the TXTRCONV lump (which allows playing DOOM maps under
+DOOM II and was added in SMMU) was similarly wasting a ton of memory
+first by using a static array of 256 texture entries when there are
+only 54 in the file, and then by using strdup to separately allocate
+the two texture names in every single structure. Now, the structures
+contain two char[9] arrays and are all kept in a dynamically realloc-
+ating array (ala boss brain spots).
+
+With these changes, the heap is starting to look a lot cleaner. In
+case one might wonder why lots of small allocations waste RAM in
+DOOM, the zone allocator (since BOOM at least) uses a minimum block
+size of 32 bytes (plus the size of the block header). This means that
+for each 9-byte string allocated, you waste a minimum of 23 bytes.
+Repeated for many structures, this turns out to be kilobytes, and 
+Eternity is already threatening to expend the default 16 MB heap on
+some larger levels, so this IS important. Huge RAM is no excuse to
+be inefficient ;)  These improvements also make those respective
+parts of the engine faster, since memory allocation is relatively
+expensive -- the fewer calls to it, the better.
+
+Halved the default number of particles allocated when I found out
+they were using 250 KB of RAM. 4000 seems like a lot of particles. If
+effects start cutting out severely, I'll either up the default or
+create an easier way for projects to override it (currently only a
+stupid command line option exists). Seriously, only areas on the
+scale of those in nuts.wad or Mock 2 could hope to have 4000 active
+particles, and allowing for the worst case all the time is silly.
+
+=====================================================================
+09/06/05
+
+Changed the EDF ifenabled function to work on N parameters, so that
+you can simultaneously test the enabled state of multiple enable
+values. However, it uses AND logic, meaning all provided enables must
+be on. To fill in the gap, I also provided an ifenabledany function
+which uses OR logic, meaning that the block inside is evaluated if
+even one of the provided enables is on.
+
+I also added the following new functions:
+
+ifdisabled -- Tests N enable values. If all are disabled, the block
+   is evaluated.
+
+ifdisabledany -- Tests N enable values. If any is disabled, the block
+   is evaluated.
+   
+ifgametype -- Tests the current real game type against N game type
+   parameters, rather than simply whether or not definitions 
+   belonging to a certain gamemode are enabled. This was needed to 
+   allow Heretic and DOOM terrain types to be enabled only in the 
+   proper game type (HERETIC or DOOM respectively). While both sets
+   of definitions could exist all the time, it would waste memory and
+   processing time.
+   
+ifngametype -- Tests the current real game type against N parameters,
+   and evaluates the block if it matches none of them.
+
+=====================================================================
+09/04/05
+
+New TerrainTypes system 100% complete!
+
+Corrected fall-to-ground particles to use deep water floors when they
+are higher than the normal floor of a sector. This will stop such
+particles at the surface of liquids, which is more realistic and will
+cause less trouble with drips that cause terrain hits.
+
+=====================================================================
+08/23/05
+
+Bulk of new TerrainTypes system completed. TerrainTypes, like EDF
+strings, can be defined both within EDF, and within their own chain
+of lumps named ETERRAIN. Use of include_prev allows for optional
+cascading.
+
+The TerrainTypes-related sections are documented here:
+
+Splash Objects:
+
+splash <mnemonic>
+{
+   smallclass = <thing type>
+   smallclip  = <int>
+   smallsound = <sound>
+   baseclass  = <thing type>
+   chunkclass = <thing type>
+   sound      = <sound>
+   
+   chunkxvelshift = <int>
+   chunkyvelshift = <int>
+   chunkzvelshift = <int>
+   chunkbasezvel  = <int>
+}
+
+All thing types in the splash are optional. If invalid, those things
+simply won't be spawned. The cutoff for objects that make small 
+splashes is, as in Hexen/zdoom, a mass of 10.
+
+All the velocity shift values default to -1, which means not to apply
+a randomized factor to the velocity. For X and Y, this means that 
+there will be NO x or y velocity. For z, the base velocity is always
+applied, but may also be set to zero to result in no z velocity.
+
+Terrain Objects:
+
+terrain <mnemonic>
+{
+   splash         = <splash>
+   damageamount   = <int>
+   damagetype     = <mod>
+   damagetimemask = <int>
+   footclip       = <int>
+   liquid         = <boolean>
+   splashalert    = <boolean>
+   useptclcolors  = <boolean>
+   ptclcolor1     = <palette index OR RGB triplet>
+   ptclcolor2     = <palette index OR RGB triplet>
+}
+
+terraindelta
+{
+   name = <terrain>
+   <terrain fields>
+}
+
+The splash is optional. If left to default or set to a non-existant
+splash, this terrain definition will have no splashing behavior.
+
+To have areas inflict damage based on terrain, their flat's terrain
+must have a damageamount greater than zero. damagetype indicates 
+what type of "Means of Damage" the damage is inflicted with, which
+currently only affects obituaries (but in the future may cause
+special death animations for various elemental attacks too). The
+time mask determines how often the damage is done.
+
+Footclipping is now customizable for each TerrainType. The normally
+defined types all use the previous hard-coded value of 10, but this
+can be set to anything zero or greater.
+
+The liquid and splashalert flags determine different behaviors of
+terrain. If a terrain is liquid, the normal player floor hit sounds
+won't be played. Generally, terrains which have a splash will want
+to mark themselves as liquid, but this isn't a hard rule. Some
+Heretic objects (which have not yet been implemented in Eternity)
+and some Hexen objects also react differently when they hit liquid
+terrain, so this will become more important in the future.
+
+Terrains with splashalert set will wake up monsters when the player 
+falls into them, like in Heretic and Hexen. Unlike zdoom, this is
+optional, because in DOOM it would seriously change the playability
+of some maps in an unacceptable manner.
+
+useptclcolors and the two color fields determine what special colors
+are used for particle gunshots that hit the floor or ceiling. These
+were previously hard-coded. You can provide an RGB triplet to these
+fields which will automagically be resolved to the closest color in 
+the game's palette (though you will not be pleased with the results
+if there is no color close enough). For this reason, it is also
+possible to specify a raw palette index from 0 to 255. This cannot
+be used across more than one game, of course.
+
+Terrain deltas are also supported, so that terrains can be edited in
+the same way as things, frames, and sounds.
+
+Floor Objects:
+
+floor
+{
+   flat = <flat>
+   terrain = <terrain>
+}
+
+Floor objects tie a flat to a terrain object. These are, in effect
+the same as the old TerrainTypes as defined in the binary TERTYPES
+lump. In fact, Eternity still supports the old lump from within the
+new system, and will automatically convert the old TERTYPES lump into
+floor definitions, assuming that terrains named "Water", "Lava",
+and "Sludge" exist (if they don't, the floors in question are just
+set to the default Solid terrain).
+
+The flat need not even exist. If it doesn't, the floor definition
+will simply never get used by the game engine. The terrain, on the
+other hand, should be valid. If it isn't, the terrain will be reset
+to the default Solid type.
+
+=====================================================================
+08/21/05
+
+Work on the new TerrainTypes system continues. Added string values
+for MOD types, which have been needed since the original version of
+EDF.
+
+=====================================================================
+08/10/05
+
+Completed massive EDF restructuring/rewrite effort. EDF's code is now 
+divided into the following modules:
+
+e_lib.c -- Contains utilities common to ALL "Extended Feature"
+modules, which also includes ExtraData. These are functions which are
+useful for any libConfuse-based system and have eliminated several
+cross-system redundancies.
+
+e_edf.c -- Still contains all the core EDF functionality, as well as
+all miscellaneous stuff such as sprites, cast, boss types, and misc
+variables.
+
+e_states.c -- All frame processing is now in this new module.
+
+e_things.c -- All thing processing is now in this new module.
+
+e_sound.c -- This module previously existed, but now contains ALL
+sound processing code.
+
+e_string.c -- This module previously existed, but now contains ALL
+string processing code.
+
+e_edf.c itself was reduced from a +4000-line disaster to only around
+1500 lines of code. Entanglement was reduced, and all the individual
+modules are now much easier to manage.
+
+To facilitate this division, I also revamped the EDF verbose logging
+and error reporting facilities, and took the opportunity to fix
+several error messages that didn't give enough info, or didn't give
+the PROPER info (ie thing/frame internal number instead of a much
+more useful name). I also authored an EDF which, with individual
+lines uncommented, can trigger almost any error. This is really
+useful for bug testing and doc correctness checking.
+
+In the process, bugs were found. Default EDF fallback behavior was
+broken due to the presence of ifenabled() function calls in the EDF
+files. I forgot to enable these functions within the option arrays
+used when modules are processed individually for fallbacks.
+
+=====================================================================
+08/05/05
+
+Added a generalized double-linked list with ** prev pointers, similar
+to the generalized queue code. This is Lee Killough's clever system
+that, while only allowing unidirectional traversal, treats all nodes
+the same and is extremely efficient at linking and unlinking.
+Particles now use this, as well as the chains of the EDF strings
+numeric id hash table, which must now allow string objects to be
+removed from the hash and then reinserted with new numeric ids (since
+entries amongst various ESTRINGS lumps may specify different numeric
+ids for like-named string sections).
+
+=====================================================================
+07/27/05
+
+Finally got around to adding back the "Are you sure?" message to the
+skill select menu when the player chooses the Nightmare! skill. This
+was yet another fundamental DOOM feature that got lost in SMMU's
+menu rewrite. I didn't even know it was missing until a few months
+ago (I personally use the startmap, for what it's worth).
+
+=====================================================================
+07/25/05
+
+Standardized the EE TerrainTypes objects for water, lava, and muck
+terrain. Eliminated several do-nothing Eternity TC codepointers and
+objects that used them, including the "broken axe" and "broken staff"
+that were thrown out by the Cyberdemon Guard when he woke up.
+
+Began implementation of the new EDF-related TerrainTypes system.
+This is going to take quite a while to finish, but it is coming along
+very nicely. If not for libConfuse syntactical restrictions, it would
+almost be source-compatible with zdoom -- despite using none of its
+code whatsoever :)
+
+=====================================================================
+07/24/05
+
+Added EDF infrastructure to support separate lumps which can be
+parsed apart from the root EDF hierarchy, and any definitions which
+can be accepted in such lumps are additive over those found in EDF.
+Cascading is optional, and must be explicitly enabled via use of the
+new "include_prev()" function. This EDF function, only callable from
+wad lumps, includes the previous lump of the same name as the one
+being parsed. This means that if you load two wads back to back that
+both define ESTRINGS lumps, the parsing starts from the ESTRINGS
+lump in the second wad loaded. If that ESTRINGS lump calls the
+include_prev function, the first ESTRINGS lump will also be parsed.
+
+Making this optional is better than making it required, since not all
+modifications are going to be compatible, but some may be designed to
+work over other existing modifications.
+
+=====================================================================
+07/23/05
+
+Found out what was causing the crusher demo desyncs that were report-
+ed on Doomworld's Demos forum. When adding the ability to have custom
+crushing damage via parameterized linedef specials, I missed a SINGLE
+line of code:
+
+if(crush == true)
+
+This line of code needed to be changed to the following:
+
+if(crush > 0)
+
+This is because "crush", which was once just a boolean telling the
+game whether or not it should be crushing stuff, is now an integer
+that, if greater than zero, means to crush stuff AND tells how much
+damage to deal while doing it.
+
+I overlooked this tiny line of code at least two dozen times while
+searching for the cause of this problem, which naturally drove me
+half-insane and had me barking up all the wrong trees, including at
+various points 3D object clipping and 3DMidTex clipping. Chalk up
+another retarded error.
+
+=====================================================================
+07/13/05
+
+Began adding particle drip object, requested by the Millennium
+project. This object will require ExtraData so that it can be spawned
+with the proper mapthing argument values to determine color, size,
+frequency, and other properties. However, full implementation has
+been suspended pending completion of the new EDF-based TerrainTypes
+specification.
+
+Modified the FLIES particle effect and added a new sister effect
+called FLIESONDEATH, which works virtually identical to the Quake 2
+fly particle effect. The effect now comes with its own sound effect,
+and to support proper sound behavior with this effect, I had to add
+a new EDF sound feature to the game engine: each sound definition can
+now specify customized attenuation behavior using two separate
+parameters:
+
+1) The distance at which the sound is fully clipped away
+2) The distance at which the sound should be at full volume
+
+Attenuation is currently always linear between these two distances.
+
+This allows sound in DOOM to have a much finer volume resolution than 
+what was previously available, and liberal use of this feature should
+make ambient sounds in mod projects much less irritating. I am 
+totally unaware of why this wasn't done in some other source port,
+like BOOM. It's a really great, easy, and logical feature to add ;)
+
+Restructured the code in P_MobjThinker that handles nightmare respawn
+because it was a nasty mess, and because the new FLIESONDEATH effect
+requires objects with that particle effects flag to have their
+movecount updated while they are dead, just as it is for nightmare
+respawning monsters. This requires the movecount increment to be
+done a bit earlier, before any returns are taken from that code
+segment -- otherwise, some objects wouldn't work with FLIESONDEATH.
+This could possibly impact some demos from older Eternity versions,
+but those are pretty much screwed to hell already with the changes
+to TerrainTypes and y-shearing, so I've stopped caring. AFAIK, no
+such demos exist anyway ;)
+
+=====================================================================
+07/08/05
+
+Eternity removed collectable objects before checking them for the
+COUNTITEM flag. I changed this behavior as it seems a bit hazardous,
+even with deferred object removal. I prefer to treat removed objects
+as though they have been freed as much as possible.
+
+=====================================================================
+07/06/05
+
+At long last, added a fix for DOOM thing heights when running in 3D
+object clipping mode. comp_theights toggles this on and off for full
+backward compatibility. Also, to maintain playability, a new flags3
+flag value has been defined and has been given to all affected DOOM
+and DOOM II decoration objects that allows missile checks and ONLY
+missile checks to use the OLD, original height values of the objects.
+
+The entire reason decor objects had incorrect height information in
+DOOM and DOOM II was to allow projectiles to go through them.
+Changing this, even under a comp flag, unreasonably alters the
+playability of many maps, so I consider it unacceptable. Making the
+behavior flag-controlled also allows it to be applied to user-made
+objects, which may prove useful in the future.
+
+=====================================================================
+Changes since Eternity Engine v3.33.00
+=====================================================================
+=====================================================================
+06/21/05
+
+Began earnest research into what is necessary to give Eternity 
+working netcode. The changes required or at the least prompted by
+this would touch several thousand lines of code. I have added more 
+than seventy new FIXME's in the catagories of NETCODE, CONSOLE, DEMO,
+WEAPON, CONFIG, and COMPAT that are all interrelated to some degree.
+If this project is undertaken, it will end up removing most of the 
+SMMU code that is currently left in Eternity and will nearly render
+it a new engine. It may require extensive borrowing of ideas and 
+possibly code from Quake 2 and, to a lesser degree, zdoom.
+
+=====================================================================
+06/15/05
+
+Added two new codepointers, RandomWalk and TargetJump, which are
+needed by CQIII for non-player characters.
+
+=====================================================================
+06/08/05
+
+Noticed that patch widgets must account for a patch's offsets when
+erasing the area the patch covers.
+
+Added rangechecking to R_VideoErase in case user patch or text
+widgets extend off the screen. Attempting to erase off the screen
+would otherwise cause a very hard crash.
+
+=====================================================================
+06/07/05
+
+Made crosshair highlighting optional by user request.
+
+Added a new thing flag, NOFRIENDDMG, by user request. Things with
+the flag won't take damage from any thing that has the FRIEND flag.
+
+=====================================================================
+06/06/05
+
+Discovered a long-standing problem in the teleportation code while
+using the whistle command on ChexBuddy. He would always get stuck 
+inside of inert objects, but not inside enemies. I discovered that
+for some reason, DOOM totally ignores objects without the SHOOTABLE
+flag when determining whether or not something can teleport to a 
+spot. The comment there indicates that since the thing isn't 
+shootable, it can't be telefragged either. However, the proper thing
+to do would be to deny the teleportation instead of sticking the
+player or other thing into the inert object. To fix this for specific
+applications of teleporting, I added a static global var and a new
+function called P_TeleportMoveStrict which sets it. When that var is
+set, PIT_StompThing will do a full clipping check when it encounters 
+an unshootable object instead of ignoring it by returning true as if
+it doesn't exist. The whistle command now uses the strict function. 
+Other teleports will still get you stuck inside inert objects, for 
+full compatibility.
+
+=====================================================================
+06/04/05
+
+Complete rewrite of hu_stuff.c and the HUD engine to streamline it 
+and allow easier access by scripting. fraggle's widget system has
+been expanded to include all of the HUD widgets, and has been altered
+so that it acts like a class, with pseudo-inheritance and pseudo-
+polymorphism. It's as close as you can get to OO in C.
+
+Repaired player messages to use V_WriteTextColoured with the current
+configured message color. Of course, this color is overridden by any
+that might be in the string itself, so things like obituaries can
+still have their separate settings even with this change. Previously,
+for some bizarre reason, fraggle was only giving messages that orig-
+inated from picked up items the proper color. I knew of this problem
+a long time ago but put off fixing it.
+
+Fixed possible error with how the messages are erased when the player
+chat widget is active.
+
+=====================================================================
+05/30/05
+
+Isolated and repaired one of fraggle's changes to vertical mouse
+sensitivity which was causing it to have to be cranked up to almost
+maximum in order to get any mlook response. Some people have
+misinterpreted this as a problem with mlook when it's actually a
+problem with the mouse input processing in G_BuildTiccmd.
+
+=====================================================================
+05/28/05
+
+Isolated cause of yshearing-related sprite glitch after inspiration
+by a comment SoM made about it seeming like the column coordinate 
+value was out of sync with the scaled length and step values of 
+columns. In all 17 of the column drawer functions, the following 
+change had to be made:
+
+  //frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+  frac = dc_texturemid + 
+     FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep);
+  
+The first line is the original coord. calculation, which involves
+the use of "centery", which is the center of the view window chopped
+to an integer. With the new yshearing system, however, column
+positioning is influenced by centeryfrac, which is fixed-point and
+contains a decimal portion of the value lost by centery. Since this
+calculation was still using centery, the coordinate was too coarse
+and thus resulted in garbage at the end of columns.
+
+Changing this also remedied the slight but noticeable jerkiness of
+the new yshearing code. This was caused by the "chunky" increase and
+decrease of the integer centery value.
+
+Note: At least part of this calculation is constant across columns 
+drawn for the same sprite. In zdoom, that part of the calculation is 
+performed outside of the column drawers. This is a possible avenue 
+for further optimization of the column drawer functions.
+
+=====================================================================
+Changes since Eternity Engine v3.31.10
+=====================================================================
+=====================================================================
+05/26/05
+
+Changed up to SDL_mixer 1.2.6, which finally includes the fix to
+native MIDI volume setting which had been in SDL's CVS for well over
+a year and had lead me to believe the existing code was in 1.2.5 and
+still malfunctioning. However, the desktop volume setting is still
+changed and left different, and I'm not yet aware of any way to fix
+this, since SDL_mixer cannot query the MIDI volume without an active
+MIDI playing. If I must, I may have to create a Win32-specific module
+to address that problem, which would open its own MIDI handle, query
+the volume at startup, set it appropriately to Eternity's setting and
+store the original, and then change back to the original setting on
+exit. Sounds like a big pain in the ass to me; the use of SDL is
+SUPPOSED to avoid the necessity of stuff like that.
+
+=====================================================================
+05/24/05
+
+Applied SoM's patches to the portal rendering code that enable proper
+recursive rendering of anchored portals along with other fixes.
+Final preparations for v3.33.00 launch are being made.
+
+=====================================================================
+05/20/05
+
+Completed all parameterized floor line types:
+
+   306 - Floor_RaiseToHighest(tag, speed, change, crush)
+   307 - Floor_LowerToHighest(tag, speed, change)
+   308 - Floor_RaiseToLowest(tag, change crush)
+   309 - Floor_LowerToLowest(tag, speed, change)
+   310 - Floor_RaiseToNearest(tag, speed, change, crush)
+   311 - Floor_LowerToNearest(tag, speed, change)
+   312 - Floor_RaiseToLowestCeiling(tag, speed, change, crush)
+   313 - Floor_LowerToLowestCeiling(tag, speed, change)
+   314 - Floor_RaiseToCeiling(tag, speed, change, crush)
+   315 - Floor_RaiseByTexture(tag, speed, change, crush)
+   316 - Floor_LowerByTexture(tag, speed, change)
+   317 - Floor_RaiseByValue(tag, speed, height, change, crush)
+   318 - Floor_LowerByValue(tag, speed, height, change)
+   319 - Floor_MoveToValue(tag, speed, height, change, crush)
+   320 - Floor_RaiseInstant(tag, height, change, crush)
+   321 - Floor_LowerInstant(tag, height, change)
+  
+Unlike Hexen, all target types are supported with both raise and
+lower, and instant motion is possible if the target height is in the
+opposite direction of the indicated motion. Also unlike Hexen, all
+line types can specify the texture/type change properties and crush
+value.  Like Hexen, however, crush damage is now customizable through
+these line types -- the crush parameter, if greater than zero,
+indicates how much damage to do at each "crush event" (which occur
+each time "leveltime & 3" is false).
+
+Customizable crush damage required a change to PIT_ChangeSector and
+its calling functions, as well as T_MovePlane, and parameter value
+changes everywhere those functions were called.
+
+=====================================================================
+05/19/05
+
+Brought Eternity's Small version up to 2.7.3 and applied a patch to
+repair portability of AMX binaries to big-endian processors. Renamed
+all Small natives, defines, and enumeration values to begin with an
+underscore. All symbol names starting with an underscore will now be
+reserved for engine use. Began work on parameterized floor line 
+types. Changed the API and semantics of some Small natives to make
+them better, before the APIs become public.
+
+=====================================================================
+05/01/05
+
+SargeBaldy found another possible Look <-> Chase infinite recursion
+caused by calling Chase from an attack state. Repaired the same way
+as for seestate recursion.
+
+=====================================================================
+04/10/05
+
+Had to add an elaborate set of functions to properly erase HUD 
+center messages. fraggle neglected this in SMMU and it turned out 
+they were leaving scraps on the border in smaller screen sizes (as 
+for why I never tested this before, who knows).
+
+=====================================================================
+04/09/05
+
+New mlook system is complete and flawless. Added a kludge to the HUD
+code that nudges the crosshair up and down based on your pitch angle
+to keep it matching more closely with where the player is aiming in
+screen sizes other than maximum. I still don't know why exactly this
+is a problem, but it's mostly taken care of now. I'm not aware of a
+way to make it match exactly (I'm sure it would be very complicated).
+
+=====================================================================
+04/06/05
+
+Promoted "allowmlook" variable to sync-critical status, requiring it
+to be saved in demos and save games. This should have been there all
+along, and I have noticed several other such variables that are still
+not saved. I will have to catch them one at a time.
+
+=====================================================================
+04/05/05
+
+Visual part of new mlook system is now complete, and work has begun
+on getting the player to shoot where he's looking again.
+
+Added an MSVC packing pragma and GNU C __attribute__((packed)) to
+the MUSheader structure in mmus2mid.c -- although the structure is
+by default aligned properly, this is by no means guaranteed. There
+are actually a large number of instances where DOOM is using
+structures not declared as packed to read/write directly to/from
+file. This isn't portable and needs to be addressed eventually.
+
+=====================================================================
+04/03/05
+
+Began rewrite of the mlook system to make it based on a true pitch
+angle instead of a simple delta value to the center of the view
+screen. View centering will now work correctly, but v3.31 demos 
+recorded with mlook on will no longer function (it is impossible and
+unnecessary to maintain both mlook systems).
+
+Removed some unnecessary FixedDiv calls in R_SetupViewScaling. SoM
+accidentally shifted up an integer and then used FixedDiv. Just 
+dividing by the integer value works fine and is way faster.
+
+Renamed the "yprojection" variable to "yaspectmul", which matches the
+name zdoom uses for the y aspect-ratio multiplier, which must be used
+in the calculation to transform the player's pitch angle into a pixel 
+offset. Fortunately, yprojection had been added earlier to support
+multiple resolutions. DOOM itself never had any use for that value as 
+far as I know, and thus didn't calculate it.
+
+=====================================================================
+04/01/05
+
+Added SoM's awesome code for blood particles that drip to the ground
+and then slowly fade. Altered it to use the style flags I added a 
+while back that automate those kinds of effects, and also to happen
+randomly along with the existing "cloud of blood" effect, so that
+there's more volume.
+
+=====================================================================
+03/14/05
+
+Tripped onto some bugs in ExtraData. The "tag" field was using a
+string for its default value when it was an integer field, which
+resulted in the value 15628 being put into every record that didn't
+specify a tag -- this value was the string's address truncated to a
+short. Also, a loop was assuming that lines have 8 arguments when
+they currently have 5 (this may be increased if I find I need more
+arguments, but right now 5 is the most I've needed, and is the same
+as in Hexen and zdoom). This was resulting in an infinite loop in
+E_EDLineForRecordNum, caused by the "next" and "recordnum" fields in
+maplinedefext_t getting overwritten with zeroes. As long as there was
+only one ExtraData linedef record, this wouldn't happen, so these 
+bugs were hidden until now, revealed by a change to my param lines 
+test map.
+
+=====================================================================
+03/13/05
+
+While adding tweaks to the linedef activation system for parameter-
+ized specials, I found an oversight in SoM's plane shooting code that
+allowed 2S line specials to still be activated when a bullet passed
+through a floor or ceiling in front of them. The problem was DOOM's
+assumption that a 2S line with the same floor and ceiling heights on
+both sides of it could not possibly stop a bullet. When allowing
+planes to stop bullets, this isn't sufficient -- the bullet must 
+always be clipped against the actual line opening.
+
+Changed P_ShootSpecialLine to take a line side argument, and changed
+P_UseSpecialLine and the button changing code to allow param lines to 
+be used from the back side. Added a 1SONLY extflag for param specials 
+to restrict a line's activation to being used/hit/crossed from the 
+first side only. Normal line types are not affected by any of these
+changes.
+
+Removed a number of redundant "line->sidenum[0] != -1" checks that 
+were scattered throughout the game engine. Lee patches such invalid
+lines at startup in the P_LoadLineDefs2 function, so checking for
+them during play is unnecessary. There may still be a few of these
+checks left, but it's ok since they don't *hurt* anything.
+
+Removed a redundant check on "underwater" in R_FakeFlat. The check
+was probably accidentally left by Lee when he rewrote the deep water
+lighting code for MBF. I found this while reformatting the code and
+removing a couple of signed/unsigned conflict warnings. This is one
+of only a scant few changes I've made to r_bsp.c the entire time I've
+worked on Eternity :)
+
+Added some new routines to my qstring pseudoclass: M_QStrUpr, 
+M_QStrLwr, and M_QStrCreateSize. Eventually this class will probably
+include just about everything you can do with a string, but I'm 
+holding off on most of it until I actually need them. There's no use
+having a million functions that aren't actually used.
+
+=====================================================================
+03/12/05
+
+Rewrote various parts of the MapInfo parser to get rid of some ugly
+hacks left over from SMMU, including one potential buffer overflow
+involved in extracting the variable token from an assignment. This
+also fixes the bug I found where the last line of the lump wouldn't
+be parsed unless it ended with a line break. qstring helped me a lot
+with this.
+
+=====================================================================
+03/10/05
+
+SoM, who has returned from his short programming vacation for a 
+while, fixed some issues with anchored portals. They can now be made
+to work two-way, and they can work inside of each other as well
+(which I believe they were meant to do originally, but did not).
+
+He made a very impressive test map and posted screenshots on his
+website. Unfortunately, some people on Doomworld have misinterpreted
+the map as having true ROR, so we may be dealing with some unhappy
+campers after v3.33.00 release :P
+
+SoM also still wants to work on getting mobj_t's to be able to tele-
+port through anchored portals. I know there are a ton of issues in-
+volved with this, but I hope we can iron them out and make it poss-
+ible, since spatially connected anchored portals would basically be
+like ROR.
+
+=====================================================================
+03/01/05
+
+Added two new types of parameterized doors, WaitClose and WaitRaise,
+which are like the "close in 30 seconds" and "raise in 5 minutes"
+sector types, but triggerable from lines. The only real difference
+with these doors are how the same fields are setup at the beginning,
+so it only took a few lines of code to add them.
+
+This brings the current parameterized line special list to the 
+following:
+
+   300 - Door_Raise(tag, speed, delay, lighttag)
+   301 - Door_Open(tag, speed, lighttag)
+   302 - Door_Close(tag, speed, lighttag)
+   303 - Door_CloseWaitOpen(tag, speed, delay, lighttag)
+   304 - Door_WaitRaise(tag, speed, delay, countdown, lighttag)
+   305 - Door_WaitClose(tag, speed, countdown, lighttag)
+   
+These 6 line specials implement more or less every type of vertical
+door possible. I will continue the implementation process by moving
+on to floors, ceilings, stairs, plats, lights, etc., until all
+functional catagories are covered. At that point, loading Hexen maps
+via runtime conversion will not be out of the question.
+
+Added ability to separate tokens within EDF compressed frame fields
+with commas instead of pipes. The result is more readable according
+to several users (including SargeBaldy) who requested it.
+
+=====================================================================
+02/28/05
+
+While testing ExtraData, I discovered that loading lumps into 
+libConfuse was broken again. At some point I forgot to add a call to
+the lexer_init function in cfg_parselump.
+
+Added calls to P_ActivateParamSpecial to P_UseSpecialLine, 
+P_ShootSpecialLine, and P_CrossSpecialLine. All processing for param
+types is done inside P_ActivateParamSpecial, so the param specials
+aren't subject to any of the quirks or limitations of the original
+linedef special system.
+
+The extflags field now supports the following values:
+
+   EX_ML_CROSS   = 0x00000001, // crossable
+   EX_ML_USE     = 0x00000002, // usable
+   EX_ML_IMPACT  = 0x00000004, // shootable
+   EX_ML_PUSH    = 0x00000008, // reserved for future use
+   EX_ML_PLAYER  = 0x00000010, // enabled for players
+   EX_ML_MONSTER = 0x00000020, // enabled for monsters
+   EX_ML_MISSILE = 0x00000040, // enabled for missiles
+   EX_ML_REPEAT  = 0x00000080, // can be used multiple times
+   EX_ML_1SONLY  = 0x00000100, // activates from 1st side only
+   
+Unlike in Hexen (and zdoom), CROSS/USE/IMPACT/PUSH are combinable.
+This allows the same line to be triggered in multiple ways. My first
+test map contained a door you can both shoot and use, and the multi-
+ple trigger methods in no way interfere with each other.
+
+Also, unlike Hexen, PLAYER/MONSTER/MISSILE triggerability statii are
+de-wed from the special activation type, allowing them to be indepen-
+dently combined.
+
+Finally, unlike Hexen, these flags go into a new field, and not the
+almost full normal line flags, so there's no danger of running out of
+line flags any time soon -- there are still 24 free bits in the
+extflags field, and I don't even have any planned uses for them yet.
+This is the real power of ExtraData finally showing itself.
+
+I should note that MISSILE|IMPACT isn't implemented yet, and the PUSH
+activation type isn't implemented at all yet. These trigger types
+require a hack to P_TryMove that I've not had sufficient time to
+consider yet. I don't particularly like the way Hexen does it and I
+fear it might have issues in Eternity if implemented the same way.
+
+Changed EV_TurnLightOnPartway to accept a line tag instead of a line
+pointer, so that param special doors can use an alternate lighting
+tag and so that specials started with no line don't have to have this
+feature disabled for them. This function was only using the line for
+its tag field anyways, so this changes absolutely nothing.
+
+Added ability for non-Push type doors to be treated as manual, so
+that zero tags for such doors don't result in the entire level
+closing like a door. This only applies when param specials are in
+action, so compatibility is not affected.
+
+=====================================================================
+02/26/05
+
+Added ExtraData linedef record. Added new line fields args and 
+extflags, for parameterized line special support.
+
+Format of the linedef record follows:
+
+   linedef
+   {
+      recordnum = <unique number>
+      special   = <number> | <simple name> | <generalized specifier>
+      tag       = <number>
+      extflags  = <flag list>
+      args      = { <string>, ... }
+   }
+   
+The special field is the most interesting. All of the original and
+extended normal line types have been given names, although some of
+them are very hideous (like W1_Plat_Up32_c0t_Slow) -- I don't anti-
+cipate these will be used much. Generalized lines can be specified 
+with the following type of syntax:
+
+   Gen<type>(<arg>+)
+
+   <type> = Floor|Ceiling|Door|DoorLocked|Lift|Stairs|Crusher
+   <arg>  = <char>+','
+
+The arguments taken are values like "W1", "yes", "CloseWaitOpen", 
+etc., based partially on the BOOM generalized linedef specification
+documentation in editref.html -- this probably won't be used much
+either, but it is provided for completeness. It took a hell of a lot
+of code to implement, too >_<  These types of specials are parsed
+with a finite state automaton lexer similar to the one used to parse
+cmp frames in EDF, so they're very lenient with formatting.
+
+Finally, param specials have very nice names that can be specified
+in this field, names like "Door_Raise" and "Door_Close". The argu-
+ments to these types of specials go into the args list, and may be
+strings of arbitrary format -- currently the strings are only 
+interpreted as numeric values, but this is likely to change in the
+future to allow prefix:value pairs like in EDF (the code is already
+setup to allow this when it becomes useful).
+
+And of course, you can always just use the line special's number if
+the names don't suit you.
+
+=====================================================================
+02/24/05
+
+Work has begun on parameterized line special support. Changed the
+hack case for raiseIn5Mins doors to use the new constant plat_special
+for the direction they're moving in. This allows the value to be
+used elsewhere consistently.
+
+=====================================================================
+02/23/05
+
+Tweaked 3DMidTex clipping even further to allow things to be pushed
+off them by explosions and weapon fire, and to allow dogs to jump
+down from off of them. Also made the is/is not on 3DMidTex decision
+for purposes of ignoring dropoffs more rigorous. This didn't seem to
+affect behavior in SoM's Ogro Power Facility or in various test maps
+in any way.  Attempted to eliminate things sliding across 3DMidTex 
+when dead by disabling torque simulation for such objects, but it's
+not enough. They also slide because they are corpses, and this 
+behavior would be very hard to correct given where it is handled in
+the code. I haven't given up yet, but I have put it off until much 
+later.
+
+=====================================================================
+02/21/05
+
+Changed previous patch to problem of particle events/effects going
+off during the boss brain explosion by adding a new internal thing
+flag MIF_NOPTCLEVTS which disables events for a thing. The things
+are now given this flag by the Boss codepointers and also have their
+effects field zeroed, which eliminates both rocket trails and rocket
+bursts.
+
+Added PS_FALLTOGROUND particle style flag, which causes a particle
+to live forever until it hits the ground, at which point it starts to
+age normally. This flag is needed for some of SoM's enhanced effects
+that still need to go in, as well as those Millennium effects I
+promised to get to a long time ago.
+
+=====================================================================
+02/18/05
+
+Added another change to MIDI:
+
+* I_ShutdownMusic now both stops and frees any currently playing song
+  rather than simply stopping it. There's a small chance that exiting
+  without freeing the music causes a resource leak in MCI which, 
+  after repeated executions, could cause undefined behavior. It
+  doesn't appear that SDL_mixer accepts responsibility for releasing
+  native MIDI resources when it shuts down.
+  
+* A song will not be played if a song has not been loaded (shouldn't
+  happen).
+  
+Also, after stress testing began to indicate that the native MIDI
+code in SDL_mixer is rock solid after all (except when dealing with
+rare, malformed MIDI files), I began to look for issues in the sound
+effects engine, which was taken from prboom 2.0.2, and has already
+had a large number of bugs fixed. Here's what I found:
+
+* There was a possible race condition between the game engine and the
+  I_SDLUpdateSound callback, which may or may not be called from a
+  different thread depending on the platform and sound drivers being
+  used by SDL_mixer. If a channel's data pointer was modified between
+  the time I_SDLUpdateSound checked it for validity and the time it
+  actually used it (which is several times within its loop), the
+  SDL_mixer thread would unquestionably crash. This race condition 
+  would tend to be rare and would be highly inconsistent, just like
+  the crashes I've been getting ever since v3.29 Gamma added sound
+  effects in Windows. This was fixed by placing a lock on the channel
+  currently being processed by SDL_mixer. Until that lock is lifted,
+  the other sound engine routines trying to use it must block.
+  
+I also added some paranoid checks here too:
+  
+* Added channel bounds checking to stopchan.
+
+* Added null sfx pointer check to addsfx.
+
+* Added null stream pointer check to I_SDLUpdateSound.
+
+With all of this, the sound code should be getting more robust. I
+don't doubt there are still some problems hiding in it, though. If
+so, they'll have to be slowly rooted out just as these were.
+
+=====================================================================
+02/17/05
+
+After several SDL_mixer-related crashes I have again re-examined the
+MIDI playing code and I am also using a custom application to stress
+test the native MIDI code from that library.
+
+I have applied the following paranoid revisions to the SDL music 
+code in order to ensure that nothing can be done that is inappropri-
+ate:
+
+* I_SetMusicVolume should never be called if a song is not currently
+  playing. The native_midi_setvolume function in SDL_mixer doesn't
+  test the HMIDIOUT handle it uses for validity, and the handle isn't
+  valid when a song isn't playing. The MSDN docs for midiOutSetVolume
+  do not say that behavior is defined with an invalid device handle, 
+  so this isn't safe.
+
+* Music won't be halted if no music is playing (shouldn't happen).
+
+* Music won't be unloaded if no music is loaded (shouldn't happen).
+
+* Music will be stopped before being unloaded (should already be 
+  stopped before call to I_UnRegisterSong).
+  
+* Music will not be loaded without unloading the previous music
+  (shouldn't happen).
+  
+Because some of the native MIDI routines are intolerant to being
+called out of order, these paranoid checks make sure they can never
+be called out of order, eliminating any concern about that.
+
+=====================================================================
+02/09/05
+
+Added the ability to load and parse EDF from wad lumps. I'm not sure
+what I was thinking earlier, because with a slight adjustment to my
+custom version of libConfuse I was able to let EDF "cross-talk"
+between wad lumps and files as much as it wants. First, I had to make
+cfg_lexer_include provide loading from data or from file as an 
+option, which was simple -- it was previously only allowing inclusion
+of lumps from lumps, and files from files, but there's no need for
+that restriction at that point in the code. Then, I altered the EDF 
+include function to have this behavior, since it can only load files
+from other files (it has to interpret the path relative to the 
+current file). To make up for that deficiency, I just added a 
+lumpinclude function that always includes lumps. So, you can use the
+include functions in the following ways:
+
+include
+* From file: can only include another file
+* From lump: can only include another lump
+
+stdinclude
+* Always includes a file from Eternity's directory
+
+lumpinclude
+* Always includes a lump
+
+bexinclude
+* Cannot call from within wad lumps (an error message will be given)
+
+This gives almost full flexibility to the system, and circumvents the
+problem of having the defaults already established as being stored in
+files, since stdinclude can still get to them even from lumps.
+
+The root EDF lump must be named EDFROOT, and it can include any
+number of lumps of arbitrary name. If an EDFROOT lump is present, it 
+takes precedence over any other form of EDF root file specification.
+I can see this as being problematic, though, as people using EDF 
+lumps might want to substitute in a file to test a temporary idea --
+I'll think about how to make this work better before the next 
+release.
+
+Made adjustments to M_GetFilePath so that it is more rigorous. It now
+properly distinguishes between paths relative to the root directory 
+and paths relative to the current working directory, which it did not
+previously do under my last rewrite. It should now return the proper 
+path for all possible absolute and relative file name strings under 
+DOS/Win32 and Unix-based OSes.
+
+=====================================================================
+02/08/05
+
+Implemented additive translucency for sprites and screen patches, so
+now you can have those burning-hot fireballs like zdoom has. I didn't
+use zdoom's code directly since Eternity still uses an 8k lookup 
+table; I had to figure out how to do it with the lower precision, 
+which wasn't difficult and ended up pretty much the same. I'm still
+satisfied with the look obtained with an 8k lookup so I don't plan on
+changing that any time soon. It also allows me to claim descendence
+of the code from DosDOOM and avoid any possible licensing issues ;)
+
+In the process of this, I found another bug in SoM's column buffering
+optimization -- single pixels at the top and bottom of the "common" 
+area of a quad column flush would be drawn twice when the columns had
+areas above or below the common area. For normal sprites, this wasn't
+noticeable. For translucent sprites, it was negligible. But when it
+happened with additive translucency, it was horrible, since the 
+intensity increases so much with each overdraw. The simple fix 
+involved removing off-by-one errors when drawing the tops and bottoms
+of such columns. The R_FlushSingleColumn calls should run to 
+commontop - 1 and from commonbottom + 1 respectively, since the quad
+flush already draws the pixels at commontop and commonbottom.
+
+Also added a BOOM-style translucent column drawer with translation
+support. They never added this in BOOM, so if you, for example, made
+the player translucent, he would always be green no matter what. I'm
+not sure why I neglected to fix this until now, I guess it just 
+slipped my mind after addition of the flex-tran system, which has
+always provided a TR/TL column drawer.
+
+Rewrote part of R_DrawParticle to remove major inner-loop invariants.
+I have a feeling the compiler was probably fixing this already in the
+optimizer, but there's no harm in doing it myself and being sure 
+about it. Basically, I was making the same translucency decisions on
+every iteration, and that was stupid. Of course, the function is 
+quite a bit longer now, since removing the invariants required the 
+inner loop to be duplicated 3 times ;)
+
+=====================================================================
+02/05/05
+
+Corrected the allocation level of the TERTYPES lump. It was being
+loaded at PU_CACHE, but then subsequent allocations were being made
+before work with it was done. This could have messed up, although it
+was extremely unlikely to ever happen due to how the zone heap works.
+This has been wrong since the very first internal SMMU-based build of
+Eternity, and it's never triggered an error the whole time.
+
+Changed the gamemode info system so that the intermission objects are
+dealt with in the same manner as the status bar objects -- the game-
+mode-specific functions they point to are now static, and the objects
+themselves are declared in their respective modules. The interfns_t
+type is now defined in in_lude.h rather than d_gi.h.
+
+=====================================================================
+02/02/05
+
+Added unscaled block drawers for solid and translucent blocks of a
+single color. I added these to support the new intermission features
+discussed below. The next feature of this sort to add will be masked
+block drawers to support rect blit fonts.
+
+Added EDF variables that manipulate behavior of the intermission.
+intermission_pause specifies a time in gametics that the intermission
+waits after drawing the background but before starting to show the
+statistics. intermission_fade and intermission_tl specify an optional
+color and translucency level to overlay the background picture with
+once the optional wait period has expired (if no wait period is
+specified, the overlay happens immediately). These two features
+together allow me to emulate the Contra III intermission for Chex
+Quest III, but I think other people will like them too ;)
+
+=====================================================================
 Changes since Eternity Engine v3.31 Delta Pre-Release Alpha 2
 =====================================================================
 =====================================================================

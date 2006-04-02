@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine EDF Reference v1.3 -- 08/08/04</h2>
+<h2>Eternity Engine EDF Reference v1.5 -- 09/12/05</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -16,19 +16,24 @@
 <li><a name="contents"><b>Table of Contents</b></a>
     <ul>
     <li><a href="#intro">Introduction to EDF</a>
-    <li><a href="#changes">Changes in EDF 1.3</a>
+    <li><a href="#changes">Changes in EDF 1.5</a>
     <li><a href="#gensyn">General Syntax</a>
     <li><a href="#files">Files</a>
         <ul>
-        <li><a href="#whywad">Why Not in Wads?</a>
         <li><a href="#root">Specifying the Root EDF File</a>
+        <li><a href="#lump">Loading EDF From a WAD Lump</a>
+        <li><a href="#estrings">ESTRINGS Lump</a>
+        <li><a href="#eterrain">ETERRAIN Lump</a>
         <li><a href="#inc">Including Files</a>
+        <li><a href="#inclump">Including Lumps</a>
         <li><a href="#bex">Including BEX Files</a>
         <li><a href="#defs">Default EDF Files</a>
         <li><a href="#fallbacks">Default Fallbacks</a>
         <li><a href="#verbose">Verbose EDF Logging</a>
         </ul>
     <li><a href="#enables">Enable Functions</a>
+    <li><a href="#gametypes">Gametype Functions</a>
+    <li><a href="#strings">Strings</a>
     <li><a href="#sprnames">Sprite Names</a>
     <li><a href="#spritevars">Sprite-Related Variables</a>
     <li><a href="#pickups">Sprite-Based Pickup Items</a>
@@ -39,6 +44,13 @@
     <li><a href="#cast">DOOM II Cast Call</a>
     <li><a href="#boss">DOOM II Boss Brain Types</a>
     <li><a href="#sound">Sounds</a>
+    <li><a href="#terrain">TerrainTypes</a>
+        <ul>
+        <li><a href="#splashes">Splash Objects</a>
+        <li><a href="#terrain">Terrain Objects</a>
+        <li><a href="#floors">Floor Objects</a>
+        <li><a href="#tertypes">TERTYPES Lump Processing</a>
+        </ul>
     <li><a href="#delta">Delta Structures</a>
     <li><a href="#misc">Miscellaneous Settings</a>
     </ul>
@@ -77,19 +89,33 @@ This documentation will be regularly updated to reflect all changes and addition
 <p>
 <a name="changes">
 <hr>
-<b>Changes in EDF 1.3</b>
+<b>Changes in EDF 1.5</b>
 <hr>
 </a>
 <br>
 <ul>
-<li> Line continuation is now allowed in quoted strings (see <a href="#gensyn">General Syntax</a>)
-<li> Several restrictions on the format of <a href="#cmpframe">frame cmp strings</a> have been relaxed.
-<li> Sprite names duplication semantics documentation clarified, corrected.
-<li> "dmgspecial" field for thingtypes added.
-<li> "crashstate" field for thingtypes added.
-<li> "skinsprite" field for thingtypes added.
-<li> Corrected information on maximum thingtype radius value.
-<li> Percentage values now allowed in thingtype translucency field.
+<li> Added correct_height field for thingtypes.
+<li> Added FLIESONDEATH particle effect.
+<li> Added custom sound attenuation properties.
+<li> Added include_prev function to enable cascading lumps.
+<li> ESTRINGS lump processing.
+<li> Textual values for thingtype mod field now available.
+<li> TerrainTypes
+     <ul>
+     <li> New terrain.edf module.
+     <li> ETERRAIN lump processing.
+     <li> splash, terrain, and floor sections.
+     <li> TERTYPES lump now deprecated and absorbed into new system.
+     </ul>
+<li> Improved ifenabled function and added new functions:
+     <ul>
+     <li> ifenabledany
+     <li> ifdisabled
+     <li> ifdisabledany
+     <li> ifgametype
+     <li> ifngametype
+     </ul>
+<li> Added ability for compressed frames to contain some other fields.
 </ul>
 
 <a href="#contents">Return to Table of Contents</a>
@@ -165,9 +191,9 @@ This documentation will be regularly updated to reflect all changes and addition
      The items SPR1, SPR2, and SPR3 are unquoted strings. Note how the commas serve to
      separate the items in a list, and therefore do not become part of the strings.
      <br><br>
-     Other fields more or less require quoted strings. Quoted strings must start and end
-     with either single or double quotes (the beginning and ending quote types must match,
-     as well). Quoted strings may contain any character except a line break, including those 
+     Many fields more or less require quoted strings. Quoted strings must start and end
+     with either single or double quotes (the beginning and ending quote types must match).
+     Quoted strings may contain any character except a line break, including those 
      not allowed in unquoted strings. In addition, quoted strings also support the following 
      escape codes for non-typable characters:
      <br><br>
@@ -241,21 +267,6 @@ This documentation will be regularly updated to reflect all changes and addition
 <hr>
 </a>
 <br>
-<a name="whywad">
-<hr>
-<b>Why Not in Wads?</b>
-<hr>
-</a>
-<br>
-Eternity cannot currently load EDF from wad lumps, although actions have been taken to
-enable this in the near future.
-<br><br>
-In the meanwhile, Eternity offers several ways to make loading of EDF from files a gentler 
-process. These are addressed in the <b>"Specifying the Root EDF File"</b> section below.
-<br><br>
-<a href="#contents">Return to Table of Contents</a>
-
-<p>
 <a name="root">
 <hr>
 <b>Specifying the Root EDF File</b>
@@ -289,6 +300,68 @@ loaded directly for parsing.
 <a href="#contents">Return to Table of Contents</a>
 
 <p>
+<a name="lump">
+<hr>
+<b>Loading EDF From a WAD Lump</b>
+<hr>
+</a>
+<br>
+Starting with EDF 1.4, it is possible to load a WAD lump as the root EDF file. The name of the
+root EDF lump must be "EDFROOT", and the newest lump of that name is the one that will be
+loaded and parsed. See the section below on including files for information on how this affects
+EDF processing. <!-- TODO: add more information once wad vs file specification issue is resolved -->
+<br><br>
+As of EDF 1.5, selective sets of EDF definitions may also be loaded additively from
+separate chains of optional lumps. These lumps are documented under their own sections
+below.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="estrings">
+<hr>
+<b>ESTRINGS Lump</b>
+<hr>
+</a>
+<br>
+The ESTRINGS lump is an optional EDF lump which can contain any number of 
+<a href="#strings"><b>string</b></a> definitions. String definitions found in the
+ESTRINGS lump which already exist will overwrite string definitions with the same
+mnemonic. ESTRINGS lumps do not cascade by default, but can be made to do so by using
+the <b>include_prev</b> funtion documented below.
+<br><br>
+Note: it is inappropriate to include an ESTRINGS lump from EDFROOT or from any file
+included by it, because ESTRINGS will be processed separately after the root EDF has
+been processed. Doing this will cause the definitions to be processed twice.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="eterrain">
+<hr>
+<b>ETERRAIN Lump</b>
+<hr>
+</a>
+<br>
+The ETERRAIN lump is an optional EDF lump which can contain any number of <b>splash</b>,
+<b>terrain</b>, and <b>floor</b> definitions. All definitions are additive, and if 
+definitions of the same name already exist, they will overwrite. ETERRAIN lumps do not
+cascade by default, but can be made to do so by using the <b>include_prev</b> function
+documented below.
+<br><br>
+Note: it is inappropriate to include an ETERRAIN lump from EDFROOT or from any file
+included by it, because ETERRAIN will be processed separately after the root EDF has
+been processed. Doing this will cause the definitions to be processed twice.
+<br><br>
+Special note for ETERRAIN: If zero splash, terrain, AND floor objects are defined by
+both the root EDF and any ETERRAIN lump processed, the default terrain.edf module will be 
+loaded in order to maintain compatibility with older projects. In order to disable this 
+behavior, you will need to define at least one splash, terrain, or floor object. This object
+can be a dummy which is never used, however.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
 <a name="inc">
 <hr>
 <b>Including Files</b>
@@ -301,8 +374,8 @@ of the <b>stdinclude</b> function, user-provided EDF files can include the stand
 without need to duplicate the data in them. This helps keep EDF files compatible with future
 versions of the Eternity Engine, besides making your files much smaller.
 <br><br>
-To include a file normally, with a path relative to the current file doing the inclusion,
-use the <b>include</b> function, like in these examples:
+To include a file or wad lump normally, with a path relative to the current file doing the 
+inclusion, use the <b>include</b> function, like in these examples:
 <pre>
 # include examples
 
@@ -311,7 +384,10 @@ include("../prevdir.edf");  # remember, semicolons are purely optional
 </pre>
 
 This example would include "myfile.edf" from the same directory that the current file is
-in, and "prevdir.edf" from the parent directory.
+in, and "prevdir.edf" from the parent directory. It is important to note that this function
+can only include files when called from within a file, and it can only include WAD lumps when
+called from within a WAD lump. This restriction is necessary due to how the complete path of
+the included file must be formed.
 <br><br>
 In order to remain compatible with future versions of Eternity, and to greatly reduce EDF
 file sizes, you can include the standard, default EDF files into your own. To include files
@@ -321,7 +397,8 @@ in this example:
 stdinclude("things.edf")
 </pre>
 
-This would include "things.edf" in the Eternity Engine's folder.
+This would include "things.edf" in the Eternity Engine's folder. This function may be called
+from both files and WAD lumps.
 <br><br>
 Include statements may only be located at the topmost level of an EDF file, and not inside
 any section. The following example would not be valid:
@@ -335,6 +412,42 @@ spritenames =
 Note that for maximum compatibility, you should limit EDF file names to MS-DOS 8.3 format 
 and use only alphanumeric characters (ie, no spaces). This is not required for Windows or
 Linux, but the DOS port of Eternity cannot use long file names.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="inclump">
+<hr>
+<b>Including Lumps</b>
+<hr>
+</a>
+<br>
+Two special functions are provided for specifically including EDF lumps. The first function
+is <b>lumpinclude</b>. This function includes a wad lump when called from either a file
+or a lump. The lump named must exist, or an error will occur. The name must also be no
+longer than eight characters. Case of the lump name will be ignored as usual.<br>
+Example:
+<pre>
+lumpinclude("MYEDFLMP")
+</pre>
+
+The second function, <b>include_prev</b>, may be called only from within a wad lump.
+This function is special in that you do not tell it what lump to include. Rather, it
+includes the previously loaded lump of the same name as the current lump being processed,
+if and only if such a lump exists. This allows cascading behavior to be enabled for lumps
+such as ESTRINGS and ETERRAIN, so that several wads adding such lumps will all load their
+definitions. For full flexibility, this does not happen by default. No error will occur
+if there is no previous lump -- the function call is simply ignored in that case.<br>
+Example:
+<pre>
+include_prev()
+</pre>
+
+The order of lumps is determined first by the order of lumps in each wad, and then by
+the order in which wads were loaded. The first lump to be loaded by the game engine
+will be the last lump of a given name in the last wad that was loaded. include_prev will
+then continue back through lumps of the same name in the same wad, then in the previously
+loaded wad, etc.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -360,7 +473,8 @@ bexinclude("strings.bex")
 
 The DeHackEd/BEX file will be included relative to the path of the including EDF file.
 There is no <b>stdinclude</b> equivalent for DeHackEd/BEX files, since the engine does not
-provide any default BEX files.
+provide any default BEX files. You <b>cannot</b> call this function from within an EDF WAD 
+lump, and an error message will be given if this is attempted.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -372,15 +486,16 @@ provide any default BEX files.
 </a>
 <br>
 This section explains the contents of each of the standard default EDF modules as of
-Eternity Engine v3.31 public beta 4.
+Eternity Engine v3.33.02.
 <ul>
 <li> root.edf -- includes all other modules
-<li> sprites.edf -- contains the sprite names list, and sprite-based pickup item definitions
+<li> sprites.edf -- contains the sprite names list and sprite-based pickup item definitions
 <li> sounds.edf -- contains sound definitions
 <li> frames.edf -- contains frame data for use by thing types and player guns
 <li> things.edf -- contains thing type definitions
 <li> cast.edf -- contains DOOM II cast call definitions
 <li> misc.edf -- contains the default list of DOOM II Boss Spawner thing types
+<li> terrain.edf -- contains default TerrainTypes definitions
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -402,6 +517,7 @@ sections. The following modules will be loaded as fallbacks when the given condi
 <li> things.edf -- Loaded when zero thingtypes are defined.
 <li> frames.edf -- Loaded when zero frames are defined.
 <li> cast.edf -- Loaded when zero cast members are defined.
+<li> terrain.edf -- Loaded when zero splash, terrain, and floor objects are defined.
 </ul>
 
 Note that misc.edf cannot currently be used as a fallback. Also, this functionality is NOT
@@ -409,6 +525,9 @@ meant to allow users to neglect including the minimum required number of section
 functionality is only intended to preserve maximum backward compatibility with old EDF
 modifications. Relying on fallback behavior in new EDFs may have unexpected results, including
 possibly having your new definitions ignored.
+<br><br>
+As mentioned earlier, to prevent default terrain loading, it will be necessary to define at
+least one splash, terrain, or floor object in the root EDF or ETERRAIN lump.
 <br><br>
 If the engine-default EDF files cannot be found or parsed for any reason, EDF processing will 
 cease immediately.
@@ -425,8 +544,8 @@ cease immediately.
 Eternity includes a verbose logging feature in the EDF processor that allows a view of
 more detailed information on what is occuring while EDF is being processed. This can help
 nail down the location of any errors or omissions. To enable verbose EDF logging, use the
-command-line parameter -edfout. This will cause Eternity to write an "edfout.txt" file in
-its current working directory.
+command-line parameter <b>-edfout</b>. This will cause Eternity to write an "edfout##.txt" 
+log file in its current working directory, where ## is a unique number from 0 to 99.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -461,7 +580,7 @@ Enable Functions
      If the option is already disabled, no change takes place. If an invalid option
      name is provided, an error will occur.
      <br><br>
-<li> <b>ifenabled(&lt;option&gt;)</b>
+<li> <b>ifenabled(&lt;option&gt;, ...)</b>
      <br><br>
      This function tests if the the provided option is enabled. If so, nothing will
      change. Otherwise, the EDF parser will be instructed to skip forward until it
@@ -469,13 +588,39 @@ Enable Functions
      invoked. If the option provided is invalid, an error will occur. Note that 
      ifenabled/endif pairs cannot be nested.
      <br><br>
+     As of EDF 1.5, it is possible to provide any number of valid enable options to
+     this function. In the case that more than one enable option is provided, *all*
+     specified options must be enabled or the section will be skipped.
+     <br><br>
+<li> <b>ifenabledany(&lt;option&gt;, ...)</b>
+     <br><br>
+     New to EDF 1.5, this function tests if *any* of the provided options are enabled.
+     If any are, nothing will change. Otherwise, parsing will skip to the next 
+     <b>endif</b> function.
+     <br><br>
+<li> <b>ifdisabled(&lt;option&gt;, ...)</b>
+     <br><br>
+     New to EDF 1.5, this function tests if *all* of the provided options are disabled.
+     If all options are disabled, nothing will change. Otherwise, parsing will skip to
+     the next <b>endif</b> function.
+     <br><br>
+<li> <b>ifdisabledany(&lt;option&gt;, ...)</b>
+     <br><br>
+     New to EDF 1.5, this function tests if *any* of the provided options are disabled.
+     If any of the options are disabled, nothing will change. Otherwise, parsing will
+     skip to the next <b>endif</b> function.
+     <br><br>
 <li> <b>endif()</b>
      <br><br>
-     This function marks the end of a section of the file started by an <b>ifenabled</b> call.
-     When <b>ifenabled</b> tests an option which is not enabled, the parser will look for this
-     function and then call it. This function will cause the parser to start recognizing
-     definitions again from its line onward. If this function does not appear after an
-     <b>ifenabled</b> before the end of the current file, a "missing conditional function" 
+     This function marks the end of a section of the file started by an <b>ifenabled</b>,
+     <b>ifenabledany</b>, <b>ifdisabled</b>, <b>ifdisabledany</b>, <b>ifgametype</b>, or
+     <b>ifngametype</b> call.
+     <br><br>
+     When any of the aforementioned functions tests an option or value that is not enabled
+     or is set to a different value, the parser will look for this function and then call 
+     it. This function will cause the parser to start recognizing definitions again from 
+     its line onward. If this function does not appear after one of the mentioned
+     functions and before the end of the current file, a "missing conditional function" 
      error will occur.
 </ul>
 
@@ -518,11 +663,161 @@ endif()
 Note on command-line option "-edfenables":
 
 The -edfenables command-line option allows the user to override the default behavior
-explicitly and enable all gamemode's definitions without adding an EDF file.  This does 
+explicitly and enable all gamemodes' definitions without adding an EDF file.  This does 
 not interfere with explicit usage of enable functions in user EDFs, but it does allow 
 older DeHackEd patches and WADs which might assume Heretic definitions are available in 
 DOOM or vice versa to work.
 <br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="gametypes">
+<hr>
+<b>Gametype Functions</b>
+<hr>
+</a>
+<br>
+Starting with EDF 1.5, special functions are provided which allow the EDF parser to
+evaluate definitions conditionally depending on the actual type of game being played. This
+enables definitions which should only exist in one game type or another to be placed within
+a single EDF module without conflict or unnecessary waste of memory and processing time. Note 
+that all of these functions are only valid at the topmost level of an EDF file, and not within
+definitions.
+<br><br>
+Gametype Functions
+<ul>
+<li> <b>ifgametype(&lt;gametype&gt;, ...)</b>
+     <br><br>
+     This function tests the active gametype against every gametype listed as a parameter.
+     If the gametype matches any of the listed types, nothing will change. Otherwise,
+     processing will skip to the next <b>endif</b> function.
+     <br><br>
+<li> <b>ifngametype(&lt;option&gt;, ...)</b>
+     <br><br>
+     This function tests the active gametype against every gametype listed as a parameter.
+     If the gametype matches none of the listed types, nothing will change. Otherwise,
+     processing will skip to the next <b>endif</b> function.
+</ul>
+
+Gametype Values
+<ul>
+<li> <b>DOOM</b>
+     <br><br>
+     This gametype is used for DOOM, Ultimate DOOM, DOOM II, and Final DOOM.
+     <br><br>
+<li> <b>HERETIC</b>
+     <br><br>
+     This gametype is used for Heretic and Heretic: Shadow of the Serpent Riders.
+</ul>
+
+Notes on Gametype Values:
+<br><br>
+Gametype values, like the rest of EDF, are case-insensitive. Only values listed above should
+be used with the gametype detection functions.
+<br><br>
+Example:
+<pre>
+// this TerrainTypes floor is only available when Heretic is being played
+
+ifgametype(HERETIC)
+
+floor { flat = FLATHUH1; terrain = Lava }
+
+endif()
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="strings">
+<hr>
+<b>Strings</b>
+<hr>
+</a>
+<br>
+New to EDF 1.4, strings allow custom messages to be defined which may be used directly by
+various game engine subsystems and can be used by other facilities such as the ShowMessage
+codepointer.
+<br><br>
+Each string must be given a unique mnemonic in its definition's header, and this is the name
+used to identify the string elsewhere. Each field in the string definition is optional. If a 
+field is not provided, it takes on the default value indicated below the syntax
+information. Fields may also be provided in any order.
+<br><br>
+As of EDF 1.5, string definitions may also be provided within special lumps named ESTRINGS.
+The ESTRINGS lump is parsed separately after the root EDF has been processed, and thus all
+string definitions found within the ESTRINGS lump are additive over those defined through
+the root EDF. If string definitions within the ESTRINGS lump have the same mnemonic as one
+already defined, they will overwrite the original definitions (note this also includes the
+numeric id field).
+<br><br>
+Syntax:
+<pre>
+string &lt;mnemonic&gt;
+{
+   num = &lt;unique number&gt;
+   val = &lt;string&gt;
+}
+</pre>
+Explanation of Fields:
+<ul>
+<li><b>num</b><br>
+    Default: -1<br>
+    Some subsystems which use EDF strings, such as the ShowMessage codepointer, require the
+    strings they use to have a numeric ID. This field sets the optional numeric ID of an EDF
+    string to the value given. The default of -1 means that the string has no numeric ID and
+    is thus not accessible to such subsystems. This ID number must be unique unless it is
+    equal to -1.
+<li><b>val</b><br>
+    Default = ""<br>
+    This is the text which will be stored inside the string object.
+</ul>
+
+Restrictions and Caveats:
+<ul>
+<li> All strings must have a unique mnemonic no longer than 32 characters. They should only 
+     contain alphanumeric characters and underscores. Length will be verified, but format will 
+     not (non-unique mnemonics will overwrite previous definitions, see below). All string
+     mnemonics beginning with an underscore character are reserved for use by strings for
+     which the use is engine-defined. See a list below for engine-defined string mnemonics.     
+<li> All strings with a numeric ID not equal to -1 must have a unique numeric ID.
+     Any strings with a non-unique numeric ID will cause an error.
+</ul>
+
+Replacing Existing Strings:
+<br><br>
+To replace the values of an existing EDF string definition, simply define a new string
+with the exact same mnemonic value (as stated above, all strings need a unique mnemonic, so 
+duplicate mnemonics serve to indicate that an existing string should be replaced).
+<br><br>
+Full Example:
+<pre>
+# Define a string for use by the ShowMessage codepointer
+
+string CyberMsg
+{
+   num = 0;
+   val = "Moooo!";
+}
+
+# Define a string for use by the intermission
+# See below for notes on reserved mnemonics and how the game engine uses them.
+
+string _IN_NAME_MAP01 { val = "The Slough of Despond" }
+</pre>
+
+Engine-Defined String Mnemonics
+<br><br>
+The following string mnemonics, if defined and properly enabled, will be used by game engine
+subsystems directly for the indicated purposes. All reserved mnemonics start with underscores.
+Using mnemonics that begin with underscores for your own strings is done at your own risk, 
+since this may break compatibility of your patch with future versions of the Eternity Engine.
+<br><br>
+<pre>
+Mnemonic Name or Class           Purpose                         Use Enabled By
+-------------------------------------------------------------------------------
+_IN_NAME_*                       Intermission map names          MapInfo
+-------------------------------------------------------------------------------
+</pre>
 <a href="#contents">Return to Table of Contents</a>
 
 <p>
@@ -580,7 +875,7 @@ spritenames =
 }
 
 # add a few values in later (maybe near a thing or frames that use them)...
-spritenames += { "BLAH" }
+spritenames += { "BLAH", "WOOT" }
 </pre>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -743,14 +1038,16 @@ replaces any earlier ones. As of EDF 1.1 (Eternity Engine v3.31 public beta 4), 
 mnemonics are completely case-insensitive. This means that a frame defined with a mnemonic 
 that differs from an existing one only by case of letters will overwrite the original frame.
 <br><br>
-Note that the order of frame definitions in EDF is not important. For purposes of DeHackEd,
-the number used to access a frame is now defined in the frame itself. For the original frames,
-these happen to be the same as their order.
+Note that the order of frame definitions in EDF is not important. For purposes of DeHackEd and
+parameterized codepointers, the number used to access a frame is now defined in the frame itself.
+For the original frames, these happen to be the same as their order.
 <br><br>
-User frames that need to be accessible from DeHackEd can define a <b>unique</b> DeHackEd
-number, which for purposes of forward compatibility, should be greater than or equal to 10000,
-and less than 32768. User frames not needing access via DeHackEd can be given a DeHackEd 
-number of -1. This causes them to be inaccessible to DeHackEd.
+User frames that need to be accessible from DeHackEd or from parameterized codepointers can 
+define a <b>unique</b> DeHackEd number, which for purposes of forward compatibility, should 
+be greater than or equal to 10000, and less than 32768. User frames not needing access via 
+DeHackEd can be given a DeHackEd number of -1. This causes them to be inaccessible to these
+features. It is the user's responsibility to allocate and keep track of custom DeHackEd 
+numbers -- any frame can be given one, but most will not need it.
 <br><br>
 Syntax:
 <pre>
@@ -783,7 +1080,7 @@ Explanation of fields:
     Default = 0<br>
     Sets the frame of the sprite displayed. A frame value of 0 displays the graphic that is
     named with an A in wads, 1 displays B, and so forth. Starting with EDF 1.1, you may also
-    specify a character from A to ], matching the lump name.<br>
+    specify a character from A to Z or one of [, \, or ], matching the lump name.<br>
     Examples:
     <pre>
     # These are equivalent
@@ -798,12 +1095,13 @@ Explanation of fields:
     Default = 1<br>
     Determines the length of time an object remains in this frame. A tic is equivalent to
     1/35th of a second, so 35 tics is 1 second. A frame with 0 tics is passed through
-    instantly. A frame with -1 tics is stayed in forever (see nextframe below).
+    instantly. A frame with -1 tics is stayed in forever (see nextframe below). This field
+    is not used for some player weapon frames.
 <li><b>action</b><br>
     Default = "NULL"<br>
     Sets the action to be taken when this frame is entered. This is also known as the
     codepointer, and uses the same mnemonics that are used in the 
-    <a href="dehref.html#codeptr">BEX Codepointer block</a>. Also see the
+    <a href="dehref.html#codeptr">BEX Codepointer Block</a>. Also see the
     <a href="codeptrs.html">Eternity Engine Definitive Codepointer Reference</a>
     for detailed information on what every available codepointer does.
 <li><b>nextframe</b><br>
@@ -851,17 +1149,23 @@ Explanation of fields:
 <li><b>dehackednum</b><br>
     Default = -1<br>
     As explained above, this is the number which must be used to refer to this frame in
-    DeHackEd patches. -1 means that the frame is not accessible from DeHackEd, or by parameterized
-    codepointers that require a frame DeHackEd number. User-defined frames should currently 
-    only use DeHackEd numbers between 10000 and 32768, or simply use -1 if no DeHackEd 
-    functionality is required. This number must be unique unless it is -1.
+    DeHackEd patches. -1 means that the frame is not accessible from DeHackEd, or by 
+    parameterized codepointers that require a frame DeHackEd number. User-defined frames
+    should currently only use DeHackEd numbers between 10000 and 32768, or simply use -1
+    if no DeHackEd functionality is required. This number must be unique unless it is -1.
 <li><b>cmp</b><br>
     Default = none<br>
     The cmp field is used to provide a compressed definition for the normal fields of this
-    frame. When the cmp field is provided, all other fields except dehackednum will be
-    ignored. See the <a href="#cmpframes">Compressed Frame Definitions</a> section below
-    for full information. Note that this field is NOT accepted inside framedelta blocks.
-    This field is new to EDF 1.1.
+    frame. When the cmp field is provided, all other fields except <b>misc1</b>, <b>misc2</b>,
+    <b>args</b>, and <b>dehackednum</b> will be ignored. See the 
+    <a href="#cmpframes">Compressed Frame Definitions</a> section below for full information.
+    Note that this field is NOT accepted inside framedelta blocks. This field is new to EDF 
+    1.1. The ability to specify misc and args fields along with a cmp field is new to EDF 1.5.
+    <br>
+    Note: When a cmp field is defined, misc and args fields will be treated as though they
+    are defined in a <b>framedelta</b> block, meaning that if the cmp field specifies any
+    misc or args values, the values specified in misc and args will overwrite them only if the
+    fields are present.
 </ul>
 
 Special Fields:
@@ -923,6 +1227,16 @@ take special values of the following type by using prefix:value syntax as shown:
     Example:
     <pre>
     args = { bexptr:Chase }
+    </pre>
+<li><b>string:&lt;string mnemonic&gt;</b><br>
+    Translated into the corresponding numeric id of the indicated string object. If no such
+    string exists, a warning will be issued to the verbose EDF logfile and the numeric id of
+    zero will be substituted (all facilities that use EDF strings by number are fail-safe, so 
+    if string zero does not exist, nothing will happen). String mnemonic support was new to
+    EDF 1.4, but was accidentally omitted from this documentation until EDF 1.5.<br>
+    Example:
+    <pre>
+    args = { string:CyberMsg }
     </pre>
 <li><b>No Prefix</b><br>
     If no prefix is given for a value, it is interpreted as an integer number via the
@@ -1008,15 +1322,16 @@ A compressed frame definition resides inside a normal EDF frame definition, usin
 <b>cmp</b> keyword outlined in the syntax of the <b><a href="#frames">frame</a></b> block.
 It accepts a single string value with an extended syntax, and the value of all other fields
 in the frame block except for the <b>dehackednum</b> can be set via this string.  When the cmp
-field is present in a frame block, all other fields except <b>dehackednum</b> are ignored.
+field is present in a frame block, all other fields except <b>misc1</b>, <b>misc2</b>, 
+<b>args</b>, and <b>dehackednum</b> are ignored.
 <br><br>
 Note that the <b>cmp</b> field is NOT accepted inside framedelta blocks.
 <br><br>
-As of Eternity Engine v3.31 Delta, the format of cmp fields has been relaxed
-to allow arbitrary whitespace, quoted values, and line continuation. Line continuation was
-discussed in the <a href="#gensyn">General Syntax</a> section, but the new changes to the cmp
-field are discussed below. Note that all existing cmp strings are still accepted as valid; the
-new features simply allow for greater flexibility.
+As of Eternity Engine v3.31 Delta, the format of cmp fields has been relaxed to allow arbitrary
+whitespace, quoted values, and line continuation. Line continuation was discussed in the 
+<a href="#gensyn">General Syntax</a> section, but the new changes to the cmp field are 
+discussed below. Note that all existing cmp strings are still accepted as valid; the new 
+features simply allow for greater flexibility.
 <br><br>
 Syntax:
 <pre>
@@ -1036,12 +1351,14 @@ Fields MUST be provided in the order given, but any number of fields can be left
 the end of the definition, and those fields will receive their normal default values. To
 let an internal field default, you must use the special reserved value "*" for that field.
 <br><br>
-Each field is delimited by pipe characters, and field values may NOT contain pipe characters,
-unless, starting with EDF v1.3, the entire field value is enclosed in escaped quotation marks.
-Beginning with EDF v1.3, extraneous whitespace IS allowed between field delimiters and their 
-values. Only whitespace which is enclosed within escaped quotation marks will be interpreted
-as part of a field's value, so if BEX flags strings are to use pipes or spaces to separate
-flags, they must be enclosed with escaped quotations (the \" sequence).
+Each field is delimited by pipe or, as of EDF v1.4, comma characters, and field values may NOT
+contain pipe or comma characters, unless, starting with EDF v1.3, the entire field value is 
+enclosed in single or escaped double quotation marks. Beginning with EDF v1.3, extraneous 
+whitespace IS allowed between field delimiters and their values. Only whitespace which is 
+enclosed within quotation marks will be interpreted as part of a field's value, so if BEX flags
+strings are to use pipes, commas, or spaces to separate flags, they must be enclosed with 
+quotations. When using quoted values, the beginning and end quotation mark type must match 
+(ie, if it starts with ', it must end with ', and if it starts with \", it must end with \").
 <br><br>
 The fullbright field has a special caveat within compressed frame definitions. Any value
 beginning with the letter T (small or capital) will be interpreted to mean "true", and any
@@ -1081,7 +1398,7 @@ mistakes:
 
 frame BAD1 { cmp = "AAAA|||6|Look|@next" }
 
-# This is wrong because BEX flag fields CANNOT use '|' inside compressed frames, unless
+# This is wrong because BEX flag fields CANNOT use '|' or ',' inside compressed frames, unless
 # they are surrounded by escaped quotation marks.
 
 frame BAD3 { cmp = "AAAA|B|T|23|SomePointer|*|*|*|flags:SOLID|SHOOTABLE|COUNTKILL" }
@@ -1095,7 +1412,7 @@ frame BAD4 { cmp = "Look|@next" }
 frame BAD5 { cmp = "6|TROO|*|6|thing:DoomImp|@next|MissileAttack|*|20" }
 </pre>
 
-<b>Examples Using EDF 1.3 Extended Syntax:</b>
+<b>Examples Using EDF 1.3 and Later Extended Syntax:</b>
 <br><br>
 The following frames would have been invalid prior to EDF v1.3, but are now accepted due to
 the new relaxation of the cmp field format:
@@ -1104,20 +1421,29 @@ the new relaxation of the cmp field format:
 
 frame NOWGOOD1 { cmp = "AAAA | * | * | 6 | Look | @next" }
 
-# Values may now be quoted using escaped quotation marks so that they can contain 
-# normally ignored or reserved characters.
-# This allows BEX flags strings to contain pipes and/or spaces:
+# Values may now be quoted using single or escaped double quotation marks so 
+# that they can contain normally ignored or reserved characters.
+# This allows BEX flags strings to contain pipes, commas, and/or spaces:
 
-frame NOWGOOD2 { cmp = "AAAA | * | * | 6 | Look | @next | * | \"flags:SHOOTABLE | SOLID | COUNTKILL\"" }
+frame NOWGOOD2 { cmp = "AAAA | * | * | 6 | Look | @next | * | 'flags:SHOOTABLE | SOLID | COUNTKILL'" }
+frame NOWGOOD3 { cmp = "AAAA | * | * | 6 | Look | @prev | * | \"flags:SHOOTABLE | SOLID | COUNTKILL\"" }
 
 # EDF line continuation may be used inside any quoted string, including cmp field values.
 # This frame is completely equivalent to the first example above:
 
-frame NOWGOOD3 
+frame NOWGOOD4 
 { 
    cmp = "AAAA | *    | *    | \
           6    | Look | @next" 
 }
+
+# As of EDF v1.4, you can use commas instead of pipes as delimiters. This was added
+# by user request because it makes some definitions more readable. When using commas, the
+# entire cmp field must be quoted without exception, since commas cannot be used in 
+# unquoted strings.
+
+frame NOWGOOD5 { cmp = "AAAA, *, *, 6, Look, @next" }
+
 </pre>
 
 <a href="#contents">Return to Table of Contents</a>
@@ -1147,10 +1473,13 @@ Note that the order of thing type definitions in EDF is not important. For purpo
 the number used to access a thing type is now defined in the type itself. For the original
 thing types, these happen to be the same as their order.
 <br><br>
-User thing types that need to be accessible from DeHackEd can define a <b>unique</b> DeHackEd
-number, which for purposes of forward compatibility, should be greater than or equal to 10000 
-and less than 32768. User types not needing access via DeHackEd can be given a DeHackEd 
-number of -1. This causes them to be inaccessible to DeHackEd and to parameterized codepointers.
+User thing types that need to be accessible from DeHackEd or by parameterized codepointers can 
+define a <b>unique</b> DeHackEd number, which for purposes of forward compatibility, should be
+greater than or equal to 10000 and less than 32768. User types not needing access via DeHackEd 
+or by parameterized codepointers can be given a DeHackEd number of -1. This causes them to be
+inaccessible to DeHackEd and to parameterized codepointers. It is the user's responsibility to
+allocate and assign DeHackEd numbers to thingtypes. All custom thingtypes may be given a
+DeHackEd number, but most will not need one.
 <br><br>
 Syntax:
 <pre>
@@ -1178,6 +1507,7 @@ thingtype &lt;unique mnemonic&gt;
    speed           = &lt;number&gt; OR &lt;floating-point number&gt;
    radius          = &lt;floating-point number&gt;
    height          = &lt;floating-point number&gt;
+   correct_height  = &lt;floating-point number&gt;
    mass            = &lt;number&gt;
    damage          = &lt;number&gt;
    activesound     = &lt;sound mnemonic&gt;
@@ -1194,7 +1524,7 @@ thingtype &lt;unique mnemonic&gt;
    nukespecial     = &lt;BEX codepointer mnemonic&gt;
    particlefx      = &lt;particle effect flag list&gt;
    droptype        = &lt;thing type mnemonic&gt;
-   mod             = &lt;number&gt;
+   mod             = &lt;MOD name&gt; OR &lt;number&gt;
    obituary_normal = &lt;string&gt;
    obituary_melee  = &lt;string&gt;
    translation     = &lt;number&gt; OR &lt;translation table lump name&gt;
@@ -1325,11 +1655,24 @@ Explanation of fields:
     clipping against other things, monsters were considered to be infinitely tall. However, 
     Eternity's extended 3D object clipping enables this field to also be used to allow or 
     disallow things to pass over, under, or stand on this thing.
+<li><b>correct_height</b><br>
+    Default = 0.0<br>
+    Floating-point value that represents a height for this thing type which is corrected for
+    3D object clipping. When 3D object clipping is enabled and the comp_theights variable is
+    set to off, objects which have a non-zero correct_height field will begin to use this
+    value for their height instead of the normal height field. If an object has the 3DDECORATION
+    flags3 bit set, it will still clip missiles at its original height instead of at this value,
+    so that playability of old maps is not altered. This field will generally only be necessary
+    for old DOOM objects, which have now been assigned correct_height values in the default
+    things.edf module. Use for new objects is discouraged; instead, set the <b>height</b> field
+    above to the proper value. New to EDF 1.5.
 <li><b>mass</b><br>
     Default = 100<br>
     Normal integer value that serves as a mass factor for this object. Mass affects the amount 
     of thrust an object is given when it is damaged, the amount of effect an archvile's attack 
-    can have on it, and for bouncing objects, the rate at which they fall.
+    can have on it, and for bouncing objects, the rate at which they fall. Objects with a 
+    mass less than 10 will cause small terrain hits when landing on terrain that supports
+    small splashes.
 <li><b>damage</b><br>
     Default = 0<br>
     This number is used as a damage multiplier when a missile hits a thing. 
@@ -1454,8 +1797,10 @@ Explanation of fields:
     --------------------------------------------------------
      ROCKET          0x00000001    Rocket trail
      GRENADE         0x00000002    Grenade trail
-     FLIES           0x00000004    Swarm of flies
+     FLIES           0x00000004    Swarm of flies w/ sound
      BFG             0x00000008    BFG particle swarm
+     FLIESONDEATH    0x00000010    Flies when object dies
+     DRIP            0x00000020    Parameterized drip effect
      REDFOUNTAIN     0x00010000    Red fountain
      GREENFOUNTAIN   0x00020000    Green fountain
      BLUEFOUNTAIN    0x00030000    Blue fountain
@@ -1468,6 +1813,15 @@ Explanation of fields:
     Note that the fountain flag values cannot be combined with each other. Doing so will
     simply result in another one of the existing fountain colors.
     <br><br>
+    The DRIP effect requires parameters to be specified in a thing's ExtraData
+    <b>mapthing</b> block. The parameters to this effect are as follows:
+    <ul>
+    <li> args 0: color (palette index from 0 to 255)
+    <li> args 1: particle width/height in pixels
+    <li> args 2: frequency in gametics
+    <li> args 3: if 1, particles cause terrain hits
+    <li> args 4: if 1, particles are fullbright
+    </ul>
     Examples:
     <pre>
     # a single effect
@@ -1485,39 +1839,44 @@ Explanation of fields:
     edited. This field should either be a valid thing type mnemonic, or the special value
     NONE.
 <li><b>mod</b><br>
-    Default = 0<br>
-    Special Means of Death flag for this thing type. Currently supported values are as follows:
+    Default = UNKNOWN (0)<br>
+    Special Means of Death flag for this thing type. Currently supported values follow below.
+    The use of numbers in this field is now considered deprecated. Please use the descriptive
+    textual MOD names in all new EDF projects.
     <pre>
-    Unknown     0
-    Fist        1
-    Pistol      2
-    Shotgun     3
-    Chaingun    4
-    Rocket      5
-    R_Splash    6
-    Plasma      7
-    BFG         8
-    BFG_Splash  9
-    Chainsaw    10
-    SSG         11
-    Slime       12
-    Lava        13
-    Crush       14
-    Telefrag    15
-    Falling     16
-    Suicide     17
-    Barrel      18
-    Splash      19
-    Hit         20
-    BFG11K      21
-    BetaBFG     22
-    BFGBurst    23
-    PlayerMisc  24
-    Grenade     25
+    Mod Name    Number
+    ------------------
+    UNKNOWN       0
+    FIST          1
+    PISTOL        2
+    SHOTGUN       3
+    CHAINGUN      4
+    ROCKET        5
+    R_SPLASH      6
+    PLASMA        7
+    BFG           8
+    BFG_SPLASH    9
+    CHAINSAW      10
+    SSHOTGUN      11
+    SLIME         12
+    LAVA          13
+    CRUSH         14
+    TELEFRAG      15
+    FALLING       16
+    SUICIDE       17
+    BARREL        18
+    SPLASH        19
+    HIT           20
+    BFG11K_SPLASH 21
+    BETABFG       22
+    BFGBURST      23
+    PLAYERMISC    24
+    GRENADE       25
     </pre>
     Specifying this field is not necessary for most thing types. It IS highly useful for controlling
     the obituaries triggered by player projectiles, however. Some of the values above are not
-    fully supported yet.
+    fully supported yet. Eventually the LAVA type will cause fire death animations for things
+    which define them.
 <li><b>obituary_normal</b><br>
     Default = empty<br>
     Defines the obituary seen by players when killed by a projectile or other miscellaneous
@@ -1564,7 +1923,7 @@ Explanation of fields:
     Default = "none"<br>
     The dmgspecial field allows specification of a special action that will be taken when
     this object is involved in damaging another object as the inflictor (an inflictor is 
-    the object actually doing the damage, and not the necessarily the object that is blamed
+    the object actually doing the damage, and not necessarily the object that is blamed
     for the damage). Supported values and their meanings are as follows:
     <br><br>
     <ul>
@@ -1576,7 +1935,7 @@ Explanation of fields:
          If the thing is flying like a skull (has flags bit SKULLFLY set), it will 
          inflict a large amount of thrust on the target along the vector of the impact, 
          will hit it directly for ((rnd % 8) + 1) * 6 damage, and if the target is a 
-         player, the player will be frozen in place for 14 + (rnd % 8) gametics.
+         player, the player's controls will be frozen for 14 + (rnd % 8) gametics.
          When the thing is not in SKULLFLY mode, normal damage is done by all attacks.
          <br><br>
     <li> Whirlwind<br>
@@ -1690,7 +2049,7 @@ When the <b>inherits</b> field is set in a thing type, its parent type will be p
 if it has not already been processed. Then, all the fields from the parent type, except for
 <b>dehackednum</b> and <b>doomednum</b>, will be copied from the parent type to this type. Once 
 the parent is copied, any other fields in this type will be treated as a <b>thingdelta</b> section, 
-such that only fields explicitly provided will overwrite values of the parent thing type.  
+such that only fields explicitly provided will overwrite values from the parent thing type.  
 Defaults will not be applied for unlisted fields, again with the exceptions of <b>dehackednum</b>
 and <b>doomednum</b>.
 <br><br>
@@ -1998,15 +2357,17 @@ Syntax:
 <pre>
 sound &lt;mnemonic&gt;
 {
-   lump = &lt;string&gt;
-   prefix = &lt;boolean&gt;
-   singularity = &lt;singularity class&gt;
-   priority = &lt;number&gt;
-   link = &lt;sound mnemonic&gt;
-   linkvol = &lt;number&gt;
-   linkpitch = &lt;number&gt;
-   skinindex = &lt;skin index type&gt;
-   dehackednum = &lt;number&gt;
+   lump          = &lt;string&gt;
+   prefix        = &lt;boolean&gt;
+   singularity   = &lt;singularity class&gt;
+   priority      = &lt;number&gt;
+   link          = &lt;sound mnemonic&gt;
+   linkvol       = &lt;number&gt;
+   linkpitch     = &lt;number&gt;
+   skinindex     = &lt;skin index type&gt;
+   clipping_dist = &lt;number&gt;
+   close_dist    = &lt;number&gt;
+   dehackednum   = &lt;number&gt;
 }
 </pre>
 Explanation of Fields:
@@ -2055,6 +2416,23 @@ Explanation of Fields:
     Default = -1<br>
     This field provides a pitch value to be used when a linked sound is played through this
     sound definition.
+<li><b>clipping_dist</b><br>
+    Default = 1200<br>
+    This value specifies the distance from the origin at which this sound will be completely
+    clipped out; that is, reduced to zero volume and therefore killed completely. The sound
+    engine currently only considers an approximate distance on the X-Y plane, so this behavior
+    may be slightly more rough than expected. The value of this field should be greater than 
+    the value of the <b>close_dist</b> field below. If not, the sound will always be played
+    at full volume (this can be intentionally exploited). New to EDF 1.5.
+<li><b>close_dist</b><br>
+    Default = 200<br>
+    This value specifies the distance from the origin at which this sound will be at full
+    volume. Attenuation between the <b>clipping_dist</b> and <b>close_dist</b> values is 
+    currently always linear. The sound engine currently only considers an approximate distance
+    on the X-Y plane, so this behavior may be slightly more rough than expected. The value of
+    this field should be less than the value of the <b>clipping_dist</b> field above. If not,
+    the sound will always be played at full volume (this can be intentionally exploited).
+    New to EDF 1.5.    
 <li><b>skinindex</b><br>
     Default = sk_none<br>
     This field indicates a player skin sound index for this sound. If the player object plays
@@ -2159,6 +2537,395 @@ sound explod
 <a href="#contents">Return to Table of Contents</a>
 
 <p>
+<a name="terrain">
+<hr>
+<b>TerrainTypes</b>
+<hr>
+</a>
+<br>
+As of EDF 1.5, the TerrainTypes system has been completely absorbed into EDF. This means it
+is now possible to completely customize not only what flats are associated with what terrain
+effects, but the effects themselves. There are three principle object types associated with
+the TerrainTypes system -- splashes, terrains, and floors. Each will be discussed in its own
+subsection below.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="splashes">
+<hr>
+<b>Splash Objects</b>
+<hr>
+</a>
+<br>
+Splash objects define the thingtypes, sounds, and other properties of a splash caused by an
+thing hitting a terrain. Not all terrains must have splashes, and each terrain can only refer
+to one splash object. A splash object itself defines properties for both a low mass and high
+mass splash, however. All fields in the splash block are optional, and as usual, order is 
+irrelevant.
+<br><br>
+All splash blocks must have a unique mnemonic. Non-unique mnemonics will overwrite, meaning
+that the properties of the last splash block encountered with a given name will become the
+final properties of that splash object.
+<br><br>
+Syntax:
+<pre>
+splash &lt;unique mnemonic&gt;
+{
+   smallclass = &lt;thingtype mnemonic&gt;
+   smallclip  = &lt;number&gt;
+   smallsound = &lt;sound mnemonic&gt;
+   baseclass  = &lt;thingtype mnemonic&gt;
+   chunkclass = &lt;thingtype mnemonic&gt;
+   sound      = &lt;sound mnemonic&gt;
+   
+   chunkxvelshift = &lt;number&gt;
+   chunkyvelshift = &lt;number&gt;
+   chunkzvelshift = &lt;number&gt;
+   chunkbasezvel  = &lt;number&gt;
+}
+</pre>
+Explanation of Fields:
+<ul>
+<li><b>smallclass</b><br>
+    Default = No object will be spawned<br>
+    This field specifies the thingtype spawned by a low mass splash (objects of mass less than
+    10 cause low mass splashes if possible). If this field is unspecified or is an invalid
+    thing type, low mass splash objects will not spawn for any terrain that uses this splash
+    object.
+<li><b>smallclip</b><br>
+    Default = 0<br>
+    This field specifies an amount of floorclip in units to add to the low mass splash object.
+    This allows use of objects that would otherwise look incorrect for low mass splashes by 
+    making them appear smaller. A typical value for this field is 12 units.
+<li><b>smallsound</b><br>
+    Default = "none"<br>
+    The sound specified in this field will be played by mnemonic whenever a low mass splash
+    occurs, independent of whether a valid <b>smallclass</b> is defined. This means you should
+    always define the smallsound field if sounds are desired, even if its value is the same as 
+    the <b>sound</b> field. Otherwise, no sound will be played for low mass splashes.
+<li><b>baseclass</b><br>
+    Default = No object will be spawned<br>
+    This field specifies the thingtype spawned as the base of a normal splash. If this field
+    is unspecified or is an invalid thing type, no splash base will be spawned for any
+    terrain that uses this splash object.
+<li><b>chunkclass</b><br>
+    Default = No object will be spawned<br>
+    This field specifies the thingtype spawned as a chunk thrown upward from the point of a
+    normal splash. The velocities given to this object when spawned are randomized and are
+    customized via the chunk?velshift and chunkbasezvel fields below. If this field is
+    unspecified or is an invalid thing type, no splash chunk will be spawned for any terrain
+    that uses this splash object.
+<li><b>sound</b><br>
+    Default = "none"<br>
+    The sound specified in this field will be played by mnemonic whenever a normal splash
+    occurs, independent of whether a valid <b>baseclass</b> or <b>chunkclass</b> is defined.
+<li><b>chunkxvelshift</b><br>
+    Default = -1<br>
+    When set to a positive value, this field indicates a value 2^N by which to multiply
+    a randomized number used as the x axis velocity of the splash chunk object. When set to
+    -1, the splash chunk will be given no x velocity.
+<li><b>chunkyvelshift</b><br>
+    Default = -1<br>
+    When set to a positive value, this field indicates a value 2^N by which to multiply a
+    randomized number used as the y axis velocity of the splash chunk object. When set to
+    -1, the splash chunk will be given no y velocity.
+<li><b>chunkzvelshift</b><br>
+    Default = -1<br>
+    When set to a positive value, this field indicates a value 2^N by which to multiply a
+    randomized number which is added to the <b>chunkbasezvel</b>, the sum of which becomes the
+    z velocity of the splash chunk object. When set to -1, no randomized addend will be used.
+<li><b>chunkbasezvel</b><br>
+    Default = 0<br>
+    When set to a positive value, this field indicates a base amount of z velocity to apply
+    to the splash chunk object. The randomized value determined by chunkzvelshift is then
+    added to this base amount of velocity. If set to zero while the chunkzvelshift value is
+    set to -1, the splash chunk object will be given no z velocity.
+</ul>
+
+Restrictions and Caveats:
+<ul>
+<li> All splashes must have a unique mnemonic no longer than 32 characters. They should only 
+     contain alphanumeric characters and underscores. Length will be verified, but format will 
+     not (non-unique mnemonics will overwrite previous definitions).
+</ul>
+
+Replacing Existing Splashes:
+<br><br>
+To replace the values of an existing EDF splash definition, simply define a new splash 
+with the exact same mnemonic value (as stated above, all splashes need a unique mnemonic, so 
+duplicate mnemonics serve to indicate that an existing splash should be replaced).
+<br><br>
+Full Example:
+<pre>
+// The Water splash object as defined in terrain.edf demonstrates a 
+// fully-defined splash object:
+
+splash Water
+{
+   smallclass = EETerrainWaterBase
+   smallclip  = 12
+   smallsound = eedrip
+   
+   baseclass  = EETerrainWaterBase
+   chunkclass = EETerrainWaterSplash
+   sound      = gloop   
+   
+   chunkxvelshift = 8
+   chunkyvelshift = 8
+   chunkzvelshift = 8
+   chunkbasezvel  = 2
+}
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="terrain">
+<hr>
+<b>Terrain Objects</b>
+<hr>
+</a>
+<br>
+Terrain objects define the full properties of a TerrainType which can be assigned directly to
+multiple flats. Terrains may optionally define what splash object they use, as well as values
+related to inflicting damage, whether or not the terrain is liquid, whether or not hitting 
+the terrain causes enemies to awaken, and other important information. All fields in the 
+splash block are optional, and as usual, order is irrelevant.
+<br><br>
+All terrain blocks must have a unique mnemonic. Non-unique mnemonics will overwrite, meaning
+that the properties of the last terrain block encountered with a given name will become the
+final properties of that terrain object.
+<br><br>
+Terrain deltas are also supported for editing the properties of existing terrain objects
+without duplicating all fields within them.  See the <a href="#delta">Delta Structures</a>
+section for full information.
+<br><br>
+Syntax:
+<pre>
+terrain &lt;unique mnemonic&gt;
+{
+   splash         = &lt;splash mnemonic&gt;
+   damageamount   = &lt;number&gt;
+   damagetype     = &lt;MOD name&gt;
+   damagetimemask = &lt;number&gt;
+   footclip       = &lt;number&gt;
+   liquid         = &lt;boolean&gt;
+   splashalert    = &lt;boolean&gt;
+   useptclcolors  = &lt;boolean&gt;
+   ptclcolor1     = &lt;palette index&gt; OR &lt;RGB triplet&gt;
+   ptclcolor2     = &lt;palette index&gt; OR &lt;RGB triplet&gt;
+   minversion     = &lt;number&gt;
+}
+</pre>
+Explanation of Fields:
+<ul>
+<li><b>splash</b><br>
+    Default = No splash is used by this terrain<br>
+    This field specifies what splash object, if any, to use when objects strike a floor using
+    a flat that is associated with this terrain object.
+<li><b>damageamount</b><br>
+    Default = 0<br>
+    This field specifies the amount of damage this terrain inflicts on players at each
+    damage opportunity (determined by the damagetimemask field below). If this field is zero,
+    no damage will be inflicted.
+<li><b>damagetype</b><br>
+    Default = "UNKNOWN"<br>
+    Defines the Means of Damage flag used when this terrain damages a player. Values of
+    interest to terrain are typically SLIME and LAVA. Eventually, LAVA will cause thing types
+    which define a special flaming death frame to enter that frame. Please keep this in mind
+    for forward compatbility. Other values for the Means of Death flag can be found in the
+    <a href="#things">thingtype</a> section.
+<li><b>damagetimemask</b><br>
+    Default = 0<br>
+    Sets the interval at which this terrain will inflict damage on players. This value is
+    applied as a mask to the current level time, so to be most meaningful, this value must
+    be a power of two minus one. A few valid values are 1, 3, 7, 15, and 31. Most DOOM 
+    nukage sectors use a mask of 31 as an example, and thus damage the player every 32 gametics,
+    or approximately once per second.
+<li><b>footclip</b><br>
+    Default = 0<br>
+    This value defines the amount of footclip in units that this terrain applies to objects
+    standing on it that have the flags2 bit FOOTCLIP set in their options. A footclip of zero
+    means no footclipping is applied. Some special objects may set their own footclip values
+    and thus may not be affected by terrain footclipping in any case. Footclipping is generally
+    only proper for liquid terrain.
+<li><b>liquid</b><br>
+    Default = false<br>
+    Specifies whether or not this terrain is liquid. Currently the only effect controlled
+    by this field is suppressing player "oof" sounds when landing on liquid terrains, under
+    the assumption that a splash sound will playing instead. In the future, certain special
+    Heretic objects will react specially to liquid terrain.
+<li><b>splashalert</b><br>
+    Default = false<br>
+    Specifies whether or not this terrain causes a noise alert to propagate when a player hits
+    a floor using this terrain. Setting this field to true means that a player hitting the
+    given floors will cause enemies to awaken and begin chasing him. By default, DOOM terrain
+    types do not do this, and Heretic terrain types do.
+<li><b>useptclcolors</b><br>
+    Default = false<br>
+    When set to true, this terrain object wants to use customized particle colors when
+    gunshots and certain other effects strike the floor or ceiling of a sector using a flat
+    with which this terrain is associated. Terrains which set this value to false will have
+    their <b>ptclcolor1</b> and <b>ptclcolor2</b> fields ignored and will use the default
+    gray bullet puff effects.
+<li><b>ptclcolor1</b><br>
+    Default = 0<br>
+    This field may specify either a raw palette index from 0 to 255, or an RGB triplet string
+    in the format "r g b", with each of r, g, and b being a number from 0 to 255. When an RGB
+    triplet is specified, EDF will attempt to match the specified color to the closest color
+    in the game's main palette. If no suitable match can be found, color zero will end up 
+    being chosen. For terrain effects that must work across multiple games, you should always
+    utilize RGB triplets. Otherwise, palette indices are more accurate. This value is ignored
+    if <b>useptclcolors</b> is false for this terrain object. This color is typically the
+    darker of the two particle colors used for terrain effects.
+<li><b>ptclcolor2</b><br>
+    Default = 0<br>
+    This field may specify either a raw palette index from 0 to 255, or an RGB triplet string
+    in the format "r g b", with each of r, g, and b being a number from 0 to 255. When an RGB
+    triplet is specified, EDF will attempt to match the specified color to the closest color
+    in the game's main palette. If no suitable match can be found, color zero will end up 
+    being chosen. For terrain effects that must work across multiple games, you should always
+    utilize RGB triplets. Otherwise, palette indices are more accurate. This value is ignored
+    if <b>useptclcolors</b> is false for this terrain object. This color is typically the
+    lighter of the two particle colors used for terrain effects.
+<li><b>minversion</b><br>
+    Default = 0<br>
+    This field controls the minimum demo version in which this terrain object is usable.
+    This field is unnecessary for the majority of user-created terrain objects, and this value
+    should not be edited in the default terrain objects, neither via overriding nor terraindeltas,
+    if your project is meant to function in the presence of old demos. minversion for the
+    default objects is the first Eternity Engine version in which that terrain appeared.
+</ul>
+
+Restrictions and Caveats:
+<ul>
+<li> All terrains must have a unique mnemonic no longer than 32 characters. They should only 
+     contain alphanumeric characters and underscores. Length will be verified, but format will 
+     not (non-unique mnemonics will overwrite previous definitions).
+<li> The default terrain called "Solid" is defined internally by the game engine, but can be
+     edited by creating a terrain named "Solid" in EDF. This should be done with caution,
+     however, since the default terrain is used in all circumstances when no terrain effects
+     are usually expected. The Solid terrain has default values for all fields.
+</ul>
+
+Replacing Existing Terrains:
+<br><br>
+To replace the values of an existing EDF terrain definition, simply define a new terrain
+with the exact same mnemonic value (as stated above, all terrains need a unique mnemonic, so 
+duplicate mnemonics serve to indicate that an existing terrain should be replaced).
+<br><br>
+Full Example:
+<pre>
+// The Water terrain object as defined in terrain.edf demonstrates a 
+// typical terrain object:
+
+terrain Water
+{
+   splash   = Water
+   footclip = 10
+   liquid   = true
+   
+   useptclcolors = true
+   ptclcolor1    = "127 127 255"
+   ptclcolor2    = "0 0 255"
+   
+   minversion = 329
+}
+
+// This terrain defines damage properties only to create an 
+// instant-death floor type:
+
+terrain SuperDeadly
+{
+   damageamount   = 10000  // inflict telefrag damage
+   damagetype     = LAVA   // use LAVA MOD
+   damagetimemask = 1      // inflict damage more or less constantly
+}
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="floors">
+<hr>
+<b>Floor Objects</b>
+<hr>
+</a>
+<br>
+Floor objects associate a terrain with a flat graphic. All fields in the floor block are 
+optional, and as usual, order is irrelevant. Floor objects are precisely equivalent to entries
+in the old, obsolete binary TERTYPES lump, and in fact, TERTYPES is still supported for legacy
+projects, and will be used to generate additional floor objects if it is found. See the
+<a href="#tertypes">TERTYPES Lump Processing</a> section below for more information.
+<br><br>
+Multiple floor objects may associate the same flat with different terrains. The last such
+definition encountered will determine what terrain the flat uses.
+<br><br>
+Syntax:
+<pre>
+floor
+{
+   flat    = &lt;string&gt;
+   terrain = &lt;terrain mnemonic&gt;
+}
+</pre>
+Explanation of Fields:
+<ul>
+<li><b>flat</b><br>
+    Default = "none"<br>
+    This field determines the flat to which this floor object's terrain is applied. If a
+    terrain has already been applied to this flat, the terrain specified in this object will
+    override the previous definition. This field need not refer to a valid flat name. No
+    error will occur if the flat specified does not exist; this object will simply have no
+    effect. However, the string specified in this field must be no longer than eight characters
+    or an error will occur.
+<li><b>terrain</b><br>
+    Default = Solid<br>
+    This field specifies the mnemonic of the terrain to associate with the flat named in this
+    floor object. As mentioned in the terrain section above, the default Solid terrain type is
+    defined by the game engine. By default, all floors are associated with the Solid terrain.
+    The terrain mnemonic need not be a valid terrain. If it is invalid, a warning will be
+    issued to the verbose EDF log file and the floor object will be modified to use the Solid
+    terrain object.
+</ul>
+
+Full Example:
+<pre>
+// A couple of the floor objects defined for DOOM in terrain.edf:
+floor { flat = FWATER1; terrain = Water }
+floor { flat = LAVA1;   terrain = Lava  }
+</pre>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="tertypes">
+<hr>
+<b>TERTYPES Lump Processing</b>
+<hr>
+</a>
+<br>
+The old binary TERTYPES lump is now considered obsolete, and thus its format is not
+described here, nor is any way to generate one any longer available from Team Eternity.
+However, to support legacy projects, Eternity will translate the last TERTYPES lump loaded
+into EDF floor definitions dynamically, using the following assumptions:
+<ul>
+<li> TERTYPES floor definitions associated with the value zero are mapped to the default
+     Solid terrain.
+<li> TERTYPES floor definitions associated with the value 1 are mapped to the terrain named
+     "Water". If no Water terrain exists, the floor will be mapped to the Solid type.
+<li> TERTYPES floor definitions associated with the value 2 are mapped to the terrain named
+     "Lava". If no Lava terrain exists, the floor will be mapped to the Solid type.
+<li> TERTYPES floor definitions associated with the value 3 are mapped to the terrain named
+     "Sludge". If no Sludge terrain exists, the floor will be mapped to the Solid type.
+</ul>
+This results in behavior identical to that under the old static TerrainTypes system, if and
+only if the default terrain objects or objects with equivalent names and behaviors are 
+available for use. TERTYPES lump processing is done after EDF floor objects are processed, and
+thus any TERTYPES-derived definitions may override EDF floor objects that affect the same
+flats.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
 <a name="delta">
 <hr>
 <b>Delta Structures</b>
@@ -2166,13 +2933,13 @@ sound explod
 </a>
 <br>
 New to EDF 1.1, delta structures are an easier and more flexible way to edit existing thing 
-type, frame, and sound definitions.
+type, frame, sound, and terrain definitions.
 <br><br>
-Each delta structure for a thing type, frame, or sound specifies by mnemonic the section that it
-edits inside it. This allows for any number of delta structures to be defined. The structures
-are always applied in the order in which they are encountered during parsing, so that, like
-style sheets in HTML, delta structures cascade. This means you can load your own set of
-delta structures on top of an existing set in a modification.
+Each delta structure for a thing type, frame, sound, or terrain specifies by mnemonic the 
+section that it edits inside it. This allows for any number of delta structures to be defined.
+The structures are always applied in the order in which they are encountered during parsing, 
+so that, like style sheets in HTML, delta structures cascade. This means you can load your
+own set of delta structures on top of an existing set in a modification.
 <br><br>
 Delta Structure Syntax:
 <pre>
@@ -2196,15 +2963,23 @@ sounddelta
    name = &lt;sound mnemonic&gt;
    &lt;list of sound fields&gt;
 }
+
+# A delta structure for a terrain has this syntax:
+terraindelta
+{
+   name = &lt;terrain mnemonic&gt;
+   &lt;list of terrain fields&gt;
+}
 </pre>
 
-The name field is required, and must be set to a valid sound, frame, or thingtype mnemonic in 
-order to specify the definition that the delta structure edits. Along with the name, the delta
-structure can specify any field that is valid in that type of definition (see exceptions below). 
+The name field is required, and must be set to a valid terrain, sound, frame, or thingtype 
+mnemonic in order to specify the definition that the delta structure edits. Along with the 
+name, the delta structure can specify any field that is valid in that type of definition 
+(see exceptions below). 
 <br><br>
 See the
-<a href="#frames">Frames</a>, <a href="#things">Thing Types</a>, and
-<a href="#sound">Sounds</a> sections for full information on their fields and syntax.
+<a href="#frames">Frames</a>, <a href="#things">Thing Types</a>, <a href="#sound">Sounds</a>, 
+and <a href="#terrain">Terrain</a> sections for full information on their fields and syntax.
 <br><br>
 Any field not specified in a delta structure will not be affected, and retains the value that
 it had before the delta structure was applied.  A delta structure must specify values
@@ -2261,6 +3036,13 @@ sounddelta
    singularity = sg_getpow
 }
 </pre>
+Terrain Delta Example:
+<pre>
+# Terrain deltas used by Heretic in terrain.edf to enable splash alerts:
+terraindelta { name = Water;  splashalert = true }
+terraindelta { name = Lava;   splashalert = true }
+terraindelta { name = Sludge; splashalert = true }
+</pre>
 <a href="#contents">Return to Table of Contents</a>
 
 <p>
@@ -2285,6 +3067,33 @@ one which will be used.
     <pre>
     doom2_title_tics = 525    # make the DOOM II title screen last 15 seconds
     </pre>
+<li><b>intermission_pause</b><br>
+    Default: 0<br>
+    This variable allows you to specify a period of time in gametics that the DOOM/DOOM II 
+    statistics intermission will pause while displaying the background picture. After the
+    pause period has expired, the intermission will resume as normal by displaying the map
+    name and statistics.<br>
+    Example:
+    <pre>
+    intermission_pause = 70  # wait for 2 seconds
+    </pre>
+<li><b>intermission_fade</b><br>
+    Default: None<br>
+    This variable allows you to specify a color which will be overlaid on the background
+    picture in the DOOM/DOOM II statistics intermission once the optional pause period has
+    expired. If no pause period is specified, the color overlay will appear immediately at 
+    the start of the intermission. The value accepted by this variable is a palette index,
+    which will be clamped into the range of 0 to 255.<br>
+    Example:
+    <pre>
+    intermission_fade = 0  # Fade to Black (dun dun dun dun...)
+    </pre>
+<li><b>intermission_tl</b><br>
+    Default: 0%<br>
+    This variable specifies the translucency value with which the fade color will be
+    overlaid on the background picture when an intermission fade color is specified.
+    This field can accept an integer between 0 and 65536, or a percentage value. A percentage
+    value must be a base 10 integer between 0 and 100 followed immediately by a % character.
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 

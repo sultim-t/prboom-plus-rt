@@ -43,57 +43,61 @@ typedef struct musicinfo_s musicinfo_t;
 
 struct sfxinfo_s
 {
+   // haleyjd: up to 8-character lump name
+   char name[9];
 
-  // haleyjd: up to 8-character lump name
-  char name[9];
+   // haleyjd: true if this sound is to be prefixed with "DS"
+   boolean prefix;
 
-  // haleyjd: true if this sound is to be prefixed with "DS"
-  boolean prefix;
+   // Sfx singularity (only one at a time)
+   // killough 12/98: implement separate classes of singularity
+   enum
+   {
+      sg_none,
+      sg_itemup,
+      sg_wpnup,
+      sg_oof,
+      sg_getpow
+   }
+   singularity;
 
-  // Sfx singularity (only one at a time)
-  // killough 12/98: implement separate classes of singularity
-  enum
-  {
-    sg_none,
-    sg_itemup,
-    sg_wpnup,
-    sg_oof,
-    sg_getpow
-  }
-  singularity;
+   // Sfx priority
+   int priority;
 
-  // Sfx priority
-  int priority;
+   // referenced sound if a link
+   sfxinfo_t *link;
+   
+   // pitch if a link
+   int pitch;
+   
+   // volume if a link
+   int volume;
 
-  // referenced sound if a link
-  sfxinfo_t *link;
-
-  // pitch if a link
-  int pitch;
-
-  // volume if a link
-  int volume;
-
-  // sound data
-  void *data;
-
-  // sf: skin sound number to use in place
-  int skinsound;
-
-  // haleyjd: EDF mnemonic
-  char mnemonic[17];
-
-  // this is checked every second to see if sound
-  // can be thrown out (if 0, then decrement, if -1,
-  // then throw out, if > 0, then it is in use)
-  int usefulness;
-
-  int length;   // lump length
-
-  // haleyjd 09/03/03: revised for dynamic EDF sounds
-  sfxinfo_t *next;     // next in mnemonic hash chain
-  sfxinfo_t *dehnext;  // next in dehacked num chain
-  int dehackednum;     // dehacked number
+   // haleyjd 07/13/05: sound attenuation properties now customizable
+   // on a per-sound basis to allow differing behaviors.
+   int clipping_dist;   // distance when sound is clipped entirely
+   int close_dist;      // distance when sound is at maximum volume
+   
+   // sound data
+   void *data;
+   
+   // sf: skin sound number to use in place
+   int skinsound;
+   
+   // haleyjd: EDF mnemonic
+   char mnemonic[17];
+   
+   // this is checked every second to see if sound
+   // can be thrown out (if 0, then decrement, if -1,
+   // then throw out, if > 0, then it is in use)
+   int usefulness;
+   
+   int length;   // lump length
+   
+   // haleyjd 09/03/03: revised for dynamic EDF sounds
+   sfxinfo_t *next;     // next in mnemonic hash chain
+   sfxinfo_t *dehnext;  // next in dehacked num chain
+   int dehackednum;     // dehacked number
 };
 
 //
@@ -102,21 +106,20 @@ struct sfxinfo_s
 
 struct musicinfo_s
 {
-  // up to 6-character name
-  char *name;
-
-  // lump number of music
-  //  int lumpnum;
-
-  // music data
-  void *data;
-
-  // music handle once registered
-  int handle;
-
-  // sf: for hashing
-  musicinfo_t *next;
-  
+   // up to 6-character name
+   char *name;
+   
+   // lump number of music
+   //  int lumpnum;
+   
+   // music data
+   void *data;
+   
+   // music handle once registered
+   int handle;
+   
+   // sf: for hashing
+   musicinfo_t *next;
 };
 
 // the complete set of sound effects
@@ -362,6 +365,18 @@ typedef enum {
   sfx_dgdth,
   sfx_dgpain,
 
+  // haleyjd: Eternity Engine sounds
+  sfx_eefly,  // buzzing flies
+  sfx_gloop,  // water terrain sound
+  sfx_thundr, // global lightning sound effect
+  sfx_muck,   // swamp terrain sound
+  sfx_plfeet, // player feet hit
+  sfx_plfall, // player falling scream
+  sfx_fallht, // player fall hit
+  sfx_burn,   // lava terrain sound
+  sfx_eehtsz, // heat sizzle
+  sfx_eedrip, // drip
+
   // haleyjd 10/08/02: heretic sounds
   sfx_gldhit = 300,
   sfx_htelept,
@@ -439,15 +454,12 @@ typedef enum {
   sfx_hedact,
   sfx_hedpai,
 
-  // Start Eternity TC New SFX
+  // Start Eternity TC New SFX -- TODO: eliminate or standardize
   sfx_clratk = 182, // cleric sounds
   sfx_clrpn,
   sfx_clrdth,
   sfx_cblsht, // cleric projectile sounds
   sfx_cblexp,
-  sfx_gloop,  // water terrain sound
-  sfx_thundr, // global lightning sound effect
-  sfx_muck,   // more ambience, terrain sounds
   sfx_clrdef, // leader cleric defense
   sfx_dfdth,  // dwarf sounds
   sfx_dwrfpn,
@@ -459,12 +471,8 @@ typedef enum {
   sfx_heal,
   sfx_harp,
   sfx_wofp,
-  sfx_burn,
   sfx_cone3,
   sfx_icedth,
-  sfx_plfeet,
-  sfx_plfall,
-  sfx_fallht,
   sfx_clsit1,
   sfx_clsit2,
   sfx_clsit3,

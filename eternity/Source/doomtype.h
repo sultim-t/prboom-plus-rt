@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2000 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,9 +25,8 @@
 //
 //-----------------------------------------------------------------------------
 
-
-#ifndef __DOOMTYPE__
-#define __DOOMTYPE__
+#ifndef DOOMTYPE_H__
+#define DOOMTYPE_H__
 
 #ifndef __BYTEBOOL__
 #define __BYTEBOOL__
@@ -50,15 +49,15 @@ typedef unsigned char byte;
 //       the IDE :)
 
 #if defined(_MSC_VER)   // MSVC
-  #define __LONG64_TYPE__ __int64
+  #define D_LONG64_TYPE __int64
 #elif defined(__GNUC__) // GNU C
-  #define __LONG64_TYPE__ long long
+  #define D_LONG64_TYPE long long
 #else
   #error Need a 64-bit integer type for this platform!
 #endif
 
-typedef unsigned __LONG64_TYPE__ ULong64;
-typedef __LONG64_TYPE__ Long64;
+typedef unsigned D_LONG64_TYPE ULong64;
+typedef D_LONG64_TYPE Long64;
 
 // SoM: resolve platform-specific range symbol issues
 

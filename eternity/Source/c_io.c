@@ -26,6 +26,8 @@
 //
 // By Simon Howard
 //
+// NETCODE_FIXME -- CONSOLE_FIXME: Major changes needed in this module!
+//
 //-----------------------------------------------------------------------------
 
 #include "z_zone.h"
@@ -143,6 +145,9 @@ static void C_InitBackdrop(void)
 // we see. This function is called every time the inputtext
 // changes to decide where input_point should be.
 
+//
+// CONSOLE_FIXME: See how Quake 2 does this, it's much better.
+//
 static void C_UpdateInputPoint(void)
 {
    for(input_point = inputtext;
@@ -208,10 +213,19 @@ void C_Ticker(void)
          message_pos = message_last;
    }
    
+   //
+   // NETCODE_FIXME -- CONSOLE_FIXME: Buffered command crap.
+   // Needs complete rewrite.
+   //
+   
    C_RunBuffer(c_typed);   // run the delayed typed commands
    C_RunBuffer(c_menu);
 }
 
+//
+// CONSOLE_FIXME: history needs to be more efficient. Use pointers 
+// instead of copying strings back and forth.
+//
 static void C_AddToHistory(char *s)
 {
    const char *t;
@@ -418,6 +432,12 @@ int C_Responder(event_t* ev)
 
 // draw the console
 
+//
+// CONSOLE_FIXME: Support other fonts. Break messages across lines during
+// drawing instead of during message insertion? It should be possible
+// although it would complicate the scrolling logic.
+//
+
 void C_Drawer(void)
 {
    int y;
@@ -514,6 +534,10 @@ void C_Update(void)
 
 // scroll console up
 
+//
+// CONSOLE_FIXME: message buffer can be made more efficient.
+//
+
 static void C_ScrollUp(void)
 {
    if(message_last == message_pos)
@@ -545,6 +569,9 @@ static void C_ScrollUp(void)
 // haleyjd:
 // Add a message to the console.
 // Replaced C_AddChar.
+//
+// CONSOLE_FIXME: A horrible mess, needs to be rethought entirely.
+// See Quake 2's system for ideas.
 //
 static void C_AddMessage(const char *s)
 {
@@ -604,7 +631,9 @@ static void C_AddMessage(const char *s)
 // doesn't contain that number of consecutive characters without a 
 // space, tab, or line-break, so like, don't print stupidness 
 // like that. Its a console, not a hex editor...
-
+//
+// CONSOLE_FIXME: See above, this is also a mess.
+//
 static void C_AdjustLineBreaks(char *str)
 {
    int i, count, firstspace, lastspace, len;
@@ -674,6 +703,10 @@ static void C_AppendToLog(const char *text);
 //
 // Write some text 'printf' style to the console.
 // The main function for I/O.
+//
+// CONSOLE_FIXME: As the two above, this needs to be adjusted to
+// work better with any new console message buffering system that
+// is designed.
 //
 void C_Printf(const char *s, ...)
 {
@@ -964,11 +997,19 @@ static cell AMX_NATIVE_CALL sm_consolebeep(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO cons_io_Natives[] =
 {
-   { "ConsolePrint", sm_c_print },
-   { "ConsoleHR",    sm_consolehr },
-   { "ConsoleBeep",  sm_consolebeep },
+   { "_ConsolePrint", sm_c_print },
+   { "_ConsoleHR",    sm_consolehr },
+   { "_ConsoleBeep",  sm_consolebeep },
    { NULL, NULL }
 };
+
+//
+// CONSOLE_FIXME: Should probably either disambiguate this easter
+// egg or just get rid of it. It tiles fraggle's head (the graphics
+// are stored in an array named "egg" that is in another file) over
+// the console background. It's kind of cute so I'd like to keep it
+// around.
+//
 
 #define E extern
 #define U unsigned

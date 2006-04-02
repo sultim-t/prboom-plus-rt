@@ -60,6 +60,7 @@ rcsid[] = "$Id: p_setup.c,v 1.16 1998/05/07 00:56:49 killough Exp $";
 #include "in_lude.h"
 #include "a_small.h"
 #include "e_exdata.h" // haleyjd: ExtraData!
+#include "e_ttypes.h"
 
 //
 // MAP related Lookup tables.
@@ -375,18 +376,18 @@ void P_LoadThings(int lump)
    numthings = W_LumpLength(lump) / sizeof(mapthing_t); //sf: use global
 
    // haleyjd: explicitly nullify old player object pointers
-   if(!(GameType == gt_dm))
+   if(GameType != gt_dm)
    {
-      for(i = 0; i < MAXPLAYERS; i++)
+      for(i = 0; i < MAXPLAYERS; ++i)
       {
          if(playeringame[i])
             players[i].mo = NULL;
       }
    }
    
-   for(i = 0; i < numthings; i++)
+   for(i = 0; i < numthings; ++i)
    {
-      mapthing_t *mt = (mapthing_t *) data + i;
+      mapthing_t *mt = (mapthing_t *)data + i;
       
       // Do not spawn cool, new monsters if !commercial
       // haleyjd: removing this for Heretic and DeHackEd
@@ -424,7 +425,7 @@ void P_LoadThings(int lump)
    
    // haleyjd: all player things for players in this game
    //          should now be valid in SP or co-op
-   if(!(GameType == gt_dm))
+   if(GameType != gt_dm)
    {
       for(i = 0; i < MAXPLAYERS; i++)
       {
@@ -447,28 +448,28 @@ void P_LoadThings(int lump)
 // Does this mean secrets used to be linedef-based, rather than sector-based?
 //
 // killough 4/4/98: split into two functions, to allow sidedef overloading
-//
 // killough 5/3/98: reformatted, cleaned up
-
-void P_LoadLineDefs (int lump)
+// haleyjd 2/26/05: ExtraData extensions
+//
+void P_LoadLineDefs(int lump)
 {
    byte *data;
    int  i;
 
    numlines = W_LumpLength(lump) / sizeof(maplinedef_t);
-   lines = Z_Malloc(numlines*sizeof(line_t),PU_LEVEL,0);
-   memset(lines, 0, numlines*sizeof(line_t));
+   lines = Z_Malloc(numlines * sizeof(line_t), PU_LEVEL, 0);
+   memset(lines, 0, numlines * sizeof(line_t));
    data = W_CacheLumpNum(lump,PU_STATIC);
 
-   for(i=0; i<numlines; i++)
+   for(i = 0; i < numlines; ++i)
    {
-      maplinedef_t *mld = (maplinedef_t *) data + i;
-      line_t *ld = lines+i;
+      maplinedef_t *mld = (maplinedef_t *)data + i;
+      line_t *ld = lines + i;
       vertex_t *v1, *v2;
 
-      ld->flags = SHORT(mld->flags);
+      ld->flags   = SHORT(mld->flags);
       ld->special = SHORT(mld->special);
-      ld->tag = SHORT(mld->tag);
+      ld->tag     = SHORT(mld->tag);
       v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
       v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
       ld->dx = v2->x - v1->x;
@@ -479,7 +480,7 @@ void P_LoadLineDefs (int lump)
       ld->slopetype = !ld->dx ? ST_VERTICAL : !ld->dy ? ST_HORIZONTAL :
          FixedDiv(ld->dy, ld->dx) > 0 ? ST_POSITIVE : ST_NEGATIVE;
 
-      if (v1->x < v2->x)
+      if(v1->x < v2->x)
       {
          ld->bbox[BOXLEFT] = v1->x;
          ld->bbox[BOXRIGHT] = v2->x;
@@ -490,7 +491,7 @@ void P_LoadLineDefs (int lump)
          ld->bbox[BOXRIGHT] = v1->x;
       }
 
-      if (v1->y < v2->y)
+      if(v1->y < v2->y)
       {
          ld->bbox[BOXBOTTOM] = v1->y;
          ld->bbox[BOXTOP] = v2->y;
@@ -508,10 +509,9 @@ void P_LoadLineDefs (int lump)
       if(ld->sidenum[0] != -1 && ld->special)
          sides[*ld->sidenum].special = ld->special;
 
-#ifdef R_PORTALS
-      // SoM 12/10/03: portals
-      ld->portal = NULL;
-#endif
+      // haleyjd 02/26/05: ExtraData
+      if(ld->special == ED_LINE_SPECIAL)
+         E_LoadLineDefExt(ld);
    }
    Z_Free(data);
 }
@@ -524,7 +524,7 @@ void P_LoadLineDefs2(int lump)
    int i = numlines;
    register line_t *ld = lines;
 
-   for (;i--;ld++)
+   for(; i--; ld++)
    {
       // killough 11/98: fix common wad errors (missing sidedefs):
       
@@ -534,26 +534,28 @@ void P_LoadLineDefs2(int lump)
       if(ld->sidenum[1] == -1)
          ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 
-      ld->frontsector = ld->sidenum[0]!=-1 ? sides[ld->sidenum[0]].sector : 0;
+      // haleyjd 03/13/05: removed redundant -1 check for first side
+      ld->frontsector = sides[ld->sidenum[0]].sector;
       ld->backsector  = ld->sidenum[1]!=-1 ? sides[ld->sidenum[1]].sector : 0;
-      switch (ld->special)
+      
+      switch(ld->special)
       {                       // killough 4/11/98: handle special types
          int lump, j;
       case 260:               // killough 4/11/98: translucent 2s textures
          lump = sides[*ld->sidenum].special; // translucency from sidedef
-         if(!ld->tag)                       // if tag==0,
-            ld->tranlump = lump;              // affect this linedef only
+         if(!ld->tag)                        // if tag == 0,
+            ld->tranlump = lump;             // affect this linedef only
          else
          {
-            for(j=0; j<numlines; j++)       // if tag!=0,
+            for(j = 0; j < numlines; ++j)    // if tag != 0,
             {
-               if (lines[j].tag == ld->tag) // affect all matching linedefs
+               if(lines[j].tag == ld->tag)   // affect all matching linedefs
                   lines[j].tranlump = lump;
             }
          }
          break;
       }
-   }
+   } // end for
 }
 
 //
@@ -561,11 +563,11 @@ void P_LoadLineDefs2(int lump)
 //
 // killough 4/4/98: split into two functions
 
-void P_LoadSideDefs (int lump)
+void P_LoadSideDefs(int lump)
 {
    numsides = W_LumpLength(lump) / sizeof(mapsidedef_t);
-   sides = Z_Malloc(numsides*sizeof(side_t),PU_LEVEL,0);
-   memset(sides, 0, numsides*sizeof(side_t));
+   sides = Z_Malloc(numsides * sizeof(side_t), PU_LEVEL, 0);
+   memset(sides, 0, numsides * sizeof(side_t));
 }
 
 // killough 4/4/98: delay using texture names until
@@ -640,31 +642,31 @@ void P_LoadSideDefs2(int lump)
 
 static void P_CreateBlockMap(void)
 {
-   register int i;
+   register unsigned int i;
    fixed_t minx = INT_MAX, miny = INT_MAX,
            maxx = INT_MIN, maxy = INT_MIN;
 
    // First find limits of map
    
-   for(i=0; i<numvertexes; i++)
+   for(i = 0; i < (unsigned)numvertexes; ++i)
    {
-      if(vertexes[i].x >> FRACBITS < minx)
+      if((vertexes[i].x >> FRACBITS) < minx)
          minx = vertexes[i].x >> FRACBITS;
-      else if(vertexes[i].x >> FRACBITS > maxx)
+      else if((vertexes[i].x >> FRACBITS) > maxx)
          maxx = vertexes[i].x >> FRACBITS;
 
-      if(vertexes[i].y >> FRACBITS < miny)
+      if((vertexes[i].y >> FRACBITS) < miny)
          miny = vertexes[i].y >> FRACBITS;
-      else if(vertexes[i].y >> FRACBITS > maxy)
+      else if((vertexes[i].y >> FRACBITS) > maxy)
          maxy = vertexes[i].y >> FRACBITS;
    }
 
    // Save blockmap parameters
    
-   bmaporgx = minx << FRACBITS;
-   bmaporgy = miny << FRACBITS;
-   bmapwidth  = ((maxx-minx) >> MAPBTOFRAC) + 1;
-   bmapheight = ((maxy-miny) >> MAPBTOFRAC) + 1;
+   bmaporgx   = minx << FRACBITS;
+   bmaporgy   = miny << FRACBITS;
+   bmapwidth  = ((maxx - minx) >> MAPBTOFRAC) + 1;
+   bmapheight = ((maxy - miny) >> MAPBTOFRAC) + 1;
 
    // Compute blockmap, which is stored as a 2d array of variable-sized 
    // lists.
@@ -691,7 +693,7 @@ static void P_CreateBlockMap(void)
       unsigned tot = bmapwidth * bmapheight;            // size of blockmap
       bmap_t *bmap = calloc(sizeof *bmap, tot);         // array of blocklists
 
-      for(i=0; i < numlines; i++)
+      for(i = 0; i < (unsigned)numlines; ++i)
       {
          // starting coordinates
          int x = (lines[i].v1->x >> FRACBITS) - minx;
@@ -710,7 +712,7 @@ static void P_CreateBlockMap(void)
            (dy > 0 ? MAPBLOCKUNITS-1 : 0) - y) * (adx = D_abs(adx)) * dy;
 
          // starting block, and pointer to its blocklist structure
-         int b = (y >> MAPBTOFRAC)*bmapwidth + (x >> MAPBTOFRAC);
+         int b = (y >> MAPBTOFRAC) * bmapwidth + (x >> MAPBTOFRAC);
 
          // ending block
          int bend = (((lines[i].v2->y >> FRACBITS) - miny) >> MAPBTOFRAC) *
@@ -760,9 +762,9 @@ static void P_CreateBlockMap(void)
 
       {
          // we need at least 1 word per block, plus reserved's
-         int count = tot+6;
+         int count = tot + 6;
 
-         for(i = 0; i < tot; i++)
+         for(i = 0; i < tot; ++i)
          {
             // 1 header word + 1 trailer word + blocklist
             if(bmap[i].n)
@@ -1110,20 +1112,30 @@ boolean P_CheckLevel(int lumpnum)
 
 void P_ConvertHereticSpecials(void); // haleyjd
 
-#ifdef FRAGGLESCRIPT
-void T_InitSaveList(void); // haleyjd
-#endif
-
 void P_LoadOlo(void);
 extern int level_error;
 
 void P_InitThingLists(void); // haleyjd
 
 //
+// P_NewLevelMsg
+//
+// Called when loading a new map.
+// haleyjd 06/04/05: moved here and renamed from HU_NewLevel
+//
+static void P_NewLevelMsg(void)
+{   
+   C_Printf("\n");
+   C_Separator();
+   C_Printf("%c  %s\n\n", 128+CR_GRAY, LevelInfo.levelName);
+   C_InstaPopup();       // put console away
+}
+
+//
 // P_SetupLevel
 //
 // killough 5/3/98: reformatted, cleaned up
-
+//
 void P_SetupLevel(char *mapname, int playermask, skill_t skill)
 {
    int i;
@@ -1209,7 +1221,7 @@ void P_SetupLevel(char *mapname, int playermask, skill_t skill)
 #endif
 
    DEBUGMSG("hu_newlevel\n");
-   HU_NewLevel();
+   P_NewLevelMsg();
    HU_Start();
    
    // must be after p_loadlevelinfo as the music lump name is got there
@@ -1372,8 +1384,7 @@ void P_Init (void)
    P_InitPicAnims();
    R_InitSprites(spritelist);
    P_InitHubs();
-   P_LoadTerrainTypeDefs();  // haleyjd 11/20/00
-   P_InitTerrainTypes();     // haleyjd 07/03/99
+   E_InitTerrainTypes();     // haleyjd 07/03/99
 }
 
 //

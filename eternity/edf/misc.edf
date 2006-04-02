@@ -1,4 +1,4 @@
-# misc.edf - EDF file for Eternity Engine v3.31 Delta
+# misc.edf - EDF file for Eternity Engine v3.33.00
 #     Contains miscellaneous settings
 
 # Boss spawner creature types for the SpawnFly codepointer.
@@ -8,3 +8,59 @@ boss_spawner_types =
   DoomImp, Demon, Spectre, PainElemental, Cacodemon, Archvile,
   Revenant, Arachnotron, Mancubus, HellKnight, BaronOfHell
 }
+
+# Heretic Intermission Strings
+
+ifenabled(HERETIC)
+
+string IN_NAME_E1M1 { val = "THE DOCKS" }
+string IN_NAME_E1M2 { val = "THE DUNGEONS" }
+string IN_NAME_E1M3 { val = "THE GATEHOUSE" }
+string IN_NAME_E1M4 { val = "THE GUARD TOWER" }
+string IN_NAME_E1M5 { val = "THE CITADEL" }
+string IN_NAME_E1M6 { val = "THE CATHEDRAL" }
+string IN_NAME_E1M7 { val = "THE CRYPTS" }
+string IN_NAME_E1M8 { val = "HELL'S MAW" }
+string IN_NAME_E1M9 { val = "THE GRAVEYARD" }
+
+string IN_NAME_E2M1 { val = "THE CRATER" }
+string IN_NAME_E2M2 { val = "THE LAVA PITS" }
+string IN_NAME_E2M3 { val = "THE RIVER OF FIRE" }
+string IN_NAME_E2M4 { val = "THE ICE GROTTO" }
+string IN_NAME_E2M5 { val = "THE CATACOMBS" }
+string IN_NAME_E2M6 { val = "THE LABYRINTH" }
+string IN_NAME_E2M7 { val = "THE GREAT HALL" }
+string IN_NAME_E2M8 { val = "THE PORTALS OF CHAOS" }
+string IN_NAME_E2M9 { val = "THE GLACIER" }
+
+string IN_NAME_E3M1 { val = "THE STOREHOUSE" }
+string IN_NAME_E3M2 { val = "THE CESSPOOL" }
+string IN_NAME_E3M3 { val = "THE CONFLUENCE" }
+string IN_NAME_E3M4 { val = "THE AZURE FORTRESS" }
+string IN_NAME_E3M5 { val = "THE OPHIDIAN LAIR" }
+string IN_NAME_E3M6 { val = "THE HALLS OF FEAR" }
+string IN_NAME_E3M7 { val = "THE CHASM" }
+string IN_NAME_E3M8 { val = "D'SPARIL'S KEEP" }
+string IN_NAME_E3M9 { val = "THE AQUIFER" }
+
+string IN_NAME_E4M1 { val = "CATAFALQUE" }
+string IN_NAME_E4M2 { val = "BLOCKHOUSE" }
+string IN_NAME_E4M3 { val = "AMBULATORY" }
+string IN_NAME_E4M4 { val = "SEPULCHER" }
+string IN_NAME_E4M5 { val = "GREAT STAIR" }
+string IN_NAME_E4M6 { val = "HALLS OF THE APOSTATE" }
+string IN_NAME_E4M7 { val = "RAMPARTS OF PERDITION" }
+string IN_NAME_E4M8 { val = "SHATTERED BRIDGE" }
+string IN_NAME_E4M9 { val = "MAUSOLEUM" }
+
+string IN_NAME_E5M1 { val = "OCHRE CLIFFS" }
+string IN_NAME_E5M2 { val = "RAPIDS" }
+string IN_NAME_E5M3 { val = "QUAY" }
+string IN_NAME_E5M4 { val = "COURTYARD" }
+string IN_NAME_E5M5 { val = "HYDRATYR" }
+string IN_NAME_E5M6 { val = "COLONNADE" }
+string IN_NAME_E5M7 { val = "FOETID MANSE" }
+string IN_NAME_E5M8 { val = "FIELD OF JUDGEMENT" }
+string IN_NAME_E5M9 { val = "SKEIN OF D'SPARIL" }
+
+endif()

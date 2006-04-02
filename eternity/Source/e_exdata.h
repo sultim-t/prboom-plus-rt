@@ -33,8 +33,8 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef E_EXDATA_H
-#define E_EXDATA_H
+#ifndef E_EXDATA_H__
+#define E_EXDATA_H__
 
 #include "doomdata.h"
 
@@ -42,6 +42,9 @@
 
 // the ExtraData control object has doomednum 5004
 #define ED_CTRL_DOOMEDNUM 5004
+
+// the ExtraData line special has number 270
+#define ED_LINE_SPECIAL 270
 
 // ExtraData mapthing structure
 
@@ -52,7 +55,6 @@ typedef struct mapthingext_s
 
    // extended fields
    unsigned short tid;
-
    long args[5];
 
    // internal fields (used by ExtraData only)
@@ -61,8 +63,49 @@ typedef struct mapthingext_s
 
 } mapthingext_t;
 
+// Extended line special flags
+// Because these go into a new field used only by parameterized
+// line specials, I don't face the issue of running out of line
+// flags anytime soon. This provides another full word for
+// future expansion.
+enum
+{
+   EX_ML_CROSS   = 0x00000001, // crossable
+   EX_ML_USE     = 0x00000002, // usable
+   EX_ML_IMPACT  = 0x00000004, // shootable
+   EX_ML_PUSH    = 0x00000008, // reserved for future use
+   EX_ML_PLAYER  = 0x00000010, // enabled for players
+   EX_ML_MONSTER = 0x00000020, // enabled for monsters
+   EX_ML_MISSILE = 0x00000040, // enabled for missiles
+   EX_ML_REPEAT  = 0x00000080, // can be used multiple times
+   EX_ML_1SONLY  = 0x00000100, // only activated from first side
+};
+
+// ExtraData line structure
+
+typedef struct maplinedefext_s
+{
+   // standard fields
+   maplinedef_t stdfields;
+
+   // extended fields
+   long extflags;
+   long args[5];
+
+   // internal fields (used by ExtraData only)
+   int recordnum;
+   int next;
+
+} maplinedefext_t;
+
+// Globals
+
 void E_LoadExtraData(void);
 mobj_t *E_SpawnMapThingExt(mapthing_t *mt);
+void E_LoadLineDefExt(line_t *line);
+boolean E_IsParamSpecial(short special);
+void E_GetEDMapThings(mapthingext_t **things, int *numthings);
+void E_GetEDLines(maplinedefext_t **lines, int *numlines);
 
 #endif
 

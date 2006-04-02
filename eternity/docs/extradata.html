@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 
-<h3>Eternity Engine ExtraData Reference v1.0 -- 8/20/04</h3>
+<h3>Eternity Engine ExtraData Reference v1.1 -- 5/23/05</h3>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -16,7 +16,7 @@
 <li><a name="contents"><b>Table of Contents</b></a>
     <ul>
     <li><a href="#intro">Introduction to ExtraData</a>
-    <!-- <li><a href="#changes">Changes in ExtraData x.x</a> -->
+    <li><a href="#changes">Changes in ExtraData 1.1</a>
     <li><a href="#gensyn">General Syntax</a>
     <li><a href="#embed">Embedding and Associating ExtraData</a>
     <li><a href="#mapthings">Mapthings</a>
@@ -24,6 +24,12 @@
         <li><a href="#mtcreate">Creating ExtraData Control Objects</a>
         <li><a href="#mtsyntax">Mapthing Syntax and Fields</a>
         </ul>
+    <li><a href="#linedefs">Linedefs</a>
+        <ul>
+        <li><a href="#ldcreate">Creating ExtraData Linedefs</a>
+        <li><a href="#ldsyntax">Linedef Syntax and Fields</a>
+        </ul>
+    <li><a href="#linenames">Appendix: Linedef Special Names</a>
     </ul>
 </ul>
 
@@ -49,20 +55,18 @@ to reflect all changes and additions.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
 
-<!--
 <p>
 <a name="changes">
 <hr>
-<b>Changes in ExtraData x.x</b>
+<b>Changes in ExtraData 1.1</b>
 <hr>
 </a>
 <br>
 <ul>
-<li> change item here
+<li> ExtraData support for linedefs added.
 </ul>
 
 <a href="#contents">Return to Table of Contents</a>
--->
 
 <p>
 <a name="gensyn">
@@ -393,8 +397,7 @@ Explanation of fields:
     meanings. Any values not provided in the args list will default, and if more than five
     values are provided, only the first five will be used. Currently, all args values are
     interpreted as integers (a non-number string evaluates to zero). This may change in the
-    future. The args list is not currently used by any documented engine features. This will
-    also change starting with the next version of the Eternity Engine.
+    future.
     <br><br>
     Example args list:
     <pre>
@@ -404,5 +407,675 @@ Explanation of fields:
 
 <a href="#contents">Return to Table of Contents</a>
 
+<p>
+<a name="linedefs">
+<hr>
+<b>Linedefs</b>
+<hr>
+</a>
+<br>
+Linedefs define walls, two-sided textures, and provide action triggers within maps.
+
+<p>
+Each field in the linedef definition, with the exception of the <b>recordnum</b> field, is 
+optional. If a field is not provided, it takes on the default value indicated below the syntax
+information. Fields may also be provided in any order.
+
+<p>
+Note that the order of linedef definitions in ExtraData is not important. The <b>recordnum</b>
+field serves to identify linedef records.
+
+<p>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="ldcreate">
+<hr align="left" width="50%">
+<b>Creating ExtraData Linedefs</b>
+<hr align="left" width="50%">
+</a>
+<br>
+Linedef records in ExtraData are associated only with lines which bare the ExtraData Control
+Line Special, #270. You can place this special into the normal "special" field of a line using
+virtually any map editor. Editors with Eternity-specific configurations should support this
+special natively.
+
+<p>
+Each control linedef specifies its corresponding ExtraData linedef record number as an integer 
+value in its linedef tag field. If your editor does not allow entering arbitrary values up to
+32767 into the tag field of linedefs, you will need to use the BOOM command-line editor, CLED. 
+As of the initial writing time of this document, both DETH and Doom Builder support entering 
+arbitrary integer values for the tag field. Check your editor's documentation or user interface 
+to verify if it supports this.
+
+<p>
+The flags, sidedefs, textures, and location of the ExtraData control linedef are used normally 
+by the line and cannot be altered from within ExtraData. The true special and tag fields of the
+linedef, along with any extended fields, are specified in the ExtraData record which the control 
+linedef references.
+
+<p>
+Any number of ExtraData control linedefs can reference the same ExtraData record. In the event
+that a control linedef references a non-existant ExtraData record or the ExtraData script for a 
+level is missing, the special and tag of the ExtraData control linedef will both be set to zero.
+
+<p>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="ldsyntax">
+<hr align="left" width="50%">
+<b>Linedef Syntax and Fields</b>
+<hr align="left" width="50%">
+</a>
+<br>
+The syntax of the ExtraData linedef record is as follows. Remember that all fields except
+the <b>recordnum</b> field are optional and can be specified in any order.
+
+<pre>
+linedef
+{
+   recordnum = &lt;unique number&gt;
+   
+   # These fields are normal mapthing fields
+   special   = &lt;number&gt; | &lt;special name&gt; | &lt;generalized specifier&gt;
+   tag       = &lt;number&gt;
+   
+   # These fields are ExtraData extensions
+   extflags  = &lt;extended line flags list&gt;
+   args      = { &lt;special field&gt;, ... }
+}
+</pre>
+
+Explanation of fields:
+<ul>
+<li><b>recordnum</b><br>
+    The recordnum serves to identify this record, and is the number which ExtraData control
+    linedefs must use to associate themselves with a linedef record. Every ExtraData linedef
+    record must have a unique record number. If a duplicate record number is detected, the
+    engine will currently exit with an error message. The record number is limited to values
+    between 0 and 32767 inclusive. Some editors may only allow input of numbers up to
+    255 in the linedef tag field. Beware of this.
+    <br><br>
+
+<li><b>special</b><br>
+    Default: 0
+    <br><br>
+    The special field determines what type of action may be taken when a line is crossed,
+    used, shot, etc. There are three types of linedef specials in Eternity: normal, generalized,
+    and parameterized. Parameterized specials use the <b>args</b> field documented below to
+    provide complete customization of line actions.
+    <br><br>
+    This field can accept numbers for any special type, including generalized and parameterized,
+    but it can also accept special names for all line types. See the appendix 
+    <a href="#linenames">Linedef Special Names</a> for a complete list of the names available
+    and an explanation of how to specify generalized specials.
+    <br><br>
+
+<li><b>extflags</b><br>
+    Default: No flags are set by default.
+    <br><br>
+    This field specifies extended linedef flag values which impact the functionality of
+    parameterized linedef specials. This field uses the same syntax as BEX/EDF flag strings, 
+    but the syntax will be reviewed here for completeness.
+    <br><br>
+    A BEX flag list is a string of flag names separated by whitespace, pipe characters, commas, or
+    plus characters. In ExtraData, if a flag list contains whitespace, commas, or plus signs, it 
+    must be enclosed in double or single quotations. Flags are combined using bitwise-OR logic, 
+    so a flag name can be specified more than once. Specifying a flag name causes that flag to 
+    be turned on. The default state of all flags is off.
+    <br><br>
+    These are the flag values which are available for this field:
+    <pre>
+    Flag name   Decimal  Hex     Meaning
+    ---------------------------------------------------------------------------------------
+    CROSS       1        0x0001  Linedef can be activated by being crossed.
+    USE         2        0x0002  Linedef can be activated by being used.
+    IMPACT      4        0x0004  Linedef can be activated by being shot.
+    PUSH        8        0x0008  Linedef can be activated by being pushed.
+    PLAYER      16       0x0010  Linedef can be activated by players.
+    MONSTER     32       0x0020  Linedef can be activated by objects with SPACMONSTER flag.
+    MISSILE     64       0x0040  Linedef can be activated by objects with SPACMISSILE flag.
+    REPEAT      128      0x0080  Linedef action is repeatable.
+    1SONLY      256      0x0100  Linedef can only be activated from first side.
+    ---------------------------------------------------------------------------------------
+    </pre>
+    Notes: IMPACT is currently only implemented for bullet weapons. The ability to use
+    IMPACT with MISSILE will be added in the near future. The PUSH style of activation is
+    not implemented at all yet, so this flag currently does nothing.
+    <br><br>
+    Example flags fields -- All of these are equivalent:
+    <pre>
+    # This is the only syntax that does not require quotations.
+    
+    linedef { extflags = CROSS|PLAYER|MISSILE|REPEAT }
+    
+    # All of these syntaxes must be quoted, because unquoted strings in 
+    # ExtraData cannot contain spaces, commas, or plus signs.
+    
+    linedef { extflags = "CROSS PLAYER MISSILE REPEAT" }
+    linedef { extflags = "CROSS | PLAYER | MISSILE | REPEAT" }
+    linedef { extflags = "CROSS+PLAYER+MISSILE+REPEAT" }
+    linedef { extflags = "CROSS + PLAYER + MISSILE + REPEAT" }
+    linedef { extflags = "CROSS,PLAYER,MISSILE,REPEAT" }
+    linedef { extflags = "CROSS, PLAYER, MISSILE, REPEAT" }</pre>
+    
+<li><b>args</b><br>
+    Default: All args values default to zero.
+    <br><br>
+    The args field is a list of up to five special values which can have a broad range of
+    meanings. Any values not provided in the args list will default, and if more than five
+    values are provided, only the first five will be used. Currently, all args values are
+    interpreted as integers (a non-number string evaluates to zero). This may change in the
+    future. The args list is used by parameterized linedef specials.
+    <br><br>
+    Example args list:
+    <pre>
+    linedef { args = { 0, 1, 2, 3, 4 } }
+    </pre>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="linenames">
+<hr>
+<b>Appendix: Linedef Special Names</b>
+<hr>
+</a>
+<br>
+The <b>special</b> field of the linedef record can accept name strings in the place of numbers
+for any linedef special that exists in Eternity, including normal DOOM specials, extended BOOM
+specials, BOOM generalized specials, and Eternity parameterized specials. Except for generalized
+specials, the syntax is simply to provide the string name as a normal value, as in this example:
+<pre>
+   linedef { special = Door_Raise }
+</pre>
+Generalized linedefs, however, must be specified with a more complicated syntax:
+<pre>
+  'Gen'&lt;type&gt;'('&lt;arg&gt;+')'
+
+  where:
+  &lt;type&gt; = Floor | Ceiling | Door | LockedDoor | Lift | Stairs | Crusher
+  &lt;arg&gt;  = &lt;char&gt;+','
+</pre>
+
+The number and order of arguments for each type of generalized line special are fixed, and
+each type of special accepts certain values in each argument. To make this more clear before
+proceeding with the details, here is a complete example of a generalized special:
+<pre>
+   //                    door       type       speed  monster? delay   
+   linedef { special = "GenDoor(OpenWaitClose, turbo, true,    9    )" }
+</pre>
+This defines a door which opens, waits 9 seconds, and then closes at turbo speed and can be
+activated by monsters as well as the player.
+<br><br>
+Note that generalized specifiers of this type must always be enclosed within double or single 
+quotation marks because they include restricted characters. Whitespace within the specifier is 
+ignored.
+<br><br>
+Also note that Eternity's new parameterized specials more or less obsolete BOOM generalized
+line specials, so use of this syntax is neither necessary or encouraged for the most part. It
+is present only for the sake of completeness.
+<br><br>
+<pre>
+-----------------------------------------------------------------------------------------
+Linedef Special Names
+-----------------------------------------------------------------------------------------
+------------------------------
+Normal and Extended Line Types
+------------------------------
+
+Note that most normal/extended line types have ugly names in order to be fully descriptive.
+Use of new parameterized specials is preferred where possible.
+
+Notes on Nomenclature:
+
+Activation Types
+----------------
+DR = Use repeatedly, activates sector on backside, tag is for lighting effect only
+D1 = Use once, activates sector on backside, tag is for lighting effect only
+WR = Cross repeatedly
+W1 = Cross once
+SR = Use repeatedly
+S1 = Use once
+GR = Shoot repeatedly
+G1 = Shoot once
+
+Targets
+-------
+UpHnC   = Up to Highest Neighboring Ceiling
+UpLnC   = Up to Lowest Neighboring Ceiling
+DnLnC   = Down to Lowest Neighboring Ceiling
+UpLnCm8 = Up to Lowest Neighboring Ceiling - 8
+DnF     = Down to Floor
+DnFp8   = Down to Floor + 8
+UpNnF   = Up to Nearest Neighboring Floor
+DnNnF   = Down to Nearest Neighboring Floor
+DnHnF   = Down to Highest Neighboring Floor
+DnHnFp8 = Down to Highest Neighboring Floor + 8
+DnLnF   = Down to Lowest Neighboring Floor
+UpsT    = Up by Shortest Texture
+
+Change Types
+------------
+c0t = Change texture, zero type, trigger model
+cTt = Change texture, preserve type, trigger model
+cSt = Change texture and type, trigger model
+cSn = Change texture and type, numeric model
+
+Number  Name                                     Notes
+-----------------------------------------------------------------------------------------
+   0    None
+   1    DR_RaiseDoor_Slow_Mon                    Can be opened by monsters
+   2    W1_OpenDoor_Slow
+   3    W1_CloseDoor_Slow  
+   4    W1_RaiseDoor_Slow  
+   5    W1_Floor_UpLnC_Slow
+   6    W1_StartCrusher_Fast
+   7    S1_Stairs_Up8_Slow  
+   8    W1_Stairs_Up8_Slow  
+   9    S1_Donut  
+  10    W1_Plat_Lift_Slow  
+  11    S1_ExitLevel  
+  12    W1_Light_MaxNeighbor  
+  13    W1_Light_Set255  
+  14    S1_Plat_Up32_c0t_Slow
+  15    S1_Plat_Up24_cTt_Slow
+  16    W1_Door_CloseWait30  
+  17    W1_Light_Blink  
+  18    S1_Floor_UpNnF_Slow
+  19    W1_Floor_DnHnF_Slow
+  20    S1_Plat_UpNnF_c0t_Slow
+  21    S1_Plat_Lift_Slow  
+  22    W1_Plat_UpNnF_c0t_Slow
+  23    S1_Floor_DnLnF_Slow
+  24    G1_Floor_UpLnC_Slow
+  25    W1_StartCrusher_Slow  
+  26    DR_RaiseLockedDoor_Blue_Slow  
+  27    DR_RaiseLockedDoor_Yellow_Slow  
+  28    DR_RaiseLockedDoor_Red_Slow  
+  29    S1_RaiseDoor_Slow  
+  30    W1_Floor_UpsT_Slow
+  31    D1_OpenDoor_Slow  
+  32    D1_OpenLockedDoor_Blue_Slow  
+  33    D1_OpenLockedDoor_Red_Slow  
+  34    D1_OpenLockedDoor_Yellow_Slow  
+  35    W1_Light_Set35  
+  36    W1_Floor_DnHnFp8_Fast
+  37    W1_Floor_DnLnF_cSn_Slow
+  38    W1_Floor_DnLnF_Slow
+  39    W1_TeleportToSpot  
+  40    W1_Ceiling_UpHnC_Slow
+  41    S1_Ceiling_DnF_Fast
+  42    SR_CloseDoor_Slow  
+  43    SR_Ceiling_DnF_Fast  
+  44    W1_Ceiling_DnFp8_Slow
+  45    SR_Floor_DnHnF_Slow
+  46    GR_OpenDoor_Slow  
+  47    G1_Plat_UpNnF_c0t_Slow
+  48    ScrollLeft  
+  49    S1_StartCrusher_Slow  
+  50    S1_CloseDoor_Slow  
+  51    S1_ExitSecret  
+  52    W1_ExitLevel  
+  53    W1_Plat_LoHiPerpetual  
+  54    W1_StopPlat  
+  55    S1_Floor_UpLnCm8_Slow_Crush  
+  56    W1_Floor_UpLnCm8_Slow_Crush  
+  57    W1_StopCrusher  
+  58    W1_Floor_Up24_Slow  
+  59    W1_Floor_Up24_cSt_Slow  
+  60    SR_Floor_DnLnF_Slow  
+  61    SR_OpenDoor_Slow  
+  62    SR_Plat_Lift_Slow  
+  63    SR_RaiseDoor_Slow  
+  64    SR_Floor_UpLnC_Slow  
+  65    SR_Floor_UpLnCm8_Slow_Crush  
+  66    SR_Plat_Up24_cTt_Slow  
+  67    SR_Plat_Up32_c0t_Slow  
+  68    SR_Plat_UpNnF_c0t_Slow  
+  69    SR_Floor_UpNnF_Slow  
+  70    SR_Floor_DnHnFp8_Fast  
+  71    S1_Floor_DnHnFp8_Fast  
+  72    WR_Ceiling_DnFp8_Slow  
+  73    WR_StartCrusher_Slow  
+  74    WR_StopCrusher  
+  75    WR_CloseDoor_Slow  
+  76    WR_Door_CloseWait30  
+  77    WR_StartCrusher_Fast  
+  78    SR_Floor_cSn                             Pure transfer type
+  79    WR_Light_Set35  
+  80    WR_Light_MaxNeighbor  
+  81    WR_Light_Set255  
+  82    WR_Floor_DnLnF_Slow  
+  83    WR_Floor_DnHnF_Slow  
+  84    WR_Floor_DnLnF_cSn_Slow  
+  85    ScrollRight  
+  86    WR_OpenDoor_Slow  
+  87    WR_Plat_LoHiPerpetual  
+  88    WR_Plat_Lift_Slow  
+  89    WR_StopPlat  
+  90    WR_RaiseDoor_Slow  
+  91    WR_Floor_UpLnC_Slow  
+  92    WR_Floor_Up24_Slow  
+  93    WR_Floor_Up24_cSt_Slow  
+  94    WR_Floor_UpLnCm8_Slow_Crush  
+  95    WR_Plat_UpNnF_c0t_Slow  
+  96    WR_Floor_UpsT_Slow  
+  97    WR_TeleportToSpot  
+  98    WR_Floor_DnHnFp8_Fast  
+  99    WR_OpenLockedDoor_Blue_Fast  
+ 100    W1_Stairs_Up16_Fast  
+ 101    S1_Floor_UpLnC_Slow  
+ 102    S1_Floor_DnHnF_Slow  
+ 103    S1_OpenDoor_Slow  
+ 104    W1_Light_MinNeighbor  
+ 105    WR_RaiseDoor_Fast  
+ 106    WR_OpenDoor_Fast  
+ 107    WR_CloseDoor_Fast  
+ 108    W1_RaiseDoor_Fast  
+ 109    W1_OpenDoor_Fast  
+ 110    W1_CloseDoor_Fast  
+ 111    S1_RaiseDoor_Fast  
+ 112    S1_OpenDoor_Fast  
+ 113    S1_CloseDoor_Fast  
+ 114    SR_RaiseDoor_Fast  
+ 115    SR_OpenDoor_Fast  
+ 116    SR_CloseDoor_Fast  
+ 117    DR_RaiseDoor_Fast  
+ 118    D1_OpenDoor_Fast  
+ 119    W1_Floor_UpNnF_Slow  
+ 120    WR_Plat_Lift_Fast  
+ 121    W1_Plat_Lift_Fast  
+ 122    S1_Plat_Lift_Fast  
+ 123    SR_Plat_Lift_Fast  
+ 124    W1_ExitSecret  
+ 125    W1_TeleportToSpot_MonOnly                Monsters only
+ 126    WR_TeleportToSpot_MonOnly                Monsters only
+ 127    S1_Stairs_Up16_Fast  
+ 128    WR_Floor_UpNnF_Slow  
+ 129    WR_Floor_UpNnF_Fast  
+ 130    W1_Floor_UpNnF_Fast  
+ 131    S1_Floor_UpNnF_Fast  
+ 132    SR_Floor_UpNnF_Fast  
+ 133    S1_OpenLockedDoor_Blue_Fast  
+ 134    SR_OpenLockedDoor_Red_Fast  
+ 135    S1_OpenLockedDoor_Red_Fast  
+ 136    SR_OpenLockedDoor_Yellow_Fast  
+ 137    S1_OpenLockedDoor_Yellow_Fast  
+ 138    SR_Light_Set255  
+ 139    SR_Light_Set35  
+ 140    S1_Floor_Up512_Slow  
+ 141    W1_StartCrusher_Silent_Slow  
+ 142    W1_Floor_Up512_Slow  
+ 143    W1_Plat_Up24_cTt_Slow  
+ 144    W1_Plat_Up32_c0t_Slow  
+ 145    W1_Ceiling_DnF_Fast  
+ 146    W1_Donut  
+ 147    WR_Floor_Up512_Slow  
+ 148    WR_Plat_Up24_cTt_Slow  
+ 149    WR_Plat_Up32_c0t_Slow  
+ 150    WR_StartCrusher_Silent_Slow  
+ 151    WR_Ceiling_UpHnC_Slow  
+ 152    WR_Ceiling_DnF_Fast  
+ 153    W1_Floor_cSt                             Pure transfer type
+ 154    WR_Floor_cSt                             Pure transfer type
+ 155    WR_Donut  
+ 156    WR_Light_Blink  
+ 157    WR_Light_MinNeighbor  
+ 158    S1_Floor_UpsT_Slow  
+ 159    S1_Floor_DnLnF_cSn_Slow  
+ 160    S1_Floor_Up24_cSt_Slow  
+ 161    S1_Floor_Up24_Slow  
+ 162    S1_Plat_LoHiPerpetual  
+ 163    S1_StopPlat  
+ 164    S1_StartCrusher_Fast  
+ 165    S1_StartCrusher_Silent_Slow  
+ 166    S1_Ceiling_UpHnC_Slow  
+ 167    S1_Ceiling_DnFp8_Slow  
+ 168    S1_StopCrusher  
+ 169    S1_Light_MaxNeighbor  
+ 170    S1_Light_Set35  
+ 171    S1_Light_Set255  
+ 172    S1_Light_Blink  
+ 173    S1_Light_MinNeighbor  
+ 174    S1_TeleportToSpot  
+ 175    S1_Door_CloseWait30  
+ 176    SR_Floor_UpsT_Slow  
+ 177    SR_Floor_DnLnF_cSn_Slow  
+ 178    SR_Floor_Up512_Slow  
+ 179    SR_Floor_Up24_cSt_Slow  
+ 180    SR_Floor_Up24_Slow  
+ 181    SR_Plat_LoHiPerpetual  
+ 182    SR_StopPlat  
+ 183    SR_StartCrusher_Fast  
+ 184    SR_StartCrusher_Slow  
+ 185    SR_StartCrusher_Silent_Slow  
+ 186    SR_Ceiling_UpHnC_Slow  
+ 187    SR_Ceiling_DnFp8_Slow  
+ 188    SR_StopCrusher  
+ 189    S1_Floor_cSt                             Pure transfer type
+ 190    SR_Floor_cSt                             Pure transfer type
+ 191    SR_Donut  
+ 192    SR_Light_MaxNeighbor  
+ 193    SR_Light_Blink  
+ 194    SR_Light_MinNeighbor  
+ 195    SR_TeleportToSpot  
+ 196    SR_Door_CloseWait30  
+ 197    G1_ExitLevel  
+ 198    G1_ExitSecret  
+ 199    W1_Ceiling_DnLnC_Slow  
+ 200    W1_Ceiling_DnHnF_Slow  
+ 201    WR_Ceiling_DnLnC_Slow  
+ 202    WR_Ceiling_DnHnF_Slow  
+ 203    S1_Ceiling_DnLnC_Slow  
+ 204    S1_Ceiling_DnHnF_Slow  
+ 205    SR_Ceiling_DnLnC_Slow  
+ 206    SR_Ceiling_DnHnF_Slow  
+ 207    W1_TeleportToSpot_Orient_Silent          Preserves orientation
+ 208    WR_TeleportToSpot_Orient_Silent          Preserves orientation
+ 209    S1_TeleportToSpot_Orient_Silent          Preserves orientation
+ 210    SR_TeleportToSpot_Orient_Silent          Preserves orientation
+ 211    SR_Plat_CeilingToggle_Instant  
+ 212    WR_Plat_CeilingToggle_Instant  
+ 213    TransferLight_Floor  
+ 214    ScrollCeiling_Accel                      Accelerate w/tagged floor
+ 215    ScrollFloor_Accel                        Accelerate w/tagged floor
+ 216    CarryObjects_Accel                       Accelerate w/tagged floor
+ 217    ScrollFloorCarryObjects_Accel            Accelerate w/tagged floor
+ 218    ScrollWallWithFlat_Accel                 Accelerate w/tagged floor
+ 219    W1_Floor_DnNnF_Slow  
+ 220    WR_Floor_DnNnF_Slow  
+ 221    S1_Floor_DnNnF_Slow  
+ 222    SR_Floor_DnNnF_Slow  
+ 223    TransferFriction  
+ 224    TransferWind  
+ 225    TransferCurrent  
+ 226    TransferPointForce  
+ 227    W1_Elevator_NextHi  
+ 228    WR_Elevator_NextHi  
+ 229    S1_Elevator_NextHi  
+ 230    SR_Elevator_NextHi  
+ 231    W1_Elevator_NextLo  
+ 232    WR_Elevator_NextLo  
+ 233    S1_Elevator_NextLo  
+ 234    SR_Elevator_NextLo  
+ 235    W1_Elevator_Current  
+ 236    WR_Elevator_Current  
+ 237    S1_Elevator_Current  
+ 238    SR_Elevator_Current  
+ 239    W1_Floor_cSn                             Pure transfer type
+ 240    WR_Floor_cSn                             Pure transfer type
+ 241    S1_Floor_cSn                             Pure transfer type
+ 242    TransferHeights  
+ 243    W1_TeleportToLine  
+ 244    WR_TeleportToLine  
+ 245    ScrollCeiling_ByHeight                   Scroll w/tagged floor motion
+ 246    ScrollFloor_ByHeight                     Scroll w/tagged floor motion
+ 247    CarryObjects_ByHeight                    Carry w/tagged floor motion
+ 248    ScrollFloorCarryObjects_ByHeight         Scroll/carry w/tagged floor motion
+ 249    ScrollWallWithFlat_ByHeight              Scroll wall w/floor w/tagged floor motion
+ 250    ScrollCeiling  
+ 251    ScrollFloor  
+ 252    CarryObjects  
+ 253    ScrollFloorCarryObjects  
+ 254    ScrollWallWithFlat                       Scroll wall along with sector's flat
+ 255    ScrollWallByOffsets                      Scroll wall by texture offsets
+ 256    WR_Stairs_Up8_Slow  
+ 257    WR_Stairs_Up16_Fast  
+ 258    SR_Stairs_Up8_Slow  
+ 259    SR_Stairs_Up16_Fast  
+ 260    Translucent  
+ 261    TransferLight_Ceiling  
+ 262    W1_TeleportToLine_Reverse                Reverse orientation
+ 263    WR_TeleportToLine_Reverse                Reverse orientation
+ 264    W1_TeleportToLine_Reverse_MonOnly        Reverse orientation, monsters only
+ 265    WR_TeleportToLine_Reverse_MonOnly        Reverse orientation, monsters only
+ 266    W1_TeleportToLine_MonOnly                Monsters only
+ 267    WR_TeleportToLine_MonOnly                Monsters only
+ 268    W1_TeleportToSpot_Silent_MonOnly         Monsters only
+ 269    WR_TeleportToSpot_Silent_MonOnly         Monsters only
+ 270    ExtraDataSpecial  
+ 271    TransferSky  
+ 272    TransferSkyFlipped  
+ 273    WR_StartScript_1S                        Activated from first side only
+ 274    W1_StartScript  
+ 275    W1_StartScript_1S                        Activated from first side only
+ 276    SR_StartScript  
+ 277    S1_StartScript  
+ 278    GR_StartScript  
+ 279    G1_StartScript  
+ 280    WR_StartScript  
+ 281    3DMidTex_MoveWithFloor  
+ 282    3DMidTex_MoveWithCeiling  
+ 283    Portal_PlaneCeiling  
+ 284    Portal_PlaneFloor  
+ 285    Portal_PlaneFloorCeiling  
+ 286    Portal_HorizonCeiling  
+ 287    Portal_HorizonFloor  
+ 288    Portal_HorizonFloorCeiling  
+ 289    Portal_LineTransfer  
+ 290    Portal_SkyboxCeiling  
+ 291    Portal_SkyboxFloor  
+ 292    Portal_SkyboxFloorCeiling  
+ 293    TransferHereticWind  
+ 294    TransferHereticCurrent  
+ 295    Portal_AnchoredCeiling  
+ 296    Portal_AnchoredFloor  
+ 297    Portal_AnchoredFloorCeiling  
+ 298    Portal_AnchorLine  
+ 299    Portal_AnchorLineFloor  
+
+
+------------------------
+Parameterized Line Types
+------------------------
+
+See the <a href="editref.html">Eternity Engine Editing Reference</a> for information on how these specials work.
+
+Number  Name                         Parameters
+-----------------------------------------------------------------------------------------
+   300  Door_Raise                   tag, speed, delay, lighttag
+   301  Door_Open                    tag, speed, lighttag
+   302  Door_Close                   tag, speed, lighttag
+   303  Door_CloseWaitOpen           tag, speed, delay, lighttag
+   304  Door_WaitRaise               tag, speed, delay, countdown, lighttag
+   305  Door_WaitClose               tag, speed, countdown, lighttag
+   306  Floor_RaiseToHighest         tag, speed, change, crush
+   307  Floor_LowerToHighest         tag, speed, change
+   308  Floor_RaiseToLowest          tag, change, crush
+   309  Floor_LowerToLowest          tag, speed, change
+   310  Floor_RaiseToNearest         tag, speed, change, crush
+   311  Floor_LowerToNearest         tag, speed, change
+   312  Floor_RaiseToLowestCeiling   tag, speed, change, crush
+   313  Floor_LowerToLowestCeiling   tag, speed, change
+   314  Floor_RaiseToCeiling         tag, speed, change, crush
+   315  Floor_RaiseByTexture         tag, speed, change, crush
+   316  Floor_LowerByTexture         tag, speed, change
+   317  Floor_RaiseByValue           tag, speed, height, change, crush
+   318  Floor_LowerByValue           tag, speed, height, change
+   319  Floor_MoveToValue            tag, speed, height, change, crush
+   320  Floor_RaiseInstant           tag, height, change, crush
+   321  Floor_LowerInstant           tag, height, change
+
+
+----------------------
+Generalized Line Types
+----------------------
+
+Values indicated are the exact values which must be provided inside the generalized specifier, 
+although case of letters is not important and will be ignored.
+
+Range    Name                         Parameters
+-----------------------------------------------------------------------------------------
+6000h-   GenFloor                     crush, speed, changetype, modelormonster, targ, dir
+7FFFh
+                                      Values:
+                                      crush -- true, false
+                                      speed -- slow, normal, fast, turbo
+                                      changetype -- none, zero, texture, texturetype
+                                      modelormonster -- if change == none, true or false
+                                                        else: numeric or trigger
+                                      targ -- HnF, LnF, NnF, LnC, C, sT, 24, 32
+     
+
+4000h-   GenCeiling                   crush, speed, changetype, modelormonster, targ, dir
+5FFFh
+                                      Values:
+                                      crush -- true, false
+                                      speed -- slow, normal, fast, turbo
+                                      changetype -- none, zero, texture, texturetype
+                                      modelormonster -- if change == none, true or false
+                                                        else: numeric or trigger
+                                      targ -- HnC, LnC, NnC, HnF, F, sT, 24, 32
+     
+     
+3C00h-   GenDoor                      kind, speed, monster, delay
+4000h
+                                      Values:
+                                      kind -- Open, Close, OpenWaitClose, CloseWaitOpen
+                                      speed -- slow, normal, fast, turbo
+                                      monster -- true, false
+                                      delay -- 1, 4, 9, 30
+     
+     
+3800h-   GenLockedDoor                kind, speed, key, skulliscard
+3C00h
+                                      Values:
+                                      kind -- Open, OpenWaitClose
+                                      speed -- slow, normal, fast, turbo
+                                      key -- Any, RedCard, BlueCard, YellowCard, RedSkull, 
+                                             BlueSkull, YellowSkull, All
+                                      skulliscard -- true, false
+     
+     
+3400h-   GenLift                      target, delay, monster, speed
+37FFh
+                                      Values:
+                                      target -- LnF, NnF, LnC, Perpetual
+                                      delay -- 1, 3, 5, 10
+                                      monster -- true, false
+                                      speed -- slow, normal, fast, turbo
+     
+     
+3000h-   GenStairs                    dir, stepsize, ignoretex, monster, speed
+33FFh
+                                      Values:
+                                      dir -- up, down
+                                      stepsize -- 4, 8, 16, 24
+                                      ignoretex -- true, false
+                                      monster -- true, false
+                                      speed -- slow, normal, fast, turbo
+     
+     
+2F80h-   GenCrusher                   silent, monster, speed
+2FFFh
+                                      Values:
+                                      silent -- true, false
+                                      monster -- true, false
+                                      speed -- slow, normal, fast, turbo
+-----------------------------------------------------------------------------------------
+</pre> 
 </body>
 </html>

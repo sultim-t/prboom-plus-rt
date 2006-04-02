@@ -28,6 +28,8 @@
 //
 // By Simon Howard, based on id sersetup source
 //
+// NETCODE_FIXME: Obsolete module from DOS. Should be eliminated.
+//
 //----------------------------------------------------------------------------
 
 #include "../doomdef.h"

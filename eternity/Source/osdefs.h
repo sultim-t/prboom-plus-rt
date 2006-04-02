@@ -3,7 +3,7 @@
  * __WIN32__    set when compiling for Windows95 or WindowsNT (32 bit mode)
  * __32BIT__    set when compiling in 32-bit "flat" mode (DOS or Windows)
  *
- * Copyright 1998-2004, ITB CompuPhase, The Netherlands.
+ * Copyright 1998-2005, ITB CompuPhase, The Netherlands.
  * info@compuphase.com.
  */
 

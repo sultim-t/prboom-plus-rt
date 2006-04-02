@@ -231,7 +231,7 @@ static cell AMX_NATIVE_CALL sm_lightning(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO panim_Natives[] =
 {
-   { "S_ForceLightning", sm_lightning },
+   { "_ForceLightning", sm_lightning },
    { NULL, NULL }
 };
 

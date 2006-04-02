@@ -50,6 +50,11 @@ static const char rcsid[] = "$Id: r_main.c,v 1.13 1998/05/07 00:47:52 killough E
 // Fineangles in the SCREENWIDTH wide window.
 int fov = 2048;   //sf: made an int from a #define
 
+// haleyjd 04/03/05: focal lengths made global, y len added
+fixed_t focal_tan;
+fixed_t focallen_x;
+fixed_t focallen_y;
+
 // killough: viewangleoffset is a legacy from the pre-v1.2 days, when Doom
 // had Left/Mid/Right viewing. +/-ANG90 offsets were placed here on each
 // node, by d_net.c, to set up a L/M/R session.
@@ -61,7 +66,7 @@ lighttable_t *fixedcolormap;
 int      centerx, centery;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  projection;
-fixed_t  yprojection; // ANYRES aspect ratio
+fixed_t  yaspectmul; // ANYRES aspect ratio
 int      addscaleshift = 0;
 fixed_t  viewx, viewy, viewz;
 angle_t  viewangle;
@@ -242,18 +247,17 @@ fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 static void R_InitTextureMapping (void)
 {
    register int i,x;
-   fixed_t focallength;
    
    // Use tangent table to generate viewangletox:
    //  viewangletox will give the next greatest x
    //  after the view angle.
    //
-   // Calc focallength
-   //  so fov angles covers SCREENWIDTH.
+   // Calc focal length so fov angles cover SCREENWIDTH
 
-   // sf: zooming
-   focallength = FixedDiv(centerxfrac*zoom, 
-                          finetangent[FINEANGLES/4+fov/2]);
+   // haleyjd 04/03/05: calculate and store focallen_x, focallen_y
+   focal_tan  = finetangent[FINEANGLES / 4 + fov / 2];
+   focallen_x = FixedDiv(centerxfrac*zoom, focal_tan);
+   focallen_y = FixedDiv(FixedMul(centerxfrac*zoom, yaspectmul), focal_tan);
         
    for(i = 0; i < FINEANGLES/2; ++i)
    {
@@ -265,7 +269,7 @@ static void R_InitTextureMapping (void)
             t = viewwidth+1;
       else
       {
-         t = FixedMul(finetangent[i], focallength);
+         t = FixedMul(finetangent[i], focallen_x);
          t = (centerxfrac - t + FRACUNIT-1) >> FRACBITS;
          if(t < -1)
             t = -1;
@@ -360,35 +364,36 @@ void R_SetupViewScaling(void)
    int i;
    // SoM: ANYRES
    // Moved stuff, reformatted a bit
+   // haleyjd 04/03/05: removed unnecessary FixedDiv calls
 
-   globalxscale = FixedDiv(v_width << FRACBITS, SCREENWIDTH << FRACBITS);
-   globalixscale = FixedDiv(SCREENWIDTH << FRACBITS, v_width << FRACBITS);
-   globalyscale = FixedDiv(v_height << FRACBITS, SCREENHEIGHT << FRACBITS);
-   globaliyscale = FixedDiv(SCREENHEIGHT << FRACBITS, v_height << FRACBITS);
+   globalxscale  = (v_width << FRACBITS) / SCREENWIDTH;
+   globalixscale = (SCREENWIDTH << FRACBITS) / v_width;
+   globalyscale  = (v_height << FRACBITS) / SCREENHEIGHT;
+   globaliyscale = (SCREENHEIGHT << FRACBITS) / v_height;
 
    addscaleshift = (globalxscale >> FRACBITS) - 1;
 
    realxarray[320] = v_width;
    realyarray[200] = v_height;
 
-   for(i = 0; i < 320; i++)
+   for(i = 0; i < 320; ++i)
       realxarray[i] = (i * globalxscale) >> FRACBITS;
 
-   for(i = 0; i < 200; i++)
+   for(i = 0; i < 200; ++i)
       realyarray[i] = (i * globalyscale) >> FRACBITS;
 
-   if (setblocks == 11)
+   if(setblocks == 11)
    {
-      scaledviewwidth = SCREENWIDTH;
+      scaledviewwidth  = SCREENWIDTH;
       scaledviewheight = SCREENHEIGHT;                    // killough 11/98
-      viewwidth = v_width;
+      viewwidth  = v_width;
       viewheight = v_height;
    }
    else
    {
-      scaledviewwidth = setblocks*32;
-      scaledviewheight = (setblocks*168/10) & ~7;        // killough 11/98
-      viewwidth = realxarray[scaledviewwidth];
+      scaledviewwidth  = setblocks * 32;
+      scaledviewheight = (setblocks * 168 / 10) & ~7;     // killough 11/98
+      viewwidth  = realxarray[scaledviewwidth];
       viewheight = realyarray[scaledviewheight];
    }
 
@@ -398,8 +403,11 @@ void R_SetupViewScaling(void)
    centeryfrac = centery<<FRACBITS;
    projection = centerxfrac * zoom;      // sf: zooming
 
+   // haleyjd 04/03/05: Renamed yprojection to yaspectmul;
+   // this matches zdoom and is more descriptive. 
+   // It still works the same, though.
    
-   yprojection = FixedDiv(globalyscale, globalxscale);
+   yaspectmul = FixedDiv(globalyscale, globalxscale);
 
    R_InitBuffer(scaledviewwidth, scaledviewheight);       // killough 11/98
 }
@@ -421,7 +429,7 @@ void R_ExecuteSetViewSize (void)
    // sf: zooming added
    pspritescale = FixedDiv(zoom*viewwidth, SCREENWIDTH);  // killough 11/98
    pspriteiscale = FixedDiv(SCREENWIDTH, zoom*viewwidth); // killough 11/98
-   pspriteyscale = FixedMul(pspritescale, yprojection);
+   pspriteyscale = FixedMul(pspritescale, yaspectmul);
    pspriteiyscale = FixedDiv(FRACUNIT, pspriteyscale);
     
    // thing clipping
@@ -435,7 +443,7 @@ void R_ExecuteSetViewSize (void)
    {
       fixed_t dy = D_abs(((i-viewheight)<<FRACBITS)+FRACUNIT/2);
       // sf: zooming
-      origyslope[i] = FixedMul(yprojection, FixedDiv(viewwidth*zoom*(FRACUNIT/2), dy));
+      origyslope[i] = FixedMul(yaspectmul, FixedDiv(viewwidth*zoom*(FRACUNIT/2), dy));
    }
    yslope = origyslope + (viewheight/2);
         
@@ -497,7 +505,6 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 }
 
 int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
-long updownangle = 0;
 
 //
 // R_SetupFrame
@@ -507,6 +514,9 @@ void R_SetupFrame(player_t *player, camera_t *camera)
 {               
    mobj_t *mobj;
    static int oldzoom;
+   fixed_t pitch;
+   fixed_t dy;
+   fixed_t viewheightfrac;
    
    // check for change to zoom
    if(zoom != oldzoom)
@@ -525,8 +535,7 @@ void R_SetupFrame(player_t *player, camera_t *camera)
       viewy = mobj->y;
       viewz = player->viewz;
       viewangle = mobj->angle;// + viewangleoffset;
-      // y shearing
-      updownangle = player->updownangle;
+      pitch = player->pitch;
    }
    else
    {
@@ -534,7 +543,7 @@ void R_SetupFrame(player_t *player, camera_t *camera)
       viewy = camera->y;
       viewz = camera->z;
       viewangle = camera->angle;
-      updownangle = camera->updownangle;
+      pitch = camera->pitch;
    }
 
    extralight = player->extralight;
@@ -542,16 +551,25 @@ void R_SetupFrame(player_t *player, camera_t *camera)
    viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 
    // y shearing
-   updownangle *= zoom;          // sf: zooming
-   // check for limits
-   updownangle = updownangle >  50 ?  50 :
-                 updownangle < -50 ? -50 : updownangle;
-   // scale to screen size
-   updownangle = (updownangle * viewheight) / 100;
+   // haleyjd 04/03/05: perform calculation for true pitch angle
+   
+   dy = FixedMul(focallen_y, 
+                 finetangent[(ANG90 - pitch) >> ANGLETOFINESHIFT]);
+   dy *= zoom;
 
-   centery = (viewheight/2) + updownangle;
-   centeryfrac = (centery<<FRACBITS);
-   yslope = origyslope + (viewheight>>1) - updownangle;
+   // make fixed-point viewheight and divide by 2
+   viewheightfrac = viewheight << (FRACBITS - 1);
+
+   // haleyjd: must bound after zooming
+   if(dy < -viewheightfrac)
+      dy = -viewheightfrac;
+   else if(dy > viewheightfrac)
+      dy = viewheightfrac;
+
+   centeryfrac = viewheightfrac + dy;
+   centery     = centeryfrac >> FRACBITS;
+
+   yslope = origyslope + (viewheight>>1) - (dy >> FRACBITS);
 
    // use drawcolumn
    colfunc = R_DrawColumn; //sf

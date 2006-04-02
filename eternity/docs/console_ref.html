@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 <hr>
-<b>The Eternity Engine v3.31 Console Reference -- 07/24/04</b>
+<b>The Eternity Engine v3.33 Console Reference -- 05/26/05</b>
 <hr>
 
 <p>
@@ -52,8 +52,9 @@ the Eternity console, as well as pointers on console command syntax.
       <li><a href="#cmdgameplay">Gameplay</a><br>
           pause, i_error, spawn, endgame, starttitle, quit, map, kill,
           addfile, exitlevel, defdmflags, summon, give, whistle
-      <li><a href="#cmdedf">EDF-Related Commands</a><br>
-          e_dumpthings, e_dumpitems
+      <li><a href="#cmdedf">EDF- and ExtraData-Related Commands</a><br>
+          e_dumpthings, e_thingtype, e_dumpitems, e_listmapthings, e_mapthing,
+          e_listlinedefs, e_linedef
       <li><a href="#cmdsmall">Small Scripting Engine</a><br>
           a_running, a_execv, a_execi
       </ul>
@@ -836,7 +837,7 @@ Synopsis of Commands:
   <br><br>
 <li> kill<br><br>
 
-  Causes the player to commit suicide.<br>
+  Causes the player to commit suiceide.<br>
   Flags: only in level, net command
   <br><br>
 <li> addfile wadfilename<br><br>
@@ -898,7 +899,7 @@ Synopsis of Commands:
 <p>
 <a name="cmdedf">	
 <hr width="75%" align="left">
-<b>EDF-Related Commands</b>
+<b>EDF- and ExtraData-Related Commands</b>
 <hr width="75%" align="left">
 </a>
 <p>
@@ -908,8 +909,11 @@ commands.
 <br><br>
 Synopsis of Commands:
 <pre>
-	* e_dumpthings
+	* e_dumpthings      * e_listlinedefs
+	* e_thingtype       * e_linedef
 	* e_dumpitems
+	* e_listmapthings
+	* e_mapthing
 </pre>
 <ul>	
 <li> e_dumpthings<br><br>
@@ -917,11 +921,40 @@ Synopsis of Commands:
   Lists all EDF thing type mnemonics along with the DeHackEd numbers and 
   doomednums of the corresponding types.<br>
   <br><br>
+<li> e_thingtype thingtypename<br><br>
+  
+  Lists verbose information on an EDF thingtype with the given mnemonic. If
+  no such thingtype is defined, an error message will be given.
+  <br><br>
 <li> e_dumpitems<br><br>
 
   Lists all EDF thing type mnemonics and DeHackEd/doomed numbers for thing
   types which are collectable items.  Useful in conjunction with the give
   command.
+  <br><br>
+<li> e_listmapthings<br><br>
+  
+  Lists all mapthing definitions from the current map's ExtraData. If no
+  mapthings are defined or no ExtraData exists for the current map, an
+  appropriate error message will be given.
+  <br><br>
+<li> e_mapthing recordnum<br><br>
+  
+  Lists verbose information on an ExtraData mapthing record with the given
+  numeric record number. If no such mapthing is defined or no ExtraData
+  exists for the current map, an appropriate error message will be given.
+  <br><br> 
+<li> e_listlinedefs<br><br>
+
+  Lists all linedef definitions from the current map's ExtraData. If no
+  linedefs are defined or no ExtraData exists for the current map, an
+  appropriate error message will be given.
+  <br><br>
+<li> e_linedef recordnum<br><br>
+
+  Lists verbose information on an ExtraData linedef record with the given
+  numeric record number. If no such linedef is defined or no ExtraData
+  exists for the current map, an appropriate error message will be given.  
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -1459,7 +1492,7 @@ Synopsis:
 	<br>
 <li> hu_overlay<br>
 	type: named values<br>
-	values: off, "boom style", flat, distributed<br>
+	values: off, "boom style", flat, distributed, graphical<br>
 	value = style / activation state of HUD<br>
 	<br>
 <li> hu_hidesecrets<br>

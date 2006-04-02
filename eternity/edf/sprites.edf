@@ -1,4 +1,4 @@
-# sprites.edf - EDF file for Eternity Engine v3.31 Delta
+# sprites.edf - EDF file for Eternity Engine v3.33.02
 #     This file contains the spritenames array, and definitions for sprite-based
 #     pickup items.
 
@@ -25,8 +25,10 @@ spritenames =
   "COL3","COL4","CAND","CBRA","COL6","TRE1","TRE2","ELEC","CEYE","FSKU",
   "COL5","TBLU","TGRN","TRED","SMBT","SMGT","SMRT","HDB1","HDB2","HDB3",
   "HDB4","HDB5","HDB6","POB1","POB2","BRS1","TLMP","TLP2","TNT1","DOGS",
-  "PLS1","PLS2","CLER","CBAL","SPSH","SLDG","FOGS","FOGM","FOGL","LCLR",
-  "DWRF","FDWF","GREN","PNS2","CAXE","CSTF","LVAS","UNKN"
+  "PLS1","PLS2","UNKN","SPSH","SLDG","LVAS",
+  
+  # Warning: Do not use any of these sprites!
+  "CLER","CBAL","FOGS","FOGM","FOGL","LCLR","DWRF","FDWF","GREN","PNS2"
 }
 
 ifenabled(HERETIC)

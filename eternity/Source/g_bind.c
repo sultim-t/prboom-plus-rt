@@ -336,6 +336,31 @@ void G_InitKeyBindings(void)
    ka->value.Handler = AM_Handlers[5];
 }
 
+void G_ClearKeyStates(void)
+{
+   int i, j;
+
+   for(i = 0; i < NUM_KEYS; ++i)
+   {
+      for(j = 0; j < NUMKEYACTIONCLASSES; ++j)
+      {
+         keybindings[i].keydown[j] = false;
+            
+         if(keybindings[i].bindings[j])
+         {
+            switch(keybindings[i].bindings[j]->type)
+            {
+            case at_variable:
+               *(keybindings[i].bindings[j]->value.variable) = 0;
+               break;
+            default:
+               break;
+            }
+         } // end if
+      } // end for
+   } // end for
+}
+
 //
 // G_KeyActionForName
 //

@@ -272,13 +272,13 @@ static int A_AMXLoadProgram(AMX *amx, char *lumpname, void *memblock)
    return amx_Init(amx, memblock);
 }
 
-// haleyjd 08/08/04: copied from Small 2.6 amxaux.c, unfortunate
+// haleyjd 08/08/04: copied from Small 2.7.3 amxaux.c, unfortunate
 // that this was removed from amx.c and put into a module with a ton
-// of stuff I don't need... waste of time and space.
+// of stuff I don't need... it's a waste of time and space here.
 
-static char *aux_StrError(int errnum)
+const char *AMXAPI aux_StrError(int errnum)
 {
-static char *messages[] = {
+   static const char *messages[] = {
       /* AMX_ERR_NONE      */ "(none)",
       /* AMX_ERR_EXIT      */ "Forced exit",
       /* AMX_ERR_ASSERT    */ "Assertion failed",
@@ -305,12 +305,13 @@ static char *messages[] = {
       /* AMX_ERR_USERDATA  */ "Unable to set user data field (table full)",
       /* AMX_ERR_INIT_JIT  */ "Cannot initialize the JIT",
       /* AMX_ERR_PARAMS    */ "Parameter error",
-    };
-  if (errnum < 0 || errnum >= sizeof messages / sizeof messages[0])
-    return "(unknown)";
-  return messages[errnum];
+      /* AMX_ERR_DOMAIN    */ "Domain error, expression result does not fit in range",
+      /* AMX_ERR_GENERAL   */ "General error (unknown or unspecific error)",
+   };
+   if(errnum < 0 || errnum >= sizeof messages / sizeof messages[0])
+      return "(unknown)";
+   return messages[errnum];
 }
-
 
 //
 // A_AMXError
@@ -369,6 +370,7 @@ extern AMX_NATIVE_INFO    mobj_Natives[];
 extern AMX_NATIVE_INFO  genlin_Natives[];
 extern AMX_NATIVE_INFO   pspec_Natives[];
 extern AMX_NATIVE_INFO hustuff_Natives[];
+extern AMX_NATIVE_INFO    ptcl_Natives[];
 
 //
 // A_RegisterNatives
@@ -397,6 +399,7 @@ static int A_RegisterNatives(AMX *amx)
    amx_Register(amx, genlin_Natives,  -1); // p_genlin
    amx_Register(amx, pspec_Natives,   -1); // p_spec
    amx_Register(amx, hustuff_Natives, -1); // hu_stuff
+   amx_Register(amx, ptcl_Natives,    -1); // p_partcl
 
    // finally, load the core functions
    return amx_Register(amx, core_Natives, -1); // amxcore.c
@@ -455,6 +458,23 @@ void A_ClearInvocation(SmallContext_t *sc)
 }
 
 
+
+//
+// Optional Engine Callback Dispatchers
+//
+void A_OptScriptCallback(SmallContext_t *ctx, const char *cbname)
+{
+   int index;
+   AMX *amx = &ctx->smallAMX;
+   
+   if(amx_FindPublic(amx, cbname, &index) == AMX_ERR_NONE)
+   {
+      ctx->invocationData.invokeType = SC_INVOKE_CALLBACK;
+      A_ExecScriptV(amx, index);
+      A_ClearInvocation(ctx);
+   }
+}
+
 //
 // A_InitGameScript
 //
@@ -464,7 +484,6 @@ void A_InitGameScript(void)
 {
    int memsize;
    int error;
-   int index;
    AMX *amx = &GameScript.smallAMX;
 
    memset(&GameScript, 0, sizeof(SmallContext_t));
@@ -526,12 +545,7 @@ void A_InitGameScript(void)
    amx_SetUserData(amx, AMX_USERTAG('C','N','T','X'), &GameScript);
 
    // run the init script, if it exists
-   if(amx_FindPublic(amx, "OnInit", &index) == AMX_ERR_NONE)
-   {
-      GameScript.invocationData.invokeType = SC_INVOKE_CALLBACK;
-      A_ExecScriptV(amx, index);
-      A_ClearInvocation(&GameScript);
-   }
+   A_OptScriptCallback(&GameScript, "OnInit");
 }
 
 //
@@ -543,7 +557,6 @@ void A_InitLevelScript(void)
 {
    int memsize;
    int error;
-   int index;
    AMX *amx = &LevelScript.smallAMX;
 
    memset(&LevelScript, 0, sizeof(SmallContext_t));
@@ -602,13 +615,8 @@ void A_InitLevelScript(void)
    // a saved game. The state created by OnInit should still exist 
    // in a saved game, so running the script again would be unexpected.
 
-   if(gameaction != ga_loadgame &&
-      amx_FindPublic(amx, "OnInit", &index) == AMX_ERR_NONE)
-   {
-      LevelScript.invocationData.invokeType = SC_INVOKE_CALLBACK;
-      A_ExecScriptV(amx, index);
-      A_ClearInvocation(&LevelScript);
-   }
+   if(gameaction != ga_loadgame)
+      A_OptScriptCallback(&LevelScript, "OnInit");
 }
 
 //
@@ -926,19 +934,6 @@ void A_ExecuteCallbacks(void)
    }
 }
 
-// haleyjd 11/28/04: allocator function wrappers for my Small portability
-// fix
-
-static void *A_AMXMalloc(size_t amt)
-{
-   return Z_Malloc(amt, PU_STATIC, NULL);
-}
-
-static void A_AMXFree(void *ptr)
-{
-   Z_Free(ptr);
-}
-
 //
 // A_InitSmall
 //
@@ -948,10 +943,6 @@ void A_InitSmall(void)
 {
    // initialize the double-linked callback list
    callBackHead.next = callBackHead.prev = &callBackHead;
-
-   // 11/28/04: set allocation functions
-   amx_SetMallocFunc(A_AMXMalloc);
-   amx_SetFreeFunc(A_AMXFree);
 }
 
 //
@@ -1110,9 +1101,7 @@ void A_AddCommands(void)
 //
 static cell AMX_NATIVE_CALL sm_invoketype(AMX *amx, cell *params)
 {
-   SmallContext_t *context = A_GetContextForAMX(amx);
-
-   return context->invocationData.invokeType;
+   return A_GetContextForAMX(amx)->invocationData.invokeType;
 }
 
 //
@@ -1195,7 +1184,7 @@ static cell AMX_NATIVE_CALL sm_getThingSrc(AMX *amx, cell *params)
 //
 // sm_itoa
 //
-// Implements itoa(num, string[], base, packed)
+// Implements _Itoa(num, string[], base, packed)
 //
 static cell AMX_NATIVE_CALL sm_itoa(AMX *amx, cell *params)
 {
@@ -1227,7 +1216,7 @@ static cell AMX_NATIVE_CALL sm_itoa(AMX *amx, cell *params)
 //
 // sm_setcallback
 //
-// Implements SetCallback(scrname[], waittype, waitdata, flags = 0)
+// Implements _SetCallback(scrname[], waittype, waitdata, flags)
 //
 static cell AMX_NATIVE_CALL sm_setcallback(AMX *amx, cell *params)
 {
@@ -1688,19 +1677,19 @@ static cell AMX_NATIVE_CALL sm_printf(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO local_Natives[] =
 {
-   { "I_GetInvokeType", sm_invoketype },
-   { "I_GetCcmdSrc",    sm_getCcmdSrc },
-   { "I_GetPlayerSrc",  sm_getPlayerSrc },
-   { "I_GetThingSrc",   sm_getThingSrc },
-   { "IO_Itoa",         sm_itoa },
-   { "I_SetCallback",   sm_setcallback },
-   { "I_ExecGS",        sm_execgs },
-   { "I_ExecLS",        sm_execls },
-   { "I_GetLevelVar",   sm_getlevelvar },
-   { "I_SetLevelVar",   sm_setlevelvar },
-   { "I_GetGameVar",    sm_getgamevar },
-   { "I_SetGameVar",    sm_setgamevar },
-   { "IO_Printf",       sm_printf },
+   { "_GetInvokeType", sm_invoketype },
+   { "_GetCcmdSrc",    sm_getCcmdSrc },
+   { "_GetPlayerSrc",  sm_getPlayerSrc },
+   { "_GetThingSrc",   sm_getThingSrc },
+   { "_Itoa",          sm_itoa },
+   { "_SetCallback",   sm_setcallback },
+   { "_ExecGS",        sm_execgs },
+   { "_ExecLS",        sm_execls },
+   { "_GetLevelVar",   sm_getlevelvar },
+   { "_SetLevelVar",   sm_setlevelvar },
+   { "_GetGameVar",    sm_getgamevar },
+   { "_SetGameVar",    sm_setgamevar },
+   { "_Printf",        sm_printf },
    { NULL, NULL }
 };
 

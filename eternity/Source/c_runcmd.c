@@ -26,6 +26,14 @@
 //
 // By Simon Howard
 //
+// NETCODE_FIXME -- CONSOLE_FIXME
+// Parts of this module also are involved in the netcode cmd problems.
+// Mainly, the buffering issue. Commands need to work without being
+// delayed an arbitrary amount of time, that won't work with netgames
+// properly. Also, command parsing is extremely messy and needs to
+// be rewritten. It should be possible to use qstring_t to clean this
+// up significantly.
+//
 //-----------------------------------------------------------------------------
 
 #include "z_zone.h"
@@ -235,8 +243,7 @@ static void C_DoRunCommand(command_t *command, char *options)
    {
    case ct_command:
       // not to be run ?
-      if(C_CheckFlags(command) ||
-         C_Sync(command))
+      if(C_CheckFlags(command) || C_Sync(command))
       {
          cmdtype = c_typed; cmdsrc = consoleplayer; 
          return;
@@ -867,10 +874,6 @@ void C_RunBufferedCommand(bufferedcmd *bufcmd)
    // restore variables
    
    cmdsrc = bufcmd->cmdsrc;
-
-#ifdef FRAGGLESCRIPT
-   t_trigger = players[cmdsrc].mo;
-#endif
 
    C_DoRunCommand(bufcmd->command, bufcmd->options);
 }

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2004 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ void V_SetPatchTL(unsigned int *fg, unsigned int *bg)
 //
 // TR = Translated
 // TL = Translucent
+// PL = Additive
 // 2x = Scaled 2x (hard-coded 4-pixel writes, fast)
 // S  = Scaled, general (slower but works for all resolutions)
 //
@@ -119,6 +120,56 @@ static void V_PatchColumnTRTL(byte *source, byte *dest, int count, int pitch)
 }
 
 //
+// Additive -- 02/08/05
+//
+static void V_PatchColumnPL(byte *source, byte *dest, int count, int pitch)
+{
+   register unsigned int a, b;
+   unsigned int fg, bg;
+
+   do
+   {
+      // clear LSBs in green & red within fg/bg values to allow overflow
+      fg = v_fg2rgb[*source++] & 0xFFBFDFF;
+      bg = v_bg2rgb[*dest] & 0xFFBFDFF;
+
+      a  = fg + bg;                    // add with overflow
+      b  = a & 0x10040200;             // isolate LSBs to find overflow
+      b  = (b - (b >> 5)) & 0xF83C1E0; // convert to clamped values
+      a |= 0xF07C3E1F;                 // apply normal tl mask
+      a |= b;                          // mask in clamped values
+            
+      *dest = RGB8k[0][0][(a >> 5) & (a >> 19)];
+      dest += pitch;
+   } while(--count);
+}
+
+//
+// Translated Additive -- 02/08/05
+//
+static void V_PatchColumnTRPL(byte *source, byte *dest, int count, int pitch)
+{
+   register unsigned int a, b;
+   unsigned int fg, bg;
+
+   do
+   {
+      // clear LSBs in green & red within fg/bg values to allow overflow
+      fg = v_fg2rgb[v_colrng[*source++]] & 0xFFBFDFF;
+      bg = v_bg2rgb[*dest] & 0xFFBFDFF;
+
+      a  = fg + bg;                    // add with overflow
+      b  = a & 0x10040200;             // isolate LSBs to find overflow
+      b  = (b - (b >> 5)) & 0xF83C1E0; // convert to clamped values
+      a |= 0xF07C3E1F;                 // apply normal tl mask
+      a |= b;                          // mask in clamped values
+            
+      *dest = RGB8k[0][0][(a >> 5) & (a >> 19)];
+      dest += pitch;
+   } while(--count);
+}
+
+//
 // Array of unscaled column function pointers
 //
 
@@ -129,7 +180,9 @@ static unscaled_func_t unscaledfuncs[] =
    V_PatchColumn,
    V_PatchColumnTR,
    V_PatchColumnTL,
-   V_PatchColumnTRTL
+   V_PatchColumnTRTL,
+   V_PatchColumnPL,
+   V_PatchColumnTRPL,
 };
 
 //
@@ -221,6 +274,64 @@ static void V_PatchColumnTRTL2x(byte *source, byte *dest, int count, int pitch)
 }
 
 //
+// Additive -- 02/08/05
+//
+static void V_PatchColumnPL2x(byte *source, byte *dest, int count, int pitch)
+{
+   register unsigned int a, b;
+
+   do
+   {
+      // clear LSBs in red & blue within fg/bg values to allow overflow
+      a = v_fg2rgb[*source++] & 0xFFBFDFF;
+      b = v_bg2rgb[*dest] & 0xFFBFDFF;
+
+      a  = a + b;                      // add colors with overflow
+      b  = a & 0x10040200;             // isolate LSBs to find overflow
+      b  = (b - (b >> 5)) & 0xF83C1E0; // convert to clamped values
+      a |= 0xF07C3E1F;                 // apply normal tl mask
+      a |= b;                          // mask in clamped values
+
+      dest[0]
+         = dest[pitch]
+         = dest[1]
+         = dest[pitch+1]
+         = RGB8k[0][0][(a >> 5) & (a >> 19)];
+      
+      dest += pitch * 2;
+   } while(--count);
+}
+
+//
+// Translated Additive -- 02/08/05
+//
+static void V_PatchColumnTRPL2x(byte *source, byte *dest, int count, int pitch)
+{
+   register unsigned int a, b;
+
+   do
+   {
+      // clear LSBs in green & red within fg/bg values to allow overflow
+      a = v_fg2rgb[v_colrng[*source++]] & 0xFFBFDFF;
+      b = v_bg2rgb[*dest] & 0xFFBFDFF;
+
+      a  = a + b;                      // add colors with overflow
+      b  = a & 0x10040200;             // isolate LSBs to find overflow
+      b  = (b - (b >> 5)) & 0xF83C1E0; // convert to clamped values
+      a |= 0xF07C3E1F;                 // apply normal tl mask
+      a |= b;                          // mask in clamped values
+
+      dest[0]
+         = dest[pitch]
+         = dest[1]
+         = dest[pitch+1]
+         = RGB8k[0][0][(a >> 5) & (a >> 19)];
+      
+      dest += pitch * 2;
+   } while(--count);
+}
+
+//
 // Array of 2x column function pointers
 //
 // (Same prototype as unscaled)
@@ -231,7 +342,9 @@ static unscaled_func_t scale2xfuncs[] =
    V_PatchColumn2x,
    V_PatchColumnTR2x,
    V_PatchColumnTL2x,
-   V_PatchColumnTRTL2x
+   V_PatchColumnTRTL2x,
+   V_PatchColumnPL2x,
+   V_PatchColumnTRPL2x,
 };
 
 //
@@ -297,6 +410,56 @@ static void V_PatchColumnTRTLS(byte *source, byte *dest, int count, int pitch, f
 }
 
 //
+// Additive -- 02/08/05
+//
+static void V_PatchColumnPLS(byte *source, byte *dest, int count, int pitch, fixed_t yfrac, fixed_t yinc)
+{
+   register unsigned int a, b;
+
+   while(count--)
+   {
+      // clear LSBs in red & blue within fg/bg values to allow overflow
+      a= v_fg2rgb[source[yfrac >> FRACBITS]] & 0xFFBFDFF;
+      b = v_bg2rgb[*dest] & 0xFFBFDFF;
+
+      a  = a + b;                      // add colors with overflow
+      b  = a & 0x10040200;             // isolate LSBs to find overflow
+      b  = (b - (b >> 5)) & 0xF83C1E0; // convert to clamped values
+      a |= 0xF07C3E1F;                 // apply normal tl mask
+      a |= b;                          // mask in clamped values
+      
+      *dest = RGB8k[0][0][(a >> 5) & (a >> 19)];
+      dest += pitch;
+      yfrac += yinc;
+   }
+}
+
+//
+// Translated Additive -- 02/08/05
+//
+static void V_PatchColumnTRPLS(byte *source, byte *dest, int count, int pitch, fixed_t yfrac, fixed_t yinc)
+{
+   register unsigned int a, b;
+
+   while(count--)
+   {
+      // clear LSBs in green & red within fg/bg values to allow overflow
+      a = v_fg2rgb[v_colrng[source[yfrac >> FRACBITS]]] & 0xFFBFDFF;
+      b = v_bg2rgb[*dest] & 0xFFBFDFF;
+
+      a  = a + b;                      // add colors with overflow
+      b  = a & 0x10040200;             // isolate LSBs to find overflow
+      b  = (b - (b >> 5)) & 0xF83C1E0; // convert to clamped values
+      a |= 0xF07C3E1F;                 // apply normal tl mask
+      a |= b;                          // mask in clamped values
+      
+      *dest = RGB8k[0][0][(a >> 5) & (a >> 19)];
+      dest += pitch;
+      yfrac += yinc;
+   }
+}
+
+//
 // Array of general scaled column function pointers
 //
 
@@ -308,6 +471,8 @@ static scaled_func_t scaledfuncs[] =
    V_PatchColumnTRS,
    V_PatchColumnTLS,
    V_PatchColumnTRTLS,
+   V_PatchColumnPLS,
+   V_PatchColumnTRPLS,
 };
 
 //
@@ -440,7 +605,7 @@ void V_PatchWrapperS(PatchInfo *pi, VBuffer *buffer)
    xstep = buffer->ixscale * colstep;
    ystep = buffer->iyscale;
    
-   ybottom = patch->height + y;
+   ybottom = SHORT(patch->height) + y;
    ybottomfrac = ybottom << FRACBITS;
    
    xfrac = col << FRACBITS;
@@ -475,8 +640,6 @@ void V_PatchWrapperS(PatchInfo *pi, VBuffer *buffer)
       col = xfrac >> FRACBITS;
    }
 }
-
-void V_SetBlockFuncs(VBuffer *, int);
 
 //
 // V_SetupBufferFuncs

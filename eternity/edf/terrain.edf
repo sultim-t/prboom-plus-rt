@@ -1,0 +1,137 @@
+# terrain.edf -- EDF TerrainTypes for Eternity Engine v3.33.02
+
+// Splash Objects
+
+splash Water
+{
+   smallclass = EETerrainWaterBase
+   smallclip  = 12
+   smallsound = eedrip
+   
+   baseclass  = EETerrainWaterBase
+   chunkclass = EETerrainWaterSplash
+   sound      = gloop   
+   
+   chunkxvelshift = 8
+   chunkyvelshift = 8
+   chunkzvelshift = 8
+   chunkbasezvel  = 2
+}
+
+splash Lava
+{
+   smallclass = EETerrainLavaSmoke
+   smallclip  = 12
+   smallsound = eehtsz
+   
+   baseclass  = EETerrainLavaSplash
+   chunkclass = EETerrainLavaSmoke
+   sound      = burn
+   
+   chunkxvelshift = -1
+   chunkyvelshift = -1
+   chunkzvelshift =  7
+   chunkbasezvel  =  1
+}
+
+splash Sludge
+{
+   smallclass = EETerrainSludgeBase
+   smallclip  = 12
+   smallsound = muck
+   
+   baseclass  = EETerrainSludgeBase
+   chunkclass = EETerrainSludgeChunk
+   sound      = muck
+   
+   chunkxvelshift = 8
+   chunkyvelshift = 8
+   chunkzvelshift = 8
+   chunkbasezvel  = 1
+}
+
+// Terrain Objects
+
+// Note: Default terrain Solid is defined by the game engine.
+
+// WARNING: Do not edit the minversion field of the default terrain objects.
+// This will cause demo desyncs. Terrains you define on your own do not need
+// to specify a minversion.
+
+terrain Water
+{
+   splash   = Water
+   footclip = 10
+   liquid   = true
+   
+   useptclcolors = true
+   ptclcolor1    = "127 127 255"
+   ptclcolor2    = "0 0 255"
+   
+   minversion = 329
+}
+
+terrain Lava
+{
+   splash   = Lava
+   footclip = 10
+   liquid   = true
+   
+   useptclcolors = true
+   ptclcolor1    = "255 120 0"
+   ptclcolor2    = "165 0 0"
+   
+   minversion = 329
+}
+
+terrain Sludge
+{
+   splash   = Sludge
+   footclip = 10
+   liquid   = true 
+   
+   minversion = 329
+}
+
+// Floors: These vary by game type
+
+ifgametype(DOOM)
+
+floor { flat = FWATER1; terrain = Water }
+floor { flat = FWATER2; terrain = Water }
+floor { flat = FWATER3; terrain = Water }
+floor { flat = FWATER4; terrain = Water }
+floor { flat = LAVA1;   terrain = Lava  }
+floor { flat = LAVA2;   terrain = Lava  }
+floor { flat = LAVA3;   terrain = Lava  }
+floor { flat = LAVA4;   terrain = Lava  }
+
+endif()
+
+ifgametype(HERETIC)
+
+// Heretic terrains cause noise alerts
+terraindelta { name = Water;  splashalert = true }
+terraindelta { name = Lava;   splashalert = true }
+terraindelta { name = Sludge; splashalert = true }
+
+floor { flat = FLTWAWA1; terrain = Water  }
+floor { flat = FLTWAWA2; terrain = Water  }
+floor { flat = FLTWAWA3; terrain = Water  }
+floor { flat = FLTFLWW1; terrain = Water  }
+floor { flat = FLTFLWW2; terrain = Water  }
+floor { flat = FLTFLWW3; terrain = Water  }
+floor { flat = FLTLAVA1; terrain = Lava   }
+floor { flat = FLTLAVA2; terrain = Lava   }
+floor { flat = FLTLAVA3; terrain = Lava   }
+floor { flat = FLTLAVA4; terrain = Lava   }
+floor { flat = FLATHUH1; terrain = Lava   }
+floor { flat = FLATHUH2; terrain = Lava   }
+floor { flat = FLATHUH3; terrain = Lava   }
+floor { flat = FLATHUH4; terrain = Lava   }
+floor { flat = FLTSLUD1; terrain = Sludge }
+floor { flat = FLTSLUD2; terrain = Sludge }
+floor { flat = FLTSLUD3; terrain = Sludge }
+
+endif()
+

@@ -155,6 +155,7 @@ struct cfg_t
                                 * set if CFGF_TITLE flag is set */
    char *filename;         /**< Name of the file being parsed */
    int line;               /**< Line number in the config file */
+   int lumpnum;            /**< haleyjd: if a lump, this is its number */
    cfg_errfunc_t errfunc;  /**< This function (set with
                                 * cfg_set_error_function) is called for
                                 * any error message. */

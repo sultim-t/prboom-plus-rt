@@ -1,4 +1,4 @@
-# Default root EDF file for Eternity Engine v3.31 Delta
+# Default root EDF file for Eternity Engine v3.33.02
 #     This file can contain any definitions, but should remain limited to
 #     include statements for the purpose of organization.
 
@@ -8,3 +8,4 @@ include("frames.edf")
 include("things.edf")
 include("cast.edf")
 include("misc.edf")
+include("terrain.edf")

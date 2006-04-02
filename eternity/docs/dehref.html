@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine DeHackEd / BEX Reference v2.02 -- 08/04/04</h2>
+<h2>Eternity Engine DeHackEd / BEX Reference v2.05 -- 09/12/05</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -38,7 +38,7 @@
         <li><a href="#framesyntax">Syntax</a>
         <li><a href="#framefields">Fields</a>
         </ul>
-    <li><a href="#pointer">Pointer Block</a><font color="#00FF00"> (Deprecated)</font>
+    <li><a href="#pointer">Pointer Block</a><font color="#00FF00"><b> (Deprecated)</b></font>
         <ul>
         <li><a href="#ptrdesc">Description</a>
         <li><a href="#ptrsyntax">Syntax</a>
@@ -72,12 +72,12 @@
         <li><a href="#miscsyntax">Syntax</a>
         <li><a href="#miscfields">Fields</a>
         </ul>
-    <li><a href="#text">Text Block</a><font color="#00FF00"> (Deprecated)</font>
+    <li><a href="#text">Text Block</a><font color="#00FF00"><b> (Deprecated)</b></font>
         <ul>
         <li><a href="#textdesc">Description</a>
         <li><a href="#textsyntax">Syntax</a>
         </ul>   
-    <li><a href="#sprite">Sprite Block</a><font color="#FF0000"> (Obsolete)</font>
+    <li><a href="#sprite">Sprite Block</a><font color="#FF0000"><b> (Obsolete)</b></font>
         <ul>
         <li><a href="#spriteobs">Obsoletion Info</a>
         </ul>
@@ -141,9 +141,10 @@
 </a>
 
 <ul>
-<li> 8/04/04: Changed this section to a simple list of changes since the last version,
-     rather than a complete revision history. Added Bits3 flags INVULNCHARGE, EXPLOCOUNT,
-     and CANNOTPUSH.
+<li> 9/12/05: Added Bits3 flag 3DDECORATION
+<li> 6/17/05: Added Bits3 flag NOFRIENDDMG.
+<li> 5/26/05: Added Bits3 flags SPACMONSTER and SPACMISSILE.
+<li> 2/10/05: Added Bits3 flag TLSTYLEADD.
 </ul>       
 <a href="#contents">Return to Table of Contents</a>
 
@@ -160,7 +161,7 @@
 <hr width="50%" align="left">
 </a>
 <br>
-DeHackEd with BEX Extensions is a form of text script for modifying various aspects
+DeHackEd with BOOM Extensions (BEX) is a form of text script for modifying various aspects
 of the DOOM engine. Originally, DeHackEd patches were used by the DeHackEd program to
 modify the DOOM.EXE file itself. Now, modern source ports provide alternative methods
 of use.
@@ -179,7 +180,7 @@ support for substitution of sprite, sound, and music names.
 DeHackEd does NOT support the addition or deletion of any of these elements, however.
 It is limited to the number and order of entries as they exist in the source port.
 For information on how Eternity addresses this problem via the EDF system, see the
-<a href="edf_ref.html">EDF documentation</a>.
+<a href="edf_ref.html">EDF Documentation</a>.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -844,6 +845,20 @@ Notes on Bits2 values:
                              Counter 1 will be incremented at each explosion attempt.
                              
   CANNOTPUSH    0x00200000 - Thing cannot push things with the PUSHABLE flag.
+  
+  TLSTYLEADD    0x00400000 - Thing uses additive translucency style.
+  
+  SPACMONSTER   0x00800000 - Thing can activate parameterized line specials which bear
+                             the MONSTER activation flag.
+                             
+  SPACMISSILE   0x01000000 - Thing can activate parameterized line specials which bear
+                             the MISSILE activation flag.
+  
+  NOFRIENDDMG   0x02000000 - Thing will not be damaged by things with the FRIEND flag.
+  
+  3DDECORATION  0x04000000 - Thing is a decoration which, when 3D object clipping is
+                             active, will NOT use its corrected height, even if one
+                             is specified in its EDF thingtype definition.
   ------------------------------------------------------------------
 </pre>
 

@@ -95,7 +95,16 @@ CONSOLE_COMMAND(creator, 0)
                 Game variables
  *************************************************************************/
 
+//
+// NETCODE_FIXME: NETWORK VARIABLES
+//
+
 // player colour
+
+//
+// NETCODE_FIXME: See notes in d_net.c about the handling of player
+// colors. It needs serious refinement.
+//
 
 VARIABLE_INT(default_colour, NULL, 0, TRANSLATIONCOLOURS-1, colournames);
 CONSOLE_NETVAR(colour, default_colour, cf_handlerset, netcmd_colour)
@@ -117,6 +126,11 @@ CONSOLE_NETVAR(colour, default_colour, cf_handlerset, netcmd_colour)
 //VARIABLE_INT(deathmatch, NULL,                  0, 3, dmstr);
 //CONSOLE_NETVAR(deathmatch, deathmatch, cf_server, netcmd_deathmatch) {}
 
+//
+// NETCODE_FIXME: Changing gametype at run time could present problems
+// unless handled very carefully.
+//
+
 VARIABLE_INT(GameType, &DefaultGameType, gt_single, gt_dm, dmstr);
 CONSOLE_NETVAR(gametype, GameType, cf_server, netcmd_deathmatch)
 {
@@ -136,15 +150,27 @@ CONSOLE_NETVAR(skill, gameskill, cf_server, netcmd_skill)
 
 // allow mlook
 
-VARIABLE_BOOLEAN(allowmlook,NULL,                   onoff);
+VARIABLE_BOOLEAN(allowmlook, &default_allowmlook, onoff);
 CONSOLE_NETVAR(allowmlook, allowmlook, cf_server, netcmd_allowmlook) {}
 
 // bfg type
+
+//
+// NETCODE_FIXME: Each player should be able to have their own BFG
+// type. Changing this will also require propagated changes to the
+// weapon system.
+//
 
 VARIABLE_INT(bfgtype, &default_bfgtype,         0, 4, bfgtypestr);
 CONSOLE_NETVAR(bfgtype, bfgtype, cf_server, netcmd_bfgtype) {}
 
 // autoaiming 
+
+//
+// NETCODE_FIXME: Players should be able to have their own autoaim
+// settings. Changing this will also require propagated changes to 
+// the weapon system.
+//
 
 VARIABLE_BOOLEAN(autoaim, &default_autoaim,         onoff);
 CONSOLE_NETVAR(autoaim, autoaim, cf_server, netcmd_autoaim) {}
@@ -176,6 +202,10 @@ VARIABLE_INT(weapon_speed, &default_weapon_speed, 1, 200, NULL);
 CONSOLE_NETVAR(weapspeed, weapon_speed, cf_server, netcmd_weapspeed) {}
 
 // allow mlook with bfg
+
+//
+// NETCODE_FIXME: bfglook is currently a dead option.
+//
 
 char *str_bfglook[] = { "off", "on", "fixedgun" };
 VARIABLE_INT(bfglook,   NULL,                   0, 2, str_bfglook);

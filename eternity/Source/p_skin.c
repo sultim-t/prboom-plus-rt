@@ -26,6 +26,9 @@
 //
 // FIXME: rewrite needed for Heretic-specific stuff
 //
+// NETCODE_FIXME -- CONFIG_FIXME: Need to be able to save skin values more
+// effectively.
+//
 //--------------------------------------------------------------------------
 
 #include "z_zone.h"

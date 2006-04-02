@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2004 Steven McGranahan
+// Copyright(C) 2004 Stephen McGranahan
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -75,8 +75,9 @@ typedef struct rportal_s
    short bottom[MAX_SCREENWIDTH];
    int minx, maxx;
 
-   struct rportal_s *next, *child;
+   fixed_t  vx, vy, vz;
 
+   struct rportal_s *next, *child;
 } rportal_t;
 
 rportal_t *R_GetSkyBoxPortal(mobj_t *camera);
@@ -88,6 +89,9 @@ void R_PortalAdd(rportal_t *portal, int x, int ytop, int ybottom);
 
 void R_ClearPortals(void);
 void R_RenderPortals(void);
+
+// SoM 3/14/2004: flag if we are rendering portals.
+extern boolean portalrender;
 #endif
 
 //----------------------------------------------------------------------------

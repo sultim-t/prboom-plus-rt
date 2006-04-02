@@ -1,4 +1,4 @@
-# frames.edf - EDF file for Eternity Engine v3.31 Delta
+# frames.edf - EDF file for Eternity Engine v3.33.02
 #     Frames are used by player guns and mapthings to display sprites and to
 #     organize AI behavior. Frames may be defined elsewhere, and order is
 #     unimportant. User-defined frames should use DeHackEd numbers greater
@@ -6,8 +6,8 @@
 #     Eternity. See the EDF documentation for important information on the
 #     format of frame fields.
 
-#     COMPATIBILITY WARNING: All frames after frame #1075 (S_MUSHROOM) have NOT
-#     been standardized as of v3.31 Delta. These frames should not be used by 
+#     COMPATIBILITY WARNING: All frames after frame #1107 (S_LAVASMOKE5) have
+#     NOT been standardized as of v3.33.02. These frames should not be used by
 #     editors via EDF or DeHackEd until their order and existence have been 
 #     finalized and officially documented.
 
@@ -18,6 +18,8 @@ frame S_NULL { cmp = "TROO|*|*|-1"; dehackednum = 0 }
 #
 # DOOM Player Weapon Frames
 #
+
+# WARNING: DO NOT depend on these existing in Heretic.
 
 # S_LIGHTDONE: Returns light level to normal after a gun flash
 frame S_LIGHTDONE { cmp = "SHTG|4|*|0|Light0"; dehackednum = 1 }
@@ -189,6 +191,8 @@ frame S_BFGEXP4 { cmp = "BFE2|3|T|8"; dehackednum = 126 }
 
 endif()
 
+# Note: These frames are referenced by some MBF frames.
+
 # RocketShot explosion frames
 frame S_EXPLODE1 { cmp = "MISL|1|T|8|Explode|@next|pevt_rexpl"; dehackednum = 127 }
 frame S_EXPLODE2 { cmp = "MISL|2|T|6|*|@next"; dehackednum = 128 }
@@ -220,6 +224,8 @@ frame S_IFOG4  { cmp = "IFOG|3|T|6|*|@next"; dehackednum = 147 }
 frame S_IFOG5  { cmp = "IFOG|4|T|6"; dehackednum = 148 }
 
 endif()
+
+# WARNING: DO NOT depend on DoomPlayer being used or defined in Heretic.
 
 # DoomPlayer frames
 frame S_PLAY       { cmp = "PLAY| *|*|-1"; dehackednum = 149 }
@@ -1044,6 +1050,10 @@ frame S_SBOX  { cmp = "SBOX|*|*|-1"; dehackednum = 877 }
 
 endif()
 
+# Note: DoomPlayer references the Backpack type as a drop item for
+# Trideath mode. Since DoomPlayer is currently always defined, so
+# must Backpack always be defined. DO NOT depend on this behavior.
+
 # Backpack
 frame S_BPAK  { cmp = "BPAK|*|*|-1"; dehackednum = 878 }
 
@@ -1301,7 +1311,53 @@ frame S_MUSHROOM { cmp = "MISL|1|T|8|Mushroom|S_EXPLODE2"; dehackednum = 1075 }
 frame S_UNKNOWN { cmp = "UNKN|*|*|-1" }
 
 
-# WARNING: S_UNKNOWN is the last standardized frame as of EE v3.31 final.
+# Terrain Object Frames
+
+# Splash
+frame S_SPLASH1     { cmp = "SPSH|A|*| 8|*|@next"; dehackednum = 1076 }
+frame S_SPLASH2     { cmp = "SPSH|B|*| 8|*|@next"; dehackednum = 1077 }
+frame S_SPLASH3     { cmp = "SPSH|C|*| 8|*|@next"; dehackednum = 1078 }
+frame S_SPLASH4     { cmp = "SPSH|D|*|16";         dehackednum = 1079 }
+frame S_SPLASHX     { cmp = "SPSH|D|*|10";         dehackednum = 1080 }
+
+# Splash Base
+frame S_SPLASHBASE1 { cmp = "SPSH|E|*| 5|*|@next"; dehackednum = 1081 }
+frame S_SPLASHBASE2 { cmp = "SPSH|F|*| 5|*|@next"; dehackednum = 1082 }
+frame S_SPLASHBASE3 { cmp = "SPSH|G|*| 5|*|@next"; dehackednum = 1083 }
+frame S_SPLASHBASE4 { cmp = "SPSH|H|*| 5|*|@next"; dehackednum = 1084 }
+frame S_SPLASHBASE5 { cmp = "SPSH|I|*| 5|*|@next"; dehackednum = 1085 }
+frame S_SPLASHBASE6 { cmp = "SPSH|J|*| 5|*|@next"; dehackednum = 1086 }
+frame S_SPLASHBASE7 { cmp = "SPSH|K|*| 5";         dehackednum = 1087 }
+
+# Sludge
+frame S_SLUDGE1     { cmp = "SLDG|A|*| 8|*|@next"; dehackednum = 1088 }
+frame S_SLUDGE2     { cmp = "SLDG|B|*| 8|*|@next"; dehackednum = 1089 }
+frame S_SLUDGE3     { cmp = "SLDG|C|*| 8|*|@next"; dehackednum = 1090 }
+frame S_SLUDGE4     { cmp = "SLDG|D|*| 8";         dehackednum = 1091 }
+frame S_SLUDGEX     { cmp = "SLDG|D|*| 6";         dehackednum = 1092 }
+
+# Sludge Base
+frame S_SLUDGEBASE1 { cmp = "SLDG|E|*| 6|*|@next"; dehackednum = 1093 }
+frame S_SLUDGEBASE2 { cmp = "SLDG|F|*| 6|*|@next"; dehackednum = 1094 }
+frame S_SLUDGEBASE3 { cmp = "SLDG|G|*| 6|*|@next"; dehackednum = 1095 }
+frame S_SLUDGEBASE4 { cmp = "SLDG|H|*| 6";         dehackednum = 1096 }
+
+# Lava
+frame S_LAVASPLASH1 { cmp = "LVAS|A|T| 5|*|@next"; dehackednum = 1097 }
+frame S_LAVASPLASH2 { cmp = "LVAS|B|T| 5|*|@next"; dehackednum = 1098 }
+frame S_LAVASPLASH3 { cmp = "LVAS|C|T| 5|*|@next"; dehackednum = 1099 }
+frame S_LAVASPLASH4 { cmp = "LVAS|D|T| 5|*|@next"; dehackednum = 1100 }
+frame S_LAVASPLASH5 { cmp = "LVAS|E|T| 5|*|@next"; dehackednum = 1101 }
+frame S_LAVASPLASH6 { cmp = "LVAS|F|T| 5";         dehackednum = 1102 }
+
+# Lava Smoke
+frame S_LAVASMOKE1  { cmp = "LVAS|G|T| 5|*|@next"; dehackednum = 1103 }
+frame S_LAVASMOKE2  { cmp = "LVAS|H|T| 5|*|@next"; dehackednum = 1104 }
+frame S_LAVASMOKE3  { cmp = "LVAS|I|T| 5|*|@next"; dehackednum = 1105 }
+frame S_LAVASMOKE4  { cmp = "LVAS|J|T| 5|*|@next"; dehackednum = 1106 }
+frame S_LAVASMOKE5  { cmp = "LVAS|K|T| 5";         dehackednum = 1107 }
+
+# WARNING: S_LAVASMOKE5 is the last standardized frame as of EE v3.31 final.
 # Frames below here should not be directly used or edited by user mods yet!
 
 #
@@ -2134,27 +2190,7 @@ frame S_CBAL_X1 { sprite = CBAL; spriteframe = 2; fullbright = true; tics = 5; n
 frame S_CBAL_X2 { sprite = CBAL; spriteframe = 3; fullbright = true; tics = 5; nextframe = S_CBAL_X3; dehackednum = 1621 }
 frame S_CBAL_X3 { sprite = CBAL; spriteframe = 4; fullbright = true; tics = 5; nextframe = S_CBAL_X4; dehackednum = 1622 }
 frame S_CBAL_X4 { sprite = CBAL; spriteframe = 5; fullbright = true; tics = 5; dehackednum = 1623 }
-frame S_SPLASH1 { sprite = SPSH; tics = 8; nextframe = S_SPLASH2; dehackednum = 1624 }
-frame S_SPLASH2 { sprite = SPSH; spriteframe = 1; tics = 8; nextframe = S_SPLASH3; dehackednum = 1625 }
-frame S_SPLASH3 { sprite = SPSH; spriteframe = 2; tics = 8; nextframe = S_SPLASH4; dehackednum = 1626 }
-frame S_SPLASH4 { sprite = SPSH; spriteframe = 3; tics = 16; dehackednum = 1627 }
-frame S_SPLASHX { sprite = SPSH; spriteframe = 3; tics = 10; dehackednum = 1628 }
-frame S_SPLASHBASE1 { sprite = SPSH; spriteframe = 4; tics = 5; nextframe = S_SPLASHBASE2; dehackednum = 1629 }
-frame S_SPLASHBASE2 { sprite = SPSH; spriteframe = 5; tics = 5; nextframe = S_SPLASHBASE3; dehackednum = 1630 }
-frame S_SPLASHBASE3 { sprite = SPSH; spriteframe = 6; tics = 5; nextframe = S_SPLASHBASE4; dehackednum = 1631 }
-frame S_SPLASHBASE4 { sprite = SPSH; spriteframe = 7; tics = 5; nextframe = S_SPLASHBASE5; dehackednum = 1632 }
-frame S_SPLASHBASE5 { sprite = SPSH; spriteframe = 8; tics = 5; nextframe = S_SPLASHBASE6; dehackednum = 1633 }
-frame S_SPLASHBASE6 { sprite = SPSH; spriteframe = 9; tics = 5; nextframe = S_SPLASHBASE7; dehackednum = 1634 }
-frame S_SPLASHBASE7 { sprite = SPSH; spriteframe = 10; tics = 5; dehackednum = 1635 }
-frame S_SLUDGE1 { sprite = SLDG; tics = 8; nextframe = S_SLUDGE2; dehackednum = 1636 }
-frame S_SLUDGE2 { sprite = SLDG; spriteframe = 1; tics = 8; nextframe = S_SLUDGE3; dehackednum = 1637 }
-frame S_SLUDGE3 { sprite = SLDG; spriteframe = 2; tics = 8; nextframe = S_SLUDGE4; dehackednum = 1638 }
-frame S_SLUDGE4 { sprite = SLDG; spriteframe = 3; tics = 8; dehackednum = 1639 }
-frame S_SLUDGEX { sprite = SLDG; spriteframe = 3; tics = 6; dehackednum = 1640 }
-frame S_SLUDGEBASE1 { sprite = SLDG; spriteframe = 4; tics = 6; nextframe = S_SLUDGEBASE2; dehackednum = 1641 }
-frame S_SLUDGEBASE2 { sprite = SLDG; spriteframe = 5; tics = 6; nextframe = S_SLUDGEBASE3; dehackednum = 1642 }
-frame S_SLUDGEBASE3 { sprite = SLDG; spriteframe = 6; tics = 6; nextframe = S_SLUDGEBASE4; dehackednum = 1643 }
-frame S_SLUDGEBASE4 { sprite = SLDG; spriteframe = 7; tics = 6; dehackednum = 1644 }
+
 frame S_SPAWNFOG1 { sprite = TNT1; tics = 20; action = FogSpawn; nextframe = S_SPAWNFOG1; dehackednum = 1645 }
 frame S_FOGPATCHS1 { sprite = FOGS; tics = 7; action = FogMove; nextframe = S_FOGPATCHS2; dehackednum = 1646 }
 frame S_FOGPATCHS2 { sprite = FOGS; spriteframe = 1; tics = 7; action = FogMove; nextframe = S_FOGPATCHS3; dehackednum = 1647 }
@@ -2231,7 +2267,7 @@ frame S_DWARFPURPLEAURA3 { sprite = DWRF; spriteframe = 15; fullbright = true; t
 frame S_DWARFATK2 { sprite = DWRF; spriteframe = 2; tics = 4; action = DwarfFWAEMagic; nextframe = S_DWARFWALK1; dehackednum = 1718 }
 frame S_CYBERGUARD1 { tics = 10; action = CyberGuardSigh; nextframe = S_CYBERGUARD1; dehackednum = 1719 }
 frame S_CYBERGUARD2LOOK { tics = 10; action = Look; nextframe = S_CYBERGUARD2LOOK; dehackednum = 1720 }
-frame S_CYBERGUARD2SEE { tics = 20; action = CyberGuardWake; dehackednum = 1721 }
+frame S_CYBERGUARD2SEE { tics = 20; dehackednum = 1721 }
 frame S_ALTDWARFSTAND1 { sprite = FDWF; tics = 16; action = Look; nextframe = S_ALTDWARFSTAND2; dehackednum = 1722 }
 frame S_ALTDWARFSTAND2 { sprite = FDWF; spriteframe = 1; tics = 16; action = Look; nextframe = S_ALTDWARFSTAND1; dehackednum = 1723 }
 frame S_ALTDWARFWALK1 { sprite = FDWF; tics = 4; action = DwarfAlterEgoChase; nextframe = S_ALTDWARFWALK2; dehackednum = 1724 }
@@ -2254,22 +2290,4 @@ frame S_PHOENIXSHOTX2 { tics = 4; nextframe = S_PHOENIXSHOTX3; dehackednum = 174
 frame S_PHOENIXSHOTX3 { tics = 4; nextframe = S_PHOENIXSHOTX4; dehackednum = 1741 }
 frame S_PHOENIXSHOTX4 { tics = 4; nextframe = S_PHOENIXSHOTX5; dehackednum = 1742 }
 frame S_PHOENIXSHOTX5 { tics = 4; dehackednum = 1743 }
-frame S_AXEFALL1 { sprite = CAXE; tics = 6; action = AxePieceFall; nextframe = S_AXEFALL2; dehackednum = 1744 }
-frame S_AXEFALL2 { sprite = CAXE; spriteframe = 1; tics = 6; action = AxePieceFall; nextframe = S_AXEFALL3; dehackednum = 1745 }
-frame S_AXEFALL3 { sprite = CAXE; spriteframe = 2; tics = 6; action = AxePieceFall; nextframe = S_AXEFALL1; dehackednum = 1746 }
-frame S_AXEFALL4 { sprite = CAXE; spriteframe = 3; tics = -1; dehackednum = 1747 }
-frame S_STAFF_FALL1 { sprite = CSTF; tics = 6; action = AxePieceFall; nextframe = S_STAFF_FALL2; dehackednum = 1748 }
-frame S_STAFF_FALL2 { sprite = CSTF; spriteframe = 1; tics = 6; action = AxePieceFall; nextframe = S_STAFF_FALL1; dehackednum = 1749 }
-frame S_STAFF_FALL3 { sprite = CSTF; spriteframe = 2; tics = -1; dehackednum = 1750 }
-frame S_LAVASPLASH1 { sprite = LVAS; fullbright = true; tics = 5; nextframe = S_LAVASPLASH2; dehackednum = 1751 }
-frame S_LAVASPLASH2 { sprite = LVAS; spriteframe = 1; fullbright = true; tics = 5; nextframe = S_LAVASPLASH3; dehackednum = 1752 }
-frame S_LAVASPLASH3 { sprite = LVAS; spriteframe = 2; fullbright = true; tics = 5; nextframe = S_LAVASPLASH4; dehackednum = 1753 }
-frame S_LAVASPLASH4 { sprite = LVAS; spriteframe = 3; fullbright = true; tics = 5; nextframe = S_LAVASPLASH5; dehackednum = 1754 }
-frame S_LAVASPLASH5 { sprite = LVAS; spriteframe = 4; fullbright = true; tics = 5; nextframe = S_LAVASPLASH6; dehackednum = 1755 }
-frame S_LAVASPLASH6 { sprite = LVAS; spriteframe = 5; fullbright = true; tics = 5; dehackednum = 1756 }
-frame S_LAVASMOKE1 { sprite = LVAS; spriteframe = 6; fullbright = true; tics = 5; nextframe = S_LAVASMOKE2; dehackednum = 1757 }
-frame S_LAVASMOKE2 { sprite = LVAS; spriteframe = 7; fullbright = true; tics = 5; nextframe = S_LAVASMOKE3; dehackednum = 1758 }
-frame S_LAVASMOKE3 { sprite = LVAS; spriteframe = 8; fullbright = true; tics = 5; nextframe = S_LAVASMOKE4; dehackednum = 1759 }
-frame S_LAVASMOKE4 { sprite = LVAS; spriteframe = 9; fullbright = true; tics = 5; nextframe = S_LAVASMOKE5; dehackednum = 1760 }
-frame S_LAVASMOKE5 { sprite = LVAS; spriteframe = 10; fullbright = true; tics = 5; dehackednum = 1761 }
 

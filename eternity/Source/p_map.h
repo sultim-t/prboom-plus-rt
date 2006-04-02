@@ -43,6 +43,8 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff);
 
 // killough 8/9/98: extra argument for telefragging
 boolean P_TeleportMove(mobj_t *thing, fixed_t x, fixed_t y,boolean boss);
+// haleyjd 06/06/05: new function that won't stick the thing inside inert objects
+boolean P_TeleportMoveStrict(mobj_t *thing, fixed_t x, fixed_t y, boolean boss);
 void    P_SlideMove(mobj_t *mo);
 boolean P_CheckSight(mobj_t *t1, mobj_t *t2);
 void    P_UseLines(player_t *player);
@@ -55,7 +57,7 @@ void    P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage, int mod);
 boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y);
 
 //jff 3/19/98 P_CheckSector(): new routine to replace P_ChangeSector()
-boolean P_CheckSector(sector_t *sector, boolean crunch);
+boolean P_CheckSector(sector_t *sector, int crunch);
 void    P_DelSeclist(msecnode_t*);                          // phares 3/16/98
 void    P_FreeSecNodeList();    // sf
 void    P_CreateSecNodeList(mobj_t*,fixed_t,fixed_t);       // phares 3/14/98

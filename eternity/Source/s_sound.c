@@ -47,21 +47,8 @@ rcsid[] = "$Id: s_sound.c,v 1.11 1998/05/03 22:57:06 killough Exp $";
 #include "m_queue.h"
 #include "p_spec.h"
 
-// when to clip out sounds
-// Does not fit the large outdoor areas.
-#define S_CLIPPING_DIST (1200<<FRACBITS)
-
-// Distance to origin when sounds should be maxed out.
-// This should relate to movement clipping resolution
-// (see BLOCKMAP handling).
-// Originally: (200*0x10000).
-//
-// killough 12/98: restore original
-// #define S_CLOSE_DIST (160<<FRACBITS)
-
-#define S_CLOSE_DIST (200<<FRACBITS)
-
-#define S_ATTENUATOR ((S_CLIPPING_DIST-S_CLOSE_DIST)>>FRACBITS)
+// haleyjd 07/13/05: redefined to use sound-specific attenuation params
+#define S_ATTENUATOR ((sfx->clipping_dist - sfx->close_dist) >> FRACBITS)
 
 // Adjustable by menu.
 #define NORM_PITCH 128
@@ -150,16 +137,25 @@ static void S_StopChannel(int cnum)
     }
 }
 
-        //sf: listener now a camera_t for external cameras
+//
+// S_AdjustSoundParams
+//
+// Alters a playing sound's volume and stereo separation to account for
+// the position and angle of the listener relative to the source.
+//
+// sf: listener now a camera_t for external cameras
+// haleyjd: added sfx parameter for custom attenuation data
+//
 static int S_AdjustSoundParams(camera_t *listener, const mobj_t *source,
-				int *vol, int *sep, int *pitch)
+                               int *vol, int *sep, int *pitch, 
+                               sfxinfo_t *sfx)
 {
    fixed_t adx, ady, dist;
    angle_t angle;
 
-   // haleyjd 08/12/04: we cannot adjust a sound for a NULL listener!
-   // Why was this not crashing?
-   if(!listener)
+   // haleyjd 08/12/04: we cannot adjust a sound for a NULL listener.
+   // haleyjd 07/13/05: we cannot adjust a sound for a NULL source.
+   if(!listener || !source)
       return 1;
    
    // calculate the distance to sound origin
@@ -188,14 +184,16 @@ static int S_AdjustSoundParams(camera_t *listener, const mobj_t *source,
            R_PointInSubsector(listener->x, listener->y)->sector->special & SF_KILLSOUND)
       return 0;
 
-   if(!dist)  // killough 11/98: handle zero-distance as special case
+   // killough 11/98:   handle zero-distance as special case
+   // haleyjd 07/13/05: handle case of zero-or-less attenuation as well
+   if(!dist || S_ATTENUATOR <= 0)
    {
       *sep = NORM_SEP;
       *vol = snd_SfxVolume;
       return *vol > 0;
    }
 
-   if(dist > S_CLIPPING_DIST >> FRACBITS)
+   if(dist > sfx->clipping_dist >> FRACBITS)
       return 0;
 
    // angle of source to listener
@@ -206,15 +204,14 @@ static int S_AdjustSoundParams(camera_t *listener, const mobj_t *source,
    if(angle <= listener->angle)
       angle += 0xffffffff;
    angle -= listener->angle;
-   //  angle = -angle;       // sf: stereo fix
    angle >>= ANGLETOFINESHIFT;
 
    // stereo separation
    *sep = NORM_SEP - FixedMul(S_STEREO_SWING>>FRACBITS, finesine[angle]);
    
    // volume calculation
-   *vol = dist < S_CLOSE_DIST >> FRACBITS ? snd_SfxVolume :
-      snd_SfxVolume * ((S_CLIPPING_DIST>>FRACBITS)-dist) /
+   *vol = dist < sfx->close_dist >> FRACBITS ? snd_SfxVolume :
+      snd_SfxVolume * ((sfx->clipping_dist >> FRACBITS) - dist) /
       S_ATTENUATOR;
 
    return *vol > 0;
@@ -345,7 +342,7 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx)
    else
    {     
       // use an external cam?
-      if(!S_AdjustSoundParams(&playercam, origin, &volume, &sep, &pitch))
+      if(!S_AdjustSoundParams(&playercam, origin, &volume, &sep, &pitch, sfx))
          return;
       else if(origin->x == playercam.x && origin->y == playercam.y)
          sep = NORM_SEP;
@@ -368,16 +365,16 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx)
          pitch -= M_Random() & 31;
       }
 
-      if(pitch<0)
+      if(pitch < 0)
          pitch = 0;
       
-      if(pitch>255)
+      if(pitch > 255)
          pitch = 255;
    }
 
    // kill old sound
    // killough 12/98: replace is_pickup hack with singularity flag
-   for (cnum=0 ; cnum<numChannels ; cnum++)
+   for(cnum = 0; cnum < numChannels; ++cnum)
    {
       if(channels[cnum].sfxinfo &&
          channels[cnum].sfxinfo->singularity == sfx->singularity &&
@@ -391,7 +388,7 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx)
    // try to find a channel
    cnum = S_getChannel(origin, sfx);
    
-   if(cnum<0)
+   if(cnum < 0)
       return;
 
    while(sfx->link)
@@ -499,7 +496,7 @@ void S_UpdateSounds(const mobj_t *listener)
    }
 
    // now update each individual channel
-   for(cnum=0 ; cnum<numChannels ; cnum++)
+   for(cnum = 0; cnum < numChannels; ++cnum)
    {
       channel_t *c = &channels[cnum];
       sfxinfo_t *sfx = c->sfxinfo;
@@ -525,7 +522,7 @@ void S_UpdateSounds(const mobj_t *listener)
             {
                if(!S_AdjustSoundParams(listener ? &playercam : NULL,
                                        c->origin,
-                                       &volume, &sep, &pitch))
+                                       &volume, &sep, &pitch, sfx))
                   S_StopChannel(cnum);
                else
                   I_UpdateSoundParams(c->handle, volume, sep, pitch);
@@ -804,7 +801,7 @@ void S_Init(int sfxVolume, int musicVolume)
 
    if(!mus_card || nomusicparm)
       return;
-   
+
    S_SetMusicVolume(musicVolume);
    
    // no sounds are playing, and they are not mus_paused
@@ -862,10 +859,12 @@ typedef struct squeueitem_s
 } squeueitem_t;
 
 static mqueue_t defsndqueue;
+static boolean snd_queue_init = false;
 
-void S_InitDefSndQueue(void)
+static void S_InitDefSndQueue(void)
 {
    M_QueueInit(&defsndqueue);
+   snd_queue_init = true;
 }
 
 //
@@ -878,6 +877,9 @@ void S_InitDefSndQueue(void)
 void S_UpdateSoundDeferred(int lumpnum)
 {
    squeueitem_t *newsq;
+
+   if(!snd_queue_init)
+      S_InitDefSndQueue();
 
    newsq = malloc(sizeof(squeueitem_t));
    memset(newsq, 0, sizeof(squeueitem_t));
@@ -900,6 +902,7 @@ void S_ProcDeferredSounds(void)
 
    // free the queue
    M_QueueFree(&defsndqueue);
+   snd_queue_init = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1080,7 +1083,7 @@ static cell AMX_NATIVE_CALL sm_glblsoundnum(AMX *amx, cell *params)
 
 static cell AMX_NATIVE_CALL sm_sectorsound(AMX *amx, cell *params)
 {
-   int err, tag, tagtype;
+   int err, tag, secnum = -1;
    char *sndname;
 
    if(gamestate != GS_LEVEL)
@@ -1096,21 +1099,13 @@ static cell AMX_NATIVE_CALL sm_sectorsound(AMX *amx, cell *params)
    }
 
    tag = params[2];
-   tagtype = params[3];
 
-   if(!tagtype) // 0 == find sector by tag
+   while((secnum = P_FindSectorFromTag(tag, secnum)) >= 0)
    {
-      int secnum = -1;
-
-      while((secnum = P_FindSectorFromTag(tag, secnum)) >= 0)
-      {
-         sector_t *sector = &sectors[secnum];
-         
-         S_StartSoundName((mobj_t *)&sector->soundorg, sndname);
-      }
+      sector_t *sector = &sectors[secnum];
+      
+      S_StartSoundName((mobj_t *)&sector->soundorg, sndname);
    }
-
-   // TODO: find sector by ExtraData SID
 
    Z_Free(sndname);
 
@@ -1150,10 +1145,10 @@ static cell AMX_NATIVE_CALL sm_sectorsoundnum(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO sound_Natives[] =
 {
-   { "SoundGlobal",    sm_globalsound },
-   { "SoundGlobalNum", sm_glblsoundnum },
-   { "SectorSound",    sm_sectorsound },
-   { "SectorSoundNum", sm_sectorsoundnum },
+   { "_SoundGlobal",    sm_globalsound },
+   { "_SoundGlobalNum", sm_glblsoundnum },
+   { "_SectorSound",    sm_sectorsound },
+   { "_SectorSoundNum", sm_sectorsoundnum },
    { NULL, NULL }
 };
 

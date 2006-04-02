@@ -24,6 +24,16 @@
 //  Default Config File.
 //  PCX Screenshots.
 //
+// NETCODE_FIXME -- CONSOLE_FIXME -- CONFIG_FIXME:
+// All configuration file code is redundant with the console variable
+// system. These systems sorely need to be integrated so that configuration
+// comes from a console script instead of a separate file format. Need
+// to do this without breaking config-in-wad capability, or need to 
+// come up with some other easy way for projects to override defaults.
+// ALL archived console variables need to be adjusted to have defaults,
+// and a way to set their value without changing the default must be
+// added. See other CONSOLE_FIXME notes for more info.
+//
 //-----------------------------------------------------------------------------
 
 static const char
@@ -295,6 +305,13 @@ default_t defaults[] =
     &crosshairnum, NULL,
     0, {0,CROSSHAIRS}, dt_number, ss_gen, wad_yes,
     "0 - none, 1 - cross, 2 - angle"
+  },
+
+  {
+    "crosshair_hilite", // haleyjd 06/07/05
+    &crosshair_hilite, NULL,
+    0, {0, 1}, dt_number, ss_gen, wad_yes,
+    "0 - no highlighting, 1 - aim highlighting enabled"
   },
 
   {             // sf
@@ -729,6 +746,13 @@ default_t defaults[] =
     &default_comp[comp_overunder], &comp[comp_overunder],
     1, {0,1}, dt_number, ss_comp, wad_yes,
     "Things not fully clipped with respect to z coord"
+  },
+
+  {
+    "comp_theights",
+    &default_comp[comp_theights], &comp[comp_theights],
+    1, {0,1}, dt_number, ss_comp, wad_yes,
+    "DOOM thingtypes use inaccurate height information"
   },
 
   // For key bindings, the values stored in the key_* variables       // phares
@@ -1428,6 +1452,34 @@ default_t defaults[] =
     "1 to enable autoaiming"
   },
 
+  {
+    "chasecam_height",
+    &chasecam_height, NULL,
+    15, {-31, 100}, dt_number, ss_none, wad_no,
+    "preferred height of chasecam above/below player viewheight"
+  },
+
+  {
+    "chasecam_speed",
+    &chasecam_speed, NULL,
+    33, {1, 100}, dt_number, ss_none, wad_no,
+    "percentage of distance to target chasecam moves per gametic"
+  },
+
+  {
+    "chasecam_dist",
+    &chasecam_dist, NULL,
+    112, {10, 1024}, dt_number, ss_none, wad_no,
+    "preferred distance from chasecam to player"
+  },
+
+  {
+    "allowmlook",
+    &default_allowmlook, &allowmlook,
+    0, {0, 1}, dt_number, ss_none, wad_yes,
+    "1 to allow players to look up/down"
+  },
+
   {NULL}         // last entry
 };
 
@@ -1821,9 +1873,10 @@ void M_LoadDefaults (void)
 //
 // killough 9/98: rewritten to use stdio and to flash disk icon
 //
-boolean M_WriteFile(char const *name, void *source, int length)
+boolean M_WriteFile(char const *name, void *source, unsigned int length)
 {
    FILE *fp;
+   boolean result;
    
    errno = 0;
    
@@ -1831,14 +1884,14 @@ boolean M_WriteFile(char const *name, void *source, int length)
       return 0;                          // Could not open file for writing
    
    I_BeginRead();                       // Disk icon on
-   length = fwrite(source, 1, length, fp) == length;   // Write data
+   result = (fwrite(source, 1, length, fp) == length);   // Write data
    fclose(fp);
    I_EndRead();                         // Disk icon off
    
-   if(!length)                          // Remove partially written file
+   if(!result)                          // Remove partially written file
       remove(name);
    
-   return length;
+   return result;
 }
 
 //
@@ -1996,7 +2049,7 @@ typedef unsigned char ubyte_t;
 
 // SoM 6/5/02: Chu-Chu-Chu-Chu-Chu-Changes... heh
 #ifdef _MSC_VER
-#pragma pack(1)
+#pragma pack(push, 1)
 #endif
 
 typedef struct tagBITMAPFILEHEADER
@@ -2024,7 +2077,7 @@ typedef struct tagBITMAPINFOHEADER
 } __attribute__ ((packed)) BITMAPINFOHEADER;
 
 #ifdef _MSC_VER
-#pragma pack()
+#pragma pack(pop)
 #endif
 
 // jff 3/30/98 binary file write with error detection
@@ -2127,7 +2180,7 @@ boolean WriteBMPfile(char *filename, byte *data, int width,
       }
 
       for(i = 0; i < height; ++i)
-         SafeWrite(data + (height-1-i)*width, sizeof(byte), wid, st);
+         SafeWrite(data + (height-1-i)*width, sizeof(byte), (unsigned)wid, st);
 
       fclose(st);
    }
@@ -2151,7 +2204,7 @@ void M_ScreenShot (void)
    
    // haleyjd 05/23/02: corrected uses of access to use defined
    // constants rather than integers, some of which were not even
-   // correct under DJGPP to begin with (its a wonder it worked...)
+   // correct under DJGPP to begin with (it's a wonder it worked...)
    if(!access(".", W_OK))
    {
       static int shot;
@@ -2288,12 +2341,11 @@ char *M_Itoa(int value, char *string, int radix)
 // haleyjd: general file path name extraction
 void M_GetFilePath(const char *fn, char *base, size_t len)
 {
+   boolean found_slash = false;
    char *p;
 
    memset(base, 0, len);
 
-   // haleyjd 01/11/04: gads, this was writing one off the
-   // end of the array, messing up EDF file loading from GFS!
    p = base + len - 1;
 
    strncpy(base, fn, len);
@@ -2302,6 +2354,7 @@ void M_GetFilePath(const char *fn, char *base, size_t len)
    {
       if(*p == '/' || *p == '\\')
       {
+         found_slash = true; // mark that the path ended with a slash
          *p = '\0';
          break;
       }
@@ -2309,12 +2362,15 @@ void M_GetFilePath(const char *fn, char *base, size_t len)
       p--;
    }
 
-   // haleyjd: do not return "" when there is no directory,
-   // instead return "." for current working directory
-   if(*base == '\0')
+   // haleyjd: in the case that no slash was ever found, yet the
+   // path string is empty, we are dealing with a file local to the
+   // working directory. The proper path to return for such a string is
+   // not "", but ".", since the format strings add a slash now. When
+   // the string is empty but a slash WAS found, we really do want to
+   // return the empty string, since the path is relative to the root.
+   if(!found_slash && *base == '\0')
       *base = '.';
 }
-
 
 //----------------------------------------------------------------------------
 //

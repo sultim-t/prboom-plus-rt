@@ -91,9 +91,12 @@ void R_FillBackScreen(void);
 void R_DrawViewBorder(void);
 
 void R_DrawTLColumn(void);    // drawing translucent textures     // phares
+void R_DrawTLTlatedColumn(void); // haleyjd 02/08/05: need this too
 
 void R_DrawFlexTLColumn(void);     // haleyjd: zdoom style trans.
 void R_DrawFlexTlatedColumn(void); // haleyjd
+void R_DrawAddColumn(void);
+void R_DrawAddTlatedColumn(void);
 
 extern byte *tranmap;         // translucency filter maps 256x256  // phares 
 extern byte *main_tranmap;    // killough 4/11/98

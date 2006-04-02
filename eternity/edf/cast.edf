@@ -1,4 +1,4 @@
-# cast.edf - EDF file for Eternity Engine v3.31 Delta
+# cast.edf - EDF file for Eternity Engine v3.33.00
 #     DOOM II cast call information is stored here. Cast members can
 #     be defined elsewhere. If the castorder array is not defined, cast
 #     members will appear in the order they are defined. If a name

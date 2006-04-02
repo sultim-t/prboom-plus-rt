@@ -475,30 +475,32 @@ int EV_LightTurnOn(line_t *line, int bright)
 //
 // Turn sectors tagged to line lights on to specified or max neighbor level
 //
-// Passed the activating line, and a light level fraction between 0 and 1.
-// Sets the light to min on 0, max on 1, and interpolates in-between.
-// Used for doors with gradual lighting effects.
+// Passed the activating line's tag, and a light level fraction between 
+// 0 and 1. Sets the light to min on 0, max on 1, and interpolates in-
+// between. Used for doors with gradual lighting effects.
+//
+// haleyjd 02/28/05: changed to take a tag instead of a line.
 //
 // Returns true
-
-int EV_LightTurnOnPartway(line_t *line, fixed_t level)
+//
+int EV_LightTurnOnPartway(int tag, fixed_t level)
 {
    int i;
    
-   if (level < 0)          // clip at extremes 
+   if(level < 0)          // clip at extremes 
       level = 0;
-   if (level > FRACUNIT)
+   if(level > FRACUNIT)
       level = FRACUNIT;
    
    // search all sectors for ones with same tag as activating line
-   for(i = -1; (i = P_FindSectorFromLineTag(line,i)) >= 0;)
+   for(i = -1; (i = P_FindSectorFromTag(tag,i)) >= 0;)
    {
-      sector_t *temp, *sector = sectors+i;
+      sector_t *temp, *sector = sectors + i;
       int j, bright = 0, min = sector->lightlevel;
 
-      for(j = 0; j < sector->linecount; j++)
+      for(j = 0; j < sector->linecount; ++j)
       {
-         if((temp = getNextSector(sector->lines[j],sector)))
+         if((temp = getNextSector(sector->lines[j], sector)))
          {
             if(temp->lightlevel > bright)
                bright = temp->lightlevel;
@@ -508,7 +510,7 @@ int EV_LightTurnOnPartway(line_t *line, fixed_t level)
       }
 
       sector->lightlevel =   // Set level in-between extremes
-         (level * bright + (FRACUNIT-level) * min) >> FRACBITS;
+         (level * bright + (FRACUNIT - level) * min) >> FRACBITS;
    }
    return 1;
 }

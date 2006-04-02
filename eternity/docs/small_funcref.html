@@ -1,0 +1,2665 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="UltraEdit-32">
+<title>Eternity Engine Small Function Reference</title>
+</head>
+
+<body bgcolor="#CECECE">
+<hr>
+<b>Eternity Engine Small Function Reference v1.2 -- 09/12/05</b>
+<hr>
+<br>
+<a href="../etcengine.html">Return to the Eternity Engine Page</a>
+
+<ul>
+<li><a name="contents"><b>Table of Contents</b></a>
+    <ul>
+    <li><a href="#format">Format of the Reference</a>
+    <li><a href="#core">Core Small Functions</a>
+        <ul>
+        <li><a href="#heapspace">heapspace</a>
+        <li><a href="#funcidx">funcidx</a>
+        <li><a href="#numargs">numargs</a>
+        <li><a href="#getarg">getarg</a>
+        <li><a href="#setarg">setarg</a>
+        <li><a href="#strlen">strlen</a>
+        <li><a href="#strpack">strpack</a>
+        <li><a href="#strunpack">strunpack</a>
+        <li><a href="#tolower">tolower</a>
+        <li><a href="#toupper">toupper</a>
+        <li><a href="#swapchars">swapchars</a>
+        <li><a href="#min">min</a>
+        <li><a href="#max">max</a>
+        <li><a href="#clamp">clamp</a>
+        </ul>
+    <li><a href="#invoke">Invocation Functions</a>
+        <ul>
+        <li><a href="#_GetInvokeType">_GetInvokeType</a>
+        <li><a href="#_GetCcmdSrc">_GetCcmdSrc</a>
+        <li><a href="#_GetPlayerSrc">_GetPlayerSrc</a>
+        <li><a href="#_GetThingSrc">_GetThingSrc</a>
+        <li><a href="#_SetCallback">_SetCallback</a>
+        <li><a href="#_ExecGS">_ExecGS</a>
+        <li><a href="#_ExecLS">_ExecLS</a>
+        <li><a href="#_GetLevelVar">_GetLevelVar</a>
+        <li><a href="#_SetLevelVar">_SetLevelVar</a>
+        <li><a href="#_GetGameVar">_GetGameVar</a>
+        <li><a href="#_SetGameVar">_SetGameVar</a>
+        </ul>
+    <li><a href="#io">Input/Output</a>
+        <ul>
+        <li><a href="#_ConsolePrint">_ConsolePrint</a>
+        <li><a href="#_ConsoleHR">_ConsoleHR</a>
+        <li><a href="#_ConsoleBeep">_ConsoleBeep</a>
+        <li><a href="#_Itoa">_Itoa</a>
+        <li><a href="#_Printf">_Printf</a>
+        <li><a href="#_CenterMsgTimed">_CenterMsgTimed</a>
+        </ul>
+    <li><a href="#fixed">Fixed-Point Math Library</a>
+        <ul>
+        <li><a href="#_ffloat">_ffloat</a>
+        <li><a href="#_fmul">_fmul</a>
+        <li><a href="#_fdiv">_fdiv</a>
+        <li><a href="#_fabs">_fabs</a>
+        <li><a href="#fixed">fixed</a>
+        <li><a href="#_ffract">_ffract</a>
+        <li><a href="#_ffloor">_ffloor</a>
+        <li><a href="#_fceil">_fceil</a>
+        <li><a href="#_ftoi">_ftoi</a>
+        </ul>    
+    <li><a href="#random">Random Number Generators</a>
+        <ul>
+        <li><a href="#_P_Random">_P_Random</a>
+        <li><a href="#_M_Random">_M_Random</a>
+        </ul>
+    <li><a href="#hud">Heads-Up Display</a>
+        <ul>
+        <li><a href="#_NewPatchWidget">_NewPatchWidget</a>
+        <li><a href="#_SetWidgetPatch">_SetWidgetPatch</a>
+        <li><a href="#_PatchWidgetColor">_PatchWidgetColor</a>
+        <li><a href="#_NewTextWidget">_NewTextWidget</a>
+        <li><a href="#_GetWidgetText">_GetWidgetText</a>
+        <li><a href="#_SetWidgetText">_SetWidgetText</a>
+        <li><a href="#_ToggleWidget">_ToggleWidget</a>
+        <li><a href="#_MoveWidget">_MoveWidget</a>
+        </ul>    
+    <li><a href="#game">Game Functions</a>
+        <ul>
+        <li><a href="#_ExitLevel">_ExitLevel</a>
+        <li><a href="#_ExitSecret">_ExitSecret</a>
+        <li><a href="#_StartGame">_StartGame</a>
+        <li><a href="#_GameSkill">_GameSkill</a>
+        <li><a href="#_GameType">_GameType</a>
+        <li><a href="#_EngineVersion">_EngineVersion</a>
+        <li><a href="#_GetPlayerName">_GetPlayerName</a>
+        </ul>
+    <li><a href="#things">Mapthings</a>
+        <ul>
+        <li><a href="#_ThingKill">_ThingKill</a>
+        <li><a href="#_ThingHurt">_ThingHurt</a>
+        <li><a href="#_ThingMassacre">_ThingMassacre</a>
+        <li><a href="#_ThingHate">_ThingHate</a>
+        <li><a href="#_ThingNumForName">_ThingNumForName</a>
+        <li><a href="#_ThingNumForDEHNum">_ThingNumForDEHNum</a>
+        <li><a href="#_ThingUnknown">_ThingUnknown</a>
+        <li><a href="#_ThingCheckType">_ThingCheckType</a>
+        <li><a href="#_ThingSpawn">_ThingSpawn</a>
+        <li><a href="#_ThingSpawnSpot">_ThingSpawnSpot</a>
+        <li><a href="#_ThingGetProperty">_ThingGetProperty</a>
+        <li><a href="#_ThingSetProperty">_ThingSetProperty</a>
+        <li><a href="#_ThingFlagsFromStr">_ThingFlagsFromStr</a>
+        </ul>
+    <li><a href="#sound">Sounds</a>
+        <ul>
+        <li><a href="#_SoundGlobal">_SoundGlobal</a>
+        <li><a href="#_SoundGlobalNum">_SoundGlobalNum</a>
+        <li><a href="#_SectorSound">_SectorSound</a>
+        <li><a href="#_SectorSoundNum">_SectorSoundNum</a>
+        <li><a href="#_ThingSound">_ThingSound</a>
+        <li><a href="#_ThingSoundNum">_ThingSoundNum</a>
+        <li><a href="#_ThingInfoSound">_ThingInfoSound</a>
+        </ul>
+    <li><a href="#particles">Particles</a>
+        <ul>
+        <li><a href="#_PtclExplosionPos">_PtclExplosionPos</a>
+        <li><a href="#_PtclExplosionThing">_PtclExplosionThing</a>
+        </ul>
+    <li><a href="#sectors">Sectors</a>
+        <ul>
+        <li><a href="#_SectorSpecial">_SectorSpecial</a>
+        <li><a href="#_SectorColormap">_SectorColormap</a>
+        </ul>
+    <li><a href="#paramspecs">Parameterized Line Specials</a>
+        <ul>
+        <li><a href="#_SpecialMode">_SpecialMode</a>
+        <li><a href="#_Door_Raise">_Door_Raise</a>
+        <li><a href="#_Door_Open">_Door_Open</a>
+        <li><a href="#_Door_Close">_Door_Close</a>
+        <li><a href="#_Door_CloseWaitOpen">_Door_CloseWaitOpen</a>
+        <li><a href="#_Door_WaitRaise">_Door_WaitRaise</a>
+        <li><a href="#_Door_WaitClose">_Door_WaitClose</a>
+        <li><a href="#_Floor_RaiseToHighest">_Floor_RaiseToHighest</a>
+        <li><a href="#_Floor_LowerToHighest">_Floor_LowerToHighest</a>
+        <li><a href="#_Floor_RaiseToLowest">_Floor_RaiseToLowest</a>
+        <li><a href="#_Floor_LowerToLowest">_Floor_LowerToLowest</a>
+        <li><a href="#_Floor_RaiseToNearest">_Floor_RaiseToNearest</a>
+        <li><a href="#_Floor_LowerToNearest">_Floor_LowerToNearest</a>
+        <li><a href="#_Floor_RaiseToLowestCeiling">_Floor_RaiseToLowestCeiling</a>
+        <li><a href="#_Floor_LowerToLowestCeiling">_Floor_LowerToLowestCeiling</a>
+        <li><a href="#_Floor_RaiseToCeiling">_Floor_RaiseToCeiling</a>
+        <li><a href="#_Floor_RaiseByTexture">_Floor_RaiseByTexture</a>
+        <li><a href="#_Floor_LowerByTexture">_Floor_LowerByTexture</a>
+        <li><a href="#_Floor_RaiseByValue">_Floor_RaiseByValue</a>
+        <li><a href="#_Floor_LowerByValue">_Floor_LowerByValue</a>
+        <li><a href="#_Floor_MoveToValue">_Floor_MoveToValue</a>
+        <li><a href="#_Floor_RaiseInstant">_Floor_RaiseInstant</a>
+        <li><a href="#_Floor_LowerInstant">_Floor_LowerInstant</a>
+        </ul>
+    <li><a href="#cameras">Cameras</a>
+        <ul>
+        <li><a href="#_ToggleChasecam">_ToggleChasecam</a>
+        <li><a href="#_IsChasecamOn">_IsChasecamOn</a>
+        </ul>
+    <li><a href="#specials">Special Functions</a>
+        <ul>
+        <li><a href="#_ForceLightning">_ForceLightning</a>
+        </ul>
+    </ul>
+</ul>
+
+<p>
+<a name="format">
+<hr>
+<b>Format of the Reference</b>
+<hr>
+</a>
+<br>
+Here is a brief example and explanation of the entries in this reference:
+
+<ul>
+<li><b>Function Name</b><br>
+    <em>Small Language Declaration</em><br>
+    Parameter Explanation<br>
+    Return Value<br>
+    Found In<br>
+    Description<br>
+    Exceptions<br>
+</ul>
+
+The <b>Function Name</b> is the name of the function, by which it is called in a script
+and can be found in this reference. Below the name is the exact declaration of the function
+in Small along with a brief explanation of each parameter to the function and its return
+value. Below this is the header file in which the declaration can be found, and then a 
+description with additional, verbose information about how to use the function. Finally, if
+the function can cause any exceptions, the types of errors will be explained.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="core">
+<hr>
+<b>Core Small Functions</b>
+<hr>
+</a>
+<br>
+These functions are specified and provided by the Small interpreter, and provide some basic
+facilities for using the language and the interpreter. Note that not all functions suggested
+by the Small specification are supported by Eternity, so only supported functions are
+documented here.
+
+<ul>
+<li><a name="heapspace"><b>heapspace</b></a><br>
+    <em>native heapspace();</em><br>
+    Parameters: None<br>
+    Return value: Number of cells available on the interpreter's heap.<br>
+    Found in: core.inc<br>
+    Description: This function allows the user to query the amount of heap memory that
+    is available to the interpreter in which the current script is running. This is not
+    yet useful for anything within the Eternity environment.
+    <br><br>
+    
+<li><a name="funcidx"><b>funcidx</b></a><br>
+    <em>native funcidx(const name[]);</em><br>
+    Parameters:
+    <ul>
+    <li>const name[] : Name of a public function found in the current script
+    </ul>
+    Return value: Internal index number of the function.<br>
+    Found in: core.inc<br>
+    Description: This function returns the internal index of a public Small function. This 
+    is not yet useful for anything within the Eternity environment.<br>
+    Exceptions:
+    <ul>
+    <li> "Native function failed" : The value in name cannot be used as a function name.
+    </ul>
+    <br>
+    
+<li><a name="numargs"><b>numargs</b></a><br>
+    <em>native numargs();</em><br>
+    Parameters: None<br>
+    Return value: Number of arguments with which the function was invoked.<br>
+    Found in: core.inc<br>
+    Description: This function allows the user to test how many arguments a function was
+    invoked with. This is useful when using functions which accept a variable number of
+    arguments by using the "..." syntax (see the Small Language Reference for full
+    information).
+    <br><br>
+    
+<li><a name="getarg"><b>getarg</b></a><br>
+    <em>native getarg(arg, index = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> arg : Argument sequence number. The first argument to the function is argument zero.
+    <li> index : When the argument specified by 'arg' is an array, this parameter specifies
+         an index into that array.
+    </ul>
+    Return value: Value of the specified argument (and for arrays, at the given index).<br>
+    Found in: core.inc<br>
+    Description: This function allows a script that takes a variable number of arguments
+    to access the values which were passed to the script. As with all other indexing in
+    Small, the first argument is considered to be #0, not #1. The second argument, which is
+    optional, is used as an array index when a function takes arrays as parameters.
+    <br><br>
+    
+<li><a name="setarg"><b>setarg</b></a><br>
+    <em>native setarg(arg, index = 0, value);</em><br>
+    Parameters:
+    <ul>
+    <li> arg : Argument sequence number. The first argument to the function is argument zero.
+    <li> index : When the argument specified by 'arg' is an array, this parameter specifies
+         an index into that array.
+    <li> value : The value to put into the specified argument.
+    </ul>
+    Return value: 'true' if the argument and index are valid, 'false' otherwise.<br>
+    Found in: core.inc<br>
+    Description: Sets the value of the specified argument for variable-argument functions.
+    <br><br>
+    
+<li><a name="strlen"><b>strlen</b></a><br>
+    <em>native strlen(const string[]);</em><br>
+    Parameters:
+    <ul>
+    <li> const string[] : A string array.
+    </ul>
+    Return value: Length of the given string in number of characters (not cells).<br>
+    Found in: core.inc<br>
+    Description: Returns the length of a string array. This function works on both
+    packed and unpacked Small strings, and returns the number of characters in either case.
+    <br><br>
+    
+<li><a name="strpack"><b>strpack</b></a><br>
+    <em>native strpack(dest[], const source[]);</em><br>
+    Parameters:
+    <ul>
+    <li> dest[] : The destination string array.
+    <li> const source[] : The source string array.
+    </ul>
+    Return value: None.<br>
+    Found in: core.inc<br>
+    Description: Copies the string in source to dest as a packed string. The source string
+    may be either packed or unpacked. dest[] must be large enough to hold the output (use
+    strlen to determine the required size).<br>
+    Exceptions:
+    <ul>
+    <li> "Parameter error" : dest or source is not a valid string array.
+    </ul>
+    <br>
+    
+<li><a name="strunpack"><b>strunpack</b></a><br>
+    <em>native strunpack(dest[], const source[]);</em><br>
+    Parameters:
+    <ul>
+    <li> dest[] : The destination string array.
+    <li> const source[] : The source string array.
+    </ul>
+    Return value: None.<br>
+    Found in: core.inc<br>
+    Description: Copies the string in source to dest as an unpacked string. The source
+    string may be either packed or unpacked. dest[] must be large enough to hold the output
+    (use strlen to determine the required size).<br>
+    Exceptions:
+    <ul>
+    <li> "Parameter error" : dest or source is not a valid string array.
+    </ul>
+    <br>
+    
+<li><a name="tolower"><b>tolower</b></a><br>
+    <em>native tolower(c);</em><br>
+    Parameters:
+    <ul>
+    <li> c : Character value to convert.
+    </ul>
+    Return value: The lower-case equivalent of the character c.<br>
+    Found in: core.inc
+    <br><br>
+    
+<li><a name="toupper"><b>toupper</b></a><br>
+    <em>native toupper(c);</em><br>
+    Parameters:
+    <ul>
+    <li> c : Character value to convert.
+    </ul>
+    Return value: The upper-case equivalent of the character c.<br>
+    Found in: core.inc
+    <br><br>
+    
+<li><a name="swapchars"><b>swapchars</b></a><br>
+    <em>native swapchars(c);</em><br>
+    Parameters:
+    <ul>
+    <li> c : Cell value to swap.
+    </ul>
+    Return value: See below.<br>
+    Found in: core.inc<br>
+    Description: Returns the value c with all bytes in the cell swapped.
+    <br><br>
+    
+<li><a name="min"><b>min</b></a><br>
+    <em>native min(value1, value2);</em><br>
+    Parameters:
+    <ul>
+    <li> value1 : A numeric value.
+    <li> value2 : A numeric value.
+    </ul>
+    Return value: Returns the parameter which has the least value.<br>
+    Found in: core.inc
+    <br><br>
+    
+<li><a name="max"><b>max</b></a><br>
+    <em>native max(value1, value2);</em><br>
+    Parameters:
+    <ul>
+    <li> value1 : A numeric value.
+    <li> value2 : A numeric value.
+    </ul>
+    Return value: Returns the parameter which has the greatest value.<br>
+    Found in: core.inc
+    <br><br>
+    
+<li><a name="clamp"><b>clamp</b></a><br>
+    <em>native clamp(value, min = cellmin, max = cellmax);</em><br>
+    Parameters:
+    <ul>
+    <li> value : The numeric value to clamp.
+    <li> min : A numeric value representing the low end of the range.
+    <li> max : A numeric value representing the upper end of the range.
+    </ul>
+    Return value: See below.<br>
+    Found in: core.inc<br>
+    Description: If 'value' is between the values 'min' and 'max', the value will be
+    returned. Otherwise, if 'value' is less than 'min', 'min' will be returned, and if
+    'value' is greater than 'max', 'max' will be returned.<br>
+    Exceptions:
+    <ul>
+    <li> "Native function failed" : The value of 'min' is greater than the value of 'max'.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="invoke">
+<hr>
+<b>Invocation Functions</b>
+<hr>
+</a>
+<br>
+Invocation functions allow scripts to be started and for special information to be retrieved
+from within scripts. Understanding invocation models is important for using Small, as many
+functions can only be used when a script is started under a certain model.
+<br><br>
+Currently supported invocation model types can be found in the <b>invoke.inc</b> file, and
+include the following:
+<pre>
+ _INVOKE_NONE     : No special invocation data is available.
+ _INVOKE_CCMD     : Script was started via console command.
+ _INVOKE_THING    : Script was started by the StartScript codepointer.
+ _INVOKE_PLAYER   : Script was started by the StartPlayerScript codepointer.
+ _INVOKE_LINE     : Script was started by a script linedef.
+ _INVOKE_TERRAIN  : Reserved for future use.
+ _INVOKE_CALLBACK : Script was scheduled as a callback or started by the game engine.
+ _INVOKE_SPECIAL  : Reserved for future use.
+ _INVOKE_DIALOGUE : Reserved for future use.
+</pre>
+
+<ul>
+<li><a name="_GetInvokeType"><b>_GetInvokeType</b></a><br>
+    <em>native _invoketypes:_GetInvokeType();</em><br>
+    Parameters: None.<br>
+    Return value: The invocation type for the current script.<br>
+    Found in: invoke.inc<br>
+    Description: Returns the current invocation type. Any time the game engine starts a
+    script, or a script starts another one indirectly, the invocation type and various
+    invocation data will be set, and can be retrieved from any function called during the
+    execution of the script. However, once the script ends, the invocation data is lost, thus
+    if any of it is needed later, it must be saved in static or global variables. This function
+    can be used to test the invocation model before running any function which requires a 
+    certain model to be active, and can therefore allow you to avoid any invocation-related 
+    errors.
+    <br><br>
+    
+<li><a name="_GetCcmdSrc"><b>_GetCcmdSrc</b></a><br>
+    <em>native _GetCcmdSrc();</em><br>
+    Parameters: None.<br>
+    Return value: Player number from 1 to 4 representing source of command.<br>
+    Found in: invoke.inc<br>
+    Description: When a script is started by a console command (invocation type is
+    _INVOKE_CCMD), this function can be used to find out which player started the command.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad invocation model for native function" : Invocation type is not _INVOKE_CCMD.
+    </ul>
+    <br>
+    
+<li><a name="_GetPlayerSrc"><b>_GetPlayerSrc</b></a><br>
+    <em>native _GetPlayerSrc();</em><br>
+    Parameters: None.<br>
+    Return value: Player number from 1 to 4 representing player involved in starting script.<br>
+    Found in: invoke.inc<br>
+    Description: If the invocation type is _INVOKE_CCMD, _INVOKE_PLAYER, or _INVOKE_DIALOGUE,
+    the number of the player who started the script will be returned in all cases. If the
+    invocation type is _INVOKE_THING, _INVOKE_LINE, or _INVOKE_TERRAIN, if a player object 
+    started the script, the player number will be returned, but if a non-player object started 
+    it, the value -1 will be returned instead. This can be used to tell if a player or a monster
+    or other thing started a script.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad invocation model for native function" : Invocation type is not _INVOKE_CCMD,
+         _INVOKE_PLAYER, _INVOKE_DIALOGUE, _INVOKE_THING, _INVOKE_LINE, or _INVOKE_TERRAIN.
+    </ul>
+    <br>
+
+<li><a name="_GetThingSrc"><b>_GetThingSrc</b></a><br>
+    <em>native _GetThingSrc();</em><br>
+    Parameters: None.<br>
+    Return value: Several possible values. See below.<br>
+    Found in: invoke.inc<br>
+    Description: This function works under any invocation model. If the current script has
+    a trigger object, one of the following values will be returned:
+    <ol>
+    <li> If the object is a player, one of _TID_PLAYER1 through _TID_PLAYER4 will be returned.
+    <li> If the object has its own unique TID, that TID will be returned.
+    <li> If the object does not have a unique TID, _TID_TRIGGER will be returned. 
+         _TID_TRIGGER is the only way to manipulate objects which do not possess a unique 
+         TID.
+    </ol>
+    If there is no trigger object for the current script, zero will be returned. This can be
+    used to test for the presence of a trigger object before using Thing functions with
+    _TID_TRIGGER. While those functions will not cause errors when used with _TID_TRIGGER and 
+    there is no trigger object, it may often be better to know beforehand.
+    <br><br>
+    
+<li><a name="_SetCallback"><b>_SetCallback</b></a><br>
+    <em>native _SetCallback(const name[], _waittypes:waittype = _SWAIT_NONE, waitdata = 0, flags = _CB_PAUSABLE | _CB_MPAUSE);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Name of the function to execute as a callback script.
+    <li> _waittypes:waittype : One of the following enumeration values:
+         <ul>
+         <li> _SWAIT_NONE
+         <li> _SWAIT_DELAY
+         <li> _SWAIT_TAG
+         </ul>
+    <li> waitdata : Special data for callback
+    <li> flags : A value which can accept bitwise-OR combinations of the following values:
+         <ul>
+         <li> _CB_PAUSABLE - Callback will pause when the game is paused
+         <li> _CB_MPAUSE - Callback will pause in single-player games when a menu is active
+         </ul>
+         The _CB_PAUSABLE and _CB_MPAUSE flags will be set if this parameter is allowed
+         to default, as the majority of callbacks will be required to pause.
+    </ul>
+    Return value: None.<br>
+    Found in: invoke.inc<br>
+    Description: Schedules a function for execution as a callback script. Callbacks take
+    the place of waiting scripts in FraggleScript and delayed scripts in ACS. Rather than
+    suspend the execution of the current function, this allows you to execute a function later
+    when a specified event takes place.<br>
+    If 'waittype' is _SWAIT_NONE, the callback will execute immediately on the next gametic.<br>
+    If 'waittype' is _SWAIT_DELAY, then the callback will execute after the number of gametics
+    given in 'waitdata' has elapsed (35 gametics equals one second).<br>
+    If 'waittype' is _SWAIT_TAG, the callback will execute when all sectors with the tag given
+    in 'waitdata' have no actions taking place on them (this includes floor, ceiling, and
+    lighting actions).<br>
+    To create a continuously executing callback (a timer for example), simply reregister
+    the callback function as a callback within the function itself. Unless reregistered,
+    callbacks will execute only once. The callback lists for both VMs are saved in save games,
+    and will thus be restored when the game is loaded. Levelscript callbacks will be cleared
+    automatically when a level is exited.<br>
+    The optional flags parameter can be used to specify extended callback behaviors. The
+    _CB_PAUSABLE and _CB_MPAUSE flags are used to make a callback wait indefinitely while
+    the game is paused or menus are up (in non-network games only). Normal callbacks' wait
+    conditions will expire even while the game is paused, which is not appropriate for all
+    scripts. Flag values are combined using the bitwise OR operator, '|'.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public function.
+    <li> "Unknown wait type" : Wait type value is invalid.
+    </ul>
+    <br>
+    
+<li><a name="_ExecGS"><b>_ExecGS</b></a><br>
+    <em>native _ExecGS(const name[], ...);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Name of a public function in the Gamescript VM.
+    <li> ... : Parameters to pass to the indicated script.
+    </ul>
+    Return value: Return value of the executed function.<br>
+    Found in: invoke.inc<br>
+    Description: This function allows Gamescript functions to be executed from within
+    functions inside the Levelscript. This function cannot be called from within the Gamescript
+    VM.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public function.
+    <li> "Unknown or uninitialized VM" : No Gamescript is loaded.
+    </ul>
+    <br>
+    
+<li><a name="_ExecLS"><b>_ExecLS</b></a><br>
+    <em>native _ExecLS(const name[], ...);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Name of a public function in the Levelscript VM.
+    <li> ... : Parameters to pass to the indicated script.
+    </ul>
+    Return value: Return value of the executed function.<br>
+    Found in: invoke.inc<br>
+    Description: This function allows Levelscript functions to be executed from within
+    functions inside the Gamescript. This function cannot be called from within the Levelscript
+    VM.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public function.
+    <li> "Unknown or uninitialized VM" : No Levelscript is loaded.
+    </ul>
+    <br>
+    
+<li><a name="_GetLevelVar"><b>_GetLevelVar</b></a><br>
+    <em>native _GetLevelVar(const name[]);</em><br>
+    Parameters:
+    <ul>
+    <li> name[] : Name of a public variable in the Levelscript VM.
+    </ul>
+    Return value: Value of the indicated public variable.<br>
+    Found in: invoke.inc<br>
+    Description: This function allows read access to public variables within the Levelscript
+    VM from anywhere.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public variable.
+    <li> "Unknown or uninitialized VM" : No Levelscript is loaded.
+    </ul>
+    <br>
+
+<li><a name="_SetLevelVar"><b>_SetLevelVar</b></a><br>
+    <em>native _SetLevelVar(const name[], value);</em><br>
+    Parameters:
+    <ul>
+    <li> name[] : Name of a public variable in the Levelscript VM.
+    <li> value : New value to give the public variable.
+    </ul>
+    Return value: New value of the indicated public variable.<br>
+    Found in: invoke.inc<br>
+    Description: This function allows write access to public variables within the Levelscript
+    VM from anywhere.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public variable.
+    <li> "Unknown or uninitialized VM" : No Levelscript is loaded.
+    </ul>
+    <br>
+
+<li><a name="_GetGameVar"><b>_GetGameVar</b></a><br>
+    <em>native _GetGameVar(const name[]);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Name of a public variable in the Gamescript VM.
+    </ul>
+    Return value: Value of the indicated public variable.<br>
+    Found in: invoke.inc<br>
+    Description: This function allows read access to public variables within the Gamescript
+    VM from anywhere.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public variable.
+    <li> "Unknown or uninitialized VM" : No Gamescript is loaded.
+    </ul>
+    <br>
+
+<li><a name="_SetGameVar"><b>_SetGameVar</b></a><br>
+    <em>native _SetGameVar(const name[], value);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Name of a public variable in the Gamescript VM.
+    <li> value : New value to give the public variable.
+    </ul>
+    Return value: New value of the indicated public variable.<br>
+    Found in: invoke.inc<br>
+    Description: This function allows write access to public variables within the Gamescript
+    VM from anywhere.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Native/Public function is not found" : name[] is not a valid public variable.
+    <li> "Unknown or uninitialized VM" : No Gamescript is loaded.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="io">
+<hr>
+<b>Input/Output</b>
+<hr>
+</a>
+<br>
+Input/Output functions allow the user to manipulate and print string values.
+
+<ul>
+<li><a name="_ConsolePrint"><b>_ConsolePrint</b></a><br>
+    <em>native _ConsolePrint(const string[], ...);</em><br>
+    Parameters:
+    <ul>
+    <li> const string[] : First part of message.
+    <li> ... : Optional additional strings to concatenate to 'string[]'.
+    </ul>
+    Return value: None.<br>
+    Found in: io.inc<br>
+    Description: Concatenates all strings passed to the function into a single message which
+    will then be printed to the console. Only string arrays may be passed to this function,
+    and no special formatting will be performed. The '\a' character escape can be used to
+    make this message cause a sound which will alert the user to look at the console.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : An invalid string array was provided.
+    </ul>
+    <br>
+
+<li><a name="_ConsoleHR"><b>_ConsoleHR</b></a><br>
+    <em>native _ConsoleHR();</em><br>
+    Parameters: None.<br>
+    Return value:  None.<br>
+    Found in: io.inc<br>
+    Description: Prints a &lt;HR&gt;-style divider bar of default length to the console.
+    This can also be achieved by using ConsolePrint with the string "{||}", using the
+    appropriate number of pipe characters, but this function is available as a convenience.
+    <br><br>
+    
+<li><a name="_ConsoleBeep"><b>_ConsoleBeep</b></a><br>
+    <em>native _ConsoleBeep();</em><br>
+    Parameters: None.<br>
+    Return value: None.<br>
+    Found in: io.inc<br>
+    Description: Causes the console to emit its standard, gamemode-dependent warning sound.
+    This can also be achieved by using ConsolePrint and the '\a' character escape, but this
+    function is available as a convenience.
+    <br><br>
+    
+<li><a name="_Itoa"><b>_Itoa</b></a><br>
+    <em>native _Itoa(number, string[], base, bool:packed);</em><br>
+    Parameters:
+    <ul>
+    <li> number : The number to convert.
+    <li> string[] : String array of minimum length 33 into which results will be placed.
+    <li> base : Number between 2 and 36; base into which number will be converted
+    <li> bool:packed : If true, string[] is packed, otherwise it is unpacked.
+    </ul>
+    Return value: None.<br>
+    Found in: io.inc<br>
+    Description: Converts the given number into a string representation in the requested
+    numeric base. Base 10 is the normal representation for human-readable numbers. Other
+    common bases are 2 (binary), 8 (octal), and 16 (hexadecimal). The string array provided
+    to this function should be at least 33 characters long, otherwise an error may occur.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : string[] is not a valid string array.
+    </ul>
+    <br>
+    
+<li><a name="_Printf"><b>_Printf</b></a><br>
+    <em>native _Printf(_msgtypes:msgtype, const format[], ...);</em><br>
+    Parameters:
+    <ul>
+    <li> msgtypes:msgtype : One of the following enumeration values:
+         <ul>
+         <li> _MSG_CONSOLE
+         <li> _MSG_NORMAL
+         <li> _MSG_CENTER
+         </ul>
+    <li> const format[] : Format string.
+    <li> ... : Values to be inserted into the message as formatted strings.
+    </ul>
+    Return value: None.<br>
+    Found in: io.inc<br>
+    Description: This function can print formatted messages to all available outputs, currently
+    including the console, the normal player message widget, and the centered message widget.
+    The format string contains any normal parts of the message, as well as the following
+    special formatting sequences:
+    <ul>
+    <li> %% : Inserts a literal % character.
+    <li> %c : Inserts the corresponding extra parameter as a character value.
+    <li> %s : Inserts the corresponding extra parameter as a string.
+    <li> %d : Inserts the corresponding extra parameter as an integer base 10 numeric value.
+    </ul>
+    When the %c, %s, and %d formatting sequences are used in the format string, extra
+    parameters of the proper type should be supplied to the function in the same order as the
+    formatting sequences appear in the format string. If this is not the case, an error may
+    occur, or the output may appear incorrect. Note that colors and transparency can be
+    controlled either via numeric character escapes (of the form \ddd, where ddd is a number)
+    or with the special character values defined in the <b>io.inc</b> file.<br>
+    Exceptions:
+    <ul>
+    <li> "Native function failed" : The format string is malformed or a parameter is incorrect.
+    </ul>
+    <br>
+
+<li><a name="_CenterMsgTimed"><b>_CenterMsgTimed</b></a><br>
+    <em>native _CenterMsgTimed(const msg[], tics);</em><br>
+    Parameters:
+    <ul>
+    <li> const msg[] : String to print as a centered message.
+    <li> tics : Number of gametics (35/second) the message will last.
+    </ul>
+    Return value: None.<br>
+    Found in: io.inc<br>
+    Description: Prints a center message to all players that will last a given number of
+    gametics.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : msg[] is not a valid string array.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="fixed">
+<hr>
+<b>Fixed-Point Math Library</b>
+<hr>
+</a>
+<br>
+Because the DOOM Engine internally uses a fixed-point number representation, where the 16 most
+significant bits of a 32-bit DWORD function as a 16-bit signed integer, and the lower 16 bits
+function as decimal places, it will sometimes be necessary to work with fixed-point numbers.
+The fixed-point math library, implemented in the <b>fixed.inc</b> file, makes this almost as
+easy as working with normal integer numbers. Note that functions declared as 'stock' will not
+be compiled into your scripts unless they are actually used, and that they are NOT public
+functions and therefore cannot be executed as scripts by the game engine.
+<br><br>
+Some of the functions listed here are also aliased as overloaded operators, which means that
+to perform the operations, you need only use the same natural operator notation used with
+integers. The proper function will be automatically selected by the Small compiler. You can
+still call the functions explicitly, however. The list of operators overloaded for the
+Fixed tag can be viewed in the <b>fixed.inc</b> header file.
+
+<ul>
+<li><a name="_ffloat"><b>_ffloat</b></a><br>
+    <em>native Fixed:_ffloat(Float:value);</em><br>
+    Parameters:
+    <ul>
+    <li> Float:value : A literal floating-point value (ie., 1.0).
+    </ul>
+    Return value: Fixed-point equivalent of provided floating-point value.<br>
+    Found in: fixed.inc<br>
+    Description: Small needs to store literal decimal values as floating point, therefore
+    to use those values with fixed-point math, you need to convert them first using this
+    function. You cannot pass floating-point literals directly to any other function unless
+    it explicitly indicates that you may do so, and Eternity does not provide any operators
+    or functions for working with literal Float values directly.
+    <br><br>
+    
+<li><a name="_fmul"><b>_fmul</b></a><br>
+    <em>native Fixed:_fmul(Fixed:a, Fixed:b);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:a : First fixed-point multiplicand.
+    <li> Fixed:b : Second fixed-point multiplicand.
+    </ul>
+    Return value: a * b as a fixed-point value.<br>
+    Found in: fixed.inc<br>
+    Description: Implements multiplication of fixed-point values. This is also available
+    implicitly as the * operator for fixed-point numbers, so you are NOT required to call
+    this function explicitly. Simply perform the operation "a * b" with two variables that
+    are tagged as Fixed numbers and this function will be called implicitly.
+    <br><br>
+    
+<li><a name="_fdiv"><b>_fdiv</b></a><br>
+    <em>native Fixed:_fdiv(Fixed:a, Fixed:b);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:a : Fixed-point dividend.
+    <li> Fixed:b : Fixed-point divisor.
+    </ul>
+    Return value: a / b as a fixed-point value.<br>
+    Found in: fixed.inc<br>
+    Description: Implements fixed-point division. This is also available implicitly as the
+    / operator for fixed-point numbers, so you are NOT required to call this function
+    explicitly. Simply perform the operation "a / b" with two variables that are tagged as
+    Fixed numbers and this function will be called implicitly.<br>
+    Exceptions:
+    <ul>
+    <li> "Divide by zero" : The divisor is zero; division by zero is undefined.
+    </ul>
+    <br>
+    
+<li><a name="_fabs"><b>_fabs</b></a><br>
+    <em>native Fixed:_fabs(Fixed:value);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:value : Fixed-point value.
+    </ul>
+    Return value: |value|<br>
+    Found in: fixed.inc<br>
+    Description: Returns the absolute value of the given fixed-point number. This can be done
+    in Small code as well, but the internal implementation is very fast, so using this function
+    is recommended.
+    <br><br>
+    
+<li><a name="fixed"><b>fixed</b></a><br>
+    <em>stock Fixed:fixed(value);</em><br>
+    Parameters:
+    <ul>
+    <li> value : An integer value.
+    </ul>
+    Return value: 'value' converted to fixed-point format.<br>
+    Found in: fixed.inc<br>
+    Description: Converts the given integer value to fixed-point format. If the number is less
+    than -32768 or greater than 32767, data will be lost.
+    <br><br>
+    
+<li><a name="_ffract"><b>_ffract</b></a><br>
+    <em>stock Fixed:_ffract(Fixed:value);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:value : Fixed-point value.
+    </ul>
+    Return value: The fractional portion of 'value'.<br>
+    Found in: fixed.inc<br>
+    Warning: This function was incorrect for negative values in Eternity Engine v3.33.00.
+    <br><br>
+    
+<li><a name="_ffloor"><b>_ffloor</b></a><br>
+    <em>stock Fixed:_ffloor(Fixed:value);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:value : Fixed-point value.
+    </ul>
+    Return value: Returns the integral fixed-point number less than or equal to 'value'.<br>
+    Found in: fixed.inc<br>
+    Warning: This function was incorrect in Eternity Engine v3.33.00.
+    <br><br>
+    
+<li><a name="_fceil"><b>_fceil</b></a><br>
+    <em>stock Fixed:_fceil(Fixed:value);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:value : Fixed-point value.
+    </ul>
+    Return value: Returns the integral fixed-point number greater than or equal to 'value'.<br>
+    Found in: fixed.inc
+    <br><br>
+    
+<li><a name="_ftoi"><b>_ftoi</b></a><br>
+    <em>stock _ftoi(Fixed:value);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:value : Fixed-point value.
+    </ul>
+    Return value: 'value' converted to an integer (the fractional portion is chopped).<br>
+    Found in: fixed.inc<br>
+    Warning: This function was incorrect for negative values in Eternity Engine v3.33.00.
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="random">
+<hr>
+<b>Random Number Generators</b>
+<hr>
+</a>
+<br>
+In order to maintain demo sync and to work with the rest of the engine, Small must utilize the
+special DOOM pseudo-random number generator. Two functions are provided for interfacing with
+the system.
+
+<ul>
+<li><a name="_P_Random"><b>_P_Random</b></a><br>
+    <em>native _P_Random();</em><br>
+    Parameters: None.<br>
+    Return value: Random number between 0 and 255 inclusive.<br>
+    Found in: random.inc<br>
+    Description: This is the random function to use when interacting with anything which is
+    demo-sync critical. To create a RNG of higher period, you may bitwise-OR the results of
+    several Random calls together (4 such calls would create a RNG of maximum range). Note
+    that changing the order or number of calls to this function in a script will impact demo
+    compatibility for any levels using the script in question.
+    <br><br>
+    
+<li><a name="_M_Random"><b>_M_Random</b></a><br>
+    <em>native _M_Random();</em><br>
+    Parameters: None.<br>
+    Return value: Random number between 0 and 255 inclusive.<br>
+    Found in: random.inc<br>
+    Description: This function should ONLY be used for things which do not affect demo sync.
+    These include sounds, screen graphics, particles, and a select few other systems. This
+    function uses a special RNG class which is only used by non-sync-critical internal code.
+    The order and number of calls to this function can be freely changed.
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="hud">
+<hr>
+<b>Heads-Up Display</b>
+<hr>
+</a>
+<br>
+Beginning with Eternity Engine v3.33.01, the heads-up display is fully scriptable. HUD
+elements are called widgets, and are automatically maintained by the game engine, including
+being erased and drawn each frame. Widgets must be created with a unique mnemonic string that
+serves as their name. Widgets with duplicate mnemonics won't be created. As with all other
+symbols, widget mnemonics starting with an underscore character are reserved by Eternity.
+
+<p>
+Eternity defines the following HUD widgets natively:
+<pre>Mnemonic               Type    Description
+---------------------------------------------------------------------
+_HU_MsgWidget          Misc.   Player message widget
+_HU_CrosshairWidget    Patch   Aiming crosshair
+_HU_VPOWidget          Patch   VPO warning indicator
+_HU_OpenSocketWidget   Patch   Network connection fail indicator
+_HU_CenterMsgWidget    Text    Player center message
+_HU_LevelTimeWidget    Text    Automap level clock
+_HU_LevelNameWidget    Text    Automap level name
+_HU_ChatWidget         Text    Player chat widget
+_HU_CoordXWidget       Text    Automap x coordinate
+_HU_CoordYWidget       Text    Automap y coordinate
+_HU_CoordZWidget       Text    Automap z coordinate
+---------------------------------------------------------------------</pre>
+Not all native widgets support manipulation through all of the script interface functions.
+Errors will not occur if a widget is specified inappropriately, but unexpected results may
+occur, such as changes to those widgets not applying permanently or not applying at all.
+<br><br>
+The following optional engine-specified event callback functions can be defined in both the
+Gamescript and Levelscript to interact smoothly with the native HUD system. The game engine
+will call the Gamescript handlers first if they exist, and then the Levelscript handlers if
+they exist.
+<pre>
+Name            Purpose
+-------------------------------------------------------------------------------
+OnHUDStart      Called at start of a new level or when the player viewpoint
+                changes (ie, to a different player in coop mode). Use this
+                callback to set new values to auto-cleared text widgets, etc.
+
+OnHUDPreDraw    Called immediately before all HUD widgets are drawn to the 
+                screen. This is the safest time to alter the properties of
+                HUD widgets. Altering them at any other time may result in
+                scraps being left on the game border and other odd visual
+                errors.   
+-------------------------------------------------------------------------------
+</pre>
+
+<ul>
+<li><a name="_NewPatchWidget"><b>_NewPatchWidget</b></a><br>
+    <em>native _NewPatchWidget(const name[], const patch[], x, y, color = -1, tl = FRACUNIT);</em><br>
+    Parameters:     
+    <ul>
+    <li> const name[] : Unique mnemonic, must be no longer than 32 characters.
+    <li> const patch[] : Name of patch-format graphic lump, must be no longer than 8 characters.
+    <li> x : x coordinate of graphic relative to a 320x200 screen
+    <li> y : y coordinate of graphic relative to a 320x200 screen
+    <li> color : One of the following enumeration values:
+         <ul>
+         <li> _PCR_BRICK
+         <li> _PCR_TAN
+         <li> _PCR_GRAY
+         <li> _PCR_GREEN
+         <li> _PCR_BROWN
+         <li> _PCR_GOLD
+         <li> _PCR_RED
+         <li> _PCR_BLUE
+         <li> _PCR_ORANGE
+         <li> _PCR_YELLOW  
+         </ul>
+         The default value -1 means that no color translation will be used.
+    <li> tl : Translucency value as a number from 0 to 65536. Use the constant FRACUNIT to
+         calculate the value in a convenient manner. 0 is invisible, 65536 is opaque.
+    </ul>
+    Return value: None<br>
+    Found in: hud.inc<br>
+    Description: Creates a new widget that displays the specified patch at the given location
+    and with the specified properties. If a widget of the given name already exists, this 
+    function will return immediately without creating a new widget. If the patch specified does 
+    not exist, the game will exit with a "W_GetNumForName" error. If the patch specified is not 
+    a valid graphic, results will be undefined. The actual location of the patch on screen is 
+    subject to change via the patch graphic's x and y offset values. Use the x and y offsets to 
+    more easily position sets of patches relative to certain coordinates. If the resulting 
+    location of a patch graphic is offscreen or causes any part of the patch to extend offscreen, 
+    the patch will not be drawn. If the color or translucency parameters are out of range, 
+    suitable default values of no translation and opaque will be applied.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] or patch[] is not a valid string array.
+    </ul>
+    <br>
+
+<li><a name="_SetWidgetPatch"><b>_SetWidgetPatch</b></a><br>
+    <em>native _SetWidgetPatch(const name[], const patch[]);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : mnemonic of an existing patch widget.
+    <li> const patch[] : Name of patch-format graphic lump, must be no longer than 8 characters.
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: Changes the graphic displayed by an existing patch widget to the specified
+    patch graphic. If the indicated widget does not exist or is not a patch widget, nothing
+    will happen. If the patch specified does not exist, the game will exit with a "W_GetNumForName"
+    error. If the patch specified is not a valid graphic, results will be undefined.
+    <br>
+    Note: Patch graphics loaded for use by patch widgets will remain loaded in memory 
+    permanently in case they are needed again. This may impact memory usage if too many patches
+    are loaded, so do not assume that resources are unlimited.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] or patch[] is not a valid string array.
+    </ul>
+    <br>
+    
+<li><a name="_PatchWidgetColor"><b>_PatchWidgetColor</b></a><br>
+    <em>native _PatchWidgetColor(const name[], color = -2, tl = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : mnemonic of an existing patch widget.
+    <li> color : One of the following enumeration values:
+         <ul>
+         <li> _PCR_BRICK
+         <li> _PCR_TAN
+         <li> _PCR_GRAY
+         <li> _PCR_GREEN
+         <li> _PCR_BROWN
+         <li> _PCR_GOLD
+         <li> _PCR_RED
+         <li> _PCR_BLUE
+         <li> _PCR_ORANGE
+         <li> _PCR_YELLOW  
+         </ul>
+         The default value -2 means that the current color used by the widget will not change.
+         Any value other than these will clear the patch's color translation completely.
+    <li> tl : Translucency value as a number from 0 to 65536. Use the constant FRACUNIT to
+         calculate the value in a convenient manner. 0 is invisible, 65536 is opaque. The
+         default value -1 means that the current translucency level of the widget will not
+         change.
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: Changes the color and translucency properties of an existing patch widget. By
+    letting either parameter default, it is possible to edit only one property and leave the
+    other at its current value. If the indicated widget does not exist or is not a patch widget, nothing
+    will happen.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    </ul>
+    <br>
+
+<li><a name="_NewTextWidget"><b>_NewTextWidget</b></a><br>
+    <em>native _NewTextWidget(const name[], const msg[], x, y, _fonts:font = _FONT_NORMAL, cleartics = 0, flags = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Unique mnemonic, must be no longer than 32 characters.
+    <li> const msg[] : Text message to be displayed by widget. May be of any length. Escape
+         codes for color and translucency are supported.
+    <li> x : x coordinate of widget relative to a 320x200 screen.
+    <li> y : y coordinate of widget relative to a 320x200 screen.
+    <li> _fonts:font : One of the following enumeration values:
+         <ul>
+         <li> _FONT_NORMAL
+         <li> _FONT_HUD
+         </ul>
+         Note: This may be made more flexible to allow "big font" and user fonts to be
+         applied in the future.
+    <li> cleartics : Amount of time in gametics that the widget will be displayed. If this
+         value is zero, the widget may be displayed indefinitely.
+    <li> flags : A value which can accept bitwise-OR combinations of the following values:
+         <ul>
+         <li> _TW_AUTOMAP_ONLY : Widget appears only when automap is active.
+         <li> _TW_NOCLEAR : Widget is not automatically cleared on level or viewpoint change.
+         </ul>
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: Creates a new widget that displays the specified text message at the given 
+    location and with the specified properties. If a widget of the given name already exists, 
+    this function will return immediately without creating a new widget. If the location of 
+    the message puts any part of it offscreen, parts of the message will not be drawn.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] or msg[] is not a valid string array.
+    </ul>
+    <br>
+
+<li><a name="_GetWidgetText"><b>_GetWidgetText</b></a><br>
+    <em>native _GetWidgetText(const name[], dest[], size, bool:packed = false);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Mnemonic of an existing text widget.
+    <li> dest[] : Destination string array to receive message.         
+    <li> size : Number of characters to retrieve. This value MUST be less than or equal to
+         the length of dest[].
+    <li> bool:packed : If true, dest[] will be treated as a packed string.
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: If the specified text widget exists and has a valid message, as much of that
+    message as possible will be copied into dest[]. You must specify the length of dest[] in
+    the size parameter. If dest[] is a packed string array, you should set packed to true.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] or dest[] is not a valid string array.
+    </ul>
+    <br>
+
+<li><a name="_SetWidgetText"><b>_SetWidgetText</b></a><br>
+    <em>native _SetWidgetText(const name[], const value[], cleartics = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Mnemonic of an existing text widget.
+    <li> const value[] : New message to be displayed by widget, may be of any length.
+    <li> cleartics : Amount of time in gametics the message will be displayed. If this value
+         is zero, the message will be displayed indefinitely.
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: Sets the message of an existing text widget. If the indicated widget does
+    not exist or is not a text widget, nothing will happen.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] or value[] is not a valid string array.
+    </ul>
+    <br>
+
+<li><a name="_ToggleWidget"><b>_ToggleWidget</b></a><br>
+    <em>native _ToggleWidget(const name[], bool:disable);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Mnemonic of an existing text widget.
+    <li> bool:disable : If true, the widget will be disabled. If false, it will be enabled.
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: Toggles the disable state of a widget. If the indicated widget does not
+    exist, nothing will happen. This function can be used on all HUD widgets.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    </ul>
+    <br>
+
+<li><a name="_MoveWidget"><b>_MoveWidget</b></a><br>
+    <em>native _MoveWidget(const name[], x, y);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : Mnemonic of an existing text widget.
+    <li> x : x coordinate of widget relative to a 320x200 screen.
+    <li> y : y coordinate of widget relative to a 320x200 screen.
+    </ul>
+    Return value: None.<br>
+    Found in: hud.inc<br>
+    Description: Moves a widget to the given location. If the indicated widget does not
+    exist, nothing will happen. This function can be used on all text and patch widgets.
+    This function will not work on many native widgets because they actively control their
+    own locations.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="game">
+<hr>
+<b>Game Functions</b>
+<hr>
+</a>
+<br>
+Game functions allow interaction with various aspects of the game engine and player data.
+
+<ul>
+<li><a name="_ExitLevel"><b>_ExitLevel</b></a><br>
+    <em>native _ExitLevel();</em><br>
+    Parameters: None.<br>
+    Return value: None.<br>
+    Found in: game.inc<br>
+    Description: Causes the current level to exit normally, as if the player hit a switch or
+    crossed a line.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_ExitSecret"><b>_ExitSecret</b></a><br>
+    <em>native _ExitSecret();</em><br>
+    Parameters: None.<br>
+    Return value: None.<br>
+    Found in: game.inc<br>
+    Description: Causes the current level to exit and give credit for a secret exit. If the
+    map is not normally a level with a secret exit, the 'nextsecret' value should be defined
+    in MapInfo for the level. Otherwise, the default behavior is to restart the current level.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_StartGame"><b>_StartGame</b></a><br>
+    <em>native _StartGame(_gameskills:skill, const mapname[]);</em><br>
+    Parameters:
+    <ul>
+    <li> _gameskills:skill : One of the following enumeration values:
+         <ul>
+         <li> _SKILL_ITYTD
+         <li> _SKILL_HNTR
+         <li> _SKILL_HMP
+         <li> _SKILL_UV
+         <li> _SKILL_NM
+         </ul>
+    <li> const mapname[] : string array holding the name of the map to start.
+    </ul>
+    Return value: None.<br>
+    Found in: game.inc<br>
+    Description: Starts a new game on the specified map at the specified skill level. This
+    function is most useful for start maps, custom menus, and other similar applications.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : mapname[] is not a valid string array.
+    </ul>
+    <br>
+    
+<li><a name="_GameSkill"><b>_GameSkill</b></a><br>
+    <em>native _gameskills:_GameSkill();</em><br>
+    Parameters: None.<br>
+    Return value: Current skill level of the game as one of the following enumeration values:
+    <ul>
+    <li> _SKILL_ITYTD
+    <li> _SKILL_HNTR
+    <li> _SKILL_HMP
+    <li> _SKILL_UV
+    <li> _SKILL_NM
+    </ul>
+    Found in: game.inc
+    <br><br>
+    
+<li><a name="_GameType"><b>_GameType</b></a><br>
+    <em>native _gametypes:_GameType();</em><br>
+    Parameters: None.<br>
+    Return value: Current game type as one of the following enumeration values:
+    <ul>
+    <li> _GTYPE_SINGLE
+    <li> _GTYPE_COOP
+    <li> _GTYPE_DM
+    </ul>
+    Found in: game.inc
+    <br><br>
+    
+<li><a name="_EngineVersion"><b>_EngineVersion</b></a><br>
+    <em>native _EngineVersion();</em><br>
+    Parameters: None.<br>
+    Return value: Version number of this build of the Eternity Engine multiplied by 100.<br>
+    Found in: game.inc
+    <br><br>
+    
+<li><a name="_GetPlayerName"><b>_GetPlayerName</b></a><br>
+    <em>native _GetPlayerName(num, str[], bool:packed);</em><br>
+    Parameters:
+    <ul>
+    <li> num : Player number (1 - 4)
+    <li> str[] : String array of minimum length 20 characters
+    <li> bool:packed : If true, str will be packed. Otherwise, str will be unpacked.
+    </ul>
+    Return value: None.<br>
+    Found in: game.inc<br>
+    Description: Returns the name of the requested player in str[]. str[] should be a valid
+    string array at least 20 characters long.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : str[] is not a valid string array.
+    <li> "Array index out of bounds" : num was not between 1 and 4 inclusive.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="things">
+<hr>
+<b>Mapthings</b>
+<hr>
+</a>
+<br>
+Mapthing functions allow interaction with moving objects in the map, including monsters and
+player avatars. Most mapthing functions require TIDs, or thing ids, which must be set via
+ExtraData. For more information, see the <a href="extradata.html">ExtraData Reference</a>.
+<br><br>
+There are several special reserved TID values which can be found as macro definitions in
+the <b>things.inc</b> file. These are as follows:
+<pre>
+_TID_PLAYER1 : Refers to player 1's avatar.
+_TID_PLAYER2 : Refers to player 2's avatar, if player 2 is present.
+_TID_PLAYER3 : Refers to player 3's avatar, if player 3 is present.
+_TID_PLAYER4 : Refers to player 4's avatar, if player 4 is present.
+_TID_TRIGGER : Refers to the current script trigger object, if one exists.
+</pre>
+These values are always safe to use, as all mapthing functions check whether the objects
+exist before using them. However, sometimes results may be unexpected if the objects do 
+not exist, so it is best to check beforehand when possible.
+
+<ul>
+<li><a name="_ThingKill"><b>_ThingKill</b></a><br>
+    <em>native _ThingKill(tid, _killtypes:dmgtype = _DMG_HEALTH, _mods:mod = _MOD_UNKNOWN);</em><br>
+    Parameters:
+    <ul>
+    <li> tid : ID of the thing(s) to kill.
+    <li> _killtypes:dmgtype : One of the following enumeration values:
+         <ul>
+         <li> _KILL_HEALTH
+         <li> _KILL_TELEFRAG
+         </ul>
+    <li> _mods:mod : Means of death flag. See <b>things.inc</b> for a complete list. This
+         affects the obituary that is shown when the player dies, and may have other
+         effects in the future such as elemental deaths. The default is usually acceptable
+         when hurting things other than the player.
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Kills all things whose TIDs match the provided TID. When 'dmgtype' is
+    _KILL_TELEFRAG, things are hit for 10000 damage. _KILL_HEALTH simply damages them for their
+    current health value, guaranteeing a normal death.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_ThingHurt"><b>_ThingHurt</b></a><br>
+    <em>native _ThingHurt(tid, damage, _mods:mod = _MOD_UNKNOWN, inflictor = 0, source = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tid : ID of the thing(s) to injure.
+    <li> damage: Amount of health to subtract from each thing.
+    <li> mods:mod : Means of death flag. See <b>things.inc</b> for a complete list.
+    <li> inflictor: Optional TID of a single object which is directly causing this damage.
+    <li> source: Optional TID of a single object which is ultimately responsible for this damage.
+         This is the object which enemies will blame for the damage done to them.
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Injures all things whose TIDs match the value in 'tid'. The inflictor and
+    source are optional parameters, and if allowed to default, enemies will not blame anyone
+    for the damage done to them and will appear to ignore it aside from feeling pain. Otherwise,
+    the parameters have the functions as noted above. Inflictors are typically used for missiles
+    and blast radii. For direct damage such as scratching, inflictor and source should refer to
+    the same object. Note that if more than one object has the TID referred to by inflictor or
+    source, the first one found by the game engine will be used. Which object will be picked in
+    that situation is not easily predictable (note this does not apply to objects referred to
+    via reserved TID values such as _TID_TRIGGER, which are always unambiguous).<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingMassacre"><b>_ThingMassacre</b></a><br>
+    <em>native _ThingMassacre(_massacres:massacreType);</em><br>
+    Parameters:
+    <ul>
+    <li> _massacres:massacreType : Determines type of massacre. One of the following enumeration values:
+         <ul>
+         <li> _MASSACRE_ALL : All living creatures will be killed.
+         <li> _MASSACRE_FRIENDS : All friendly creatures will be killed.
+         <li> _MASSACRE_ENEMIES : All enemy creatures will be killed.
+         </ul>
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Kills all creatures on the map that are included in the indicated class.
+    Players are not included in any massacre. Massacres are not equivalent to the "killem"
+    cheat code, and EDF nukespecial functions will NOT be invoked because of a massacre.
+    Thus, there may still be living creatures on the map after a massacre as a result of 
+    spawn-on-death actions (like those of the Pain Elemental or Serpent Rider D'Sparil).<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_ThingHate"><b>_ThingHate</b></a><br>
+    <em>native _ThingHate(object, target);</em><br>
+    Parameters:
+    <ul>
+    <li> object : TID of the objects which will receive a new target
+    <li> target : TID of a single object to be hated
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Causes the targets of all things with a TID matching 'object' to be set to
+    the first object found with TID 'target', if one exists. This will cause enemies or friendly
+    entities to begin fighting the indicated object, although it is still possible for them to 
+    become distracted by other targets later.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_ThingNumForName"><b>_ThingNumForName</b></a><br>
+    <em>native _ThingNumForName(const name[]);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : string array containing an EDF thingtype mnemonic.
+    </ul>
+    Return value: Internal type number of requested thingtype.<br>
+    Found in: things.inc<br>
+    Description: Performs a lookup on the given name and returns an internal thingtype
+    number if a thingtype was defined with that mnemonic by EDF. If no such thingtype is
+    found, the number of the required "Unknown" thingtype will be returned instead.
+    <br><br>
+    
+<li><a name="_ThingNumForDEHNum"><b>_ThingNumForDEHNum</b></a><br>
+    <em>native _ThingNumForDEHNum(num);</em><br>
+    Parameters:
+    <ul>
+    <li> num : DeHackEd number of desired thingtype.
+    </ul>
+    Return value: Internal type number of requested thingtype.<br>
+    Found in: things.inc<br>
+    Description: Performs a lookup on the given DeHackEd number and returns an internal
+    thingtype number if a thingtype was defined with that DeHackEd number by EDF. If no
+    such thingtype is found, the number of the required "Unknown" thingtype will be
+    returned instead. Note that the default DeHackEd number of -1 cannot be resolved to
+    any particular thingtype.
+    <br><br>
+    
+<li><a name="_ThingUnknown"><b>_ThingUnknown</b></a><br>
+    <em>native _ThingUnknown();</em><br>
+    Parameters: None.<br>
+    Return value: Internal thingtype number of the required "Unknown" thingtype.<br>
+    Found in: things.inc
+    <br><br>
+
+<li><a name="_ThingCheckType"><b>_ThingCheckType</b></a><br>
+    <em>stock bool:_ThingCheckType(num);</em><br>
+    Parameters:
+    <ul>
+    <li> num : An internal thingtype number as retrieved by a lookup function.
+    </ul>
+    Return value: true if the thingtype exists and is not the "Unknown" type. false otherwise.<br>
+    Found in: things.inc<br>
+    Description: This stock function is a convenience method for testing if the results of a
+    thingtype lookup resulted in a valid, unique thingtype.
+    <br><br>
+    
+<li><a name="_ThingSpawn"><b>_ThingSpawn</b></a><br>
+    <em>native _ThingSpawn(type, x, y, z, tid = 0, angle = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> type : A valid internal thingtype number as retrieved by a lookup function.
+    <li> x, y, z : Integer coordinates at which to spawn this mapthing.
+    <li> tid : Optional TID value to give this mapthing.
+    <li> angle : Optional angle value to give this mapthing in degrees.
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Spawns a mapthing of the requested type at the given coordinates. Optionally,
+    the TID and/or angle may also be specified. The default values mean no unique TID and facing
+    east, respectively.<br>
+    Exceptions:
+    <ul>
+    <li> "Array index out of bounds" : The provided thingtype number is invalid.
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_ThingSpawnSpot"><b>_ThingSpawnSpot</b></a><br>
+    <em>native _ThingSpawnSpot(type, spottid, tid = 0, angle = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> type : A valid internal thingtype number as retrieved by a lookup function.
+    <li> spottid : TID of mapthings at which to spawn the new mapthings.
+    <li> tid : Optional TID to give the new mapthings.
+    <li> angle : Optional angle value to give the new mapthings.
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Spawns mapthings of the requested type at the location of each mapthing with
+    a TID matching the value in 'spottid'. Optionally, the TID and/or angle of the new
+    mapthings may also be specified.<br>
+    Exceptions:
+    <ul>
+    <li> "Array index out of bounds" : The provided thingtype number is invalid.
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingGetProperty"><b>_ThingGetProperty</b></a><br>
+    <em>native _ThingGetProperty(tid, _thing_fields:field);</em><br>
+    Parameters:
+    <ul>
+    <li> tid : TID of thing to examine.
+    <li> _thing_fields:field : Property to retrieve. One of the following enumeration values:
+         <ul>
+         <li> _THING_TYPE : Internal thing type number as used for ThingSpawn.
+         <li> _THING_TICS : Time thing has remaining in its current frame.
+         <li> _THING_HEALTH : Health value.
+         <li> _THING_COUNTER0 : Counter field one value.
+         <li> _THING_COUNTER1 : Counter field two value.
+         <li> _THING_COUNTER2 : Counter field three value.
+         <li> _THING_EFFECTS : Particle effects flags value.
+         <li> _THING_TRANSLUCENCY : Flex translucency level of this thing.
+         </ul>
+    </ul>
+    Return value: Value of the requested property for the given thing.<br>
+    Found in: things.inc<br>
+    Description: Returns one of numerous internal field values for the first thing found with
+    the given TID. Notes for each value: Internal thing type numbers are determined at runtime
+    during EDF parsing. You should not depend on a thing type to have a given value, but rather
+    only compare against values returned by the <a href="#_ThingNumForName">_ThingNumForName</a>
+    and <a href="#_ThingNumForDEHNum">_ThingNumForDEHNum</a> functions.  The COUNTER fields are
+    the internal counters which are also modifiable by the Counter codepointers. The flex tran
+    level for a normal thing will be 65536. Things which use BOOM-style translucency, which is
+    exclusive of this effect, will not display a special value in this field.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingSetProperty"><b>_ThingSetProperty</b></a><br>
+    <em>native _ThingSetProperty(tid, _thing_fields:field, value);</em><br>
+    Parameters:
+    <ul>
+    <li> tid : TID of things on which to set the requested property.
+    <li> _thing_fields:field : Property to set. One of the following enumeration values:
+         <ul>
+         <li> _THING_TICS : Time thing has remaining in its current frame.
+         <li> _THING_HEALTH : Health value.
+         <li> _THING_COUNTER0 : Counter field one value.
+         <li> _THING_COUNTER1 : Counter field two value.
+         <li> _THING_COUNTER2 : Counter field three value.
+         <li> _THING_EFFECTS : Particle effects flags value.
+         <li> _THING_TRANSLUCENCY : Flex translucency level of this thing.         
+         </ul>
+    <li> value : New value of the property. Integer values only.
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Sets the requested property of all things with the given tid. If a thing is given a flex tran level
+    other than 65536, the BOOM translucency flag "TRANSLUCENT" should be cleared on it, otherwise
+    the proper effect may not be chosen.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingFlagsFromStr"><b>_ThingFlagsFromStr</b></a><br>
+    <em>native _ThingFlagsFromStr(tid, _flagops:op, const str[]);</em><br>
+    Parameters:
+    <ul>
+    <li> tid : TID value of things to manipulate.
+    <li> _flagops:op : Operation to perform with the flags. One of the following enumeration values:
+         <ul>
+         <li> _FLAGS_SET : Sets the thing's flags fields to the resulting values. Only the
+              flags indicated in str[] will be turned on after this operation.
+         <li> _FLAGS_ADD : Turns on the indicated flags, leaving others alone.
+         <li> _FLAGS_REMOVE : Turns off the indicated flags, leaving others alone.
+         </ul>
+    <li> const str[] : EDF/BEX combined thing flags string. See the Eternity Engine DeHackEd/BEX 
+         documentation
+         <a href="dehref.html#tngflags">BEX Extension: Thing Flag Lists</a> section for full
+         information.
+    </ul>
+    Return value: None.<br>
+    Found in: things.inc<br>
+    Description: Sets the flags indicated in str[] on all things with the given TID. This function
+    accepts an EDF/BEX-format combined flags string. The semantics of this field are similar to 
+    those of the "cflags" field in an EDF thingtype definition. Mnemonics for all three internal 
+    flags fields can be provided in the same string, with the sole exception of the flags field 
+    value "SLIDE", which cannot be specified and is overridden by the flags3 field value with the 
+    same name.
+    <br>
+    Some flags should not be set using this function, however, as their effects will not be 
+    properly activated or removed simply by toggling the flag. Other functions will be provided 
+    in the future to toggle some of these thing properties properly. The following flags are not 
+    togglable and will may render incomplete, unexpected, or undefined results:
+    <ul>
+    <li> NOSECTOR
+    <li> NOBLOCKMAP
+    <li> AMBUSH
+    <li> SPAWNCEILING
+    <li> PICKUP
+    <li> COUNTKILL
+    <li> COUNTITEM
+    <li> NOTDMATCH
+    <li> FRIEND
+    <li> SPAWNFLOAT
+    <li> DORMANT
+    <li> KILLABLE
+    </ul>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : str[] is not a valid string array.
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="sound">
+<hr>
+<b>Sounds</b>
+<hr>
+</a>
+<br>
+Sound functions allow the playing of sounds and music in various ways.
+
+<ul>
+<li><a name="_SoundGlobal"><b>_SoundGlobal</b></a><br>
+    <em>native _SoundGlobal(const name[]);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : EDF sound mnemonic of sound to play.
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Plays the requested sound on the full-volume global sound channel. If no sound
+    exists with the requested mnemonic, no sound will be played.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    </ul>
+    <br>
+    
+<li><a name="_SoundGlobalNum"><b>_SoundGlobalNum</b></a><br>
+    <em>native _SoundGlobalNum(sndnum);</em><br>
+    Parameters:
+    <ul>
+    <li> sndnum : DeHackEd number of sound to play.
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Plays the requested sound on the full-volume global sound channel. If no sound
+    exists with the requested DeHackEd number, no sound will be played. The reserved sound
+    DeHackEd number zero cannot be played.
+    <br><br>
+    
+<li><a name="_SectorSound"><b>_SectorSound</b></a><br>
+    <em>native _SectorSound(const name[], tag);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : EDF sound mnemonic of sound to play.
+    <li> tag : A tag number for this sector.
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Plays the requested sound in every sector found with the given tag.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_SectorSoundNum"><b>_SectorSoundNum</b></a><br>
+    <em>native _SectorSoundNum(sndnum, tag);</em><br>
+    Parameters:
+    <ul>
+    <li> sndnum : DeHackEd number of sound to play.
+    <li> id : A tag number for this sector.
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Plays the requested sound in every sector found with the given tag.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingSound"><b>_ThingSound</b></a><br>
+    <em>native _ThingSound(const name[], tid);</em><br>
+    Parameters:
+    <ul>
+    <li> const name[] : EDF sound mnemonic of sound to play.
+    <li> tid : TID of objects which will play sound.
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Every thing found with the given TID will play the requested sound.<br>
+    Exceptions:
+    <ul>
+    <li> "Invalid memory access" : name[] is not a valid string array.
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingSoundNum"><b>_ThingSoundNum</b></a><br>
+    <em>native _ThingSoundNum(sndnum, tid);</em><br>
+    Parameters:
+    <ul>
+    <li> sndnum : DeHackEd number of sound to play.
+    <li> tid : TID of objects which will play sound.
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Every thing found with the given TID will play the requested sound. If no 
+    sound exists with the requested DeHackEd number, no sound will be played. The reserved 
+    sound DeHackEd number zero cannot be played.
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_ThingInfoSound"><b>_ThingInfoSound</b></a><br>
+    <em>native _ThingInfoSound(_ti_sounds:type, tid);</em><br>
+    Parameters:
+    <ul>
+    <li> _ti_sounds:type : One of the following enumeration values:
+         <ul>
+         <li> _TI_SEESOUND
+         <li> _TI_ACTIVESOUND
+         <li> _TI_ATTACKSOUND
+         <li> _TI_PAINSOUND
+         <li> _TI_DEATHSOUND
+         </ul>
+    <li> tid : TID of objects which will play sound(s).
+    </ul>
+    Return value: None.<br>
+    Found in: sound.inc<br>
+    Description: Every thing found with the given TID will play the requested type of sound
+    which was assigned to it via EDF. If the requested sound field was not assigned a unique
+    sound value for a particular thingtype, things of that type will not play the sound. This
+    function is highly useful in custom behavior scripts along with use of _TID_TRIGGER.
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="particles">
+<hr>
+<b>Particles</b>
+<hr>
+</a>
+<br>
+These functions allow direct manipulation of particle effects.
+
+<ul>
+<li><a name="_PtclExplosionPos"><b>_PtclExplosionPos</b></a><br>
+    <em>native _PtclExplosionPos(Fixed:x, Fixed:y, Fixed:z, color1, color2);</em><br>
+    Parameters:
+    <ul>
+    <li> Fixed:x : Fixed-point x coordinate of particle explosion effect.
+    <li> Fixed:y : Fixed-point y coordinate of particle explosion effect.
+    <li> Fixed:z : Fixed-point z coordinate of particle explosion effect.
+    <li> color1 : Palette index of first particle color to use (0 to 255).
+    <li> color2 : Palette index of second particle color to use (0 to 255).
+    </ul>
+    Return value: None.<br>
+    Found in: particle.inc<br>
+    Description: Causes a particle explosion effect to occur at the specified location 
+    using the two specified colors.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_PtclExplosionThing"><b>_PtclExplosionThing</b></a><br>
+    <em>native _PtclExplosionThing(tid, color1, color2);</em><br>
+    Parameters:
+    <ul>
+    <li> tid : TID of objects to use as origin of particle explosion.
+    <li> color1 : Palette index of first particle color to use (0 to 255).
+    <li> color2 : Palette index of second particle color to use (0 to 255).
+    </ul>
+    Return value: None.<br>
+    Found in: particle.inc<br>
+    Description: Causes a particle explosion effect to occur at the locations of all
+    objects with the provided TID using the two specified colors.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="sectors">
+<hr>
+<b>Sectors</b>
+<hr>
+</a>
+<br>
+These functions allow manipulation of sectors.
+
+<ul>
+<li><a name="_SectorSpecial"><b>_SectorSpecial</b></a><br>
+    <em>native _SectorSpecial(special, tag);</em><br>
+    Parameters:
+    <ul>
+    <li> special : Numeric sector special to be set.
+    <li> tag : A tag number for this sector.
+    </ul>
+    Return value: None.<br>
+    Found in: specials.inc<br>
+    Description: Sets the special of all sectors with the given tag to the given value.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_SectorColormap"><b>_SectorColormap</b></a><br>
+    <em>native _SectorColormap(const lump[], _cmap_spaces:pos, tag);</em><br>
+    Parameters:
+    <ul>
+    <li> lump : Name of colormap lump to be used by sector.
+    <li> _cmap_spaces:pos : One of the following enumeration values:
+         <ul>
+         <li> _cmap_Middle : normal space
+         <li> _cmap_Bottom : space beneath 242 transfered floor
+         <li> _cmap_Top : space above 242 transfered ceiling
+         <li> _cmap_All : set all spaces
+         </ul>
+    <li> tag : A tag number for this sector.
+    </ul>
+    Return value: None.<br>
+    Found in: specials.inc<br>
+    Description: Sets the colormap of the indicated sectors to the given colormap, if it
+    exists (in the event it does not, the sectors will be reset to the global level colormap).
+    If a sector indicated as a target for this function is already subject to a 242 height
+    transfer (aka deep water) effect, then that sector's colormaps cannot be set independently.
+    In that event, the colormap change will be redirected to the 242 deep water control sector
+    instead, and may therefore affect other sectors which use the same deep water effect.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="paramspecs">
+<hr>
+<b>Parameterized Line Specials</b>
+<hr>
+</a>
+<br>
+These functions correspond to ExtraData parameterized linedef specials. These functions provide 
+functionality similar to BOOM generalized linedefs, but they can accept an even wider range of 
+values than the corresponding BOOM lines, and thus provide additional flexibility far beyond 
+what is possible with the DOOM map format. These specials are based loosely on those available
+in Hexen.
+
+<ul>
+<li><a name="_SpecialMode"><b>_SpecialMode</b></a><br>
+    <em>native _SpecialMode(_spec_modes:mode);</em><br>
+    Parameters:
+    <ul>
+    <li> _spec_modes:mode : One of the following enumeration values:
+         <ul>
+         <li> _SPEC_NULL : Special activation occurs with no line or thing data.
+         <li> _SPEC_PASS : Special activation line/thing data passes through from the script linedef.
+         </ul>
+    </ul>
+    Return value: None.<br>
+    Found in: specials.inc<br>
+    Description: Sets the special execution mode for scripts started under the _INVOKE_LINE
+    invocation model only. When such a script executes a parameterized line special, there exists
+    the option of starting the special as if though it originated from the linedef which activated
+    the script. Selecting this mode allows the use of zero tags and the trigger floor/ceiling
+    change model, among other things which may be noted in the specials below. Specials 
+    executed by scripts under other invocation models will always use _SPEC_NULL mode, even if
+    the current mode is set to _SPEC_PASS, because they have no trigger line to reference.
+    <br>
+    Note: After the script originally called by the line has finished, the special mode will
+    automatically reset to _SPEC_NULL. You must set the special mode to _SPEC_PASS at the
+    beginning of any script called directly from a script linedef when pass-through semantics 
+    are desired.
+    <br><br>
+    
+<li><a name="_Door_Raise"><b>_Door_Raise</b></a><br>
+    <em>native _Door_Raise(tag, speed, delay, lighttag = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed door will open and close at, in eighths of a unit per tic.
+    <li> delay : Amount of time door will wait before closing in gametics.
+    <li> lighttag : Optional tag of sector to select for BOOM dynamic door lighting effect.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Opens all indicated sectors as doors, which will close after the given
+    amount of delay time. Zero tags may only be used if the special mode is set to
+    _SPEC_PASS.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Door_Open"><b>_Door_Open</b></a><br>
+    <em>native _Door_Open(tag, speed, lighttag = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed door will open and close at, in eighths of a unit per tic.
+    <li> lighttag : Optional tag of sector to select for BOOM dynamic door lighting effect.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Opens all indicated sectors as doors; the sectors will remain open. Zero tags 
+    may only be used if the special mode is set to _SPEC_PASS.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Door_Close"><b>_Door_Close</b></a><br>
+    <em>native _Door_Close(tag, speed, lighttag = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed door will open and close at, in eighths of a unit per tic.
+    <li> lighttag : Optional tag of sector to select for BOOM dynamic door lighting effect.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Closes all indicated sectors as doors; the sectors will remain closed. Zero 
+    tags may only be used if the special mode is set to _SPEC_PASS.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Door_CloseWaitOpen"><b>_Door_CloseWaitOpen</b></a><br>
+    <em>native _Door_CloseWaitOpen(tag, speed, delay, lighttag = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed door will open and close at, in eighths of a unit per tic.
+    <li> delay : Amount of time door will wait before opening in gametics.
+    <li> lighttag : Optional tag of sector to select for BOOM dynamic door lighting effect.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Closes all indicated sectors as doors, which will open after the given amount
+    of delay time. Zero tags may only be used if the special mode is set to _SPEC_PASS.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Door_WaitRaise"><b>_Door_WaitRaise</b></a><br>
+    <em>native _Door_WaitRaise(tag, speed, delay, countdown, lighttag = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed door will open and close at, in eighths of a unit per tic.
+    <li> delay : Amount of time door will wait before closing in gametics.
+    <li> countdown: Amount of time before door opens in gametics.
+    <li> lighttag : Optional tag of sector to select for BOOM dynamic door lighting effect.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Waits until the countdown period has expired, then opens all indicated sectors 
+    as doors, which will close after the given amount of delay time. Zero tags may only be
+    used if the special mode is set to _SPEC_PASS.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Door_WaitClose"><b>_Door_WaitClose</b></a><br>
+    <em>native _Door_WaitClose(tag, speed, countdown, lighttag = 0);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed door will open and close at, in eighths of a unit per tic.
+    <li> countdown : Amount of time before door closes in gametics.
+    <li> lighttag : Optional tag of sector to select for BOOM dynamic door lighting effect.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Waits until the countdown period has expired, then closes all indicated sectors
+    as doors; the sectors will remain closed. Zero tags may only be used if the special mode
+    is set to _SPEC_PASS.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_RaiseToHighest"><b>_Floor_RaiseToHighest</b></a><br>
+    <em>native _Floor_RaiseToHighest(tag, speed, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Raises all indicated sectors' floors to the highest neighboring floor. If
+    the highest neighboring floor is lower, movement is instantaneous. If no neighboring
+    floor exists, motion is to -32000. Zero tags may only be used if the special mode is
+    _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_LowerToHighest"><b>_Floor_LowerToHighest</b></a><br>
+    <em>native _Floor_LowerToHighest(tag, speed, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Lowers all indicated sectors' floors to the highest neighboring floor. If
+    the highest neighboring floor is higher, movement is instantaneous. If no neighboring
+    floor exists, motion is to -32000. Zero tags may only be used if the special mode is
+    _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_RaiseToLowest"><b>_Floor_RaiseToLowest</b></a><br>
+    <em>native _Floor_RaiseToLowest(tag, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Raises all indicated sectors' floors to the lowest neighboring floor.
+    Movement is always instantaneous. Zero tags may only be used if the special mode is
+    _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_LowerToLowest"><b>_Floor_LowerToLowest</b></a><br>
+    <em>native _Floor_LowerToLowest(tag, speed, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Lowers all indicated sectors' floors to the lowest neighboring floor, including
+    the floor itself. Movement is always at the indicated speed. Zero tags may only be used if the 
+    special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_RaiseToNearest"><b>_Floor_RaiseToNearest</b></a><br>
+    <em>native _Floor_RaiseToNearest(tag, speed, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Raises all indicated sectors' floors to the next higher neighboring floor. 
+    Movement is always at the indicated speed. If no neighboring floor exists, the floor will
+    not move. Zero tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_LowerToNearest"><b>_Floor_LowerToNearest</b></a><br>
+    <em>native _Floor_LowerToNearest(tag, speed, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Lowers all indicated sectors' floors to the next lower neighboring floor. 
+    Movement is always at the indicated speed. If no neighboring floor exists, the floor will
+    not move. Zero tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_RaiseToLowestCeiling"><b>_Floor_RaiseToLowestCeiling</b></a><br>
+    <em>native _Floor_RaiseToLowestCeiling(tag, speed, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Raises all indicated sectors' floors to the height of the lowest neighboring
+    sector's ceiling, including the sector's ceiling itself. If the destination height is lower
+    than the floor's current height, movement will be instantaneous. Zero tags may only be used 
+    if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_LowerToLowestCeiling"><b>_Floor_LowerToLowestCeiling</b></a><br>
+    <em>native _Floor_LowerToLowestCeiling(tag, speed, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Lowers all indicated sectors' floors to the height of the lowest neighboring
+    sector's ceiling, including the sector's ceiling itself. If the destination height is higher
+    than the floor's current height, movement will be instantaneous. Zero tags may only be used 
+    if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_RaiseToCeiling"><b>_Floor_RaiseToCeiling</b></a><br>
+    <em>native _Floor_RaiseToCeiling(tag, speed, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description: Raises all indicated sectors' floors to the height of their own ceilings.
+    Zero tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br><br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_RaiseByTexture"><b>_Floor_RaiseByTexture</b></a><br>
+    <em>native _Floor_RaiseByTexture(tag, speed, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Raises indicated sectors' floors by the height of the shortest lower texture 
+    on any line on the boundary of the sector. If no such texture exists, movement is to
+    +32000. Zero tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br><br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_LowerByTexture"><b>_Floor_LowerByTexture</b></a><br>
+    <em>native _Floor_LowerByTexture(tag, speed, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Lowers indicated sectors' floors by the height of the shortest lower texture 
+    on any line on the boundary of the sector. If no such texture exists, movement is to
+    -32000. Zero tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_RaiseByValue"><b>_Floor_RaiseByValue</b></a><br>
+    <em>native _Floor_RaiseByValue(tag, speed, height, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> height : Amount to raise floor in integer units.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Raises indicated sectors' floors by the indicated amount. Zero tags may only 
+    be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_LowerByValue"><b>_Floor_LowerByValue</b></a><br>
+    <em>native _Floor_LowerByValue(tag, speed, height, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> height : Amount to lower floor in integer units.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Lowers indicated sectors' floors by the indicated amount. Zero tags may 
+    only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_Floor_MoveToValue"><b>_Floor_MoveToValue</b></a><br>
+    <em>native _Floor_MoveToValue(tag, speed, height, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> speed : Speed in eighths of a unit per tic.
+    <li> height : Target z height of floor.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Moves indicated sectors' floors to the height given. Movement direction is
+    always toward the destination height, and instantaneous movement is not possible. Zero tags 
+    may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_RaiseInstant"><b>_Floor_RaiseInstant</b></a><br>
+    <em>native _Floor_RaiseInstant(tag, height, change = _FNoChg, crush = -1);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> height : Amount to raise floor in integer units.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    <li> crush : Optional amount of crushing damage to apply per crush event. Zero or less means 
+         no crushing damage.
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Raises indicated sectors' floors by the indicated amount instantaneously. Zero 
+    tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+
+<li><a name="_Floor_LowerInstant"><b>_Floor_LowerInstant</b></a><br>
+    <em>native _Floor_LowerInstant(tag, height, change = _FNoChg);</em><br>
+    Parameters:
+    <ul>
+    <li> tag : A tag number for this sector.
+    <li> height : Amount to lower floor in integer units.
+    <li> change : One of the following enumeration values:
+         <ul>
+         <li>_FNoChg : No texture or type change.
+         <li>_FChgZeroTrig : Copy texture, zero type; trigger model. ***
+         <li>_FChgZeroNum : Copy texture, zero type; numeric model.
+         <li>_FChgTxtTrig : Copy texture, preserve type; trigger model. ***
+         <li>_FChgTxtNum : Copy texture, preserve type; numeric model.
+         <li>_FChgTypTrig : Copy texture and type; trigger model. ***
+         <li>_FChgTypNum : Copy texture and type; numeric model.
+         </ul>
+    </ul>
+    Return value: 1 if action was successful on any sector, 0 otherwise.<br>
+    Found in: specials.inc<br>
+    Description:  Lowers indicated sectors' floors by the indicated amount instantaneously. Zero 
+    tags may only be used if the special mode is _SPEC_PASS.<br>
+    *** : Trigger change models can only be used if the special mode is set to _SPEC_PASS and
+    the invocation type for the current script is _INVOKE_LINE. Attempting to use trigger change
+    model with _SPEC_NULL mode will result in no change.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="cameras">
+<hr>
+<b>Cameras</b>
+<hr>
+</a>
+<br>
+Camera functions allow manipulation of the various types of camera objects which exist in
+the game.
+
+<ul>
+<li><a name="_ToggleChasecam"><b>_ToggleChasecam</b></a><br>
+    <em>native _ToggleChasecam(bool:onoff);</em><br>
+    Parameters:
+    <ul>
+    <li> bool:onoff : If true, the chasecam will be activated. If false, it will be deactivated.
+    </ul>
+    Return value: None.<br>
+    Found in: cameras.inc<br>
+    Description: Sets the activation state of the chasecam to the given state.
+    <br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+    <br>
+    
+<li><a name="_IsChasecamOn"><b>_IsChasecamOn</b></a><br>
+    <em>native bool:_IsChasecamOn();</em><br>
+    Parameters: None.<br>
+    Return value: true if the chasecam is on locally, false if not.<br>
+    Found in: cameras.inc<br>
+    Description: Returns the current state of the chasecam for the console player.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="specials">
+<hr>
+<b>Special Functions</b>
+<hr>
+</a>
+<br>
+
+<ul>
+<li><a name="_ForceLightning"><b>_ForceLightning</b></a><br>
+    <em>native _ForceLightning();</em><br>
+    Parameters: None.<br>
+    Return value: None.<br>
+    Found in: specials.inc<br>
+    Description: If lightning is enabled for a level via MapInfo, this function can force a
+    lightning strike to occur at an exact moment. This is useful for dramatic effects.<br>
+    Exceptions:
+    <ul>
+    <li> "Bad gamemode for native function" : Game is not currently in level mode.
+    </ul>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+<br><br>
+</body>
+</html>

@@ -29,6 +29,12 @@
 //
 // By Simon Howard
 //
+// haleyjd:
+// This code is not currently accessible and needs a complete ground-up
+// rewrite so that it works properly, taking a queue from Hexen on the
+// storage and indexing of hub save files, level transfers, and the
+// proper handling of scripts.
+//
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
@@ -85,7 +91,7 @@ void P_ClearHubs(void)
    
    num_hub_levels = 0;
 
-#ifdef FRAGGLESCRIPT
+#if 0
    // clear the hub_script
    T_ClearHubScript();
 #endif

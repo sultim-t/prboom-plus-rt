@@ -42,7 +42,6 @@ extern fixed_t *textureheight;
 
 // needed for pre rendering (fracs)
 extern fixed_t *spritewidth;
-
 extern fixed_t *spriteoffset;
 extern fixed_t *spritetopoffset;
 

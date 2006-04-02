@@ -55,186 +55,186 @@ ceilinglist_t *activeceilings;
 // jff 02/08/98 all cases with labels beginning with gen added to support 
 // generalized line type behaviors.
 //
-void T_MoveCeiling (ceiling_t* ceiling)
+void T_MoveCeiling(ceiling_t *ceiling)
 {
    result_e  res;
-
+   
    switch(ceiling->direction)
    {
-    case plat_stop:
+   case plat_stop:
       // If ceiling in stasis, do nothing
       break;
 
-    case plat_up:
+   case plat_up:
       // Ceiling is moving up
       res = T_MovePlane
             (
-              ceiling->sector,
-              ceiling->speed,
-              ceiling->topheight,
-              false,
-              1,
-              ceiling->direction
+               ceiling->sector,
+               ceiling->speed,
+               ceiling->topheight,
+               -1,
+               1,
+               ceiling->direction
             );
 
       // if not a silent crusher, make moving sound
-      if (!(leveltime&7) && !silentmove(ceiling->sector))
-      {
-        switch(ceiling->type)
-        {
-          case silentCrushAndRaise:
-          case genSilentCrusher:
-            break;
-          default: // haleyjd: use mapinfo sound name
-            S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
-                             LevelInfo.sound_stnmov);
-            break;
-        }
-      }
-
-      // handle reaching destination height
-      if (res == pastdest)
-      {
-        switch(ceiling->type)
-        {
-          // plain movers are just removed
-          case raiseToHighest:
-          case genCeiling:
-            P_RemoveActiveCeiling(ceiling);
-            break;
-
-          // movers with texture change, change the texture then get removed
-          case genCeilingChgT:
-          case genCeilingChg0:
-            ceiling->sector->special = ceiling->newspecial;
-            //jff 3/14/98 transfer old special field as well
-            ceiling->sector->oldspecial = ceiling->oldspecial;
-          case genCeilingChg:
-            ceiling->sector->ceilingpic = ceiling->texture;
-            P_RemoveActiveCeiling(ceiling);
-            break;
-
-          // crushers reverse direction at the top
-          case silentCrushAndRaise:
-            if(!silentmove(ceiling->sector))    // sf: silentmove
-               S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
-                                LevelInfo.sound_pstop);
-          case genSilentCrusher:
-          case genCrusher:
-          case fastCrushAndRaise:
-          case crushAndRaise:
-            ceiling->direction = plat_down;
-            break;
-
-          default:
-            break;
-        }
-      }
-      break;
-  
-    case plat_down:
-      // Ceiling moving down
-      res = T_MovePlane
-            (
-              ceiling->sector,
-              ceiling->speed,
-              ceiling->bottomheight,
-              ceiling->crush,
-              1,
-              ceiling->direction
-            );
-
-      // if not silent crusher type make moving sound
       if(!(leveltime&7) && !silentmove(ceiling->sector))
       {
-        switch(ceiling->type)
-        {
-          case silentCrushAndRaise:
-          case genSilentCrusher:
+         switch(ceiling->type)
+         {
+         case silentCrushAndRaise:
+         case genSilentCrusher:
             break;
-          default:
+         default: // haleyjd: use mapinfo sound name
             S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
                              LevelInfo.sound_stnmov);
-        }
+            break;
+         }
       }
 
       // handle reaching destination height
       if(res == pastdest)
       {
-        switch(ceiling->type)
-        {
-          // 02/09/98 jff change slow crushers' speed back to normal
-          // start back up
-          case genSilentCrusher:
-          case genCrusher:
-            if (ceiling->oldspeed<CEILSPEED*3)
-              ceiling->speed = ceiling->oldspeed;
-            ceiling->direction = plat_up; //jff 2/22/98 make it go back up!
+         switch(ceiling->type)
+         {
+            // plain movers are just removed
+         case raiseToHighest:
+         case genCeiling:
+            P_RemoveActiveCeiling(ceiling);
             break;
 
-          // make platform stop at bottom of all crusher strokes
-          // except generalized ones, reset speed, start back up
-          case silentCrushAndRaise:
-            if(!silentmove(ceiling->sector))    // sf: silentmove
-               S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
-                                LevelInfo.sound_pstop);
-          case crushAndRaise: 
-            ceiling->speed = CEILSPEED;
-          case fastCrushAndRaise:
-            ceiling->direction = plat_up;
-            break;
-          
-          // in the case of ceiling mover/changer, change the texture
-          // then remove the active ceiling
-          case genCeilingChgT:
-          case genCeilingChg0:
+            // movers with texture change, change the texture then get removed
+         case genCeilingChgT:
+         case genCeilingChg0:
             ceiling->sector->special = ceiling->newspecial;
-            //jff add to fix bug in special transfers from changes
+            //jff 3/14/98 transfer old special field as well
             ceiling->sector->oldspecial = ceiling->oldspecial;
-          case genCeilingChg:
+         case genCeilingChg:
             ceiling->sector->ceilingpic = ceiling->texture;
             P_RemoveActiveCeiling(ceiling);
             break;
 
-          // all other case, just remove the active ceiling
-          case lowerAndCrush:
-          case lowerToFloor:
-          case lowerToLowest:
-          case lowerToMaxFloor:
-          case genCeiling:
+            // crushers reverse direction at the top
+         case silentCrushAndRaise:
+            if(!silentmove(ceiling->sector))    // sf: silentmove
+               S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
+                                LevelInfo.sound_pstop);
+         case genSilentCrusher:
+         case genCrusher:
+         case fastCrushAndRaise:
+         case crushAndRaise:
+            ceiling->direction = plat_down;
+            break;
+            
+         default:
+            break;
+         }
+      }
+      break;
+  
+   case plat_down:
+      // Ceiling moving down
+      res = T_MovePlane
+            (
+               ceiling->sector,
+               ceiling->speed,
+               ceiling->bottomheight,
+               ceiling->crush,
+               1,
+               ceiling->direction
+            );
+
+      // if not silent crusher type make moving sound
+      if(!(leveltime&7) && !silentmove(ceiling->sector))
+      {
+         switch(ceiling->type)
+         {
+         case silentCrushAndRaise:
+         case genSilentCrusher:
+            break;
+         default:
+            S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
+                             LevelInfo.sound_stnmov);
+         }
+      }
+
+      // handle reaching destination height
+      if(res == pastdest)
+      {
+         switch(ceiling->type)
+         {
+            // 02/09/98 jff change slow crushers' speed back to normal
+            // start back up
+         case genSilentCrusher:
+         case genCrusher:
+            if(ceiling->oldspeed < CEILSPEED*3)
+               ceiling->speed = ceiling->oldspeed;
+            ceiling->direction = plat_up; //jff 2/22/98 make it go back up!
+            break;
+            
+            // make platform stop at bottom of all crusher strokes
+            // except generalized ones, reset speed, start back up
+         case silentCrushAndRaise:
+            if(!silentmove(ceiling->sector))    // sf: silentmove
+               S_StartSoundName((mobj_t *)&ceiling->sector->soundorg,
+                                LevelInfo.sound_pstop);
+         case crushAndRaise: 
+            ceiling->speed = CEILSPEED;
+         case fastCrushAndRaise:
+            ceiling->direction = plat_up;
+            break;
+            
+            // in the case of ceiling mover/changer, change the texture
+            // then remove the active ceiling
+         case genCeilingChgT:
+         case genCeilingChg0:
+            ceiling->sector->special = ceiling->newspecial;
+            //jff add to fix bug in special transfers from changes
+            ceiling->sector->oldspecial = ceiling->oldspecial;
+         case genCeilingChg:
+            ceiling->sector->ceilingpic = ceiling->texture;
             P_RemoveActiveCeiling(ceiling);
             break;
 
-          default:
+            // all other case, just remove the active ceiling
+         case lowerAndCrush:
+         case lowerToFloor:
+         case lowerToLowest:
+         case lowerToMaxFloor:
+         case genCeiling:
+            P_RemoveActiveCeiling(ceiling);
             break;
-        }
+            
+         default:
+            break;
+         }
       }
       else // ( res != pastdest )
       {
-        // handle the crusher encountering an obstacle
-        if (res == crushed)
-        {
-          switch(ceiling->type)
-          {
-            //jff 02/08/98 slow down slow crushers on obstacle
+         // handle the crusher encountering an obstacle
+         if(res == crushed)
+         {
+            switch(ceiling->type)
+            {
+               //jff 02/08/98 slow down slow crushers on obstacle
             case genCrusher:  
             case genSilentCrusher:
-              if (ceiling->oldspeed < CEILSPEED*3)
-                ceiling->speed = CEILSPEED / 8;
-              break;
+               if(ceiling->oldspeed < CEILSPEED*3)
+                  ceiling->speed = CEILSPEED / 8;
+               break;
             case silentCrushAndRaise:
             case crushAndRaise:
             case lowerAndCrush:
-                ceiling->speed = CEILSPEED / 8;
-              break;
-
+               ceiling->speed = CEILSPEED / 8;
+               break;
+               
             default:
-              break;
-          }
-        }
-      }
+               break;
+            }
+         }
+      } // end else
       break;
-   }
+   } // end switch
 }
 
 
@@ -287,13 +287,13 @@ int EV_DoCeiling
     sec->ceilingdata = ceiling;               //jff 2/22/98
     ceiling->thinker.function = T_MoveCeiling;
     ceiling->sector = sec;
-    ceiling->crush = false;
+    ceiling->crush = -1;
   
     // setup ceiling structure according to type of function
     switch(type)
     {
       case fastCrushAndRaise:
-        ceiling->crush = true;
+        ceiling->crush = 10;
         ceiling->topheight = sec->ceilingheight;
         ceiling->bottomheight = sec->floorheight + (8*FRACUNIT);
         ceiling->direction = plat_down;
@@ -302,7 +302,7 @@ int EV_DoCeiling
 
       case silentCrushAndRaise:
       case crushAndRaise:
-        ceiling->crush = true;
+        ceiling->crush = 10;
         ceiling->topheight = sec->ceilingheight;
       case lowerAndCrush:
       case lowerToFloor:

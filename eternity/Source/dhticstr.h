@@ -134,6 +134,7 @@
 // automap level names
 
 // episode 1 - the city of the damned
+
 #define HHUSTR_E1M1 "E1M1:  THE DOCKS"
 #define HHUSTR_E1M2 "E1M2:  THE DUNGEONS"
 #define HHUSTR_E1M3 "E1M3:  THE GATEHOUSE"
@@ -145,6 +146,7 @@
 #define HHUSTR_E1M9 "E1M9:  THE GRAVEYARD"
 
 // episode 2 - hell's maw
+
 #define HHUSTR_E2M1 "E2M1:  THE CRATER"
 #define HHUSTR_E2M2 "E2M2:  THE LAVA PITS"
 #define HHUSTR_E2M3 "E2M3:  THE RIVER OF FIRE"
@@ -156,6 +158,7 @@
 #define HHUSTR_E2M9 "E2M9:  THE GLACIER"
 
 // episode 3 - the dome of d'sparil
+
 #define HHUSTR_E3M1 "E3M1:  THE STOREHOUSE"
 #define HHUSTR_E3M2 "E3M2:  THE CESSPOOL"
 #define HHUSTR_E3M3 "E3M3:  THE CONFLUENCE"
@@ -167,6 +170,7 @@
 #define HHUSTR_E3M9 "E3M9:  THE AQUIFER"
 
 // episode 4: the ossuary
+
 #define HHUSTR_E4M1 "E4M1:  CATAFALQUE"
 #define HHUSTR_E4M2 "E4M2:  BLOCKHOUSE"
 #define HHUSTR_E4M3 "E4M3:  AMBULATORY"
@@ -178,6 +182,7 @@
 #define HHUSTR_E4M9 "E4M9:  MAUSOLEUM"
 
 // episode 5: the stagnant demesne
+
 #define HHUSTR_E5M1 "E5M1:  OCHRE CLIFFS"
 #define HHUSTR_E5M2 "E5M2:  RAPIDS"
 #define HHUSTR_E5M3 "E5M3:  QUAY"

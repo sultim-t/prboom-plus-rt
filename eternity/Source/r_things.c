@@ -99,7 +99,6 @@ void R_SetMaskedSilhouette(short *top, short *bottom)
 //  which increases counter clockwise (protractor).
 // There was a lot of stuff grabbed wrong, so I changed it...
 //
-extern int updownangle;
 
 extern int global_cmap_index; // haleyjd: NGCS
 
@@ -208,15 +207,16 @@ void R_InitSpriteDefs(char **namelist)
 {
    size_t numentries = lastspritelump-firstspritelump+1;
    struct { int index, next; } *hash;
-   int i;
+   unsigned int i;
       
    if(!numentries || !*namelist)
       return;
    
    // count the number of sprite names
-   for(i = 0; namelist[i]; ++i) ;
+   for(i = 0; namelist[i]; ++i)
+      ; // do nothing
    
-   numsprites = i;
+   numsprites = (signed)i;
 
    sprites = Z_Malloc(numsprites *sizeof(*sprites), PU_STATIC, NULL);
    
@@ -238,7 +238,7 @@ void R_InitSpriteDefs(char **namelist)
    // scan all the lump names for each of the names,
    //  noting the highest frame letter.
 
-   for(i = 0; i < numsprites; ++i)
+   for(i = 0; i < (unsigned)numsprites; ++i)
    {
       const char *spritename = namelist[i];
       int j = hash[R_SpriteNameHash(spritename) % numentries].index;
@@ -460,7 +460,7 @@ void R_DrawMaskedColumn(column_t *column)
       {
          dc_source = (byte *) column + 3;
          dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
-         
+
          // Drawn by either R_DrawColumn
          //  or (SHADOW) R_DrawFuzzColumn.
          colfunc();
@@ -504,6 +504,19 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
    {
       colfunc = R_DrawFuzzColumn;    // killough 3/14/98
    }
+   else if(vis->mobjflags3 & MF3_TLSTYLEADD)
+   {
+      // haleyjd 02/08/05: additive translucency support
+      if(vis->colour)
+      {
+         colfunc = R_DrawAddTlatedColumn;
+         dc_translation = translationtables[vis->colour - 1];
+      }
+      else
+         colfunc = R_DrawAddColumn;
+
+      dc_translevel = vis->translucency;
+   }
    else if(vis->translucency < FRACUNIT && general_translucency)
    {
       // haleyjd: zdoom-style translucency
@@ -518,16 +531,24 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 
       dc_translevel = vis->translucency;
    }
+   else if(vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
+   {
+      // haleyjd 02/08/05: allow translated BOOM tl columns too
+      if(vis->colour)
+      {
+         colfunc = R_DrawTLTlatedColumn;
+         dc_translation = translationtables[vis->colour - 1];
+      }
+      else
+         colfunc = R_DrawTLColumn;
+      
+      tranmap = main_tranmap; // killough 4/11/98
+   }
    else if(vis->colour)
    {
       // haleyjd 01/12/04: changed translation handling
       colfunc = R_DrawTranslatedColumn;
       dc_translation = translationtables[vis->colour - 1];
-   }
-   else if(vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
-   {
-      colfunc = R_DrawTLColumn;
-      tranmap = main_tranmap;       // killough 4/11/98
    }
    else
       colfunc = R_DrawColumn;         // killough 3/14/98, 4/11/98
@@ -542,7 +563,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
    if(vis->footclip)
    {
       fixed_t sprbotscreen = 
-         sprtopscreen + FixedMul(patch->height<<FRACBITS, spryscale);
+         sprtopscreen + FixedMul(SHORT(patch->height)<<FRACBITS, spryscale);
 
       footclipon = true;
       
@@ -599,8 +620,10 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 //
 void R_ProjectSprite (mobj_t* thing)
 {
+   fixed_t   tr_x, tr_y;
+   fixed_t   gxt, gyt;
    fixed_t   gzt;            // killough 3/27/98
-   fixed_t   tx;
+   fixed_t   tx, tz;
    fixed_t   xscale, yscale; // ANYRES
    int       x1, x2;
    spritedef_t   *sprdef;
@@ -611,31 +634,30 @@ void R_ProjectSprite (mobj_t* thing)
    fixed_t   iscale;
    int heightsec;            // killough 3/27/98
 
-   // transform the origin point
-   fixed_t tr_x = thing->x - viewx;
-   fixed_t tr_y = thing->y - viewy;
+   // haleyjd 04/18/99: MF2_DONTDRAW
+   //         09/01/02: zdoom-style translucency
+   if((thing->flags2 & MF2_DONTDRAW) || !thing->translucency)
+      return; // don't generate vissprite
 
-   fixed_t gxt =  FixedMul(tr_x, viewcos);
-   fixed_t gyt = -FixedMul(tr_y, viewsin);
-   
-   fixed_t tz = gxt - gyt;
+   // transform the origin point
+   tr_x = thing->x - viewx;
+   tr_y = thing->y - viewy;
+
+   gxt =  FixedMul(tr_x, viewcos);
+   gyt = -FixedMul(tr_y, viewsin);
+
+   tz = gxt - gyt;
    
    // thing is behind view plane?
    if(tz < MINZ)
       return;
-  
-   // haleyjd 04/18/99: MF2_DONTDRAW
-   //         09/01/02: zdoom-style translucency
-   if((thing->flags2 & MF2_DONTDRAW) || !thing->translucency)
-   {
-      return; // don't generate vissprite
-   }
 
    xscale = FixedDiv(projection, tz);
-   yscale = FixedMul(yprojection, xscale);
+   yscale = FixedMul(yaspectmul, xscale);
    
    gxt = -FixedMul(tr_x,viewsin);
    gyt = FixedMul(tr_y,viewcos);
+
    tx = -(gyt+gxt);
    
    // too far off the side?
@@ -707,8 +729,8 @@ void R_ProjectSprite (mobj_t* thing)
    // killough 4/9/98: clip things which are out of view due to height
    // sf : fix for look up/down
    //        centeryfrac=(viewheight<<(FRACBITS-1));
-   if(thing->z > viewz + FixedDiv((viewheight<<(FRACBITS)), xscale) ||
-      gzt      < viewz - FixedDiv((viewheight<<(FRACBITS))-viewheight, xscale))
+   if(thing->z > viewz + FixedDiv((viewheight<<FRACBITS), xscale) ||
+      gzt      < viewz - FixedDiv((viewheight<<FRACBITS)-viewheight, xscale))
       return;
 
    // killough 3/27/98: exclude things totally separated
@@ -739,7 +761,8 @@ void R_ProjectSprite (mobj_t* thing)
    // killough 3/27/98: save sector for special clipping later   
    vis->heightsec = heightsec;
    
-   vis->mobjflags = thing->flags;
+   vis->mobjflags  = thing->flags;
+   vis->mobjflags3 = thing->flags3; // haleyjd
    vis->colour = thing->colour;
    vis->scale = yscale; // SoM: ANYRES //xscale;
    vis->gx = thing->x;
@@ -759,7 +782,7 @@ void R_ProjectSprite (mobj_t* thing)
    vis->footclip = thing->floorclip;
 
    // haleyjd: moved this down, added footclip term
-   vis->texturemid = gzt - viewz - vis->footclip;
+   vis->texturemid = gzt - viewz - vis->footclip;   
 
    if(flip)
    {
@@ -834,7 +857,7 @@ void R_AddSprites(sector_t* sec, int lightlevel)
 
    if(drawparticles)
    {
-      for(ptcl = sec->ptcllist; ptcl; ptcl = ptcl->snext)
+      for(ptcl = sec->ptcllist; ptcl; ptcl = (particle_t *)(ptcl->seclinks.next))
          R_ProjectParticle(ptcl);
    }
 }
@@ -854,6 +877,8 @@ void R_DrawPSprite(pspdef_t *psp)
   boolean       flip;
   vissprite_t   *vis;
   vissprite_t   avis;
+  int           oldcentery;
+  fixed_t       oldcenteryfrac;
 
   // haleyjd: total invis. psprite disable
 
@@ -918,6 +943,7 @@ void R_DrawPSprite(pspdef_t *psp)
   // store information in a vissprite
   vis = &avis;
   vis->mobjflags = 0;
+  vis->mobjflags3 = 0; // haleyjd
 
   // killough 12/98: fix psprite positioning problem
   vis->texturemid = (BASEYCENTER<<FRACBITS) /* + FRACUNIT/2 */ -
@@ -969,18 +995,15 @@ void R_DrawPSprite(pspdef_t *psp)
   if(psp->trans) // translucent gunflash
     vis->mobjflags |= MF_TRANSLUCENT;
 
-  if(viewplayer->readyweapon == wp_bfg && bfglook==2)
-  {
-    R_DrawVisSprite (vis, vis->x1, vis->x2);
-  }
-  else
-  {
-    centery = viewheight/2 ;
-    centeryfrac = centery << FRACBITS;
-    R_DrawVisSprite (vis, vis->x1, vis->x2);
-    centery = (viewheight/2) + updownangle;
-    centeryfrac = centery<<FRACBITS;
-  }
+  oldcentery = centery;
+  centery = viewheight / 2;
+  oldcenteryfrac = centeryfrac;
+  centeryfrac = centery << FRACBITS;
+
+  R_DrawVisSprite (vis, vis->x1, vis->x2);
+
+  centery = oldcentery;
+  centeryfrac = oldcenteryfrac;
 }
 
 //
@@ -1568,7 +1591,8 @@ void R_InitParticles(void)
    
    if(numParticles == 0) // assume default
    {
-      numParticles = 4000;
+      //numParticles = 4000; haleyjd 09/07/05: experiment
+      numParticles = 2000;
    }
    else if(numParticles < 100)
    {
@@ -1576,7 +1600,6 @@ void R_InitParticles(void)
    }
    
    Particles = Z_Malloc(numParticles*sizeof(particle_t), PU_STATIC, NULL);
-   memset(Particles, 0, numParticles*sizeof(particle_t));
    R_ClearParticles();
 }
 
@@ -1616,7 +1639,7 @@ void R_ProjectParticle(particle_t *particle)
    tr_x = particle->x - viewx;
    tr_y = particle->y - viewy;
    
-   gxt = FixedMul(tr_x, viewcos); 
+   gxt =  FixedMul(tr_x, viewcos); 
    gyt = -FixedMul(tr_y, viewsin);
    
    tz = gxt - gyt; 
@@ -1626,14 +1649,14 @@ void R_ProjectParticle(particle_t *particle)
       return;
    
    xscale = FixedDiv(projection, tz);
-   yscale = FixedMul(xscale, yprojection);
+   yscale = FixedMul(yaspectmul, xscale); 
    
    gxt = -FixedMul(tr_x, viewsin); 
-   gyt = FixedMul(tr_y, viewcos); 
-   tx = -(gyt+gxt); 
+   gyt =  FixedMul(tr_y, viewcos); 
+   tx  = -(gyt + gxt); 
    
    // too far off the side?
-   if(D_abs(tx) > (tz<<2))
+   if(D_abs(tx) > (tz << 2))
       return;
    
    // calculate edges of the shape
@@ -1646,11 +1669,11 @@ void R_ProjectParticle(particle_t *particle)
    x2 = ((centerxfrac + 
           FixedMul(tx+particle->size*(FRACUNIT/4), xscale)) >> FRACBITS);
    
-   // off the left side
+   // off the left side?
    if(x2 < 0)
       return;
    
-   gzt = particle->z+1;
+   gzt = particle->z + 1;
    
    // killough 3/27/98: exclude things totally separated
    // from the viewer, by either water or fake ceilings
@@ -1704,6 +1727,7 @@ void R_ProjectParticle(particle_t *particle)
    vis->xiscale = iscale;
    vis->patch = -1;
    vis->mobjflags = particle->trans;
+   vis->mobjflags3 = 0; // haleyjd
    
    if(fixedcolormap ==
       fullcolormap + INVERSECOLORMAP*256*sizeof(lighttable_t))
@@ -1763,12 +1787,6 @@ void R_DrawParticle(vissprite_t *vis)
    int x1, x2;
    int yl, yh;
    byte color;
-   unsigned int bg, fg;
-   unsigned int *fg2rgb, *bg2rgb;
-   fixed_t fglevel, bglevel;
-
-   bg = fg = 0;
-   fg2rgb = bg2rgb = NULL;
 
    x1 = vis->x1;
    x2 = vis->x2;
@@ -1801,52 +1819,72 @@ void R_DrawParticle(vissprite_t *vis)
       byte *dest;
 
       xcount = x2 - x1 + 1;
-      ycount = yh - yl + 1;
       
-      if(ycount <= 0)
+      ycount = yh - yl;      
+      if(ycount < 0)
 	 return;
+      ++ycount;
 
       spacing = v_width - xcount;
       dest = ylookup[yl] + columnofs[x1];
 
-      if(general_translucency && particle_trans == 1)
+      // haleyjd 02/08/05: rewritten to remove inner loop invariants
+      if(general_translucency && particle_trans)
       {
-         // look up translucency information
-         fglevel = ((vis->mobjflags + 1) << 8) & ~0x3ff;
-         bglevel = FRACUNIT - fglevel;
-         fg2rgb  = Col2RGB[fglevel >> 10];
-         bg2rgb  = Col2RGB[bglevel >> 10];
-         fg      = fg2rgb[color];
-      }
-      
-      do // step in y
-      {
-	 int count = xcount;
-	 
-	 do // step in x
-	 {
-	    if(general_translucency && particle_trans)
+         if(particle_trans == 1) // smooth (DosDOOM-style)
+         {
+            unsigned int bg, fg;
+            unsigned int *fg2rgb, *bg2rgb;
+            fixed_t fglevel, bglevel;
+
+            // look up translucency information
+            fglevel = ((vis->mobjflags + 1) << 8) & ~0x3ff;
+            bglevel = FRACUNIT - fglevel;
+            fg2rgb  = Col2RGB[fglevel >> 10];
+            bg2rgb  = Col2RGB[bglevel >> 10];
+            fg      = fg2rgb[color]; // foreground color is invariant
+
+            do // step in y
             {
-               // haleyjd: old BOOM translucency method
-               if(particle_trans == 2)
-                  *dest = main_tranmap[(*dest << 8) + color];
-               else
+               int count = xcount;
+               
+               do // step in x
                {
-                  // zdoom-style smooth fading
                   bg = bg2rgb[*dest];
-                  bg = (fg + bg) | 0xf07c3e1f; // don't ask me...
-                  *dest = RGB8k[0][0][(bg>>5) & (bg>>19)];
-               }
-            }
-	    else
+                  bg = (fg + bg) | 0xf07c3e1f;
+                  *dest++ = RGB8k[0][0][(bg >> 5) & (bg >> 19)];
+               } while(--count);
+               dest += spacing;  // go to next row
+            } while(--ycount);
+         }
+         else // general (BOOM)
+         {
+            do // step in y
             {
-	       *dest = color;
-            }
-	    dest += 1;	   // go to next pixel
-	 } while(--count);
-	 dest += spacing;  // go to next row
-      } while(--ycount);
-   }
+               int count = xcount;
+               
+               do // step in x
+               {
+                  *dest++ = main_tranmap[(*dest << 8) + color];
+               } while(--count);
+               dest += spacing;  // go to next row
+            } while(--ycount);
+         } // end else [particle_trans == 2]
+      }
+      else // opaque (fast, and looks terrible)
+      {
+         do // step in y
+         {
+            int count = xcount;
+            
+            do // step in x
+            {
+               *dest++ = color;
+            } while(--count);
+            dest += spacing;  // go to next row
+         } while(--ycount);
+      } // end else [!general_translucency]
+   } // end local block
 }
 
 //----------------------------------------------------------------------------

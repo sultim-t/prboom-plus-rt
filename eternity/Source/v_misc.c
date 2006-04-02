@@ -23,8 +23,6 @@
 //
 // Font. Loading box. FPS ticker, etc
 //
-// TODO: The font code is a candidate for generalization.
-//
 //---------------------------------------------------------------------------
 
 #include <stdio.h>
@@ -112,9 +110,10 @@ patch_t *bgp[9];        // background for boxes
 #define B_FONTEND   'Z'
 #define B_FONTSIZE  (B_FONTEND - B_FONTSTART + 1)
 
-patch_t *v_font[V_FONTSIZE]; // still used externally
-static patch_t *b_font[B_FONTSIZE];
+patch_t *v_font[V_FONTSIZE];        // still used externally
+static patch_t *b_font[B_FONTSIZE]; // used only in this module
 
+// haleyjd 01/14/05: vfont object for small font
 vfont_t small_font =
 {
    V_FONTSTART, // first character
@@ -134,17 +133,18 @@ vfont_t small_font =
    v_font,      // patch array
 };
 
-// haleyjd 01/14/05: big font -- TODO: not enabled in DOOM yet
+// haleyjd 01/14/05: vfont object for big font
 static vfont_t big_font =
 {
    B_FONTSTART, // first character
    B_FONTEND,   // last character
    B_FONTSIZE,  // number of characters
 
-   20,          // cy
-   8,           // space
-   1,           // dw
-   20,          // absh -- FIXME
+   // these differ in the big font between game modes
+   0,           // cy: set below
+   0,           // space: set below
+   0,           // dw: set below
+   0,           // absh: set blow
 
    false,       // color enabled
    true,        // caps only
@@ -160,10 +160,11 @@ vfont_t big_num_font =
    B_FONTEND,   // last character
    B_FONTSIZE,  // number of characters
 
-   20,          // cy
-   12,          // space
+   // these are also now set below
+   0,           // cy
+   0,           // space
    0,           // dw
-   20,          // absh -- FIXME
+   0,           // absh
 
    false,       // color enabled
    true,        // caps only
@@ -171,7 +172,7 @@ vfont_t big_num_font =
 
    b_font,      // patch array
 
-   12,          // cw
+   12,          // cw: box to center characters within
 };
 
 //
@@ -225,13 +226,32 @@ static void V_LoadFont(void)
    }
 }
 
+//
+// V_LoadBigFont
+//
+// haleyjd 03/26/05
+// Loads the large font. Now available in DOOM, too.
+//
 static void V_LoadBigFont(void)
 {
    int i, j;
    char tempstr[9];
+
+   // haleyjd 03/26/05: populate the vfont object with the proper
+   // values for the current game mode.
+   big_font.cy    = gameModeInfo->btextinfo->cy;
+   big_font.space = gameModeInfo->btextinfo->space;
+   big_font.dw    = gameModeInfo->btextinfo->dw;
+   big_font.absh  = gameModeInfo->btextinfo->absh;
+
+   // pass on and alter some values for the big number font
+   big_num_font.cy    = big_font.cy;
+   big_num_font.space = 12;            // bigger space
+   big_num_font.dw    = 0;             // no width delta
+   big_num_font.absh  = big_font.absh;
    
    // init to NULL first
-   for(i = 0; i < B_FONTSIZE; i++)
+   for(i = 0; i < B_FONTSIZE; ++i)
       b_font[i] = NULL;
 
    // FONTB may not exist, check to make sure
@@ -239,11 +259,21 @@ static void V_LoadBigFont(void)
       return;
    
    for(i = 0, j = B_FONTSTART; i < B_FONTSIZE; i++, j++)
-   {      
+   {     
+      int num;
+      
       sprintf(tempstr, "FONTB%.2d", j - 32);
-      b_font[i] = W_CacheLumpName(tempstr, PU_STATIC);
+      if((num = W_CheckNumForName(tempstr)) != -1)
+         b_font[i] = W_CacheLumpNum(num, PU_STATIC);
    }
 }
+
+//
+// haleyjd 01/14/05: The following functions persist as convenience
+// methods, and only call down to the vfont engine using the appropriate
+// vfont objects. This way I don't need to change every call in the 
+// engine right now.
+//
 
 //
 // V_WriteText
@@ -280,7 +310,6 @@ void V_WriteNumTextBig(const char *s, int x, int y)
 // V_WriteTextColoured
 //
 // write text in a particular colour
-// haleyjd 03/27/03: rewritten
 // haleyjd 01/14/05: now uses vfont engine
 //
 void V_WriteTextColoured(const char *s, int colour, int x, int y)

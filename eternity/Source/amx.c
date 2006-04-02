@@ -1,6 +1,6 @@
 /*  Abstract Machine for the Small compiler
  *
- *  Copyright (c) ITB CompuPhase, 1997-2004
+ *  Copyright (c) ITB CompuPhase, 1997-2005
  *
  *  This software is provided "as-is", without any express or implied warranty.
  *  In no event will the authors be held liable for any damages arising from
@@ -18,11 +18,11 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.c,v 1.55 2004-07-28 17:58:43+02 thiadmer Exp thiadmer $
+ *  Version: $Id: amx.c,v 1.66 2005-02-09 10:24:12+01 thiadmer Exp $
  */
 
-// bad bad workaround but we have to prevent a compiler crash :/
-#if (BUILD_PLATFORM== WINDOWS) && (BUILD_TYPE== RELEASE) && (BUILD_COMPILER== MSVC) && (SMALL_CELL_SIZE== 64)
+#if BUILD_PLATFORM == WINDOWS && BUILD_TYPE == RELEASE && BUILD_COMPILER == MSVC && SMALL_CELL_SIZE == 64
+  /* bad bad workaround but we have to prevent a compiler crash :/ */
   #pragma optimize("g",off)
 #endif
 
@@ -42,19 +42,25 @@
 #include <stddef.h>     /* for wchar_t */
 #include <string.h>
 #include "osdefs.h"
-#if defined LINUX
-  #include "sclinux.h" // haleyjd: this is a user include
+#if defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
+  /* haleyjd: this is a user include, not a system include */
+  #include "sclinux.h"
   #if !defined AMX_NODYNALOAD
     #include <dlfcn.h>
+  #endif
+  #if defined JIT
+    #include <sys/types.h>
+    #include <sys/mman.h>
   #endif
 #endif
 #if defined __LCC__
   #include <wchar.h>    /* for wcslen() */
 #endif
 #include "amx.h"
-#if (defined _Windows && !defined AMX_NODYNALOAD) || defined JIT
+#if (defined _Windows && !defined AMX_NODYNALOAD) || (defined JIT && __WIN32__)
   #include <windows.h>
 #endif
+
 
 /* When one or more of the AMX_funcname macris are defined, we want
  * to compile only those functions. However, when none of these macros
@@ -86,7 +92,7 @@
 #endif
 #if !defined AMX_EXPLIT_FUNCTIONS
   /* no constant set, set them all */
-  #define AMX_ALIGN             /* amx_Align16() and amx_Align32() */
+  #define AMX_ALIGN             /* amx_Align16(), amx_Align32() and amx_Align64() */
   #define AMX_ALLOT             /* amx_Allot() and amx_Release() */
   #define AMX_CLEANUP           /* amx_Cleanup() */
   #define AMX_CLONE             /* amx_Clone() */
@@ -253,121 +259,123 @@ typedef enum {
   OP_NUM_OPCODES
 } OPCODE;
 
-typedef struct tagFUNCSTUBNT {
-  uint32_t address PACKED;
-  uint32_t nameofs PACKED;
-} FUNCSTUBNT       PACKED;
-
 #define USENAMETABLE(hdr) \
                         ((hdr)->defsize==sizeof(FUNCSTUBNT))
 #define NUMENTRIES(hdr,field,nextfield) \
-                        (int)(((hdr)->nextfield - (hdr)->field) / (hdr)->defsize)
+                        (unsigned)(((hdr)->nextfield - (hdr)->field) / (hdr)->defsize)
 #define GETENTRY(hdr,table,index) \
-                        (AMX_FUNCSTUB *)((unsigned char*)(hdr) + (int)(hdr)->table + (int)index*(hdr)->defsize)
+                        (AMX_FUNCSTUB *)((unsigned char*)(hdr) + (unsigned)(hdr)->table + (unsigned)index*(hdr)->defsize)
 #define GETENTRYNAME(hdr,entry) \
                         ( USENAMETABLE(hdr) \
-                           ? (char *)((unsigned char*)(hdr) + ((FUNCSTUBNT*)(entry))->nameofs) \
+                           ? (char *)((unsigned char*)(hdr) + (unsigned)((FUNCSTUBNT*)(entry))->nameofs) \
                            : ((AMX_FUNCSTUB*)(entry))->name )
 
-static int amx_LittleEndian = -1;   /* set to TRUE for Little Endian, and
-                                     * to FALSE for Big Endian */
-
-static void init_little_endian(void)
-{
-  if (amx_LittleEndian < 0) {       /* initialize this variable only once */
+#if !defined NDEBUG
+  static int check_endian(void)
+  {
     uint16_t val=0x00ff;
     unsigned char *ptr=(unsigned char *)&val;
-
     /* "ptr" points to the starting address of "val". If that address
      * holds the byte "0xff", the computer stored the low byte of "val"
      * at the lower address, and so the memory lay out is Little Endian.
      */
     assert(*ptr==0xff || *ptr==0x00);
-    amx_LittleEndian= *ptr==0xff;
-  } /* if */
-}
+    #if BYTE_ORDER==BIG_ENDIAN
+      return *ptr==0x00;  /* return "true" if big endian */
+    #else
+      return *ptr==0xff;  /* return "true" if little endian */
+    #endif
+  }
+#endif
 
-static void swap16(uint16_t *v)
-{
-  unsigned char *s = (unsigned char *)v;
-  unsigned char t;
+#if BYTE_ORDER==BIG_ENDIAN || SMALL_CELL_SIZE==16
+  static void swap16(uint16_t *v)
+  {
+    unsigned char *s = (unsigned char *)v;
+    unsigned char t;
 
-  assert(sizeof(*v)==2);
-  /* swap two bytes */
-  t=s[0];
-  s[0]=s[1];
-  s[1]=t;
-}
+    assert(sizeof(*v)==2);
+    /* swap two bytes */
+    t=s[0];
+    s[0]=s[1];
+    s[1]=t;
+  }
+#endif
 
-static void swap32(uint32_t *v)
-{
-  unsigned char *s = (unsigned char *)v;
-  unsigned char t;
+#if BYTE_ORDER==BIG_ENDIAN || SMALL_CELL_SIZE==32
+  static void swap32(uint32_t *v)
+  {
+    unsigned char *s = (unsigned char *)v;
+    unsigned char t;
 
-  assert(sizeof(*v)==4);
-  /* swap outer two bytes */
-  t=s[0];
-  s[0]=s[3];
-  s[3]=t;
-  /* swap inner two bytes */
-  t=s[1];
-  s[1]=s[2];
-  s[2]=t;
-}
+    assert(sizeof(*v)==4);
+    /* swap outer two bytes */
+    t=s[0];
+    s[0]=s[3];
+    s[3]=t;
+    /* swap inner two bytes */
+    t=s[1];
+    s[1]=s[2];
+    s[2]=t;
+  }
+#endif
 
-#if defined _I64_MAX || defined HAVE_I64
-static void swap64(uint64_t *v)
-{
-	unsigned char *s = (unsigned char *)v;
-	unsigned char t;
+#if (BYTE_ORDER==BIG_ENDIAN || SMALL_CELL_SIZE==64) && (defined _I64_MAX || defined HAVE_I64)
+  static void swap64(uint64_t *v)
+  {
+    unsigned char *s = (unsigned char *)v;
+    unsigned char t;
 
-	assert(sizeof(*v)==8);
+    assert(sizeof(*v)==8);
 
-	t=s[0];
-	s[0]=s[7];
-	s[7]=t;
+    t=s[0];
+    s[0]=s[7];
+    s[7]=t;
 
-	t=s[1];
-	s[1]=s[6];
-	s[6]=t;
+    t=s[1];
+    s[1]=s[6];
+    s[6]=t;
 
-	t=s[2];
-	s[2]=s[5];
-	s[5]=t;
+    t=s[2];
+    s[2]=s[5];
+    s[5]=t;
 
-	t=s[3];
-	s[3]=s[4];
-	s[4]=t;
-}
+    t=s[3];
+    s[3]=s[4];
+    s[4]=t;
+  }
 #endif
 
 #if defined AMX_ALIGN || defined AMX_INIT
 uint16_t * AMXAPI amx_Align16(uint16_t *v)
 {
   assert(sizeof(*v)==2);
-  init_little_endian();
-  if (!amx_LittleEndian)
+  assert(check_endian());
+  #if BYTE_ORDER==BIG_ENDIAN
     swap16(v);
+  #endif
   return v;
 }
 
 uint32_t * AMXAPI amx_Align32(uint32_t *v)
 {
-  assert(sizeof(cell)==4);
-  init_little_endian();
-  if (!amx_LittleEndian)
+  assert(sizeof(*v)==4);
+  assert(check_endian());
+  #if BYTE_ORDER==BIG_ENDIAN
     swap32(v);
+  #endif
   return v;
 }
 
 #if defined _I64_MAX || defined HAVE_I64
 uint64_t * AMXAPI amx_Align64(uint64_t *v)
 {
-	assert(sizeof(cell)==8);
-	init_little_endian();
-	if (!amx_LittleEndian)
-		swap64(v);
-	return v;
+  assert(sizeof(*v)==8);
+  assert(check_endian());
+  #if BYTE_ORDER==BIG_ENDIAN
+    swap64(v);
+  #endif
+  return v;
 }
 #endif  /* _I64_MAX || HAVE_I64 */
 #endif  /* AMX_ALIGN || AMX_INIT */
@@ -401,7 +409,6 @@ int AMXAPI amx_Flags(AMX *amx,uint16_t *flags)
 #endif /* AMX_FLAGS */
 
 #if defined AMX_INIT
-
 int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
 {
   AMX_HEADER *hdr;
@@ -415,51 +422,37 @@ int AMXAPI amx_Callback(AMX *amx, cell index, cell *result, cell *params)
   assert(hdr->natives<=hdr->libraries);
   assert(index>=0 && index<(cell)NUMENTRIES(hdr,natives,libraries));
   func=GETENTRY(hdr,natives,index);
-
-  // haleyjd 11/27/04: native function pointer table fix
-#ifndef AMX_NATIVE_TABLE
-  f = (AMX_NATIVE)func->address;
-#else
-  assert(amx->functable != NULL);
-  f = amx->functable[func->address];
-#endif
+  f=(AMX_NATIVE)func->address;
   assert(f!=NULL);
 
   /* now that we have found the function, patch the program so that any
    * subsequent call will call the function directly (bypassing this
    * callback)
+   * this trick cannot work in the JIT, because the program would need to
+   * be re-JIT-compiled after patching a P-code instruction
    */
-  if (amx->sysreq_d!=0) {
-    /* at the point of the call, the CIP pseudo-register points directly
-     * behind the SYSREQ instruction and its parameter.
-     */
-    unsigned char *code=amx->base+(int)hdr->cod+(int)amx->cip-4;
-    assert(amx->cip >= 4 && amx->cip < (hdr->dat - hdr->cod));
-    assert(sizeof(f)<=sizeof(cell));    /* function pointer must fit in a cell */
-#if defined __GNUC__ || defined ASM32 || defined JIT
-    if (*(cell*)code==index) {
+   #if defined JIT
+     assert(amx->sysreq_d==0);
+   #else
+     if (amx->sysreq_d!=0) {
+      /* at the point of the call, the CIP pseudo-register points directly
+       * behind the SYSREQ instruction and its parameter.
+       */
+      unsigned char *code=amx->base+(int)hdr->cod+(int)amx->cip-4;
+      assert(amx->cip >= 4 && amx->cip < (hdr->dat - hdr->cod));
+      assert(sizeof(f)<=sizeof(cell));    /* function pointer must fit in a cell */
+#if defined __GNUC__ || defined ASM32
+      if (*(cell*)code==index) {
 #else
-    if (*(cell*)code!=OP_SYSREQ_PRI) {
-      assert(*(cell*)(code-sizeof(cell))==OP_SYSREQ_C);
-      assert(*(cell*)code==index);
+      if (*(cell*)code!=OP_SYSREQ_PRI) {
+        assert(*(cell*)(code-sizeof(cell))==OP_SYSREQ_C);
+        assert(*(cell*)code==index);
 #endif
-      *(cell*)(code-sizeof(cell))=amx->sysreq_d;
-      *(cell*)code=(cell)f;
+        *(cell*)(code-sizeof(cell))=amx->sysreq_d;
+        *(cell*)code=(cell)f;
+      } /* if */
     } /* if */
-  } /* if */
-
-  /* haleyjd 11/27/04: this is unreliable and is replaced by my 
-   * native function pointer table
-   */
-#ifndef AMX_NATIVE_TABLE
-  /* on 64-bit platforms, only the lower 32-bits were stored in the native
-   * function table; complete the address
-   */
-  #if defined __64BIT__
-    assert(sizeof(f)>sizeof(uint32_t));
-    f= (f & 0xffffffffL) | (amx_Callback & ~0xffffffffL);
   #endif
-#endif
 
   /* Note:
    *   params[0] == number of bytes for the additional parameters passed to the native function
@@ -480,49 +473,18 @@ int AMXAPI amx_Debug(AMX *amx)
   return AMX_ERR_DEBUG;
 }
 
-/* haleyjd 11/27/04: functions to maintain the native function pointer
- * list used to replace the ugly and undependable function pointer hack
- * used when running on 64-bit architecture. This breaks the Small design
- * decision to use no dynamic memory in the interpreter, but I'm devoid
- * of ideas for other 100% portable solutions.
- */
-
-#ifdef AMX_NATIVE_TABLE
-
-static AMX_MALLOC amx_MallocFunc;
-
-int AMXAPI amx_SetMallocFunc(AMX_MALLOC malloc_func)
-{
-   assert(malloc_func != NULL);
-   amx_MallocFunc = malloc_func;
-
-   return AMX_ERR_NONE;
-}
-
-static AMX_FREE amx_FreeFunc;
-
-int AMXAPI amx_SetFreeFunc(AMX_FREE free_func)
-{
-   assert(free_func != NULL);
-   amx_FreeFunc = free_func;
-
-   return AMX_ERR_NONE;
-}
-
-#endif // AMX_NATIVE_TABLE
-
 #if defined JIT
   extern int AMXAPI getMaxCodeSize(void);
   extern int AMXAPI asm_runJIT(void *sourceAMXbase, void *jumparray, void *compiledAMXbase);
 #endif
 
 #if SMALL_CELL_SIZE==16
-  #define JUMPABS(base,ip)      ((cell *)(base+*ip))
+  #define JUMPABS(base,ip)      ((cell *)((base) + *(ip)))
   #define RELOC_ABS(base, off)
   #define RELOC_VALUE(base, v)
 #else
-  #define JUMPABS(base, ip)     ((cell *)*ip)
-  #define RELOC_ABS(base, off)  *(ucell *)(base+(int)off) += (ucell)base
+  #define JUMPABS(base, ip)     ((cell *)*(ip))
+  #define RELOC_ABS(base, off)  (*(ucell *)((base)+(int)(off)) += (ucell)(base))
   #define RELOC_VALUE(base, v)  ((v)+((ucell)(base)))
 #endif
 
@@ -570,6 +532,7 @@ static int amx_BrowseRelocate(AMX *amx)
   if (debug)
     amx->flags|=AMX_FLAG_DEBUG;
 
+  amx->sysreq_d=0;      /* preset */
   #if (defined __GNUC__ || defined ASM32 || defined JIT) && !defined __64BIT__
     amx_Exec(amx, (cell*)&opcode_list, 0, 0);
     #if !defined JIT
@@ -577,14 +540,16 @@ static int amx_BrowseRelocate(AMX *amx)
        * because the native function's address will be stored as the parameter
        * of SYSREQ.D
        */
-      amx->sysreq_d= (sizeof(AMX_NATIVE)<=sizeof(cell)) ? opcode_list[OP_SYSREQ_D] : 0;
+      if (sizeof(AMX_NATIVE)<=sizeof(cell))
+        amx->sysreq_d=opcode_list[OP_SYSREQ_D];
     #endif
   #else
     /* ANSI C
      * to use direct system requests, a function pointer must fit in a cell;
      * see the comment above
      */
-    amx->sysreq_d= (sizeof(AMX_NATIVE)<=sizeof(cell)) ? OP_SYSREQ_D : 0;
+    if (sizeof(AMX_NATIVE)<=sizeof(cell))
+      amx->sysreq_d=OP_SYSREQ_D;
   #endif
 
   /* start browsing code */
@@ -596,7 +561,10 @@ static int amx_BrowseRelocate(AMX *amx)
       return AMX_ERR_INVINSTR;
     } /* if */
     #if defined __GNUC__ || defined ASM32 || defined JIT
-      /* relocate symbol */
+      /* relocate opcode (only works if the size of an opcode is at least
+       * as big as the size of a pointer (jump address); so basically we
+       * rely on the opcode and a pointer being 32-bit
+       */
       *(cell *)(code+(int)cip) = opcode_list[op];
     #endif
     #if defined JIT
@@ -830,13 +798,14 @@ static int amx_BrowseRelocate(AMX *amx)
   return AMX_ERR_NONE;
 }
 
+#if AMX_COMPACTMARGIN > 2
 static void expand(unsigned char *code, long codesize, long memsize)
 {
   ucell c;
   struct {
     long memloc;
     ucell c;
-  } spare[AMX_EXPANDMARGIN];
+  } spare[AMX_COMPACTMARGIN];
   int sh=0,st=0,sc=0;
   int shift;
 
@@ -865,7 +834,7 @@ static void expand(unsigned char *code, long codesize, long memsize)
     /* store */
     while (sc&&(spare[sh].memloc>codesize)) {
       *(ucell *)(code+(int)spare[sh].memloc)=spare[sh].c;
-      sh=(sh+1)%AMX_EXPANDMARGIN;
+      sh=(sh+1)%AMX_COMPACTMARGIN;
       sc--;
     } /* while */
     memsize -= sizeof(cell);
@@ -873,26 +842,27 @@ static void expand(unsigned char *code, long codesize, long memsize)
     if ((memsize>codesize)||((memsize==codesize)&&(memsize==0))) {
       *(ucell *)(code+(size_t)memsize)=c;
     } else {
-      assert(sc<AMX_EXPANDMARGIN);
+      assert(sc<AMX_COMPACTMARGIN);
       spare[st].memloc=memsize;
       spare[st].c=c;
-      st=(st+1)%AMX_EXPANDMARGIN;
+      st=(st+1)%AMX_COMPACTMARGIN;
       sc++;
     } /* if */
   } /* while */
   /* when all bytes have been expanded, the complete memory block should be done */
   assert(memsize==0);
 }
+#endif
 
-int AMXAPI amx_Init(AMX *amx, void *program)
+int AMXAPI amx_Init(AMX *amx,void *program)
 {
   AMX_HEADER *hdr;
-  #if (defined _Windows || defined LINUX) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined LINUX || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
     char libname[sNAMEMAX+8];  /* +1 for '\0', +3 for 'amx' prefix, +4 for extension */
     #if defined _Windows
       typedef int (FAR WINAPI *AMX_ENTRY)(AMX _FAR *amx);
       HINSTANCE hlib;
-    #elif defined LINUX
+    #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
       typedef int (*AMX_ENTRY)(AMX *amx);
       void *hlib;
     #endif
@@ -908,8 +878,8 @@ int AMXAPI amx_Init(AMX *amx, void *program)
   /* the header is in Little Endian, on a Big Endian machine, swap all
    * multi-byte words
    */
-  init_little_endian();
-  if (!amx_LittleEndian) {
+  assert(check_endian());
+  #if BYTE_ORDER==BIG_ENDIAN
     amx_Align32((uint32_t*)&hdr->size);
     amx_Align16(&hdr->magic);
     amx_Align16((uint16_t*)&hdr->flags);
@@ -924,7 +894,7 @@ int AMXAPI amx_Init(AMX *amx, void *program)
     amx_Align32((uint32_t*)&hdr->libraries);
     amx_Align32((uint32_t*)&hdr->pubvars);
     amx_Align32((uint32_t*)&hdr->tags);
-  } /* if */
+  #endif
 
   if (hdr->magic!=AMX_MAGIC)
     return AMX_ERR_FORMAT;
@@ -938,21 +908,32 @@ int AMXAPI amx_Init(AMX *amx, void *program)
      * in that table
      */
     amx_Align32((uint32_t*)&hdr->nametable);
-    namelength=(uint16_t*)((unsigned char*)program + hdr->nametable);
+    namelength=(uint16_t*)((unsigned char*)program + (unsigned)hdr->nametable);
     amx_Align16(namelength);
     if (*namelength>sNAMEMAX)
       return AMX_ERR_FORMAT;
   } /* if */
+
+  amx->base=(unsigned char *)program; /* haleyjd: must be moved up here! */
+
   if (hdr->stp<=0)
     return AMX_ERR_FORMAT;
-  if (!amx_LittleEndian && (hdr->flags & AMX_FLAG_COMPACT)==0)
-    return AMX_ERR_FORMAT;      /* On Big Endian machines, use compact encoding */
+  #if BYTE_ORDER==BIG_ENDIAN
+    if ((hdr->flags & AMX_FLAG_COMPACT)==0) {
+      ucell *code=(ucell *)(amx->base+(int)hdr->cod);
+      while (code<(ucell *)(amx->base+(int)hdr->hea)) /* haleyjd: hea, not dat */
+	    swapcell(code++);
+    } /* if */
+  #endif
   assert((hdr->flags & AMX_FLAG_COMPACT)!=0 || hdr->hea == hdr->size);
-  if ((hdr->flags & AMX_FLAG_COMPACT)!=0)
-    expand((unsigned char *)program+(int)hdr->cod,
-           hdr->size - hdr->cod, hdr->hea - hdr->cod);
-
-  amx->base=(unsigned char *)program;
+  if ((hdr->flags & AMX_FLAG_COMPACT)!=0) {
+    #if AMX_COMPACTMARGIN > 2
+      expand((unsigned char *)program+(int)hdr->cod,
+             hdr->size - hdr->cod, hdr->hea - hdr->cod);
+    #else
+      return AMX_ERR_FORMAT;
+    #endif
+  } /* if */
 
   /* Set a zero cell at the top of the stack, which functions
    * as a sentinel for strings.
@@ -972,19 +953,28 @@ int AMXAPI amx_Init(AMX *amx, void *program)
   amx->curfile=0;
   amx->data=NULL;
 
-  /* also align all addresses in the public function, public variable and
-   * public tag tables --offsets into the name table (if present) must also
-   * be swapped.
+  /* also align all addresses in the public function, public variable,
+   * public tag and native function tables --offsets into the name table
+   * (if present) must also be swapped.
    */
-  if (!amx_LittleEndian) {
+  #if BYTE_ORDER==BIG_ENDIAN
     AMX_FUNCSTUB *fs;
     int i,num;
+
+    fs=GETENTRY(hdr,natives,0);
+    num=NUMENTRIES(hdr,natives,libraries);
+    for (i=0; i<num; i++) {
+      amx_AlignCell(&fs->address);      /* redundant, because it should be zero */
+      if (USENAMETABLE(hdr))
+        amx_Align32(&((FUNCSTUBNT*)fs)->nameofs);
+      fs=(AMX_FUNCSTUB*)((unsigned char *)fs+hdr->defsize);
+    } /* for */
 
     fs=GETENTRY(hdr,publics,0);
     assert(hdr->publics<=hdr->natives);
     num=NUMENTRIES(hdr,publics,natives);
     for (i=0; i<num; i++) {
-      amx_Align32(&fs->address);
+      amx_AlignCell(&fs->address);
       if (USENAMETABLE(hdr))
         amx_Align32(&((FUNCSTUBNT*)fs)->nameofs);
       fs=(AMX_FUNCSTUB*)((unsigned char *)fs+hdr->defsize);
@@ -994,7 +984,7 @@ int AMXAPI amx_Init(AMX *amx, void *program)
     assert(hdr->pubvars<=hdr->tags);
     num=NUMENTRIES(hdr,pubvars,tags);
     for (i=0; i<num; i++) {
-      amx_Align32(&fs->address);
+      amx_AlignCell(&fs->address);
       if (USENAMETABLE(hdr))
         amx_Align32(&((FUNCSTUBNT*)fs)->nameofs);
       fs=(AMX_FUNCSTUB*)((unsigned char *)fs+hdr->defsize);
@@ -1009,18 +999,18 @@ int AMXAPI amx_Init(AMX *amx, void *program)
       num=NUMENTRIES(hdr,tags,nametable);
     } /* if */
     for (i=0; i<num; i++) {
-      amx_Align32(&fs->address);
+      amx_AlignCell(&fs->address);
       if (USENAMETABLE(hdr))
         amx_Align32(&((FUNCSTUBNT*)fs)->nameofs);
       fs=(AMX_FUNCSTUB*)((unsigned char *)fs+hdr->defsize);
     } /* for */
-  } /* if */
+  #endif
 
   /* relocate call and jump instructions, optionally gather debug information */
   amx_BrowseRelocate(amx);
 
   /* load any extension modules that the AMX refers to */
-  #if (defined _Windows || defined LINUX) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined LINUX || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
     hdr=(AMX_HEADER *)amx->base;
     numlibraries=NUMENTRIES(hdr,libraries,pubvars);
     for (i=0; i<numlibraries; i++) {
@@ -1036,7 +1026,7 @@ int AMXAPI amx_Init(AMX *amx, void *program)
           if (hlib<=HINSTANCE_ERROR)
             hlib=NULL;
         #endif
-      #elif defined LINUX
+      #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
         strcat(libname,".so");
         hlib=dlopen(libname,RTLD_NOW);
       #endif
@@ -1050,113 +1040,86 @@ int AMXAPI amx_Init(AMX *amx, void *program)
         strcat(funcname,"Init");
         #if defined _Windows
           libinit=(AMX_ENTRY)GetProcAddress(hlib,funcname);
-        #elif defined LINUX
+        #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
           libinit=(AMX_ENTRY)dlsym(hlib,funcname);
         #endif
         if (libinit!=NULL)
           libinit(amx);
       } /* if */
-      lib->address=(uint32_t)hlib;
+      lib->address=(ucell)hlib;
     } /* for */
   #endif
-
-  /* haleyjd 11/27/04: set up native function pointer table */
-#ifdef AMX_NATIVE_TABLE
-  {
-     int numnatives;
-     amx_NumNatives(amx, &numnatives);
-
-     assert(amx_MallocFunc != NULL);
-     
-     amx->functable = (AMX_NATIVE *)amx_MallocFunc((numnatives + 1) * sizeof(AMX_NATIVE));
-     if(amx->functable == NULL)
-        return AMX_ERR_MEMORY;
-     memset(amx->functable, 0, (numnatives + 1) * sizeof(AMX_NATIVE));
-
-     amx->funcindex = 1;
-  }
-#endif
 
   return AMX_ERR_NONE;
 }
 
 #if defined JIT
 
+  #define CODESIZE_JIT    8192  /* approximate size of the code for the JIT */
+
   #if defined __WIN32__   /* this also applies to Win32 "console" applications */
 
-    int memoryFullAccess( void* addr, int len )
+    #define PROT_READ       0x1         /* page can be read */
+    #define PROT_WRITE      0x2         /* page can be written */
+    #define PROT_EXEC       0x4         /* page can be executed */
+    #define PROT_NONE       0x0         /* page can not be accessed */
+
+    static int mprotect(void *addr, size_t len, int prot)
     {
-      DWORD op;
-      if ( VirtualProtect( addr, len, PAGE_EXECUTE_READWRITE, &op ) )
-        return op;
-      return 0;
+      DWORD prev, p = 0;
+      if ((prot & PROT_WRITE)!=0)
+        p = PAGE_EXECUTE_READWRITE;
+      else
+        p |= PAGE_EXECUTE_READ;
+      return !VirtualProtect(addr, len, p, &prev);
     }
 
-    int memorySetAccess( void* addr, int len, int access )
-    {
-      DWORD op;
-      if ( access == 0 )
-        return 0;
-      return VirtualProtect( addr, len, access, &op );
-    }
+  #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
 
-  #else /* #if defined __WIN32 __ */
+    /* Linux already has mprotect() */
+
+  #else
 
     // TODO: Add cases for Linux, Unix, OS/2, ...
 
-    // DOS32 has no imposed limits on its segments.
-    #if defined __BORLANDC__ || defined __WATCOMC__
-      #pragma argsused
-    #endif
-    int memoryFullAccess( void* addr, int len ) { return 1; }
-
-    #if defined __BORLANDC__ || defined __WATCOMC__
-      #pragma argsused
-    #endif
-    int memorySetAccess( void* addr, int len, int access ) { return 1; }
+    /* DOS32 has no imposed limits on its segments */
+    #define mprotect(addr, len, prot)   (0)
 
   #endif /* #if defined __WIN32 __ */
 
 int AMXAPI amx_InitJIT(AMX *amx, void *reloc_table, void *native_code)
 {
-  int mac, res;
+  int res;
   AMX_HEADER *hdr;
 
-  mac = memoryFullAccess( asm_runJIT, 20000 );
-  if ( ! mac )
+  if (mprotect(asm_runJIT, CODESIZE_JIT, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
     return AMX_ERR_INIT_JIT;
 
   /* copy the prefix */
-  memcpy( native_code, amx->base, ((AMX_HEADER *)(amx->base))->cod );
+  memcpy(native_code, amx->base, ((AMX_HEADER *)(amx->base))->cod);
   hdr = native_code;
 
   /* JIT rulz! (TM) */
   /* MP: added check for correct compilation */
-  res = asm_runJIT( amx->base, reloc_table, native_code );
-  if ( res != 0 )
-  {
-    memorySetAccess( asm_runJIT, 20000, mac );
-    return AMX_ERR_INIT_JIT;
-  }
+  if ((res = asm_runJIT(amx->base, reloc_table, native_code)) != 0) {
+    /* update the required memory size (the previous value was a
+     * conservative estimate, now we know the exact size)
+     */
+    amx->code_size = (hdr->dat + hdr->stp + 3) & ~3;
+    /* The compiled code is relocatable, since only relative jumps are
+     * used for destinations within the generated code and absoulute
+     * addresses for jumps into the runtime, which is fixed in memory.
+     */
+    amx->base = (unsigned char*) native_code;
+    amx->cip = hdr->cip;
+    amx->hea = hdr->hea;
+    amx->stp = hdr->stp - sizeof(cell);
+    /* also put a sentinel for strings at the top the stack */
+    *(cell *)((char*)native_code + hdr->dat + hdr->stp - sizeof(cell)) = 0;
+    amx->stk = amx->stp;
+  } /* if */
 
-  /* update the required memory size (the previous value was a
-   * conservative estimate, now we know the exact size)
-   */
-  amx->code_size = (hdr->dat + hdr->stp + 3) & ~3;
-  /* The compiled code is relocatable, since only relative jumps are
-   * used for destinations within the generated code and absoulute
-   * addresses for jumps into the runtime, which is fixed in memory.
-   */
-  amx->base = (unsigned char*) native_code;
-  amx->cip = hdr->cip;
-  amx->hea = hdr->hea;
-  amx->stp = hdr->stp - sizeof(cell);
-  /* also put a sentinel for strings at the top the stack */
-  *(cell *)((char*)native_code + hdr->dat + hdr->stp - sizeof(cell)) = 0;
-  amx->stk = amx->stp;
-
-  memorySetAccess( asm_runJIT, 20000, mac );
-  return AMX_ERR_NONE;
+  return (res == 0) ? AMX_ERR_NONE : AMX_ERR_INIT_JIT;
 }
 
 #else /* #if defined JIT */
@@ -1184,10 +1147,10 @@ int AMXAPI amx_InitJIT(AMX *amx,void *compiled_program,void *reloc_table)
 #if defined AMX_CLEANUP
 int AMXAPI amx_Cleanup(AMX *amx)
 {
-  #if (defined _Windows || defined LINUX) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined LINUX || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
     #if defined _Windows
       typedef int (FAR WINAPI *AMX_ENTRY)(AMX FAR *amx);
-    #elif defined LINUX
+    #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
       typedef int (*AMX_ENTRY)(AMX *amx);
     #endif
     AMX_HEADER *hdr;
@@ -1197,7 +1160,7 @@ int AMXAPI amx_Cleanup(AMX *amx)
   #endif
 
   /* unload all extension modules */
-  #if (defined _Windows || defined LINUX) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined LINUX || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
     hdr=(AMX_HEADER *)amx->base;
     assert(hdr->magic==AMX_MAGIC);
     numlibraries=NUMENTRIES(hdr,libraries,pubvars);
@@ -1210,30 +1173,19 @@ int AMXAPI amx_Cleanup(AMX *amx)
         strcat(funcname,"Cleanup");
         #if defined _Windows
           libcleanup=(AMX_ENTRY)GetProcAddress((HINSTANCE)lib->address,funcname);
-        #elif defined LINUX
+        #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
           libcleanup=(AMX_ENTRY)dlsym((void*)lib->address,funcname);
         #endif
         if (libcleanup!=NULL)
           libcleanup(amx);
         #if defined _Windows
           FreeLibrary((HINSTANCE)lib->address);
-        #elif defined LINUX
+        #elif defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
           dlclose((void*)lib->address);
         #endif
       } /* if */
     } /* for */
   #endif
-
-#ifdef AMX_NATIVE_TABLE
-  /* haleyjd 11/27/04: clean up native function table */
-  if(amx->functable != NULL)
-  {
-     assert(amx_FreeFunc != NULL);
-
-     amx_FreeFunc(amx->functable);
-  }
-#endif
-
   return AMX_ERR_NONE;
 }
 #endif /* AMX_CLEANUP */
@@ -1281,12 +1233,6 @@ int AMXAPI amx_Clone(AMX *amxClone, AMX *amxSource, void *data)
    */
   * (cell *)(amxClone->data+(int)amxClone->stp) = 0;
 
-  /* haleyjd 11/28/04: copy native function table */
-#ifdef AMX_NATIVE_TABLE
-  assert(amxSource->functable != NULL);
-  amxClone->functable = amxSource->functable;
-#endif
-
   return AMX_ERR_NONE;
 }
 #endif /* AMX_CLONE */
@@ -1322,11 +1268,11 @@ int AMXAPI amx_NameLength(AMX *amx, int *length)
   assert(hdr!=NULL);
   assert(hdr->magic==AMX_MAGIC);
   if (USENAMETABLE(hdr)) {
-    uint16_t *namelength=(uint16_t*)(amx->base + hdr->nametable);
+    uint16_t *namelength=(uint16_t*)(amx->base + (unsigned)hdr->nametable);
     *length=*namelength;
     assert(hdr->file_version>=7); /* name table exists only for file version 7+ */
   } else {
-    *length=hdr->defsize - sizeof(uint32_t);
+    *length=hdr->defsize - sizeof(ucell);
   } /* if */
   return AMX_ERR_NONE;
 }
@@ -1661,35 +1607,10 @@ int AMXAPI amx_Register(AMX *amx, AMX_NATIVE_INFO *list, int number)
     if (func->address==0) {
       /* this function is not yet located */
       funcptr=(list!=NULL) ? findfunction(GETENTRYNAME(hdr,func),list,number) : NULL;
-
-      /* haleyjd 11/27/04: this is neither dependable nor portable,
-       * so I have replaced it with an external table of function
-       * pointers. Native function addresses are stored there, and 
-       * the table in the AMX header now only stores indices into 
-       * that table.
-       */
-#ifndef AMX_NATIVE_TABLE
-      /* on 64-bit architectures with, only the lower 32-bits of the address
-       * can be stored; hopefully, all addresses can be assumed to have the
-       * same value for the upper 32-bits
-       */
-      #if defined __64BIT__
-        assert((funcptr & ~0xffffffffL)==(amx_Callback & ~0xffffffffL));
-      #endif
       if (funcptr!=NULL)
-        func->address=(uint32_t)funcptr;
+        func->address=(ucell)funcptr;
       else
         err=AMX_ERR_NOTFOUND;
-#else
-      if(funcptr != NULL)
-      {
-         assert(amx->functable != NULL);
-         amx->functable[amx->funcindex] = funcptr; // put pointer in table
-         func->address = amx->funcindex++; // point address at table
-      }
-      else
-         err = AMX_ERR_NOTFOUND;
-#endif
     } /* if */
     func=(AMX_FUNCSTUB*)((unsigned char*)func+hdr->defsize);
   } /* for */
@@ -1719,7 +1640,7 @@ AMX_NATIVE_INFO * AMXAPI amx_NativeInfo(const char *name, AMX_NATIVE func)
 #define CHKSTACK()      if (stk>amx->stp) return AMX_ERR_STACKLOW
 #define CHKHEAP()       if (hea<amx->hlw) return AMX_ERR_HEAPLOW
 
-#if defined __GNUC__ && !defined ASM32
+#if defined __GNUC__ && !(defined ASM32 || defined JIT)
     /* GNU C version uses the "labels as values" extension to create
      * fast "indirect threaded" interpreter.
      */
@@ -1870,7 +1791,7 @@ static void *amx_opcodelist_nodebug[] = {
   /* check values just copied */
   CHKSTACK();
   CHKHEAP();
-  init_little_endian();
+  assert(check_endian());
 
   if (debug && index!=AMX_EXEC_CONT) {
     /* set the entry point in the debugger by marking a "call" to the
@@ -1902,9 +1823,10 @@ static void *amx_opcodelist_nodebug[] = {
 
   if (index!=AMX_EXEC_CONT) {
     /* push the parameters to the stack (in reverse order) */
-    if (numparams & 0xFFFF0000) {
+    if (numparams<0) {
       cell *params;
-      stk-=(numparams>>=16)*sizeof(cell);
+      numparams=-numparams;
+      stk-=numparams*sizeof(cell);
       va_start(ap,numparams);
       params = va_arg(ap,cell*);
       va_end(ap);
@@ -2084,13 +2006,17 @@ static void *amx_opcodelist_nodebug[] = {
     NEXT(cip);
   op_align_pri:
     GETPARAM(offs);
-    if (amx_LittleEndian && offs<sizeof(cell))
-      pri ^= sizeof(cell)-offs;
+    #if BYTE_ORDER==LITTLE_ENDIAN
+      if (offs<sizeof(cell))
+        pri ^= sizeof(cell)-offs;
+    #endif
     NEXT(cip);
   op_align_alt:
     GETPARAM(offs);
-    if (amx_LittleEndian && offs<sizeof(cell))
-      alt ^= sizeof(cell)-offs;
+    #if BYTE_ORDER==LITTLE_ENDIAN
+      if (offs<sizeof(cell))
+        alt ^= sizeof(cell)-offs;
+    #endif
     NEXT(cip);
   op_lctrl:
     GETPARAM(offs);
@@ -2770,13 +2696,13 @@ static void *amx_opcodelist_nodebug[] = {
     NEXT(cip);
   op_switch: {
     cell *cptr;
-    cptr=(cell *)*cip + 1;      /* +1, to skip the "casetbl" opcode */
-    cip=(cell *)*(cptr+1);      /* preset to "none-matched" case */
+    cptr=JUMPABS(code,cip)+1;   /* +1, to skip the "casetbl" opcode */
+    cip=JUMPABS(code,cptr+1);   /* preset to "none-matched" case */
     num=(int)*cptr;             /* number of records in the case table */
     for (cptr+=2; num>0 && *cptr!=pri; num--,cptr+=2)
       /* nothing */;
     if (num>0)
-      cip=(cell *)*(cptr+1);    /* case found */
+      cip=JUMPABS(code,cptr+1); /* case found */
     NEXT(cip);
     }
   op_casetbl:
@@ -2840,13 +2766,13 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
   va_list ap;
   int debug;
   #if defined ASM32 || defined JIT
+    cell  parms[9];     /* registers and parameters for assembler AMX */
     extern void *amx_opcodelist[];
     extern void *amx_opcodelist_nodebug[];
       #ifdef __WATCOMC__
         #pragma aux amx_opcodelist "_*"
         #pragma aux amx_opcodelist_nodebug "_*"
       #endif
-    cell  parms[9];     /* registers and parameters for assembler AMX */
   #else
     OPCODE op;
     cell offs;
@@ -2862,8 +2788,8 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
       assert(retval!=NULL);
       #if defined JIT
         /* The JIT does not support a "debug" opcode list; however, its single
-         * opcode list is called "amx_opcodelist", although it should be called
-         * amx_opcodelist_nodebug
+         * opcode list is called "amx_opcodelist", although it should perhaps
+         * be called amx_opcodelist_nodebug
          */
         *retval=(cell)amx_opcodelist;
       #else
@@ -2922,7 +2848,7 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
   /* check values just copied */
   CHKSTACK();
   CHKHEAP();
-  init_little_endian();
+  assert(check_endian());
 
   if (debug && index!=AMX_EXEC_CONT) {
     /* set the entry point in the debugger by marking a "call" to the
@@ -2954,9 +2880,10 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
 
   if (index!=AMX_EXEC_CONT) {
     /* push the parameters to the stack (in reverse order) */
-    if (numparams & 0xFFFF0000L) {
+    if (numparams<0) {
       cell *params;
-      stk-=(numparams>>=16)*sizeof(cell);
+      numparams=-numparams;
+      stk-=numparams*sizeof(cell);
       va_start(ap,numparams);
       params = va_arg(ap,cell*);
       va_end(ap);
@@ -3168,13 +3095,17 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
       break;
     case OP_ALIGN_PRI:
       GETPARAM(offs);
-      if (amx_LittleEndian && (size_t)offs<sizeof(cell))
-        pri ^= sizeof(cell)-offs;
+      #if BYTE_ORDER==LITTLE_ENDIAN
+        if ((size_t)offs<sizeof(cell))
+          pri ^= sizeof(cell)-offs;
+      #endif
       break;
     case OP_ALIGN_ALT:
       GETPARAM(offs);
-      if (amx_LittleEndian && (size_t)offs<sizeof(cell))
-        alt ^= sizeof(cell)-offs;
+      #if BYTE_ORDER==LITTLE_ENDIAN
+        if ((size_t)offs<sizeof(cell))
+          alt ^= sizeof(cell)-offs;
+      #endif
       break;
     case OP_LCTRL:
       GETPARAM(offs);
@@ -3806,13 +3737,13 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
     case OP_SWITCH: {
       cell *cptr;
 
-      cptr=(cell *)*cip + 1;    /* +1, to skip the "casetbl" opcode */
-      cip=(cell *)*(cptr+1);    /* preset to "none-matched" case */
+      cptr=JUMPABS(code,cip)+1; /* +1, to skip the "casetbl" opcode */
+      cip=JUMPABS(code,cptr+1); /* preset to "none-matched" case */
       num=(int)*cptr;           /* number of records in the case table */
       for (cptr+=2; num>0 && *cptr!=pri; num--,cptr+=2)
         /* nothing */;
       if (num>0)
-        cip=(cell *)*(cptr+1);  /* case found */
+        cip=JUMPABS(code,cptr+1); /* case found */
       break;
     } /* case */
     case OP_SWAP_PRI:
@@ -3848,7 +3779,7 @@ int AMXAPI amx_Exec(AMX *amx, cell *retval, int index, int numparams, ...)
  */
 int AMXAPI amx_Execv(AMX *amx, cell *retval, int index, int numparams, cell params[])
 {
-  return amx_Exec(amx, retval, index, numparams<<16, params);
+  return amx_Exec(amx, retval, index, -numparams, params);
 }
 
 #endif /* AMX_EXEC || AMX_INIT */
@@ -3951,6 +3882,9 @@ int AMXAPI amx_Release(AMX *amx,cell amx_addr)
 int AMXAPI amx_StrLen(cell *cstr, int *length)
 {
   int len;
+  #if BYTE_ORDER==LITTLE_ENDIAN
+    cell c;
+  #endif
 
   assert(length!=NULL);
   if (cstr==NULL) {
@@ -3962,16 +3896,16 @@ int AMXAPI amx_StrLen(cell *cstr, int *length)
     /* packed string */
     assert(sizeof(char)==1);
     len=strlen((char *)cstr);           /* find '\0' */
-    init_little_endian();
-    if (amx_LittleEndian) {
+    assert(check_endian());
+    #if BYTE_ORDER==LITTLE_ENDIAN
       /* on Little Endian machines, toggle the last bytes */
-      cell c=cstr[len/sizeof(cell)];    /* get last cell */
+      c=cstr[len/sizeof(cell)];         /* get last cell */
       len=len - len % sizeof(cell);     /* len = multiple of "cell" bytes */
       while ((c & CHARMASK)!=0) {
         len++;
         c <<= 8*sizeof(char);
       } /* if */
-    } /* if */
+    #endif
   } else {
     for (len=0; cstr[len]!=0; len++)
       /* nothing */;
@@ -3996,12 +3930,12 @@ int AMXAPI amx_SetString(cell *dest,const char *source,int pack,int use_wchar)
     /* On Big Endian machines, the characters are well aligned in the
      * cells; on Little Endian machines, we must swap all cells.
      */
-    init_little_endian();
-    if (amx_LittleEndian) {
+    assert(check_endian());
+    #if BYTE_ORDER==LITTLE_ENDIAN
       len /= sizeof(cell);
       while (len>=0)
         swapcell((ucell *)&dest[len--]);
-    } /* if */
+    #endif
   } else {
     /* create an unpacked string */
     if (use_wchar) {
@@ -4063,7 +3997,7 @@ int AMXAPI amx_GetString(char *dest,const cell *source,int use_wchar)
 int AMXAPI amx_UTF8Get(const char *string, const char **endptr, cell *value)
 {
 static char utf8_count[16]={ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 4 };
-static long utf8_lowmark[5] = { 0x80, 0x800, 0x10000, 0x200000, 0x4000000 };
+static long utf8_lowmark[5] = { 0x80, 0x800, 0x10000L, 0x200000L, 0x4000000L };
   unsigned char c;
   cell result;
   int followup;
@@ -4137,9 +4071,9 @@ error:
 }
 
 /* amx_UTF8Put()
- * Encode a single character into a character string. The character may be
- * up to 6 bytes long. The function returns an error code if "maxchars" is
- * lower than the requried number of characters; in this case nothing is
+ * Encode a single character into a byte string. The character may result in
+ * a string of up to 6 bytes. The function returns an error code if "maxchars"
+ * is lower than the requried number of characters; in this case nothing is
  * stored.
  * The function does not zero-terminate the string.
  */

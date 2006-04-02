@@ -43,7 +43,7 @@ rcsid[] = "$Id: f_finale.c,v 1.16 1998/05/10 23:39:25 killough Exp $";
 #include "d_gi.h"
 #include "c_io.h"
 #include "f_finale.h"
-#include "e_edf.h"
+#include "e_states.h"
 
 // Stage of animation:
 //  0 = text, 1 = art screen, 2 = character cast
@@ -80,7 +80,7 @@ void F_StartFinale(void)
    // killough 3/28/98: clear accelerative text flags
    acceleratestage = midstage = 0;
 
-   // haleyjd 07/17/04: level-dependent initialization moved to LevelInfo
+   // haleyjd 07/17/04: level-dependent initialization moved to MapInfo
 
    S_ChangeMusicName(LevelInfo.interMusic, true);
    
@@ -213,7 +213,7 @@ void F_Ticker(void)
 //
 void F_TextWrite(void)
 {
-   int         w;         // killough 8/9/98: move variables below
+   int         w, h;         // killough 8/9/98: move variables below
    int         count;
    char*       ch;
    int         c;
@@ -272,7 +272,11 @@ void F_TextWrite(void)
       
       w = SHORT(v_font[c]->width);
       if(cx + w > SCREENWIDTH)
-         continue; // haleyjd: continue, not break
+         continue; // haleyjd: continue if text off right side
+
+      h = SHORT(v_font[c]->height);
+      if(cy + h > SCREENHEIGHT)
+         break; // haleyjd: break if text off bottom
 
       V_DrawPatch(cx, cy, &vbscreen, v_font[c]);
       
@@ -342,7 +346,7 @@ void F_StartCast(void)
    
    // if a cast name was left NULL by EDF, it means we're going to
    // use the old DeHackEd names
-   for(i = 0; i < 17; i++)
+   for(i = 0; i < OLDCASTMAX; ++i)
    {
       if(!castorder[i].name)
          castorder[i].name = *(oldnames[i]); // array of ptr-to-ptrs (!)
@@ -371,14 +375,14 @@ void F_CastTicker(void)
    if(--casttics > 0)
       return;                 // not time to change state yet
               
-   if(caststate->tics == -1 || caststate->nextstate == E_NullState())
+   if(caststate->tics == -1 || caststate->nextstate == NullStateNum)
    {
       // switch from deathstate to next monster
       castnum++;
       castdeath = false;
       if(castorder[castnum].name == NULL)
          castnum = 0;
-      S_StartSound (NULL, mobjinfo[castorder[castnum].type].seesound);
+      S_StartSound(NULL, mobjinfo[castorder[castnum].type].seesound);
       caststate = &states[mobjinfo[castorder[castnum].type].seestate];
       castframes = 0;
    }
@@ -405,7 +409,7 @@ void F_CastTicker(void)
       
       // Search for a sound matching this state.
       sfx = 0;
-      for(i = 0; i < 4; i++)
+      for(i = 0; i < 4; ++i)
       {
          if(st == castorder[castnum].sounds[i].frame)
          {
@@ -427,7 +431,7 @@ void F_CastTicker(void)
       else
          caststate=&states[(stnum = mobjinfo[castorder[castnum].type].missilestate)];
       castonmelee ^= 1;
-      if(caststate == &states[E_NullState()])
+      if(caststate == &states[NullStateNum])
       {
          if(castonmelee)
             caststate=
@@ -442,7 +446,7 @@ void F_CastTicker(void)
       if(!castorder[castnum].stopattack)
       {
          sfx = 0;
-         for(i = 0; i < 4; i++)
+         for(i = 0; i < 4; ++i)
          {
             if(stnum == castorder[castnum].sounds[i].frame)
             {
@@ -456,10 +460,10 @@ void F_CastTicker(void)
       
    if(castattacking)
    {
-      if(castframes == 24
-         ||  caststate == &states[mobjinfo[castorder[castnum].type].seestate] )
+      if(castframes == 24 ||
+         caststate == &states[mobjinfo[castorder[castnum].type].seestate])
       {
-         stopattack:
+      stopattack:
          castattacking = false;
          castframes = 0;
          caststate = &states[mobjinfo[castorder[castnum].type].seestate];
@@ -475,82 +479,48 @@ void F_CastTicker(void)
 //
 // F_CastResponder
 //
-
 boolean F_CastResponder (event_t* ev)
 {
-  if (ev->type != ev_keydown)
-    return false;
-                
-  if (castdeath)
-    return true;                    // already in dying frames
-                
-  // go into death frame
-  castdeath = true;
-  caststate = &states[mobjinfo[castorder[castnum].type].deathstate];
-  casttics = caststate->tics;
-  castframes = 0;
-  castattacking = false;
-  if(mobjinfo[castorder[castnum].type].deathsound)
-  {
-    if(mobjinfo[castorder[castnum].type].dehnum == MT_PLAYER)
-      S_StartSoundName(NULL, 
-                       players[displayplayer].skin->sounds[sk_pldeth]);
-    else
-      S_StartSound(NULL, mobjinfo[castorder[castnum].type].deathsound);
-  }
-        
-  return true;
+   if(ev->type != ev_keydown)
+      return false;
+   
+   if(castdeath)
+      return true;                    // already in dying frames
+   
+   // go into death frame
+   castdeath  = true;
+   caststate  = &states[mobjinfo[castorder[castnum].type].deathstate];
+   casttics   = caststate->tics;
+   castframes = 0;
+   castattacking = false;
+   if(mobjinfo[castorder[castnum].type].deathsound)
+   {
+      if(mobjinfo[castorder[castnum].type].dehnum == MT_PLAYER)
+         S_StartSoundName(NULL, 
+            players[displayplayer].skin->sounds[sk_pldeth]);
+      else
+         S_StartSound(NULL, mobjinfo[castorder[castnum].type].deathsound);
+   }
+   
+   return true;
 }
 
-
-void F_CastPrint (char* text)
+//
+// F_CastPrint
+//
+// haleyjd 03/17/05: Writes the cast member name centered at the
+// bottom of the screen. Rewritten to use the proper string methods
+// instead of duplicating that code unnecessarily. It's about 200
+// lines shorter now.
+//
+void F_CastPrint(char *text)
 {
-  char*       ch;
-  int         c;
-  int         cx;
-  int         w;
-  int         width;
-  
-  // find width
-  ch = text;
-  width = 0;
-      
-  while (ch)
-  {
-    c = *ch++;
-    if (!c)
-      break;
-    // haleyjd: added null pointer check
-    c = toupper(c) - V_FONTSTART;
-    if (c < 0 || c> V_FONTSIZE || !v_font[c])
-    {
-      width += 4;
-      continue;
-    }
-            
-    w = SHORT (v_font[c]->width);
-    width += w;
-  }
-  
-  // draw it
-  cx = 160-width/2;
-  ch = text;
-  while (ch)
-  {
-    c = *ch++;
-    if (!c)
-      break;
-    c = toupper(c) - V_FONTSTART;
-    if (c < 0 || c> V_FONTSIZE)
-    {
-      cx += 4;
-      continue;
-    }
-              
-    w = SHORT (v_font[c]->width);
-    V_DrawPatch(cx, 180, &vbscreen, v_font[c]);
-    cx+=w;
-  }
+   int cx;
+   int w = V_StringWidth(text);
+   
+   cx = 160 - w / 2;
+
+   V_WriteText(text, cx, 180);
 }
 
 

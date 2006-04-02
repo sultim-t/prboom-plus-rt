@@ -1,0 +1,559 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="UltraEdit-32">
+<title>Eternity Engine Small Usage Documentation</title>
+</head>
+
+<body bgcolor="#CECECE">
+<hr>
+<b>Eternity Engine Small Usage Documentation v1.1 -- 06/09/05</b>
+<hr>
+<br>
+<a href="../etcengine.html">Return to the Eternity Engine Page</a>
+
+<ul>
+<li><a name="contents"><b>Table of Contents</b></a>
+    <ul>
+    <li><a href="#intro">Introduction</a>
+    <li><a href="#vms">VMs: Gamescript and Levelscript</a>
+        <ul>
+        <li><a href="#gamescript">The Gamescript</a>
+            <ul>
+            <li><a href="#addinggs">Adding a Gamescript</a>
+            <li><a href="#invokegs">Invoking Gamescripts</a>
+            <li><a href="#gamevars">Using Gamescript Variables</a>
+            </ul>
+        <li><a href="#levelscript">The Levelscript</a>
+            <ul>
+            <li><a href="#addingls">Adding a Levelscript</a>
+            <li><a href="#invokels">Invoking Levelscripts</a>
+            <li><a href="#levelvars">Using Levelscript Variables</a>
+            </ul>
+        </ul>
+    <li><a href="#saves">Savegame Semantics</a>
+        <ul>
+        <li><a href="#OnInit">The OnInit Function</a>
+        <li><a href="#saveglobals">Global Variables</a>
+        <li><a href="#localstatics">Static Local Variables</a>
+        <li><a href="#callbacks">Callbacks</a>
+        <li><a href="#loaderrors">Load Errors</a>
+        </ul>
+    <li><a href="#events">System-Defined Event Handlers</a>
+        <ul>
+        <li><a href="#eventOnInit">OnInit</a>
+        <li><a href="#eventOnHUDStart">OnHUDStart</a>
+        <li><a href="#eventOnHUDPreDraw">OnHUDPreDraw</a>
+        </ul>
+    <li><a href="#headers">Eternity Small Headers</a>
+    <li><a href="#reserved">Reserved Identifiers</a>
+    </ul>
+</ul>
+
+<p>
+<a name="intro">
+<hr>
+<b>Introduction</b>
+<hr>
+</a>
+<br>
+This documentation covers how the Small scripting system is implemented in the Eternity
+Engine and how it can be used. This is not a general reference or tutorial for the Small
+scripting language; see the other documentation on the Eternity Engine webpage for more
+information.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="vms">
+<hr>
+<b>VMs: Gamescript and Levelscript</b>
+<hr>
+</a>
+<br>
+The Eternity Engine contains two Small virtual machines, known as the Gamescript and
+Levelscript. Both of these and the ways in which they can interact are explained in the
+subsections below.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="gamescript">
+<hr align="left" width="75%">
+<b>The Gamescript</b>
+<hr align="left" width="75%">
+</a>
+<br>
+The Gamescript is an optional set of global scripts which can be invoked at any time during
+execution. These scripts are shared between levels, and as such, this VM can act as "glue" to
+connect the scripts of individual maps. Levelscripts are not required for a Gamescript to
+be loaded.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="addinggs">
+<hr align="left" width="50%">
+<b>Adding a Gamescript</b>
+<hr align="left" width="50%">
+</a>
+<br>
+The Gamescript is a normally compiled Small AMX file inserted into the GAMESCR lump in any
+wad. Only the last such GAMESCR lump will be loaded, and the functions and variables inside
+it will become available.  The Gamescript area is initialized at startup, and if it contains
+an OnInit() function, that function will be executed once and only once when the 
+"A_InitGameScript" message appears in the console. The OnInit() function is optional, and
+if it does not exist, no error will occur.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="invokegs">
+<hr align="left" width="50%">
+<b>Invoking Gamescripts</b>
+<hr align="left" width="50%">
+</a>
+<br>
+Here are the various ways Gamescript public functions (aka scripts) may be invoked:
+<ul>
+<li> Console Commands
+     <br><br>
+     The a_execv and a_execi console commands can run public Small functions which
+     take either no parameters, or any number of integer parameters respectively. By
+     passing the second parameter ("vm") as the number 0, you will indicate to look
+     for the named function in the Gamescript VM. If the named function does not exist
+     in the Gamescript, an error message will be printed. See the
+     <a href="console_ref.html">Eternity Engine Console Reference</a> for full 
+     information.
+     <br><br>
+<li> Cross-VM Execution
+     <br><br>
+     Using the Small function <a href="small_funcref.html#_ExecGS">_ExecGS</a>, it is
+     possible to execute Gamescript functions by name from any function in the Levelscript.
+     If the Gamescript is not loaded or _ExecGS is called from within the Gamescript itself, 
+     the current script will be aborted and an error message will appear in the console.
+     <br><br>
+<li> Registering Callbacks
+     <br><br>
+     Callbacks may be registered from OnInit or from any other Gamescript function which
+     may then repeatedly call Gamescript functions under the _INVOKE_CALLBACK invocation
+     model.  See the <a href="small_funcref.html#_SetCallback">_SetCallback</a> function for
+     full information. Gamescript callbacks can run at any point during the game, so it
+     is important to monitor the current game mode if using functions which can only be
+     used during levels, etc. If a function is called at an inappropriate time, the 
+     callback will be aborted with an "Invalid gamemode for native function" error.
+     <br><br>
+<li> EDF/BEX Codepointers
+     <br><br>
+     The StartScript and PlayerStartScript codepointers may both execute Gamescripts by
+     number. Only public functions which are named in the fashion "Script#", where # is
+     any positive integer value, and accept 3 integer parameters can be invoked using these 
+     codepointers. The numeric value used in the function name is passed to the codepointer as 
+     an argument (via the EDF/BEX args frame values).  Use the number 0 as the second parameter 
+     to either of these codepointers to indicate the Gamescript as the target VM. If the 
+     Gamescript is not loaded in this case, the codepointer will perform no action. See the
+     <a href="codeptrs.html">Eternity Engine Definitive Codepointer Reference</a> for full
+     information.
+     <br><br>
+     Warning: If StartScript or PlayerStartScript are called from frames into which an
+     object is set by other scripts, or they call a script which may change the object's
+     state, any new script started will be executed recursively. This means that the second 
+     script will be executing before the first has finished. Be sure to carefully account for 
+     this in your scripting logic, and do not erroneously assume that any other script must
+     have finished executing before the one that is currently running, or that other scripts
+     will not execute before the current script has finished.
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="gamevars">
+<hr align="left" width="50%">
+<b>Using Gamescript Variables</b>
+<hr align="left" width="50%">
+</a>
+<br>
+Like any compiled Small program, the Gamescript may contain scalar global variables
+declared as "public." These variables, aside from being normally accessable from any
+function within the Gamescript, can also be accessed from outside by using the 
+<a href="small_funcref.html#_GetGameVar">_GetGameVar</a> and
+<a href="small_funcref.html#_SetGameVar">_SetGameVar</a> functions. Using these functions
+in your Levelscripts can allow maps to affect each other, by having one map set a variable
+in the Gamescript, and then having another one check it. This is analogous to game and
+hub variables in ACS and FraggleScript.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="levelscript">
+<hr align="left" width="75%">
+<b>The Levelscript</b>
+<hr align="left" width="75%">
+</a>
+<br>
+The Levelscript is an optional set of map-local scripts which can be invoked only while the
+map which owns those scripts is being played. A Gamescript is not required for Levelscripts
+to be loaded. Levelscripts cannot access the scripts of other levels, but they can access
+public functions and variables of the Gamescript, and the Gamescript can access public 
+functions and variables of the currently loaded Levelscript.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="addingls">
+<hr align="left" width="50%">
+<b>Adding a Levelscript</b>
+<hr align="left" width="50%">
+</a>
+<br>
+The Levelscript is a normally compiled Small AMX file inserted into any lump. The lump must
+be attached to the map using <a href="mapinfo.html">MapInfo</a>. The "levelscript"
+value for the map must be set to the name of the lump containing the compiled scripts for
+that level. The Levelscript area is initialized during level setup, and if the currently
+loaded Levelscript contains an OnInit() function, that function will be executed once and only 
+once, provided a save game is not being loaded. The OnInit() function is optional, and if it
+does not exist, no error will occur.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="invokels">
+<hr align="left" width="50%">
+<b>Invoking Levelscripts</b>
+<hr align="left" width="50%">
+</a>
+<br>
+Here are the various ways Levelscript public functions (aka scripts) may be invoked:
+<ul>
+<li> Console Commands
+     <br><br>
+     The a_execv and a_execi console commands can run public Small functions which
+     take either no parameters, or any number of integer parameters respectively. By
+     passing the second parameter ("vm") as the number 1, you will indicate to look
+     for the named function in the Levelscript VM. If the named function does not exist
+     in the Levelscript, an error message will be printed. See the
+     <a href="console_ref.html">Eternity Engine Console Reference</a> for full 
+     information.
+     <br><br>
+<li> Cross-VM Execution
+     <br><br>
+     Using the Small function <a href="small_funcref.html#_ExecLS">_ExecLS</a>, it is
+     possible to execute Levelscript functions by name from any function in the Gamescript.
+     If the Levelscript is not loaded or ExecLS is called from within the Levelscript, the
+     current script will be aborted and an error message will appear in the console. Note
+     that ExecLS can only call functions in the current level's Levelscript. State may be
+     transferred between levels using public Gamescript global variables.
+     <br><br>
+<li> Registering Callbacks
+     <br><br>
+     Callbacks may be registered from OnInit or from any other Levelscript function which
+     may then repeatedly call Levelscript functions under the _INVOKE_CALLBACK invocation
+     model.  See the <a href="small_funcref.html#_SetCallback">_SetCallback</a> function for
+     full information. Levelscript callbacks can only run during gameplay on that map, and
+     any scheduled Levelscript callbacks will be killed immediately any time a level is exited 
+     in any manner.
+     <br><br>
+<li> EDF/BEX Codepointers
+     <br><br>
+     The StartScript and PlayerStartScript codepointers may both execute Levelscripts by
+     number. Only public functions which are named in the fashion "Script#", where # is
+     any positive integer value, and accept 3 integer parameters can be invoked using these 
+     codepointers. The numeric value used in the function name is passed to the codepointer as 
+     an argument (via the EDF/BEX args frame values).  Use the number 1 as the second parameter 
+     to either of these codepointers to indicate the Levelscript as the target VM. If the 
+     Levelscript is not loaded in this case, the codepointer will perform no action. See the
+     <a href="codeptrs.html">Eternity Engine Definitive Codepointer Reference</a> for full
+     information.
+     <br><br>
+     Warning: If StartScript or PlayerStartScript are called from frames into which an
+     object is set by other scripts, or they call a script which may change the object's
+     state, any new script started will be executed recursively. This means that the second 
+     script will be executing before the first has finished. Be sure to carefully account for 
+     this in your scripting logic, and do not erroneously assume that any other script must
+     have finished executing before the one that is currently running, or that other scripts
+     will not execute before the current script has finished.
+     <br><br>
+<li> Script Linedefs
+     <br><br>
+     Levelscripts may also be executed by number using the same naming convention for
+     the StartScript codepointers, but accepting zero parameters and using the tag of the
+     line as the script number, with one of the following specials:
+     <ul>
+     <li> 280: WR Start Script From Tag Number
+     <li> 273: WR Start Script From Tag Number 1-Way (activates from first side only)
+     <li> 274: W1 Start Script From Tag Number
+     <li> 275: W1 Start Script From Tag Number 1-Way (activates from first side only)
+     <li> 276: SR Start Script From Tag Number
+     <li> 277: S1 Start Script From Tag Number
+     <li> 278: GR Start Script From Tag Number
+     <li> 279: G1 Start Script From Tag Number
+     </ul>
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="levelvars">
+<hr align="left" width="50%">
+<b>Using Levelscript Variables</b>
+<hr align="left" width="50%">
+</a>
+<br>
+Like any compiled Small program, the Levelscript may contain scalar global variables
+declared as "public." These variables, aside from being normally accessable from any
+function within the Levelscript, can also be accessed from outside by using the 
+<a href="small_funcref.html#_GetLevelVar">_GetLevelVar</a> and
+<a href="small_funcref.html#_SetLevelVar">_SetLevelVar</a> functions. Using these functions
+in your Gamescripts can allow the Gamescript to perform similar actions on many
+levels. Note that if a variable is not defined in a particular Levelscript, the Gamescript
+executing _GetLevelVar or _SetLevelVar will abort with an error message. The variable must be
+defined in each Levelscript in which the Gamescript may attempt to access it.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="saves">
+<hr>
+<b>Savegame Semantics</b>
+<hr>
+</a>
+<br>
+The following subsections contain information on how the Small system behaves when the 
+game is saved or loaded.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="OnInit">
+<hr align="left" width="75%">
+<b>The OnInit Function</b>
+<hr align="left" width="75%">
+</a>
+<br>
+In the Gamescript, the OnInit function is executed only once at program startup, and therefore
+this is not affected by saving or loading games. When a game is loaded, it can be assumed that
+the Gamescript OnInit function has already been executed.
+<br><br>
+In the Levelscript, the OnInit function is executed each time the level is loaded from scratch. 
+However, if the level is being initialized during savegame loading, the OnInit function will
+NOT be executed, as it is expected that the program state created by it was preserved in the
+savegame. Executing it again in that case could create duplicate objects, show unnecessary
+messages, etc. Be sure that your OnInit function's changes to the map are saveable or are not
+necessary to be repeated after loading a saved game.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="saveglobals">
+<hr align="left" width="75%">
+<b>Global Variables</b>
+<hr align="left" width="75%">
+</a>
+<br>
+Global variables declared in both VMs, public or private, will have their values saved in
+save games. This means that when a normal game loading action takes place, the values of
+global variables in both VMs will instantly change to reflect the state that was in place at
+the time of the save.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="localstatics">
+<hr align="left" width="75%">
+<b>Static Local Variables</b>
+<hr align="left" width="75%">
+</a>
+<br>
+Static local variables are variables declared inside functions using the <b>static</b> keyword
+as opposed to the <b>new</b> keyword. As mentioned in the Small language documentation, static 
+local variables, unlike normal local variables, retain their values between calls to the 
+function in which they are declared. Because static locals are really just limited-scope 
+globals, they are treated the same way, and their values will be saved in savegames.  When a 
+normal game loading action takes place, the values of all static local variables in both VMs 
+will instantly change to reflect the state that was in place at the time of the save.
+<br><br>
+Normal local variables are the only storage class of variable that is not archived in save
+games. In addition, the status of the Small stack and heap are also not currently saved, since
+Eternity does not allow script execution to be interrupted by a save game under any circumstance.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="callbacks">
+<hr align="left" width="75%">
+<b>Callbacks</b>
+<hr align="left" width="75%">
+</a>
+<br>
+Callbacks currently scheduled for either VM will be saved in save games. At the time of a normal
+load action, any existing callbacks in either VM will be instantly destroyed and will be replaced
+with the callbacks which were scheduled at the time of the save.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="loaderrors">
+<hr align="left" width="75%">
+<b>Load Errors</b>
+<hr align="left" width="75%">
+</a>
+<br>
+The following fatal errors may occur while loading a savegame which contains script data under
+the given circumstances. Eternity will currently exit if these errors occur.
+<ul>
+<li> "P_UnArchiveScripts: vm presence inconsistency"
+     <br><br>
+     The presence of the Gamescript and/or Levelscript has changed since the time of
+     the savegame. If a Gamescript or Levelscript is removed from a WAD, but a savegame
+     containing its archived image is subsequently loaded, this error will occur. This
+     error will also occur if a Gamescript or Levelscript has been added to a WAD and 
+     there is no archived image of it in the savegame.
+     <br><br>
+<li> "P_UnArchiveSmallAMX: data segment consistency error"
+     <br><br>
+     The size of one or both Small AMX data segments has changed since the time of the
+     savegame. This can only occur if a Small script has been recompiled. You cannot
+     reload savegames if any of the involved scripts have been recompiled.
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="events">
+<hr>
+<b>System-Defined Event Handlers</b>
+<hr>
+</a>
+<br>
+Complete documentation of all system-defined event handlers is below. System-defined event
+handlers are optional functions that you can provide in your script that will be started as
+callback scripts by the game engine in response to internal events. If the functions do not
+exist, no calls will be issued.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="eventOnInit">
+<hr align="left" width="75%">
+<b>OnInit</b>
+<hr align="left" width="75%">
+</a>
+<br>
+Required Prototype: public OnInit();<br>
+Can Be Defined In: Gamescript, Levelscript
+<br><br>
+The OnInit function is called when its corresponding virtual machine is initialized. For the
+Gamescript, the OnInit function is executed only once at program startup. In the Levelscript, 
+the OnInit function is executed each time the level is loaded from scratch, NOT including when
+a savegame is being loaded. 
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="eventOnHUDStart">
+<hr align="left" width="75%">
+<b>OnHUDStart</b>
+<hr align="left" width="75%">
+</a>
+<br>
+Required Prototype: public OnHUDStart();<br>
+Can Be Defined In: Gamescript, Levelscript
+<br><br>
+OnHUDStart will be called first in the Gamescript and then in the Levelscript, if defined in
+either or both. It is called whenever a new level is started, or when the player being
+displayed by the game engine changes. Because text widgets are cleared by default, you may
+want to set new values to them in this function. You may also use it to maintain the internal
+state of your scripts with respect to the HUD.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="eventOnHUDPreDraw">
+<hr align="left" width="75%">
+<b>OnHUDPreDraw</b>
+<hr align="left" width="75%">
+</a>
+<br>
+Required Prototype: public OnHUDPreDraw();<br>
+Can Be Defined In: Gamescript, Levelscript
+<br><br>
+OnHUDPreDraw will be called first in the Gamescript and then in the Levelscript, if defined in
+either or both. It is called once per frame after HUD widgets from the previous frame have
+been erased, but before drawing of widgets for the current frame has begun. This is the safest
+time to alter the properties of HUD widgets. Altering properties such as location or graphic
+being shown at any other time may result in visual artifacts. Call functions such as
+<a href="small_funcref.html#_MoveWidget">_MoveWidget</a> from this event handler.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="headers">
+<hr>
+<b>Eternity Small Headers</b>
+<hr>
+</a>
+<br>
+This section lists the standard headers provided with the Eternity Small compiler
+distribution. These headers will be automatically included by the compiler, and so it
+is not necessary (although not an error) to include them explicitly.
+<br><br>
+<ul>
+<li> default.inc : This header includes core.inc and common.inc, and is automatically
+     included by the Small compiler when running with the default parameters.
+     <br><br>
+<li> core.inc : This header is provided by the Small AMX library. It includes prototypes
+     for all of the suggested core Small functions, but be aware that many of these are
+     not currently supported for use under the Eternity Engine. Only those functions listed
+     in the <a href="small_funcref.html">Eternity Small Function Reference</a> may be used 
+     safely and compatibly.
+     <br><br>
+<li> common.inc : This header includes all of the standard Eternity Engine headers below.
+     <br><br>
+<li> cameras.inc : Contains function prototypes and constants dealing with game cameras.
+     <br><br>
+<li> fixed.inc : Contains function prototypes, stock functions, overloaded operators, and 
+     constants dealing with fixed-point math.
+     <br><br>
+<li> game.inc : Contains function prototypes and constants for manipulating game play.
+     <br><br>
+<li> hud.inc : Contains function prototypes and constants for manipulating the heads-up
+     display system.
+     <br><br>
+<li> invoke.inc : Contains function prototypes and constants related to invocation models, 
+     starting scripts, scheduling callbacks, and external access to public variables.
+     <br><br>
+<li> io.inc : Contains function prototypes and constants for player input and output.
+     <br><br>
+<li> random.inc : Contains function prototypes for the DOOM RNG interface.
+     <br><br>
+<li> sound.inc : Contains function prototypes and constants for sound and music functions.
+     <br><br>
+<li> specials.inc : Contains function prototypes and constants for manipulating all aspects
+     of a map, including lines and sectors.
+     <br><br>
+<li> things.inc : Contains function prototypes and constants for manipulating all aspects of
+     moving objects, including monsters, decorations, and player avatars.
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="reserved">
+<hr>
+<b>Reserved Identifiers</b>
+<hr>
+</a>
+<br>
+The following function, definition, and constant names are explicitly reserved by the Eternity 
+Engine and should not be used by user script functions or constants. Doing so may cause
+your scripts to not compile with future versions of the engine.
+<br>
+Note: The syntax [&lt;character class&gt;]* means zero or more of the characters within the
+class indicated inside the brackets. Programmers should recognize this syntax as a regular
+expression.
+<br><br>
+<ul>
+<li> On[A-Za-z0-9_]* : Reserved for system-defined event handlers.
+<li> _[A-Za-z0-9_]* : Reserved for system-defined identifiers (ie., native functions).
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+</body>
+</html>

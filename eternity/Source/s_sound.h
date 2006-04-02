@@ -29,6 +29,24 @@
 
 #include "sounds.h"
 
+// haleyjd 07/13/05: moved these defines to the header
+
+// when to clip out sounds
+// Does not fit the large outdoor areas.
+#define S_CLIPPING_DIST_I 1200
+#define S_CLIPPING_DIST (S_CLIPPING_DIST_I << FRACBITS)
+
+// Distance to origin when sounds should be maxed out.
+// This should relate to movement clipping resolution
+// (see BLOCKMAP handling).
+// Originally: (200*0x10000).
+//
+// killough 12/98: restore original
+// #define S_CLOSE_DIST (160<<FRACBITS)
+
+#define S_CLOSE_DIST_I 200
+#define S_CLOSE_DIST (S_CLOSE_DIST_I << FRACBITS)
+
 //
 // Initializes sound stuff, including volume
 // Sets channels, SFX and music volume,
@@ -72,7 +90,6 @@ void S_ResumeSound(void);
 
 sfxinfo_t *S_SfxInfoForName(char *name);
 void S_UpdateSound(int lumpnum);
-void S_InitDefSndQueue(void);
 void S_UpdateSoundDeferred(int lumpnum);
 void S_ProcDeferredSounds(void);
 void S_Chgun(void);

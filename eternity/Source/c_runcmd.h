@@ -24,6 +24,13 @@
 
 #include "d_io.h"
 
+// NETCODE_FIXME -- CONSOLE_FIXME -- CONFIG_FIXME: Commands and 
+// variables need tweaks and extensions to fully support archiving in
+// the configuration and possibly in savegames, and also telling what
+// commands and variables are sync-critical. The main addition needed
+// is the support of defaults for ALL archived console variables and
+// a way to set a variable's value without changing its default.
+
 typedef struct command_s command_t;
 typedef struct variable_s variable_t;
 
@@ -167,6 +174,10 @@ enum    // command flag
   cf_buffered     =128,   // buffer command: wait til all screen
                           // rendered before running command
 };
+
+//
+// CONSOLE_FIXME: Implement float and toggle (boolean) ASAP.
+//
 
 enum    // variable type
 {

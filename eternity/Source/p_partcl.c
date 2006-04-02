@@ -1,10 +1,10 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// This module is covered by the zdoom source distribution
-// license, which is included in the Eternity source distribution,
-// and is compatible with the terms of the GNU General Public
-// License.
+// This module, except for code marked otherwise, is covered by the 
+// zdoom source distribution license, which is included in the 
+// Eternity source distribution, and is compatible with the terms of
+// the GNU General Public License.
 //
 // See that license file for details.
 //
@@ -32,15 +32,19 @@
 #include "p_mobj.h"
 #include "p_spec.h"
 #include "c_runcmd.h"
+#include "p_info.h"
+#include "a_small.h"
+#include "s_sound.h"
+#include "e_ttypes.h"
 
 // static integers to hold particle color values
-static int grey1, grey2, grey3, grey4, red, green, blue, yellow, black,
-           red1, green1, blue1, yellow1, purple, purple1, white,
-           rblue1, rblue2, rblue3, rblue4, orange, yorange, dred, grey5,
-           maroon1, maroon2, mdred;
+static byte grey1, grey2, grey3, grey4, red, green, blue, yellow, black,
+            red1, green1, blue1, yellow1, purple, purple1, white,
+            rblue1, rblue2, rblue3, rblue4, orange, yorange, dred, grey5,
+            maroon1, maroon2, mdred;
 
 static struct particleColorList {
-   int *color, r, g, b;
+   byte *color, r, g, b;
 } particleColors[] = {
    {&grey1,     85,  85,  85 },
    {&grey2,     171, 171, 171},
@@ -71,6 +75,12 @@ static struct particleColorList {
    {&mdred,     165, 0,   0  },
    {NULL}
 };
+
+//
+// Begin Quake 2 particle effects data. This code is taken from Quake 2,
+// copyright 1997 id Software, Inc. Available under the GNU General
+// Public License.
+//
 
 #define	BEAMLENGTH       16
 #define NUMVERTEXNORMALS 162
@@ -244,19 +254,31 @@ static vec3_t bytedirs[NUMVERTEXNORMALS] =
    {-0.688191f, -0.587785f, -0.425325f}, 
 };
 
+//
+// End Quake 2 data.
+//
+
 static particle_t *JitterParticle(int ttl);
 static void P_RunEffect(mobj_t *actor, int effects);
 static void P_FlyEffect(mobj_t *actor);
 static void P_BFGEffect(mobj_t *actor);
-static void P_ExplosionParticles(mobj_t *actor, int color1, int color2);
+static void P_DripEffect(mobj_t *actor);
+static void P_ExplosionParticles(fixed_t, fixed_t, fixed_t, byte, byte);
 static void P_RocketExplosion(mobj_t *actor);
 static void P_BFGExplosion(mobj_t *actor);
 
+//
+// P_GenVelocities
+//
+// Populates the avelocities array with randomly created floating
+// point values. Derived from Quake 2. Available under the GNU
+// General Public License.
+//
 static void P_GenVelocities(void)
 {
    int i;
 
-   for(i = 0; i < NUMVERTEXNORMALS*3; i++)
+   for(i = 0; i < NUMVERTEXNORMALS*3; ++i)
    {
       avelocities[0][i] = M_Random() * 0.01f;
    }
@@ -290,11 +312,9 @@ void P_InitParticleEffects(void)
 //
 static void P_UnsetParticlePosition(particle_t *ptcl)
 {
-   particle_t **sprev = ptcl->sprev;
-   particle_t  *snext = ptcl->snext;
+   M_DLListRemove((mdllistitem_t *)ptcl);
 
-   if((*sprev = snext))    // unlink from chain
-      snext->sprev = sprev;
+   ptcl->subsector = NULL;
 }
 
 //
@@ -308,22 +328,19 @@ static void P_UnsetParticlePosition(particle_t *ptcl)
 static void P_SetParticlePosition(particle_t *ptcl)
 {
    subsector_t *ss = R_PointInSubsector(ptcl->x, ptcl->y);
-   particle_t  **link = &ss->sector->ptcllist;
-   particle_t  *snext = *link;
+
+   M_DLListInsert((mdllistitem_t *)ptcl, 
+                  &((mdllistitem_t *)ss->sector->ptcllist));
 
    ptcl->subsector = ss;
-
-   if((ptcl->snext = snext))
-      snext->sprev = &ptcl->snext;
-   ptcl->sprev = link;
-   *link = ptcl;
 }
 
 void P_ParticleThinker(void)
 {
    int i;
    particle_t *particle, *prev;
-   subsector_t *subsec;
+   sector_t *psec;
+   fixed_t floorheight;
    
    i = activeParticles;
    prev = NULL;
@@ -334,45 +351,78 @@ void P_ParticleThinker(void)
       particle = Particles + i;
       i = particle->next;
 
-      // haleyjd 09/01/02: zdoom translucency system is now
-      // available, so this has been enabled
-      
-      oldtrans = particle->trans;
-      particle->trans -= particle->fade;
-      if(oldtrans < particle->trans || --particle->ttl == 0)
+      // haleyjd: unlink the particle from the world
+      P_UnsetParticlePosition(particle);
+
+      // haleyjd: particles with fall to ground style don't start
+      // fading or counting down their TTL until they hit the floor
+      if(!(particle->styleflags & PS_FALLTOGROUND))
       {
-         P_UnsetParticlePosition(particle);
-         memset(particle, 0, sizeof(particle_t));
-         if(prev)
-            prev->next = i;
-         else
-            activeParticles = i;
-         particle->next = inactiveParticles;
-         inactiveParticles = particle - Particles;
-         continue;
+         // perform fading
+         oldtrans = particle->trans;
+         particle->trans -= particle->fade;
+         
+         // is it time to kill this particle?
+         if(oldtrans < particle->trans || --particle->ttl == 0)
+         {
+            memset(particle, 0, sizeof(particle_t));
+            if(prev)
+               prev->next = i;
+            else
+               activeParticles = i;
+            particle->next = inactiveParticles;
+            inactiveParticles = particle - Particles;
+            continue;
+         }
       }
 
-      P_UnsetParticlePosition(particle);
+      // update and link to new position
       particle->x += particle->velx;
       particle->y += particle->vely;
       particle->z += particle->velz;
       P_SetParticlePosition(particle);
 
-      subsec = particle->subsector;
-
-      // handle special movement flags (post-position-set)
-
-      // floor clipping
-      if((particle->styleflags & PS_FLOORCLIP) &&
-         particle->z < subsec->sector->floorheight)
-      {
-         particle->z = subsec->sector->floorheight;
-         particle->accz = particle->velz = 0;
-      }
-
+      // apply accelerations
       particle->velx += particle->accx;
       particle->vely += particle->accy;
       particle->velz += particle->accz;
+
+      // handle special movement flags (post-position-set)
+
+      psec = particle->subsector->sector;
+
+      // haleyjd 09/04/05: use deep water floor if it is higher
+      // than the real floor.
+      floorheight = 
+         (psec->heightsec != -1 && 
+          sectors[psec->heightsec].floorheight > psec->floorheight) ?
+          sectors[psec->heightsec].floorheight :
+          psec->floorheight; 
+
+      // did particle hit ground, but is now no longer on it?
+      if(particle->styleflags & PS_HITGROUND && particle->z != floorheight)
+         particle->z = floorheight;
+
+      // floor clipping
+      if(particle->z < floorheight)
+      {
+         // particles with fall to ground style start ticking now
+         if(particle->styleflags & PS_FALLTOGROUND)
+            particle->styleflags &= ~PS_FALLTOGROUND;
+
+         // particles with floor clipping may need to stop
+         if(particle->styleflags & PS_FLOORCLIP)
+         {
+            particle->z = floorheight;
+            particle->accz = particle->velz = 0;
+            particle->styleflags |= PS_HITGROUND;
+            
+            // some particles make splashes
+            if(particle->styleflags & PS_SPLASH)
+               E_PtclTerrainHit(particle);
+         }
+      }
+      
       prev = particle;
    }
 }
@@ -389,7 +439,7 @@ void P_RunEffects(void)
    }
    else
    {
-      subsector_t *ss = players[consoleplayer].mo->subsector;
+      subsector_t *ss = players[displayplayer].mo->subsector;
       snum = (ss->sector - sectors) * numsectors;
    }
 
@@ -443,7 +493,7 @@ static particle_t *JitterParticle(int ttl)
    return particle;
 }
 
-static void MakeFountain(mobj_t *actor, int color1, int color2)
+static void MakeFountain(mobj_t *actor, byte color1, byte color2)
 {
    particle_t *particle;
    
@@ -459,7 +509,7 @@ static void MakeFountain(mobj_t *actor, int color1, int color2)
       
       particle->x = actor->x + FixedMul(out, finecosine[an]);
       particle->y = actor->y + FixedMul(out, finesine[an]);
-      particle->z = actor->z /*+ actor->height*/ + FRACUNIT;
+      particle->z = actor->z + actor->height + FRACUNIT;
       P_SetParticlePosition(particle);
       
       if(out < actor->radius/8)
@@ -488,9 +538,13 @@ static void P_RunEffect(mobj_t *actor, int effects)
    angle_t moveangle = R_PointToAngle2(0,0,actor->momx,actor->momy);
    particle_t *particle;
 
-   if(effects & FX_FLIES)
-   {
+   if(effects & FX_FLIES || 
+      (effects & FX_FLIESONDEATH && actor->tics == -1 &&
+       actor->movecount >= 4*TICRATE))
+   {       
       P_FlyEffect(actor);
+      if(!(actor->movecount % (2*TICRATE)))
+         S_StartSound(actor, sfx_eefly);
    }
    
    if((effects & FX_ROCKET) && drawrockettrails)
@@ -529,10 +583,10 @@ static void P_RunEffect(mobj_t *actor, int effects)
          particle->styleflags = PS_FULLBRIGHT;
       }
       
-      for(i = 6; i; i--)
+      for(i = 6; i; --i)
       {
          particle_t *particle = JitterParticle (3 + (M_Random() & 31));
-         if (particle)
+         if(particle)
          {
             fixed_t pathdist = M_Random()<<8;
             particle->x = backx - FixedMul(actor->momx, pathdist);
@@ -546,18 +600,12 @@ static void P_RunEffect(mobj_t *actor, int effects)
             particle->vely += FixedMul(speed, finesine[an]);
             particle->velz += FRACUNIT/80;
             particle->accz += FRACUNIT/40;
-            if(M_Random() & 7)
-               particle->color = grey2;
-            else
-               particle->color = grey1;
-            
+            particle->color = (M_Random() & 7) ? grey2 : grey1;            
             particle->size = 3;
             particle->styleflags = 0;
          } 
          else
-         {
             break;
-         }
       }
    }
    
@@ -573,16 +621,14 @@ static void P_RunEffect(mobj_t *actor, int effects)
    }
 
    if((effects & FX_BFG) && drawbfgcloud)
-   {
       P_BFGEffect(actor);
-   }
 
    if((effects & FX_FOUNTAINMASK) && !(actor->flags2 & MF2_DORMANT))
    {
       // Particle fountain -- can be switched on and off via the
       // MF2_DORMANT flag
       
-      static const int *fountainColors[16] = 
+      static const byte *fountainColors[16] = 
       { 
          &black,  &black,
          &red,    &red1,
@@ -597,12 +643,15 @@ static void P_RunEffect(mobj_t *actor, int effects)
       MakeFountain(actor, *fountainColors[color], 
                    *fountainColors[color+1]);
    }
+
+   if(effects & FX_DRIP)
+      P_DripEffect(actor);
 }
 
 void P_DrawSplash(int count, fixed_t x, fixed_t y, fixed_t z, 
                   angle_t angle, int kind)
 {
-   int color1, color2;
+   byte color1, color2;
    
    switch(kind) 
    {
@@ -637,12 +686,50 @@ void P_DrawSplash(int count, fixed_t x, fixed_t y, fixed_t z,
    }
 }
 
+//
+// P_BloodDrop
+//
+// haleyjd 04/01/05: Code originally by SoM that makes a blood drop
+// that falls to the floor. Isolated by me into a function, and made
+// to use new styleflags that weren't available when this was written.
+//
+static void P_BloodDrop(int count, fixed_t x, fixed_t y, fixed_t z, 
+                        angle_t angle, int updown, byte color1, 
+                        byte color2)
+{
+   fixed_t zspread = (updown ? -2400 : 2400);
+   fixed_t zadd    = (updown == 2 ? -128 : 0);
+
+   for(; count; --count)
+   {
+      particle_t *p = newParticle();
+      angle_t an;
+      
+      if(!p)
+         break;
+      
+      p->ttl = 48;
+      p->fade = FADEFROMTTL(48);
+      p->trans = 255;
+      p->size = 4;
+      p->color = M_Random() & 0x80 ? color1 : color2;
+      p->velz = 128 * -3000 + M_Random();
+      p->accz = -(LevelInfo.gravity*100/256);
+      p->styleflags = PS_FLOORCLIP | PS_FALLTOGROUND;
+      p->z = z + (M_Random() + zadd) * zspread;
+      an = (angle + ((M_Random() - 128) << 22)) >> ANGLETOFINESHIFT;
+      p->x = x + (M_Random() & 10) * finecosine[an];
+      p->y = y + (M_Random() & 10) * finesine[an];
+      P_SetParticlePosition(p);
+   }
+}
+
 // haleyjd 05/08/03: custom particle blood colors
 
 static struct bloodColor
 {
-   int *color1;
-   int *color2;
+   byte *color1;
+   byte *color2;
 } mobjBloodColors[NUMBLOODCOLORS] =
 {
    { &red,    &dred },
@@ -659,8 +746,10 @@ static struct bloodColor
 void P_DrawSplash2(int count, fixed_t x, fixed_t y, fixed_t z, 
                    angle_t angle, int updown, int kind)
 {   
-   int color1, color2, zvel, zspread, zadd, bloodcolor = 0;
+   byte color1, color2;
+   int zvel, zspread, zadd, bloodcolor = 0;
 
+   // check for blood mask to get proper blood color value
    if(kind & MBC_BLOODMASK)
    {
       bloodcolor = kind & ~MBC_BLOODMASK;
@@ -674,6 +763,12 @@ void P_DrawSplash2(int count, fixed_t x, fixed_t y, fixed_t z,
    case 0:              // Blood
       color1 = *(mobjBloodColors[bloodcolor].color1);
       color2 = *(mobjBloodColors[bloodcolor].color2);
+      // haleyjd 04/01/05: at random, throw out drops instead
+      if(M_Random() < 64)
+      {
+         P_BloodDrop(count, x, y, z, angle, updown, color1, color2);
+         return;
+      }
       break;
    case 1:              // Gunshot
       // default: grey puff
@@ -685,20 +780,12 @@ void P_DrawSplash2(int count, fixed_t x, fixed_t y, fixed_t z,
          // 06/21/02: make bullet puff colors responsive to 
          // TerrainTypes -- this is very cool and Quake-2-like ^_^      
          
-         int terrain = P_GetTerrainTypeForPt(x, y, updown);
+         ETerrain *terrain = E_GetTerrainTypeForPt(x, y, updown);
          
-         switch(terrain)
+         if(terrain->usepcolors)
          {
-         case FLOOR_WATER:
-            color1 = blue1;
-            color2 = blue;
-            break;
-         case FLOOR_LAVA:
-            color1 = orange;
-            color2 = mdred;
-            break;
-         default:
-            break;
+            color1 = terrain->pcolor_1;
+            color2 = terrain->pcolor_2;
          }
       }
       break;
@@ -746,6 +833,119 @@ void P_DrawSplash2(int count, fixed_t x, fixed_t y, fixed_t z,
    }
 }
 
+/*
+void P_DrawSplash3(int count, fixed_t x, fixed_t y, fixed_t z, 
+                   angle_t angle, int updown, int kind)
+{
+   int color1, color2;
+   int zvel, zvelmod, zspread, zadd;
+   // SoM: zvelocity should depend on particle effect type.
+   boolean smoke = false, consistant = false;
+   int mod = 31;
+   byte ttl = 12;
+   
+   switch(kind)
+   {
+   case 0:              // Blood
+      color1 = red;
+      color2 = dred;
+      break;
+   case 1:              // Gunshot
+      if(!comp[comp_terrain])
+      {
+         // 06/21/02: make bullet puff colors responsive to 
+         // TerrainTypes -- this is very cool and Quake-2-like ^_^      
+         
+         int terrain = P_GetTerrainTypeForPt(x, y, updown);
+         
+         switch(terrain)
+         {
+         case FLOOR_WATER:
+            color1 = blue1;
+            color2 = blue;
+            zadd = -512;
+            smoke = true;
+            break;
+         case FLOOR_LAVA:
+            color1 = orange;
+            color2 = mdred;
+            zadd = -512;
+            smoke = true;
+            break;
+         default:
+            color1 = grey1;
+            color2 = grey5;
+            zadd = 64;
+            smoke = true;
+            break;
+         }
+      }
+      else
+      {
+         color1 = grey1;
+         color2 = grey5;
+         zadd = 64;
+         smoke = true;
+      }
+      break;
+   case 2:		// Smoke
+      color1 = grey3;
+      color2 = grey1;
+      zadd = 64;
+      smoke = true;
+      break;
+   default:
+      return;
+   }
+   
+   if(smoke)
+   {
+      zvel = 512;
+      zspread = (updown ? -2000 : 2000);
+      mod = 14;
+      ttl = 15;
+   }
+   else
+   {
+      zvel = -3000;
+      zspread = (updown ? -2400 : 2400);
+      zadd = ((updown == 2) ? -128 : 0);
+      mod = 10;
+      ttl = 35;
+      consistant = true;
+   }
+   
+   for(; count; count--)
+   {
+      particle_t *p = newParticle();
+      angle_t an;
+      
+      if(!p)
+         break;
+      
+      p->ttl = ttl;
+      p->fade = FADEFROMTTL(ttl);
+      p->trans = 255;
+      p->size = 4;
+      p->color = M_Random() & 0x80 ? color1 : color2;
+      p->velz = !consistant ? (M_Random() * zvel) : 128 * zvel + M_Random();
+      p->accz = -FRACUNIT/22;
+      if(kind)
+      {
+         an = (angle + ((M_Random() - 128) << 23)) >> ANGLETOFINESHIFT;
+         p->velx = (M_Random() * finecosine[an]) >> 11;
+         p->vely = (M_Random() * finesine[an]) >> 11;
+         p->accx = p->velx >> 4;
+         p->accy = p->vely >> 4;
+      }
+      p->z = z + (M_Random() + zadd) * zspread;
+      an = (angle + ((M_Random() - 128) << 22)) >> ANGLETOFINESHIFT;
+      p->x = x + (M_Random() & mod)*finecosine[an];
+      p->y = y + (M_Random() & mod)*finesine[an];
+   }
+}
+*/
+
 void P_DisconnectEffect(mobj_t *actor)
 {
    int i;
@@ -771,11 +971,16 @@ void P_DisconnectEffect(mobj_t *actor)
    }
 }
 
-#define FLYCOUNT 162
+//#define FLYCOUNT 162
 
+//
+// P_FlyEffect
+//
+// Derived from Quake 2. Available under the GNU General Public License.
+//
 static void P_FlyEffect(mobj_t *actor)
 {
-   int i;
+   int i, count;
    particle_t *p;
    float angle;
    float sp, sy, cp, cy;
@@ -784,8 +989,19 @@ static void P_FlyEffect(mobj_t *actor)
    float ltime;
 
    ltime = (float)leveltime / 50.0f;
+
+   // 07/13/05: ramp flies up over time for flies-on-death effect
+   if(actor->effects & FX_FLIESONDEATH)
+      count = (actor->movecount - 4*TICRATE) * 162 / (20 * TICRATE);
+   else
+      count = 162;
+
+   if(count < 1)
+      count = 1;   
+   if(count > 162)
+      count = 162;
    
-   for(i = 0; i < FLYCOUNT; i += 2)
+   for(i = 0; i < count; i += 2)
    {
       if(!(p = newParticle()))
          break;
@@ -819,6 +1035,11 @@ static void P_FlyEffect(mobj_t *actor)
    }
 }
 
+//
+// P_BFGEffect
+//
+// Derived from Quake 2. Available under the GNU General Public License.
+//
 static void P_BFGEffect(mobj_t *actor)
 {
    int i;
@@ -849,7 +1070,7 @@ static void P_BFGEffect(mobj_t *actor)
       dist = (float)sin(ltime + i)*64;
       p->x = actor->x + (int)((bytedirs[i][0]*dist + forward[0]*BEAMLENGTH)*FRACUNIT);
       p->y = actor->y + (int)((bytedirs[i][1]*dist + forward[1]*BEAMLENGTH)*FRACUNIT);
-      p->z = actor->z + (int)((bytedirs[i][2]*dist + forward[2]*BEAMLENGTH)*FRACUNIT);
+      p->z = actor->z + (15*FRACUNIT) + (int)((bytedirs[i][2]*dist + forward[2]*BEAMLENGTH)*FRACUNIT);
       P_SetParticlePosition(p);
 
       p->velx = p->vely = p->velz = 0;
@@ -865,18 +1086,68 @@ static void P_BFGEffect(mobj_t *actor)
 }
 
 //
+// P_DripEffect
+//
+// haleyjd 09/05/05: Effect for parameterized particle drip object.
+//
+// Parameters:
+// args[0] = color (palette index)
+// args[1] = size
+// args[2] = frequency
+// args[3] = make splash?
+// args[4] = fullbright?
+//
+static void P_DripEffect(mobj_t *actor)
+{
+   boolean makesplash = !!actor->args[3];
+   boolean fullbright = !!actor->args[4];
+   particle_t *p;
+
+   // do not cause a division by zero crash or
+   // allow a negative frequency
+   if(actor->args[2] <= 0)
+      return;
+
+   if(leveltime % actor->args[2])
+      return;
+
+   if(!(p = newParticle()))
+      return;
+      
+   p->ttl   = 18;
+   p->trans = 144;
+   p->fade  = p->trans / p->ttl;
+   
+   p->color = (byte)(actor->args[0]);
+   p->size  = (byte)(actor->args[1]);
+   
+   p->velz = 128 * -3000;
+   p->accz = -LevelInfo.gravity;
+   p->styleflags = PS_FLOORCLIP | PS_FALLTOGROUND;
+   if(makesplash)
+      p->styleflags |= PS_SPLASH;
+   if(fullbright)
+      p->styleflags |= PS_FULLBRIGHT;
+   p->x = actor->x;
+   p->y = actor->y;
+   p->z = actor->subsector->sector->ceilingheight;
+   P_SetParticlePosition(p);
+}
+
+//
 // haleyjd 05/20/02: frame-based particle events system
 //
 // A field, particle_evt, has been added to the state_t structure
 // to provide a numerical indicator of what type of effect a frame
-// should trigger
+// should trigger. All code related to particle events is available
+// under the GNU General Public License.
 //
 
 particle_event_t particleEvents[P_EVENT_NUMEVENTS] =
 {
-   { NULL, "pevt_none" },               // P_EVENT_NONE
-   { P_RocketExplosion, "pevt_rexpl" }, // P_EVENT_ROCKET_EXPLODE
-   { P_BFGExplosion, "pevt_bfgexpl" },  // P_EVENT_BFG_EXPLODE
+   { NULL,              "pevt_none" },          // P_EVENT_NONE
+   { P_RocketExplosion, "pevt_rexpl" },         // P_EVENT_ROCKET_EXPLODE
+   { P_BFGExplosion,    "pevt_bfgexpl" },       // P_EVENT_BFG_EXPLODE
 };
 
 //
@@ -888,13 +1159,18 @@ particle_event_t particleEvents[P_EVENT_NUMEVENTS] =
 void P_RunEvent(mobj_t *actor)
 {
    long effectNum;
+
+   // haleyjd: 
+   // if actor->state is NULL, the thing has been removed, or
+   // if MIF_NOPTCLEVTS is set, don't run events for this thing
+   if(!actor || !actor->state || (actor->intflags & MIF_NOPTCLEVTS))
+      return;
    
-   effectNum = ((actor && actor->state) ? actor->state->particle_evt : 
-                                          P_EVENT_NONE);
+   effectNum = actor->state->particle_evt;
 
    if(effectNum < 0 || effectNum >= P_EVENT_NUMEVENTS)
    {
-      doom_printf(FC_ERROR"P_RunEvent: Particle event number out of range");
+      doom_printf(FC_ERROR"P_RunEvent: Particle event no. out of range");
       return;
    }
 
@@ -906,9 +1182,14 @@ void P_RunEvent(mobj_t *actor)
 }
 
 //
-// haleyjd 05/19: experimental explosion
+// P_ExplosionParticles
 //
-static void P_ExplosionParticles(mobj_t *actor, int color1, int color2)
+// Causes an explosion in a customizable color. Derived from Quake 2's
+// rocket/BFG burst code. Available under the GNU General Public
+// License.
+//
+static void P_ExplosionParticles(fixed_t x, fixed_t y, fixed_t z, 
+                                 byte color1, byte color2)
 {
    int i, rnd;
 
@@ -920,14 +1201,13 @@ static void P_ExplosionParticles(mobj_t *actor, int color1, int color2)
          break;
 
       p->ttl = 26;
-      // fade slower than usual
       p->fade = FADEFROMTTL(26);
       p->trans = 255;
 
       // 2^11 = 2048, 2^12 = 4096
-      p->x = actor->x + (((M_Random() % 32) - 16)*4096);
-      p->y = actor->y + (((M_Random() % 32) - 16)*4096);
-      p->z = actor->z + (((M_Random() % 32) - 16)*4096);
+      p->x = x + (((M_Random() % 32) - 16)*4096);
+      p->y = y + (((M_Random() % 32) - 16)*4096);
+      p->z = z + (((M_Random() % 32) - 16)*4096);
       P_SetParticlePosition(p);
 
       // note: was (rand() % 384) - 192 in Q2, but DOOM's RNG
@@ -953,12 +1233,12 @@ static void P_ExplosionParticles(mobj_t *actor, int color1, int color2)
 
 static void P_RocketExplosion(mobj_t *actor)
 {
-   P_ExplosionParticles(actor, orange, yorange);
+   P_ExplosionParticles(actor->x, actor->y, actor->z, orange, yorange);
 }
 
 static void P_BFGExplosion(mobj_t *actor)
 {
-   P_ExplosionParticles(actor, green, green);
+   P_ExplosionParticles(actor->x, actor->y, actor->z, green, green);
 }
 
 // Generate console variables for the enabled flags on each event
@@ -990,5 +1270,61 @@ void P_AddEventVars(void)
       (C_AddCommand)(command);
    }
 }
+
+//
+// Script functions
+//
+
+static cell AMX_NATIVE_CALL sm_ptclexplosionpos(AMX *amx, cell *params)
+{
+   fixed_t x, y, z;
+   byte col1, col2;
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   x    = (fixed_t)params[1];
+   y    = (fixed_t)params[2];
+   z    = (fixed_t)params[3];
+   col1 = (byte)params[4];
+   col2 = (byte)params[5];
+
+   P_ExplosionParticles(x, y, z, col1, col2);
+
+   return 0;
+}
+
+static cell AMX_NATIVE_CALL sm_ptclexplosionthing(AMX *amx, cell *params)
+{
+   int tid;
+   byte col1, col2;
+   mobj_t *mo = NULL;
+   SmallContext_t *ctx = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   tid  = (int) params[1];
+   col1 = (byte)params[2];
+   col2 = (byte)params[3];
+
+   while((mo = P_FindMobjFromTID(tid, mo, ctx)))
+      P_ExplosionParticles(mo->x, mo->y, mo->z, col1, col2);
+
+   return 0;
+}
+
+AMX_NATIVE_INFO ptcl_Natives[] =
+{
+   { "_PtclExplosionPos",   sm_ptclexplosionpos   },
+   { "_PtclExplosionThing", sm_ptclexplosionthing },
+   { NULL, NULL }
+};
 
 // EOF

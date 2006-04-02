@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2000 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -47,7 +47,9 @@ rcsid[] = "$Id: wi_stuff.c,v 1.11 1998/05/04 21:36:02 thldrmn Exp $";
 #include "in_lude.h"
 #include "c_io.h"
 #include "d_deh.h"
+#include "e_string.h"
 
+extern char gamemapname[9];
 
 // Ty 03/17/98: flag that new par times have been loaded in d_deh
 // haleyjd: moved to header
@@ -67,7 +69,6 @@ rcsid[] = "$Id: wi_stuff.c,v 1.11 1998/05/04 21:36:02 thldrmn Exp $";
 #define NUMEPISODES 4
 #define NUMMAPS     9
 
-
 // Not used
 // in tics
 //U #define PAUSELEN    (TICRATE*2) 
@@ -76,7 +77,6 @@ rcsid[] = "$Id: wi_stuff.c,v 1.11 1998/05/04 21:36:02 thldrmn Exp $";
 // pixel distance from "(YOU)" to "PLAYER N"
 //U #define STARDIST  10 
 //U #define WK 1
-
 
 // GLOBAL LOCATIONS
 #define WI_TITLEY      2
@@ -89,13 +89,11 @@ rcsid[] = "$Id: wi_stuff.c,v 1.11 1998/05/04 21:36:02 thldrmn Exp $";
 #define SP_TIMEX      16
 #define SP_TIMEY      (SCREENHEIGHT-32)
 
-
 // NET GAME STUFF
 #define NG_STATSY     50
 #define NG_STATSX     (32 + SHORT(star->width)/2 + 32*!dofrags)
 
 #define NG_SPACINGX   64
-
 
 // Used to display the frags matrix at endgame
 // DEATHMATCH STUFF
@@ -110,7 +108,6 @@ rcsid[] = "$Id: wi_stuff.c,v 1.11 1998/05/04 21:36:02 thldrmn Exp $";
 #define DM_KILLERSY  100
 #define DM_VICTIMSX    5
 #define DM_VICTIMSY   50
-
 
 // These animation variables, structures, etc. are used for the
 // DOOM/Ultimate DOOM intermission screen animations.  This is
@@ -127,7 +124,6 @@ typedef struct
    int   x;       // x/y coordinate pair structure
    int   y;
 } point_t;
-
 
 //
 // Animation.
@@ -174,7 +170,6 @@ typedef struct
    int   state;  
 } anim_t;
 
-
 static point_t lnodes[NUMEPISODES][NUMMAPS] =
 {
    // Episode 0 World Map
@@ -216,7 +211,6 @@ static point_t lnodes[NUMEPISODES][NUMMAPS] =
       { 281, 136 }  // location of level 8 (CJ)
    }
 };
-
 
 //
 // Animation locations for episode 0 (1).
@@ -274,7 +268,6 @@ static anim_t *anims[NUMEPISODES] =
    epsd2animinfo
 };
 
-
 //
 // GENERAL DATA
 //
@@ -283,7 +276,6 @@ static anim_t *anims[NUMEPISODES] =
 // Locally used stuff.
 //
 #define FB 0
-
 
 // States for single-player
 #define SP_KILLS    0
@@ -325,7 +317,6 @@ static int    cnt_pause;
 
 // # of commercial levels
 static int    NUMCMAPS; 
-
 
 //
 //  GRAPHICS
@@ -388,6 +379,30 @@ static patch_t*   bp[MAXPLAYERS];
 // Name graphics of each level (centered)
 static patch_t**  lnames;
 
+// haleyjd: counter based on wi_pause_time
+static int cur_pause_time;
+
+// haleyjd: whether decision to fade bg graphics has been made yet
+static boolean fade_applied = false;
+
+// haleyjd 03/27/05: EDF-defined intermission map names
+static edf_string_t *mapName;
+static edf_string_t *nextMapName;
+
+// globals
+
+// haleyjd 02/02/05: intermission pause time -- see EDF
+int wi_pause_time = 0;
+
+// haleyjd 02/02/05: color fade
+// Allows darkening the background after optional pause expires.
+// This was inspired by Contra III and is used by CQIII. See EDF.
+int     wi_fade_color = -1;
+fixed_t wi_tl_level   =  0;
+
+// forward declaration
+static void WI_OverlayBackground(void);
+
 //
 // CODE
 //
@@ -404,8 +419,9 @@ static void WI_drawLF(void)
    patch_t *patch = NULL;
    
    // haleyjd 07/08/04: fixed to work for any map
+   // haleyjd 03/27/05: added string functionality
 
-   if(*LevelInfo.levelPic)
+   if(LevelInfo.levelPic)
       patch = W_CacheLumpName(LevelInfo.levelPic, PU_CACHE);
    else
    {
@@ -418,12 +434,22 @@ static void WI_drawLF(void)
       }
    }
 
-   if(patch)
+   if(patch || mapName)
    {
       // draw <LevelName> 
-      V_DrawPatch((SCREENWIDTH - SHORT(patch->width))/2,
-                  y, &vbscreen, patch);
-      y += (5 * SHORT(patch->height)) / 4;
+      if(mapName)
+      {
+         V_WriteTextBig(mapName->string, 
+            (SCREENWIDTH - V_StringWidthBig(mapName->string)) / 2,
+            y);
+         y += (5 * V_StringHeightBig(mapName->string)) / 4;
+      }
+      else
+      {
+         V_DrawPatch((SCREENWIDTH - SHORT(patch->width))/2,
+                     y, &vbscreen, patch);
+         y += (5 * SHORT(patch->height)) / 4;
+      }
       
       // draw "Finished!"
       V_DrawPatch((SCREENWIDTH - SHORT(finished->width))/2,
@@ -441,19 +467,36 @@ static void WI_drawLF(void)
 static void WI_drawEL(void)
 {
    int y = WI_TITLEY;
-   
-   if(wbs->next >= 0)
+   patch_t *patch = NULL;
+
+   if(wbs->next >= 0 &&
+      ((gamemode == commercial && wbs->next < NUMCMAPS) ||
+      wbs->next < NUMMAPS))
+   {
+      patch = lnames[wbs->next];
+   }
+
+   if(patch || nextMapName)
    {
       // draw "Entering"
-      // haleyjd FIXME: needs mapinfo support!
       V_DrawPatch((SCREENWIDTH - SHORT(entering->width))/2,
                   y, &vbscreen, entering);
-      
+
+      // haleyjd: corrected to use height of entering, not map name
+      y += (5*SHORT(entering->height))/4;
+
       // draw level
-      y += (5*SHORT(lnames[wbs->next]->height))/4;
-      
-      V_DrawPatch((SCREENWIDTH - SHORT(lnames[wbs->next]->width))/2,
-                  y, &vbscreen, lnames[wbs->next]);
+      if(nextMapName)
+      {
+         V_WriteTextBig(nextMapName->string,
+            (SCREENWIDTH - V_StringWidthBig(nextMapName->string)) / 2,
+            y);
+      }
+      else
+      {
+         V_DrawPatch((SCREENWIDTH - SHORT(patch->width))/2,
+                     y, &vbscreen, patch);
+      }
    }
 }
 
@@ -1022,10 +1065,9 @@ static void WI_initDeathmatchStats(void)
 
 
 // ====================================================================
-// WI_initDeathmatchStats
-// Purpose: Set up to display DM stats at end of level.  Calculate 
-//          frags for all players.  Lots of noise and drama around
-//          the presentation.
+// WI_updateDeathmatchStats
+// Purpose: Update numbers for deathmatch intermission. Lots of noise 
+//          and drama around the presentation.
 // Args:    none
 // Returns: void
 //
@@ -1035,6 +1077,20 @@ static void WI_updateDeathmatchStats(void)
    boolean stillticking;
    
    WI_updateAnimatedBack();
+
+   if(cur_pause_time > 0)
+   {
+      if(acceleratestage)
+      {
+         cur_pause_time = 0;
+         acceleratestage = 0;
+      }
+      else
+      {
+         --cur_pause_time;
+         return;
+      }
+   }
    
    if(acceleratestage && dm_state != 4)  // still ticking
    {
@@ -1138,11 +1194,22 @@ static void WI_drawDeathmatchStats(void)
    int   lh; // line height
    
    lh = WI_SPACINGY;
+
+   if(!(fade_applied || cur_pause_time))
+   {
+      if(wi_fade_color != -1)
+         WI_OverlayBackground();
+      fade_applied = true;
+   }
    
    IN_slamBackground();
   
    // draw animated background
-   WI_drawAnimatedBack(); 
+   WI_drawAnimatedBack();
+
+   if(cur_pause_time > 0)
+      return;
+
    WI_drawLF();
 
    // draw stat titles (top line)
@@ -1268,6 +1335,20 @@ static void WI_updateNetgameStats(void)
    boolean stillticking;
    
    WI_updateAnimatedBack();
+
+   if(cur_pause_time > 0)
+   {
+      if(acceleratestage)
+      {
+         cur_pause_time = 0;
+         acceleratestage = 0;
+      }
+      else
+      {
+         --cur_pause_time;
+         return;
+      }
+   }
    
    if(acceleratestage && ng_state != 10)
    {
@@ -1427,11 +1508,21 @@ static void WI_updateNetgameStats(void)
 static void WI_drawNetgameStats(void)
 {
    int i, x, y, pwidth = SHORT(percent->width);
-   
+
+   if(!(fade_applied || cur_pause_time))
+   {
+      if(wi_fade_color != -1)
+         WI_OverlayBackground();
+      fade_applied = true;
+   }
+
    IN_slamBackground();
    
    // draw animated background
    WI_drawAnimatedBack(); 
+
+   if(cur_pause_time > 0)
+      return;
    
    WI_drawLF();
 
@@ -1506,6 +1597,21 @@ static void WI_initStats(void)
 static void WI_updateStats(void)
 {
    WI_updateAnimatedBack();
+
+   // haleyjd 02/02/05: allow an initial intermission pause
+   if(cur_pause_time > 0)
+   {
+      if(acceleratestage)
+      {
+         cur_pause_time = 0;
+         acceleratestage = 0;
+      }
+      else
+      {
+         --cur_pause_time;
+         return;
+      }
+   }
    
    if(acceleratestage && sp_state != 10)
    {
@@ -1627,11 +1733,22 @@ static void WI_drawStats(void)
    int lh; 
    
    lh = (3*SHORT(num[0]->height))/2;
-   
+
+   if(!(fade_applied || cur_pause_time))
+   {
+      if(wi_fade_color != -1)
+         WI_OverlayBackground();
+      fade_applied = true;
+   }
+
    IN_slamBackground();
    
    // draw animated background
    WI_drawAnimatedBack();
+
+   // haleyjd 02/02/05: intermission pause
+   if(cur_pause_time > 0)
+      return;
    
    WI_drawLF();
 
@@ -1672,7 +1789,7 @@ static void WI_drawStats(void)
 // Args:    none
 // Returns: void
 //
-void WI_Ticker(void)
+static void WI_Ticker(void)
 {
    switch(state)
    {
@@ -1695,10 +1812,27 @@ void WI_Ticker(void)
    }
 }
 
+extern void V_ColorBlockTL(VBuffer *, byte, int, int, int, int, int);
+
+//
+// WI_OverlayBackground
+//
+// haleyjd 02/02/05: function to allow the background to be overlaid
+// with a translucent color. Assumes WI_DrawBackground already called.
+//
+static void WI_OverlayBackground(void)
+{
+   V_ColorBlockTL(&backscreen1, (byte)wi_fade_color, 
+                  0, 0, backscreen1.width, backscreen1.height, 
+                  wi_tl_level);
+}
+
 // killough 11/98:
 // Moved to separate function so that i_video.c could call it
+// haleyjd: i_video now calls IN_DrawBackground, which calls the
+//          appropriate gamemode's bg drawer.
 
-void WI_DrawBackground(void)
+static void WI_DrawBackground(void)
 {
    char  name[9];  // limited to 8 characters
    
@@ -1710,6 +1844,10 @@ void WI_DrawBackground(void)
    // background
    bg = W_CacheLumpName(name, PU_CACHE);    
    V_DrawPatch(0, 0, &backscreen1, bg);
+
+   // re-fade if we were called due to video mode reset
+   if(fade_applied && wi_fade_color != -1)
+      WI_OverlayBackground();
 }
 
 // ====================================================================
@@ -1875,7 +2013,7 @@ static void WI_loadData(void)
 // Args:    none
 // Returns: void
 //
-void WI_Drawer(void)
+static void WI_Drawer(void)
 {
    switch(state)
    {
@@ -1906,10 +2044,14 @@ void WI_Drawer(void)
 // Args:    wbstartstruct -- pointer to the structure with the data
 // Returns: void
 //
-static void WI_initVariables(wbstartstruct_t* wbstartstruct)
+static void WI_initVariables(wbstartstruct_t *wbstartstruct)
 {
    wbs = wbstartstruct;
-   
+
+   // haleyjd 02/02/05: pause and fade features
+   cur_pause_time = wi_pause_time;
+   fade_applied   = false;
+
    acceleratestage = 0;
    cnt = intertime = 0;
    firstrefresh = 1;
@@ -1933,6 +2075,46 @@ static void WI_initVariables(wbstartstruct_t* wbstartstruct)
       if(wbs->epsd > 2)
          wbs->epsd -= 3;
    }
+
+   // haleyjd 03/27/05: EDF-defined intermission map names
+   mapName = NULL;
+   nextMapName = NULL;
+
+   if(LevelInfo.useEDFInterName)
+   {
+      char nameBuffer[24];
+      char *basename;
+
+      // set current map
+      psnprintf(nameBuffer, 24, "_IN_NAME_%s", gamemapname);
+      mapName = E_StringForName(nameBuffer);
+
+      // are we going to a secret level?
+      basename = wbs->gotosecret ? LevelInfo.nextSecret : LevelInfo.nextLevel;
+
+      // set next map
+      if(*basename)
+      {
+         psnprintf(nameBuffer, 24, "_IN_NAME_%s", basename);
+
+         nextMapName = E_StringForName(nameBuffer);
+      }
+      else
+      {
+         // try ExMy and MAPxy defaults for normally-named maps
+         if(isExMy(gamemapname))
+         {
+            psnprintf(nameBuffer, 24, "_IN_NAME_E%01dM%01d", 
+                      wbs->epsd + 1, wbs->next + 1);
+            nextMapName = E_StringForName(nameBuffer);
+         }
+         else if(isMAPxy(gamemapname))
+         {
+            psnprintf(nameBuffer, 24, "_IN_NAME_MAP%02d", wbs->next + 1);
+            nextMapName = E_StringForName(nameBuffer);
+         }
+      }
+   }
 }
 
 // ====================================================================
@@ -1943,7 +2125,7 @@ static void WI_initVariables(wbstartstruct_t* wbstartstruct)
 //          intermission data
 // Returns: void
 //
-void WI_Start(wbstartstruct_t* wbstartstruct)
+static void WI_Start(wbstartstruct_t *wbstartstruct)
 {
    WI_initVariables(wbstartstruct);
    WI_loadData();
@@ -1955,6 +2137,16 @@ void WI_Start(wbstartstruct_t* wbstartstruct)
    else
       WI_initStats();
 }
+
+// haleyjd: DOOM intermission object
+
+interfns_t DoomIntermission =
+{
+   WI_Ticker,
+   WI_DrawBackground,
+   WI_Drawer,
+   WI_Start,
+};
 
 //----------------------------------------------------------------------------
 //

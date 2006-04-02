@@ -177,7 +177,8 @@ struct player_s
   // Overlay view sprites (gun, etc).
   pspdef_t            psprites[NUMPSPRITES];
 
-  int                 updownangle;
+  // haleyjd 04/03/05: true pitch angle (replaces updownangle)
+  fixed_t             pitch;
 
   // True if secret level has been done.
   boolean             didsecret;      
@@ -210,6 +211,9 @@ typedef struct
 
   // if true, splash the secret level
   boolean     didsecret;
+
+  // haleyjd: if player is going to secret map
+  boolean     gotosecret;
     
   // previous and next levels, origin 0
   int         last;

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2002 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,13 +24,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __HI_STUFF_H__
-#define __HI_STUFF_H__
+#ifndef HI_STUFF_H__
+#define HI_STUFF_H__
 
-void HI_Ticker(void);
-void HI_DrawBackground(void);
-void HI_Drawer(void);
-void HI_Start(wbstartstruct_t *);
+#include "in_lude.h"
+
+// haleyjd: Heretic intermission object
+extern interfns_t HticIntermission;
 
 #endif
 

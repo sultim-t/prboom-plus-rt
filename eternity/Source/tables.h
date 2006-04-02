@@ -63,6 +63,8 @@ extern const fixed_t finetangent[FINEANGLES/2];
 #define ANG180  0x80000000
 #define ANG270  0xc0000000
 
+#define ANG360  0xffffffff
+
 // haleyjd 1/17/00
 
 #define ANGLE_1 (ANG45/45)

@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2002 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,13 +43,22 @@
 #include "p_enemy.h"
 #include "p_map.h"
 #include "p_spec.h"
-#include "e_edf.h"
+#include "p_info.h"
+#include "e_states.h"
+#include "e_things.h"
 #include "e_sound.h"
+#include "e_string.h"
+#include "e_ttypes.h"
+#include "hu_stuff.h"
+#include "c_io.h"
+
+// external prototypes from p_enemy.c
 
 void A_FaceTarget(mobj_t *actor);
 void A_Chase(mobj_t *actor);
 void A_Fall(mobj_t *actor);
 void A_Pain(mobj_t *actor);
+void A_Die(mobj_t *actor);
 
 //
 // A_SpawnGlitter
@@ -100,11 +109,12 @@ void A_SpawnGlitter(mobj_t *actor)
    // haleyjd 07/14/04: use this to absorb P_ClericSparkle effect
    if(mode == 2 || mode == 3)
    {
-      z = actor->z + actor->info->height/2 + (P_SubRandom(pr_tglitz) << 15);
+      int h = P_ThingInfoHeight(actor->info);
+      z = actor->z + h/2 + (P_SubRandom(pr_tglitz) << 15);
       
       // cap to within actor's height range
-      if(z > actor->z + actor->info->height)
-        z = actor->z + actor->info->height;
+      if(z > actor->z + h)
+        z = actor->z + h;
       else if(z < actor->floorz)
         z = actor->floorz;
    }
@@ -230,7 +240,6 @@ void P_HticDrop(mobj_t *actor, int special, mobjtype_t type)
 
    if(special)
    {
-      // TODO: add HTICAMMO flag
       item->health = special;
    }
 
@@ -239,6 +248,9 @@ void P_HticDrop(mobj_t *actor, int special, mobjtype_t type)
 
 //
 // A_HticDrop
+//
+// HTIC_FIXME / HTIC_TODO: Just get rid of this and make item
+// drops a sole property of thing types, where it belongs.
 //
 // Parameterized code pointer, drops one or two items at random
 //
@@ -423,8 +435,8 @@ void P_HticTracer(mobj_t *actor, angle_t threshold, angle_t maxturn)
 // to merge this with the function above, but the logic looks
 // incompatible no matter how I rewrite it.
 //
-// args[0]: threshold in angles
-// args[1]: maxturn in angles
+// args[0]: threshold in degrees
+// args[1]: maxturn in degrees
 //
 void A_HticTracer(mobj_t *actor)
 {
@@ -630,7 +642,7 @@ void A_SorcererRise(mobj_t *actor)
 // as needed). This automatically removes the Heretic boss spot
 // limit, of course.
 
-MobjCollection_t sorcspots;
+MobjCollection sorcspots;
 
 void P_SpawnSorcSpots(void)
 {
@@ -721,13 +733,13 @@ static int P_SorcTeleportProb(mobj_t *actor)
    }
    else if(pct > 0.499f)
    {
-      int chance = (int)(256.0f * (1.0f - pct) / 2.0f);
+      int chance = (int)(128.0f * (1.0f - pct));
 
       return chance >= 16 ? chance : 16;
    }
    else if(pct > 0.125f)
    {
-      return (int)(256.0f * (1.0f - pct) / 2.0f) + 40;
+      return (int)(128.0f * (1.0f - pct)) + 40;
    }
    else
    {
@@ -925,8 +937,26 @@ void A_HticExplode(mobj_t *actor)
    P_RadiusAttack(actor, actor->target, damage, actor->info->mod);
 
    if(actor->z <= actor->secfloorz + damage*FRACUNIT)
-      P_HitWater(actor, actor->subsector->sector);
+      E_HitWater(actor, actor->subsector->sector);
 }
+
+typedef struct
+{
+   unsigned long thing_flag;
+   unsigned long level_flag;
+   int flagfield;
+} boss_spec_htic_t;
+
+#define NUM_HBOSS_SPECS 5
+
+static boss_spec_htic_t hboss_specs[NUM_HBOSS_SPECS] =
+{
+   { MF2_E1M8BOSS,   BSPEC_E1M8, 2 },
+   { MF2_E2M8BOSS,   BSPEC_E2M8, 2 },
+   { MF2_E3M8BOSS,   BSPEC_E3M8, 2 },
+   { MF2_E4M8BOSS,   BSPEC_E4M8, 2 },
+   { MF3_E5M8BOSS,   BSPEC_E5M8, 3 },
+};
 
 //
 // A_HticBossDeath
@@ -935,77 +965,54 @@ void A_HticExplode(mobj_t *actor)
 //
 void A_HticBossDeath(mobj_t *actor)
 {
-   int flag = 0;
-   int flagfield = 0;
-   thinker_t *thinker;
-   line_t junk;
+   thinker_t *th;
+   line_t    junk;
+   int       i;
 
-   if(gamemap != 8)
-      return;
-
-   switch(gameepisode)
+   for(i = 0; i < NUM_HBOSS_SPECS; ++i)
    {
-   case 1:
-      if(!(actor->flags2 & MF2_E1M8BOSS))
-         return;
-      flag = MF2_E1M8BOSS;
-      flagfield = 2;
-      break;
-   case 2:
-      if(!(actor->flags2 & MF2_E2M8BOSS))
-         return;
-      flag = MF2_E2M8BOSS;
-      flagfield = 2;
-      break;
-   case 3:
-      if(!(actor->flags2 & MF2_E3M8BOSS))
-         return;
-      flag = MF2_E3M8BOSS;
-      flagfield = 2;
-      break;
-   case 4:
-      if(!(actor->flags2 & MF2_E4M8BOSS))
-         return;
-      flag = MF2_E4M8BOSS;
-      flagfield = 2;
-      break;
-   case 5:
-      if(!(actor->flags3 & MF3_E5M8BOSS))
-         return;
-      flag = MF3_E5M8BOSS;
-      flagfield = 3;
-      break;
-   }
-
-   for(thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
-   {
-      mobj_t *mo;
-
-      if(thinker->function != P_MobjThinker)
-         continue;
-
-      mo = (mobj_t *)thinker;
-
-      if(mo != actor && mo->health > 0)
+      unsigned long flags = 
+         hboss_specs[i].flagfield == 2 ? actor->flags2 : actor->flags3;
+      
+      // to activate a special, the thing must be a boss that triggers
+      // it, and the map must have the special enabled.
+      if((flags & hboss_specs[i].thing_flag) &&
+         (LevelInfo.bossSpecs & hboss_specs[i].level_flag))
       {
-         unsigned long flags = flagfield == 2 ? mo->flags2 : mo->flags3;
+         for(th = thinkercap.next; th != &thinkercap; th = th->next)
+         {
+            if(th->function == P_MobjThinker)
+            {
+               mobj_t *mo = (mobj_t *)th;
+               unsigned long moflags =
+                  hboss_specs[i].flagfield == 2 ? mo->flags2 : mo->flags3;
+               if(mo != actor && 
+                  (moflags & hboss_specs[i].thing_flag) && 
+                  mo->health > 0)
+                  return;         // other boss not dead
+            }
+         }
 
-         if(!(flags & flag))
-               continue;
-
-         return;
-      }
-   }
-
-   if(gameepisode > 1)
-   {
-      // if a friendly boss dies, kill only friends
-      // if an enemy boss dies, kill only enemies
-      P_Massacre((actor->flags & MF_FRIEND) ? 1 : 2);
-   }
-
-   junk.tag = 666;
-   EV_DoFloor(&junk, lowerFloor);
+         // victory!
+         switch(hboss_specs[i].level_flag)
+         {
+         default:
+         case BSPEC_E2M8:
+         case BSPEC_E3M8:
+         case BSPEC_E4M8:
+         case BSPEC_E5M8:
+            // if a friendly boss dies, kill only friends
+            // if an enemy boss dies, kill only enemies
+            P_Massacre((actor->flags & MF_FRIEND) ? 1 : 2);
+            
+            // fall through
+         case BSPEC_E1M8:
+            junk.tag = 666;
+            EV_DoFloor(&junk, lowerFloor);
+            break;
+         } // end switch
+      } // end if
+   } // end for
 }
 
 //
@@ -2237,6 +2244,123 @@ void A_BulletAttack(mobj_t *actor)
    }
 }
 
+void A_ThingSummon(mobj_t *actor)
+{
+   fixed_t x, y, z;
+   mobj_t  *newmobj;
+   angle_t an;
+   int     type, prestep, deltaz, kill_or_remove, make_child;
+
+   type    = E_SafeThingType((int)(actor->state->args[0]));
+   prestep = (int)(actor->state->args[1]) << FRACBITS;
+   deltaz  = (int)(actor->state->args[2]) << FRACBITS;
+
+   kill_or_remove = !!(actor->state->args[3]);
+   make_child     = !!(actor->state->args[4]);
+   
+   // good old-fashioned pain elemental style spawning
+   
+   an = actor->angle >> ANGLETOFINESHIFT;
+   
+   prestep = prestep + 3*(actor->info->radius + mobjinfo[type].radius)/2;
+   
+   x = actor->x + FixedMul(prestep, finecosine[an]);
+   y = actor->y + FixedMul(prestep, finesine[an]);
+   z = actor->z + deltaz;
+
+   // Check whether the thing is being spawned through a 1-sided
+   // wall or an impassible line, or a "monsters can't cross" line.
+   // If it is, then we don't allow the spawn.
+   
+   if(Check_Sides(actor, x, y))
+      return;
+
+   newmobj = P_SpawnMobj(x, y, z, type);
+   
+   // Check to see if the new thing's z value is above the
+   // ceiling of its new sector, or below the floor. If so, kill it.
+
+   if((newmobj->z >
+      (newmobj->subsector->sector->ceilingheight - newmobj->height)) ||
+      (newmobj->z < newmobj->subsector->sector->floorheight))
+   {
+      // kill it immediately
+      switch(kill_or_remove)
+      {
+      case 0:
+         A_Die(newmobj);
+         break;
+      case 1:
+         P_RemoveMobj(newmobj);
+         break;
+      }
+      return;
+   }                                                         
+   
+   // spawn thing with same friendliness
+   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
+
+   // killough 8/29/98: add to appropriate thread
+   P_UpdateThinker(&newmobj->thinker);
+   
+   // Check for movements.
+   // killough 3/15/98: don't jump over dropoffs:
+
+   if(!P_TryMove(newmobj, newmobj->x, newmobj->y, false))
+   {
+      // kill it immediately
+      switch(kill_or_remove)
+      {
+      case 0:
+         A_Die(newmobj);
+         break;
+      case 1:
+         P_RemoveMobj(newmobj);
+         break;
+      }
+      return;
+   }
+
+   // give same target
+   P_SetTarget(&newmobj->target, actor->target);
+
+   // set child properties
+   if(make_child)
+   {
+      P_SetTarget(&newmobj->tracer, actor);
+      newmobj->intflags |= MIF_ISCHILD;
+   }
+}
+
+void A_KillChildren(mobj_t *actor)
+{
+   thinker_t *th;
+   int kill_or_remove = !!(actor->state->args[0]);
+
+   for(th = thinkercap.next; th != &thinkercap; th = th->next)
+   {
+      mobj_t *mo;
+
+      if(th->function != P_MobjThinker)
+         continue;
+
+      mo = (mobj_t *)th;
+
+      if(mo->intflags & MIF_ISCHILD && mo->tracer == actor)
+      {
+         switch(kill_or_remove)
+         {
+         case 0:
+            A_Die(mo);
+            break;
+         case 1:
+            P_RemoveMobj(mo);
+            break;
+         }
+      }
+   }
+}
+
 //
 // A_AproxDistance
 //
@@ -2271,6 +2395,40 @@ void A_AproxDistance(mobj_t *actor)
    dist = P_AproxDistance(actor->x - target->x, actor->y - target->y);
 
    *dest = dist >> FRACBITS;
+}
+
+//
+// A_ShowMessage
+//
+// A codepointer that can display EDF strings to the players as
+// messages.
+// Arguments:
+// args[0] = EDF message number
+// args[1] = message type
+//
+void A_ShowMessage(mobj_t *actor)
+{
+   int msgnum = (int)(actor->state->args[0]);
+   int type   = (int)(actor->state->args[1]);
+   int player = (int)(actor->state->args[2]);
+   edf_string_t *msg;
+
+   // find the message
+   if(!(msg = E_StringForNum(msgnum)))
+      return;
+
+   switch(type)
+   {
+   case 0:
+      C_Printf(msg->string);
+      break;
+   case 1:
+      doom_printf(msg->string);
+      break;
+   case 2:
+      HU_CenterMessage(msg->string);
+      break;
+   }
 }
 
 //
@@ -2675,7 +2833,7 @@ void A_CounterOp(mobj_t *mo)
    case CPOP_SUB:
       *c_dest = *c_oper1 - *c_oper2; break;
    case CPOP_MUL:
-      *c_dest = *c_oper1 * *c_oper2;break;
+      *c_dest = *c_oper1 * *c_oper2; break;
    case CPOP_DIV:
       if(c_oper2) // don't divide by zero
          *c_dest = *c_oper1 / *c_oper2;
@@ -2753,6 +2911,31 @@ void A_CopyCounter(mobj_t *mo)
    }
 
    *dest = *src;
+}
+
+//
+// A_TargetJump
+//
+// Parameterized codepointer for branching based on whether a
+// thing's target is valid and alive.
+//
+// args[0] : state number
+//
+void A_TargetJump(mobj_t *mo)
+{
+   int statenum   = mo->state->args[0];
+   
+   // validate state number
+   if((statenum = E_StateNumForDEHNum(statenum)) == NUMSTATES)
+      return;
+
+   // 1) must be valid
+   // 2) must be alive
+   // 3) if a super friend, target cannot be a friend
+   if(mo->target && mo->target->health > 0 &&
+      !((mo->flags & mo->target->flags & MF_FRIEND) && 
+        mo->flags3 & MF3_SUPERFRIEND))
+      P_SetMobjState(mo, statenum);
 }
 
 // EOF

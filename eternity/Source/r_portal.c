@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2004 Steven McGranahan
+// Copyright(C) 2004 Stephen McGranahan
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@
 #include "r_things.h"
 
 static rportal_t *portals = NULL, *last = NULL;
+
+boolean portalrender = false;
 
 //
 // R_ClearPortal
@@ -300,7 +302,7 @@ void R_PortalAdd(rportal_t *portal, int x, int ytop, int ybottom)
       }
 
       // if the column lays completely outside the existing portal, create child
-      if(ytop > pbottom || ybottom < ptop)
+      if(ytop >= pbottom || ybottom <= ptop)
       {
          if(!portal->child)
             R_CreateChild(portal);
@@ -321,9 +323,15 @@ void R_PortalAdd(rportal_t *portal, int x, int ytop, int ybottom)
 
    if(portal->maxx < portal->minx)
    {
+      // Portal is empty so place the column anywhere (first column added to the portal)
       portal->minx = portal->maxx = x;
       portal->top[x] = ytop;
       portal->bottom[x] = ybottom;
+
+      // SoM 3/10/2005: store the viewz in the portal struct for later use
+      portal->vx = viewx;
+      portal->vy = viewy;
+      portal->vz = viewz;
       return;
    }
 
@@ -394,6 +402,7 @@ static void R_RenderPlanePortal(rportal_t *portal)
 //
 static void R_RenderHorizonPortal(rportal_t *portal)
 {
+   fixed_t lastx, lasty, lastz; // SoM 3/10/2005 
    visplane_t *topplane, *bottomplane;
    int x;
 
@@ -433,8 +442,16 @@ static void R_RenderHorizonPortal(rportal_t *portal)
       }
    }
 
+   lastx = viewx; lasty = viewy; lastz = viewz;
+   
+   viewx = portal->vx;   
+   viewy = portal->vy;   
+   viewz = portal->vz;   
+
    if(portal->child)
       R_RenderHorizonPortal(portal->child);
+
+   viewx = lastx; viewy = lasty; viewz = lastz;
 }
 
 //
@@ -533,9 +550,10 @@ static void R_RenderAnchoredPortal(rportal_t *portal)
    lasty = viewy;
    lastz = viewz;
 
-   viewx -= portal->data.camera.deltax;
-   viewy -= portal->data.camera.deltay;
-   viewz -= portal->data.camera.deltaz;
+   // SoM 3/10/2005: Use the coordinates stored in the portal struct
+   viewx = portal->vx - portal->data.camera.deltax;
+   viewy = portal->vy - portal->data.camera.deltay;
+   viewz = portal->vz - portal->data.camera.deltaz;
 
    R_RenderBSPNode(numnodes-1);
 
@@ -563,6 +581,8 @@ void R_RenderPortals(void)
 
    while(1)
    {
+      // SoM 3/14/2005: Set the portal rendering flag
+      portalrender = true;
       for(r = portals; r; r = r->next)
       {
          if(r->maxx < r->minx)
@@ -588,6 +608,8 @@ void R_RenderPortals(void)
          break;
       }
 
+      // SoM 3/14/2005: Unset the portal rendering flag
+      portalrender = false;
       if(!r)
          return;
    }

@@ -26,6 +26,9 @@
 // 
 // By Simon Howard
 //
+// NETCODE_FIXME -- CONSOLE_FIXME
+// There's a lot of cruft in here that can be done without.
+//
 //-----------------------------------------------------------------------------
 
 #include "c_io.h"
@@ -356,7 +359,7 @@ static cell AMX_NATIVE_CALL sm_version(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO ccmd_Natives[] =
 {
-   {"G_EngineVersion", sm_version },
+   {"_EngineVersion", sm_version },
    { NULL, NULL }
 };
 

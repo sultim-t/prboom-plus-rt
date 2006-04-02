@@ -27,32 +27,39 @@
 #ifndef __D_MOD_H__
 #define __D_MOD_H__
 
-#define MOD_UNKNOWN     0
-#define MOD_FIST        1
-#define MOD_PISTOL      2
-#define MOD_SHOTGUN     3
-#define MOD_CHAINGUN    4
-#define MOD_ROCKET      5
-#define MOD_R_SPLASH    6
-#define MOD_PLASMA      7
-#define MOD_BFG         8
-#define MOD_BFG_SPLASH  9
-#define MOD_CHAINSAW    10
-#define MOD_SSHOTGUN    11
-#define MOD_SLIME       12
-#define MOD_LAVA        13
-#define MOD_CRUSH       14
-#define MOD_TELEFRAG    15
-#define MOD_FALLING     16
-#define MOD_SUICIDE     17
-#define MOD_BARREL      18
-#define MOD_SPLASH      19
-#define MOD_HIT         20
-#define MOD_BFG11K_SPLASH 21
-#define MOD_BETABFG     22
-#define MOD_BFGBURST    23
-#define MOD_PLAYERMISC  24
-#define MOD_GRENADE     25
+enum MODTypes
+{
+   MOD_UNKNOWN,
+   MOD_FIST,
+   MOD_PISTOL,
+   MOD_SHOTGUN,
+   MOD_CHAINGUN,
+   MOD_ROCKET,
+   MOD_R_SPLASH,
+   MOD_PLASMA,
+   MOD_BFG,
+   MOD_BFG_SPLASH,
+   MOD_CHAINSAW,
+   MOD_SSHOTGUN,
+   MOD_SLIME,
+   MOD_LAVA,
+   MOD_CRUSH,
+   MOD_TELEFRAG,
+   MOD_FALLING,
+   MOD_SUICIDE,
+   MOD_BARREL,
+   MOD_SPLASH,
+   MOD_HIT,
+   MOD_BFG11K_SPLASH,
+   MOD_BETABFG,
+   MOD_BFGBURST,
+   MOD_PLAYERMISC,
+   MOD_GRENADE,
+   NUM_MOD_TYPES
+};
+
+// haleyjd 08/21/05: MOD strings for EDF modules
+extern const char *MODNames[NUM_MOD_TYPES];
 
 #endif
 

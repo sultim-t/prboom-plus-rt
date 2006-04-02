@@ -1,6 +1,6 @@
 /*  Abstract Machine for the Small compiler
  *
- *  Copyright (c) ITB CompuPhase, 1997-2004
+ *  Copyright (c) ITB CompuPhase, 1997-2005
  *
  *  This software is provided "as-is", without any express or implied warranty.
  *  In no event will the authors be held liable for any damages arising from
@@ -18,46 +18,60 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.47 2004-07-28 12:08:32+02 thiadmer Exp thiadmer $
+ *  Version: $Id: amx.h,v 1.52 2005-02-09 10:15:12+01 thiadmer Exp $
  */
 
-#if defined LINUX
-#include "sclinux.h" // haleyjd: this is a user include
+#if defined FREEBSD && !defined __FreeBSD__
+  #define __FreeBSD__
+#endif
+#if defined LINUX || defined __FreeBSD__ || defined __OpenBSD__
+  /* haleyjd: this is a user include, not a system include */
+  #include "sclinux.h"
 #endif
 
 #ifndef AMX_H_INCLUDED
 #define AMX_H_INCLUDED
 
-/* haleyjd 11/28/04: native function table fix */
-#define AMX_NATIVE_TABLE
-
-#if defined __LCC__ || defined __DMC__ || defined LINUX && !defined __FreeBSD__
-  #include <stdint.h>
-#elif !defined __STDC_VERSION__ || __STDC_VERSION__ < 199901L
-  /* The ISO C99 defines the int16_t and int_32t types. If the compiler got
-   * here, these types are probably undefined.
-   */
-  #if defined __FreeBSD__
-    #include <inttypes.h>
-  #else
-    typedef short int           int16_t;
-    typedef unsigned short int  uint16_t;
-    #if defined SN_TARGET_PS2
-      typedef int               int32_t;
-      typedef unsigned int      uint32_t;
+#if !defined HAVE_STDINT_H
+  #if defined __LCC__ || defined __DMC__ || defined LINUX
+    #if defined HAVE_INTTYPES_H
+      #include <inttypes.h>
     #else
-      typedef long int          int32_t;
-      typedef unsigned long int uint32_t;
+      #include <stdint.h>
     #endif
-    #if defined __WIN32__ || defined _WIN32 || defined WIN32
-      typedef __int64			int64_t;
-      typedef unsigned __int64	uint64_t;
-      #define HAVE_I64
-    #elif defined __GNUC__
-      typedef long long			int64_t;
-      typedef unsigned long long uint64_t;
-      #define HAVE_I64
+  #elif !defined __STDC_VERSION__ || __STDC_VERSION__ < 199901L
+    /* The ISO C99 defines the int16_t and int_32t types. If the compiler got
+     * here, these types are probably undefined.
+     */
+    #if defined __MACH__
+      #include <ppc/types.h>
+      typedef unsigned short int  uint16_t;
+      typedef unsigned long int   uint32_t;
+    #elif defined __FreeBSD__
+      #include <inttypes.h>
+    #else
+      typedef short int           int16_t;
+      typedef unsigned short int  uint16_t;
+      #if defined SN_TARGET_PS2
+        typedef int               int32_t;
+        typedef unsigned int      uint32_t;
+      #else
+        typedef long int          int32_t;
+        typedef unsigned long int uint32_t;
+      #endif
+      #if defined __WIN32__ || defined _WIN32 || defined WIN32
+        typedef __int64	          int64_t;
+        typedef unsigned __int64  uint64_t;
+        #define HAVE_I64
+      #elif defined __GNUC__
+        typedef long long         int64_t;
+        typedef unsigned long long uint64_t;
+        #define HAVE_I64
+      #endif
     #endif
+  #endif
+  #if !defined HAVE_STDINT_H
+    #define HAVE_STDINT_H
   #endif
 #endif
 #if defined _LP64 || defined WIN64 || defined _WIN64
@@ -66,6 +80,9 @@
   #endif
 #endif
 
+#if HAVE_ALLOCA_H
+  #include <alloca.h>
+#endif
 #if defined __WIN32__ || defined _WIN32 || defined WIN32 /* || defined __MSDOS__ */
   #if !defined alloca
     #define alloca(n)   _alloca(n)
@@ -86,6 +103,8 @@ extern  "C" {
     #define AMXAPI      __stdcall
   #elif defined CDECL
     #define AMXAPI      __cdecl
+  #elif defined GCC_HASCLASSVISIBILITY
+    #define AMXAPI __attribute__ ((visibility("default")))
   #else
     #define AMXAPI
   #endif
@@ -127,20 +146,13 @@ extern  "C" {
   #error Unsupported cell size (SMALL_CELL_SIZE)
 #endif
 
-#define UNPACKEDMAX   ((1 << (sizeof(cell)-1)*8) - 1)
+#define UNPACKEDMAX   ((1L << (sizeof(cell)-1)*8) - 1)
 
 struct tagAMX;
 typedef cell (AMX_NATIVE_CALL *AMX_NATIVE)(struct tagAMX *amx, cell *params);
 typedef int (AMXAPI *AMX_CALLBACK)(struct tagAMX *amx, cell index,
                                    cell *result, cell *params);
 typedef int (AMXAPI *AMX_DEBUG)(struct tagAMX *amx);
-
-/* haleyjd 11/27/04: typedefs for native function table allocators */
-#ifdef AMX_NATIVE_TABLE
-typedef void *(AMXAPI *AMX_MALLOC)(size_t size);
-typedef void  (AMXAPI *AMX_FREE)(void *ptr);
-#endif
-
 #if !defined _FAR
   #define _FAR
 #endif
@@ -165,8 +177,10 @@ typedef void  (AMXAPI *AMX_FREE)(void *ptr);
 #endif
 
 #if !defined AMX_NO_ALIGN
-  #if defined LINUX
+  #if defined LINUX || defined __FreeBSD__
     #pragma pack(1)         /* structures must be packed (byte-aligned) */
+  #elif defined MACOS && defined __MWERKS__
+	#pragma options align=mac68k
   #else
     #pragma pack(push)
     #pragma pack(1)         /* structures must be packed (byte-aligned) */
@@ -176,7 +190,7 @@ typedef void  (AMXAPI *AMX_FREE)(void *ptr);
   #endif
 #endif
 
-typedef struct {
+typedef struct tagAMX_NATIVE_INFO {
   const char _FAR *name PACKED;
   AMX_NATIVE func       PACKED;
 } AMX_NATIVE_INFO       PACKED;
@@ -186,9 +200,14 @@ typedef struct {
 #define sNAMEMAX        31      /* maximum name length of symbol name */
 
 typedef struct tagAMX_FUNCSTUB {
-  uint32_t address      PACKED;
+  ucell address         PACKED;
   char name[sEXPMAX+1]  PACKED;
 } AMX_FUNCSTUB          PACKED;
+
+typedef struct tagFUNCSTUBNT {
+  ucell address         PACKED;
+  uint32_t nameofs      PACKED;
+} FUNCSTUBNT            PACKED;
 
 /* The AMX structure is the internal structure for many functions. Not all
  * fields are valid at all times; many fields are cached in local variables.
@@ -229,11 +248,6 @@ typedef struct tagAMX {
     int reloc_size      PACKED; /* required temporary buffer for relocations */
     long code_size      PACKED; /* estimated memory footprint of the native code */
   #endif
-  /* haleyjd 11/27/04: native function pointer table for portability */
-#ifdef AMX_NATIVE_TABLE
-  AMX_NATIVE *functable PACKED;
-  int funcindex         PACKED;
-#endif
 } AMX                   PACKED;
 
 /* The AMX_HEADER structure is both the memory format as the file format. The
@@ -258,7 +272,14 @@ typedef struct tagAMX_HEADER {
   int32_t tags          PACKED; /* the "public tagnames" table */
   int32_t nametable     PACKED; /* name table, file version 7 only */
 } AMX_HEADER            PACKED;
-#define AMX_MAGIC       0xf1e0
+
+#if SMALL_CELL_SIZE==16
+  #define AMX_MAGIC     0xf1e2
+#elif SMALL_CELL_SIZE==32
+  #define AMX_MAGIC     0xf1e0
+#elif SMALL_CELL_SIZE==64
+  #define AMX_MAGIC     0xf1e1
+#endif
 
 enum {
   AMX_ERR_NONE,
@@ -287,6 +308,7 @@ enum {
   AMX_ERR_INIT_JIT,     /* cannot initialize the JIT */
   AMX_ERR_PARAMS,       /* parameter error */
   AMX_ERR_DOMAIN,       /* domain error, expression result does not fit in range */
+  AMX_ERR_GENERAL,      /* general error (unknown or unspecific error) */
 };
 
 enum {
@@ -305,8 +327,8 @@ enum {
 /*      AMX_FLAG_CHAR16   0x01     no longer used */
 #define AMX_FLAG_DEBUG    0x02  /* symbolic info. available */
 #define AMX_FLAG_COMPACT  0x04  /* compact encoding */
-#define AMX_FLAG_BIGENDIAN 0x08 /* big endian encoding */
-#define AMX_FLAG_NOCHECKS  0x10 /* no array bounds checking */
+#define AMX_FLAG_BYTEOPC  0x08  /* opcode is a byte (not a cell) */
+#define AMX_FLAG_NOCHECKS 0x10  /* no array bounds checking */
 #define AMX_FLAG_BROWSE 0x4000  /* browsing/relocating or executing */
 #define AMX_FLAG_RELOC  0x8000  /* jump/call addresses relocated */
 
@@ -315,7 +337,9 @@ enum {
 
 #define AMX_USERTAG(a,b,c,d)    ((a) | ((b)<<8) | ((long)(c)<<16) | ((long)(d)<<24))
 
-#define AMX_EXPANDMARGIN  64
+#if !defined AMX_COMPACTMARGIN
+  #define AMX_COMPACTMARGIN 64
+#endif
 
 /* for native functions that use floating point parameters, the following
  * two macros are convenient for casting a "cell" into a "float" type _without_
@@ -387,16 +411,22 @@ int AMXAPI amx_UTF8Get(const char *string, const char **endptr, cell *value);
 int AMXAPI amx_UTF8Put(char *string, char **endptr, int maxchars, cell value);
 int AMXAPI amx_UTF8Check(const char *string);
 
-/* haleyjd 11/27/04: native function table stuff */
-#ifdef AMX_NATIVE_TABLE
-int AMXAPI amx_SetMallocFunc(AMX_MALLOC malloc_func);
-int AMXAPI amx_SetFreeFunc(AMX_FREE free_func);
+#if SMALL_CELL_SIZE==16
+  #define amx_AlignCell(v) amx_Align16(v)
+#elif SMALL_CELL_SIZE==32
+  #define amx_AlignCell(v) amx_Align32(v)
+#elif SMALL_CELL_SIZE==64 && (defined _I64_MAX || defined HAVE_I64)
+  #define amx_AlignCell(v) amx_Align64(v)
+#else
+  #error Unsupported cell size
 #endif
 
 
 #if !defined AMX_NO_ALIGN
-  #if defined LINUX
+  #if defined LINUX || defined __FreeBSD__
     #pragma pack()    /* reset default packing */
+  #elif defined MACOS && defined __MWERKS__
+    #pragma options align=reset
   #else
     #pragma pack(pop) /* reset previous packing */
   #endif

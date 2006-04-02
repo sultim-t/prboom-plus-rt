@@ -43,7 +43,14 @@
 #include "d_dehtbl.h"
 #include "sounds.h"
 #include "i_sound.h"
+#include "p_mobj.h"
+#include "s_sound.h"
+
+#define NEED_EDF_DEFINITIONS
+
 #include "Confuse/confuse.h"
+#include "e_edf.h"
+#include "e_sound.h"
 
 //
 // Sound keywords
@@ -56,6 +63,8 @@
 #define ITEM_SND_SKININDEX "skinindex"
 #define ITEM_SND_LINKVOL "linkvol"
 #define ITEM_SND_LINKPITCH "linkpitch"
+#define ITEM_SND_CLIPPING_DIST "clipping_dist"
+#define ITEM_SND_CLOSE_DIST "close_dist"
 #define ITEM_SND_DEHNUM "dehackednum"
 
 #define ITEM_DELTA_NAME "name"
@@ -106,26 +115,28 @@ static const char *skinindices[] =
 };
 
 #define SOUND_OPTIONS \
-   CFG_STR(ITEM_SND_LUMP,        NULL,      CFGF_NONE), \
-   CFG_BOOL(ITEM_SND_PREFIX,     cfg_true,  CFGF_NONE), \
-   CFG_STR(ITEM_SND_SINGULARITY, "sg_none", CFGF_NONE), \
-   CFG_INT(ITEM_SND_PRIORITY,    64,        CFGF_NONE), \
-   CFG_STR(ITEM_SND_LINK,        "none",    CFGF_NONE), \
-   CFG_STR(ITEM_SND_SKININDEX,   "sk_none", CFGF_NONE), \
-   CFG_INT(ITEM_SND_LINKVOL,     -1,        CFGF_NONE), \
-   CFG_INT(ITEM_SND_LINKPITCH,   -1,        CFGF_NONE), \
-   CFG_INT(ITEM_SND_DEHNUM,      -1,        CFGF_NONE), \
+   CFG_STR(ITEM_SND_LUMP,          NULL,              CFGF_NONE), \
+   CFG_BOOL(ITEM_SND_PREFIX,       cfg_true,          CFGF_NONE), \
+   CFG_STR(ITEM_SND_SINGULARITY,   "sg_none",         CFGF_NONE), \
+   CFG_INT(ITEM_SND_PRIORITY,      64,                CFGF_NONE), \
+   CFG_STR(ITEM_SND_LINK,          "none",            CFGF_NONE), \
+   CFG_STR(ITEM_SND_SKININDEX,     "sk_none",         CFGF_NONE), \
+   CFG_INT(ITEM_SND_LINKVOL,       -1,                CFGF_NONE), \
+   CFG_INT(ITEM_SND_LINKPITCH,     -1,                CFGF_NONE), \
+   CFG_INT(ITEM_SND_CLIPPING_DIST, S_CLIPPING_DIST_I, CFGF_NONE), \
+   CFG_INT(ITEM_SND_CLOSE_DIST,    S_CLOSE_DIST_I,    CFGF_NONE), \
+   CFG_INT(ITEM_SND_DEHNUM,        -1,                CFGF_NONE), \
    CFG_END()
 
 //
 // Sound cfg options array (used in e_edf.c)
 //
-cfg_opt_t sound_opts[] =
+cfg_opt_t edf_sound_opts[] =
 {
    SOUND_OPTIONS
 };
 
-cfg_opt_t sdelta_opts[] =
+cfg_opt_t edf_sdelta_opts[] =
 {
    CFG_STR(ITEM_DELTA_NAME, NULL, CFGF_NONE),
    SOUND_OPTIONS
@@ -186,7 +197,7 @@ sfxinfo_t *E_SoundForDEHNum(int dehnum)
 //
 // Adds a new sfxinfo_t structure to the hash table.
 //
-void E_AddSoundToHash(sfxinfo_t *sfx)
+static void E_AddSoundToHash(sfxinfo_t *sfx)
 {
    // compute the hash code using the sound mnemonic
    unsigned int hash;
@@ -219,7 +230,7 @@ static void E_AddSoundToDEHHash(sfxinfo_t *sfx)
       return;
 
    if(sfx->dehackednum == 0)
-      I_Error("E_AddSoundToDEHHash: dehackednum zero is reserved!\n");
+      E_EDFLoggedErr(2, "E_AddSoundToDEHHash: dehackednum zero is reserved!\n");
 
    sfx->dehnext = sfx_dehchains[hash];
    sfx_dehchains[hash] = sfx;
@@ -256,6 +267,8 @@ void E_NewWadSound(const char *name)
       sfx->priority = 64;
       sfx->link = NULL;
       sfx->pitch = sfx->volume = -1;
+      sfx->clipping_dist = S_CLIPPING_DIST;
+      sfx->close_dist = S_CLOSE_DIST;
       sfx->skinsound = 0;
       sfx->data = NULL;
       sfx->dehackednum = -1; // not accessible to DeHackEd
@@ -273,6 +286,38 @@ void E_NewWadSound(const char *name)
    }
 }
 
+//
+// E_PreCacheSounds
+//
+// Runs down the sound mnemonic hash table chains and caches all 
+// sounds. This is improved from the code that was in SMMU, which 
+// only precached entries in the S_sfx array. This is called at 
+// startup when sound precaching is enabled.
+//
+void E_PreCacheSounds(void)
+{
+   int i;
+   sfxinfo_t *cursfx;
+
+   // run down all the mnemonic hash chains so that we precache 
+   // all sounds, not just ones stored in S_sfx
+
+   for(i = 0; i < NUMSFXCHAINS; ++i)
+   {
+      cursfx = sfxchains[i];
+
+      while(cursfx)
+      {
+         I_CacheSound(cursfx);
+         cursfx = cursfx->next;
+      }
+   }
+}
+
+//
+// EDF Processing Functions
+//
+
 #define IS_SET(name) (def || cfg_size(section, name) > 0)
 
 //
@@ -280,7 +325,7 @@ void E_NewWadSound(const char *name)
 //
 // Processes an EDF sound definition
 //
-void E_ProcessSound(sfxinfo_t *sfx, cfg_t *section, boolean def)
+static void E_ProcessSound(sfxinfo_t *sfx, cfg_t *section, boolean def)
 {
    int i;
 
@@ -368,6 +413,14 @@ void E_ProcessSound(sfxinfo_t *sfx, cfg_t *section, boolean def)
    if(IS_SET(ITEM_SND_LINKPITCH))
       sfx->pitch = cfg_getint(section, ITEM_SND_LINKPITCH);
 
+   // haleyjd 07/13/05: process clipping_dist
+   if(IS_SET(ITEM_SND_CLIPPING_DIST))
+      sfx->clipping_dist = cfg_getint(section, ITEM_SND_CLIPPING_DIST) << FRACBITS;
+
+   // haleyjd 07/13/05: process close_dist
+   if(IS_SET(ITEM_SND_CLOSE_DIST))
+      sfx->close_dist = cfg_getint(section, ITEM_SND_CLOSE_DIST) << FRACBITS;
+
    // process dehackednum -- not in deltas!
    if(def)
    {
@@ -379,30 +432,98 @@ void E_ProcessSound(sfxinfo_t *sfx, cfg_t *section, boolean def)
 }
 
 //
-// E_PreCacheSounds
+// E_ProcessSounds
 //
-// Runs down the sound mnemonic hash table chains and caches all 
-// sounds. This is improved from the code that was in SMMU, which 
-// only precached entries in the S_sfx array. This is called at 
-// startup when sound precaching is enabled.
+// Collects all the sound definitions and builds the sound hash
+// tables.
 //
-void E_PreCacheSounds(void)
+void E_ProcessSounds(cfg_t *cfg)
 {
    int i;
-   sfxinfo_t *cursfx;
 
-   // run down all the mnemonic hash chains so that we precache 
-   // all sounds, not just ones stored in S_sfx
+   E_EDFLogPuts("\t\tHashing sounds\n");
 
-   for(i = 0; i < NUMSFXCHAINS; ++i)
+   // initialize S_sfx[0]
+   strcpy(S_sfx[0].name, "none");
+   strcpy(S_sfx[0].mnemonic, "none");
+
+   // now, let's collect the mnemonics (this must be done ahead of time)
+   for(i = 1; i < NUMSFX; ++i)
    {
-      cursfx = sfxchains[i];
+      const char *mnemonic;
+      cfg_t *sndsection = cfg_getnsec(cfg, EDF_SEC_SOUND, i - 1);
 
-      while(cursfx)
+      mnemonic = cfg_title(sndsection);
+
+      // verify the length
+      if(strlen(mnemonic) > 16)
       {
-         I_CacheSound(cursfx);
-         cursfx = cursfx->next;
+         E_EDFLoggedErr(2, 
+            "E_ProcessSounds: invalid sound mnemonic '%s'\n", mnemonic);
       }
+
+      // copy it to the sound
+      strncpy(S_sfx[i].mnemonic, mnemonic, 17);
+
+      // add this sound to the hash table
+      E_AddSoundToHash(&S_sfx[i]);
+   }
+
+   E_EDFLogPuts("\t\tProcessing data\n");
+
+   // finally, process the individual sounds
+   for(i = 1; i < NUMSFX; ++i)
+   {
+      cfg_t *section = cfg_getnsec(cfg, EDF_SEC_SOUND, i - 1);
+
+      E_ProcessSound(&S_sfx[i], section, true);
+
+      E_EDFLogPrintf("\t\tFinished sound %s(#%d)\n", S_sfx[i].mnemonic, i);
+   }
+
+   E_EDFLogPuts("\t\tFinished sound processing\n");
+}
+
+//
+// E_ProcessSoundDeltas
+//
+// Does processing for sounddelta sections, which allow cascading
+// editing of existing sounds. The sounddelta shares most of its
+// fields and processing code with the sound section.
+//
+void E_ProcessSoundDeltas(cfg_t *cfg)
+{
+   int i, numdeltas;
+
+   E_EDFLogPuts("\t* Processing sound deltas\n");
+
+   numdeltas = cfg_size(cfg, EDF_SEC_SDELTA);
+
+   E_EDFLogPrintf("\t\t%d sounddelta(s) defined\n", numdeltas);
+
+   for(i = 0; i < numdeltas; i++)
+   {
+      const char *tempstr;
+      sfxinfo_t *sfx;
+      cfg_t *deltasec = cfg_getnsec(cfg, EDF_SEC_SDELTA, i);
+
+      // get thingtype to edit
+      if(!cfg_size(deltasec, ITEM_DELTA_NAME))
+         E_EDFLoggedErr(2, "E_ProcessSoundDeltas: sounddelta requires name field\n");
+
+      tempstr = cfg_getstr(deltasec, ITEM_DELTA_NAME);
+      sfx = E_SoundForName(tempstr);
+
+      if(!sfx)
+      {
+         E_EDFLoggedErr(2, 
+            "E_ProcessSoundDeltas: sound '%s' does not exist\n", tempstr);
+      }
+
+      E_ProcessSound(sfx, deltasec, false);
+
+      E_EDFLogPrintf("\t\tApplied sounddelta #%d to sound %s\n",
+                     i, tempstr);
    }
 }
 

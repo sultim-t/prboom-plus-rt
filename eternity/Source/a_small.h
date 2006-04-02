@@ -91,7 +91,8 @@ typedef struct sc_invoke_s
    // invocation data
    mobj_t *trigger; // thing that started script -- get with TID_TRIGGER
    int playernum;   // # of player that started script
-   int line_lid;    // TODO: LID of line that started script
+   line_t *line;    // line that started script
+   int spec_mode;   // line special mode; see sm_specialmode in p_genlin.c
    int sector_sid;  // TODO: SID of sector that started script
 } sc_invoke_t;
 
@@ -175,6 +176,8 @@ cell A_ExecScriptV(AMX *amx, int fnNum);
 cell A_ExecScriptByNum(AMX *amx, int number, int numparams, 
                        cell params[]);
 cell A_ExecScriptByNumV(AMX *amx, int number);
+
+void A_OptScriptCallback(SmallContext_t *ctx, const char *cbname);
 
 extern boolean gameScriptLoaded;
 extern boolean levelScriptLoaded;

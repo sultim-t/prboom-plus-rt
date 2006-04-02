@@ -23,6 +23,16 @@
 //      DOOM Network game communication and protocol,
 //      all OS independend parts.
 //
+// NETCODE_FIXME: Primary high-level netcode module. This is where
+// the engine must interface with the networking system. Currently
+// only a limited amount of setup data and ticcmd_t's can be broadcast
+// over the network. This system must be augmented to allow other types
+// of packets, most notably commands -- issued from the console or
+// otherwise. Also, I want to add ticcmd packing so that the amount of
+// data sent on each tic can be minimized. zdoom and Quake 2 both use
+// ticcmd packing (Q2 doesn't call it that of course), by sending flags
+// that tell what movement-related fields have been sent.
+//
 //-----------------------------------------------------------------------------
 
 static const char rcsid[] =
@@ -53,8 +63,8 @@ static const char rcsid[] =
 #define NCMD_KILL               0x10000000      /* kill game */
 #define NCMD_CHECKSUM           0x0fffffff
 
-doomcom_t*      doomcom;        
-doomdata_t*     netbuffer;             // points inside doomcom
+doomcom_t  *doomcom;        
+doomdata_t *netbuffer; // points inside doomcom
 
 //
 // NETWORKING
@@ -86,13 +96,13 @@ int      maketic;
 int      lastnettic;
 int      skiptics;
 int      ticdup;         
-int      maxsend;                      // BACKUPTICS/(2*ticdup)-1
+int      maxsend;               // BACKUPTICS/(2*ticdup)-1
 
 doomcom_t  singleplayer;        // single player doomcom
 
-void D_ProcessEvents (void); 
-void G_BuildTiccmd (ticcmd_t *cmd); 
-void D_DoAdvanceDemo (void);
+void D_ProcessEvents(void); 
+void G_BuildTiccmd(ticcmd_t *cmd); 
+void D_DoAdvanceDemo(void);
 
 boolean         reboundpacket;
 doomdata_t      reboundstore;
@@ -101,11 +111,11 @@ extern int  key_escape;                // phares
 
 
 //
+// NetbufferSize
 //
-//
-int NetbufferSize (void)
+int NetbufferSize(void)
 {
-  return (int)&(((doomdata_t *)0)->cmds[netbuffer->numtics]); 
+   return (int)&(((doomdata_t *)0)->cmds[netbuffer->numtics]); 
 }
 
 //
@@ -131,7 +141,7 @@ unsigned NetbufferChecksum (void)
 }
 
 //
-//
+// ExpandTics
 //
 int ExpandTics (int low)
 {
@@ -152,6 +162,12 @@ int ExpandTics (int low)
 
 int  oldentertics;
 
+//
+// ResetNet
+//
+// NETCODE_FIXME: Remove this and go back to not allowing connections
+// from within the game engine to simplify system.
+//
 void ResetNet()
 {
   int i;
@@ -297,7 +313,6 @@ boolean HGetPacket (void)
 //
 // GetPackets
 //
-
 void GetPackets (void)
 {
   int         netconsole;
@@ -354,6 +369,8 @@ void GetPackets (void)
 	    G_CheckDemoStatus ();
 	  continue;
 	}
+
+      // NETCODE_FIXME: bomb out here like it used to do.
 
       // check for a remote game kill
       if (netbuffer->checksum & NCMD_KILL)
@@ -422,57 +439,69 @@ void GetPackets (void)
 }
 
 
-//
-// NetUpdate
-// Builds ticcmds for console player,
-// sends out a packet
-//
 int gametime;
 int newtics, ticnum;    // the number of tics being built, tic number
 
-void NetUpdate (void)
+//
+// NetUpdate
+//
+// Builds ticcmds for console player,
+// sends out a packet
+//
+// NETCODE_FIXME: We need more than ticcmds to support console cvars
+// and commands in a more efficient manner, and we also need to compress
+// ticcmd userdata like zdoom and Quake 2 do by only sending the fields
+// that actually contain useful data, and sending a flag field along
+// with them indicating what fields have been sent.
+//
+// zdoom does this with a resizable buffer of "special" commands, which
+// are sent through the network separately. This requires rather elaborate
+// code to step through the various sizes of network packets but it is
+// the only flexible way to support this kind of system.
+//
+void NetUpdate(void)
 {
-  int nowtime;
-  int i,j;
-  int realstart;
-  int gameticdiv;
-  
-  // check time
-  nowtime = I_GetTime ()/ticdup;
-  newtics = nowtime - gametime;
-  gametime = nowtime;
-  
-  if (newtics <= 0)   // nothing new to update
-    goto listen; 
-  
-  if (skiptics <= newtics)
-    {
+   int nowtime;
+   int i,j;
+   int realstart;
+   int gameticdiv;
+   
+   // check time
+   nowtime = I_GetTime ()/ticdup;
+   newtics = nowtime - gametime;
+   gametime = nowtime;
+   
+   if (newtics <= 0)   // nothing new to update
+      goto listen; 
+   
+   if (skiptics <= newtics)
+   {
       newtics -= skiptics;
       skiptics = 0;
-    }
-  else
-    {
+   }
+   else
+   {
       skiptics -= newtics;
       newtics = 0;
-    }
-  
-  netbuffer->player = consoleplayer;
-  
-  // build new ticcmds for console player
-  gameticdiv = gametic/ticdup;
-  for (ticnum=0 ; ticnum<newtics ; ticnum++)
-    {
+   }
+   
+   netbuffer->player = consoleplayer;
+   
+   // build new ticcmds for console player
+   gameticdiv = gametic/ticdup;
+   for (ticnum=0 ; ticnum<newtics ; ticnum++)
+   {
       I_StartTic ();
       D_ProcessEvents ();
       if (maketic - gameticdiv >= BACKUPTICS/2-1)
-	break;          // can't hold any more
+         break;          // can't hold any more
       
       G_BuildTiccmd (&localcmds[maketic%BACKUPTICS]);
       maketic++;
-    }
+   }
   
-  if (singletics)
-    return;         // singletic update is syncronous
+   if (singletics)
+      return;         // singletic update is syncronous
   
   // send the packet to the other nodes
   for (i=0 ; i<doomcom->numnodes ; i++)
@@ -500,15 +529,14 @@ void NetUpdate (void)
 	  }
       }
   
-  // listen for other packets
+   // listen for other packets
 listen:
-  GetPackets ();
+   GetPackets();
 }
 
 //
 // D_KickPlayer
 //
-
 void D_KickPlayer(int playernum)
 {
   HSendPacket(nodeforplayer[playernum], NCMD_KILL);
@@ -532,9 +560,14 @@ void CheckAbort (void)
 //
 // D_InitPlayers
 //
-
 // sf: init players, set names, skins, colours etc
-
+//
+// NETCODE_FIXME: Completely wrong. This data should be transmitted
+// as cvars or something similar, like in zdoom. This must be removed
+// and replaced by something more general which allows players to have
+// their proper names, colors, and skins in netgames. This shows how
+// ridiculous the current system really is, if nothing else.
+//
 void D_InitPlayers (void)
 {
    int i;
@@ -562,7 +595,10 @@ void D_ArbitrateNetStart (void)
   if (doomcom->consoleplayer == 0)      // key player
     {
       usermsg("waiting for players..");
-      
+
+      //
+      // NETCODE_FIXME: Send rngseed like other ports? This is haphazard.
+      //
       G_ScrambleRand();
       rngseed = rngseed & 255;
       
@@ -580,6 +616,10 @@ void D_ArbitrateNetStart (void)
 	for(i=0; i<doomcom->numnodes; i++)
          HSendPacket(i, NCMD_SETUP);
 
+        //
+        // NETCODE_FIXME: Sloppy, needs big rewrite.
+        // Remove loading box bullshit and other cruft.
+        //
       while(1)
 	{
 	  CheckAbort();
@@ -659,7 +699,16 @@ void D_ArbitrateNetStart (void)
 	}
     }
   usermsg("random seed: %i", rngseed);
+  
+  //
+  // NETCODE_FIXME: See note above about D_InitPlayers
+  //
+  
   D_InitPlayers();
+  
+  //
+  // NETCODE_FIXME: what's this??
+  //
   
   // wait a bit
   for(i=I_GetTime_RealTime()+20; I_GetTime_RealTime()<i;);
@@ -669,6 +718,11 @@ void D_ArbitrateNetStart (void)
 // D_CheckNetGame
 // Works out player numbers among the net participants
 //
+
+//
+// NETCODE_FIXME: Handle this more like other ports.
+//
+
 extern int viewangleoffset;
 
 void D_CheckNetGame (void)
@@ -749,15 +803,26 @@ void D_QuitNetGame (void)
       I_WaitVBL(1);
    }
   
+   //
+   // NETCODE_FIXME: part of the old driver system, probably not
+   // needed any longer.
+   //
    if(netdisconnect)
    {
       netdisconnect();                // disconnect (hang up modem etc)
       netdisconnect = NULL;
    }
-  
+
+   //
+   // NETCODE_FIXME: As noted above, unless this proves to be stable
+   // and reliable, I think we should go back to kicking out after a
+   // net game. fraggle never tested this kind of stuff and it may
+   // have serious problems.
+   //
    consoleplayer = 0;
    netgame = 0; 
    GameType = DefaultGameType = gt_single; // haleyjd 04/10/03
+
    G_SetDefaultDMFlags(0, true);
    
    for(i=0;i<MAXPLAYERS;i++)
@@ -781,6 +846,17 @@ void D_QuitNetGame (void)
 //             crashes in netgames, but also ensures the menu and
 //             console run at the right speeds during demo timing and
 //             changing of the game speed.
+
+//
+// NETCODE_FIXME: Possibly undo SMMU changes to main loop functions
+// to re-simplify and eliminate possible bugs or redundancies. zdoom
+// doesn't do things this way, so I question the necessity of some
+// of these subloops.
+//
+
+//
+// NETCODE_FIXME: Need to handle stuff besides ticcmds too.
+//
 
 int     frametics[4];
 int     frameon;
@@ -851,6 +927,10 @@ void RunGameTics(void)
         if (playeringame[i])
 	  break;
       }
+
+      //
+      // NETCODE_FIXME: Getting real sloppy here.
+      //
       if(consoleplayer == i)
       {
          // the key player does not adapt
@@ -876,6 +956,8 @@ void RunGameTics(void)
    // also to keep the menu/console
    // tickers running at normal speed
 
+   // NETCODE_FIXME: fraggle change #1
+
    if(singletics)
    {
       I_StartTic();
@@ -891,6 +973,8 @@ void RunGameTics(void)
    }
 
    // sf: reorganised to stop doom locking up
+
+   // NETCODE_FIXME: fraggle change #2
    
    if(lowtic < gametic/ticdup + counts)         // no more loops
    {
@@ -958,6 +1042,8 @@ void TryRunTics (void)
   // sf: run the menu and console regardless of 
   // game time. to prevent lockups
 
+  // NETCODE_FIXME: fraggle change #3
+
   I_StartTic ();        // run these here now to get keyboard
   D_ProcessEvents ();   // input for console/menu
 
@@ -998,6 +1084,10 @@ CONSOLE_COMMAND(playerinfo, 0)
       C_Printf("%i: %s\n",i, players[i].name);
 }
 
+//
+// NETCODE_FIXME: See notes above about kicking out instead of 
+// dropping to console.
+//
 CONSOLE_COMMAND(disconnect, cf_netonly)
 {
   D_QuitNetGame();

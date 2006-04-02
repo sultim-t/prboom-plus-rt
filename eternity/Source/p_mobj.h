@@ -272,6 +272,11 @@ typedef enum
    MF3_INVULNCHARGE = 0x00080000,  // invincible when skull flying
    MF3_EXPLOCOUNT   = 0x00100000,  // doesn't explode until this expires
    MF3_CANNOTPUSH   = 0x00200000,  // thing can't push pushable things
+   MF3_TLSTYLEADD   = 0x00400000,  // uses additive translucency
+   MF3_SPACMONSTER  = 0x00800000,  // monster can activate param lines
+   MF3_SPACMISSILE  = 0x01000000,  // missile can activate param lines
+   MF3_NOFRIENDDMG  = 0x02000000,  // object isn't hurt by friends
+   MF3_3DDECORATION = 0x04000000,  // object is a decor. with 3D height info
 } mobjflag3_t;
 
 // killough 9/15/98: Same, but internal flags, not intended for .deh
@@ -288,6 +293,8 @@ enum
    MIF_SCREAMED    = 0x00000040, // haleyjd: player has screamed
    MIF_NOFACE      = 0x00000080, // haleyjd: thing won't face its target
    MIF_CRASHED     = 0x00000100, // haleyjd: thing has entered crashstate
+   MIF_NOPTCLEVTS  = 0x00000200, // haleyjd: thing can't trigger particle events
+   MIF_ISCHILD     = 0x00000400, // haleyjd: thing spawned as a child
 };
 
 // ammo + weapon in a dropped backpack 
@@ -455,6 +462,10 @@ struct mobj_s
   // scripting fields
   long args[5];       // arguments
   unsigned short tid; // thing id used by scripts
+
+  // Note: tid chain pointers are NOT serialized in save games,
+  // but are restored on load by rehashing the things as they are
+  // spawned.
   mobj_t *tid_next;   // ptr to next thing in tid chain
   mobj_t **tid_prevn; // ptr to last thing's next pointer
 };
@@ -482,11 +493,6 @@ struct mobj_s
 
 #define FLOATSPEED      (FRACUNIT*4)
 #define STOPSPEED       (FRACUNIT/16)
-
-                // convert the looking up/down angle to a slope for firing
-                        // projectiles (slope=angle*LOOKSLOPE)
-// #define LOOKSLOPE 680
-#define LOOKSLOPE 800
 
 // killough 11/98:
 // For torque simulation:
@@ -538,25 +544,28 @@ void P_RemoveThingTID(mobj_t *mo);
 
 void P_AdjustFloorClip(mobj_t *thing);
 
+int P_ThingInfoHeight(mobjinfo_t *mi);
+void P_ChangeThingHeights(void);
+
 // Thing Collections
 
 typedef struct MobjCollection_s
 {
-   int type;
-   int num;
-   int numalloc;
-   mobj_t **ptrarray;
+   int type;          // internal mobj type #
+   int num;           // number of mobj_t's in collection
+   int numalloc;      // number of mobj_t* allocated
+   mobj_t **ptrarray; // reallocating pointer array
 
-   int wrapiterator;
-} MobjCollection_t;
+   int wrapiterator;  // persistent index for wrap iteration
+} MobjCollection;
 
-void P_InitMobjCollection(MobjCollection_t *, int);
-void P_ReInitMobjCollection(MobjCollection_t *, int);
-void P_ClearMobjCollection(MobjCollection_t *);
-void P_CollectThings(MobjCollection_t *);
-boolean P_CollectionIsEmpty(MobjCollection_t *);
-mobj_t *P_CollectionWrapIterator(MobjCollection_t *);
-mobj_t *P_CollectionGetRandom(MobjCollection_t *, int);
+void P_InitMobjCollection(MobjCollection *, int);
+void P_ReInitMobjCollection(MobjCollection *, int);
+void P_ClearMobjCollection(MobjCollection *);
+void P_CollectThings(MobjCollection *);
+boolean P_CollectionIsEmpty(MobjCollection *);
+mobj_t *P_CollectionWrapIterator(MobjCollection *);
+mobj_t *P_CollectionGetRandom(MobjCollection *, int);
 
 // end new Eternity mobj functions
 

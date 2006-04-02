@@ -50,7 +50,9 @@ rcsid[] = "$Id: p_enemy.c,v 1.22 1998/05/12 12:47:10 phares Exp $";
 #include "p_partcl.h"
 #include "p_info.h"
 #include "a_small.h"
-#include "e_edf.h"
+#include "e_states.h"
+#include "e_things.h"
+#include "e_ttypes.h"
 #include "d_gi.h"
 
 extern fixed_t FloatBobOffsets[64]; // haleyjd: Float Bobbing
@@ -467,7 +469,7 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
       actor->z = actor->floorz;
 
       if(actor->z < oldz)
-         P_HitFloor(actor);
+         E_HitFloor(actor);
    }
    return true;
 }
@@ -1273,6 +1275,34 @@ static boolean P_SuperFriend(mobj_t *actor)
 }
 
 //
+// P_MakeActiveSound
+//
+// haleyjd 06/15/05: isolated from A_Chase.
+//
+static void P_MakeActiveSound(mobj_t *actor)
+{
+   if(actor->info->activesound && P_Random(pr_see) < 3)
+   {
+      int sound = actor->info->activesound;
+      mobj_t *sndsource = actor;
+
+      // haleyjd: some heretic enemies use their seesound on
+      // occasion, so I've made this a general feature
+      if(demo_version >= 331 && actor->flags3 & MF3_ACTSEESOUND)
+      {
+         if(P_Random(pr_lookact) < 128 && actor->info->seesound)
+            sound = actor->info->seesound;
+      }
+
+      // haleyjd: some heretic enemies snort at full volume :)
+      if(actor->flags3 & MF3_LOUDACTIVE)
+         sndsource = NULL;
+
+      S_StartSound(sndsource, sound);
+   }
+}
+
+//
 // A_Chase
 // Actor has a melee attack,
 // so it tries to close as fast as possible
@@ -1354,9 +1384,23 @@ void A_Chase(mobj_t *actor)
   // check for melee attack
    if(actor->info->meleestate && P_CheckMeleeRange(actor) && !superfriend)
    {
+      // haleyjd 05/01/05: Detect and prevent infinite recursion if
+      // Chase is called from a thing's attack state
+      static boolean recursion = false;
+
+      if(recursion)
+      {
+         doom_printf("Warning: Chase recursion detected\n");
+         return;
+      }
+
       S_StartSound(actor, actor->info->attacksound);
       
+      recursion = true;
+
       P_SetMobjState(actor, actor->info->meleestate);
+
+      recursion = false;
       
       if(!actor->info->missilestate)
          actor->flags |= MF_JUSTHIT; // killough 8/98: remember an attack
@@ -1366,11 +1410,23 @@ void A_Chase(mobj_t *actor)
    // check for missile attack
    if(actor->info->missilestate && !superfriend)
    {
+      // haleyjd 05/01/05: Detect and prevent infinite recursion if
+      // Chase is called from a thing's attack state
+      static boolean recursion = false;
+
+      if(recursion)
+      {
+         doom_printf("Warning: Chase recursion detected\n");
+         return;
+      }
+
       if(!actor->movecount || gameskill >= sk_nightmare || fastparm)
       {
          if(P_CheckMissileRange(actor))
          {
+            recursion = true;
             P_SetMobjState(actor, actor->info->missilestate);
+            recursion = false;
             actor->flags |= MF_JUSTATTACKED;
             return;
          }
@@ -1438,27 +1494,113 @@ void A_Chase(mobj_t *actor)
    // chase towards player
    if(--actor->movecount<0 || !P_SmartMove(actor))
       P_NewChaseDir(actor);
-   
-   // make active sound
-   if(actor->info->activesound && P_Random(pr_see) < 3)
-   {
-      int sound = actor->info->activesound;
-      mobj_t *sndsource = actor;
 
-      // haleyjd: some heretic enemies use their seesound on
-      // occasion, so I've made this a general feature
-      if(demo_version >= 331 && actor->flags3 & MF3_ACTSEESOUND)
+   // make active sound
+   P_MakeActiveSound(actor);   
+}
+
+//
+// A_RandomWalk
+//
+// haleyjd 06/15/05: Makes an object walk in random directions without
+// following or attacking any target.
+//
+void A_RandomWalk(mobj_t *actor)
+{
+   int i, checkdirs[NUMDIRS];
+
+   for(i = 0; i < NUMDIRS; ++i)
+      checkdirs[i] = 0;
+
+   // turn toward movement direction
+   if(actor->movedir < 8)
+   {
+      int delta = (actor->angle &= (7 << 29)) - (actor->movedir << 29);
+
+      if(delta > 0)
+         actor->angle -= ANG90 / 2;
+      else if(delta < 0)
+         actor->angle += ANG90 / 2;
+   }
+   
+   // time to move?
+   if(--actor->movecount < 0 || !P_Move(actor, 0))
+   {
+      dirtype_t tdir;
+      dirtype_t turnaround = actor->movedir;
+      boolean dirfound = false;
+
+      if(P_Random(pr_rndwspawn) < 24)
       {
-         if(P_Random(pr_lookact) < 128 && actor->info->seesound)
-            sound = actor->info->seesound;
+         P_SetMobjState(actor, actor->info->spawnstate);
+         return;
+      }
+   
+      if(turnaround != DI_NODIR) // find reverse direction
+         turnaround ^= 4;
+
+      // try a completely random direction
+      tdir = P_Random(pr_rndwnewdir) & 7;
+      if(tdir != turnaround && 
+         (actor->movedir = tdir, P_Move(actor, 0)))
+      {
+         checkdirs[tdir] = 1;
+         dirfound = true;
       }
 
-      // haleyjd: some heretic enemies snort at full volume :)
-      if(actor->flags3 & MF3_LOUDACTIVE)
-         sndsource = NULL;
+      // randomly determine search direction
+      if(!dirfound)
+      {
+         if(tdir & 1)
+         {
+            for(tdir = DI_EAST; tdir <= DI_SOUTHEAST; ++tdir)
+            {
+               // don't try the one we already tried before
+               if(checkdirs[tdir])
+                  continue;
+               
+               if(tdir != turnaround && 
+                  (actor->movedir = tdir, P_Move(actor, 0)))
+               {
+                  dirfound = true;
+                  break;
+               }
+            }
+         }
+         else
+         {
+            for(tdir = DI_SOUTHEAST; tdir != DI_EAST - 1; --tdir)
+            {
+               // don't try the one we already tried before
+               if(checkdirs[tdir])
+                  continue;
+               
+               if(tdir != turnaround && 
+                  (actor->movedir = tdir, P_Move(actor, 0)))
+               {
+                  dirfound = true;
+                  break;
+               }
+            }
+         }
+      }
 
-      S_StartSound(sndsource, sound);
+      // if didn't find a direction, try the opposite direction
+      if(!dirfound)
+      {
+         if((actor->movedir = turnaround) != DI_NODIR && !P_Move(actor, 0))
+            actor->movedir = DI_NODIR;
+         else
+            dirfound = true;
+      }
+      
+      // if moving, reset movecount
+      if(dirfound)
+         actor->movecount = P_Random(pr_rndwmovect) & 15;
    }
+
+   // make active sound
+   P_MakeActiveSound(actor);
 }
 
 //
@@ -1487,7 +1629,6 @@ void A_FaceTarget(mobj_t *actor)
 //
 // A_PosAttack
 //
-
 void A_PosAttack(mobj_t *actor)
 {
    int angle, damage, slope;
@@ -1536,7 +1677,8 @@ void A_CPosAttack(mobj_t *actor)
    if (!actor->target)
       return;
 
-   S_StartSound(actor, sfx_chgun); //shotgn
+   // haleyjd: restored to normal
+   S_StartSound(actor, sfx_shotgn);
    A_FaceTarget(actor);
    
    bangle = actor->angle;
@@ -1834,7 +1976,7 @@ boolean PIT_VileCheck(mobj_t *thing)
    if(thing->tics != -1)
       return true;        // not lying still yet
    
-   if(thing->info->raisestate == E_NullState())
+   if(thing->info->raisestate == NullStateNum)
       return true;        // monster doesn't have a raise state
    
    maxdist = thing->info->radius + mobjinfo[vileType].radius;
@@ -1879,7 +2021,7 @@ boolean PIT_VileCheck(mobj_t *thing)
       
       height = corpsehit->height; // save temporarily
       radius = corpsehit->radius; // save temporarily
-      corpsehit->height = corpsehit->info->height;
+      corpsehit->height = P_ThingInfoHeight(corpsehit->info);
       corpsehit->radius = corpsehit->info->radius;
       corpsehit->flags |= MF_SOLID;
       check = P_CheckPosition(corpsehit,corpsehit->x,corpsehit->y);
@@ -1946,12 +2088,13 @@ void A_VileChase(mobj_t* actor)
                
                P_SetMobjState(corpsehit, info->raisestate);
                
-               if (comp[comp_vile])
+               if(comp[comp_vile])
                   corpsehit->height <<= 2;                        // phares
                else                                               //   V
                {
-                  corpsehit->height = info->height; // fix Ghost bug
-                  corpsehit->radius = info->radius; // fix Ghost bug
+                  // fix Ghost bug
+                  corpsehit->height = P_ThingInfoHeight(info);
+                  corpsehit->radius = info->radius;
                }                                                  // phares
                
                // killough 7/18/98: 
@@ -2415,7 +2558,7 @@ void A_Explode(mobj_t *thingy)
    P_RadiusAttack(thingy, thingy->target, 128, thingy->info->mod);
    
    if(thingy->z <= thingy->secfloorz + 128*FRACUNIT)
-      P_HitWater(thingy, thingy->subsector->sector);
+      E_HitWater(thingy, thingy->subsector->sector);
 }
 
 void A_Nailbomb(mobj_t *thing)
@@ -2426,7 +2569,7 @@ void A_Nailbomb(mobj_t *thing)
 
    // haleyjd: added here as of 3.31b3 -- was overlooked
    if(demo_version >= 331 && thing->z <= thing->secfloorz + 128*FRACUNIT)
-      P_HitWater(thing, thing->subsector->sector);
+      E_HitWater(thing, thing->subsector->sector);
 
    for(i = 0; i < 30; ++i)
       P_LineAttack(thing, i*(ANG180/15), MISSILERANGE, 0, 10);
@@ -2444,7 +2587,7 @@ void A_Detonate(mobj_t *mo)
 
    // haleyjd: added here as of 3.31b3 -- was overlooked
    if(demo_version >= 331 && mo->z <= mo->secfloorz + mo->damage*FRACUNIT)
-      P_HitWater(mo, mo->subsector->sector);
+      E_HitWater(mo, mo->subsector->sector);
 }
 
 //
@@ -2493,177 +2636,104 @@ void A_Mushroom(mobj_t *actor)
    }
 }
 
+typedef struct
+{
+   unsigned long thing_flag;
+   unsigned long level_flag;
+} boss_spec_t;
+
+#define NUM_BOSS_SPECS 7
+
+static boss_spec_t boss_specs[NUM_BOSS_SPECS] =
+{
+   { MF2_MAP07BOSS1, BSPEC_MAP07_1 },
+   { MF2_MAP07BOSS2, BSPEC_MAP07_2 },
+   { MF2_E1M8BOSS,   BSPEC_E1M8 },
+   { MF2_E2M8BOSS,   BSPEC_E2M8 },
+   { MF2_E3M8BOSS,   BSPEC_E3M8 },
+   { MF2_E4M6BOSS,   BSPEC_E4M6 },
+   { MF2_E4M8BOSS,   BSPEC_E4M8 },
+};
+
 //
 // A_BossDeath
 //
 // Possibly trigger special effects if on boss level
 //
 // haleyjd: enhanced to allow user specification of the thing types
-// allowed to trigger each special effect
-// TODO: allow the maps on which effects can take place to be set
-// via MapInfo
+//          allowed to trigger each special effect.
+// haleyjd: 03/14/05 -- enhanced to allow actions on any map.
 //
-
 void A_BossDeath(mobj_t *mo)
 {
    thinker_t *th;
    line_t    junk;
    int       i;
-   unsigned int flag = 0; // haleyjd
-   
-   if(gamemode == commercial)
-   {
-      if(gamemap != 7)
-         return;
-
-      if(!(mo->flags2 & MF2_MAP07BOSS1) &&
-         !(mo->flags2 & MF2_MAP07BOSS2))
-         return;
-      
-      if(mo->flags2 & MF2_MAP07BOSS1)
-         flag = MF2_MAP07BOSS1;
-      else
-         flag = MF2_MAP07BOSS2;
-   }
-   else
-   {
-      switch(gameepisode)
-      {
-      case 1:
-         if(gamemap != 8)
-            return;
-
-         if(!(mo->flags2 & MF2_E1M8BOSS))
-            return;
-         flag = MF2_E1M8BOSS;
-         break;
-
-      case 2:
-         if (gamemap != 8)
-            return;
-
-         if(!(mo->flags2 & MF2_E2M8BOSS))
-            return;
-         flag = MF2_E2M8BOSS;
-         break;
-
-      case 3:
-         if (gamemap != 8)
-            return;
-
-         if(!(mo->flags2 & MF2_E3M8BOSS))
-            return;
-         flag = MF2_E3M8BOSS;
-         break;
-
-      case 4:
-         switch(gamemap)
-         {
-         case 6:
-            if(!(mo->flags2 & MF2_E4M6BOSS))
-               return;
-            flag = MF2_E4M6BOSS;
-            break;
-            
-         case 8:
-            if(!(mo->flags2 & MF2_E4M8BOSS))
-               return;
-            flag = MF2_E4M8BOSS;
-            break;
-            
-         default:
-            return;
-            break;
-         }
-         break;
-
-      default:
-        if (gamemap != 8)
-           return;
-        break;
-      }
-      
-   }
 
    // make sure there is a player alive for victory
-   for(i=0; i<MAXPLAYERS; i++)
+   for(i = 0; i < MAXPLAYERS; ++i)
    {
       if(playeringame[i] && players[i].health > 0)
          break;
    }
+   
+   // no one left alive, so do not end game
+   if(i == MAXPLAYERS)
+      return;
 
-   if(i==MAXPLAYERS)
-      return;     // no one left alive, so do not end game
-
-   // scan the remaining thinkers to see
-   // if all bosses are dead
-   for(th = thinkercap.next ; th != &thinkercap ; th=th->next)
+   for(i = 0; i < NUM_BOSS_SPECS; ++i)
    {
-      if(th->function == P_MobjThinker)
+      // to activate a special, the thing must be a boss that triggers
+      // it, and the map must have the special enabled.
+      if((mo->flags2 & boss_specs[i].thing_flag) &&
+         (LevelInfo.bossSpecs & boss_specs[i].level_flag))
       {
-         // haleyjd: check not only for all of the same type, but
-         // also all of any other species marked as a boss of the
-         // same activation class
-         mobj_t *mo2 = (mobj_t *) th;
-         if(mo2 != mo && 
-            (mo2->type == mo->type || (mo2->flags2 & flag)) && 
-            mo2->health > 0)
-            return;         // other boss not dead
-      }
-   }
-
-   // victory!
-   if(gamemode == commercial)
-   {
-      if (gamemap == 7)
-      {
-         if(mo->flags2 & MF2_MAP07BOSS1)
+         // scan the remaining thinkers to see if all bosses are dead
+         for(th = thinkercap.next; th != &thinkercap; th = th->next)
          {
-            junk.tag = 666;
-            EV_DoFloor(&junk,lowerFloorToLowest);
-            return;
+            if(th->function == P_MobjThinker)
+            {
+               mobj_t *mo2 = (mobj_t *)th;
+               if(mo2 != mo && 
+                  (mo2->flags2 & boss_specs[i].thing_flag) && 
+                  mo2->health > 0)
+                  return;         // other boss not dead
+            }
          }
-         
-         if(mo->flags2 & MF2_MAP07BOSS2)
-         {
-            junk.tag = 667;
-            EV_DoFloor(&junk,raiseToTexture);
-            return;
-         }
-      }
-   }
-   else
-   {
-      switch(gameepisode)
-      {
-      case 1:
-         junk.tag = 666;
-         EV_DoFloor(&junk, lowerFloorToLowest);
-         return;
-         break;
 
-      case 4:
-         switch(gamemap)
+         // victory!
+         switch(boss_specs[i].level_flag)
          {
-         case 6:
-            junk.tag = 666;
-            EV_DoDoor(&junk, blazeOpen);
-            return;
-            break;
-
-         case 8:
+         case BSPEC_E1M8:
+         case BSPEC_E4M8:
+         case BSPEC_MAP07_1:
+            // lower floors tagged 666 to lowest neighbor
             junk.tag = 666;
             EV_DoFloor(&junk, lowerFloorToLowest);
-            return;
             break;
-         }
-      }
-   }
-
-   G_ExitLevel();
+         case BSPEC_MAP07_2:
+            // raise floors tagged 667 by shortest lower texture
+            junk.tag = 667;
+            EV_DoFloor(&junk, raiseToTexture);
+            break;
+         case BSPEC_E2M8:
+         case BSPEC_E3M8:
+            // exit map -- no use processing any further after this
+            G_ExitLevel();
+            return;
+         case BSPEC_E4M6:
+            // open sectors tagged 666 as blazing doors
+            junk.tag = 666;
+            EV_DoDoor(&junk, blazeOpen);
+            break;
+         default:
+            break;
+         } // end switch
+      } // end if
+   } // end for
 }
 
-void A_Hoof (mobj_t* mo)
+void A_Hoof(mobj_t* mo)
 {
    S_StartSound(mo, sfx_hoof);
    A_Chase(mo);
@@ -2702,7 +2772,7 @@ void A_CloseShotgun2(player_t *player, pspdef_t *psp)
 // killough 2/7/98: Remove limit on icon landings:
 // haleyjd 07/30/04: use new MobjCollection
 
-MobjCollection_t braintargets;
+MobjCollection braintargets;
 
 struct brain_s brain;   // killough 3/26/98: global state of boss brain
 
@@ -2736,8 +2806,6 @@ void A_BrainPain(mobj_t *mo)
    S_StartSound(NULL,sfx_bospn);
 }
 
-static boolean peventflag = false;
-
 void A_BrainScream(mobj_t *mo)
 {
    int x;
@@ -2746,19 +2814,14 @@ void A_BrainScream(mobj_t *mo)
    if(rocketType == -1)
       rocketType = E_SafeThingType(MT_ROCKET);
 
-   // haleyjd 04/10/03: disable rocket explosion particle event
-   // during boss brain explosion (looks retarded)
-   if(particleEvents[P_EVENT_ROCKET_EXPLODE].enabled)
-   {
-      peventflag = true;
-      particleEvents[P_EVENT_ROCKET_EXPLODE].enabled = 0;
-   }
-
    for(x=mo->x - 196*FRACUNIT ; x< mo->x + 320*FRACUNIT ; x+= FRACUNIT*8)
    {
       int y = mo->y - 320*FRACUNIT;
       int z = 128 + P_Random(pr_brainscream)*2*FRACUNIT;
       mobj_t *th = P_SpawnMobj (x,y,z, rocketType);
+      // haleyjd 02/21/05: disable particle events/effects for this thing
+      th->intflags |= MIF_NOPTCLEVTS;
+      th->effects = 0;
       th->momz = P_Random(pr_brainscream)*512;
       P_SetMobjState(th, E_SafeState(S_BRAINEXPLODE1));
       th->tics -= P_Random(pr_brainscream)&7;
@@ -2777,6 +2840,9 @@ void A_BrainExplode(mobj_t *mo)
 
    mobj_t *th = P_SpawnMobj(x, y, z, E_SafeThingType(MT_ROCKET));
    th->momz = P_Random(pr_brainexp)*512;
+   // haleyjd 02/21/05: disable particle events/effects for this thing
+   th->intflags |= MIF_NOPTCLEVTS;
+   th->effects = 0;
    P_SetMobjState(th, E_SafeState(S_BRAINEXPLODE1));
    
    th->tics -= P_Random(pr_brainexp) & 7;
@@ -2786,14 +2852,6 @@ void A_BrainExplode(mobj_t *mo)
 
 void A_BrainDie(mobj_t *mo)
 {
-   // haleyjd: re-enable rocket explosions if they were disabled by
-   // A_BrainScream
-   if(peventflag)
-   {
-      peventflag = false;
-      particleEvents[P_EVENT_ROCKET_EXPLODE].enabled = 1;
-   }
-
    G_ExitLevel();
 }
 
@@ -3680,263 +3738,16 @@ void A_ClericBreak(mobj_t *actor)
 //
 //==================================================
 
-#define DWARFALTEGOTIME 128
-#define GOLEMTIME 256
-#define FROZENFRICTION 160
-
-void P_SpawnDwarfAlterego(mobj_t* actor, mobjtype_t type);
-boolean P_CheckAlterEgo(mobjtype_t type);
-
-// A_DwarfLDOCMagic
-//  
-//  Casts Life, Death, Order, and Chaos spells
-//  Sets actor->special2 to 1 if FWAE magic
-//  should not be cast afterward
-
 void A_DwarfLDOCMagic(mobj_t *actor)
 {
-   mobj_t *mo;
-   boolean can_see_enemy = false;
-   int selections = deathmatch_p - deathmatchstarts;
-   static int alterEgoType = -1;
-   
-   if(alterEgoType == -1)
-      alterEgoType = E_SafeThingType(MT_ALTERDWARF);
-   
-   if(actor->target)
-    can_see_enemy = P_CheckSight(actor, actor->target);
-
-   if(actor->target && (actor->health*4 < actor->info->spawnhealth) &&
-      (P_Random(pr_dwarfatk) < 24) &&
-      !(actor->flags & actor->target->flags & MF_FRIEND))
-   {  // Death
-
-      mo = actor->target;
-
-      if(!mo->player && !(mo->flags2&MF2_BOSS) && can_see_enemy)
-      {         
-         A_FaceTarget(actor);
-         P_SetMobjState(actor, E_SafeState(S_DWARFREDAURA1));
-         S_StartSound(NULL, sfx_clrdef);  // scary sound
-         if(mo->info->spawnhealth <= 300)  // look of death for minor enemies
-         {  // kill it            
-            A_Die(mo);
-         }
-         else
-         {  // critical damage
-            P_DamageMobj(mo, actor, actor, ((mo->health*2)/3), MOD_UNKNOWN);
-         }
-        // death is an offensive spell, so will not be followed with a
-        // second attack
-        actor->special2 = 1;
-        return;
-      }
-   }
-
-   if((actor->health*3 < actor->info->spawnhealth) &&
-      (P_Random(pr_dwarfatk) < 32))
-   {  // Life -- self-healing
-      P_SetMobjState(actor, E_SafeState(S_DWARFBLUEAURA1));
-      S_StartSound(NULL, sfx_heal);
-      actor->health += (P_Random(pr_dwarfatk)%251)+100; // haleyjd 1/14/00
-      if(actor->health > actor->info->spawnhealth)      // made more useful
-        actor->health = actor->info->spawnhealth;       // and limited to
-      return;                                           // spawnhealth
-   }
-
-   if(actor->target && !(actor->target->flags2&MF2_BOSS) &&
-      !actor->target->player && selections && P_CheckMeleeRange(actor) &&
-      P_Random(pr_dwarfatk) < 128 )
-   {  // Chaos
-
-      // warp enemy to random deathmatch spot
-      // added P_CheckMeleeRange to requirements to make teleportation
-      // more tactically advantageous (dwarves do poorly up close)
-
-      fixed_t prevX, prevY, prevZ;
-
-      int i = P_Random(pr_dwarfatk)%selections;
-      fixed_t destX = deathmatchstarts[i].x*FRACUNIT;
-      fixed_t destY = deathmatchstarts[i].y*FRACUNIT;
-
-      P_SetMobjState(actor, E_SafeState(S_DWARFPURPLEAURA1));
-      A_FaceTarget(actor);
-      S_StartSound(NULL, sfx_harp);
-
-      mo = actor->target;
-
-      prevX = mo->x;
-      prevY = mo->y;
-      prevZ = mo->z;
-
-      if(P_TeleportMove(mo, destX, destY, false))
-      {
-         mobj_t *th1;
-         int fogType = E_SafeThingType(MT_IFOG);
-
-         th1 = P_SpawnMobj(prevX, prevY, prevZ+24*FRACUNIT, fogType);
-         S_StartSound(th1, sfx_itmbk);
-         P_SetMobjState(mo, mo->info->seestate);
-         P_SpawnMobj(mo->x, mo->y, mo->z+24*FRACUNIT, fogType);
-         S_StartSound(mo, sfx_itmbk);
-         mo->z = mo->floorz;
-         mo->momx = mo->momy = mo->momz = 0;
-      }
-      return;
-   }
-
-   if(actor->target && !actor->target->player && can_see_enemy &&
-      P_CheckAlterEgo(alterEgoType) && P_Random(pr_dwarfatk) < 96)
-   {  // Order
-      // project alter-ego
-
-      P_SetMobjState(actor, E_SafeState(S_DWARFPURPLEAURA1));
-      A_FaceTarget(actor);
-      S_StartSound(NULL, sfx_wofp);
-
-      //spawn alterego
-      P_SpawnDwarfAlterego(actor, alterEgoType);
-   }
 }
 
 void A_DwarfFWAEMagic(mobj_t *actor)
 {
-  int decision, waterchance;
-  mobj_t *mo;
-
-  if(actor->special2)
-  {
-    actor->special2 = 0;  // LDOC spell does not need to be followed up
-    return;
-  }
-
-  if(!actor->target)
-    return;
-
-  if(!P_CheckSight(actor, actor->target))
-    return;
-
-  // Friendly mobj logic is causing Halif to automatically attack the
-  // player if he is in sight after killing an enemy with an LDOC spell
-  // (target field is, sadly, used to "chase" the player). Halif will no
-  // longer use elemental spells in retaliation, unless he happens to be
-  // an evil Halif :)
-
-  if((actor->flags & MF_FRIEND) && actor->target->player)
-  {
-    A_FaceTarget(actor); // grimace at the player intentionally ;)
-    return;
-  }
-
-  P_SetMobjState(actor, E_SafeState(S_DWARFGREENAURA1));
-
-  // haleyjd: restructured, rebalanced probabilites
-
-  decision = P_Random(pr_dwarffwae);
-
-  if(decision < 128)
-  {
-     int pick = P_Random(pr_dwarffwae)%2;
-     switch(pick)
-     {
-        case 0:
-                // fire -- Phoenix Fire
-                A_FaceTarget(actor);
-                mo = P_SpawnMissile(actor, actor->target, 
-                                    E_SafeThingType(MT_PHOENIXSHOT),
-                                    actor->z + 20*FRACUNIT);
-                if(!mo) return;
-                mo->x += mo->momx;
-                mo->y += mo->momy;
-                P_SetTarget(&mo->tracer, actor->target);  // killough 11/98
-                break;
-        case 1:
-                // water
-                waterchance = P_Random(pr_dwarffwae);
-
-                // very rare move -- Permafrost
-
-                if(waterchance < 16 &&
-                   (actor->z == actor->floorz) &&  // on floor
-                   (actor->subsector->sector->heightsec == -1) &&  // no deep water
-                   (P_GetThingFloorType(actor) == FLOOR_WATER) &&  // water only
-                   ((W_CheckNumForName)("NFICE01", ns_flats) != -1)) // ice flat found
-                {
-                   int fr = (0x1EB8*FROZENFRICTION)/0x80 + 0xD000;
-                   int mvf = ((0x10092 - fr)*(0x70))/0x158;
-                   sector_t *sec = actor->subsector->sector;
-                   mobj_t *sndorg = (mobj_t *)&sec->soundorg;
-
-                   sec->floorpic = R_FlatNumForName("NFICE01");
-                   sec->friction = fr;
-                   sec->movefactor = mvf;
-                   sec->special |= FRICTION_MASK;
-
-                   A_FaceTarget(actor);
-                   S_StartSound(NULL, sfx_cone3);
-                   S_StartSound(sndorg, sfx_icedth);
-                }
-                else
-                {
-                   // TODO: main water attack
-                }
-                break;
-     }
-  }
-  else if(decision < 192)
-  {
-        // air -- Poison Gas
-        // TODO
-  }
-  else
-  {
-        int mummyType = E_SafeThingType(MT_HALIFMUMMY);
-        int skullType = E_SafeThingType(MT_MUMMYFX1);
-        // earth -- Summon Golem -or- Stone Skull
-        A_FaceTarget(actor);
-        if(P_CheckAlterEgo(mummyType))
-        {
-           S_StartSound(NULL, sfx_wofp);
-           P_SpawnDwarfAlterego(actor, mummyType);
-        }
-        else 
-        {
-           // cast Stone Skull if max golems
-           P_SpawnMissile(actor, actor->target, skullType,
-                          actor->z + 20*FRACUNIT);
-        }
-  
-  }
 }
 
 void A_DwarfDie(mobj_t *actor)
 {
-   static int alterDwarfType = -1;
-
-   // haleyjd: only look this up once
-   if(alterDwarfType == -1)
-      alterDwarfType = E_ThingNumForDEHNum(MT_ALTERDWARF);
-
-   if(!actor->special1)  // first time catch on fire
-   {
-      P_SpawnMobj(actor->x, actor->y, actor->z, E_SafeThingType(MT_FIRE));
-      actor->special1++;      
-   }
-   else  // second time explode!  >:)
-   {
-      mobj_t *explosion;
-      explosion = P_SpawnMobj(actor->x, actor->y, (actor->z+24*FRACUNIT),
-                              E_SafeThingType(MT_ROCKET));
-      if(explosion)
-      {
-        P_SetMobjState(explosion, E_SafeState(S_EXPLODE1));
-        S_StartSound(NULL, sfx_barexp);
-        if(actor->type == alterDwarfType)
-          P_RemoveMobj(actor);
-      }
-   }
-   // P_NightmareRespawn will bring him back to life
-   // in same manner as nightmare respawning
 }
 
 // Dwarf Alterego Routines -- Halif Daemonica / Summoned Golem
@@ -3945,101 +3756,10 @@ void A_DwarfDie(mobj_t *actor)
 
 void P_SpawnDwarfAlterego(mobj_t *actor, mobjtype_t type)
 {
-   fixed_t       x,y,z;
-   mobj_t        *newmobj;
-   angle_t       an;
-   int           prestep;
-   static int    halifMummyType = -1;
-
-   if(halifMummyType == -1)
-      halifMummyType = E_ThingNumForDEHNum(MT_HALIFMUMMY);
-   
-   // good old-fashioned pain elemental style spawning
-   
-   an = actor->angle >> ANGLETOFINESHIFT;
-   
-   prestep = 4*FRACUNIT + 3*(actor->info->radius + mobjinfo[type].radius)/2;
-   
-   x = actor->x + FixedMul(prestep, finecosine[an]);
-   y = actor->y + FixedMul(prestep, finesine[an]);
-   z = actor->z;
-
-   // Check whether the Dwarf is being spawned through a 1-sided
-   // wall or an impassible line, or a "monsters can't cross" line.
-   // If it is, then we don't allow the spawn.
-   
-   if(Check_Sides(actor,x,y))
-      return;
-
-   newmobj = P_SpawnMobj(x, y, z, type);
-   
-   // Check to see if the new Dwarf's z value is above the
-   // ceiling of its new sector, or below the floor. If so, kill it.
-
-   if((newmobj->z >
-      (newmobj->subsector->sector->ceilingheight - newmobj->height)) ||
-      (newmobj->z < newmobj->subsector->sector->floorheight))
-   {
-      // kill it immediately
-      P_DamageMobj(newmobj,actor,actor,10000,MOD_UNKNOWN);
-      return;                                                 
-   }                                                         
-   
-   // spawn dwarf with same friendliness
-   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
-
-   // killough 8/29/98: add to appropriate thread
-   P_UpdateThinker(&newmobj->thinker);
-   
-   // Check for movements.
-   // killough 3/15/98: don't jump over dropoffs:
-
-   if(!P_TryMove(newmobj, newmobj->x, newmobj->y, false))
-   {
-      // kill it immediately
-      P_DamageMobj(newmobj, actor, actor, 10000, MOD_UNKNOWN);
-      return;
-   }
-
-   P_SetTarget(&newmobj->target, actor->target);
-   if(type == halifMummyType)
-      newmobj->special1 = GOLEMTIME;
-   else
-      newmobj->special1 = DWARFALTEGOTIME; // blows up when this runs out
 }
 
 boolean P_CheckAlterEgo(mobjtype_t type)
 {
-   // This works just like the old limit on lost souls.
-   // Note count must be init.'ed to zero for only one dwarf to be active
-   // at a time -- this is contrary to the comments above
-   // ((count = 20) != 20 lost souls) -- haleyjd
-   
-   // 8/3/00: consolidated with P_CheckGolems()
-
-   int count = 0;
-   thinker_t *currentthinker;
-   static int halifMummyType = -1;
-
-   if(halifMummyType == -1)
-      halifMummyType = E_ThingNumForDEHNum(MT_HALIFMUMMY);
-
-   for (currentthinker = thinkercap.next;
-        currentthinker != &thinkercap;
-        currentthinker = currentthinker->next)
-   {
-      mobj_t *mo = NULL;
-      if(currentthinker->function == P_MobjThinker)
-         mo = (mobj_t *)currentthinker;
-      
-      if(mo && (mo->type == type) && 
-         !(type == halifMummyType && 
-         mo->health <= 0))
-      {
-         if (--count < 0)         // killough 8/29/98: early exit
-            return false;
-      }
-   }
    return true;
 }
 
@@ -4057,90 +3777,12 @@ void A_DwarfAlterEgoChase(mobj_t *actor)
 
 void A_DwarfAlterEgoAttack(mobj_t *actor)
 {
-  mobj_t *mo;
-  fixed_t z = actor->z + 20*FRACUNIT;
-  static int phoenixType = -1; 
-  
-  if(phoenixType == -1)
-     phoenixType = E_SafeThingType(MT_PHOENIXSHOT);
-
-  // perform Halif's fire spell with boosted power -- 2x projectile
-  if(!actor->target)
-    return;
-  A_FaceTarget(actor);
-  mo = P_SpawnMissile(actor, actor->target, phoenixType, z);
-  if(!mo) return;
-  mo->x += mo->momx;
-  mo->y += mo->momy;
-  P_SetTarget(&mo->tracer, actor->target);  // killough 11/98
-  mo = P_SpawnMissile(actor, actor->target, phoenixType, z);
-  if(!mo) return;
-  mo->x += mo->momx;
-  mo->y += mo->momy;
-  P_SetTarget(&mo->tracer, actor->target);  // killough 11/98
 }
 
 // used by dwarf fire spell
 
 void A_PhoenixTracer(mobj_t *actor)
 {
-  angle_t       exact;
-  fixed_t       dist;
-  fixed_t       slope;
-  mobj_t        *dest;
-  mobj_t        *puff;
-  static int    puffType = -1;
-  
-  if(puffType == -1)
-     puffType = E_SafeThingType(MT_PHOENIXPUFF);
-
-  // spawn a puff of smoke behind the phoenix fire
-  puff = P_SpawnMobj(actor->x, actor->y, actor->z, puffType); 
-  if(puff)
-    puff->momz = 2*FRACUNIT;
-  
-  // adjust direction
-  dest = actor->tracer;
-
-  if (!dest || dest->health <= 0)
-    return;
-
-  // change angle
-  exact = R_PointToAngle2(actor->x, actor->y, dest->x, dest->y);
-
-  if (exact != actor->angle)
-  {
-    if (exact - actor->angle > 0x80000000)
-      {
-        actor->angle -= TRACEANGLE;
-        if (exact - actor->angle < 0x80000000)
-          actor->angle = exact;
-      }
-    else
-      {
-        actor->angle += TRACEANGLE;
-        if (exact - actor->angle > 0x80000000)
-          actor->angle = exact;
-      }
-  }
-  exact = actor->angle>>ANGLETOFINESHIFT;
-  actor->momx = FixedMul(actor->info->speed, finecosine[exact]);
-  actor->momy = FixedMul(actor->info->speed, finesine[exact]);
-
-  // change slope
-  dist = P_AproxDistance(dest->x - actor->x, dest->y - actor->y);
-
-  dist = dist / actor->info->speed;
-
-  if (dist < 1)
-    dist = 1;
-
-  slope = (dest->z+20*FRACUNIT - actor->z) / dist;
-
-  if (slope < actor->momz)
-    actor->momz -= FRACUNIT/8;
-  else
-    actor->momz += FRACUNIT/8;
 }
 
 //==============================
@@ -4157,14 +3799,6 @@ void A_CyberGuardSigh(mobj_t *actor)
      S_StartSound(actor, sfx_dmact);
 }
 
-void A_CyberGuardWake(mobj_t *actor)
-{
-}
-
-void A_AxePieceFall(mobj_t *actor)
-{
-}
-
 //==============================
 // Console Commands for Things
 //==============================
@@ -4178,6 +3812,7 @@ CONSOLE_COMMAND(spawn, cf_notnet|cf_level|cf_hidden)
    static int    teleManType = -1;
    static int    fountainType = -1;
    static int    playerType = -1;
+   static int    dripType = -1;
 
    player_t *plyr = &players[consoleplayer];
 
@@ -4186,6 +3821,7 @@ CONSOLE_COMMAND(spawn, cf_notnet|cf_level|cf_hidden)
       teleManType  = E_ThingNumForDEHNum(MT_TELEPORTMAN);
       fountainType = E_ThingNumForName("EEParticleFountain");
       playerType   = E_ThingNumForDEHNum(MT_PLAYER);
+      dripType     = E_ThingNumForName("EEParticleDrip");
    }
 
    if(!c_argc)
@@ -4249,6 +3885,15 @@ CONSOLE_COMMAND(spawn, cf_notnet|cf_level|cf_hidden)
             if(arg2)
                newmobj->flags |= MF_FRIEND;
          }
+      }
+
+      // drip: random parameters
+      if(type == dripType)
+      {
+         newmobj->args[0] = M_Random();
+         newmobj->args[1] = (M_Random() % 8) + 1;
+         newmobj->args[2] = M_Random() + 35;
+         newmobj->args[3] = 1;
       }
 
       // killough 8/29/98: add to appropriate thread

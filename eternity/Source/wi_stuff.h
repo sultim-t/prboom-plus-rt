@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2000 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,13 +24,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __WI_STUFF__
-#define __WI_STUFF__
-
-//#include "v_video.h"
+#ifndef WI_STUFF_H__
+#define WI_STUFF_H__
 
 #include "doomdef.h"
-
+#include "in_lude.h"
 
 // States for the intermission
 
@@ -41,17 +39,8 @@ typedef enum
   ShowNextLoc
 } stateenum_t;
 
-// Called by main loop, animate the intermission.
-void WI_Ticker (void);
-
-// Called by main loop,
-// draws the intermission directly into the screen buffer.
-void WI_Drawer (void);
-
-// Setup for an intermission screen.
-void WI_Start(wbstartstruct_t*   wbstartstruct);
-
-void WI_DrawBackground(void);          // killough 11/98
+// haleyjd: DOOM intermission object
+extern interfns_t DoomIntermission;
 
 #endif
 

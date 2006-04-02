@@ -23,6 +23,12 @@
 //      Weapon sprite animation, weapon objects.
 //      Action functions for weapons.
 //
+// NETCODE_FIXME -- DEMO_FIXME -- WEAPON_FIXME: Weapon changing, prefs,
+// etc. need overhaul for all of these. See comments in other modules
+// for why and how it needs to be changed. zdoom uses separate events
+// outside of ticcmd_t to indicate weapon changes now, and so will not
+// face the issue of being limited to 16 weapons.
+//
 //-----------------------------------------------------------------------------
 
 static const char
@@ -43,7 +49,8 @@ rcsid[] = "$Id: p_pspr.c,v 1.13 1998/05/07 00:53:36 killough Exp $";
 #include "r_things.h"
 #include "s_sound.h"
 #include "sounds.h"
-#include "e_edf.h"
+#include "e_states.h"
+#include "e_things.h"
 #include "e_sound.h"
 #include "d_dehtbl.h"
 #include "p_info.h"
@@ -181,6 +188,7 @@ int P_SwitchWeapon(player_t *player)
 
   // killough 2/8/98: follow preferences and fix BFG/SSG bugs
 
+   // haleyjd FIXME: makes assumptions about ammo per shot
    do
    {
       switch (*prefer++)
@@ -455,7 +463,7 @@ void A_Lower(player_t *player, pspdef_t *psp)
    
    if(!player->health)
    {      // Player is dead, so keep the weapon off screen.
-      P_SetPsprite(player,  ps_weapon, E_NullState());
+      P_SetPsprite(player,  ps_weapon, NullStateNum);
       return;
    }
    
@@ -701,7 +709,8 @@ void A_FireOldBFG(player_t *player, pspdef_t *psp)
    type = type1;
    
    // sf: make sure the player is in firing frame, or it looks silly
-   P_SetMobjState(player->mo, E_SafeState(S_PLAY_ATK2));
+   if(demo_version > 300)
+      P_SetMobjState(player->mo, E_SafeState(S_PLAY_ATK2));
    
    if(weapon_recoil && !(player->mo->flags & MF_NOCLIP))
       P_Thrust(player, ANG180 + player->mo->angle,
@@ -738,22 +747,28 @@ void A_FireOldBFG(player_t *player, pspdef_t *psp)
             if(!linetarget)
                slope = P_AimLineAttack(mo, an -= 2<<26, 16*64*FRACUNIT, mask);
             if(!linetarget) // sf: looking up/down
-               slope = bfglook == 1 ? player->updownangle * LOOKSLOPE : 0,
-                                      an = mo->angle;
+            {
+               slope = finetangent[(ANG90-player->pitch)>>ANGLETOFINESHIFT];
+               an = mo->angle;
+            }
          }
          while(mask && (mask=0, !linetarget));     // killough 8/2/98
          an1 += an - mo->angle;
          // sf: despite killough's infinite wisdom.. even
          // he is prone to mistakes. seems negative numbers
          // won't survive a bitshift!
-         an2 += slope<0 ? -tantoangle[-slope >> DBITS] :
-         tantoangle[slope >> DBITS];
+         if(slope < 0 && demo_version >= 303)
+            an2 -= tantoangle[-slope >> DBITS];
+         else
+            an2 += tantoangle[slope >> DBITS];
       }
       else
       {
-         slope = bfglook == 1 ? player->updownangle * LOOKSLOPE : 0;
-         an2 += slope<0 ? -tantoangle[-slope >> DBITS] :
-                           tantoangle[slope >> DBITS];
+         slope = finetangent[(ANG90-player->pitch)>>ANGLETOFINESHIFT];
+         if(slope < 0 && demo_version >= 303)
+            an2 -= tantoangle[-slope >> DBITS];
+         else
+            an2 += tantoangle[slope >> DBITS];
       }
 
       th = P_SpawnMobj(mo->x, mo->y,
@@ -971,6 +986,7 @@ void A_FireCGun(player_t *player, pspdef_t *psp)
 
    // haleyjd 08/28/03: this is not safe for DeHackEd/EDF, so it
    // needs some modification to be safer
+   // haleyjd FIXME: hackish and dangerous for EDF, needs fix.
    if(demo_version < 331 || 
       ((psp->state - states) >= E_StateNumForDEHNum(S_CHAIN1) &&
        (psp->state - states) < E_StateNumForDEHNum(S_CHAIN3)))
@@ -1060,10 +1076,6 @@ void A_BFGSpray(mobj_t *mo)
 }
 
         /********* Bouncing BFG Code ********/
-        
-        // heh actually 359.999.. but never mind
-#define ANG360 0xffffffff
-
 void A_BouncingBFG(mobj_t *mo)
 {
    int i;
@@ -1528,12 +1540,15 @@ void A_PlayerThunk(player_t *player, pspdef_t *psp)
    settarget = !!((int)(psp->state->args[3]));
    useammo   = !!((int)(psp->state->args[4]));
 
+   // validate codepointer index
    if(cptrnum < 0 || cptrnum >= num_bexptrs)
       return;
 
+   // make sure codepointer is thunkable
    if(!(deh_bexptrs[cptrnum].flags & BPF_PTHUNK))
       return;
 
+   // validate and resolve state
    if(statenum >= 0)
    {
       statenum = E_StateNumForDEHNum(statenum);
@@ -1541,8 +1556,11 @@ void A_PlayerThunk(player_t *player, pspdef_t *psp)
          return;
    }
 
+   // set player's target to thing being autoaimed at if this
+   // behavior is requested.
    if(settarget)
    {
+      // record old target
       oldtarget = plyr->target;
       P_BulletSlope(plyr);
       if(linetarget)
@@ -1554,15 +1572,19 @@ void A_PlayerThunk(player_t *player, pspdef_t *psp)
          return;
    }
 
+   // possibly disable the FaceTarget pointer using MIF_NOFACE
    if(!face)
       plyr->intflags |= MIF_NOFACE;
 
+   // If a state has been provided, place the player into it. This
+   // allows use of parameterized codepointers.
    if(statenum >= 0)
    {
       oldstate = plyr->state;
       plyr->state = &states[statenum];
    }
 
+   // if ammo should be used, subtract it now
    if(useammo)
    {
       if(weaponinfo[player->readyweapon].ammo < NUMAMMO &&
@@ -1572,15 +1594,19 @@ void A_PlayerThunk(player_t *player, pspdef_t *psp)
       }
    }
 
+   // execute the codepointer
    deh_bexptrs[cptrnum].cptr(player->mo);
 
+   // remove MIF_NOFACE
    plyr->intflags &= ~MIF_NOFACE;
 
+   // restore player's old target if a new one was found & set
    if(settarget && localtarget)
    {
       P_SetTarget(&(plyr->target), oldtarget);
    }
 
+   // put player back into his normal state
    if(statenum >= 0)
    {
       plyr->state = oldstate;

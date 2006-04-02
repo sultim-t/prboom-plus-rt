@@ -69,7 +69,8 @@ rcsid[] = "$Id: st_stuff.c,v 1.46 1998/05/06 16:05:40 jim Exp $";
 
 // Should be set to patch width
 //  for tall numbers later on
-#define ST_TALLNUMWIDTH         (tallnum[0]->width)
+// haleyjd: unused
+//#define ST_TALLNUMWIDTH         (tallnum[0]->width)
 
 #define ST_TURNOFFSET           (ST_NUMSTRAIGHTFACES)
 #define ST_OUCHOFFSET           (ST_TURNOFFSET + ST_NUMTURNFACES)
@@ -338,9 +339,10 @@ static void ST_refreshBackground(void)
       if(GameType != gt_single)
       {
          V_DrawPatchTranslated(ST_FX, 0, &backscreen4, faceback,
-                         plyr->colormap ?
-                 (char *)translationtables[(plyr->colormap - 1)] :
-                         NULL, false);
+            plyr->colormap ?
+               (char *)translationtables[(plyr->colormap - 1)] :
+               NULL, 
+            false);
       }
 
       V_CopyRect(ST_X, 0, BG, ST_WIDTH, ST_HEIGHT, ST_X, ST_Y, FG);

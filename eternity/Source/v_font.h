@@ -31,6 +31,11 @@
 #include "doomtype.h"
 #include "r_defs.h"
 
+//
+// vfont structure
+//
+// Contains all the data necessary to allow generalized font drawing.
+//
 typedef struct vfont_s
 {
    unsigned int start; // first character in font
@@ -46,7 +51,7 @@ typedef struct vfont_s
    boolean upper;    // uses uppercase only?
    boolean centered; // characters are centered in position?
 
-   patch_t **fontgfx; // graphics patches for font
+   patch_t **fontgfx; // graphics patches for font (not owned)
 
    int cw;  // constant width, used only when centering is on
 } vfont_t;

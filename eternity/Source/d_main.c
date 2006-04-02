@@ -1681,6 +1681,18 @@ static char title[128];
 extern int levelTimeLimit;
 extern int levelFragLimit;
 
+static void D_StartupMessage(void)
+{
+   puts("The Eternity Engine\n"
+        "Copyright 2005 James Haley and Steven McGranahan\n"
+        "http://www.doomworld.com/eternity\n\n"
+        "This program is free software distributed under the terms of\n"
+        "the GNU General Public License. See the file \"COPYING\" for\n"
+        "full details. Commercial sale or distribution of this product\n"
+        "without its license, source code, and copyright notices is an\n"
+        "infringement of US and international copyright laws.\n\n");
+}
+
 //
 // D_DoomInit
 //
@@ -1694,6 +1706,8 @@ static void D_DoomInit(void)
    int dmtype = 0;             // haleyjd 04/14/03
    boolean haveGFS = false;    // haleyjd 03/10/03
    gfs_t *gfs = NULL;
+
+   D_StartupMessage();
 
 #ifdef GAMEBAR
    // haleyjd 01/17/05: I think this is only needed for the "gamebar" option
@@ -1717,8 +1731,6 @@ static void D_DoomInit(void)
       
       gfs = G_LoadGFS(fn);
       haveGFS = true;
-      
-      free(fn);
    }
    else
    {
@@ -2055,9 +2067,6 @@ static void D_DoomInit(void)
    V_Init();
    
    D_ProcessWadPreincludes(); // killough 10/98: add preincluded wads at the end
-
-   // haleyjd 09/12/03: initialize the deferred wad sound queue
-   S_InitDefSndQueue();
       
    startupmsg("W_Init", "Init WADfiles.");
    W_InitMultipleFiles(wadfiles);
@@ -2154,6 +2163,10 @@ static void D_DoomInit(void)
    
    startupmsg("S_Init","Setting up sound.");
    S_Init(snd_SfxVolume, snd_MusicVolume);
+
+   //
+   // NETCODE_FIXME: Netgame check.
+   //
    
    startupmsg("D_CheckNetGame","Check netgame status.");
    D_CheckNetGame();
@@ -2174,6 +2187,11 @@ static void D_DoomInit(void)
    // haleyjd: this SHOULD be late enough...
    startupmsg("G_LoadDefaults", "Init keybindings.");
    G_LoadDefaults();
+
+   //
+   // CONSOLE_FIXME: This may not be the best time for scripts.
+   // Reconsider this as is appropriate.
+   //
    
    // haleyjd: AFTER keybindings for overrides
    startupmsg("D_AutoExecScripts", "Executing console scripts.");
@@ -2216,7 +2234,7 @@ static void D_DoomInit(void)
    C_Separator();
    C_Printf("\n"
             FC_HI "The Eternity Engine\n"
-            FC_NORMAL "By James Haley and Steven McGranahan\n"
+            FC_NORMAL "By James Haley and Stephen McGranahan\n"
             "http://doomworld.com/eternity/ \n"
             "Version %i.%02i.%02i '%s' \n\n",
             VERSION/100, VERSION%100, SUBVERSION, version_name);
@@ -2303,6 +2321,9 @@ static void D_DoomInit(void)
    {
       if(netgame)
       {
+         //
+         // NETCODE_FIXME: C_SendNetData.
+         //
          C_SendNetData();
          
          if(demorecording)
@@ -2377,13 +2398,14 @@ void D_DoomMain(void)
 void D_ReInitWadfiles(void)
 {
    R_FreeData();
+   E_ProcessEDFLumps(); // haleyjd 07/24/05: reproc. optional EDF lumps
    D_ProcessDEHQueue(); // haleyjd 09/12/03: run any queued DEHs
    R_Init();
    P_Init();
 }
 
 // FIXME: various parts of this routine need tightening up
-void D_NewWadLumps(int handle, void (*sndfunc)(int))
+void D_NewWadLumps(int handle, int sound_update_type)
 {
    int i;
    char wad_firstlevel[9];
@@ -2421,12 +2443,17 @@ void D_NewWadLumps(int handle, void (*sndfunc)(int))
          continue;
       }
 
-      // haleyjd 09/13/03: this may call either S_UpdateSound, or
-      // S_UpdateSoundDeferred, depending on the context this is
-      // called from.
       if(!strncmp(lumpinfo[i]->name, "DS", 2))
       {
-         sndfunc(i);
+         switch(sound_update_type)
+         {
+         case 0: // called during startup, defer processing
+            S_UpdateSoundDeferred(i);
+            break;
+         case 1: // called during gameplay
+            S_UpdateSound(i);
+            break;
+         }
          continue;
       }
       

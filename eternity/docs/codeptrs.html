@@ -9,7 +9,7 @@
 <body bgcolor="#CECECE">
 
 <hr>
-<b>The Eternity Engine Definitive Code Pointer Reference -- 08/08/04</b>
+<b>The Eternity Engine Definitive Code Pointer Reference -- 06/17/05</b>
 <hr>
 
 <p>
@@ -21,10 +21,6 @@ It exposes full information on all the code pointers available in
 the Eternity Engine, including both those from DOOM and those added in
 later ports. This reference attempts to expose all issues related to
 their use, as well as common pitfalls that lead to nasty crashes.
-
-<p>
-The information in this guide is up to date for Eternity Engine v3.31
-Delta, except where later changes are noted.
 
 <ul>
 <li><a name="contents"><b>Table of Contents</b></a>
@@ -61,7 +57,7 @@ Delta, except where later changes are noted.
             PlaySound, Pain, Scream, XScream, PlayerScream, BrainPain, BrainAwake,
             VileStart
         <li><a href="#aiptr">AI Pointers</a><br>
-            Look, Chase, VileChase, FaceTarget, KeepChasing
+            Look, Chase, VileChase, FaceTarget, KeepChasing, RandomWalk
         <li><a href="#hticai">Heretic AI Pointers</a><br>
             Sor1Chase
         <li><a href="#aiwalk">AI Pointers with Walking Sounds</a><br>
@@ -96,10 +92,12 @@ Delta, except where later changes are noted.
         <li><a href="#nukespecs">Massacre Cheat Specials</a><br>
             PainNukeSpec, SorcNukeSpec
         <li><a href="#frscript">Frame Scripting Pointers</a><br>
-            RandomJump, HealthJump, CounterJump, CounterSwitch, SetCounter, CounterOp, CopyCounter,
+            RandomJump, HealthJump, TargetJump, CounterJump, CounterSwitch, SetCounter, CounterOp, CopyCounter,
             SetTics, AproxDistance
         <li><a href="#small">Small Scripting System</a><br>
             StartScript, PlayerStartScript
+        <li><a href="#edf">EDF-Related Pointers</a><br>
+            ShowMessage
         </ul>
     </ul>
 </ul>
@@ -109,18 +107,8 @@ Delta, except where later changes are noted.
 <hr width="60%" align="left"></a>
 
 <ul>
-<li> 08/08/04:<br>
-     Added ImpChargeAtk, ImpMeleeAtk, ImpMissileAtk, ImpDeath, ImpXDeath1, ImpXDeath2, 
-     ImpExplode.
-          <br><br>
-<li> 08/03/04:<br> 
-     Added CounterJump, CounterSwitch, SetCounter, CounterOp, CopyCounter,
-     SetTics, AproxDistance, VolcanoBlast, VolcBallImpact, MinotaurAtk1,
-     MinotaurDecide, MinotaurAtk2, MinotaurAtk3, MinotaurCharge, MntrFloorFire,
-     LichFire, LichWhirlwind, LichAttack, WhirlwindSeek, LichIceImpact,
-     LichFireGrow, StartScript, and PlayerStartScript. Added new parameters to 
-     Scratch. Additions to HealthJump, HticExplode, SpawnGlitter, BeastPuff.
-     Added note to Chase.
+<li> 06/17/05: Added RandomWalk and TargetJump for NPCs.
+<li> 05/24/05: Added ShowMessage pointer.
 </ul>
 
 <a href="#contents">Return to Table of Contents</a>
@@ -567,7 +555,8 @@ will be shown explicitly for convenience.
            KnightAttack, DripBlood, BeastAttack, BeastPuff, MissileAttack,
            MissileSpread, BulletAttack, SetCounter, CopyCounter, CounterOp,
            MinotaurAtk1, MinotaurAtk2, LichFire, LichWhirlwind, LichAttack,
-           LichIceImpact, ImpMeleeAtk, ImpMissileAtk, SetTics, AproxDistance
+           LichIceImpact, ImpMeleeAtk, ImpMissileAtk, SetTics, AproxDistance,
+           ShowMessage
            <br>
            Any other codepointers will not be executed by PlayerThunk.
 </ul>
@@ -869,9 +858,9 @@ will be shown explicitly for convenience.
            a valid type, nothing will occur. Note that the action will
            occur as if a player has activated the line, and not a
            monster. New to MBF.<br>
-  Notes:   As of Eternity Engine v3.31 final, this codepointer cannot
+  Notes:   As of Eternity Engine v3.31 Delta, this codepointer cannot
            cause accidental corruption of memory under any circumstances.
-           While exceedingly rare, this could have occured occasionally
+           While exceedingly rare, this could have occurred occasionally
            in MBF and SMMU.<br>
   Warning: This codepointer may cause undesired side effects in some
            situations by affecting the first line defined in the map
@@ -1206,7 +1195,7 @@ will be shown explicitly for convenience.
            to its "first walking" state.<br>
   Notes:   This codepointer should only be called from an object's initial
            spawn state. Calling it from a walking state can cause an infinite
-           state cycle.
+           state cycle, which will cause an error message to appear.
            <br><br><br>
            
 <li> <b>Chase</b><br>
@@ -1268,12 +1257,11 @@ will be shown explicitly for convenience.
            sentient object. There may be undesired effects or undefined
            behavior in other circumstances. 
            <br><br>
-           As of Eternity Engine v3.31 Delta, this
-           codepointer will not crash the game if used in an object's spawn 
-           state. However, an error message will be printed until the object 
-           leaves its spawn state, as using the pointer in this context is
-           not appropriate.
-<br><br>       <br>    
+           As of Eternity Engine v3.33.01, this codepointer will not crash the
+           game if used in an object's spawn state or attack states. However, an 
+           error message may be printed until the object leaves the offending state(s),
+           as using the pointer in this context is NOT appropriate.
+           <br><br><br>    
            
 <li> <b>VileChase</b><br>
   Type:    AI pointer, normal<br>
@@ -1309,7 +1297,27 @@ will be shown explicitly for convenience.
            new target while trying to attack its current one. Note the monster's
            attack frames will need to have a short duration for the motion to seem
            smooth. New to Eternity.
+           <br><br><br>
 
+<li> <b>RandomWalk</b><br>
+  Type:    AI pointer, normal<br>
+  Purpose: Causes an object to walk around in randomly chosen directions, whether it
+           has no target or has acquired a target via being damaged. Neither friends
+           nor enemies using this pointer will follow the player at any time. This
+           pointer has a 24/256 chance of setting the object back to its spawn state
+           once movement in one direction has stopped. If the spawn state doesn't
+           call RandomWalk, this allows the object to periodically stop movement. It
+           is possible for a thing using RandomWalk to transfer to use of normal AI
+           via Look and Chase, but note that if a thing using RandomWalk walks into
+           a sector where alerting sound has occurred at any time during gameplay, it 
+           would awaken instantly if the Look pointer was then used. Things using this
+           pointer will not continue to walk into obstructions, but will choose a
+           different random direction in which to walk. Things using this pointer
+           never attack while walking, though it is possible to set up retaliatory
+           attacks from a thing's other states, such as the pain state, in concert 
+           with the TargetJump codepointer.<br>
+           New to Eternity Engine v3.33.01
+           
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -1326,9 +1334,9 @@ will be shown explicitly for convenience.
            object will subtract 3 from its current tics value, causing it to 
            walk faster (its tics value will not be set less than 1, to avoid 
            state cycles). The Counter 0 field will be decremented by 1. Control
-           then transfers to the Chase codepointer for normal walking logic. 
+           then transfers to the Chase codepointer for normal walking logic.<br>
            New to Eternity.
-
+           
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -2505,6 +2513,29 @@ range will wrap around.
            experimentation.
 <br><br><br>
 
+<li> <b>TargetJump</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Frame DeHackEd number to which object may jump<br>
+            (default of 0 = frame 0)
+  </ul>
+  <br>
+  Purpose: Causes the object to transfer to the indicated frame if the object's
+           target meets the following criteria:
+           <ol>
+           <li> The target must be valid.
+           <li> The target must be alive (health > 0).
+           <li> If this object has the Bits3 flag "SUPERFRIEND" set, its target
+                must not be a friend.
+           </ol>
+           If the jump does not occur, the object will fall through to the next 
+           frame. If the current frame's tics are set to -1, fall-through will 
+           not occur.<br> 
+           New to Eternity v3.33.01
+           <br><br><br>
+
 <li> <b>CounterJump</b><br>
   Type:    Frame scripting, parameterized
   <br><br>
@@ -2767,8 +2798,8 @@ General Notes for Small Scripting Codepointers:
 
 <p>
 These codepointers allow execution of Small functions in either of the Gamescript
-and Levelscript VMs. See the <a href="small_usagedoc.html">Small Usage Documentation</a> and the <a href="small_funcref.html">Small Function Reference</a> 
-for full information.
+or Levelscript VMs. See the <a href="small_usagedoc.html">Small Usage Documentation</a> and the 
+<a href="small_funcref.html">Small Function Reference</a> for full information.
 
 <ul>
 <li> <b>StartScript</b><br>
@@ -2828,6 +2859,37 @@ for full information.
            frames instead.
 
 </ul>           
+
+<p>
+<a name="edf"><hr width="40%" align="left">
+<b>EDF-Related Pointers</b>
+<hr width="40%" align="left"></a>
+
+<p>
+These pointers interact directly with parts of the EDF system. For more information on EDF,
+see the <a href="edf_ref.html">EDF Documentation</a>.
+
+<ul>
+<li><b>ShowMessage</b><br>
+  Type:    EDF utility, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = ID number of EDF string to display as a message (default of 0 = 0)
+  <li> Args2 = Message display method (default of 0 = 0)
+            <ul>
+            <li> 0 = Console
+            <li> 1 = Normal message
+            <li> 2 = Center message
+            </ul>
+  </ul>
+  <br>
+  Purpose: Displays a text message defined as an EDF string to all players.<br>
+           New to Eternity Engine v3.33.00.<br>
+  Notes:   If an EDF string with the indicated ID does not exist, nothing will happen.
+
+</ul>           
+<a href="#contents">Return to Table of Contents</a>
 
 </body>
 </html>

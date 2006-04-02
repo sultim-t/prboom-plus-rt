@@ -63,7 +63,7 @@ enum
 //
 typedef struct bossteleport_s
 {
-   MobjCollection_t *mc; // mobj collection to use
+   MobjCollection *mc; // mobj collection to use
    pr_class_t rngNum;    // rng number to use for selecting spot
 
    mobj_t *boss;      // boss to teleport

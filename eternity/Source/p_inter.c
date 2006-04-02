@@ -46,6 +46,7 @@ rcsid[] = "$Id: p_inter.c,v 1.10 1998/05/03 23:09:29 killough Exp $";
 #include "d_gi.h"
 #include "g_dmflag.h"
 #include "e_edf.h"
+#include "e_states.h"
 #include "p_map.h"
 #include "a_small.h"
 
@@ -800,20 +801,22 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 
    // sf: display message using player_printf
    if(message)
-      player_printf(player, "%c%s", 128+mess_colour, message);
-   if(removeobj)
-      P_RemoveMobj(special);
-   
-   // haleyjd: keys aren't supposed to ramp this up or play sounds
-   // repeatedly in coop mode
-   if(!pickup_fx)
-      return;
+      player_printf(player, "%s", message);
 
+   // haleyjd 07/08/05: rearranged to avoid removing before
+   // checking for COUNTITEM flag.
    if(special->flags & MF_COUNTITEM)
       player->itemcount++;
-   player->bonuscount += BONUSADD;
-   
-   S_StartSound(player->mo, sound);   // killough 4/25/98, 12/98
+
+   if(removeobj)
+      P_RemoveMobj(special);
+
+   // haleyjd 07/08/05: inverted condition
+   if(pickup_fx)
+   {
+      player->bonuscount += BONUSADD;
+      S_StartSound(player->mo, sound);   // killough 4/25/98, 12/98
+   }
 }
 
 //
@@ -961,8 +964,8 @@ void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
    case MOD_SUICIDE: message = s_OB_SUICIDE; break;
    case MOD_FALLING: message = s_OB_FALLING; break;
    case MOD_CRUSH:   message = s_OB_CRUSH;   break;
-   case MOD_SLIME:
-   case MOD_LAVA:    message = s_OB_SLIME;   break;
+   case MOD_SLIME:   message = s_OB_SLIME;   break;
+   case MOD_LAVA:    message = s_OB_LAVA;    break;
    case MOD_BARREL:  message = s_OB_BARREL;  break;
    case MOD_SPLASH:  message = s_OB_SPLASH;  break;
    default: break;
@@ -1177,15 +1180,24 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
    if(!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))
       return; // shouldn't happen...
    
-   if (target->health <= 0)
+   if(target->health <= 0)
       return;
    
    // haleyjd: 
    // Invulnerability -- telestomp can still kill to avoid getting stuck
    // Dormancy -- things are invulnerable until they are awakened
-   if(target->flags2 & (MF2_INVULNERABLE | MF2_DORMANT) && damage < 10000)
-      return;
+   // No Friend Damage -- some things aren't hurt by friends
+   if(damage < 10000)
+   {
+      if(target->flags2 & (MF2_INVULNERABLE | MF2_DORMANT))
+         return;
 
+      if(target->flags3 & MF3_NOFRIENDDMG && source && 
+         source->flags & MF_FRIEND)
+         return;
+   }
+
+   // a dormant thing being destroyed gets restored to normal first
    if(target->flags2 & MF2_DORMANT)
    {
       target->flags2 &= ~MF2_DORMANT;
@@ -1408,7 +1420,7 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
       P_SetTarget(&target->target, source);       // killough 11/98
       target->threshold = BASETHRESHOLD;
       if(target->state == &states[target->info->spawnstate]
-         && target->info->seestate != E_NullState())
+         && target->info->seestate != NullStateNum)
          P_SetMobjState (target, target->info->seestate);
    }
 
@@ -1465,7 +1477,8 @@ void P_Whistle(mobj_t *actor, int mobjtype)
          return;
 
       // try the teleport
-      if(P_TeleportMove(mo, x, y, false))
+      // 06/06/05: use strict teleport now
+      if(P_TeleportMoveStrict(mo, x, y, false))
       {
          mobj_t *fog = P_SpawnMobj(prevx, prevy, 
                                    prevz + gameModeInfo->teleFogHeight,
@@ -1587,9 +1600,9 @@ static cell AMX_NATIVE_CALL sm_thinghate(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO pinter_Natives[] =
 {
-   { "ThingKill", sm_thingkill },
-   { "ThingHurt", sm_thinghurt },
-   { "ThingHate", sm_thinghate },
+   { "_ThingKill", sm_thingkill },
+   { "_ThingHurt", sm_thinghurt },
+   { "_ThingHate", sm_thinghate },
    { NULL, NULL }
 };
 

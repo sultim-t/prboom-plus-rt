@@ -59,6 +59,9 @@ void P_ChaseSetupFrame(void)
 #define playermobj players[displayplayer].mo
 #define playerangle (playermobj->angle)
 
+int chasecam_height;
+int chasecam_dist;
+
 void P_GetChasecamTarget(void)
 {
    int aimfor;
@@ -68,15 +71,16 @@ void P_GetChasecamTarget(void)
 
    // aimfor is the preferred height of the chasecam above
    // the player
-
-   aimfor = 68*FRACUNIT - players[displayplayer].updownangle*FRACUNIT;
-   
+   // haleyjd: 1 unit for each degree of pitch works surprisingly well
+   aimfor = players[displayplayer].viewheight + chasecam_height*FRACUNIT 
+               + FixedDiv(players[displayplayer].pitch, ANGLE_1);
+      
    sin = finesine[playerangle>>ANGLETOFINESHIFT];
    cos = finecosine[playerangle>>ANGLETOFINESHIFT];
    
-   targetx = playermobj->x-(cos>>9)*FRACUNIT;
-   targety = playermobj->y-(sin>>9)*FRACUNIT;
-   targetz = playermobj->z+aimfor;
+   targetx = playermobj->x - chasecam_dist * cos;
+   targety = playermobj->y - chasecam_dist * sin;
+   targetz = playermobj->z + aimfor;
 
    // the intersections test mucks up the first time, but
    // aiming at something seems to cure it
@@ -86,25 +90,21 @@ void P_GetChasecamTarget(void)
    P_PathTraverse(playermobj->x, playermobj->y, targetx, targety,
                   PT_ADDLINES, PTR_chasetraverse);
 
-   ss = R_PointInSubsector (targetx, targety);
+   ss = R_PointInSubsector(targetx, targety);
    
    floorheight = ss->sector->floorheight;
    ceilingheight = ss->sector->ceilingheight;
-   if(aimfor > ceilingheight-floorheight-20*FRACUNIT)
-      aimfor = ceilingheight-floorheight-20*FRACUNIT;
-
 
    // don't aim above the ceiling or below the floor
-   // haleyjd 11/03/02: was 3*FRACUNIT
-   if(targetz > ceilingheight-10*FRACUNIT)
-      targetz = ceilingheight-10*FRACUNIT;
-   if(targetz < floorheight+10*FRACUNIT)
-      targetz = floorheight+10*FRACUNIT;
+   if(targetz > ceilingheight - 10*FRACUNIT)
+      targetz = ceilingheight - 10*FRACUNIT;
+   if(targetz < floorheight + 10*FRACUNIT)
+      targetz = floorheight + 10*FRACUNIT;
 }
 
         // the 'speed' of the chasecam: the percentage closer we
         // get to the target each tic
-int chasespeed = 33;
+int chasecam_speed;
 
 void P_ChaseTicker(void)
 {
@@ -122,11 +122,11 @@ void P_ChaseTicker(void)
    // haleyjd: patched these lines with cph's fix
    //          for overflow occuring in the multiplication
    // now move chasecam
-   chasecam.x += FixedMul(xdist, chasespeed*(FRACUNIT/100));
-   chasecam.y += FixedMul(ydist, chasespeed*(FRACUNIT/100));
-   chasecam.z += FixedMul(zdist, chasespeed*(FRACUNIT/100));
+   chasecam.x += FixedMul(xdist, chasecam_speed*(FRACUNIT/100));
+   chasecam.y += FixedMul(ydist, chasecam_speed*(FRACUNIT/100));
+   chasecam.z += FixedMul(zdist, chasecam_speed*(FRACUNIT/100));
    
-   chasecam.updownangle = players[displayplayer].updownangle;
+   chasecam.pitch = players[displayplayer].pitch;
    chasecam.angle = playerangle;
 
    // haleyjd: fix for deep water HOM bug -- 
@@ -137,7 +137,7 @@ void P_ChaseTicker(void)
    chasecam.heightsec = subsec->sector->heightsec;
 }
 
-// console command
+// console commands
 
 VARIABLE_BOOLEAN(chasecam_active, NULL, onoff);
 
@@ -148,6 +148,15 @@ CONSOLE_VARIABLE(chasecam, chasecam_active, 0)
    else
       P_ChaseEnd();
 }
+
+VARIABLE_INT(chasecam_height, NULL, -31, 100, NULL);
+CONSOLE_VARIABLE(chasecam_height, chasecam_height, 0) {}
+
+VARIABLE_INT(chasecam_dist, NULL, 10, 1024, NULL);
+CONSOLE_VARIABLE(chasecam_dist, chasecam_dist, 0) {}
+
+VARIABLE_INT(chasecam_speed, NULL, 1, 100, NULL);
+CONSOLE_VARIABLE(chasecam_speed, chasecam_speed, 0) {}
 
 void P_ChaseStart(void)
 {
@@ -315,11 +324,26 @@ void P_WalkTicker(void)
       walkcamera.heightsec = subsec->sector->heightsec;
    }
 
-   // looking up/down
-   walkcamera.updownangle += walktic->updownangle;
-   walkcamera.updownangle = walkcamera.updownangle < -50 ? -50 :
-                               walkcamera.updownangle > 50 ? 50 :
-                               walkcamera.updownangle;
+   // looking up/down 
+   // haleyjd: this is the same as new code in p_user.c, but for walkcam
+   {
+      int look = walktic->look;
+
+      if(look)
+      {
+         // test for special centerview value
+         if(look == -32768)
+            walkcamera.pitch = 0;
+         else
+         {
+            walkcamera.pitch -= look << 16;
+            if(walkcamera.pitch < -ANGLE_1*32)
+               walkcamera.pitch = -ANGLE_1*32;
+            else if(walkcamera.pitch > ANGLE_1*32)
+               walkcamera.pitch = ANGLE_1*32;
+         }
+      }
+   } // end local block
 }
 
 VARIABLE_BOOLEAN(walkcam_active, NULL,              onoff);
@@ -352,6 +376,9 @@ void P_ResetWalkcam(void)
 void P_Chase_AddCommands(void)
 {
    C_AddCommand(chasecam);
+   C_AddCommand(chasecam_height);
+   C_AddCommand(chasecam_dist);
+   C_AddCommand(chasecam_speed);
    C_AddCommand(walkcam);
 }
 
@@ -386,8 +413,8 @@ static cell AMX_NATIVE_CALL sm_ischaseon(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO chase_Natives[] =
 {
-   { "Cam_Chasecam",     sm_chasecam  },
-   { "Cam_IsChasecamOn", sm_ischaseon },
+   { "_ToggleChasecam", sm_chasecam  },
+   { "_IsChasecamOn",   sm_ischaseon },
    { NULL, NULL }
 };
 

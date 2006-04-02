@@ -562,8 +562,8 @@ const char *comp_strings[] =
   "terrain",    // haleyjd: TerrainTypes
   "respawnfix", //          Nightmare respawn location fix
   "fallingdmg", //          Players take falling damage
-  "soul",       //          Currently unused
-  "dummy2",     //          Currently unused
+  "soul",       //          Lost soul bouncing
+  "theights",   //          Thing heights fix
   "overunder",  //          10/19/02: z checking
 };
 
@@ -599,6 +599,11 @@ static void Handler_CompOverUnder(void)
    }
 }
 
+static void Handler_CompTHeights(void)
+{
+   P_ChangeThingHeights();
+}
+
 void G_AddCompat(void)
 {
    int i;
@@ -626,19 +631,26 @@ void G_AddCompat(void)
       command->type = ct_variable;
       // haleyjd 02/27/03: comp_floors and comp_overunder must be
       // mutually exclusive
-      if(i == comp_floors || i == comp_overunder)
+      switch(i)
       {
+      case comp_floors:
+      case comp_overunder:
          command->flags = cf_server | cf_netvar | cf_handlerset;
          if(i == comp_floors)
             command->handler = Handler_CompFloors;
          else
             command->handler = Handler_CompOverUnder;
-      }
-      else
-      {
+         break;
+      case comp_theights:
+         command->flags = cf_server | cf_netvar;
+         command->handler = Handler_CompTHeights;
+         break;
+      default:
          command->flags = cf_server | cf_netvar;
          command->handler = NULL;
+         break;
       }
+
       command->variable = variable;
       command->netcmd = netcmd_comp_0 + i;
       

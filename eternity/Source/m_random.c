@@ -168,8 +168,8 @@ static cell AMX_NATIVE_CALL sm_mrandom(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO random_Natives[] =
 {
-   { "P_Random",   sm_random },
-   { "M_Random", sm_mrandom },
+   { "_P_Random",   sm_random },
+   { "_M_Random", sm_mrandom },
    { NULL, NULL }
 };
 

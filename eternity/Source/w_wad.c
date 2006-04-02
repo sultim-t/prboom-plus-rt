@@ -144,9 +144,9 @@ void NormalizeSlashes(char *str)
 // Reload hack removed by Lee Killough
 //
 
-static void (*wsndfunc)(int) = NULL; // haleyjd 09/13/03
+static int w_sound_update_type;
 
-void D_NewWadLumps(int handle, void (*sndfunc)(int));
+void D_NewWadLumps(int handle, int sound_update_type);
 
         // sf: made int
 static int W_AddFile(const char *name) // killough 1/31/98: static, const
@@ -246,7 +246,7 @@ static int W_AddFile(const char *name) // killough 1/31/98: static, const
          iwadhandle = handle;
    }
   
-   for(i = startlump; i < numlumps; i++, lump_p++, fileinfo++)
+   for(i = startlump; i < (unsigned)numlumps; i++, lump_p++, fileinfo++)
    {
       lumpinfo[i] = lump_p;
       lump_p->handle = handle;                    //  killough 4/25/98
@@ -262,7 +262,7 @@ static int W_AddFile(const char *name) // killough 1/31/98: static, const
    
    free(fileinfo2free);      // killough
    
-   D_NewWadLumps(handle, wsndfunc);
+   D_NewWadLumps(handle, w_sound_update_type);
    
    return false;       // no error
 }
@@ -290,7 +290,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
    int is_marked = 0, mark_end = 0;
    lumpinfo_t *lump = lumpinfo[0];
   
-   for(i = 0; i < numlumps; i++)
+   for(i = 0; i < (unsigned)numlumps; i++)
    {
       lump = lumpinfo[i];
       
@@ -508,7 +508,7 @@ void W_InitMultipleFiles(char *const *filenames)
    W_AddPredefines();
 
    // haleyjd 09/13/03: set new sound lump parsing to deferred
-   wsndfunc = S_UpdateSoundDeferred;
+   w_sound_update_type = 0;
    
    // open all the files, load headers, and count lumps
    while(*filenames)
@@ -523,7 +523,7 @@ void W_InitMultipleFiles(char *const *filenames)
 int W_AddNewFile(char *filename)
 {
    // haleyjd 09/13/03: use S_UpdateSound here
-   wsndfunc = S_UpdateSound;
+   w_sound_update_type = 1;
    if(W_AddFile(filename)) 
       return true;
    W_InitResources();              // reinit lump lookups etc

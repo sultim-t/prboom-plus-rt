@@ -27,6 +27,14 @@
 //
 // By Simon Howard
 //
+// NETCODE_FIXME RED LEVEL ALERT!!! -- CONSOLE_FIXME
+// The biggest problems are in here by far. While all the netcode needs
+// an overhaul, the incredibly terrible way netcmds/net vars are sent
+// and the fact that they cannot be recorded in demos is the most
+// pressing problem and requires a complete rewrite of more or less
+// everything in here. zdoom has an elegant solution to this problem,
+// but it requires much more complicated network packet parsing.
+//
 //----------------------------------------------------------------------------
 
 #include "z_zone.h"
@@ -46,7 +54,7 @@ int cmdsrc = 0;           // the source of a network console command
 command_t *c_netcmds[NUMNETCMDS];
 
 /*
-  haleyjd: indiscrete bug here
+  haleyjd: fixed a bug here
 
   default_name was being set equal to a string on the C heap,
   and then free()'d in the player name console command handler --
@@ -275,9 +283,6 @@ void C_SendNetData()
       C_RunTextCmd(tempstr);
     }
 }
-
-
-int allowmlook = 1;
 
 //
 //      Update a network variable

@@ -1135,6 +1135,7 @@ extern char *bgflathE5;
 extern char *s_OB_SUICIDE;
 extern char *s_OB_FALLING;
 extern char *s_OB_CRUSH;
+extern char *s_OB_LAVA;
 extern char *s_OB_SLIME;
 extern char *s_OB_BARREL;
 extern char *s_OB_SPLASH;

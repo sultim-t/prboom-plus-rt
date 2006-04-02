@@ -38,7 +38,7 @@ rcsid[] = "$Id: p_floor.c,v 1.23 1998/05/23 10:23:16 jim Exp $";
 #include "s_sound.h"
 #include "sounds.h"
 
-boolean P_ChangeSector(sector_t *, boolean);
+boolean P_ChangeSector(sector_t *, int);
 
 ///////////////////////////////////////////////////////////////////////
 // 
@@ -66,7 +66,7 @@ result_e T_MovePlane
 ( sector_t*     sector,
   fixed_t       speed,
   fixed_t       dest,
-  boolean       crush,
+  int           crush,
   int           floorOrCeiling,
   int           direction )
 {
@@ -80,7 +80,7 @@ result_e T_MovePlane
    switch(floorOrCeiling)
    {
    case 0:
-      move3dsides = sector->f_attached && demo_version >= 331;
+      move3dsides = (sector->f_attached && demo_version >= 331);
       
       // Moving a floor
       switch(direction)
@@ -202,9 +202,12 @@ result_e T_MovePlane
             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
             if(flag == true)
             {
+               // haleyjd 07/23/05: crush no longer boolean
+               // Note: to make crushers that stop at heads, fail
+               // to return crushed here even when crush is positive
                if(demo_version < 203 || comp[comp_floors]) // killough 10/98
                {
-                  if(crush == true) //jff 1/25/98 fix floor crusher
+                  if(crush > 0) //jff 1/25/98 fix floor crusher
                      return crushed;
                }
                sector->floorheight = lastpos;
@@ -278,7 +281,10 @@ result_e T_MovePlane
             
             if(flag == true)
             {
-               if(crush == true)
+               // haleyjd 07/23/05: crush no longer boolean
+               // Note: to make crushers that stop at heads, fail to
+               // return crush here even when crush is positive.
+               if(crush > 0)
                   return crushed;
                sector->ceilingheight = lastpos;
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
@@ -481,7 +487,7 @@ void T_MoveElevator(elevator_t* elevator)
          elevator->sector,
          elevator->speed,
          elevator->ceilingdestheight,
-         0,
+         -1,
          1,                          // move floor
          elevator->direction
       );
@@ -491,7 +497,7 @@ void T_MoveElevator(elevator_t* elevator)
             elevator->sector,
             elevator->speed,
             elevator->floordestheight,
-            0,
+            -1,
             0,                        // move ceiling
             elevator->direction
           );
@@ -503,7 +509,7 @@ void T_MoveElevator(elevator_t* elevator)
          elevator->sector,
          elevator->speed,
          elevator->floordestheight,
-         0,
+         -1,
          0,                          // move ceiling
          elevator->direction
       );
@@ -513,7 +519,7 @@ void T_MoveElevator(elevator_t* elevator)
             elevator->sector,
             elevator->speed,
             elevator->ceilingdestheight,
-            0,
+            -1,
             1,                        // move floor
             elevator->direction
          );
@@ -580,7 +586,7 @@ int EV_DoFloor
       sec->floordata = floor; //jff 2/22/98
       floor->thinker.function = T_MoveFloor;
       floor->type = floortype;
-      floor->crush = false;
+      floor->crush = -1;
 
       // setup the thinker according to the linedef type
       switch(floortype)
@@ -636,7 +642,7 @@ int EV_DoFloor
          break;
 
       case raiseFloorCrush:
-         floor->crush = true;
+         floor->crush = 10;
       case raiseFloor:
          floor->direction = plat_up;
          floor->sector = sec;
@@ -927,13 +933,13 @@ int EV_BuildStairs(line_t *line, stair_e type)
             speed = FLOORSPEED/4;
             stairsize = 8*FRACUNIT;
             if(!demo_compatibility)
-               floor->crush = false; //jff 2/27/98 fix uninitialized crush field
+               floor->crush = -1; //jff 2/27/98 fix uninitialized crush field
             break;
          case turbo16:
             speed = FLOORSPEED*4;
             stairsize = 16*FRACUNIT;
             if(!demo_compatibility)
-               floor->crush = true;  //jff 2/27/98 fix uninitialized crush field
+               floor->crush = 10;  //jff 2/27/98 fix uninitialized crush field
             break;
          }
 
@@ -1004,7 +1010,7 @@ int EV_BuildStairs(line_t *line, stair_e type)
                floor->type = buildStair; //jff 3/31/98 do not leave uninited
                //jff 2/27/98 fix uninitialized crush field
                if(!demo_compatibility)
-                  floor->crush = type == build8 ? false : true;
+                  floor->crush = (type == build8 ? -1 : 10);
                ok = 1;
                break;
             } // end for
@@ -1102,7 +1108,7 @@ int EV_DoDonut(line_t*  line)
          s2->floordata = floor; //jff 2/22/98
          floor->thinker.function = T_MoveFloor;
          floor->type = donutRaise;
-         floor->crush = false;
+         floor->crush = -1;
          floor->direction = plat_up;
          floor->sector = s2;
          floor->speed = FLOORSPEED / 2;
@@ -1116,7 +1122,7 @@ int EV_DoDonut(line_t*  line)
          s1->floordata = floor; //jff 2/22/98
          floor->thinker.function = T_MoveFloor;
          floor->type = lowerFloor;
-         floor->crush = false;
+         floor->crush = -1;
          floor->direction = plat_down;
          floor->sector = s1;
          floor->speed = FLOORSPEED / 2;

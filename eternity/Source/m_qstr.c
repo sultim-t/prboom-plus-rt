@@ -36,6 +36,11 @@
 #include "z_zone.h"
 #include "i_system.h"
 #include "m_qstr.h"
+#include "m_misc.h" // for M_Strupr/M_Strlwr
+
+// 32 bytes is the minimum block size currently used by the zone 
+// allocator, so it makes sense to use it as the base default 
+// string size too.
 
 #define QSTR_BASESIZE 32
 
@@ -54,6 +59,22 @@ qstring_t *M_QStrInitCreate(qstring_t *qstr)
    return M_QStrCreate(qstr);
 }
 
+//
+// M_QStrCreateSize
+//
+// Creates a qstring with a given initial size, which helps prevent
+// unnecessary initial reallocations. Resets insertion point to zero.
+// This is safe to call on an existing qstring to reinitialize it.
+//
+qstring_t *M_QStrCreateSize(qstring_t *qstr, unsigned int size)
+{
+   qstr->buffer = realloc(qstr->buffer, size);
+   qstr->size   = size;
+   qstr->index  = 0;
+   memset(qstr->buffer, 0, QSTR_BASESIZE);
+
+   return qstr;
+}
 
 //
 // M_QStrCreate
@@ -64,12 +85,7 @@ qstring_t *M_QStrInitCreate(qstring_t *qstr)
 //
 qstring_t *M_QStrCreate(qstring_t *qstr)
 {
-   qstr->buffer = realloc(qstr->buffer, QSTR_BASESIZE);
-   qstr->size   = QSTR_BASESIZE;
-   qstr->index  = 0;
-   memset(qstr->buffer, 0, QSTR_BASESIZE);
-
-   return qstr;
+   return M_QStrCreateSize(qstr, QSTR_BASESIZE);
 }
 
 //
@@ -203,6 +219,28 @@ qstring_t *M_QStrCat(qstring_t *qstr, const char *str)
 
    qstr->index = newsize - 1;
 
+   return qstr;
+}
+
+//
+// M_QStrUpr
+//
+// Converts the string to uppercase.
+//
+qstring_t *M_QStrUpr(qstring_t *qstr)
+{
+   M_Strupr(qstr->buffer);
+   return qstr;
+}
+
+//
+// M_QStrLwr
+//
+// Converts the string to lowercase.
+//
+qstring_t *M_QStrLwr(qstring_t *qstr)
+{
+   M_Strlwr(qstr->buffer);
    return qstr;
 }
 

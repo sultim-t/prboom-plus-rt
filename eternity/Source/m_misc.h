@@ -34,7 +34,7 @@
 // MISC
 //
 
-boolean M_WriteFile(const char *name, void *source, int length);
+boolean M_WriteFile(const char *name, void *source, unsigned int length);
 int M_ReadFile(const char *name, byte **buffer);
 void M_ScreenShot(void);
 void M_LoadDefaults(void);

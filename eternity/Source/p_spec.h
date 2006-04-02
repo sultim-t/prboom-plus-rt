@@ -229,7 +229,11 @@ typedef enum
   FbyST,
   Fby24,
   Fby32,
-  FbyParam, // haleyjd 05/07/04: parameterized extension
+  
+  FbyParam, // haleyjd 05/07/04: parameterized extensions
+  FtoAbs,
+  FInst,
+
 } floortarget_e;
 
 // define names for the Changer Type field of the general floor
@@ -300,6 +304,10 @@ typedef enum
   ODoor,
   CdODoor,
   CDoor,
+  
+  // haleyjd 03/01/05: new param types with initial delays
+  pDOdCDoor,
+  pDCDoor,
 } doorkind_e;
 
 // define names for the locked door Kind field of the general ceiling
@@ -387,6 +395,12 @@ typedef enum
   genBlazeClose,
   genCdO,
   genBlazeCdO,
+
+  // haleyjd 03/01/05: exclusively param door types
+  paramRaiseIn,
+  paramBlazeRaiseIn,
+  paramCloseIn,
+  paramBlazeCloseIn,
 } vldoor_e;
 
 // haleyjd 05/04/04: door wait types
@@ -531,7 +545,7 @@ typedef enum
 // switch animation structure type
 
 #ifdef _MSC_VER
-#pragma pack(1)
+#pragma pack(push, 1)
 #endif
 
 typedef struct
@@ -542,16 +556,17 @@ typedef struct
 } __attribute__ ((packed)) switchlist_t; //jff 3/23/98 pack to read from memory
 
 #ifdef _MSC_VER
-#pragma pack()
+#pragma pack(pop)
 #endif
 
 typedef struct
 {
-  line_t *line;
+  line_t   *line;
+  int      side;
   bwhere_e where;
-  int   btexture;
-  int   btimer;
-  mobj_t *soundorg;
+  int      btexture;
+  int      btimer;
+  mobj_t   *soundorg;
 
 } button_t;
 
@@ -619,7 +634,7 @@ typedef struct
   int count;
   plat_e status;
   plat_e oldstatus;
-  boolean crush;
+  int crush;
   int tag;
   plattype_e type;
   struct platlist *list;   // killough
@@ -657,12 +672,22 @@ typedef struct
   int lighttag; //killough 10/98: sector tag for gradual lighting effects
 } vldoor_t;
 
-// haleyjd 05/04/04: extended data struct for parameterized doors
+// haleyjd 05/04/04: extended data struct for gen/param doors
 typedef struct
 {
-   fixed_t speed;
-   int topwait;
-} extdoordata_t;
+   // generalized values
+   int delay_type;
+   int kind;
+   int speed_type;
+   int trigger_type;
+
+   // parameterized values
+   fixed_t speed_value;
+   int     delay_value;
+   int     altlighttag;
+   boolean usealtlighttag;
+   int     topcountdown;
+} doordata_t;
 
 // p_doors
 
@@ -675,7 +700,7 @@ typedef struct
   fixed_t topheight;
   fixed_t speed;
   fixed_t oldspeed;
-  boolean crush;
+  int crush;
 
   //jff 02/04/98 add these to support ceiling changers
   int newspecial;
@@ -702,7 +727,7 @@ typedef struct
 {
   thinker_t thinker;
   floor_e type;
-  boolean crush;
+  int crush;
   sector_t *sector;
   int direction;
   int newspecial;
@@ -715,9 +740,19 @@ typedef struct
 // haleyjd 05/07/04: extended data struct for parameterized floors
 typedef struct
 {   
-   fixed_t targetheight;
-   fixed_t speed;
-} extfloordata_t;
+   // generalized values
+   int trigger_type;
+   int crush;
+   int direction;
+   int speed_type;
+   int change_type;
+   int change_model;
+   int target_type;
+
+   // parameterized values
+   fixed_t height_value;
+   fixed_t speed_value;
+} floordata_t;
 
 typedef struct
 {
@@ -783,6 +818,7 @@ enum
   plat_stop     = 0,
   plat_up       = 1,
   plat_down     = -1,
+  plat_special  = 2,  // haleyjd 02/24/05
 };
 
 
@@ -864,7 +900,7 @@ boolean P_IsSecret(sector_t *sec);
 
 boolean P_WasSecret(sector_t *sec);
 
-void P_ChangeSwitchTexture(line_t *line, int useAgain);
+void P_ChangeSwitchTexture(line_t *line, int useAgain, int side);
 
 ////////////////////////////////////////////////////////////////
 //
@@ -899,7 +935,7 @@ void T_MoveCeiling(ceiling_t *ceiling);
 // p_floor
 
 result_e T_MovePlane(sector_t *sector, fixed_t speed, fixed_t dest,
-		     boolean crush, int floorOrCeiling, int direction);
+		     int crush, int floorOrCeiling, int direction);
 
 void T_MoveFloor(floormove_t *floor);
 
@@ -967,7 +1003,7 @@ int EV_TurnTagLightsOff(line_t *line);
 
 int EV_LightTurnOn(line_t *line, int bright);
 
-int EV_LightTurnOnPartway(line_t *line, fixed_t level);  // killough 10/10/98
+int EV_LightTurnOnPartway(int tag, fixed_t level);  // killough 10/10/98
 
 // p_floor
 
@@ -1020,11 +1056,12 @@ void P_UpdateSpecials(void);
 // when needed
 boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side);
 
-void P_ShootSpecialLine(mobj_t *thing, line_t *line);
+void P_ShootSpecialLine(mobj_t *thing, line_t *line, int side);
 
 void P_CrossSpecialLine(line_t *, int side, mobj_t *thing); // killough 11/98
 
 void P_PlayerInSpecialSector(player_t *player);
+void P_PlayerOnSpecialFlat(player_t *player);
 
 // p_lights
 
@@ -1072,28 +1109,22 @@ mobj_t *P_GetPushThing(int);                                // phares 3/23/98
 
 // SoM 9/19/02: 3dside movement. :)
 void P_AttachSectors(line_t *cline, boolean ceiling);
-boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, boolean crush);
-
-
-// haleyjd: TerrainTypes
-
-#define FLOOR_SOLID 0
-#define FLOOR_WATER 1
-#define FLOOR_LAVA 2
-#define FLOOR_SLUDGE 3
-
-#define MAXTERRAINDEF 3
-
-void P_InitTerrainTypes(void);
-void P_LoadTerrainTypeDefs(void);
-int P_GetThingFloorType(mobj_t *thing);
-int P_GetTerrainTypeForPt(fixed_t x, fixed_t y, int position);
-int P_GetSecTerrainType(sector_t *sector, int position);
-boolean P_SectorFloorClip(sector_t *sector);
-int P_HitFloor(mobj_t *thing);
-int P_HitWater(mobj_t *thing, sector_t *sector);
+boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, int crush);
 
 line_t *P_FindLine(int tag, int *searchPosition);
+
+// haleyjd: parameterized lines
+
+// param special activation types
+enum
+{
+   SPAC_CROSS,
+   SPAC_USE,
+   SPAC_IMPACT,
+   SPAC_PUSH,
+};
+
+boolean P_ActivateParamLine(line_t *line, mobj_t *thing, int side, int spac);
 
 #endif
 

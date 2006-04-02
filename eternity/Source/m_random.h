@@ -186,6 +186,9 @@ typedef enum {
   pr_impmelee,   // Imp melee attack
   pr_impmelee2,  // Leader imp melee
   pr_impcrash,   // Imp crash
+  pr_rndwnewdir, // RandomWalk rngs
+  pr_rndwmovect,
+  pr_rndwspawn,
 
 
   NUMPRCLASS                  // MUST be last item in list

@@ -35,9 +35,18 @@ sfxinfo_t *E_SoundForName(const char *);
 sfxinfo_t *E_EDFSoundForName(const char *name);
 sfxinfo_t *E_SoundForDEHNum(int);
 
-void E_AddSoundToHash(sfxinfo_t *);
 void E_NewWadSound(const char *);
 void E_PreCacheSounds(void);
+
+#ifdef NEED_EDF_DEFINITIONS
+extern cfg_opt_t edf_sound_opts[];
+extern cfg_opt_t edf_sdelta_opts[];
+void E_ProcessSounds(cfg_t *cfg);
+void E_ProcessSoundDeltas(cfg_t *cfg);
+
+#define EDF_SEC_SOUND  "sound"
+#define EDF_SEC_SDELTA "sounddelta"
+#endif
 
 #endif
 

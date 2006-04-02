@@ -78,7 +78,7 @@ rcsid[] = "$Id: g_game.c,v 1.59 1998/06/03 20:23:10 killough Exp $";
 #include "in_lude.h"
 #include "a_small.h"
 #include "g_dmflag.h"
-#include "e_edf.h"
+#include "e_states.h"
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -171,6 +171,7 @@ int mousebforward;  // causes a use action, however
 fixed_t forwardmove[2] = {0x19, 0x32};
 fixed_t sidemove[2]    = {0x18, 0x28};
 fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
+fixed_t	lookspeed[2]   = {450, 512};        // haleyjd: look speeds (from zdoom)
 
 boolean gamekeydown[NUMKEYS];
 int     turnheld;       // for accelerative turning
@@ -212,38 +213,26 @@ int cooldemo_tics;      // number of tics until changing view
 void G_CoolViewPoint();
 
 //
-// G_CenterView
-//
-// haleyjd 09/06/02: a function to center the view
-// This is called more than once below.
-//
-static void G_CenterView(void)
-{
-   // joel - fix centerview
-   players[consoleplayer].updownangle = 0;
-   
-   // haleyjd 09/06/02: walkcam centerview fix
-   if(camera == &walkcamera)
-      camera->updownangle = 0;
-}
-
-//
 // G_BuildTiccmd
 //
 // Builds a ticcmd from all of the available inputs
 // or reads it from the demo buffer.
 // If recording a demo, write it out
 //
+// NETCODE_FIXME: The ticcmd_t structure will probably need to be
+// altered to better support command packing.
+//
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
    boolean strafe;
    boolean bstrafe;
+   boolean sendcenterview = false;
    int speed;
    int tspeed;
    int forward;
    int side;
    int newweapon;            // phares
-   int updownangle = 0;
+   int look = 0; 
    int mlook = 0;
    static int prevmlook = 0;
    ticcmd_t *base;
@@ -357,6 +346,16 @@ void G_BuildTiccmd(ticcmd_t* cmd)
    // except in demo_compatibility mode.
    //
    // killough 3/26/98, 4/2/98: fix autoswitch when no weapons are left
+
+   //
+   // NETCODE_FIXME -- WEAPON_FIXME
+   //
+   // In order to later support dynamic weapons, the way weapon
+   // changes are handled is going to have to be different from
+   // either of the old systems. Packing weapon changes into the ticcmd
+   // isn't going to be sufficient any more, there's not enough space
+   // to support more than 16 weapons.
+   //
  
    if((!demo_compatibility && players[consoleplayer].attackdown &&
        !P_CheckAmmo(&players[consoleplayer])) || action_nextweapon)
@@ -502,34 +501,44 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       oldmousey = mousey2;
    }
 
-   if(mlook && invert_mouse)
-      tmousey = -tmousey;
-   
+   // YSHEAR_FIXME: add arrow keylook, joystick look?
+
    if(mlook)
    {
-      updownangle += tmousey;      // mlook
+      // YSHEAR_FIXME: provide separate mlook speed setting?
+      int lookval = tmousey * 16 / ticdup;
+      if(invert_mouse)
+         look -= lookval;
+      else
+         look += lookval;
    }
    else
    {                // just stopped mlooking?
-      // haleyjd 09/06/02: center view appropriately
+      // YSHEAR_FIXME: make lookspring configurable
       if(prevmlook)
-      {
-         G_CenterView();
-         updownangle = 0;
-      }
+         sendcenterview = true;
+
       forward += tmousey;
    }
 
    prevmlook = mlook;
    
    if(action_lookup)
-      updownangle += keylookspeed;
+      look += lookspeed[speed];
    if(action_lookdown)
-      updownangle -= keylookspeed;
+      look -= lookspeed[speed];
    if(action_center)
+      sendcenterview = true;
+
+   // haleyjd: special value for view centering
+   if(sendcenterview)
+      look = -32768;
+   else
    {
-      G_CenterView();
-      updownangle = 0;
+      if(look > 32767)
+         look = 32767;
+      else if(look < -32767)
+         look = -32767;
    }
 
    if(strafe)
@@ -547,14 +556,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
    else if(side < -MAXPLMOVE)
       side = -MAXPLMOVE;
 
-   if(updownangle > 127) 
-      updownangle = 127;
-   if(updownangle < -127) 
-      updownangle = -127;
-
    cmd->forwardmove += forward;
    cmd->sidemove += side;
-   cmd->updownangle = updownangle;
+   cmd->look = look;
 
    // special buttons
    if(sendpause)
@@ -658,11 +662,6 @@ static void G_DoLoadLevel(void)
       return;
    }
 
-   // haleyjd 04/11/03: this must be called here, NOT above in
-   // P_SetupLevel
-   // 12/27/03: Turns out this was caused by the code above
-   // that zeroes frags being moved. Oh well, it still works here.
-
    HU_FragsUpdate();
 
    if(!netgame || demoplayback)
@@ -679,8 +678,7 @@ static void G_DoLoadLevel(void)
    mousex = mousey = 0;
    sendpause = sendsave = paused = false;
    memset(mousebuttons, 0, sizeof(mousebuttons));
-   // haleyjd: joybuttons is obsolete
-   // memset(joybuttons, 0, sizeof(joybuttons));
+   G_ClearKeyStates(); // haleyjd 05/20/05: all bindings off
 
    // killough: make -timedemo work on multilevel demos
    // Move to end of function to minimize noise -- killough 2/22/98:
@@ -720,7 +718,7 @@ boolean G_Responder(event_t* ev)
    // killough 11/98: don't autorepeat spy mode switch
 
    if(ev->data1 == key_spy && netgame && 
-      (demoplayback || !(GameType == gt_dm)) && gamestate == GS_LEVEL)
+      (demoplayback || GameType != gt_dm) && gamestate == GS_LEVEL)
    {
       if(ev->type == ev_keyup)
          gamekeydown[key_spy] = false;
@@ -821,7 +819,7 @@ boolean G_Responder(event_t* ev)
      return true;
    }
 #endif
-   switch (ev->type)
+   switch(ev->type)
    {
    case ev_keydown:
       if(ev->data1 == key_pause) // phares
@@ -847,7 +845,7 @@ boolean G_Responder(event_t* ev)
       mousebuttons[1] = ev->data1 & 2;
       mousebuttons[2] = ev->data1 & 4;
       mousex = (ev->data2*(mouseSensitivity_horiz*4))/10;  // killough
-      mousey = (ev->data3*(mouseSensitivity_vert))/30; //sf: vert made slower
+      mousey = (ev->data3*(mouseSensitivity_vert*4))/10;   // haleyjd 05/30/05: fixed
       return true;    // eat events
       
    case ev_joystick:
@@ -869,6 +867,20 @@ boolean G_Responder(event_t* ev)
 
 #define DEMOMARKER    0x80
 
+//
+// NETCODE_FIXME -- DEMO_FIXME
+//
+// In order to allow console commands and the such in demos, the demo
+// reading system will require major modifications. In order to support
+// old demos too, it will probably be necessary to split this function
+// off into one that handles the old format and one that handles the
+// new. Once demos contain things other than just ticcmds, they get
+// a lot more complicated. The new demo format will also have to deal
+// with ticcmd packing. It will make demos smaller, but will require
+// use of the same functions needed by the netcode to pack/unpack
+// ticcmds.
+//
+
 static void G_ReadDemoTiccmd(ticcmd_t *cmd)
 {
    if(*demo_p == DEMOMARKER)
@@ -882,12 +894,21 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd)
       cmd->angleturn = ((unsigned char)*demo_p++)<<8;
       cmd->buttons = (unsigned char)*demo_p++;
       
-      // haleyjd: this is stored in demos starting with version
-      // 3.29 beta 4
-      if(demo_version >= 329)
-         cmd->updownangle = ((signed char)*demo_p++);
+      if(demo_version >= 333)
+      {
+         cmd->look  =  *demo_p++;
+         cmd->look |= (*demo_p++) << 8;
+      }
+      else if(demo_version >= 329)
+      {
+         // haleyjd: 329 and 331 store updownangle, but we can't use
+         // it any longer. Demos recorded with mlook will desync, 
+         // but ones without can still play with this here.
+         ++demo_p;
+         cmd->look = 0;
+      }
       else
-         cmd->updownangle = 0;
+         cmd->look = 0;
       
       // killough 3/26/98, 10/98: Ignore savegames in demos 
       if(demoplayback && 
@@ -904,15 +925,26 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd)
 //
 // Demo limits removed -- killough
 //
+//
+// NETCODE_FIXME: This will have to change as well, but maintaining
+// compatibility is not necessary for demo writing, making this function
+// much simpler to handle. Like reading, writing of other types of
+// commands and ticcmd packing must be handled here for the new demo
+// format. The way the demo buffer grows is also sensitive and will
+// have to be changed, otherwise the buffer may be overflowed before
+// it checks for another reallocation. zdoom changes this, so I know
+// it is an issue.
+//
 static void G_WriteDemoTiccmd(ticcmd_t* cmd)
 {
-   int position = demo_p - demobuffer;
+   unsigned int position = demo_p - demobuffer;
    
    demo_p[0] = cmd->forwardmove;
    demo_p[1] = cmd->sidemove;
    demo_p[2] = (cmd->angleturn + 128) >> 8;
    demo_p[3] = cmd->buttons;  
-   demo_p[4] = cmd->updownangle; // haleyjd: record updownangle
+   demo_p[4] = cmd->look & 0xff;
+   demo_p[5] = (cmd->look >> 8) & 0xff;
    
    if(position+16 > maxdemosize)   // killough 8/23/98
    {
@@ -969,6 +1001,15 @@ static void G_PlayerFinishLevel(int player)
    p->bonuscount = 0;
 }
 
+//
+// G_SetDOOMNextMap
+//
+// Function called via function pointer array "NextMapFuncs" when
+// in DOOM or DOOM II mode. Sets default next map or secret map.
+// Note that exiting with a secret line on maps that don't normally
+// have a secret exit will cause the same map to be replayed. MapInfo
+// can override this behavior by setting the nextsecret variable.
+//
 static void G_SetDOOMNextMap(void)
 {
    // wminfo.next is 0 biased, unlike gamemap
@@ -1009,7 +1050,7 @@ static void G_SetDOOMNextMap(void)
          if(gamemap == 9)
          {
             // returning from secret level
-            switch (gameepisode)
+            switch(gameepisode)
             {
             case 1:
                wminfo.next = 3;
@@ -1031,6 +1072,12 @@ static void G_SetDOOMNextMap(void)
    }
 }
 
+//
+// G_SetHticNextMap
+//
+// Function called via function pointer array "NextMapFuncs" when
+// in Heretic mode. Sets default next map or secret map.
+//
 static void G_SetHticNextMap(void)
 {
    // haleyjd 10/15/02: Heretic secrets
@@ -1043,7 +1090,7 @@ static void G_SetHticNextMap(void)
       if(gamemap == 9)
       {
          // returning from secret level
-         switch (gameepisode)
+         switch(gameepisode)
          {
          case 1:
             wminfo.next = 6;
@@ -1067,6 +1114,15 @@ static void G_SetHticNextMap(void)
    }
 }
 
+//
+// NextMapFuncs
+//
+// haleyjd: This function pointer array contains the above functions,
+// one per gamemode type, that set the next map or next secret map
+// default values appropriately. This is much better than combining
+// them all into one big mess with a hundred branches.
+//
+
 typedef void (*nextfunc_t)(void);
 
 static nextfunc_t NextMapFuncs[NumGameModeTypes] =
@@ -1077,6 +1133,9 @@ static nextfunc_t NextMapFuncs[NumGameModeTypes] =
 
 //
 // G_DoCompleted
+//
+// Called upon level completion. Figures out what map is next and
+// starts the intermission.
 //
 static void G_DoCompleted(void)
 {
@@ -1110,6 +1169,7 @@ static void G_DoCompleted(void)
       }
    }
 
+   wminfo.gotosecret = secretexit; // haleyjd
    wminfo.didsecret = players[consoleplayer].didsecret;
    wminfo.epsd = gameepisode - 1;
    wminfo.last = gamemap - 1;
@@ -1117,33 +1177,38 @@ static void G_DoCompleted(void)
    // set the next gamemap
    (NextMapFuncs[gameModeInfo->type])();
 
-   // haleyjd: override with mapinfo values (restructured)
-   if(*LevelInfo.nextLevel && !secretexit)
+   // haleyjd: override with MapInfo values
+   if(!secretexit)
    {
-      wminfo.next = G_GetMapForName(LevelInfo.nextLevel);
-      if(gamemode != commercial)
-         wminfo.next = wminfo.next % 10;
-      wminfo.next--;
+      if(*LevelInfo.nextLevel) // only for normal exit
+      {
+         wminfo.next = G_GetMapForName(LevelInfo.nextLevel);
+         if(gamemode != commercial)
+            wminfo.next = wminfo.next % 10;
+         wminfo.next--;
+      }
+   }
+   else
+   {
+      if(*LevelInfo.nextSecret) // only for secret exit
+      {
+         wminfo.next = G_GetMapForName(LevelInfo.nextSecret);
+         if(gamemode != commercial)
+            wminfo.next = wminfo.next % 10;
+         wminfo.next--;
+      }
    }
 
-   if(*LevelInfo.nextSecret && secretexit) // only for secret exit!
-   {
-      wminfo.next = G_GetMapForName(LevelInfo.nextSecret);
-      if(gamemode != commercial)
-         wminfo.next = wminfo.next % 10;
-      wminfo.next--;
-   }
-
-   wminfo.maxkills = totalkills;
-   wminfo.maxitems = totalitems;
+   wminfo.maxkills  = totalkills;
+   wminfo.maxitems  = totalitems;
    wminfo.maxsecret = totalsecret;
-   wminfo.maxfrags = 0;
+   wminfo.maxfrags  = 0;
 
    wminfo.partime = LevelInfo.partime; // haleyjd 07/22/04
 
    wminfo.pnum = consoleplayer;
 
-   for(i = 0; i < MAXPLAYERS; i++)
+   for(i = 0; i < MAXPLAYERS; ++i)
    {
       wminfo.plyr[i].in      = playeringame[i];
       wminfo.plyr[i].skills  = players[i].killcount;
@@ -1177,19 +1242,21 @@ static void G_DoWorldDone(void)
    }
    
    // haleyjd: customizable secret exits
-   if(*LevelInfo.nextSecret && secretexit)
+   if(secretexit)
    {
-      G_SetGameMapName(LevelInfo.nextSecret);
+      if(*LevelInfo.nextSecret)
+         G_SetGameMapName(LevelInfo.nextSecret);
+      else
+         G_SetGameMapName(G_GetNameForMap(gameepisode, gamemap));
    }
    else
    {
       // haleyjd 12/14/01: don't use nextlevel for secret exits here
       // either!
-      char *lvlname =
-        *LevelInfo.nextLevel && !secretexit ? LevelInfo.nextLevel :
-                   G_GetNameForMap(gameepisode, gamemap);
-
-      G_SetGameMapName(lvlname);
+      if(*LevelInfo.nextLevel)
+         G_SetGameMapName(LevelInfo.nextLevel);
+      else
+         G_SetGameMapName(G_GetNameForMap(gameepisode, gamemap));
    }
    
    hub_changelevel = false;
@@ -1206,6 +1273,19 @@ static void G_DoWorldDone(void)
 #define MIN_MAXPLAYERS 32
 
 static char *defdemoname;
+
+//
+// NETCODE_FIXME -- DEMO_FIXME
+//
+// More demo-related stuff here, for playing back demos. Will need more
+// version detection to detect the new non-homogeneous demo format.
+// Use of G_ReadOptions also impacts the configuration, netcode, 
+// console, etc. G_ReadOptions and G_WriteOptions are, as indicated in
+// one of Lee's comments, designed to be able to transmit initial
+// variable values during netgame arbitration. I don't know if this
+// avenue should be pursued but it might be a good idea. The current
+// system being used to send them at startup is garbage.
+//
 
 static void G_DoPlayDemo(void)
 {
@@ -1283,6 +1363,9 @@ static void G_DoPlayDemo(void)
       // haleyjd 05/23/04: autoaim is sync-critical
       default_autoaim = autoaim;
       autoaim = 1;
+
+      default_allowmlook = allowmlook;
+      allowmlook = 0;
 
       // killough 3/6/98: rearrange to fix savegame bugs (moved fastparm,
       // respawnparm, nomonsters flags to G_LoadOptions()/G_SaveOptions())
@@ -2204,7 +2287,7 @@ static boolean G_CheckSpot(int playernum, mapthing_t *mthing)
       static mobj_t **bodyque;
       static size_t queuesize;
 
-      if(queuesize < bodyquesize)
+      if(queuesize < (unsigned)bodyquesize)
       {
          bodyque = realloc(bodyque, bodyquesize*sizeof*bodyque);
          memset(bodyque+queuesize, 0, 
@@ -2493,6 +2576,8 @@ void G_ReloadDefaults(void)
 
   autoaim = default_autoaim;
 
+  allowmlook = default_allowmlook;
+
   monkeys = default_monkeys;
 
   bfgtype = default_bfgtype;               // killough 7/19/98
@@ -2750,6 +2835,11 @@ void G_InitNew(skill_t skill, char *name)
 // G_RecordDemo
 //
 
+//
+// NETCODE_FIXME -- DEMO_FIXME: See the comment above where demos
+// are read. Some of the same issues may apply here.
+//
+
 void G_RecordDemo(char *name)
 {
    int i;
@@ -2780,206 +2870,205 @@ void G_RecordDemo(char *name)
 // byte(s) should still be skipped over or padded with 0's.
 // Lee Killough 3/1/98
 
+// NETCODE_FIXME -- DEMO_FIXME -- SAVEGAME_FIXME: G_ReadOptions/G_WriteOptions
+// These functions are going to be very important. The way they work may
+// need to be altered for the new demo format too, although this must be
+// done carefully so as to preserve demo compatibility with previous
+// versions.
+
 byte *G_WriteOptions(byte *demo_p)
 {
-  byte *target = demo_p + GAME_OPTION_SIZE;
+   byte *target = demo_p + GAME_OPTION_SIZE;
+   
+   *demo_p++ = monsters_remember;  // part of monster AI -- byte 1
+   
+   *demo_p++ = variable_friction;  // ice & mud -- byte 2
+   
+   *demo_p++ = weapon_recoil;      // weapon recoil -- byte 3
+   
+   *demo_p++ = allow_pushers;      // PUSH Things -- byte 4
+   
+   *demo_p++ = 0;                  // ??? unused -- byte 5
+   
+   *demo_p++ = player_bobbing;     // whether player bobs or not -- byte 6
+   
+   // killough 3/6/98: add parameters to savegame, move around some in demos
+   *demo_p++ = respawnparm; // byte 7
+   *demo_p++ = fastparm;    // byte 8
+   *demo_p++ = nomonsters;  // byte 9
+   
+   *demo_p++ = demo_insurance;        // killough 3/31/98 -- byte 10
+   
+   // killough 3/26/98: Added rngseed. 3/31/98: moved here
+   *demo_p++ = (byte)((rngseed >> 24) & 0xff); // byte 11
+   *demo_p++ = (byte)((rngseed >> 16) & 0xff); // byte 12
+   *demo_p++ = (byte)((rngseed >>  8) & 0xff); // byte 13
+   *demo_p++ = (byte)( rngseed        & 0xff); // byte 14
+   
+   // Options new to v2.03 begin here
+   *demo_p++ = monster_infighting;   // killough 7/19/98 -- byte 15
+   
+   *demo_p++ = dogs;                 // killough 7/19/98 -- byte 16
+   
+   *demo_p++ = bfgtype;              // killough 7/19/98 -- byte 17
+   
+   *demo_p++ = 0;                    // unused - (beta mode) -- byte 18
+   
+   *demo_p++ = (distfriend >> 8) & 0xff;  // killough 8/8/98 -- byte 19  
+   *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98 -- byte 20
+   
+   *demo_p++ = monster_backing;           // killough 9/8/98 -- byte 21
+   
+   *demo_p++ = monster_avoid_hazards;     // killough 9/9/98 -- byte 22
+   
+   *demo_p++ = monster_friction;          // killough 10/98  -- byte 23
+   
+   *demo_p++ = help_friends;              // killough 9/9/98 -- byte 24
+   
+   *demo_p++ = dog_jumping; // byte 25
+   
+   *demo_p++ = monkeys;     // byte 26
+   
+   {   // killough 10/98: a compatibility vector now
+      int i;
+      for (i=0; i < COMP_TOTAL; i++)
+         *demo_p++ = comp[i] != 0;
+   }
+   // bytes 27 - 58 : comp
+   
+   // haleyjd 05/23/04: autoaim is sync critical
+   *demo_p++ = autoaim; // byte 59
 
-  *demo_p++ = monsters_remember;  // part of monster AI
+   // haleyjd 04/06/05: allowmlook is sync critical
+   *demo_p++ = allowmlook; // byte 60
+   
+   // CURRENT BYTES LEFT: 4
 
-  *demo_p++ = variable_friction;  // ice & mud
-
-  *demo_p++ = weapon_recoil;      // weapon recoil
-
-  *demo_p++ = allow_pushers;      // PUSH Things
-
-  *demo_p++ = 0;
-
-  *demo_p++ = player_bobbing;  // whether player bobs or not
-
-  // killough 3/6/98: add parameters to savegame, move around some in demos
-  *demo_p++ = respawnparm;
-  *demo_p++ = fastparm;
-  *demo_p++ = nomonsters;
-
-  *demo_p++ = demo_insurance;        // killough 3/31/98
-
-  // killough 3/26/98: Added rngseed. 3/31/98: moved here
-  *demo_p++ = (byte)((rngseed >> 24) & 0xff);
-  *demo_p++ = (byte)((rngseed >> 16) & 0xff);
-  *demo_p++ = (byte)((rngseed >>  8) & 0xff);
-  *demo_p++ = (byte)( rngseed        & 0xff);
-
-  // Options new to v2.03 begin here
-  *demo_p++ = monster_infighting;   // killough 7/19/98
-
-  *demo_p++ = dogs;                 // killough 7/19/98
-
-  *demo_p++ = bfgtype;          // killough 7/19/98
-
-
-  demo_p++ ;   //sf: remove beta emulation but keep space
-
-  *demo_p++ = (distfriend >> 8) & 0xff;  // killough 8/8/98  
-  *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98  
-
-  *demo_p++ = monster_backing;         // killough 9/8/98
-
-  *demo_p++ = monster_avoid_hazards;    // killough 9/9/98
-
-  *demo_p++ = monster_friction;         // killough 10/98
-
-  *demo_p++ = help_friends;             // killough 9/9/98
-
-  *demo_p++ = dog_jumping;
-
-  *demo_p++ = monkeys;
-
-  {   // killough 10/98: a compatibility vector now
-    int i;
-    for (i=0; i < COMP_TOTAL; i++)
-      *demo_p++ = comp[i] != 0;
-  }
-
-  // haleyjd 05/23/04: autoaim is sync critical
-  *demo_p++ = autoaim;
-
-  //----------------
-  // Padding at end
-  //----------------
-  while (demo_p < target)
-    *demo_p++ = 0;
-
-  if (demo_p != target)
-    I_Error("G_WriteOptions: GAME_OPTION_SIZE is too small");
-
-  return target;
+   //----------------
+   // Padding at end
+   //----------------
+   while(demo_p < target)
+      *demo_p++ = 0;
+   
+   if(demo_p != target)
+      I_Error("G_WriteOptions: GAME_OPTION_SIZE is too small");
+   
+   return target;
 }
 
 // Same, but read instead of write
 
 byte *G_ReadOptions(byte *demo_p)
 {
-  byte *target = demo_p + GAME_OPTION_SIZE;
+   byte *target = demo_p + GAME_OPTION_SIZE;
+   
+   monsters_remember = *demo_p++;
+   
+   variable_friction = *demo_p;  // ice & mud
+   demo_p++;
+   
+   weapon_recoil = *demo_p;      // weapon recoil
+   demo_p++;
+   
+   allow_pushers = *demo_p;      // PUSH Things
+   demo_p++;
+   
+   demo_p++;
+   
+   // haleyjd: restored bobbing to proper sync critical status
+   player_bobbing = *demo_p;     // whether player bobs or not
+   demo_p++;
 
-  monsters_remember = *demo_p++;
+   // killough 3/6/98: add parameters to savegame, move from demo
+   respawnparm = *demo_p++;
+   fastparm = *demo_p++;
+   nomonsters = *demo_p++;
+   
+   demo_insurance = *demo_p++;              // killough 3/31/98
 
-  variable_friction = *demo_p;  // ice & mud
-  demo_p++;
+   // killough 3/26/98: Added rngseed to demos; 3/31/98: moved here
+   
+   rngseed  = *demo_p++ & 0xff;
+   rngseed <<= 8;
+   rngseed += *demo_p++ & 0xff;
+   rngseed <<= 8;
+   rngseed += *demo_p++ & 0xff;
+   rngseed <<= 8;
+   rngseed += *demo_p++ & 0xff;
 
-  weapon_recoil = *demo_p;       // weapon recoil
-  demo_p++;
+   // Options new to v2.03
+   if(demo_version >= 203)
+   {
+      monster_infighting = *demo_p++;   // killough 7/19/98
+      
+      dogs = *demo_p++;                 // killough 7/19/98
+      
+      bfgtype = *demo_p++;          // killough 7/19/98
+      demo_p ++;        // sf: where beta was
+      
+      distfriend = *demo_p++ << 8;      // killough 8/8/98
+      distfriend+= *demo_p++;
+      
+      monster_backing = *demo_p++;     // killough 9/8/98
+      
+      monster_avoid_hazards = *demo_p++; // killough 9/9/98
+      
+      monster_friction = *demo_p++;      // killough 10/98
+      
+      help_friends = *demo_p++;          // killough 9/9/98
+      
+      dog_jumping = *demo_p++;           // killough 10/98
+      
+      monkeys = *demo_p++;
+      
+      {   // killough 10/98: a compatibility vector now
+         int i;
+         for(i = 0; i < COMP_TOTAL; ++i)
+            comp[i] = *demo_p++;
+      }
+     
+      // Options new to v2.04, etc.
+      if(demo_version >= 331)
+      {
+         // haleyjd 05/23/04: autoaim is sync-critical
+         if(demo_version > 331 || demo_subversion > 7)
+            autoaim = *demo_p++;
+      }
 
-  allow_pushers = *demo_p;      // PUSH Things
-  demo_p++;
+      if(demo_version >= 333)
+      {
+         // haleyjd 04/06/05: allowmlook is sync-critical
+         allowmlook = *demo_p++;
+      }
+   }
+   else  // defaults for versions < 2.02
+   {
+      int i;  // killough 10/98: a compatibility vector now
+      for(i = 0; i < COMP_TOTAL; ++i)
+         comp[i] = compatibility;
+      
+      monster_infighting = 1;           // killough 7/19/98
+      
+      monster_backing = 0;              // killough 9/8/98
+      
+      monster_avoid_hazards = 0;        // killough 9/9/98
+      
+      monster_friction = 0;             // killough 10/98
+      
+      help_friends = 0;                 // killough 9/9/98
+      
+      bfgtype = bfg_normal;                  // killough 7/19/98
+      
+      dogs = 0;                         // killough 7/19/98
+      dog_jumping = 0;                  // killough 10/98
+      monkeys = 0;
+      
+      default_autoaim = autoaim;
+      autoaim = 1;
 
-  demo_p++;
-
-
-        //sf: remove player bobbing
-        // haleyjd: put it back
-  player_bobbing = *demo_p;     // whether player bobs or not
-  demo_p++;
-
-  // killough 3/6/98: add parameters to savegame, move from demo
-  respawnparm = *demo_p++;
-  fastparm = *demo_p++;
-  nomonsters = *demo_p++;
-
-  demo_insurance = *demo_p++;              // killough 3/31/98
-
-  // killough 3/26/98: Added rngseed to demos; 3/31/98: moved here
-
-  rngseed  = *demo_p++ & 0xff;
-  rngseed <<= 8;
-  rngseed += *demo_p++ & 0xff;
-  rngseed <<= 8;
-  rngseed += *demo_p++ & 0xff;
-  rngseed <<= 8;
-  rngseed += *demo_p++ & 0xff;
-
-  // Options new to v2.03
-  if(demo_version >= 203)
-  {
-     monster_infighting = *demo_p++;   // killough 7/19/98
-     
-     dogs = *demo_p++;                 // killough 7/19/98
-     
-     bfgtype = *demo_p++;          // killough 7/19/98
-     demo_p ++;        // sf: where beta was
-     
-     distfriend = *demo_p++ << 8;      // killough 8/8/98
-     distfriend+= *demo_p++;
-     
-     monster_backing = *demo_p++;     // killough 9/8/98
-     
-     monster_avoid_hazards = *demo_p++; // killough 9/9/98
-     
-     monster_friction = *demo_p++;      // killough 10/98
-     
-     help_friends = *demo_p++;          // killough 9/9/98
-     
-     dog_jumping = *demo_p++;           // killough 10/98
-     
-     monkeys = *demo_p++;
-     
-     {   // killough 10/98: a compatibility vector now
-        int i;
-        for(i=0; i < COMP_TOTAL; i++)
-        {
-           // haleyjd: FIXME: comp_dummy2 had a
-           // different meaning prior to v3.31 beta 2. If it
-           // is reused, contingency code must be placed here!
-           if(i == comp_soul)
-           {
-              // this flag was used for colormaps in 
-              // Eternity v3.29, and thus its value in older
-              // demos should be ignored
-              if(demo_version < 331)
-              {
-                 comp[i] = 1;
-                 demo_p++;    // 08/28/03: still need to move past it!
-              }
-              else
-                 comp[i] = *demo_p++;
-           }
-           else
-              comp[i] = *demo_p++;
-        }
-     }
-     
-     // Options new to v2.04, etc.
-     if(demo_version >= 331)
-     {
-        // haleyjd 05/23/04: autoaim is sync-critical
-        if(demo_version > 331 || demo_subversion > 7)
-           autoaim = *demo_p++;
-     }
-  }
-  else  // defaults for versions < 2.02
-  {
-     int i;  // killough 10/98: a compatibility vector now
-     for (i=0; i < COMP_TOTAL; i++)
-        comp[i] = compatibility;
-
-     monster_infighting = 1;           // killough 7/19/98
-     
-     monster_backing = 0;              // killough 9/8/98
-     
-     monster_avoid_hazards = 0;        // killough 9/9/98
-     
-     monster_friction = 0;             // killough 10/98
-     
-     help_friends = 0;                 // killough 9/9/98
-     
-     bfgtype = bfg_normal;                  // killough 7/19/98
-     
-     dogs = 0;                         // killough 7/19/98
-     dog_jumping = 0;                  // killough 10/98
-     monkeys = 0;
-     
-     default_autoaim = autoaim;
-     autoaim = 1;
-  }
+      default_allowmlook = allowmlook;
+      allowmlook = 0;
+   }
   
   return target;
 }
@@ -3001,6 +3090,7 @@ byte *G_ReadOptions(byte *demo_p)
   However, only new Eternity-format demos can be written, and these
   will not be compatible with other engines.
 */
+// NETCODE_FIXME -- DEMO_FIXME: Yet more demo writing.
 
 void G_BeginRecording(void)
 {
@@ -3294,7 +3384,7 @@ void G_CoolViewPoint(void)
       intercam.x = cam->x;
       intercam.y = cam->y;
       intercam.angle = cam->angle;
-      intercam.updownangle = 0;
+      intercam.pitch = 0;
       
       // haleyjd: fix for deep water sectors
       {
@@ -3379,11 +3469,11 @@ static cell AMX_NATIVE_CALL sm_gametype(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO game_Natives[] =
 {
-   { "G_ExitLevel",  sm_exitlevel },
-   { "G_ExitSecret", sm_exitsecret },
-   { "G_StartGame",  sm_startgame },
-   { "G_GameSkill",  sm_gameskill },
-   { "G_GameType",   sm_gametype },
+   { "_ExitLevel",  sm_exitlevel },
+   { "_ExitSecret", sm_exitsecret },
+   { "_StartGame",  sm_startgame },
+   { "_GameSkill",  sm_gameskill },
+   { "_GameType",   sm_gametype },
    { NULL, NULL }
 };
 

@@ -131,6 +131,77 @@ static void V_BlockDrawerS(int x, int y, VBuffer *buffer, int width, int height,
 }
 
 //
+// Color block drawing
+//
+
+//
+// V_ColorBlock
+//
+// Draws a block of solid color.
+//
+void V_ColorBlock(VBuffer *buffer, byte color, int x, int y, int w, int h)
+{
+   byte *dest;
+
+#ifdef RANGECHECK
+   if(x < 0 || x + w > buffer->width || y < 0 || y + h > buffer->height)
+      I_Error("V_ColorBlock: block exceeds buffer boundaries.\n");
+#endif
+
+   dest = buffer->data + y * buffer->pitch + x;
+   
+   while(h--)
+   {
+      memset(dest, color, w);
+      dest += buffer->pitch;
+   }
+}
+
+//
+// V_ColorBlockTL
+//
+// Draws a block of solid color with alpha blending.
+//
+void V_ColorBlockTL(VBuffer *buffer, byte color, int x, int y, 
+                    int w, int h, int tl)
+{
+   byte *dest;
+   register int tw;
+   register unsigned int col;
+   unsigned int *fg2rgb, *bg2rgb;
+
+#ifdef RANGECHECK
+   if(x < 0 || x + w > buffer->width || y < 0 || y + h > buffer->height)
+      I_Error("V_ColorBlockTL: block exceeds buffer boundaries.\n");
+#endif
+
+   {
+      fixed_t fglevel, bglevel;
+
+      fglevel = tl & ~0x3ff;
+      bglevel = FRACUNIT - fglevel;
+      fg2rgb  = Col2RGB[fglevel >> 10];
+      bg2rgb  = Col2RGB[bglevel >> 10];
+   }
+
+   dest = buffer->data + y * buffer->pitch + x;
+   
+   while(h--)
+   {
+      byte *row = dest;      
+      tw = w;
+
+      while(tw--)
+      {
+         col     = (fg2rgb[color] + bg2rgb[*row]) | 0xf07c3e1f;
+         *row++ = RGB8k[0][0][(col >> 5) & (col >> 19)];
+      }
+
+      dest += buffer->pitch;
+   }
+}
+
+//
 // V_TileFlat implementors
 //
 
@@ -231,6 +302,12 @@ static void V_TileBlock64S(VBuffer *buffer, byte *src)
    }
 }
 
+//
+// V_SetBlockFuncs
+//
+// Sets the block drawing function pointers in a VBuffer object
+// based on the size of the buffer. Called from V_SetupBufferFuncs.
+//
 void V_SetBlockFuncs(VBuffer *buffer, int drawtype)
 {
    switch(drawtype)

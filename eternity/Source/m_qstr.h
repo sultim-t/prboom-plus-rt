@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// Copyright(C) 2004 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef M_QSTR_H
-#define M_QSTR_H
+#ifndef M_QSTR_H__
+#define M_QSTR_H__
 
 typedef struct qstring_s
 {
@@ -44,6 +44,7 @@ typedef struct qstring_s
 } qstring_t;
 
 qstring_t *M_QStrInitCreate(qstring_t *qstr);
+qstring_t *M_QStrCreateSize(qstring_t *qstr, unsigned int size);
 qstring_t *M_QStrCreate(qstring_t *qstr);
 unsigned int M_QStrLen(qstring_t *qstr);
 unsigned int M_QStrSize(qstring_t *qstr);
@@ -54,6 +55,8 @@ void M_QStrFree(qstring_t *qstr);
 char M_QStrCharAt(qstring_t *qstr, unsigned int idx);
 qstring_t *M_QStrPutc(qstring_t *qstr, char ch);
 qstring_t *M_QStrCat(qstring_t *qstr, const char *str);
+qstring_t *M_QStrUpr(qstring_t *qstr);
+qstring_t *M_QStrLwr(qstring_t *qstr);
 
 #endif
 

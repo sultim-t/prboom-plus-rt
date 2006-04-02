@@ -23,28 +23,32 @@
 #define __HU_STUFF_H__
 
 #include "d_event.h"
-#include "v_video.h"
 
-#define MAXHUDMESSAGES 16
-
-#define MAXWIDGETS 16
-
-typedef struct textwidget_s textwidget_t;
-
-// haleyjd: architecture alteration:
-// made handler take a pointer to its widget for 
-// self-referencing purposes -- seems silly at first but it
-// creates an interface-style functionality allowing several
-// widgets to be handled by the same code (less explosion)
-
-struct textwidget_s
+enum
 {
-  int x, y;       // co-ords on screen
-  int font;       // 0 = normal red text 1 = heads up font
-  char *message;
-  void (*handler)(struct textwidget_s *widget);      // controller function
-  int cleartic;   // gametic in which to clear the widget (0=never)
+   WIDGET_MISC,
+   WIDGET_PATCH,
+   WIDGET_TEXT,
 };
+
+// haleyjd 06/04/05: HUD rewrite
+
+typedef struct hu_widget_s
+{
+   // overridable functions (virtuals in a sense)
+
+   void (*ticker)(struct hu_widget_s *); // ticker: called each gametic
+   void (*drawer)(struct hu_widget_s *); // drawer: called when drawn
+   void (*eraser)(struct hu_widget_s *); // eraser: called when erased
+   void (*clear) (struct hu_widget_s *); // clear : called on reinit
+
+   // id data
+   int type;                 // widget type
+   char name[33];            // name of this widget
+   struct hu_widget_s *next; // next in hash chain
+   boolean disabled;         // disable flag
+   boolean prevdisabled;     // previous state of disable flag
+} hu_widget_t;
 
 extern int show_vpo;
 extern boolean chat_on;
@@ -54,26 +58,21 @@ extern int showMessages;   // Show messages has default, 0 = off, 1 = on
 extern int mess_colour;    // the colour of normal messages
 extern char *chat_macros[10];
 
-void HU_Init();
-void HU_Drawer();
-void HU_Ticker();
+void HU_Init(void);
+void HU_Drawer(void);
+void HU_Ticker(void);
 boolean HU_Responder(event_t *ev);
-void HU_NewLevel();
 
-void HU_Start();
+void HU_Start(void);
 
 void HU_WriteText(const char *s, int x, int y);
-void HU_PlayerMsg(char *s);
+void HU_PlayerMsg(const char *s);
 void HU_CenterMessage(const char *s);
-void HU_CentreMsgTimed(char *s, int clocks);
-void HU_Erase();
+void HU_Erase(void);
 
 #define CROSSHAIRS 3
 extern int crosshairnum;       // 0= none
-void HU_CrossHairDraw();
-void HU_CrossHairInit();
-void HU_CrossHairTick();
-void HU_CrossHairConsole();
+extern boolean crosshair_hilite;
 
 #endif
 

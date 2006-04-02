@@ -1,7 +1,7 @@
 /* Configuration file parser -*- tab-width: 4; -*-
  *
  * Copyright (c) 2002-2003, Martin Hedenfalk <mhe@home.se>
- * Modifications for Eternity Copyright (c) 2003 James Haley
+ * Modifications for Eternity Copyright (c) 2005 James Haley
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -51,7 +51,8 @@ const char *confuse_version = PACKAGE_VERSION;
 const char *confuse_copyright = PACKAGE_STRING" by Martin Hedenfalk <mhe@home.se>";
 const char *confuse_author = "Martin Hedenfalk <mhe@home.se>";
 
-extern int cfg_lexer_include(cfg_t *cfg, const char *fname);
+// haleyjd: added data param
+extern int cfg_lexer_include(cfg_t *cfg, const char *fname, int data);
 
 #if defined(NDEBUG)
 #define cfg_assert(test) ((void)0)
@@ -252,6 +253,10 @@ cfg_t *cfg_getnsec(cfg_t *cfg, const char *name, unsigned int index)
    if(opt) 
    {
       cfg_assert(opt->type == CFGT_SEC);
+      if(!opt->values)
+      {
+         puts("opt->values is null!\n");
+      }
       cfg_assert(opt->values);
       cfg_assert(index < opt->nvalues);
       return opt->values[index]->section;
@@ -293,6 +298,10 @@ static cfg_value_t *cfg_addval(cfg_opt_t *opt)
 {
    opt->values = (cfg_value_t **)realloc(opt->values,
                                          (opt->nvalues+1) * sizeof(cfg_value_t *));
+   if(!opt->values)
+   {
+      puts("opt->values is null!\n");
+   }
    cfg_assert(opt->values);
    opt->values[opt->nvalues] = (cfg_value_t *)malloc(sizeof(cfg_value_t));
    memset(opt->values[opt->nvalues], 0, sizeof(cfg_value_t));
@@ -741,7 +750,14 @@ static int cfg_parse_internal(cfg_t *cfg, int level)
             int ret = call_function(cfg, opt, &funcopt);
             if(ret != 0)
                return STATE_ERROR;
-            state = 0;
+            // haleyjd 09/30/05: check for LOOKFORFUNC flag
+            if(is_set(CFGF_LOOKFORFUNC, cfg->flags))
+            {
+               found_func = cfg_false;
+               state = 10; // go to new "lookfor" state
+            }
+            else
+               state = 0;
          }
          else if(tok == CFGT_STR)
          {
@@ -832,7 +848,9 @@ cfg_t *cfg_init(cfg_opt_t *opts, cfg_flag_t flags)
    cfg->flags = flags;
    cfg->filename = 0;
    cfg->line = 0;
+   cfg->lumpnum = -1; // haleyjd
    cfg->errfunc = 0;
+   cfg->lookfor = NULL; // haleyjd
 
    // haleyjd: removed ENABLE_NLS
 
@@ -864,6 +882,8 @@ int cfg_parse(cfg_t *cfg, const char *filename)
    }
 
    cfg->line = 1;
+
+   cfg->lumpnum = -1; // haleyjd 07/20/05
 
    D_OpenFile(&dwfile, filename, "r");
    
@@ -913,10 +933,15 @@ int cfg_parselump(cfg_t *cfg, const char *lumpname)
 
    cfg->line = 1;
 
-   D_OpenLump(&dwfile, W_GetNumForName(cfg->filename));
+   cfg->lumpnum = W_GetNumForName(cfg->filename); // haleyjd 07/20/05
+
+   D_OpenLump(&dwfile, cfg->lumpnum);
    
    if(!D_IsOpen(&dwfile))
       return CFG_FILE_ERROR;
+
+   // haleyjd 02/28/05: woops, forgot this!
+   lexer_init();
    
    currentFile = &dwfile;
    ret = cfg_parse_internal(cfg, 0);
@@ -963,7 +988,7 @@ int cfg_include(cfg_t *cfg, cfg_opt_t *opt, int argc, const char **argv)
       return 1;
    }
    
-   return cfg_lexer_include(cfg, argv[0]);
+   return cfg_lexer_include(cfg, argv[0], -1); // haleyjd
 }
 
 // EOF

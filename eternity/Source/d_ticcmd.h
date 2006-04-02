@@ -29,6 +29,26 @@
 
 #include "doomtype.h"
 
+// NETCODE_FIXME: ticcmd_t lives here. It's the structure used to hold
+// all player input that can currently be transmitted across the network.
+// It is NOT sufficient for the following reasons:
+// 1) It cannot efficiently transmit console cmd/cvar changes
+// 2) It cannot efficiently transmit player chat (and never has)
+// 3) Weapon changes and special events are packed into buttons using
+//    special bit codes. This is hackish and artificially limiting, and
+//    will create severe problems for the future generalized weapon
+//    system.
+// 4) There is no packing currently, so the entire ticcmd_t structure
+//    is sent every tic, sometimes multiple times. This is horribly
+//    inefficient and is hampering the addition of more inputs such as
+//    flying, swimming, jumping, inventory use, etc.
+//
+// DEMO_FIXME: Warning -- changes to ticcmd_t must be reflected in the
+// code that reads and writes demos as well.
+// ticcmds are built in G_BuildTiccmd or by G_ReadDemoTiccmd
+// ticcmds are transmitted over the network by code in d_net.c
+//
+
 // The data sampled per tick (single player)
 // and transmitted to other peers (multiplayer).
 // Mainly movements/button commands per game tick,
@@ -37,7 +57,7 @@ typedef struct
 {
    char  forwardmove; // *2048 for move
    char  sidemove;    // *2048 for move
-   char  updownangle;
+   short look;        // haleyjd: <<16 for look delta
    short angleturn;   // <<16 for angle delta
    short consistancy; // checks for net game
    byte  chatchar;

@@ -89,6 +89,11 @@ void MN_ErrorMsg(const char *s, ...);
 
 #define MAXMENUITEMS 128
 
+// menu item flags
+
+#define MENUITEM_POSINIT 0x00000001
+#define MENUITEM_BIGFONT 0x00000002
+
 struct menuitem_s
 {
   // item types
@@ -96,39 +101,32 @@ struct menuitem_s
   {
     it_gap,              // empty line
     it_runcmd,           // run console command
-    it_hruncmd,          // haleyjd: a heretic-style cmd runner
     it_variable,         // variable
                          // enter pressed to type in new value
     it_toggle,           // togglable variable
                          // can use left/right to change value
     it_title,            // the menu title
     it_info,             // information / section header
-    it_hinfo,            // haleyjd: heretic-style info
     it_slider,           // slider
     it_automap,          // an automap colour
     it_binding,		 // haleyjd: a key binding
     it_end,              // last menuitem in the list
   } type;
   
-  // the describing name of this item
-  char *description;
+  char *description;  // the describing name of this item
 
   // useful data for the item:
   // console command if console
   // variable name if variable, etc
-
   char *data;         
 
-  // patch to use or NULL
-  char *patch;
+  char *patch; // patch to use or NULL
 
-                  /*** internal stuff used by menu code ***/
-                  // messing with this is a bad idea(prob)
+  int flags;   // haleyjd 03/29/05: menu item flags
+
+  /*** internal stuff used by menu code ***/
   int x, y;
   variable_t *var;        // ptr to console variable
-
-  // internal fields (haleyjd)
-  boolean posinit; // position has been initialized
 };
 
 struct menu_s

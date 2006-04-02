@@ -48,7 +48,9 @@ rcsid[] = "$Id: p_mobj.c,v 1.26 1998/05/16 00:24:12 phares Exp $";
 #include "d_gi.h"
 #include "p_user.h" 
 #include "g_dmflag.h"
-#include "e_edf.h"
+#include "e_states.h"
+#include "e_things.h"
+#include "e_ttypes.h"
 #include "e_exdata.h"
 #include "a_small.h"
 #include "d_dehtbl.h"
@@ -121,7 +123,7 @@ boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
    
    do
    {
-      if(state == E_NullState())
+      if(state == NullStateNum)
       {
          mobj->state = NULL;
          P_RemoveMobj(mobj);
@@ -189,7 +191,7 @@ void P_ExplodeMissile(mobj_t *mo)
    {
       if((mo->subsector->sector->ceilingpic == skyflatnum ||
          mo->subsector->sector->ceilingpic == sky2flatnum) &&
-         mo->z >= mo->subsector->sector->ceilingheight-mo->info->height)
+         mo->z >= mo->subsector->sector->ceilingheight-P_ThingInfoHeight(mo->info))
       {
          P_RemoveMobj(mo); // don't explode on the actual sky itself
          return;
@@ -558,7 +560,7 @@ static void P_ZMovement(mobj_t* mo)
       if (mo->z <= mo->floorz)                  // bounce off floors
       {
          mo->z = mo->floorz;
-         P_HitFloor(mo); // haleyjd
+         E_HitFloor(mo); // haleyjd
          if (mo->momz < 0)
          {
             mo->momz = -mo->momz;
@@ -712,30 +714,31 @@ floater:
             // after hitting the ground (hard),
             // and utter appropriate sound.
             
-            mo->player->deltaviewheight = mo->momz>>3;
-                
-            if((mo->health > 0) && !comp[comp_fallingdmg] && 
-               demo_version >= 329)
+            mo->player->deltaviewheight = mo->momz >> 3;
+            
+            // haleyjd 05/09/99 no oof when dead :)
+            if(demo_version < 329 || mo->health > 0)
             {
-               // haleyjd: new features -- feet sound for normal hits,
-               //          grunt for harder, falling damage for worse
-               
-               if(mo->momz < -23*FRACUNIT)
+               if(!comp[comp_fallingdmg] && demo_version >= 329)
                {
-                  if(!mo->player->powers[pw_invulnerability] &&
-                     !(players[consoleplayer].cheats & CF_GODMODE))
-                     P_FallingDamage(mo->player);
-                  else
+                  // haleyjd: new features -- feet sound for normal hits,
+                  //          grunt for harder, falling damage for worse
+                  
+                  if(mo->momz < -23*FRACUNIT)
+                  {
+                     if(!mo->player->powers[pw_invulnerability] &&
+                        !(players[consoleplayer].cheats & CF_GODMODE))
+                        P_FallingDamage(mo->player);
+                     else
+                        S_StartSound(mo, sfx_oof);
+                  }
+                  else if(mo->momz < -12*FRACUNIT)
                      S_StartSound(mo, sfx_oof);
+                  else if(!E_GetThingFloorType(mo)->liquid)
+                     S_StartSound(mo, sfx_plfeet);
                }
-               else if(mo->momz < -12*FRACUNIT)
-                  S_StartSound(mo, sfx_oof);
-               else if(P_GetThingFloorType(mo) == FLOOR_SOLID)
-                  S_StartSound(mo, sfx_plfeet);
-            }
-            else if(demo_version < 329 || mo->health > 0)
-            { // haleyjd 05/09/99 no oof when dead :)
-               S_StartSound (mo, sfx_oof);
+               else if(!E_GetThingFloorType(mo)->liquid)
+                  S_StartSound(mo, sfx_oof);    
             }
          }
          mo->momz = 0;
@@ -744,7 +747,7 @@ floater:
       mo->z = mo->floorz;
 
       if(moving_down)
-         P_HitFloor(mo);
+         E_HitFloor(mo);
 
       /* cph 2001/05/26 -
        * See lost soul bouncing comment above. We need this here for
@@ -981,12 +984,12 @@ void P_MobjThinker(mobj_t *mobj)
    {
       // any time a missile or bouncer crosses, splash
       if(oldwaterstate != waterstate)
-         P_HitWater(mobj, mobj->subsector->sector);
+         E_HitWater(mobj, mobj->subsector->sector);
    }
    else if(oldwaterstate == 0 && waterstate != 0)
    {
       // normal things only splash going into the water
-      P_HitWater(mobj, mobj->subsector->sector);
+      E_HitWater(mobj, mobj->subsector->sector);
    }
 
    // cycle through states,
@@ -999,18 +1002,28 @@ void P_MobjThinker(mobj_t *mobj)
          P_SetMobjState(mobj, mobj->state->nextstate);
    }
    else
-   { // haleyjd: minor restructuring, eternity features
+   { 
+      // haleyjd: minor restructuring, eternity features
+      // A thing can respawn if:
+      // 1) counts for kill AND
+      // 2) respawn is on OR
+      // 3) thing always respawns or removes itself after death.
+      boolean can_respawn = 
+         mobj->flags & MF_COUNTKILL &&                             
+           (respawnmonsters ||                                     
+            (mobj->flags2 & (MF2_ALWAYSRESPAWN | MF2_REMOVEDEAD)));
 
-      if(mobj->flags2 & MF2_DORMANT) // don't remove dormant things
+      // haleyjd 07/13/05: increment mobj->movecount earlier
+      if(can_respawn || mobj->effects & FX_FLIESONDEATH)
+         ++mobj->movecount;
+
+      // don't respawn dormant things
+      // don't respawn norespawn things
+      if(mobj->flags2 & (MF2_DORMANT | MF2_NORESPAWN)) 
          return;
       
-      if(mobj->flags & MF_COUNTKILL &&
-         !(mobj->flags2 & MF2_NORESPAWN) &&
-         (respawnmonsters || (mobj->flags2 & MF2_ALWAYSRESPAWN) ||
-          (mobj->flags2 & MF2_REMOVEDEAD)) &&
-         ++mobj->movecount >= 12*35 && !(leveltime & 31) &&
-         P_Random(pr_respawn) <= 4	 
-        )
+      if(can_respawn && mobj->movecount >= 12*35 && 
+         !(leveltime & 31) && P_Random(pr_respawn) <= 4)
       { // check for nightmare respawn
          
          if(mobj->flags2 & MF2_REMOVEDEAD)
@@ -1039,7 +1052,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
    mobj->x = x;
    mobj->y = y;
    mobj->radius = info->radius;
-   mobj->height = info->height; // phares
+   mobj->height = P_ThingInfoHeight(info); // phares
    mobj->flags  = info->flags;
    mobj->flags2 = info->flags2; // haleyjd
    mobj->flags3 = info->flags3; // haleyjd   
@@ -1237,17 +1250,17 @@ void P_RemoveMobj (mobj_t *mobj)
 // killough 8/24/98: rewrote to use hashing
 //
 
-int P_FindDoomedNum(unsigned type)
+int P_FindDoomedNum(int type)
 {
    static struct dnumhash_s { int first, next; } *hash;
    register int i;
 
    if(!hash)
    {
-      hash = Z_Malloc(sizeof *hash * NUMMOBJTYPES, PU_CACHE, (void **) &hash);
-      for(i=0; i<NUMMOBJTYPES; i++)
+      hash = Z_Malloc(sizeof(*hash) * NUMMOBJTYPES, PU_CACHE, (void **)&hash);
+      for(i = 0; i < NUMMOBJTYPES; ++i)
          hash[i].first = NUMMOBJTYPES;
-      for(i=0; i<NUMMOBJTYPES; i++)
+      for(i = 0; i < NUMMOBJTYPES; ++i)
       {
          if(mobjinfo[i].doomednum != -1)
          {
@@ -1862,17 +1875,16 @@ mobj_t *P_SpawnPlayerMissile(mobj_t* source, mobjtype_t type)
          if(!linetarget)
          {
             an = source->angle;
-            if(source->player->readyweapon!=wp_bfg || bfglook==1)
-               slope = source->player->updownangle * LOOKSLOPE;
-            else
-               slope = 0;
+            // haleyjd: use true slope angle
+            slope = finetangent[(ANG90 - source->player->pitch)>>ANGLETOFINESHIFT];
          }
       }
       while(mask && (mask=0, !linetarget));  // killough 8/2/98
    }
    else
    {
-      slope = source->player->updownangle * LOOKSLOPE;
+      // haleyjd: use true slope angle
+      slope = finetangent[(ANG90 - source->player->pitch)>>ANGLETOFINESHIFT];
    }
 
    x = source->x;
@@ -1902,7 +1914,7 @@ boolean P_SetMobjStateNF(mobj_t *mobj, statenum_t state)
 {
    state_t *st;
    
-   if(state == E_NullState())
+   if(state == NullStateNum)
    {
       // remove mobj
       mobj->state = NULL;
@@ -2036,7 +2048,7 @@ void P_AdjustFloorClip(mobj_t *thing)
       if(m->m_sector->heightsec == -1 &&
          thing->z == m->m_sector->floorheight)
       {
-         fixed_t clip = P_SectorFloorClip(m->m_sector) ? 10*FRACUNIT : 0;
+         fixed_t clip = E_SectorFloorClip(m->m_sector);
 
          if(clip < shallowestclip)
             shallowestclip = clip;
@@ -2055,6 +2067,48 @@ void P_AdjustFloorClip(mobj_t *thing)
 
       p->viewheight -= oldclip - thing->floorclip;
       p->deltaviewheight = (VIEWHEIGHT - p->viewheight) >> 3;
+   }
+}
+
+//
+//
+// P_ThingInfoHeight
+//
+// haleyjd 07/06/05: 
+//
+// Function to retrieve proper thing height information for a thing.
+//
+int P_ThingInfoHeight(mobjinfo_t *mi)
+{
+   return 
+      ((demo_version >= 333 && !comp[comp_theights] &&
+       mi->c3dheight) ?
+       mi->c3dheight : mi->height);
+}
+
+//
+// P_ChangeThingHeights
+//
+// Updates all things with appropriate height values depending on
+// the conditions established in P_ThingInfoHeight above. Not safe
+// if things are in over/under situations, but fine otherwise. This
+// is used to keep the game consistent with the value of comp_theights.
+//
+void P_ChangeThingHeights(void)
+{
+   thinker_t *th;
+
+   if(gamestate != GS_LEVEL)
+      return;
+
+   for(th = thinkercap.next; th != &thinkercap; th = th->next)
+   {
+      if(th->function == P_MobjThinker)
+      {
+         mobj_t *mo = (mobj_t *)th;
+
+         mo->height = P_ThingInfoHeight(mo->info);
+      }
    }
 }
 
@@ -2181,16 +2235,24 @@ mobj_t *P_FindMobjFromTID(int tid, mobj_t *rover, SmallContext_t *context)
 //
 // Thing Collections
 //
+// haleyjd: This pseudo-class is the ultimate generalization of the
+// boss spawner spots code, allowing arbitrary reallocating arrays
+// of mobj_t pointers to be maintained and manipulated. This is currently
+// used by boss spawn spots, D'Sparil spots, and intermission cameras.
+// I wish it was used by deathmatch spots, but that would present a
+// compatibility problem (spawning mobj_t's at their locations would
+// most likely result in demo desyncs).
+//
 
 //
 // P_InitMobjCollection
 //
-// Sets up an MobjCollection object. This is mostly for mc's kept
-// on the stack.
+// Sets up an MobjCollection object. This is for objects kept on the 
+// stack.
 //
-void P_InitMobjCollection(MobjCollection_t *mc, int type)
+void P_InitMobjCollection(MobjCollection *mc, int type)
 {
-   memset(mc, 0, sizeof(MobjCollection_t));
+   memset(mc, 0, sizeof(MobjCollection));
 
    mc->type = type;
 }
@@ -2199,10 +2261,11 @@ void P_InitMobjCollection(MobjCollection_t *mc, int type)
 // P_ReInitMobjCollection
 //
 // Call this to set the number of mobjs in the collection to zero.
-// Should be done for each collection after a level ends and before
-// beginning a new one.
+// Should be done for each global collection after a level ends and 
+// before beginning a new one. Doesn't molest the array pointer or
+// numalloc fields. Resets the wrap iterator by necessity.
 //
-void P_ReInitMobjCollection(MobjCollection_t *mc, int type)
+void P_ReInitMobjCollection(MobjCollection *mc, int type)
 {
    mc->num = mc->wrapiterator = 0;
    mc->type = type;   
@@ -2214,28 +2277,29 @@ void P_ReInitMobjCollection(MobjCollection_t *mc, int type)
 // Frees an mobj collection's pointer array and sets all the
 // fields to zero.
 //
-void P_ClearMobjCollection(MobjCollection_t *mc)
+void P_ClearMobjCollection(MobjCollection *mc)
 {
    free(mc->ptrarray);
 
-   memset(mc, 0, sizeof(MobjCollection_t));
+   memset(mc, 0, sizeof(MobjCollection));
 }
 
 //
 // P_CollectThings
 //
 // Generalized from the boss brain spot code; builds a collection
-// of mapthings of a certain type.
+// of mapthings of a certain type. The type must be set within the
+// collection object before calling this.
 //
-void P_CollectThings(MobjCollection_t *mc)
+void P_CollectThings(MobjCollection *mc)
 {
-   thinker_t *thinker;
+   thinker_t *th;
 
-   for(thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+   for(th = thinkercap.next; th != &thinkercap; th = th->next)
    {
-      if(thinker->function == P_MobjThinker)
+      if(th->function == P_MobjThinker)
       {
-         mobj_t *mo = (mobj_t *)thinker;
+         mobj_t *mo = (mobj_t *)th;
 
          if(mo->type == mc->type)
          {
@@ -2252,12 +2316,25 @@ void P_CollectThings(MobjCollection_t *mc)
    }
 }
 
-boolean P_CollectionIsEmpty(MobjCollection_t *mc)
+//
+// P_CollectionIsEmpty
+//
+// Returns true if there are no objects in the collection, and
+// false otherwise.
+//
+boolean P_CollectionIsEmpty(MobjCollection *mc)
 {
    return !mc->num;
 }
 
-mobj_t *P_CollectionWrapIterator(MobjCollection_t *mc)
+//
+// P_CollectionWrapIterator
+//
+// Returns each object in a collection in the order they were added
+// at each consecutive call, wrapping to the beginning when the end
+// is reached.
+//
+mobj_t *P_CollectionWrapIterator(MobjCollection *mc)
 {
    mobj_t *ret = (mc->ptrarray)[mc->wrapiterator++];
 
@@ -2266,7 +2343,13 @@ mobj_t *P_CollectionWrapIterator(MobjCollection_t *mc)
    return ret;
 }
 
-mobj_t *P_CollectionGetRandom(MobjCollection_t *mc, pr_class_t rngnum)
+//
+// P_CollectionGetRandom
+//
+// Returns a random object from the collection using the specified
+// random number generator for full compatibility.
+//
+mobj_t *P_CollectionGetRandom(MobjCollection *mc, pr_class_t rngnum)
 {
    return (mc->ptrarray)[P_Random(rngnum) % mc->num];
 }
@@ -2521,9 +2604,6 @@ enum
    TF_TYPE,
    TF_TICS,
    TF_HEALTH,
-   TF_FLAGS,
-   TF_FLAGS2,
-   TF_FLAGS3,
    TF_SPECIAL1,
    TF_SPECIAL2,
    TF_SPECIAL3,
@@ -2557,9 +2637,6 @@ static cell AMX_NATIVE_CALL sm_thinggetproperty(AMX *amx, cell *params)
       case TF_TYPE:     value = mo->type;     break;
       case TF_TICS:     value = mo->tics;     break;
       case TF_HEALTH:   value = mo->health;   break;
-      case TF_FLAGS:    value = mo->flags;    break;
-      case TF_FLAGS2:   value = mo->flags2;   break;
-      case TF_FLAGS3:   value = mo->flags3;   break;
       case TF_SPECIAL1: value = mo->special1; break;
       case TF_SPECIAL2: value = mo->special2; break;
       case TF_SPECIAL3: value = mo->special3; break;
@@ -2597,9 +2674,6 @@ static cell AMX_NATIVE_CALL sm_thingsetproperty(AMX *amx, cell *params)
       {
       case TF_TICS:   mo->tics = value;   break;
       case TF_HEALTH: mo->health = value; break;
-      case TF_FLAGS:  mo->flags = value;  break;
-      case TF_FLAGS2: mo->flags2 = value; break;
-      case TF_FLAGS3: mo->flags3 = value; break;
       case TF_SPECIAL1: mo->special1 = (short)value; break;
       case TF_SPECIAL2: mo->special2 = (short)value; break;
       case TF_SPECIAL3: mo->special3 = (short)value; break;
@@ -2659,20 +2733,22 @@ static cell AMX_NATIVE_CALL sm_thingflagsstr(AMX *amx, cell *params)
       }
    }
 
+   free(flags);
+
    return 0;
 }
 
 AMX_NATIVE_INFO mobj_Natives[] =
 {
-   { "ThingSpawn",        sm_thingspawn },
-   { "ThingSpawnSpot",    sm_thingspawnspot },
-   { "ThingSound",        sm_thingsound },
-   { "ThingSoundNum",     sm_thingsoundnum },
-   { "ThingInfoSound",    sm_thinginfosound },
-   { "ThingMassacre",     sm_thingmassacre },
-   { "ThingGetProperty",  sm_thinggetproperty },
-   { "ThingSetProperty",  sm_thingsetproperty },
-   { "ThingFlagsFromStr", sm_thingflagsstr },
+   { "_ThingSpawn",        sm_thingspawn },
+   { "_ThingSpawnSpot",    sm_thingspawnspot },
+   { "_ThingSound",        sm_thingsound },
+   { "_ThingSoundNum",     sm_thingsoundnum },
+   { "_ThingInfoSound",    sm_thinginfosound },
+   { "_ThingMassacre",     sm_thingmassacre },
+   { "_ThingGetProperty",  sm_thinggetproperty },
+   { "_ThingSetProperty",  sm_thingsetproperty },
+   { "_ThingFlagsFromStr", sm_thingflagsstr },
    { NULL,                NULL }
 };
 

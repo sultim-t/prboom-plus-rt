@@ -49,7 +49,7 @@ typedef struct
 } deh_strs;
 
 extern char **deh_spritenames;
-extern char *deh_musicnames[NUMMUSIC + 1];
+extern char **deh_musicnames;
 
 unsigned int D_HashTableKey(const char *str);
 

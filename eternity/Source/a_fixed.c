@@ -56,10 +56,10 @@ static cell AMX_NATIVE_CALL sm_fabs(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO fixed_Natives[] =
 {
-   { "FloatToFixed", sm_floattofixed },
-   { "fmul",         sm_fmul },
-   { "fdiv",         sm_fdiv },
-   { "fabs",         sm_fabs },
+   { "_ffloat", sm_floattofixed },
+   { "_fmul",   sm_fmul },
+   { "_fdiv",   sm_fdiv },
+   { "_fabs",   sm_fabs },
    { NULL,           NULL }
 };
 

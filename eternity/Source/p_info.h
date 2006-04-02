@@ -1,7 +1,7 @@
 // Emacs style mode select -*- C++ -*-
 //---------------------------------------------------------------------------
 //
-// Copyright(C) 2000 James Haley
+// Copyright(C) 2005 James Haley
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,12 +19,25 @@
 //
 //--------------------------------------------------------------------------
 
-#ifndef __P_INFO_H__
-#define __P_INFO_H__
+#ifndef P_INFO_H__
+#define P_INFO_H__
 
-#include "c_io.h"
+#include "doomtype.h"
 
 void P_LoadLevelInfo(int lumpnum);
+
+// boss special flags
+enum
+{
+   BSPEC_MAP07_1 = 0x00000001,
+   BSPEC_MAP07_2 = 0x00000002,
+   BSPEC_E1M8    = 0x00000004,
+   BSPEC_E2M8    = 0x00000008,
+   BSPEC_E3M8    = 0x00000010,
+   BSPEC_E4M6    = 0x00000020,
+   BSPEC_E4M8    = 0x00000040,
+   BSPEC_E5M8    = 0x00000080,
+};
 
 typedef struct LevelInfo_s
 {
@@ -35,14 +48,17 @@ typedef struct LevelInfo_s
    char *interTextLump;      // this can be set in the file
    char *backDrop;           // pic used during text finale
    char *interMusic;         // text finale music
-   char *levelPic;           // intermission level name text lump
+   char *levelPic;           // intermission level name graphics lump
+   boolean killStats;        // level has no statistics intermission
    boolean killFinale;       // level has no finale even if text is given
    boolean finaleSecretOnly; // level only has finale if secret exit
    boolean endOfGame;        // DOOM II: last map, trigger cast call
+   boolean useEDFInterName;  // use an intermission map name from EDF
 
    // level transfer stuff
-   char *nextLevel;
-   char *nextSecret;
+   char *nextLevel;          // name of next map for normal exit
+   char *nextSecret;         // name of next map for secret exit
+   unsigned long bossSpecs;  // boss specials
 
    // level variables
    char *levelName;          // name used in automap
@@ -81,9 +97,6 @@ typedef struct LevelInfo_s
    char *sound_doropn;       // normal door open
    char *sound_dorcls;       // normal door close
    char *sound_pstart;       // plat start
-
-   // "private" data members
-   int next;                 // index of next global LevelInfo object
 
 } LevelInfo_t;
 

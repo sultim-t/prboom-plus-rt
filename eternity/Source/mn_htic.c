@@ -60,12 +60,12 @@ menu_t menu_hmain =
   {
     // 'heretic' title and skulls drawn by the drawer
     
-    {it_hruncmd, "new game",             "mn_hnewgame"},
-    {it_hruncmd, "options",              "mn_hoptfeat"},
-    {it_hruncmd, "load game",            "mn_loadgame"},
-    {it_hruncmd, "save game",            "mn_savegame"},
-    {it_hruncmd, "end game",             "mn_endgame"},
-    {it_hruncmd, "quit game",            "mn_quit"},
+    {it_runcmd, "new game",  "mn_hnewgame", NULL, MENUITEM_BIGFONT },
+    {it_runcmd, "options",   "mn_optfeat",  NULL, MENUITEM_BIGFONT },
+    {it_runcmd, "load game", "mn_loadgame", NULL, MENUITEM_BIGFONT },
+    {it_runcmd, "save game", "mn_savegame", NULL, MENUITEM_BIGFONT },
+    {it_runcmd, "end game",  "mn_endgame",  NULL, MENUITEM_BIGFONT },
+    {it_runcmd, "quit game", "mn_quit",     NULL, MENUITEM_BIGFONT },
     {it_end},
   },
   100, 56,                // x, y offsets
@@ -73,27 +73,6 @@ menu_t menu_hmain =
   mf_skullmenu,          // a skull menu
   MN_HMainMenuDrawer
 };
-
-menu_t menu_hoptfeat =
-{
-   {
-      {it_title,  FC_GOLD "options",  NULL },
-      {it_gap},
-      {it_gap},
-      {it_hruncmd, "setup",            "mn_options"   },
-      {it_gap},
-      {it_hruncmd, "features",         "mn_hfeatures" },
-      {it_end},
-   },
-   100, 15,
-   3,
-   mf_leftaligned | mf_skullmenu
-};
-
-CONSOLE_COMMAND(mn_hoptfeat, 0)
-{
-   MN_StartMenu(&menu_hoptfeat);
-}
 
 void MN_HInitSkull(void)
 {
@@ -141,17 +120,16 @@ CONSOLE_COMMAND(mn_hnewgame, 0)
    MN_StartMenu(&menu_hepisode);
 }
 
-
 menu_t menu_hepisode =
 {
   {
-    {it_hinfo,   "which episode?"},
+    {it_info,   "which episode?",       NULL, NULL, MENUITEM_BIGFONT},
     {it_gap},
-    {it_hruncmd, "city of the damned",   "mn_hepis 1"},
-    {it_hruncmd, "hell's maw",           "mn_hepis 2"},
-    {it_hruncmd, "the dome of d'sparil", "mn_hepis 3"},
-    {it_hruncmd, "the ossuary",          "mn_hepis 4"},
-    {it_hruncmd, "the stagnant demesne", "mn_hepis 5"},
+    {it_runcmd, "city of the damned",   "mn_hepis 1", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "hell's maw",           "mn_hepis 2", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "the dome of d'sparil", "mn_hepis 3", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "the ossuary",          "mn_hepis 4", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "the stagnant demesne", "mn_hepis 5", NULL, MENUITEM_BIGFONT},
     {it_end},
   },
   38, 26,               // x,y offsets
@@ -183,13 +161,13 @@ CONSOLE_COMMAND(mn_hepis, cf_notnet)
 menu_t menu_hnewgame =
 {
   {
-    {it_hinfo,   "choose skill level"},
+    {it_info,   "choose skill level", NULL, NULL, MENUITEM_BIGFONT},
     {it_gap},
-    {it_hruncmd, "thou needeth a wet nurse",    "newgame 0"},
-    {it_hruncmd, "yellowbellies-r-us",          "newgame 1"},
-    {it_hruncmd, "bringest them oneth",         "newgame 2"},
-    {it_hruncmd, "thou art a smite-meister",    "newgame 3"},
-    {it_hruncmd, "black plague possesses thee", "newgame 4"},
+    {it_runcmd, "thou needeth a wet nurse",    "newgame 0", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "yellowbellies-r-us",          "newgame 1", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "bringest them oneth",         "newgame 2", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "thou art a smite-meister",    "newgame 3", NULL, MENUITEM_BIGFONT},
+    {it_runcmd, "black plague possesses thee", "newgame 4", NULL, MENUITEM_BIGFONT},
     {it_end},
   },
   38, 26,               // x,y offsets
@@ -197,44 +175,11 @@ menu_t menu_hnewgame =
   mf_skullmenu,         // is a skull menu
 };
 
-// Heretic features -- I removed the demo item because internal
-// Heretic demos are not supported, and running them could
-// potentially crash the game. If any new Eternity demos are 
-// recorded, they should be playable via the command line.
-
-menu_t menu_hfeatures =
-{
-  {
-    {it_title, "features"},
-    {it_gap},
-    {it_gap},
-    {it_hruncmd, "player setup",    "mn_player" },
-    {it_gap},
-    {it_hruncmd, "game settings",   "mn_gset" },
-    {it_gap},
-    {it_hruncmd, "multiplayer",     "mn_multi" },
-    {it_gap},
-    {it_hruncmd, "load wad",        "mn_loadwad" },
-    {it_gap},
-    {it_hruncmd, "about",           "credits" },
-    {it_end},
-  },
-  100, 15,                              // x,y
-  3,                                    // start item
-  mf_leftaligned | mf_skullmenu         // skull menu
-};
-
-CONSOLE_COMMAND(mn_hfeatures, 0)
-{
-   MN_StartMenu(&menu_hfeatures);
-}
 
 void MN_AddHMenus(void)
 {
    C_AddCommand(mn_hnewgame);
-   C_AddCommand(mn_hoptfeat);
    C_AddCommand(mn_hepis);
-   C_AddCommand(mn_hfeatures);
 }
 
 // EOF

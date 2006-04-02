@@ -41,7 +41,8 @@
 #include "sounds.h"
 #include "m_random.h"
 #include "d_gi.h"
-#include "e_edf.h"
+#include "e_states.h"
+#include "e_things.h"
 
 // player skin sprite states
 enum

@@ -28,6 +28,7 @@ static const char
 rcsid[] = "$Id: p_switch.c,v 1.25 1998/06/01 14:48:19 jim Exp $";
 
 #include "doomstat.h"
+#include "e_exdata.h"
 #include "g_game.h"
 #include "p_info.h"
 #include "p_spec.h"
@@ -122,26 +123,27 @@ void P_InitSwitchList(void)
 // to remain active in gametics.
 // No return value.
 //
-void P_StartButton
-( line_t*       line,
-  bwhere_e      w,
-  int           texture,
-  int           time )
+// haleyjd FIXME: wtf is there still a static limit on buttons??
+// haleyjd FIXME: wtf are buttons not saved in save games???
+//
+static void P_StartButton(line_t *line, int side, bwhere_e w, 
+                          int texture, int time)
 {
-   int           i;
+   int i;
    
    // See if button is already pressed
-   for(i = 0;i < MAXBUTTONS;i++)
+   for(i = 0; i < MAXBUTTONS; ++i)
    {
       if(buttonlist[i].btimer && buttonlist[i].line == line)
          return;
    }
     
-   for(i = 0;i < MAXBUTTONS;i++)
+   for(i = 0; i < MAXBUTTONS; ++i)
    {
       if(!buttonlist[i].btimer)    // use first unused element of list
       {
          buttonlist[i].line = line;
+         buttonlist[i].side = side;
          buttonlist[i].where = w;
          buttonlist[i].btexture = texture;
          buttonlist[i].btimer = time;
@@ -159,14 +161,13 @@ void P_StartButton
 //
 // Function that changes switch wall texture on activation.
 //
-// Passed the line which the switch is on, and whether its retriggerable.
+// Passed the line which the switch is on, whether it's retriggerable,
+// and the side it was activated on (haleyjd 03/13/05).
 // If not retriggerable, this function clears the line special to insure that
 //
 // No return value
 //
-void P_ChangeSwitchTexture
-( line_t*       line,
-  int           useAgain )
+void P_ChangeSwitchTexture(line_t *line, int useAgain, int side)
 {
    int     texTop;
    int     texMid;
@@ -177,45 +178,49 @@ void P_ChangeSwitchTexture
    if(!useAgain)
       line->special = 0;
 
-   texTop = sides[line->sidenum[0]].toptexture;
-   texMid = sides[line->sidenum[0]].midtexture;
-   texBot = sides[line->sidenum[0]].bottomtexture;
+   // haleyjd: cannot start a button on a non-existant side
+   if(line->sidenum[side] == -1)
+      return;
+
+   texTop = sides[line->sidenum[side]].toptexture;
+   texMid = sides[line->sidenum[side]].midtexture;
+   texBot = sides[line->sidenum[side]].bottomtexture;
 
    sound = LevelInfo.sound_swtchn; // haleyjd
    
    // EXIT SWITCH?
-   if(line->special == 11)                
+   if(line->special == 11)
       sound = LevelInfo.sound_swtchx;
 
-   for(i = 0;i < numswitches*2;i++)
+   for(i = 0; i < numswitches * 2; ++i)
    {
-      if(switchlist[i] == texTop)     // if an upper texture
+      if(switchlist[i] == texTop) // if an upper texture
       {
-         S_StartSoundName(buttonlist->soundorg,sound);     // switch activation sound
-         sides[line->sidenum[0]].toptexture = switchlist[i^1];       //chg texture
+         S_StartSoundName(buttonlist->soundorg,sound); // switch activation sound
+         sides[line->sidenum[side]].toptexture = switchlist[i^1]; // chg texture
          
          if(useAgain)
-            P_StartButton(line,top,switchlist[i],BUTTONTIME);         //start timer
+            P_StartButton(line,side,top,switchlist[i],BUTTONTIME); // start timer
          
          return;
       }
-      else if(switchlist[i] == texMid)   // if a normal texture
+      else if(switchlist[i] == texMid) // if a normal texture
       {
-         S_StartSoundName(buttonlist->soundorg,sound);   // switch activation sound
-         sides[line->sidenum[0]].midtexture = switchlist[i^1];     //chg texture
+         S_StartSoundName(buttonlist->soundorg,sound); // switch activation sound
+         sides[line->sidenum[side]].midtexture = switchlist[i^1]; // chg texture
          
-         if (useAgain)
-            P_StartButton(line, middle,switchlist[i],BUTTONTIME);   //start timer
+         if(useAgain)
+            P_StartButton(line,side,middle,switchlist[i],BUTTONTIME); // start timer
          
          return;
       }
       else if(switchlist[i] == texBot) // if a lower texture
       {
          S_StartSoundName(buttonlist->soundorg,sound); // switch activation sound
-         sides[line->sidenum[0]].bottomtexture = switchlist[i^1];//chg texture
+         sides[line->sidenum[side]].bottomtexture = switchlist[i^1]; //chg texture
          
          if (useAgain)
-            P_StartButton(line, bottom,switchlist[i],BUTTONTIME); //start timer
+            P_StartButton(line,side,bottom,switchlist[i],BUTTONTIME); // start timer
          
          return;
       }
@@ -237,18 +242,20 @@ extern void P_StartLineScript(line_t *line, mobj_t *thing);
 //
 boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
 {
-   if(side) //jff 6/1/98 fix inadvertent deletion of side test
+   // haleyjd: param lines make sidedness decisions on their own
+   boolean is_param = (demo_version >= 333 && E_IsParamSpecial(line->special));
+
+   if(side && !is_param) //jff 6/1/98 fix inadvertent deletion of side test
       return false;
 
-   // SoM: only allow switch specials on 3d sides to be triggerd if 
+   // SoM: only allow switch specials on 3d sides to be triggered if 
    // the mobj is within range of the side.
    if(demo_version >= 331 && (line->flags & ML_3DMIDTEX) && 
-      line->sidenum[0] != -1 && line->sidenum[1] != -1 && 
-      sides[line->sidenum[0]].midtexture)
+      line->sidenum[side] != -1 && sides[line->sidenum[side]].midtexture)
    {
       fixed_t opentop, openbottom;
       fixed_t textop, texbot;
-      side_t *side = &sides[line->sidenum[0]];
+      side_t *sidedef = &sides[line->sidenum[side]];
 
       opentop = line->frontsector->ceilingheight < line->backsector->ceilingheight ?
                 line->frontsector->ceilingheight : line->backsector->ceilingheight;
@@ -258,18 +265,22 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
 
       if(line->flags & ML_DONTPEGBOTTOM)
       {
-         texbot = side->rowoffset + openbottom;
-         textop = texbot + textureheight[side->midtexture];
+         texbot = sidedef->rowoffset + openbottom;
+         textop = texbot + textureheight[sidedef->midtexture];
       }
       else
       {
-         textop = opentop + side->rowoffset;
-         texbot = textop - textureheight[side->midtexture];
+         textop = opentop + sidedef->rowoffset;
+         texbot = textop - textureheight[sidedef->midtexture];
       }
 
       if(thing->z > textop || thing->z + thing->height < texbot)
          return false;
    }
+
+   // haleyjd 02/28/05: parameterized specials
+   if(is_param)
+      return P_ActivateParamLine(line, thing, side, SPAC_USE);
 
    //jff 02/04/98 add check here for generalized floor/ceil mover
    if(!demo_compatibility)
@@ -378,11 +389,11 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
             return true;
          case SwitchOnce:
             if(linefunc(line))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             return true;
          case SwitchMany:
             if(linefunc(line))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             return true;
          default:  // if not a switch/push type, do nothing here
             return false;
@@ -442,13 +453,13 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
    case 7:
       // Build Stairs
       if(EV_BuildStairs(line,build8))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
 
    case 9:
       // Change Donut
       if (EV_DoDonut(line))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
         
    case 11:
@@ -460,74 +471,74 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
          S_StartSound(thing, sfx_noway);
          return false;
       }
-      P_ChangeSwitchTexture(line,0);
+      P_ChangeSwitchTexture(line,0,0);
       G_ExitLevel ();
       break;
         
    case 14:
       // Raise Floor 32 and change texture
       if (EV_DoPlat(line,raiseAndChange,32))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 15:
       // Raise Floor 24 and change texture
       if (EV_DoPlat(line,raiseAndChange,24))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 18:
       // Raise Floor to next highest floor
       if (EV_DoFloor(line, raiseFloorToNearest))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
         
    case 20:
       // Raise Plat next highest floor and change texture
       if (EV_DoPlat(line,raiseToNearestAndChange,0))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 21:
       // PlatDownWaitUpStay
       if (EV_DoPlat(line,downWaitUpStay,0))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 23:
       // Lower Floor to Lowest
       if (EV_DoFloor(line,lowerFloorToLowest))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
         
    case 29:
       // Raise Door
       if (EV_DoDoor(line,doorNormal))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 41:
       // Lower Ceiling to Floor
       if (EV_DoCeiling(line,lowerToFloor))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 71:
       // Turbo Lower Floor
       if (EV_DoFloor(line,turboLower))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 49:
       // Ceiling Crush And Raise
       if (EV_DoCeiling(line,crushAndRaise))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 50:
       // Close Door
       if (EV_DoDoor(line,doorClose))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
         
    case 51:
@@ -539,68 +550,68 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
          S_StartSound(thing, sfx_noway);
          return false;
       }
-      P_ChangeSwitchTexture(line,0);
+      P_ChangeSwitchTexture(line,0,0);
       G_SecretExitLevel ();
       break;
         
    case 55:
       // Raise Floor Crush
       if (EV_DoFloor(line,raiseFloorCrush))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 101:
       // Raise Floor
       if (EV_DoFloor(line,raiseFloor))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 102:
       // Lower Floor to Surrounding floor height
       if (EV_DoFloor(line,lowerFloor))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 103:
       // Open Door
       if (EV_DoDoor(line,doorOpen))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 111:
       // Blazing Door Raise (faster than TURBO!)
       if (EV_DoDoor (line,blazeRaise))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 112:
       // Blazing Door Open (faster than TURBO!)
       if (EV_DoDoor (line,blazeOpen))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 113:
       // Blazing Door Close (faster than TURBO!)
       if (EV_DoDoor (line,blazeClose))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 122:
       // Blazing PlatDownWaitUpStay
       if (EV_DoPlat(line,blazeDWUS,0))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 127:
       // Build Stairs Turbo 16
       if (EV_BuildStairs(line,turbo16))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
       
    case 131:
       // Raise Floor Turbo
       if (EV_DoFloor(line,raiseFloorTurbo))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
         
    case 133:
@@ -610,13 +621,13 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
    case 137:
       // BlzOpenDoor YELLOW
       if(EV_DoLockedDoor (line,blazeOpen,thing))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
         
    case 140:
       // Raise Floor 512
       if (EV_DoFloor(line,raiseFloor512))
-         P_ChangeSwitchTexture(line,0);
+         P_ChangeSwitchTexture(line,0,0);
       break;
 
       // killough 1/31/98: factored out compatibility check;
@@ -634,56 +645,56 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
             // Raise Floor to shortest lower texture
             // 158 S1  EV_DoFloor(raiseToTexture), CSW(0)
             if (EV_DoFloor(line,raiseToTexture))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
 
          case 159:
             // Raise Floor to shortest lower texture
             // 159 S1  EV_DoFloor(lowerAndChange)
             if (EV_DoFloor(line,lowerAndChange))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 160:
             // Raise Floor 24 and change
             // 160 S1  EV_DoFloor(raiseFloor24AndChange)
             if (EV_DoFloor(line,raiseFloor24AndChange))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 161:
             // Raise Floor 24
             // 161 S1  EV_DoFloor(raiseFloor24)
             if (EV_DoFloor(line,raiseFloor24))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 162:
             // Moving floor min n to max n
             // 162 S1  EV_DoPlat(perpetualRaise,0)
             if (EV_DoPlat(line,perpetualRaise,0))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 163:
             // Stop Moving floor
             // 163 S1  EV_DoPlat(perpetualRaise,0)
             EV_StopPlat(line);
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 164:
             // Start fast crusher
             // 164 S1  EV_DoCeiling(fastCrushAndRaise)
             if (EV_DoCeiling(line,fastCrushAndRaise))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 165:
             // Start slow silent crusher
             // 165 S1  EV_DoCeiling(silentCrushAndRaise)
             if (EV_DoCeiling(line,silentCrushAndRaise))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
 
          case 166:
@@ -691,133 +702,133 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
             // 166 S1 EV_DoCeiling(raiseToHighest), EV_DoFloor(lowerFloortoLowest)
             if(EV_DoCeiling(line, raiseToHighest) ||
                EV_DoFloor(line, lowerFloorToLowest))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
 
          case 167:
             // Lower floor and Crush
             // 167 S1 EV_DoCeiling(lowerAndCrush)
             if (EV_DoCeiling(line, lowerAndCrush))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 168:
             // Stop crusher
             // 168 S1 EV_CeilingCrushStop()
             if (EV_CeilingCrushStop(line))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 169:
             // Lights to brightest neighbor sector
             // 169 S1  EV_LightTurnOn(0)
             EV_LightTurnOn(line,0);
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             break;
 
          case 170:
             // Lights to near dark
             // 170 S1  EV_LightTurnOn(35)
             EV_LightTurnOn(line,35);
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 171:
             // Lights on full
             // 171 S1  EV_LightTurnOn(255)
             EV_LightTurnOn(line,255);
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 172:
             // Start Lights Strobing
             // 172 S1  EV_StartLightStrobing()
             EV_StartLightStrobing(line);
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 173:
             // Lights to Dimmest Near
             // 173 S1  EV_TurnTagLightsOff()
             EV_TurnTagLightsOff(line);
-            P_ChangeSwitchTexture(line,0);
+            P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 174:
             // Teleport
             // 174 S1  EV_Teleport(side,thing)
             if (EV_Teleport(line,side,thing))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 175:
             // Close Door, Open in 30 secs
             // 175 S1  EV_DoDoor(close30ThenOpen)
             if (EV_DoDoor(line,close30ThenOpen))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
 
          case 189: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Trigger)
             // 189 S1 Change Texture/Type Only
             if (EV_DoChange(line,trigChangeOnly))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 203:
             // Lower ceiling to lowest surrounding ceiling
             // 203 S1 EV_DoCeiling(lowerToLowest)
             if (EV_DoCeiling(line,lowerToLowest))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 204:
             // Lower ceiling to highest surrounding floor
             // 204 S1 EV_DoCeiling(lowerToMaxFloor)
             if (EV_DoCeiling(line,lowerToMaxFloor))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 209:
             // killough 1/31/98: silent teleporter
             //jff 209 S1 SilentTeleport 
             if (EV_SilentTeleport(line, side, thing))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 241: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Numeric)
             // 241 S1 Change Texture/Type Only
             if (EV_DoChange(line,numChangeOnly))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
 
          case 221:
             // Lower floor to next lowest floor
             // 221 S1 Lower Floor To Nearest Floor
             if (EV_DoFloor(line,lowerFloorToNearest))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 229:
             // Raise elevator next floor
             // 229 S1 Raise Elevator next floor
             if (EV_DoElevator(line,elevateUp))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 233:
             // Lower elevator next floor
             // 233 S1 Lower Elevator next floor
             if (EV_DoElevator(line,elevateDown))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
          case 237:
             // Elevator to current floor
             // 237 S1 Elevator to current floor
             if (EV_DoElevator(line,elevateCurrent))
-               P_ChangeSwitchTexture(line,0);
+               P_ChangeSwitchTexture(line,0,0);
             break;
             
             
@@ -830,77 +841,77 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
             // Texture Change Only (Numeric)
             // 78 SR Change Texture/Type Only
             if (EV_DoChange(line,numChangeOnly))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
 
          case 176:
             // Raise Floor to shortest lower texture
             // 176 SR  EV_DoFloor(raiseToTexture), CSW(1)
             if (EV_DoFloor(line,raiseToTexture))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 177:
             // Raise Floor to shortest lower texture
             // 177 SR  EV_DoFloor(lowerAndChange)
             if (EV_DoFloor(line,lowerAndChange))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 178:
             // Raise Floor 512
             // 178 SR  EV_DoFloor(raiseFloor512)
             if (EV_DoFloor(line,raiseFloor512))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 179:
             // Raise Floor 24 and change
             // 179 SR  EV_DoFloor(raiseFloor24AndChange)
             if (EV_DoFloor(line,raiseFloor24AndChange))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 180:
             // Raise Floor 24
             // 180 SR  EV_DoFloor(raiseFloor24)
             if (EV_DoFloor(line,raiseFloor24))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
 
          case 181:
             // Moving floor min n to max n
             // 181 SR  EV_DoPlat(perpetualRaise,0)
             EV_DoPlat(line,perpetualRaise,0);
-            P_ChangeSwitchTexture(line,1);
+            P_ChangeSwitchTexture(line,1,0);
             break;
 
          case 182:
             // Stop Moving floor
             // 182 SR  EV_DoPlat(perpetualRaise,0)
             EV_StopPlat(line);
-            P_ChangeSwitchTexture(line,1);
+            P_ChangeSwitchTexture(line,1,0);
             break;
 
          case 183:
             // Start fast crusher
             // 183 SR  EV_DoCeiling(fastCrushAndRaise)
             if (EV_DoCeiling(line,fastCrushAndRaise))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 184:
             // Start slow crusher
             // 184 SR  EV_DoCeiling(crushAndRaise)
             if(EV_DoCeiling(line,crushAndRaise))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 185:
             // Start slow silent crusher
             // 185 SR  EV_DoCeiling(silentCrushAndRaise)
             if (EV_DoCeiling(line,silentCrushAndRaise))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 186:
@@ -908,140 +919,140 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
             // 186 SR EV_DoCeiling(raiseToHighest), EV_DoFloor(lowerFloortoLowest)
             if(EV_DoCeiling(line, raiseToHighest) ||
                EV_DoFloor(line, lowerFloorToLowest))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
 
          case 187:
             // Lower floor and Crush
             // 187 SR EV_DoCeiling(lowerAndCrush)
             if (EV_DoCeiling(line, lowerAndCrush))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
 
          case 188:
             // Stop crusher
             // 188 SR EV_CeilingCrushStop()
             if (EV_CeilingCrushStop(line))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 190: //jff 3/15/98 create texture change no motion type
             // Texture Change Only (Trigger)
             // 190 SR Change Texture/Type Only
             if (EV_DoChange(line,trigChangeOnly))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 191:
             // Lower Pillar, Raise Donut
             // 191 SR  EV_DoDonut()
             if (EV_DoDonut(line))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 192:
             // Lights to brightest neighbor sector
             // 192 SR  EV_LightTurnOn(0)
             EV_LightTurnOn(line,0);
-            P_ChangeSwitchTexture(line,1);
+            P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 193:
             // Start Lights Strobing
             // 193 SR  EV_StartLightStrobing()
             EV_StartLightStrobing(line);
-            P_ChangeSwitchTexture(line,1);
+            P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 194:
             // Lights to Dimmest Near
             // 194 SR  EV_TurnTagLightsOff()
             EV_TurnTagLightsOff(line);
-            P_ChangeSwitchTexture(line,1);
+            P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 195:
             // Teleport
             // 195 SR  EV_Teleport(side,thing)
             if (EV_Teleport(line,side,thing))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 196:
             // Close Door, Open in 30 secs
             // 196 SR  EV_DoDoor(close30ThenOpen)
             if (EV_DoDoor(line,close30ThenOpen))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 205:
             // Lower ceiling to lowest surrounding ceiling
             // 205 SR EV_DoCeiling(lowerToLowest)
             if (EV_DoCeiling(line,lowerToLowest))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 206:
             // Lower ceiling to highest surrounding floor
             // 206 SR EV_DoCeiling(lowerToMaxFloor)
             if (EV_DoCeiling(line,lowerToMaxFloor))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 210:
             // killough 1/31/98: silent teleporter
             //jff 210 SR SilentTeleport 
             if (EV_SilentTeleport(line, side, thing))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 211: //jff 3/14/98 create instant toggle floor type
             // Toggle Floor Between C and F Instantly
             // 211 SR Toggle Floor Instant
             if (EV_DoPlat(line,toggleUpDn,0))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 222:
             // Lower floor to next lowest floor
             // 222 SR Lower Floor To Nearest Floor
             if (EV_DoFloor(line,lowerFloorToNearest))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 230:
             // Raise elevator next floor
             // 230 SR Raise Elevator next floor
             if (EV_DoElevator(line,elevateUp))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 234:
             // Lower elevator next floor
             // 234 SR Lower Elevator next floor
             if (EV_DoElevator(line,elevateDown))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 238:
             // Elevator to current floor
             // 238 SR Elevator to current floor
             if (EV_DoElevator(line,elevateCurrent))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 258:
             // Build stairs, step 8
             // 258 SR EV_BuildStairs(build8)
             if (EV_BuildStairs(line,build8))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             
          case 259:
             // Build stairs, step 16
             // 259 SR EV_BuildStairs(turbo16)
             if (EV_BuildStairs(line,turbo16))
-               P_ChangeSwitchTexture(line,1);
+               P_ChangeSwitchTexture(line,1,0);
             break;
             // 1/29/98 jff end of added SR linedef types
             
@@ -1049,7 +1060,7 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
          case 277: // S1 start script
             line->special = 0;
          case 276: // SR start script
-            P_ChangeSwitchTexture(line, (line->special ? 1 : 0));
+            P_ChangeSwitchTexture(line, (line->special ? 1 : 0), 0);
             P_StartLineScript(line, thing);
             break;            
          }
@@ -1060,115 +1071,115 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
    case 42:
       // Close Door
       if (EV_DoDoor(line,doorClose))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
         
    case 43:
       // Lower Ceiling to Floor
       if (EV_DoCeiling(line,lowerToFloor))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
         
    case 45:
       // Lower Floor to Surrounding floor height
       if (EV_DoFloor(line,lowerFloor))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 60:
       // Lower Floor to Lowest
       if (EV_DoFloor(line,lowerFloorToLowest))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 61:
       // Open Door
       if (EV_DoDoor(line,doorOpen))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 62:
       // PlatDownWaitUpStay
       if (EV_DoPlat(line,downWaitUpStay,1))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 63:
       // Raise Door
       if (EV_DoDoor(line,doorNormal))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 64:
       // Raise Floor to ceiling
       if (EV_DoFloor(line,raiseFloor))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 66:
       // Raise Floor 24 and change texture
       if (EV_DoPlat(line,raiseAndChange,24))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 67:
       // Raise Floor 32 and change texture
       if (EV_DoPlat(line,raiseAndChange,32))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 65:
       // Raise Floor Crush
       if (EV_DoFloor(line,raiseFloorCrush))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 68:
       // Raise Plat to next highest floor and change texture
       if (EV_DoPlat(line,raiseToNearestAndChange,0))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 69:
       // Raise Floor to next highest floor
       if (EV_DoFloor(line, raiseFloorToNearest))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 70:
       // Turbo Lower Floor
       if (EV_DoFloor(line,turboLower))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 114:
       // Blazing Door Raise (faster than TURBO!)
       if (EV_DoDoor (line,blazeRaise))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 115:
       // Blazing Door Open (faster than TURBO!)
       if (EV_DoDoor (line,blazeOpen))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 116:
       // Blazing Door Close (faster than TURBO!)
       if (EV_DoDoor (line,blazeClose))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 123:
       // Blazing PlatDownWaitUpStay
       if (EV_DoPlat(line,blazeDWUS,0))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 132:
       // Raise Floor Turbo
       if (EV_DoFloor(line,raiseFloorTurbo))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 99:
@@ -1178,19 +1189,19 @@ boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
    case 136:
       // BlzOpenDoor YELLOW
       if (EV_DoLockedDoor (line,blazeOpen,thing))
-         P_ChangeSwitchTexture(line,1);
+         P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 138:
       // Light Turn On
       EV_LightTurnOn(line,255);
-      P_ChangeSwitchTexture(line,1);
+      P_ChangeSwitchTexture(line,1,0);
       break;
       
    case 139:
       // Light Turn Off
       EV_LightTurnOn(line,35);
-      P_ChangeSwitchTexture(line,1);
+      P_ChangeSwitchTexture(line,1,0);
       break;
    }
    return true;

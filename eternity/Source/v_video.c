@@ -452,8 +452,12 @@ void V_DrawPatchTL(int x, int y, VBuffer *buffer, patch_t *patch,
 {
    PatchInfo pi;
 
+   // is invisible?
+   if(tl == 0)
+      return;
+
    // if translucency is off, fall back to translated
-   if(!general_translucency)
+   if(!general_translucency || tl == FRACUNIT)
    {
       V_DrawPatchTranslated(x, y, buffer, patch, outr, false);
       return;
@@ -484,6 +488,50 @@ void V_DrawPatchTL(int x, int y, VBuffer *buffer, patch_t *patch,
    buffer->PatchWrapper(&pi, buffer);
 }
 
+//
+// V_DrawPatchAdd
+//
+// Masks a column based masked pic to the screen with additive
+// translucency and optional color translation.
+//
+// haleyjd 02/08/05
+// 
+void V_DrawPatchAdd(int x, int y, VBuffer *buffer, patch_t *patch,
+                    unsigned char *outr, int tl)
+{
+   PatchInfo pi;
+
+   // if translucency is off, fall back to translated
+   if(!general_translucency)
+   {
+      V_DrawPatchTranslated(x, y, buffer, patch, outr, false);
+      return;
+   }
+
+   pi.x = x;
+   pi.y = y;
+   pi.patch = patch;
+   pi.flipped = false; // TODO: these could be flipped too now
+
+   // is the patch translated as well as translucent?
+   if(outr)
+   {
+      pi.drawstyle = PSTYLE_TLADD;
+      V_SetPatchColrng(outr);
+   }
+   else
+      pi.drawstyle = PSTYLE_ADD;
+
+   // figure out the RGB tables to use for the tran level
+   {
+      fixed_t fglevel, bglevel;
+      fglevel = tl & ~0x3ff;    // normal foreground level
+      bglevel = FRACUNIT;       // full background level
+      V_SetPatchTL(Col2RGB[fglevel >> 10], Col2RGB[bglevel >> 10]);
+   }
+
+   buffer->PatchWrapper(&pi, buffer);
+}
 
 #if 0
                 // code to produce 100% accurate results in hires
@@ -621,7 +669,7 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
 // Adapted from zdoom -- thanks to Randy Heit.
 //
 // This always assumes a 256-color palette;
-// its intended for use in startup functions to match hard-coded
+// it's intended for use in startup functions to match hard-coded
 // color values to the best fit in the game's palette (allows
 // cross-game usage among other things).
 //
@@ -631,7 +679,7 @@ byte V_FindBestColor(const byte *palette, int r, int g, int b)
    int bestcolor, bestdistortion, distortion;
 
    // use color 0 as a worst-case match for any color
-   bestdistortion = 256*256*4;
+   bestdistortion = 257*257*3;
    bestcolor = 0;
 
    for(i = 0; i < 256; i++)

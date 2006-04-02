@@ -90,7 +90,7 @@ void V_FontWriteText(vfont_t *font, const char *s, int x, int y)
       {
          if(c == 138) // translucency toggle
          {
-            tl = !tl;
+            tl ^= true;
          }
          else if(font->color) // not all fonts support translations
          {
@@ -180,7 +180,7 @@ void V_FontWriteText(vfont_t *font, const char *s, int x, int y)
 //
 // V_FontWriteTextColored
 //
-// write text in a particular colour
+// Write text in a particular colour.
 //
 void V_FontWriteTextColored(vfont_t *font, const char *s, int color, int x, int y)
 {

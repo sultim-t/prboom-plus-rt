@@ -23,6 +23,14 @@
 //
 //  Mid-level network code
 //
+// NETCODE_FIXME: Stubified during port to Windows. This is where
+// mid-level networking code should go. Code here will need to act as
+// a go-between for the code in d_net.c and code in an eventual Win32-
+// specific (or general BSD) sockets module where UDP and possibly IPX
+// are supported. Both zdoom and Quake 2 have sockets code that could
+// easily be adapted to work for Eternity. Quake 2 is a preferred 
+// reference source because of its GPL license.
+//
 //-----------------------------------------------------------------------------
 
 #include "../z_zone.h"  /* memory allocation wrappers -- killough */

@@ -34,8 +34,6 @@
 
 static const char rcsid[] = "$Id: z_zone.c,v 1.13 1998/05/12 06:11:55 killough Exp $";
 
-// #include <stdio.h> haleyjd - unneeded
-
 #include "z_zone.h"
 #include "doomstat.h"
 #include "m_argv.h"
@@ -48,6 +46,7 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.13 1998/05/12 06:11:55 killough E
 // statistics, and to enable extra debugging features
 //#define INSTRUMENTED
 
+
 // Uncomment this to exhaustively run memory checks
 // while the game is running (this is EXTREMELY slow).
 // Only useful if INSTRUMENTED is also defined.
@@ -55,7 +54,9 @@ static const char rcsid[] = "$Id: z_zone.c,v 1.13 1998/05/12 06:11:55 killough E
 
 // Uncomment this to perform id checks on zone blocks,
 // to detect corrupted and illegally freed blocks
+#ifdef _DEBUG
 #define ZONEIDCHECK
+#endif
 
 // Uncomment this to dump the heap to file on exit.
 //#define DUMPONEXIT

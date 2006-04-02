@@ -22,6 +22,14 @@
 // DESCRIPTION:
 //      Cheat sequence checking.
 //
+// NETCODE_FIXME: Cheats need to work in netgames and demos when enabled 
+// by the arbitrator. Requires significant changes, including addition of
+// cheat events in the input stream. I also want to add the ability to
+// turn cheat detection on/off along with the use of letter keys for
+// binding of commands, because these uses interfere with each other.
+// It should be possible to have an exclusive cheats mode and an exclusive
+// bindings mode.
+//
 //-----------------------------------------------------------------------------
 
 static const char
@@ -41,7 +49,7 @@ rcsid[] = "$Id: m_cheat.c,v 1.7 1998/05/12 12:47:00 phares Exp $";
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
 #include "d_io.h" // SoM 3/14/2002: strncasecmp
 #include "d_gi.h"
-#include "e_edf.h"
+#include "e_states.h"
 
 
 #define plyr (&players[consoleplayer])     /* the console player */

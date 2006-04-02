@@ -42,7 +42,7 @@ rcsid[] = "$Id: p_user.c,v 1.14 1998/05/12 12:47:25 phares Exp $";
 #include "sounds.h"
 #include "s_sound.h"
 #include "a_small.h"
-#include "e_edf.h"
+#include "e_states.h"
 
 //
 // Movement.
@@ -353,6 +353,29 @@ void P_PlayerThink (player_t* player)
       return;
    }
 
+   // haleyjd 04/03/05: new yshear code
+   if(!allowmlook)
+      player->pitch = 0;
+   else
+   {
+      int look = cmd->look;
+
+      if(look)
+      {
+         // test for special centerview value
+         if(look == -32768)
+            player->pitch = 0;
+         else
+         {
+            player->pitch -= look << 16;
+            if(player->pitch < -ANGLE_1*32)
+               player->pitch = -ANGLE_1*32;
+            else if(player->pitch > ANGLE_1*32)
+               player->pitch = ANGLE_1*32;
+         }
+      }
+   }
+
    // Move around.
    // Reactiontime is used to prevent movement
    //  for a bit after a teleport.
@@ -360,27 +383,7 @@ void P_PlayerThink (player_t* player)
    if(player->mo->reactiontime)
       player->mo->reactiontime--;
    else
-   {
       P_MovePlayer(player);
-      if(cmd->updownangle)      // wait til teleport finishes to look around
-         player->updownangle += cmd->updownangle;
-   }
-
-   // looking up/down checks
-   if(player->updownangle < -50) 
-      player->updownangle = -50;
-   if(player->updownangle > 50) 
-      player->updownangle = 50;
-   if(!allowmlook) 
-      player->updownangle = 0;
-
-   if(player->readyweapon == wp_bfg)
-   {
-      if(bfglook == 0) 
-         player->updownangle = 0;
-      if(bfglook == 2 && player->updownangle < -10)
-         player->updownangle = -10;
-   }
   
    P_CalcHeight (player); // Determines view height and bobbing
    
@@ -404,6 +407,9 @@ void P_PlayerThink (player_t* player)
    
    if(player->mo->subsector->sector->special)
       P_PlayerInSpecialSector(player);
+
+   // haleyjd 08/23/05: terrain-based effects
+   P_PlayerOnSpecialFlat(player);
    
    // haleyjd: Heretic current specials
    P_HereticCurrent(player);
@@ -546,7 +552,7 @@ void P_PlayerThink (player_t* player)
 
 // Small native functions for player stuff
 
-static cell AMX_NATIVE_CALL sm_playername(AMX *amx, cell *params)
+static cell AMX_NATIVE_CALL sm_getplayername(AMX *amx, cell *params)
 {
    int err, pnum, packed;
    cell *cstr;
@@ -576,7 +582,7 @@ static cell AMX_NATIVE_CALL sm_playername(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO user_Natives[] =
 {
-   { "G_GetPlayerName", sm_playername },
+   { "_GetPlayerName", sm_getplayername },
    { NULL, NULL }
 };
 
