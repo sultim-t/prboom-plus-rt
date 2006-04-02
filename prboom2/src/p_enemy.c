@@ -2096,11 +2096,9 @@ void A_BossDeath(mobj_t *mo)
       switch(gameepisode)
         {
         case 1:
-          if (gamemap != 8)
+          if (!comp[comp_666] && (gamemap != 8 || mo->type != MT_BRUISER))
             return;
 
-          if (mo->type != MT_BRUISER)
-            return;
           break;
 
         case 2:
