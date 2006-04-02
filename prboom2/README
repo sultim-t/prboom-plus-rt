@@ -74,7 +74,9 @@ IWADs, if you own more than one) to that directory.
 Mac OS Installation
 -------------------
 
-Copy your IWAD (see above) into your home folder under Library:Application Support:PrBoom (this folder will be created for you the first time you run PrBoom).
+Copy your IWAD (see above) into your home folder under
+Library:Application Support:PrBoom (this folder will be created for you the
+first time you run PrBoom).
 
 First Use
 ---------
@@ -96,7 +98,9 @@ are the same as the original Doom; unlike original Doom, you can change key
 bindings in the game. In the in-game menus, go to Options, Settings, Key
 Bindings.
 
-On Mac OS X, you can't use the command line, but after running the program once,  you can edit YOURHOME:Library:Application Support:PrBoom:prboom.cfg to change settings like your screen resolution.
+On Mac OS X, you can't use the command line, but after running the program once,
+you can edit YOURHOME:Library:Application Support:PrBoom:prboom.cfg to change
+settings like your screen resolution.
 
 Features
 --------
