@@ -52,9 +52,11 @@ def getPathToFile(name, path):
             if not url.startswith('http://') \
                and not url.startswith('ftp://'):
                 raise ValueError, "unknown url '%s'" % url
+            print "Fetching %s" % url
             try:
                 request = urllib2.urlopen(url)
             except urllib2.HTTPError:
+                print "Error retriving the file."
                 return None
             dst = open(path, 'wb')
             shutil.copyfileobj(request, dst)
@@ -78,6 +80,9 @@ def runtest(iwad, demo, demopath, pwad):
         'prboom',
         '-nodraw',
         '-nosound',
+        '-nofullscreen',
+        '-width', '320',
+        '-height', '200',
     ]
     options.extend(('-iwad', iwad))
     if demopath is not None and demopath != '':
@@ -85,7 +90,7 @@ def runtest(iwad, demo, demopath, pwad):
     else:
         options.extend(('-fastdemo', demo))
     if pwad is not None and pwad != '':
-        options.extend((pwad,))
+        options.extend(('-file', pwad))
     cmd = ' '.join(options)
     print cmd
     if subprocess is not None:
@@ -93,8 +98,9 @@ def runtest(iwad, demo, demopath, pwad):
         print p
     else:
         print os.system(cmd)
-    result = open(os.path.join(basepath, 'release', 'stderr.txt'),'r').readlines()[-1]
-    print result
+    results = open(os.path.join(basepath, 'release', 'stderr.txt'),'r').readlines()
+    if len(results):
+        print results[-1]
 
 def getBasePath():
     curpath = os.path.join(os.getcwd(), __file__)
@@ -124,7 +130,8 @@ def run():
         pwadname, pwadpath = demospec['PWAD'], demospec['PWAD url']
         pwadpath = getPathToFile(pwadname, pwadpath)
         iwad = demospec['IWAD']
-        runtest(iwad, demoname, demopath, pwadpath)
+        if pwadpath:
+            runtest(iwad, demoname, demopath, pwadpath)
 
 if __name__=='__main__':
     run()
