@@ -11,5 +11,7 @@ prboom2/VISUALC6/ReleaseGL
 prboom2/VISUALC6/ReleaseNOASM
 prboom2/VISUALC6/ReleaseNOASMGL
 prboom2/VISUALC6/ReleaseServer
+prboom2/data/prboom.wad
+prboom2/release
 pyboom/pyboom/*.pyc
 pyboom/pyboom/*.pyo
