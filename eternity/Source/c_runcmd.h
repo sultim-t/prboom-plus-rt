@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -48,7 +48,7 @@ typedef struct variable_s variable_t;
                        0 };                             \
         void Handler_ ## name(void)
 
-
+		 
 // console variable. you must define the range of values etc. for
 //      the variable using the other macros below.
 //      You must also provide a handler function even
@@ -133,7 +133,7 @@ typedef struct variable_s variable_t;
                         vt_string, -1, -1, NULL};
 
 
-#define C_AddCommand(c)  (C_AddCommand)(&Cmd_ ## c)
+#define C_AddCommand(c)  (C_AddCommand)(&Cmd_ ## c) 
 
 /********************************* ENUMS **********************************/
 
@@ -158,7 +158,7 @@ enum    // command flag
 {
   cf_notnet       =1,     // not in netgames
   cf_netonly      =2,     // only in netgames
-  cf_server       =4,     // server only
+  cf_server       =4,     // server only 
   cf_handlerset   =8,     // if set, the handler sets the variable,
                           // not c_runcmd.c itself
   cf_netvar       =16,    // sync with other pcs
@@ -170,7 +170,7 @@ enum    // command flag
 
 enum    // variable type
 {
-  vt_int,                // normal integer
+  vt_int,                // normal integer 
   vt_float,              // decimal               NOT IMPLEMENTED
   vt_string,             // string
   vt_toggle              // on/off value          NOT IMPLEMENTED
@@ -182,7 +182,7 @@ struct variable_s
 {
   // NB: for strings, this is char ** not char *
   void *variable;
-  void *v_default;         // the default
+  void *v_default;         // the default 
   int type;       // vt_?? variable type: int, string
   int min;        // minimum value or string length
   int max;        // maximum value/length
@@ -204,7 +204,7 @@ typedef struct alias_s
 {
   char *name;
   char *command;
-
+  
   struct alias_s *next; // haleyjd 04/14/03
 
 } alias_t;

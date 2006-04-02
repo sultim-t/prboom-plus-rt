@@ -363,7 +363,7 @@ typedef enum {
   sfx_dgpain,
 
   // haleyjd 10/08/02: heretic sounds
-  sfx_gldhit,
+  sfx_gldhit = 300,
   sfx_htelept,
   sfx_chat,
   sfx_keyup,
@@ -422,20 +422,25 @@ typedef enum {
   sfx_sbtpai,
   sfx_sbtdth,
   sfx_sbtact,
-
-  // Start Eternity TC New SFX
-  // haleyjd 1/22/99: Minotaurus sounds
+  sfx_lobhit,
   sfx_minsit,
   sfx_minat1,
   sfx_minat2,
-  sfx_minat3,
   sfx_minpai,
   sfx_mindth,
   sfx_minact,
   sfx_stfpow,
-  sfx_phohit, // 1/23/99: minotaur fx sounds
-  // end minotaurus sounds
-  sfx_clratk, // cleric sounds
+  sfx_phohit,
+  sfx_hedsit,
+  sfx_hedat1,
+  sfx_hedat2,
+  sfx_hedat3,
+  sfx_heddth,
+  sfx_hedact,
+  sfx_hedpai,
+
+  // Start Eternity TC New SFX
+  sfx_clratk = 182, // cleric sounds
   sfx_clrpn,
   sfx_clrdth,
   sfx_cblsht, // cleric projectile sounds

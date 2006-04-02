@@ -92,10 +92,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, dest-sector->floorheight, crush);
+               flag = P_Scroll3DSides(sector, false, dest - sector->floorheight, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, sector->floorheight-dest, crush);
+                  P_Scroll3DSides(sector, false, sector->floorheight - dest, crush);
                   return pastdest;
                }
             }
@@ -111,7 +111,7 @@ result_e T_MovePlane
                // SoM: if the move in the master sector was bad,
                // keep the 3d sides consistant.
                if(move3dsides)
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, sector->floorheight-dest, crush);
+                  P_Scroll3DSides(sector, false, sector->floorheight - dest, crush);
                
                // Note from SoM: Shouldn't we return crushed if the
                // last move was rejected?
@@ -123,10 +123,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, -speed, crush);
+               flag = P_Scroll3DSides(sector, false, -speed, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, speed, crush);
+                  P_Scroll3DSides(sector, false, speed, crush);
                   return crushed;
                }
             }
@@ -145,7 +145,7 @@ result_e T_MovePlane
                sector->floorheight = lastpos;
                P_ChangeSector(sector, crush);
                if(move3dsides)
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, speed, crush);
+                  P_Scroll3DSides(sector, false, speed, crush);
                return crushed;
             }
          }
@@ -163,10 +163,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, destheight-sector->floorheight, crush);
+               flag = P_Scroll3DSides(sector, false, destheight-sector->floorheight, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, sector->floorheight-destheight, crush);
+                  P_Scroll3DSides(sector, false, sector->floorheight-destheight, crush);
                   return pastdest;
                }
             }
@@ -179,7 +179,7 @@ result_e T_MovePlane
                sector->floorheight = lastpos;
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
                if(move3dsides)
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, sector->floorheight-destheight, crush);
+                  P_Scroll3DSides(sector, false, sector->floorheight-destheight, crush);
             }
             return pastdest;
          }
@@ -188,10 +188,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, speed, crush);
+               flag = P_Scroll3DSides(sector, false, speed, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, -speed, crush);
+                  P_Scroll3DSides(sector, false, -speed, crush);
                   return crushed;
                }
             }
@@ -210,7 +210,7 @@ result_e T_MovePlane
                sector->floorheight = lastpos;
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
                if(move3dsides)
-                  P_Scroll3DSides(sector->f_tag, sector->f_numattached, sector->f_attached, -speed, crush);
+                  P_Scroll3DSides(sector, false, -speed, crush);
                
                return crushed;
             }
@@ -236,10 +236,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, sector->ceilingheight-destheight, crush);
+               flag = P_Scroll3DSides(sector, true, sector->ceilingheight-destheight, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, destheight-sector->ceilingheight, crush);
+                  P_Scroll3DSides(sector, true, destheight-sector->ceilingheight, crush);
                   return pastdest;
                }
             }
@@ -254,7 +254,7 @@ result_e T_MovePlane
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
                
                if(move3dsides)
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, destheight-sector->ceilingheight, crush);
+                  P_Scroll3DSides(sector, true, destheight-sector->ceilingheight, crush);
             }
             return pastdest;
          }
@@ -263,10 +263,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, -speed, crush);
+               flag = P_Scroll3DSides(sector, true, -speed, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, speed, crush);
+                  P_Scroll3DSides(sector, true, speed, crush);
                   return crushed;
                }
             }
@@ -284,7 +284,7 @@ result_e T_MovePlane
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
                
                if(move3dsides)
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, speed, crush);
+                  P_Scroll3DSides(sector, true, speed, crush);
                return crushed;
             }
          }
@@ -297,10 +297,10 @@ result_e T_MovePlane
             // SoM 9/19/02: If we are go, move 3d sides first.
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, dest-sector->ceilingheight, crush);
+               flag = P_Scroll3DSides(sector, true, dest-sector->ceilingheight, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, sector->ceilingheight-dest, crush);
+                  P_Scroll3DSides(sector, true, sector->ceilingheight-dest, crush);
                   return pastdest;
                }
             }
@@ -313,7 +313,7 @@ result_e T_MovePlane
                sector->ceilingheight = lastpos;
                P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
                if(move3dsides)
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, sector->ceilingheight-dest, crush);
+                  P_Scroll3DSides(sector, true, sector->ceilingheight-dest, crush);
             }
             return pastdest;
          }
@@ -321,10 +321,10 @@ result_e T_MovePlane
          {
             if(move3dsides)
             {
-               flag = P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, speed, crush);
+               flag = P_Scroll3DSides(sector, true, speed, crush);
                if(!flag)
                {
-                  P_Scroll3DSides(sector->c_tag, sector->c_numattached, sector->c_attached, -speed, crush);
+                  P_Scroll3DSides(sector, true, -speed, crush);
                   return pastdest;
                }
             }
@@ -370,7 +370,7 @@ void T_MoveFloor(floormove_t* floor)
    // sf: added silentmove
    if(!(leveltime&7) && !silentmove(floor->sector))     // make the floormove sound
       S_StartSoundName((mobj_t *)&floor->sector->soundorg,
-                       info_sound_stnmov);
+                       LevelInfo.sound_stnmov);
     
    if(res == pastdest)    // if destination height is reached
    {
@@ -454,7 +454,7 @@ void T_MoveFloor(floormove_t* floor)
       // make floor stop sound
       if(!silentmove(floor->sector)) //sf: silentmove
          S_StartSoundName((mobj_t *)&floor->sector->soundorg,
-                          info_sound_pstop);
+                          LevelInfo.sound_pstop);
    }
 }
 
@@ -523,7 +523,7 @@ void T_MoveElevator(elevator_t* elevator)
    // sf: added silentmove
    if(!(leveltime&7) && !silentmove(elevator->sector))
       S_StartSoundName((mobj_t *)&elevator->sector->soundorg,
-                       info_sound_stnmov);
+                       LevelInfo.sound_stnmov);
     
    if(res == pastdest)            // if destination height acheived
    {
@@ -534,7 +534,7 @@ void T_MoveElevator(elevator_t* elevator)
       // make floor stop sound
       if(!silentmove(elevator->sector))   //sf: silentmove
          S_StartSoundName((mobj_t *)&elevator->sector->soundorg,
-                          info_sound_pstop);
+                          LevelInfo.sound_pstop);
    }
 }
 
@@ -833,6 +833,31 @@ int EV_DoChange
    return rtn;
 }
 
+
+//
+// P_FindSectorFromLineTagWithLowerBound
+//
+// haleyjd 07/15/04: this is from prboom, and is needed to repair 
+// the stair-building logic bugs introduced in our various ancestral 
+// ports.
+// BTW, I'm pretty sure this is the longest function name in the
+// source code! ^_^
+//
+static int P_FindSectorFromLineTagWithLowerBound(line_t *l, int start,
+                                                 int min)
+{
+   // Emulate original Doom's linear lower-bounded 
+   // P_FindSectorFromLineTag as needed
+
+   do
+   {
+      start = P_FindSectorFromLineTag(l, start);
+   }
+   while(start >= 0 && start <= min);
+
+   return start;
+}
+
 //
 // EV_BuildStairs()
 //
@@ -843,133 +868,171 @@ int EV_DoChange
 // Passed the linedef triggering the stairs and the type of stair rise
 // Returns true if any thinkers are created
 //
-
-int EV_BuildStairs
-( line_t*       line,
-  stair_e       type )
+// cph 2001/09/21 - compatibility nightmares again
+// There are three different ways this function has, during its history, 
+// stepped through all the stairs to be triggered by the single switch:
+//
+// * original Doom used a linear P_FindSectorFromLineTag, but failed to 
+//   preserve the index of the previous sector found, so instead it 
+//   would restart its linear search from the last sector of the 
+//   previous staircase
+//
+// * MBF/PrBoom with comp_stairs fail to emulate this, because their
+//   P_FindSectorFromLineTag is a chained hash table implementation. 
+//   Instead they start following the hash chain from the last sector 
+//   of the previous staircase, which will (probably) have the wrong tag,
+//   so they miss any further stairs
+//
+// * Boom fixed the bug, and MBF/PrBoom without comp_stairs work right
+//
+int EV_BuildStairs(line_t *line, stair_e type)
 {
-   int                   secnum;
-   int                   osecnum; //jff 3/4/98 save old loop index
-   int                   height;
-   int                   i;
-   int                   newsecnum;
-   int                   texture;
-   int                   ok;
-   int                   rtn;
-    
-   sector_t*             sec;
-   sector_t*             tsec;
-   
-   floormove_t*  floor;
-   
-   fixed_t               stairsize;
-   fixed_t               speed;
+   // cph 2001/09/22 - cleaned up this function to save my sanity. 
+   // A separate outer loop index makes the logic much cleared, and 
+   // local variables moved into the inner blocks helps too
+   int                   ssec = -1;
+   int                   minssec = -1;
+   int                   rtn = 0;
 
-   secnum = -1;
-   rtn = 0;
-   
    // start a stair at each sector tagged the same as the linedef
-   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+   while((ssec = P_FindSectorFromLineTagWithLowerBound(line,ssec,minssec)) >= 0)
    {
-      sec = &sectors[secnum];
+      int           secnum = ssec;
+      sector_t*     sec = &sectors[secnum];
       
       // don't start a stair if the first step's floor is already moving
-      if (P_SectorActive(floor_special,sec)) //jff 2/22/98
-         continue;
-      
-      // create new floor thinker for first step
-      rtn = 1;
-      floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-      P_AddThinker (&floor->thinker);
-      sec->floordata = floor;
-      floor->thinker.function = T_MoveFloor;
-      floor->direction = plat_up;
-      floor->sector = sec;
-      floor->type = buildStair;   //jff 3/31/98 do not leave uninited
+      if(!P_SectorActive(floor_special,sec)) //jff 2/22/98
+      { 
+         floormove_t*  floor;
+         int           texture, height;
+         fixed_t       stairsize;
+         fixed_t       speed;
+         int           ok;
 
-      // set up the speed and stepsize according to the stairs type
-      switch(type)
-      {
-      default: // killough -- prevent compiler warning
-      case build8:
-         speed = FLOORSPEED/4;
-         stairsize = 8*FRACUNIT;
-         if(!demo_compatibility)
-            floor->crush = false; //jff 2/27/98 fix uninitialized crush field
-         break;
-      case turbo16:
-         speed = FLOORSPEED*4;
-         stairsize = 16*FRACUNIT;
-         if (!demo_compatibility)
-            floor->crush = true;  //jff 2/27/98 fix uninitialized crush field
-         break;
-      }
-      floor->speed = speed;
-      height = sec->floorheight + stairsize;
-      floor->floordestheight = height;
-      
-      texture = sec->floorpic;
-      osecnum = secnum;           //jff 3/4/98 preserve loop index
-      
-      // Find next sector to raise
-      //   1. Find 2-sided line with same sector side[0] (lowest numbered)
-      //   2. Other side is the next sector to raise
-      //   3. Unless already moving, or different texture, then stop building
+         // create new floor thinker for first step
+         rtn = 1;
+         floor = Z_Malloc(sizeof(*floor), PU_LEVSPEC, 0);
+         P_AddThinker(&floor->thinker);
+         sec->floordata = floor;
+         floor->thinker.function = T_MoveFloor;
+         floor->direction = 1;
+         floor->sector = sec;
+         floor->type = buildStair;   //jff 3/31/98 do not leave uninited
 
-      do
-      {
-         ok = 0;
-         for(i = 0;i < sec->linecount;i++)
+         // set up the speed and stepsize according to the stairs type
+         switch(type)
          {
-            if(!((sec->lines[i])->flags & ML_TWOSIDED))
-               continue;
-                                  
-            tsec = (sec->lines[i])->frontsector;
-            newsecnum = tsec-sectors;
-            
-            if(secnum != newsecnum)
-               continue;
-
-            tsec = (sec->lines[i])->backsector;
-            if(!tsec)
-               continue;     //jff 5/7/98 if no backside, continue
-            newsecnum = tsec - sectors;
-
-            // if sector's floor is different texture, look for another
-            if(tsec->floorpic != texture)
-               continue;
-
-            height += stairsize;  // killough 10/98: intentionally left this way
-            
-            // if sector's floor already moving, look for another
-            if(P_SectorActive(floor_special,tsec)) //jff 2/22/98
-               continue;
-
-            sec = tsec;
-            secnum = newsecnum;
-
-            // create and initialize a thinker for the next step
-            floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-            P_AddThinker (&floor->thinker);
-            
-            sec->floordata = floor; //jff 2/22/98
-            floor->thinker.function = T_MoveFloor;
-            floor->direction = plat_up;
-            floor->sector = sec;
-            floor->speed = speed;
-            floor->floordestheight = height;
-            floor->type = buildStair; //jff 3/31/98 do not leave uninited
-            //jff 2/27/98 fix uninitialized crush field
+         default: // killough -- prevent compiler warning
+         case build8:
+            speed = FLOORSPEED/4;
+            stairsize = 8*FRACUNIT;
             if(!demo_compatibility)
-               floor->crush = type==build8? false : true;
-            ok = 1;
+               floor->crush = false; //jff 2/27/98 fix uninitialized crush field
+            break;
+         case turbo16:
+            speed = FLOORSPEED*4;
+            stairsize = 16*FRACUNIT;
+            if(!demo_compatibility)
+               floor->crush = true;  //jff 2/27/98 fix uninitialized crush field
             break;
          }
-      } while(ok);      // continue until no next step is found
 
-      if(!comp[comp_stairs])  // killough 10/98: compatibility option
-         secnum = osecnum;    // jff 3/4/98 restore loop index
-   }
+         floor->speed = speed;
+         height = sec->floorheight + stairsize;
+         floor->floordestheight = height;
+         
+         texture = sec->floorpic;
+         
+         // Find next sector to raise
+         //   1. Find 2-sided line with same sector side[0] (lowest numbered)
+         //   2. Other side is the next sector to raise
+         //   3. Unless already moving, or different texture, then stop building
+         do
+         {
+            int i;
+            ok = 0;
+            
+            for(i = 0; i < sec->linecount; ++i)
+            {
+               sector_t* tsec = (sec->lines[i])->frontsector;
+               int newsecnum;
+               if(!((sec->lines[i])->flags & ML_TWOSIDED))
+                  continue;
+
+               newsecnum = tsec-sectors;
+               
+               if(secnum != newsecnum)
+                  continue;
+               
+               tsec = (sec->lines[i])->backsector;
+               if(!tsec) continue;     //jff 5/7/98 if no backside, continue
+               newsecnum = tsec - sectors;
+
+               // if sector's floor is different texture, look for another
+               if(tsec->floorpic != texture)
+                  continue;
+
+                  /* jff 6/19/98 prevent double stepsize
+                  * killough 10/98: intentionally left this way [MBF comment]
+                  * cph 2001/02/06: stair bug fix should be controlled by comp_stairs,
+                  *  except if we're emulating MBF which perversly reverted the fix
+                  */
+               if(comp[comp_stairs] || demo_version == 203)
+                  height += stairsize; // jff 6/28/98 change demo compatibility
+
+               // if sector's floor already moving, look for another
+               if(P_SectorActive(floor_special,tsec)) //jff 2/22/98
+                  continue;
+
+               /* cph - see comment above - do this iff we didn't do so above */
+               if(!comp[comp_stairs] && demo_version != 203)
+                  height += stairsize;
+
+               sec = tsec;
+               secnum = newsecnum;
+
+               // create and initialize a thinker for the next step
+               floor = Z_Malloc(sizeof(*floor), PU_LEVSPEC, 0);
+               P_AddThinker(&floor->thinker);
+
+               sec->floordata = floor; //jff 2/22/98
+               floor->thinker.function = T_MoveFloor;
+               floor->direction = 1;
+               floor->sector = sec;
+               floor->speed = speed;
+               floor->floordestheight = height;
+               floor->type = buildStair; //jff 3/31/98 do not leave uninited
+               //jff 2/27/98 fix uninitialized crush field
+               if(!demo_compatibility)
+                  floor->crush = type == build8 ? false : true;
+               ok = 1;
+               break;
+            } // end for
+
+         } while(ok);      // continue until no next step is found
+
+      } // end if(!P_SectorActive())
+
+      /* killough 10/98: compatibility option */
+      if(comp[comp_stairs])
+      {
+         // cph 2001/09/22 - emulate buggy MBF comp_stairs for demos, 
+         // with logic reversed since we now have a separate outer loop 
+         // index.
+         // DEMOSYNC - what about boom_compatibility_compatibility?
+         if(demo_version >= 203 && demo_version < 331) 
+            ssec = secnum; /* Trash outer loop index */
+         else
+         {
+            // cph 2001/09/22 - now the correct comp_stairs - Doom used 
+            // a linear search from the last secnum, so we set that as a 
+            // minimum value and do a fresh tag search
+            ssec = -1; 
+            minssec = secnum;
+         }
+      } // end if
+   } // end for
+
    return rtn;
 }
 

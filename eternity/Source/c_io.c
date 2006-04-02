@@ -913,7 +913,7 @@ static cell AMX_NATIVE_CALL sm_c_print(AMX *amx, cell *params)
       msgs[i-1] = Z_Malloc(len + 1, PU_STATIC, NULL);
 
       // convert from small string to C string
-      amx_GetString(msgs[i-1], cstr);
+      amx_GetString(msgs[i-1], cstr, 0);
    }
 
    // calculate total strlen

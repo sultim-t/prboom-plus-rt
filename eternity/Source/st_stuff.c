@@ -45,6 +45,7 @@ rcsid[] = "$Id: st_stuff.c,v 1.46 1998/05/06 16:05:40 jim Exp $";
 #include "sounds.h"
 #include "dstrings.h"
 #include "d_gi.h" // haleyjd
+#include "hu_over.h" // haleyjd
 
 //
 // STATUS BAR DATA
@@ -174,12 +175,11 @@ rcsid[] = "$Id: st_stuff.c,v 1.46 1998/05/06 16:05:40 jim Exp $";
 
 #define plyr (&players[displayplayer])
 
-// static player_t *plyr;
-
-// haleyjd 10/12/03: create stbarfns_t's for the various game modes
+// haleyjd 10/12/03: DOOM's status bar object
 
 static void ST_DoomTicker(void);
 static void ST_DoomDrawer(void);
+static void ST_DoomFSDrawer(void);
 static void ST_DoomStart(void);
 static void ST_DoomInit(void);
 
@@ -189,6 +189,7 @@ stbarfns_t DoomStatusBar =
 
    ST_DoomTicker,
    ST_DoomDrawer,
+   ST_DoomFSDrawer,
    ST_DoomStart,
    ST_DoomInit
 };
@@ -211,6 +212,9 @@ static st_stateenum_t st_gamestate;
 
 // whether left-side main status bar is active
 static boolean st_statusbaron;
+
+// haleyjd: whether status bar background is on (for fullscreen hud)
+static boolean st_backgroundon;
 
 // !deathmatch
 static boolean st_notdeathmatch;
@@ -249,6 +253,12 @@ static patch_t *armsbg;
 
 // weapon ownership patches
 static patch_t *arms[6][2];
+
+// haleyjd: fullscreen patches
+static patch_t *fs_health;
+static patch_t *fs_armorg;
+static patch_t *fs_armorb;
+static patch_t *fs_ammo[4];
 
 // ready-weapon widget
 static st_number_t w_ready;
@@ -341,29 +351,40 @@ static void ST_refreshBackground(void)
    }
 }
 
+//
+// ST_AutomapEvent
+//
+// haleyjd 09/29/04: Replaces the weird hack Dave Taylor put into
+// ST_Responder to toggle the status bar when the automap is toggled.
+// The automap now calls this function instead of sending fake events
+// to ST_Responder, allowing that function to be minimized.
+//
+void ST_AutomapEvent(int type)
+{
+   switch(type)
+   {
+   case AM_MSGENTERED:
+      st_gamestate = AutomapState;
+      st_firsttime = true;
+      break;
+   case AM_MSGEXITED:
+      st_gamestate = FirstPersonState;
+      break;
+   }
+}
 
-// Respond to keyboard input events,
-//  intercept cheats.
+//
+// ST_Responder
+//
+// Respond to keyboard input events, intercept cheats.
+// This code is shared by all status bars.
+//
 boolean ST_Responder(event_t *ev)
 {
-   // Filter automap on/off.
-   if(ev->type == ev_keyup && (ev->data1 & 0xffff0000) == AM_MSGHEADER)
-   {
-      switch(ev->data1)
-      {
-      case AM_MSGENTERED:
-         st_gamestate = AutomapState;
-         st_firsttime = true;
-         break;
-         
-      case AM_MSGEXITED:
-         st_gamestate = FirstPersonState;
-         break;
-      }
-   }
-   else  // if a user keypress...
-      if(ev->type == ev_keydown)         // Try cheat responder in m_cheat.c
-         return M_FindCheats(ev->data1); // killough 4/17/98, 5/2/98
+   // TODO: allow cheat input to be disabled
+   // if a user keypress...
+   if(ev->type == ev_keydown)         // Try cheat responder in m_cheat.c
+      return M_FindCheats(ev->data1); // killough 4/17/98, 5/2/98
    return false;
 }
 
@@ -382,12 +403,13 @@ static int ST_calcPainOffset(void)
 }
 
 //
+// ST_updateFaceWidget
+//
 // This is a not-very-pretty routine which handles
 //  the face states and their timing.
 // the precedence of expressions is:
 //  dead > evil grin > turned head > straight ahead
 //
-
 static void ST_updateFaceWidget(void)
 {
    int         i;
@@ -552,8 +574,8 @@ static void ST_updateFaceWidget(void)
       st_facecount = ST_STRAIGHTFACECOUNT;
       priority = 0;
    }
-
-  st_facecount--;
+   
+   st_facecount--;
 }
 
 int sts_traditional_keys; // killough 2/28/98: traditional status bar keys
@@ -602,17 +624,22 @@ static void ST_updateWidgets(void)
    ST_updateFaceWidget();
 
    // used by the w_armsbg widget
-   st_notdeathmatch = !(GameType == gt_dm);
+   st_notdeathmatch = (GameType != gt_dm);
 
    // used by w_arms[] widgets
-   st_armson = st_statusbaron && !(GameType == gt_dm);
+   st_armson = st_statusbaron && GameType != gt_dm;
 
    // used by w_frags widget
-   st_fragson = GameType == gt_dm && st_statusbaron;
+   st_fragson = st_statusbaron && GameType == gt_dm;
 
    st_fragscount = plyr->totalfrags;     // sf 15/10/99 use totalfrags
 }
 
+//
+// ST_DoomTicker
+//
+// Performs ticker actions for DOOM's status bar.
+//
 static void ST_DoomTicker(void)
 {
    st_clock++;
@@ -620,6 +647,11 @@ static void ST_DoomTicker(void)
    st_oldhealth = plyr->health;
 }
 
+//
+// ST_Ticker
+//
+// Calls the current gamemode's status bar ticker function.
+//
 void ST_Ticker(void)
 {
    gameModeInfo->StatusBar->Ticker();
@@ -627,6 +659,12 @@ void ST_Ticker(void)
 
 static int st_palette = 0;
 
+//
+// ST_doPaletteStuff
+//
+// Performs player palette flashes for damage, item pickups, etc.
+// This code is shared by all status bars.
+//
 static void ST_doPaletteStuff(void)
 {
    int  palette;
@@ -672,16 +710,8 @@ static void ST_doPaletteStuff(void)
    }
 }
 
-static void ST_drawWidgets(boolean refresh)
+static void ST_drawCommonWidgets(boolean refresh)
 {
-   int i;
-
-   // used by w_arms[] widgets
-   st_armson = st_statusbaron && !(GameType == gt_dm);
-
-   // used by w_frags widget
-   st_fragson = GameType == gt_dm && st_statusbaron;
-
    //jff 2/16/98 make color of ammo depend on amount
    if(*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
       STlib_updateNum(&w_ready, cr_red, refresh);
@@ -691,12 +721,6 @@ static void ST_drawWidgets(boolean refresh)
       STlib_updateNum(&w_ready, cr_gold, refresh);
     else
       STlib_updateNum(&w_ready, cr_green, refresh);
-
-   for(i = 0; i < 4; i++)
-   {
-      STlib_updateNum(&w_ammo[i], NULL, refresh);   //jff 2/16/98 no xlation
-      STlib_updateNum(&w_maxammo[i], NULL, refresh);
-   }
 
    //jff 2/16/98 make color of health depend on amount
    if(*w_health.n.num < health_red)
@@ -717,6 +741,26 @@ static void ST_drawWidgets(boolean refresh)
       STlib_updatePercent(&w_armor, cr_green, refresh);
    else
       STlib_updatePercent(&w_armor, cr_blue_status, refresh); //killough 2/28/98
+}
+
+static void ST_drawWidgets(boolean refresh)
+{
+   int i;
+
+   // used by w_arms[] widgets
+   st_armson = st_statusbaron && !(GameType == gt_dm);
+
+   // used by w_frags widget
+   st_fragson = GameType == gt_dm && st_statusbaron;
+
+   // haleyjd: draw widgets common to status bar and fullscreen 
+   ST_drawCommonWidgets(refresh);
+
+   for(i = 0; i < 4; i++)
+   {
+      STlib_updateNum(&w_ammo[i], NULL, refresh);   //jff 2/16/98 no xlation
+      STlib_updateNum(&w_maxammo[i], NULL, refresh);
+   }
 
    STlib_updateBinIcon(&w_armsbg, refresh);
 
@@ -748,6 +792,49 @@ static void ST_diffDraw(void)
    ST_drawWidgets(false);
 }
 
+#define ST_FS_X 85
+#define ST_FS_HEALTHY 154
+#define ST_FS_BY 176
+#define ST_FS_AMMOX 315
+
+#define ST_FSGFX_X 5
+
+static void ST_moveWidgets(boolean fs)
+{
+   if(fs)
+   {
+      if(w_health.n.x != ST_FS_X)
+      {
+         // set fullscreen graphical hud positions
+         w_health.n.x = ST_FS_X;
+         w_health.n.y = ST_FS_HEALTHY;
+         w_armor.n.x  = ST_FS_X;
+         w_armor.n.y  = ST_FS_BY;
+         w_ready.x    = ST_FS_AMMOX;
+         w_ready.y    = ST_FS_BY;
+         
+         // must refresh all widgets when moving them
+         st_firsttime = true;
+      }
+   }
+   else
+   {
+      if(w_health.n.x != ST_HEALTHX)
+      {
+         // restore normal status bar positions
+         w_health.n.x = ST_HEALTHX;
+         w_health.n.y = ST_HEALTHY;
+         w_armor.n.x  = ST_ARMORX;
+         w_armor.n.y  = ST_ARMORY;
+         w_ready.x    = ST_AMMOX;
+         w_ready.y    = ST_AMMOY;
+         
+         // must refresh all widgets when moving them
+         st_firsttime = true;
+      }
+   }
+}
+
 //
 // ST_DoomDrawer
 //
@@ -755,17 +842,61 @@ static void ST_diffDraw(void)
 //
 static void ST_DoomDrawer(void)
 {
+   // possibly update widget positions
+   ST_moveWidgets(false);
+
    if(st_firsttime)
       ST_doRefresh();     // If just after ST_Start(), refresh all
    else
       ST_diffDraw();      // Otherwise, update as little as possible
 }
 
+//
+// ST_DoomFSDrawer
+//
+// Draws DOOM's new fullscreen hud/status information.
+//
+static void ST_DoomFSDrawer(void)
+{
+   ammotype_t ammo;
+
+   // possibly update widget positions
+   ST_moveWidgets(true);
+
+   // draw graphics
+
+   // health
+   V_DrawPatchGeneral(ST_FSGFX_X, 152, &vbscreen, fs_health, false);
+   
+   // armor
+   if(plyr->armortype == 2)
+      V_DrawPatchGeneral(ST_FSGFX_X, ST_FS_BY, &vbscreen, fs_armorb, false);
+   else
+      V_DrawPatchGeneral(ST_FSGFX_X, ST_FS_BY, &vbscreen, fs_armorg, false);
+
+   // ammo
+   if((ammo = weaponinfo[w_ready.data].ammo) < NUMAMMO)
+      V_DrawPatchGeneral(256, ST_FS_BY, &vbscreen, fs_ammo[ammo], false);
+
+   // draw common number widgets (always refresh since no background)
+   ST_drawCommonWidgets(true);
+}
+
+//
+// ST_Drawer
+//
+// Performs player palette flashes and draws the current gamemode's
+// status bar if appropriate.
+//
 void ST_Drawer(boolean fullscreen, boolean refresh)
 {
    stbarfns_t *StatusBar = gameModeInfo->StatusBar;
 
-   st_statusbaron = !fullscreen || automapactive;
+   // haleyjd: test whether fullscreen graphical hud is enabled
+   boolean fshud = hud_enabled && hud_overlaystyle == 4;
+
+   st_statusbaron  = !fullscreen || automapactive || fshud;
+   st_backgroundon = !fullscreen || automapactive;
    st_firsttime = st_firsttime || refresh;
 
    ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
@@ -774,8 +905,13 @@ void ST_Drawer(boolean fullscreen, boolean refresh)
    // tiny bit faster and also removes the problem of status bar
    // percent '%' signs being drawn in fullscreen
    if(fullscreen && !automapactive)
-      // haleyjd ST-TODO: call game mode's fullscreen drawer
+   {
+      // haleyjd: call game mode's fullscreen drawer when 
+      // hud is enabled and hud_overlaystyle is "graphical"
+      if(fshud)
+         StatusBar->FSDrawer();
       return;
+   }
    
    StatusBar->Drawer();
 }
@@ -828,16 +964,32 @@ static void ST_loadGraphics(void)
    // status bar background bits
    sbar = (patch_t *) W_CacheLumpName("STBAR", PU_STATIC);
 
+   // haleyjd: fullscreen graphics
+   fs_health = (patch_t *)W_CacheLumpName("HU_FHLTH", PU_STATIC);
+   fs_armorg = (patch_t *)W_CacheLumpName("HU_FARMR", PU_STATIC);
+   fs_armorb = (patch_t *)W_CacheLumpName("HU_FARM2", PU_STATIC);
+   for(i = 0; i < 4; ++i)
+   {
+      sprintf(namebuf, "HU_FAMM%d", i);
+      fs_ammo[i] = (patch_t *)W_CacheLumpName(namebuf, PU_STATIC);
+   }
+
    ST_CacheFaces(default_faces, "STF");
 }
 
+//
+// ST_CacheFaces
+//
+// Sets up the DOOM status bar face patches for a particular player
+// skin.  Called by the skin code when creating a player skin.
+//
 void ST_CacheFaces(patch_t **faces, char *facename)
 {
    int i, facenum;
    char namebuf[9];
 
-   // haleyjd 10/11/03: not in Heretic
-   if(gameModeInfo->flags & GIF_HERETIC)
+   // haleyjd 10/11/03: not in other gamemodes
+   if(gameModeInfo->type != Game_DOOM)
       return;
 
    // face states
@@ -874,7 +1026,7 @@ static void ST_loadData(void)
 
 #if 0
 
-// haleyjd: the following two functions are never called -- ???
+// haleyjd FIXME: the following two functions are never called -- ???
 // they look like they should be, so this needs investigation.
 
 static void ST_unloadGraphics(void)
@@ -957,6 +1109,7 @@ static void ST_createWidgets(void)
                  tallnum,
                  &plyr->ammo[weaponinfo[plyr->readyweapon].ammo],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_AMMOWIDTH );
 
    // the last weapon type
@@ -969,6 +1122,7 @@ static void ST_createWidgets(void)
                      tallnum,
                      &plyr->health,
                      &st_statusbaron,
+                     &st_backgroundon,
                      tallpercent);
 
    // arms background
@@ -996,6 +1150,7 @@ static void ST_createWidgets(void)
                  tallnum,
                  &st_fragscount,
                  &st_fragson,
+                 &st_backgroundon,
                  ST_FRAGSWIDTH);
 
    // faces
@@ -1012,7 +1167,9 @@ static void ST_createWidgets(void)
                      ST_ARMORY,
                      tallnum,
                      &plyr->armorpoints,
-                     &st_statusbaron, tallpercent);
+                     &st_statusbaron,
+                     &st_backgroundon,
+                     tallpercent);
 
    // keyboxes 0-2
    STlib_initMultIcon(&w_keyboxes[0],
@@ -1043,6 +1200,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->ammo[0],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_AMMO0WIDTH);
 
    STlib_initNum(&w_ammo[1],
@@ -1051,6 +1209,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->ammo[1],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_AMMO1WIDTH);
 
    STlib_initNum(&w_ammo[2],
@@ -1059,6 +1218,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->ammo[2],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_AMMO2WIDTH);
 
    STlib_initNum(&w_ammo[3],
@@ -1067,6 +1227,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->ammo[3],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_AMMO3WIDTH);
 
    // max ammo count (all four kinds)
@@ -1076,6 +1237,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->maxammo[0],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_MAXAMMO0WIDTH);
 
    STlib_initNum(&w_maxammo[1],
@@ -1084,6 +1246,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->maxammo[1],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_MAXAMMO1WIDTH);
 
    STlib_initNum(&w_maxammo[2],
@@ -1092,6 +1255,7 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->maxammo[2],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_MAXAMMO2WIDTH);
 
    STlib_initNum(&w_maxammo[3],
@@ -1100,11 +1264,17 @@ static void ST_createWidgets(void)
                  shortnum,
                  &plyr->maxammo[3],
                  &st_statusbaron,
+                 &st_backgroundon,
                  ST_MAXAMMO3WIDTH);
 }
 
 VBuffer backscreen4;
 
+//
+// ST_DoomStart
+//
+// Startup function for the DOOM status bar.
+//
 static void ST_DoomStart(void)
 {
    ST_initData();
@@ -1117,7 +1287,13 @@ static void ST_DoomStart(void)
 
 static boolean st_stopped = true;
 
-// haleyjd: moved up and made static
+//
+// ST_Stop
+//
+// Status bar shut-off function. This code is shared by all
+// status bars.
+// haleyjd: moved up and made static.
+//
 static void ST_Stop(void)
 {
    if(st_stopped)
@@ -1126,6 +1302,12 @@ static void ST_Stop(void)
    st_stopped = true;
 }
 
+//
+// ST_Start
+//
+// Main startup function. Calls the current gamemode's
+// status bar startup function as well.
+//
 void ST_Start(void)
 {
    if(!st_stopped)
@@ -1137,7 +1319,7 @@ void ST_Start(void)
 //
 // ST_DoomInit
 //
-// Initializes the DOOM game mode status bar
+// Initializes the DOOM gamemode status bar
 //
 static void ST_DoomInit(void)
 {
@@ -1151,6 +1333,8 @@ static void ST_DoomInit(void)
 // ST_Init
 //
 // Global status bar initialization function.
+// Calls the current gamemode's status bar initialization
+// function as well.
 //
 void ST_Init(void)
 {

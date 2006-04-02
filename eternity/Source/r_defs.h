@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*-
+// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2000 James Haley
@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -127,43 +127,46 @@ typedef struct
    int stairlock;   // -2 on first locked -1 after thinker done 0 normally
    int prevsec;     // -1 or number of sector for previous step
    int nextsec;     // -1 or number of next step sector
-
+  
    // killough 3/7/98: floor and ceiling texture offsets
    fixed_t   floor_xoffs,   floor_yoffs;
    fixed_t ceiling_xoffs, ceiling_yoffs;
 
    // killough 3/7/98: support flat heights drawn at another sector's heights
    int heightsec;    // other sector, or -1 if no other sector
-
+   
    // killough 4/11/98: support for lightlevels coming from another sector
    int floorlightsec, ceilinglightsec;
-
+   
    int bottommap, midmap, topmap; // killough 4/4/98: dynamic colormaps
-
+   
    // killough 10/98: support skies coming from sidedefs. Allows scrolling
-   // skies and other effects. No "level info" kind of lump is needed,
+   // skies and other effects. No "level info" kind of lump is needed, 
    // because you can use an arbitrary number of skies per level with this
    // method. This field only applies when skyflatnum is used for floorpic
    // or ceilingpic, because the rest of Doom needs to know which is sky
    // and which isn't, etc.
-
+   
    int sky;
-
+   
    // list of mobjs that are at least partially in the sector
    // thinglist is a subset of touching_thinglist
-   struct msecnode_s *touching_thinglist;               // phares 3/14/98
-
+   struct msecnode_s *touching_thinglist;               // phares 3/14/98  
+   
    int linecount;
    struct line_s **lines;
 
    // SoM 9/19/02: Better way to move 3dsides with a sector.
+   // SoM 11/09/04: Improved yet again!
    int f_numattached;
    int *f_attached;
-   int f_tag;
+   int f_numsectors;
+   int *f_attsectors;
 
    int c_numattached;
    int *c_attached;
-   int c_tag;
+   int c_numsectors;
+   int *c_attsectors;
 
 #ifdef R_PORTALS
    rportal_t *c_portal;
@@ -186,7 +189,7 @@ typedef struct
 {
   fixed_t textureoffset; // add this to the calculated texture column
   fixed_t rowoffset;     // add this to the calculated texture top
-  short toptexture;      // Texture indices. We do not maintain names here.
+  short toptexture;      // Texture indices. We do not maintain names here. 
   short bottomtexture;
   short midtexture;
   sector_t* sector;      // Sector the SideDef is facing.
@@ -215,13 +218,13 @@ typedef struct line_s
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
   short flags;           // Animation related.
-  short special;
+  short special;         
   short tag;
   short sidenum[2];      // Visual appearance: SideDefs.
   fixed_t bbox[4];       // A bounding box, for the linedef's extent
   slopetype_t slopetype; // To aid move clipping.
   sector_t *frontsector; // Front and back sector.
-  sector_t *backsector;
+  sector_t *backsector; 
   int validcount;        // if == validcount, already checked
   void *specialdata;     // thinker_t for reversable actions
   int tranlump;          // killough 4/11/98: translucency filter, -1 == none
@@ -284,7 +287,7 @@ typedef struct
   angle_t angle;
   side_t* sidedef;
   line_t* linedef;
-
+  
   // Sector references.
   // Could be retrieved from linedef, too
   // (but that would be slower -- killough)
@@ -323,7 +326,7 @@ typedef post_t column_t;
 // from darkening PLAYPAL to all black.
 // Could use even more than 32 levels.
 
-typedef byte  lighttable_t;
+typedef byte  lighttable_t; 
 
 //
 // Masked 2s linedefs
@@ -360,10 +363,10 @@ typedef struct drawseg_s
 //
 
 struct patch_s
-{
-  short width, height;  // bounding box size
-  short leftoffset;     // pixels to the left of origin
-  short topoffset;      // pixels below the origin
+{ 
+  short width, height;  // bounding box size 
+  short leftoffset;     // pixels to the left of origin 
+  short topoffset;      // pixels below the origin 
   int columnofs[8];     // only [width] used
 };
 
@@ -394,11 +397,11 @@ typedef struct vissprite_s
 
   int translucency; // haleyjd: zdoom-style translucency
 
-  int footclip; // haleyjd: foot clipping
+  fixed_t footclip; // haleyjd: foot clipping
 
 } vissprite_t;
 
-//
+//  
 // Sprites are patches with a special naming convention
 //  so they can be recognized by R_InitSprites.
 // The base name is NNNNFx or NNNNFxFx, with

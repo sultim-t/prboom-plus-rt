@@ -479,7 +479,6 @@ void R_Init(void)
    R_SetViewSize(screenSize+3);
    R_InitPlanes();
    R_InitLightTables();
-   R_InitSkyMap();
    R_InitTranslationTables();
    R_InitParticles(); // haleyjd
 }
@@ -636,7 +635,7 @@ angle_t R_WadToAngle(int wadangle)
 
 static int render_ticker = 0;
 
-extern void R_FlushColumns(void);
+extern void R_ResetColumnBuffer(void);
 
 //
 // R_RenderView
@@ -677,7 +676,7 @@ void R_RenderPlayerView (player_t* player, camera_t *camerapoint)
    NetUpdate();
 
    R_DrawMasked();
-   R_FlushColumns(); // haleyjd
+   R_ResetColumnBuffer();
    
    // Check for new console commands.
    NetUpdate();
@@ -812,23 +811,25 @@ CONSOLE_VARIABLE(r_tranpct, tran_filter_pct, 0)
 
 CONSOLE_VARIABLE(screensize, screenSize, cf_buffered)
 {
+   // FIXME: make sound gamemode dependent
    S_StartSound(NULL, sfx_stnmov);
    
    if(gamestate == GS_LEVEL) // not in intercam
    {
       hide_menu = 20;             // hide the menu for a few tics
-      R_SetViewSize(screenSize+3);
-   }
+      
+      R_SetViewSize(screenSize + 3);
 
-   // haleyjd 10/19/03
-   switch(screenSize)
-   {
-   case 8: // in fullscreen, toggle the hud
-      HU_ToggleHUD();
-      break;
-   default: // otherwise, disable it
-      HU_DisableHUD();
-      break;
+      // haleyjd 10/19/03: reimplement proper hud behavior
+      switch(screenSize)
+      {
+      case 8: // in fullscreen, toggle the hud
+         HU_ToggleHUD();
+         break;
+      default: // otherwise, disable it
+         HU_DisableHUD();
+         break;
+      }
    }
 }
 

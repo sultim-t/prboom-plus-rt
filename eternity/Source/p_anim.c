@@ -60,10 +60,10 @@ void P_AnimateSurfaces(void)
    //   haleyjd: stored as regular ints in the mapinfo so we need 
    //   to transform these to fixed point values :)
 
-   Sky1ColumnOffset += ((long)info_skydelta)<<8;
-   Sky2ColumnOffset += ((long)info_sky2delta)<<8;
+   Sky1ColumnOffset += ((long)LevelInfo.skyDelta)<<8;
+   Sky2ColumnOffset += ((long)LevelInfo.sky2Delta)<<8;
    
-   if(info_lightning)
+   if(LevelInfo.hasLightning)
    {
       if(!NextLightningFlash || LightningFlash)
       {
@@ -189,32 +189,28 @@ void P_InitLightning(void)
 {
    int i;
    int secCount;
-   char *texturename;
-
-   if(info_lightning == false)
+   
+   if(LevelInfo.hasLightning == false)
    {
       LightningFlash = 0;
       return;
    }
-
+   
    LevelSky = skytexture;
-
-   if(*info_altskyname)
-   {
-     texturename = info_altskyname;
-     LevelTempSky = R_TextureNumForName(texturename);
-   }
+   
+   if(LevelInfo.altSkyName)
+      LevelTempSky = R_TextureNumForName(LevelInfo.altSkyName);
    else
-     LevelTempSky = -1;
+      LevelTempSky = -1;
 
    LightningFlash = 0;
    secCount = 0;
-   for(i=0; i<numsectors; i++)
+   for(i = 0; i < numsectors; ++i)
    {
       if(sectors[i].ceilingpic == skyflatnum ||
          sectors[i].ceilingpic == sky2flatnum)
       {
-         secCount++;
+         ++secCount;
       }
       LightningLightLevels = (int *)Z_Malloc(secCount*sizeof(int), PU_LEVEL, NULL);
       NextLightningFlash = ((P_Random(pr_nextflash)&15)+5)*35;
@@ -226,7 +222,7 @@ static cell AMX_NATIVE_CALL sm_lightning(AMX *amx, cell *params)
    if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
-      return 0;
+      return -1;
    }
 
    P_ForceLightning();
@@ -235,7 +231,7 @@ static cell AMX_NATIVE_CALL sm_lightning(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO panim_Natives[] =
 {
-   { "ForceLightning", sm_lightning },
+   { "S_ForceLightning", sm_lightning },
    { NULL, NULL }
 };
 

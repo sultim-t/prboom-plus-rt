@@ -66,7 +66,7 @@ rcsid[] = "$Id: d_deh.c,v 1.20 1998/06/01 22:30:38 thldrmn Exp $";
 // or not
 
 // variables used in other routines
-boolean deh_pars = FALSE; // in wi_stuff to allow pars in modified games
+boolean deh_pars = false; // in wi_stuff to allow pars in modified games
 boolean deh_loaded = false; // sf
 
 // Function prototypes
@@ -304,6 +304,9 @@ dehflags_t deh_mobjflags[] =
   {"SUPERITEM",        0x00010000, 2}, // mobj is a super powerup
   {"NOITEMRESP",       0x00020000, 2}, // mobj won't item respawn
   {"SUPERFRIEND",      0x00040000, 2}, // mobj won't attack other friends
+  {"INVULNCHARGE",     0x00080000, 2}, // mobj invincible when skull flying
+  {"EXPLOCOUNT",       0x00100000, 2}, // mobj doesn't explode until count expires
+  {"CANNOTPUSH",       0x00200000, 2}, // mobj can't push other things
 
   { NULL,              0 }             // NULL terminator
 };
@@ -1180,6 +1183,7 @@ void deh_procPointer(DWFILE *fpin, FILE* fpout, char *line) // done
          // haleyjd 03/14/03: It's amazing what you can catch just by
          // reformatting some code -- the below line is COMPLETELY
          // incorrect. Must use NUMBEXPTRS, not NUMSTATES.
+
          // for(i=0;i<NUMSTATES;i++)
          
          for(i = 0; i < num_bexptrs; i++)
@@ -1505,7 +1509,7 @@ void deh_procPars(DWFILE *fpin, FILE* fpout, char *line) // extension
                   oldpar = cpars[level-1];
                   if (fpout) fprintf(fpout,"Changed par time for MAP%02d from %d to %d\n",level,oldpar,partime);
                   cpars[level-1] = partime;
-                  deh_pars = TRUE;
+                  deh_pars = true;
                 }
             }
         }
@@ -1528,7 +1532,7 @@ void deh_procPars(DWFILE *fpin, FILE* fpout, char *line) // extension
               if (fpout) fprintf(fpout,
                                  "Changed par time for E%dM%d from %d to %d\n",
                                  episode,level,oldpar,partime);
-              deh_pars = TRUE;
+              deh_pars = true;
             }
         }
     }
@@ -2073,7 +2077,7 @@ void deh_procHelperThing(DWFILE *fpin, FILE *fpout, char *line)
         fprintf(fpout,"value is %i", (int)value);
       }      
       if(!strncasecmp(key, "type", 4))
-        HelperThing = (int)value;
+        HelperThing = E_ThingNumForDEHNum((int)value);
   }
   return;
 }
@@ -2133,7 +2137,7 @@ void deh_procBexSprites(DWFILE *fpin, FILE *fpout, char *line)
 	       fprintf(fpout, "Substituting '%s' for sprite '%s'\n",
 	               candidate, deh_spritenames[rover]);
 
-            // haleyjd 03/11/03: can now use original
+            // haleyjd 03/11/03: can now use original due to EDF
 	    // sprnames[rover] = strdup(candidate);
             strncpy(sprnames[rover], candidate, 4);
 	    break;

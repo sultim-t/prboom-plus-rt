@@ -58,12 +58,14 @@
 #include "m_cheat.h"
 #include "m_misc.h"
 #include "p_enemy.h"
+#include "p_inter.h"
 #include "p_pspr.h"
 #include "p_partcl.h"
 #include "f_finale.h"
 #include "e_edf.h"
 #include "e_sound.h"
 #include "r_draw.h"
+#include "m_qstr.h"
 
 #include "Confuse/confuse.h"
 
@@ -151,6 +153,9 @@ static int UnknownThingType;
 #define ITEM_TNG_CFLAGS "cflags"
 #define ITEM_TNG_ADDFLAGS "addflags"
 #define ITEM_TNG_REMFLAGS "remflags"
+#define ITEM_TNG_DMGSPECIAL "dmgspecial"
+#define ITEM_TNG_CRASHSTATE "crashstate"
+#define ITEM_TNG_SKINSPRITE "skinsprite"
 #define ITEM_TNG_DEHNUM "dehackednum"
 
 #define SEC_THINGDELTA  "thingdelta"
@@ -231,6 +236,18 @@ const char *pickupnames[PFX_NUMFX] =
    "PFX_ENCHANTEDSHIELD",
    "PFX_BAGOFHOLDING",
    "PFX_HMAP",
+   "PFX_GWNDWIMPY",
+   "PFX_GWNDHEFTY",
+   "PFX_MACEWIMPY",
+   "PFX_MACEHEFTY",
+   "PFX_CBOWWIMPY",
+   "PFX_CBOWHEFTY",
+   "PFX_BLSRWIMPY",
+   "PFX_BLSRHEFTY",
+   "PFX_PHRDWIMPY",
+   "PFX_PHRDHEFTY",
+   "PFX_SKRDWIMPY",
+   "PFX_SKRDHEFTY",
    "PFX_TOTALINVIS",
 };
 
@@ -262,6 +279,17 @@ static dehflagset_t particle_flags =
    0,           // mode
 };
 
+// special damage inflictor types
+// currently searched linearly
+// matching enum values in p_inter.h
+
+const char *inflictorTypes[INFLICTOR_NUMTYPES] =
+{
+   "none",
+   "MinotaurCharge",
+   "Whirlwind",
+};
+
 // Note on all the below:
 // For maximum efficiency, the number of chains in these hash tables
 // should be a prime number at least as large as the number of
@@ -290,7 +318,10 @@ static int state_dehchains[NUMSTATECHAINS];
 static int thing_namechains[NUMTHINGCHAINS];
 static int thing_dehchains[NUMTHINGCHAINS];
 
+// prototype of libConfuse parser inclusion function
 extern int cfg_lexer_include(cfg_t *cfg, const char *filename);
+
+// function prototypes for libConfuse callbacks (aka EDF functions)
 
 static int edf_include(cfg_t *cfg, cfg_opt_t *opt, int argc,
                        const char **argv);
@@ -313,7 +344,7 @@ static int edf_enable(cfg_t *cfg, cfg_opt_t *opt, int argc,
 static int edf_disable(cfg_t *cfg, cfg_opt_t *opt, int argc,
                      const char **argv);
 
-// EDF cfg option structures
+// EDF libConfuse option structures
 
 // sprite-based pickup items
 
@@ -362,6 +393,10 @@ static int E_SpeedCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
 static int E_ColorCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
                      void *result);
 
+// translucency value-parsing callback (10/04/04)
+static int E_TranslucCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
+                        void *result);
+
 // things
 
 #define THINGTYPE_FIELDS \
@@ -389,7 +424,7 @@ static int E_ColorCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
    CFG_STR(ITEM_TNG_FLAGS,        "",       CFGF_NONE), \
    CFG_STR(ITEM_TNG_FLAGS2,       "",       CFGF_NONE), \
    CFG_STR(ITEM_TNG_RAISESTATE,   "S_NULL", CFGF_NONE), \
-   CFG_INT(ITEM_TNG_TRANSLUC,     65536,    CFGF_NONE), \
+   CFG_INT_CB(ITEM_TNG_TRANSLUC,  65536,    CFGF_NONE, E_TranslucCB), \
    CFG_STR(ITEM_TNG_FLAGS3,       "",       CFGF_NONE), \
    CFG_INT(ITEM_TNG_BLOODCOLOR,   0,        CFGF_NONE), \
    CFG_INT_CB(ITEM_TNG_FASTSPEED, 0,        CFGF_NONE, E_SpeedCB), \
@@ -403,7 +438,10 @@ static int E_ColorCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
    CFG_STR(ITEM_TNG_CFLAGS,       "",       CFGF_NONE), \
    CFG_STR(ITEM_TNG_ADDFLAGS,     "",       CFGF_NONE), \
    CFG_STR(ITEM_TNG_REMFLAGS,     "",       CFGF_NONE), \
+   CFG_STR(ITEM_TNG_DMGSPECIAL,   "NONE",   CFGF_NONE), \
+   CFG_STR(ITEM_TNG_CRASHSTATE,   "S_NULL", CFGF_NONE), \
    CFG_INT(ITEM_TNG_DEHNUM,       -1,       CFGF_NONE), \
+   CFG_STR(ITEM_TNG_SKINSPRITE,   "noskin", CFGF_NONE), \
    CFG_END()
 
 static cfg_opt_t thing_opts[] =
@@ -521,10 +559,13 @@ static void edf_error(cfg_t *cfg, const char *fmt, va_list ap)
       fputs("Exiting due to parser error\n", edf_output);
 
    // 12/16/03: improved error messages
-   if(cfg && cfg->filename && cfg->line)
-      fprintf(stderr, "Error at %s:%d:\n", cfg->filename, cfg->line);
-   else if(cfg && cfg->filename)
-      fprintf(stderr, "Error in %s:\n", cfg->filename);
+   if(cfg && cfg->filename)
+   {
+      if(cfg->line)
+         fprintf(stderr, "Error at %s:%d:\n", cfg->filename, cfg->line);
+      else
+         fprintf(stderr, "Error in %s:\n", cfg->filename);
+   }
 
    I_ErrorVA(fmt, ap);
 }
@@ -875,12 +916,12 @@ static void E_ProcessSprites(cfg_t *cfg)
    sprnext   = Z_Malloc((NUMSPRITES + 1) * sizeof(int),PU_STATIC,0);
 
    // initialize the sprite hash table
-   for(i = 0; i < NUMSPRCHAINS; i++)
+   for(i = 0; i < NUMSPRCHAINS; ++i)
       sprchains[i] = NUMSPRITES;
-   for(i = 0; i < NUMSPRITES + 1; i++)
+   for(i = 0; i < NUMSPRITES + 1; ++i)
       sprnext[i] = NUMSPRITES;
 
-   for(i = 0; i < NUMSPRITES; i++)
+   for(i = 0; i < NUMSPRITES; ++i)
    {
       unsigned int key;
       // read in all sprite names
@@ -1043,14 +1084,14 @@ static void E_ProcessItems(cfg_t *cfg)
    // allocate and initialize pickup effects array
    pickupfx  = Z_Malloc(NUMSPRITES * sizeof(int), PU_STATIC, 0);
    
-   for(i = 0; i < NUMSPRITES; i++)
+   for(i = 0; i < NUMSPRITES; ++i)
       pickupfx[i] = PFX_NONE;
    
    // load pickupfx
    numpickups = cfg_size(cfg, SEC_PICKUPFX);
    if(edf_output)
       fprintf(edf_output, "\t\t%d pickup item(s) defined\n", numpickups);
-   for(i = 0; i < numpickups; i++)
+   for(i = 0; i < numpickups; ++i)
    {
       int fxnum, sprnum;
       cfg_t *sec = cfg_getnsec(cfg, SEC_PICKUPFX, i);
@@ -1250,11 +1291,11 @@ static void E_CollectNames(cfg_t *scfg, cfg_t *tcfg)
 
    // initialize hash slots
 
-   for(i = 0; i < NUMSTATECHAINS; i++)
+   for(i = 0; i < NUMSTATECHAINS; ++i)
    {
       state_namechains[i] = state_dehchains[i] = NUMSTATES;
    }
-   for(i = 0; i < NUMTHINGCHAINS; i++)
+   for(i = 0; i < NUMTHINGCHAINS; ++i)
    {
       thing_namechains[i] = thing_dehchains[i] = NUMMOBJTYPES;
    }
@@ -1264,7 +1305,7 @@ static void E_CollectNames(cfg_t *scfg, cfg_t *tcfg)
       fputs("\t* Building state/thing hash tables\n", edf_output);
 
    // states
-   for(i = 0; i < NUMSTATES; i++)
+   for(i = 0; i < NUMSTATES; ++i)
    {
       unsigned int key;
       cfg_t *statecfg = cfg_getnsec(scfg, SEC_FRAME, i);
@@ -1314,7 +1355,7 @@ static void E_CollectNames(cfg_t *scfg, cfg_t *tcfg)
    }
 
    // things
-   for(i = 0; i < NUMMOBJTYPES; i++)
+   for(i = 0; i < NUMMOBJTYPES; ++i)
    {
       unsigned int key;
       cfg_t *thingcfg = cfg_getnsec(tcfg, SEC_THING, i);
@@ -1501,8 +1542,8 @@ static void E_ParseMiscField(const char *value, long *target)
       while(rover != colonloc && i < 15) // leave room for \0
       {
          prefix[i] = *rover;
-         rover++;
-         i++;
+         ++rover;
+         ++i;
       }
 
       // check validity of the string value location (could be end)
@@ -1692,12 +1733,23 @@ static void E_StateNextFrame(const char *tempstr, int i)
    }
    else if((tempint = E_StateNumForName(tempstr)) == NUMSTATES)
    {
-      if(edf_output)
-         fprintf(edf_output, "\t\tFrame %d: bad nextframe %s\n",
-                 i, tempstr);
+      // check for DeHackEd num specification
+      if(!strncasecmp(tempstr, "dehnum:", 7) && strlen(tempstr) > 7)
+      {
+         // use strtol on the remaining portion of the string;
+         // the resulting value must be a valid frame deh number
+         tempint = E_GetStateNumForDEHNum(strtol(tempstr + 7, NULL, 0));
+      }
+      else
+      {
+         // error
+         if(edf_output)
+            fprintf(edf_output, "\t\tFrame %d: bad nextframe %s\n",
+                    i, tempstr);
       
-      I_Error("E_ProcessState: frame %d: bad nextframe %s\n",
-              i, tempstr);
+         I_Error("E_ProcessState: frame %d: bad nextframe %s\n",
+                 i, tempstr);
+      }
    }
 
    states[i].nextstate = tempint;
@@ -1715,7 +1767,7 @@ static void E_StatePtclEvt(const char *tempstr, int i)
    while(tempint != P_EVENT_NUMEVENTS &&
          strcasecmp(tempstr, particleEvents[tempint].name))
    {
-      tempint++;
+      ++tempint;
    }
    if(tempint == P_EVENT_NUMEVENTS)
    {
@@ -1730,15 +1782,68 @@ static void E_StatePtclEvt(const char *tempstr, int i)
    states[i].particle_evt = tempint;
 }
 
+//
+// E_CmpTokenizer
+//
+// haleyjd 06/24/04:
+// A lexer function for the frame cmp field.
+// Used by E_ProcessCmpState below.
+//
+static const char *E_CmpTokenizer(const char *text, int *index, qstring_t *token)
+{
+   char c;
+   int state = 0;
+
+   // if we're already at the end, return NULL
+   if(text[*index] == '\0')
+      return NULL;
+
+   M_QStrClear(token);
+
+   while((c = text[*index]) != '\0')
+   {
+      *index += 1;
+      switch(state)
+      {
+      case 0: // default state
+         switch(c)
+         {
+         case ' ':
+         case '\t':
+            continue;  // skip whitespace
+         case '"':
+            state = 1; // enter quoted part
+            continue;
+         case '|':     // end of current token
+            return M_QStrBuffer(token);
+         default:      // everything else == part of value
+            M_QStrPutc(token, c);
+            continue;
+         }
+      case 1: // in quoted area
+         if(c == '"') // end of quoted area
+            state = 0;
+         else
+            M_QStrPutc(token, c); // everything inside is literal
+         continue;
+      default:
+         I_Error("E_CmpTokenizer: internal error - undefined lexer state\n");
+      }
+   }
+
+   // return final token, next call will return NULL
+   return M_QStrBuffer(token);
+}
+
 // macros for E_ProcessCmpState:
 
-// NEXTTOKEN: calls strtok again, IF the last token wasn't already NULL
+// NEXTTOKEN: calls E_CmpTokenizer to get the next token
 
-#define NEXTTOKEN() if(curtoken) curtoken = strtok(NULL, delims)
+#define NEXTTOKEN() curtoken = E_CmpTokenizer(value, &tok_index, &buffer)
 
 // DEFAULTS: tests if the string value is either NULL or equal to "*"
 
-#define DEFAULTS(value) (!(value) || (value)[0] == '*')
+#define DEFAULTS(value)  (!(value) || (value)[0] == '*')
 
 //
 // E_ProcessCmpState
@@ -1746,9 +1851,7 @@ static void E_StatePtclEvt(const char *tempstr, int i)
 // Code to process a compressed state definition. Compressed state
 // definitions are just a string with each frame field in a set order,
 // delimited by pipes. This is very similar to DDF's frame specification,
-// and has been requested by multiple users. Converting frames.edf to
-// this format should shorten it considerably. This format will also
-// be used for anonymous state lists.
+// and has been requested by multiple users.
 //
 // Compressed format:
 // "sprite|spriteframe|fullbright|tics|action|nextframe|ptcl|misc|args"
@@ -1756,21 +1859,22 @@ static void E_StatePtclEvt(const char *tempstr, int i)
 // Fields at the end can be left off. "*" in a field means to use
 // the normal default value.
 //
+// haleyjd 06/24/04: rewritten to use a finite-state-automaton lexer, 
+// making the format MUCH more flexible than it was under the former 
+// strtok system. The E_CmpTokenizer function above performs the 
+// lexing, returning each token in the qstring provided to it.
+//
 static void E_ProcessCmpState(const char *value, int i)
 {
-   char *buffer;
-   char *curtoken;
-   const char *delims = "|";
-   int j;
+   qstring_t buffer;
+   const char *curtoken = NULL;
+   int tok_index = 0, j;
 
-   // first things first, we have to duplicate the value string
-   // so that strtok can do its dirty work
-   buffer = strdup(value);
-
-   // prime strtok and retrieve the first value
-   curtoken = strtok(buffer, delims);
+   // first things first, we have to initialize the qstring
+   M_QStrInitCreate(&buffer);
 
    // process sprite
+   NEXTTOKEN();
    if(DEFAULTS(curtoken))
       states[i].sprite = blankSpriteNum;
    else
@@ -1853,8 +1957,8 @@ static void E_ProcessCmpState(const char *value, int i)
          E_ParseMiscField(curtoken, &(states[i].args[j]));
    }
 
-   // free the buffer
-   free(buffer);
+   // free the qstring
+   M_QStrFree(&buffer);
 }
 
 #undef NEXTTOKEN
@@ -1960,9 +2064,9 @@ static void E_ProcessState(int i, cfg_t *framesec, boolean def)
    if(IS_SET(ITEM_FRAME_ARGS))
    {
       tempint = cfg_size(framesec, ITEM_FRAME_ARGS);
-      for(j = 0; j < 5; j++) // hard-coded args max
+      for(j = 0; j < 5; ++j) // hard-coded args max
          states[i].args[j] = 0;
-      for(j = 0; j < tempint && j < 5; j++) // hard-coded args max
+      for(j = 0; j < tempint && j < 5; ++j) // hard-coded args max
       {
          tempstr = cfg_getnstr(framesec, ITEM_FRAME_ARGS, j);
          E_ParseMiscField(tempstr, &(states[i].args[j]));
@@ -2161,6 +2265,80 @@ static int E_ColorCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
    else
    {
       *(long *)result = num % TRANSLATIONCOLOURS;
+   }
+
+   return 0;
+}
+
+
+//
+// E_ColorCB
+//
+// libConfuse value-parsing callback for the thingtype translucency
+// field. Can accept an integer value or a percentage.
+//
+static int E_TranslucCB(cfg_t *cfg, cfg_opt_t *opt, const char *value,
+                        void *result)
+{
+   char *endptr, *pctloc;
+
+   // test for a percent sign (start looking at end)
+   pctloc = strrchr(value, '%');
+
+   if(pctloc)
+   {
+      long pctvalue;
+      
+      // get the percentage value (base 10 only)
+      pctvalue = strtol(value, &endptr, 10);
+
+      // strtol should stop at the percentage sign
+      if(endptr != pctloc)
+      {
+         if(cfg)
+         {
+            cfg_error(cfg, "invalid percentage value for option '%s'",
+                      opt->name);
+         }
+         return -1;
+      }
+      if(errno == ERANGE || pctvalue < 0 || pctvalue > 100) 
+      {
+         if(cfg)
+         {
+            cfg_error(cfg,
+               "percentage value for option '%s' is out of range",
+               opt->name);
+         }
+         return -1;
+      }
+
+      *(long *)result = (65536 * pctvalue) / 100;
+   }
+   else
+   {
+      // process an integer
+      *(long *)result = strtol(value, &endptr, 0);
+      
+      if(*endptr != '\0')
+      {
+         if(cfg)
+         {
+            cfg_error(cfg, "invalid integer value for option '%s'",
+                      opt->name);
+         }
+         return -1;
+      }
+      if(errno == ERANGE) 
+      {
+         if(cfg)
+         {
+            cfg_error(cfg,
+               "integer value for option '%s' is out of range",
+               opt->name);
+         }
+         return -1;
+      }
    }
 
    return 0;
@@ -2517,9 +2695,7 @@ static void E_ProcessThing(int i, cfg_t *thingsec,
          if(*tempstr == '\0')
             mobjinfo[i].flags = 0;
          else
-         {
             mobjinfo[i].flags = deh_ParseFlagsSingle(tempstr, DEHFLAGS_MODE1);
-         }
       }
       
       // process flags2
@@ -2529,9 +2705,7 @@ static void E_ProcessThing(int i, cfg_t *thingsec,
          if(*tempstr == '\0')
             mobjinfo[i].flags2 = 0;
          else
-         {
             mobjinfo[i].flags2 = deh_ParseFlagsSingle(tempstr, DEHFLAGS_MODE2);
-         }
       }
 
       // process flags3
@@ -2541,9 +2715,7 @@ static void E_ProcessThing(int i, cfg_t *thingsec,
          if(*tempstr == '\0')
             mobjinfo[i].flags3 = 0;
          else
-         {
             mobjinfo[i].flags3 = deh_ParseFlagsSingle(tempstr, DEHFLAGS_MODE3);
-         }
       }
    }
 
@@ -2623,7 +2795,7 @@ static void E_ProcessThing(int i, cfg_t *thingsec,
       }
       
       if(dp->cptr != NULL)
-         M_AddNukeSpec(i, (void (*)(mobj_t*))(dp->cptr));
+         M_AddNukeSpec(i, (void (*)(mobj_t*))(dp->cptr)); // yuck!
    }
 
    // 07/13/03: process particlefx
@@ -2706,6 +2878,46 @@ static void E_ProcessThing(int i, cfg_t *thingsec,
    // 01/12/04: process translation
    if(IS_SET(ITEM_TNG_COLOR))
       mobjinfo[i].colour = cfg_getint(thingsec, ITEM_TNG_COLOR);
+
+   // 08/01/04: process dmgspecial
+   if(IS_SET(ITEM_TNG_DMGSPECIAL))
+   {
+      tempstr = cfg_getstr(thingsec, ITEM_TNG_DMGSPECIAL);
+      
+      // find the proper dmgspecial number (linear search)
+      tempint = 0;
+      while(tempint != INFLICTOR_NUMTYPES && 
+            strcasecmp(inflictorTypes[tempint], tempstr))
+      {
+         ++tempint;
+      }
+
+      if(tempint == INFLICTOR_NUMTYPES)
+      {
+         if(edf_output)
+            fprintf(edf_output, "\t\tInvalid dmgspecial: %s\n", tempstr);
+
+         I_Error("E_ProcessThing: thing %d: invalid dmgspecial %s\n", 
+                 i, tempstr);
+      }
+
+      mobjinfo[i].dmgspecial = tempint;
+   }
+
+   // 08/07/04: process crashstate
+   if(IS_SET(ITEM_TNG_CRASHSTATE))
+   {
+      tempstr = cfg_getstr(thingsec, ITEM_TNG_CRASHSTATE);
+      E_ThingFrame(tempstr, ITEM_TNG_CRASHSTATE, i,
+                   &(mobjinfo[i].crashstate));
+   }
+
+   // 09/26/04: process alternate sprite
+   if(IS_SET(ITEM_TNG_SKINSPRITE))
+   {
+      tempstr = cfg_getstr(thingsec, ITEM_TNG_SKINSPRITE);
+      mobjinfo[i].altsprite = E_SpriteNumForName(tempstr);
+   }
 
    // output end message if processing a definition
    if(def && edf_output)
@@ -2974,12 +3186,12 @@ static void E_ProcessCast(cfg_t *cfg)
 
       // process sound blocks (up to four will be processed)
       tempint = cfg_size(castsec, ITEM_CAST_SOUND);
-      for(j = 0; j < 4; j++)
+      for(j = 0; j < 4; ++j)
       {
          castorder[i].sounds[j].frame = 0;
          castorder[i].sounds[j].sound = 0;
       }
-      for(j = 0; j < tempint && j < 4; j++)
+      for(j = 0; j < tempint && j < 4; ++j)
       {
          int num;
          sfxinfo_t *sfx;

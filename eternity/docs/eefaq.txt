@@ -1,5 +1,5 @@
 ====================================================================
-Eternity Engine v3.31 Public Beta 7 - Frequently Asked Questions
+Eternity Engine v3.31 'Delta' - Frequently Asked Questions
 ====================================================================
 
 This is a FAQ file for the Windows version of the Eternity Engine.
@@ -595,7 +595,7 @@ A3. The Eternity Engine is maintained by James "Quasar" Haley and
     
     * zdoom       -- Randy Heit
     * DOOM Legacy -- The Legacy Team
-    * PRBOOM      -- Florian Schulze, Colin Phipps
+    * PrBoom      -- Florian Schulze, Colin Phipps
     
     Eternity uses code from the following libraries/applications. We
     extend thanks to their authors and maintainers.

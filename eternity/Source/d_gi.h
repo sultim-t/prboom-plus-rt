@@ -116,7 +116,16 @@ enum
 
 #define GIF_PAGERAW      0x00000001  // page screens are raw format
 #define GIF_SHAREWARE    0x00000002  // shareware game (no -file)
-#define GIF_HERETIC      0x00000004  // is a heretic game mode
+
+//
+// Game Mode Types
+//
+enum
+{
+   Game_DOOM,
+   Game_Heretic,
+   NumGameModeTypes
+};
 
 //
 // gameinfo_t
@@ -129,11 +138,16 @@ enum
 
 typedef struct gameinfo_s
 {
+   int type;                  // main game mode type: doom, heretic, etc.
    int flags;                 // game mode flags
+
+   // startup stuff
+   const char *resourceFmt;   // format string for resource wad
    
    // demo state information
    int titleTics;             // length of time to show title
    int advisorTics;           // for Heretic, len. to show advisory
+   boolean hasAdvisory;       // shows an advisory at title screen
    int pageTics;              // length of general demo state pages
    int titleMusNum;           // music number to use for title
 
@@ -145,6 +159,7 @@ typedef struct gameinfo_s
    menu_t *mainMenu;          // pointer to main menu structure
    int *menuSounds;           // menu sound indices
    int transFrame;            // frame DEH # used on video menu
+   int skvAtkSound;            // skin viewer attack sound
 
    // border stuff
    char *borderFlat;          // name of flat to fill backscreen
@@ -174,6 +189,7 @@ typedef struct gameinfo_s
    fixed_t teleFogHeight;     // amount to add to telefog z coord
    int teleSound;             // sound id for teleportation
    short thrustFactor;        // damage thrust factor
+   boolean hasMadMelee;       // game mode has mad melee when player dies
 
    // Intermission and Finale stuff
    int interMusNum;           // intermission music number
@@ -186,6 +202,7 @@ typedef struct gameinfo_s
    int numMusic;              // maximum music index value
    char *musPrefix;           // "D_" for DOOM, "MUS_" for Heretic
    int *infoSounds;           // p_info env. sound remapping array
+   const char *defSoundName;  // default sound if one is missing
 
    // Line special sound variables -- TODO: replace with editable
    // sound sequences

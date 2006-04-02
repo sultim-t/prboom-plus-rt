@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*-
+// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2000 James Haley
@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -31,7 +31,7 @@
 #include "d_player.h"
 #include "p_mobj.h"
 
-// Ty 03/09/98 Moved to an int in p_inter.c for deh and externalization
+// Ty 03/09/98 Moved to an int in p_inter.c for deh and externalization 
 #define MAXHEALTH maxhealth
 
 // follow a player exlusively for 3 seconds
@@ -68,6 +68,15 @@ extern int idkfa_armor;
 extern int idkfa_armor_class;
 extern int bfgcells;
 extern int maxammo[], clipammo[];
+
+// haleyjd 08/01/04: special inflictor types
+typedef enum
+{
+   INFLICTOR_NONE,
+   INFLICTOR_MINOTAUR,  // minotaur charge
+   INFLICTOR_WHIRLWIND, // whirlwinds
+   INFLICTOR_NUMTYPES
+} inflictor_type_e;
 
 #endif
 

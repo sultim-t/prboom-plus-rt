@@ -31,10 +31,6 @@
 #include "mn_engin.h"
 
 void MN_HInitSkull(void);
-void MN_HBLoadFont(void);
-void MN_HBWriteText(unsigned char *s, int x, int y);
-void MN_HBWriteNumText(unsigned char *s, int x, int y);
-int MN_HBStringWidth(unsigned char *s);
 void MN_AddHMenus(void);
 
 extern menu_t menu_hmain;

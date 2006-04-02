@@ -48,27 +48,23 @@
 #include "w_wad.h"
 #include "am_map.h"
 #include "d_gi.h"
+#include "m_qstr.h"
+#include "a_small.h"
 
-#define HU_TITLE  (*mapnames[(gameepisode-1)*9+gamemap-1])
-#define HU_TITLE2 (*mapnames2[gamemap-1])
-#define HU_TITLEP (*mapnamesp[gamemap-1])
-#define HU_TITLET (*mapnamest[gamemap-1])
-#define HU_TITLEH (*mapnamesh[(gameepisode-1)*9+gamemap-1])
+void HU_WarningsInit(void);
+void HU_WarningsDrawer(void);
 
-void HU_WarningsInit();
-void HU_WarningsDrawer();
+void HU_WidgetsInit(void);
+void HU_WidgetsTick(void);
+void HU_WidgetsDraw(void);
+void HU_WidgetsErase(void);
 
-void HU_WidgetsInit();
-void HU_WidgetsTick();
-void HU_WidgetsDraw();
-void HU_WidgetsErase();
+void HU_MessageTick(void);
+void HU_MessageDraw(void);
+void HU_MessageClear(void);
+void HU_MessageErase(void);
 
-void HU_MessageTick();
-void HU_MessageDraw();
-void HU_MessageClear();
-void HU_MessageErase();
-
-void HU_CentreMessageClear();
+void HU_CenterMessageClear(void);
 boolean HU_ChatRespond(event_t *ev);
 
 // the global widget list
@@ -83,23 +79,6 @@ int obcolour = CR_BRICK;       // the colour of death messages
 int showMessages;    // Show messages has default, 0 = off, 1 = on
 int mess_colour = CR_RED;      // the colour of normal messages
 
-// main message list
-unsigned char *levelname;
-
-//
-// Builtin map names.
-// The actual names can be found in DStrings.h.
-//
-// Ty 03/27/98 - externalized map name arrays - now in d_deh.c
-// and converted to arrays of pointers to char *
-// See modified HUTITLEx macros
-//
-extern char **mapnames[];
-extern char **mapnames2[];
-extern char **mapnamesp[];
-extern char **mapnamest[];
-extern char **mapnamesh[];
-
 ///////////////////////////////////////////////////////////////////////
 //
 // Main Functions
@@ -109,11 +88,7 @@ extern char **mapnamesh[];
 void HU_Start(void)
 {
    HU_MessageClear();
-   HU_CentreMessageClear();
-}
-
-void HU_End(void)
-{
+   HU_CenterMessageClear();
 }
 
 void HU_Init(void)
@@ -157,93 +132,33 @@ boolean HU_Responder(event_t *ev)
    return HU_ChatRespond(ev);
 }
 
-// hu_newlevel called when we enter a new level
-// determine the level name and display it in
-// the console
-
-extern char gamemapname[9];
-
-// haleyjd: made into a function
-static void SynthLevelName(boolean secret)
-{
-   // haleyjd 12/14/01: halved size of this string, max len
-   // is deterministic since gamemapname is 8 chars long
-   static char newlevelstr[25];
-
-   sprintf(newlevelstr, 
-           secret ? "%s: hidden level" : "%s: new level", 
-           gamemapname);
-   
-   levelname = newlevelstr;
-}
-
+//
+// HU_NewLevel
+//
+// Called when loading a new map.
+//
 void HU_NewLevel(void)
-{
-   // determine the level name        
-   // there are a number of sources from which it can come from,
-   // getting the right one is the tricky bit =)
-   
+{   
+
+#if 0
    // if commerical mode, OLO loaded and inside the confines of the
    // new level names added, use the olo level name
-  
+
    if(gamemode == commercial && olo_loaded
       && (gamemap-1 >= olo.levelwarp && gamemap-1 <= olo.lastlevel))
    {
-      levelname = olo.levelname[gamemap-1];
+      LevelInfo.levelName = olo.levelname[gamemap-1];
    }  
-   else if(*info_levelname)
-   {
-      // info level name from level lump (p_info.c) ?
-      levelname = info_levelname;
-   }  
-   else if(!newlevel || deh_loaded)
-   {
-      // not a new level or dehacked level names ?
-      if(isMAPxy(gamemapname))
-      {
-         levelname = gamemission == pack_tnt ? HU_TITLET :
-                     gamemission == pack_plut ? HU_TITLEP : 
-                     HU_TITLE2;
-      }
-      else if(isExMy(gamemapname))
-      {
-         if(gameModeInfo->flags & GIF_HERETIC)
-         {
-            int maxEpisode = gameModeInfo->numEpisodes;
 
-            if(gamemapname[1] - '0' < maxEpisode)
-            {
-               levelname = HU_TITLEH;
-            }
-            else
-            {
-               // for episode 4 in normal Heretic, or episode 6
-               // in SoSR, just put "hidden level"
-               SynthLevelName(true);
-            }
-         }
-         else
-         {
-            levelname = HU_TITLE;
-         }
-      }
-      else
-      {
-         levelname = gamemapname;
-      }
-   }
-   else        //  otherwise just put "new level"
-   {
-      SynthLevelName(false);
-   }
-   
+#endif
+
+   // haleyjd 07/17/04: level name now determined by MapInfo code
    // print the new level name into the console
    
    C_Printf("\n");
    C_Separator();
-   C_Printf("%c  %s\n\n", 128+CR_GRAY, levelname);
+   C_Printf("%c  %s\n\n", 128+CR_GRAY, LevelInfo.levelName);
    C_InstaPopup();       // put console away
-   //  C_Update();
 }
 
         // erase text that can be trashed by small screens
@@ -319,7 +234,7 @@ void HU_MessageDraw(void)
 
       // haleyjd 12/26/02: center messages in Heretic
       // FIXME/TODO: make this an option in DOOM?
-      if(gameModeInfo->flags & GIF_HERETIC)
+      if(gameModeInfo->type == Game_Heretic)
          x = (SCREENWIDTH - V_StringWidth(hu_messages[i])) >> 1;
       
       V_WriteText(hu_messages[i], x, y);
@@ -356,8 +271,8 @@ patch_t *crosshairs[CROSSHAIRS];
 patch_t *crosshair=NULL;
 char *crosshairpal;
 char *targetcolour, *notargetcolour, *friendcolour;
-int crosshairnum;       // 0= none
-char *cross_str[]= {"none", "cross", "angle"}; // for console
+int crosshairnum;       // 0 = none
+char *cross_str[]= { "none", "cross", "angle" }; // for console
 
 void HU_CrossHairDraw(void)
 {
@@ -385,7 +300,7 @@ void HU_CrossHairDraw(void)
       return;
   
    if(crosshairpal == notargetcolour)
-      V_DrawPatchTL(drawx, drawy, &vbscreen, crosshair, crosshairpal, 32768);
+      V_DrawPatchTL(drawx, drawy, &vbscreen, crosshair, crosshairpal, FTRANLEVEL);
    else
       V_DrawPatchTranslated(drawx, drawy, &vbscreen, crosshair, crosshairpal, false);
 }
@@ -461,12 +376,13 @@ void HU_WarningsInit(void)
 extern int num_visplanes;
 int show_vpo = 0;
 
+// haleyjd 09/29/04: customizable VPO threshold
+
+int vpo_threshold;
+
 void HU_WarningsDrawer(void)
 {
-   // the number of visplanes drawn is less in boom.
-   // i lower the threshold to 85
-   
-   if(show_vpo && num_visplanes > 85)
+   if(show_vpo && num_visplanes > vpo_threshold)
       V_DrawPatch(250, 10, &vbscreen, vpo);
    
    if(opensocket)
@@ -530,7 +446,7 @@ void HU_WidgetsErase(void)
 {
    int i;
    
-   for(i = 0; i < num_widgets; i++)
+   for(i = 0; i < num_widgets; ++i)
       R_VideoErase(0, widgets[i]->y, SCREENWIDTH, 8);
 }
 
@@ -539,7 +455,6 @@ void HU_WidgetsErase(void)
 // The widgets
 
 void HU_LevelTimeHandler(struct textwidget_s *widget);
-void HU_CentreMessageHandler(struct textwidget_s *widget);
 void HU_LevelNameHandler(struct textwidget_s *widget);
 void HU_ChatHandler(struct textwidget_s *widget);
 void HU_CoordHandler(struct textwidget_s *widget); // haleyjd
@@ -549,59 +464,60 @@ void HU_CoordHandler(struct textwidget_s *widget); // haleyjd
 // Centre-of-screen, quake-style message
 //
 
-textwidget_t hu_centremessage =
+textwidget_t hu_centermessage =
 {
-  0, 0,                      // x,y set by HU_CentreMsg
+  0, 0,                      // x,y set by HU_CenterMessage
   0,                         // normal font
   NULL,                      // init to nothing
   NULL,                      // handler
 };
-int centremessage_timer = 1500;         // 1.5 seconds
 
-/*
-void HU_CentreMessageHandler(struct textwidget_s *widget)
+void HU_CenterMessageClear(void)
 {
-  return;         // do nothing
-}
-*/
-
-void HU_CentreMessageClear()
-{
-  hu_centremessage.message = NULL;
+   hu_centermessage.message = NULL;
 }
 
-void HU_CentreMsg(char *s)
+//
+// HU_CenterMessage
+//
+// haleyjd 04/27/04: rewritten to use qstring
+//
+void HU_CenterMessage(const char *s)
 {
-  static char *centremsg = NULL;
-  static int allocedsize = 0;
+   static qstring_t qstr;
+   static boolean first = true;  
+   int st_height = gameModeInfo->StatusBar->height;
+
+   if(first)
+   {
+      M_QStrCreate(&qstr);
+      first = false;
+   }
+   else
+      M_QStrClear(&qstr);
+   
+   M_QStrCat(&qstr, s);
   
-  int st_height = gameModeInfo->StatusBar->height;
-
-  // removed centremsg limit
-  if(strlen(s) > allocedsize)
-    {
-      centremsg = centremsg ? Z_Realloc(centremsg, strlen(s)+3, PU_STATIC, 0)
-	: Z_Malloc(strlen(s)+3, PU_STATIC, 0);
-      allocedsize = strlen(s);
-    }
-  strcpy(centremsg, s);
-  
-  hu_centremessage.message = centremsg;
-  hu_centremessage.x = (SCREENWIDTH-V_StringWidth(s)) / 2;
-  hu_centremessage.y = (SCREENHEIGHT-V_StringHeight(s) -
-    ((scaledviewheight==SCREENHEIGHT) ? 0 : st_height-8)
-			) / 2;
-  hu_centremessage.cleartic = leveltime + (centremessage_timer * 35) / 1000;
-
-  // print to console
-  C_Printf("%s\n", s);
+   hu_centermessage.message = M_QStrBuffer(&qstr);
+   hu_centermessage.x = (SCREENWIDTH-V_StringWidth(s)) / 2;
+   hu_centermessage.y = (SCREENHEIGHT-V_StringHeight(s) -
+      ((scaledviewheight==SCREENHEIGHT) ? 0 : st_height-8)) / 2;
+   hu_centermessage.cleartic = leveltime + (message_timer * 35) / 1000;
+   
+   // print to console
+   C_Printf("%s\n", s);
 }
 
-// haleyjd: timed center message -- uses FS clocks for duration (100/sec)
-void HU_CentreMsgTimed(char *s, int clocks)
+//
+// HU_CenterMessageTimed
+//
+// haleyjd: timed center message. Originally for FraggleScript,
+// now revived for Small.
+//
+void HU_CenterMessageTimed(const char *s, int tics)
 {
-   HU_CentreMsg(s);
-   hu_centremessage.cleartic = leveltime + (clocks * 35) / 100;
+   HU_CenterMessage(s);
+   hu_centermessage.cleartic = leveltime + tics;
 }
 
 /////////////////////////////////////
@@ -652,7 +568,7 @@ textwidget_t hu_levelname =
 
 void HU_LevelNameHandler(struct textwidget_s *widget)
 {
-  hu_levelname.message = automapactive ? levelname : NULL;
+   hu_levelname.message = automapactive ? LevelInfo.levelName : NULL;
 }
 
 ///////////////////////////////////////////////
@@ -785,9 +701,9 @@ void HU_CoordHandler(struct textwidget_s *widget)
    
    // haleyjd: wow, big bug here -- these buffers were not static
    // and thus corruption was occuring when the function returned
-   static char coordxstr[48];
-   static char coordystr[48];
-   static char coordzstr[48];
+   static char coordxstr[12];
+   static char coordystr[12];
+   static char coordzstr[12];
 
    if(!automapactive)
    {
@@ -843,10 +759,10 @@ static void HU_HticWidgetsInit(void)
 void HU_WidgetsInit(void)
 {
    // haleyjd: change stuff for Heretic if necessary
-   if(gameModeInfo->flags & GIF_HERETIC)
+   if(gameModeInfo->type == Game_Heretic)
       HU_HticWidgetsInit();
 
-   HU_AddWidget(&hu_centremessage);
+   HU_AddWidget(&hu_centermessage);
    HU_AddWidget(&hu_levelname);
    HU_AddWidget(&hu_leveltime);
    HU_AddWidget(&hu_chat);
@@ -916,6 +832,7 @@ VARIABLE_INT(obcolour,          NULL, 0, CR_LIMIT-1,    textcolours);
 
 VARIABLE_INT(crosshairnum,      NULL, 0, CROSSHAIRS-1,  cross_str);
 VARIABLE_BOOLEAN(show_vpo,      NULL,                   yesno);
+VARIABLE_INT(vpo_threshold,     NULL, 1, 128,      NULL);
 
 VARIABLE_INT(hud_msg_lines,     NULL, 0, 14,            NULL);
 VARIABLE_INT(message_timer,     NULL, 0, 100000,        NULL);
@@ -934,6 +851,7 @@ CONSOLE_VARIABLE(crosshair, crosshairnum, 0)
 }
 
 CONSOLE_VARIABLE(show_vpo, show_vpo, 0) {}
+CONSOLE_VARIABLE(vpo_threshold, vpo_threshold, 0) {}
 CONSOLE_VARIABLE(messages, showMessages, 0) {}
 CONSOLE_VARIABLE(mess_colour, mess_colour, 0) {}
 CONSOLE_NETCMD(say, cf_netvar, netcmd_chat)
@@ -963,9 +881,41 @@ void HU_AddCommands(void)
    C_AddCommand(mess_lines);
    C_AddCommand(mess_scrollup);
    C_AddCommand(mess_timer);
+
+   C_AddCommand(vpo_threshold);
    
    HU_FragsAddCommands();
    HU_OverAddCommands();
 }
+
+//
+// Script functions
+//
+
+static cell AMX_NATIVE_CALL sm_centermsgtimed(AMX *amx, cell *params)
+{
+   int tics, err;
+   char *text;
+
+   if((err = A_GetSmallString(amx, &text, params[1])) != AMX_ERR_NONE)
+   {
+      amx_RaiseError(amx, err);
+      return -1;
+   }
+
+   tics = params[2];
+
+   HU_CenterMessageTimed(text, tics);
+
+   free(text);
+
+   return 0;
+}
+
+AMX_NATIVE_INFO hustuff_Natives[] =
+{
+   { "IO_CenterMsgTimed", sm_centermsgtimed },
+   { NULL, NULL }
+};
 
 // EOF

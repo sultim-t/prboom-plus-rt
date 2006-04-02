@@ -1,5 +1,0 @@
-v_patch.o: v_patch.c v_video.h doomtype.h doomdef.h d_keywds.h \
- z_zone.h psnprntf.h m_swap.h version.h d_mod.h m_fixed.h i_system.h \
- d_ticcmd.h v_patch.h r_data.h r_defs.h d_think.h p_mobj.h tables.h \
- doomdata.h info.h p_skin.h sounds.h st_stuff.h d_event.h d_player.h \
- d_items.h p_pspr.h p_partcl.h r_state.h p_chase.h v_misc.h

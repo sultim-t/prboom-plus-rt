@@ -469,6 +469,7 @@ static void R_RenderSkyboxPortal(rportal_t *portal)
    floorclip = portal->bottom;
    ceilingclip = portal->top;
 
+   ++validcount;
    R_SetMaskedSilhouette(ceilingclip, floorclip);
 
    lastx = viewx;
@@ -525,6 +526,7 @@ static void R_RenderAnchoredPortal(rportal_t *portal)
    floorclip = portal->bottom;
    ceilingclip = portal->top;
 
+   ++validcount;
    R_SetMaskedSilhouette(ceilingclip, floorclip);
 
    lastx = viewx;

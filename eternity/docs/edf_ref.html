@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine EDF Reference v1.2 -- 04/11/04</h2>
+<h2>Eternity Engine EDF Reference v1.3 -- 08/08/04</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -16,7 +16,7 @@
 <li><a name="contents"><b>Table of Contents</b></a>
     <ul>
     <li><a href="#intro">Introduction to EDF</a>
-    <li><a href="#changes">Changes in EDF 1.2</a>
+    <li><a href="#changes">Changes in EDF 1.3</a>
     <li><a href="#gensyn">General Syntax</a>
     <li><a href="#files">Files</a>
         <ul>
@@ -77,18 +77,19 @@ This documentation will be regularly updated to reflect all changes and addition
 <p>
 <a name="changes">
 <hr>
-<b>Changes in EDF 1.2</b>
+<b>Changes in EDF 1.3</b>
 <hr>
 </a>
 <br>
 <ul>
-<li> Added enable functions for game mode control.
-<li> Added inheritance mechanism for thing types.
-<li> Added support for floating-point numbers in the thingtype fastspeed field.
-<li> Added translation field for thing types.
-<li> Added cflags, addflags, and remflags to the thingtype section.
-<li> Changed error semantics for cast and boss spawner list.
-<li> Added new section for miscellaneous settings.
+<li> Line continuation is now allowed in quoted strings (see <a href="#gensyn">General Syntax</a>)
+<li> Several restrictions on the format of <a href="#cmpframe">frame cmp strings</a> have been relaxed.
+<li> Sprite names duplication semantics documentation clarified, corrected.
+<li> "dmgspecial" field for thingtypes added.
+<li> "crashstate" field for thingtypes added.
+<li> "skinsprite" field for thingtypes added.
+<li> Corrected information on maximum thingtype radius value.
+<li> Percentage values now allowed in thingtype translucency field.
 </ul>
 
 <a href="#contents">Return to Table of Contents</a>
@@ -106,8 +107,7 @@ This documentation will be regularly updated to reflect all changes and addition
      Whitespace and token positioning are totally free-form in EDF. In addition, semicolons
      are discarded as whitespace and can therefore be used to terminate field assignments, lists,
      etc. as in C or C++. As an example, all of the following are strictly equivalent:
-     <pre>
-     thingtype w00t { mass = 1000 }
+     <pre>     thingtype w00t { mass = 1000 }
      
      thingtype w00t
      {
@@ -119,8 +119,7 @@ This documentation will be regularly updated to reflect all changes and addition
                  {
         mass     =
              1000     ;;;;;;
-                     }
-     </pre>
+                     }</pre>
      
      Obviously, you are encouraged to use a clean and consistent format, even though
      it is not required.
@@ -147,7 +146,9 @@ This documentation will be regularly updated to reflect all changes and addition
      // Another single line comment
      
      /*
+     
         This is a multiline comment
+        
      */
      </pre>
 <li> Strings
@@ -191,6 +192,26 @@ This documentation will be regularly updated to reflect all changes and addition
         obituary_melee  = 'says \'w00t\''
      }
      </pre>
+     Line Continuation:
+     <br><br>
+     Starting with Eternity Engine v3.31 Delta, line continuation can be
+     used to split quoted strings across multiple lines. The syntax for doing this is
+     demonstrated in the following example:
+     <pre>
+     frame S_MYFRAME
+     {
+        cmp = "TROO|A|*|6 \
+               TroopAttack|@next"
+     }
+     </pre>
+     The "\" character, when followed immediately by a line break, signifies that line
+     continuation should be triggered.  Whitespace before the line continuation will be
+     included in the string, but any spaces or tabs at the beginning of the next line will
+     NOT be included (this is the same as line continuation in BEX files).  This allows the
+     following continued parts of the string to be arbitrarily indented for purposes of 
+     beautification.  A string can be split across any number of lines in this fashion.
+     <br><br>
+     
 <li> Numbers
      <br><br>
      Most non-string fields in EDF are numbers, either integer or floating-point. Starting
@@ -198,17 +219,17 @@ This documentation will be regularly updated to reflect all changes and addition
      fields. Octal numbers start with a zero, and hexadecimal numbers start with the 
      sequence 0x -- Examples:
      <pre>
-     # this is a normal, decimal number
+     # this is a normal, decimal number (base 10)
      spriteframe = 16
      ...
-     # this is an octal number
+     # this is an octal number (base 8)
      spriteframe = 020
      ...
-     # this is a hexadecimal number
+     # this is a hexadecimal number (base 16)
      spriteframe = 0x10</pre>
      
-     Floating-point numbers must have a decimal point in them, as in 20.0 -- further
-     documentation of the floating-point formats accepted will be available soon.
+     Floating-point numbers must have a decimal point in them, as in "20.0". Floating-point
+     numbers are always base 10.
 </ul>
 
 <a href="#contents">Return to Table of Contents</a>
@@ -230,8 +251,7 @@ Eternity cannot currently load EDF from wad lumps, although actions have been ta
 enable this in the near future.
 <br><br>
 In the meanwhile, Eternity offers several ways to make loading of EDF from files a gentler 
-process. These are addressed in the <b>"Specifying the Root EDF File"</b> section 
-below.
+process. These are addressed in the <b>"Specifying the Root EDF File"</b> section below.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -422,7 +442,7 @@ or disable options within the EDF parser.  The primary use for these functions i
 instruct the parser to skip definitions for game modes other than the one currently
 being played. Although all the thing, frame, sound, and sprite definitions will not
 conflict and can be loaded with each other, most of the time this is unnecessary and requires
-up a significant amount of memory which will never be used.  Allowing such definitions
+a significant amount of memory which will never be used.  Allowing such definitions
 to be discarded during parsing speeds up processing and reduces memory usage. Note that
 all of these functions are only valid at the topmost level of an EDF file, and not within
 definitions.
@@ -499,7 +519,7 @@ Note on command-line option "-edfenables":
 
 The -edfenables command-line option allows the user to override the default behavior
 explicitly and enable all gamemode's definitions without adding an EDF file.  This does 
-not interfere with explicit usage of enable functions, in user EDFs, but it does allow 
+not interfere with explicit usage of enable functions in user EDFs, but it does allow 
 older DeHackEd patches and WADs which might assume Heretic definitions are available in 
 DOOM or vice versa to work.
 <br><br>
@@ -535,12 +555,19 @@ The names defined in this list are the names by which a sprite must be referred 
 other EDF structures. Sprites are the first item to be parsed, regardless of their location,
 so like all EDF structures, the list and any additions to it can be placed anywhere.
 <br><br>
+Note: Sprite names may be duplicated in the list. When this occurs, objects will use the 
+corresponding index of the last definition of that sprite name. Avoid this whenever possible,
+as it is wasteful and may lead to inconsistencies if DeHackEd patches are subsequently applied.
+Previous versions of the EDF documentation inappropriately stated that all sprite names must
+be unique. This has never been true, and cannot be made true for purposes of forward 
+compatibility (otherwise addition of new sprites to the default sprites.edf could break older
+EDFs).
+<br><br>
 Restrictions and Caveats:
 <ul>
 <li> There must be at least one sprite name defined.
 <li> All sprite names used by other structures must be defined, or an error will occur.
-<li> All sprite names must be unique.
-<li> Sprite names will be checked for length and uniqueness, but not for invalid characters.
+<li> Sprite names will be checked for length, but not for invalid characters.
 <li> If compatibility with DeHackEd patches is desired, new sprites should use addition lists.
 </ul>
 Full example:
@@ -899,7 +926,7 @@ take special values of the following type by using prefix:value syntax as shown:
     </pre>
 <li><b>No Prefix</b><br>
     If no prefix is given for a value, it is interpreted as an integer number via the
-    C function "strtol".<br>
+    C function "strtol" (meaning it may be decimal, octal, or hexadecimal).<br>
     Examples:
     <pre>
     misc1 = 32768
@@ -915,10 +942,10 @@ Restrictions and Caveats:
 <li> At least one frame must be defined.
 <li> The S_NULL frame must be defined (it may be the only frame, but it must exist).
 <li> All frames must have a unique mnemonic no longer than 40 characters. Frame mnemonics are
-     currently case-insensitive. They should only contain alphanumeric characters and 
-     underscores. All other punctuation marks are explicity reserved for extended syntactical
-     use. Length will be verified, but format will not (non-unique mnemonics will  overwrite 
-     previous definitions, see below).
+     case-insensitive. They should only contain alphanumeric characters and underscores. All 
+     other punctuation marks are explicity reserved for extended syntactical use. Length will 
+     be verified, but format will not (non-unique mnemonics will overwrite previous definitions, 
+     see below).
 <li> All frames with a DeHackEd number not equal to -1 must have a unique DeHackEd number.
      This will be verified.
 </ul>
@@ -985,6 +1012,12 @@ field is present in a frame block, all other fields except <b>dehackednum</b> ar
 <br><br>
 Note that the <b>cmp</b> field is NOT accepted inside framedelta blocks.
 <br><br>
+As of Eternity Engine v3.31 Delta, the format of cmp fields has been relaxed
+to allow arbitrary whitespace, quoted values, and line continuation. Line continuation was
+discussed in the <a href="#gensyn">General Syntax</a> section, but the new changes to the cmp
+field are discussed below. Note that all existing cmp strings are still accepted as valid; the
+new features simply allow for greater flexibility.
+<br><br>
 Syntax:
 <pre>
 frame
@@ -999,26 +1032,27 @@ The compressed frame definition string has the following syntax:
 "sprite|spriteframe|fullbright|tics|action|nextframe|particle_event|misc1|misc2|args1-5"
 </pre>
 
-Fields *MUST* be provided in the order given, but any number of fields can be left off at
+Fields MUST be provided in the order given, but any number of fields can be left off at
 the end of the definition, and those fields will receive their normal default values. To
 let an internal field default, you must use the special reserved value "*" for that field.
 <br><br>
-Each field is delimited by pipe characters, and field values may NOT contain pipe characters.
-This means that if a misc or args value must specify a BEX flag string, you must use a plus
-sign, comma, or whitespace to separate the flags, NOT a pipe. Extraneous whitespace is NOT
-allowed between field delimiters and their values. Any whitespace between two pipes will be
-interpreted as being part of that field's value.
+Each field is delimited by pipe characters, and field values may NOT contain pipe characters,
+unless, starting with EDF v1.3, the entire field value is enclosed in escaped quotation marks.
+Beginning with EDF v1.3, extraneous whitespace IS allowed between field delimiters and their 
+values. Only whitespace which is enclosed within escaped quotation marks will be interpreted
+as part of a field's value, so if BEX flags strings are to use pipes or spaces to separate
+flags, they must be enclosed with escaped quotations (the \" sequence).
 <br><br>
-The fullbright field has a special caveat within compressed frame definitions. The values T or
-t will be accepted to mean true, and any other value, including the default, will be interpreted
-to mean false.
+The fullbright field has a special caveat within compressed frame definitions. Any value
+beginning with the letter T (small or capital) will be interpreted to mean "true", and any
+other value, including the default, will be interpreted to mean "false".
 <br><br>
 Otherwise, all fields can accept exactly the same types and ranges of values that they
 normally accept when specified separately within a frame block. This includes letters and
 numbers for the spriteframe field, special keywords for the nextframe field, and prefix:value
 syntax for misc1, misc2, and the five args fields.
 <br><br>
-Examples:
+<b>Examples:</b>
 <pre>
 # this is a compressed frame definition which specifies ALL the values
 
@@ -1038,20 +1072,17 @@ frame FOOBAR1 { cmp = "AAAA|*|*|6|Look|@next" }
 frame FOOBAR2 { cmp = "TROO|6|*|6|MissileAttack|@next|*|*|*|thing:DoomImpShot|*|*|20" }
 </pre>
 
+<b>Bad Frame Examples:</b>
+<br><br>
 Some illegal compressed frame definitions would include the following. Don't make these
 mistakes:
 <pre>
-
 # This is wrong, field values may NOT be empty -- use "*" to indicate a default.
 
 frame BAD1 { cmp = "AAAA|||6|Look|@next" }
 
-# This is wrong because extraneous whitespace will be interpreted as part of the
-# fields' values. 
-
-frame BAD2 { cmp = "AAAA | B | T | 23 | Chase | BAD3" }
-
-# This is wrong because BEX flag fields CANNOT use | inside compressed frames.
+# This is wrong because BEX flag fields CANNOT use '|' inside compressed frames, unless
+# they are surrounded by escaped quotation marks.
 
 frame BAD3 { cmp = "AAAA|B|T|23|SomePointer|*|*|*|flags:SOLID|SHOOTABLE|COUNTKILL" }
 
@@ -1062,6 +1093,31 @@ frame BAD4 { cmp = "Look|@next" }
 # This is wrong because fields must be in the correct order.
 
 frame BAD5 { cmp = "6|TROO|*|6|thing:DoomImp|@next|MissileAttack|*|20" }
+</pre>
+
+<b>Examples Using EDF 1.3 Extended Syntax:</b>
+<br><br>
+The following frames would have been invalid prior to EDF v1.3, but are now accepted due to
+the new relaxation of the cmp field format:
+<pre>
+# Arbitrary whitespace is now allowed, and is ignored outside of quoted values:
+
+frame NOWGOOD1 { cmp = "AAAA | * | * | 6 | Look | @next" }
+
+# Values may now be quoted using escaped quotation marks so that they can contain 
+# normally ignored or reserved characters.
+# This allows BEX flags strings to contain pipes and/or spaces:
+
+frame NOWGOOD2 { cmp = "AAAA | * | * | 6 | Look | @next | * | \"flags:SHOOTABLE | SOLID | COUNTKILL\"" }
+
+# EDF line continuation may be used inside any quoted string, including cmp field values.
+# This frame is completely equivalent to the first example above:
+
+frame NOWGOOD3 
+{ 
+   cmp = "AAAA | *    | *    | \
+          6    | Look | @next" 
+}
 </pre>
 
 <a href="#contents">Return to Table of Contents</a>
@@ -1115,6 +1171,7 @@ thingtype &lt;unique mnemonic&gt;
    painsound       = &lt;sound mnemonic&gt;
    meleestate      = &lt;frame mnemonic&gt;
    missilestate    = &lt;frame mnemonic&gt;
+   crashstate      = &lt;frame mnemonic&gt;
    deathstate      = &lt;frame mnemonic&gt;
    xdeathstate     = &lt;frame mnemonic&gt;
    deathsound      = &lt;sound mnemonic&gt;
@@ -1131,7 +1188,7 @@ thingtype &lt;unique mnemonic&gt;
    addflags        = &lt;flag list&gt;
    remflags        = &lt;flag list&gt;
    raisestate      = &lt;frame mnemonic&gt;
-   translucency    = &lt;number&gt;
+   translucency    = &lt;number&gt; OR &lt;percentage&gt;
    bloodcolor      = &lt;number&gt;
    fastspeed       = &lt;number&gt; OR &lt;floating-point number&gt;
    nukespecial     = &lt;BEX codepointer mnemonic&gt;
@@ -1141,6 +1198,8 @@ thingtype &lt;unique mnemonic&gt;
    obituary_normal = &lt;string&gt;
    obituary_melee  = &lt;string&gt;
    translation     = &lt;number&gt; OR &lt;translation table lump name&gt;
+   dmgspecial      = &lt;dmgspecial name&gt;
+   skinsprite      = &lt;sprite mnemonic&gt;
    dehackednum     = &lt;unique number&gt;
 }
 </pre>
@@ -1220,6 +1279,10 @@ Explanation of fields:
     Default = S_NULL<br>
     If this frame is not S_NULL, monsters chasing a target will randomly enter it to perform 
     a missile attack.
+<li><b>crashstate</b><br>
+    Default = S_NULL<br>
+    When a thing with this state dies and then subsequently hits the ground, it will enter
+    this state. If this state S_NULL, it is not used. New to EDF 1.3.
 <li><b>deathstate</b><br>
     Default = S_NULL<br>
     When a thing dies normally, it will enter this state. If the state is S_NULL, the thing 
@@ -1249,10 +1312,10 @@ Explanation of fields:
     Floating-point value that represents the radius of this thing type. A thing can fit into 
     corridors which are at least as wide as this value times two, plus one unit (ie a thing 
     with radius 32 can fit into a 65-wide hallway). The maximum value this field *should* 
-    have is 32.0 units. However, the game breaks its own rule here, giving several monsters 
-    radii up to 128 units. These monsters, which include the mancubus, arachnotron, and spider 
-    demon, exhibit clipping errors which enable other things to walk into them, and which can 
-    cause some moving sectors to malfunction. Avoid giving things radii larger than this to 
+    have is 64.0 units. However, the game breaks its own rule here, giving several monsters 
+    radii up to 128 units. These monsters, which include the Mancubus, Arachnotron, and Spider 
+    Demon, exhibit clipping errors which enable other things to walk into them, and which can 
+    cause some moving sectors to malfunction. Avoid giving things radii larger than 64.0 to 
     remain absolutely safe.
 <li><b>height</b><br>
     Default = 16.0<br>
@@ -1309,8 +1372,8 @@ Explanation of fields:
     New to EDF 1.2, this field allows specification of all the thing's flag values in one
     single flag list. When this field is defined, the 3 normal flags fields above are ignored.
     You can use one or the other in any definition, but not both in the same definition. The
-    only caveat to this field is that the flags bit "SLIDE", which has no effect, cannot be
-    specified in this field. If SLIDE is used, it will activate the flags3 bit with the same
+    only caveat to this field is that the <b>flags</b> bit "SLIDE", which has no effect, cannot 
+    be specified in this field. If SLIDE is used, it will activate the flags3 bit with the same
     name, which has the expected effect. All other flags will be assigned to their appropriate
     internal fields as normal. See the DeHackEd documentation listed in the fields above for
     full information on flag list format and flag mnemonics.
@@ -1319,28 +1382,34 @@ Explanation of fields:
     New to EDF 1.2, this field specifies a combined list of flags to be added to the thing's
     existing flags values (this works the same as the <b>cflags</b> field above). Flags in this
     list are "turned on" in the thing. If flags are listed here which are already "on," there
-    is no effect. This field is most useful within <b>thingdelta</b> sections and in concert
-    with thing type inheritance.
+    is no effect on those flags. This field is most useful within <b>thingdelta</b> sections 
+    and in concert with thing type inheritance.
 <li><b>remflags</b><br>
     Default = ""<br>
     New to EDF 1.2, this field specifies a combined list of flags to be subtracted from the
     thing's existing flags values (this works the same as the <b>cflags</b> field above). Flags
     in this list are "turned off" in the thing, as if they had never been listed. If flags
-    are listed here which are not already "on," there is no effect. This field is most useful
-    within <b>thingdelta</b> sections and in concert with thing type inheritance. This field
-    will be applied *AFTER* the addflags field is applied, so it could potentially turn off
-    flags turned on by that field.
+    are listed here which are not already "on," there is no effect on those flags. This field 
+    is most useful within <b>thingdelta</b> sections and in concert with thing type 
+    inheritance. This field will be applied *AFTER* the addflags field is applied, so it 
+    could potentially turn off flags turned on by that field.
 <li><b>raisestate</b><br>
     Default = S_NULL<br>
     If this frame is not S_NULL, an Archvile can perform a resurrection on this creature. When 
     this occurs, the creature will enter this frame.
 <li><b>translucency</b><br>
-    Default = 65536<br>
-    This field allows fine, customizable control over a thing's translucency. The value of this 
-    field may range from 0 to 65536, with 0 being completely invisible, and 65536 being normal. 
+    Default = 65536 (100%)<br>
+    This field allows fine, customizable control over a thing's translucency. This field
+    accepts two types of values. First, it may be given an integer value in the range of
+    0 to 65536, with 0 being completely invisible, and 65536 being normal. Alternatively,
+    beginning with EDF 1.3, you can provide a percentage value to this field indicating the
+    amount of the foreground sprite that is blended with the background. A percentage value
+    must be a base 10 integer between 0 and 100, with the final digit followed immediately
+    by a '%' character (percent sign).
+    <br><br>
     Note this effect is mutually exclusive of BOOM-style translucency. If this value is not 
-    65536, and the BOOM translucency flag is turned on, the flag will be turned off at run-time, 
-    and this field will take precedence.
+    65536 (or 100%), and the BOOM translucency flag is turned on for the same thing type, the 
+    flag will be turned off at run-time, and this field will take precedence.
 <li><b>bloodcolor</b><br>
     Default = 0<br>
     Allows this thing type to have differently colored blood when particle blood effects are 
@@ -1368,7 +1437,7 @@ Explanation of fields:
     information on speed, see the speed field itself above. Note: as of EDF 1.2, this field
     also supports floating-point numbers, with the same meaning as that for the speed field.
 <li><b>nukespecial</b><br>
-    Default = S_NULL<br>
+    Default = NULL<br>
     This field is the name of a special codepointer to call when the player uses the KILLEM
     cheat to kill all monsters. Currently only two special pointers are provided for this
     purpose, PainNukeSpec and SorcNukeSpec. These enable monsters with spawn-on-death actions
@@ -1490,7 +1559,41 @@ Explanation of fields:
      13       Cream
      14       Yellow
     ------------------
-    </pre>    
+    </pre>
+<li><b>dmgspecial</b><br>
+    Default = "none"<br>
+    The dmgspecial field allows specification of a special action that will be taken when
+    this object is involved in damaging another object as the inflictor (an inflictor is 
+    the object actually doing the damage, and not the necessarily the object that is blamed
+    for the damage). Supported values and their meanings are as follows:
+    <br><br>
+    <ul>
+    <li> none<br>
+         This is the default value. No special action is taken; the object is normal when 
+         damaging other things.
+         <br><br>
+    <li> MinotaurCharge<br>
+         If the thing is flying like a skull (has flags bit SKULLFLY set), it will 
+         inflict a large amount of thrust on the target along the vector of the impact, 
+         will hit it directly for ((rnd % 8) + 1) * 6 damage, and if the target is a 
+         player, the player will be frozen in place for 14 + (rnd % 8) gametics.
+         When the thing is not in SKULLFLY mode, normal damage is done by all attacks.
+         <br><br>
+    <li> Whirlwind<br>
+         The target will have its angle and x/y momenta modified by random amounts. 
+         If the current level time has the 5th bit (value 16) set and the target is not 
+         a boss (possesses the BOSS flag), the target will be given randomized z momentum 
+         up to but no greater than 12 units per tic. When the level time is divisible by 8, 
+         the target will be hit directly for 3 damage.
+    </ul>
+    <br>
+<li><b>skinsprite</b><br>
+    Default = "noskin"<br>
+    The skinsprite field defines a sprite that will be used to override the sprite value
+    in any frame a thing of this type enters. This allows the creation of thingtypes which
+    behave identically but look different without the creation of any new frames. Note that
+    when things are crushed into gibs, the skinsprite is cleared at that time. If an Archvile
+    resurrects such a thing, the proper skinsprite is then restored.
 <li><b>dehackednum</b><br>
     Default = -1<br>
     As explained above, this is the number which must be used to refer to this thing type in
@@ -1623,7 +1726,7 @@ thingtype MyNewBaron
 {
    inherits     = BaronOfHell   # Inherit from the BaronOfHell
    doomednum    = 20001         # Set the doomednum to something meaningful
-   translucency = 32768         # Make it 50% translucent                                
+   translucency = 50%           # Make it 50% translucent
 }
 </pre>
 <a href="#contents">Return to Table of Contents</a>
@@ -1791,11 +1894,11 @@ just as with the <b>spritenames</b> list.
 <br><br>
 Starting with EDF 1.1, there is no longer an 11-type limitation on the boss spawner list.
 However, if you provide more than 11 thing types in this list, you must also define the new
-<b>boss_spawner_probs</b> list, which must be a list of numbers which together equal 256. These
-numbers serve as the probability values out of 256 for the corresponding thing types. If exactly 
-11 types are defined and the <b>boss_spawner_probs</b> list is not defined, the normal defaults
-will be used. If boss_spawner_probs is defined, it MUST be the exact same length as the
-boss_spawner_types list.
+<b>boss_spawner_probs</b> list, which must be a list of numbers which when added together 
+equal 256. These numbers serve as the probability values out of 256 for the corresponding 
+thing types. If exactly 11 types are defined and the <b>boss_spawner_probs</b> list is not 
+defined, the normal defaults will be used. If boss_spawner_probs is defined, it MUST be the
+exact same length as the boss_spawner_types list.
 <br><br>
 Starting with EDF 1.2, if a thing type in the <b>boss_spawner_types</b> list is invalid, the
 "Unknown" thing type will be substituted for it. The previous behavior was to cause an error.
@@ -1859,7 +1962,7 @@ boss_spawner_probs =
    30,  # Spectre
    10,  # PainElemental
    30,  # Cacodemon
-   2,   # Archvile
+    2,  # Archvile
    10,  # Revenant
    20,  # Arachnotron
    30,  # Mancubus
@@ -1943,7 +2046,7 @@ Explanation of Fields:
     This field links this sound definition to another existing sound definition. Its value must
     either be "none," or another valid sound mnemonic. When a linked sound is played, the sound
     that is linked to will be played instead, using the linkvol and linkpitch parameters provided
-    in this sound entry. Use of this feature will rarely be necessary.
+    in this sound entry. Use of this feature will rarely be necessary and is not recommended.
 <li><b>linkvol</b><br>
     Default = -1<br>
     This field provides a value to be added to the sound's volume when a linked sound is played
@@ -1957,7 +2060,7 @@ Explanation of Fields:
     This field indicates a player skin sound index for this sound. If the player object plays
     this sound, it will become subject to remapping through the player's skin. The following
     values are possible for skin index, and each corresponds to one of the fields in the
-    Legacy skin format:  <!-- TODO: add link to new skin format documentation! -->
+    extended Legacy skin format:  <!-- TODO: add link to new skin format documentation! -->
     <pre>
     sk_none
     sk_plpain
@@ -1992,7 +2095,7 @@ Restrictions and Caveats:
      mnemonic must also either be a full, valid lump name, or a string that becomes one if
      the prefix field is set to true. If a mnemonic is used which is not a valid sound lump
      name, but no lump name is provided, then the sound entry will not be able to play, and
-     the default sound for the game mode will play instead.
+     the default replacement sound for the game mode will play instead.
 <li> All sounds with a DeHackEd number not equal to -1 must have a unique DeHackEd number.
      Any sounds with a non-unique DeHackEd number will be inaccessible to things, frames, and
      editing via DeHackEd. Such sounds may still be referenced via their mnemonic in scripts

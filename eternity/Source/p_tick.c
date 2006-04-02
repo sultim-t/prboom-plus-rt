@@ -58,15 +58,14 @@ thinker_t thinkerclasscap[NUMTHCLASS];
 //
 // P_InitThinkers
 //
-
 void P_InitThinkers(void)
 {
-  int i;
-
-  for (i=0; i<NUMTHCLASS; i++)  // killough 8/29/98: initialize threaded lists
-    thinkerclasscap[i].cprev = thinkerclasscap[i].cnext = &thinkerclasscap[i];
-
-  thinkercap.prev = thinkercap.next  = &thinkercap;
+   int i;
+   
+   for(i = 0; i < NUMTHCLASS; i++)  // killough 8/29/98: initialize threaded lists
+      thinkerclasscap[i].cprev = thinkerclasscap[i].cnext = &thinkerclasscap[i];
+   
+   thinkercap.prev = thinkercap.next  = &thinkercap;
 }
 
 //
@@ -75,48 +74,46 @@ void P_InitThinkers(void)
 // We maintain separate threads of friends and enemies, to permit more
 // efficient searches.
 //
-
 void P_UpdateThinker(thinker_t *thinker)
 {
-  // find the class the thinker belongs to
+   // find the class the thinker belongs to
 
-  // haleyjd 07/12/03: don't use "class" as a variable name
-  int tclass = thinker->function == P_MobjThinker && 
-    ((mobj_t *) thinker)->health > 0 && 
-    (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
-     ((mobj_t *) thinker)->flags3 & MF3_KILLABLE) ?
-    ((mobj_t *) thinker)->flags & MF_FRIEND ?
-    th_friends : th_enemies : th_misc;
+   // haleyjd 07/12/03: don't use "class" as a variable name
+   int tclass = thinker->function == P_MobjThinker && 
+     ((mobj_t *) thinker)->health > 0 && 
+     (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
+      ((mobj_t *) thinker)->flags3 & MF3_KILLABLE) ?
+     ((mobj_t *) thinker)->flags & MF_FRIEND ?
+     th_friends : th_enemies : th_misc;
 
-  // Remove from current thread
-  thinker_t *th = thinker->cnext;
-  (th->cprev = thinker->cprev)->cnext = th;
+   // Remove from current thread
+   thinker_t *th = thinker->cnext;
+   (th->cprev = thinker->cprev)->cnext = th;
   
-  // Add to appropriate thread
-  th = &thinkerclasscap[tclass];
-  th->cprev->cnext = thinker;
-  thinker->cnext = th;
-  thinker->cprev = th->cprev;
-  th->cprev = thinker;
+   // Add to appropriate thread
+   th = &thinkerclasscap[tclass];
+   th->cprev->cnext = thinker;
+   thinker->cnext = th;
+   thinker->cprev = th->cprev;
+   th->cprev = thinker;
 }
 
 //
 // P_AddThinker
 // Adds a new thinker at the end of the list.
 //
-
 void P_AddThinker(thinker_t* thinker)
 {
-  thinkercap.prev->next = thinker;
-  thinker->next = &thinkercap;
-  thinker->prev = thinkercap.prev;
-  thinkercap.prev = thinker;
-
-  thinker->references = 0;    // killough 11/98: init reference counter to 0
-
-  // killough 8/29/98: set sentinel pointers, and then add to appropriate list
-  thinker->cnext = thinker->cprev = thinker;
-  P_UpdateThinker(thinker);
+   thinkercap.prev->next = thinker;
+   thinker->next = &thinkercap;
+   thinker->prev = thinkercap.prev;
+   thinkercap.prev = thinker;
+   
+   thinker->references = 0;    // killough 11/98: init reference counter to 0
+   
+   // killough 8/29/98: set sentinel pointers, and then add to appropriate list
+   thinker->cnext = thinker->cprev = thinker;
+   P_UpdateThinker(thinker);
 }
 
 //
@@ -137,15 +134,14 @@ static thinker_t *currentthinker;
 // remove it, and set currentthinker to one node preceeding it, so
 // that the next step in P_RunThinkers() will get its successor.
 //
-
 void P_RemoveThinkerDelayed(thinker_t *thinker)
 {
-  if (!thinker->references)
-    {
+   if(!thinker->references)
+   {
       thinker_t *next = thinker->next;
       (next->prev = currentthinker = thinker->prev)->next = next;
       Z_Free(thinker);
-    }
+   }
 }
 
 //
@@ -160,13 +156,12 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 // set the function to P_RemoveThinkerDelayed(), so that later, it will be
 // removed automatically as part of the thinker process.
 //
-
 void P_RemoveThinker(thinker_t *thinker)
 {
-  thinker->function = P_RemoveThinkerDelayed;
-
-  // killough 8/29/98: remove immediately from threaded list
-  (thinker->cnext->cprev = thinker->cprev)->cnext = thinker->cnext;
+   thinker->function = P_RemoveThinkerDelayed;
+   
+   // killough 8/29/98: remove immediately from threaded list
+   (thinker->cnext->cprev = thinker->cprev)->cnext = thinker->cnext;
 }
 
 //
@@ -180,13 +175,12 @@ void P_RemoveThinker(thinker_t *thinker)
 // checked during every gametic). Now, we keep a count of the number of
 // references, and delay removal until the count is 0.
 //
-
 void P_SetTarget(mobj_t **mop, mobj_t *targ)
 {
-  if (*mop)             // If there was a target already, decrease its refcount
-    (*mop)->thinker.references--;
-  if ((*mop = targ))    // Set new target and if non-NULL, increase its counter
-    targ->thinker.references++;
+   if(*mop)             // If there was a target already, decrease its refcount
+      (*mop)->thinker.references--;
+   if((*mop = targ))    // Set new target and if non-NULL, increase its counter
+      targ->thinker.references++;
 }
 
 //
@@ -211,67 +205,61 @@ void P_SetTarget(mobj_t **mop, mobj_t *targ)
 // Rewritten to delete nodes implicitly, by making currentthinker
 // external and using P_RemoveThinkerDelayed() implicitly.
 //
-
-static void P_RunThinkers (void)
+static void P_RunThinkers(void)
 {
-  for (currentthinker = thinkercap.next;
+   for(currentthinker = thinkercap.next;
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
-    if (currentthinker->function)
-      currentthinker->function(currentthinker);
+      if(currentthinker->function)
+         currentthinker->function(currentthinker);
 }
 
 //
 // P_Ticker
 //
-
-void P_Ticker (void)
+void P_Ticker(void)
 {
-  int i;
+   int i;
+   
+   // pause if in menu and at least one tic has been run
+   //
+   // killough 9/29/98: note that this ties in with basetic,
+   // since G_Ticker does the pausing during recording or
+   // playback, and compensates by incrementing basetic.
+   // 
+   // All of this complicated mess is used to preserve demo sync.
+   
+   if(paused || (menuactive && !demoplayback && !netgame &&
+                 players[consoleplayer].viewz != 1))
+      return;
+   
+   P_ParticleThinker(); // haleyjd: think for particles
 
-  // pause if in menu and at least one tic has been run
-  //
-  // killough 9/29/98: note that this ties in with basetic,
-  // since G_Ticker does the pausing during recording or
-  // playback, and compensates by incrementing basetic.
-  // 
-  // All of this complicated mess is used to preserve demo sync.
+   // not if this is an intermission screen
+   // haleyjd: players don't think during cinematic pauses
+   if(gamestate == GS_LEVEL && !cinema_pause)
+      for(i = 0; i < MAXPLAYERS; i++)
+         if(playeringame[i])
+            P_PlayerThink(&players[i]);
 
-  if (paused || (menuactive && !demoplayback && !netgame &&
-		 players[consoleplayer].viewz != 1))
-    return;
+   reset_viewz = false;  // sf
 
-  P_ParticleThinker(); // haleyjd: think for particles
+   P_RunThinkers();
+   P_UpdateSpecials();
+   P_RespawnSpecials();
+   if(demo_version >= 329)
+      P_AnimateSurfaces(); // haleyjd 04/14/99
+   leveltime++;                       // for par times
 
-  // not if this is an intermission screen
-  // haleyjd: players don't think during cinematic pauses
-  if(gamestate == GS_LEVEL && !cinema_pause)
-      for (i=0; i<MAXPLAYERS; i++)
-        if (playeringame[i])
-          P_PlayerThink(&players[i]);
-
-  reset_viewz = false;  // sf
-
-  P_RunThinkers();
-  P_UpdateSpecials();
-  P_RespawnSpecials();
-  if(demo_version >= 329)
-    P_AnimateSurfaces(); // haleyjd 04/14/99
-  leveltime++;                       // for par times
-
-        // sf: on original doom, sometimes if you activated a hyperlift
-        // while standing on it, your viewz was left behind and appeared
-        // to "jump". code in p_floor.c detects if a hyperlift has been
-        // activated and viewz is reset appropriately here.
-
-  if(demo_version >= 303 && reset_viewz && gamestate == GS_LEVEL)
-      P_CalcHeight (&players[displayplayer]); // Determines view height and bobbing
-
-#ifdef FRAGGLESCRIPT
-  T_DelayedScripts();
-#endif
-
-  P_RunEffects(); // haleyjd: run particle effects
+   // sf: on original doom, sometimes if you activated a hyperlift
+   // while standing on it, your viewz was left behind and appeared
+   // to "jump". code in p_floor.c detects if a hyperlift has been
+   // activated and viewz is reset appropriately here.
+   
+   if(demo_version >= 303 && reset_viewz && gamestate == GS_LEVEL)
+      P_CalcHeight(&players[displayplayer]); // Determines view height and bobbing
+   
+   P_RunEffects(); // haleyjd: run particle effects
 }
 
 //----------------------------------------------------------------------------

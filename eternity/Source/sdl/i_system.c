@@ -50,6 +50,10 @@ rcsid[] = "$Id: i_system.c,v 1.14 1998/05/03 22:33:13 killough Exp $";
 
 #include "../g_bind.h"
 
+#ifdef _SDL_VER
+extern int waitAtExit;
+#endif
+
 ticcmd_t *I_BaseTiccmd(void)
 {
    static ticcmd_t emptycmd; // killough
@@ -132,7 +136,7 @@ void I_Shutdown(void)
    SDL_SetModState(oldmod);
    
    // haleyjd 04/15/02: shutdown joystick
-   if(joystickpresent && sdlJoystick)
+   if(joystickpresent && sdlJoystick && i_SDLJoystickNum >= 0)
    {
       if(SDL_JoystickOpened(i_SDLJoystickNum))
          SDL_JoystickClose(sdlJoystick);
@@ -207,7 +211,7 @@ boolean I_SetJoystickDevice(int deviceNum)
    }
 }
 
-void I_InitKeyboard()
+void I_InitKeyboard(void)
 {
    SDLMod   mod;
    
@@ -312,9 +316,11 @@ void I_Quit (void)
    
    M_SaveDefaults();
    G_SaveDefaults(); // haleyjd
-
-#ifdef _MSC_VER
-   if(stdin)
+   
+#if defined(_MSC_VER) && defined(_SDL_VER)
+   // Under Visual C++, the console window likes to rudely slam
+   // shut -- this can stop it, but is now optional
+   if(stdin && waitAtExit)
    {
       puts("Press any key to continue");
       getch();
@@ -393,9 +399,7 @@ CONSOLE_VARIABLE(i_gamespeed, realtic_clock_rate, 0)
    ResetNet();         // reset the timers and stuff
 }
 
-CONSOLE_VARIABLE(i_ledsoff, leds_always_off, 0)
-{
-}
+CONSOLE_VARIABLE(i_ledsoff, leds_always_off, 0) {}
 
 // haleyjd 04/15/02: windows joystick commands
 CONSOLE_COMMAND(i_joystick, 0)
@@ -415,6 +419,11 @@ CONSOLE_COMMAND(i_joystick, 0)
    }
 }
 
+#ifdef _SDL_VER
+VARIABLE_BOOLEAN(waitAtExit, NULL, yesno);
+CONSOLE_VARIABLE(i_waitatexit, waitAtExit, 0) {}
+#endif
+
 extern void I_Sound_AddCommands();
 extern void I_Video_AddCommands();
 extern void I_Input_AddCommands();
@@ -426,6 +435,10 @@ void I_AddCommands()
    C_AddCommand(i_ledsoff);
    C_AddCommand(i_gamespeed);
    C_AddCommand(i_joystick);
+
+#ifdef _SDL_VER
+   C_AddCommand(i_waitatexit);
+#endif
    
    I_Video_AddCommands();
    I_Sound_AddCommands();

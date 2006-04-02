@@ -47,6 +47,8 @@ extern int v_mode;
 // Calculate # of glyphs in font.
 #define V_FONTSIZE     (V_FONTEND - V_FONTSTART + 1) 
 
+extern patch_t *v_font[V_FONTSIZE];
+
         // font colours
 #define FC_BRICK        "\x80"
 #define FC_TAN          "\x81"
@@ -67,9 +69,13 @@ extern int v_mode;
 
 void V_WriteText(const char *s, int x, int y);
 void V_WriteTextColoured(const char *s, int colour, int x, int y);
-void V_LoadFont();
-int V_StringWidth(const unsigned char *s);
-int V_StringHeight(const unsigned char *s);
+int  V_StringWidth(const unsigned char *s);
+int  V_StringHeight(const unsigned char *s);
+
+void V_WriteTextBig(const char *s, int x, int y);
+void V_WriteNumTextBig(const char *s, int x, int y);
+int  V_StringWidthBig(const unsigned char *s);
+int  V_StringHeightBig(const unsigned char *s);
 
 ///////////////////////////////////////////////////////////////////////////
 //

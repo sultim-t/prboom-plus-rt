@@ -658,7 +658,7 @@ void GetTabs(char *key)
 
 // reset the tab list 
 
-void C_InitTab()
+void C_InitTab(void)
 {
    numtabs = 0;
    origkey[0] = '\0';

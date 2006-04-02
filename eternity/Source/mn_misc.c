@@ -258,7 +258,7 @@ static void MN_FindCreditScreens(void)
    // game modes, even though its not necessary to weed them out
    // if they're not in the wad
 
-   if(gameModeInfo->flags & GIF_HERETIC)
+   if(gameModeInfo->type == Game_Heretic)
       AddHelpScreen("ORDER");
    else
       AddHelpScreen("HELP2");
@@ -287,7 +287,7 @@ static void MN_FindHelpScreens(void)
    // sf: keep original help screens until key bindings rewritten
    // and i can restore the dynamic help screens
 
-   if(gameModeInfo->flags & GIF_HERETIC)
+   if(gameModeInfo->type == Game_Heretic)
       AddHelpScreen("ORDER");
    else
       AddHelpScreen("HELP");

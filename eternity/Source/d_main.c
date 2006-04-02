@@ -29,9 +29,17 @@
 
 static const char rcsid[] = "$Id: d_main.c,v 1.47 1998/05/16 09:16:51 killough Exp $";
 
+#ifndef LINUX
 #include <sys/types.h>
+#endif
 #include <sys/stat.h>
 #include <fcntl.h>
+
+// haleyjd 10/28/04: Win32-specific repair for D_DoomExeDir
+#ifdef _MSC_VER
+#include "Win32/i_fnames.h"
+#endif
+
 #include "z_zone.h"
 
 #include "d_io.h"  // SoM 3/12/2002: moved unistd stuff into d_io.h
@@ -129,15 +137,16 @@ char firstlevel[9] = "";
 //jff 4/19/98 list of standard IWAD names
 const char *const standard_iwads[]=
 {
-  "/doom2f.wad",
-  "/doom2.wad",
-  "/plutonia.wad",
-  "/tnt.wad",
-  "/doom.wad",
-  "/doom1.wad",
-  "/doomu.wad",    /* CPhipps - allow doomu.wad */
-  "/freedoom.wad", // haleyjd 01/31/03: freedoom support!
+   "/doom2f.wad",
+   "/doom2.wad",
+   "/plutonia.wad",
+   "/tnt.wad",
+   "/doom.wad",
+   "/doom1.wad",
+   "/doomu.wad",    /* CPhipps - allow doomu.wad */
+   "/freedoom.wad", // haleyjd 01/31/03: freedoom support!
 };
+
 static const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
 
 void D_CheckNetGame(void);
@@ -355,7 +364,7 @@ void D_PageDrawer(void)
          t = (byte *)W_CacheLumpNum(l, PU_CACHE);
          V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,t);
          
-         if(gameModeInfo->flags & GIF_HERETIC)
+         if(gameModeInfo->hasAdvisory)
          {
             if(demosequence == 1)
             {
@@ -581,13 +590,13 @@ static int numwadfiles, numwadfiles_alloc;
 
 void D_AddFile(char *file)
 {
-        // sf: allocate for +2 for safety
-  if (numwadfiles+2 >= numwadfiles_alloc)
-    wadfiles = realloc(wadfiles, (numwadfiles_alloc = numwadfiles_alloc ?
-				  numwadfiles_alloc * 2 : 8)*sizeof*wadfiles);
-  wadfiles[numwadfiles] = strdup(file); //sf: always NULL at end
-  wadfiles[numwadfiles+1] = NULL;
-  numwadfiles++;
+   // sf: allocate for +2 for safety
+   if(numwadfiles+2 >= numwadfiles_alloc)
+      wadfiles = realloc(wadfiles, (numwadfiles_alloc = numwadfiles_alloc ?
+				    numwadfiles_alloc * 2 : 8)*sizeof*wadfiles);
+   wadfiles[numwadfiles] = strdup(file); //sf: always NULL at end
+   wadfiles[numwadfiles+1] = NULL;
+   numwadfiles++;
 }
 
         //sf: console command to list loaded files
@@ -607,12 +616,22 @@ char *D_DoomExeDir(void)
 
    if(!base) // cache multiple requests
    {
+#ifndef _MSC_VER
+
       size_t len = strlen(myargv[0]) + 1;
       
       base = malloc(len);
-
+      
       // haleyjd 03/09/03: generalized
       M_GetFilePath(myargv[0], base, len);
+#else
+      // haleyjd 10/28/04: the above is not sufficient for all versions
+      // of Windows. There is an API function which takes care of this,
+      // however.  See i_fnames.c in the Win32 subdirectory.
+      base = malloc(PATH_MAX + 1);
+
+      WIN_GetExeDir(base, PATH_MAX + 1);
+#endif
    }
 
    return base;
@@ -723,33 +742,33 @@ static void CheckIWAD(const char *iwadname,
 
 boolean WadFileStatus(char *filename,boolean *isdir)
 {
-  struct stat sbuf;
-  int i;
+   struct stat sbuf;
+   int i;
+   
+   *isdir = false;                //default is directory to false
+   if(!filename || !*filename)    //if path NULL or empty, doesn't exist
+      return false;
 
-  *isdir = false;                 //default is directory to false
-  if (!filename || !*filename)    //if path NULL or empty, doesn't exist
-    return false;
-
-  if (!stat(filename,&sbuf))      //check for existence
-    {
+   if(!stat(filename,&sbuf))      //check for existence
+   {
       *isdir=S_ISDIR(sbuf.st_mode); //if it does, set whether a dir or not
       return true;                  //return does exist
-    }
+   }
 
-  i = strlen(filename);           //get length of path
-  if (i>=4)
-    if(!strnicmp(filename+i-4,".wad",4))
-      return false;               //if already ends in .wad, not found
+   i = strlen(filename);          //get length of path
+   if(i >= 4)
+      if(!strnicmp(filename + i - 4, ".wad", 4))
+         return false;            //if already ends in .wad, not found
 
-  strcat(filename,".wad");        //try it with .wad added
-  if (!stat(filename,&sbuf))      //if it exists then
-    {
-      if (S_ISDIR(sbuf.st_mode))  //but is a dir, then say we didn't find it
-	return false;
+   strcat(filename,".wad");       //try it with .wad added
+   if(!stat(filename,&sbuf))      //if it exists then
+   {
+      if(S_ISDIR(sbuf.st_mode))   //but is a dir, then say we didn't find it
+         return false;
       return true;                //otherwise return file found, w/ .wad added
-    }
-  filename[i]=0;                  //remove .wad
-  return false;                   //and report doesn't exist
+   }
+   filename[i] = 0;               //remove .wad
+   return false;                  //and report doesn't exist
 }
 
 //
@@ -900,11 +919,11 @@ char *FindIWADFile(void)
                         return iwad;
                      iwad[n] = 0; // reset iwad length to former
                   }
-               }
-            }
-         }
-      }
-   }
+               } // end else (!*customiwad)
+            } // end else (isdir)
+         } // end if(WadFileStatus(...))
+      } // end if((p = getenv(...)))
+   } // end for
 
    *iwad = 0;
    return iwad;
@@ -925,16 +944,8 @@ static void D_LoadResourceWad(void)
    // haleyjd 06/04/02: lengthened filestr, memset to 0
    memset(filestr, 0, PATH_MAX+1);
    
-   if(gameModeInfo->flags & GIF_HERETIC)
-   {
-      psnprintf(filestr, sizeof(filestr), "%s/%.4shtic.wad",
-                D_DoomExeDir(), D_DoomExeName());
-   }
-   else
-   {
-      psnprintf(filestr, sizeof(filestr), "%s/%s.wad",
-                D_DoomExeDir(), D_DoomExeName());
-   }
+   psnprintf(filestr, sizeof(filestr), gameModeInfo->resourceFmt,
+             D_DoomExeDir(), D_DoomExeName());
    
    NormalizeSlashes(filestr);
    D_AddFile(filestr);
@@ -1094,83 +1105,9 @@ void IdentifyVersion(void)
       I_Error("IWAD not found\n");
 }
 
+// MAXARGVS: a reasonable(?) limit on response file arguments
 
-/*
-void FindResponseFile (void)
-{
-  int i;
-
-  for (i = 1;i < myargc;i++)
-    if (myargv[i][0] == '@')
-      {
-	FILE *handle;
-	int  size;
-	int  k;
-	int  index;
-	int  indexinfile;
-	char *infile;
-	char *file;
-	char *moreargs[MAXARGVS];
-	char *firstargv;
-
-	// READ THE RESPONSE FILE INTO MEMORY
-
-	// killough 10/98: add default .rsp extension
-	char *filename = malloc(strlen(myargv[i])+5);
-	AddDefaultExtension(strcpy(filename,&myargv[i][1]),".rsp");
-
-	handle = fopen(filename,"rb");
-	if (!handle)
-	  I_Error("No such response file!");          // killough 10/98
-
-	printf("Found response file %s!\n",filename);
-	free(filename);
-
-	fseek(handle,0,SEEK_END);
-	size = ftell(handle);
-	fseek(handle,0,SEEK_SET);
-	file = malloc (size);
-	fread(file,size,1,handle);
-	fclose(handle);
-
-	// KEEP ALL CMDLINE ARGS FOLLOWING @RESPONSEFILE ARG
-	for (index = 0,k = i+1; k < myargc; k++)
-	  moreargs[index++] = myargv[k];
-
-	firstargv = myargv[0];
-	myargv = calloc(sizeof(char *),MAXARGVS);
-	myargv[0] = firstargv;
-
-	infile = file;
-	indexinfile = k = 0;
-	indexinfile++;  // SKIP PAST ARGV[0] (KEEP IT)
-	do
-	  {
-	    myargv[indexinfile++] = infile+k;
-	    while(k < size &&
-		  ((*(infile+k)>= ' '+1) && (*(infile+k)<='z')))
-	      k++;
-	    *(infile+k) = 0;
-	    while(k < size &&
-		  ((*(infile+k)<= ' ') || (*(infile+k)>'z')))
-	      k++;
-	  }
-	while(k < size);
-
-	for (k = 0;k < index;k++)
-	  myargv[indexinfile++] = moreargs[k];
-	myargc = indexinfile;
-
-	// DISPLAY ARGS
-	printf("%d command-line args:\n",myargc-1); // killough 10/98
-	for (k=1;k<myargc;k++)
-	  printf("%s\n",myargv[k]);
-	break;
-      }
-}
-*/
-
-// killough 5/3/98: old code removed
+#define MAXARGVS 100
 
 //
 //
@@ -1181,9 +1118,6 @@ void FindResponseFile (void)
 // haleyjd 04/17/03: copied, slightly modified prboom's code to
 // allow quoted LFNs in response files.
 //
-
-#define MAXARGVS 100
-
 void FindResponseFile(void)
 {
    int i;
@@ -1346,26 +1280,26 @@ static void D_ProcessDehCommandLine(void)
 
 static void D_ProcessWadPreincludes(void)
 {
-  if (!M_CheckParm ("-noload"))
-    {
+   if (!M_CheckParm ("-noload"))
+   {
       int i;
       char *s;
-      for (i=0; i<MAXLOADFILES; i++)
-	if ((s=wad_files[i]))
-	  {
-	    while (isspace(*s))
-	      s++;
-	    if (*s)
-	      {
-		char file[PATH_MAX+1];
-		AddDefaultExtension(strcpy(file, s), ".wad");
-		if (!access(file, R_OK))
-		  D_AddFile(file);
-		else
-		  printf("\nWarning: could not open %s\n", file);
-	      }
-	  }
-    }
+      for(i = 0; i < MAXLOADFILES; ++i)
+         if((s = wad_files[i]))
+         {
+            while(isspace(*s))
+               s++;
+            if(*s)
+            {
+               char file[PATH_MAX+1];
+               AddDefaultExtension(strcpy(file, s), ".wad");
+               if(!access(file, R_OK))
+                  D_AddFile(file);
+               else
+                  printf("\nWarning: could not open %s\n", file);
+            }
+         }
+   }
 }
 
 // killough 10/98: support preloaded deh/bex files
@@ -1410,21 +1344,21 @@ static void D_AutoExecScripts(void)
    {
       int i;
       char *s;
-      for(i=0; i<MAXLOADFILES; i++)
-	 if((s=csc_files[i]))
-	 {
-	    while(isspace(*s))
-	       s++;
-	    if(*s)
-	    {
-	       char file[PATH_MAX+1];
-	       AddDefaultExtension(strcpy(file, s), ".csc");
-	       if (!access(file, R_OK))
-		  C_RunScriptFromFile(file);
-	       else
-		  usermsg("\nWarning: could not open console script %s\n", s);
-	    }
-	 }
+      for(i = 0; i < MAXLOADFILES; ++i)
+         if((s = csc_files[i]))
+         {
+            while(isspace(*s))
+               s++;
+            if(*s)
+            {
+               char file[PATH_MAX+1];
+               AddDefaultExtension(strcpy(file, s), ".csc");
+               if(!access(file, R_OK))
+                  C_RunScriptFromFile(file);
+               else
+                  usermsg("\nWarning: could not open console script %s\n", s);
+            }
+         }
    }
 }
 
@@ -1470,7 +1404,7 @@ static void D_ProcessGFSDeh(gfs_t *gfs)
    int i;
    char filename[PATH_MAX + 1];
 
-   for(i = 0; i < gfs->numdehs; i++)
+   for(i = 0; i < gfs->numdehs; ++i)
    {
       memset(filename, 0, PATH_MAX + 1);
 
@@ -1490,7 +1424,12 @@ static void D_ProcessGFSWads(gfs_t *gfs)
    int i;
    char filename[PATH_MAX + 1];
 
-   for(i = 0; i < gfs->numwads; i++)
+   // haleyjd 06/21/04: GFS should mark modified game when
+   // wads are added!
+   if(gfs->numwads > 0)
+      modifiedgame = true;
+
+   for(i = 0; i < gfs->numwads; ++i)
    {
       memset(filename, 0, PATH_MAX + 1);
 
@@ -1510,7 +1449,7 @@ static void D_ProcessGFSCsc(gfs_t *gfs)
    int i;
    char filename[PATH_MAX + 1];
 
-   for(i = 0; i < gfs->numcsc; i++)
+   for(i = 0; i < gfs->numcsc; ++i)
    {
       memset(filename, 0, PATH_MAX + 1);
 
@@ -1542,12 +1481,8 @@ static boolean D_LooseEDF(char *buffer)
       if(myargv[i][0] == '-' || myargv[i][0] == '@')
          break;
 
-      // get extension
+      // get extension (search from right end)
       dot = strrchr(myargv[i], '.');
-
-      // check for validity
-      // if(dot != myargv[i] + strlen(myargv[i]) - 4)
-      //   continue;
 
       // check extension
       if(!dot || strncasecmp(dot, ".edf", 4))
@@ -1580,26 +1515,23 @@ static void D_LoadEDF(gfs_t *gfs)
    else if(gfs && (shortname = G_GFSCheckEDF()))
    {
       // GFS specified an EDF file
-      psnprintf(edfname, sizeof(edfname), 
-                "%s/%s", gfs->filepath, shortname);
+      psnprintf(edfname, sizeof(edfname), "%s/%s", gfs->filepath, shortname);
    }
    else
    {
       // use default
       if(!D_LooseEDF(edfname)) // check for loose files (drag and drop)
       {
-         psnprintf(edfname, sizeof(edfname),
-                   "%s/%s", D_DoomExeDir(), "root.edf");
+         psnprintf(edfname, sizeof(edfname), "%s/%s", 
+                   D_DoomExeDir(), "root.edf");
 
-         // disable other game mode's definitions implicitly ONLY
+         // disable other game modes' definitions implicitly ONLY
          // when using the default root.edf
          // also, allow command line toggle
          if(!M_CheckParm("-edfenables"))
          {
-            if(gameModeInfo->flags & GIF_HERETIC)
-            {
+            if(gameModeInfo->type == Game_Heretic)
                E_EDFSetEnableValue("DOOM", 0);
-            }
             else
                E_EDFSetEnableValue("HERETIC", 0);
          }
@@ -1630,12 +1562,8 @@ static void D_LooseWads(void)
       if(myargv[i][0] == '-' || myargv[i][0] == '@')
          break;
 
-      // get extension
+      // get extension (search from right end)
       dot = strrchr(myargv[i], '.');
-
-      // check for validity
-      //if(dot != myargv[i] + strlen(myargv[i]) - 4)
-      //   continue;
 
       // check extension
       if(!dot || strncasecmp(dot, ".wad", 4))
@@ -1661,12 +1589,8 @@ static void D_LooseDehs(void)
       if(myargv[i][0] == '-' || myargv[i][0] == '@')
          break;
 
-      // get extension
+      // get extension (search from right end)
       dot = strrchr(myargv[i], '.');
-
-      // check for validity      
-      //if(dot != myargv[i] + strlen(myargv[i]) - 4)
-      //   continue;
 
       // check extension
       if(!dot || (strncasecmp(dot, ".deh", 4) &&
@@ -1691,12 +1615,8 @@ static gfs_t *D_LooseGFS(void)
       if(myargv[i][0] == '-' || myargv[i][0] == '@')
          break;
 
-      // get extension
+      // get extension (search from right end)
       dot = strrchr(myargv[i], '.');
-
-      // check for validity
-      //if(dot != myargv[i] + strlen(myargv[i]) - 4)
-      //   continue;
 
       // check extension
       if(!dot || strncasecmp(dot, ".gfs", 4))
@@ -1775,17 +1695,21 @@ static void D_DoomInit(void)
    boolean haveGFS = false;    // haleyjd 03/10/03
    gfs_t *gfs = NULL;
 
+#ifdef GAMEBAR
+   // haleyjd 01/17/05: I think this is only needed for the "gamebar" option
    setbuf(stdout, NULL);
+#endif
 
    FindResponseFile(); // Append response file arguments to command-line
    
    // haleyjd 03/10/03: GFS support
    // haleyjd 11/22/03: support loose GFS on the command line too
-   if((p = M_CheckParm("-gfs")) && p < myargc-1)
+   if((p = M_CheckParm("-gfs")) && p < myargc - 1)
    {
-      char *fn = strdup(myargv[p + 1]);
+      char fn[PATH_MAX + 1]; 
       
-      AddDefaultExtension(fn, ".gfs");
+      // haleyjd 01/19/05: corrected use of AddDefaultExtension
+      AddDefaultExtension(strcpy(fn, myargv[p + 1]), ".gfs");
       if(access(fn, F_OK))
          I_Error("GFS file %s not found\n", fn);
       
@@ -1908,8 +1832,7 @@ static void D_DoomInit(void)
          psnprintf(title, sizeof(title), "Heretic Registered Startup");
          break;
       case hticsosr:
-         psnprintf(title, sizeof(title), 
-                   "Heretic: Shadow of the Serpent Riders");
+         psnprintf(title, sizeof(title), "Heretic: Shadow of the Serpent Riders");
          break;
       }
       break;
@@ -1931,7 +1854,11 @@ static void D_DoomInit(void)
       printf(D_DEVSTR);
       v_ticker = true;  // turn on the fps ticker
    }
-   
+
+#ifndef LINUX
+   // sf: ok then, this is broken under linux.
+   // haleyjd: FIXME
+
    if(M_CheckParm("-cdrom"))
    {
       printf(D_CDROM);
@@ -1944,25 +1871,26 @@ static void D_DoomInit(void)
       psnprintf(basedefault, sizeof(basedefault),
                 "c:/doomdata/%s.cfg", D_DoomExeName());
    }
+#endif // ifndef LINUX
 
    // turbo option
-   if((p=M_CheckParm("-turbo")))
+   if((p = M_CheckParm("-turbo")))
    {
       extern int turbo_scale;
       extern int forwardmove[2];
       extern int sidemove[2];
       
-      if(p<myargc-1)
-         turbo_scale = atoi(myargv[p+1]);
+      if(p < myargc - 1)
+         turbo_scale = atoi(myargv[p + 1]);
       if(turbo_scale < 10)
          turbo_scale = 10;
       if(turbo_scale > 400)
          turbo_scale = 400;
       printf ("turbo scale: %i%%\n",turbo_scale);
-      forwardmove[0] = forwardmove[0]*turbo_scale/100;
-      forwardmove[1] = forwardmove[1]*turbo_scale/100;
-      sidemove[0] = sidemove[0]*turbo_scale/100;
-      sidemove[1] = sidemove[1]*turbo_scale/100;
+      forwardmove[0] = forwardmove[0] * turbo_scale / 100;
+      forwardmove[1] = forwardmove[1] * turbo_scale / 100;
+      sidemove[0]    =    sidemove[0] * turbo_scale / 100;
+      sidemove[1]    =    sidemove[1] * turbo_scale / 100;
    }
 
    // haleyjd 03/10/03: Load GFS Wads
@@ -2009,9 +1937,9 @@ static void D_DoomInit(void)
          p = M_CheckParm("-timedemo");
    }
 
-   if(p && p < myargc-1)
+   if(p && p < myargc - 1)
    {
-      strcpy(file,myargv[p+1]);
+      strcpy(file,myargv[p + 1]);
       AddDefaultExtension(file,".lmp");     // killough
       D_AddFile(file);
       usermsg("Playing demo %s\n",file);
@@ -2025,13 +1953,13 @@ static void D_DoomInit(void)
    startmap = 1;
    autostart = false;
    
-   if((p = M_CheckParm("-skill")) && p < myargc-1)
+   if((p = M_CheckParm("-skill")) && p < myargc - 1)
    {
       startskill = myargv[p+1][0]-'1';
       autostart = true;
    }
 
-   if((p = M_CheckParm("-episode")) && p < myargc-1)
+   if((p = M_CheckParm("-episode")) && p < myargc - 1)
    {
       startepisode = myargv[p+1][0]-'0';
       startmap = 1;
@@ -2066,18 +1994,18 @@ static void D_DoomInit(void)
    }
 
    if(((p = M_CheckParm ("-warp")) ||      // killough 5/2/98
-       (p = M_CheckParm ("-wart"))) && p < myargc-1)
+       (p = M_CheckParm ("-wart"))) && p < myargc - 1)
    {
       // 1/25/98 killough: fix -warp xxx from crashing Doom 1 / UD
       if(gamemode == commercial)
       {
-         startmap = atoi(myargv[p+1]);
+         startmap = atoi(myargv[p + 1]);
          autostart = true;
       }
-      else if(p < myargc-2)
+      else if(p < myargc - 2)
       {         
          startepisode = atoi(myargv[++p]);
-         startmap = atoi(myargv[p+1]);
+         startmap = atoi(myargv[p + 1]);
          autostart = true;
       }
    }
@@ -2135,6 +2063,16 @@ static void D_DoomInit(void)
    W_InitMultipleFiles(wadfiles);
    usermsg("");  // gap
 
+   // Check for -file in shareware
+   //
+   // haleyjd 03/22/03: there's no point in trying to detect
+   // fake IWADs, especially after user wads have already been
+   // linked in, so I've removed that kludge
+   if(modifiedgame && (gameModeInfo->flags & GIF_SHAREWARE))
+   {
+      I_Error("\nYou cannot -file with the shareware version. Register!");
+   }
+
    // haleyjd 10/20/03: use D_ProcessDehInWads again
    D_ProcessDehInWads();
 
@@ -2163,16 +2101,6 @@ static void D_DoomInit(void)
    // Process the deferred wad sounds queue, after the above stuff.
    S_ProcDeferredSounds();
 
-   // Check for -file in shareware
-   //
-   // haleyjd 03/22/03: there's no point in trying to detect
-   // fake IWADs, especially after user wads have already been
-   // linked in, so I've removed that kludge
-   if(modifiedgame && (gameModeInfo->flags & GIF_SHAREWARE))
-   {
-      I_Error("\nYou cannot -file with the shareware version. Register!");
-   }
-
    V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
    // killough 2/22/98: copyright / "modified game" / SPA banners removed
@@ -2185,11 +2113,11 @@ static void D_DoomInit(void)
    
    if(textmode_startup)
    {
-      if (*startup1) puts(startup1);
-      if (*startup2) puts(startup2);
-      if (*startup3) puts(startup3);
-      if (*startup4) puts(startup4);
-      if (*startup5) puts(startup5);
+      if(*startup1) puts(startup1);
+      if(*startup2) puts(startup2);
+      if(*startup3) puts(startup3);
+      if(*startup4) puts(startup4);
+      if(*startup5) puts(startup5);
    }
    // End new startup strings
 
@@ -2290,8 +2218,8 @@ static void D_DoomInit(void)
             FC_HI "The Eternity Engine\n"
             FC_NORMAL "By James Haley and Steven McGranahan\n"
             "http://doomworld.com/eternity/ \n"
-            "Version %i.%02i '%s' \n\n",
-            VERSION/100, VERSION%100, version_name);
+            "Version %i.%02i.%02i '%s' \n\n",
+            VERSION/100, VERSION%100, SUBVERSION, version_name);
 
    // haleyjd: if we didn't do textmode startup, these didn't show up
    //  earlier, so now is a cool time to show them :)
@@ -2365,8 +2293,6 @@ static void D_DoomInit(void)
 
    startlevel = Z_Strdup(G_GetNameForMap(startepisode, startmap), PU_STATIC, 0);
 
-   // killough 12/98: inlined D_DoomLoop
-
    if(slot && ++slot < myargc)
    {
       slot = atoi(myargv[slot]);        // killough 3/16/98: add slot info
@@ -2394,14 +2320,6 @@ static void D_DoomInit(void)
          D_StartTitle();                 // start up intro loop
       }
    }
-
-#if 0
-   // this fixes a strange bug, don't know why but it works
-   // haleyjd: whatever this is, it now appears to be inconsequential
-   if(!textmode_startup && !devparm)
-      for(p=0; p<10; p++)
-         C_Update();
-#endif
 }
 
 
@@ -2422,7 +2340,9 @@ void D_DoomMain(void)
       oldgamestate = -1;
       redrawborder = true;
    }
-   
+
+   // killough 12/98: inlined D_DoomLoop
+
    while(1)
    {
       // frame synchronous IO operations
@@ -2475,34 +2395,18 @@ void D_NewWadLumps(int handle, void (*sndfunc)(int))
       if(lumpinfo[i]->handle != handle)
          continue;
       
-      // haleyjd: change check for "THINGS" lump to a fullblown
+      // haleyjd: changed check for "THINGS" lump to a fullblown
       // P_CheckLevel call -- this should fix some problems with
       // some crappy wads that have partial levels sitting around
       
       if(P_CheckLevel(i))    // a level
       {
          char *name = lumpinfo[i]->name;
-	  
-         // 'ExMy'
-         if(isExMy(name) && isExMy(wad_firstlevel))
-         {
-            if(name[1] < wad_firstlevel[1] ||       // earlier episode?
-               // earlier level in the same episode?
-               (name[1] == wad_firstlevel[1] && name[3] < wad_firstlevel[3]))
-               strncpy(wad_firstlevel, name, 8);
-         }
-         if(isMAPxy(name) && isMAPxy(wad_firstlevel))
-         {
-            if(name[3] < wad_firstlevel[3] || // earlier 10 levels
-               // earlier in the same 10 levels?
-               (name[3] == wad_firstlevel[3] && name[4] < wad_firstlevel[4]))
-               strncpy(wad_firstlevel, name, 8);
-         }
 
-         // none set yet
          // ignore ones called 'start' as these are checked
          // elsewhere (m_menu.c)
-         if(!*wad_firstlevel && strcmp(name, "START") )
+         if((!*wad_firstlevel && strcmp(name, "START")) ||
+            strncmp(name, wad_firstlevel, 8) < 0)
             strncpy(wad_firstlevel, name, 8);
 
          // haleyjd: move up to the level's last lump
@@ -2542,7 +2446,8 @@ void D_NewWadLumps(int handle, void (*sndfunc)(int))
       }
    } 
   
-   if(*wad_firstlevel) // a new first level?
+   if(*wad_firstlevel && (!*firstlevel ||
+      strncmp(wad_firstlevel, firstlevel, 8) < 0)) // a new first level?
       strcpy(firstlevel, wad_firstlevel);
 }
 

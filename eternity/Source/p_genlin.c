@@ -36,6 +36,7 @@ rcsid[] = "$Id: p_genlin.c,v 1.18 1998/05/23 10:23:23 jim Exp $";
 #include "m_random.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "a_small.h"
 
 //////////////////////////////////////////////////////////
 //
@@ -43,41 +44,19 @@ rcsid[] = "$Id: p_genlin.c,v 1.18 1998/05/23 10:23:23 jim Exp $";
 //
 //////////////////////////////////////////////////////////
 
-//
-// EV_DoGenFloor()
-//
-// Handle generalized floor types
-//
-// Passed the line activating the generalized floor function
-// Returns true if a thinker is created
-//
-// jff 02/04/98 Added this routine (and file) to handle generalized
-// floor movers using bit fields in the line special type.
-//
-int EV_DoGenFloor(line_t *line)
+int EV_DoParamFloor(line_t *line, int tag, int Crsh, int ChgT, 
+                    int Targ, int Dirn, int ChgM, int Sped, int Trig,
+                    extfloordata_t *paramData)
 {
    int         secnum;
-   int         rtn;
-   boolean     manual;
+   int         rtn = 0;
+   boolean     manual = false;
    sector_t    *sec;
    floormove_t *floor;
-   unsigned    value = (unsigned)line->special - GenFloorBase;
-
-   // parse the bit fields in the line's special type
-   
-   int Crsh = (value & FloorCrush) >> FloorCrushShift;
-   int ChgT = (value & FloorChange) >> FloorChangeShift;
-   int Targ = (value & FloorTarget) >> FloorTargetShift;
-   int Dirn = (value & FloorDirection) >> FloorDirectionShift;
-   int ChgM = (value & FloorModel) >> FloorModelShift;
-   int Sped = (value & FloorSpeed) >> FloorSpeedShift;
-   int Trig = (value & TriggerType) >> TriggerTypeShift;
-
-   rtn = 0;
 
    // check if a manual trigger, if so do just the sector on the backside
-   manual = false;
-   if(Trig==PushOnce || Trig==PushMany)
+   // haleyjd 05/07/04: only line actions can be manual
+   if(line && (Trig == PushOnce || Trig == PushMany))
    {
       if(!(sec = line->backsector))
          return rtn;
@@ -88,7 +67,7 @@ int EV_DoGenFloor(line_t *line)
 
    secnum = -1;
    // if not manual do all sectors tagged the same as the line
-   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+   while((secnum = P_FindSectorFromTag(tag, secnum)) >= 0)
    {
       sec = &sectors[secnum];
       
@@ -96,20 +75,19 @@ manual_floor:
       // Do not start another function if floor already moving
       if(P_SectorActive(floor_special,sec))
       {
-         if(!manual)
-            continue;
-         else
+         if(manual)
             return rtn;
+         continue;
       }
 
       // new floor thinker
       rtn = 1;
-      floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
-      P_AddThinker (&floor->thinker);
+      floor = Z_Malloc(sizeof(*floor), PU_LEVSPEC, 0);
+      P_AddThinker(&floor->thinker);
       sec->floordata = floor;
       floor->thinker.function = T_MoveFloor;
       floor->crush = Crsh;
-      floor->direction = Dirn? plat_up : plat_down;
+      floor->direction = Dirn ? plat_up : plat_down;
       floor->sector = sec;
       floor->texture = sec->floorpic;
       floor->newspecial = sec->special;
@@ -118,7 +96,7 @@ manual_floor:
       floor->type = genFloor;
 
       // set the speed of motion
-      switch (Sped)
+      switch(Sped)
       {
       case SpeedSlow:
          floor->speed = FLOORSPEED;
@@ -131,6 +109,9 @@ manual_floor:
          break;
       case SpeedTurbo:
          floor->speed = FLOORSPEED*8;
+         break;
+      case SpeedParam: // haleyjd 05/07/04: parameterized extension
+         floor->speed = paramData ? paramData->speed : FLOORSPEED*2;
          break;
       default:
          break;
@@ -174,14 +155,17 @@ manual_floor:
          floor->floordestheight = floor->sector->floorheight +
             floor->direction * 32*FRACUNIT;
          break;
+      case FbyParam: // haleyjd 05/07/04: parameterized extension
+         floor->floordestheight = paramData ? paramData->targetheight : 0;
+         break;
       default:
          break;
       }
 
       // set texture/type change properties
-      if (ChgT)   // if a texture change is indicated
+      if(ChgT)   // if a texture change is indicated
       {
-         if (ChgM) // if a numeric model change
+         if(ChgM) // if a numeric model change
          {
             sector_t *sec;
 
@@ -191,7 +175,7 @@ manual_floor:
                P_FindModelCeilingSector(floor->floordestheight,secnum) :
                P_FindModelFloorSector(floor->floordestheight,secnum);
             
-            if (sec)
+            if(sec)
             {
                floor->texture = sec->floorpic;
                switch(ChgT)
@@ -218,32 +202,66 @@ manual_floor:
          }
          else     // else if a trigger model change
          {
-            floor->texture = line->frontsector->floorpic;
-            switch(ChgT)
+            if(line) // haleyjd 05/07/04: only line actions can use this
             {
-            case FChgZero:    // zero type
-               floor->newspecial = 0;
-               //jff 3/14/98 change old field too
-               floor->oldspecial = 0;
-               floor->type = genFloorChg0;
-               break;
-            case FChgTyp:     // copy type
-               floor->newspecial = line->frontsector->special;
-               //jff 3/14/98 change old field too
-               floor->oldspecial = line->frontsector->oldspecial;
-               floor->type = genFloorChgT;
-               break;
-            case FChgTxt:     // leave type be
-               floor->type = genFloorChg;
-            default:
-               break;
-            }
+               floor->texture = line->frontsector->floorpic;
+               switch(ChgT)
+               {
+               case FChgZero:    // zero type
+                  floor->newspecial = 0;
+                  //jff 3/14/98 change old field too
+                  floor->oldspecial = 0;
+                  floor->type = genFloorChg0;
+                  break;
+               case FChgTyp:     // copy type
+                  floor->newspecial = line->frontsector->special;
+                  //jff 3/14/98 change old field too
+                  floor->oldspecial = line->frontsector->oldspecial;
+                  floor->type = genFloorChgT;
+                  break;
+               case FChgTxt:     // leave type be
+                  floor->type = genFloorChg;
+               default:
+                  break;
+               }
+            } // end if(line)
          }
       }
       if(manual)
          return rtn;
    }
    return rtn;
+}
+
+//
+// EV_DoGenFloor()
+//
+// Handle generalized floor types
+//
+// Passed the line activating the generalized floor function
+// Returns true if a thinker is created
+//
+// jff 02/04/98 Added this routine (and file) to handle generalized
+// floor movers using bit fields in the line special type.
+//
+// haleyjd 05/07/04: rewritten to use EV_DoParamFloor
+//
+int EV_DoGenFloor(line_t *line)
+{
+   unsigned value = (unsigned)line->special - GenFloorBase;
+
+   // parse the bit fields in the line's special type
+   
+   int Crsh = (value & FloorCrush) >> FloorCrushShift;
+   int ChgT = (value & FloorChange) >> FloorChangeShift;
+   int Targ = (value & FloorTarget) >> FloorTargetShift;
+   int Dirn = (value & FloorDirection) >> FloorDirectionShift;
+   int ChgM = (value & FloorModel) >> FloorModelShift;
+   int Sped = (value & FloorSpeed) >> FloorSpeedShift;
+   int Trig = (value & TriggerType) >> TriggerTypeShift;
+
+   return EV_DoParamFloor(line, line->tag, Crsh, ChgT, Targ, Dirn,
+                          ChgM, Sped, Trig, NULL);
 }
 
 
@@ -604,7 +622,7 @@ manual_lift:
       }
 
       if(!silentmove(sec))        //sf: silentmove
-         S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_pstart);
+         S_StartSoundName((mobj_t *)&sec->soundorg,LevelInfo.sound_pstart);
       P_AddActivePlat(plat); // add this plat to the list of active plats
       
       if(manual)
@@ -922,6 +940,7 @@ mobj_t *genDoorThing;
 // 1. The thinker on the sector must be a T_VerticalDoor
 // 2. The door type must be raise, not open or close
 // 3. The activation trigger must be PushMany
+// 4. This routine is only called for manual push doors.
 //
 // ** genDoorThing must be set before the calling routine is
 //    executed!
@@ -949,54 +968,51 @@ static int GenDoorRetrigger(vldoor_t *door, int trig)
 }
 
 //
-// EV_DoGenLockedDoor()
+// EV_DoParamDoor
 //
-// Handle generalized locked door types
+// haleyjd 05/04/04: Parameterized extension of the generalized
+// door types. Absorbs code from the below two functions and adds
+// the ability to pass in fully customized data.
 //
-// Passed the linedef activating the generalized locked door
-// Returns true if a thinker created
+// Parameters:
+// line -- pointer to originating line; may be NULL
+// tag  -- tag of sectors to affect (may come from line or elsewhere)
+// Dely, Kind, Sped, Trig -- basic info as extracted for generalized types
+// paramData -- pointer to extra info for parameterized doors; may be NULL
 //
-int EV_DoGenLockedDoor(line_t* line)
+int EV_DoParamDoor(line_t *line, int tag,
+                   int Dely, int Kind, int Sped, int Trig,
+                   extdoordata_t *paramData)
 {
-   int      secnum, rtn;
+   int secnum, rtn = 0;
    sector_t *sec;
    vldoor_t *door;
-   boolean  manual;
-   unsigned value = (unsigned)line->special - GenLockedBase;
-
-   // parse the bit fields in the line's special type
-   
-   int Kind = (value & LockedKind) >> LockedKindShift;
-   int Sped = (value & LockedSpeed) >> LockedSpeedShift;
-   int Trig = (value & TriggerType) >> TriggerTypeShift;
-   
-   rtn = 0;
+   boolean manual = false;
+   char *sndname;
 
    // check if a manual trigger, if so do just the sector on the backside
-   manual = false;
-   if(Trig==PushOnce || Trig==PushMany)
+   // haleyjd 05/04/04: door actions with no line can't be manual
+   if(line && (Trig == PushOnce || Trig == PushMany))
    {
       if(!(sec = line->backsector))
          return rtn;
       secnum = sec-sectors;
       manual = true;
-      goto manual_locked;
+      goto manual_door;
    }
 
    secnum = -1;
    rtn = 0;
-   
+
    // if not manual do all sectors tagged the same as the line
-   while((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
+   while((secnum = P_FindSectorFromTag(tag, secnum)) >= 0)
    {
       sec = &sectors[secnum];
-manual_locked:
+manual_door:
       // Do not start another function if ceiling already moving
       if(P_SectorActive(ceiling_special,sec)) //jff 2/22/98
       {
-         if(!manual)
-            continue;
-         else
+         if(manual)
          {
             // haleyjd 02/23/04: allow repushing of certain generalized
             // doors
@@ -1007,60 +1023,167 @@ manual_locked:
 
             return rtn;
          }
+         continue;
       }
-  
+
       // new door thinker
       rtn = 1;
-      door = Z_Malloc(sizeof(*door), PU_LEVSPEC, 0);
-      P_AddThinker(&door->thinker);
+      door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+      P_AddThinker (&door->thinker);
       sec->ceilingdata = door; //jff 2/22/98
       
       door->thinker.function = T_VerticalDoor;
       door->sector = sec;
-      door->topwait = VDOORWAIT;
-      door->line = line;
-      door->topheight = P_FindLowestCeilingSurrounding(sec);
-      door->topheight -= 4*FRACUNIT;
-      door->direction = plat_up;
-      
-      // killough 10/98: implement gradual lighting
-      door->lighttag =
-         !comp[comp_doorlight] && (line->special&6) == 6 && 
-         line->special > GenLockedBase ? line->tag : 0;
+      // setup delay for door remaining open/closed
+      switch(Dely)
+      {
+      default:
+      case doorWaitOneSec:
+         door->topwait = 35;
+         break;
+      case doorWaitStd:
+         door->topwait = VDOORWAIT;
+         break;
+      case doorWaitStd2x:
+         door->topwait = 2*VDOORWAIT;
+         break;
+      case doorWaitStd7x:
+         door->topwait = 7*VDOORWAIT;
+         break;
+      case doorWaitParam: // haleyjd 05/04/04: parameterized
+         door->topwait = paramData ? paramData->topwait : VDOORWAIT;
+         break;
+      }
 
       // setup speed of door motion
       switch(Sped)
       {
       default:
       case SpeedSlow:
-         door->type = Kind? genOpen : genRaise;
          door->speed = VDOORSPEED;
          break;
       case SpeedNormal:
-         door->type = Kind? genOpen : genRaise;
          door->speed = VDOORSPEED*2;
          break;
       case SpeedFast:
-         door->type = Kind? genBlazeOpen : genBlazeRaise;
          door->speed = VDOORSPEED*4;
          break;
       case SpeedTurbo:
-         door->type = Kind? genBlazeOpen : genBlazeRaise;
          door->speed = VDOORSPEED*8;
          break;
+      case SpeedParam: // haleyjd 05/04/04: parameterized
+         door->speed = paramData ? paramData->speed : VDOORSPEED;
+         break;
       }
+      door->line = line; // jff 1/31/98 remember line that triggered us
 
-      // killough 4/15/98: fix generalized door opening sounds
-      // (previously they always had the blazing door close sound)
+      // killough 10/98: implement gradual lighting
+      // haleyjd 05/04/04: make sure line is valid
+      door->lighttag = !comp[comp_doorlight] && line && 
+         (line->special&6) == 6 && 
+         line->special > GenLockedBase ? line->tag : 0;
       
-      S_StartSoundName((mobj_t *)&door->sector->soundorg,   // killough 4/15/98
-                       (door->speed >= VDOORSPEED*4 ? 
-                        info_sound_bdopn : info_sound_doropn));
-
+      // set kind of door, whether it opens then close, opens, closes etc.
+      // assign target heights accordingly
+      // haleyjd 05/04/04: fixed sound playing; was totally messed up!
+      switch(Kind)
+      {
+      case OdCDoor:
+         door->direction = plat_up;
+         door->topheight = P_FindLowestCeilingSurrounding(sec);
+         door->topheight -= 4*FRACUNIT;
+         if(door->speed >= VDOORSPEED*4)
+         {
+            door->type = genBlazeRaise;
+            sndname = LevelInfo.sound_bdopn;
+         }
+         else
+         {
+            door->type = genRaise;
+            sndname = LevelInfo.sound_doropn;
+         }
+         if(door->topheight != sec->ceilingheight)
+            S_StartSoundName((mobj_t *)&door->sector->soundorg, sndname);
+         break;
+      case ODoor:
+         door->direction = plat_up;
+         door->topheight = P_FindLowestCeilingSurrounding(sec);
+         door->topheight -= 4*FRACUNIT;
+         if(door->speed >= VDOORSPEED*4)
+         {
+            door->type = genBlazeOpen;
+            sndname = LevelInfo.sound_bdopn;
+         }
+         else
+         {
+            door->type = genOpen;
+            sndname = LevelInfo.sound_doropn;
+         }
+         if(door->topheight != sec->ceilingheight)
+            S_StartSoundName((mobj_t *)&door->sector->soundorg, sndname);
+         break;
+      case CdODoor:
+         door->topheight = sec->ceilingheight;
+         door->direction = plat_down;
+         if(door->speed >= VDOORSPEED*4)
+         {
+            door->type = genBlazeCdO;
+            sndname = LevelInfo.sound_bdcls;
+         }
+         else
+         {
+            door->type = genCdO;
+            sndname = LevelInfo.sound_dorcls;
+         }
+         S_StartSoundName((mobj_t *)&door->sector->soundorg, sndname);
+         break;
+      case CDoor:
+         door->topheight = P_FindLowestCeilingSurrounding(sec);
+         door->topheight -= 4*FRACUNIT;
+         door->direction = plat_down;
+         if(door->speed >= VDOORSPEED*4)
+         {
+            door->type = genBlazeClose;
+            sndname = LevelInfo.sound_bdcls;
+         }
+         else
+         {
+            door->type = genClose;
+            sndname = LevelInfo.sound_dorcls;
+         }
+         S_StartSoundName((mobj_t *)&door->sector->soundorg, sndname);
+         break;
+      default:
+         break;
+      }
       if(manual)
          return rtn;
    }
    return rtn;
+}
+
+//
+// EV_DoGenLockedDoor()
+//
+// Handle generalized locked door types
+//
+// Passed the linedef activating the generalized locked door
+// Returns true if a thinker created
+//
+// haleyjd 05/04/04: rewritten to use EV_DoParamDoor
+//
+int EV_DoGenLockedDoor(line_t* line)
+{
+   unsigned value = (unsigned)line->special - GenLockedBase;
+
+   // parse the bit fields in the line's special type
+   
+   int Kind = (value & LockedKind) >> LockedKindShift;
+   int Sped = (value & LockedSpeed) >> LockedSpeedShift;
+   int Trig = (value & TriggerType) >> TriggerTypeShift;
+   
+   return EV_DoParamDoor(line, line->tag, doorWaitStd, Kind, Sped, Trig, 
+                         NULL);
 }
 
 //
@@ -1071,12 +1194,10 @@ manual_locked:
 // Passed the linedef activating the generalized door
 // Returns true if a thinker created
 //
+// haleyjd 05/04/04: rewritten to use EV_DoParamDoor
+//
 int EV_DoGenDoor(line_t* line)
 {
-   int      secnum, rtn;
-   sector_t *sec;
-   boolean  manual;
-   vldoor_t *door;
    unsigned value = (unsigned)line->special - GenDoorBase;
 
    // parse the bit fields in the line's special type
@@ -1086,141 +1207,80 @@ int EV_DoGenDoor(line_t* line)
    int Sped = (value & DoorSpeed) >> DoorSpeedShift;
    int Trig = (value & TriggerType) >> TriggerTypeShift;
 
-   rtn = 0;
-   
-   // check if a manual trigger, if so do just the sector on the backside
-   manual = false;
-   if(Trig==PushOnce || Trig==PushMany)
-   {
-      if(!(sec = line->backsector))
-         return rtn;
-      secnum = sec-sectors;
-      manual = true;
-      goto manual_door;
-   }
-
-
-   secnum = -1;
-   rtn = 0;
-   
-   // if not manual do all sectors tagged the same as the line
-   while((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
-   {
-      sec = &sectors[secnum];
-manual_door:
-      // Do not start another function if ceiling already moving
-      if(P_SectorActive(ceiling_special,sec)) //jff 2/22/98
-      {
-         if(!manual)
-            continue;
-         else
-         {
-            // haleyjd 02/23/04: allow repushing of certain generalized
-            // doors
-            if(demo_version >= 331)
-            {
-               rtn = GenDoorRetrigger(sec->ceilingdata, Trig);
-            }
-
-            return rtn;
-         }
-      }
-  
-      // new door thinker
-      rtn = 1;
-      door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
-      P_AddThinker (&door->thinker);
-      sec->ceilingdata = door; //jff 2/22/98
-
-      door->thinker.function = T_VerticalDoor;
-      door->sector = sec;
-      // setup delay for door remaining open/closed
-      switch(Dely)
-      {
-      default:
-      case 0:
-         door->topwait = 35;
-         break;
-      case 1:
-         door->topwait = VDOORWAIT;
-         break;
-      case 2:
-         door->topwait = 2*VDOORWAIT;
-         break;
-      case 3:
-         door->topwait = 7*VDOORWAIT;
-         break;
-      }
-
-      // setup speed of door motion
-      switch(Sped)
-      {
-      default:
-      case SpeedSlow:
-         door->speed = VDOORSPEED;
-         break;
-      case SpeedNormal:
-         door->speed = VDOORSPEED*2;
-         break;
-      case SpeedFast:
-         door->speed = VDOORSPEED*4;
-         break;
-      case SpeedTurbo:
-         door->speed = VDOORSPEED*8;
-         break;
-      }
-      door->line = line; // jff 1/31/98 remember line that triggered us
-
-      // killough 10/98: implement gradual lighting
-      door->lighttag = !comp[comp_doorlight] && (line->special&6) == 6 && 
-         line->special > GenLockedBase ? line->tag : 0;
-      
-      // set kind of door, whether it opens then close, opens, closes etc.
-      // assign target heights accordingly
-      switch(Kind)
-      {
-      case OdCDoor:
-         door->direction = plat_up;
-         door->topheight = P_FindLowestCeilingSurrounding(sec);
-         door->topheight -= 4*FRACUNIT;
-         if(door->topheight != sec->ceilingheight)
-            S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_bdopn);
-         door->type = Sped>=SpeedFast? genBlazeRaise : genRaise;
-         break;
-      case ODoor:
-         door->direction = plat_up;
-         door->topheight = P_FindLowestCeilingSurrounding(sec);
-         door->topheight -= 4*FRACUNIT;
-         if(door->topheight != sec->ceilingheight)
-            S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_bdopn);
-         door->type = Sped>=SpeedFast? genBlazeOpen : genOpen;
-         break;
-      case CdODoor:
-         door->topheight = sec->ceilingheight;
-         door->direction = plat_down;
-         S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                          info_sound_dorcls);
-         door->type = Sped>=SpeedFast? genBlazeCdO : genCdO;
-         break;
-      case CDoor:
-         door->topheight = P_FindLowestCeilingSurrounding(sec);
-         door->topheight -= 4*FRACUNIT;
-         door->direction = plat_down;
-         S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                          info_sound_dorcls);
-         door->type = Sped>=SpeedFast? genBlazeClose : genClose;
-         break;
-      default:
-         break;
-      }
-      if(manual)
-         return rtn;
-   }
-   return rtn;
+   return EV_DoParamDoor(line, line->tag, Dely, Kind, Sped, Trig, NULL);
 }
 
+//
+// Small Natives
+//
+
+//
+// sm_flooraction
+// * Implements FloorAction(crush, direction, speed, changetex,
+//                          id, idtype, desttype, destheight)
+//
+static cell AMX_NATIVE_CALL sm_flooraction(AMX *amx, cell *params)
+{
+   extfloordata_t fd;
+   int id, crush, direction, desttype, changetex;
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   crush     = (int)params[1];
+   direction = (int)params[2];
+   fd.speed  = (int)params[3];
+   changetex = (int)params[4];
+   id        = (int)params[5];
+   // TODO: SID support (params[6] == idtype)
+   desttype  = (int)params[7];
+   fd.targetheight = (int)params[8];
+
+   return EV_DoParamFloor(NULL, id, crush, changetex, desttype,
+                          direction, FNumericModel, SpeedParam, 
+                          WalkMany, &fd);
+}
+
+//
+// sm_dooraction
+// * Implements DoorAction(kind, speed, delay, id, idtype = 0)
+//
+// This is the first function to use the new parameterized specials
+// which expand the BOOM generalized line system. It allows door
+// actions of any type to be started. Returns 1 if the action was
+// successful, 0 otherwise.
+//
+static cell AMX_NATIVE_CALL sm_dooraction(AMX *amx, cell *params)
+{
+   extdoordata_t dd;
+   int kind, id;
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   kind       = (int)params[1];
+   dd.speed   = (int)params[2];
+   dd.topwait = (int)params[3];
+   id         = (int)params[4];
+   // TODO: SID support (params[5] == idtype)
+
+   return EV_DoParamDoor(NULL, id, 
+                         doorWaitParam, kind, SpeedParam, WalkMany, 
+                         &dd);
+}
+
+AMX_NATIVE_INFO genlin_Natives[] =
+{
+   { "S_FloorAction", sm_flooraction },
+   { "S_DoorAction",  sm_dooraction },
+   { NULL,          NULL }
+};
 
 //----------------------------------------------------------------------------
 //

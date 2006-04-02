@@ -35,6 +35,7 @@ rcsid[] = "$Id: p_plats.c,v 1.16 1998/05/08 17:44:18 jim Exp $";
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "d_gi.h"
 
 platlist_t *activeplats;       // killough 2/14/98: made global again
 
@@ -65,7 +66,7 @@ void T_PlatRaise(plat_t* plat)
       {
          if(!(leveltime&7) && !silentmove(plat->sector)) // sf: silentmove
             S_StartSoundName((mobj_t *)&plat->sector->soundorg,
-                             info_sound_stnmov);
+                             LevelInfo.sound_stnmov);
       }
       
       // if encountered an obstacle, and not a crush type, reverse direction
@@ -75,7 +76,7 @@ void T_PlatRaise(plat_t* plat)
          plat->status = down;
          if(!silentmove(plat->sector))    // sf: silentmove
             S_StartSoundName((mobj_t *)&plat->sector->soundorg,
-                             info_sound_pstart);
+                             LevelInfo.sound_pstart);
       }
       else  // else handle reaching end of up stroke
       {
@@ -88,7 +89,7 @@ void T_PlatRaise(plat_t* plat)
                plat->status = waiting;
                if(!silentmove(plat->sector)) // sf: silentmove
                   S_StartSoundName((mobj_t *)&plat->sector->soundorg,
-                                   info_sound_pstop);
+                                   LevelInfo.sound_pstop);
             }
             else // else go into stasis awaiting next toggle activation
             {
@@ -100,10 +101,14 @@ void T_PlatRaise(plat_t* plat)
             // only the perpetual type waits then goes back up
             switch(plat->type)
             {
+            case raiseToNearestAndChange:
+               // haleyjd 07/16/04: In Heretic, this type of plat goes into 
+               // stasis forever, preventing any additional actions
+               if(gameModeInfo->type == Game_Heretic)
+                  break;
             case blazeDWUS:
             case downWaitUpStay:
             case raiseAndChange:
-            case raiseToNearestAndChange:
             case genLift:
                P_RemoveActivePlat(plat);     // killough
             default:
@@ -126,7 +131,7 @@ void T_PlatRaise(plat_t* plat)
             plat->status = waiting;
             if(!silentmove(plat->sector)) // sf: silentmove
                S_StartSoundName((mobj_t *)&plat->sector->soundorg,
-                                info_sound_pstop);
+                                LevelInfo.sound_pstop);
          }
          else // instant toggles go into stasis awaiting next activation
          {
@@ -164,7 +169,7 @@ void T_PlatRaise(plat_t* plat)
          // make plat start sound
          if(!silentmove(plat->sector))    // sf: silentmove
             S_StartSoundName((mobj_t *)&plat->sector->soundorg,
-                             info_sound_pstart);
+                             LevelInfo.sound_pstart);
       }
       break; //jff 1/27/98 don't pickup code added later to in_stasis
 
@@ -252,7 +257,7 @@ int EV_DoPlat
          sec->oldspecial = 0;               
 
          if(!silentmove(sec)) //sf: silentmove
-            S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_stnmov);
+            S_StartSoundName((mobj_t *)&sec->soundorg,LevelInfo.sound_stnmov);
          break;
           
       case raiseAndChange:
@@ -263,7 +268,7 @@ int EV_DoPlat
          plat->status = up;
          
          if(!silentmove(sec)) //sf: silentmove
-            S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_stnmov);
+            S_StartSoundName((mobj_t *)&sec->soundorg,LevelInfo.sound_stnmov);
          break;
           
       case downWaitUpStay:
@@ -277,7 +282,7 @@ int EV_DoPlat
          plat->wait = 35*PLATWAIT;
          plat->status = down;
          if(!silentmove(sec))    // sf: silentmove
-            S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_pstart);
+            S_StartSoundName((mobj_t *)&sec->soundorg,LevelInfo.sound_pstart);
          break;
           
       case blazeDWUS:
@@ -291,7 +296,7 @@ int EV_DoPlat
          plat->wait = 35*PLATWAIT;
          plat->status = down;
          if(!silentmove(sec))    // sf: silentmove
-            S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_pstart);
+            S_StartSoundName((mobj_t *)&sec->soundorg,LevelInfo.sound_pstart);
          break;
           
       case perpetualRaise:
@@ -310,7 +315,7 @@ int EV_DoPlat
          plat->status = P_Random(pr_plats)&1;
          
          if(!silentmove(sec))    // sf: silentmove
-            S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_pstart);
+            S_StartSoundName((mobj_t *)&sec->soundorg,LevelInfo.sound_pstart);
          break;
 
       case toggleUpDn: //jff 3/14/98 add new type to support instant toggle

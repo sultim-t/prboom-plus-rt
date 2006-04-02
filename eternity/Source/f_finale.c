@@ -57,10 +57,6 @@ int finalecount;
 #define NEWTEXTSPEED 0.01  // new value                         // phares
 #define NEWTEXTWAIT  1000  // new value                         // phares
 
-int     fTextLumpNum; // haleyjd 12/13/01
-char   *finaletext;
-char   *finaleflat;
-
 void    F_StartCast (void);
 void    F_CastTicker (void);
 boolean F_CastResponder (event_t *ev);
@@ -75,177 +71,21 @@ byte *DemonBuffer; // haleyjd 08/23/02
 //
 // F_StartFinale
 //
-void F_StartFinale (void)
+void F_StartFinale(void)
 {
-  gameaction = ga_nothing;
-  gamestate = GS_FINALE;
-  automapactive = false;
+   gameaction = ga_nothing;
+   gamestate = GS_FINALE;
+   automapactive = false;
+   
+   // killough 3/28/98: clear accelerative text flags
+   acceleratestage = midstage = 0;
 
-  // killough 3/28/98: clear accelerative text flags
-  acceleratestage = midstage = 0;
+   // haleyjd 07/17/04: level-dependent initialization moved to LevelInfo
 
-  // Okay - IWAD dependend stuff.
-  // This has been changed severly, and
-  //  some stuff might have changed in the process.
-  switch ( gamemode )
-  {
-    // DOOM 1 - E1, E3 or E4, but each nine missions
-    case shareware:
-    case registered:
-    case retail:
-    {
-      S_ChangeMusicNum(mus_victor, true);
-      
-      switch (gameepisode)
-      {
-        case 1:
-             finaleflat = bgflatE1; // Ty 03/30/98 - new externalized bg flats
-             finaletext = s_E1TEXT; // Ty 03/23/98 - Was e1text variable.
-             break;
-        case 2:
-             finaleflat = bgflatE2;
-             finaletext = s_E2TEXT; // Ty 03/23/98 - Same stuff for each 
-             break;
-        case 3:
-             finaleflat = bgflatE3;
-             finaletext = s_E3TEXT;
-             break;
-        case 4:
-             finaleflat = bgflatE4;
-             finaletext = s_E4TEXT;
-             break;
-        default:
-             // haleyjd: use reasonable defaults
-             finaleflat = bgflatE1;
-             finaletext = "error: no intermission text defined";
-             break;
-      }
-      break;
-    }
-    
-    // DOOM II and missions packs with E1, M34
-    case commercial:
-    {
-      S_ChangeMusicNum(mus_read_m, true);
-
-      // Ty 08/27/98 - added the gamemission logic
-
-      switch (gamemap)      /* This is regular Doom II */
-      {
-        case 6:
-             finaleflat = bgflat06;
-             finaletext = gamemission == pack_tnt  ? s_T1TEXT :
-	                  gamemission == pack_plut ? s_P1TEXT : s_C1TEXT;
-             break;
-        case 11:
-             finaleflat = bgflat11;
-             finaletext = gamemission == pack_tnt  ? s_T2TEXT :
-	                  gamemission == pack_plut ? s_P2TEXT : s_C2TEXT;
-             break;
-        case 20:
-             finaleflat = bgflat20;
-             finaletext = gamemission == pack_tnt  ? s_T3TEXT :
-	                  gamemission == pack_plut ? s_P3TEXT : s_C3TEXT;
-             break;
-        case 30:
-             finaleflat = bgflat30;
-             finaletext = gamemission == pack_tnt  ? s_T4TEXT :
-	                  gamemission == pack_plut ? s_P4TEXT : s_C4TEXT;
-             break;
-        case 15:
-             finaleflat = bgflat15;
-             finaletext = gamemission == pack_tnt  ? s_T5TEXT :
-	                  gamemission == pack_plut ? s_P5TEXT : s_C5TEXT;
-             break;
-        case 31:
-             finaleflat = bgflat31;
-             finaletext = gamemission == pack_tnt  ? s_T6TEXT :
-	                  gamemission == pack_plut ? s_P6TEXT : s_C6TEXT;
-             break;
-        default:
-             // haleyjd: use reasonable defaults
-             finaleflat = bgflat06;
-             finaletext = "error: no intermission text defined";
-             break;
-      }
-      // Ty 08/27/98 - end gamemission logic
-
-      break;
-    }
-    
-    // haleyjd: heretic support
-    case hereticsw:
-    case hereticreg:
-    {
-       S_ChangeMusicNum(hmus_cptd, true);
-
-       switch(gameepisode)
-       {
-       case 1:
-          finaleflat = bgflathE1;
-          finaletext = s_H1TEXT;
-          break;
-       case 2:
-          finaleflat = bgflathE2;
-          finaletext = s_H2TEXT;
-          break;
-       case 3:
-          finaleflat = bgflathE3;
-          finaletext = s_H3TEXT;
-          break;
-       case 4:
-          finaleflat = bgflathE4;
-          finaletext = s_H4TEXT;
-          break;
-       case 5:
-          finaleflat = bgflathE5;
-          finaletext = s_H5TEXT;
-          break;
-       default:
-          finaleflat = bgflathE1;
-          finaletext = "error: no intermission text defined";
-          break;
-       }
-       break;
-    }
-
-    // Indeterminate.
-    default:  // Ty 03/30/98 - not externalized
-         S_ChangeMusicNum(mus_read_m, true);
-         finaleflat = "F_SKY2"; // Not used anywhere else.
-         finaletext = s_C1TEXT; // Other text, music?
-         break;
-  }
-
-  // haleyjd 12/13/01: fixed problem with info_backdrop being 
-  // dependent on info_intertext and being inappropriately set
-  // to F_SKY1 even if it was already set above
-
-  if(info_backdrop)
-  {
-     finaleflat = info_backdrop;
-  }
-
-  if(info_intertext)
-  {
-     int lumpLen;
-
-     // haleyjd 12/13/01: info_intertext is now the name of a lump
-     // from which to retrieve intermission text     
-     // old code:
-     // finaletext = info_intertext;
-
-     fTextLumpNum = W_GetNumForName(info_intertext);
-     lumpLen      = W_LumpLength(fTextLumpNum);
-     finaletext   = Z_Malloc(lumpLen + 1, PU_LEVEL, 0);
-     W_ReadLump(fTextLumpNum, finaletext);
-
-     // null-terminate the string
-     finaletext[lumpLen] = '\0';
-  }
-
-  finalestage = 0;
-  finalecount = 0;
+   S_ChangeMusicName(LevelInfo.interMusic, true);
+   
+   finalestage = 0;
+   finalecount = 0;
 }
 
 
@@ -291,7 +131,7 @@ static float Get_TextSpeed(void)
 //
 // killough 5/10/98: add back v1.9 demo compatibility
 // haleyjd 10/12/01: reformatted, added cast call for any level
-
+//
 void F_Ticker(void)
 {
    int i;
@@ -304,7 +144,7 @@ void F_Ticker(void)
    else if(gamemode == commercial && finalecount > 50)
    {  
       // check for skipping
-      for(i=0; i<MAXPLAYERS; i++)
+      for(i = 0; i < MAXPLAYERS; ++i)
 	 if(players[i].cmd.buttons)
 	    goto next_level;      // go on to the next level
    }
@@ -319,7 +159,7 @@ void F_Ticker(void)
    {
       float speed = demo_compatibility ? TEXTSPEED : Get_TextSpeed();
 
-      if(finalecount > strlen(finaletext)*speed + // phares
+      if(finalecount > strlen(LevelInfo.interText)*speed + // phares
 	 (midstage ? NEWTEXTWAIT : TEXTWAIT) ||   // killough 2/28/98:
 	 (midstage && acceleratestage))           // changed to allow acceleration
       {
@@ -351,7 +191,7 @@ void F_Ticker(void)
 	    // you must press a button to continue in Doom 2
 	    // haleyjd: allow cast calls after arbitrary maps
 	 next_level:
-	    if(info_endofgame)
+	    if(LevelInfo.endOfGame)
 	       F_StartCast(); // cast of Doom 2 characters
 	    else
 	       gameaction = ga_worlddone;  // next level, e.g. MAP07
@@ -370,77 +210,74 @@ void F_Ticker(void)
 // the Get_TextSpeed function so that the speed of writing the      //   ^
 // text can be increased, and there's still time to read what's     //   |
 // written.                                                         // phares
-
-        // sf: font is now in v_video.c
-#include "v_video.h"
-extern  patch_t *v_font[V_FONTSIZE];
-
-
-void F_TextWrite (void)
+//
+void F_TextWrite(void)
 {
-  int         w;         // killough 8/9/98: move variables below
-  int         count;
-  char*       ch;
-  int         c;
-  int         cx;
-  int         cy;
-  int         lumpnum;
+   int         w;         // killough 8/9/98: move variables below
+   int         count;
+   char*       ch;
+   int         c;
+   int         cx;
+   int         cy;
+   int         lumpnum;
+   
+   // haleyjd: get finale font metrics
+   gitextmetric_t *fontmetrics = gameModeInfo->ftextinfo;
 
-  // haleyjd: get finale font metrics
-  gitextmetric_t *fontmetrics = gameModeInfo->ftextinfo;
+   // erase the entire screen to a tiled background
+   
+   // killough 11/98: the background-filling code was already in m_menu.c
 
-  // erase the entire screen to a tiled background
-
-  // killough 11/98: the background-filling code was already in m_menu.c
-
-  lumpnum = W_CheckNumForName (finaleflat);
-
-  if(lumpnum == -1) // flat
-    V_DrawBackground(finaleflat, &vbscreen);
-  else
-    {                     // normal picture
+   lumpnum = W_CheckNumForName(LevelInfo.backDrop);
+   
+   if(lumpnum == -1) // flat
+      V_DrawBackground(LevelInfo.backDrop, &vbscreen);
+   else
+   {                     // normal picture
       patch_t *pic;
       
       pic = W_CacheLumpNum(lumpnum, PU_CACHE);
       V_DrawPatch(0, 0, &vbscreen, pic);
-    }
+   }
 
-  // draw some of the text onto the screen
-  cx = fontmetrics->x;
-  cy = fontmetrics->y;
-  ch = finaletext;
+   // draw some of the text onto the screen
+   cx = fontmetrics->x;
+   cy = fontmetrics->y;
+   ch = LevelInfo.interText;
       
-  count = (int)((finalecount - 10)/Get_TextSpeed()); // phares
-  if (count < 0)
-    count = 0;
+   count = (int)((finalecount - 10)/Get_TextSpeed()); // phares
+   if(count < 0)
+      count = 0;
 
-  for ( ; count ; count-- )
-  {
-    c = *ch++;
-    if (!c)
-      break;
-    if (c == '\n')
-    {
-      cx = fontmetrics->x;
-      cy += fontmetrics->cy;
-      continue;
-    }
-    
-    // haleyjd: added null pointer check
-    c = toupper(c) - V_FONTSTART;
-    if(c < 0 || c > V_FONTSIZE || !v_font[c])
-    {
-      cx += fontmetrics->space;
-      continue;
-    }
-              
-    w = SHORT(v_font[c]->width);
-    if (cx+w > SCREENWIDTH)
-      break;
-    V_DrawPatch(cx, cy, &vbscreen, v_font[c]);
+   for(; count; count--)
+   {
+      if(!(c = *ch++))
+         break;
+      
+      if(c == '\n')
+      {
+         cx = fontmetrics->x;
+         cy += fontmetrics->cy;
+         continue;
+      }
+      
+      // haleyjd: added null pointer check
+      c = toupper(c) - V_FONTSTART;
 
-    cx+=w;
-  }
+      if(c < 0 || c > V_FONTSIZE || !v_font[c])
+      {
+         cx += fontmetrics->space;
+         continue;
+      }
+      
+      w = SHORT(v_font[c]->width);
+      if(cx + w > SCREENWIDTH)
+         continue; // haleyjd: continue, not break
+
+      V_DrawPatch(cx, cy, &vbscreen, v_font[c]);
+      
+      cx += w;
+   }
 }
 
 //
@@ -576,26 +413,44 @@ void F_CastTicker(void)
          }
       }
       
-      S_StartSound (NULL, sfx);
+      S_StartSound(NULL, sfx);
    }
       
    if(castframes == 12)
    {
+      int i, stnum;
+
       // go into attack frame
       castattacking = true;
       if(castonmelee)
-         caststate=&states[mobjinfo[castorder[castnum].type].meleestate];
+         caststate=&states[(stnum = mobjinfo[castorder[castnum].type].meleestate)];
       else
-         caststate=&states[mobjinfo[castorder[castnum].type].missilestate];
+         caststate=&states[(stnum = mobjinfo[castorder[castnum].type].missilestate)];
       castonmelee ^= 1;
       if(caststate == &states[E_NullState()])
       {
          if(castonmelee)
             caststate=
-            &states[mobjinfo[castorder[castnum].type].meleestate];
+            &states[(stnum = mobjinfo[castorder[castnum].type].meleestate)];
          else
             caststate=
-            &states[mobjinfo[castorder[castnum].type].missilestate];
+            &states[(stnum = mobjinfo[castorder[castnum].type].missilestate)];
+      }
+
+      // haleyjd 07/04/04: check for sounds matching the missile or
+      // melee state
+      if(!castorder[castnum].stopattack)
+      {
+         sfx = 0;
+         for(i = 0; i < 4; i++)
+         {
+            if(stnum == castorder[castnum].sounds[i].frame)
+            {
+               sfx = castorder[castnum].sounds[i].sound;
+            }
+         }
+         
+         S_StartSound(NULL, sfx);
       }
    }
       
@@ -705,6 +560,7 @@ void F_CastPrint (char* text)
 
 void F_CastDrawer (void)
 {
+  spritenum_t         altsprite;
   spritedef_t*        sprdef;
   spriteframe_t*      sprframe;
   int                 lump;
@@ -718,11 +574,18 @@ void F_CastDrawer (void)
     
   // draw the current frame in the middle of the screen
   sprdef = sprites + caststate->sprite;
+
+  // override for alternate monster sprite?
+  if((altsprite = mobjinfo[castorder[castnum].type].altsprite) != NUMSPRITES)
+     sprdef = &sprites[altsprite];
+  
+  // override for player skin?
   if(mobjinfo[castorder[castnum].type].dehnum == MT_PLAYER)
         sprdef = &sprites[players[displayplayer].skin->sprite];
 
   // haleyjd 08/15/02
-  if(!(sprdef->spriteframes)) return;
+  if(!(sprdef->spriteframes))
+     return;
 
   sprframe = &sprdef->spriteframes[caststate->frame & FF_FRAMEMASK];
   lump = sprframe->lump[0];
@@ -929,71 +792,91 @@ void F_DemonScroll(void)
    }
 }
 
+//
+// F_DoomDrawer
+//
+// Drawer function for DOOM gamemode finales.
+//
+static void F_DoomDrawer(void)
+{
+   switch(gameepisode)
+   {
+   case 1:
+      if(gamemode == retail)
+         V_DrawPatch(0,0,&vbscreen,W_CacheLumpName("CREDIT",PU_CACHE));
+      else
+         V_DrawPatch(0,0,&vbscreen,W_CacheLumpName("HELP2",PU_CACHE));
+      break;
+   case 2:
+      V_DrawPatch(0,0,&vbscreen,W_CacheLumpName("VICTORY2",PU_CACHE));
+      break;
+   case 3:
+      F_BunnyScroll();
+      break;
+   case 4:
+      V_DrawPatch(0,0,&vbscreen,W_CacheLumpName("ENDPIC",PU_CACHE));
+      break;
+   }
+}
+
+//
+// F_HticDrawer
+//
+// Drawer function for Heretic finales.
+//
+static void F_HticDrawer(void)
+{
+   switch(gameepisode)
+   {
+   case 1:
+      if(gamemode == hereticsw)
+         V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,
+                     W_CacheLumpName("ORDER", PU_CACHE));
+      else
+         V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,
+                     W_CacheLumpName("CREDIT", PU_CACHE));
+      break;
+   case 2:
+      F_DrawUnderwater();
+      break;
+   case 3:
+      F_DemonScroll();
+      break;
+   default: // episodes 4 and 5 fall in this catagory
+      V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,
+                  W_CacheLumpName("CREDIT", PU_CACHE));
+      break;
+   }
+}
+
+typedef void (*fdrawer_t)(void);
+
+static fdrawer_t FDrawers[NumGameModeTypes] =
+{
+   F_DoomDrawer,
+   F_HticDrawer
+};
 
 //
 // F_Drawer
 //
-void F_Drawer (void)
-{   
-   if(finalestage == 2)
+// Main finale drawing routine.
+// Either runs a text mode finale, draws the DOOM II cast, or calls
+// the current gamemode's drawer function.
+//
+void F_Drawer(void)
+{
+   switch(finalestage)
    {
+   case 2:
       F_CastDrawer();
-      return;
-   }
-   
-   if(!finalestage)
-   {
+      break;
+   case 0:
       F_TextWrite();
-   }
-   else
-   {
-      // haleyjd: heretic support
-      if(gameModeInfo->flags & GIF_HERETIC)
-      {
-         switch(gameepisode)
-         {
-         case 1:
-            if(gamemode == hereticsw)
-               V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,
-                           W_CacheLumpName("ORDER", PU_CACHE));
-            else
-               V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,
-                           W_CacheLumpName("CREDIT", PU_CACHE));
-            break;
-         
-         case 2:
-            F_DrawUnderwater();
-            break;
-         case 3:
-            F_DemonScroll();
-            break;
-
-         default: // episodes 4 and 5 fall in this catagory
-            V_DrawBlock(0,0,&vbscreen,SCREENWIDTH,SCREENHEIGHT,
-                        W_CacheLumpName("CREDIT", PU_CACHE));
-            break;
-         }
-         return;
-      }
-
-      switch(gameepisode)
-      {
-      case 1:
-         if(gamemode == retail)
-            V_DrawPatch (0,0,&vbscreen,W_CacheLumpName("CREDIT",PU_CACHE));
-         else
-            V_DrawPatch (0,0,&vbscreen,W_CacheLumpName("HELP2",PU_CACHE));
-         break;
-      case 2:
-         V_DrawPatch(0,0,&vbscreen,W_CacheLumpName("VICTORY2",PU_CACHE));
-         break;
-      case 3:
-         F_BunnyScroll();
-         break;
-      case 4:
-         V_DrawPatch(0,0,&vbscreen,W_CacheLumpName("ENDPIC",PU_CACHE));
-         break;
-      }
+      break;
+   default:
+      (FDrawers[gameModeInfo->type])();
+      break;
    }
 }
 

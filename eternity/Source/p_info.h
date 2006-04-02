@@ -26,45 +26,70 @@
 
 void P_LoadLevelInfo(int lumpnum);
 
-void P_CleanLine(char *line);
+typedef struct LevelInfo_s
+{
+   // intermission and finale stuff
+   int  partime;             // intermission par time in seconds
+   char *interPic;           // intermission background
+   char *interText;          // presence of this determines if a finale will occur
+   char *interTextLump;      // this can be set in the file
+   char *backDrop;           // pic used during text finale
+   char *interMusic;         // text finale music
+   char *levelPic;           // intermission level name text lump
+   boolean killFinale;       // level has no finale even if text is given
+   boolean finaleSecretOnly; // level only has finale if secret exit
+   boolean endOfGame;        // DOOM II: last map, trigger cast call
 
-extern char *info_interpic;
-extern char *info_levelname;
-extern char *info_levelpic;
-extern char *info_music;
-extern int  info_partime;
-extern char *info_skyname;
-extern char *info_creator;
-extern char *info_nextlevel;
-extern char *info_intertext;
-extern char *info_backdrop;
-extern boolean info_scripts; // whether the current level has scripts
-extern char *info_scriptlump;
-extern char *info_altskyname; // haleyjd : new mapinfo stuff
-extern char *info_colormap;
-extern boolean info_lightning;
-extern char *info_sky2name;
-extern int  info_skydelta;
-extern int  info_sky2delta;
-extern char *info_nextsecret;
-extern boolean info_killfinale;
-extern boolean info_endofgame;
-extern char *info_extradata; // haleyjd: name of ExtraData lump
+   // level transfer stuff
+   char *nextLevel;
+   char *nextSecret;
 
-// map sound replacements
+   // level variables
+   char *levelName;          // name used in automap
+   char *musicName;          // name of music to play during level
 
-extern char *info_sound_swtchn;
-extern char *info_sound_swtchx;
-extern char *info_sound_stnmov;
-extern char *info_sound_pstop;
-extern char *info_sound_bdcls;
-extern char *info_sound_bdopn;
-extern char *info_sound_doropn;
-extern char *info_sound_dorcls;
-extern char *info_sound_pstart;
+   // color map stuff
+   char *colorMap;           // global colormap replacement
+   boolean useFullBright;    // use fullbright on this map?
+   boolean unevenLight;      // use uneven wall lighting?
+
+   // sky stuff
+   char *skyName;            // normal sky name (F_SKY1 or top of double)
+   char *altSkyName;         // alt sky - replaces skyName during lightning
+   char *sky2Name;           // secondary sky (F_SKY2 or bottom of double)
+   boolean doubleSky;        // use hexen-style double skies?
+   boolean hasLightning;     // map has lightning flashes?
+   int  skyDelta;            // double-sky scroll speeds (units/tic)
+   int  sky2Delta;
+
+   // misc
+   int gravity;              // gravity factor
+   char *creator;            // creator: name of who made this map
+
+   // attached scripts
+   boolean hasScripts;       // true if scriptLump is valid
+   char *scriptLump;         // name of Levelscript lump
+   char *extraData;          // name of ExtraData lump
+
+   // per-level sound replacements
+   char *sound_swtchn;       // switch on
+   char *sound_swtchx;       // switch off
+   char *sound_stnmov;       // plane move
+   char *sound_pstop;        // plat stop
+   char *sound_bdcls;        // blazing door close
+   char *sound_bdopn;        // blazing door open
+   char *sound_doropn;       // normal door open
+   char *sound_dorcls;       // normal door close
+   char *sound_pstart;       // plat start
+
+   // "private" data members
+   int next;                 // index of next global LevelInfo object
+
+} LevelInfo_t;
+
+extern LevelInfo_t LevelInfo;
 
 extern boolean default_weaponowned[NUMWEAPONS];
-
 
 #endif
 

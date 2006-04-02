@@ -59,10 +59,8 @@ static giinterfuncs_t *InterFuncs = NULL;
 static int realbackdrop = 1;
 camera_t   intercam;
 
-mobj_t **camerathings;
+MobjCollection_t camerathings;
 mobj_t *wi_camera;
-int numcameras = 0;
-int numcamerasalloc = 0;
 
 //
 // IN_AddCameras
@@ -75,13 +73,12 @@ void IN_AddCameras(void)
 {
    int cameratype = E_ThingNumForDEHNum(MT_CAMERA);
 
-   numcameras = 0;
+   P_ReInitMobjCollection(&camerathings, cameratype);
 
    if(cameratype == NUMMOBJTYPES || demo_version < 331)
       return;
-
-   P_CollectThings(cameratype, &numcameras, &numcamerasalloc, 
-                   &camerathings);
+   
+   P_CollectThings(&camerathings);
 }
 
 // set up the intermissions camera
@@ -90,13 +87,12 @@ void IN_StartCamera(void)
 {
    int i;
    
-   if(numcameras)
+   if(!P_CollectionIsEmpty(&camerathings))
    {
       realbackdrop = 1;
 
       // pick a camera at random
-
-      wi_camera = camerathings[M_Random() % numcameras];
+      wi_camera = P_CollectionGetRandom(&camerathings, pr_misc);
       
       // centre the view
       players[displayplayer].updownangle = 0;
@@ -194,26 +190,28 @@ void IN_Ticker(void)
    intertime++;  
    
    DEBUGMSG("in_ticker\n");
-   
+
+   // intermission music
    if(intertime == 1)
-   {
-      // intermission music
       S_ChangeMusicNum(gameModeInfo->interMusNum, true);
-   }
 
    IN_checkForAccelerate();
 
    InterFuncs->Ticker();
 
-   if(realbackdrop)    // keep the level running
-   {
+   // keep the level running when using an intermission camera
+   if(realbackdrop)
       P_Ticker();
-   }
 }
 
 void IN_Drawer(void)
 {
    InterFuncs->Drawer();
+}
+
+void IN_DrawBackground(void)
+{
+   gameModeInfo->interfuncs->DrawBackground();
 }
 
 void IN_Start(wbstartstruct_t *wbstartstruct)

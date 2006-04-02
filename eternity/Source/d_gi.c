@@ -40,17 +40,29 @@
 
 // definitions
 
+// resource wad format strings
+#define DOOMRESWAD   "%s/%s.wad"
+#define HTICRESWAD   "%s/%.4shtic.wad"
+
+// menu background flats
 #define DOOMMENUBACK "FLOOR4_8"
 #define HTICMENUBACK "FLOOR04"
 
+// credit background flats
 #define DOOMCREDITBK "NUKAGE1"
 #define DM2CREDITBK  "SLIME05"
 #define HTICCREDITBK "FLTWAWA1"
 
+// border flats
 #define DOOMBRDRFLAT "FLOOR7_2"
 #define DM2BRDRFLAT  "GRNROCK"
 #define HREGBRDRFLAT "FLAT513"
 #define HSWBRDRFLAT  "FLOOR04"
+
+// Default sound names
+// Note: these are lump names, not sound mnemonics
+#define DOOMDEFSOUND "DSPISTOL"
+#define HTICDEFSOUND "GLDHIT"
 
 // globals
 
@@ -227,9 +239,14 @@ static int hticMenuSounds[MN_SND_NUMSOUNDS] =
 //
 gameinfo_t giDoomSW =
 {
+   Game_DOOM,        // type
    GIF_SHAREWARE,    // flags
+
+   DOOMRESWAD,       // resourceFmt
+
    170,              // titleTics
    0,                // advisorTics
+   false,            // hasAdvisory
    11*TICRATE,       // pageTics
    mus_intro,        // titleMusNum
 
@@ -240,6 +257,7 @@ gameinfo_t giDoomSW =
    &menu_main,       // mainMenu
    doomMenuSounds,   // menuSounds
    S_TBALL1,         // transFrame
+   sfx_shotgn,       // skvAtkSound
 
    DOOMBRDRFLAT,     // borderFlat
    &giDoomBorder,    // border
@@ -248,7 +266,7 @@ gameinfo_t giDoomSW =
    CR_RED,           // colorNormal
    CR_GRAY,          // colorHigh
    CR_GOLD,          // colorError
-   45,               // c_numCharsPerLine
+   40,               // c_numCharsPerLine
    sfx_tink,         // c_BellSound
    sfx_tink,         // c_ChatSound
    &giDoomVText,     // vtextinfo
@@ -264,6 +282,7 @@ gameinfo_t giDoomSW =
    0,                // teleFogHeight
    sfx_telept,       // teleSound
    100,              // thrustFactor
+   false,            // hasMadMelee
 
    mus_inter,        // interMusNum
    &giDoomFText,     // ftextinfo
@@ -274,9 +293,10 @@ gameinfo_t giDoomSW =
    NUMMUSIC,         // numMusic
    "d_",             // musPrefix
    doomInfoSounds,   // infoSounds
+   DOOMDEFSOUND,     // defSoundName
 
-   &info_sound_dorcls, // normalDoorClose
-   &info_sound_bdcls,  // blazingDoorClose
+   &LevelInfo.sound_dorcls, // normalDoorClose
+   &LevelInfo.sound_bdcls,  // blazingDoorClose
 };
 
 //
@@ -284,9 +304,14 @@ gameinfo_t giDoomSW =
 //
 gameinfo_t giDoomReg =
 {
+   Game_DOOM,        // type
    0,                // flags
+
+   DOOMRESWAD,       // resourceFmt
+   
    170,              // titleTics
    0,                // advisorTics
+   false,            // hasAdvisory
    11*TICRATE,       // pageTics
    mus_intro,        // titleMusNum
 
@@ -297,6 +322,7 @@ gameinfo_t giDoomReg =
    &menu_main,       // mainMenu
    doomMenuSounds,   // menuSounds
    S_TBALL1,         // transFrame
+   sfx_shotgn,       // skvAtkSound
    
    DOOMBRDRFLAT,     // borderFlat
    &giDoomBorder,    // border
@@ -305,7 +331,7 @@ gameinfo_t giDoomReg =
    CR_RED,           // colorNormal
    CR_GRAY,          // colorHigh
    CR_GOLD,          // colorError
-   45,               // c_numCharsPerLine
+   40,               // c_numCharsPerLine
    sfx_tink,         // c_BellSound
    sfx_tink,         // c_ChatSound
    &giDoomVText,     // vtextinfo
@@ -321,6 +347,7 @@ gameinfo_t giDoomReg =
    0,                // teleFogHeight
    sfx_telept,       // teleSound
    100,              // thrustFactor
+   false,            // hasMadMelee
 
    mus_inter,        // interMusNum
    &giDoomFText,     // ftextinfo
@@ -331,9 +358,10 @@ gameinfo_t giDoomReg =
    NUMMUSIC,         // numMusic
    "d_",             // musPrefix
    doomInfoSounds,   // infoSounds
+   DOOMDEFSOUND,     // defSoundName
 
-   &info_sound_dorcls, // normalDoorClose
-   &info_sound_bdcls,  // blazingDoorClose
+   &LevelInfo.sound_dorcls, // normalDoorClose
+   &LevelInfo.sound_bdcls,  // blazingDoorClose
 };
 
 //
@@ -341,9 +369,14 @@ gameinfo_t giDoomReg =
 //
 gameinfo_t giDoomRetail =
 {
+   Game_DOOM,        // type
    0,                // flags
+
+   DOOMRESWAD,       // resourceFmt
+
    170,              // titleTics
    0,                // advisorTics
+   false,            // hasAdvisory
    11*TICRATE,       // pageTics
    mus_intro,        // titleMusNum
 
@@ -354,6 +387,7 @@ gameinfo_t giDoomRetail =
    &menu_main,       // mainMenu
    doomMenuSounds,   // menuSounds
    S_TBALL1,         // transFrame
+   sfx_shotgn,       // skvAtkSound
 
    DOOMBRDRFLAT,     // borderFlat
    &giDoomBorder,    // border
@@ -362,7 +396,7 @@ gameinfo_t giDoomRetail =
    CR_RED,           // colorNormal
    CR_GRAY,          // colorHigh
    CR_GOLD,          // colorError
-   45,               // c_numCharsPerLine
+   40,               // c_numCharsPerLine
    sfx_tink,         // c_BellSound
    sfx_tink,         // c_ChatSound
    &giDoomVText,     // vtextinfo
@@ -378,6 +412,7 @@ gameinfo_t giDoomRetail =
    0,                // teleFogHeight
    sfx_telept,       // teleSound
    100,              // thrustFactor
+   false,            // hasMadMelee
 
    mus_inter,        // interMusNum
    &giDoomFText,     // ftextinfo
@@ -388,9 +423,10 @@ gameinfo_t giDoomRetail =
    NUMMUSIC,         // numMusic
    "d_",             // musPrefix
    doomInfoSounds,   // infoSounds
+   DOOMDEFSOUND,     // defSoundName
 
-   &info_sound_dorcls, // normalDoorClose
-   &info_sound_bdcls,  // blazingDoorClose
+   &LevelInfo.sound_dorcls, // normalDoorClose
+   &LevelInfo.sound_bdcls,  // blazingDoorClose
 };
 
 //
@@ -398,9 +434,14 @@ gameinfo_t giDoomRetail =
 //
 gameinfo_t giDoomCommercial =
 {
+   Game_DOOM,        // type
    0,                // flags
+
+   DOOMRESWAD,       // resourceFmt
+
    11*TICRATE,       // titleTics
    0,                // advisorTics
+   false,            // hasAdvisory
    11*TICRATE,       // pageTics
    mus_dm2ttl,       // titleMusNum
 
@@ -411,6 +452,7 @@ gameinfo_t giDoomCommercial =
    &menu_main,       // mainMenu
    doomMenuSounds,   // menuSounds
    S_TBALL1,         // transFrame
+   sfx_shotgn,       // skvAtkSound
 
    DM2BRDRFLAT,      // borderFlat
    &giDoomBorder,    // border
@@ -419,7 +461,7 @@ gameinfo_t giDoomCommercial =
    CR_RED,           // colorNormal
    CR_GRAY,          // colorHigh
    CR_GOLD,          // colorError
-   45,               // c_numCharsPerLine
+   40,               // c_numCharsPerLine
    sfx_tink,         // c_BellSound
    sfx_radio,        // c_ChatSound
    &giDoomVText,     // vtextinfo
@@ -435,6 +477,7 @@ gameinfo_t giDoomCommercial =
    0,                // teleFogHeight
    sfx_telept,       // teleSound
    100,              // thrustFactor
+   false,            // hasMadMelee
 
    mus_dm2int,       // interMusNum
    &giDoomFText,     // ftextinfo
@@ -445,9 +488,10 @@ gameinfo_t giDoomCommercial =
    NUMMUSIC,         // numMusic
    "d_",             // musPrefix
    doomInfoSounds,   // infoSounds
+   DOOMDEFSOUND,     // defSoundName
 
-   &info_sound_dorcls, // normalDoorClose
-   &info_sound_bdcls,  // blazingDoorClose
+   &LevelInfo.sound_dorcls, // normalDoorClose
+   &LevelInfo.sound_bdcls,  // blazingDoorClose
 };
 
 //
@@ -455,9 +499,14 @@ gameinfo_t giDoomCommercial =
 //
 gameinfo_t giHereticSW =
 {
-   GIF_PAGERAW | GIF_SHAREWARE | GIF_HERETIC,      // flags
+   Game_Heretic,     // type
+   GIF_PAGERAW | GIF_SHAREWARE, // flags
+
+   HTICRESWAD,       // resourceFmt
+
    210,              // titleTics
    140,              // advisorTics
+   true,             // hasAdvisory
    200,              // pageTics
    hmus_titl,        // titleMusNum
 
@@ -468,6 +517,7 @@ gameinfo_t giHereticSW =
    &menu_hmain,      // mainMenu
    hticMenuSounds,   // menuSounds
    S_MUMMYFX1_1,     // transFrame
+   sfx_gldhit,       // skvAtkSound
 
    HSWBRDRFLAT,      // borderFlat
    &giHticBorder,    // border
@@ -492,6 +542,7 @@ gameinfo_t giHereticSW =
    32*FRACUNIT,      // teleFogHeight
    sfx_htelept,      // teleSound
    150,              // thrustFactor
+   true,             // hasMadMelee
 
    hmus_intr,        // interMusNum
    &giHticFText,     // ftextinfo
@@ -502,9 +553,10 @@ gameinfo_t giHereticSW =
    NUMHTICMUSIC,     // numMusic
    "mus_",           // musPrefix
    hticInfoSounds,   // infoSounds
+   HTICDEFSOUND,     // defSoundName
 
-   &info_sound_doropn,  // normalDoorClose
-   &info_sound_bdopn,   // blazingDoorClose
+   &LevelInfo.sound_doropn,  // normalDoorClose
+   &LevelInfo.sound_bdopn,   // blazingDoorClose
 };
 
 //
@@ -512,9 +564,14 @@ gameinfo_t giHereticSW =
 //
 gameinfo_t giHereticReg =
 {
-   GIF_PAGERAW | GIF_HERETIC,      // flags
+   Game_Heretic,     // type   
+   GIF_PAGERAW,      // flags
+
+   HTICRESWAD,       // resourceFmt
+
    210,              // titleTics
    140,              // advisorTics
+   true,             // hasAdvisory
    200,              // pageTics
    hmus_titl,        // titleMusNum
 
@@ -525,6 +582,7 @@ gameinfo_t giHereticReg =
    &menu_hmain,      // mainMenu
    hticMenuSounds,   // menuSounds
    S_MUMMYFX1_1,     // transFrame
+   sfx_gldhit,       // skvAtkSound
 
    HREGBRDRFLAT,     // borderFlat
    &giHticBorder,    // border
@@ -549,6 +607,7 @@ gameinfo_t giHereticReg =
    32*FRACUNIT,      // teleFogHeight
    sfx_htelept,      // teleSound
    150,              // thrustFactor
+   true,             // hasMadMelee
 
    hmus_intr,        // interMusNum
    &giHticFText,     // ftextinfo
@@ -559,9 +618,10 @@ gameinfo_t giHereticReg =
    NUMHTICMUSIC,     // numMusic
    "mus_",           // musPrefix
    hticInfoSounds,   // infoSounds
+   HTICDEFSOUND,     // defSoundName
 
-   &info_sound_doropn,  // normalDoorClose
-   &info_sound_bdopn,   // blazingDoorClose
+   &LevelInfo.sound_doropn,  // normalDoorClose
+   &LevelInfo.sound_bdopn,   // blazingDoorClose
 };
 
 //

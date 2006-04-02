@@ -181,11 +181,11 @@ void P_ChangeSwitchTexture
    texMid = sides[line->sidenum[0]].midtexture;
    texBot = sides[line->sidenum[0]].bottomtexture;
 
-   sound = info_sound_swtchn; // haleyjd
+   sound = LevelInfo.sound_swtchn; // haleyjd
    
    // EXIT SWITCH?
    if(line->special == 11)                
-      sound = info_sound_swtchx;
+      sound = LevelInfo.sound_swtchx;
 
    for(i = 0;i < numswitches*2;i++)
    {
@@ -222,6 +222,7 @@ void P_ChangeSwitchTexture
    }
 }
 
+extern void P_StartLineScript(line_t *line, mobj_t *thing);
 
 //
 // P_UseSpecialLine
@@ -234,13 +235,8 @@ void P_ChangeSwitchTexture
 // Passed the thing using the line, the line being used, and the side used
 // Returns true if a thinker was created
 //
-boolean
-P_UseSpecialLine
-( mobj_t*       thing,
-  line_t*       line,
-  int           side )
+boolean P_UseSpecialLine(mobj_t *thing, line_t *line, int side)
 {
-
    if(side) //jff 6/1/98 fix inadvertent deletion of side test
       return false;
 
@@ -1049,11 +1045,12 @@ P_UseSpecialLine
             break;
             // 1/29/98 jff end of added SR linedef types
             
-            // sf: scripting            
+            // sf: scripting
          case 277: // S1 start script
             line->special = 0;
          case 276: // SR start script
             P_ChangeSwitchTexture(line, (line->special ? 1 : 0));
+            P_StartLineScript(line, thing);
             break;            
          }
       }

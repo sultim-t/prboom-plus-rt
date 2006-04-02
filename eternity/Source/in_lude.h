@@ -34,15 +34,15 @@
 extern int intertime;
 extern int acceleratestage;
 
-extern mobj_t **camerathings;
+extern MobjCollection_t camerathings;
 extern mobj_t *wi_camera;
-extern int numcameras;
 
 void IN_AddCameras(void);
 void IN_slamBackground(void);
 void IN_checkForAccelerate(void);
 void IN_Ticker(void);
 void IN_Drawer(void);
+void IN_DrawBackground(void);
 void IN_Start(wbstartstruct_t *wbstartstruct);
 
 #endif

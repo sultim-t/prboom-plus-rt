@@ -1,4 +1,4 @@
-# sprites.edf - EDF file for Eternity Engine v3.31 public beta 5
+# sprites.edf - EDF file for Eternity Engine v3.31 Delta
 #     This file contains the spritenames array, and definitions for sprite-based
 #     pickup items.
 
@@ -25,9 +25,8 @@ spritenames =
   "COL3","COL4","CAND","CBRA","COL6","TRE1","TRE2","ELEC","CEYE","FSKU",
   "COL5","TBLU","TGRN","TRED","SMBT","SMGT","SMRT","HDB1","HDB2","HDB3",
   "HDB4","HDB5","HDB6","POB1","POB2","BRS1","TLMP","TLP2","TNT1","DOGS",
-  "PLS1","PLS2","MNTR","FX12","FX13","FX04","CLER","CBAL","SPSH","SLDG",
-  "FOGS","FOGM","FOGL","LCLR","DWRF","CYBN","FDWF","GREN","PNS2","CAXE",
-  "CSTF","LVAS","UNKN"
+  "PLS1","PLS2","CLER","CBAL","SPSH","SLDG","FOGS","FOGM","FOGL","LCLR",
+  "DWRF","FDWF","GREN","PNS2","CAXE","CSTF","LVAS","UNKN"
 }
 
 ifenabled(HERETIC)
@@ -39,7 +38,9 @@ spritenames +=
   "SKH4","SMPL","STGS","STGL","STCS","STCL","KFR1","HCOR","KGZ1","KGZB",
   "KGZG","KGZY","MUMM","FX15","CLNK","WZRD","FX11","SOR2","SDTH","FX16",
   "PPOD","KNIG","SPAX","RAXE","BLOD","BEAS","FRB1","SNKE","SNFX","SRCR",
-  "FX14"
+  "FX14","VLCO","VFBL","XPL1","VTFB","SFFI","MNTR","FX12","FX13","FX04",
+  "FX05","FX06","FX07","AMG1","AMG2","AMM1","AMM2","AMC1","AMC2","AMB1",
+  "AMB2","AMS1","AMS2","AMP1","AMP2","IMPX","FX10"
 }
 
 endif()
@@ -99,6 +100,18 @@ pickupitem SHLD { effect = PFX_SILVERSHIELD }
 pickupitem SHD2 { effect = PFX_ENCHANTEDSHIELD }
 pickupitem BAGH { effect = PFX_BAGOFHOLDING }
 pickupitem SPMP { effect = PFX_HMAP }
+pickupitem AMG1 { effect = PFX_GWNDWIMPY }
+pickupitem AMG2 { effect = PFX_GWNDHEFTY }
+pickupitem AMM1 { effect = PFX_MACEWIMPY }
+pickupitem AMM2 { effect = PFX_MACEHEFTY }
+pickupitem AMC1 { effect = PFX_CBOWWIMPY }
+pickupitem AMC2 { effect = PFX_CBOWHEFTY }
+pickupitem AMB1 { effect = PFX_BLSRWIMPY }
+pickupitem AMB2 { effect = PFX_BLSRHEFTY }
+pickupitem AMS1 { effect = PFX_SKRDWIMPY }
+pickupitem AMS2 { effect = PFX_SKRDHEFTY }
+pickupitem AMP1 { effect = PFX_PHRDWIMPY }
+pickupitem AMP2 { effect = PFX_PHRDHEFTY }
 
 endif()
 

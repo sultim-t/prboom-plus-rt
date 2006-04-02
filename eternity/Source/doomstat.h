@@ -96,6 +96,10 @@ extern int general_translucency;
 extern int tran_filter_pct;
 extern int demo_insurance, default_demo_insurance;      // killough 4/5/98
 
+// haleyjd 04/13/04 -- macro to get a flex tran level roughly
+// equivalent to the current tran_filter_pct value.
+#define FTRANLEVEL ((FRACUNIT * tran_filter_pct) / 100)
+
 // -------------------------------------------
 // killough 10/98: compatibility vector
 
@@ -380,10 +384,6 @@ extern int doom_weapon_toggles;   // killough 10/98
 // haleyjd: Eternity Stuff
 //
 //=======================================================
-
-extern boolean MapUseFullBright; // if using custom colormap, no fullbright
-
-extern boolean DoubleSky;        // enable Hexen-style parallax skies
 
 extern int HelperThing;          // type of thing to use for helper
 

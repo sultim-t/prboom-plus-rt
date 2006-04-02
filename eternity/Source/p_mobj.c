@@ -51,10 +51,10 @@ rcsid[] = "$Id: p_mobj.c,v 1.26 1998/05/16 00:24:12 phares Exp $";
 #include "e_edf.h"
 #include "e_exdata.h"
 #include "a_small.h"
+#include "d_dehtbl.h"
+#include "p_info.h"
 
 void P_FallingDamage(player_t *);
-
-int gravity=FRACUNIT;
 
 fixed_t FloatBobOffsets[64] = // haleyjd 04/30/99: FloatBob
 {
@@ -173,8 +173,15 @@ boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
 // P_ExplodeMissile
 //
 
-void P_ExplodeMissile (mobj_t* mo)
+void P_ExplodeMissile(mobj_t *mo)
 {
+   // haleyjd 08/02/04: EXPLOCOUNT flag
+   if(mo->flags3 & MF3_EXPLOCOUNT)
+   {
+      if(++mo->special2 < mo->special3)
+         return;
+   }
+
    mo->momx = mo->momy = mo->momz = 0;
    
    // haleyjd: an attempt at fixing explosions on skies (works!)
@@ -191,14 +198,17 @@ void P_ExplodeMissile (mobj_t* mo)
    
    P_SetMobjState(mo, mobjinfo[mo->type].deathstate);
    
-   mo->tics -= P_Random(pr_explode)&3;
+   if(gameModeInfo->type == Game_DOOM)
+   {
+      mo->tics -= P_Random(pr_explode) & 3;
    
-   if(mo->tics < 1)
-      mo->tics = 1;
+      if(mo->tics < 1)
+         mo->tics = 1;
+   }
    
    mo->flags &= ~MF_MISSILE;
    
-   S_StartSound (mo, mo->info->deathsound);
+   S_StartSound(mo, mo->info->deathsound);
    
    // haleyjd: disable any particle effects
    mo->effects = 0;
@@ -210,9 +220,6 @@ void P_ThrustMobj(mobj_t *mo, angle_t angle, fixed_t move)
    mo->momx += FixedMul(move, finecosine[angle]);
    mo->momy += FixedMul(move, finesine[angle]);
 }
-
-
-extern mobj_t *hitthing;
 
 //
 // P_XYMovement
@@ -237,6 +244,17 @@ void P_XYMovement (mobj_t* mo)
          
          P_SetMobjState(mo, mo->info->spawnstate);
       }
+
+      // haleyjd 08/16/04: crashstate needs to be entered here
+      // as well
+      if(mo->info->crashstate && (mo->flags & MF_CORPSE) &&
+         !(mo->intflags & MIF_CRASHED) &&
+         mo->z <= mo->floorz)
+      {
+         mo->intflags |= MIF_CRASHED;
+         P_SetMobjState(mo, mo->info->crashstate);
+      }
+
       return;
    }
 
@@ -502,6 +520,7 @@ static void P_ZMovement(mobj_t* mo)
    // haleyjd: part of lost soul fix, moved up here for maximum
    //          scope
    boolean correct_lost_soul_bounce;
+   boolean moving_down;
 
    if(demo_compatibility) // v1.9 demos
       correct_lost_soul_bounce = (gamemission != doom2);
@@ -539,8 +558,7 @@ static void P_ZMovement(mobj_t* mo)
       if (mo->z <= mo->floorz)                  // bounce off floors
       {
          mo->z = mo->floorz;
-         if(demo_version >= 329 && !comp[comp_terrain]) // haleyjd
-            P_HitFloor(mo);
+         P_HitFloor(mo); // haleyjd
          if (mo->momz < 0)
          {
             mo->momz = -mo->momz;
@@ -553,7 +571,7 @@ static void P_ZMovement(mobj_t* mo)
                      FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
                   
                // Bring it to rest below a certain speed
-               if(D_abs(mo->momz) <= mo->info->mass*(gravity*4/256))
+               if(D_abs(mo->momz) <= mo->info->mass*(LevelInfo.gravity*4/256))
                   mo->momz = 0;
             }
 
@@ -595,7 +613,7 @@ static void P_ZMovement(mobj_t* mo)
             // gravity to get it out of this code segment gradually
             if(demo_version >= 331 && mo->momz > 0)
             {
-               mo->momz -= mo->info->mass*(gravity/256);
+               mo->momz -= mo->info->mass*(LevelInfo.gravity/256);
             }
             
             return;
@@ -604,7 +622,7 @@ static void P_ZMovement(mobj_t* mo)
       else
       {
          if(!(mo->flags & MF_NOGRAVITY))      // free-fall under gravity
-            mo->momz -= mo->info->mass*(gravity/256);
+            mo->momz -= mo->info->mass*(LevelInfo.gravity/256);
          if(mo->flags & MF_FLOAT && sentient(mo))
             goto floater;
          return;
@@ -669,30 +687,17 @@ floater:
    {
       // hit the floor
       
-      if(demo_version >= 329 && !comp[comp_terrain] && 
-         mo->z - mo->momz > mo->floorz && !(mo->flags&MF_MISSILE))
-      {
-         P_HitFloor(mo);
-      }
-
-      
       /*
          A Mystery Unravelled - Discovered by cph -- haleyjd
       
          The code below was once below the point where mo->momz
          was set to zero. Someone added a comment and moved this 
          code here.
-
-         06/30: updated with new prboom code -- fix is conditional
-                not only on demo version, but also on gamemission!
-                cph has found that Doom 2 v1.9 is a different engine 
-                version from Ultimate DOOM / Final DOOM / DOOM 95 / 
-                Linux DOOM with respect to demo compatibility.
       */
       if(correct_lost_soul_bounce && (mo->flags & MF_SKULLFLY))
          mo->momz = -mo->momz; // the skull slammed into something
 
-      if (mo->momz < 0)
+      if((moving_down = mo->momz < 0))
       {
          // killough 11/98: touchy objects explode on impact
          if(mo->flags & MF_TOUCHY && mo->intflags & MIF_ARMED &&
@@ -700,7 +705,7 @@ floater:
             P_DamageMobj(mo, NULL, NULL, mo->health, MOD_UNKNOWN);
          else if (mo->player && // killough 5/12/98: exclude voodoo dolls
                   mo->player->mo == mo &&
-                  mo->momz < -gravity*8)
+                  mo->momz < -LevelInfo.gravity*8)
          {
             // Squat down.
             // Decrease viewheight for a moment
@@ -724,13 +729,9 @@ floater:
                      S_StartSound(mo, sfx_oof);
                }
                else if(mo->momz < -12*FRACUNIT)
-               {
                   S_StartSound(mo, sfx_oof);
-               }
                else if(P_GetThingFloorType(mo) == FLOOR_SOLID)
-               {
                   S_StartSound(mo, sfx_plfeet);
-               }
             }
             else if(demo_version < 329 || mo->health > 0)
             { // haleyjd 05/09/99 no oof when dead :)
@@ -742,6 +743,9 @@ floater:
 
       mo->z = mo->floorz;
 
+      if(moving_down)
+         P_HitFloor(mo);
+
       /* cph 2001/05/26 -
        * See lost soul bouncing comment above. We need this here for
        * bug compatibility with original Doom2 v1.9 - if a soul is
@@ -751,29 +755,40 @@ floater:
       if(!correct_lost_soul_bounce && (mo->flags & MF_SKULLFLY))
          mo->momz = -mo->momz;
 
+      // haleyjd 08/07/04: crashstate
+      if(mo->info->crashstate && (mo->flags & MF_CORPSE) &&
+         !(mo->intflags & MIF_CRASHED))
+      {
+         mo->intflags |= MIF_CRASHED;
+         P_SetMobjState(mo, mo->info->crashstate);
+      }
+
       if(!((mo->flags ^ MF_MISSILE) & (MF_MISSILE | MF_NOCLIP)))
       {
          if(!(mo->flags3 & MF3_FLOORMISSILE)) // haleyjd
-            P_ExplodeMissile (mo);
+            P_ExplodeMissile(mo);
          return;
       }
    }
    else if(mo->flags2 & MF2_LOGRAV) // haleyjd 04/09/99
    {
       if(!mo->momz)
-         mo->momz = -(gravity>>3)*2;
+         mo->momz = -(LevelInfo.gravity >> 3) * 2;
       else
-         mo->momz -= gravity>>3;
+         mo->momz -= LevelInfo.gravity >> 3;
    }
    else // still above the floor
    {
       if(!(mo->flags & MF_NOGRAVITY))
       {
          if(!mo->momz)
-            mo->momz = -gravity;
-         mo->momz -= gravity;
+            mo->momz = -LevelInfo.gravity;
+         mo->momz -= LevelInfo.gravity;
       }
    }
+
+   // haleyjd 08/07/04: new footclip system   
+   P_AdjustFloorClip(mo);
 
    if(mo->z + mo->height > mo->ceilingz)
    {
@@ -807,17 +822,16 @@ void P_NightmareRespawn(mobj_t* mobj)
    subsector_t* ss;
    mobj_t*      mo;
    mapthing_t*  mthing;
+   boolean      check; // haleyjd 11/11/04
    
    x = mobj->spawnpoint.x << FRACBITS;
    y = mobj->spawnpoint.y << FRACBITS;
 
    // haleyjd: stupid nightmare respawning bug fix
    //
-   // 08/09/00: compatibility added, time to ramble :)
-   // This fixes the notorious nightmare respawning bug that causes monsters
-   // that didn't spawn at level startup to respawn at the point (0,0)
-   // regardless of that point's nature. SMMU and Eternity need this for
-   // script-spawned things like Halif Swordsmythe, as well.
+   // 08/09/00: This fixes the notorious nightmare respawning bug that 
+   // causes monsters that didn't spawn at level startup to respawn at 
+   // the point (0,0) regardless of that point's nature.
   
    if(!comp[comp_respawnfix] && demo_version >= 329 && x == 0 && y == 0)
    {
@@ -827,9 +841,21 @@ void P_NightmareRespawn(mobj_t* mobj)
    }
 
    // something is occupying its position?
+
+   // haleyjd 11/11/04: This has been broken since BOOM when Lee changed
+   // PIT_CheckThing to allow non-solid things to move through solid
+   // things.
+
+   if(demo_version >= 331)
+      mobj->flags |= MF_SOLID;
    
-   if(!P_CheckPosition (mobj, x, y))
-      return; // no respwan
+   check = P_CheckPosition(mobj, x, y);
+
+   if(demo_version >= 331)
+      mobj->flags &= ~MF_SOLID;
+
+   if(!check)
+      return; // no respawn
 
    // spawn a teleport fog at old spot
    // because of removal of the body?
@@ -848,8 +874,7 @@ void P_NightmareRespawn(mobj_t* mobj)
    ss = R_PointInSubsector(x,y);
    
    mo = P_SpawnMobj(x, y, 
-                    ss->sector->floorheight + 
-                       gameModeInfo->teleFogHeight , 
+                    ss->sector->floorheight + gameModeInfo->teleFogHeight, 
                     gameModeInfo->teleFogType);
    
    S_StartSound(mo, gameModeInfo->teleSound);
@@ -861,7 +886,7 @@ void P_NightmareRespawn(mobj_t* mobj)
 
    // inherit attributes from deceased one
    
-   mo = P_SpawnMobj(x,y,z, mobj->type);
+   mo = P_SpawnMobj(x, y, z, mobj->type);
    mo->spawnpoint = mobj->spawnpoint;
    // sf: use R_WadToAngle
    mo->angle = R_WadToAngle(mthing->angle);
@@ -883,8 +908,10 @@ void P_NightmareRespawn(mobj_t* mobj)
 // P_MobjThinker
 //
 
-void P_MobjThinker (mobj_t* mobj)
+void P_MobjThinker(mobj_t *mobj)
 {
+   int oldwaterstate, waterstate;
+
    // killough 11/98: 
    // removed old code which looked at target references
    // (we use pointer reference counting now)
@@ -894,6 +921,16 @@ void P_MobjThinker (mobj_t* mobj)
       return;
 
    BlockingMobj = NULL; // haleyjd 1/17/00: global hit reference
+
+   // haleyjd 08/07/04: handle deep water plane hits
+   if(mobj->subsector->sector->heightsec != -1)
+   {
+      sector_t *hs = &sectors[mobj->subsector->sector->heightsec];
+
+      waterstate = (mobj->z < hs->floorheight);
+   }
+   else
+      waterstate = 0;
    
    // momentum movement
    if(mobj->momx | mobj->momy || mobj->flags & MF_SKULLFLY)
@@ -928,6 +965,30 @@ void P_MobjThinker (mobj_t* mobj)
          mobj->intflags &= ~MIF_FALLING, mobj->gear = 0;  // Reset torque
    }
 
+   // haleyjd 08/07/04: handle deep water plane hits
+   oldwaterstate = waterstate;
+
+   if(mobj->subsector->sector->heightsec != -1)
+   {
+      sector_t *hs = &sectors[mobj->subsector->sector->heightsec];
+
+      waterstate = (mobj->z < hs->floorheight);
+   }
+   else
+      waterstate = 0;
+
+   if(mobj->flags & (MF_MISSILE|MF_BOUNCES))
+   {
+      // any time a missile or bouncer crosses, splash
+      if(oldwaterstate != waterstate)
+         P_HitWater(mobj, mobj->subsector->sector);
+   }
+   else if(oldwaterstate == 0 && waterstate != 0)
+   {
+      // normal things only splash going into the water
+      P_HitWater(mobj, mobj->subsector->sector);
+   }
+
    // cycle through states,
    // calling action functions at transitions
    // killough 11/98: simplify
@@ -939,7 +1000,7 @@ void P_MobjThinker (mobj_t* mobj)
    }
    else
    { // haleyjd: minor restructuring, eternity features
-      
+
       if(mobj->flags2 & MF2_DORMANT) // don't remove dormant things
          return;
       
@@ -981,13 +1042,17 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
    mobj->height = info->height; // phares
    mobj->flags  = info->flags;
    mobj->flags2 = info->flags2; // haleyjd
-   mobj->flags3 = info->flags3; // haleyjd
-   mobj->skin = NULL;
-   mobj->effects = info->particlefx; // haleyjd 07/13/03
+   mobj->flags3 = info->flags3; // haleyjd   
+   mobj->effects = info->particlefx;  // haleyjd 07/13/03
+   mobj->damage  = info->damage;      // haleyjd 08/02/04
+
+   // haleyjd 09/26/04: rudimentary support for monster skins
+   if(info->altsprite != NUMSPRITES)
+      mobj->skin = P_GetMonsterSkin(info->altsprite);
+   else
+      mobj->skin = NULL;
 
    // haleyjd: zdoom-style translucency level 
-   // 07/05/03: value isn't inverted any more, since EDF fixes
-   // the issue with default values quite elegantly.
    mobj->translucency = info->translucency;
 
    if(mobj->translucency != FRACUNIT)
@@ -1025,7 +1090,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
    
    mobj->state  = st;
    mobj->tics   = st->tics;
-   mobj->sprite = st->sprite;
+   mobj->sprite = (mobj->skin ? mobj->skin->sprite : st->sprite);
    mobj->frame  = st->frame;
    
    // NULL head of sector list // phares 3/13/98
@@ -1060,15 +1125,6 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
          mobj->z = (minz + rnd%(maxz - minz + 1))*FRACUNIT;
    }
 
-   // haleyjd 10/12/02: foot clipping
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      (mobj->flags2 & MF2_FOOTCLIP) &&
-      P_TerrainFloorClip(P_GetSecTerrainType(mobj->subsector->sector,0)) &&
-      mobj->z <= mobj->subsector->sector->floorheight)
-   {
-      mobj->intflags |= MIF_FOOTCLIP;
-   }
-
 #ifdef OVER_UNDER
    // SoM 11/5/02: Set these at spawn.
    mobj->secfloorz = mobj->passfloorz = mobj->floorz;
@@ -1079,6 +1135,9 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
       P_ThingMovez(mobj, 0);
    }
 #endif
+
+   // haleyjd 08/07/04: new floorclip system
+   P_AdjustFloorClip(mobj);
 
    mobj->thinker.function = P_MobjThinker;
 
@@ -1180,7 +1239,7 @@ void P_RemoveMobj (mobj_t *mobj)
 
 int P_FindDoomedNum(unsigned type)
 {
-   static struct { int first, next; } *hash;
+   static struct dnumhash_s { int first, next; } *hash;
    register int i;
 
    if(!hash)
@@ -1338,7 +1397,7 @@ void P_SpawnPlayer(mapthing_t* mthing)
 //
 // sf: made to return mobj_t* spawned
 
-mobj_t *P_SpawnMapThing (mapthing_t* mthing)
+mobj_t *P_SpawnMapThing(mapthing_t *mthing)
 {
    int    i;
    mobj_t *mobj;
@@ -1352,11 +1411,8 @@ mobj_t *P_SpawnMapThing (mapthing_t* mthing)
    case DEN_PLAYER7:
    case DEN_PLAYER8:
       return NULL;
-   }
-
-   // haleyjd 10/08/03: ExtraData mapthing support
-   if(mthing->type == ED_CTRL_DOOMEDNUM)
-   {
+   case ED_CTRL_DOOMEDNUM:
+      // haleyjd 10/08/03: ExtraData mapthing support
       return E_SpawnMapThingExt(mthing);
    }
 
@@ -1421,18 +1477,10 @@ mobj_t *P_SpawnMapThing (mapthing_t* mthing)
          if(HelperThing != -1)
          {
             // haleyjd 07/05/03: adjusted for EDF
-            int type = E_ThingNumForDEHNum(HelperThing);
-
-            if(type < NUMMOBJTYPES)
-            {
-               i = type;
-            }
+            if(HelperThing != NUMMOBJTYPES)
+               i = HelperThing;
             else
-            {
-               doom_printf(
-                  FC_ERROR "Invalid value %d for helper, ignored.", 
-                  HelperThing);
-            }
+               doom_printf(FC_ERROR "Invalid value for helper, ignored.");
          }
 
          goto spawnit;
@@ -1440,8 +1488,8 @@ mobj_t *P_SpawnMapThing (mapthing_t* mthing)
 
       // save spots for respawning in network games
       playerstarts[mthing->type-1] = *mthing;
-      if(!(GameType == gt_dm))
-         P_SpawnPlayer (mthing);
+      if(GameType != gt_dm)
+         P_SpawnPlayer(mthing);
       
       return NULL; //sf
    }
@@ -1477,7 +1525,7 @@ mobj_t *P_SpawnMapThing (mapthing_t* mthing)
    if(mthing->type >= 9027 && mthing->type <= 9033)
    {
       // particle fountains
-      i = E_SafeThingType(MT_FOUNTAIN);
+      i = E_SafeThingName("EEParticleFountain");
    }
    else
    {
@@ -1559,7 +1607,7 @@ spawnit:
    }
 
    // haleyjd: set particle fountain color
-   if(i == E_ThingNumForDEHNum(MT_FOUNTAIN))
+   if(i == E_ThingNumForName("EEParticleFountain"))
    {
       mobj->effects |= (mthing->type - 9026) << FX_FOUNTAINSHIFT;
    }
@@ -1581,13 +1629,13 @@ void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z, angle_t dir,
                  int updown, boolean ptcl)
 {
    mobj_t* th;
-   // killough 5/5/98: remove dependence on order of evaluation:
-   int t = P_Random(pr_spawnpuff);
-   z += (t - P_Random(pr_spawnpuff))<<10;
 
-   th = P_SpawnMobj (x,y,z, E_SafeThingType(MT_PUFF));
+   // haleyjd 08/05/04: use new function
+   z += P_SubRandom(pr_spawnpuff) << 10;
+
+   th = P_SpawnMobj(x, y, z, E_SafeThingType(MT_PUFF));
    th->momz = FRACUNIT;
-   th->tics -= P_Random(pr_spawnpuff)&3;
+   th->tics -= P_Random(pr_spawnpuff) & 3;
 
    if(th->tics < 1)
       th->tics = 1;
@@ -1602,7 +1650,7 @@ void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z, angle_t dir,
    if(ptcl && drawparticles && bulletpuff_particle)
    {
       if(bulletpuff_particle != 2)
-         th->flags2 |= MF2_DONTDRAW;
+         th->translucency = 0;
       if(attackrange != MELEERANGE)
          P_DrawSplash2(32, x, y, z, dir, updown, 1);
    }
@@ -1614,11 +1662,12 @@ void P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z, angle_t dir,
 //
 void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z, angle_t dir, int damage, mobj_t *target)
 {
-   // TODO: Heretic support
+   // HTIC_TODO: Heretic support
    mobj_t* th;
-   // killough 5/5/98: remove dependence on order of evaluation:
-   int t = P_Random(pr_spawnblood);
-   z += (t - P_Random(pr_spawnblood))<<10;
+
+   // haleyjd 08/05/04: use new function
+   z += P_SubRandom(pr_spawnblood) << 10;
+
    th = P_SpawnMobj(x,y,z, E_SafeThingType(MT_BLOOD));
    th->momz = FRACUNIT*2;
    th->tics -= P_Random(pr_spawnblood)&3;
@@ -1641,7 +1690,7 @@ void P_SpawnBlood(fixed_t x,fixed_t y,fixed_t z, angle_t dir, int damage, mobj_t
    if(drawparticles && bloodsplat_particle)
    {
       if(bloodsplat_particle != 2)
-         th->flags2 |= MF2_DONTDRAW;
+         th->translucency = 0;
       P_DrawSplash2(32, x, y, z, dir, 2, 
                     target->info->bloodcolor | MBC_BLOODMASK);
    }
@@ -1691,9 +1740,12 @@ void P_ParticleLine(mobj_t *source, mobj_t *dest)
 
 void P_CheckMissileSpawn (mobj_t* th)
 {
-   th->tics -= P_Random(pr_missile)&3;
-   if(th->tics < 1)
-      th->tics = 1;
+   if(gameModeInfo->type == Game_DOOM)
+   {
+      th->tics -= P_Random(pr_missile)&3;
+      if(th->tics < 1)
+         th->tics = 1;
+   }
    
    // move a little forward so an angle can
    // be computed if it immediately explodes
@@ -1746,10 +1798,8 @@ mobj_t* P_SpawnMissile(mobj_t* source, mobj_t* dest, mobjtype_t type,
    angle_t an;
    mobj_t *th;  // haleyjd: restructured
 
-   // haleyjd 10/12/02: foot clip
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      source->intflags & MIF_FOOTCLIP)
-      z -= FOOTCLIPHEIGHT;
+   if(z != ONFLOORZ)
+      z -= source->floorclip;
 
    th = P_SpawnMobj(source->x, source->y, z, type);
 
@@ -1761,10 +1811,10 @@ mobj_t* P_SpawnMissile(mobj_t* source, mobj_t* dest, mobjtype_t type,
    // fuzzy player --  haleyjd: add total invisibility, ghost
    if(dest->flags & MF_SHADOW || dest->flags2 & MF2_DONTDRAW ||
       dest->flags3 & MF3_GHOST)
-   {  // killough 5/5/98: remove dependence on order of evaluation:
-      int t = P_Random(pr_shadow);
+   {  
       int shamt = (dest->flags3 & MF3_GHOST) ? 21 : 20; // haleyjd
-      an += (t - P_Random(pr_shadow))<<shamt;
+      
+      an += P_SubRandom(pr_shadow) << shamt;
    }
 
    th->angle = an;
@@ -1827,13 +1877,7 @@ mobj_t *P_SpawnPlayerMissile(mobj_t* source, mobjtype_t type)
 
    x = source->x;
    y = source->y;
-   z = source->z + 4*8*FRACUNIT;
-
-   // haleyjd 10/12/02: foot clip
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      (source->intflags & MIF_FOOTCLIP) &&
-      P_CheckClipView(source))
-      z -= FOOTCLIPHEIGHT;
+   z = source->z + 4*8*FRACUNIT - source->floorclip;
    
    th = P_SpawnMobj (x,y,z, type);
    
@@ -1880,10 +1924,8 @@ mobj_t *P_SpawnMissileAngle(mobj_t *source, mobjtype_t type,
 {
    mobj_t *mo;
 
-   // haleyjd 10/12/02: foot clip
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      source->intflags & MIF_FOOTCLIP)
-      z -= FOOTCLIPHEIGHT;
+   if(z != ONFLOORZ)
+      z -= source->floorclip;
 
    mo = P_SpawnMobj(source->x, source->y, z, type);
    
@@ -1918,15 +1960,18 @@ void P_Massacre(int friends)
       if((mo->flags & MF_COUNTKILL || mo->flags3 & MF3_KILLABLE) && 
          mo->health > 0)
       {
-         if(friends == 1) // kill only friends
+         switch(friends)
          {
+         case 1: // kill only friends
             if(!(mo->flags & MF_FRIEND))
                continue;
-         }
-         else if(friends == 2) // kill only enemies
-         {
+            break;
+         case 2: // kill only enemies
             if(mo->flags & MF_FRIEND)
                continue;
+            break;
+         default: // Everybody Dies (TM)
+            break;
          }
          mo->flags2 &= ~MF2_INVULNERABLE; // haleyjd 04/09/99: none of that!
          P_DamageMobj(mo, NULL, NULL, 10000, MOD_UNKNOWN);
@@ -1961,6 +2006,56 @@ void P_FallingDamage(player_t *player)
       player->mo->intflags |= MIF_DIEDFALLING;
    
    P_DamageMobj(player->mo, NULL, NULL, damage, MOD_FALLING);
+}
+
+//
+// P_AdjustFloorClip
+//
+// Adapted from zdoom source, see the zdoom license.
+// Thanks to Randy Heit.
+//
+void P_AdjustFloorClip(mobj_t *thing)
+{
+   fixed_t oldclip = thing->floorclip;
+   fixed_t shallowestclip = 0x7fffffff;
+   const msecnode_t *m;
+
+   // no floorclipping in old demos or if terrain types are off;
+   // absorb test for FOOTCLIP flag here
+   if(demo_version < 331 || comp[comp_terrain] ||
+      !(thing->flags2 & MF2_FOOTCLIP))
+   {
+      thing->floorclip = 0;
+      return;
+   }
+
+   // find shallowest touching floor, discarding any deep water
+   // involved (it does its own clipping)
+   for(m = thing->touching_sectorlist; m; m = m->m_tnext)
+   {
+      if(m->m_sector->heightsec == -1 &&
+         thing->z == m->m_sector->floorheight)
+      {
+         fixed_t clip = P_SectorFloorClip(m->m_sector) ? 10*FRACUNIT : 0;
+
+         if(clip < shallowestclip)
+            shallowestclip = clip;
+      }
+   }
+
+   if(shallowestclip == 0x7fffffff)
+      thing->floorclip = 0;
+   else
+      thing->floorclip = shallowestclip;
+
+   // adjust the player's viewheight
+   if(thing->player && oldclip != thing->floorclip)
+   {
+      player_t *p = thing->player;
+
+      p->viewheight -= oldclip - thing->floorclip;
+      p->deltaviewheight = (VIEWHEIGHT - p->viewheight) >> 3;
+   }
 }
 
 //
@@ -2045,39 +2140,36 @@ void P_RemoveThingTID(mobj_t *mo)
 // once the end of the chain is hit. Calling it again at that point
 // would restart the search from the base of the chain.
 //
-mobj_t *P_FindMobjFromTID(int tid, mobj_t *rover)
+// The last parameter only applies when this is called from a
+// Small native function, and can be left null otherwise.
+//
+mobj_t *P_FindMobjFromTID(int tid, mobj_t *rover, SmallContext_t *context)
 {
-   if(tid <= 0)
+   switch(tid)
    {
-      // special cases
-      if(tid != 0 && !rover)
+   // Reserved TIDs
+   case 0:   // zero is "no tid"
+      return NULL; 
+   
+   case -1:  // players are -1 through -4 
+   case -2:
+   case -3:
+   case -4:
       {
-         // players can be gotten with TIDs -1 through -4
-         if(tid <= -1 && tid >= -4)
-         {
-            int pnum = abs(tid) - 1;
+         int pnum = abs(tid) - 1;
 
-            if(!playeringame[pnum])
-               return NULL;
-            else
-               return players[pnum].mo;
-         }
-
-         // current script trigger is TID -10
-         if(tid == -10)
-         {
-            return sc_invocation.trigger;
-         }
+         return !rover && playeringame[pnum] ? players[pnum].mo : NULL;
       }
+   
+   case -10: // script trigger object (may be NULL, which is fine)
+      return context ? context->invocationData.trigger : NULL;
+   
+   // Normal TIDs
+   default:
+      if(tid < 0)
+         return NULL;
 
-      return NULL;
-   }
-   else
-   {
-      if(!rover)
-         rover = tidhash[tid % TIDCHAINS];
-      else
-         rover = rover->tid_next;
+      rover = rover ? rover->tid_next : tidhash[tid % TIDCHAINS];
 
       while(rover && rover->tid != tid)
          rover = rover->tid_next;
@@ -2087,9 +2179,106 @@ mobj_t *P_FindMobjFromTID(int tid, mobj_t *rover)
 }
 
 //
+// Thing Collections
+//
+
+//
+// P_InitMobjCollection
+//
+// Sets up an MobjCollection object. This is mostly for mc's kept
+// on the stack.
+//
+void P_InitMobjCollection(MobjCollection_t *mc, int type)
+{
+   memset(mc, 0, sizeof(MobjCollection_t));
+
+   mc->type = type;
+}
+
+//
+// P_ReInitMobjCollection
+//
+// Call this to set the number of mobjs in the collection to zero.
+// Should be done for each collection after a level ends and before
+// beginning a new one.
+//
+void P_ReInitMobjCollection(MobjCollection_t *mc, int type)
+{
+   mc->num = mc->wrapiterator = 0;
+   mc->type = type;   
+}
+
+//
+// P_ClearMobjCollection
+//
+// Frees an mobj collection's pointer array and sets all the
+// fields to zero.
+//
+void P_ClearMobjCollection(MobjCollection_t *mc)
+{
+   free(mc->ptrarray);
+
+   memset(mc, 0, sizeof(MobjCollection_t));
+}
+
+//
+// P_CollectThings
+//
+// Generalized from the boss brain spot code; builds a collection
+// of mapthings of a certain type.
+//
+void P_CollectThings(MobjCollection_t *mc)
+{
+   thinker_t *thinker;
+
+   for(thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
+   {
+      if(thinker->function == P_MobjThinker)
+      {
+         mobj_t *mo = (mobj_t *)thinker;
+
+         if(mo->type == mc->type)
+         {
+            if(mc->num >= mc->numalloc)
+            {
+               mc->ptrarray = realloc(mc->ptrarray,
+                  (mc->numalloc = mc->numalloc ?
+                   mc->numalloc*2 : 32) * sizeof *mc->ptrarray);
+            }
+            (mc->ptrarray)[mc->num] = mo;
+            mc->num++;
+         }
+      }
+   }
+}
+
+boolean P_CollectionIsEmpty(MobjCollection_t *mc)
+{
+   return !mc->num;
+}
+
+mobj_t *P_CollectionWrapIterator(MobjCollection_t *mc)
+{
+   mobj_t *ret = (mc->ptrarray)[mc->wrapiterator++];
+
+   mc->wrapiterator %= mc->num;
+
+   return ret;
+}
+
+mobj_t *P_CollectionGetRandom(MobjCollection_t *mc, pr_class_t rngnum)
+{
+   return (mc->ptrarray)[P_Random(rngnum) % mc->num];
+}
+
+//
 // Small natives
 //
 
+//
+// sm_thingspawn
+// * Implements ThingSpawn(type, x, y, z, tid = 0, angle = 0)
+//
 static cell AMX_NATIVE_CALL sm_thingspawn(AMX *amx, cell *params)
 {
    int type, tid, ang;
@@ -2097,18 +2286,18 @@ static cell AMX_NATIVE_CALL sm_thingspawn(AMX *amx, cell *params)
    angle_t angle;
    mobj_t *mo;
 
-   if(gamemode != GS_LEVEL)
+   if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
-      return 0;
+      return -1;
    }
 
-   type  = params[0];
-   x     = params[1];
-   y     = params[2];
-   z     = params[3];
-   tid   = params[4];
-   ang   = params[5];
+   type  = params[1];
+   x     = params[2];
+   y     = params[3];
+   z     = params[4];
+   tid   = params[5];
+   ang   = params[6];
 
    // Type resolving can be done in Small itself, so we treat
    // this as a raw type. Allows the most flexibility without
@@ -2121,13 +2310,19 @@ static cell AMX_NATIVE_CALL sm_thingspawn(AMX *amx, cell *params)
    }
 
    if(ang >= 360)
-      ang = ang - 360;
+   {
+      while(ang >= 360)
+         ang = ang - 360;
+   }
    else if(ang < 0)
-      ang = ang + 360;
+   {
+      while(ang < 0)
+         ang = ang + 360;
+   }
 
    angle = (angle_t)(((ULong64)ang << 32) / 360);
 
-   mo = P_SpawnMobj(x, y, z, type);
+   mo = P_SpawnMobj(x<<FRACBITS, y<<FRACBITS, z<<FRACBITS, type);
 
    P_AddThingTID(mo, tid);
 
@@ -2136,22 +2331,27 @@ static cell AMX_NATIVE_CALL sm_thingspawn(AMX *amx, cell *params)
    return 0;
 }
 
+//
+// sm_thingspawnspot
+// * Implements ThingSpawnSpot(type, spottid, tid = 0, angle = 0)
+//
 static cell AMX_NATIVE_CALL sm_thingspawnspot(AMX *amx, cell *params)
 {
    int type, spottid, tid, ang;
    angle_t angle;
    mobj_t *mo, *spawnspot = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
 
-   if(gamemode != GS_LEVEL)
+   if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
       return -1;
    }
 
-   type    = params[0];
-   spottid = params[1];
-   tid     = params[2];
-   ang     = params[3];
+   type    = params[1];
+   spottid = params[2];
+   tid     = params[3];
+   ang     = params[4];
 
    // Type resolving can be done in Small itself, so we treat
    // this as a raw type. Allows the most flexibility without
@@ -2170,7 +2370,7 @@ static cell AMX_NATIVE_CALL sm_thingspawnspot(AMX *amx, cell *params)
 
    angle = (angle_t)(((ULong64)ang << 32) / 360);
 
-   while((spawnspot = P_FindMobjFromTID(spottid, spawnspot)))
+   while((spawnspot = P_FindMobjFromTID(spottid, spawnspot, context)))
    {
       mo = P_SpawnMobj(spawnspot->x, spawnspot->y, spawnspot->z, type);
       
@@ -2182,11 +2382,298 @@ static cell AMX_NATIVE_CALL sm_thingspawnspot(AMX *amx, cell *params)
    return 0;
 }
 
+//
+// sm_thingsound
+// * Implements ThingSound(name[], tid)
+//
+static cell AMX_NATIVE_CALL sm_thingsound(AMX *amx, cell *params)
+{
+   int err, tid;
+   char *sndname;
+   mobj_t *mo = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   // get sound name
+   if((err = A_GetSmallString(amx, &sndname, params[1])) != AMX_ERR_NONE)
+   {
+      amx_RaiseError(amx, err);
+      return -1;
+   }
+
+   // get tid
+   tid = (int)params[2];
+
+   while((mo = P_FindMobjFromTID(tid, mo, context)))
+   {
+      S_StartSoundName(mo, sndname);
+   }
+
+   Z_Free(sndname);
+
+   return 0;
+}
+
+//
+// sm_thingsoundnum
+// * Implements ThingSoundNum(num, tid)
+//
+static cell AMX_NATIVE_CALL sm_thingsoundnum(AMX *amx, cell *params)
+{
+   int tid, sndnum;
+   mobj_t *mo = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   sndnum = (int)params[1];
+   tid    = (int)params[2];
+
+   while((mo = P_FindMobjFromTID(tid, mo, context)))
+   {
+      S_StartSound(mo, sndnum);
+   }
+
+   return 0;
+}
+
+//
+// sm_thinginfosound
+// * Implements ThingInfoSound(type, tid)
+//
+// This function can play any of the internal thingtype sounds for
+// an object. Will be very useful in custom behavior scripts.
+//
+static cell AMX_NATIVE_CALL sm_thinginfosound(AMX *amx, cell *params)
+{
+   int tid, typenum;
+   mobj_t *mo = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   typenum = (int)params[1];
+   tid     = (int)params[2];
+
+   while((mo = P_FindMobjFromTID(tid, mo, context)))
+   {
+      int sndnum = 0;
+
+      switch(typenum)
+      {
+      case 0:
+         sndnum = mo->info->seesound; break;
+      case 1:
+         sndnum = mo->info->activesound; break;
+      case 2:
+         sndnum = mo->info->attacksound; break;
+      case 3:
+         sndnum = mo->info->painsound; break;
+      case 4:
+         sndnum = mo->info->deathsound; break;
+      default:
+         break;
+      }
+
+      S_StartSound(mo, sndnum);
+   }
+
+   return 0;
+}
+
+//
+// sm_thingmassacre
+// * Implements ThingMassacre(type)
+//
+static cell AMX_NATIVE_CALL sm_thingmassacre(AMX *amx, cell *params)
+{
+   int massacreType = (int)params[1];
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   P_Massacre(massacreType);
+
+   return 0;
+}
+
+//
+// Thing property IDs as defined in Small
+//
+enum
+{
+   TF_TYPE,
+   TF_TICS,
+   TF_HEALTH,
+   TF_FLAGS,
+   TF_FLAGS2,
+   TF_FLAGS3,
+   TF_SPECIAL1,
+   TF_SPECIAL2,
+   TF_SPECIAL3,
+   TF_EFFECTS,
+   TF_TRANSLUCENCY
+};
+
+//
+// sm_thinggetproperty
+// * Implements ThingGetProperty(tid, field)
+//
+static cell AMX_NATIVE_CALL sm_thinggetproperty(AMX *amx, cell *params)
+{
+   int value = 0, field, tid;
+   mobj_t *mo = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+   
+   tid   = (int)params[1];
+   field = (int)params[2];
+
+   if((mo = P_FindMobjFromTID(tid, mo, context)))
+   {
+      switch(field)
+      {
+      case TF_TYPE:     value = mo->type;     break;
+      case TF_TICS:     value = mo->tics;     break;
+      case TF_HEALTH:   value = mo->health;   break;
+      case TF_FLAGS:    value = mo->flags;    break;
+      case TF_FLAGS2:   value = mo->flags2;   break;
+      case TF_FLAGS3:   value = mo->flags3;   break;
+      case TF_SPECIAL1: value = mo->special1; break;
+      case TF_SPECIAL2: value = mo->special2; break;
+      case TF_SPECIAL3: value = mo->special3; break;
+      case TF_EFFECTS:  value = mo->effects;  break;
+      case TF_TRANSLUCENCY: value = mo->translucency; break;
+      }
+   }
+
+   return value;
+}
+
+//
+// sm_thingsetproperty
+// * Implements ThingSetProperty(tid, field, value)
+//
+static cell AMX_NATIVE_CALL sm_thingsetproperty(AMX *amx, cell *params)
+{
+   int field, value, tid;
+   mobj_t *mo = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+   
+   tid        = (int)params[1];
+   field      = (int)params[2];
+   value      = (int)params[3];
+
+   while((mo = P_FindMobjFromTID(tid, mo, context)))
+   {
+      switch(field)
+      {
+      case TF_TICS:   mo->tics = value;   break;
+      case TF_HEALTH: mo->health = value; break;
+      case TF_FLAGS:  mo->flags = value;  break;
+      case TF_FLAGS2: mo->flags2 = value; break;
+      case TF_FLAGS3: mo->flags3 = value; break;
+      case TF_SPECIAL1: mo->special1 = (short)value; break;
+      case TF_SPECIAL2: mo->special2 = (short)value; break;
+      case TF_SPECIAL3: mo->special3 = (short)value; break;
+      case TF_EFFECTS:  mo->effects = value; break;
+      case TF_TRANSLUCENCY: mo->translucency = value; break;
+      }
+   }
+
+   return 0;
+}
+
+static cell AMX_NATIVE_CALL sm_thingflagsstr(AMX *amx, cell *params)
+{
+   int tid, op, err;
+   char *flags;
+   long *results;
+   mobj_t *mo = NULL;
+   SmallContext_t *context = A_GetContextForAMX(amx);
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   tid = (int)params[1];
+   op  = (int)params[2];
+
+   // get sound name
+   if((err = A_GetSmallString(amx, &flags, params[3])) != AMX_ERR_NONE)
+   {
+      amx_RaiseError(amx, err);
+      return -1;
+   }
+
+   results = deh_ParseFlagsCombined(flags);
+
+   while((mo = P_FindMobjFromTID(tid, mo, context)))
+   {
+      switch(op)
+      {
+      case 0: // set flags
+         mo->flags  = results[0];
+         mo->flags2 = results[1];
+         mo->flags3 = results[2];
+         break;
+      case 1: // add flags
+         mo->flags  |= results[0];
+         mo->flags2 |= results[1];
+         mo->flags3 |= results[2];
+         break;
+      case 2: // remove flags
+         mo->flags  &= ~(results[0]);
+         mo->flags2 &= ~(results[1]);
+         mo->flags3 &= ~(results[2]);
+         break;
+      }
+   }
+
+   return 0;
+}
+
 AMX_NATIVE_INFO mobj_Natives[] =
 {
-   { "ThingSpawn",     sm_thingspawn },
-   { "ThingSpawnSpot", sm_thingspawnspot },
-   { NULL,             NULL }
+   { "ThingSpawn",        sm_thingspawn },
+   { "ThingSpawnSpot",    sm_thingspawnspot },
+   { "ThingSound",        sm_thingsound },
+   { "ThingSoundNum",     sm_thingsoundnum },
+   { "ThingInfoSound",    sm_thinginfosound },
+   { "ThingMassacre",     sm_thingmassacre },
+   { "ThingGetProperty",  sm_thinggetproperty },
+   { "ThingSetProperty",  sm_thingsetproperty },
+   { "ThingFlagsFromStr", sm_thingflagsstr },
+   { NULL,                NULL }
 };
 
 //----------------------------------------------------------------------------

@@ -83,8 +83,6 @@ rcsid[] = "$Id: g_game.c,v 1.59 1998/06/03 20:23:10 killough Exp $";
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
-extern boolean  deh_pars;
-
 // haleyjd: new demo format stuff
 static char     eedemosig[] = "ETERN";
 
@@ -154,25 +152,10 @@ int key_autorun;
 int key_chat;
 int key_backspace;
 int key_enter;
-int key_map_right;
-int key_map_left;
-int key_map_up;
-int key_map_down;
-int key_map_zoomin;
-int key_map_zoomout;
-int key_map;
-int key_map_gobig;
-int key_map_follow;
-int key_map_mark;
-int key_map_clear;
-int key_map_grid;
 int key_help = KEYD_F1;
 int key_spy;
 int key_pause;
 int destination_keys[MAXPLAYERS];
-
-int key_screenshot; // killough 2/22/98: screenshot key
-int key_setup;      // killough 10/98: shortcut to setup menu
 
 // haleyjd: mousebfire is now unused -- removed
 int mousebstrafe;   // double-clicking either of these buttons
@@ -596,7 +579,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 //
 // sf: from gamemapname, get gamemap and gameepisode
 //
-void G_SetGameMap()
+void G_SetGameMap(void)
 {
    gamemap = G_GetMapForName(gamemapname);
    
@@ -661,6 +644,8 @@ static void G_DoLoadLevel(void)
       memset(players[i].frags, 0, sizeof(players[i].frags));
    }
 
+   R_ClearParticles();
+
 #ifdef R_PORTALS
    R_InitPortals();
 #endif
@@ -704,10 +689,8 @@ static void G_DoLoadLevel(void)
    // killough 5/13/98: in case netdemo has consoleplayer other than green
    ST_Start();
 
-   // haleyjd: code below is not reliable and definitely causes memory
-   //          leaks, #if'd out in favor of a more elegant solution
-   
-   R_SetGlobalLevelColormap(); // see r_data.c
+   // haleyjd: set global colormap -- see r_data.c
+   R_SetGlobalLevelColormap();
 
    C_Popup();  // pop up the console
    
@@ -848,16 +831,15 @@ boolean G_Responder(event_t* ev)
       else
       {
          if(ev->data1 < NUMKEYS)
-            gamekeydown[ev->data1] = true;
-         
-         G_KeyResponder(ev); // haleyjd
+            gamekeydown[ev->data1] = true;         
+         G_KeyResponder(ev, kac_game); // haleyjd
       }
       return true;    // eat key down events
       
    case ev_keyup:
       if(ev->data1 < NUMKEYS)
          gamekeydown[ev->data1] = false;
-      G_KeyResponder(ev);   // haleyjd
+      G_KeyResponder(ev, kac_game);   // haleyjd
       return false;   // always let key up events filter down
       
    case ev_mouse:
@@ -987,10 +969,115 @@ static void G_PlayerFinishLevel(int player)
    p->bonuscount = 0;
 }
 
+static void G_SetDOOMNextMap(void)
+{
+   // wminfo.next is 0 biased, unlike gamemap
+   if(gamemode == commercial)
+   {
+      if(secretexit)
+      {
+         switch(gamemap)
+         {
+         case 15:
+            wminfo.next = 30; break;
+         case 31:
+            wminfo.next = 31; break;
+         default:
+            break;
+         }
+      }
+      else
+      {
+         switch(gamemap)
+         {
+         case 31:
+         case 32:
+            wminfo.next = 15; break;
+         default:
+            wminfo.next = gamemap;
+         }
+      }
+   }
+   else // gamemode != commercial
+   {
+      if(secretexit)
+      {
+         wminfo.next = 8;  // go to secret level
+      }
+      else
+      {
+         if(gamemap == 9)
+         {
+            // returning from secret level
+            switch (gameepisode)
+            {
+            case 1:
+               wminfo.next = 3;
+               break;
+            case 2:
+               wminfo.next = 5;
+               break;
+            case 3:
+               wminfo.next = 6;
+               break;
+            case 4:
+               wminfo.next = 2;
+               break;
+            }
+         }
+         else
+            wminfo.next = gamemap;          // go to next level
+      }
+   }
+}
+
+static void G_SetHticNextMap(void)
+{
+   // haleyjd 10/15/02: Heretic secrets
+   if(secretexit)
+   {
+      wminfo.next = 8;
+   }
+   else
+   {
+      if(gamemap == 9)
+      {
+         // returning from secret level
+         switch (gameepisode)
+         {
+         case 1:
+            wminfo.next = 6;
+            break;
+         case 2:
+            wminfo.next = 4;
+            break;
+         case 3:
+            wminfo.next = 4;
+            break;
+         case 4:
+            wminfo.next = 4;
+            break;
+         case 5:
+            wminfo.next = 3;
+            break;
+         }
+      }
+      else
+         wminfo.next = gamemap;          // go to next level
+   }
+}
+
+typedef void (*nextfunc_t)(void);
+
+static nextfunc_t NextMapFuncs[NumGameModeTypes] =
+{
+   G_SetDOOMNextMap,
+   G_SetHticNextMap,
+};
+
 //
 // G_DoCompleted
 //
-
 static void G_DoCompleted(void)
 {
    int i;
@@ -1027,112 +1114,21 @@ static void G_DoCompleted(void)
    wminfo.epsd = gameepisode - 1;
    wminfo.last = gamemap - 1;
 
-   // wminfo.next is 0 biased, unlike gamemap
-   if(gamemode == commercial)
-   {
-      if(secretexit)
-      {
-         switch(gamemap)
-         {
-         case 15:
-            wminfo.next = 30; break;
-         case 31:
-            wminfo.next = 31; break;
-         default:
-            break;
-         }
-      }
-      else
-      {
-         switch(gamemap)
-         {
-         case 31:
-         case 32:
-            wminfo.next = 15; break;
-         default:
-            wminfo.next = gamemap;
-         }
-      }
-   }
-   else if(gameModeInfo->flags & GIF_HERETIC)
-   {
-      // haleyjd 10/15/02: Heretic secrets
-      if(secretexit)
-      {
-         wminfo.next = 8;
-      }
-      else
-      {
-         if(gamemap == 9)
-         {
-            // returning from secret level
-            switch (gameepisode)
-            {
-            case 1:
-               wminfo.next = 6;
-               break;
-            case 2:
-               wminfo.next = 4;
-               break;
-            case 3:
-               wminfo.next = 4;
-               break;
-            case 4:
-               wminfo.next = 4;
-               break;
-            case 5:
-               wminfo.next = 3;
-               break;
-            }
-         }
-         else
-            wminfo.next = gamemap;          // go to next level
-      }
-   }
-   else // gamemode != commercial
-   {
-      if(secretexit)
-      {
-         wminfo.next = 8;  // go to secret level
-      }
-      else
-      {
-         if(gamemap == 9)
-         {
-            // returning from secret level
-            switch (gameepisode)
-            {
-            case 1:
-               wminfo.next = 3;
-               break;
-            case 2:
-               wminfo.next = 5;
-               break;
-            case 3:
-               wminfo.next = 6;
-               break;
-            case 4:
-               wminfo.next = 2;
-               break;
-            }
-         }
-         else
-            wminfo.next = gamemap;          // go to next level
-      }
-   }
+   // set the next gamemap
+   (NextMapFuncs[gameModeInfo->type])();
 
    // haleyjd: override with mapinfo values (restructured)
-   if(*info_nextlevel && !secretexit)
+   if(*LevelInfo.nextLevel && !secretexit)
    {
-      wminfo.next = G_GetMapForName(info_nextlevel);
+      wminfo.next = G_GetMapForName(LevelInfo.nextLevel);
       if(gamemode != commercial)
          wminfo.next = wminfo.next % 10;
       wminfo.next--;
    }
 
-   if(*info_nextsecret && secretexit) // only for secret exit!
+   if(*LevelInfo.nextSecret && secretexit) // only for secret exit!
    {
-      wminfo.next = G_GetMapForName(info_nextsecret);
+      wminfo.next = G_GetMapForName(LevelInfo.nextSecret);
       if(gamemode != commercial)
          wminfo.next = wminfo.next % 10;
       wminfo.next--;
@@ -1142,23 +1138,8 @@ static void G_DoCompleted(void)
    wminfo.maxitems = totalitems;
    wminfo.maxsecret = totalsecret;
    wminfo.maxfrags = 0;
-  
-   // sf: moved partime code from wi_stuff.c,
-   // added new features(level info)
-   
-   if(gamemode == commercial)
-      wminfo.partime = TICRATE * cpars[gamemap-1];
-   else if(gameModeInfo->flags & GIF_HERETIC)
-      wminfo.partime = 0; // haleyjd: no pars for heretic
-   else
-      wminfo.partime = TICRATE * pars[gameepisode][gamemap];
-  
-   // check for par time replacements
-   if(newlevel && !deh_pars)
-      wminfo.partime = -1;
-   
-   if(info_partime != -1)
-      wminfo.partime = TICRATE * info_partime;
+
+   wminfo.partime = LevelInfo.partime; // haleyjd 07/22/04
 
    wminfo.pnum = consoleplayer;
 
@@ -1196,16 +1177,16 @@ static void G_DoWorldDone(void)
    }
    
    // haleyjd: customizable secret exits
-   if(*info_nextsecret && secretexit)
+   if(*LevelInfo.nextSecret && secretexit)
    {
-      G_SetGameMapName(info_nextsecret);
+      G_SetGameMapName(LevelInfo.nextSecret);
    }
    else
    {
       // haleyjd 12/14/01: don't use nextlevel for secret exits here
       // either!
       char *lvlname =
-        *info_nextlevel && !secretexit ? info_nextlevel :
+        *LevelInfo.nextLevel && !secretexit ? LevelInfo.nextLevel :
                    G_GetNameForMap(gameepisode, gamemap);
 
       G_SetGameMapName(lvlname);
@@ -1254,15 +1235,15 @@ static void G_DoPlayDemo(void)
    demo_version =      // killough 7/19/98: use the version id stored in demo
       demover = *demo_p++;
 
-   // haleyjd 09/02/03: test for old Heretic demos here.
+   // haleyjd 09/02/03: test for old Heretic, etc. demos here.
    // Heretic demos don't even store the version -- the first byte 
    // in the file is the skill level, and is thus easy to recognize.
    // For full safety, I compare against 255, which is the value put
    // in the old version byte by Eternity when it writes a demo.
 
-   if((gameModeInfo->flags & GIF_HERETIC) && demo_version < 255)
+   if(gameModeInfo->type != Game_DOOM && demo_version < 255)
    {
-      C_Printf("Heretic v1.3 and older demos not supported\n");
+      C_Printf("Non-DOOM format demos are not supported\n");
       gameaction = ga_nothing;
       Z_ChangeTag(demobuffer, PU_CACHE);
       D_AdvanceDemo();
@@ -1298,6 +1279,10 @@ static void G_DoPlayDemo(void)
       monster_friction = 0;             // killough 10/98
       help_friends = 0;                 // killough 9/9/98
       monkeys = 0;
+
+      // haleyjd 05/23/04: autoaim is sync-critical
+      default_autoaim = autoaim;
+      autoaim = 1;
 
       // killough 3/6/98: rearrange to fix savegame bugs (moved fastparm,
       // respawnparm, nomonsters flags to G_LoadOptions()/G_SaveOptions())
@@ -1360,9 +1345,9 @@ static void G_DoPlayDemo(void)
       if(demo_version >= 331)
       {
          dmflags  = *demo_p++;
-         dmflags += ((unsigned long)(*demo_p++)) << 8;
-         dmflags += ((unsigned long)(*demo_p++)) << 16;
-         dmflags += ((unsigned long)(*demo_p++)) << 24;
+         dmflags |= ((unsigned long)(*demo_p++)) << 8;
+         dmflags |= ((unsigned long)(*demo_p++)) << 16;
+         dmflags |= ((unsigned long)(*demo_p++)) << 24;
       }
 
       // haleyjd 12/14/01: retrieve gamemapname if in appropriate
@@ -2372,27 +2357,10 @@ void G_WorldDone(void)
    if(secretexit)
       players[consoleplayer].didsecret = true;
    
-   if(info_intertext)
+   if(LevelInfo.interText && !LevelInfo.killFinale &&
+      (!LevelInfo.finaleSecretOnly || secretexit))
    {
       F_StartFinale();
-   }
-   else if(gamemode == commercial)
-   {
-      switch (gamemap)
-      {
-      case 15:
-      case 31:
-         if(!secretexit)
-            break;
-      case 6:
-      case 11:
-      case 20:
-      case 30:
-         // haleyjd: allow removal of built-in finale points
-         if(info_killfinale == false)
-            F_StartFinale();
-         break;
-      }
    }
 }
 
@@ -2717,8 +2685,6 @@ void G_InitNewNum(skill_t skill, int episode, int map)
 void G_InitNew(skill_t skill, char *name)
 {
    int i;
-   
-   R_ClearParticles(); // clear all particles
 
    // haleyjd 11/14/01: reset state of dialogue engine
    if(currentdialog)
@@ -2874,6 +2840,9 @@ byte *G_WriteOptions(byte *demo_p)
       *demo_p++ = comp[i] != 0;
   }
 
+  // haleyjd 05/23/04: autoaim is sync critical
+  *demo_p++ = autoaim;
+
   //----------------
   // Padding at end
   //----------------
@@ -2979,8 +2948,12 @@ byte *G_ReadOptions(byte *demo_p)
      }
      
      // Options new to v2.04, etc.
-     if(demo_version >= 204)
-        ;
+     if(demo_version >= 331)
+     {
+        // haleyjd 05/23/04: autoaim is sync-critical
+        if(demo_version > 331 || demo_subversion > 7)
+           autoaim = *demo_p++;
+     }
   }
   else  // defaults for versions < 2.02
   {
@@ -3277,11 +3250,12 @@ extern camera_t intercam;
 //
 // change to new viewpoint
 //
-void G_CoolViewPoint()
+void G_CoolViewPoint(void)
 {
-   // 2 if no cameras, 3 if cameras
-   int viewtype = M_Random() % (2 + !!numcameras);
+   int viewtype;
    int old_displayplayer = displayplayer;
+
+   viewtype = M_Random() % (P_CollectionIsEmpty(&camerathings) ? 2 : 3);
    
    // pick the next player
    do
@@ -3313,13 +3287,13 @@ void G_CoolViewPoint()
    }
    else if(viewtype == 2) // camera view
    {
-      int cam = M_Random() % numcameras;
+      mobj_t *cam = P_CollectionGetRandom(&camerathings, pr_misc);
       
       P_ResetChasecam(); // turn off the chasecam if its still on
       
-      intercam.x = camerathings[cam]->x;
-      intercam.y = camerathings[cam]->y;
-      intercam.angle = camerathings[cam]->angle;
+      intercam.x = cam->x;
+      intercam.y = cam->y;
+      intercam.angle = cam->angle;
       intercam.updownangle = 0;
       
       // haleyjd: fix for deep water sectors
@@ -3344,7 +3318,7 @@ static cell AMX_NATIVE_CALL sm_exitlevel(AMX *amx, cell *params)
    if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
-      return 0;
+      return -1;
    }
 
    G_ExitLevel();
@@ -3356,7 +3330,7 @@ static cell AMX_NATIVE_CALL sm_exitsecret(AMX *amx, cell *params)
    if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
-      return 0;
+      return -1;
    }
 
    scriptSecret = true;
@@ -3405,11 +3379,11 @@ static cell AMX_NATIVE_CALL sm_gametype(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO game_Natives[] =
 {
-   { "ExitLevel",  sm_exitlevel },
-   { "ExitSecret", sm_exitsecret },
-   { "StartGame",  sm_startgame },
-   { "GameSkill",  sm_gameskill },
-   { "GameType",   sm_gametype },
+   { "G_ExitLevel",  sm_exitlevel },
+   { "G_ExitSecret", sm_exitsecret },
+   { "G_StartGame",  sm_startgame },
+   { "G_GameSkill",  sm_gameskill },
+   { "G_GameType",   sm_gametype },
    { NULL, NULL }
 };
 

@@ -133,6 +133,11 @@ int startOnNewMap = 0;
 // haleyjd 04/10/03: unified game type variable
 gametype_t GameType = gt_single, DefaultGameType = gt_single;
 
+// haleyjd 05/20/04: option to wait at end of game
+#ifdef _SDL_VER
+int waitAtExit = 0;
+#endif
+
 //----------------------------------------------------------------------------
 //
 // $Log: doomstat.c,v $

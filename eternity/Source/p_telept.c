@@ -111,6 +111,8 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
                                      gameModeInfo->teleFogType),
                          gameModeInfo->teleSound);
 
+            P_AdjustFloorClip(thing);
+
             // don't move for a bit // killough 10/98
             if(thing->player)
                thing->reactiontime = 18;
@@ -124,16 +126,6 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
             {
                player->momx = player->momy = 0;
             }
-
-            // haleyjd 10/12/02: set footclip flag
-            if(demo_version >= 331 && !comp[comp_terrain] &&
-               (thing->flags2 & MF2_FOOTCLIP) &&
-               P_TerrainFloorClip(P_GetSecTerrainType(thing->subsector->sector,0)))
-            {
-               thing->intflags |= MIF_FOOTCLIP;
-            }
-            else
-               thing->intflags &= ~MIF_FOOTCLIP;
  
             return 1;
          }
@@ -223,16 +215,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
                   P_ResetChasecam();
             }
 
-            // haleyjd 10/12/02: set footclip flag
-            if(demo_version >= 331 && !comp[comp_terrain] &&
-               (thing->flags2 & MF2_FOOTCLIP) &&
-               P_TerrainFloorClip(P_GetSecTerrainType(thing->subsector->sector,0)) &&
-               thing->z <= thing->subsector->sector->floorheight)
-            {
-               thing->intflags |= MIF_FOOTCLIP;
-            }
-            else
-               thing->intflags &= ~MIF_FOOTCLIP;
+            P_AdjustFloorClip(thing);
 
             return 1;
          }
@@ -372,16 +355,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
                 P_ResetChasecam();
          }
 
-         // haleyjd 10/12/02: set footclip flag
-         if(demo_version >= 331 && !comp[comp_terrain] &&
-            (thing->flags2 & MF2_FOOTCLIP) &&
-            P_TerrainFloorClip(P_GetSecTerrainType(thing->subsector->sector,0)) &&
-            thing->z <= thing->subsector->sector->floorheight)
-         {
-            thing->intflags |= MIF_FOOTCLIP;
-         }
-         else
-            thing->intflags &= ~MIF_FOOTCLIP;
+         P_AdjustFloorClip(thing);
          
          return 1;
       }

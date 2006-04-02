@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*-
+// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2000 James Haley
@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -51,20 +51,24 @@ typedef struct
   int   y;
 
   // max # of digits in number
-  int width;
+  int width;    
 
   // last number value
-  int   oldnum;
-
+  int oldnum;
+  
   // pointer to current value
-  int*  num;
+  int *num;
 
   // pointer to boolean stating
   //  whether to update number
-  boolean*  on;
+  boolean *on;
+
+  // pointer to boolean stating
+  //  whether to copy background behind number
+  boolean *bg_on;
 
   // list of patches for 0-9
-  patch_t** p;
+  patch_t **p;
 
   // user data
   int data;
@@ -100,10 +104,10 @@ typedef struct
 
   // list of icons
   patch_t**   p;
-
+  
   // user data
   int     data;
-
+  
 } st_multicon_t;
 
 // Binary Icon widget
@@ -122,7 +126,7 @@ typedef struct
 
   // pointer to boolean
   //  stating whether to update icon
-  boolean*    on;
+  boolean*    on;  
 
   patch_t*    p;  // icon
   int     data;   // user data
@@ -140,12 +144,13 @@ void STlib_init(void);
 
 // Number widget routines
 void STlib_initNum
-( st_number_t* n,
+( st_number_t *n,
   int x,
   int y,
-  patch_t** pl,
-  int* num,
-  boolean* on,
+  patch_t **pl,
+  int *num,
+  boolean *on,
+  boolean *bg_on,
   int width );
 
 void STlib_updateNum
@@ -156,13 +161,14 @@ void STlib_updateNum
 
 // Percent widget routines
 void STlib_initPercent
-( st_percent_t* p,
+( st_percent_t *p,
   int x,
   int y,
-  patch_t** pl,
-  int* num,
-  boolean* on,
-  patch_t* percent );
+  patch_t **pl,
+  int *num,
+  boolean *on,
+  boolean *bg_on,
+  patch_t *percent );
 
 
 void STlib_updatePercent

@@ -60,6 +60,7 @@ rcsid[] = "$Id: p_spec.c,v 1.56 1998/05/25 10:40:30 killough Exp $";
 #include "d_gi.h"
 #include "p_user.h"
 #include "e_edf.h"
+#include "a_small.h"
 
 //
 // Animating textures and planes
@@ -284,9 +285,14 @@ sector_t *getNextSector(line_t *line, sector_t *sec)
    // fixes an intra-sector line breaking functions
    // like floor->highest floor
 
-   return comp[comp_model] && !(line->flags & ML_TWOSIDED) ? NULL :
-     line->frontsector == sec ? comp[comp_model] || line->backsector != sec ?
-     line->backsector : NULL : line->frontsector;
+   return 
+      comp[comp_model] && !(line->flags & ML_TWOSIDED) ? 
+         NULL :
+         line->frontsector == sec ? 
+            comp[comp_model] || line->backsector != sec ?
+               line->backsector : 
+               NULL : 
+            line->frontsector;
 }
 
 //
@@ -561,6 +567,13 @@ fixed_t P_FindShortestTextureAround(int secnum)
 {
    const sector_t *sec = &sectors[secnum];
    int i, minsize = D_MAXINT;
+
+   // haleyjd 05/07/04: repair texture comparison error that was
+   // fixed in BOOM v2.02 but missed in MBF -- texture #0 is used
+   // for "-", meaning no texture, but if used as an index, will get
+   // the height of the first "garbage" texture (ie. AASTINKY)
+   int lowtexnum = (demo_version == 202 || demo_version >= 331);
+
    
    if(!comp[comp_model])
       minsize = 32000<<FRACBITS; //jff 3/13/98 prevent overflow in height calcs
@@ -570,10 +583,10 @@ fixed_t P_FindShortestTextureAround(int secnum)
       if(twoSided(secnum, i))
       {
          const side_t *side;
-         if((side = getSide(secnum,i,0))->bottomtexture >= 0 &&
+         if((side = getSide(secnum,i,0))->bottomtexture >= lowtexnum &&
             textureheight[side->bottomtexture] < minsize)
             minsize = textureheight[side->bottomtexture];
-         if((side = getSide(secnum,i,1))->bottomtexture >= 0 &&
+         if((side = getSide(secnum,i,1))->bottomtexture >= lowtexnum &&
             textureheight[side->bottomtexture] < minsize)
             minsize = textureheight[side->bottomtexture];
       }
@@ -599,7 +612,13 @@ fixed_t P_FindShortestUpperAround(int secnum)
 {
    const sector_t *sec = &sectors[secnum];
    int i, minsize = D_MAXINT;
-   
+
+   // haleyjd 05/07/04: repair texture comparison error that was
+   // fixed in BOOM v2.02 but missed in MBF -- texture #0 is used
+   // for "-", meaning no texture, but if used as an index, will get
+   // the height of the first "garbage" texture (ie. AASTINKY)
+   int lowtexnum = (demo_version == 202 || demo_version >= 331);
+
    if (!comp[comp_model])
       minsize = 32000<<FRACBITS; //jff 3/13/98 prevent overflow
 
@@ -609,10 +628,10 @@ fixed_t P_FindShortestUpperAround(int secnum)
       if(twoSided(secnum, i))
       {
          const side_t *side;
-         if((side = getSide(secnum,i,0))->toptexture >= 0)
+         if((side = getSide(secnum,i,0))->toptexture >= lowtexnum)
             if(textureheight[side->toptexture] < minsize)
                minsize = textureheight[side->toptexture];
-         if((side = getSide(secnum,i,1))->toptexture >= 0)
+         if((side = getSide(secnum,i,1))->toptexture >= lowtexnum)
             if(textureheight[side->toptexture] < minsize)
                minsize = textureheight[side->toptexture];
       }
@@ -839,7 +858,7 @@ boolean P_CanUnlockGenDoor(line_t *line, player_t *player)
       if(!player->cards[it_redcard] &&
          (!skulliscard || !player->cards[it_redskull]))
       {
-         if(gameModeInfo->flags & GIF_HERETIC)
+         if(gameModeInfo->type == Game_Heretic)
             player_printf(player, s_HPD_GREENK);
          else
             player_printf(player, skulliscard? s_PD_REDK : s_PD_REDC);
@@ -870,7 +889,7 @@ boolean P_CanUnlockGenDoor(line_t *line, player_t *player)
       if(!player->cards[it_redskull] &&
          (!skulliscard || !player->cards[it_redcard]))
       {
-         if(gameModeInfo->flags & GIF_HERETIC)
+         if(gameModeInfo->type == Game_Heretic)
             player_printf(player, s_HPD_GREENK);
          else
             player_printf(player, skulliscard? s_PD_REDK : s_PD_REDS);
@@ -1062,6 +1081,38 @@ boolean P_IsSecret(sector_t *sec)
 boolean P_WasSecret(sector_t *sec)
 {
    return (sec->oldspecial == 9 || sec->oldspecial & SECRET_MASK);
+}
+
+//
+// StartLineScript
+//
+// haleyjd 06/01/04: starts a script from a linedef.
+//
+void P_StartLineScript(line_t *line, mobj_t *thing)
+{
+   if(levelScriptLoaded)
+   {
+      SmallContext_t *useContext;
+      SmallContext_t newContext;
+
+      // possibly create a child context for the Levelscript
+      useContext = A_CreateChildContext(curLSContext, &newContext);
+
+      // set invocation data
+      useContext->invocationData.invokeType = SC_INVOKE_LINE;
+      useContext->invocationData.trigger = thing;
+
+      // execute
+      A_ExecScriptByNumV(&useContext->smallAMX, line->tag);
+
+      // clear invocation
+      A_ClearInvocation(useContext);
+
+      // destroy any child context that might have been created
+      A_DestroyChildContext(useContext);         
+   }
+   else
+      doom_printf(FC_ERROR "P_StartLineScript: No Levelscript.\n");
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1969,6 +2020,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
             if(side)
                break;            
          case 280:  // WR start script
+            P_StartLineScript(line, thing);
             break;
                         
             // once-only triggers            
@@ -1976,6 +2028,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
             if(side)
                break;            
          case 274:  // W1 start script
+            P_StartLineScript(line, thing);
             line->special = 0;        // clear trigger
             break;
          }
@@ -2179,6 +2232,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
          case 279: // G1 start script
             line->special = 0;
          case 278: // GR start script
+            P_StartLineScript(line, thing);
             break;
          }
       }
@@ -2202,6 +2256,7 @@ typedef struct nukage_s
 
 nukage_t nukageValues[4][2] =
 {
+   //    DOOM        Heretic
    { {  0, 0x00 }, { 0, 0x00 } }, // extended type 0
    { {  5, 0x1f }, { 4, 0x1f } }, // extended type 1
    { { 10, 0x1f }, { 5, 0x0f } }, // extended type 2
@@ -2305,8 +2360,8 @@ void P_PlayerInSpecialSector (player_t *player)
          case 0: // no damage
             break;
          case 1: // 2/5 damage per 31 ticks
-            dmgAmt  = nukageValues[dmgType][1].dmgAmount;
-            dmgTics = nukageValues[dmgType][1].dmgTics;
+            dmgAmt  = nukageValues[1][dmgType].dmgAmount;
+            dmgTics = nukageValues[1][dmgType].dmgTics;
             if(!player->powers[pw_ironfeet])
             {
                if(!(leveltime&dmgTics))
@@ -2314,8 +2369,8 @@ void P_PlayerInSpecialSector (player_t *player)
             }
             break;
          case 2: // 5/10 damage per 31 ticks
-            dmgAmt  = nukageValues[dmgType][2].dmgAmount;
-            dmgTics = nukageValues[dmgType][2].dmgTics;
+            dmgAmt  = nukageValues[2][dmgType].dmgAmount;
+            dmgTics = nukageValues[2][dmgType].dmgTics;
             if(!player->powers[pw_ironfeet])
             {
                if(!(leveltime&dmgTics))
@@ -2328,8 +2383,8 @@ void P_PlayerInSpecialSector (player_t *player)
             }
             break;
          case 3: // 10/20 damage per 31 ticks
-            dmgAmt  = nukageValues[dmgType][3].dmgAmount;
-            dmgTics = nukageValues[dmgType][3].dmgTics;
+            dmgAmt  = nukageValues[3][dmgType].dmgAmount;
+            dmgTics = nukageValues[3][dmgType].dmgTics;
             if(!player->powers[pw_ironfeet]
                || (P_Random(pr_slimehurt)<5))  // take damage even with suit
             {
@@ -3156,8 +3211,7 @@ boolean PIT_PushThing(mobj_t* thing)
       {
          int x = (thing->x-sx) >> FRACBITS;
          int y = (thing->y-sy) >> FRACBITS;
-         speed = 
-            (int)(((Long64)tmpusher->magnitude << 23) / (x*x+y*y+1));
+         speed = (fixed_t)(((Long64)tmpusher->magnitude << 23) / (x*x+y*y+1));
       }
 
       // If speed <= 0, you're outside the effective radius. You also have
@@ -3166,22 +3220,22 @@ boolean PIT_PushThing(mobj_t* thing)
       if(speed > 0 && P_CheckSight(thing,tmpusher->source))
       {
          pushangle = R_PointToAngle2(thing->x,thing->y,sx,sy);
+         
          if(tmpusher->source->type == E_ThingNumForDEHNum(MT_PUSH))
             pushangle += ANG180;    // away
-         pushangle >>= ANGLETOFINESHIFT;
-         thing->momx += FixedMul(speed,finecosine[pushangle]);
-         thing->momy += FixedMul(speed,finesine[pushangle]);
+         
+         P_ThrustMobj(thing, pushangle, speed);
       }
    }
    return true;
 }
 
-/////////////////////////////
 //
-// T_Pusher looks for all objects that are inside the radius of
-// the effect.
+// T_Pusher 
 //
-
+// Thinker function for BOOM push/pull effects that looks for all 
+// objects that are inside the radius of the effect.
+//
 void T_Pusher(pusher_t *p)
 {
    sector_t *sec;
@@ -3521,17 +3575,18 @@ void P_InitTerrainTypes(void)
    }
 }
 
+//
+// P_GetThingFloorType
+//
+// Note: this returns the floor type of the thing's subsector
+// floorpic, not necessarily the floor the thing is standing on.
+//
 int P_GetThingFloorType(mobj_t *thing)
 {
-   // 07/03/99: function simplified by restoring initialized model
-   // FIXME: TerrainTypes currently disabled for deep water, totally
-   // broken -- needs some crazy fix
-   if(!thing || 
-      (demo_version >= 331 && 
-       thing->subsector->sector->heightsec != -1))
+   if(demo_version < 329 || comp[comp_terrain])
       return FLOOR_SOLID;
-   else
-      return (TerrainTypes[thing->subsector->sector->floorpic]);
+
+   return TerrainTypes[thing->subsector->sector->floorpic];
 }
 
 //
@@ -3572,7 +3627,7 @@ int P_GetSecTerrainType(sector_t *sector, int position)
 //
 // Returns whether a TerrainType should clip feet or not
 //
-boolean P_TerrainFloorClip(int tt)
+static boolean P_TerrainFloorClip(int tt)
 {
    switch(tt)
    {
@@ -3585,57 +3640,73 @@ boolean P_TerrainFloorClip(int tt)
    }
 }
 
+boolean P_SectorFloorClip(sector_t *sector)
+{
+   return P_TerrainFloorClip(TerrainTypes[sector->floorpic]);
+}
+
 static void FloorWater(mobj_t *, fixed_t);
 static void FloorSludge(mobj_t *, fixed_t);
 static void FloorLava(mobj_t *, fixed_t);
 
-int P_HitFloor(mobj_t *thing)
+int P_HitWater(mobj_t *thing, sector_t *sector)
 {
-   int currentsec;   // fixes for deep water sectors
-   fixed_t currentz;
-   subsector_t *subsec;
+   fixed_t z;
 
-   if(!thing) return FLOOR_SOLID; // just makes me feel better
-   
-   // 07/01/99 -- Aurikan suggested this fix for the bug involving splashing
-   // being triggered on floors not contacted, as in when the player was
-   // hanging over a ledge and was actually "in" the lower sector.
+   // no TerrainTypes in old demos or if comp enabled
+   if(demo_version < 329 || comp[comp_terrain])
+      return FLOOR_SOLID;
 
-   subsec = R_PointInSubsector(thing->x, thing->y);
-   currentsec = subsec->sector->heightsec;
-   
-   if(thing->floorz != subsec->sector->floorheight)
-     return FLOOR_SOLID;
+   // some things don't cause splashes
+   if(thing->flags2 & MF2_NOSPLASH)
+      return FLOOR_SOLID;
 
-   // add low-mass things here -- haleyjd: add demo compatibility
-   if((thing->flags2 & MF2_NOSPLASH) || demo_version < 329)
-     return FLOOR_SOLID;
+   z = sector->heightsec != -1 ? 
+         sectors[sector->heightsec].floorheight :
+         sector->floorheight;
 
-   // haleyjd 04/29/99: fix deep water sectors
-   if(currentsec != -1)
-   {
-      currentz = sectors[currentsec].floorheight;
-   }
-   else
-   {
-      currentz = ONFLOORZ;
-   }
-
-   switch(P_GetThingFloorType(thing))
+   switch(TerrainTypes[sector->floorpic])
    {
    case FLOOR_WATER:
-      FloorWater(thing, currentz);
+      FloorWater(thing, z);
       return FLOOR_WATER;
    case FLOOR_LAVA:
-      FloorLava(thing, currentz);
+      FloorLava(thing, z);
       return FLOOR_LAVA;
    case FLOOR_SLUDGE:
-      FloorSludge(thing, currentz);
+      FloorSludge(thing, z);
       return FLOOR_SLUDGE;
    default:
       break;
    }
+
    return FLOOR_SOLID;
+}
+
+int P_HitFloor(mobj_t *thing)
+{
+   msecnode_t  *m;
+
+   // no TerrainTypes in old demos or if comp enabled
+   if(demo_version < 329 || comp[comp_terrain])
+      return FLOOR_SOLID;
+
+   // some things don't cause splashes
+   if(thing->flags2 & MF2_NOSPLASH)
+      return FLOOR_SOLID;
+
+   // determine what touched sector the thing is standing on
+   for(m = thing->touching_sectorlist; m; m = m->m_tnext)
+   {
+      if(thing->z == m->m_sector->floorheight)
+         break;
+   }
+
+   // not on a floor or dealing with deep water, return solid
+   if(!m || m->m_sector->heightsec != -1)         
+         return FLOOR_SOLID;
+
+   return P_HitWater(thing, m->m_sector);
 }
 
 // TerrainType implementor functions
@@ -3646,7 +3717,6 @@ int P_HitFloor(mobj_t *thing)
 static void FloorWater(mobj_t *thing, fixed_t currentz)
 {
    mobj_t *mo;
-   int temp;
 
    mo = P_SpawnMobj(thing->x, thing->y, currentz, 
                     E_SafeThingType(MT_SPLASHBASE));
@@ -3656,12 +3726,9 @@ static void FloorWater(mobj_t *thing, fixed_t currentz)
                     E_SafeThingType(MT_SPLASH));
    P_SetTarget(&mo->target, thing);
    
-   // haleyjd 11/20/00: remove dependence on order of evaluation
-   temp = P_Random(pr_splash);
-   mo->momx = (temp - P_Random(pr_splash))<<8;
-   temp = P_Random(pr_splash);
-   mo->momy = (temp - P_Random(pr_splash))<<8;
-   mo->momz = 2*FRACUNIT+(P_Random(pr_splash)<<8);
+   mo->momx = P_SubRandom(pr_splash) << 8;
+   mo->momy = P_SubRandom(pr_splash) << 8;
+   mo->momz = 2*FRACUNIT + (P_Random(pr_splash) << 8);
 }
 
 //
@@ -3686,7 +3753,6 @@ static void FloorLava(mobj_t *thing, fixed_t currentz)
 static void FloorSludge(mobj_t *thing, fixed_t currentz)
 {
    mobj_t *mo;
-   int temp;
 
    mo = P_SpawnMobj(thing->x, thing->y, currentz, 
                     E_SafeThingType(MT_SLUDGEBASE));
@@ -3696,12 +3762,9 @@ static void FloorSludge(mobj_t *thing, fixed_t currentz)
                     E_SafeThingType(MT_SLUDGECHUNK));
    P_SetTarget(&mo->target, thing);
    
-   // haleyjd 11/20/00: remove dependence on order of evaluation
-   temp = P_Random(pr_splash);
-   mo->momx = (temp - P_Random(pr_splash))<<8;
-   temp = P_Random(pr_splash);
-   mo->momy = (temp - P_Random(pr_splash))<<8;
-   mo->momz = FRACUNIT+(P_Random(pr_splash)<<8);
+   mo->momx = P_SubRandom(pr_splash) << 8;
+   mo->momy = P_SubRandom(pr_splash) << 8;
+   mo->momz = FRACUNIT + (P_Random(pr_splash) << 8);
 }
 
 
@@ -3749,36 +3812,55 @@ line_t *P_FindLine(int tag, int *searchPosition)
 // Runs through the given attached sector list and scrolls both
 // sides of any linedef it finds with same tag.
 //
-boolean P_Scroll3DSides(int tag, int numattach, int *attached, fixed_t delta, boolean crush)
+boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, boolean crush)
 {
    boolean  ok = true;
-   sector_t *sec;
-   int      i, p;
+   int      i;
    line_t   *line;
+
+   int numattached;
+   int *attached;
+   int numattsectors;
+   int *attsectors;
+
+   if(ceiling)
+   {
+      numattached = sector->c_numattached;
+      attached = sector->c_attached;
+      numattsectors = sector->c_numsectors;
+      attsectors = sector->c_attsectors;
+   }
+   else
+   {
+      numattached = sector->f_numattached;
+      attached = sector->f_attached;
+      numattsectors = sector->f_numsectors;
+      attsectors = sector->f_attsectors;
+   }
 
    // Go through the sectors list one sector at a time.
    // Move any qualifying linedef's side offsets up/down based
    // on delta. 
-   for(i = 0; i < numattach; i++)
+   for(i = 0; i < numattached; ++i)
    {
-      if(attached[i] < 0 || attached[i] >= numsectors)
-         I_Error("P_Scroll3DSides: attached[i] is not a valid sector index.\n");
+      if(attached[i] < 0 || attached[i] >= numlines)
+         I_Error("P_Scroll3DSides: attached[i] is not a valid linedef index.\n");
 
-      sec = sectors + attached[i];
-      for(p = 0; p < sec->linecount; p++)
-      {
-         line = sec->lines[p];
-         if(line->tag != tag ||
-            !(line->flags & (ML_TWOSIDED|ML_3DMIDTEX)) ||
-            line->sidenum[0] == -1 ||
-            line->sidenum[1] == -1)
-            continue;
+      line = lines + attached[i];
 
-         sides[line->sidenum[0]].rowoffset += delta;
-         sides[line->sidenum[1]].rowoffset += delta;
-      }
+      if(!(line->flags & (ML_TWOSIDED|ML_3DMIDTEX)) ||
+         line->sidenum[0] == -1 ||
+         line->sidenum[1] == -1)
+         continue;
 
-      if(P_CheckSector(sec, crush))
+      sides[line->sidenum[0]].rowoffset += delta;
+      sides[line->sidenum[1]].rowoffset += delta;
+
+   }
+
+   for(i = 0; i < numattsectors; ++i)
+   {
+      if(P_CheckSector(sectors + attsectors[i], crush))
          ok = false;
    }
 
@@ -3792,11 +3874,14 @@ boolean P_Scroll3DSides(int tag, int numattach, int *attached, fixed_t delta, bo
 // Attaches all sectors that have lines with same tag as cline to
 // cline's front sector.
 //
+// SoM 11/9/04: Now attaches lines and records another list of sectors
+//
 void P_AttachSectors(line_t *cline, boolean ceiling)
 {
    static int maxattach = 0;
    static int numattach = 0;
-   static int *attached = NULL;
+   static int alistsize = 0;
+   static int *attached = NULL, *alist = NULL;
 
    int start = 0, i;
    line_t *line;
@@ -3806,24 +3891,47 @@ void P_AttachSectors(line_t *cline, boolean ceiling)
 
    numattach = 0;
 
-   // Check to insure that this sector doesn't already 
+   // Check to ensure that this sector doesn't already 
    // have attachments.
-   if(!ceiling)
+   if(!ceiling && cline->frontsector->f_numattached)
    {
-      if(cline->frontsector->f_numattached)
-         return;
+      numattach = cline->frontsector->f_numattached;
+
+      if(numattach >= maxattach)
+      {
+         maxattach = numattach + 5;
+         attached = (int *)realloc(attached, sizeof(int) * maxattach);
+      }
+
+      memcpy(attached, cline->frontsector->f_attached, sizeof(int) * numattach);
+      Z_Free(cline->frontsector->f_attached);
+      cline->frontsector->f_attached = NULL;
+      cline->frontsector->f_numattached = 0;
+      Z_Free(cline->frontsector->f_attsectors);
    }
-   else
+   else if(ceiling && cline->frontsector->c_numattached)
    {
-      if(cline->frontsector->c_numattached)
-         return;
+      numattach = cline->frontsector->c_numattached;
+
+      if(numattach >= maxattach)
+      {
+         maxattach = numattach + 5;
+         attached = (int *)realloc(attached, sizeof(int) * maxattach);
+      }
+
+      memcpy(attached, cline->frontsector->c_attached, sizeof(int) * numattach);
+      Z_Free(cline->frontsector->c_attached);
+      cline->frontsector->c_attached = NULL;
+      cline->frontsector->c_numattached = 0;
+      cline->frontsector->c_numattached = 0;
+      Z_Free(cline->frontsector->c_attsectors);
    }
 
    // Search the lines list. Check for every tagged line that
-   // has the 3dmidtex lineflag, then add the front and back sectors
-   // to the attached list.
-   for (start=-1; (start = P_FindLineFromLineTag(cline,start)) >= 0;)
-      if (start != cline-lines)
+   // has the 3dmidtex lineflag, then add the line to the attached list.
+   for(start = -1; (start = P_FindLineFromLineTag(cline,start)) >= 0; )
+   {
+      if(start != cline-lines)
       {
          line = lines+start;
 
@@ -3833,7 +3941,7 @@ void P_AttachSectors(line_t *cline, boolean ceiling)
 
          for(i = 0; i < numattach;i++)
          {
-            if(line->frontsector - sectors == attached[i])
+            if(line - lines == attached[i])
             break;
          }
 
@@ -3846,11 +3954,12 @@ void P_AttachSectors(line_t *cline, boolean ceiling)
               attached = (int *)realloc(attached, sizeof(int) * maxattach);
             }
 
-            attached[numattach++] = line->frontsector-sectors;
+            attached[numattach++] = line - lines;
          }
          
          // SoM 12/8/02: Don't attach the backsector.
       }
+   } // end for
 
    // Copy the list to the c_attached or f_attached list.
    if(ceiling)
@@ -3858,16 +3967,77 @@ void P_AttachSectors(line_t *cline, boolean ceiling)
       cline->frontsector->c_numattached = numattach;
       cline->frontsector->c_attached = Z_Malloc(sizeof(int) * numattach, PU_LEVEL, 0);
       memcpy(cline->frontsector->c_attached, attached, sizeof(int) * numattach);
-      cline->frontsector->c_tag = cline->tag;
+
+      alist = cline->frontsector->c_attached;
+      alistsize = cline->frontsector->c_numattached;
    }
    else
    {
       cline->frontsector->f_numattached = numattach;
       cline->frontsector->f_attached = Z_Malloc(sizeof(int) * numattach, PU_LEVEL, 0);
       memcpy(cline->frontsector->f_attached, attached, sizeof(int) * numattach);
-      cline->frontsector->f_tag = cline->tag;
+
+      alist = cline->frontsector->f_attached;
+      alistsize = cline->frontsector->f_numattached;
+   }
+
+   // (re)create the sectors list.
+   numattach = 0;
+   for(start = 0; start < alistsize; ++start)
+   {
+      int front = lines[alist[start]].frontsector - sectors;
+      int back  = lines[alist[start]].backsector - sectors;
+
+      // Check the frontsector for uniqueness in the list.
+      for(i = 0; i < numattach; ++i)
+      {
+         if(attached[i] == front)
+            break;
+      }
+
+      if(i == numattach)
+      {
+         if(numattach == maxattach)
+         {
+            maxattach += 5;
+            attached = (int *)realloc(attached, sizeof(int) * maxattach);
+         }
+         attached[numattach++] = front;
+      }
+
+      // Check the backsector for uniqueness in the list.
+      for(i = 0; i < numattach; ++i)
+      {
+         if(attached[i] == back)
+            break;
+      }
+
+      if(i == numattach)
+      {
+         if(numattach == maxattach)
+         {
+            maxattach += 5;
+            attached = (int *)realloc(attached, sizeof(int) * maxattach);
+         }
+         attached[numattach++] = back;
+      }
+   }
+
+   // Copy the attached sectors list.
+   if(ceiling)
+   {
+      cline->frontsector->c_numsectors = numattach;
+      cline->frontsector->c_attsectors = Z_Malloc(sizeof(int) * numattach, PU_LEVEL, 0);
+      memcpy(cline->frontsector->c_attsectors, attached, sizeof(int) * numattach);
+   }
+   else
+   {
+      cline->frontsector->f_numsectors = numattach;
+      cline->frontsector->f_attsectors = Z_Malloc(sizeof(int) * numattach, PU_LEVEL, 0);
+      memcpy(cline->frontsector->f_attsectors, attached, sizeof(int) * numattach);
    }
 }
+
 
 //
 // P_ConvertHereticSpecials
@@ -4152,6 +4322,107 @@ static void P_SpawnPortal(line_t *line,
 }
 
 #endif
+
+//
+// Small Natives
+//
+
+static cell AMX_NATIVE_CALL sm_sectorsetspecial(AMX *amx, cell *params)
+{   
+   int special = (int)params[1];
+   int id      = (int)params[2];
+   // TODO: sid support (idtype == params[3])
+   int secnum = -1;
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   while((secnum = P_FindSectorFromTag(id, secnum)) >= 0)
+   {
+      sectors[secnum].special = special;
+   }
+
+   return 0;
+}
+
+//
+// 07/31/04: support setting/changing sector colormaps
+//
+static cell AMX_NATIVE_CALL sm_sectorcolormap(AMX *amx, cell *params)
+{
+   char *name;
+   int err, lumpnum;
+   int pos    = (int)params[2];
+   int id     = (int)params[3];
+   // TODO: sid support (idtype == params[4])
+   int secnum = -1;
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   if((err = A_GetSmallString(amx, &name, params[1])) != AMX_ERR_NONE)
+   {
+      amx_RaiseError(amx, err);
+      return -1;
+   }
+
+   // any unfound lump just clears the respective colormap
+   if((lumpnum = R_ColormapNumForName(name)) < 0)
+      lumpnum = 0;
+
+   while((secnum = P_FindSectorFromTag(id, secnum)) >= 0)
+   {
+      sector_t *s;
+
+      // If the sector is not already affected by deep water, we have
+      // to set up a fake 242 effect by making it its own heightsec.
+      // Otherwise, the heightsec set would break it. Instead, we'll 
+      // alter the colormaps of the deep water control sector. This 
+      // may affect other sectors too, but the behavior is necessary
+      // and will be documented.
+      
+      if(sectors[secnum].heightsec != -1)
+         s = &sectors[sectors[secnum].heightsec];
+      else
+      {
+         s = &sectors[secnum];
+         s->heightsec = secnum;
+      }
+
+      switch(pos)
+      {
+      case 0: // middle
+         s->midmap = lumpnum;
+         break;
+      case 1: // bottom
+         s->bottommap = lumpnum;
+         break;
+      case 2: // top
+         s->topmap = lumpnum;
+         break;
+      case 3: // all
+         s->midmap = s->bottommap = s->topmap = lumpnum;
+         break;
+      }
+   }
+
+   Z_Free(name);
+
+   return 0;
+}
+
+AMX_NATIVE_INFO pspec_Natives[] =
+{
+   { "SectorSetSpecial", sm_sectorsetspecial },
+   { "SectorColormap",   sm_sectorcolormap },
+   { NULL,               NULL }
+};
 
 //----------------------------------------------------------------------------
 //

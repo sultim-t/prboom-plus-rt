@@ -61,10 +61,6 @@ static int skview_rot = 0;
 static boolean skview_halfspeed = false;
 static int skview_typenum; // 07/12/03
 
-// TODO: make sure this is a good sound for heretic
-#define ATKSOUND \
-  (gameModeInfo->flags & GIF_HERETIC ? sfx_gldhit : sfx_shotgn)
-
 //
 // MN_SkinSetState
 //
@@ -119,7 +115,7 @@ static boolean MN_SkinResponder(event_t *ev)
       // attack!
       if(skview_action == SKV_WALKING)
       {
-         S_StartSound(NULL, ATKSOUND);
+         S_StartSound(NULL, gameModeInfo->skvAtkSound);
          MN_SkinSetState(&states[E_SafeState(S_PLAY_ATK2)]);
          skview_action = SKV_FIRING;
       }
@@ -219,7 +215,7 @@ static void MN_SkinInstructions(void)
 // The skin viewer widget drawer function. Basically implements a
 // small state machine and sprite drawer all in one function. Since
 // state transition timing is done through the drawer and not a ticker,
-// it's not absolutely precise, but its good enough.
+// it's not absolutely precise, but it's good enough.
 //
 static void MN_SkinDrawer(void)
 {

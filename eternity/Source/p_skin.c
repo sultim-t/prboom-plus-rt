@@ -24,7 +24,7 @@
 // Skins are a set of sprites which replace the normal player sprites, so
 // in multiplayer the players can look like whatever they want.
 //
-// FIXME: rewrite needed for Heretic-specific stuff also
+// FIXME: rewrite needed for Heretic-specific stuff
 //
 //--------------------------------------------------------------------------
 
@@ -42,15 +42,16 @@
 #include "s_sound.h"
 #include "st_stuff.h"
 #include "w_wad.h"
-#include "d_io.h" //SoM 3/13/2002: Get rid of the strncasecmp warnings in VC++
+#include "d_io.h" // SoM 3/13/02: Get rid of strncasecmp warnings in VC++
 #include "e_edf.h"
 #include "e_sound.h"
 
 skin_t marine = 
 {
+   SKIN_PLAYER, // haleyjd 09/26/04: skin type
    "PLAY",
    "marine",
-   0,        // haleyjd 05/11/03: player sprite number now set by EDF
+   0,           // haleyjd 05/11/03: player sprite number now set by EDF
    {
       NULL
    }, 
@@ -62,14 +63,12 @@ int numskins = 0;      // haleyjd 03/22/03
 int numskinsalloc = 0; // haleyjd 03/22/03
 skin_t **skins = NULL;
 
+static skin_t **monster_skins = NULL; // haleyjd 09/26/04
+
 char **spritelist = NULL;
 char *default_skin = NULL;     // name of currently selected skin
 
-static void P_AddSkin(skin_t *newskin);
-static void P_CreateMarine(void);
-static void P_CacheFaces(skin_t *skin);
-
-char *skinsoundnames[NUMSKINSOUNDS]=
+char *skinsoundnames[NUMSKINSOUNDS] =
 {
    "dsplpain",
    "dspdiehi",
@@ -83,6 +82,12 @@ char *skinsoundnames[NUMSKINSOUNDS]=
    "dsfallht",
 };
 
+// forward prototypes
+static void P_AddSkin(skin_t *newskin);
+static void P_CreateMarine(void);
+static void P_CacheFaces(skin_t *skin);
+static void P_InitMonsterSkins(void);
+
 //
 // P_InitSkins
 //
@@ -90,11 +95,15 @@ char *skinsoundnames[NUMSKINSOUNDS]=
 // skin for the current game mode
 //
 // haleyjd 03/22/03: significant rewriting, safety increased
+// haleyjd 09/26/04: initialize the monster skins list here
 //
 void P_InitSkins(void)
 {
    int i;
    char **currentsprite;
+
+   // haleyjd 09/26/04: initialize monster skins list
+   P_InitMonsterSkins();
 
    // create default gamemode skin -- TODO: heretic support
    P_CreateMarine();
@@ -127,15 +136,19 @@ void P_InitSkins(void)
       P_CacheFaces(skins[i]);
       currentsprite++;
    }
-      
+
    *currentsprite = NULL;     // end in null
 }
 
+//
+// GetDefSound
+//
+// This function gets the EDF sound mnemonic for a given sound DeHackEd
+// number. This keeps skins more compatible than they were previously.
+//
 static void GetDefSound(char **var, int dehnum)
 {
-   sfxinfo_t *sfx;
-
-   sfx = E_SoundForDEHNum(dehnum);
+   sfxinfo_t *sfx = E_SoundForDEHNum(dehnum);
 
    *var = sfx ? sfx->mnemonic : "none";
 }
@@ -277,6 +290,8 @@ void P_ParseSkin(int lumpnum)
    newskin->spritename[4] = 0;
    newskin->facename = "STF";      // default status bar face
    newskin->faces = 0;
+
+   newskin->type = SKIN_PLAYER; // haleyjd: it's a player skin
 
    // set sounds to defaults
    GetDefSound(&(newskin->sounds[sk_plpain]), sfx_plpain);
@@ -423,6 +438,48 @@ static skin_t *P_NextSkin(int player)
    return skins[skinnum];
 }
 
+//
+// P_InitMonsterSkins
+//
+// haleyjd 09/26/04:
+// Allocates the skin_t pointer array for monster skins with size
+// NUMSPRITES (only one monster skin is needed at max for each sprite).
+// Must be called after EDF and before first use of P_GetMonsterSkin.
+//
+static void P_InitMonsterSkins(void)
+{
+   if(!monster_skins)
+   {
+      monster_skins = Z_Malloc(NUMSPRITES * sizeof(skin_t *), PU_STATIC, 0);
+      memset(monster_skins, 0, NUMSPRITES * sizeof(skin_t *));
+   }
+}
+
+//
+// P_GetMonsterSkin
+//
+// haleyjd 09/26/04:
+// If a monster skin doesn't exist for the requested sprite, one will
+// be created. Otherwise, the existing skin is returned.
+//
+skin_t *P_GetMonsterSkin(spritenum_t sprnum)
+{
+#ifdef RANGECHECK
+   if(sprnum < 0 || sprnum >= NUMSPRITES)
+      I_Error("P_GetMonsterSkin: sprite %d out of range\n", sprnum);
+#endif
+
+   if(!monster_skins[sprnum])
+   {
+      monster_skins[sprnum] = Z_Malloc(sizeof(skin_t), PU_STATIC, 0);
+      memset(monster_skins[sprnum], 0, sizeof(skin_t));
+
+      monster_skins[sprnum]->type = SKIN_MONSTER;
+      monster_skins[sprnum]->sprite = sprnum;
+   }
+
+   return monster_skins[sprnum];
+}
 
 /**** console stuff ******/
 

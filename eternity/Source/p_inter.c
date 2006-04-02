@@ -321,7 +321,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       return;        // out of reach
 
    sound = sfx_itemup;
-   player = toucher->player;
+
+   // haleyjd: don't crash if a monster gets here.
+   if(!(player = toucher->player))
+      return;
    
    // Dead thing touching.
    // Can happen with a sliding player corpse.
@@ -565,7 +568,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
             player->maxammo[i] *= 2;
          player->backpack = true;
       }
-      // EDF FIXME: needs work
+      // EDF FIXME: needs a ton of work
 #if 0
       if(special->flags & MF_DROPPED)
       {
@@ -697,7 +700,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       break;
 
    case PFX_BAGOFHOLDING: // bag of holding
-      // HTIC_TODO
+      // HTIC_TODO: bag of holding effects
       message = s_HITEMBAGOFHOLDING;
       sound = sfx_hitemup;
       break;
@@ -706,6 +709,79 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       if(!P_GivePower(player, pw_allmap))
          return;
       message = s_HITEMSUPERMAP;
+      sound = sfx_hitemup;
+      break;
+   
+      // Heretic Ammo items
+   case PFX_GWNDWIMPY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOGOLDWAND1;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_GWNDHEFTY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOGOLDWAND2;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_MACEWIMPY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOMACE1;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_MACEHEFTY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOMACE2;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_CBOWWIMPY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOCROSSBOW1;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_CBOWHEFTY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOCROSSBOW2;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_BLSRWIMPY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOBLASTER1;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_BLSRHEFTY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOBLASTER2;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_PHRDWIMPY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOPHOENIXROD1;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_PHRDHEFTY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOPHOENIXROD2;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_SKRDWIMPY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOSKULLROD1;
+      sound = sfx_hitemup;
+      break;
+   
+   case PFX_SKRDHEFTY:
+      // HTIC_TODO: give ammo
+      message = s_HAMMOSKULLROD2;
       sound = sfx_hitemup;
       break;
 
@@ -741,17 +817,12 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 }
 
 //
-// KillMobj
+// P_KillMobj
 //
-// killough 11/98: make static
-// sf 9/99: globaled removed for FraggleScript
-
 void P_KillMobj(mobj_t *source, mobj_t *target)
 {
    mobjtype_t item;
    mobj_t     *mo;
-
-   // haleyjd: removed corpse flag check, was not in MBF
 
    target->flags &= ~(MF_SHOOTABLE|MF_FLOAT|MF_SKULLFLY);
    target->flags2 &= ~MF2_INVULNERABLE; // haleyjd 04/09/99
@@ -905,10 +976,10 @@ void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
 
          switch(MeansOfDeath)
          {
-         case MOD_R_SPLASH: message = s_OB_R_SPLASH_SELF; break;
-         case MOD_ROCKET:   message = s_OB_ROCKET_SELF;   break;
+         case MOD_R_SPLASH:      message = s_OB_R_SPLASH_SELF; break;
+         case MOD_ROCKET:        message = s_OB_ROCKET_SELF;   break;
          case MOD_BFG11K_SPLASH: message = s_OB_BFG11K_SELF; break;
-         case MOD_GRENADE: message = s_OB_GRENADE_SELF; break;
+         case MOD_GRENADE:       message = s_OB_GRENADE_SELF; break;
          default: break;
          }
       }
@@ -945,11 +1016,11 @@ void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
          // look at source's readyweapon to determine cause
          switch(source->player->readyweapon)
          {
-         case wp_fist:     MeansOfDeath = MOD_FIST; break;
-         case wp_pistol:   MeansOfDeath = MOD_PISTOL; break;
-         case wp_shotgun:  MeansOfDeath = MOD_SHOTGUN; break;
-         case wp_chaingun: MeansOfDeath = MOD_CHAINGUN; break;
-         case wp_chainsaw: MeansOfDeath = MOD_CHAINSAW; break;
+         case wp_fist:         MeansOfDeath = MOD_FIST; break;
+         case wp_pistol:       MeansOfDeath = MOD_PISTOL; break;
+         case wp_shotgun:      MeansOfDeath = MOD_SHOTGUN; break;
+         case wp_chaingun:     MeansOfDeath = MOD_CHAINGUN; break;
+         case wp_chainsaw:     MeansOfDeath = MOD_CHAINSAW; break;
          case wp_supershotgun: MeansOfDeath = MOD_SSHOTGUN; break;
          default: break;
          }
@@ -966,20 +1037,20 @@ void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
 
          switch(MeansOfDeath)
          {
-         case MOD_FIST: message = s_OB_FIST; break;
-         case MOD_CHAINSAW: message = s_OB_CHAINSAW; break;
-         case MOD_PISTOL: message = s_OB_PISTOL; break;
-         case MOD_SHOTGUN: message = s_OB_SHOTGUN; break;
-         case MOD_SSHOTGUN: message = s_OB_SSHOTGUN; break;
-         case MOD_CHAINGUN: message = s_OB_CHAINGUN; break;
-         case MOD_ROCKET: message = s_OB_ROCKET; break;
-         case MOD_R_SPLASH: message = s_OB_R_SPLASH; break;
-         case MOD_PLASMA: message = s_OB_PLASMA; break;
-         case MOD_BFG: message = s_OB_BFG; break;
+         case MOD_FIST:       message = s_OB_FIST; break;
+         case MOD_CHAINSAW:   message = s_OB_CHAINSAW; break;
+         case MOD_PISTOL:     message = s_OB_PISTOL; break;
+         case MOD_SHOTGUN:    message = s_OB_SHOTGUN; break;
+         case MOD_SSHOTGUN:   message = s_OB_SSHOTGUN; break;
+         case MOD_CHAINGUN:   message = s_OB_CHAINGUN; break;
+         case MOD_ROCKET:     message = s_OB_ROCKET; break;
+         case MOD_R_SPLASH:   message = s_OB_R_SPLASH; break;
+         case MOD_PLASMA:     message = s_OB_PLASMA; break;
+         case MOD_BFG:        message = s_OB_BFG; break;
          case MOD_BFG_SPLASH: message = s_OB_BFG_SPLASH; break;
-         case MOD_BETABFG: message = s_OB_BETABFG; break;
-         case MOD_BFGBURST: message = s_OB_BFGBURST; break;
-         case MOD_GRENADE: message = s_OB_GRENADE; break;
+         case MOD_BETABFG:    message = s_OB_BETABFG; break;
+         case MOD_BFGBURST:   message = s_OB_BFGBURST; break;
+         case MOD_GRENADE:    message = s_OB_GRENADE; break;
          default: break;
          }
       }
@@ -992,6 +1063,95 @@ void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
    // print message
    doom_printf("%c%s %s",obcolour+128,target->player->name,message);
 }
+
+// Special damage type code
+
+typedef struct dmgspecdata_s
+{
+   mobj_t *source;
+   mobj_t *target;
+   int     damage;
+} dmgspecdata_t;
+
+//
+// P_MinotaurChargeHit
+//
+// Special damage action for Maulotaurs slamming into things.
+//
+static boolean P_MinotaurChargeHit(dmgspecdata_t *dmgspec)
+{
+   mobj_t *source = dmgspec->source;
+   mobj_t *target = dmgspec->target;
+
+   // only when charging
+   if(source->flags & MF_SKULLFLY)
+   {
+      angle_t angle;
+      fixed_t thrust;
+      
+      angle = R_PointToAngle2(source->x, source->y, target->x, target->y);
+      thrust = 16*FRACUNIT + (P_Random(pr_mincharge) << 10);
+
+      P_ThrustMobj(target, angle, thrust);
+      P_DamageMobj(target, NULL, NULL, 
+                   ((P_Random(pr_mincharge) & 7) + 1) * 6, 
+                   MOD_UNKNOWN);
+      
+      if(target->player)
+         target->reactiontime = 14 + (P_Random(pr_mincharge) & 7);
+
+      return true; // return early from P_DamageMobj
+   }
+
+   return false; // just normal damage
+}
+
+//
+// P_TouchWhirlwind
+//
+// Called when an Iron Lich whirlwind hits something. Does damage
+// and may toss the target around violently.
+//
+static boolean P_TouchWhirlwind(dmgspecdata_t *dmgspec)
+{
+   mobj_t *target = dmgspec->target;
+   
+   // toss the target around
+   
+   target->angle += P_SubRandom(pr_whirlwind) << 20;
+   target->momx  += P_SubRandom(pr_whirlwind) << 10;   
+   target->momy  += P_SubRandom(pr_whirlwind) << 10;
+
+   // z momentum -- Bosses will not be tossed up.
+
+   if((leveltime & 16) && !(target->flags2 & MF2_BOSS))
+   {
+      int randVal = P_Random(pr_whirlwind);
+
+      if(randVal > 160)
+         randVal = 160;
+      
+      target->momz += randVal << 10;
+      
+      if(target->momz > 12*FRACUNIT)
+         target->momz = 12*FRACUNIT;
+   }
+   
+   // do a small amount of damage (it adds up fast)
+   if(!(leveltime & 7))
+      P_DamageMobj(target, NULL, NULL, 3, MOD_UNKNOWN);
+
+   return true; // always return from P_DamageMobj
+}
+
+typedef boolean (*dmgspecial_t)(dmgspecdata_t *);
+
+static dmgspecial_t DamageSpecials[INFLICTOR_NUMTYPES] =
+{
+   NULL,                // none
+   P_MinotaurChargeHit, // MinotaurCharge
+   P_TouchWhirlwind,    // Whirlwind
+};
 
 //
 // P_DamageMobj
@@ -1006,7 +1166,6 @@ void P_DeathMessage(mobj_t *source, mobj_t *target, mobj_t *inflictor)
 //
 // haleyjd 07/13/03: added method of death flag
 //
-
 void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, 
                   int damage, int mod)
 {
@@ -1024,8 +1183,7 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
    // haleyjd: 
    // Invulnerability -- telestomp can still kill to avoid getting stuck
    // Dormancy -- things are invulnerable until they are awakened
-   if((target->flags2 & MF2_INVULNERABLE ||
-      target->flags2 & MF2_DORMANT) && damage < 10000)
+   if(target->flags2 & (MF2_INVULNERABLE | MF2_DORMANT) && damage < 10000)
       return;
 
    if(target->flags2 & MF2_DORMANT)
@@ -1036,12 +1194,11 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
 
    MeansOfDeath = mod;
 
-   // EDF FIXME: special treatment of minotaur -- temporary fix
-
    if(target->flags & MF_SKULLFLY)
    {
-      if(target->type == E_ThingNumForDEHNum(MT_MINOTAUR))
-         return;  // haleyjd: Minotaur invincible during charge
+      // haleyjd 07/30/04: generalized
+      if(target->flags3 & MF3_INVULNCHARGE)
+         return;
       target->momx = target->momy = target->momz = 0;
    }
 
@@ -1049,32 +1206,22 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
    if(player && gameskill == sk_baby)
       damage >>= 1;   // take half damage in trainer mode
 
-   // EDF FIXME: needs work! -- commented out for now
-   if(inflictor)
+   // haleyjd 08/01/04: dmgspecial -- special inflictor types
+   if(inflictor && inflictor->info->dmgspecial)
    {
-      // special damage types -- haleyjd 03/27/99
-      switch(inflictor->type)
-      {
-         /*
-      case MT_MINOTAUR:
-         if(inflictor->flags & MF_SKULLFLY) // for charge attack
-         {
-            angle_t tangle = R_PointToAngle2(source->x, source->y, target->x, target->y);
-            fixed_t tthrust = 16*FRACUNIT;
-            tangle >>= ANGLETOFINESHIFT;
-            
-            target->momx += FixedMul(tthrust, finecosine[tangle]);
-            target->momy += FixedMul(tthrust, finesine[tangle]);
-            if(target->player)
-            {
-               target->reactiontime = 14;
-            }
-         }
-         break;
-         */
-      default:
-         break;
-      }
+      dmgspecdata_t dmgspec;
+
+      dmgspec.source = inflictor;
+      dmgspec.target = target;
+      dmgspec.damage = damage;
+
+      // if the handler returns true, damage was taken care of by
+      // the handler, otherwise, we go on as normal
+      if(DamageSpecials[inflictor->info->dmgspecial](&dmgspec))
+         return;
+
+      // damage may be modified by the handler
+      damage = dmgspec.damage;
    }
 
    // Some close combat weapons should not
@@ -1104,9 +1251,7 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
          thrust *= 4;
       }
 
-      ang >>= ANGLETOFINESHIFT;
-      target->momx += FixedMul (thrust, finecosine[ang]);
-      target->momy += FixedMul (thrust, finesine[ang]);
+      P_ThrustMobj(target, ang, thrust);
       
       // killough 11/98: thrust objects hanging off ledges
       if(target->intflags & MIF_FALLING && target->gear >= MAXGEAR)
@@ -1114,7 +1259,7 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
    }
 
    // player specific
-   if (player)
+   if(player)
    {
       // end of game hell hack
       if(target->subsector->sector->special == 11 && damage >= target->health)
@@ -1128,7 +1273,7 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
          (player->cheats&CF_GODMODE || player->powers[pw_invulnerability]))
          return;
 
-      if (player->armortype)
+      if(player->armortype)
       {
          int saved;
          
@@ -1165,6 +1310,8 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
       // This is unused -- perhaps it was designed for
       // a hand-connected input device or VR helmet,
       // to pinch the player when they're hurt :)
+
+      // haleyjd: this was for the "CyberMan" glove controller ^_^
       
       {
          int temp = damage < 100 ? damage : 100;
@@ -1179,8 +1326,10 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
    // do the damage
    if((target->health -= damage) <= 0)
    {
-      if(target->player)        // death messages for players
+      // death messages for players
+      if(player)
          P_DeathMessage(source, target, inflictor);
+
       P_KillMobj(source, target);
       return;
    }
@@ -1202,7 +1351,7 @@ void P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source,
       // If target's health is less than 50%, move it to the front of its list.
       // This will slightly increase the chances that enemies will choose to
       // "finish it off", but its main purpose is to alert friends of danger.
-      if (target->health*2 < target->info->spawnhealth)
+      if(target->health * 2 < target->info->spawnhealth)
       {
          thinker_t *cap = 
             &thinkerclasscap[target->flags & MF_FRIEND ? 
@@ -1348,6 +1497,7 @@ void P_Whistle(mobj_t *actor, int mobjtype)
 //
 static cell AMX_NATIVE_CALL sm_thingkill(AMX *amx, cell *params)
 {
+   SmallContext_t *context = A_GetContextForAMX(amx);
    mobj_t *rover = NULL;
 
    if(gamestate != GS_LEVEL)
@@ -1356,7 +1506,7 @@ static cell AMX_NATIVE_CALL sm_thingkill(AMX *amx, cell *params)
       return -1;
    }
 
-   while((rover = P_FindMobjFromTID(params[1], rover)))
+   while((rover = P_FindMobjFromTID(params[1], rover, context)))
    {
       int damage;
       
@@ -1383,6 +1533,7 @@ static cell AMX_NATIVE_CALL sm_thingkill(AMX *amx, cell *params)
 //
 static cell AMX_NATIVE_CALL sm_thinghurt(AMX *amx, cell *params)
 {
+   SmallContext_t *context = A_GetContextForAMX(amx);
    mobj_t *rover = NULL;
    mobj_t *inflictor = NULL;
    mobj_t *source = NULL;
@@ -1394,12 +1545,12 @@ static cell AMX_NATIVE_CALL sm_thinghurt(AMX *amx, cell *params)
    }
 
    if(params[4] != 0)
-      inflictor = P_FindMobjFromTID(params[4], inflictor);
+      inflictor = P_FindMobjFromTID(params[4], inflictor, context);
 
    if(params[5] != 0)
-      source = P_FindMobjFromTID(params[5], source);
+      source = P_FindMobjFromTID(params[5], source, context);
 
-   while((rover = P_FindMobjFromTID(params[1], rover)))
+   while((rover = P_FindMobjFromTID(params[1], rover, context)))
    {
       P_DamageMobj(rover, inflictor, source, params[2], params[3]);
    }
@@ -1414,6 +1565,7 @@ static cell AMX_NATIVE_CALL sm_thinghurt(AMX *amx, cell *params)
 //
 static cell AMX_NATIVE_CALL sm_thinghate(AMX *amx, cell *params)
 {
+   SmallContext_t *context = A_GetContextForAMX(amx);
    mobj_t *obj = NULL, *targ = NULL;
 
    if(gamestate != GS_LEVEL)
@@ -1423,9 +1575,9 @@ static cell AMX_NATIVE_CALL sm_thinghate(AMX *amx, cell *params)
    }
 
    if(params[2] != 0)
-      targ = P_FindMobjFromTID(params[2], targ);
+      targ = P_FindMobjFromTID(params[2], targ, context);
 
-   while((obj = P_FindMobjFromTID(params[1], obj)))
+   while((obj = P_FindMobjFromTID(params[1], obj, context)))
    {
       P_SetTarget(&(obj->target), targ);
    }

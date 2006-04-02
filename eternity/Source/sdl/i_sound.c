@@ -156,18 +156,18 @@ int addsfx(sfxinfo_t *sfx, int channel)
    
    // replace missing sounds with a reasonable default
    if(lump == -1)
-   {
-      if(gameModeInfo->flags & GIF_HERETIC)
-         lump = W_GetNumForName("GLDHIT");
-      else
-         lump = W_GetNumForName("DSPISTOL");
-   }
+      lump = W_GetNumForName(gameModeInfo->defSoundName);
+
+   len = W_LumpLength(lump);
+
+   // haleyjd 10/08/04: do not play zero-length sound lumps!
+   if(len == 0)
+      return 0;
 
    if(!sfx->data)
       sfx->data = W_CacheLumpNum(lump, PU_STATIC);
 
    /* Find padded length */   
-   len = W_LumpLength(lump);   
    len -= 8;
 
    channelinfo[channel].data = sfx->data;
@@ -269,7 +269,7 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
 // This function sets up internal lookups used during
 //  the mixing process. 
 //
-void I_SetChannels()
+void I_SetChannels(void)
 {
    int i;
    int j;
@@ -559,12 +559,7 @@ void I_CacheSound(sfxinfo_t *sound)
  
       // replace missing sounds with a reasonable default
       if(lump == -1)
-      {
-         if(gameModeInfo->flags & GIF_HERETIC)
-            lump = W_GetNumForName("GLDHIT");
-         else
-            lump = W_GetNumForName("DSPISTOL");
-      }
+         lump = W_GetNumForName(gameModeInfo->defSoundName);
 
       sound->data = W_CacheLumpNum(lump, PU_STATIC);
    }
@@ -578,7 +573,7 @@ void I_InitSound(void)
    {
       int audio_buffers;
 
-      printf("I_InitSound: ");
+      puts("I_InitSound: ");
 
       /* Initialize variables */
       audio_buffers = SAMPLECOUNT * snd_samplerate / 11025;

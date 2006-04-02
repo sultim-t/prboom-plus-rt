@@ -8,14 +8,14 @@
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine DeHackEd / BEX Reference v2.02 -- 02/11/04</h2>
+<h2>Eternity Engine DeHackEd / BEX Reference v2.02 -- 08/04/04</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
 <ul>
 <li><a name="contents"><b>Table of Contents</b></a>
     <ul>
-    <li><a href="#history">Revision History</a>
+    <li><a href="#history">Revisions</a>
     <li><a href="#general">General DeHackEd Information</a>
         <ul>
         <li><a href="#what">What is DeHackEd?</a>
@@ -136,49 +136,14 @@
 
 <a name="history">
 <hr>
-<b>Revision History</b>
+<b>Revisions</b>
 <hr>
 </a>
 
 <ul>
-<li> 2/11/04 Added SUPERFRIEND Bits3 flag and built-in obituary string mnemonics.
-
-<li> 12/12/03 Corrected lots of information with respect to EDF.
-
-<li> 7/14/03 Converted to HTML format. Added complete documentation on all DeHackEd and
-        BEX sections, including information on deprecated and obsolete sections and fields.
-        Removed old thing and frame tables in preparation for better EDF documentation of
-        the same entities.
-
-<li> 3/02/03 Added Bits2 FOOTCLIP, Bits3 field, new Heretic strings,
-        removed MT_PARTICLE thing & frame, various other changes.
-
-<li> 9/05/02 Added info on various new fields and code pointers for
-        Eternity v3.31 beta 1; a few Heretic BEX string mnemonics
-
-<li> 7/04/02 Removed Eternity-TC-specific frames, things, and codepointers
-        as they may be removed or changed in the future -- added 21
-        dummy frames for MBF compatibility
-
-<li> 6/30/01 Added info on [SPRITES], [SOUNDS], [MUSIC] blocks
-
-<li> 5/10/01 Added information on DORMANT flag
-
-<li> 9/26/00 Added information on [HELPER] bex block, updated bits2
-
-<li> 9/14/00 Added thing bits2 field information, new thing information,
-       new frame information, new codepointer information, revision on start up
-       messages
-
-<li> 8/28/98 added mnemonic representation for the bits of an item
-       definition.  Also added an appendix B with the default bit
-       states for all DOOM2 Things.
-
-<li> 5/16/98 added a A_NULL codepointer entry to clear an already
-       existing code pointer to zero.
-
-<li> 5/3/98 added SAVEGAMENAME string parameter to change the first
-       part of the savegame name.  0-7 is appended during save.
+<li> 8/04/04: Changed this section to a simple list of changes since the last version,
+     rather than a complete revision history. Added Bits3 flags INVULNCHARGE, EXPLOCOUNT,
+     and CANNOTPUSH.
 </ul>       
 <a href="#contents">Return to Table of Contents</a>
 
@@ -598,75 +563,75 @@ disagreements between the 2 definitions, ours wins.
 <pre>
   Mnemonic      Bit mask     Meaning / Dehacked phrase
   ------------------------------------------------------------------
-  SPECIAL       0x00000001 - Object is a collectable item
+  SPECIAL       0x00000001 - Object is a collectable item.
                                   "Can be picked up"
-  SOLID         0x00000002 - Blocks other objects
+  SOLID         0x00000002 - Blocks other objects.
                                   "Obstacle"
-  SHOOTABLE     0x00000004 - Can be targetted and hit with bullets, missiles
+  SHOOTABLE     0x00000004 - Can be targetted and hit with bullets, missiles.
                                   "Shootable"
-  NOSECTOR      0x00000008 - Invisible but still clipped -- see notes
+  NOSECTOR      0x00000008 - Invisible but still clipped -- see notes.
                                   "Total invisibility"
-  NOBLOCKMAP    0x00000010 - Inert but displayable; can hit but cannot be hit
+  NOBLOCKMAP    0x00000010 - Inert but displayable; can hit but cannot be hit.
                                   "Can't be hit"
-  AMBUSH        0x00000020 - Deaf monster
+  AMBUSH        0x00000020 - Deaf monster.
                                   "Semi-deaf"
-  JUSTHIT       0x00000040 - Internal, monster will try to attack immediately; see notes
+  JUSTHIT       0x00000040 - Internal, monster will try to attack immediately; see notes.
                                   "In pain"
-  JUSTATTACKED  0x00000080 - Internal, monster takes at least 1 step before attacking; see notes
+  JUSTATTACKED  0x00000080 - Internal, monster takes at least 1 step before attacking; see notes.
                                   "Steps before attack"
-  SPAWNCEILING  0x00000100 - Thing spawns hanging from the ceiling of its sector
+  SPAWNCEILING  0x00000100 - Thing spawns hanging from the ceiling of its sector.
                                   "Hangs from ceiling"
-  NOGRAVITY     0x00000200 - Thing is not subject to gravity
+  NOGRAVITY     0x00000200 - Thing is not subject to gravity.
                                   "No Gravity"
-  DROPOFF       0x00000400 - Thing can walk over tall dropoffs (> 24 units)
+  DROPOFF       0x00000400 - Thing can walk over tall dropoffs (> 24 units).
                                   "Travels over cliffs"
-  PICKUP        0x00000800 - Thing can pick up items -- see notes
+  PICKUP        0x00000800 - Thing can pick up items -- see notes.
                                   "Picks up items"
-  NOCLIP        0x00001000 - Thing is not clipped, can walk through walls
+  NOCLIP        0x00001000 - Thing is not clipped, can walk through walls.
                                   "No clipping"
-  SLIDE         0x00002000 - No effect -- see notes
+  SLIDE         0x00002000 - No effect -- see notes.
                                   "Slides along walls"
-  FLOAT         0x00004000 - Monster may move to any height; is flying
+  FLOAT         0x00004000 - Monster may move to any height; is flying.
                                   "Floating"
-  TELEPORT      0x00008000 - Don't cross lines or look at teleport heights
+  TELEPORT      0x00008000 - Don't cross lines or look at teleport heights.
                                   "Semi-no clipping"
-  MISSILE       0x00010000 - Thing is a missile, explodes and inflicts damage when blocked
+  MISSILE       0x00010000 - Thing is a missile, explodes and inflicts damage when blocked.
                                   "Projectiles"
-  DROPPED       0x00020000 - Internal, item was dropped by a creature and won't respawn
+  DROPPED       0x00020000 - Internal, item was dropped by a creature and won't respawn.
                                   "Disappearing weapon"
-  SHADOW        0x00040000 - Use fuzz draw effect like spectres, also causes aiming inaccuracy
+  SHADOW        0x00040000 - Use fuzz draw effect like spectres, also causes aiming inaccuracy.
                                   "Partial invisibility"
-  NOBLOOD       0x00080000 - Object puffs instead of bleeds when shot
+  NOBLOOD       0x00080000 - Object puffs instead of bleeds when shot.
                                   "Puffs (vs. bleeds)"
-  CORPSE        0x00100000 - Internal, object is dead and will slide down steps
+  CORPSE        0x00100000 - Internal, object is dead and will slide down steps.
                                   "Sliding helpless"
-  INFLOAT       0x00200000 - Internal, monster is floating but not to target height -- see notes
+  INFLOAT       0x00200000 - Internal, monster is floating but not to target height -- see notes.
                                   "No auto-leveling"
-  COUNTKILL     0x00400000 - Can be targetted, adds 1 to kill percent when it dies -- see notes
+  COUNTKILL     0x00400000 - Can be targetted, adds 1 to kill percent when it dies -- see notes.
                                   "Affects Kill %"
-  COUNTITEM     0x00800000 - Item adds 1 to item percent when collected
+  COUNTITEM     0x00800000 - Item adds 1 to item percent when collected.
                                   "Affects Item %"
-  SKULLFLY      0x01000000 - Internal, special handling for flying skulls -- see notes
+  SKULLFLY      0x01000000 - Internal, special handling for flying skulls -- see notes.
                                   "Running"
-  NOTDMATCH     0x02000000 - Thing will not be spawned at level start when in Deathmatch
+  NOTDMATCH     0x02000000 - Thing will not be spawned at level start when in Deathmatch.
                                   "Not in deathmatch"
-  TRANSLATION1  0x04000000 - Use translation table for color (players)
+  TRANSLATION1  0x04000000 - Use translation table for color (players)'.
   (aka TRANSLATION)               "Color 1 (gray/red)"
   
-  TRANSLATION2  0x08000000 - Second bit for color translation
+  TRANSLATION2  0x08000000 - Second bit for color translation;
   (aka UNUSED1)                   "Color 2 (brown/red)"
                                   
-  TOUCHY        0x10000000 - Thing dies on contact with any solid object of another species
-  (aka UNUSED2)                    MBF Extension, see notes
+  TOUCHY        0x10000000 - Thing dies on contact with any solid object of another species;
+  (aka UNUSED2)                    MBF Extension, see notes.
 
-  BOUNCES       0x20000000 - Thing may bounce off walls and ceilings
-  (aka UNUSED3)                    MBF Extension, see notes
+  BOUNCES       0x20000000 - Thing may bounce off walls and ceilings;
+  (aka UNUSED3)                    MBF Extension, see notes.
 
-  FRIEND        0x40000000 - All things of this type are allied with player
-  (aka UNUSED4)                    MBF Extension
+  FRIEND        0x40000000 - All things of this type are allied with player;
+  (aka UNUSED4)                    MBF Extension.
   
-  TRANSLUCENT   0x80000000 - Apply BOOM-style translucency to sprite
-                                   BOOM Extension, see notes
+  TRANSLUCENT   0x80000000 - Apply BOOM-style translucency to sprite;
+                                   BOOM Extension, see notes.
   ------------------------------------------------------------------                                   
 </pre>
 
@@ -691,9 +656,9 @@ Notes on Bits values:
      This flag is for internal AI use only.
 <li> COUNTKILL:<br>
      This flag actually has two effects. If a monster does not have the COUNTKILL flag, other
-     monsters will ignore it, and it may become unshootable as well. This is generally undesirable.
-     A new Bits3 flag KILLABLE, used by the Lost Soul by default, allows monsters to behave 
-     normally even without having this flag.
+     monsters may ignore it, and some other engine features will not work properly for it. This 
+     is generally undesirable. A new Bits3 flag KILLABLE, used by the Lost Soul by default, 
+     allows monsters to behave normally even without having this flag.
 <li> SKULLFLY:<br>
      This flag is for internal AI use only.
 <li> TOUCHY:<br>
@@ -735,70 +700,70 @@ Notes on Bits values:
 <pre>
   Mnemonic      Bit mask     Meaning
   ------------------------------------------------------------------
-  LOGRAV        0x00000001 - Thing experiences low gravity; see notes
+  LOGRAV        0x00000001 - Thing experiences low gravity; see notes.
   
-  NOSPLASH      0x00000002 - Thing cannot trigger TerrainTypes
+  NOSPLASH      0x00000002 - Thing cannot trigger TerrainTypes.
   
-  NOSTRAFE      0x00000004 - Thing never uses advanced strafing logic
+  NOSTRAFE      0x00000004 - Thing never uses advanced strafing logic.
   
-  NORESPAWN     0x00000008 - Thing will not respawn in nightmare mode
+  NORESPAWN     0x00000008 - Thing will not respawn in nightmare mode.
   
-  ALWAYSRESPAWN 0x00000010 - Thing will respawn at any difficulty level
+  ALWAYSRESPAWN 0x00000010 - Thing will respawn at any difficulty level.
   
-  REMOVEDEAD    0x00000020 - Thing removes itself shortly after death; see notes
+  REMOVEDEAD    0x00000020 - Thing removes itself shortly after death; see notes.
   
-  NOTHRUST      0x00000040 - Thing is unaffected by push/pull, wind, current, or conveyors
+  NOTHRUST      0x00000040 - Thing is unaffected by push/pull, wind, current, or conveyors.
   
-  NOCROSS       0x00000080 - Thing cannot trigger crossable special lines
+  NOCROSS       0x00000080 - Thing cannot trigger crossable special lines.
   
-  JUMPDOWN      0x00000100 - Thing, when friendly, can jump down to follow player
+  JUMPDOWN      0x00000100 - Thing, when friendly, can jump down to follow player.
   
-  PUSHABLE      0x00000200 - Thing is pushable by other moving things
+  PUSHABLE      0x00000200 - Thing is pushable by other moving things.
   
-  MAP07BOSS1    0x00000400 - Thing must be dead for MAP07 tag 666 special
+  MAP07BOSS1    0x00000400 - Thing must be dead for MAP07 tag 666 special.
   
-  MAP07BOSS2    0x00000800 - Thing must be dead for MAP07 tag 667 special
+  MAP07BOSS2    0x00000800 - Thing must be dead for MAP07 tag 667 special.
   
-  E1M8BOSS      0x00001000 - Thing must be dead for E1M8 tag 666 special
+  E1M8BOSS      0x00001000 - Thing must be dead for E1M8 tag 666 special.
   
-  E2M8BOSS      0x00002000 - Thing must be dead for E2M8 end-level special
+  E2M8BOSS      0x00002000 - Thing must be dead for E2M8 end-level special.
   
-  E3M8BOSS      0x00004000 - Thing must be dead for E3M8 end-level special
+  E3M8BOSS      0x00004000 - Thing must be dead for E3M8 end-level special.
   
-  BOSS          0x00008000 - Thing is a boss; roars loud and is invincible to blast radii
+  BOSS          0x00008000 - Thing is a boss; roars loud and is invincible to blast radii.
                                 
-  E4M6BOSS      0x00010000 - Thing must be dead for E4M6 tag 666 special
+  E4M6BOSS      0x00010000 - Thing must be dead for E4M6 tag 666 special.
   
-  E4M8BOSS      0x00020000 - Thing must be dead for E4M8 tag 666 special
+  E4M8BOSS      0x00020000 - Thing must be dead for E4M8 tag 666 special.
   
-  FOOTCLIP      0x00040000 - Thing lowers 10 units when on liquid flats
+  FOOTCLIP      0x00040000 - Thing lowers when on liquid terrain.
   
-  FLOATBOB      0x00080000 - Thing floats up and down on z axis
+  FLOATBOB      0x00080000 - Thing floats up and down on z axis.
   
-  DONTDRAW      0x00100000 - Thing is totally invisible; enemies cannot see player
+  DONTDRAW      0x00100000 - Thing is totally invisible; enemies cannot see player.
   
-  SHORTMRANGE   0x00200000 - Thing has a shorter than normal missile range
+  SHORTMRANGE   0x00200000 - Thing has a shorter than normal missile range.
   
-  LONGMELEE     0x00400000 - Thing has a longer than normal melee range
+  LONGMELEE     0x00400000 - Thing has a longer than normal melee range.
   
-  RANGEHALF     0x00800000 - Thing considers itself to be half as far from target
+  RANGEHALF     0x00800000 - Thing considers itself to be half as far from target.
   
-  HIGHERMPROB   0x01000000 - Thing has a higher missile attack probability
+  HIGHERMPROB   0x01000000 - Thing has a higher missile attack probability.
   
   CANTLEAVEFLOORPIC
-                0x02000000 - Thing can only move into sectors with the same flat
+                0x02000000 - Thing can only move into sectors with the same flat.
   
-  SPAWNFLOAT    0x04000000 - Thing spawns with a randomized z coordinate  
+  SPAWNFLOAT    0x04000000 - Thing spawns with a randomized z coordinate.
   
-  INVULNERABLE  0x08000000 - Thing is invulnerable to damage less than 10000 points
+  INVULNERABLE  0x08000000 - Thing is invulnerable to damage less than 10000 points.
   
-  DORMANT       0x10000000 - Thing is invulnerable and inert until activated by script; see notes
+  DORMANT       0x10000000 - Thing is invulnerable and inert until activated by script; see notes.
   
-  SEEKERMISSILE 0x20000000 - Indicates that this thing may be used as a homing missile; see notes
+  SEEKERMISSILE 0x20000000 - Indicates that this thing may be used as a homing missile; see notes.
   
-  DEFLECTIVE    0x40000000 - When paired with REFLECTIVE, thing will reflect at a wide angle
+  DEFLECTIVE    0x40000000 - When paired with REFLECTIVE, thing will reflect at a wide angle.
   
-  REFLECTIVE    0x80000000 - Thing reflects missile projectiles; see notes  
+  REFLECTIVE    0x80000000 - Thing reflects missile projectiles; see notes.
   ------------------------------------------------------------------                                   
 </pre>
 
@@ -835,43 +800,50 @@ Notes on Bits2 values:
 <pre>
   Mnemonic      Bit mask     Meaning
   ------------------------------------------------------------------
-  GHOST         0x00000001 - Thing is a Heretic-style ghost; enemies may not see player
+  GHOST         0x00000001 - Thing is a Heretic-style ghost; enemies may not see player.
 
-  THRUGHOST     0x00000002 - Missiles with this flag pass through GHOST objects
+  THRUGHOST     0x00000002 - Missiles with this flag pass through GHOST objects.
 
-  NODMGTHRUST   0x00000004 - Things aren't thrusted when damaged by this thing
+  NODMGTHRUST   0x00000004 - Things aren't thrusted when damaged by this thing.
 
-  ACTSEESOUND   0x00000008 - Thing may make see sound instead of active sound; 50% chance
+  ACTSEESOUND   0x00000008 - Thing may make see sound instead of active sound; 50% chance.
 
-  LOUDACTIVE    0x00000010 - Thing makes its active sound at full volume
+  LOUDACTIVE    0x00000010 - Thing makes its active sound at full volume.
 
-  E5M8BOSS      0x00000020 - Thing is a boss on Heretic level E5M8
+  E5M8BOSS      0x00000020 - Thing is a boss on Heretic level E5M8.
 
-  DMGIGNORED    0x00000040 - Other things will not fight this thing if damaged by it
+  DMGIGNORED    0x00000040 - Other things will not fight this thing if damaged by it.
 
-  BOSSIGNORE    0x00000080 - Things won't fight other species with this flag
+  BOSSIGNORE    0x00000080 - Things won't fight other species with this flag.
 
-  SLIDE         0x00000100 - Thing can slide against walls; see notes
+  SLIDE         0x00000100 - Thing can slide against walls; see notes.
 
-  TELESTOMP     0x00000200 - Thing can telefrag other things
+  TELESTOMP     0x00000200 - Thing can telefrag other things.
 
-  WINDTHRUST    0x00000400 - Thing is affected by Heretic-style wind sectors; see notes
+  WINDTHRUST    0x00000400 - Thing is affected by Heretic-style wind sectors; see notes.
   
-  FIREDAMAGE    0x00000800 - Reserved; currently has no effect
+  FIREDAMAGE    0x00000800 - Reserved; currently has no effect.
   
-  KILLABLE      0x00001000 - Thing doesn't count for kill %, but is still an enemy; see notes
+  KILLABLE      0x00001000 - Thing doesn't count for kill %, but is still an enemy; see notes.
   
-  DEADFLOAT     0x00002000 - Flying thing won't drop to the ground when killed
+  DEADFLOAT     0x00002000 - Flying thing won't drop to the ground when killed.
   
-  NOTHRESHOLD   0x00004000 - Thing has no threshold for acquiring a new target
+  NOTHRESHOLD   0x00004000 - Thing has no threshold for acquiring a new target.
   
-  FLOORMISSILE  0x00008000 - Missile can step up/down any height changes when on ground
+  FLOORMISSILE  0x00008000 - Missile can step up/down any height changes when on ground.
   
-  SUPERITEM     0x00010000 - Item respawns only if the "super items respawn" DMFLAG is on
+  SUPERITEM     0x00010000 - Item respawns only if the "super items respawn" DMFLAG is on.
   
-  NOITEMRESP    0x00020000 - Item never respawns, and will not be crushed
+  NOITEMRESP    0x00020000 - Item never respawns, and will not be crushed.
   
   SUPERFRIEND   0x00040000 - Thing never attacks other friends when friendly.
+  
+  INVULNCHARGE  0x00080000 - Thing is invulnerable when SKULLFLY flag is set.
+  
+  EXPLOCOUNT    0x00100000 - Missile will not explode if Counter 1 < Counter 2.
+                             Counter 1 will be incremented at each explosion attempt.
+                             
+  CANNOTPUSH    0x00200000 - Thing cannot push things with the PUSHABLE flag.
   ------------------------------------------------------------------
 </pre>
 
@@ -890,7 +862,7 @@ Notes on Bits3 values:
      As noted in the documentation for Bits flag COUNTKILL, enemies without that flag
      normally suffer severe side-effects. This new flag generalizes what was previously
      a special case for the Lost Soul, and allows enemies which don't count toward the
-     kill percent to be otherwise normal.
+     kill percentage to be otherwise normal.
 </ul> 
 <a href="#contents">Return to Table of Contents</a>
 
@@ -1133,7 +1105,7 @@ is a dummy and should not be edited.
 <li><b>Zero/One = &lt;number&gt;</b><br>
     Singularity value of the sound. Positive values will cause the sound to be put in
     a class with sounds of the same value, such that only one sound in the class will play
-    at a time. Values will not be documented.
+    at a time. Values will not be documented here; see the EDF documentation.
     <br><br>
 <li><b>Value = &lt;number&gt;</b><br>
     Relative priority value of this sound. When all sound channels are exhausted, sounds
@@ -1503,10 +1475,10 @@ after the word Misc, and so this is optional.
     Armor class given by IDFA cheat. Value must be 1 or 2. Default 2.
     <br><br>
 <li><b>IDKFA Armor = &lt;number&gt;</b><br>
-    Amount of armor given by IDFA cheat. Default 200.
+    Amount of armor given by IDKFA cheat. Default 200.
     <br><br>
 <li><b>IDKFA Armor Class = &lt;number&gt;</b><br>
-    Armor class given by IDFA cheat. Value must be 1 or 2. Default 2.
+    Armor class given by IDKFA cheat. Value must be 1 or 2. Default 2.
     <br><br>
 <li><b>BFG Cells/Shot = &lt;number&gt;</b><br>
     Ammo used per shot by BFG. Default is 40. Note: Eternity will propagate this value to
@@ -1773,7 +1745,7 @@ Insert this block into your BEX file:
 Any number of frames may be listed, one per line.
 <br><br>
 The Frame number is the same as you would use in Dehacked, and the &lt;mnemonic&gt; is 
-a symbolic codepointer name.  These mnemonics, though not perfectly clear, are the 
+a symbolic codepointer name.  These mnemonics, though not perfectly clear in some cases, are the 
 actual names of the functions in DOOM that are called, so it makes the most sense to use 
 them. A complete list of codepointer mnemonics, and full documentation of their corresponding
 codepointers' behaviors is now available in the 
@@ -1868,7 +1840,7 @@ things of the helper type are allowed to jump down to follow the player.
 </a>
 <br>
 In Ty Halderman's change log he noted that sprite, sound, and music renaming should be 
-implemented as separate blocks. Up until now, its only been possible to replace these 
+implemented as separate blocks. Up until now, it has only been possible to replace these 
 strings with the old DeHackEd-style text blocks, which are impractical to use and have 
 limitations.
 <br><br>
@@ -1960,7 +1932,7 @@ The MUSIC block can change the name of any music lump used by the game.
 </a>
 <br>
 <pre>
-   [SOUNDS]
+   [MUSIC]
    &lt;mnemonic&gt; = &lt;string&gt;
 </pre>
  
@@ -1981,7 +1953,7 @@ string. Changing the music names will not change their corresponding mnemonics.
 <hr>
 </a>
 <br>
-Note:
+Note:<br>
 If the original initial value is longer than about 40 characters, 
 the string will have been truncated and will have an ellipsis (...)
 after the closing double-quote.  There should be enough in the part
@@ -1990,7 +1962,7 @@ that is shown to recognize it.
 If a string has C language printf() characters in it, such as %s or %d, 
 you should be sure that your replacement string either contains the 
 same ones in the same order, or that you leave them out of your string.  
-If that confuses you, you need to learn C or leave 'em alone <g>.  
+If that confuses you, you need to learn C or leave 'em alone &lt;g&gt;.  
 Some trailing linefeeds have been removed for clarity, though \n in 
 the middle of a string indicates an internal linefeed and your 
 replacement can do likewise.

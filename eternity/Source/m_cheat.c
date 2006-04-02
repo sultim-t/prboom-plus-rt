@@ -289,7 +289,7 @@ char buf[3];
          idmusnum = musnum; //jff 3/17/98 remember idmus number for restore
       }
    }
-   else if(gameModeInfo->flags & GIF_HERETIC)
+   else if(gameModeInfo->type == Game_Heretic)
    {
       // haleyjd 03/10/03: heretic support
       // use H_Mus_Matrix for easy access
@@ -822,6 +822,7 @@ CONSOLE_COMMAND(god, cf_notnet|cf_level)
 
 extern void A_Fall(mobj_t *);
 extern void A_PainDie(mobj_t *);
+
 // haleyjd 07/13/03: special actions for killem cheat
 
 //
@@ -921,10 +922,7 @@ CONSOLE_NETCMD(nuke, cf_server|cf_level, netcmd_nuke)
    thinker_t *currentthinker=&thinkercap;
    // killough 7/20/98: kill friendly monsters only if no others to kill
    int mask = MF_FRIEND;
-   
-   if(debugfile)
-      fprintf(debugfile,"do massacre\n");
-   
+      
    do
    {
       while((currentthinker = currentthinker->next) != &thinkercap)

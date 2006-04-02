@@ -3,7 +3,7 @@
  * __WIN32__    set when compiling for Windows95 or WindowsNT (32 bit mode)
  * __32BIT__    set when compiling in 32-bit "flat" mode (DOS or Windows)
  *
- * Copyright 1998-2003, ITB CompuPhase, The Netherlands.
+ * Copyright 1998-2004, ITB CompuPhase, The Netherlands.
  * info@compuphase.com.
  */
 
@@ -35,8 +35,10 @@
 #  endif
 #endif
 
-#if defined LINUX
-  #include <endian.h>
+#if defined __FreeBSD__
+   #include <sys/endian.h>
+#elif defined LINUX
+   #include <endian.h>
 #endif
 
 /* Linux NOW has these */
@@ -54,6 +56,14 @@
   #else
     #define BYTE_ORDER LITTLE_ENDIAN
   #endif
+#endif
+
+#if defined __MSDOS__ || defined __WIN32__ || defined _Windows
+  #define DIRSEP_CHAR '\\'
+#elif defined macintosh
+  #define DIRSEP_CHAR ':'
+#else
+  #define DIRSEP_CHAR '/'   /* directory separator character */
 #endif
 
 /* _MAX_PATH is sometimes called differently and it may be in limits.h instead

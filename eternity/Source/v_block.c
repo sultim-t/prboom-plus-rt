@@ -198,17 +198,16 @@ static void V_TileBlock64_2x(VBuffer *buffer, byte *src)
 //
 // General scaling
 //
-void V_TileBlock64S(VBuffer *buffer, byte *src)
+static void V_TileBlock64S(VBuffer *buffer, byte *src)
 {
    byte *dest;
-   fixed_t xstep, ystep, xfrac, yfrac;
+   fixed_t xstep, ystep, xfrac, yfrac = 0;
    int xtex, ytex, w, h, pwdiff;
    
    w = buffer->width;
    h = buffer->height;
    xstep = buffer->ixscale;
    ystep = buffer->iyscale;
-   yfrac = 0;
    
    dest = buffer->data;
 
@@ -228,6 +227,7 @@ void V_TileBlock64S(VBuffer *buffer, byte *src)
       }
       
       yfrac += ystep;
+      dest += pwdiff; // haleyjd 06/28/04: forgot this!
    }
 }
 

@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 <hr>
-<b>The Eternity Engine v3.31 Console Reference -- 01/16/04</b>
+<b>The Eternity Engine v3.31 Console Reference -- 07/24/04</b>
 <hr>
 
 <p>
@@ -42,7 +42,7 @@ the Eternity console, as well as pointers on console command syntax.
       <li><a href="#cmdnetworking">Networking</a><br>
           disconnect, playerinfo, frags, kick, say
       <li><a href="#cmdcheats">Cheats</a><br>
-          god, noclip, nuke
+          god, noclip, nuke, infammo
       <li><a href="#cmdvideo">Video Options</a><br>
           v_modelist, animshot, screenshot
       <li><a href="#cmdplayer">Player Options</a><br>
@@ -54,6 +54,8 @@ the Eternity console, as well as pointers on console command syntax.
           addfile, exitlevel, defdmflags, summon, give, whistle
       <li><a href="#cmdedf">EDF-Related Commands</a><br>
           e_dumpthings, e_dumpitems
+      <li><a href="#cmdsmall">Small Scripting Engine</a><br>
+          a_running, a_execv, a_execi
       </ul>
    <li><a href="#variables">Console Variables</a>
       <ul>
@@ -91,6 +93,8 @@ the Eternity console, as well as pointers on console command syntax.
           ammo_red, ammo_yellow, health_red, health_yellow, health_green,
           armor_red, armor_yellow, armor_green, st_rednum, st_singlekey,
           st_graypct
+      <li><a href="#varmenus">Menu variables</a><br>
+          use_traditional_menu
       <li><a href="#varrendering">Rendering variables</a><br>
           r_showgun, r_showhom, r_blockmap, r_homflash, r_planeview, r_zoom, 
           r_stretchsky, r_precache, r_trans, r_tranpct, r_swirl, gamma,
@@ -99,8 +103,8 @@ the Eternity console, as well as pointers on console command syntax.
       <li><a href="#varparticle">Particle Events</a><br>
           pevt_rexpl, pevt_bfgexpl
       <li><a href="#varvideo">Video variables</a><br>
-          v_diskicon, v_retrace, v_mode, v_ticker, show_vpo, shot_type,
-          screensize
+          v_diskicon, v_retrace, v_mode, v_ticker, show_vpo, vpo_threshold,
+          shot_type, screensize
       <li><a href="#varsound">Sound options</a><br>
           detect_voices, snd_card, mus_card, sfx_volume, music_volume,
           s_flippan, s_precache, s_pitched, snd_channels
@@ -118,7 +122,7 @@ the Eternity console, as well as pointers on console command syntax.
           comp_zerotags, comp_terrain, comp_respawnfix, comp_fallingdmg, 
           comp_soul, comp_overunder
       <li><a href="#varmisc">Misc. Configuration</a><br>
-          use_startmap, i_gamespeed, i_ledsoff, startonnewmap
+          use_startmap, i_gamespeed, i_ledsoff, startonnewmap, i_waitatexit
       <li><a href="#varconstants">Constants</a><br>
           rngseed, creator, version, ver_date, ver_name, ver_time
       </ul>
@@ -259,9 +263,12 @@ Synopsis of Commands:
   alias "mycommand" "hu_overlay %opt"
   </pre>
   
-<li> cmdlist<br><br>
+<li> cmdlist &lt;filter&gt;<br><br>
 
-  Displays all user-visible console commands.
+  Displays all user-visible console commands, one per line. As of Eternity Engine
+  v3.31 Delta, this command accepts an optional filter parameter that, if provided, 
+  should consist of a single character between A and Z.  The character will be used 
+  to filter the command list down to only commands beginning with that letter.
   <br><br>
 <li> quote<br><br>
 
@@ -496,7 +503,7 @@ Synopsis of Commands:
   
   Quicksaves a game. First time command is used, a slot must
   be chosen normally. Subsequent uses will overwrite the save in
-  that slot.
+  that slot.<br>
   NOTE: does nothing in network games or demos
   <br><br>
 <li> mn_joymenu<br><br>
@@ -566,9 +573,13 @@ Synopsis of Commands:
 
   Releases *all* dynamic keybindings. Use with caution!
   <br><br>
-<li> unbind keyname<br><br>
+<li> unbind keyname &lt;bindingclass&gt;<br><br>
 
-  Unbinds the specified key from any action.
+  Unbinds the specified key from any action, or from only the action in
+  the specified class if the bindingclass parameter is specified. As of
+  Eternity Engine v3.31 Delta, keys may have one binding from each separate 
+  binding class. Binding class numbers are displayed next to action names 
+  when using the "bind keyname" command.
   <br><br>
 <li> listkeys<br><br>
 
@@ -641,6 +652,7 @@ Synopsis of Commands:
 	* god
 	* noclip
 	* nuke
+	* infammo
 </pre>
 <ul>
 <li> god<br><br>
@@ -658,6 +670,11 @@ Synopsis of Commands:
   Kills all enemies on the level, and if there are no enemies, kills
   all friends on the level (equivalent to KILLEM).<br>
   Flags: server-only, only in level, net command
+  <br><br>
+<li> infammo<br><br>
+
+  Toggles infinite ammo (INFSHOTS) on or off.<br>
+  Flags: not in network games, only in levels
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -854,7 +871,7 @@ Synopsis of Commands:
 <li> summon thingtypename &lt;num&gt;<br><br>
   
   Allows spawning of things via their EDF thing type name. "num" is an
-  optional parameter which as the same meanings as the third parameter
+  optional parameter which has the same meanings as the third parameter
   to the spawn console command above.<br>
   Flags: not in a network game, only in levels, hidden
   <br><br>
@@ -905,6 +922,50 @@ Synopsis of Commands:
   Lists all EDF thing type mnemonics and DeHackEd/doomed numbers for thing
   types which are collectable items.  Useful in conjunction with the give
   command.
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="cmdsmall">	
+<hr width="75%" align="left">
+<b>Small Scripting Engine</b>
+<hr width="75%" align="left">
+</a>
+<p>
+These commands are related to the Small scripting engine.
+<br><br>
+Synopsis of Commands:
+<pre>
+	* a_running
+	* a_execv
+	* a_execi
+</pre>
+<ul>	
+<li> a_running<br><br>
+  
+  Prints debug information about the currently running script callbacks.
+  The data listed is as follows: internal script number, internal
+  callback type number, and callback data (wait time or sector tag).
+  <br><br>
+<li> a_execv vm scriptname<br><br>
+
+  Executes a public Small script, passing no parameters (use this for
+  scripts declared with an empty parameter list). The "vm" parameter
+  should be 0 to indicate the Gamescript VM, or 1 to indicate the
+  Levelscript VM. If the indicated VM isn't valid, an error message
+  will be displayed. The indicated script will run under the
+  INVOKE_CCMD invocation model.
+  <br><br>
+<li> a_execi vm scriptname ...
+
+  Executes a public Small script, passing one or more integer parameters
+  provided to this command. You cannot pass string values to Small functions
+  using this command. The number of parameters passed should match the
+  prototype of the Small function being invoked, or an error may occur.
+  The "vm" parameter should be 0 to indicate the Gamescript VM, or 1 to
+  indicate the Levelscript VM. If the indicated VM isn't valid, an error
+  message will be displayed. The indicated script will run under the
+  INVOKE_CCMD invocation model.
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 
@@ -1120,8 +1181,8 @@ Synopsis:
 	type: string<br>
 	value = console player's current skin<br>
 	Flags: netvar<br>
-	-> skin names can be retrieved with the listskins command
-<br>
+	-&gt; skin names can be retrieved with the listskins command
+       <br><br>
 <li> colour<br>
 	type: named values<br>
 	values: green, indigo, brown, red, tomato, dirt, blue, gold, sea,
@@ -1161,7 +1222,7 @@ Synopsis:
 	* invertmouse	 * use_mouse
 	* sens_horiz	 * joysens_x
 	* sens_vert	 * joysens_y
-	* smooth_turning
+	* smooth_turning * grabmouse
 </pre>	
 <ul>	
 <li> alwaysmlook<br>
@@ -1212,6 +1273,12 @@ Synopsis:
 	type: integer<br>
 	value range: -32768, 32767<br>
 	value = vertical axis sensitivity for SDL joystick<br>
+	NOTE: this variable does not exist in the DOS version of Eternity<br>
+	<br>
+<li> grab_mouse<br>
+	type: yes / no<br>
+	yes = the mouse is restricted to Eternity's graphics window<br>
+	no  = the mouse can move freely<br>
 	NOTE: this variable does not exist in the DOS version of Eternity<br>
 </ul>
 <a href="#contents">Return to Table of Contents</a>
@@ -1614,6 +1681,29 @@ Synopsis:
 <a href="#contents">Return to Table of Contents</a>
 
 <p>
+<a name="varmenus">
+<hr width="75%" align="left">
+<b>Menu variables</b>
+<hr width="75%" align="left">
+</a>
+<p>
+Synopsis:
+<pre>
+	* use_traditional_menu
+</pre>	
+<ul>	
+<li> use_traditional_menu<br>
+	type: yes / no<br>
+	yes = DOOM / DOOM II original main menu will be emulated<br>
+	no  = Eternity's main menu behavior is used<br>
+	<br>
+	* NOTE: This variable has no effect on game modes other than
+	  DOOM or DOOM II.
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+
+<p>
 <a name="varrendering">
 <hr width="75%" align="left">
 <b>Rendering variables</b>
@@ -1677,7 +1767,7 @@ Synopsis:
 	on  = various graphics will be precached at the start of the level<br>
 	off = graphics are loaded as needed (shorter start up time, but
 	      can result in loss of framerate)<br>
-<br>
+	<br>
 <li> r_trans<br>
 	type: on / off<br>
 	on  = general translucency is enabled<br>
@@ -1695,7 +1785,7 @@ Synopsis:
 	<br>
 	* NOTE: this option is just for testing / fun -- swirling can be
 	        achieved for individual flats through the ANIMATED lump.<br>
-	        	<br>
+	<br>
 <li> gamma<br>
 	type: integer<br>
 	value range: 0 - 4<br>
@@ -1785,11 +1875,14 @@ Synopsis:
 <p>
 Synopsis:
 <pre>
-	* v_diskicon	* shot_type
-	* v_retrace	* screensize
+	* v_diskicon
+	* v_retrace
 	* v_mode
 	* v_ticker
 	* show_vpo
+	* vpo_threshold
+	* shot_type
+	* screensize
 </pre>	
 <ul>	
 <li> v_diskicon<br>
@@ -1812,22 +1905,28 @@ Synopsis:
 	values: off, chart, classic<br>
 	value = presence / appearance of an FPS ticker<br>
 	        classic is the original FPS ticker enabled through -devparm
-	        in DOOM
+	        in DOOM<br>
 	<br>
 <li> show_vpo<br>
 	type: yes / no<br>
 	yes = a VPO indicator will be displayed when the number of visplanes
-	      is at the approximate level where DOOM would have exited<br>
+	      is at or above the level set in the 'vpo_threshold' variable.<br>
 	no  = no VPO indicator will be shown<br>
 	<br>
-	* NOTE: due to a more efficient visplane splitting algorithm
+	* NOTE: Due to a more efficient visplane splitting algorithm
 	        developed in BOOM, Eternity uses fewer visplanes than DOOM
-	        did. Due to this discrepancy, Eternity actually adds a small
-	        number to the number of visplanes to estimate when overflows
-	        would occur. This means that the appearance of the VPO 
-	        indicator is only to be taken as a warning that the threshold 
-	        is near, and not that a VPO may occur at an exact location.<br>
+	        did. Due to this discrepancy, Eternity uses a customizable
+	        number to set the level at which a VPO warning is issued. The
+	        default value of 85 is reasonable, but is not perfect. The 
+	        appearance of the VPO indicator is only to be taken as a 
+	        warning that the threshold may be near, and not that a VPO
+	        will occur at an exact location.<br>
 		<br>
+<li> vpo_threshold<br>
+        type: integer<br>
+        value range: 1 - 128<br>
+        value = number of visplanes required for the VPO indicator to be displayed.<br>
+        <br>
 <li> shot_type<br>
 	type: named values<br>
 	values: bmp, pcx<br>
@@ -1858,28 +1957,39 @@ Synopsis:
 <ul>	
 <li> detect_voices<br>
 	type: yes / no<br>
-	yes = Allegro will attempt to autodetect the number of hardware<br>
-	      voices available<br>
+	yes = Allegro will attempt to autodetect the number of hardware voices available<br>
 	no  = Allegro will use a specified default number of voices<br>
 	<br>
+	* NOTE: this setting only works in the DOS version of Eternity.
+	<br><br>
 <li> snd_card<br>
 	type: named values<br>
-	values: autodetect, none, SB, "SB 1.0", "SB 1.5", "SB 2.0", 
-	        "SB Pro", SB16, GUS<br>
-	value = type of sound driver to be used by Allegro<br>
-	        <br>
-	        autodetect = Allegro will attempt to autodetect the card type
-	        none = digital sound will be disabled
-	        <br>
+	values: 
+	<ul>
+	<li> DOS: autodetect, none, SB, "SB 1.0", "SB 1.5", "SB 2.0", "SB Pro", SB16, GUS
+	<li> Windows: SDL_mixer, none
+	</ul>	
+	value = type of sound driver to be used by Allegro/SDL<br>
+	<ul>
+	<li> autodetect = Allegro will attempt to autodetect the card type (DOS only)
+	<li> none = digital sound will be disabled
+	</ul>
+	<br>
+	
 <li> mus_card<br>
 	type: named values<br>
-	values: autodetect, none, adlib, OPL2, 2xOPL2, OPL3, "SB MIDI", 
-	        MPU-401, GUS, DIGMID, AWE32<br>
-	value = type of MIDI driver to be used by Allegro<br>
-	<br>
-	        autodetect = Allegro will attempt to autodetect the synth
-	        none = MIDI output will be disabled
-	    <br>    
+	values:
+	<ul>
+	<li> DOS: autodetect, none, adlib, OPL2, 2xOPL2, OPL3, "SB MIDI", MPU-401, GUS, DIGMID, AWE32<br>
+	<li> Windows: SDL_mixer, none
+	</ul>
+	value = type of MIDI driver to be used by Allegro/SDL<br>
+	<ul>
+        <li> autodetect = Allegro will attempt to autodetect the synthesizer (DOS only)<br>
+        <li> none = MIDI output will be disabled
+        </ul>
+        <br>
+
 <li> sfx_volume<br>
 	type: integer<br>
 	value range = 0 - 15<br>
@@ -1897,7 +2007,7 @@ Synopsis:
 	<br>
 	* NOTE: on and off for this variable do not equate to flipped or
 	        non-flipped in the same way for every combination of
-	        sound card and Allego configuration. If your sound is
+	        sound card and/or Allego configuration. If your sound is
 	        right, turning on s_flippan will make it wrong. If your sound
 	        is wrong, try this to make it right.<br>
 	    <br>    
@@ -1906,9 +2016,9 @@ Synopsis:
 	on  = sounds will be precached at the beginning of the game<br>
 	off = sounds will be loaded as they are used<br>
 	<br>
-	* NOTE: off will make load times shorter, but will degrade
-	        performance. on may require more system memory.
-	        <br>
+	* NOTE: off will make load times shorter, but may degrade
+	        performance. on may require more system memory.<br>
+	<br>
 <li> s_pitched<br>
 	type: on / off<br>
 	on  = emulates crappy DOOM v1.1 variable-pitched sound effects<br>
@@ -1925,9 +2035,8 @@ Synopsis:
 	        <br><br>
 	        This value affects the number of sounds the game will
 	        *attempt* to play at one time. If set too low, you will
-	        lose sound unnecessarily. Setting it too high has no
-	        particularily ill effect but will use more memory and take 
-	        slightly more time to process.
+	        lose sound unnecessarily. Setting it too high will use 
+	        more memory and take more time to process.
 </ul>
 <a href="#contents">Return to Table of Contents</a>
 	        
@@ -2009,7 +2118,7 @@ Synopsis:
      Toggles use of DOOM's linedef trigger model
      <br><br>
 <li> comp_god<br>
-     Determines whether damage over 9999 can kill players in god mode
+     Determines whether damage greater than 9999 can kill players in god mode
      <br><br>
 <li> comp_falloff<br>
      Toggles MBF torque simulation physics
@@ -2065,6 +2174,7 @@ Synopsis:
 	* i_gamespeed
 	* i_ledsoff
 	* startonnewmap
+	* i_waitatexit
 </pre>	
 <ul>	
 <li> use_startmap<br>
@@ -2074,21 +2184,33 @@ Synopsis:
 	        start map to start new games. "ask" is used to indicate
 	        that the user has not chosen a value. The game will prompt
 	        the player to decide the next time the game is started.<br>
-<br>
+        <br>
+        * NOTE: if new wads are added and none of them contain their own
+          start map, the start map will not be used.
+        <br><br>
 <li> i_gamespeed<br>
 	type: integer<br>
 	value range: 0 - 500<br>
 	value = percentage of real time at which the game clock runs<br>
-<br>
+        <br>
 <li> i_ledsoff<br>
 	type: yes / no<br>
 	yes = keyboard LEDs will remain off regardless of lock states<br>
 	no  = keyboard LEDs will toggle on/off with presses of lock keys<br>
 	<br>
+	* NOTE: this variable only works in the DOS version of Eternity.
+	<br><br>
 <li> startonnewmap<br>
-    type: yes / no<br>
-    yes = new game starts on first new map, if any<br>
-    no  = new game starts at MAP01 or on selected episode<br>
+	type: yes / no<br>
+	yes = new game starts on first new map, if any<br>
+	no  = new game starts at MAP01 or on selected episode<br>
+	<br>
+<li> i_waitatexit<br>
+	type: yes / no<br>
+	yes = game will wait for input after exiting<br>
+	no  = console window will shut immediately on exit<br>
+	<br>
+	* NOTE: this variable does not exist in the DOS version of Eternity.
 </ul>	
 <a href="#contents">Return to Table of Contents</a>
 
@@ -2137,4 +2259,4 @@ Synopsis:
 <a href="#contents">Return to Table of Contents</a>
 
 </body>
-</html>                
+</html>

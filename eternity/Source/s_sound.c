@@ -45,7 +45,7 @@ rcsid[] = "$Id: s_sound.c,v 1.11 1998/05/03 22:57:06 killough Exp $";
 #include "a_small.h"
 #include "e_sound.h"
 #include "m_queue.h"
-
+#include "p_spec.h"
 
 // when to clip out sounds
 // Does not fit the large outdoor areas.
@@ -72,14 +72,6 @@ rcsid[] = "$Id: s_sound.c,v 1.11 1998/05/03 22:57:06 killough Exp $";
 // sf: sound/music hashing
 #define SOUND_HASHSLOTS 257
 // use sound_hash for music hash too
-/*
-#define sound_hash(s)                             \
-         ( ( tolower((s)[0]) + (s)[0] ?           \
-             tolower((s)[1]) + (s)[1] ?           \
-             tolower((s)[2]) + (s)[2] ?           \
-             tolower((s)[3]) + (s)[3] ?           \
-             tolower((s)[4]) : 0 : 0 : 0 : 0 ) % SOUND_HASHSLOTS )
-*/
 
 static d_inline int sound_hash(const char *s)
 {
@@ -162,68 +154,70 @@ static void S_StopChannel(int cnum)
 static int S_AdjustSoundParams(camera_t *listener, const mobj_t *source,
 				int *vol, int *sep, int *pitch)
 {
-  fixed_t adx, ady, dist;
-  angle_t angle;
+   fixed_t adx, ady, dist;
+   angle_t angle;
 
-  // calculate the distance to sound origin
-  //  and clip it if necessary
-  //
-  // killough 11/98: scale coordinates down before calculations start
-  // killough 12/98: use exact distance formula instead of approximation
+   // haleyjd 08/12/04: we cannot adjust a sound for a NULL listener!
+   // Why was this not crashing?
+   if(!listener)
+      return 1;
+   
+   // calculate the distance to sound origin
+   //  and clip it if necessary
+   //
+   // killough 11/98: scale coordinates down before calculations start
+   // killough 12/98: use exact distance formula instead of approximation
+   
+   adx = D_abs((listener->x >> FRACBITS) - (source->x >> FRACBITS));
+   ady = D_abs((listener->y >> FRACBITS) - (source->y >> FRACBITS));
 
-  adx = D_abs((listener->x >> FRACBITS) - (source->x >> FRACBITS));
-  ady = D_abs((listener->y >> FRACBITS) - (source->y >> FRACBITS));
+   if(ady > adx)
+      dist = adx, adx = ady, ady = dist;
 
-  if (ady > adx)
-    dist = adx, adx = ady, ady = dist;
+   dist = adx ? FixedDiv(adx, finesine[(tantoangle[FixedDiv(ady,adx) >> DBITS]
+                                       + ANG90) >> ANGLETOFINESHIFT]) : 0;
 
-  dist = adx ? FixedDiv(adx, finesine[(tantoangle[FixedDiv(ady,adx) >> DBITS]
-				       + ANG90) >> ANGLETOFINESHIFT]) : 0;
-
-  if (source)
-    {
+   // are _we_ in a killed-sound sector?
+   if(source)
+   {
       // source in a killed-sound sector?
-      if (R_PointInSubsector(source->x, source->y)->sector->special
-	  & SF_KILLSOUND)
-	return 0;
-    }
-  else
-    // are _we_ in a killed-sound sector?
-    if(gamestate == GS_LEVEL &&
-       R_PointInSubsector(listener->x, listener->y)
-       ->sector->special & SF_KILLSOUND)
+      if(R_PointInSubsector(source->x, source->y)->sector->special & SF_KILLSOUND)
+         return 0;
+   }
+   else if(gamestate == GS_LEVEL && 
+           R_PointInSubsector(listener->x, listener->y)->sector->special & SF_KILLSOUND)
       return 0;
 
-  if (!dist)  // killough 11/98: handle zero-distance as special case
-    {
+   if(!dist)  // killough 11/98: handle zero-distance as special case
+   {
       *sep = NORM_SEP;
       *vol = snd_SfxVolume;
       return *vol > 0;
-    }
+   }
 
-  if (dist > S_CLIPPING_DIST >> FRACBITS)
-    return 0;
+   if(dist > S_CLIPPING_DIST >> FRACBITS)
+      return 0;
 
-  // angle of source to listener
-  // sf: use listenx, listeny
+   // angle of source to listener
+   // sf: use listenx, listeny
+   
+   angle = R_PointToAngle2(listener->x, listener->y, source->x, source->y);
 
-  angle = R_PointToAngle2(listener->x, listener->y, source->x, source->y);
+   if(angle <= listener->angle)
+      angle += 0xffffffff;
+   angle -= listener->angle;
+   //  angle = -angle;       // sf: stereo fix
+   angle >>= ANGLETOFINESHIFT;
 
-  if (angle <= listener->angle)
-    angle += 0xffffffff;
-  angle -= listener->angle;
-//  angle = -angle;       // sf: stereo fix
-  angle >>= ANGLETOFINESHIFT;
+   // stereo separation
+   *sep = NORM_SEP - FixedMul(S_STEREO_SWING>>FRACBITS, finesine[angle]);
+   
+   // volume calculation
+   *vol = dist < S_CLOSE_DIST >> FRACBITS ? snd_SfxVolume :
+      snd_SfxVolume * ((S_CLIPPING_DIST>>FRACBITS)-dist) /
+      S_ATTENUATOR;
 
-  // stereo separation
-  *sep = NORM_SEP - FixedMul(S_STEREO_SWING>>FRACBITS,finesine[angle]);
-
-  // volume calculation
-  *vol = dist < S_CLOSE_DIST >> FRACBITS ? snd_SfxVolume :
-    snd_SfxVolume * ((S_CLIPPING_DIST>>FRACBITS)-dist) /
-    S_ATTENUATOR;
-
-  return *vol > 0;
+   return *vol > 0;
 }
 
 //
@@ -270,6 +264,8 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx)
    int sep, pitch, priority, cnum;
    int volume = snd_SfxVolume;
    int sfx_id;
+   boolean extcamera = false;
+   camera_t playercam;
 
    // haleyjd 09/03/03: allow NULL sounds to fall through
    if(!sfx)
@@ -287,7 +283,11 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx)
       if(origin && 
          (origin->thinker.function == P_MobjThinker) &&  // haleyjd
          origin->skin)
-         sfx = S_SfxInfoForName(origin->skin->sounds[sfx->skinsound-1]);
+      {
+         // haleyjd: monster skins don't support sound replacements
+         if(origin->skin->type == SKIN_PLAYER)
+            sfx = S_SfxInfoForName(origin->skin->sounds[sfx->skinsound-1]);
+      }
       
       if(!sfx)
       {
@@ -318,43 +318,55 @@ void S_StartSfxInfo(const mobj_t *origin, sfxinfo_t *sfx)
       priority = NORM_PRIORITY;
    }
 
+   // haleyjd: setup playercam
+   if(gamestate == GS_LEVEL)
+   {     
+      if(camera) // an external camera is active
+      {
+         playercam = *camera; // assign directly
+         extcamera = true;
+      }
+      else
+      {
+         mobj_t *mo = players[displayplayer].mo;
+         playercam.x = mo->x; 
+         playercam.y = mo->y; 
+         playercam.z = mo->z;
+         playercam.angle = mo->angle;
+      }
+   }
+
    // Check to see if it is audible, modify the params
    // killough 3/7/98, 4/25/98: code rearranged slightly
+   // haleyjd 08/12/04: add extcamera check
    
-   if(!origin || origin == players[displayplayer].mo)
+   if(!origin || (!extcamera && origin == players[displayplayer].mo))
       sep = NORM_SEP;
    else
-   {
-      // sf: change to adjustsoundparams means we need to build a quick
-      // camera_t. horrible i know
-      camera_t player; mobj_t *mo = players[displayplayer].mo;
-      player.x = mo->x; player.y = mo->y; player.z = mo->z;
-      player.angle = mo->angle;
-      
+   {     
       // use an external cam?
-      if(!S_AdjustSoundParams
-          (
-           camera ? camera : &player,
-           origin,
-           &volume,
-           &sep,
-           &pitch
-           )
-          )
+      if(!S_AdjustSoundParams(&playercam, origin, &volume, &sep, &pitch))
          return;
-      else
-        if(origin->x == players[displayplayer].mo->x &&
-           origin->y == players[displayplayer].mo->y)
-           sep = NORM_SEP;
+      else if(origin->x == playercam.x && origin->y == playercam.y)
+         sep = NORM_SEP;
    }
   
    if(pitched_sounds)
    {
-      // hacks to vary the sfx pitches
-      if(sfx_id >= sfx_sawup && sfx_id <= sfx_sawhit)
-         pitch += 8 - (M_Random()&15);
-      else if(sfx_id != sfx_itemup && sfx_id != sfx_tink)
-         pitch += 16 - (M_Random()&31);
+      if(gameModeInfo->type == Game_DOOM)
+      {
+         // hacks to vary the sfx pitches
+         if(sfx_id >= sfx_sawup && sfx_id <= sfx_sawhit)
+            pitch += 8 - (M_Random()&15);
+         else if(sfx_id != sfx_itemup && sfx_id != sfx_tink)
+            pitch += 16 - (M_Random()&31);
+      }
+      else
+      {
+         // haleyjd: experimental
+         pitch = NORM_PITCH + (M_Random() & 31);
+         pitch -= M_Random() & 31;
+      }
 
       if(pitch<0)
          pitch = 0;
@@ -462,7 +474,7 @@ void S_ResumeSound(void)
 void S_UpdateSounds(const mobj_t *listener)
 {
    int cnum;
-   camera_t player;      // sf: a camera_t holding the information about
+   camera_t playercam;   // sf: a camera_t holding the information about
                          // the player
 
    //jff 1/22/98 return if sound is not enabled
@@ -470,11 +482,20 @@ void S_UpdateSounds(const mobj_t *listener)
       return;
 
    if(listener)
-   {            // fill in player first
-      player.x = listener->x;
-      player.y = listener->y;
-      player.z = listener->z;
-      player.angle = listener->angle;
+   {
+      // haleyjd 08/12/04: fix possible bugs with external cameras
+      
+      if(camera) // an external camera is active
+      {
+         playercam = *camera; // assign directly
+      }
+      else
+      {
+         playercam.x = listener->x;
+         playercam.y = listener->y;
+         playercam.z = listener->z;
+         playercam.angle = listener->angle;
+      }      
    }
 
    // now update each individual channel
@@ -502,15 +523,9 @@ void S_UpdateSounds(const mobj_t *listener)
 
             if(c->origin) // killough 3/20/98
             {
-               if(!S_AdjustSoundParams
-                  (
-                   camera ? camera : listener ? &player : NULL,
-                   c->origin,
-                   &volume,
-                   &sep,
-                   &pitch
-                   )
-                  )
+               if(!S_AdjustSoundParams(listener ? &playercam : NULL,
+                                       c->origin,
+                                       &volume, &sep, &pitch))
                   S_StopChannel(cnum);
                else
                   I_UpdateSoundParams(c->handle, volume, sep, pitch);
@@ -529,11 +544,15 @@ void S_SetMusicVolume(int volume)
       return;
 
 #ifdef RANGECHECK
-   if(volume < 0 || volume > 127)
+   if(volume < 0 || volume > 16)
       I_Error("Attempt to set music volume at %d", volume);
 #endif
 
+   // haleyjd: I don't think it should do this in SDL
+#ifndef _SDL_VER
    I_SetMusicVolume(127);
+#endif
+
    I_SetMusicVolume(volume);
    snd_MusicVolume = volume;
 }
@@ -583,7 +602,7 @@ void S_ChangeMusicName(char *name, int looping)
       S_ChangeMusic(music, looping);
    else
    {
-      doom_printf(FC_ERROR "music not found: %s\n", name);
+      C_Printf(FC_ERROR "music not found: %s\n", name);
       S_StopMusic(); // stop music anyway
    }
 }
@@ -681,17 +700,17 @@ void S_Start(void)
    // start new music for the level
    mus_paused = 0;
    
-   if(!*info_music && gamemap==0)
+   if(!*LevelInfo.musicName && gamemap==0)
    {
       // dont know what music to play
       // we need a default
-      info_music = (gamemode == commercial ? "runnin" : "e1m1");
+      LevelInfo.musicName = (gamemode == commercial ? "runnin" : "e1m1");
    }
    
    // sf: replacement music
-   if(*info_music)
+   if(*LevelInfo.musicName)
    {
-      S_ChangeMusicName(info_music, true);
+      S_ChangeMusicName(LevelInfo.musicName, true);
    }
    else
    {
@@ -699,7 +718,7 @@ void S_Start(void)
       {
          mnum = idmusnum; //jff 3/17/98 reload IDMUS music if not -1
       }
-      else if(gameModeInfo->flags & GIF_HERETIC)
+      else if(gameModeInfo->type == Game_Heretic)
       {
          int gep = gameepisode;
          int gmp = gamemap;
@@ -925,8 +944,13 @@ static void S_CreateMusicHashTable()
 
 musicinfo_t *S_MusicForName(char *name)
 {
-   int hashnum = sound_hash(name);
+   int hashnum;
    musicinfo_t *mus;
+
+   if(!name)
+      return NULL;
+
+   hashnum = sound_hash(name);
    
    if(!mushash_created)
       S_CreateMusicHashTable();
@@ -988,7 +1012,13 @@ VARIABLE_BOOLEAN(s_precache,      NULL, onoff);
 VARIABLE_BOOLEAN(pitched_sounds,  NULL, onoff);
 VARIABLE_INT(default_numChannels, NULL, 1, 128, NULL);
 VARIABLE_INT(snd_SfxVolume,       NULL, 0, 15,  NULL);
+
+#ifndef _SDL_VER
 VARIABLE_INT(snd_MusicVolume,     NULL, 0, 15,  NULL);
+#else
+VARIABLE_INT(snd_MusicVolume,     NULL, 0, 16,  NULL);
+#endif
+
 VARIABLE_BOOLEAN(forceFlipPan,    NULL, onoff);
 
 CONSOLE_VARIABLE(s_precache, s_precache, 0) {}
@@ -1048,10 +1078,82 @@ static cell AMX_NATIVE_CALL sm_glblsoundnum(AMX *amx, cell *params)
    return 0;
 }
 
+static cell AMX_NATIVE_CALL sm_sectorsound(AMX *amx, cell *params)
+{
+   int err, tag, tagtype;
+   char *sndname;
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   if((err = A_GetSmallString(amx, &sndname, params[1])) != AMX_ERR_NONE)
+   {
+      amx_RaiseError(amx, err);
+      return 0;
+   }
+
+   tag = params[2];
+   tagtype = params[3];
+
+   if(!tagtype) // 0 == find sector by tag
+   {
+      int secnum = -1;
+
+      while((secnum = P_FindSectorFromTag(tag, secnum)) >= 0)
+      {
+         sector_t *sector = &sectors[secnum];
+         
+         S_StartSoundName((mobj_t *)&sector->soundorg, sndname);
+      }
+   }
+
+   // TODO: find sector by ExtraData SID
+
+   Z_Free(sndname);
+
+   return 0;
+}
+
+static cell AMX_NATIVE_CALL sm_sectorsoundnum(AMX *amx, cell *params)
+{
+   int tag, tagtype, sndnum;
+
+   sndnum  = params[1];
+   tag     = params[2];
+   tagtype = params[3];
+
+   if(gamestate != GS_LEVEL)
+   {
+      amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
+      return -1;
+   }
+
+   if(!tagtype) // 0 == find sector by tag
+   {
+      int secnum = -1;
+
+      while((secnum = P_FindSectorFromTag(tag, secnum)) >= 0)
+      {
+         sector_t *sector = &sectors[secnum];
+         
+         S_StartSound((mobj_t *)&sector->soundorg, sndnum);
+      }
+   }
+
+   // TODO: find sector by ExtraData SID
+
+   return 0;
+}
+
 AMX_NATIVE_INFO sound_Natives[] =
 {
-   { "GlobalSound",    sm_globalsound },
-   { "GlobalSoundNum", sm_glblsoundnum },
+   { "SoundGlobal",    sm_globalsound },
+   { "SoundGlobalNum", sm_glblsoundnum },
+   { "SectorSound",    sm_sectorsound },
+   { "SectorSoundNum", sm_sectorsoundnum },
    { NULL, NULL }
 };
 

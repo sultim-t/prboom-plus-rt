@@ -83,32 +83,6 @@ void P_Bob(player_t *player, angle_t angle, fixed_t move)
 }
 
 //
-// P_CheckClipView
-//
-// haleyjd
-// Determines if an object's view/shooting height should be
-// decreased by the footclip amount or not
-//
-boolean P_CheckClipView(mobj_t *mo)
-{
-   sector_t *thingsec = mo->subsector->sector;
-   sector_t *floorsec = (mo->floorsec >= 0) ? &sectors[mo->floorsec]
-                                            : NULL;
-
-   // case 1: thing is on thingsec floor
-   if(mo->z <= thingsec->floorheight &&
-      P_TerrainFloorClip(P_GetSecTerrainType(thingsec, 0)))
-      return true;
-
-   // case 2: thing is on floorsec floor (hanging off ledge)
-   if(floorsec && mo->z <= floorsec->floorheight &&
-      P_TerrainFloorClip(P_GetSecTerrainType(floorsec, 0)))
-      return true;
-
-   return false;
-}
-
-//
 // P_CalcHeight
 // Calculate the walking / running height adjustment
 //
@@ -192,18 +166,16 @@ void P_CalcHeight(player_t *player)
    }
 
    player->viewz = player->mo->z + player->viewheight + bob;
+
+   // haleyjd 08/07/04: new floorclip system
+   if(player->mo->floorclip && player->playerstate != PST_DEAD && 
+      player->mo->z <= player->mo->floorz)
+   {
+      player->viewz -= player->mo->floorclip;
+   }
    
    if(player->viewz > player->mo->ceilingz-4*FRACUNIT)
       player->viewz = player->mo->ceilingz-4*FRACUNIT;
-
-   // haleyjd 10/12/02: foot clip
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      (player->mo->intflags & MIF_FOOTCLIP) &&
-      player->playerstate != PST_DEAD &&
-      P_CheckClipView(player->mo))
-   {
-      player->viewz -= FOOTCLIPHEIGHT;
-   }
 }
 
 //
@@ -351,7 +323,6 @@ static void P_HereticCurrent(player_t *player)
 //
 // P_PlayerThink
 //
-
 void P_PlayerThink (player_t* player)
 {
    ticcmd_t*    cmd;
@@ -596,16 +567,16 @@ static cell AMX_NATIVE_CALL sm_playername(AMX *amx, cell *params)
    }
 
    if(!playeringame[pnum])
-      amx_SetString(cstr, "null", packed);
+      amx_SetString(cstr, "null", packed, 0);
    else
-      amx_SetString(cstr, players[pnum].name, packed);
+      amx_SetString(cstr, players[pnum].name, packed, 0);
 
    return 0;
 }
 
 AMX_NATIVE_INFO user_Natives[] =
 {
-   { "GetPlayerName", sm_playername },
+   { "G_GetPlayerName", sm_playername },
    { NULL, NULL }
 };
 

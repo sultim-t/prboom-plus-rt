@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -87,14 +87,6 @@ void player_printf(player_t *player, const char *s, ...);
 
 // killough 5/2/98: moved from m_misc.c:
 
-extern int  key_menu_right;                                  // phares 3/7/98
-extern int  key_menu_left;                                   //     |
-extern int  key_menu_up;                                     //     V
-extern int  key_menu_down;
-extern int  key_menu_backspace;                              //     ^
-extern int  key_menu_escape;                                 //     |
-extern int  key_menu_enter;                                  // phares 3/7/98
-
 extern int  key_escape;                                             // phares
 extern int  key_autorun;
 extern int  key_chat;
@@ -104,20 +96,6 @@ extern int  key_help;
 extern int  key_spy;
 extern int  key_pause;
 extern int  destination_keys[MAXPLAYERS];
-extern int  key_map_right;
-extern int  key_map_left;
-extern int  key_map_up;
-extern int  key_map_down;
-extern int  key_map_zoomin;
-extern int  key_map_zoomout;
-extern int  key_map;
-extern int  key_map_gobig;
-extern int  key_map_follow;
-extern int  key_map_mark;                                           //    ^
-extern int  key_map_clear;                                          //    |
-extern int  key_map_grid;                                           // phares
-extern int  key_screenshot;    // killough 2/22/98 -- add key for screenshot
-extern int  key_setup;         // killough 10/98: shortcut to setup menu
 extern int  autorun;           // always running?                   // phares
 extern int  automlook;
 extern int  invert_mouse;

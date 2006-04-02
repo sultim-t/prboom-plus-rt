@@ -80,15 +80,13 @@ int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 //
 // killough 4/19/98: made static, cleaned up
 // haleyjd  9/23/02: reformatted
-
+//
 static fixed_t P_InterceptVector2(const divline_t *v2, 
                                   const divline_t *v1)
 {
    fixed_t den;
 
-   den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy);
-
-   if(den)
+   if((den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy)))
    {
       return 
          FixedDiv(FixedMul((v1->x - v2->x)>>8, v1->dy) +
@@ -96,13 +94,6 @@ static fixed_t P_InterceptVector2(const divline_t *v2,
    }
 
    return 0;
-
-/*   
-   return 
-    (den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy)) ?
-    FixedDiv(FixedMul((v1->x - v2->x)>>8, v1->dy) +
-       FixedMul((v2->y - v1->y)>>8, v1->dx), den) : 0;
-*/
 }
 
 //
@@ -237,8 +228,7 @@ static boolean P_CrossBSPNode(int bspnum, register los_t *los)
       }
    }
    return 
-      P_CrossSubsector((bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR),
-                       los);
+      P_CrossSubsector((bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR), los);
 }
 
 //

@@ -434,7 +434,7 @@ void do_draw_newsky(visplane_t *pl)
    
    an = viewangle;
    
-   if(DoubleSky) // render two layers
+   if(LevelInfo.doubleSky) // render two layers
    {
       // get scrolling offsets and textures
       offset = Sky1ColumnOffset>>16;
@@ -449,10 +449,11 @@ void do_draw_newsky(visplane_t *pl)
          dc_colormap = fullcolormap;
       
       // first draw sky 2 with R_DrawColumn (unmasked)
-      dc_texturemid = sky2->texturemid;
-      
+      dc_texturemid = sky2->texturemid;      
       dc_texheight = sky2->height;
-      if(dc_texheight <= 128)
+
+      // haleyjd: don't stretch textures over 200 tall
+      if(dc_texheight < 200)
          dc_iscale = pspriteiyscale >> stretchsky;
       else
          dc_iscale = pspriteiyscale;
@@ -472,7 +473,8 @@ void do_draw_newsky(visplane_t *pl)
       dc_texturemid = sky1->texturemid;
       dc_texheight = sky1->height;
 
-      if(dc_texheight <= 128)
+      // haleyjd: don't stretch textures over 200 tall
+      if(dc_texheight < 200)
          dc_iscale = pspriteiyscale >> stretchsky;
       else
          dc_iscale = pspriteiyscale;
@@ -488,10 +490,18 @@ void do_draw_newsky(visplane_t *pl)
          }
       }
    }
-   else // one layer only
+   else // one layer only -- use pl->picnum
    {
-      offset = Sky1ColumnOffset>>16;
-      skyTexture = texturetranslation[skytexture];
+      if(pl->picnum == skyflatnum)
+      {
+         offset = Sky1ColumnOffset>>16;
+         skyTexture = texturetranslation[skytexture];
+      }
+      else
+      {
+         offset = Sky2ColumnOffset>>16;
+         skyTexture = texturetranslation[sky2texture];
+      }
 
       sky1 = R_GetSkyTexture(skyTexture);
       
@@ -501,7 +511,9 @@ void do_draw_newsky(visplane_t *pl)
          dc_colormap = fullcolormap;
       
       dc_texheight = sky1->height;
-      if(dc_texheight <= 128)
+
+      // haleyjd: don't stretch textures over 200 tall
+      if(dc_texheight < 200)
          dc_iscale = pspriteiyscale >> stretchsky;
       else
          dc_iscale = pspriteiyscale;
@@ -526,24 +538,27 @@ void do_draw_newsky(visplane_t *pl)
 static void do_draw_plane(visplane_t *pl)
 {
    register int x;
-   skytexture_t *sky;
 
    if(!(pl->minx <= pl->maxx))
       return;
 
-   if(pl->picnum == skyflatnum || pl->picnum == sky2flatnum || 
-      pl->picnum & PL_SKYFLAT)  // sky flat
+   // haleyjd: hexen-style skies:
+   // * Always for sky2
+   // * Use for sky1 IF double skies or sky delta set
+   if(pl->picnum == sky2flatnum ||
+      (pl->picnum == skyflatnum && 
+       (LevelInfo.doubleSky || LevelInfo.skyDelta)))
+   {
+      do_draw_newsky(pl);
+      return;
+   }
+
+   if(pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT)  // sky flat
    {
       int texture;
       angle_t an, flip;
+      skytexture_t *sky;
       
-      // haleyjd: new hexen-style skies
-      if(pl->picnum == sky2flatnum)
-      {
-         do_draw_newsky(pl);
-         return;
-      }
-
       // killough 10/98: allow skies to come from sidedefs.
       // Allows scrolling and/or animated skies, as well as
       // arbitrary multiple skies per level without having

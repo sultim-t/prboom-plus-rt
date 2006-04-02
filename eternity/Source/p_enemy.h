@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -29,6 +29,7 @@
 #ifndef __P_ENEMY__
 #define __P_ENEMY__
 
+#include "m_random.h"
 #include "p_mobj.h"
 
 void P_NoiseAlert (mobj_t *target, mobj_t *emmiter);
@@ -36,12 +37,8 @@ void P_SpawnBrainTargets(void); // killough 3/26/98: spawn icon landings
 void P_SpawnSorcSpots(void);    // haleyjd 11/19/02: spawn dsparil spots
 
 extern struct brain_s {         // killough 3/26/98: global state of boss brain
-  int easy, targeton;
+  int easy;
 } brain;
-
-// haleyjd
-void P_CollectThings(mobjtype_t type, int *num, int *numalloc,
-                     mobj_t ***ppArray);
 
 boolean P_CheckMeleeRange(mobj_t *actor);
 
@@ -66,9 +63,8 @@ enum
 //
 typedef struct bossteleport_s
 {
-   int spotCount;     // number of spots available
-   mobj_t **spots;    // set of spots to use
-   int rngNum;        // rng number to use for selecting spot
+   MobjCollection_t *mc; // mobj collection to use
+   pr_class_t rngNum;    // rng number to use for selecting spot
 
    mobj_t *boss;      // boss to teleport
    statenum_t state;  // number of state to put boss in (-1 to not)
@@ -80,6 +76,8 @@ typedef struct bossteleport_s
 } bossteleport_t;
 
 void P_BossTeleport(bossteleport_t *bt);
+
+void P_SkullFly(mobj_t *actor, fixed_t speed);
 
 #endif // __P_ENEMY__
 

@@ -46,8 +46,6 @@
 #define MAXDIALOGLINELEN 256
 #define DIALOGNAMELEN 31
 
-extern patch_t *v_font[];
-
 // Public globals
 runningdialog_t *currentdialog = NULL;
 boolean dlginit = false;
@@ -136,7 +134,7 @@ void DLG_Start(int playernum, const char *lumpname, const char *name,
       psnprintf(startmessage, sizeof(startmessage), "%s speaks to %s",
                 players[playernum].name, name);
       
-      HU_CentreMsg(startmessage);
+      HU_CenterMessage(startmessage);
       
       // wait for HU message to clear (1.5 seconds)
       currentdialog->waittime = (3*TICRATE)/2;
@@ -399,7 +397,7 @@ void DLG_Drawer(void)
 
    // draw background
    if(bgtrans)
-      V_DrawPatchTL(0, 0, &vbscreen, dlgbackground, colrngs[bgcolor], 32768);
+      V_DrawPatchTL(0, 0, &vbscreen, dlgbackground, colrngs[bgcolor], FTRANLEVEL);
    else
       V_DrawPatchTranslated(0, 0, &vbscreen, dlgbackground, colrngs[bgcolor], false);
 
@@ -418,7 +416,7 @@ void DLG_Drawer(void)
 //
 // DLG_WriteText
 //
-// A simplified version of F_WriteText from f_finale.c, but
+// A simplified version of F_TextWrite from f_finale.c, but
 // specialized to support drawing within the dialog box bounds and
 // with extra support for colored text
 //
@@ -468,7 +466,7 @@ void DLG_WriteText(void)
       }
 
       c = toupper(c) - V_FONTSTART;
-      if(c < 0 || c > V_FONTSIZE || !v_font[c])
+      if(c < 0 || c >= V_FONTSIZE || !v_font[c])
       {
 	 cx += 4;
 	 continue;
@@ -487,7 +485,7 @@ void DLG_WriteText(void)
       cx += w;
    }
    
-   // needs to be reset at the end of each drawing pass
+   // local color needs to be reset at the end of each drawing pass
    localcolor = -1;  
 }
 

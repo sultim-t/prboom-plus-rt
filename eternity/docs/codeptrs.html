@@ -7,22 +7,24 @@
 </head>
 
 <body bgcolor="#CECECE">
-<pre>
+
 <hr>
-The Eternity Engine Definitive Code Pointer Reference -- 12/11/03
+<b>The Eternity Engine Definitive Code Pointer Reference -- 08/08/04</b>
 <hr>
 
+<p>
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
+<p>
 This is a reference that should be of value to DeHackEd patch authors.
 It exposes full information on all the code pointers available in
 the Eternity Engine, including both those from DOOM and those added in
 later ports. This reference attempts to expose all issues related to
 their use, as well as common pitfalls that lead to nasty crashes.
 
+<p>
 The information in this guide is up to date for Eternity Engine v3.31
-public beta 6, except where later changes are noted.
-</pre>
+Delta, except where later changes are noted.
 
 <ul>
 <li><a name="contents"><b>Table of Contents</b></a>
@@ -47,7 +49,7 @@ public beta 6, except where later changes are noted.
         <li><a href="#genmisc">Miscellaneous Pointers</a><br>
             BFGSpray, BFG11KHit, BouncingBFG, BFGBurst, Mushroom, Nailbomb, SetFlags,
             UnSetFlags, Fall, Die, BrainScream, BrainExplode, SpawnFly, Fire, Spawn,
-            Turn, RandomJump, HealthJump, LineEffect, Stop
+            Turn, LineEffect, Stop
         <li><a href="#hticmisc">Heretic Miscellaneous Pointers</a><br>
             SpawnGlitter, AccelGlitter, SpawnAbove, MummySoul, BlueSpark, GenWizard,
             Sor2DthInit, Sor2DthLoop, PodPain, RemovePod, MakePod, DripBlood
@@ -77,40 +79,58 @@ public beta 6, except where later changes are noted.
         <li><a href="#hticmon">Heretic Monster Attack Pointers</a><br>
             MummyAttack, MummyAttack2, ClinkAttack, WizardAtk1, WizardAtk2, WizardAtk3,
             Srcr2Decide, Srcr2Attack, KnightAttack, BeastAttack, BeastPuff, SnakeAttack,
-            SnakeAttack2, Srcr1Attack
+            SnakeAttack2, Srcr1Attack, VolcanoBlast, VolcBallImpact, MinotaurAtk1, 
+            MinotaurDecide, MinotaurAtk2, MinotaurAtk3, MinotaurCharge, MntrFloorFire,
+            LichFire, LichWhirlwind, LichAttack, LichIceImpact, LichFireGrow, ImpChargeAtk,
+            ImpMeleeAtk, ImpMissileAtk
         <li><a href="#home">Homing Missile Maintenance Pointers</a><br>
             Tracer, GenTracer
         <li><a href="#htichome">Heretic Homing Missile Maintenance Pointers</a><br>
-            HticTracer
+            HticTracer, WhirlwindSeek
         <li><a href="#los">Line of Sight Checking Pointers</a><br>
             CPosRefire, SpidRefire
         <li><a href="#specmon">Special Monster Death Effects</a><br>
             PainDie, KeenDie, BossDeath, BrainDie
         <li><a href="#hticspecmon">Heretic Special Monster Death Effects</a><br>
-            HticDrop, HticBossDeath, SorcererRise
+            HticDrop, HticBossDeath, SorcererRise, ImpDeath, ImpXDeath1, ImpXDeath2, ImpExplode
         <li><a href="#nukespecs">Massacre Cheat Specials</a><br>
             PainNukeSpec, SorcNukeSpec
+        <li><a href="#frscript">Frame Scripting Pointers</a><br>
+            RandomJump, HealthJump, CounterJump, CounterSwitch, SetCounter, CounterOp, CopyCounter,
+            SetTics, AproxDistance
+        <li><a href="#small">Small Scripting System</a><br>
+            StartScript, PlayerStartScript
         </ul>
     </ul>
 </ul>
 
-<pre>
 <a name="changes"><hr width="60%" align="left">
-Changes
+<b>Changes</b>
 <hr width="60%" align="left"></a>
 
-12/11/03: Updated FireCustomBullets, CustomPlayerMelee, and PlayerThunk entries
-          to reflect changes in EE v3.31 public beta 5.  Added missing entry
-          for MissileAttack that should have been present for beta 4.  Fixed
-          an error in the entry for KeenDie.
+<ul>
+<li> 08/08/04:<br>
+     Added ImpChargeAtk, ImpMeleeAtk, ImpMissileAtk, ImpDeath, ImpXDeath1, ImpXDeath2, 
+     ImpExplode.
+          <br><br>
+<li> 08/03/04:<br> 
+     Added CounterJump, CounterSwitch, SetCounter, CounterOp, CopyCounter,
+     SetTics, AproxDistance, VolcanoBlast, VolcBallImpact, MinotaurAtk1,
+     MinotaurDecide, MinotaurAtk2, MinotaurAtk3, MinotaurCharge, MntrFloorFire,
+     LichFire, LichWhirlwind, LichAttack, WhirlwindSeek, LichIceImpact,
+     LichFireGrow, StartScript, and PlayerStartScript. Added new parameters to 
+     Scratch. Additions to HealthJump, HticExplode, SpawnGlitter, BeastPuff.
+     Added note to Chase.
+</ul>
 
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="pitfall"><hr width="60%" align="left">
-General Pitfall and Note on the Type Information:
+<b>General Pitfall and Note on the Type Information:</b>
 <hr width="60%" align="left"></a>
 
+<p>
 General code pointers can be used in any frame that is not a player gun frame.
 Player Gun Frame code pointers cannot be used anywhere except in player gun
 frames. If a code pointer is used in the wrong type of frame, the internal 
@@ -121,365 +141,417 @@ itself even in the original doom.exe, as a sudden, unexplained Venetian Blinds
 crash. There is additionally no way to type-check codepointers at run-time,
 so the user must accept this responsibility.
 
+<p>
 Note that as of Eternity Engine v3.31 public beta 3, there is a special
 codepointer called PlayerThunk, usable via EDF, which allows player gun frames
 to call a select set of monster codepointers by proxy.
 
+<p>
 Parameterized pointers take parameters via fields on the frame in which they
 are used. The code pointer parameter information will indicate what fields are
 used as parameters, and what parameter values mean.
 
+<p>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="damage"><hr width="40%" align="left">
-Note on Damage Formulae:
+<b>Note on Damage Formulae:</b>
 <hr width="40%" align="left"></a>
 
+<p>
 Most damage in DOOM uses a random number, a modulus value, and a multiplier.
 In general, damage formulae will appear like this:
 
+<p>
 (rnd%modulus + 1) * multiplier
 
+<p>
 where rnd is a random number between 0 and 255, unless otherwise noted.
 
+<p>
 (rnd%modulus) + 1 results in a range of numbers from 1 to modulus, so
 if the following formula is shown:
 
+<p>
 (rnd%8 + 1) * 3
 
+<p>
 then the range of damage values is multiples of 3 from 3 to 24, since
 1*3 = 3 and 8*3 = 24. Where damage values involve the summation of several
 random "dice" throws or other, more complicated formulae, the damage range
 will be shown explicitly for convenience.
 
+<p>
 <a href="#contents">Return to Table of Contents</a>
 
 
+<p>
 <a name="pgp"><hr>
-Player Gun Frame Code Pointers
+<b>Player Gun Frame Code Pointers</b>
 <hr></a>
 
+<p>
 <a name="wmp"><hr width="40%" align="left">
-Weapon Maintenance Pointers
+<b>Weapon Maintenance Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Light0
-  Type:    Weapon maintenance, normal
-  Purpose: Turns off any lighting flashes caused by firing a weapon.
-  
-  
-* Light1
-  Type:    Weapon maintenance, normal
-  Purpose: Causes a first-level light flash to occur for the player
-           shooting the weapon.
-  Notes:   Weapon flashes do not function on levels that use special
-           global colormaps. Light must be subsequently returned to
-           normal by using the Light0 code pointer above.
-  
-           
-* Light2
-  Type:    Weapon maintenance, normal
-  Purpose: Causes a second-level light flash to occur for the player
-           shooting the weapon.
-  Notes:   Weapon flashes do not function on levels that use special
-           global colormaps. Light must be subsequently returned to
-           normal by using the Light0 code pointer above.
-  
-  
-* WeaponReady
-  Type:    Weapon maintenance, normal
-  Purpose: Readies a weapon for firing or change, should be used after
-           the weapon's raise sequence and fire sequence.
-  
-  
-* Lower
-  Type:    Weapon maintenance, normal
-  Purpose: Lowers the current weapon and changes to a newly selected one,
-           unless the player is dead. Should be called from the weapon's
-           lowering sequence.
-  
-           
-* Raise
-  Type:    Weapon maintenance, normal
-  Purpose: Raises a new weapon to normal position. Should be called from
-           a weapon's raise sequence.
-
-
-* ReFire
-  Type:    Weapon maintenance, normal
-  Purpose: Allows a weapon to restart its firing sequence without returning
-           to its ready sequence. If the player does not have enough ammo
-           to fire again, the weapon will be lowered and replaced.
-
-           
-* CheckReload
-  Type:    Weapon maintenance, normal
-  Purpose: Checks the ammo for a weapon to see if a weapon change should
-           occur before the reload frames are entered. Used in particular
-           by the super shotgun.
-  Notes:   This code pointer does not function properly in BOOM, MBF, or
-           SMMU, and will fail to make the weapon lower before completing
-           its reload frames. This problem has been repaired in Eternity.
-
-           
-* GunFlash
-  Type:    Weapon maintenance, normal
-  Purpose: Allows weapon kickback to be synchronized with the gun's firing
-           frames as opposed to when the player presses the trigger. This
-           code pointer is new as of BOOM, and is used by the BFG so that
-           kickback does not occur until after BFG delay. It would work
-           for any weapon with a similar firing delay. Should be called
-           from one of the weapon's firing frames.
+<ul>
+<li> <b>Light0</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Turns off any lighting flashes caused by firing a weapon.
+     <br>
+     <br>
+<li> <b>Light1</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Causes a first-level light flash to occur for the player
+              shooting the weapon.<br>
+     Notes:   Weapon flashes do not function on levels that use special
+              global colormaps. Light must be subsequently returned to
+              normal by using the Light0 code pointer above.
+     <br><br><br>
+     
+     
+<li> <b>Light2</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Causes a second-level light flash to occur for the player
+              shooting the weapon.<br>
+     Notes:   Weapon flashes do not function on levels that use special
+              global colormaps. Light must be subsequently returned to
+              normal by using the Light0 code pointer above.
+     <br><br><br>
+     
+       
+<li> <b>WeaponReady</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Readies a weapon for firing or change, should be used after
+              the weapon's raise sequence and fire sequence.
+     <br><br><br>
+     
+     
+<li> <b>Lower</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Lowers the current weapon and changes to a newly selected one,
+              unless the player is dead. Should be called from the weapon's
+              lowering sequence.
+     <br><br><br>  
+     
+     
+<li> <b>Raise</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Raises a new weapon to normal position. Should be called from
+              a weapon's raise sequence.
+     <br><br><br>
+     
+     
+<li> <b>ReFire</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Allows a weapon to restart its firing sequence without returning
+              to its ready sequence. If the player does not have enough ammo
+              to fire again, the weapon will be lowered and replaced.
+     <br><br><br>      
+     
+     
+<li> <b>CheckReload</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Checks the ammo for a weapon to see if a weapon change should
+              occur before the reload frames are entered. Used in particular
+              by the super shotgun.<br>
+     Notes:   This code pointer does not function properly in BOOM, MBF, or
+              SMMU, and will fail to make the weapon lower before completing
+              its reload frames. This problem has been repaired in Eternity.
+     <br><br><br>      
+     
+     
+<li> <b>GunFlash</b><br>
+     Type:    Weapon maintenance, normal<br>
+     Purpose: Allows weapon kickback to be synchronized with the gun's firing
+              frames as opposed to when the player presses the trigger. This
+              code pointer is new as of BOOM, and is used by the BFG so that
+              kickback does not occur until after BFG delay. It would work
+              for any weapon with a similar firing delay. Should be called
+              from one of the weapon's firing frames.
+</ul>
 
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="pap"><hr width="40%" align="left">
-Player Attack Pointers
+<b>Player Attack Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Punch
-  Type:    Player attack, normal
+<ul>
+<li> <b>Punch</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Performs the standard player punch attack. Hits for damage with
            the formula (rnd%10 + 1) * 2 when the player is normal. If the
            player is berserk, this value is multiplied by 10. The player can
            only hit when within melee range (64 units). If a hit is successful,
            the player will turn to directly face the target and will emit the
-           DSPUNCH sound effect.
+           "punch" sound effect.
+<br><br><br>
 
-
-* FirePistol
-  Type:    Player attack, normal
+<li> <b>FirePistol</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires a single bullet for standard player tracer damage --
            (rnd%3 + 1) * 5 -- Accuracy will be perfect on the first shot, but
            will use "never" accuracy if the gun is fired repeatedly. The player
            object will transfer to its second attack frame when this pointer is 
-           used. The player will emit the DSPISTOL sound effect.
-
+           used. The player will emit the "pistol" sound effect.
+<br><br><br>
            
-* FireShotgun
-  Type:    Player attack, normal
+<li> <b>FireShotgun</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires player shotgun attack. Seven tracers are fired using "never"
            accuracy (a moderate horizontal spread with no vertical error), each
            doing standard bullet damage of (rnd%3 + 1) * 5. The player object
            will transfer to its second attack frame when this pointer is used.
-           The player will emit the DSSHOTGN sound effect.
+           The player will emit the "shotgn" sound effect.
+<br><br><br>
 
-
-* FireShotgun2
-  Type:    Player attack, normal
+<li> <b>FireShotgun2</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires player super shotgun attack. Twenty tracers are fired using
            "ssg" accuracy (wide horizontal spread combined with moderate 
            vertical error), each tracer doing standard bullet damage of
            (rnd%3 + 1) * 5. The player object will transfer to its second
-           attack state, and will emit the DSDSHTGN sound effect.
-
+           attack state, and will emit the "dshtgn" sound effect.
+<br><br><br>
            
-* FireCGun
-  Type:    Player attack, normal
+<li> <b>FireCGun</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires player chaingun attack. Fires one tracer for standard bullet
            damage of (rnd%3 + 1) * 5. Accuracy will be perfect on the first
            shot, but will use "never" accuracy on subsequent shots. The player 
            object will transfer to its second attack state, and will emit the 
-           DSCHGUN sound effect.
-  Notes:   If no DSCHGUN sound is present amongst all WAD files, the DSCHGUN
+           "chgun" sound effect.<br>
+  Notes:   If no DSCHGUN sound lump is present amongst all WAD files, the "chgun"
            sound effect will be dynamically remapped to DSPISTOL. This behavior
            is new as of SMMU.
-
+<br><br><br>
            
-* FireMissile
-  Type:    Player attack, normal
+<li> <b>FireMissile</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires a single RocketShot projectile.
-
+<br><br><br>
   
-* Saw
-  Type:    Player attack, normal
+<li> <b>Saw</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Performs a player chainsaw attack. Hits for (rnd%10 + 1) * 2 damage
            once per call. Player must be within melee range + 1 unit (65 units)
            in order to hit with this attack. If the attack misses, the player
-           will emit the DSSAWFUL sound effect. If the attack hits, the player
-           will emit the DSSAWHIT sound effect, and his/her current angle will
+           will emit the "sawful" sound effect. If the attack hits, the player
+           will emit the "sawhit" sound effect, and his/her current angle will
            be set directly toward the target, and then will be randomly 
            deflected 4.5 degrees to the right or left. The JUSTATTACKED flag 
            will be set for the player object, causing slight forward movement.
-
+<br><br><br>
            
-* FirePlasma
-  Type:    Player attack, normal
+<li> <b>FirePlasma</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires a single PlasmaShot projectile. Has a 50% chance of causing 
            the weapon to stall by entering its reload state after firing.
-
+<br><br><br>
            
-* FireBFG
-  Type:    Player attack, normal
+<li> <b>FireBFG</b><br>
+  Type:    Player attack, normal<br>
   Purpose: Fires a single BFGShot projectile.
+
+</ul>
 
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="mwp"><hr width="40%" align="left">
-Miscellaneous Weapon Pointers
+<b>Miscellaneous Weapon Pointers</b>
 <hr width="40%" align="left"></a>
-           
-* BFGsound
-  Type:    Weapon miscellaneous, normal
-  Purpose: Player object will emit the DSBFG sound.
 
+<ul>           
+<li> <b>BFGsound</b><br>
+  Type:    Weapon miscellaneous, normal<br>
+  Purpose: Player object will emit the "bfg" sound.
+<br><br><br>
 
-* OpenShotgun2
-  Type:    Weapon miscellaneous, normal
-  Purpose: Player object will emit the DSDBOPN sound effect.
-
+<li> <b>OpenShotgun2</b><br>
+  Type:    Weapon miscellaneous, normal<br>
+  Purpose: Player object will emit the "dbopn" sound effect.
+<br><br><br>
   
-* LoadShotgun2
-  Type:    Weapon miscellaneous, normal
-  Purpose: Player object will emit the DSDBLOAD sound effect.
+<li> <b>LoadShotgun2</b><br>
+  Type:    Weapon miscellaneous, normal<br>
+  Purpose: Player object will emit the "dbload" sound effect.
+<br><br><br>
 
-
-* CloseShotgun2
-  Type:    Weapon miscellaneous, normal
-  Purpose: Player object will emit the DSDBCLS sound effect, and then control
+<li> <b>CloseShotgun2</b><br>
+  Type:    Weapon miscellaneous, normal<br>
+  Purpose: Player object will emit the "dbcls" sound effect, and then control
            will transfer to the ReFire code pointer, which will check for
            weapon refire.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-           
+<p>           
 <a name="ppap"><hr width="40%" align="left">
-Parameterized Player Attack Pointers
+<b>Parameterized Player Attack Pointers</b>
 <hr width="40%" align="left"></a>
-           
-* FireCustomBullets
+
+<ul>           
+<li> <b>FireCustomBullets</b><br>
   Type:    Player attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of sound to play (default of 0 = no sound)
-  * Args2 = Select accuracy type (default of 0 = 1)
-            * 1 = Always accurate
-            * 2 = Accurate on first fire only ("never" accurate afterward)
-            * 3 = Never accurate 
+  <ul>
+  <li> Args1 = DeHackEd number of sound to play (default of 0 = no sound)
+  <li> Args2 = Select accuracy type (default of 0 = 1)
+            <ul>
+            <li> 1 = Always accurate
+            <li> 2 = Accurate on first fire only ("never" accurate afterward)
+            <li> 3 = Never accurate<br> 
                   (moderate horizontal spread with no vertical error)
-            * 4 = Super Shotgun accuracy
+            <li> 4 = Super Shotgun accuracy<br>
                   (wide horizontal spread with moderate vertical error)
-            * 5 = Monster accuracy (very wide horizontal spread)
-  * Args3 = Number of bullet tracers to fire (default of 0 = 0)
-  * Args4 = Damage factor (Damage formula is: dmgfactor * ((rnd%dmgmod) + 1))
-  * Args5 = Damage modulus
-            (Forced into range of 1 to 256)
-  
+            <li> 5 = Monster accuracy (very wide horizontal spread)
+            </ul>
+  <li> Args3 = Number of bullet tracers to fire (default of 0 = 0)
+  <li> Args4 = Damage factor (Damage formula is: dmgfactor * ((rnd%dmgmod) + 1))
+  <li> Args5 = Damage modulus<br>
+            (Clamped into range of 1 to 256)
+  </ul>
+  <br>
   Purpose: Extremely powerful codepointer that allows construction of custom
            player bullet weapons. The sound, accuracy, number of tracers, and
            randomized damage range of the tracers are all selectable via the
            argument fields of the frame calling this codepointer. It is
            possible to recreate any of the other bullet attacks in the game
-           using this pointer, as well as create many totally new ones.
-           New to Eternity.
+           using this pointer, as well as create many totally new ones.<br>
+           New to Eternity.<br>
   Notes:   The Args1 parameter has been changed as of EE v3.31 public beta 5
            to use a sound DeHackEd number as defined via EDF.  This allows
            this pointer to use any sound, including those defined in user
            EDF files.
-
+<br><br><br>
            
-* FirePlayerMissile
+<li> <b>FirePlayerMissile</b><br>
   Type:    Player attack, Homing missile firing pointer, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd Number of thing type to shoot (must be valid, no default)
-  * Args2 = Select homing property (default of 0 = 0)
-            * 0 = will not home
-            * 1 = may home
-            
+  <ul>
+  <li> Args1 = DeHackEd Number of thing type to shoot (must be valid, no default)
+  <li> Args2 = Select homing property (default of 0 = 0)
+            <ul>
+            <li> 0 = will not home
+            <li> 1 = may home
+            </ul>
+  </ul>
+  <br>          
   Purpose: Allows a custom player projectile attack. The type of missile to
            fire is given as the thing type's DeHackEd number in Args1. If this
            type is invalid, this codepointer does nothing. If Args2 is set to
            1 and the missile fired has a homing maintenance codepointer in its
            frames, the missile will home on the player's current autoaiming
-           target, if one exists. New to Eternity.
+           target, if one exists. New to Eternity.<br>
   Notes:   A missile cannot home unless its frames contain a homing maintenance
            codepointer. These pointers include:
-           * Tracer
-           * GenTracer
-           * HticTracer
-
+           <ul>
+           <li> Tracer
+           <li> GenTracer
+           <li> HticTracer
+           <li> WhirlwindSeek
+           </ul>
+<br><br>
            
-* CustomPlayerMelee
+<li> <b>CustomPlayerMelee</b><br>
   Type:    Player attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = Damage factor (Damage formula is: dmgfactor * ((rnd%dmgmod) + 1))
-  * Args2 = Damage modulus (Forced into range of 1 to 256)
-  * Args3 = Berserk multiplier (default 0, x*damage when player is berserk)
-  * Args4 = Select angle deflection type (default of 0 = 1)
-            * 1 = None
-            * 2 = Punch (player will face object on hit)
-            * 3 = Chainsaw (player will face object and be wiggled around)
-  * Args5 = DeHackEd number of sound to play (default of 0 = no sound)
-            
+  <ul>
+  <li> Args1 = Damage factor (Damage formula is: dmgfactor * ((rnd%dmgmod) + 1))
+  <li> Args2 = Damage modulus (Clamped into range of 1 to 256)
+  <li> Args3 = Berserk multiplier (default 0, x*damage when player is berserk)
+  <li> Args4 = Select angle deflection type (default of 0 = 1)
+            <ul>
+            <li> 1 = None
+            <li> 2 = Punch (player will face object on hit)
+            <li> 3 = Chainsaw (player will face object and be wiggled around)
+            </ul>
+  <li> Args5 = DeHackEd number of sound to play (default of 0 = no sound)
+  </ul>
+  <br>          
   Purpose: Extremely powerful codepointer that allows construction of custom
            player melee attacks. Two major classes of attacks are possible,
            punch-style and chainsaw-style, depending on the parameters given.
            Note that the Berserk multiplier can be applied to any attack,
            but that if it is 0, you will do zero damage when berserk! The
-           Berserk multiplier should be 1 when no berserk bonus is desired.
-           New to Eternity.
+           Berserk multiplier should be 1 when no berserk bonus is desired.<br>
+           New to Eternity.<br>
   Notes:   The Args5 parameter has been changed as of EE v3.31 public beta 5
            to use a sound DeHackEd number as defined via EDF.  This allows
            this pointer to use any sound, including those defined in user
            EDF files.
+<br><br><br>
 
-
-* PlayerThunk
+<li> <b>PlayerThunk</b><br>
   Type:    Player attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = Codepointer to call (no default, must be valid)
-  * Args2 = Select target facing behavior (default of 0 = 0)
-            * 0 = FaceTarget pointer has no effect
-            * 1 = FaceTarget pointer is active
-  * Args3 = DeHackEd number of state to put player in temporarily 
+  <ul>
+  <li> Args1 = Codepointer to call (no default, must be valid)
+  <li> Args2 = Select target facing behavior (default of 0 = 0)
+            <ul>
+            <li> 0 = FaceTarget pointer has no effect
+            <li> 1 = FaceTarget pointer is active
+            </ul>
+  <li> Args3 = DeHackEd number of state to put player in temporarily 
             (default of 0 = 0; negative value = no state change)
-  * Args4 = Select targeting behavior (default of 0 = 0)
-            * 0 = Player targets last attacker, if any
-            * 1 = Player targets current autoaim target, if any 
+  <li> Args4 = Select targeting behavior (default of 0 = 0)
+            <ul>
+            <li> 0 = Player targets last attacker, if any
+            <li> 1 = Player targets current autoaim target, if any<br>
                   (attack fails if none)
-  * Args5 = Select ammo usage (default of 0 = 0)
-            * 0 = No ammo is used
-            * 1 = Normal amount of ammo is used, if applicable
+            </ul>
+  <li> Args5 = Select ammo usage (default of 0 = 0)
+            <ul>
+            <li> 0 = No ammo is used
+            <li> 1 = Normal amount of ammo is used, if applicable
                   (see note below about autoaim targeting)
-                              
+            </ul>
+  </ul>
+  <br>                            
   Purpose: Allows player gun frames to call a select set of monster code-
            pointers which have been determined as safe for use in this
            context. If the index parameter indicates an invalid codepointer,
            or any of the other parameters have invalid values, nothing
-           will occur. New to Eternity.
+           will occur. New to Eternity.<br>
+           <br>
   Notes:   If targeting behavior is set to autoaim, and ammo usage is on, no 
            ammo is used unless the player follows through with an attack on 
            his current target. Otherwise, ammo would be used despite no attack 
            occuring. This may become an additional ammo usage option in the 
-           future.           
+           future.<br>
+           <br>
            Behavior of monster codepointers when applied to the player will
            in general be exactly as described for monsters. The Args3 field 
-           is provided for use with parameterized code-pointers, so that they 
+           is provided for use with parameterized codepointers, so that they 
            can retrieve args values from a different frame. The player will 
            NOT display a sprite, call an action function, or cause a particle
-           event from this state.
+           event from this state.<br>
+           <br>
            *** The Args3 parameter's behavior has been changed slightly as
            of EE v3.31 public beta 5. Formerly, the default value zero meant
            no state change would occur, but this was inappropriate. Now, a
            negative number means no state, and zero means whatever state
            is defined to have DeHackEd number zero (S_NULL by default).
-  
+  <br><br>
   Special Information:
            This codepointer is only usable via EDF. The first argument must
            be specified in an EDF frame block's args list using the following
            syntax:
-           
-           args = { bexptr:&lt;codepointer mnemonic&gt; }
-           
+           <br><br> 
+           <pre>args = { bexptr:&lt;codepointer mnemonic&gt; }</pre>
            where &lt;codepointer mnemonic&gt; is one of the following pointer
            names:
-           
+           <br><br>
            Explode, SpidRefire, Pain, BspiAttack, PlayerScream, CyberAttack,
            Fall, PainAttack, XScream, PainDie, FaceTarget, BrainPain, 
            PosAttack, BrainScream, Scream, BrainDie, SPosAttack, BrainAwake,
@@ -493,41 +565,47 @@ Parameterized Player Attack Pointers
            WizardAtk2, WizardAtk3, Sor1Pain, SorcererRise, Srcr2Attack, 
            BlueSpark, Sor2DthInit, HticExplode, PodPain, RemovePod, MakePod,
            KnightAttack, DripBlood, BeastAttack, BeastPuff, MissileAttack,
-           MissileSpread, BulletAttack
-           
+           MissileSpread, BulletAttack, SetCounter, CopyCounter, CounterOp,
+           MinotaurAtk1, MinotaurAtk2, LichFire, LichWhirlwind, LichAttack,
+           LichIceImpact, ImpMeleeAtk, ImpMissileAtk, SetTics, AproxDistance
+           <br>
            Any other codepointers will not be executed by PlayerThunk.
-
+</ul>
 <a href="#contents">Return to Table of Contents</a>
            
-
+<p>
 <a name="genptr"><hr>
-General Code Pointers
+<b>General Code Pointers</b>
 <hr></a>
 
+<p>
 <a name="genmisc"><hr width="40%" align="left">
-Miscellaneous Pointers
+<b>Miscellaneous Pointers</b>
 <hr width="40%" align="left"></a>
 
-* BFGSpray
-  Type:    Miscellaneous, normal
+<ul>
+<li> <b>BFGSpray</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Causes BFG explosion effects, which differ depending upon the
            player's selected type of BFG:
-           1) Normal BFG:
-              40 tracers will eminate from the object which fired the
+           <ol>
+           <li>Normal BFG:<br>
+              40 tracers will emanate from the object which fired the
               projectile in the general direction in which the projectile
-              was fired, each doing damage that is the sum of 16 rolls of
-              an 8-sided die (Absolute damage range per tracer is 16 to 128, 
-              absolute damage range of ALL tracers is 640 to 5120).
-           2) BFG 11K:
+              was fired, each doing damage that is the sum of 15 rolls of
+              an 8-sided die (Absolute damage range per tracer is 15 to 120, 
+              absolute damage range of ALL tracers is 600 to 4800).
+           <li>BFG 11K:<br>
               Control is transferred to the BFG11KHit codepointer
-           3) Bouncing BFG:
+           <li>Bouncing BFG:<br>
               Control is transferred to the BouncingBFG codepointer
-           4) Plasma Burst BFG:
+           <li>Plasma Burst BFG:<br>
               Control is transferred to the BFGBurst codepointer
+           </ol>
+<br><br>
 
-
-* BFG11KHit
-  Type:    Miscellaneous, normal
+<li> <b>BFG11KHit</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Explosion effect of BFG 11k weapon. Designed for more balanced play
            in deathmatch, this BFG works very differently. First, if the BFG
            ball explodes closer than 96 units to its originator, the originator
@@ -541,12 +619,12 @@ Miscellaneous Pointers
            missile. These tracers will hit for damage equal to the sum of 20
            rolls of an 8-sided die (damage range per tracer is 20 to 160, 
            damage range of all tracers together is 800 to 6400). When a target
-           is hit, an BFGFlash object will be spawned at its location. 
+           is hit, an BFGFlash object will be spawned at its location.<br>
            New to Eternity.
-           
+<br><br><br>           
 
-* BouncingBFG
-  Type:    Miscellaneous, normal
+<li> <b>BouncingBFG</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Explosion effect of Bouncing BFG weapon. This BFG does not do any
            tracer-based damage. Instead, 40 test traces are fired in a circular
            pattern from the point of explosion. The first of these tracers to
@@ -557,94 +635,104 @@ Miscellaneous Pointers
            will also stop. If a valid target is acquired, a new BFGShot 
            projectile will be fired from the current projectile's location 
            toward the target. This bouncing can occur up to 16 times, as noted 
-           before. New to Eternity.
+           before. New to Eternity.<br>
   Notes:   This effect will not work unless the original projectile was
            fired by the FireBFG player gun codepointer.
+<br><br>    <br>       
            
-           
-* BFGBurst
-  Type:    Miscellaneous, normal
+<li> <b>BFGBurst</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Explosion effect of the Plasma Burst BFG weapon. This BFG does not
            do tracer-based damage. Instead, 40 EEBetaPlasma3 projectiles will 
            be fired from the point of explosion in a circular pattern, with
            randomized small positive or negative z momentum, such that they
            tend to bounce off the floor. The new projectiles cannot hit the
            originator of the BFG projectile. Based on the BFG from the
-           unreleased MagDOOM source port by Cephaler. New to Eternity.
+           unreleased MagDOOM source port by Cephaler.<br>
+           New to Eternity.
+<br><br><br>
 
-
-* Mushroom
+<li> <b>Mushroom</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = Fixed-point launch angle factor (default of 0 = 4 units)
-  * Unknown 2 = Fixed-point missile momentum factor (default of 0 = 1/2 unit)
-  * Args1     = DeHackEd number of thing type to spawn 
-                (default of 0 = MancubusShot)
-  
+  <ul>
+  <li> Unknown 1 = Fixed-point launch angle factor (default of 0 = 4 units)
+  <li> Unknown 2 = Fixed-point missile momentum factor (default of 0 = 1/2 unit)
+  <li> Args1     = DeHackEd number of thing type to spawn (default of 0 = MancubusShot)
+  </ul>
+  <br>
   Purpose: Causes a mushroom cloud effect. The object will first call the
            Explode codepointer for primary blast radius damage. Then, a
            number of MancubusShot projectiles proportional to the object's
            missile damage field will be launched into the air in a circular 
            pattern, using the angle and speed parameters provided in the 
-           current frame. This codepointer is new to MBF.
+           current frame. This codepointer is new to MBF.<br>
   Notes:   The Args1 parameter is new to Eternity Engine v3.31 beta 4. It
            allows the thing type fired to be overridden. If this parameter
            is not provided, the default MancubusShot will be used.
+           <br><br><br>
            
-           
-* Nailbomb
-  Type:    Miscellaneous, normal
+<li> <b>Nailbomb</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Causes a blast radius attack with radius and max damage value of
            128, and then fires 30 bullet tracers in a circular spread for
            10 damage each. New to SMMU.
+           <br><br><br>
            
-           
-* SetFlags
+<li> <b>SetFlags</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = Select Bits Field (no default)
-            * 1 = Bits
-            * 2 = Bits2
-            * 3 = Bits3
-  * Args2 = Value to Logical-OR with selected Bits field (default of 0 = 0)
-  
+  <ul>
+  <li> Args1 = Select Bits Field (no default)
+            <ul>
+            <li> 1 = Bits
+            <li> 2 = Bits2
+            <li> 3 = Bits3
+            </ul>
+  <li> Args2 = Value to Logical-OR with selected Bits field (default of 0 = 0)
+  </ul>
+  <br>
   Purpose: Adds the flags set in Args2 to the object's Bits field
            selected by Args1. This "turns on" effects controlled by those
            bits. New to Eternity.
+<br><br><br>           
            
-           
-* UnSetFlags
+<li> <b>UnSetFlags</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = Select Bits Field (no default)
-            * 1 = Bits
-            * 2 = Bits2
-            * 3 = Bits3
-  * Args2 = Value to Inverse-Logical-AND with selected Bits field 
+  <ul>
+  <li> Args1 = Select Bits Field (no default)
+             <ul>
+             <li> 1 = Bits
+             <li> 2 = Bits2
+             <li> 3 = Bits3
+             </ul>
+  <li> Args2 = Value to Inverse-Logical-AND with selected Bits field 
             (default of 0 = 0)
-            
+  </ul>
+  <br>            
   Purpose: Removes the flags set in Args2 from the object's Bits field 
            selected by Args1. This "turns off" effects controlled by those
            bits. New to Eternity.
+<br><br><br>
 
-
-* Fall
-  Type:    Miscellaneous, normal
+<li> <b>Fall</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Removes the solid flag from the object, allowing it to be walked
            over.
-
+<br><br><br>
            
-* Die
-  Type:    Miscellaneous, normal
+<li> <b>Die</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Causes the object to die by damaging it for its current health.
            This codepointer is new to MBF.
-
+<br><br><br>
            
-* BrainScream
-  Type:    Miscellaneous, normal
+<li> <b>BrainScream</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Boss Brain Explosion. Spawns RocketShot objects from the point
            (object.x - 196, object.y - 320, z) to the point
            (object.x + 320, object.y - 320, z), stepping 8 units along the
@@ -653,32 +741,33 @@ Miscellaneous Pointers
            z momentum of (512 * rnd), will be set to frame S_BRAINEXPLODE1
            (#799), and will have its state's length modified by a random 
            amount of 0 to 7 gametics, not allowing the frame length to be 
-           less than 1 tic. The object will then play the DSBOSDTH sound 
+           less than 1 tic. The object will then play the "bosdth" sound 
            effect at full volume.
-
+<br><br><br>
            
-* BrainExplode
-  Type:    Miscellaneous, normal
+<li> <b>BrainExplode</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Boss Brain Explosion, called by rockets spawned by BrainScream.
            Another RocketShot object will be spawned within a small distance
            of the one calling this pointer, and it will be given randomized
            z momentum, be transferred to frame S_BRAINEXPLODE1 (#799), and 
-           have its frame's length randomly modified.
+           have its frame's length randomly modified.<br>
   Notes:   This effect will continue ad infinitum. This may slow the game
            down eventually, especially if multiple objects start this
            effect.
+<br><br><br>
 
-
-* SpawnFly
-  Type:    Miscellaneous, normal
+<li> <b>SpawnFly</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Boss spawn cube spawning function. If the spawn cube has not
            reached its target spot, which is judged by a precomputed amount
            of time having passed, nothing will occur. Otherwise, a 
            BossSpawnFire object will be spawned at the object's (x,y) location
-           on the floor of its sector, the DSTELEPT sound will be played, and 
+           on the floor of its sector, the "telept" sound will be played, and 
            one of the following monsters will be spawned at the same point, 
            with the approximate probability listed for that type:
            
+           <pre>
                    Type     Probability   Type number (*)
            * DoomImp --------- 19.5% --------  1
            * Demon ----------- 15.6% --------  2
@@ -690,14 +779,14 @@ Miscellaneous Pointers
            * PainElemental ---  3.9% --------  4
            * Revenant --------  3.9% --------  7
            * BaronOfHell -----  3.9% -------- 11
-           * Archvile --------  0.7% --------  6
+           * Archvile --------  0.7% --------  6</pre>
            
            Friendliness of the spawn cube object will be transferred to the
            spawned monster. The spawned monster will telefrag anything
            occupying its location. The spawned monster will immediately
            awaken if it can either see a target, or a target has made sound
            in the area at any time in the past. The spawn cube object will
-           remove itself after the spawning operation takes place.
+           remove itself after the spawning operation takes place.<br>
   Notes:   Spawn cubes can occasionally miss their target. This is due to
            round-off error in the calculation used to determine the amount
            of time the cube should travel. If this happens, the cube will
@@ -706,115 +795,72 @@ Miscellaneous Pointers
            EDF boss_spawner_types list. EDF allows the thing types spawned
            by this codepointer to be edited. See the <a href="edf_ref.html">EDF Reference</a>
            for more information.
-
+<br><br><br>
                       
-* Fire
-  Type:    Miscellaneous, normal
+<li> <b>Fire</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Moves the object in front of the object it is tracing, if the
            object which it was spawned by has not lost sight of the traced
            object. This object must have been spawned by the VileAttack
            codepointer or no effects will occur.
-
+<br><br><br>
            
-* Spawn
+<li> <b>Spawn</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = DeHackEd number of thing type to spawn 
+  <ul>
+  <li> Unknown 1 = DeHackEd number of thing type to spawn <br>
                 (must be valid, no default)
-  * Unknown 2 = Integer amount of units to add to z coordinate of object 
+  <li> Unknown 2 = Integer amount of units to add to z coordinate of object <br>
                 (default = 0)  
-                
+  </ul>
+  <br>              
   Purpose: Spawns an object of the provided type at the calling object's
            location. Friendliness of the calling object will be transferred
-           to the spawned object. This codepointer is new to MBF.
+           to the spawned object. This codepointer is new to MBF.<br>
   Notes:   This codepointer will no longer crash on invalid thing type numbers
            as of Eternity Engine v3.31 public beta 3. If the type indicated is
            not valid, the pointer will do nothing. Also note that if both the 
            source and spawned object are solid, they will become stuck to each
            other. This codepointer is more suitable for boss-brain-like 
            effects.
-
+<br><br><br>
            
-* Turn
+<li> <b>Turn</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = Integer number of degrees to turn (default of 0 = 0 degrees)
-  
+  <ul>
+  <li> Unknown 1 = Integer number of degrees to turn (default of 0 = 0 degrees)
+  </ul>
+  <br>
   Purpose: The object will turn from its present angle the provided number
            of degrees. New to MBF.
-
+<br><br><br>
            
-* Face
+<li> <b>Face</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = Integer angle to face (default of 0 = 0 degrees)
-  
-  Purpose: Makes the object face toward the indicated angle. New to MBF.
+  <ul>
+  <li> Unknown 1 = Integer angle to face (default of 0 = 0 degrees)
+  </ul>
+  <br>
+  Purpose: Makes the object face toward the indicated angle. New to MBF.<br>
   Notes:   0 (zero) degrees is equivalent to east, or toward the right
            side of the automap.
+<br><br><br>
 
-  
-* RandomJump
+<li> <b>LineEffect</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = Frame DeHackEd number to which object may jump 
-                (default of 0 = frame 0)
-  * Unknown 2 = Chance out of 256 that jump will occur (default of 0 = 0%)
-  
-  Purpose: Causes the object to transfer to the indicated frame with the
-           indicated probability. If the jump does not occur, the object
-           will fall through to the next frame. If the current frame's
-           tics are set to -1, fall-through will not occur. New to MBF.
-  Notes:   As of Eternity Engine v3.31 public beta 3, this codepointer
-           will no longer crash the game if an invalid frame number is
-           supplied. If the frame number is invalid, no jump will occur.
-
-
-* HealthJump
-  Type:    Miscellaneous, parameterized
-  
-  Parameter Information:
-  * Args1 = Frame DeHackEd number to which object may jump
-            (default of 0 = frame 0)
-  * Args2 = Type of comparison to perform on object's health
-            (default of 0 = 0)
-            * 0 = Jump if health &lt; Args3
-            * 1 = Jump if health &lt;= Args3
-            * 2 = Jump if health &gt; Args3
-            * 3 = Jump if health &gt;= Args3
-            * 4 = Jump if health equals Args3
-            * 5 = Jump if health does not equal Args3
-            * 6 = Jump if health & Args3 (bitwise AND operation)
-  * Args3 = Value to compare health against
-            (default of 0 = 0)
-  
-  Purpose: Causes the object to transfer to the indicated frame if the
-           value in Args3 compares as requested to the object's current
-           health. This allows "frame scripting" of actions which vary
-           depending on how much damage an enemy or other object has
-           received. If the jump does not occur, the object will fall 
-           through to the next frame. If the current frame's tics are 
-           set to -1, fall-through will not occur. New to Eternity v3.31 
-           public beta 7.
-  Notes:   Option 6, "bitwise and", is most useful for performing an
-           action only if the object's health is even or odd. To perform
-           an action if the health value is odd, set Args3 to 1, and to
-           perform an action if it is even, set Args3 to 2. Use of other
-           values will result in periodic chances for an action, and
-           will require experimentation.
-
-
-* LineEffect
-  Type:    Miscellaneous, parameterized
-  
-  Parameter Information:
-  * Unknown 1 = Line special (default of 0 = 0)
-  * Unknown 2 = Sector tag (default of 0 = 0)
-  
+  <ul>
+  <li> Unknown 1 = Line special (default of 0 = 0)
+  <li> Unknown 2 = Sector tag (default of 0 = 0)
+  </ul>
+  <br>
   Purpose: Allows objects to trigger linedef specials from frames.
            This effect can trigger any W1/WR/S1/SR line effect. It does
            not work for G1/GR line effects. If a W1 or S1 line effect
@@ -822,52 +868,74 @@ Miscellaneous Pointers
            additional line effects. If the line special provided is not
            a valid type, nothing will occur. Note that the action will
            occur as if a player has activated the line, and not a
-           monster. New to MBF.
+           monster. New to MBF.<br>
+  Notes:   As of Eternity Engine v3.31 final, this codepointer cannot
+           cause accidental corruption of memory under any circumstances.
+           While exceedingly rare, this could have occured occasionally
+           in MBF and SMMU.<br>
+  Warning: This codepointer may cause undesired side effects in some
+           situations by affecting the first line defined in the map
+           and/or the sector(s) which it references. Use with caution!
+<br><br><br>
 
-
-* Stop
-  Type:    Miscellaneous
+<li> <b>Stop</b><br>
+  Type:    Miscellaneous<br>
   Purpose: Causes an object to completely stop all movement. New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="hticmisc"><hr width="40%" align="left">
-Heretic Miscellaneous Pointers
+<b>Heretic Miscellaneous Pointers</b>
 <hr width="40%" align="left"></a>
 
-* SpawnGlitter
+<ul>
+<li> <b>SpawnGlitter</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of object type to spawn (must be valid, no default)
-  * Args2 = Fixed-point amount of z momentum to apply to object
+  <ul>
+  <li> Args1 = DeHackEd number of object type to spawn (must be valid, no default)
+  <li> Args2 = Fixed-point amount of z momentum to apply to object<br>
             (default of 0 = +1/4 unit)
-            
+  <li> Args3 = Mode select: (default of 0 = 0)
+            <ul>
+            <li> 0 = Normal (spawn at floor z, apply z momentum)
+            <li> 1 = Spawn at floor z, do not apply z momentum
+            <li> 2 = Spawn at random z within thing's height, apply z momentum
+            <li> 3 = Spawn at random z within thing's height, do not apply z momentum
+            </ul>
+  <li> Args4 = Optional radius of effect (default of 0 = 32 units)
+  </ul>
+  <br>          
   Purpose: Teleport glitter spawning function. Can be used to make a fountain
            of any type of object. One object will be spawned at a randomized
-           coordinate within a 32x32 square around the source object, and
-           be given z momentum specified in Args2. If the thing type given
-           in Args1 is invalid, this codepointer will do nothing.
+           coordinate within a square around the source object, and will be 
+           given z momentum specified in Args2. If the thing type given
+           in Args1 is invalid, this codepointer will do nothing.<br>
+           Parameters 3 and 4 are new to Eternity Engine v3.31 Delta.<br>
            New to Eternity.
+<br><br><br>
 
-
-* AccelGlitter
-  Type:    Miscellaneous, normal
-  Purpose: Accelerates the object upward by increasing its z momentum by 50%
+<li> <b>AccelGlitter</b><br>
+  Type:    Miscellaneous, normal<br>
+  Purpose: Accelerates the object upward by increasing its z momentum by 50%.<br>
            New to Eternity.
+<br><br><br>
 
-
-* SpawnAbove
+<li> <b>SpawnAbove</b><br>
   Type:    Miscellaneous, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of thing type to spawn (must be valid, no default)
-  * Args2 = Frame DeHackEd number to which thing will transfer
+  <ul>
+  <li> Args1 = DeHackEd number of thing type to spawn (must be valid, no default)
+  <li> Args2 = Frame DeHackEd number to which thing will transfer<br>
             (default of 0 = 0, negative values = no frame transfer)
-  * Args3 = Integer amount to add to thing's z coordinate 
+  <li> Args3 = Integer amount to add to thing's z coordinate<br>
             (default of 0 = 0 units)
-  
+  </ul>
+  <br>
   Purpose: Special spawning function to spawn an object above the source
            object. The object will be spawned at precisely the source's (x,y)
            position, and at the object's z coordinate plus the amount provided 
@@ -876,23 +944,23 @@ Heretic Miscellaneous Pointers
            invalid, the pointer will do nothing. Note that a negative value can 
            be provided for the frame number to indicate that no frame
            transition is to take place. New to Eternity.
+<br><br><br>
 
-
-* MummySoul
-  Type:    Miscellaneous, normal
+<li> <b>MummySoul</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Spawns a GolemSoul object 10 units above the object and gives it
            upward momentum of 1 unit. New to Eternity.
+<br><br><br>
 
-
-* BlueSpark
-  Type:    Miscellaneous, normal
+<li> <b>BlueSpark</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Spawns D'Sparil's blue projectile spark trail. Two DsparilSpark
            objects are spawned at the object's location and are given 
            randomized x, y, and z momenta. New to Eternity.
+<br><br><br>
 
-
-* GenWizard
-  Type:    Miscellaneous, normal
+<li> <b>GenWizard</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: DsparilShot2 Disciple spawning pointer. The pointer will attempt to 
            spawn a Disciple object at its (x,y) location and at its z minus 1/2 
            the height of a Disciple object. If after spawning, the object does 
@@ -900,31 +968,31 @@ Heretic Miscellaneous Pointers
            ly. Otherwise, the MBF friendliness flag will be transferred from the
            source object to the new object, the source object will be stopped
            and set to its death state, a HereticTeleFog object will be spawned 
-           at its location, and the Heretic TELEPT sound effect will be played.
+           at its location, and the Heretic TELEPT sound effect will be played.<br>
            New to Eternity.
+<br><br><br>
 
-
-* Sor2DthInit
-  Type:    Miscellaneous, normal
-  Purpose: Part of D'Sparil (2nd form) death sequence. An internal field of the
-           object will be set to 7 so that the death frame sequence loops 7
+<li> <b>Sor2DthInit</b><br>
+  Type:    Miscellaneous, normal<br>
+  Purpose: Part of D'Sparil (2nd form) death sequence. The object's Counter 0
+           field will be set to 7 so that the death frame sequence loops 7
            times, and all living entities with the same friendliness as the
            dying object will be massacred (that is, if a friendly D'Sparil
            dies, all friends die, and if an enemy D'Sparil dies, all enemies
            die). New to Eternity.
+<br><br><br>
 
-
-* Sor2DthLoop
-  Type:    Miscellaneous, normal
+<li> <b>Sor2DthLoop</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Part of D'Sparil (2nd form) death sequence. Each call to this
-           codepointer decrements the internal field set by Sor2DthInit by
+           codepointer decrements Counter 0 field set by Sor2DthInit by
            one. If the field is still greater than zero, nothing will happen.
            Otherwise, the object will be transferred to the S_SOR2_DIE4
            frame and the death loop ends. New to Eternity.
+<br><br><br>
 
-
-* PodPain
-  Type:    Miscellaneous, normal
+<li> <b>PodPain</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Called when pods are damaged. There is a 50% chance that this
            codepointer will do nothing. Provided it takes action, there is
            a 16/256 chance that the codepointer will perform its action
@@ -932,22 +1000,23 @@ Heretic Miscellaneous Pointers
            or twice, it will spawn one or two PodGoo objects at the source
            object's (x,y) location and its z + 48 units. The objects will
            be given randomized momenta away from the pod. New to Eternity.
+<br><br><br>
 
-
-* RemovePod
-  Type:    Miscellaneous, normal
+<li> <b>RemovePod</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: Part of pod generator code, called when a pod is destroyed. This
            codepointer uses an internal field of the object to find the pod
            generator which spawned this pod. If that field is valid, it will
-           decrement an internal field of the pod generator so that the
-           generator will be able to spawn more pods in the future.
+           decrement the PodGenerator's Counter 0 field so that the generator 
+           will be able to spawn more pods in the future.<br>
+           New to Eternity.
+<br><br><br>
 
-
-* MakePod
+<li> <b>MakePod</b><br>
   Type:    Miscellaneous, normal
   Purpose: Part of pod generator code, called by pod generators to spawn pods.
-           One of the object's internal fields is used to track the number of
-           pods belonging to this generator. If that number is higher than 16,
+           The object's Counter 0 field is used to track the number of pods
+           currently owned by this generator. If that number is higher than 16,
            no more pods will be spawned (this limit is necessary to avoid
            overcrowding of areas with pods). Provided that there are not too
            many pods, the generator will attempt to create a new Pod object 
@@ -959,151 +1028,164 @@ Heretic Miscellaneous Pointers
            pod generator so that the generator can later be notified of the 
            pod's destruction. New to Eternity.
 
-
-* DripBlood
-  Type:    Miscellaneous, normal
+<br><br><br>
+<li> <b>DripBlood</b><br>
+  Type:    Miscellaneous, normal<br>
   Purpose: A HereticBlood object will be spawned at a random location within a
            small distance of the source object, will be given randomized x and 
            y momenta, and will be given the LOGRAV Bits2 flag. New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="miscsnd"><hr width="40%" align="left">
-Miscellaneous / Sound Pointers
+<b>Miscellaneous / Sound Pointers</b>
 <hr width="40%" align="left"></a>
 
-* StartFire
-  Type:    Miscellaneous / sound, normal
-  Purpose: Plays the DSFLAMST sound and calls the Fire codepointer on the
+<ul>
+<li> <b>StartFire</b><br>
+  Type:    Miscellaneous / sound, normal<br>
+  Purpose: Plays the "flamst" sound and calls the Fire codepointer on the
            object. Part of the Archvile flame attack sequence.
-
+<br><br><br>
            
-* FireCrackle
-  Type:    Miscellaneous / sound, normal
-  Purpose: Plays the DSFLAME sound and calls the Fire codepointer on the
+<li> <b>FireCrackle</b><br>
+  Type:    Miscellaneous / sound, normal<br>
+  Purpose: Plays the "flame" sound and calls the Fire codepointer on the
            object. Part of the Archvile flame attack sequence.
-
+<br><br><br>
            
-* SkelWhoosh
-  Type:    Miscellaneous / sound, normal
-  Purpose: Causes the object to face its target and play the DSSKESWG sound
+<li> <b>SkelWhoosh</b><br>
+  Type:    Miscellaneous / sound, normal<br>
+  Purpose: Causes the object to face its target and play the "skeswg" sound
            effect.
+           <br><br><br>
            
-           
-* FatRaise
-  Type:    Miscellaneous / sound, normal
-  Purpose: Causes the object to face its target and play the DSMANATK sound
+<li> <b>FatRaise</b><br>
+  Type:    Miscellaneous / sound, normal<br>
+  Purpose: Causes the object to face its target and play the "manatk" sound
            effect.
+           <br><br><br>
            
-           
-* SpawnSound
-  Type:    Miscellaneous / sound, normal
-  Purpose: The object will emit the DSBOSCUB sound effect, and then control
+<li> <b>SpawnSound</b><br>
+  Type:    Miscellaneous / sound, normal<br>
+  Purpose: The object will emit the "boscub" sound effect, and then control
            will transfer to the SpawnFly codepointer.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="hticsnd"><hr width="40%" align="left">
-Heretic Misc / Sound Pointers
+<b>Heretic Misc / Sound Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Sor1Pain
-  Type:    Miscellaneous / sound, normal
-  Purpose: An internal field of the object will be set to 20, so that it will
+<ul>
+<li> <b>Sor1Pain</b><br>
+  Type:    Miscellaneous / sound, normal<br>
+  Purpose: The object's Counter 0 field will be set to 20, so that it will
            walk faster when using the Sor1Chase codepointer. Control will then
-           transfer to the Pain codepointer for normal pain sound playing.
+           transfer to the Pain codepointer for normal pain sound playing.<br>
            New to Eternity.
-
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="objsound"><hr width="40%" align="left">
-Object Sound Pointers
+<b>Object Sound Pointers</b>
 <hr width="40%" align="left"></a>
 
-* PlaySound
+<ul>
+<li> <b>PlaySound</b><br>
   Type:    Object sound pointer, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = Sound DeHackEd number to play (must be valid, no default)
-  * Unknown 2 = Select sound volume
-                * 0 = normal (default)
-                * 1 = full volume
-                
+  <ul>
+  <li> Unknown 1 = Sound DeHackEd number to play (must be valid, no default)
+  <li> Unknown 2 = Select sound volume
+                <ul>
+                <li> 0 = normal (default)
+                <li> 1 = full volume
+                </ul>
+  </ul>
+  <br>                
   Purpose: Causes the object to emit the sound indicated by the provided
-           sound DeHackEd number, at the indicated volume level. New to MBF.
+           sound DeHackEd number, at the indicated volume level. New to MBF.<br>
   Notes:   As of Eternity Engine v3.31 public beta 3, this codepointer will
            no longer crash the game if an invalid sound number is provided.
            If the sound number is invalid, nothing will happen.
+<br><br><br>           
            
-           
-* Pain
-  Type:    Object sound pointer, normal
+<li> <b>Pain</b><br>
+  Type:    Object sound pointer, normal<br>
   Purpose: Plays the object's pain sound, if it has one.
+  <br><br><br>
   
-  
-* Scream
-  Type:    Object sound pointer, normal
+<li> <b>Scream</b><br>
+  Type:    Object sound pointer, normal<br>
   Purpose: Plays the object's death sound, if it has one. If the object uses
            certain sounds as its death sound, it may play one of a set of
            random sounds as documented here:
-           1) If the object uses any of the DSPODTH1, DSPODTH2, or DSPODTH3 
+           <ol>
+           <li> If the object uses any of the "podth1", "podth2", or "podth3"
               sounds, it will play one of the three sounds at random.
-           2) If the object uses either of the DSBGDTH1 or DSBGDTH2 sounds,
+           <li> If the object uses either of the "bgdth1" or "bgdth2" sounds,
               it will play one of the two sounds at random.
+           </ol>
            If the object has the BOSS flag in its Bits2 field, it will play
            its death sound at full volume. This is used by most DOOM and
            Heretic bosses.
+<br><br><br>
   
-  
-* XScream
-  Type:    Object sound pointer, normal
-  Purpose: Plays the DSSLOP sound. If the object is a player, falling damage
-           is active, and the player has died from falling, the DSFALLHT
+<li> <b>XScream</b><br>
+  Type:    Object sound pointer, normal<br>
+  Purpose: Plays the "slop" sound. If the object is a player, falling damage
+           is active, and the player has died from falling, the "fallht"
            sound will be played (this sound is subject to remapping by
            player skins).
+<br><br><br>
 
-
-* PlayerScream
-  Type:    Object sound pointer, normal
-  Purpose: Plays player death sounds. Normally plays DSPLDETH sound. However,
+<li> <b>PlayerScream</b><br>
+  Type:    Object sound pointer, normal<br>
+  Purpose: Plays player death sounds. Normally plays "pldeth" sound. However,
            in games other than the shareware game, if the player dies with
-           -50 or less health, it will play the DSPDIEHI sound. If Eternity's
+           -50 or less health, it will play the "pdiehi" sound. If Eternity's
            falling damage effect is active, and the player has died from
-           falling, the DSFALLHT sound will be played. Note that all of these
+           falling, the "fallht" sound will be played. Note that all of these
            sounds are subject to remapping by player skins.
+<br><br><br>
 
+<li> <b>BrainPain</b><br>
+  Type:    Object sound pointer, normal<br>
+  Purpose: Plays the "bospn" sound effect at full volume.
+<br><br><br>
 
-* BrainPain
-  Type:    Object sound pointer, normal
-  Purpose: Plays the DSBOSPN sound effect at full volume.
-
-
-* BrainAwake
-  Type:    Object sound pointer, normal
-  Purpose: Plays the DSBOSSIT sound effect at full volume.
+<li> <b>BrainAwake</b><br>
+  Type:    Object sound pointer, normal<br>
+  Purpose: Plays the "bossit" sound effect at full volume.<br>
   Notes:   In DOOM, this codepointer was also responsible for initializing the
            internal list of Boss Spawn Spot objects. If the number of objects
            was incorrect, this code pointer could crash the game. However, this
            behavior has been moved, as of BOOM, to an internal level init
            function, and the limit on spawn spots has also been removed.
-
+<br><br><br>
            
-* VileStart
-  Type:    Object sound pointer, normal
-  Purpose: Plays the DSVILATK sound effect.
+<li> <b>VileStart</b><br>
+  Type:    Object sound pointer, normal<br>
+  Purpose: Plays the "vilatk" sound effect.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="aiptr"><hr width="40%" align="left">
-AI Pointers
+<b>AI Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Look
-  Type:    AI pointer, normal
+<ul>
+<li> <b>Look</b><br>
+  Type:    AI pointer, normal<br>
   Purpose: Causes the object to look for targets. Various gameplay elements
            have an effect on acquiring a target. Friendly monsters will look
            for enemies first, but if they find none, will look for a player to
@@ -1112,322 +1194,376 @@ AI Pointers
            will play its alert sound. Use of certain alert sounds by a monster
            will cause it to randomly use one of a set of sounds, as documented
            here:
-           1) If object uses the DSPOSIT1, DSPOSIT2, or DSPOSIT3 sounds, it
+           <ol>
+           <li> If object uses the "posit1", "posit2", or "posit3" sounds, it
               will use any one of these three sounds at random.
-           2) If object uses the DSBGSIT1 or DSBGSIT2 sounds, it will use one
+           <li> If object uses the "bgsit1" or "bgsit2" sounds, it will use one
               of these two sounds at random.
+           </ol>
            If the object has the BOSS flag in its Bits2 field, it will play its
            alert sound at full-volume. This is used by most DOOM and Heretic
            bosses by default. After playing the sound, the object will transfer
-           to its "first walking" state.
+           to its "first walking" state.<br>
   Notes:   This codepointer should only be called from an object's initial
            spawn state. Calling it from a walking state can cause an infinite
            state cycle.
+           <br><br><br>
            
-           
-* Chase
-  Type:    AI pointer, normal
-  Purpose: Causes an object to pursue its target. If the object has lost its
-           target (ie it has died or been removed), the object will look for
-           a new target (possibly remembering a prior one). If no targets are
-           found, the object will return to its initial spawn state. If the
-           object has a target, it may attempt to attack. If an object has just 
-           attacked prior to this, it will not attack again, unless the game 
-           skill is at "Nightmare!" level or is in "fast" mode. Instead, the
-           enemy will choose a new direction to walk in. If the object has a
-           melee attack and is within 64 units of its target, it will transfer
-           to its melee attack state. If the object does not have a melee
-           attack or is not close enough to use it, is within normal missile
-           range (2048 units), and timing or skill level permitting, it will
-           transfer to its missile attack state. Depending on the actor's
-           internal "threshold" value, which decrements slowly as it chases
-           a target, it may choose a new target to attack when it cannot
-           attack its current one. Friendly objects may choose a new player
-           to follow, or may look for other friendly objects who are in
-           critical condition (low health). If a friendly object finds a friend
-           in trouble, it may adopt that friend's target as its own. Enemies
-           will look for new players first, and then friendly monsters. If
-           advanced strafing logic is active, and the monster is moving, it
-           may decide to strafe away from its target. Once all moving and
-           attack logic have been passed, the object has a 3/256 (1.17%) chance
-           of playing its active (roaming) sound, if it has one. If an object
-           has the ACTSEESOUND flag in its Bits3 field, it has a 50% chance of
-           playing its alert sound instead of its active sound. If an object
-           has the LOUDACTIVE flag in its Bits3 field, it will play which ever
-           sound it chooses at full volume.
+<li> <b>Chase</b><br>
+  Type:    AI pointer, normal<br>
+  Purpose: Causes an object to pursue its target.
+           <br><br>
+           <ul>
+           <li> If the object has lost its target (ie. it has died or been 
+             removed), the object will look for a new target (possibly 
+             remembering a prior one). If no targets are found, the object will
+             return to its initial spawn state.
+             <br><br>
+           <li> If the object has a target, it may attempt to attack: 
+             <br><br>
+             <ul>
+             <li> If an object has just attacked prior to this, it will not attack
+               again, unless the game skill is at "Nightmare!" level or is in 
+               "fast" mode. Instead, the enemy will choose a new direction to 
+               walk in. 
+             <br><br>
+             <li> If the object has a melee attack and is within 64 units of its 
+               target, it will transfer to its melee attack state.<br><br>
+             <li> If the object does not have a melee attack or is not close 
+               enough to use it, is within normal missile range (2048 units),
+               and timing or skill level permitting, it will transfer to its
+               missile attack state.
+             </ul>
+               <br>
+           <li> Depending on the actor's internal "threshold" value, which 
+             decrements slowly as it chases a target, it may choose a new 
+             target to attack when it cannot attack its current one. 
+             <br><br>
+             <ul>
+             <li> Friendly objects may choose a new player to follow, or may 
+               look for other friendly objects who are in critical condition 
+               (low health). If a friendly object finds a friend in trouble, 
+               it may adopt that friend's target as its own. 
+             <br><br>
+             <li> Enemies will look for new players first, and then friendly 
+               monsters. If advanced strafing logic is active, and the monster
+               is moving, it may decide to strafe away from its target. 
+             </ul>
+               <br>
+           <li> Once all moving and attack logic has been passed, the object has a
+             3/256 (1.17%) chance of playing its active (roaming) sound, if it
+             has one.
+             <br><br>
+             <ul>
+             <li> If an object has the ACTSEESOUND flag in its Bits3 field, it has
+               a 50% chance of playing its alert sound instead of its active 
+               sound. 
+             <br><br>
+             <li> If an object has the LOUDACTIVE flag in its Bits3 field, it will
+               play which ever sound it chooses at full volume.
+             </ul>
+           </ul>
+           <br>  
   Notes:   This codepointer should only be called from the walking frames of a
            sentient object. There may be undesired effects or undefined
-           behavior in other circumstances.
+           behavior in other circumstances. 
+           <br><br>
+           As of Eternity Engine v3.31 Delta, this
+           codepointer will not crash the game if used in an object's spawn 
+           state. However, an error message will be printed until the object 
+           leaves its spawn state, as using the pointer in this context is
+           not appropriate.
+<br><br>       <br>    
            
-           
-* VileChase
-  Type:    AI pointer, normal
+<li> <b>VileChase</b><br>
+  Type:    AI pointer, normal<br>
   Purpose: Causes an object to look for monster corpses as it walks. When a
-           corpse is encountered which has a resurrection state and is not
-           currently blocked by any other creature, the object will stop
-           beside it and transfer to frame #266 (S_VILE_HEAL). The object
-           being resurrected will emit the DSSLOP sound and will be placed
-           into its first resurrection frame. The resurrected object's
-           normal height, radius, health, and flags information will be
-           restored. Friendliness of the object performing the resurrection 
-           will be transferred to the resurrected object (friendly objects 
-           resurrect friends, and vice versa). If no corpses are found to 
-           resurrect, control transfers to the Chase codepointer for normal 
-           attack and walking logic.
+           corpse is encountered which has a resurrection state, is currently
+           in a frame with a -1 tics value, and is not currently blocked by 
+           any other creature, the object will stop beside it and transfer to 
+           frame #266 (S_VILE_HEAL). The object being resurrected will emit the
+           DSSLOP sound and will be placed into its first resurrection frame. 
+           The resurrected object's normal height, radius, health, and flags 
+           information will be restored. Friendliness of the object performing
+           the resurrection will be transferred to the resurrected object 
+           (friendly objects resurrect friends, and vice versa). If no corpses
+           are found to resurrect, control transfers to the Chase codepointer 
+           for normal attack and walking logic.<br>
   Notes:   If comp_vile is set, crushed creatures will not have their height
            or radius information restored, and will become "ghosts."
-           
+           <br><br><br>
 
-* FaceTarget
-  Type:    AI pointer, normal
+<li> <b>FaceTarget</b><br>
+  Type:    AI pointer, normal<br>
   Purpose: Makes an object face its target, if it has one. If the object's
            target is partially invisible (Bits field SHADOW), totally
            invisible (Bits2 field DONTDRAW), or a Heretic ghost (Bits3 field
            GHOST), the object will face toward the target, and then have a
            random amount between -45 and 45 degrees added to its angle.
+           <br><br><br>
            
-           
-* KeepChasing
-  Type:    AI pointer, normal
+<li> <b>KeepChasing</b><br>
+  Type:    AI pointer, normal<br>
   Purpose: Allows a monster to keep walking during its attack frames. Chase cannot
            be used in this context because it may cause the monster to acquire a 
            new target while trying to attack its current one. Note the monster's
            attack frames will need to have a short duration for the motion to seem
            smooth. New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="hticai"><hr width="40%" align="left">
-Heretic AI Pointers
+<b>Heretic AI Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Sor1Chase
-  Type:    AI pointer, normal
-  Purpose: D'Sparil first form walking logic. If an internal field of the object
-           has been set to a positive value by the Sor1Pain codepointer, the object
-           will subtract 3 from its current tics value, causing it to walk faster
-           (its tics value will not be set less than 1, to avoid state cycles).
-           The internal field will be decremented by 1. Control then transfers to
-           the Chase codepointer for normal walking logic. New to Eternity.
+<ul>
+<li> <b>Sor1Chase</b><br>
+  Type:    AI pointer, normal<br>
+  Purpose: D'Sparil first form walking logic. If the object's Counter 0 field
+           has been set to a positive value by the Sor1Pain codepointer, the 
+           object will subtract 3 from its current tics value, causing it to 
+           walk faster (its tics value will not be set less than 1, to avoid 
+           state cycles). The Counter 0 field will be decremented by 1. Control
+           then transfers to the Chase codepointer for normal walking logic. 
+           New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="aiwalk"><hr width="40%" align="left">
-AI Pointers with Walking Sounds 
+<b>AI Pointers with Walking Sounds</b>
 <hr width="40%" align="left"></a>
-           
-* Metal
-  Type:    AI pointer / Walking sound, normal
-  Purpose: The object will emit the DSMETAL sound effect, and then control
+
+<ul>           
+<li> <b>Metal</b><br>
+  Type:    AI pointer / Walking sound, normal<br>
+  Purpose: The object will emit the "metal" sound effect, and then control
            will transfer to the Chase codepointer for normal walking and
            attack logic.
+           <br><br><br>
            
-           
-* BabyMetal
-  Type:    AI pointer / Walking sound, normal
-  Purpose: The object will emit the DSBSPWLK sound effect, and then control
+<li> <b>BabyMetal</b><br>
+  Type:    AI pointer / Walking sound, normal<br>
+  Purpose: The object will emit the "bspwlk" sound effect, and then control
            will transfer to the Chase codepointer for normal walking and
            attack logic.
+           <br><br><br>
            
-           
-* Hoof
-  Type:    AI pointer / Walking sound, normal
-  Purpose: The object will emit the DSHOOF sound effect, and then control 
+<li> <b>Hoof</b><br>
+  Type:    AI pointer / Walking sound, normal<br>
+  Purpose: The object will emit the "hoof" sound effect, and then control 
            will transfer to the Chase codepointer for normal walking and
            attack logic.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="blast"><hr width="40%" align="left">
-Blast Radius Attack Pointers
+<b>Blast Radius Attack Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Explode
-  Type:    Blast radius attack, normal
+<ul>
+<li> <b>Explode</b><br>
+  Type:    Blast radius attack, normal<br>
   Purpose: Spawns a blast radius at the object's location 128 units in radius,
            with maximum damage of 128, decreasing linearly with distance from
            the blast point. If the blast radius is 128 units or closer to the
            floor, a TerrainTypes hit will occur.
+           <br><br><br>
            
-           
-* Detonate
-  Type:    Blast radius attack, normal
+<li> <b>Detonate</b><br>
+  Type:    Blast radius attack, normal<br>
   Purpose: Spawns a blast radius at the object's location with a radius
            and maximum damage value equal to the object's missile damage
            value. Other effects are the same as Explode. New to MBF.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="hticblast"><hr width="40%" align="left">
-Heretic Blast Radius Attack Pointers
+<b>Heretic Blast Radius Attack Pointers</b>
 <hr width="40%" align="left"></a>
 
-* HticExplode
+<ul>
+<li> <b>HticExplode</b><br>
   Type:    Blast radius attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = Select special explosion effect (default of 0 = 0)
-            * 0 = Blast with radius and max damage of 128
-            * 1 = D'Sparil blue spark effect
-                  Radius and max damage = 80 + (rnd%32)
-                  
+  <ul> 
+  <li> Args1 = Select special explosion effect (default of 0 = 0)
+            <ul>
+            <li> 0 = Blast with radius and max damage of 128
+            <li> 1 = D'Sparil blue spark effect<br>
+                  Radius and max damage = 80 + (rnd % 32)
+            <li> 2 = Maulotaur floor fire effect<br>
+                  Radius and max damage = 24
+            <li> 3 = Timebomb of the Ancients effect<br>
+                  Object z increases 32 units; object translucency
+                  is disabled; Radius and max damage = 128
+            </ul>
+  </ul>
+  <br>                  
   Purpose: Performs various Heretic explosion effects, selected by Args1.
            Higher argument values are reserved for addition of more effects
            and should not be used. If the blast radius is damage units or
-           less above the floor, a TerrainTypes hit will occur.
+           less above the floor, a TerrainTypes hit will occur. Special
+           effects 2 and 3 are new to Eternity Engine v3.31 Delta.<br>
            New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="monatk"><hr width="40%" align="left">
-Monster Attack Pointers
+<b>Monster Attack Pointers</b>
 <hr width="40%" align="left"></a>
 
-* PosAttack
-  Type:    Monster attack, normal
+<ul>
+<li> <b>PosAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Causes a Zombieman pistol attack. If the object's target is valid,
-           it will turn to face it, play the DSPISTOL sound effect, and fire
+           it will turn to face it, play the "pistol" sound effect, and fire
            a single tracer with "monster" accuracy (very wide horizontal
            spread) for standard monster tracer damage of (rnd%5 + 1) * 3.
+<br><br><br>
 
-
-* SPosAttack
-  Type:    Monster attack, normal
+<li> <b>SPosAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Causes a Sergeant shotgun attack. If the object's target is valid,
-           it will turn to face it, play the DSSHOTGN sound effect, and fire
+           it will turn to face it, play the "shotgn" sound effect, and fire
            3 tracers with "monster" accuracy for standard monster tracer
            damage of (rnd%5 + 1) * 3.
+<br><br><br>
 
-
-* VileTarget
-  Type:    Monster attack, normal
+<li> <b>VileTarget</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Causes the object to face its target, and spawns a VileFire 
            object at the target's location. The Fire codepointer will be called
            on the VileFire object after it is spawned.
+<br><br><br>
 
-
-* VileAttack
-  Type:    Monster attack, normal
+<li> <b>VileAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: If the object's target is valid and can currently be seen by the
            object, an Archvile explosion attack will occur. The object will
-           face its target, emit the DSBAREXP sound, and damage the object
+           face its target, emit the "barexp" sound, and damage the object
            directly for 20 points of damage. This attack will also impart
            an upward velocity to the target of (1000 / mass) units per tic.
            If the object has a currently spawned VileFire object, that object 
            will emit a blast radius of 70 units, with maximum damage of 70 at 
            the center of the explosion. This explosion can damage the attacking
            object if it is not immune to blast radius damage.
-
+<br><br><br>
            
-* SkelFist
-  Type:    Monster attack, normal
+<li> <b>SkelFist</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: If the object's target is valid and is within melee range
            (64 units) of the object, it will face its target, emit the 
            DSSKEPCH sound and damage its target directly for 
            (rnd%10 + 1) * 6 damage.
-
-           
-* SkelMissile
-  Type:    Monster attack, Homing missile firing pointer, normal
+<br><br><br>
+            
+<li> <b>SkelMissile</b><br>
+  Type:    Monster attack, Homing missile firing pointer, normal<br>
   Purpose: If the object's target is valid, it will face toward it and fire
            a TracerShot missile at it. The missile's tracer target will be set
-           the to the object it was fired at.
+           the to the object it was fired at.<br>
   Notes:   Missiles fired by this pointer will be fired 16 units higher than
            the normal default of 32 units.
-
+<br><br><br>
            
-* FatAttack1
-  Type:    Monster attack, normal
+<li> <b>FatAttack1</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: If the object's target is valid, it will face it, and then turn an
            additional +11.25 degrees. It will fire two MancubusShot missiles, 
            one directly at the target, and another at +11.25 degrees.
-
+<br><br><br>
            
-* FatAttack2
-  Type:    Monster attack, normal
+<li> <b>FatAttack2</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: If the object's target is valid, it will face it, and then turn an
            additional -11.25 degrees. It will fire two MancubusShot missiles, 
            one directly at the target, and another at -11.25 degrees.
-
+<br><br><br>
            
-* FatAttack3
-  Type:    Monster attack normal
+<li> <b>FatAttack3</b><br>
+  Type:    Monster attack normal<br>
   Purpose: If the object's target is valid, it will face it and fire two
            MancubusShot missiles, one at its angle plus 5.625 degrees, and
            the other at its angle minus 5.625 degrees.
+<br><br><br>
 
-
-* CPosAttack
-  Type:    Monster attack, normal
+<li> <b>CPosAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Causes a Chaingunner chaingun attack. If the object's target is 
-           valid, it will turn to face it, play the DSCHGUN sound effect, and
+           valid, it will turn to face it, play the "chgun" sound effect, and
            fire a single tracer with "monster" accuracy (very wide horizontal
            spread) for standard monster tracer damage of (rnd%5 + 1) * 3.
-
+<br><br><br>
            
-* TroopAttack
-  Type:    Monster attack, normal
+<li> <b>TroopAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Imp attack codepointer. If the object's target is valid, it will
            face toward it. If the target is within melee range (64 units) of
-           the object, the object will emit the DSCLAW sound effect and damage
+           the object, the object will emit the "claw" sound effect and damage
            the target directly for (rnd%8 + 1) * 3 damage. Otherwise, the
            object will fire a DoomImpShot projectile at the target.
-
+<br><br><br>
            
-* SargAttack
-  Type:    Monster attack, normal
+<li> <b>SargAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Demon attack codepointer. If the object's target is valid and is
            within melee range (64 units) of the target, it will face the
            target and damage it directly for (rnd%10 + 1) * 4 damage.
-
+<br><br><br>
            
-* HeadAttack
-  Type:    Monster attack, normal
+<li> <b>HeadAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Cacodemon attack codepointer. If the object's target is valid, it
            will face toward it. If the target is within melee range (64 units)
            of the object, the object will damage the target directly for
            (rnd%6 + 1) * 10 damage. Otherwise, the object will fire a
            CacodemonShot projectile at the target.
-
+<br><br><br>
            
-* BruisAttack
-  Type:    Monster attack, normal
+<li> <b>BruisAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Baron attack codepointer. If the object's target is valid, it will
            face toward it. If the target is within melee range (64 units) of
-           the object, the object will emit the DSCLAW sound effect, and will
+           the object, the object will emit the "claw" sound effect, and will
            damage the target directly for (rnd%8 + 1) * 10 damage. Otherwise,
            the object will fire a BaronShot projectile at the target.
-
+<br><br><br>
            
-* SkullAttack
-  Type:    Monster attack, normal
+<li> <b>SkullAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Lost soul attack codepointer. If the object's target is valid, it
            will face toward it and, if it has an attack sound, will emit it.
            The object's SKULLFLY Bits flag will be set, and it will hurdle
            toward its target at a speed of 20 units per second.
   Notes:   Eternity will not crash if an object with no attack sound uses
            this codepointer. This was a common problem in earlier ports.
-
+<br><br><br>
            
-* BspiAttack
-  Type:    Monster attack, normal
+<li> <b>BspiAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Arachnotron attack codepointer. If the object's target is valid,
            it will face toward it and fire one ArachnotronShot projectile.
-
+<br><br><br>
            
-* CyberAttack
-  Type:    Monster attack, normal
+<li> <b>CyberAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Cyberdemon attack codepointer. If the object's target is valid,
            it will face toward it and fire one RocketShot projectile.
-
+<br><br><br>
            
-* PainAttack
-  Type:    Monster attack, normal
+<li> <b>PainAttack</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Pain Elemental attack codepointer. If the object's target is valid,
            it will face toward it. If the comp_pain variable is asserted, the
            monster will check the number of lost souls on the level. If that 
@@ -1438,80 +1574,109 @@ Monster Attack Pointers
            immediately if it is spawned over a blocking line. The lost soul's
            target will be set equal to the monster's, and then the SkullAttack
            codepointer will be called on it such that it performs a lost soul
-           attack.
+           attack.<br>
   Notes:   The MBF friendliness flag's state is transferred to the spawned
            lost soul. Friendly Pain Elementals shoot friendly lost souls;
            enemy PE's fire enemies.
-
+<br><br><br>
                       
-* BrainSpit
-  Type:    Monster attack, normal
+<li> <b>BrainSpit</b><br>
+  Type:    Monster attack, normal<br>
   Purpose: Boss brain spawn cube attack. If there are no boss spawn spots on
            the level, this function will do nothing. If the game is on the
            an easy skill level, this function will do nothing on every other
            call. Otherwise, a boss spawn spot will be selected by its map
            spawning order, and a BossSpawnCube object will be fired at it like
-           a missile. The object will then emit the DSBOSPIT sound effect.
+           a missile. The object will then emit the "bospit" sound effect.<br>
   Notes:   The MBF friendliness flag will be transferred to the spawn cube
            from the firing object. This is so that the cube will later
            spawn either an enemy or friendly monster, depending on the
            friendliness of its originating boss brain.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="monparam"><hr width="40%" align="left">
-Parameterized Monster Attacks
+<b>Parameterized Monster Attacks</b>
 <hr width="40%" align="left"></a>
 
-* BetaSkullAttack
+<ul>
+<li> <b>BetaSkullAttack</b><br>
   Type:    Monster attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Object's damage field = damage multiplier
-  
+  <ul>
+  <li> Object's damage field = damage multiplier
+  </ul>
+  <br>
   Purpose: If the object's target is invalid or is of the same type as this
            object, no attack will occur. Otherwise, the object will play its 
            attack sound if it has one, and will face its target and damage it 
            directly for (rnd%8 + 1) multiplied by its missile damage field. 
-           This is basically a long-range scratch. New to MBF.
+           This is basically a long-range scratch. New to MBF.<br>
   Notes:   As of Eternity Engine v3.31 public beta 3, this codepointer will
            not cause an error if the object does not have an attack sound.
-
+<br><br><br>
            
-* Scratch
+<li> <b>Scratch</b><br>
   Type:    Monster attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Unknown 1 = Amount of damage to inflict (default of 0 = 0)
-  * Unknown 2 = DeHackEd number of sound to play 
-                (default of 0 = no sound will be played)
-  
+  <ul>
+  <li> Unknown 1 = Amount of damage to inflict (default of 0 = 0)
+  <li> Unknown 2 = DeHackEd number of sound to play (default of 0 = no sound will be played)
+  <li> Args1     = Special mode toggle (default of 0 = 0)
+                 <ul>
+                 <li> 0 = Compatibility mode (Use value in "Unknown 1" as normal)
+                 <li> 1 = Use object damage field
+                 <li> 2 = Use counter specified in Args2
+                 </ul>
+  <li> Args2     = Counter field number for special mode 2 (default of 0 = 0)
+                 <ul>
+                 <li> 0 = Counter 0
+                 <li> 1 = Counter 1
+                 <li> 2 = Counter 2
+                 </ul>
+  </ul>
+  <br>
   Purpose: If the object's target is valid and is within melee range
            (64 units), it will damage the target for the indicated amount.
            If the Unknown 2 parameter is non-zero and is a valid sound
            DeHacked number, the indicated sound will played along with the
-           attack. New to MBF.
+           attack. New to MBF.<br>
   Notes:   As of Eternity Engine v3.31 public beta 3, this codepointer will
            no longer crash the game if an invalid sound number is provided.
-           No sound will be played if the number is invalid.
-           
+           No sound will be played if the number is invalid. 
+           <br><br>
+           Parameters Args1 and Args2 are new to Eternity Engine v3.31 Delta,
+           and allow getting a damage value from other sources. If Args1 is
+           1, the object's damage value will be used. If Args1 is 2, the
+           value of the counter specified in Args2 will be used. When combined
+           with SetCounter or CounterOp, this allows you to perform your own
+           custom damage calculations. This change does not break 
+           compatibility, as the Args1 default value is 0.
+<br><br>    <br>       
         
-* MissileAttack
+<li> <b>MissileAttack</b><br>
   Type:    Monster attack, Homing missile firing pointer, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of thing type to fire (no default, must be valid)
-  * Args2 = Select homing property (default of 0 = 0)
-            * 0 = will not home
-            * 1 = may home
-  * Args3 = Amount to add to standard z missile firing height (32 units)
+  <ul>
+  <li> Args1 = DeHackEd number of thing type to fire (no default, must be valid)
+  <li> Args2 = Select homing property (default of 0 = 0)
+            <ul>
+            <li> 0 = will not home
+            <li> 1 = may home
+            </ul>
+  <li> Args3 = Amount to add to standard z missile firing height (32 units)<br>
             (default of 0 = 0, can be negative)
-  * Args4 = Amount to add to actor angle in degrees
+  <li> Args4 = Amount to add to actor angle in degrees<br>
             (default of 0 = 0, can be negative)
-  * Args5 = DeHackEd number of state to enter for optional melee attack
+  <li> Args5 = DeHackEd number of state to enter for optional melee attack<br>
             (default of 0 = 0, negative values = no melee attack)
-            
+  </ul>
+            <br>
   Purpose: Very powerful parameterized monster projectile attack pointer. Can
            be used to create standard attacks or angular spreads, with or
            without homing.  Can fire missiles at a customized height, and can
@@ -1519,24 +1684,26 @@ Parameterized Monster Attacks
            range of its target, allowing situational attacks like those used
            by the Imp, Baron, and Cacodemon.  The Args5 parameter should be 
            set to -1 unless a valid frame DeHackEd number is provided.
-           New to Eternity Engine v3.31 public beta 4.
+           New to Eternity Engine v3.31 public beta 4.<br>
   Notes:   Missiles must have a homing maintenance pointer in their frames in
            order to home.
-
+<br><br><br>
            
-* MissileSpread
+<li> <b>MissileSpread</b><br>
   Type:    Monster attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of thing type to fire (no default, must be valid)
-  * Args2 = Number of missiles to fire (MUST be greater than or equal to 2)
-  * Args3 = Amount to add to standard z missile firing height (32 units)
+  <ul>
+  <li> Args1 = DeHackEd number of thing type to fire (no default, must be valid)
+  <li> Args2 = Number of missiles to fire (MUST be greater than or equal to 2)
+  <li> Args3 = Amount to add to standard z missile firing height (32 units)<br>
             (default of 0 = 0, can be negative)
-  * Args4 = Total angular sweep of attack in degrees
+  <li> Args4 = Total angular sweep of attack in degrees<br>
             (default of 0 = 0)
-  * Args5 = DeHackEd number of state to enter for optional melee attack
+  <li> Args5 = DeHackEd number of state to enter for optional melee attack<br>
             (default of 0 = 0, negative values = no melee attack)
-  
+  </ul>
+  <br>
   Purpose: Convenience codepointer for firing a barrage of missiles in an
            angular sweep. The object will face its target and begin firing
            missiles at its angle minus half the Args4 sweep value. It will
@@ -1548,84 +1715,91 @@ Parameterized Monster Attacks
            without attacking. The Args5 parameter can be used to specify a 
            frame to use for an optional melee attack, used when the object is
            within melee range of its target. This parameter should be set to 
-           -1 unless a valid frame DeHackEd number is provided. 
+           -1 unless a valid frame DeHackEd number is provided.<br>
            New to Eternity Engine v3.31 public beta 6.
-           
+<br><br>    <br>       
 
-* BulletAttack
+<li> <b>BulletAttack</b><br>
   Type:    Monster attack, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of sound to play (default of 0 = no sound)
-  * Args2 = Select accuracy (default of 0 = 1)
-            * 1 = Always accurate
-            * 2 = Never accurate
+  <ul>
+  <li> Args1 = DeHackEd number of sound to play (default of 0 = no sound)
+  <li> Args2 = Select accuracy (default of 0 = 1)
+            <ul>
+            <li> 1 = Always accurate
+            <li> 2 = Never accurate<br>
                   (moderate horizontal spread with no vertical error)
-            * 3 = Super Shotgun accuracy
+            <li> 3 = Super Shotgun accuracy<br>
                   (wide horizontal spread with moderate vertical error)
-            * 4 = Monster accuracy (very wide horizontal spread)
-  * Args3 = Number of bullet tracers to fire (default of 0 = 0)
-  * Args4 = Damage factor (Damage formula is: dmgfactor * ((rnd%dmgmod) + 1))
-  * Args5 = Damage modulus
+            <li> 4 = Monster accuracy (very wide horizontal spread)
+            </ul>
+  <li> Args3 = Number of bullet tracers to fire (default of 0 = 0)
+  <li> Args4 = Damage factor (Damage formula is: dmgfactor * ((rnd%dmgmod) + 1))
+  <li> Args5 = Damage modulus<br>
             (Forced into range of 1 to 256)
-  
+  </ul>
+  <br>
   Purpose: Powerful codepointer which allows construction of custom monster
            bullet attacks. This pointer is capable of emulating any of the
            built-in player or monster bullet attacks, as well creating many
            completely new ones (including a super shotgun attack for
-           monsters). New to Eternity Engine v3.31 public beta 6.
+           monsters). New to Eternity Engine v3.31 public beta 6.<br>
   Notes:   The Args2 parameter for this pointer differs slightly from the
            Args2 parameter to the FireCustomBullets player codepointer. The
            value which allows "first fire only" accuracy is not available 
            for monsters.
-                      
+
+</ul>                      
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="hticmon"><hr width="40%" align="left">
-Heretic Monster Attack Pointers
+<b>Heretic Monster Attack Pointers</b>
 <hr width="40%" align="left"></a>
 
-* MummyAttack
-  Type:    Heretic monster attack, normal
+<ul>
+<li> <b>MummyAttack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Golem attack. If the object's target is invalid, nothing will occur. 
            Otherwise, it will emit its attack sound if it has one. If its 
            target is within melee range (64 units), it will damage its target 
            directly for (rnd%8 + 1) * 2 damage, and play the MUMAT2 sound 
            effect. If the target was not within melee range, no attack occurs 
            and the MUMAT1 sound effect is played. New to Eternity.
+<br><br><br>
 
-
-* MummyAttack2
-  Type:    Heretic monster attack, Homing missile firing pointer, normal
+<li> <b>MummyAttack2</b><br>
+  Type:    Heretic monster attack, Homing missile firing pointer, normal<br>
   Purpose: Golem Leader attack. If the object's target is invalid, nothing 
            will occur. Otherwise, if the object's target is within melee range 
            (64 units), it will receive direct damage for (rnd%8 + 1) * 2 HP.
            Otherwise, a GolemShot projectile will be fired at the target, and
            will be set to home on it. New to Eternity.
+<br><br><br>
 
-
-* ClinkAttack
-  Type:    Heretic monster attack, normal
+<li> <b>ClinkAttack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Sabreclaw attack. If the object's target is invalid, nothing will
            occur. Otherwise, the object will play its attack sound if it
            has one. If the object's target is within melee range (64 units),
            it will be damaged directly for (rnd%7 + 3) points. New to Eternity.
+<br><br>    <br>       
            
-* WizardAtk1
-  Type:    Heretic monster attack, normal
+<li> <b>WizardAtk1</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Disciple attack. The object will face its target and turn off the
            GHOST Bits3 flag. New to Eternity.
-           
+           <br><br>
    
-* WizardAtk2
-  Type:    Heretic monster attack, normal
+<li> <b>WizardAtk2</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Disciple attack. The object will face its target and turn on the
            GHOST Bits3 flag. New to Eternity.
+           <br><br>
            
-           
-* WizardAtk3
-  Type:    Heretic monster attack, normal
+<li> <b>WizardAtk3</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: The object will turn off the GHOST Bits3 flag. If its target is
            invalid, nothing further will be done. Otherwise, the object will
            play its attack sound if it has one. If the target is within
@@ -1633,10 +1807,10 @@ Heretic Monster Attack Pointers
            (rnd%8 + 1) * 4 points. Otherwise, 3 DiscipleShot projectiles will 
            be fired, one directly ahead, and the other two 5.625 degrees to 
            the left and right. New to Eternity.
+<br><br><br>
 
-
-* Srcr2Decide
-  Type:    Heretic monster attack, normal
+<li> <b>Srcr2Decide</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: D'Sparil (2nd form) teleportation pointer. D'Sparil teleports more
            and more as his life is lower. The exact probability formula is
            complicated, but is 192/256 at maximum. When D'Sparil teleports,
@@ -1644,12 +1818,12 @@ Heretic Monster Attack Pointers
            D'Sparil transfers to the S_SOR2_TELE1 frame and is teleported to 
            the destination spot. A DsparilTeleFade object (which by default 
            looks like D'Sparil himself) is spawned at his original location, 
-           and the Heretic TELEPT sound is played at both locations.
+           and the Heretic TELEPT sound is played at both locations.<br>
            New to Eternity.
+<br><br><br>
 
-
-* Srcr2Attack
-  Type:    Heretic monster attack, normal
+<li> <b>Srcr2Attack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: D'Sparil (2nd form) attack pointer. If the object's target is
            invalid, nothing will occur. Otherwise, the object's attack sound
            will be played if it has one. If the target is within melee
@@ -1663,12 +1837,12 @@ Heretic Monster Attack Pointers
            plus and minus 45 degrees, and the MBF friendliness flag is
            transferred to the projectiles so that they spawn Disciples with
            the same friendliness. If Disciple spawning is not chosen, a
-           DsparilShot1 projectile will be fired at the target.
+           DsparilShot1 projectile will be fired at the target.<br>
            New to Eternity.
+<br><br><br>
 
-
-* KnightAttack
-  Type:    Heretic monster attack, normal
+<li> <b>KnightAttack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Heretic Death Knight attack. If the object's target is invalid, 
            nothing will occur. If the object's target is within melee range 
            (64 units), it will be hit directly for (rnd%8 + 1) * 3 damage, and
@@ -1679,47 +1853,61 @@ Heretic Monster Attack Pointers
            Otherwise, there is a 40/256 chance that KnightAxeRed will be 
            thrown. If KnightAxeRed is not thrown, KnightAxe will be thrown 
            instead. New to Eternity.
+<br><br><br>
 
-
-* BeastAttack
-  Type:    Heretic monster attack, normal
+<li> <b>BeastAttack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Heretic Weredragon attack. If the object's target is invalid, 
            nothing will occur. Otherwise, the object will emit its attacksound,
            if it has one. Then, if the target is within melee range (64 units),
            it will be hit directly for (rnd%8 + 1) * 3 damage. If the target is
-           further away, a WeredragonShot missile will be fired at it.
+           further away, a WeredragonShot missile will be fired at it.<br>
            New to Eternity.
+<br><br><br>
 
-
-* BeastPuff
-  Type:    Heretic monster attack, normal
+<li> <b>BeastPuff</b><br>
+  Type:    Heretic monster attack, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Momentum application toggle (default of 0 = 0)
+            <ul>
+            <li> 0 = momentum away from parent is applied to object
+            <li> 1 = no momentum will be applied
+            </ul>
+  </ul>
+  <br>
   Purpose: Spawns damaging smoke trail behind WeredragonShot projectiles. There
            is a 64/256 chance that no action will be taken. Provided that 
            action is taken, a WeredragonSmoke object will be spawned within a 
            small random distance of the source object and will be marked as if
            though it was fired by the object who fired the source object. This 
            prevents the source object from taking damage, and properly credits
-           it with any kill. New to Eternity.
+           it with any kill. The Args1 parameter is new to Eternity Engine 
+           v3.31 Delta, and allows the application of 
+           momentum to the smoke object to be disabled. Note that when 
+           momentum is not applied, the smoke will not do any damage.<br>
+           New to Eternity.
+<br><br>    <br>       
            
-           
-* SnakeAttack
-  Type:    Heretic monster attack, normal
+<li> <b>SnakeAttack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Ophidian attack 1. If the object's target is invalid, the object will
            be set to its seestate. Otherwise, the object will emit its attack
            sound, if it has one, will face its target, and will fire one
            OphidianShotA missile. New to Eternity.
+  <br><br><br>
   
-  
-* SnakeAttack2
-  Type:    Heretic monster attack, normal
+<li> <b>SnakeAttack2</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: Ophidian attack 2. If the object's target is invalid, the object will
            be set to its seestate. Otherwise, the object will emit its attack
            sound, if it has one, will face its target, and will fire one
            OphidianShotB missile. New to Eternity.
+  <br><br><br>
   
-  
-* Srcr1Attack
-  Type:    Heretic monster attack, normal
+<li> <b>Srcr1Attack</b><br>
+  Type:    Heretic monster attack, normal<br>
   Purpose: D'Sparil first form attack. If the object's target is invalid, 
            nothing will occur. Otherwise the object will play its attack sound,
            if it has one. If the object is within melee range of the target, it
@@ -1731,16 +1919,230 @@ Heretic Monster Attack Pointers
            Additionally, if the thing's health is less than 33% of its spawn
            health, and it has not just attacked before, it will transfer to 
            frame S_SRCR1_ATK4 in order to attack again. New to Eternity.
+           <br><br><br>
+           
+<li> <b>VolcanoBlast</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Volcano eruption. A random number of VolcanoBall objects between 1
+           and 3 will be spawned at the object's location and at a height of
+           44 units above the object. Each VolcanoBall object will be given
+           a randomized angle and 1 unit of momentum along that angle. Each
+           object will then be given a randomized positive z momentum. Each 
+           object will emit the ht_bstatk sound. <br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>VolcBallImpact</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Splits VolcanoBall objects into multiple VolcanoBallSmall objects.
+           If the object is on the floor of its sector, it will have the
+           Bits GRAVITY and Bits2 LOGRAV flags cleared, and will have its
+           position set to 28 units above the floor. The object will then
+           emit a blast radius with radius and maximum damage of 25. Four
+           VolcanoBallSmall objects will then be spawned and will have this
+           object's target passed on to them. Each successive VolcanoBallSmall
+           object will be thrown out at 90 degree increments, will be given
+           0.7 momentum along that angle, and will be given a small, randomized
+           positive z momentum.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>MinotaurAtk1</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Maulotaur melee attack. If the object's target is invalid, nothing
+           will occur. Otherwise, the object will emit the ht_stfpow sound. If
+           the object is within melee range, it will damage its target directly
+           for (rnd % 8 + 1) * 4 damage. If the target is a player, the player
+           will have his view height temporarily reduced by 16 units.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>MinotaurDecide</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Chooses a Maulotaur attack. If the object's target is invalid,
+           nothing will occur. Otherwise, the object will emit the ht_minsit
+           sound. An attack will then be chosen as follows:           
+           <ul>
+           <li> If the target's head height is between the object's floor and
+             head, the target is between 64 and 512 units away, and a random
+             result yields less than 150, the object will transfer to frame
+             S_MNTR_ATK4_1 without calling any codepointer in that state, the
+             Bits SKULLFLY flag is set on the object, the object faces its
+             target, the object is given 13 momentum along its angle, and the
+             object's Counter 0 field is set to 17.
+           <li> Provided the above attack does not occur, if the target is on the
+             floor of its sector, is less than 576 units away, and a random
+             result yields less than 220, the object will transfer to frame
+             S_MNTR_ATK3_1 and its Counter 1 field will be set to 0.
+           <li> If neither of the above actions is chosen, the object will face
+             its target.
+           </ul>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
 
+<li> <b>MinotaurAtk2</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Maulotaur fire array. If the object's target is invalid, nothing
+           will occur. Otherwise, the object will emit the ht_minat2 sound.
+           If the target is within melee range, it will be hit directly for
+           (rnd % 8 + 1) * 5 damage. Otherwise, 5 MinotaurShot missiles will
+           be fired, each at the object's z + 40 units. The first is fired 
+           along the object's current angle. The other 4 are fired at
+           +/-2.8125 and +/-5.625 degrees from the object's angle and with
+           the same z momentum as the first missile. The first missile will
+           emit the ht_minat2 sound.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>MinotaurAtk3</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Maulotaur floor fire attack. If the object's target is invalid,
+           nothing will occur. Otherwise, if the object's target is within
+           melee range, it will be hit directly for (rnd % 8 + 1) * 5
+           damage. Otherwise, a MaulotaurFloorFire missile will be spawned
+           on the object's sector's floor and the object will emit the
+           ht_minat2 sound. If a random result yields less than 192 and
+           the object's Counter 1 field is equal to 0, the object will
+           transfer to frame S_MNTR_ATK3_4 in order to attack again, and
+           its Counter 1 field will be set to zero.<br>
+           New to Eternity Engine v3.31 Delta.           
+           <br><br><br>
+           
+<li> <b>MinotaurCharge</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Maulotaur charge maintenance. If the object's Counter 0 field is
+           greater than zero, a HereticPhoenixPuff object will be spawned at
+           the object's location and will be given positive z momentum of
+           2 units per tic. The object's Counter 0 field will then be
+           decremented. Otherwise, the object will have the Bits SKULLFLY
+           flag cleared and it will be set to its first walking frame.<br>
+           New to Eternity Engine v3.31 Delta.
+<br><br><br>
+
+<li> <b>MntrFloorFire</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Floor fire maintenence. The object will be forced to the floor of
+           its sector. A MaulotaurFloorFlame object will be spawned at a
+           small randomized distance from this object on the floor, and this
+           object's target will be transferred to the new object. The 
+           flame object will be given the smallest possible amount of
+           x momentum and then will be checked for an immediate missile 
+           collision. <br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>LichFire</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Iron Lich fire attack. Called by LichAttack. If the object's target
+           is invalid, nothing will occur. Otherwise, an IronLichShot3 object
+           will be fired at the standard z missile firing height, and will be
+           set to frame S_LICHFX3_4 so that it does not call the LichFireGrow
+           pointer. The object will then emit the ht_hedat1 sound. 5 more
+           IronLichShot3 objects will then be spawned at the first object's
+           z height, are given the same target, momenta, and angle as the
+           first object, have their damage set to zero, and have their
+           Counter 0 field set to (i + 1) * 2, where i is the zero-based number
+           of the missile currently being spawned.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+
+<li> <b>LichWhirlwind</b><br>
+  Type:    Heretic monster attack, Homing missile firing pointer, normal
+  Purpose: Iron Lich whirlwind attack. Called by LichAttack. If the object's
+           target is invalid, nothing will occur. Otherwise, a LichWhirlwind
+           object will be spawned at the actor's z height and will be set to
+           home on the object's target. The LichWhirlwind object's Counter 0
+           field is set to 20 * 35, its Counter 1 field is set to 50, and its
+           Counter 2 field is set to 60. The Counter 1 and Counter 2 fields
+           are required by the Bits3 flag EXPLOCOUNT, which keeps this missile
+           from exploding unless Counter 1 is greater than Counter 2.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>LichAttack</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Iron Lich attack decision. If the object's target is invalid,
+           nothing will occur. Otherwise, the object will face its target.
+           If the target is within melee range, the target will be hit
+           directly for (rnd % 8 + 1) * 6 damage. Otherwise, one of the
+           following attacks will be chosen as shown in the following
+           table, with probabilities depending on the distance to the
+           target:
+           
+           <pre>
+           Attack     Distance < 512   Distance >= 512
+           -------------------------------------------
+           Ice                   20%               60%
+           Fire                  40%               20%
+           Whirlwind             40%               20%</pre>
+           
+           If ice is chosen, an IronLichShot1 missile is fired at the 
+           standard missile firing height and the object emits the ht_hedat2
+           sound. If fire is chosen, control transfers to the LichFire
+           codepointer. Otherwise, control transfers to the LichWhirlwind
+           codepointer.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>LichIceImpact</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Iron Lich ice ball impact. 8 IronLichShot2 missiles will be
+           spawned at the object's exact location, each being fired at a
+           45 degree increment from the last. Each of the new missiles is
+           given the same target as the parent object. The missiles are
+           given -0.6 z momentum so that they slowly descend.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>LichFireGrow</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Iron Lich fire pillar maintenance. The object's z coordinate is
+           increased by 9 units. The object's Counter 0 field is decremented.
+           If the Counter 0 field is equal to 0, the object's normal damage
+           value is restored and it is set to frame S_LICHFX3_4.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>ImpChargeAtk</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Imp charge attack. If the actor's target is invalid, or a random
+           result yields more than 64, nothing will occur. Otherwise, the
+           object will play its attack sound if it has one, then it will face
+           its target. The object's SKULLFLY Bits flag will be set, and 
+           it will hurdle toward its target at a speed of 12 units per second.<br>
+           New to Eternity Engine v3.31 Delta.
+<br><br><br>
+           
+<li> <b>ImpMeleeAtk</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Imp scratch attack. If the object's target is invalid, nothing will
+           occur. Otherwise, the object will emit its attack sound if it has
+           one, and if the target is within melee range, it will be hit
+           directly for (rnd % 8) + 5 damage.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>ImpMissileAtk</b><br>
+  Type:    Heretic monster attack, normal<br>
+  Purpose: Imp Leader fireball attack. If the object's target is invalid,
+           nothing will occur. Otherwise, the object will emit its attack
+           sound if it has one. If the target is within melee range, it will
+           be hit directly for (rnd % 8) + 5 damage, otherwise a HereticIMpShot
+           projectile will be fired at the target at the normal missile firing
+           height.<br>
+           New to Eternity Engine v3.31 Delta.           
+
+</ul>           
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="home"><hr width="40%" align="left">
-Homing Missile Maintenance Pointers
+<b>Homing Missile Maintenance Pointers</b>
 <hr width="40%" align="left"></a>
 
-* Tracer
-  Type:    Homing missile maintenance pointer, normal
+<ul>
+<li> <b>Tracer</b><br>
+  Type:    Homing missile maintenance pointer, normal<br>
   Purpose: Performs homing maintenance for Revenant missiles. If the missile
            was fired by a homing-missile-firing codepointer, it may home on its
            target. However, this pointer will cause the missile to fail to
@@ -1748,32 +2150,36 @@ Homing Missile Maintenance Pointers
            gametic is not divisible by 3, no actions will occur. Otherwise, one
            BulletPuff and one TracerSmoke object will be spawned behind the 
            missile, the TracerSmoke object will be given upward momentum, and 
-           the missile will home on its target.
+           the missile will home on its target.<br>
   Notes:   As mentioned above, missiles do not always home when using this
            codepointer. Also, missiles must be fired by a homing-missile-
            firing codepointer or else no homing will take place.
-           
+           <br><br><br>
 
-* GenTracer
-  Type:    Homing missile maintenance pointer, normal
+<li> <b>GenTracer</b><br>
+  Type:    Homing missile maintenance pointer, normal<br>
   Purpose: Performs generic homing maintenance. If a missile was fired by a
            homing-missile-firing codepointer, it will home on its target. No
            other special effects will occur. New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="htichome"><hr width="50%" align="left">
-Heretic Homing Missile Maintenance Pointers
+<b>Heretic Homing Missile Maintenance Pointers</b>
 <hr width="50%" align="left"></a>
 
-* HticTracer
+<ul>
+<li> <b>HticTracer</b><br>
   Type:    Homing missile maintenance pointer, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = Threshold angle, integer
-  * Args2 = Max turn angle, integer
-  
+  <ul>
+  <li> Args1 = Threshold angle, integer
+  <li> Args2 = Max turn angle, integer
+  </ul>
+  <br>
   Purpose: Performs Heretic-style homing missile maintenance. The threshold
            and max turn parameters affect when the missile will home and how
            far at maximum that it can turn, respectively. Different monsters
@@ -1781,28 +2187,53 @@ Heretic Homing Missile Maintenance Pointers
            any value from 0 to 359 degrees. Vertical adjustment of Heretic-
            style homing missiles is very conservative. Vertical momentum will
            only be adjusted if the missile is outside the height range of its
-           target. As a result, the missile can hit the ground easily.
+           target. As a result, the missile can hit the ground easily.<br>
            New to Eternity.
+           <br><br><br>
+           
+<li> <b>WhirlwindSeek</b><br>
+  Type:    Homing missile maintenance pointer, normal<br>
+  Purpose: Performs homing and movement logic maintenance for Iron Lich
+           whirlwinds.<br> 
+           The object's Counter 0 value is decremented by 3. If the resulting 
+           value is less than zero, the object's momenta are set to zero, the 
+           object is set to its deathstate, and the MISSILE flag is removed 
+           from the object.<br> 
+           The object's Counter 1 value is decremented by three. If the 
+           resulting value is less than 0, the object's Counter 1 value is 
+           set to 58 + (rnd % 32). The object will emit the ht_hedat3 sound 
+           when this occurs.<br> 
+           If the object's tracer target has died or has acquired the Bits3 
+           GHOST flag, it will check its originator for a new target. If its 
+           originator has a new target which is alive and, if the originator 
+           is friendly, is not also a friend, this object will acquire the
+           originator's target as its new tracer target. 
+           If the tracer target is valid, it will be homed on via the effects
+           of HticTracer using a threshold value of 10 degrees and a maxturn 
+           value of 30 degrees.<br>
+           New to Eternity Engine v3.31 Delta.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
   
-
+<p>
 <a name="los"><hr width="40%" align="left">
-Line of Sight Checking Pointers
+<b>Line of Sight Checking Pointers</b>
 <hr width="40%" align="left"></a>
 
-* CPosRefire
-  Type:    Line of sight checking pointer, normal
+<ul>
+<li> <b>CPosRefire</b><br>
+  Type:    Line of sight checking pointer, normal<br>
   Purpose: Checks the line of sight between the attacking object and its
            target. If the line has been blocked, the object will transfer back 
            to its first walking frame. If the object is friendly and has hit a 
            friend by accident, it may stop firing. If the object is friendly 
            and is retaliating against a friend's attack, it will fire only a 
            small, random number of shots before stopping.
+           <br><br><br>
            
-           
-* SpidRefire
-  Type:    Line of sight checking pointer, normal
+<li> <b>SpidRefire</b><br>
+  Type:    Line of sight checking pointer, normal<br>
   Purpose: Checks the line of sight between the attacking object and its
            target. If the line has been blocked, the object will transfer back 
            to its first walking frame. If the object is friendly and has hit a 
@@ -1810,39 +2241,42 @@ Line of Sight Checking Pointers
            and is retaliating against a friend's attack, it will fire only a 
            small, random number of shots before stopping.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="specmon"><hr width="40%" align="left">
-Special Monster Death Effects
+<b>Special Monster Death Effects</b>
 <hr width="40%" align="left"></a>
 
-* PainDie
-  Type:    Monster death / attack, normal
+<ul>
+<li> <b>PainDie</b><br>
+  Type:    Monster death / attack, normal<br>
   Purpose: The Fall codepointer will be called on the object, and then it will
            perform 3 consecutive Lost Soul spawnings following the same
            procedure as that of the PainAttack codepointer, but each at a
            different angle.
+           <br><br><br>
            
-           
-* KeenDie
-  Type:    Monster death / "Magic" codepointer, normal
+<li> <b>KeenDie</b><br>
+  Type:    Monster death / "Magic" codepointer, normal<br>
   Purpose: The Fall codepointer will be called on the object. It will then
            check the level to see if all objects of the type which called
            this pointer are dead. If so, all sectors tagged 666 will be 
-           opened as normal, stay-open doors.
+           opened as normal, stay-open doors.<br>
   Notes:   This "magic" pointer works on all maps and with any type of
            monster.
+<br><br><br>
 
-
-* BossDeath
-  Type:    "Magic" codepointer, normal
+<li> <b>BossDeath</b><br>
+  Type:    "Magic" codepointer, normal<br>
   Purpose: Performs level completion actions for the DOOM and DOOM II game 
            modes. The action performed is currently specific to certain maps.
            All members of all species bearing the listed Bits2 flag must be
            dead for the action to occur (this flag feature is new to Eternity,
            and allows customization of episode boss monster types).
            
+           <pre>
            MAP      FLAG REQUIRED  ACTION TAKEN ON DEATH OF ALL FLAG BEARERS
            -------  -------------  -------------------------------------------
            E1M8     E1M8BOSS       Lowers floors tagged 666 to lowest neighbor
@@ -1851,100 +2285,549 @@ Special Monster Death Effects
            E4M6     E4M6BOSS       Opens sectors tagged 666 as blazing doors
            E4M8     E4M8BOSS       Lowers floors tagged 666 to lowest neighbor
            MAP07    MAP07BOSS1     Lowers floors tagged 666 to lowest neighbor
-           MAP07    MAP07BOSS2     Raises floors tagged 667 by lower texture
+           MAP07    MAP07BOSS2     Raises floors tagged 667 by lower texture</pre>
+<br>
 
-
-* BrainDie
-  Type:    "Magic" codepointer, normal
+<li> <b>BrainDie</b><br>
+  Type:    "Magic" codepointer, normal<br>
   Purpose: Causes a normal exit from the level.
   Notes:   This pointer does not check for other boss brain objects, nor does
            it check to make sure that players are still alive before exiting
-           the level. As such, players may become zombies if this pointer is
-           used on levels other than the end of an episode, and they die before
-           this pointer takes effect.
+           the level.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="hticspecmon"><hr width="40%" align="left">
-Heretic Special Monster Death Effects
+<b>Heretic Special Monster Death Effects</b>
 <hr width="40%" align="left"></a>
 
-* HticDrop
+<ul>
+<li> <b>HticDrop</b><br>
   Type:    Monster death, parameterized
-  
+  <br><br>
   Parameter Information:
-  * Args1 = DeHackEd number of first thing type to drop (default of 0 = none)
-  * Args2 = Chance out of 256 for first thing type drop
-  * Args3 = DeHackEd number of 2nd thing type to drop (default of 0 = none)
-  * Args4 = Chance out of 256 for second thing type drop
-  
-  Purpose: Codepointer for Heretic-style death & item dropping.
+  <ul>
+  <li> Args1 = DeHackEd number of first thing type to drop (default of 0 = none)
+  <li> Args2 = Chance out of 256 for first thing type drop
+  <li> Args3 = DeHackEd number of 2nd thing type to drop (default of 0 = none)
+  <li> Args4 = Chance out of 256 for second thing type drop
+  <li> Args5 = Modify Heretic ammo drop amount (default of 0 = no modification)<br>
+            This parameter can modify Heretic ammo drop amounts. This ability
+            is not complete and therefore will not yet be documented.
+  </ul>
+  <br>
+  Purpose: Codepointer for Heretic-style death & item dropping.<br>
            The Fall codepointer will be called on the object. It will then
            have the provided chances to drop one or both of the provided
            object types. The items will be dropped with randomized momenta,
            such that they appear to fly out of the dying object. If either of
            the provided thing types is invalid, that particular thing type
            will be ignored. New to Eternity.
+  <br><br><br>
   
-  
-* HticBossDeath  
-  Type:    "Magic" codepointer, normal
+<li> <b>HticBossDeath</b>  <br>
+  Type:    "Magic" codepointer, normal<br>
   Purpose: Performs level completion actions for the Heretic game mode. The 
            action performed is currently specific to certain maps. All members 
            of all species bearing the listed Bits2/Bits3 flag must be dead for 
            the action to occur (this flag feature is new to Eternity, and 
            allows customization of episode boss monster types).
            
+           <pre>
            MAP      FLAG REQUIRED     ACTION TAKEN ON DEATH OF ALL FLAG BEARERS
            -------  ----------------  -------------------------------------------
            E1M8     E1M8BOSS          Lowers all floors tagged 666 
            E2M8     E2M8BOSS          Lowers all floors tagged 666 
            E3M8     E3M8BOSS          Lowers all floors tagged 666 
            E4M8     E4M8BOSS          Lowers all floors tagged 666 
-           E5M8     E5M8BOSS (Bits3)  Lowers all floors tagged 666 
+           E5M8     E5M8BOSS (Bits3)  Lowers all floors tagged 666</pre>
 
            On all episodes other than episode 1, all monsters with the same
-           friendliness as the dying object will be massacred as well.
+           friendliness as the dying object will be massacred as well.<br>
            New to Eternity.
+<br><br><br>
 
-
-* SorcererRise
-  Type:    Monster death / attack, normal
+<li> <b>SorcererRise</b><br>
+  Type:    Monster death / attack, normal<br>
   Purpose: D'Sparil first form death.  Removes the SOLID flag from this object,
            and then spawns a Dsparil object at its location. The Dsparil
-           object will then be placed into the S_SOR2_RISE1 frame.
+           object will then be placed into the S_SOR2_RISE1 frame.<br>
            New to Eternity.
-  
+           <br><br><br>
+           
+<li> <b>ImpDeath</b><br>
+  Type:    Monster death<br>
+  Purpose: Heretic imp normal death setup. The SOLID Bits flag will be cleared
+           from the object, and the FOOTCLIP Bits2 flag will be set. If the
+           object is at or below its sector's floor height and it possesses
+           a crashstate, it will transfer to its crashstate.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>ImpXDeath1</b><br>
+  Type:    Monster death<br>
+  Purpose: Heretic imp extreme death setup 1. The SOLID Bits flag will be 
+           cleared from the object, and the NOGRAVITY Bits flag and FOOTCLIP
+           Bits2 flag will both be set. The object's Counter 0 field will be
+           set to 666. New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>ImpXDeath2</b><br>
+  Type:    Monster death<br>
+  Purpose: Heretic imp extreme death setup 2. The NOGRAVITY Bits flag will be
+           cleared from the object. If the object is at or below its sector's
+           floor height and it possesses a crashstate, it will transfer to its
+           crashstate. New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+           
+<li> <b>ImpExplode</b><br>
+  Type:    Monster death<br>
+  Purpose: Heretic imp crashstate action. One HereticImpChunk1 and one
+           HereticImpChunk2 object will be spawned at the object's location
+           and given randomized x and y momenta. Both objects are given
+           positive z momentum of 9 units per tic. If the object's Counter 0
+           field is equal to 666, the object will transfer to the S_IMP_XCRASH1
+           frame. New to Eternity Engine v3.31 Delta.           
+
+</ul>  
 <a href="#contents">Return to Table of Contents</a>
 
-
+<p>
 <a name="nukespecs"><hr width="40%" align="left">
-Massacre Cheat Specials
+<b>Massacre Cheat Specials</b>
 <hr width="40%" align="left"></a>
 
-* PainNukeSpec
-  Type:    Massacre cheat special, normal
+<ul>
+<li> <b>PainNukeSpec</b><br>
+  Type:    Massacre cheat special, normal<br>
   Purpose: Special action taken for Pain Elementals when the "killem" cheat is
            activated by the player. The PainDie codepointer is called on the
            object, so that Lost Souls will be spawned while the cheat is still
            killing monsters, and then the object will be transfered to state
-           S_PAIN_DIE6. Specified via EDF only. New to Eternity.<!-- TODO: LINK! -->
+           S_PAIN_DIE6. Specified via EDF only. New to Eternity.
+           <br><br><br>
            
            
-* SorcNukeSpec
-  Type:    Massacre cheat special, normal
+<li> <b>SorcNukeSpec</b><br>
+  Type:    Massacre cheat special, normal<br>
   Purpose: Special action taken for D'Sparil's first form when the "killem"
            cheat is activated by the player. The Fall codepointer is called on
            the object, and then it is set to state S_SRCR1_DIE17 using an
            internal function which causes the codepointer for that state to
            not be called. This prevents spawning of D'Sparil's second form.
-           Specified via EDF only. New to Eternity.<!-- TODO: LINK! -->
+           Specified via EDF only. New to Eternity.
 
+</ul>
 <a href="#contents">Return to Table of Contents</a>
 
-           
-</pre>  
-<br><br>
+<p>
+<a name="frscript"><hr width="40%" align="left">
+<b>Frame Scripting Pointers</b>
+<hr width="40%" align="left"></a>
+
+<p>
+General Notes for Frame Scripting Codepointers:
+
+<p>
+These pointers allow a degree of programmatic control over an object's behavior,
+and are therefore termed "frame scripting" codepointers. Note that some other
+codepointers utilize the Counter fields of a thing, and so using those pointers 
+along with these will cause interference. Codepointer descriptions now make
+note of which Counter fields they utilize, so be sure to check for conflicts.
+
+<p>
+Counter fields may have values from -32768 to 32767. Values above or below this
+range will wrap around.
+
+<ul>
+<li> <b>RandomJump</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Unknown 1 = Frame DeHackEd number to which object may jump <br>
+                (default of 0 = frame 0)
+  <li> Unknown 2 = Chance out of 256 that jump will occur (default of 0 = 0%)
+  </ul>
+  <br>
+  Purpose: Causes the object to transfer to the indicated frame with the
+           indicated probability. If the jump does not occur, the object
+           will fall through to the next frame. If the current frame's
+           tics are set to -1, fall-through will not occur. New to MBF.<br>
+  Notes:   As of Eternity Engine v3.31 public beta 3, this codepointer
+           will no longer crash the game if an invalid frame number is
+           supplied. If the frame number is invalid, no jump will occur.
+<br><br><br>
+
+<li> <b>HealthJump</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Frame DeHackEd number to which object may jump<br>
+            (default of 0 = frame 0)
+  <li> Args2 = Type of comparison to perform on object's health<br>
+            (default of 0 = 0)
+            <ul>
+            <li> 0 = Jump if health &lt; Args3
+            <li> 1 = Jump if health &lt;= Args3
+            <li> 2 = Jump if health &gt; Args3
+            <li> 3 = Jump if health &gt;= Args3
+            <li> 4 = Jump if health equals Args3
+            <li> 5 = Jump if health does not equal Args3
+            <li> 6 = Jump if health &amp; Args3 (bitwise AND operation)
+            
+            <li> 7 - 13 = The value in Args3 will be interpreted as a counter
+              number (0 - 2). The resulting operation is the health compared
+              against the value of the requested counter, subtracting 6
+              from the operation number (ie. operation 7 is 
+              "Jump if health &lt; counter").
+            </ul>
+  <li> Args3 = Value to compare health against / Counter number holding value<br>
+            (default of 0 = 0)
+  </ul>
+  <br>
+  Purpose: Causes the object to transfer to the indicated frame if the
+           value in Args3 (or the given counter, for operations 7 through
+           13) compares as requested to the object's current health. This 
+           allows "frame scripting" of actions which vary depending on how 
+           much damage an enemy or other object has received. If the jump does
+           not occur, the object will fall through to the next frame. If the 
+           current frame's tics are set to -1, fall-through will not occur.<br> 
+           New to Eternity v3.31 public beta 7.<br>
+  Notes:   Options 6 and 13, "bitwise and", are most useful for performing an
+           action only if the object's health is even or odd. To perform an 
+           action if the health value is odd, set Args3 to 1, and to perform an
+           action if it is even, set Args3 to 2. Use of other values will 
+           result in periodic chances for an action, and will require 
+           experimentation.
+<br><br><br>
+
+<li> <b>CounterJump</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Frame DeHackEd number to which object may jump<br>
+            (default of 0 = frame 0)
+  <li> Args2 = Type of comparison to perform on counter<br>
+            (default of 0 = 0)
+            <ul>
+            <li> 0 = Jump if counter &lt; Args3
+            <li> 1 = Jump if counter &lt;= Args3
+            <li> 2 = Jump if counter &gt; Args3
+            <li> 3 = Jump if counter &gt;= Args3
+            <li> 4 = Jump if counter equals Args3
+            <li> 5 = Jump if counter does not equal Args3
+            <li> 6 = Jump if counter &amp; Args3 (bitwise AND operation)            
+            <li> 7 - 13 = The value in Args3 will be interpreted as a counter
+              number (0 - 2). The resulting operation is the counter in Args3
+              compared against the value of the counter in Args4, subtracting 
+              7 from the operation number (ie. operation 7 is 
+              "Jump if counter1 &lt; counter2").
+            </ul>
+  <li> Args3 = Value to compare against counter / Counter number holding value (default of 0 = 0)
+  <li> Args4 = Counter number to use (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  </ul>
+  <br>
+  Purpose: Causes the object to transfer to the indicated frame if the
+           value in the indicated internal counter field compares as 
+           requested to the provided value. This allows  "frame 
+           scripting" of actions which vary depending on the current value
+           of a thing's counters. If the jump does not occur, the object 
+           will fall through to the next frame. If the current frame's 
+           tics are set to -1, fall-through will not occur. <br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+
+
+<li> <b>CounterSwitch</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Counter number to use (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  <li> Args2 = Frame DeHackEd number of first state in set<br>
+            (default of 0 = frame 0)
+  <li> Args3 = Number of states in set<br>
+            (No default, must be valid)
+  </ul>
+  <br>
+  Purpose: This powerful codepointer implements an N-way branch where
+           the value of the indicated counter determines to which frame
+           the jump will occur. The frames to be jumped to must be
+           defined in a consecutive block in EDF. The first frame in
+           this set is deemed to be frame #0, and the last frame in
+           the set is frame #Args3 - 1. The value of the counter is 
+           considered to be zero-based, so that if it is equal to zero, 
+           the object will jump to frame #0 (the frame you provided in 
+           Args2). The entire range of frames must be valid, and if it 
+           is not, no jump will occur. If the counter value is not in the 
+           range from 0 to Args3 - 1, no jump will occur. Finally, if the
+           counter number in Args1 is invalid, no jump will occur.<br>
+           New to Eternity Engine v3.31 Delta.
+           <br><br><br>
+
+
+<li> <b>SetCounter</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Counter number to set (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  <li> Args2 = Value to utilize (default of 0 = 0)
+  <li> Args3 = Operation to perform (default of 0 = 0)
+            <ul>
+            <li> 0  : Args1 = Args2       (direct assignment)
+            <li> 1  : Args1 += Args2      (addition)
+            <li> 2  : Args1 -= Args2      (subtraction)
+            <li> 3  : Args1 *= Args2      (multiplication)
+            <li> 4  : Args1 /= Args2      (division)
+            <li> 5  : Args1 %= Args2      (modulus)
+            <li> 6  : Args1 &amp;= Args2      (bitwise AND)
+            <li> 7  : Args1 &amp;= ~Args2     (compound bitwise AND / bitwise NOT)
+            <li> 8  : Args1 |= Args2      (bitwise OR)
+            <li> 9  : Args1 ^= Args2      (bitwise XOR)
+            <li> 10 : Args1 = rnd         (random value, Args2 is not used)
+            <li> 11 : Args1 = rnd % Args2 (random value modulus)
+            <li> 13 : Args1 &lt;&lt;= Args2     (bitshift left)
+            <li> 14 : Args1 &gt;&gt;= Args2     (bitshift right)
+            </ul>
+  </ul>
+  <br>
+  Purpose: Sets the indicated counter on this thing to a value resulting
+           from an operation with the current counter value and the value
+           provided in Args2. New to Eternity Engine v3.31 Delta.<br>
+  Notes:   For operation 4, division, Args2 may not be equal to zero, and
+           no operation will occur if it is. For operations 5 and 11, modulus
+           and random modulus, Args2 must be greater than zero. No operation 
+           will occur if it is less than or equal to zero. Operation 7 inverts 
+           the bits in Args2 before bitwise-ANDing it with the value in the 
+           counter. For operation 10, the value of Args2 is not used, and may 
+           simply be allowed to default. All random numbers are between 0 and 
+           255 inclusive. Operations 12 and 15-18 are not defined for this 
+           codepointer and will do nothing.
+           <br><br><br>
+  
+<li> <b>CounterOp</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Counter number to use for operand 1 (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  <li> Args2 = Counter number to use for operand 2 (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  <li> Args3 = Counter number to set (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  <li> Args4 = Operation to perform (no default)
+            <ul>
+            <li> 1  : Args3 = Args1 + Args2               (addition)
+            <li> 2  : Args3 = Args1 - Args2               (subtraction)
+            <li> 3  : Args3 = Args1 * Args2               (multiplication)
+            <li> 4  : Args3 = Args1 / Args2               (division)
+            <li> 5  : Args3 = Args1 % Args2               (modulus)
+            <li> 6  : Args3 = Args1 &amp; Args2               (bitwise AND)
+            <li> 8  : Args3 = Args1 | Args2               (bitwise OR)
+            <li> 9  : Args3 = Args1 ^ Args2               (bitwise XOR)
+            <li> 12 : Args3 = Args1 * ((rnd % Args2) + 1) (HITDICE calculation)
+            <li> 13 : Args3 = Args1 &lt;&lt; Args2              (bitshift left)
+            <li> 14 : Args3 = Args1 &gt;&gt; Args2              (bitshift right)
+            <li> 15 : Args3 = |Args1|                     (absolute value)
+            <li> 16 : Args3 = -Args1                      (negate)
+            <li> 17 : Args3 = !Args1                      (logical NOT)
+            <li> 18 : Args3 = ~Args1                      (bitwise invert)
+            </ul>
+  </ul>
+  <br>
+  Purpose: Sets the indicated counter on this thing to a value resulting
+           from an operation with one or two provided counter values. The
+           operand and destination counters may be the same counter number.<br>
+           New to Eternity Engine v3.31 Delta.<br>
+  Notes:   For operation 4, division, Args2 may not be equal to zero, and
+           no operation will occur if it is. For operations 5 and 12, modulus
+           and HITDICE calculation, Args2 must be greater than zero. No 
+           operation will occur if it is less than or equal to zero.
+           Operation 12, HITDICE, is the operation used to calculate standard
+           damage values in DOOM, where Args1 acts as a multiplier and Args2
+           acts as the modulus. All random numbers are between 0 and 255 
+           inclusive. Operations 0, 7, 10, and 11 are not defined for this
+           codepointer and will do nothing. Operations 15 through 18 are
+           unary and do not use the Args2 parameter, but it must still be
+           a valid counter number. You may allow it to default to zero.
+  <br><br><br>
+
+<li> <b>CopyCounter</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Source counter number (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  <li> Args2 = Destination counter number (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  </ul>
+  <br>
+  Purpose: Copies a thing's counter value to another one of its counters.<br>
+           New to Eternity Engine v3.31 Delta.
+<br><br><br>
+
+<li> <b>SetTics</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Base tics amount (35 tics per second) (default of 0 = 0)<br>
+            -OR-<br>
+            Counter number (default of 0 = 0)
+  <li> Args2 = Randomizer modulus value (default of 0 = no randomization)
+  <li> Args3 = Counter toggle (default of 0 = 0)
+            <ul>
+            <li> 0 = value in Args1 is a constant tics amount
+            <li> 1 = value in Args1 is a counter number
+            </ul>
+  </ul>
+  <br>
+  Purpose: Allows setting a thing's current tics value to a counter,
+           constant, or optionally randomized amount. If the randomizer 
+           modulus in Args2 is greater than zero, a random amount of time 
+           between 0 and Args2 - 1 tics will be added to the base amount.
+           If the counter toggle parameter is 1, the Args1 parameter must
+           be a valid counter number, or no action will occur.<br>
+           New to Eternity Engine v3.31 Delta.
+<br><br><br>
+
+<li> <b>AproxDistance</b><br>
+  Type:    Frame scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Destination counter number (default of 0 = 0)
+            <ul>
+            <li> 0 = Counter 0
+            <li> 1 = Counter 1
+            <li> 2 = Counter 2
+            </ul>
+  </ul>
+  <br>
+  Purpose: Returns an approximate distance measurement between the object and
+           its current target in the indicated counter. If the object does not
+           have a valid target, the value returned is -1. Combined with
+           CounterJump, this can be used to branch to different attacks 
+           depending on a monster's distance to its target.<br>
+           New to Eternity Engine v3.31 Delta.
+
+</ul>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="small"><hr width="40%" align="left">
+<b>Small Scripting System</b>
+<hr width="40%" align="left"></a>
+
+<p>
+General Notes for Small Scripting Codepointers:
+
+<p>
+These codepointers allow execution of Small functions in either of the Gamescript
+and Levelscript VMs. See the <a href="small_usagedoc.html">Small Usage Documentation</a> and the <a href="small_funcref.html">Small Function Reference</a> 
+for full information.
+
+<ul>
+<li> <b>StartScript</b><br>
+  Type:    Small scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Number of public Script function to execute (default of 0 = "Script0")
+  <li> Args2 = Select VM (default of 0 = 0)
+            <ul>
+            <li> 0 = Gamescript
+            <li> 1 = Levelscript
+            </ul>
+  <li> Args3 = Parameter to script function #1
+  <li> Args4 = Parameter to script function #2
+  <li> Args5 = Parameter to script function #3
+  </ul>
+  <br>
+  Purpose: Calls an appropriately named public Small function in the indicated VM,
+           passing Args3 - Args5 as integer parameters. To be invoked via this function,
+           a Small function must be declared as public, and must be named using the
+           "Script#" syntax, where # is the integer provided in Args1. The function should
+           accept 3 integer parameters, although you are not required to use them inside
+           the function.<br>
+  Notes:   If the indicated VM is not loaded, nothing will happen. If the VM is loaded but
+           the indicated function does not exist, an error message will be printed to the
+           console.
+<br><br><br>
+
+<li> <b>PlayerStartScript</b><br>
+  Type:    Small scripting, parameterized
+  <br><br>
+  Parameter Information:
+  <ul>
+  <li> Args1 = Number of public Script function to execute (default of 0 = "Script0")
+  <li> Args2 = Select VM (default of 0 = 0)
+            <ul>
+            <li> 0 = Gamescript
+            <li> 1 = Levelscript
+            </ul>
+  <li> Args3 = Parameter to script function #1
+  <li> Args4 = Parameter to script function #2
+  <li> Args5 = Parameter to script function #3
+  </ul>
+  <br>
+  Purpose: Calls an appropriately named public Small function in the indicated VM,
+           passing Args3 - Args5 as integer parameters. To be invoked via this function,
+           a Small function must be declared as public, and must be named using the
+           "Script#" syntax, where # is the integer provided in Args1. The function should
+           accept 3 integer parameters, although you are not required to use them inside
+           the function.<br>
+  Notes:   If the indicated VM is not loaded, nothing will happen. If the VM is loaded but
+           the indicated function does not exist, an error message will be printed to the
+           console.<br>
+           WARNING: This codepointer is a Player Gun Frame codepointer, and
+           CANNOT be used by monsters. Use the above StartScript pointer for monster
+           frames instead.
+
+</ul>           
+
 </body>
 </html>

@@ -62,12 +62,13 @@ void STlib_init(void)
 // Returns nothing
 //
 void STlib_initNum
-( st_number_t* n,
+( st_number_t *n,
   int x,
   int y,
-  patch_t** pl,
-  int* num,
-  boolean* on,
+  patch_t **pl,
+  int *num,
+  boolean *on,
+  boolean *bg_on,
   int     width )
 {
    n->x  = x;
@@ -76,6 +77,7 @@ void STlib_initNum
    n->width  = width;
    n->num  = num;
    n->on = on;
+   n->bg_on = bg_on; // haleyjd
    n->p  = pl;
 }
 
@@ -120,10 +122,12 @@ void STlib_drawNum
    // clear the area
    x = n->x - numdigits*w;
 
-   if(n->y - ST_Y < 0)
+   if(*n->bg_on && n->y - ST_Y < 0)
       return;
-      
-   V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG);
+   
+   // haleyjd: conditionalized background update
+   if(*n->bg_on)
+      V_CopyRect(x, n->y - ST_Y, BG, w*numdigits, h, x, n->y, FG);
 
    // if non-number, do not draw it
    if(num == 1994)
@@ -192,15 +196,16 @@ void STlib_updateNum
 // Returns nothing.
 //
 void STlib_initPercent
-( st_percent_t* p,
+( st_percent_t *p,
   int x,
   int y,
-  patch_t** pl,
-  int* num,
-  boolean* on,
-  patch_t* percent )
+  patch_t **pl,
+  int *num,
+  boolean *on,
+  boolean *bg_on,
+  patch_t *percent )
 {
-   STlib_initNum(&p->n, x, y, pl, num, on, 3);
+   STlib_initNum(&p->n, x, y, pl, num, on, bg_on, 3);
    p->p = percent;
 }
 

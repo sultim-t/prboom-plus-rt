@@ -48,8 +48,6 @@ typedef struct mobj_s mobj_t;   //sf: move up here
 // sf: skins
 #include "p_skin.h"
 
-
-
 //
 // NOTES: mobj_t
 //
@@ -271,6 +269,9 @@ typedef enum
    MF3_SUPERITEM    = 0x00010000,  // is a super powerup item
    MF3_NOITEMRESP   = 0x00020000,  // item doesn't respawn
    MF3_SUPERFRIEND  = 0x00040000,  // monster won't attack friends
+   MF3_INVULNCHARGE = 0x00080000,  // invincible when skull flying
+   MF3_EXPLOCOUNT   = 0x00100000,  // doesn't explode until this expires
+   MF3_CANNOTPUSH   = 0x00200000,  // thing can't push pushable things
 } mobjflag3_t;
 
 // killough 9/15/98: Same, but internal flags, not intended for .deh
@@ -282,11 +283,11 @@ enum
    MIF_ARMED       = 0x00000002, // Object is armed (for MF_TOUCHY objects)
    MIF_LINEDONE    = 0x00000004, // Object has activated W1 or S1 linedef via DEH frame
    MIF_DIEDFALLING = 0x00000008, // haleyjd: object died by falling
-   MIF_FOOTCLIP    = 0x00000010, // haleyjd: feet will be clipped
-   MIF_ONFLOOR     = 0x00000020, // SoM: object stands on floor
-   MIF_ONSECFLOOR  = 0x00000040, // SoM: Object stands on sector floor *specific*
-   MIF_SCREAMED    = 0x00000080, // haleyjd: player has screamed
-   MIF_NOFACE      = 0x00000100, // haleyjd: thing won't face its target
+   MIF_ONFLOOR     = 0x00000010, // SoM: object stands on floor
+   MIF_ONSECFLOOR  = 0x00000020, // SoM: Object stands on sector floor *specific*
+   MIF_SCREAMED    = 0x00000040, // haleyjd: player has screamed
+   MIF_NOFACE      = 0x00000080, // haleyjd: thing won't face its target
+   MIF_CRASHED     = 0x00000100, // haleyjd: thing has entered crashstate
 };
 
 // ammo + weapon in a dropped backpack 
@@ -427,6 +428,7 @@ struct mobj_s
   // New Fields for Eternity -- haleyjd
   
   // specials -- these are used by some codepointers to maintain state
+  // Note: these are now known as "counters" on the user-side of things.
   short special1;
   short special2;
   short special3;
@@ -434,8 +436,9 @@ struct mobj_s
   int effects;      // particle effect flag field
   int translucency; // zdoom-style translucency level
   int floatbob;     // floatbob offset
-
   int floorsec;     // # of sector responsible for floorz
+  int damage;       // haleyjd 08/02/04: copy damage to mobj now
+  fixed_t floorclip;    // haleyjd 08/07/04: floor clip amount
 
   #ifdef OVER_UNDER
   fixed_t secfloorz;
@@ -464,7 +467,7 @@ struct mobj_s
 #define VIEWHEIGHT      (41*FRACUNIT)
 #define PLAYERRADIUS    (16*FRACUNIT)
 
-                // sf: gravity >>> defaultgravity
+// sf: gravity >>> defaultgravity
 #define DEFAULTGRAVITY  FRACUNIT
 #define MAXMOVE         (30*FRACUNIT)
 
@@ -502,7 +505,6 @@ extern mapthing_t itemrespawnque[];
 extern int itemrespawntime[];
 extern int iquehead;
 extern int iquetail;
-extern int gravity;
 
 void    P_RespawnSpecials(void);
 mobj_t  *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type);
@@ -530,10 +532,31 @@ mobj_t  *P_SpawnMissileAngle(mobj_t *source, mobjtype_t type, angle_t angle, fix
 void    P_ThrustMobj(mobj_t *mo, angle_t angle, fixed_t move);
 fixed_t P_MissileMomz(fixed_t, fixed_t, fixed_t, int);
 
-void   P_InitTIDHash(void);
-void   P_AddThingTID(mobj_t *mo, int tid);
-void   P_RemoveThingTID(mobj_t *mo);
-mobj_t *P_FindMobjFromTID(int tid, mobj_t *rover);
+void P_InitTIDHash(void);
+void P_AddThingTID(mobj_t *mo, int tid);
+void P_RemoveThingTID(mobj_t *mo);
+
+void P_AdjustFloorClip(mobj_t *thing);
+
+// Thing Collections
+
+typedef struct MobjCollection_s
+{
+   int type;
+   int num;
+   int numalloc;
+   mobj_t **ptrarray;
+
+   int wrapiterator;
+} MobjCollection_t;
+
+void P_InitMobjCollection(MobjCollection_t *, int);
+void P_ReInitMobjCollection(MobjCollection_t *, int);
+void P_ClearMobjCollection(MobjCollection_t *);
+void P_CollectThings(MobjCollection_t *);
+boolean P_CollectionIsEmpty(MobjCollection_t *);
+mobj_t *P_CollectionWrapIterator(MobjCollection_t *);
+mobj_t *P_CollectionGetRandom(MobjCollection_t *, int);
 
 // end new Eternity mobj functions
 

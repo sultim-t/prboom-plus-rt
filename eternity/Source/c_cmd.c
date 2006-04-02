@@ -114,20 +114,29 @@ CONSOLE_COMMAND(cmdlist, 0)
 {
    command_t *current;
    int i;
-   int charnum;
+   int charnum = 33;
+   int maxchar = 'z';
+
+   // haleyjd 07/08/04: optional filter parameter -- the provided
+   // character will be used to make the loop below run only for one
+   // letter
+   if(c_argc == 1 && strlen(c_argv[0]) == 1)
+      charnum = maxchar = c_argv[0][0];
    
    // list each command from the hash chains
    
-   //  5/8/99 change: use hash table and 
-   //  alphabetical order by first letter
+   // 5/8/99 change: use hash table and 
+   // alphabetical order by first letter
+   // haleyjd 07/08/04: fixed to run for last letter
 
-   for(charnum=33; charnum < 'z'; charnum++) // go thru each char in alphabet
+   for(; charnum <= maxchar; ++charnum) // go thru each char in alphabet
    {
-      for(i=0; i<CMDCHAINS; i++)
+      for(i = 0; i < CMDCHAINS; ++i)
       {
          for(current = cmdroots[i]; current; current = current->next)
          {
-            if(current->name[0]==charnum && !(current->flags & cf_hidden))
+            if(current->name[0] == charnum && 
+               !(current->flags & cf_hidden))
             {
                C_Printf("%s\n", current->name);
             }
@@ -347,7 +356,7 @@ static cell AMX_NATIVE_CALL sm_version(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO ccmd_Natives[] =
 {
-   {"EngineVersion", sm_version },
+   {"G_EngineVersion", sm_version },
    { NULL, NULL }
 };
 

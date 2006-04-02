@@ -34,38 +34,38 @@ rcsid[] = "$Id: i_main.c,v 1.8 1998/05/15 00:34:03 killough Exp $";
 #include "../d_main.h"
 #include "../i_system.h"
 
-// SoM 3/13/2001: Use SDL's handler
+// SoM 3/13/2001: Use SDL's signal handler
 
 void I_Quit(void);
 
+// SoM 3/11/2002: Disable the parachute for debugging.
+// haleyjd 07/06/04: changed to a macro to eliminate local variable
+// note: sound init is handled separately in i_sound.c
+
+#define BASE_INIT_FLAGS (SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)
+
+#ifdef _DEBUG
+#define INIT_FLAGS (BASE_INIT_FLAGS | SDL_INIT_NOPARACHUTE)
+#else
+#define INIT_FLAGS BASE_INIT_FLAGS
+#endif
+
 int main(int argc, char **argv)
 {
-   Uint32 sdlInitFlags;
-
    myargc = argc;
    myargv = argv;
    
-   // SoM 3/11/2002: Disable the parachute for debugging.
-   // haleyjd 04/15/02: fixed #ifdef and added joystick, restructured
-
-   sdlInitFlags = SDL_INIT_VIDEO |                  
-                  SDL_INIT_JOYSTICK;
-
-#ifdef _DEBUG
-   sdlInitFlags |= SDL_INIT_NOPARACHUTE;
-#endif
-
    // haleyjd 04/15/02: added check for failure
-   if(SDL_Init(sdlInitFlags) == -1)
+   if(SDL_Init(INIT_FLAGS) == -1)
    {
-      printf("Failed to initialize SDL library.\n");
+      puts("Failed to initialize SDL library.\n");
       return -1;
    }
 
    // haleyjd 02/23/04: ignore mouse events at startup
    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
    
-   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY/2, SDL_DEFAULT_REPEAT_INTERVAL*4);
    
    Z_Init();
    atexit(I_Quit);

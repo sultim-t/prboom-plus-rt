@@ -428,6 +428,18 @@ char *s_HITEMBAGOFHOLDING = HITEMBAGOFHOLDING;
 char *s_HITEMSUPERMAP     = HITEMSUPERMAP;
 char *s_HPD_GREENO  = HPD_GREENO;
 char *s_HPD_GREENK  = HPD_GREENK;
+char *s_HAMMOGOLDWAND1 = HAMMOGOLDWAND1;
+char *s_HAMMOGOLDWAND2 = HAMMOGOLDWAND2;
+char *s_HAMMOMACE1     = HAMMOMACE1;
+char *s_HAMMOMACE2     = HAMMOMACE2;
+char *s_HAMMOCROSSBOW1 = HAMMOCROSSBOW1;
+char *s_HAMMOCROSSBOW2 = HAMMOCROSSBOW2;
+char *s_HAMMOBLASTER1  = HAMMOBLASTER1;
+char *s_HAMMOBLASTER2  = HAMMOBLASTER2;
+char *s_HAMMOSKULLROD1 = HAMMOSKULLROD1;
+char *s_HAMMOSKULLROD2 = HAMMOSKULLROD2;
+char *s_HAMMOPHOENIXROD1 = HAMMOPHOENIXROD1;
+char *s_HAMMOPHOENIXROD2 = HAMMOPHOENIXROD2;
 
 // obituaries
 char *s_OB_SUICIDE = OB_SUICIDE;
@@ -845,6 +857,18 @@ deh_strs deh_strlookup[] =
    {&s_HITEMSHIELD2,"HITEMSHIELD2"},
    {&s_HITEMBAGOFHOLDING,"HITEMBAG"},
    {&s_HITEMSUPERMAP,"HITEMSUPERMAP"},
+   {&s_HAMMOGOLDWAND1,"HAMMOGOLDWAND1"},
+   {&s_HAMMOGOLDWAND2,"HAMMOGOLDWAND2"},
+   {&s_HAMMOMACE1,"HAMMOMACE1"},
+   {&s_HAMMOMACE2,"HAMMOMACE2"},
+   {&s_HAMMOCROSSBOW1,"HAMMOCROSSBOW1"},
+   {&s_HAMMOCROSSBOW2,"HAMMOCROSSBOW2"},
+   {&s_HAMMOBLASTER1,"HAMMOBLASTER1"},
+   {&s_HAMMOBLASTER2,"HAMMOBLASTER2"},
+   {&s_HAMMOSKULLROD1,"HAMMOSKULLROD1"},
+   {&s_HAMMOSKULLROD2,"HAMMOSKULLROD2"},
+   {&s_HAMMOPHOENIXROD1,"HAMMOPHOENIXROD1"},
+   {&s_HAMMOPHOENIXROD2,"HAMMOPHOENIXROD2"},
    {&s_HPD_GREENO,"HPD_GREENO"},
    {&s_HPD_GREENK,"HPD_GREENK"},
    {&s_OB_SUICIDE,"OB_SUICIDE"},
@@ -972,7 +996,6 @@ char **mapnames2[] = // DOOM 2 map names.
   &s_HUSTR_32,
 };
 
-
 char **mapnamesp[] = // Plutonia WAD map names.
 {
   &s_PHUSTR_1,
@@ -1010,7 +1033,6 @@ char **mapnamesp[] = // Plutonia WAD map names.
   &s_PHUSTR_31,
   &s_PHUSTR_32,
 };
-
 
 char **mapnamest[] = // TNT WAD map names.
 {
@@ -1102,6 +1124,7 @@ char **mapnamesh[] = // haleyjd: heretic map names
    &s_HHUSTR_E5M8,
    &s_HHUSTR_E5M9,
 };
+
 
 //
 // BEX Codepointers
@@ -1217,6 +1240,13 @@ extern void A_MissileAttack();
 extern void A_MissileSpread();
 extern void A_BulletAttack();
 extern void A_HealthJump();
+extern void A_CounterJump();
+extern void A_CounterSwitch();
+extern void A_SetCounter();
+extern void A_CopyCounter();
+extern void A_CounterOp();
+extern void A_SetTics();
+extern void A_AproxDistance();
 
 // haleyjd 10/12/02: Heretic pointers
 extern void A_SpawnGlitter();
@@ -1252,15 +1282,29 @@ extern void A_Sor1Chase();
 extern void A_Sor1Pain();
 extern void A_Srcr1Attack();
 extern void A_SorcererRise();
-
-// eternity tc ptrs: TODO: remove these?
+extern void A_VolcanoBlast();
+extern void A_VolcBallImpact();
 extern void A_MinotaurAtk1();
 extern void A_MinotaurDecide();
 extern void A_MinotaurAtk2();
 extern void A_MinotaurAtk3();
 extern void A_MinotaurCharge();
 extern void A_MntrFloorFire();
-extern void A_ETCBossDeath();
+extern void A_LichFire();
+extern void A_LichWhirlwind();
+extern void A_LichAttack();
+extern void A_WhirlwindSeek();
+extern void A_LichIceImpact();
+extern void A_LichFireGrow();
+extern void A_ImpChargeAtk();
+extern void A_ImpMeleeAtk();
+extern void A_ImpMissileAtk();
+extern void A_ImpDeath();
+extern void A_ImpXDeath1();
+extern void A_ImpXDeath2();
+extern void A_ImpExplode();
+
+// eternity tc ptrs: TODO: remove these?
 extern void A_ClericAtk();
 extern void A_FogSpawn();
 extern void A_FogMove();
@@ -1277,7 +1321,6 @@ extern void A_DwarfAlterEgoChase();
 extern void A_DwarfAlterEgoAttack();
 extern void A_PhoenixTracer();
 extern void A_AxePieceFall();
-extern void A_Sparkle();
 
 // haleyjd 07/13/03: special death actions for killem cheat
 extern void A_PainNukeSpec();
@@ -1395,6 +1438,13 @@ deh_bexptr deh_bexptrs[] =
   {A_MissileSpread,     "MissileSpread",BPF_PTHUNK},
   {A_BulletAttack,      "BulletAttack", BPF_PTHUNK},
   {A_HealthJump,        "HealthJump"},
+  {A_CounterJump,       "CounterJump"},
+  {A_CounterSwitch,     "CounterSwitch"},
+  {A_SetCounter,        "SetCounter",   BPF_PTHUNK},
+  {A_CopyCounter,       "CopyCounter",  BPF_PTHUNK},
+  {A_CounterOp,         "CounterOp",    BPF_PTHUNK},
+  {A_SetTics,           "SetTics",      BPF_PTHUNK},
+  {A_AproxDistance,     "AproxDistance",BPF_PTHUNK},
   // haleyjd: Heretic pointers
   {A_SpawnGlitter,      "SpawnGlitter", BPF_PTHUNK},
   {A_AccelGlitter,      "AccelGlitter", BPF_PTHUNK},
@@ -1429,17 +1479,31 @@ deh_bexptr deh_bexptrs[] =
   {A_Sor1Pain,          "Sor1Pain",     BPF_PTHUNK},
   {A_Srcr1Attack,       "Srcr1Attack"},
   {A_SorcererRise,      "SorcererRise", BPF_PTHUNK},
+  {A_VolcanoBlast,      "VolcanoBlast", BPF_PTHUNK},
+  {A_VolcBallImpact,    "VolcBallImpact"},
+  {A_MinotaurAtk1,	"MinotaurAtk1", BPF_PTHUNK},
+  {A_MinotaurDecide,	"MinotaurDecide"},
+  {A_MinotaurAtk2,	"MinotaurAtk2", BPF_PTHUNK},
+  {A_MinotaurAtk3,	"MinotaurAtk3"},
+  {A_MinotaurCharge,	"MinotaurCharge"},
+  {A_MntrFloorFire,	"MntrFloorFire"},
+  {A_LichFire,          "LichFire",     BPF_PTHUNK},
+  {A_LichWhirlwind,     "LichWhirlwind",BPF_PTHUNK},
+  {A_LichAttack,        "LichAttack",   BPF_PTHUNK},
+  {A_WhirlwindSeek,     "WhirlwindSeek" },
+  {A_LichIceImpact,     "LichIceImpact",BPF_PTHUNK},
+  {A_LichFireGrow,      "LichFireGrow" },
+  {A_ImpChargeAtk,      "ImpChargeAtk" },
+  {A_ImpMeleeAtk,       "ImpMeleeAtk",  BPF_PTHUNK},
+  {A_ImpMissileAtk,     "ImpMissileAtk",BPF_PTHUNK},
+  {A_ImpDeath,          "ImpDeath"},
+  {A_ImpXDeath1,        "ImpXDeath1"},
+  {A_ImpXDeath2,        "ImpXDeath2"},
+  {A_ImpExplode,        "ImpExplode"},
     // haleyjd 07/13/03: nuke specials
   {A_PainNukeSpec,      "PainNukeSpec"},
   {A_SorcNukeSpec,      "SorcNukeSpec"},
   // ETERNITY TC ptrs -- TODO: maybe eliminate these
-  {A_MinotaurAtk1,	"MinotaurAtk1"},
-  {A_MinotaurDecide,	"MinotaurDecide"},
-  {A_MinotaurAtk2,	"MinotaurAtk2"},
-  {A_MinotaurAtk3,	"MinotaurAtk3"},
-  {A_MinotaurCharge,	"MinotaurCharge"},
-  {A_MntrFloorFire,	"MntrFloorFire"},
-  {A_ETCBossDeath,	"ETCBossDeath"},
   {A_ClericAtk,		"ClericAtk"},
   {A_FogSpawn,		"FogSpawn"},
   {A_FogMove,		"FogMove"},
@@ -1456,7 +1520,6 @@ deh_bexptr deh_bexptrs[] =
   {A_DwarfAlterEgoAttack, "DwarfAlterEgoAttack"},
   {A_PhoenixTracer,	"PhoenixTracer"},
   {A_AxePieceFall,	"AxePieceFall"},
-  {A_Sparkle,		"Sparkle"},
   // This NULL entry must be the last in the list
   {NULL,             "NULL"},  // Ty 05/16/98
 };
@@ -1517,7 +1580,7 @@ static void D_DEHStrHashInit(void)
    memset(bexstrhashchains, -1, NUMSTRCHAINS*sizeof(int));
    memset(dehstrhashchains, -1, NUMSTRCHAINS*sizeof(int));
 
-   for(i = 0; i < deh_numstrlookup; i++)
+   for(i = 0; i < deh_numstrlookup; ++i)
    {
       unsigned int bkey, dkey;
 

@@ -119,66 +119,73 @@ typedef enum {
   pr_script,                  // #63: FraggleScript
   // End of new entries
 
-  // Start Eternity TC random seed classes
-  // haleyjd: note -- some of these are used by engine features
-  // and thus for demo sync, all must remain, even if some of the
-  // TC code that uses them is removed
-  pr_minatk1,
+  // Start Eternity classes
+  pr_minatk1,   // Minotaur attacks
   pr_minatk2,
   pr_minatk3,
   pr_mindist,
   pr_mffire,
-  pr_ambience,
-  pr_collage,
-  pr_colgpick,
+  pr_settics,   // SetTics codepointer
+  pr_volcano,   // Heretic volcano stuff
+  pr_svolcano,  // ditto
   pr_clrattack,
-  pr_splash,
-  pr_lightning,
+  pr_splash,    // TerrainTypes
+  pr_lightning, // lightning flashes
   pr_nextflash,
   pr_cloudpick,
   pr_fogangle,
   pr_fogcount,
   pr_fogfloat,
-  pr_floathealth,
-  pr_clericteleport,
+  pr_floathealth, // floatbobbing seed
+  pr_clericteleport, // TODO: reuse these
   pr_clr2attack,
   pr_clr2choose,
   pr_dwarfatk,
   pr_dwarffwae,
-  pr_cybdrop,
-  pr_reflect,
-  pr_clrspark,
+  pr_mincharge,  // minotaur inflictor special
+  pr_reflect,    // missile reflection
+  pr_tglitz,     // teleglitter z coord
   pr_clericevade,
-  pr_custombullets,
+  pr_custombullets, // parameterized pointers
   pr_custommisfire,
   pr_custompunch,
   pr_tglit,      // teleglitter spawn
   pr_spawnfloat, // random spawn float z flag
-  pr_mumpunch,   // mummy punch attack
-  pr_mumpunch2,  // mummy leader punch
-  pr_hdrop1,     // heretic item drop 1
-  pr_hdrop2,     // heretic item drop 2
-  pr_hdropmom,   // heretic item drop momentum
+  pr_mumpunch,   // mummy punches
+  pr_mumpunch2,  
+  pr_hdrop1,     // heretic item drops
+  pr_hdrop2,     
+  pr_hdropmom,   
   pr_clinkatk,   // clink scratch
   pr_ghostsneak, // random failure to sight ghost player
   pr_wizatk,     // wizard attack
   pr_lookact,    // make seesound instead of active sound
-  pr_sorctele1,  // d'sparil teleport chance
-  pr_sorctele2,  // d'sparil teleport destination
-  pr_sorfx1xpl,  // d'sparil fx1 explosion
-  pr_soratk1,    // d'sparil scratch
-  pr_soratk2,    // d'sparil attack choice
-  pr_bluespark,  // blue sparks
+  pr_sorctele1,  // d'sparil stuff
+  pr_sorctele2,  
+  pr_sorfx1xpl,  
+  pr_soratk1,    
+  pr_soratk2,    
+  pr_bluespark,  
   pr_podpain,    // pod pain
   pr_makepod,    // pod spawn
   pr_knightat1,  // knight scratch
-  pr_knightat2,  // projectile choice
+  pr_knightat2,  // knight projectile choice
   pr_dripblood,  // for A_DripBlood
   pr_beastbite,  // beast bite
   pr_puffy,      // beast ball puff spawn
-  pr_sorc1atk,   // sorcerer beast attack
-  pr_monbullets,
+  pr_sorc1atk,   // sorcerer serpent attack
+  pr_monbullets, // BulletAttack ptr
   pr_monmisfire,
+  pr_setcounter, // SetCounter ptr
+  pr_madmelee,   // Heretic mad fighting after player death
+  pr_whirlwind,  // Whirlwind inflictor
+  pr_lichmelee,  // Iron Lich attacks
+  pr_lichattack, 
+  pr_whirlseek,  // Whirlwind seeking
+  pr_impcharge,  // Imp charge attack
+  pr_impmelee,   // Imp melee attack
+  pr_impmelee2,  // Leader imp melee
+  pr_impcrash,   // Imp crash
 
 
   NUMPRCLASS                  // MUST be last item in list
@@ -199,6 +206,9 @@ extern unsigned long rngseed;          // The starting seed (not part of state)
 
 // As M_Random, but used by the play simulation.
 int P_Random(pr_class_t);
+
+// haleyjd: function to get a random near zero
+int P_SubRandom(pr_class_t);
 
 // Fix randoms for demos.
 void M_ClearRandom(void);

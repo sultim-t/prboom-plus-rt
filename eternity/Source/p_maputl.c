@@ -177,7 +177,7 @@ sector_t *openfloorsec;
 
 void P_LineOpening(line_t *linedef, mobj_t *mo)
 {
-   if (linedef->sidenum[1] == -1)      // single sided line
+   if(linedef->sidenum[1] == -1)      // single sided line
    {
       openrange = 0;
       return;
@@ -186,12 +186,12 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
    openfrontsector = linedef->frontsector;
    openbacksector = linedef->backsector;
    
-   if (openfrontsector->ceilingheight < openbacksector->ceilingheight)
+   if(openfrontsector->ceilingheight < openbacksector->ceilingheight)
       opentop = openfrontsector->ceilingheight;
    else
       opentop = openbacksector->ceilingheight;
    
-   if (openfrontsector->floorheight > openbacksector->floorheight)
+   if(openfrontsector->floorheight > openbacksector->floorheight)
    {
       openbottom = openfrontsector->floorheight;
       lowfloor = openbacksector->floorheight;
@@ -199,6 +199,10 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
       tmfloorpic = openfrontsector->floorpic;
       // haleyjd
       openfloorsec = openfrontsector;
+      
+      // haleyjd 11/11/04: 3DMidTex: we may no longer be on a 
+      // 3DMidTex line
+      tmtouch3dside = false;
    }
    else
    {
@@ -208,6 +212,10 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
       tmfloorpic = openbacksector->floorpic;
       // haleyjd
       openfloorsec = openbacksector;
+
+      // haleyjd 11/11/04: 3DMidTex: we may no longer be on a 
+      // 3DMidTex line
+      tmtouch3dside = false;
    }
 
 
@@ -256,14 +264,18 @@ void P_LineOpening(line_t *linedef, mobj_t *mo)
       {
          if(textop > openbottom)
             openbottom = textop;
-
+ 
          // haleyjd
          openfloorsec = NULL;
       }
 
       // SoM 09/07/02: let monsters walk over dropoffs
-      if(D_abs(textop - mo->z) < 24*FRACUNIT)
-         tmtouch3dside = true;
+      
+      // haleyjd 11/10/04: 3DMidTex: tmtouch3dside is now
+      // used differently, see above and in PIT_CheckLine.
+      // We may be standing on a 3dmidtex line now.
+      tmtouch3dside = true;
+
    }
 
    openrange = opentop - openbottom;

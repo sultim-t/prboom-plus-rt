@@ -30,7 +30,6 @@
 #include "g_game.h"
 #include "in_lude.h"
 #include "v_video.h"
-#include "mn_htic.h"
 #include "s_sound.h"
 #include "d_gi.h"
 
@@ -189,8 +188,8 @@ static void HI_drawNewLevelName(int y)
    if(strlen(thisLevelName) > 7)
       thisLevelName += 7;
 
-   x = (SCREENWIDTH - MN_HBStringWidth(thisLevelName)) >> 1;
-   MN_HBWriteText(thisLevelName, x, y + 10);
+   x = (SCREENWIDTH - V_StringWidthBig(thisLevelName)) >> 1;
+   V_WriteTextBig(thisLevelName, x, y + 10);
 }
 
 //
@@ -210,8 +209,8 @@ static void HI_drawOldLevelName(int y)
    if(strlen(oldLevelName) > 7)
       oldLevelName += 7;
 
-   x = (SCREENWIDTH - MN_HBStringWidth(oldLevelName)) >> 1;
-   MN_HBWriteText(oldLevelName, x, y);
+   x = (SCREENWIDTH - V_StringWidthBig(oldLevelName)) >> 1;
+   V_WriteTextBig(oldLevelName, x, y);
 
    x = (SCREENWIDTH - V_StringWidth(HIS_FINISHED)) >> 1;
    V_WriteText(HIS_FINISHED, x, y + 22);
@@ -337,12 +336,12 @@ static void HI_drawLevelStat(int stat, int max, int x, int y)
    char str[16];
 
    sprintf(str, "%3d", stat);
-   MN_HBWriteNumText(str, x, y);
+   V_WriteNumTextBig(str, x, y);
    
-   MN_HBWriteText("/", x + 37, y);
+   V_WriteTextBig("/", x + 37, y);
 
    sprintf(str, "%3d", max);
-   MN_HBWriteNumText(str, x + 48, y);
+   V_WriteNumTextBig(str, x + 48, y);
 }
 
 //
@@ -359,16 +358,16 @@ static void HI_drawTime(int h, int m, int s, int x, int y)
    if(h)
    {
       sprintf(timestr, "%02d", h);
-      MN_HBWriteNumText(timestr, x, y);
-      MN_HBWriteText(":", x + 26, y);
+      V_WriteNumTextBig(timestr, x, y);
+      V_WriteTextBig(":", x + 26, y);
    }
 
    sprintf(timestr, "%02d", m);
-   MN_HBWriteNumText(timestr, x + 34, y);
-   MN_HBWriteText(":", x + 60, y);
+   V_WriteNumTextBig(timestr, x + 34, y);
+   V_WriteTextBig(":", x + 60, y);
 
    sprintf(timestr, "%02d", s);
-   MN_HBWriteNumText(timestr, x + 68, y);
+   V_WriteNumTextBig(timestr, x + 68, y);
 }
 
 //
@@ -383,9 +382,9 @@ static void HI_drawSingleStats(void)
 {
    static int statstage = 0;
 
-   MN_HBWriteText(HIS_KILLS,   50,  65);
-   MN_HBWriteText(HIS_ITEMS,   50,  90);
-   MN_HBWriteText(HIS_SECRETS, 50, 115);
+   V_WriteTextBig(HIS_KILLS,   50,  65);
+   V_WriteTextBig(HIS_ITEMS,   50,  90);
+   V_WriteTextBig(HIS_SECRETS, 50, 115);
 
    HI_drawOldLevelName(3);
 
@@ -461,7 +460,7 @@ static void HI_drawSingleStats(void)
          
          seconds = time;
 
-         MN_HBWriteText(HIS_TIME, 85, 160);
+         V_WriteTextBig(HIS_TIME, 85, 160);
          HI_drawTime(hours, minutes, seconds, 155, 160);
       }
       else

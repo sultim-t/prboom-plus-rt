@@ -169,7 +169,7 @@ struct player_s
   //  can be set to REDCOLORMAP for pain, etc.
   int                 fixedcolormap;
 
-  // Player skin colorshift,
+  // Player skin and colorshift,
   //  0-3 for which color to draw player.
   int                 colormap;
   skin_t*             skin;

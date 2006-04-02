@@ -46,10 +46,6 @@
 
 #include "Confuse/confuse.h"
 
-// globals
-
-boolean levelHasExtraData = false;
-
 // statics
 
 static mapthingext_t *EDThings;
@@ -67,6 +63,7 @@ static unsigned int mapthing_chains[NUMMTCHAINS];
 #define FIELD_TID "tid"
 #define FIELD_TYPE "type"
 #define FIELD_OPTIONS "options"
+#define FIELD_ARGS "args"
 
 // mapthing options and related data structures
 
@@ -76,6 +73,7 @@ static cfg_opt_t mapthing_opts[] =
    CFG_INT(FIELD_TID,     0,  CFGF_NONE),
    CFG_STR(FIELD_TYPE,    "", CFGF_NONE),
    CFG_STR(FIELD_OPTIONS, "", CFGF_NONE),
+   CFG_STR(FIELD_ARGS,    0,  CFGF_LIST),
    CFG_END()
 };
 
@@ -214,6 +212,41 @@ static long E_ParseFlags(const char *str)
 }
 
 //
+// E_ParseArg
+//
+// Parses a single element of the args list.
+//
+static void E_ParseArg(const char *str, long *dest)
+{
+   // currently only integers are supported
+   *dest = strtol(str, NULL, 0);
+}
+
+//
+// E_ParseArgs
+//
+// Parses the mapthing args list.
+//
+static void E_ParseArgs(mapthingext_t *mte, cfg_t *sec)
+{
+   unsigned int i, numargs;
+
+   // count number of args given in list
+   numargs = cfg_size(sec, FIELD_ARGS);
+   
+   // init all args to 0
+   for(i = 0; i < 5; ++i) // hard-coded args max
+      mte->args[i] = 0;
+   
+   // parse the given args values
+   for(i = 0; i < numargs && i < 5; ++i) // hard-coded args max
+   {
+      const char *argstr = cfg_getnstr(sec, FIELD_ARGS, i);
+      E_ParseArg(argstr, &(mte->args[i]));
+   }
+}
+
+//
 // E_ProcessEDThings
 //
 // Allocates and processes ExtraData mapthing records.
@@ -265,9 +298,10 @@ static void E_ProcessEDThings(cfg_t *cfg)
       EDThings[i].stdfields.type = (short)(E_ParseTypeField(tempstr));
 
       // it is not allowed to spawn an ExtraData control object via
-      // ExtraData, so doomednum will be zeroed in such a case
+      // ExtraData, but the error is tolerated by changing it to an 
+      // "Unknown" thing
       if(EDThings[i].stdfields.type == ED_CTRL_DOOMEDNUM)
-         EDThings[i].stdfields.type = 0;
+         EDThings[i].stdfields.type = mobjinfo[E_UnknownThing()].doomednum;
 
       // options
       tempstr = cfg_getstr(thingsec, FIELD_OPTIONS);
@@ -280,6 +314,9 @@ static void E_ProcessEDThings(cfg_t *cfg)
 
       // get TID field
       EDThings[i].tid = (unsigned short)cfg_getint(thingsec, FIELD_TID);
+
+      // get args
+      E_ParseArgs(&EDThings[i], thingsec);
 
       // TODO: any other new fields
    }
@@ -301,20 +338,15 @@ void E_LoadExtraData(void)
    numEDMapThings = 0;
 
    // check to see if the ExtraData lump is defined by MapInfo
-   if(!info_extradata)
-   {
-      levelHasExtraData = false;
+   if(!LevelInfo.extraData)
       return;
-   }
-
-   levelHasExtraData = true;
 
    // initialize the cfg
    cfg = cfg_init(ed_opts, CFGF_NOCASE);
    cfg_set_error_function(cfg, ed_error);
 
    // load and parse the ED lump
-   if(cfg_parselump(cfg, info_extradata))
+   if(cfg_parselump(cfg, LevelInfo.extraData))
       I_Error("E_LoadExtraData: Error finding or parsing lump\n");
 
    // processing
@@ -345,8 +377,8 @@ mobj_t *E_SpawnMapThingExt(mapthing_t *mt)
 
    // The record number is stored in the control thing's options field.
    // Check to see if the record exists, and that ExtraData is loaded.
-   if(!levelHasExtraData || numEDMapThings == 0 ||
-      (edThingIdx = E_EDThingForRecordNum(mt->options)) == numEDMapThings)
+   if(!LevelInfo.extraData || numEDMapThings == 0 ||
+      (edThingIdx = E_EDThingForRecordNum((unsigned short)(mt->options))) == numEDMapThings)
    {
       // spawn an Unknown thing
       mo = P_SpawnMobj(mt->x << FRACBITS, mt->y << FRACBITS, ONFLOORZ,
@@ -371,6 +403,9 @@ mobj_t *E_SpawnMapThingExt(mapthing_t *mt)
    {
       // 02/02/04: TID -- numeric id used for scripting
       P_AddThingTID(mo, edthing->tid);
+
+      // 08/16/04: args values
+      memcpy(mo->args, edthing->args, 5 * sizeof(long));
    }
 
    // return the spawned object back through P_SpawnMapThing

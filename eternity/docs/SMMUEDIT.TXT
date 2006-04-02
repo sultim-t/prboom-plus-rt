@@ -2,7 +2,7 @@
                              Eternity Engine
 			SMMU Features Editing Guide
 
-                            Updated 12-13-02
+                            Updated 08-19-04
 
 [1-1] Overview
 --------------
@@ -26,7 +26,8 @@ be accessed from the console using the "map" command: eg "map start".
 Additionally, Eternity automatically detects new levels loaded from wads
 and will start on the appropriate level when the 'new game' option
 is chosen from the main menu (only if the "start new game on first new
-map" option on the Eternity Options menu is set to "yes").
+map" option on the Eternity Options menu is set to "yes", and only in
+DOOM II).
 
 [1-3] The level info lump
 -------------------------
@@ -38,120 +39,15 @@ In Eternity, the level header is used to hold information about the level.
 The format is a simple ascii text file, similar in style to the '.ini'
 files which are found in a typical windows directory.
 
-There are a number of sections which hold different types of information,
-each begins with a different section header:
-        - [level info] : holds information about the level: the name,
-                par time, etc. See section [2].
-
-Comments may begin with a '#', ';' or '//'
+See the Eternity Engine MapInfo Reference for full information. As of
+Eternity Engine v3.31 'Delta', Eternity also supports global MapInfo 
+lumps.
 
 [2-1] The level info section
 ----------------------------
-The level info section described in section [1-3] contains certain 
-information about the level. This is in the format:
-        variable = value
 
-Legal variables are:
-
-Variable name		Description
---------------------------------------------------
-levelpic		Name of a graphic resource containing the level name
-			to be displayed in intermission screens
-
-levelname		The name of the level
-
-partime			The par time (time it should take to finish the
-			level) in seconds
-
-music			Name of the music resource to be played in the level
-			(eg. 'fragme' will play 'd_fragme')
-
-skyname			Name of a resource containing the sky for the
-			'f_sky1' flat
-
-creator			Your name (user can find the value of this by
-			typing 'creator' at the console')
-
-interpic		graphic to be displayed in the intermission screen
-
-nextlevel		The name of the resource starting the next level
-			(eg. 'nextlevel=map01' will take the player to map01
-			after finishing this level)
-
-gravity			Gravity in the level as a percentage of normal
-
-inter-backdrop		For intermission 'story' text screens, this allows
-			you to specify a 320x200 resource or flat to be
-			displayed in the background
-
-defaultweapons          Deprecated in favor of more flexible specification, 
-                        so further documentation will not be given at this time.
-
-The following are new to the Eternity Engine:
-
-altskyname		An alternate sky texture to be drawn during
-			lightning flashes. This is used only if
-			lightning is set to on. If lightning is on and
-			this is unspecified, no sky animation will
-			occur (which looks very odd indeed)
-
-lightning		Set to either "true" or "false" -- true will
-			cause globalized random light flashes in all
-			sky sectors along with a crack of thunder. If
-			you need to have flashing in non-sky sectors,
-			use the BOOM ceiling light transfer linedef.
-			This is not supported through sector types as
-			it is in Hexen as there is no need.
-
-colormap		Set to any valid colormap lump. This colormap
-			will be swapped for the normal COLORMAP for
-			this level and used globally. Note that the
-			underwater portions of deepwater sectors can
-			still be given their own colormaps.
-
-sky2name		Set to any valid single-patch texture name to
-			activate the use of double skies. This texture
-			will be drawn normally, and the normal sky
-			will be drawn over it leaving out black 
-			(RGB 0,0,0) pixels, letting it show through.
-
-skydelta		An integer value specifying how many pixels
-			per game tic the normal sky texture should
-			scroll
-
-sky2delta		An integer value specifying how many pixels
-			per game tic the sky 2 texture should scroll.
-
-nextsecret              The name of the resource starting a level to 
-                        which the game will go when a secret exit switch 
-                        is tripped on the current map -- this allows 
-                        secret exits on any map.
-
-killfinale              A boolean variable (set to true or false) that,
-                        when true, will stop a text finale sequence which
-                        would normally occur after the current level. This
-                        allows user mods to remove default text intermissions.
-
-endofgame               A boolean variable that, when true, will cause a
-                        DOOM II cast call to take place after the current
-                        level. Currently, MAP30 will always have a cast call.
-
-intertext               Set to the name of a text lump which will be loaded
-                        in whole, preserving formatting, to be used as
-                        intermission text after the current level ends. There
-                        is no length limit, although only one screen of text
-                        will be shown.
-
- - Per-Level Sound Replacement -
-sound-swtchn		Name of sound to use for switch pressing
-sound-swtchx		Name of sound to use for switch release
-sound-stnmov		Name of sound to use for a moving plat
-sound-pstop		Name of sound to use for a stopping plat
-sound-bdcls		Name of sound to use for closing blazing door
-sound-bdopn		Name of sound to use for opening blazing door
-sound-dorcls		Name of sound to use for closing normal door
-sound-doropn		Name of sound to use for opening normal door
-sound-pstart		Name of sound to use for a starting plat
+Most of this information has been moved to the Eternity Engine MapInfo
+Reference. Please see it for full information.
 
 _example_ A typical level info section
 
@@ -163,19 +59,20 @@ creator = Edwin Chadwick 'chadders'
 nextlevel = chad2
 
 This sets a number of settings, but uses the default interpic and sky.
-The automap shows the level name 'chadders lair', and the par time is
+The automap shows the level name "chadders' lair", and the par time is
 200 seconds (3:20). The music 'd_cheese' is used, and when the player
 exits the level, play advances to the next map, 'chad2'.
 
 [3] Scripting
 =============
 
-*** FraggleScript information has been deleted ***
+See the Eternity Engine Small references for full information on Eternity's
+scripting capabilities. FraggleScript is no longer supported by Eternity.
 
 [3-4] Hubs
 ----------
 
-NOTE: Hubs are temporarily disabled in Eternity v3.31 beta 5
+NOTE: Hubs are temporarily disabled in Eternity v3.31 Delta
       due to continued development.
 
 [4] Thing options

@@ -46,6 +46,7 @@ rcsid[] = "$Id: p_pspr.c,v 1.13 1998/05/07 00:53:36 killough Exp $";
 #include "e_edf.h"
 #include "e_sound.h"
 #include "d_dehtbl.h"
+#include "p_info.h"
 
 int weapon_speed = 6;
 int default_weapon_speed = 6;
@@ -545,16 +546,15 @@ void A_GunFlash(player_t *player, pspdef_t *psp)
 void A_Punch(player_t *player, pspdef_t *psp)
 {
    angle_t angle;
-   int t, slope, damage = (P_Random(pr_punch)%10+1)<<1;
+   int slope, damage = (P_Random(pr_punch) % 10 + 1) << 1;
    
    if(player->powers[pw_strength])
       damage *= 10;
    
    angle = player->mo->angle;
 
-   // killough 5/5/98: remove dependence on order of evaluation:
-   t = P_Random(pr_punchangle);
-   angle += (t - P_Random(pr_punchangle))<<18;
+   // haleyjd 08/05/04: use new function
+   angle += P_SubRandom(pr_punchangle) << 18;
 
   // killough 8/2/98: make autoaiming prefer enemies
    if(demo_version<203 ||
@@ -584,10 +584,8 @@ void A_Saw(player_t *player, pspdef_t *psp)
    int slope, damage = 2*(P_Random(pr_saw)%10+1);
    angle_t angle = player->mo->angle;
    
-   // killough 5/5/98: remove dependence on order of evaluation:
-   int t = P_Random(pr_saw);
-   
-   angle += (t - P_Random(pr_saw))<<18;
+   // haleyjd 08/05/04: use new function
+   angle += P_SubRandom(pr_saw) << 18;
 
    // Use meleerange + 1 so that the puff doesn't skip the flash
    
@@ -716,7 +714,7 @@ void A_FireOldBFG(player_t *player, pspdef_t *psp)
       player->ammo[weaponinfo[player->readyweapon].ammo]--;
    }
 
-   if(MapUseFullBright) // haleyjd
+   if(LevelInfo.useFullBright) // haleyjd
       player->extralight = 2;
 
    do
@@ -830,14 +828,11 @@ static void P_BulletSlope(mobj_t *mo)
 
 void P_GunShot(mobj_t *mo, boolean accurate)
 {
-   int damage = 5*(P_Random(pr_gunshot)%3+1);
+   int damage = 5 * (P_Random(pr_gunshot) % 3 + 1);
    angle_t angle = mo->angle;
    
    if(!accurate)
-   {  // killough 5/5/98: remove dependence on order of evaluation:
-      int t = P_Random(pr_misfire);
-      angle += (t - P_Random(pr_misfire))<<18;
-   }
+      angle += P_SubRandom(pr_misfire) << 18;
    
    P_LineAttack(mo, angle, MISSILERANGE, bulletslope, damage);
 }
@@ -933,16 +928,15 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp)
    
    P_BulletSlope(player->mo);
    
-   for(i=0; i<20; i++)
+   for(i = 0; i < 20; ++i)
    {
-      int damage = 5*(P_Random(pr_shotgun)%3+1);
+      int damage = 5 * (P_Random(pr_shotgun) % 3 + 1);
       angle_t angle = player->mo->angle;
-      // killough 5/5/98: remove dependence on order of evaluation:
-      int t = P_Random(pr_shotgun);
-      angle += (t - P_Random(pr_shotgun))<<19;
-      t = P_Random(pr_shotgun);
+
+      angle += P_SubRandom(pr_shotgun) << 19;
+      
       P_LineAttack(player->mo, angle, MISSILERANGE, bulletslope +
-                   ((t - P_Random(pr_shotgun))<<5), damage);
+                   (P_SubRandom(pr_shotgun) << 5), damage);
    }
 }
 
@@ -999,13 +993,13 @@ void A_Light0(player_t *player, pspdef_t *psp)
 
 void A_Light1 (player_t *player, pspdef_t *psp)
 {
-   if(MapUseFullBright) // haleyjd
+   if(LevelInfo.useFullBright) // haleyjd
       player->extralight = 1;
 }
 
 void A_Light2 (player_t *player, pspdef_t *psp)
 {
-   if(MapUseFullBright) // haleyjd
+   if(LevelInfo.useFullBright) // haleyjd
       player->extralight = 2;
 }
 
@@ -1339,7 +1333,7 @@ void A_FireCustomBullets(player_t *player, pspdef_t *psp)
    P_BulletSlope(player->mo);
 
    // loop on numbullets
-   for(i = 0; i < numbullets; i++)
+   for(i = 0; i < numbullets; ++i)
    {
       int dmg = damage * (P_Random(pr_custombullets)%dmgmod + 1);
       angle_t angle = player->mo->angle;
@@ -1351,9 +1345,8 @@ void A_FireCustomBullets(player_t *player, pspdef_t *psp)
          if(accurate == 3 || accurate == 5 || 
             (accurate == 2 && player->refire))
          {
-            int t = P_Random(pr_custommisfire);
             int aimshift = ((accurate == 5) ? 20 : 18);
-            angle += (t - P_Random(pr_custommisfire)) << aimshift;
+            angle += P_SubRandom(pr_custommisfire) << aimshift;
          }
 
          P_LineAttack(player->mo, angle, MISSILERANGE, bulletslope, 
@@ -1361,13 +1354,11 @@ void A_FireCustomBullets(player_t *player, pspdef_t *psp)
       }
       else if(accurate == 4) // ssg spread
       {
-         int t = P_Random(pr_custommisfire);
-         angle += (t - P_Random(pr_custommisfire))<<19;
-         t = P_Random(pr_custommisfire);
-         t -= P_Random(pr_custommisfire);
+         angle += P_SubRandom(pr_custommisfire) << 19;
+         bulletslope += P_SubRandom(pr_custommisfire) << 5;
 
          P_LineAttack(player->mo, angle, MISSILERANGE, 
-                      bulletslope + (t<<5), dmg);
+                      bulletslope, dmg);
       }
    }
 }
@@ -1427,7 +1418,7 @@ void A_FirePlayerMissile(player_t *player, pspdef_t *psp)
 void A_CustomPlayerMelee(player_t *player, pspdef_t *psp)
 {
    angle_t angle;
-   int t, slope, damage, dmgfactor, dmgmod, berzerkmul, deftype, sound;
+   int slope, damage, dmgfactor, dmgmod, berzerkmul, deftype, sound;
    sfxinfo_t *sfx;
 
    dmgfactor  = (int)(psp->state->args[0]);
@@ -1463,10 +1454,7 @@ void A_CustomPlayerMelee(player_t *player, pspdef_t *psp)
    angle = player->mo->angle;
    
    if(deftype == 2 || deftype == 3)
-   {
-      t = P_Random(pr_punchangle);
-      angle += (t - P_Random(pr_custompunch))<<18;
-   }
+      angle += P_SubRandom(pr_custompunch) << 18;
    
    if((slope = P_AimLineAttack(player->mo, angle, MELEERANGE, MF_FRIEND),
       !linetarget))
@@ -1483,11 +1471,9 @@ void A_CustomPlayerMelee(player_t *player, pspdef_t *psp)
    }
 
    // start sound
-
    S_StartSfxInfo(player->mo, sfx);
    
-   // turn to face target
-   
+   // turn to face target   
    player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y,
       linetarget->x, linetarget->y);
 

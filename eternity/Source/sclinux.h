@@ -3,20 +3,19 @@
  *
  * Should be reworked totally to use GNU's 'configure'
  */
+#ifndef SCLINUX_H
+#define SCLINUX_H
 
-/*
- * Getchar is not a 'cool' replacement for MSDOS getch: Linux/unix depends on the features activated or not about the
- * controlling terminal's tty. This means that ioctl(2) calls must be performed, for instance to have the controlling terminal tty's
- * in 'raw' mode, if we want to be able to fetch a single character. This also means that everything must be put back
- * correctly when the program ends.
+/* getchar() is not a 'cool' replacement for MSDOS getch: Linux/unix depends on the features activated or not about the
+ * controlling terminal's tty. This means that ioctl(2) calls must be performed, for instance to have the controlling 
+ * terminal tty's in 'raw' mode, if we want to be able to fetch a single character. This also means that everything must 
+ * be put back correctly when the function ends. See GETCH.C for an implementation.
  *
- * For interactive use of SRUN/SDBG if would be much better to use GNU's readline package: the user would be able to have
- * a complete emacs/vi like line editing system.
- *
- * So we stick to getchar at the moment... (one needs to key ctrl-d to terminate input if getch is called with a controlling
- * terminal driven by a tty having -raw)
+ * For interactive use of SRUN/SDBG if would be much better to use GNU's readline package: the user would be able to 
+ * have a complete emacs/vi like line editing system.
  */
-#define getch           getchar
+#include "getch.h"
+
 #define	stricmp(a,b)    strcasecmp(a,b)
 #define	strnicmp(a,b,c) strncasecmp(a,b,c)
 
@@ -35,7 +34,7 @@
 # include <stdlib.h>
 #endif
 
-#if defined __OpenBSD__
+#if defined __OpenBSD__ || defined __FreeBSD__
 # define __BYTE_ORDER    BYTE_ORDER
 # define __LITTLE_ENDIAN LITTLE_ENDIAN
 # define __BIG_ENDIAN    BIG_ENDIAN
@@ -45,3 +44,4 @@
 # error	"Can't figure computer byte order (__BYTE_ORDER macro not found)"
 #endif
 
+#endif /* SCLINUX_H */

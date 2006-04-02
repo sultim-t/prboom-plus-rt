@@ -110,6 +110,12 @@ static int    temptype = COL_NONE;
 static int    commontop, commonbot;
 static byte   *temptranmap = NULL;
 static fixed_t temptranslevel;
+// haleyjd 09/12/04: optimization -- precalculate flex tran lookups
+static unsigned int *temp_fg2rgb;
+static unsigned int *temp_bg2rgb;
+// SoM 7-28-04: Fix the fuzz problem.
+static byte   *tempfuzzmap;
+
 
 
 // Fuzz stuffs
@@ -130,8 +136,10 @@ static const int fuzzoffset[FUZZTABLE] =
 static int fuzzpos = 0; 
 
 //
-// Error functions that will abort of R_FlushColumns tries to flush columns without a column
-// type.
+// Error functions that will abort if R_FlushColumns tries to flush 
+// columns without a column type.
+//
+
 static void R_FlushError(int columnnumber, int yl, int yh)
 {
    I_Error("R_FlushSingleColumn called without being initialized.\n");
@@ -145,7 +153,7 @@ static void R_QuadFlushError(void)
 // Begin: Single column flushing functions.
 static void R_FlushSingleOpaque(int columnnumber, int yl, int yh)
 {
-   register byte *source = tempbuf + columnnumber + (yl * 4);
+   register byte *source = tempbuf + columnnumber + (yl << 2);
    register byte *dest = ylookup[yl] + columnofs[startx + columnnumber];
    register int count;
 
@@ -161,7 +169,7 @@ static void R_FlushSingleOpaque(int columnnumber, int yl, int yh)
 
 static void R_FlushSingleTL(int columnnumber, int yl, int yh)
 {
-   register byte *source = tempbuf + columnnumber + (yl * 4);
+   register byte *source = tempbuf + columnnumber + (yl << 2);
    register byte *dest = ylookup[yl] + columnofs[startx + columnnumber];
    register int count;
 
@@ -169,7 +177,8 @@ static void R_FlushSingleTL(int columnnumber, int yl, int yh)
 
    while(--count >= 0)
    {
-      *dest = tranmap[(*dest<<8) + *source];
+      // haleyjd 09/11/04: use temptranmap here
+      *dest = temptranmap[(*dest<<8) + *source];
       source += 4;
       dest += linesize;
    }
@@ -177,7 +186,7 @@ static void R_FlushSingleTL(int columnnumber, int yl, int yh)
 
 static void R_FlushSingleFuzz(int columnnumber, int yl, int yh)
 {
-   register byte *source = tempbuf + columnnumber + (yl * 4);
+   register byte *source = tempbuf + columnnumber + (yl << 2);
    register byte *dest = ylookup[yl] + columnofs[startx + columnnumber];
    register int count;
 
@@ -185,7 +194,8 @@ static void R_FlushSingleFuzz(int columnnumber, int yl, int yh)
 
    while(--count >= 0)
    {
-      *dest = dc_colormap[6*256+dest[fuzzoffset[fuzzpos] ? v_width: -v_width]];
+      // SoM 7-28-04: Fix the fuzz problem.
+      *dest = tempfuzzmap[6*256+dest[fuzzoffset[fuzzpos] ? v_width: -v_width]];
 
       // Clamp table lookup index.
       if (++fuzzpos == FUZZTABLE) 
@@ -198,27 +208,18 @@ static void R_FlushSingleFuzz(int columnnumber, int yl, int yh)
 
 static void R_FlushSingleFlex(int columnnumber, int yl, int yh)
 {
-   register byte *source = tempbuf + columnnumber + (yl * 4);
+   register byte *source = tempbuf + columnnumber + (yl << 2);
    register byte *dest = ylookup[yl] + columnofs[startx + columnnumber];
    register int count;
-   unsigned int *fg2rgb, *bg2rgb;
    unsigned int fg, bg;
-
-   {
-      fixed_t fglevel, bglevel;
-      
-      fglevel = temptranslevel & ~0x3ff;
-      bglevel = FRACUNIT - fglevel;
-      fg2rgb  = Col2RGB[fglevel >> 10];
-      bg2rgb  = Col2RGB[bglevel >> 10];
-   }
 
    count = yh - yl + 1;
 
    while(--count >= 0)
    {
-      fg = fg2rgb[*source];
-      bg = bg2rgb[*dest];
+      // haleyjd 09/12/04: use precalculated lookups
+      fg = temp_fg2rgb[*source];
+      bg = temp_bg2rgb[*dest];
       fg = (fg+bg) | 0xf07c3e1f;
       *dest = RGB8k[0][0][(fg>>5) & (fg>>19)];
 
@@ -227,12 +228,12 @@ static void R_FlushSingleFlex(int columnnumber, int yl, int yh)
    }
 }
 
-void (*R_FlushSingleColumn)(int columnnumber, int yl, int yh) = R_FlushError;
+static void (*R_FlushSingleColumn)(int columnnumber, int yl, int yh) = R_FlushError;
 
 // Begin: Quad column flushing functions.
 static void R_FlushQuadOpaque(void)
 {
-   register int *source = (int *)(tempbuf + (commontop * 4));
+   register int *source = (int *)(tempbuf + (commontop << 2));
    register int *dest = (int *)(ylookup[commontop] + columnofs[startx]);
    register int count;
    register int deststep = linesize / 4;
@@ -248,7 +249,7 @@ static void R_FlushQuadOpaque(void)
 
 static void R_FlushQuadTL(void)
 {
-   register byte *source = tempbuf + (commontop * 4);
+   register byte *source = tempbuf + (commontop << 2);
    register byte *dest = ylookup[commontop] + columnofs[startx];
    register int count;
 
@@ -256,7 +257,7 @@ static void R_FlushQuadTL(void)
 
    while(--count >= 0)
    {
-      *dest = temptranmap[(*dest<<8) + *source];
+      *dest   = temptranmap[(*dest<<8) + *source];
       dest[1] = temptranmap[(dest[1]<<8) + source[1]];
       dest[2] = temptranmap[(dest[2]<<8) + source[2]];
       dest[3] = temptranmap[(dest[3]<<8) + source[3]];
@@ -267,7 +268,7 @@ static void R_FlushQuadTL(void)
 
 static void R_FlushQuadFuzz(void)
 {
-   register byte *source = tempbuf + (commontop * 4);
+   register byte *source = tempbuf + (commontop << 2);
    register byte *dest = ylookup[commontop] + columnofs[startx];
    register int count;
    int fuzz1, fuzz2, fuzz3, fuzz4;
@@ -280,13 +281,14 @@ static void R_FlushQuadFuzz(void)
 
    while(--count >= 0)
    {
-      *dest = dc_colormap[6*256+dest[fuzzoffset[fuzz1] ? v_width: -v_width]];
+      // SoM 7-28-04: Fix the fuzz problem.
+      *dest = tempfuzzmap[6*256+dest[fuzzoffset[fuzz1] ? v_width: -v_width]];
       if(++fuzz1 == FUZZTABLE) fuzz1 = 0;
-      dest[1] = dc_colormap[6*256+dest[1 + (fuzzoffset[fuzz2] ? v_width: -v_width)]];
+      dest[1] = tempfuzzmap[6*256+dest[1 + (fuzzoffset[fuzz2] ? v_width: -v_width)]];
       if(++fuzz2 == FUZZTABLE) fuzz2 = 0;
-      dest[2] = dc_colormap[6*256+dest[2 + (fuzzoffset[fuzz3] ? v_width: -v_width)]];
+      dest[2] = tempfuzzmap[6*256+dest[2 + (fuzzoffset[fuzz3] ? v_width: -v_width)]];
       if(++fuzz3 == FUZZTABLE) fuzz3 = 0;
-      dest[3] = dc_colormap[6*256+dest[3 + (fuzzoffset[fuzz4] ? v_width: -v_width)]];
+      dest[3] = tempfuzzmap[6*256+dest[3 + (fuzzoffset[fuzz4] ? v_width: -v_width)]];
       if(++fuzz4 == FUZZTABLE) fuzz4 = 0;
 
       source += 4;
@@ -298,50 +300,33 @@ static void R_FlushQuadFuzz(void)
 
 static void R_FlushQuadFlex(void)
 {
-   register byte *source = tempbuf + (commontop * 4);
+   register byte *source = tempbuf + (commontop << 2);
    register byte *dest = ylookup[commontop] + columnofs[startx];
    register int count;
-   unsigned int *fg2rgb, *bg2rgb;
    unsigned int fg, bg;
 
    count = commonbot - commontop + 1;
 
-   {
-      fixed_t fglevel, bglevel;
-      
-      fglevel = temptranslevel & ~0x3ff;
-      bglevel = FRACUNIT - fglevel;
-      fg2rgb  = Col2RGB[fglevel >> 10];
-      bg2rgb  = Col2RGB[bglevel >> 10];
-   }
-
    while(--count >= 0)
    {
-      fg = *source;
-      bg = *dest;
-      fg = fg2rgb[fg];
-      bg = bg2rgb[bg];
+      // haleyjd 09/12/04: use precalculated lookups
+      fg = temp_fg2rgb[*source];
+      bg = temp_bg2rgb[*dest];
       fg = (fg+bg) | 0xf07c3e1f;
       *dest = RGB8k[0][0][(fg>>5) & (fg>>19)];
 
-      fg = source[1];
-      bg = dest[1];
-      fg = fg2rgb[fg];
-      bg = bg2rgb[bg];
+      fg = temp_fg2rgb[source[1]];
+      bg = temp_bg2rgb[dest[1]];
       fg = (fg+bg) | 0xf07c3e1f;
       dest[1] = RGB8k[0][0][(fg>>5) & (fg>>19)];
 
-      fg = source[2];
-      bg = dest[2];
-      fg = fg2rgb[fg];
-      bg = bg2rgb[bg];
+      fg = temp_fg2rgb[source[2]];
+      bg = temp_bg2rgb[dest[2]];
       fg = (fg+bg) | 0xf07c3e1f;
       dest[2] = RGB8k[0][0][(fg>>5) & (fg>>19)];
 
-      fg = source[3];
-      bg = dest[3];
-      fg = fg2rgb[fg];
-      bg = bg2rgb[bg];
+      fg = temp_fg2rgb[source[3]];
+      bg = temp_bg2rgb[dest[3]];
       fg = (fg+bg) | 0xf07c3e1f;
       dest[3] = RGB8k[0][0][(fg>>5) & (fg>>19)];
 
@@ -350,85 +335,194 @@ static void R_FlushQuadFlex(void)
    }
 }
 
-void (*R_FlushQuadColumn)(void) = R_QuadFlushError;
+static void (*R_FlushQuadColumn)(void) = R_QuadFlushError;
 
-void R_FlushColumns(void)
+static void R_FlushColumns(void)
 {
-   if(temp_x <= 3 ||  commontop >= commonbot)
+   if(temp_x != 4 || commontop >= commonbot)
    {
       while(--temp_x >= 0)
          R_FlushSingleColumn(temp_x, tempyl[temp_x], tempyh[temp_x]);
    }
    else
    {
-      int i;
-      for(i = 0; i < 4; i++)
-      {
-         if(tempyl[i] < commontop)
-            R_FlushSingleColumn(i, tempyl[i], commontop);
-         if(tempyh[i] > commonbot)
-            R_FlushSingleColumn(i, commonbot, tempyh[i]);
-      }
+      // haleyjd 09/11/04: unrolled loop, reordered
+      if(tempyl[0] < commontop)
+         R_FlushSingleColumn(0, tempyl[0], commontop);
+      if(tempyl[1] < commontop)
+         R_FlushSingleColumn(1, tempyl[1], commontop);
+      if(tempyl[2] < commontop)
+         R_FlushSingleColumn(2, tempyl[2], commontop);
+      if(tempyl[3] < commontop)
+         R_FlushSingleColumn(3, tempyl[3], commontop);
+      if(tempyh[0] > commonbot)
+         R_FlushSingleColumn(0, commonbot, tempyh[0]);
+      if(tempyh[1] > commonbot)
+         R_FlushSingleColumn(1, commonbot, tempyh[1]);
+      if(tempyh[2] > commonbot)
+         R_FlushSingleColumn(2, commonbot, tempyh[2]);
+      if(tempyh[3] > commonbot)
+         R_FlushSingleColumn(3, commonbot, tempyh[3]);
 
       R_FlushQuadColumn();
    }
 
    temp_x = 0;
-   temptype = COL_NONE;
-   R_FlushSingleColumn = R_FlushError;
-   R_FlushQuadColumn = R_QuadFlushError;
    return;
 }
 
-byte *R_GetBuffer(columntype_e type)
+//
+// R_ResetColumnBuffer
+//
+// haleyjd 09/13/04: new function to call from main rendering loop
+// which gets rid of the unnecessary reset of various variables during
+// column drawing.
+//
+void R_ResetColumnBuffer(void)
 {
-   if((temp_x && (type != temptype || temp_x + startx != dc_x)) || temp_x == 4 
-      || (temptype == COL_TRANS && tranmap != temptranmap) 
-      || (temptype == COL_FLEXTRANS && temptranslevel != dc_translevel))
-      R_FlushColumns();
+   R_FlushColumns();
+   temptype = COL_NONE;
+   R_FlushSingleColumn = R_FlushError;
+   R_FlushQuadColumn   = R_QuadFlushError;
+}
 
+// haleyjd 09/12/04: split up R_GetBuffer into various different
+// functions to minimize the number of branches and take advantage
+// of as much precalculated information as possible.
+
+static byte *R_GetBufferOpaque(void)
+{
+   // haleyjd: reordered predicates
+   if(temp_x == 4 ||
+      (temp_x && (temptype != COL_OPAQUE || temp_x + startx != dc_x)))
+      R_FlushColumns();
 
    if(!temp_x)
    {
-      temp_x++;
+      ++temp_x;
       startx = dc_x;
-      tempyl[0] = commontop = dc_yl;
-      tempyh[0] = commonbot = dc_yh;
-      temptype = type;
-      switch(type)
-      {
-      case COL_OPAQUE:
-         R_FlushSingleColumn = R_FlushSingleOpaque;
-         R_FlushQuadColumn = R_FlushQuadOpaque;
-         break;
-      case COL_TRANS:
-         R_FlushSingleColumn = R_FlushSingleTL;
-         R_FlushQuadColumn = R_FlushQuadTL;
-         temptranmap = tranmap;
-         break;
-      case COL_FLEXTRANS:
-         R_FlushSingleColumn = R_FlushSingleFlex;
-         R_FlushQuadColumn = R_FlushQuadFlex;
-         temptranslevel = dc_translevel;
-         break;
-      case COL_FUZZ:
-         R_FlushSingleColumn = R_FlushSingleFuzz;
-         R_FlushQuadColumn = R_FlushQuadFuzz;
-         break;
-      default:
-         I_Error("R_GetBuffer: unknown column type!\n");
-      }
-      return tempbuf + (dc_yl * 4);
+      *tempyl = commontop = dc_yl;
+      *tempyh = commonbot = dc_yh;
+      temptype = COL_OPAQUE;
+      R_FlushSingleColumn = R_FlushSingleOpaque;
+      R_FlushQuadColumn   = R_FlushQuadOpaque;
+      return tempbuf + (dc_yl << 2);
    }
-   
+
    tempyl[temp_x] = dc_yl;
    tempyh[temp_x] = dc_yh;
+   
    if(dc_yl > commontop)
       commontop = dc_yl;
    if(dc_yh < commonbot)
       commonbot = dc_yh;
-   temp_x++;
-   return tempbuf + temp_x - 1 + (dc_yl * 4);
+      
+   return tempbuf + (dc_yl << 2) + temp_x++;
+}
+
+static byte *R_GetBufferTrans(void)
+{
+   // haleyjd: reordered predicates
+   if(temp_x == 4 || tranmap != temptranmap ||
+      (temp_x && (temptype != COL_TRANS || temp_x + startx != dc_x)))
+      R_FlushColumns();
+
+   if(!temp_x)
+   {
+      ++temp_x;
+      startx = dc_x;
+      *tempyl = commontop = dc_yl;
+      *tempyh = commonbot = dc_yh;
+      temptype = COL_TRANS;
+      temptranmap = tranmap;
+      R_FlushSingleColumn = R_FlushSingleTL;
+      R_FlushQuadColumn   = R_FlushQuadTL;
+      return tempbuf + (dc_yl << 2);
+   }
+
+   tempyl[temp_x] = dc_yl;
+   tempyh[temp_x] = dc_yh;
+   
+   if(dc_yl > commontop)
+      commontop = dc_yl;
+   if(dc_yh < commonbot)
+      commonbot = dc_yh;
+      
+   return tempbuf + (dc_yl << 2) + temp_x++;
+}
+
+static byte *R_GetBufferFlexTrans(void)
+{
+   // haleyjd: reordered predicates
+   if(temp_x == 4 || temptranslevel != dc_translevel ||
+      (temp_x && (temptype != COL_FLEXTRANS || temp_x + startx != dc_x)))
+      R_FlushColumns();
+
+   if(!temp_x)
+   {
+      ++temp_x;
+      startx = dc_x;
+      *tempyl = commontop = dc_yl;
+      *tempyh = commonbot = dc_yh;
+      temptype = COL_FLEXTRANS;
+      temptranslevel = dc_translevel;
+      
+      // haleyjd 09/12/04: optimization -- calculate flex tran lookups
+      // here instead of every time a column is flushed.
+      {
+         fixed_t fglevel, bglevel;
+         
+         fglevel = temptranslevel & ~0x3ff;
+         bglevel = FRACUNIT - fglevel;
+         temp_fg2rgb  = Col2RGB[fglevel >> 10];
+         temp_bg2rgb  = Col2RGB[bglevel >> 10];
+      }
+
+      R_FlushSingleColumn = R_FlushSingleFlex;
+      R_FlushQuadColumn   = R_FlushQuadFlex;
+      return tempbuf + (dc_yl << 2);
+   }
+
+   tempyl[temp_x] = dc_yl;
+   tempyh[temp_x] = dc_yh;
+   
+   if(dc_yl > commontop)
+      commontop = dc_yl;
+   if(dc_yh < commonbot)
+      commonbot = dc_yh;
+      
+   return tempbuf + (dc_yl << 2) + temp_x++;
+}
+
+static byte *R_GetBufferFuzz(void)
+{
+   // haleyjd: reordered predicates
+   if(temp_x == 4 ||
+      (temp_x && (temptype != COL_FUZZ || temp_x + startx != dc_x)))
+      R_FlushColumns();
+
+   if(!temp_x)
+   {
+      ++temp_x;
+      startx = dc_x;
+      *tempyl = commontop = dc_yl;
+      *tempyh = commonbot = dc_yh;
+      temptype = COL_FUZZ;
+      tempfuzzmap = dc_colormap; // SoM 7-28-04: Fix the fuzz problem.
+      R_FlushSingleColumn = R_FlushSingleFuzz;
+      R_FlushQuadColumn   = R_FlushQuadFuzz;
+      return tempbuf + (dc_yl << 2);
+   }
+
+   tempyl[temp_x] = dc_yl;
+   tempyh[temp_x] = dc_yh;
+   
+   if(dc_yl > commontop)
+      commontop = dc_yl;
+   if(dc_yh < commonbot)
+      commonbot = dc_yh;
+      
+   return tempbuf + (dc_yl << 2) + temp_x++;
 }
 
 //
@@ -468,7 +562,7 @@ void R_DrawColumn (void)
    // Use columnofs LUT for subwindows? 
 
    // SoM: MAGIC
-   dest = R_GetBuffer(COL_OPAQUE);
+   dest = R_GetBufferOpaque();
 
    // Determine scaling, which is the only mapping to be done.
 
@@ -574,7 +668,7 @@ void R_DrawTLColumn (void)
   // Use columnofs LUT for subwindows? 
 
   // SoM: MAGIC
-  dest = R_GetBuffer(COL_TRANS);
+  dest = R_GetBufferTrans();
   
   // Determine scaling,
   //  which is the only mapping to be done.
@@ -662,7 +756,6 @@ void R_DrawTLColumn (void)
 void R_DrawFuzzColumn(void) 
 { 
   int      count; 
-  byte     *dest; 
 
   // Adjust borders. Low...
   if (!dc_yl) 
@@ -693,7 +786,7 @@ void R_DrawFuzzColumn(void)
 
   // Does not work with blocky mode.
   // SoM: MAGIC
-  dest = R_GetBuffer(COL_FUZZ);
+  R_GetBufferFuzz();
   // REAL MAGIC... you ready for this?
   return; // DONE
 }
@@ -736,8 +829,7 @@ void R_DrawTranslatedColumn(void)
 
   // FIXME. As above.
   // SoM: MAGIC
-  dest = R_GetBuffer(COL_OPAQUE);
-  //dest = ylookup[dc_yl] + columnofs[dc_x]; 
+  dest = R_GetBufferOpaque();
 
   // Looks familiar.
   fracstep = dc_iscale; 
@@ -1281,7 +1373,7 @@ void R_DrawFlexTLColumn(void)
 #endif 
    
    // SoM: MAGIC
-   dest = R_GetBuffer(COL_FLEXTRANS);
+   dest = R_GetBufferFlexTrans();
   
    fracstep = dc_iscale; 
    frac = dc_texturemid + (dc_yl-centery)*fracstep; 
@@ -1358,7 +1450,7 @@ void R_DrawFlexTlatedColumn(void)
 #endif 
 
    // MAGIC
-   dest = R_GetBuffer(COL_FLEXTRANS);
+   dest = R_GetBufferFlexTrans();
    
    // Looks familiar.
    fracstep = dc_iscale; 

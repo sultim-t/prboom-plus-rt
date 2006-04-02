@@ -92,13 +92,13 @@ void T_VerticalDoor (vldoor_t *door)
          case genCdO:
             door->direction = plat_up;  // time to go back up
             S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_doropn);
+                             LevelInfo.sound_doropn);
             break;
 
          case genBlazeCdO:
             door->direction = plat_up;  // time to go back up
             S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_bdopn);
+                             LevelInfo.sound_bdopn);
             break;
 
          default:
@@ -116,7 +116,7 @@ void T_VerticalDoor (vldoor_t *door)
          case raiseIn5Mins:
             door->direction = plat_up;  // time to raise then
             door->type = doorNormal;  // door acts just like normal 1 DR door now
-            S_StartSoundName((mobj_t *)&door->sector->soundorg,info_sound_doropn);
+            S_StartSoundName((mobj_t *)&door->sector->soundorg,LevelInfo.sound_doropn);
             break;
             
          default:
@@ -154,9 +154,9 @@ void T_VerticalDoor (vldoor_t *door)
             // killough 4/15/98: remove double-closing sound of blazing doors
             // haleyjd 03/17/03: heretic doors play dorcls at this
             // point -- see above TODO
-            if(comp[comp_blazing] || (gameModeInfo->flags & GIF_HERETIC))
+            if(comp[comp_blazing] || (gameModeInfo->type == Game_Heretic))
                S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                                info_sound_bdcls);
+                                LevelInfo.sound_bdcls);
             break;
 
          case doorNormal:
@@ -167,10 +167,10 @@ void T_VerticalDoor (vldoor_t *door)
             P_RemoveThinker (&door->thinker);  // unlink and free
             // haleyjd 03/17/03: heretic doors play dorcls at this
             // point -- see above TODO
-            if(gameModeInfo->flags & GIF_HERETIC)
+            if(gameModeInfo->type == Game_Heretic)
             {
                S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                                info_sound_dorcls);
+                                LevelInfo.sound_dorcls);
             }
             break;
 
@@ -208,7 +208,7 @@ void T_VerticalDoor (vldoor_t *door)
          default:             // other types bounce off the obstruction
             door->direction = plat_up;
             S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_doropn);
+                             LevelInfo.sound_doropn);
             break;
          }
       }
@@ -303,7 +303,7 @@ int EV_DoLockedDoor(line_t *line, vldoor_e type, mobj_t *thing)
    case 135:
       if(!p->cards[it_redcard] && !p->cards[it_redskull])
       {
-         const char *msg = (gameModeInfo->flags & GIF_HERETIC) 
+         const char *msg = (gameModeInfo->type == Game_Heretic) 
                            ? s_HPD_GREENO : s_PD_REDO;
          player_printf(p, msg);       // Ty 03/27/98 - externalized
          S_StartSound(p->mo,sfx_oof); // killough 3/20/98
@@ -372,7 +372,7 @@ int EV_DoDoor(line_t *line, vldoor_e type)
          door->direction = plat_down;
          door->speed = VDOORSPEED * 4;
          S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                          info_sound_bdcls);
+                          LevelInfo.sound_bdcls);
          break;
 
       case doorClose:
@@ -380,14 +380,14 @@ int EV_DoDoor(line_t *line, vldoor_e type)
          door->topheight -= 4*FRACUNIT;
          door->direction = plat_down;
          S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                          info_sound_dorcls);
+                          LevelInfo.sound_dorcls);
          break;
 
       case close30ThenOpen:
          door->topheight = sec->ceilingheight;
          door->direction = plat_down;
          S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                          info_sound_dorcls);
+                          LevelInfo.sound_dorcls);
          break;
 
       case blazeRaise:
@@ -398,7 +398,7 @@ int EV_DoDoor(line_t *line, vldoor_e type)
          door->speed = VDOORSPEED * 4;
          if(door->topheight != sec->ceilingheight)
             S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_bdopn);
+                             LevelInfo.sound_bdopn);
          break;
 
       case doorNormal:
@@ -408,7 +408,7 @@ int EV_DoDoor(line_t *line, vldoor_e type)
          door->topheight -= 4*FRACUNIT;
          if(door->topheight != sec->ceilingheight)
             S_StartSoundName((mobj_t *)&door->sector->soundorg,
-                             info_sound_doropn);
+                             LevelInfo.sound_doropn);
          break;
          
       default:
@@ -425,6 +425,8 @@ int EV_DoDoor(line_t *line, vldoor_e type)
 // allows greater control over how the door behaves
 //
 
+// haleyjd 05/07/04: replaced by EV_DoParamDoor
+/*
 void EV_OpenDoor(int sectag, int speed, int wait_time)
 {
    vldoor_e door_type;
@@ -528,7 +530,7 @@ void EV_CloseDoor(int sectag, int speed)
          (speed >= 4 ? info_sound_bdcls : info_sound_dorcls));
    }  
 }
-
+*/
 
 //
 // EV_VerticalDoor
@@ -583,7 +585,7 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
          return 0;
       if(!player->cards[it_redcard] && !player->cards[it_redskull])
       {
-         const char *msg = (gameModeInfo->flags & GIF_HERETIC)
+         const char *msg = (gameModeInfo->type == Game_Heretic)
                            ? s_HPD_GREENK : s_PD_REDK;
          player_printf(player, msg);       // Ty 03/27/98 - externalized
          S_StartSound(player->mo,sfx_oof); // killough 3/20/98
@@ -658,16 +660,16 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
    {
    case 117: // blazing door raise
    case 118: // blazing door open
-      S_StartSoundName((mobj_t *)&sec->soundorg, info_sound_bdopn);
+      S_StartSoundName((mobj_t *)&sec->soundorg, LevelInfo.sound_bdopn);
       break;
 
    case 1:   // normal door sound
    case 31:
-      S_StartSoundName((mobj_t *)&sec->soundorg,info_sound_doropn);
+      S_StartSoundName((mobj_t *)&sec->soundorg, LevelInfo.sound_doropn);
       break;
 
    default:  // locked door sound
-      S_StartSoundName((mobj_t *)&sec->soundorg, info_sound_doropn);
+      S_StartSoundName((mobj_t *)&sec->soundorg, LevelInfo.sound_doropn);
       break;
    }
 

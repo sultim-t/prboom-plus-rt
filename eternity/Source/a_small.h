@@ -66,31 +66,49 @@ typedef enum
    SC_INVOKE_DIALOGUE, // started by dialogue
 } scriptinvoke_e;
 
-typedef struct sc_invoke_s
-{
-   scriptinvoke_e invokeType;
-
-   boolean execd; // true if started by Exec* function
-
-   // invocation data
-   mobj_t *trigger;
-   int playernum;
-   int line_lid;
-   int sector_sid;
-} sc_invoke_t;
+// VM types
 
 typedef enum
 {
    SC_VM_GAMESCRIPT,
    SC_VM_LEVELSCRIPT,
+   SC_VM_END, // a special end marker (used by savegame code)
 } sc_vm_e;
+
+//
+// Invocation Data
+//
+// This is one of the core structures used to interact with the Small
+// scripting engine. This structure holds data about how a script was
+// started, only while that script is running. Every SmallContext
+// contains its own invocation data. This is one thing that FraggleScript
+// REALLY needed.
+//
+typedef struct sc_invoke_s
+{
+   scriptinvoke_e invokeType; // invocation type for native functions
+
+   // invocation data
+   mobj_t *trigger; // thing that started script -- get with TID_TRIGGER
+   int playernum;   // # of player that started script
+   int line_lid;    // TODO: LID of line that started script
+   int sector_sid;  // TODO: SID of sector that started script
+} sc_invoke_t;
+
+// callback flags
+
+enum scb_flags
+{
+   SCBF_PAUSABLE = 0x00000001, // callback will wait if game pauses
+   SCBF_MPAUSE   = 0x00000002, // callback will wait if menus up in non-netgame
+};
 
 // callbacks
 
 typedef struct sc_callback_s
 {
+   char vm;     // vm to which this callback belongs
    int scriptNum;  // number of script to call (internal AMX #)
-   sc_vm_e vm;     // vm to which this callback belongs
 
    enum
    {
@@ -102,30 +120,71 @@ typedef struct sc_callback_s
 
    int wait_data;       // data used for waiting, varies by type
 
+   int flags;           // 05/24/04: flags for special behaviors
+
    struct sc_callback_s *next; // for linked list
    struct sc_callback_s *prev; // for linked list
 
 } sc_callback_t;
 
+//
+// SmallContext
+//
+// haleyjd 06/01/04: Because of reentrancy issues, most script
+// starting must now use a SmallContext. This structure and its
+// helper functions in a_small.c make amx_Exec appear to behave
+// like a purely reentrant function to the rest of the game engine.
+// Actually, it's a big and sort of gross hack necessitated by a 
+// limitation in Small -- the code and execution context are still 
+// married, even with amx_Clone (it cannot allow a shared memory 
+// space; this structure has to copy back data to the parent context).
+//
+// Note that the AMX is also given a pointer back to its SmallContext
+// container, so that native functions can retrieve the context data.
+// This is done using the Small USERDATA facility and the helper
+// function A_GetContextForAMX.
+//
+typedef struct SmallContext_s
+{
+   AMX smallAMX;                  // The Small AMX for this context
+   sc_invoke_t invocationData;    // invocation data for this context
+   struct SmallContext_s *parent; // parent context, if any
+   struct SmallContext_s *child;  // child context, if any
+   boolean isChild;               // true if created as a child
+   sc_vm_e vm;                    // vm this context is or is a child of   
+} SmallContext_t;
+
+SmallContext_t *A_GetContextForAMX(AMX *);
+SmallContext_t *A_CreateChildContext(SmallContext_t *, SmallContext_t *);
+void A_DestroyChildContext(SmallContext_t *);
+
 int  A_GetSmallString(AMX *amx, char **dest, cell addr);
-void A_ClearInvocation(void);
+char *A_GetAMXDataSegment(AMX *amx, long *size);
+void A_ClearInvocation(SmallContext_t *);
 void A_InitGameScript(void);
 void A_InitLevelScript(void);
 void A_InitSmall(void);
+sc_callback_t *A_GetCallbackList(void);
+void A_LinkCallback(sc_callback_t *);
 void A_ExecuteCallbacks(void);
 void A_RemoveCallbacks(int vm);
 void A_RemoveCallback(sc_callback_t *callback);
 int  A_AddCallback(char *scrname, sc_vm_e vm, 
-                   int waittype, int waitdata);
+                   int waittype, int waitdata, int waitflags);
 cell A_ExecScriptV(AMX *amx, int fnNum);
 cell A_ExecScriptByNum(AMX *amx, int number, int numparams, 
                        cell params[]);
+cell A_ExecScriptByNumV(AMX *amx, int number);
 
 extern boolean gameScriptLoaded;
 extern boolean levelScriptLoaded;
-extern AMX gamescript;
-extern AMX levelscript;
-extern sc_invoke_t sc_invocation;
+extern SmallContext_t GameScript;
+extern SmallContext_t *curGSContext;
+extern SmallContext_t LevelScript;
+extern SmallContext_t *curLSContext;
+
+// haleyjd 07/06/04: FINE put it here!
+mobj_t *P_FindMobjFromTID(int tid, mobj_t *rover, struct SmallContext_s *context);
 
 #endif
 

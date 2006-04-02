@@ -437,6 +437,15 @@ static void ST_HticDrawer(void)
 }
 
 //
+// ST_HticFSDrawer
+//
+// Draws the Heretic fullscreen hud/status information.
+//
+static void ST_HticFSDrawer(void)
+{
+}
+
+//
 // Status Bar Object for gameModeInfo
 //
 stbarfns_t HticStatusBar =
@@ -445,6 +454,7 @@ stbarfns_t HticStatusBar =
 
    ST_HticTicker,
    ST_HticDrawer,
+   ST_HticFSDrawer,
    ST_HticStart,
    ST_HticInit,
 };

@@ -108,8 +108,6 @@ static int    tmunstuck;     // killough 8/1/98: whether to allow unsticking
 line_t **spechit;                // new code -- killough
 static int spechit_max;          // killough
 
-mobj_t *hitthing;       //sf
-
 int numspechit;
 
 // Temporary holder for thing_sectorlist threads
@@ -454,6 +452,7 @@ static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
    if(openbottom > tmfloorz)
    {
       tmfloorz = openbottom;
+
       floorline = ld;          // killough 8/1/98: remember floor linedef
       blockline = ld;
 
@@ -463,6 +462,11 @@ static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
 
    if(lowfloor < tmdropoffz)
       tmdropoffz = lowfloor;
+
+   // haleyjd 11/10/04: 3DMidTex fix: never consider dropoffs when
+   // touching 3DMidTex lines.
+   if(tmtouch3dside)
+      tmdropoffz = tmfloorz;
 
 #ifdef OVER_UNDER
    if(opensecfloor > tmsecfloorz)
@@ -596,8 +600,6 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
       bruiserType = E_ThingNumForDEHNum(MT_BRUISER);
       knightType  = E_ThingNumForDEHNum(MT_KNIGHT);
    }
-
-   hitthing = tmthing;
    
    // killough 11/98: add touchy things
    if(!(thing->flags & (MF_SOLID|MF_SPECIAL|MF_SHOOTABLE|MF_TOUCHY)))
@@ -618,43 +620,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
    
    if(thing == tmthing)
       return true;
-/*
-   #ifdef OVER_UNDER
-   // SoM: 10/21/02
-   // SoM  11/4/02: So yeah, MF_SPECIAL checks...
 
-   if(demo_version >= 331 && !comp[comp_overunder] &&
-      (thing->flags & MF_SOLID) && (tmthing->flags & MF_SOLID) &&
-      !(thing->flags & (MF_MISSILE|MF_SPECIAL)) && 
-      !(tmthing->flags & (MF_MISSILE|MF_SPECIAL)))
-   {
-      if(tmthing->z >= thing->z + thing->height)
-      {
-         if(thing->z + thing->height > tmfloorz)
-            tmfloorz = thing->z + thing->height;
-         
-         return true;
-      }
-      else if(thing->z + thing->height - tmthing->z <= (24 << FRACBITS) &&
-         !(thing->flags & (MF_CORPSE|MF_SKULLFLY)) &&
-         !(tmthing->flags & (MF_SKULLFLY|MF_FLOAT)))
-      {
-         // SoM: Set tmstepupfloorz instead
-         if(thing->z + thing->height > tmfloorz)
-            tmstepupfloorz = thing->z + thing->height;
-
-         return true;
-      }
-      else if(tmthing->z + tmthing->height <= thing->z)
-      {
-         if(thing->z < tmceilingz)
-            tmceilingz = thing->z;
-         
-         return true;
-      }
-   }
-   #endif
-*/
 #ifdef OVER_UNDER
    // haleyjd 04/01/03: new experimental over/under kernel
    if(demo_version >= 331 && !comp[comp_overunder] &&
@@ -724,9 +690,8 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
    {
       // A flying skull is smacking something.
       // Determine damage amount, and the skull comes to a dead stop.
-      int damage;
       
-      damage = ((P_Random(pr_skullfly)%8)+1)*tmthing->info->damage;
+      int damage = ((P_Random(pr_skullfly)%8)+1)*tmthing->damage;
       
       P_DamageMobj(thing, tmthing, tmthing, damage, MOD_UNKNOWN);
       
@@ -745,8 +710,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
                                       !(tmthing->flags & MF_SOLID)))
    {
       // haleyjd: some missiles can go through ghosts
-      if(thing->flags3 & MF3_GHOST &&
-         tmthing->flags3 & MF3_THRUGHOST)
+      if(thing->flags3 & MF3_GHOST && tmthing->flags3 & MF3_THRUGHOST)
          return true;
 
       // see if it went over / under
@@ -793,7 +757,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 
       // damage / explode
       
-      damage = ((P_Random(pr_damage)%8)+1)*tmthing->info->damage;
+      damage = ((P_Random(pr_damage)%8)+1)*tmthing->damage;
       P_DamageMobj(thing, tmthing, tmthing->target, damage,
                    tmthing->info->mod);
 
@@ -804,7 +768,8 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
    // haleyjd 1/16/00: Pushable objects -- at last!
    //   This is remarkably simpler than I had anticipated!
    
-   if(demo_version >= 329 && thing->flags2 & MF2_PUSHABLE)
+   if(demo_version >= 329 && thing->flags2 & MF2_PUSHABLE &&
+      (demo_version < 331 || !(tmthing->flags3 & MF3_CANNOTPUSH)))
    {
       // transfer one-fourth momentum along the x and y axes
       thing->momx += tmthing->momx >> 2;
@@ -829,7 +794,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
    return !((thing->flags & MF_SOLID && !(thing->flags & MF_NOCLIP))
           && (tmthing->flags & MF_SOLID || demo_compatibility));
 
-   // return !(thing->flags & MF_SOLID);   // old code -- killough
+   //return !(thing->flags & MF_SOLID);   // old code -- killough
 }
 
 
@@ -955,9 +920,7 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
    numspechit = 0;
 
    if(tmflags & MF_NOCLIP)
-   {
       return true;
-   }
 
    // Check things first, possibly picking things up.
    // The bounding box is extended by MAXRADIUS
@@ -965,18 +928,18 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
    // based on their origin point, and can overlap
    // into adjacent blocks by up to MAXRADIUS units.
 
-   xl = (tmbbox[BOXLEFT] - bmaporgx - MAXRADIUS)>>MAPBLOCKSHIFT;
-   xh = (tmbbox[BOXRIGHT] - bmaporgx + MAXRADIUS)>>MAPBLOCKSHIFT;
-   yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS)>>MAPBLOCKSHIFT;
-   yh = (tmbbox[BOXTOP] - bmaporgy + MAXRADIUS)>>MAPBLOCKSHIFT;
+   xl = (tmbbox[BOXLEFT]   - bmaporgx - MAXRADIUS) >> MAPBLOCKSHIFT;
+   xh = (tmbbox[BOXRIGHT]  - bmaporgx + MAXRADIUS) >> MAPBLOCKSHIFT;
+   yl = (tmbbox[BOXBOTTOM] - bmaporgy - MAXRADIUS) >> MAPBLOCKSHIFT;
+   yh = (tmbbox[BOXTOP]    - bmaporgy + MAXRADIUS) >> MAPBLOCKSHIFT;
 
    BlockingMobj = NULL; // haleyjd 1/17/00: global hit reference
 
-   for(bx=xl ; bx<=xh ; bx++)
+   for(bx = xl; bx <= xh; bx++)
    {
-      for(by=yl ; by<=yh ; by++)
+      for(by = yl; by <= yh; by++)
       {
-         if(!P_BlockThingsIterator(bx,by,PIT_CheckThing))
+         if(!P_BlockThingsIterator(bx, by, PIT_CheckThing))
             return false;
       }
    }
@@ -985,16 +948,16 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
    
    BlockingMobj = NULL; // haleyjd 1/17/00: global hit reference
    
-   xl = (tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
-   xh = (tmbbox[BOXRIGHT] - bmaporgx)>>MAPBLOCKSHIFT;
-   yl = (tmbbox[BOXBOTTOM] - bmaporgy)>>MAPBLOCKSHIFT;
-   yh = (tmbbox[BOXTOP] - bmaporgy)>>MAPBLOCKSHIFT;
+   xl = (tmbbox[BOXLEFT]   - bmaporgx) >> MAPBLOCKSHIFT;
+   xh = (tmbbox[BOXRIGHT]  - bmaporgx) >> MAPBLOCKSHIFT;
+   yl = (tmbbox[BOXBOTTOM] - bmaporgy) >> MAPBLOCKSHIFT;
+   yh = (tmbbox[BOXTOP]    - bmaporgy) >> MAPBLOCKSHIFT;
 
-   for(bx=xl ; bx<=xh ; bx++)
+   for(bx = xl; bx <= xh; bx++)
    {
-      for(by=yl ; by<=yh ; by++)
+      for(by = yl; by <= yh; by++)
       {
-         if(!P_BlockLinesIterator(bx,by,PIT_CheckLine))
+         if(!P_BlockLinesIterator(bx, by, PIT_CheckLine))
             return false; // doesn't fit
       }
    }
@@ -1120,6 +1083,17 @@ static boolean P_ThingMovexy(mobj_t *thing, fixed_t oldx,
 boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 {
    fixed_t oldx, oldy;
+
+   // haleyjd 11/10/04: 3dMidTex: determine if a thing is on a line:
+   // passfloorz is the floor as determined from sectors and 3DMidTex.
+   // secfloorz is the floor as determined only from sectors.
+   // If the two are unequal, passfloorz is the thing's floorz, and
+   // the thing is at its floorz, then it is on a 3DMidTex line.
+   // Complicated. x_x
+
+   boolean on3dmidtex = (thing->passfloorz == thing->floorz &&
+                         thing->passfloorz != thing->secfloorz &&
+                         thing->z == thing->floorz);
    
    felldown = floatok = false;               // killough 11/98
    
@@ -1151,19 +1125,20 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
       // killough 10/98: Allow dropoffs in controlled circumstances
       // killough 11/98: Improve symmetry of clipping on stairs
 
-      if(!(thing->flags & (MF_DROPOFF|MF_FLOAT)) &&
-         (demo_version < 331 || !tmtouch3dside)) // SoM
+      // haleyjd 11/10/04: 3dMidTex: eliminated old code
+      if(!(thing->flags & (MF_DROPOFF|MF_FLOAT)))
       {
-         if(demo_version >= 331 && tmfloorz < thing->z && 
-            (thing->z - tmfloorz) > 24*FRACUNIT)
-         {
-            // SoM 09/07/02: 3d lines monster fix
-            if(thing->z == thing->floorz)
-               return false;
-         }
+         // haleyjd 11/10/04: 3dMidTex: you are never allowed to pass 
+         // over a tall dropoff when on 3DMidTex lines. Note tmfloorz
+         // considers 3DMidTex, so you can still move across 3DMidTex
+         // lines that pass over sector dropoffs, as long as the dropoff
+         // between the 3DMidTex lines is <= 24 units.
+
+         if(demo_version >= 331 && on3dmidtex && thing->z - tmfloorz > 24*FRACUNIT)
+            return false;
          else if(comp[comp_dropoff])
          {
-            if (tmfloorz - tmdropoffz > 24*FRACUNIT)
+            if(tmfloorz - tmdropoffz > 24*FRACUNIT)
                return false;                      // don't stand over a dropoff
          }
          else
@@ -1241,15 +1216,8 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
       P_ThingMovexy(thing, oldx, oldy);
 #endif
 
-   // haleyjd 10/12/02: set footclip flag
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      (thing->flags2 & MF2_FOOTCLIP) &&
-      P_TerrainFloorClip(P_GetSecTerrainType(thing->subsector->sector,0)))
-   {
-      thing->intflags |= MIF_FOOTCLIP;
-   }
-   else
-      thing->intflags &= ~MIF_FOOTCLIP;
+   // haleyjd 08/07/04: new footclip system
+   P_AdjustFloorClip(thing);
 
    // if any special lines were hit, do the effect
    // killough 11/98: simplified
@@ -2470,13 +2438,7 @@ void P_LineAttack(mobj_t *t1, angle_t angle, fixed_t distance,
    x2 = t1->x + (distance>>FRACBITS)*finecosine[angle];
    y2 = t1->y + (distance>>FRACBITS)*finesine[angle];
    
-   shootz = t1->z + (t1->height>>1) + 8*FRACUNIT;   
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      t1->intflags & MIF_FOOTCLIP &&
-      P_CheckClipView(t1))
-   {
-      shootz -= FOOTCLIPHEIGHT;
-   }
+   shootz = t1->z - t1->floorclip + (t1->height>>1) + 8*FRACUNIT;
    startz = shootz; // SoM: record this
 
    attackrange = distance;
@@ -2714,7 +2676,7 @@ static boolean PIT_ChangeSector(mobj_t *thing)
    {
       // sf: clear the skin which will mess things up
       // haleyjd 03/11/03: not in heretic
-      if(!(gameModeInfo->flags & GIF_HERETIC))
+      if(gameModeInfo->type == Game_DOOM)
       {
          thing->skin = NULL;
          P_SetMobjState(thing, E_SafeState(S_GIBS));
@@ -2757,10 +2719,8 @@ static boolean PIT_ChangeSector(mobj_t *thing)
    
    // haleyjd 6/19/00: fix for invulnerable things -- no crusher effects
 
-   if (crushchange && !(leveltime&3))
+   if(crushchange && !(leveltime&3))
    {
-      int t;         // killough 8/10/98
-      
       if(thing->flags2 & MF2_INVULNERABLE ||
          thing->flags2 & MF2_DORMANT)
          return true;
@@ -2773,18 +2733,18 @@ static boolean PIT_ChangeSector(mobj_t *thing)
                         thing->z + thing->height/2, 
                         E_SafeThingType(MT_BLOOD));
 
-      // killough 8/10/98: remove dependence on order of evaluation
-      t = P_Random(pr_crush);
-      mo->momx = (t - P_Random (pr_crush))<<12;
-      t = P_Random(pr_crush);
-      mo->momy = (t - P_Random (pr_crush))<<12;
+      // haleyjd 08/05/04: use new function
+      mo->momx = P_SubRandom(pr_crush) << 12;
+      mo->momy = P_SubRandom(pr_crush) << 12;
 
       if(drawparticles && bloodsplat_particle)
       {
          angle_t an;
-         an = (M_Random () - 128) << 24;
+         an = (M_Random() - 128) << 24;
+         
          if(bloodsplat_particle != 2)
-            mo->flags2 |= MF2_DONTDRAW;
+            mo->translucency = 0;
+         
          P_DrawSplash2(32, thing->x, thing->y, 
                        thing->z + thing->height/2, an, 2, 
                        thing->info->bloodcolor | MBC_BLOODMASK); 
@@ -2942,7 +2902,7 @@ msecnode_t *headsecnode = NULL;
 //      too late: some msecnode_t's are used during the loading of the
 //      level. 
 
-void P_FreeSecNodeList()
+void P_FreeSecNodeList(void)
 {
    headsecnode = NULL; // this is all thats needed to fix the bug
 }

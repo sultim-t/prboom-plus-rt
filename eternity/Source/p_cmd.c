@@ -85,8 +85,11 @@ char *dmstr[] = { "single", "coop", "deathmatch" };
         Constants
  *************************************************************************/
 
-CONST_STRING(info_creator);
-CONSOLE_CONST(creator, info_creator);
+// haleyjd: had to change this into a command
+CONSOLE_COMMAND(creator, 0)
+{
+   C_Printf("creator is '%s'\n", LevelInfo.creator);
+}
 
 /*************************************************************************
                 Game variables

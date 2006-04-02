@@ -63,13 +63,13 @@ int show_scores;                // enable scores
 static patch_t *fragspic;
 static patch_t *fragbox;
 
-void HU_FragsInit()
+void HU_FragsInit(void)
 {
   fragspic = W_CacheLumpName("HU_FRAGS", PU_STATIC);
   fragbox = W_CacheLumpName("HU_FRGBX", PU_STATIC);
 }
 
-void HU_FragsDrawer()
+void HU_FragsDrawer(void)
 {
   int i, y;
   char tempstr[50];

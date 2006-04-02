@@ -54,7 +54,9 @@ static const char rcsid[] = "$Id: i_video.c,v 1.12 1998/05/03 22:40:35 killough 
 
 // haleyjd 04/15/02:
 #include "../i_system.h"
-#include "../d_gi.h"
+#include "../in_lude.h"
+
+static int grab_mouse = 1;
 
 SDL_Surface *sdlscreen;
 
@@ -636,9 +638,12 @@ static boolean I_InitGraphicsMode(void)
    
    V_Init();
    
-   SDL_ShowCursor(SDL_DISABLE);
-   // SoM 1-20-04: grab mouse input
-   SDL_WM_GrabInput(SDL_GRAB_ON);
+   if(grab_mouse)
+   {
+      SDL_ShowCursor(SDL_DISABLE);
+      // SoM 1-20-04: grab mouse input
+      SDL_WM_GrabInput(SDL_GRAB_ON);
+   }
    
    {
       char *title;
@@ -683,7 +688,7 @@ static void I_ResetScreen(void)
    
    if(gamestate == GS_INTERMISSION)
    {
-      gameModeInfo->interfuncs->DrawBackground();
+      IN_DrawBackground();
       V_CopyRect(0, 0, 1, SCREENWIDTH, SCREENHEIGHT, 0, 0, 0);
    }
    
@@ -765,6 +770,22 @@ void I_SetMode(int i)
         CONSOLE COMMANDS
  ************************/
 
+VARIABLE_BOOLEAN(grab_mouse, NULL, yesno);
+
+CONSOLE_VARIABLE(grab_mouse, grab_mouse, 0)
+{
+   if(grab_mouse) 
+   {
+      SDL_WM_GrabInput(SDL_GRAB_ON);
+      SDL_ShowCursor(SDL_DISABLE);
+   } 
+   else 
+   {
+      SDL_WM_GrabInput(SDL_GRAB_OFF);
+      SDL_ShowCursor(SDL_ENABLE);
+   }
+}
+
 VARIABLE_BOOLEAN(use_vsync, NULL,  yesno);
 VARIABLE_BOOLEAN(disk_icon, NULL,  onoff);
 
@@ -797,6 +818,8 @@ void I_Video_AddCommands(void)
    
    C_AddCommand(joySens_x);
    C_AddCommand(joySens_y);
+
+   C_AddCommand(grab_mouse);
 }
 
 //----------------------------------------------------------------------------

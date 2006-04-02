@@ -23,9 +23,11 @@
 // All of this code, with the exception of the include stuff, is
 // brand spankin' new.
 
-#ifdef DJGPP
+#if defined(DJGPP) || defined(LINUX)
 #include <errno.h>
 #endif
+
+#include <ctype.h>
 
 #include "../z_zone.h"
 #include "../d_io.h"
@@ -174,10 +176,10 @@ include:
             M_QStrPutc(&qstring, ' ');
             break;
          case '\f':
-         case '\n': // linebreak -- not allowed            
+         case '\n': // free linebreak -- not allowed
             lexer_error(cfg, "unterminated string constant");
             return 0;
-         case '\\': // escaped characters
+         case '\\': // escaped characters or line continuation
             {
                char s = D_Fgetc(currentFile);
                if(s == EOF)
@@ -189,6 +191,24 @@ include:
                {
                   switch(s)
                   {
+                  case '\n':
+                     // line continuance for quoted strings!
+                     // increment the line
+                     cfg->line++;
+
+                     // loop until a non-whitespace char is found
+                     while(isspace((s = D_Fgetc(currentFile))));
+                     
+                     // better not be EOF!
+                     if(s == EOF)
+                     {
+                        lexer_error(cfg, "EOF in string constant");
+                        return 0;
+                     }
+
+                     // put back the last char
+                     D_Ungetc(s, currentFile);
+                     break;
                   case 'n':
                      M_QStrPutc(&qstring, '\n');
                      break;

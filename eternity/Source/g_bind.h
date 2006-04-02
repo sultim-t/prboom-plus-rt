@@ -25,18 +25,21 @@
 #ifndef __G_BIND_H__
 #define __G_BIND_H__
 
-void G_InitKeyBindings();
-boolean G_KeyResponder(event_t *ev);
+void G_InitKeyBindings(void);
+boolean G_KeyResponder(event_t *ev, int bclass);
+
+typedef void (*binding_handler)(event_t *ev);
 
 void G_EditBinding(char *action);
 char *G_BoundKeys(char *action);
+char *G_FirstBoundKey(char *action);
 
 // default file loading
 
-void G_LoadDefaults();
-void G_SaveDefaults();
+void G_LoadDefaults(void);
+void G_SaveDefaults(void);
 
-void G_Bind_AddCommands();
+void G_Bind_AddCommands(void);
 
 // action variables
 
@@ -59,6 +62,32 @@ extern int action_weapon7, action_weapon8, action_weapon9;
 extern int action_nextweapon;
 
 extern int action_frags;
+
+extern int action_menu_help;
+extern int action_menu_toggle;
+extern int action_menu_setup;
+extern int action_menu_up;
+extern int action_menu_down;
+extern int action_menu_confirm;
+extern int action_menu_previous;
+extern int action_menu_left;
+extern int action_menu_right;
+
+extern int action_map_toggle;
+extern int action_map_gobig;
+extern int action_map_follow;
+extern int action_map_mark;
+extern int action_map_clear;
+extern int action_map_grid;
+
+// haleyjd 07/03/04: key binding classes
+enum keyactionclass
+{
+   kac_game,            // game bindings -- handled by G_BuildTicCmd
+   kac_menu,            // menu bindings -- handled by MN_Responder
+   kac_map,             // map  bindings -- handled by AM_Responder
+   NUMKEYACTIONCLASSES
+};
 
 #endif
 

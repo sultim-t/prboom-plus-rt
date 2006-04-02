@@ -126,7 +126,7 @@ CONSOLE_COMMAND(quit, 0)
    extern int snd_card;
    
    if((!netgame || demoplayback) && !nosfxparm && snd_card &&
-      !(gameModeInfo->flags & GIF_HERETIC))
+      gameModeInfo->type == Game_DOOM)
    {
       if(gamemode == commercial) // doom2 sounds
          S_StartSound(NULL, quitsounds2[(gametic>>2)&7]);

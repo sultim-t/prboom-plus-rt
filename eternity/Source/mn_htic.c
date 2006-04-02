@@ -35,200 +35,14 @@
 #include "mn_engin.h"
 #include "mn_misc.h"
 #include "v_video.h"
+#include "v_misc.h"
 #include "w_wad.h"
 
 extern int start_episode;
 
-#define FONTB_START '!'
-#define FONTB_END   'Z'
-#define FONTB_SIZE  (FONTB_END - FONTB_START + 1)
-
 #define NUM_HSKULL 18
 
 int HSkullLumpNums[NUM_HSKULL];
-
-// Heretic FONTB support
-
-patch_t *h_fontb[FONTB_SIZE];
-
-void MN_HBLoadFont(void)
-{
-   int i, j;
-   char tempstr[10];
-
-   // init to NULL first
-   for(i = 0; i < FONTB_SIZE; i++)
-      h_fontb[i] = NULL;
-   
-   for(i = 0, j = FONTB_START; i < FONTB_SIZE; i++, j++)
-   {      
-      sprintf(tempstr, "FONTB%.2d", j - 32);
-      h_fontb[i] = W_CacheLumpName(tempstr, PU_STATIC);
-   }
-}
-
-void MN_HBWriteText(unsigned char *s, int x, int y)
-{
-   int   w, h;
-   unsigned char *ch;
-   unsigned int c;
-   int   cx;
-   int   cy;
-   patch_t *patch;
-   
-   ch = s;
-   cx = x;
-   cy = y;
-   
-   while(1)
-   {
-      c = *ch++;
-      if(!c)
-         break;
-      
-      // haleyjd: ignore any color codes
-      if(c >= 128)
-         continue;
-            
-      if(c == '\t')
-      {
-         cx = (cx/40)+1;
-         cx = cx*40;
-         continue;
-      }
-      
-      if(c == '\n')
-      {
-         cx = x;
-         cy += 8;
-         continue;
-      }
-      
-      c = toupper(c) - FONTB_START;
-      if(c < 0 || c >= FONTB_SIZE)
-      {
-         cx += 8; // haleyjd: blank step is 8 for fontb
-         continue;
-      }
-      
-      patch = h_fontb[c];
-      
-      if(!patch)
-      {
-         cx += 8; // haleyjd: blank step is 8 for fontb
-         continue;
-      }
-      
-      w = SHORT(patch->width);
-      if(cx < 0 || cx+w > SCREENWIDTH)
-         break;
-      
-      h = SHORT(patch->height);
-      if(cy < 0 || cy+h > SCREENHEIGHT)
-         break;
-      
-      V_DrawPatch(cx, cy, &vbscreen, patch);
-      
-      cx += (w-1);
-   }
-}
-
-void MN_HBWriteNumText(unsigned char *s, int x, int y)
-{
-   int   w, h;
-   unsigned char *ch;
-   unsigned int c;
-   int   cx;
-   int   cy;
-   patch_t *patch;
-   
-   ch = s;
-   cx = x;
-   cy = y;
-   
-   while(1)
-   {
-      c = *ch++;
-      if(!c)
-         break;
-      
-      // haleyjd: ignore anything other than space or a number
-      if(c != ' ' && (c < '0' || c > '9'))
-         continue;
-                  
-      c = toupper(c) - FONTB_START;
-      if(c < 0 || c >= FONTB_SIZE)
-      {
-         cx += 12; // haleyjd: blank step is 12 for numbers
-         continue;
-      }
-      
-      patch = h_fontb[c];
-      
-      if(!patch)
-      {
-         cx += 12; // haleyjd: blank step is 12 for numbers
-         continue;
-      }
-      
-      w = SHORT(patch->width);
-      if(cx < 0 || cx+w > SCREENWIDTH)
-         break;
-      
-      h = SHORT(patch->height);
-      if(cy < 0 || cy+h > SCREENHEIGHT)
-         break;
-      
-      V_DrawPatch(cx + 6 - w/2, cy, &vbscreen, patch);
-      
-      cx += 12;
-   }
-}
-
-int MN_HBStringHeight(unsigned char *s)
-{
-   int height = 20;  // always at least 20
-   
-   // add an extra 20 for each newline found
-   
-   while(*s)
-   {
-      if(*s == '\n') height += 20;
-      s++;
-   }
-   
-   return height;
-}
-
-int MN_HBStringWidth(unsigned char *s)
-{
-   int length = 0; // current line width
-   int longest_width = 0; // line with longest width so far
-   unsigned char c;
-   
-   for(; *s; s++)
-   {
-      c = *s;
-      // haleyjd: totally ignore any color codes
-      if(c >= 128)
-         continue;
-
-      if(c == '\n')        // newline
-      {
-         if(length > longest_width) longest_width = length;
-         length = 0; // next line;
-         continue;
-      }
-      c = toupper(c) - FONTB_START;
-      length += 
-         (c >= FONTB_SIZE || !h_fontb[c]) ? 8 : SHORT(h_fontb[c]->width) - 1;
-   }
-   
-   if(length > longest_width)
-      longest_width = length; // check last line
-   
-   return longest_width;
-}
 
 //
 // Heretic-Only Menus
@@ -340,7 +154,7 @@ menu_t menu_hepisode =
     {it_hruncmd, "the stagnant demesne", "mn_hepis 5"},
     {it_end},
   },
-  38, 10,               // x,y offsets
+  38, 26,               // x,y offsets
   2,                    // starting item: city of the damned
   mf_skullmenu,         // is a skull menu
 };
@@ -378,7 +192,7 @@ menu_t menu_hnewgame =
     {it_hruncmd, "black plague possesses thee", "newgame 4"},
     {it_end},
   },
-  38, 10,               // x,y offsets
+  38, 26,               // x,y offsets
   4,                    // starting item: hurt me plenty
   mf_skullmenu,         // is a skull menu
 };

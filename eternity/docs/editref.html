@@ -9,7 +9,7 @@ content="text/html; charset=iso-8859-1">
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine Editing Reference v1.69 -- 4/11/04</h2>
+<h2>Eternity Engine Editing Reference v1.70 -- 8/09/04</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -1904,7 +1904,7 @@ which contain patches taller than the texture to avoid this problem.
 <p>
 <a name="consttrans">
 <hr width="25%" align="left">
-Constant pushers
+<b>Constant pushers</b>
 <hr width="25%" align="left">
 </a>
 Two types of constant pushers are available, wind and current.
@@ -1938,18 +1938,17 @@ pushers.<br>
 <br>
 <a name="pointtrans">
 <hr width="25%" align="left">
-Point pushers
+<b>Point pushers</b>
 <hr width="25%" align="left">
 </a>
 Two types of point pushers are available, push and pull.<br>
 <br>
-The previous implementation of these was SECTOR-SPECIFIC. The new
-implementation ignores sector boundaries and provides the effect
-in a circular area whose center is defined by a Thing of type
-5001 (push) or 5002 (pull). You now also don't have to set any
-option flags on these Things. A new linedef type of 226 is used
-to control the effect, and this line should be tagged to the
-sector with the 5001/5002 Thing.<br>
+This implementation ignores sector boundaries and provides the 
+effect in a circular area whose center is defined by a Thing of 
+type 5001 (push) or 5002 (pull). You don't have to set any option 
+flags on these Things. A new linedef type of 226 is used to control 
+the effect, and this line should be tagged to the sector with the 
+5001/5002 Thing.<br>
 <br>
 The length of the linedef defines the 'full' magnitude of the
 force, and the force is inversely proportional to distance from
@@ -3106,6 +3105,18 @@ not currently documented. Maps should refrain from using those
 things until they are made official, as they could change or be
 deleted later.<br>
 <br>
+<b>ExtraData Thing Control Object</b> (5004)<br>
+This doomednum is used to reference an ExtraData mapthing record, the number of 
+which must be placed in the options field of this mapthing. There is no EDF 
+thingtype which corresponds to the ExtraData control point; it is only used during 
+map startup to spawn the appropriate ExtraData-defined thing at the location and
+angle of this mapthing. In the cases that an ExtraData control object references
+an invalid ExtraData mapthing record, attempts to spawn another ExtraData control 
+object, or references an unknown EDF thingtype mnemonic, the "Unknown" object 
+described below will be spawned as a placeholder. If an EDF thingtype is used which 
+has a doomednum of -1, no thing will be spawned at all. See the 
+<a href="extradata.html">ExtraData Reference</a> for full information.
+<br><br>
 <b>Unknown</b> (5005)<br>
 This thing type is used as a placeholder by EDF, ExtraData, and
 scripting. It may be spawned when an unknown thing type is requested,
@@ -3143,7 +3154,7 @@ follows:<br>
 <br>
 <a name="lumpnames">
 Most predefined lumps used in BOOM and MBF are still present in
-Eternity, although all are not used. These lumps can be found in
+Eternity, although not all are used. These lumps can be found in
 eternity.wad and are no longer stored inside the executable,
 primarily for reasons of code size and compile time.<br>
 </a>

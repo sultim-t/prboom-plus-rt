@@ -1112,7 +1112,18 @@ extern char *s_HITEMBAGOFHOLDING;
 extern char *s_HITEMSUPERMAP;
 extern char *s_HPD_GREENO;
 extern char *s_HPD_GREENK;
-
+extern char *s_HAMMOGOLDWAND1;
+extern char *s_HAMMOGOLDWAND2;
+extern char *s_HAMMOMACE1;
+extern char *s_HAMMOMACE2;
+extern char *s_HAMMOCROSSBOW1;
+extern char *s_HAMMOCROSSBOW2;
+extern char *s_HAMMOBLASTER1;
+extern char *s_HAMMOBLASTER2;
+extern char *s_HAMMOSKULLROD1;
+extern char *s_HAMMOSKULLROD2;
+extern char *s_HAMMOPHOENIXROD1;
+extern char *s_HAMMOPHOENIXROD2;
 
 extern char *bgflathE1;
 extern char *bgflathE2;
@@ -1148,6 +1159,21 @@ extern char *s_OB_BFGBURST;
 extern char *s_OB_GRENADE_SELF;
 extern char *s_OB_GRENADE;
 
+//
+// Builtin map names.
+// The actual names can be found in DStrings.h.
+//
+// Ty 03/27/98 - externalized map name arrays - now in d_deh.c
+// and converted to arrays of pointers to char *
+// See modified HUTITLEx macros
+//
+extern char **mapnames[];
+extern char **mapnames2[];
+extern char **mapnamesp[];
+extern char **mapnamest[];
+extern char **mapnamesh[];
+
+extern boolean deh_pars;
 extern boolean deh_loaded; // sf
 
 #endif

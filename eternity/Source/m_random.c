@@ -118,6 +118,20 @@ int P_Random(pr_class_t pr_class)
   return boom & 255;
 }
 
+//
+// P_SubRandom
+//
+// haleyjd 08/05/04: This function eliminates the need to use
+// temporary variables everywhere in order to subtract two random
+// values without incurring order of evaluation problems.
+//
+int P_SubRandom(pr_class_t pr_class)
+{
+   int temp = P_Random(pr_class);
+
+   return (temp - P_Random(pr_class));
+}
+
 // Initialize all the seeds
 //
 // This initialization method is critical to maintaining demo sync.
@@ -154,7 +168,7 @@ static cell AMX_NATIVE_CALL sm_mrandom(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO random_Natives[] =
 {
-   { "Random",   sm_random },
+   { "P_Random",   sm_random },
    { "M_Random", sm_mrandom },
    { NULL, NULL }
 };

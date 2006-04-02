@@ -80,6 +80,8 @@
 #define PUSH_MASK       0x200
 #define PUSH_SHIFT      9
 
+// Note: bits 10, 11 used for sound killing flags (see doomdef.h)
+
 // haleyjd 03/12/03: heretic damage now uses generalized bit 12
 #define HTIC_DMG_MASK   0x1000
 #define HTIC_DMG_SHIFT  12
@@ -211,7 +213,8 @@ typedef enum
   SpeedSlow,
   SpeedNormal,
   SpeedFast,
-  SpeedTurbo,
+  SpeedTurbo,  
+  SpeedParam, // haleyjd 05/04/04: parameterized extension 
 } motionspeed_e;
 
 // define names for the Target field of the general floor
@@ -226,6 +229,7 @@ typedef enum
   FbyST,
   Fby24,
   Fby32,
+  FbyParam, // haleyjd 05/07/04: parameterized extension
 } floortarget_e;
 
 // define names for the Changer Type field of the general floor
@@ -385,6 +389,16 @@ typedef enum
   genBlazeCdO,
 } vldoor_e;
 
+// haleyjd 05/04/04: door wait types
+typedef enum
+{
+   doorWaitOneSec,
+   doorWaitStd,
+   doorWaitStd2x,
+   doorWaitStd7x,
+   doorWaitParam,
+} doorwait_e;
+
 // p_ceilng
 
 typedef enum
@@ -516,12 +530,20 @@ typedef enum
 
 // switch animation structure type
 
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
+
 typedef struct
 {
   char name1[9];
   char name2[9];
   short episode;
 } __attribute__ ((packed)) switchlist_t; //jff 3/23/98 pack to read from memory
+
+#ifdef _MSC_VER
+#pragma pack()
+#endif
 
 typedef struct
 {
@@ -635,6 +657,13 @@ typedef struct
   int lighttag; //killough 10/98: sector tag for gradual lighting effects
 } vldoor_t;
 
+// haleyjd 05/04/04: extended data struct for parameterized doors
+typedef struct
+{
+   fixed_t speed;
+   int topwait;
+} extdoordata_t;
+
 // p_doors
 
 typedef struct
@@ -683,6 +712,13 @@ typedef struct
   fixed_t speed;
 } floormove_t;
 
+// haleyjd 05/07/04: extended data struct for parameterized floors
+typedef struct
+{   
+   fixed_t targetheight;
+   fixed_t speed;
+} extfloordata_t;
+
 typedef struct
 {
   thinker_t thinker;
@@ -717,13 +753,7 @@ typedef struct {
 } scroll_t;
 
 // phares 3/12/98: added new model of friction for ice/sludge effects
-
-typedef struct {
-  thinker_t thinker;   // Thinker structure for friction
-  int friction;        // friction value (E800 = normal)
-  int movefactor;      // inertia factor when adding to momentum
-  int affectee;        // Number of affected sector
-} friction_t;
+// haleyjd 05/02/04: friction_t removed, unused
 
 // phares 3/20/98: added new model of Pushers for push/pull effects
 
@@ -879,7 +909,8 @@ void T_MoveElevator(elevator_t *elevator);
 
 void T_Scroll(scroll_t *);      // killough 3/7/98: scroll effect thinker
 
-void T_Friction(friction_t *);  // phares 3/12/98: friction thinker
+// phares 3/12/98: friction thinker
+// haleyjd 05/02/04: removed dead T_Friction prototype
 
 void T_Pusher(pusher_t *);      // phares 3/20/98: Push thinker
 
@@ -1041,7 +1072,7 @@ mobj_t *P_GetPushThing(int);                                // phares 3/23/98
 
 // SoM 9/19/02: 3dside movement. :)
 void P_AttachSectors(line_t *cline, boolean ceiling);
-boolean P_Scroll3DSides(int tag, int numattach, int *attached, fixed_t delta, boolean crush);
+boolean P_Scroll3DSides(sector_t *sector, boolean ceiling, fixed_t delta, boolean crush);
 
 
 // haleyjd: TerrainTypes
@@ -1053,15 +1084,14 @@ boolean P_Scroll3DSides(int tag, int numattach, int *attached, fixed_t delta, bo
 
 #define MAXTERRAINDEF 3
 
-#define FOOTCLIPHEIGHT 10*FRACUNIT
-
 void P_InitTerrainTypes(void);
 void P_LoadTerrainTypeDefs(void);
 int P_GetThingFloorType(mobj_t *thing);
 int P_GetTerrainTypeForPt(fixed_t x, fixed_t y, int position);
 int P_GetSecTerrainType(sector_t *sector, int position);
-boolean P_TerrainFloorClip(int tt);
+boolean P_SectorFloorClip(sector_t *sector);
 int P_HitFloor(mobj_t *thing);
+int P_HitWater(mobj_t *thing, sector_t *sector);
 
 line_t *P_FindLine(int tag, int *searchPosition);
 

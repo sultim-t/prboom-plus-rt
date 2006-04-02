@@ -1,4 +1,4 @@
-# things.edf - EDF file for Eternity Engine v3.31 public beta 5
+# things.edf - EDF file for Eternity Engine v3.31 Delta
 #     Thing types define monsters, fireballs, decorations, etc.
 #     Thing types may be defined elsewhere, and order is unimportant.
 #     User-defined thing types should use DeHackEd numbers greater
@@ -6,10 +6,17 @@
 #     of Eternity. See the EDF documentation for important information on
 #     the format of thing type fields.
 
-#     COMPATIBILITY WARNING: All things after thing #143 (EEBetaPlasma3) have 
-#     NOT been standardized as of v3.31 public beta 5. These things should not 
-#     be used by editors, via EDF or DeHackEd, until their order and existence 
+#     COMPATIBILITY WARNING: All things after thing EEParticleFountain have 
+#     NOT been standardized as of v3.31 Delta. These things should not be 
+#     used by editors, via EDF or DeHackEd, until their order and existence
 #     have been finalized and officially documented.
+
+//
+// DoomPlayer
+//
+// Currently defined in all gamemodes, but this is subject to change.
+// Avatar object used by players.
+// 
 
 thingtype DoomPlayer {
   spawnstate = S_PLAY
@@ -28,10 +35,12 @@ thingtype DoomPlayer {
   flags = SOLID|SHOOTABLE|DROPOFF|PICKUP|NOTDMATCH
   flags2 = FOOTCLIP
   flags3 = SLIDE|TELESTOMP|WINDTHRUST
-  droptype = Backpack
+  droptype = Backpack // this is currently disabled due to bugs!
   mod = 24
   dehackednum = 1
 }
+
+// Begin thingtypes only defined in DOOM mode
 
 ifenabled(DOOM)
 
@@ -722,11 +731,20 @@ thingtype DoomItemFog {
 
 endif()
 
+//
+// TeleportSpot 
+//
+// This is the object used to tag line-to-thing teleport exit spots. It is shared
+// by all gamemodes.
+//
+
 thingtype TeleportSpot {
   doomednum = 14
   flags = NOSECTOR|NOBLOCKMAP
   dehackednum = 42
 }
+
+// Continue DOOM gamemode objects
 
 ifenabled(DOOM)
 
@@ -936,12 +954,22 @@ thingtype AmmoShellBox {
 
 endif()
 
+//
+// Backpack
+//
+// Because DoomPlayer makes reference to this type and is currently always
+// defined, Backpack also has to be defined. DO NOT rely on this thingtype
+// being available in Heretic mode. This may change!
+//
+
 thingtype Backpack {
   doomednum = 8
   spawnstate = S_BPAK
   flags = SPECIAL
   dehackednum = 72
 }
+
+// Continue DOOM gamemode objects
 
 ifenabled(DOOM)
 
@@ -1446,11 +1474,13 @@ thingtype PoolBrain {
 
 endif()
 
+// Begin BOOM / MBF / SMMU / Eternity objects -- these are always defined.
+
 thingtype BoomPushPoint {
   doomednum = 5001
   spawnstate = S_TNT1
-  radius = 0.000000
-  height = 0.000000
+  radius = 0.0001220703125
+  height = 0.0001220703125
   mass = 10
   flags = NOBLOCKMAP
   dehackednum = 138
@@ -1459,8 +1489,8 @@ thingtype BoomPushPoint {
 thingtype BoomPullPoint {
   doomednum = 5002
   spawnstate = S_TNT1
-  radius = 0.000000
-  height = 0.000000
+  radius = 0.0001220703125
+  height = 0.0001220703125
   mass = 10
   flags = NOBLOCKMAP
   dehackednum = 139
@@ -1523,8 +1553,6 @@ thingtype MBFBetaPlasma2 {
 thingtype SMMUCameraSpot {
   doomednum = 5003
   spawnstate = S_TNT1
-  radius = 0.000000
-  height = 0.000000
   mass = 10
   flags = NOBLOCKMAP
   dehackednum = 143
@@ -1543,6 +1571,31 @@ thingtype EEBetaPlasma3 {
   dehackednum = 144
 }
 
+thingtype Unknown {
+  doomednum = 5005
+  spawnstate = S_UNKNOWN
+  radius = 32.0
+  height = 56.0
+  flags = NOBLOCKMAP|NOGRAVITY
+}
+
+thingtype EESkyboxCam {
+  doomednum = 5006
+  spawnstate = S_TNT1
+  radius = 1.0
+  height = 1.0
+  mass = 10
+  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP
+}
+
+thingtype EEParticleFountain {
+  spawnstate = S_TNT1
+  height = 32.0
+  flags = NOBLOCKMAP
+}
+
+// Begin Heretic gamemode objects
+
 ifenabled(HERETIC)
 
 thingtype CrystalVial {
@@ -1550,7 +1603,7 @@ thingtype CrystalVial {
   spawnstate = S_ITEM_PTN1_1
   flags = SPECIAL
   flags2 = FLOATBOB
-  dehackednum = 145
+  dehackednum = 300
 }
 
 thingtype SilverShield {
@@ -1558,7 +1611,7 @@ thingtype SilverShield {
   spawnstate = S_ITEM_SHLD1
   flags = SPECIAL
   flags2 = FLOATBOB
-  dehackednum = 146
+  dehackednum = 301
 }
 
 thingtype EnchantedShield {
@@ -1566,7 +1619,7 @@ thingtype EnchantedShield {
   spawnstate = S_ITEM_SHD2_1
   flags = SPECIAL
   flags2 = FLOATBOB
-  dehackednum = 147
+  dehackednum = 302
 }
 
 thingtype BagOfHolding {
@@ -1574,7 +1627,7 @@ thingtype BagOfHolding {
   spawnstate = S_ITEM_BAGH1
   flags = SPECIAL|COUNTITEM
   flags2 = FLOATBOB
-  dehackednum = 148
+  dehackednum = 303
 }
 
 thingtype MapScroll {
@@ -1582,7 +1635,7 @@ thingtype MapScroll {
   spawnstate = S_ITEM_SPMP1
   flags = SPECIAL|COUNTITEM
   flags2 = FLOATBOB
-  dehackednum = 149
+  dehackednum = 304
 }
 
 thingtype Pod {
@@ -1599,7 +1652,7 @@ thingtype Pod {
   flags2 = NORESPAWN|PUSHABLE
   flags3 = SLIDE|TELESTOMP|WINDTHRUST
   mod = 18
-  dehackednum = 150
+  dehackednum = 305
 }
 
 thingtype PodGoo {
@@ -1608,15 +1661,16 @@ thingtype PodGoo {
   radius = 2.00000
   height = 4.00000
   flags = NOBLOCKMAP|DROPOFF|MISSILE
-  flags2 = LOGRAV|NOCROSS
-  dehackednum = 151
+  flags2 = LOGRAV|NOCROSS|NOSPLASH
+  flags3 = CANNOTPUSH
+  dehackednum = 306
 }
 
 thingtype PodGenerator {
   doomednum = 7043
   spawnstate = S_PODGENERATOR
   flags = NOSECTOR|NOBLOCKMAP
-  dehackednum = 152
+  dehackednum = 307
 }
 
 thingtype HangingSkull70 {
@@ -1624,7 +1678,7 @@ thingtype HangingSkull70 {
   spawnstate = S_SKULLHANG70_1
   height = 70.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 153
+  dehackednum = 308
 }
 
 thingtype HangingSkull60 {
@@ -1632,7 +1686,7 @@ thingtype HangingSkull60 {
   spawnstate = S_SKULLHANG60_1
   height = 60.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 154
+  dehackednum = 309
 }
 
 thingtype HangingSkull45 {
@@ -1640,7 +1694,7 @@ thingtype HangingSkull45 {
   spawnstate = S_SKULLHANG45_1
   height = 45.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 155
+  dehackednum = 310
 }
 
 thingtype HangingSkull35 {
@@ -1648,7 +1702,7 @@ thingtype HangingSkull35 {
   spawnstate = S_SKULLHANG35_1
   height = 35.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 156
+  dehackednum = 311
 }
 
 thingtype Chandelier {
@@ -1656,7 +1710,7 @@ thingtype Chandelier {
   spawnstate = S_CHANDELIER1
   height = 60.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 157
+  dehackednum = 312
 }
 
 thingtype SerpentTorch {
@@ -1665,7 +1719,7 @@ thingtype SerpentTorch {
   radius = 12.0000
   height = 54.0000
   flags = SOLID
-  dehackednum = 158
+  dehackednum = 313
 }
 
 thingtype HereticPillarSmall {
@@ -1674,7 +1728,7 @@ thingtype HereticPillarSmall {
   radius = 16.0000
   height = 34.0000
   flags = SOLID
-  dehackednum = 159
+  dehackednum = 314
 }
 
 thingtype HereticStalagmiteSmall {
@@ -1683,7 +1737,7 @@ thingtype HereticStalagmiteSmall {
   radius = 8.00000
   height = 32.0000
   flags = SOLID
-  dehackednum = 160
+  dehackednum = 315
 }
 
 thingtype HereticStalagmiteLarge {
@@ -1692,7 +1746,7 @@ thingtype HereticStalagmiteLarge {
   radius = 12.0000
   height = 64.0000
   flags = SOLID
-  dehackednum = 161
+  dehackednum = 316
 }
 
 thingtype HereticStalactiteSmall {
@@ -1701,7 +1755,7 @@ thingtype HereticStalactiteSmall {
   radius = 8.00000
   height = 36.0000
   flags = SOLID|SPAWNCEILING|NOGRAVITY
-  dehackednum = 162
+  dehackednum = 317
 }
 
 thingtype HereticStalactiteLarge {
@@ -1710,7 +1764,7 @@ thingtype HereticStalactiteLarge {
   radius = 12.0000
   height = 68.0000
   flags = SOLID|SPAWNCEILING|NOGRAVITY
-  dehackednum = 163
+  dehackednum = 318
 }
 
 thingtype FireBrazier {
@@ -1719,7 +1773,7 @@ thingtype FireBrazier {
   radius = 16.0000
   height = 44.0000
   flags = SOLID
-  dehackednum = 164
+  dehackednum = 319
 }
 
 thingtype HereticBarrel {
@@ -1728,7 +1782,7 @@ thingtype HereticBarrel {
   radius = 12.0000
   height = 32.0000
   flags = SOLID
-  dehackednum = 165
+  dehackednum = 320
 }
 
 thingtype HornedPillar {
@@ -1737,7 +1791,7 @@ thingtype HornedPillar {
   radius = 14.0000
   height = 128.000
   flags = SOLID
-  dehackednum = 166
+  dehackednum = 321
 }
 
 thingtype HereticMoss1 {
@@ -1745,7 +1799,7 @@ thingtype HereticMoss1 {
   spawnstate = S_MOSS1
   height = 23.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 167
+  dehackednum = 322
 }
 
 thingtype HereticMoss2 {
@@ -1753,14 +1807,14 @@ thingtype HereticMoss2 {
   spawnstate = S_MOSS2
   height = 27.0000
   flags = SPAWNCEILING|NOGRAVITY
-  dehackednum = 168
+  dehackednum = 323
 }
 
 thingtype HereticWallTorch {
   doomednum = 7050
   spawnstate = S_WALLTORCH1
   flags = NOGRAVITY
-  dehackednum = 169
+  dehackednum = 324
 }
 
 thingtype HereticCorpse {
@@ -1769,7 +1823,7 @@ thingtype HereticCorpse {
   radius = 8.00000
   height = 104.000
   flags = SOLID|SPAWNCEILING|NOGRAVITY
-  dehackednum = 170
+  dehackednum = 325
 }
 
 thingtype KeyGizmoBlue {
@@ -1778,7 +1832,7 @@ thingtype KeyGizmoBlue {
   radius = 16.0000
   height = 50.0000
   flags = SOLID
-  dehackednum = 171
+  dehackednum = 326
 }
 
 thingtype KeyGizmoGreen {
@@ -1787,7 +1841,7 @@ thingtype KeyGizmoGreen {
   radius = 16.0000
   height = 50.0000
   flags = SOLID
-  dehackednum = 172
+  dehackednum = 327
 }
 
 thingtype KeyGizmoYellow {
@@ -1796,53 +1850,53 @@ thingtype KeyGizmoYellow {
   radius = 16.0000
   height = 50.0000
   flags = SOLID
-  dehackednum = 173
+  dehackednum = 328
 }
 
 thingtype KeyGizmoOrb {
   spawnstate = S_KGZ_START
   radius = 16.0000
   flags = SOLID|NOGRAVITY
-  dehackednum = 174
+  dehackednum = 329
 }
 
 thingtype TeleGlitterGenRed {
   doomednum = 7074
   spawnstate = S_TELEGLITGEN1
   flags = NOSECTOR|NOBLOCKMAP|NOGRAVITY
-  dehackednum = 175
+  dehackednum = 330
 }
 
 thingtype TeleGlitterGenBlue {
   doomednum = 7052
   spawnstate = S_TELEGLITGEN2
   flags = NOSECTOR|NOBLOCKMAP|NOGRAVITY
-  dehackednum = 176
+  dehackednum = 331
 }
 
 thingtype TeleGlitterRed {
   spawnstate = S_TELEGLITTER1_1
   flags = NOBLOCKMAP|NOGRAVITY|MISSILE
-  dehackednum = 177
+  dehackednum = 332
 }
 
 thingtype TeleGlitterBlue {
   spawnstate = S_TELEGLITTER2_1
   flags = NOBLOCKMAP|NOGRAVITY|MISSILE
-  dehackednum = 178
+  dehackednum = 333
 }
 
 thingtype HereticTeleFog {
   spawnstate = S_HTFOG1
   flags = NOBLOCKMAP|NOGRAVITY
-  dehackednum = 179
+  dehackednum = 334
 }
 
 thingtype HereticBlood {
   spawnstate = S_HTICBLOOD1
   flags = NOBLOCKMAP
   flags2 = NOSPLASH
-  dehackednum = 180
+  dehackednum = 335
 }
 
 thingtype Golem {
@@ -1865,7 +1919,7 @@ thingtype Golem {
   activesound = ht_mumsit
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
-  dehackednum = 181
+  dehackednum = 336
 }
 
 thingtype NitroGolem {
@@ -1889,7 +1943,7 @@ thingtype NitroGolem {
   activesound = ht_mumsit
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
-  dehackednum = 182
+  dehackednum = 337
 }
 
 thingtype GolemGhost {
@@ -1913,7 +1967,7 @@ thingtype GolemGhost {
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
   flags3 = GHOST
-  dehackednum = 183
+  dehackednum = 338
 }
 
 thingtype NitroGolemGhost {
@@ -1938,25 +1992,26 @@ thingtype NitroGolemGhost {
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
   flags3 = GHOST
-  dehackednum = 184
+  dehackednum = 339
 }
 
 thingtype GolemSoul {
   spawnstate = S_MUMMY_SOUL1
   flags = NOBLOCKMAP|NOGRAVITY
-  dehackednum = 185
+  dehackednum = 340
 }
 
 thingtype GolemShot {
   spawnstate = S_MUMMYFX1_1
   deathstate = S_MUMMYFXI1_1
-  speed = 589824
+  speed = 9.0
+  fastspeed = 18.0
   radius = 8.00000
   height = 14.0000
   damage = 4
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS|SEEKERMISSILE
-  dehackednum = 186
+  dehackednum = 341
 }
 
 thingtype Weredragon {
@@ -1980,32 +2035,33 @@ thingtype Weredragon {
   activesound = ht_bstact
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
-  dehackednum = 187
+  dehackednum = 342
 }
 
 thingtype WeredragonShot {
   spawnstate = S_BEASTBALL1
   deathstate = S_BEASTBALLX1
-  speed = 786432
+  speed = 12.0
+  fastspeed = 20.0
   radius = 9.00000
   height = 8.00000
   damage = 4
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
   flags3 = WINDTHRUST
-  dehackednum = 188
+  dehackednum = 343
 }
 
 thingtype WeredragonSmoke {
   spawnstate = S_PUFFY1
   deathstate = S_PUFFY1
-  speed = 655360
+  speed = 10.0
   radius = 6.00000
   height = 8.00000
   damage = 2
   flags = NOBLOCKMAP|NOGRAVITY|MISSILE
-  flags2 = NOCROSS
-  dehackednum = 189
+  flags2 = NOCROSS|NOSPLASH
+  dehackednum = 344
 }
 
 thingtype Ophidian {
@@ -2022,37 +2078,39 @@ thingtype Ophidian {
   deathstate = S_SNAKE_DIE1
   deathsound = ht_snkdth
   speed = 10
-  radius = 22.0000
-  height = 70.0000
+  radius = 22.0
+  height = 70.0
   activesound = ht_snkact
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
-  dehackednum = 190
+  dehackednum = 345
 }
 
 thingtype OphidianShotA {
   spawnstate = S_SNAKEPRO_A1
   deathstate = S_SNAKEPRO_AX1
-  speed = 917504
-  radius = 12.0000
-  height = 8.00000
+  speed = 14.0
+  fastspeed = 20.0
+  radius = 12.0
+  height = 8.0
   damage = 1
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
   flags3 = WINDTHRUST
-  dehackednum = 191
+  dehackednum = 346
 }
 
 thingtype OphidianShotB {
   spawnstate = S_SNAKEPRO_B1
   deathstate = S_SNAKEPRO_BX1
-  speed = 917504
-  radius = 12.0000
-  height = 8.00000
+  speed = 14.0
+  fastspeed = 20.0
+  radius = 12.0
+  height = 8.0
   damage = 3
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
-  dehackednum = 192
+  dehackednum = 347
 }
 
 thingtype SabreClaw {
@@ -2074,7 +2132,7 @@ thingtype SabreClaw {
   activesound = ht_clkact
   flags = SOLID|SHOOTABLE|NOBLOOD|COUNTKILL
   flags2 = FOOTCLIP
-  dehackednum = 193
+  dehackednum = 348
 }
 
 thingtype Disciple {
@@ -2096,19 +2154,20 @@ thingtype Disciple {
   activesound = ht_wizact
   flags = SOLID|SHOOTABLE|NOGRAVITY|FLOAT|COUNTKILL
   flags3 = ACTSEESOUND|BOSSIGNORE
-  dehackednum = 194
+  dehackednum = 349
 }
 
 thingtype DiscipleShot {
   spawnstate = S_WIZFX1_1
   deathstate = S_WIZFXI1_1
-  speed = 1179648
-  radius = 10.0000
-  height = 6.00000
+  speed = 18.0
+  fastspeed = 24.0
+  radius = 10.0
+  height = 6.0
   damage = 3
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
-  dehackednum = 195
+  dehackednum = 350
 }
 
 thingtype DeathKnight {
@@ -2132,7 +2191,7 @@ thingtype DeathKnight {
   activesound = ht_kgtsit
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
-  dehackednum = 196
+  dehackednum = 351
 }
 
 thingtype DeathKnightGhost {
@@ -2157,35 +2216,37 @@ thingtype DeathKnightGhost {
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
   flags3 = GHOST
-  dehackednum = 197
+  dehackednum = 352
 }
 
 thingtype KnightAxe {
   spawnstate = S_SPINAXE1
   deathstate = S_SPINAXEX1
   deathsound = ht_hrnhit
-  speed = 589824
-  radius = 10.0000
-  height = 8.00000
+  speed = 9.0
+  fastspeed = 18.0
+  radius = 10.0
+  height = 8.0
   damage = 2
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
   flags3 = THRUGHOST|WINDTHRUST
-  dehackednum = 198
+  dehackednum = 353
 }
 
 thingtype KnightAxeRed {
   spawnstate = S_REDAXE1
   deathstate = S_REDAXEX1
   deathsound = ht_hrnhit
-  speed = 589824
-  radius = 10.0000
-  height = 8.00000
+  speed = 9.0
+  fastspeed = 18.0
+  radius = 10.0
+  height = 8.0
   damage = 7
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
   flags3 = THRUGHOST
-  dehackednum = 199
+  dehackednum = 354
 }
 
 thingtype SerpentRiderDsparil {
@@ -2209,20 +2270,21 @@ thingtype SerpentRiderDsparil {
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = BOSS|FOOTCLIP
   nukespecial = SorcNukeSpec
-  dehackednum = 200
+  dehackednum = 355
 }
 
 thingtype SRDsparilShot1 {
   spawnstate = S_SRCRFX1_1
   deathstate = S_SRCRFXI1_1
-  speed = 1310720
-  radius = 10.0000
-  height = 10.0000
+  speed = 20.0
+  fastspeed = 28.0
+  radius = 10.0
+  height = 10.0
   damage = 10
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
   flags3 = FIREDAMAGE
-  dehackednum = 201
+  dehackednum = 356
 }
 
 thingtype Dsparil {
@@ -2244,157 +2306,443 @@ thingtype Dsparil {
   flags = SOLID|SHOOTABLE|DROPOFF|COUNTKILL
   flags2 = E3M8BOSS|BOSS|FOOTCLIP
   flags3 = LOUDACTIVE|DMGIGNORED|BOSSIGNORE
-  dehackednum = 202
+  dehackednum = 357
 }
 
 thingtype DsparilShot1 {
   spawnstate = S_SOR2FX1_1
   deathstate = S_SOR2FXI1_1
-  speed = 1310720
-  radius = 10.0000
-  height = 6.00000
+  speed = 20.0
+  fastspeed = 28.0
+  radius = 10.0
+  height = 6.0
   damage = 1
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
-  dehackednum = 203
+  dehackednum = 358
 }
 
 thingtype DsparilSpark {
   spawnstate = S_SOR2FXSPARK1
   flags = NOBLOCKMAP|NOGRAVITY
   flags2 = NOCROSS
-  dehackednum = 204
+  flags3 = CANNOTPUSH
+  dehackednum = 359
 }
 
 thingtype DsparilShot2 {
   spawnstate = S_SOR2FX2_1
   deathstate = S_SOR2FXI2_1
-  speed = 393216
-  radius = 10.0000
-  height = 6.00000
+  speed = 6.0
+  radius = 10.0
+  height = 6.0
   damage = 10
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE
   flags2 = NOCROSS
-  dehackednum = 205
+  dehackednum = 360
 }
 
 thingtype DsparilTeleFade {
   spawnstate = S_SOR2TELEFADE1
   flags = NOBLOCKMAP
-  dehackednum = 206
+  dehackednum = 361
 }
 
 thingtype HereticGreenKey {
   doomednum = 7073
   spawnstate = S_AKYY1
   flags = SPECIAL|NOTDMATCH
-  dehackednum = 207
+  dehackednum = 362
 }
 
 thingtype HereticBlueKey {
   doomednum = 7079
   spawnstate = S_BKYY1
   flags = SPECIAL|NOTDMATCH
-  dehackednum = 208
+  dehackednum = 363
 }
 
 thingtype HereticYellowKey {
   doomednum = 7080
   spawnstate = S_CKYY1
   flags = SPECIAL|NOTDMATCH
-  dehackednum = 209
+  dehackednum = 364
 }
 
 thingtype HereticAmbienceWind {
   doomednum = 7042
   spawnstate = S_SND_WIND
   flags = NOSECTOR|NOBLOCKMAP
-  dehackednum = 210
+  dehackednum = 365
 }
 
 thingtype HereticAmbienceWater {
   doomednum = 7041
   spawnstate = S_SND_WATERFALL
   flags = NOSECTOR|NOBLOCKMAP
-  dehackednum = 211
+  dehackednum = 366
 }
 
 thingtype DsparilTeleSpot {
   doomednum = 7056
-  height = 32.0000
+  height = 32.0
   flags = NOSECTOR|NOBLOCKMAP
-  dehackednum = 212
+  dehackednum = 367
+}
+
+thingtype HereticVolcano {
+  doomednum = 7087
+  spawnstate = S_VOLCANO1
+  radius = 12.0
+  height = 20.0
+  flags = SOLID
+  dehackednum = 368
+}
+
+thingtype VolcanoBall {
+  spawnstate = S_VOLCANOBALL1
+  deathstate = S_VOLCANOBALLX1
+  deathsound = ht_lobhit
+  speed  = 2.0
+  radius = 8.0
+  height = 8.0
+  damage = 2
+  cflags = NOBLOCKMAP|MISSILE|DROPOFF|LOGRAV|NOCROSS|FIREDAMAGE|NOSPLASH
+  dehackednum = 369
+}
+
+thingtype VolcanoBallSmall {
+  spawnstate = S_VOLCANOTBALL1
+  deathstate = S_VOLCANOTBALLX1
+  speed  = 2.0
+  radius = 8.0
+  height = 6.0
+  damage = 1
+  cflags = NOBLOCKMAP|MISSILE|DROPOFF|LOGRAV|NOCROSS|FIREDAMAGE|NOSPLASH
+  dehackednum = 370
+}
+
+thingtype Maulotaur {
+  doomednum = 7009
+  spawnstate = S_MNTR_LOOK1
+  spawnhealth = 3000
+  seestate = S_MNTR_WALK1
+  seesound = ht_minsit
+  attacksound = ht_minat1
+  painstate = S_MNTR_PAIN1
+  painchance = 25
+  painsound = ht_minpai
+  meleestate = S_MNTR_ATK1_1
+  missilestate = S_MNTR_ATK2_1
+  deathstate = S_MNTR_DIE1
+  deathsound = ht_mindth
+  speed = 16
+  radius = 28.0
+  height = 100.0
+  mass = 800
+  damage = 7
+  dmgspecial = MinotaurCharge
+  activesound = ht_minact
+  flags = SOLID|SHOOTABLE|DROPOFF|COUNTKILL
+  flags2 = BOSS|FOOTCLIP|E2M8BOSS|NOSTRAFE
+  flags3 = INVULNCHARGE|E5M8BOSS|DMGIGNORED
+  dehackednum = 371
+}
+
+thingtype MaulotaurShot {
+  spawnstate = S_MNTRFX1_1
+  deathstate = S_MNTRFXI1_1
+  speed = 20.0
+  fastspeed = 26.0
+  radius = 10.0
+  height = 6.0
+  damage = 3
+  cflags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|NOCROSS|FIREDAMAGE  
+  dehackednum = 372
+}
+
+thingtype MaulotaurFloorFire {
+  spawnstate = S_MNTRFX2_1
+  deathstate = S_MNTRFXI2_1
+  deathsound = ht_phohit
+  speed = 14.0
+  fastspeed = 20.0
+  radius = 5.0
+  height = 12.0
+  damage = 4
+  cflags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|NOCROSS|FLOORMISSILE|FIREDAMAGE|NOSPLASH
+  dehackednum = 373
+}
+
+thingtype MaulotaurFloorFlame {
+  spawnstate = S_MNTRFX3_1
+  deathstate = S_MNTRFXI2_1
+  deathsound = ht_phohit
+  radius = 8.0
+  damage = 4
+  cflags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|NOCROSS|FIREDAMAGE|NOSPLASH
+  dehackednum = 374
+}
+
+thingtype HereticPhoenixPuff {
+  spawnstate = S_PHOENIXPUFF1
+  cflags = NOBLOCKMAP|NOGRAVITY|NOCROSS|CANNOTPUSH
+  translucency = 26624
+  dehackednum = 375
+}
+
+thingtype IronLich {
+  doomednum = 7006
+  spawnstate = S_LICH_LOOK
+  spawnhealth = 700
+  painchance = 32
+  painsound = ht_hedpai
+  seestate = S_LICH_FLOAT
+  seesound = ht_hedsit
+  attacksound = ht_hedat1
+  painstate = S_LICH_PAIN1
+  missilestate = S_LICH_ATK1
+  deathstate = S_LICH_DIE1
+  deathsound = ht_heddth
+  activesound = ht_hedact
+  speed = 6
+  radius = 40.0
+  height = 72.0
+  mass = 325
+  flags = SOLID|SHOOTABLE|COUNTKILL|NOBLOOD
+  flags2 = E1M8BOSS|E4M8BOSS|NOSPLASH
+  dehackednum = 376
+}
+
+thingtype IronLichShot1 {
+  spawnstate = S_LICHFX1_1
+  deathstate = S_LICHFXI1_1
+  speed = 13.0
+  fastspeed = 20.0
+  radius = 12.0
+  height = 6.0
+  damage = 1
+  flags = NOBLOCKMAP|MISSILE|DROPOFF|NOGRAVITY|NOCROSS|THRUGHOST
+  dehackednum = 377
+}
+
+thingtype IronLichShot2 {
+  spawnstate = S_LICHFX2_1
+  deathstate = S_LICHFXI2_1
+  speed = 8.0
+  radius = 12.0
+  height = 6.0
+  damage = 3
+  cflags = NOBLOCKMAP|MISSILE|DROPOFF|NOGRAVITY|NOCROSS
+  dehackednum = 378
+}
+
+thingtype IronLichShot3 {
+  spawnstate = S_LICHFX3_1
+  deathstate = S_LICHFXI3_1
+  speed = 10.0
+  fastspeed = 18.0
+  radius = 14.0
+  height = 12.0
+  damage = 5
+  cflags = NOBLOCKMAP|MISSILE|DROPOFF|NOGRAVITY|NOCROSS|WINDTHRUST
+  dehackednum = 379
+}
+
+thingtype LichWhirlwind {
+  spawnstate = S_LICHFX4_1
+  deathstate = S_LICHFXI4_1
+  speed = 10.0
+  radius = 16.0
+  height = 74.0
+  damage = 1
+  cflags = NOBLOCKMAP|MISSILE|DROPOFF|NOGRAVITY|NOCROSS|SEEKERMISSILE|EXPLOCOUNT
+  translucency = 26624
+  dmgspecial = Whirlwind
+  dehackednum = 380
+}
+
+thingtype HAmmoWandWimpy {
+  doomednum = 7010
+  spawnstate = S_AMG1
+  spawnhealth = 10
+  flags = SPECIAL
+  dehackednum = 381
+}
+
+thingtype HAmmoWandHefty {
+  doomednum = 7012
+  spawnstate = S_AMG2_1
+  spawnhealth = 50
+  flags = SPECIAL
+  dehackednum = 382
+}
+
+thingtype HAmmoMaceWimpy {
+  doomednum = 7013
+  spawnstate = S_AMM1
+  spawnhealth = 20
+  flags = SPECIAL
+  dehackednum = 383
+}
+
+thingtype HAmmoMaceHefty {
+  doomednum = 7016
+  spawnstate = S_AMM2
+  spawnhealth = 100
+  flags = SPECIAL
+  dehackednum = 384
+}
+
+thingtype HAmmoCBowWimpy {
+  doomednum = 7018
+  spawnstate = S_AMC1
+  spawnhealth = 5
+  flags = SPECIAL
+  dehackednum = 385
+}
+
+thingtype HAmmoCBowHefty {
+  doomednum = 7019
+  spawnstate = S_AMC2_1
+  spawnhealth = 20
+  flags = SPECIAL
+  dehackednum = 386
+}
+
+thingtype HAmmoSkullWimpy {
+  doomednum = 7020
+  spawnstate = S_AMS1_1
+  spawnhealth = 20
+  flags = SPECIAL
+  dehackednum = 387
+}
+
+thingtype HAmmoSkullHefty {
+  doomednum = 7021
+  spawnstate = S_AMS2_1
+  spawnhealth = 100
+  flags = SPECIAL
+  dehackednum = 388
+}
+
+thingtype HAmmoPhoenixWimpy {
+  doomednum = 7022
+  spawnstate = S_AMP1_1
+  spawnhealth = 1
+  flags = SPECIAL
+  dehackednum = 389
+}
+
+thingtype HAmmoPhoenixHefty {
+  doomednum = 7023
+  spawnstate = S_AMP2_1
+  spawnhealth = 10
+  flags = SPECIAL
+  dehackednum = 390
+}
+
+thingtype HAmmoBlasterWimpy {
+  doomednum = 7054
+  spawnstate = S_AMB1_1
+  spawnhealth = 10
+  flags = SPECIAL
+  dehackednum = 391
+}
+
+thingtype HAmmoBlasterHefty {
+  doomednum = 7055
+  spawnstate = S_AMB2_1
+  spawnhealth = 25
+  flags = SPECIAL
+  dehackednum = 392
+}
+
+thingtype HereticImp {
+  doomednum = 7066
+  spawnstate = S_IMP_LOOK1
+  spawnhealth = 40
+  seestate = S_IMP_FLY1
+  seesound = ht_impsit
+  attacksound = ht_impat1
+  painstate = S_IMP_PAIN1
+  painchance = 200
+  painsound = ht_imppai
+  meleestate = S_IMP_MEATK1
+  missilestate = S_IMP_MSATK1_1
+  crashstate = S_IMP_CRASH1
+  deathstate = S_IMP_DIE1
+  xdeathstate = S_IMP_XDIE1
+  deathsound = ht_impdth
+  speed = 10
+  radius = 16.0
+  height = 36.0
+  mass = 50
+  activesound = ht_impsit
+  flags = SOLID|SHOOTABLE|FLOAT|NOGRAVITY|COUNTKILL
+  flags2 = NOSTRAFE|SPAWNFLOAT|RANGEHALF
+  dehackednum = 393
+}
+
+thingtype HereticImpLeader {
+  doomednum = 7005
+  spawnstate = S_IMP_LOOK1
+  spawnhealth = 80
+  seestate = S_IMP_FLY1
+  seesound = ht_impsit
+  attacksound = ht_impat2
+  painstate = S_IMP_PAIN1
+  painchance = 200
+  painsound = ht_imppai
+  missilestate = S_IMP_MSATK2_1
+  crashstate = S_IMP_CRASH1
+  deathstate = S_IMP_DIE1
+  xdeathstate = S_IMP_XDIE1
+  deathsound = ht_impdth
+  speed = 10
+  radius = 16.0
+  height = 36.0
+  mass = 50
+  activesound = ht_impsit
+  flags = SOLID|SHOOTABLE|FLOAT|NOGRAVITY|COUNTKILL
+  flags2 = SPAWNFLOAT
+  dehackednum = 394
+}
+
+thingtype HereticImpChunk1 {
+  spawnstate = S_IMP_CHUNKA1
+  cflags = NOBLOCKMAP
+  dehackednum = 395
+}
+
+thingtype HereticImpChunk2 {
+  spawnstate = S_IMP_CHUNKB1
+  cflags = NOBLOCKMAP
+  dehackednum = 396
+}
+
+thingtype HereticImpShot {
+  spawnstate = S_IMPFX1
+  deathstate = S_IMPFXI1
+  speed = 10.0
+  fastspeed = 20.0
+  radius = 8.0
+  height = 8.0
+  damage = 1
+  cflags = NOBLOCKMAP|MISSILE|DROPOFF|NOGRAVITY|WINDTHRUST|NOCROSS
+  dehackednum = 397
 }
 
 endif()
 
-thingtype ETCMinotaurus {
-  doomednum = 6001
-  spawnstate = S_MNTR_LOOK1
-  spawnhealth = 8000
-  seestate = S_MNTR_WALK1
-  seesound = minsit
-  attacksound = minat1
-  painstate = S_MNTR_PAIN1
-  painchance = 25
-  painsound = minpai
-  meleestate = S_MNTR_ATK1_1
-  missilestate = S_MNTR_ATK2_1
-  deathstate = S_MNTR_DIE1
-  deathsound = mindth
-  speed = 20
-  radius = 28.0000
-  height = 100.000
-  mass = 800
-  damage = 7
-  activesound = minact
-  flags = SOLID|SHOOTABLE|DROPOFF|COUNTKILL
-  flags2 = BOSS|FOOTCLIP
-  dehackednum = 213
-}
 
-thingtype ETCMinotaurusShot1 {
-  spawnstate = S_MNTRFX1_1
-  deathstate = S_MNTRFXI1_1
-  speed = 1572864
-  radius = 10.0000
-  height = 6.00000
-  damage = 3
-  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
-  flags2 = NOCROSS
-  dehackednum = 214
-}
 
-thingtype ETCMinotaurusShot2 {
-  spawnstate = S_MNTRFX2_1
-  deathstate = S_MNTRFXI2_1
-  deathsound = phohit
-  speed = 1572864
-  radius = 5.00000
-  height = 12.0000
-  damage = 4
-  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
-  flags2 = NOCROSS
-  dehackednum = 215
-}
+// WARNING: NONE of the thingtypes below here are considered documented, and 
+// many are subject to future removal -- most are left-over from Eternity TC
+// development and have not been removed because they use potentially useful
+// code that may be generalized for editor use. DO NOT depend upon the presence,
+// availability, or DeHackEd number of any object below this point.
 
-thingtype ETCMinotaurusShot3 {
-  spawnstate = S_MNTRFX3_1
-  deathstate = S_MNTRFXI2_1
-  deathsound = phohit
-  radius = 8.00000
-  damage = 4
-  flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
-  flags2 = NOCROSS
-  dehackednum = 216
-}
-
-thingtype ETCPhoenixPuff {
-  spawnstate = S_PHOENIXPUFF1
-  flags = NOBLOCKMAP|NOGRAVITY|TRANSLUCENT
-  flags2 = NOSPLASH
-  dehackednum = 217
-}
 
 thingtype ETCCleric {
   doomednum = 6008
@@ -2417,7 +2765,7 @@ thingtype ETCCleric {
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = FOOTCLIP
   raisestate = S_CLER_RAISE1
-  dehackednum = 218
+  dehackednum = 221
 }
 
 thingtype ETCClericShot {
@@ -2431,7 +2779,7 @@ thingtype ETCClericShot {
   damage = 6
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
   flags2 = NOCROSS
-  dehackednum = 219
+  dehackednum = 222
 }
 
 thingtype EETerrainWaterSplash {
@@ -2441,14 +2789,15 @@ thingtype EETerrainWaterSplash {
   height = 4.00000
   flags = NOBLOCKMAP|DROPOFF|MISSILE
   flags2 = LOGRAV|NOSPLASH|NOCROSS
-  dehackednum = 220
+  flags3 = CANNOTPUSH
+  dehackednum = 223
 }
 
 thingtype EETerrainWaterBase {
   spawnstate = S_SPLASHBASE1
   flags = NOBLOCKMAP|NOGRAVITY
   flags2 = NOSPLASH
-  dehackednum = 221
+  dehackednum = 224
 }
 
 thingtype EETerrainSludgeChunk {
@@ -2459,14 +2808,15 @@ thingtype EETerrainSludgeChunk {
   mass = 150
   flags = NOBLOCKMAP|DROPOFF|MISSILE
   flags2 = LOGRAV|NOSPLASH|NOCROSS
-  dehackednum = 222
+  flags3 = CANNOTPUSH
+  dehackednum = 225
 }
 
 thingtype EETerrainSludgeBase {
   spawnstate = S_SLUDGEBASE1
   flags = NOBLOCKMAP|NOGRAVITY
   flags2 = NOSPLASH
-  dehackednum = 223
+  dehackednum = 226
 }
 
 thingtype ETCFogSpawner {
@@ -2474,7 +2824,7 @@ thingtype ETCFogSpawner {
   spawnstate = S_SPAWNFOG1
   flags = NOBLOCKMAP
   flags2 = NOTHRUST|FLOATBOB|DONTDRAW
-  dehackednum = 224
+  dehackednum = 227
 }
 
 thingtype ETCSmallFog {
@@ -2483,7 +2833,7 @@ thingtype ETCSmallFog {
   deathstate = S_FOGPATCHS0
   speed = 65536
   flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|FLOAT|TRANSLUCENT
-  dehackednum = 225
+  dehackednum = 228
 }
 
 thingtype ETCMediumFog {
@@ -2492,7 +2842,7 @@ thingtype ETCMediumFog {
   deathstate = S_FOGPATCHM0
   speed = 65536
   flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|FLOAT|TRANSLUCENT
-  dehackednum = 226
+  dehackednum = 229
 }
 
 thingtype ETCLargeFog {
@@ -2501,7 +2851,7 @@ thingtype ETCLargeFog {
   deathstate = S_FOGPATCHL0
   speed = 65536
   flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|FLOAT|TRANSLUCENT
-  dehackednum = 227
+  dehackednum = 230
 }
 
 thingtype ETCLeaderCleric {
@@ -2523,7 +2873,7 @@ thingtype ETCLeaderCleric {
   mass = 200
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = BOSS|FOOTCLIP
-  dehackednum = 228
+  dehackednum = 231
 }
 
 thingtype ETCHalif {
@@ -2543,7 +2893,7 @@ thingtype ETCHalif {
   mass = 150
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = ALWAYSRESPAWN|JUMPDOWN|FOOTCLIP
-  dehackednum = 229
+  dehackednum = 232
 }
 
 thingtype ETCCyberGuard {
@@ -2555,7 +2905,7 @@ thingtype ETCCyberGuard {
   mass = 1000
   flags = SOLID
   flags2 = FOOTCLIP
-  dehackednum = 230
+  dehackednum = 233
 }
 
 thingtype ETCCyberGuard2 {
@@ -2564,7 +2914,7 @@ thingtype ETCCyberGuard2 {
   radius = 32.0
   height = 56.0
   flags = NOBLOCKMAP|NOGRAVITY
-  dehackednum = 231
+  dehackednum = 234
 }
 
 thingtype ETCAlterDwarf {
@@ -2585,7 +2935,7 @@ thingtype ETCAlterDwarf {
   mass = 150
   flags = SOLID|SHOOTABLE|COUNTKILL
   flags2 = JUMPDOWN|FOOTCLIP
-  dehackednum = 232
+  dehackednum = 235
 }
 
 thingtype ETCGrenade {
@@ -2603,28 +2953,25 @@ thingtype ETCGrenade {
   flags2 = NOCROSS
   particlefx = GRENADE
   mod = 25
-  dehackednum = 233
+  dehackednum = 236
 }
 
 thingtype ETCTotalInvisiSphere {
   doomednum = 6052
   spawnstate = S_PNS2_1
   flags = SPECIAL|COUNTITEM|TRANSLUCENT
-  dehackednum = 234
+  dehackednum = 237
 }
 
 thingtype ETCPhoenixShot {
-  spawnstate = S_PHOENIXSHOT1
   seesound = firsht
-  deathstate = S_PHOENIXSHOTX1
-  deathsound = phohit
   speed = 1638400
   radius = 6.00000
   height = 8.00000
   damage = 10
   flags = NOBLOCKMAP|NOGRAVITY|DROPOFF|MISSILE|TRANSLUCENT
   flags2 = NOCROSS|SEEKERMISSILE
-  dehackednum = 235
+  dehackednum = 238
 }
 
 thingtype ETCBrokenAxe {
@@ -2635,7 +2982,7 @@ thingtype ETCBrokenAxe {
   mass = 500
   flags = NOBLOCKMAP|DROPOFF|BOUNCES
   flags2 = NOCROSS
-  dehackednum = 236
+  dehackednum = 239
 }
 
 thingtype ETCBrokenStaff {
@@ -2646,16 +2993,7 @@ thingtype ETCBrokenStaff {
   mass = 500
   flags = NOBLOCKMAP|DROPOFF|BOUNCES
   flags2 = NOCROSS
-  dehackednum = 237
-}
-
-thingtype ETCClericSparkle {
-  spawnstate = S_GLITTER1
-  radius = 5.00000
-  height = 5.00000
-  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP|TRANSLUCENT
-  flags2 = NOSPLASH
-  dehackednum = 238
+  dehackednum = 240
 }
 
 thingtype ETCHalifGolem {
@@ -2663,45 +3001,21 @@ thingtype ETCHalifGolem {
   radius = 32.0
   height = 56.0
   flags = NOBLOCKMAP|NOGRAVITY
-  dehackednum = 239
+  dehackednum = 241
 }
 
 thingtype EETerrainLavaSplash {
   spawnstate = S_LAVASPLASH1
   flags = NOBLOCKMAP|NOGRAVITY
   flags2 = NOSPLASH
-  dehackednum = 240
+  dehackednum = 242
 }
 
 thingtype EETerrainLavaSmoke {
   spawnstate = S_LAVASMOKE1
   flags = NOBLOCKMAP|NOGRAVITY
   flags2 = NOSPLASH
-  translucency = 21845
-  dehackednum = 241
-}
-
-thingtype EEParticleFountain {
-  spawnstate = S_TNT1
-  height = 32.0000
-  flags = NOBLOCKMAP
-  dehackednum = 242
-}
-
-thingtype Unknown {
-  doomednum = 5005
-  spawnstate = S_UNKNOWN
-  radius = 32.0
-  height = 56.0
-  flags = NOBLOCKMAP|NOGRAVITY
+  translucency = 26624
   dehackednum = 243
 }
 
-thingtype EESkyboxCam {
-  doomednum = 5006
-  spawnstate = S_TNT1
-  radius = 0.0
-  height = 0.0
-  mass = 10
-  flags = NOBLOCKMAP|NOGRAVITY|NOCLIP
-}

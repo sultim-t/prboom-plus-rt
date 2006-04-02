@@ -40,13 +40,14 @@ rcsid[] = "$Id: m_misc.c,v 1.60 1998/06/03 20:32:12 jim Exp $";
 #include "i_video.h"
 #include "v_video.h"
 #include "hu_stuff.h"
+#include "hu_over.h"
 #include "st_stuff.h"
 #include "dstrings.h"
 #include "m_misc.h"
 #include "s_sound.h"
 #include "sounds.h"
 #include "d_main.h"
-#include "r_sky.h" // haleyjd
+#include "r_sky.h"
 #include "r_draw.h"
 #include "c_io.h"
 #include "c_net.h"
@@ -64,20 +65,16 @@ rcsid[] = "$Id: m_misc.c,v 1.60 1998/06/03 20:32:12 jim Exp $";
 static int config_help;         //jff 3/3/98
 int usemouse;
 int usejoystick;
-int screenshot_pcx; //jff 3/30/98 // option to output screenshot as pcx or bmp
-// [obsolete] extern int mousebfire; 
+int screenshot_pcx; //jff 3/30/98: option to output screenshot as pcx or bmp
+static int screenshot_gamma; // haleyjd 11/16/04: allow disabling gamma correction in screenshots
+
 extern int mousebstrafe;
 extern int mousebforward;
-// [obsolete] extern int joybfire;
-// [obsolete] extern int joybstrafe;
-// [obsolete] extern int joybuse;
-// [obsolete] extern int joybspeed;
 extern int viewwidth;
 extern int viewheight;
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
 extern int leds_always_off;            // killough 3/6/98
-extern int tran_filter_pct;            // killough 2/21/98
 extern int showMessages;
 extern int screenSize;
 
@@ -87,14 +84,16 @@ extern char *csc_files[];   // haleyjd: auto-loaded console scripts
 extern int hud_msg_timer;   // killough 11/98: timer used for review messages
 extern int hud_msg_lines;   // number of message lines in window up to 16
 extern int hud_msg_scrollup;// killough 11/98: whether message list scrolls up
-extern int hud_overlaystyle;  // sf: overlay style
-extern int hud_enabled;       // sf: fullscreen hud on/off
-extern int hud_hidestatus;      // sf
 extern int message_timer;   // killough 11/98: timer used for normal messages
 extern int show_scores;
 extern int show_vpo;
+extern int vpo_threshold;   // haleyjd 11/15/04
 
 extern int textmode_startup;
+
+#ifdef _SDL_VER
+extern int waitAtExit;
+#endif
 
 //jff 3/3/98 added min, max, and help string to all entries
 //jff 4/10/98 added isstr field to specify whether value is string or int
@@ -102,7 +101,8 @@ extern int textmode_startup;
 // killough 11/98: entirely restructured to allow options to be modified
 // from wads, and to consolidate with menu code
 
-default_t defaults[] = {
+default_t defaults[] = 
+{
   { //jff 3/3/98
     "config_help",
     &config_help, NULL,
@@ -114,7 +114,7 @@ default_t defaults[] = {
     "colour",
     &default_colour, NULL,
     0, {0,TRANSLATIONCOLOURS}, dt_number, ss_none, wad_no,
-    "the default player colour (green, indigo,brown, red)"
+    "the default player colour (green, indigo, brown, red...)"
   },
 
   {
@@ -253,6 +253,13 @@ default_t defaults[] = {
     &show_vpo, NULL,
     0, {0,1}, dt_number, ss_gen, wad_no,
     "1 to enable VPO warning indicator"
+  },
+
+  {
+    "vpo_threshold",
+    &vpo_threshold, NULL,
+    85, {1, 128}, dt_number, ss_gen, wad_no,
+    "VPO warning indicator threshold"
   },
 
   { // killough 10/98
@@ -409,14 +416,15 @@ default_t defaults[] = {
     1, {0,1}, dt_number, ss_stat, wad_yes,
     "1 to disable doubled card and skull key display on status bar"
   },
-/*
+
+  // haleyjd 05/16/04: restored (see mn_menus.c); changed def. to 0
   { // killough 4/17/98
     "traditional_menu",
     &traditional_menu, NULL,
-    1, {0,1}, dt_number, ss_none, wad_yes,
-    "1 to use Doom's main menu ordering"
-  },
-*/
+    0, {0,1}, dt_number, ss_none, wad_yes,
+    "1 to emulate DOOM's main menu"
+  },   // Reserved TIDs 
+
   { // killough 3/6/98
     "leds_always_off",
     &leds_always_off, NULL,
@@ -448,7 +456,13 @@ default_t defaults[] = {
   {
     "music_volume",
     &snd_MusicVolume, NULL,
-    8, {0,15}, dt_number, ss_none, wad_no,
+    8, 
+#ifdef DJGPP
+    {0,15}, // haleyjd: range is different for SDL
+#else
+    {0,16},
+#endif
+    dt_number, ss_none, wad_no,
     "adjust music volume"
   },
 
@@ -730,54 +744,6 @@ default_t defaults[] = {
   // would be bad, but to do it in real time would be hard. This is
   // a compromise.
 
-  { // phares 3/7/98
-    "key_menu_right",
-    &key_menu_right, NULL,
-    KEYD_RIGHTARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to move right in a menu"
-  },
-  {
-    "key_menu_left",
-    &key_menu_left, NULL,
-    KEYD_LEFTARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to move left in a menu"
-  },
-
-  {
-    "key_menu_up",
-    &key_menu_up, NULL,
-    KEYD_UPARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to move up in a menu"
-  },
-
-  {
-    "key_menu_down",
-    &key_menu_down, NULL,
-    KEYD_DOWNARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to move down in a menu"
-  },
-
-  {
-    "key_menu_backspace",
-    &key_menu_backspace, NULL,
-    KEYD_BACKSPACE, {0,255}, dt_number, ss_keys, wad_no,
-    "key to erase last character typed in a menu"
-  },
-
-  {
-    "key_menu_escape",
-    &key_menu_escape, NULL,
-    KEYD_ESCAPE, {0,255}, dt_number, ss_keys, wad_no,
-    "key to leave a menu"
-  }, // phares 3/7/98
-
-  {
-    "key_menu_enter",
-    &key_menu_enter, NULL,
-    KEYD_ENTER, {0,255}, dt_number, ss_keys, wad_no,
-    "key to select from menu or review past messages"
-  },
-
   {
     "key_spy",
     &key_spy, NULL,
@@ -817,91 +783,7 @@ default_t defaults[] = {
     "key_enter",
     &key_enter, NULL,
     KEYD_ENTER, {0,255}, dt_number, ss_keys, wad_no,
-    "key to select from menu or review past messages"
-  },
-
-  {
-    "key_map",
-    &key_map, NULL,
-    KEYD_TAB, {0,255}, dt_number, ss_keys, wad_no,
-    "key to toggle automap display"
-  },
-
-  { // phares 3/7/98
-    "key_map_right",
-    &key_map_right, NULL,
-    KEYD_RIGHTARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to shift automap right"
-  },
-
-  {
-    "key_map_left",
-    &key_map_left, NULL,
-    KEYD_LEFTARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to shift automap left"
-  },
-
-  {
-    "key_map_up",
-    &key_map_up, NULL,
-    KEYD_UPARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to shift automap up"
-  },
-
-  {
-    "key_map_down",
-    &key_map_down, NULL,
-    KEYD_DOWNARROW, {0,255}, dt_number, ss_keys, wad_no,
-    "key to shift automap down"
-  },
-
-  {
-    "key_map_zoomin",
-    &key_map_zoomin, NULL,
-    '=', {0,255}, dt_number, ss_keys, wad_no,
-    "key to enlarge automap"
-  },
-
-  {
-    "key_map_zoomout",
-    &key_map_zoomout, NULL,
-    '-', {0,255}, dt_number, ss_keys, wad_no,
-    "key to reduce automap"
-  },
-
-  {
-    "key_map_gobig",
-    &key_map_gobig, NULL,
-    '0', {0,255}, dt_number, ss_keys, wad_no,
-    "key to get max zoom for automap"
-  },
-
-  {
-    "key_map_follow",
-    &key_map_follow, NULL,
-    'f', {0,255}, dt_number, ss_keys, wad_no,
-    "key to toggle scrolling/moving with automap"
-  },
-
-  {
-    "key_map_mark",
-    &key_map_mark, NULL,
-    'm', {0,255}, dt_number, ss_keys, wad_no,
-    "key to drop a marker on automap"
-  },
-
-  {
-    "key_map_clear",
-    &key_map_clear, NULL,
-    'c', {0,255}, dt_number, ss_keys, wad_no,
-    "key to clear all markers on automap"
-  },
-
-  {
-    "key_map_grid",
-    &key_map_grid, NULL,
-    'g', {0,255}, dt_number, ss_keys, wad_no,
-    "key to toggle grid display over automap"
+    "key to review past messages"
   },
 
   {
@@ -932,20 +814,6 @@ default_t defaults[] = {
     "key to chat with player 4"
   },
 
-  { // killough 2/22/98: screenshot key
-    "key_screenshot",
-    &key_screenshot, NULL,
-    '*', {0,255}, dt_number, ss_keys, wad_no,
-    "key to take a screenshot (devparm independent)"
-  },
-
-  { // HOME key  // killough 10/98: shortcut to setup menu
-    "key_setup",
-    &key_setup, NULL,
-    199, {0,255}, dt_number, ss_keys, wad_no,
-    "shortcut key to enter setup menu"
-  },
-
   {
     "automlook",
     &automlook, NULL,
@@ -968,20 +836,19 @@ default_t defaults[] = {
   },
 
   {
+    "screenshot_gamma",
+    &screenshot_gamma, NULL,
+    1, {0,1}, dt_number, ss_gen, wad_no,
+    "1 to use gamma correction in screenshots"
+  },
+
+  {
     "use_mouse",
     &usemouse, NULL,
     1, {0,1}, dt_number, ss_gen, wad_no,
     "1 to enable use of mouse"
   },
-/*
-  haleyjd: obsolete
-  { //jff 3/8/98 allow -1 in mouse bindings to disable mouse function
-    "mouseb_fire",
-    &mousebfire, NULL,
-    0, {-1,2}, dt_number, ss_keys, wad_no,
-    "mouse button dt_number to use for fire (-1 = disable)"
-  },
-*/
+
   // haleyjd: rename these buttons on the user-side to prevent
   // confusion
   {
@@ -1004,36 +871,7 @@ default_t defaults[] = {
     0, {0,1}, dt_number, ss_gen, wad_no,
     "1 to enable use of joystick"
   },
-/*
-  haleyjd: joyb* variables are obsolete
-  {
-    "joyb_fire",
-    &joybfire, NULL,
-    0, {0,UL}, dt_number, ss_keys, wad_no,
-    "joystick button number to use for fire"
-  },
 
-  {
-    "joyb_strafe",
-    &joybstrafe, NULL,
-    1, {0,UL}, 0, ss_keys, wad_no,
-    "joystick button number to use for strafing"
-  },
-
-  {
-    "joyb_speed",
-    &joybspeed, NULL,
-    2, {0,UL}, 0, ss_keys, wad_no,
-    "joystick button number to use for running"
-  },
-
-  {
-    "joyb_use",
-    &joybuse, NULL,
-    3, {0,UL}, 0, ss_keys, wad_no,
-    "joystick button number to use for use/open"
-  },
-*/
   { // killough
     "snd_channels",
     &default_numChannels, NULL,
@@ -1332,7 +1170,7 @@ default_t defaults[] = {
   {     //sf : fullscreen hud style
     "hud_overlaystyle",
     &hud_overlaystyle, NULL,
-    1, {0,3}, 0, ss_mess, wad_yes,
+    1, {0,4}, 0, ss_mess, wad_yes,
     "fullscreen hud style"
   },
 
@@ -1571,7 +1409,23 @@ default_t defaults[] = {
     "startnewmap",
     &startOnNewMap, NULL,
     0, {0,1}, dt_number, ss_none, wad_yes,
-    "start game on first new map"
+    "start game on first new map (DOOM II only)"
+  },
+
+#ifdef _SDL_VER
+  {
+    "wait_at_exit",
+    &waitAtExit, NULL,
+    1, {0,1}, dt_number, ss_none, wad_no,
+    "wait for input at exit (allows viewing error messages)"
+  },
+#endif
+
+  {
+    "autoaim",
+    &default_autoaim, &autoaim,
+    1, {0, 1}, dt_number, ss_none, wad_yes,
+    "1 to enable autoaiming"
   },
 
   {NULL}         // last entry
@@ -1627,7 +1481,7 @@ void M_SaveDefaults (void)
 {
    char tmpfile[PATH_MAX+1];
    register default_t *dp;
-   int line, blanks;
+   unsigned int line, blanks;
    FILE *f;
 
    // killough 10/98: for when exiting early
@@ -1963,17 +1817,10 @@ void M_LoadDefaults (void)
 }
 
 //
-// M_DrawText
-// Returns the final X coordinate
-// HU_Init must have been called to init the font
-//
-// sf: removed as it wasnt being used
-
-//
 // M_WriteFile
 //
 // killough 9/98: rewritten to use stdio and to flash disk icon
-
+//
 boolean M_WriteFile(char const *name, void *source, int length)
 {
    FILE *fp;
@@ -2069,57 +1916,69 @@ typedef struct
 boolean WritePCXfile(char *filename, byte *data, int width,
                      int height, byte *palette)
 {
-  int    i;
-  int    length;
-  pcx_t* pcx;
-  byte*  pack;
-  boolean success;      // killough 10/98
+   int    i;
+   int    length;
+   pcx_t* pcx;
+   byte*  pack;
+   boolean success;      // killough 10/98
+   
+   pcx = Z_Malloc(width*height*2+1000, PU_STATIC, NULL);
 
-  pcx = Z_Malloc(width*height*2+1000, PU_STATIC, NULL);
+   pcx->manufacturer   = 0x0a; // PCX id
+   pcx->version        = 5;    // 256 color
+   pcx->encoding       = 1;    // uncompressed
+   pcx->bits_per_pixel = 8;    // 256 color
+   pcx->xmin = 0;
+   pcx->ymin = 0;
+   pcx->xmax = SHORT((short)(width-1));
+   pcx->ymax = SHORT((short)(height-1));
+   pcx->hres = SHORT((short)width);
+   pcx->vres = SHORT((short)height);
+   memset(pcx->palette, 0, sizeof(pcx->palette));
+   pcx->color_planes   = 1;        // chunky image
+   pcx->bytes_per_line = SHORT((short)width);
+   pcx->palette_type   = SHORT(2); // not a grey scale
+   memset(pcx->filler, 0, sizeof(pcx->filler));
 
-  pcx->manufacturer = 0x0a; // PCX id
-  pcx->version = 5;         // 256 color
-  pcx->encoding = 1;        // uncompressed
-  pcx->bits_per_pixel = 8;  // 256 color
-  pcx->xmin = 0;
-  pcx->ymin = 0;
-  pcx->xmax = SHORT((short)(width-1));
-  pcx->ymax = SHORT((short)(height-1));
-  pcx->hres = SHORT((short)width);
-  pcx->vres = SHORT((short)height);
-  memset(pcx->palette,0,sizeof(pcx->palette));
-  pcx->color_planes = 1;        // chunky image
-  pcx->bytes_per_line = SHORT((short)width);
-  pcx->palette_type = SHORT(2); // not a grey scale
-  memset (pcx->filler,0,sizeof(pcx->filler));
+   // pack the image
+   
+   pack = &pcx->data;
 
-  // pack the image
-
-  pack = &pcx->data;
-
-  for (i = 0 ; i < width*height ; i++)
-    if ( (*data & 0xc0) != 0xc0)
-      *pack++ = *data++;
-    else
+   for(i = 0; i < width*height; ++i)
+   {
+      if((*data & 0xc0) != 0xc0)
+         *pack++ = *data++;
+      else
       {
-        *pack++ = 0xc1;
-        *pack++ = *data++;
+         *pack++ = 0xc1;
+         *pack++ = *data++;
       }
+   }
 
-  // write the palette
+   // write the palette
+   
+   *pack++ = 0x0c; // palette ID byte
 
-  *pack++ = 0x0c; // palette ID byte
-  for (i = 0 ; i < 768 ; i++)
-    *pack++ = gammatable[usegamma][*palette++];   // killough
+   // haleyjd 11/16/04: make gamma correction optional
+   if(screenshot_gamma)
+   {
+      for(i = 0; i < 768; ++i)
+         *pack++ = gammatable[usegamma][*palette++];   // killough
+   }
+   else
+   {
+      for(i = 0; i < 768; ++i)
+         *pack++ = *palette++;
+   }
 
-  // write output file
-
-  length = pack - (byte *)pcx;
-  success = M_WriteFile (filename, pcx, length);  // killough 10/98
-
-  Z_Free (pcx);
-
-  return success;    // killough 10/98
+   // write output file
+   
+   length = pack - (byte *)pcx;
+   success = M_WriteFile(filename, pcx, length);  // killough 10/98
+   
+   Z_Free(pcx);
+   
+   return success;    // killough 10/98
 }
 
 
@@ -2128,17 +1987,17 @@ boolean WritePCXfile(char *filename, byte *data, int width,
 // killough 5/2/98:
 // Changed type names to avoid conflicts with endianess functions
 
-// SoM 6/5/02: Chu-Chu-Chu-Chu-Chu-Changes... heh
-#ifdef _MSC_VER
-#pragma pack(1)
-#endif
-
 #define BI_RGB 0L
 
 typedef unsigned short uint_t;
 typedef unsigned long dword_t;
 typedef long     long_t;
 typedef unsigned char ubyte_t;
+
+// SoM 6/5/02: Chu-Chu-Chu-Chu-Chu-Changes... heh
+#ifdef _MSC_VER
+#pragma pack(1)
+#endif
 
 typedef struct tagBITMAPFILEHEADER
 {
@@ -2183,78 +2042,97 @@ typedef struct tagBITMAPINFOHEADER
 boolean WriteBMPfile(char *filename, byte *data, int width,
                      int height, byte *palette)
 {
-  int i,wid;
-  BITMAPFILEHEADER bmfh;
-  BITMAPINFOHEADER bmih;
-  int fhsiz,ihsiz;
-  FILE *st;
-  char zero=0;
-  ubyte_t c;
+   int i, wid;
+   BITMAPFILEHEADER bmfh;
+   BITMAPINFOHEADER bmih;
+   int fhsiz, ihsiz;
+   FILE *st;
+   char zero = 0;
+   ubyte_t c;
+   
+   I_BeginRead();              // killough 10/98
 
-  I_BeginRead();              // killough 10/98
+   fhsiz = sizeof(BITMAPFILEHEADER);
+   ihsiz = sizeof(BITMAPINFOHEADER);
+   wid = 4*((width+3)/4);
+   //jff 4/22/98 add endian macros
+   bmfh.bfType = SHORT(19778);
+   bmfh.bfSize = LONG(fhsiz+ihsiz+256L*4+width*height);
+   bmfh.bfReserved1 = SHORT(0);
+   bmfh.bfReserved2 = SHORT(0);
+   bmfh.bfOffBits   = LONG(fhsiz+ihsiz+256L*4);
 
-  fhsiz = sizeof(BITMAPFILEHEADER);
-  ihsiz = sizeof(BITMAPINFOHEADER);
-  wid = 4*((width+3)/4);
-  //jff 4/22/98 add endian macros
-  bmfh.bfType = SHORT(19778);
-  bmfh.bfSize = LONG(fhsiz+ihsiz+256L*4+width*height);
-  bmfh.bfReserved1 = SHORT(0);
-  bmfh.bfReserved2 = SHORT(0);
-  bmfh.bfOffBits = LONG(fhsiz+ihsiz+256L*4);
+   bmih.biSize   = LONG(ihsiz);
+   bmih.biWidth  = LONG(width);
+   bmih.biHeight = LONG(height);
+   bmih.biPlanes   = SHORT(1);
+   bmih.biBitCount = SHORT(8);
+   bmih.biCompression = LONG(BI_RGB);
+   bmih.biSizeImage   = LONG(wid*height);
+   bmih.biXPelsPerMeter = LONG(0);
+   bmih.biYPelsPerMeter = LONG(0);
+   bmih.biClrUsed      = LONG(256);
+   bmih.biClrImportant = LONG(256);
 
-  bmih.biSize = LONG(ihsiz);
-  bmih.biWidth = LONG(width);
-  bmih.biHeight = LONG(height);
-  bmih.biPlanes = SHORT(1);
-  bmih.biBitCount = SHORT(8);
-  bmih.biCompression = LONG(BI_RGB);
-  bmih.biSizeImage = LONG(wid*height);
-  bmih.biXPelsPerMeter = LONG(0);
-  bmih.biYPelsPerMeter = LONG(0);
-  bmih.biClrUsed = LONG(256);
-  bmih.biClrImportant = LONG(256);
+   st = fopen(filename, "wb");
 
-  st = fopen(filename,"wb");
-  if (st!=NULL)
-    {
+   if(st != NULL)
+   {
       // write the header
-      SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
-      SafeWrite(&bmfh.bfSize,sizeof(bmfh.bfSize),1,st);
-      SafeWrite(&bmfh.bfReserved1,sizeof(bmfh.bfReserved1),1,st);
-      SafeWrite(&bmfh.bfReserved2,sizeof(bmfh.bfReserved2),1,st);
-      SafeWrite(&bmfh.bfOffBits,sizeof(bmfh.bfOffBits),1,st);
+      SafeWrite(&bmfh.bfType, sizeof(bmfh.bfType), 1, st);
+      SafeWrite(&bmfh.bfSize, sizeof(bmfh.bfSize), 1, st);
+      SafeWrite(&bmfh.bfReserved1, sizeof(bmfh.bfReserved1), 1, st);
+      SafeWrite(&bmfh.bfReserved2, sizeof(bmfh.bfReserved2), 1, st);
+      SafeWrite(&bmfh.bfOffBits, sizeof(bmfh.bfOffBits), 1, st);
+      
+      SafeWrite(&bmih.biSize, sizeof(bmih.biSize), 1, st);
+      SafeWrite(&bmih.biWidth, sizeof(bmih.biWidth), 1, st);
+      SafeWrite(&bmih.biHeight, sizeof(bmih.biHeight), 1, st);
+      SafeWrite(&bmih.biPlanes, sizeof(bmih.biPlanes), 1, st);
+      SafeWrite(&bmih.biBitCount, sizeof(bmih.biBitCount), 1, st);
+      SafeWrite(&bmih.biCompression, sizeof(bmih.biCompression), 1, st);
+      SafeWrite(&bmih.biSizeImage, sizeof(bmih.biSizeImage), 1, st);
+      SafeWrite(&bmih.biXPelsPerMeter, sizeof(bmih.biXPelsPerMeter), 1, st);
+      SafeWrite(&bmih.biYPelsPerMeter, sizeof(bmih.biYPelsPerMeter), 1, st);
+      SafeWrite(&bmih.biClrUsed, sizeof(bmih.biClrUsed), 1, st);
+      SafeWrite(&bmih.biClrImportant, sizeof(bmih.biClrImportant), 1, st);
 
-      SafeWrite(&bmih.biSize,sizeof(bmih.biSize),1,st);
-      SafeWrite(&bmih.biWidth,sizeof(bmih.biWidth),1,st);
-      SafeWrite(&bmih.biHeight,sizeof(bmih.biHeight),1,st);
-      SafeWrite(&bmih.biPlanes,sizeof(bmih.biPlanes),1,st);
-      SafeWrite(&bmih.biBitCount,sizeof(bmih.biBitCount),1,st);
-      SafeWrite(&bmih.biCompression,sizeof(bmih.biCompression),1,st);
-      SafeWrite(&bmih.biSizeImage,sizeof(bmih.biSizeImage),1,st);
-      SafeWrite(&bmih.biXPelsPerMeter,sizeof(bmih.biXPelsPerMeter),1,st);
-      SafeWrite(&bmih.biYPelsPerMeter,sizeof(bmih.biYPelsPerMeter),1,st);
-      SafeWrite(&bmih.biClrUsed,sizeof(bmih.biClrUsed),1,st);
-      SafeWrite(&bmih.biClrImportant,sizeof(bmih.biClrImportant),1,st);
-
-      // write the palette, in blue-green-red order, gamma corrected
-      for (i=0;i<768;i+=3)
+      // haleyjd 11/16/04: make gamma correction optional
+      if(screenshot_gamma)
       {
-         c=gammatable[usegamma][palette[i+2]];
-         SafeWrite(&c,sizeof(char),1,st);
-         c=gammatable[usegamma][palette[i+1]];
-         SafeWrite(&c,sizeof(char),1,st);
-         c=gammatable[usegamma][palette[i+0]];
-         SafeWrite(&c,sizeof(char),1,st);
-         SafeWrite(&zero,sizeof(char),1,st);
+         // write the palette, in blue-green-red order, gamma corrected
+         for(i = 0; i < 768; i += 3)
+         {
+            c = gammatable[usegamma][palette[i+2]];
+            SafeWrite(&c, sizeof(char), 1, st);
+            c = gammatable[usegamma][palette[i+1]];
+            SafeWrite(&c,sizeof(char),1,st);
+            c = gammatable[usegamma][palette[i+0]];
+            SafeWrite(&c, sizeof(char), 1, st);
+            SafeWrite(&zero, sizeof(char), 1, st);
+         }
+      }
+      else
+      {
+         for(i = 0; i < 768; i += 3)
+         {
+            c = palette[i+2];
+            SafeWrite(&c, sizeof(char), 1, st);
+            c = palette[i+1];
+            SafeWrite(&c, sizeof(char), 1, st);
+            c = palette[i+0];
+            SafeWrite(&c, sizeof(char), 1, st);
+            SafeWrite(&zero, sizeof(char), 1, st);
+         }
       }
 
-      for (i = 0 ; i < height ; i++)
-         SafeWrite(data+(height-1-i)*width,sizeof(byte),wid,st);
+      for(i = 0; i < height; ++i)
+         SafeWrite(data + (height-1-i)*width, sizeof(byte), wid, st);
 
       fclose(st);
-    }
-  return I_EndRead(), true;       // killough 10/98
+   }
+
+   return I_EndRead(), true; // killough 10/98
 }
 
 //
@@ -2267,34 +2145,33 @@ boolean WriteBMPfile(char *filename, byte *data, int width,
 
 void M_ScreenShot (void)
 {
-  boolean success = false;
-
-  errno = 0;
-
-  // haleyjd 05/23/02: corrected uses of access to use defined
-  // constants rather than integers, some of which were not even
-  // correct under DJGPP to begin with (its a wonder it worked...)
-  if (!access(".", W_OK))
-  {
+   boolean success = false;
+   
+   errno = 0;
+   
+   // haleyjd 05/23/02: corrected uses of access to use defined
+   // constants rather than integers, some of which were not even
+   // correct under DJGPP to begin with (its a wonder it worked...)
+   if(!access(".", W_OK))
+   {
       static int shot;
       char lbmname[PATH_MAX+1];
       int tries = 10000;
-
-      // sf: changed to smmu from doom
-      // haleyjd: changed to etrn
+      
+      // haleyjd: changed prefix to etrn
       do
-        sprintf(lbmname,                         //jff 3/30/98 pcx or bmp?
-                screenshot_pcx ? "etrn%02d.pcx" : "etrn%02d.bmp", shot++);
-      while (!access(lbmname, F_OK) && --tries);
+         sprintf(lbmname,                         //jff 3/30/98 pcx or bmp?
+                 screenshot_pcx ? "etrn%02d.pcx" : "etrn%02d.bmp", shot++);
+      while(!access(lbmname, F_OK) && --tries);
 
-      if (tries)
+      if(tries)
       {
          // killough 4/18/98: make palette stay around
          // (PU_CACHE could cause crash)
-
+         
          byte *pal = W_CacheLumpName ("PLAYPAL", PU_STATIC);
          byte *linear = screens[2];
-
+         
          I_ReadScreen(linear);
 
          // save the pcx file
@@ -2303,7 +2180,7 @@ void M_ScreenShot (void)
          // killough 10/98: detect failure and remove file if error
          // SoM: ANYRES
          if(!(success = (screenshot_pcx ? WritePCXfile : WriteBMPfile)
-            (lbmname,linear, v_width, v_height,pal)))
+            (lbmname, linear, v_width, v_height, pal)))
          {
             int t = errno;
             remove(lbmname);
@@ -2313,16 +2190,16 @@ void M_ScreenShot (void)
          // killough 4/18/98: now you can mark it PU_CACHE
          Z_ChangeTag(pal, PU_CACHE);
       }
-  }
+   }
 
-  // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
-  // players[consoleplayer].message = "screen shot"
-
-  // killough 10/98: print error message and change sound effect if error
-  S_StartSound(NULL, !success ? doom_printf(errno ? strerror(errno) :
-                                            FC_ERROR"Could not take screenshot"), sfx_oof :
-               gameModeInfo->c_BellSound);  // just tink, no radio
-                                            // tink is in doom2 too
+   // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
+   // players[consoleplayer].message = "screen shot"
+   
+   // killough 10/98: print error message and change sound effect if error
+   S_StartSound(NULL, !success ? doom_printf(errno ? strerror(errno) :
+                                             FC_ERROR"Could not take screenshot"), sfx_oof :
+                gameModeInfo->c_BellSound);  // just tink, no radio
+                                             // tink is in doom2 too
 }
 
 // haleyjd: portable strupr function

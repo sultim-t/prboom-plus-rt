@@ -1,6 +1,6 @@
 /*  Core module for the Small AMX
  *
- *  Copyright (c) ITB CompuPhase, 1997-2003
+ *  Copyright (c) ITB CompuPhase, 1997-2004
  *
  *  This software is provided "as-is", without any express or implied warranty.
  *  In no event will the authors be held liable for any damages arising from
@@ -18,8 +18,17 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: Amxcore.c,v 1.26 2003-12-30 12:21:56+01 thiadmer Exp thiadmer $
+ *  Version: $Id: Amxcore.c,v 1.31 2004-07-27 18:30:43+02 thiadmer Exp thiadmer $
  */
+#if defined _UNICODE || defined __UNICODE__ || defined UNICODE
+# if !defined UNICODE   /* for Windows */
+#   define UNICODE
+# endif
+# if !defined _UNICODE  /* for C library */
+#   define _UNICODE
+# endif
+#endif
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +43,19 @@
 #if !defined SN_TARGET_PS2 && !defined _WIN32_WCE
   #include <time.h>
 #endif
+
+#if defined _UNICODE
+# include <tchar.h>
+#elif !defined __T
+  typedef char          TCHAR;
+# define __T(string)    string
+# define _tcschr        strchr
+# define _tcscpy        strcpy
+# define _tcsdup        strdup
+# define _tcslen        strlen
+# define _stprintf      sprintf
+#endif
+
 
 #define CHARBITS        (8*sizeof(char))
 typedef unsigned char   uchar;
@@ -123,7 +145,7 @@ static cell AMX_NATIVE_CALL numargs(AMX *amx, cell *params)
   cell bytes;
 
   hdr=(AMX_HEADER *)amx->base;
-  data=amx->base+(int)hdr->dat;
+  data=amx->data ? amx->data : amx->base+(int)hdr->dat;
   /* the number of bytes is on the stack, at "frm + 2*cell" */
   bytes= * (cell *)(data+(int)amx->frm+2*sizeof(cell));
   /* the number of arguments is the number of bytes divided
@@ -138,7 +160,7 @@ static cell AMX_NATIVE_CALL getarg(AMX *amx, cell *params)
   cell value;
 
   hdr=(AMX_HEADER *)amx->base;
-  data=amx->base+(int)hdr->dat;
+  data=amx->data ? amx->data : amx->base+(int)hdr->dat;
   /* get the base value */
   value= * (cell *)(data+(int)amx->frm+((int)params[1]+3)*sizeof(cell));
   /* adjust the address in "value" in case of an array access */
@@ -155,7 +177,7 @@ static cell AMX_NATIVE_CALL setarg(AMX *amx, cell *params)
   cell value;
 
   hdr=(AMX_HEADER *)amx->base;
-  data=amx->base+(int)hdr->dat;
+  data=amx->data ? amx->data : amx->base+(int)hdr->dat;
   /* get the base value */
   value= * (cell *)(data+(int)amx->frm+((int)params[1]+3)*sizeof(cell));
   /* adjust the address in "value" in case of an array access */
@@ -191,7 +213,7 @@ static cell AMX_NATIVE_CALL funcidx(AMX *amx,cell *params)
     return 0;
   } /* if */
 
-  amx_GetString(name,cstr);
+  amx_GetString(name,cstr,0);
   err=amx_FindPublic(amx,name,&index);
   if (err!=AMX_ERR_NONE)
     index=-1;   /* this is not considered a fatal error */
@@ -203,7 +225,7 @@ int amx_StrPack(cell *dest,cell *source)
   int len;
 
   amx_StrLen(source,&len);
-  if ((ucell)*source>UCHAR_MAX) {
+  if ((ucell)*source>UNPACKEDMAX) {
     /* source string is already packed */
     while (len >= 0) {
       *dest++ = *source++;
@@ -231,7 +253,7 @@ int amx_StrPack(cell *dest,cell *source)
 
 int amx_StrUnpack(cell *dest,cell *source)
 {
-  if ((ucell)*source>UCHAR_MAX) {
+  if ((ucell)*source>UNPACKEDMAX) {
     /* unpack string, from top down (so string can be unpacked in place) */
     cell c;
     int i,len;
@@ -322,27 +344,46 @@ static cell AMX_NATIVE_CALL swapchars(AMX *amx,cell *params)
 {
   union {
     cell c;
-    #if defined BIT16
+    #if SMALL_CELL_SIZE==16
       uchar b[2];
-    #else
+    #elif SMALL_CELL_SIZE==32
       uchar b[4];
+    #elif SMALL_CELL_SIZE==64
+      uchar b[8];
+	#else
+	  #error Unsupported cell size
     #endif
   } value;
   uchar t;
 
   assert((size_t)params[0]==sizeof(cell));
   value.c = params[1];
-  #if defined BIT16
+  #if SMALL_CELL_SIZE==16
     t = value.b[0];
     value.b[0] = value.b[1];
     value.b[1] = t;
-  #else
+  #elif SMALL_CELL_SIZE==32
     t = value.b[0];
     value.b[0] = value.b[3];
     value.b[3] = t;
     t = value.b[1];
     value.b[1] = value.b[2];
     value.b[2] = t;
+  #elif SMALL_CELL_SIZE==64
+    t = value.b[0];
+    value.b[0] = value.b[7];
+    value.b[7] = t;
+	t = value.b[1];
+	value.b[1] = value.b[6];
+	value.b[6] = t;
+	t = value.b[2];
+	value.b[2] = value.b[5];
+	value.b[5] = t;
+	t = value.b[3];
+    value.b[3] = value.b[4];
+    value.b[4] = t;
+  #else
+    #error Unsupported cell size
   #endif
   return value.c;
 }
@@ -411,7 +452,7 @@ static char *MakePackedString(cell *cptr)
 
   amx_StrLen(cptr,&len);
   dest=(char *)malloc(len+sizeof(cell));
-  amx_GetString(dest,cptr);
+  amx_GetString(dest,cptr,0);
   return dest;
 }
 
@@ -432,7 +473,7 @@ static cell AMX_NATIVE_CALL getproperty(AMX *amx,cell *params)
       return 0;
     } /* if */
     amx_GetAddr(amx,params[4],&cstr);
-    amx_SetString(cstr,item->name,1);
+    amx_SetString(cstr,item->name,1,0);
   } /* if */
   free(name);
   return (item!=NULL) ? item->value : 0;
@@ -533,6 +574,9 @@ static cell AMX_NATIVE_CALL core_random(AMX *amx,cell *params)
 }
 
 
+#if defined __cplusplus
+  extern "C"
+#endif
 AMX_NATIVE_INFO core_Natives[] = {
   { "numargs",       numargs },
   { "getarg",        getarg },

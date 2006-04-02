@@ -45,31 +45,20 @@ int skyflatnum;
 int sky2flatnum;  // haleyjd: number of F_SKY2 flat for Hexen-style skies
 int skytexture;
 int sky2texture;
-int skytexturemid;
 int stretchsky;
 
 fixed_t Sky1ColumnOffset, Sky2ColumnOffset;
 
 //
-// R_InitSkyMap
-// Called whenever the view size changes.
-//
-void R_InitSkyMap(void)
-{
-   skytexturemid = 100*FRACUNIT;
-}
-
-//
-// R_InitSkyMap
+// R_StartSky
 //
 // Called when the level starts to load the appropriate sky.
 //
 void R_StartSky(void)
-{  
-   char *texturename  = 0;
-   char *texture2name = 0;
-   
+{
    Sky1ColumnOffset = Sky2ColumnOffset = 0;
+
+   // haleyjd 07/18/04: init moved to MapInfo
   
    // Set the sky map.
    // First thing, we have a dummy sky texture name,
@@ -77,92 +66,23 @@ void R_StartSky(void)
    //  we look for an actual index, instead of simply
    //  setting one.
 
-   skyflatnum = R_FlatNumForName(SKYFLATNAME);
-   
+   skyflatnum  = R_FlatNumForName(SKYFLATNAME);   
    sky2flatnum = R_FlatNumForName(SKY2FLATNAME); // haleyjd
-
-   // DOOM determines the sky texture to be used
-   // depending on the current episode, and the game version.
-   if(gamemode == commercial)
-      // || gamemode == pack_tnt   //jff 3/27/98 sorry guys pack_tnt,pack_plut
-      // || gamemode == pack_plut) //aren't gamemodes, this was matching retail
-   {
-      texturename = "SKY3";
-      if(gamemap < 12)       // haleyjd 12/04/02: fixed back to 12
-         texturename = "SKY1";
-      else if(gamemap < 21) 
-         texturename = "SKY2";
-   }
-   else if(gameModeInfo->flags & GIF_HERETIC)
-   {
-      // haleyjd: heretic skies
-      switch(gameepisode)
-      {
-      case 1:
-         texturename = "SKY1";
-         break;
-      case 2:
-         texturename = "SKY2";
-         break;
-      case 3:
-         texturename = "SKY3";
-         break;
-      case 4:
-         texturename = "SKY1";
-         break;
-      case 5:
-         texturename = "SKY3";
-         break;
-      default: // haleyjd: episode 6, and default to avoid NULL
-         texturename = "SKY1";
-         break;
-      }
-   }
-   else //jff 3/27/98 and lets not forget about DOOM and Ultimate DOOM huh?
-   {
-      switch(gameepisode)
-      {
-      case 1:
-         texturename = "SKY1";
-         break;
-      case 2:
-         texturename = "SKY2";
-         break;
-      case 3:
-         texturename = "SKY3";
-         break;
-      case 4:  // Special Edition sky
-      default: // haleyjd: don't let sky name end up NULL
-         texturename = "SKY4";
-         break;
-      }//jff 3/27/98 end sky setting fix
-   }
-
-   if(*info_skyname)
-      texturename = info_skyname;
 
    // haleyjd 01/22/04: added error checking
    
-   skytexture = R_TextureNumForName(texturename);
-   if(skytexture == -1)
-      I_Error("R_StartSky: bad sky texture '%s'\n", texturename);
-   
-   // haleyjd: initialize sky 2  
-   if(*info_sky2name)
-      texture2name = info_sky2name;
-   else
-      texture2name = texturename; // duplicate normal sky if none set
-   
-   sky2texture = R_TextureNumForName(texture2name);
-   if(sky2texture == -1)
-      I_Error("R_StartSky: bad sky2 texture '%s'\n", texture2name);
+   if((skytexture = R_TextureNumForName(LevelInfo.skyName)) == -1)
+      I_Error("R_StartSky: bad sky texture '%s'\n", LevelInfo.skyName);
+      
+   if((sky2texture = R_TextureNumForName(LevelInfo.sky2Name)) == -1)
+      I_Error("R_StartSky: bad sky2 texture '%s'\n", LevelInfo.sky2Name);
 }
 
 //
 // Sky texture information hash table stuff
 // haleyjd 08/30/02: I need to store information about sky textures
 // for use in the renderer, because each sky texture must be
-// rendered differently depending on its size
+// rendered differently depending on its size.
 //
 
 // the sky texture hash table
@@ -182,9 +102,9 @@ static skytexture_t *R_AddSkyTexture(int texturenum)
    patch_t wpatch;
    int i, count, p_height, key, t_height;
 
-   count = textures[texturenum]->patchcount;   
+   count = textures[texturenum]->patchcount;
 
-   texpatch = &textures[texturenum]->patches[0];
+   texpatch = &(textures[texturenum]->patches[0]);
 
    // 02/11/04: get height of texture
    t_height = textures[texturenum]->height;
@@ -251,14 +171,7 @@ skytexture_t *R_GetSkyTexture(int texturenum)
       }
    }
 
-   if(target)
-   {
-      return target;
-   }
-   else
-   {
-      return R_AddSkyTexture(texturenum);
-   }
+   return target ? target : R_AddSkyTexture(texturenum);
 }
 
 //
@@ -271,7 +184,7 @@ void R_ClearSkyTextures(void)
 {
    int i;
 
-   for(i = 0; i < NUMSKYCHAINS; i++)
+   for(i = 0; i < NUMSKYCHAINS; ++i)
    {
       if(skytextures[i])
       {

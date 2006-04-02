@@ -108,14 +108,13 @@ static void *getsfx(sfxinfo_t *sfxinfo)
   //  default sound for replacement.
 
   if(sfxlump == -1)
-  {
-     if(gameModeInfo->flags & GIF_HERETIC)
-        sfxlump = W_GetNumForName("gldhit");
-     else
-        sfxlump = W_GetNumForName("dspistol");
-  }
+     sfxlump = W_GetNumForName(gameModeInfo->defSoundName);
 
   size = W_LumpLength(sfxlump);
+
+  // haleyjd 10/08/04: don't play zero-length sound lumps!
+  if(size == 0)
+     return NULL;
   
   sfx = W_CacheLumpNum(sfxlump, PU_STATIC);
 
@@ -231,7 +230,13 @@ int I_StartSound(sfxinfo_t *sound, int cnum, int vol, int sep, int pitch, int pr
   // destroy anything still in the slot
   stop_sample(&channel[handle]);
 
-  if(!sound->data) I_CacheSound(sound);
+  if(!sound->data) 
+     I_CacheSound(sound);
+
+  // haleyjd: I_CacheSound may fail if the lump is zero length
+  // FIXME: this needs to be tested!
+  if(!sound->data)
+     return handle; // pretend we started the sound
 
   // Copy the sound's data into the sound sample slot
   memcpy(&channel[handle], sound->data, sizeof(SAMPLE));

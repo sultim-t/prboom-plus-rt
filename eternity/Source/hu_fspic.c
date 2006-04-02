@@ -155,7 +155,7 @@ void HU_DrawFSPics(void)
 	 continue;
 
       if(rover->translucent)
-	 V_DrawPatchTL(rover->x, rover->y, &vbscreen, rover->data, NULL, 32768);
+	 V_DrawPatchTL(rover->x, rover->y, &vbscreen, rover->data, NULL, FTRANLEVEL);
       else
 	 V_DrawPatch(rover->x, rover->y, &vbscreen, rover->data);
    }

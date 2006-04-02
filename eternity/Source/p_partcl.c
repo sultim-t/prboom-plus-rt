@@ -919,9 +919,9 @@ static void P_ExplosionParticles(mobj_t *actor, int color1, int color2)
       if(!p)
          break;
 
-      p->ttl = 23;
+      p->ttl = 26;
       // fade slower than usual
-      p->fade = FADEFROMTTL(30);
+      p->fade = FADEFROMTTL(26);
       p->trans = 255;
 
       // 2^11 = 2048, 2^12 = 4096

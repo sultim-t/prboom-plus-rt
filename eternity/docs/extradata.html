@@ -1,0 +1,408 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="UltraEdit-32">
+<title>Eternity Engine ExtraData Reference</title>
+</head>
+
+<body bgcolor="#CECECE">
+
+<h3>Eternity Engine ExtraData Reference v1.0 -- 8/20/04</h3>
+
+<a href="../etcengine.html">Return to the Eternity Engine Page</a>
+
+<ul>
+<li><a name="contents"><b>Table of Contents</b></a>
+    <ul>
+    <li><a href="#intro">Introduction to ExtraData</a>
+    <!-- <li><a href="#changes">Changes in ExtraData x.x</a> -->
+    <li><a href="#gensyn">General Syntax</a>
+    <li><a href="#embed">Embedding and Associating ExtraData</a>
+    <li><a href="#mapthings">Mapthings</a>
+        <ul>
+        <li><a href="#mtcreate">Creating ExtraData Control Objects</a>
+        <li><a href="#mtsyntax">Mapthing Syntax and Fields</a>
+        </ul>
+    </ul>
+</ul>
+
+<a name="intro">
+<hr>
+<b>Introduction to ExtraData</b>
+<hr>
+</a>
+<br>
+ExtraData is a new data specification language for the Eternity Engine that allows 
+arbitrary extension of mapthings, lines, and sectors with any number of new fields, 
+with data provided in more or less any format. The use of a textual input language 
+forever removes any future problems caused by binary format limitations. The 
+ExtraData parser is based on the libConfuse configuration file parser library by 
+Martin Hedenfalk, which is also used by GFS and EDF.
+<br><br>
+Each section in this document deals with one of the ExtraData constructs, as well as
+how to embed ExtraData in a WAD and how to associate it with a given map.
+<br><br>
+Plans are in place to steadily introduce more features and functionality to ExtraData 
+in future versions of the Eternity Engine. This documentation will be regularly updated 
+to reflect all changes and additions.
+<br><br>
+<a href="#contents">Return to Table of Contents</a>
+
+<!--
+<p>
+<a name="changes">
+<hr>
+<b>Changes in ExtraData x.x</b>
+<hr>
+</a>
+<br>
+<ul>
+<li> change item here
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+-->
+
+<p>
+<a name="gensyn">
+<hr>
+<b>General Syntax</b>
+<hr>
+</a>
+<br>
+<ul>
+<li> ExtraData is Free-form
+     <br><br>
+     Whitespace and token positioning are totally free-form in ExtraData. In addition, semicolons
+     are discarded as whitespace and can therefore be used to terminate field assignments, lists,
+     etc. as in C or C++. As an example, all of the following are strictly equivalent:
+     <pre>     mapthing { recordnum = 1; }
+     
+     mapthing
+     {
+        recordnum = 1;
+     }
+     
+     mapthing
+                 {
+        recordnum     =
+             1     ;;;;;;
+                     }</pre>
+     
+     Obviously, you are encouraged to use a clean and consistent format, even though
+     it is not required.
+     <br><br>
+     
+<li> Comments
+     <br><br>
+     ExtraData files can use three forms of comments:
+     <ul>
+     <li> # Comments<br>
+          Like in DeHackEd, this comment type extends to the end of the line.
+     <li> // Comments<br>
+          An alternate form of single-line comment, equivalent to #.
+     <li> /* */ Comments<br>
+          This type of comment is multiline, and extends from the opening /* to the first
+          */ found. This type of comment CANNOT be nested. Nested multiline comments will
+          cause a syntax error.          
+     </ul>
+     
+     Examples:
+     <pre>
+     # Single line comment
+     
+     // Another single line comment
+     
+     /*
+     
+        This is a multiline comment
+        
+     */
+     </pre>
+<li> Strings
+     <br><br>
+     Some fields in ExtraData may take strings. Strings, if they do not contain whitespace or 
+     any character that needs to be escaped, may be unquoted. Unquoted strings additionally
+     cannot contain any of the following characters: " ' = { } ( ) + , # / ;<br>
+     If any of those characters are found, the unquoted string will be terminated at the
+     last valid character.
+     <br><br>
+     Other fields more or less require quoted strings. Quoted strings must start and end
+     with either single or double quotes (the beginning and ending quote types must match,
+     as well). Quoted strings may contain any character except a line break, including those 
+     not allowed in unquoted strings. In addition, quoted strings also support the following 
+     escape codes for non-typable characters:
+     <br><br>
+     <ul>
+     <li> \n : Hard line break
+     <li> \t : Tab
+     <li> \b : Backspace
+     <li> \a : Beep (causes a sound when printed to the console)
+     <li> \\ : Literal \ character.
+     <li> \" : Literal ", necessary to use in double-quoted strings only
+     <li> \' : Literal ', necessary to use in single-quoted strings only
+     </ul>
+     <br>
+     If \ is followed by any other character, the slash is discarded and the next character
+     is treated normally (ie, \d becomes d).
+     <br><br>
+     Line Continuation:
+     <br><br>
+     Line continuation can be used to split quoted strings across multiple lines. The syntax 
+     for doing this is demonstrated in the following example:
+     <pre>
+        somefield = "This string is split \
+                     across two lines"
+     </pre>
+     The "\" character, when followed immediately by a line break, signifies that line
+     continuation should be triggered.  Whitespace before the line continuation will be
+     included in the string, but any spaces or tabs at the beginning of the next line will
+     NOT be included (this is the same as line continuation in BEX and EDF files).  This 
+     allows the following continued parts of the string to be arbitrarily indented for 
+     purposes of beautification.  A string can be split across any number of lines in 
+     this fashion.
+     <br><br>
+     
+<li> Numbers
+     <br><br>
+     Most non-string fields in ExtraData are numbers, either integer or floating-point. 
+     Decimal, octal, and hexadecimal integers will be accepted in all number fields. Octal 
+     numbers start with a zero, and hexadecimal numbers start with the sequence 0x -- Examples:
+     <pre>
+     # this is a normal, decimal number (base 10)
+     recordnum = 16
+     ...
+     # this is an octal number (base 8)
+     recordnum = 020
+     ...
+     # this is a hexadecimal number (base 16)
+     recordnum = 0x10</pre>
+     
+     Floating-point numbers must have a decimal point in them, as in "20.0". Floating-point
+     numbers are always base 10.
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="embed">
+<hr>
+<b>Embedding and Associating ExtraData</b>
+<hr>
+</a>
+<br>
+ExtraData is embedded directly as a text script into a lump of any name. This can be done with
+any number of wad file management tools, including WinTex (though WinTex has some bugs which
+make the process more complicated).
+
+<p>
+An ExtraData script is associated with a map via use of the <a href="mapinfo.html">MapInfo</a>
+variable <b>extradata</b>.  A map can only have one ExtraData script, but it is possible for
+multiple maps to share the same script.
+
+<p>
+Example of ExtraData specification via MapInfo:
+
+<pre>   [level info]
+   extradata = EDLUMP01</pre>
+   
+ExtraData (as well as all other MapInfo variables) can be specified in either global or 
+level-header MapInfo scripts.
+
+<p>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="mapthings">
+<hr>
+<b>Mapthings</b>
+<hr>
+</a>
+<br>
+Mapthings define monsters, lamps, control points, items, etc -- anything that is spawned on
+the map at level start.
+
+<p>
+Each field in the mapthing definition, with the exception of the <b>recordnum</b> field, is 
+optional. If a field is not provided, it takes on the default value indicated below the syntax
+information. Fields may also be provided in any order.
+
+<p>
+Note that the order of mapthing definitions in ExtraData is not important. The <b>recordnum</b>
+field serves to identify mapthing records.
+
+<p>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="mtcreate">
+<hr align="left" width="50%">
+<b>Creating ExtraData Control Objects</b>
+<hr align="left" width="50%">
+</a>
+<br>
+Mapthing records in ExtraData are only associated with a special control object that must be
+placed on the map in the usual manner in your editor of choice.
+
+<p>
+The ExtraData control object has a <b>doomednum</b> of 5004. Each control object specifies its
+corresponding ExtraData mapthing record number as an integer value in its mapthing options field.
+If your editor does not allow entering arbitrary values into the options field of mapthings, you
+will need to use the BOOM command-line editor, CLED. As of the initial writing time of this
+document, both DETH and Doom Builder support entering arbitrary integer values for the options
+field. Check your editor's documentation or user interface to verify if it supports this.
+
+<p>
+The x, y, and angle fields of the ExtraData control object are passed on to the thing which will
+be spawned at the control point's location, so those fields of the control object should be set
+normally. The true type and options fields of the thing to be spawned, along with any extended 
+fields, are specified in the ExtraData record which the control thing references.
+
+<p>
+Any number of ExtraData control objects can reference the same ExtraData record. In the event
+that a control object references a non-existant ExtraData record, the ExtraData script for a 
+level is missing, or the thing type referenced by an ExtraData record isn't valid, an Unknown
+thing will be spawned at the control point's location. See the <a href="edf_ref.html">EDF
+Documentation</a> for information on the required Unknown thingtype definition. Note that you
+cannot spawn ExtraData control objects using ExtraData. Attempting this will also result in an
+Unknown thing.
+
+<p>
+<a href="#contents">Return to Table of Contents</a>
+
+<p>
+<a name="mtsyntax">
+<hr align="left" width="50%">
+<b>Mapthing Syntax and Fields</b>
+<hr align="left" width="50%">
+</a>
+<br>
+The syntax of the ExtraData mapthing record is as follows. Remember that all fields except
+the <b>recordnum</b> field are optional and can be specified in any order.
+
+<pre>
+mapthing
+{
+   recordnum = &lt;unique number&gt;
+   
+   # These fields are normal mapthing fields
+   type      = &lt;doomednum&gt; OR &lt;EDF thingtype mnemonic&gt;
+   options   = &lt;options flag list&gt;
+   
+   # These fields are ExtraData extensions
+   tid       = &lt;number&gt;
+   args      = { &lt;special field&gt;, ... }
+}
+</pre>
+
+Explanation of fields:
+<ul>
+<li><b>recordnum</b><br>
+    The recordnum serves to identify this record, and is the number which ExtraData control
+    objects must use to associate themselves with a mapthing record. Every ExtraData mapthing
+    record must have a unique record number. If a duplicate record number is detected, the
+    engine will currently exit with an error message. The record number is limited to values
+    between 0 and 65535 inclusive. Some editors may only allow input of numbers up to
+    32767 in the mapthing options field, or may treat values above 32767 as negative numbers.
+    Beware of this.
+    <br><br>
+<li><b>type</b><br>
+    Default: No meaningful default value, an Unknown thing will be spawned.
+    <br><br>
+    This field specifies the type of object to spawn at the location and angle of ExtraData
+    control objects using this record.
+    This field can accept one of two types of values. The first is a normal thingtype
+    <b>doomednum</b> as specified via EDF and used by all editors. For example, the DOOM Imp's
+    doomednum is 3001.
+    <br><br>
+    This field can also accept EDF thingtype mnemonics. EDF thingtype mnemonics must be
+    prefixed with <b>thing:</b> -- this allows the parser to know it is dealing with a string
+    instead of a number. EDF thingtypes <b>must</b> have a unique doomednum to be specified in
+    an ExtraData mapthing record. If the specified EDF thingtype doesn't exist or has a 
+    doomednum of -1, an Unknown object will be spawned instead.
+    <br><br>
+    Example:
+    <pre>
+    mapthing { type = 3001 }          // This record specifies an Imp via its doomednum
+    
+    mapthing { type = thing:DoomImp } // This record specifies an Imp by its EDF mnemonic
+    </pre>
+<li><b>options</b><br>
+    Default: No flags are set by default.
+    <br><br>
+    This field specifies the options (also known as mapthing flags). This field uses the
+    same syntax as BEX/EDF flag strings, but the syntax will be reviewed here for completeness.
+    <br><br>
+    A BEX flag list is a string of flag names separated by whitespace, pipe characters, commas, or
+    plus characters. In ExtraData, if a flag list contains whitespace, commas, or plus signs, it 
+    must be enclosed in double or single quotations. Flags are combined using bitwise-OR logic, 
+    so a flag name can be specified more than once. Specifying a flag name causes that flag to 
+    be turned on. The default state of all flags is off.
+    <br><br>
+    These are the flag values which are available for this field:
+    <pre>
+    Flag name   Decimal  Hex     Meaning
+    ------------------------------------------------------------------------------
+    EASY        1        0x0001  Thing appears in easy difficulties
+    NORMAL      2        0x0002  Thing appears in "Hurt Me Plenty"
+    HARD        4        0x0004  Thing appears in Ultra-Violence and Nightmare
+    AMBUSH      8        0x0008  Thing is "deaf", will not wake up via sound
+    NOTSINGLE   16       0x0010  Thing doesn't appear in single-player mode
+    NOTDM       32       0x0020  Thing doesn't appear in deathmatch
+    NOTCOOP     64       0x0040  Thing doesn't appear in cooperative multiplayer
+    FRIEND      128      0x0080  Thing uses MBF friendly logic
+    DORMANT     512      0x0200  Thing is dormant at map startup (script feature)
+    ------------------------------------------------------------------------------
+    </pre>
+    The mapthing options value 256 (0x0100) is reserved. If this bit is set, all BOOM, MBF,
+    and Eternity extended mapthing bits will be cleared. This is to guard against editors like
+    Hellmaker which set all bits they do not understand, instead of leaving them zero.
+    <br><br>
+    Example options fields -- All of these are equivalent:
+    <pre>
+    # This is the only syntax that does not require quotations.
+    
+    mapthing { options = EASY|NORMAL|HARD }
+    
+    # All of these syntaxes must be quoted, because unquoted strings in 
+    # ExtraData cannot contain spaces, commas, or plus signs.
+    
+    mapthing { options = "EASY NORMAL HARD" }
+    mapthing { options = "EASY | NORMAL | HARD" }
+    mapthing { options = "EASY+NORMAL+HARD" }
+    mapthing { options = "EASY + NORMAL + HARD" }
+    mapthing { options = "EASY,NORMAL,HARD" }
+    mapthing { options = "EASY, NORMAL, HARD" }</pre>
+    
+<li><b>tid</b><br>
+    Default: 0
+    <br><br>
+    The TID, or "Thing ID", is a tag for mapthings which is used for identification in
+    Small scripts. TID values must be positive numbers between 1 and 65535. The TID value
+    zero means no TID. Negative TID values are reserved and are used to indicate special
+    things within the engine. TIDs are not required to be unique, and most Small functions
+    that accept TIDs will perform an action on all mapthings which bear the same TID.
+    Things spawned within Small scripts can also be given TIDs.
+    <br><br>
+    
+<li><b>args</b><br>
+    Default: All args values default to zero.
+    <br><br>
+    The args field is a list of up to five special values which can have a broad range of
+    meanings. Any values not provided in the args list will default, and if more than five
+    values are provided, only the first five will be used. Currently, all args values are
+    interpreted as integers (a non-number string evaluates to zero). This may change in the
+    future. The args list is not currently used by any documented engine features. This will
+    also change starting with the next version of the Eternity Engine.
+    <br><br>
+    Example args list:
+    <pre>
+    mapthing { args = { 0, 1, 2, 3, 4 } }
+    </pre>
+</ul>
+
+<a href="#contents">Return to Table of Contents</a>
+
+</body>
+</html>

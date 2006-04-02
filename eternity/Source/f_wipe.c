@@ -48,30 +48,31 @@ static int worms[SCREENWIDTH];
 boolean        inwipe = false;
 static int     starting_height;
 
-void Wipe_Initwipe()
+void Wipe_Initwipe(void)
 {
-  int x;
-  
-  inwipe = true;
-  
-  // SoM 2-4-04: ANYRES
-  starting_height = (current_height * globalyscale) >> FRACBITS;       // use console height
-  
-  worms[0] = starting_height - M_Random()%16;
-
-  for(x=1; x<SCREENWIDTH; x++)
-    {
+   int x;
+   
+   inwipe = true;
+   
+   // SoM 2-4-04: ANYRES
+   // use console height
+   starting_height = (current_height * globalyscale) >> FRACBITS;
+   
+   worms[0] = starting_height - M_Random()%16;
+   
+   for(x = 1; x < SCREENWIDTH; ++x)
+   {
       int r = (M_Random()%3) - 1;
       worms[x] = worms[x-1] + r;
       if (worms[x] > 0)
-        worms[x] = 0;
+         worms[x] = 0;
       else
-        if (worms[x] == -16)
-          worms[x] = -15;
-    }
+         if (worms[x] == -16)
+            worms[x] = -15;
+   }
 }
 
-void Wipe_StartScreen()
+void Wipe_StartScreen(void)
 {
    register int x, y;
    register byte *dest, *src;
@@ -87,33 +88,33 @@ void Wipe_StartScreen()
    }
 
    // SoM 2-4-04: ANYRES
-   for(x=0; x < v_width; x++)
+   for(x = 0; x < v_width; ++x)
    {
       // limit check
       int wormx = (x << FRACBITS) / globalxscale;
       int wormy = realyarray[worms[wormx] > 0 ? worms[wormx] : 0];
-
+      
       src = screens[0] + x;
       dest = start_screen[x];
-
+      
       for(y = 0; y < v_height - wormy; y++)
       {
          *dest = *src;
          src += v_width;
          dest++;
       }
-    }
-  
-  return;
+   }
+   
+   return;
 }
 
-void Wipe_Drawer()
+void Wipe_Drawer(void)
 {
    register int x, y;
    register char *dest, *src;
 
    // SoM 2-4-04: ANYRES
-   for(x = 0; x < v_width; x++)
+   for(x = 0; x < v_width; ++x)
    {
       int wormy, wormx;
       
@@ -135,7 +136,7 @@ void Wipe_Drawer()
    redrawsbar = true; // clean up status bar
 }
 
-void Wipe_Ticker()
+void Wipe_Ticker(void)
 {
    boolean done;
    int x;
@@ -143,19 +144,19 @@ void Wipe_Ticker()
    done = true;  // default to true
 
    // SoM 2-4-04: ANYRES
-   for (x = 0; x < SCREENWIDTH; x++)
-      if (worms[x]<0)
+   for(x = 0; x < SCREENWIDTH; ++x)
+      if(worms[x] < 0)
       {
-         worms[x]++;
+         ++worms[x];
          done = false;
       }
-      else if (worms[x] < SCREENHEIGHT)
+      else if(worms[x] < SCREENHEIGHT)
       {
          int dy;
 
-         dy = (worms[x] < 16) ? worms[x]+1 : 8;
+         dy = (worms[x] < 16) ? worms[x] + 1 : 8;
 
-         if (worms[x] + dy >= SCREENHEIGHT)
+         if(worms[x] + dy >= SCREENHEIGHT)
             dy = SCREENHEIGHT - worms[x];
          worms[x] += dy;
          done = false;

@@ -34,6 +34,7 @@
 #include "c_io.h"
 #include "c_runcmd.h"
 #include "d_main.h"
+#include "d_deh.h"
 #include "g_game.h"
 #include "hu_over.h"
 #include "i_video.h"
@@ -47,17 +48,9 @@
 #include "v_video.h"
 #include "g_bind.h"    // haleyjd: dynamic key bindings
 #include "d_gi.h"      // haleyjd: global game mode info
+#include "v_font.h"    // haleyjd: new font engine
 
 boolean inhelpscreens; // indicates we are in or just left a help screen
-
-        // menu keys
-int     key_menu_right;
-int     key_menu_left;
-int     key_menu_up;
-int     key_menu_down;
-int     key_menu_backspace;
-int     key_menu_escape;
-int     key_menu_enter;
 
 // menu error message
 char menu_error_message[128];
@@ -188,7 +181,14 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
             x = (SCREENWIDTH-patch->width)/2;
          
          V_DrawPatchTranslated(x, y, &vbscreen, patch, colrngs[colour], 0);
-         
+
+         // haleyjd 05/16/04: hack for traditional menu support
+         if(gamemode <= retail && traditional_menu &&
+            drawing_menu == &menu_old_main)
+         {
+            height = 15; // this was hard-coded in the old system
+         }
+
          return height + 1;   // 1 pixel gap
       }
    }
@@ -199,12 +199,13 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
    {
       // if it_title, we draw the description centered
       
-      if(gameModeInfo->flags & GIF_HERETIC)
+      // FIXME: gross hack!
+      if(gameModeInfo->type == Game_Heretic)
       {
-         MN_HBWriteText
+         V_WriteTextBig
             (
             item->description, 
-            (SCREENWIDTH-MN_HBStringWidth(item->description))/2,
+            (SCREENWIDTH-V_StringWidthBig(item->description))/2,
             y
             );
          return 20;
@@ -221,11 +222,12 @@ static int MN_DrawMenuItem(menuitem_t *item, int x, int y, int colour)
       }
    }
    else
-   {      
+   {
+      // FIXME: gross hack!
       if((item->type == it_hruncmd || item->type == it_hinfo) && 
-         gameModeInfo->flags & GIF_HERETIC) // only if init'd
+         gameModeInfo->type == Game_Heretic) // only if init'd
       {
-         MN_HBWriteText(item->description, x, y);
+         V_WriteTextBig(item->description, x, y);
          return 20;
       }
       else
@@ -436,13 +438,19 @@ void MN_DrawMenu(menu_t *menu)
 
       if(menu->flags & mf_skullmenu && menu->selected == itemnum)
       {
-         V_DrawPatch
-            (
-             menu->x - 30,                                // 30 left
-             y + (item_height - SKULL_HEIGHT) / 2,        // midpoint
-             &vbscreen,
-             skulls[(menutime / BLINK_TIME) % 2]
-            );
+         // haleyjd 05/16/04: hack for traditional menu support
+         int item_x = menu->x - 30;                         // 30 left
+         int item_y = y + (item_height - SKULL_HEIGHT) / 2; // midpoint
+
+         if(gamemode <= retail && traditional_menu &&
+            menu == &menu_old_main)
+         {
+            item_x = menu->x - 32;
+            item_y = menu->y - 5 + itemnum * 16;
+         }
+
+         V_DrawPatch(item_x, item_y, &vbscreen,
+                     skulls[(menutime / BLINK_TIME) % 2]);
       }
       
       y += item_height;            // go down by item height
@@ -466,6 +474,7 @@ void MN_DrawMenu(menu_t *menu)
    else
    {
       // haleyjd: fix y coordinate to use appropriate text metrics
+      char msgbuffer[64];
       char *helpmsg = "";
       int m_y = SCREENHEIGHT - gameModeInfo->vtextinfo->absh;
 
@@ -473,7 +482,16 @@ void MN_DrawMenu(menu_t *menu)
       menuitem_t *menuitem = &menu->menuitems[menu->selected];
       
       if(menuitem->type == it_variable)       // variable
-         helpmsg = "press enter to change";
+      {
+         if(input_command)
+            helpmsg = "press escape to cancel";
+         else
+         {
+            char *key = G_FirstBoundKey("menu_confirm");
+            psnprintf(msgbuffer, 64, "press %s to change", key);
+            helpmsg = msgbuffer;
+         }
+      }
       
       if(menuitem->type == it_toggle)         // togglable variable
       {
@@ -482,7 +500,11 @@ void MN_DrawMenu(menu_t *menu)
          
          if(menuitem->var->type == vt_int &&
             menuitem->var->max - menuitem->var->min == 1)
-            helpmsg = "press enter to change";
+         {
+            char *key = G_FirstBoundKey("menu_confirm");
+            psnprintf(msgbuffer, 64, "press %s to change", key);
+            helpmsg = msgbuffer;
+         }
          else
             helpmsg = "use left/right to change value";
       }
@@ -532,7 +554,7 @@ menuwidget_t *current_menuwidget = NULL;
 int quickSaveSlot;  // haleyjd 02/23/02: restored from MBF
 
         // init menu
-void MN_Init()
+void MN_Init(void)
 {
    char *cursorPatch1 = gameModeInfo->menuCursor->patch1;
    char *cursorPatch2 = gameModeInfo->menuCursor->patch2;
@@ -550,11 +572,8 @@ void MN_Init()
    quickSaveSlot = -1; // haleyjd: -1 == no slot selected yet
 
    // haleyjd: init heretic stuff if appropriate
-   if(gameModeInfo->flags & GIF_HERETIC)
-   {
+   if(gameModeInfo->type == Game_Heretic)
       MN_HInitSkull(); // initialize spinning skulls
-      MN_HBLoadFont(); // initialize FONTB
-   }
    
    MN_InitMenus();   // create menu commands in mn_menus.c
 }
@@ -562,7 +581,7 @@ void MN_Init()
 //////////////////////////////////
 // ticker
 
-void MN_Ticker()
+void MN_Ticker(void)
 {
    if(menu_error_time)
       menu_error_time--;
@@ -574,7 +593,7 @@ void MN_Ticker()
 ////////////////////////////////
 // drawer
 
-void MN_Drawer()
+void MN_Drawer(void)
 { 
    // redraw needed if menu hidden
    if(hide_menu) redrawsbar = redrawborder = true;
@@ -602,31 +621,23 @@ void MN_Drawer()
                       (it)->type == it_title || (it)->type == it_hinfo)
 
 extern menu_t menu_sound;
+extern menu_t menu_savegame;
 
-boolean MN_TempResponder(int key)
-{
-   if(key == key_help)
-   {
-      C_RunTextCmd("help");
-      return true;
-   }
-   if(key == key_setup)
-   {
-      C_RunTextCmd("mn_options");
-      return true;
-   }
-   return false;
-}
-                
-/////////////////////////////////
-// Responder
-
+//
+// MN_Responder
+//
+// haleyjd 07/03/04: rewritten to use enhanced key binding system
+//
 boolean MN_Responder(event_t *ev)
 {
    // haleyjd 04/29/02: these need to be unsigned
    unsigned char tempstr[128];
    unsigned char ch;
    int *menuSounds = gameModeInfo->menuSounds; // haleyjd
+
+   // haleyjd 07/03/04: call G_KeyResponder with kac_menu to filter
+   // for menu-class actions
+   G_KeyResponder(ev, kac_menu);
 
    // we only care about key presses
 
@@ -691,16 +702,16 @@ boolean MN_Responder(event_t *ev)
       return true;
    } 
 
-   if((devparm && ev->data1 == key_help) || 
-      ev->data1 == key_screenshot)
+   if(devparm && ev->data1 == key_help)
    {
       G_ScreenShot();
       return true;
    }
   
-   if(ev->data1 == key_escape)
+   if(action_menu_toggle)
    {
       // toggle menu
+      action_menu_toggle = false;
       
       // start up main menu or kill menu
       if(menuactive)
@@ -717,13 +728,28 @@ boolean MN_Responder(event_t *ev)
       return true;
    }
 
-   if(MN_TempResponder(ev->data1)) return true;
+   if(action_menu_help)
+   {
+      action_menu_help = false;
+      C_RunTextCmd("help");
+      return true;
+   }
+
+   if(action_menu_setup)
+   {
+      action_menu_setup = false;
+      C_RunTextCmd("mn_options");
+      return true;
+   }
    
    // not interested in keys if not in menu
-   if(!menuactive) return false;
-   
-   if(ev->data1 == key_menu_up)
+   if(!menuactive)
+      return false;
+
+   if(action_menu_up)
    {
+      action_menu_up = false;
+
       // skip gaps
       do
       {
@@ -738,12 +764,14 @@ boolean MN_Responder(event_t *ev)
       while(is_a_gap(&current_menu->menuitems[current_menu->selected]));
       
       S_StartSound(NULL, menuSounds[MN_SND_KEYUPDOWN]); // make sound
-      
+
       return true;  // eatkey
    }
   
-   if(ev->data1 == key_menu_down)
+   if(action_menu_down)
    {
+      action_menu_down = false;
+
       do
       {
          ++current_menu->selected;
@@ -755,13 +783,15 @@ boolean MN_Responder(event_t *ev)
       while(is_a_gap(&current_menu->menuitems[current_menu->selected]));
       
       S_StartSound(NULL, menuSounds[MN_SND_KEYUPDOWN]); // make sound
-      
+
       return true;  // eatkey
    }
    
-   if(ev->data1 == key_menu_enter)
+   if(action_menu_confirm)
    {
       menuitem_t *menuitem = &current_menu->menuitems[current_menu->selected];
+
+      action_menu_confirm = false;
       
       switch(menuitem->type)
       {
@@ -796,7 +826,20 @@ boolean MN_Responder(event_t *ev)
             
             // get input for new value
             input_command = C_GetCmdForName(menuitem->data);
-            input_buffer[0] = 0;             // clear input buffer
+
+            // haleyjd 07/23/04: restore starting input_buffer with
+            // the current value of string variables
+            if(input_command->variable->type == vt_string)
+            {
+               char *str = *(char **)(input_command->variable->variable);
+
+               if(current_menu != &menu_savegame || strcmp(str, s_EMPTYSTRING))
+                  strcpy(input_buffer, str);
+               else
+                  input_buffer[0] = 0;
+            }
+            else
+               input_buffer[0] = 0;             // clear input buffer
             break;
          }
 
@@ -820,20 +863,24 @@ boolean MN_Responder(event_t *ev)
       default:
          break;
       }
+
       return true;
    }
   
-   if(ev->data1 == key_menu_backspace)
+   if(action_menu_previous)
    {
+      action_menu_previous = false;
       MN_PrevMenu();
-      return true;          // eatkey
+      return true;
    }
    
    // decrease value of variable
-   if(ev->data1 == key_menu_left)
+   if(action_menu_left)
    {
       menuitem_t *menuitem =
          &current_menu->menuitems[current_menu->selected];
+
+      action_menu_left = false;
       
       switch(menuitem->type)
       {
@@ -855,14 +902,17 @@ boolean MN_Responder(event_t *ev)
             break;
          }
       }
+
       return true;
    }
   
    // increase value of variable
-   if(ev->data1 == key_menu_right)
+   if(action_menu_right)
    {
       menuitem_t *menuitem =
          &current_menu->menuitems[current_menu->selected];
+
+      action_menu_right = false;
       
       switch(menuitem->type)
       {
@@ -885,6 +935,7 @@ boolean MN_Responder(event_t *ev)
             break;
          }
       }
+
       return true;
    }
 
@@ -892,8 +943,7 @@ boolean MN_Responder(event_t *ev)
    
    ch = tolower(ev->data1);
    if(ch >= 'a' && ch <= 'z')
-   {
-      
+   {  
       // sf: experimented with various algorithms for this
       //     this one seems to work as it should
 
@@ -1016,7 +1066,13 @@ void MN_ErrorMsg(const char *s, ...)
 
 void MN_StartControlPanel(void)
 {
-   MN_StartMenu(gameModeInfo->mainMenu);
+   // haleyjd 05/16/04: traditional DOOM main menu support
+   if(gamemode <= retail && traditional_menu)
+   {
+      MN_StartMenu(&menu_old_main);
+   }
+   else
+      MN_StartMenu(gameModeInfo->mainMenu);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1026,140 +1082,49 @@ void MN_StartControlPanel(void)
 // copy of V_* functions
 // these do not leave a 1 pixel-gap between chars, I think it looks
 // better for the menu
+//
+// haleyjd: duplicate code eliminated via use of vfont engine.
+// A copy of the small_font object is made here and given a different
+// dw value to affect the change in drawing.
+//
 
-extern patch_t* v_font[V_FONTSIZE];
+extern vfont_t small_font;
+static vfont_t menu_font;
+static boolean menu_font_init = false;
+
+static void MN_InitFont(void)
+{
+   // copy over all properties of the normal small font
+   menu_font = small_font;
+
+   // set width delta to 1 to move characters together
+   menu_font.dw = 1;
+
+   menu_font_init = true;
+}
 
 void MN_WriteText(unsigned char *s, int x, int y)
 {
-   int   w;
-   unsigned char* ch;
-   char *colour;
-   unsigned int c;
-   int   cx;
-   int   cy;
-   patch_t *patch;
+   if(!menu_font_init)
+      MN_InitFont();
 
-   // haleyjd: get default color from gamemode info
-   colour = *(gameModeInfo->defTextTrans); // pointer to pointer
-   
-   ch = s;
-   cx = x;
-   cy = y;
-   
-   while(1)
-   {
-      c = *ch++;
-      if(!c)
-         break;
-      if(c >= 128)     // new colour
-      {         
-         unsigned int colnum;
-
-         // haleyjd: allow use of gamemode-dependent defaults
-         switch(c)
-         {
-         case 139:
-            colnum = gameModeInfo->colorNormal;
-            break;
-         case 140:
-            colnum = gameModeInfo->colorHigh;
-            break;
-         case 141:
-            colnum = gameModeInfo->colorError;
-            break;
-         default:
-            colnum = c - 128;
-            break;
-         }
-         
-         // haleyjd 04/29/02: need error checking here as well
-         if(colnum < 0 || colnum >= CR_LIMIT)
-            I_Error("MN_WriteText: invalid colour %i\n", colnum);
-         else
-            colour = colrngs[colnum];
-         
-         continue;
-      }      
-      
-      if(c == '\t')
-      {
-         cx = (cx/40)+1;
-         cx = cx*40;
-      }
-      if(c == '\n')
-      {
-         cx = x;
-         cy += 8;
-         continue;
-      }
-      
-      c = toupper(c) - V_FONTSTART;
-      // haleyjd  02/23/02: added null check
-      if(c >= V_FONTSIZE || !v_font[c])
-      {
-         cx += 4;
-         continue;
-      }
-      
-      patch = v_font[c];
-      if(!patch) continue;
-      
-      w = SHORT (patch->width);
-      if(cx+w > SCREENWIDTH)
-         break;
-      
-      V_DrawPatchTranslated(cx, cy, &vbscreen, patch, colour, 0);
-      
-      cx+=w-1;
-   }
+   V_FontWriteText(&menu_font, s, x, y);
 }
-
-        // write text in a particular colour
 
 void MN_WriteTextColoured(unsigned char *s, int colour, int x, int y)
 {
-   static char *tempstr = NULL;
-   static int allocedsize=-1;
+   if(!menu_font_init)
+      MN_InitFont();
 
-        // if string bigger than allocated, realloc bigger
-   if(!tempstr || strlen(s) > allocedsize)
-   {
-      if(tempstr)       // already alloced?
-        tempstr = realloc(tempstr, strlen(s) + 5);
-      else
-        tempstr = malloc(strlen(s) + 5);
-
-      allocedsize = strlen(s);  // save for next time
-   }
-
-   tempstr[0] = 128 + colour;
-   strcpy(&tempstr[1], s);
-
-   MN_WriteText(tempstr, x, y);
+   V_FontWriteTextColored(&menu_font, s, colour, x, y);
 }
-
 
 int MN_StringWidth(unsigned char *s)
 {
-   int length = 0;
-   unsigned char c;
-   
-   for(; *s; s++)
-   {
-      c = *s;
-      if(c >= 128)         // colour
-         continue;
-      c = toupper(c) - V_FONTSTART;
+   if(!menu_font_init)
+      MN_InitFont();
 
-      // haleyjd 02/23/02: restructured, added null ptr check
-      if(c >= V_FONTSIZE || !v_font[c])
-      {
-         length += 4;
-      }
-      else
-         length += SHORT(v_font[c]->width) - 1;
-   }
-   return length;
+   return V_FontStringWidth(&menu_font, s);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -1167,10 +1132,10 @@ int MN_StringWidth(unsigned char *s)
 // Console Commands
 //
 
-extern void MN_AddMenus();              // mn_menus.c
-extern void MN_AddMiscCommands();       // mn_misc.c
+extern void MN_AddMenus(void);              // mn_menus.c
+extern void MN_AddMiscCommands(void);       // mn_misc.c
 
-void MN_AddCommands()
+void MN_AddCommands(void)
 {
    C_AddCommand(mn_clearmenus);
    C_AddCommand(mn_prevmenu);

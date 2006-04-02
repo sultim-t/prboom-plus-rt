@@ -37,6 +37,7 @@ rcsid[] = "$Id: r_segs.c,v 1.16 1998/05/03 23:02:01 killough Exp $";
 #include "r_draw.h"
 #include "w_wad.h"
 #include "p_user.h"
+#include "p_info.h"
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -88,164 +89,166 @@ static short    *maskedtexturecol;
 
 void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
-  column_t *col;
-  int      lightnum;
-  int      texnum;
-  sector_t tempsec;      // killough 4/13/98
+   column_t *col;
+   int      lightnum;
+   int      texnum;
+   sector_t tempsec;      // killough 4/13/98
 
-  // Calculate light table.
-  // Use different light tables
-  //   for horizontal / vertical / diagonal. Diagonal?
+   // Calculate light table.
+   // Use different light tables
+   //   for horizontal / vertical / diagonal. Diagonal?
 
-  curline = ds->curline;  // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
-
-  // killough 4/11/98: draw translucent 2s normal textures
-
-  colfunc = R_DrawColumn;
-  if (curline->linedef->tranlump >= 0 && general_translucency)
-    {
+   curline = ds->curline;  // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
+   
+   // killough 4/11/98: draw translucent 2s normal textures
+   
+   colfunc = R_DrawColumn;
+   if(curline->linedef->tranlump >= 0 && general_translucency)
+   {
       colfunc = R_DrawTLColumn;
       tranmap = main_tranmap;
-      if (curline->linedef->tranlump > 0)
-        tranmap = W_CacheLumpNum(curline->linedef->tranlump-1, PU_STATIC);
-    }
-  // killough 4/11/98: end translucent 2s normal code
+      if(curline->linedef->tranlump > 0)
+         tranmap = W_CacheLumpNum(curline->linedef->tranlump-1, PU_STATIC);
+   }
+   // killough 4/11/98: end translucent 2s normal code
+   
+   frontsector = curline->frontsector;
+   backsector = curline->backsector;
 
-  frontsector = curline->frontsector;
-  backsector = curline->backsector;
+   texnum = texturetranslation[curline->sidedef->midtexture];
+   
+   // killough 4/13/98: get correct lightlevel for 2s normal textures
+   lightnum = (R_FakeFlat(frontsector, &tempsec, NULL, NULL, false)
+               ->lightlevel >> LIGHTSEGSHIFT)+extralight;
 
-  texnum = texturetranslation[curline->sidedef->midtexture];
+   // haleyjd 08/11/00: optionally skip this to evenly apply colormap
+   //                   to all walls -- never do it if fullbright is off
+   if(LevelInfo.unevenLight && LevelInfo.useFullBright)
+   {  
+      if(curline->v1->y == curline->v2->y)
+      {
+         lightnum--;
+      }
+      else if(curline->v1->x == curline->v2->x)
+      {
+         lightnum++;
+      }
+   }
 
-  // killough 4/13/98: get correct lightlevel for 2s normal textures
-  lightnum = (R_FakeFlat(frontsector, &tempsec, NULL, NULL, false)
-              ->lightlevel >> LIGHTSEGSHIFT)+extralight;
+   // SoM 10/19/02: deep water colormap fix
+   walllights = 
+      ds->colormap[lightnum >= LIGHTLEVELS || fixedcolormap ? 
+                   LIGHTLEVELS-1 :
+                   lightnum <  0 ? 0 : lightnum ] ;
 
-  // haleyjd 08/11/00: optionally skip this to evenly apply colormap
-  //                   to all walls -- never do it with custom colormaps
-  if(MapUseFullBright)
-  {  
-    if (curline->v1->y == curline->v2->y)
-    {
-      lightnum--;
-    }
-    else if (curline->v1->x == curline->v2->x)
-    {
-        lightnum++;
-    }
-  }
+   maskedtexturecol = ds->maskedtexturecol;
 
-  // SoM 10/19/02: deep water colormap fix
-  walllights = 
-     ds->colormap[lightnum >= LIGHTLEVELS || fixedcolormap ? 
-                  LIGHTLEVELS-1 :
-                  lightnum <  0 ? 0 : lightnum ] ;
-
-  maskedtexturecol = ds->maskedtexturecol;
-
-  rw_scalestep = ds->scalestep;
-  spryscale = ds->scale1 + (x1 - ds->x1)*rw_scalestep;
-  mfloorclip = ds->sprbottomclip;
-  mceilingclip = ds->sprtopclip;
+   rw_scalestep = ds->scalestep;
+   spryscale = ds->scale1 + (x1 - ds->x1)*rw_scalestep;
+   mfloorclip = ds->sprbottomclip;
+   mceilingclip = ds->sprtopclip;
 
 #ifdef R_PORTALS
-  // find positioning
-  if (curline->linedef->flags & ML_DONTPEGBOTTOM)
-    {
+   // find positioning
+   if(curline->linedef->flags & ML_DONTPEGBOTTOM)
+   {
       dc_texturemid = frontsector->floorheight > backsector->floorheight
-        ? frontsector->floorheight : backsector->floorheight;
+         ? frontsector->floorheight : backsector->floorheight;
       dc_texturemid = dc_texturemid + textureheight[texnum] - ds->viewz;
-    }
-  else
-    {
+   }
+   else
+   {
       dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
-        ? frontsector->ceilingheight : backsector->ceilingheight;
+         ? frontsector->ceilingheight : backsector->ceilingheight;
       dc_texturemid = dc_texturemid - ds->viewz;
-    }
+   }
 #else
-  // find positioning
-  if (curline->linedef->flags & ML_DONTPEGBOTTOM)
-    {
+   // find positioning
+   if(curline->linedef->flags & ML_DONTPEGBOTTOM)
+   {
       dc_texturemid = frontsector->floorheight > backsector->floorheight
-        ? frontsector->floorheight : backsector->floorheight;
+         ? frontsector->floorheight : backsector->floorheight;
       dc_texturemid = dc_texturemid + textureheight[texnum] - viewz;
-    }
-  else
-    {
+   }
+   else
+   {
       dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
-        ? frontsector->ceilingheight : backsector->ceilingheight;
+         ? frontsector->ceilingheight : backsector->ceilingheight;
       dc_texturemid = dc_texturemid - viewz;
-    }
+   }
 #endif
 
-  dc_texturemid += curline->sidedef->rowoffset;
+   dc_texturemid += curline->sidedef->rowoffset;
+   
+   // SoM 10/19/02: deep water colormap fixes
+   //  if (fixedcolormap)
+   //    dc_colormap = fixedcolormap;
+   if(fixedcolormap)
+   {
+      // haleyjd 10/31/02: invuln fix
+      if(fixedcolormap == 
+         fullcolormap + INVERSECOLORMAP*256*sizeof(lighttable_t))
+         dc_colormap = fixedcolormap;
+      else
+         dc_colormap = walllights[MAXLIGHTSCALE-1];
+   }
 
-// SoM 10/19/02: deep water colormap fixes
-//  if (fixedcolormap)
-//    dc_colormap = fixedcolormap;
-  if(fixedcolormap)
-  {
-     // haleyjd 10/31/02: invuln fix
-     if(fixedcolormap == 
-        fullcolormap + INVERSECOLORMAP*256*sizeof(lighttable_t))
-        dc_colormap = fixedcolormap;
-     else
-        dc_colormap = walllights[MAXLIGHTSCALE-1];
-  }
-
-  // draw the columns
-  for (dc_x = x1 ; dc_x <= x2 ; dc_x++, spryscale += rw_scalestep)
-    if (maskedtexturecol[dc_x] != D_MAXSHORT)
+   // draw the columns
+   for(dc_x = x1; dc_x <= x2; ++dc_x, spryscale += rw_scalestep)
+   {
+      if (maskedtexturecol[dc_x] != D_MAXSHORT)
       {
-        if (!fixedcolormap)      // calculate lighting
-          {                             // killough 11/98:
+         if(!fixedcolormap)      // calculate lighting
+         {                             // killough 11/98:
             // SoM: ANYRES
             unsigned index = spryscale>>(LIGHTSCALESHIFT + addscaleshift);
-
-            if (index >=  MAXLIGHTSCALE )
-              index = MAXLIGHTSCALE-1;
-
+            
+            if(index >=  MAXLIGHTSCALE )
+               index = MAXLIGHTSCALE - 1;
+            
             dc_colormap = walllights[index];
-          }
+         }
 
-        // killough 3/2/98:
-        //
-        // This calculation used to overflow and cause crashes in Doom:
-        //
-        // sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
-        //
-        // This code fixes it, by using double-precision intermediate
-        // arithmetic and by skipping the drawing of 2s normals whose
-        // mapping to screen coordinates is totally out of range:
+         // killough 3/2/98:
+         //
+         // This calculation used to overflow and cause crashes in Doom:
+         //
+         // sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
+         //
+         // This code fixes it, by using double-precision intermediate
+         // arithmetic and by skipping the drawing of 2s normals whose
+         // mapping to screen coordinates is totally out of range:
 
-        {
-          Long64 t = ((Long64) centeryfrac << FRACBITS) -
-                     (Long64) dc_texturemid * spryscale;
-          if (t + (Long64) textureheight[texnum] * spryscale < 0 ||
-              t > (Long64) MAX_SCREENHEIGHT << FRACBITS*2)
-            continue;        // skip if the texture is out of screen's range
-          sprtopscreen = (long)(t >> FRACBITS);
-        }
+         {
+            Long64 t = ((Long64) centeryfrac << FRACBITS) -
+                        (Long64) dc_texturemid * spryscale;
+            if(t + (Long64)textureheight[texnum] * spryscale < 0 ||
+               t > (Long64)MAX_SCREENHEIGHT << FRACBITS*2)
+               continue;        // skip if the texture is out of screen's range
+            sprtopscreen = (long)(t >> FRACBITS);
+         }
 
-        dc_iscale = 0xffffffffu / (unsigned) spryscale;
+         dc_iscale = 0xffffffffu / (unsigned) spryscale;
 
-        // killough 1/25/98: here's where Medusa came in, because
-        // it implicitly assumed that the column was all one patch.
-        // Originally, Doom did not construct complete columns for
-        // multipatched textures, so there were no header or trailer
-        // bytes in the column referred to below, which explains
-        // the Medusa effect. The fix is to construct true columns
-        // when forming multipatched textures (see r_data.c).
+         // killough 1/25/98: here's where Medusa came in, because
+         // it implicitly assumed that the column was all one patch.
+         // Originally, Doom did not construct complete columns for
+         // multipatched textures, so there were no header or trailer
+         // bytes in the column referred to below, which explains
+         // the Medusa effect. The fix is to construct true columns
+         // when forming multipatched textures (see r_data.c).
 
-        // draw the texture
-        col = (column_t *)((byte *)
-                           R_GetColumn(texnum,maskedtexturecol[dc_x]) - 3);
-        R_DrawMaskedColumn (col);
-        maskedtexturecol[dc_x] = D_MAXSHORT;
+         // draw the texture
+         col = (column_t *)((byte *)
+                            R_GetColumn(texnum,maskedtexturecol[dc_x]) - 3);
+         R_DrawMaskedColumn (col);
+         maskedtexturecol[dc_x] = D_MAXSHORT;
       }
+   }
 
-  // Except for main_tranmap, mark others purgable at this point
-  if (curline->linedef->tranlump > 0 && general_translucency)
-    Z_ChangeTag(tranmap, PU_CACHE); // killough 4/11/98
+   // Except for main_tranmap, mark others purgable at this point
+   if(curline->linedef->tranlump > 0 && general_translucency)
+      Z_ChangeTag(tranmap, PU_CACHE); // killough 4/11/98
 }
 
 //
@@ -775,7 +778,7 @@ void R_StoreWallRange(const int start, const int stop)
           // haleyjd 08/11/00: optionally skip this to evenly apply colormap
           //                   to all walls -- never do it with custom 
           //                   colormaps
-          if(MapUseFullBright)
+          if(LevelInfo.useFullBright)
           {  
             if (curline->v1->y == curline->v2->y)
             {

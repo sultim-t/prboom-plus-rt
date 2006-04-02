@@ -23,6 +23,12 @@
 //
 // Rewritten and put in a seperate module(seems sensible)
 //
+// haleyjd FIXME: Half of this is still a horrible mess. This code 
+// was the cause of the infamous "two-week bug" which shut down 
+// Eternity development for months -- improper use of string functions
+// was trashing the stack; fixed with liberal use of psnprintf and other
+// safe functions.
+//
 // By Simon Howard
 //
 //----------------------------------------------------------------------------
@@ -45,6 +51,7 @@
 #include "v_video.h"
 #include "w_wad.h"
 #include "d_gi.h"
+#include "v_font.h"
 
 
 // internal for other defines:
@@ -87,133 +94,94 @@ int hud_hidestatus = 0;
 //
 // Heads Up Font
 //
-// the utility code to draw the tiny heads-up
-// font. Based on the code from v_video.c
-// which draws the normal font.
 
 // note to programmers from other ports: hu_font is the heads up font
 // *not* the general doom font as it is in the original sources and
 // most ports
 
-patch_t* hu_font[HU_FONTSIZE];
-boolean hu_fontloaded = false;
+#define HU_FONTSTART    '!'    /* the first font characters */
+#define HU_FONTEND      (0x7f) /*jff 2/16/98 '_' the last font characters */
 
+// Calculate # of glyphs in font.
+#define HU_FONTSIZE     (HU_FONTEND - HU_FONTSTART + 1) 
+
+static patch_t *hu_font[HU_FONTSIZE];
+static boolean hu_fontloaded = false;
+
+// haleyjd 01/14/05: new vfont object for HUD font
+
+static vfont_t hud_font = 
+{
+   HU_FONTSTART, // first character
+   HU_FONTEND,   // last character
+   HU_FONTSIZE,  // size of font
+
+   8,            // linebreak size
+   4,            // space size
+   0,            // char width delta
+   8,            // max character height
+
+   true,         // color enabled
+   true,         // caps only
+   false,        // no centering
+
+   hu_font,      // patch array
+};
+
+//
+// HU_LoadFont
+//
+// Loads the heads-up font. The naming scheme for the lumps is
+// not very consistent, so this is relatively complicated.
+//
 void HU_LoadFont(void)
 {
    int i, j;
-   char lumpname[10];
+   char lumpname[9];
 
-   for(i=0, j=HU_FONTSTART; i<HU_FONTSIZE; i++, j++)
+   for(i = 0, j = HU_FONTSTART; i < HU_FONTSIZE; i++, j++)
    {
       lumpname[0] = 0;
-      if( (j>='0' && j<='9') || (j>='A' && j<='Z') )
+      if((j >= '0' && j <= '9') || (j >= 'A' && j <= 'Z') )
          sprintf(lumpname, "DIG%c", j);
-      if(j==45 || j==47 || j==58 || j==91 || j==93)
+      if(j == 45 || j == 47 || j == 58 || j == 91 || j == 93)
          sprintf(lumpname, "DIG%i", j);
-      if(j>=123 && j<=127)
+      if(j >=123 && j <= 127)
          sprintf(lumpname, "STBR%i", j);
-      if(j=='_') strcpy(lumpname, "DIG45");
-      if(j=='(') strcpy(lumpname, "DIG91");
-      if(j==')') strcpy(lumpname, "DIG93");
+      if(j=='_')
+         strcpy(lumpname, "DIG45");
+      if(j=='(')
+         strcpy(lumpname, "DIG91");
+      if(j==')')
+         strcpy(lumpname, "DIG93");
       
       hu_font[i] = lumpname[0] ? W_CacheLumpName(lumpname, PU_STATIC) : NULL;
    }
+
    hu_fontloaded = true;
 }
 
+//
+// HU_WriteText
+//
 // sf: write a text line to x, y
-
+// haleyjd 01/14/05: now uses vfont engine
+//
 void HU_WriteText(const char *s, int x, int y)
 {
-   int   w, h;
-   const unsigned char *ch;
-   char *colour = cr_red;
-   unsigned int c;
-   int   cx;
-   int   cy;
-   
-   if(!hu_fontloaded)
-      return;
-  
-   ch = (const unsigned char *)s;
-   cx = x;
-   cy = y;
-  
-   while(1)
-   {
-      c = *ch++;
-      if(!c)
-         break;
-      if(c >= 128)     // new colour
-      {
-         int colnum = c - 128;
-
-         // haleyjd 12/20/02: added error checking
-         if(colnum < 0 || colnum >= CR_LIMIT)
-            I_Error("HU_WriteText: invalid colour %i\n", colnum);
-
-         colour = colrngs[c - 128];
-         continue;
-      }
-      if(c == '\n')
-      {
-         cx = x;
-         cy += 8;
-         continue;
-      }
-  
-      c = toupper(c) - HU_FONTSTART;
-
-      // haleyjd: should be >= ?
-      if(c >= HU_FONTSIZE || !hu_font[c])
-      {
-         cx += 4;
-         continue;
-      }
-
-      w = SHORT(hu_font[c]->width);
-      // haleyjd 12/20/02: no cx < 0 check
-      if(cx < 0 || cx+w > SCREENWIDTH)
-         break;
-
-      // haleyjd 12/20/02: no y checks at all
-      h = SHORT(hu_font[c]->height);
-      if(cy < 0 || cy+h > SCREENHEIGHT)
-         break;
-
-      V_DrawPatchTranslated(cx, cy, &vbscreen, hu_font[c], colour, 0);
-
-      cx+=w;
-   }
+   if(hu_fontloaded)
+      V_FontWriteText(&hud_font, s, x, y);
 }
 
-// the width in pixels of a string in heads-up font
-
-int HU_StringWidth(unsigned char *s)
+//
+// HU_StringWidth
+//
+// Calculates the width in pixels of a string in heads-up font
+// haleyjd 01/14/05: now uses vfont engine
+//
+int HU_StringWidth(const unsigned char *s)
 {
-  int length = 0;
-  unsigned int c; // haleyjd: needs to be int
-  
-  for(; *s; s++)
-  {
-     c = *s;
-     if(c >= 128)         // colour
-        continue;
-
-     // haleyjd 12/20/02: was being used improperly below
-     c = toupper(c) - HU_FONTSIZE;
-
-     // haleyjd: is it just me or is this totally wrong?
-     // length +=
-     //   ((c >= HU_FONTSIZE) || !hu_font[c])
-     //   ? SHORT(hu_font[c - HU_FONTSTART]->width) : 4;
-
-     // haleyjd 12/20/02: must subtract HU_FONTSIZE *before*
-     // trying to index into hu_font
-     length += 
-	(c >= HU_FONTSIZE || !hu_font[c]) ? 4 : SHORT(hu_font[c]->width);
-  }
-  return length;
+   return V_FontStringWidth(&hud_font, s);
 }
 
 #define BARSIZE 15
@@ -471,105 +439,97 @@ void HU_DisableHUD(void)
 
 void HU_OverlaySetup(void)
 {
-  int i;
-  
-  // setup the drawers
-  overlay[ol_health].drawer = HU_DrawHealth;
-  overlay[ol_ammo].drawer = HU_DrawAmmo;
-  overlay[ol_weap].drawer = HU_DrawWeapons;
-  overlay[ol_armor].drawer = HU_DrawArmor;
-  overlay[ol_key].drawer = HU_DrawKeys;
-  overlay[ol_frag].drawer = HU_DrawFrag;
-  overlay[ol_status].drawer = HU_DrawStatus;
+   int i;
+   
+   // setup the drawers
+   overlay[ol_health].drawer = HU_DrawHealth;
+   overlay[ol_ammo].drawer = HU_DrawAmmo;
+   overlay[ol_weap].drawer = HU_DrawWeapons;
+   overlay[ol_armor].drawer = HU_DrawArmor;
+   overlay[ol_key].drawer = HU_DrawKeys;
+   overlay[ol_frag].drawer = HU_DrawFrag;
+   overlay[ol_status].drawer = HU_DrawStatus;
 
-  // now decide where to put all the widgets
+   // now decide where to put all the widgets
+   
+   for(i = 0; i < NUMOVERLAY; ++i)
+      overlay[i].x = 1;       // turn em all on
 
-  for(i=0; i<NUMOVERLAY; i++)
-    overlay[i].x = 1;       // turn em all on
+   // turn off status if we aren't using it
+   if(hud_hidestatus)
+      overlay[ol_status].x = -1;
 
-  // turn off status if we aren't using it
-  
-  if(hud_hidestatus) overlay[ol_status].x = -1;
+   // turn off frag counter or key display,
+   // according to if we're in a deathmatch game or not
+   if(GameType == gt_dm)
+      overlay[ol_key].x = -1;
+   else
+      overlay[ol_frag].x = -1;
 
-  // turn off frag counter or key display,
-  // according to if we're in a deathmatch game or not
-  
-  if(GameType == gt_dm)
-    overlay[ol_key].x = -1;
-  else
-    overlay[ol_frag].x = -1;
-
-  // now build according to style
-
-  switch(hud_overlaystyle)
-    {
-      // 0: off
+   // now build according to style
+   
+   switch(hud_overlaystyle)
+   {      
+   case 0: // 0: 'off'
+   case 4: // 4: 'graphical' -- haleyjd 01/11/05: this is handled by status bar
+      for(i = 0; i < NUMOVERLAY; ++i)
+      {
+         setol(i, -1, -1); // turn it off
+      }
+      break;
       
-      case 0:
-	for(i=0; i<NUMOVERLAY; i++)
-	  {
-	    setol(i, -1, -1);       // turn it off
-	  }
-	break;
-
-      // 1:'bottom left' style
-	
-      case 1:
-	{
-	  int y = SCREENHEIGHT-8;
-	  
-	  for(i=NUMOVERLAY-1; i >= 0; i--)
-	    {
-	      if(overlay[i].x != -1)
-		{
-		  setol(i, 0, y);
-		  y -= 8;
-		}
-	    }
-	  break;
-	}
-
-      // 2: all at bottom of screen
+   case 1: // 1:'bottom left' style
+      {
+         int y = SCREENHEIGHT - 8;
+         
+         for(i = NUMOVERLAY - 1; i >= 0; --i)
+         {
+            if(overlay[i].x != -1)
+            {
+               setol(i, 0, y);
+               y -= 8;
+            }
+         }
+      }
+      break;
       
-      case 2:
-	{
-	  int x = 0, y = 192;
-	  
-	  for(i=0; i<NUMOVERLAY; i++)
-	    {
-	      if(overlay[i].x != -1)
-		{
-		  setol(i, x, y);
-		  x += 160;
-		  if(x >= 300)
-		    {
-		      x = 0; y -=8;
-		    }
-		}
-	    }
-	  break;
-	}
+   case 2:      // 2: all at bottom of screen
+      {
+         int x = 0, y = 192;
+         
+         for(i = 0; i < NUMOVERLAY; ++i)
+         {
+            if(overlay[i].x != -1)
+            {
+               setol(i, x, y);
+               x += 160;
+               if(x >= 300)
+               {
+                  x = 0; 
+                  y -=8;
+               }
+            }
+         }
+      }
+      break;
 
-      // 3: similar to boom 'distributed' style
-
-      case 3:
-	setol(ol_health, SCREENWIDTH-138, 0);
-	setol(ol_armor, SCREENWIDTH-138, 8);
-	setol(ol_weap, SCREENWIDTH-138, 184);
-	setol(ol_ammo, SCREENWIDTH-138, 192);
-	if(GameType == gt_dm)  // if dm, put frags in place of keys
-	  {
-	    setol(ol_frag, 0, 192);
-	  }
-	else
-	  {
-	    setol(ol_key, 0, 192);
-	  }
-	if(!hud_hidestatus)
-	  setol(ol_status, 0, 184);
-	break;
-
-    }
+   case 3:// 3: similar to boom 'distributed' style
+      setol(ol_health, SCREENWIDTH-138, 0);
+      setol(ol_armor, SCREENWIDTH-138, 8);
+      setol(ol_weap, SCREENWIDTH-138, 184);
+      setol(ol_ammo, SCREENWIDTH-138, 192);
+      if(GameType == gt_dm)  // if dm, put frags in place of keys
+      {
+         setol(ol_frag, 0, 192);
+      }
+      else
+      {
+         setol(ol_key, 0, 192);
+      }
+      if(!hud_hidestatus)
+         setol(ol_status, 0, 184);
+      break;
+   }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -579,31 +539,35 @@ void HU_OverlaySetup(void)
 
 void HU_OverlayDraw()
 {
-  int i;
+   int i;
+   
+   // SoM 2-4-04: ANYRES
+   if(viewheight != v_height) 
+      return;  // fullscreen only
+   if(automapactive) 
+      return;
+   if(!hud_enabled) 
+      return;
   
-  // SoM 2-4-04: ANYRES
-  if(viewheight != v_height) return;  // fullscreen only
-  if(automapactive) return;
-  if(!hud_enabled) return;
-  
-  HU_OverlaySetup();
-  
-  for(i=0; i<NUMOVERLAY; i++)
-    {
+   HU_OverlaySetup();
+   
+   for(i = 0; i < NUMOVERLAY; ++i)
+   {
       if(overlay[i].x != -1)
-	overlay[i].drawer(overlay[i].x, overlay[i].y);
-    }
+         overlay[i].drawer(overlay[i].x, overlay[i].y);
+   }
 }
 
 char *str_style[] =
 {
-  "off",
-  "boom style",
-  "flat",
-  "distributed",
+   "off",
+   "boom style",
+   "flat",
+   "distributed",
+   "graphical",   // haleyjd 01/11/05
 };
 
-VARIABLE_INT(hud_overlaystyle,  NULL,   0, 3,    str_style);
+VARIABLE_INT(hud_overlaystyle,  NULL,   0, 4,    str_style);
 CONSOLE_VARIABLE(hu_overlay, hud_overlaystyle, 0) {}
 
 VARIABLE_BOOLEAN(hud_hidestatus, NULL, yesno);

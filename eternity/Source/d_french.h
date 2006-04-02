@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*-
+// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2000 James Haley
@@ -7,12 +7,12 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -180,7 +180,7 @@
 #define HUSTR_9     "NIVEAU 9: LE PUITS "
 #define HUSTR_10    "NIVEAU 10: BASE DE RAVITAILLEMENT "
 #define HUSTR_11    "NIVEAU 11: LE CERCLE DE LA MORT!"
-
+  
 #define HUSTR_12    "NIVEAU 12: L'USINE "
 #define HUSTR_13    "NIVEAU 13: LE CENTRE VILLE"
 #define HUSTR_14    "NIVEAU 14: LES ANTRES PROFONDES "
@@ -190,7 +190,7 @@
 #define HUSTR_18    "NIVEAU 18: LA COUR "
 #define HUSTR_19    "NIVEAU 19: LA CITADELLE "
 #define HUSTR_20    "NIVEAU 20: JE T'AI EU!"
-
+  
 #define HUSTR_21    "NIVEAU 21: LE NIRVANA"
 #define HUSTR_22    "NIVEAU 22: LES CATACOMBES "
 #define HUSTR_23    "NIVEAU 23: LA GRANDE FETE "
@@ -201,7 +201,7 @@
 #define HUSTR_28    "NIVEAU 28: LE MONDE DE L'ESPRIT "
 #define HUSTR_29    "NIVEAU 29: LA LIMITE "
 #define HUSTR_30    "NIVEAU 30: L'ICONE DU PECHE "
-
+  
 #define HUSTR_31    "NIVEAU 31: WOLFENSTEIN"
 #define HUSTR_32    "NIVEAU 32: LE MASSACRE"
 
@@ -275,7 +275,7 @@
 //
 //  F_Finale.C
 //
-#define E1TEXT
+#define E1TEXT  
   "APRES AVOIR VAINCU LES GROS MECHANTS\n"\
   "ET NETTOYE LA BASE LUNAIRE, VOUS AVEZ\n"\
   "GAGNE, NON? PAS VRAI? OU EST DONC VOTRE\n"\
@@ -291,7 +291,7 @@
   "POUR VIVRE LA SUITE DE DOOM, JOUEZ\n"\
   "A 'AUX PORTES DE L'ENFER' ET A\n"\
   "L'EPISODE SUIVANT, 'L'ENFER'!\n"
-
+        
 #define E2TEXT  "VOUS AVEZ REUSSI. L'INFAME DEMON\n"\
   "QUI CONTROLAIT LA BASE LUNAIRE DE\n"\
   "DEIMOS EST MORT, ET VOUS AVEZ\n"\
@@ -309,7 +309,7 @@
   "\n" \
   "VOICI MAINTENANT LE CHAPITRE FINAL DE\n"\
   "DOOM! -- L'ENFER."
-
+  
 #define E3TEXT  "LE DEMON ARACHNEEN ET REPUGNANT\n"\
   "QUI A DIRIGE L'INVASION DES BASES\n"\
   "LUNAIRES ET SEME LA MORT VIENT DE SE\n"\
@@ -327,11 +327,11 @@
   "COMBATTU LE DEMON. HEUREUSEMENT,\n"\
   "AUCUN GERME DU MAL N'A FRANCHI\n"\
   "CETTE PORTE AVEC VOUS..."
-
-
-
+  
+  
+  
 // after level 6, put this:
-
+  
 #define C1TEXT  "VOUS ETES AU PLUS PROFOND DE L'ASTROPORT\n" \
   "INFESTE DE MONSTRES, MAIS QUELQUE CHOSE\n" \
   "NE VA PAS. ILS ONT APPORTE LEUR PROPRE\n" \
@@ -344,9 +344,9 @@
   "COEUR DE LA BASE HANTEE ET TROUVER \n" \
   "L'INTERRUPTEUR DE CONTROLE QUI GARDE LA \n" \
   "POPULATION DE LA TERRE EN OTAGE."
-
+  
 // After level 11, put this:
-
+  
 #define C2TEXT  "VOUS AVEZ GAGNE! VOTRE VICTOIRE A PERMIS\n" \
   "A L'HUMANITE D'EVACUER LA TERRE ET \n"\
   "D'ECHAPPER AU CAUCHEMAR. VOUS ETES \n"\
@@ -364,9 +364,9 @@
   "DE VOTRE VILLE NATALE, PRES DE L'ASTROPORT.\n"\
   "VOUS VOUS RELEVEZ LENTEMENT ET PENIBLEMENT\n"\
   "ET VOUS REPARTEZ POUR LE FRONT."
-
+  
 // After level 20, put this:
-
+  
 #define C3TEXT  "VOUS ETES AU COEUR DE LA CITE CORROMPUE,\n"\
   "ENTOURE PAR LES CADAVRES DE VOS ENNEMIS.\n"\
   "VOUS NE VOYEZ PAS COMMENT DETRUIRE LA PORTE\n"\
@@ -376,9 +376,9 @@
   "IL DOIT Y AVOIR UN MOYEN DE LA FERMER\n"\
   "DE L'AUTRE COTE. VOUS ACCEPTEZ DE\n"\
   "TRAVERSER L'ENFER POUR LE FAIRE?"
-
+  
 // After level 29, put this:
-
+  
 #define C4TEXT  "LE VISAGE HORRIBLE D'UN DEMON D'UNE\n"\
   "TAILLE INCROYABLE S'EFFONDRE DEVANT\n"\
   "VOUS LORSQUE VOUS TIREZ UNE SALVE DE\n"\
@@ -394,17 +394,17 @@
   "VOTRE FRONT COUVERT DE SUEUR ET REPARTEZ\n"\
   "VERS LA TERRE. SA RECONSTRUCTION SERA\n"\
   "BEAUCOUP PLUS DROLE QUE SA DESTRUCTION.\n"
-
+  
 // Before level 31, put this:
-
+  
 #define C5TEXT  "FELICITATIONS! VOUS AVEZ TROUVE LE\n"\
   "NIVEAU SECRET! IL SEMBLE AVOIR ETE\n"\
   "CONSTRUIT PAR LES HUMAINS. VOUS VOUS\n"\
   "DEMANDEZ QUELS PEUVENT ETRE LES\n"\
   "HABITANTS DE CE COIN PERDU DE L'ENFER."
-
+  
 // Before level 32, put this:
-
+  
 #define C6TEXT  "FELICITATIONS! VOUS AVEZ DECOUVERT\n"\
   "LE NIVEAU SUPER SECRET! VOUS FERIEZ\n"\
   "MIEUX DE FONCER DANS CELUI-LA!\n"

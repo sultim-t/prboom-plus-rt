@@ -362,7 +362,7 @@ static cell AMX_NATIVE_CALL sm_chasecam(AMX *amx, cell *params)
    if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
-      return 0;
+      return -1;
    }
 
    if(onoff)
@@ -378,7 +378,7 @@ static cell AMX_NATIVE_CALL sm_ischaseon(AMX *amx, cell *params)
    if(gamestate != GS_LEVEL)
    {
       amx_RaiseError(amx, SC_ERR_GAMEMODE | SC_ERR_MASK);
-      return 0;
+      return -1;
    }
 
    return chasecam_active;
@@ -386,8 +386,8 @@ static cell AMX_NATIVE_CALL sm_ischaseon(AMX *amx, cell *params)
 
 AMX_NATIVE_INFO chase_Natives[] =
 {
-   { "Chasecam",     sm_chasecam  },
-   { "IsChasecamOn", sm_ischaseon },
+   { "Cam_Chasecam",     sm_chasecam  },
+   { "Cam_IsChasecamOn", sm_ischaseon },
    { NULL, NULL }
 };
 

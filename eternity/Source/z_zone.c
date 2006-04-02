@@ -130,10 +130,6 @@ static size_t virtual_memory;
 
 int printstats = 0;                    // killough 8/23/98
 
-// haleyjd: RE-FIXED return type conflict and got rid of string buffer.
-//          You cannot return a pointer to a local variable and get reliable
-//          results -- local variables are destroyed on function exit
-
 void Z_PrintStats(void)           // Print allocation statistics
 {
 

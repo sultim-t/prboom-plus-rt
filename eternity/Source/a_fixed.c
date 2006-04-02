@@ -25,8 +25,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "m_fixed.h"
 #include "a_small.h"
+#include "m_fixed.h"
 
 static cell AMX_NATIVE_CALL sm_floattofixed(AMX *amx, cell *params)
 {
@@ -43,7 +43,7 @@ static cell AMX_NATIVE_CALL sm_fdiv(AMX *amx, cell *params)
    if(params[2] == 0)
    {
       amx_RaiseError(amx, AMX_ERR_DIVIDE);
-      return 0;
+      return -1;
    }
 
    return FixedDiv(params[1], params[2]);

@@ -40,6 +40,7 @@ rcsid[] = "$Id: p_saveg.c,v 1.17 1998/05/03 23:10:22 killough Exp $";
 #include "p_skin.h"
 #include "p_setup.h"
 #include "e_edf.h"
+#include "a_small.h"
 
 byte *save_p;
 
@@ -530,6 +531,12 @@ void P_UnArchiveThinkers(void)
       P_SetThingPosition(mobj);
 
       mobj->info = &mobjinfo[mobj->type];
+
+      // haleyjd 09/26/04: restore monster skins
+      if(mobj->info->altsprite != NUMSPRITES)
+         mobj->skin = P_GetMonsterSkin(mobj->info->altsprite);
+      else
+         mobj->skin = NULL;
 
       // killough 2/28/98:
       // Fix for falling down into a wall after savegame loaded:
@@ -1076,63 +1083,203 @@ void P_UnArchiveMap(void)
                 SCRIPT SAVING
  *******************************/
 
+// This comment saved for nostalgia purposes:
+
 // haleyjd 11/23/00: Here I sit at 4:07 am on Thanksgiving of the
 // year 2000 attempting to finish up a rewrite of the FraggleScript
 // higher architecture. ::sighs::
 //
-// haleyjd: note - as of 01/07/01 I have reverted FraggleScript
-// back to the two-area system of v3.21 -- the levelscript and
-// a hub script for semi-permanent variables. While the loss of
-// the global script areas is regrettable, its the last resort.
+
+// haleyjd 05/24/04: Small savegame support!
+
 //
-
-/******************** save spawnedthings *****************/
-
-void P_ArchiveSpawnedThings()
+// P_ArchiveSmallAMX
+//
+// Saves the size and contents of a Small AMX's data segment.
+//
+static void P_ArchiveSmallAMX(AMX *amx)
 {
-   int i;
-   long *long_p;
-   
-   CheckSaveGame(sizeof(long) * numthings); // killough
-   
-   long_p = (long *) save_p;
-   
-   for(i=0; i<numthings; i++)
+   long amx_size = 0;
+   char *data;
+
+   // get both size of and pointer to data segment
+   data = A_GetAMXDataSegment(amx, &amx_size);
+
+   // check for enough room to save both the size and 
+   // the whole data segment
+   CheckSaveGame(sizeof(long) + amx_size);
+
+   // write the size
+   memcpy(save_p, &amx_size, sizeof(long));
+   save_p += sizeof(long);
+
+   // write the data segment
+   memcpy(save_p, data, amx_size);
+   save_p += amx_size;
+}
+
+//
+// P_UnArchiveSmallAMX
+//
+// Restores a Small AMX's data segment to the archived state.
+// The existing data segment will be checked for size consistency
+// with the archived one, and it'll bomb out if there's a conflict.
+// This will avoid most problems with maps that have had their
+// scripts recompiled since last being used.
+//
+static void P_UnArchiveSmallAMX(AMX *amx)
+{
+   long cur_amx_size, arch_amx_size;
+   char *data;
+
+   // get pointer to AMX data segment and current data segment size
+   data = A_GetAMXDataSegment(amx, &cur_amx_size);
+
+   // read the archived size
+   memcpy(&arch_amx_size, save_p, sizeof(long));
+   save_p += sizeof(long);
+
+   // make sure the archived data segment is consistent with the
+   // existing one (which was loaded by P_SetupLevel, or always
+   // exists in the case of a gamescript)
+
+   if(arch_amx_size != cur_amx_size)
+      I_Error("P_UnArchiveSmallAMX: data segment consistency error\n");
+
+   // copy the archived data segment into the VM
+   memcpy(data, save_p, arch_amx_size);
+   save_p += arch_amx_size;
+}
+
+//
+// P_ArchiveCallbacks
+//
+// Archives the Small callback list, which is maintained in
+// a_small.c -- the entire callback structures are saved, but
+// the next and prev pointer values will not be used on restore.
+// The order of callbacks is insignificant, and therefore they
+// will simply be relinked at runtime in their archived order.
+// The list of callbacks is terminated with a single byte value
+// equal to SC_VM_END.
+//
+static void P_ArchiveCallbacks(void)
+{
+   int callback_count = 0;
+   sc_callback_t *list = A_GetCallbackList();
+   sc_callback_t *rover;
+
+   for(rover = list->next; rover != list; rover = rover->next)
+      ++callback_count;
+
+   // check for enough room for all the callbacks plus an end marker
+   CheckSaveGame(callback_count * sizeof(sc_callback_t) + sizeof(char));
+
+   // save off the callbacks
+   for(rover = list->next; rover != list; rover = rover->next)
    {
-      *long_p++ = P_MobjNum(spawnedthings[i]);       // store it
+      memcpy(save_p, rover, sizeof(sc_callback_t));
+      save_p += sizeof(sc_callback_t);
+   }
+
+   // save an end marker
+   *save_p++ = SC_VM_END;
+}
+
+//
+// P_UnArchiveCallbacks
+//
+// Kills any existing Small callbacks, then unarchives and links
+// in any saved callbacks.
+//
+static void P_UnArchiveCallbacks(void)
+{
+   char vm;
+
+   // kill any existing callbacks
+   A_RemoveCallbacks(-1);
+
+   // read until the end marker is hit
+   while((vm = *save_p) != SC_VM_END)
+   {
+      sc_callback_t *newCallback = malloc(sizeof(sc_callback_t));
+
+      memcpy(newCallback, save_p, sizeof(sc_callback_t));
+
+      // nullify pointers for maximum safety
+      newCallback->next = newCallback->prev = NULL;
+
+      // put this callback into the callback list
+      A_LinkCallback(newCallback);
+
+      save_p += sizeof(sc_callback_t);
    }
    
-   save_p = (unsigned char *) long_p;       // restore save_p
+   // move past the last sentinel byte
+   ++save_p;
 }
 
-void P_UnArchiveSpawnedThings()
+/*************** main script saving functions ***************/
+
+//
+// P_ArchiveScripts
+//
+// Saves the presence of the gamescript and levelscript, then
+// saves them if they exist.  Any scheduled callbacks are then
+// saved.
+//
+void P_ArchiveScripts(void)
 {
-   long *long_p;
-   int i;
-   
-   // restore spawnedthings
-   long_p = (long *) save_p;
-   
-   for(i=0; i<numthings; i++)
-   {
-      spawnedthings[i] = P_MobjForNum(*long_p++);
-   }
-   
-   save_p = (unsigned char *) long_p;       // restore save_p
+   CheckSaveGame(2 * sizeof(unsigned char));
+
+   // save gamescript/levelscript presence flags
+   *save_p++ = (unsigned char)gameScriptLoaded;
+   *save_p++ = (unsigned char)levelScriptLoaded;
+
+   // save gamescript
+   if(gameScriptLoaded)
+      P_ArchiveSmallAMX(&GameScript.smallAMX);
+
+   // save levelscript
+   if(levelScriptLoaded)
+      P_ArchiveSmallAMX(&LevelScript.smallAMX);
+
+   // save callbacks
+   P_ArchiveCallbacks();
 }
 
-        /*************** main script saving functions ************/
-
-void P_ArchiveScripts()
+//
+// P_UnArchiveScripts
+//
+// Unarchives any saved gamescript or levelscript. If one was
+// saved, but the corresponding script VM doesn't currently exist,
+// there's a script state consistency problem, and the game will
+// bomb out.  Any archived callbacks are then restored.
+//
+void P_UnArchiveScripts(void)
 {
-   // save thing list
-   P_ArchiveSpawnedThings();
-}
+   boolean hadGameScript, hadLevelScript;
 
-void P_UnArchiveScripts()
-{
-   // get thing list
-   P_UnArchiveSpawnedThings();
+   // get saved presence flags
+   hadGameScript  = *save_p++;
+   hadLevelScript = *save_p++;
+
+   // check for presence consistency
+   if((hadGameScript && !gameScriptLoaded) ||
+      (hadLevelScript && !levelScriptLoaded))
+      I_Error("P_UnArchiveScripts: vm presence inconsistency\n");
+
+   // restore gamescript
+   if(hadGameScript)
+      P_UnArchiveSmallAMX(&GameScript.smallAMX);
+
+   // restore levelscript
+   if(hadLevelScript)
+      P_UnArchiveSmallAMX(&LevelScript.smallAMX);
+
+   // restore callbacks
+   P_UnArchiveCallbacks();
+
+   // TODO: execute load game event callbacks?
 }
 
 //----------------------------------------------------------------------------

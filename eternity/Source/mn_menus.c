@@ -67,6 +67,9 @@ extern menu_t menu_main;
 extern menu_t menu_episode;
 extern menu_t menu_startmap;
 
+// This is the original cfg variable, now reintroduced.
+int traditional_menu;
+
 // Blocky mode, has default, 0 = high, 1 = normal
 //int     detailLevel;    obsolete -- killough
 int screenSize;      // screen size
@@ -80,13 +83,14 @@ char *mn_wadname;            // wad to load
 // haleyjd: was 7
 #define SAVESLOTS 8
 
-char empty_slot[] = "empty slot";
 char *savegamenames[SAVESLOTS];
 
 // haleyjd: keep track of valid save slots
 boolean savegamepresent[SAVESLOTS];
 
-void MN_InitMenus()
+static void MN_PatchOldMainMenu(void);
+
+void MN_InitMenus(void)
 {
    int i; // haleyjd
    
@@ -95,11 +99,14 @@ void MN_InitMenus()
    mn_wadname = Z_Strdup("", PU_STATIC, 0);
    
    // haleyjd: initialize via zone memory
-   for(i=0; i<SAVESLOTS; i++)
+   for(i = 0; i < SAVESLOTS; ++i)
    {
       savegamenames[i] = Z_Strdup("", PU_STATIC, 0);
       savegamepresent[i] = false;
    }
+
+   if(gamemode == commercial)
+      MN_PatchOldMainMenu(); // haleyjd 05/16/04
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -134,6 +141,39 @@ menu_t menu_main =
   MN_MainMenuDrawer
 };
 
+// haleyjd 05/16/04: traditional DOOM main menu support
+
+menu_t menu_old_main =
+{
+   {
+      { it_runcmd, "new game",   "mn_newgame",  "M_NGAME" },
+      { it_runcmd, "options",    "mn_optfeat",  "M_OPTION" },
+      { it_runcmd, "save game",  "mn_savegame", "M_SAVEG" },
+      { it_runcmd, "load game",  "mn_loadgame", "M_LOADG" },
+      { it_runcmd, "read this!", "credits",     "M_RDTHIS" },
+      { it_runcmd, "quit",       "mn_quit",     "M_QUITG" },
+      { it_end }
+   },
+   97, 64,
+   0,
+   mf_skullmenu,
+   MN_MainMenuDrawer
+};
+
+//
+// MN_PatchOldMainMenu
+//
+// haleyjd 05/16/04: patches the old main menu for DOOM II, for full
+// compatibility.
+//
+static void MN_PatchOldMainMenu(void)
+{
+   // turn "Read This!" into "Quit Game" and move down 8 pixels
+   menu_old_main.menuitems[4] = menu_old_main.menuitems[5];
+   menu_old_main.menuitems[5].type = it_end;
+   menu_old_main.y += 8;
+}
+
 void MN_MainMenuDrawer(void)
 {
    // hack for m_doom compatibility
@@ -152,15 +192,24 @@ CONSOLE_COMMAND(mn_newgame, 0)
       MN_Alert(s_NEWGAME);
       return;
    }
-
+   
    if(gamemode == commercial)
    {
-      // haleyjd FIXME: startmap disabled for v3.31 beta 2
-#ifdef BETA_STARTMAP
+      // determine startmap presence and origin
+      int startMapLump = W_CheckNumForName("START");
+      boolean mapPresent = true;
+
+      // if lump not found or the game is modified and the
+      // lump comes from the first loaded wad, consider it not
+      // present -- this assumes the resource wad is loaded first.
+      if(startMapLump < 0 || 
+         (modifiedgame && 
+          lumpinfo[startMapLump]->handle == firstWadHandle))
+         mapPresent = false;
+
+
       // dont use new game menu if not needed
-      if(!(modifiedgame && startOnNewMap) && gamemode == commercial
-         && W_CheckNumForName("START") >= 0
-         && use_startmap)
+      if(!(modifiedgame && startOnNewMap) && use_startmap && mapPresent)
       {
          if(use_startmap == -1)              // not asked yet
             MN_StartMenu(&menu_startmap);
@@ -168,26 +217,19 @@ CONSOLE_COMMAND(mn_newgame, 0)
          {  
             // use start map 
             G_DeferedInitNew(defaultskill, "START");
-            MN_ClearMenus ();
+            MN_ClearMenus();
          }
       }
       else
-#endif
          MN_StartMenu(&menu_newgame);
-    }
+   }
    else
    {
-      // haleyjd 03/02/03: changed to use config variable
-      if(modifiedgame && startOnNewMap)
-         MN_StartMenu(&menu_newgame);
-      else
-      {
-         // hack -- cut off thy flesh consumed if not retail
-         if(gamemode != retail)
-            menu_episode.menuitems[5].type = it_end;
-         
-         MN_StartMenu(&menu_episode);
-      }
+      // hack -- cut off thy flesh consumed if not retail
+      if(gamemode != retail)
+         menu_episode.menuitems[5].type = it_end;
+      
+      MN_StartMenu(&menu_episode);
    }
 }
 
@@ -214,7 +256,7 @@ CONSOLE_COMMAND(mn_quit, 0)
       psnprintf(quitmsg, sizeof(quitmsg), "%s\n\n%s", 
                 s_QUITMSG, s_DOSY);
    }
-   else if(gameModeInfo->flags & GIF_HERETIC)
+   else if(gameModeInfo->type == Game_Heretic)
    {
       // haleyjd: heretic support
       // I went ahead and kept the s_DOSY because its better to
@@ -309,7 +351,7 @@ CONSOLE_COMMAND(newgame, cf_notnet)
    if(c_argc) skill = atoi(c_argv[0]);
    
    // haleyjd 03/02/03: changed to use config variable
-   if(modifiedgame && startOnNewMap)
+   if(gamemode == commercial && modifiedgame && startOnNewMap)
    {
       // start on newest level from wad
       G_DeferedInitNew(skill, firstlevel);
@@ -380,28 +422,6 @@ CONSOLE_COMMAND(mn_optfeat, 0)
 //
 // Access to new SMMU features
 //
-
-/*
-menu_t menu_features =
-{
-  {
-    {it_title,  FC_GOLD "features",     NULL,                   "M_FEAT"},
-    {it_gap},
-    {it_gap},
-    {it_runcmd, "multiplayer",          "mn_multi",              "M_MULTI"},
-    {it_gap},
-    {it_runcmd, "load wad",             "mn_loadwad",            "M_WAD"},
-    {it_gap},
-    {it_runcmd, "demos",                "mn_demos",              "M_DEMOS"},
-    {it_gap},
-    {it_runcmd, "about",                "credits",               "M_ABOUT"},
-    {it_end},
-  },
-  100, 15,                              // x,y
-  3,                                    // start item
-  mf_leftaligned | mf_skullmenu         // skull menu
-};
-*/
 
 menu_t menu_features =
 {
@@ -948,7 +968,7 @@ void MN_SaveGame(void)
 }
 
 // create the savegame console commands
-void MN_CreateSaveCmds()
+void MN_CreateSaveCmds(void)
 {
    // haleyjd: something about the way these commands are being created
    //          is causing the console code to free a ptr with no zone id...
@@ -1017,7 +1037,7 @@ void MN_ReadSaveStrings(void)
          // haleyjd
          if(savegamenames[i])
             Z_Free(savegamenames[i]);
-         savegamenames[i] = Z_Strdup("empty slot", PU_STATIC, 0);
+         savegamenames[i] = Z_Strdup(s_EMPTYSTRING, PU_STATIC, 0);
          continue;
       }
 
@@ -1053,7 +1073,7 @@ void MN_DrawLoadBox(int x, int y)
    V_DrawPatch(x, y, &vbscreen, patch_right);
 }
 
-void MN_LoadGameDrawer();
+void MN_LoadGameDrawer(void);
 
 // haleyjd: all saveslot names changed to be consistent
 
@@ -1100,7 +1120,7 @@ void MN_LoadGameDrawer()
    for(i=0, y=2; i<SAVESLOTS; i++, y+=2)  // haleyjd
    {
       menu_loadgame.menuitems[y].description =
-         savegamenames[i] ? savegamenames[i] : empty_slot;
+         savegamenames[i] ? savegamenames[i] : s_EMPTYSTRING;
    }
 }
 
@@ -1192,7 +1212,7 @@ CONSOLE_COMMAND(qload, cf_hidden)
 
 // haleyjd: fixes continue here from 8-17 build
 
-void MN_SaveGameDrawer()
+void MN_SaveGameDrawer(void)
 {
    int i, y;
    
@@ -1409,7 +1429,7 @@ void MN_VideoModeDrawer()
    // approximately center box on "translucency" item in menu
    y = menu_video.menuitems[13].y - 5;
    V_DrawBox(270, y, 20, 20);
-   V_DrawPatchTL(282, y + 12, &vbscreen, patch, NULL, 32768);
+   V_DrawPatchTL(282, y + 12, &vbscreen, patch, NULL, FTRANLEVEL);
 }
 
 CONSOLE_COMMAND(mn_video, 0)
@@ -1517,9 +1537,9 @@ menu_t menu_sound =
     {it_gap},
     {it_info,       FC_GOLD "volume"},
     {it_slider,     "sfx volume",                   "sfx_volume"},
-#ifndef _SDL_VER
+//#ifndef _SDL_VER
     {it_slider,     "music volume",                 "music_volume"},
-#endif
+//#endif
     {it_gap},
     {it_info,       FC_GOLD "setup"},
     {it_toggle,     "sound card",                   "snd_card"},
@@ -1943,36 +1963,61 @@ menu_t menu_keybindings =
     {
         {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
         {it_gap},
+        {it_runcmd,       "basic movement...",      "mn_movekeys"},
         {it_runcmd,       "weapon keys...",        "mn_weaponkeys"},
         {it_runcmd,       "environment...",        "mn_envkeys"},
-        {it_gap},
-        {it_info, FC_GOLD "basic movement"},
-        {it_binding,      "move forward",          "forward"},
-        {it_binding,      "move backward",         "backward"},
-        {it_binding,      "run",                   "speed"},
-        {it_binding,      "turn left",             "left"},
-        {it_binding,      "turn right",            "right"},
-        {it_binding,      "strafe on",             "strafe"},
-        {it_binding,      "strafe left",           "moveleft"},
-        {it_binding,      "strafe right",          "moveright"},
-        {it_binding,      "180 degree turn",       "flip"},
-        {it_gap},
-        {it_binding,      "mlook on",              "mlook"},
-        {it_binding,      "look up",               "lookup"},
-        {it_binding,      "look down",             "lookdown"},
-        {it_binding,      "center view",           "center"},
-        {it_gap},
-        {it_binding,      "use",                   "use"},
+        {it_runcmd,       "menu actions...",       "mn_menukeys"},
+        {it_runcmd,       "automap...",            "mn_automapkeys"},
         {it_end},
     },
-    150, 5,                       // x,y offsets
+    110, 15,                       // x,y offsets
     2,
-    mf_background, // draw background: not a skull menu
+    mf_background|mf_leftaligned, // draw background: not a skull menu
   };
 
 CONSOLE_COMMAND(mn_keybindings, 0)
 {
    MN_StartMenu(&menu_keybindings);
+}
+
+//------------------------------------------------------------------------
+//
+// Key Bindings: basic movement keys
+//
+
+menu_t menu_movekeys =
+{
+   {
+      {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
+      {it_gap},
+      {it_info, FC_GOLD "basic movement"},
+      {it_gap},
+      {it_binding,      "move forward",          "forward"},
+      {it_binding,      "move backward",         "backward"},
+      {it_binding,      "run",                   "speed"},
+      {it_binding,      "turn left",             "left"},
+      {it_binding,      "turn right",            "right"},
+      {it_binding,      "strafe on",             "strafe"},
+      {it_binding,      "strafe left",           "moveleft"},
+      {it_binding,      "strafe right",          "moveright"},
+      {it_binding,      "180 degree turn",       "flip"},
+      {it_gap},
+      {it_binding,      "mlook on",              "mlook"},
+      {it_binding,      "look up",               "lookup"},
+      {it_binding,      "look down",             "lookdown"},
+      {it_binding,      "center view",           "center"},
+      {it_gap},
+      {it_binding,      "use",                   "use"},
+      {it_end},
+   },
+   150, 15,                       // x,y offsets
+   4,
+   mf_background, // draw background: not a skull menu
+};
+
+CONSOLE_COMMAND(mn_movekeys, 0)
+{
+   MN_StartMenu(&menu_movekeys);
 }
 
 //------------------------------------------------------------------------
@@ -1986,6 +2031,7 @@ menu_t menu_weaponbindings =
       {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
       {it_gap},
       {it_info, FC_GOLD "weapon keys"},
+      {it_gap},
       {it_binding,      "weapon 1",              "weapon1"},
       {it_binding,      "weapon 2",              "weapon2"},
       {it_binding,      "weapon 3",              "weapon3"},
@@ -2000,8 +2046,8 @@ menu_t menu_weaponbindings =
       {it_binding,      "attack/fire",           "attack"},
       {it_end},
     },
-    150, 5,                        // x,y offsets
-    3,
+    150, 15,                        // x,y offsets
+    4,
     mf_background,  // draw background: not a skull menu
   };
 
@@ -2023,29 +2069,100 @@ menu_t menu_envbindings =
       {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
       {it_gap},
       {it_info,         FC_GOLD "environment"},
+      {it_gap},
       {it_binding,      "screen size up",        "screensize +"},
       {it_binding,      "screen size down",      "screensize -"},
+      {it_binding,      "take screenshot",       "screenshot"},
       {it_gap},
-      {it_binding,      "load game",             "mn_loadgame"},
       {it_binding,      "save game",             "mn_savegame"}, 
-      {it_binding,      "quick load",            "quickload"},
-      {it_binding,      "quick save",            "quicksave"},
+      {it_binding,      "load game",             "mn_loadgame"},
       {it_binding,      "volume",                "mn_sound"},
       {it_binding,      "toggle hud",            "hu_overlay /"},
+      {it_binding,      "quick save",            "quicksave"},
       {it_binding,      "end game",              "mn_endgame"},
       {it_binding,      "toggle messages",       "messages /"},
+      {it_binding,      "quick load",            "quickload"},
       {it_binding,      "quit",                  "mn_quit"},
       {it_binding,      "gamma correction",      "gamma /"},
       {it_end},
    },
-   150, 5,                        // x,y offsets
-   3,
+   150, 15,                        // x,y offsets
+   4,
    mf_background,  // draw background: not a skull menu
 };
 
 CONSOLE_COMMAND(mn_envkeys, 0)
 {
    MN_StartMenu(&menu_envbindings);
+}
+
+//------------------------------------------------------------------------
+//
+// Key Bindings: Menu Keys
+//
+
+menu_t menu_menukeys =
+{
+   {
+      {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
+      {it_gap},
+      {it_info, FC_GOLD "menu actions"},
+      {it_gap},
+      {it_binding,      "toggle menus",          "menu_toggle"},
+      {it_binding,      "previous menu",         "menu_previous"},
+      {it_binding,      "next item",             "menu_down"},
+      {it_binding,      "previous item",         "menu_up"},
+      {it_binding,      "next value",            "menu_right"},
+      {it_binding,      "previous value",        "menu_left"},
+      {it_binding,      "confirm",               "menu_confirm"},
+      {it_binding,      "display help",          "menu_help"},
+      {it_binding,      "display setup",         "menu_setup"},
+      {it_end},
+   },
+   150, 15,                       // x,y offsets
+   4,
+   mf_background, // draw background: not a skull menu
+};
+
+CONSOLE_COMMAND(mn_menukeys, 0)
+{
+   MN_StartMenu(&menu_menukeys);
+}
+
+//------------------------------------------------------------------------
+//
+// Key Bindings: Automap Keys
+//
+
+menu_t menu_automapkeys =
+{
+   {
+      {it_title,  FC_GOLD "key bindings",          NULL,        "M_KEYBND"},
+      {it_gap},
+      {it_info, FC_GOLD "automap"},
+      {it_gap},
+      {it_binding,      "toggle map",            "map_toggle"},
+      {it_binding,      "move up",               "map_up"},
+      {it_binding,      "move down",             "map_down"},
+      {it_binding,      "move left",             "map_left"},
+      {it_binding,      "move right",            "map_right"},
+      {it_binding,      "zoom in",               "map_zoomin"},
+      {it_binding,      "zoom out",              "map_zoomout"},
+      {it_binding,      "show full map",         "map_gobig"},
+      {it_binding,      "follow mode",           "map_follow"},
+      {it_binding,      "mark spot",             "map_mark"},
+      {it_binding,      "clear spots",           "map_clear"},
+      {it_binding,      "show grid",             "map_grid"},
+      {it_end},
+   },
+   150, 15,                       // x,y offsets
+   4,
+   mf_background, // draw background: not a skull menu
+};
+
+CONSOLE_COMMAND(mn_automapkeys, 0)
+{
+   MN_StartMenu(&menu_automapkeys);
 }
 
 //------------------------------------------------------------------------
@@ -2130,6 +2247,10 @@ CONSOLE_COMMAND(skinviewer, 0)
    MN_InitSkinViewer();
 }
 
+// haleyjd 05/16/04: traditional menu support
+VARIABLE_BOOLEAN(traditional_menu, NULL, yesno);
+CONSOLE_VARIABLE(use_traditional_menu, traditional_menu, 0) {}
+
 void MN_AddMenus(void)
 {
    C_AddCommand(mn_newgame);
@@ -2183,10 +2304,13 @@ void MN_AddMenus(void)
    C_AddCommand(mn_hud);
    C_AddCommand(mn_status);
    C_AddCommand(mn_automap);
-   
+
+   C_AddCommand(mn_movekeys);
    C_AddCommand(mn_keybindings);
    C_AddCommand(mn_weaponkeys);
    C_AddCommand(mn_envkeys);
+   C_AddCommand(mn_menukeys);
+   C_AddCommand(mn_automapkeys);
    
    C_AddCommand(newgame);
    
@@ -2206,6 +2330,7 @@ void MN_AddMenus(void)
 #endif
 
    C_AddCommand(skinviewer);
+   C_AddCommand(use_traditional_menu);
    
    // haleyjd: add Heretic-specific menus (in mn_htic.c)
    MN_AddHMenus();

@@ -51,6 +51,7 @@ rcsid[] = "$Id: p_enemy.c,v 1.22 1998/05/12 12:47:10 phares Exp $";
 #include "p_info.h"
 #include "a_small.h"
 #include "e_edf.h"
+#include "d_gi.h"
 
 extern fixed_t FloatBobOffsets[64]; // haleyjd: Float Bobbing
 
@@ -147,8 +148,8 @@ boolean P_CheckMeleeRange(mobj_t *actor)
    // haleyjd 02/15/02: revision of joel's fix for z height check
    if(pl && demo_version >= 329 && !comp[comp_overunder])
    {
-      if(pl->z > (actor->z + actor->height) || // pl is too far above
-         actor->z > (pl->z + pl->height))      // pl is too far below
+      if(pl->z > actor->z + actor->height || // pl is too far above
+         actor->z > pl->z + pl->height)      // pl is too far below
          return false;
    }
 
@@ -462,12 +463,11 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
    // killough 11/98: fall more slowly, under gravity, if felldown==true
    if(!(actor->flags & MF_FLOAT) && (!felldown || demo_version < 203))
    {
-      if(demo_version >= 329 && !comp[comp_terrain] &&
-         actor->z > actor->floorz)
-      {
-         P_HitFloor(actor);
-      }
+      fixed_t oldz = actor->z;
       actor->z = actor->floorz;
+
+      if(actor->z < oldz)
+         P_HitFloor(actor);
    }
    return true;
 }
@@ -498,8 +498,7 @@ static boolean P_SmartMove(mobj_t *actor)
    // as well as any thing that has the MF2_JUMPDOWN flag
    // (includes DOGS)
 
-   if((actor->flags2 & MF2_JUMPDOWN || 
-       (actor->type == HelperThing - 1)) &&
+   if((actor->flags2 & MF2_JUMPDOWN || (actor->type == HelperThing)) &&
       target && dog_jumping &&
       !((target->flags ^ actor->flags) & MF_FRIEND) &&
       P_AproxDistance(actor->x - target->x,
@@ -874,6 +873,54 @@ static boolean PIT_FindTarget(mobj_t *mo)
 }
 
 //
+// P_HereticMadMelee
+//
+// haleyjd 07/30/04: This function is used to make monsters start
+// battling like mad when the player dies in Heretic. Who knows why
+// Raven added that "feature," but it's fun ^_^
+//
+static boolean P_HereticMadMelee(mobj_t *actor)
+{
+   mobj_t *mo;
+   thinker_t *th;
+
+   // only monsters within sight of the player will go crazy
+   if(!P_CheckSight(players[0].mo, actor))
+      return false;
+
+   for(th = thinkercap.next; th != &thinkercap; th = th->next)
+   {
+      if(th->function != P_MobjThinker)
+         continue;
+
+      mo = (mobj_t *)th;
+
+      // Must be:
+      // * killable
+      // * not self (will fight same type, however)
+      // * alive
+      if(!(mo->flags & MF_COUNTKILL || mo->flags3 & MF3_KILLABLE) || 
+         mo == actor || 
+         mo->health <= 0)
+         continue;
+
+      // skip some at random
+      if(P_Random(pr_madmelee) < 16)
+         continue;
+
+      // must be within sight
+      if(!P_CheckSight(actor, mo))
+         continue;
+
+      // got one
+      P_SetTarget(&actor->target, mo);
+      return true;
+   }
+
+   return false;
+}
+
+//
 // P_LookForPlayers
 // If allaround is false, only look 180 degrees in front.
 // Returns true if a player is targeted.
@@ -918,6 +965,13 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
       }
       
       return false;
+   }
+
+   if(gameModeInfo->hasMadMelee && GameType == gt_single &&
+      players[0].health <= 0)
+   {
+      // Heretic monsters go mad when player dies
+      return P_HereticMadMelee(actor);
    }
 
    // Change mask of 3 to (MAXPLAYERS-1) -- killough 2/15/98:
@@ -1259,9 +1313,28 @@ void A_Chase(mobj_t *actor)
    }
 
    if(!actor->target || !(actor->target->flags&MF_SHOOTABLE))
-   {    
+   {
+      // haleyjd 07/26/04: Detect and prevent infinite recursion if
+      // Chase is called from a thing's spawnstate.
+      static boolean recursion = false;
+
+      // if recursion is true at this point, P_SetMobjState sent
+      // us back here -- print an error message and return
+      if(recursion)
+      {
+         doom_printf("Warning: Chase recursion detected\n");
+         return;
+      }
+
+      // set the flag true before calling P_SetMobjState
+      recursion = true;
+
       if(!P_LookForTargets(actor,true)) // look for a new target
          P_SetMobjState(actor, actor->info->spawnstate); // no new target
+
+      // clear the flag after the state set occurs
+      recursion = false;
+
       return;
    }
 
@@ -1406,9 +1479,8 @@ void A_FaceTarget(mobj_t *actor)
    if(actor->target->flags & MF_SHADOW ||
       actor->target->flags2 & MF2_DONTDRAW || // haleyjd
       actor->target->flags3 & MF3_GHOST)      // haleyjd
-   { // killough 5/5/98: remove dependence on order of evaluation:
-      int t = P_Random(pr_facetarget);
-      actor->angle += (t-P_Random(pr_facetarget))<<21;
+   {
+      actor->angle += P_SubRandom(pr_facetarget) << 21;
    }
 }
 
@@ -1418,7 +1490,7 @@ void A_FaceTarget(mobj_t *actor)
 
 void A_PosAttack(mobj_t *actor)
 {
-   int angle, damage, slope, t;
+   int angle, damage, slope;
    
    if(!actor->target)
       return;
@@ -1428,9 +1500,9 @@ void A_PosAttack(mobj_t *actor)
    slope = P_AimLineAttack(actor, angle, MISSILERANGE, 0); // killough 8/2/98
    S_StartSound(actor, sfx_pistol);
    
-   // killough 5/5/98: remove dependence on order of evaluation:
-   t = P_Random(pr_posattack);
-   angle += (t - P_Random(pr_posattack))<<20;
+   // haleyjd 08/05/04: use new function
+   angle += P_SubRandom(pr_posattack) << 20;
+
    damage = (P_Random(pr_posattack)%5 + 1)*3;
    P_LineAttack(actor, angle, MISSILERANGE, slope, damage);
 }
@@ -1441,14 +1513,17 @@ void A_SPosAttack(mobj_t* actor)
    
    if (!actor->target)
       return;
+   
    S_StartSound(actor, sfx_shotgn);
    A_FaceTarget(actor);
+   
    bangle = actor->angle;
    slope = P_AimLineAttack(actor, bangle, MISSILERANGE, 0); // killough 8/2/98
-   for (i=0; i<3; i++)
-   {  // killough 5/5/98: remove dependence on order of evaluation:
-      int t = P_Random(pr_sposattack);
-      int angle = bangle + ((t - P_Random(pr_sposattack))<<20);
+   
+   for(i = 0; i < 3; ++i)
+   {  
+      // haleyjd 08/05/04: use new function
+      int angle = bangle + (P_SubRandom(pr_sposattack) << 20);
       int damage = ((P_Random(pr_sposattack)%5)+1)*3;
       P_LineAttack(actor, angle, MISSILERANGE, slope, damage);
    }
@@ -1456,18 +1531,19 @@ void A_SPosAttack(mobj_t* actor)
 
 void A_CPosAttack(mobj_t *actor)
 {
-   int angle, bangle, damage, slope, t;
+   int angle, bangle, damage, slope;
    
    if (!actor->target)
       return;
+
    S_StartSound(actor, sfx_chgun); //shotgn
    A_FaceTarget(actor);
+   
    bangle = actor->angle;
    slope = P_AimLineAttack(actor, bangle, MISSILERANGE, 0); // killough 8/2/98
    
-   // killough 5/5/98: remove dependence on order of evaluation:
-   t = P_Random(pr_cposattack);
-   angle = bangle + ((t - P_Random(pr_cposattack))<<20);
+   // haleyjd 08/05/04: use new function
+   angle = bangle + (P_SubRandom(pr_cposattack) << 20);
    damage = ((P_Random(pr_cposattack)%5)+1)*3;
    P_LineAttack(actor, angle, MISSILERANGE, slope, damage);
 }
@@ -1772,7 +1848,7 @@ boolean PIT_VileCheck(mobj_t *thing)
 // gib. One of the options may be to ignore this guy.               //   V
 
 // Option 1: the original, buggy method, -> ghost (compatibility)
-// Option 2: ressurect the monster, but not as a ghost
+// Option 2: resurrect the monster, but not as a ghost
 // Option 3: ignore the gib
 
 //    if (Option3)                                                  //   ^
@@ -1784,7 +1860,17 @@ boolean PIT_VileCheck(mobj_t *thing)
    if(comp[comp_vile])
    {                                                              // phares
       corpsehit->height <<= 2;                                    //   V
+      
+      // haleyjd 11/11/04: this is also broken by Lee's change to
+      // PIT_CheckThing when not in demo_compatibility.
+      if(demo_version >= 331)
+         corpsehit->flags |= MF_SOLID;
+
       check = P_CheckPosition(corpsehit,corpsehit->x,corpsehit->y);
+
+      if(demo_version >= 331)
+         corpsehit->flags &= ~MF_SOLID;
+      
       corpsehit->height >>= 2;
    }
    else
@@ -1852,8 +1938,13 @@ void A_VileChase(mobj_t* actor)
                P_SetMobjState(actor, E_SafeState(S_VILE_HEAL1));
                S_StartSound(corpsehit, sfx_slop);
                info = corpsehit->info;
+
+               // haleyjd 09/26/04: need to restore monster skins here
+               // in case they were cleared by the thing being crushed
+               if(info->altsprite != NUMSPRITES)
+                  corpsehit->skin = P_GetMonsterSkin(info->altsprite);
                
-               P_SetMobjState(corpsehit,info->raisestate);
+               P_SetMobjState(corpsehit, info->raisestate);
                
                if (comp[comp_vile])
                   corpsehit->height <<= 2;                        // phares
@@ -2082,35 +2173,48 @@ void A_FatAttack3(mobj_t *actor)
 }
 
 //
+// P_SkullFly
+//
+// haleyjd 08/07/04: generalized code to make a thing skullfly.
+// actor->target must be valid.
+//
+void P_SkullFly(mobj_t *actor, fixed_t speed)
+{
+   mobj_t *dest;
+   angle_t an;
+   int     dist;
+
+   dest = actor->target;
+   actor->flags |= MF_SKULLFLY;
+
+   A_FaceTarget(actor);
+   an = actor->angle >> ANGLETOFINESHIFT;
+   actor->momx = FixedMul(speed, finecosine[an]);
+   actor->momy = FixedMul(speed, finesine[an]);
+   
+   dist = P_AproxDistance(dest->x - actor->x, dest->y - actor->y);
+   dist = dist / speed;
+   if(dist < 1)
+      dist = 1;
+
+   actor->momz = (dest->z+(dest->height>>1) - actor->z) / dist;
+}
+
+//
 // SkullAttack
 // Fly at the player like a missile.
 //
 #define SKULLSPEED              (20*FRACUNIT)
 
 void A_SkullAttack(mobj_t *actor)
-{
-   mobj_t  *dest;
-   angle_t an;
-   int     dist;
-   
+{   
    if(!actor->target)
       return;
-
-   dest = actor->target;
-   actor->flags |= MF_SKULLFLY;
    
    S_StartSound(actor, actor->info->attacksound);
 
-   A_FaceTarget(actor);
-   an = actor->angle >> ANGLETOFINESHIFT;
-   actor->momx = FixedMul(SKULLSPEED, finecosine[an]);
-   actor->momy = FixedMul(SKULLSPEED, finesine[an]);
-   dist = P_AproxDistance(dest->x - actor->x, dest->y - actor->y);
-   dist = dist / SKULLSPEED;
-   
-   if(dist < 1)
-      dist = 1;
-   actor->momz = (dest->z+(dest->height>>1) - actor->z) / dist;
+   // haleyjd 08/07/04: use new P_SkullFly function
+   P_SkullFly(actor, SKULLSPEED);
 }
 
 // sf: removed beta lost soul
@@ -2209,7 +2313,7 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
    if(!P_TryMove(newmobj, newmobj->x, newmobj->y, false))
    {
       // kill it immediately
-      P_DamageMobj(newmobj, actor, actor, 10000,MOD_UNKNOWN);
+      P_DamageMobj(newmobj, actor, actor, 10000, MOD_UNKNOWN);
       return;
    }
    
@@ -2300,7 +2404,7 @@ void A_Fall(mobj_t *actor)
 void A_Die(mobj_t *actor)
 {
    actor->flags2 &= ~MF2_INVULNERABLE;  // haleyjd: just in case
-   P_DamageMobj(actor, NULL, NULL, actor->health,MOD_UNKNOWN);
+   P_DamageMobj(actor, NULL, NULL, actor->health, MOD_UNKNOWN);
 }
 
 //
@@ -2310,9 +2414,8 @@ void A_Explode(mobj_t *thingy)
 {
    P_RadiusAttack(thingy, thingy->target, 128, thingy->info->mod);
    
-   if(!comp[comp_terrain] && 
-      (thingy->z <= thingy->floorz + 128*FRACUNIT))
-      P_HitFloor(thingy); // haleyjd: TerrainTypes
+   if(thingy->z <= thingy->secfloorz + 128*FRACUNIT)
+      P_HitWater(thingy, thingy->subsector->sector);
 }
 
 void A_Nailbomb(mobj_t *thing)
@@ -2322,11 +2425,10 @@ void A_Nailbomb(mobj_t *thing)
    P_RadiusAttack(thing, thing->target, 128, thing->info->mod);
 
    // haleyjd: added here as of 3.31b3 -- was overlooked
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      (thing->z <= thing->floorz + 128*FRACUNIT))
-      P_HitFloor(thing);
+   if(demo_version >= 331 && thing->z <= thing->secfloorz + 128*FRACUNIT)
+      P_HitWater(thing, thing->subsector->sector);
 
-   for(i=0; i<30; i++)
+   for(i = 0; i < 30; ++i)
       P_LineAttack(thing, i*(ANG180/15), MISSILERANGE, 0, 10);
 }
 
@@ -2338,12 +2440,11 @@ void A_Nailbomb(mobj_t *thing)
 
 void A_Detonate(mobj_t *mo)
 {
-   P_RadiusAttack(mo, mo->target, mo->info->damage, mo->info->mod);
+   P_RadiusAttack(mo, mo->target, mo->damage, mo->info->mod);
 
    // haleyjd: added here as of 3.31b3 -- was overlooked
-   if(demo_version >= 331 && !comp[comp_terrain] &&
-      (mo->z <= mo->floorz + mo->info->damage*FRACUNIT))
-      P_HitFloor(mo);
+   if(demo_version >= 331 && mo->z <= mo->secfloorz + mo->damage*FRACUNIT)
+      P_HitWater(mo, mo->subsector->sector);
 }
 
 //
@@ -2353,7 +2454,7 @@ void A_Detonate(mobj_t *mo)
 
 void A_Mushroom(mobj_t *actor)
 {
-   int i, j, n = actor->info->damage;
+   int i, j, n = actor->damage;
    int arg0, ShotType;
    
    // Mushroom parameters are part of code pointer's state
@@ -2599,9 +2700,9 @@ void A_CloseShotgun2(player_t *player, pspdef_t *psp)
 }
 
 // killough 2/7/98: Remove limit on icon landings:
-mobj_t **braintargets;
-int    numbraintargets_alloc;
-int    numbraintargets;
+// haleyjd 07/30/04: use new MobjCollection
+
+MobjCollection_t braintargets;
 
 struct brain_s brain;   // killough 3/26/98: global state of boss brain
 
@@ -2613,54 +2714,17 @@ void P_SpawnBrainTargets(void)  // killough 3/26/98: renamed old function
    int BrainSpotType = E_ThingNumForDEHNum(MT_BOSSTARGET);
 
    // find all the target spots
-   numbraintargets = 0;
-   brain.targeton = 0;
+   P_ReInitMobjCollection(&braintargets, BrainSpotType);
+
    brain.easy = 0;   // killough 3/26/98: always init easy to 0
 
    if(BrainSpotType == NUMMOBJTYPES)
       return;
 
-   // haleyjd: use new generalized P_CollectThings
-   P_CollectThings(BrainSpotType, &numbraintargets,
-                   &numbraintargets_alloc, &braintargets);
+   P_CollectThings(&braintargets);
 }
 
-//
-// P_CollectThings
-//
-// haleyjd 11/19/02: Generalized this function out of the brain
-// target spawning code above, so that it can be used in
-// multiple places -- D'Sparil's teleport things, for instance.
-// Notice this is the first time I've ever needed a 
-// pointer-to-pointer-to-pointer.
-//
-// * Quasar` is scared
-//
-void P_CollectThings(mobjtype_t type, int *num, int *numalloc,
-                     mobj_t ***ppArray)
-{
-   thinker_t *thinker;
-
-   for(thinker = thinkercap.next; thinker != &thinkercap; thinker = thinker->next)
-   {
-      if(thinker->function == P_MobjThinker)
-      {
-         mobj_t *mo = (mobj_t *)thinker;
-
-         if(mo->type == type)
-         {
-            if(*num >= *numalloc)
-            {
-               *ppArray = realloc(*ppArray,
-                  (*numalloc = *numalloc ?
-                   *numalloc*2 : 32) * sizeof **ppArray);
-            }
-            (*ppArray)[*num] = mo;
-            *num = *num + 1;
-         }
-      }
-   }
-}
+// haleyjd 07/30/04: P_CollectThings moved to p_mobj.c
 
 void A_BrainAwake(mobj_t *mo)
 {
@@ -2705,15 +2769,17 @@ void A_BrainScream(mobj_t *mo)
 }
 
 void A_BrainExplode(mobj_t *mo)
-{  // killough 5/5/98: remove dependence on order of evaluation:
-   int t = P_Random(pr_brainexp);
-   int x = mo->x + (t - P_Random(pr_brainexp))*2048;
+{  
+   // haleyjd 08/05/04: use new function
+   int x = mo->x + P_SubRandom(pr_brainexp)*2048;
    int y = mo->y;
    int z = 128 + P_Random(pr_brainexp)*2*FRACUNIT;
-   mobj_t *th = P_SpawnMobj(x,y,z, E_SafeThingType(MT_ROCKET));
+
+   mobj_t *th = P_SpawnMobj(x, y, z, E_SafeThingType(MT_ROCKET));
    th->momz = P_Random(pr_brainexp)*512;
    P_SetMobjState(th, E_SafeState(S_BRAINEXPLODE1));
-   th->tics -= P_Random(pr_brainexp)&7;
+   
+   th->tics -= P_Random(pr_brainexp) & 7;
    if(th->tics < 1)
       th->tics = 1;
 }
@@ -2739,7 +2805,8 @@ void A_BrainSpit(mobj_t *mo)
    if(SpawnShotType == -1)
       SpawnShotType = E_SafeThingType(MT_SPAWNSHOT);
    
-   if(!numbraintargets)     // killough 4/1/98: ignore if no targets
+    // killough 4/1/98: ignore if no targets
+   if(P_CollectionIsEmpty(&braintargets))
       return;
 
    brain.easy ^= 1;          // killough 3/26/98: use brain struct
@@ -2747,8 +2814,7 @@ void A_BrainSpit(mobj_t *mo)
       return;
 
    // shoot a cube at current target
-   targ = braintargets[brain.targeton++]; // killough 3/26/98:
-   brain.targeton %= numbraintargets;     // Use brain struct for targets
+   targ = P_CollectionWrapIterator(&braintargets);
 
    // spawn brain missile
    newmobj = P_SpawnMissile(mo, targ, SpawnShotType, 
@@ -2915,11 +2981,54 @@ void A_Face(mobj_t *mo)
    mo->angle = (angle_t)(((ULong64) mo->state->misc1 << 32) / 360);
 }
 
+//
+// A_Scratch
+//
+// Parameterized melee attack.
+// * misc1 == constant damage amount
+// * misc2 == optional sound deh num to play
+//
+// haleyjd 08/02/04: extended parameters:
+// * args[0] == special mode select
+//              * 0 == compatibility (use misc1 like normal)
+//              * 1 == use mo->damage
+//              * 2 == use counter specified in args[1]
+// * args[1] == counter number for mode 2
+//
 void A_Scratch(mobj_t *mo)
 {
+   int damage;
+
    // haleyjd: demystified
    if(!mo->target)
       return;
+
+   // haleyjd 08/02/04: extensions to get damage from multiple sources
+   switch(mo->state->args[0])
+   {
+   default:
+   case 0: // default, compatibility mode
+      damage = mo->state->misc1;
+      break;
+   case 1: // use mo->damage
+      damage = mo->damage;
+      break;
+   case 2: // use a counter
+      switch(mo->state->args[1])
+      {
+      case 0:
+         damage = mo->special1;
+         break;
+      case 1:
+         damage = mo->special2;
+         break;
+      case 2:
+         damage = mo->special3;
+         break;
+      default:
+         return; // invalid
+      }
+   }
 
    A_FaceTarget(mo);
 
@@ -2928,8 +3037,8 @@ void A_Scratch(mobj_t *mo)
       if(mo->state->misc2)
          S_StartSound(mo, mo->state->misc2);
 
-      P_DamageMobj(mo->target, mo, mo, mo->state->misc1, MOD_HIT);
-   }   
+      P_DamageMobj(mo->target, mo, mo, damage, MOD_HIT);
+   }
 }
 
 void A_PlaySound(mobj_t *mo)
@@ -2957,9 +3066,15 @@ void A_RandomJump(mobj_t *mo)
 
 void A_LineEffect(mobj_t *mo)
 {
+   // haleyjd 05/02/04: bug fix:
+   // This line can end up being referred to long after this
+   // function returns, thus it must be made static or memory
+   // corruption is possible.
+   static line_t junk;
+
    if(!(mo->intflags & MIF_LINEDONE))                // Unless already used up
    {
-      line_t junk = *lines;                          // Fake linedef set to 1st
+      junk = *lines;                                 // Fake linedef set to 1st
       if((junk.special = (short)mo->state->misc1))   // Linedef type
       {
          player_t player, *oldplayer = mo->player;   // Remember player status
@@ -3053,7 +3168,7 @@ void A_BetaSkullAttack(mobj_t *actor)
    S_StartSound(actor, actor->info->attacksound);
    
    A_FaceTarget(actor);
-   damage = (P_Random(pr_skullfly)%8+1)*actor->info->damage;
+   damage = (P_Random(pr_skullfly)%8+1)*actor->damage;
    P_DamageMobj(actor->target, actor, actor, damage, MOD_UNKNOWN);
 }
 
@@ -3068,7 +3183,8 @@ void A_BetaSkullAttack(mobj_t *actor)
 //
 void A_StartScript(mobj_t *actor)
 {
-   AMX *vm;
+   SmallContext_t *rootContext, *useContext;
+   SmallContext_t newContext;
    int scriptnum = (int)(actor->state->args[0]);
    int selectvm  = (int)(actor->state->args[1]);
 
@@ -3079,27 +3195,37 @@ void A_StartScript(mobj_t *actor)
       (cell)(actor->state->args[4]),
    };
 
+   // determine root context to use
    switch(selectvm)
    {
    default:
    case 0: // game script
       if(!gameScriptLoaded)
          return;
-      vm = &gamescript;
+      rootContext = curGSContext;
       break;
    case 1: // level script
       if(!levelScriptLoaded)
          return;
-      vm = &levelscript;
+      rootContext = curLSContext;
       break;
    }
 
-   sc_invocation.invokeType = SC_INVOKE_THING;
-   sc_invocation.trigger = actor;
+   // possibly create a child context for the selected VM
+   useContext = A_CreateChildContext(rootContext, &newContext);
 
-   A_ExecScriptByNum(vm, scriptnum, 3, params);
+   // set invocation data
+   useContext->invocationData.invokeType = SC_INVOKE_THING;
+   useContext->invocationData.trigger = actor;
 
-   A_ClearInvocation();
+   // execute
+   A_ExecScriptByNum(&useContext->smallAMX, scriptnum, 3, params);
+
+   // clear invocation data
+   A_ClearInvocation(useContext);
+
+   // destroy any child context that might have been created
+   A_DestroyChildContext(useContext);
 }
 
 //
@@ -3114,7 +3240,8 @@ void A_StartScript(mobj_t *actor)
 //
 void A_PlayerStartScript(player_t *player, pspdef_t *psp)
 {
-   AMX *vm;
+   SmallContext_t *rootContext, *useContext;
+   SmallContext_t newContext;
    int scriptnum = (int)(psp->state->args[0]);
    int selectvm  = (int)(psp->state->args[1]);
 
@@ -3125,236 +3252,59 @@ void A_PlayerStartScript(player_t *player, pspdef_t *psp)
       (cell)(psp->state->args[4]),
    };
 
+   // determine root context to use
    switch(selectvm)
    {
    default:
    case 0: // game script
       if(!gameScriptLoaded)
          return;
-      vm = &gamescript;
+      rootContext = curGSContext;
       break;
    case 1: // level script
       if(!levelScriptLoaded)
          return;
-      vm = &levelscript;
+      rootContext = curLSContext;
       break;
    }
 
-   sc_invocation.invokeType = SC_INVOKE_PLAYER;
-   sc_invocation.playernum = (int)(player - players);
-   sc_invocation.trigger = player->mo;
+   // possibly create a child context for the selected VM
+   useContext = A_CreateChildContext(rootContext, &newContext);
 
-   A_ExecScriptByNum(vm, scriptnum, 3, params);
+   // set invocation data
+   useContext->invocationData.invokeType = SC_INVOKE_PLAYER;
+   useContext->invocationData.playernum = (int)(player - players);
+   useContext->invocationData.trigger = player->mo;
 
-   A_ClearInvocation();
+   // execute
+   A_ExecScriptByNum(&useContext->smallAMX, scriptnum, 3, params);
+
+   // clear invocation data
+   A_ClearInvocation(useContext);
+
+   // destroy any child context that might have been created
+   A_DestroyChildContext(useContext);
 }
+
+//
+// A_FaceMoveDir
+//
+// Face a walking object in the direction it is moving.
+// haleyjd TODO: this is not documented or available in BEX yet.
+//
+void A_FaceMoveDir(mobj_t *actor)
+{
+   angle_t moveangles[NUMDIRS] = { 0, 32, 64, 96, 128, 160, 192, 224 };
+
+   if(actor->movedir != DI_NODIR)
+      actor->angle = moveangles[actor->movedir] << 24;
+}
+
 
 //
 // haleyjd: Start Eternity TC Action Functions
 // TODO: possibly eliminate some of these
 //
-
-//
-// A_MinotaurAtk1
-//
-void A_MinotaurAtk1(mobj_t *actor)
-{
-   player_t *player;
-
-   if(!actor->target)
-   {
-      return;
-   }
-   S_StartSound(actor, sfx_stfpow);
-   if(P_CheckMeleeRange(actor))
-   {
-      P_DamageMobj(actor->target, actor, actor, ((1+(P_Random(pr_minatk1)&7))*5), MOD_HIT);
-      if((player = actor->target->player) != NULL)
-      { // squish player
-         player->deltaviewheight = -16*FRACUNIT;
-      }
-   }
-}
-
-//
-// A_MinotaurDecide
-//
-#define MNTR_CHARGE_SPEED (13*FRACUNIT)
-
-void A_MinotaurDecide(mobj_t *actor)
-{
-   angle_t angle;
-   mobj_t *target;
-   int dist;
-
-   target = actor->target;
-   if(!target)
-   {
-      return;
-   }
-   S_StartSound(actor, sfx_minsit);
-   dist = P_AproxDistance(actor->x - target->x, actor->y - target->y);
-   if(target->z + target->height > actor->z
-        && target->z + target->height < actor->z + actor->height
-        && dist < 8*64*FRACUNIT
-        && dist > 1*64*FRACUNIT
-        && P_Random(pr_mindist) < 150)
-   { // charge attack
-      P_SetMobjStateNF(actor, E_SafeState(S_MNTR_ATK4_1));
-      actor->flags |= MF_SKULLFLY;
-      A_FaceTarget(actor);
-      angle = actor->angle>>ANGLETOFINESHIFT;
-      actor->momx = FixedMul(MNTR_CHARGE_SPEED, finecosine[angle]);
-      actor->momy = FixedMul(MNTR_CHARGE_SPEED, finesine[angle]);
-      // haleyjd 1/22/98: heretic special fields added 
-      actor->special1 = 35/2;
-   }
-   else if(target->z == target->floorz
-           && dist < 9*64*FRACUNIT
-           && P_Random(pr_mindist) < 220)
-   { // floor fire attack
-      P_SetMobjState(actor, E_SafeState(S_MNTR_ATK3_1));
-      actor->special2 = 0;
-   }
-   else
-   { // swing attack
-      A_FaceTarget(actor);
-      // don't need to call P_SetMobjState, falls through to swing attack
-   }
-}
-
-//
-// A_MinotaurCharge
-//
-void A_MinotaurCharge(mobj_t *actor)
-{
-   mobj_t *puff;
-   static int phoenixType = -1;
-   
-   if(phoenixType == -1)
-      phoenixType = E_SafeThingType(MT_PHOENIXPUFF);
-
-   if(actor->special1)
-   {
-      puff = P_SpawnMobj(actor->x, actor->y, actor->z, phoenixType);
-      if(puff)
-        puff->momz = 2*FRACUNIT;
-      actor->special1--;
-   }
-   else
-   {
-      actor->flags &= ~MF_SKULLFLY;
-      P_SetMobjState(actor, actor->info->seestate);
-   }
-}
-
-static int mntrfxType = -1;
-
-//
-// A_MinotaurAtk2
-//
-void A_MinotaurAtk2(mobj_t *actor)
-{
-   mobj_t *mo;
-   angle_t angle;
-   fixed_t momz;
-   fixed_t z = actor->z + 40*FRACUNIT;
-   
-   if(mntrfxType == -1)
-      mntrfxType = E_SafeThingType(MT_MNTRFX1);
-
-   if(!actor->target)
-   {
-      return;
-   }
-   S_StartSound(actor, sfx_minat2);
-
-   if(P_CheckMeleeRange(actor))
-   {
-      P_DamageMobj(actor->target, actor, actor, ((1+(P_Random(pr_minatk2)&7))*5), MOD_HIT);
-      return;
-   }
-   mo = P_SpawnMissile(actor, actor->target, mntrfxType, z);
-
-   if(mo)
-   {
-      S_StartSound(mo, sfx_minat2);
-      momz = mo->momz;
-      angle = mo->angle;
-      P_SpawnMissileAngle(actor, mntrfxType, angle-(ANG45/8), momz, z);
-      P_SpawnMissileAngle(actor, mntrfxType, angle+(ANG45/8), momz, z);
-      P_SpawnMissileAngle(actor, mntrfxType, angle-(ANG45/16), momz, z);
-      P_SpawnMissileAngle(actor, mntrfxType, angle+(ANG45/16), momz, z);
-   }
-}
-
-//
-// A_MinotaurAtk3
-//
-void A_MinotaurAtk3(mobj_t *actor)
-{
-   mobj_t *mo;
-   player_t *player;
-
-   if(mntrfxType == -1)
-      mntrfxType = E_SafeThingType(MT_MNTRFX1);
-
-   if(!actor->target)
-   {
-      return;
-   }
-   if(P_CheckMeleeRange(actor))
-   {
-      P_DamageMobj(actor->target, actor, actor, ((1+(P_Random(pr_minatk3)&7))*5), MOD_HIT);
-      if((player = actor->target->player) != NULL)
-      {  // squish player
-         player->deltaviewheight = -16*FRACUNIT;
-      }
-   }
-   else
-   {
-      mo = P_SpawnMissile(actor, actor->target, mntrfxType, ONFLOORZ);
-      if(mo)
-      {
-         S_StartSound(mo, sfx_minat1);
-      }
-   }
-   if(P_Random(pr_minatk3) < 192 && actor->special2 == 0)
-   {
-      P_SetMobjState(actor, E_SafeState(S_MNTR_ATK3_4));
-      actor->special2 = 1;
-   }
-}
-
-//
-// A_MntrFloorFire
-//
-void A_MntrFloorFire(mobj_t *actor)
-{
-   mobj_t *mo;
-
-   if(mntrfxType == -1)
-      mntrfxType = E_SafeThingType(MT_MNTRFX1);
-
-   actor->z = actor->floorz;
-   mo = P_SpawnMobj(actor->x + ((P_Random(pr_mffire) - P_Random(pr_mffire))<<10),
-                    actor->y + ((P_Random(pr_mffire) - P_Random(pr_mffire))<<10),
-                    ONFLOORZ,
-                    mntrfxType);
-   if(mo)
-   {
-     mo->target = actor->target;
-     mo->momx = 1;
-     P_CheckMissileSpawn(mo);
-   }
-}
-   
-//
-//  A_ETCBossDeath -- new death function for ETC bosses
-//
-void A_ETCBossDeath(mobj_t *actor)
-{
-}
 
 //
 // A_ClericAtk()
@@ -3497,8 +3447,6 @@ void A_FogMove(mobj_t *actor)
 
 #define CLERICSTRAFETIME 3
 
-void P_ClericSparkle(mobj_t *actor);
-
 // Attempted missile avoidance with approx. 1/3 probability
 
 void A_Cleric2Chase(mobj_t *actor)
@@ -3513,8 +3461,10 @@ void A_Cleric2Chase(mobj_t *actor)
      actor->special2--;
 
    // sparkle if invulnerable
+   /*
    if(actor->flags2&MF2_INVULNERABLE)
      P_ClericSparkle(actor);
+     */
 
    // Try to evade missile attack!
    if(actor->args[0])
@@ -3559,26 +3509,6 @@ void A_Cleric2Chase(mobj_t *actor)
      A_Chase(actor);
 }
 
-void P_ClericSparkle(mobj_t *actor)
-{
-   fixed_t x,y,z;
-   int i,t;
-
-   for(i=0; i<3; i++)
-   {
-      t = P_Random(pr_clrspark);
-
-      x = actor->x + ((P_Random(pr_clrspark)&63)-16)*FRACUNIT;
-      y = actor->y + ((P_Random(pr_clrspark)&63)-16)*FRACUNIT;
-      z = actor->z + actor->info->height/2 + ((t - P_Random(pr_clrspark))<<15);
-      if(z > (actor->z + actor->info->height)) // haleyjd 7/31/00: bug fix
-        z = actor->z + actor->info->height;
-      if(z < actor->floorz)
-        z = actor->floorz;      
-      P_SpawnMobj(x,y,z,E_SafeThingType(MT_SPARKLE));
-   }
-}
-
 boolean P_ClericDefense(mobj_t *actor)
 {
    if(actor->special2 == 0 && actor->special3 == 0 &&
@@ -3589,7 +3519,7 @@ boolean P_ClericDefense(mobj_t *actor)
 
       P_SetMobjStateNF(actor, E_SafeState(S_LCLER_SPEC));
 
-      if(info_lightning) // call down lightning from heaven!
+      if(LevelInfo.hasLightning) // call down lightning from heaven!
         P_ForceLightning();
 
       S_StartSound(actor, sfx_clrdef);  // haleyjd 07/13/99: new sound
@@ -3637,8 +3567,10 @@ void A_Cleric2Attack(mobj_t *actor)
    if(!actor->target)
      return;
 
+   /*
    if(actor->flags2&MF2_INVULNERABLE)
      P_ClericSparkle(actor);
+     */
 
    A_FaceTarget(actor);
 
@@ -3687,11 +3619,12 @@ void P_ClericTeleport(mobj_t *actor)
 {
    bossteleport_t bt;
 
+   /*
    if(actor->flags2&MF2_INVULNERABLE)
      P_ClericSparkle(actor);
+     */
 
-   bt.spotCount = numbraintargets;          // use boss brain targets
-   bt.spots     = braintargets;
+   bt.mc        = &braintargets;            // use braintargets
    bt.rngNum    = pr_clr2choose;            // use this rng
    bt.boss      = actor;                    // teleport leader cleric
    bt.state     = E_SafeState(S_LCLER_TELE1); // put cleric in this state
@@ -3705,10 +3638,12 @@ void P_ClericTeleport(mobj_t *actor)
 
 void A_Cleric2Decide(mobj_t *actor)
 {
+   /*
    if(actor->flags2&MF2_INVULNERABLE)
      P_ClericSparkle(actor);
+   */
 
-   if(actor->special1 == 0 && numbraintargets != 0)
+   if(actor->special1 == 0 && !P_CollectionIsEmpty(&braintargets))
    {
       P_ClericTeleport(actor);
       actor->special1 = (P_Random(pr_clericteleport)&0x7f)+1;
@@ -3724,8 +3659,10 @@ void A_ClericBreak(mobj_t *actor)
    if(!target)
      return;
 
+   /*
    if(actor->flags2&MF2_INVULNERABLE)
      P_ClericSparkle(actor);
+   */
 
    A_FaceTarget(actor);
 
@@ -4222,85 +4159,10 @@ void A_CyberGuardSigh(mobj_t *actor)
 
 void A_CyberGuardWake(mobj_t *actor)
 {
-   mobj_t *mo;
-   angle_t angle;
-
-   // disable invulnerability set from spawning
-   actor->flags2 &= ~MF2_INVULNERABLE;
-
-   // set actor information to that for the Cyberdemon
-   //  prevents restoration of battle axe after waking the first time
-
-   // haleyjd 6/24/00: not save-game safe, need to find a better method :(
-   // haleyjd 8/13/00: i don't care - weird things happen if this isn't
-   //                  done :)
-   // haleyjd 11/13/00: it works now :P
-
-   actor->info = &mobjinfo[E_SafeThingType(MT_CYBORG)];
-
-   // spawn broken staff and axe objects
-   mo = P_SpawnMobj(actor->x, actor->y, actor->z+65*FRACUNIT, E_SafeThingType(MT_BROKENAXE));
-   if(mo)
-   {
-      angle = actor->angle + ANG90;
-      mo->momz = 8*FRACUNIT + (P_Random(pr_cybdrop)<<10);
-      mo->momx = FixedMul(((P_Random(pr_cybdrop)-128)<<11) + FRACUNIT,
-                          finecosine[angle>>ANGLETOFINESHIFT]);
-      mo->momy = FixedMul(((P_Random(pr_cybdrop)-128)<<11) + FRACUNIT, 
-                          finesine[angle>>ANGLETOFINESHIFT]);
-      P_SetTarget(&mo->target, actor);
-   }
-   mo = P_SpawnMobj(actor->x, actor->y, actor->z+45*FRACUNIT, E_SafeThingType(MT_BROKENSTAFF));
-   if(mo)
-   {
-      angle = actor->angle - ANG90;
-      mo->momz = 8*FRACUNIT + (P_Random(pr_cybdrop)<<10);
-      mo->momx = FixedMul(((P_Random(pr_cybdrop)-128)<<11) + FRACUNIT,
-                          finecosine[angle>>ANGLETOFINESHIFT]);
-      mo->momy = FixedMul(((P_Random(pr_cybdrop)-128)<<11) + FRACUNIT, 
-                          finesine[angle>>ANGLETOFINESHIFT]);
-      P_SetTarget(&mo->target, actor);
-   }
-   // fall through to cyberdemon walking frames
 }
 
 void A_AxePieceFall(mobj_t *actor)
 {
-   static int axeType = -1, staffType = -1;
-
-   if(axeType == -1)
-   {
-      axeType   = E_ThingNumForDEHNum(MT_BROKENAXE);
-      staffType = E_ThingNumForDEHNum(MT_BROKENSTAFF);
-   }
-
-   if(actor->z <= actor->floorz && actor->momz == 0)
-   {
-      if(actor->type == axeType)
-      {
-         actor->momx = actor->momy = 0;     // embeds into floor :)
-         P_SetMobjState(actor, E_SafeState(S_AXEFALL4));
-      }
-      else if(actor->type == staffType)
-      {
-         P_SetMobjState(actor, E_SafeState(S_STAFF_FALL3));
-      }
-   }
-}
-
-void A_Sparkle(mobj_t *actor)
-{
-   if(!actor->special2)
-   {
-      actor->special1 = 5;
-      actor->special2 = 1;
-      return;
-   }
-   actor->special1--;     // sparkle duration count-down
-   if(!actor->special1)
-   {
-      P_SetMobjState(actor, E_NullState());
-   }
 }
 
 //==============================
@@ -4322,7 +4184,7 @@ CONSOLE_COMMAND(spawn, cf_notnet|cf_level|cf_hidden)
    if(teleManType == -1)
    {
       teleManType  = E_ThingNumForDEHNum(MT_TELEPORTMAN);
-      fountainType = E_ThingNumForDEHNum(MT_FOUNTAIN);
+      fountainType = E_ThingNumForName("EEParticleFountain");
       playerType   = E_ThingNumForDEHNum(MT_PLAYER);
    }
 

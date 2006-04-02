@@ -92,10 +92,6 @@ int      numsides;
 side_t   *sides;
 
 int      numthings;
-mobj_t   **spawnedthings;               // array of spawned things
-
-boolean MapUseFullBright;
-boolean DoubleSky; // enables hexen-style parallax skies
 
 // BLOCKMAP
 // Created from axis aligned bounding box
@@ -246,7 +242,7 @@ void P_LoadSubsectors (int lump)
 // P_LoadSectors
 //
 // killough 5/3/98: reformatted, cleaned up
-
+//
 void P_LoadSectors (int lump)
 {
    byte *data;
@@ -302,7 +298,10 @@ void P_LoadSectors (int lump)
       // SoM 9/19/02: Initialize the attached sector list for 3dsides
       ss->c_numattached = ss->f_numattached = 0;
       ss->c_attached = ss->f_attached = NULL;
-      ss->c_tag = ss->f_tag = -1;
+      // SoM 11/9/04: 
+      ss->c_numsectors = ss->c_numsectors = 0;
+      ss->c_attsectors = ss->f_attsectors = NULL;
+
 #ifdef R_PORTALS
       ss->c_portal = ss->f_portal = NULL;
 #endif
@@ -374,7 +373,6 @@ void P_LoadThings(int lump)
    byte *data = W_CacheLumpNum(lump, PU_STATIC);
    
    numthings = W_LumpLength(lump) / sizeof(mapthing_t); //sf: use global
-   spawnedthings = Z_Malloc(numthings * sizeof(mobj_t*), PU_LEVEL, 0);
 
    // haleyjd: explicitly nullify old player object pointers
    if(!(GameType == gt_dm))
@@ -406,7 +404,6 @@ void P_LoadThings(int lump)
          case 65:  // Former Human Commando
          case 66:  // Revenant
          case 84:  // Wolf SS
-            spawnedthings[i] = NULL; // haleyjd
             continue;
          }
       }
@@ -422,7 +419,7 @@ void P_LoadThings(int lump)
       if(tempHereticMode)
          P_ConvertHereticThing(mt);
       
-      spawnedthings[i] = P_SpawnMapThing(mt);
+      P_SpawnMapThing(mt);
    }
    
    // haleyjd: all player things for players in this game
@@ -1174,6 +1171,10 @@ void P_SetupLevel(char *mapname, int playermask, skill_t skill)
       return;
    }
 
+   // haleyjd 07/22/04: moved up
+   newlevel = (lumpinfo[lumpnum]->handle != iwadhandle);
+   doom1level = false;
+
    strncpy(levelmapname, mapname, 8);
    leveltime = 0;
    
@@ -1190,20 +1191,12 @@ void P_SetupLevel(char *mapname, int playermask, skill_t skill)
    P_InitThinkers();   
    P_InitTIDHash();     // haleyjd 02/02/04 -- clear the TID hash table
 
+#if 0
    P_LoadOlo();               // level names etc
+#endif
    P_LoadLevelInfo(lumpnum);  // load level lump info(level name etc)
 
    E_LoadExtraData();         // haleyjd 10/08/03: load ExtraData
-
-   if(!strcmp(info_colormap, "COLORMAP"))  // haleyjd
-      MapUseFullBright = true;
-   else
-      MapUseFullBright = false;
-
-   if(strcmp(info_sky2name, "-")) // haleyjd 11/14/00
-      DoubleSky = true;
-   else
-      DoubleSky = false;
 
    // haleyjd: now handled through IN_AddCameras
    //IN_StopCamera();      // reset the intermissions camera
@@ -1216,8 +1209,6 @@ void P_SetupLevel(char *mapname, int playermask, skill_t skill)
 #endif
 
    DEBUGMSG("hu_newlevel\n");
-   newlevel = (lumpinfo[lumpnum]->handle != iwadhandle);
-   doom1level = false;
    HU_NewLevel();
    HU_Start();
    
@@ -1395,10 +1386,10 @@ void P_Init (void)
 // they hold the level names which I use here..
 //
 
+#if 0
 olo_t olo;
 int olo_loaded = false;
 
-// TODO: figure out and document this data format?
 void P_LoadOlo(void)
 {
    int lumpnum;
@@ -1416,6 +1407,7 @@ void P_LoadOlo(void)
    
    olo_loaded = true;
 }
+#endif
 
 static void P_ConvertHereticThing(mapthing_t *mthing)
 {

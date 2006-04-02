@@ -51,7 +51,9 @@ typedef struct mapthingext_s
    mapthing_t stdfields;
 
    // extended fields
-   unsigned short tid;   
+   unsigned short tid;
+
+   long args[5];
 
    // internal fields (used by ExtraData only)
    int recordnum;   

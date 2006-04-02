@@ -8,7 +8,7 @@
 
 <body bgcolor="#CECECE">
 
-<h2>Eternity Engine GFS Reference v1.00 -- 8/08/03</h2>
+<h2>Eternity Engine GFS Reference v1.01 -- 7/05/04</h2>
 
 <a href="../etcengine.html">Return to the Eternity Engine Page</a>
 
@@ -43,6 +43,11 @@ itself, so you can override files added in a GFS with your own if needed. GFS is
 primarily for distribution along with modifications such as PCs, TCs, megawads, etc.,
 to make it easier for users to play them without need for lots of command-line parameters.
 <br><br>
+Now that Eternity supports drag-and-drop file loading in windowed operating systems, users
+can also start your project by simply dragging a GFS onto Eternity. This is the absolute
+best way to load a project, perhaps aside from using a frontend. This functionality cannot
+be duplicated with batch or response files.
+<br><br>
 GFS uses the same libConfuse parser as EDF and ExtraData, written by Martin Hedenfalk, and
 therefore shares most of the same syntactic elements. GFS is free-form, meaning that
 whitespace is ignored and that other tokens' positions are irrelevant to their meanings.
@@ -51,7 +56,7 @@ so they will not be discussed in this document. To see thorough information on t
 elements of the syntax, see the <a href="edf_ref.html#gensyn">General Syntax</a> section of
 the Eternity Engine EDF Reference.
 <br><br>
-GFS does support long file names under operating systems other than DOS, but they must
+GFS supports long file names under operating systems other than DOS, but they must
 be enclosed in quotation marks if they contain spaces.
 <br><br>
 <a href="#contents">Return to Table of Contents</a>
@@ -82,7 +87,7 @@ eternity -gfs C:\Games\AliensTC\atc.gfs
 </a>
 <br>
 Normally, file names specified in a GFS are appended to the path of the GFS file. So if a 
-GFS file is in C:\Games and specifies a file "superwar.wad", then C:\Games\superwar.wad" will
+GFS file is in C:\Games and specifies a file "superwar.wad", then "C:\Games\superwar.wad" will
 be added. This allows specification of subdirectories or the parent directory in a file
 name. It is recommended that GFS files provided with modifications allow the GFS to work in
 this manner.
@@ -102,13 +107,13 @@ absolute path in all circumstances.
 It is possible to alter the path which will be appended to WAD, DEH/BEX, CSC, and EDF
 file names by using the <b>basepath</b> variable. When basepath is set to a path, that
 path will be appended to those file names instead of the path of the GFS file. This allows
-GFS to be placed by the user into a directory other than where the files referred to exist.
+GFS to be placed by the user into a directory other than that in which the other files exist.
 There can only be one basepath specification per GFS file. The last one found during parsing
 will be the one which is used.
 <br><br>
-This option is not generally useful to GFS provided with modifications, since they cannot
-know how the user's file system is set up. This facility is to allow users to create their
-own GFS files and keep them wherever they want.
+This option is not generally useful to GFS provided with modifications, since authors cannot
+know how the user's file system is set up. This facility is present to allow users to create 
+their own GFS files and keep them wherever they wish.
 <br><br>
 <b>basepath</b>, as mentioned above, does not affect the <b>iwad</b> specification, if one
 is present.
@@ -230,7 +235,7 @@ edffile = myroot.edf
 <hr>
 </a>
 <br>
-A GFS can specify the IWAD file to use by using the <b>iwad</b> variable. Only one root EDF 
+A GFS can specify the IWAD file to use by using the <b>iwad</b> variable. Only one IWAD 
 file can be specified, so the last definition encountered will become the one that is used.
 <br><br>
 The IWAD file name should be the absolute path, including file name, of the IWAD. The

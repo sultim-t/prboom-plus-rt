@@ -61,11 +61,10 @@ boolean HU_Responder(event_t *ev);
 void HU_NewLevel();
 
 void HU_Start();
-void HU_End();
 
 void HU_WriteText(const char *s, int x, int y);
 void HU_PlayerMsg(char *s);
-void HU_CentreMsg();
+void HU_CenterMessage(const char *s);
 void HU_CentreMsgTimed(char *s, int clocks);
 void HU_Erase();
 

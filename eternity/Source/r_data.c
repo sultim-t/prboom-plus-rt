@@ -735,7 +735,7 @@ int global_cmap_index = 0;
 
 void R_SetGlobalLevelColormap(void)
 {
-   global_cmap_index = R_ColormapNumForName(info_colormap);
+   global_cmap_index = R_ColormapNumForName(LevelInfo.colorMap);
    // can't tolerate the error in this case
    if(global_cmap_index < 0)      
       I_Error("R_SetGlobalLevelColormap: colormap lump not found!\n");
