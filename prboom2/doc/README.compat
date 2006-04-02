@@ -15,16 +15,18 @@ Number	Name			Description
 				Doom demos
 3	finaldoom_compatibility	Compatible with Final Doom & Doom95 - needed
 				for some demos recorded with Final Doom doom2.exe
-4 	boom_compatibility_compatibility	Emulates Boom's compatibility mode
-5	boom_201_compatibility,	Emulates Boom v2.01
-6	boom_202_compatibility,	Emulates Boom v2.02
-7	lxdoom_1_compatibility,	Emulates LxDoom v1.4.x
-8	mbf_compatibility	Emulates MBF
-9	prboom_1_compatibility	Emulates PrBoom v2.03beta
-10	prboom_2_compatibility	PrBoom v2.1.0
-11	prboom_3_compatibility	PrBoom v2.1.1-2.2.6
-12	prboom_4_compatibility	PrBoom v2.3.x
-13	prboom_5_compatibility	PrBoom v2.3.x
+4 	dosdoom_compatibility	Emulate early dosdoom versions
+				(some TASdoom demos work with this)
+5 	boom_compatibility_compatibility	Emulates Boom's compatibility mode
+6	boom_201_compatibility	Emulates Boom v2.01
+7	boom_202_compatibility	Emulates Boom v2.02
+8	lxdoom_1_compatibility	Emulates LxDoom v1.4.x
+9	mbf_compatibility	Emulates MBF
+10	prboom_1_compatibility	Emulates PrBoom v2.03beta
+11	prboom_2_compatibility	PrBoom v2.1.0
+12	prboom_3_compatibility	PrBoom v2.1.1-2.2.6
+13	prboom_4_compatibility	PrBoom v2.3.x
+14	prboom_5_compatibility	PrBoom v2.4.0
 
 You can cycle through the compatibility levels in the game using the TNTCOMP
 cheat. There's also the default_compatibility_level config file option, and

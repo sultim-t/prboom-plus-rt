@@ -72,7 +72,7 @@ extern complevel_t compatibility_level, default_compatibility_level;
 
 // CPhipps - old compatibility testing flags aliased to new handling
 #define compatibility (compatibility_level<=boom_compatibility_compatibility)
-#define demo_compatibility (compatibility_level <= boom_compatibility_compatibility)
+#define demo_compatibility (compatibility_level < boom_compatibility_compatibility)
 #define mbf_features (compatibility_level>=mbf_compatibility)
 
 // v1.1-like pitched sounds

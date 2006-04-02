@@ -1527,13 +1527,13 @@ static void G_LoadGameErr(const char *msg)
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
 { "doom v1.2", "doom v1.666", "doom2 v1.9", "final/ultimate doom/doom95",
-  "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
+  "dosdoom compatibility", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
   "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.6",
   "PrBoom v2.3.x", "Current PrBoom"  };
 
 static byte comp_options_by_version[] =
 { 0,0,0,0, /* Original Doom's don't have comp[] */
-  0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
+  0,0,0,0,0, /* Nor did DosDoom, Boom (x3), LxDoom */
   19,19, /* MBF and early PrBoom had 19 */
   21,22, /* PrBoom v2.1-v2.2 have 21 */
   23,23, /* PrBoom v2.3 has 23 and counting... */
