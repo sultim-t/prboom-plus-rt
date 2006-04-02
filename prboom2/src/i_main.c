@@ -361,17 +361,20 @@ int main(int argc, char **argv)
     else
       fprintf(stderr, "Revoked uid %d\n",stored_euid);
 #endif
+
+  myargc = argc;
+  myargv = argv;
+
 #ifdef _WIN32
-  /* initialize the console window */
-  Init_ConsoleWin();
-  atexit(Done_ConsoleWin);
+  if (!M_CheckParm("-nodraw")) {
+    /* initialize the console window */
+    Init_ConsoleWin();
+    atexit(Done_ConsoleWin);
+  }
 #endif
   /* Version info */
   lprintf(LO_INFO,"\n");
   PrintVer();
-
-  myargc = argc;
-  myargv = argv;
 
   /*
      killough 1/98:
@@ -406,7 +409,8 @@ int main(int argc, char **argv)
 #endif
 
   /* cphipps - call to video specific startup code */
-  I_PreInitGraphics();
+  if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
+    I_PreInitGraphics();
 
   /* 2/2/98 Stan
    * Must call this here.  It's required by both netgames and i_video.c.

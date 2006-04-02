@@ -50,6 +50,7 @@
 #include "doomtype.h"
 #include "lprintf.h"
 #include "i_main.h"
+#include "m_argv.h"
 
 int cons_error_mask = -1-LO_INFO; /* all but LO_INFO when redir'd */
 int cons_output_mask = -1;        /* all output enabled */
@@ -370,7 +371,7 @@ void I_Error(const char *error, ...)
   va_end(argptr);
   fprintf(stderr,"%s\n",errmsg);
 #ifdef _MSC_VER
-  {
+  if (!M_CheckParm ("-nodraw")) {
     Init_ConsoleWin();
     MessageBox(con_hWnd,errmsg,"PrBoom",MB_OK | MB_TASKMODAL | MB_TOPMOST);
   }
