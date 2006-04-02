@@ -299,6 +299,9 @@ default_t defaults[] =
   {"comp_zerotags",{&default_comp[comp_zerotags]},{0},0,1,def_bool,ss_comp,&comp[comp_zerotags]},
   {"comp_moveblock",{&default_comp[comp_moveblock]},{0},0,1,def_bool,ss_comp,&comp[comp_moveblock]},
   {"comp_sound",{&default_comp[comp_sound]},{0},0,1,def_bool,ss_comp,&comp[comp_sound]},
+  {"comp_666",{&default_comp[comp_666]},{0},0,1,def_bool,ss_comp,&comp[comp_666]},
+  {"comp_soul",{&default_comp[comp_soul]},{0},0,1,def_bool,ss_comp,&comp[comp_soul]},
+  {"comp_maskedanim",{&default_comp[comp_maskedanim]},{0},0,1,def_bool,ss_comp,&comp[comp_maskedanim]},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
