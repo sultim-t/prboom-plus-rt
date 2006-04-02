@@ -7,6 +7,10 @@ import shutil
 import zipfile
 import sys
 try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+try:
     import subprocess
 except ImportError:
     subprocess = None
@@ -29,6 +33,26 @@ def iterDemoSpecs(specs):
         spec = dict(zip(headers, row))
         if len(spec):
             yield spec
+
+def getFileFromZip(filename, filepath, package):
+    names = [x for x in package.namelist() if x.lower()==filename.lower()]
+    if len(names) == 0:
+        for name in package.namelist():
+            if not name.lower().endswith('.zip'):
+                continue
+            data = StringIO(package.read(name))
+            try:
+                subpackage = zipfile.ZipFile(data, 'r')
+            except zipfile.BadZipfile:
+                continue
+            if getFileFromZip(filename, filepath, subpackage):
+                return True
+        return False
+    dst = open(filepath, 'wb')
+    dst.write(package.read(names[0]))
+    dst.close()
+    package.close()
+    return True
 
 def getPathToFile(name, path):
     if path == 'n/a':
@@ -65,13 +89,8 @@ def getPathToFile(name, path):
         if filename != name:
             if filename.lower().endswith('.zip'):
                 package = zipfile.ZipFile(path, 'r')
-                names = [x for x in package.namelist() if x.lower()==name.lower()]
-                if len(names) == 0:
+                if not getFileFromZip(name, filepath, package):
                     return None
-                dst = open(filepath, 'wb')
-                dst.write(package.read(names[0]))
-                dst.close()
-                package.close()
         return filepath
 
 def runtest(iwad, demo, demopath, pwad):
@@ -130,8 +149,7 @@ def run():
         pwadname, pwadpath = demospec['PWAD'], demospec['PWAD url']
         pwadpath = getPathToFile(pwadname, pwadpath)
         iwad = demospec['IWAD']
-        if pwadpath:
-            runtest(iwad, demoname, demopath, pwadpath)
+        runtest(iwad, demoname, demopath, pwadpath)
 
 if __name__=='__main__':
     run()
