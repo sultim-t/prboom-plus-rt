@@ -3087,12 +3087,13 @@ void M_DrawGeneral(void)
 #define COMP_SPC 12
 #define C_NEXTPREV 131
 
-setup_menu_t comp_settings1[], comp_settings2[];
+setup_menu_t comp_settings1[], comp_settings2[], comp_settings3[];
 
 setup_menu_t* comp_settings[] =
 {
   comp_settings1,
   comp_settings2,
+  comp_settings3,
   NULL
 };
 
@@ -3119,6 +3120,9 @@ enum
   compat_model,
   compat_zerotags,
   compat_menu,
+  compat_666 = 0,
+  compat_soul,
+  compat_maskedanim,
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3199,11 +3203,30 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings1}},
 
+  {"NEXT ->",S_SKIP|S_NEXT, m_null, KB_NEXT, C_Y+C_NEXTPREV, {comp_settings3}},
+
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
 };
 
+setup_menu_t comp_settings3[] =  // Compatibility Settings screen #2
+{
+  {"Linedef type 666 works at all E1 levels", S_YESNO, m_null, C_X,
+   C_Y + compat_666 * COMP_SPC, {"comp_666"}},
+
+  {"Lost souls don't bounce off flat surfaces", S_YESNO, m_null, C_X,
+   C_Y + compat_soul * COMP_SPC, {"comp_soul"}},
+
+  {"2S middle textures do not animate", S_YESNO, m_null, C_X,
+   C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
+
+  {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings2}},
+
+  // Final entry
+
+  {0,S_SKIP|S_END,m_null}
+};
 
 // Setting up for the Compatibility screen. Turn on flags, set pointers,
 // locate the first item on the screen where the cursor is allowed to
