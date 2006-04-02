@@ -2,6 +2,27 @@ title: Project Homepage
 
     <h1>News</h1>
 
+    <h3>1st April 2006</h3>
+
+    <p>Version 2.4.0 is released. This is based on 2.2.6 and includes various
+    improvements from 2.3.1 and PrBoom+. Special thanks to Andrey 'e6y' Budko
+    for his bugfixes and his help to add them to PrBoom!</p>
+    <ul class="changes">
+        <li>emulate reject overflows and spechit overflows - from prboom-plus</li>
+        <li>more original doom compatibility options</li>
+        <li>improve stretched graphics drawing for hires</li>
+        <li>fix super-shotgun reload on last shot</li>
+        <li>fix compilation with gcc 4.x</li>
+        <li>fix some more dehacked support problems (e.g. Hacx)</li>
+        <li>fix crash if pwad contains zero-length sound lumps</li>
+        <li>added possibility to use mmap for wad access, this leads to less memory usage</li>
+        <li>simplified the memory handling</li>
+        <li>removed old Doom v1.2 lumps from prboom.wad</li>
+        <li>windows also uses prboom.wad now</li>
+        <li>add Mac OS X bundle build</li>
+        <li>removed lumps and tables which are in prboom.wad from source</li>
+    </ul>
+
     <h3>7th October 2004</h3>
 
     <p>Version 2.2.6 is released. This is just another release fixing bugs and
