@@ -1614,7 +1614,8 @@ void G_DoLoadGame(void)
 
   save_p += strlen(save_p)+1;
 
-  compatibility_level = (savegame_compatibility >= prboom_4_compatibility) ? *save_p++ : savegame_compatibility;
+  compatibility_level = (savegame_compatibility >= prboom_4_compatibility) ? *save_p : savegame_compatibility;
+  save_p++;
 
   gameskill = *save_p++;
   gameepisode = *save_p++;
