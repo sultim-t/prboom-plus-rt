@@ -232,69 +232,6 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 }
 #endif /* GL_DOOM */
 
-//
-// V_DrawBlock
-//
-// Draw a linear block of pixels into the view buffer.
-//
-// The bytes at src are copied in linear order to the screen rectangle
-// at x,y in screenbuffer scrn, with size width by height.
-//
-// The destination rectangle is marked dirty.
-//
-// No return.
-//
-// CPhipps - modified  to take the patch translation flags. For now, only stretching is
-//  implemented, to support highres in the menus
-//
-#ifndef GL_DOOM
-static void V_DrawBlock(int x, int y, int scrn, int width, int height, 
-     const byte *src, enum patch_translation_e flags)
-{
-  byte *dest;
-
-#ifdef RANGECHECK
-  if (x<0
-      ||x+width >((flags & VPT_STRETCH) ? 320 : SCREENWIDTH)
-      || y<0
-      || y+height>((flags & VPT_STRETCH) ? 200 : SCREENHEIGHT))
-    I_Error ("V_DrawBlock: Bad V_DrawBlock");
-
-  if (flags & (VPT_TRANS | VPT_FLIP))
-    I_Error("V_DrawBlock: Unsupported flags (%u)", flags);
-#endif
-
-  if (flags & VPT_STRETCH) {
-    byte   *dest;
-    int     s_width;
-    fixed_t dx = (320 << FRACBITS) / SCREENWIDTH;
-
-    x = (x * SCREENWIDTH) / 320; y = (y * SCREENHEIGHT) / 200;
-    s_width = (width * SCREENWIDTH) / 320; height = (height * SCREENHEIGHT) / 200;
-
-    dest = screens[scrn] + y*SCREENWIDTH+x;
-    // x & y no longer needed
-
-    while (height--) {
-      const byte *const src_row = src + width * ((height * 200) / SCREENHEIGHT);
-      byte       *const dst_row = dest + SCREENWIDTH * height;
-      fixed_t           tx;
-
-      for (x=0, tx=0; x<s_width; x++, tx+=dx)
-  dst_row[x] = src_row[tx >> FRACBITS];
-    }
-  } else {
-    dest = screens[scrn] + y*SCREENWIDTH+x;
-
-    while (height--) {
-      memcpy (dest, src, width);
-      src += width;
-      dest += SCREENWIDTH;
-    }
-  }
-}
-#endif /* GL_DOOM */
-
 /*
  * V_DrawBackground tiles a 64x64 patch over the entire screen, providing the
  * background for the Help and Setup screens, and plot text betwen levels.
@@ -306,13 +243,24 @@ void V_DrawBackground(const char* flatname, int scrn)
 {
   /* erase the entire screen to a tiled background */
   const byte *src;
+  byte       *dest;
   int         x,y;
+  int         width,height;
   int         lump;
 
   // killough 4/17/98:
   src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
 
-  V_DrawBlock(0, 0, scrn, 64, 64, src, 0);
+  /* V_DrawBlock(0, 0, scrn, 64, 64, src, 0); */
+  width = height = 64;
+  dest = screens[scrn];
+
+  while (height--) {
+    memcpy (dest, src, width);
+    src += width;
+    dest += SCREENWIDTH;
+  }
+  /* end V_DrawBlock */
 
   for (y=0 ; y<SCREENHEIGHT ; y+=64)
     for (x=y ? 0 : 64; x<SCREENWIDTH ; x+=64)
