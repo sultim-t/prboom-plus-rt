@@ -453,7 +453,7 @@ void TryRunTics (void)
       else I_uSleep(ms_to_next_tick*1000);
       if (I_GetTime() - entertime > 10) {
         remotesend--;
-	{
+	if (server) {
 	  char buf[sizeof(packet_header_t)+1];
 	  packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
 	  buf[sizeof(buf)-1] = consoleplayer;
