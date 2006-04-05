@@ -1116,29 +1116,30 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
  * We have to emulate original Doom's behaviour, deferencing past the start
  * of the array, into the previous array (finetangent) */
     an = ( ANG45 * ((signed)mthing->angle/45) ) >> ANGLETOFINESHIFT;
-    switch (an) {
-    case -4096: xa = finetangent[2048];   // finecosine[-4096]
-		ya = finetangent[0];      // finesine[-4096]
-		break;
-    case -3072: xa = finetangent[3072];   // finecosine[-3072]
-		ya = finetangent[1024];   // finesine[-3072]
-		break;
-    case -2048: xa = finesine[0];   // finecosine[-2048]
-		ya = finetangent[2048];   // finesine[-2048]
-		break;
-    case -1024:	xa = finesine[1024];     // finecosine[-1024]
-		ya = finetangent[3072];  // finesine[-1024]
-		break;
-    case 1024:
-    case 2048:
-    case 3072:
-    case 4096:
-    case 0:	xa = finecosine[an];
-		ya = finesine[an];
-		break;
-    default: I_Error("G_CheckSpot: unexpected angle %d\n",an);
-    }
+    xa = finecosine[an];
+    ya = finesine[an];
 
+    if (compatibility_level <= finaldoom_compatibility || compatibility_level == prboom_4_compatibility)
+      switch (an) {
+      case -4096: xa = finetangent[2048];   // finecosine[-4096]
+          	ya = finetangent[0];      // finesine[-4096]
+          	break;
+      case -3072: xa = finetangent[3072];   // finecosine[-3072]
+          	ya = finetangent[1024];   // finesine[-3072]
+          	break;
+      case -2048: xa = finesine[0];   // finecosine[-2048]
+          	ya = finetangent[2048];   // finesine[-2048]
+          	break;
+      case -1024:	xa = finesine[1024];     // finecosine[-1024]
+          	ya = finetangent[3072];  // finesine[-1024]
+          	break;
+      case 1024:
+      case 2048:
+      case 3072:
+      case 4096:
+      case 0:	break; /* correct angles set above */
+      default:	I_Error("G_CheckSpot: unexpected angle %d\n",an);
+      }
 
     mo = P_SpawnMobj(x+20*xa, y+20*ya, ss->sector->floorheight, MT_TFOG);
 
@@ -1526,19 +1527,21 @@ static void G_LoadGameErr(const char *msg)
 #define VERSIONSIZE   16
 
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
-{ "doom v1.2", "doom v1.666", "doom2 v1.9", "final/ultimate doom/doom95",
-  "dosdoom compatibility", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
+{ "doom v1.2", "doom v1.666", "doom/doom2 v1.9", "ultimate doom", "final doom",
+  "dosdoom compatibility", "tasdoom compatibility", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
   "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.6",
-  "PrBoom v2.3.x", "Current PrBoom"  };
+  "PrBoom v2.3.x", "PrBoom 2.4.0", "Current PrBoom"  };
 
 static byte comp_options_by_version[] =
-{ 0,0,0,0, /* Original Doom's don't have comp[] */
-  0,0,0,0,0, /* Nor did DosDoom, Boom (x3), LxDoom */
+{ 0,0,0,0,0, /* Original Doom's don't have comp[] */
+  0,0,0,0,0,0, /* Nor did DosDoom, TAS, Boom (x3), LxDoom */
   19,19, /* MBF and early PrBoom had 19 */
   21,22, /* PrBoom v2.1-v2.2 have 21 */
-  23,23, /* PrBoom v2.3 has 23 and counting... */
+  23,23,23 /* PrBoom v2.3 has 23 and counting... */
 };
 
+static byte map_old_comp_levels[] =
+{ 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
 static const struct {
   int comp_level;
@@ -1548,7 +1551,8 @@ static const struct {
   /* cph - we don't need a new version_header for prboom_3_comp/v2.1.1, since
    *  the file format is unchanged. */
   { prboom_3_compatibility, "PrBoom %d", 210},
-  { prboom_5_compatibility, "PrBoom %d", 211}
+  { prboom_5_compatibility, "PrBoom %d", 211},
+  { prboom_6_compatibility, "PrBoom %d", 212}
 };
 
 static const size_t num_version_headers = sizeof(version_headers) / sizeof(version_headers[0]);
@@ -1615,6 +1619,8 @@ void G_DoLoadGame(void)
   save_p += strlen(save_p)+1;
 
   compatibility_level = (savegame_compatibility >= prboom_4_compatibility) ? *save_p : savegame_compatibility;
+  if (savegame_compatibility < prboom_6_compatibility)
+    compatibility_level = map_old_comp_levels[compatibility_level];
   save_p++;
 
   gameskill = *save_p++;
@@ -1754,7 +1760,7 @@ static void G_DoSaveGame (boolean menu)
 
   // CPhipps - scan for the version header
   for (i=0; (size_t)i<num_version_headers; i++)
-    if (version_headers[i].comp_level == compatibility_level) {
+    if (version_headers[i].comp_level == best_compatibility) {
       // killough 2/22/98: "proprietary" version string :-)
       sprintf (name2,version_headers[i].ver_printf,version_headers[i].version);
       memcpy (save_p, name2, VERSIONSIZE);
@@ -1941,7 +1947,7 @@ void G_Compatibility(void)
     prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
     boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
-    doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
+    ultdoom_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
     prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
     doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
   };
@@ -2456,6 +2462,7 @@ void G_BeginRecording (void)
         case prboom_3_compatibility: v = 211; break;
         case prboom_4_compatibility: v = 212; break;
         case prboom_5_compatibility: v = 213; break;
+        case prboom_6_compatibility: v = 214; break;
       }
       *demo_p++ = v;
     }
@@ -2569,8 +2576,9 @@ static int G_GetOriginalDoomCompatLevel(int ver)
     if (i && (i+1 < myargc)) return atoi(myargv[i+1]);
   }
   if (ver < 107) return doom_1666_compatibility;
-  return ((gamemode == retail || gamemission >= pack_tnt)
-                 ? finaldoom_compatibility : doom2_19_compatibility);
+  if (gamemode == retail) return ultdoom_compatibility;
+  if (gamemission >= pack_tnt) return finaldoom_compatibility;
+  return doom2_19_compatibility;
 }
 
 static const byte* G_ReadDemoHeader(const byte *demo_p)
@@ -2685,6 +2693,10 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 	break;
       case 213:
 	compatibility_level = prboom_5_compatibility;
+	demo_p++;
+	break;
+      case 214:
+	compatibility_level = prboom_6_compatibility;
 	demo_p++;
 	break;
       }

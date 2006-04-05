@@ -4,6 +4,8 @@ For historical reference, the complete LxDoom changelog follows it.
 Changes from v2.4.0 to v2.4.1
 - when both -nodraw and -nosound are supplied, then no graphics will be
   initialized and no windows opened
+- add ultdoom compatibility level, and bring compatibility levels into line
+  with Prboom+
 - removed obsolete video related code
 - fix screenshots on 64bit systems
 - fix comp_666

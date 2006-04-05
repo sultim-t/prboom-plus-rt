@@ -73,9 +73,11 @@ typedef unsigned __int64 uint_64_t;
 typedef enum {
   doom_12_compatibility,   /* Doom v1.2 */
   doom_1666_compatibility, /* Doom v1.666 */
-  doom2_19_compatibility,  /* Doom 2 v1.9 */
+  doom2_19_compatibility,  /* Doom & Doom 2 v1.9 */
+  ultdoom_compatibility,   /* Doom 2 v1.9 */
   finaldoom_compatibility,     /* Final & Ultimate Doom v1.9, and Doom95 */
   dosdoom_compatibility,     /* Early dosdoom & tasdoom */
+  tasdoom_compatibility,     /* Early dosdoom & tasdoom */
   boom_compatibility_compatibility,      /* Boom's compatibility mode */
   boom_201_compatibility,                /* Compatible with Boom v2.01 */
   boom_202_compatibility,                /* Compatible with Boom v2.01 */
@@ -85,11 +87,12 @@ typedef enum {
   prboom_2_compatibility,                /* PrBoom 2.1.0-2.1.1 */
   prboom_3_compatibility,                /* PrBoom 2.2.x */
   prboom_4_compatibility,                /* PrBoom 2.3.x */
-  prboom_5_compatibility,                /* Latest PrBoom */
+  prboom_5_compatibility,                /* PrBoom 2.4.0 */
+  prboom_6_compatibility,                /* Latest PrBoom */
   MAX_COMPATIBILITY_LEVEL,               /* Must be last entry */
   /* Aliases follow */
   boom_compatibility = boom_201_compatibility, /* Alias used by G_Compatibility */
-  best_compatibility = prboom_5_compatibility,
+  best_compatibility = prboom_6_compatibility,
 } complevel_t;
 
 #endif
