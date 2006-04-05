@@ -6,6 +6,7 @@ Changes from v2.4.0 to v2.4.1
   initialized and no windows opened
 - removed obsolete video related code
 - fix screenshots on 64bit systems
+- fix comp_666
 
 Changes from v2.2.6 to v2.4.0
 - emulate reject overflows and spechit overflows - from prboom-plus
