@@ -6,6 +6,7 @@ Changes from v2.4.0 to v2.4.1
   initialized and no windows opened
 - add ultdoom compatibility level, and bring compatibility levels into line
   with Prboom+
+- screenshots now use correct palette in software mode
 - removed obsolete video related code
 - fix screenshots on 64bit systems
 - fix comp_666

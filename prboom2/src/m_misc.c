@@ -1253,7 +1253,7 @@ void M_DoScreenShot (const char* fname)
   // save the bmp file
 
   WriteBMPfile
-    (fname, linear, SCREENWIDTH, SCREENHEIGHT, pal);
+    (fname, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
 
   // cph - free the palette
   W_UnlockLumpNum(pplump);
@@ -1279,9 +1279,9 @@ void M_ScreenShot(void)
 
   do
 #ifdef GL_DOOM
-    sprintf(lbmname,"DOOM%02d.TGA", shot++);
+    sprintf(lbmname,"doom%02d.TGA", shot++);
 #else
-    sprintf(lbmname,"DOOM%02d.BMP", shot++);
+    sprintf(lbmname,"doom%02d.bmp", shot++);
 #endif
   while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
