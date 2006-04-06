@@ -7,6 +7,7 @@ Changes from v2.4.0 to v2.4.1
 - add ultdoom compatibility level, and bring compatibility levels into line
   with Prboom+
 - screenshots now use correct palette in software mode
+- screenshots now in PNG format on Linux/Unix where available
 - suppress use-supershotgun key in compatibility mode
 - removed obsolete video related code
 - fix screenshots on 64bit systems
