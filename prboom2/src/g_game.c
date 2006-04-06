@@ -397,7 +397,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
         gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
         gamekeydown[key_weapon8] ? wp_chainsaw :
-        gamekeydown[key_weapon9] && gamemode == commercial ? wp_supershotgun :
+        (!demo_compatibility && gamekeydown[key_weapon9] && gamemode == commercial) ? wp_supershotgun :
         wp_nochange;
 
       // killough 3/22/98: For network and demo consistency with the
