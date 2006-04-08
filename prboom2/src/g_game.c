@@ -2451,6 +2451,7 @@ void G_BeginRecording (void)
   int i;
   byte *demostart, *demo_p;
   demostart = demo_p = malloc(1000);
+  longtics = 0;
 
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
@@ -2462,7 +2463,10 @@ void G_BeginRecording (void)
         case prboom_3_compatibility: v = 211; break;
         case prboom_4_compatibility: v = 212; break;
         case prboom_5_compatibility: v = 213; break;
-        case prboom_6_compatibility: v = 214; break;
+        case prboom_6_compatibility:
+				     v = 214; 
+				     longtics = 1;
+				     break;
       }
       *demo_p++ = v;
     }
@@ -2595,6 +2599,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
   // compatibility flag, and other flags as well, as a part of the demo.
 
   demover = *demo_p++;
+  longtics = 0;
 
   if (demover < 200)     // Autodetect old demos
     {
@@ -2697,6 +2702,7 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 	break;
       case 214:
 	compatibility_level = prboom_6_compatibility;
+        longtics = 1;
 	demo_p++;
 	break;
       }

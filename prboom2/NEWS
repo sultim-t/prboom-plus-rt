@@ -2,6 +2,8 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.0 to v2.4.1
+- PrBoom demos are now recorded with high-precision turning (like the
+  "Doom v1.91" hack that is floating around)
 - when both -nodraw and -nosound are supplied, then no graphics will be
   initialized and no windows opened
 - add ultdoom compatibility level, and bring compatibility levels into line
