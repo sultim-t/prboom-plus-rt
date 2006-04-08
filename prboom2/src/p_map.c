@@ -415,7 +415,7 @@ boolean PIT_CheckLine (line_t* ld)
 	spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
       }
       spechit[numspechit++] = ld;
-      if (numspechit >= 8) SpechitOverrun(ld); // e6y: Spechits overrun emulation code
+      if (numspechit >= 8 && demo_compatibility) SpechitOverrun(ld); // e6y: Spechits overrun emulation code
     }
 
   return true;
@@ -2219,6 +2219,7 @@ static void SpechitOverrun(line_t *ld)
 
   switch(numspechit)
   {
+    case 8: break; /* numspechit, not significant it seems - cph */
     case 9: 
     case 10:
     case 11:
