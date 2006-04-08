@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>PrBoom</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.3.2</string>
+	<string>2.4.2</string>
 	<key>CFBundleIconFile</key>
 	<string>PrBoom.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -17,8 +17,8 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.3.2</string>
+	<string>2.4.2</string>
 	<key>CFBundleVersion</key>
-	<string>2.3.2</string>
+	<string>2.4.2</string>
 </dict>
 </plist>
