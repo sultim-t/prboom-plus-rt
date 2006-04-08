@@ -2240,23 +2240,31 @@ void G_RecordDemo (const char* name)
     if (demofp) {
       int slot = -1;
       int rc;
-      {
-  byte buf[200];
-  size_t len;
-  fread(buf, 1, sizeof(buf), demofp);
+      size_t bytes_per_tic;
 
-  len = G_ReadDemoHeader(buf) - buf;
-  fseek(demofp, len, SEEK_SET);
+      { /* Read the demo header for options etc */
+        byte buf[200];
+        size_t len;
+        fread(buf, 1, sizeof(buf), demofp);
+      
+        len = G_ReadDemoHeader(buf) - buf;
+        fseek(demofp, len, SEEK_SET);
       }
+      bytes_per_tic = longtics ? 5 : 4;
+      /* Now read the demo to find the last save slot */
       do {
-  byte buf[4];
-  rc = fread(buf, 1, sizeof(buf), demofp);
-  if (buf[0] == DEMOMARKER) break;
-  if (buf[3] & BT_SPECIAL)
-    if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
-      slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
-      } while (rc == /* sizeof(buf) is out of scope here */ 4 );
+        byte buf[5];
+      
+        rc = fread(buf, 1, bytes_per_tic, demofp);
+        if (buf[0] == DEMOMARKER) break;
+        if (buf[bytes_per_tic-1] & BT_SPECIAL)
+	  if ((buf[bytes_per_tic-1] & BT_SPECIALMASK) == BTS_SAVEGAME)
+	    slot = (buf[bytes_per_tic-1] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+      } while (rc == bytes_per_tic);
+
       if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
+
+      /* Return to the last save position, and load the relevant savegame */
       fseek(demofp, -rc, SEEK_CUR);
       G_LoadGame(slot, false);
       autostart = false;
