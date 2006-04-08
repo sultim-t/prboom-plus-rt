@@ -1127,7 +1127,6 @@ static void WriteBMPfile(FILE* st, const byte* data,
   BITMAPFILEHEADER bmfh;
   BITMAPINFOHEADER bmih;
   int fhsiz,ihsiz;
-  FILE *st;
   char zero=0;
   ubyte_t c;
 
