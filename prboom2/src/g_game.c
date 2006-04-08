@@ -2240,7 +2240,7 @@ void G_RecordDemo (const char* name)
     if (demofp) {
       int slot = -1;
       int rc;
-      size_t bytes_per_tic;
+      int bytes_per_tic;
 
       { /* Read the demo header for options etc */
         byte buf[200];
@@ -2258,8 +2258,8 @@ void G_RecordDemo (const char* name)
         rc = fread(buf, 1, bytes_per_tic, demofp);
         if (buf[0] == DEMOMARKER) break;
         if (buf[bytes_per_tic-1] & BT_SPECIAL)
-	  if ((buf[bytes_per_tic-1] & BT_SPECIALMASK) == BTS_SAVEGAME)
-	    slot = (buf[bytes_per_tic-1] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+          if ((buf[bytes_per_tic-1] & BT_SPECIALMASK) == BTS_SAVEGAME)
+            slot = (buf[bytes_per_tic-1] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
       } while (rc == bytes_per_tic);
 
       if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
