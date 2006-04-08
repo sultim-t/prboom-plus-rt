@@ -2,6 +2,21 @@ title: Project Homepage
 
     <h1>News</h1>
 
+    <h3>8th April 2006</h3>
+
+    <p>Version 2.4.1 is released.</p>
+    <ul class="changes">
+        <li>PrBoom demos are now recorded with high-precision turning (like the "Doom v1.91" hack that is floating around)</li>
+        <li>when both -nodraw and -nosound are supplied, then no graphics will be initialized and no windows opened</li>
+        <li>add ultdoom compatibility level, and bring compatibility levels into line with Prboom+</li>
+        <li>screenshots now use correct palette in software mode</li>
+        <li>screenshots now in PNG format on Linux/Unix where available</li>
+        <li>suppress use-supershotgun key in compatibility mode</li>
+        <li>removed obsolete video related code</li>
+        <li>fix screenshots on 64bit systems</li>
+        <li>fix comp_666</li>
+    </ul>
+
     <h3>2nd April 2006</h3>
 
     <p>Version 2.4.0 is released. This is based on 2.2.6 and includes various
