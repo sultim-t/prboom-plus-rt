@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -83,9 +83,6 @@
 #include "gl_struct.h"
 #endif
 
-// DEHacked support - Ty 03/09/97 // CPhipps - const char*'s
-void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
-
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 
 // CPhipps - removed wadfiles[] stuff
@@ -119,8 +116,6 @@ FILE    *debugfile;
 int ffmap;
 
 boolean advancedemo;
-
-extern boolean timingdemo, singledemo, demoplayback, fastdemo; // killough
 
 char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
