@@ -195,7 +195,6 @@ int         mus_pause_opt; // 0 = kill music, 1 = pause, 2 = continue
 extern const char* chat_macros[];
 
 extern int endoom_mode;
-int X_opt;
 
 extern const char* S_music_files[]; // cournia
 
@@ -352,8 +351,6 @@ default_t defaults[] =
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98
-  {"X_options",{&X_opt},{0},0,3, // CPhipps - misc X options
-   def_hex,ss_none}, // X options, see l_video_x.c
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
