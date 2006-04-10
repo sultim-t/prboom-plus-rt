@@ -607,16 +607,15 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
   if ( !access (iwadname,R_OK) )
   {
     int ud=0,rg=0,sw=0,cm=0,sc=0;
-    int handle;
+    FILE* fp;
 
     // Identify IWAD correctly
-    if ( (handle = open (iwadname,O_RDONLY | O_BINARY)) != -1)
+    if ((fp = fopen(iwadname, "rb")))
     {
       wadinfo_t header;
 
       // read IWAD header
-      read (handle, &header, sizeof(header));
-      if (!strncmp(header.identification,"IWAD",4))
+      if (fread(&header, sizeof(header), 1, fp) == 1 && !strncmp(header.identification, "IWAD", 4))
       {
         size_t length;
         filelump_t *fileinfo;
@@ -626,9 +625,10 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         header.infotableofs = LONG(header.infotableofs);
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
-        lseek (handle, header.infotableofs, SEEK_SET);
-        read (handle, fileinfo, length*sizeof(filelump_t));
-        close(handle);
+        if (fseek (fp, header.infotableofs, SEEK_SET) ||
+            fread (fileinfo, sizeof(filelump_t), length, fp) != length ||
+            fclose(fp))
+          I_Error("CheckIWAD: failed to read directory %s",iwadname);
 
         // scan directory for levelname lumps
         while (length--)
