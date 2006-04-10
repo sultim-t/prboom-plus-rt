@@ -372,7 +372,7 @@ void I_Error(const char *error, ...)
   fprintf(stderr,"%s\n",errmsg);
 #ifdef _MSC_VER
   if (!M_CheckParm ("-nodraw")) {
-    Init_ConsoleWin();
+    //Init_ConsoleWin();
     MessageBox(con_hWnd,errmsg,"PrBoom",MB_OK | MB_TASKMODAL | MB_TOPMOST);
   }
 #endif
