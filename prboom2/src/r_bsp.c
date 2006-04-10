@@ -31,7 +31,6 @@
 
 #include "doomstat.h"
 #include "m_bbox.h"
-#include "i_system.h"
 #include "r_main.h"
 #include "r_segs.h"
 #include "r_plane.h"
