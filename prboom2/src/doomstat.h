@@ -277,7 +277,6 @@ extern int maxammo[];
 //
 
 // File handling stuff.
-extern  char    basedefault[];
 extern  FILE   *debugfile;
 
 // if true, load all graphics at level load

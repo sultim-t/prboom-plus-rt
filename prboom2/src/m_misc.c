@@ -52,6 +52,7 @@
 #include "m_menu.h"
 #include "am_map.h"
 #include "w_wad.h"
+#include "i_system.h"
 #include "i_sound.h"
 #include "i_video.h"
 #include "v_video.h"
@@ -930,8 +931,15 @@ void M_LoadDefaults (void)
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
     defaultfile = myargv[i+1];
-  else
-    defaultfile = basedefault;
+  else {
+    defaultfile = malloc(PATH_MAX+1);
+    /* get config file from same directory as executable */
+#ifdef GL_DOOM
+    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", I_DoomExeDir());
+#else
+    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", I_DoomExeDir());
+#endif
+  }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
 

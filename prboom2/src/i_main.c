@@ -376,6 +376,8 @@ int main(int argc, char **argv)
   lprintf(LO_INFO,"\n");
   PrintVer();
 
+  /* cph - Z_Close must be done after I_Quit, so we register it first. */
+  atexit(Z_Close);
   /*
      killough 1/98:
 

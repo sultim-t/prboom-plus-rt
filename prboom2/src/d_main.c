@@ -119,7 +119,6 @@ boolean advancedemo;
 
 char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
-char    basedefault[PATH_MAX+1];   // default file
 char    baseiwad[PATH_MAX+1];      // jff 3/23/98: iwad directory
 char    basesavegame[PATH_MAX+1];  // killough 2/16/98: savegame directory
 
@@ -797,13 +796,6 @@ void IdentifyVersion (void)
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
   char *iwad;
 
-  // get config file from same directory as executable
-#ifdef GL_DOOM
-  sprintf(basedefault,"%s/glboom.cfg", I_DoomExeDir());  // killough
-#else
-  sprintf(basedefault,"%s/prboom.cfg", I_DoomExeDir());  // killough
-#endif
-
   // set save path to -save parm or current dir
 
   //jff 3/27/98 default to current dir
@@ -1152,6 +1144,9 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
+  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  M_LoadDefaults();              // load before initing other systems
+
   // figgi 09/18/00-- added switch to force classic bsp nodes
   if (M_CheckParm ("-forceoldbsp"))
   {
@@ -1356,9 +1351,6 @@ void D_DoomMainSetup(void)
   }
 
   // init subsystems
-  //jff 9/3/98 use logical output routine
-  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
-  M_LoadDefaults();              // load before initing other systems
 
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1
