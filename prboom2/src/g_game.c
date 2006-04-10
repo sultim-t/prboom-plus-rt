@@ -914,6 +914,9 @@ void G_Ticker (void)
   // cph - if the gamestate changed, we may need to clean up the old gamestate
   if (gamestate != prevgamestate) {
     switch (prevgamestate) {
+    case GS_LEVEL:
+      Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
+      break;
     case GS_INTERMISSION:
       WI_End();
     default:
