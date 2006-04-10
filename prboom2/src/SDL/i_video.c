@@ -442,15 +442,15 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   // Initialize SDL
+  unsigned int flags;
+  if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
+    flags = SDL_INIT_VIDEO;
 #ifdef _DEBUG
-  if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0 ) {
-    I_Error("Could not initialize SDL [%s]", SDL_GetError());
-  }
-#else
-  if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-    I_Error("Could not initialize SDL [%s]", SDL_GetError());
-  }
+  flags |= SDL_INIT_NOPARACHUTE;
 #endif
+  if ( SDL_Init(flags) < 0 ) {
+    I_Error("Could not initialize SDL [%s]", SDL_GetError());
+  }
 
   atexit(I_ShutdownSDL);
 }

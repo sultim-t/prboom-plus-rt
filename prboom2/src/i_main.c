@@ -410,8 +410,7 @@ int main(int argc, char **argv)
 #endif
 
   /* cphipps - call to video specific startup code */
-  if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
-    I_PreInitGraphics();
+  I_PreInitGraphics();
 
   D_DoomMain ();
   return 0;
