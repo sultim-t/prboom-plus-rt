@@ -116,7 +116,12 @@ static int wipe_doMelt(int width, int height, int ticks)
             short *s, *d;
             int j, dy, idx;
 
-            dy = (y[i] < 16) ? y[i]+1 : 8;
+            /* cph 2001/07/29 -
+             *  The original melt rate was 8 pixels/sec, i.e. 25 frames to melt
+             *  the whole screen, so make the melt rate depend on SCREENHEIGHT
+             *  so it takes no longer in high res
+             */
+            dy = (y[i] < 16) ? y[i]+1 : SCREENHEIGHT/25;
             if (y[i]+dy >= height)
               dy = height - y[i];
             s = &((short *)wipe_scr_end)[i*height+y[i]];
