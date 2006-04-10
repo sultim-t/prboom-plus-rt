@@ -85,6 +85,9 @@ Cleanup patches
 Oliver Kraus
 Send bug reports and patches for Solaris/Sparc.
 
+Paul S Jenner <psj@firstlinux.net>
+Nice patch to make RPM building easier
+
 Julian <julian@jplan.cjb.net>
 Fixed inline asm for gcc-2.95 (from Eternity)
 
