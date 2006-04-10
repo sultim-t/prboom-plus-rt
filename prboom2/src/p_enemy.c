@@ -523,7 +523,7 @@ static void P_DoNewChaseDir(mobj_t *actor, fixed_t deltax, fixed_t deltay)
     return;
 
   // try other directions
-  if (P_Random(pr_newchase) > 200 || abs(deltay)>abs(deltax))
+  if (P_Random(pr_newchase) > 200 || D_abs(deltay)>D_abs(deltax))
     tdir = xdir, xdir = ydir, ydir = tdir;
 
   if ((xdir == turnaround ? xdir = DI_NODIR : xdir) != DI_NODIR &&

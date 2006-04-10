@@ -395,7 +395,7 @@ static void P_ZMovement (mobj_t* mo)
       FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
 
     /* Bring it to rest below a certain speed */
-    if (abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
+    if (D_abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
       mo->momz = 0;
   }
 
@@ -474,7 +474,7 @@ floater:
       {
   fixed_t delta;
   if (P_AproxDistance(mo->x - mo->target->x, mo->y - mo->target->y) <
-      abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
+      D_abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
     mo->z += delta < 0 ? -FLOATSPEED : FLOATSPEED;
       }
 

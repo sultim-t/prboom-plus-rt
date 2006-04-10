@@ -1557,7 +1557,7 @@ static void gld_PrecalculateSector(int num)
           else
             // check if the angle between the current line and this best line candidate is smaller then
             // the angle of the last candidate
-            if (abs(lineangle-angle)<abs(bestangle))
+            if (D_abs(lineangle-angle)<D_abs(bestangle))
             {
               bestline=i;
               bestangle=lineangle-angle;
