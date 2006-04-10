@@ -1010,9 +1010,7 @@ boolean P_ThingHeightClip (mobj_t* thing)
 
 /* killough 8/2/98: make variables static */
 static fixed_t   bestslidefrac;
-static fixed_t   secondslidefrac;
 static line_t*   bestslideline;
-static line_t*   secondslideline;
 static mobj_t*   slidemo;
 static fixed_t   tmxmove;
 static fixed_t   tmymove;
@@ -1166,8 +1164,6 @@ isblocking:
 
   if (in->frac < bestslidefrac)
     {
-    secondslidefrac = bestslidefrac;
-    secondslideline = bestslideline;
     bestslidefrac = in->frac;
     bestslideline = li;
     }
