@@ -403,7 +403,6 @@ int main(int argc, char **argv)
   signal(SIGPIPE, I_SignalHandler); /* CPhipps - add SIGPIPE, as this is fatal */
 #endif
   signal(SIGTERM, I_SignalHandler);
-  signal(SIGILL,  I_SignalHandler);
   signal(SIGFPE,  I_SignalHandler);
   signal(SIGILL,  I_SignalHandler);
   signal(SIGINT,  I_SignalHandler);  /* killough 3/6/98: allow CTRL-BRK during init */
@@ -413,10 +412,6 @@ int main(int argc, char **argv)
   /* cphipps - call to video specific startup code */
   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
     I_PreInitGraphics();
-
-  /* 2/2/98 Stan
-   * Must call this here.  It's required by both netgames and i_video.c.
-   */
 
   D_DoomMain ();
   return 0;
