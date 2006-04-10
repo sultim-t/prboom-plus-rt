@@ -1172,6 +1172,9 @@ static void WriteBMPfile(FILE* st, const byte* data,
   bmih.biClrImportant = LONG(256);
 
   {
+    int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
+    register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*usegamma;
+
     // write the header
     SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
     SafeWrite(&bmfh.bfSize,sizeof(bmfh.bfSize),1,st);
@@ -1193,17 +1196,19 @@ static void WriteBMPfile(FILE* st, const byte* data,
 
     // write the palette, in blue-green-red order, gamma corrected
     for (i=0;i<768;i+=3) {
-      c=gammatable[usegamma][palette[i+2]];
+      c=gtable[palette[i+2]];
       SafeWrite(&c,sizeof(char),1,st);
-      c=gammatable[usegamma][palette[i+1]];
+      c=gtable[palette[i+1]];
       SafeWrite(&c,sizeof(char),1,st);
-      c=gammatable[usegamma][palette[i+0]];
+      c=gtable[palette[i+0]];
       SafeWrite(&c,sizeof(char),1,st);
       SafeWrite(&zero,sizeof(char),1,st);
     }
 
     for (i = 0 ; i < height ; i++)
       SafeWrite(data+(height-1-i)*width,sizeof(byte),wid,st);
+
+    W_UnlockLumpNum(gtlump);
   }
 }
 

@@ -314,12 +314,13 @@ static void I_UploadNewPalette(int pal)
   return;
 #endif
   if ((colours == NULL) || (cachedgamma != usegamma)) {
-    int            lump = W_GetNumForName("PLAYPAL");
-    const byte *palette = W_CacheLumpNum(lump);
-    register const byte *const gtable = gammatable[cachedgamma = usegamma];
+    int pplump = W_GetNumForName("PLAYPAL");
+    int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
+    register const byte * palette = W_CacheLumpNum(pplump);
+    register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*(cachedgamma = usegamma);
     register int i;
 
-    num_pals = W_LumpLength(lump) / (3*256);
+    num_pals = W_LumpLength(pplump) / (3*256);
     num_pals *= 256;
 
     if (!colours) {
@@ -335,7 +336,8 @@ static void I_UploadNewPalette(int pal)
       palette += 3;
     }
 
-    W_UnlockLumpNum(lump);
+    W_UnlockLumpNum(pplump);
+    W_UnlockLumpNum(gtlump);
     num_pals/=256;
   }
 

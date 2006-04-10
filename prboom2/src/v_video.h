@@ -73,7 +73,6 @@ typedef enum
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
 extern byte      *screens[6];
-extern const byte gammatable[5][256];
 extern int        usegamma;
 
 //jff 4/24/98 loads color translation lumps
