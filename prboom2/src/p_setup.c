@@ -1492,8 +1492,12 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // a much simpler fix is in g_game.c -- killough 10/98
 
   bodyqueslot = 0;
+
+  /* cph - reset all multiplayer starts */
+  memset(playerstarts,0,sizeof(playerstarts));
   deathmatch_p = deathmatchstarts;
   P_MapStart();
+
   P_LoadThings(lumpnum+ML_THINGS);
 
   // if deathmatch, randomly spawn the active players

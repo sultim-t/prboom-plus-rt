@@ -1051,8 +1051,6 @@ void G_PlayerReborn (int player)
 // because something is occupying it
 //
 
-void P_SpawnPlayer(mapthing_t *mthing);
-
 boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 {
   fixed_t     x,y;
@@ -1172,16 +1170,13 @@ void G_DeathMatchSpawnPlayer (int playernum)
       if (G_CheckSpot (playernum, &deathmatchstarts[i]) )
         {
           deathmatchstarts[i].type = playernum+1;
-          P_SpawnPlayer (&deathmatchstarts[i]);
+          P_SpawnPlayer (playernum, &deathmatchstarts[i]);
           return;
         }
     }
 
   // no good spot, so the player will probably get stuck
-  if (playerstarts[playernum].type > 0)
-    P_SpawnPlayer (&playerstarts[playernum]);
-  else
-    I_Error("Tried & failed to use co-op start");
+  P_SpawnPlayer (playernum, &playerstarts[playernum]);
 }
 
 //
@@ -1208,7 +1203,7 @@ void G_DoReborn (int playernum)
 
       if (G_CheckSpot (playernum, &playerstarts[playernum]) )
         {
-          P_SpawnPlayer (&playerstarts[playernum]);
+          P_SpawnPlayer (playernum, &playerstarts[playernum]);
           return;
         }
 
@@ -1217,14 +1212,12 @@ void G_DoReborn (int playernum)
         {
           if (G_CheckSpot (playernum, &playerstarts[i]) )
             {
-              playerstarts[i].type = playernum+1; // fake as other player
-              P_SpawnPlayer (&playerstarts[i]);
-              playerstarts[i].type = i+1;   // restore
+              P_SpawnPlayer (playernum, &playerstarts[i]);
               return;
             }
           // he's going to be inside something.  Too bad.
         }
-      P_SpawnPlayer (&playerstarts[playernum]);
+      P_SpawnPlayer (playernum, &playerstarts[playernum]);
     }
 }
 
