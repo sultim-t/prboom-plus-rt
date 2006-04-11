@@ -2048,7 +2048,10 @@ void G_ReloadDefaults(void)
   compatibility_level = default_compatibility_level;
   {
     int i = M_CheckParm("-complevel");
-    if (i && (1+i) < myargc) compatibility_level = atoi(myargv[i+1]);
+    if (i && (1+i) < myargc) {
+      int l = atoi(myargv[i+1]);;
+      if (l >= -1) compatibility_level = l;
+    }
   }
   if (compatibility_level == -1)
     compatibility_level = best_compatibility;
@@ -2587,8 +2590,14 @@ static int demolumpnum = -1;
 static int G_GetOriginalDoomCompatLevel(int ver)
 {
   {
+    int lev;
     int i = M_CheckParm("-complevel");
-    if (i && (i+1 < myargc)) return atoi(myargv[i+1]);
+    if (i && (i+1 < myargc))
+    {
+      lev = atoi(myargv[i+1]);
+      if (lev>=0)
+        return lev;
+    }
   }
   if (ver < 107) return doom_1666_compatibility;
   if (gamemode == retail) return ultdoom_compatibility;
