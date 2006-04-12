@@ -1763,14 +1763,6 @@ static void G_DoSaveGame (boolean menu)
       i = num_version_headers+1;
     }
 
-  if ((size_t)i == num_version_headers) {
-    doom_printf("No savegame signature known for\nthis compatibility level\n"
-    "%d/%d, %u registered", compatibility_level,
-    MAX_COMPATIBILITY_LEVEL, num_version_headers);
-    free(savebuffer); // cph - free data
-    return;
-  }
-
   save_p += VERSIONSIZE;
 
   { /* killough 3/16/98, 12/98: store lump name checksum */
