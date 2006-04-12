@@ -35,6 +35,8 @@
 #include "r_main.h"
 #include "r_sky.h"
 #include "i_system.h"
+#include "r_bsp.h"
+#include "r_things.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 
 //
@@ -679,6 +681,50 @@ int R_ColormapNumForName(const char *name)
     if ((i = (W_CheckNumForName)(name, ns_colormaps)) != -1)
       i -= firstcolormaplump;
   return i;
+}
+
+/*
+ * R_ColourMap
+ *
+ * cph 2001/11/17 - unify colour maping logic in a single place; 
+ *  obsoletes old c_scalelight stuff
+ */
+
+static inline int between(int l,int u,int x)
+{ return (l > x ? l : x > u ? u : x); }
+
+static inline int min(int x, int y)
+{ return (x>y ? y : x); }
+
+const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale)
+{
+  if (fixedcolormap) return fixedcolormap;
+  else {
+    if (curline)
+      if (curline->v1->y == curline->v2->y)
+        lightlevel -= 1 << LIGHTSEGSHIFT;
+      else
+        if (curline->v1->x == curline->v2->x)
+          lightlevel += 1 << LIGHTSEGSHIFT;
+
+    lightlevel += extralight << LIGHTSEGSHIFT;
+
+    /* cph 2001/11/17 -
+     * Work out what colour map to use, remembering to clamp it to the number of
+     * colour maps we actually have. This formula is basically the one from the
+     * original source, just brought into one place. The main difference is it
+     * throws away less precision in the lightlevel half, so it supports 32
+     * light levels in WADs compared to Doom's 16.
+     *
+     * Note we can make it more accurate if we want - we should keep all the
+     * precision until the final step, so slight scale differences can count
+     * against slight light level variations.
+     */
+    return fullcolormap + between(0,NUMCOLORMAPS-1,
+          ((256-lightlevel)*2*NUMCOLORMAPS/256) - 4
+          - (FixedMul(spryscale,pspriteiscale)/2 >> LIGHTSCALESHIFT)
+          )*256;
+  }
 }
 
 //

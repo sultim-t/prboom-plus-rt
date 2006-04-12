@@ -178,7 +178,6 @@ extern int mousebforward;
 
 extern int viewwidth;
 extern int viewheight;
-extern int fake_contrast;
 #ifdef GL_DOOM
 extern int gl_nearclip;
 extern int gl_farclip;
@@ -350,8 +349,6 @@ default_t defaults[] =
   {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
    def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
 #endif
-  {"fake_contrast",{&fake_contrast},{1},0,1,
-   def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
 #ifndef DISABLE_DOUBLEBUFFER

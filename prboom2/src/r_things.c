@@ -65,8 +65,6 @@ fixed_t pspriteiscale;
 // proff 11/06/98: Added for high-res
 fixed_t pspriteyscale;
 
-static lighttable_t **spritelights;        // killough 1/25/98 made static
-
 // constant arrays
 //  used for psprite clipping and initializing clipping
 
@@ -416,7 +414,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 // Generates a vissprite for a thing if it might be visible.
 //
 
-void R_ProjectSprite (mobj_t* thing)
+void R_ProjectSprite (mobj_t* thing, int lightlevel)
 {
   fixed_t   gzt;               // killough 3/27/98
   fixed_t   tx;
@@ -582,10 +580,7 @@ void R_ProjectSprite (mobj_t* thing)
     vis->colormap = fullcolormap;     // full bright  // killough 3/20/98
   else
     {      // diminished light
-      int index = xscale>>LIGHTSCALESHIFT;
-      if (index >= MAXLIGHTSCALE)
-        index = MAXLIGHTSCALE-1;
-      vis->colormap = spritelights[index];
+      vis->colormap = R_ColourMap(lightlevel,xscale);
     }
 #endif
 }
@@ -599,7 +594,6 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 {
   sector_t* sec=subsec->sector;
   mobj_t *thing;
-  int    lightnum;
 
   // BSP is traversed by subsector.
   // A sector might have been split into several
@@ -612,26 +606,17 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
   // Well, now it will be done.
   sec->validcount = validcount;
 
-  lightnum = (lightlevel >> LIGHTSEGSHIFT)+extralight;
-
-  if (lightnum < 0)
-    spritelights = scalelight[0];
-  else if (lightnum >= LIGHTLEVELS)
-    spritelights = scalelight[LIGHTLEVELS-1];
-  else
-    spritelights = scalelight[lightnum];
-
   // Handle all things in sector.
 
   for (thing = sec->thinglist; thing; thing = thing->snext)
-    R_ProjectSprite(thing);
+    R_ProjectSprite(thing, lightlevel);
 }
 
 //
 // R_DrawPSprite
 //
 
-void R_DrawPSprite (pspdef_t *psp)
+void R_DrawPSprite (pspdef_t *psp, int lightlevel)
 {
   fixed_t       tx;
   int           x1, x2;
@@ -714,7 +699,7 @@ void R_DrawPSprite (pspdef_t *psp)
   else if (psp->state->frame & FF_FULLBRIGHT)
     vis->colormap = fullcolormap;            // full bright // killough 3/20/98
   else
-    vis->colormap = spritelights[MAXLIGHTSCALE-1];  // local light
+    vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
 
   // proff 11/99: don't use software stuff in OpenGL
 #ifndef GL_DOOM
@@ -750,19 +735,8 @@ void R_DrawPSprite (pspdef_t *psp)
 
 void R_DrawPlayerSprites(void)
 {
-  int i, lightnum;
+  int i, lightlevel = viewplayer->mo->subsector->sector->lightlevel;
   pspdef_t *psp;
-
-  // get light level
-  lightnum = (viewplayer->mo->subsector->sector->lightlevel >> LIGHTSEGSHIFT)
-    + extralight;
-
-  if (lightnum < 0)
-    spritelights = scalelight[0];
-  else if (lightnum >= LIGHTLEVELS)
-    spritelights = scalelight[LIGHTLEVELS-1];
-  else
-    spritelights = scalelight[lightnum];
 
   // clip to screen bounds
   mfloorclip = screenheightarray;
@@ -771,7 +745,7 @@ void R_DrawPlayerSprites(void)
   // add all active psprites
   for (i=0, psp=viewplayer->psprites; i<NUMPSPRITES; i++,psp++)
     if (psp->state)
-      R_DrawPSprite (psp);
+      R_DrawPSprite (psp, lightlevel);
 }
 
 //
