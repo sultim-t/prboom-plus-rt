@@ -693,9 +693,6 @@ int R_ColormapNumForName(const char *name)
 static inline int between(int l,int u,int x)
 { return (l > x ? l : x > u ? u : x); }
 
-static inline int min(int x, int y)
-{ return (x>y ? y : x); }
-
 const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale)
 {
   if (fixedcolormap) return fixedcolormap;
