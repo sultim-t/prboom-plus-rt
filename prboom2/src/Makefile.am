@@ -6,13 +6,11 @@
 #
 #
 
-EXTRA_SUBDIRS = Posix SDL
-
 SUBDIRS = SDL POSIX
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = prboom-game-server
-games_PROGRAMS = prboom @BUILD_SERVER@
+EXTRA_PROGRAMS = prboom
+games_PROGRAMS = @BUILD_DOOM@ prboom-game-server
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
