@@ -238,6 +238,8 @@ prboom2/make-release.cmd -text
 prboom2/src/MAC/Info.plist -text
 prboom2/src/MAC/PrBoom.icns -text
 prboom2/src/MAC/Rakefile -text
+prboom2/src/MAC/SDLMain.h -text
+prboom2/src/MAC/SDLMain.m -text
 prboom2/src/MAC/config.h -text
 prboom2/src/MAC/i_system.m -text
 prboom2/src/Makefile.am eol=lf
