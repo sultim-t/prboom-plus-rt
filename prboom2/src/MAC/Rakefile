@@ -9,13 +9,13 @@ MAKEDEPEND = '/usr/X11R6/bin/makedepend'
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 DEUTEX = 'deutex'
 frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks)
-ldflags = ''
+ldflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk'
 libs = ''
 systemFrameworks = %w(Cocoa)
 frameworks = %w(SDL SDL_mixer SDL_net)
 includes = '-I. -IMAC'
 defines = '-DMACOSX -DHAVE_CONFIG_H'
-cflags = '-g -Wno-pointer-sign -Wno-packed'
+cflags = '-g -Wno-pointer-sign -Wno-packed -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk'
 
 #####################
 # Support functions #
