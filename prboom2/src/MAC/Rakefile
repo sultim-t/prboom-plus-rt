@@ -99,6 +99,11 @@ for name in systemFrameworks
 	libs += " -framework #{name}"
 end
 
+for dir in frameworkPaths
+	cflags += " -F#{File::expand_path(dir)}"
+	ldflags += " -F#{File::expand_path(dir)}"
+end
+
 task(:bundle => :frameworks)
 
 ##############
