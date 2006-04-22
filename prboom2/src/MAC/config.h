@@ -1,9 +1,46 @@
 /**/
 #define PACKAGE "prboom"
 #define VERSION "2.4.2"
+
+#ifdef DEBUG
+
+/* Define to enable internal range checking */
+#define RANGECHECK 1
+
+/* Define this to see real-time memory allocation
+ * statistics, and enable extra debugging features
+ */
+#define INSTRUMENTED 1
+
+/* Uncomment this to exhaustively run memory checks
+ * while the game is running (this is EXTREMELY slow).
+ * Only useful if INSTRUMENTED is also defined.
+ */
+#define CHECKHEAP 1
+
+/* Uncomment this to cause heap dumps to be generated.
+ * Only useful if INSTRUMENTED is also defined.
+ */
+#define HEAPDUMP 1
+
+/* Uncomment this to perform id checks on zone blocks,
+ * to detect corrupted and illegally freed blocks
+ */
+#define ZONEIDCHECK 1
+
+/* CPhipps - some debugging macros for the new wad lump handling code */
+/* Defining this causes quick checks which only impose an overhead if a
+ *  posible error is detected. */
+#define SIMPLECHECKS 1
+
+/* Defining this causes time stamps to be created each time a lump is locked, and
+ *  lumps locked for long periods of time are reported */
+#define TIMEDIAG 1
+
+#endif // DEBUG
+
 #define DOGS 1
 #define MONITOR_VISIBILITY 1
-#define SIMPLECHECKS
 /*#define DISABLE_LUMP_CACHING*/
 
 /**/
