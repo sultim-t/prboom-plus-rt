@@ -3,107 +3,30 @@
 #################
 
 NAME = 'PrBoom'
+require 'mac/macsupport'
 
-CC = 'cc'
-MAKEDEPEND = '/usr/X11R6/bin/makedepend'
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
-DEUTEX = 'deutex'
-frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks)
-ldflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk'
-libs = ''
-systemFrameworks = %w(Cocoa)
-frameworks = %w(SDL SDL_mixer SDL_net)
-includes = '-I. -IMAC'
-defines = '-DMACOSX -DHAVE_CONFIG_H'
-cflags = '-Wno-pointer-sign -Wno-packed -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk'
+@deutex = 'deutex'
+@systemFrameworks += %w(Cocoa)
+@frameworks += %w(SDL SDL_mixer SDL_net)
+@includes += '-I. -IMAC'
+@defines +=  '-DMACOSX -DHAVE_CONFIG_H'
+@cflags += '-Wno-pointer-sign -Wno-packed'
 
 if ENV['DEBUG']
-	cflags += ' -g -DDEBUG'
+	@cflags += ' -g -DDEBUG'
 else
-	cflags += ' -Os'
-end
-
-#####################
-# Support functions #
-#####################
-
-def installRule(dir, file)
-	target = File::join(dir, File::basename(file))
-	file(target => [dir, file]) do |t|
-		cp(file, target)
-	end
-end
-
-def installTask(taskName, dir, files)
-	if files.is_a?(String)
-		files = [files]
-	end
-
-	array = []
-	for f in files do
-		array << File::join(dir, File::basename(f))
-		installRule(dir, f)
-	end
-	task(taskName => array)
-end
-
-def installTaskRecursive(taskName, dest, src)
-	target = File::join(dest, File::basename(src))
-	file(target => [dest, src]) do |t|
-		cp_r(src, target)
-	end
-	task(taskName => target)
-end
-
-def bundleDir(dir)
-	file(dir) do |t|
-		sh("/Developer/Tools/SetFile -a B #{dir}")
-	end
+	@cflags += ' -Os'
 end
 
 ####################
 # Bundle structure #
 ####################
-directory(BUNDLEDIR = "#{NAME}.app")
-directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
-directory(BINDIR = "#{CONTENTSDIR}/MacOS")
-directory(RESOURCEDIR = "#{CONTENTSDIR}/Resources")
-directory(FRAMEWORKDIR = "#{CONTENTSDIR}/Frameworks")
-
-bundleDir(BUNDLEDIR)
 
 installTask(:setup, CONTENTSDIR, 'mac/Info.plist')
 task(:bundle => :setup)
 
-##############
-# Frameworks #
-##############
-
-for name in frameworks
-	framework = nil
-	for path in frameworkPaths
-		try = "#{File::expand_path(path)}/#{name}.framework"
-		if File::directory?(try)
-			framework = try
-			break
-		end
-	end
-
-	libs += " -framework #{name}"
-	includes += " -I#{framework}/Headers"
-
-	installTaskRecursive(:frameworks, FRAMEWORKDIR, framework)
-end
-
-for name in systemFrameworks
-	libs += " -framework #{name}"
-end
-
-for dir in frameworkPaths
-	cflags += " -F#{File::expand_path(dir)}"
-	ldflags += " -F#{File::expand_path(dir)}"
-end
-
+installFrameworks(:frameworks)
 task(:bundle => :frameworks)
 
 ##############
@@ -183,29 +106,7 @@ z_bmalloc.c
 z_zone.c
 )
 
-cleanfiles = []
-objects = []
-for source in sources
-	object = "#{File::dirname(source)}/#{File::basename(source, '.*')}.o"
-	file(object => source) do |task|
-		sh("#{CC} #{cflags} #{includes} #{defines} -o #{task.name} -c #{task.prerequisites[0]}")
-	end
-	objects.push(object)
-	cleanfiles.push(object)
-end
-
-require 'rake/loaders/makefile'
-file('depends.mf' => sources) do |task|
-	sh("#{MAKEDEPEND} -f- -- #{includes} #{defines} -- #{task.prerequisites} > #{task.name} 2> /dev/null")
-end
-import 'depends.mf'
-cleanfiles.push('depends.mf')
-
-file("#{BINDIR}/#{NAME}" => [BINDIR, *objects]) do |task|
-	sh("#{CC} #{ldflags} -o #{task.name} #{task.prerequisites[1..-1].join(' ')} #{libs}")
-end
-
-task(:binary => "#{BINDIR}/#{NAME}")
+buildBinary(:binary, BINDIR, NAME, sources)
 task(:bundle => :binary)
 
 ############
@@ -218,7 +119,7 @@ wadfiles = [Dir::glob('../data/graphics/*.ppm'),
             Dir::glob('../data/Psounds/*.wav')].flatten
 
 file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
-	sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{DEUTEX} -make prboom.txt ../src/#{task.name}")
+	sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{@deutex} -make prboom.txt ../src/#{task.name}")
 end
 
 task(:data => "#{RESOURCEDIR}/prboom.wad")
@@ -230,8 +131,3 @@ task(:bundle => :data)
 ################
 
 task(:default => :bundle)
-
-task(:clean) do |task|
-	rm_rf(cleanfiles)
-	rm_rf(BUNDLEDIR)
-end
