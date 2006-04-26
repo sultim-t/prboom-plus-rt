@@ -20,5 +20,9 @@
 	<string>2.4.2</string>
 	<key>CFBundleVersion</key>
 	<string>2.4.2</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
 </dict>
 </plist>

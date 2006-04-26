@@ -106,12 +106,15 @@ z_bmalloc.c
 z_zone.c
 )
 
-buildBinary(:binary, BINDIR, NAME, sources)
+buildBinary(:binary, BINDIR, 'game', sources)
+buildBinary(:binary, BINDIR, 'PrBoom', %w(MAC/LauncherMain.m MAC/LauncherApp.m))
 task(:bundle => :binary)
 
 ############
 # App data #
 ############
+
+installTaskRecursive(:data, RESOURCEDIR, 'MAC/English.lproj')
 
 wadfiles = [Dir::glob('../data/graphics/*.ppm'),
             Dir::glob('../data/sprites/*.ppm'),

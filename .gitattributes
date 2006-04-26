@@ -235,7 +235,13 @@ prboom2/data/sprites/dogsn0.ppm -text
 prboom2/data/sprites/tnt1a0.ppm -text
 prboom2/doc/Makefile.am eol=lf
 prboom2/make-release.cmd -text
+prboom2/src/MAC/English.lproj/MainMenu.nib/classes.nib -text
+prboom2/src/MAC/English.lproj/MainMenu.nib/info.nib -text
+prboom2/src/MAC/English.lproj/MainMenu.nib/keyedobjects.nib -text
 prboom2/src/MAC/Info.plist -text
+prboom2/src/MAC/LauncherApp.h -text
+prboom2/src/MAC/LauncherApp.m -text
+prboom2/src/MAC/LauncherMain.m -text
 prboom2/src/MAC/PrBoom.icns -text
 prboom2/src/MAC/Rakefile -text
 prboom2/src/MAC/SDLMain.h -text
