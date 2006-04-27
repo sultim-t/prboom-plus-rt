@@ -114,7 +114,11 @@ task(:bundle => :binary)
 # App data #
 ############
 
-installTaskRecursive(:data, RESOURCEDIR, 'MAC/English.lproj')
+directory(ENGLISHDIR = "#{RESOURCEDIR}/English.lproj")
+directory(MAINMENUDIR = "#{ENGLISHDIR}/MainMenu.nib")
+installTask(:data, MAINMENUDIR, %w(MAC/English.lproj/MainMenu.nib/classes.nib MAC/English.lproj/MainMenu.nib/info.nib MAC/English.lproj/MainMenu.nib/keyedobjects.nib))
+bundleDir(ENGLISHDIR)
+bundleDir(MAINMENUDIR)
 
 wadfiles = [Dir::glob('../data/graphics/*.ppm'),
             Dir::glob('../data/sprites/*.ppm'),
