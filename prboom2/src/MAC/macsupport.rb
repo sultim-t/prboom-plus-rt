@@ -48,7 +48,7 @@ end
 def installTaskRecursive(taskName, dest, src)
 	target = File::join(dest, File::basename(src))
 	file(target => [dest, src]) do |t|
-		cp_r(src, target)
+		cp_r(t.prerequisites[1], t.prerequisites[0])
 	end
 	task(taskName => target)
 end
