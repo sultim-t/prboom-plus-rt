@@ -6,6 +6,7 @@
     IBOutlet id compatibilityLevelButton;
     IBOutlet id compatMenu;
     IBOutlet id demoFileField;
+    IBOutlet id demoMatrix;
     IBOutlet id disableGraphicsButton;
     IBOutlet id disableJoystickButton;
     IBOutlet id disableMouseButton;
@@ -36,6 +37,7 @@
 - (IBAction)disableSoundClicked:(id)sender;
 - (IBAction)removeWadClicked:(id)sender;
 - (IBAction)startClicked:(id)sender;
+- (IBAction)demoButtonClicked:(id)sender;
 
 // Table view and data source
 - (void)tableViewSelectionDidChange:(NSNotification *)notification;

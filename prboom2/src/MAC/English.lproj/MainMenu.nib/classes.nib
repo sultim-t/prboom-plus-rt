@@ -5,6 +5,7 @@
             ACTIONS = {
                 addWadClicked = id; 
                 chooseDemoFileClicked = id; 
+                demoButtonClicked = id; 
                 disableSoundClicked = id; 
                 removeWadClicked = id; 
                 startClicked = id; 
@@ -16,6 +17,7 @@
                 compatMenu = id; 
                 compatibilityLevelButton = id; 
                 demoFileField = id; 
+                demoMatrix = id; 
                 disableGraphicsButton = id; 
                 disableJoystickButton = id; 
                 disableMouseButton = id; 
