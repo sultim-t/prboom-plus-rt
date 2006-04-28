@@ -27,19 +27,27 @@
     IBOutlet id timeDemoButton;
     IBOutlet id wadView;
     IBOutlet id warpToLevelField;
+    IBOutlet id window;
+
+    NSMutableArray *wads;
 }
 
 - (void)awakeFromNib;
 
-// Button handlers
-- (IBAction)addWadClicked:(id)sender;
-- (IBAction)chooseDemoFileClicked:(id)sender;
-- (IBAction)disableSoundClicked:(id)sender;
-- (IBAction)removeWadClicked:(id)sender;
 - (IBAction)startClicked:(id)sender;
+
+- (IBAction)disableSoundClicked:(id)sender;
+
+- (IBAction)chooseDemoFileClicked:(id)sender;
+- (void)chooseDemoFileEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
 - (IBAction)demoButtonClicked:(id)sender;
 
-// Table view and data source
+// Wad handling
+- (IBAction)addWadClicked:(id)sender;
+- (void)addWadEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
+- (IBAction)removeWadClicked:(id)sender;
+
+// Wad table view and data source
 - (void)tableViewSelectionDidChange:(NSNotification *)notification;
 - (int)numberOfRowsInTableView:(NSTableView *)tableView;
 - (id)tableView:(NSTableView *)tableView

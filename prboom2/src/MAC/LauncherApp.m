@@ -7,15 +7,17 @@
 	[self disableSoundClicked:disableSoundButton];
 	[self demoButtonClicked:demoMatrix];
 	[self tableViewSelectionDidChange:nil];
+
+	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 }
 
-- (IBAction)addWadClicked:(id)sender
+- (IBAction)startClicked:(id)sender
 {
+	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"game"];
+	NSArray *array = [NSArray array];
+	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:array];
 }
 
-- (IBAction)chooseDemoFileClicked:(id)sender
-{
-}
 
 - (IBAction)disableSoundClicked:(id)sender
 {
@@ -24,15 +26,23 @@
 	[disableMusicButton setEnabled:state];
 }
 
-- (IBAction)removeWadClicked:(id)sender
+- (IBAction)chooseDemoFileClicked:(id)sender
 {
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	[panel setAllowsMultipleSelection:false];
+	[panel setCanChooseFiles:true];
+	[panel setCanChooseDirectories:false];
+	NSArray *types = [NSArray arrayWithObjects:@"lmp", @"LMP", nil];
+	[panel beginSheetForDirectory:nil file:nil types:types
+	       modalForWindow:window  modalDelegate:self
+	       didEndSelector:@selector(chooseDemoFileEnded:returnCode:contextInfo:)
+	       contextInfo:nil];
 }
 
-- (IBAction)startClicked:(id)sender
+- (void)chooseDemoFileEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info
 {
-	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"game"];
-	NSArray *array = [NSArray array];
-	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:array];
+	if(code == NSCancelButton) return;
+	[demoFileField setStringValue:[[panel filenames] objectAtIndex:0]];
 }
 
 - (IBAction)demoButtonClicked:(id)sender
@@ -43,6 +53,37 @@
 	[warpToLevelField setEnabled:selected == playDemoWarpButton];
 }
 
+- (IBAction)addWadClicked:(id)sender
+{
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	[panel setAllowsMultipleSelection:true];
+	[panel setCanChooseFiles:true];
+	[panel setCanChooseDirectories:false];
+	NSArray *types = [NSArray arrayWithObjects:@"wad", @"WAD", nil];
+	[panel beginSheetForDirectory:nil file:nil types:types
+	       modalForWindow:window  modalDelegate:self
+	       didEndSelector:@selector(addWadEnded:returnCode:contextInfo:)
+	       contextInfo:nil];
+}
+
+- (void)addWadEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info
+{
+	if(code == NSCancelButton) return;
+
+	int i;
+	for(i = 0; i < [[panel filenames] count]; ++i)
+		[wads insertObject:[[panel filenames] objectAtIndex:i] atIndex:[wads count]];
+
+	[wadView noteNumberOfRowsChanged];
+}
+
+- (IBAction)removeWadClicked:(id)sender
+{
+	[wads removeObjectAtIndex:[wadView selectedRow]];
+	[wadView selectRowIndexes:[NSIndexSet indexSetWithIndex:-1] byExtendingSelection:false];
+	[wadView noteNumberOfRowsChanged];
+}
+
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
 	[removeWadButton setEnabled:([wadView selectedRow] > -1)];
@@ -50,14 +91,15 @@
 
 - (int)numberOfRowsInTableView:(NSTableView *)tableView
 {
-	return 0;
+	return [wads count];
 }
 
 - (id)tableView:(NSTableView *)tableView
                 objectValueForTableColumn:(NSTableColumn *)column
                 row:(int)row
 {
-	return @"";
+	// We only have one column
+	return [wads objectAtIndex:row];
 }
 
 - (void)tableView:(NSTableView *)tableView
@@ -65,6 +107,8 @@
                   forTableColumn:(NSTableColumn *)column
                   row:(int)row
 {
+	// We only have one column
+	[wads replaceObjectAtIndex:row withObject:object];
 }
 
 @end

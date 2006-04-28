@@ -38,6 +38,7 @@
                 timeDemoButton = id; 
                 wadView = id; 
                 warpToLevelField = id; 
+                window = id; 
             }; 
             SUPERCLASS = NSObject; 
         }
