@@ -19,8 +19,62 @@
 - (IBAction)startClicked:(id)sender
 {
 	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"game"];
-	NSArray *array = [NSArray array];
-	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:array];
+	NSMutableArray *args = [NSMutableArray arrayWithCapacity:10];
+
+	// Game
+	[args insertObject:@"-iwad" atIndex:[args count]];
+	long game = [[gameButton objectValue] longValue];
+	if(game == 0)
+		[args insertObject:@"doom.wad" atIndex:[args count]];
+	else if(game == 1)
+		[args insertObject:@"doomu.wad" atIndex:[args count]];
+	else if(game == 2)
+		[args insertObject:@"doom2.wad" atIndex:[args count]];
+	else if(game == 3)
+		[args insertObject:@"tnt.wad" atIndex:[args count]];
+	else if(game == 4)
+		[args insertObject:@"plutonia.wad" atIndex:[args count]];
+	else if(game == 5)
+		[args insertObject:@"freedoom.wad" atIndex:[args count]];
+
+	// Compat
+	[args insertObject:@"-complevel" atIndex:[args count]];
+	[args insertObject:[[compatibilityLevelButton objectValue] stringValue]
+	      atIndex:[args count]];
+
+	// Options
+	if([fastMonstersButton state] == NSOnState)
+		[args insertObject:@"-fast" atIndex:[args count]];
+	if([noMonstersButton state] == NSOnState)
+		[args insertObject:@"-nomonsters" atIndex:[args count]];
+	if([respawnMonstersButton state] == NSOnState)
+		[args insertObject:@"-respawn" atIndex:[args count]];
+
+	// Debug options
+	if([disableGraphicsButton state] == NSOnState)
+		[args insertObject:@"-nodraw" atIndex:[args count]];
+	if([disableJoystickButton state] == NSOnState)
+		[args insertObject:@"-nojoy" atIndex:[args count]];
+	if([disableMouseButton state] == NSOnState)
+		[args insertObject:@"-nomouse" atIndex:[args count]];
+	if([disableSoundButton state] == NSOnState)
+	{
+		[args insertObject:@"-nosound" atIndex:[args count]];
+	}
+	else
+	{
+		if([disableMusicButton state] == NSOnState)
+			[args insertObject:@"-nomusic" atIndex:[args count]];
+		if([disableSoundEffectsButton state] == NSOnState)
+			[args insertObject:@"-nosfx" atIndex:[args count]];
+	}
+
+	// Extra wads
+
+	// Demo
+
+	// Execute
+	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
 }
 
 - (IBAction)disableSoundClicked:(id)sender
