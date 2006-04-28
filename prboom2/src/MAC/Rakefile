@@ -106,8 +106,8 @@ z_bmalloc.c
 z_zone.c
 )
 
-buildBinary(:binary, BINDIR, 'game', sources)
-buildBinary(:binary, BINDIR, 'PrBoom', %w(MAC/LauncherMain.m MAC/LauncherApp.m))
+buildBinary(:binary, BINDIR, 'PrBoom', sources)
+buildBinary(:binary, BINDIR, 'Launcher', %w(MAC/LauncherMain.m MAC/LauncherApp.m))
 task(:bundle => :binary)
 
 ############

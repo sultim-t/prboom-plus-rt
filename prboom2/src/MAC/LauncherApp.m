@@ -18,7 +18,7 @@
 
 - (IBAction)startClicked:(id)sender
 {
-	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"game"];
+	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom"];
 	NSMutableArray *args = [NSMutableArray arrayWithCapacity:10];
 
 	// Game

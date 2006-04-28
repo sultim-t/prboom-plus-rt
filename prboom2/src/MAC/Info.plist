@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>PrBoom</string>
+	<string>Launcher</string>
 	<key>CFBundleGetInfoString</key>
 	<string>2.4.2</string>
 	<key>CFBundleIconFile</key>
