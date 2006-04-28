@@ -123,7 +123,7 @@ bundleDir(MAINMENUDIR)
 wadfiles = [Dir::glob('../data/graphics/*.ppm'),
             Dir::glob('../data/sprites/*.ppm'),
             Dir::glob('../data/lumps/*.lmp'),
-            Dir::glob('../data/Psounds/*.wav')].flatten
+            Dir::glob('../data/sounds/*.wav')].flatten
 
 file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
 	sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{@deutex} -make prboom.txt ../src/#{task.name}")
