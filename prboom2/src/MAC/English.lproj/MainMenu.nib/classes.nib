@@ -7,6 +7,7 @@
                 chooseDemoFileClicked = id; 
                 demoButtonClicked = id; 
                 disableSoundClicked = id; 
+                gameButtonClicked = id; 
                 removeWadClicked = id; 
                 startClicked = id; 
             }; 
@@ -14,7 +15,6 @@
             LANGUAGE = ObjC; 
             OUTLETS = {
                 chooseDemoFileButton = id; 
-                compatMenu = id; 
                 compatibilityLevelButton = id; 
                 demoFileField = id; 
                 demoMatrix = id; 
@@ -28,8 +28,6 @@
                 fastMonstersButton = id; 
                 ffToLevelField = id; 
                 gameButton = id; 
-                gameMenu = id; 
-                mainMenu = id; 
                 noDemoButton = id; 
                 noMonstersButton = id; 
                 playDemoButton = id; 

@@ -2,47 +2,62 @@
 
 @interface LauncherApp : NSObject
 {
-    IBOutlet id chooseDemoFileButton;
-    IBOutlet id compatibilityLevelButton;
-    IBOutlet id compatMenu;
-    IBOutlet id demoFileField;
-    IBOutlet id demoMatrix;
-    IBOutlet id disableGraphicsButton;
-    IBOutlet id disableJoystickButton;
-    IBOutlet id disableMouseButton;
-    IBOutlet id disableMusicButton;
-    IBOutlet id disableSoundButton;
-    IBOutlet id disableSoundEffectsButton;
-    IBOutlet id fastDemoButton;
-    IBOutlet id fastMonstersButton;
-    IBOutlet id gameButton;
-    IBOutlet id gameMenu;
-    IBOutlet id mainMenu;
-    IBOutlet id noDemoButton;
-    IBOutlet id noMonstersButton;
-    IBOutlet id playDemoButton;
-    IBOutlet id removeWadButton;
-    IBOutlet id respawnMonstersButton;
-    IBOutlet id timeDemoButton;
-    IBOutlet id wadView;
-    IBOutlet id ffToLevelField;
-    IBOutlet id window;
+	IBOutlet id window;
 
-    NSMutableArray *wads;
+	// Game
+	IBOutlet id compatibilityLevelButton;
+	IBOutlet id gameButton;
+
+	// Options
+	IBOutlet id respawnMonstersButton;
+	IBOutlet id fastMonstersButton;
+	IBOutlet id noMonstersButton;
+
+	// Debug options
+	IBOutlet id disableGraphicsButton;
+	IBOutlet id disableJoystickButton;
+	IBOutlet id disableMouseButton;
+	IBOutlet id disableMusicButton;
+	IBOutlet id disableSoundButton;
+	IBOutlet id disableSoundEffectsButton;
+
+	// Wad options
+	NSMutableArray *wads;
+
+	IBOutlet id wadView;
+	IBOutlet id removeWadButton;
+
+	// Demo options
+	IBOutlet id noDemoButton;
+	IBOutlet id playDemoButton;
+	IBOutlet id fastDemoButton;
+	IBOutlet id timeDemoButton;
+	IBOutlet id demoMatrix;
+
+	IBOutlet id ffToLevelField;
+	IBOutlet id chooseDemoFileButton;
+	IBOutlet id demoFileField;
 }
 
 - (void)awakeFromNib;
 - (void)windowWillClose:(NSNotification *)notification;
 
-- (IBAction)startClicked:(id)sender;
+- (void)loadDefaults;
+- (void)saveDefaults;
 
+// Game
+- (IBAction)startClicked:(id)sender;
+- (IBAction)gameButtonClicked:(id)sender;
+
+// Options
 - (IBAction)disableSoundClicked:(id)sender;
 
+// Demo options
 - (IBAction)chooseDemoFileClicked:(id)sender;
 - (void)chooseDemoFileEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
 - (IBAction)demoButtonClicked:(id)sender;
 
-// Wad handling
+// Wad options
 - (IBAction)addWadClicked:(id)sender;
 - (void)addWadEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
 - (IBAction)removeWadClicked:(id)sender;

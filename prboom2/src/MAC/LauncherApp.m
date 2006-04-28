@@ -4,11 +4,8 @@
 
 - (void)awakeFromNib
 {
-	[self disableSoundClicked:disableSoundButton];
-	[self demoButtonClicked:demoMatrix];
-	[self tableViewSelectionDidChange:nil];
-
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
+	[self loadDefaults];
 }
 
 - (void)windowWillClose:(NSNotification *)notification
@@ -16,8 +13,56 @@
 	[NSApp terminate:window];
 }
 
+- (void)loadDefaults
+{
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+	if([defaults boolForKey:@"Saved"] == true)
+	{
+		[gameButton setObjectValue:[defaults objectForKey:@"Game"]];
+		[respawnMonstersButton setObjectValue:[defaults objectForKey:@"Respawn Monsters"]];
+		[fastMonstersButton setObjectValue:[defaults objectForKey:@"Fast Monsters"]];
+		[noMonstersButton setObjectValue:[defaults objectForKey:@"No Monsters"]];
+		[disableGraphicsButton setObjectValue:[defaults objectForKey:@"Disable Graphics"]];
+		[disableJoystickButton setObjectValue:[defaults objectForKey:@"Disable Joystick"]];
+		[disableMouseButton setObjectValue:[defaults objectForKey:@"Disable Mouse"]];
+		[disableMusicButton setObjectValue:[defaults objectForKey:@"Disable Music"]];
+		[disableSoundButton setObjectValue:[defaults objectForKey:@"Disable Sound"]];
+		[disableSoundEffectsButton setObjectValue:[defaults objectForKey:@"Disable Sound Effects"]];
+		[wads setArray:[defaults stringArrayForKey:@"Wads"]];
+	}
+
+	[self disableSoundClicked:disableSoundButton];
+	[self gameButtonClicked:gameButton];
+	[self demoButtonClicked:demoMatrix];
+	[self tableViewSelectionDidChange:nil];
+}
+
+- (void)saveDefaults
+{
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+	[defaults setBool:true forKey:@"Saved"];
+
+	[defaults setObject:[gameButton objectValue] forKey:@"Game"];
+	[defaults setObject:[respawnMonstersButton objectValue] forKey:@"Respawn Monsters"];
+	[defaults setObject:[fastMonstersButton objectValue] forKey:@"Fast Monsters"];
+	[defaults setObject:[noMonstersButton objectValue] forKey:@"No Monsters"];
+	[defaults setObject:[disableGraphicsButton objectValue] forKey:@"Disable Graphics"];
+	[defaults setObject:[disableJoystickButton objectValue] forKey:@"Disable Joystick"];
+	[defaults setObject:[disableMouseButton objectValue] forKey:@"Disable Mouse"];
+	[defaults setObject:[disableMusicButton objectValue] forKey:@"Disable Music"];
+	[defaults setObject:[disableSoundButton objectValue] forKey:@"Disable Sound"];
+	[defaults setObject:[disableSoundEffectsButton objectValue] forKey:@"Disable Sound Effects"];
+	[defaults setObject:wads forKey:@"Wads"];
+
+	[defaults synchronize];
+}
+
 - (IBAction)startClicked:(id)sender
 {
+	[self saveDefaults];
+
 	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom"];
 	NSMutableArray *args = [NSMutableArray arrayWithCapacity:10];
 
@@ -96,6 +141,23 @@
 
 	// Execute
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
+}
+
+- (IBAction)gameButtonClicked:(id)sender
+{
+	long game = [[gameButton objectValue] longValue];
+	if(game == 0)
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:2]];
+	else if(game == 1)
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:3]];
+	else if(game == 2)
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:2]];
+	else if(game == 3)
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:4]];
+	else if(game == 4)
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:4]];
+	else if(game == 5)
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:7]];
 }
 
 - (IBAction)disableSoundClicked:(id)sender
