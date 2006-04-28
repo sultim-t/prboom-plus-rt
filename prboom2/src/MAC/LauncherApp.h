@@ -33,6 +33,7 @@
 }
 
 - (void)awakeFromNib;
+- (void)windowWillClose:(NSNotification *)notification;
 
 - (IBAction)startClicked:(id)sender;
 

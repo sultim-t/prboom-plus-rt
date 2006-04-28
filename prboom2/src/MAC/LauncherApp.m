@@ -11,13 +11,17 @@
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 }
 
+- (void)windowWillClose:(NSNotification *)notification
+{
+	[NSApp terminate:window];
+}
+
 - (IBAction)startClicked:(id)sender
 {
 	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"game"];
 	NSArray *array = [NSArray array];
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:array];
 }
-
 
 - (IBAction)disableSoundClicked:(id)sender
 {
