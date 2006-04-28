@@ -70,6 +70,12 @@
 	}
 
 	// Extra wads
+	[args insertObject:@"-file" atIndex:[args count]];
+	int i;
+	for(i = 0; i < [wads count]; ++i)
+	{
+		[args insertObject:[wads objectAtIndex:i] atIndex:[args count]];
+	}
 
 	// Demo
 
