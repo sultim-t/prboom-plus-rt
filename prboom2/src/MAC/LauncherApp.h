@@ -21,12 +21,11 @@
     IBOutlet id noDemoButton;
     IBOutlet id noMonstersButton;
     IBOutlet id playDemoButton;
-    IBOutlet id playDemoWarpButton;
     IBOutlet id removeWadButton;
     IBOutlet id respawnMonstersButton;
     IBOutlet id timeDemoButton;
     IBOutlet id wadView;
-    IBOutlet id warpToLevelField;
+    IBOutlet id ffToLevelField;
     IBOutlet id window;
 
     NSMutableArray *wads;

@@ -73,11 +73,26 @@
 	[args insertObject:@"-file" atIndex:[args count]];
 	int i;
 	for(i = 0; i < [wads count]; ++i)
-	{
 		[args insertObject:[wads objectAtIndex:i] atIndex:[args count]];
-	}
 
 	// Demo
+	if([demoMatrix selectedCell] != noDemoButton)
+	{
+		if([demoMatrix selectedCell] == playDemoButton)
+			[args insertObject:@"-playdemo" atIndex:[args count]];
+		else if([demoMatrix selectedCell] == timeDemoButton)
+			[args insertObject:@"-timedemo" atIndex:[args count]];
+		else if([demoMatrix selectedCell] == fastDemoButton)
+			[args insertObject:@"-fastdemo" atIndex:[args count]];
+
+		[args insertObject:[demoFileField stringValue] atIndex:[args count]];
+
+		if([[ffToLevelField stringValue] length] > 0)
+		{
+			[args insertObject:@"-ffmap" atIndex:[args count]];
+			[args insertObject:[ffToLevelField stringValue] atIndex:[args count]];
+		}
+	}
 
 	// Execute
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
@@ -111,10 +126,10 @@
 
 - (IBAction)demoButtonClicked:(id)sender
 {
-	id selected = [demoMatrix selectedCell];
-	[chooseDemoFileButton setEnabled:selected != noDemoButton];
-	[demoFileField setEnabled:selected != noDemoButton];
-	[warpToLevelField setEnabled:selected == playDemoWarpButton];
+	bool enabled = [demoMatrix selectedCell] != noDemoButton;
+	[chooseDemoFileButton setEnabled:enabled];
+	[demoFileField setEnabled:enabled];
+	[ffToLevelField setEnabled:enabled];
 }
 
 - (IBAction)addWadClicked:(id)sender
