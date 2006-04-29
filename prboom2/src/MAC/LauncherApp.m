@@ -4,6 +4,10 @@
 
 - (void)awakeFromNib
 {
+    /* Set Icon */
+    NSString *iconPath = [[NSBundle mainBundle] pathForResource:@"Launcher.icns" ofType:nil];
+    [NSApp setApplicationIconImage:[[NSImage alloc] initWithContentsOfFile:iconPath]];
+
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
 }

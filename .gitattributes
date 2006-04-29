@@ -239,6 +239,7 @@ prboom2/src/MAC/English.lproj/MainMenu.nib/classes.nib -text
 prboom2/src/MAC/English.lproj/MainMenu.nib/info.nib -text
 prboom2/src/MAC/English.lproj/MainMenu.nib/keyedobjects.nib -text
 prboom2/src/MAC/Info.plist -text
+prboom2/src/MAC/Launcher.icns -text
 prboom2/src/MAC/LauncherApp.h -text
 prboom2/src/MAC/LauncherApp.m -text
 prboom2/src/MAC/LauncherMain.m -text
