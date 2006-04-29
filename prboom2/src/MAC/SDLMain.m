@@ -214,6 +214,10 @@ static void CustomApplicationMain (argc, argv)
     setApplicationMenu();
     setupWindowMenu();
 
+    /* Set Icon */
+    NSString *iconPath = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom"];
+    [NSApp setApplicationIconImage:[[NSImage alloc] initWithContentsOfFile:iconPath]];
+
     /* Create SDLMain and make it the app delegate */
     sdlMain = [[SDLMain alloc] init];
     [NSApp setDelegate:sdlMain];
