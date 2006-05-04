@@ -244,6 +244,7 @@ prboom2/src/MAC/LauncherApp.h -text
 prboom2/src/MAC/LauncherApp.m -text
 prboom2/src/MAC/LauncherMain.m -text
 prboom2/src/MAC/PrBoom.icns -text
+prboom2/src/MAC/PrBoom.sdef -text
 prboom2/src/MAC/Rakefile -text
 prboom2/src/MAC/SDLMain.h -text
 prboom2/src/MAC/SDLMain.m -text

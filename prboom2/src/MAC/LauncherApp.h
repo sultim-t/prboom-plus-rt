@@ -73,3 +73,7 @@
                   forTableColumn:(NSTableColumn *)column
                   row:(int)row;
 @end
+
+@interface LaunchCommand : NSScriptCommand
+- (id)performDefaultImplementation;
+@end

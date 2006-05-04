@@ -22,5 +22,9 @@
 	<string>NSApplication</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSAppleScriptEnabled</key>
+	<true/>
+	<key>OSAScriptingDefinition</key>
+	<string>PrBoom.sdef</string>
 </dict>
 </plist>

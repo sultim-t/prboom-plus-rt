@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+<dictionary title="PrBoom">
+	<suite name="PrBoom Suite" code="????" description="Commands for PrBoom">
+		<command name="launch" code="prbmlnch" description="Start the game">
+			<cocoa class="LaunchCommand"/>
+		</command>
+	</suite>
+</dictionary>

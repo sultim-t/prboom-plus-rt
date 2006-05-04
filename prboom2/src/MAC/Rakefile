@@ -130,7 +130,7 @@ file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfile
 end
 
 task(:data => "#{RESOURCEDIR}/prboom.wad")
-installTask(:data, RESOURCEDIR, %w(MAC/PrBoom.icns MAC/Launcher.icns))
+installTask(:data, RESOURCEDIR, %w(MAC/PrBoom.icns MAC/Launcher.icns MAC/PrBoom.sdef))
 task(:bundle => :data)
 
 ################
