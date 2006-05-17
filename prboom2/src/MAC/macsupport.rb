@@ -48,6 +48,7 @@ end
 def installTaskRecursive(taskName, dest, src)
 	target = File::join(dest, File::basename(src))
 	file(target => [dest, src]) do |t|
+		rm_rf(t.name)
 		cp_r(t.prerequisites[1], t.prerequisites[0])
 	end
 	task(taskName => target)
@@ -84,7 +85,7 @@ def installFrameworks(task)
 
 		@libs += " -framework #{name} "
 		@includes += " -I#{framework}/Headers "
-	
+
 		installTaskRecursive(task, FRAMEWORKDIR, framework)
 	end
 
