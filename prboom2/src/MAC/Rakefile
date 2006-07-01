@@ -3,6 +3,7 @@
 #################
 
 NAME = 'PrBoom'
+APPVERSION = '2.4.2'
 require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
@@ -132,6 +133,29 @@ end
 task(:data => "#{RESOURCEDIR}/prboom.wad")
 installTask(:data, RESOURCEDIR, %w(MAC/PrBoom.icns MAC/Launcher.icns MAC/PrBoom.sdef))
 task(:bundle => :data)
+
+
+#######################
+# Disk Image Creation #
+#######################
+
+task(:image => :bundle) do |t|
+	imageName = "#{NAME}-#{APPVERSION}"
+	imagePath = "/Volumes/#{imageName}"
+
+	if File::directory?(imagePath)
+		sh("diskutil unmount #{imagePath}")
+	end
+
+	sh("hdiutil create -fs HFS+ -volname #{imageName} -ov -type SPARSE -attach #{imageName}")
+	cp_r([BUNDLEDIR, '../AUTHORS', '../COPYING', '../NEWS', '../README'], imagePath)
+	cp('MAC/Image-DS_Store', "#{imagePath}/.DS_Store")
+	sh("diskutil unmount #{imagePath}")
+
+	rm_f("#{imageName}.dmg")
+	sh("hdiutil convert #{imageName}.sparseimage -format UDZO -o #{imageName}")
+	rm("#{imageName}.sparseimage")
+end
 
 ################
 # Main targets #
