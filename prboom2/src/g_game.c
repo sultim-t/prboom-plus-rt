@@ -916,6 +916,9 @@ void G_Ticker (void)
     switch (prevgamestate) {
     case GS_LEVEL:
       // This causes crashes at level end - Neil Stevens
+      // The crash is because the sounds aren't stopped before freeing them
+      // the following is a possible fix
+      // S_Stop();
       // Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
       break;
     case GS_INTERMISSION:
