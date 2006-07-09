@@ -915,7 +915,8 @@ void G_Ticker (void)
   if (gamestate != prevgamestate) {
     switch (prevgamestate) {
     case GS_LEVEL:
-      Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
+      // This causes crashes at level end - Neil Stevens
+      // Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
       break;
     case GS_INTERMISSION:
       WI_End();
