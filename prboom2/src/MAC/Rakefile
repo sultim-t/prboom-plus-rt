@@ -8,10 +8,10 @@ require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @deutex = 'deutex'
-@systemFrameworks += %w(Cocoa)
+@systemFrameworks += %w(Cocoa Carbon QuickTime)
 @frameworks += %w(SDL SDL_mixer SDL_net)
 @includes += '-I. -IMAC'
-@defines +=  '-DMACOSX -DHAVE_CONFIG_H'
+@defines +=  '-DHAVE_CONFIG_H'
 @cflags += '-Wno-pointer-sign -Wno-packed'
 
 if ENV['DEBUG']
@@ -40,6 +40,7 @@ SDL/i_sound.c
 SDL/i_system.c
 SDL/i_video.c
 MAC/i_system.m
+MAC/i_sound.c
 MAC/SDLMain.m
 am_map.c
 d_client.c

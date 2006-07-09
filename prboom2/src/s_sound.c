@@ -380,6 +380,10 @@ void S_UpdateSounds(void* listener_p)
   if (!snd_card || nosfxparm)
     return;
 
+#ifdef UPDATE_MUSIC
+  I_UpdateMusic();
+#endif
+
   for (cnum=0 ; cnum<numChannels ; cnum++)
     {
       sfxinfo_t *sfx;

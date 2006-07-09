@@ -45,7 +45,7 @@
 
 /**/
 #define USE_SDL 1
-#define HAVE_MIXER 1
+/*#define HAVE_MIXER 1*/
 #define HAVE_NET 1
 #define USE_SDL_NET 1
 
@@ -92,4 +92,7 @@
 
 #define PACKEDATTR __attribute__((packed))
 
+#define MACOSX
 #define HAVE_LIBKERN_OSBYTEORDER_H
+#define HAVE_OWN_MUSIC
+#define UPDATE_MUSIC
