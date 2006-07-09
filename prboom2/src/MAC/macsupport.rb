@@ -1,6 +1,7 @@
 require 'rake/loaders/makefile'
 
 @cc = 'cc'
+@linker = 'cc'
 @makedepend = '/usr/X11R6/bin/makedepend'
 @frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks)
 @cflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
@@ -109,7 +110,7 @@ def buildBinary(task, path, file, sources)
 	for source in sources
 		object = "#{File::dirname(source)}/#{File::basename(source, '.*')}.o"
 		file(object => source) do |task|
-			sh("#{@cc} #{@cflags} #{@includes} #{@defines} -o #{task.name} -c #{task.prerequisites[0]}")
+			sh("#{@cc} #{@cflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
 		end
 		objects.push(object)
 		@cleanfiles.push(object)
@@ -123,7 +124,7 @@ def buildBinary(task, path, file, sources)
 	end
 
 	file(target => [path, *objects]) do |task|
-		sh("#{@cc} #{@ldflags} -o #{task.name} #{task.prerequisites[1..-1].join(' ')} #{@libs}")
+		sh("#{@linker} #{@ldflags} -o \"#{task.name}\" #{task.prerequisites[1..-1].join(' ')} #{@libs}")
 	end
 
 	task(task => target)
