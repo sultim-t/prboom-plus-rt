@@ -96,7 +96,7 @@ typedef struct
   UWORD       channels;         // count of primary channels
   UWORD       SecChannels;      // count of secondary channels
   UWORD       InstrCnt;         // number of instruments
-} MUSheader;
+} PACKEDATTR MUSheader;
 
 // to keep track of information in a MIDI track
 
