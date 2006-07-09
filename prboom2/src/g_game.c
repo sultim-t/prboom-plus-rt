@@ -918,6 +918,8 @@ void G_Ticker (void)
       // This causes crashes at level end - Neil Stevens
       // The crash is because the sounds aren't stopped before freeing them
       // the following is a possible fix
+      // This fix does avoid the crash wowever, with this fix in, the exit
+      // switch sound is cut off
       // S_Stop();
       // Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
       break;
