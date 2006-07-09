@@ -8,6 +8,9 @@ Changes from v2.4.1 to v2.4.2
 - Make screen wipe time independent of resolution
 - Applied various small cleanups and fixes from PrBoom 2.3.1
 - Fix problems with dehacked substitution of long strings
+- End of level sound crash fixed
+- Mac OS X: Uses Quicktime for music now to fix crashes (adapted from Jaakko
+  Keränen's work in Doomsday)
 
 Changes from v2.4.0 to v2.4.1
 - PrBoom demos are now recorded with high-precision turning (like the
