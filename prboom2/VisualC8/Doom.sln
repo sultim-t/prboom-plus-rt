@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Doom", "Doom.vcproj", "{205FF625-2E96-4BC8-A269-62530A7D1F24}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prboom_server", "prboom_server.vcproj", "{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug NOASM|Win32 = Debug NOASM|Win32
+		Debug OpenGL NOASM|Win32 = Debug OpenGL NOASM|Win32
+		Debug OpenGL|Win32 = Debug OpenGL|Win32
+		Debug|Win32 = Debug|Win32
+		Release NOASM|Win32 = Release NOASM|Win32
+		Release OpenGL NOASM|Win32 = Release OpenGL NOASM|Win32
+		Release OpenGL|Win32 = Release OpenGL|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug NOASM|Win32.ActiveCfg = Debug NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug NOASM|Win32.Build.0 = Debug NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug OpenGL NOASM|Win32.ActiveCfg = Debug OpenGL NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug OpenGL NOASM|Win32.Build.0 = Debug OpenGL NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug OpenGL|Win32.ActiveCfg = Debug OpenGL|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug OpenGL|Win32.Build.0 = Debug OpenGL|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug|Win32.ActiveCfg = Debug|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Debug|Win32.Build.0 = Debug|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release NOASM|Win32.ActiveCfg = Release NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release NOASM|Win32.Build.0 = Release NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release OpenGL NOASM|Win32.ActiveCfg = Release OpenGL NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release OpenGL NOASM|Win32.Build.0 = Release OpenGL NOASM|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release OpenGL|Win32.ActiveCfg = Release OpenGL|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release OpenGL|Win32.Build.0 = Release OpenGL|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release|Win32.ActiveCfg = Release|Win32
+		{205FF625-2E96-4BC8-A269-62530A7D1F24}.Release|Win32.Build.0 = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug NOASM|Win32.ActiveCfg = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug NOASM|Win32.Build.0 = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug OpenGL NOASM|Win32.ActiveCfg = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug OpenGL NOASM|Win32.Build.0 = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug OpenGL|Win32.ActiveCfg = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug OpenGL|Win32.Build.0 = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Debug|Win32.Build.0 = Debug|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release NOASM|Win32.ActiveCfg = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release NOASM|Win32.Build.0 = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release OpenGL NOASM|Win32.ActiveCfg = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release OpenGL NOASM|Win32.Build.0 = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release OpenGL|Win32.ActiveCfg = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release OpenGL|Win32.Build.0 = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release|Win32.ActiveCfg = Release|Win32
+		{BA3D7F7F-EF41-4073-A251-39C0B6AD1F75}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
