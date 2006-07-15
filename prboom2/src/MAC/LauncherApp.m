@@ -44,10 +44,21 @@
 		[disableSoundButton setObjectValue:[defaults objectForKey:@"Disable Sound"]];
 		[disableSoundEffectsButton setObjectValue:[defaults objectForKey:@"Disable Sound Effects"]];
 		[wads setArray:[defaults stringArrayForKey:@"Wads"]];
+
+		// Store the compat level in terms of the Prboom values, rather than
+		// our internal indices.  That means we have to add one when we read
+		// the settings, and subtract one when we save it
+		long compatIndex = [[defaults objectForKey:@"Compatibility Level"]
+		                     longValue] + 1;
+		[compatibilityLevelButton setObjectValue:[NSNumber
+		                                          numberWithLong:compatIndex]];
+	}
+	else
+	{
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:0]];
 	}
 
 	[self disableSoundClicked:disableSoundButton];
-	[self gameButtonClicked:gameButton];
 	[self demoButtonClicked:demoMatrix];
 	[self tableViewSelectionDidChange:nil];
 }
@@ -70,6 +81,12 @@
 	[defaults setObject:[disableSoundButton objectValue] forKey:@"Disable Sound"];
 	[defaults setObject:[disableSoundEffectsButton objectValue] forKey:@"Disable Sound Effects"];
 	[defaults setObject:wads forKey:@"Wads"];
+
+	// Store the compat level in terms of the Prboom values, rather than
+	// our internal indices.  That means we have to add one when we read
+	// the settings, and subtract one when we save it
+	long compatLevel = [[compatibilityLevelButton objectValue] longValue] - 1;
+	[defaults setObject:[NSNumber numberWithLong:compatLevel] forKey:@"Compatibility Level"];
 
 	[defaults synchronize];
 }
@@ -98,8 +115,9 @@
 		[args insertObject:@"freedoom.wad" atIndex:[args count]];
 
 	// Compat
+	long compatLevel = [[compatibilityLevelButton objectValue] longValue] - 1;
 	[args insertObject:@"-complevel" atIndex:[args count]];
-	[args insertObject:[[compatibilityLevelButton objectValue] stringValue]
+	[args insertObject:[[NSNumber numberWithLong:compatLevel] stringValue]
 	      atIndex:[args count]];
 
 	// Options
@@ -161,23 +179,6 @@
 
 	// Execute
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
-}
-
-- (IBAction)gameButtonClicked:(id)sender
-{
-	long game = [[gameButton objectValue] longValue];
-	if(game == 0)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:2]];
-	else if(game == 1)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:3]];
-	else if(game == 2)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:2]];
-	else if(game == 3)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:4]];
-	else if(game == 4)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:4]];
-	else if(game == 5)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:7]];
 }
 
 - (IBAction)disableSoundClicked:(id)sender

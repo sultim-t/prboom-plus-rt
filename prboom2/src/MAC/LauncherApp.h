@@ -51,7 +51,6 @@
 
 // Game
 - (IBAction)startClicked:(id)sender;
-- (IBAction)gameButtonClicked:(id)sender;
 
 // Options
 - (IBAction)disableSoundClicked:(id)sender;

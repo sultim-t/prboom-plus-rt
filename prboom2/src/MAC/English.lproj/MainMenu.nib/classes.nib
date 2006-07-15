@@ -7,7 +7,6 @@
                 chooseDemoFileClicked = id; 
                 demoButtonClicked = id; 
                 disableSoundClicked = id; 
-                gameButtonClicked = id; 
                 openWebsite = id; 
                 removeWadClicked = id; 
                 startClicked = id; 
