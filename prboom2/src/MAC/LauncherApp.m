@@ -1,9 +1,17 @@
 #import "LauncherApp.h"
 
+#import <Foundation/NSArray.h>
+#import <Foundation/NSBundle.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSFileManager.h>
+
 @implementation LauncherApp
 
 - (void)awakeFromNib
 {
+	NSString *wadPath =[@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
+	[[NSFileManager defaultManager] createDirectoryAtPath:wadPath attributes:nil];
+
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
 }
