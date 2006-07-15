@@ -42,6 +42,8 @@
 - (void)awakeFromNib;
 - (void)windowWillClose:(NSNotification *)notification;
 
+- (IBAction)openWebsite:(id)sender;
+
 - (void)loadDefaults;
 - (void)saveDefaults;
 

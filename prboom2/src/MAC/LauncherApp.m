@@ -21,6 +21,11 @@
 	[NSApp terminate:window];
 }
 
+- (void)openWebsite:(id)sender
+{
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://prboom.sourceforge.net/"]];
+}
+
 - (void)loadDefaults
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
