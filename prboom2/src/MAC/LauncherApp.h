@@ -13,6 +13,8 @@
 	IBOutlet id fastMonstersButton;
 	IBOutlet id noMonstersButton;
 
+	IBOutlet id fullscreenButton;
+
 	// Debug options
 	IBOutlet id disableGraphicsButton;
 	IBOutlet id disableJoystickButton;

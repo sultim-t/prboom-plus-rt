@@ -36,6 +36,7 @@
 		[respawnMonstersButton setObjectValue:[defaults objectForKey:@"Respawn Monsters"]];
 		[fastMonstersButton setObjectValue:[defaults objectForKey:@"Fast Monsters"]];
 		[noMonstersButton setObjectValue:[defaults objectForKey:@"No Monsters"]];
+		[fullscreenButton setObjectValue:[defaults objectForKey:@"Full Screen Graphics"]];
 		[disableGraphicsButton setObjectValue:[defaults objectForKey:@"Disable Graphics"]];
 		[disableJoystickButton setObjectValue:[defaults objectForKey:@"Disable Joystick"]];
 		[disableMouseButton setObjectValue:[defaults objectForKey:@"Disable Mouse"]];
@@ -61,6 +62,7 @@
 	[defaults setObject:[respawnMonstersButton objectValue] forKey:@"Respawn Monsters"];
 	[defaults setObject:[fastMonstersButton objectValue] forKey:@"Fast Monsters"];
 	[defaults setObject:[noMonstersButton objectValue] forKey:@"No Monsters"];
+	[defaults setObject:[fullscreenButton objectValue] forKey:@"Full Screen Graphics"];
 	[defaults setObject:[disableGraphicsButton objectValue] forKey:@"Disable Graphics"];
 	[defaults setObject:[disableJoystickButton objectValue] forKey:@"Disable Joystick"];
 	[defaults setObject:[disableMouseButton objectValue] forKey:@"Disable Mouse"];
@@ -107,6 +109,11 @@
 		[args insertObject:@"-nomonsters" atIndex:[args count]];
 	if([respawnMonstersButton state] == NSOnState)
 		[args insertObject:@"-respawn" atIndex:[args count]];
+
+	if([fullscreenButton state] == NSOnState)
+		[args insertObject:@"-fullscreen" atIndex:[args count]];
+	else
+		[args insertObject:@"-nofullscreen" atIndex:[args count]];
 
 	// Debug options
 	if([disableGraphicsButton state] == NSOnState)

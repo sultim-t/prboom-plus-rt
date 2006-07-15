@@ -28,6 +28,7 @@
                 fastDemoButton = id; 
                 fastMonstersButton = id; 
                 ffToLevelField = id; 
+                fullscreenButton = id; 
                 gameButton = id; 
                 noDemoButton = id; 
                 noMonstersButton = id; 
