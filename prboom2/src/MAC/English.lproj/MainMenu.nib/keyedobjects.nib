@@ -4842,7 +4842,7 @@
 			<key>NSvFlags</key>
 			<integer>257</integer>
 		</dict>
-		<string>{{314, 12}, {82, 32}}</string>
+		<string>{{311, 12}, {85, 32}}</string>
 		<dict>
 			<key>$class</key>
 			<dict>
@@ -4892,7 +4892,7 @@
 				<integer>23</integer>
 			</dict>
 		</dict>
-		<string>Start</string>
+		<string>Launch</string>
 		<dict>
 			<key>$class</key>
 			<dict>
