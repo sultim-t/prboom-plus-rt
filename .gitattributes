@@ -273,6 +273,7 @@ website/html/pastebin.css -text
 website/html/pastebin.php -text
 website/html/prboom2.gif -text
 website/readme.txt -text
+website/src/macosx.ht -text
 website/src/mailinglists.ht -text
 website/src/mbf-bugs.ht -text
 website/templates/template.html -text

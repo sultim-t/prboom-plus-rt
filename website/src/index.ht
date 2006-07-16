@@ -2,6 +2,22 @@ title: Project Homepage
 
     <h1>News</h1>
 
+    <h3>16th July 2006</h3>
+
+    <p>Version 2.4.2 is released.</p>
+    <ul class="changes">
+        <li>Move gamma correction tables into prboom.wad</li>
+        <li>Clean up light level calculations for walls & sprites</li>
+        <li>CheckIWAD uses ANSI C streams for better portability and error handling</li>
+        <li>Make screen wipe time independent of resolution</li>
+        <li>Applied various small cleanups and fixes from PrBoom 2.3.1</li>
+        <li>Fix problems with dehacked substitution of long strings</li>
+        <li>End of level sound crash fixed</li>
+        <li>Mac OS X: Added simple launcher which allows to configure the most common settings</li>
+        <li>Mac OS X: Uses Quicktime for music now to fix crashes (adapted from Jaakko Keränen's work in Doomsday)</li>
+        <li>Windows: Converted project files to free Visual Studio 2005 Express Edition</li>
+    </ul>
+
     <h3>8th April 2006</h3>
 
     <p>Version 2.4.1 is released.</p>

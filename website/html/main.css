@@ -63,3 +63,6 @@ ul.changes li {
 #sf_logo a {
     text-decoration: none;
 }
+#footer img {
+    float: right;
+}

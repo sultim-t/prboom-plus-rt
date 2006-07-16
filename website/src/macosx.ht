@@ -1,0 +1,33 @@
+title: Mac OS X Installation
+
+    <h1>Installation on Mac OS X</h1>
+
+    <p>This page guides you through the installation of PrBoom.</p>
+
+    <p>PrBoom was tested with Mac OS X 10.4.7 (Tiger) but should also work on
+    earlier versions.</p>
+
+    <p>
+    <a href="http://www.sourceforge.net/project/showfiles.php?group_id=3396">Download</a>
+    the DMG image, mount it and copy the PrBoom application to your
+    Applications folder.
+    </p>
+
+    <p>You need the original Doom data files to be able to play. Depending
+    on your Doom version these are called <code>doom.wad</code>,
+    <code>doom2.wad</code>, <code>tnt.wad</code> or <code>plutonia.wad</code>.
+    You can also get the Demo version from
+    <a href="http://www.doomworld.com/classicdoom/info/shareware.php">Doomworld</a>
+    , it's data file is called <code>doom1.wad</code>. Another option is the
+    in progress free version called
+    <a href="http://freedoom.sourceforge.net">Freedoom</a>.
+    </p>
+
+    <p>Place the data file(s) in
+    <code>~/Library/Application Support/PrBoom</code>, so PrBoom can find
+    them.</p>
+
+    <h2>Frontend</h2>
+
+    <p>When you start PrBoom, you get a small frontend, where you can set
+    the most common options.</p>

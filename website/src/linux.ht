@@ -49,9 +49,9 @@ title: Linux/UNIX Installation
     <p>Several of the main desktop Linux distributions ship with and install all the
     required libraries by default. Both RedHat 7.2 and Mandrake 8.1 come with
     all the required libraries. So you can just grab the RPM of PrBoom,
-    <code>prboom-2.2.4-1.i386.rpm</code>, and install it with the following
+    <code>prboom-2.4.2-1.i386.rpm</code>, and install it with the following
     command (as root):</p>
-    <blockquote><p><code>rpm -ivh prboom-2.2.4-1.i386.rpm</code></p></blockquote>
+    <blockquote><p><code>rpm -ivh prboom-2.4.2-1.i386.rpm</code></p></blockquote>
     <p>You can then run PrBoom as <code>
       /usr/games/prboom</code> (or just <code>prboom</code> if the games are in
     your <code>PATH</code>).</p>
@@ -108,7 +108,7 @@ title: Linux/UNIX Installation
     libsdl-net1.2</a> packages and the corresponding -dev versions
     - these are all available in Debian woody and above (and should
     compile from source fine for potato). Get the prboom source
-    code <code>prboom-2.2.4.tar.gz</code> from our <a
+    code <code>prboom-2.4.2.tar.gz</code> from our <a
     href="#download">download page</a>, extract, and then follow
     the included <code>INSTALL</code> instructions.</p>
 
@@ -131,7 +131,7 @@ title: Linux/UNIX Installation
     ../SDL/SDL_net.h /usr/local/include/SDL11/SDL_net.h</code> or
     something similar.</p>
 
-    <p>Finally, get <code>prboom-2.2.4.tar.gz</code> the PrBoom
+    <p>Finally, get <code>prboom-2.4.2.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
@@ -157,7 +157,7 @@ title: Linux/UNIX Installation
       page</a>.</li>
     </ul>
 
-    <p>Then get <code>prboom-2.2.4.tar.gz</code> the PrBoom
+    <p>Then get <code>prboom-2.4.2.tar.gz</code> the PrBoom
     source, extract, and follow the included <code>INSTALL</code>
     instructions.</p>
 
@@ -201,7 +201,7 @@ title: Linux/UNIX Installation
       Everyone else, do a web search for timidity
       patch sets, there are plenty around.
       Really good but quite big are the <a
-	href="http://www.stardate.bc.ca/eawpatches/html/default.htm">
+	href="http://xml.cie.unam.mx/pub/Linux/lmws/eawpats/eawpats12.tar.bz2">
 	Eawpatches</a>.
       </li>
     </ul>

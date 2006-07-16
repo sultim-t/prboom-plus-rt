@@ -12,21 +12,13 @@ title: Windows Installation
     the other one has OpenGl rendering and is called <code>
     glboom.exe</code>.</p>
 
-    <p><a href="#download">Download</a> the version you want to use
-    and unzip it to the directory you want it. For example <code>
-    c:\prboom</code>. To unzip it use a program like <a
-    href="http://www.winzip.com">WinZip</a> or <a
-    href="http://www.rarsoft.com/">WinRAR</a>.</p>
-
-    <p>If you want music support, see the <a href="#timidity">music
-    section</a>.</p>
-
-    <h2><a id="download" name="download">Download page</a></h2>
-
-    <p>Is <a
-    href="http://www.sourceforge.net/project/showfiles.php?group_id=3396">
-    here</a>. It's possible that the version numbers on this page
-    may not be up to date. You can figure it out :-).</p>
+    <p>
+    <a href="http://www.sourceforge.net/project/showfiles.php?group_id=3396">
+      Download
+    </a> the version you want to use and unzip it to the directory you want
+    it. For example <code>c:\prboom</code>. To unzip it use a program like
+    <a href="http://www.winzip.com">WinZip</a> or
+    <a href="http://www.rarsoft.com/">WinRAR</a>.</p>
 
     <p>PrBoom uses the SDL library (&gt;=1.2.0), the SDL_mixer
     (&gt;=1.2.0) library and the SDL_net (&gt;=1.2.0) library. The
@@ -52,12 +44,7 @@ title: Windows Installation
     set of Timidity instrument patches. Do a web search for
     timidity patch sets, there are plenty around. Really good but
     quite big are the <a
-    href="http://www.stardate.bc.ca/eawpatches/html/default.htm">
+    href="http://xml.cie.unam.mx/pub/Linux/lmws/eawpats/eawpats12.tar.bz2">
     Eawpatches</a>.</p>
 
     <p>These patch sets are a large download (&gt;5megs).</p>
-
-    <p> SDL_mixer does not currently support hardware MIDI
-    synthesis, but we added a beta version with it. You just have to
-    rename <code>SDL_mixer_beta.dll</code> into
-    <code>SDL_mixer.dll</code> to try it out.</p>
