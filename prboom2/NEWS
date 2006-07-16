@@ -9,8 +9,11 @@ Changes from v2.4.1 to v2.4.2
 - Applied various small cleanups and fixes from PrBoom 2.3.1
 - Fix problems with dehacked substitution of long strings
 - End of level sound crash fixed
+- Mac OS X: Added simple launcher which allows to configure the most common
+  settings
 - Mac OS X: Uses Quicktime for music now to fix crashes (adapted from Jaakko
   Keränen's work in Doomsday)
+- Windows: Converted project files to free Visual Studio 2005 Express Edition
 
 Changes from v2.4.0 to v2.4.1
 - PrBoom demos are now recorded with high-precision turning (like the
