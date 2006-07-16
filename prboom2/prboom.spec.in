@@ -8,7 +8,7 @@ Source: ftp://prdownloads.sourceforge.net/prboom/@PACKAGE@-@VERSION@.tar.gz
 URL: http://prboom.sourceforge.net/
 Group: Amusements/Games
 BuildRoot: /var/tmp/%{doomname}-buildroot
-Copyright: GPL
+License: GPL
 Packager: Colin Phipps <doom@cph.demon.co.uk>
 Prefix: %{_prefix}
 Autoreq: 0
