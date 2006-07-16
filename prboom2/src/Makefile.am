@@ -1,12 +1,12 @@
 #
-# automake Makefile.am for the LxDoom source directory
+# automake Makefile.am for the PrBoom source directory
 #
 #
 # Process this file with automake to produce Makefile.in
 #
 #
 
-SUBDIRS = SDL POSIX
+SUBDIRS = SDL POSIX MAC
 
 gamesdir=$(prefix)/games
 EXTRA_PROGRAMS = prboom
