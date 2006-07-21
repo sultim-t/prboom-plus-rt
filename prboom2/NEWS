@@ -1,6 +1,9 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.2.6 to v2.2.7
+- improve stretched graphics drawing for hires
+
 Changes from v2.2.5 to v2.2.6
 - fix Inferno intermission screen crash
 - fix lockup for other netgame clients when one client quits

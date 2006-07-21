@@ -556,7 +556,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
   register const byte *source = ( byte* ) column + 3;
   register byte       *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
   register int         count  = ( column->length * DY ) >> 16;
-  register int         srccol = 0x8000;
+  register int         srccol = 0;
 
   if (flags & VPT_TRANS)
     while (count--) {
