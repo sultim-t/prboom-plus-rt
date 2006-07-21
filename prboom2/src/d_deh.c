@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -1682,7 +1682,7 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
     MF_TRANSLATION, // 28 and 29 allow the green colours in a thing’s graphics to be remapped to a different colour like the players uniforms in multiplayer games. Leaving all the bits alone, the thing stays green. Setting 26 it becomes grey. Setting 27 it becomes brown. Setting both 26 and 27 it becomes red.
     MF_TRANSLATION,
     0,
-    MF_TRANSLUCENT //e6y
+    MF_TRANSLUCENT // e6y: Translucency via dehacked/bex doesn't work without it
   };
   int i;
   uint_64_t shiftBits = bits;
@@ -1769,14 +1769,21 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
   // blank now because it has our incoming key in it
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
     {
-      int bGetData;//e6y
+      // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
+      // No more desync on HACX demos.
+      int bGetData;
+
       if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
       lfstrip(inbuffer);  // toss the end of line
 
       // killough 11/98: really bail out on blank lines (break != continue)
       if (!*inbuffer) break;  // bail out with blank line between sections
-      bGetData = deh_GetData(inbuffer,key,&value,&strval,fpout);//e6y
-      if (!bGetData)//e6y // returns TRUE if ok
+      
+      // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
+      // No more desync on HACX demos.
+      bGetData = deh_GetData(inbuffer,key,&value,&strval,fpout);
+      if (!bGetData)
+      // Old code: if (!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
         {
           if (fpout) fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
           continue;
@@ -1799,7 +1806,9 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
         }
         else {
           // bit set
-          if (bGetData==1) {//e6y // proff
+          // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
+          // No more desync on HACX demos.
+          if (bGetData==1) { // proff
             value = getConvertedDEHBits(value);
             mobjinfo[indexnum].flags = value;
           }
@@ -1838,7 +1847,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
                 (unsigned long)value & 0xffffffff
               );
             }
-            mobjinfo[indexnum].flags = value;//e6y
+            mobjinfo[indexnum].flags = value; // e6y
           }
         }
         if (fpout) {
@@ -2451,13 +2460,13 @@ void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
                                     bfgcells = (int)value;
                                   else
                                     if (!strcasecmp(key,deh_misc[15]))  // Monsters Infight
-                                      //e6y
+                                      // e6y: Dehacked support - monsters infight
                                       if (value == 202) monsters_infight = 0;
                                       else if (value == 221) monsters_infight = 1;
                                       else if (fpout) fprintf(fpout,
                                         "Invalid value for 'Monsters Infight': %i", (int)value);
 
-                                      /* No such switch in DOOM - nop */ //e6y;
+                                      /* No such switch in DOOM - nop */ //e6y ;
                                     else
                                       if (fpout) fprintf(fpout,
                                                          "Invalid misc item string index for '%s'\n",key);
@@ -2831,6 +2840,19 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
   return p;
 }
 
+// e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
+// No more desync on HACX demos.
+// FIXME!!! (lame)
+boolean StrToInt(char *s, long *l)
+{      
+  return (
+    (sscanf(s, " 0x%lx", l) == 1) ||
+    (sscanf(s, " 0X%lx", l) == 1) ||
+    (sscanf(s, " 0%lo", l) == 1) ||
+    (sscanf(s, " %ld", l) == 1)
+  );
+}
+
 // ====================================================================
 // deh_GetData
 // Purpose: Get a key and data pair from a passed string
@@ -2850,7 +2872,9 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
   char *t;  // current char
   long val; // to hold value of pair
   char buffer[DEH_MAXKEYLEN];  // to hold key in progress
-  int okrc = 1; //e6y // assume good unless we have problems
+  // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
+  // No more desync on HACX demos.
+  boolean okrc = 1;  // assume good unless we have problems
   int i;  // iterator
 
   *buffer = '\0';
@@ -2873,13 +2897,13 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
           okrc = FALSE;
         }
       // we've incremented t
-      //e6y val = strtol(t,NULL,0);  // killough 8/9/98: allow hex or octal input
-      //e6y
+      // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
+      // No more desync on HACX demos.
+      // Old code: e6y val = strtol(t,NULL,0);  // killough 8/9/98: allow hex or octal input
       if (!StrToInt(t,&val))
       {
         val = 0;
         okrc = 2;
-        //okrc = FALSE;
       }
     }
 

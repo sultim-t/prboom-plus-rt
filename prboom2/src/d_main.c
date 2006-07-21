@@ -1236,7 +1236,9 @@ void D_DoomMainSetup(void)
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
-  //e6y the dachaked stuff has been moved below an autoload
+  // e6y: DEH files preloaded in wrong order
+  // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
+  // The dachaked stuff has been moved below an autoload
 
   // jff 1/24/98 set both working and command line value of play parms
   nomonsters = clnomonsters = M_CheckParm ("-nomonsters");
@@ -1489,7 +1491,10 @@ void D_DoomMainSetup(void)
     }
   }
 
-  //e6y the dachaked stuff has been moved from above
+  // e6y: DEH files preloaded in wrong order
+  // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
+  // The dachaked stuff has been moved from above
+
   // ty 03/09/98 do dehacked stuff
   // Note: do this before any other since it is expected by
   // the deh patch author that this is actually part of the EXE itself
@@ -1518,7 +1523,7 @@ void D_DoomMainSetup(void)
         }
     }
   // ty 03/09/98 end of do dehacked stuff
-  
+
   // add any files specified on the command line with -file wadfile
   // to the wad list
 

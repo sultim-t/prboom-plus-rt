@@ -47,7 +47,7 @@
 #include <fcntl.h>
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 
 #include "doomstat.h"
@@ -1240,7 +1240,10 @@ void G_DeathMatchSpawnPlayer (int playernum)
     }
 
   // no good spot, so the player will probably get stuck
-  P_SpawnPlayer (&playerstarts[playernum]);
+  if (playerstarts[playernum].type > 0)
+    P_SpawnPlayer (&playerstarts[playernum]);
+  else
+    I_Error("Tried & failed to use co-op start");
 }
 
 //

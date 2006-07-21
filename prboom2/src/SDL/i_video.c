@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 
 #include <stdlib.h>
@@ -282,6 +282,8 @@ static void I_InitInputs(void)
 {
   // check if the user wants to grab the mouse
   grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
+  // e6y: fix for turn-snapping bug on fullscreen in software mode
+  SDL_WarpMouse((unsigned short)(desired_screenwidth/2), (unsigned short)(desired_screenheight/2));
 
   I_InitJoystick();
   e6y_I_InitInputs();//e6y

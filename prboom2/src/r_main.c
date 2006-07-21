@@ -45,6 +45,7 @@
 #include "lprintf.h"
 #include "st_stuff.h"
 #include "i_main.h"
+#include "g_game.h"
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif

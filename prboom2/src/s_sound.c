@@ -32,7 +32,7 @@
 // killough 5/2/98: reindented, removed useless code, beautified
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif
 
 #include "doomstat.h"
@@ -305,6 +305,13 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
     int h;
     h = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
     if (h!=-1) channels[cnum].handle = h;
+  }
+
+  // e6y: Crash with zero-length sounds.
+  // e6y: old code: channels[cnum].handle = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
+  {
+    int h = I_StartSound(sfx_id, cnum, volume, sep, pitch, priority);
+    if (h != -1) channels[cnum].handle = h;
   }
 }
 

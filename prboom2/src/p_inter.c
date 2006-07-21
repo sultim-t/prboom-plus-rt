@@ -73,7 +73,7 @@ int idkfa_armor = 200;
 int idkfa_armor_class = 2;
 
 int bfgcells = 40;      // used in p_pspr.c
-int monsters_infight = 0;//e6y
+int monsters_infight = 0; // e6y: Dehacked support - monsters infight
 // Ty 03/07/98 - end deh externals
 
 // a weapon is found with two clip loads,
