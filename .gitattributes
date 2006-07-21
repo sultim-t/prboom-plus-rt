@@ -41,6 +41,10 @@ prboom2/ICONS/god.ico -text
 prboom2/ICONS/heada1.ico -text
 prboom2/ICONS/skull.ico -text
 prboom2/Makefile.am eol=lf
+prboom2/VisualC6/Doom.dsp eol=crlf
+prboom2/VisualC6/Doom.dsw eol=crlf
+prboom2/VisualC6/Makefile.am eol=lf
+prboom2/VisualC6/prboom_server.dsp eol=crlf
 prboom2/VisualC8/Doom.sln eol=crlf
 prboom2/VisualC8/Doom.vcproj eol=crlf
 prboom2/VisualC8/Makefile.am -text

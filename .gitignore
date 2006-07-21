@@ -1,3 +1,16 @@
+prboom2/VisualC6/Debug
+prboom2/VisualC6/DebugGL
+prboom2/VisualC6/DebugNOASM
+prboom2/VisualC6/DebugNOASMGL
+prboom2/VisualC6/DebugServer
+prboom2/VisualC6/Doom.ncb
+prboom2/VisualC6/Doom.opt
+prboom2/VisualC6/Doom.plg
+prboom2/VisualC6/Release
+prboom2/VisualC6/ReleaseGL
+prboom2/VisualC6/ReleaseNOASM
+prboom2/VisualC6/ReleaseNOASMGL
+prboom2/VisualC6/ReleaseServer
 prboom2/VisualC8/*.user
 prboom2/VisualC8/Debug
 prboom2/VisualC8/DebugGL
