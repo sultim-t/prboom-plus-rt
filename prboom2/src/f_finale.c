@@ -592,7 +592,6 @@ static void F_BunnyScroll (void)
   int         stage;
   static int  laststage;
 
-  V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
   {
     int scrolled = 320 - (finalecount-230)/2;
     if (scrolled <= 0) {

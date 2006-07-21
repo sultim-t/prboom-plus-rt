@@ -73,7 +73,6 @@ typedef enum
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
 extern byte      *screens[6];
-extern int        dirtybox[4];
 extern const byte gammatable[5][256];
 extern int        usegamma;
 
@@ -135,36 +134,11 @@ void V_DrawNumPatch(int x, int y, int scrn, int lump,
 int V_NamePatchWidth(const char* name);
 int V_NamePatchHeight(const char* name);
 
-// Draw a linear block of pixels into the view buffer.
-
-// CPhipps - added const's, patch translation flags for stretching
-#ifndef GL_DOOM
-void V_DrawBlock(int x, int y, int scrn, int width, int height,
-     const byte *src, enum patch_translation_e flags);
-#endif
-
 /* cphipps 10/99: function to tile a flat over the screen */
 #ifdef GL_DOOM
 #define V_DrawBackground(n,s) gld_DrawBackground(n)
 #else
 void V_DrawBackground(const char* flatname, int scrn);
-#endif
-
-// Reads a linear block of pixels into the view buffer.
-
-#ifndef GL_DOOM
-void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest);
-
-void V_MarkRect(int x, int y, int width,int height);
-
-// CPhipps - function to convert a patch_t into a simple block bitmap
-// Returns pointer to the malloc()'ed bitmap, and its width and height
-byte *V_PatchToBlock(const char* name, int cm,
-         enum patch_translation_e flags,
-         unsigned short* width, unsigned short* height);
-#else
-#define V_MarkRect(x,y,w,h)
-#define V_PatchToBlock(n,cm,f,w,h) NULL
 #endif
 
 // CPhipps - function to set the palette to palette number pal.

@@ -1,0 +1,24 @@
+"Compat level tested","IWAD","PWAD","PWAD url","Demo","Demo URL","Player","Reason","Bug URL","Bug ref"
+"ultdoom","doom.wad",,,"DEMO4",,,"Desyncs with most ports — the correct ending has the marine killed by the imp standing below him and doing a twisting dive into the acid",,
+"finaldoom","plutonia.wad",,,"DEMO1",,,"Barrel stuck in ceiling in second courtyard causes desync with Boom/MBF","mbf-bugs.html","Compatibility bug in T_MovePlane"
+"ultdoom","doom.wad",,,"n4m1-035.lmp","COMPETN/doom/nmare/n4m1-035.zip","Drew DeVore","telefrag p_map.c overlapping globals bug","mbf-bugs.html","Overlapping uses of global variables in p_map.c"
+"finaldoom","plutonia.wad",,,"pl27-051.lmp","COMPETN/plutonia/speed/pl27-051.zip","Andre Budko","final doom teleport height emulation","mbf-bugs.html","Final Doom teleport dome desyncs"
+"doom2_19","doom2.wad",,,"30cnvin.lmp","COMPETN/doom2/coop/movies/30cn3519.zip","Vincent Catalaa, Jim Leonard","intermission screen desync at end of MAP29 in prboom 2.2.4","mbf-bugs.html","Intermission screen secrets desync"
+"doom2_19","doom2.wad",,,"30cn-xv.lmp","COMPETN/doom2/coop/movies/30cn3519.zip","Vincent Catalaa, Jim Leonard","intermission screen desync at end of MAP29 in prboom 2.2.4","mbf-bugs.html","Intermission screen secrets desync"
+"doom2_19","doom2.wad",,,"lv19-509.lmp","COMPETN/doom2/max/lv19-509.zip","Radek Pecka","Prboom 2.3.0 switch bug",,
+"doom2_19","doom2.wad","mm_allup.wad","IDGAMES/themes/mm/mm_allup.zip","DEMO3",,,"Third demo failed with lxdoom 1.3.0 LOS optimisations",,
+"doom2_19","doom2.wad","mm2.wad","IDGAMES/themes/mm/mm2.zip","DEMO1",,,"Failed for a while with lxdoom",,
+"doom2_19","doom2.wad",,,"30ns6936.lmp","COMPETN/doom2/movie/30ns6936.zip","Henning Skogsto","MBF player bobbing bug","mbf-bugs.html","MBF player bobbing rewrite causes demo sync problems"
+"doom2_19","doom2.wad","mm_allup.wad","IDGAMES/themes/mm/mm_allup.zip","mm10-uv.lmp","IDGAMES/themes/mm/mmuvlmps.zip","Yonatan Donner","Stair building compat issues","mbf-bugs.html","Compatibility bug in EV_BuildStairs"
+"doom2_19","doom2.wad","mm_allup.wad","IDGAMES/themes/mm/mm_allup.zip","mm12-uv.lmp","IDGAMES/themes/mm/mmuvlmps.zip","Yonatan Donner","Stair building compat issues","mbf-bugs.html","Compatibility bug in EV_BuildStairs"
+"doom2_19","doom2.wad","mm_allup.wad","IDGAMES/themes/mm/mm_allup.zip","mm13-uv.lmp","IDGAMES/themes/mm/mmuvlmps.zip","Yonatan Donner","Stair building compat issues","mbf-bugs.html","Compatibility bug in EV_BuildStairs"
+"doom2_19","doom2.wad","hr.wad","IDGAMES/themes/hr/hr.zip","hr06-uv.lmp","IDGAMES/themes/hr/hruvlmps.zip","Yonatan Donner","More LOS optimization bugs","mbf-bugs.html","Compatibility bug in P_CheckSight"
+"doom2_19","doom2.wad","hr.wad","IDGAMES/themes/hr/hr.zip","hr18-348.lmp","COMPETN/pwads/hr/speed/hr18-348.zip","Chris Ratcliff","spechit overflows",,
+"doom2_19","doom2.wad","hr.wad","IDGAMES/themes/hr/hr.zip","hr22-uv.lmp","IDGAMES/themes/hr/hruvlmp2.zip","Anders Johnsen","lost soul bouncing compatibility","mbf-bugs.html","Bouncing lost souls"
+"doom2_19","doom2.wad","punisher.wad","IDGAMES/levels/doom2/p-r/punishr.zip","punisher.lmp","IDGAMES/levels/doom2/p-r/punishr.zip","Dario Casali","lost soul bouncing compatibility","mbf-bugs.html","Bouncing lost souls"
+"doom2_19","doom2.wad","requiem.wad","IDGAMES/levels/doom2/megawads/requiem.zip","rq22-318.lmp","COMPETN/pwads/requiem/speed/rq22-318.zip","Adam Williamson","REJECT padding for buggy levels",,
+"boom202","doom2.wad","sprike.wad","IDGAMES/levels/doom2/Ports/s-u/sprike.zip","sprike.lmp","IDGAMES/levels/doom2/Ports/s-u/sprike.zip","Simon Varseszeghy","Boom 2.02 test",,
+"mbf","plutonia.wad",,,"plnm7104.lmp","SDA/tas/tas_id.zip","(TAS) Istvan Pataki","MBF test",,
+"mbf","doom2.wad",,,"30uv1617.lmp","SDA/tas/tas_id.zip","(TAS) Marijo Sedlic","MBF test",,
+"prboom22x","doom2.wad","hr.wad","IDGAMES/themes/hr/hr.zip","hrhmp.lmp","n/a","(TAS) me","Prboom 2.2.x with loads & saves test",,
+"","doom.wad","uac_dead.wad","IDGAMES/levels/doom/s-u/uac_dead.zip","uac_dead.lmp","IDGAMES/lmps/doom/ultimate/uac_dead.zip","","",,

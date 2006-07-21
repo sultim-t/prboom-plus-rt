@@ -460,7 +460,7 @@ void TryRunTics (void)
       if (I_GetTime() - entertime > 10) {
         if (server) {//e6y
         remotesend--;
-	{
+	if (server) {
 	  char buf[sizeof(packet_header_t)+1];
 	  packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
 	  buf[sizeof(buf)-1] = consoleplayer;

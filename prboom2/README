@@ -71,6 +71,13 @@ above if you don't know what this is) to a directory where PrBoom can find
 it. Make /usr/local/share/games/doom/, and copy you IWAD (all of your
 IWADs, if you own more than one) to that directory.
 
+Mac OS Installation
+-------------------
+
+Copy your IWAD (see above) into your home folder under
+Library:Application Support:PrBoom (this folder will be created for you the
+first time you run PrBoom).
+
 First Use
 ---------
 
@@ -90,6 +97,10 @@ You may also wish to customise the key bindings. PrBoom's default keybindings
 are the same as the original Doom; unlike original Doom, you can change key
 bindings in the game. In the in-game menus, go to Options, Settings, Key
 Bindings.
+
+On Mac OS X, you can't use the command line, but after running the program once,
+you can edit YOURHOME:Library:Application Support:PrBoom:prboom.cfg to change
+settings like your screen resolution.
 
 Features
 --------

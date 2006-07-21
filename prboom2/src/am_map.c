@@ -1715,6 +1715,4 @@ void AM_Drawer (void)
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
 
   AM_drawMarks();
-
-  V_MarkRect(f_x, f_y, f_w, f_h);
 }

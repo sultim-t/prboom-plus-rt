@@ -1152,8 +1152,8 @@ static boolean screenshot_write_error;
 
 #define BI_RGB 0L
 
-typedef unsigned long dword_t;
-typedef long     long_t;
+typedef unsigned int dword_t;
+typedef signed int   long_t;
 typedef unsigned char ubyte_t;
 
 #ifdef _MSC_VER // proff: This is the same as __attribute__ ((packed)) in GNUC

@@ -285,11 +285,6 @@ static boolean st_armson;
 // !deathmatch
 static boolean st_fragson;
 
-// main bar left
-// CPhipps - convert to a bitmap
-static byte *sbar;
-static unsigned short sbar_width, sbar_height;
-
 // 0-9, tall numbers
 static patchnum_t tallnum[10];
 
@@ -871,11 +866,6 @@ static void ST_loadGraphics(boolean doload)
   char namebuf[9];
   // cph - macro that either acquires a pointer and lock for a lump, or
   // unlocks it. var is referenced exactly once in either case, so ++ in arg works
-/*
-#define LOADORFREE(var,name) \
-if (!doload) { W_UnlockLumpName(name); var = NULL; } \
-else var = (const patch_t*)W_CacheLumpName(name)
-*/
 
   // Load the numbers, tall and short
   for (i=0;i<10;i++)
@@ -915,14 +905,6 @@ else var = (const patch_t*)W_CacheLumpName(name)
   // killough 3/7/98: add better support for spy mode by loading all
   // player face backgrounds and using displayplayer to choose them:
   R_SetPatchNum(&faceback, "STFB0");
-
-  // status bar background bits
-  if (doload)
-    sbar = V_PatchToBlock("STBAR", CR_DEFAULT, VPT_NONE,
-      &sbar_width, &sbar_height);
-  else {
-    free(sbar); sbar=NULL;
-  }
 
   // face states
   facenum = 0;

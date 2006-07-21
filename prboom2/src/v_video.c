@@ -44,7 +44,6 @@
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
 byte *screens[6];
-int  dirtybox[4];
 
 /* jff 4/24/98 initialize this at runtime */
 const byte *colrngs[CR_LIMIT];
@@ -181,21 +180,6 @@ void V_InitColorTranslation(void)
 }
 
 //
-// V_MarkRect
-//
-// Marks a rectangular portion of the screen specified by
-// upper left origin and height and width dirty to minimize
-// the amount of screen update necessary. No return.
-//
-#ifndef GL_DOOM
-void V_MarkRect(int x, int y, int width, int height)
-{
-  M_AddToBox(dirtybox, x, y);
-  M_AddToBox(dirtybox, x+width-1, y+height-1);
-}
-#endif /* GL_DOOM */
-
-//
 // V_CopyRect
 //
 // Copies a source rectangle in a screen buffer to a destination
@@ -236,8 +220,6 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
     I_Error ("V_CopyRect: Bad arguments");
 #endif
 
-  V_MarkRect (destx, desty, width, height);
-
   src = screens[srcscrn]+SCREENWIDTH*srcy+srcx;
   dest = screens[destscrn]+SCREENWIDTH*desty+destx;
 
@@ -247,74 +229,6 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
       src += SCREENWIDTH;
       dest += SCREENWIDTH;
     }
-}
-#endif /* GL_DOOM */
-
-//
-// V_DrawBlock
-//
-// Draw a linear block of pixels into the view buffer.
-//
-// The bytes at src are copied in linear order to the screen rectangle
-// at x,y in screenbuffer scrn, with size width by height.
-//
-// The destination rectangle is marked dirty.
-//
-// No return.
-//
-// CPhipps - modified  to take the patch translation flags. For now, only stretching is
-//  implemented, to support highres in the menus
-//
-#ifndef GL_DOOM
-void V_DrawBlock(int x, int y, int scrn, int width, int height,
-     const byte *src, enum patch_translation_e flags)
-{
-  byte *dest;
-
-#ifdef RANGECHECK
-  if (x<0
-      ||x+width >((flags & VPT_STRETCH) ? 320 : SCREENWIDTH)
-      || y<0
-      || y+height>((flags & VPT_STRETCH) ? 200 : SCREENHEIGHT))
-    I_Error ("V_DrawBlock: Bad V_DrawBlock");
-
-  if (flags & (VPT_TRANS | VPT_FLIP))
-    I_Error("V_DrawBlock: Unsupported flags (%u)", flags);
-#endif
-
-  if (flags & VPT_STRETCH) {
-    byte   *dest;
-    int     s_width;
-    fixed_t dx = (320 << FRACBITS) / SCREENWIDTH;
-
-    x = (x * SCREENWIDTH) / 320; y = (y * SCREENHEIGHT) / 200;
-    s_width = (width * SCREENWIDTH) / 320; height = (height * SCREENHEIGHT) / 200;
-
-    if (!scrn)
-      V_MarkRect (x, y, width, height);
-
-    dest = screens[scrn] + y*SCREENWIDTH+x;
-    // x & y no longer needed
-
-    while (height--) {
-      const byte *const src_row = src + width * ((height * 200) / SCREENHEIGHT);
-      byte       *const dst_row = dest + SCREENWIDTH * height;
-      fixed_t           tx;
-
-      for (x=0, tx=0; x<s_width; x++, tx+=dx)
-  dst_row[x] = src_row[tx >> FRACBITS];
-    }
-  } else {
-    V_MarkRect (x, y, width, height);
-
-    dest = screens[scrn] + y*SCREENWIDTH+x;
-
-    while (height--) {
-      memcpy (dest, src, width);
-      src += width;
-      dest += SCREENWIDTH;
-    }
-  }
 }
 #endif /* GL_DOOM */
 
@@ -329,13 +243,24 @@ void V_DrawBackground(const char* flatname, int scrn)
 {
   /* erase the entire screen to a tiled background */
   const byte *src;
+  byte       *dest;
   int         x,y;
+  int         width,height;
   int         lump;
 
   // killough 4/17/98:
   src = W_CacheLumpNum(lump = firstflat + R_FlatNumForName(flatname));
 
-  V_DrawBlock(0, 0, scrn, 64, 64, src, 0);
+  /* V_DrawBlock(0, 0, scrn, 64, 64, src, 0); */
+  width = height = 64;
+  dest = screens[scrn];
+
+  while (height--) {
+    memcpy (dest, src, width);
+    src += width;
+    dest += SCREENWIDTH;
+  }
+  /* end V_DrawBlock */
 
   for (y=0 ; y<SCREENHEIGHT ; y+=64)
     for (x=y ? 0 : 64; x<SCREENWIDTH ; x+=64)
@@ -344,40 +269,6 @@ void V_DrawBackground(const char* flatname, int scrn)
   W_UnlockLumpNum(lump);
 }
 #endif
-
-//
-// V_GetBlock
-//
-// Gets a linear block of pixels from the view buffer.
-//
-// The pixels in the rectangle at x,y in screenbuffer scrn with size
-// width by height are linearly packed into the buffer dest.
-// No return
-//
-
-#ifndef GL_DOOM
-void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
-{
-  byte *src;
-
-#ifdef RANGECHECK
-  if (x<0
-      ||x+width >SCREENWIDTH
-      || y<0
-      || y+height>SCREENHEIGHT)
-    I_Error ("V_GetBlock: Bad arguments");
-#endif
-
-  src = screens[scrn] + y*SCREENWIDTH+x;
-
-  while (height--)
-    {
-      memcpy (dest, src, width);
-      src += SCREENWIDTH;
-      dest += width;
-    }
-}
-#endif /* GL_DOOM */
 
 //
 // V_Init
@@ -449,9 +340,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     const column_t *column;
     byte           *desttop = screens[scrn]+y*SCREENWIDTH+x;
     unsigned int    w = SHORT(patch->width);
-
-    if (!scrn)
-      V_MarkRect (x, y, w, SHORT(patch->height));
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
@@ -539,10 +427,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     DY2  = DY / 2;
     DYI2 = DYI* 2;
 
-    if (!scrn)
-      V_MarkRect ( stretchx, stretchy, (SHORT( patch->width ) * DX ) >> 16,
-       (SHORT( patch->height) * DY ) >> 16 );
-
     desttop = screens[scrn] + stretchy * SCREENWIDTH +  stretchx;
 
     for ( col = 0; col <= w; x++, col+=DXI, desttop++ ) {
@@ -627,45 +511,6 @@ int V_NamePatchHeight(const char* name)
   W_UnlockLumpNum(lump);
   return w;
 }
-
-// CPhipps -
-// V_PatchToBlock
-//
-// Returns a simple bitmap which contains the patch. See-through parts of the
-// patch will be undefined (in fact black for now)
-
-#ifndef GL_DOOM
-byte *V_PatchToBlock(const char* name, int cm,
-            enum patch_translation_e flags,
-            unsigned short* width, unsigned short* height)
-{
-  byte          *oldscr = screens[1];
-  byte          *block;
-  const patch_t *patch;
-
-  screens[1] = calloc(SCREENWIDTH*SCREENHEIGHT, 1);
-
-  patch = W_CacheLumpName(name);
-  V_DrawMemPatch(SHORT(patch->leftoffset), SHORT(patch->topoffset),
-      1, patch, cm, flags);
-
-#ifdef RANGECHECK
-  if (flags & VPT_STRETCH)
-    I_Error("V_PatchToBlock: Stretching not supported");
-#endif
-
-  *width = SHORT(patch->width); *height = SHORT(patch->height);
-
-  W_UnlockLumpName(name);
-
-  V_GetBlock(0, 0, 1, *width, *height,
-       block = malloc((long)(*width) * (*height)));
-
-  free(screens[1]);
-  screens[1] = oldscr;
-  return block;
-}
-#endif /* GL_DOOM */
 
 //
 // V_SetPalette
