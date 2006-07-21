@@ -71,6 +71,7 @@ prboom2/data/graphics/digz.ppm -text
 prboom2/data/graphics/hu_frags.ppm -text
 prboom2/data/graphics/hu_frgbx.ppm -text
 prboom2/data/graphics/m_about.ppm -text
+prboom2/data/graphics/m_accel.ppm -text
 prboom2/data/graphics/m_auto.ppm -text
 prboom2/data/graphics/m_butt1.ppm -text
 prboom2/data/graphics/m_butt2.ppm -text
@@ -84,6 +85,7 @@ prboom2/data/graphics/m_generl.ppm -text
 prboom2/data/graphics/m_horsen.ppm -text
 prboom2/data/graphics/m_hud.ppm -text
 prboom2/data/graphics/m_keybnd.ppm -text
+prboom2/data/graphics/m_loksen.ppm -text
 prboom2/data/graphics/m_mess.ppm -text
 prboom2/data/graphics/m_mouse.ppm -text
 prboom2/data/graphics/m_multi.ppm -text
