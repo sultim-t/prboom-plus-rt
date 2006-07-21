@@ -461,6 +461,20 @@ int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength)
   return false;
 }
 
+void *I_FindFirst (const char *filespec, findstate_t *fileinfo)
+{
+	return FindFirstFileA(filespec, (LPWIN32_FIND_DATAA)fileinfo);
+}
+int I_FindNext (void *handle, findstate_t *fileinfo)
+{
+	return !FindNextFileA((HANDLE)handle, (LPWIN32_FIND_DATAA)fileinfo);
+}
+
+int I_FindClose (void *handle)
+{
+	return FindClose((HANDLE)handle);
+}
+
 char* e6y_I_FindFile(const char* ext)
 {
   int i;

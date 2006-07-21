@@ -808,6 +808,7 @@ default_t defaults[] =
   {"comperr_passuse", {&comperr_passuse},  {0},0,1,
    def_bool,ss_stat},
 
+#ifdef USE_WINDOWS_LAUNCHER
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"launcher_enable", {&launcher_enable},  {0},0,1, def_bool,ss_stat},
   {"launcher_history0", {NULL,&launcher_history[0]}, {0,""},UL,UL,def_str,ss_none},
@@ -820,6 +821,7 @@ default_t defaults[] =
   {"launcher_history7", {NULL,&launcher_history[7]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history8", {NULL,&launcher_history[8]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history9", {NULL,&launcher_history[9]}, {0,""},UL,UL,def_str,ss_none},
+#endif
 
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:

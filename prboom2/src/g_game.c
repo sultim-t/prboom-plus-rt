@@ -2277,6 +2277,10 @@ void G_InitNew(skill_t skill, int episode, int map)
 #define DEMOMARKER    0x80
 
 //e6y
+#ifndef max
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+
 void GetCurrentTurnsSum(void)
 {
   int i, first, last;

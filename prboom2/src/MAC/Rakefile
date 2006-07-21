@@ -50,6 +50,7 @@ d_main.c
 doomdef.c
 doomstat.c
 dstrings.c
+e6y.c
 f_finale.c
 f_wipe.c
 g_game.c

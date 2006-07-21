@@ -4,7 +4,9 @@
 #include <direct.h>
 #include <winreg.h>
 #endif
+#ifdef GL_DOOM
 #include <GL/gl.h>
+#endif
 #include <string.h>
 #include <math.h>
 #include <SDL_opengl.h>
@@ -225,7 +227,7 @@ void e6y_D_DoomMainSetup(void)
   stats_level = M_CheckParm("-levelstat");
 
   {
-    int i, value, count;
+    long i, value, count;
 
     for (i=0;i<3;i++)
     {
@@ -1377,8 +1379,14 @@ void e6y_WriteStats(void)
   max.stat[TT_TIME] = max.stat[TT_TIME]/TICRATE/60;
   max.stat[TT_TOTALTIME] = max.stat[TT_TOTALTIME]/TICRATE/60;
   
-  for(i=0; i<TT_MAX; i++)
-     max.stat[i] = strlen(itoa( max.stat[i], str, 10));
+  for(i=0; i<TT_MAX; i++) {
+#ifdef HAVE_SNPRINTF
+    snprintf (str, 200, "%d", max.stat[i]);
+#else
+    sprintf (str, "%d", max.stat[i]);
+#endif
+    max.stat[i] = strlen(str);
+  }
 
   for (level=0;level<numlevels;level++)
   {
@@ -1644,20 +1652,6 @@ boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
   return false;
 }
 
-void *I_FindFirst (const char *filespec, findstate_t *fileinfo)
-{
-	return FindFirstFileA(filespec, (LPWIN32_FIND_DATAA)fileinfo);
-}
-int I_FindNext (void *handle, findstate_t *fileinfo)
-{
-	return !FindNextFileA((HANDLE)handle, (LPWIN32_FIND_DATAA)fileinfo);
-}
-
-int I_FindClose (void *handle)
-{
-	return FindClose((HANDLE)handle);
-}
-
 char* PathFindFileName(const char* pPath)
 {
   const char* pT = pPath;
@@ -1757,9 +1751,9 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
   strcat(lpszCanon, lpszCur);
 }
 
+#ifdef _WIN32
 void SwitchToWindow(HWND hwnd)
 {
-#ifdef _WIN32
   typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
   TSwitchToThisWindow SwitchToThisWindow = NULL;
 
@@ -1777,8 +1771,8 @@ void SwitchToWindow(HWND hwnd)
     Sleep(100);
     SwitchToThisWindow(hwnd, TRUE);
   }
-#endif
 }
+#endif
 
 boolean PlayeringameOverrun(const mapthing_t* mthing)
 {

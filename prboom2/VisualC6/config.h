@@ -139,6 +139,9 @@
 /* Define if you want to use gluBuild2DMipmaps  */
 #define USE_GLU_MIPMAP 1
 
+/* Define if you want to use the Windows launcher */
+#define USE_WINDOWS_LAUNCHER 1
+
 /* Set to the attribute to apply to struct definitions to make them packed.
  * For MSVC++ we can't do it like this, there are pragma's in the source
  * instead. */

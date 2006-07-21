@@ -2624,7 +2624,9 @@ setup_menu_t stat_settings2[] =
 setup_menu_t stat_settings3[] =
 {
   {"MISC"                        ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
+#ifdef USE_WINDOWS_LAUNCHER
   {"USE IN-GAME LAUNCHER"        ,S_YESNO     ,m_null,ST_X,ST_Y+2*8, {"launcher_enable"}},
+#endif
   {"RENDER"                      ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+4*8},
   {"CHANGE PALETTE ON PAIN"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"palette_ondamage"}},
   {"CHANGE PALETTE ON BONUS"     ,S_YESNO     ,m_null,ST_X,ST_Y+6*8,  {"palette_onbonus"}},

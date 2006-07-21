@@ -1552,7 +1552,9 @@ void D_DoomMainSetup(void)
   lprintf(LO_INFO,"D_InitNetGame: Checking for network game.\n");
   D_InitNetGame();
 
+#ifdef USE_WINDOWS_LAUNCHER
   LauncherShow();//e6y
+#endif
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"W_Init: Init WADfiles.\n");

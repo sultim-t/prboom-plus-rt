@@ -130,8 +130,10 @@ extern int overrun_spechit_promted;
 
 extern void ShowOverflowWarning(int emulate, int *promted, boolean fatal, char *name, char *params, ...);
 
+#ifdef USE_WINDOWS_LAUNCHER
 extern int launcher_enable;
 extern char *launcher_history[10];
+#endif
 
 extern int test_sky1;
 extern int test_sky2;
@@ -304,8 +306,6 @@ void e6y_MultisamplingCheck(void);
 void e6y_MultisamplingSet(void);
 void e6y_MultisamplingPrint(void);
 
-void I_Warning(const char *error, ...);
-
 extern int force_monster_avoid_hazards;
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval);
@@ -381,7 +381,9 @@ boolean compbad_get(int *compbad);
 
 boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
+#ifdef USE_WINDOWS_LAUNCHER
 void LauncherShow(void);
+#endif
 
 #define I_FindName(a)	((a)->Name)
 #define I_FindAttr(a)	((a)->Attribs)
@@ -395,10 +397,6 @@ typedef struct
 	char Name[PATH_MAX];
 	char AltName[14];
 } findstate_t;
-
-void *I_FindFirst (const char *filespec, findstate_t *fileinfo);
-int I_FindNext (void *handle, findstate_t *fileinfo);
-int I_FindClose (void *handle);
 
 char* PathFindFileName(const char* pPath);
 void NormalizeSlashes2(char *str);
