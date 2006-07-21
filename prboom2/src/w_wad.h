@@ -55,16 +55,6 @@ typedef struct
   char name[8];
 } filelump_t;
 
-#ifndef ALL_IN_ONE
-
-// NO_PREDEFINED_LUMPS causes none of the predefined lumps in info.c to be
-// included, and removes all extra code which is only there for them
-// Saves a little memory normally, lots if any were overridden, and makes
-// the executable smaller
-#define NO_PREDEFINED_LUMPS
-
-#endif
-
 //
 // WADFILE I/O related stuff.
 //
@@ -93,9 +83,6 @@ typedef struct
 
   char  name[8];
   int   size;
-#ifndef NO_PREDEFINED_LUMPS
-  const void *data;     // killough 1/31/98: points to predefined lump data
-#endif
 
   // killough 1/31/98: hash table fields, used for ultra-fast hash table lookup
   int index, next;

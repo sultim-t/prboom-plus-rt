@@ -75,7 +75,9 @@ void D_DoomMain(void);
 void D_AddFile (const char *file, wad_source_t source);
 
 /* cph - MBF-like wad/deh/bex autoload code */
-#define MAXLOADFILES 2
+/* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
+   doesn't overlap with the cfg settings */
+#define MAXLOADFILES 3
 extern const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 
 #endif

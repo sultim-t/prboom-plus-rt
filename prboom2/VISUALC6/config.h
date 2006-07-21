@@ -121,9 +121,6 @@
 /* Define for support for MBF helper dogs */
 #define DOGS 1
 
-/* Define if you want to have boomlump.wad in the exe  */
-#define ALL_IN_ONE 1
-
 /* Define if you want to compile with SDL  */
 #define USE_SDL 1
 

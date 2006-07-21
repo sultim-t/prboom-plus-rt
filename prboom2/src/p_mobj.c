@@ -1102,8 +1102,9 @@ void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
   // doom2.exe has at most 10 deathmatch starts
   if (mthing->type == 11) // e6y
     {
-    if (!(!compatibility || deathmatch_p-deathmatchstarts < 10))
-	return;
+    if (!(!compatibility || deathmatch_p-deathmatchstarts < 10)) {
+		return;
+	} else {
     // 1/11/98 killough -- new code removes limit on deathmatch starts:
 
     size_t offset = deathmatch_p - deathmatchstarts;
@@ -1120,6 +1121,7 @@ void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
       }
     memcpy(deathmatch_p++, mthing, sizeof(*mthing));
     return;
+	}
     }
 
   // check for players specially

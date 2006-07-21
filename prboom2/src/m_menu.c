@@ -3156,7 +3156,8 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 
 void M_Trans(void) // To reset translucency after setting it in menu
 {
-  general_translucency = default_translucency;//e6y
+  general_translucency = default_translucency; //e6y: Fix for "translucency won't change until you restart the engine"
+
   if (general_translucency)
     R_InitTranMap(0);
 }
