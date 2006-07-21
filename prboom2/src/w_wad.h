@@ -1,4 +1,4 @@
-/* Emacs style mode select   -*- C++ -*-
+/* Emacs style mode select   -*- C++ -*- 
  *-----------------------------------------------------------------------------
  *
  *
@@ -8,7 +8,7 @@
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
- *
+ *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
  *  as published by the Free Software Foundation; either version 2
@@ -21,7 +21,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
  *  02111-1307, USA.
  *
  * DESCRIPTION:
@@ -63,7 +63,7 @@ typedef struct
 // Ty 08/29/98 - add source field to identify where this lump came from
 typedef enum {
   // CPhipps - define elements in order of 'how new/unusual'
-  source_iwad=0,    // iwad file load
+  source_iwad=0,    // iwad file load 
   source_pre,       // predefined lump
   source_auto_load, // lump auto-loaded by config file
   source_pwad,      // pwad file load
@@ -77,11 +77,28 @@ typedef enum {
 
 } wad_source_t;
 
+// CPhipps - changed wad init
+// We _must_ have the wadfiles[] the same as those actually loaded, so there 
+// is no point having these separate entities. This belongs here.
+typedef struct {
+  const char* name;
+  wad_source_t src;
+  int handle;
+} wadfile_info_t;
+
+extern wadfile_info_t *wadfiles;
+
+extern size_t numwadfiles; // CPhipps - size of the wadfiles array
+
+void W_Init(void); // CPhipps - uses the above array
+void W_ReleaseAllWads(void); // Proff - Added for iwad switching
+void W_DoneCache(void);
+
 typedef struct
 {
   // WARNING: order of some fields important (see info.c).
 
-  char  name[8];
+  char  name[9];
   int   size;
 
   // killough 1/31/98: hash table fields, used for ultra-fast hash table lookup
@@ -92,36 +109,17 @@ typedef struct
     ns_global=0,
     ns_sprites,
     ns_flats,
-    ns_colormaps
-  } namespace;
+    ns_colormaps,
+    ns_prboom
+  } li_namespace; // haleyjd 05/21/02: renamed from "namespace"
 
-  int handle;
+  wadfile_info_t *wadfile;
   int position;
-  unsigned int locks; // CPhipps - wad lump locking
   wad_source_t source;
 } lumpinfo_t;
 
-// killough 1/31/98: predefined lumps
-extern const size_t num_predefined_lumps;
-extern const lumpinfo_t predefined_lumps[];
-
-extern void       **lumpcache;
 extern lumpinfo_t *lumpinfo;
 extern int        numlumps;
-
-// CPhipps - changed wad init
-// We _must_ have the wadfiles[] the same as those actually loaded, so there
-// is no point having these separate entities. This belongs here.
-struct wadfile_info {
-  const char* name;
-  wad_source_t src;
-};
-
-extern struct wadfile_info *wadfiles;
-
-extern size_t numwadfiles; // CPhipps - size of the wadfiles array
-
-void W_Init(void); // CPhipps - uses the above array
 
 // killough 4/17/98: if W_CheckNumForName() called with only
 // one argument, pass ns_global as the default namespace
@@ -132,24 +130,19 @@ int     W_GetNumForName (const char* name);
 int     W_LumpLength (int lump);
 void    W_ReadLump (int lump, void *dest);
 // CPhipps - modified for 'new' lump locking
-const void* W_CacheLumpNum (int lump, unsigned short locks);
-void    W_UnlockLumpNum(int lump, signed short unlocks);
-
-/* cph - special version to return lump with padding, for sound lumps */
-const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad);
+const void* W_CacheLumpNum (int lump);
+void    W_UnlockLumpNum(int lump);
 
 // CPhipps - convenience macros
-#define W_CacheLumpNum(num) (W_CacheLumpNum)((num),1)
+//#define W_CacheLumpNum(num) (W_CacheLumpNum)((num),1)
 #define W_CacheLumpName(name) W_CacheLumpNum (W_GetNumForName(name))
 
-#define W_UnlockLumpNum(num) (W_UnlockLumpNum)((num),1)
+//#define W_UnlockLumpNum(num) (W_UnlockLumpNum)((num),1)
 #define W_UnlockLumpName(name) W_UnlockLumpNum (W_GetNumForName(name))
 
 char *AddDefaultExtension(char *, const char *);  // killough 1/18/98
 void ExtractFileBase(const char *, char *);       // killough
 unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
-
-// Function to write all predefined lumps to a PWAD if requested
-extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98
+void W_HashLumps(void);                           // cph 2001/07/07 - made public
 
 #endif

@@ -63,7 +63,13 @@ else
 USE_GL_SRC =
 endif
 
-prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC)
+if WAD_MMAP
+WAD_SRC = w_mmap.c
+else
+WAD_SRC = w_memcache.c
+endif
+
+prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC)
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
 
 # Must remember to include 'optional' sources in the tarball

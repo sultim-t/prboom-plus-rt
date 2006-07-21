@@ -82,19 +82,22 @@ void R_LoadTrigTables(void)
 {
   int lump;
   {
-    lump = W_GetNumForName("SINETABL");
+    lump = (W_CheckNumForName)("SINETABL",ns_prboom);
+    if (lump == -1) I_Error("Failed to locate trig tables");
     if (W_LumpLength(lump) != sizeof(finesine))
       I_Error("R_LoadTrigTables: Invalid SINETABL");
     W_ReadLump(lump,(unsigned char*)finesine);
   }
   {
-    lump = W_GetNumForName("TANGTABL");
+    lump = (W_CheckNumForName)("TANGTABL",ns_prboom);
+    if (lump == -1) I_Error("Failed to locate trig tables");
     if (W_LumpLength(lump) != sizeof(finetangent))
       I_Error("R_LoadTrigTables: Invalid TANGTABL");
     W_ReadLump(lump,(unsigned char*)finetangent);
   }
   {
-    lump = W_GetNumForName("TANTOANG");
+    lump = (W_CheckNumForName)("TANTOANG",ns_prboom);
+    if (lump == -1) I_Error("Failed to locate trig tables");
     if (W_LumpLength(lump) != sizeof(tantoangle))
       I_Error("R_LoadTrigTables: Invalid TANTOANG");
     W_ReadLump(lump,(unsigned char*)tantoangle);

@@ -1452,6 +1452,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   if (rejectlump != -1)
     W_UnlockLumpNum(rejectlump);
+  /* CHECKME this code is not in 2.3, but I can't find the place where it was removed
+
   rejectlump = lumpnum+ML_REJECT;
   {
     //e6y int 
@@ -1464,7 +1466,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     } else {
       rejectmatrix = W_CacheLumpNum(rejectlump);
     }
-  }
+  }*/
+  rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
   P_GroupLines();
 
   P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
