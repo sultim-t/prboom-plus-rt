@@ -97,9 +97,7 @@ angle_t xtoviewangle[MAX_SCREENWIDTH+1];   // killough 2/8/98
 // killough 4/4/98: support dynamic number of them as well
 
 int numcolormaps;
-lighttable_t *(*c_scalelight)[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
-lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 lighttable_t *(*zlight)[MAXLIGHTZ];
 lighttable_t *fullcolormap;
 lighttable_t **colormaps;
@@ -269,8 +267,6 @@ static void R_InitTextureMapping (void)
 
 //
 // R_InitLightTables
-// Only inits the zlight table,
-//  because the scalelight table changes with view size.
 //
 
 #define DISTMAP 2
@@ -281,7 +277,6 @@ void R_InitLightTables (void)
 
   // killough 4/4/98: dynamic colormaps
   c_zlight = malloc(sizeof(*c_zlight) * numcolormaps);
-  c_scalelight = malloc(sizeof(*c_scalelight) * numcolormaps);
 
   // Calculate the light levels to use
   //  for each level / distance combination.
@@ -392,28 +387,6 @@ void R_ExecuteSetViewSize (void)
       distscale[i] = FixedDiv(FRACUNIT,cosadj);
     }
 
-  // Calculate the light levels to use
-  //  for each level / scale combination.
-  for (i=0; i<LIGHTLEVELS; i++)
-    {
-      int j, startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
-      for (j=0 ; j<MAXLIGHTSCALE ; j++)
-        {
-          int t, level = startmap - j*320/viewwidth/DISTMAP;
-
-          if (level < 0)
-            level = 0;
-
-          if (level >= NUMCOLORMAPS)
-            level = NUMCOLORMAPS-1;
-
-          // killough 3/20/98: initialize multiple colormaps
-          level *= 256;
-
-          for (t=0; t<numcolormaps; t++)     // killough 4/4/98
-            c_scalelight[t][i][j] = colormaps[t] + level;
-        }
-    }
 }
 
 //
@@ -463,7 +436,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 
 void R_SetupFrame (player_t *player)
 {
-  int i, cm;
+  int cm;
 
   viewplayer = player;
 //e6y  viewx = player->mo->x;
@@ -504,20 +477,11 @@ void R_SetupFrame (player_t *player)
 
   fullcolormap = colormaps[cm];
   zlight = c_zlight[cm];
-  scalelight = c_scalelight[cm];
 
   if (player->fixedcolormap)
     {
-      // killough 3/20/98: localize scalelightfixed (readability/optimization)
-      static lighttable_t *scalelightfixed[MAXLIGHTSCALE];
-
       fixedcolormap = fullcolormap   // killough 3/20/98: use fullcolormap
         + player->fixedcolormap*256*sizeof(lighttable_t);
-
-      walllights = scalelightfixed;
-
-      for (i=0 ; i<MAXLIGHTSCALE ; i++)
-        scalelightfixed[i] = fixedcolormap;
     }
   else
     fixedcolormap = 0;
@@ -573,7 +537,6 @@ void R_RenderPlayerView (player_t* player)
 #else /* not GL_DOOM */
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
-      extern int lastshottic;
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
       memset(*screens+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
       R_DrawViewBorder();

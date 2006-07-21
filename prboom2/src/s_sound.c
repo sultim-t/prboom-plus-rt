@@ -155,6 +155,17 @@ void S_Init(int sfxVolume, int musicVolume)
   }
 }
 
+void S_Stop(void)
+{
+  int cnum;
+
+  //jff 1/22/98 skip sound init if sound not enabled
+  if (snd_card && !nosfxparm)
+    for (cnum=0 ; cnum<numChannels ; cnum++)
+      if (channels[cnum].sfxinfo)
+        S_StopChannel(cnum);
+}
+
 //
 // Per level startup code.
 // Kills playing sounds at start of level,
@@ -162,16 +173,12 @@ void S_Init(int sfxVolume, int musicVolume)
 //
 void S_Start(void)
 {
-  int cnum,mnum;
+  int mnum;
 
   // kill all playing sounds at start of level
   //  (trust me - a good idea)
 
-  //jff 1/22/98 skip sound init if sound not enabled
-  if (snd_card && !nosfxparm)
-    for (cnum=0 ; cnum<numChannels ; cnum++)
-      if (channels[cnum].sfxinfo)
-        S_StopChannel(cnum);
+  S_Stop();
 
   //jff 1/22/98 return if music is not enabled
   if (!mus_card || nomusicparm)
@@ -378,6 +385,10 @@ void S_UpdateSounds(void* listener_p)
   //jff 1/22/98 return if sound is not enabled
   if (!snd_card || nosfxparm)
     return;
+
+#ifdef UPDATE_MUSIC
+  I_UpdateMusic();
+#endif
 
   for (cnum=0 ; cnum<numChannels ; cnum++)
     {

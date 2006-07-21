@@ -557,6 +557,8 @@ I_InitSound()
 // MUSIC API.
 //
 
+#ifndef HAVE_OWN_MUSIC
+
 #ifdef HAVE_MIXER
 #include "SDL_mixer.h"
 #include "mmus2mid.h"
@@ -727,4 +729,6 @@ void I_SetMusicVolume(int volume)
   Mix_VolumeMusic(volume*8);
 #endif
 }
+
+#endif /* HAVE_OWN_MUSIC */
 

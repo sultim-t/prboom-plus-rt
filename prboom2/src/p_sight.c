@@ -70,21 +70,6 @@ inline static int P_DivlineSide(fixed_t x, fixed_t y, const divline_t *node)
 }
 
 //
-// P_InterceptVector2
-// Returns the fractional intercept point
-// along the first divline.
-//
-// killough 4/19/98: made static, cleaned up
-
-static fixed_t P_InterceptVector2(const divline_t *v2, const divline_t *v1)
-{
-  fixed_t den;
-  return (den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy)) ?
-    FixedDiv(FixedMul((v1->x - v2->x)>>8, v1->dy) +
-             FixedMul((v2->y - v1->y)>>8, v1->dx), den) : 0;
-}
-
-//
 // P_CrossSubsector
 // Returns true
 //  if strace crosses the given subsector successfully.
@@ -176,14 +161,18 @@ static boolean P_CrossSubsector(int num)
   return false;
 
     { // crosses a two sided line
-      fixed_t frac = P_InterceptVector2(&los.strace, &divl);
+      fixed_t frac = P_InterceptVector(&los.strace, &divl);
 
-      if (front->floorheight != back->floorheight)
-  {
-    fixed_t slope = FixedDiv(openbottom - los.sightzstart , frac);
-    if (slope > los.bottomslope)
+      /* cph 2006/04/11 - oops, we missed this in 2.4.0 
+       *  ...and .1, but let's hope nobody notices! DEMOSYNC */
+      if (compatibility_level == prboom_5_compatibility)
+	frac = P_InterceptVector2(&los.strace, &divl);
+
+      if (front->floorheight != back->floorheight) {
+        fixed_t slope = FixedDiv(openbottom - los.sightzstart , frac);
+        if (slope > los.bottomslope)
             los.bottomslope = slope;
-  }
+      }
 
       if (front->ceilingheight != back->ceilingheight)
         {

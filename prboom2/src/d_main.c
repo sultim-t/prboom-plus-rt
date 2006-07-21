@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -84,9 +84,6 @@
 #endif
 #include "e6y.h" //e6y
 
-// DEHacked support - Ty 03/09/97 // CPhipps - const char*'s
-void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
-
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 
 // CPhipps - removed wadfiles[] stuff
@@ -121,11 +118,8 @@ int ffmap;
 
 boolean advancedemo;
 
-extern boolean timingdemo, singledemo, demoplayback, fastdemo; // killough
-
 char    wadfile[PATH_MAX+1];       // primary wad file
 char    mapdir[PATH_MAX+1];        // directory of development maps
-char    basedefault[PATH_MAX+1];   // default file
 char    baseiwad[PATH_MAX+1];      // jff 3/23/98: iwad directory
 char    basesavegame[PATH_MAX+1];  // killough 2/16/98: savegame directory
 
@@ -647,16 +641,15 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
   if ( !access (iwadname,R_OK) )
   {
     int ud=0,rg=0,sw=0,cm=0,sc=0;
-    int handle;
+    FILE* fp;
 
     // Identify IWAD correctly
-    if ( (handle = open (iwadname,O_RDONLY | O_BINARY)) != -1)
+    if ((fp = fopen(iwadname, "rb")))
     {
       wadinfo_t header;
 
       // read IWAD header
-      read (handle, &header, sizeof(header));
-      if (!strncmp(header.identification,"IWAD",4))
+      if (fread(&header, sizeof(header), 1, fp) == 1 && !strncmp(header.identification, "IWAD", 4))
       {
         size_t length;
         filelump_t *fileinfo;
@@ -666,9 +659,10 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
         header.infotableofs = LONG(header.infotableofs);
         length = header.numlumps;
         fileinfo = malloc(length*sizeof(filelump_t));
-        lseek (handle, header.infotableofs, SEEK_SET);
-        read (handle, fileinfo, length*sizeof(filelump_t));
-        close(handle);
+        if (fseek (fp, header.infotableofs, SEEK_SET) ||
+            fread (fileinfo, sizeof(filelump_t), length, fp) != length ||
+            fclose(fp))
+          I_Error("CheckIWAD: failed to read directory %s",iwadname);
 
         // scan directory for levelname lumps
         while (length--)
@@ -835,13 +829,6 @@ void IdentifyVersion (void)
   int         i;    //jff 3/24/98 index of args on commandline
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
   char *iwad;
-
-  // get config file from same directory as executable
-#ifdef GL_DOOM
-  sprintf(basedefault,"%s/glboom.cfg", I_DoomExeDir());  // killough
-#else
-  sprintf(basedefault,"%s/prboom.cfg", I_DoomExeDir());  // killough
-#endif
 
   //e6y: was moved from D_DoomMainSetup
   // init subsystems
@@ -1197,6 +1184,24 @@ void D_DoomMainSetup(void)
   int p,i,slot;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
+  // proff 04/05/2000: Added support for include response files
+  /* proff 2001/7/1 - Moved up, so -config can be in response files */
+  {
+    boolean rsp_found;
+    int i;
+
+    do {
+      rsp_found=false;
+      for (i=0; i<myargc; i++)
+        if (myargv[i][0]=='@')
+          rsp_found=true;
+      FindResponseFile();
+    } while (rsp_found==true);
+  }
+
+  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  M_LoadDefaults();              // load before initing other systems
+
   // figgi 09/18/00-- added switch to force classic bsp nodes
   if (M_CheckParm ("-forceoldbsp"))
   {
@@ -1220,19 +1225,6 @@ void D_DoomMainSetup(void)
 
   setbuf(stdout,NULL);
 
-  // proff 04/05/2000: Added support for include response files
-  {
-    boolean rsp_found;
-    int i;
-
-    do {
-      rsp_found=false;
-      for (i=0; i<myargc; i++)
-        if (myargv[i][0]=='@')
-          rsp_found=true;
-      FindResponseFile();
-    } while (rsp_found==true);
-  }
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
@@ -1401,9 +1393,6 @@ void D_DoomMainSetup(void)
   }
 
   // init subsystems
-  //jff 9/3/98 use logical output routine
-  //e6y lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
-  //e6y M_LoadDefaults();              // load before initing other systems
 
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1

@@ -18,7 +18,7 @@ prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 [ \-deathmatch [ \-altdeath ] ] [ { \-timer \fImins\fR | \-avg }] ]
 .BR
 [ \-nosound ] [ \-nosfx ] [ \-nomusic] [ \-nojoy ] [ \-nomouse ]
-[ \-noaccel ] [ \-{1,2,3} ]
+[ \-noaccel ] [ \-nodraw ]
 .BR
 [ \-config \fImyconf\fR ] [ \-save \fIsavedir\fR ] 
 .BR
@@ -168,11 +168,8 @@ is not local. For lsdoom, this tells lsdoom not to use the accelerated
 graphics functions that SVGALib provides even when they are supported for
 your video card (normally this is autodetected).
 .TP
-\-{1,2,3}
-Specifies the scale factor by which to enlarge the window. The default, -1, 
-displays the normal 320x200 pixel Doom screen (or whatever size is specified by 
-the -width and -height parameters or in the config file for prboom). 
-If this window is too small, try using -2 or -3 to enlarge the window.
+\-nodraw
+Suppress all graphical display. Only for debugging & demo testing.
 .SH Configuration
 .TP
 \-config \fImyconf\fR

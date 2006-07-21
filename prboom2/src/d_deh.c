@@ -2517,7 +2517,8 @@ void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   {
     int c, totlen = 0;
     while (totlen < fromlen + tolen && (c = dehfgetc(fpin)) != EOF)
-      inbuffer[totlen++] = c;
+      if (c != '\r')
+	inbuffer[totlen++] = c;
     inbuffer[totlen]='\0';
   }
 
@@ -2718,7 +2719,7 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
   for (i=0;i<deh_numstrlookup;i++)
     {
       found = lookfor ?
-        !stricmp(*deh_strlookup[i].ppstr,lookfor) :
+        !strnicmp(*deh_strlookup[i].ppstr,lookfor,strlen(lookfor)) :
         !stricmp(deh_strlookup[i].lookup,key);
 
       if (found)

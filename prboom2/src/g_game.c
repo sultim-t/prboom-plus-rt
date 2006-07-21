@@ -974,6 +974,15 @@ void G_Ticker (void)
   // cph - if the gamestate changed, we may need to clean up the old gamestate
   if (gamestate != prevgamestate) {
     switch (prevgamestate) {
+    case GS_LEVEL:
+      // This causes crashes at level end - Neil Stevens
+      // The crash is because the sounds aren't stopped before freeing them
+      // the following is a possible fix
+      // This fix does avoid the crash wowever, with this fix in, the exit
+      // switch sound is cut off
+      // S_Stop();
+      // Z_FreeTags(PU_LEVEL, PU_PURGELEVEL-1);
+      break;
     case GS_INTERMISSION:
       WI_End();
     default:
@@ -1113,8 +1122,6 @@ void G_PlayerReborn (int player)
 // because something is occupying it
 //
 
-void P_SpawnPlayer(mapthing_t *mthing);
-
 boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 {
   fixed_t     x,y;
@@ -1234,16 +1241,13 @@ void G_DeathMatchSpawnPlayer (int playernum)
       if (G_CheckSpot (playernum, &deathmatchstarts[i]) )
         {
           deathmatchstarts[i].type = playernum+1;
-          P_SpawnPlayer (&deathmatchstarts[i]);
+          P_SpawnPlayer (playernum, &deathmatchstarts[i]);
           return;
         }
     }
 
   // no good spot, so the player will probably get stuck
-  if (playerstarts[playernum].type > 0)
-    P_SpawnPlayer (&playerstarts[playernum]);
-  else
-    I_Error("Tried & failed to use co-op start");
+  P_SpawnPlayer (playernum, &playerstarts[playernum]);
 }
 
 //
@@ -1270,7 +1274,7 @@ void G_DoReborn (int playernum)
 
       if (G_CheckSpot (playernum, &playerstarts[playernum]) )
         {
-          P_SpawnPlayer (&playerstarts[playernum]);
+          P_SpawnPlayer (playernum, &playerstarts[playernum]);
           return;
         }
 
@@ -1279,14 +1283,12 @@ void G_DoReborn (int playernum)
         {
           if (G_CheckSpot (playernum, &playerstarts[i]) )
             {
-              playerstarts[i].type = playernum+1; // fake as other player
-              P_SpawnPlayer (&playerstarts[i]);
-              playerstarts[i].type = i+1;   // restore
+              P_SpawnPlayer (playernum, &playerstarts[i]);
               return;
             }
           // he's going to be inside something.  Too bad.
         }
-      P_SpawnPlayer (&playerstarts[playernum]);
+      P_SpawnPlayer (playernum, &playerstarts[playernum]);
     }
 }
 
@@ -1862,14 +1864,6 @@ static void G_DoSaveGame (boolean menu)
       i = num_version_headers+1;
     }
 
-  if ((size_t)i == num_version_headers) {
-    doom_printf("No savegame signature known for\nthis compatibility level\n"
-    "%d/%d, %u registered", compatibility_level,
-    MAX_COMPATIBILITY_LEVEL, num_version_headers);
-    free(savebuffer); // cph - free data
-    return;
-  }
-
   save_p += VERSIONSIZE;
 
   { /* killough 3/16/98, 12/98: store lump name checksum */
@@ -2147,7 +2141,10 @@ void G_ReloadDefaults(void)
   compatibility_level = default_compatibility_level;
   {
     int i = M_CheckParm("-complevel");
-    if (i && (1+i) < myargc) compatibility_level = atoi(myargv[i+1]);
+    if (i && (1+i) < myargc) {
+      int l = atoi(myargv[i+1]);;
+      if (l >= -1) compatibility_level = l;
+    }
   }
   if (compatibility_level == -1)
     compatibility_level = best_compatibility;

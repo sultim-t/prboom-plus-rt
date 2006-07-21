@@ -43,6 +43,9 @@
 //
 void S_Init(int sfxVolume, int musicVolume);
 
+// Kills all sounds
+void S_Stop(void);
+
 //
 // Per level startup code.
 // Kills playing sounds at start of level,

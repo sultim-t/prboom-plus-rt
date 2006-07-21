@@ -269,8 +269,6 @@ boolean P_CheckAmmo(player_t *player)
 // P_FireWeapon.
 //
 
-int lastshottic; // killough 3/22/98
-
 static void P_FireWeapon(player_t *player)
 {
   statenum_t newstate;
@@ -282,7 +280,6 @@ static void P_FireWeapon(player_t *player)
   newstate = weaponinfo[player->readyweapon].atkstate;
   P_SetPsprite(player, ps_weapon, newstate);
   P_NoiseAlert(player->mo, player->mo);
-  lastshottic = gametic;                       // killough 3/22/98
 }
 
 //

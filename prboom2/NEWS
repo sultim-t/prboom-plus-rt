@@ -1,6 +1,17 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.4.1 to v2.4.2
+- Move gamma correction tables into prboom.wad
+- Clean up light level calculations for walls & sprites
+- CheckIWAD uses ANSI C streams for better portability and error handling
+- Make screen wipe time independent of resolution
+- Applied various small cleanups and fixes from PrBoom 2.3.1
+- Fix problems with dehacked substitution of long strings
+- End of level sound crash fixed
+- Mac OS X: Uses Quicktime for music now to fix crashes (adapted from Jaakko
+  Keränen's work in Doomsday)
+
 Changes from v2.4.0 to v2.4.1
 - PrBoom demos are now recorded with high-precision turning (like the
   "Doom v1.91" hack that is floating around)

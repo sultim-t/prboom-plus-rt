@@ -52,6 +52,7 @@
 #include "m_menu.h"
 #include "am_map.h"
 #include "w_wad.h"
+#include "i_system.h"
 #include "i_sound.h"
 #include "i_video.h"
 #include "v_video.h"
@@ -99,56 +100,70 @@ int M_DrawText(int x,int y,boolean direct,char* string)
   return x;
 }
 
-//
-// M_WriteFile
-//
+/* cph - disk icon not implemented */
+static inline void I_BeginRead(void) {}
+static inline void I_EndRead(void) {}
 
-boolean M_WriteFile(char const* name,void* source,int length)
+/*
+ * M_WriteFile
+ *
+ * killough 9/98: rewritten to use stdio and to flash disk icon
+ */
+
+boolean M_WriteFile(char const *name, void *source, int length)
 {
-  int handle;
-  int count;
+  FILE *fp;
 
-  handle = open ( name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+  errno = 0;
 
-  if (handle == -1)
-    return false;
+  if (!(fp = fopen(name, "wb")))       // Try opening file
+    return 0;                          // Could not open file for writing
 
-  count = write (handle, source, length);
-  close (handle);
+  I_BeginRead();                       // Disk icon on
+  length = fwrite(source, 1, length, fp) == (size_t)length;   // Write data
+  fclose(fp);
+  I_EndRead();                         // Disk icon off
 
-  if (count < length) {
-    unlink(name); // CPhipps - no corrupt data files around, they only confuse people.
-    return false;
-  }
+  if (!length)                         // Remove partially written file
+    remove(name);
 
-  return true;
+  return length;
 }
 
+/*
+ * M_ReadFile
+ *
+ * killough 9/98: rewritten to use stdio and to flash disk icon
+ */
 
-//
-// M_ReadFile
-//
-
-int M_ReadFile(char const* name,byte** buffer)
+int M_ReadFile(char const *name, byte **buffer)
 {
-  int handle, count, length;
-  struct stat fileinfo;
-  byte   *buf;
+  FILE *fp;
 
-  handle = open (name, O_RDONLY | O_BINARY, 0666);
-  if ((handle == -1) || (fstat (handle,&fileinfo) == -1))
-    I_Error ("M_ReadFile: Couldn't read file %s", name);
+  errno = 0;
 
-  length = fileinfo.st_size;
-  buf = Z_Malloc (length, PU_STATIC, NULL);
-  count = read (handle, buf, length);
-  close (handle);
+  if ((fp = fopen(name, "rb")))
+    {
+      size_t length;
 
-  if (count < length)
-    I_Error ("M_ReadFile: Couldn't read file %s", name);
+      I_BeginRead();
+      fseek(fp, 0, SEEK_END);
+      length = ftell(fp);
+      fseek(fp, 0, SEEK_SET);
+      *buffer = Z_Malloc(length, PU_STATIC, 0);
+      if (fread(*buffer, 1, length, fp) == length)
+        {
+          fclose(fp);
+          I_EndRead();
+          return length;
+        }
+      fclose(fp);
+    }
 
-  *buffer = buf;
-  return length;
+  I_Error("Couldn't read file %s: %s", name, 
+	  errno ? strerror(errno) : "(Unknown Error)");
+
+  return 0;
 }
 
 //
@@ -164,7 +179,6 @@ extern int mousebforward;
 
 extern int viewwidth;
 extern int viewheight;
-extern int fake_contrast;
 #ifdef GL_DOOM
 extern int gl_nearclip;
 extern int gl_farclip;
@@ -196,7 +210,6 @@ int         mus_pause_opt; // 0 = kill music, 1 = pause, 2 = continue
 extern const char* chat_macros[];
 
 extern int endoom_mode;
-int X_opt;
 
 extern const char* S_music_files[]; // cournia
 
@@ -208,7 +221,7 @@ int map_point_coordinates;
 default_t defaults[] =
 {
   {"Misc settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"default_compatibility_level",{&default_compatibility_level},
+  {"default_compatibility_level",{(int*)&default_compatibility_level},
    {-1},-1,MAX_COMPATIBILITY_LEVEL-1,
    def_int,ss_none}, // compatibility level" - CPhipps
   {"realtic_clock_rate",{&realtic_clock_rate},{100},0,UL,
@@ -341,8 +354,6 @@ default_t defaults[] =
   {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
    def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
 #endif
-  {"fake_contrast",{&fake_contrast},{1},0,1,
-   def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
 #ifndef DISABLE_DOUBLEBUFFER
@@ -357,8 +368,6 @@ default_t defaults[] =
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98
-  {"X_options",{&X_opt},{0},0,3, // CPhipps - misc X options
-   def_hex,ss_none}, // X options, see l_video_x.c
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -1065,8 +1074,15 @@ void M_LoadDefaults (void)
   i = M_CheckParm ("-config");
   if (i && i < myargc-1)
     defaultfile = myargv[i+1];
-  else
-    defaultfile = basedefault;
+  else {
+    defaultfile = malloc(PATH_MAX+1);
+    /* get config file from same directory as executable */
+#ifdef GL_DOOM
+    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", I_DoomExeDir());
+#else
+    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", I_DoomExeDir());
+#endif
+  }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
 
@@ -1285,6 +1301,9 @@ static void WriteBMPfile(FILE* st, const byte* data,
   bmih.biClrImportant = LONG(256);
 
   {
+    int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
+    register const byte * const gtable = (const byte *)W_CacheLumpNum(gtlump) + 256*usegamma;
+
     // write the header
     SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
     SafeWrite(&bmfh.bfSize,sizeof(bmfh.bfSize),1,st);
@@ -1306,17 +1325,19 @@ static void WriteBMPfile(FILE* st, const byte* data,
 
     // write the palette, in blue-green-red order, gamma corrected
     for (i=0;i<768;i+=3) {
-      c=gammatable[usegamma][palette[i+2]];
+      c=gtable[palette[i+2]];
       SafeWrite(&c,sizeof(char),1,st);
-      c=gammatable[usegamma][palette[i+1]];
+      c=gtable[palette[i+1]];
       SafeWrite(&c,sizeof(char),1,st);
-      c=gammatable[usegamma][palette[i+0]];
+      c=gtable[palette[i+0]];
       SafeWrite(&c,sizeof(char),1,st);
       SafeWrite(&zero,sizeof(char),1,st);
     }
 
     for (i = 0 ; i < height ; i++)
       SafeWrite(data+(height-1-i)*width,sizeof(byte),wid,st);
+
+    W_UnlockLumpNum(gtlump);
   }
 }
 

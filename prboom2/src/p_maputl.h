@@ -69,6 +69,8 @@ int     CONSTFUNC P_PointOnDivlineSide (fixed_t x, fixed_t y,
           const divline_t *line);
 int     CONSTFUNC P_BoxOnLineSide (const fixed_t *tmbox, const line_t *ld);
 fixed_t CONSTFUNC P_InterceptVector (const divline_t *v2, const divline_t *v1);
+/* cph - old compatibility version below */
+fixed_t CONSTFUNC P_InterceptVector2(const divline_t *v2, const divline_t *v1);
 
 void    P_MakeDivline (const line_t *li, divline_t *dl);
 void    P_LineOpening (const line_t *linedef);

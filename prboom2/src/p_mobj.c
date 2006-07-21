@@ -396,7 +396,7 @@ static void P_ZMovement (mobj_t* mo)
       FixedMul(mo->momz, (fixed_t)(FRACUNIT*.45)) ;
 
     /* Bring it to rest below a certain speed */
-    if (abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
+    if (D_abs(mo->momz) <= mo->info->mass*(GRAVITY*4/256))
       mo->momz = 0;
   }
 
@@ -475,7 +475,7 @@ floater:
       {
   fixed_t delta;
   if (P_AproxDistance(mo->x - mo->target->x, mo->y - mo->target->y) <
-      abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
+      D_abs(delta = mo->target->z + (mo->height>>1) - mo->z)*3)
     mo->z += delta < 0 ? -FLOATSPEED : FLOATSPEED;
       }
 
@@ -1008,7 +1008,7 @@ void P_RespawnSpecials (void)
 
 extern byte playernumtotrans[MAXPLAYERS];
 
-void P_SpawnPlayer (mapthing_t* mthing)
+void P_SpawnPlayer (int n, const mapthing_t* mthing)
   {
   player_t* p;
   fixed_t   x;
@@ -1021,14 +1021,20 @@ void P_SpawnPlayer (mapthing_t* mthing)
 
   // not playing?
 
-  if (!playeringame[mthing->type-1])
+  if (!playeringame[n])
     return;
 
-  p = &players[mthing->type-1];
+  p = &players[n];
 
   if (p->playerstate == PST_REBORN)
     G_PlayerReborn (mthing->type-1);
 
+  /* cph 2001/08/14 - use the options field of memorised player starts to
+   * indicate whether the start really exists in the level.
+   */
+  if (!mthing->options)
+    I_Error("P_SpawnPlayer: attempt to spawn player at unavailable start point");
+  
   x    = mthing->x << FRACBITS;
   y    = mthing->y << FRACBITS;
   z    = ONFLOORZ;
@@ -1036,8 +1042,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
 
   // set color translations for player sprites
 
-  if (mthing->type > 0)
-    mobj->flags |= playernumtotrans[mthing->type-1]<<MF_TRANSSHIFT;
+  mobj->flags |= playernumtotrans[n]<<MF_TRANSSHIFT;
 
   mobj->angle      = ANG45 * (mthing->angle/45);
   mobj->player     = p;
@@ -1080,7 +1085,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
 // already be in host byte order.
 //
 
-void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
+void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
   {
   int     i;
   //int     bit;
@@ -1088,6 +1093,7 @@ void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
   fixed_t x;
   fixed_t y;
   fixed_t z;
+  int options = mthing->options; /* cph 2001/07/07 - make writable copy */
 
   // killough 2/26/98: Ignore type-0 things as NOPs
   // phares 5/14/98: Ignore Player 5-8 starts (for now)
@@ -1112,11 +1118,11 @@ void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
 
   if (demo_compatibility ||
       (compatibility_level >= lxdoom_1_compatibility  &&
-       mthing->options & MTF_RESERVED)) {
+       options & MTF_RESERVED)) {
     if (!demo_compatibility) // cph - Add warning about bad thing flags
       lprintf(LO_WARN, "P_SpawnMapThing: correcting bad flags (%u) (thing type %d)\n",
-        mthing->options, mthing->type);
-    mthing->options &= MTF_EASY|MTF_NORMAL|MTF_HARD|MTF_AMBUSH|MTF_NOTSINGLE;
+        options, mthing->type);
+    options &= MTF_EASY|MTF_NORMAL|MTF_HARD|MTF_AMBUSH|MTF_NOTSINGLE;
   }
 
   // count deathmatch start positions
@@ -1142,6 +1148,7 @@ void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
       deathmatch_p = deathmatchstarts + offset;
       }
     memcpy(deathmatch_p++, mthing, sizeof(*mthing));
+    (deathmatch_p-1)->options = 1;
     return;
 	}
     }
@@ -1158,42 +1165,42 @@ void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
     players[mthing->type-1].secretcount = 1;
 
     // killough 10/98: force it to be a friend
-    mthing->options |= MTF_FRIEND;
+    options |= MTF_FRIEND;
     i = MT_DOGS;
     goto spawnit;
   }
 #endif
 
-
-    // save spots for respawning in network games
-
+    // save spots for respawning in coop games
     playerstarts[mthing->type-1] = *mthing;
+    playerstarts[mthing->type-1].options = 1;
+
     if (!deathmatch)
-      P_SpawnPlayer (mthing);
+      P_SpawnPlayer (mthing->type-1, mthing);
     return;
     }
 
   // check for apropriate skill level
 
   /* jff "not single" thing flag */
-  if (!netgame && mthing->options & MTF_NOTSINGLE)
+  if (!netgame && options & MTF_NOTSINGLE)
     return;
 
   //jff 3/30/98 implement "not deathmatch" thing flag
 
-  if (netgame && deathmatch && mthing->options & MTF_NOTDM)
+  if (netgame && deathmatch && options & MTF_NOTDM)
     return;
 
   //jff 3/30/98 implement "not cooperative" thing flag
 
-  if (netgame && !deathmatch && mthing->options & MTF_NOTCOOP)
+  if (netgame && !deathmatch && options & MTF_NOTCOOP)
     return;
 
   // killough 11/98: simplify
   if (gameskill == sk_baby || gameskill == sk_easy ?
-      !(mthing->options & MTF_EASY) :
+      !(options & MTF_EASY) :
       gameskill == sk_hard || gameskill == sk_nightmare ?
-      !(mthing->options & MTF_HARD) : !(mthing->options & MTF_NORMAL))
+      !(options & MTF_HARD) : !(options & MTF_NORMAL))
     return;
 
   // find which type to spawn
@@ -1242,7 +1249,7 @@ spawnit:
     mobj->tics = 1 + (P_Random (pr_spawnthing) % mobj->tics);
 
   if (!(mobj->flags & MF_FRIEND) &&
-      mthing->options & MTF_FRIEND &&
+      options & MTF_FRIEND &&
       mbf_features)
     {
       mobj->flags |= MF_FRIEND;            // killough 10/98:
@@ -1257,7 +1264,7 @@ spawnit:
     totalitems++;
 
   mobj->angle = ANG45 * (mthing->angle/45);
-  if (mthing->options & MTF_AMBUSH)
+  if (options & MTF_AMBUSH)
     mobj->flags |= MF_AMBUSH;
   }
 

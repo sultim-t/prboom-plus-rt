@@ -57,7 +57,7 @@ def getFileFromZip(filename, filepath, package):
 def getPathToFile(name, path):
     if path == 'n/a':
         if os.path.exists(os.path.abspath(name)):
-            return name
+            return os.path.abspath(name)
         return None
     if path == '':
         return ''
@@ -99,11 +99,12 @@ def runtest(iwad, demo, demopath, pwad):
         'prboom',
         '-nodraw',
         '-nosound',
+        '-nomouse',
         '-nofullscreen',
         '-width', '320',
         '-height', '200',
     ]
-    options.extend(('-iwad', iwad))
+    options.extend(('-iwad', os.path.join('..', 'iwads', iwad)))
     if demopath is not None and demopath != '':
         options.extend(('-fastdemo', demopath))
     else:
@@ -114,12 +115,14 @@ def runtest(iwad, demo, demopath, pwad):
     print cmd
     if subprocess is not None:
         p = subprocess.call(options)
-        print p
     else:
-        print os.system(cmd)
-    results = open(os.path.join(basepath, 'release', 'stderr.txt'),'r').readlines()
-    if len(results):
-        print results[-1]
+        os.system(cmd)
+    try:
+        results = open(os.path.join(basepath, 'release', 'stderr.txt'),'r').readlines()
+        if len(results):
+            print results[-1]
+    except IOError:
+        print "couldn't open stderr.txt"
 
 def getBasePath():
     curpath = os.path.join(os.getcwd(), __file__)

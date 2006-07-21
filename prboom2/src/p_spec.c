@@ -424,7 +424,11 @@ fixed_t P_FindNextHighestFloor(sector_t *sec, int currentheight)
           height = other->floorheight;
       return height;
     }
-  return currentheight;
+  /* cph - my guess at doom v1.2 - 1.4beta compatibility here.
+   * If there are no higher neighbouring sectors, Heretic just returned
+   * heightlist[0] (local variable), i.e. noise off the stack. 0 is right for
+   * RETURN01 E1M2, so let's take that. */
+  return (compatibility_level < doom_1666_compatibility ? 0 : currentheight);
 }
 
 

@@ -135,20 +135,30 @@ void P_MakeDivline(const line_t *li, divline_t *dl)
 // This is only called by the addthings
 // and addlines traversers.
 //
-// killough 5/3/98: reformatted, cleaned up
+
+/* cph - this is killough's 4/19/98 version of P_InterceptVector and
+ *  P_InterceptVector2 (which were interchangeable). We still use this
+ *  in compatibility mode. */
+fixed_t CONSTFUNC P_InterceptVector2(const divline_t *v2, const divline_t *v1)
+{
+  fixed_t den;
+  return (den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy)) ?
+    FixedDiv(FixedMul((v1->x - v2->x)>>8, v1->dy) +
+             FixedMul((v2->y - v1->y)>>8, v1->dx), den) : 0;
+}
 
 fixed_t CONSTFUNC P_InterceptVector(const divline_t *v2, const divline_t *v1)
 {
- if (compatibility_level < prboom_4_compatibility) {
-  fixed_t den = FixedMul(v1->dy>>8, v2->dx) - FixedMul(v1->dx>>8, v2->dy);
-  return den ? FixedDiv((FixedMul((v1->x-v2->x)>>8, v1->dy) +
-                         FixedMul((v2->y-v1->y)>>8, v1->dx)), den) : 0;
- } else {
-  int_64_t den = (int_64_t)v1->dy * v2->dx - (int_64_t)v1->dx * v2->dy;
-  den >>= 16;
-  if (!den) return 0;
-  return (fixed_t)(((int_64_t)(v1->x - v2->x) * v1->dy - (int_64_t)(v1->y - v2->y) * v1->dx) / den);
- }
+  if (compatibility_level < prboom_4_compatibility)
+    return P_InterceptVector2(v2, v1);
+  else {
+    /* cph - This was introduced at prboom_4_compatibility - no precision/overflow problems */
+    int_64_t den = (int_64_t)v1->dy * v2->dx - (int_64_t)v1->dx * v2->dy;
+    den >>= 16;
+    if (!den)
+      return 0;
+    return (fixed_t)(((int_64_t)(v1->x - v2->x) * v1->dy - (int_64_t)(v1->y - v2->y) * v1->dx) / den);
+  }
 }
 
 //

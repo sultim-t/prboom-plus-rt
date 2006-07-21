@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by Colin Phipps (cph@lxdoom.linuxgames.com)
+ *  Copyright (C) 1999-2006 by Colin Phipps, Florian Schulze
  *  
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -50,7 +50,13 @@
 
 void I_uSleep(unsigned long usecs)
 {
+#ifdef HAVE_USLEEP
   usleep(usecs);
+#else
+  /* Fall back on select(2) */
+  struct timeval tv = { usecs / 1000000, usecs % 1000000 };
+  select(0,NULL,NULL,NULL,&tv);
+#endif
 }
 
 /* CPhipps - believe it or not, it is possible with consecutive calls to 

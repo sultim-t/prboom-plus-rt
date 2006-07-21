@@ -1,0 +1,44 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                addWadClicked = id; 
+                chooseDemoFileClicked = id; 
+                demoButtonClicked = id; 
+                disableSoundClicked = id; 
+                gameButtonClicked = id; 
+                removeWadClicked = id; 
+                startClicked = id; 
+            }; 
+            CLASS = LauncherApp; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                chooseDemoFileButton = id; 
+                compatibilityLevelButton = id; 
+                demoFileField = id; 
+                demoMatrix = id; 
+                disableGraphicsButton = id; 
+                disableJoystickButton = id; 
+                disableMouseButton = id; 
+                disableMusicButton = id; 
+                disableSoundButton = id; 
+                disableSoundEffectsButton = id; 
+                fastDemoButton = id; 
+                fastMonstersButton = id; 
+                ffToLevelField = id; 
+                gameButton = id; 
+                noDemoButton = id; 
+                noMonstersButton = id; 
+                playDemoButton = id; 
+                removeWadButton = id; 
+                respawnMonstersButton = id; 
+                timeDemoButton = id; 
+                wadView = id; 
+                window = id; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

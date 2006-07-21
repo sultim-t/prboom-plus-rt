@@ -12,7 +12,7 @@ PrBoom expects the config file to be  ~/.prboom/boom.cfg, or
 ~/.prboom/glboom.cfg if compiled with GL support. Alternatively, it 
 can be made to look elsewhere by using a command-line parameter:
 .PP
-.B {prboom,xprboom}
+.B {prboom,glboom}
 [ \-config \fImyconf\fR ]
 .SH FORMAT
 boom.cfg consists of a number of variables and values. Each line is of the following 
@@ -148,10 +148,10 @@ dog_jumping
 Whether dogs will jump.
 .TP
 sts_always_red
-PrBoom makes the colour of the text displays on the status bar reflect your
+PrBoom can make the colour of the text displays on the status bar reflect your
 current status (red=low, yellow=average, green=good, blue=super-charged).
-This option, if set, disables this behavior, returning to the original Doom
-behavior of displaying the numbers in red always, which is slightly faster.
+This option if set selects the traditional Doom behavior of always-red status
+bar display; set to 0 to allow the coloured display.
 .TP
 sts_pct_always_gray
 See above, this makes just the percent signs always gray, instead of
@@ -247,11 +247,6 @@ usegamma
 Selects a level of gamma correction (extra screen brightening) to correct for a 
 dark monitor or light surroundings. Can be selected in the game with the F11 
 key, this config entry preserves that setting.
-.TP
-X_options
-Sets various misc options used by the X version, xprboom. Default is
-0;  add 1 to disable MitSHM, add 2 to select alternate 24bpp code (use this if 
-xprboom has video corruption in 24bpp visuals).
 
 .SH OPENGL SETTINGS
 .PP

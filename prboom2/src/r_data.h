@@ -96,6 +96,8 @@ int R_CheckTextureNumForName (const char *name);
 
 void R_InitTranMap(int);      // killough 3/6/98: translucency initialization
 int R_ColormapNumForName(const char *name);      // killough 4/4/98
+/* cph 2001/11/17 - new func to do lighting calcs and get suitable colour map */
+const lighttable_t* R_ColourMap(int lightlevel, fixed_t spryscale);
 
 extern const byte *main_tranmap, *tranmap;
 

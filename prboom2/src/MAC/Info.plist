@@ -5,20 +5,26 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>PrBoom</string>
+	<string>Launcher</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.3.2</string>
+	<string>2.4.2</string>
 	<key>CFBundleIconFile</key>
 	<string>PrBoom.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>PrBoom</string>
+	<string>net.sourceforge.prboom</string>
 	<key>CFBundleName</key>
 	<string>PrBoom</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>2.3.2</string>
 	<key>CFBundleVersion</key>
-	<string>2.3.2</string>
+	<string>2.4.2</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSAppleScriptEnabled</key>
+	<true/>
+	<key>OSAScriptingDefinition</key>
+	<string>PrBoom.sdef</string>
 </dict>
 </plist>
