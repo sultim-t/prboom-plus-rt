@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Launcher</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.4.2</string>
+	<string>2.4.3</string>
 	<key>CFBundleIconFile</key>
 	<string>PrBoom.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
-	<string>2.4.2</string>
+	<string>2.4.3</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSMainNibFile</key>
