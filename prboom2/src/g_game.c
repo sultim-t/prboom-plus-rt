@@ -2013,7 +2013,9 @@ void G_Compatibility(void)
       * through walls by Pain Elementals */
     boom_compatibility,/* comp_blazing - original Doom duplicated
       * blazing door sound */
-    boom_compatibility, /* comp_doorlight - MBF made door lighting changes //e6y
+    // e6y: "Tagged doors don't trigger special lighting" handled wrong
+    // http://sourceforge.net/tracker/index.php?func=detail&aid=1411400&group_id=148658&atid=772943
+    boom_compatibility, /* comp_doorlight - MBF made door lighting changes
       * more gradual */
     boom_compatibility,/* comp_model - improvements to the game physics */
     boom_compatibility,/* comp_god - fixes to God mode */

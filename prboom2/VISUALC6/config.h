@@ -144,4 +144,4 @@
 #define PACKAGE "prboom-plus"
 
 /* Version number of package */
-#define VERSION "2.2.6.30" //e6y
+#define VERSION "2.4.0.1" //e6y

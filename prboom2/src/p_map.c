@@ -290,6 +290,9 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
 // MOVEMENT ITERATOR FUNCTIONS
 //
 
+// e6y: Spechits overrun emulation code
+static void SpechitOverrun(line_t *ld);
+
 //                                                                  // phares
 // PIT_CrossLine                                                    //   |
 // Checks to see if a PE->LS trajectory line crosses a blocking     //   V
@@ -420,7 +423,7 @@ boolean PIT_CheckLine (line_t* ld)
     spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
   }
       spechit[numspechit++] = ld;
-    SpechitOverrun(ld);//e6y
+      SpechitOverrun(ld); // e6y: Spechits overrun emulation code
     }
 
   return true;
@@ -2218,3 +2221,76 @@ void P_MapEnd(void) {
 	tmthing = NULL;
 }
 
+// e6y
+// Code to emulate the behavior of Vanilla Doom when encountering an overrun
+// of the spechit array.
+// No more desyncs on compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc.
+// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+static void SpechitOverrun(line_t *ld)
+{
+  extern int numspechit;
+  extern line_t **spechit;
+
+  if (numspechit>8 && demo_compatibility)
+  {
+    if (overrun_spechit_warn)
+      ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, numspechit > 20, "SPECHITS",
+        "\n\nThe list of LinesID leading to overrun:\n%d, %d, %d, %d, %d, %d, %d, %d, %d.",
+        spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID,
+        spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID,
+        spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID);
+
+    if (overrun_spechit_emulate)
+    {
+      int addr = 0x00C09C98 + (ld - lines) * 0x3E;
+      if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
+      {
+        extern fixed_t   tmfloorz;
+        extern fixed_t   tmceilingz;
+
+        switch(numspechit)
+        {
+        case 9: 
+          tmfloorz = addr;
+          break;
+        case 10:
+          tmceilingz = addr;
+          break;
+          
+        default:
+          fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
+            "an overrun where numspechit=%i\n",
+            numspechit);
+          break;
+        }
+      }
+      else
+      {
+        extern fixed_t tmbbox[4];
+        extern boolean crushchange, nofit;
+
+        switch(numspechit)
+        {
+        case 9: 
+        case 10:
+        case 11:
+        case 12:
+          tmbbox[numspechit-9] = addr;
+          break;
+        case 13:
+          nofit = addr;
+          break;
+        case 14:
+          crushchange = addr;
+          break;
+
+        default:
+          fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
+                          "an overrun where numspechit=%i\n",
+                           numspechit);
+          break;
+        }
+      }
+    }
+  }
+}

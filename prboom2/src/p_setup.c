@@ -533,23 +533,32 @@ static void P_LoadNodes (int lump)
 }
 
 
-//
-// P_LoadThings
-//
-// killough 5/3/98: reformatted, cleaned up
+/*
+ * P_LoadThings
+ *
+ * killough 5/3/98: reformatted, cleaned up
+ * cph 2001/07/07 - don't write into the lump cache, especially non-idepotent
+ * changes like byte order reversals. Take a copy to edit.
+ */
 
 static void P_LoadThings (int lump)
 {
   int  i, numthings = W_LumpLength (lump) / sizeof(mapthing_t);
-  const byte *data = W_CacheLumpNum (lump); // cph - wad lump handling updated, const*
+  const mapthing_t *data = W_CacheLumpNum (lump);
 
   for (i=0; i<numthings; i++)
     {
-      mapthing_t *mt = (mapthing_t *) data + i;
+      mapthing_t mt = data[i];
+
+      mt.x = SHORT(mt.x);
+      mt.y = SHORT(mt.y);
+      mt.angle = SHORT(mt.angle);
+      mt.type = SHORT(mt.type);
+      mt.options = SHORT(mt.options);
 
       // Do not spawn cool, new monsters if !commercial
       if (gamemode != commercial)
-        switch(mt->type)
+        switch(mt.type)
           {
           case 68:  // Arachnotron
           case 64:  // Archvile
@@ -565,13 +574,7 @@ static void P_LoadThings (int lump)
           }
 
       // Do spawn all other stuff.
-      mt->x = SHORT(mt->x);
-      mt->y = SHORT(mt->y);
-      mt->angle = SHORT(mt->angle);
-      mt->type = SHORT(mt->type);
-      mt->options = SHORT(mt->options);
-
-      P_SpawnMapThing (mt, i);//e6y
+      P_SpawnMapThing(&mt);
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -1155,6 +1158,26 @@ static void P_AddLineToSector(line_t* li, sector_t* sector)
   M_AddToBox (bbox, li->v2->x, li->v2->y);
 }
 
+// e6y: REJECT overrun emulation code
+// It's emulated successfully if the size of overflow no more than 16 bytes.
+// No more desync on teeth-32.wad\teeth-32.lmp.
+// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+int rjreq, rjlen;
+static void RejectOverrunAddInt(int k)
+{
+  int i = 0;
+
+  if (demo_compatibility)
+  {
+    while (rjlen < rjreq)
+    {
+      ((byte*)rejectmatrix)[rjlen++] = (k & 0x000000ff);
+      k >>= 8;
+      if ((++i)==4) break;
+    }
+  }
+}
+
 void P_GroupLines (void)
 {
   register line_t *li;
@@ -1199,6 +1222,18 @@ void P_GroupLines (void)
       AddIntForRejectOverflow(0);
       AddIntForRejectOverflow(50);//DOOM_CONST_PU_LEVEL
       AddIntForRejectOverflow(0x1d4a11);//DOOM_CONST_ZONEID
+    }
+
+    // e6y: REJECT overrun emulation code
+    // It's emulated successfully if the size of overflow no more than 16 bytes.
+    // No more desync on teeth-32.wad\teeth-32.lmp.
+    // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+    if (demo_compatibility)
+    {
+      RejectOverrunAddInt(((total*4+3)&~3)+24);
+      RejectOverrunAddInt(0);
+      RejectOverrunAddInt(50);//DOOM_CONST_PU_LEVEL
+      RejectOverrunAddInt(0x1d4a11);//DOOM_CONST_ZONEID
     }
 
     for (i=0, sector = sectors; i<numsectors; i++, sector++)
@@ -1452,13 +1487,15 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   if (rejectlump != -1)
     W_UnlockLumpNum(rejectlump);
-  /* CHECKME this code is not in 2.3, but I can't find the place where it was removed
+  /* FIXME this code is not in 2.3, but I can't find the place where it was
+     removed. We don't have W_CacheLumpNumPadded anymore, so this needs to be
+     done differently.
 
   rejectlump = lumpnum+ML_REJECT;
   {
-    //e6y int 
+    // e6y: Needed for REJECT overrun emulation
     rjlen = W_LumpLength(rejectlump);
-    //e6y int
+    // e6y: Needed for REJECT overrun emulation
     rjreq = (numsectors*numsectors+7)/8;
     if (rjlen < rjreq) {
       lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);

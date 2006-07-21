@@ -306,8 +306,6 @@ extern int force_monster_avoid_hazards;
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval);
 
-void SpechitOverrun(line_t* ld);
-
 enum
 {
   TT_ALLKILL,

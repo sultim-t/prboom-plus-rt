@@ -144,14 +144,16 @@ const char* I_SigString(char* buf, size_t sz, int signum)
  * cph 2001/11/18 - wrapper for read(2) which handles partial reads and aborts
  * on error.
  */
-void I_Read(int fd, void* buf, size_t sz)
+void I_Read(int fd, void* vbuf, size_t sz)
 {
+  unsigned char* buf = vbuf;
+
   while (sz) {
     int rc = read(fd,buf,sz);
     if (rc <= 0) {
       I_Error("I_Read: read failed: %s", rc ? strerror(errno) : "EOF");
     }
-    sz -= rc; (unsigned char *)buf += rc;
+    sz -= rc; buf += rc;
   }
 }
 
