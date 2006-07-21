@@ -351,8 +351,10 @@ default_t defaults[] =
    def_bool,ss_none}, /* cph - allow crappy fake contrast to be disabled */
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
+#ifndef DISABLE_DOUBLEBUFFER
   {"use_doublebuffer",{&use_doublebuffer},{1},0,1,             // proff 2001-7-4
    def_bool,ss_none}, // enable doublebuffer to avoid display tearing (fullscreen)
+#endif
   {"translucency",{&default_translucency},{1},0,1,   // phares
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{66},0,100,         // killough 2/21/98

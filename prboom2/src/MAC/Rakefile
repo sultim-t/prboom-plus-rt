@@ -1,0 +1,176 @@
+#################
+# Configuration #
+#################
+
+NAME = 'PrBoom'
+
+CC = 'cc'
+LDFLAGS = ''
+MIXERLIBS = '-framework CoreAudio -framework QuickTime -lSDL_mixer -lmikmod -logg -lvorbis -lvorbisfile'
+LIBS = "-framework Foundation `sdl-config --libs` -lSDLmain -lSDL_net #{MIXERLIBS} -flat_namespace"
+INCLUDES = '-I. -IMAC `sdl-config --cflags`'
+DEFINES = '-DMACOSX -DHAVE_CONFIG_H'
+CFLAGS = '-g -Wno-pointer-sign -Wno-packed'
+MAKEDEPEND = '/usr/X11R6/bin/makedepend'
+
+#####################
+# Support functions #
+#####################
+
+def installRule(dir, file)
+	target = File::join(dir, File::basename(file))
+	file(target => [dir, file]) do |t|
+		cp(file, target)
+	end
+end
+
+def installTask(taskName, dir, files)
+	if files.is_a?(String)
+		files = [files]
+	end
+
+	array = []
+	for f in files do
+		array << File::join(dir, File::basename(f))
+		installRule(dir, f)
+	end
+	task(taskName => array)
+end
+
+def bundleDir(dir)
+	file(dir) do |t|
+		sh("/Developer/Tools/SetFile -a B #{dir}")
+	end
+end
+
+####################
+# Bundle structure #
+####################
+directory(BUNDLEDIR = "#{NAME}.app")
+directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
+directory(BINDIR = "#{CONTENTSDIR}/MacOS")
+directory(RESOURCEDIR = "#{CONTENTSDIR}/Resources")
+
+bundleDir(BUNDLEDIR)
+
+installTask(:setup, CONTENTSDIR, 'mac/Info.plist')
+task(:bundle => :setup)
+
+##############
+# App binary #
+##############
+
+sources = %w(
+SDL/i_joy.c
+SDL/i_sound.c
+SDL/i_system.c
+SDL/i_video.c
+MAC/i_system.m
+am_map.c
+d_client.c
+d_deh.c
+d_items.c
+d_main.c
+doomdef.c
+doomstat.c
+dstrings.c
+f_finale.c
+f_wipe.c
+g_game.c
+hu_lib.c
+hu_stuff.c
+i_main.c
+i_udp_sdl.c
+info.c
+lprintf.c
+m_argv.c
+m_bbox.c
+m_cheat.c
+m_menu.c
+m_misc.c
+m_random.c
+mmus2mid.c
+p_ceilng.c
+p_doors.c
+p_enemy.c
+p_floor.c
+p_genlin.c
+p_inter.c
+p_lights.c
+p_map.c
+p_maputl.c
+p_mobj.c
+p_plats.c
+p_pspr.c
+p_saveg.c
+p_setup.c
+p_sight.c
+p_spec.c
+p_switch.c
+p_telept.c
+p_tick.c
+p_user.c
+r_bsp.c
+r_data.c
+r_draw.c
+r_main.c
+r_plane.c
+r_segs.c
+r_sky.c
+r_things.c
+s_sound.c
+sounds.c
+st_lib.c
+st_stuff.c
+tables.c
+v_video.c
+version.c
+w_wad.c
+wi_stuff.c
+z_bmalloc.c
+z_zone.c
+)
+
+cleanfiles = []
+objects = []
+for source in sources
+	object = "#{File::dirname(source)}/#{File::basename(source, '.*')}.o"
+	file(object => source) do |task|
+		sh("#{CC} #{CFLAGS} #{INCLUDES} #{DEFINES} -o #{task.name} -c #{task.prerequisites[0]}")
+	end
+	objects.push(object)
+	cleanfiles.push(object)
+end
+
+require 'rake/loaders/makefile'
+file('depends.mf' => sources) do |task|
+	sh("#{MAKEDEPEND} -f- -- #{INCLUDES} #{DEFINES} -- #{task.prerequisites} > #{task.name} 2> /dev/null")
+end
+import 'depends.mf'
+cleanfiles.push('depends.mf')
+
+file("#{BINDIR}/#{NAME}" => [BINDIR, *objects]) do |task|
+	sh("#{CC} #{LDFLAGS} -o #{task.name} #{task.prerequisites[1..-1].join(' ')} #{LIBS}")
+end
+
+task(:binary => "#{BINDIR}/#{NAME}")
+task(:bundle => :binary)
+
+############
+# App data #
+############
+
+installTask(:data, RESOURCEDIR, '../data/prboom.wad')
+installTask(:data, RESOURCEDIR, 'MAC/PrBoom.icns')
+task(:bundle => :data)
+
+################
+# Main targets #
+################
+
+task(:default => :bundle)
+
+task(:clean) do |task|
+	rm_rf(cleanfiles)
+	rm_rf(BUNDLEDIR)
+end

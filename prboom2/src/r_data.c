@@ -881,6 +881,11 @@ int R_TextureNumForName(const char *name)  // const added -- killough
 // to avoid using alloca(), and to improve performance.
 // cph - new wad lump handling, calls cache functions but acquires no locks
 
+static inline void precache_lump(int l)
+{
+  W_CacheLumpNum(l); W_UnlockLumpNum(l);
+}
+
 void R_PrecacheLevel(void)
 {
   register int i;
@@ -903,7 +908,7 @@ void R_PrecacheLevel(void)
 
   for (i = numflats; --i >= 0; )
     if (hitlist[i])
-      (W_CacheLumpNum)(firstflat + i, 0);
+      precache_lump(firstflat + i);
 
   // Precache textures.
 
@@ -929,7 +934,7 @@ void R_PrecacheLevel(void)
         texture_t *texture = textures[i];
         int j = texture->patchcount;
         while (--j >= 0)
-          (W_CacheLumpNum)(texture->patches[j].patch, 0);
+          precache_lump(texture->patches[j].patch);
       }
 
   // Precache sprites.
@@ -951,7 +956,7 @@ void R_PrecacheLevel(void)
             short *sflump = sprites[i].spriteframes[j].lump;
             int k = 7;
             do
-              (W_CacheLumpNum)(firstspritelump + sflump[k], 0);
+              precache_lump(firstspritelump + sflump[k]);
             while (--k >= 0);
           }
       }

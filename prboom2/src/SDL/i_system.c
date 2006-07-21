@@ -152,6 +152,9 @@ char *I_DoomExeDir(void)
 //  if non-existant
 static const char prboom_dir[] = {"/.prboom"}; // Mead rem extra slash 8/21/03
 
+#ifdef MACOSX
+/* Defined elsewhere */
+#else
 char *I_DoomExeDir(void)
 {
   static char *base;
@@ -169,6 +172,7 @@ char *I_DoomExeDir(void)
     }
   return base;
 }
+#endif
 #endif
 
 /*
@@ -200,6 +204,9 @@ boolean HasTrailingSlash(const char* dn)
  * ~
  */
 
+#ifdef MACOSX
+/* Defined elsewhere */
+#else
 char* I_FindFile(const char* wfname, const char* ext)
 {
   int   i;
@@ -255,5 +262,6 @@ char* I_FindFile(const char* wfname, const char* ext)
   }
   return NULL;
 }
+#endif
 
 #endif // PRBOOM_SERVER
