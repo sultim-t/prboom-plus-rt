@@ -426,8 +426,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
         gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
         gamekeydown[key_weapon8] ? wp_chainsaw :
-        !demo_compatibility &&//e6y
-        gamekeydown[key_weapon9] && gamemode == commercial ? wp_supershotgun :
+        (!demo_compatibility && gamekeydown[key_weapon9] && gamemode == commercial) ? wp_supershotgun :
         wp_nochange;
 
       // killough 3/22/98: For network and demo consistency with the
@@ -2396,24 +2395,28 @@ void G_RecordDemo (const char* name)
     if (demofp) {
       int slot = -1;
       int rc;
-      {
-  byte buf[200];
-  size_t len;
-  fread(buf, 1, sizeof(buf), demofp);
+      int bytes_per_tic;
 
-  len = G_ReadDemoHeader(buf) - buf;
-  fseek(demofp, len, SEEK_SET);
+      { /* Read the demo header for options etc */
+        byte buf[200];
+        size_t len;
+        fread(buf, 1, sizeof(buf), demofp);
+      
+        len = G_ReadDemoHeader(buf) - buf;
+        fseek(demofp, len, SEEK_SET);
       }
+      bytes_per_tic = longtics ? 5 : 4;
+      /* Now read the demo to find the last save slot */
       do {
-  byte buf[4];
-  rc = fread(buf, 1, sizeof(buf), demofp);
-  if (buf[0] == DEMOMARKER) break;
-  if (buf[3] & BT_SPECIAL)
-    if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
-    {//e6y
-      slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
-      savegamepos=ftell (demofp);}//e6y
-      } while (rc == /* sizeof(buf) is out of scope here */ 4 );
+        byte buf[5];
+      
+        rc = fread(buf, 1, bytes_per_tic, demofp);
+        if (buf[0] == DEMOMARKER) break;
+        if (buf[bytes_per_tic-1] & BT_SPECIAL)
+          if ((buf[bytes_per_tic-1] & BT_SPECIALMASK) == BTS_SAVEGAME)
+            slot = (buf[bytes_per_tic-1] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+      } while (rc == bytes_per_tic);
+
       //e6y
       if (slot == -1 && demo_overwriteexisting)
       {
@@ -2424,13 +2427,7 @@ void G_RecordDemo (const char* name)
 
       if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
 
-      //e6y
-      if (demo_compatibility) {
-        fseek(demofp, savegamepos - 1, SEEK_SET);
-        fputc(0, demofp);
-      }
-      else
-
+      /* Return to the last save position, and load the relevant savegame */
       fseek(demofp, -rc, SEEK_CUR);
       G_LoadGame(slot, false);
       autostart = false;
@@ -2626,6 +2623,7 @@ void G_BeginRecording (void)
   int i;
   byte *demostart, *demo_p;
   demostart = demo_p = malloc(1000);
+  longtics = 0;
 
   /* cph - 3 demo record formats supported: MBF+, BOOM, and Doom v1.9 */
   if (mbf_features) {
@@ -2637,7 +2635,10 @@ void G_BeginRecording (void)
         case prboom_3_compatibility: v = 211; break;
         case prboom_4_compatibility: v = 212; break;
         case prboom_5_compatibility: v = 213; break;
-        case prboom_6_compatibility: v = 214; break;
+        case prboom_6_compatibility:
+				     v = 214; 
+				     longtics = 1;
+				     break;
       }
       *demo_p++ = v;
     }
@@ -2779,6 +2780,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   // compatibility flag, and other flags as well, as a part of the demo.
 
   demover = *demo_p++;
+  longtics = 0;
 
   if (demover < 200)     // Autodetect old demos
     {
@@ -2881,6 +2883,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
 	break;
       case 214:
 	compatibility_level = prboom_6_compatibility;
+        longtics = 1;
 	demo_p++;
 	break;
       }

@@ -13,20 +13,23 @@ Number	Name			Description
 1	doom_1666_compatibility	Behave like Doom v1.666 as far as possible
 2	doom2_19_compatibility	As compatible as possible for playing original 
 				Doom demos
-3	finaldoom_compatibility	Compatible with Final Doom & Doom95 - needed
+3	ultdoom_compatibility	Ultimate Doom made a few changes
+4	finaldoom_compatibility	Compatible with Final Doom & Doom95 - needed
 				for some demos recorded with Final Doom doom2.exe
-4 	dosdoom_compatibility	Emulate early dosdoom versions
+5 	dosdoom_compatibility	Emulate early dosdoom versions
 				(some TASdoom demos work with this)
-5 	boom_compatibility_compatibility	Emulates Boom's compatibility mode
-6	boom_201_compatibility	Emulates Boom v2.01
-7	boom_202_compatibility	Emulates Boom v2.02
-8	lxdoom_1_compatibility	Emulates LxDoom v1.4.x
-9	mbf_compatibility	Emulates MBF
-10	prboom_1_compatibility	Emulates PrBoom v2.03beta
-11	prboom_2_compatibility	PrBoom v2.1.0
-12	prboom_3_compatibility	PrBoom v2.1.1-2.2.6
-13	prboom_4_compatibility	PrBoom v2.3.x
-14	prboom_5_compatibility	PrBoom v2.4.0
+6	tasdoom_compatibility	unused
+7 	boom_compatibility_compatibility	Emulates Boom's compatibility mode
+8	boom_201_compatibility	Emulates Boom v2.01
+9	boom_202_compatibility	Emulates Boom v2.02
+10	lxdoom_1_compatibility	Emulates LxDoom v1.4.x
+11	mbf_compatibility	Emulates MBF
+12	prboom_1_compatibility	Emulates PrBoom v2.03beta
+13	prboom_2_compatibility	PrBoom v2.1.0
+14	prboom_3_compatibility	PrBoom v2.1.1-2.2.6
+15	prboom_4_compatibility	PrBoom v2.3.x
+16	prboom_5_compatibility	PrBoom v2.4.0
+17	prboom_6_compatibility	Current PrBoom
 
 You can cycle through the compatibility levels in the game using the TNTCOMP
 cheat. There's also the default_compatibility_level config file option, and
@@ -75,11 +78,11 @@ prboom -complevel 2 -record test
 
 records a doom v1.9 compatible demo
 
-prboom -complevel 6 -record whatever
+prboom -complevel 9 -record whatever
 
 records a Boom (v2.02) demo
 
-prboom -complevel 8 -record blah
+prboom -complevel 11 -record blah
 
 records an MBF demo.
 

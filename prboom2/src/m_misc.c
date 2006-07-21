@@ -1206,20 +1206,59 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
 }
 
 #ifndef GL_DOOM
+#ifdef HAVE_LIBPNG
+
+#include <png.h>
+
+static void error_fn(png_structp p, png_const_charp s)
+{ screenshot_write_error = true; lprintf(LO_ERROR, "%s\n", s); }
+
+static void WritePNGfile(FILE* fp, const byte* data,
+       const int width, const int height, const byte* palette)
+{
+  png_structp png_ptr;
+  png_infop info_ptr;
+
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
+  if (png_ptr == NULL) { screenshot_write_error = true; return; }
+  info_ptr = png_create_info_struct(png_ptr);
+  if (info_ptr != NULL) {
+    png_init_io(png_ptr, fp);
+    png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    png_set_PLTE(png_ptr, info_ptr, (png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
+    {
+      png_time t;
+      png_convert_from_time_t(&t, time(NULL));
+      png_set_tIME(png_ptr, info_ptr, &t);
+    }
+
+    { /* Now write the image header and data */
+      int y;
+
+      png_write_info(png_ptr, info_ptr);
+      for (y = 0; y < height; y++)
+	png_write_row(png_ptr, data + y*width);
+    }
+
+    png_write_end(png_ptr, info_ptr);
+  }
+  png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+}
+#else
 //
 // WriteBMPfile
 // jff 3/30/98 Add capability to write a .BMP file (256 color uncompressed)
 //
 
 // CPhipps - static, const on parameters
-static void WriteBMPfile(const char* filename, const byte* data,
+static void WriteBMPfile(FILE* st, const byte* data,
        const int width, const int height, const byte* palette)
 {
   int i,wid;
   BITMAPFILEHEADER bmfh;
   BITMAPINFOHEADER bmih;
   int fhsiz,ihsiz;
-  FILE *st;
   char zero=0;
   ubyte_t c;
 
@@ -1245,8 +1284,7 @@ static void WriteBMPfile(const char* filename, const byte* data,
   bmih.biClrUsed = LONG(256);
   bmih.biClrImportant = LONG(256);
 
-  st = fopen(filename,"wb");
-  if (st!=NULL) {
+  {
     // write the header
     SafeWrite(&bmfh.bfType,sizeof(bmfh.bfType),1,st);
     SafeWrite(&bmfh.bfSize,sizeof(bmfh.bfSize),1,st);
@@ -1279,11 +1317,10 @@ static void WriteBMPfile(const char* filename, const byte* data,
 
     for (i = 0 ; i < height ; i++)
       SafeWrite(data+(height-1-i)*width,sizeof(byte),wid,st);
-
-    fclose(st);
   }
 }
 
+#endif /* !HAVE_LIBPNG */
 #else /* GL_DOOM */
 
 //
@@ -1292,16 +1329,14 @@ static void WriteBMPfile(const char* filename, const byte* data,
 //
 
 // CPhipps - static, const on parameters
-static void WriteTGAfile(const char* filename, const byte* data,
+static void WriteTGAfile(FILE* st, const byte* data,
        const int width, const int height)
 {
   unsigned char c;
   unsigned short s;
   int i;
-  FILE *st;
 
-  st = fopen(filename,"wb");
-  if (st!=NULL) {
+  {
     // write the header
     // id_length
     c=0; SafeWrite(&c,sizeof(c),1,st);
@@ -1334,8 +1369,6 @@ static void WriteTGAfile(const char* filename, const byte* data,
       SafeWrite(&data[i+1],sizeof(byte),1,st);
       SafeWrite(&data[i+0],sizeof(byte),1,st);
     }
-
-    fclose(st);
   }
 }
 #endif /* GL_DOOM */
@@ -1359,11 +1392,16 @@ void M_DoScreenShot (const char* fname)
 {
   extern int st_palette;//e6y
   byte       *linear;
+  FILE	*fp = fopen(fname,"wb");
 #ifndef GL_DOOM
   const byte *pal;
   int        pplump = W_GetNumForName("PLAYPAL");
 #endif
 
+  if (!fp) {
+    doom_printf("Error opening %s", fname);
+    return;
+  }
   screenshot_write_error = false;
 
 #ifdef GL_DOOM
@@ -1374,7 +1412,7 @@ void M_DoScreenShot (const char* fname)
   // save the bmp file
 
   WriteTGAfile
-    (fname, linear, SCREENWIDTH, SCREENHEIGHT);
+    (fp, linear, SCREENWIDTH, SCREENHEIGHT);
 #else
   // munge planar buffer to linear
   // CPhipps - use a malloc()ed buffer instead of screens[2]
@@ -1385,17 +1423,22 @@ void M_DoScreenShot (const char* fname)
 
   // save the bmp file
 
+#ifdef HAVE_LIBPNG
+  WritePNGfile(fp, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+#else
   WriteBMPfile
-    (fname, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);//e6y
+    (fp, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+#endif // HAVE_LIBPNG
 
   // cph - free the palette
   W_UnlockLumpNum(pplump);
-#endif
+#endif // GL_DOOM
   free(linear);
   // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
 
   if (screenshot_write_error)
     doom_printf("M_ScreenShot: Error writing screenshot");
+  fclose(fp);
 }
 
 void M_ScreenShot(void)
@@ -1412,9 +1455,13 @@ void M_ScreenShot(void)
 
   do
 #ifdef GL_DOOM
-    sprintf(lbmname,"DOOM%02d.TGA", shot++);
+    sprintf(lbmname,"doom%02d.TGA", shot++);
 #else
-    sprintf(lbmname,"DOOM%02d.BMP", shot++);
+#ifdef HAVE_LIBPNG
+    sprintf(lbmname,"doom%02d.png", shot++);
+#else
+    sprintf(lbmname,"doom%02d.bmp", shot++);
+#endif
 #endif
   while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 

@@ -285,7 +285,7 @@ SOURCE=..\src\am_map.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\config.h
+SOURCE=config.h
 # End Source File
 # Begin Source File
 

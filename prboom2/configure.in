@@ -175,6 +175,8 @@ then
  ])
 fi
 
+dnl - Other libs
+AC_CHECK_LIB(png,png_create_info_struct)
 dnl - Net
 AC_CHECK_FUNC(socket,[
      has_net=yes
