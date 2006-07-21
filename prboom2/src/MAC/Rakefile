@@ -2,8 +2,8 @@
 # Configuration #
 #################
 
-NAME = 'PrBoom'
-APPVERSION = '2.4.2'
+NAME = 'PrBoom-Plus'
+APPVERSION = '2.4.3.1'
 require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
@@ -109,7 +109,7 @@ z_bmalloc.c
 z_zone.c
 )
 
-buildBinary(:binary, BINDIR, 'PrBoom', sources)
+buildBinary(:binary, BINDIR, 'PrBoom-Plus', sources)
 buildBinary(:binary, BINDIR, 'Launcher', %w(MAC/LauncherMain.m MAC/LauncherApp.m))
 task(:bundle => :binary)
 
