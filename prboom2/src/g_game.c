@@ -1612,11 +1612,11 @@ const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
   "PrBoom v2.3.x", "Current PrBoom"  };
 
 static byte comp_options_by_version[] =
-{ 0,0,0,0, /* Original Doom's don't have comp[] */
-  0,0,0,0,0, /* Nor did DosDoom, Boom (x3), LxDoom */
+{ 0,0,0,0,0, /* Original Doom's don't have comp[] */
+  0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
   19,19, /* MBF and early PrBoom had 19 */
   21,22, /* PrBoom v2.1-v2.2 have 21 */
-  23,23, /* PrBoom v2.3 has 23 and counting... */
+  23,26, /* PrBoom v2.3 has 23 and counting... */
 };
 
 
@@ -1996,15 +1996,6 @@ extern int monsters_remember, default_monsters_remember;
  * Instead, we have a lookup table showing at what version a fix was
  *  introduced.
  */
-
-//e6y
-static byte comp_options_by_version[] =
- { 0,0,0,0,0, /* Original Doom's don't have comp[] */
-   0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
-   19,19, /* MBF and early PrBoom had 19 */
-   21,//21, /* PrBoom v2.1-v2.2 have 21 */
-   26 /* PrBoom v2.2.6.x still counting... */
- };
 
 void G_Compatibility(void)
 {
@@ -2766,7 +2757,8 @@ static int G_GetOriginalDoomCompatLevel(int ver)
       doom2_19_compatibility);
 }
 
-static const byte* G_ReadDemoHeader(const byte *demo_p)
+//FIXME static
+const byte* G_ReadDemoHeader(const byte *demo_p)
 {
   skill_t skill;
   int i, episode, map;
