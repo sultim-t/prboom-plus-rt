@@ -189,9 +189,9 @@ typedef enum
 
 typedef struct line_s
 {
-#ifdef GL_DOOM
+//e6y #ifdef GL_DOOM
   int iLineID;           // proff 04/05/2000: needed for OpenGL
-#endif
+//e6y #endif
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
   short flags;           // Animation related.

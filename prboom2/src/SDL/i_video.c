@@ -213,17 +213,6 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEMOTION:
   if (usemouse) {
-    //e6y
-#ifndef GL_DOOM
-    static boolean is_first_mousemotion = true;
-    if (is_first_mousemotion && misc_fixfirstmousemotion && use_fullscreen)
-    {
-      is_first_mousemotion = false;
-      Event->motion.xrel -= desired_screenwidth/2;
-      Event->motion.yrel -= desired_screenheight/2;
-    }
-#endif
-
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
     event.data2 = Event->motion.xrel << 5;
@@ -534,6 +523,9 @@ void I_UpdateVideoMode(void)
 #endif
   if ( use_fullscreen )
     init_flags |= SDL_FULLSCREEN;
+  //e6y
+  if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
+  if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
 
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );

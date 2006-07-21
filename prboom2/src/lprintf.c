@@ -50,6 +50,7 @@
 #include "doomtype.h"
 #include "lprintf.h"
 #include "i_main.h"
+#include "e6y.h"//e6y
 
 int cons_error_mask = -1-LO_INFO; /* all but LO_INFO when redir'd */
 int cons_output_mask = -1;        /* all output enabled */
@@ -233,6 +234,7 @@ void I_UpdateConsole(void)
   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
   {
     TranslateMessage(&msg);
+    if (!movement_altmousesupport||msg.message != WM_MOUSEMOVE)//e6y
     DispatchMessage(&msg);
   }
   if (should_exit)

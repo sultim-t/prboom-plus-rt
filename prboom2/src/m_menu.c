@@ -837,7 +837,7 @@ void M_LoadGame (int choice)
 {
   /* killough 5/26/98: exclude during demo recordings
    * cph - unless a new demo */
-  if (demorecording && (compatibility_level < prboom_2_compatibility))
+  if (demorecording && (compatibility_level < prboom_2_compatibility))//e6ye6y if(0 && 
     {
     M_StartMessage("you can't load a game\n"
        "while recording an old demo!\n\n"PRESSKEY,
@@ -2612,7 +2612,7 @@ setup_menu_t stat_settings2[] =
   {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
-  {"SMOOTH MOVEMENT"             ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
+  {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
 #ifdef GL_DOOM
   {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
   {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
@@ -2621,7 +2621,6 @@ setup_menu_t stat_settings2[] =
 #else
   {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
   {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-  {"FIX TURN-SNAPPING ISSUE"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"misc_fixfirstmousemotion"}},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
@@ -2643,10 +2642,12 @@ setup_menu_t stat_settings3[] =
   {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+10*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
   {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 11*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"SMART ITEMS CLIPPING"        ,S_YESNO ,m_null,ST_X,ST_Y+12*8, {"render_smartitemsclipping"}},
-  {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+14*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+13*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"USE IN-GAME LAUNCHER"        ,S_YESNO ,m_null,ST_X,ST_Y+14*8, {"launcher_enable"}},
 #else
   {"WIPE SCREEN EFFECT"          ,S_YESNO ,m_null,ST_X,ST_Y+6*8, {"render_wipescreen"}},
   {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+7*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"USE IN-GAME LAUNCHER"        ,S_YESNO ,m_null,ST_X,ST_Y+8*8, {"launcher_enable"}},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
@@ -3255,8 +3256,10 @@ enum
   compat_zerotags,
   compat_menu,
   //e6y
+//  compat_666 = 0,
+//  compat_maskedanim,
   compat_maxhealth = 0,
-  compat_666,
+  compat_translucency,
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3346,10 +3349,14 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 //e6y
 setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
 {
-  {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
-   C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
 //  {"Enables tag 666 in non-E1Mx levels", S_YESNO, m_null, C_X,
 //   C_Y + compat_666 * COMP_SPC, {"comp_666"}},
+//  {"Middle textures did not animate in v1.2", S_YESNO, m_null, C_X,
+//   C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
+  {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
+   C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
+  {"No predefined translucency for some things", S_YESNO, m_null, C_X,
+   C_Y + compat_translucency * COMP_SPC, {"comp_translucency"}},
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings2}},
   {0,S_SKIP|S_END,m_null}
 };
@@ -5628,7 +5635,7 @@ void M_Init(void)
   M_ChangeMouseInvert();
   M_ChangeFOV();
   M_ChangeDemoSmoothTurns();
-  M_ChangeAltMouseHandling();
+  if (gametic) M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
 }
 

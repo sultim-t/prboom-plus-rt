@@ -1682,7 +1682,7 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
     MF_TRANSLATION, // 28 and 29 allow the green colours in a thing’s graphics to be remapped to a different colour like the players uniforms in multiplayer games. Leaving all the bits alone, the thing stays green. Setting 26 it becomes grey. Setting 27 it becomes brown. Setting both 26 and 27 it becomes red.
     MF_TRANSLATION,
     0,
-    0
+    MF_TRANSLUCENT //e6y
   };
   int i;
   uint_64_t shiftBits = bits;
@@ -1769,7 +1769,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
   // blank now because it has our incoming key in it
   while (!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
     {
-      boolean bGetData;//e6y
+      int bGetData;//e6y
       if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
       lfstrip(inbuffer);  // toss the end of line
 
@@ -1799,7 +1799,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
         }
         else {
           // bit set
-          if (bGetData) {//e6y // proff
+          if (bGetData==1) {//e6y // proff
             value = getConvertedDEHBits(value);
             mobjinfo[indexnum].flags = value;
           }
@@ -1838,6 +1838,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
                 (unsigned long)value & 0xffffffff
               );
             }
+            mobjinfo[indexnum].flags = value;//e6y
           }
         }
         if (fpout) {
@@ -2849,7 +2850,7 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
   char *t;  // current char
   long val; // to hold value of pair
   char buffer[DEH_MAXKEYLEN];  // to hold key in progress
-  boolean okrc = TRUE;  // assume good unless we have problems
+  int okrc = 1; //e6y // assume good unless we have problems
   int i;  // iterator
 
   *buffer = '\0';
@@ -2877,6 +2878,7 @@ boolean deh_GetData(char *s, char *k, uint_64_t *l, char **strval, FILE *fpout)
       if (!StrToInt(t,&val))
       {
         val = 0;
+        okrc = 2;
         //okrc = FALSE;
       }
     }

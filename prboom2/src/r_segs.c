@@ -144,7 +144,11 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   frontsector = curline->frontsector;
   backsector = curline->backsector;
 
-  texnum = texturetranslation[curline->sidedef->midtexture];
+  //e6y // cph 2001/11/25 - middle textures did not animate in v1.2
+  texnum = curline->sidedef->midtexture;
+  if (!comp[comp_maskedanim])
+    texnum = texturetranslation[texnum];
+  //e6y texnum = texturetranslation[curline->sidedef->midtexture];
 
   // killough 4/13/98: get correct lightlevel for 2s normal textures
   lightnum = (R_FakeFlat(frontsector, &tempsec, NULL, NULL, false)

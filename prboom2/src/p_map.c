@@ -419,7 +419,7 @@ boolean PIT_CheckLine (line_t* ld)
     spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
   }
       spechit[numspechit++] = ld;
-    CheckForSpechitsOverrun(ld);//e6y
+    SpechitOverrun(ld);//e6y
     }
 
   return true;
@@ -2188,6 +2188,7 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
    * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
    */
+   //e6ye6y
   if ((compatibility_level < boom_compatibility_compatibility) ||
       (compatibility_level >= prboom_3_compatibility))
     tmthing = saved_tmthing;

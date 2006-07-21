@@ -2383,6 +2383,11 @@ void gld_AddWall(seg_t *seg)
     }
 
     /* midtexture */
+    //e6y
+    if (comp[comp_maskedanim])
+      temptex=gld_RegisterTexture(seg->sidedef->midtexture, true);
+    else
+
     temptex=gld_RegisterTexture(texturetranslation[seg->sidedef->midtexture], true);
     if (temptex)
     {
@@ -2422,8 +2427,8 @@ void gld_AddWall(seg_t *seg)
         else
           ceilingmin=ceiling_height;
         linelen=abs(ceiling_height-floor_height);
-        wall.ytop=((float)min(ceilingmin, ceiling_height)/(float)MAP_SCALE)+0.001f;
-        wall.ybottom=((float)max(floormax, floor_height)/(float)MAP_SCALE)-0.001f;
+        wall.ytop=((float)min(ceilingmin, ceiling_height)/(float)MAP_SCALE);
+        wall.ybottom=((float)max(floormax, floor_height)/(float)MAP_SCALE);
         wall.flag=GLDWF_M2S;
         wall.ul=OU((wall),(seg))+(0.0f);
         wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);
@@ -2517,6 +2522,12 @@ static void gld_PreprocessSegs(void)
     gl_segs[i].z1= (float)segs[i].v1->y/(float)MAP_SCALE;
     gl_segs[i].x2=-(float)segs[i].v2->x/(float)MAP_SCALE;
     gl_segs[i].z2= (float)segs[i].v2->y/(float)MAP_SCALE;
+    //e6y
+    if (test_dots)
+    {
+      gl_segs[i].x1 -= (gl_segs[i].x2-gl_segs[i].x1)*0.001f;
+      gl_segs[i].z1 -= (gl_segs[i].z2-gl_segs[i].z1)*0.001f;
+    }
   }
 }
 

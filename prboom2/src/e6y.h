@@ -71,6 +71,7 @@ extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
 extern int demo_recordfromto;
+extern int demo_lastheaderlen;
 
 extern int avi_shot_count;
 extern int avi_shot_time;
@@ -118,14 +119,16 @@ extern int mouse_acceleration;
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
 extern int demo_overwriteexisting;
-extern int misc_fixfirstmousemotion;
 extern int misc_spechitoverrun_warn;
 extern int misc_rejectoverrun_warn;
 extern int misc_rejectoverrun_emulate;
 extern int misc_spechitoverrun_emulate;
+extern int launcher_enable;
+extern char *launcher_history[10];
 
 extern int test_sky1;
 extern int test_sky2;
+extern int test_dots;
 
 extern int palette_ondamage;
 extern int palette_onbonus;
@@ -214,7 +217,10 @@ typedef enum
 {
   INTERP_SectorFloor,
   INTERP_SectorCeiling,
-  INTERP_Vertex
+  INTERP_Vertex,
+  INTERP_WallPanning,
+  INTERP_FloorPanning,
+  INTERP_CeilingPanning
 } EInterpType;
 
 typedef struct FActiveInterpolation_s
@@ -225,8 +231,8 @@ typedef struct FActiveInterpolation_s
 
 extern int numinterpolations;
 extern int startofdynamicinterpolations;
-extern fixed_t oldipos[MAXINTERPOLATIONS][1];
-extern fixed_t bakipos[MAXINTERPOLATIONS][1];
+extern fixed_t oldipos[MAXINTERPOLATIONS][2];
+extern fixed_t bakipos[MAXINTERPOLATIONS][2];
 extern FActiveInterpolation curipos[MAXINTERPOLATIONS];
 extern boolean NoInterpolateView;
 extern boolean r_NoInterpolate;
@@ -296,10 +302,7 @@ extern int force_monster_avoid_hazards;
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval);
 
-boolean StrToInt(char *s, long *l);
-
-void CheckForSpechitsOverrun(line_t* ld);
-void SwitchToGameWindow(void);
+void SpechitOverrun(line_t* ld);
 
 enum
 {
@@ -374,6 +377,31 @@ int G_GetOriginalDoomCompatLevel(int ver);
 
 boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
+void LauncherShow(void);
+
+#define I_FindName(a)	((a)->Name)
+#define I_FindAttr(a)	((a)->Attribs)
+
+typedef struct
+{
+	unsigned int Attribs;
+	unsigned int Times[3*2];
+	unsigned int Size[2];
+	unsigned int Reserved[2];
+	char Name[PATH_MAX];
+	char AltName[14];
+} findstate_t;
+
+void *I_FindFirst (const char *filespec, findstate_t *fileinfo);
+int I_FindNext (void *handle, findstate_t *fileinfo);
+int I_FindClose (void *handle);
+
+char* PathFindFileName(const char* pPath);
+void NormalizeSlashes2(char *str);
+unsigned int AfxGetFileName(const char* lpszPathName, char* lpszTitle, unsigned int nMax);
+void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
+
+boolean StrToInt(char *s, long *l);
 //extern int viewMaxY;
 
 /*typedef struct tagTREC

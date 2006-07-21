@@ -111,7 +111,9 @@ enum {
   comp_sound,
   //e6y
   comp_666,
+  comp_maskedanim,
   comp_maxhealth,
+  comp_translucency,
 
   COMP_NUM,      /* cph - should be last in sequence */
   COMP_TOTAL=32  // Some extra room for additional variables

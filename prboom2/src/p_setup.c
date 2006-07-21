@@ -638,9 +638,9 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXTOP] = v1->y;
         }
 
-#ifdef GL_DOOM
+//e6y #ifdef GL_DOOM
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
-#endif
+//e6y #endif
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 

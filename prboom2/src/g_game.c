@@ -1696,6 +1696,40 @@ void G_DoLoadGame(void)
     save_p += sizeof checksum;
    }
 
+  //e6ye6y
+  /*{   
+    int tic;
+    memcpy(&tic, save_p, sizeof(tic));
+    save_p += sizeof(tic);
+    if (demorecording && demofp && demo_compatibility)
+    {
+      long size=ftell(demofp);
+      tic = demo_lastheaderlen + tic*4 + (longtics?1:0);
+      if (1 || tic<size)
+      {
+        fseek(demofp, tic - (compatibility_level == tasdoom_compatibility?4:1), SEEK_SET);
+        fputc(0, demofp);
+        if (compatibility_level == tasdoom_compatibility)
+          fseek(demofp, 3, SEEK_CUR);
+      }
+      else
+      {
+        void M_StartMessage (const char* string,void* routine,boolean input);
+
+        Z_Free(savebuffer);
+        M_StartMessage("you can't load a game\n"
+          "while your tic is lower than savegame tic!\n\n"PRESSKEY,
+          NULL, false);
+        if (command_loadgame)
+        {
+          D_StartTitle();
+          gamestate = GS_DEMOSCREEN;
+        }
+        return;
+      }
+    }
+  }*/
+
   save_p += strlen(save_p)+1;
 
   /* cph - FIXME - compatibility flag? */
@@ -1864,6 +1898,13 @@ static void G_DoSaveGame (boolean menu)
     save_p += sizeof checksum;
   }
 
+  //e6ye6y
+  /*{
+    int tic = gametic-basetic;
+    memcpy(save_p, &tic, sizeof(tic));
+    save_p += sizeof(tic);
+  }*/
+
   // killough 3/16/98: store pwad filenames in savegame
   {
     // CPhipps - changed for new wadfiles handling
@@ -1994,8 +2035,8 @@ static byte comp_options_by_version[] =
  { 0,0,0,0,0, /* Original Doom's don't have comp[] */
    0,0,0,0,0,0, /* Nor did DosDoom, Boom, LxDoom */
    19,19, /* MBF and early PrBoom had 19 */
-   21,21, /* PrBoom v2.1-v2.2 have 21 */
-//   25, /* PrBoom v2.3 still counting... */
+   21,//21, /* PrBoom v2.1-v2.2 have 21 */
+   26 /* PrBoom v2.2.6.x still counting... */
  };
 
 void G_Compatibility(void)
@@ -2013,7 +2054,7 @@ void G_Compatibility(void)
       * through walls by Pain Elementals */
     boom_compatibility,/* comp_blazing - original Doom duplicated
       * blazing door sound */
-    mbf_compatibility, /* comp_doorlight - MBF made door lighting changes
+    boom_compatibility, /* comp_doorlight - MBF made door lighting changes //e6y
       * more gradual */
     boom_compatibility,/* comp_model - improvements to the game physics */
     boom_compatibility,/* comp_god - fixes to God mode */
@@ -2039,8 +2080,9 @@ void G_Compatibility(void)
     //e6y
     doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
 //    prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
-//    doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
+    doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
     boom_compatibility_compatibility, //comp_maxhealth 
+    boom_compatibility_compatibility, //comp_translucency
   };
   int i;
   //e6y
@@ -2131,14 +2173,13 @@ void G_ReloadDefaults(void)
 
   if (mbf_features)
     memcpy(comp, default_comp, sizeof comp);
-  else
+  //e6y else
     G_Compatibility();
 
   // killough 3/31/98, 4/5/98: demo sync insurance
   demo_insurance = default_demo_insurance == 1;
 
   rngseed += I_GetRandomTimeSeed() + gametic; // CPhipps
-  e6y_G_Compatibility();//e6y
 }
 
 void G_DoNewGame (void)
@@ -2323,7 +2364,10 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   char buf[5];
   char *p = buf;
 
-  //e6y
+  //e6ye6y
+  /*
+  if (demo_compatibility && (cmd->buttons & BT_SPECIAL) && (cmd->buttons & BT_SPECIALMASK) == BTS_LOADGAME)
+    return;*/
   if (compatibility_level == tasdoom_compatibility)
   {
     *p++ = cmd->buttons;
@@ -2359,6 +2403,7 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
 void G_RecordDemo (const char* name)
 {
+  long savegamepos;//e6y
   char     demoname[PATH_MAX];
   usergame = false;
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
@@ -2366,10 +2411,10 @@ void G_RecordDemo (const char* name)
   /* cph - Record demos straight to file
    * If file already exists, try to continue existing demo
    */
-  if (access(demoname, F_OK)||demo_recordfromto||demo_compatibility) {//e6y
+  if (access(demoname, F_OK)||demo_recordfromto||demo_compatibility) {//e6ye6y
     demofp = fopen(demoname, "wb");
   } else {
-    demofp = fopen(demoname, "r+");
+    demofp = fopen(demoname, "rb+");//e6y
     if (demofp) {
       int slot = -1;
       int rc;
@@ -2387,7 +2432,9 @@ void G_RecordDemo (const char* name)
   if (buf[0] == DEMOMARKER) break;
   if (buf[3] & BT_SPECIAL)
     if ((buf[3] & BT_SPECIALMASK) == BTS_SAVEGAME)
+    {//e6y
       slot = (buf[3] & BTS_SAVEMASK)>>BTS_SAVESHIFT;
+      savegamepos=ftell (demofp);}//e6y
       } while (rc == /* sizeof(buf) is out of scope here */ 4 );
       //e6y
       if (slot == -1 && demo_overwriteexisting)
@@ -2398,6 +2445,13 @@ void G_RecordDemo (const char* name)
       }
 
       if (slot == -1) I_Error("G_RecordDemo: No save in demo, can't continue");
+
+      //e6y
+      if (demo_compatibility) {
+        fseek(demofp, savegamepos - 1, SEEK_SET);
+        fputc(0, demofp);
+      }
+      else
 
       fseek(demofp, -rc, SEEK_CUR);
       G_LoadGame(slot, false);
@@ -2616,7 +2670,7 @@ void G_BeginRecording (void)
     { /* Write version code into demo */
       unsigned char v;
       switch(compatibility_level) {
-        case mbf_compatibility: v = 204; break;
+        case mbf_compatibility: v = 203; break;//e6y
         case prboom_2_compatibility: v = 210; break;
         case prboom_3_compatibility: v = 211; break;
       }
@@ -2732,6 +2786,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   int i, episode, map;
   int demover;
   const byte *option_p = NULL;      /* killough 11/98 */
+  demo_lastheaderlen = (int)demo_p;//e6y
 
   basetic = gametic;  // killough 9/29/98
 
@@ -2856,7 +2911,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   lprintf(LO_INFO, "G_DoPlayDemo: playing demo with %s compatibility\n",
     comp_lev_str[compatibility_level]);
 
-  if (demo_compatibility)  // only 4 players can exist in old demos
+  if (demo_compatibility || demover < 200) //e6y  // only 4 players can exist in old demos
     {
       for (i=0; i<4; i++)  // intentionally hard-coded 4 -- killough
         playeringame[i] = *demo_p++;
@@ -2884,6 +2939,7 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
     players[i].cheats = 0;
   
   e6y_ProcessDemoHeader();//e6y
+  demo_lastheaderlen = (int)demo_p - demo_lastheaderlen;//e6y
 
   return demo_p;
 }

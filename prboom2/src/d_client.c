@@ -90,6 +90,7 @@ void D_InitNetGame (void)
 
   if (!(netgame = server =  !!i)) {
     playeringame[consoleplayer = 0] = true;
+    netgame = M_CheckParm("-net1");//e6y
   } else {
     // Get game info from server
     packet_header_t *packet = Z_Malloc(1000, PU_STATIC, NULL);

@@ -79,6 +79,8 @@ typedef enum {
   source_pwad,      // pwad file load
   source_lmp,       // lmp file load
   source_net        // CPhipps
+  ,source_deh//e6y
+  ,source_err//e6y
 } wad_source_t;
 
 typedef struct

@@ -13,6 +13,72 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
+// Neutral (Default) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_LAUNCHERSERVERDIALOG DIALOGEX 0, 0, 187, 245
+STYLE DS_SYSMODAL | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | 
+    WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
+CAPTION "PrBoom-Plus Launcher"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,72,224,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,127,224,50,14
+    CONTROL         "Tab1",IDC_TAB1,"SysTabControl32",0x0,5,5,178,214
+END
+
+IDD_LAUNCHERCLIENTDIALOG DIALOGEX 7, 7, 173, 206
+STYLE DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Game:",IDC_STATIC,4,5,22,8,0,WS_EX_TRANSPARENT
+    COMBOBOX        IDC_IWADCOMBO,4,15,164,30,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Files:",IDC_STATIC,4,32,17,8,0,WS_EX_TRANSPARENT
+    LISTBOX         IDC_PWADLIST,4,42,164,110,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | LBS_MULTICOLUMN | LBS_EXTENDEDSEL | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    LTEXT           "History",IDC_STATIC,4,155,22,8,0,WS_EX_TRANSPARENT
+    COMBOBOX        IDC_HISTORYCOMBO,4,165,164,20,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Commands:",IDC_STATIC,4,181,38,8,0,WS_EX_TRANSPARENT
+    COMBOBOX        IDC_COMMANDCOMBO,4,191,164,12,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL
+    LTEXT           "",IDC_FULLFILENAMESTATIC,23,32,142,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_LAUNCHERCLIENTDIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 172
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Neutral (Default) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
 // Russian resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
@@ -20,6 +86,13 @@
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 #pragma code_page(1251)
 #endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 24
+//
+
+1                       24      MOVEABLE PURE   "prboom.exe.manifest"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -72,8 +145,7 @@ END
 // Data
 //
 
-IDR_DETAIL RCDATA DISCARDABLE "detail256.bmp"
-
+IDR_DETAIL              RCDATA  DISCARDABLE     "detail256.bmp"
 #endif    // Russian resources
 /////////////////////////////////////////////////////////////////////////////
 

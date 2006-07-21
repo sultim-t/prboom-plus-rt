@@ -142,7 +142,8 @@ const char *const standard_iwads[]=
   "doom1.wad",
   "doomu.wad", /* CPhipps - alow doomu.wad */
 };
-static const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
+//e6y static 
+const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
 
 void D_DoAdvanceDemo (void);
 
@@ -623,7 +624,8 @@ void D_AddFile (const char *file, wad_source_t source)
 
 // killough 10/98: support -dehout filename
 // cph - made const, don't cache results
-static const char *D_dehout(void)
+//e6y static 
+const char *D_dehout(void)
 {
   int p = M_CheckParm("-dehout");
   if (!p)
@@ -644,7 +646,8 @@ static const char *D_dehout(void)
 // jff 4/19/98 Add routine to test IWAD for validity and determine
 // the gamemode from it. Also note if DOOM II, whether secret levels exist
 // CPhipps - const char* for iwadname, made static
-static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
+//e6y static 
+void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 {
   if ( !access (iwadname,R_OK) )
   {
@@ -1232,34 +1235,7 @@ void D_DoomMainSetup(void)
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
 
-  // ty 03/09/98 do dehacked stuff
-  // Note: do this before any other since it is expected by
-  // the deh patch author that this is actually part of the EXE itself
-  // Using -deh in BOOM, others use -dehacked.
-  // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
-
-  p = M_CheckParm ("-deh");
-  if (p)
-    {
-      char file[PATH_MAX+1];      // cph - localised
-      // the parms after p are deh/bex file names,
-      // until end of parms or another - preceded parm
-      // Ty 04/11/98 - Allow multiple -deh files in a row
-
-      while (++p != myargc && *myargv[p] != '-')
-        {
-          AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
-          if (access(file, F_OK))  // nope
-            {
-              AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
-              if (access(file, F_OK))  // still nope
-                I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",myargv[p]);
-            }
-          // during the beta we have debug output to dehout.txt
-          ProcessDehFile(file,D_dehout(),0);
-        }
-    }
-  // ty 03/09/98 end of do dehacked stuff
+  //e6y the dachaked stuff has been moved below an autoload
 
   // jff 1/24/98 set both working and command line value of play parms
   nomonsters = clnomonsters = M_CheckParm ("-nomonsters");
@@ -1512,6 +1488,36 @@ void D_DoomMainSetup(void)
     }
   }
 
+  //e6y the dachaked stuff has been moved from above
+  // ty 03/09/98 do dehacked stuff
+  // Note: do this before any other since it is expected by
+  // the deh patch author that this is actually part of the EXE itself
+  // Using -deh in BOOM, others use -dehacked.
+  // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
+
+  p = M_CheckParm ("-deh");
+  if (p)
+    {
+      char file[PATH_MAX+1];      // cph - localised
+      // the parms after p are deh/bex file names,
+      // until end of parms or another - preceded parm
+      // Ty 04/11/98 - Allow multiple -deh files in a row
+
+      while (++p != myargc && *myargv[p] != '-')
+        {
+          AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
+          if (access(file, F_OK))  // nope
+            {
+              AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
+              if (access(file, F_OK))  // still nope
+                I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",myargv[p]);
+            }
+          // during the beta we have debug output to dehout.txt
+          ProcessDehFile(file,D_dehout(),0);
+        }
+    }
+  // ty 03/09/98 end of do dehacked stuff
+  
   // add any files specified on the command line with -file wadfile
   // to the wad list
 
@@ -1547,6 +1553,7 @@ void D_DoomMainSetup(void)
 
     }
 
+  LauncherShow();//e6y
   // internal translucency set to config file value               // phares
   general_translucency = default_translucency;                    // phares
 
@@ -1701,7 +1708,7 @@ void D_DoomMainSetup(void)
 void D_DoomMain(void)
 {
   D_DoomMainSetup(); // CPhipps - setup out of main execution stack
-
+  
   D_DoomLoop ();  // never returns
 }
 

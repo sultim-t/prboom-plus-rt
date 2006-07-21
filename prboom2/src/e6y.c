@@ -1,6 +1,8 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <direct.h>
+#include <winreg.h>
 #endif
 #include <GL/gl.h>
 #include <string.h>
@@ -24,6 +26,8 @@
 #include "lprintf.h"
 #include "d_think.h"
 #include "m_argv.h"
+#include "m_misc.h"
+#include "i_system.h"
 #include "e6y.h"
 
 #define Pi 3.14159265358979323846f
@@ -34,6 +38,7 @@ int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
 int demo_recordfromto = false;
+int demo_lastheaderlen;
 
 int avi_shot_count;
 int avi_shot_time;
@@ -82,7 +87,6 @@ int mouse_acceleration;
 int demo_smoothturns;
 int demo_smoothturnsfactor;
 int demo_overwriteexisting;
-int misc_fixfirstmousemotion;
 int misc_spechitoverrun_warn;
 int misc_spechitoverrun_emulate;
 int misc_rejectoverrun_warn;
@@ -90,6 +94,7 @@ int misc_rejectoverrun_emulate;
 
 int test_sky1;
 int test_sky2;
+int test_dots;
 
 int palette_ondamage;
 int palette_onbonus;
@@ -155,6 +160,7 @@ static boolean saved_nomusicparm;
 //--------------------------------------------------
 #ifdef _WIN32
 static HWND GetHWND(void);
+void SwitchToWindow(HWND hwnd);
 #endif
 //--------------------------------------------------
 
@@ -164,7 +170,7 @@ void e6y_assert(const char *format, ...)
   va_list argptr;
   va_start(argptr,format);
   //if (!f)
-    f = fopen("d:\\a.txt", "a+");
+    f = fopen("d:\\a.txt", "ab+");
   vfprintf(f, format, argptr);
   fclose(f);
   va_end(argptr);
@@ -453,8 +459,8 @@ void I_GetTime_SaveMS(void)
 //------------
 
 int numinterpolations = 0;
-fixed_t oldipos[MAXINTERPOLATIONS][1];
-fixed_t bakipos[MAXINTERPOLATIONS][1];
+fixed_t oldipos[MAXINTERPOLATIONS][2];
+fixed_t bakipos[MAXINTERPOLATIONS][2];
 FActiveInterpolation curipos[MAXINTERPOLATIONS];
 boolean NoInterpolateView;
 boolean r_NoInterpolate;
@@ -555,6 +561,18 @@ void CopyInterpToOld (int i)
     oldipos[i][0] = ((vertex_t*)curipos[i].Address)->x;
     oldipos[i][1] = ((vertex_t*)curipos[i].Address)->y;
     break;
+  case INTERP_WallPanning:
+    oldipos[i][0] = ((side_t*)curipos[i].Address)->rowoffset;
+    oldipos[i][1] = ((side_t*)curipos[i].Address)->textureoffset;
+    break;
+  case INTERP_FloorPanning:
+    oldipos[i][0] = ((sector_t*)curipos[i].Address)->floor_xoffs;
+    oldipos[i][1] = ((sector_t*)curipos[i].Address)->floor_yoffs;
+    break;
+  case INTERP_CeilingPanning:
+    oldipos[i][0] = ((sector_t*)curipos[i].Address)->ceiling_xoffs;
+    oldipos[i][1] = ((sector_t*)curipos[i].Address)->ceiling_yoffs;
+    break;
   }
 }
 
@@ -572,12 +590,26 @@ void CopyBakToInterp (int i)
     ((vertex_t*)curipos[i].Address)->x = bakipos[i][0];
     ((vertex_t*)curipos[i].Address)->y = bakipos[i][1];
     break;
+  case INTERP_WallPanning:
+    ((side_t*)curipos[i].Address)->rowoffset = bakipos[i][0];
+    ((side_t*)curipos[i].Address)->textureoffset = bakipos[i][1];
+    break;
+  case INTERP_FloorPanning:
+    ((sector_t*)curipos[i].Address)->floor_xoffs = bakipos[i][0];
+    ((sector_t*)curipos[i].Address)->floor_yoffs = bakipos[i][1];
+    break;
+  case INTERP_CeilingPanning:
+    ((sector_t*)curipos[i].Address)->ceiling_xoffs = bakipos[i][0];
+    ((sector_t*)curipos[i].Address)->ceiling_yoffs = bakipos[i][1];
+    break;
   }
 }
 
 void DoAnInterpolation (int i, fixed_t smoothratio)
 {
-  fixed_t *adr1, pos;
+  fixed_t pos;
+  fixed_t *adr1 = NULL;
+  fixed_t *adr2 = NULL;
 
   switch (curipos[i].Type)
   {
@@ -591,12 +623,34 @@ void DoAnInterpolation (int i, fixed_t smoothratio)
     adr1 = &((vertex_t*)curipos[i].Address)->x;
 ////    adr2 = &((vertex_t*)curipos[i].Address)->y;
     break;
+  case INTERP_WallPanning:
+    adr1 = &((side_t*)curipos[i].Address)->rowoffset;
+    adr2 = &((side_t*)curipos[i].Address)->textureoffset;
+    break;
+  case INTERP_FloorPanning:
+    adr1 = &((sector_t*)curipos[i].Address)->floor_xoffs;
+    adr2 = &((sector_t*)curipos[i].Address)->floor_yoffs;
+    break;
+  case INTERP_CeilingPanning:
+    adr1 = &((sector_t*)curipos[i].Address)->ceiling_xoffs;
+    adr2 = &((sector_t*)curipos[i].Address)->ceiling_yoffs;
+    break;
+
  default:
     return;
   }
 
-  pos = bakipos[i][0] = *adr1;
-  *adr1 = oldipos[i][0] + FixedMul (pos - oldipos[i][0], smoothratio);
+  if (adr1)
+  {
+    pos = bakipos[i][0] = *adr1;
+    *adr1 = oldipos[i][0] + FixedMul (pos - oldipos[i][0], smoothratio);
+  }
+
+  if (adr2)
+  {
+    pos = bakipos[i][1] = *adr2;
+    *adr2 = oldipos[i][1] + FixedMul (pos - oldipos[i][1], smoothratio);
+  }
   /*{
     static FILE *f = NULL;
     if (!f) f = fopen("d:\\a.txt", "wb");
@@ -642,7 +696,9 @@ void stopinterpolation(EInterpType type, void *posptr)
     {
       numinterpolations--;
       oldipos[i][0] = oldipos[numinterpolations][0];
+      oldipos[i][1] = oldipos[numinterpolations][1];
       bakipos[i][0] = bakipos[numinterpolations][0];
+      bakipos[i][1] = bakipos[numinterpolations][1];
       curipos[i] = curipos[numinterpolations];
       break;
     }
@@ -660,7 +716,9 @@ void stopallinterpolation(void)
   {
     numinterpolations--;
     oldipos[i][0] = oldipos[numinterpolations][0];
+    oldipos[i][1] = oldipos[numinterpolations][1];
     bakipos[i][0] = bakipos[numinterpolations][0];
+    bakipos[i][1] = bakipos[numinterpolations][1];
     curipos[i] = curipos[numinterpolations];
   }
 }
@@ -722,54 +780,79 @@ void P_ActivateAllInterpolations()
   }
 }
 
-void SetInterpolationIfNew(thinker_t *th)
+void InterpolationGetData(thinker_t *th,
+  EInterpType *type1,EInterpType *type2,
+  void **posptr1, void **posptr2)
 {
-  void *posptr = NULL;
-  void *posptr2 = NULL;
-  EInterpType type, type2;
-//  int i;
-
-  if (!movement_smooth)
-    return;
+  *posptr1 = NULL;
+  *posptr2 = NULL;
 
   if (th->function == T_MoveFloor)
   {
-    type = INTERP_SectorFloor;
-    posptr = ((floormove_t *)th)->sector;
+    *type1 = INTERP_SectorFloor;
+    *posptr1 = ((floormove_t *)th)->sector;
   }
   else
   if (th->function == T_PlatRaise)
   {
-    type = INTERP_SectorFloor;
-    posptr = ((plat_t *)th)->sector;
+    *type1 = INTERP_SectorFloor;
+    *posptr1 = ((plat_t *)th)->sector;
   }
   else
   if (th->function == T_MoveCeiling)
   {
-    type = INTERP_SectorCeiling;
-    posptr = ((ceiling_t *)th)->sector;
+    *type1 = INTERP_SectorCeiling;
+    *posptr1 = ((ceiling_t *)th)->sector;
   }
   else
   if (th->function == T_VerticalDoor)
   {
-    type = INTERP_SectorCeiling;
-    posptr = ((vldoor_t *)th)->sector;
+    *type1 = INTERP_SectorCeiling;
+    *posptr1 = ((vldoor_t *)th)->sector;
   }
   else
   if (th->function == T_MoveElevator)
   {
-    type = INTERP_SectorFloor;
-    posptr = ((elevator_t *)th)->sector;
-    type2 = INTERP_SectorCeiling;
-    posptr2 = ((elevator_t *)th)->sector;
+    *type1 = INTERP_SectorFloor;
+    *posptr1 = ((elevator_t *)th)->sector;
+    *type2 = INTERP_SectorCeiling;
+    *posptr2 = ((elevator_t *)th)->sector;
   }
-
-  if(posptr)
+  else
+  if (th->function == T_Scroll)
   {
-//    for(i=numinterpolations-1; i>= 0; --i)
-//      if (curipos[i].Address == posptr)
-//        return;
-    setinterpolation (type, posptr);
+    switch (((scroll_t *)th)->type)
+    {
+      case sc_side:
+        *type1 = INTERP_WallPanning;
+        *posptr1 = sides + ((scroll_t *)th)->affectee;
+        break;
+      case sc_floor:
+        *type1 = INTERP_FloorPanning;
+        *posptr1 = sectors + ((scroll_t *)th)->affectee;
+        break;
+      case sc_ceiling:
+        *type1 = INTERP_CeilingPanning;
+        *posptr1 = sectors + ((scroll_t *)th)->affectee;
+        break;
+    }
+  }
+}
+
+void SetInterpolationIfNew(thinker_t *th)
+{
+  void *posptr1;
+  void *posptr2;
+  EInterpType type1, type2;
+
+  if (!movement_smooth)
+    return;
+
+  InterpolationGetData(th, &type1, &type2, &posptr1, &posptr2);
+
+  if(posptr1)
+  {
+    setinterpolation (type1, posptr1);
     
     if(posptr2)
       setinterpolation (type2, posptr2);
@@ -778,48 +861,18 @@ void SetInterpolationIfNew(thinker_t *th)
 
 void StopInterpolationIfNeeded(thinker_t *th)
 {
-  void *posptr = NULL;
-  void *posptr2 = NULL;
-  EInterpType type, type2;
+  void *posptr1;
+  void *posptr2;
+  EInterpType type1, type2;
 
   if (!movement_smooth)
     return;
 
-  if (th->function == T_MoveFloor)
-  {
-    type = INTERP_SectorFloor;
-    posptr = ((floormove_t *)th)->sector;
-  }
-  else
-  if (th->function == T_PlatRaise)
-  {
-    type = INTERP_SectorFloor;
-    posptr = ((plat_t *)th)->sector;
-  }
-  else
-  if (th->function == T_MoveCeiling)
-  {
-    type = INTERP_SectorCeiling;
-    posptr = ((ceiling_t *)th)->sector;
-  }
-  else
-  if (th->function == T_VerticalDoor)
-  {
-    type = INTERP_SectorCeiling;
-    posptr = ((vldoor_t *)th)->sector;
-  }
-  else
-  if (th->function == T_MoveElevator)
-  {
-    type = INTERP_SectorFloor;
-    posptr = ((elevator_t *)th)->sector;
-    type2 = INTERP_SectorCeiling;
-    posptr2 = ((elevator_t *)th)->sector;
-  }
+  InterpolationGetData(th, &type1, &type2, &posptr1, &posptr2);
 
-  if(posptr)
+  if(posptr1)
   {
-    stopinterpolation (type, posptr);
+    stopinterpolation (type1, posptr1);
     if(posptr2)
       stopinterpolation (type2, posptr2);
   }
@@ -1138,68 +1191,12 @@ void I_Warning(const char *message, ...)
 #ifdef _MSC_VER
   {
     extern HWND con_hWnd;
+    //ShowWindow(GetHWND(), SW_MINIMIZE);
+    SwitchToWindow(GetDesktopWindow());
     Init_ConsoleWin();
+    if (con_hWnd) SwitchToWindow(con_hWnd);
     MessageBox(con_hWnd,msg,"PrBoom-Plus",MB_OK | MB_TASKMODAL | MB_TOPMOST);
-    SwitchToGameWindow();
-  }
-#endif
-}
-
-char* GetFileName (char *path)
-{
-  char *src = path + strlen(path) - 1;
-  
-  while (src != path && src[-1] != ':'
-         && *(src-1) != '\\'
-         && *(src-1) != '/')
-    src--;
-
-  return src;
-}
-
-
-boolean StrToInt(char *s, long *l)
-{
-/*  long val;
-  char *p = NULL;
-  boolean b;
-  strcpy(s, "0");
-  val = strtol(s, &p, 0);
-  if (val==0)
-    b = (sscanf(s, " %d", l) == 1);
-  else
-    b = true;
-
-  return b;
-  */
-  return (
-    (sscanf(s, " 0x%x", l) == 1) ||
-    (sscanf(s, " 0X%x", l) == 1) ||
-    (sscanf(s, " 0%o", l) == 1) ||
-    (sscanf(s, " %d", l) == 1)
-  );
-}
-
-void SwitchToGameWindow()
-{
-#ifdef _WIN32
-  HWND hwnd = GetHWND();
-
-  if (hwnd)
-  {
-    SetForegroundWindow(hwnd);
-
-    {
-      typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
-      static TSwitchToThisWindow SwitchToThisWindow = NULL;
-      Sleep(100);
-      
-      if (!SwitchToThisWindow)
-        SwitchToThisWindow = (TSwitchToThisWindow)GetProcAddress(GetModuleHandle("user32.dll"), "SwitchToThisWindow");
-      
-      if (SwitchToThisWindow)
-        SwitchToThisWindow(hwnd, TRUE);
-    }
+    SwitchToWindow(GetHWND());
   }
 #endif
 }
@@ -1216,24 +1213,20 @@ void ShowSpechitsOverrunningWarning(boolean fatal)
 
     sprintf(buffer,
       "%s%s"
-#ifdef GL_DOOM
       " The list of LinesID leading to overrun: %d, %d, %d, %d, %d, %d, %d, %d, %d."
-#endif
       " You can disable this warning through: \\Options\\Setup\\Status Bar / HUD\\Warn on Spechits Overflow."
 
       ,fatal?"Too big spechits overflow for emulation was detected.":"Spechits overflow has been detected."
       ," Desync may occur soon if you're viewing demo at the moment. In case you're recording demo desync may occur during playback with vanilla engine."
-#ifdef GL_DOOM
       ,spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID
       ,spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID
       ,spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID
-#endif
       );
     I_Warning(buffer);
   }
 }
 
-void CheckForSpechitsOverrun(line_t* ld)
+void SpechitOverrun(line_t* ld)
 {
   extern int numspechit;
   extern fixed_t tmbbox[4];
@@ -1264,14 +1257,17 @@ void CheckForSpechitsOverrun(line_t* ld)
         break;
       case 13: crushchange = addr; break;
       case 14: nofit = addr; break;
-      case 15: bombsource = (mobj_t*)addr; break;
+      /*case 15: bombsource = (mobj_t*)addr; break;
       case 16: bombdamage = addr; break;
       case 17: bombspot = (mobj_t*)addr; break;
       case 18: usething = (mobj_t*)addr; break;
       case 19: attackrange = addr; break;
-      case 20: la_damage = addr; break;
+      case 20: la_damage = addr; break;*/
 
       default:
+        fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
+                        "an overrun where numspechit=%i\n",
+                         numspechit);
         break;
       }
     }
@@ -1539,6 +1535,7 @@ void UngrabMouse_Win32(void)
 
 void e6y_I_InitInputs(void)
 {
+  SDL_WarpMouse((unsigned short)(desired_screenwidth/2), (unsigned short)(desired_screenheight/2));
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
 }
@@ -1606,18 +1603,42 @@ int deh_maxhealth;
 int maxhealthbonus;
 void e6y_G_Compatibility(void)
 {
-  extern int maxhealth;
+  {
+    extern int maxhealth;
+    if (comp[comp_maxhealth]) 
+    {
+      maxhealth = 100;
+      maxhealthbonus = (IsDehMaxHealth?deh_maxhealth:200);
+    }
+    else 
+    {
+      maxhealth = (IsDehMaxHealth?deh_maxhealth:100);
+      maxhealthbonus = maxhealth * 2;
+    }
+  }
 
-  if (comp[comp_maxhealth]) 
   {
-    maxhealth = 100;
-    maxhealthbonus = (IsDehMaxHealth?deh_maxhealth:200);
+    static predefined_translucency_fixed = false;
+    int i;
+    int predefined_translucency[] = {
+      MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
+      MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF, 
+      MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
+    };
+    
+    if (!predefined_translucency_fixed)
+    {
+      predefined_translucency_fixed = true;
+      for(i = 0; i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
+      {
+        if (comp[comp_translucency]) 
+          mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
+        else 
+          mobjinfo[predefined_translucency[i]].flags |= MF_TRANSLUCENT;
+      }
+    }
   }
-  else 
-  {
-    maxhealth = (IsDehMaxHealth?deh_maxhealth:100);
-    maxhealthbonus = maxhealth * 2;
-  }
+
 }
 
 boolean zerotag_manual;
@@ -1669,4 +1690,150 @@ boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
     return true;
   }
   return false;
+}
+
+void *I_FindFirst (const char *filespec, findstate_t *fileinfo)
+{
+	return FindFirstFileA(filespec, (LPWIN32_FIND_DATAA)fileinfo);
+}
+int I_FindNext (void *handle, findstate_t *fileinfo)
+{
+	return !FindNextFileA((HANDLE)handle, (LPWIN32_FIND_DATAA)fileinfo);
+}
+
+int I_FindClose (void *handle)
+{
+	return FindClose((HANDLE)handle);
+}
+
+char* PathFindFileName(const char* pPath)
+{
+  const char* pT = pPath;
+  
+  if (pPath)
+  {
+    for ( ; *pPath; pPath++)
+    {
+      if ((pPath[0] == '\\' || pPath[0] == ':' || pPath[0] == '/')
+        && pPath[1] &&  pPath[1] != '\\'  &&   pPath[1] != '/')
+        pT = pPath + 1;
+    }
+  }
+  
+  return (char*)pT;
+}
+
+void NormalizeSlashes2(char *str)
+{
+  int l;
+
+  if (!str || !(l = strlen(str)))
+    return;
+  if (str[--l]=='\\' || str[l]=='/')
+    str[l]=0;
+  while (l--)
+    if (str[l]=='/')
+      str[l]='\\';
+}
+
+unsigned int AfxGetFileName(const char* lpszPathName, char* lpszTitle, unsigned int nMax)
+{
+  char* lpszTemp = PathFindFileName(lpszPathName);
+  
+  if (lpszTitle == NULL)
+    return strlen(lpszTemp)+1;
+  
+  strncpy(lpszTitle, lpszTemp, nMax-1);
+  return 0;
+}
+
+void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName)
+{
+  int cchFullPath, cchFileName, cchVolName;
+  const char* lpszCur;
+  const char* lpszBase;
+  const char* lpszFileName;
+  
+  lpszBase = lpszCanon;
+  cchFullPath = strlen(lpszCanon);
+  
+  cchFileName = AfxGetFileName(lpszCanon, NULL, 0) - 1;
+  lpszFileName = lpszBase + (cchFullPath-cchFileName);
+  
+  if (cchMax >= cchFullPath)
+    return;
+  
+  if (cchMax < cchFileName)
+  {
+    strcpy(lpszCanon, (bAtLeastName) ? lpszFileName : "");
+    return;
+  }
+  
+  lpszCur = lpszBase + 2;
+  
+  if (lpszBase[0] == '\\' && lpszBase[1] == '\\')
+  {
+    while (*lpszCur != '\\')
+      lpszCur++;
+  }
+  
+  if (cchFullPath - cchFileName > 3)
+  {
+    lpszCur++;
+    while (*lpszCur != '\\')
+      lpszCur++;
+  }
+  
+  cchVolName = (int)(lpszCur - lpszBase);
+  if (cchMax < cchVolName + 5 + cchFileName)
+  {
+    strcpy(lpszCanon, lpszFileName);
+    return;
+  }
+  
+  while (cchVolName + 4 + (int)strlen(lpszCur) > cchMax)
+  {
+    do
+    {
+      lpszCur++;
+    }
+    while (*lpszCur != '\\');
+  }
+  
+  lpszCanon[cchVolName] = '\0';
+  strcat(lpszCanon, "\\...");
+  strcat(lpszCanon, lpszCur);
+}
+
+void SwitchToWindow(HWND hwnd)
+{
+#ifdef _WIN32
+  typedef BOOL (WINAPI *TSwitchToThisWindow) (HWND wnd, BOOL restore);
+  TSwitchToThisWindow SwitchToThisWindow = NULL;
+
+  if (!SwitchToThisWindow)
+    SwitchToThisWindow = (TSwitchToThisWindow)GetProcAddress(GetModuleHandle("user32.dll"), "SwitchToThisWindow");
+  
+  if (SwitchToThisWindow)
+  {
+    HWND hwndLastActive = GetLastActivePopup(hwnd);
+
+    if (IsWindowVisible(hwndLastActive))
+      hwnd = hwndLastActive;
+
+    SetForegroundWindow(hwnd);
+    Sleep(100);
+    SwitchToThisWindow(hwnd, TRUE);
+  }
+#endif
+}
+
+boolean StrToInt(char *s, long *l)
+{      
+  return (
+    (sscanf(s, " 0x%x", l) == 1) ||
+    (sscanf(s, " 0X%x", l) == 1) ||
+    (sscanf(s, " 0%o", l) == 1) ||
+    (sscanf(s, " %d", l) == 1)
+  );
 }

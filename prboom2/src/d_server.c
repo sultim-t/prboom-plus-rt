@@ -243,7 +243,7 @@ nosuch,nosuch,nosuch,nosuch, // RNG seed
 "monster_infighting","player_helpers",nosuch,nosuch,
 nosuch,nosuch, // distfriend
 "monster_backing","monster_avoid_hazards","monster_friction","help_friends","dog_jumping","monkeys",
-"comp_telefrag","comp_dropoff","comp_vile","comp_pain","comp_skull","comp_blazing","comp_doorlight","comp_model","comp_god","comp_falloff","comp_floors","comp_skymap","comp_pursuit","comp_doorstuck","comp_staylift","comp_zombie","comp_stairs","comp_infcheat","comp_zerotags","comp_moveblock","comp_respawn","comp_sound","comp_maxhealth","comp_666" };//e6y
+"comp_telefrag","comp_dropoff","comp_vile","comp_pain","comp_skull","comp_blazing","comp_doorlight","comp_model","comp_god","comp_falloff","comp_floors","comp_skymap","comp_pursuit","comp_doorstuck","comp_staylift","comp_zombie","comp_stairs","comp_infcheat","comp_zerotags","comp_moveblock","comp_respawn","comp_sound","comp_666","comp_maskedanim","comp_maxhealth","comp_translucency" };//e6y
 
 const int num_gameopts = sizeof gameopt_config_names / sizeof gameopt_config_names[0];
 
@@ -304,6 +304,7 @@ void read_config_file(FILE* fp, struct setup_packet_s* sp)
         sp->skill = v-1;
       } else if (!strcmp(def,"default_compatibility_level")) {
         if (verbose) printf("config file sets compatibility_level to %d\n",v);
+        if (v == -1) v = MAX_COMPATIBILITY_LEVEL-1;//e6y
         sp->complevel = v;
       } else {
         int i;

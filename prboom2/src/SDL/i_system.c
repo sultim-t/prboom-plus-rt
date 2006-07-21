@@ -177,7 +177,8 @@ char *I_DoomExeDir(void)
  * cphipps - simple test for trailing slash on dir names
  */
 
-static boolean HasTrailingSlash(const char* dn)
+//e6y static 
+boolean HasTrailingSlash(const char* dn)
 {
   return (dn[strlen(dn)-1] == '/');
 }

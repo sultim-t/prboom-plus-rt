@@ -128,7 +128,7 @@ void T_VerticalDoor (vldoor_t* door)
             );
 
       /* killough 10/98: implement gradual lighting effects */
-      if (door->lighttag && door->topheight - door->sector->floorheight)
+      if (door->lighttag && door->topheight - door->sector->floorheight && compatibility_level >= mbf_compatibility)//e6y
         EV_LightTurnOnPartway(door->line,
                               FixedDiv(door->sector->ceilingheight -
                                        door->sector->floorheight,
@@ -175,6 +175,10 @@ void T_VerticalDoor (vldoor_t* door)
           default:
             break;
         }
+        //e6y
+        if (door->lighttag && door->topheight - door->sector->floorheight && compatibility_level < mbf_compatibility)
+          EV_LightTurnOnPartway(door->line,0);
+
       }
       /* jff 1/31/98 turn lighting off in tagged sectors of manual doors
        * killough 10/98: replaced with gradual lighting code
@@ -218,7 +222,7 @@ void T_VerticalDoor (vldoor_t* door)
             );
 
       /* killough 10/98: implement gradual lighting effects */
-      if (door->lighttag && door->topheight - door->sector->floorheight)
+      if (door->lighttag && door->topheight - door->sector->floorheight && compatibility_level >= mbf_compatibility)//e6y
         EV_LightTurnOnPartway(door->line,
                               FixedDiv(door->sector->ceilingheight -
                                        door->sector->floorheight,
@@ -255,6 +259,9 @@ void T_VerticalDoor (vldoor_t* door)
 
         /* jff 1/31/98 turn lighting on in tagged sectors of manual doors
    * killough 10/98: replaced with gradual lighting code */
+        //e6y
+        if (door->lighttag && door->topheight - door->sector->floorheight && compatibility_level < mbf_compatibility)
+          EV_LightTurnOnPartway(door->line,FRACUNIT);
       }
       break;
   }

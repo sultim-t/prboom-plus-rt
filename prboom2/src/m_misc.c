@@ -307,8 +307,11 @@ default_t defaults[] =
   {"comp_zerotags",{&default_comp[comp_zerotags]},{0},0,1,def_bool,ss_comp,&comp[comp_zerotags]},
   {"comp_moveblock",{&default_comp[comp_moveblock]},{0},0,1,def_bool,ss_comp,&comp[comp_moveblock]},
   {"comp_sound",{&default_comp[comp_sound]},{0},0,1,def_bool,ss_comp,&comp[comp_sound]},
-  {"comp_maxhealth",{&default_comp[comp_maxhealth]},{0},0,1,def_bool,ss_comp,&comp[comp_maxhealth]},//e6y
-  {"comp_666",{&default_comp[comp_666]},{0},0,1,def_bool,ss_comp,&comp[comp_666]},//e6y
+  //e6y
+  {"comp_666",{&default_comp[comp_666]},{0},0,1,def_bool,ss_comp,&comp[comp_666]},
+  {"comp_maskedanim",{&default_comp[comp_maskedanim]},{0},0,1,def_bool,ss_comp,&comp[comp_maskedanim]},
+  {"comp_maxhealth",{&default_comp[comp_maxhealth]},{0},0,1,def_bool,ss_comp,&comp[comp_maxhealth]},
+  {"comp_translucency",{&default_comp[comp_translucency]},{0},0,1,def_bool,ss_comp,&comp[comp_translucency]},
 
   {"Sound settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sound_card",{&snd_card},{-1},-1,7,       // jff 1/18/98 allow Allegro drivers
@@ -766,20 +769,30 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"misc_rejectoverrun_emulate", {&misc_rejectoverrun_emulate},  {0},0,1,
    def_bool,ss_stat},
-#ifndef GL_DOOM
-  {"misc_fixfirstmousemotion", {&misc_fixfirstmousemotion},  {0},0,1,
-   def_bool,ss_stat},
-#endif
 #ifdef GL_DOOM
   {"test_sky1", {&test_sky1},  {1},0,1,
    def_bool,ss_stat},
   {"test_sky2", {&test_sky2},  {1},0,1,
+   def_bool,ss_stat},
+  {"test_dots", {&test_dots},  {1},0,1,
    def_bool,ss_stat},
 #endif
   {"comperr_zerotag", {&comperr_zerotag},  {0},0,1,
    def_bool,ss_stat},
   {"comperr_passuse", {&comperr_passuse},  {0},0,1,
    def_bool,ss_stat},
+  {"launcher_enable", {&launcher_enable},  {0},0,1,
+   def_bool,ss_stat},
+  {"launcher_history0", {NULL,&launcher_history[0]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history1", {NULL,&launcher_history[1]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history2", {NULL,&launcher_history[2]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history3", {NULL,&launcher_history[3]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history4", {NULL,&launcher_history[4]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history5", {NULL,&launcher_history[5]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history6", {NULL,&launcher_history[6]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history7", {NULL,&launcher_history[7]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history8", {NULL,&launcher_history[8]}, {0,""},UL,UL,def_str,ss_none},
+  {"launcher_history9", {NULL,&launcher_history[9]}, {0,""},UL,UL,def_str,ss_none},
 
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:
