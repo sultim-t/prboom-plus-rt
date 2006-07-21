@@ -1780,7 +1780,7 @@ void SwitchToWindow(HWND hwnd)
 #endif
 }
 
-boolean PlayeringameOverrun(mapthing_t* mthing)
+boolean PlayeringameOverrun(const mapthing_t* mthing)
 {
   if (mthing->type==0
     && (overrun_playeringame_warn || overrun_playeringame_emulate))

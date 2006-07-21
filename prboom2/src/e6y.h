@@ -407,7 +407,7 @@ void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
 
 boolean StrToInt(const char *s, long *l);
 
-boolean PlayeringameOverrun(mapthing_t* mthing);
+boolean PlayeringameOverrun(const mapthing_t* mthing);
 
 //extern int viewMaxY;
 
