@@ -2380,7 +2380,6 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 
 void G_RecordDemo (const char* name)
 {
-  long savegamepos;//e6y
   char     demoname[PATH_MAX];
   usergame = false;
   AddDefaultExtension(strcpy(demoname, name), ".lmp");  // 1/18/98 killough
