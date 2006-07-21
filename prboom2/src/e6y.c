@@ -42,7 +42,6 @@ int demo_skiptics;
 int demo_recordfromto = false;
 int demo_lastheaderlen;
 
-int avi_shot_count;
 int avi_shot_time;
 int avi_shot_num;
 const char *avi_shot_fname;
@@ -75,15 +74,11 @@ int movement_smooth;
 int movement_altmousesupport;
 int render_fov;
 int render_usedetail;
-int render_detailwalls;
-int render_detailflats;
-int render_detailsprites;
-int render_detailanims;
-int render_usedetailwalls;
-int render_usedetailflats;
-int render_usedetailsprites;
+int render_detailedwalls;
+int render_detailedflats;
 int render_multisampling;
 int render_smartitemsclipping;
+int render_paperitems;
 int render_wipescreen;
 int mouse_acceleration;
 int demo_smoothturns;
@@ -224,9 +219,8 @@ void e6y_D_DoomMainSetup(void)
     demo_skiptics = (int)(atof(myargv[p+1]) * 35);
   if ((gameaction == ga_playdemo||demo_recordfromto) && (startmap > 1 || demo_skiptics))
     G_SkipDemoStart();
-  if ((p = M_CheckParm("-framescapture")) && (p < myargc-2))
-    if ((avi_shot_count = avi_shot_time = atoi(myargv[p+1])))
-      avi_shot_fname = myargv[p+2];
+  if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
+    avi_shot_fname = myargv[p+1];
   force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
   stats_level = M_CheckParm("-levelstat");
 
@@ -307,16 +301,18 @@ void M_ChangeSmooth(void)
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];
-  extern int sidemove_normal[2];
-  extern int sidemove_strafe50[2];
+  extern setup_menu_t stat_settings2[];
 
   if(movement_strafe50)
   {
+    stat_settings2[13].m_flags &= ~(S_SKIP|S_SELECT);
     sidemove[0] = sidemove_strafe50[0];
     sidemove[1] = sidemove_strafe50[1];
   }
   else
   {
+    stat_settings2[13].m_flags |= (S_SKIP|S_SELECT);
+    movement_strafe50onturns = false;
     sidemove[0] = sidemove_normal[0];
     sidemove[1] = sidemove_normal[1];
   }
@@ -324,7 +320,20 @@ void M_ChangeSpeed(void)
 
 void M_ChangeMouseLook(void)
 {
+#ifdef GL_DOOM
+  extern setup_menu_t stat_settings3[];
   viewpitch = 0;
+  if(movement_mouselook)
+  {
+    stat_settings3[12].m_flags &= ~(S_SKIP|S_SELECT);
+    stat_settings3[13].m_flags &= ~(S_SKIP|S_SELECT);
+  }
+  else
+  {
+    stat_settings3[12].m_flags |= (S_SKIP|S_SELECT);
+    stat_settings3[13].m_flags |= (S_SKIP|S_SELECT);
+  }
+#endif
 }
 
 boolean GetMouseLook(void)
@@ -381,26 +390,7 @@ void M_ChangeFOV(void)
 void M_ChangeUseDetail(void)
 {
 #ifdef GL_DOOM
-  extern setup_menu_t stat_settings3[];
-  
-  render_usedetail = render_usedetail;// && gl_arb_multitexture;
-
-  render_usedetailwalls   = render_usedetail && render_detailwalls;
-  render_usedetailflats   = render_usedetail && render_detailflats;
-  render_usedetailsprites = render_usedetail && render_detailsprites;
-
-  if (render_usedetail)
-  {
-    stat_settings3[5].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[6].m_flags &= ~(S_SKIP|S_SELECT);
-//    stat_settings3[7].m_flags &= ~(S_SKIP|S_SELECT);
-  }
-  else
-  {
-    stat_settings3[5].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[6].m_flags |= (S_SKIP|S_SELECT);
-//    stat_settings3[7].m_flags |= (S_SKIP|S_SELECT);
-  }
+  render_usedetail = render_detailedflats || render_detailedwalls;
 #endif
 }
 
@@ -1437,7 +1427,7 @@ void e6y_WriteStats(void)
 
   for (level=0;level<numlevels;level++)
   {
-    strcpy(str, "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%ds  I: %%%dd/%%-%dd%%%ds  S: %%%dd/%%-%dd %%%ds\n");
+    strcpy(str, "%%s - %%%dd:%%05.2f (%%%dd:%%02d)  K: %%%dd/%%-%dd%%%ds  I: %%%dd/%%-%dd%%%ds  S: %%%dd/%%-%dd %%%ds\r\n");
 
     sprintf(str, str,
       max.stat[TT_TIME],      max.stat[TT_TOTALTIME],
@@ -2028,3 +2018,4 @@ void ClearLinesCrossTracer(void)
   }
 }
 
+float paperitems_pitch;

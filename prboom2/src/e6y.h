@@ -74,7 +74,6 @@ extern int demo_skiptics;
 extern int demo_recordfromto;
 extern int demo_lastheaderlen;
 
-extern int avi_shot_count;
 extern int avi_shot_time;
 extern int avi_shot_num;
 extern const char *avi_shot_fname;
@@ -107,14 +106,11 @@ extern int movement_smooth;
 extern int movement_altmousesupport;
 extern int render_fov;
 extern int render_usedetail;
-extern int render_detailwalls;
-extern int render_detailflats;
-extern int render_detailsprites;
-extern int render_usedetailwalls;
-extern int render_usedetailflats;
-extern int render_usedetailsprites;
+extern int render_detailedwalls;
+extern int render_detailedflats;
 extern int render_multisampling;
 extern int render_smartitemsclipping;
+extern int render_paperitems;
 extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_smoothturns;
@@ -456,5 +452,7 @@ void CheckThingsPickupTracer(mobj_t *mobj);
 void CheckThingsHealthTracer(mobj_t *mobj);
 void CheckLinesCrossTracer(line_t *line);
 void ClearLinesCrossTracer(void);
+
+extern float paperitems_pitch;
 
 #endif

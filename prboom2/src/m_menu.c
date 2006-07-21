@@ -2613,15 +2613,9 @@ setup_menu_t stat_settings2[] =
   {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
   {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
-#ifdef GL_DOOM
-  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 17*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-#else
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-#endif
+  {"ALT MOUSE HANDLING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings3}},
@@ -2629,25 +2623,24 @@ setup_menu_t stat_settings2[] =
 };
 setup_menu_t stat_settings3[] =
 {
-  {"CHANGE PALETTE"              ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
-  {"ON PAIN"                     ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"palette_ondamage"}},
-  {"ON BONUS"                    ,S_YESNO     ,m_null,ST_X,ST_Y+3*8,  {"palette_onbonus"}},
-  {"ON POWERS"                   ,S_YESNO     ,m_null,ST_X,ST_Y+4*8, {"palette_onpowers"}},
+  {"MISC"                        ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
+  {"USE IN-GAME LAUNCHER"        ,S_YESNO     ,m_null,ST_X,ST_Y+2*8, {"launcher_enable"}},
+  {"RENDER"                      ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+4*8},
+  {"CHANGE PALETTE ON PAIN"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"palette_ondamage"}},
+  {"CHANGE PALETTE ON BONUS"     ,S_YESNO     ,m_null,ST_X,ST_Y+6*8,  {"palette_onbonus"}},
+  {"CHANGE PALETTE ON POWERS"    ,S_YESNO     ,m_null,ST_X,ST_Y+7*8, {"palette_onpowers"}},
 #ifdef GL_DOOM
-  {"USE DETAIL TEXTURE"          ,S_YESNO|S_CANT_GL_ARB_MULTITEXTURE       ,m_null,ST_X,ST_Y+6*8, {"render_usedetail"}, 0, 0, M_ChangeUseDetail},
-  {"FOR WALLS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+7*8, {"render_detailwalls"}, 0, 0, M_ChangeUseDetail},
-  {"FOR FLATS"                   ,S_YESNO       ,m_null,ST_X,ST_Y+8*8, {"render_detailflats"}, 0, 0, M_ChangeUseDetail},
-//  {"FOR SPRITES"                 ,S_YESNO       ,m_null,ST_X,ST_Y+ 9*8, {"render_detailsprites"}, 0, 0, M_ChangeUseDetail},
+  {"DETAILED WALLS"              ,S_YESNO       ,m_null,ST_X,ST_Y+9*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
+  {"DETAILED FLATS"              ,S_YESNO       ,m_null,ST_X,ST_Y+10*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
 
-  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+10*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
-  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 11*8, {"render_fov"}, 0, 0, M_ChangeFOV},
-  {"SMART ITEMS CLIPPING"        ,S_YESNO ,m_null,ST_X,ST_Y+12*8, {"render_smartitemsclipping"}},
-  {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+13*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
-  {"USE IN-GAME LAUNCHER"        ,S_YESNO ,m_null,ST_X,ST_Y+14*8, {"launcher_enable"}},
+  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+12*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 13*8, {"render_fov"}, 0, 0, M_ChangeFOV},
+  {"SMART ITEMS CLIPPING"        ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"render_smartitemsclipping"}},
+  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"PAPER ITEMS"                 ,S_YESNO     ,m_null,ST_X,ST_Y+17*8, {"render_paperitems"}},
 #else
-  {"WIPE SCREEN EFFECT"          ,S_YESNO ,m_null,ST_X,ST_Y+6*8, {"render_wipescreen"}},
-  {"ALT MOUSE HANDLING"          ,S_YESNO ,m_null,ST_X,ST_Y+7*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
-  {"USE IN-GAME LAUNCHER"        ,S_YESNO ,m_null,ST_X,ST_Y+8*8, {"launcher_enable"}},
+  {"WIPE SCREEN EFFECT"          ,S_YESNO ,m_null,ST_X,ST_Y+9*8, {"render_wipescreen"}},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},

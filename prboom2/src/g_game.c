@@ -539,25 +539,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     forward = MAXPLMOVE;
   else if (forward < -MAXPLMOVE)
     forward = -MAXPLMOVE;
-//e6y  if (side > MAXPLMOVE)
-//e6y    side = MAXPLMOVE;
-//e6y  else if (side < -MAXPLMOVE)
-//e6y    side = -MAXPLMOVE;
-//e6y
-  if(mousex == 0 || movement_strafe50onturns && movement_strafe50)
-  {
-    if (side > MAXPLMOVE)
-      side = MAXPLMOVE;
-    else if (side < -MAXPLMOVE)
-      side = -MAXPLMOVE;
-  }
-  else
-  {
-    if (side > sidemove_normal[1])
-      side = sidemove_normal[1];
-    else if (side < -sidemove_normal[1])
-      side = -sidemove_normal[1];
-  }
+  if (side > MAXPLMOVE)
+    side = MAXPLMOVE;
+  else if (side < -MAXPLMOVE)
+    side = -MAXPLMOVE;
+
+  //e6y
+  if (movement_strafe50 && !movement_strafe50onturns)
+    if(!strafe && mousex != 0)
+    {
+      if (side > sidemove_normal[1])
+        side = sidemove_normal[1];
+      else if (side < -sidemove_normal[1])
+        side = -sidemove_normal[1];
+    }
 
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;

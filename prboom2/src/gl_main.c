@@ -976,6 +976,7 @@ typedef struct
   GLTexture *gltexture;
   boolean shadow;
   boolean trans;
+  mobj_t *thing;//e6y
 } GLSprite;
 
 typedef enum
@@ -1909,6 +1910,7 @@ void gld_StartDrawScene(void)
     skyXShift = -2.0f*((yaw+90.0f)/90.0f/fovscale);
     skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
   }
+  paperitems_pitch=(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
 
 #ifdef _DEBUG
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -2111,7 +2113,7 @@ static void gld_DrawWall(GLWall *wall)
   else
   {
   //e6y
-  if (gl_arb_multitexture && render_usedetailwalls &&
+  if (gl_arb_multitexture && render_detailedwalls &&
       distance2piece(xCamera, yCamera, 
         wall->glseg->x1, wall->glseg->z1,
         wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
@@ -2554,7 +2556,7 @@ static void gld_DrawFlat(GLFlat *flat)
   glTranslatef(flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
   
 //e6y
-  if (gl_arb_multitexture && render_usedetailflats)
+  if (gl_arb_multitexture && render_detailedflats)
   {
     float s;
     glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -2610,7 +2612,7 @@ static void gld_DrawFlat(GLFlat *flat)
   }
 
   //e6y
-  if (gl_arb_multitexture && render_usedetailflats)
+  if (gl_arb_multitexture && render_detailedflats)
   {
     //glMatrixMode(GL_TEXTURE);
     glPopMatrix();
@@ -2726,6 +2728,14 @@ static void gld_DrawSprite(GLSprite *sprite)
   if (render_smartitemsclipping) glTranslatef(sprite->x,sprite->y,sprite->z); else//e6y
   glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
   glRotatef(inv_yaw,0.0f,1.0f,0.0f);
+
+  //e6y
+  if (!render_paperitems)
+  {
+    if (!(sprite->thing->flags&MF_SOLID))
+      glRotatef(paperitems_pitch,1.0f,0.0f,0.0f);
+  }
+
   if(sprite->shadow)
   {
     glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
@@ -2740,62 +2750,12 @@ static void gld_DrawSprite(GLSprite *sprite)
     else
       gld_StaticLight(sprite->light);
   }
-  //e6y
-  if (gl_arb_multitexture)
-  {
-    if (render_usedetailsprites)
-    {
-      float w, h;
-
-      glActiveTextureARB(GL_TEXTURE1_ARB);
-      glEnable(GL_TEXTURE_2D);
-
-      w = sprite->gltexture->realtexwidth / 18.0f;
-      h = sprite->gltexture->realtexheight / 18.0f;
-
-      glBegin(GL_TRIANGLE_STRIP);
-    
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ul,sprite->vt);
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ul*w,sprite->vt*h);
-      glVertex3f(sprite->x1, sprite->y1, 0.0f);
-    
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ur,sprite->vt); 
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ur*w,sprite->vt*h);
-      glVertex3f(sprite->x2, sprite->y1, 0.0f);
-    
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ul,sprite->vb); 
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ul*w,sprite->vb*h);
-      glVertex3f(sprite->x1, sprite->y2, 0.0f);
-    
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,sprite->ur,sprite->vb); 
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,sprite->ur*w,sprite->vb*h);
-      glVertex3f(sprite->x2, sprite->y2, 0.0f);
-      glEnd();
-    
-      glDisable(GL_TEXTURE_2D);
-      glActiveTextureARB(GL_TEXTURE0_ARB);
-    }
-    else
-    {
-      glBegin(GL_TRIANGLE_STRIP);
-      glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
-      glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
-      glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
-      glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
-      glEnd();
-    }
-  }
-  else
-  {
-  
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(sprite->ul, sprite->vt); glVertex3f(sprite->x1, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vt); glVertex3f(sprite->x2, sprite->y1, 0.0f);
     glTexCoord2f(sprite->ul, sprite->vb); glVertex3f(sprite->x1, sprite->y2, 0.0f);
     glTexCoord2f(sprite->ur, sprite->vb); glVertex3f(sprite->x2, sprite->y2, 0.0f);
   glEnd();
-
-  }//e6y
 
   glPopMatrix();
 
@@ -2824,6 +2784,7 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.shadow = (pSpr->flags & MF_SHADOW) != 0;
   sprite.trans  = (pSpr->flags & MF_TRANSLUCENT) != 0;
 //e6y
+  sprite.thing = vspr->thing;
   if (movement_smooth)
   {
     sprite.x = (float)(-pSpr->PrevX + FixedMul (r_TicFrac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
@@ -2890,13 +2851,13 @@ void e6y_DrawAdd(void)
 {
   int i, j, k;
 
-  if (render_usedetailwalls || render_usedetailflats)
+  if (render_usedetail)
   {
     glBindTexture(GL_TEXTURE_2D, idDetail);
     glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBlendFunc (GL_DST_COLOR, GL_SRC_COLOR);
     
-    if (render_usedetailflats)
+    if (render_detailedflats)
     {
       for (i=gld_drawinfo.num_drawitems; i>=0; i--)
       {
@@ -2961,7 +2922,7 @@ void e6y_DrawAdd(void)
         }
       }
     }
-    if (render_usedetailwalls)
+    if (render_detailedwalls)
     {
       for (i=gld_drawinfo.num_drawitems; i>=0; i--)
       {
@@ -3121,9 +3082,8 @@ void gld_DrawScene(player_t *player)
 
   //e6y
   }
-  if (!gl_arb_multitexture)
-    if (render_usedetailwalls || render_usedetailflats)
-      e6y_DrawAdd();
+  if (!gl_arb_multitexture && render_usedetail)
+    e6y_DrawAdd();
 
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_VERTEX_ARRAY);

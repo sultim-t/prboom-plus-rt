@@ -144,7 +144,7 @@
 #define PACKEDATTR
 
 /* Name of package */
-#define PACKAGE "prboom"
+#define PACKAGE "prboom-plus"
 
 /* Version number of package */
-#define VERSION "2.2.6"
+#define VERSION "2.2.6.28"

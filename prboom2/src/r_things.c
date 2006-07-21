@@ -440,6 +440,7 @@ void R_ProjectSprite (mobj_t* thing)
   fixed_t fx, fy, fz;
   fixed_t gxt, gyt;
   fixed_t tz;
+  boolean mlook = GetMouseLook() || (render_fov > FOV90);
   if (movement_smooth)
   {
     fx = thing->PrevX + FixedMul (r_TicFrac, thing->x - thing->PrevX);
@@ -466,6 +467,15 @@ void R_ProjectSprite (mobj_t* thing)
   //e6y fixed_t 
   tz = gxt-gyt;
 
+//e6y
+#ifdef GL_DOOM
+  if (!render_paperitems && mlook)
+  {
+    if (tz < -(FRACUNIT*64))
+      return;
+  } else
+#endif
+
     // thing is behind view plane?
   if (tz < MINZ)
     return;
@@ -475,6 +485,15 @@ void R_ProjectSprite (mobj_t* thing)
   gxt = -FixedMul(tr_x,viewsin);
   gyt = FixedMul(tr_y,viewcos);
   tx = -(gyt+gxt);
+
+//e6y
+#ifdef GL_DOOM
+  if (!render_paperitems && mlook)
+  {
+    if (tz >= MINZ && (D_abs(tx)>>5) > tz)
+      return;
+  } else
+#endif
 
   // too far off the side?
   if (D_abs(tx)>(tz<<2))
@@ -519,8 +538,7 @@ void R_ProjectSprite (mobj_t* thing)
   x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
 
     // off the right side?
-  if(!GetMouseLook() && render_fov <= FOV90)//e6y
-
+  if(!mlook)//e6y
   if (x1 > viewwidth)
     return;
 
@@ -528,8 +546,7 @@ void R_ProjectSprite (mobj_t* thing)
   x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
 
     // off the left side
-  if(!GetMouseLook() && render_fov <= FOV90)//e6y
-
+  if(!mlook)//e6y
   if (x2 < 0)
     return;
 

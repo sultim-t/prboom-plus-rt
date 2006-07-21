@@ -733,17 +733,15 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_fov", {&render_fov},  {90},20,160,
    def_int,ss_stat},
-  {"render_usedetail", {&render_usedetail},  {0},0,1,
+  {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
    def_bool,ss_stat},
-  {"render_detailwalls", {&render_detailwalls},  {1},0,1,
-   def_bool,ss_stat},
-  {"render_detailflats", {&render_detailflats},  {0},0,1,
-   def_bool,ss_stat},
-  {"render_detailsprites", {&render_detailsprites},  {0},0,1,
+  {"render_detailedflats", {&render_detailedflats},  {0},0,1,
    def_bool,ss_stat},
   {"render_multisampling", {&render_multisampling},  {0},0,8,
    def_int,ss_stat},
   {"render_smartitemsclipping", {&render_smartitemsclipping},  {0},0,1,
+   def_bool,ss_stat},
+  {"render_paperitems", {&render_paperitems},  {1},0,1,
    def_bool,ss_stat},
 #ifndef GL_DOOM
   {"render_wipescreen", {&render_wipescreen},  {1},0,1,
@@ -1344,7 +1342,7 @@ static void WriteTGAfile(const char* filename, const byte* data,
 
 void M_DoScreenShot (const char* fname)
 {
-  extern int st_palette;
+  extern int st_palette;//e6y
   byte       *linear;
 #ifndef GL_DOOM
   const byte *pal;
@@ -1373,7 +1371,7 @@ void M_DoScreenShot (const char* fname)
   // save the bmp file
 
   WriteBMPfile
-    (fname, linear, SCREENWIDTH, SCREENHEIGHT, pal);
+    (fname, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);//e6y
 
   // cph - free the palette
   W_UnlockLumpNum(pplump);

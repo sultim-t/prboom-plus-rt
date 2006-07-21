@@ -703,7 +703,8 @@ void ST_Ticker(void)
   st_oldhealth = plyr->health;
 }
 
-static int st_palette = 0;
+//e6y static 
+int st_palette = 0;
 
 void ST_doPaletteStuff(void)
 {
