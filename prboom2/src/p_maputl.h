@@ -63,12 +63,6 @@ typedef struct {
 
 typedef boolean (*traverser_t)(intercept_t *in);
 
-#ifdef __GNUC__
-#define CONSTFUNC const
-#else
-#define CONSTFUNC
-#endif
-
 fixed_t CONSTFUNC P_AproxDistance (fixed_t dx, fixed_t dy);
 int     CONSTFUNC P_PointOnLineSide (fixed_t x, fixed_t y, const line_t *line);
 int     CONSTFUNC P_PointOnDivlineSide (fixed_t x, fixed_t y,

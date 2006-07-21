@@ -394,8 +394,6 @@ typedef struct mobj_s
 // Whether an object is "sentient" or not. Used for environmental influences.
 #define sentient(mobj) ((mobj)->health > 0 && (mobj)->info->seestate)
 
-extern mapthing_t itemrespawnque[];
-extern int itemrespawntime[];
 extern int iquehead;
 extern int iquetail;
 

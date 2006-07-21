@@ -967,7 +967,7 @@ char *  dehReformatStr(char *);
 // Prototypes for block processing functions
 // Pointers to these functions are used as the blocks are encountered.
 
-void deh_procThing(DEHFILE *, FILE*, char *);
+static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line);
 void deh_procFrame(DEHFILE *, FILE*, char *);
 void deh_procPointer(DEHFILE *, FILE*, char *);
 void deh_procSounds(DEHFILE *, FILE*, char *);
