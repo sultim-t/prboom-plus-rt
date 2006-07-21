@@ -134,11 +134,7 @@ boolean LauncherSelect(struct wadfile_info *wadfiles, size_t numwadfiles)
     return false;
 
   listIWADCount = SendMessage(launcher.listIWAD, CB_GETCOUNT, 0, 0);
-  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
-
   SendMessage(launcher.listIWAD, CB_SETCURSEL, -1, 0);
-  for (i = 0; i < listPWADCount; i++)
-    SendMessage(launcher.listPWAD, LB_SETSEL, false, i);
 
   for (k=0; !processed && k < numwadfiles; k++)
   {
@@ -169,6 +165,11 @@ boolean LauncherSelect(struct wadfile_info *wadfiles, size_t numwadfiles)
 
   if (!processed)
     return false;
+
+  //LauncherFillPWAD();
+  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
+  for (i = 0; i < listPWADCount; i++)
+    SendMessage(launcher.listPWAD, LB_SETSEL, false, i);
 
   topindex = -1;
 
@@ -888,12 +889,6 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       LauncherFillIWAD();
       LauncherFillHistory();
 
-      /*if (numwadfiles)
-      {
-        LauncherSelect(wadfiles, numwadfiles);
-        break;
-      } */
-
       if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
       {
         LauncherHistoryOnChange();
@@ -923,7 +918,6 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       
       if (wmId == IDC_IWADCOMBO && wmEvent == CBN_SELCHANGE)
         LauncherIWADOnChange();
-      
       
       if (wmId == IDC_PWADLIST && wmEvent == LBN_SELCHANGE)
         LauncherPWADOnChange();

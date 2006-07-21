@@ -117,7 +117,7 @@ char hud_timestr[80];
 char hud_centermsg[80];
 
 fixed_t sidemove_normal[2]    = {0x18, 0x28};
-fixed_t sidemove_strafe50[2]    = {0x18, 0x32};
+fixed_t sidemove_strafe50[2]    = {0x19, 0x32};
 
 fixed_t	r_TicFrac;
 int otic;
@@ -1271,7 +1271,7 @@ void SpechitOverrun(line_t* ld)
 
     if (overrun_spechit_emulate)
     {
-      int addr = 0x01C09C98 + (ld - lines) * 0x3E;
+      int addr = 0x00C09C98 + (ld - lines) * 0x3E;
       if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {
         extern fixed_t   tmfloorz;
@@ -1512,15 +1512,17 @@ HWND GetHWND(void)
 void CenterMouse_Win32(long x, long y)
 {
 #ifdef _WIN32
-  //RECT rect;
-  //HWND hwnd = GetHWND();
+  RECT rect;
+  HWND hwnd = GetHWND();
 	
-  //GetWindowRect (hwnd, &rect);
+  GetWindowRect (hwnd, &rect);
 
   //MousePrevX = (rect.left + rect.right) >> 1;
   //MousePrevY = (rect.top + rect.bottom) >> 1;
-  MousePrevX = SCREENWIDTH/2;
-  MousePrevY = SCREENHEIGHT/2;
+//  MousePrevX = SCREENWIDTH/2;
+//  MousePrevY = SCREENHEIGHT/2;
+  MousePrevX = rect.left + SCREENWIDTH/2;
+  MousePrevY = rect.top + SCREENHEIGHT/2;
 
   if (MousePrevX != x || MousePrevY != y)
   {
@@ -1547,7 +1549,7 @@ void e6y_I_GetEvent(void)
     if (x | y)
     {
       event_t event;
-      
+
       CenterMouse_Win32(pos.x, pos.y);
 
       event.type = ev_mouse;
@@ -2052,3 +2054,47 @@ void ClearLinesCrossTracer(void)
 
 float paperitems_pitch;
 boolean isskytexture = false;
+
+void I_ClosestResolution (int *width, int *height, int flags)
+{
+  SDL_Rect **modes;
+  int twidth, theight;
+  int cwidth = 0, cheight = 0;
+//  int iteration;
+  int i;
+  unsigned int closest = UINT_MAX;
+  unsigned int dist;
+
+  modes = SDL_ListModes(NULL, flags);
+
+  //for (iteration = 0; iteration < 2; iteration++)
+  {
+    for(i=0; modes[i]; ++i)
+    {
+      twidth = modes[i]->w;
+      theight = modes[i]->h;
+      
+      if (twidth == *width && theight == *height)
+        return;
+
+      //if (iteration == 0 && (twidth < *width || theight < *height))
+      //  continue;
+
+      dist = (twidth - *width) * (twidth - *width) + 
+             (theight - *height) * (theight - *height);
+
+      if (dist < closest)
+      {
+        closest = dist;
+        cwidth = twidth;
+        cheight = theight;
+      }
+    }
+    if (closest != 4294967295u)
+    {
+      *width = cwidth;
+      *height = cheight;
+      return;
+    }
+  }
+}  

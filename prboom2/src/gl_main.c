@@ -2090,12 +2090,13 @@ static void gld_DrawWall(GLWall *wall)
       {             
         //float skytop = wall->ytop;
         float skytop = 255.0f;
+        float skycoord = 255.0f;
         SkyDrawed = true;
         glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-100,skytop,100);
-          glVertex3f(100,skytop,100);
-          glVertex3f(-100,skytop,-100);
-          glVertex3f(100,skytop,-100);
+          glVertex3f(-skycoord,skytop,skycoord);
+          glVertex3f(skycoord,skytop,skycoord);
+          glVertex3f(-skycoord,skytop,-skycoord);
+          glVertex3f(skycoord,skytop,-skycoord);
         glEnd();
       }
 

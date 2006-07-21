@@ -546,7 +546,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   //e6y
   if (movement_strafe50 && !movement_strafe50onturns)
-    if(!strafe && mousex != 0)
+    if(!strafe && cmd->angleturn != 0)
     {
       if (side > sidemove_normal[1])
         side = sidemove_normal[1];

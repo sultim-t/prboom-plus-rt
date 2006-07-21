@@ -465,8 +465,11 @@ void I_PreInitGraphics(void)
 
 void I_SetRes(unsigned int width, unsigned int height)
 {
-  SCREENWIDTH = (width+3) & ~3;
-  SCREENHEIGHT = (height+3) & ~3;
+//e6y  SCREENWIDTH = (width+3) & ~3;
+//e6y  SCREENHEIGHT = (height+3) & ~3;
+//e6y
+  SCREENWIDTH = width;
+  SCREENHEIGHT = height;
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
@@ -504,7 +507,7 @@ void I_UpdateVideoMode(void)
   unsigned int w, h;
   int init_flags;
 
-  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
+//e6y (below)  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
@@ -514,11 +517,11 @@ void I_UpdateVideoMode(void)
   init_flags = SDL_OPENGL;
 #else
   if (use_doublebuffer)
-    init_flags = SDL_HWSURFACE | SDL_DOUBLEBUF; //e6y
+    init_flags = SDL_HWSURFACE | SDL_DOUBLEBUF;//e6y SDL_DOUBLEBUF - Enable hardware double buffering; only valid with SDL_HWSURFACE
   else
     init_flags = SDL_SWSURFACE;
 #ifndef _DEBUG
-//  init_flags |= SDL_HWPALETTE;
+  init_flags |= SDL_HWPALETTE;
 #endif
 #endif
   if ( use_fullscreen )
@@ -526,6 +529,15 @@ void I_UpdateVideoMode(void)
   //e6y
   if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
   if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
+#ifdef GL_DOOM
+  if ( init_flags & SDL_FULLSCREEN )
+  {
+    I_ClosestResolution(&w, &h, init_flags);
+    SCREENWIDTH = w;
+    SCREENHEIGHT = h;
+  }
+#endif
+  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
@@ -543,7 +555,6 @@ void I_UpdateVideoMode(void)
   e6y_MultisamplingSet();//e6y
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
-   if(SDL_VideoModeOK(w, h, 8, init_flags))
   screen = SDL_SetVideoMode(w, h, 8, init_flags);
 #endif
 
