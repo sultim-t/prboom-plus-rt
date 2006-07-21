@@ -9,7 +9,7 @@
  *  Copyright (C) 1999-2000 by
  *  Colin Phipps (cph@lxdoom.linuxgames.com),
  *  Jess Haas (JessH@lbjhs.net)
- *  and Florian Schulze (florian.proff.schulze@gmx.net)
+ *  and Florian Schulze (florian.schulze@gmx.net)
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -144,4 +144,4 @@
 #define PACKAGE "prboom-plus"
 
 /* Version number of package */
-#define VERSION "2.4.0.1" //e6y
+#define VERSION "2.4.1.1" //e6y

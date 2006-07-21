@@ -523,26 +523,30 @@ int EV_VerticalDoor
     if (!door) door = sec->floordata;
     if (!door) door = sec->lightingdata;
   }
-  if (door)
-  {
-    switch(line->special)
-    {
-      case  1: // only for "raise" doors, not "open"s
-      case  26:
-      case  27:
-      case  28:
-      case  117:
-        if (door->direction == -1)
-          door->direction = 1;  // go back up
-        else
-        {
-          if (!thing->player)
-            return 0;           // JDC: bad guys never close doors
-
-          door->direction = -1; // start going down immediately
-        }
-        return 1;
+  /* If this is a repeatable line, and the door is already moving, then we can just reverse the current action. Note that in prboom 2.3.0 I erroneously removed the if-this-is-repeatable check, hence the prboom_4_compatibility clause below (foolishly assumed that already moving implies repeatable - but it could be moving due to another switch, e.g. lv19-509) */
+  if (door &&
+	  ((compatibility_level == prboom_4_compatibility) ||
+	   (line->special == 1) || (line->special == 117) || (line->special == 26) || (line->special == 27) || (line->special == 28)
+	  )
+     ) {
+    /* For old demos we have to emulate the old buggy behavior and
+     * mess up non-T_VerticalDoor actions.
+     */
+    if (compatibility_level < prboom_4_compatibility || 
+        door->thinker.function == T_VerticalDoor) {
+      /* An already moving repeatable door which is being re-pressed, or a
+       * monster is trying to open a closing door - so change direction
+       */
+      if (door->direction == -1) {
+        door->direction = 1; return 1; /* go back up */
+      } else if (player) {
+        door->direction = -1; return 1; /* go back down */
+      }
     }
+    /* Either we're in prboom >=v2.3 and it's not a door, or it's a door but
+     * we're a monster and don't want to shut it; exit with no action.
+     */
+    return 0;
   }
 
   // emit proper sound
@@ -553,12 +557,7 @@ int EV_VerticalDoor
       S_StartSound((mobj_t *)&sec->soundorg,sfx_bdopn);
       break;
 
-    case 1:   // normal door sound
-    case 31:
-      S_StartSound((mobj_t *)&sec->soundorg,sfx_doropn);
-      break;
-
-    default:  // locked door sound
+    default:  // normal or locked door sound
       S_StartSound((mobj_t *)&sec->soundorg,sfx_doropn);
       break;
   }

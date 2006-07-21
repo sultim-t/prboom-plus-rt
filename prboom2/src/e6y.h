@@ -379,8 +379,6 @@ boolean compbad_get(int *compbad);
 //boolean CompErrZeroTag(void);
 //boolean CompErrPassUse(void);
 
-int G_GetOriginalDoomCompatLevel(int ver);
-
 boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
 
 void LauncherShow(void);

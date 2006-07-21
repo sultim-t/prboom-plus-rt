@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -417,11 +417,10 @@ boolean PIT_CheckLine (line_t* ld)
   if (ld->special)
     {
       // 1/11/98 killough: remove limit on lines hit, by array doubling
-      if (numspechit >= spechit_max)
-  {
-    spechit_max = spechit_max ? spechit_max*2 : 8;
-    spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
-  }
+      if (numspechit >= spechit_max) {
+        spechit_max = spechit_max ? spechit_max*2 : 8;
+	spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
+      }
       spechit[numspechit++] = ld;
       SpechitOverrun(ld); // e6y: Spechits overrun emulation code
     }

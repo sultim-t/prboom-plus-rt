@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -144,11 +144,10 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   frontsector = curline->frontsector;
   backsector = curline->backsector;
 
-  //e6y // cph 2001/11/25 - middle textures did not animate in v1.2
+  // cph 2001/11/25 - middle textures did not animate in v1.2
   texnum = curline->sidedef->midtexture;
   if (!comp[comp_maskedanim])
     texnum = texturetranslation[texnum];
-  //e6y texnum = texturetranslation[curline->sidedef->midtexture];
 
   // killough 4/13/98: get correct lightlevel for 2s normal textures
   lightnum = (R_FakeFlat(frontsector, &tempsec, NULL, NULL, false)

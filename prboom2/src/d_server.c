@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2006 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@
 #ifndef HAVE_GETOPT
 /* The following code for getopt is from the libc-source of FreeBSD,
  * it might be changed a little bit.
- * Florian Schulze (florian.proff.schulze@gmx.net)
+ * Florian Schulze (florian.schulze@gmx.net)
  */
 
 /*
@@ -304,7 +304,7 @@ void read_config_file(FILE* fp, struct setup_packet_s* sp)
         sp->skill = v-1;
       } else if (!strcmp(def,"default_compatibility_level")) {
         if (verbose) printf("config file sets compatibility_level to %d\n",v);
-        if (v == -1) v = MAX_COMPATIBILITY_LEVEL-1;//e6y
+	if (v == -1) v = MAX_COMPATIBILITY_LEVEL-1; //e6y: -1 => maxcompat
         sp->complevel = v;
       } else {
         int i;

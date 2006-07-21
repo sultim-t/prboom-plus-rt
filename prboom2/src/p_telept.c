@@ -77,8 +77,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
           if (!P_TeleportMove(thing, m->x, m->y, false)) /* killough 8/9/98 */
             return 0;
 
-          //e6y if (!(demo_compatibility && gamemission >= pack_tnt))
-          if (compatibility_level != finaldoom_compatibility)//e6y
+          if (compatibility_level != finaldoom_compatibility) // e6y
             thing->z = thing->floorz;
 
           if (player)

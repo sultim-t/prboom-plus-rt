@@ -3219,14 +3219,14 @@ void M_DrawGeneral(void)
 #define COMP_SPC 12
 #define C_NEXTPREV 131
 
-setup_menu_t comp_settings1[], comp_settings2[];
+setup_menu_t comp_settings1[], comp_settings2[], comp_settings3[];
 setup_menu_t comp_settings3[];//e6y
 
 setup_menu_t* comp_settings[] =
 {
   comp_settings1,
   comp_settings2,
-  comp_settings3,//e6y
+  comp_settings3,
   NULL
 };
 
@@ -3253,9 +3253,10 @@ enum
   compat_model,
   compat_zerotags,
   compat_menu,
-  //e6y
   compat_666 = 0,
+  compat_soul,
   compat_maskedanim,
+  //e6y
   compat_maxhealth,
   compat_translucency,
 };
@@ -3339,6 +3340,8 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
   {"NEXT ->",S_SKIP|S_NEXT, m_null, KB_NEXT, C_Y+C_NEXTPREV, {comp_settings3}},//e6y
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings1}},
 
+  {"NEXT ->",S_SKIP|S_NEXT, m_null, KB_NEXT, C_Y+C_NEXTPREV, {comp_settings3}},
+
   // Final entry
 
   {0,S_SKIP|S_END,m_null}
@@ -3347,10 +3350,15 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 //e6y
 setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
 {
-  {"Enables tag 666 in non-ExM8 levels", S_YESNO, m_null, C_X,
+  {"Linedef type 666 works at all E1 levels", S_YESNO, m_null, C_X,
    C_Y + compat_666 * COMP_SPC, {"comp_666"}},
-  {"Middle textures did not animate in v1.2", S_YESNO, m_null, C_X,
+
+  {"Lost souls don't bounce off flat surfaces", S_YESNO, m_null, C_X,
+   C_Y + compat_soul * COMP_SPC, {"comp_soul"}},
+
+  {"2S middle textures do not animate", S_YESNO, m_null, C_X,
    C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
+
   {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
    C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
   {"No predefined translucency for some things", S_YESNO, m_null, C_X,
@@ -3358,7 +3366,6 @@ setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings2}},
   {0,S_SKIP|S_END,m_null}
 };
-
 
 // Setting up for the Compatibility screen. Turn on flags, set pointers,
 // locate the first item on the screen where the cursor is allowed to

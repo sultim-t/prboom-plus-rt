@@ -1630,24 +1630,6 @@ boolean CompErrPassUse(void)
   return !demo_compatibility && comperr_passuse && !demorecording && !demoplayback;
 }*/
 
-int G_GetOriginalDoomCompatLevel(int ver)
-{
-  {
-    int lev;
-    int i = M_CheckParm("-complevel");
-    if (i && (i+1 < myargc))
-    {
-      lev = atoi(myargv[i+1]);
-      if (lev>=0)
-        return lev;
-    }
-  }
-  return (ver < 107 ? doom_1666_compatibility :
-      (gamemode == retail) ? ultdoom_compatibility :
-      (gamemission >= pack_tnt) ? finaldoom_compatibility :
-      doom2_19_compatibility);
-}
-
 boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
 {
   zerotag_manual = false;

@@ -26,12 +26,15 @@ and the other sources mentioned above have all allowed their code to be
 GPLed. So PrBoom is covered by the GPL.
 
 In May 2000, LxDoom, PrBoom, and a derived port called LSDLDoom, merged into
-one. The current authors of PrBoom are Colin Phipps (doom@cph.demon.co.uk),
-Jess Haas (JessH@lbjhs.net),Florian Schulze (florian.proff.schulze@gmx.net), and
-Nicolas Kalkhof (nkalkhof@gmx.net).
+one. The current authors of PrBoom are Colin Phipps (cph@moria.org.uk), and
+Florian Schulze (florian.schulze@gmx.net).
 
 Our thanks go to all the authors of the ports mentioned above, and also the
 following people who contributed code to LxDoom or PrBoom:
+
+Jess Haas	JessH@lbjhs.net
+Nicolas Kalkhof	nkalkhof@gmx.net
+Were both on the PrBoom team for a while, making significant code contributions.
 
 Gady Kozma	gady@math.tau.ac.il
 Added hires to the SVGALib version of LxDoom, and other useful patches.
@@ -131,6 +134,9 @@ Pointing me toward yet another compatibility bug.
 
 Ingo van Lil
 Another bug spotter.
+
+Neil Stevens
+Mac OS X porting
 
 Everyone who contributed indirectly to MBF and Boom and Doom; see the
 respective documentation files.

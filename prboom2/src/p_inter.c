@@ -791,7 +791,7 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
 void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 {
   player_t *player;
-  boolean justhit;          /* killough 11/98 */
+  boolean justhit = false;          /* killough 11/98 */
 
   /* killough 8/31/98: allow bouncers to take damage */
   if (!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))
@@ -914,14 +914,20 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   }
     }
 
-  if ((justhit = (P_Random (pr_painchance) < target->info->painchance &&
-      !(target->flags & MF_SKULLFLY)))) //killough 11/98: see below
+  if (P_Random (pr_painchance) < target->info->painchance &&
+      !(target->flags & MF_SKULLFLY)) { //killough 11/98: see below
+    if (mbf_features)
+      justhit = true;
+    else
+      target->flags |= MF_JUSTHIT;    // fight back!
+
   //e6y
   {
     if(demo_compatibility)
       if ((target->target == source || !target->target ||
          !(target->flags & target->target->flags & MF_FRIEND)))
         target->flags |= MF_JUSTHIT;    // fight back!
+  }
 
   P_SetMobjState(target, target->info->painstate);
   }//e6y
@@ -957,7 +963,8 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
         P_SetMobjState (target, target->info->seestate);
     }
 
-  /* killough 11/98: Don't attack a friend, unless hit by that friend. */
+  /* killough 11/98: Don't attack a friend, unless hit by that friend.
+   * cph 2006/04/01 - implicitly this is only if mbf_features */
   if(!demo_compatibility) //e6y
   if (justhit && (target->target == source || !target->target ||
       !(target->flags & target->target->flags & MF_FRIEND)))
