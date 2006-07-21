@@ -42,6 +42,8 @@
 #include "d_deh.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
 #include "g_game.h"
 #include "e6y.h" //e6y
+extern int map_point_coordinates; //e6y
+
 
 // global heads up display controls
 
@@ -650,6 +652,7 @@ void HU_Start(void)
 
   // initialize the automaps coordinate widget
   //jff 3/3/98 split coordstr widget into 3 parts
+  if (map_point_coordinates) {//e6y
   sprintf(hud_coordstrx,"X: %-5d",0); //jff 2/22/98 added z
   s = hud_coordstrx;
   while (*s)
@@ -662,6 +665,7 @@ void HU_Start(void)
   s = hud_coordstrz;
   while (*s)
     HUlib_addCharToTextLine(&w_coordz, *(s++));
+  }//e6y
 
   //jff 2/16/98 initialize ammo widget
   strcpy(hud_ammostr,"AMM ");
@@ -806,6 +810,7 @@ void HU_Drawer(void)
 
     //jff 2/16/98 output new coord display
     // x-coord
+    if (map_point_coordinates) {//e6y
     sprintf(hud_coordstrx,"X: %-5d", (plr->mo->x)>>FRACBITS);
     HUlib_clearTextLine(&w_coordx);
     s = hud_coordstrx;
@@ -831,6 +836,7 @@ void HU_Drawer(void)
     while (*s)
       HUlib_addCharToTextLine(&w_coordz, *(s++));
     HUlib_drawTextLine(&w_coordz, false);
+    }//e6y
   }
 
   // draw the weapon/health/ammo/armor/kills/keys displays if optioned

@@ -5,6 +5,7 @@
 #include "SDL_timer.h"
 #include "SDL_events.h"
 #include "p_maputl.h"
+#include "w_wad.h"
 
 #define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
 
@@ -98,19 +99,19 @@ extern int hudadd_gamespeed;
 extern int hudadd_leveltime;
 extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
-extern int movement_mouselook;
-extern int movement_mouseinvert;
 extern int movement_strafe50;
 extern int movement_strafe50onturns;
 extern int movement_smooth;
 extern int movement_altmousesupport;
+extern int movement_mouselook;
+extern int movement_mouseinvert;
 extern int render_fov;
 extern int render_usedetail;
 extern int render_detailedwalls;
 extern int render_detailedflats;
 extern int render_multisampling;
-extern int render_smartitemsclipping;
 extern int render_paperitems;
+extern int render_smartitemsclipping;
 extern int render_wipescreen;
 extern int mouse_acceleration;
 extern int demo_smoothturns;
@@ -205,6 +206,7 @@ void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
 void M_MouseMLook(int choice);
 void M_MouseAccel(int choice);
+void M_ChangeCompTranslucency(void);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
 void D_Display(void);
@@ -454,5 +456,9 @@ void CheckLinesCrossTracer(line_t *line);
 void ClearLinesCrossTracer(void);
 
 extern float paperitems_pitch;
+extern boolean isskytexture;
+
+void D_AddDehFile (const char *file, wad_source_t source);
+
 
 #endif

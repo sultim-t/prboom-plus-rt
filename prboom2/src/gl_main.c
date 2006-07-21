@@ -1901,7 +1901,7 @@ void gld_StartDrawScene(void)
 
 //e6y
 //  viewMaxY = viewz;
-  if(!GetMouseLook && render_fov == FOV90)
+  if(!GetMouseLook() && render_fov == FOV90)
     pitch=0.0f;
   else
   {
@@ -2056,7 +2056,9 @@ static void gld_DrawWall(GLWall *wall)
     {
       glMatrixMode(GL_TEXTURE);
       glPushMatrix();
+      
       if (!GetMouseLook() && render_fov == FOV90) {//e6y
+
       if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
         glScalef(-128.0f/(float)wall->gltexture->buffer_width,200.0f/320.0f*2.0f,1.0f);
       else
@@ -2075,12 +2077,12 @@ static void gld_DrawWall(GLWall *wall)
             glScalef(+64.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
           glTranslatef(skyXShift,skyYShift,0.0f);
         }
-        else
+        else //1024
         {
           if ((wall->flag&GLDWF_SKYFLIP)==GLDWF_SKYFLIP)
-            glScalef(-128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*2.0f*fovscale,1.0f);
+            glScalef(-128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
           else
-            glScalef(+128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*2.0f*fovscale,1.0f);
+            glScalef(+128.0f/(float)wall->gltexture->buffer_width*fovscale,200.0f/320.0f*fovscale,1.0f);
           glTranslatef(skyXShift,skyYShift,0.0f);
         }
       }
@@ -2228,7 +2230,9 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
+//e6y
 #define SKYTEXTURE(sky1,sky2)\
+  isskytexture = true;\
   if ((sky1) & PL_SKYFLAT)\
   {\
     const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
@@ -2254,7 +2258,8 @@ static void gld_DrawWall(GLWall *wall)
     wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
     wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
     wall.flag = GLDWF_SKY;\
-  }
+  }\
+  isskytexture = false;
 
 #define ADDWALL(wall)\
 {\
@@ -2733,7 +2738,9 @@ static void gld_DrawSprite(GLSprite *sprite)
   if (!render_paperitems)
   {
     if (!(sprite->thing->flags&MF_SOLID))
+    {
       glRotatef(paperitems_pitch,1.0f,0.0f,0.0f);
+    }
   }
 
   if(sprite->shadow)

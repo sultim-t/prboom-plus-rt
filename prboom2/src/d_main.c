@@ -879,10 +879,6 @@ void IdentifyVersion (void)
 
   // locate the IWAD and determine game mode from it
 
-  //e6y
-  LauncherShow();
-  if (gamemode != indetermined) return; //e6y
-
   iwad = FindIWADFile();
 
 #if (defined(GL_DOOM) && defined(_DEBUG))
@@ -1571,6 +1567,8 @@ void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"D_InitNetGame: Checking for network game.\n");
   D_InitNetGame();
+
+  LauncherShow();//e6y
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"W_Init: Init WADfiles.\n");

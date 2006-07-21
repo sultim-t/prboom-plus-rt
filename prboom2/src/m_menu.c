@@ -3253,9 +3253,9 @@ enum
   compat_zerotags,
   compat_menu,
   //e6y
-//  compat_666 = 0,
-//  compat_maskedanim,
-  compat_maxhealth = 0,
+  compat_666 = 0,
+  compat_maskedanim,
+  compat_maxhealth,
   compat_translucency,
 };
 
@@ -3346,10 +3346,10 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 //e6y
 setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
 {
-//  {"Enables tag 666 in non-E1Mx levels", S_YESNO, m_null, C_X,
-//   C_Y + compat_666 * COMP_SPC, {"comp_666"}},
-//  {"Middle textures did not animate in v1.2", S_YESNO, m_null, C_X,
-//   C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
+  {"Enables tag 666 in non-ExM8 levels", S_YESNO, m_null, C_X,
+   C_Y + compat_666 * COMP_SPC, {"comp_666"}},
+  {"Middle textures did not animate in v1.2", S_YESNO, m_null, C_X,
+   C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
   {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
    C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
   {"No predefined translucency for some things", S_YESNO, m_null, C_X,

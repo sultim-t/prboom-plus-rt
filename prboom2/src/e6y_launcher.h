@@ -50,5 +50,9 @@ typedef struct
 extern const int nstandard_iwads;
 extern const char *const standard_iwads[];
 void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec);
+boolean HasTrailingSlash(const char* dn);
+void NormalizeSlashes(char *str);
+void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
+const char *D_dehout(void);
 
 #endif

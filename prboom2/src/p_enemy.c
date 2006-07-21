@@ -2102,15 +2102,15 @@ void A_BossDeath(mobj_t *mo)
           if (gamemap != 8)
             return;
 
-          if (compatibility_level >= ultdoom_compatibility && mo->type != MT_BRUISER)//e6y
-            return;
+	  if (mo->type != MT_BRUISER && !comp[comp_666]) //e6y
+	    return;
           break;
 
         case 2:
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_CYBORG)
+          if (mo->type != MT_CYBORG && !comp[comp_666]) //e6y
             return;
           break;
 
@@ -2118,7 +2118,7 @@ void A_BossDeath(mobj_t *mo)
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_SPIDER)
+          if (mo->type != MT_SPIDER && !comp[comp_666]) //e6y
             return;
 
           break;

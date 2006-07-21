@@ -59,6 +59,7 @@
 #include "lprintf.h"
 #include "gl_intern.h"
 #include "gl_struct.h"
+#include "e6y.h"
 
 extern int numtextures;
 extern texture_t **textures;
@@ -421,6 +422,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
   GLTexture *gltexture;
 
   if (texture_num==R_TextureNumForName("-"))
+   if (!isskytexture || texture_num!=skytexture)//e6y
     return NULL;
   gltexture=gld_AddNewGLTexture(texture_num);
   if (!gltexture)

@@ -2034,7 +2034,7 @@ void G_Compatibility(void)
                              * at game start respawn at (0,0) */
     boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
     //e6y
-    doom_1666_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
+    ultdoom_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
 //    prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
     doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
     boom_compatibility_compatibility, //comp_maxhealth 

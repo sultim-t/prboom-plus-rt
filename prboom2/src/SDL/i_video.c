@@ -514,11 +514,11 @@ void I_UpdateVideoMode(void)
   init_flags = SDL_OPENGL;
 #else
   if (use_doublebuffer)
-    init_flags = SDL_SWSURFACE | SDL_DOUBLEBUF;
+    init_flags = SDL_HWSURFACE | SDL_DOUBLEBUF; //e6y
   else
     init_flags = SDL_SWSURFACE;
 #ifndef _DEBUG
-  init_flags |= SDL_HWPALETTE;
+//  init_flags |= SDL_HWPALETTE;
 #endif
 #endif
   if ( use_fullscreen )
@@ -543,6 +543,7 @@ void I_UpdateVideoMode(void)
   e6y_MultisamplingSet();//e6y
   screen = SDL_SetVideoMode(w, h, gl_colorbuffer_bits, init_flags);
 #else
+   if(SDL_VideoModeOK(w, h, 8, init_flags))
   screen = SDL_SetVideoMode(w, h, 8, init_flags);
 #endif
 

@@ -655,9 +655,11 @@ void R_RenderPlayerView (player_t* player)
 #endif
 
   // The head node is the last node output.
-  //e6y R_RenderBSPNode (numnodes-1);
+#ifndef GL_DOOM //e6y
+  R_RenderBSPNode (numnodes-1);
 
   //e6y
+#else
   if ((render_fov > FOV90) || (GetMouseLook() && viewpitch))
   {
     unsigned int oldviewangle;
@@ -701,6 +703,7 @@ void R_RenderPlayerView (player_t* player)
   {
     R_RenderBSPNode (numnodes-1);
   } 
+#endif
 
   // Check for new console commands.
 #ifdef HAVE_NET

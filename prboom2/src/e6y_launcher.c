@@ -25,6 +25,8 @@ launcher_t launcher;
 void LauncherFillPWAD(boolean doom1, boolean doom2);
 void LauncherAddToCache(fileitem_t *item, const char *filename);
 char launchercachefile[PATH_MAX];
+char* e6y_I_FindFile(const char* ext);
+int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength);
 
 boolean LauncherCheckPWAD(const char *filename, fileitem_t *item)
 {
@@ -126,70 +128,80 @@ boolean LauncherSelect(struct wadfile_info *wadfiles, size_t numwadfiles)
   int topindex;
   boolean processed = false;
   int listIWADCount, listPWADCount;
+  char fullpath[PATH_MAX];
   
-  listIWADCount = SendMessage(launcher.listIWAD, CB_GETCOUNT, 0, 0);
-
   if (!wadfiles)
     return false;
 
+  listIWADCount = SendMessage(launcher.listIWAD, CB_GETCOUNT, 0, 0);
+  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
+
   SendMessage(launcher.listIWAD, CB_SETCURSEL, -1, 0);
+  for (i = 0; i < listPWADCount; i++)
+    SendMessage(launcher.listPWAD, LB_SETSEL, false, i);
 
   for (k=0; !processed && k < numwadfiles; k++)
   {
-    switch (wadfiles[k].src)
+    if (GetFullPath(wadfiles[k].name, fullpath, PATH_MAX))
     {
-       case source_iwad:
-         for (i=0; !processed && i<nstandard_iwads; i++)
-         {
-           if (!strcasecmp(standard_iwads[i], wadfiles[k].name))
-           {
-             for (j=0; !processed && j < listIWADCount; j++)
-             {
-               if (SendMessage(launcher.listIWAD, CB_GETITEMDATA, j, 0)==i)
-                 if (SendMessage(launcher.listIWAD, CB_SETCURSEL, j, 0) != CB_ERR)
-                 {
-                   processed = true;
-                   LauncherIWADOnChange();
-                 }
-             }
-           }
-         }
-         break;
+      switch (wadfiles[k].src)
+      {
+      case source_iwad:
+        for (i=0; !processed && i<nstandard_iwads; i++)
+        {
+          if (!strcasecmp(standard_iwads[i], PathFindFileName(fullpath)))
+          {
+            for (j=0; !processed && j < listIWADCount; j++)
+            {
+              if (SendMessage(launcher.listIWAD, CB_GETITEMDATA, j, 0)==i)
+                if (SendMessage(launcher.listIWAD, CB_SETCURSEL, j, 0) != CB_ERR)
+                {
+                  processed = true;
+                  LauncherIWADOnChange();
+                }
+            }
+          }
+        }
+        break;
+      }
     }
   }
 
   if (!processed)
     return false;
 
-  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
-
   topindex = -1;
 
   for (k=0; k < numwadfiles; k++)
   {
-    switch (wadfiles[k].src)
+    if (GetFullPath(wadfiles[k].name, fullpath, PATH_MAX))
     {
-       case source_deh:
-       case source_pwad:
-         processed = false;
-         for (j=0; !processed && j < listPWADCount; j++)
-         {
-           int index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, j, 0);
-           if (index != LB_ERR)
-           {
-             if (!strcasecmp(launcher.files[index].name, wadfiles[k].name))
-               if (SendMessage(launcher.listPWAD, LB_SETSEL, true, j) != CB_ERR)
-               {
-                 if (topindex == -1)
-                   topindex = j;
-                 processed = true;
-               }
-           }
-         }
-         if (!processed)
-           return false;
-         break;
+      switch (wadfiles[k].src)
+      {
+      case source_deh:
+      case source_pwad:
+        processed = false;
+        for (j=0; !processed && j < listPWADCount; j++)
+        {
+          int index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, j, 0);
+          if (index != LB_ERR)
+          {
+            if (!strcasecmp(launcher.files[index].name, fullpath))
+              if (SendMessage(launcher.listPWAD, LB_SETSEL, true, j) != CB_ERR)
+              {
+                if (topindex == -1)
+                  topindex = j;
+                processed = true;
+              }
+          }
+        }
+        if (!processed)
+          return false;
+        break;
+      }
     }
+    else
+      return false;
   }
   
   if (topindex == -1)
@@ -202,9 +214,7 @@ boolean LauncherSelect(struct wadfile_info *wadfiles, size_t numwadfiles)
 void LauncherAddIWAD(const char *iwad)
 {
   extern boolean haswolflevels;
-
   int i;
-
   char *realiwad;
 
   realiwad = I_FindFile(iwad, ".wad");
@@ -236,7 +246,17 @@ void LauncherAddIWAD(const char *iwad)
     }
     if (gamemode == indetermined)
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");
-    D_AddFile(realiwad,source_iwad);
+
+    for(i=0;(size_t)i<numwadfiles;i++)
+    {
+      if (wadfiles[i].src == source_iwad)
+      {
+        free((char*)wadfiles[i].name);
+        wadfiles[i].name = strdup(realiwad);
+        break;
+      }
+    }
+    //D_AddFile(realiwad,source_iwad);
     
     free(realiwad);
   }
@@ -244,10 +264,10 @@ void LauncherAddIWAD(const char *iwad)
 
 void LauncherLaunch(void)
 {
-  int i, index;
+  int i, index, listPWADCount;
   char *history = NULL;
-
-  int listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
+  
+  listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
   
   index = SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
   if (index != CB_ERR)
@@ -274,11 +294,7 @@ void LauncherLaunch(void)
         D_AddFile(item->name,source_pwad);
       
       if (item->source == source_deh)
-      {
-        void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
-        const char *D_dehout(void);
         ProcessDehFile(item->name,D_dehout(),0);
-      }
 
       history = realloc(history, strlen(history) + strlen(item->name) + 8);
       strcat(history, "|");
@@ -413,11 +429,39 @@ void LauncherFillPWAD(boolean doom1, boolean doom2)
   }
 }
 
+int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength)
+{
+  int i, Result;
+  char *p;
+  char dir[PATH_MAX];
+  
+  for (i=0; i<3; i++)
+  {
+    switch(i)
+    {
+    case 0:
+      getcwd(dir, sizeof(dir));
+      break;
+    case 1:
+      if (!getenv("DOOMWADDIR"))
+        continue;
+      strcpy(dir, getenv("DOOMWADDIR"));
+      break;
+    case 2:
+      strcpy(dir, I_DoomExeDir());
+      break;
+    }
+
+    Result = SearchPath(dir,FileName,NULL,BufferLength,Buffer,&p);
+    if (Result)
+      return Result;
+  }
+
+  return false;
+}
+
 char* e6y_I_FindFile(const char* ext)
 {
-  boolean HasTrailingSlash(const char* dn);
-  void NormalizeSlashes(char *str);
-
   int i;
   /* Precalculate a length we will need in the loop */
   size_t  pl = strlen(ext) + 4;
@@ -460,8 +504,8 @@ char* e6y_I_FindFile(const char* ext)
     }
 
     p = malloc(strlen(d) + (s ? strlen(s) : 0) + pl);
-    sprintf(p, "%s%s%s%s", d, (d && !HasTrailingSlash(d)) ? "/" : "",
-                             s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "");
+    sprintf(p, "%s%s%s%s", d, (d && !HasTrailingSlash(d)) ? "\\" : "",
+                             s ? s : "", (s && !HasTrailingSlash(s)) ? "\\" : "");
 
     {
       void *handle;
@@ -793,7 +837,7 @@ void LauncherHistoryOnChange(void)
     }
   }
 }
- 
+
 BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
@@ -844,6 +888,12 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       LauncherFillIWAD();
       LauncherFillHistory();
 
+      /*if (numwadfiles)
+      {
+        LauncherSelect(wadfiles, numwadfiles);
+        break;
+      } */
+
       if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
       {
         LauncherHistoryOnChange();
@@ -854,7 +904,6 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
         LauncherIWADOnChange();
         SetFocus(launcher.listPWAD);
       }
-
     }
 		break;
 
@@ -929,9 +978,9 @@ BOOL CALLBACK LauncherServerCallback (HWND hWnd, UINT message, WPARAM wParam, LP
 
 boolean LauncherIsNeeded(void)
 {
-  boolean pwad = false;
   int i;
-  char * iwad = NULL;
+  boolean pwad = false;
+  char *iwad = NULL;
   
   if (!launcher_enable)
     return false;
@@ -939,7 +988,7 @@ boolean LauncherIsNeeded(void)
   i = M_CheckParm("-iwad");
   if (i && (++i < myargc))
     iwad = I_FindFile(myargv[i], ".wad");
-  
+
   for (i=0; !pwad && i < (int)numwadfiles; i++)
     pwad = wadfiles[i].src == source_pwad;
 

@@ -66,19 +66,19 @@ int hudadd_gamespeed;
 int hudadd_leveltime;
 int hudadd_secretarea;
 int hudadd_smarttotals;
-int movement_mouselook;
-int movement_mouseinvert;
 int movement_strafe50;
 int movement_strafe50onturns;
 int movement_smooth;
 int movement_altmousesupport;
+int movement_mouselook;
+int movement_mouseinvert;
 int render_fov;
 int render_usedetail;
 int render_detailedwalls;
 int render_detailedflats;
 int render_multisampling;
-int render_smartitemsclipping;
 int render_paperitems;
+int render_smartitemsclipping;
 int render_wipescreen;
 int mouse_acceleration;
 int demo_smoothturns;
@@ -1259,8 +1259,6 @@ void SpechitOverrun(line_t* ld)
 {
   extern int numspechit;
   extern line_t **spechit;
-  extern fixed_t tmbbox[4];
-  extern boolean crushchange, nofit;
 
   if (numspechit>8 && demo_compatibility)
   {
@@ -1274,27 +1272,53 @@ void SpechitOverrun(line_t* ld)
     if (overrun_spechit_emulate)
     {
       int addr = 0x01C09C98 + (ld - lines) * 0x3E;
-    
-      switch(numspechit)
+      if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {
-      case 9: 
-      case 10:
-      case 11:
-      case 12:
-        tmbbox[numspechit-9] = addr;
-        break;
-      case 13:
-        nofit = addr;
-        break;
-      case 14:
-        crushchange = addr;
-        break;
+        extern fixed_t   tmfloorz;
+        extern fixed_t   tmceilingz;
 
-      default:
-        fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
-                        "an overrun where numspechit=%i\n",
-                         numspechit);
-        break;
+        switch(numspechit)
+        {
+        case 9: 
+          tmfloorz = addr;
+          break;
+        case 10:
+          tmceilingz = addr;
+          break;
+          
+        default:
+          fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
+            "an overrun where numspechit=%i\n",
+            numspechit);
+          break;
+        }
+      }
+      else
+      {
+        extern fixed_t tmbbox[4];
+        extern boolean crushchange, nofit;
+
+        switch(numspechit)
+        {
+        case 9: 
+        case 10:
+        case 11:
+        case 12:
+          tmbbox[numspechit-9] = addr;
+          break;
+        case 13:
+          nofit = addr;
+          break;
+        case 14:
+          crushchange = addr;
+          break;
+
+        default:
+          fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
+                          "an overrun where numspechit=%i\n",
+                           numspechit);
+          break;
+        }
       }
     }
   }
@@ -1488,13 +1512,15 @@ HWND GetHWND(void)
 void CenterMouse_Win32(long x, long y)
 {
 #ifdef _WIN32
-  RECT rect;
-  HWND hwnd = GetHWND();
+  //RECT rect;
+  //HWND hwnd = GetHWND();
 	
-  GetWindowRect (hwnd, &rect);
+  //GetWindowRect (hwnd, &rect);
 
-  MousePrevX = (rect.left + rect.right) >> 1;
-  MousePrevY = (rect.top + rect.bottom) >> 1;
+  //MousePrevX = (rect.left + rect.right) >> 1;
+  //MousePrevY = (rect.top + rect.bottom) >> 1;
+  MousePrevX = SCREENWIDTH/2;
+  MousePrevY = SCREENHEIGHT/2;
 
   if (MousePrevX != x || MousePrevY != y)
   {
@@ -1514,15 +1540,16 @@ void e6y_I_GetEvent(void)
     POINT pos;
     int x, y;
     GetCursorPos (&pos);
-    
+
     x = pos.x - MousePrevX;
     y = MousePrevY - pos.y;
-    
+
     if (x | y)
     {
       event_t event;
-      CenterMouse_Win32(pos.x, pos.y);
       
+      CenterMouse_Win32(pos.x, pos.y);
+
       event.type = ev_mouse;
       event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
       event.data2 = x << 5;
@@ -1561,7 +1588,8 @@ void UngrabMouse_Win32(void)
 
 void e6y_I_InitInputs(void)
 {
-  SDL_WarpMouse((unsigned short)(desired_screenwidth/2), (unsigned short)(desired_screenheight/2));
+//  SDL_WarpMouse((unsigned short)(desired_screenwidth/2), (unsigned short)(desired_screenheight/2));
+  SDL_WarpMouse((unsigned short)(SCREENWIDTH/2), (unsigned short)(SCREENHEIGHT/2));
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
 }
@@ -1606,6 +1634,32 @@ int mlooky;
 boolean IsDehMaxHealth = false;
 int deh_maxhealth;
 int maxhealthbonus;
+
+void M_ChangeCompTranslucency(void)
+{
+//  static boolean predefined_translucency_fixed = false;
+//  static int predefined_translucency_level = -1;
+  int i;
+  int predefined_translucency[] = {
+    MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
+    MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF, 
+    MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
+  };
+  
+//  if (!predefined_translucency_fixed || predefined_translucency_level != compatibility_level)
+  {
+//    predefined_translucency_fixed = true;
+//    predefined_translucency_level = compatibility_level;
+    for(i = 0; i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
+    {
+      if (comp[comp_translucency]) 
+        mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
+      else 
+        mobjinfo[predefined_translucency[i]].flags |= MF_TRANSLUCENT;
+    }
+  }
+}
+
 void e6y_G_Compatibility(void)
 {
   {
@@ -1621,29 +1675,7 @@ void e6y_G_Compatibility(void)
       maxhealthbonus = maxhealth * 2;
     }
   }
-
-  {
-    static predefined_translucency_fixed = false;
-    int i;
-    int predefined_translucency[] = {
-      MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
-      MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF, 
-      MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
-    };
-    
-    if (!predefined_translucency_fixed)
-    {
-      predefined_translucency_fixed = true;
-      for(i = 0; i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
-      {
-        if (comp[comp_translucency]) 
-          mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
-        else 
-          mobjinfo[predefined_translucency[i]].flags |= MF_TRANSLUCENT;
-      }
-    }
-  }
-
+  M_ChangeCompTranslucency();
 }
 
 boolean zerotag_manual;
@@ -2019,3 +2051,4 @@ void ClearLinesCrossTracer(void)
 }
 
 float paperitems_pitch;
+boolean isskytexture = false;

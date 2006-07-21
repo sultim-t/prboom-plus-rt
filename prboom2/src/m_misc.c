@@ -308,6 +308,7 @@ default_t defaults[] =
   {"comp_moveblock",{&default_comp[comp_moveblock]},{0},0,1,def_bool,ss_comp,&comp[comp_moveblock]},
   {"comp_sound",{&default_comp[comp_sound]},{0},0,1,def_bool,ss_comp,&comp[comp_sound]},
   //e6y
+  {"PrBoom-plus compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"comp_666",{&default_comp[comp_666]},{0},0,1,def_bool,ss_comp,&comp[comp_666]},
   {"comp_maskedanim",{&default_comp[comp_maskedanim]},{0},0,1,def_bool,ss_comp,&comp[comp_maskedanim]},
   {"comp_maxhealth",{&default_comp[comp_maxhealth]},{0},0,1,def_bool,ss_comp,&comp[comp_maxhealth]},
@@ -689,18 +690,15 @@ default_t defaults[] =
    def_bool,ss_stat}, // disables display of kills/items/secrets on HUD
 
 //e6y
-  {"mouse_acceleration",{&mouse_acceleration},{0},0,UL,
-   def_int,ss_none},
-  {"mouse_sensitivity_mlook",{&mouseSensitivity_mlook},{10},0,UL,
-   def_int,ss_none},
-  {"speed_step",{&speed_step},{0},0,1000,
-   def_int,ss_none},
+  {"Prboom-plus key bindings",{NULL},{0},UL,UL,def_none,ss_none},
   {"key_speedup", {&key_speed_up}, {KEYD_KEYPADPLUS},
    0,MAX_KEY,def_key,ss_keys},
   {"key_speeddown", {&key_speed_down}, {KEYD_KEYPADMINUS},
    0,MAX_KEY,def_key,ss_keys},
   {"key_speeddefault", {&key_speed_default}, {KEYD_KEYPADMULTIPLY},
    0,MAX_KEY,def_key,ss_keys},
+  {"speed_step",{&speed_step},{0},0,1000,
+   def_int,ss_none},
   {"key_demo_jointogame", {&key_demo_jointogame}, {KEYD_LALT},
    0,MAX_KEY,def_key,ss_keys},
   {"key_demo_nextlevel", {&key_demo_nextlevel}, {KEYD_PAGEDOWN},
@@ -709,6 +707,8 @@ default_t defaults[] =
    0,MAX_KEY,def_key,ss_keys},
   {"key_walkcamera", {&key_walkcamera}, {KEYD_LALT},
    0,MAX_KEY,def_key,ss_keys},
+
+  {"Prboom-plus heads-up display settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"hudadd_gamespeed", {&hudadd_gamespeed},  {0},0,1,
    def_bool,ss_stat},
   {"hudadd_leveltime", {&hudadd_leveltime},  {0},0,1,
@@ -717,48 +717,69 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_smarttotals", {&hudadd_smarttotals},  {0},0,1,
    def_bool,ss_stat},
-  {"movement_smooth", {&movement_smooth},  {0},0,1,
-   def_bool,ss_stat},
-#ifdef GL_DOOM
-  {"movement_mouselook", {&movement_mouselook},  {0},0,1,
-   def_bool,ss_stat},
-  {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
-   def_bool,ss_stat},
-#endif
-  {"movement_strafe50", {&movement_strafe50},  {0},0,1,
-   def_bool,ss_stat},
-  {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
-   def_bool,ss_stat},
-  {"movement_altmousesupport", {&movement_altmousesupport},  {0},0,1,
-   def_bool,ss_stat},
-  {"render_fov", {&render_fov},  {90},20,160,
-   def_int,ss_stat},
-  {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
-   def_bool,ss_stat},
-  {"render_detailedflats", {&render_detailedflats},  {0},0,1,
-   def_bool,ss_stat},
-  {"render_multisampling", {&render_multisampling},  {0},0,8,
-   def_int,ss_stat},
-  {"render_smartitemsclipping", {&render_smartitemsclipping},  {0},0,1,
-   def_bool,ss_stat},
-  {"render_paperitems", {&render_paperitems},  {1},0,1,
-   def_bool,ss_stat},
-#ifndef GL_DOOM
-  {"render_wipescreen", {&render_wipescreen},  {1},0,1,
-   def_bool,ss_stat},
-#endif
-  {"palette_ondamage", {&palette_ondamage},  {1},0,1,
-   def_bool,ss_stat},
-  {"palette_onbonus", {&palette_onbonus},  {1},0,1,
-   def_bool,ss_stat},
-  {"palette_onpowers", {&palette_onpowers},  {1},0,1,
-   def_bool,ss_stat},
+
+  {"Prboom-plus mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"mouse_acceleration",{&mouse_acceleration},{0},0,UL,
+   def_int,ss_none},
+  {"mouse_sensitivity_mlook",{&mouseSensitivity_mlook},{10},0,UL,
+   def_int,ss_none},
+
+  {"Prboom-plus demos settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"demo_overwriteexisting", {&demo_overwriteexisting},  {0},0,1,
    def_bool,ss_stat},
   {"demo_smoothturns", {&demo_smoothturns},  {0},0,1,
    def_bool,ss_stat},
   {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,MAX_DEMOS_SMOOTHFACTOR,
    def_int,ss_stat},
+
+  {"Prboom-plus game settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"movement_smooth", {&movement_smooth},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_altmousesupport", {&movement_altmousesupport},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_strafe50", {&movement_strafe50},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
+   def_bool,ss_stat},
+
+  {"Prboom-plus video settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"palette_ondamage", {&palette_ondamage},  {1},0,1,
+   def_bool,ss_stat},
+  {"palette_onbonus", {&palette_onbonus},  {1},0,1,
+   def_bool,ss_stat},
+  {"palette_onpowers", {&palette_onpowers},  {1},0,1,
+   def_bool,ss_stat},
+#ifndef GL_DOOM
+  {"render_wipescreen", {&render_wipescreen},  {1},0,1,
+   def_bool,ss_stat},
+#endif
+
+#ifdef GL_DOOM
+  {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"render_detailedwalls", {&render_detailedwalls},  {0},0,1,
+   def_bool,ss_stat},
+  {"render_detailedflats", {&render_detailedflats},  {0},0,1,
+   def_bool,ss_stat},
+  {"render_multisampling", {&render_multisampling},  {0},0,8,
+   def_int,ss_stat},
+  {"render_fov", {&render_fov},  {90},20,160,
+   def_int,ss_stat},
+  {"render_smartitemsclipping", {&render_smartitemsclipping},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_mouselook", {&movement_mouselook},  {0},0,1,
+   def_bool,ss_stat},
+  {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
+   def_bool,ss_stat},
+  {"render_paperitems", {&render_paperitems},  {1},0,1,
+   def_bool,ss_stat},
+  {"test_sky1", {&test_sky1},  {1},0,1,
+   def_bool,ss_stat},
+  {"test_sky2", {&test_sky2},  {1},0,1,
+   def_bool,ss_stat},
+  {"test_dots", {&test_dots},  {1},0,1,
+   def_bool,ss_stat},
+#endif
+  {"Prboom-plus emulation settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,
    def_bool,ss_stat},
   {"overrun_spechit_emulate", {&overrun_spechit_emulate},  {1},0,1,
@@ -775,20 +796,15 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"overrun_playeringame_emulate", {&overrun_playeringame_emulate},  {1},0,1,
    def_bool,ss_stat},
-#ifdef GL_DOOM
-  {"test_sky1", {&test_sky1},  {1},0,1,
-   def_bool,ss_stat},
-  {"test_sky2", {&test_sky2},  {1},0,1,
-   def_bool,ss_stat},
-  {"test_dots", {&test_dots},  {1},0,1,
-   def_bool,ss_stat},
-#endif
+
+  {"Prboom-plus 'bad' compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"comperr_zerotag", {&comperr_zerotag},  {0},0,1,
    def_bool,ss_stat},
   {"comperr_passuse", {&comperr_passuse},  {0},0,1,
    def_bool,ss_stat},
-  {"launcher_enable", {&launcher_enable},  {0},0,1,
-   def_bool,ss_stat},
+
+  {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"launcher_enable", {&launcher_enable},  {0},0,1, def_bool,ss_stat},
   {"launcher_history0", {NULL,&launcher_history[0]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history1", {NULL,&launcher_history[1]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history2", {NULL,&launcher_history[2]}, {0,""},UL,UL,def_str,ss_none},
@@ -1033,7 +1049,7 @@ void M_LoadDefaults (void)
   int   len;
   FILE* f;
   char  def[80];
-  char  strparm[100];
+  char  strparm[32767];//e6y
   char* newstring = NULL;   // killough
   int   parm;
   boolean isstring;
