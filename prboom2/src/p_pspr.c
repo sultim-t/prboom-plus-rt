@@ -507,7 +507,7 @@ void A_Punch(player_t *player, pspdef_t *psp)
 
   player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y,
                                       linetarget->x, linetarget->y);
-  ClearSmoothViewAngels();//e6y
+  ClearSmoothViewAngels(player);//e6y
 }
 
 //
@@ -556,7 +556,7 @@ void A_Saw(player_t *player, pspdef_t *psp)
   }
 
   player->mo->flags |= MF_JUSTATTACKED;
-  ClearSmoothViewAngels();//e6y
+  ClearSmoothViewAngels(player);//e6y
 }
 
 //
@@ -611,7 +611,8 @@ void A_FirePlasma(player_t *player, pspdef_t *psp)
 // the height of the intended target
 //
 
-static fixed_t bulletslope;
+//e6y static 
+fixed_t bulletslope;
 
 static void P_BulletSlope(mobj_t *mo)
 {

@@ -28,6 +28,8 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "i_system.h"
+#include "p_maputl.h"
+#include "p_mobj.h"
 #include "e6y.h"
 
 #define Pi 3.14159265358979323846f
@@ -87,10 +89,19 @@ int mouse_acceleration;
 int demo_smoothturns;
 int demo_smoothturnsfactor;
 int demo_overwriteexisting;
-int misc_spechitoverrun_warn;
-int misc_spechitoverrun_emulate;
-int misc_rejectoverrun_warn;
-int misc_rejectoverrun_emulate;
+int overrun_spechit_warn;
+int overrun_spechit_emulate;
+int overrun_reject_warn;
+int overrun_reject_emulate;
+int overrun_intercept_warn;
+int overrun_intercept_emulate;
+int overrun_playeringame_warn;
+int overrun_playeringame_emulate;
+
+int overrun_spechit_promted = false;
+int overrun_reject_promted = false;
+int overrun_intercept_promted = false;
+int overrun_playeringame_promted = false;
 
 int test_sky1;
 int test_sky2;
@@ -115,7 +126,7 @@ fixed_t sidemove_strafe50[2]    = {0x18, 0x32};
 
 fixed_t	r_TicFrac;
 int otic;
-boolean NewThinkerPresent = FALSE;
+boolean NewThinkerPresent = false;
 
 fixed_t PrevX;
 fixed_t PrevY;
@@ -218,6 +229,26 @@ void e6y_D_DoomMainSetup(void)
       avi_shot_fname = myargv[p+2];
   force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
   stats_level = M_CheckParm("-levelstat");
+
+  {
+    int i, value, count;
+
+    for (i=0;i<3;i++)
+    {
+      count = 0;
+      traces[i].trace->count = 0;
+      if ((p = M_CheckParm(traces[i].cmd)) && (p < myargc-1))
+      {
+        while (count < 3 && p + count < myargc-1 && StrToInt(myargv[p+1+count], &value))
+        {
+          sprintf(traces[i].trace->items[count].value, "\x1b\x36%d\x1b\x33 0", value);
+          traces[i].trace->items[count].index = value;
+          count++;
+        }
+        traces[i].trace->count = count;
+      }
+    }
+  }
 }
 
 void G_SkipDemoStart(void)
@@ -1035,19 +1066,24 @@ void M_ChangeDemoSmoothTurns(void)
   else
     stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
 
-  ClearSmoothViewAngels();
+  ClearSmoothViewAngels(NULL);
 }
 
-void ClearSmoothViewAngels()
+void ClearSmoothViewAngels(player_t *player)
 {
-  if (demo_smoothturns && demoplayback)
+  if (demo_smoothturns && demoplayback && players)
   {
-    if (players)
+    if (!player)
+      player = &players[displayplayer];
+
+    if (player==&players[displayplayer])
+    {
       demos_smoothangle = players[displayplayer].mo->angle;
 
-    memset(demos_lastturns, 0, sizeof(demos_lastturns[0]) * MAX_DEMOS_SMOOTHFACTOR);
-    demos_lastturnssum = 0;
-    demos_lastturnsindex = 0;
+      memset(demos_lastturns, 0, sizeof(demos_lastturns[0]) * MAX_DEMOS_SMOOTHFACTOR);
+      demos_lastturnssum = 0;
+      demos_lastturnsindex = 0;
+    }
   }
 }
 
@@ -1074,15 +1110,15 @@ angle_t GetSmoothViewAngel(angle_t defangle)
     return defangle;
 }
 
-void e6y_AfterTeleporting(void)
+void e6y_AfterTeleporting(player_t *player)
 {
   R_ResetViewInterpolation();
-  ClearSmoothViewAngels();
+  ClearSmoothViewAngels(player);
 }
 
 float viewPitch;
 boolean WasRenderedInTryRunTics;
-boolean trasparentpresent;
+boolean transparentpresent;
 
 void e6y_MultisamplingCheck(void)
 {
@@ -1176,22 +1212,18 @@ int StepwiseSum(int value, int direction, int step, int minval, int maxval, int 
   return newvalue;
 }
 
-void I_Warning(const char *message, ...)
+void I_Warning(const char *message, va_list argList)
 {
   char msg[1024];
-  va_list argptr;
-  va_start(argptr,message);
 #ifdef HAVE_VSNPRINTF
-  vsnprintf(msg,sizeof(msg),message,argptr);
+  vsnprintf(msg,sizeof(msg),message,argList);
 #else
-  vsprintf(msg,message,argptr);
+  vsprintf(msg,message,argList);
 #endif
-  va_end(argptr);
   fprintf(stdout,"%s\n",msg);
 #ifdef _MSC_VER
   {
     extern HWND con_hWnd;
-    //ShowWindow(GetHWND(), SW_MINIMIZE);
     SwitchToWindow(GetDesktopWindow());
     Init_ConsoleWin();
     if (con_hWnd) SwitchToWindow(con_hWnd);
@@ -1201,49 +1233,55 @@ void I_Warning(const char *message, ...)
 #endif
 }
 
-void ShowSpechitsOverrunningWarning(boolean fatal)
+void ShowOverflowWarning(int emulate, int *promted, boolean fatal, char *name, char *params, ...)
 {
-  static char buffer[1024];
-  static boolean SpechitsOverrunPromted = false;
-  extern line_t **spechit;
-
-  if (!SpechitsOverrunPromted)
+  if (!(*promted))
   {
-    SpechitsOverrunPromted = true;
+    va_list argptr;
+    char buffer[1024];
+    
+    char str1[] =
+      "Too big or not supported %s overflow has been detected. "
+      "Desync or crash can occur soon "
+      "or during playback with the vanilla engine in case you're recording demo.%s%s";
+    
+    char str2[] = 
+      "%s overflow has been detected.%s%s";
 
-    sprintf(buffer,
-      "%s%s"
-      " The list of LinesID leading to overrun: %d, %d, %d, %d, %d, %d, %d, %d, %d."
-      " You can disable this warning through: \\Options\\Setup\\Status Bar / HUD\\Warn on Spechits Overflow."
+    char str3[] = 
+      "%s overflow has been detected. "
+      "The option responsible for emulation of this overflow is switched off "
+      "hence desync or crash can occur soon "
+      "or during playback with the vanilla engine in case you're recording demo.%s%s";
 
-      ,fatal?"Too big spechits overflow for emulation was detected.":"Spechits overflow has been detected."
-      ," Desync may occur soon if you're viewing demo at the moment. In case you're recording demo desync may occur during playback with vanilla engine."
-      ,spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID
-      ,spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID
-      ,spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID
-      );
-    I_Warning(buffer);
+    *promted = true;
+
+    sprintf(buffer, (fatal?str1:(emulate?str2:str3)), 
+      name, "\nYou can change PrBoom behaviour for this overflow through in-game menu.", params);
+    
+    va_start(argptr,params);
+    I_Warning(buffer, argptr);
+    va_end(argptr);
   }
 }
 
 void SpechitOverrun(line_t* ld)
 {
   extern int numspechit;
+  extern line_t **spechit;
   extern fixed_t tmbbox[4];
   extern boolean crushchange, nofit;
-  extern mobj_t *bombsource, *bombspot;
-  extern int bombdamage;
-  extern mobj_t* usething;
-  extern int la_damage;
-  extern fixed_t attackrange;
 
-  if (numspechit>8 && demo_compatibility
-    && (misc_spechitoverrun_warn || misc_spechitoverrun_emulate))
+  if (numspechit>8 && demo_compatibility)
   {
-    if (misc_spechitoverrun_warn)
-      ShowSpechitsOverrunningWarning(numspechit > 20);
+    if (overrun_spechit_warn)
+      ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, numspechit > 20, "SPECHITS",
+        "\n\nThe list of LinesID leading to overrun:\n%d, %d, %d, %d, %d, %d, %d, %d, %d.",
+        spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID,
+        spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID,
+        spechit[6]->iLineID, spechit[7]->iLineID, spechit[8]->iLineID);
 
-    if (misc_spechitoverrun_emulate)
+    if (overrun_spechit_emulate)
     {
       int addr = 0x01C09C98 + (ld - lines) * 0x3E;
     
@@ -1255,14 +1293,12 @@ void SpechitOverrun(line_t* ld)
       case 12:
         tmbbox[numspechit-9] = addr;
         break;
-      case 13: crushchange = addr; break;
-      case 14: nofit = addr; break;
-      /*case 15: bombsource = (mobj_t*)addr; break;
-      case 16: bombdamage = addr; break;
-      case 17: bombspot = (mobj_t*)addr; break;
-      case 18: usething = (mobj_t*)addr; break;
-      case 19: attackrange = addr; break;
-      case 20: la_damage = addr; break;*/
+      case 13:
+        nofit = addr;
+        break;
+      case 14:
+        crushchange = addr;
+        break;
 
       default:
         fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
@@ -1552,39 +1588,18 @@ int AccelerateMouse(int val)
 
 int rjreq, rjlen;
 
-void ShowRejectOverrunningWarning(boolean fatal)
-{
-  static char buffer[1024];
-  static boolean RejectOverrunPromted = false;
-
-  if (!RejectOverrunPromted)
-  {
-    RejectOverrunPromted = true;
-
-    sprintf(buffer,
-      "%s"
-      " You can disable this warning through: \\Options\\Setup\\Status Bar / HUD\\Warn on Reject Overflow.",
-
-      fatal?
-      "Too big reject overflow for emulation was detected. Desync may occur soon if you're viewing demo at the moment. In case you're recording demo desync may occur during playback with vanilla engine.":
-      "Reject overflow has been detected."
-      );
-    I_Warning(buffer);
-  }
-}
-
 void AddIntForRejectOverflow(int k)
 {
   extern byte *rejectmatrix;
   int i = 0;
 
   if (rjlen < rjreq && demo_compatibility
-    && (misc_rejectoverrun_warn || misc_rejectoverrun_emulate))
+    && (overrun_reject_warn || overrun_reject_emulate))
   {
-    if (misc_rejectoverrun_warn)
-      ShowRejectOverrunningWarning(rjreq - rjlen > 16);
+    if (overrun_reject_warn)
+      ShowOverflowWarning(overrun_reject_emulate, &overrun_reject_promted, rjreq - rjlen > 16, "REJECT", "");
     
-    if (misc_rejectoverrun_emulate)
+    if (overrun_reject_emulate)
     {
       while (rjlen < rjreq)
       {
@@ -1828,7 +1843,7 @@ void SwitchToWindow(HWND hwnd)
 #endif
 }
 
-boolean StrToInt(char *s, long *l)
+boolean StrToInt(const char *s, long *l)
 {      
   return (
     (sscanf(s, " 0x%x", l) == 1) ||
@@ -1837,3 +1852,179 @@ boolean StrToInt(char *s, long *l)
     (sscanf(s, " %d", l) == 1)
   );
 }
+
+boolean PlayeringameOverrun(mapthing_t* mthing)
+{
+  if (mthing->type==0
+    && (overrun_playeringame_warn || overrun_playeringame_emulate))
+  {
+    if (overrun_playeringame_warn)
+      ShowOverflowWarning(overrun_playeringame_emulate, &overrun_playeringame_promted, players[4].didsecret, "PLAYERINGAME", "");
+
+    if (overrun_playeringame_emulate)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+trace_t things_health;
+trace_t things_pickup;
+trace_t lines_cross;
+
+hu_textline_t  w_traces[3];
+
+char hud_trace_things_health[80];
+char hud_trace_things_pickup[80];
+char hud_trace_lines_cross[80];
+
+int clevfromrecord = false;
+
+typedef struct
+{
+  int len;
+  int* adr;
+} intercepts_overrun_t;
+
+void InterceptsOverrun(size_t num_intercepts, intercept_t *intercept)
+{
+  if (num_intercepts>128 && demo_compatibility
+    && (overrun_intercept_warn || overrun_intercept_emulate))
+  {
+    if (overrun_intercept_warn)
+      ShowOverflowWarning(overrun_intercept_emulate, &overrun_intercept_promted, false, "INTERCEPTS", "");
+
+    if (overrun_intercept_emulate)
+    {
+      
+      extern fixed_t bulletslope;
+      extern mobj_t **blocklinks;
+      extern int bmapwidth, bmapheight;
+      extern long *blockmap;
+      extern fixed_t bmaporgx, bmaporgy;
+      extern long *blockmaplump;
+      
+      intercepts_overrun_t overrun[] = 
+      {
+        {4, (int*)0},
+        {4, (int*)0},//&earlyout},
+        {4, (int*)0},//&intercept_p},
+        {4, (int*)&lowfloor},
+        {4, (int*)&openbottom},
+        {4, (int*)&opentop},
+        {4, (int*)&openrange},
+        {4, (int*)0},
+        {120, (int*)0},//&activeplats},
+        {8, (int*)0},
+        {4, (int*)&bulletslope},
+        {4, (int*)0},//&swingx},
+        {4, (int*)0},//&swingy},
+        {4, (int*)0},
+        {40, (int*)&playerstarts},
+        {4, (int*)0},//&blocklinks},
+        {4, (int*)&bmapwidth},
+        {4, (int*)0},//&blockmap},
+        {4, (int*)&bmaporgx},
+        {4, (int*)&bmaporgy},
+        {4, (int*)0},//&blockmaplump},
+        {4, (int*)&bmapheight},
+        {0, (int*)0}
+      };
+      
+      int i, j, offset;
+      int count = (num_intercepts - 128) * 12 - 12;
+      int* value = (int*)intercept;
+      
+      for (j = 0; j < 3; j++, value++, count+=4)
+      {
+        i = 0;
+        offset = 0;
+        while (overrun[i].len)
+        {
+          if (offset + overrun[i].len > count)
+          {
+            if (overrun[i].adr)
+              *(overrun[i].adr+(count-offset)/4) = *value;
+            break;
+          }
+          offset += overrun[i++].len;
+        }
+      }
+    }
+  }
+}
+
+char hud_trace_things_health[80];
+char hud_trace_things_pickup[80];
+char hud_trace_lines_cross[80];
+
+traceslist_t traces[3] = {
+  {&things_health, hud_trace_things_health, "-trace_thingshealth", "\x1b\x31health "},
+  {&things_pickup, hud_trace_things_pickup, "-trace_thingspickup", "\x1b\x31pickup "},
+  {&lines_cross,   hud_trace_lines_cross,   "-trace_linescross"  , "\x1b\x31lcross "},
+};
+
+void CheckThingsPickupTracer(mobj_t *mobj)
+{
+  if (things_pickup.count)
+  {
+    int i;
+    for (i=0;i<things_pickup.count;i++)
+    {
+      if (mobj->index == things_pickup.items[i].index)
+        sprintf(things_pickup.items[i].value, "\x1b\x36%d \x1b\x33%05.2f", things_pickup.items[i].index, (float)(leveltime)/35);
+    }
+  }
+}
+
+void CheckThingsHealthTracer(mobj_t *mobj)
+{
+   if (things_health.count)
+  {
+    int i;
+    for (i=0;i<things_health.count;i++)
+    {
+      if (mobj->index == things_health.items[i].index)
+        sprintf(things_health.items[i].value, "\x1b\x36%d \x1b\x33%d", mobj->index, mobj->health);
+    }
+  }
+}
+
+int crossed_lines_count = 0;
+void CheckLinesCrossTracer(line_t *line)
+{
+  if (lines_cross.count)
+  {
+    int i;
+    crossed_lines_count++;
+    for (i=0;i<lines_cross.count;i++)
+    {
+      if (line->iLineID == lines_cross.items[i].index)
+      {
+        if (!lines_cross.items[i].data1)
+        {
+          sprintf(lines_cross.items[i].value, "\x1b\x36%d \x1b\x33%05.2f", lines_cross.items[i].index, (float)(leveltime)/35);
+          lines_cross.items[i].data1 = 1;
+        }
+      }
+    }
+  }
+}
+
+void ClearLinesCrossTracer(void)
+{
+  if (lines_cross.count)
+  {
+    if (!crossed_lines_count)
+    {
+      int i;
+      for (i=0;i<lines_cross.count;i++)
+      {
+        lines_cross.items[i].data1 = 0;
+      }
+    }
+    crossed_lines_count = 0;
+  }
+}
+

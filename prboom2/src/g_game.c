@@ -298,7 +298,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
     || joybuttons[joybstrafe];
-  speed = autorun || gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
+//e6y  speed = autorun || gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
+  speed = (gamekeydown[key_speed] || joybuttons[joybspeed] ? !autorun : autorun); //e6y
 
   forward = side = 0;
 
@@ -425,6 +426,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
         gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
         gamekeydown[key_weapon8] ? wp_chainsaw :
+        !demo_compatibility &&//e6y
         gamekeydown[key_weapon9] && gamemode == commercial ? wp_supershotgun :
         wp_nochange;
 
@@ -720,7 +722,7 @@ boolean G_Responder (event_t* ev)
     ST_Start();    // killough 3/7/98: switch status bar views too
     HU_Start();
     S_UpdateSounds(players[displayplayer].mo);
-    ClearSmoothViewAngels();//e6y
+    ClearSmoothViewAngels(NULL);//e6y
   }
       return true;
     }
@@ -1575,7 +1577,7 @@ void G_LoadGame(int slot, boolean command)
     demoplayback = false;
   }
   command_loadgame = command;
-  ClearSmoothViewAngels();//e6y
+  ClearSmoothViewAngels(NULL);//e6y
 }
 
 // killough 5/15/98:
@@ -1696,40 +1698,6 @@ void G_DoLoadGame(void)
     save_p += sizeof checksum;
    }
 
-  //e6ye6y
-  /*{   
-    int tic;
-    memcpy(&tic, save_p, sizeof(tic));
-    save_p += sizeof(tic);
-    if (demorecording && demofp && demo_compatibility)
-    {
-      long size=ftell(demofp);
-      tic = demo_lastheaderlen + tic*4 + (longtics?1:0);
-      if (1 || tic<size)
-      {
-        fseek(demofp, tic - (compatibility_level == tasdoom_compatibility?4:1), SEEK_SET);
-        fputc(0, demofp);
-        if (compatibility_level == tasdoom_compatibility)
-          fseek(demofp, 3, SEEK_CUR);
-      }
-      else
-      {
-        void M_StartMessage (const char* string,void* routine,boolean input);
-
-        Z_Free(savebuffer);
-        M_StartMessage("you can't load a game\n"
-          "while your tic is lower than savegame tic!\n\n"PRESSKEY,
-          NULL, false);
-        if (command_loadgame)
-        {
-          D_StartTitle();
-          gamestate = GS_DEMOSCREEN;
-        }
-        return;
-      }
-    }
-  }*/
-
   save_p += strlen(save_p)+1;
 
   /* cph - FIXME - compatibility flag? */
@@ -1777,7 +1745,7 @@ void G_DoLoadGame(void)
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
   P_ActivateAllInterpolations();//e6y
-  ClearSmoothViewAngels();//e6y
+  ClearSmoothViewAngels(NULL);//e6y
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
@@ -1897,13 +1865,6 @@ static void G_DoSaveGame (boolean menu)
     memcpy(save_p, &checksum, sizeof checksum);
     save_p += sizeof checksum;
   }
-
-  //e6ye6y
-  /*{
-    int tic = gametic-basetic;
-    memcpy(save_p, &tic, sizeof(tic));
-    save_p += sizeof(tic);
-  }*/
 
   // killough 3/16/98: store pwad filenames in savegame
   {
@@ -2331,6 +2292,7 @@ void GetCurrentTurnsSum(void)
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
   unsigned char at;//e6y
+
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
   else
@@ -2364,10 +2326,6 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
   char buf[5];
   char *p = buf;
 
-  //e6ye6y
-  /*
-  if (demo_compatibility && (cmd->buttons & BT_SPECIAL) && (cmd->buttons & BT_SPECIALMASK) == BTS_LOADGAME)
-    return;*/
   if (compatibility_level == tasdoom_compatibility)
   {
     *p++ = cmd->buttons;
@@ -2960,7 +2918,7 @@ void G_DoPlayDemo(void)
   usergame = false;
 
   demoplayback = true;
-  ClearSmoothViewAngels();//e6y
+  ClearSmoothViewAngels(NULL);//e6y
 }
 
 //

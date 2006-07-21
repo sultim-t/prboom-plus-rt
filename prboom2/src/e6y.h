@@ -4,6 +4,7 @@
 #include "hu_lib.h"
 #include "SDL_timer.h"
 #include "SDL_events.h"
+#include "p_maputl.h"
 
 #define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
 
@@ -119,10 +120,15 @@ extern int mouse_acceleration;
 extern int demo_smoothturns;
 extern int demo_smoothturnsfactor;
 extern int demo_overwriteexisting;
-extern int misc_spechitoverrun_warn;
-extern int misc_rejectoverrun_warn;
-extern int misc_rejectoverrun_emulate;
-extern int misc_spechitoverrun_emulate;
+extern int overrun_spechit_warn;
+extern int overrun_reject_warn;
+extern int overrun_reject_emulate;
+extern int overrun_spechit_emulate;
+extern int overrun_intercept_warn;
+extern int overrun_intercept_emulate;
+extern int overrun_playeringame_warn;
+extern int overrun_playeringame_emulate;
+
 extern int launcher_enable;
 extern char *launcher_history[10];
 
@@ -276,14 +282,14 @@ void MarkAnimatedTextures(void);
 extern const byte *demo_p_end;
 extern int playerscount;
 void e6y_ProcessDemoHeader(void);
-void ClearSmoothViewAngels();
+void ClearSmoothViewAngels(player_t *player);
 void AddSmoothViewAngel(int delta);
 angle_t GetSmoothViewAngel(angle_t defangle);
-void e6y_AfterTeleporting(void);
+void e6y_AfterTeleporting(player_t *player);
 
 extern float viewPitch;
 extern boolean WasRenderedInTryRunTics;
-extern boolean trasparentpresent;
+extern boolean transparentpresent;
 
 #define MAPBITS 12
 #define FRACTOMAPBITS (FRACBITS-MAPBITS)
@@ -401,15 +407,54 @@ void NormalizeSlashes2(char *str);
 unsigned int AfxGetFileName(const char* lpszPathName, char* lpszTitle, unsigned int nMax);
 void AbbreviateName(char* lpszCanon, int cchMax, int bAtLeastName);
 
-boolean StrToInt(char *s, long *l);
+boolean StrToInt(const char *s, long *l);
+
+boolean PlayeringameOverrun(mapthing_t* mthing);
+
 //extern int viewMaxY;
 
-/*typedef struct tagTREC
+#define MAXTRACEITEMS 8
+
+typedef struct
 {
   int index;
-  int health;
-} TRec;
-extern int t_count;
-extern TRec t_list[];*/
+  char value[16];
+  int data1;
+} traceitem_t;
+
+typedef struct
+{
+  traceitem_t items[MAXTRACEITEMS];
+  int count;
+} trace_t;
+
+typedef struct
+{
+  trace_t *trace;
+  char *hudstr;
+  char cmd[32];
+  char prefix[32];
+} traceslist_t;
+
+extern trace_t things_health;
+extern trace_t things_pickup;
+extern trace_t lines_cross;
+
+extern traceslist_t traces[];
+
+extern hu_textline_t  w_traces[];
+
+extern char hud_trace_things_health[80];
+extern char hud_trace_things_pickup[80];
+extern char hud_trace_lines_cross[80];
+
+extern int clevfromrecord;
+
+void InterceptsOverrun(size_t num_intercepts, intercept_t *intercept);
+
+void CheckThingsPickupTracer(mobj_t *mobj);
+void CheckThingsHealthTracer(mobj_t *mobj);
+void CheckLinesCrossTracer(line_t *line);
+void ClearLinesCrossTracer(void);
 
 #endif

@@ -2657,13 +2657,17 @@ setup_menu_t stat_settings3[] =
 setup_menu_t stat_settings4[] =
 {
   {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+1*8},
-  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 2*8, {"misc_spechitoverrun_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 3*8, {"misc_spechitoverrun_emulate"}},
-  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 4*8, {"misc_rejectoverrun_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 5*8, {"misc_rejectoverrun_emulate"}},
-  {"COMPATIBILITY WITH COMMON MAPPING ERRORS"                 ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+7*8},
-  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 8*8, {"comperr_zerotag"}},
-  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null ,E_ST_X,ST_Y+9*8, {"comperr_passuse"}},
+  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 2*8, {"overrun_spechit_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 3*8, {"overrun_spechit_emulate"}},
+  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 4*8, {"overrun_reject_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 5*8, {"overrun_reject_emulate"}},
+  {"WARN ON INTERCEPTS OVERFLOW"       ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 6*8, {"overrun_intercept_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 7*8, {"overrun_intercept_emulate"}},
+  {"WARN ON PLAYERINGAME OVERFLOW"     ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 8*8, {"overrun_playeringame_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 9*8, {"overrun_playeringame_emulate"}},
+  {"COMPATIBILITY WITH COMMON MAPPING ERRORS"                 ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+11*8},
+  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 12*8, {"comperr_zerotag"}},
+  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null ,E_ST_X,ST_Y+13*8, {"comperr_passuse"}},
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings3}},
   {0,S_SKIP|S_END,m_null}
@@ -4445,20 +4449,20 @@ boolean M_Responder (event_t* ev) {
       }
 
     //e6y
-    if (ch == key_speed_default && !netgame)               
+    if (ch == key_speed_default && (!netgame||demoplayback))               
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 0, speed_step, 3, 10000, 100);
       I_Init2();
       return true;
     }
-    if (ch == key_speed_up && !netgame)               
-    {                                 
+    if (ch == key_speed_up && (!netgame||demoplayback))
+    {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 1, speed_step, 3, 10000, 100);
       I_Init2();
       return true;
     }
-    if (ch == key_speed_down && !netgame)               
-    {                                 
+    if (ch == key_speed_down && (!netgame||demoplayback))
+    {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, -1, speed_step, 3, 10000, 100);
       I_Init2();
       return true;
@@ -4486,7 +4490,7 @@ boolean M_Responder (event_t* ev) {
         P_ResetWalkcam ();
         R_ResetViewInterpolation ();
         if (walkcamera.type==0)
-          ClearSmoothViewAngels();
+          ClearSmoothViewAngels(NULL);
         return true;
       }
     }

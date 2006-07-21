@@ -218,12 +218,13 @@ static void P_RunThinkers (void)
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
        {//e6y
+    if (NewThinkerPresent)
+      SetInterpolationIfNew(currentthinker);
+
     if (currentthinker->function)
       currentthinker->function(currentthinker);
     
     //e6y
-    if (NewThinkerPresent)
-      SetInterpolationIfNew(currentthinker);
        }
   NewThinkerPresent = false;
 }

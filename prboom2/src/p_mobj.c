@@ -670,28 +670,7 @@ void P_MobjThinker (mobj_t* mobj)
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
-  ////e6y
-  /*if (mobj->type == MT_CYBORG)
-  {
-    int i, index = t_count;
-    boolean present = false;
-    for (i = 0; i < t_count; i++)
-    {
-      if (t_list[i].index == (int)mobj->thinker.prev)
-      {
-        index = i;
-        present = true;
-        break;
-      }
-    }
-    if (!present)
-    {
-      index = t_count;
-      t_count++;
-    }
-    t_list[index].health = mobj->health;
-    t_list[index].index = (int)mobj->thinker.prev;
-  }*/
+  CheckThingsHealthTracer(mobj);
 
   // momentum movement
   if (mobj->momx | mobj->momy || mobj->flags & MF_SKULLFLY)
@@ -1015,6 +994,8 @@ void P_SpawnPlayer (mapthing_t* mthing)
   mobj_t*   mobj;
   int       i;
 
+  if (PlayeringameOverrun(mthing)) return;//e6y
+
   // not playing?
 
   if (!playeringame[mthing->type-1])
@@ -1066,7 +1047,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
     ST_Start(); // wake up the status bar
     HU_Start(); // wake up the heads up text
     }
-    ClearSmoothViewAngels();//e6y
+    ClearSmoothViewAngels(p);//e6y
   }
 
 
@@ -1076,7 +1057,7 @@ void P_SpawnPlayer (mapthing_t* mthing)
 // already be in host byte order.
 //
 
-void P_SpawnMapThing (mapthing_t* mthing)
+void P_SpawnMapThing (mapthing_t* mthing, int index)//e6y
   {
   int     i;
   //int     bit;
@@ -1228,6 +1209,7 @@ spawnit:
 
   mobj = P_SpawnMobj (x,y,z, i);
   mobj->spawnpoint = *mthing;
+  mobj->index = index;//e6y
 
   if (mobj->tics > 0)
     mobj->tics = 1 + (P_Random (pr_spawnthing) % mobj->tics);

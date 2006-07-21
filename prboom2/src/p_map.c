@@ -410,6 +410,7 @@ boolean PIT_CheckLine (line_t* ld)
 
   // if contacted a special line, add it to the list
 
+  CheckLinesCrossTracer(ld);//e6y
   if (ld->special)
     {
       // 1/11/98 killough: remove limit on lines hit, by array doubling
@@ -718,7 +719,8 @@ boolean P_CheckPosition (mobj_t* thing,fixed_t x,fixed_t y)
     for (by=yl ; by<=yh ; by++)
       if (!P_BlockLinesIterator (bx,by,PIT_CheckLine))
         return false; // doesn't fit
-
+  
+  ClearLinesCrossTracer();//e6y
   return true;
   }
 

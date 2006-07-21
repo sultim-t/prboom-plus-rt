@@ -761,13 +761,21 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,MAX_DEMOS_SMOOTHFACTOR,
    def_int,ss_stat},
-  {"misc_spechitoverrun_warn", {&misc_spechitoverrun_warn},  {0},0,1,
+  {"overrun_spechit_warn", {&overrun_spechit_warn},  {0},0,1,
    def_bool,ss_stat},
-  {"misc_spechitoverrun_emulate", {&misc_spechitoverrun_emulate},  {0},0,1,
+  {"overrun_spechit_emulate", {&overrun_spechit_emulate},  {1},0,1,
    def_bool,ss_stat},
-  {"misc_rejectoverrun_warn", {&misc_rejectoverrun_warn},  {0},0,1,
+  {"overrun_reject_warn", {&overrun_reject_warn},  {0},0,1,
    def_bool,ss_stat},
-  {"misc_rejectoverrun_emulate", {&misc_rejectoverrun_emulate},  {0},0,1,
+  {"overrun_reject_emulate", {&overrun_reject_emulate},  {1},0,1,
+   def_bool,ss_stat},
+  {"overrun_intercept_warn", {&overrun_intercept_warn},  {0},0,1,
+   def_bool,ss_stat},
+  {"overrun_intercept_emulate", {&overrun_intercept_emulate},  {1},0,1,
+   def_bool,ss_stat},
+  {"overrun_playeringame_warn", {&overrun_playeringame_warn},  {0},0,1,
+   def_bool,ss_stat},
+  {"overrun_playeringame_emulate", {&overrun_playeringame_emulate},  {1},0,1,
    def_bool,ss_stat},
 #ifdef GL_DOOM
   {"test_sky1", {&test_sky1},  {1},0,1,
@@ -1336,6 +1344,7 @@ static void WriteTGAfile(const char* filename, const byte* data,
 
 void M_DoScreenShot (const char* fname)
 {
+  extern int st_palette;
   byte       *linear;
 #ifndef GL_DOOM
   const byte *pal;

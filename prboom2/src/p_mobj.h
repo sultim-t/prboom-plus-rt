@@ -256,12 +256,6 @@ typedef struct mobj_s
     fixed_t             y;
     fixed_t             z;
 
-    //e6y
-    fixed_t             PrevX;
-    fixed_t             PrevY;
-    fixed_t             PrevZ;
-    angle_t             pitch;  // orientation
-
     // More list: links in sector (if needed)
     struct mobj_s*      snext;
     struct mobj_s**     sprev; // killough 8/10/98: change to ptr-to-ptr
@@ -364,6 +358,12 @@ typedef struct mobj_s
     // a linked list of sectors where this object appears
     struct msecnode_s* touching_sectorlist;                 // phares 3/14/98
 
+    //e6y
+    fixed_t             PrevX;
+    fixed_t             PrevY;
+    fixed_t             PrevZ;
+    angle_t             pitch;  // orientation
+    int index;
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;
 
@@ -408,7 +408,7 @@ void    P_SpawnPuff(fixed_t x, fixed_t y, fixed_t z);
 void    P_SpawnBlood(fixed_t x, fixed_t y, fixed_t z, int damage);
 mobj_t  *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 void    P_SpawnPlayerMissile(mobj_t *source, mobjtype_t type);
-void    P_SpawnMapThing (mapthing_t*  mthing);
+void    P_SpawnMapThing (mapthing_t*  mthing, int index);//e6y
 void    P_CheckMissileSpawn(mobj_t*);  // killough 8/2/98
 void    P_ExplodeMissile(mobj_t*);    // killough
 #endif

@@ -848,6 +848,12 @@ void IdentifyVersion (void)
   sprintf(basedefault,"%s/prboom.cfg", I_DoomExeDir());  // killough
 #endif
 
+  //e6y: was moved from D_DoomMainSetup
+  // init subsystems
+  //jff 9/3/98 use logical output routine
+  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  M_LoadDefaults();              // load before initing other systems
+
   // set save path to -save parm or current dir
 
   //jff 3/27/98 default to current dir
@@ -873,6 +879,10 @@ void IdentifyVersion (void)
   }
 
   // locate the IWAD and determine game mode from it
+
+  //e6y
+  LauncherShow();
+  if (gamemode != indetermined) return; //e6y
 
   iwad = FindIWADFile();
 
@@ -1405,8 +1415,8 @@ void D_DoomMainSetup(void)
 
   // init subsystems
   //jff 9/3/98 use logical output routine
-  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
-  M_LoadDefaults();              // load before initing other systems
+  //e6y lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  //e6y M_LoadDefaults();              // load before initing other systems
 
   G_ReloadDefaults();    // killough 3/4/98: set defaults just loaded.
   // jff 3/24/98 this sets startskill if it was -1
@@ -1553,7 +1563,6 @@ void D_DoomMainSetup(void)
 
     }
 
-  LauncherShow();//e6y
   // internal translucency set to config file value               // phares
   general_translucency = default_translucency;                    // phares
 

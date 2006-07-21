@@ -605,6 +605,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
   P_RemoveMobj (special);
   player->bonuscount += BONUSADD;
 
+  CheckThingsPickupTracer(special);//e6y
+
   /* cph 20028/10 - for old-school DM addicts, allow old behavior
    * where only consoleplayer's pickup sounds are heard */
   if (!comp[comp_sound] || player == &players[consoleplayer])

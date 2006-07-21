@@ -620,6 +620,33 @@ void HU_Start(void)
     HU_FONTSTART,
     hudcolor_titl
   );
+  HUlib_initTextLine
+  (
+    &w_traces[0],
+    HU_HUDX_LL,
+    HU_HUDY_UR+0*HU_GAPY,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY
+  );
+  HUlib_initTextLine
+  (
+    &w_traces[1],
+    HU_HUDX_LL,
+    HU_HUDY_UR+1*HU_GAPY,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY
+  );
+  HUlib_initTextLine
+  (
+    &w_traces[2],
+    HU_HUDX_LL,
+    HU_HUDY_UR+2*HU_GAPY,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY
+  );
 
   // initialize the automaps coordinate widget
   //jff 3/3/98 split coordstr widget into 3 parts
@@ -1349,9 +1376,10 @@ void HU_Drawer(void)
     //e6y
     if (hud_active>1)
     {
+      int i;
       if (hudadd_gamespeed||hudadd_leveltime)
       {
-	extern int realtic_clock_rate;
+	      extern int realtic_clock_rate;
         hud_timestr[0] = 0;
         if (hudadd_gamespeed)
           sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31speed \x1b\x33%.2d ", realtic_clock_rate);
@@ -1363,14 +1391,30 @@ void HU_Drawer(void)
           else
             sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31time \x1b\x33%d:%05.2f ", 
               leveltime/35/60, (float)(leveltime%(60*35))/35);
-        ////e6y
-/*        sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31! \x1b\x33%d %d %d %d ", 
-          t_list[0].health, t_list[1].health, t_list[2].health, t_list[3].health);*/
         HUlib_clearTextLine(&w_hudadd);
         s = hud_timestr;
         while (*s)
           HUlib_addCharToTextLine(&w_hudadd, *(s++));
         HUlib_drawTextLine(&w_hudadd, false);
+      }
+      {
+        int k,num=0;
+        for(k=0;k<3;k++)
+        {
+          if (traces[k].trace->count)
+          {
+            strcpy(traces[k].hudstr, traces[k].prefix);
+            for (i=0;i<traces[k].trace->count;i++)
+              sprintf(traces[k].hudstr+strlen(traces[k].hudstr),
+              "\x1b\x33%s ", traces[k].trace->items[i].value);
+            HUlib_clearTextLine(&w_traces[num]);
+            s = traces[k].hudstr;
+            while (*s)
+              HUlib_addCharToTextLine(&w_traces[num], *(s++));
+            HUlib_drawTextLine(&w_traces[num], false);
+            num++;
+          }
+        }
       }
     }
 

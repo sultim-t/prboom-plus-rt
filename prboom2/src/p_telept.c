@@ -108,7 +108,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
     if (player)
       player->momx = player->momy = 0;
 
-    if (player && player->mo == thing) e6y_AfterTeleporting(); //e6y
+    if (player && player->mo == thing) e6y_AfterTeleporting(player); //e6y
 
           return 1;
         }
@@ -190,7 +190,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
               // Reset the delta to have the same dynamics as before
               player->deltaviewheight = deltaviewheight;
             }
-          if (player && player->mo == thing) e6y_AfterTeleporting(); //e6y
+          if (player && player->mo == thing) e6y_AfterTeleporting(player); //e6y
           return 1;
         }
   return 0;
@@ -289,7 +289,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
         if (!P_TeleportMove(thing, x, y, false)) /* killough 8/9/98 */
           return 0;
 
-        if (player && player->mo == thing) e6y_AfterTeleporting(); //e6y
+        if (player && player->mo == thing) e6y_AfterTeleporting(player); //e6y
 
         // Adjust z position to be same height above ground as before.
         // Ground level at the exit is measured as the higher of the
@@ -323,7 +323,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
             player->deltaviewheight = deltaviewheight;
           }
 
-        if (player && player->mo == thing) e6y_AfterTeleporting(); //e6y
+        if (player && player->mo == thing) e6y_AfterTeleporting(player); //e6y
         return 1;
       }
   return 0;

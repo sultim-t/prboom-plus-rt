@@ -5,6 +5,7 @@ prboom2/ICONS/detail256.bmp -text
 prboom2/ICONS/fouch.ico -text
 prboom2/ICONS/god.ico -text
 prboom2/ICONS/heada1.ico -text
+prboom2/ICONS/icons.aps -text
 prboom2/ICONS/prboom.exe.manifest -text
 prboom2/ICONS/skull.ico -text
 prboom2/Makefile.am eol=lf

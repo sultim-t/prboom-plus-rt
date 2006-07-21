@@ -571,7 +571,7 @@ static void P_LoadThings (int lump)
       mt->type = SHORT(mt->type);
       mt->options = SHORT(mt->options);
 
-      P_SpawnMapThing (mt);
+      P_SpawnMapThing (mt, i);//e6y
     }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -684,7 +684,7 @@ static void P_LoadLineDefs2(int lump)
           int lump, j;
 
         case 260:               // killough 4/11/98: translucent 2s textures
-            trasparentpresent = true;//e6y
+            transparentpresent = true;//e6y
             lump = sides[*ld->sidenum].special; // translucency from sidedef
             if (!ld->tag)                       // if tag==0,
               ld->tranlump = lump;              // affect this linedef only
@@ -789,8 +789,6 @@ typedef struct linelist_t        // type used to list lines in each block
 // It simply returns if the line is already in the block
 //
 
-linelist_t **e6y_BlockMap;//e6y
-int e6y_BlockMapIndex;//e6y
 static void AddBlockLine
 (
   linelist_t **lists,
@@ -805,11 +803,7 @@ static void AddBlockLine
   if (done[blockno])
     return;
 
-//e6y  
-  l=malloc(sizeof(linelist_t));
-//  l=e6y_BlockMap+(e6y_BlockMapIndex++);//e6y
-//  l=e6y_BlockMap[e6y_BlockMapIndex++];//e6y
-
+  l = malloc(sizeof(linelist_t));
   l->num = lineno;
   l->next = lists[blockno];
   lists[blockno] = l;
@@ -839,8 +833,6 @@ void P_CreateBlockMap()
   int map_miny=INT_MAX;
   int map_maxx=INT_MIN;
   int map_maxy=INT_MIN;
-  e6y_BlockMapIndex=0;//e6y
-  e6y_BlockMap = NULL;//e6y
 
   // scan for map limits, which the blockmap must enclose
 
@@ -878,8 +870,6 @@ void P_CreateBlockMap()
   blocklists = calloc(NBlocks,sizeof(linelist_t *));
   blockcount = calloc(NBlocks,sizeof(int));
   blockdone = malloc(NBlocks*sizeof(int));
-  e6y_BlockMap = malloc((NBlocks*3+4)*sizeof(linelist_t));//e6y
-  memset(e6y_BlockMap, 0, (NBlocks*3+4)*sizeof(linelist_t));
 
   // initialize each blocklist, and enter the trailing -1 in all blocklists
   // note the linked list of lines grows backwards
@@ -1357,7 +1347,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   //e6y
   totallive = 0;
   stopallinterpolation();
-  trasparentpresent = false;
+  transparentpresent = false;
 
   totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
   wminfo.partime = 180;
@@ -1518,7 +1508,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 #endif
   //e6y
   P_ResetWalkcam();
-  ClearSmoothViewAngels();
+  ClearSmoothViewAngels(NULL);
 }
 
 //

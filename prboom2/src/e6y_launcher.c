@@ -860,30 +860,30 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
 
   case WM_COMMAND:
     {
-      int wID = LOWORD(wParam);
-      int wNotifyCode = HIWORD(wParam);
+      int wmId    = LOWORD(wParam);
+      int wmEvent = HIWORD(wParam);
 
-      if (wID == IDC_PWADLIST && wNotifyCode == LBN_DBLCLK)
+      if (wmId == IDC_PWADLIST && wmEvent == LBN_DBLCLK)
       {
         LauncherLaunch();
         EndDialog (launcher.HWNDServer, 1);
       }
       
-      if (wID == IDC_HISTORYCOMBO && wNotifyCode == CBN_SELCHANGE)
+      if (wmId == IDC_HISTORYCOMBO && wmEvent == CBN_SELCHANGE)
         LauncherHistoryOnChange();
       
-      if (wID == IDC_IWADCOMBO && wNotifyCode == CBN_SELCHANGE)
+      if (wmId == IDC_IWADCOMBO && wmEvent == CBN_SELCHANGE)
         LauncherIWADOnChange();
       
       
-      if (wID == IDC_PWADLIST && wNotifyCode == LBN_SELCHANGE)
+      if (wmId == IDC_PWADLIST && wmEvent == LBN_SELCHANGE)
         LauncherPWADOnChange();
 
-      if ((wID == IDC_IWADCOMBO && wNotifyCode == CBN_SELCHANGE) ||
-        (wID == IDC_PWADLIST && wNotifyCode == LBN_SELCHANGE))
+      if ((wmId == IDC_IWADCOMBO && wmEvent == CBN_SELCHANGE) ||
+        (wmId == IDC_PWADLIST && wmEvent == LBN_SELCHANGE))
         SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
 
-      if (wID == IDC_COMMANDCOMBO && wNotifyCode == CBN_SELCHANGE)
+      if (wmId == IDC_COMMANDCOMBO && wmEvent == CBN_SELCHANGE)
         LauncherCommandOnChange();
     }
     break;
@@ -891,29 +891,40 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
 	return FALSE;
 }
 
-BOOL CALLBACK LauncherServerCallback (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK LauncherServerCallback (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message)
-	{
-  case WM_INITDIALOG:
-    launcher.HWNDServer = hDlg;
-    CreateDialogParam(GetModuleHandle(NULL), 
-      MAKEINTRESOURCE(IDD_LAUNCHERCLIENTDIALOG), 
-      launcher.HWNDServer,
-      LauncherClientCallback, 0);
-		break;
-
+  int wmId, wmEvent;
+  
+  switch (message)
+  {
   case WM_COMMAND:
-		if (LOWORD(wParam) == IDCANCEL)
-			EndDialog (hDlg, 0);
-    else if (LOWORD(wParam) == IDOK)
+    wmId    = LOWORD(wParam);
+    wmEvent = HIWORD(wParam);
+    switch (wmId)
     {
+    case IDCANCEL:
+      EndDialog (hWnd, 0);
+      break;
+    case IDOK:
       LauncherLaunch();
-			EndDialog (hDlg, 1);
+      EndDialog (hWnd, 1);
+      break;
     }
-		break;
-	}
-	return FALSE;
+    break;
+    
+  case WM_INITDIALOG:
+      launcher.HWNDServer = hWnd;
+      CreateDialogParam(GetModuleHandle(NULL), 
+        MAKEINTRESOURCE(IDD_LAUNCHERCLIENTDIALOG), 
+        launcher.HWNDServer,
+        LauncherClientCallback, 0);
+      break;
+      
+  //case WM_DESTROY:
+  //  PostQuitMessage(0);
+  //  break;
+  }
+  return 0;
 }
 
 boolean LauncherIsNeeded(void)
@@ -938,6 +949,7 @@ boolean LauncherIsNeeded(void)
 void LauncherShow(void)
 {
   int result;
+  int nCmdShow = SW_SHOW;
 
   if (!LauncherIsNeeded())
     return;
@@ -946,12 +958,14 @@ void LauncherShow(void)
   sprintf(launchercachefile,"%s/prboom-plus.cache", I_DoomExeDir());
 
   result = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_LAUNCHERSERVERDIALOG), NULL, (DLGPROC)LauncherServerCallback);
+
   switch (result)
   {
   case 0:
     I_SafeExit(-1);
     break;
   case 1:
+//    LauncherLaunch();
     M_SaveDefaults();
     break;
   }

@@ -2571,7 +2571,7 @@ static void gld_DrawFlat(GLFlat *flat)
       if (s < 0.001) s = 0.0f;
     }
     glPushMatrix();
-    glTranslatef(s + flat->uoffs/64.0f,flat->voffs/64.0f,0.0f);
+    glTranslatef(s + flat->uoffs/16.0f,flat->voffs/16.0f,0.0f);
     glScalef(4.0f, 4.0f, 1.0f);
     //      glTranslatef(0.0f,flat->z,0.0f);
   }
@@ -2914,8 +2914,14 @@ void e6y_DrawAdd(void)
               flat = &gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex];
               
               gld_StaticLight(flat->light);
+              glMatrixMode(GL_MODELVIEW);
               glPushMatrix();
               glTranslatef(0.0f,flat->z,0.0f);
+              glMatrixMode(GL_TEXTURE);
+              glPushMatrix();
+              glTranslatef(flat->uoffs/16.0f,flat->voffs/16.0f,0.0f);
+              glScalef(4.0f, 4.0f, 1.0f);
+
               if (flat->sectornum>=0)
               {
                 for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
@@ -2924,6 +2930,8 @@ void e6y_DrawAdd(void)
                   glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
                 }
               }
+              glPopMatrix();
+              glMatrixMode(GL_MODELVIEW);
               glPopMatrix();
             }
             glCullFace(GL_BACK);
@@ -2970,8 +2978,8 @@ void e6y_DrawAdd(void)
                 GLWall *wall = &gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
                 
                 if (distance2piece(xCamera, yCamera, 
-                  wall->glseg->x1, wall->glseg->z1,
-                  wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
+                    wall->glseg->x1, wall->glseg->z1,
+                    wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
                 {
                   w = wall->gltexture->realtexwidth / 18.0f;
                   h = wall->gltexture->realtexheight / 18.0f;
@@ -2997,6 +3005,7 @@ void e6y_DrawAdd(void)
 
 void gld_DrawScene(player_t *player)
 {
+  int pass;//e6y
   int i,j,k,count;
   fixed_t max_scale;
 
@@ -3031,7 +3040,8 @@ void gld_DrawScene(player_t *player)
       break;
     }
   }
-  SkyDrawed = false;//e6y
+
+  for(SkyDrawed = false, pass=0;pass<(transparentpresent?2:1);pass++){//e6y
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
     switch (gld_drawinfo.drawitems[i].itemtype)
@@ -3055,8 +3065,17 @@ void gld_DrawScene(player_t *player)
         for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
           if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
           {
+            //e6y
+            if (pass==0){
+              if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha < 1.0f)
+                continue;
+            }else{
+              if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha == 1.0f)
+                continue;
+            }
             rendered_segs++;
             count++;
+
             gld_DrawWall(&gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex]);
           }
         if (gl_drawskys)
@@ -3070,6 +3089,7 @@ void gld_DrawScene(player_t *player)
       }
       break;
     case GLDIT_SPRITE:
+      if (pass!=0) break;//e6y
       if (gl_sortsprites)
       {
         do
@@ -3098,7 +3118,9 @@ void gld_DrawScene(player_t *player)
       break;
     }
   }
-//e6y
+
+  //e6y
+  }
   if (!gl_arb_multitexture)
     if (render_usedetailwalls || render_usedetailflats)
       e6y_DrawAdd();

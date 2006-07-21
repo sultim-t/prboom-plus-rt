@@ -662,7 +662,7 @@ void R_RenderPlayerView (player_t* player)
   {
     unsigned int oldviewangle;
     oldviewangle = viewangle;
-    if (render_fov > FOV90 || trasparentpresent)//FIXME!!!
+    if (render_fov > FOV90 || transparentpresent)//FIXME!!!
     {
       R_RenderBSPNode (numnodes-1);
       viewangle += ANG90;

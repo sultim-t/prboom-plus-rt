@@ -291,7 +291,7 @@ void P_DeathThink (player_t* player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
-  ClearSmoothViewAngels();//e6y
+  ClearSmoothViewAngels(player);//e6y
   }
 
 
@@ -378,6 +378,7 @@ void P_PlayerThink (player_t* player)
 
     if (demo_compatibility)
       { // compatibility mode -- required for old demos -- killough
+      newweapon = (cmd->buttons & BT_WEAPONMASK_OLD)>>BT_WEAPONSHIFT;//e6y
       if (newweapon == wp_fist && player->weaponowned[wp_chainsaw] &&
         (player->readyweapon != wp_chainsaw ||
          !player->powers[pw_strength]))
