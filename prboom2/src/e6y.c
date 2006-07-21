@@ -1867,16 +1867,6 @@ void SwitchToWindow(HWND hwnd)
 #endif
 }
 
-boolean StrToInt(const char *s, long *l)
-{      
-  return (
-    (sscanf(s, " 0x%x", l) == 1) ||
-    (sscanf(s, " 0X%x", l) == 1) ||
-    (sscanf(s, " 0%o", l) == 1) ||
-    (sscanf(s, " %d", l) == 1)
-  );
-}
-
 boolean PlayeringameOverrun(mapthing_t* mthing)
 {
   if (mthing->type==0

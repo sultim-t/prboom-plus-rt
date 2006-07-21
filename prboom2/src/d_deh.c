@@ -2843,7 +2843,7 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
 // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
 // No more desync on HACX demos.
 // FIXME!!! (lame)
-boolean StrToInt(char *s, long *l)
+boolean StrToInt(const char *s, long *l)
 {      
   return (
     (sscanf(s, " 0x%lx", l) == 1) ||
