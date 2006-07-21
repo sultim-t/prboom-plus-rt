@@ -126,6 +126,10 @@ extern int overrun_intercept_emulate;
 extern int overrun_playeringame_warn;
 extern int overrun_playeringame_emulate;
 
+extern int overrun_spechit_promted;
+
+extern void ShowOverflowWarning(int emulate, int *promted, boolean fatal, char *name, char *params, ...);
+
 extern int launcher_enable;
 extern char *launcher_history[10];
 

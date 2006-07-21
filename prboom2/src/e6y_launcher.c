@@ -121,7 +121,7 @@ void LauncherIWADOnChange(void)
   }
 }
 
-boolean LauncherSelect(struct wadfile_info *wadfiles, size_t numwadfiles)
+boolean LauncherSelect(wadfile_info_t *wadfiles, size_t numwadfiles)
 {
   int i, j;
   size_t k;
@@ -651,7 +651,7 @@ void LauncherFillHistory(void)
     if (strlen(launcher_history[i]) > 0)
     {
       int index;
-      struct wadfile_info *wadfiles = NULL;
+      wadfile_info_t *wadfiles = NULL;
       wadfiles_t *data;
       size_t numwadfiles = 0;
       char *pToken;

@@ -574,7 +574,7 @@ static void P_LoadThings (int lump)
           }
 
       // Do spawn all other stuff.
-      P_SpawnMapThing(&mt);
+      P_SpawnMapThing(&mt, i);
     }
 
   W_UnlockLumpNum(lump); // cph - release the data

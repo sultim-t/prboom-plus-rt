@@ -19,7 +19,7 @@ typedef HRESULT (WINAPI *EnableThemeDialogTexturePROC)(HWND, DWORD);
 
 typedef struct
 {
-  struct wadfile_info *wadfiles;
+  wadfile_info_t *wadfiles;
   size_t numwadfiles;
 } wadfiles_t;
 
