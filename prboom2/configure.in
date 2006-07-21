@@ -20,7 +20,7 @@ esac
 AC_ARG_ENABLE(i386-asm,[  --disable-i386-asm      Do not use i386 assembly], use_i386_asm=no)
 echo "checking whether to use x86 asm versions of some functions..." $use_i386_asm
 if test "$use_i386_asm" = yes; then
-        AC_DEFINE(I386_ASM)
+        AC_DEFINE(I386_ASM,1,[Define on targets supporting 386 assembly])
 fi
 
 dnl --- Fire up automake
@@ -32,7 +32,7 @@ if test "x$prefix" != xNONE; then
 else
   DOOMWADDIR="$ac_default_prefix/share/games/doom"
 fi
-AC_DEFINE_UNQUOTED(DOOMWADDIR,"$DOOMWADDIR")
+AC_DEFINE_UNQUOTED(DOOMWADDIR,"$DOOMWADDIR",[Define to be the path where Doom WADs are stored])
 
 dnl --- Check for programs
 AC_PROG_CC
@@ -40,7 +40,7 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 
 if test "x$GCC" = "xyes"; then
-  AC_DEFINE(PACKEDATTR,[__attribute__((packed))])
+  AC_DEFINE(PACKEDATTR,[__attribute__((packed))],[Set to the attribute to apply to struct definitions to make them packed])
 else
   AC_DEFINE(PACKEDATTR,[])
   echo "-!- Your compiler is not gcc. We probably don't know how to force"
@@ -53,9 +53,9 @@ CFLAGS_OPT="-O2 -fomit-frame-pointer"
 dnl --- Option to enable debugging
 AC_ARG_ENABLE(debug,[  --enable-debug     turns on various debugging features, like range checking and internal heap diagnostics],
 AC_ARG_ENABLE(dmalloc,[  --enable-dmalloc     use the dmalloc heap debug library],AC_CHECK_LIB(dmalloc,malloc))
-AC_DEFINE(RANGECHECK)
-AC_DEFINE(INSTRUMENTED)
-AC_DEFINE(TIMEDIAG)
+AC_DEFINE(RANGECHECK,1,[Define to enable internal range checking])
+AC_DEFINE(INSTRUMENTED,1,[Define this to see real-time memory allocation statistics, and enable extra debugging features])
+AC_DEFINE(TIMEDIAG,1,[Defining this causes time stamps to be created each time a lump is locked, and lumps locked for long periods of time are reported])
 CFLAGS_OPT="-g"
 )
 AC_ARG_ENABLE(profile,[  --enable-profile         turns on profiling],
@@ -84,8 +84,8 @@ AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(unistd.h asm/byteorder.h linux/joystick.h)
 
 dnl --- Library functions
-AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp))
-AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp))
+AC_CHECK_FUNC(stricmp,,AC_DEFINE(stricmp,strcasecmp,[Define to strcasecmp, if we have it]))
+AC_CHECK_FUNC(strnicmp,,AC_DEFINE(strnicmp,strncasecmp,[Define to strncasecmp, if we have it]))
 AC_CHECK_FUNCS(getopt inet_aton inet_pton inet_ntop snprintf vsnprintf mmap usleep)
 
 dnl --- Check for libraries
@@ -127,9 +127,9 @@ have_opengl=yes
 ])
 AC_MSG_RESULT($have_opengl)
 if test x$have_opengl = xyes; then
-    AC_DEFINE(GL_DOOM)
-    AC_DEFINE(USE_GLU_IMAGESCALE)
-    AC_DEFINE(USE_GLU_MIPMAP)
+    AC_DEFINE(GL_DOOM,1,[Define if you want to build with OpenGL support])
+    AC_DEFINE(USE_GLU_IMAGESCALE,1,[Define if you want to use gluImageScale])
+    AC_DEFINE(USE_GLU_MIPMAP,1,[Define if you want to use gluBuild2DMipmaps])
     GL_LIBS="$SYS_GL_LIBS"
 else
     GL_LIBS=""
@@ -145,7 +145,7 @@ LIBS="$LIBS $SDL_LIBS"
 AC_CHECK_FUNCS(SDL_JoystickGetAxis)
 LIBS="$savelibs"
 AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
-    AC_DEFINE(HAVE_LIBSDL_MIXER)
+    AC_DEFINE(HAVE_LIBSDL_MIXER,1,[Define if you have the SDL mixer library -lSDL_mixer])
     MIXER_LIBS="$MIXER_LIBS -lSDL_mixer"
     BUILD_DOOM="prboom"
 ],echo "*** Cannot compile PrBoom without SDL_mixer installed"
@@ -153,8 +153,8 @@ echo "But I can compile the game server"
 BUILD_DOOM=""
 ,$SDL_LIBS $MIXER_LIBS)
 AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
-    AC_DEFINE(HAVE_LIBSDL_NET)
-    AC_DEFINE(USE_SDL_NET)
+    AC_DEFINE(HAVE_LIBSDL_NET,1,[Define if you have the SDL net library -lSDL_net])
+    AC_DEFINE(USE_SDL_NET,1,[Define if you want to use the SDL net lib])
     NET_LIBS=-lSDL_net
     has_net=yes
     sdl_net=yes
@@ -166,7 +166,7 @@ AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
 	UDPpacket *p;
 	int n = sizeof(p->src);
 	],
-	AC_DEFINE(SDL_NET_UDP_PACKET_SRC))
+	AC_DEFINE(SDL_NET_UDP_PACKET_SRC,1,[Define if you have an old SDL_net, such that the UDPpacket structure has a src member instead of an address member]))
     CFLAGS="$save_CFLAGS"
 ],,$SDL_LIBS)
 
@@ -179,26 +179,24 @@ fi
 
 dnl - Other libs
 AC_CHECK_LIB(png,png_create_info_struct)
-AC_DEFINE(HAVE_NET)
-AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6))
+AC_DEFINE(HAVE_NET,1,[Define if you want network game support])
+AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6,1,[Define if you have struct sockaddr_in6]))
 
 dnl --- Options
 dnl - Always use highres mode, unless explicitely --disabled
-AC_ARG_ENABLE(highres,[  --disable-highres        disables support for resulutions greater than 320x200],,AC_DEFINE(HIGHRES))
+AC_ARG_ENABLE(highres,[  --disable-highres        disables support for resulutions greater than 320x200],,AC_DEFINE(HIGHRES,1,[Define for high resolution support]))
 AC_ARG_ENABLE(dogs,[  --disable-dogs        disables support for helper dogs],
 if test x"$enable_dogs" = xyes
 then
-	AC_DEFINE(DOGS)
-fi,AC_DEFINE(DOGS))
+	AC_DEFINE(DOGS,1,[Define for support for MBF helper dogs])
+fi,AC_DEFINE(DOGS,1,[Define for support for MBF helper dogs]))
 dnl - By default, simple checks with little overhead are done to catch memory corruption, or
 dnl - problems with new code
 AC_ARG_ENABLE(checks,[  --disable-checks          disables some basic internal sanity checks],,
-AC_DEFINE(SIMPLECHECKS)
-AC_DEFINE(ZONEIDCHECK))
-AC_ARG_ENABLE(heapcheck,[  --enable-heapcheck     turns on continuous heap checking (very slow)],AC_DEFINE(CHECKHEAP))
-AC_ARG_ENABLE(heapdump,[  --enable-heapdump       turns on dumping the heap state for debugging],AC_DEFINE(HEAPDUMP))
-
-AC_DEFINE(POLL_MOUSE) dnl - cph - avoid X11 mouse problems
+AC_DEFINE(SIMPLECHECKS,1,[Defining this causes quick checks which only impose an overhead if a posible error is detected.])
+AC_DEFINE(ZONEIDCHECK,1,[Uncomment this to perform id checks on zone blocks, to detect corrupted and illegally freed blocks]))
+AC_ARG_ENABLE(heapcheck,[  --enable-heapcheck     turns on continuous heap checking (very slow)],AC_DEFINE(CHECKHEAP,1,[Uncomment this to exhaustively run memory checks while the game is running (this is EXTREMELY slow).]))
+AC_ARG_ENABLE(heapdump,[  --enable-heapdump       turns on dumping the heap state for debugging],AC_DEFINE(HEAPDUMP,1,[Uncomment this to cause heap dumps to be generated. Only useful if INSTRUMENTED is also defined.]))
 
 AM_CONDITIONAL(WAD_MMAP,test "$ac_cv_func_mmap" = yes)
 AC_SUBST(BUILD_DOOM)
@@ -214,5 +212,4 @@ dnl -- ac_aux_dir - see Makefile.am
 AC_SUBST(ac_aux_dir)
 
 dnl --- output
-AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile doc/Makefile data/Makefile ICONS/Makefile VISUALC5/Makefile VISUALC6/Makefile prboom.spec)
-# src/OSS/Makefile src/X11/Makefile
+AC_OUTPUT(Makefile src/Makefile src/POSIX/Makefile src/SDL/Makefile src/MAC/Makefile doc/Makefile data/Makefile ICONS/Makefile VisualC8/Makefile prboom.spec)

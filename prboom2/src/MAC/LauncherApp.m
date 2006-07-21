@@ -1,9 +1,17 @@
 #import "LauncherApp.h"
 
+#import <Foundation/NSArray.h>
+#import <Foundation/NSBundle.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSFileManager.h>
+
 @implementation LauncherApp
 
 - (void)awakeFromNib
 {
+	NSString *wadPath =[@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
+	[[NSFileManager defaultManager] createDirectoryAtPath:wadPath attributes:nil];
+
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
 }
@@ -11,6 +19,11 @@
 - (void)windowWillClose:(NSNotification *)notification
 {
 	[NSApp terminate:window];
+}
+
+- (void)openWebsite:(id)sender
+{
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://prboom.sourceforge.net/"]];
 }
 
 - (void)loadDefaults
@@ -23,6 +36,7 @@
 		[respawnMonstersButton setObjectValue:[defaults objectForKey:@"Respawn Monsters"]];
 		[fastMonstersButton setObjectValue:[defaults objectForKey:@"Fast Monsters"]];
 		[noMonstersButton setObjectValue:[defaults objectForKey:@"No Monsters"]];
+		[fullscreenButton setObjectValue:[defaults objectForKey:@"Full Screen Graphics"]];
 		[disableGraphicsButton setObjectValue:[defaults objectForKey:@"Disable Graphics"]];
 		[disableJoystickButton setObjectValue:[defaults objectForKey:@"Disable Joystick"]];
 		[disableMouseButton setObjectValue:[defaults objectForKey:@"Disable Mouse"]];
@@ -30,10 +44,21 @@
 		[disableSoundButton setObjectValue:[defaults objectForKey:@"Disable Sound"]];
 		[disableSoundEffectsButton setObjectValue:[defaults objectForKey:@"Disable Sound Effects"]];
 		[wads setArray:[defaults stringArrayForKey:@"Wads"]];
+
+		// Store the compat level in terms of the Prboom values, rather than
+		// our internal indices.  That means we have to add one when we read
+		// the settings, and subtract one when we save it
+		long compatIndex = [[defaults objectForKey:@"Compatibility Level"]
+		                     longValue] + 1;
+		[compatibilityLevelButton setObjectValue:[NSNumber
+		                                          numberWithLong:compatIndex]];
+	}
+	else
+	{
+		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:0]];
 	}
 
 	[self disableSoundClicked:disableSoundButton];
-	[self gameButtonClicked:gameButton];
 	[self demoButtonClicked:demoMatrix];
 	[self tableViewSelectionDidChange:nil];
 }
@@ -48,6 +73,7 @@
 	[defaults setObject:[respawnMonstersButton objectValue] forKey:@"Respawn Monsters"];
 	[defaults setObject:[fastMonstersButton objectValue] forKey:@"Fast Monsters"];
 	[defaults setObject:[noMonstersButton objectValue] forKey:@"No Monsters"];
+	[defaults setObject:[fullscreenButton objectValue] forKey:@"Full Screen Graphics"];
 	[defaults setObject:[disableGraphicsButton objectValue] forKey:@"Disable Graphics"];
 	[defaults setObject:[disableJoystickButton objectValue] forKey:@"Disable Joystick"];
 	[defaults setObject:[disableMouseButton objectValue] forKey:@"Disable Mouse"];
@@ -55,6 +81,12 @@
 	[defaults setObject:[disableSoundButton objectValue] forKey:@"Disable Sound"];
 	[defaults setObject:[disableSoundEffectsButton objectValue] forKey:@"Disable Sound Effects"];
 	[defaults setObject:wads forKey:@"Wads"];
+
+	// Store the compat level in terms of the Prboom values, rather than
+	// our internal indices.  That means we have to add one when we read
+	// the settings, and subtract one when we save it
+	long compatLevel = [[compatibilityLevelButton objectValue] longValue] - 1;
+	[defaults setObject:[NSNumber numberWithLong:compatLevel] forKey:@"Compatibility Level"];
 
 	[defaults synchronize];
 }
@@ -83,8 +115,9 @@
 		[args insertObject:@"freedoom.wad" atIndex:[args count]];
 
 	// Compat
+	long compatLevel = [[compatibilityLevelButton objectValue] longValue] - 1;
 	[args insertObject:@"-complevel" atIndex:[args count]];
-	[args insertObject:[[compatibilityLevelButton objectValue] stringValue]
+	[args insertObject:[[NSNumber numberWithLong:compatLevel] stringValue]
 	      atIndex:[args count]];
 
 	// Options
@@ -94,6 +127,11 @@
 		[args insertObject:@"-nomonsters" atIndex:[args count]];
 	if([respawnMonstersButton state] == NSOnState)
 		[args insertObject:@"-respawn" atIndex:[args count]];
+
+	if([fullscreenButton state] == NSOnState)
+		[args insertObject:@"-fullscreen" atIndex:[args count]];
+	else
+		[args insertObject:@"-nofullscreen" atIndex:[args count]];
 
 	// Debug options
 	if([disableGraphicsButton state] == NSOnState)
@@ -141,23 +179,6 @@
 
 	// Execute
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
-}
-
-- (IBAction)gameButtonClicked:(id)sender
-{
-	long game = [[gameButton objectValue] longValue];
-	if(game == 0)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:2]];
-	else if(game == 1)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:3]];
-	else if(game == 2)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:2]];
-	else if(game == 3)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:4]];
-	else if(game == 4)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:4]];
-	else if(game == 5)
-		[compatibilityLevelButton setObjectValue:[NSNumber numberWithLong:7]];
 }
 
 - (IBAction)disableSoundClicked:(id)sender

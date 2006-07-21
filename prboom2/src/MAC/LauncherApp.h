@@ -13,6 +13,8 @@
 	IBOutlet id fastMonstersButton;
 	IBOutlet id noMonstersButton;
 
+	IBOutlet id fullscreenButton;
+
 	// Debug options
 	IBOutlet id disableGraphicsButton;
 	IBOutlet id disableJoystickButton;
@@ -42,12 +44,13 @@
 - (void)awakeFromNib;
 - (void)windowWillClose:(NSNotification *)notification;
 
+- (IBAction)openWebsite:(id)sender;
+
 - (void)loadDefaults;
 - (void)saveDefaults;
 
 // Game
 - (IBAction)startClicked:(id)sender;
-- (IBAction)gameButtonClicked:(id)sender;
 
 // Options
 - (IBAction)disableSoundClicked:(id)sender;

@@ -10,11 +10,10 @@ prboom2/ICONS/icons.aps -text
 prboom2/ICONS/prboom.exe.manifest -text
 prboom2/ICONS/skull.ico -text
 prboom2/Makefile.am eol=lf
-prboom2/VISUALC5/Makefile.am eol=lf
-prboom2/VISUALC6/Doom.dsp eol=crlf
-prboom2/VISUALC6/Doom.dsw eol=crlf
-prboom2/VISUALC6/Makefile.am eol=lf
-prboom2/VISUALC6/prboom_server.dsp eol=crlf
+prboom2/VisualC8/Doom.sln eol=crlf
+prboom2/VisualC8/Doom.vcproj eol=crlf
+prboom2/VisualC8/Makefile.am -text
+prboom2/VisualC8/prboom_server.vcproj eol=crlf
 prboom2/autotools/ac_c_compile_flags.m4 eol=lf
 prboom2/autotools/ac_cpu_optimisations.m4 eol=lf
 prboom2/data/Makefile.am eol=lf
@@ -215,6 +214,7 @@ prboom2/src/MAC/Launcher.icns -text
 prboom2/src/MAC/LauncherApp.h -text
 prboom2/src/MAC/LauncherApp.m -text
 prboom2/src/MAC/LauncherMain.m -text
+prboom2/src/MAC/Makefile.am -text
 prboom2/src/MAC/PrBoom.icns -text
 prboom2/src/MAC/PrBoom.sdef -text
 prboom2/src/MAC/Rakefile -text

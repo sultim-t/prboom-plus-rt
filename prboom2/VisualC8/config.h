@@ -59,7 +59,6 @@
  * statistics, and enable extra debugging features
  */
 #define INSTRUMENTED 1
-//#define INSTRUMENTED 1
 
 /* Uncomment this to exhaustively run memory checks
  * while the game is running (this is EXTREMELY slow).
@@ -71,7 +70,6 @@
  * Only useful if INSTRUMENTED is also defined.
  */
 #define HEAPDUMP 1
-
 
 /* Uncomment this to perform id checks on zone blocks,
  * to detect corrupted and illegally freed blocks
@@ -134,7 +132,7 @@
 #define USE_GLU_TESS 1
 
 /* Define if you want to use gluImageScale  */
-#define USE_GLU_IMAGESCALE 1
+//#define USE_GLU_IMAGESCALE 1
 
 /* Define if you want to use gluBuild2DMipmaps  */
 #define USE_GLU_MIPMAP 1
@@ -145,7 +143,7 @@
 #define PACKEDATTR
 
 /* Name of package */
-#define PACKAGE "prboom-plus"
+#define PACKAGE "prboom"
 
 /* Version number of package */
-#define VERSION "2.4.2.1" //e6y
+#define VERSION "2.4.2"

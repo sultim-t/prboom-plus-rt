@@ -161,12 +161,11 @@ static boolean P_CrossSubsector(int num)
   return false;
 
     { // crosses a two sided line
-      fixed_t frac = P_InterceptVector(&los.strace, &divl);
-
-      /* cph 2006/04/11 - oops, we missed this in 2.4.0 
-       *  ...and .1, but let's hope nobody notices! DEMOSYNC */
-      if (compatibility_level == prboom_5_compatibility)
-	frac = P_InterceptVector2(&los.strace, &divl);
+      /* cph 2006/07/15 - oops, we missed this in 2.4.0 & .1;
+       *  use P_InterceptVector2 for those compat levels only. */ 
+      fixed_t frac = (compatibility_level == prboom_5_compatibility || compatibility_level == prboom_6_compatibility) ?
+		      P_InterceptVector2(&los.strace, &divl) : 
+		      P_InterceptVector(&los.strace, &divl);
 
       if (front->floorheight != back->floorheight) {
         fixed_t slope = FixedDiv(openbottom - los.sightzstart , frac);
