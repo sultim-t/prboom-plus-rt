@@ -9,9 +9,9 @@
 		<key>225</key>
 		<string>380 277 202 144 0 0 1280 1002 </string>
 		<key>235</key>
-		<string>691 87 171 334 0 0 1280 1002 </string>
+		<string>691 87 171 353 0 0 1280 1002 </string>
 		<key>29</key>
-		<string>380 330 280 44 0 0 1280 1002 </string>
+		<string>380 372 280 44 0 0 1280 1002 </string>
 	</dict>
 	<key>IBFramework Version</key>
 	<string>446.1</string>
@@ -48,9 +48,7 @@
 	</array>
 	<key>IBOpenObjects</key>
 	<array>
-		<integer>235</integer>
 		<integer>21</integer>
-		<integer>29</integer>
 	</array>
 	<key>IBSystem Version</key>
 	<string>8J135</string>
