@@ -131,9 +131,6 @@
 		NSString *path = [[[self wadPath] stringByAppendingString:@"/"]
 		                  stringByAppendingString:[self wadForIndex:i]];
 		bool exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
-		printf("Setting item %s to %s\n",
-		       [[[gameMenu itemAtIndex:i] title] UTF8String],
-		       exists ? "on" : "off");
 		[[gameMenu itemAtIndex:i] setEnabled:exists];
 		if([[gameButton objectValue] longValue] == i)
 			[launchButton setEnabled:exists];
