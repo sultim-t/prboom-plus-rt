@@ -218,6 +218,11 @@
 	[self updateGameWad];
 }
 
+- (IBAction)showGameFolderClicked:(id)sender
+{
+	[[NSWorkspace sharedWorkspace] openFile:[self wadPath] withApplication:@"Finder"];
+}
+
 - (IBAction)disableSoundClicked:(id)sender
 {
 	bool state = [disableSoundButton state] != NSOnState;

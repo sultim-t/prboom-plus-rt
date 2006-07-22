@@ -10,6 +10,7 @@
                 gameButtonClicked = id; 
                 openWebsite = id; 
                 removeWadClicked = id; 
+                showGameFolderClicked = id; 
                 startClicked = id; 
             }; 
             CLASS = LauncherApp; 

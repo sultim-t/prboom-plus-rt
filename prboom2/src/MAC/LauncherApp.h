@@ -60,6 +60,7 @@
 // Game
 - (IBAction)startClicked:(id)sender;
 - (IBAction)gameButtonClicked:(id)sender;
+- (IBAction)showGameFolderclicked:(id)sender;
 
 // Options
 - (IBAction)disableSoundClicked:(id)sender;
