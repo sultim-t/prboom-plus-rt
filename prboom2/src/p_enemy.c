@@ -445,7 +445,10 @@ static boolean P_SmartMove(mobj_t *actor)
   // and only if the target is immediately on the other side of the line.
 
 #ifdef DOGS
-  if (actor->type == MT_DOGS && target && dog_jumping &&
+  // haleyjd: allow all friends of HelperType to also jump down
+
+  if ((actor->type == MT_DOGS || (actor->type == (HelperThing-1) && actor->flags&MF_FRIEND))
+      && target && dog_jumping &&
       !((target->flags ^ actor->flags) & MF_FRIEND) &&
       P_AproxDistance(actor->x - target->x,
           actor->y - target->y) < FRACUNIT*144 &&

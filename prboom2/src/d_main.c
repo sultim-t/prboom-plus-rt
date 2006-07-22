@@ -1444,6 +1444,8 @@ void D_DoomMainSetup(void)
   // Using -deh in BOOM, others use -dehacked.
   // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
 
+  D_BuildBEXTables(); // haleyjd
+
   p = M_CheckParm ("-deh");
   if (p)
     {

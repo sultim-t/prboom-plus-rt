@@ -1149,7 +1149,22 @@ void P_SpawnMapThing (const mapthing_t* mthing)
 
     // killough 10/98: force it to be a friend
     options |= MTF_FRIEND;
-    i = MT_DOGS;
+    if(HelperThing != -1) // haleyjd 9/22/99: deh substitution
+    {
+      int type = HelperThing - 1;
+      if(type >= 0 && type < NUMMOBJTYPES)
+      {
+        i = type;
+      }
+      else
+      {
+        doom_printf("Invalid value %i for helper, ignored.", HelperThing);
+        i = MT_DOGS;
+      }
+    }
+    else {
+      i = MT_DOGS;
+    }
     goto spawnit;
   }
 #endif
