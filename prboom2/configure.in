@@ -66,7 +66,7 @@ dnl --- Try for processor optimisations
 AC_CPU_OPTIMISATIONS
 
 dnl --- some defaults for CFLAGS
-AC_C_COMPILE_FLAGS(-Wall -Winline -Wwrite-strings -ffast-math $CFLAGS_OPT $CPU_CFLAGS)
+AC_C_COMPILE_FLAGS(-Wall -Winline -Wwrite-strings -ffast-math $CFLAGS_OPT)
 CFLAGS="$CFLAGS -I\$(top_srcdir)/src"
 
 dnl --- Compiler characteristics
