@@ -52,6 +52,7 @@
 - (void)loadDefaults;
 - (void)saveDefaults;
 
+- (NSString *)wadForIndex:(int)index;
 - (NSString *)selectedWad;
 - (void)updateGameWad;
 - (void)watcher:(id)watcher receivedNotification:(NSString *)notification
@@ -60,7 +61,7 @@
 // Game
 - (IBAction)startClicked:(id)sender;
 - (IBAction)gameButtonClicked:(id)sender;
-- (IBAction)showGameFolderclicked:(id)sender;
+- (IBAction)showGameFolderClicked:(id)sender;
 
 // Options
 - (IBAction)disableSoundClicked:(id)sender;

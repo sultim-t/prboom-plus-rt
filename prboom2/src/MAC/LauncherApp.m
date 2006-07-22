@@ -100,33 +100,44 @@
 	[defaults synchronize];
 }
 
-- (NSString *)selectedWad
+- (NSString *)wadForIndex:(int)index
 {
-	long game = [[gameButton objectValue] longValue];
-	if(game == 0)
+	if(index == 0)
 		return @"doom.wad";
-	else if(game == 1)
+	else if(index == 1)
 		return @"doomu.wad";
-	else if(game == 2)
+	else if(index == 2)
 		return @"doom2.wad";
-	else if(game == 3)
+	else if(index == 3)
 		return @"tnt.wad";
-	else if(game == 4)
+	else if(index == 4)
 		return @"plutonia.wad";
-	else if(game == 5)
+	else if(index == 5)
 		return @"freedoom.wad";
 	else
-		return @"";
+		return nil;
+}
+
+- (NSString *)selectedWad
+{
+	return [self wadForIndex:[[gameButton objectValue] longValue]];
 }
 
 - (void)updateGameWad
 {
-	// I am tempted to put both of these statements into one because it'd be
-	// my best bit of Objective C bracket nesting ever -- Neil
-	NSString *path = [[[self wadPath] stringByAppendingString:@"/"]
-	                  stringByAppendingString:[self selectedWad]];
-	bool exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
-	[launchButton setEnabled:exists];
+	int i;
+	for(i = 0; i < [gameMenu numberOfItems]; ++i)
+	{
+		NSString *path = [[[self wadPath] stringByAppendingString:@"/"]
+		                  stringByAppendingString:[self wadForIndex:i]];
+		bool exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+		printf("Setting item %s to %s\n",
+		       [[[gameMenu itemAtIndex:i] title] UTF8String],
+		       exists ? "on" : "off");
+		[[gameMenu itemAtIndex:i] setEnabled:exists];
+		if([[gameButton objectValue] longValue] == i)
+			[launchButton setEnabled:exists];
+	}
 }
 
 - (void)watcher:(id)watcher receivedNotification:(NSString *)notification
