@@ -7,10 +7,15 @@
 
 @implementation LauncherApp
 
+- (NSString *)wadPath
+{
+	return [@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
+}
+
 - (void)awakeFromNib
 {
-	NSString *wadPath =[@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
-	[[NSFileManager defaultManager] createDirectoryAtPath:wadPath attributes:nil];
+	[[NSFileManager defaultManager] createDirectoryAtPath:[self wadPath]
+	                                attributes:nil];
 
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
@@ -61,6 +66,7 @@
 	[self disableSoundClicked:disableSoundButton];
 	[self demoButtonClicked:demoMatrix];
 	[self tableViewSelectionDidChange:nil];
+	[self updateGameWad];
 }
 
 - (void)saveDefaults
@@ -91,6 +97,35 @@
 	[defaults synchronize];
 }
 
+- (NSString *)selectedWad
+{
+	long game = [[gameButton objectValue] longValue];
+	if(game == 0)
+		return @"doom.wad";
+	else if(game == 1)
+		return @"doomu.wad";
+	else if(game == 2)
+		return @"doom2.wad";
+	else if(game == 3)
+		return @"tnt.wad";
+	else if(game == 4)
+		return @"plutonia.wad";
+	else if(game == 5)
+		return @"freedoom.wad";
+	else
+		return @"";
+}
+
+- (void)updateGameWad
+{
+	// I am tempted to put both of these statements into one because it'd be
+	// my best bit of Objective C bracket nesting ever -- Neil
+	NSString *path = [[[self wadPath] stringByAppendingString:@"/"]
+	                  stringByAppendingString:[self selectedWad]];
+	bool exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+	[launchButton setEnabled:exists];
+}
+
 - (IBAction)startClicked:(id)sender
 {
 	[self saveDefaults];
@@ -100,19 +135,7 @@
 
 	// Game
 	[args insertObject:@"-iwad" atIndex:[args count]];
-	long game = [[gameButton objectValue] longValue];
-	if(game == 0)
-		[args insertObject:@"doom.wad" atIndex:[args count]];
-	else if(game == 1)
-		[args insertObject:@"doomu.wad" atIndex:[args count]];
-	else if(game == 2)
-		[args insertObject:@"doom2.wad" atIndex:[args count]];
-	else if(game == 3)
-		[args insertObject:@"tnt.wad" atIndex:[args count]];
-	else if(game == 4)
-		[args insertObject:@"plutonia.wad" atIndex:[args count]];
-	else if(game == 5)
-		[args insertObject:@"freedoom.wad" atIndex:[args count]];
+	[args insertObject:[self selectedWad] atIndex:[args count]];
 
 	// Compat
 	long compatLevel = [[compatibilityLevelButton objectValue] longValue] - 1;
@@ -179,6 +202,11 @@
 
 	// Execute
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
+}
+
+- (IBAction)gameButtonClicked:(id)sender
+{
+	[self updateGameWad];
 }
 
 - (IBAction)disableSoundClicked:(id)sender

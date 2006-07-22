@@ -7,6 +7,8 @@
 	// Game
 	IBOutlet id compatibilityLevelButton;
 	IBOutlet id gameButton;
+	IBOutlet id launchButton;
+	IBOutlet id gameMenu;
 
 	// Options
 	IBOutlet id respawnMonstersButton;
@@ -41,6 +43,7 @@
 	IBOutlet id demoFileField;
 }
 
+- (NSString *)wadPath;
 - (void)awakeFromNib;
 - (void)windowWillClose:(NSNotification *)notification;
 
@@ -49,8 +52,12 @@
 - (void)loadDefaults;
 - (void)saveDefaults;
 
+- (NSString *)selectedWad;
+- (void)updateGameWad;
+
 // Game
 - (IBAction)startClicked:(id)sender;
+- (IBAction)gameButtonClicked:(id)sender;
 
 // Options
 - (IBAction)disableSoundClicked:(id)sender;
