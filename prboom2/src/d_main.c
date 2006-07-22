@@ -896,7 +896,7 @@ void FindResponseFile (void)
         int  size;
         int  index;
 	int indexinfile;
-        char *file = NULL;
+        byte *file = NULL;
         const char **moreargs = malloc(myargc * sizeof(const char*));
         const char **newargv;
         // proff 04/05/2000: Added for searching responsefile
@@ -953,7 +953,7 @@ void FindResponseFile (void)
 	}
 
         {
-	  char *infile = file;
+	  byte *infile = file;
 	  indexinfile = 0;
 	  indexinfile++;  // SKIP PAST ARGV[0] (KEEP IT)
 	  do {
