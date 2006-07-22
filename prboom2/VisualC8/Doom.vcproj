@@ -50,7 +50,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="GL_DOOM;_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\DebugNOASMGL/Doom.pch"
 				AssemblerListingLocation=".\DebugNOASMGL/"
 				ObjectFile=".\DebugNOASMGL/"
@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="DebugNOASMGL/glboom.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -146,7 +146,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\ReleaseGL/Doom.pch"
 				AssemblerListingLocation=".\ReleaseGL/"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="ReleaseGL/glboom.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -240,7 +240,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\ReleaseNOASM/Doom.pch"
 				AssemblerListingLocation=".\ReleaseNOASM/"
@@ -263,7 +263,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="ReleaseNOASM/prboom.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -334,7 +334,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\DebugNOASM/Doom.pch"
 				AssemblerListingLocation=".\DebugNOASM/"
 				ObjectFile=".\DebugNOASM/"
@@ -357,7 +357,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="DebugNOASM/prboom.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -430,7 +430,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="NDEBUG;GL_DOOM;WIN32;_WINDOWS;HAVE_CONFIG_H;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\ReleaseNOASMGL/Doom.pch"
 				AssemblerListingLocation=".\ReleaseNOASMGL/"
@@ -453,7 +453,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="ReleaseNOASMGL/glboom.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -524,7 +524,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="GL_DOOM;_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\DebugGL/Doom.pch"
 				AssemblerListingLocation=".\DebugGL/"
 				ObjectFile=".\DebugGL/"
@@ -547,7 +547,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="DebugGL/glboom.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -619,7 +619,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\Debug/Doom.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
@@ -642,7 +642,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="Debug/prboom.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -715,7 +715,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;HAVE_CONFIG_H;I386_ASM;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\Release/Doom.pch"
 				AssemblerListingLocation=".\Release/"
@@ -738,7 +738,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdlmain.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
 				OutputFile="Release/prboom.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -6617,6 +6617,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\src\SDL\SDL_win32_main.c"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

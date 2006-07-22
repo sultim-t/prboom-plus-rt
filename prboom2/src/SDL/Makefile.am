@@ -8,4 +8,4 @@ noinst_LIBRARIES = libsdldoom.a
 
 libsdldoom_a_SOURCES = i_video.c i_sound.c i_system.c i_joy.c
 
-
+EXTRA_DIST = SDL_win32_main.c

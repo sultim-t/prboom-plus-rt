@@ -1,8 +1,8 @@
 mkdir release
 set CYGWIN=c:\cygwin
-copy VisualC6\Release\prboom.exe release
-copy VisualC6\ReleaseGL\glboom.exe release
-copy VisualC6\ReleaseServer\prboom_server.exe release
+copy VisualC8\Release\prboom.exe release
+copy VisualC8\ReleaseGL\glboom.exe release
+copy VisualC8\ReleaseServer\prboom_server.exe release
 copy data\prboom.wad release
 %CYGWIN%\bin\man2html doc\boom.cfg.5 > release\boom.cfg.html
 %CYGWIN%\bin\man2html doc\prboom.6 > release\prboom.html
