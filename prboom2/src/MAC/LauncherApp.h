@@ -54,6 +54,8 @@
 
 - (NSString *)selectedWad;
 - (void)updateGameWad;
+- (void)watcher:(id)watcher receivedNotification:(NSString *)notification
+        forPath:(NSString *)path;
 
 // Game
 - (IBAction)startClicked:(id)sender;

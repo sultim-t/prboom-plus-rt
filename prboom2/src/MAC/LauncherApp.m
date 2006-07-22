@@ -4,6 +4,7 @@
 #import <Foundation/NSBundle.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSFileManager.h>
+#import "UKKQueue.h"
 
 @implementation LauncherApp
 
@@ -16,6 +17,8 @@
 {
 	[[NSFileManager defaultManager] createDirectoryAtPath:[self wadPath]
 	                                attributes:nil];
+	[[UKKQueue sharedQueue] setDelegate:self];
+	[[UKKQueue sharedQueue] addPath:[self wadPath]];
 
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
@@ -124,6 +127,12 @@
 	                  stringByAppendingString:[self selectedWad]];
 	bool exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
 	[launchButton setEnabled:exists];
+}
+
+- (void)watcher:(id)watcher receivedNotification:(NSString *)notification
+        forPath:(NSString *)path
+{
+	[self updateGameWad];
 }
 
 - (IBAction)startClicked:(id)sender

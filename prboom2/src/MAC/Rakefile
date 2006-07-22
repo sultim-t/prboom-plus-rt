@@ -12,7 +12,7 @@ DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @frameworks += %w(SDL SDL_mixer SDL_net)
 @includes += '-I. -IMAC'
 @defines +=  '-DHAVE_CONFIG_H'
-@cflags += '-Wno-pointer-sign -Wno-packed'
+@cflags += '-Wno-pointer-sign -Wno-packed -fobjc-exceptions'
 
 if ENV['DEBUG']
 	@cflags += ' -g -DDEBUG'
@@ -108,8 +108,15 @@ z_bmalloc.c
 z_zone.c
 )
 
+launcherSources = %w(
+MAC/LauncherApp.m
+MAC/LauncherMain.m
+MAC/UKKQueue.m
+MAC/UKMainThreadProxy.m
+)
+
 buildBinary(:binary, BINDIR, 'PrBoom', sources)
-buildBinary(:binary, BINDIR, 'Launcher', %w(MAC/LauncherMain.m MAC/LauncherApp.m))
+buildBinary(:binary, BINDIR, 'Launcher', launcherSources)
 task(:bundle => :binary)
 
 ############

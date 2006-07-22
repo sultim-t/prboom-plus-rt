@@ -254,6 +254,11 @@ prboom2/src/MAC/Rakefile -text
 prboom2/src/MAC/SDLMain.h -text
 prboom2/src/MAC/SDLMain.m -text
 prboom2/src/MAC/TODO -text
+prboom2/src/MAC/UKFileWatcher.h -text
+prboom2/src/MAC/UKKQueue.h -text
+prboom2/src/MAC/UKKQueue.m -text
+prboom2/src/MAC/UKMainThreadProxy.h -text
+prboom2/src/MAC/UKMainThreadProxy.m -text
 prboom2/src/MAC/config.h -text
 prboom2/src/MAC/i_sound.c -text
 prboom2/src/MAC/i_system.m -text
