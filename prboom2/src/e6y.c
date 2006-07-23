@@ -242,7 +242,7 @@ void e6y_D_DoomMainSetup(void)
       {
         while (count < 3 && p + count < myargc-1 && StrToInt(myargv[p+1+count], &value))
         {
-          sprintf(traces[i].trace->items[count].value, "\x1b\x36%d\x1b\x33 0", value);
+          sprintf(traces[i].trace->items[count].value, "\x1b\x36%ld\x1b\x33 0", value);
           traces[i].trace->items[count].index = value;
           count++;
         }
@@ -863,6 +863,7 @@ void InterpolationGetData(thinker_t *th,
         *type1 = INTERP_CeilingPanning;
         *posptr1 = sectors + ((scroll_t *)th)->affectee;
         break;
+      default: ;
     }
   }
 }
@@ -1197,7 +1198,7 @@ int StepwiseSum(int value, int direction, int step, int minval, int maxval, int 
   if (newvalue > maxval) newvalue = maxval;
   if (newvalue < minval) newvalue = minval;
 
-  if (value < defval && newvalue > defval || value > defval && newvalue < defval)
+  if ((value < defval && newvalue > defval) || (value > defval && newvalue < defval))
     newvalue = defval;
 
   if (newvalue != value)
@@ -1230,7 +1231,7 @@ void I_Warning(const char *message, va_list argList)
 #endif
 }
 
-void ShowOverflowWarning(int emulate, int *promted, boolean fatal, char *name, char *params, ...)
+void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...)
 {
   if (!(*promted))
   {
