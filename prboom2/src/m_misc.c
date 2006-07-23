@@ -338,7 +338,7 @@ default_t defaults[] =
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{480},200,1200,
    def_int,ss_none},
-#ifndef GL_DOOM
+#ifdef GL_DOOM
   {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
    def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
 #endif
