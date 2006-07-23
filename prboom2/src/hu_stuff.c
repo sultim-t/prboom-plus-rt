@@ -41,6 +41,7 @@
 #include "sounds.h"
 #include "d_deh.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
 #include "g_game.h"
+#include "r_main.h"
 
 // global heads up display controls
 

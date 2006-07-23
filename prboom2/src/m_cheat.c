@@ -41,6 +41,8 @@
 #include "r_main.h"
 #include "p_map.h"
 #include "d_deh.h"  // Ty 03/27/98 - externalized strings
+/* cph 2006/07/23 - needs direct access to thinkercap */
+#include "p_tick.h"
 
 #define plyr (players+consoleplayer)     /* the console player */
 
@@ -393,7 +395,7 @@ static void cheat_noclip()
 }
 
 // 'behold?' power-up cheats (modified for infinite duration -- killough)
-static void cheat_pw(pw)
+static void cheat_pw(int pw)
 {
   if (plyr->powers[pw])
     plyr->powers[pw] = pw!=pw_strength && pw!=pw_allmap;  // killough
@@ -413,8 +415,7 @@ static void cheat_behold()
 }
 
 // 'clev' change-level cheat
-static void cheat_clev(buf)
-char buf[3];
+static void cheat_clev(char buf[3])
 {
   int epsd, map;
 
@@ -578,7 +579,7 @@ static void cheat_tntkeyx()
   plyr->message = "Card, Skull";        // Ty 03/27/98 - *not* externalized
 }
 
-static void cheat_tntkeyxx(key)
+static void cheat_tntkeyxx(int key)
 {
   plyr->message = (plyr->cards[key] = !plyr->cards[key]) ?
     "Key Added" : "Key Removed";  // Ty 03/27/98 - *not* externalized
@@ -648,14 +649,12 @@ char buf[1];
 
 static void cheat_smart()
 {
-  extern int monsters_remember;  // Ty 03/27/98 - *not* externalized
   plyr->message = (monsters_remember = !monsters_remember) ?
     "Smart Monsters Enabled" : "Smart Monsters Disabled";
 }
 
 static void cheat_pitch()
 {
-  extern int pitched_sounds;  // Ty 03/27/98 - *not* externalized
   plyr->message=(pitched_sounds = !pitched_sounds) ? "Pitch Effects Enabled" :
     "Pitch Effects Disabled";
 }

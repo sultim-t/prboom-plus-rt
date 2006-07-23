@@ -95,7 +95,4 @@ void R_FillBackScreen(void);
 // If the view size is not full screen, draws a border around it.
 void R_DrawViewBorder(void);
 
-extern const byte *tranmap;         // translucency filter maps 256x256  // phares
-extern const byte *main_tranmap;    // killough 4/11/98
-
 #endif
