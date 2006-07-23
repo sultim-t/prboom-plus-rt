@@ -136,8 +136,8 @@ def runtest(iwad, demo, demopath, pwad):
         except IOError:
             print "couldn't open stderr.txt"
     else:
-        p = subprocess.Popen(options, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdin, stderr) = p.communicate()
+        p = subprocess.Popen(options, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = p.communicate()
         results = stderr.split('\n')
         results = [x.strip() for x in results if x.strip()]
         if len(results):
