@@ -839,9 +839,6 @@ void R_DrawTLColumn (void)
 void R_DrawFuzzColumn(void)
 {
   int      count;
-  byte     *dest;
-  fixed_t  frac;
-  fixed_t  fracstep;
 
   // Adjust borders. Low...
   if (!dc_yl)
