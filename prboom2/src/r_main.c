@@ -504,6 +504,8 @@ static void R_ShowStats(void)
   keeptime[KEEPTIMES-1] = now;
 }
 
+extern void R_ResetColumnBuffer(void);
+
 //
 // R_RenderView
 //
@@ -559,6 +561,7 @@ void R_RenderPlayerView (player_t* player)
 
 #ifndef GL_DOOM
   R_DrawMasked ();
+  R_ResetColumnBuffer();
 #endif
 
   // Check for new console commands.

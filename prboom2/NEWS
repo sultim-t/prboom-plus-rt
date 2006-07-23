@@ -7,6 +7,8 @@ Changes from v2.4.2 to v2.4.3
 - Mac OS X: Disable games in popup menu whose wads cannot be found
 - fix compilation warnings
 - tidy up configure script
+- Massive speed improvements in higher resolutions taken from Eternity.
+  Thanks to SoM and Quasar!!!
 
 Changes from v2.4.1 to v2.4.2
 - Move gamma correction tables into prboom.wad
