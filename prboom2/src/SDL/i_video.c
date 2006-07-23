@@ -385,14 +385,14 @@ void I_FinishUpdate (void)
   if (SDL_MUSTLOCK(screen)) {
       int h;
       int w;
-      char *src;
-      char *dest;
+      byte *src;
+      byte *dest;
 
       if (SDL_LockSurface(screen) < 0) {
         lprintf(LO_INFO,"I_FinishUpdate: %s\n", SDL_GetError());
         return;
       }
-      dest=(char *)screen->pixels;
+      dest=screen->pixels;
       src=screens[0];
       w=screen->w;
       h=screen->h;
@@ -444,7 +444,7 @@ void I_ShutdownSDL(void)
 void I_PreInitGraphics(void)
 {
   // Initialize SDL
-  unsigned int flags;
+  unsigned int flags = 0;
   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
     flags = SDL_INIT_VIDEO;
 #ifdef _DEBUG
