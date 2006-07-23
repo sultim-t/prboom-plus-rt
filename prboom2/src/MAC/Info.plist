@@ -13,7 +13,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>net.sourceforge.prboom</string>
 	<key>CFBundleName</key>
-	<string>PrBoom</string>
+	<string>PrBoom-Plus</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
