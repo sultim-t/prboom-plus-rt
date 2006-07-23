@@ -28,7 +28,31 @@
 #define HAVE_MALLOC 1
 #define HAVE_STRLEN 1
 #define HAVE_STRRCHR 1
+#define HAVE_STRLCPY 1
+#define HAVE_STRLCAT 1
 
+size_t strlcpy(char *dst, const char *src, size_t maxlen)
+{
+    size_t srclen = strlen(src);
+    if ( maxlen > 0 ) {
+        size_t len = min(srclen, maxlen-1);
+        memcpy(dst, src, len);
+        dst[len] = '\0';
+    }
+    return srclen;
+}
+
+size_t strlcat(char *dst, const char *src, size_t maxlen)
+{
+    size_t dstlen = strlen(dst);
+    size_t srclen = strlen(src);
+    if ( dstlen < maxlen ) {
+        strlcpy(dst+dstlen, src, maxlen-dstlen);
+    }
+    return dstlen+srclen;
+}
+
+// proff - end of additions
 /* Include the SDL main definition header */
 #include "SDL.h"
 #include "SDL_main.h"
