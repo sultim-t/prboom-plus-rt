@@ -1,6 +1,18 @@
 title: Project Homepage
 
     <h1>News</h1>
+    <h3>23rd July 2006</h3>
+
+    <p>Version 2.4.3 is released.</p>
+    <ul class="changes">
+        <li>Massive speed improvements in higher resolutions taken from Eternity.<br />
+            Thanks to SoM and Quasar!!!</li>
+        <li>fix bugs in gameplay occuring with gcc-4.1</li>
+        <li>Mac OS X: Add "Show Game Folder" to menus, for easy installation of new game wads</li>
+        <li>Mac OS X: Disable games in popup menu whose wads cannot be found</li>
+        <li>fix compilation warnings</li>
+        <li>tidy up configure script</li>
+    </ul>
 
     <h3>16th July 2006</h3>
 
