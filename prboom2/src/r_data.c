@@ -912,7 +912,8 @@ int R_TextureNumForName(const char *name)  // const added -- killough
 {
   int i = R_CheckTextureNumForName(name);
   if (i == -1)
-    I_Error("R_TextureNumForName: %.8s not found", name);
+    // e6y - return "no texture"
+    i = 0;
   return i;
 }
 
