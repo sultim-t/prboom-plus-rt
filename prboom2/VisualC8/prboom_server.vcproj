@@ -47,7 +47,7 @@
 				AdditionalIncludeDirectories="../VisualC8,../src"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;HAVE_CONFIG_H;PRBOOM_SERVER"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				PrecompiledHeaderFile=".\ReleaseServer/prboom_server.pch"
 				AssemblerListingLocation=".\ReleaseServer/"
@@ -69,7 +69,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdlmain.lib sdl.lib sdl_net.lib"
+				AdditionalDependencies="sdl.lib sdl_net.lib"
 				OutputFile=".\ReleaseServer/prboom_server.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -138,7 +138,7 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;HAVE_CONFIG_H;PRBOOM_SERVER"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				PrecompiledHeaderFile=".\DebugServer/prboom_server.pch"
 				AssemblerListingLocation=".\DebugServer/"
 				ObjectFile=".\DebugServer/"
@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sdlmain.lib sdl.lib sdl_net.lib"
+				AdditionalDependencies="sdl.lib sdl_net.lib"
 				OutputFile=".\DebugServer/prboom_server.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -304,6 +304,10 @@
 			</File>
 			<File
 				RelativePath="..\src\protocol.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SDL\SDL_win32_main.c"
 				>
 			</File>
 		</Filter>
