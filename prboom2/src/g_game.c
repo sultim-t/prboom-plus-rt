@@ -544,14 +544,24 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     side = -MAXPLMOVE;
 
   //e6y
-  if (movement_strafe50 && !movement_strafe50onturns)
-    if(!strafe && cmd->angleturn != 0)
+  if (movement_strafe50)
+  {
+    if (!speed)
+    {
+      if (side > sidemove_strafe50[0])
+        side = sidemove_strafe50[0];
+      else if (side < -sidemove_strafe50[0])
+        side = -sidemove_strafe50[0];
+    }
+    else if(!movement_strafe50onturns && !strafe && cmd->angleturn)
     {
       if (side > sidemove_normal[1])
         side = sidemove_normal[1];
       else if (side < -sidemove_normal[1])
         side = -sidemove_normal[1];
     }
+
+  }
 
   cmd->forwardmove += fudgef((signed char)forward);
   cmd->sidemove += side;
