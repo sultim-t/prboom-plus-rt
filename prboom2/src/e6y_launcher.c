@@ -18,6 +18,9 @@
 #include "e6y.h"
 #include "e6y_launcher.h"
 
+#pragma comment( lib, "comctl32.lib" )
+#pragma comment( lib, "advapi32.lib" )
+
 int launcher_enable;
 char *launcher_history[LAUNCHER_HISTORY_SIZE];
 

@@ -698,7 +698,7 @@ boolean M_FindCheats(int key)
       for (i=0;cheat[i].cheat;i++)
         {
           uint_64_t c=0, m=0;
-          const char const *p;
+          const char *p;
 
           for (p=cheat[i].cheat; *p; p++)
             {

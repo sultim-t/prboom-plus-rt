@@ -1457,6 +1457,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\e6y.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\e6y.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\e6y_launcher.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\e6y_launcher.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\f_finale.c"
 				>
 				<FileConfiguration

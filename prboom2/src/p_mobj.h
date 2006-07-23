@@ -219,7 +219,11 @@
 
 // these are greater than an int. That's why the flags below are now uint_64_t
 // define compiled-specific long-long contstant notation here
+#ifndef _MSC_VER
 #define LONGLONG(num)   (uint_64_t)num ## ll
+#else
+#define LONGLONG(num)   (uint_64_t)num
+#endif
 
 #define MF_TOUCHY       LONGLONG(0x0000000100000000)
 #define MF_BOUNCES      LONGLONG(0x0000000200000000)

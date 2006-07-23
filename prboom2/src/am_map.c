@@ -1609,6 +1609,15 @@ void AM_drawThings
       }
       //jff 1/5/98 end added code for keys
       //jff previously entire code
+/*void AM_drawLineCharacter
+( mline_t*  lineguy,
+  int   lineguylines,
+  fixed_t scale,
+  angle_t angle,
+  int   color,
+  fixed_t x,
+  fixed_t y )
+{*/
       AM_drawLineCharacter
       (
         thintriangle_guy,
