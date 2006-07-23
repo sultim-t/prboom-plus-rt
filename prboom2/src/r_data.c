@@ -892,7 +892,7 @@ int R_FlatNumForName(const char *name)    // killough -- const added
 
 int R_CheckTextureNumForName(const char *name)
 {
-  int i = 0;
+  int i = NO_TEXTURE;
   if (*name != '-')     // "NoTexture" marker.
     {
       i = textures[W_LumpNameHash(name) % (unsigned) numtextures]->index;
@@ -912,8 +912,7 @@ int R_TextureNumForName(const char *name)  // const added -- killough
 {
   int i = R_CheckTextureNumForName(name);
   if (i == -1)
-    // e6y - return "no texture"
-    i = 0;
+    i = NO_TEXTURE; // e6y - return "no texture"
   return i;
 }
 

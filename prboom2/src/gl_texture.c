@@ -421,7 +421,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
 {
   GLTexture *gltexture;
 
-  if (texture_num==R_TextureNumForName("-"))
+  if (texture_num==NO_TEXTURE)
     return NULL;
   gltexture=gld_AddNewGLTexture(texture_num);
   if (!gltexture)

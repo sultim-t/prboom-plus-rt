@@ -1644,13 +1644,13 @@ static void gld_PrepareSectorSpecialEffects(int num)
     if ( (sectors[num].lines[i]->sidenum[0]!=NO_INDEX) &&
          (sectors[num].lines[i]->sidenum[1]!=NO_INDEX) )
     {
-      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=NO_TEXTURE)
         sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=NO_TEXTURE)
         sectors[num].no_bottomtextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=NO_TEXTURE)
         sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=NO_TEXTURE)
         sectors[num].no_bottomtextures=false;
     }
     else
@@ -2236,7 +2236,7 @@ void gld_AddWall(seg_t *seg)
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->toptexture]!=R_TextureNumForName("-")) )
+        if ( (texturetranslation[seg->sidedef->toptexture]!=NO_TEXTURE) )
         {
           wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
@@ -2317,7 +2317,7 @@ bottomtexture:
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
+        if ( (texturetranslation[seg->sidedef->bottomtexture]!=NO_TEXTURE) )
         {
           wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);

@@ -91,6 +91,8 @@ int R_FlatNumForName (const char* name);   // killough -- const added
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
+/* cph 2006/07/23 - defined value for no-texture marker (texture "-" in the WAD file) */
+#define NO_TEXTURE 0
 int R_TextureNumForName (const char *name);    // killough -- const added
 int R_CheckTextureNumForName (const char *name);
 
