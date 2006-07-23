@@ -646,14 +646,8 @@ static void P_LoadLineDefs (int lump)
 #ifdef GL_DOOM
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
 #endif
-    // proff 07/23/2006 - support more than 32768 sidedefs
-    // use the unsigned value and special case the -1
-    ld->sidenum[0] = (unsigned short)SHORT(mld->sidenum[0]);
-    if (ld->sidenum[0] == 65535)
-      ld->sidenum[0] = NO_INDEX;
-      ld->sidenum[1] = (unsigned short)SHORT(mld->sidenum[1]);
-    if (ld->sidenum[1] == 65535)
-      ld->sidenum[1] = NO_INDEX;
+      ld->sidenum[0] = SHORT(mld->sidenum[0]);
+      ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
       // killough 4/4/98: support special sidedef interpretation below
       if (ld->sidenum[0] != NO_INDEX && ld->special)

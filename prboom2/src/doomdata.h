@@ -89,11 +89,13 @@ typedef struct {
   unsigned short flags;
   short special;
   short tag;
+  // proff 07/23/2006 - support more than 32768 sidedefs
+  // use the unsigned value and special case the -1
   // sidenum[1] will be -1 (NO_INDEX) if one sided
   unsigned short sidenum[2];
 } PACKEDATTR maplinedef_t;
 
-#define NO_INDEX (-1)
+#define NO_INDEX ((unsigned short)-1)
 
 //
 // LineDef attributes.
