@@ -3,7 +3,8 @@ For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.3 to v2.4.4
 - Don't fail when a texture name can't be looked up
-- Increased sidedef limit to 65535
+- Increased number of sidedef limit to 65534
+- Increased number of vertexes limit to 65535
 
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.

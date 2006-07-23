@@ -194,7 +194,7 @@ typedef struct line_s
 #endif
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
-  short flags;           // Animation related.
+  unsigned short flags;           // Animation related.
   short special;
   short tag;
   int sidenum[2];        // Visual appearance: SideDefs.

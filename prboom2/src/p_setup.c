@@ -308,6 +308,7 @@ static void P_LoadSegs (int lump)
     {
       seg_t *li = segs+i;
       mapseg_t *ml = (mapseg_t *) data + i;
+      unsigned short v1, v2;
 
       int side, linedef;
       line_t *ldef;
@@ -316,8 +317,10 @@ static void P_LoadSegs (int lump)
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 #endif
 
-      li->v1 = &vertexes[SHORT(ml->v1)];
-      li->v2 = &vertexes[SHORT(ml->v2)];
+      v1 = (unsigned short)SHORT(ml->v1);
+      v2 = (unsigned short)SHORT(ml->v2);
+      li->v1 = &vertexes[v1];
+      li->v2 = &vertexes[v2];
 
       li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
 #ifdef GL_DOOM
@@ -325,7 +328,7 @@ static void P_LoadSegs (int lump)
 #endif
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
-      linedef = SHORT(ml->linedef);
+      linedef = (unsigned short)SHORT(ml->linedef);
       ldef = &lines[linedef];
       li->linedef = ldef;
       side = SHORT(ml->side);
@@ -366,8 +369,8 @@ static void P_LoadGLSegs(int lump)
   ml = (glseg_t*) data;
   for(i = 0; i < numsegs; i++)
   {             // check for gl-vertices
-    segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
-    segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
+    segs[i].v1 = &vertexes[checkGLVertex(SHORT(ml->v1))];
+    segs[i].v2 = &vertexes[checkGLVertex(SHORT(ml->v2))];
 #ifdef GL_DOOM
     segs[i].iSegID  = i;
 #endif
@@ -605,11 +608,11 @@ static void P_LoadLineDefs (int lump)
       line_t *ld = lines+i;
       vertex_t *v1, *v2;
 
-      ld->flags = SHORT(mld->flags);
+      ld->flags = (unsigned short)SHORT(mld->flags);
       ld->special = SHORT(mld->special);
       ld->tag = SHORT(mld->tag);
-      v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
-      v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
+      v1 = ld->v1 = &vertexes[(unsigned short)SHORT(mld->v1)];
+      v2 = ld->v2 = &vertexes[(unsigned short)SHORT(mld->v2)];
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
 
