@@ -650,6 +650,8 @@ char *(Z_Strdup)(const char *s, int tag, void **user
 void (Z_CheckHeap)(
 #ifdef INSTRUMENTED
        const char *file, int line
+#else
+       void
 #endif
        )
 {

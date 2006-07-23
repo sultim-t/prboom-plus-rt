@@ -39,6 +39,7 @@
 #include "s_sound.h"
 #include "i_sound.h"
 #include "i_system.h"
+#include "d_main.h"
 #include "r_main.h"
 #include "m_random.h"
 #include "w_wad.h"
@@ -61,11 +62,6 @@
 #define NORM_PRIORITY 64
 #define NORM_SEP 128
 #define S_STEREO_SWING (96<<FRACBITS)
-
-//jff 1/22/98 make sound enabling variables readable here
-extern int snd_card, mus_card;
-extern boolean nosfxparm, nomusicparm;
-//jff end sound enabling variables readable here
 
 const char* S_music_files[NUMMUSIC]; // cournia - stores music file names
 

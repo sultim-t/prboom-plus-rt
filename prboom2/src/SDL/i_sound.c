@@ -239,7 +239,7 @@ void I_UpdateSoundParams(int handle, int volume, int seperation, int pitch)
 // version.
 // See soundserver initdata().
 //
-void I_SetChannels()
+void I_SetChannels(void)
 {
   // Init internal lookups (raw data, mixing buffer, channels).
   // This function sets up internal lookups used during
@@ -483,8 +483,7 @@ void I_ShutdownSound(void)
 
 //static SDL_AudioSpec audio;
 
-void
-I_InitSound()
+void I_InitSound(void)
 {
 #ifdef HAVE_MIXER
   int audio_rate;

@@ -822,7 +822,7 @@ static void AddBlockLine
 // adds the line to all block lists touching the intersection.
 //
 
-void P_CreateBlockMap()
+void P_CreateBlockMap(void)
 {
   int xorg,yorg;                 // blockmap origin (lower left)
   int nrows,ncols;               // blockmap dimensions

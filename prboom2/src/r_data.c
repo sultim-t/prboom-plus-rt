@@ -38,6 +38,7 @@
 #include "r_bsp.h"
 #include "r_things.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
+#include "p_tick.h"
 
 //
 // Graphics.

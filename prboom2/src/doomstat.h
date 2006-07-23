@@ -198,14 +198,8 @@ extern enum automapmode_e automapmode; // Mode that the automap is in
 
 extern  boolean menuactive;    // Menu overlayed?
 extern  boolean paused;        // Game Pause?
-extern  int     hud_active;    //jff 2/17/98 toggles heads-up status display
 extern  boolean nodrawers;
 extern  boolean noblit;
-extern  int     viewwindowx;
-extern  int     viewwindowy;
-extern  int     viewheight;
-extern  int     viewwidth;
-extern  int     scaledviewwidth;
 
 // This one is related to the 3-screen display mode.
 // ANG90 = left side, ANG270 = right
@@ -272,10 +266,6 @@ extern  mapthing_t playerstarts[];
 // Parameters for world map / intermission.
 extern wbstartstruct_t wminfo;
 
-// LUT of ammunition limits for each kind.
-// This doubles with BackPack powerup item.
-extern int maxammo[];
-
 //-----------------------------------------
 // Internal parameters, used for engine.
 //
@@ -314,12 +304,7 @@ extern  int        maketic;
 extern  ticcmd_t   netcmds[][BACKUPTICS];
 extern  int        ticdup;
 
-extern thinker_t thinkercap;  // Both the head and tail of the thinker list
-
 //-----------------------------------------------------------------------------
-
-// v1.1-like pitched sounds
-extern int pitched_sounds;     // killough 2/21/98
 
 extern int allow_pushers;         // MT_PUSH Things    // phares 3/10/98
 extern int default_allow_pushers;

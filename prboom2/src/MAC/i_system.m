@@ -47,6 +47,7 @@ char *I_FindFile(const char *wf_name, const char *ext)
 {
   NSArray *paths = [NSArray arrayWithObject:libraryDir()];
   paths = [paths arrayByAddingObject: [[NSBundle mainBundle] resourcePath]];
+  paths = [paths arrayByAddingObject: @""];
 
   const char *retval = 0;
   int i;

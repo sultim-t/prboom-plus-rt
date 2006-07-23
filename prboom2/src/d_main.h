@@ -41,9 +41,6 @@
 
 /* CPhipps - removed wadfiles[] stuff to w_wad.h */
 
-// jff make startskill globally visible
-extern skill_t startskill;
-
 extern char basesavegame[];     // killough 2/16/98: savegame path
 
 //jff 1/24/98 make command line copies of play modes available
