@@ -55,6 +55,7 @@
 #include "r_plane.h"
 #include "r_data.h"
 #include "p_maputl.h"
+#include "p_tick.h"
 #include "m_bbox.h"
 #include "lprintf.h"
 #include "gl_intern.h"
