@@ -1425,10 +1425,8 @@ static void gld_PrecalculateSector(int num)
   for (i=0; i<sectors[num].linecount; i++)
   {
     lineadded[i]=false;
-//e6y    if (sectors[num].lines[i]->sidenum[0]>=0)
-//e6y      if (sectors[num].lines[i]->sidenum[1]>=0)
-    if (sectors[num].lines[i]->sidenum[0]!=NO_INDEX)//e6y
-      if (sectors[num].lines[i]->sidenum[1]!=NO_INDEX)//e6y
+    if (sectors[num].lines[i]->sidenum[0]!=NO_INDEX)
+      if (sectors[num].lines[i]->sidenum[1]!=NO_INDEX)
         if (sides[sectors[num].lines[i]->sidenum[0]].sector
           ==sides[sectors[num].lines[i]->sidenum[1]].sector)
         {
@@ -1461,7 +1459,7 @@ static void gld_PrecalculateSector(int num)
         {
           currentline=i;
           currentloop++;
-          if ((sectors[num].lines[currentline]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+          if ((sectors[num].lines[currentline]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)
             startvertex=sectors[num].lines[currentline]->v1;
           else
             startvertex=sectors[num].lines[currentline]->v2;
@@ -1483,7 +1481,7 @@ static void gld_PrecalculateSector(int num)
     // add current line
     lineadded[currentline]=true;
     // check if currentsector is on the front side of the line ...
-    if ((sectors[num].lines[currentline]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+    if ((sectors[num].lines[currentline]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[currentline]->sidenum[0]].sector==&sectors[num]) : false)
     {
       // v2 is ending vertex
       currentvertex=sectors[num].lines[currentline]->v2;
@@ -1527,7 +1525,7 @@ static void gld_PrecalculateSector(int num)
     bestline=-1; // set to start values
     bestlinecount=0;
     // set backsector if there is one
-    if (sectors[num].lines[currentline]->sidenum[1]!=NO_INDEX)//e6y
+    if (sectors[num].lines[currentline]->sidenum[1]!=NO_INDEX)
       backsector=sides[sectors[num].lines[currentline]->sidenum[1]].sector;
     else
       backsector=NULL;
@@ -1538,7 +1536,7 @@ static void gld_PrecalculateSector(int num)
         if ((sectors[num].lines[i]->v1==currentvertex) || (sectors[num].lines[i]->v2==currentvertex))
         {
           // calculate the angle of this best line candidate
-          if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+          if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)
             angle = R_PointToAngle2(sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y,sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y);
           else
             angle = R_PointToAngle2(sectors[num].lines[i]->v2->x,sectors[num].lines[i]->v2->y,sectors[num].lines[i]->v1->x,sectors[num].lines[i]->v1->y);
@@ -1546,7 +1544,7 @@ static void gld_PrecalculateSector(int num)
           if (angle>=180)
             angle=angle-360;
           // check if line is flipped ...
-          if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)//e6y
+          if ((sectors[num].lines[i]->sidenum[0]!=NO_INDEX) ? (sides[sectors[num].lines[i]->sidenum[0]].sector==&sectors[num]) : false)
           {
             // when the line is not flipped and startvertex is not the currentvertex then skip this line
             if (sectors[num].lines[i]->v1!=currentvertex)
@@ -1652,18 +1650,16 @@ static void gld_PrepareSectorSpecialEffects(int num)
   sectors[num].no_bottomtextures=true;
   for (i=0; i<sectors[num].linecount; i++)
   {
-//e6y    if ( (sectors[num].lines[i]->sidenum[0]>=0) &&
-//e6y         (sectors[num].lines[i]->sidenum[1]>=0) )
-    if ( (sectors[num].lines[i]->sidenum[0]!=NO_INDEX) &&//e6y
-         (sectors[num].lines[i]->sidenum[1]!=NO_INDEX) )//e6y
+    if ( (sectors[num].lines[i]->sidenum[0]!=NO_INDEX) &&
+         (sectors[num].lines[i]->sidenum[1]!=NO_INDEX) )
     {
-      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[0]].toptexture!=NO_TEXTURE)
         sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[0]].bottomtexture!=NO_TEXTURE)
         sectors[num].no_bottomtextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[1]].toptexture!=NO_TEXTURE)
         sectors[num].no_toptextures=false;
-      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=R_TextureNumForName("-"))
+      if (sides[sectors[num].lines[i]->sidenum[1]].bottomtexture!=NO_TEXTURE)
         sectors[num].no_bottomtextures=false;
     }
     else
@@ -1768,13 +1764,13 @@ void gld_PreprocessSectors(void)
       v2num=((int)sectors[i].lines[j]->v2-(int)vertexes)/sizeof(vertex_t);
       if ((v1num>=numvertexes) || (v2num>=numvertexes))
         continue;
-      if (sectors[i].lines[j]->sidenum[0]!=NO_INDEX)//e6y
+      if (sectors[i].lines[j]->sidenum[0]!=NO_INDEX)
         if (sides[sectors[i].lines[j]->sidenum[0]].sector==&sectors[i])
         {
           vertexcheck[v1num]|=1;
           vertexcheck[v2num]|=2;
         }
-      if (sectors[i].lines[j]->sidenum[1]!=NO_INDEX)//e6y
+      if (sectors[i].lines[j]->sidenum[1]!=NO_INDEX)
         if (sides[sectors[i].lines[j]->sidenum[1]].sector==&sectors[i])
         {
           vertexcheck[v1num]|=2;
@@ -2350,7 +2346,7 @@ void gld_AddWall(seg_t *seg)
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->toptexture]!=R_TextureNumForName("-")) )
+        if ( (texturetranslation[seg->sidedef->toptexture]!=NO_TEXTURE) )
         {
           //e6y
           if(test_sky2)
@@ -2472,7 +2468,7 @@ bottomtexture:
       }
       else
       {
-        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
+        if ( (texturetranslation[seg->sidedef->bottomtexture]!=NO_TEXTURE) )
         {
           wall.ytop=(float)frontsector->floorheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);

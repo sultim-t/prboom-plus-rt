@@ -89,10 +89,13 @@ void R_PrecacheLevel (void);
 int R_FlatNumForName (const char* name);   // killough -- const added
 
 
-// Called by P_Ticker for switches and animations,
-// returns the texture number for the texture name.
-int R_TextureNumForName (const char *name);    // killough -- const added
-int R_CheckTextureNumForName (const char *name);
+// R_*TextureNumForName returns the texture number for the texture name, or NO_TEXTURE if 
+//  there is no texture (i.e. "-") specified.
+/* cph 2006/07/23 - defined value for no-texture marker (texture "-" in the WAD file) */
+#define NO_TEXTURE 0
+int PUREFUNC R_TextureNumForName (const char *name);    // killough -- const added; cph - now PUREFUNC
+int PUREFUNC R_SafeTextureNumForName (const char *name, int snum);
+int PUREFUNC R_CheckTextureNumForName (const char *name);
 
 void R_InitTranMap(int);      // killough 3/6/98: translucency initialization
 int R_ColormapNumForName(const char *name);      // killough 4/4/98

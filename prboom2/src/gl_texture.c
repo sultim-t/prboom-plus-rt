@@ -422,7 +422,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
 {
   GLTexture *gltexture;
 
-  if (texture_num==R_TextureNumForName("-"))
+  if (texture_num==NO_TEXTURE)
    if (!isskytexture || texture_num!=skytexture)//e6y
     return NULL;
   gltexture=gld_AddNewGLTexture(texture_num);

@@ -120,10 +120,10 @@ void P_ArchiveWorld (void)
 
   for (i=0; i<numlines; i++)
     {
-      if (lines[i].sidenum[0] != NO_INDEX)//e6y
+      if (lines[i].sidenum[0] != NO_INDEX)
         size +=
     sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
-      if (lines[i].sidenum[1] != NO_INDEX)//e6y
+      if (lines[i].sidenum[1] != NO_INDEX)
   size +=
     sizeof(short)*3 + sizeof si->textureoffset + sizeof si->rowoffset;
     }
@@ -160,7 +160,7 @@ void P_ArchiveWorld (void)
       *put++ = li->tag;
 
       for (j=0; j<2; j++)
-        if (li->sidenum[j] != NO_INDEX)//e6y
+        if (li->sidenum[j] != NO_INDEX)
           {
       si = &sides[li->sidenum[j]];
 
@@ -226,7 +226,7 @@ void P_UnArchiveWorld (void)
       li->special = *get++;
       li->tag = *get++;
       for (j=0 ; j<2 ; j++)
-        if (li->sidenum[j] != NO_INDEX)//e6y
+        if (li->sidenum[j] != NO_INDEX)
           {
             side_t *si = &sides[li->sidenum[j]];
 

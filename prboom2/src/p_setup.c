@@ -309,6 +309,7 @@ static void P_LoadSegs (int lump)
     {
       seg_t *li = segs+i;
       mapseg_t *ml = (mapseg_t *) data + i;
+      unsigned short v1, v2;
 
       int side, linedef;
       line_t *ldef;
@@ -317,8 +318,10 @@ static void P_LoadSegs (int lump)
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
 #endif
 
-      li->v1 = &vertexes[SHORT(ml->v1)];
-      li->v2 = &vertexes[SHORT(ml->v2)];
+      v1 = (unsigned short)SHORT(ml->v1);
+      v2 = (unsigned short)SHORT(ml->v2);
+      li->v1 = &vertexes[v1];
+      li->v2 = &vertexes[v2];
 
       li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
 #ifdef GL_DOOM
@@ -326,7 +329,7 @@ static void P_LoadSegs (int lump)
 #endif
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
-      linedef = SHORT(ml->linedef);
+      linedef = (unsigned short)SHORT(ml->linedef);
       ldef = &lines[linedef];
       li->linedef = ldef;
       side = SHORT(ml->side);
@@ -334,7 +337,7 @@ static void P_LoadSegs (int lump)
       li->frontsector = sides[ldef->sidenum[side]].sector;
 
       // killough 5/3/98: ignore 2s flag if second sidedef missing:
-      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)//e6y
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
@@ -367,8 +370,8 @@ static void P_LoadGLSegs(int lump)
   ml = (glseg_t*) data;
   for(i = 0; i < numsegs; i++)
   {             // check for gl-vertices
-    segs[i].v1 = &vertexes[SHORT(checkGLVertex(ml->v1))];
-    segs[i].v2 = &vertexes[SHORT(checkGLVertex(ml->v2))];
+    segs[i].v1 = &vertexes[checkGLVertex(SHORT(ml->v1))];
+    segs[i].v2 = &vertexes[checkGLVertex(SHORT(ml->v2))];
 #ifdef GL_DOOM
     segs[i].iSegID  = i;
 #endif
@@ -606,11 +609,11 @@ static void P_LoadLineDefs (int lump)
       line_t *ld = lines+i;
       vertex_t *v1, *v2;
 
-      ld->flags = SHORT(mld->flags);
+      ld->flags = (unsigned short)SHORT(mld->flags);
       ld->special = SHORT(mld->special);
       ld->tag = SHORT(mld->tag);
-      v1 = ld->v1 = &vertexes[SHORT(mld->v1)];
-      v2 = ld->v2 = &vertexes[SHORT(mld->v2)];
+      v1 = ld->v1 = &vertexes[(unsigned short)SHORT(mld->v1)];
+      v2 = ld->v2 = &vertexes[(unsigned short)SHORT(mld->v2)];
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
 
@@ -648,7 +651,7 @@ static void P_LoadLineDefs (int lump)
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
       // killough 4/4/98: support special sidedef interpretation below
-      if (ld->sidenum[0] != NO_INDEX && ld->special)//e6y
+      if (ld->sidenum[0] != NO_INDEX && ld->special)
         sides[*ld->sidenum].special = ld->special;
     }
 
@@ -667,21 +670,21 @@ static void P_LoadLineDefs2(int lump)
       { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
   // killough 11/98: fix common wad errors (missing sidedefs):
 
-  if (ld->sidenum[0] == NO_INDEX) {//e6y
+  if (ld->sidenum[0] == NO_INDEX) {
     ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
     // cph - print a warning about the bug
     lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i);
   }
 
-  if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {//e6y
+  if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
     ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
     // cph - print a warning about the bug
     lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i);
   }
       }
 
-      ld->frontsector = ld->sidenum[0]!=NO_INDEX ? sides[ld->sidenum[0]].sector : 0;//e6y
-      ld->backsector  = ld->sidenum[1]!=NO_INDEX ? sides[ld->sidenum[1]].sector : 0;//e6y
+      ld->frontsector = ld->sidenum[0]!=NO_INDEX ? sides[ld->sidenum[0]].sector : 0;
+      ld->backsector  = ld->sidenum[1]!=NO_INDEX ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)
         {                       // killough 4/11/98: handle special types
           int lump, j;
@@ -759,9 +762,9 @@ static void P_LoadSideDefs2(int lump)
           break;
 
         default:                        // normal cases
-          sd->midtexture = R_TextureNumForName(msd->midtexture);
-          sd->toptexture = R_TextureNumForName(msd->toptexture);
-          sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
+          sd->midtexture = R_SafeTextureNumForName(msd->midtexture, i);
+          sd->toptexture = R_SafeTextureNumForName(msd->toptexture, i);
+          sd->bottomtexture = R_SafeTextureNumForName(msd->bottomtexture, i);
           break;
         }
     }

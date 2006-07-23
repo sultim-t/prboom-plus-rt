@@ -295,7 +295,7 @@ int twoSided
   return comp[comp_model] ?
     (sectors[sector].lines[line])->flags & ML_TWOSIDED
     :
-    (sectors[sector].lines[line])->sidenum[1] != NO_INDEX;//e6y
+    (sectors[sector].lines[line])->sidenum[1] != NO_INDEX;
 }
 
 

@@ -94,9 +94,22 @@ def getPathToFile(name, path):
         return filepath
 
 def runtest(iwad, demo, demopath, pwad):
-    os.chdir(os.path.join(basepath, 'release'))
+    executable = ''
+    iwadpath = ''
+    use_pipe = False
+    if sys.platform == 'win32':
+        os.chdir(os.path.join(basepath, 'release'))
+        executable = 'prboom'
+        iwadpath = iwad
+        use_pipe = False
+    elif sys.platform == 'darwin':
+        os.chdir(os.path.join(basepath, 'src'))
+        executable = 'PrBoom.app/Contents/MacOS/PrBoom'
+        iwadpath = iwad
+        use_pipe = True
+
     options = [
-        'prboom',
+        executable,
         '-nodraw',
         '-nosound',
         '-nomouse',
@@ -104,7 +117,7 @@ def runtest(iwad, demo, demopath, pwad):
         '-width', '320',
         '-height', '200',
     ]
-    options.extend(('-iwad', os.path.join('..', 'iwads', iwad)))
+    options.extend(('-iwad', iwadpath))
     if demopath is not None and demopath != '':
         options.extend(('-fastdemo', demopath))
     else:
@@ -113,16 +126,22 @@ def runtest(iwad, demo, demopath, pwad):
         options.extend(('-file', pwad))
     cmd = ' '.join(options)
     print cmd
-    if subprocess is not None:
+    if sys.platform == 'win32':
         p = subprocess.call(options)
+        try:
+            results = open(os.path.join(basepath, 'release', 'stderr.txt'),'rU').readlines()
+            results = [x.strip() for x in results if x.strip()]
+            if len(results):
+                print results[-1]
+        except IOError:
+            print "couldn't open stderr.txt"
     else:
-        os.system(cmd)
-    try:
-        results = open(os.path.join(basepath, 'release', 'stderr.txt'),'r').readlines()
+        p = subprocess.Popen(options, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = p.communicate()
+        results = stderr.split('\n')
+        results = [x.strip() for x in results if x.strip()]
         if len(results):
             print results[-1]
-    except IOError:
-        print "couldn't open stderr.txt"
 
 def getBasePath():
     curpath = os.path.join(os.getcwd(), __file__)
