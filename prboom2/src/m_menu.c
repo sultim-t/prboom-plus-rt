@@ -55,14 +55,12 @@
 #include "i_main.h"
 #include "i_system.h"
 #include "i_video.h"
+#include "i_sound.h"
 
 extern patchnum_t hu_font[HU_FONTSIZE];
 extern boolean  message_dontfuckwithme;
 
 extern boolean chat_on;          // in heads-up code
-extern int     hud_active;       // in heads-up code
-extern int     hud_displayed;    // in heads-up code
-extern int     hud_distributed;  // in heads-up code
 extern int     HU_MoveHud(void); // jff 3/9/98 avoid glitch in HUD display
 
 //
@@ -178,16 +176,9 @@ const char skullName[2][/*8*/9] = {"M_SKULL1","M_SKULL2"};
 
 menu_t* currentMenu; // current menudef
 
-// jff 3/24/98
-extern int defaultskill; // config file specified skill
-
-// killough 3/6/98: preserve autorun across games
-extern int autorun;      // always running?
-
 // phares 3/30/98
 // externs added for setup menus
 
-extern int destination_keys[MAXPLAYERS];
 extern int mousebfire;
 extern int mousebstrafe;
 extern int mousebforward;
@@ -197,41 +188,12 @@ extern int joybfire;
 extern int joybstrafe;
 extern int joybuse;
 extern int joybspeed;
-extern int default_weapon_recoil;   // weapon recoil
-extern int weapon_recoil;           // weapon recoil
-extern int default_player_bobbing;  // whether player bobs or not
-extern int player_bobbing;          // whether player bobs or not
-extern int weapon_preferences[2][NUMWEAPONS+1];
-extern int health_red;    // health amount less than which status is red
-extern int health_yellow; // health amount less than which status is yellow
-extern int health_green;  // health amount above is blue, below is green
-extern int armor_red;     // armor amount less than which status is red
-extern int armor_yellow;  // armor amount less than which status is yellow
-extern int armor_green;   // armor amount above is blue, below is green
-extern int ammo_red;      // ammo percent less than which status is red
-extern int ammo_yellow;   // ammo percent less is yellow more green
-extern int sts_always_red;// status numbers do not change colors
-extern int sts_pct_always_gray;// status percents do not change colors
-extern int hud_nosecrets; // status does not list secrets/items/kills
-extern int sts_traditional_keys;  // display keys the traditional way
-extern int hud_list_bgon; // solid window background for list of messages
-extern int hud_msg_lines; // number of message lines in window up to 16
-extern int hudcolor_titl; // color range of automap level title
-extern int hudcolor_xyco; // color range of new coords on automap
-extern int hudcolor_mesg; // color range of scrolling messages
-extern int hudcolor_chat; // color range of chat lines
-extern int hudcolor_list; // color of list of past messages
-
-extern int mapcolor_frnd;  // friends colors  // killough 8/8/98
 int mapcolor_me;    // cph
-extern int default_monsters_remember;
-extern int monsters_remember;
 
 extern int map_point_coordinates; // killough 10/98
 
 extern char* chat_macros[];  // chat macros
 extern const char* shiftxform;
-extern int map_secret_after; //secrets do not appear til after bagged
 extern default_t defaults[];
 
 // end of externs added for setup menus
@@ -262,7 +224,6 @@ void M_Sound(int choice);
 void M_Mouse(int choice, int *sens);      /* killough */
 void M_MouseVert(int choice);
 void M_MouseHoriz(int choice);
-void M_ChangeSensitivity(int choice);
 void M_DrawMouse(void);
 
 void M_FinishReadThis(int choice);
@@ -284,7 +245,6 @@ void M_DrawLoad(void);
 void M_DrawSave(void);
 void M_DrawSetup(void);                                     // phares 3/21/98
 void M_DrawHelp (void);                                     // phares 5/04/98
-void M_DrawCredits(void);                                   // killough 10/98
 
 void M_DrawSaveLoadBorder(int x,int y);
 void M_SetupNextMenu(menu_t *menudef);
@@ -294,7 +254,6 @@ void M_DrawSelCell(menu_t *menu,int item);
 void M_WriteText(int x, int y, const char *string);
 int  M_StringWidth(const char *string);
 int  M_StringHeight(const char *string);
-void M_StartControlPanel(void);
 void M_StartMessage(const char *string,void *routine,boolean input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
@@ -328,15 +287,11 @@ void M_Compat(int);       // killough 10/98
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
-void M_Trans(void);       // killough 10/98
 void M_FullScreen(void);  // nathanh  01/01
-void M_ResetMenu(void);   // killough 10/98
 
 menu_t NewDef;                                              // phares 5/04/98
 
 // end of prototypes added to support Setup Menus and Extended HELP screens
-
-static char menu_buffer[64];
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1079,7 +1034,6 @@ int quitsounds2[8] =
 
 void M_QuitResponse(int ch)
 {
-  extern int snd_card;      // killough 10/98
   if (ch != 'y')
     return;
   if ((!netgame || demoplayback) // killough 12/98
@@ -2055,7 +2009,7 @@ static void M_DrawScreenItems(const setup_menu_t* src)
 
 // And the routine to draw it.
 
-void M_DrawDefVerify()
+void M_DrawDefVerify(void)
 {
   // proff 12/6/98: Drawing of verify box changed for hi-res, it now uses a patch
   V_DrawNamePatch(VERIFYBOXXORG,VERIFYBOXYORG,0,"M_VBOX",CR_DEFAULT,VPT_STRETCH);
@@ -2076,7 +2030,7 @@ void M_DrawDefVerify()
 //
 // killough 8/15/98: rewritten
 
-void M_DrawInstructions()
+void M_DrawInstructions(void)
 {
   int flags = current_setup_menu[set_menu_itemon].m_flags;
 
@@ -2689,7 +2643,7 @@ byte palette_background[16*(CHIP_SIZE+1)+8];
 // phares 4/1/98: now uses a single lump for the palette instead of
 // building the image out of individual paint chips.
 
-void M_DrawColPal()
+void M_DrawColPal(void)
 {
   int i,cpx,cpy;
   byte *ptr;
@@ -3505,7 +3459,7 @@ static setup_menu_t **setup_screens[] =
 //
 // killough 10/98: rewritten to fix bugs and warn about pending changes
 
-void M_ResetDefaults()
+void M_ResetDefaults(void)
 {
   default_t *dp;
   int warn = 0;
@@ -5361,7 +5315,7 @@ void M_WriteText (int x,int y,const char* string)
 // M_InitHelpScreen() clears the weapons from the HELP
 // screen that don't exist in this version of the game.
 
-void M_InitHelpScreen()
+void M_InitHelpScreen(void)
 {
   setup_menu_t* src;
 

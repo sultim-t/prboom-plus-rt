@@ -135,8 +135,6 @@ const char *const standard_iwads[]=
 };
 static const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;
 
-void D_DoAdvanceDemo (void);
-
 /*
  * D_PostEvent - Event handling
  *
@@ -349,8 +347,6 @@ static const char *auto_shot_fname;
 //  calls all ?_Responder, ?_Ticker, and ?_Drawer,
 //  calls I_GetTime, I_StartFrame, and I_StartTic
 //
-
-extern boolean demorecording;
 
 static void D_DoomLoop(void)
 {

@@ -112,9 +112,6 @@ static void P_SpawnScrollers(void);
 static void P_SpawnFriction(void);    // phares 3/16/98
 static void P_SpawnPushers(void);     // phares 3/20/98
 
-extern int allow_pushers;
-extern int variable_friction;         // phares 3/20/98
-
 //
 // P_InitPicAnims
 //
