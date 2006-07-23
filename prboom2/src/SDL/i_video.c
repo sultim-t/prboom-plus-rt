@@ -530,7 +530,7 @@ void I_UpdateVideoMode(void)
   init_flags = SDL_OPENGL;
 #else
   if (use_doublebuffer)
-    init_flags = SDL_HWSURFACE | SDL_DOUBLEBUF;//e6y SDL_DOUBLEBUF - Enable hardware double buffering; only valid with SDL_HWSURFACE
+    init_flags = SDL_DOUBLEBUF;
   else
     init_flags = SDL_SWSURFACE;
 #ifndef _DEBUG
