@@ -6,15 +6,18 @@
 #endif
 #ifdef GL_DOOM
 #include <GL/gl.h>
+#include <SDL_opengl.h>
 #endif
 #include <string.h>
 #include <math.h>
-#include <SDL_opengl.h>
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "SDL.h"
+#ifdef _WIN32
 #include <SDL_syswm.h>
+#endif
 
 #include "hu_lib.h"
 
@@ -153,12 +156,14 @@ unsigned int DDisplayTime;
 
 float internal_render_fov = FOV90;
 
+#ifdef GL_DOOM
 int idDetail;
 boolean gl_arb_multitexture;
 PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB       = NULL;
 PFNGLMULTITEXCOORD2FVARBPROC     glMultiTexCoord2fvARB    = NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB = NULL;
 PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB     = NULL;
+#endif
 
 static boolean saved_fastdemo;
 static boolean saved_nodrawers;
