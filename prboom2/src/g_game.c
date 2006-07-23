@@ -538,8 +538,6 @@ void G_RestartLevel(void)
 // G_DoLoadLevel
 //
 
-extern gamestate_t wipegamestate;
-
 static void G_DoLoadLevel (void)
 {
   int i;
@@ -762,8 +760,6 @@ boolean G_Responder (event_t* ev)
 // Make ticcmd_ts for the players.
 //
 
-extern int mapcolor_me;
-
 void G_Ticker (void)
 {
   int i;
@@ -983,7 +979,6 @@ void G_PlayerFinishLevel(int player)
 // G_SetPlayerColour
 
 #include "r_draw.h"
-extern byte playernumtotrans[MAXPLAYERS];
 
 void G_ChangedPlayerColour(int pn, int cl)
 {
@@ -1431,7 +1426,6 @@ void G_DoWorldDone (void)
 #define MIN_MAXPLAYERS 32
 
 extern boolean setsizeneeded;
-void R_ExecuteSetViewSize(void);
 
 //CPhipps - savename variable redundant
 
@@ -1876,19 +1870,6 @@ void G_DeferedInitNew(skill_t skill, int episode, int map)
   gameaction = ga_newgame;
 }
 
-extern int variable_friction;
-extern int default_variable_friction;  // ice & mud
-
-extern int weapon_recoil, default_weapon_recoil;    // weapon recoil
-
-extern int allow_pushers;
-extern int default_allow_pushers;     // MT_PUSH Things
-
-extern int player_bobbing;
-extern int default_player_bobbing;    // whether player bobs or not
-
-extern int monsters_remember, default_monsters_remember;
-
 /* cph -
  * G_Compatibility
  *
@@ -2096,9 +2077,6 @@ void G_SetFastParms(int fast_pending)
       }
   }
 }
-
-// The sky texture to be used instead of the F_SKY1 dummy.
-extern int skytexture;
 
 //
 // G_InitNew
