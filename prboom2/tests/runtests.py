@@ -94,10 +94,13 @@ def getPathToFile(name, path):
         return filepath
 
 def runtest(iwad, demo, demopath, pwad):
-    if sys.platform == 'windows':
+    executable = ''
+    iwadpath = ''
+    use_pipe = False
+    if sys.platform == 'win32':
         os.chdir(os.path.join(basepath, 'release'))
         executable = 'prboom'
-        iwadpath = os.path.join('..', 'iwads', iwad)
+        iwadpath = iwad
         use_pipe = False
     elif sys.platform == 'darwin':
         os.chdir(os.path.join(basepath, 'src'))
@@ -123,13 +126,11 @@ def runtest(iwad, demo, demopath, pwad):
         options.extend(('-file', pwad))
     cmd = ' '.join(options)
     print cmd
-    if sys.platform == 'windows':
-        if subprocess is not None:
-            p = subprocess.call(options)
-        else:
-            os.system(cmd)
+    if sys.platform == 'win32':
+        p = subprocess.call(options)
         try:
-            results = open(os.path.join(basepath, 'release', 'stderr.txt'),'r').readlines()
+            results = open(os.path.join(basepath, 'release', 'stderr.txt'),'rU').readlines()
+            results = [x.strip() for x in results if x.strip()]
             if len(results):
                 print results[-1]
         except IOError:
@@ -138,6 +139,7 @@ def runtest(iwad, demo, demopath, pwad):
         p = subprocess.Popen(options, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdin, stderr) = p.communicate()
         results = stderr.split('\n')
+        results = [x.strip() for x in results if x.strip()]
         if len(results):
             print results[-1]
 
