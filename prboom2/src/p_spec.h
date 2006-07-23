@@ -1137,9 +1137,6 @@ void P_RemoveAllActiveCeilings
 void P_AddActiveCeiling
 ( ceiling_t* c );
 
-void P_RemoveActiveCeiling
-( ceiling_t* c );
-
 int P_ActivateInStasisCeiling
 ( line_t* line );
 

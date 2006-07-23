@@ -194,7 +194,6 @@ extern enum automapmode_e automapmode; // Mode that the automap is in
 
 extern  boolean menuactive;    // Menu overlayed?
 extern  boolean paused;        // Game Pause?
-extern  int     hud_active;    //jff 2/17/98 toggles heads-up status display
 extern  boolean nodrawers;
 extern  boolean noblit;
 
@@ -262,10 +261,6 @@ extern  mapthing_t playerstarts[];
 // Intermission stats.
 // Parameters for world map / intermission.
 extern wbstartstruct_t wminfo;
-
-// LUT of ammunition limits for each kind.
-// This doubles with BackPack powerup item.
-extern int maxammo[];
 
 //-----------------------------------------
 // Internal parameters, used for engine.

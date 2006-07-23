@@ -50,9 +50,6 @@
 #include "gl_struct.h"
 #endif
 
-
-void R_LoadTrigTables(void);
-
 // Fineangles in the SCREENWIDTH wide window.
 #define FIELDOFVIEW 2048
 

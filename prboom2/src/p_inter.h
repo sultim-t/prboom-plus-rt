@@ -66,11 +66,6 @@ extern int blue_armor_class;
 extern int max_soul;
 extern int soul_health;
 extern int mega_health;
-extern int god_health;
-extern int idfa_armor;
-extern int idfa_armor_class;
-extern int idkfa_armor;
-extern int idkfa_armor_class;
 extern int bfgcells;
 extern int monsters_infight; // e6y: Dehacked support - monsters infight
 extern int maxammo[], clipammo[];
