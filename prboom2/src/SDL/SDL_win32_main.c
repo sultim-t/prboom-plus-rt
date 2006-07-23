@@ -5,12 +5,10 @@
 */
 
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 #include <stdlib.h>
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <malloc.h>			/* For _alloca() */
 
 #ifdef _WIN32_WCE
 # define DIR_SEPERATOR TEXT("\\")
@@ -21,11 +19,15 @@
 # define fopen		_wfopen
 # define freopen	_wfreopen
 # define remove(x)	DeleteFile(x)
-# define strcat		wcscat
 #else
 # define DIR_SEPERATOR TEXT("/")
 # include <direct.h>
 #endif
+
+// proff
+#define HAVE_MALLOC 1
+#define HAVE_STRLEN 1
+#define HAVE_STRRCHR 1
 
 /* Include the SDL main definition header */
 #include "SDL.h"
@@ -54,27 +56,6 @@
 #if defined(_WIN32_WCE) && _WIN32_WCE < 300
 /* seems to be undefined in Win CE although in online help */
 #define isspace(a) (((CHAR)a == ' ') || ((CHAR)a == '\t'))
-
-/* seems to be undefined in Win CE although in online help */
-char *strrchr(char *str, int c)
-{
-	char *p;
-
-	/* Skip to the end of the string */
-	p=str;
-	while (*p)
-		p++;
-
-	/* Look for the given character */
-	while ( (p >= str) && (*p != (CHAR)c) )
-		p--;
-
-	/* Return NULL if character not found */
-	if ( p < str ) {
-		p = NULL;
-	}
-	return p;
-}
 #endif /* _WIN32_WCE < 300 */
 
 /* Parse a command line buffer into arguments */
@@ -145,8 +126,15 @@ static BOOL OutOfMemory(void)
 	return FALSE;
 }
 
+/* SDL_Quit() shouldn't be used with atexit() directly because
+   calling conventions may differ... */
+static void cleanup(void)
+{
+	SDL_Quit();
+}
+
 /* Remove the output files if there was no output written */
-static void __cdecl cleanup_output(void)
+static void cleanup_output(void)
 {
 #ifndef NO_STDIO_REDIRECT
 	FILE *file;
@@ -190,29 +178,29 @@ static void __cdecl cleanup_output(void)
 /* This is where execution begins [console apps] */
 int console_main(int argc, char *argv[])
 {
-	int n;
+	size_t n;
 	char *bufp, *appname;
+	int status;
 
 	/* Get the class name from argv[0] */
 	appname = argv[0];
-	if ( (bufp=strrchr(argv[0], '\\')) != NULL ) {
+	if ( (bufp=SDL_strrchr(argv[0], '\\')) != NULL ) {
 		appname = bufp+1;
 	} else
-	if ( (bufp=strrchr(argv[0], '/')) != NULL ) {
+	if ( (bufp=SDL_strrchr(argv[0], '/')) != NULL ) {
 		appname = bufp+1;
 	}
 
-	if ( (bufp=strrchr(appname, '.')) == NULL )
-		n = strlen(appname);
+	if ( (bufp=SDL_strrchr(appname, '.')) == NULL )
+		n = SDL_strlen(appname);
 	else
 		n = (bufp-appname);
 
-	bufp = (char *)alloca(n+1);
+	bufp = SDL_stack_alloc(char, n+1);
 	if ( bufp == NULL ) {
 		return OutOfMemory();
 	}
-	strncpy(bufp, appname, n);
-	bufp[n] = '\0';
+	SDL_strlcpy(bufp, appname, n+1);
 	appname = bufp;
 
 	/* Load SDL dynamic link library */
@@ -221,38 +209,23 @@ int console_main(int argc, char *argv[])
 		return(FALSE);
 	}
 	atexit(cleanup_output);
-	atexit(SDL_Quit);
+	atexit(cleanup);
 
-#ifndef DISABLE_VIDEO
-#if 0
-	/* Create and register our class *
-	   DJM: If we do this here, the user nevers gets a chance to
-	   putenv(SDL_WINDOWID).  This is already called later by
-	   the (DIB|DX5)_CreateWindow function, so it should be
-	   safe to comment it out here.
-	if ( SDL_RegisterApp(appname, CS_BYTEALIGNCLIENT, 
-	                     GetModuleHandle(NULL)) < 0 ) {
-		ShowError("WinMain() error", SDL_GetError());
-		exit(1);
-	}*/
-#else
 	/* Sam:
 	   We still need to pass in the application handle so that
 	   DirectInput will initialize properly when SDL_RegisterApp()
 	   is called later in the video initialization.
 	 */
 	SDL_SetModuleHandle(GetModuleHandle(NULL));
-#endif /* 0 */
-#endif /* !DISABLE_VIDEO */
 
 	/* Run the application main() code */
-	SDL_main(argc, argv);
+	status = SDL_main(argc, argv);
 
 	/* Exit cleanly, calling atexit() functions */
-	exit(0);
+	exit(status);
 
 	/* Hush little compiler, don't you cry... */
-	return(0);
+	return 0;
 }
 
 /* This is where execution begins [windowed apps] */
@@ -266,11 +239,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	char **argv;
 	int argc;
 	char *cmdline;
+	DWORD pathlen;
+#ifdef _WIN32_WCE
+	wchar_t path[MAX_PATH];
+#else
+	char path[MAX_PATH];
+#endif
 #ifdef _WIN32_WCE
 	wchar_t *bufp;
 	int nLen;
 #else
 	char *bufp;
+	size_t nLen;
 #endif
 #ifndef NO_STDIO_REDIRECT
 	FILE *newfp;
@@ -286,8 +266,19 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	}
 
 #ifndef NO_STDIO_REDIRECT
-	_getcwd( stdoutPath, sizeof( stdoutPath ) );
-	strcat( stdoutPath, DIR_SEPERATOR STDOUT_FILE );
+	pathlen = GetModuleFileName(NULL, path, SDL_arraysize(path));
+	while ( pathlen > 0 && path[pathlen] != '\\' ) {
+		--pathlen;
+	}
+	path[pathlen] = '\0';
+
+#ifdef _WIN32_WCE
+	wcsncpy( stdoutPath, path, SDL_arraysize(stdoutPath) );
+	wcsncat( stdoutPath, DIR_SEPERATOR STDOUT_FILE, SDL_arraysize(stdoutPath) );
+#else
+	SDL_strlcpy( stdoutPath, path, SDL_arraysize(stdoutPath) );
+	SDL_strlcat( stdoutPath, DIR_SEPERATOR STDOUT_FILE, SDL_arraysize(stdoutPath) );
+#endif
     
 	/* Redirect standard input and standard output */
 	newfp = freopen(stdoutPath, TEXT("w"), stdout);
@@ -305,8 +296,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	}
 #endif /* _WIN32_WCE */
 
-	_getcwd( stderrPath, sizeof( stderrPath ) );
-	strcat( stderrPath, DIR_SEPERATOR STDERR_FILE );
+#ifdef _WIN32_WCE
+	wcsncpy( stderrPath, path, SDL_arraysize(stdoutPath) );
+	wcsncat( stderrPath, DIR_SEPERATOR STDOUT_FILE, SDL_arraysize(stdoutPath) );
+#else
+	SDL_strlcpy( stderrPath, path, SDL_arraysize(stderrPath) );
+	SDL_strlcat( stderrPath, DIR_SEPERATOR STDERR_FILE, SDL_arraysize(stderrPath) );
+#endif
 
 	newfp = freopen(stderrPath, TEXT("w"), stderr);
 #ifndef _WIN32_WCE
@@ -328,35 +324,39 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 
 #ifdef _WIN32_WCE
 	nLen = wcslen(szCmdLine)+128+1;
-	bufp = (wchar_t *)alloca(nLen*2);
+	bufp = SDL_stack_alloc(wchar_t, nLen*2);
 	wcscpy (bufp, TEXT("\""));
 	GetModuleFileName(NULL, bufp+1, 128-3);
 	wcscpy (bufp+wcslen(bufp), TEXT("\" "));
 	wcsncpy(bufp+wcslen(bufp), szCmdLine,nLen-wcslen(bufp));
 	nLen = wcslen(bufp)+1;
-	cmdline = (char *)alloca(nLen);
+	cmdline = SDL_stack_alloc(char, nLen);
 	if ( cmdline == NULL ) {
 		return OutOfMemory();
 	}
 	WideCharToMultiByte(CP_ACP, 0, bufp, -1, cmdline, nLen, NULL, NULL);
 #else
-	/* Grab the command line (use alloca() on Windows) */
+	/* Grab the command line */
 	bufp = GetCommandLine();
-	cmdline = (char *)alloca(strlen(bufp)+1);
+	nLen = SDL_strlen(bufp)+1;
+	cmdline = SDL_stack_alloc(char, nLen);
 	if ( cmdline == NULL ) {
 		return OutOfMemory();
 	}
-	strcpy(cmdline, bufp);
+	SDL_strlcpy(cmdline, bufp, nLen);
 #endif
 
 	/* Parse it into argv and argc */
 	argc = ParseCommandLine(cmdline, NULL);
-	argv = (char **)alloca((argc+1)*(sizeof *argv));
+	argv = SDL_stack_alloc(char*, argc+1);
 	if ( argv == NULL ) {
 		return OutOfMemory();
 	}
 	ParseCommandLine(cmdline, argv);
 
 	/* Run the main program (after a little SDL initialization) */
-	return(console_main(argc, argv));
+	console_main(argc, argv);
+
+	/* Hush little compiler, don't you cry... */
+	return 0;
 }
