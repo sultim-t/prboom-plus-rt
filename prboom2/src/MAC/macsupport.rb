@@ -4,7 +4,12 @@ require 'rake/loaders/makefile'
 @linker = 'cc'
 @makedepend = '/usr/X11R6/bin/makedepend'
 @frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks)
-@cflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
+
+@commonflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
+@cflags = ''
+@cxxflags = ''
+@objcflags = ''
+
 @includes = ''
 @defines = ''
 @ldflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
@@ -104,13 +109,43 @@ end
 # Compilation #
 ###############
 
+def cTask(object, source)
+	file(object => source) do |task|
+		sh("#{@cc} #{@commonflags} #{@cflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
+	end
+end
+
+def objcTask(object, source)
+	file(object => source) do |task|
+		sh("#{@cc} #{@commonflags} #{@objcflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
+	end
+end
+
+def objcxxTask(object, source)
+	file(object => source) do |task|
+		sh("#{@cc} #{@commonflags} #{cxxflags} #{@objcflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
+	end
+end
+
+def cxxTask(object, source)
+	file(object => source) do |task|
+		sh("#{@cc} #{@commonflags} #{@cxxflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
+	end
+end
+
 def buildBinary(task, path, file, sources)
 	objects = []
 	target = "#{path}/#{file}"
 	for source in sources
 		object = "#{File::dirname(source)}/#{File::basename(source, '.*')}.o"
-		file(object => source) do |task|
-			sh("#{@cc} #{@cflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
+		if ['.m'].include?(File::extname(source))
+			objcTask(object, source)
+		elsif ['.M', '.mm'].include?(File::extname(source))
+			objcxxTask(object, source)
+		elsif ['.cxx', '.cc', '.cpp', '.C'].include?(File::extname(source))
+			cxxTask(object, source)
+		else
+			cTask(object, source)
 		end
 		objects.push(object)
 		@cleanfiles.push(object)

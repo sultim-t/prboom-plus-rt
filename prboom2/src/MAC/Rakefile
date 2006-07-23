@@ -10,9 +10,10 @@ DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @deutex = 'deutex'
 @systemFrameworks += %w(Cocoa Carbon QuickTime)
 @frameworks += %w(SDL SDL_mixer SDL_net)
-@includes += '-I. -IMAC'
-@defines +=  '-DHAVE_CONFIG_H'
-@cflags += '-Wno-pointer-sign -Wno-packed -fobjc-exceptions'
+@includes += ' -I. -IMAC'
+@defines += ' -DHAVE_CONFIG_H'
+@commonflags += ' -Wno-pointer-sign -Wno-packed'
+@objcflags += ' -fobjc-exceptions'
 
 if ENV['DEBUG']
 	@cflags += ' -g -DDEBUG'
