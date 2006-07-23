@@ -147,7 +147,7 @@
 {
 	[self saveDefaults];
 
-	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom"];
+	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom-Plus"];
 	NSMutableArray *args = [NSMutableArray arrayWithCapacity:10];
 
 	// Game
