@@ -336,7 +336,7 @@ static void P_LoadSegs (int lump)
       li->frontsector = sides[ldef->sidenum[side]].sector;
 
       // killough 5/3/98: ignore 2s flag if second sidedef missing:
-      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=-1)
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
@@ -650,13 +650,13 @@ static void P_LoadLineDefs (int lump)
     // use the unsigned value and special case the -1
     ld->sidenum[0] = (unsigned short)SHORT(mld->sidenum[0]);
     if (ld->sidenum[0] == 65535)
-      ld->sidenum[0] = -1;
+      ld->sidenum[0] = NO_INDEX;
       ld->sidenum[1] = (unsigned short)SHORT(mld->sidenum[1]);
     if (ld->sidenum[1] == 65535)
-      ld->sidenum[1] = -1;
+      ld->sidenum[1] = NO_INDEX;
 
       // killough 4/4/98: support special sidedef interpretation below
-      if (ld->sidenum[0] != -1 && ld->special)
+      if (ld->sidenum[0] != NO_INDEX && ld->special)
         sides[*ld->sidenum].special = ld->special;
     }
 
@@ -675,21 +675,21 @@ static void P_LoadLineDefs2(int lump)
       { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
   // killough 11/98: fix common wad errors (missing sidedefs):
 
-  if (ld->sidenum[0] == -1) {
+  if (ld->sidenum[0] == NO_INDEX) {
     ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
     // cph - print a warning about the bug
     lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i);
   }
 
-  if ((ld->sidenum[1] == -1) && (ld->flags & ML_TWOSIDED)) {
+  if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
     ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
     // cph - print a warning about the bug
     lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i);
   }
       }
 
-      ld->frontsector = ld->sidenum[0]!=-1 ? sides[ld->sidenum[0]].sector : 0;
-      ld->backsector  = ld->sidenum[1]!=-1 ? sides[ld->sidenum[1]].sector : 0;
+      ld->frontsector = ld->sidenum[0]!=NO_INDEX ? sides[ld->sidenum[0]].sector : 0;
+      ld->backsector  = ld->sidenum[1]!=NO_INDEX ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)
         {                       // killough 4/11/98: handle special types
           int lump, j;

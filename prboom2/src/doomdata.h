@@ -89,8 +89,11 @@ typedef struct {
   unsigned short flags;
   short special;
   short tag;
-  unsigned short sidenum[2];  // sidenum[1] will be -1 if one sided
+  // sidenum[1] will be -1 (NO_INDEX) if one sided
+  unsigned short sidenum[2];
 } PACKEDATTR maplinedef_t;
+
+#define NO_INDEX (-1)
 
 //
 // LineDef attributes.
