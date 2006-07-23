@@ -360,6 +360,10 @@ int main(int argc, char **argv)
     Init_ConsoleWin();
     atexit(Done_ConsoleWin);
   }
+#else
+  // redirect stdout and stderr to console (stupid SDL)
+  freopen( "CON", "w", stdout );
+  freopen( "CON", "w", stderr );
 #endif
   /* Version info */
   lprintf(LO_INFO,"\n");
