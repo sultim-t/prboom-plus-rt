@@ -16,9 +16,9 @@ DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @objcflags += ' -fobjc-exceptions'
 
 if ENV['DEBUG']
-	@cflags += ' -g -DDEBUG'
+	@commonflags += ' -g -DDEBUG -Wmissing-noreturn -Wredundant-decls -Wnested-externs -Wold-style-definition -Wshadow'
 else
-	@cflags += ' -Os'
+	@commonflags += ' -Os'
 end
 
 ####################

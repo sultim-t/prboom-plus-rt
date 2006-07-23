@@ -338,18 +338,12 @@ default_t defaults[] =
    def_int,ss_none}, // number of audio events simultaneously // killough
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
-  // CPhipps - default screensize for targets that support high-res
-#ifndef GL_DOOM
-  {"screen_width",{&desired_screenwidth},{320}, 320, 1600,
-   def_int,ss_none},
-  {"screen_height",{&desired_screenheight},{200},200,1200,
-   def_int,ss_none},
-#else
-  /* proff - 640x480 for OpenGL */
+  /* 640x480 default resolution */
   {"screen_width",{&desired_screenwidth},{640}, 320, 1600,
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{480},200,1200,
    def_int,ss_none},
+#ifdef GL_DOOM
   {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
    def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
 #endif
