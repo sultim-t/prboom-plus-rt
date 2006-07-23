@@ -160,7 +160,6 @@ float internal_render_fov = FOV90;
 int idDetail;
 boolean gl_arb_multitexture;
 PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB       = NULL;
-PFNGLMULTITEXCOORD2FVARBPROC     glMultiTexCoord2fvARB    = NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB = NULL;
 PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB     = NULL;
 #endif
@@ -950,11 +949,10 @@ void e6y_InitExtensions(void)
   {
     glActiveTextureARB       = SDL_GL_GetProcAddress("glActiveTextureARB");
     glClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
-    glMultiTexCoord2fvARB    = SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
     glMultiTexCoord2fARB     = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
 
     if (!glActiveTextureARB    || !glClientActiveTextureARB ||
-        !glMultiTexCoord2fvARB || !glMultiTexCoord2fARB)
+        !glMultiTexCoord2fARB)
       gl_arb_multitexture = false;
   }
   //gl_arb_multitexture = false;

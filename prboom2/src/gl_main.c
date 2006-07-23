@@ -62,7 +62,6 @@
 #include "e6y.h"//e6y
 //e6y
 extern PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB;
-extern PFNGLMULTITEXCOORD2FVARBPROC     glMultiTexCoord2fvARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB;
 extern PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB;
 
