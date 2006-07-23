@@ -9,13 +9,13 @@
 SUBDIRS = SDL POSIX MAC
 
 gamesdir=$(prefix)/games
-EXTRA_PROGRAMS = prboom
-games_PROGRAMS = @BUILD_DOOM@ prboom-game-server
+EXTRA_PROGRAMS = prboom-plus
+games_PROGRAMS = @BUILD_DOOM@ prboom-plus-game-server
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-prboom_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
-prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
+prboom_plus_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
+prboom_plus_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
@@ -67,8 +67,8 @@ else
 WAD_SRC = w_memcache.c
 endif
 
-prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC)
-prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
+prboom_plus_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC)
+prboom_plus_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
 
 # Must remember to include 'optional' sources in the tarball
-EXTRA_prboom_SOURCES = $(GL_SRC)
+EXTRA_prboom_plus_SOURCES = $(GL_SRC)

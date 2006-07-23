@@ -24,7 +24,7 @@ if test "$use_i386_asm" = yes; then
 fi
 
 dnl --- Fire up automake
-AM_INIT_AUTOMAKE(prboom,$PR_VERSION)
+AM_INIT_AUTOMAKE(prboom-plus,$PR_VERSION)
 AM_CONFIG_HEADER(config.h)
 
 if test "x$prefix" != xNONE; then
@@ -151,7 +151,7 @@ LIBS="$savelibs"
 AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
     AC_DEFINE(HAVE_LIBSDL_MIXER,1,[Define if you have the SDL mixer library -lSDL_mixer])
     MIXER_LIBS="$MIXER_LIBS -lSDL_mixer"
-    BUILD_DOOM="prboom"
+    BUILD_DOOM="prboom-plus"
 ],echo "*** Cannot compile PrBoom without SDL_mixer installed"
 echo "But I can compile the game server"
 BUILD_DOOM=""
