@@ -72,8 +72,6 @@
 //  the size of the 16bit, 2 hardware channel (stereo)
 //  mixing buffer, and the samplerate of the raw data.
 
-#define PIPE_CHECK(fh) if (broken_pipe) { fclose(fh); fh = NULL; broken_pipe = 0; }
-
 // Variables used by Boom from Allegro
 // created here to avoid changes to core Boom files
 int snd_card = 1;

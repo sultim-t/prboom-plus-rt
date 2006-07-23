@@ -936,7 +936,7 @@ void FindResponseFile (void)
         int  size;
         int  index;
 	int indexinfile;
-        char *file = NULL;
+        byte *file = NULL;
         const char **moreargs = malloc(myargc * sizeof(const char*));
         const char **newargv;
         // proff 04/05/2000: Added for searching responsefile
@@ -993,7 +993,7 @@ void FindResponseFile (void)
 	}
 
         {
-	  char *infile = file;
+	  byte *infile = file;
 	  indexinfile = 0;
 	  indexinfile++;  // SKIP PAST ARGV[0] (KEEP IT)
 	  do {
@@ -1483,6 +1483,8 @@ void D_DoomMainSetup(void)
   // the deh patch author that this is actually part of the EXE itself
   // Using -deh in BOOM, others use -dehacked.
   // Ty 03/18/98 also allow .bex extension.  .bex overrides if both exist.
+
+  D_BuildBEXTables(); // haleyjd
 
   p = M_CheckParm ("-deh");
   if (p)

@@ -365,4 +365,6 @@ extern int monster_infighting, default_monster_infighting;
 
 extern int monkeys, default_monkeys;
 
+extern int HelperThing;          // type of thing to use for helper
+
 #endif

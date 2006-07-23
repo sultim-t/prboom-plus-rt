@@ -1,9 +1,8 @@
 Launcher features:
 
  - Demo Recording
- - New button/menu item: Show WAD directory in Finder
- - Give indicator showing whether WAD for chosen game is available
  - Give option to load arbitrary IWAD
  - Capture PrBoom's stdout and stderr
  - Show GUI version of common errors
  - Display ENDOOM message
+ - Implement scripting interface

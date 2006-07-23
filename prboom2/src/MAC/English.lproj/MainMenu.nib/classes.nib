@@ -7,8 +7,10 @@
                 chooseDemoFileClicked = id; 
                 demoButtonClicked = id; 
                 disableSoundClicked = id; 
+                gameButtonClicked = id; 
                 openWebsite = id; 
                 removeWadClicked = id; 
+                showGameFolderClicked = id; 
                 startClicked = id; 
             }; 
             CLASS = LauncherApp; 
@@ -29,6 +31,8 @@
                 ffToLevelField = id; 
                 fullscreenButton = id; 
                 gameButton = id; 
+                gameMenu = id; 
+                launchButton = id; 
                 noDemoButton = id; 
                 noMonstersButton = id; 
                 playDemoButton = id; 

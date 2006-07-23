@@ -4,13 +4,21 @@
 #import <Foundation/NSBundle.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSFileManager.h>
+#import "UKKQueue.h"
 
 @implementation LauncherApp
 
+- (NSString *)wadPath
+{
+	return [@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
+}
+
 - (void)awakeFromNib
 {
-	NSString *wadPath =[@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
-	[[NSFileManager defaultManager] createDirectoryAtPath:wadPath attributes:nil];
+	[[NSFileManager defaultManager] createDirectoryAtPath:[self wadPath]
+	                                attributes:nil];
+	[[UKKQueue sharedQueue] setDelegate:self];
+	[[UKKQueue sharedQueue] addPath:[self wadPath]];
 
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
@@ -61,6 +69,7 @@
 	[self disableSoundClicked:disableSoundButton];
 	[self demoButtonClicked:demoMatrix];
 	[self tableViewSelectionDidChange:nil];
+	[self updateGameWad];
 }
 
 - (void)saveDefaults
@@ -91,6 +100,49 @@
 	[defaults synchronize];
 }
 
+- (NSString *)wadForIndex:(int)index
+{
+	if(index == 0)
+		return @"doom.wad";
+	else if(index == 1)
+		return @"doomu.wad";
+	else if(index == 2)
+		return @"doom2.wad";
+	else if(index == 3)
+		return @"tnt.wad";
+	else if(index == 4)
+		return @"plutonia.wad";
+	else if(index == 5)
+		return @"freedoom.wad";
+	else
+		return nil;
+}
+
+- (NSString *)selectedWad
+{
+	return [self wadForIndex:[[gameButton objectValue] longValue]];
+}
+
+- (void)updateGameWad
+{
+	int i;
+	for(i = 0; i < [gameMenu numberOfItems]; ++i)
+	{
+		NSString *path = [[[self wadPath] stringByAppendingString:@"/"]
+		                  stringByAppendingString:[self wadForIndex:i]];
+		bool exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+		[[gameMenu itemAtIndex:i] setEnabled:exists];
+		if([[gameButton objectValue] longValue] == i)
+			[launchButton setEnabled:exists];
+	}
+}
+
+- (void)watcher:(id)watcher receivedNotification:(NSString *)notification
+        forPath:(NSString *)path
+{
+	[self updateGameWad];
+}
+
 - (IBAction)startClicked:(id)sender
 {
 	[self saveDefaults];
@@ -100,19 +152,7 @@
 
 	// Game
 	[args insertObject:@"-iwad" atIndex:[args count]];
-	long game = [[gameButton objectValue] longValue];
-	if(game == 0)
-		[args insertObject:@"doom.wad" atIndex:[args count]];
-	else if(game == 1)
-		[args insertObject:@"doomu.wad" atIndex:[args count]];
-	else if(game == 2)
-		[args insertObject:@"doom2.wad" atIndex:[args count]];
-	else if(game == 3)
-		[args insertObject:@"tnt.wad" atIndex:[args count]];
-	else if(game == 4)
-		[args insertObject:@"plutonia.wad" atIndex:[args count]];
-	else if(game == 5)
-		[args insertObject:@"freedoom.wad" atIndex:[args count]];
+	[args insertObject:[self selectedWad] atIndex:[args count]];
 
 	// Compat
 	long compatLevel = [[compatibilityLevelButton objectValue] longValue] - 1;
@@ -179,6 +219,16 @@
 
 	// Execute
 	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
+}
+
+- (IBAction)gameButtonClicked:(id)sender
+{
+	[self updateGameWad];
+}
+
+- (IBAction)showGameFolderClicked:(id)sender
+{
+	[[NSWorkspace sharedWorkspace] openFile:[self wadPath] withApplication:@"Finder"];
 }
 
 - (IBAction)disableSoundClicked:(id)sender

@@ -218,9 +218,12 @@
 #define MF_TRANSLUCENT  (uint_64_t)(0x0000000040000000)
 
 // these are greater than an int. That's why the flags below are now uint_64_t
-#define MF_TOUCHY       (uint_64_t)(0x0000000100000000)
-#define MF_BOUNCES      (uint_64_t)(0x0000000200000000)
-#define MF_FRIEND       (uint_64_t)(0x0000000400000000)
+// define compiled-specific long-long contstant notation here
+#define LONGLONG(num)   (uint_64_t)num ## ll
+
+#define MF_TOUCHY       LONGLONG(0x0000000100000000)
+#define MF_BOUNCES      LONGLONG(0x0000000200000000)
+#define MF_FRIEND       LONGLONG(0x0000000400000000)
 
 // killough 9/15/98: Same, but internal flags, not intended for .deh
 // (some degree of opaqueness is good, to avoid compatibility woes)
@@ -231,6 +234,7 @@ enum {
 };
 
 // Map Object definition.
+//
 //
 // killough 2/20/98:
 //

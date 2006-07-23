@@ -61,8 +61,6 @@
 #include <stdlib.h>
 #include "e6y.h" //e6y
 
-int broken_pipe;
-
 /* Most of the following has been rewritten by Lee Killough
  *
  * I_GetTime
@@ -148,14 +146,6 @@ static void I_SignalHandler(int s)
 {
   char buf[2048];
 
-#ifdef SIGPIPE
-  /* CPhipps - report but don't crash on SIGPIPE */
-  if (s == SIGPIPE) {
-    fprintf(stderr, "Broken pipe\n");
-    broken_pipe = 1;
-    return;
-  }
-#endif
   signal(s,SIG_IGN);  /* Ignore future instances of this signal.*/
 
   strcpy(buf,"Exiting on signal: ");
@@ -422,9 +412,6 @@ int main(int argc, char **argv)
   atexit(I_Quit);
 #ifndef _DEBUG
   signal(SIGSEGV, I_SignalHandler);
-#ifdef SIGPIPE
-  signal(SIGPIPE, I_SignalHandler); /* CPhipps - add SIGPIPE, as this is fatal */
-#endif
   signal(SIGTERM, I_SignalHandler);
   signal(SIGFPE,  I_SignalHandler);
   signal(SIGILL,  I_SignalHandler);

@@ -102,7 +102,7 @@ __inline static fixed_t FixedMul(fixed_t a, fixed_t b)
  * Replaced inline asm with Julian's version for Eternity dated 6/7/2001
  */
 inline
-static const fixed_t FixedMul(fixed_t a, fixed_t b)
+static CONSTFUNC fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   fixed_t result;
 
