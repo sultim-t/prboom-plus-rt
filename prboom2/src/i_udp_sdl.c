@@ -83,7 +83,7 @@ void I_ShutdownNetwork(void)
  *
  * Sets up the network code
  */
-void I_InitNetwork()
+void I_InitNetwork(void)
 {
   SDLNet_Init();
   atexit(I_ShutdownNetwork);
