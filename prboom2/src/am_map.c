@@ -464,7 +464,7 @@ void AM_changeWindowLoc(void)
 void AM_initVariables(void)
 {
   int pnum;
-  static event_t st_notify = { ev_keyup, AM_MSGENTERED };
+  static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
   automapmode |= am_active;
 
@@ -561,7 +561,7 @@ void AM_LevelInit(void)
 //
 void AM_Stop (void)
 {
-  static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED };
+  static event_t st_notify = { 0, ev_keyup, AM_MSGEXITED, 0 };
 
   AM_unloadPics();
   automapmode &= ~am_active;
@@ -1217,7 +1217,6 @@ int AM_DoorColor(int type)
     default:
       return -1; //not a keyed door
   }
-  return -1;     //not a keyed door
 }
 
 //
@@ -1543,9 +1542,7 @@ void AM_drawPlayers(void)
 // Passed colors and colorrange, no longer used
 // Returns nothing
 //
-void AM_drawThings
-( int colors,
-  int  colorrange)
+void AM_drawThings(void)
 {
   int   i;
   mobj_t* t;
@@ -1720,7 +1717,7 @@ void AM_Drawer (void)
   AM_drawWalls();
   AM_drawPlayers();
   if (ddt_cheating==2)
-    AM_drawThings(mapcolor_sprt, 0); //jff 1/5/98 default double IDDT sprite
+    AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
 
   AM_drawMarks();

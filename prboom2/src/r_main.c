@@ -117,7 +117,7 @@ void (*colfunc)(void);
 // killough 5/2/98: reformatted
 //
 
-CONSTFUNC int R_PointOnSide(fixed_t x, fixed_t y, const node_t *node)
+PUREFUNC int R_PointOnSide(fixed_t x, fixed_t y, const node_t *node)
 {
   if (!node->dx)
     return x <= node->x ? node->dy > 0 : node->dy < 0;
@@ -136,7 +136,7 @@ CONSTFUNC int R_PointOnSide(fixed_t x, fixed_t y, const node_t *node)
 
 // killough 5/2/98: reformatted
 
-CONSTFUNC int R_PointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
+PUREFUNC int R_PointOnSegSide(fixed_t x, fixed_t y, const seg_t *line)
 {
   fixed_t lx = line->v1->x;
   fixed_t ly = line->v1->y;

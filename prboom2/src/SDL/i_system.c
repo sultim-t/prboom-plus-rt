@@ -133,7 +133,11 @@ const char* I_SigString(char* buf, size_t sz, int signum)
     strcpy(buf,sys_siglist[signum]);
   else
 #endif
+#ifdef HAVE_SNPRINTF
+    snprintf(buf,sz,"signal %d",signum);
+#else
     sprintf(buf,"signal %d",signum);
+#endif
   return buf;
 }
 
