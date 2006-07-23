@@ -191,7 +191,6 @@ extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
 extern int gl_sprite_offset;
 #endif
-extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
 extern int tran_filter_pct;            // killough 2/21/98
