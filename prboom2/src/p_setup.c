@@ -766,9 +766,9 @@ static void P_LoadSideDefs2(int lump)
           break;
 
         default:                        // normal cases
-          sd->midtexture = R_TextureNumForName(msd->midtexture);
-          sd->toptexture = R_TextureNumForName(msd->toptexture);
-          sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
+          sd->midtexture = R_SafeTextureNumForName(msd->midtexture, i);
+          sd->toptexture = R_SafeTextureNumForName(msd->toptexture, i);
+          sd->bottomtexture = R_SafeTextureNumForName(msd->bottomtexture, i);
           break;
         }
     }
