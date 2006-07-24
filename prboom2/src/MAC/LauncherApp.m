@@ -10,7 +10,7 @@
 
 - (NSString *)wadPath
 {
-	return [@"~/Library/Application Support/PrBoom" stringByExpandingTildeInPath];
+	return [@"~/Library/Application Support/PrBoom-Plus" stringByExpandingTildeInPath];
 }
 
 - (void)awakeFromNib
