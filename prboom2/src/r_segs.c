@@ -87,7 +87,7 @@ static fixed_t  topfrac;
 static fixed_t  topstep;
 static fixed_t  bottomfrac;
 static fixed_t  bottomstep;
-static short    *maskedtexturecol;
+static int      *maskedtexturecol; // dropoff overflow
 
 //
 // R_ScaleFromGlobalAngle
@@ -177,7 +177,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
   // draw the columns
   for (dc_x = x1 ; dc_x <= x2 ; dc_x++, spryscale += rw_scalestep)
-    if (maskedtexturecol[dc_x] != SHRT_MAX)
+    if (maskedtexturecol[dc_x] != INT_MAX) // dropoff overflow
       {
         dc_colormap = R_ColourMap(rw_lightlevel,spryscale);
 
@@ -214,7 +214,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         col = (column_t *)((byte *)
                            R_GetColumn(texnum,maskedtexturecol[dc_x]) - 3);
         R_DrawMaskedColumn (col);
-        maskedtexturecol[dc_x] = SHRT_MAX;
+        maskedtexturecol[dc_x] = INT_MAX; // dropoff overflow
       }
 
   // Except for main_tranmap, mark others purgable at this point
@@ -473,15 +473,15 @@ void R_StoreWallRange(const int start, const int stop)
   rw_stopx = stop+1;
 
   {     // killough 1/6/98, 2/1/98: remove limit on openings
-    extern short *openings;
+    extern int *openings; // dropoff overflow
     extern size_t maxopenings;
     size_t pos = lastopening - openings;
     size_t need = (rw_stopx - start)*4 + pos;
     if (need > maxopenings)
       {
         drawseg_t *ds;                //jff 8/9/98 needed for fix from ZDoom
-        short *oldopenings = openings;
-        short *oldlast = lastopening;
+        int *oldopenings = openings; // dropoff overflow
+        int *oldlast = lastopening; // dropoff overflow
 
         do
           maxopenings = maxopenings ? maxopenings*2 : 16384;
@@ -779,13 +779,13 @@ void R_StoreWallRange(const int start, const int stop)
   // save sprite clipping info
   if ((ds_p->silhouette & SIL_TOP || maskedtexture) && !ds_p->sprtopclip)
     {
-      memcpy (lastopening, ceilingclip+start, 2*(rw_stopx-start));
+      memcpy (lastopening, ceilingclip+start, sizeof(int)*(rw_stopx-start)); // dropoff overflow
       ds_p->sprtopclip = lastopening - start;
       lastopening += rw_stopx - start;
     }
   if ((ds_p->silhouette & SIL_BOTTOM || maskedtexture) && !ds_p->sprbottomclip)
     {
-      memcpy (lastopening, floorclip+start, 2*(rw_stopx-start));
+      memcpy (lastopening, floorclip+start, sizeof(int)*(rw_stopx-start)); // dropoff overflow
       ds_p->sprbottomclip = lastopening - start;
       lastopening += rw_stopx - start;
     }

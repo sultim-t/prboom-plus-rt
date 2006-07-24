@@ -71,13 +71,13 @@ visplane_t *floorplane, *ceilingplane;
   ((unsigned)((picnum)*3+(lightlevel)+(height)*7) & (MAXVISPLANES-1))
 
 size_t maxopenings;
-short *openings,*lastopening;
+int *openings,*lastopening; // dropoff overflow
 
 // Clip values are the solid pixel bounding the range.
 //  floorclip starts out SCREENHEIGHT
 //  ceilingclip starts out -1
 
-short floorclip[MAX_SCREENWIDTH], ceilingclip[MAX_SCREENWIDTH];
+int floorclip[MAX_SCREENWIDTH], ceilingclip[MAX_SCREENWIDTH]; // dropoff overflow
 
 // spanstart holds the start of a plane span; initialized to 0 at start
 
@@ -297,7 +297,7 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
   else
     unionh  = pl->maxx, intrh  = stop;
 
-  for (x=intrl ; x <= intrh && pl->top[x] == 0xffff; x++)
+  for (x=intrl ; x <= intrh && pl->top[x] == 0xffffffffu; x++) // dropoff overflow
     ;
 
   if (x > intrh) { /* Can use existing plane; extend range */
@@ -311,7 +311,7 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
 // R_MakeSpans
 //
 
-static void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
+static void R_MakeSpans(int x, unsigned int t1, unsigned int b1, unsigned int t2, unsigned int b2) // dropoff overflow
 {
   for (; t1 < t2 && t1 <= b1; t1++)
     R_MapPlane(t1, spanstart[t1], x-1);
@@ -390,7 +390,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
   // killough 10/98: Use sky scrolling offset, and possibly flip picture
         for (x = pl->minx; (dc_x = x) <= pl->maxx; x++)
-          if ((dc_yl = pl->top[x]) <= (dc_yh = pl->bottom[x]))
+          if ((dc_yl = pl->top[x]) != -1 && dc_yl <= (dc_yh = pl->bottom[x])) // dropoff overflow
             {
               dc_source = R_GetColumn(texture, ((an + xtoviewangle[x])^flip) >>
               ANGLETOSKYSHIFT);
@@ -415,7 +415,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       stop = pl->maxx + 1;
       planezlight = zlight[light];
-      pl->top[pl->minx-1] = pl->top[stop] = 0xffff;
+      pl->top[pl->minx-1] = pl->top[stop] = 0xffffffffu; // dropoff overflow
 
       for (x = pl->minx ; x <= stop ; x++)
   R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],pl->top[x],pl->bottom[x]);
