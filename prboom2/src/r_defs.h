@@ -335,7 +335,7 @@ typedef struct drawseg_s
   // Pointers to lists for sprite clipping,
   // all three adjusted so [x1] is first value.
 
-  short *sprtopclip, *sprbottomclip, *maskedtexturecol;
+  int *sprtopclip, *sprbottomclip, *maskedtexturecol; // dropoff overflow
 } drawseg_t;
 
 //
@@ -444,11 +444,11 @@ typedef struct visplane
   int picnum, lightlevel, minx, maxx;
   fixed_t height;
   fixed_t xoffs, yoffs;         // killough 2/28/98: Support scrolling flats
-  unsigned short pad1;          // leave pads for [minx-1]/[maxx+1]
-  unsigned short top[MAX_SCREENWIDTH];
-  unsigned short pad2, pad3;    // killough 2/8/98, 4/25/98
-  unsigned short bottom[MAX_SCREENWIDTH];
-  unsigned short pad4;
+  unsigned int pad1;          // leave pads for [minx-1]/[maxx+1]
+  unsigned int top[MAX_SCREENWIDTH];
+  unsigned int pad2, pad3;    // killough 2/8/98, 4/25/98
+  unsigned int bottom[MAX_SCREENWIDTH];
+  unsigned int pad4; // dropoff overflow
 } visplane_t;
 
 #endif

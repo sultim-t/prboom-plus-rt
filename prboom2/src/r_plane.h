@@ -42,9 +42,9 @@
 #define PL_SKYFLAT (0x80000000)
 
 /* Visplane related. */
-extern  short *lastopening;
+extern int *lastopening; // dropoff overflow
 
-extern short floorclip[], ceilingclip[];
+extern int floorclip[], ceilingclip[]; // dropoff overflow
 extern fixed_t yslope[], distscale[];
 
 void R_InitPlanes(void);
