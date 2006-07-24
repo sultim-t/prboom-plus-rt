@@ -339,9 +339,9 @@ default_t defaults[] =
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
   /* 640x480 default resolution */
-  {"screen_width",{&desired_screenwidth},{640}, 320, 1600,
+  {"screen_width",{&desired_screenwidth},{640}, 320, MAX_SCREENWIDTH,
    def_int,ss_none},
-  {"screen_height",{&desired_screenheight},{480},200,1200,
+  {"screen_height",{&desired_screenheight},{480},200,MAX_SCREENHEIGHT,
    def_int,ss_none},
 #ifdef GL_DOOM
   {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
