@@ -130,6 +130,11 @@ extern int overrun_spechit_promted;
 
 extern void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...);
 
+extern boolean was_aspected;
+extern int render_aspect_width;
+extern int render_aspect_height;
+extern float render_aspect_ratio;
+
 #ifdef USE_WINDOWS_LAUNCHER
 extern int launcher_enable;
 extern char *launcher_history[10];

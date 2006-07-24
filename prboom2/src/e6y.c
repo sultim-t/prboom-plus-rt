@@ -103,6 +103,11 @@ int overrun_reject_promted = false;
 int overrun_intercept_promted = false;
 int overrun_playeringame_promted = false;
 
+boolean was_aspected;
+int render_aspect_width;
+int render_aspect_height;
+float render_aspect_ratio;
+
 int test_sky1;
 int test_sky2;
 int test_dots;
@@ -188,6 +193,14 @@ void e6y_assert(const char *format, ...)
   va_end(argptr);
 }
 
+static void ResetAspectRatio(void)
+{
+  render_aspect_width = 320;
+  render_aspect_height = 200;
+  render_aspect_ratio = (float)render_aspect_width/(float)render_aspect_height;
+  was_aspected = false;
+}
+
 void e6y_D_DoomMainSetup(void)
 {
   void G_RecordDemo (const char* name);
@@ -249,6 +262,26 @@ void e6y_D_DoomMainSetup(void)
       }
     }
   }
+
+  ResetAspectRatio();
+  
+  if (!(p = M_CheckParm("-aspect")))
+    p = M_CheckParm("-aspectratio");
+
+  if (p && (p+1 < myargc) && (strlen(myargv[p+1]) < 19))
+  {
+    if (sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height) == 2)
+    {
+      render_aspect_ratio = (float)render_aspect_width/(float)render_aspect_height;
+      was_aspected = (float)render_aspect_ratio != (320.0f/200.0f);
+      //M_ChangeFOV();
+    }
+    else
+    {
+      ResetAspectRatio();
+    }
+  }
+
 }
 
 void G_SkipDemoStart(void)

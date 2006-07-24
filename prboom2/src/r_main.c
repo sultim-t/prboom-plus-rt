@@ -559,11 +559,11 @@ void R_RenderPlayerView (player_t* player)
 
   //e6y
 #else
-  if ((render_fov > FOV90) || (GetMouseLook() && viewpitch))
+  if ((render_fov > FOV90) || (GetMouseLook() && viewpitch) || (was_aspected))
   {
     unsigned int oldviewangle;
     oldviewangle = viewangle;
-    if (render_fov > FOV90 || transparentpresent)//FIXME!!!
+    if (render_fov > FOV90 || transparentpresent || was_aspected)//FIXME!!!
     {
       R_RenderBSPNode (numnodes-1);
       viewangle += ANG90;
