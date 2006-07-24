@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="DebugNOASMGL/glboom.exe"
+				OutputFile="DebugNOASMGL/glboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -170,7 +170,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="ReleaseGL/glboom.exe"
+				OutputFile="ReleaseGL/glboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				SubSystem="2"
@@ -264,7 +264,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="ReleaseNOASM/prboom.exe"
+				OutputFile="ReleaseNOASM/prboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\ReleaseNOASM/prboom.pdb"
@@ -358,7 +358,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="DebugNOASM/prboom.exe"
+				OutputFile="DebugNOASM/prboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -454,7 +454,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="ReleaseNOASMGL/glboom.exe"
+				OutputFile="ReleaseNOASMGL/glboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\ReleaseNOASMGL/glboom.pdb"
@@ -548,7 +548,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="DebugGL/glboom.exe"
+				OutputFile="DebugGL/glboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -643,7 +643,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="Debug/prboom.exe"
+				OutputFile="Debug/prboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -739,7 +739,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
-				OutputFile="Release/prboom.exe"
+				OutputFile="Release/prboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\Release/prboom.pdb"

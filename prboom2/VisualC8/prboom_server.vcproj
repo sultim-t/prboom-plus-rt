@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="sdl.lib sdl_net.lib"
-				OutputFile=".\ReleaseServer/prboom_server.exe"
+				OutputFile=".\ReleaseServer/prboom-plus_server.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\ReleaseServer/prboom_server.pdb"
@@ -161,7 +161,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="sdl.lib sdl_net.lib"
-				OutputFile=".\DebugServer/prboom_server.exe"
+				OutputFile=".\DebugServer/prboom-plus_server.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
