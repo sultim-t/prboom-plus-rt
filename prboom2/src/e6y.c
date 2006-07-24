@@ -2007,6 +2007,9 @@ void I_ClosestResolution (int *width, int *height, int flags)
     {
       twidth = modes[i]->w;
       theight = modes[i]->h;
+
+      if (twidth > MAX_SCREENWIDTH || theight> MAX_SCREENHEIGHT)
+        continue;
       
       if (twidth == *width && theight == *height)
         return;
