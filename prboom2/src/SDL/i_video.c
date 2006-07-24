@@ -481,6 +481,12 @@ void I_SetRes(unsigned int width, unsigned int height)
 //e6y  SCREENWIDTH = (width+3) & ~3;
 //e6y  SCREENHEIGHT = (height+3) & ~3;
 //e6y
+#ifdef GL_DOOM
+  if ( use_fullscreen )
+  {
+    I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
+  }
+#endif
   SCREENWIDTH = width;
   SCREENHEIGHT = height;
 
@@ -520,7 +526,7 @@ void I_UpdateVideoMode(void)
   unsigned int w, h;
   int init_flags;
 
-//e6y (below)  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
+  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
   w = SCREENWIDTH;
   h = SCREENHEIGHT;
@@ -542,15 +548,7 @@ void I_UpdateVideoMode(void)
   //e6y
   if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
   if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
-#ifdef GL_DOOM
-  if ( init_flags & SDL_FULLSCREEN )
-  {
-    I_ClosestResolution(&w, &h, init_flags);
-    SCREENWIDTH = w;
-    SCREENHEIGHT = h;
-  }
-#endif
-  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
+  //lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
