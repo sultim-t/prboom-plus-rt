@@ -1922,7 +1922,7 @@ void G_Compatibility(void)
     prboom_2_compatibility, /* comp_respawn - objects which aren't on the map
                              * at game start respawn at (0,0) */
     boom_compatibility_compatibility,  /* comp_sound - see s_sound.c */
-    ultdoom_compatibility, /* comp_666 - enables tag 666 in non-E1Mx levels */
+    ultdoom_compatibility, /* comp_666 - enables tag 666 in non-ExM8 levels */
     prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
     doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
   };
