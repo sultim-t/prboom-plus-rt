@@ -5,7 +5,6 @@
 #
 
 docdir=$(prefix)/share/doc/@PACKAGE@-@VERSION@
-man_MANS=prboom.6 boom.cfg.5 prboom-game-server.6
 doc_DATA=boom.txt MBF.txt MBFFAQ.txt README.demos README.compat
 EXTRA_DIST=boom.txt prboom.6 boom.cfg.5 prboom-game-server.6 \
 	MBF.txt MBFFAQ.txt README.demos README.compat

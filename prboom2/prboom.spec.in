@@ -38,10 +38,8 @@ make
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%{_mandir}/man5
-%{_mandir}/man6
 %docdir %{_docdir}
 %{_docdir}
 /usr/games
-%{_datadir}/games/doom/prboom.wad
+%{_datadir}/games/doom/%{doomname}.wad
 
