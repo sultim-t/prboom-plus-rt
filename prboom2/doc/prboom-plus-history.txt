@@ -1,0 +1,231 @@
+Change Log
+
+2.4.3.1 @ 2006.07.25
+[!] UPDATED TO THE LATEST PRBOOM 2.4.3.
+[+] Few predefined cfgs and batch launcher for them.
+[+] Simple realization of aspect ratio adjustment in OpenGL. It would be useful to people with unusually shaped monitors. Some usage examples:
+    glboom-plus.exe -aspect 320x240 
+    glboom-plus.exe -aspect 2x1
+[*] Changes in processing of spechit overflow for correct playback of some Xit's demos on scythe2.wad\map02.
+[*] Roll back to old SDL library. Some people had some problems with new.
+[*] The maximal supported resolution is increased from 1600x1200 up to 2048x1536.
+[*] GLBoom will try to set the closest supported resolution if the requested mode can't be set correctly. For example glboom.exe -geom 1025x768 -nowindow will set 1024x768. It affects only fullscreen modes.
+[*] The maximum walking side speed for strafe50 is 0x19.
+[*] The prboom's savegamename mask "prbmsav" was renamed to "prboom-plus-savegame". Also:
+    prboom_server.exe -> prboom-plus_server.exe
+    prboom.exe -> prboom-plus.exe
+    glboom.exe -> glboom-plus.exe
+    prboom.cfg -> prboom-plus.cfg
+    glboom.cfg -> glboom-plus.cfg
+    prboom.wad -> prboom-plus.wad.
+[-] Fix from Eternity (adapted by RjY) for ancient doom software render overflow that happens when the player goes over a linedef between two sectors of extreme height. There are no more crashes on thespir2.wad.
+[-] At use of the keyboard or joystick for strafing, prboom+ always generated strafe50 tics on turns independently of value of a corresponding option.
+[-] The launcher did not select last entry from history after start.
+[-] Problems with sky on thespir2.wad in opengl.
+
+2.2.6.29 @ 2006.06.08
+[+] Detection and emulation of spechit overflow for dosdoom and tasdoom compatibility. There are no more desyncs in the following dosdoom demos: flsofdth.wad\fod3uv.lmp, hr.wad\hf181430.lmp, hr.wad\hr181329.lmp, icarus.wad\ic09uv.lmp
+[+] Support for comp_666 and comp_maskedanim
+[!] Update to newest SDL libraries. SDL.dll ver.1.2.10.0, SDL_mixer.dll ver.1.2.7.0, SDL_net.dll ver.1.2.6.0
+[!] Some variables specific to OpenGL have been removed from the list of variables meant for prboom.cfg
+[!] The launcher will not be displayed if IWAD or PWADs are specified in a command-line.
+[!] The new PrBoom-plus entries in the configs are preceded by a title.
+[-] PrBoom bug: The sky in the third episode of Requiem was not drawn. It did not work correctly because the SKY3 has a zero index in the TEXTURE1 table. Textures with a zero (FALSE) index are not displayed in vanilla - AASHITTY in doom2.wad for example. But the sky textures are processed by different code, which does not have this bug. This bug is also present in the current GZDoom, but it only draws the wrong sky instead of drawing no sky at all.
+[-] PrBoom bug: The "Show coordinates of automap pointer" setting has no effect.
+[-] FOV had side effect on software rendering.
+[-] Alt mouse handling: Eternal rotation of the player at non-standard modes on software mode. Example:
+    prboom.exe -geom 1025x768 -nowindow
+
+Links for the demos referred to above:
+http://www.doomworld.com/sda/flsofdth.htm
+http://www.doomworld.com/tas/hf181430.zip
+http://www.doomworld.com/tas/hr181329.zip
+http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+
+2.2.6.28 @ 2006.05.09
+[+] Option to turn off "Paper Sprites". It works only with mouselook, and is only for non-solid sprites.
+[!] The command-line parameter "-screenscapture" is renamed to "-avidemo". Also syntax has changed.
+[!] Reconfigurations in settings.
+[-] Screenshots now use correct palette in software mode.
+[-] Screens capturing: do not dump black screens while in skip mode.
+[-] Respawned monsters on nightmare do not have countable flag.
+[-] Mouse-induced Strafe50 couldn't be achieved.
+
+2.2.6.27 @ 2006.04.05
+[+] PrBoom compatibility: two new options for intercepts overflow detection. It detects and tries to emulate overflows on some odd demos like blackbug.lmp, manorbug.lmp, hr27odd.lmp, av08-odd.lmp, etc.
+[+] PrBoom compatibility: two new options for playeringame overflow detection. It detects and emulates overflows on vex6d.wad\bug_wald.lmp, vex6d.wad\bug_toke.lmp, etc. It works without crashing in Eternity and chocolate-doom only by good fortune.
+[+] Cheating: new command line switches: -trace_thingshealth, -trace_thingspickup, -trace_linescross. Usage:
+    -trace_thingshealth ThingID [ThingID] [ThingID]
+    -trace_thingspickup ThingID [ThingID] [ThingID]
+    -trace_linescross   LineID  [LineID]  [LineID]
+[+] Autorun: the "RUN" key inverts the autorun state
+[!] PrBoom compatibility: minor changes in processing overflow of spechit array. It became possible after decompiling of DOS EXE.
+[!] Names of variables responsible for overflows and their default value have been changed. It's switched on for emulation and switched off for warnings now.
+[-] Smooth turns in demos: movements of first player in a net-demo were not smooth if the second player is dead.
+[-] GLBoom: from certain angles and distances, things behind a translucent texture become invisible (test).
+[-] Boom bug: desyncs after using the key for switching to SSG directly with demo compatibility.
+[-] Launcher: the selected IWAD was loaded after preloaded wads.
+[-] Detail texture: detail texture moves slower than scrolling floors.
+[-] Detail texture: fixes for old videoadapters which do not support gl_arb_multitexture extention (still buggy).
+[-] Impossible to change game speed when viewing a net-demo (2.2.6.25).
+
+2.2.6.26 @ 2006.01.31
+[+] Launcher: Activated when no wad is specified in the command line.
+[+] Smooth movement: scrolling textures are interpolated.
+[+] Spechits overflow lines are listed in prboom.exe.
+[+] New command-line option (-net1) for single-player coop mode that works for play, recording and playback.
+[+] New command-line options for setting a window (-window) or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
+[+] Compatibility option to disable translucency applied to certain Things.
+[*] Spechit overflow: the size of emulated overflow is limited by 14 lines.
+[*] "Smooth movement" renamed to "Uncapped framerate".
+[-] PrBoom bug: bug in MBF compatibility mode (version number written wrongly in lmp header when recording).
+[-] PrBoom bug: translucency via dehacked/bex doesn't work.
+[-] PrBoom bug: DEH files preloaded in wrong order.
+[-] PrBoom bug: "Tagged doors don't trigger special lighting" handled wrongly.
+[-] prboom-server bug: -1 => 255 instead of maxcompat (14)
+[-] Alt mouse handling + OpenGL + Capped framerate + Fullscreen + server = mouse turning disabled (2.2.6.24)
+[-] Bug with DEH-files in BEX-Format (2.2.6.23)
+[-] The engine grab the mouse when it's waiting for the net game to start (2.2.6.24)
+
+2.2.6.25
+[+] PrBoom compatibility: two new options for detection of overflow of "REJECT". It's emulated successfully if the size of overflow no more than 16 bytes. No more desync on teeth-32.wad\teeth-32.lmp.
+[+] Compatibility with common mapping errors: "Linedefs w/o tags apply locally". If a linedef type that normally requires a tag (e.g. a remote door) has no tag, then if possible apply the linedef's action to the local sector. Not available for recording, playback or with demo_compatibility.
+[+] Compatibility with common mapping errors: "Use passes thru all special lines". Boom's passthru flag is applied to all special lines. This makes it possible, for instance, to press switches that have been placed behind special lines such as scrolling textures. Not available for recording, playback or with demo_compatibility.
+[+] Compatibility with various early Doom versions and ports (for playback, overriding autodetect):
+    Doom & Doom2, v1.666 : -complevel 1
+    Doom2 doom2.exe v1.9 : -complevel 2 ;No more desync on uac_dead.wad\uac_dead.lmp.
+    Ultimate Doom v1.9   : -complevel 3
+    Final Doom doom2.exe : -complevel 4
+    DosDoom              : -complevel 5 ;No more desync on demos from old TAS site
+    TasDoom              : -complevel 6 ;And some of Andy Olivera's demos.
+[!] Network game works again.
+[!] Allowing to mouselook during recording.
+[!] Interdiction of change of game speed during network game.
+[!] PrBoom+ will not show the advanced statistical information (Smart Totals) in deathmatch.
+[!] If file already exists, don't try to continue existing demo with demo_compatibility.
+[-] Crash with zero-length sounds.
+[-] Bug with DEH-files in BEX-Format (2.2.6.23)
+[-] Smooth movement: elevators were not interpolated. Sector #137 @ dmdjm02.wad for example.
+[-] Boom dehacked support: wrong processing of Max Health. A new compatibility option has been added so that it applies only to health potions. Highly relevant to wads such as Hacx, Wotdoom3, Anadream, and any others that change this setting.
+[-] Issue with dehacked floating monsters in glboom.exe if "Smart Items Clipping" is turned on (2.2.6.20)
+
+2.2.6.24
+[+] Option for removing the "wipe" effect.
+[+] Option for smoother mouse control.
+[+] Mouse acceleration code.
+[+] Ability to use savegames while using a complevel.
+[!] PrBoom compatibility: changes in processing overflow of spechit array.
+[!] The "-recordfrom" switch is renamed into the "-recordfromto"
+[-] PRBoom.exe: the screen ceases to be updated after start of new game while you are already in game.
+[-] Problems with status bar in prboom.exe (2.2.6.21)
+[-] -skipsec broken (2.2.6.23)
+[-] Few improvements in the sky rendering. No more HOM in the starting area of Memento Mori map29 and an minor issue in map30.
+[-] Translucency won't change until you restart the engine.
+
+2.2.6.23
+[+] Dehacked support: Monsters infight.
+[-] PrBoom: It crashes when you set game speed over 1000.
+[-] "-warp" switch didn't work. (the bug was introduced in 2.2.6.22)
+
+2.2.6.22
+[+] PrBoom compatibility: two new options for spechit overflow detection. It detects desyncs like compet-n\hr.wad\hr18*.lmp, all strain.wad\map07 demos etc. 	
+[+] Added "-levelstat" switch for levelstat.txt output like this: 
+    E4M1 - 0:15.91 (0:15)  K:  8/63   I:  5/21  S: 0/2
+    E4M2 - 0:10.97 (0:25)  K:  8/76   I:  6/22  S: 1/3
+    E4M3 - 0:08.86 (0:33)  K:  1/140  I:  1/5   S: 0/22
+    E4M4 - 0:32.43 (1:05)  K: 19/60   I: 11/23  S: 0/2
+    E4M5 - 0:22.89 (1:27)  K: 10/73   I:  0/29  S: 0/2
+    E4M6 - 0:23.66 (1:50)  K: 21/97   I:  0/4   S: 0/3
+    E4M7 - 0:09.94 (1:59)  K:  6/97   I:  1/18  S: 0/4
+    E4M8 - 0:33.94 (2:32)  K: 39/106  I:  1/6   S: 0/1
+[+] New key binding for warp directly to the next stats screen. <End> by default. 	
+[!] Option "step of speed change" has been restored. Two modes are available: stepwise and automatic. 	
+[-] PrBoom dehacked support: wrong processing of Bits parameter if its value is equal to zero. No more desync on HACX demos.
+[-] PrBoom compatibility: PRBoom doesn't spawn the boom-specific "specials" in demo_compatibility mode now (generalized scrollers, sector effects). No more desync on umbrella.wad\um3nm152.lmp.
+[-] PrBoom compatibility: MF_JUSTHIT fix. No more desync on Sam Woodman's HMP Max demos (HX17-459.LMP etc).
+[-] PrBoom: fix for turn-snapping bug on fullscreen in software mode. "..\Advanced HUD settings\Movements\Fix Turn-Snapping issue" 	
+[-] PrBoom: deathmatch starts as unknown things with a complevel of 0, 1, 2 or 3. 	
+[-] GlBoom: problems with transfering not flipped sky texture (line type 271) to tagged sectors. On war_3.wad\map14 for example.
+[-] PrBoom-Plus: mistake of processing of the "quick rewind" key if the player dies.
+
+2.2.6.21
+[+] Added switch to force monster_avoid_hazards: -force_monster_avoid_hazards. It is meaningful for viewing doom-compatible demos recorded with "monster_avoid_hazards 1" in config (in cases of desyncs).
+[+] Renders bsp tree in automap mode.
+[!] Allows mouselook during playdemo in camera mode.
+[!] FOV units have been adjusted to conform with commonly used scale. (64=>90)
+[!] The step of gamespeed change varies automatically depending on current speed. Option "step of speed change" is removed.
+[-] Wrong keys size in automap mode. (the bug was introduced in 2.2.6.19)
+
+2.2.6.20
+[+] GLBoom: multisamling (anti-aliasing) support.
+[+] GLBoom: "Smart Items Clipping" setting.
+[-] Detail texture: dividing by zero.
+
+2.2.6.19
+[+] Support up to 65536 sidedefs instead of 32768.
+
+2.2.6.18
+[+] "Mouse Look" sprite for "Mouse Sensitivity" in menu.
+[+] Demo recording: "overwrite existing" options for overwrite of the existing demo if no savegame presents.
+[*] Vert sens.
+[*] Smooth movement: more smooth movements at low FPS.
+[-] Bugs with no mipmap.
+[-] Smooth turns in demos: wrong direction of a player sight after loadgame request caused from the demo.
+
+2.2.6.17
+[-] Smooth movement: bugs in algorithm: finally it works perfectly.
+
+2.2.6.16
+[-] Bugs of the previous version.
+[-] Smooth movement: bugs in algorithm appearing at low framerate.
+
+2.2.6.15
+[*] Full mouselook: a big increase in FPS if the viewpitch of the player is in the range from -45 to +45 degrees.
+[*] Smooth movement: minor changes.
+
+2.2.6.14
+[*] Smooth turns in demos: changes in algorithm. Now smoothing occurs in a range [currtick-smoothfactor..currtick] instead of [currtick-smoothfactor..currtick+smoothfactor]
+[-] Smooth turns in demos: wrong direction of a player sight after respawn.
+
+2.2.6.13
+[-] Smooth turns in demos: bug arising after forcibly changing of the player's viewangle by the engine at use of a saw or a fist. (Grazza)
+
+2.2.6.12
+[*] Smooth turns in demos: changes in algorithm. Now smoothing occurs in a range [currtick-smoothfactor..currtick+smoothfactor] instead of [currtick-smoothfactor..currtick]
+[-] Smooth turns in demos: turns did not smooth out if the option of smooth movements has been switched off.
+[-] Smooth turns in demos: problems when the demo includes very sharp turns. (Grazza)
+
+2.2.6.11
+[+] Demos: option for smooth turns during viewing of demos. It makes sense for TAS demos recorded with slowmotion.
+[-] Smooth movement: some flickers after menu closing.
+[-] PRBoom issues: prboom uses monster_avoid_hazards setting from the cfg file when you are using -complevel 0 or -complevel 1. If you have this option set to 1 in your cfg, then you are at risk of getting desyncs in demos that feature crushers. (Dashiva)
+
+2.2.6.10
+[+] GLBoom: detail texture support for walls and flats. Requires hi-end systems.
+
+2.2.6.9
+[-] Bugs in the new algorithm of middle textures drawing.
+
+2.2.6.8
+[*] Not drawing the player gun sprite in the freely rotatable view mode (Janizdreg).
+[-] Run the game with the -nomusic parameter, start a new game (via the menu) and either kill yourself or start a new game again and the music will start playing. (Janizdreg)
+[-] Smooth movement: interpolation did not work for moving platforms after savegame load.
+[-] GLBoom bug: wrong display of a middle texture if it exceeds the boundaries of its floor and ceiling.
+
+2.2.6.7
+[-] Smooth movement: "I_SignalHandler: Exiting on signal: 11" bug during rendering of the first frames of heavy scenes (after opening doors).
+
+2.2.6.6
+[-] Smooth movement: doors activated by lines of the generalized types were not interpolated.
+[-] Mouselook & fov: bugs in sky rendering.
+
+2.2.6.5
+[-] If a new game is started while a demo is playing the walkcam settings are carried over to the single player game.
+
+2.2.6.4
+[+] Full mouselook and FOV in GLBoom (without compatibility loss).
+[*] Smooth movement: few changes in algorithm.
+
+2.2.6.3
+[-] Smooth movement: blinking in the second level of the Cchest2.wad.
+[-] Smooth movement: lifts activated by lines of the generalized types were not interpolated.
