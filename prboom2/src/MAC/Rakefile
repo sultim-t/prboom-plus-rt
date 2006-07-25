@@ -6,7 +6,7 @@ NAME = 'PrBoom-Plus'
 APPVERSION = '2.4.3.2'
 require 'mac/macsupport'
 
-DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
+DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
 @deutex = 'deutex'
 @systemFrameworks += %w(Cocoa Carbon QuickTime)
 @frameworks += %w(SDL SDL_net)
