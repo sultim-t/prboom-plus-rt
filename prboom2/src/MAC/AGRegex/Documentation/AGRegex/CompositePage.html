@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><style type="text/css"><!--a:link {text-decoration: none; font-family: Verdana, Gene
+va, Helvetica, Arial, sans-serif; font-size: small}a:visited {text-decoration: none; font-family: Verdana, G
+eneva, Helvetica, Arial, sans-serif; font-size: small}a:active {text-decoration: none; font-family: Verdana, Ge
+neva, Helvetica, Arial, sans-serif; font-size: small}a:hover {text-decoration: underline; font-family: Verdana
+, Geneva, Helvetica, Arial, sans-serif; font-size: small}h4 {text-decoration: none; font-family: Verdana,Geneva,Ar
+ial,Helvetica,sans-serif; size: tiny; font-weight: bold}--></style><head>
+    <title>AGRegex.h</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">AGRegex.h</font></h1><br>
+<h2>Enumerations</h2>
+<hr><a name="//apple_ref/c/tag/Options "></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="Options ">Options </a></h2>
+</td></tr></table><hr><blockquote><pre>
+enum {
+  AGRegexCaseInsensitive = 1,
+  AGRegexDotAll = 2,
+  AGRegexExtended = 4,
+  AGRegexLazy = 8,
+  AGRegexMultiline = 16
+};
+</pre>
+</blockquote>
+<p>Options defined for -initWithPattern:options:. Two or more options can be combined with the bitwise OR operator.
+</p>
+<h4>Constants</h4>
+<blockquote>
+<table border="1"  width="90%">
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tr><td align="center"><a name="//apple_ref/c/econst/AGRegexCaseInsensitive"><tt>AGRegexCaseInsensitive</tt></a></td><td>Matching is case insensitive. Equivalent to /i in Perl.</td></tr>
+<tr><td align="center"><a name="//apple_ref/c/econst/AGRegexDotAll"><tt>AGRegexDotAll</tt></a></td><td>Dot metacharacter matches any character including newline. Equivalent to /s in Perl.</td></tr>
+<tr><td align="center"><a name="//apple_ref/c/econst/AGRegexExtended"><tt>AGRegexExtended</tt></a></td><td>Allow whitespace and comments in the pattern. Equivalent to /x in Perl.</td></tr>
+<tr><td align="center"><a name="//apple_ref/c/econst/AGRegexLazy"><tt>AGRegexLazy</tt></a></td><td>Makes greedy quantifiers lazy and lazy quantifiers greedy. No equivalent in Perl.</td></tr>
+<tr><td align="center"><a name="//apple_ref/c/econst/AGRegexMultiline"><tt>AGRegexMultiline</tt></a></td><td>Caret and dollar anchors match at newline. Equivalent to /m in Perl.</td></tr>
+</table>
+</blockquote>
+<p>(Last Updated 9/12/2003)
+</p></body></html>

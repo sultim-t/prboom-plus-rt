@@ -11,7 +11,7 @@
 		<key>235</key>
 		<string>691 87 171 353 0 0 1280 1002 </string>
 		<key>29</key>
-		<string>370 381 333 44 0 0 1280 1002 </string>
+		<string>495 451 333 44 0 0 1600 1178 </string>
 	</dict>
 	<key>IBFramework Version</key>
 	<string>446.1</string>
@@ -48,12 +48,12 @@
 	</array>
 	<key>IBOpenObjects</key>
 	<array>
+		<integer>29</integer>
 		<integer>21</integer>
 		<integer>588</integer>
-		<integer>29</integer>
 	</array>
 	<key>IBSystem Version</key>
-	<string>8J135</string>
+	<string>8J2135</string>
 	<key>IBUsesTextArchiving</key>
 	<true/>
 </dict>

@@ -4,6 +4,7 @@
 #import <Foundation/NSBundle.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSFileManager.h>
+#import "RMUDAnsiTextView.h"
 #import "UKKQueue.h"
 
 #include <fcntl.h>
@@ -271,20 +272,10 @@
 		// Stick the data into the console text view
 		NSString *string = [[NSString alloc] initWithData:data
 		                    encoding:NSUTF8StringEncoding];
-		NSAttributedString *attributed = [[NSAttributedString alloc]
-		                                  initWithString:string];
-
-		NSMutableAttributedString *str = [consoleTextView textStorage];
-		[str beginEditing];
-		[str appendAttributedString:attributed];
-		// Set fixed width font
-		[str addAttribute:NSFontAttributeName
-		     value:[NSFont userFixedPitchFontOfSize:9.0]
-		     range:NSMakeRange(0, [str length])];
-		[str endEditing];
+		[consoleTextView appendAnsiString:string];
 
 		// Scroll to end
-		[consoleTextView scrollRangeToVisible:NSMakeRange([str length] - 1, 1)];
+		//[consoleTextView scrollRangeToVisible:NSMakeRange([str length] - 1, 1)];
 	}
 }
 

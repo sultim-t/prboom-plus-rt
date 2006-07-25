@@ -1,0 +1,244 @@
+// !$*UTF8*$!
+{
+	0867D690FE84028FC02AAC07 = {
+		activeBuildStyle = 014CEA440018CDF011CA2923;
+		activeExecutable = 2467EEE9050859D30078EF04;
+		activeTarget = 2467EEE7050859D30078EF04;
+		addToTargets = (
+		);
+		breakpoints = (
+		);
+		executables = (
+			2467EEE9050859D30078EF04,
+		);
+		perUserDictionary = {
+			PBXPerProjectTemplateStateSaveDate = 85175762;
+			PBXWorkspaceContents = (
+				{
+					LeftSlideOut = {
+						Split0 = {
+							Split0 = {
+								NavContent0 = {
+									bookmark = 24DBFEBB0513AFD900FFD540;
+									history = (
+										24DBFEBA0513AFD900FFD540,
+									);
+								};
+								NavCount = 1;
+								NavGeometry0 = {
+									Frame = "{{0, 0}, {614, 465}}";
+									NavBarVisible = YES;
+								};
+								NavSplitVertical = NO;
+							};
+							SplitCount = 1;
+							Tab1 = {
+								Debugger = {
+									Split0 = {
+										SplitCount = 2;
+									};
+									SplitCount = 1;
+									TabCount = 2;
+								};
+								LauncherConfigVersion = 7;
+							};
+							Tab2 = {
+								LauncherConfigVersion = 3;
+								Runner = {
+								};
+							};
+							TabCount = 5;
+						};
+						SplitCount = 1;
+						Tab1 = {
+							OptionsSetName = "Hierarchy, all classes";
+						};
+						TabCount = 5;
+					};
+				},
+			);
+			PBXWorkspaceGeometries = (
+				{
+					ContentSize = "{800, 512}";
+					LeftSlideOut = {
+						ActiveTab = 0;
+						ActiveTabName = PBXGroupTreeModule;
+						Collapsed = NO;
+						Frame = "{{0, 23}, {800, 489}}";
+						Split0 = {
+							Collapsed = NO;
+							Frame = "{{186, 0}, {614, 489}}";
+							Split0 = {
+								Frame = "{{0, 24}, {614, 465}}";
+							};
+							SplitCount = 1;
+							Tab0 = {
+								Frame = "{{0, 0}, {571, 214}}";
+							};
+							Tab1 = {
+								Debugger = {
+									Collapsed = NO;
+									Frame = "{{0, 0}, {571, 189}}";
+									Split0 = {
+										Frame = "{{0, 24}, {571, 165}}";
+										Split0 = {
+											Frame = "{{0, 0}, {279, 165}}";
+										};
+										Split1 = {
+											DebugVariablesTableConfiguration = (
+												Name,
+												123,
+												Value,
+												85,
+												Summary,
+												62.123,
+											);
+											Frame = "{{288, 0}, {283, 165}}";
+										};
+										SplitCount = 2;
+									};
+									SplitCount = 1;
+									Tab0 = {
+										Frame = "{{0, 0}, {100, 50}}";
+									};
+									Tab1 = {
+										Frame = "{{0, 0}, {100, 50}}";
+									};
+									TabCount = 2;
+									TabsVisible = YES;
+								};
+								Frame = "{{0, 0}, {571, 189}}";
+								LauncherConfigVersion = 7;
+							};
+							Tab2 = {
+								Frame = "{{0, 0}, {573, 215}}";
+								LauncherConfigVersion = 3;
+								Runner = {
+									Frame = "{{0, 0}, {573, 215}}";
+								};
+							};
+							Tab3 = {
+								BuildMessageFrame = "{{0, 0}, {616, 222}}";
+								BuildTranscriptFrame = "{{0, 231}, {616, 0}}";
+								BuildTranscriptFrameExpanded = YES;
+								Frame = "{{0, 0}, {614, 253}}";
+							};
+							Tab4 = {
+								Frame = "{{0, 0}, {614, 295}}";
+							};
+							TabCount = 5;
+							TabsVisible = YES;
+						};
+						SplitCount = 1;
+						Tab0 = {
+							Frame = "{{0, 0}, {162, 489}}";
+							GroupTreeTableConfiguration = (
+								TargetStatusColumn,
+								18,
+								MainColumn,
+								129,
+							);
+						};
+						Tab1 = {
+							ClassesFrame = "{{0, 0}, {247, 330}}";
+							ClassesTreeTableConfiguration = (
+								PBXBookColumnIdentifier,
+								20,
+								PBXClassColumnIdentifier,
+								204,
+							);
+							Frame = "{{0, 0}, {245, 549}}";
+							MembersFrame = "{{0, 339}, {247, 210}}";
+							MembersTreeTableConfiguration = (
+								PBXBookColumnIdentifier,
+								20,
+								PBXMethodColumnIdentifier,
+								203,
+							);
+						};
+						Tab2 = {
+							Frame = "{{0, 0}, {226, 469}}";
+						};
+						Tab3 = {
+							Frame = "{{0, 0}, {191, 489}}";
+							TargetTableConfiguration = (
+								ActiveObject,
+								16,
+								ObjectNames,
+								202.296,
+							);
+						};
+						Tab4 = {
+							BreakpointsTreeTableConfiguration = (
+								breakpointColumn,
+								138,
+								enabledColumn,
+								31,
+							);
+							Frame = "{{0, 0}, {191, 489}}";
+						};
+						TabCount = 5;
+						TabsVisible = YES;
+					};
+					NavBarShownByDefault = YES;
+					StatusViewVisible = YES;
+					Template = F5F68CF101725D4C0D7A8F4C;
+					ToolbarVisible = YES;
+					WindowLocation = "{0, 4}";
+				},
+			);
+			PBXWorkspaceStateSaveDate = 85175762;
+		};
+		perUserProjectItems = {
+			24DBFEBA0513AFD900FFD540 = 24DBFEBA0513AFD900FFD540;
+			24DBFEBB0513AFD900FFD540 = 24DBFEBB0513AFD900FFD540;
+		};
+		projectwideBuildSettings = {
+		};
+		wantsIndex = 1;
+		wantsSCM = -1;
+	};
+	0867D69CFE84028FC02AAC07 = {
+		activeExec = 0;
+	};
+	2467EEE7050859D30078EF04 = {
+		activeExec = 0;
+		executables = (
+			2467EEE9050859D30078EF04,
+		);
+	};
+	2467EEE9050859D30078EF04 = {
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		configStateDict = {
+		};
+		debuggerPlugin = GDBDebugging;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		isa = PBXExecutable;
+		name = RegexTest;
+		shlibInfoDictList = (
+		);
+		sourceDirectories = (
+		);
+	};
+	24DBFEBA0513AFD900FFD540 = {
+		fRef = F986DBD403876F3201A58F65;
+		isa = PBXBookmark;
+	};
+	24DBFEBB0513AFD900FFD540 = {
+		fRef = F986DBD403876F3201A58F65;
+		isa = PBXTextBookmark;
+		name = "README.txt: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1587;
+		vrLoc = 0;
+	};
+}

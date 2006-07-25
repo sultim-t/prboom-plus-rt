@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><style type="text/css"><!--a:link {text-decoration: none; font-family: Verdana, Gene
+va, Helvetica, Arial, sans-serif; font-size: small}a:visited {text-decoration: none; font-family: Verdana, G
+eneva, Helvetica, Arial, sans-serif; font-size: small}a:active {text-decoration: none; font-family: Verdana, Ge
+neva, Helvetica, Arial, sans-serif; font-size: small}a:hover {text-decoration: underline; font-family: Verdana
+, Geneva, Helvetica, Arial, sans-serif; font-size: small}h4 {text-decoration: none; font-family: Verdana,Geneva,Ar
+ial,Helvetica,sans-serif; size: tiny; font-weight: bold}--></style><head>
+    <title>Methods</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">Methods</font></h1><br>
+<hr><a name="//apple_ref/occ/instm/AGRegexMatch/count"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="count">count</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (int)<B>count;</B> </tt><br>
+</pre></blockquote>
+<p>The number of capturing subpatterns, including the pattern itself. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegexMatch/group"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="group">group</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSString *)<B>group;</B> </tt><br>
+</pre></blockquote>
+<p>Returns the part of the target string that matched the pattern. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegexMatch/groupAtIndex:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="groupAtIndex:">groupAtIndex:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSString *)<B>groupAtIndex:</B>(int)<I>idx;</I> </tt><br>
+</pre></blockquote>
+<p>Returns the part of the target string that matched the subpattern at the given index or nil if it wasn't matched. The subpatterns are indexed in order of their opening parentheses, 0 is the entire pattern, 1 is the first capturing subpattern, and so on. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegexMatch/groupNamed:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="groupNamed:">groupNamed:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSString *)<B>groupNamed:</B>(NSString *)<I>name;</I> </tt><br>
+</pre></blockquote>
+<p>Returns the part of the target string that matched the subpattern of the given name or nil if it wasn't matched. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegexMatch/range"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="range">range</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSRange)<B>range;</B> </tt><br>
+</pre></blockquote>
+<p>Returns the range of the target string that matched the pattern. </p>
+
+<hr><a name="//apple_ref/occ//AGRegexMatch/rangeAtIndex:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="rangeAtIndex:">rangeAtIndex:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSRange)<B>rangeAtIndex:</B>(int)<I>idx;</I> </tt><br>
+</pre></blockquote>
+<p>Returns the range of the target string that matched the subpattern at the given index or {NSNotFound, 0} if it wasn't matched. The subpatterns are indexed in order of their opening parentheses, 0 is the entire pattern, 1 is the first capturing subpattern, and so on. </p>
+
+<hr><a name="//apple_ref/occ//AGRegexMatch/rangeNamed:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="rangeNamed:">rangeNamed:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSRange)<B>rangeNamed:</B>(NSString *)<I>name;</I> </tt><br>
+</pre></blockquote>
+<p>Returns the range of the target string that matched the subpattern of the given name or {NSNotFound, 0} if it wasn't matched. </p>
+
+<hr><a name="//apple_ref/occ//AGRegexMatch/string"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="string">string</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSString *)<B>string;</B> </tt><br>
+</pre></blockquote>
+<p>Returns the target string. </p>
+
+<p>(Last Updated 9/12/2003)
+</p></body></html>

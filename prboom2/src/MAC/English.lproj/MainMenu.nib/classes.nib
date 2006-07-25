@@ -46,7 +46,8 @@
                 window = id; 
             }; 
             SUPERCLASS = NSObject; 
-        }
+        }, 
+        {CLASS = RMUDAnsiTextView; LANGUAGE = ObjC; SUPERCLASS = NSTextView; }
     ); 
     IBVersion = 1; 
 }
