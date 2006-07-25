@@ -1,8 +1,8 @@
 Change Log
 
 2.4.3.1 @ 2006.07.25
-[!] Updated to the latest prboom 2.4.3.
-[!] PRBoom-Plus is now available on UNIX, Linux, and other POSIX systems and also on Mac.
+[!] Updated to the latest prboom 2.4.3. Thanks to Florian Schulze (proff_fs).
+[!] PRBoom-Plus is now available on UNIX, Linux, and other POSIX systems and also on Mac. Thanks to Florian Schulze (proff_fs) and Colin Phipps (cph).
 [+] Several predefined cfgs and batch launcher for them are included.
 [+] Simple aspect ratio adjustment made posible in OpenGL. It may be useful for people with unusually shaped monitors. Some usage examples:
     glboom-plus.exe -aspect 320x240 
