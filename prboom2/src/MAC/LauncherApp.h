@@ -42,6 +42,10 @@
 	IBOutlet id chooseDemoFileButton;
 	IBOutlet id demoFileField;
 
+	// Console
+	IBOutlet id consoleWindow;
+	IBOutlet id consoleTextView;
+
 	// Launch management
 	NSTask *doomTask;
 	NSPipe *standardOutput;
@@ -67,7 +71,10 @@
 - (void)taskReadTimer:(NSTimer *)timer;
 - (void)taskComplete:(NSNotification *)notification;
 - (IBAction)gameButtonClicked:(id)sender;
+
+// Tools
 - (IBAction)showGameFolderClicked:(id)sender;
+- (IBAction)showConsoleClicked:(id)sender;
 
 // Options
 - (IBAction)disableSoundClicked:(id)sender;

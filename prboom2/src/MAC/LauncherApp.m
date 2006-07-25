@@ -6,6 +6,8 @@
 #import <Foundation/NSFileManager.h>
 #import "UKKQueue.h"
 
+#include <fcntl.h>
+
 @implementation LauncherApp
 
 - (NSString *)wadPath
@@ -22,6 +24,15 @@
 
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
+
+	// Check if the task is done
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self selector:@selector(taskComplete:)
+     name:NSTaskDidTerminateNotification object:nil];
+
+	// Check if the task printed any output
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
+	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
 }
 
 - (void)windowWillClose:(NSNotification *)notification
@@ -227,15 +238,6 @@
 	[doomTask setArguments:args];
 	[doomTask setStandardOutput:standardOutput];
 
-	// Check if the task is done
-	[[NSNotificationCenter defaultCenter]
-	addObserver:self selector:@selector(taskComplete:)
-     name:NSTaskDidTerminateNotification object:nil];
-
-	// Check if the task printed any output
-	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
-	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
-
 	[launchButton setEnabled:false];
 	[doomTask launch];
 }
@@ -243,16 +245,40 @@
 - (void)taskReadTimer:(NSTimer *)timer
 {
 	if(doomTask == nil)
-	{
-		[timer invalidate];
 		return;
-	}
 
-	NSData *data;
-	while((data = [[standardOutput fileHandleForReading] availableData]) &&
-	      [data length])
+	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
+	int fd = [[standardOutput fileHandleForReading] fileDescriptor];
+
+	int flags = fcntl(fd, F_GETFL, 0);
+	flags |= O_NONBLOCK;
+	fcntl(fd, F_SETFL, flags);
+
+	void *buffer = malloc(1000);
+	int size = read(fd, buffer, 1000);
+
+	if(size > 0)
 	{
-		// TODO: put this output into some console somewhere
+		NSData *data = [NSData dataWithBytesNoCopy:buffer length:size
+		                freeWhenDone:true];
+
+		// Stick the data into the console text view
+		NSString *string = [[NSString alloc] initWithData:data
+		                    encoding:NSUTF8StringEncoding];
+		NSAttributedString *attributed = [[NSAttributedString alloc]
+		                                  initWithString:string];
+
+		NSMutableAttributedString *str = [consoleTextView textStorage];
+		[str beginEditing];
+		[str appendAttributedString:attributed];
+		// Set fixed width font
+		[str addAttribute:NSFontAttributeName
+		     value:[NSFont userFixedPitchFontOfSize:9.0]
+		     range:NSMakeRange(0, [str length])];
+		[str endEditing];
+
+		// Scroll to end
+		[consoleTextView scrollRangeToVisible:NSMakeRange([str length] - 1, 1)];
 	}
 }
 
@@ -275,6 +301,11 @@
 - (IBAction)showGameFolderClicked:(id)sender
 {
 	[[NSWorkspace sharedWorkspace] openFile:[self wadPath] withApplication:@"Finder"];
+}
+
+- (IBAction)showConsoleClicked:(id)sender
+{
+	[[consoleWindow windowController] showWindow:sender];
 }
 
 - (IBAction)disableSoundClicked:(id)sender
