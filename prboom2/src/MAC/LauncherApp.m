@@ -34,6 +34,11 @@
 	// Check if the task printed any output
 	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
 	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
+
+	// Save Prefs on exit
+	[[NSNotificationCenter defaultCenter] addObserver:self
+	 selector:@selector(saveDefaults)
+	 name:NSApplicationWillTerminateNotification object:nil];
 }
 
 - (void)windowWillClose:(NSNotification *)notification
@@ -48,6 +53,9 @@
 
 - (void)loadDefaults
 {
+	[window setFrameUsingName:@"Launcher"];
+	[consoleWindow setFrameUsingName:@"Console"];
+
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
 	if([defaults boolForKey:@"Saved"] == true)
@@ -86,6 +94,9 @@
 
 - (void)saveDefaults
 {
+	[window saveFrameUsingName:@"Launcher"];
+	[consoleWindow saveFrameUsingName:@"Console"];
+
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
 	[defaults setBool:true forKey:@"Saved"];
