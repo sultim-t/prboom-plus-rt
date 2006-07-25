@@ -8,10 +8,10 @@ require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @deutex = 'deutex'
-@systemFrameworks += %w(Cocoa Carbon QuickTime)
+@systemFrameworks += %w(Cocoa Carbon QuickTime OpenGL)
 @frameworks += %w(SDL SDL_net)
 @includes += ' -I. -IMAC'
-@defines += ' -DHAVE_CONFIG_H'
+@defines += ' -DHAVE_CONFIG_H -DGL_DOOM'
 @commonflags += ' -Wno-pointer-sign -Wno-packed'
 @objcflags += ' -fobjc-exceptions'
 
@@ -107,6 +107,8 @@ w_mmap.c
 wi_stuff.c
 z_bmalloc.c
 z_zone.c
+gl_main.c
+gl_texture.c
 )
 
 launcherSources = %w(

@@ -369,7 +369,7 @@ void I_Error(const char *error, ...)
   vsprintf(errmsg,error,argptr);
 #endif
   va_end(argptr);
-  fprintf(stderr,"%s\n",errmsg);
+  lprintf(LO_ERROR, "%s\n", errmsg);
 #ifdef _MSC_VER
   if (!M_CheckParm ("-nodraw")) {
     //Init_ConsoleWin();

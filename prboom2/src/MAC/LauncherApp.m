@@ -161,6 +161,12 @@
 	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom"];
 	NSMutableArray *args = [NSMutableArray arrayWithCapacity:10];
 
+	// redirect all output to stdout
+	[args insertObject:@"-cout" atIndex:[args count]];
+	[args insertObject:@"ICWEFDA" atIndex:[args count]];
+
+	[args insertObject:@"-cerr" atIndex:[args count]];
+
 	// Game
 	[args insertObject:@"-iwad" atIndex:[args count]];
 	[args insertObject:[self selectedWad] atIndex:[args count]];

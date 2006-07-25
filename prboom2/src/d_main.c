@@ -1129,6 +1129,35 @@ const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 // CPhipps - misc screen stuff
 unsigned int desired_screenwidth, desired_screenheight;
 
+void L_SetupConsoleMasks(void) {
+  int p,i,slot;
+  const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
+
+  //jff 9/3/98 get mask for console output filter
+  if ((p = M_CheckParm ("-cout"))) {
+    lprintf(LO_DEBUG, "mask for stdout console output: ");
+    if (++p != myargc && *myargv[p] != '-')
+      for (i=0,cons_output_mask=0;(size_t)i<strlen(myargv[p]);i++)
+        if ((pos = strchr(cena,toupper(myargv[p][i])))) {
+          cons_output_mask |= (1<<(pos-cena));
+          lprintf(LO_DEBUG, "%c", toupper(myargv[p][i]));
+        }
+    lprintf(LO_DEBUG, "\n");
+  }
+
+  //jff 9/3/98 get mask for redirected console error filter
+  if ((p = M_CheckParm ("-cerr"))) {
+    lprintf(LO_DEBUG, "mask for stderr console output: ");
+    if (++p != myargc && *myargv[p] != '-')
+      for (i=0,cons_error_mask=0;(size_t)i<strlen(myargv[p]);i++)
+        if ((pos = strchr(cena,toupper(myargv[p][i])))) {
+          cons_error_mask |= (1<<(pos-cena));
+          lprintf(LO_DEBUG, "%c", toupper(myargv[p][i]));
+        }
+    lprintf(LO_DEBUG, "\n");
+  }
+}
+
 //
 // D_DoomMainSetup
 //
@@ -1137,8 +1166,11 @@ unsigned int desired_screenwidth, desired_screenheight;
 
 void D_DoomMainSetup(void)
 {
-  int p,i,slot;
-  const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
+  int p,slot;
+
+  L_SetupConsoleMasks();
+
+  setbuf(stdout,NULL);
 
   // proff 04/05/2000: Added support for include response files
   /* proff 2001/7/1 - Moved up, so -config can be in response files */
@@ -1164,22 +1196,6 @@ void D_DoomMainSetup(void)
     extern boolean forceOldBsp;
     forceOldBsp = true;
   }
-
-  //jff 9/3/98 get mask for console output filter
-  if ((p = M_CheckParm ("-cout")))
-    if (++p != myargc && *myargv[p] != '-')
-      for (i=0,cons_output_mask=0;(size_t)i<strlen(myargv[p]);i++)
-        if ((pos = strchr(cena,toupper(myargv[p][i]))))
-          cons_output_mask |= (1<<(pos-cena));
-
-  //jff 9/3/98 get mask for redirected console error filter
-  if ((p = M_CheckParm ("-cerr")))
-    if (++p != myargc && *myargv[p] != '-')
-      for (i=0,cons_error_mask=0;(size_t)i<strlen(myargv[p]);i++)
-        if ((pos = strchr(cena,toupper(myargv[p][i]))))
-          cons_error_mask |= (1<<(pos-cena));
-
-  setbuf(stdout,NULL);
 
   DoLooseFiles();  // Ty 08/29/98 - handle "loose" files on command line
   IdentifyVersion();
