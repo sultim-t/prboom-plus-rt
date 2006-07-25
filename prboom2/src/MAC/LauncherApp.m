@@ -295,6 +295,8 @@
 		// Read last data from stdout
 		[self taskReadTimer:nil];
 
+		if ([doomTask terminationStatus] != 0)
+			[[consoleWindow windowController] showWindow:nil];
 		[doomTask release];
 		doomTask = nil;
 		[standardOutput release];
