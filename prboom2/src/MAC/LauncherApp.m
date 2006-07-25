@@ -218,7 +218,18 @@
 	}
 
 	// Execute
-	NSTask *task = [NSTask launchedTaskWithLaunchPath:path arguments:args];
+	NSPipe *standardOutputPipe = [NSPipe pipe];
+	NSPipe *standardErrorPipe = [NSPipe pipe];
+	NSTask *task = [[NSTask alloc] init];
+	[task setLaunchPath:path];
+	[task setArguments:args];
+	//[task setStandardOutput:standardOutputPipe];
+	//[task setStandardError:standardErrorPipe];
+
+	[launchButton setEnabled:false];
+	[task launch];
+	[task waitUntilExit];
+	[launchButton setEnabled:true];
 }
 
 - (IBAction)gameButtonClicked:(id)sender
