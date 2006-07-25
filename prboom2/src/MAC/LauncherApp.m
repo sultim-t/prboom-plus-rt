@@ -254,8 +254,8 @@
 	flags |= O_NONBLOCK;
 	fcntl(fd, F_SETFL, flags);
 
-	void *buffer = malloc(1000);
-	int size = read(fd, buffer, 1000);
+	void *buffer = malloc(1000000);
+	int size = read(fd, buffer, 1000000);
 
 	if(size > 0)
 	{
@@ -286,10 +286,13 @@
 {
 	if(doomTask && ![doomTask isRunning])
 	{
+		// Read last data from stdout
+		[self taskReadTimer:nil];
+
 		[doomTask release];
+		doomTask = nil;
 		[standardOutput release];
 		[launchButton setEnabled:true];
-		doomTask = nil;
 	}
 }
 
