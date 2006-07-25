@@ -3,7 +3,7 @@
 #################
 
 NAME = 'PrBoom-Plus'
-APPVERSION = '2.4.3.1'
+APPVERSION = '2.4.3.2'
 require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
@@ -136,11 +136,11 @@ wadfiles = [Dir::glob('../data/graphics/*.ppm'),
             Dir::glob('../data/lumps/*.lmp'),
             Dir::glob('../data/sounds/*.wav')].flatten
 
-file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
+file("#{RESOURCEDIR}/prboom-plus.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
 	sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{@deutex} -make prboom.txt ../src/#{task.name}")
 end
 
-task(:data => "#{RESOURCEDIR}/prboom.wad")
+task(:data => "#{RESOURCEDIR}/prboom-plus.wad")
 installTask(:data, RESOURCEDIR, %w(MAC/PrBoom.icns MAC/Launcher.icns MAC/PrBoom.sdef))
 task(:bundle => :data)
 
