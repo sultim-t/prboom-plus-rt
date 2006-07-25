@@ -7,6 +7,7 @@ Changes from v2.4.3 to v2.4.4
   - Increased number of sidedef limit to 65534
   - Increased number of vertexes limit to 65535
   - Fixed crash when crossing sectors with very big height differences
+- Mac OS X:  Launcher has a Console that displays text output from the game
 
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.
