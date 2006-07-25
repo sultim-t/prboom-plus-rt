@@ -1,10 +1,10 @@
 Change Log
 
 2.4.3.1 @ 2006.07.25
-[!] UPDATED TO THE LATEST PRBOOM 2.4.3.
-[+] PRBOOM-PLUS IS NOW AVAILABLE ON LINUX AND MAC.
-[+] Few predefined cfgs and batch launcher for them.
-[+] Simple realization of aspect ratio adjustment in OpenGL. It would be useful to people with unusually shaped monitors. Some usage examples:
+[!] Updated to the latest prboom 2.4.3.
+[!] PRBoom-Plus is now available on UNIX, Linux, and other POSIX systems and also on Mac.
+[+] Several predefined cfgs and batch launcher for them are included.
+[+] Simple aspect ratio adjustment made posible in OpenGL. It may be useful for people with unusually shaped monitors. Some usage examples:
     glboom-plus.exe -aspect 320x240 
     glboom-plus.exe -aspect 2x1
 [*] Changes in processing of spechit overflow for correct playback of some Xit's demos on scythe2.wad\map02.
