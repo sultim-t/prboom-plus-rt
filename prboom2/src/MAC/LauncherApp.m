@@ -218,18 +218,53 @@
 	}
 
 	// Execute
-	NSPipe *standardOutputPipe = [NSPipe pipe];
-	NSPipe *standardErrorPipe = [NSPipe pipe];
-	NSTask *task = [[NSTask alloc] init];
-	[task setLaunchPath:path];
-	[task setArguments:args];
-	//[task setStandardOutput:standardOutputPipe];
-	//[task setStandardError:standardErrorPipe];
+	standardOutput = [[NSPipe alloc] init];
+	[standardOutput retain];
+
+	doomTask = [[NSTask alloc] init];
+	[doomTask retain];
+	[doomTask setLaunchPath:path];
+	[doomTask setArguments:args];
+	[doomTask setStandardOutput:standardOutput];
+
+	// Check if the task is done
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self selector:@selector(taskComplete:)
+     name:NSTaskDidTerminateNotification object:nil];
+
+	// Check if the task printed any output
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
+	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
 
 	[launchButton setEnabled:false];
-	[task launch];
-	[task waitUntilExit];
-	[launchButton setEnabled:true];
+	[doomTask launch];
+}
+
+- (void)taskReadTimer:(NSTimer *)timer
+{
+	if(doomTask == nil)
+	{
+		[timer invalidate];
+		return;
+	}
+
+	NSData *data;
+	while((data = [[standardOutput fileHandleForReading] availableData]) &&
+	      [data length])
+	{
+		// TODO: put this output into some console somewhere
+	}
+}
+
+- (void)taskComplete:(NSNotification *)notification
+{
+	if(doomTask && ![doomTask isRunning])
+	{
+		[doomTask release];
+		[standardOutput release];
+		[launchButton setEnabled:true];
+		doomTask = nil;
+	}
 }
 
 - (IBAction)gameButtonClicked:(id)sender

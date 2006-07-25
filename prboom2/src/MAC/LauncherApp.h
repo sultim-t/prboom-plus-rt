@@ -41,6 +41,10 @@
 	IBOutlet id ffToLevelField;
 	IBOutlet id chooseDemoFileButton;
 	IBOutlet id demoFileField;
+
+	// Launch management
+	NSTask *doomTask;
+	NSPipe *standardOutput;
 }
 
 - (NSString *)wadPath;
@@ -60,6 +64,8 @@
 
 // Game
 - (IBAction)startClicked:(id)sender;
+- (void)taskReadTimer:(NSTimer *)timer;
+- (void)taskComplete:(NSNotification *)notification;
 - (IBAction)gameButtonClicked:(id)sender;
 - (IBAction)showGameFolderClicked:(id)sender;
 
