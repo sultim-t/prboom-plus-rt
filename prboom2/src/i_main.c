@@ -275,7 +275,7 @@ static void I_EndDoom(void)
           /* reset everything when we start a new line */
           oldbg = -1;
           oldcolor = -1;
-          printf("\e[0m\n");
+          printf("\e[39m\e[49m\n");
         }
         /* foreground color */
         bold = 0;
@@ -320,7 +320,7 @@ static void I_EndDoom(void)
   }
 #ifndef _WIN32
   if (endoom_mode & endoom_colours)
-    puts("\e[0m"); /* cph - reset colours */
+    puts("\e[39m\e[49m"); /* cph - reset colours */
   PrintVer();
 #else /* _WIN32 */
 //e6y  I_uSleep(3000000); // CPhipps - don't thrash cpu in this loop

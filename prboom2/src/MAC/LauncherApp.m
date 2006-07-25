@@ -4,7 +4,10 @@
 #import <Foundation/NSBundle.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSFileManager.h>
+#import "RMUDAnsiTextView.h"
 #import "UKKQueue.h"
+
+#include <fcntl.h>
 
 @implementation LauncherApp
 
@@ -22,6 +25,20 @@
 
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
+
+	// Check if the task is done
+	[[NSNotificationCenter defaultCenter]
+	addObserver:self selector:@selector(taskComplete:)
+     name:NSTaskDidTerminateNotification object:nil];
+
+	// Check if the task printed any output
+	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
+	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
+
+	// Save Prefs on exit
+	[[NSNotificationCenter defaultCenter] addObserver:self
+	 selector:@selector(saveDefaults)
+	 name:NSApplicationWillTerminateNotification object:nil];
 }
 
 - (void)windowWillClose:(NSNotification *)notification
@@ -36,6 +53,9 @@
 
 - (void)loadDefaults
 {
+	[window setFrameUsingName:@"Launcher"];
+	[consoleWindow setFrameUsingName:@"Console"];
+
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
 	if([defaults boolForKey:@"Saved"] == true)
@@ -74,6 +94,9 @@
 
 - (void)saveDefaults
 {
+	[window saveFrameUsingName:@"Launcher"];
+	[consoleWindow saveFrameUsingName:@"Console"];
+
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
 	[defaults setBool:true forKey:@"Saved"];
@@ -150,6 +173,12 @@
 	NSString *path = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"PrBoom-Plus"];
 	NSMutableArray *args = [NSMutableArray arrayWithCapacity:10];
 
+	// redirect all output to stdout
+	[args insertObject:@"-cout" atIndex:[args count]];
+	[args insertObject:@"ICWEFDA" atIndex:[args count]];
+
+	[args insertObject:@"-cerr" atIndex:[args count]];
+
 	// Game
 	[args insertObject:@"-iwad" atIndex:[args count]];
 	[args insertObject:[self selectedWad] atIndex:[args count]];
@@ -218,18 +247,61 @@
 	}
 
 	// Execute
-	NSPipe *standardOutputPipe = [NSPipe pipe];
-	NSPipe *standardErrorPipe = [NSPipe pipe];
-	NSTask *task = [[NSTask alloc] init];
-	[task setLaunchPath:path];
-	[task setArguments:args];
-	//[task setStandardOutput:standardOutputPipe];
-	//[task setStandardError:standardErrorPipe];
+	standardOutput = [[NSPipe alloc] init];
+	[standardOutput retain];
+	[consoleTextView clear];
+
+	doomTask = [[NSTask alloc] init];
+	[doomTask retain];
+	[doomTask setLaunchPath:path];
+	[doomTask setArguments:args];
+	[doomTask setStandardOutput:standardOutput];
 
 	[launchButton setEnabled:false];
-	[task launch];
-	[task waitUntilExit];
-	[launchButton setEnabled:true];
+	[doomTask launch];
+}
+
+- (void)taskReadTimer:(NSTimer *)timer
+{
+	if(doomTask == nil)
+		return;
+
+	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
+	int fd = [[standardOutput fileHandleForReading] fileDescriptor];
+
+	int flags = fcntl(fd, F_GETFL, 0);
+	flags |= O_NONBLOCK;
+	fcntl(fd, F_SETFL, flags);
+
+	void *buffer = malloc(1000000);
+	int size = read(fd, buffer, 1000000);
+
+	if(size > 0)
+	{
+		NSData *data = [NSData dataWithBytesNoCopy:buffer length:size
+		                freeWhenDone:true];
+
+		// Stick the data into the console text view
+		NSString *string = [[NSString alloc] initWithData:data
+		                    encoding:NSUTF8StringEncoding];
+		[consoleTextView appendAnsiString:string];
+	}
+}
+
+- (void)taskComplete:(NSNotification *)notification
+{
+	if(doomTask && ![doomTask isRunning])
+	{
+		// Read last data from stdout
+		[self taskReadTimer:nil];
+
+		if ([doomTask terminationStatus] != 0)
+			[[consoleWindow windowController] showWindow:nil];
+		[doomTask release];
+		doomTask = nil;
+		[standardOutput release];
+		[launchButton setEnabled:true];
+	}
 }
 
 - (IBAction)gameButtonClicked:(id)sender
@@ -240,6 +312,11 @@
 - (IBAction)showGameFolderClicked:(id)sender
 {
 	[[NSWorkspace sharedWorkspace] openFile:[self wadPath] withApplication:@"Finder"];
+}
+
+- (IBAction)showConsoleClicked:(id)sender
+{
+	[[consoleWindow windowController] showWindow:sender];
 }
 
 - (IBAction)disableSoundClicked:(id)sender

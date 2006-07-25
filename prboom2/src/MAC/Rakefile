@@ -9,7 +9,7 @@ require 'mac/macsupport'
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
 @deutex = 'deutex'
 @systemFrameworks += %w(Cocoa Carbon QuickTime)
-@frameworks += %w(SDL SDL_net)
+@frameworks += %w(SDL SDL_net AGRegex)
 @includes += ' -I. -IMAC'
 @defines += ' -DHAVE_CONFIG_H'
 @commonflags += ' -Wno-pointer-sign -Wno-packed'
@@ -113,6 +113,7 @@ z_zone.c
 launcherSources = %w(
 MAC/LauncherApp.m
 MAC/LauncherMain.m
+MAC/RMUDAnsiTextView.m
 MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
 )

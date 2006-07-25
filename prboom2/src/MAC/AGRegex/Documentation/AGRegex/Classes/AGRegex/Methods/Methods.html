@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+    "http://www.w3.org/TR/1998/REC-html40-19980424/loose.dtd">
+<html><style type="text/css"><!--a:link {text-decoration: none; font-family: Verdana, Gene
+va, Helvetica, Arial, sans-serif; font-size: small}a:visited {text-decoration: none; font-family: Verdana, G
+eneva, Helvetica, Arial, sans-serif; font-size: small}a:active {text-decoration: none; font-family: Verdana, Ge
+neva, Helvetica, Arial, sans-serif; font-size: small}a:hover {text-decoration: underline; font-family: Verdana
+, Geneva, Helvetica, Arial, sans-serif; font-size: small}h4 {text-decoration: none; font-family: Verdana,Geneva,Ar
+ial,Helvetica,sans-serif; size: tiny; font-weight: bold}--></style><head>
+    <title>Methods</title>
+	<meta name="generator" content="HeaderDoc">
+</head><body bgcolor="#ffffff"><h1><font face="Geneva,Arial,Helvtica">Methods</font></h1><br>
+<hr><a name="//apple_ref/occ/instm/AGRegex/findAllInString:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="findAllInString:">findAllInString:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSArray *)<B>findAllInString:</B>(NSString *)<I>str;</I> </tt><br>
+</pre></blockquote>
+<p>Calls findAllInString:range: using the full range of the target string. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/findAllInString:range:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="findAllInString:range:">findAllInString:range:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSArray *)<B>findAllInString:</B>(NSString *)<I>str</I> <B>range:</B>(NSRange)<I>r;</I> </tt><br>
+</pre></blockquote>
+<p>Returns an array of all non-overlapping occurrences of the regex in the given range of the target string. The members of the array are AGRegexMatches. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/findEnumeratorInString:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="findEnumeratorInString:">findEnumeratorInString:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSEnumerator *)<B>findEnumeratorInString:</B>(NSString *)<I>str;</I> </tt><br>
+</pre></blockquote>
+<p>Calls findEnumeratorInString:range: using the full range of the target string. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/findEnumeratorInString:range:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="findEnumeratorInString:range:">findEnumeratorInString:range:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSEnumerator *)<B>findEnumeratorInString:</B>(NSString *)<I>str</I> <B>range:</B>(NSRange)<I>r;</I> </tt><br>
+</pre></blockquote>
+<p>Returns an enumerator for all non-overlapping occurrences of the regex in the given range of the target string. The objects returned by the enumerator are AGRegexMatches. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/findInString:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="findInString:">findInString:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (AGRegexMatch *)<B>findInString:</B>(NSString *)<I>str;</I> </tt><br>
+</pre></blockquote>
+<p>Calls findInString:range: using the full range of the target string. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/findInString:range:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="findInString:range:">findInString:range:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (AGRegexMatch *)<B>findInString:</B>(NSString *)<I>str</I> <B>range:</B>(NSRange)<I>r;</I> </tt><br>
+</pre></blockquote>
+<p>Returns an AGRegexMatch for the first occurrence of the regex in the given range of the target string or nil if none is found. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/initWithPattern:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="initWithPattern:">initWithPattern:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (id)<B>initWithPattern:</B>(NSString *)<I>pat;</I> </tt><br>
+</pre></blockquote>
+<p>Initializes the regex using the given pattern string. Returns nil if the pattern string is invalid. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/initWithPattern:options:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="initWithPattern:options:">initWithPattern:options:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (id)<B>initWithPattern:</B>(NSString *)<I>pat</I> <B>options:</B>(int)<I>opts;</I> </tt><br>
+</pre></blockquote>
+<p>Initializes the regex using the given pattern string and option flags. Returns nil if the pattern string is invalid. </p>
+<hr><a name="//apple_ref/occ/clm/AGRegex/regexWithPattern:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="regexWithPattern:">regexWithPattern:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>+ (id)<B>regexWithPattern:</B>(NSString *)<I>pat;</I> </tt><br>
+</pre></blockquote>
+<p>Creates a new regex using the given pattern string. Returns nil if the pattern string is invalid. </p>
+<hr><a name="//apple_ref/occ/clm/AGRegex/regexWithPattern:options:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="regexWithPattern:options:">regexWithPattern:options:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>+ (id)<B>regexWithPattern:</B>(NSString *)<I>pat</I> <B>options:</B>(int)<I>opts;</I> </tt><br>
+</pre></blockquote>
+<p>Creates a new regex using the given pattern string and option flags. Returns nil if the pattern string is invalid. </p>
+<hr><a name="//apple_ref/occ/instm/AGRegex/replaceWithString:inString:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="replaceWithString:inString:">replaceWithString:inString:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSString *)<B>replaceWithString:</B>(NSString *)<I>rep</I> <B>inString:</B>(NSString *)<I>str;</I> </tt><br>
+</pre></blockquote>
+<p>Calls replaceWithString:inString:limit: with no limit. </p>
+
+<hr><a name="//apple_ref/occ//AGRegex/replaceWithString:inString:limit:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="replaceWithString:inString:limit:">replaceWithString:inString:limit:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSString *)<B>replaceWithString:</B>(NSString *)<I>rep</I> <B>inString:</B>(NSString *)<I>str</I> <B>limit:</B>(int)<I>lim;</I> </tt><br>
+</pre></blockquote>
+<p>Returns the string created by replacing occurrences of the regex in the target string with the replacement string. If the limit is positive, no more than that many replacements will be made.
+<br><br>
+Captured subpatterns can be interpolated into the replacement string using the syntax $x or ${x} where x is the index or name of the subpattern. $0 and $&amp; both refer to the entire pattern. Additionally, the case modifier sequences \U...\E, \L...\E, \u, and \l are allowed in the replacement string. All other escape sequences are handled literally. </p>
+
+<hr><a name="//apple_ref/occ//AGRegex/splitString:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="splitString:">splitString:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSArray *)<B>splitString:</B>(NSString *)<I>str;</I> </tt><br>
+</pre></blockquote>
+<p>Call splitString:limit: with no limit. </p>
+
+<hr><a name="//apple_ref/occ//AGRegex/splitString:limit:"></a>
+<table border="0"  cellpadding="2" cellspacing="2" width="300"><tr><td valign="top" height="12" colspan="5"><h2><a name="splitString:limit:">splitString:limit:</a></h2>
+</td></tr></table><hr><blockquote><pre><tt>- (NSArray *)<B>splitString:</B>(NSString *)<I>str</I> <B>limit:</B>(int)<I>lim;</I> </tt><br>
+</pre></blockquote>
+<p>Returns an array of strings created by splitting the target string at each occurrence of the pattern. If the limit is positive, no more than that many splits will be made. If there are captured subpatterns, they are returned in the array.  </p>
+
+<p>(Last Updated 9/12/2003)
+</p></body></html>

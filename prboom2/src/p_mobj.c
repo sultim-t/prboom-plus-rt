@@ -1188,10 +1188,14 @@ void P_SpawnMapThing (const mapthing_t* mthing, int index)//e6y
 
     // save spots for respawning in coop games
     playerstarts[mthing->type-1] = *mthing;
+    /* cph 2006/07/24 - use the otherwise-unused options field to flag that
+     * this start is present (so we know which elements of the array are filled
+     * in, in effect). Also note that the call below to P_SpawnPlayer must use
+     * the playerstarts version with this field set */
     playerstarts[mthing->type-1].options = 1;
 
     if (!deathmatch)
-      P_SpawnPlayer (mthing->type-1, mthing);
+      P_SpawnPlayer (mthing->type-1, &playerstarts[mthing->type-1]);
     return;
     }
 

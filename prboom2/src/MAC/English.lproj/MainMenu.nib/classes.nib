@@ -10,6 +10,7 @@
                 gameButtonClicked = id; 
                 openWebsite = id; 
                 removeWadClicked = id; 
+                showConsoleClicked = id; 
                 showGameFolderClicked = id; 
                 startClicked = id; 
             }; 
@@ -18,6 +19,8 @@
             OUTLETS = {
                 chooseDemoFileButton = id; 
                 compatibilityLevelButton = id; 
+                consoleTextView = id; 
+                consoleWindow = id; 
                 demoFileField = id; 
                 demoMatrix = id; 
                 disableGraphicsButton = id; 
@@ -43,7 +46,8 @@
                 window = id; 
             }; 
             SUPERCLASS = NSObject; 
-        }
+        }, 
+        {CLASS = RMUDAnsiTextView; LANGUAGE = ObjC; SUPERCLASS = NSTextView; }
     ); 
     IBVersion = 1; 
 }

@@ -41,6 +41,9 @@ Ever willing to talk about source ideas, and has pointed me in the direction of
 a lot of Boom and MBF bugs; also various bits code from his port Eternity have
 been used, such as the BEX enhancements.
 
+Bob Aman (sporkmonger.com)
+Created the RMUDAnsiTextView class used in the Mac launcher.
+
 Gady Kozma	gady@math.tau.ac.il
 Added hires to the SVGALib version of LxDoom, and other useful patches.
 

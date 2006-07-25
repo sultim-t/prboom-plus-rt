@@ -2,7 +2,8 @@ Launcher features:
 
  - Demo Recording
  - Give option to load arbitrary IWAD
- - Capture PrBoom's stdout and stderr
  - Show GUI version of common errors
- - Display ENDOOM message
  - Implement scripting interface
+ - Don't depend on lump files for prboom.wad in Rakefile, if the prboom.wad
+   is present and the lumps are missing it should build anyway
+ - don't create prboom.wad on every build
