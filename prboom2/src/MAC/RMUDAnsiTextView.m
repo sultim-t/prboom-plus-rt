@@ -191,4 +191,11 @@ id to_num(int n) {
   [clipView scrollToPoint:scrollPoint];
   [scrollView reflectScrolledClipView:clipView];
 }
+
+- (void)clear
+{
+	[self setAnsiString:@""];
+	currentForegroundColorIndex = DEFAULT_FOREGROUND;
+	currentBackgroundColorIndex = DEFAULT_BACKGROUND;
+}
 @end

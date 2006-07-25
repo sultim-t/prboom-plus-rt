@@ -238,6 +238,7 @@
 	// Execute
 	standardOutput = [[NSPipe alloc] init];
 	[standardOutput retain];
+	[consoleTextView clear];
 
 	doomTask = [[NSTask alloc] init];
 	[doomTask retain];
@@ -273,9 +274,6 @@
 		NSString *string = [[NSString alloc] initWithData:data
 		                    encoding:NSUTF8StringEncoding];
 		[consoleTextView appendAnsiString:string];
-
-		// Scroll to end
-		//[consoleTextView scrollRangeToVisible:NSMakeRange([str length] - 1, 1)];
 	}
 }
 

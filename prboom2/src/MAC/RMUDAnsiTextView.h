@@ -37,4 +37,5 @@ SOFTWARE.
 - (void)setAnsiString:(NSString *)ansiString;
 - (void)appendAnsiString:(NSString *)ansiString;
 - (void)handleAnsiSequence:(NSString *)ansiSequence;
+- (void)clear;
 @end
