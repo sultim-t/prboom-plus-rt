@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2000,2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -1926,10 +1926,8 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
     {
       // count total number of skulls currently on the level
       int count = 0;
-      thinker_t *currentthinker;
-      for (currentthinker = thinkercap.next;
-           currentthinker != &thinkercap;
-           currentthinker = currentthinker->next)
+      thinker_t *currentthinker = NULL;
+      while ((currentthinker = P_NextThinker(currentthinker,th_all)) != NULL)
         if ((currentthinker->function == P_MobjThinker)
             && ((mobj_t *)currentthinker)->type == MT_SKULL)
           count++;

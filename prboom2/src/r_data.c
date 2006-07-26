@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@
 #include "i_system.h"
 #include "r_bsp.h"
 #include "r_things.h"
+#include "p_tick.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "p_tick.h"
 
@@ -974,8 +975,8 @@ void R_PrecacheLevel(void)
   memset(hitlist, 0, numsprites);
 
   {
-    thinker_t *th;
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    thinker_t *th = NULL;
+    while (th = P_NextThinker(th,th_all))
       if (th->function == P_MobjThinker)
         hitlist[((mobj_t *)th)->sprite] = 1;
   }
