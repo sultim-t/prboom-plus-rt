@@ -770,10 +770,6 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"render_paperitems", {&render_paperitems},  {1},0,1,
    def_bool,ss_stat},
-  {"test_sky1", {&test_sky1},  {1},0,1,
-   def_bool,ss_stat},
-  {"test_sky2", {&test_sky2},  {1},0,1,
-   def_bool,ss_stat},
   {"test_dots", {&test_dots},  {1},0,1,
    def_bool,ss_stat},
 #endif

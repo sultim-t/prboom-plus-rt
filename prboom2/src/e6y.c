@@ -108,8 +108,6 @@ int render_aspect_width;
 int render_aspect_height;
 float render_aspect_ratio;
 
-int test_sky1;
-int test_sky2;
 int test_dots;
 
 int palette_ondamage;

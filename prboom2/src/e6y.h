@@ -140,8 +140,6 @@ extern int launcher_enable;
 extern char *launcher_history[10];
 #endif
 
-extern int test_sky1;
-extern int test_sky2;
 extern int test_dots;
 
 extern int palette_ondamage;
