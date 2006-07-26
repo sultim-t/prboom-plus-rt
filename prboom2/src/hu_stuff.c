@@ -43,8 +43,6 @@
 #include "g_game.h"
 #include "r_main.h"
 #include "e6y.h" //e6y
-extern int map_point_coordinates; //e6y
-
 
 // global heads up display controls
 
