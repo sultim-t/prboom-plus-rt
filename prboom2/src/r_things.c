@@ -438,7 +438,9 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
   fixed_t fx, fy, fz;
   fixed_t gxt, gyt;
   fixed_t tz;
+  int width;
   boolean mlook = GetMouseLook() || (render_fov > FOV90);
+
   if (movement_smooth)
   {
     fx = thing->PrevX + FixedMul (r_TicFrac, thing->x - thing->PrevX);
@@ -461,7 +463,6 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
   gxt = FixedMul(tr_x,viewcos);
   //e6y fixed_t 
   gyt = -FixedMul(tr_y,viewsin);
-  int width;
 
   //e6y fixed_t 
   tz = gxt-gyt;
