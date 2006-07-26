@@ -348,7 +348,8 @@ static void I_UploadNewPalette(int pal)
 #endif
 
   // store the colors to the current display
-  SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
+  // SDL_SetColors(SDL_GetVideoSurface(), colours+256*pal, 0, 256);
+  SDL_SetPalette(SDL_GetVideoSurface(),SDL_PHYSPAL,colours+256*pal, 0, 256);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -409,8 +410,8 @@ void I_FinishUpdate (void)
   if (newpal != NO_PALETTE_CHANGE) {
     I_UploadNewPalette(newpal);
     newpal = NO_PALETTE_CHANGE;
-  } else
-    SDL_Flip(screen);
+  }
+  SDL_Flip(screen);
 #else
   // proff 04/05/2000: swap OpenGL buffers
   gld_Finish();
