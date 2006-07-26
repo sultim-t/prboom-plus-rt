@@ -96,9 +96,6 @@ fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
 
-// needed for pre-rendering
-fixed_t   *spritewidth, *spriteoffset, *spritetopoffset;
-
 //
 // MAPTEXTURE_T CACHING
 // When a texture is first needed,
@@ -624,29 +621,9 @@ void R_InitFlats(void)
 //
 void R_InitSpriteLumps(void)
 {
-  int i;
-  const patch_t *patch;
-
   firstspritelump = W_GetNumForName("S_START") + 1;
   lastspritelump = W_GetNumForName("S_END") - 1;
   numspritelumps = lastspritelump - firstspritelump + 1;
-
-  // killough 4/9/98: make columnd offsets 32-bit;
-  // clean up malloc-ing to use sizeof
-
-  spritewidth = Z_Malloc(numspritelumps*sizeof*spritewidth, PU_STATIC, 0);
-  spriteoffset = Z_Malloc(numspritelumps*sizeof*spriteoffset, PU_STATIC, 0);
-  spritetopoffset =
-    Z_Malloc(numspritelumps*sizeof*spritetopoffset, PU_STATIC, 0);
-
-  for (i=0 ; i< numspritelumps ; i++)
-    {
-      patch = W_CacheLumpNum(firstspritelump+i);
-      spritewidth[i] = SHORT(patch->width)<<FRACBITS;
-      spriteoffset[i] = SHORT(patch->leftoffset)<<FRACBITS;
-      spritetopoffset[i] = SHORT(patch->topoffset)<<FRACBITS;
-      W_UnlockLumpNum(firstspritelump+i);
-    }
 }
 
 //
