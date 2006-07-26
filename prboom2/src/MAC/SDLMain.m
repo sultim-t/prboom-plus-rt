@@ -155,7 +155,7 @@ static void setApplicationMenu(void)
     [[NSApp mainMenu] addItem:menuItem];
 
     /* Tell the application object that this is now the application menu */
-    [NSApp setAppleMenu:appleMenu];
+    [NSApp setMainMenu:appleMenu];
 
     /* Finally give up our references to the objects */
     [appleMenu release];
@@ -190,7 +190,7 @@ static void setupWindowMenu(void)
 }
 
 /* Replacement for NSApplicationMain */
-static void CustomApplicationMain (argc, argv)
+static void CustomApplicationMain (int argc, char **argv)
 {
     NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
     SDLMain				*sdlMain;

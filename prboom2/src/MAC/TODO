@@ -4,6 +4,3 @@ Launcher features:
  - Give option to load arbitrary IWAD
  - Show GUI version of common errors
  - Implement scripting interface
- - Don't depend on lump files for prboom.wad in Rakefile, if the prboom.wad
-   is present and the lumps are missing it should build anyway
- - don't create prboom.wad on every build
