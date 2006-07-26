@@ -2119,7 +2119,15 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
+// e6y: about isskytexture hack
+// The sky in the third episode of Requiem was not drawn.
+// It did not work correctly because the SKY3 has a zero index in the TEXTURE1 table.
+// Textures with a zero (FALSE) index are not displayed in vanilla,
+// AASHITTY in doom2.wad for example.
+// But the sky textures are processed by different code in DOOM,
+// which does not have this bug.
 #define SKYTEXTURE(sky1,sky2)\
+  isskytexture = true;\
   if ((sky1) & PL_SKYFLAT)\
   {\
     const line_t *l = &lines[sky1 & ~PL_SKYFLAT];\
@@ -2145,7 +2153,8 @@ static void gld_DrawWall(GLWall *wall)
     wall.skyyaw=-2.0f*((yaw+90.0f)/90.0f);\
     wall.skyymid = 200.0f/319.5f*((100.0f)/100.0f);\
     wall.flag = GLDWF_SKY;\
-  }
+  }\
+  isskytexture = false;
 
 #define ADDWALL(wall)\
 {\

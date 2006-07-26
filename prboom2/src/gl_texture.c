@@ -422,7 +422,16 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
   GLTexture *gltexture;
 
   if (texture_num==NO_TEXTURE)
-    return NULL;
+// e6y: about isskytexture hack
+// The sky in the third episode of Requiem was not drawn.
+// It did not work correctly because the SKY3 has a zero index in the TEXTURE1 table.
+// Textures with a zero (FALSE) index are not displayed in vanilla,
+// AASHITTY in doom2.wad for example.
+// But the sky textures are processed by different code in DOOM,
+// which does not have this bug.
+// This flag is set in SKYTEXTURE macro and checked here for skipping unnecessary return
+    if (!isskytexture || texture_num!=skytexture)
+      return NULL;
   gltexture=gld_AddNewGLTexture(texture_num);
   if (!gltexture)
     return NULL;
