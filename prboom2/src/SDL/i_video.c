@@ -473,17 +473,76 @@ void I_PreInitGraphics(void)
   atexit(I_ShutdownSDL);
 }
 
+// e6y
+// GLBoom use this function for trying to set the closest supported resolution if the requested mode can't be set correctly.
+// For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
+// It should be used only for fullscreen modes.
+static void I_ClosestResolution (int *width, int *height, int flags)
+{
+  SDL_Rect **modes;
+  int twidth, theight;
+  int cwidth = 0, cheight = 0;
+//  int iteration;
+  int i;
+  unsigned int closest = UINT_MAX;
+  unsigned int dist;
+
+  modes = SDL_ListModes(NULL, flags);
+
+  //for (iteration = 0; iteration < 2; iteration++)
+  {
+    for(i=0; modes[i]; ++i)
+    {
+      twidth = modes[i]->w;
+      theight = modes[i]->h;
+
+      if (twidth > MAX_SCREENWIDTH || theight> MAX_SCREENHEIGHT)
+        continue;
+      
+      if (twidth == *width && theight == *height)
+        return;
+
+      //if (iteration == 0 && (twidth < *width || theight < *height))
+      //  continue;
+
+      dist = (twidth - *width) * (twidth - *width) + 
+             (theight - *height) * (theight - *height);
+
+      if (dist < closest)
+      {
+        closest = dist;
+        cwidth = twidth;
+        cheight = theight;
+      }
+    }
+    if (closest != 4294967295u)
+    {
+      *width = cwidth;
+      *height = cheight;
+      return;
+    }
+  }
+}  
+
 // CPhipps -
 // I_SetRes
 // Sets the screen resolution, possibly using the supplied guide
 
 void I_SetRes(unsigned int width, unsigned int height)
 {
-//e6y  SCREENWIDTH = (width+3) & ~3;
-//e6y  SCREENHEIGHT = (height+3) & ~3;
-//e6y
+  // e6y: how about 1680x1050?
+  /*
+  SCREENWIDTH = (width+3) & ~3;
+  SCREENHEIGHT = (height+3) & ~3;
+  */
+
+// e6y
+// GLBoom will try to set the closest supported resolution 
+// if the requested mode can't be set correctly.
+// For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
+// It affects only fullscreen modes.
 #ifdef GL_DOOM
-  if ( use_fullscreen )
+  if ( use_fullscreen && !M_CheckParm("-window") )
   {
     I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
   }
@@ -546,10 +605,12 @@ void I_UpdateVideoMode(void)
 #endif
   if ( use_fullscreen )
     init_flags |= SDL_FULLSCREEN;
-  //e6y
+  // e6y
+  // New command-line options for setting a window (-window) 
+  // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
+  // It works like "-geom" switch
   if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
   if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
-  //lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
 
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );

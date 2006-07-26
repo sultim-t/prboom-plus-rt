@@ -463,6 +463,4 @@ extern boolean isskytexture;
 
 void D_AddDehFile (const char *file, wad_source_t source);
 
-void I_ClosestResolution (int *width, int *height, int flags);
-
 #endif

@@ -2226,7 +2226,13 @@ static void gld_DrawWall(GLWall *wall)
     (w).vb=OV((w),(seg))+((float)(lineheight)/(float)(w).gltexture->buffer_height)\
   )
 
-//e6y
+// e6y: about isskytexture hack
+// The sky in the third episode of Requiem was not drawn.
+// It did not work correctly because the SKY3 has a zero index in the TEXTURE1 table.
+// Textures with a zero (FALSE) index are not displayed in vanilla,
+// AASHITTY in doom2.wad for example.
+// But the sky textures are processed by different code in DOOM,
+// which does not have this bug.
 #define SKYTEXTURE(sky1,sky2)\
   isskytexture = true;\
   if ((sky1) & PL_SKYFLAT)\
@@ -2409,13 +2415,16 @@ void gld_AddWall(seg_t *seg)
         ceiling_height=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
-//e6y      CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
-//e6y      CALC_TEX_VALUES_MIDDLE2S(
-//e6y        wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
-//e6y        segs[seg->iSegID].length, lineheight
-//e6y      );
-      
-      //e6y
+      // e6y
+      // The fix for wrong middle texture drawing
+      // if it exceeds the boundaries of its floor and ceiling
+      /*
+      CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
+      CALC_TEX_VALUES_MIDDLE2S(
+        wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
+        segs[seg->iSegID].length, lineheight
+      );
+      */
       {
         int floormax, ceilingmin, linelen;
         float mip;
@@ -2444,7 +2453,7 @@ void gld_AddWall(seg_t *seg)
         else
           wall.vt=mip*((float)(ceiling_height - ceilingmin))/linelen;
       }
-   
+
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
       ADDWALL(&wall);

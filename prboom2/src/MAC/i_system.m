@@ -15,6 +15,7 @@
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSBundle.h>
+#import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSFileManager.h>
 
@@ -49,7 +50,7 @@ char *I_FindFile(const char *wf_name, const char *ext)
   paths = [paths arrayByAddingObject: [[NSBundle mainBundle] resourcePath]];
   paths = [paths arrayByAddingObject: @""];
 
-  const char *retval = 0;
+  char *retval = 0;
   int i;
   for(i = 0; !retval && (i < [paths count]); ++i)
   {

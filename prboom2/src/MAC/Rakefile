@@ -137,8 +137,16 @@ wadfiles = [Dir::glob('../data/graphics/*.ppm'),
             Dir::glob('../data/lumps/*.lmp'),
             Dir::glob('../data/sounds/*.wav')].flatten
 
-file("#{RESOURCEDIR}/prboom-plus.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
-	sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{@deutex} -make prboom.txt ../src/#{task.name}")
+if wadfiles.empty?
+	# Special case for release tarballs that only contain premade wad
+	file("#{RESOURCEDIR}/prboom-plus.wad" => [RESOURCEDIR, '../data/prboom-plus.wad']) do |task|
+		cp(task.prerequisites[0], task.name)
+	end
+else
+	# Make the wad
+	file("#{RESOURCEDIR}/prboom-plus.wad" => [RESOURCEDIR, '../data/prboom.txt', *wadfiles]) do |task|
+		sh("cd ../data && DOOMWADDIR='#{DOOMWADDIR}' #{@deutex} -make prboom.txt ../src/#{task.name}")
+	end
 end
 
 task(:data => "#{RESOURCEDIR}/prboom-plus.wad")
