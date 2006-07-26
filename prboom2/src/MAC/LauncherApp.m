@@ -285,6 +285,7 @@
 		NSString *string = [[NSString alloc] initWithData:data
 		                    encoding:NSUTF8StringEncoding];
 		[consoleTextView appendAnsiString:string];
+		[string release];
 	}
 }
 
