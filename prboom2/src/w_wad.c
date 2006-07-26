@@ -41,14 +41,7 @@
 #include <stddef.h>
 #include <io.h>
 #endif
-#ifdef DREAMCAST
-#include <kos.h>
-#define O_BINARY 0
-uint32 open(const char *fn, int mode);
-#define lseek fs_seek
-#else
 #include <fcntl.h>
-#endif
 #include "i_system.h"
 
 #include "doomstat.h"

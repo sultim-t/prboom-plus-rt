@@ -1624,6 +1624,7 @@ static byte comp_options_by_version[] =
   21,22, /* PrBoom v2.1-v2.2 have 21 */
   23,23,23 /* PrBoom v2.3 has 23 and counting... */
 };
+// FIXME? - prboom 2.3 - r646 - has 24
 
 static byte map_old_comp_levels[] =
 { 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };

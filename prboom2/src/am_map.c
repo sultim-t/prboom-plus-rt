@@ -637,7 +637,6 @@ boolean AM_Responder
   int rc;
   static int cheatstate=0;
   static int bigstate=0;
-  static char buffer[20];
   int ch;                                                       // phares
 
   rc = false;
@@ -715,13 +714,9 @@ boolean AM_Responder
     }
     else if (ch == key_map_mark)
     {
-      // Ty 03/27/98 - *not* externalized
-#ifdef HAVE_SNPRINTF
-      snprintf(buffer, sizeof(buffer), "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
-#else
-      sprintf(buffer, "%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
-#endif
-      plr->message = buffer;
+      /* Ty 03/27/98 - *not* externalized     
+       * cph 2001/11/20 - use doom_printf so we don't have our own buffer */
+      doom_printf("%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
       AM_addMark();
     }
     else if (ch == key_map_clear)

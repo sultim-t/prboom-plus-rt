@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2000,2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -46,13 +46,9 @@ int leveltime;
 // but the first element must be thinker_t.
 //
 
-// Both the head and tail of the thinker list.
-thinker_t thinkercap;
-
 // killough 8/29/98: we maintain several separate threads, each containing
 // a special class of thinkers, to allow more efficient searches.
-
-thinker_t thinkerclasscap[NUMTHCLASS];
+thinker_t thinkerclasscap[th_all+1];
 
 //
 // P_InitThinkers
@@ -77,18 +73,23 @@ void P_InitThinkers(void)
 
 void P_UpdateThinker(thinker_t *thinker)
 {
+  register thinker_t *th;
   // find the class the thinker belongs to
 
-  int class = thinker->function == P_MobjThinker &&
+  int class =
+    thinker->function == P_RemoveThinkerDelayed ? th_delete :
+    thinker->function == P_MobjThinker &&
     ((mobj_t *) thinker)->health > 0 &&
     (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
      ((mobj_t *) thinker)->type == MT_SKULL) ?
     ((mobj_t *) thinker)->flags & MF_FRIEND ?
     th_friends : th_enemies : th_misc;
 
-  // Remove from current thread
-  thinker_t *th = thinker->cnext;
-  (th->cprev = thinker->cprev)->cnext = th;
+  {
+    /* Remove from current thread, if in one */
+    if ((th = thinker->cnext)!= NULL)
+      (th->cprev = thinker->cprev)->cnext = th;
+  }
 
   // Add to appropriate thread
   th = &thinkerclasscap[class];
@@ -113,7 +114,7 @@ void P_AddThinker(thinker_t* thinker)
   thinker->references = 0;    // killough 11/98: init reference counter to 0
 
   // killough 8/29/98: set sentinel pointers, and then add to appropriate list
-  thinker->cnext = thinker->cprev = thinker;
+  thinker->cnext = thinker->cprev = NULL;
   P_UpdateThinker(thinker);
   NewThinkerPresent = true;//e6y
 }
@@ -141,8 +142,19 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 {
   if (!thinker->references)
     {
-      thinker_t *next = thinker->next;
-      (next->prev = currentthinker = thinker->prev)->next = next;
+      { /* Remove from main thinker list */
+        thinker_t *next = thinker->next;
+        /* Note that currentthinker is guaranteed to point to us,
+         * and since we're freeing our memory, we had better change that. So
+         * point it to thinker->prev, so the iterator will correctly move on to
+         * thinker->prev->next = thinker->next */
+        (next->prev = currentthinker = thinker->prev)->next = next;
+      }
+      {
+        /* Remove from current thinker class list */
+        thinker_t *th = thinker->cnext;
+        (th->cprev = thinker->cprev)->cnext = th;
+      }
       Z_Free(thinker);
     }
 }
@@ -165,8 +177,18 @@ void P_RemoveThinker(thinker_t *thinker)
   StopInterpolationIfNeeded(thinker);//e6y
   thinker->function = P_RemoveThinkerDelayed;
 
-  // killough 8/29/98: remove immediately from threaded list
-  (thinker->cnext->cprev = thinker->cprev)->cnext = thinker->cnext;
+  P_UpdateThinker(thinker);
+}
+
+/* cph 2002/01/13 - iterator for thinker list
+ * WARNING: Do not modify thinkers between calls to this functin
+ */
+thinker_t* P_NextThinker(thinker_t* th, th_class cl)
+{
+  thinker_t* top = &thinkerclasscap[cl];
+  if (!th) th = top;
+  th = cl == th_all ? th->next : th->cnext;
+  return th == top ? NULL : th;
 }
 
 /*

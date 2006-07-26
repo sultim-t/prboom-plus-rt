@@ -314,7 +314,7 @@ static void I_EndDoom(void)
     lprintf(LO_INFO,"\b"); /* hack workaround for extra newline at bottom of screen */
     lprintf(LO_INFO,"\r");
     if (endoom_mode & endoom_nonasciichars)
-      putchar('\017'); /* restore primary charset */
+      printf("%c",'\017'); /* restore primary charset */
 #endif /* _WIN32 */
     W_UnlockLumpNum(lump);
   }

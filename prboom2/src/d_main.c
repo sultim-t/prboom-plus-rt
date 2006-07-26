@@ -1170,7 +1170,8 @@ const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 unsigned int desired_screenwidth, desired_screenheight;
 
 void L_SetupConsoleMasks(void) {
-  int p,i,slot;
+  int p;
+  int i;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
 
   //jff 9/3/98 get mask for console output filter

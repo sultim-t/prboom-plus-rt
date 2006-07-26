@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@
 #include "i_system.h"
 #include "r_bsp.h"
 #include "r_things.h"
+#include "p_tick.h"
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "p_tick.h"
 
@@ -95,9 +96,6 @@ static texture_t **textures;
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;
-
-// needed for pre-rendering
-fixed_t   *spritewidth, *spriteoffset, *spritetopoffset;
 
 //
 // MAPTEXTURE_T CACHING
@@ -624,29 +622,9 @@ void R_InitFlats(void)
 //
 void R_InitSpriteLumps(void)
 {
-  int i;
-  const patch_t *patch;
-
   firstspritelump = W_GetNumForName("S_START") + 1;
   lastspritelump = W_GetNumForName("S_END") - 1;
   numspritelumps = lastspritelump - firstspritelump + 1;
-
-  // killough 4/9/98: make columnd offsets 32-bit;
-  // clean up malloc-ing to use sizeof
-
-  spritewidth = Z_Malloc(numspritelumps*sizeof*spritewidth, PU_STATIC, 0);
-  spriteoffset = Z_Malloc(numspritelumps*sizeof*spriteoffset, PU_STATIC, 0);
-  spritetopoffset =
-    Z_Malloc(numspritelumps*sizeof*spritetopoffset, PU_STATIC, 0);
-
-  for (i=0 ; i< numspritelumps ; i++)
-    {
-      patch = W_CacheLumpNum(firstspritelump+i);
-      spritewidth[i] = SHORT(patch->width)<<FRACBITS;
-      spriteoffset[i] = SHORT(patch->leftoffset)<<FRACBITS;
-      spritetopoffset[i] = SHORT(patch->topoffset)<<FRACBITS;
-      W_UnlockLumpNum(firstspritelump+i);
-    }
 }
 
 //
@@ -998,8 +976,8 @@ void R_PrecacheLevel(void)
   memset(hitlist, 0, numsprites);
 
   {
-    thinker_t *th;
-    for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
+    thinker_t *th = NULL;
+    while (th = P_NextThinker(th,th_all))
       if (th->function == P_MobjThinker)
         hitlist[((mobj_t *)th)->sprite] = 1;
   }

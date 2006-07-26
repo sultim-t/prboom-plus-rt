@@ -6,7 +6,7 @@
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2000 by
+ *  Copyright (C) 1999-2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
  *
  *  This program is free software; you can redistribute it and/or
@@ -41,6 +41,21 @@
 #include "p_user.h"
 #include "e6y.h"//e6y
 
+static mobj_t* P_TeleportDestination(line_t* line)
+{
+  int i;
+  for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;) {
+    register thinker_t* th = NULL;
+    while ((th = P_NextThinker(th,th_misc)) != NULL)
+      if (th->function == P_MobjThinker) {
+        register mobj_t* m = (mobj_t*)th;
+        if (m->type == MT_TELEPORTMAN  &&
+            m->subsector->sector-sectors == i)
+            return m;
+      }
+  }
+  return NULL;
+}
 //
 // TELEPORTATION
 //
@@ -48,9 +63,7 @@
 
 int EV_Teleport(line_t *line, int side, mobj_t *thing)
 {
-  thinker_t *thinker;
   mobj_t    *m;
-  int       i;
 
   // don't teleport missiles
   // Don't teleport if hit back of line,
@@ -61,11 +74,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
   // killough 1/31/98: improve performance by using
   // P_FindSectorFromLineTag instead of simple linear search.
 
-  for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;)
-    for (thinker=thinkercap.next; thinker!=&thinkercap; thinker=thinker->next)
-      if (thinker->function == P_MobjThinker &&
-          (m = (mobj_t *) thinker)->type == MT_TELEPORTMAN  &&
-            m->subsector->sector-sectors == i)
+  if ((m = P_TeleportDestination(line)) != NULL)
         {
           fixed_t oldx = thing->x, oldy = thing->y, oldz = thing->z;
           player_t *player = thing->player;
@@ -121,9 +130,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
 
 int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
 {
-  int       i;
   mobj_t    *m;
-  thinker_t *th;
 
   // don't teleport missiles
   // Don't teleport if hit back of line,
@@ -132,11 +139,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
   if (side || thing->flags & MF_MISSILE)
     return 0;
 
-  for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;)
-    for (th = thinkercap.next; th != &thinkercap; th = th->next)
-      if (th->function == P_MobjThinker &&
-          (m = (mobj_t *) th)->type == MT_TELEPORTMAN  &&
-          m->subsector->sector-sectors == i)
+  if ((m = P_TeleportDestination(line)) != NULL)
         {
           // Height of thing above ground, in case of mid-air teleports:
           fixed_t z = thing->z - thing->floorz;

@@ -51,8 +51,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#if ((!defined DJGPP) && (!defined _MSC_VER))
-// CPhipps - hmm, odd...
+#ifndef HAVE_STRLWR
 #include <ctype.h>
 
 char* strlwr(char* str)
@@ -970,24 +969,24 @@ char *  dehReformatStr(char *);
 // Pointers to these functions are used as the blocks are encountered.
 
 static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line);
-void deh_procFrame(DEHFILE *, FILE*, char *);
-void deh_procPointer(DEHFILE *, FILE*, char *);
-void deh_procSounds(DEHFILE *, FILE*, char *);
-void deh_procAmmo(DEHFILE *, FILE*, char *);
-void deh_procWeapon(DEHFILE *, FILE*, char *);
-void deh_procSprite(DEHFILE *, FILE*, char *);
-void deh_procCheat(DEHFILE *, FILE*, char *);
-void deh_procMisc(DEHFILE *, FILE*, char *);
-void deh_procText(DEHFILE *, FILE*, char *);
-void deh_procPars(DEHFILE *, FILE*, char *);
-void deh_procStrings(DEHFILE *, FILE*, char *);
-void deh_procError(DEHFILE *, FILE*, char *);
-void deh_procBexCodePointers(DEHFILE *, FILE*, char *);
-void deh_procHelperThing(DEHFILE *, FILE *, char *); // haleyjd 9/22/99
+static void deh_procFrame(DEHFILE *, FILE*, char *);
+static void deh_procPointer(DEHFILE *, FILE*, char *);
+static void deh_procSounds(DEHFILE *, FILE*, char *);
+static void deh_procAmmo(DEHFILE *, FILE*, char *);
+static void deh_procWeapon(DEHFILE *, FILE*, char *);
+static void deh_procSprite(DEHFILE *, FILE*, char *);
+static void deh_procCheat(DEHFILE *, FILE*, char *);
+static void deh_procMisc(DEHFILE *, FILE*, char *);
+static void deh_procText(DEHFILE *, FILE*, char *);
+static void deh_procPars(DEHFILE *, FILE*, char *);
+static void deh_procStrings(DEHFILE *, FILE*, char *);
+static void deh_procError(DEHFILE *, FILE*, char *);
+static void deh_procBexCodePointers(DEHFILE *, FILE*, char *);
+static void deh_procHelperThing(DEHFILE *, FILE *, char *); // haleyjd 9/22/99
 // haleyjd: handlers to fully deprecate the DeHackEd text section
-void deh_procBexSounds(DEHFILE *, FILE *, char *);
-void deh_procBexMusic(DEHFILE *, FILE *, char *);
-void deh_procBexSprites(DEHFILE *, FILE *, char *);
+static void deh_procBexSounds(DEHFILE *, FILE *, char *);
+static void deh_procBexMusic(DEHFILE *, FILE *, char *);
+static void deh_procBexSprites(DEHFILE *, FILE *, char *);
 
 // Structure deh_block is used to hold the block names that can
 // be encountered, and the routines to use to decipher them
@@ -1185,10 +1184,10 @@ static const char *deh_sfxinfo[] = // CPhipps - static const*
 // Sprite redirection by offset into the text area - unsupported by BOOM
 // * sprites are base zero and dehacked uses it that way.
 
-static const char *deh_sprite[] = // CPhipps - static const*
-{
-  "Offset"      // supposed to be the offset into the text section
-};
+// static const char *deh_sprite[] = // CPhipps - static const*
+// {
+//   "Offset"      // supposed to be the offset into the text section
+// };
 
 // AMMO - Dehacked block name = "Ammo"
 // usage = Ammo n (name)
@@ -1617,7 +1616,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -1906,7 +1905,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -1986,7 +1985,7 @@ void deh_procFrame(DEHFILE *fpin, FILE* fpout, char *line)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
+static void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2061,7 +2060,7 @@ void deh_procPointer(DEHFILE *fpin, FILE* fpout, char *line) // done
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2129,7 +2128,7 @@ void deh_procSounds(DEHFILE *fpin, FILE* fpout, char *line)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procAmmo(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procAmmo(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2175,7 +2174,7 @@ void deh_procAmmo(DEHFILE *fpin, FILE* fpout, char *line)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procWeapon(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procWeapon(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2233,7 +2232,7 @@ void deh_procWeapon(DEHFILE *fpin, FILE* fpout, char *line)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procSprite(DEHFILE *fpin, FILE* fpout, char *line) // Not supported
+static void deh_procSprite(DEHFILE *fpin, FILE* fpout, char *line) // Not supported
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2267,7 +2266,7 @@ void deh_procSprite(DEHFILE *fpin, FILE* fpout, char *line) // Not supported
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procPars(DEHFILE *fpin, FILE* fpout, char *line) // extension
+static void deh_procPars(DEHFILE *fpin, FILE* fpout, char *line) // extension
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2353,7 +2352,7 @@ void deh_procPars(DEHFILE *fpin, FILE* fpout, char *line) // extension
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
+static void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2430,7 +2429,7 @@ void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
+static void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2521,7 +2520,7 @@ void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX*2];  // can't use line -- double size buffer too.
@@ -2649,7 +2648,7 @@ void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   return;
 }
 
-void deh_procError(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procError(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char inbuffer[DEH_BUFFERMAX];
 
@@ -2666,7 +2665,7 @@ void deh_procError(DEHFILE *fpin, FILE* fpout, char *line)
 //          line  -- current line in file to process
 // Returns: void
 //
-void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
+static void deh_procStrings(DEHFILE *fpin, FILE* fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2813,7 +2812,7 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
 // rewiring of the DOG thing.  I feel this is a waste of effort, and so
 // have added this new [HELPER] BEX block
 
-void deh_procHelperThing(DEHFILE *fpin, FILE *fpout, char *line)
+static void deh_procHelperThing(DEHFILE *fpin, FILE *fpout, char *line)
 {
   char key[DEH_MAXKEYLEN];
   char inbuffer[DEH_BUFFERMAX];
@@ -2848,7 +2847,7 @@ void deh_procHelperThing(DEHFILE *fpin, FILE *fpout, char *line)
 // Supports sprite name substitutions without requiring use
 // of the DeHackEd Text block
 //
-void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
+static void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
 {
    char key[DEH_MAXKEYLEN];
    char inbuffer[DEH_BUFFERMAX];
@@ -2906,7 +2905,7 @@ void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
 }
 
 // ditto for sound names
-void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
+static void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
 {
    char key[DEH_MAXKEYLEN];
    char inbuffer[DEH_BUFFERMAX];
@@ -2965,7 +2964,7 @@ void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
 }
 
 // ditto for music names
-void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
+static void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
 {
    char key[DEH_MAXKEYLEN];
    char inbuffer[DEH_BUFFERMAX];

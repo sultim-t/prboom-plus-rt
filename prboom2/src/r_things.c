@@ -461,6 +461,7 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
   gxt = FixedMul(tr_x,viewcos);
   //e6y fixed_t 
   gyt = -FixedMul(tr_y,viewsin);
+  int width;
 
   //e6y fixed_t 
   tz = gxt-gyt;
@@ -529,27 +530,32 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
       flip = (boolean) sprframe->flip[0];
     }
 
-  /* calculate edges of the shape
-   * cph 2003/08/1 - fraggle points out that this offset must be flipped if the
-   * sprite is flipped; e.g. FreeDoom imp is messed up by this. */
-  tx -= flip ? spritewidth[lump] - spriteoffset[lump] : spriteoffset[lump];
-  x1 = (centerxfrac + FixedMul(tx,xscale)) >>FRACBITS;
+  {
+    const patch_t* p = W_CacheLumpNum(lump+firstspritelump);
 
-    // off the right side?
+    /* calculate edges of the shape
+     * cph 2003/08/1 - fraggle points out that this offset must be flipped
+     * if the sprite is flipped; e.g. FreeDoom imp is messed up by this. */
+    if (flip) {
+      tx -= (SHORT(p->width) - SHORT(p->leftoffset)) << FRACBITS;
+    } else {
+      tx -= SHORT(p->leftoffset) << FRACBITS;
+    }
+    x1 = (centerxfrac + FixedMul(tx,xscale)) >> FRACBITS;
+
+    tx += SHORT(p->width)<<FRACBITS;
+    x2 = ((centerxfrac + FixedMul (tx,xscale) ) >> FRACBITS) - 1;
+
+    //e6y gzt = thing->z + (SHORT(p->topoffset) << FRACBITS);
+    gzt = fz + (SHORT(p->topoffset) << FRACBITS); //e6y
+    width = SHORT(p->width);
+    W_UnlockLumpNum(lump+firstspritelump);
+  }
+
+  // off the side?
   if(!mlook)//e6y
-  if (x1 > viewwidth)
+  if (x1 > viewwidth || x2 < 0)
     return;
-
-  tx +=  spritewidth[lump];
-  x2 = ((centerxfrac + FixedMul (tx,xscale) ) >>FRACBITS) - 1;
-
-    // off the left side
-  if(!mlook)//e6y
-  if (x2 < 0)
-    return;
-
-  //e6y gzt = thing->z + spritetopoffset[lump];
-  gzt = fz + spritetopoffset[lump]; //e6y
 
   // killough 4/9/98: clip things which are out of view due to height
   if(!GetMouseLook() && render_fov <= FOV90)//e6y
@@ -615,7 +621,7 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   if (flip)
     {
-      vis->startfrac = spritewidth[lump]-1;
+      vis->startfrac = (width<<FRACBITS)-1;
       vis->xiscale = -iscale;
     }
   else
@@ -675,7 +681,6 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 
 void R_DrawPSprite (pspdef_t *psp, int lightlevel)
 {
-  fixed_t       tx;
   int           x1, x2;
   spritedef_t   *sprdef;
   spriteframe_t *sprframe;
@@ -683,6 +688,8 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   boolean       flip;
   vissprite_t   *vis;
   vissprite_t   avis;
+  int           width;
+  fixed_t       topoffset;
 
   // decide which patch to use
 
@@ -704,21 +711,25 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   lump = sprframe->lump[0];
   flip = (boolean) sprframe->flip[0];
 
-  // calculate edges of the shape
-  tx = psp->sx-160*FRACUNIT;
+  {
+    const patch_t* p = W_CacheLumpNum(lump+firstspritelump);
+    // calculate edges of the shape
+    fixed_t       tx;
+    tx = psp->sx-160*FRACUNIT;
 
-  tx -= spriteoffset[lump];
-  x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
+    tx -= SHORT(p->leftoffset)<<FRACBITS;
+    x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
 
-  // off the right side
-  if (x1 > viewwidth)
-    return;
+    tx += SHORT(p->width)<<FRACBITS;
+    x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
-  tx +=  spritewidth[lump];
-  x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
+    width = SHORT(p->width);
+    topoffset = SHORT(p->topoffset)<<FRACBITS;
+    W_UnlockLumpNum(lump+firstspritelump);
+  }
 
-  // off the left side
-  if (x2 < 0)
+  // off the side
+  if (x2 < 0 || x1 > viewwidth)
     return;
 
   // store information in a vissprite
@@ -726,7 +737,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   vis->mobjflags = 0;
    // killough 12/98: fix psprite positioning problem
   vis->texturemid = (BASEYCENTER<<FRACBITS) /* +  FRACUNIT/2 */ -
-                    (psp->sy-spritetopoffset[lump]);
+                    (psp->sy-topoffset);
   vis->x1 = x1 < 0 ? 0 : x1;
   vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 // proff 11/06/98: Added for high-res
@@ -735,7 +746,7 @@ void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   if (flip)
     {
       vis->xiscale = -pspriteiscale;
-      vis->startfrac = spritewidth[lump]-1;
+      vis->startfrac = (width<<FRACBITS)-1;
     }
   else
     {

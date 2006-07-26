@@ -1072,10 +1072,18 @@ void M_LoadDefaults (void)
   else {
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
-#ifdef GL_DOOM
+#ifdef HAVE_SNPRINTF
+#  ifdef GL_DOOM
     snprintf((char *)defaultfile,PATH_MAX,"%s/glboom-plus.cfg", I_DoomExeDir());
-#else
+#  else
     snprintf((char *)defaultfile,PATH_MAX,"%s/prboom-plus.cfg", I_DoomExeDir());
+#  endif
+#else
+#  ifdef GL_DOOM
+    sprintf((char *)defaultfile,"%s/glboom-plus.cfg", I_DoomExeDir());
+#  else
+    sprintf((char *)defaultfile,"%s/prboom-plus.cfg", I_DoomExeDir());
+#  endif
 #endif
   }
 
