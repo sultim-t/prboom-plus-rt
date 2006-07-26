@@ -32,3 +32,102 @@ Proff: Will hopefully be fixed in 2.3.x
 
 Proff: like it was in my old prboom version
 Proff: 2.3.x
+
+--------------------------------------------------------------------------
+
+List of revisions from PrBoom 2.3:
+
+[!] - cph needs to check
+[+] - already merged
+[ ] - empty or not wanted
+[-] - interesting but not merged yet
+
++597
++598
++599
++602
+-603 Chasecam
+-604 Chasecam
+!605
++606
+ 607
+-608 Chasecam
+ 609
+ 610
+ 611
+ 612
+ 613
++614
+ 615
+ 616
+ 617
+ 618
+ 619
+ 620
+ 621
+ 622
+ 623
+ 624
+ 625
+ 626
+ 627
++628
++629
++630
++631
++632
++633
+ 634
+ 635
++636
++637
++638
++639
++640
+!641
++642
++643
++644
++645
++646
+ 647 (will break Mac)
++648
++649
++650
++651
+ 652 (not necessary)
+ 653 (we don't want the new menu code)
+ 654
+ 655
++656
+ 657 (the useful stuff is already in)
+ 658 (g_bind is not used)
+ 659
+ 660
++661
++662
++663
+ 667 (g_config)
+ 668 (g_config)
+ 669 (g_config)
++670
+ 671 (g_config)
+ 672
+ 673
+ 674
++675
+ 676 (Dreamcast)
+ 677 (Dreamcast)
+ 678 (Dreamcast)
+ 679 (Dreamcast)
+ 680 (Binding/Console)
+ 681 (Dreamcast)
+ 682 (Dreamcast)
+ 683
+ 684
++685 (was already merged)
+ 686
++687 (was already merged)
+ 688-707
+ 708 (TODO)
+Stopped
