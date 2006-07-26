@@ -2252,11 +2252,9 @@ void gld_AddWall(seg_t *seg)
         {
           // e6y
           // It corrects some problem with sky, but I do not remember which one
-          if(test_sky2)
-            wall.ybottom=(float)max(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
-          else
+          // old code: wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
+          wall.ybottom=(float)max(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
 
-          wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           ADDWALL(&wall);
         }
