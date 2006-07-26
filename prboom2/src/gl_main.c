@@ -2235,7 +2235,10 @@ void gld_AddWall(seg_t *seg)
     {
       wall.ytop=255.0f;
       if (
-          (backsector->ceilingheight==backsector->floorheight) &&
+          // e6y
+          // Fix for HOM in the starting area on Memento Mori map29 and on map30.
+          // old code: (backsector->ceilingheight==backsector->floorheight) &&
+          (backsector->ceilingheight==backsector->floorheight||(backsector->ceilingheight<=frontsector->floorheight)) &&
           (backsector->ceilingpic==skyflatnum)
          )
       {
@@ -2247,6 +2250,12 @@ void gld_AddWall(seg_t *seg)
       {
         if ( (texturetranslation[seg->sidedef->toptexture]!=NO_TEXTURE) )
         {
+          // e6y
+          // It corrects some problem with sky, but I do not remember which one
+          if(test_sky2)
+            wall.ybottom=(float)max(frontsector->ceilingheight,backsector->ceilingheight)/MAP_SCALE;
+          else
+
           wall.ybottom=(float)frontsector->ceilingheight/MAP_SCALE;
           SKYTEXTURE(frontsector->sky,backsector->sky);
           ADDWALL(&wall);
