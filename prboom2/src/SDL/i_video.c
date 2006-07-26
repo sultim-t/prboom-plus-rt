@@ -546,9 +546,12 @@ void I_SetRes(unsigned int width, unsigned int height)
   {
     I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
   }
-#endif
   SCREENWIDTH = width;
   SCREENHEIGHT = height;
+#else
+  SCREENWIDTH = (width+15) & ~15;
+  SCREENHEIGHT = height;
+#endif
 
   lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
