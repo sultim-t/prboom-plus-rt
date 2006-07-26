@@ -522,6 +522,12 @@ void I_UpdateVideoMode(void)
 #endif
   if ( use_fullscreen )
     init_flags |= SDL_FULLSCREEN;
+  // e6y
+  // New command-line options for setting a window (-window) 
+  // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
+  // It works like "-geom" switch
+  if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
+  if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
 
 #ifdef GL_DOOM
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
