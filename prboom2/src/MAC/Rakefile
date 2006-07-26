@@ -138,7 +138,7 @@ wadfiles = [Dir::glob('../data/graphics/*.ppm'),
 
 if wadfiles.empty?
 	# Special case for release tarballs that only contain premade wad
-	file("#{RESOURCEDIR}/prboom.wad" => '../data/prboom.wad') do |task|
+	file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.wad']) do |task|
 		cp(task.prerequisites[0], task.name)
 	end
 else
