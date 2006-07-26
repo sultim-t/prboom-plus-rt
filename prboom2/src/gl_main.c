@@ -2298,11 +2298,45 @@ void gld_AddWall(seg_t *seg)
         ceiling_height=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight)+(seg->sidedef->rowoffset);
         floor_height=ceiling_height-(wall.gltexture->realtexheight<<FRACBITS);
       }
+      // e6y
+      // The fix for wrong middle texture drawing
+      // if it exceeds the boundaries of its floor and ceiling
+      /*
       CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
       CALC_TEX_VALUES_MIDDLE2S(
         wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         segs[seg->iSegID].length, lineheight
       );
+      */
+      {
+        int floormax, ceilingmin, linelen;
+        float mip;
+        mip = (float)wall.gltexture->realtexheight/(float)wall.gltexture->buffer_height;
+//        if ( (texturetranslation[seg->sidedef->bottomtexture]!=R_TextureNumForName("-")) )
+        if (seg->sidedef->bottomtexture)
+          floormax=max(seg->frontsector->floorheight,seg->backsector->floorheight);
+        else
+          floormax=floor_height;
+        if (seg->sidedef->toptexture)
+          ceilingmin=min(seg->frontsector->ceilingheight,seg->backsector->ceilingheight);
+        else
+          ceilingmin=ceiling_height;
+        linelen=abs(ceiling_height-floor_height);
+        wall.ytop=((float)min(ceilingmin, ceiling_height)/(float)MAP_SCALE);
+        wall.ybottom=((float)max(floormax, floor_height)/(float)MAP_SCALE);
+        wall.flag=GLDWF_M2S;
+        wall.ul=OU((wall),(seg))+(0.0f);
+        wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);
+        if (floormax<=floor_height)
+          wall.vb=1.0f;
+        else
+          wall.vb=mip*((float)(ceiling_height - floormax))/linelen;
+        if (ceilingmin>=ceiling_height)
+          wall.vt=0.0f;
+        else
+          wall.vt=mip*((float)(ceiling_height - ceilingmin))/linelen;
+      }
+
       if (seg->linedef->tranlump >= 0 && general_translucency)
         wall.alpha=(float)tran_filter_pct/100.0f;
       ADDWALL(&wall);
