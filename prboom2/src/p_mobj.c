@@ -837,7 +837,7 @@ int        iquetail;
 //
 
 void P_RemoveMobj (mobj_t* mobj)
-  {
+{
   if ((mobj->flags & MF_SPECIAL)
       && !(mobj->flags & MF_DROPPED)
       && (mobj->type != MT_INV)
@@ -887,9 +887,8 @@ void P_RemoveMobj (mobj_t* mobj)
   }
   // free block
 
-//  P_RemoveThinker ((thinker_t*)mobj);
   P_RemoveThinker (&mobj->thinker);
-  }
+}
 
 
 /*
