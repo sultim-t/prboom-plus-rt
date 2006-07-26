@@ -1380,26 +1380,17 @@ void D_DoomMainSetup(void)
       desired_screenheight = atoi(myargv[p+1]);
 
   { // -geometry handling, change screen size for this session only
-    int w = desired_screenwidth, h = desired_screenheight;
-    char buf[20];
+    // e6y: new code by me
+    int w, h;
 
     if (!(p = M_CheckParm("-geom")))
       p = M_CheckParm("-geometry");
 
-    // Carefully, carefully here, as we step around potential buffer overruns
-    // and bad parameters
-    if (p && (p+1<myargc))
-      if (strlen(myargv[p+1]) < 19) {
-  char* ph;
-  strcpy(buf, myargv[p+1]);
-  if ((ph = strchr(buf, 'x'))) {
-    *ph++ = 0;
-    if (strchr(ph, '-')) *strchr(ph, '-') = 0;
-    if (strchr(ph, '+')) *strchr(ph, '+') = 0;
-    w = atoi(buf); h = atoi(ph);
-  }
-      }
-
+    if (!(p && (p+1<myargc) && sscanf(myargv[p+1], "%dx%d", &w, &h) == 2))
+    {
+      w = desired_screenwidth;
+      h = desired_screenheight;
+    }
     I_SetRes(w, h);
   }
 
