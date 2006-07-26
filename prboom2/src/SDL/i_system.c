@@ -59,12 +59,8 @@
 #ifdef _MSC_VER
 #include <io.h>
 #endif
-#ifdef DREAMCAST
-#include <kos/fs.h>
-#else
 #include <fcntl.h>
 #include <sys/stat.h>
-#endif
 #include <errno.h>
 
 #include "i_system.h"
@@ -169,12 +165,10 @@ void I_Read(int fd, void* vbuf, size_t sz)
 
 int I_Filelength(int handle)
 {
-#ifndef DREAMCAST
   struct stat   fileinfo;
   if (fstat(handle,&fileinfo) == -1)
     I_Error("I_Filelength: %s",strerror(errno));
   return fileinfo.st_size;
-#endif  
 }
 
 #ifndef PRBOOM_SERVER
