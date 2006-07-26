@@ -295,7 +295,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
     || joybuttons[joybstrafe];
-  speed = autorun || gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
+  //e6y: the "RUN" key inverts the autorun state
+  speed = (gamekeydown[key_speed] || joybuttons[joybspeed] ? !autorun : autorun); // phares
 
   forward = side = 0;
 
