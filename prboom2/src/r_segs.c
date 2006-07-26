@@ -419,8 +419,7 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
 void R_StoreWallRange(const int start, const int stop)
 {
   fixed_t hyp;
-  fixed_t sineval;
-  angle_t distangle, offsetangle;
+  angle_t offsetangle;
 
   if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
     {
@@ -456,16 +455,14 @@ void R_StoreWallRange(const int start, const int stop)
   // calculate rw_distance for scale calculation
   rw_normalangle = curline->angle + ANG90;
 
-  offsetangle = D_abs(rw_normalangle-rw_angle1);
+  offsetangle = rw_normalangle-rw_angle1;
 
-  if (offsetangle > ANG90)
+  if (D_abs(offsetangle) > ANG90)
     offsetangle = ANG90;
 
-  distangle = ANG90 - offsetangle;
   hyp = (viewx==curline->v1->x && viewy==curline->v1->y)?
     0 : R_PointToDist (curline->v1->x, curline->v1->y);
-  sineval = finesine[distangle>>ANGLETOFINESHIFT];
-  rw_distance = FixedMul(hyp, sineval);
+  rw_distance = FixedMul(hyp, finecosine[offsetangle>>ANGLETOFINESHIFT]);
 
   ds_p->x1 = rw_x = start;
   ds_p->x2 = stop;
@@ -676,19 +673,7 @@ void R_StoreWallRange(const int start, const int stop)
 
   if (segtextured)
     {
-      offsetangle = rw_normalangle-rw_angle1;
-
-      if (offsetangle > ANG180)
-        offsetangle = 0-offsetangle;
-
-      if (offsetangle > ANG90)
-        offsetangle = ANG90;
-
-      sineval = finesine[offsetangle >>ANGLETOFINESHIFT];
-      rw_offset = FixedMul (hyp, sineval);
-
-      if (rw_normalangle-rw_angle1 < ANG180)
-        rw_offset = -rw_offset;
+      rw_offset = FixedMul (hyp, -finesine[offsetangle >>ANGLETOFINESHIFT]);
 
       rw_offset += sidedef->textureoffset + curline->offset;
 
