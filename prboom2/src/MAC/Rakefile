@@ -21,6 +21,11 @@ else
 	@commonflags += ' -Os'
 end
 
+if ENV['GL_DOOM']
+  @systemFrameworks += %w(OpenGL)
+  @defines += ' -DGL_DOOM'
+end
+
 ####################
 # Bundle structure #
 ####################
@@ -68,6 +73,7 @@ m_misc.c
 m_random.c
 mmus2mid.c
 p_ceilng.c
+p_demo.c
 p_doors.c
 p_enemy.c
 p_floor.c
@@ -108,6 +114,13 @@ wi_stuff.c
 z_bmalloc.c
 z_zone.c
 )
+
+if ENV['GL_DOOM']
+sources += %w(
+gl_main.c
+gl_texture.c
+)
+end
 
 launcherSources = %w(
 MAC/LauncherApp.m
