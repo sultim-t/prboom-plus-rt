@@ -1093,10 +1093,10 @@ void M_ChangeDemoSmoothTurns(void)
   else
     stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
 
-  ClearSmoothViewAngels(NULL);
+  SmoothPlaying_Reset(NULL);
 }
 
-void ClearSmoothViewAngels(player_t *player)
+void SmoothPlaying_Reset(player_t *player)
 {
   if (demo_smoothturns && demoplayback && players)
   {
@@ -1106,7 +1106,6 @@ void ClearSmoothViewAngels(player_t *player)
     if (player==&players[displayplayer])
     {
       demos_smoothangle = players[displayplayer].mo->angle;
-
       memset(demos_lastturns, 0, sizeof(demos_lastturns[0]) * MAX_DEMOS_SMOOTHFACTOR);
       demos_lastturnssum = 0;
       demos_lastturnsindex = 0;
@@ -1114,17 +1113,14 @@ void ClearSmoothViewAngels(player_t *player)
   }
 }
 
-void AddSmoothViewAngel(int delta)
+void SmoothPlaying_Add(int delta)
 {
   if (demo_smoothturns && demoplayback)
   {
     demos_lastturnssum -= demos_lastturns[demos_lastturnsindex];
     demos_lastturns[demos_lastturnsindex] = delta;
-//    demos_lastturnsindex = (demos_lastturnsindex + 1)%(demo_smoothturnsfactor*2+1);
     demos_lastturnsindex = (demos_lastturnsindex + 1)%(demo_smoothturnsfactor);
     demos_lastturnssum += delta;
-
-//    demos_smoothangle += (int)(demos_lastturnssum/(demo_smoothturnsfactor*2+1));
     demos_smoothangle += (int)(demos_lastturnssum/(demo_smoothturnsfactor));
   }
 }
@@ -1140,7 +1136,7 @@ angle_t GetSmoothViewAngel(angle_t defangle)
 void e6y_AfterTeleporting(player_t *player)
 {
   R_ResetViewInterpolation();
-  ClearSmoothViewAngels(player);
+  SmoothPlaying_Reset(player);
 }
 
 float viewPitch;

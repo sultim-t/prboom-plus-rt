@@ -184,7 +184,7 @@ void P_MovePlayer (player_t* player)
 
   //e6y
   if (demo_smoothturns && player == &players[displayplayer])
-    AddSmoothViewAngel(cmd->angleturn << 16);
+    SmoothPlaying_Add(cmd->angleturn << 16);
   if (GetMouseLook() && player == &players[displayplayer])
   {
     if(!(automapmode & am_active))
@@ -291,7 +291,7 @@ void P_DeathThink (player_t* player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
-  ClearSmoothViewAngels(player);//e6y
+  SmoothPlaying_Reset(player);//e6y
   }
 
 

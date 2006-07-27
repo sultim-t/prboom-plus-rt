@@ -724,7 +724,7 @@ boolean G_Responder (event_t* ev)
     ST_Start();    // killough 3/7/98: switch status bar views too
     HU_Start();
     S_UpdateSounds(players[displayplayer].mo);
-    ClearSmoothViewAngels(NULL);//e6y
+    SmoothPlaying_Reset(NULL);//e6y
   }
       return true;
     }
@@ -1581,7 +1581,7 @@ void G_LoadGame(int slot, boolean command)
     demoplayback = false;
   }
   command_loadgame = command;
-  ClearSmoothViewAngels(NULL);//e6y
+  SmoothPlaying_Reset(NULL);//e6y
 }
 
 // killough 5/15/98:
@@ -1764,7 +1764,7 @@ void G_DoLoadGame(void)
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
   P_ActivateAllInterpolations();//e6y
-  ClearSmoothViewAngels(NULL);//e6y
+  SmoothPlaying_Reset(NULL);//e6y
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
@@ -2264,39 +2264,6 @@ void G_InitNew(skill_t skill, int episode, int map)
 //
 
 #define DEMOMARKER    0x80
-
-//e6y
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif
-
-void GetCurrentTurnsSum(void)
-{
-  int i, first, last;
-  signed short angle;
-  int delta;
-  first = gametic - demo_smoothturnsfactor;
-  last = gametic + demo_smoothturnsfactor;
-  for (i = max(0, first); i <= last; i++)
-  {
-    delta = i - gametic;
-    if (!longtics) {
-      delta = 4*(delta * playerscount + displayplayer) + 2;
-      if (i >= gametic && demo_p+delta < demo_p_end)
-        angle = ((unsigned char)*(demo_p+delta))<<8;
-      else
-        angle = 0;
-    } else {
-      delta = 5*(delta * playerscount + displayplayer) + 2;
-      if (i >= gametic && demo_p+delta+1 < demo_p_end)
-        angle = (unsigned char)*(demo_p+delta) + 
-                (((signed int)(*(demo_p+delta+1)))<<8);
-      else
-        angle = 0;
-    }
-    AddSmoothViewAngel(angle<<16);
-  }
-}
 
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
@@ -2946,7 +2913,7 @@ void G_DoPlayDemo(void)
   usergame = false;
 
   demoplayback = true;
-  ClearSmoothViewAngels(NULL);//e6y
+  SmoothPlaying_Reset(NULL);//e6y
 }
 
 //

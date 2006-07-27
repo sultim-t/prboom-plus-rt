@@ -511,7 +511,7 @@ void A_Punch(player_t *player, pspdef_t *psp)
 
   player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y,
                                       linetarget->x, linetarget->y);
-  ClearSmoothViewAngels(player);//e6y
+  SmoothPlaying_Reset(player);//e6y
 }
 
 //
@@ -560,7 +560,7 @@ void A_Saw(player_t *player, pspdef_t *psp)
   }
 
   player->mo->flags |= MF_JUSTATTACKED;
-  ClearSmoothViewAngels(player);//e6y
+  SmoothPlaying_Reset(player);//e6y
 }
 
 //

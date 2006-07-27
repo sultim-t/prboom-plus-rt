@@ -289,8 +289,8 @@ void MarkAnimatedTextures(void);
 extern const byte *demo_p_end;
 extern int playerscount;
 void e6y_ProcessDemoHeader(void);
-void ClearSmoothViewAngels(player_t *player);
-void AddSmoothViewAngel(int delta);
+void SmoothPlaying_Reset(player_t *player);
+void SmoothPlaying_Add(int delta);
 angle_t GetSmoothViewAngel(angle_t defangle);
 void e6y_AfterTeleporting(player_t *player);
 

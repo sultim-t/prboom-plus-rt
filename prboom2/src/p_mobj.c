@@ -1074,7 +1074,7 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     ST_Start(); // wake up the status bar
     HU_Start(); // wake up the heads up text
     }
-    ClearSmoothViewAngels(p);//e6y
+    SmoothPlaying_Reset(p);//e6y
   }
 
 
