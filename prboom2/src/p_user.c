@@ -310,7 +310,7 @@ void P_PlayerThink (player_t* player)
     oviewx = player->mo->x;
     oviewy = player->mo->y;
     oviewz = player->viewz;
-    oviewangle = GetSmoothViewAngel(player->mo->angle) + viewangleoffset;
+    oviewangle = SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
     oviewpitch = player->mo->pitch;// + viewpitchoffset;
     if(walkcamera.type)
     {

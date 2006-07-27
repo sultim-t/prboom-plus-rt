@@ -2727,7 +2727,6 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   int i, episode, map;
   int demover;
   const byte *option_p = NULL;      /* killough 11/98 */
-  demo_lastheaderlen = (int)demo_p;//e6y
 
   basetic = gametic;  // killough 9/29/98
 
@@ -2891,9 +2890,6 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   for (i=0; i<MAXPLAYERS;i++)         // killough 4/24/98
     players[i].cheats = 0;
   
-  e6y_ProcessDemoHeader();//e6y
-  demo_lastheaderlen = (int)demo_p - demo_lastheaderlen;//e6y
-
   return demo_p;
 }
 
@@ -2906,7 +2902,6 @@ void G_DoPlayDemo(void)
   demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));
   /* cph - store lump number for unlocking later */
   
-  demo_p_end = demo_p + W_LumpLength(demolumpnum) - 1;//e6y
   demo_p = G_ReadDemoHeader(demo_p);
 
   gameaction = ga_nothing;

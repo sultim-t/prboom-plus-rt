@@ -568,7 +568,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      viewangle = oviewangle + FixedMul (frac, GetSmoothViewAngel(player->mo->angle) + viewangleoffset - oviewangle);
+      viewangle = oviewangle + FixedMul (frac, SmoothPlaying_Get(player->mo->angle) + viewangleoffset - oviewangle);
       viewpitch = oviewpitch + FixedMul (frac, player->mo->pitch /*+ viewangleoffset*/ - oviewpitch);
     }
   }
@@ -593,7 +593,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      viewangle = GetSmoothViewAngel(player->mo->angle);
+      viewangle = SmoothPlaying_Get(player->mo->angle);
       //viewangle = player->mo->angle + viewangleoffset;
       viewpitch = player->mo->pitch;// + viewangleoffset;
     }
@@ -1065,24 +1065,10 @@ float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
 
 #endif //GL_DOOM
 
-//int demos_lastturns[MAX_DEMOS_SMOOTHFACTOR*2+1];
-int demos_lastturns[MAX_DEMOS_SMOOTHFACTOR];
-int_64_t demos_lastturnssum;
-int demos_lastturnsindex;
-angle_t demos_smoothangle;
-const byte *demo_p_end;
-int playerscount;
-
-void GetCurrentTurnsSum(void);
-
-void e6y_ProcessDemoHeader(void)
-{
-  int i;
-  playerscount = 0;
-  for (i=0; i < MAXPLAYERS; i++)
-    if (playeringame[i])
-      playerscount++;
-}
+int smooth_playing_turns[SMOOTH_PLAYING_MAXFACTOR];
+int_64_t smooth_playing_sum;
+int smooth_playing_index;
+angle_t smooth_playing_angle;
 
 void M_ChangeDemoSmoothTurns(void)
 {
@@ -1105,10 +1091,10 @@ void SmoothPlaying_Reset(player_t *player)
 
     if (player==&players[displayplayer])
     {
-      demos_smoothangle = players[displayplayer].mo->angle;
-      memset(demos_lastturns, 0, sizeof(demos_lastturns[0]) * MAX_DEMOS_SMOOTHFACTOR);
-      demos_lastturnssum = 0;
-      demos_lastturnsindex = 0;
+      smooth_playing_angle = players[displayplayer].mo->angle;
+      memset(smooth_playing_turns, 0, sizeof(smooth_playing_turns[0]) * SMOOTH_PLAYING_MAXFACTOR);
+      smooth_playing_sum = 0;
+      smooth_playing_index = 0;
     }
   }
 }
@@ -1117,18 +1103,18 @@ void SmoothPlaying_Add(int delta)
 {
   if (demo_smoothturns && demoplayback)
   {
-    demos_lastturnssum -= demos_lastturns[demos_lastturnsindex];
-    demos_lastturns[demos_lastturnsindex] = delta;
-    demos_lastturnsindex = (demos_lastturnsindex + 1)%(demo_smoothturnsfactor);
-    demos_lastturnssum += delta;
-    demos_smoothangle += (int)(demos_lastturnssum/(demo_smoothturnsfactor));
+    smooth_playing_sum -= smooth_playing_turns[smooth_playing_index];
+    smooth_playing_turns[smooth_playing_index] = delta;
+    smooth_playing_index = (smooth_playing_index + 1)%(demo_smoothturnsfactor);
+    smooth_playing_sum += delta;
+    smooth_playing_angle += (int)(smooth_playing_sum/(demo_smoothturnsfactor));
   }
 }
 
-angle_t GetSmoothViewAngel(angle_t defangle)
+angle_t SmoothPlaying_Get(angle_t defangle)
 {
   if (demo_smoothturns && demoplayback)
-    return demos_smoothangle;
+    return smooth_playing_angle;
   else
     return defangle;
 }

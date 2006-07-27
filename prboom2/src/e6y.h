@@ -73,7 +73,6 @@ extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
 extern int demo_recordfromto;
-extern int demo_lastheaderlen;
 
 extern int avi_shot_time;
 extern int avi_shot_num;
@@ -285,13 +284,10 @@ void MarkAnimatedTextures(void);
 
 #endif //GL_DOOM
 
-#define MAX_DEMOS_SMOOTHFACTOR 16 
-extern const byte *demo_p_end;
-extern int playerscount;
-void e6y_ProcessDemoHeader(void);
+#define SMOOTH_PLAYING_MAXFACTOR 16 
 void SmoothPlaying_Reset(player_t *player);
 void SmoothPlaying_Add(int delta);
-angle_t GetSmoothViewAngel(angle_t defangle);
+angle_t SmoothPlaying_Get(angle_t defangle);
 void e6y_AfterTeleporting(player_t *player);
 
 extern float viewPitch;
