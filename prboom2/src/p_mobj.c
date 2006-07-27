@@ -44,6 +44,7 @@
 #include "g_game.h"
 #include "p_inter.h"
 #include "lprintf.h"
+#include "p_demo.h"
 
 //
 // P_SetMobjState
@@ -1059,6 +1060,7 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     ST_Start(); // wake up the status bar
     HU_Start(); // wake up the heads up text
     }
+    SmoothPlaying_Reset(p); // e6y
   }
 
 

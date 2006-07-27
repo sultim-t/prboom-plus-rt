@@ -49,6 +49,7 @@
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+#include "p_demo.h"
 
 // Fineangles in the SCREENWIDTH wide window.
 #define FIELDOFVIEW 2048
@@ -438,7 +439,10 @@ void R_SetupFrame (player_t *player)
   viewplayer = player;
   viewx = player->mo->x;
   viewy = player->mo->y;
-  viewangle = player->mo->angle + viewangleoffset;
+  // e6y
+  // old code: viewangle = player->mo->angle + viewangleoffset;
+  viewangle = SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
+
   extralight = player->extralight;
 
   viewz = player->viewz;

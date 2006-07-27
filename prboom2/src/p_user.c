@@ -37,6 +37,7 @@
 #include "p_map.h"
 #include "p_spec.h"
 #include "p_user.h"
+#include "p_demo.h"
 
 // Index of the special effects (INVUL inverse) map.
 
@@ -182,6 +183,10 @@ void P_MovePlayer (player_t* player)
   mo->angle += cmd->angleturn << 16;
   onground = mo->z <= mo->floorz;
 
+  // e6y
+  if (demo_smoothturns && player == &players[displayplayer])
+    SmoothPlaying_Add(cmd->angleturn << 16);
+
   // killough 10/98:
   //
   // We must apply thrust to the player and bobbing separately, to avoid
@@ -275,6 +280,7 @@ void P_DeathThink (player_t* player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
+  SmoothPlaying_Reset(player); // e6y
   }
 
 

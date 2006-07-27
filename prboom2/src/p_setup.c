@@ -50,6 +50,7 @@
 #ifdef GL_DOOM
 #include "gl_struct.h"
 #endif
+#include "p_demo.h"
 
 //
 // MAP related Lookup tables.
@@ -1533,6 +1534,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   gld_PreprocessLevel();
 #endif
 
+  SmoothPlaying_Reset(NULL); // e6y
 }
 
 //
