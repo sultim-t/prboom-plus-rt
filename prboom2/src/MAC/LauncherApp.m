@@ -248,7 +248,9 @@
 
 	// Execute
 	standardOutput = [[NSPipe alloc] init];
+	standardError = [[NSPipe alloc] init];
 	[standardOutput retain];
+	[standardError retain];
 	[consoleTextView clear];
 
 	doomTask = [[NSTask alloc] init];
@@ -256,19 +258,16 @@
 	[doomTask setLaunchPath:path];
 	[doomTask setArguments:args];
 	[doomTask setStandardOutput:standardOutput];
+	[doomTask setStandardError:standardError];
 
 	[launchButton setEnabled:false];
 	[doomTask launch];
 }
 
-- (void)taskReadTimer:(NSTimer *)timer
+static NSString *readPipe(NSPipe *pipe)
 {
-	if(doomTask == nil)
-		return;
-
 	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
-	int fd = [[standardOutput fileHandleForReading] fileDescriptor];
-
+	int fd = [[pipe fileHandleForReading] fileDescriptor];
 	int flags = fcntl(fd, F_GETFL, 0);
 	flags |= O_NONBLOCK;
 	fcntl(fd, F_SETFL, flags);
@@ -284,9 +283,24 @@
 		// Stick the data into the console text view
 		NSString *string = [[NSString alloc] initWithData:data
 		                    encoding:NSUTF8StringEncoding];
-		[consoleTextView appendAnsiString:string];
-		[string release];
+		[string retain];
+		return string;
 	}
+	return @"";
+}
+
+- (void)taskReadTimer:(NSTimer *)timer
+{
+	if(doomTask == nil)
+		return;
+
+	NSString *stdoutString = readPipe(standardOutput);
+	[consoleTextView appendAnsiString:stdoutString];
+	[stdoutString release];
+
+	NSString *stderrString = readPipe(standardError);
+	// Ignore for now
+	[stderrString release];
 }
 
 - (void)taskComplete:(NSNotification *)notification
@@ -300,6 +314,7 @@
 			[[consoleWindow windowController] showWindow:nil];
 		[doomTask release];
 		doomTask = nil;
+		[standardError release];
 		[standardOutput release];
 		[launchButton setEnabled:true];
 	}

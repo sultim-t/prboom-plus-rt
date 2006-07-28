@@ -49,6 +49,7 @@
 	// Launch management
 	NSTask *doomTask;
 	NSPipe *standardOutput;
+	NSPipe *standardError;
 }
 
 - (NSString *)wadPath;
