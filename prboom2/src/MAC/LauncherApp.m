@@ -198,9 +198,9 @@
 		[args insertObject:@"-respawn" atIndex:[args count]];
 
 	if([fullscreenButton state] == NSOnState)
-		[args insertObject:@"-fullscreen" atIndex:[args count]];
+		[args insertObject:@"-nowindow" atIndex:[args count]];
 	else
-		[args insertObject:@"-nofullscreen" atIndex:[args count]];
+		[args insertObject:@"-window" atIndex:[args count]];
 
 	// Debug options
 	if([disableGraphicsButton state] == NSOnState)
