@@ -34,6 +34,7 @@
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"
+#include "r_draw.h"
 #include "v_video.h"
 #include "st_stuff.h"
 #include "g_game.h"
@@ -108,14 +109,14 @@ const byte *main_tranmap;     // killough 4/11/98
 // Source is the top of the column to scale.
 //
 
-lighttable_t *dc_colormap;
+const lighttable_t *dc_colormap;
+const byte         *dc_source;      // first pixel in a column (possibly virtual)
 int     dc_x;
 int     dc_yl;
 int     dc_yh;
 fixed_t dc_iscale;
 fixed_t dc_texturemid;
 int     dc_texheight;    // killough
-byte    *dc_source;      // first pixel in a column (possibly virtual)
 
 // SoM: OPTIMIZE for ANYRES
 typedef enum
@@ -140,7 +141,7 @@ static fixed_t temptranslevel;
 static unsigned int *temp_fg2rgb;
 static unsigned int *temp_bg2rgb;
 // SoM 7-28-04: Fix the fuzz problem.
-static byte   *tempfuzzmap;
+static const byte   *tempfuzzmap;
 
 //
 // Spectre/Invisibility.
@@ -877,7 +878,8 @@ void R_DrawFuzzColumn(void)
 //  identical sprites, kinda brightened up.
 //
 
-byte *dc_translation, *translationtables;
+const byte *dc_translation;
+byte       *translationtables;
 
 void R_DrawTranslatedColumn (void)
 {
@@ -987,7 +989,7 @@ int  ds_y;
 int  ds_x1;
 int  ds_x2;
 
-lighttable_t *ds_colormap;
+const lighttable_t *ds_colormap;
 
 fixed_t ds_xfrac;
 fixed_t ds_yfrac;
@@ -995,14 +997,14 @@ fixed_t ds_xstep;
 fixed_t ds_ystep;
 
 // start of a 64*64 tile image
-byte *ds_source;
+const byte *ds_source;
 
 void R_DrawSpan (void)
 {
   register unsigned count,xfrac = ds_xfrac,yfrac = ds_yfrac;
 
-  byte *source;
-  byte *colormap;
+  const byte *source;
+  const byte *colormap;
   byte *dest;
 
   source = ds_source;

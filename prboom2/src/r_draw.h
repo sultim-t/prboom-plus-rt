@@ -63,7 +63,7 @@ void R_DrawTranslatedColumn(void);
 
 void R_VideoErase(unsigned ofs, int count);
 
-extern lighttable_t *ds_colormap;
+extern const lighttable_t *ds_colormap;
 
 extern int     ds_y;
 extern int     ds_x1;
@@ -76,7 +76,7 @@ extern fixed_t ds_ystep;
 // start of a 64*64 tile image
 extern const byte *ds_source;
 extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
-extern const byte *translationtables;
+extern byte       *translationtables;
 extern const byte *dc_translation;
 
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
@@ -94,5 +94,10 @@ void R_FillBackScreen(void);
 
 // If the view size is not full screen, draws a border around it.
 void R_DrawViewBorder(void);
+
+// haleyjd 09/13/04: new function to call from main rendering loop
+// which gets rid of the unnecessary reset of various variables during
+// column drawing.
+void R_ResetColumnBuffer(void);
 
 #endif

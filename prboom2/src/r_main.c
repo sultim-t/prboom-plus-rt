@@ -505,8 +505,6 @@ static void R_ShowStats(void)
   keeptime[KEEPTIMES-1] = now;
 }
 
-extern void R_ResetColumnBuffer(void);
-
 //
 // R_RenderView
 //
