@@ -346,16 +346,6 @@ void P_ArchiveThinkers (void)
 
         // killough 2/14/98: end changes
 
-        if (mobj->above_thing)                                      // phares
-          mobj->above_thing = mobj->above_thing->thinker.function ==
-            P_MobjThinker ?
-            (mobj_t *) mobj->above_thing->thinker.prev : NULL;
-
-        if (mobj->below_thing)
-          mobj->below_thing = mobj->below_thing->thinker.function ==
-            P_MobjThinker ?
-            (mobj_t *) mobj->below_thing->thinker.prev : NULL;      // phares
-
         if (mobj->player)
           mobj->player = (player_t *)((mobj->player-players) + 1);
       }
@@ -485,14 +475,6 @@ void P_UnArchiveThinkers (void)
 
       P_SetNewTarget(&((mobj_t *) th)->lastenemy,
         mobj_p[(size_t)((mobj_t *)th)->lastenemy]);
-
-      // phares: added two new fields for Sprite Height problem
-
-      P_SetNewTarget(&((mobj_t *) th)->above_thing,
-        mobj_p[(size_t)((mobj_t *)th)->above_thing]);
-
-      P_SetNewTarget(&((mobj_t *) th)->below_thing,
-        mobj_p[(size_t)((mobj_t *)th)->below_thing]);
     }
 
   {  // killough 9/14/98: restore soundtargets

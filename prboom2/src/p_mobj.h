@@ -328,17 +328,6 @@ typedef struct mobj_s
     // new field: last known enemy -- killough 2/15/98
     struct mobj_s*      lastenemy;
 
-    // Are we above a Thing? above_thing points to the Thing        // phares
-    // if so, otherwise it's zero.                                  //   |
-                                                                    //   V
-    struct mobj_s* above_thing;
-
-    // Are we below a Thing? below_thing points to the Thing
-    // if so, otherwise it's zero.
-                                                                    //   ^
-    struct mobj_s* below_thing;                                     //   |
-                                                                    // phares
-
     // killough 8/2/98: friction properties part of sectors,
     // not objects -- removed friction properties from here
 
