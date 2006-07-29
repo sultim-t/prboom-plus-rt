@@ -40,7 +40,7 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "d_event.h"
-#include "p_demo.h"
+#include "r_demo.h"
 
 #define LOWERSPEED   (FRACUNIT*6)
 #define RAISESPEED   (FRACUNIT*6)
@@ -511,7 +511,7 @@ void A_Punch(player_t *player, pspdef_t *psp)
 
   player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y,
                                       linetarget->x, linetarget->y);
-  SmoothPlaying_Reset(player); // e6y
+  R_SmoothPlaying_Reset(player); // e6y
 }
 
 //
@@ -560,7 +560,7 @@ void A_Saw(player_t *player, pspdef_t *psp)
   }
 
   player->mo->flags |= MF_JUSTATTACKED;
-  SmoothPlaying_Reset(player); // e6y
+  R_SmoothPlaying_Reset(player); // e6y
 }
 
 //

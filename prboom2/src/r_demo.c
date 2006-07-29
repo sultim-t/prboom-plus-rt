@@ -31,7 +31,7 @@
  */
 
 #include "doomstat.h"
-#include "p_demo.h"
+#include "r_demo.h"
 
 int demo_smoothturns = false;
 int demo_smoothturnsfactor = 6;
@@ -41,7 +41,7 @@ static int_64_t smooth_playing_sum;
 static int smooth_playing_index;
 static angle_t smooth_playing_angle;
 
-void SmoothPlaying_Reset(player_t *player)
+void R_SmoothPlaying_Reset(player_t *player)
 {
   if (demo_smoothturns && demoplayback && players)
   {
@@ -58,7 +58,7 @@ void SmoothPlaying_Reset(player_t *player)
   }
 }
 
-void SmoothPlaying_Add(int delta)
+void R_SmoothPlaying_Add(int delta)
 {
   if (demo_smoothturns && demoplayback)
   {
@@ -70,7 +70,7 @@ void SmoothPlaying_Add(int delta)
   }
 }
 
-angle_t SmoothPlaying_Get(angle_t defangle)
+angle_t R_SmoothPlaying_Get(angle_t defangle)
 {
   if (demo_smoothturns && demoplayback)
     return smooth_playing_angle;
@@ -78,8 +78,8 @@ angle_t SmoothPlaying_Get(angle_t defangle)
     return defangle;
 }
 
-void OnAfterTeleporting(player_t *player)
+void R_ResetAfterTeleport(player_t *player)
 {
   //R_ResetViewInterpolation();
-  SmoothPlaying_Reset(player);
+  R_SmoothPlaying_Reset(player);
 }

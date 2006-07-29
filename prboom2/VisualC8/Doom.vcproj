@@ -3181,11 +3181,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\p_demo.c"
+				RelativePath="..\src\r_demo.c"
 				>
 			</File>
 			<File
-				RelativePath="..\src\p_demo.h"
+				RelativePath="..\src\r_demo.h"
 				>
 			</File>
 			<File

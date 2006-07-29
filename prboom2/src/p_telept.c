@@ -39,7 +39,7 @@
 #include "s_sound.h"
 #include "sounds.h"
 #include "p_user.h"
-#include "p_demo.h"
+#include "r_demo.h"
 
 static mobj_t* P_TeleportDestination(line_t* line)
 {
@@ -118,7 +118,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
 
      // e6y
      if (player && player->mo == thing)
-      OnAfterTeleporting(player);
+      R_ResetAfterTeleport(player);
 
           return 1;
         }
@@ -197,7 +197,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
           
           // e6y
           if (player && player->mo == thing)
-            OnAfterTeleporting(player);
+            R_ResetAfterTeleport(player);
 
           return 1;
         }
@@ -299,7 +299,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
 
         // e6y
         if (player && player->mo == thing)
-          OnAfterTeleporting(player);
+          R_ResetAfterTeleport(player);
 
         // Adjust z position to be same height above ground as before.
         // Ground level at the exit is measured as the higher of the
@@ -335,7 +335,7 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
 
         // e6y
         if (player && player->mo == thing)
-          OnAfterTeleporting(player);
+          R_ResetAfterTeleport(player);
 
         return 1;
       }

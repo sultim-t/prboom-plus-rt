@@ -37,7 +37,7 @@
 #include "p_map.h"
 #include "p_spec.h"
 #include "p_user.h"
-#include "p_demo.h"
+#include "r_demo.h"
 
 // Index of the special effects (INVUL inverse) map.
 
@@ -185,7 +185,7 @@ void P_MovePlayer (player_t* player)
 
   // e6y
   if (demo_smoothturns && player == &players[displayplayer])
-    SmoothPlaying_Add(cmd->angleturn << 16);
+    R_SmoothPlaying_Add(cmd->angleturn << 16);
 
   // killough 10/98:
   //
@@ -280,7 +280,7 @@ void P_DeathThink (player_t* player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
-  SmoothPlaying_Reset(player); // e6y
+  R_SmoothPlaying_Reset(player); // e6y
   }
 
 

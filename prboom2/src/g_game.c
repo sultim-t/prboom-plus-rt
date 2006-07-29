@@ -80,7 +80,7 @@
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
-#include "p_demo.h"
+#include "r_demo.h"
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -668,7 +668,7 @@ boolean G_Responder (event_t* ev)
     ST_Start();    // killough 3/7/98: switch status bar views too
     HU_Start();
     S_UpdateSounds(players[displayplayer].mo);
-    SmoothPlaying_Reset(NULL); // e6y
+    R_SmoothPlaying_Reset(NULL); // e6y
   }
       return true;
     }
@@ -1499,7 +1499,7 @@ void G_LoadGame(int slot, boolean command)
     demoplayback = false;
   }
   command_loadgame = command;
-  SmoothPlaying_Reset(NULL); // e6y
+  R_SmoothPlaying_Reset(NULL); // e6y
 }
 
 // killough 5/15/98:
@@ -1657,7 +1657,7 @@ void G_DoLoadGame(void)
   P_UnArchiveSpecials ();
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
-  SmoothPlaying_Reset(NULL); // e6y
+  R_SmoothPlaying_Reset(NULL); // e6y
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
@@ -2760,7 +2760,7 @@ void G_DoPlayDemo(void)
   usergame = false;
 
   demoplayback = true;
-  SmoothPlaying_Reset(NULL); // e6y
+  R_SmoothPlaying_Reset(NULL); // e6y
 }
 
 //

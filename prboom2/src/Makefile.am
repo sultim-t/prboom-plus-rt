@@ -19,8 +19,8 @@ prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
- am_map.h       g_game.h           p_demo.c         p_mobj.c    r_segs.c    \
- hu_lib.c       lprintf.c          p_demo.h         p_mobj.h    r_segs.h    \
+ am_map.h       g_game.h           p_mobj.c         r_demo.c    r_segs.c    \
+ hu_lib.c       lprintf.c          p_mobj.h         r_demo.h    r_segs.h    \
  hu_lib.h       lprintf.h          p_plats.c        r_sky.c	\
  d_deh.c        hu_stuff.c         m_argv.c         p_pspr.c    r_sky.h	    \
  d_deh.h        hu_stuff.h         m_argv.h         p_pspr.h    r_state.h   \

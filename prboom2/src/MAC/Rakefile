@@ -73,7 +73,6 @@ m_misc.c
 m_random.c
 mmus2mid.c
 p_ceilng.c
-p_demo.c
 p_doors.c
 p_enemy.c
 p_floor.c
@@ -95,6 +94,7 @@ p_tick.c
 p_user.c
 r_bsp.c
 r_data.c
+r_demo.c
 r_draw.c
 r_main.c
 r_plane.c
