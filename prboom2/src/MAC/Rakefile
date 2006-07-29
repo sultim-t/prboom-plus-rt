@@ -130,8 +130,16 @@ MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
 )
 
+serverSources = %w(
+POSIX/i_system.c
+MAC/SDLMain.m
+i_udp_sdl.c
+d_server.c
+)
+
 buildBinary(:binary, BINDIR, 'PrBoom', sources)
 buildBinary(:binary, BINDIR, 'Launcher', launcherSources)
+buildBinary(:binary, BINDIR, 'Server', serverSources)
 task(:bundle => :binary)
 
 ############
