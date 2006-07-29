@@ -34,6 +34,7 @@
 #include "doomstat.h"
 #include "r_main.h"
 #include "r_bsp.h"
+#include "r_segs.h"
 #include "r_plane.h"
 #include "r_things.h"
 #include "r_draw.h"
@@ -116,7 +117,6 @@ static fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 
 void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
-  column_t *col;
   int      texnum;
   sector_t tempsec;      // killough 4/13/98
 
@@ -179,6 +179,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   for (dc_x = x1 ; dc_x <= x2 ; dc_x++, spryscale += rw_scalestep)
     if (maskedtexturecol[dc_x] != INT_MAX) // dropoff overflow
       {
+	const column_t *col; /* cph 2006/07/29 - localise to this block and make const */
+
         dc_colormap = R_ColourMap(rw_lightlevel,spryscale);
 
         // killough 3/2/98:
@@ -211,7 +213,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         // when forming multipatched textures (see r_data.c).
 
         // draw the texture
-        col = (column_t *)((byte *)
+        col = (const column_t *)((const byte *)
                            R_GetColumn(texnum,maskedtexturecol[dc_x]) - 3);
         R_DrawMaskedColumn (col);
         maskedtexturecol[dc_x] = INT_MAX; // dropoff overflow
