@@ -48,6 +48,8 @@ extern sector_t *backsector;
 extern drawseg_t *drawsegs;
 extern unsigned maxdrawsegs;
 
+extern byte solidcol[MAX_SCREENWIDTH];
+
 extern drawseg_t *ds_p;
 
 void R_ClearClipSegs(void);

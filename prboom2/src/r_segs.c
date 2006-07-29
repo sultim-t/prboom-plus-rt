@@ -233,7 +233,6 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 // CALLED: CORE LOOPING ROUTINE.
 //
 
-extern byte solidcol[MAX_SCREENWIDTH];
 #define HEIGHTBITS 12
 #define HEIGHTUNIT (1<<HEIGHTBITS)
 static int didsolidcol; /* True if at least one column was marked solid */
