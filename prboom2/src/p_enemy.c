@@ -483,7 +483,7 @@ static boolean P_SmartMove(mobj_t *actor)
 // an OpenDoor call is made to start it opening.
 //
 
-boolean P_TryWalk(mobj_t *actor)
+static boolean P_TryWalk(mobj_t *actor)
 {
   if (!P_SmartMove(actor))
     return false;
@@ -1077,13 +1077,13 @@ void A_Look(mobj_t *actor)
 // Allows monsters to continue movement while attacking
 //
 
-void A_KeepChasing(mobj_t *actor)
+static void A_KeepChasing(mobj_t *actor)
 {
   if (actor->movecount)
     {
       actor->movecount--;
       if (actor->strafecount)
-  actor->strafecount--;
+        actor->strafecount--;
       P_SmartMove(actor);
     }
 }
@@ -1549,7 +1549,7 @@ mobj_t* vileobj;
 fixed_t viletryx;
 fixed_t viletryy;
 
-boolean PIT_VileCheck(mobj_t *thing)
+static boolean PIT_VileCheck(mobj_t *thing)
 {
   int     maxdist;
   boolean check;
@@ -1907,7 +1907,7 @@ void A_SkullAttack(mobj_t *actor)
 // Spawn a lost soul and launch it at the target
 //
 
-void A_PainShootSkull(mobj_t *actor, angle_t angle)
+static void A_PainShootSkull(mobj_t *actor, angle_t angle)
 {
   fixed_t       x,y,z;
   mobj_t        *newmobj;
