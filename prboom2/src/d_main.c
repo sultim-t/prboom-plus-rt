@@ -1584,20 +1584,6 @@ static void D_DoomMainSetup(void)
     if ((auto_shot_count = auto_shot_time = atoi(myargv[p+1])))
       auto_shot_fname = myargv[p+2];
 
-  // check for a driver that wants intermission stats
-  if ((p = M_CheckParm ("-statcopy")) && p<myargc-1)
-    {
-      // for statistics driver
-      extern  void* statcopy;
-
-      // killough 5/2/98: this takes a memory
-      // address as an integer on the command line!
-
-      statcopy = (void*) atoi(myargv[p+1]);
-      //jff 9/3/98 use logical output routine
-      lprintf (LO_CONFIRM,"External statistics registered.\n");
-    }
-
   // start the apropriate game based on parms
 
   // killough 12/98:

@@ -252,8 +252,6 @@ int defaultskill;               //note 1-based
 int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
 
-void   *statcopy;       // for statistics driver
-
 static void G_DoSaveGame (boolean menu);
 static const byte* G_ReadDemoHeader(const byte* demo_p);
 
@@ -1371,9 +1369,6 @@ void G_DoCompleted (void)
 
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
-
-  if (statcopy)
-    memcpy (statcopy, &wminfo, sizeof(wminfo));
 
   WI_Start (&wminfo);
 }
