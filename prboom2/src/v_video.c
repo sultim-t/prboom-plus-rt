@@ -259,14 +259,14 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
     for (col=0 ; (unsigned int)col<=w ; desttop++, col++) {
-      column = (column_t *)((byte *)patch +
+      column = (const column_t *)((const byte *)patch +
           LONG(patch->columnofs[(flags & VPT_FLIP) ? w-col : col]));
 
   // step through the posts in a column
       while (column->topdelta != 0xff ) {
   // killough 2/21/98: Unrolled and performance-tuned
 
-  register const byte *source = (byte *)column + 3;
+  register const byte *source = (const byte *)column + 3;
   register byte *dest = desttop + column->topdelta*SCREENWIDTH;
   register int count = column->length;
 
@@ -291,7 +291,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
         *dest = *source++;
         dest += SCREENWIDTH;
       } while (--count);
-    column = (column_t *)(source+1); //killough 2/21/98 even faster
+    column = (const column_t *)(source+1); //killough 2/21/98 even faster
   } else {
     // CPhipps - merged translation code here
     if ((count-=4)>=0)
@@ -318,7 +318,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
         *dest = trans[*source++];
         dest += SCREENWIDTH;
       } while (--count);
-    column = (column_t *)(source+1);
+    column = (const column_t *)(source+1);
   }
       }
     }
@@ -348,11 +348,11 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
       const column_t *column;
       {
   unsigned int d = patch->columnofs[(flags & VPT_FLIP) ? ((w - col)>>16): (col>>16)];
-  column = (column_t*)((byte*)patch + LONG(d));
+  column = (const column_t*)((const byte*)patch + LONG(d));
       }
 
       while ( column->topdelta != 0xff ) {
-  register const byte *source = ( byte* ) column + 3;
+  register const byte *source = (const byte* ) column + 3;
   register byte       *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
   register int         count  = ( column->length * DY ) >> 16;
   register int         srccol = 0;
@@ -369,7 +369,7 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
       dest  +=  SCREENWIDTH;
       srccol+=  DYI;
     }
-  column = ( column_t* ) (( byte* ) column + ( column->length ) + 4 );
+  column = (const column_t* ) ((const byte* ) column + ( column->length ) + 4 );
       }
     }
   }
