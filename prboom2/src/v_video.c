@@ -335,12 +335,9 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     int   DXI = (320<<16)          / SCREENWIDTH;
     int   DY  = (SCREENHEIGHT<<16) / 200;
     register int DYI = (200<<16)   / SCREENHEIGHT;
-    int   DY2, DYI2;
 
     stretchx = ( x * DX ) >> 16;
     stretchy = ( y * DY ) >> 16;
-    DY2  = DY / 2;
-    DYI2 = DYI* 2;
 
     desttop = screens[scrn] + stretchy * SCREENWIDTH +  stretchx;
 
@@ -352,10 +349,17 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
       }
 
       while ( column->topdelta != 0xff ) {
+  int toprow = ((column->topdelta * DY) >> 16);
   register const byte *source = (const byte* ) column + 3;
-  register byte       *dest = desttop + (( column->topdelta * DY ) >> 16 ) * SCREENWIDTH;
+  register byte       *dest = desttop + toprow * SCREENWIDTH;
   register int         count  = ( column->length * DY ) >> 16;
   register int         srccol = 0;
+
+#ifdef RANGECHECK
+  if ( toprow+count >= SCREENHEIGHT )
+    I_Error("V_DrawMemPatch: column exceeds screenheight (toprow %i + count %i = %i)\n"
+      "Bad V_DrawMemPatch (flags=%u)", toprow, count, toprow+count, flags);
+#endif
 
   if (flags & VPT_TRANS)
     while (count--) {
