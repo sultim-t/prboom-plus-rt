@@ -26,6 +26,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
+ * DESCRIPTION:
+ *  mmus2mid.c supports conversion of MUS format music in memory
+ *  to MIDI format 1 music in memory.
+ */
 
 #if !defined( MMUS2MID_H )
 #define MMUS2MID_H

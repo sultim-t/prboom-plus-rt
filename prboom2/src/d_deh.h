@@ -26,6 +26,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
+ * DESCRIPTION:
+ *  Dehacked file support
+ *  New for the TeamTNT "Boom" engine
+ * 
+ *  Author: Ty Halderman, TeamTNT
+ *
+ *  Description: This file translates the #defined string constants
+ *  to named variables to externalize them for deh/bex changes.
+ *  Should be able to compile with D_FRENCH (for example) and still
+ *  work (untested).
+ *
+ */
 
 #ifndef __D_DEH__
 #define __D_DEH__
