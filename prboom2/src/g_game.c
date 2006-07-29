@@ -245,8 +245,7 @@ static buttoncode_t special_event; // Event triggered by local player, to send
 static byte  savegameslot;         // Slot to load if gameaction == ga_loadgame
 char         savedescription[SAVEDESCLEN];  // Description to save in savegame if gameaction == ga_savegame
 
-//jff 3/24/98 declare startskill external, define defaultskill here
-extern skill_t startskill;      //note 0-based
+//jff 3/24/98 define defaultskill here
 int defaultskill;               //note 1-based
 
 // killough 2/8/98: make corpse queue variable in size
@@ -964,7 +963,7 @@ void G_Ticker (void)
 // Can when a player completes a level.
 //
 
-void G_PlayerFinishLevel(int player)
+static void G_PlayerFinishLevel(int player)
 {
   player_t *p = &players[player];
   memset(p->powers, 0, sizeof p->powers);
@@ -1055,7 +1054,7 @@ void G_PlayerReborn (int player)
 // because something is occupying it
 //
 
-boolean G_CheckSpot(int playernum, mapthing_t *mthing)
+static boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 {
   fixed_t     x,y;
   subsector_t *ss;
@@ -1093,7 +1092,6 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 
   if (bodyquesize > 0)
     {
-      static mobj_t **bodyque;
       static int queuesize;
       if (queuesize < bodyquesize)
 	{
