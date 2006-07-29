@@ -305,7 +305,7 @@ void gld_InitExtensions(const char *_extensions)
 	if (gld_ColorTableEXT == NULL)
 	  gl_paletted_texture = false;
 	else
-          lprintf(LO_INFO,"using GL_EXT_paletted_texture\n",glGetString(GL_VENDOR));
+          lprintf(LO_INFO,"using GL_EXT_paletted_texture\n");
       }
     }
     else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
@@ -315,7 +315,7 @@ void gld_InitExtensions(const char *_extensions)
 	if (gld_ColorTableEXT == NULL)
 	  gl_shared_texture_palette = false;
 	else
-          lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n",glGetString(GL_VENDOR));
+          lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n");
       }
 
     extension = p;
