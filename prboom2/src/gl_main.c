@@ -271,7 +271,7 @@ static void gld_StaticLightAlpha(float light, float alpha)
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 
-void gld_InitExtensions(const char *_extensions)
+static void gld_InitExtensions(const char *_extensions)
 {
   char *extensions;
   char *extension;
@@ -481,7 +481,7 @@ void gld_Init(int width, int height)
   }
 }
 
-void gld_InitCommandLine()
+void gld_InitCommandLine(void)
 {
 }
 
@@ -533,10 +533,6 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
 {
-  extern int gld_GetTexDimension(int value);
-  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted);
-  extern void gld_SetTexturePalette(GLenum target);
-
   GLTexture *gltexture;
   unsigned char *buffer;
   float fU1,fU2,fV1,fV2;
@@ -843,7 +839,7 @@ void gld_ReadScreen (byte* scr)
   glReadPixels(0,0,SCREENWIDTH,SCREENHEIGHT,GL_RGB,GL_UNSIGNED_BYTE,scr);
 }
 
-GLvoid gld_Set2DMode()
+GLvoid gld_Set2DMode(void)
 {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -864,7 +860,7 @@ void gld_InitDrawScene(void)
 {
 }
 
-void gld_Finish()
+void gld_Finish(void)
 {
   gld_Set2DMode();
   glFinish();
@@ -1831,7 +1827,7 @@ static float pitch    = 0.0f;
 
 #define __glPi 3.14159265358979323846
 
-void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
+static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 {
 	GLdouble left, right, bottom, top;
 	GLdouble m[16];
@@ -2685,8 +2681,6 @@ void gld_AddSprite(vissprite_t *vspr)
  *               *
  *****************/
 
-extern int rendered_visplanes, rendered_segs, rendered_vissprites;
-
 void gld_DrawScene(player_t *player)
 {
   int i,j,k,count;
@@ -2794,7 +2788,6 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
-  void gld_Precache(void);
   if (precache)
     gld_Precache();
   gld_PreprocessSectors();

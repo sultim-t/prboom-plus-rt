@@ -279,7 +279,6 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
   const byte *p_bColumn;
   int pos;
   const unsigned char *playpal;
-  extern const unsigned char *colrngs[];
   const unsigned char *outr;
 
   if (!gltexture)
@@ -901,9 +900,6 @@ static void gld_CleanPatchTextures(void)
 
 void gld_Precache(void)
 {
-  extern int firstflat, lastflat, numflats;
-  extern int firstspritelump, lastspritelump, numspritelumps;
-  extern int numtextures;
   register int i;
   register byte *hitlist;
 
