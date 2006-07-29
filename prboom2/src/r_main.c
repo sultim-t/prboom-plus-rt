@@ -60,7 +60,7 @@
 
 int viewangleoffset;
 int validcount = 1;         // increment every time a check is made
-lighttable_t *fixedcolormap;
+const lighttable_t *fixedcolormap;
 int      centerx, centery;
 fixed_t  centerxfrac, centeryfrac;
 fixed_t  projection;
@@ -95,10 +95,10 @@ angle_t xtoviewangle[MAX_SCREENWIDTH+1];   // killough 2/8/98
 // killough 4/4/98: support dynamic number of them as well
 
 int numcolormaps;
-lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
-lighttable_t *(*zlight)[MAXLIGHTZ];
-lighttable_t *fullcolormap;
-lighttable_t **colormaps;
+const lighttable_t *(*c_zlight)[LIGHTLEVELS][MAXLIGHTZ];
+const lighttable_t *(*zlight)[MAXLIGHTZ];
+const lighttable_t *fullcolormap;
+const lighttable_t **colormaps;
 
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
@@ -269,7 +269,7 @@ static void R_InitTextureMapping (void)
 
 #define DISTMAP 2
 
-void R_InitLightTables (void)
+static void R_InitLightTables (void)
 {
   int i;
 
@@ -432,7 +432,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 // R_SetupFrame
 //
 
-void R_SetupFrame (player_t *player)
+static void R_SetupFrame (player_t *player)
 {
   int cm;
 
