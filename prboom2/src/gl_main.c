@@ -246,6 +246,19 @@ static const float lighttable[5][256] =
 
 #define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][max(min((lightlevel),255),0)])
 
+/*
+// experimental new lighting code
+static float gld_CalcLightLevel(int lightlevel) {
+  if (lightlevel < 192) {
+    lightlevel = lightlevel - ((192 - lightlevel) * 95 / 100);
+  }
+  if (lightlevel < 20)
+    lightlevel = 20;
+  return lightlevel / 255.0;
+//  return lighttable[usegamma][max(min((lightlevel),255),0)];
+}
+*/
+
 static void gld_StaticLightAlpha(float light, float alpha)
 {
   player_t *player;
