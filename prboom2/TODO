@@ -239,3 +239,472 @@ List of revisions from PrBoom 2.3:
 -815 (renderer)
 -816 (renderer)
 +817
++818 (was already merged)
+ 819 (console)
+ 820
+ 821
+-822 (renderer)
+ 823
+-824 (renderer)
+-825 (renderer)
+-826 (renderer)
+-827 (renderer)
++828 (was already merged)
+-829 (renderer)
+ 830
++831 (was already merged)
+-832 (renderer)
+-833 (renderer)
+-834 (renderer)
+ 835
+ 836
+ 837
+-838 (renderer)
+ 839
+ 840
+ 841
+ 842
+ 843
+ 844
+ 845
+ 846
+ 847
+ 848
+ 849
+ 850
+ 851
+ 852
+ 853
+ 854
+ 855
++856 (2.2)
+ 857
+ 858
++859 (was already merged)
+ 860
+ 861
+ 862
+ 863
+ 864 (menu)
+ 865
+ 866
+ 867
+ 868
+ 869
+ 870
+-871 (renderer)
+-872 (renderer)
+ 873 (console)
+-874 (renderer)
+ 875 (menu)
+-876 (renderer)
+-877 (menu graphics)
+ 878 (console)
+ 879 (menu)
+ 880 (console)
+ 881 (binding)
+-882 (rendering)
+ 883 (menu)
+ 884
++885
+ 886 (console)
+ 887 (menu)
+ 888 (console)
+ 889 (console)
+ 890 (console)
+ 891 (menu)
+ 892 (console)
+ 893
+ 894
+-895 (renderer)
+-896 (VIDD)
+ 897
+ 898 (console)
+ 899 (menu)
+ 900 (g_demo)
+-901 (IWAD switching)
+-902 (VIDD)
+ 903 (console)
+ 904 (console)
+ 905 (menu)
+ 906 (menu)
+-907 (IWAD switching)
+ 908 (IWAD switching, menu)
+-909 (VIDD)
+ 910
+-911 (IWAD switching)
+ 912 (net from smmu)
+ 913 (fraggle script)
+-914 (renderer)
+-915 (renderer)
+ 916 (fraggle script)
+ 917 (fraggle script)
+-918 (font graphics)
+-919 (font handling - better get it from Eternity)
+-920 (font handling)
+ 921
+ 922 (console)
+-923 (font handling)
+ 924
+ 925
+ 926 (smmu hud)
+ 927 (fraggle script)
+ 928 (fraggle script)
+ 929 (menu)
+ 930 (console)
+-931 (renderer)
+ 932 (fraggle script)
+ 933 (fraggle script)
+-934 (some constants)
+-935 (P_FadeLight)
+ 936 (console)
+ 937 (HUD)
+ 938
+-939 (Removed message from player_t, use doom_printf or player_printf instead)
+-940 (chasecam)
+-941 (blockmap)
+-942 (several changes)
+-943 (FPS drawer)
+ 944 (smmu)
+-945 (font)
+ 946
+-947 (IWAD switching)
+ 948 (console)
+ 949 (gravity variable)
+ 950 (hubs)
+ 951
+ 952 (hubs)
+ 953 (intermission camera)
+ 954
+ 955
+ 956
+-957 (renderer)
+ 958 (smmu)
+ 959 (smmu)
+ 960
+-961 (font)
+ 962
+-963 (bodyqueue)
+ 964 (smmu - sound)
+ 965
+-966 (chasecam)
+ 967 (smmu)
+ 968 (smmu)
+ 969
+ 970
+ 971
+ 972
+ 973
+ 974
+ 975 (smmu)
+ 976 (smmu)
+ 977 (smmu)
+ 978
+ 979
+ 980
+ 981
+ 982
+ 983
+ 984
+ 985
+ 986
+ 987
+ 988
+ 989
+ 990
+ 991
+ 992
+ 993
+ 994
+ 995
+ 996
+ 997
+ 998
+ 999
+ 1000
+ 1001
+ 1002
+ 1003
+ 1004 (console, net)
+-1005 (renderer)
+ 1006
+ 1007
+-1008 (renderer)
+ 1009
++1010 (2.2)
++1011 (sprite clipping fix)
++1012 (2.2)
+ 1013
+ 1014
+ 1015
+ 1016
+ 1017
+ 1018
+ 1019
+ 1020
+ 1021
+ 1022
+ 1023
+ 1024
++1025 (2.2)
+ 1026
+ 1027
+ 1028
+ 1029
+ 1030
++1031 (2.2)
++1032 (2.2)
++1033 (2.2)
++1034 (2.2)
++1035 (2.2)
++1036 (2.2)
++1037 (2.2)
+ 1038
+ 1039
+ 1040
+ 1041
+ 1042
+ 1043
+ 1044
+ 1045
+ 1046
+ 1047
+ 1048
+ 1049
+-1050 (network explanation)
+ 1051 (config)
+ 1052 (menu)
+ 1053
+ 1054
+ 1055
+ 1056
+ 1057
+ 1058
+ 1059
+ 1060
+ 1061
+ 1062
+ 1063
+-1064 (renderer)
+ 1065
+ 1066
++1067 (2.2)
+ 1068
+ 1069
+ 1070
+ 1071
+ 1072
+ 1073
+ 1074
+ 1075
+ 1076 (hub)
+-1077 (font)
+-1078 (IWAD switching)
+-1079 (renderer)
+ 1080
+ 1081
+ 1082
++1083 (2.2)
+ 1084
+-1085 (renderer)
+ 1086
+-1087 (font)
+ 1088
+ 1089
+-1090 (renderer)
+-1091 (renderer)
+-1092 (renderer)
+-1093 (renderer)
+ 1094
+ 1095 (menu, iwad switching)
+ 1096 (smmu savegames)
+-1097 (renderer)
+ 1098
+ 1099
+ 1100 (hud)
+ 1101 (binding)
+ 1102 (smmu savegame)
+ 1103
+ 1104
+ 1105
+ 1106
+ 1107
+ 1108 (binding)
+ 1109
+-1110 (renderer)
+ 1111
+ 1112
+ 1113 (hud)
+ 1114 (console)
+-1115 (renderer)
+-1116 (renderer)
+-1117 (renderer)
+-1118 (renderer)
+ 1119 (VIDD)
+ 1120
+ 1121
+ 1122
+ 1123
+ 1124
+ 1125
+ 1126
+ 1127
+-1128 (renderer)
+-1129 (renderer)
+ 1130
+ 1131
+ 1132
+ 1133
++1134 (2.2)
+ 1135
+ 1136
+ 1137
+-1138 (renderer)
+ 1139
+ 1140
+ 1141
+-1142 (init sound)
+ 1143
+ 1144
+-1145 (blazing door sound)
++1146 (2.2)
+ 1147
++1148 (z_zone)
+ 1149
++1150 (z_zone)
++1151 (2.2)
+ 1152
++1153 (2.2)
+ 1154
++1155 (z_zone)
+ 1156
+-1157 (renderer)
++1158 (z_zone)
++1159 (was already merged)
+ 1160
++1161 (was already merged)
+ 1162
+ 1163 (console)
++1164 (was already merged)
+ 1165
+-1166 (renderer)
+ 1167
+ 1168
+-1169 (sounds)
+-1170 (default settings)
+ 1171
+ 1172
+-1173 (networking on windows)
+-1174 (G_ChangedPlayerColor)
+-1175 (psnprintf)
+-1176 (buffers)
+-1177 (renderer)
+ 1178 (console)
+-1179 (font)
+ 1180 (console)
+ 1181
+ 1182 (net)
+ 1183
+ 1184
+ 1185 (net)
+ 1186
++1187 (was already merged)
+ 1188
+ 1189 (net)
+-1190 (sound)
++1191 (z_zone)
+ 1192
+ 1193 (smmu fixes from eternity)
+ 1194 (smmu fixes from eternity)
++1195 (was already merged)
++1196
++1197
+ 1198
+ 1199
+ 1200
++1201 (2.2)
+ 1202
+-1203 (psnprintf)
+-1204 (psnprintf)
+ 1205
+!1206 (savegame)
++1207 (2.2)
+ 1208
++1209 (was already merged)
+ 1210
+ 1211
+ 1212
+ 1213
+ 1214
+ 1215
+ 1216
+ 1217
+ 1218
+ 1219
+ 1220
+-1221 (IWAD switching)
+-1222 (renderer)
+-1223 (renderer)
++1224 (was already merged)
+ 1225
+ 1226
+ 1227
+-1228 (psnprintf)
+ 1229
+ 1230
+ 1231
++1232 (was already merged)
+ 1233
+ 1234
+ 1235
+ 1236
+ 1237
+ 1238
+ 1239
+ 1240
+ 1241
+ 1242
+ 1243
+ 1244
++1245 (was already merged)
+-1246 (music volume 0)
++1247 (was already merged)
+ 1248
+-1249 (renderer)
+ 1250
+ 1251
+ 1252
+ 1253
+ 1254
+ 1255
+ 1256
++1257 (was already merged)
+ 1258
+-1259 (defaults)
+ 1260
++1261 (was already merged)
+ 1262
+-1263 (sounds)
++1264 (was already merged)
+ 1265
++1266 (2.2)
++1267 (was already merged)
+ 1268
+ 1269
++1270 (2.2)
+ 1271
++1272 (was already merged)
++1273 (2.2)
+-1274 (key repeat)
+ 1275 (console)
+ 1276
+ 1277
+ 1278
+ 1279
+ 1280
+ 1281
+ 1282
+ 1283
+-1284 (renderer)
+-1309 ()
+DONE!
