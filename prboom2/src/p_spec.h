@@ -857,11 +857,11 @@ boolean PUREFUNC P_SectorActive
 ( special_e t,
   const sector_t* s );
 
-boolean P_IsSecret
-( sector_t *sec );
+boolean PUREFUNC P_IsSecret
+( const sector_t *sec );
 
-boolean P_WasSecret
-( sector_t *sec );
+boolean PUREFUNC P_WasSecret
+( const sector_t *sec );
 
 void P_ChangeSwitchTexture
 ( line_t* line,
