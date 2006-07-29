@@ -36,6 +36,7 @@
 #include "doomdef.h"
 #include "doomtype.h"
 #include "doomstat.h"
+#include "d_deh.h"
 #include "sounds.h"
 #include "info.h"
 #include "m_cheat.h"
@@ -53,7 +54,7 @@
 #ifndef HAVE_STRLWR
 #include <ctype.h>
 
-char* strlwr(char* str)
+static char* strlwr(char* str)
 {
   char* p;
   for (p=str; *p; p++) *p = tolower(*p);
@@ -71,7 +72,7 @@ typedef struct {
 
 // killough 10/98: emulate IO whether input really comes from a file or not
 
-char *dehfgets(char *buf, size_t n, DEHFILE *fp)
+static char *dehfgets(char *buf, size_t n, DEHFILE *fp)
 {
   if (!fp->lump)                                     // If this is a real file,
     return (fgets)(buf, n, (FILE *) fp->inp);        // return regular fgets
@@ -90,12 +91,12 @@ char *dehfgets(char *buf, size_t n, DEHFILE *fp)
   return buf;                                        // Return buffer pointer
 }
 
-int dehfeof(DEHFILE *fp)
+static int dehfeof(DEHFILE *fp)
 {
   return !fp->lump ? (feof)((FILE *) fp->inp) : !*fp->inp || fp->size<=0;
 }
 
-int dehfgetc(DEHFILE *fp)
+static int dehfgetc(DEHFILE *fp)
 {
   return !fp->lump ? (fgetc)((FILE *) fp->inp) : fp->size > 0 ?
     fp->size--, *fp->inp++ : EOF;
@@ -1253,31 +1254,6 @@ static const char *deh_misc[] = // CPhipps - static const*
 // Usage: Start block, then each line is:
 // FRAME nnn = PointerMnemonic
 
-// External references to action functions scattered about the code
-
-extern void A_Light0();
-extern void A_WeaponReady();
-extern void A_Lower();
-extern void A_Raise();
-extern void A_Punch();
-extern void A_ReFire();
-extern void A_FirePistol();
-extern void A_Light1();
-extern void A_FireShotgun();
-extern void A_Light2();
-extern void A_FireShotgun2();
-extern void A_CheckReload();
-extern void A_OpenShotgun2();
-extern void A_LoadShotgun2();
-extern void A_CloseShotgun2();
-extern void A_FireCGun();
-extern void A_GunFlash();
-extern void A_FireMissile();
-extern void A_Saw();
-extern void A_FirePlasma();
-extern void A_BFGsound();
-extern void A_FireBFG();
-extern void A_BFGSpray();
 extern void A_Explode();
 extern void A_Pain();
 extern void A_PlayerScream();
@@ -1682,7 +1658,7 @@ static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
 // To be on the safe, compatible side, we manually convert DEH bitflags
 // to prboom types - POPE
 //---------------------------------------------------------------------------
-uint_64_t getConvertedDEHBits(uint_64_t bits) {
+static uint_64_t getConvertedDEHBits(uint_64_t bits) {
   static const uint_64_t bitMap[32] = {
     /* cf linuxdoom-1.10 p_mobj.h */
     MF_SPECIAL, // 0 Can be picked up – When touched the thing can be picked up.
@@ -1731,7 +1707,7 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
 //---------------------------------------------------------------------------
 // See usage below for an explanation of this function's existence - POPE
 //---------------------------------------------------------------------------
-void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
+static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
   mobjinfo_t *mi;
   if (mobjInfoIndex >= NUMMOBJTYPES || mobjInfoIndex < 0) return;
   mi = &mobjinfo[mobjInfoIndex];
@@ -3098,7 +3074,7 @@ char *ptr_lstrip(char *p)  // point past leading whitespace
 // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
 // No more desync on HACX demos.
 // FIXME!!! (lame)
-boolean StrToInt(char *s, long *l)
+static boolean StrToInt(char *s, long *l)
 {      
   return (
     (sscanf(s, " 0x%lx", l) == 1) ||

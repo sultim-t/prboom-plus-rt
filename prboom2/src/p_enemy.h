@@ -47,4 +47,68 @@ extern struct brain_s {         /* killough 3/26/98: global state of boss brain 
   int easy, targeton;
 } brain;
 
+// ********************************************************************
+// Function addresses or Code Pointers
+// ********************************************************************
+// These function addresses are the Code Pointers that have been
+// modified for years by Dehacked enthusiasts.  The new BEX format
+// allows more extensive changes (see d_deh.c)
+
+// Doesn't work with g++, needs actionf_p1
+void A_Explode();
+void A_Pain();
+void A_PlayerScream();
+void A_Fall();
+void A_XScream();
+void A_Look();
+void A_Chase();
+void A_FaceTarget();
+void A_PosAttack();
+void A_Scream();
+void A_SPosAttack();
+void A_VileChase();
+void A_VileStart();
+void A_VileTarget();
+void A_VileAttack();
+void A_StartFire();
+void A_Fire();
+void A_FireCrackle();
+void A_Tracer();
+void A_SkelWhoosh();
+void A_SkelFist();
+void A_SkelMissile();
+void A_FatRaise();
+void A_FatAttack1();
+void A_FatAttack2();
+void A_FatAttack3();
+void A_BossDeath();
+void A_CPosAttack();
+void A_CPosRefire();
+void A_TroopAttack();
+void A_SargAttack();
+void A_HeadAttack();
+void A_BruisAttack();
+void A_SkullAttack();
+void A_Metal();
+void A_SpidRefire();
+void A_BabyMetal();
+void A_BspiAttack();
+void A_Hoof();
+void A_CyberAttack();
+void A_PainAttack();
+void A_PainDie();
+void A_KeenDie();
+void A_BrainPain();
+void A_BrainScream();
+void A_BrainDie();
+void A_BrainAwake();
+void A_BrainSpit();
+void A_SpawnSound();
+void A_SpawnFly();
+void A_BrainExplode();
+void A_Die();
+void A_Stop();
+void A_Detonate();        /* killough 8/9/98: detonate a bomb or other device */
+void A_Mushroom();        /* killough 10/98: mushroom effect */
+
 #endif // __P_ENEMY__

@@ -90,4 +90,28 @@ void P_SetupPsprites(struct player_s *curplayer);
 void P_MovePsprites(struct player_s *curplayer);
 void P_DropWeapon(struct player_s *player);
 
+void A_Light0();
+void A_WeaponReady();
+void A_Lower();
+void A_Raise();
+void A_Punch();
+void A_ReFire();
+void A_FirePistol();
+void A_Light1();
+void A_FireShotgun();
+void A_Light2();
+void A_FireShotgun2();
+void A_CheckReload();
+void A_OpenShotgun2();
+void A_LoadShotgun2();
+void A_CloseShotgun2();
+void A_FireCGun();
+void A_GunFlash();
+void A_FireMissile();
+void A_Saw();
+void A_FirePlasma();
+void A_BFGsound();
+void A_FireBFG();
+void A_BFGSpray();
+
 #endif
