@@ -398,8 +398,6 @@ void R_Init (void)
   // CPhipps - R_DrawColumn isn't constant anymore, so must
   //  initialise in code
   colfunc = R_DrawColumn;     // current column draw function
-  if (SCREENWIDTH<320)
-    I_Error("R_Init: Screenwidth(%d) < 320",SCREENWIDTH);
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
   R_LoadTrigTables();
   lprintf(LO_INFO, "\nR_InitData: ");
