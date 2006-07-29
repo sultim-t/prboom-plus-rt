@@ -215,7 +215,7 @@ static void P_LoadVertexes2(int lump, int gllump)
 
     if (*(const int *)gldata == gNd2) // 32 bit GL_VERT format (16.16 fixed)
     {
-      mapglvertex_t*  mgl;
+      const mapglvertex_t*  mgl;
 
       numvertexes += (W_LumpLength(gllump) - GL_VERT_OFFSET)/sizeof(mapglvertex_t);
       vertexes   = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);

@@ -385,7 +385,7 @@ static void R_InitTextures (void)
 {
   const maptexture_t *mtexture;
   texture_t    *texture;
-  mappatch_t   *mpatch;
+  const mappatch_t   *mpatch;
   texpatch_t   *patch;
   int  i, j;
   int         maptex_lump[2] = {-1, -1};
