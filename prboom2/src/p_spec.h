@@ -853,9 +853,9 @@ boolean P_CanUnlockGenDoor
 ( line_t* line,
   player_t* player);
 
-int P_SectorActive
+boolean PUREFUNC P_SectorActive
 ( special_e t,
-  sector_t* s );
+  const sector_t* s );
 
 boolean P_IsSecret
 ( sector_t *sec );
