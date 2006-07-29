@@ -188,8 +188,8 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
   int x,y,j;
   int xs,xe;
   int js,je;
-  column_t *p_bColumn_t;
-  byte *p_bColumn;
+  const column_t *p_bColumn_t;
+  const byte *p_bColumn;
   int pos;
   const unsigned char *playpal;
 
@@ -208,7 +208,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     xs=-originx;
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
-  p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[0]));
+  p_bColumn_t=(const column_t *)((const byte *)patch+LONG(patch->columnofs[0]));
   for (x=xs;x<xe;x++)
   {
 #ifdef RANGECHECK
@@ -218,7 +218,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
       return;
     }
 #endif
-    p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[x]));
+    p_bColumn_t=(const column_t *)((const byte *)patch+LONG(patch->columnofs[x]));
     while (p_bColumn_t->topdelta != 0xff)
     {
       y=(p_bColumn_t->topdelta+originy);
@@ -232,7 +232,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
         js=-y;
       if ((je+y)>gltexture->realtexheight)
         je+=(gltexture->realtexheight-(je+y));
-      p_bColumn=(byte *)p_bColumn_t + 3;
+      p_bColumn=(const byte *)p_bColumn_t + 3;
       if (paletted) {
         pos=(((js+y)*gltexture->buffer_width)+x+originx);
         for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
@@ -264,7 +264,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
         }
       }
 nextrun:
-      p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
+      p_bColumn_t = (const column_t *)( (const byte *)p_bColumn_t + p_bColumn_t->length + 4);
     }
   }
   W_UnlockLumpName("PLAYPAL");
@@ -275,8 +275,8 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
   int x,y,j;
   int xs,xe;
   int js,je;
-  column_t *p_bColumn_t;
-  byte *p_bColumn;
+  const column_t *p_bColumn_t;
+  const byte *p_bColumn;
   int pos;
   const unsigned char *playpal;
   extern const unsigned char *colrngs[];
@@ -306,7 +306,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
     xs=-originx;
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
-  p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[0]));
+  p_bColumn_t=(const column_t *)((const byte *)patch+LONG(patch->columnofs[0]));
   for (x=xs;x<xe;x++)
   {
 #ifdef RANGECHECK
@@ -316,7 +316,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
       return;
     }
 #endif
-    p_bColumn_t=(column_t *)((byte *)patch+LONG(patch->columnofs[x]));
+    p_bColumn_t=(const column_t *)((const byte *)patch+LONG(patch->columnofs[x]));
     while (p_bColumn_t->topdelta != 0xff)
     {
       y=(p_bColumn_t->topdelta+originy);
@@ -330,7 +330,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
         js=-y;
       if ((je+y)>gltexture->realtexheight)
         je+=(gltexture->realtexheight-(je+y));
-      p_bColumn=(byte *)p_bColumn_t + 3;
+      p_bColumn=(const byte *)p_bColumn_t + 3;
       if (paletted) {
         pos=(((js+y)*gltexture->buffer_width)+x+originx);
         for (j=js;j<je;j++,pos+=(gltexture->buffer_width))
@@ -362,7 +362,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const pa
         }
       }
 nextrun:
-      p_bColumn_t = (column_t *)(  (byte *)p_bColumn_t + p_bColumn_t->length + 4);
+      p_bColumn_t = (const column_t *)( (const byte *)p_bColumn_t + p_bColumn_t->length + 4);
     }
   }
   W_UnlockLumpName("PLAYPAL");
