@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # cphipps - short script to start building from a maintainer-clean'ed tree
 #
 mkdir -p autotools
-aclocal -I autotools && autoheader && automake --add-missing --foreign && autoconf
+aclocal -I autotools
+autoheader
+automake --add-missing
+autoconf

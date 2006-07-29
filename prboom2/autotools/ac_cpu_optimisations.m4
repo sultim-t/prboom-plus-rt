@@ -1,7 +1,7 @@
 dnl AC_CPU_OPTIMISATIONS
 dnl Tries to find compiler optimisation flags for the target system
 AC_DEFUN([AC_CPU_OPTIMISATIONS],[
-AC_REQUIRE([AC_CANONICAL_SYSTEM])
+AC_REQUIRE([AC_CANONICAL_TARGET])
 AC_ARG_ENABLE(cpu-opt,AC_HELP_STRING([--disable-cpu-opt],[turns off cpu specific optimisations]),[
 ],[
 AC_MSG_CHECKING(whether compiler supports -march=native)
