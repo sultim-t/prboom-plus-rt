@@ -32,6 +32,7 @@
 
 #include "doomstat.h"
 #include "r_demo.h"
+#include "e6y.h"//e6y
 
 int demo_smoothturns = false;
 int demo_smoothturnsfactor = 6;
@@ -80,6 +81,6 @@ angle_t R_SmoothPlaying_Get(angle_t defangle)
 
 void R_ResetAfterTeleport(player_t *player)
 {
-  //R_ResetViewInterpolation();
+  R_ResetViewInterpolation();//e6y
   R_SmoothPlaying_Reset(player);
 }

@@ -185,7 +185,7 @@ void P_MovePlayer (player_t* player)
 
   //e6y
   if (demo_smoothturns && player == &players[displayplayer])
-    SmoothPlaying_Add(cmd->angleturn << 16);
+    R_SmoothPlaying_Add(cmd->angleturn << 16);
   if (GetMouseLook() && player == &players[displayplayer])
   {
     if(!(automapmode & am_active))
@@ -198,10 +198,6 @@ void P_MovePlayer (player_t* player)
   }
 
   onground = mo->z <= mo->floorz;
-
-  // e6y
-  if (demo_smoothturns && player == &players[displayplayer])
-    R_SmoothPlaying_Add(cmd->angleturn << 16);
 
   // killough 10/98:
   //
@@ -315,7 +311,7 @@ void P_PlayerThink (player_t* player)
     oviewx = player->mo->x;
     oviewy = player->mo->y;
     oviewz = player->viewz;
-    oviewangle = SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
+    oviewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
     oviewpitch = player->mo->pitch;// + viewpitchoffset;
     if(walkcamera.type)
     {

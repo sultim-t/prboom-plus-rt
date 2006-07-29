@@ -6,6 +6,7 @@
 #include "SDL_events.h"
 #include "p_maputl.h"
 #include "w_wad.h"
+#include "r_demo.h"
 
 #define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
 
@@ -283,12 +284,6 @@ void e6y_PreprocessLevel(void);
 void MarkAnimatedTextures(void);
 
 #endif //GL_DOOM
-
-#define SMOOTH_PLAYING_MAXFACTOR 16 
-void SmoothPlaying_Reset(player_t *player);
-void SmoothPlaying_Add(int delta);
-angle_t SmoothPlaying_Get(angle_t defangle);
-void e6y_AfterTeleporting(player_t *player);
 
 extern float viewPitch;
 extern boolean WasRenderedInTryRunTics;

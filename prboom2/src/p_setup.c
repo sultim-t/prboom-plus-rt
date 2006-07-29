@@ -1550,8 +1550,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 #endif
   //e6y
   P_ResetWalkcam();
-  SmoothPlaying_Reset(NULL);
-  R_SmoothPlaying_Reset(NULL); // e6y
+  R_SmoothPlaying_Reset(NULL);
 }
 
 //

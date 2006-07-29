@@ -568,7 +568,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      viewangle = oviewangle + FixedMul (frac, SmoothPlaying_Get(player->mo->angle) + viewangleoffset - oviewangle);
+      viewangle = oviewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - oviewangle);
       viewpitch = oviewpitch + FixedMul (frac, player->mo->pitch /*+ viewangleoffset*/ - oviewpitch);
     }
   }
@@ -593,7 +593,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      viewangle = SmoothPlaying_Get(player->mo->angle);
+      viewangle = R_SmoothPlaying_Get(player->mo->angle);
       //viewangle = player->mo->angle + viewangleoffset;
       viewpitch = player->mo->pitch;// + viewangleoffset;
     }
@@ -1065,11 +1065,6 @@ float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
 
 #endif //GL_DOOM
 
-int smooth_playing_turns[SMOOTH_PLAYING_MAXFACTOR];
-int_64_t smooth_playing_sum;
-int smooth_playing_index;
-angle_t smooth_playing_angle;
-
 void M_ChangeDemoSmoothTurns(void)
 {
   extern setup_menu_t stat_settings2[];
@@ -1079,50 +1074,7 @@ void M_ChangeDemoSmoothTurns(void)
   else
     stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
 
-  SmoothPlaying_Reset(NULL);
-}
-
-void SmoothPlaying_Reset(player_t *player)
-{
-  if (demo_smoothturns && demoplayback && players)
-  {
-    if (!player)
-      player = &players[displayplayer];
-
-    if (player==&players[displayplayer])
-    {
-      smooth_playing_angle = players[displayplayer].mo->angle;
-      memset(smooth_playing_turns, 0, sizeof(smooth_playing_turns[0]) * SMOOTH_PLAYING_MAXFACTOR);
-      smooth_playing_sum = 0;
-      smooth_playing_index = 0;
-    }
-  }
-}
-
-void SmoothPlaying_Add(int delta)
-{
-  if (demo_smoothturns && demoplayback)
-  {
-    smooth_playing_sum -= smooth_playing_turns[smooth_playing_index];
-    smooth_playing_turns[smooth_playing_index] = delta;
-    smooth_playing_index = (smooth_playing_index + 1)%(demo_smoothturnsfactor);
-    smooth_playing_sum += delta;
-    smooth_playing_angle += (int)(smooth_playing_sum/(demo_smoothturnsfactor));
-  }
-}
-
-angle_t SmoothPlaying_Get(angle_t defangle)
-{
-  if (demo_smoothturns && demoplayback)
-    return smooth_playing_angle;
-  else
-    return defangle;
-}
-
-void e6y_AfterTeleporting(player_t *player)
-{
-  R_ResetViewInterpolation();
-  SmoothPlaying_Reset(player);
+  R_SmoothPlaying_Reset(NULL);
 }
 
 float viewPitch;

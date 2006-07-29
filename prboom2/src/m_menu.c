@@ -4446,7 +4446,7 @@ boolean M_Responder (event_t* ev) {
         P_ResetWalkcam ();
         R_ResetViewInterpolation ();
         if (walkcamera.type==0)
-          SmoothPlaying_Reset(NULL);
+          R_SmoothPlaying_Reset(NULL);
         return true;
       }
     }
