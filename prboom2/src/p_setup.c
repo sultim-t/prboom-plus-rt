@@ -164,7 +164,7 @@ mapthing_t playerstarts[MAXPLAYERS];
 //
 static void P_LoadVertexes (int lump)
 {
-  const byte *data; // cph - const
+  const mapvertex_t *data; // cph - const
   int i;
 
   // Determine number of lumps:
@@ -175,14 +175,15 @@ static void P_LoadVertexes (int lump)
   vertexes = Z_Malloc(numvertexes*sizeof(vertex_t),PU_LEVEL,0);
 
   // Load data into cache.
-  data = W_CacheLumpNum(lump); // cph - wad handling updated
+  // cph 2006/07/29 - cast to mapvertex_t here, making the loop below much neater
+  data = (const mapvertex_t *)W_CacheLumpNum(lump);
 
   // Copy and convert vertex coordinates,
   // internal representation as fixed.
   for (i=0; i<numvertexes; i++)
     {
-      vertexes[i].x = SHORT(((mapvertex_t *) data)[i].x)<<FRACBITS;
-      vertexes[i].y = SHORT(((mapvertex_t *) data)[i].y)<<FRACBITS;
+      vertexes[i].x = SHORT(data[i].x)<<FRACBITS;
+      vertexes[i].y = SHORT(data[i].y)<<FRACBITS;
     }
 
   // Free buffer memory.
@@ -201,25 +202,24 @@ static void P_LoadVertexes (int lump)
 
 static void P_LoadVertexes2(int lump, int gllump)
 {
-  const byte      *data, *gldata;
+  const byte         *gldata;
   int                 i;
-  mapvertex_t*        ml;
+  const mapvertex_t*  ml;
 
   firstglvertex = W_LumpLength(lump) / sizeof(mapvertex_t);
   numvertexes   = W_LumpLength(lump) / sizeof(mapvertex_t);
-  data      = W_CacheLumpNum(lump);
 
   if (gllump >= 0)  // check for glVertices
   {
     gldata = W_CacheLumpNum(gllump);
 
-    if (*(int *)gldata == gNd2) // 32 bit GL_VERT format (16.16 fixed)
+    if (*(const int *)gldata == gNd2) // 32 bit GL_VERT format (16.16 fixed)
     {
       mapglvertex_t*  mgl;
 
       numvertexes += (W_LumpLength(gllump) - GL_VERT_OFFSET)/sizeof(mapglvertex_t);
       vertexes   = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);
-      mgl      = (mapglvertex_t *) (gldata + GL_VERT_OFFSET);
+      mgl      = (const mapglvertex_t *) (gldata + GL_VERT_OFFSET);
 
       for (i = firstglvertex; i < numvertexes; i++)
       {
@@ -232,7 +232,7 @@ static void P_LoadVertexes2(int lump, int gllump)
     {
       numvertexes += W_LumpLength(gllump)/sizeof(mapvertex_t);
       vertexes     = Z_Malloc (numvertexes*sizeof(vertex_t),PU_LEVEL,0);
-      ml       = (mapvertex_t *)gldata;
+      ml       = (const mapvertex_t *)gldata;
 
       for (i = firstglvertex; i < numvertexes; i++)
       {
@@ -244,7 +244,7 @@ static void P_LoadVertexes2(int lump, int gllump)
     W_UnlockLumpNum(gllump);
   }
 
-  ml = (mapvertex_t*)data;
+  ml = (const mapvertex_t*) W_CacheLumpNum(lump);
 
   for (i=0; i < firstglvertex; i++)
   {
@@ -299,16 +299,16 @@ static int GetOffset(vertex_t *v1, vertex_t *v2)
 static void P_LoadSegs (int lump)
 {
   int  i;
-  const byte *data; // cph - const
+  const mapseg_t *data; // cph - const
 
   numsegs = W_LumpLength(lump) / sizeof(mapseg_t);
   segs = Z_Calloc(numsegs,sizeof(seg_t),PU_LEVEL,0);
-  data = W_CacheLumpNum(lump); // cph - wad lump handling updated
+  data = (const mapseg_t *)W_CacheLumpNum(lump); // cph - wad lump handling updated
 
   for (i=0; i<numsegs; i++)
     {
       seg_t *li = segs+i;
-      mapseg_t *ml = (mapseg_t *) data + i;
+      const mapseg_t *ml = data + i;
       unsigned short v1, v2;
 
       int side, linedef;
@@ -357,17 +357,15 @@ static void P_LoadSegs (int lump)
  *******************************************/
 static void P_LoadGLSegs(int lump)
 {
-  const byte  *data;
   int     i;
-  glseg_t   *ml;
+  const glseg_t   *ml;
   line_t    *ldef;
 
   numsegs = W_LumpLength(lump) / sizeof(glseg_t);
   segs = Z_Malloc(numsegs * sizeof(seg_t), PU_LEVEL, 0);
   memset(segs, 0, numsegs * sizeof(seg_t));
-  data = W_CacheLumpNum(lump);
+  ml = (const glseg_t*)W_CacheLumpNum(lump);
 
-  ml = (glseg_t*) data;
   for(i = 0; i < numsegs; i++)
   {             // check for gl-vertices
     segs[i].v1 = &vertexes[checkGLVertex(SHORT(ml->v1))];
@@ -423,17 +421,18 @@ static void P_LoadGLSegs(int lump)
 
 static void P_LoadSubsectors (int lump)
 {
-  const byte *data; // cph - const*
+  /* cph 2006/07/29 - make data a const mapsubsector_t *, so the loop below is simpler & gives no constness warnings */
+  const mapsubsector_t *data;
   int  i;
 
   numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
   subsectors = Z_Calloc(numsubsectors,sizeof(subsector_t),PU_LEVEL,0);
-  data = W_CacheLumpNum(lump); // cph - wad lump handling updated
+  data = (const mapsubsector_t *)W_CacheLumpNum(lump);
 
   for (i=0; i<numsubsectors; i++)
   {
-    subsectors[i].numlines  = (unsigned short)SHORT(((mapsubsector_t *) data)[i].numsegs );
-    subsectors[i].firstline = (unsigned short)SHORT(((mapsubsector_t *) data)[i].firstseg);
+    subsectors[i].numlines  = (unsigned short)SHORT(data[i].numsegs );
+    subsectors[i].firstline = (unsigned short)SHORT(data[i].firstseg);
   }
 
   W_UnlockLumpNum(lump); // cph - release the data
@@ -456,7 +455,7 @@ static void P_LoadSectors (int lump)
   for (i=0; i<numsectors; i++)
     {
       sector_t *ss = sectors + i;
-      const mapsector_t *ms = (mapsector_t *) data + i;
+      const mapsector_t *ms = (const mapsector_t *) data + i;
 
 #ifdef GL_DOOM
       ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL
@@ -515,7 +514,7 @@ static void P_LoadNodes (int lump)
   for (i=0; i<numnodes; i++)
     {
       node_t *no = nodes + i;
-      mapnode_t *mn = (mapnode_t *) data + i;
+      const mapnode_t *mn = (const mapnode_t *) data + i;
       int j;
 
       no->x = SHORT(mn->x)<<FRACBITS;
@@ -605,7 +604,7 @@ static void P_LoadLineDefs (int lump)
 
   for (i=0; i<numlines; i++)
     {
-      maplinedef_t *mld = (maplinedef_t *) data + i;
+      const maplinedef_t *mld = (const maplinedef_t *) data + i;
       line_t *ld = lines+i;
       vertex_t *v1, *v2;
 
@@ -724,7 +723,7 @@ static void P_LoadSideDefs2(int lump)
 
   for (i=0; i<numsides; i++)
     {
-      register mapsidedef_t *msd = (mapsidedef_t *) data + i;
+      register const mapsidedef_t *msd = (const mapsidedef_t *) data + i;
       register side_t *sd = sides + i;
       register sector_t *sec;
 
@@ -824,7 +823,7 @@ static void AddBlockLine
 // adds the line to all block lists touching the intersection.
 //
 
-void P_CreateBlockMap(void)
+static void P_CreateBlockMap(void)
 {
   int xorg,yorg;                 // blockmap origin (lower left)
   int nrows,ncols;               // blockmap dimensions
@@ -1178,7 +1177,7 @@ static void RejectOverrunAddInt(int k)
   }
 }
 
-void P_GroupLines (void)
+static void P_GroupLines (void)
 {
   register line_t *li;
   register sector_t *sector;
@@ -1321,7 +1320,7 @@ void P_GroupLines (void)
 // Firelines (TM) is a Rezistered Trademark of MBF Productions
 //
 
-void P_RemoveSlimeTrails(void)                // killough 10/98
+static void P_RemoveSlimeTrails(void)         // killough 10/98
 {
   byte *hit = calloc(1, numvertexes);         // Hitlist for vertices
   int i;
