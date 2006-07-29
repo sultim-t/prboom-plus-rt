@@ -383,7 +383,7 @@ const byte *R_GetColumn(int tex, int col)
 
 static void R_InitTextures (void)
 {
-  maptexture_t *mtexture;
+  const maptexture_t *mtexture;
   texture_t    *texture;
   mappatch_t   *mpatch;
   texpatch_t   *patch;
@@ -480,7 +480,7 @@ static void R_InitTextures (void)
       if (offset > maxoff)
         I_Error("R_InitTextures: Bad texture directory");
 
-      mtexture = (maptexture_t *) ( (byte *)maptex + offset);
+      mtexture = (const maptexture_t *) ( (const byte *)maptex + offset);
 
       texture = textures[i] =
         Z_Malloc(sizeof(texture_t) +
