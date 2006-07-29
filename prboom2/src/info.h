@@ -1444,7 +1444,7 @@ typedef struct
   int damage;       /* If this is a missile, how much does it hurt? */
   int activesound;  /* What sound it makes wandering around, once
            in a while.  Chance is 3/256 it will. */
-  uint_64_t flags;  /* Bit masks for lots of things.  See p_mobj.h */
+  int flags;  /* Bit masks for lots of things.  See p_mobj.h */
   int raisestate;   /* The first state for an Archvile or respawn
            resurrection.  Zero means it won't come
            back to life. */
