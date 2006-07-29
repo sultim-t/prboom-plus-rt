@@ -295,19 +295,9 @@ static void D_Display (void)
 
   // draw pause pic
   if (paused) {
-      static int x;
-
-      if (!x) { // Cache results of x pos calc
-  int lump = W_GetNumForName("M_PAUSE");
-  const patch_t* p = W_CacheLumpNum(lump);
-  x = (320 - SHORT(p->width))/2;
-  W_UnlockLumpNum(lump);
-      }
-
-      // CPhipps - updated for new patch drawing
-      V_DrawNamePatch(x, (!(automapmode & am_active) || (automapmode & am_overlay))
-          ? 4+(viewwindowy*200/SCREENHEIGHT) : 4, // cph - Must un-stretch viewwindowy
-          0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+    // Simplified the "logic" here and no need for x-coord caching - POPE
+    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE"))/2, 4,
+                    0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
   }
 
   // menus go directly to the screen
