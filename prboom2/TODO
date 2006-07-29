@@ -155,3 +155,87 @@ List of revisions from PrBoom 2.3:
 -731 (Chasecam)
 -732 (Generalise axes handling for input devices)
 +733
++734 (was already merged)
+ 735
++736
++737 (was already merged)
+ 738
+ 739
++740 (cleaned up)
++741 (was already merged)
++742 (was already merged)
++743 (was already merged)
+ 744 (new config format)
+ 745
+ 746 (console)
+ 747 (console)
+ 748 (from 2.2)
+-749 (axes)
+ 750 (binding)
+ 751 (new menu stuff)
+ 752
+ 753
+ 754
+ 755
+ 756
+ 757
+ 758
+ 759
+ 760
++761 (from 2.2)
++762
+ 763 (menu)
+ 764
++765 (was already merged)
+ 766
++767
+ 768 (skipped, related to previous)
+ 769
+ 770 (menu, console)
+ 771
++772 (2.2)
+-773 (Dynamic OpenGL)
+-774 (Tesselator)
+ 775 (config)
+ 776 (binding)
+ 777 (Tesselator)
+-778 (renderer)
+ 779
+-780 (renderer)
+-781 (renderer)
+ 782 (console)
+ 783 (console)
+-784 (renderer)
+ 785
+ 786 (console)
+ 787
+ 788 (binding)
+-789 (renderer)
+-790 (renderer)
+ 791
+-792 (renderer)
+-793 (renderer)
+-794 (renderer)
+-795 (renderer)
+-796 (renderer)
+-797 (renderer)
+-798 (renderer)
+-799 (renderer)
+-800 (renderer)
+ 801 (console)
+-802 (renderer)
+-803 (renderer)
+-804 (renderer)
+-805 (renderer)
+-806 (renderer)
+-807 (renderer)
+-808 (renderer)
+ 809 (console)
+ 810 (menu)
+-811 (renderer)
+ 812 (console)
+-813 (renderer)
+-814 (renderer)
+-815 (renderer)
+-816 (renderer)
++817
