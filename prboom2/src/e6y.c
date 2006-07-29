@@ -1546,7 +1546,7 @@ void UngrabMouse_Win32(void)
 
 void e6y_I_InitInputs(void)
 {
-//  SDL_WarpMouse((unsigned short)(desired_screenwidth/2), (unsigned short)(desired_screenheight/2));
+  // e6y: fix  for turn-snapping bug on fullscreen in software mode
   SDL_WarpMouse((unsigned short)(SCREENWIDTH/2), (unsigned short)(SCREENHEIGHT/2));
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
