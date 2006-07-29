@@ -653,6 +653,14 @@ static void P_LoadLineDefs2(int lump)
   for (;i--;ld++)
     {
       { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
+	int j;
+
+        for (j=0; j < 2; j++)
+          if (ld->sidenum[j] != NO_INDEX && ld->sidenum[j] >= numsides) {
+            ld->sidenum[j] = NO_INDEX;
+            lprintf(LO_WARN, "P_LoadSegs: linedef %d has out-of-range sidedef number\n",numlines-i);
+          }
+
   // killough 11/98: fix common wad errors (missing sidedefs):
 
   if (ld->sidenum[0] == NO_INDEX) {
@@ -667,11 +675,6 @@ static void P_LoadLineDefs2(int lump)
     lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i);
   }
 
-  // FIXME - does this conflict with limit removal??
-  if ((ld->sidenum[1] < -1) && !(ld->flags & ML_TWOSIDED)) {
-    ld->sidenum[1] = -1;
-    lprintf(LO_WARN, "P_LoadSegs: linedef %d has negative second sidedef number and no two-sided flag set\n",numlines-i);
-  }
       }
 
       ld->frontsector = ld->sidenum[0]!=NO_INDEX ? sides[ld->sidenum[0]].sector : 0;
