@@ -51,7 +51,7 @@ inline static void* getelem(bmalpool_t *p, size_t size, size_t n)
   return (((byte*)p) + sizeof(bmalpool_t) + sizeof(byte)*(p->blocks) + size*n);
 }
 
-inline static const int iselem(const bmalpool_t *pool, size_t size, const void* p)
+inline static PUREFUNC int iselem(const bmalpool_t *pool, size_t size, const void* p)
 {
   // CPhipps - need portable # of bytes between pointers
   int dif = (const char*)p - (const char*)pool;
