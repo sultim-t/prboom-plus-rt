@@ -133,7 +133,7 @@ void P_ExplodeMissile (mobj_t* mo)
 // Attempts to move something if it has momentum.
 //
 
-void P_XYMovement (mobj_t* mo)
+static void P_XYMovement (mobj_t* mo)
   {
   player_t *player;
   fixed_t xmove, ymove;
@@ -594,7 +594,7 @@ floater:
 // P_NightmareRespawn
 //
 
-void P_NightmareRespawn(mobj_t* mobj)
+static void P_NightmareRespawn(mobj_t* mobj)
   {
   fixed_t      x;
   fixed_t      y;
@@ -900,7 +900,7 @@ void P_RemoveMobj (mobj_t* mobj)
  * killough 8/24/98: rewrote to use hashing
  */
 
-int P_FindDoomedNum(unsigned type)
+static PUREFUNC int P_FindDoomedNum(unsigned type)
 {
   static struct { int first, next; } *hash;
   register int i;

@@ -376,9 +376,9 @@ extern char     *mapnames[];
 // STATUS BAR CODE
 //
 
-void ST_Stop(void);
+static void ST_Stop(void);
 
-void ST_refreshBackground(void)
+static void ST_refreshBackground(void)
 {
   int y=0;
   int screen=BG;
@@ -429,7 +429,7 @@ boolean ST_Responder(event_t *ev)
   return false;
 }
 
-int ST_calcPainOffset(void)
+static int ST_calcPainOffset(void)
 {
   static int lastcalc;
   static int oldhealth = -1;
@@ -450,7 +450,7 @@ int ST_calcPainOffset(void)
 //  dead > evil grin > turned head > straight ahead
 //
 
-void ST_updateFaceWidget(void)
+static void ST_updateFaceWidget(void)
 {
   int         i;
   angle_t     badguyangle;
@@ -622,7 +622,7 @@ void ST_updateFaceWidget(void)
 
 int sts_traditional_keys; // killough 2/28/98: traditional status bar keys
 
-void ST_updateWidgets(void)
+static void ST_updateWidgets(void)
 {
   static int  largeammo = 1994; // means "n/a"
   int         i;
@@ -699,7 +699,7 @@ void ST_Ticker(void)
 
 int st_palette = 0;
 
-void ST_doPaletteStuff(void)
+static void ST_doPaletteStuff(void)
 {
   int         palette;
   int cnt = plyr->damagecount;
@@ -737,7 +737,7 @@ void ST_doPaletteStuff(void)
     V_SetPalette(st_palette = palette); // CPhipps - use new palette function
 }
 
-void ST_drawWidgets(boolean refresh)
+static void ST_drawWidgets(boolean refresh)
 {
   int i;
 
@@ -797,7 +797,7 @@ void ST_drawWidgets(boolean refresh)
 
 }
 
-void ST_doRefresh(void)
+static void ST_doRefresh(void)
 {
 
   st_firsttime = false;
@@ -810,7 +810,7 @@ void ST_doRefresh(void)
 
 }
 
-void ST_diffDraw(void)
+static void ST_diffDraw(void)
 {
   // update all widgets
   ST_drawWidgets(false);
@@ -921,17 +921,17 @@ static void ST_loadGraphics(boolean doload)
   R_SetPatchNum(&faces[facenum++], "STFDEAD0");
 }
 
-void ST_loadData(void)
+static void ST_loadData(void)
 {
   ST_loadGraphics(true);
 }
 
-void ST_unloadData(void)
+static void ST_unloadData(void)
 {
   ST_loadGraphics(false);
 }
 
-void ST_initData(void)
+static void ST_initData(void)
 {
   int i;
 
@@ -960,7 +960,7 @@ void ST_initData(void)
   STlib_init();
 }
 
-void ST_createWidgets(void)
+static void ST_createWidgets(void)
 {
   int i;
 
@@ -1128,7 +1128,7 @@ void ST_Start(void)
   st_stopped = false;
 }
 
-void ST_Stop(void)
+static void ST_Stop(void)
 {
   if (st_stopped)
     return;

@@ -77,7 +77,7 @@ void P_Thrust(player_t* player,angle_t angle,fixed_t move)
  * reduced at a regular rate, even on ice (where the player coasts).
  */
 
-void P_Bob(player_t *player, angle_t angle, fixed_t move)
+static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 {
   player->momx += FixedMul(move,finecosine[angle >>= ANGLETOFINESHIFT]);
   player->momy += FixedMul(move,finesine[angle]);

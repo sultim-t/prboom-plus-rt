@@ -560,7 +560,7 @@ void free_mididata(MIDI *mid)
 // Passed a pointer to the pointer to a MIDI buffer
 // Returns the chunk length at the pointer position
 //
-size_t ReadLength(UBYTE **mid)
+static size_t ReadLength(UBYTE **mid)
 {
   UBYTE *midptr = *mid;
 
