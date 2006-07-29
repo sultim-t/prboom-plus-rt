@@ -269,7 +269,7 @@ static boolean stopped = true;
 // Passed the line slope is desired for and an islope_t structure for return
 // Returns nothing
 //
-void AM_getIslope
+static PUREFUNC void AM_getIslope
 ( mline_t*  ml,
   islope_t* is )
 {
@@ -294,7 +294,7 @@ void AM_getIslope
 //
 // Passed nothing, returns nothing
 //
-void AM_activateNewScale(void)
+static void AM_activateNewScale(void)
 {
   m_x += m_w/2;
   m_y += m_h/2;
@@ -314,7 +314,7 @@ void AM_activateNewScale(void)
 //
 // Passed nothing, returns nothing
 //
-void AM_saveScaleAndLoc(void)
+static void AM_saveScaleAndLoc(void)
 {
   old_m_x = m_x;
   old_m_y = m_y;
@@ -330,7 +330,7 @@ void AM_saveScaleAndLoc(void)
 //
 // Passed nothing, returns nothing
 //
-void AM_restoreScaleAndLoc(void)
+static void AM_restoreScaleAndLoc(void)
 {
   m_w = old_m_w;
   m_h = old_m_h;
@@ -360,7 +360,7 @@ void AM_restoreScaleAndLoc(void)
 //
 // Passed nothing, returns nothing
 //
-void AM_addMark(void)
+static void AM_addMark(void)
 {
   // killough 2/22/98:
   // remove limit on automap marks
@@ -383,7 +383,7 @@ void AM_addMark(void)
 //
 // Passed nothing, returns nothing
 //
-void AM_findMinMaxBoundaries(void)
+static void AM_findMinMaxBoundaries(void)
 {
   int i;
   fixed_t a;
@@ -425,7 +425,7 @@ void AM_findMinMaxBoundaries(void)
 //
 // Passed nothing, returns nothing
 //
-void AM_changeWindowLoc(void)
+static void AM_changeWindowLoc(void)
 {
   if (m_paninc.x || m_paninc.y)
   {
@@ -460,7 +460,7 @@ void AM_changeWindowLoc(void)
 // Status bar is notified that the automap has been entered
 // Passed nothing, returns nothing
 //
-void AM_initVariables(void)
+static void AM_initVariables(void)
 {
   int pnum;
   static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
@@ -500,7 +500,7 @@ void AM_initVariables(void)
 //
 // AM_loadPics()
 //
-void AM_loadPics(void)
+static void AM_loadPics(void)
 {
   // cph - mark numbers no longer needed cached
 }
@@ -508,7 +508,7 @@ void AM_loadPics(void)
 //
 // AM_unloadPics()
 //
-void AM_unloadPics(void)
+static void AM_unloadPics(void)
 {
   // cph - mark numbers no longer needed cached
 }
@@ -536,7 +536,7 @@ void AM_clearMarks(void)
 // Affects automap's global variables
 //
 // CPhipps - get status bar height from status bar code
-void AM_LevelInit(void)
+static void AM_LevelInit(void)
 {
   leveljuststarted = 0;
 
@@ -578,7 +578,7 @@ void AM_Stop (void)
 //
 // Passed nothing, returns nothing
 //
-void AM_Start()
+void AM_Start(void)
 {
   static int lastlevel = -1, lastepisode = -1;
 
@@ -602,7 +602,7 @@ void AM_Start()
 //
 // Passed nothing, returns nothing
 //
-void AM_minOutWindowScale()
+static void AM_minOutWindowScale(void)
 {
   scale_mtof = min_scale_mtof;
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
@@ -616,7 +616,7 @@ void AM_minOutWindowScale()
 //
 // Passed nothing, returns nothing
 //
-void AM_maxOutWindowScale(void)
+static void AM_maxOutWindowScale(void)
 {
   scale_mtof = max_scale_mtof;
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
@@ -803,7 +803,7 @@ static void AM_rotate(fixed_t* x,  fixed_t* y, angle_t a, fixed_t xorig, fixed_t
 //
 // Passed nothing, returns nothing
 //
-void AM_changeWindowScale(void)
+static void AM_changeWindowScale(void)
 {
   // Change the scaling multipliers
   scale_mtof = FixedMul(scale_mtof, mtof_zoommul);
@@ -824,7 +824,7 @@ void AM_changeWindowScale(void)
 //
 // Passed nothing, returns nothing
 //
-void AM_doFollowPlayer(void)
+static void AM_doFollowPlayer(void)
 {
   if (f_oldloc.x != plr->mo->x || f_oldloc.y != plr->mo->y)
   {
@@ -874,7 +874,7 @@ void AM_Ticker (void)
 // clipping on them in the lines frame coordinates.
 // Returns true if any part of line was not clipped
 //
-boolean AM_clipMline
+static boolean AM_clipMline
 ( mline_t*  ml,
   fline_t*  fl )
 {
@@ -1010,7 +1010,7 @@ boolean AM_clipMline
 // Returns nothing
 //
 #ifndef GL_DOOM
-void AM_drawFline
+static void AM_drawFline
 ( fline_t*  fl,
   int   color )
 {
@@ -1101,7 +1101,7 @@ void AM_drawFline
 // in the defaults file.
 // Returns nothing.
 //
-void AM_drawMline
+static void AM_drawMline
 ( mline_t*  ml,
   int   color )
 {
@@ -1128,7 +1128,7 @@ void AM_drawMline
 // Passed the color to draw the grid lines
 // Returns nothing
 //
-void AM_drawGrid(int color)
+static void AM_drawGrid(int color)
 {
   fixed_t x, y;
   fixed_t start, end;
@@ -1183,7 +1183,7 @@ void AM_drawGrid(int color)
 //
 // jff 4/3/98 add routine to get color of generalized keyed door
 //
-int AM_DoorColor(int type)
+static int AM_DoorColor(int type)
 {
   if (GenLockedBase <= type && type< GenDoorBase)
   {
@@ -1225,7 +1225,7 @@ int AM_DoorColor(int type)
 // jff 4/3/98 changed mapcolor_xxxx=0 as control to disable feature
 // jff 4/3/98 changed mapcolor_xxxx=-1 to disable drawing line completely
 //
-void AM_drawWalls(void)
+static void AM_drawWalls(void)
 {
   int i;
   static mline_t l;
@@ -1417,7 +1417,7 @@ void AM_drawWalls(void)
 // the color to draw it with, and the map coordinates to draw it at.
 // Returns nothing
 //
-void AM_drawLineCharacter
+static void AM_drawLineCharacter
 ( mline_t*  lineguy,
   int   lineguylines,
   fixed_t scale,
@@ -1475,7 +1475,7 @@ void AM_drawLineCharacter
 //
 // Passed nothing, returns nothing
 //
-void AM_drawPlayers(void)
+static void AM_drawPlayers(void)
 {
   int   i;
 
@@ -1532,7 +1532,7 @@ void AM_drawPlayers(void)
 // Passed colors and colorrange, no longer used
 // Returns nothing
 //
-void AM_drawThings(void)
+static void AM_drawThings(void)
 {
   int   i;
   mobj_t* t;
@@ -1622,7 +1622,7 @@ void AM_drawThings(void)
 // killough 2/22/98:
 // Rewrote AM_drawMarks(). Removed limit on marks.
 //
-void AM_drawMarks(void)
+static void AM_drawMarks(void)
 {
   int i;
   for (i=0;i<markpointnum;i++) // killough 2/22/98: remove automap mark limit
