@@ -54,6 +54,7 @@
 #include "r_sky.h"
 #include "r_plane.h"
 #include "r_data.h"
+#include "r_things.h"
 #include "p_maputl.h"
 #include "m_bbox.h"
 #include "lprintf.h"
@@ -1920,7 +1921,6 @@ void gld_StartDrawScene(void)
 void gld_EndDrawScene(void)
 {
   player_t *player = &players[displayplayer];
-  extern void R_DrawPlayerSprites (void);
 
   glDisable(GL_POLYGON_SMOOTH);
 
@@ -1931,7 +1931,7 @@ void gld_EndDrawScene(void)
   if (viewangleoffset <= 1024<<ANGLETOFINESHIFT ||
     viewangleoffset >=-1024<<ANGLETOFINESHIFT)
   { // don't draw on side views
-    R_DrawPlayerSprites ();
+    R_DrawPlayerSprites();
   }
   if (player->fixedcolormap == 32) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);

@@ -322,7 +322,12 @@ static int badplayer(int n) { return (n < 0 || n >= MAXPLAYERS); }
 
 int main(int argc, char** argv)
 {
-  int localport = 5030, numplayers = 2, xtratics = 0, ticdup = 1;
+#ifndef USE_SDL_NET
+  int localport = 5030;
+#else
+  Uint16 localport = 5030;
+#endif
+  int numplayers = 2, xtratics = 0, ticdup = 1;
   int exectics = 0; // gametics completed
   struct setup_packet_s setupinfo = { 2, 0, 1, 1, 1, 0, best_compatibility, 0, 0};
   char**wadname = NULL;

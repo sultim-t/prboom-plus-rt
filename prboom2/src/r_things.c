@@ -745,7 +745,7 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
 // R_DrawPlayerSprites
 //
 
-static void R_DrawPlayerSprites(void)
+void R_DrawPlayerSprites(void)
 {
   int i, lightlevel = viewplayer->mo->subsector->sector->lightlevel;
   pspdef_t *psp;
