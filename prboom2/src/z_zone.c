@@ -117,7 +117,7 @@ static int free_memory = 0;
 static int active_memory = 0;
 static int purgable_memory = 0;
 
-void Z_DrawStats(void)            // Print allocation statistics
+static void Z_DrawStats(void)            // Print allocation statistics
 {
   unsigned long total_memory = free_memory + memory_size + active_memory + purgable_memory;
   double s = 100.0 / total_memory;

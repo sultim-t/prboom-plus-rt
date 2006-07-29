@@ -202,7 +202,7 @@ gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern boolean setsizeneeded;
 extern int     showMessages;
 
-void D_Display (void)
+static void D_Display (void)
 {
   static boolean inhelpscreensstate   = false;
   static boolean isborderstate        = false;
@@ -692,7 +692,7 @@ static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 //
 // jff 4/19/98 Make killoughs slash fixer a subroutine
 //
-void NormalizeSlashes(char *str)
+static void NormalizeSlashes(char *str)
 {
   int l;
 
@@ -712,7 +712,7 @@ void NormalizeSlashes(char *str)
 // a file or directory. If neither append .wad and check if it
 // exists as a file then. Else return non-existent.
 
-boolean WadFileStatus(char *filename,boolean *isdir)
+static boolean WadFileStatus(char *filename,boolean *isdir)
 {
   struct stat sbuf;
   int i;
@@ -786,7 +786,7 @@ static char *FindIWADFile(void)
 //
 // jff 4/19/98 rewritten to use a more advanced search algorithm
 
-void IdentifyVersion (void)
+static void IdentifyVersion (void)
 {
   int         i;    //jff 3/24/98 index of args on commandline
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
@@ -882,7 +882,7 @@ void IdentifyVersion (void)
 
 #define MAXARGVS 100
 
-void FindResponseFile (void)
+static void FindResponseFile (void)
 {
   int i;
 
@@ -1014,7 +1014,7 @@ void FindResponseFile (void)
 //
 // CPhipps - OUCH! Writing into *myargv is too dodgy, damn
 
-void DoLooseFiles(void)
+static void DoLooseFiles(void)
 {
   char *wads[MAXARGVS];  // store the respective loose filenames
   char *lmps[MAXARGVS];
@@ -1129,7 +1129,7 @@ const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 // CPhipps - misc screen stuff
 unsigned int desired_screenwidth, desired_screenheight;
 
-void L_SetupConsoleMasks(void) {
+static void L_SetupConsoleMasks(void) {
   int p;
   int i;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
@@ -1165,7 +1165,7 @@ void L_SetupConsoleMasks(void) {
 // CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
 
-void D_DoomMainSetup(void)
+static void D_DoomMainSetup(void)
 {
   int p,slot;
 
