@@ -159,17 +159,6 @@ static int I_TranslateKey(SDL_keysym* key)
 
 }
 
-// Null keyboard translation to satisfy m_misc.c
-int I_DoomCode2ScanCode(int c)
-{
-  return c;
-}
-
-int I_ScanCode2DoomCode(int c)
-{
-  return c;
-}
-
 /////////////////////////////////////////////////////////////////////////////////
 // Main input code
 
@@ -436,7 +425,7 @@ void I_SetPalette (int pal)
 
 // I_PreInitGraphics
 
-void I_ShutdownSDL(void)
+static void I_ShutdownSDL(void)
 {
   SDL_Quit();
   return;
