@@ -374,7 +374,7 @@ void HU_Init(void)
 //
 // Passed nothing, returns nothing
 //
-void HU_Stop(void)
+static void HU_Stop(void)
 {
   headsupactive = false;
 }
@@ -1401,7 +1401,7 @@ static int  tail = 0;
 //
 // Passed the character to queue, returns nothing
 //
-void HU_queueChatChar(char c)
+static void HU_queueChatChar(char c)
 {
   if (((head + 1) & (QUEUESIZE-1)) == tail)
   {
