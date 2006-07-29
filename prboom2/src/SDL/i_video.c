@@ -85,6 +85,7 @@ int             leds_always_off = 0; // Expected by m_misc, not relevant
 // Mouse handling
 extern int     usemouse;        // config file var
 static boolean grabMouse;       // internal var
+static int mouse_currently_grabbed;
 
 /////////////////////////////////////////////////////////////////////////////////
 // Keyboard handling
@@ -192,7 +193,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
-  if (usemouse)
+  if (mouse_currently_grabbed)
   {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
@@ -202,7 +203,7 @@ static void I_GetEvent(SDL_Event *Event)
   break;
 
   case SDL_MOUSEMOTION:
-  if (usemouse) {
+  if (mouse_currently_grabbed) {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(Event->motion.state);
     event.data2 = Event->motion.xrel << 5;
@@ -225,7 +226,6 @@ static void I_GetEvent(SDL_Event *Event)
 //
 // I_StartTic
 //
-static int mouse_currently_grabbed;
 
 void I_StartTic (void)
 {
@@ -261,7 +261,8 @@ static void I_InitInputs(void)
   // check if the user wants to grab the mouse
   grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
   // e6y: fix for turn-snapping bug on fullscreen in software mode
-  SDL_WarpMouse((unsigned short)(SCREENWIDTH/2), (unsigned short)(SCREENHEIGHT/2));
+  if (!M_CheckParm("-nomouse"))
+    SDL_WarpMouse((unsigned short)(SCREENWIDTH/2), (unsigned short)(SCREENHEIGHT/2));
 
   I_InitJoystick();
 }
