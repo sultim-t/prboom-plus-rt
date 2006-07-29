@@ -112,12 +112,6 @@ void Z_DumpHistory(char *);
 #define free(p)            Z_Free(p)
 #define realloc(p,n)       Z_Realloc(p,n,PU_STATIC,0)
 #define calloc(n1,n2)      Z_Calloc(n1,n2,PU_STATIC,0)
-#undef strdup
-#ifdef _CRTIMP
-_CRTIMP char *strdup(const char *s);
-#else
-char *strdup(const char *s);
-#endif
 #define strdup(s)          Z_Strdup(s,PU_STATIC,0)
 
 #else
