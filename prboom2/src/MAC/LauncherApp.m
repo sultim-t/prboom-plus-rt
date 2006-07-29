@@ -1,3 +1,5 @@
+// This file is hereby placed in the Public Domain -- Neil Stevens
+
 #import "LauncherApp.h"
 
 #import <Foundation/NSArray.h>
