@@ -9,11 +9,12 @@ Changes from v2.4.3 to v2.4.4
   - Fixed crash when crossing sectors with very big height differences
 - fix crash on E4M8
 - Mac OS X:  Launcher has a Console that displays text output from the game
-- New command-line options for setting a window (-window) or fullscreen (-nowindow) mode temporarily.
-- The maximal supported resolution is increased from 1600x1200 up to 2048x1536
-- GLBoom on fullscreen modes will try to set the closest supported resolution
+- New command-line options for setting a window (-window) or fullscreen
+  (-nowindow) mode temporarily.
+- The maximal supported resolution is increased from 1600x1200 to 2048x1536
+- GLBoom will use the closest supported resolution when running fullscreen
 - The "RUN" key inverts the autorun state
-- Sky on third episode of Requiem and on few Memento Mori maps is drawn correctly now with opengl
+- Fixed OpenGL sky rendering in Requiem and Memento Mori
 - The "Show coordinates of automap pointer" setting works now
 
 Changes from v2.4.2 to v2.4.3
