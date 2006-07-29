@@ -268,7 +268,7 @@ void F_Ticker(void)
 extern patchnum_t hu_font[HU_FONTSIZE];
 
 
-void F_TextWrite (void)
+static void F_TextWrite (void)
 {
   V_DrawBackground(finaleflat, 0);
   { // draw some of the text onto the screen
@@ -353,7 +353,6 @@ boolean         castattacking;
 //
 // F_StartCast
 //
-extern  gamestate_t     wipegamestate;
 
 void F_StartCast (void)
 {

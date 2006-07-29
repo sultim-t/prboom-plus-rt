@@ -54,6 +54,7 @@
 #include "r_sky.h"
 #include "r_plane.h"
 #include "r_data.h"
+#include "r_things.h"
 #include "p_maputl.h"
 #include "m_bbox.h"
 #include "lprintf.h"
@@ -250,6 +251,18 @@ static const float lighttable[5][256] =
 
 #define gld_CalcLightLevel(lightlevel) (lighttable[usegamma][max(min((lightlevel),255),0)])
 
+/*
+// experimental new lighting code
+static float gld_CalcLightLevel(int lightlevel) {
+  if (lightlevel < 192) {
+    lightlevel = lightlevel - ((192 - lightlevel) * 85 / 100);
+  }
+  if (lightlevel < 20)
+    lightlevel = 20;
+  return lightlevel / 255.0;
+}
+*/
+
 static void gld_StaticLightAlpha(float light, float alpha)
 {
   player_t *player;
@@ -263,7 +276,7 @@ static void gld_StaticLightAlpha(float light, float alpha)
 
 #define gld_StaticLight(light) gld_StaticLightAlpha(light, 1.0f)
 
-void gld_InitExtensions(const char *_extensions)
+static void gld_InitExtensions(const char *_extensions)
 {
   char *extensions;
   char *extension;
@@ -297,7 +310,7 @@ void gld_InitExtensions(const char *_extensions)
 	if (gld_ColorTableEXT == NULL)
 	  gl_paletted_texture = false;
 	else
-          lprintf(LO_INFO,"using GL_EXT_paletted_texture\n",glGetString(GL_VENDOR));
+          lprintf(LO_INFO,"using GL_EXT_paletted_texture\n");
       }
     }
     else if (strcasecmp(extension, "GL_EXT_shared_texture_palette") == 0)
@@ -307,7 +320,7 @@ void gld_InitExtensions(const char *_extensions)
 	if (gld_ColorTableEXT == NULL)
 	  gl_shared_texture_palette = false;
 	else
-          lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n",glGetString(GL_VENDOR));
+          lprintf(LO_INFO,"using GL_EXT_shared_texture_palette\n");
       }
 
     extension = p;
@@ -474,7 +487,7 @@ void gld_Init(int width, int height)
   e6y_InitExtensions();//e6y
 }
 
-void gld_InitCommandLine()
+void gld_InitCommandLine(void)
 {
 }
 
@@ -527,10 +540,6 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
 
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
 {
-  extern int gld_GetTexDimension(int value);
-  extern void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted);
-  extern void gld_SetTexturePalette(GLenum target);
-
   GLTexture *gltexture;
   unsigned char *buffer;
   float fU1,fU2,fV1,fV2;
@@ -838,7 +847,7 @@ void gld_ReadScreen (byte* scr)
   glReadPixels(0,0,SCREENWIDTH,SCREENHEIGHT,GL_RGB,GL_UNSIGNED_BYTE,scr);
 }
 
-GLvoid gld_Set2DMode()
+GLvoid gld_Set2DMode(void)
 {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -859,7 +868,7 @@ void gld_InitDrawScene(void)
 {
 }
 
-void gld_Finish()
+void gld_Finish(void)
 {
   gld_Set2DMode();
   glFinish();
@@ -1827,7 +1836,7 @@ static float pitch    = 0.0f;
 
 #define __glPi 3.14159265358979323846
 
-void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
+static void infinitePerspective(GLdouble fovy, GLdouble aspect, GLdouble znear)
 {
 	GLdouble left, right, bottom, top;
 	GLdouble m[16];
@@ -1943,7 +1952,6 @@ void gld_StartDrawScene(void)
 void gld_EndDrawScene(void)
 {
   player_t *player = &players[displayplayer];
-  extern void R_DrawPlayerSprites (void);
 
   glDisable(GL_POLYGON_SMOOTH);
 
@@ -1954,7 +1962,7 @@ void gld_EndDrawScene(void)
   if (viewangleoffset <= 1024<<ANGLETOFINESHIFT ||
     viewangleoffset >=-1024<<ANGLETOFINESHIFT)
   { // don't draw on side views
-    R_DrawPlayerSprites ();
+    R_DrawPlayerSprites();
   }
   if (player->fixedcolormap == 32) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
@@ -2283,6 +2291,7 @@ void gld_AddWall(seg_t *seg)
   sector_t ftempsec; // needed for R_FakeFlat
   sector_t btempsec; // needed for R_FakeFlat
   float lineheight;
+  int rellight = 0;
 
   if (!segrendered)
     return;
@@ -2296,7 +2305,8 @@ void gld_AddWall(seg_t *seg)
     return;
   wall.glseg=&gl_segs[seg->iSegID];
 
-  wall.light=gld_CalcLightLevel(frontsector->lightlevel+(extralight<<5));
+  rellight = seg->linedef->dx==0? +8 : seg->linedef->dy==0 ? -8 : 0;
+  wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
   wall.alpha=1.0f;
   wall.gltexture=NULL;
 
@@ -2858,8 +2868,6 @@ void gld_AddSprite(vissprite_t *vspr)
  *               *
  *****************/
 
-extern int rendered_visplanes, rendered_segs, rendered_vissprites;
-
 //e6y
 void e6y_DrawAdd(void)
 {
@@ -3105,7 +3113,6 @@ void gld_DrawScene(player_t *player)
 
 void gld_PreprocessLevel(void)
 {
-  void gld_Precache(void);
   if (precache)
     gld_Precache();
   gld_PreprocessSectors();

@@ -88,10 +88,10 @@ extern const char *s_QLPROMPT; // = QLPROMPT;
 "you can't start a new game\n"\
 "while in a network game.\n\n"PRESSKEY
 */
-extern char *s_NEWGAME; // = NEWGAME;
+extern const char *s_NEWGAME; // = NEWGAME;
 
 // CPhipps - message given when asked if to restart the level
-extern char *s_RESTARTLEVEL;
+extern const char *s_RESTARTLEVEL;
 
 /*
 #define NIGHTMARE     \

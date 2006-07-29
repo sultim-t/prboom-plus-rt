@@ -62,7 +62,6 @@ extern patchnum_t hu_font[HU_FONTSIZE];
 extern boolean  message_dontfuckwithme;
 
 extern boolean chat_on;          // in heads-up code
-extern int     HU_MoveHud(void); // jff 3/9/98 avoid glitch in HUD display
 
 //
 // defaulted values
@@ -886,7 +885,7 @@ void M_DrawSave(void)
 //
 // M_Responder calls this when user is finished
 //
-void M_DoSave(int slot)
+static void M_DoSave(int slot)
 {
   G_SaveGame (slot,savegamestrings[slot]);
   M_ClearMenus ();
@@ -1033,7 +1032,7 @@ int quitsounds2[8] =
   sfx_sgtatk
 };
 
-void M_QuitResponse(int ch)
+static void M_QuitResponse(int ch)
 {
   if (ch != 'y')
     return;
@@ -1321,7 +1320,7 @@ void M_QuickSave(void)
 // M_QuickLoad
 //
 
-void M_QuickLoadResponse(int ch)
+static void M_QuickLoadResponse(int ch)
 {
   if (ch == 'y') {
     M_LoadSelect(quickSaveSlot);
@@ -1353,7 +1352,7 @@ void M_QuickLoad(void)
 // M_EndGame
 //
 
-void M_EndGameResponse(int ch)
+static void M_EndGameResponse(int ch)
 {
   if (ch != 'y')
     return;
@@ -1532,7 +1531,7 @@ menuitem_t SetupMenu[]=
 //
 // M_DoNothing does just that: nothing. Just a placeholder.
 
-void M_DoNothing(int choice)
+static void M_DoNothing(int choice)
 {
 }
 
@@ -1833,7 +1832,7 @@ static patch_t *M_MakeColChip(byte chipcol, byte framecol)
 // displays the appropriate setting value: yes/no, a key binding, a number,
 // a paint chip, etc.
 
-void M_DrawSetting(const setup_menu_t* s)
+static void M_DrawSetting(const setup_menu_t* s)
 {
   int x = s->m_x, y = s->m_y, flags = s->m_flags, color;
 
@@ -2043,7 +2042,7 @@ static void M_DrawScreenItems(const setup_menu_t* src)
 
 // And the routine to draw it.
 
-void M_DrawDefVerify(void)
+static void M_DrawDefVerify(void)
 {
   // proff 12/6/98: Drawing of verify box changed for hi-res, it now uses a patch
   V_DrawNamePatch(VERIFYBOXXORG,VERIFYBOXYORG,0,"M_VBOX",CR_DEFAULT,VPT_STRETCH);
@@ -2777,7 +2776,7 @@ byte palette_background[16*(CHIP_SIZE+1)+8];
 // phares 4/1/98: now uses a single lump for the palette instead of
 // building the image out of individual paint chips.
 
-void M_DrawColPal(void)
+static void M_DrawColPal(void)
 {
   int i,cpx,cpy;
   byte *ptr;
@@ -3568,7 +3567,7 @@ static boolean shiftdown = false; // phares 4/10/98: SHIFT key down or not
 // M_SelectDone() gets called when you have finished entering your
 // Setup Menu item change.
 
-void M_SelectDone(setup_menu_t* ptr)
+static void M_SelectDone(setup_menu_t* ptr)
 {
   ptr->m_flags &= ~S_SELECT;
   ptr->m_flags |= S_HILITE;
@@ -3600,7 +3599,7 @@ static setup_menu_t **setup_screens[] =
 //
 // killough 10/98: rewritten to fix bugs and warn about pending changes
 
-void M_ResetDefaults(void)
+static void M_ResetDefaults(void)
 {
   default_t *dp;
   int warn = 0;

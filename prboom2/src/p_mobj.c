@@ -44,6 +44,7 @@
 #include "g_game.h"
 #include "p_inter.h"
 #include "lprintf.h"
+#include "r_demo.h"
 #include "e6y.h"//e6y
 
 //
@@ -133,7 +134,7 @@ void P_ExplodeMissile (mobj_t* mo)
 // Attempts to move something if it has momentum.
 //
 
-void P_XYMovement (mobj_t* mo)
+static void P_XYMovement (mobj_t* mo)
   {
   player_t *player;
   fixed_t xmove, ymove;
@@ -594,7 +595,7 @@ floater:
 // P_NightmareRespawn
 //
 
-void P_NightmareRespawn(mobj_t* mobj)
+static void P_NightmareRespawn(mobj_t* mobj)
   {
   fixed_t      x;
   fixed_t      y;
@@ -912,7 +913,7 @@ void P_RemoveMobj (mobj_t* mobj)
  * killough 8/24/98: rewrote to use hashing
  */
 
-int P_FindDoomedNum(unsigned type)
+static PUREFUNC int P_FindDoomedNum(unsigned type)
 {
   static struct { int first, next; } *hash;
   register int i;
@@ -1074,9 +1075,36 @@ void P_SpawnPlayer (int n, const mapthing_t* mthing)
     ST_Start(); // wake up the status bar
     HU_Start(); // wake up the heads up text
     }
-    SmoothPlaying_Reset(p);//e6y
+    R_SmoothPlaying_Reset(p); // e6y
   }
 
+/*
+ * P_IsDoomnumAllowed()
+ * Based on code taken from P_LoadThings() in src/p_setup.c  Return TRUE
+ * if the thing in question is expected to be available in the gamemode used.
+ */
+
+boolean P_IsDoomnumAllowed(int doomnum)
+{
+  // Do not spawn cool, new monsters if !commercial
+  if (gamemode != commercial)
+    switch(doomnum)
+      {
+      case 64:  // Archvile
+      case 65:  // Former Human Commando
+      case 66:  // Revenant
+      case 67:  // Mancubus
+      case 68:  // Arachnotron
+      case 69:  // Hell Knight
+      case 71:  // Pain Elemental
+      case 84:  // Wolf SS
+      case 88:  // Boss Brain
+      case 89:  // Boss Shooter
+        return false;
+      }
+
+  return true;
+}
 
 //
 // P_SpawnMapThing

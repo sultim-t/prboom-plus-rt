@@ -7,7 +7,7 @@
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
- *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -25,39 +25,19 @@
  *  02111-1307, USA.
  *
  * DESCRIPTION:
- *      Refresh module, BSP traversal and handling.
+ *      Demo stuff
  *
- *-----------------------------------------------------------------------------*/
+ *---------------------------------------------------------------------
+ */
 
-#ifndef __R_BSP__
-#define __R_BSP__
+#include "doomstat.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
+#define SMOOTH_PLAYING_MAXFACTOR 16 
 
-extern seg_t    *curline;
-extern side_t   *sidedef;
-extern line_t   *linedef;
-extern sector_t *frontsector;
-extern sector_t *backsector;
+extern int demo_smoothturns;
+extern int demo_smoothturnsfactor;
 
-/* old code -- killough:
- * extern drawseg_t drawsegs[MAXDRAWSEGS];
- * new code -- killough: */
-extern drawseg_t *drawsegs;
-extern unsigned maxdrawsegs;
-
-extern byte solidcol[MAX_SCREENWIDTH];
-
-extern drawseg_t *ds_p;
-
-void R_ClearClipSegs(void);
-void R_ClearDrawSegs(void);
-void R_RenderBSPNode(int bspnum);
-int R_DoorClosed(void);   /* killough 1/17/98 */
-
-/* killough 4/13/98: fake floors/ceilings for deep water / fake ceilings: */
-sector_t *R_FakeFlat(sector_t *, sector_t *, int *, int *, boolean);
-
-#endif
+void R_SmoothPlaying_Reset(player_t *player);
+void R_SmoothPlaying_Add(int delta);
+angle_t R_SmoothPlaying_Get(angle_t defangle);
+void R_ResetAfterTeleport(player_t *player);

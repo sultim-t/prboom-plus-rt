@@ -246,7 +246,7 @@ static void I_EndDoom(void)
 
   if (lump != -1)
   {
-    const char (*endoom)[2] = (void*)W_CacheLumpNum(lump);
+    const char (*endoom)[2] = (const void*)W_CacheLumpNum(lump);
     int i, l = W_LumpLength(lump) / 2;
 
     /* cph - colour ENDOOM by rain */
@@ -344,7 +344,7 @@ void I_SafeExit(int rc)
     }
 }
 
-void I_Quit (void)
+static void I_Quit (void)
 {
   if (!has_exited)
     has_exited=1;   /* Prevent infinitely recursive exits -- killough */

@@ -1001,21 +1001,21 @@ boolean P_CanUnlockGenDoor
 // jff 2/23/98 added to prevent old demos from
 //  succeeding in starting multiple specials on one sector
 //
-int P_SectorActive(special_e t,sector_t *sec)
+boolean PUREFUNC P_SectorActive(special_e t, const sector_t *sec)
 {
   if (demo_compatibility)  // return whether any thinker is active
-    return sec->floordata || sec->ceilingdata || sec->lightingdata;
+    return sec->floordata != NULL || sec->ceilingdata != NULL || sec->lightingdata != NULL;
   else
     switch (t)             // return whether thinker of same type is active
     {
       case floor_special:
-        return (int)sec->floordata;
+        return sec->floordata != NULL;
       case ceiling_special:
-        return (int)sec->ceilingdata;
+        return sec->ceilingdata != NULL;
       case lighting_special:
-        return (int)sec->lightingdata;
+        return sec->lightingdata != NULL;
     }
-  return 1; // don't know which special, must be active, shouldn't be here
+  return true; // don't know which special, must be active, shouldn't be here
 }
 
 
@@ -1110,7 +1110,7 @@ int P_CheckTag(line_t *line)
 // jff 3/14/98 added to simplify checks for whether sector is secret
 //  in automap and other places
 //
-boolean P_IsSecret(sector_t *sec)
+boolean PUREFUNC P_IsSecret(const sector_t *sec)
 {
   return (sec->special==9 || (sec->special&SECRET_MASK));
 }
@@ -1125,7 +1125,7 @@ boolean P_IsSecret(sector_t *sec)
 // jff 3/14/98 added to simplify checks for whether sector is secret
 //  in automap and other places
 //
-boolean P_WasSecret(sector_t *sec)
+boolean PUREFUNC P_WasSecret(const sector_t *sec)
 {
   return (sec->oldspecial==9 || (sec->oldspecial&SECRET_MASK));
 }
@@ -3082,7 +3082,7 @@ static void Add_Pusher(int type, int x_mag, int y_mag, mobj_t* source, int affec
 
 pusher_t* tmpusher; // pusher structure for blockmap searches
 
-boolean PIT_PushThing(mobj_t* thing)
+static boolean PIT_PushThing(mobj_t* thing)
 {
   /* killough 10/98: made more general */
   if (!mbf_features ?

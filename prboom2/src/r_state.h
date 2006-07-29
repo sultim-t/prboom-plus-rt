@@ -52,7 +52,7 @@ extern fixed_t *textureheight;
 
 extern int scaledviewwidth;
 
-extern int firstflat;
+extern int firstflat, numflats;
 
 // for global animation
 extern int *flattranslation;

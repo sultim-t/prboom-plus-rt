@@ -307,19 +307,9 @@ void D_Display (void)
 
   // draw pause pic
   if (paused) {
-      static int x;
-
-      if (!x) { // Cache results of x pos calc
-  int lump = W_GetNumForName("M_PAUSE");
-  const patch_t* p = W_CacheLumpNum(lump);
-  x = (320 - SHORT(p->width))/2;
-  W_UnlockLumpNum(lump);
-      }
-
-      // CPhipps - updated for new patch drawing
-      V_DrawNamePatch(x, (!(automapmode & am_active) || (automapmode & am_overlay))
-          ? 4+(viewwindowy*200/SCREENHEIGHT) : 4, // cph - Must un-stretch viewwindowy
-          0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
+    // Simplified the "logic" here and no need for x-coord caching - POPE
+    V_DrawNamePatch((320 - V_NamePatchWidth("M_PAUSE"))/2, 4,
+                    0, "M_PAUSE", CR_DEFAULT, VPT_STRETCH);
   }
 
   // menus go directly to the screen
@@ -726,7 +716,7 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 //
 // jff 4/19/98 Make killoughs slash fixer a subroutine
 //
-void NormalizeSlashes(char *str)
+static void NormalizeSlashes(char *str)
 {
   int l;
 
@@ -746,7 +736,7 @@ void NormalizeSlashes(char *str)
 // a file or directory. If neither append .wad and check if it
 // exists as a file then. Else return non-existent.
 
-boolean WadFileStatus(char *filename,boolean *isdir)
+static boolean WadFileStatus(char *filename,boolean *isdir)
 {
   struct stat sbuf;
   int i;
@@ -782,7 +772,7 @@ boolean WadFileStatus(char *filename,boolean *isdir)
  *
  * Search for one of the standard IWADs
  * CPhipps  - static, proper prototype
- *    - 12/1999 - rewritten to use FindWADFile
+ *    - 12/1999 - rewritten to use I_FindFile
  */
 static char *FindIWADFile(void)
 {
@@ -820,7 +810,7 @@ static char *FindIWADFile(void)
 //
 // jff 4/19/98 rewritten to use a more advanced search algorithm
 
-void IdentifyVersion (void)
+static void IdentifyVersion (void)
 {
   int         i;    //jff 3/24/98 index of args on commandline
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
@@ -922,7 +912,7 @@ void IdentifyVersion (void)
 
 #define MAXARGVS 100
 
-void FindResponseFile (void)
+static void FindResponseFile (void)
 {
   int i;
 
@@ -1054,7 +1044,7 @@ void FindResponseFile (void)
 //
 // CPhipps - OUCH! Writing into *myargv is too dodgy, damn
 
-void DoLooseFiles(void)
+static void DoLooseFiles(void)
 {
   char *wads[MAXARGVS];  // store the respective loose filenames
   char *lmps[MAXARGVS];
@@ -1169,7 +1159,7 @@ const char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
 // CPhipps - misc screen stuff
 unsigned int desired_screenwidth, desired_screenheight;
 
-void L_SetupConsoleMasks(void) {
+static void L_SetupConsoleMasks(void) {
   int p;
   int i;
   const char *cena="ICWEFDA",*pos;  //jff 9/3/98 use this for parsing console masks // CPhipps - const char*'s
@@ -1205,7 +1195,7 @@ void L_SetupConsoleMasks(void) {
 // CPhipps - the old contents of D_DoomMain, but moved out of the main
 //  line of execution so its stack space can be freed
 
-void D_DoomMainSetup(void)
+static void D_DoomMainSetup(void)
 {
   int p,slot;
 
@@ -1627,20 +1617,6 @@ void D_DoomMainSetup(void)
   if ((p = M_CheckParm("-autoshot")) && (p < myargc-2))
     if ((auto_shot_count = auto_shot_time = atoi(myargv[p+1])))
       auto_shot_fname = myargv[p+2];
-
-  // check for a driver that wants intermission stats
-  if ((p = M_CheckParm ("-statcopy")) && p<myargc-1)
-    {
-      // for statistics driver
-      extern  void* statcopy;
-
-      // killough 5/2/98: this takes a memory
-      // address as an integer on the command line!
-
-      statcopy = (void*) atoi(myargv[p+1]);
-      //jff 9/3/98 use logical output routine
-      lprintf (LO_CONFIRM,"External statistics registered.\n");
-    }
 
   // start the apropriate game based on parms
 

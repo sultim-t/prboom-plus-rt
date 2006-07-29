@@ -83,14 +83,14 @@ extern boolean rendering_stats;
 #define LIGHTZSHIFT       20
 
 // killough 3/20/98: Allow colormaps to be dynamic (e.g. underwater)
-extern lighttable_t *(*zlight)[MAXLIGHTZ];
-extern lighttable_t *fullcolormap;
+extern const lighttable_t *(*zlight)[MAXLIGHTZ];
+extern const lighttable_t *fullcolormap;
 extern int numcolormaps;    // killough 4/4/98: dynamic number of maps
-extern lighttable_t **colormaps;
+extern const lighttable_t **colormaps;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
 extern int          extralight;
-extern lighttable_t *fixedcolormap;
+extern const lighttable_t *fixedcolormap;
 
 // Number of diminishing brightness levels.
 // There a 0-31, i.e. 32 LUT in the COLORMAP lump.

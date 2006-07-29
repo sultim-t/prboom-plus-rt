@@ -37,6 +37,7 @@
 #include "p_map.h"
 #include "p_spec.h"
 #include "p_user.h"
+#include "r_demo.h"
 #include "e6y.h"//e6y
 
 // Index of the special effects (INVUL inverse) map.
@@ -77,7 +78,7 @@ void P_Thrust(player_t* player,angle_t angle,fixed_t move)
  * reduced at a regular rate, even on ice (where the player coasts).
  */
 
-void P_Bob(player_t *player, angle_t angle, fixed_t move)
+static void P_Bob(player_t *player, angle_t angle, fixed_t move)
 {
   player->momx += FixedMul(move,finecosine[angle >>= ANGLETOFINESHIFT]);
   player->momy += FixedMul(move,finesine[angle]);
@@ -198,6 +199,10 @@ void P_MovePlayer (player_t* player)
 
   onground = mo->z <= mo->floorz;
 
+  // e6y
+  if (demo_smoothturns && player == &players[displayplayer])
+    R_SmoothPlaying_Add(cmd->angleturn << 16);
+
   // killough 10/98:
   //
   // We must apply thrust to the player and bobbing separately, to avoid
@@ -291,7 +296,7 @@ void P_DeathThink (player_t* player)
 
   if (player->cmd.buttons & BT_USE)
     player->playerstate = PST_REBORN;
-  SmoothPlaying_Reset(player);//e6y
+  R_SmoothPlaying_Reset(player); // e6y
   }
 
 

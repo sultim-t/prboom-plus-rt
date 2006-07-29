@@ -19,6 +19,3 @@ SUBDIRS = doc data src ICONS VisualC8 VisualC6
 EXTRA_DIST = prboom.spec.in prboom.spec config.h bootstrap $(AUX_DIST_GEN)
 doc_DATA = README COPYING AUTHORS NEWS
 
-rpm:	dist
-	rpm -tb @PACKAGE@-@VERSION@.tar.gz
-

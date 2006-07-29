@@ -149,7 +149,7 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
 
 #define R_SpriteNameHash(s) ((unsigned)((s)[0]-((s)[1]*3-(s)[3]*2-(s)[2])*2))
 
-void R_InitSpriteDefs(const char * const * namelist)
+static void R_InitSpriteDefs(const char * const * namelist)
 {
   size_t numentries = lastspritelump-firstspritelump+1;
   struct { int index, next; } *hash;
@@ -292,7 +292,7 @@ void R_ClearSprites (void)
 // R_NewVisSprite
 //
 
-vissprite_t *R_NewVisSprite(void)
+static vissprite_t *R_NewVisSprite(void)
 {
   if (num_vissprite >= num_vissprite_alloc)             // killough
     {
@@ -346,7 +346,7 @@ void R_DrawMaskedColumn(const column_t *column)
           //  or (SHADOW) R_DrawFuzzColumn.
           colfunc ();
         }
-      column = (const column_t *)(  (byte *)column + column->length + 4);
+      column = (const column_t *)( (const byte *)column + column->length + 4);
     }
   dc_texturemid = basetexturemid;
 }
@@ -356,7 +356,7 @@ void R_DrawMaskedColumn(const column_t *column)
 //  mfloorclip and mceilingclip should also be set.
 //
 // CPhipps - new wad lump handling, *'s to const*'s
-void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
+static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 {
   const column_t *column;
   int      texturecolumn;
@@ -415,7 +415,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 // Generates a vissprite for a thing if it might be visible.
 //
 
-void R_ProjectSprite (mobj_t* thing, int lightlevel)
+static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 {
   fixed_t   gzt;               // killough 3/27/98
   fixed_t   tx;
@@ -514,6 +514,11 @@ void R_ProjectSprite (mobj_t* thing, int lightlevel)
 #endif
 
   sprframe = &sprdef->spriteframes[thing->frame & FF_FRAMEMASK];
+
+  // If sprframe is NULL the sprite is not in the IWAD.
+  if (!sprframe)
+    I_Error ("R_ProjectSprite: Missing spriteframes %i : %i", thing->sprite,
+             thing->frame);
 
   if (sprframe->rotate)
     {
@@ -680,7 +685,7 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 // R_DrawPSprite
 //
 
-void R_DrawPSprite (pspdef_t *psp, int lightlevel)
+static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
 {
   int           x1, x2;
   spritedef_t   *sprdef;
@@ -907,7 +912,7 @@ void R_SortVisSprites (void)
 // R_DrawSprite
 //
 
-void R_DrawSprite (vissprite_t* spr)
+static void R_DrawSprite (vissprite_t* spr)
 {
   drawseg_t *ds;
   int     clipbot[MAX_SCREENWIDTH]; // killough 2/8/98: // dropoff overflow

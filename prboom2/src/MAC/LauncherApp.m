@@ -1,3 +1,5 @@
+// This file is hereby placed in the Public Domain -- Neil Stevens
+
 #import "LauncherApp.h"
 
 #import <Foundation/NSArray.h>
@@ -32,7 +34,7 @@
      name:NSTaskDidTerminateNotification object:nil];
 
 	// Check if the task printed any output
-	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
+	[NSTimer scheduledTimerWithTimeInterval:0.1 target:self
 	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
 
 	// Save Prefs on exit
@@ -198,9 +200,9 @@
 		[args insertObject:@"-respawn" atIndex:[args count]];
 
 	if([fullscreenButton state] == NSOnState)
-		[args insertObject:@"-fullscreen" atIndex:[args count]];
+		[args insertObject:@"-nowindow" atIndex:[args count]];
 	else
-		[args insertObject:@"-nofullscreen" atIndex:[args count]];
+		[args insertObject:@"-window" atIndex:[args count]];
 
 	// Debug options
 	if([disableGraphicsButton state] == NSOnState)
@@ -248,7 +250,9 @@
 
 	// Execute
 	standardOutput = [[NSPipe alloc] init];
+	standardError = [[NSPipe alloc] init];
 	[standardOutput retain];
+	[standardError retain];
 	[consoleTextView clear];
 
 	doomTask = [[NSTask alloc] init];
@@ -256,9 +260,37 @@
 	[doomTask setLaunchPath:path];
 	[doomTask setArguments:args];
 	[doomTask setStandardOutput:standardOutput];
+	[doomTask setStandardError:standardError];
 
 	[launchButton setEnabled:false];
 	[doomTask launch];
+}
+
+static void *buffer = 0;
+static NSString *readPipe(NSPipe *pipe)
+{
+	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
+	int fd = [[pipe fileHandleForReading] fileDescriptor];
+	int flags = fcntl(fd, F_GETFL, 0);
+	flags |= O_NONBLOCK;
+	fcntl(fd, F_SETFL, flags);
+
+	if(!buffer)
+		buffer = malloc(1000000);
+	int size = read(fd, buffer, 1000000);
+
+	if(size > 0)
+	{
+		NSData *data = [NSData dataWithBytesNoCopy:buffer length:size
+		                freeWhenDone:false];
+
+		// Stick the data into the console text view
+		NSString *string = [[NSString alloc] initWithData:data
+		                    encoding:NSUTF8StringEncoding];
+		[string retain];
+		return string;
+	}
+	return @"";
 }
 
 - (void)taskReadTimer:(NSTimer *)timer
@@ -266,26 +298,13 @@
 	if(doomTask == nil)
 		return;
 
-	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
-	int fd = [[standardOutput fileHandleForReading] fileDescriptor];
+	NSString *stdoutString = readPipe(standardOutput);
+	[consoleTextView appendAnsiString:stdoutString];
+	[stdoutString release];
 
-	int flags = fcntl(fd, F_GETFL, 0);
-	flags |= O_NONBLOCK;
-	fcntl(fd, F_SETFL, flags);
-
-	void *buffer = malloc(1000000);
-	int size = read(fd, buffer, 1000000);
-
-	if(size > 0)
-	{
-		NSData *data = [NSData dataWithBytesNoCopy:buffer length:size
-		                freeWhenDone:true];
-
-		// Stick the data into the console text view
-		NSString *string = [[NSString alloc] initWithData:data
-		                    encoding:NSUTF8StringEncoding];
-		[consoleTextView appendAnsiString:string];
-	}
+	NSString *stderrString = readPipe(standardError);
+	// Ignore for now
+	[stderrString release];
 }
 
 - (void)taskComplete:(NSNotification *)notification
@@ -299,6 +318,7 @@
 			[[consoleWindow windowController] showWindow:nil];
 		[doomTask release];
 		doomTask = nil;
+		[standardError release];
 		[standardOutput release];
 		[launchButton setEnabled:true];
 	}

@@ -214,8 +214,6 @@ prboom2/src/MAC/AGRegex/AGRegex.m -text
 prboom2/src/MAC/AGRegex/AGRegex.pbproj/aram.pbxuser -text
 prboom2/src/MAC/AGRegex/AGRegex.pbproj/project.pbxproj -text
 prboom2/src/MAC/AGRegex/AGRegex.xcodeproj.zip -text
-prboom2/src/MAC/AGRegex/AGRegex.xcodeproj/fschulze.mode1 -text
-prboom2/src/MAC/AGRegex/AGRegex.xcodeproj/fschulze.pbxuser -text
 prboom2/src/MAC/AGRegex/AGRegex.xcodeproj/project.pbxproj -text
 prboom2/src/MAC/AGRegex/AGRegex_Prefix.pch -text
 prboom2/src/MAC/AGRegex/Controller.m -text
@@ -267,10 +265,8 @@ prboom2/src/MAC/i_sound.c -text
 prboom2/src/MAC/i_system.m -text
 prboom2/src/MAC/macsupport.rb -text
 prboom2/src/Makefile.am eol=lf
-prboom2/src/OSS/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
-prboom2/src/X11/Makefile.am eol=lf
 prboom2/src/d_ipxgate.c -text
 prboom2/src/w_memcache.c -text
 prboom2/src/w_mmap.c -text

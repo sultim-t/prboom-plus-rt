@@ -3197,6 +3197,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\r_demo.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_demo.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\p_doors.c"
 				>
 				<FileConfiguration

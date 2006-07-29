@@ -120,7 +120,7 @@ typedef struct
   int     y;
 
   // last icon value
-  int     oldval;
+  boolean oldval;
 
   // pointer to current icon status
   boolean*    val;

@@ -80,7 +80,8 @@
 #include "lprintf.h"
 #include "i_main.h"
 #include "i_system.h"
-#include "e6y.h" //e6y
+#include "r_demo.h"
+#include "e6y.h"
 
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
@@ -246,15 +247,12 @@ static buttoncode_t special_event; // Event triggered by local player, to send
 static byte  savegameslot;         // Slot to load if gameaction == ga_loadgame
 char         savedescription[SAVEDESCLEN];  // Description to save in savegame if gameaction == ga_savegame
 
-//jff 3/24/98 declare startskill external, define defaultskill here
-extern skill_t startskill;      //note 0-based
+//jff 3/24/98 define defaultskill here
 int defaultskill;               //note 1-based
 
 // killough 2/8/98: make corpse queue variable in size
 int    bodyqueslot, bodyquesize;        // killough 2/8/98
 mobj_t **bodyque = 0;                   // phares 8/10/98
-
-void   *statcopy;       // for statistics driver
 
 static void G_DoSaveGame (boolean menu);
 //e6y static
@@ -724,7 +722,7 @@ boolean G_Responder (event_t* ev)
     ST_Start();    // killough 3/7/98: switch status bar views too
     HU_Start();
     S_UpdateSounds(players[displayplayer].mo);
-    SmoothPlaying_Reset(NULL);//e6y
+    R_SmoothPlaying_Reset(NULL); // e6y
   }
       return true;
     }
@@ -1033,12 +1031,12 @@ void G_Ticker (void)
 // Can when a player completes a level.
 //
 
-void G_PlayerFinishLevel(int player)
+static void G_PlayerFinishLevel(int player)
 {
   player_t *p = &players[player];
   memset(p->powers, 0, sizeof p->powers);
   memset(p->cards, 0, sizeof p->cards);
-  p->mo->flags &= ~MF_SHADOW;   // cancel invisibility
+  p->mo = NULL;           // cph - this is allocated PU_LEVEL so it's gone
   p->extralight = 0;      // cancel gun flashes
   p->fixedcolormap = 0;   // cancel ir gogles
   p->damagecount = 0;     // no palette changes
@@ -1127,7 +1125,7 @@ void G_PlayerReborn (int player)
 // because something is occupying it
 //
 
-boolean G_CheckSpot(int playernum, mapthing_t *mthing)
+static boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 {
   fixed_t     x,y;
   subsector_t *ss;
@@ -1165,7 +1163,6 @@ boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 
   if (bodyquesize > 0)
     {
-      static mobj_t **bodyque;
       static int queuesize;
       if (queuesize < bodyquesize)
 	{
@@ -1446,9 +1443,6 @@ void G_DoCompleted (void)
   gamestate = GS_INTERMISSION;
   automapmode &= ~am_active;
 
-  if (statcopy)
-    memcpy (statcopy, &wminfo, sizeof(wminfo));
-
   e6y_G_DoCompleted();//e6y
 
   WI_Start (&wminfo);
@@ -1581,7 +1575,7 @@ void G_LoadGame(int slot, boolean command)
     demoplayback = false;
   }
   command_loadgame = command;
-  SmoothPlaying_Reset(NULL);//e6y
+  R_SmoothPlaying_Reset(NULL); // e6y
 }
 
 // killough 5/15/98:
@@ -1669,6 +1663,8 @@ void G_DoLoadGame(void)
   gameaction = ga_nothing;
 
   length = M_ReadFile(name, &savebuffer);
+  if (length<=0)
+    I_Error("Couldn't read file %s: %s", name, "(Unknown Error)");
   save_p = savebuffer + SAVESTRINGSIZE;
 
   // CPhipps - read the description field, compare with supported ones
@@ -1764,7 +1760,7 @@ void G_DoLoadGame(void)
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
   P_ActivateAllInterpolations();//e6y
-  SmoothPlaying_Reset(NULL);//e6y
+  R_SmoothPlaying_Reset(NULL); // e6y
 
   if (*save_p != 0xe6)
     I_Error ("G_DoLoadGame: Bad savegame");
@@ -2908,7 +2904,7 @@ void G_DoPlayDemo(void)
   usergame = false;
 
   demoplayback = true;
-  SmoothPlaying_Reset(NULL);//e6y
+  R_SmoothPlaying_Reset(NULL); // e6y
 }
 
 //

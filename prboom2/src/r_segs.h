@@ -37,6 +37,6 @@
 #endif
 
 void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2);
-void R_StoreWallRange(int start, int stop);
+void R_StoreWallRange(const int start, const int stop);
 
 #endif

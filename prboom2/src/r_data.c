@@ -32,6 +32,7 @@
 
 #include "doomstat.h"
 #include "w_wad.h"
+#include "r_draw.h"
 #include "r_main.h"
 #include "r_sky.h"
 #include "i_system.h"
@@ -117,7 +118,7 @@ int       *texturetranslation;
 // Rewritten by Lee Killough for performance and to fix Medusa bug
 //
 
-void R_DrawColumnInCache(const column_t *patch, byte *cache,
+static void R_DrawColumnInCache(const column_t *patch, byte *cache,
                          int originy, int cacheheight, byte *marks)
 {
   while (patch->topdelta != 0xff)
@@ -136,7 +137,7 @@ void R_DrawColumnInCache(const column_t *patch, byte *cache,
 
       if (count > 0)
         {
-          memcpy (cache + position, (byte *)patch + 3, count);
+          memcpy (cache + position, (const byte *)patch + 3, count);
 
           // killough 4/9/98: remember which cells in column have been drawn,
           // so that column can later be converted into a series of posts, to
@@ -145,7 +146,7 @@ void R_DrawColumnInCache(const column_t *patch, byte *cache,
           memset (marks + position, 0xff, count);
         }
 
-      patch = (column_t *)((byte *) patch + patch->length + 4);
+      patch = (const column_t *)((const byte *) patch + patch->length + 4);
     }
 }
 
@@ -157,7 +158,7 @@ void R_DrawColumnInCache(const column_t *patch, byte *cache,
 //
 // Rewritten by Lee Killough for performance and to fix Medusa bug
 
-void R_GenerateComposite(int texnum)
+static void R_GenerateComposite(int texnum)
 {
   texture_t *texture = textures[texnum];
   byte *block = Z_Malloc(texture->compositesize, PU_STATIC,
@@ -182,7 +183,7 @@ void R_GenerateComposite(int texnum)
       for (; x1<x2 ; x1++)
         if (collump[x1] == -1)      // Column has multiple patches?
           // killough 1/25/98, 4/9/98: Fix medusa bug.
-          R_DrawColumnInCache((column_t*)((byte*)realpatch+LONG(cofs[x1])),
+          R_DrawColumnInCache((const column_t*)((const byte*)realpatch+LONG(cofs[x1])),
                               block+colofs[x1],patch->originy,texture->height,
                               marks + x1 * texture->height);
 
@@ -274,9 +275,9 @@ static void R_GenerateLookup(int texnum, int *const errors)
             // killough 4/9/98: keep a count of the number of posts in column,
             // to fix Medusa bug while allowing for transparent multipatches.
 
-            const column_t *col = (column_t*)((byte*)realpatch+LONG(cofs[x]));
+            const column_t *col = (const column_t*)((const byte*)realpatch+LONG(cofs[x]));
             for (;col->topdelta != 0xff; count[x].posts++)
-              col = (column_t *)((byte *) col + col->length + 4);
+              col = (const column_t *)((const byte *) col + col->length + 4);
             count[x].patches++;
             collump[x] = pat;
             colofs[x] = LONG(cofs[x])+3;
@@ -380,11 +381,11 @@ const byte *R_GetColumn(int tex, int col)
 //  with the textures from the world map.
 //
 
-void R_InitTextures (void)
+static void R_InitTextures (void)
 {
-  maptexture_t *mtexture;
+  const maptexture_t *mtexture;
   texture_t    *texture;
-  mappatch_t   *mpatch;
+  const mappatch_t   *mpatch;
   texpatch_t   *patch;
   int  i, j;
   int         maptex_lump[2] = {-1, -1};
@@ -479,7 +480,7 @@ void R_InitTextures (void)
       if (offset > maxoff)
         I_Error("R_InitTextures: Bad texture directory");
 
-      mtexture = (maptexture_t *) ( (byte *)maptex + offset);
+      mtexture = (const maptexture_t *) ( (const byte *)maptex + offset);
 
       texture = textures[i] =
         Z_Malloc(sizeof(texture_t) +
@@ -595,7 +596,7 @@ void R_InitTextures (void)
 //
 // R_InitFlats
 //
-void R_InitFlats(void)
+static void R_InitFlats(void)
 {
   int i;
 
@@ -620,7 +621,7 @@ void R_InitFlats(void)
 // so the sprite does not need to be cached completely
 // just for having the header info ready during rendering.
 //
-void R_InitSpriteLumps(void)
+static void R_InitSpriteLumps(void)
 {
   firstspritelump = W_GetNumForName("S_START") + 1;
   lastspritelump = W_GetNumForName("S_END") - 1;
@@ -636,16 +637,16 @@ void R_InitSpriteLumps(void)
 // killough 4/4/98: Add support for C_START/C_END markers
 //
 
-void R_InitColormaps(void)
+static void R_InitColormaps(void)
 {
   int i;
   firstcolormaplump = W_GetNumForName("C_START");
   lastcolormaplump  = W_GetNumForName("C_END");
   numcolormaps = lastcolormaplump - firstcolormaplump;
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps, PU_STATIC, 0);
-  colormaps[0] = (lighttable_t *)W_CacheLumpName("COLORMAP");
+  colormaps[0] = (const lighttable_t *)W_CacheLumpName("COLORMAP");
   for (i=1; i<numcolormaps; i++)
-    colormaps[i] = (lighttable_t *)W_CacheLumpNum(i+firstcolormaplump);
+    colormaps[i] = (const lighttable_t *)W_CacheLumpNum(i+firstcolormaplump);
   // cph - always lock
 }
 
@@ -723,7 +724,7 @@ void R_InitTranMap(int progress)
 
   if (lump != -1)  // Set a pointer to the translucency filter maps.
     main_tranmap = W_CacheLumpNum(lump);   // killough 4/11/98
-  else
+  else if (W_CheckNumForName("PLAYPAL")!=-1) // can be called before WAD loaded
     {   // Compose a default transparent filter map based on PLAYPAL.
       const byte *playpal = W_CacheLumpName("PLAYPAL");
       byte       *my_tranmap;
@@ -733,14 +734,13 @@ void R_InitTranMap(int progress)
         unsigned char pct;
         unsigned char playpal[256];
       } cache;
-      FILE *cachefp = fopen(strcat(strcpy(fname, I_DoomExeDir()),
-                                   "/tranmap.dat"),"r+b");
+      FILE *cachefp = fopen(strcat(strcpy(fname, I_DoomExeDir()), "/tranmap.dat"),"rb");
 
       main_tranmap = my_tranmap = Z_Malloc(256*256, PU_STATIC, 0);  // killough 4/11/98
 
       // Use cached translucency filter if it's available
 
-      if (!cachefp ? cachefp = fopen(fname,"wb") , 1 :
+      if (!cachefp ||
           fread(&cache, 1, sizeof cache, cachefp) != sizeof cache ||
           cache.pct != tran_filter_pct ||
           memcmp(cache.playpal, playpal, sizeof cache.playpal) ||
@@ -750,8 +750,8 @@ void R_InitTranMap(int progress)
           long w1 = ((unsigned long) tran_filter_pct<<TSC)/100;
           long w2 = (1l<<TSC)-w1;
 
-    if (progress)
-      lprintf(LO_INFO, "Tranmap build [        ]\x08\x08\x08\x08\x08\x08\x08\x08\x08");
+          if (progress)
+            lprintf(LO_INFO, "Tranmap build [        ]\x08\x08\x08\x08\x08\x08\x08\x08\x08");
 
           // First, convert playpal into long int type, and transpose array,
           // for fast inner-loop calculations. Precompute tot array.
@@ -803,14 +803,14 @@ void R_InitTranMap(int progress)
                   }
               }
           }
-          if (cachefp)        // write out the cached translucency map
+          if ((cachefp = fopen(fname,"wb")) != NULL) // write out the cached translucency map
             {
               cache.pct = tran_filter_pct;
               memcpy(cache.playpal, playpal, 256);
               fseek(cachefp, 0, SEEK_SET);
               fwrite(&cache, 1, sizeof cache, cachefp);
               fwrite(main_tranmap, 256, 256, cachefp);
-        // CPhipps - leave close for a few lines...
+              // CPhipps - leave close for a few lines...
             }
         }
 
@@ -977,7 +977,7 @@ void R_PrecacheLevel(void)
 
   {
     thinker_t *th = NULL;
-    while (th = P_NextThinker(th,th_all))
+    while ((th = P_NextThinker(th,th_all)) != NULL)
       if (th->function == P_MobjThinker)
         hitlist[((mobj_t *)th)->sprite] = 1;
   }
@@ -1001,9 +1001,9 @@ void R_PrecacheLevel(void)
 // Proff - Added for OpenGL
 void R_SetPatchNum(patchnum_t *patchnum, const char *name)
 {
-  patch_t *patch;
+  const patch_t *patch;
 
-  patch = (patch_t *) W_CacheLumpName(name);
+  patch = (const patch_t *) W_CacheLumpName(name);
   patchnum->width = patch->width;
   patchnum->height = patch->height;
   patchnum->leftoffset = patch->leftoffset;

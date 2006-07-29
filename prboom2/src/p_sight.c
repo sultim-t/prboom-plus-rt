@@ -31,6 +31,7 @@
 
 #include "doomstat.h"
 #include "r_main.h"
+#include "p_map.h"
 #include "p_maputl.h"
 #include "p_setup.h"
 #include "m_bbox.h"
@@ -223,8 +224,8 @@ static boolean P_CrossBSPNode_PrBoom(int bspnum)
     {
       register const node_t *bsp = nodes + bspnum;
       int side,side2;
-      side = P_DivlineSide(los.strace.x,los.strace.y,(divline_t *)bsp)&1;
-      side2= P_DivlineSide(los.t2x, los.t2y, (divline_t *) bsp);
+      side = P_DivlineSide(los.strace.x,los.strace.y,(const divline_t *)bsp)&1;
+      side2= P_DivlineSide(los.t2x, los.t2y, (const divline_t *) bsp);
       if (side == side2)
          bspnum = bsp->children[side]; // doesn't touch the other side
       else         // the partition plane is crossed here

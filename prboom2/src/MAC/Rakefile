@@ -21,6 +21,11 @@ else
 	@commonflags += ' -Os'
 end
 
+if ENV['GL_DOOM']
+  @systemFrameworks += %w(OpenGL)
+  @defines += ' -DGL_DOOM'
+end
+
 ####################
 # Bundle structure #
 ####################
@@ -90,6 +95,7 @@ p_tick.c
 p_user.c
 r_bsp.c
 r_data.c
+r_demo.c
 r_draw.c
 r_main.c
 r_plane.c
@@ -110,6 +116,13 @@ z_bmalloc.c
 z_zone.c
 )
 
+if ENV['GL_DOOM']
+sources += %w(
+gl_main.c
+gl_texture.c
+)
+end
+
 launcherSources = %w(
 MAC/LauncherApp.m
 MAC/LauncherMain.m
@@ -118,8 +131,16 @@ MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
 )
 
+serverSources = %w(
+POSIX/i_system.c
+MAC/SDLMain.m
+i_udp_sdl.c
+d_server.c
+)
+
 buildBinary(:binary, BINDIR, 'PrBoom-Plus', sources)
 buildBinary(:binary, BINDIR, 'Launcher', launcherSources)
+buildBinary(:binary, BINDIR, 'Server-Plus', serverSources)
 task(:bundle => :binary)
 
 ############

@@ -36,10 +36,12 @@
 #include "doomdef.h"
 #include "doomtype.h"
 #include "doomstat.h"
+#include "d_deh.h"
 #include "sounds.h"
 #include "info.h"
 #include "m_cheat.h"
 #include "p_inter.h"
+#include "p_enemy.h"
 #include "g_game.h"
 #include "d_think.h"
 #include "w_wad.h"
@@ -54,7 +56,7 @@
 #ifndef HAVE_STRLWR
 #include <ctype.h>
 
-char* strlwr(char* str)
+static char* strlwr(char* str)
 {
   char* p;
   for (p=str; *p; p++) *p = tolower(*p);
@@ -72,7 +74,7 @@ typedef struct {
 
 // killough 10/98: emulate IO whether input really comes from a file or not
 
-char *dehfgets(char *buf, size_t n, DEHFILE *fp)
+static char *dehfgets(char *buf, size_t n, DEHFILE *fp)
 {
   if (!fp->lump)                                     // If this is a real file,
     return (fgets)(buf, n, (FILE *) fp->inp);        // return regular fgets
@@ -91,12 +93,12 @@ char *dehfgets(char *buf, size_t n, DEHFILE *fp)
   return buf;                                        // Return buffer pointer
 }
 
-int dehfeof(DEHFILE *fp)
+static int dehfeof(DEHFILE *fp)
 {
   return !fp->lump ? (feof)((FILE *) fp->inp) : !*fp->inp || fp->size<=0;
 }
 
-int dehfgetc(DEHFILE *fp)
+static int dehfgetc(DEHFILE *fp)
 {
   return !fp->lump ? (fgetc)((FILE *) fp->inp) : fp->size > 0 ?
     fp->size--, *fp->inp++ : EOF;
@@ -1254,93 +1256,6 @@ static const char *deh_misc[] = // CPhipps - static const*
 // Usage: Start block, then each line is:
 // FRAME nnn = PointerMnemonic
 
-// External references to action functions scattered about the code
-
-extern void A_Light0();
-extern void A_WeaponReady();
-extern void A_Lower();
-extern void A_Raise();
-extern void A_Punch();
-extern void A_ReFire();
-extern void A_FirePistol();
-extern void A_Light1();
-extern void A_FireShotgun();
-extern void A_Light2();
-extern void A_FireShotgun2();
-extern void A_CheckReload();
-extern void A_OpenShotgun2();
-extern void A_LoadShotgun2();
-extern void A_CloseShotgun2();
-extern void A_FireCGun();
-extern void A_GunFlash();
-extern void A_FireMissile();
-extern void A_Saw();
-extern void A_FirePlasma();
-extern void A_BFGsound();
-extern void A_FireBFG();
-extern void A_BFGSpray();
-extern void A_Explode();
-extern void A_Pain();
-extern void A_PlayerScream();
-extern void A_Fall();
-extern void A_XScream();
-extern void A_Look();
-extern void A_Chase();
-extern void A_FaceTarget();
-extern void A_PosAttack();
-extern void A_Scream();
-extern void A_SPosAttack();
-extern void A_VileChase();
-extern void A_VileStart();
-extern void A_VileTarget();
-extern void A_VileAttack();
-extern void A_StartFire();
-extern void A_Fire();
-extern void A_FireCrackle();
-extern void A_Tracer();
-extern void A_SkelWhoosh();
-extern void A_SkelFist();
-extern void A_SkelMissile();
-extern void A_FatRaise();
-extern void A_FatAttack1();
-extern void A_FatAttack2();
-extern void A_FatAttack3();
-extern void A_BossDeath();
-extern void A_CPosAttack();
-extern void A_CPosRefire();
-extern void A_TroopAttack();
-extern void A_SargAttack();
-extern void A_HeadAttack();
-extern void A_BruisAttack();
-extern void A_SkullAttack();
-extern void A_Metal();
-extern void A_SpidRefire();
-extern void A_BabyMetal();
-extern void A_BspiAttack();
-extern void A_Hoof();
-extern void A_CyberAttack();
-extern void A_PainAttack();
-extern void A_PainDie();
-extern void A_KeenDie();
-extern void A_BrainPain();
-extern void A_BrainScream();
-extern void A_BrainDie();
-extern void A_BrainAwake();
-extern void A_BrainSpit();
-extern void A_SpawnSound();
-extern void A_SpawnFly();
-extern void A_BrainExplode();
-extern void A_Detonate();        // killough 8/9/98
-extern void A_Mushroom();        // killough 10/98
-extern void A_Die();             // killough 11/98
-extern void A_Spawn();           // killough 11/98
-extern void A_Turn();            // killough 11/98
-extern void A_Face();            // killough 11/98
-extern void A_Scratch();         // killough 11/98
-extern void A_PlaySound();       // killough 11/98
-extern void A_RandomJump();      // killough 11/98
-extern void A_LineEffect();      // killough 11/98
-
 typedef struct {
   actionf_t cptr;  // actual pointer to the subroutine
   const char *lookup;  // mnemonic lookup string to be specified in BEX
@@ -1683,7 +1598,7 @@ static void deh_procBexCodePointers(DEHFILE *fpin, FILE* fpout, char *line)
 // To be on the safe, compatible side, we manually convert DEH bitflags
 // to prboom types - POPE
 //---------------------------------------------------------------------------
-uint_64_t getConvertedDEHBits(uint_64_t bits) {
+static uint_64_t getConvertedDEHBits(uint_64_t bits) {
   static const uint_64_t bitMap[32] = {
     /* cf linuxdoom-1.10 p_mobj.h */
     MF_SPECIAL, // 0 Can be picked up – When touched the thing can be picked up.
@@ -1732,7 +1647,7 @@ uint_64_t getConvertedDEHBits(uint_64_t bits) {
 //---------------------------------------------------------------------------
 // See usage below for an explanation of this function's existence - POPE
 //---------------------------------------------------------------------------
-void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
+static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
   mobjinfo_t *mi;
   if (mobjInfoIndex >= NUMMOBJTYPES || mobjInfoIndex < 0) return;
   mi = &mobjinfo[mobjInfoIndex];

@@ -41,5 +41,5 @@ extern int joydown;
 
 extern int usejoystick;
 
-void I_InitJoystick();
-void I_PollJoystick();
+void I_InitJoystick(void);
+void I_PollJoystick(void);

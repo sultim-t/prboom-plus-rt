@@ -55,7 +55,7 @@ int usejoystick;
 static SDL_Joystick *joystick;
 #endif
 
-void I_EndJoystick(void)
+static void I_EndJoystick(void)
 {
   lprintf(LO_DEBUG, "I_EndJoystick : closing joystick\n");
 }

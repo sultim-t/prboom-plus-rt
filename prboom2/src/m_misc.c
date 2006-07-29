@@ -140,8 +140,6 @@ int M_ReadFile(char const *name, byte **buffer)
 {
   FILE *fp;
 
-  errno = 0;
-
   if ((fp = fopen(name, "rb")))
     {
       size_t length;
@@ -160,10 +158,9 @@ int M_ReadFile(char const *name, byte **buffer)
       fclose(fp);
     }
 
-  I_Error("Couldn't read file %s: %s", name, 
-	  errno ? strerror(errno) : "(Unknown Error)");
-
-  return 0;
+  /* cph 2002/08/10 - this used to return 0 on error, but that's ambiguous,
+   * because we could have a legit 0-length file. So make it -1. */
+  return -1;
 }
 
 //

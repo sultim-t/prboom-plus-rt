@@ -1,3 +1,5 @@
+// This file is hereby placed in the Public Domain -- Neil Stevens
+
 #import <Cocoa/Cocoa.h>
 
 @interface LauncherApp : NSObject
@@ -49,6 +51,7 @@
 	// Launch management
 	NSTask *doomTask;
 	NSPipe *standardOutput;
+	NSPipe *standardError;
 }
 
 - (NSString *)wadPath;

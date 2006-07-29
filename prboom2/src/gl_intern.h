@@ -76,6 +76,10 @@ void gld_BindPatch(GLTexture *gltexture, int cm);
 GLTexture *gld_RegisterFlat(int lump, boolean mipmap);
 void gld_BindFlat(GLTexture *gltexture);
 void gld_InitPalettedTextures(void);
+int gld_GetTexDimension(int value);
+void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const patch_t *patch, int originx, int originy, int cm, int paletted);
+void gld_SetTexturePalette(GLenum target);
+void gld_Precache(void);
 
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))

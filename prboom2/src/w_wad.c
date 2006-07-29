@@ -53,9 +53,6 @@
 #include "w_wad.h"
 #include "lprintf.h"
 
-// From w_memcache.c
-void W_InitCache(void);
-
 //
 // GLOBALS
 //

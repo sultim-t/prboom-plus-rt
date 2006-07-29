@@ -34,14 +34,12 @@
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"
+#include "r_draw.h"
 #include "v_video.h"
 #include "st_stuff.h"
 #include "g_game.h"
 #include "am_map.h"
 #include "lprintf.h"
-
-#define MAXWIDTH  MAX_SCREENWIDTH          /* kilough 2/8/98 */
-#define MAXHEIGHT MAX_SCREENHEIGHT
 
 //
 // All drawing to the view buffer is accomplished in this file.
@@ -59,39 +57,6 @@ int  viewheight;
 int  viewwindowx;
 int  viewwindowy;
 
-// leban 1/17/99:
-//
-// these next two are pre-calculated to help the speed of the inner
-// loops.  however, they're not a win on a powerpc, and probably not
-// on any other modern cpu that isn't afraid of multiplies.
-//
-// consider ylookup.  below, it's initialized in a loop as
-//    columnofs[i] = viewwindowx + i;
-// that's one addition.  indexing into an array is one addition.
-// but since columnofs is an array with global scope, loading usually
-// is another instruction.  on powerpc, the value is stored in the
-// TOC instead of the address.  i think x86 does something similar,
-// as someone added a bunch of local copies of similar variables below.
-// that tactic can move an extra load out of an inner loop.
-//
-// but wait, there's more, as an array offset must be converted into
-// array units, which in this case is most likely a shift left.  that's
-// one more instruction wasted per array index.
-//
-// there's also an extra benefit on powerpc:  the number of registers
-// used in R_DrawColumn is reduced, and a stack frame is no longer
-// needed.  there's another two instructions saved.
-//
-// i'll leave these two in for now, but they could eventually get
-// removed.  columnofs[] is actually referenced elsewhere.  topleft
-// isn't static to work around a metrowerks compiler bug.
-//
-// XXX
-//
-// CPhipps - also to use it in the i386 asm I need it global
-
-//byte *ylookup[MAXHEIGHT];
-//int  columnofs[MAXWIDTH];
 byte *topleft;
 
 // Color tables for different players,
@@ -108,14 +73,14 @@ const byte *main_tranmap;     // killough 4/11/98
 // Source is the top of the column to scale.
 //
 
-lighttable_t *dc_colormap;
+const lighttable_t *dc_colormap;
+const byte         *dc_source;      // first pixel in a column (possibly virtual)
 int     dc_x;
 int     dc_yl;
 int     dc_yh;
 fixed_t dc_iscale;
 fixed_t dc_texturemid;
 int     dc_texheight;    // killough
-byte    *dc_source;      // first pixel in a column (possibly virtual)
 
 // SoM: OPTIMIZE for ANYRES
 typedef enum
@@ -140,7 +105,7 @@ static fixed_t temptranslevel;
 static unsigned int *temp_fg2rgb;
 static unsigned int *temp_bg2rgb;
 // SoM 7-28-04: Fix the fuzz problem.
-static byte   *tempfuzzmap;
+static const byte   *tempfuzzmap;
 
 //
 // Spectre/Invisibility.
@@ -877,7 +842,8 @@ void R_DrawFuzzColumn(void)
 //  identical sprites, kinda brightened up.
 //
 
-byte *dc_translation, *translationtables;
+const byte *dc_translation;
+byte       *translationtables;
 
 void R_DrawTranslatedColumn (void)
 {
@@ -987,7 +953,7 @@ int  ds_y;
 int  ds_x1;
 int  ds_x2;
 
-lighttable_t *ds_colormap;
+const lighttable_t *ds_colormap;
 
 fixed_t ds_xfrac;
 fixed_t ds_yfrac;
@@ -995,14 +961,14 @@ fixed_t ds_xstep;
 fixed_t ds_ystep;
 
 // start of a 64*64 tile image
-byte *ds_source;
+const byte *ds_source;
 
 void R_DrawSpan (void)
 {
   register unsigned count,xfrac = ds_xfrac,yfrac = ds_yfrac;
 
-  byte *source;
-  byte *colormap;
+  const byte *source;
+  const byte *colormap;
   byte *dest;
 
   source = ds_source;

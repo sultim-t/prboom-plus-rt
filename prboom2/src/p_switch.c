@@ -106,7 +106,7 @@ void P_InitSwitchList(void)
 // to remain active in gametics.
 // No return.
 //
-void P_StartButton
+static void P_StartButton
 ( line_t*       line,
   bwhere_e      w,
   int           texture,

@@ -625,6 +625,14 @@ SOURCE=..\src\p_ceilng.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\r_demo.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_demo.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\p_doors.c
 # End Source File
 # Begin Source File

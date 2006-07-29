@@ -299,7 +299,6 @@ extern boolean transparentpresent;
 
 void R_ClearClipSegs (void);
 void R_RenderBSPNode(int bspnum);
-void R_SetupFrame (player_t *player);
 
 void e6y_MultisamplingCheck(void);
 void e6y_MultisamplingSet(void);

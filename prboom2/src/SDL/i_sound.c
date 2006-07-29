@@ -140,7 +140,7 @@ static void stopchan(int i)
 //  (eight, usually) of internal channels.
 // Returns a handle.
 //
-int addsfx(int sfxid, int channel)
+static int addsfx(int sfxid, int channel)
 {
     int   oldest = gametic;
     int   oldestnum = 0;
@@ -274,17 +274,6 @@ void I_SetChannels(void)
     }
 }
 
-
-void I_SetSfxVolume(int volume)
-{
-  // Identical to DOS.
-  // Basically, this should propagate
-  //  the menu/config file setting
-  //  to the state variable used in
-  //  the mixing.
-  snd_SfxVolume = volume;
-}
-
 //
 // Retrieve the raw data lump index
 //  for a given SFX name.
@@ -370,7 +359,7 @@ boolean I_SoundIsPlaying(int handle)
 // This function currently supports only 16bit.
 //
 
-void I_UpdateSound(void *unused, Uint8 *stream, int len)
+static void I_UpdateSound(void *unused, Uint8 *stream, int len)
 {
   // Mix current sound data.
   // Data, from raw sound, for right and left.

@@ -87,7 +87,7 @@ static int spanstart[MAX_SCREENHEIGHT];                // killough 2/8/98
 // texture mapping
 //
 
-static lighttable_t **planezlight;
+static const lighttable_t **planezlight;
 static fixed_t planeheight;
 
 // killough 2/8/98: make variables static

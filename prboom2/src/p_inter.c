@@ -92,7 +92,7 @@ int clipammo[NUMAMMO] = { 10,  4,  20,  1};
 // Returns false if the ammo can't be picked up at all
 //
 
-boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
+static boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
 {
   int oldammo;
 
@@ -167,7 +167,7 @@ boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
 // The weapon name may have a MF_DROPPED flag ored in.
 //
 
-boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropped)
+static boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropped)
 {
   boolean gaveammo;
   boolean gaveweapon;
@@ -216,7 +216,7 @@ boolean P_GiveWeapon(player_t *player, weapontype_t weapon, boolean dropped)
 // Returns false if the body isn't needed at all
 //
 
-boolean P_GiveBody(player_t *player, int num)
+static boolean P_GiveBody(player_t *player, int num)
 {
   if (player->health >= maxhealth)
     return false; // Ty 03/09/98 externalized MAXHEALTH to maxhealth
@@ -233,7 +233,7 @@ boolean P_GiveBody(player_t *player, int num)
 // than the current armor.
 //
 
-boolean P_GiveArmor(player_t *player, int armortype)
+static boolean P_GiveArmor(player_t *player, int armortype)
 {
   int hits = armortype*100;
   if (player->armorpoints >= hits)
@@ -247,7 +247,7 @@ boolean P_GiveArmor(player_t *player, int armortype)
 // P_GiveCard
 //
 
-void P_GiveCard(player_t *player, card_t card)
+static void P_GiveCard(player_t *player, card_t card)
 {
   if (player->cards[card])
     return;
