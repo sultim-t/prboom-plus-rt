@@ -32,7 +32,7 @@
      name:NSTaskDidTerminateNotification object:nil];
 
 	// Check if the task printed any output
-	[NSTimer scheduledTimerWithTimeInterval:1.0 target:self
+	[NSTimer scheduledTimerWithTimeInterval:0.1 target:self
 	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
 
 	// Save Prefs on exit
@@ -264,6 +264,7 @@
 	[doomTask launch];
 }
 
+static void *buffer = 0;
 static NSString *readPipe(NSPipe *pipe)
 {
 	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
@@ -272,13 +273,14 @@ static NSString *readPipe(NSPipe *pipe)
 	flags |= O_NONBLOCK;
 	fcntl(fd, F_SETFL, flags);
 
-	void *buffer = malloc(1000000);
+	if(!buffer)
+		buffer = malloc(1000000);
 	int size = read(fd, buffer, 1000000);
 
 	if(size > 0)
 	{
 		NSData *data = [NSData dataWithBytesNoCopy:buffer length:size
-		                freeWhenDone:true];
+		                freeWhenDone:false];
 
 		// Stick the data into the console text view
 		NSString *string = [[NSString alloc] initWithData:data
