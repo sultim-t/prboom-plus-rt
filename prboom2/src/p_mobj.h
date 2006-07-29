@@ -339,9 +339,6 @@ typedef struct mobj_s
     // Thing being chased/attacked for tracers.
     struct mobj_s*      tracer;
 
-    //proff 11/22/98: Andy Baker's stealth monsters
-    boolean             invisible;
-
     // new field: last known enemy -- killough 2/15/98
     struct mobj_s*      lastenemy;
 

@@ -40,10 +40,6 @@
 
 void P_NoiseAlert (mobj_t *target, mobj_t *emmiter);
 void P_SpawnBrainTargets(void); /* killough 3/26/98: spawn icon landings */
-/* proff 11/22/98: Andy Baker's stealth monsters */
-void   P_BecomeVisible (mobj_t *actor);
-void   P_IncreaseVisibility (mobj_t *actor);
-void   P_DecreaseVisibility (mobj_t *actor);
 
 extern struct brain_s {         /* killough 3/26/98: global state of boss brain */
   int easy, targeton;
