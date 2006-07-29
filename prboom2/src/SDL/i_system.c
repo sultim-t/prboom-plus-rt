@@ -294,7 +294,7 @@ char* I_FindFile(const char* wfname, const char* ext)
       break;
 #ifdef SIMPLECHECKS
     default:
-      I_Error("FindWADFile: Internal failure");
+      I_Error("I_FindFile: Internal failure");
 #endif
     }
 

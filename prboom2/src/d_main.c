@@ -748,7 +748,7 @@ static boolean WadFileStatus(char *filename,boolean *isdir)
  *
  * Search for one of the standard IWADs
  * CPhipps  - static, proper prototype
- *    - 12/1999 - rewritten to use FindWADFile
+ *    - 12/1999 - rewritten to use I_FindFile
  */
 static char *FindIWADFile(void)
 {
