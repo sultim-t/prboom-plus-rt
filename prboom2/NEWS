@@ -16,6 +16,7 @@ Changes from v2.4.3 to v2.4.4
 - The "RUN" key inverts the autorun state
 - Fixed OpenGL sky rendering in Requiem and Memento Mori
 - The "Show coordinates of automap pointer" setting works now
+- fix translucency map file handle leak
 
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.
