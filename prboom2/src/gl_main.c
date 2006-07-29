@@ -250,12 +250,11 @@ static const float lighttable[5][256] =
 // experimental new lighting code
 static float gld_CalcLightLevel(int lightlevel) {
   if (lightlevel < 192) {
-    lightlevel = lightlevel - ((192 - lightlevel) * 95 / 100);
+    lightlevel = lightlevel - ((192 - lightlevel) * 85 / 100);
   }
   if (lightlevel < 20)
     lightlevel = 20;
   return lightlevel / 255.0;
-//  return lighttable[usegamma][max(min((lightlevel),255),0)];
 }
 */
 
@@ -2189,6 +2188,7 @@ void gld_AddWall(seg_t *seg)
   sector_t ftempsec; // needed for R_FakeFlat
   sector_t btempsec; // needed for R_FakeFlat
   float lineheight;
+  int rellight = 0;
 
   if (!segrendered)
     return;
@@ -2202,7 +2202,8 @@ void gld_AddWall(seg_t *seg)
     return;
   wall.glseg=&gl_segs[seg->iSegID];
 
-  wall.light=gld_CalcLightLevel(frontsector->lightlevel+(extralight<<5));
+  rellight = seg->linedef->dx==0? +8 : seg->linedef->dy==0 ? -8 : 0;
+  wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
   wall.alpha=1.0f;
   wall.gltexture=NULL;
 
