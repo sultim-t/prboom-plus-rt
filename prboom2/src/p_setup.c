@@ -1439,14 +1439,14 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-    lprintf(LO_INFO,"Using glBSP nodes!\n");
+    lprintf(LO_DEBUG,"Using glBSP nodes!\n");
   }
   else
   {
     P_LoadSubsectors(lumpnum + ML_SSECTORS);
     P_LoadNodes(lumpnum + ML_NODES);
     P_LoadSegs(lumpnum + ML_SEGS);
-    lprintf(LO_INFO,"Using normal BSP nodes!\n");
+    lprintf(LO_DEBUG,"Using normal BSP nodes!\n");
   }
 
 #else
