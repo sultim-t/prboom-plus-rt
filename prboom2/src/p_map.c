@@ -425,7 +425,7 @@ boolean PIT_CheckLine (line_t* ld)
       }
       spechit[numspechit++] = ld;
       // e6y: Spechits overrun emulation code
-      if (numspechit >= 8 && demo_compatibility)
+      if (numspechit > 8 && demo_compatibility)
         SpechitOverrun(ld);
     }
 
@@ -2227,13 +2227,14 @@ void P_MapEnd(void) {
 // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
 static void SpechitOverrun(line_t *ld)
 {
-  //int addr = 0x01C09C98 + (ld - lines) * 0x3E;
-  int addr = 0x00C09C98 + (ld - lines) * 0x3E;
-
-  if (demo_compatibility)
+  if (demo_compatibility && numspechit > 8)
   {
     if (overrun_spechit_warn)
-      ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, numspechit > 20, "SPECHITS",
+      ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, 
+        numspechit > 
+          (compatibility_level == dosdoom_compatibility || 
+          compatibility_level == tasdoom_compatibility) ? 10 : 14, 
+        "SPECHITS",
         "\n\nThe list of LinesID leading to overrun:\n%d, %d, %d, %d, %d, %d, %d, %d, %d.",
         spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID,
         spechit[3]->iLineID, spechit[4]->iLineID, spechit[5]->iLineID,
@@ -2247,6 +2248,8 @@ static void SpechitOverrun(line_t *ld)
       // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
       // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
       // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+      
+      //int addr = 0x01C09C98 + (ld - lines) * 0x3E;
       int addr = 0x00C09C98 + (ld - lines) * 0x3E;
       if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {
@@ -2255,7 +2258,6 @@ static void SpechitOverrun(line_t *ld)
 
         switch(numspechit)
         {
-        case 8: break; /* strange cph's code */
         case 9: 
           tmfloorz = addr;
           break;
@@ -2265,8 +2267,8 @@ static void SpechitOverrun(line_t *ld)
           
         default:
           fprintf(stderr, "SpechitOverrun: Warning: unable to emulate"
-            "an overrun where numspechit=%i\n",
-            numspechit);
+                          "an overrun where numspechit=%i\n",
+                           numspechit);
           break;
         }
       }
@@ -2277,7 +2279,6 @@ static void SpechitOverrun(line_t *ld)
 
         switch(numspechit)
         {
-        case 8: break; /* numspechit, not significant it seems - cph */
         case 9: 
         case 10:
         case 11:
