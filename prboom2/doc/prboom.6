@@ -6,7 +6,7 @@ prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 .B prboom
 [ \-complevel \fIlvl\fR ]
 .BR
-[ \-width \fIw\fR ] [ \-height \fIh\fR ]
+[ \-width \fIw\fR ] [ \-height \fIh\fR ] [ \-viewangleoffset \fIn\fR ]
 .BR
 [ \-iwad \fIiwadname\fR ] [ -file \fIwad1 \&...\fR ] [ \-deh \fIdeh_file\fR ] [ \-noload ]
 .BR
@@ -45,6 +45,10 @@ width must be greater than 320..
 \-height \fIh\fR
 Specifies the height of the PrBoom window, in pixels. Default is 200, the
 height must be greater than 200.
+.TP
+[ \-viewangleoffset \fIn\fR ]
+Causes the player view to be rotated by a given offset (specified in 45degree
+increments, in the range 0..7) from the way the player is facing.
 .SH WAD Options
 .TP
 \-iwad \fIiwadname\fR
