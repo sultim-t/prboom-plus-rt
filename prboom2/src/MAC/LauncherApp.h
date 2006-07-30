@@ -49,6 +49,7 @@
 	IBOutlet id consoleTextView;
 
 	// Launch management
+	NSTimer *consoleTimer;
 	NSTask *doomTask;
 	NSPipe *standardOutput;
 	NSPipe *standardError;

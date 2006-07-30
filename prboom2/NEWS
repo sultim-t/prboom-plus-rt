@@ -8,7 +8,6 @@ Changes from v2.4.3 to v2.4.4
   - Increased number of vertexes limit to 65535
   - Fixed crash when crossing sectors with very big height differences
 - fix crash on E4M8
-- Mac OS X:  Launcher has a Console that displays text output from the game
 - New command-line options for setting a window (-window) or fullscreen
   (-nowindow) mode temporarily.
 - The maximal supported resolution is increased from 1600x1200 to 2048x1536
