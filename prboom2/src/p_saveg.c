@@ -315,8 +315,25 @@ void P_ArchiveThinkers (void)
         *save_p++ = tc_mobj;
         PADSAVEP();
         mobj = (mobj_t *)save_p;
-        memcpy (mobj, th, sizeof(*mobj));
-        save_p += sizeof(*mobj);
+	/* cph 2006/07/30 - 
+	 * The end of mobj_t changed from
+	 *  boolean invisible;
+	 *  mobj_t* lastenemy;
+	 *  mobj_t* above_monster;
+	 *  mobj_t* below_monster;
+	 *  void* touching_sectorlist;
+	 * to
+	 *  mobj_t* lastenemy;
+	 *  void* touching_sectorlist;
+	 * at prboom 2.4.4. There is code here to preserve the savegame format.
+	 *
+	 * touching_sectorlist is reconstructed anyway, so we now leave off the
+	 * last 2 words of mobj_t, write 5 words of 0 and then write lastenemy
+	 * into the second of these.
+	 */
+        memcpy (mobj, th, sizeof(*mobj) - 2*sizeof(void*));
+        save_p += sizeof(*mobj) - 2*sizeof(void*);
+	memset (save_p, 0, 5*sizeof(void*));
         mobj->state = (state_t *)(mobj->state - states);
 
         // killough 2/14/98: convert pointers into indices.
@@ -339,12 +356,13 @@ void P_ArchiveThinkers (void)
         // monsters from going to sleep after killing monsters and not
         // seeing player anymore.
 
-        if (mobj->lastenemy)
-          mobj->lastenemy = mobj->lastenemy->thinker.function ==
-            P_MobjThinker ?
-            (mobj_t *) mobj->lastenemy->thinker.prev : NULL;
+        if (((mobj_t*)th)->lastenemy && ((mobj_t*)th)->lastenemy->thinker.function == P_MobjThinker) {
+	  memcpy (save_p + sizeof(void*), &(((mobj_t*)th)->lastenemy->thinker.prev), sizeof(void*));
+	}
 
         // killough 2/14/98: end changes
+
+	save_p += 5*sizeof(void*);
 
         if (mobj->player)
           mobj->player = (player_t *)((mobj->player-players) + 1);
@@ -388,6 +406,15 @@ static void P_SetNewTarget(mobj_t **mop, mobj_t *targ)
 // 2/14/98 killough: substantially modified to fix savegame bugs
 //
 
+// savegame file stores ints in the corresponding * field; this function
+// safely casts them back to int.
+static int P_GetMobj(mobj_t* mi, size_t s)
+{
+  size_t i = (size_t)mi;
+  if (i >= s) I_Error("Corrupt savegame");
+  return i;
+}
+
 void P_UnArchiveThinkers (void)
 {
   thinker_t *th;
@@ -417,7 +444,8 @@ void P_UnArchiveThinkers (void)
     for (size = 1; *save_p++ == tc_mobj; size++)  // killough 2/14/98
       {                     // skip all entries, adding up count
         PADSAVEP();
-        save_p += sizeof(mobj_t);
+	/* cph 2006/07/30 - see comment below for change in layout of mobj_t */
+        save_p += sizeof(mobj_t)+3*sizeof(void*);
       }
 
     if (*--save_p != tc_end)
@@ -437,8 +465,27 @@ void P_UnArchiveThinkers (void)
       mobj_p[size] = mobj;
 
       PADSAVEP();
-      memcpy (mobj, save_p, sizeof(mobj_t));
-      save_p += sizeof(mobj_t);
+      /* cph 2006/07/30 - 
+       * The end of mobj_t changed from
+       *  boolean invisible;
+       *  mobj_t* lastenemy;
+       *  mobj_t* above_monster;
+       *  mobj_t* below_monster;
+       *  void* touching_sectorlist;
+       * to
+       *  mobj_t* lastenemy;
+       *  void* touching_sectorlist;
+       * at prboom 2.4.4. There is code here to preserve the savegame format.
+       *
+       * touching_sectorlist is reconstructed anyway, so we now read in all 
+       * but the last 5 words from the savegame (filling all but the last 2
+       * fields of our current mobj_t. We then pull lastenemy from the 2nd of
+       * the 5 leftover words, and skip the others.
+       */
+      memcpy (mobj, save_p, sizeof(mobj_t)-2*sizeof(void*));
+      save_p += sizeof(mobj_t)-sizeof(void*);
+      memcpy (&(mobj->lastenemy), save_p, sizeof(void*));
+      save_p += 4*sizeof(void*);
       mobj->state = states + (int) mobj->state;
 
       if (mobj->player)
@@ -468,13 +515,13 @@ void P_UnArchiveThinkers (void)
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
     {
       P_SetNewTarget(&((mobj_t *) th)->target,
-        mobj_p[(size_t)((mobj_t *)th)->target]);
+        mobj_p[P_GetMobj(((mobj_t *)th)->target,size)]);
 
       P_SetNewTarget(&((mobj_t *) th)->tracer,
-        mobj_p[(size_t)((mobj_t *)th)->tracer]);
+        mobj_p[P_GetMobj(((mobj_t *)th)->tracer,size)]);
 
       P_SetNewTarget(&((mobj_t *) th)->lastenemy,
-        mobj_p[(size_t)((mobj_t *)th)->lastenemy]);
+        mobj_p[P_GetMobj(((mobj_t *)th)->lastenemy,size)]);
     }
 
   {  // killough 9/14/98: restore soundtargets
