@@ -26,15 +26,21 @@ and the other sources mentioned above have all allowed their code to be
 GPLed. So PrBoom is covered by the GPL.
 
 In May 2000, LxDoom, PrBoom, and a derived port called LSDLDoom, merged into
-one. The current authors of PrBoom are Colin Phipps (cph@moria.org.uk), and
-Florian Schulze (florian.schulze@gmx.net).
+one. The current authors of PrBoom are:
+
+Florian Schulze <florian.schulze@gmx.net>
+Colin Phipps <cph@moria.org.uk>
+Neil Stevens <neil@hakubi.us> - Mac OS X porting
+Andrey Budko <andrey.budko@gmail.com>
 
 Our thanks go to all the authors of the ports mentioned above, and also the
 following people who contributed code to LxDoom or PrBoom:
 
-Jess Haas	JessH@lbjhs.net
-Nicolas Kalkhof	nkalkhof@gmx.net
-Were both on the PrBoom team for a while, making significant code contributions.
+Jess Haas <JessH@lbjhs.net>
+Of LSDLdoom, who merged his project into PrBoom, contributing his SDL code.
+
+Nicolas Kalkhof	<nkalkhof@gmx.net>
+Much work on the OpenGL renderer.
 
 James "Quasar" Haley <haleyjd@concentric.net>
 Ever willing to talk about source ideas, and has pointed me in the direction of
@@ -46,9 +52,6 @@ Created the RMUDAnsiTextView class used in the Mac launcher.
 
 Gady Kozma	gady@math.tau.ac.il
 Added hires to the SVGALib version of LxDoom, and other useful patches.
-
-Andrey Budko
-Numerous bug fixes and compatibility improvements.
 
 Dick Leban
 Lots of feedback about portability issues and helping get the network code
@@ -117,6 +120,9 @@ Also, thanks to the following people who have helped in various ways:
 Simon "fraggle" Howard <fraggle@alkali.org>
 More MBF bugs.
 
+Jon Dowland
+Bug reports & fixes.
+
 Udo Monk
 His port xdoom is very portable, and I referred to his code sometimes for help
 with the X stuff; also his collection of Doom tools (XWadTools) is the
@@ -144,9 +150,6 @@ Pointing me toward yet another compatibility bug.
 
 Ingo van Lil
 Another bug spotter.
-
-Neil Stevens <neil@hakubi.us>
-Mac OS X porting
 
 Everyone who contributed indirectly to MBF and Boom and Doom; see the
 respective documentation files.

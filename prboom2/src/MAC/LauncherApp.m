@@ -33,9 +33,11 @@
 	addObserver:self selector:@selector(taskComplete:)
      name:NSTaskDidTerminateNotification object:nil];
 
+	/* XXX Disable console for release
 	// Check if the task printed any output
 	[NSTimer scheduledTimerWithTimeInterval:0.1 target:self
 	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
+	*/
 
 	// Save Prefs on exit
 	[[NSNotificationCenter defaultCenter] addObserver:self
@@ -249,19 +251,21 @@
 	}
 
 	// Execute
+	/* XXX Disable console for release
 	standardOutput = [[NSPipe alloc] init];
 	standardError = [[NSPipe alloc] init];
 	[standardOutput retain];
 	[standardError retain];
 	[consoleTextView clear];
-
+	*/
 	doomTask = [[NSTask alloc] init];
 	[doomTask retain];
 	[doomTask setLaunchPath:path];
 	[doomTask setArguments:args];
+	/* XXX Disable console for release
 	[doomTask setStandardOutput:standardOutput];
 	[doomTask setStandardError:standardError];
-
+	*/
 	[launchButton setEnabled:false];
 	[doomTask launch];
 }
@@ -311,15 +315,19 @@ static NSString *readPipe(NSPipe *pipe)
 {
 	if(doomTask && ![doomTask isRunning])
 	{
+		/* XXX Disable console for release
 		// Read last data from stdout
 		[self taskReadTimer:nil];
 
 		if ([doomTask terminationStatus] != 0)
 			[[consoleWindow windowController] showWindow:nil];
+		*/
 		[doomTask release];
 		doomTask = nil;
+		/* XXX Disable console for release
 		[standardError release];
 		[standardOutput release];
+		*/
 		[launchButton setEnabled:true];
 	}
 }

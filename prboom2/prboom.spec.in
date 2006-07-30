@@ -9,7 +9,7 @@ URL: http://prboom.sourceforge.net/
 Group: Amusements/Games
 BuildRoot: /var/tmp/%{doomname}-buildroot
 License: GPL
-Packager: Colin Phipps <doom@cph.demon.co.uk>
+Packager: Colin Phipps <cph@moria.org.uk>
 Prefix: %{_prefix}
 Autoreq: 0
 Requires: libSDL-1.2.so.0, libSDL_mixer-1.2.so.0, libSDL_net-1.2.so.0, libm.so.6, libc.so.6
