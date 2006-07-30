@@ -625,6 +625,8 @@ default_t defaults[] =
    def_colour,ss_auto}, // color used for the single player arrow
   {"mapcolor_me",   {&mapcolor_me}, {112},0,255, // green
    def_colour,ss_auto}, // your (player) colour
+  {"mapcolor_enemy",   {&mapcolor_enemy}, {177},0,255,
+   def_colour,ss_auto},
   {"mapcolor_frnd",   {&mapcolor_frnd}, {112},0,255,
    def_colour,ss_auto},
   //jff 3/9/98 add option to not show secrets til after found

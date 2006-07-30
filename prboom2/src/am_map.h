@@ -96,6 +96,7 @@ extern int mapcolor_unsn;     // computer map unseen line color
 extern int mapcolor_flat;     // line with no floor/ceiling changes
 extern int mapcolor_sprt;     // general sprite color
 extern int mapcolor_item;     // item sprite color
+extern int mapcolor_enemy;    // enemy sprite color
 extern int mapcolor_frnd;     // friendly sprite color
 extern int mapcolor_hair;     // crosshair color
 extern int mapcolor_sngl;     // single player arrow color

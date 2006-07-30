@@ -71,6 +71,7 @@ int mapcolor_flat;    // line with no floor/ceiling changes
 int mapcolor_sprt;    // general sprite color
 int mapcolor_item;    // item sprite color
 int mapcolor_frnd;    // friendly sprite color
+int mapcolor_enemy;   // enemy sprite color
 int mapcolor_hair;    // crosshair color
 int mapcolor_sngl;    // single player arrow color
 int mapcolor_plyr[4] = { 112, 88, 64, 176 }; // colors for player arrows in multiplayer
@@ -1605,6 +1606,8 @@ static void AM_drawThings(void)
         16<<FRACBITS,
         t->angle,
 	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
+	/* cph 2006/07/30 - Show count-as-kills in red. */
+          ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
         /* bbm 2/28/03 Show countable items in yellow. */
           t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
         x, y
