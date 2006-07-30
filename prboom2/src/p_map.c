@@ -2233,7 +2233,7 @@ static void SpechitOverrun(line_t *ld)
       ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, 
         numspechit > 
           (compatibility_level == dosdoom_compatibility || 
-          compatibility_level == tasdoom_compatibility) ? 10 : 14, 
+          compatibility_level == tasdoom_compatibility ? 10 : 14), 
         "SPECHITS",
         "\n\nThe list of LinesID leading to overrun:\n%d, %d, %d, %d, %d, %d, %d, %d, %d.",
         spechit[0]->iLineID, spechit[1]->iLineID, spechit[2]->iLineID,
