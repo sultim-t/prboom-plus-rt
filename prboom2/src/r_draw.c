@@ -169,14 +169,14 @@ static void R_FlushWholeOpaque(void)
    {
       yl     = tempyl[temp_x];
       source = &tempbuf[temp_x + (yl << 2)];
-      dest   = topleft + yl*SCREENWIDTH + startx + temp_x;
+      dest   = topleft + yl*screens[0].pitch + startx + temp_x;
       count  = tempyh[temp_x] - yl + 1;
       
       while(--count >= 0)
       {
          *dest = *source;
          source += 4;
-         dest += SCREENWIDTH;
+         dest += screens[0].pitch;
       }
    }
 }
@@ -204,14 +204,14 @@ static void R_FlushHTOpaque(void)
       if(yl < commontop)
       {
          source = &tempbuf[colnum + (yl << 2)];
-         dest   = topleft + yl*SCREENWIDTH + startx + colnum;
+         dest   = topleft + yl*screens[0].pitch + startx + colnum;
          count  = commontop - yl;
          
          while(--count >= 0)
          {
             *dest = *source;
             source += 4;
-            dest += SCREENWIDTH;
+            dest += screens[0].pitch;
          }
       }
       
@@ -219,14 +219,14 @@ static void R_FlushHTOpaque(void)
       if(yh > commonbot)
       {
          source = &tempbuf[colnum + ((commonbot + 1) << 2)];
-         dest   = topleft + (commonbot + 1)*SCREENWIDTH + startx + colnum;
+         dest   = topleft + (commonbot + 1)*screens[0].pitch + startx + colnum;
          count  = yh - commonbot;
          
          while(--count >= 0)
          {
             *dest = *source;
             source += 4;
-            dest += SCREENWIDTH;
+            dest += screens[0].pitch;
          }
       }         
       ++colnum;
@@ -243,7 +243,7 @@ static void R_FlushWholeTL(void)
    {
       yl     = tempyl[temp_x];
       source = &tempbuf[temp_x + (yl << 2)];
-      dest   = topleft + yl*SCREENWIDTH + startx + temp_x;
+      dest   = topleft + yl*screens[0].pitch + startx + temp_x;
       count  = tempyh[temp_x] - yl + 1;
 
       while(--count >= 0)
@@ -251,7 +251,7 @@ static void R_FlushWholeTL(void)
          // haleyjd 09/11/04: use temptranmap here
          *dest = temptranmap[(*dest<<8) + *source];
          source += 4;
-         dest += SCREENWIDTH;
+         dest += screens[0].pitch;
       }
    }
 }
@@ -272,7 +272,7 @@ static void R_FlushHTTL(void)
       if(yl < commontop)
       {
          source = &tempbuf[colnum + (yl << 2)];
-         dest   = topleft + yl*SCREENWIDTH + startx + colnum;
+         dest   = topleft + yl*screens[0].pitch + startx + colnum;
          count  = commontop - yl;
 
          while(--count >= 0)
@@ -280,7 +280,7 @@ static void R_FlushHTTL(void)
             // haleyjd 09/11/04: use temptranmap here
             *dest = temptranmap[(*dest<<8) + *source];
             source += 4;
-            dest += SCREENWIDTH;
+            dest += screens[0].pitch;
          }
       }
 
@@ -288,7 +288,7 @@ static void R_FlushHTTL(void)
       if(yh > commonbot)
       {
          source = &tempbuf[colnum + ((commonbot + 1) << 2)];
-         dest   = topleft + (commonbot + 1)*SCREENWIDTH + startx + colnum;
+         dest   = topleft + (commonbot + 1)*screens[0].pitch + startx + colnum;
          count  = yh - commonbot;
 
          while(--count >= 0)
@@ -296,7 +296,7 @@ static void R_FlushHTTL(void)
             // haleyjd 09/11/04: use temptranmap here
             *dest = temptranmap[(*dest<<8) + *source];
             source += 4;
-            dest += SCREENWIDTH;
+            dest += screens[0].pitch;
          }
       }
       
@@ -314,7 +314,7 @@ static void R_FlushWholeFuzz(void)
    {
       yl     = tempyl[temp_x];
       source = &tempbuf[temp_x + (yl << 2)];
-      dest   = topleft + yl*SCREENWIDTH + startx + temp_x;
+      dest   = topleft + yl*screens[0].pitch + startx + temp_x;
       count  = tempyh[temp_x] - yl + 1;
 
       while(--count >= 0)
@@ -327,7 +327,7 @@ static void R_FlushWholeFuzz(void)
             fuzzpos = 0;
          
          source += 4;
-         dest += SCREENWIDTH;
+         dest += screens[0].pitch;
       }
    }
 }
@@ -348,7 +348,7 @@ static void R_FlushHTFuzz(void)
       if(yl < commontop)
       {
          source = &tempbuf[colnum + (yl << 2)];
-         dest   = topleft + yl*SCREENWIDTH + startx + colnum;
+         dest   = topleft + yl*screens[0].pitch + startx + colnum;
          count  = commontop - yl;
 
          while(--count >= 0)
@@ -361,7 +361,7 @@ static void R_FlushHTFuzz(void)
                fuzzpos = 0;
             
             source += 4;
-            dest += SCREENWIDTH;
+            dest += screens[0].pitch;
          }
       }
 
@@ -369,7 +369,7 @@ static void R_FlushHTFuzz(void)
       if(yh > commonbot)
       {
          source = &tempbuf[colnum + ((commonbot + 1) << 2)];
-         dest   = topleft + (commonbot + 1)*SCREENWIDTH + startx + colnum;
+         dest   = topleft + (commonbot + 1)*screens[0].pitch + startx + colnum;
          count  = yh - commonbot;
 
          while(--count >= 0)
@@ -382,7 +382,7 @@ static void R_FlushHTFuzz(void)
                fuzzpos = 0;
             
             source += 4;
-            dest += SCREENWIDTH;
+            dest += screens[0].pitch;
          }
       }
       
@@ -397,9 +397,9 @@ static void (*R_FlushHTColumns)(void)    = R_FlushHTError;
 static void R_FlushQuadOpaque(void)
 {
    register int *source = (int *)(&tempbuf[commontop << 2]);
-   register int *dest = (int *)(topleft + commontop*SCREENWIDTH + startx);
+   register int *dest = (int *)(topleft + commontop*screens[0].pitch + startx);
    register int count;
-   register int deststep = SCREENWIDTH / 4;
+   register int deststep = screens[0].pitch / 4;
 
    count = commonbot - commontop + 1;
 
@@ -413,7 +413,7 @@ static void R_FlushQuadOpaque(void)
 static void R_FlushQuadTL(void)
 {
    register byte *source = &tempbuf[commontop << 2];
-   register byte *dest = topleft + commontop*SCREENWIDTH + startx;
+   register byte *dest = topleft + commontop*screens[0].pitch + startx;
    register int count;
 
    count = commonbot - commontop + 1;
@@ -425,14 +425,14 @@ static void R_FlushQuadTL(void)
       dest[2] = temptranmap[(dest[2]<<8) + source[2]];
       dest[3] = temptranmap[(dest[3]<<8) + source[3]];
       source += 4;
-      dest += SCREENWIDTH;
+      dest += screens[0].pitch;
    }
 }
 
 static void R_FlushQuadFuzz(void)
 {
    register byte *source = &tempbuf[commontop << 2];
-   register byte *dest = topleft + commontop*SCREENWIDTH + startx;
+   register byte *dest = topleft + commontop*screens[0].pitch + startx;
    register int count;
    int fuzz1, fuzz2, fuzz3, fuzz4;
    fuzz1 = fuzzpos;
@@ -455,7 +455,7 @@ static void R_FlushQuadFuzz(void)
       if(++fuzz4 == FUZZTABLE) fuzz4 = 0;
 
       source += 4;
-      dest += SCREENWIDTH;
+      dest += screens[0].pitch;
    }
 
    fuzzpos = fuzz4;
@@ -975,7 +975,7 @@ void R_DrawSpan (void)
 
   source = ds_source;
   colormap = ds_colormap;
-  dest = topleft + ds_y*SCREENWIDTH + ds_x1;
+  dest = topleft + ds_y*screens[0].pitch + ds_x1;
   count = ds_x2 - ds_x1 + 1;
 
   while (count)
@@ -1014,16 +1014,10 @@ void R_InitBuffer(int width, int height)
 
   viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-(ST_SCALED_HEIGHT-1)-height)>>1;
 
-  topleft = screens[0] + viewwindowy*SCREENWIDTH + viewwindowx;
-
-  // Preclaculate all row offsets.
-  // CPhipps - merge viewwindowx into here
-
-  // for (i=0 ; i<height ; i++)
-  //   ylookup[i] = screens[0] + (i+viewwindowy)*SCREENWIDTH + viewwindowx;
+  topleft = screens[0].data + viewwindowy*screens[0].pitch + viewwindowx;
 
   for (i=0; i<FUZZTABLE; i++)
-    fuzzoffset[i] = fuzzoffset_org[i]*SCREENWIDTH;
+    fuzzoffset[i] = fuzzoffset_org[i]*screens[0].pitch;
 }
 
 //
@@ -1072,7 +1066,7 @@ void R_FillBackScreen (void)
 void R_VideoErase(unsigned ofs, int count)
 {
 #ifndef GL_DOOM
-  memcpy(screens[0]+ofs, screens[1]+ofs, count);   // LFB copy.
+  memcpy(screens[0].data+ofs, screens[1].data+ofs, count);   // LFB copy.
 #endif
 }
 
@@ -1090,31 +1084,22 @@ void R_DrawViewBorder(void)
 #else
 
   int top, side, ofs, i;
-// proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
-  int side2;
 
-// proff/nicolas 09/20/98: Removed for high-res
-  //  if (scaledviewwidth == SCREENWIDTH)
-  //  return;
-
-// proff/nicolas 09/20/98: Added for high-res (inspired by DosDOOM)
   if ((SCREENHEIGHT != viewheight) ||
       ((automapmode & am_active) && ! (automapmode & am_overlay)))
   {
-    ofs = ( SCREENHEIGHT - ST_SCALED_HEIGHT ) * SCREENWIDTH;
+    // erase left and right of statusbar
+    ofs = ( SCREENHEIGHT - ST_SCALED_HEIGHT ) * screens[0].pitch;
     side= ( SCREENWIDTH - ST_SCALED_WIDTH ) / 2;
-    side2 = side * 2;
 
-    R_VideoErase ( ofs, side );
-
-    ofs += ( SCREENWIDTH - side );
-    for ( i = 1; i < ST_SCALED_HEIGHT; i++ )
-    {
-      R_VideoErase ( ofs, side2 );
-      ofs += SCREENWIDTH;
+    if (side > 0) {
+      for (i = 0; i < ST_SCALED_HEIGHT; i++)
+      {
+        R_VideoErase (ofs, side);
+        R_VideoErase (ofs+ST_SCALED_WIDTH+side, side);
+        ofs += screens[0].pitch;
+      }
     }
-
-    R_VideoErase ( ofs, side );
   }
 
   if ( viewheight >= ( SCREENHEIGHT - ST_SCALED_HEIGHT ))
@@ -1122,22 +1107,25 @@ void R_DrawViewBorder(void)
 
   top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
   side = (SCREENWIDTH-scaledviewwidth)/2;
+  ofs = 0;
 
-  // copy top and one line of left side
-  R_VideoErase (0, top*SCREENWIDTH+side);
+  // copy top
+  for (i = 0; i < top; i++) {
+    R_VideoErase (ofs, SCREENWIDTH);
+    ofs += screens[0].pitch;
+  }
 
-  // copy one line of right side and bottom
-  ofs = (viewheight+top)*SCREENWIDTH-side;
-  R_VideoErase (ofs, top*SCREENWIDTH+side);
+  // copy sides
+  for (i = 0 ; i < viewheight ; i++) {
+    R_VideoErase (ofs, side);
+    R_VideoErase (ofs+viewwidth+side, side);
+    ofs += screens[0].pitch;
+  }
 
-  // copy sides using wraparound
-  ofs = top*SCREENWIDTH + SCREENWIDTH-side;
-  side <<= 1;
-
-  for (i=1 ; i<viewheight ; i++)
-    {
-      R_VideoErase (ofs, side);
-      ofs += SCREENWIDTH;
-    }
+  // copy bottom
+  for (i = 0; i < top; i++) {
+    R_VideoErase (ofs, SCREENWIDTH);
+    ofs += screens[0].pitch;
+  }
 #endif
 }

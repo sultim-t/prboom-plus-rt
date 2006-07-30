@@ -45,3 +45,4 @@
 // proff 08/17/98: Changed for high-res
 int SCREENWIDTH=320;
 int SCREENHEIGHT=200;
+int SCREENPITCH=320;

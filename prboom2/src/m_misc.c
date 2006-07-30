@@ -1279,7 +1279,7 @@ static void WriteTGAfile(FILE* st, const byte* data,
 
 void M_DoScreenShot (const char* fname)
 {
-  byte       *linear;
+  screeninfo_t screenshot;
   FILE	*fp = fopen(fname,"wb");
 #ifndef GL_DOOM
   const byte *pal;
@@ -1293,18 +1293,28 @@ void M_DoScreenShot (const char* fname)
   screenshot_write_error = false;
 
 #ifdef GL_DOOM
+  screenshot.width = screens[0].width;
+  screenshot.height = screens[0].height;
+  screenshot.pitch = screens[0].width*3;
+  screenshot.not_on_heap = false;
+  V_AllocScreen(&screenshot);
   // munge planar buffer to linear
   // CPhipps - use a malloc()ed buffer instead of screens[2]
-  gld_ReadScreen(linear = malloc(SCREENWIDTH * SCREENHEIGHT * 3));
+  gld_ReadScreen(screenshot.data);
 
   // save the bmp file
 
   WriteTGAfile
-    (fp, linear, SCREENWIDTH, SCREENHEIGHT);
+    (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
 #else
+  screenshot.width = screens[0].width;
+  screenshot.height = screens[0].height;
+  screenshot.pitch = screens[0].width;
+  screenshot.not_on_heap = false;
+  V_AllocScreen(&screenshot);
   // munge planar buffer to linear
   // CPhipps - use a malloc()ed buffer instead of screens[2]
-  I_ReadScreen(linear = malloc(SCREENWIDTH * SCREENHEIGHT));
+  I_ReadScreen(&screenshot);
 
   // killough 4/18/98: make palette stay around (PU_CACHE could cause crash)
   pal = W_CacheLumpNum (pplump);
@@ -1312,16 +1322,16 @@ void M_DoScreenShot (const char* fname)
   // save the bmp file
 
 #ifdef HAVE_LIBPNG
-  WritePNGfile(fp, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+  WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
 #else
   WriteBMPfile
-    (fp, linear, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+    (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
 #endif
 
   // cph - free the palette
   W_UnlockLumpNum(pplump);
 #endif
-  free(linear);
+  V_FreeScreen(&screenshot);
   // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
 
   if (screenshot_write_error)

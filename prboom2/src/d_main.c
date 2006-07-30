@@ -185,7 +185,7 @@ static void D_Wipe(void)
         }
       while (!tics);
       wipestart = nowtime;
-      done = wipe_ScreenWipe(0,0,SCREENWIDTH,SCREENHEIGHT,tics);
+      done = wipe_ScreenWipe(tics);
       I_UpdateNoBlit();
       M_Drawer();                   // menu is drawn even on top of wipes
       I_FinishUpdate();             // page flip or blit buffer
@@ -221,7 +221,7 @@ static void D_Display (void)
 #ifndef GL_DOOM
   // save the current screen if about to wipe
   if ((wipe = gamestate != wipegamestate))
-    wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+    wipe_StartScreen();
 #endif /* GL_DOOM */
 
   if (gamestate != GS_LEVEL) { // Not a level
@@ -316,7 +316,7 @@ static void D_Display (void)
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
-    wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+    wipe_EndScreen();
     D_Wipe();
   }
 #else
@@ -1383,7 +1383,7 @@ static void D_DoomMainSetup(void)
       w = desired_screenwidth;
       h = desired_screenheight;
     }
-    I_SetRes(w, h);
+    I_CalculateRes(w, h);
   }
 
   if ((p = M_CheckParm("-fullscreen")))

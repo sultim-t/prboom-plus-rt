@@ -38,8 +38,8 @@
  * SCREEN WIPE PACKAGE
  */
 
-int wipe_ScreenWipe (int x, int y, int width, int height, int ticks);
-int wipe_StartScreen(int x, int y, int width, int height);
-int wipe_EndScreen  (int x, int y, int width, int height);
+int wipe_ScreenWipe (int ticks);
+int wipe_StartScreen(void);
+int wipe_EndScreen  (void);
 
 #endif

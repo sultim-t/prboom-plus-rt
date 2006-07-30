@@ -110,8 +110,14 @@ typedef enum {
 #define MAX_SCREENWIDTH  2048
 #define MAX_SCREENHEIGHT 1536
 
+// SCREENWIDTH and SCREENHEIGHT define the visible size
 extern int SCREENWIDTH;
 extern int SCREENHEIGHT;
+// SCREENPITCH is the size of one line in the buffer and
+// can be bigger than the SCREENWIDTH depending on the size
+// of one pixel (8, 16 or 32 bit) and the padding at the
+// end of the line caused by hardware considerations
+extern int SCREENPITCH;
 
 // The maximum number of players, multiplayer/networking.
 #define MAXPLAYERS       4

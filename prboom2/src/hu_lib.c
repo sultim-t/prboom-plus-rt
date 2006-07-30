@@ -230,7 +230,7 @@ void HUlib_eraseTextLine(hu_textline_t* l)
   if (!(automapmode & am_active) && viewwindowx && l->needsupdate)
   {
     lh = SHORT(l->f[0].height) + 1;
-    for (y=l->y,yoffset=y*SCREENWIDTH ; y<l->y+lh ; y++,yoffset+=SCREENWIDTH)
+    for (y=l->y,yoffset=y*screens[0].pitch; y<l->y+lh ; y++,yoffset+=screens[0].pitch)
       {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
         R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
@@ -581,7 +581,7 @@ static void HUlib_eraseMBg(hu_mtext_t* m)
   if (!(automapmode & am_active) && viewwindowx)
   {
     lh = SHORT(m->l[0].f[0].height) + 1;
-    for (y=m->y,yoffset=y*SCREENWIDTH ; y<m->y+lh*(hud_msg_lines+2) ; y++,yoffset+=SCREENWIDTH)
+    for (y=m->y,yoffset=y*screens[0].pitch; y<m->y+lh*(hud_msg_lines+2) ; y++,yoffset+=screens[0].pitch)
     {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
         R_VideoErase(yoffset, SCREENWIDTH); // erase entire line

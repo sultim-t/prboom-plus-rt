@@ -526,7 +526,9 @@ void R_RenderPlayerView (player_t* player)
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
-      memset(*screens+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
+      int h=viewheight;
+      for (; h>0; h--)
+        memset(screens[0].data+(viewwindowy+h)*screens[0].pitch,color,SCREENWIDTH);
       R_DrawViewBorder();
     }
 #endif /* not GL_DOOM */
