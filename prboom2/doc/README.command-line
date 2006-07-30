@@ -385,11 +385,11 @@ SYNOPSIS
        ] [ -file wad1 ... ] [ -deh  deh_file  ]  [  -noload  ]    [  -loadgame
        {0,1,2,3,4,5,6,7}  ] [ -warp { map | epis level } -skill {1,2,3,4,5} ]
        [ {-fastdemo,-timedemo,-playdemo} demofile [ -ffmap num ] ]  [  -record
-       demofile  ]  [ -net hostname[:port] ] [ -deathmatch [ -altdeath ] ] [ {
-       -timer mins | -avg }] ]  [ -nosound ] [ -nosfx ] [ -nomusic] [ -nojoy ]
-       [  -nomouse  ]  [  -noaccel  ]  [ -nodraw ]  [ -config myconf ] [ -save
-       savedir ]  [ -bexout bexdbg ] [ -debugfile debug_file ] [ -devparm ]  [
-       -noblit ] [ -nodrawers ]
+       demofile ] [ -solonet ]  [ -net hostname[:port] ] [ -deathmatch [ -alt-
+       death ] ] [ { -timer mins | -avg }] ]  [ -nosound ] [ -nosfx ] [ -nomu-
+       sic] [ -nojoy ] [ -nomouse ] [ -noaccel ] [ -nodraw ]  [ -config myconf
+       ] [ -save savedir ]  [ -bexout bexdbg ] [  -debugfile  debug_file  ]  [
+       -devparm ] [ -noblit ] [ -nodrawers ]
 
 DESCRIPTION
        PrBoom  is a version of the 3D shoot'em'up Doom, originally by iD soft-
@@ -493,6 +493,11 @@ Multiplayer Options
 
        -avg   Equivalent to -timer 20
 
+       -solo-net
+              Used to run a single-player network game, without a network game
+              server.  This enables network game items & options for an other-
+              wise single-player game; some demos are recorded like this.
+
 Demo (LMP) Options
        -record demofile
               Instructs PrBoom to begin recording a  demo,  to  be  stored  in
@@ -585,8 +590,8 @@ More Information
        For more information, see the README that came with  PrBoom,  the  Boom
        documentation, and your original Doom documentation.
 
-       Doom     is     a     registered     trademark     of    id    software
-       (http://www.idsoftware.com).
+       Doom  is  a  registered  trademark  of  id software (http://www.idsoft-
+       ware.com).
 
 Author
 PRBOOM-GAME-SERVER(6)                                    PRBOOM-GAME-SERVER(6)
