@@ -17,6 +17,7 @@ Changes from v2.4.3 to v2.4.4
 - Live monsters are highlighted in a different colour on the iddt-automap
 - Fixed OpenGL sky rendering in Requiem and Memento Mori
 - The "Show coordinates of automap pointer" setting works now
+- merged many cleanups and fixes from PrBoom 2.3
 - fix translucency map file handle leak
 - fix consistency failures in netgames
 - prevent crashes at 800x600 caused by rounding errors with naive clipping
@@ -24,6 +25,7 @@ Changes from v2.4.3 to v2.4.4
 - ability to play tasdoom demos directly
 - -solo-net option is a shortcut for one-player network games
 - emulate spechit overflows for dosdoom and tasdoom compatibility
+- made several cleanups and fixes
 
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.
