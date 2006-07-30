@@ -92,7 +92,10 @@ void D_InitNetGame (void)
 
   if (!(netgame = server =  !!i)) {
     playeringame[consoleplayer = 0] = true;
-    netgame = M_CheckParm("-net1");//e6y
+    // e6y
+    // for play, recording or playback using "single-player coop" mode.
+    // Equivalent to using prboom_server with -N 1
+    netgame = M_CheckParm("-solo-net");
   } else {
     // Get game info from server
     packet_header_t *packet = Z_Malloc(1000, PU_STATIC, NULL);
