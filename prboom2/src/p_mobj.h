@@ -119,97 +119,104 @@
 //
 
 // Call P_SpecialThing when touched.
-#define MF_SPECIAL      0x00000001
+#define MF_SPECIAL      (uint_64_t)(0x0000000000000001)
 // Blocks.
-#define MF_SOLID        0x00000002
+#define MF_SOLID        (uint_64_t)(0x0000000000000002)
 // Can be hit.
-#define MF_SHOOTABLE    0x00000004
+#define MF_SHOOTABLE    (uint_64_t)(0x0000000000000004)
 // Don't use the sector links (invisible but touchable).
-#define MF_NOSECTOR     0x00000008
+#define MF_NOSECTOR     (uint_64_t)(0x0000000000000008)
 // Don't use the blocklinks (inert but displayable)
-#define MF_NOBLOCKMAP   0x00000010
+#define MF_NOBLOCKMAP   (uint_64_t)(0x0000000000000010)
 
 // Not to be activated by sound, deaf monster.
-#define MF_AMBUSH       0x00000020
+#define MF_AMBUSH       (uint_64_t)(0x0000000000000020)
 // Will try to attack right back.
-#define MF_JUSTHIT      0x00000040
+#define MF_JUSTHIT      (uint_64_t)(0x0000000000000040)
 // Will take at least one step before attacking.
-#define MF_JUSTATTACKED 0x00000080
+#define MF_JUSTATTACKED (uint_64_t)(0x0000000000000080)
 // On level spawning (initial position),
 //  hang from ceiling instead of stand on floor.
-#define MF_SPAWNCEILING 0x00000100
+#define MF_SPAWNCEILING (uint_64_t)(0x0000000000000100)
 // Don't apply gravity (every tic),
 //  that is, object will float, keeping current height
 //  or changing it actively.
-#define MF_NOGRAVITY    0x00000200
+#define MF_NOGRAVITY    (uint_64_t)(0x0000000000000200)
 
 // Movement flags.
 // This allows jumps from high places.
-#define MF_DROPOFF      0x00000400
+#define MF_DROPOFF      (uint_64_t)(0x0000000000000400)
 // For players, will pick up items.
-#define MF_PICKUP       0x00000800
+#define MF_PICKUP       (uint_64_t)(0x0000000000000800)
 // Player cheat. ???
-#define MF_NOCLIP       0x00001000
+#define MF_NOCLIP       (uint_64_t)(0x0000000000001000)
 // Player: keep info about sliding along walls.
-#define MF_SLIDE        0x00002000
+#define MF_SLIDE        (uint_64_t)(0x0000000000002000)
 // Allow moves to any height, no gravity.
 // For active floaters, e.g. cacodemons, pain elementals.
-#define MF_FLOAT        0x00004000
+#define MF_FLOAT        (uint_64_t)(0x0000000000004000)
 // Don't cross lines
 //   ??? or look at heights on teleport.
-#define MF_TELEPORT     0x00008000
+#define MF_TELEPORT     (uint_64_t)(0x0000000000008000)
 // Don't hit same species, explode on block.
 // Player missiles as well as fireballs of various kinds.
-#define MF_MISSILE      0x00010000
+#define MF_MISSILE      (uint_64_t)(0x0000000000010000)
 // Dropped by a demon, not level spawned.
 // E.g. ammo clips dropped by dying former humans.
-#define MF_DROPPED      0x00020000
+#define MF_DROPPED      (uint_64_t)(0x0000000000020000)
 // Use fuzzy draw (shadow demons or spectres),
 //  temporary player invisibility powerup.
-#define MF_SHADOW       0x00040000
+#define MF_SHADOW       (uint_64_t)(0x0000000000040000)
 // Flag: don't bleed when shot (use puff),
 //  barrels and shootable furniture shall not bleed.
-#define MF_NOBLOOD      0x00080000
+#define MF_NOBLOOD      (uint_64_t)(0x0000000000080000)
 // Don't stop moving halfway off a step,
 //  that is, have dead bodies slide down all the way.
-#define MF_CORPSE       0x00100000
+#define MF_CORPSE       (uint_64_t)(0x0000000000100000)
 // Floating to a height for a move, ???
 //  don't auto float to target's height.
-#define MF_INFLOAT      0x00200000
+#define MF_INFLOAT      (uint_64_t)(0x0000000000200000)
 
 // On kill, count this enemy object
 //  towards intermission kill total.
 // Happy gathering.
-#define MF_COUNTKILL    0x00400000
-    
+#define MF_COUNTKILL    (uint_64_t)(0x0000000000400000)
+
 // On picking up, count this item object
 //  towards intermission item total.
-#define MF_COUNTITEM    0x00800000
+#define MF_COUNTITEM    (uint_64_t)(0x0000000000800000)
 
 // Special handling: skull in flight.
 // Neither a cacodemon nor a missile.
-#define MF_SKULLFLY     0x01000000
+#define MF_SKULLFLY     (uint_64_t)(0x0000000001000000)
 
 // Don't spawn this object
 //  in death match mode (e.g. key cards).
-#define MF_NOTDMATCH    0x02000000
+#define MF_NOTDMATCH    (uint_64_t)(0x0000000002000000)
 
 // Player sprites in multiplayer modes are modified
 //  using an internal color lookup table for re-indexing.
 // If 0x4 0x8 or 0xc,
 //  use a translation table for player colormaps
-#define MF_TRANSLATION  0x0c000000
-#define MF_TRANSLATION1 0x04000000
-#define MF_TRANSLATION2 0x08000000
+#define MF_TRANSLATION  (uint_64_t)(0x000000000c000000)
+#define MF_TRANSLATION1 (uint_64_t)(0x0000000004000000)
+#define MF_TRANSLATION2 (uint_64_t)(0x0000000008000000)
 // Hmm ???.
 #define MF_TRANSSHIFT 26
 
-#define MF_TOUCHY       0x10000000
-#define MF_BOUNCES      0x20000000
-#define MF_FRIEND       0x40000000
+#define MF_UNUSED2      (uint_64_t)(0x0000000010000000)
+#define MF_UNUSED3      (uint_64_t)(0x0000000020000000)
 
     // Translucent sprite?                                          // phares
-#define MF_TRANSLUCENT  0x80000000
+#define MF_TRANSLUCENT  (uint_64_t)(0x0000000040000000)
+
+// this is free            LONGLONG(0x0000000100000000)
+
+// these are greater than an int. That's why the flags below are now uint_64_t
+
+#define MF_TOUCHY          LONGLONG(0x0000000100000000)
+#define MF_BOUNCES         LONGLONG(0x0000000200000000)
+#define MF_FRIEND          LONGLONG(0x0000000400000000)
 
 // killough 9/15/98: Same, but internal flags, not intended for .deh
 // (some degree of opaqueness is good, to avoid compatibility woes)
@@ -286,7 +293,7 @@ typedef struct mobj_s
 
     int                 tics;   // state tic counter
     state_t*            state;
-    unsigned long       flags;
+    uint_64_t           flags;
     int                 intflags;  // killough 9/15/98: internal flags
     int                 health;
 
