@@ -2156,6 +2156,8 @@ void G_InitNew(skill_t skill, int episode, int map)
 
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
+  unsigned char at; // e6y: tasdoom stuff
+
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
   else
@@ -2163,12 +2165,21 @@ void G_ReadDemoTiccmd (ticcmd_t* cmd)
       cmd->forwardmove = ((signed char)*demo_p++);
       cmd->sidemove = ((signed char)*demo_p++);
       if (!longtics) {
-        cmd->angleturn = ((unsigned char)*demo_p++)<<8;
+        cmd->angleturn = ((unsigned char)(at = *demo_p++))<<8;
       } else {
 	unsigned int lowbyte = (unsigned char)*demo_p++;
         cmd->angleturn = (((signed int)(*demo_p++))<<8) + lowbyte;
       }
       cmd->buttons = (unsigned char)*demo_p++;
+      // e6y: ability to play tasdoom demos directly
+      if (compatibility_level == tasdoom_compatibility)
+      {
+        signed char k = cmd->forwardmove;
+        cmd->forwardmove = cmd->sidemove;
+        cmd->sidemove = (signed char)at;
+        cmd->angleturn = ((unsigned char)cmd->buttons)<<8;
+        cmd->buttons = (byte)k;
+      }
     }
 }
 

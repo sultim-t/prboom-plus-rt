@@ -417,7 +417,9 @@ boolean PIT_CheckLine (line_t* ld)
 	spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
       }
       spechit[numspechit++] = ld;
-      if (numspechit >= 8 && demo_compatibility) SpechitOverrun(ld); // e6y: Spechits overrun emulation code
+      // e6y: Spechits overrun emulation code
+      if (numspechit >= 8 && demo_compatibility)
+        SpechitOverrun(ld);
     }
 
   return true;
@@ -2213,27 +2215,59 @@ void P_MapEnd(void) {
 // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
 static void SpechitOverrun(line_t *ld)
 {
-  int addr = 0x01C09C98 + (ld - lines) * 0x3E;
+  //int addr = 0x01C09C98 + (ld - lines) * 0x3E;
+  int addr = 0x00C09C98 + (ld - lines) * 0x3E;
 
-  switch(numspechit)
+  if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
   {
-    case 8: break; /* numspechit, not significant it seems - cph */
+    // e6y
+    // There are no more desyncs in the following dosdoom demos: 
+    // flsofdth.wad\fod3uv.lmp - http://www.doomworld.com/sda/flsofdth.htm
+    // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
+    // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
+    // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+    extern fixed_t   tmfloorz;
+    extern fixed_t   tmceilingz;
+
+    switch(numspechit)
+    {
+    case 8: break; /* strange cph's code */
     case 9: 
+      tmfloorz = addr;
+      break;
     case 10:
-    case 11:
-    case 12:
-      tmbbox[numspechit-9] = addr;
+      tmceilingz = addr;
       break;
-    case 13: 
-      crushchange = addr; 
-      break;
-    case 14: 
-      nofit = addr; 
-      break;
+      
     default:
-      lprintf(LO_ERROR, "SpechitOverrun: Warning: unable to emulate"
-                        " an overrun where numspechit=%i\n",
-                        numspechit);
+        lprintf(LO_ERROR, "SpechitOverrun: Warning: unable to emulate"
+                          " an overrun where numspechit=%i\n",
+                          numspechit);
       break;
+    }
+  }
+  else
+  {
+    switch(numspechit)
+    {
+      case 8: break; /* numspechit, not significant it seems - cph */
+      case 9: 
+      case 10:
+      case 11:
+      case 12:
+        tmbbox[numspechit-9] = addr;
+        break;
+      case 13: 
+        nofit = addr;
+        break;
+      case 14: 
+        crushchange = addr;
+        break;
+      default:
+        lprintf(LO_ERROR, "SpechitOverrun: Warning: unable to emulate"
+                          " an overrun where numspechit=%i\n",
+                          numspechit);
+        break;
+    }
   }
 }
