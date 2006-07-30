@@ -2727,10 +2727,11 @@ setup_menu_t auto_settings2[] =  // 2nd AutoMap Settings screen
   {"computer map unseen line"       ,S_COLOR ,m_null,AU_X,AU_Y+ 3*8, {"mapcolor_unsn"}},
   {"line w/no floor/ceiling changes",S_COLOR ,m_null,AU_X,AU_Y+ 4*8, {"mapcolor_flat"}},
   {"general sprite"                 ,S_COLOR ,m_null,AU_X,AU_Y+ 5*8, {"mapcolor_sprt"}},
-  {"countable item sprite"          ,S_COLOR ,m_null,AU_X,AU_Y+ 6*8, {"mapcolor_item"}},       // mead 3/4/2003
-  {"crosshair"                      ,S_COLOR ,m_null,AU_X,AU_Y+ 7*8, {"mapcolor_hair"}},
-  {"single player arrow"            ,S_COLOR ,m_null,AU_X,AU_Y+ 8*8, {"mapcolor_sngl"}},
-  {"your colour in multiplayer"     ,S_COLOR ,m_null,AU_X,AU_Y+ 9*8, {"mapcolor_me"}},
+  {"countable enemy sprite"         ,S_COLOR ,m_null,AU_X,AU_Y+ 6*8, {"mapcolor_enemy"}},      // cph 2006/06/30
+  {"countable item sprite"          ,S_COLOR ,m_null,AU_X,AU_Y+ 7*8, {"mapcolor_item"}},       // mead 3/4/2003
+  {"crosshair"                      ,S_COLOR ,m_null,AU_X,AU_Y+ 8*8, {"mapcolor_hair"}},
+  {"single player arrow"            ,S_COLOR ,m_null,AU_X,AU_Y+ 9*8, {"mapcolor_sngl"}},
+  {"your colour in multiplayer"     ,S_COLOR ,m_null,AU_X,AU_Y+10*8, {"mapcolor_me"}},
 
   {"friends"                        ,S_COLOR ,m_null,AU_X,AU_Y+12*8, {"mapcolor_frnd"}},        // killough 8/8/98
 
