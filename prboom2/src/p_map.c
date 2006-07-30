@@ -2230,7 +2230,7 @@ static void SpechitOverrun(line_t *ld)
   //int addr = 0x01C09C98 + (ld - lines) * 0x3E;
   int addr = 0x00C09C98 + (ld - lines) * 0x3E;
 
-  if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
+  if (demo_compatibility)
   {
     if (overrun_spechit_warn)
       ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, numspechit > 20, "SPECHITS",
@@ -2241,6 +2241,12 @@ static void SpechitOverrun(line_t *ld)
 
     if (overrun_spechit_emulate)
     {
+      // e6y
+      // There are no more desyncs in the following dosdoom demos: 
+      // flsofdth.wad\fod3uv.lmp - http://www.doomworld.com/sda/flsofdth.htm
+      // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
+      // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
+      // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
       int addr = 0x00C09C98 + (ld - lines) * 0x3E;
       if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {
@@ -2249,6 +2255,7 @@ static void SpechitOverrun(line_t *ld)
 
         switch(numspechit)
         {
+        case 8: break; /* strange cph's code */
         case 9: 
           tmfloorz = addr;
           break;
@@ -2270,6 +2277,7 @@ static void SpechitOverrun(line_t *ld)
 
         switch(numspechit)
         {
+        case 8: break; /* numspechit, not significant it seems - cph */
         case 9: 
         case 10:
         case 11:
