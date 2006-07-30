@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
- *  Copyright (C) 1999-2006 by
+ *  Copyright (C) 1999-2004 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -186,7 +188,7 @@ static void D_Wipe(void)
         }
       while (!tics);
       wipestart = nowtime;
-      done = wipe_ScreenWipe(0,0,SCREENWIDTH,SCREENHEIGHT,tics);
+      done = wipe_ScreenWipe(tics);
       I_UpdateNoBlit();
       M_Drawer();                   // menu is drawn even on top of wipes
       I_FinishUpdate();             // page flip or blit buffer
@@ -229,7 +231,7 @@ void D_Display (void)
 #ifndef GL_DOOM
   // save the current screen if about to wipe
   if ((wipe = gamestate != wipegamestate))
-    wipe_StartScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+    wipe_StartScreen();
 #endif /* GL_DOOM */
 
   if (gamestate != GS_LEVEL) { // Not a level
@@ -326,7 +328,7 @@ void D_Display (void)
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
-    wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
+    wipe_EndScreen();
     D_Wipe();
   }
 #else
@@ -1421,7 +1423,7 @@ static void D_DoomMainSetup(void)
       w = desired_screenwidth;
       h = desired_screenheight;
     }
-    I_SetRes(w, h);
+    I_CalculateRes(w, h);
   }
 
   if ((p = M_CheckParm("-fullscreen")))

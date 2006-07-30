@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -24,7 +26,9 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- *-----------------------------------------------------------------------------
+ * DESCRIPTION:
+ *  mmus2mid.c supports conversion of MUS format music in memory
+ *  to MIDI format 1 music in memory.
  */
 
 #if !defined( MMUS2MID_H )

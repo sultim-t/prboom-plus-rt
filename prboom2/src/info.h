@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -1442,7 +1444,7 @@ typedef struct
   int damage;       /* If this is a missile, how much does it hurt? */
   int activesound;  /* What sound it makes wandering around, once
            in a while.  Chance is 3/256 it will. */
-  uint_64_t flags;  /* Bit masks for lots of things.  See p_mobj.h */
+  int flags;  /* Bit masks for lots of things.  See p_mobj.h */
   int raisestate;   /* The first state for an Archvile or respawn
            resurrection.  Zero means it won't come
            back to life. */

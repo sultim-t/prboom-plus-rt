@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000,2002 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -2555,58 +2557,3 @@ void A_LineEffect(mobj_t *mo)
   mo->state->misc1 = junk.special;
   mo->player = oldplayer;
 }
-
-/***** Start of new functions for Andy Baker's stealth monsters ******/
-
-void P_BecomeVisible(mobj_t* actor)
-{
-  actor->invisible = false;
-  actor->flags &= ~MF_TRANSLUCBITS;
-};
-
-void P_IncreaseVisibility(mobj_t* actor)
-{
-  if (actor->invisible) {
-      actor->invisible = false;
-      actor->flags |= MF_TRANSLUC25;
-  } else switch (actor->flags & MF_TRANSLUCBITS) {
-    case MF_TRANSLUC25:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      actor->flags |= MF_TRANSLUC50;
-      break;
-    case MF_TRANSLUC50:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      actor->flags |= MF_TRANSLUC25;
-      actor->flags |= MF_TRANSLUC50;
-      break;
-    case MF_TRANSLUC75:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      break;
-  }
-}
-
-void P_DecreaseVisibility(mobj_t* actor)
-{
-  if (actor->invisible)
-    return;     // already invisible
-
-  switch (actor->flags & MF_TRANSLUCBITS) {
-    case 0:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      actor->flags |= MF_TRANSLUC75;
-      break;
-    case MF_TRANSLUC75:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      actor->flags |= MF_TRANSLUC50;
-      break;
-    case MF_TRANSLUC50:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      actor->flags |= MF_TRANSLUC25;
-      break;
-    case MF_TRANSLUC25:
-      actor->flags &= ~MF_TRANSLUCBITS;
-      actor->invisible = true;
-  }
-}
-/***** End of new functions for Andy Baker's stealth monsters ******/
-

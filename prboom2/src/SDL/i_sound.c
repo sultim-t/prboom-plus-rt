@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -77,6 +79,9 @@
 int snd_card = 1;
 int mus_card = 1;
 int detect_voices = 0; // God knows
+
+static boolean sound_inited = false;
+static boolean first_sound_init = true;
 
 // Needed for calling the actual sound output.
 static int SAMPLECOUNT=   512;
@@ -461,13 +466,16 @@ static void I_UpdateSound(void *unused, Uint8 *stream, int len)
 
 void I_ShutdownSound(void)
 {
-  lprintf(LO_INFO, "I_ShutdownSound: ");
+  if (sound_inited) {
+    lprintf(LO_INFO, "I_ShutdownSound: ");
 #ifdef HAVE_MIXER
-  Mix_CloseAudio();
+    Mix_CloseAudio();
 #else
-  SDL_CloseAudio();
+    SDL_CloseAudio();
 #endif
-  lprintf(LO_INFO, "\n");
+    lprintf(LO_INFO, "\n");
+    sound_inited = false;
+  }
 }
 
 //static SDL_AudioSpec audio;
@@ -480,6 +488,9 @@ void I_InitSound(void)
   int audio_channels;
   int audio_buffers;
 
+  if (sound_inited)
+      I_ShutdownSound();
+
   // Secure and configure sound device first.
   lprintf(LO_INFO,"I_InitSound: ");
 
@@ -491,12 +502,14 @@ void I_InitSound(void)
   audio_format = AUDIO_S16LSB;
 #endif
   audio_channels = 2;
+  SAMPLECOUNT = 512;
   audio_buffers = SAMPLECOUNT*snd_samplerate/11025;
 
   if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) < 0) {
     lprintf(LO_INFO,"couldn't open audio with desired format\n");
     return;
   }
+  sound_inited = true;
   SAMPLECOUNT = audio_buffers;
   Mix_SetPostMix(I_UpdateSound, NULL);
   lprintf(LO_INFO," configured audio device with %d samples/slice\n", SAMPLECOUNT);
@@ -524,7 +537,10 @@ void I_InitSound(void)
   lprintf(LO_INFO," configured audio device with %d samples/slice\n", SAMPLECOUNT);
 #endif
 
-  atexit(I_ShutdownSound);
+  if (first_sound_init) {
+    atexit(I_ShutdownSound);
+    first_sound_init = false;
+  }
 
   if (!nomusicparm)
     I_InitMusic();
@@ -551,7 +567,7 @@ void I_InitSound(void)
 
 static Mix_Music *music[2] = { NULL, NULL };
 
-char* music_tmp; /* cph - name of music temporary file */
+char* music_tmp = NULL; /* cph - name of music temporary file */
 
 #endif
 
@@ -562,6 +578,7 @@ void I_ShutdownMusic(void)
     unlink(music_tmp);
     lprintf(LO_DEBUG, "I_ShutdownMusic: removing %s\n", music_tmp);
     free(music_tmp);
+	music_tmp = NULL;
   }
 #endif
 }
@@ -570,21 +587,23 @@ void I_InitMusic(void)
 {
   if (music_tmp) return;//e6y
 #ifdef HAVE_MIXER
+  if (!music_tmp) {
 #ifndef _WIN32
-  music_tmp = strdup("/tmp/prboom-music-XXXXXX");
-  {
-    int fd = mkstemp(music_tmp);
-    if (fd<0) {
-      lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
-      free(music_tmp); return;
-    } else
-      close(fd);
-  }
+    music_tmp = strdup("/tmp/prboom-music-XXXXXX");
+    {
+      int fd = mkstemp(music_tmp);
+      if (fd<0) {
+        lprintf(LO_ERROR, "I_InitMusic: failed to create music temp file %s", music_tmp);
+        free(music_tmp); return;
+      } else 
+        close(fd);
+    }
 #else /* !_WIN32 */
-  music_tmp = strdup("doom.tmp");
+    music_tmp = strdup("doom.tmp");
 #endif
+    atexit(I_ShutdownMusic);
+  }
 #endif
-  atexit(I_ShutdownMusic);
 }
 
 void I_PlaySong(int handle, int looping)

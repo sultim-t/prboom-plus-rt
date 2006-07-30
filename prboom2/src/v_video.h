@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -72,8 +74,18 @@ typedef enum
 
 #define CR_DEFAULT CR_RED   /* default value for out of range colors */
 
-extern byte      *screens[6];
-extern int        usegamma;
+typedef struct {
+  byte *data;          // pointer to the screen content
+  boolean not_on_heap; // if set, no malloc or free is preformed and
+                       // data never set to NULL. Used i.e. with SDL doublebuffer.
+  int width;           // the width of the surface
+  int height;          // the height of the surface, used when mallocing
+  int pitch;           // tha actual width of one line, used when mallocing
+} screeninfo_t;
+
+#define NUM_SCREENS 6
+extern screeninfo_t screens[NUM_SCREENS];
+extern int          usegamma;
 
 //jff 4/24/98 loads color translation lumps
 void V_InitColorTranslation(void);
@@ -146,11 +158,13 @@ void V_SetPalette(int pal);
 // CPhipps - function to plot a pixel
 
 #ifndef GL_DOOM
-#define V_PlotPixel(s,x,y,c) screens[s][x+SCREENWIDTH*y]=c
+#define V_PlotPixel(s,x,y,c) screens[s].data[x+screens[s].pitch*y]=c
 #endif
 
-#define V_AllocScreen(scrn) screens[scrn] = malloc(SCREENWIDTH*SCREENHEIGHT)
-#define V_FreeScreen(scrn) free(screens[scrn]); screens[scrn] = NULL
+void V_AllocScreen(screeninfo_t *scrn);
+void V_AllocScreens();
+void V_FreeScreen(screeninfo_t *scrn);
+void V_FreeScreens();
 
 #ifdef GL_DOOM
 #include "gl_struct.h"

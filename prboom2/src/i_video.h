@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -33,13 +35,15 @@
 #define __I_VIDEO__
 
 #include "doomtype.h"
+#include "v_video.h"
 
 #ifdef __GNUG__
 #pragma interface
 #endif
 
 void I_PreInitGraphics(void); /* CPhipps - do stuff immediately on start */
-void I_SetRes(unsigned int width, unsigned int height); /* CPhipps - set resolution */
+void I_CalculateRes(unsigned int width, unsigned int height); /* calculate resolution */
+void I_SetRes(void); /* set resolution */
 void I_InitGraphics (void);
 void I_UpdateVideoMode(void);
 void I_ShutdownGraphics(void);
@@ -50,7 +54,7 @@ void I_SetPalette(int pal); /* CPhipps - pass down palette number */
 void I_UpdateNoBlit (void);
 void I_FinishUpdate (void);
 
-void I_ReadScreen (byte* scr);
+void I_ReadScreen (screeninfo_t *dest);
 
 /* I_StartTic
  * Called by D_DoomLoop,

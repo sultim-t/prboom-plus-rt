@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -535,7 +537,9 @@ void R_RenderPlayerView (player_t* player)
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
-      memset(*screens+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
+      int h=viewheight;
+      for (; h>0; h--)
+        memset(screens[0].data+(viewwindowy+h)*screens[0].pitch,color,SCREENWIDTH);
       R_DrawViewBorder();
     }
 #endif /* not GL_DOOM */

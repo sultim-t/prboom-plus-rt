@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -36,8 +38,8 @@
  * SCREEN WIPE PACKAGE
  */
 
-int wipe_ScreenWipe (int x, int y, int width, int height, int ticks);
-int wipe_StartScreen(int x, int y, int width, int height);
-int wipe_EndScreen  (int x, int y, int width, int height);
+int wipe_ScreenWipe (int ticks);
+int wipe_StartScreen(void);
+int wipe_EndScreen  (void);
 
 #endif

@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -606,12 +608,19 @@ static void F_BunnyScroll (void)
 #else
       int realscrolled = (SCREENWIDTH * scrolled) / 320;
 
-      V_AllocScreen(SCRN);
+      screens[SCRN].width = screens[0].width;
+      screens[SCRN].height = screens[0].height;
+      screens[SCRN].pitch = screens[0].width;
+      screens[SCRN].not_on_heap = false;
+      V_AllocScreen(&screens[SCRN]);
       V_DrawNamePatch(0, 0, SCRN, pfub2, CR_DEFAULT, VPT_STRETCH);
       V_CopyRect(realscrolled, 0, SCRN, SCREENWIDTH-realscrolled, SCREENHEIGHT, 0, 0, 0, VPT_NONE);
       V_DrawNamePatch(0, 0, SCRN, pfub1, CR_DEFAULT, VPT_STRETCH);
       V_CopyRect(0, 0, SCRN, realscrolled, SCREENHEIGHT, SCREENWIDTH-realscrolled, 0, 0, VPT_NONE);
-      V_FreeScreen(SCRN);
+      V_FreeScreen(&screens[SCRN]);
+      screens[SCRN].width = 0;
+      screens[SCRN].height = 0;
+      screens[SCRN].pitch = 0;
 #endif
     }
   }

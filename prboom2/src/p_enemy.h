@@ -2,12 +2,14 @@
  *-----------------------------------------------------------------------------
  *
  *
- *  PrBoom a Doom port merged with LxDoom and LSDLDoom
+ *  PrBoom: a Doom port merged with LxDoom and LSDLDoom
  *  based on BOOM, a modified and improved DOOM engine
  *  Copyright (C) 1999 by
  *  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
  *  Copyright (C) 1999-2000 by
  *  Jess Haas, Nicolas Kalkhof, Colin Phipps, Florian Schulze
+ *  Copyright 2005, 2006 by
+ *  Florian Schulze, Colin Phipps, Neil Stevens, Andrey Budko
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -38,10 +40,6 @@
 
 void P_NoiseAlert (mobj_t *target, mobj_t *emmiter);
 void P_SpawnBrainTargets(void); /* killough 3/26/98: spawn icon landings */
-/* proff 11/22/98: Andy Baker's stealth monsters */
-void   P_BecomeVisible (mobj_t *actor);
-void   P_IncreaseVisibility (mobj_t *actor);
-void   P_DecreaseVisibility (mobj_t *actor);
 
 extern struct brain_s {         /* killough 3/26/98: global state of boss brain */
   int easy, targeton;
