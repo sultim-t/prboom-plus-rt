@@ -381,15 +381,15 @@ NAME
        prboom - PrBoom, a version of Doom for Unix, Linux and Windows systems
 
 SYNOPSIS
-       prboom  [ -complevel lvl ]  [ -width w ] [ -height h ] [ -viewangleoff-
-       set n ]  [ -iwad iwadname ] [ -file wad1 ... ]  [  -deh  deh_file  ]  [
-       -noload ]  [ -loadgame {0,1,2,3,4,5,6,7} ] [ -warp { map | epis level }
-       -skill {1,2,3,4,5} ]    [  {-fastdemo,-timedemo,-playdemo}  demofile  [
-       -ffmap  num  ]  ]  [  -record  demofile  ]  [  -solonet ]  [ -net host-
-       name[:port] ] [ -deathmatch [ -altdeath ] ] [ { -timer mins | -avg }] ]
-        [ -nosound ] [ -nosfx ] [ -nomusic] [ -nojoy ] [ -nomouse ] [ -noaccel
-       ] [ -nodraw ]  [ -config myconf ] [ -save savedir ]  [ -bexout bexdbg ]
-       [ -debugfile debug_file ] [ -devparm ] [ -noblit ] [ -nodrawers ]
+       prboom [ -complevel lvl ]  [ -width w ] [ -height h ] [ -viewangle n ]
+       [ -iwad iwadname ] [ -file wad1 ... ] [ -deh deh_file ] [ -noload ]   [
+       -loadgame  {0,1,2,3,4,5,6,7}  ]  [  -warp  {  map | epis level } -skill
+       {1,2,3,4,5} ]  [ {-fastdemo,-timedemo,-playdemo} demofile [ -ffmap  num
+       ]  ]  [  -record  demofile  ]  [ -solonet ]  [ -net hostname[:port] ] [
+       -deathmatch [ -altdeath ] ] [ { -timer mins | -avg }] ]  [ -nosound ] [
+       -nosfx  ] [ -nomusic] [ -nojoy ] [ -nomouse ] [ -noaccel ] [ -nodraw ]
+       [ -config myconf ] [ -save savedir ]  [ -bexout bexdbg ]  [  -debugfile
+       debug_file ] [ -devparm ] [ -noblit ] [ -nodrawers ]
 
 DESCRIPTION
        PrBoom  is a version of the 3D shoot'em'up Doom, originally by iD soft-
@@ -413,7 +413,7 @@ Video Options
               Specifies the height of the PrBoom window, in pixels. Default is
               200, the height must be greater than 200.
 
-       [ -viewangleoffset n ]
+       [ -viewangle n ]
               Causes the player view to be rotated by a given  offset  (speci-
               fied in 45degree increments, in the range 0..7) from the way the
               player is facing.
