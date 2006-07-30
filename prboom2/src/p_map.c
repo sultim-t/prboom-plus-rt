@@ -424,7 +424,9 @@ boolean PIT_CheckLine (line_t* ld)
 	spechit = realloc(spechit,sizeof *spechit*spechit_max); // killough
       }
       spechit[numspechit++] = ld;
-      SpechitOverrun(ld); // e6y: Spechits overrun emulation code
+      // e6y: Spechits overrun emulation code
+      if (numspechit >= 8 && demo_compatibility)
+        SpechitOverrun(ld);
     }
 
   return true;
@@ -2225,10 +2227,10 @@ void P_MapEnd(void) {
 // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
 static void SpechitOverrun(line_t *ld)
 {
-  extern int numspechit;
-  extern line_t **spechit;
+  //int addr = 0x01C09C98 + (ld - lines) * 0x3E;
+  int addr = 0x00C09C98 + (ld - lines) * 0x3E;
 
-  if (numspechit>8 && demo_compatibility)
+  if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
   {
     if (overrun_spechit_warn)
       ShowOverflowWarning(overrun_spechit_emulate, &overrun_spechit_promted, numspechit > 20, "SPECHITS",

@@ -277,13 +277,13 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
         s0 = source[0];
         s1 = source[1];
         dest[0] = s0;
-        dest[SCREENWIDTH] = s1;
-        dest += SCREENWIDTH*2;
+        dest[screens[scrn].pitch] = s1;
+        dest += screens[scrn].pitch*2;
         s0 = source[2];
         s1 = source[3];
         source += 4;
         dest[0] = s0;
-        dest[SCREENWIDTH] = s1;
+        dest[screens[scrn].pitch] = s1;
         dest += screens[scrn].pitch*2;
       } while ((count-=4)>=0);
     if (count+=4)
@@ -302,15 +302,15 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
         s0 = trans[s0];
         s1 = trans[s1];
         dest[0] = s0;
-        dest[SCREENWIDTH] = s1;
-        dest += SCREENWIDTH*2;
+        dest[screens[scrn].pitch] = s1;
+        dest += screens[scrn].pitch*2;
         s0 = source[2];
         s1 = source[3];
         s0 = trans[s0];
         s1 = trans[s1];
         source += 4;
         dest[0] = s0;
-        dest[SCREENWIDTH] = s1;
+        dest[screens[scrn].pitch] = s1;
         dest += screens[scrn].pitch*2;
       } while ((count-=4)>=0);
     if (count+=4)

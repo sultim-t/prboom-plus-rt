@@ -1063,10 +1063,10 @@ void R_FillBackScreen (void)
 // Copy a screen buffer.
 //
 
-void R_VideoErase(unsigned ofs, int count)
+void R_VideoErase(int x, int y, int count)
 {
 #ifndef GL_DOOM
-  memcpy(screens[0].data+ofs, screens[1].data+ofs, count);   // LFB copy.
+  memcpy(screens[0].data+y*screens[0].pitch+x, screens[1].data+y*screens[1].pitch+x, count);   // LFB copy.
 #endif
 }
 
@@ -1083,21 +1083,19 @@ void R_DrawViewBorder(void)
   R_FillBackScreen();
 #else
 
-  int top, side, ofs, i;
+  int top, side, i;
 
   if ((SCREENHEIGHT != viewheight) ||
       ((automapmode & am_active) && ! (automapmode & am_overlay)))
   {
     // erase left and right of statusbar
-    ofs = ( SCREENHEIGHT - ST_SCALED_HEIGHT ) * screens[0].pitch;
     side= ( SCREENWIDTH - ST_SCALED_WIDTH ) / 2;
 
     if (side > 0) {
-      for (i = 0; i < ST_SCALED_HEIGHT; i++)
+      for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
       {
-        R_VideoErase (ofs, side);
-        R_VideoErase (ofs+ST_SCALED_WIDTH+side, side);
-        ofs += screens[0].pitch;
+        R_VideoErase (0, i, side);
+        R_VideoErase (ST_SCALED_WIDTH+side, i, side);
       }
     }
   }
@@ -1107,25 +1105,19 @@ void R_DrawViewBorder(void)
 
   top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
   side = (SCREENWIDTH-scaledviewwidth)/2;
-  ofs = 0;
 
   // copy top
-  for (i = 0; i < top; i++) {
-    R_VideoErase (ofs, SCREENWIDTH);
-    ofs += screens[0].pitch;
-  }
+  for (i = 0; i < top; i++)
+    R_VideoErase (0, i, SCREENWIDTH);
 
   // copy sides
-  for (i = 0 ; i < viewheight ; i++) {
-    R_VideoErase (ofs, side);
-    R_VideoErase (ofs+viewwidth+side, side);
-    ofs += screens[0].pitch;
+  for (i = top; i < (top+viewheight); i++) {
+    R_VideoErase (0, i, side);
+    R_VideoErase (viewwidth+side, i, side);
   }
 
   // copy bottom
-  for (i = 0; i < top; i++) {
-    R_VideoErase (ofs, SCREENWIDTH);
-    ofs += screens[0].pitch;
-  }
+  for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
+    R_VideoErase (0, i, SCREENWIDTH);
 #endif
 }
