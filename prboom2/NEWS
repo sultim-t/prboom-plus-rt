@@ -18,6 +18,7 @@ Changes from v2.4.3 to v2.4.4
 - The "Show coordinates of automap pointer" setting works now
 - fix translucency map file handle leak
 - fix consistency failures in netgames
+- prevent crashes at 800x600 caused by rounding errors with naive clipping
 
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.

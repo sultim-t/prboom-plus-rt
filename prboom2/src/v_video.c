@@ -358,10 +358,21 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
   register int         srccol = 0;
 
 #ifdef RANGECHECK
-  if ( toprow+count >= SCREENHEIGHT )
-    I_Error("V_DrawMemPatch: column exceeds screenheight (toprow %i + count %i = %i)\n"
-      "Bad V_DrawMemPatch (flags=%u)", toprow, count, toprow+count, flags);
+  // this rangecheck fires only when the patch goes over the screen by
+  // more than one pixel, to prevent massive warnings at 800x600
+  if ((toprow < 0) || ((toprow + count) > SCREENHEIGHT))
+    lprintf(LO_WARN,
+            "V_DrawMemPatch: column exceeds screenheight (toprow %i + count %i = %i)\n"
+            "Bad V_DrawMemPatch (flags=%u)", toprow, count, toprow+count, flags);
 #endif
+
+  if (toprow < 0) {
+    // proff don't draw anything if this is outside the screen
+    column = (const column_t* ) ((const byte* ) column + ( column->length ) + 4 );
+    continue;
+  }
+  if ((toprow + count) >= SCREENHEIGHT) // check by John Popplewell
+    count = SCREENHEIGHT-toprow-1; // proff - clip at bottom
 
   if (flags & VPT_TRANS)
     while (count--) {
