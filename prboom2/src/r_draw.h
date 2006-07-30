@@ -63,7 +63,7 @@ void R_DrawFuzzColumn(void);    // The Spectre/Invisibility effect.
 
 void R_DrawTranslatedColumn(void);
 
-void R_VideoErase(unsigned ofs, int count);
+void R_VideoErase(int x, int y, int count);
 
 extern const lighttable_t *ds_colormap;
 

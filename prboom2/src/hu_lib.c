@@ -221,7 +221,6 @@ void HUlib_eraseTextLine(hu_textline_t* l)
 {
   int lh;
   int y;
-  int yoffset;
 
   // Only erases when NOT in automap and the screen is reduced,
   // and the text must either need updating or refreshing
@@ -230,16 +229,16 @@ void HUlib_eraseTextLine(hu_textline_t* l)
   if (!(automapmode & am_active) && viewwindowx && l->needsupdate)
   {
     lh = SHORT(l->f[0].height) + 1;
-    for (y=l->y,yoffset=y*screens[0].pitch; y<l->y+lh ; y++,yoffset+=screens[0].pitch)
+    for (y=l->y; y<l->y+lh ; y++)
       {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
-        R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
+        R_VideoErase(0, y, SCREENWIDTH); // erase entire line
       else
       {
         // erase left border
-        R_VideoErase(yoffset, viewwindowx);
+        R_VideoErase(0, y, viewwindowx);
         // erase right border
-        R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
+        R_VideoErase(viewwindowx + viewwidth, y, viewwindowx);
       }
     }
   }
@@ -572,7 +571,6 @@ static void HUlib_eraseMBg(hu_mtext_t* m)
 {
   int     lh;
   int     y;
-  int     yoffset;
 
   // Only erases when NOT in automap and the screen is reduced,
   // and the text must either need updating or refreshing
@@ -581,16 +579,16 @@ static void HUlib_eraseMBg(hu_mtext_t* m)
   if (!(automapmode & am_active) && viewwindowx)
   {
     lh = SHORT(m->l[0].f[0].height) + 1;
-    for (y=m->y,yoffset=y*screens[0].pitch; y<m->y+lh*(hud_msg_lines+2) ; y++,yoffset+=screens[0].pitch)
+    for (y=m->y; y<m->y+lh*(hud_msg_lines+2) ; y++)
     {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
-        R_VideoErase(yoffset, SCREENWIDTH); // erase entire line
+        R_VideoErase(0, y, SCREENWIDTH); // erase entire line
       else
       {
         // erase left border
-        R_VideoErase(yoffset, viewwindowx);
+        R_VideoErase(0, y, viewwindowx);
         // erase right border
-        R_VideoErase(yoffset + viewwindowx + viewwidth, viewwindowx);
+        R_VideoErase(viewwindowx + viewwidth, y, viewwindowx);
 
       }
     }
