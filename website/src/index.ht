@@ -1,6 +1,37 @@
 title: Project Homepage
 
     <h1>News</h1>
+    
+    <h3>30th July 2006</h3>
+
+    <p>Version 2.4.4 is released.</p>
+    <ul class="changes">
+        <li>Don't fail when a texture name can't be looked up</li>
+        <li>Increased several limits - Thanks to entryway and RjY</li>
+        <ul>
+            <li>Increased number of sidedef limit to 65534</li>
+            <li>Increased number of vertexes limit to 65535</li>
+            <li>Fixed crash when crossing sectors with very big height differences</li>
+        </ul>
+        <li>fix crash on E4M8</li>
+        <li>New command-line options for setting a window (-window) or fullscreen (-nowindow) mode temporarily.</li>
+        <li>The maximal supported resolution is increased from 1600x1200 to 2048x1536</li>
+        <li>GLBoom will use the closest supported resolution when running fullscreen</li>
+        <li>The "RUN" key inverts the autorun state</li>
+        <li>Live monsters are highlighted in a different colour on the iddt-automap</li>
+        <li>Fixed OpenGL sky rendering in Requiem and Memento Mori</li>
+        <li>The "Show coordinates of automap pointer" setting works now</li>
+        <li>merged many cleanups and fixes from PrBoom 2.3</li>
+        <li>fix translucency map file handle leak</li>
+        <li>fix consistency failures in netgames</li>
+        <li>prevent crashes at 800x600 caused by rounding errors with naive clipping</li>
+        <li>fixed slowdown at 1024x768 on some systems</li>
+        <li>ability to play tasdoom demos directly</li>
+        <li>-solo-net option is a shortcut for one-player network games</li>
+        <li>emulate spechit overflows for dosdoom and tasdoom compatibility</li>
+        <li>made several cleanups and fixes</li>
+    </ul>
+
     <h3>23rd July 2006</h3>
 
     <p>Version 2.4.3 is released.</p>
