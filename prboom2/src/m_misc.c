@@ -266,6 +266,10 @@ default_t defaults[] =
    def_bool, ss_enem, &monster_friction},
   {"help_friends",{&default_help_friends}, {1}, 0, 1,
    def_bool, ss_enem, &help_friends},
+  {"allow_pushers",{&default_allow_pushers},{1},0,1,
+   def_bool,ss_weap, &allow_pushers},
+  {"variable_friction",{&default_variable_friction},{1},0,1,
+   def_bool,ss_weap, &variable_friction},
 #ifdef DOGS
   {"player_helpers",{&default_dogs}, {0}, 0, 3,
    def_bool, ss_enem },
@@ -275,6 +279,7 @@ default_t defaults[] =
    def_bool, ss_enem, &dog_jumping},
 #endif
    /* End of MBF AI extras */
+
   {"sts_always_red",{&sts_always_red},{1},0,1, // no color changes on status bar
    def_bool,ss_stat},
   {"sts_pct_always_gray",{&sts_pct_always_gray},{0},0,1, // 2/23/98 chg default
