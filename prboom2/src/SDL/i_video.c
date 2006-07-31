@@ -460,6 +460,7 @@ void I_PreInitGraphics(void)
   atexit(I_ShutdownSDL);
 }
 
+#ifdef GL_DOOM
 // e6y
 // GLBoom use this function for trying to set the closest supported resolution if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
@@ -510,6 +511,7 @@ static void I_ClosestResolution (int *width, int *height, int flags)
     }
   }
 }  
+#endif
 
 // CPhipps -
 // I_CalculateRes
