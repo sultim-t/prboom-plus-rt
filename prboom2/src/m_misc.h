@@ -53,9 +53,6 @@ void M_LoadDefaults (void);
 
 void M_SaveDefaults (void);
 
-
-int M_DrawText (int x,int y,boolean direct,char* string);
-
 struct default_s *M_LookupDefault(const char *name);     /* killough 11/98 */
 
 // phares 4/21/98:

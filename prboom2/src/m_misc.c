@@ -68,39 +68,6 @@
 #include "lprintf.h"
 #include "d_main.h"
 
-//
-// M_DrawText
-// Returns the final X coordinate
-// HU_Init must have been called to init the font
-//
-extern patchnum_t hu_font[HU_FONTSIZE];
-
-int M_DrawText(int x,int y,boolean direct,char* string)
-{
-  int c;
-  int w;
-
-  while (*string) {
-    c = toupper(*string) - HU_FONTSTART;
-    string++;
-    if (c < 0 || c> HU_FONTSIZE) {
-      x += 4;
-      continue;
-    }
-
-    w = SHORT (hu_font[c].width);
-    if (x+w > SCREENWIDTH)
-      break;
-
-    // proff/nicolas 09/20/98 -- changed for hi-res
-    // CPhipps - patch drawing updated, reformatted
-    V_DrawNumPatch(x, y, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
-    x+=w;
-  }
-
-  return x;
-}
-
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
 static inline void I_EndRead(void) {}
