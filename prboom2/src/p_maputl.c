@@ -339,42 +339,6 @@ void P_SetThingPosition(mobj_t *thing)
     }
 }
 
-// killough 3/15/98:
-//
-// A fast function for testing intersections between things and linedefs.
-
-static boolean PUREFUNC ThingIsOnLine(const mobj_t *t, const line_t *l)
-{
-  int dx = l->dx >> FRACBITS;                             // Linedef vector
-  int dy = l->dy >> FRACBITS;
-  int a = (l->v1->x >> FRACBITS) - (t->x >> FRACBITS);    // Thing-->v1 vector
-  int b = (l->v1->y >> FRACBITS) - (t->y >> FRACBITS);
-  int r = t->radius >> FRACBITS;                          // Thing radius
-
-  // First make sure bounding boxes of linedef and thing intersect.
-  // Leads to quick rejection using only shifts and adds/subs/compares.
-
-  if (D_abs(a*2+dx)-D_abs(dx) > r*2 || D_abs(b*2+dy)-D_abs(dy) > r*2)
-    return 0;
-
-  // Next, make sure that at least one thing crosshair intersects linedef's
-  // extension. Requires only 3-4 multiplications, the rest adds/subs/
-  // shifts/xors (writing the steps out this way leads to better codegen).
-
-  a *= dy;
-  b *= dx;
-  a -= b;
-  b = dx + dy;
-  b *= r;
-  if (((a-b)^(a+b)) < 0)
-    return 1;
-  dy -= dx;
-  dy *= r;
-  b = a+dy;
-  a -= dy;
-  return (a^b) < 0;
-}
-
 //
 // BLOCK MAP ITERATORS
 // For each line/thing in the given mapblock,
