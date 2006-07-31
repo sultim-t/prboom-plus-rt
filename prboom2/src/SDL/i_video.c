@@ -196,7 +196,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
-  if (mouse_currently_grabbed)
+  if (movement_altmousesupport || mouse_currently_grabbed)//e6y
   {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
