@@ -160,26 +160,12 @@ extern  boolean deathmatch;
 extern int snd_SfxVolume;      // maximum volume for sound
 extern int snd_MusicVolume;    // maximum volume for music
 
-// Current music/sfx card - index useless
-//  w/o a reference LUT in a sound module.
-// Ideally, this would use indices found
-//  in: /usr/include/linux/soundcard.h
-extern int snd_MusicDevice;
-extern int snd_SfxDevice;
-// Config file? Same disclaimer as above.
-extern int snd_DesiredMusicDevice;
-extern int snd_DesiredSfxDevice;
 // CPhipps - screen parameters
 extern unsigned int desired_screenwidth, desired_screenheight;
 
 // -------------------------
 // Status flags for refresh.
 //
-
-// Depending on view size - no status bar?
-// Note that there is no way to disable the
-//  status bar explicitely.
-extern  boolean statusbaractive;
 
 enum automapmode_e {
   am_active = 1,  // currently shown
@@ -285,8 +271,6 @@ extern  int             bodyqueslot;
 // Used for rendering, as well as tracking projectiles etc.
 
 extern int    skyflatnum;
-
-extern  int        rndindex;
 
 extern  int        maketic;
 
