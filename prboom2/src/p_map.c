@@ -2226,8 +2226,6 @@ static void SpechitOverrun(line_t *ld)
     // hr.wad\hf181430.lmp - http://www.doomworld.com/tas/hf181430.zip
     // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
     // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
-    extern fixed_t   tmfloorz;
-    extern fixed_t   tmceilingz;
 
     switch(numspechit)
     {
