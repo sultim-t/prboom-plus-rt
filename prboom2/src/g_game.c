@@ -119,7 +119,6 @@ player_t        players[MAXPLAYERS];
 int             consoleplayer; // player taking events and displaying
 int             displayplayer; // view being displayed
 int             gametic;
-int             levelstarttic; // gametic at level start
 int             basetic;       /* killough 9/29/98: for demo sync */
 int             totalkills, totallive, totalitems, totalsecret;    // for intermission
 boolean         demorecording;
@@ -582,7 +581,7 @@ static void G_DoLoadLevel (void)
         break;
       }//jff 3/27/98 end sky setting fix
 
-  levelstarttic = gametic;        // for time calculation
+  /* cph 2006/07/31 - took out unused levelstarttic variable */
 
   if (!demo_compatibility && !mbf_features)   // killough 9/29/98
     basetic = gametic;
