@@ -52,6 +52,7 @@
 #include "doomdef.h"
 #include "doomtype.h"
 #include "doomstat.h"
+#include "d_net.h"
 #include "dstrings.h"
 #include "sounds.h"
 #include "z_zone.h"
@@ -86,6 +87,7 @@
 #endif
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
+static void D_PageDrawer(void);
 
 // CPhipps - removed wadfiles[] stuff
 
@@ -400,7 +402,7 @@ void D_PageTicker(void)
 //
 // D_PageDrawer
 //
-void D_PageDrawer(void)
+static void D_PageDrawer(void)
 {
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing

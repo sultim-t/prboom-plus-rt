@@ -76,6 +76,8 @@ int ticdup = 1;
 static int xtratics = 0;
 int              wanted_player_number;
 
+static void D_QuitNetGame (void);
+
 #ifndef HAVE_NET
 doomcom_t*      doomcom;
 #endif
@@ -356,7 +358,7 @@ void NetUpdate(void)
 }
 #else
 
-void D_BuildNewTiccmds()
+static void D_BuildNewTiccmds()
 {
     static int lastmadetic;
     int newtics = I_GetTime() - lastmadetic;
@@ -486,7 +488,7 @@ void TryRunTics (void)
 }
 
 #ifdef HAVE_NET
-void D_QuitNetGame (void)
+static void D_QuitNetGame (void)
 {
   byte buf[1 + sizeof(packet_header_t)];
   packet_header_t *packet = (void*)buf;

@@ -47,6 +47,7 @@
 #include "i_system.h"
 
 #include "doomstat.h"
+#include "d_net.h"
 #include "doomtype.h"
 
 #ifdef __GNUG__

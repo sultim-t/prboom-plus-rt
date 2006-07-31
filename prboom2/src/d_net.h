@@ -57,9 +57,6 @@
 #define MAXNETNODES             8
 
 
-// Networking and tick handling related.
-#define BACKUPTICS              12
-
 typedef enum
 {
     CMD_SEND    = 1,
@@ -192,12 +189,6 @@ typedef struct
 
 // Create any new ticcmds and broadcast to other players.
 void NetUpdate (void);
-// Create any new ticcmds
-void D_BuildNewTiccmds (void);
-
-// Broadcasts special packets to other players
-//  to notify of game exit
-void D_QuitNetGame (void);
 
 //? how many ticks to run?
 void TryRunTics (void);
@@ -211,5 +202,9 @@ void D_NetSendMisc(netmisctype_t type, size_t len, void* data);
 
 // CPhipps - ask server for a wad file we need
 boolean D_NetGetWad(const char* name);
+
+// Netgame stuff (buffers and pointers, i.e. indices).
+extern  doomcom_t  *doomcom;
+extern  doomdata_t *netbuffer;  // This points inside doomcom.
 
 #endif

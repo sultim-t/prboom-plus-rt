@@ -39,10 +39,6 @@
 #ifndef __D_STATE__
 #define __D_STATE__
 
-// We need globally shared data structures,
-//  for defining the global state variables.
-#include "d_net.h"
-
 // We need the playr data structure as well.
 #include "d_player.h"
 
@@ -291,13 +287,12 @@ extern  int             bodyqueslot;
 
 extern int    skyflatnum;
 
-// Netgame stuff (buffers and pointers, i.e. indices).
-extern  doomcom_t  *doomcom;
-extern  doomdata_t *netbuffer;  // This points inside doomcom.
-
 extern  int        rndindex;
 
 extern  int        maketic;
+
+// Networking and tick handling related.
+#define BACKUPTICS              12
 
 extern  ticcmd_t   netcmds[][BACKUPTICS];
 extern  int        ticdup;
