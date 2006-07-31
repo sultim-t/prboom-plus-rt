@@ -79,7 +79,7 @@ byte solidcol[MAX_SCREENWIDTH];
 // Replaces the old R_Clip*WallSegment functions. It draws bits of walls in those
 // columns which aren't solid, and updates the solidcol[] array appropriately
 
-void R_ClipWallSegment(int first, int last, boolean solid)
+static void R_ClipWallSegment(int first, int last, boolean solid)
 {
   byte *p;
   while (first < last) {
