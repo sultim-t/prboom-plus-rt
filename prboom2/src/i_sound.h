@@ -110,9 +110,6 @@ void I_UnRegisterSong(int handle);
 extern int snd_card;
 extern int mus_card;
 // CPhipps - put these in config file
-extern const char* sndserver_filename;
-extern const char* snd_device;
-extern const char* musserver_filename;
 extern int snd_samplerate;
 
 #endif

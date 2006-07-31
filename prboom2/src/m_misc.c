@@ -198,9 +198,6 @@ extern int screenblocks;
 extern int showMessages;
 
 #ifndef DJGPP
-const char* musserver_filename;
-const char* sndserver_filename;
-const char* snd_device;
 int         mus_pause_opt; // 0 = kill music, 1 = pause, 2 = continue
 #endif
 
@@ -331,8 +328,6 @@ default_t defaults[] =
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{2},0,2, // CPhipps - music pausing
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
-  {"sounddev", {NULL,&snd_device}, {0,"/dev/dsp"},UL,UL,
-   def_str,ss_none}, // sound output device (UNIX)
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
 
