@@ -119,11 +119,6 @@ typedef struct
     mpoint_t a, b;
 } mline_t;
 
-typedef struct
-{
-    fixed_t slp, islp;
-} islope_t;
-
 //
 // The vector graphics for the automap.
 //  A line drawing of the player pointing right,
@@ -261,34 +256,6 @@ int markpointnum = 0; // next point to be assigned (also number of points now)
 int markpointnum_max = 0;       // killough 2/22/98
 
 static boolean stopped = true;
-
-//
-// AM_getIslope()
-//
-// Calculates the slope and slope according to the x-axis of a line
-// segment in map coordinates (with the upright y-axis n' all) so
-// that it can be used with the brain-dead drawing stuff.
-//
-// Passed the line slope is desired for and an islope_t structure for return
-// Returns nothing
-//
-static PUREFUNC void AM_getIslope
-( mline_t*  ml,
-  islope_t* is )
-{
-  int dx, dy;
-
-  dy = ml->a.y - ml->b.y;
-  dx = ml->b.x - ml->a.x;
-  if (!dy)
-    is->islp = (dx<0?-INT_MAX:INT_MAX);
-  else
-    is->islp = FixedDiv(dx, dy);
-  if (!dx)
-    is->slp = (dy<0?-INT_MAX:INT_MAX);
-  else
-    is->slp = FixedDiv(dy, dx);
-}
 
 //
 // AM_activateNewScale()
