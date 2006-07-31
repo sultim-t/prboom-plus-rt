@@ -702,41 +702,6 @@ static void NormalizeSlashes(char *str)
       str[l]='/';
 }
 
-// jff 4/19/98 Add routine to check a pathname for existence as
-// a file or directory. If neither append .wad and check if it
-// exists as a file then. Else return non-existent.
-
-static boolean WadFileStatus(char *filename,boolean *isdir)
-{
-  struct stat sbuf;
-  int i;
-
-  *isdir = false;                 //default is directory to false
-  if (!filename || !*filename)    //if path NULL or empty, doesn't exist
-    return false;
-
-  if (!stat(filename,&sbuf))      //check for existence
-  {
-    *isdir=S_ISDIR(sbuf.st_mode); //if it does, set whether a dir or not
-    return true;                  //return does exist
-  }
-
-  i = strlen(filename);           //get length of path
-  if (i>=4)
-    if(!strnicmp(filename+i-4,".wad",4))
-      return false;               //if already ends in .wad, not found
-
-  strcat(filename,".wad");        //try it with .wad added
-  if (!stat(filename,&sbuf))      //if it exists then
-  {
-    if (S_ISDIR(sbuf.st_mode))    //but is a dir, then say we didn't find it
-      return false;
-    return true;                  //otherwise return file found, w/ .wad added
-  }
-  filename[i]=0;                  //remove .wad
-  return false;                   //and report doesn't exist
-}
-
 /*
  * FindIWADFIle
  *
