@@ -757,12 +757,6 @@ typedef struct {
 //
 //////////////////////////////////////////////////////////////////
 
-//
-// End-level timer (-TIMER option)
-//
-extern  boolean levelTimer;
-extern  int levelTimeCount;
-
 // list of retriggerable buttons active
 extern button_t buttonlist[MAXBUTTONS];
 
