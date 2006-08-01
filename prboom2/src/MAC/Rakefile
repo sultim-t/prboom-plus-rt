@@ -3,7 +3,7 @@
 #################
 
 NAME = 'PrBoom'
-APPVERSION = '2.4.4'
+APPVERSION = '2.4.5'
 require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
