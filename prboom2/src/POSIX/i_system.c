@@ -42,8 +42,8 @@
 #include <ctype.h>
 #include <signal.h>
 
-#include "i_system.h"
 #include "doomtype.h"
+#include "i_system.h"
 #include "doomdef.h"
 
 #ifdef __GNUG__

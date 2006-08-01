@@ -44,7 +44,6 @@
 
 #include "SDL.h"
 
-#include "i_system.h"
 #include "m_argv.h"
 #include "doomstat.h"
 #include "doomdef.h"

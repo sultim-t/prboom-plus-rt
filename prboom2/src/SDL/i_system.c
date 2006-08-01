@@ -65,12 +65,12 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "i_system.h"
 #include "m_argv.h"
 #include "lprintf.h"
 #include "doomtype.h"
 #include "doomdef.h"
 #include "lprintf.h"
+#include "i_system.h"
 
 #ifdef __GNUG__
 #pragma implementation "i_system.h"
@@ -235,7 +235,7 @@ char *I_DoomExeDir(void)
  * cphipps - simple test for trailing slash on dir names
  */
 
-static boolean HasTrailingSlash(const char* dn)
+boolean HasTrailingSlash(const char* dn)
 {
   return (dn[strlen(dn)-1] == '/');
 }
