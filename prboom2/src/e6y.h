@@ -142,6 +142,9 @@ extern char *launcher_history[10];
 
 extern int test_dots;
 
+#define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
+extern int spechit_magic;
+
 extern int palette_ondamage;
 extern int palette_onbonus;
 extern int palette_onpowers;

@@ -109,6 +109,7 @@ int render_aspect_height;
 float render_aspect_ratio;
 
 int test_dots;
+int spechit_magic;
 
 int palette_ondamage;
 int palette_onbonus;
@@ -278,6 +279,13 @@ void e6y_D_DoomMainSetup(void)
     {
       ResetAspectRatio();
     }
+  }
+
+  // spechit magic
+  {
+    spechit_magic = DEFAULT_SPECHIT_MAGIC;
+    if ((p = M_CheckParm("-spechit")) && (p < myargc-1))
+      spechit_magic = atoi(myargv[p+1]);
   }
 
 }
