@@ -904,21 +904,21 @@ void M_LoadDefaults (void)
   if (i && i < myargc-1)
     defaultfile = myargv[i+1];
   else {
+    const char* exedir = I_DoomExeDir();
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
 #ifdef HAVE_SNPRINTF
-#  ifdef GL_DOOM
-    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom.cfg", I_DoomExeDir());
-#  else
-    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom.cfg", I_DoomExeDir());
-#  endif
+    snprintf((char *)defaultfile, PATH_MAX,
 #else
-#  ifdef GL_DOOM
-    sprintf((char *)defaultfile,"%s/glboom.cfg", I_DoomExeDir());
-#  else
-    sprintf((char *)defaultfile,"%s/prboom.cfg", I_DoomExeDir());
-#  endif
+    sprintf ((char *)defaultfile,
 #endif
+            "%s%s%sboom.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
+#ifdef GL_DOOM
+            "gl"
+#else
+            "pr"
+#endif
+            );
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);
