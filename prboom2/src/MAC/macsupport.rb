@@ -73,6 +73,7 @@ directory(RESOURCEDIR = "#{CONTENTSDIR}/Resources")
 directory(FRAMEWORKDIR = "#{CONTENTSDIR}/Frameworks")
 
 bundleDir(BUNDLEDIR)
+task(:bundle => BUNDLEDIR)
 
 ##############
 # Frameworks #
@@ -98,6 +99,7 @@ def installFrameworks(task)
 		@includes += " -I#{framework}/Headers "
 
 		installTaskRecursive(task, FRAMEWORKDIR, framework)
+		bundleDir("#{FRAMEWORKDIR}/#{name}.framework")
 	end
 
 	for name in @systemFrameworks
