@@ -55,7 +55,7 @@ const char* I_GetVersionString(char* buf, size_t sz);
  */
 const char* I_SigString(char* buf, size_t sz, int signum);
 
-char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
+const char *I_DoomExeDir(void); // killough 2/16/98: path to executable's dir
 
 boolean HasTrailingSlash(const char* dn);
 char* I_FindFile(const char* wfname, const char* ext);

@@ -178,7 +178,7 @@ int I_Filelength(int handle)
 // Return the path where the executable lies -- Lee Killough
 // proff_fs 2002-07-04 - moved to i_system
 #ifdef _WIN32
-char *I_DoomExeDir(void)
+const char *I_DoomExeDir(void)
 {
   static const char current_dir_dummy[] = {"."}; // proff - rem extra slash 8/21/03
   static char *base;
@@ -201,15 +201,24 @@ char *I_DoomExeDir(void)
     }
   return base;
 }
+
+#elif defined(AMIGA)
+
+const char *I_DoomExeDir(void)
+{
+  return "PROGDIR:";
+}
+
+#elif defined(MACOSX)
+
+/* Defined elsewhere */
+
 #else
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
 static const char prboom_dir[] = {"/.prboom"}; // Mead rem extra slash 8/21/03
 
-#ifdef MACOSX
-/* Defined elsewhere */
-#else
-char *I_DoomExeDir(void)
+const char *I_DoomExeDir(void)
 {
   static char *base;
   if (!base)        // cache multiple requests
@@ -226,7 +235,6 @@ char *I_DoomExeDir(void)
     }
   return base;
 }
-#endif
 #endif
 
 /*
