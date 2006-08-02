@@ -245,7 +245,11 @@ const char *I_DoomExeDir(void)
 
 boolean HasTrailingSlash(const char* dn)
 {
-  return (dn[strlen(dn)-1] == '/');
+  return ( (dn[strlen(dn)-1] == '/')
+#if defined(AMIGA)
+        || (dn[strlen(dn)-1] == ':')
+#endif
+          );
 }
 
 /*
