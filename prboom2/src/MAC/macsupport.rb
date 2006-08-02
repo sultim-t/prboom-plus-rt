@@ -90,7 +90,7 @@ def installFrameworks(task)
 			end
 		end
 
-		if framework == nil
+		if not framework
 			puts "Framework #{name} missing!"
 			exit(1)
 		end
