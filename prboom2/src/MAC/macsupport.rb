@@ -89,6 +89,11 @@ def installFrameworks(task)
 			end
 		end
 
+		if framework == nil
+			puts "Framework #{name} missing!"
+			exit(1)
+		end
+
 		@libs += " -framework #{name} "
 		@includes += " -I#{framework}/Headers "
 
