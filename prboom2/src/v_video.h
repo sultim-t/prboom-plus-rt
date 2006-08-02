@@ -93,13 +93,6 @@ void V_InitColorTranslation(void);
 // Allocates buffer screens, call before R_Init.
 void V_Init (void);
 
-enum patch_translation_e {
-  VPT_NONE    = 0, // Normal
-  VPT_FLIP    = 1, // Flip image horizontally
-  VPT_TRANS   = 2, // Translate image via a translation table
-  VPT_STRETCH = 4, // Stretch to compensate for high-res
-};
-
 #ifndef GL_DOOM
 void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
                 int destx, int desty, int destscrn,
