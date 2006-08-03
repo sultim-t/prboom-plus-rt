@@ -57,13 +57,9 @@ extern fixed_t pspriteyscale;
 void R_DrawMaskedColumn(const column_t *column);
 void R_SortVisSprites(void);
 void R_AddSprites(subsector_t* subsec, int lightlevel);
-void R_AddPSprites(void);
 void R_DrawPlayerSprites(void);
-void R_DrawSprites(void);
 void R_InitSprites(const char * const * namelist);
 void R_ClearSprites(void);
 void R_DrawMasked(void);
-
-void R_ClipVisSprite(vissprite_t *vis, int xl, int xh);
 
 #endif

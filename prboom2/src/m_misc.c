@@ -69,39 +69,6 @@
 #include "d_main.h"
 #include "e6y.h"//e6y
 
-//
-// M_DrawText
-// Returns the final X coordinate
-// HU_Init must have been called to init the font
-//
-extern patchnum_t hu_font[HU_FONTSIZE];
-
-int M_DrawText(int x,int y,boolean direct,char* string)
-{
-  int c;
-  int w;
-
-  while (*string) {
-    c = toupper(*string) - HU_FONTSTART;
-    string++;
-    if (c < 0 || c> HU_FONTSIZE) {
-      x += 4;
-      continue;
-    }
-
-    w = SHORT (hu_font[c].width);
-    if (x+w > SCREENWIDTH)
-      break;
-
-    // proff/nicolas 09/20/98 -- changed for hi-res
-    // CPhipps - patch drawing updated, reformatted
-    V_DrawNumPatch(x, y, 0, hu_font[c].lumpnum, CR_DEFAULT, VPT_STRETCH);
-    x+=w;
-  }
-
-  return x;
-}
-
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
 static inline void I_EndRead(void) {}
@@ -199,9 +166,6 @@ extern int screenblocks;
 extern int showMessages;
 
 #ifndef DJGPP
-const char* musserver_filename;
-const char* sndserver_filename;
-const char* snd_device;
 int         mus_pause_opt; // 0 = kill music, 1 = pause, 2 = continue
 #endif
 
@@ -267,6 +231,10 @@ default_t defaults[] =
    def_bool, ss_enem, &monster_friction},
   {"help_friends",{&default_help_friends}, {1}, 0, 1,
    def_bool, ss_enem, &help_friends},
+  {"allow_pushers",{&default_allow_pushers},{1},0,1,
+   def_bool,ss_weap, &allow_pushers},
+  {"variable_friction",{&default_variable_friction},{1},0,1,
+   def_bool,ss_weap, &variable_friction},
 #ifdef DOGS
   {"player_helpers",{&default_dogs}, {0}, 0, 3,
    def_bool, ss_enem },
@@ -276,6 +244,7 @@ default_t defaults[] =
    def_bool, ss_enem, &dog_jumping},
 #endif
    /* End of MBF AI extras */
+
   {"sts_always_red",{&sts_always_red},{1},0,1, // no color changes on status bar
    def_bool,ss_stat},
   {"sts_pct_always_gray",{&sts_pct_always_gray},{0},0,1, // 2/23/98 chg default
@@ -331,8 +300,6 @@ default_t defaults[] =
   {"music_volume",{&snd_MusicVolume},{8},0,15, def_int,ss_none},
   {"mus_pause_opt",{&mus_pause_opt},{2},0,2, // CPhipps - music pausing
    def_int, ss_none}, // 0 = kill music when paused, 1 = pause music, 2 = let music continue
-  {"sounddev", {NULL,&snd_device}, {0,"/dev/dsp"},UL,UL,
-   def_str,ss_none}, // sound output device (UNIX)
   {"snd_channels",{&default_numChannels},{8},1,32,
    def_int,ss_none}, // number of audio events simultaneously // killough
 
@@ -1067,21 +1034,21 @@ void M_LoadDefaults (void)
   if (i && i < myargc-1)
     defaultfile = myargv[i+1];
   else {
+    const char* exedir = I_DoomExeDir();
     defaultfile = malloc(PATH_MAX+1);
     /* get config file from same directory as executable */
 #ifdef HAVE_SNPRINTF
-#  ifdef GL_DOOM
-    snprintf((char *)defaultfile,PATH_MAX,"%s/glboom-plus.cfg", I_DoomExeDir());
-#  else
-    snprintf((char *)defaultfile,PATH_MAX,"%s/prboom-plus.cfg", I_DoomExeDir());
-#  endif
+    snprintf((char *)defaultfile, PATH_MAX,
 #else
-#  ifdef GL_DOOM
-    sprintf((char *)defaultfile,"%s/glboom-plus.cfg", I_DoomExeDir());
-#  else
-    sprintf((char *)defaultfile,"%s/prboom-plus.cfg", I_DoomExeDir());
-#  endif
+    sprintf ((char *)defaultfile,
 #endif
+            "%s%s%sboom-plus.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
+#ifdef GL_DOOM
+            "gl"
+#else
+            "pr"
+#endif
+            );
   }
 
   lprintf (LO_CONFIRM, " default file: %s\n",defaultfile);

@@ -105,7 +105,6 @@ void A_SpawnSound();
 void A_SpawnFly();
 void A_BrainExplode();
 void A_Die();
-void A_Stop();
 void A_Detonate();        /* killough 8/9/98: detonate a bomb or other device */
 void A_Mushroom();        /* killough 10/98: mushroom effect */
 void A_Spawn();           // killough 11/98

@@ -248,7 +248,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AGRegex_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_CFLAGS = (
 					"-DSUPPORT_UTF8",
 					"-DPOSIX_MALLOC_THRESHOLD=10",
@@ -274,7 +274,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AGRegex_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_CFLAGS = (
 					"-DSUPPORT_UTF8",
 					"-DPOSIX_MALLOC_THRESHOLD=10",

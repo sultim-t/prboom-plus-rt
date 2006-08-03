@@ -39,10 +39,6 @@
 #ifndef __D_STATE__
 #define __D_STATE__
 
-// We need globally shared data structures,
-//  for defining the global state variables.
-#include "d_net.h"
-
 // We need the playr data structure as well.
 #include "d_player.h"
 
@@ -168,26 +164,12 @@ extern  boolean deathmatch;
 extern int snd_SfxVolume;      // maximum volume for sound
 extern int snd_MusicVolume;    // maximum volume for music
 
-// Current music/sfx card - index useless
-//  w/o a reference LUT in a sound module.
-// Ideally, this would use indices found
-//  in: /usr/include/linux/soundcard.h
-extern int snd_MusicDevice;
-extern int snd_SfxDevice;
-// Config file? Same disclaimer as above.
-extern int snd_DesiredMusicDevice;
-extern int snd_DesiredSfxDevice;
 // CPhipps - screen parameters
 extern unsigned int desired_screenwidth, desired_screenheight;
 
 // -------------------------
 // Status flags for refresh.
 //
-
-// Depending on view size - no status bar?
-// Note that there is no way to disable the
-//  status bar explicitely.
-extern  boolean statusbaractive;
 
 enum automapmode_e {
   am_active = 1,  // currently shown
@@ -220,7 +202,6 @@ extern  int totalitems;
 extern  int totalsecret;
 
 // Timer, for scores.
-extern  int levelstarttic;  // gametic at level start
 extern  int basetic;    /* killough 9/29/98: levelstarttic, adjusted */
 extern  int leveltime;  // tics in game play for par
 
@@ -295,13 +276,10 @@ extern  int             bodyqueslot;
 
 extern int    skyflatnum;
 
-// Netgame stuff (buffers and pointers, i.e. indices).
-extern  doomcom_t  *doomcom;
-extern  doomdata_t *netbuffer;  // This points inside doomcom.
-
-extern  int        rndindex;
-
 extern  int        maketic;
+
+// Networking and tick handling related.
+#define BACKUPTICS              12
 
 extern  ticcmd_t   netcmds[][BACKUPTICS];
 extern  int        ticdup;

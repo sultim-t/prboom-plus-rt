@@ -74,7 +74,7 @@ typedef struct
 typedef struct
 {
   char       name[8];
-  boolean    masked;
+  char       pad2[4];      // unused
   short      width;
   short      height;
   char       pad[4];       // unused in Doom but might be used in Boom Phase 2

@@ -65,12 +65,12 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "i_system.h"
 #include "m_argv.h"
 #include "lprintf.h"
 #include "doomtype.h"
 #include "doomdef.h"
 #include "lprintf.h"
+#include "i_system.h"
 
 #ifdef __GNUG__
 #pragma implementation "i_system.h"
@@ -178,7 +178,7 @@ int I_Filelength(int handle)
 // Return the path where the executable lies -- Lee Killough
 // proff_fs 2002-07-04 - moved to i_system
 #ifdef _WIN32
-char *I_DoomExeDir(void)
+const char *I_DoomExeDir(void)
 {
   static const char current_dir_dummy[] = {"."}; // proff - rem extra slash 8/21/03
   static char *base;
@@ -201,16 +201,25 @@ char *I_DoomExeDir(void)
     }
   return base;
 }
+
+#elif defined(AMIGA)
+
+const char *I_DoomExeDir(void)
+{
+  return "PROGDIR:";
+}
+
+#elif defined(MACOSX)
+
+/* Defined elsewhere */
+
 #else
 // cph - V.Aguilar (5/30/99) suggested return ~/.lxdoom/, creating
 //  if non-existant
 // cph 2006/07/23 - give prboom+ its own dir
 static const char prboom_dir[] = {"/.prboom+"}; // Mead rem extra slash 8/21/03
 
-#ifdef MACOSX
-/* Defined elsewhere */
-#else
-char *I_DoomExeDir(void)
+const char *I_DoomExeDir(void)
 {
   static char *base;
   if (!base)        // cache multiple requests
@@ -228,7 +237,6 @@ char *I_DoomExeDir(void)
   return base;
 }
 #endif
-#endif
 
 /*
  * HasTrailingSlash
@@ -236,10 +244,13 @@ char *I_DoomExeDir(void)
  * cphipps - simple test for trailing slash on dir names
  */
 
-//e6y static 
 boolean HasTrailingSlash(const char* dn)
 {
-  return (dn[strlen(dn)-1] == '/');
+  return ( (dn[strlen(dn)-1] == '/')
+#if defined(AMIGA)
+        || (dn[strlen(dn)-1] == ':')
+#endif
+          );
 }
 
 /*

@@ -52,6 +52,7 @@
 #include "doomdef.h"
 #include "doomtype.h"
 #include "doomstat.h"
+#include "d_net.h"
 #include "dstrings.h"
 #include "sounds.h"
 #include "z_zone.h"
@@ -87,6 +88,7 @@
 #include "e6y.h" //e6y
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
+static void D_PageDrawer(void);
 
 // CPhipps - removed wadfiles[] stuff
 
@@ -432,7 +434,7 @@ void D_PageTicker(void)
 //
 // D_PageDrawer
 //
-void D_PageDrawer(void)
+static void D_PageDrawer(void)
 {
   // proff/nicolas 09/14/98 -- now stretchs bitmaps to fullscreen!
   // CPhipps - updated for new patch drawing
@@ -732,41 +734,6 @@ static void NormalizeSlashes(char *str)
   while (l--)
     if (str[l]=='\\')
       str[l]='/';
-}
-
-// jff 4/19/98 Add routine to check a pathname for existence as
-// a file or directory. If neither append .wad and check if it
-// exists as a file then. Else return non-existent.
-
-static boolean WadFileStatus(char *filename,boolean *isdir)
-{
-  struct stat sbuf;
-  int i;
-
-  *isdir = false;                 //default is directory to false
-  if (!filename || !*filename)    //if path NULL or empty, doesn't exist
-    return false;
-
-  if (!stat(filename,&sbuf))      //check for existence
-  {
-    *isdir=S_ISDIR(sbuf.st_mode); //if it does, set whether a dir or not
-    return true;                  //return does exist
-  }
-
-  i = strlen(filename);           //get length of path
-  if (i>=4)
-    if(!strnicmp(filename+i-4,".wad",4))
-      return false;               //if already ends in .wad, not found
-
-  strcat(filename,".wad");        //try it with .wad added
-  if (!stat(filename,&sbuf))      //if it exists then
-  {
-    if (S_ISDIR(sbuf.st_mode))    //but is a dir, then say we didn't find it
-      return false;
-    return true;                  //otherwise return file found, w/ .wad added
-  }
-  filename[i]=0;                  //remove .wad
-  return false;                   //and report doesn't exist
 }
 
 /*
@@ -1560,7 +1527,9 @@ static void D_DoomMainSetup(void)
 
   lprintf(LO_INFO,"\n");     // killough 3/6/98: add a newline, by popular demand :)
 
-  if (!M_CheckParm ("-nodeh")) // e6y
+  // e6y 
+  // option to disable automatic loading of dehacked-in-wad lump
+  if (!M_CheckParm ("-nodeh"))
     if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
       ProcessDehFile(NULL, D_dehout(), p);
 

@@ -1927,3 +1927,5 @@ void ClearLinesCrossTracer(void)
 }
 
 float paperitems_pitch;
+
+int levelstarttic;

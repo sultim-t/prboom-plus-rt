@@ -2362,8 +2362,8 @@ void P_PlayerInSpecialSector (player_t* player)
 //  levelFragLimit, levelFragLimitCount
 //
 
-boolean         levelTimer;
-int             levelTimeCount;
+static boolean  levelTimer;
+static int      levelTimeCount;
 boolean         levelFragLimit;      // Ty 03/18/98 Added -frags support
 int             levelFragLimitCount; // Ty 03/18/98 Added -frags support
 

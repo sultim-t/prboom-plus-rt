@@ -594,16 +594,6 @@ extern const char *s_HUSTR_PLRBROWN; // = HUSTR_PLRBROWN;
 //#define HUSTR_PLRRED          "Red: "
 extern const char *s_HUSTR_PLRRED; // = HUSTR_PLRRED;
 
-// Ty - Note these are chars, not char *, so name is sc_XXX
-//#define HUSTR_KEYGREEN        'g'
-extern char sc_HUSTR_KEYGREEN; // = HUSTR_KEYGREEN;
-//#define HUSTR_KEYINDIGO       'i'
-extern char sc_HUSTR_KEYINDIGO; // = HUSTR_KEYINDIGO;
-//#define HUSTR_KEYBROWN        'b'
-extern char sc_HUSTR_KEYBROWN; // = HUSTR_KEYBROWN;
-//#define HUSTR_KEYRED  'r'
-extern char sc_HUSTR_KEYRED; // = HUSTR_KEYRED;
-
 //
 //      AM_map.C
 //
@@ -661,11 +651,6 @@ extern const char* s_STSTR_BEHOLDX; // = STSTR_BEHOLDX;
 extern const char* s_STSTR_CHOPPERS; // = STSTR_CHOPPERS;
 //#define STSTR_CLEV            "Changing Level..."
 extern const char* s_STSTR_CLEV; // = STSTR_CLEV;
-
-//#define STSTR_COMPON    "Compatibility Mode On"            // phares
-extern const char* s_STSTR_COMPON; // = STSTR_COMPON;
-//#define STSTR_COMPOFF   "Compatibility Mode Off"           // phares
-extern const char* s_STSTR_COMPOFF; // = STSTR_COMPOFF;
 
 //
 //      F_Finale.C

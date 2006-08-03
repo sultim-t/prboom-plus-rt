@@ -50,7 +50,7 @@ extern int  key_enter;                                              // phares
 // not used currently
 // code to initialize HUlib would go here if needed
 //
-void HUlib_init(void)
+static void HUlib_init(void)
 {
 }
 
@@ -133,7 +133,7 @@ boolean HUlib_addCharToTextLine
 // Passed the hu_textline_t
 // Returns false if already empty, true if the character deleted
 //
-boolean HUlib_delCharFromTextLine(hu_textline_t* t)
+static boolean HUlib_delCharFromTextLine(hu_textline_t* t)
 {
   if (!t->len) return false;
   else
@@ -298,7 +298,7 @@ void HUlib_initSText
 // Passed a hu_stext_t
 // Returns nothing
 //
-void HUlib_addLineToSText(hu_stext_t* s)
+static void HUlib_addLineToSText(hu_stext_t* s)
 {
 
   int i;
@@ -439,7 +439,7 @@ void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h,
 // Passed a hu_mtext_t
 // Returns nothing
 //
-void HUlib_addLineToMText(hu_mtext_t* m)
+static void HUlib_addLineToMText(hu_mtext_t* m)
 {
   // add a clear line
   if (++m->cl == hud_msg_lines)
@@ -657,7 +657,7 @@ void HUlib_initIText
 // Passed the hu_itext_t
 // Returns nothing
 //
-void HUlib_delCharFromIText(hu_itext_t* it)
+static void HUlib_delCharFromIText(hu_itext_t* it)
 {
   if (it->l.len != it->lm)
     HUlib_delCharFromTextLine(&it->l);
@@ -671,7 +671,7 @@ void HUlib_delCharFromIText(hu_itext_t* it)
 // Passed the hu_itext_t
 // Returns nothing
 //
-void HUlib_eraseLineFromIText(hu_itext_t* it)
+static void HUlib_eraseLineFromIText(hu_itext_t* it)
 {
   while (it->lm != it->l.len)
     HUlib_delCharFromTextLine(&it->l);

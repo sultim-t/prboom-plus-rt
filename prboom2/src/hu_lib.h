@@ -139,9 +139,6 @@ typedef struct
 // Widget creation, access, and update routines
 //
 
-// initializes heads-up widget library
-void HUlib_init(void);
-
 //
 // textline code
 //
@@ -161,9 +158,6 @@ void HUlib_initTextLine
 
 // returns success
 boolean HUlib_addCharToTextLine(hu_textline_t *t, char ch);
-
-// returns success
-boolean HUlib_delCharFromTextLine(hu_textline_t *t);
 
 // draws tline
 void HUlib_drawTextLine(hu_textline_t *l, boolean drawcursor);
@@ -187,9 +181,6 @@ void HUlib_initSText
   int cm,   //jff 2/16/98 add color range parameter
   boolean*  on );
 
-// add a new line
-void HUlib_addLineToSText(hu_stext_t* s);
-
 // add a text message to an stext widget
 void HUlib_addMessageToSText(hu_stext_t* s, const char* prefix, const char* msg);
 
@@ -203,10 +194,6 @@ void HUlib_eraseSText(hu_stext_t* s);
 // initialize refresh text widget
 void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, const patchnum_t* font,
          int startchar, int cm, const patchnum_t* bgfont, boolean *on);
-
-//jff 2/26/98 message refresh widget
-// add a text line to refresh text widget
-void HUlib_addLineToMText( hu_mtext_t* m );
 
 //jff 2/26/98 message refresh widget
 // add a text message to refresh text widget
@@ -238,12 +225,6 @@ void HUlib_initIText
   int   startchar,
   int cm,   //jff 2/16/98 add color range parameter
   boolean*  on );
-
-// enforces left margin
-void HUlib_delCharFromIText(hu_itext_t* it);
-
-// enforces left margin
-void HUlib_eraseLineFromIText(hu_itext_t* it);
 
 // resets line and left margin
 void HUlib_resetIText(hu_itext_t* it);

@@ -7,17 +7,17 @@
 	<key>CFBundleExecutable</key>
 	<string>Launcher</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.4.3.3</string>
+	<string>2.4.5</string>
 	<key>CFBundleIconFile</key>
 	<string>PrBoom.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.sourceforge.prboom-plus</string>
+	<string>net.sourceforge.prboom</string>
 	<key>CFBundleName</key>
-	<string>PrBoom-Plus</string>
+	<string>PrBoom</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
-	<string>2.4.3.3</string>
+	<string>2.4.5</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSMainNibFile</key>

@@ -53,6 +53,7 @@
 #endif
 
 #include "doomstat.h"
+#include "d_net.h"
 #include "f_finale.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -120,7 +121,6 @@ player_t        players[MAXPLAYERS];
 int             consoleplayer; // player taking events and displaying
 int             displayplayer; // view being displayed
 int             gametic;
-int             levelstarttic; // gametic at level start
 int             basetic;       /* killough 9/29/98: for demo sync */
 int             totalkills, totallive, totalitems, totalsecret;    // for intermission
 boolean         demorecording;
@@ -2085,7 +2085,10 @@ void G_ReloadDefaults(void)
 
   player_bobbing = default_player_bobbing;  // whether player bobs or not
 
-  variable_friction = allow_pushers = true;
+  /* cph 2007/06/31 - for some reason, the default_* of the next 2 vars was never implemented */
+  variable_friction = default_variable_friction;
+  allow_pushers     = default_allow_pushers;
+
 
   monsters_remember = default_monsters_remember;   // remember former enemies
 

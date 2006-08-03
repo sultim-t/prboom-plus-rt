@@ -52,7 +52,5 @@ enum netcmdcode_e {
 };
 
 void I_InitNetwork (void);
-void I_NetCmd (enum netcmdcode_e flags);
-int ExpandTics(int);
 
 #endif

@@ -454,4 +454,6 @@ extern boolean isskytexture;
 
 void D_AddDehFile (const char *file, wad_source_t source);
 
+extern int levelstarttic;
+
 #endif

@@ -68,7 +68,6 @@ void D_DoAdvanceDemo (void);
 //
 
 void D_PageTicker(void);
-void D_PageDrawer(void);
 void D_StartTitle(void);
 void D_DoomMain(void);
 void D_AddFile (const char *file, wad_source_t source);

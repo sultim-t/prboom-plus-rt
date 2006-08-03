@@ -44,10 +44,11 @@
 #include <io.h>
 #endif
 #include <fcntl.h>
-#include "i_system.h"
 
 #include "doomstat.h"
+#include "d_net.h"
 #include "doomtype.h"
+#include "i_system.h"
 
 #ifdef __GNUG__
 #pragma implementation "w_wad.h"
