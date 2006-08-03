@@ -1249,7 +1249,7 @@ void e6y_G_DoCompleted(void)
 {
   int i;
 
-  if (doSkip && demo_stoponend)
+  if (doSkip && (demo_stoponend || demo_warp))
     G_SkipDemoStop();
 
   if(!stats_level)

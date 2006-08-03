@@ -304,7 +304,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   forward = side = 0;
 
   if ((doSkip) &&
-     ((demo_skiptics>0 && gametic>demo_skiptics) ||
+     ((startmap<=1 && demo_skiptics>0 && gametic>demo_skiptics) ||
      (demo_warp && gametic-levelstarttic>demo_skiptics)))
     G_SkipDemoStop();
   if (_demofp && !feof(_demofp))
