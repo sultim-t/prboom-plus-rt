@@ -40,6 +40,10 @@
 #include <unistd.h>
 #endif
 
+#include "doomdef.h"
+#include "doomstat.h"
+#include "doomtype.h"
+
 #include "z_zone.h"
 
 #include "m_swap.h"
@@ -50,10 +54,6 @@
 #include "w_wad.h"
 #include "lprintf.h"
 #include "s_sound.h"
-
-#include "doomdef.h"
-#include "doomstat.h"
-#include "doomtype.h"
 
 #include "d_main.h"
 
