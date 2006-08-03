@@ -1560,8 +1560,9 @@ static void D_DoomMainSetup(void)
 
   lprintf(LO_INFO,"\n");     // killough 3/6/98: add a newline, by popular demand :)
 
-  if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
-    ProcessDehFile(NULL, D_dehout(), p);
+  if (!M_CheckParm ("-nodeh")) // e6y
+    if ((p = W_CheckNumForName("DEHACKED")) != -1) // cph - add dehacked-in-a-wad support
+      ProcessDehFile(NULL, D_dehout(), p);
 
   V_InitColorTranslation(); //jff 4/24/98 load color translation lumps
 
