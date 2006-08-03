@@ -109,7 +109,7 @@ int render_aspect_height;
 float render_aspect_ratio;
 
 int test_dots;
-int spechit_magic;
+unsigned int spechit_magic;
 
 int palette_ondamage;
 int palette_onbonus;
