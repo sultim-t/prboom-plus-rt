@@ -28,12 +28,8 @@
 	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
 
-	// Check if the task is done
-	[[NSNotificationCenter defaultCenter]
-	addObserver:self selector:@selector(taskComplete:)
-     name:NSTaskDidTerminateNotification object:nil];
-
 	// Check if the task printed any output
+	// And also check its status
 	[NSTimer scheduledTimerWithTimeInterval:0.1 target:self
 	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
 
@@ -305,15 +301,9 @@ static NSString *readPipe(NSPipe *pipe)
 	NSString *stderrString = readPipe(standardError);
 	// Ignore for now
 	[stderrString release];
-}
 
-- (void)taskComplete:(NSNotification *)notification
-{
-	if(doomTask && ![doomTask isRunning])
+	if(![doomTask isRunning])
 	{
-		// Read last data from stdout
-		[self taskReadTimer:nil];
-
 		if ([doomTask terminationStatus] != 0)
 			[[consoleWindow windowController] showWindow:nil];
 		[doomTask release];

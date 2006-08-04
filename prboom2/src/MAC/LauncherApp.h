@@ -72,7 +72,6 @@
 // Game
 - (IBAction)startClicked:(id)sender;
 - (void)taskReadTimer:(NSTimer *)timer;
-- (void)taskComplete:(NSNotification *)notification;
 - (IBAction)gameButtonClicked:(id)sender;
 
 // Tools
