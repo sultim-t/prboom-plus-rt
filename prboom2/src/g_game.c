@@ -3111,11 +3111,14 @@ void P_ResetWalkcam()
   if (!walkcamera.type)
     return;
 
-  if (walkcamera.type==1)
+  if (players[displayplayer].mo)
   {
-    walkcamera.angle = players[displayplayer].mo->angle;
-    walkcamera.pitch = players[displayplayer].mo->pitch;
+    if (walkcamera.type==1)
+    {
+      walkcamera.angle = players[displayplayer].mo->angle;
+      walkcamera.pitch = players[displayplayer].mo->pitch;
+    }
+    walkcamera.x = players[displayplayer].mo->x;
+    walkcamera.y = players[displayplayer].mo->y;
   }
-  walkcamera.x = players[displayplayer].mo->x;
-  walkcamera.y = players[displayplayer].mo->y;
 }

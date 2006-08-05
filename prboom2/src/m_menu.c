@@ -4444,7 +4444,7 @@ boolean M_Responder (event_t* ev) {
     }
     if (ch == key_walkcamera)
     {
-      if (demoplayback)
+      if (demoplayback && gamestate == GS_LEVEL)
       {
         walkcamera.type = (walkcamera.type+1)%3;
         P_ResetWalkcam ();

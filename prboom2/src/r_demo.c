@@ -53,10 +53,13 @@ void R_SmoothPlaying_Reset(player_t *player)
 
     if (player==&players[displayplayer])
     {
-      smooth_playing_angle = players[displayplayer].mo->angle;
-      memset(smooth_playing_turns, 0, sizeof(smooth_playing_turns[0]) * SMOOTH_PLAYING_MAXFACTOR);
-      smooth_playing_sum = 0;
-      smooth_playing_index = 0;
+      if (players[displayplayer].mo)
+      {
+        smooth_playing_angle = players[displayplayer].mo->angle;
+        memset(smooth_playing_turns, 0, sizeof(smooth_playing_turns[0]) * SMOOTH_PLAYING_MAXFACTOR);
+        smooth_playing_sum = 0;
+        smooth_playing_index = 0;
+      }
     }
   }
 }
