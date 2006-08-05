@@ -278,19 +278,22 @@ char* I_FindFile(const char* wfname, const char* ext)
   /* Precalculate a length we will need in the loop */
   size_t  pl = strlen(wfname) + strlen(ext) + 4;
 
-  for (i=0; i<8; i++) {
+  for (i=0; i<10; i++) {
     char  * p;
     const char  * d = NULL;
     const char  * s = NULL;
     /* Each entry in the switch sets d to the directory to look in,
      * and optionally s to a subdirectory of d */
     switch(i) {
-    case 1:
-      if (!(d = getenv("DOOMWADDIR"))) continue;
     case 0:
+      if (!(d = getenv("DOOMWADDIR"))) continue;
+    case 1:
       break;
     case 2:
-      d = DOOMWADDIR;
+      s = DOOMWADDIR;
+      break;
+    case 3:
+      s = "doom";
       break;
     case 4:
       d = "/usr/share/games/doom";
@@ -299,11 +302,15 @@ char* I_FindFile(const char* wfname, const char* ext)
       d = "/usr/local/share/games/doom";
       break;
     case 6:
+      d = "/usr/share/doom";
+      break;
+    case 7:
+      d = "/usr/local/share/doom";
+      break;
+    case 8:
       d = I_DoomExeDir();
       break;
-    case 3:
-      s = "doom";
-    case 7:
+    case 9:
       if (!(d = getenv("HOME"))) continue;
       break;
 #ifdef SIMPLECHECKS
