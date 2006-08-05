@@ -66,7 +66,7 @@ static char *NSStringToCString(NSString *str)
 }
 
 static char *macExeDir = 0;
-char *I_DoomExeDir(void)
+const char *I_DoomExeDir(void)
 {
   if(macExeDir)
     return macExeDir;

@@ -137,6 +137,7 @@ const char *const standard_iwads[]=
   "doom.wad",
   "doom1.wad",
   "doomu.wad", /* CPhipps - alow doomu.wad */
+  "freedoom.wad", /* wart@kobold.org:  added freedoom for Fedora Extras */
 };
 //e6y static 
 const int nstandard_iwads = sizeof standard_iwads/sizeof*standard_iwads;

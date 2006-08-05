@@ -1,9 +1,8 @@
 #
-#
-# Install boomlump.wad to /usr/local/share/doom
+# Install, and make if needed, prboom.wad
 #
 
-waddir=$(datadir)/games/doom
+waddir=$(DOOMWADDIR)
 wad_DATA=prboom-plus.wad
 EXTRA_DIST=prboom-plus.wad prboom.txt
 
