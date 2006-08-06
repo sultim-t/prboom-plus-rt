@@ -90,11 +90,9 @@ typedef struct
 
 typedef struct
 {
-#ifdef GL_DOOM
   int iSectorID; // proff 04/05/2000: needed for OpenGL and used in debugmode by the HUD to draw sectornum
   boolean no_toptextures;
   boolean no_bottomtextures;
-#endif
   fixed_t floorheight;
   fixed_t ceilingheight;
   int nexttag,firsttag;  // killough 1/30/98: improves searches for tags.
@@ -191,9 +189,7 @@ typedef enum
 
 typedef struct line_s
 {
-#ifdef GL_DOOM
   int iLineID;           // proff 04/05/2000: needed for OpenGL
-#endif
   vertex_t *v1, *v2;     // Vertices, from v1 to v2.
   fixed_t dx, dy;        // Precalculated v2 - v1 for side checking.
   unsigned short flags;           // Animation related.
@@ -257,11 +253,9 @@ typedef struct
   side_t* sidedef;
   line_t* linedef;
 
-#ifdef GL_DOOM
   int iSegID; // proff 11/05/2000: needed for OpenGL
   // figgi -- needed for glnodes
   float     length;
-#endif
   boolean   miniseg;
 
 
@@ -371,10 +365,8 @@ typedef struct
 
 typedef struct vissprite_s
 {
-#ifdef GL_DOOM
   mobj_t *thing;
   boolean flip;
-#endif
   int x1, x2;
   fixed_t gx, gy;              // for line side calculation
   fixed_t gz, gzt;             // global bottom / top for silhouette clipping

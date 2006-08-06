@@ -82,9 +82,7 @@ extern byte       *translationtables;
 extern const byte *dc_translation;
 
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
-#ifndef GL_DOOM
 void R_DrawSpan(void);
-#endif
 
 void R_InitBuffer(int width, int height);
 

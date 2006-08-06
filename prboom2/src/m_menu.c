@@ -1956,6 +1956,19 @@ static void M_DrawSetting(const setup_menu_t* s)
     M_DrawMenuString(x,y,color);
     return;
   }
+
+  // Is the item a selection of choices?
+
+  if (flags & S_CHOICE) {
+    // killough 10/98: We must draw differently for items being gathered.
+    if (s->selectstrings == NULL) {
+      sprintf(menu_buffer,"%d",*s->var.def->location.pi);
+    } else {
+      strcpy(menu_buffer,s->selectstrings[*s->var.def->location.pi]);
+    }
+    M_DrawMenuString(x,y,color);
+    return;
+  }
 }
 
 /////////////////////////////
@@ -2081,6 +2094,7 @@ void M_DrawInstructions(void)
       flags & S_FILE   ? (s = "Type/edit filename and Press ENTER", 52)      :
       flags & S_RESET  ? 43 : 0  /* when you're changing something */        :
       flags & S_RESET  ? (s = "Press ENTER key to reset to defaults", 43)    :
+      flags & S_CHOICE ? (s = "Press left or right to choose", 78)           :
       (s = "Press Enter to Change", 91);
     strcpy(menu_buffer, s);
     M_DrawMenuString(x,20,color);
@@ -2845,9 +2859,10 @@ enum {
   general_trans,
   general_transpct,
   general_fullscreen,
+  general_videomode,
   general_flooroffset,
-  general_pcx,
-  general_diskicon,
+//  general_pcx,
+//  general_diskicon,
   general_hom
 };
 
@@ -2866,6 +2881,8 @@ enum {
 #define G_Y4 (G_Y3+52)
 #define GF_X 76
 
+static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
+
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Video"       ,S_SKIP|S_TITLE, m_null, G_X, G_Y - 12},
@@ -2876,8 +2893,12 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Translucency filter percentage", S_NUM, m_null, G_X,
    G_Y + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
 
-  {"Fullscreen Video mode", S_YESNO, m_null, G_X,
-   G_Y + general_fullscreen*8, {"use_fullscreen"}, 0, 0, M_FullScreen},
+  {"Fullscreen Video mode", S_YESNO|S_PRGWARN, m_null, G_X,
+   G_Y + general_fullscreen*8, {"use_fullscreen"}, 0, 0, NULL},
+
+  {"Video mode", S_CHOICE|S_PRGWARN, m_null, G_X,
+   G_Y + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
+
 #ifdef GL_DOOM
   {"Item out of Floor offset", S_NUM, m_null, G_X,
    G_Y + general_flooroffset*8, {"gl_sprite_offset"}},
@@ -4440,6 +4461,58 @@ boolean M_Responder (event_t* ev) {
       }
       return true;
     }
+
+  if (ptr1->m_flags & S_CHOICE) // selection of choices?
+    {
+    if (ch == key_menu_left) {
+      int value = *ptr1->var.def->location.pi;
+      
+      value = value - 1;
+      if ((ptr1->var.def->minvalue != UL &&
+           value < ptr1->var.def->minvalue))
+        value = ptr1->var.def->minvalue;
+      if ((ptr1->var.def->maxvalue != UL &&
+           value > ptr1->var.def->maxvalue))
+        value = ptr1->var.def->maxvalue;
+      if (*ptr1->var.def->location.pi != value)
+        S_StartSound(NULL,sfx_pstop);
+      *ptr1->var.def->location.pi = value;
+    }
+    if (ch == key_menu_right) {
+      int value = *ptr1->var.def->location.pi;
+      
+      value = value + 1;
+      if ((ptr1->var.def->minvalue != UL &&
+           value < ptr1->var.def->minvalue))
+        value = ptr1->var.def->minvalue;
+      if ((ptr1->var.def->maxvalue != UL &&
+           value > ptr1->var.def->maxvalue))
+        value = ptr1->var.def->maxvalue;
+      if (*ptr1->var.def->location.pi != value)
+        S_StartSound(NULL,sfx_pstop);
+      *ptr1->var.def->location.pi = value;
+    }
+    if (ch == key_menu_enter) {
+      // phares 4/14/98:
+      // If not in demoplayback, demorecording, or netgame,
+      // and there's a second variable in var2, set that
+      // as well
+
+      // killough 8/15/98: add warning messages
+
+      if (ptr1->m_flags & (S_LEVWARN | S_PRGWARN))
+        warn_about_changes(ptr1->m_flags &    // killough 10/98
+         (S_LEVWARN | S_PRGWARN));
+      else
+        M_UpdateCurrent(ptr1->var.def);
+
+      if (ptr1->action)      // killough 10/98
+        ptr1->action();
+      M_SelectDone(ptr1);                           // phares 4/17/98
+    }
+    return true;
+    }
+
       }
 
       // Key Bindings

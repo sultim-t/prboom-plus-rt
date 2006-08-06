@@ -38,10 +38,8 @@
 #include "r_plane.h"
 #include "r_things.h"
 #include "r_bsp.h" // cph - sanity checking
+#include "v_video.h"
 #include "lprintf.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 seg_t     *curline;
 side_t    *sidedef;
@@ -355,9 +353,10 @@ static void R_AddLine (seg_t *line)
   x2 = viewangletox[angle2];
 
 #ifdef GL_DOOM
+  // proff 11/99: we have to add these segs to avoid gaps in OpenGL
+  if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
   {
-    // proff 11/99: we have to add these segs to avoid gaps in OpenGL
-    if (x1 >= x2)       // killough 1/31/98 -- change == to >= for robustness
+    if (V_GetMode() == VID_MODEGL)
     {
       if (ds_p == drawsegs+maxdrawsegs)   // killough 1/98 -- fix 2s line HOM
       {
@@ -373,6 +372,8 @@ static void R_AddLine (seg_t *line)
       gld_AddWall(curline);
       return;
     }
+    else
+      return;
   }
 #else
   // Does not cross a pixel?
@@ -546,7 +547,7 @@ static void R_Subsector(int num)
                 ) : NULL;
 #ifdef GL_DOOM
   // check if the sector is faked
-  if (frontsector==sub->sector)
+  if ((frontsector==sub->sector)  && (V_GetMode() == VID_MODEGL))
   {
     // if the sector has bottomtextures, then the floorheight will be set to the
     // highest surounding floorheight
@@ -628,7 +629,8 @@ static void R_Subsector(int num)
     curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
   }
 #ifdef GL_DOOM
-  gld_AddPlane(num, floorplane, ceilingplane);
+  if (V_GetMode() == VID_MODEGL)
+    gld_AddPlane(num, floorplane, ceilingplane);
 #endif
 }
 

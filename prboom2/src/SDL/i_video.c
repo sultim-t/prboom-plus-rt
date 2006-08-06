@@ -61,13 +61,8 @@
 #include "st_stuff.h"
 #include "lprintf.h"
 
-#ifdef GL_DOOM
-#include "gl_struct.h"
-
 int gl_colorbuffer_bits=16;
 int gl_depthbuffer_bits=16;
-
-#endif
 
 extern void M_QuitDOOM(int choice);
 #ifdef DISABLE_DOUBLEBUFFER
@@ -300,9 +295,9 @@ static void I_UploadNewPalette(int pal)
   static int cachedgamma;
   static size_t num_pals;
 
-#ifdef GL_DOOM
-  return;
-#endif
+  if (V_GetMode() == VID_MODEGL)
+    return;
+
   if ((colours == NULL) || (cachedgamma != usegamma)) {
     int pplump = W_GetNumForName("PLAYPAL");
     int gtlump = (W_CheckNumForName)("GAMMATBL",ns_prboom);
@@ -372,7 +367,13 @@ void I_FinishUpdate (void)
   }
 #endif
 
-#ifndef GL_DOOM
+#ifdef GL_DOOM
+  if (V_GetMode() == VID_MODEGL) {
+    // proff 04/05/2000: swap OpenGL buffers
+    gld_Finish();
+    return;
+  }
+#endif
   if (SDL_MUSTLOCK(screen)) {
       int h;
       byte *src;
@@ -400,10 +401,6 @@ void I_FinishUpdate (void)
     newpal = NO_PALETTE_CHANGE;
   }
   SDL_Flip(screen);
-#else
-  // proff 04/05/2000: swap OpenGL buffers
-  gld_Finish();
-#endif
 }
 
 //
@@ -459,7 +456,6 @@ void I_PreInitGraphics(void)
   atexit(I_ShutdownSDL);
 }
 
-#ifdef GL_DOOM
 // e6y
 // GLBoom use this function for trying to set the closest supported resolution if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
@@ -510,7 +506,6 @@ static void I_ClosestResolution (int *width, int *height, int flags)
     }
   }
 }  
-#endif
 
 // CPhipps -
 // I_CalculateRes
@@ -528,23 +523,23 @@ void I_CalculateRes(unsigned int width, unsigned int height)
 // if the requested mode can't be set correctly.
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
 // It affects only fullscreen modes.
-#ifdef GL_DOOM
-  if ( use_fullscreen && !M_CheckParm("-window") )
-  {
-    I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
-  }
-  SCREENWIDTH = width;
-  SCREENHEIGHT = height;
-  SCREENPITCH = SCREENWIDTH;
-#else
-  SCREENWIDTH = (width+15) & ~15;
-  SCREENHEIGHT = height;
-  if (!(SCREENWIDTH % 1024)) {
-    SCREENPITCH = SCREENWIDTH+32;
-  } else {
+  if (V_GetMode() == VID_MODEGL) {
+    if ( use_fullscreen && !M_CheckParm("-window") )
+    {
+      I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
+    }
+    SCREENWIDTH = width;
+    SCREENHEIGHT = height;
     SCREENPITCH = SCREENWIDTH;
+  } else {
+    SCREENWIDTH = (width+15) & ~15;
+    SCREENHEIGHT = height;
+    if (!(SCREENWIDTH % 1024)) {
+      SCREENPITCH = SCREENWIDTH+32;
+    } else {
+      SCREENPITCH = SCREENWIDTH;
+    }
   }
-#endif
 }
 
 // CPhipps -
@@ -600,27 +595,45 @@ void I_InitGraphics(void)
 void I_UpdateVideoMode(void)
 {
   int init_flags;
+  int i;
+  video_mode_t mode;
 
   lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
+
+  mode = default_videomode;
+  if ((i=M_CheckParm("-vidmode")) && i<myargc-1) {
+    /*if (!stricmp(myargv[i+1],"16")) {
+      mode = VID_MODE16;
+    } else if (!stricmp(myargv[i+1],"32")) {
+      mode = VID_MODE32;
+    } else*/ if (!stricmp(myargv[i+1],"gl")) {
+      mode = VID_MODEGL;
+    } else {
+      mode = VID_MODE8;
+    }
+  }
+  V_InitMode(mode);
 
   V_FreeScreens();
 
   I_SetRes();
 
   // Initialize SDL with this graphics mode
-#ifdef GL_DOOM
-  init_flags = SDL_OPENGL;
-#else
-  if (use_doublebuffer)
-    init_flags = SDL_DOUBLEBUF;
-  else
-    init_flags = SDL_SWSURFACE;
+  if (V_GetMode() == VID_MODEGL) {
+    init_flags = SDL_OPENGL;
+  } else {
+    if (use_doublebuffer)
+      init_flags = SDL_DOUBLEBUF;
+    else
+      init_flags = SDL_SWSURFACE;
 #ifndef _DEBUG
-  init_flags |= SDL_HWPALETTE;
+    init_flags |= SDL_HWPALETTE;
 #endif
-#endif
+  }
+
   if ( use_fullscreen )
     init_flags |= SDL_FULLSCREEN;
+
   // e6y
   // New command-line options for setting a window (-window) 
   // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
@@ -628,23 +641,23 @@ void I_UpdateVideoMode(void)
   if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
   if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
 
-#ifdef GL_DOOM
-  SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
-  SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-  SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
-  SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
-  screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
-#else
-  screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 8, init_flags);
-#endif
+  if (V_GetMode() == VID_MODEGL) {
+    SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, 0 );
+    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
+    screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
+  } else {
+    screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 8, init_flags);
+  }
 
   if(screen == NULL) {
     I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
@@ -673,33 +686,33 @@ void I_UpdateVideoMode(void)
 
   R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
 
-#ifdef GL_DOOM
-  {
-  int temp;
+  if (V_GetMode() == VID_MODEGL) {
+    int temp;
     lprintf(LO_INFO,"SDL OpenGL PixelFormat:\n");
-  SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
-  lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
-  SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
-  lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_RED_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_GREEN_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_BLUE_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_STENCIL_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_RED_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_GREEN_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_BLUE_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_ACCUM_ALPHA_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &temp );
+    lprintf(LO_INFO,"    SDL_GL_DOUBLEBUFFER: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_BUFFER_SIZE: %i\n",temp);
+    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &temp );
+    lprintf(LO_INFO,"    SDL_GL_DEPTH_SIZE: %i\n",temp);
+#ifdef GL_DOOM
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
-  }
 #endif
+  }
 }

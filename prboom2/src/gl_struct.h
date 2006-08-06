@@ -42,7 +42,7 @@ void gld_InitCommandLine();
 void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e flags);
 void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags);
 void gld_DrawBackground(const char* name);
-void gld_DrawLine(int x0, int y0, int x1, int y1, byte BaseColor);
+void gld_DrawLine(int x0, int y0, int x1, int y1, int BaseColor);
 void gld_DrawWeapon(int weaponlump, vissprite_t *vis, int lightlevel);
 void gld_FillBlock(int x, int y, int width, int height, int col);
 void gld_SetPalette(int palette);

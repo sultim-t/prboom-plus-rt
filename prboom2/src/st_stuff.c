@@ -387,10 +387,9 @@ static void ST_refreshBackground(void)
 
   if (st_statusbaron)
     {
-#ifdef GL_DOOM
       // proff 05/17/2000: draw to the frontbuffer in OpenGL
-      y=ST_Y;
-#endif
+      if (V_GetMode() == VID_MODEGL)
+        y=ST_Y;
       V_DrawNamePatch(ST_X, y, screen, "STBAR", CR_DEFAULT, VPT_STRETCH);
 
       // killough 3/7/98: make face background change with displayplayer
@@ -828,20 +827,12 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh)
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
-#ifdef GL_DOOM
-  /* proff 05/17/2000: always draw everything in OpenGL, because there
-   * is no backbuffer
-   */
-  if (st_statusbaron)
-    ST_doRefresh();
-#else
   if (st_statusbaron) {
-    if (st_firsttime)
+    if (st_firsttime || (V_GetMode() == VID_MODEGL))
       ST_doRefresh();     /* If just after ST_Start(), refresh all */
     else
       ST_diffDraw();      /* Otherwise, update as little as possible */
   }
-#endif
 }
 
 

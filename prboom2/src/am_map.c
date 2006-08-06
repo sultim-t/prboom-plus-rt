@@ -106,16 +106,6 @@ int map_secret_after;
 
 typedef struct
 {
-    int x, y;
-} fpoint_t;
-
-typedef struct
-{
-    fpoint_t a, b;
-} fline_t;
-
-typedef struct
-{
     mpoint_t a, b;
 } mline_t;
 
@@ -971,96 +961,6 @@ static boolean AM_clipMline
 #undef DOOUTCODE
 
 //
-// AM_drawFline()
-//
-// Draw a line in the frame buffer.
-// Classic Bresenham w/ whatever optimizations needed for speed
-//
-// Passed the frame coordinates of line, and the color to be drawn
-// Returns nothing
-//
-#ifndef GL_DOOM
-static void AM_drawFline
-( fline_t*  fl,
-  int   color )
-{
-  register int x;
-  register int y;
-  register int dx;
-  register int dy;
-  register int sx;
-  register int sy;
-  register int ax;
-  register int ay;
-  register int d;
-
-#ifdef RANGECHECK         // killough 2/22/98
-  static int fuck = 0;
-
-  // For debugging only
-  if
-  (
-       fl->a.x < 0 || fl->a.x >= f_w
-    || fl->a.y < 0 || fl->a.y >= f_h
-    || fl->b.x < 0 || fl->b.x >= f_w
-    || fl->b.y < 0 || fl->b.y >= f_h
-  )
-  {
-    //jff 8/3/98 use logical output routine
-    lprintf(LO_DEBUG, "fuck %d \r", fuck++);
-    return;
-  }
-#endif
-
-#define PUTDOT(xx,yy,cc) V_PlotPixel(FB,xx,yy,(byte)cc)
-
-  dx = fl->b.x - fl->a.x;
-  ax = 2 * (dx<0 ? -dx : dx);
-  sx = dx<0 ? -1 : 1;
-
-  dy = fl->b.y - fl->a.y;
-  ay = 2 * (dy<0 ? -dy : dy);
-  sy = dy<0 ? -1 : 1;
-
-  x = fl->a.x;
-  y = fl->a.y;
-
-  if (ax > ay)
-  {
-    d = ay - ax/2;
-    while (1)
-    {
-      PUTDOT(x,y,color);
-      if (x == fl->b.x) return;
-      if (d>=0)
-      {
-        y += sy;
-        d -= ax;
-      }
-      x += sx;
-      d += ay;
-    }
-  }
-  else
-  {
-    d = ax - ay/2;
-    while (1)
-    {
-      PUTDOT(x, y, color);
-      if (y == fl->b.y) return;
-      if (d >= 0)
-      {
-        x += sx;
-        d -= ay;
-      }
-      y += sy;
-      d += ax;
-    }
-  }
-}
-#endif
-
-//
 // AM_drawMline()
 //
 // Clip lines, draw visible parts of lines.
@@ -1083,11 +983,7 @@ static void AM_drawMline
     color=0;
 
   if (AM_clipMline(ml, &fl))
-#ifdef GL_DOOM
-    gld_DrawLine(fl.a.x, fl.a.y, fl.b.x, fl.b.y, (byte)color);
-#else
-    AM_drawFline(&fl, color); // draws it on frame buffer using fb coords
-#endif
+    V_DrawLine(&fl, color); // draws it on frame buffer using fb coords
 }
 
 //
@@ -1642,13 +1538,19 @@ static void AM_drawMarks(void)
 
 inline static void AM_drawCrosshair(int color)
 {
-  // single point for now
-#ifdef GL_DOOM
-  gld_DrawLine((f_w/2)-1, (f_h/2), (f_w/2)+1, (f_h/2), (byte)color);
-  gld_DrawLine((f_w/2), (f_h/2)-1, (f_w/2), (f_h/2)+1, (byte)color);
-#else
-  V_PlotPixel(FB, f_w/2, f_h/2, (byte)color);
-#endif
+  fline_t line;
+
+  line.a.x = (f_w/2)-1;
+  line.a.y = (f_h/2);
+  line.b.x = (f_w/2)+1;
+  line.b.y = (f_h/2);
+  V_DrawLine(&line, color);
+
+  line.a.x = (f_w/2);
+  line.a.y = (f_h/2)-1;
+  line.b.x = (f_w/2);
+  line.b.y = (f_h/2)+1;
+  V_DrawLine(&line, color);
 }
 
 //

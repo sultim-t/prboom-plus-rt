@@ -87,48 +87,55 @@ typedef struct {
 extern screeninfo_t screens[NUM_SCREENS];
 extern int          usegamma;
 
+// The available bit-depth modes
+typedef enum {
+  VID_MODE8   = 0,
+//  VID_MODE16  = 1,
+//  VID_MODE32  = 2,
+  VID_MODEGL  = 1
+} video_mode_t;
+
+extern video_mode_t default_videomode;
+
+void V_InitMode(video_mode_t mode);
+
+// video mode query interface
+video_mode_t V_GetMode(void);
+
 //jff 4/24/98 loads color translation lumps
 void V_InitColorTranslation(void);
 
 // Allocates buffer screens, call before R_Init.
 void V_Init (void);
 
-#ifndef GL_DOOM
-void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
-                int destx, int desty, int destscrn,
-                enum patch_translation_e flags);
-#else
-#define V_CopyRect(sx,sy,ss,w,h,dx,dy,ds,f)
-#endif /* GL_DOOM */
+// V_CopyRect
+typedef void (*V_CopyRect_f)(int srcx,  int srcy,  int srcscrn,
+                             int width, int height,
+                             int destx, int desty, int destscrn,
+                             enum patch_translation_e flags);
+extern V_CopyRect_f V_CopyRect;
 
-#ifdef GL_DOOM
-#define V_FillRect(s,x,y,w,h,c) gld_FillBlock(x,y,w,h,c)
-#else
-void V_FillRect(int scrn, int x, int y, int width, int height, byte colour);
-#endif
+// V_FillRect
+typedef void (*V_FillRect_f)(int scrn, int x, int y,
+                             int width, int height, byte colour);
+extern V_FillRect_f V_FillRect;
 
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
 // V_DrawMemPatch - Draws the given patch_t
-#ifdef GL_DOOM
-#define V_DrawMemPatch(x,y,s,p,t,f) gld_DrawPatchFromMem(x,y,p,t,f)
-#else
-void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
-        int cm, enum patch_translation_e flags);
-#endif
+typedef void (*V_DrawMemPatch_f)(int x, int y, int scrn,
+                                 const patch_t *patch, int cm,
+                                 enum patch_translation_e flags);
+extern V_DrawMemPatch_f V_DrawMemPatch;
+
 // V_DrawNumPatch - Draws the patch from lump num
-#ifdef GL_DOOM
-#define V_DrawNumPatch(x,y,s,l,t,f) gld_DrawNumPatch(x,y,l,t,f)
-#else
-void V_DrawNumPatch(int x, int y, int scrn, int lump,
-        int cm, enum patch_translation_e flags);
-#endif
+typedef void (*V_DrawNumPatch_f)(int x, int y, int scrn,
+                                 int lump, int cm,
+                                 enum patch_translation_e flags);
+extern V_DrawNumPatch_f V_DrawNumPatch;
+
 // V_DrawNamePatch - Draws the patch from lump "name"
-#ifdef GL_DOOM
-#define V_DrawNamePatch(x,y,s,n,t,f) gld_DrawNumPatch(x,y,W_GetNumForName(n),t,f)
-#else
 #define V_DrawNamePatch(x,y,s,n,t,f) V_DrawNumPatch(x,y,s,W_GetNumForName(n),t,f)
-#endif
 
 /* cph -
  * Functions to return width & height of a patch.
@@ -139,20 +146,31 @@ int V_NamePatchWidth(const char* name);
 int V_NamePatchHeight(const char* name);
 
 /* cphipps 10/99: function to tile a flat over the screen */
-#ifdef GL_DOOM
-#define V_DrawBackground(n,s) gld_DrawBackground(n)
-#else
-void V_DrawBackground(const char* flatname, int scrn);
-#endif
+typedef void (*V_DrawBackground_f)(const char* flatname, int scrn);
+extern V_DrawBackground_f V_DrawBackground;
 
 // CPhipps - function to set the palette to palette number pal.
 void V_SetPalette(int pal);
 
 // CPhipps - function to plot a pixel
 
-#ifndef GL_DOOM
-#define V_PlotPixel(s,x,y,c) screens[s].data[x+screens[s].pitch*y]=c
-#endif
+// V_PlotPixel
+typedef void (*V_PlotPixel_f)(int,int,int,byte);
+extern V_PlotPixel_f V_PlotPixel;
+
+typedef struct
+{
+  int x, y;
+} fpoint_t;
+
+typedef struct
+{
+  fpoint_t a, b;
+} fline_t;
+
+// V_DrawLine
+typedef void (*V_DrawLine_f)(fline_t* fl, int color);
+extern V_DrawLine_f V_DrawLine;
 
 void V_AllocScreen(screeninfo_t *scrn);
 void V_AllocScreens();

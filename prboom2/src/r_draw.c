@@ -102,10 +102,6 @@ static int    startx = 0;
 static int    temptype = COL_NONE;
 static int    commontop, commonbot;
 static const byte *temptranmap = NULL;
-static fixed_t temptranslevel;
-// haleyjd 09/12/04: optimization -- precalculate flex tran lookups
-static unsigned int *temp_fg2rgb;
-static unsigned int *temp_bg2rgb;
 // SoM 7-28-04: Fix the fuzz problem.
 static const byte   *tempfuzzmap;
 
@@ -1065,9 +1061,8 @@ void R_FillBackScreen (void)
 
 void R_VideoErase(int x, int y, int count)
 {
-#ifndef GL_DOOM
-  memcpy(screens[0].data+y*screens[0].pitch+x, screens[1].data+y*screens[1].pitch+x, count);   // LFB copy.
-#endif
+  if (V_GetMode() != VID_MODEGL)
+    memcpy(screens[0].data+y*screens[0].pitch+x, screens[1].data+y*screens[1].pitch+x, count);   // LFB copy.
 }
 
 //
@@ -1078,12 +1073,13 @@ void R_VideoErase(int x, int y, int count)
 
 void R_DrawViewBorder(void)
 {
-#ifdef GL_DOOM
-  // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
-  R_FillBackScreen();
-#else
-
   int top, side, i;
+
+  if (V_GetMode() == VID_MODEGL) {
+    // proff 11/99: we don't have a backscreen in OpenGL from where we can copy this
+    R_FillBackScreen();
+    return;
+  }
 
   if ((SCREENHEIGHT != viewheight) ||
       ((automapmode & am_active) && ! (automapmode & am_overlay)))
@@ -1119,5 +1115,4 @@ void R_DrawViewBorder(void)
   // copy bottom
   for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
     R_VideoErase (0, i, SCREENWIDTH);
-#endif
 }
