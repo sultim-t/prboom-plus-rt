@@ -918,7 +918,7 @@ void M_LoadDefaults (void)
     sprintf ((char *)defaultfile,
 #endif
             "%s%s%sboom.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
-#ifdef GL_DOOM
+#if ((defined GL_DOOM) && (defined _MSC_VER))
             "gl"
 #else
             "pr"
