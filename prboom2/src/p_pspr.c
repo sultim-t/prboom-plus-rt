@@ -585,20 +585,6 @@ void A_FireBFG(player_t *player, pspdef_t *psp)
   P_SpawnPlayerMissile(player->mo, MT_BFG);
 }
 
-/*
- * A_FireOldBFG
- *
- * This function emulates Doom's Pre-Beta BFG
- * By Lee Killough 6/6/98, 7/11/98, 7/19/98, 8/20/98
- *
- * This code may not be used in other mods without appropriate credit given.
- * Code leeches will be telefragged.
- */
-
-void A_FireOldBFG(player_t *player, pspdef_t *psp)
-{
-}
-
 //
 // A_FirePlasma
 //
@@ -641,7 +627,7 @@ static void P_BulletSlope(mobj_t *mo)
 // P_GunShot
 //
 
-void P_GunShot(mobj_t *mo, boolean accurate)
+static void P_GunShot(mobj_t *mo, boolean accurate)
 {
   int damage = 5*(P_Random(pr_gunshot)%3+1);
   angle_t angle = mo->angle;
