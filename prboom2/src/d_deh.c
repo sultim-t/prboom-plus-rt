@@ -2777,20 +2777,20 @@ static void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
    while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
    {
       if(!dehfgets(inbuffer, sizeof(inbuffer), fpin))
-	 break;
+        break;
       if(*inbuffer == '#')
-	 continue;  // skip comment lines
+        continue;  // skip comment lines
       lfstrip(inbuffer);
       if(!*inbuffer) 
-	 break;  // killough 11/98
+        break;  // killough 11/98
       if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
       {
-	 if(fpout)
-	    fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
-	 continue;
+        if(fpout)
+          fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
+        continue;
       }
       // do it
-      memset(candidate, 0, 7);
+      memset(candidate, 0, sizeof(candidate));
       strncpy(candidate, ptr_lstrip(strval), 4);
       if(strlen(candidate) != 4)
       {
