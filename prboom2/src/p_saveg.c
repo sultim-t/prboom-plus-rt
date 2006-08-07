@@ -621,7 +621,7 @@ void P_ArchiveSpecials (void)
         th->function==T_FireFlicker? 4+sizeof(fireflicker_t) :
       0;
 
-  CheckSaveGame(size);          // killough
+  CheckSaveGame(size + 1);    // killough; cph: +1 for the tc_endspecials
 
   // save off the current thinkers
   for (th=thinkercap.next; th!=&thinkercap; th=th->next)
