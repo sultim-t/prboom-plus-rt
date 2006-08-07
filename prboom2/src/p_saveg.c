@@ -303,8 +303,12 @@ void P_ArchiveThinkers (void)
   /* check that enough room is available in savegame buffer
    * - killough 2/14/98
    * cph - use number_of_thinkers saved by P_ThinkerToIndex above
+   * Andreas Dehmel: size per object is sizeof(mobj_t) - 2*sizeof(void*) plus
+   * padded type (4) plus 5*sizeof(void*), i.e. sizeof(mobj_t) + 4 +
+   * 3*sizeof(void*)
+   * cph - +1 for the tc_end
    */
-  CheckSaveGame(number_of_thinkers*(sizeof(mobj_t)+4));
+  CheckSaveGame(number_of_thinkers*(sizeof(mobj_t)+4+3*sizeof(void*)) +1);
 
   // save off the current thinkers
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
