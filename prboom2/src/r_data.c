@@ -91,11 +91,7 @@ int firstcolormaplump, lastcolormaplump;      // killough 4/17/98
 int       firstflat, lastflat, numflats;
 int       firstspritelump, lastspritelump, numspritelumps;
 int       numtextures;
-#ifdef GL_DOOM
 texture_t **textures; // proff - 04/05/2000 removed static for OpenGL
-#else
-static texture_t **textures;
-#endif
 fixed_t   *textureheight; //needed for texture pegging (and TFE fix - killough)
 int       *flattranslation;             // for global animation
 int       *texturetranslation;

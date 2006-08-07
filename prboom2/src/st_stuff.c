@@ -388,10 +388,9 @@ static void ST_refreshBackground(void)
 
   if (st_statusbaron)
     {
-#ifdef GL_DOOM
       // proff 05/17/2000: draw to the frontbuffer in OpenGL
-      y=ST_Y;
-#endif
+      if (V_GetMode() == VID_MODEGL)
+        y=ST_Y;
       V_DrawNamePatch(ST_X, y, screen, "STBAR", CR_DEFAULT, VPT_STRETCH);
 
       // killough 3/7/98: make face background change with displayplayer
@@ -720,6 +719,11 @@ static void ST_doPaletteStuff(void)
       palette = (cnt+7)>>3;
       if (palette >= NUMREDPALS)
         palette = NUMREDPALS-1;
+
+      /* cph 2006/08/06 - if in the menu, reduce the red tint - navigating to
+       * load a game can be tricky if the screen is all red */
+      if (menuactive) palette >>=1;
+
       palette += STARTREDPALS;
     }
   else
@@ -837,20 +841,12 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh)
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
-#ifdef GL_DOOM
-  /* proff 05/17/2000: always draw everything in OpenGL, because there
-   * is no backbuffer
-   */
-  if (st_statusbaron)
-    ST_doRefresh();
-#else
   if (st_statusbaron) {
-//e6y    if (st_firsttime)
+//e6y    if (st_firsttime || (V_GetMode() == VID_MODEGL))
       ST_doRefresh();     /* If just after ST_Start(), refresh all */
 //e6y    else
 //e6y      ST_diffDraw();      /* Otherwise, update as little as possible */
   }
-#endif
 }
 
 

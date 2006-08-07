@@ -1557,7 +1557,6 @@
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1567,7 +1566,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release OpenGL|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1595,7 +1593,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release OpenGL NOASM|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1605,7 +1602,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug OpenGL|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1637,7 +1633,6 @@
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1645,7 +1640,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release OpenGL|Win32"
-					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release NOASM|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug NOASM|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1653,7 +1661,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release OpenGL NOASM|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -1661,7 +1668,20 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug OpenGL|Win32"
-					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
@@ -3195,14 +3215,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\r_demo.c"
-				>
-			</File>
-			<File
-				RelativePath="..\src\r_demo.h"
-				>
 			</File>
 			<File
 				RelativePath="..\src\p_doors.c"
@@ -4858,6 +4870,14 @@
 			</File>
 			<File
 				RelativePath="..\src\r_defs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_demo.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_demo.h"
 				>
 			</File>
 			<File

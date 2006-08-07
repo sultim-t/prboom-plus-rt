@@ -112,6 +112,7 @@ extern int warning_about_changes, print_warning_about_changes;
 #define S_LEFTJUST 0x100000 // killough 10/98: items which are left-justified
 #define S_CREDIT  0x200000  // killough 10/98: credit
 #define S_BADVID  0x400000  // killough 12/98: video mode change error
+#define S_CHOICE  0x800000  // this item has several values
 
 /* S_SHOWDESC  = the set of items whose description should be displayed
  * S_SHOWSET   = the set of items whose setting should be displayed
@@ -119,13 +120,13 @@ extern int warning_about_changes, print_warning_about_changes;
  * S_HASDEFPTR = the set of items whose var field points to default array
  */
 
-#define S_SHOWDESC (S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_RESET|S_PREV|S_NEXT|S_KEY|S_WEAP|S_NUM|S_FILE|S_CREDIT)
+#define S_SHOWDESC (S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_RESET|S_PREV|S_NEXT|S_KEY|S_WEAP|S_NUM|S_FILE|S_CREDIT|S_CHOICE)
 
-#define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_KEY|S_WEAP|S_NUM|S_FILE)
+#define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_KEY|S_WEAP|S_NUM|S_FILE|S_CHOICE)
 
 #define S_STRING (S_CHAT|S_FILE)
 
-#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_WEAP|S_COLOR|S_CRITEM)
+#define S_HASDEFPTR (S_STRING|S_YESNO|S_NUM|S_WEAP|S_COLOR|S_CRITEM|S_CHOICE)
 
 /****************************
  *
@@ -177,6 +178,7 @@ typedef struct setup_menu_s
   int         *m_mouse; /* mouse button value, or 0 if not shown */
   int         *m_joy;   /* joystick button value, or 0 if not shown */
   void (*action)(void); /* killough 10/98: function to call after changing */
+  const char **selectstrings; /* list of strings for choice value */
 } setup_menu_t;
 
 #endif

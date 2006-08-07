@@ -304,6 +304,11 @@ default_t defaults[] =
    def_int,ss_none}, // number of audio events simultaneously // killough
 
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
+#if ((defined GL_DOOM) && (defined _MSC_VER))
+  {"videomode",{&default_videomode},{VID_MODEGL}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+#else
+  {"videomode",{&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+#endif
   /* 640x480 default resolution */
   {"screen_width",{&desired_screenwidth},{640}, 320, MAX_SCREENWIDTH,
    def_int,ss_none},
@@ -1043,7 +1048,7 @@ void M_LoadDefaults (void)
     sprintf ((char *)defaultfile,
 #endif
             "%s%s%sboom-plus.cfg", exedir, HasTrailingSlash(exedir) ? "" : "/", 
-#ifdef GL_DOOM
+#if ((defined GL_DOOM) && (defined _MSC_VER))
             "gl"
 #else
             "pr"
@@ -1188,7 +1193,6 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
     screenshot_write_error = true; // CPhipps - made non-fatal
 }
 
-#ifndef GL_DOOM
 #ifdef HAVE_LIBPNG
 
 #include <png.h>
@@ -1309,7 +1313,6 @@ static void WriteBMPfile(FILE* st, const byte* data,
 }
 
 #endif /* !HAVE_LIBPNG */
-#else /* GL_DOOM */
 
 //
 // WriteTGAfile
@@ -1359,7 +1362,6 @@ static void WriteTGAfile(FILE* st, const byte* data,
     }
   }
 }
-#endif /* GL_DOOM */
 
 //
 // M_ScreenShot
@@ -1381,10 +1383,8 @@ void M_DoScreenShot (const char* fname)
   extern int st_palette;//e6y
   screeninfo_t screenshot;
   FILE	*fp = fopen(fname,"wb");
-#ifndef GL_DOOM
   const byte *pal;
   int        pplump = W_GetNumForName("PLAYPAL");
-#endif
 
   if (!fp) {
     doom_printf("Error opening %s", fname);
@@ -1392,45 +1392,47 @@ void M_DoScreenShot (const char* fname)
   }
   screenshot_write_error = false;
 
+  if (V_GetMode() == VID_MODEGL) {
+    screenshot.width = screens[0].width;
+    screenshot.height = screens[0].height;
+    screenshot.pitch = screens[0].width*3;
+    screenshot.not_on_heap = false;
+    V_AllocScreen(&screenshot);
+    // munge planar buffer to linear
+    // CPhipps - use a malloc()ed buffer instead of screens[2]
 #ifdef GL_DOOM
-  screenshot.width = screens[0].width;
-  screenshot.height = screens[0].height;
-  screenshot.pitch = screens[0].width*3;
-  screenshot.not_on_heap = false;
-  V_AllocScreen(&screenshot);
-  // munge planar buffer to linear
-  // CPhipps - use a malloc()ed buffer instead of screens[2]
-  gld_ReadScreen(screenshot.data);
+    gld_ReadScreen(screenshot.data);
+#endif
 
-  // save the bmp file
+    // save the bmp file
 
-  WriteTGAfile
-    (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
-#else
-  screenshot.width = screens[0].width;
-  screenshot.height = screens[0].height;
-  screenshot.pitch = screens[0].width;
-  screenshot.not_on_heap = false;
-  V_AllocScreen(&screenshot);
-  // munge planar buffer to linear
-  // CPhipps - use a malloc()ed buffer instead of screens[2]
-  I_ReadScreen(&screenshot);
+    WriteTGAfile
+      (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
+  } else {
+    screenshot.width = screens[0].width;
+    screenshot.height = screens[0].height;
+    screenshot.pitch = screens[0].width;
+    screenshot.not_on_heap = false;
+    V_AllocScreen(&screenshot);
+    // munge planar buffer to linear
+    // CPhipps - use a malloc()ed buffer instead of screens[2]
+    I_ReadScreen(&screenshot);
 
-  // killough 4/18/98: make palette stay around (PU_CACHE could cause crash)
-  pal = W_CacheLumpNum (pplump);
+    // killough 4/18/98: make palette stay around (PU_CACHE could cause crash)
+    pal = W_CacheLumpNum (pplump);
 
-  // save the bmp file
+    // save the bmp file
 
-#ifdef HAVE_LIBPNG
-  WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
-#else
-  WriteBMPfile
-    (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
-#endif // HAVE_LIBPNG
+  #ifdef HAVE_LIBPNG
+    WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+  #else
+    WriteBMPfile
+      (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+  #endif
 
-  // cph - free the palette
-  W_UnlockLumpNum(pplump);
-#endif // GL_DOOM
+    // cph - free the palette
+    W_UnlockLumpNum(pplump);
+  }
   V_FreeScreen(&screenshot);
   // 1/18/98 killough: replace "SCREEN SHOT" acknowledgement with sfx
 
@@ -1451,26 +1453,22 @@ void M_ScreenShot(void)
 
   startshot = shot; // CPhipps - prevent infinite loop
 
-  do
-#ifdef GL_DOOM
-    sprintf(lbmname,"doom%02d.TGA", shot++);
-#else
+  do {
+    if (V_GetMode() == VID_MODEGL) {
+      sprintf(lbmname,"doom%02d.tga", shot++);
+    } else {
 #ifdef HAVE_LIBPNG
-    sprintf(lbmname,"doom%02d.png", shot++);
+      sprintf(lbmname,"doom%02d.png", shot++);
 #else
-    sprintf(lbmname,"doom%02d.bmp", shot++);
+      sprintf(lbmname,"doom%02d.bmp", shot++);
 #endif
-#endif
-  while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
+    }
+  } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
   if (!access(lbmname,0)) screenshot_write_error = true;
 
   if (screenshot_write_error) {
-#ifdef GL_DOOM
-    doom_printf ("M_ScreenShot: Couldn't create a TGA");
-#else
-    doom_printf ("M_ScreenShot: Couldn't create a BMP");
-#endif
+    doom_printf ("M_ScreenShot: Couldn't create screenshot");
     // killough 4/18/98
     return;
   }

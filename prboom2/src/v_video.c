@@ -108,8 +108,7 @@ void V_InitColorTranslation(void)
 //
 // No return.
 //
-#ifndef GL_DOOM
-void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
+void V_CopyRect8(int srcx, int srcy, int srcscrn, int width,
                 int height, int destx, int desty, int destscrn,
                 enum patch_translation_e flags)
 {
@@ -147,7 +146,6 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
       dest += screens[destscrn].pitch;
     }
 }
-#endif /* GL_DOOM */
 
 /*
  * V_DrawBackground tiles a 64x64 patch over the entire screen, providing the
@@ -155,8 +153,7 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
  * cphipps - used to have M_DrawBackground, but that was used the framebuffer
  * directly, so this is my code from the equivalent function in f_finale.c
  */
-#ifndef GL_DOOM
-void V_DrawBackground(const char* flatname, int scrn)
+void V_DrawBackground8(const char* flatname, int scrn)
 {
   /* erase the entire screen to a tiled background */
   const byte *src;
@@ -185,7 +182,6 @@ void V_DrawBackground(const char* flatname, int scrn)
      ((SCREENHEIGHT-y) < 64) ? (SCREENHEIGHT-y) : 64, x, y, scrn, VPT_NONE);
   W_UnlockLumpNum(lump);
 }
-#endif
 
 //
 // V_Init
@@ -220,8 +216,7 @@ void V_Init (void)
 // (indeed, laziness of the people who wrote the 'clones' of the original V_DrawPatch
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
-#ifndef GL_DOOM
-void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
+void V_DrawMemPatch8(int x, int y, int scrn, const patch_t *patch,
         int cm, enum patch_translation_e flags)
 {
   const byte *trans;
@@ -389,7 +384,6 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
     }
   }
 }
-#endif // GL_DOOM
 
 // CPhipps - some simple, useful wrappers for that function, for drawing patches from wads
 
@@ -397,18 +391,13 @@ void V_DrawMemPatch(int x, int y, int scrn, const patch_t *patch,
 // static inline; other compilers have different behaviour.
 // This inline is _only_ for the function below
 
-#ifndef GL_DOOM
-#ifdef __GNUC__
-inline
-#endif
-void V_DrawNumPatch(int x, int y, int scrn, int lump,
+void V_DrawNumPatch8(int x, int y, int scrn, int lump,
          int cm, enum patch_translation_e flags)
 {
   V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump),
      cm, flags);
   W_UnlockLumpNum(lump);
 }
-#endif // GL_DOOM
 
 /* cph -
  * V_NamePatchWidth - returns width of a patch.
@@ -450,20 +439,20 @@ int V_NamePatchHeight(const char* name)
 
 void V_SetPalette(int pal)
 {
-#ifndef GL_DOOM
-  I_SetPalette(pal);
-#else
-  // proff 11/99: update the palette
-  gld_SetPalette(pal);
+  if (V_GetMode() == VID_MODEGL) {
+#ifdef GL_DOOM
+    gld_SetPalette(pal);
 #endif
+  } else {
+    I_SetPalette(pal);
+  }
 }
 
 //
 // V_FillRect
 //
 // CPhipps - New function to fill a rectangle with a given colour
-#ifndef GL_DOOM
-void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
+void V_FillRect8(int scrn, int x, int y, int width, int height, byte colour)
 {
   byte* dest = screens[scrn].data + x + y*screens[scrn].pitch;
   while (height--) {
@@ -471,13 +460,132 @@ void V_FillRect(int scrn, int x, int y, int width, int height, byte colour)
     dest += screens[scrn].pitch;
   }
 }
+
+static void WRAP_V_DrawLine(fline_t* fl, int color);
+static void V_PlotPixel8(int scrn, int x, int y, byte color);
+
+#ifdef GL_DOOM
+void WRAP_gld_FillRect(int scrn, int x, int y, int width, int height, byte colour)
+{
+  gld_FillBlock(x,y,width,height,colour);
+}
+void WRAP_gld_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags)
+{
+}
+void WRAP_gld_DrawBackground(const char *flatname, int n)
+{
+  gld_DrawBackground(flatname);
+}
+void WRAP_gld_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags)
+{
+  gld_DrawPatchFromMem(x,y,patch,cm,flags);
+}
+void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
+{
+  gld_DrawNumPatch(x,y,lump,cm,flags);
+}
+void WRAP_gld_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags)
+{
+}
+void V_PlotPixelGL(int scrn, int x, int y, byte color) {
+  gld_DrawLine(x-1, y, x+1, y, color);
+  gld_DrawLine(x, y-1, x, y+1, color);
+}
+void WRAP_gld_DrawLine(fline_t* fl, int color)
+{
+  gld_DrawLine(fl->a.x, fl->a.y, fl->b.x, fl->b.y, color);
+}
 #endif
+
+void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
+void NULL_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags) {}
+void NULL_DrawBackground(const char *flatname, int n) {}
+void NULL_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags) {}
+void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
+void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
+void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
+void NULL_DrawLine(fline_t* fl, int color) {}
+
+video_mode_t default_videomode;
+static video_mode_t current_videomode = VID_MODE8;
+
+V_CopyRect_f V_CopyRect = NULL_CopyRect;
+V_FillRect_f V_FillRect = NULL_FillRect;
+V_DrawMemPatch_f V_DrawMemPatch = NULL_DrawMemPatch;
+V_DrawNumPatch_f V_DrawNumPatch = NULL_DrawNumPatch;
+V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
+V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
+V_DrawLine_f V_DrawLine = NULL_DrawLine;
+
+//
+// V_InitMode
+//
+void V_InitMode(video_mode_t mode) {
+#ifndef GL_DOOM
+  if (mode == VID_MODEGL)
+    mode = VID_MODE8;
+#endif
+  switch (mode) {
+    case VID_MODE8:
+    //case VID_MODE16:
+    //case VID_MODE32:
+      lprintf(LO_INFO, "V_InitMode: using 8 bit video mode\n");
+      V_CopyRect = V_CopyRect8;
+      V_FillRect = V_FillRect8;
+      V_DrawMemPatch = V_DrawMemPatch8;
+      V_DrawNumPatch = V_DrawNumPatch8;
+      V_DrawBackground = V_DrawBackground8;
+      V_PlotPixel = V_PlotPixel8;
+      V_DrawLine = WRAP_V_DrawLine;
+      current_videomode = VID_MODE8;
+      break;
+#ifdef GL_DOOM
+    case VID_MODEGL:
+      lprintf(LO_INFO, "V_InitMode: using OpenGL video mode\n");
+      V_CopyRect = WRAP_gld_CopyRect;
+      V_FillRect = WRAP_gld_FillRect;
+      V_DrawMemPatch = WRAP_gld_DrawMemPatch;
+      V_DrawNumPatch = WRAP_gld_DrawNumPatch;
+      V_DrawBackground = WRAP_gld_DrawBackground;
+      V_PlotPixel = V_PlotPixelGL;
+      V_DrawLine = WRAP_gld_DrawLine;
+      current_videomode = VID_MODEGL;
+      break;
+#endif
+  }
+}
+
+//
+// V_GetMode
+//
+video_mode_t V_GetMode(void) {
+  return current_videomode;
+}
+
+//
+// V_GetModePixelDepth
+//
+static int V_GetModePixelDepth(video_mode_t mode) {
+  switch (mode) {
+    case VID_MODE8: return 1;
+    //case VID_MODE16: return 2;
+    //case VID_MODE32: return 4;
+    default: return 0;
+  }
+}
+
+//
+// V_GetNumPixelBits
+//
+int V_GetNumPixelBits(void) {
+  return V_GetModePixelDepth(current_videomode) * 8;
+}
 
 //
 // V_GetPixelDepth
 //
 int V_GetPixelDepth(void) {
-  return 1;
+  return V_GetModePixelDepth(current_videomode);
 }
 
 //
@@ -519,3 +627,92 @@ void V_FreeScreens(void) {
     V_FreeScreen(&screens[i]);
 }
 
+void V_PlotPixel8(int scrn, int x, int y, byte color) {
+  screens[scrn].data[x+screens[scrn].pitch*y] = color;
+}
+
+//
+// WRAP_V_DrawLine()
+//
+// Draw a line in the frame buffer.
+// Classic Bresenham w/ whatever optimizations needed for speed
+//
+// Passed the frame coordinates of line, and the color to be drawn
+// Returns nothing
+//
+static void WRAP_V_DrawLine(fline_t* fl, int color)
+{
+  register int x;
+  register int y;
+  register int dx;
+  register int dy;
+  register int sx;
+  register int sy;
+  register int ax;
+  register int ay;
+  register int d;
+
+#ifdef RANGECHECK         // killough 2/22/98
+  static int fuck = 0;
+
+  // For debugging only
+  if
+  (
+       fl->a.x < 0 || fl->a.x >= SCREENWIDTH
+    || fl->a.y < 0 || fl->a.y >= SCREENHEIGHT
+    || fl->b.x < 0 || fl->b.x >= SCREENWIDTH
+    || fl->b.y < 0 || fl->b.y >= SCREENHEIGHT
+  )
+  {
+    //jff 8/3/98 use logical output routine
+    lprintf(LO_DEBUG, "fuck %d \r", fuck++);
+    return;
+  }
+#endif
+
+#define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
+
+  dx = fl->b.x - fl->a.x;
+  ax = 2 * (dx<0 ? -dx : dx);
+  sx = dx<0 ? -1 : 1;
+
+  dy = fl->b.y - fl->a.y;
+  ay = 2 * (dy<0 ? -dy : dy);
+  sy = dy<0 ? -1 : 1;
+
+  x = fl->a.x;
+  y = fl->a.y;
+
+  if (ax > ay)
+  {
+    d = ay - ax/2;
+    while (1)
+    {
+      PUTDOT(x,y,color);
+      if (x == fl->b.x) return;
+      if (d>=0)
+      {
+        y += sy;
+        d -= ax;
+      }
+      x += sx;
+      d += ay;
+    }
+  }
+  else
+  {
+    d = ax - ay/2;
+    while (1)
+    {
+      PUTDOT(x, y, color);
+      if (y == fl->b.y) return;
+      if (d >= 0)
+      {
+        x += sx;
+        d -= ay;
+      }
+      y += sy;
+      d += ax;
+    }
+  }
+}

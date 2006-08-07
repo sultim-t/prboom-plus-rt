@@ -70,8 +70,13 @@ static char* strlwr(char* str)
 // (e.g. from wads)
 
 typedef struct {
-  const byte *inp, *lump; // Pointer to string or FILE
+  /* cph 2006/08/06 - 
+   * if lump != NULL, lump is the start of the lump, 
+   * inp is the current read pos. */
+  const byte *inp, *lump;
   long size;
+  /* else, !lump, and f is the file being read */
+  FILE* f;
 } DEHFILE;
 
 // killough 10/98: emulate IO whether input really comes from a file or not
@@ -79,7 +84,7 @@ typedef struct {
 static char *dehfgets(char *buf, size_t n, DEHFILE *fp)
 {
   if (!fp->lump)                                     // If this is a real file,
-    return (fgets)(buf, n, (FILE *) fp->inp);        // return regular fgets
+    return (fgets)(buf, n, fp->f);                   // return regular fgets
   if (!n || !*fp->inp || fp->size<=0)                // If no more characters
     return NULL;
   if (n==1)
@@ -97,12 +102,12 @@ static char *dehfgets(char *buf, size_t n, DEHFILE *fp)
 
 static int dehfeof(DEHFILE *fp)
 {
-  return !fp->lump ? (feof)((FILE *) fp->inp) : !*fp->inp || fp->size<=0;
+  return !fp->lump ? feof(fp->f) : !*fp->inp || fp->size<=0;
 }
 
 static int dehfgetc(DEHFILE *fp)
 {
-  return !fp->lump ? (fgetc)((FILE *) fp->inp) : fp->size > 0 ?
+  return !fp->lump ? fgetc(fp->f) : fp->size > 0 ?
     fp->size--, *fp->inp++ : EOF;
 }
 
@@ -1415,7 +1420,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
   if (filename)
     {
-      if (!(infile.inp = (void *) fopen(filename,"rt")))
+      if (!(infile.f = fopen(filename,"rt")))
         {
           lprintf(LO_WARN, "-deh file %s not found\n",filename);
           return;  // should be checked up front anyway
@@ -1442,7 +1447,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
 
   while (dehfgets(inbuffer,sizeof(inbuffer),filein))
     {
-      int i;
+      unsigned i;
 
       lfstrip(inbuffer);
       if (fileout) fprintf(fileout,"Line='%s'\n",inbuffer);
@@ -1507,7 +1512,7 @@ void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum)
   if (infile.lump)
     W_UnlockLumpNum(lumpnum);                 // Mark purgable
   else
-    fclose((FILE *) infile.inp);              // Close real file
+    fclose(infile.f);                         // Close real file
 
   if (outfilename)   // killough 10/98: only at top recursion level
     {
@@ -1765,7 +1770,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
             //
             // Use OR logic instead of addition, to allow repetition
             for (;(strval = strtok(strval,",+| \t\f\r")); strval = NULL) {
-              int iy;
+              size_t iy;
               for (iy=0; iy < DEH_MOBJFLAGMAX; iy++) {
                 if (strcasecmp(strval,deh_mobjflags[iy].name)) continue;
                 if (fpout) {
@@ -2403,7 +2408,7 @@ static void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
                                   if (!strcasecmp(key,deh_misc[14]))  // BFG Cells/Shot
                                     bfgcells = (int)value;
                                   else
-                                    if (!strcasecmp(key,deh_misc[15]))  // Monsters Infight
+                                    if (!strcasecmp(key,deh_misc[15])) { // Monsters Infight
                                       // e6y: Dehacked support - monsters infight
                                       if (value == 202) monsters_infight = 0;
                                       else if (value == 221) monsters_infight = 1;
@@ -2411,7 +2416,7 @@ static void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
                                         "Invalid value for 'Monsters Infight': %i", (int)value);
 
                                       /* No such switch in DOOM - nop */ //e6y ;
-                                    else
+                                    } else
                                       if (fpout) fprintf(fpout,
                                                          "Invalid misc item string index for '%s'\n",key);
     }
@@ -2773,20 +2778,20 @@ static void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
    while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
    {
       if(!dehfgets(inbuffer, sizeof(inbuffer), fpin))
-	 break;
+        break;
       if(*inbuffer == '#')
-	 continue;  // skip comment lines
+        continue;  // skip comment lines
       lfstrip(inbuffer);
       if(!*inbuffer) 
-	 break;  // killough 11/98
+        break;  // killough 11/98
       if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
       {
-	 if(fpout)
-	    fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
-	 continue;
+        if(fpout)
+          fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
+        continue;
       }
       // do it
-      memset(candidate, 0, 7);
+      memset(candidate, 0, sizeof(candidate));
       strncpy(candidate, ptr_lstrip(strval), 4);
       if(strlen(candidate) != 4)
       {

@@ -49,9 +49,6 @@
 #include "st_stuff.h"
 #include "i_main.h"
 #include "g_game.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 #include "r_demo.h"
 #include "e6y.h"//e6y
 
@@ -504,11 +501,9 @@ static void R_ShowStats(void)
   int now = I_GetTime();
 
   if (now - showtime > 35) {
-#ifdef GL_DOOM
-    doom_printf("Frame rate %d fps\nWalls %d, Flats %d, Sprites %d",
-#else
-    doom_printf("Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
-#endif
+    doom_printf((V_GetMode() == VID_MODEGL)
+                ?"Frame rate %d fps\nWalls %d, Flats %d, Sprites %d"
+                :"Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
     (35*KEEPTIMES)/(now - keeptime[0]), rendered_segs,
     rendered_visplanes, rendered_vissprites);
     showtime = now;
@@ -531,11 +526,16 @@ void R_RenderPlayerView (player_t* player)
   R_ClearSprites ();
 
   rendered_segs = rendered_visplanes = 0;
+  if (V_GetMode() == VID_MODEGL)
+  {
 #ifdef GL_DOOM
-  // proff 11/99: clear buffers
-  gld_InitDrawScene();
-#else /* not GL_DOOM */
-  if (autodetect_hom)
+    // proff 11/99: clear buffers
+    gld_InitDrawScene();
+    // proff 11/99: switch to perspective mode
+    gld_StartDrawScene();
+#endif
+  } else {
+    if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       int color=(gametic % 20) < 9 ? 0xb0 : 0;
       int h=viewheight;
@@ -543,12 +543,7 @@ void R_RenderPlayerView (player_t* player)
         memset(screens[0].data+(viewwindowy+h)*screens[0].pitch,color,SCREENWIDTH);
       R_DrawViewBorder();
     }
-#endif /* not GL_DOOM */
-
-#ifdef GL_DOOM
-  // proff 11/99: switch to perspective mode
-  gld_StartDrawScene();
-#endif
+  }
 
   // check for new console commands.
 #ifdef HAVE_NET
@@ -611,31 +606,33 @@ void R_RenderPlayerView (player_t* player)
   NetUpdate ();
 #endif
 
-#ifndef GL_DOOM
-  R_DrawPlanes ();
-#endif
+  if (V_GetMode() != VID_MODEGL)
+    R_DrawPlanes ();
 
   // Check for new console commands.
 #ifdef HAVE_NET
   NetUpdate ();
 #endif
 
-#ifndef GL_DOOM
-  R_DrawMasked ();
-  R_ResetColumnBuffer();
-#endif
+  if (V_GetMode() != VID_MODEGL) {
+    R_DrawMasked ();
+    R_ResetColumnBuffer();
+  }
 
   // Check for new console commands.
 #ifdef HAVE_NET
   NetUpdate ();
 #endif
 
+  if (V_GetMode() == VID_MODEGL) {
 #ifdef GL_DOOM
-  // proff 11/99: draw the scene
-  gld_DrawScene(player);
-  // proff 11/99: finishing off
-  gld_EndDrawScene();
+    // proff 11/99: draw the scene
+    gld_DrawScene(player);
+    // proff 11/99: finishing off
+    gld_EndDrawScene();
 #endif
+  }
+
   if (rendering_stats) R_ShowStats();
   
   restoreinterpolations ();//e6y

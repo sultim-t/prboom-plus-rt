@@ -275,10 +275,11 @@ void M_ChatStrings(int);
 void M_InitExtendedHelp(void);
 void M_ExtHelpNextScreen(int);
 void M_ExtHelp(int);
-int  M_GetPixelWidth(char*);
+static int M_GetPixelWidth(const char*);
 void M_DrawKeybnd(void);
 void M_DrawWeapons(void);
-void M_DrawMenuString(int,int,int);
+static void M_DrawMenuString(int,int,int);
+static void M_DrawStringCentered(int,int,int,const char*);
 void M_DrawStatusHUD(void);
 void M_DrawExtHelp(void);
 void M_DrawAutoMap(void);
@@ -1811,7 +1812,7 @@ static unsigned char colchip[171];
 
 static patch_t *M_MakeColChip(byte chipcol, byte framecol)
 {
-  int i;
+  unsigned int i;
 
   for (i=0; i<sizeof(colchipsrc); i++)
     if (colchipsrc[i]==4)
@@ -1980,6 +1981,19 @@ static void M_DrawSetting(const setup_menu_t* s)
     M_DrawMenuString(x,y,color);
     return;
   }
+
+  // Is the item a selection of choices?
+
+  if (flags & S_CHOICE) {
+    // killough 10/98: We must draw differently for items being gathered.
+    if (s->selectstrings == NULL) {
+      sprintf(menu_buffer,"%d",*s->var.def->location.pi);
+    } else {
+      strcpy(menu_buffer,s->selectstrings[*s->var.def->location.pi]);
+    }
+    M_DrawMenuString(x,y,color);
+    return;
+  }
 }
 
 /////////////////////////////
@@ -2063,61 +2077,63 @@ static void M_DrawDefVerify(void)
 // phares 4/18/98:
 // M_DrawInstructions writes the instruction text just below the screen title
 //
-// killough 8/15/98: rewritten
+// cph 2006/08/06 - go back to the Boom version, and then clean up by using
+// M_DrawStringCentered (much better than all those magic 'x' valies!)
 
-void M_DrawInstructions(void)
+static void M_DrawInstructions(void)
 {
   int flags = current_setup_menu[set_menu_itemon].m_flags;
-
-#if 0
-  default_t *def = current_setup_menu[set_menu_itemon].var.def;
-  // killough 8/15/98: warn when values are different
-  if (flags & (S_NUM|S_YESNO) && def->current && *def->current!=*def->location.pi)
-    {
-      int allow = allow_changes() ? 8 : 0;
-      if (!(setup_gather | print_warning_about_changes | demoplayback))
-  {
-    strcpy(menu_buffer,
-     "Warning: Current actual setting differs from the");
-    M_DrawMenuString(4, 184-allow, CR_RED);
-    strcpy(menu_buffer,
-     "default setting, which is the one being edited here.");
-    M_DrawMenuString(4, 192-allow, CR_RED);
-    if (allow)
-      {
-        strcpy(menu_buffer,
-         "However, changes made here will take effect now.");
-        M_DrawMenuString(4, 192, CR_RED);
-      }
-  }
-      if (allow && setup_select)            // killough 8/15/98: Set new value
-  if (!(flags & (S_LEVWARN | S_PRGWARN)))
-    *def->current = *def->location.pi;
-    }
-#endif
 
   // There are different instruction messages depending on whether you
   // are changing an item or just sitting on it.
 
-  { // killough 11/98: reformatted
-    const char *s = "";
-    int color = CR_HILITE,x = setup_select ? color = CR_SELECT, flags & S_KEY ?
-      current_setup_menu[set_menu_itemon].m_mouse ||
-      current_setup_menu[set_menu_itemon].m_joy ?
-      (s = "Press key or button for this action", 49)                        :
-      (s = "Press key for this action", 84)                                  :
-      flags & S_YESNO  ? (s = "Press ENTER key to toggle", 78)               :
-      flags & S_WEAP   ? (s = "Enter weapon number", 97)                     :
-      flags & S_NUM    ? (s = "Enter value. Press ENTER when finished.", 37) :
-      flags & S_COLOR  ? (s = "Select color and press enter", 70)            :
-      flags & S_CRITEM ? (s = "Enter value", 125)                            :
-      flags & S_CHAT   ? (s = "Type/edit chat string and Press ENTER", 43)   :
-      flags & S_FILE   ? (s = "Type/edit filename and Press ENTER", 52)      :
-      flags & S_RESET  ? 43 : 0  /* when you're changing something */        :
-      flags & S_RESET  ? (s = "Press ENTER key to reset to defaults", 43)    :
-      (s = "Press Enter to Change", 91);
-    strcpy(menu_buffer, s);
-    M_DrawMenuString(x,20,color);
+  if (setup_select) {
+    switch (flags & (S_KEY | S_YESNO | S_WEAP | S_NUM | S_COLOR | S_CRITEM | S_CHAT | S_RESET | S_FILE | S_CHOICE)) {
+      case S_KEY:
+        // See if a joystick or mouse button setting is allowed for
+        // this item.
+        if (current_setup_menu[set_menu_itemon].m_mouse || current_setup_menu[set_menu_itemon].m_joy)
+          M_DrawStringCentered(160, 20, CR_SELECT, "Press key or button for this action");
+        else
+          M_DrawStringCentered(160, 20, CR_SELECT, "Press key for this action");
+        break;
+
+    case S_YESNO:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Press ENTER key to toggle");
+      break;
+    case S_WEAP:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Enter weapon number");
+      break;
+    case S_NUM:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Enter value. Press ENTER when finished.");
+      break;
+    case S_COLOR:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Select color and press enter");
+      break;
+    case S_CRITEM:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Enter value");
+      break;
+    case S_CHAT:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Type/edit chat string and Press ENTER");
+      break;
+    case S_FILE:
+      M_DrawStringCentered(160, 20, CR_SELECT, "Type/edit filename and Press ENTER");
+      break;
+    case S_CHOICE: 
+      M_DrawStringCentered(160, 20, CR_SELECT, "Press left or right to choose");
+      break;
+    case S_RESET:
+      break;
+#ifdef SIMPLECHECKS
+    default:
+      lprintf(LO_WARN,"Unrecognised menu item type %d", flags);
+#endif
+    }
+  } else {
+    if (flags & S_RESET)
+      M_DrawStringCentered(160, 20, CR_HILITE, "Press ENTER key to reset to defaults");
+    else
+      M_DrawStringCentered(160, 20, CR_HILITE, "Press Enter to Change");
   }
 }
 
@@ -2979,9 +2995,10 @@ enum {
   general_trans,
   general_transpct,
   general_fullscreen,
+  general_videomode,
   general_flooroffset,
-  general_pcx,
-  general_diskicon,
+//  general_pcx,
+//  general_diskicon,
   general_hom
 };
 
@@ -3000,6 +3017,8 @@ enum {
 #define G_Y4 (G_Y3+52)
 #define GF_X 76
 
+static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
+
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Video"       ,S_SKIP|S_TITLE, m_null, G_X, G_Y - 12},
@@ -3010,8 +3029,12 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Translucency filter percentage", S_NUM, m_null, G_X,
    G_Y + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
 
-  {"Fullscreen Video mode", S_YESNO, m_null, G_X,
-   G_Y + general_fullscreen*8, {"use_fullscreen"}, 0, 0, M_FullScreen},
+  {"Fullscreen Video mode", S_YESNO|S_PRGWARN, m_null, G_X,
+   G_Y + general_fullscreen*8, {"use_fullscreen"}, 0, 0, NULL},
+
+  {"Video mode", S_CHOICE|S_PRGWARN, m_null, G_X,
+   G_Y + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
+
 #ifdef GL_DOOM
   {"Item out of Floor offset", S_NUM, m_null, G_X,
    G_Y + general_flooroffset*8, {"gl_sprite_offset"}},
@@ -3964,13 +3987,14 @@ setup_menu_t helpstrings[] =  // HELP screen strings
 
 #define SPACEWIDTH 4
 
-// M_DrawMenuString() draws the string in menu_buffer[]
+/* cph 2006/08/06
+ * M_DrawString() is the old M_DrawMenuString, except that it is not tied to
+ * menu_buffer - no reason to force all the callers to write into one array! */
 
-void M_DrawMenuString(int cx, int cy, int color)
+static void M_DrawString(int cx, int cy, int color, const char* ch)
 {
   int   w;
   int   c;
-  char* ch = menu_buffer;
 
   while (*ch) {
     c = *ch++;         // get next char
@@ -3995,10 +4019,17 @@ void M_DrawMenuString(int cx, int cy, int color)
   }
 }
 
+// M_DrawMenuString() draws the string in menu_buffer[]
+
+static void M_DrawMenuString(int cx, int cy, int color)
+{
+    M_DrawString(cx, cy, color, menu_buffer);
+}
+
 // M_GetPixelWidth() returns the number of pixels in the width of
 // the string, NOT the number of chars in the string.
 
-int M_GetPixelWidth(char* ch)
+static int M_GetPixelWidth(const char* ch)
 {
   int len = 0;
   int c;
@@ -4016,6 +4047,11 @@ int M_GetPixelWidth(char* ch)
   }
   len++; // replace what you took away on the last char only
   return len;
+}
+
+static void M_DrawStringCentered(int cx, int cy, int color, const char* ch)
+{
+    M_DrawString(cx - M_GetPixelWidth(ch)/2, cy, color, ch);
 }
 
 //
@@ -4639,6 +4675,58 @@ boolean M_Responder (event_t* ev) {
       }
       return true;
     }
+
+  if (ptr1->m_flags & S_CHOICE) // selection of choices?
+    {
+    if (ch == key_menu_left) {
+      int value = *ptr1->var.def->location.pi;
+      
+      value = value - 1;
+      if ((ptr1->var.def->minvalue != UL &&
+           value < ptr1->var.def->minvalue))
+        value = ptr1->var.def->minvalue;
+      if ((ptr1->var.def->maxvalue != UL &&
+           value > ptr1->var.def->maxvalue))
+        value = ptr1->var.def->maxvalue;
+      if (*ptr1->var.def->location.pi != value)
+        S_StartSound(NULL,sfx_pstop);
+      *ptr1->var.def->location.pi = value;
+    }
+    if (ch == key_menu_right) {
+      int value = *ptr1->var.def->location.pi;
+      
+      value = value + 1;
+      if ((ptr1->var.def->minvalue != UL &&
+           value < ptr1->var.def->minvalue))
+        value = ptr1->var.def->minvalue;
+      if ((ptr1->var.def->maxvalue != UL &&
+           value > ptr1->var.def->maxvalue))
+        value = ptr1->var.def->maxvalue;
+      if (*ptr1->var.def->location.pi != value)
+        S_StartSound(NULL,sfx_pstop);
+      *ptr1->var.def->location.pi = value;
+    }
+    if (ch == key_menu_enter) {
+      // phares 4/14/98:
+      // If not in demoplayback, demorecording, or netgame,
+      // and there's a second variable in var2, set that
+      // as well
+
+      // killough 8/15/98: add warning messages
+
+      if (ptr1->m_flags & (S_LEVWARN | S_PRGWARN))
+        warn_about_changes(ptr1->m_flags &    // killough 10/98
+         (S_LEVWARN | S_PRGWARN));
+      else
+        M_UpdateCurrent(ptr1->var.def);
+
+      if (ptr1->action)      // killough 10/98
+        ptr1->action();
+      M_SelectDone(ptr1);                           // phares 4/17/98
+    }
+    return true;
+    }
+
       }
 
       // Key Bindings

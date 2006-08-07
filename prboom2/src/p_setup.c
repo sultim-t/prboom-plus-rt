@@ -49,9 +49,7 @@
 #include "p_enemy.h"
 #include "s_sound.h"
 #include "lprintf.h" //jff 10/6/98 for debug outputs
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
+#include "v_video.h"
 #include "r_demo.h"
 #include "e6y.h"//e6y
 
@@ -317,9 +315,7 @@ static void P_LoadSegs (int lump)
       int side, linedef;
       line_t *ldef;
 
-#ifdef GL_DOOM
       li->iSegID = i; // proff 11/05/2000: needed for OpenGL
-#endif
 
       v1 = (unsigned short)SHORT(ml->v1);
       v2 = (unsigned short)SHORT(ml->v2);
@@ -327,9 +323,7 @@ static void P_LoadSegs (int lump)
       li->v2 = &vertexes[v2];
 
       li->miniseg = false; // figgi -- there are no minisegs in classic BSP nodes
-#ifdef GL_DOOM
       li->length  = GetDistance(li->v2->x - li->v1->x, li->v2->y - li->v1->y);
-#endif
       li->angle = (SHORT(ml->angle))<<16;
       li->offset =(SHORT(ml->offset))<<16;
       linedef = (unsigned short)SHORT(ml->linedef);
@@ -373,9 +367,7 @@ static void P_LoadGLSegs(int lump)
   {             // check for gl-vertices
     segs[i].v1 = &vertexes[checkGLVertex(SHORT(ml->v1))];
     segs[i].v2 = &vertexes[checkGLVertex(SHORT(ml->v2))];
-#ifdef GL_DOOM
     segs[i].iSegID  = i;
-#endif
 
     if(ml->linedef != -1) // skip minisegs
     {
@@ -385,9 +377,7 @@ static void P_LoadGLSegs(int lump)
       segs[i].angle = R_PointToAngle2(segs[i].v1->x,segs[i].v1->y,segs[i].v2->x,segs[i].v2->y);
 
       segs[i].sidedef = &sides[ldef->sidenum[ml->side]];
-#ifdef GL_DOOM
       segs[i].length  = GetDistance(segs[i].v2->x - segs[i].v1->x, segs[i].v2->y - segs[i].v1->y);
-#endif
       segs[i].frontsector = sides[ldef->sidenum[ml->side]].sector;
       if (ldef->flags & ML_TWOSIDED)
         segs[i].backsector = sides[ldef->sidenum[ml->side^1]].sector;
@@ -404,9 +394,7 @@ static void P_LoadGLSegs(int lump)
       segs[i].miniseg = true;
       segs[i].angle  = 0;
       segs[i].offset  = 0;
-#ifdef GL_DOOM
       segs[i].length  = 0;
-#endif
       segs[i].linedef = NULL;
       segs[i].sidedef = NULL;
       segs[i].frontsector = NULL;
@@ -460,9 +448,7 @@ static void P_LoadSectors (int lump)
       sector_t *ss = sectors + i;
       const mapsector_t *ms = (const mapsector_t *) data + i;
 
-#ifdef GL_DOOM
       ss->iSectorID=i; // proff 04/05/2000: needed for OpenGL
-#endif
       ss->floorheight = SHORT(ms->floorheight)<<FRACBITS;
       ss->ceilingheight = SHORT(ms->ceilingheight)<<FRACBITS;
       ss->floorpic = R_FlatNumForName(ms->floorpic);
@@ -632,9 +618,7 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXTOP] = v1->y;
         }
 
-//e6y #ifdef GL_DOOM
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
-//e6y #endif
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
@@ -1547,8 +1531,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
     R_PrecacheLevel();
 
 #ifdef GL_DOOM
- // proff 11/99: calculate all OpenGL specific tables etc.
-  gld_PreprocessLevel();
+  if (V_GetMode() == VID_MODEGL)
+  {
+    // proff 11/99: calculate all OpenGL specific tables etc.
+    gld_PreprocessLevel();
+  }
 #endif
   //e6y
   P_ResetWalkcam();

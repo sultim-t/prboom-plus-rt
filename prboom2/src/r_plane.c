@@ -57,6 +57,7 @@
 #include "r_things.h"
 #include "r_sky.h"
 #include "r_plane.h"
+#include "v_video.h"
 #include "lprintf.h"
 
 #define MAXVISPLANES 128    /* must be a power of 2 */
@@ -171,9 +172,8 @@ static void R_MapPlane(int y, int x1, int x2)
   ds_x1 = x1;
   ds_x2 = x2;
 
-#ifndef GL_DOOM
-  R_DrawSpan();
-#endif
+  if (V_GetMode() != VID_MODEGL)
+    R_DrawSpan();
 }
 
 //

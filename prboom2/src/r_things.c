@@ -38,10 +38,8 @@
 #include "r_segs.h"
 #include "r_draw.h"
 #include "r_things.h"
+#include "v_video.h"
 #include "lprintf.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 #include "e6y.h"//e6y
 
 #define MINZ        (FRACUNIT*4)
@@ -429,9 +427,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   int       lump;
   boolean   flip;
   vissprite_t *vis;
-#ifndef GL_DOOM
   fixed_t   iscale;
-#endif
   int heightsec;      // killough 3/27/98
 
   // transform the origin point
@@ -601,14 +597,18 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis = R_NewVisSprite ();
 
 #ifdef GL_DOOM
-  // proff 11/99: add sprite for OpenGL
-  vis->thing = thing;
-  vis->flip = flip;
-  vis->scale = FixedDiv(projectiony, tz);
-  vis->patch = lump;
-  gld_AddSprite(vis);
-  return;
-#else
+  if (V_GetMode() == VID_MODEGL)
+  {
+    // proff 11/99: add sprite for OpenGL
+    vis->thing = thing;
+    vis->flip = flip;
+    vis->scale = FixedDiv(projectiony, tz);
+    vis->patch = lump;
+    gld_AddSprite(vis);
+
+    return;
+  }
+#endif
   // killough 3/27/98: save sector for special clipping later
   vis->heightsec = heightsec;
 
@@ -653,7 +653,6 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     {      // diminished light
       vis->colormap = R_ColourMap(lightlevel,xscale);
     }
-#endif
 }
 
 //
@@ -778,9 +777,12 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     vis->colormap = R_ColourMap(lightlevel,pspritescale);  // local light
 
   // proff 11/99: don't use software stuff in OpenGL
-#ifndef GL_DOOM
-  R_DrawVisSprite(vis, vis->x1, vis->x2);
-#else
+  if (V_GetMode() != VID_MODEGL)
+  {
+    R_DrawVisSprite(vis, vis->x1, vis->x2);
+  }
+#ifdef GL_DOOM
+  else
   {
     int lightlevel;
     sector_t tmpsec;

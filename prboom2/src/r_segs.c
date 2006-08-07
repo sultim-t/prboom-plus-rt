@@ -41,10 +41,8 @@
 #include "r_things.h"
 #include "r_draw.h"
 #include "w_wad.h"
+#include "v_video.h"
 #include "lprintf.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 
 // OPTIMIZE: closed two sided lines as single sided
 
@@ -437,10 +435,14 @@ void R_StoreWallRange(const int start, const int stop)
     curline->linedef->flags |= ML_MAPPED;
 
 #ifdef GL_DOOM
-  // proff 11/99: the rest of the calculations is not needed for OpenGL
-  ds_p++->curline = curline;
-  gld_AddWall(curline);
-  return;
+  if (V_GetMode() == VID_MODEGL)
+  {
+    // proff 11/99: the rest of the calculations is not needed for OpenGL
+    ds_p++->curline = curline;
+    gld_AddWall(curline);
+
+    return;
+  }
 #endif
 
 

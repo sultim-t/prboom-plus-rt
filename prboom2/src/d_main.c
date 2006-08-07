@@ -60,9 +60,7 @@
 #include "s_sound.h"
 #include "v_video.h"
 #include "f_finale.h"
-#ifndef GL_DOOM
 #include "f_wipe.h"
-#endif /* GL_DOOM */
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_menu.h"
@@ -82,9 +80,6 @@
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
-#ifdef GL_DOOM
-#include "gl_struct.h"
-#endif
 #include "e6y.h" //e6y
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
@@ -173,7 +168,6 @@ void D_PostEvent(event_t *ev)
 // The screens to wipe between are already stored, this just does the timing
 // and screen updating
 
-#ifndef GL_DOOM
 static void D_Wipe(void)
 {
   boolean done;
@@ -198,7 +192,6 @@ static void D_Wipe(void)
     }
   while (!done);
 }
-#endif /* GL_DOOM */
 
 //
 // D_Display
@@ -217,9 +210,7 @@ void D_Display (void)
   static boolean isborderstate        = false;
   static boolean borderwillneedredraw = false;
   static gamestate_t oldgamestate = -1;
-#ifndef GL_DOOM
   boolean wipe;
-#endif
   boolean viewactive = false, isborder = false;
 
   if (nodrawers)                    // for comparative timing / profiling
@@ -231,11 +222,9 @@ void D_Display (void)
   entertime = SDL_GetTicks();
   skipDDisplay = true;
 
-#ifndef GL_DOOM
   // save the current screen if about to wipe
-  if ((wipe = gamestate != wipegamestate))
+  if ((wipe = gamestate != wipegamestate) && (V_GetMode() != VID_MODEGL))
     wipe_StartScreen();
-#endif /* GL_DOOM */
 
   if (gamestate != GS_LEVEL) { // Not a level
     switch (oldgamestate) {
@@ -285,12 +274,8 @@ void D_Display (void)
       // and there is a menu being displayed
       borderwillneedredraw = menuactive && isborder && viewactive && (viewwidth != SCREENWIDTH);
     }
-#ifdef GL_DOOM
-    R_DrawViewBorder();
-#else
-    if (redrawborderstuff)
+    if (redrawborderstuff || (V_GetMode() == VID_MODEGL))
       R_DrawViewBorder();
-#endif
 
     // Now do the drawing
 //e6y    if (viewactive)
@@ -300,9 +285,8 @@ void D_Display (void)
       AM_Drawer();
 
     ST_Drawer((viewheight != SCREENHEIGHT) || ((automapmode & am_active) && !(automapmode & am_overlay)), redrawborderstuff);
-#ifndef GL_DOOM
-    R_DrawViewBorder();
-#endif
+    if (V_GetMode() != VID_MODEGL)
+      R_DrawViewBorder();
     HU_Drawer();
   }
 
@@ -325,18 +309,14 @@ void D_Display (void)
   D_BuildNewTiccmds();
 #endif
 
-#ifndef GL_DOOM
   // normal update
-  if (!wipe)
+  if (!wipe || (V_GetMode() == VID_MODEGL))
     I_FinishUpdate ();              // page flip or blit buffer
   else {
     // wipe update
     wipe_EndScreen();
     D_Wipe();
   }
-#else
-  I_FinishUpdate ();              // page flip or blit buffer
-#endif /* GL_DOOM */
 
   //e6y
   DDisplayTime = SDL_GetTicks() - entertime;
