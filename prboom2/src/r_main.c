@@ -500,7 +500,6 @@ static void R_ShowStats(void)
 #if 1
   static unsigned int FPS_SavedTick = 0, FPS_FrameCount = 0;
   unsigned int tick = SDL_GetTicks();
-  int now = I_GetTime();
   FPS_FrameCount++;
   if(tick >= FPS_SavedTick + 1000)
   {
