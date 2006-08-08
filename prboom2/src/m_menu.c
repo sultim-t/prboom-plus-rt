@@ -3886,7 +3886,7 @@ static void M_DrawString(int cx, int cy, int color, const char* ch)
       continue;
       }
     w = SHORT (hu_font[c].width);
-    if (cx + w > SCREENWIDTH)
+    if (cx + w > 320)
       break;
 
     // V_DrawpatchTranslated() will draw the string in the
