@@ -317,29 +317,29 @@ void R_DrawMaskedColumn(const column_t *column)
 {
   int     topscreen;
   int     bottomscreen;
-  fixed_t basetexturemid = dc_texturemid;
+  fixed_t basetexturemid = dcvars.texturemid;
 
-  dc_texheight = 0; // killough 11/98
+  dcvars.texheight = 0; // killough 11/98
   while (column->topdelta != 0xff)
     {
       // calculate unclipped screen coordinates for post
       topscreen = sprtopscreen + spryscale*column->topdelta;
       bottomscreen = topscreen + spryscale*column->length;
 
-      dc_yl = (topscreen+FRACUNIT-1)>>FRACBITS;
-      dc_yh = (bottomscreen-1)>>FRACBITS;
+      dcvars.yl = (topscreen+FRACUNIT-1)>>FRACBITS;
+      dcvars.yh = (bottomscreen-1)>>FRACBITS;
 
-      if (dc_yh >= mfloorclip[dc_x])
-        dc_yh = mfloorclip[dc_x]-1;
+      if (dcvars.yh >= mfloorclip[dcvars.x])
+        dcvars.yh = mfloorclip[dcvars.x]-1;
 
-      if (dc_yl <= mceilingclip[dc_x])
-        dc_yl = mceilingclip[dc_x]+1;
+      if (dcvars.yl <= mceilingclip[dcvars.x])
+        dcvars.yl = mceilingclip[dcvars.x]+1;
 
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
-      if (dc_yl <= dc_yh && dc_yh < viewheight)
+      if (dcvars.yl <= dcvars.yh && dcvars.yh < viewheight)
         {
-          dc_source = (const byte *)column + 3;
-          dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
+          dcvars.source = (const byte *)column + 3;
+          dcvars.texturemid = basetexturemid - (column->topdelta<<FRACBITS);
 
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
@@ -347,7 +347,7 @@ void R_DrawMaskedColumn(const column_t *column)
         }
       column = (const column_t *)( (const byte *)column + column->length + 4);
     }
-  dc_texturemid = basetexturemid;
+  dcvars.texturemid = basetexturemid;
 }
 
 //
@@ -362,18 +362,18 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
   fixed_t  frac;
   const patch_t *patch = W_CacheLumpNum (vis->patch+firstspritelump);
 
-  dc_colormap = vis->colormap;
+  dcvars.colormap = vis->colormap;
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
 
-  if (!dc_colormap)   // NULL colormap = shadow draw
+  if (!dcvars.colormap)   // NULL colormap = shadow draw
     colfunc = R_DrawFuzzColumn;    // killough 3/14/98
   else
     if (vis->mobjflags & MF_TRANSLATION)
       {
         colfunc = R_DrawTranslatedColumn;
-        dc_translation = translationtables - 256 +
+        dcvars.translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
       }
     else
@@ -386,13 +386,13 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
         colfunc = R_DrawColumn;         // killough 3/14/98, 4/11/98
 
 // proff 11/06/98: Changed for high-res
-  dc_iscale = FixedDiv (FRACUNIT, vis->scale);
-  dc_texturemid = vis->texturemid;
+  dcvars.iscale = FixedDiv (FRACUNIT, vis->scale);
+  dcvars.texturemid = vis->texturemid;
   frac = vis->startfrac;
   spryscale = vis->scale;
-  sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
+  sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
-  for (dc_x=vis->x1 ; dc_x<=vis->x2 ; dc_x++, frac += vis->xiscale)
+  for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;
 

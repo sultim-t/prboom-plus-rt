@@ -117,7 +117,7 @@ void R_InitPlanes (void)
 //
 // Uses global vars:
 //  planeheight
-//  ds_source
+//  dsvars.source
 //  basexscale
 //  baseyscale
 //  viewx
@@ -143,34 +143,34 @@ static void R_MapPlane(int y, int x1, int x2)
     {
       cachedheight[y] = planeheight;
       distance = cacheddistance[y] = FixedMul (planeheight, yslope[y]);
-      ds_xstep = cachedxstep[y] = FixedMul (distance,basexscale);
-      ds_ystep = cachedystep[y] = FixedMul (distance,baseyscale);
+      dsvars.xstep = cachedxstep[y] = FixedMul (distance,basexscale);
+      dsvars.ystep = cachedystep[y] = FixedMul (distance,baseyscale);
     }
   else
     {
       distance = cacheddistance[y];
-      ds_xstep = cachedxstep[y];
-      ds_ystep = cachedystep[y];
+      dsvars.xstep = cachedxstep[y];
+      dsvars.ystep = cachedystep[y];
     }
 
   length = FixedMul (distance,distscale[x1]);
   angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
 
   // killough 2/28/98: Add offsets
-  ds_xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
-  ds_yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
+  dsvars.xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
+  dsvars.yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
 
-  if (!(ds_colormap = fixedcolormap))
+  if (!(dsvars.colormap = fixedcolormap))
     {
       index = distance >> LIGHTZSHIFT;
       if (index >= MAXLIGHTZ )
         index = MAXLIGHTZ-1;
-      ds_colormap = planezlight[index];
+      dsvars.colormap = planezlight[index];
     }
 
-  ds_y = y;
-  ds_x1 = x1;
-  ds_x2 = x2;
+  dsvars.y = y;
+  dsvars.x1 = x1;
+  dsvars.x2 = x2;
 
   if (V_GetMode() != VID_MODEGL)
     R_DrawSpan();
@@ -358,7 +358,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
         // Vertical offset allows careful sky positioning.
 
-        dc_texturemid = s->rowoffset - 28*FRACUNIT;
+        dcvars.texturemid = s->rowoffset - 28*FRACUNIT;
 
         // We sometimes flip the picture horizontally.
         //
@@ -370,7 +370,7 @@ static void R_DoDrawPlane(visplane_t *pl)
       }
       else
       {    // Normal Doom sky, only one allowed per level
-        dc_texturemid = skytexturemid;    // Default y-offset
+        dcvars.texturemid = skytexturemid;    // Default y-offset
         texture = skytexture;             // Default texture
         flip = 0;                         // Doom flips it
       }
@@ -379,18 +379,18 @@ static void R_DoDrawPlane(visplane_t *pl)
        * Because of this hack, sky is not affected by INVUL inverse mapping.
        * Until Boom fixed this. Compat option added in MBF. */
 
-      if (comp[comp_skymap] || !(dc_colormap = fixedcolormap))
-	dc_colormap = fullcolormap;          // killough 3/20/98
-      //dc_texturemid = skytexturemid;
-      dc_texheight = textureheight[skytexture]>>FRACBITS; // killough
+      if (comp[comp_skymap] || !(dcvars.colormap = fixedcolormap))
+        dcvars.colormap = fullcolormap;          // killough 3/20/98
+      //dcvars.texturemid = skytexturemid;
+      dcvars.texheight = textureheight[skytexture]>>FRACBITS; // killough
       // proff 09/21/98: Changed for high-res
-      dc_iscale = FRACUNIT*200/viewheight;
+      dcvars.iscale = FRACUNIT*200/viewheight;
 
   // killough 10/98: Use sky scrolling offset, and possibly flip picture
-        for (x = pl->minx; (dc_x = x) <= pl->maxx; x++)
-          if ((dc_yl = pl->top[x]) != -1 && dc_yl <= (dc_yh = pl->bottom[x])) // dropoff overflow
+        for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
+          if ((dcvars.yl = pl->top[x]) != -1 && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
             {
-              dc_source = R_GetColumn(texture, ((an + xtoviewangle[x])^flip) >>
+              dcvars.source = R_GetColumn(texture, ((an + xtoviewangle[x])^flip) >>
               ANGLETOSKYSHIFT);
               colfunc();
             }
@@ -398,7 +398,7 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       int stop, light;
 
-      ds_source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
+      dsvars.source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
 
       xoffs = pl->xoffs;  // killough 2/28/98: Add offsets
       yoffs = pl->yoffs;
