@@ -63,9 +63,6 @@
 #include "gl_intern.h"
 #include "gl_struct.h"
 
-extern int numtextures;
-extern texture_t **textures;
-
 /* TEXTURES */
 static GLTexture **gld_GLTextures=NULL;
 /* PATCHES FLATS SPRITES */

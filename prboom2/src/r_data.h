@@ -38,6 +38,7 @@
 
 #include "r_defs.h"
 #include "r_state.h"
+#include "r_patch.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -72,6 +73,9 @@ typedef struct
   short patchcount;      // All the patches[patchcount] are drawn
   texpatch_t patches[1]; // back-to-front into the cached texture.
 } texture_t;
+
+extern int numtextures;
+extern texture_t **textures;
 
 // Retrieve column data for span blitting.
 const byte*
