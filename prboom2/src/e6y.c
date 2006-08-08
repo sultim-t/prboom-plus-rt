@@ -5,7 +5,6 @@
 #include <winreg.h>
 #endif
 #ifdef GL_DOOM
-#include <GL/gl.h>
 #include <SDL_opengl.h>
 #endif
 #include <string.h>
@@ -998,15 +997,14 @@ void e6y_InitExtensions(void)
 
   //if (gl_arb_multitexture)
   {
-    HRSRC hDetail;
-    void *memDetail;
+    int gldetail_lumpnum = (W_CheckNumForName)("GLDETAIL", ns_prboom);
+    const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
     SDL_PixelFormat fmt;
     SDL_Surface *surf = NULL;
 
-    hDetail = FindResource(NULL, MAKEINTRESOURCE(115), RT_RCDATA);
-    memDetail = LockResource(LoadResource(NULL, hDetail));
+    surf = SDL_LoadBMP_RW(SDL_RWFromMem(memDetail, W_LumpLength(gldetail_lumpnum)), 1);
+    W_UnlockLumpName("PLAYPAL");
 
-    surf = SDL_LoadBMP_RW(SDL_RWFromMem(memDetail, SizeofResource(NULL, hDetail)), 1);
     fmt = *surf->format;
     fmt.BitsPerPixel = 24;
     fmt.BytesPerPixel = 3;
@@ -1027,10 +1025,10 @@ void e6y_InitExtensions(void)
       
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_mipmap_filter);
-      //if (gl_texture_filter_anisotropic)
-      //  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      if (gl_texture_filter_anisotropic)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
 
       if (gl_arb_multitexture)
         glActiveTextureARB(GL_TEXTURE0_ARB);
