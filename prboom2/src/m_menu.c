@@ -4008,6 +4008,7 @@ static int M_IndexInChoices(const char *str, const char **choices) {
     i++;
     choices++;
   }
+  return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
