@@ -1002,7 +1002,7 @@ void e6y_InitExtensions(void)
     SDL_PixelFormat fmt;
     SDL_Surface *surf = NULL;
 
-    surf = SDL_LoadBMP_RW(SDL_RWFromMem(memDetail, W_LumpLength(gldetail_lumpnum)), 1);
+    surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
     W_UnlockLumpName("PLAYPAL");
 
     fmt = *surf->format;
