@@ -146,7 +146,6 @@ extern int viewwidth;
 extern int viewheight;
 #ifdef GL_DOOM
 extern int gl_nearclip;
-extern int gl_farclip;
 extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
 extern char *gl_tex_filter_string;
@@ -328,8 +327,6 @@ default_t defaults[] =
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_nearclip",{&gl_nearclip},{5},0,UL,
    def_int,ss_none}, /* near clipping plane pos */
-  {"gl_farclip",{&gl_farclip},{6400},0,UL,
-   def_int,ss_none}, /* far clipping plane pos */
   {"gl_colorbuffer_bits",{&gl_colorbuffer_bits},{16},16,32,
    def_int,ss_none},
   {"gl_depthbuffer_bits",{&gl_depthbuffer_bits},{16},16,32,

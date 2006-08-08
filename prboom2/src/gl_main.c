@@ -70,7 +70,6 @@ extern int tran_filter_pct;
 boolean use_fog=false;
 
 int gl_nearclip=5;
-int gl_farclip=6400;
 char *gl_tex_filter_string;
 int gl_tex_filter;
 int gl_mipmap_filter;
@@ -1907,7 +1906,6 @@ void gld_StartDrawScene(void)
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  //gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
   infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
 
   glMatrixMode(GL_MODELVIEW);

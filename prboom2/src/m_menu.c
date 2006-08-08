@@ -2875,6 +2875,7 @@ enum {
 
 enum {
   general_gl_texfilter,
+  general_gl_texformat,
   general_flooroffset,
 };
 
@@ -2888,7 +2889,7 @@ enum {
 
 #define G_X 250
 #define G_YA  44
-#define G_YA2 (G_YA+8*8)
+#define G_YA2 (G_YA+7*8)
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
@@ -2897,6 +2898,9 @@ static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
 static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
                                      "GL_LINEAR_MIPMAP_LINEAR",
                                      NULL};
+
+static const char *gltexformats[] = {"GL_RGBA","GL_RGB5_A1",
+                                     "GL_RGBA4", NULL};
 
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
@@ -2922,6 +2926,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, NULL, gltexfilters},
+
+  {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
+   G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, NULL, gltexformats},
 
   {"Item out of Floor offset", S_NUM, m_null, G_X,
    G_YA2 + general_flooroffset*8, {"gl_sprite_offset"}},

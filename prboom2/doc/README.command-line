@@ -273,9 +273,6 @@ OPENGL SETTINGS
        gl_nearclip
               The near clipping plane *100.
 
-       gl_farclip
-              The far clipping plane *100.
-
        gl_colorbuffer_bits
               The bit depth for the framebuffer. (16, 24 or 32 bits)
 
