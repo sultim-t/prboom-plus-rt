@@ -68,8 +68,10 @@ m_cheat.c
 m_menu.c
 m_misc.c
 m_random.c
+md5.c
 mmus2mid.c
 p_ceilng.c
+p_checksum.c
 p_doors.c
 p_enemy.c
 p_floor.c

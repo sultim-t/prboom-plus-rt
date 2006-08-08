@@ -64,6 +64,7 @@
 #include "m_argv.h"
 #include "m_misc.h"
 #include "m_menu.h"
+#include "p_checksum.h"
 #include "i_main.h"
 #include "i_system.h"
 #include "i_sound.h"
@@ -341,6 +342,7 @@ static void D_DoomLoop(void)
             D_DoAdvanceDemo ();
           M_Ticker ();
           G_Ticker ();
+          P_Checksum(gametic);
           gametic++;
           maketic++;
         }
@@ -1542,6 +1544,11 @@ static void D_DoomMainSetup(void)
     autostart = true;
     G_RecordDemo(myargv[p]);
   }
+    }
+
+  if ((p = M_CheckParm ("-checksum")) && ++p < myargc)
+    {
+      P_RecordChecksum (myargv[p]);
     }
 
   if ((p = M_CheckParm ("-fastdemo")) && ++p < myargc)

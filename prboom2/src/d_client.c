@@ -44,6 +44,7 @@
 #include "d_main.h"
 #include "g_game.h"
 #include "m_menu.h"
+#include "p_checksum.h"
 
 #include "protocol.h"
 #include "i_network.h"
@@ -480,6 +481,7 @@ void TryRunTics (void)
       D_DoAdvanceDemo ();
     M_Ticker ();
     G_Ticker ();
+    P_Checksum(gametic);
     gametic++;
 #ifdef HAVE_NET
     NetUpdate(); // Keep sending our tics to avoid stalling remote nodes

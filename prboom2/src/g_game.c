@@ -2816,6 +2816,8 @@ void G_TimeDemo(const char *name) // CPhipps - const char*
  */
 boolean G_CheckDemoStatus (void)
 {
+  P_ChecksumFinal();
+
   if (demorecording)
     {
       demorecording = false;
