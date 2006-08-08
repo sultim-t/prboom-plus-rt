@@ -1813,9 +1813,23 @@ void G_SaveGame(int slot, char *description)
 }
 
 // Check for overrun and realloc if necessary -- Lee Killough 1/22/98
-void CheckSaveGame(size_t size)
+void (CheckSaveGame)(size_t size, const char* file, int line)
 {
   size_t pos = save_p - savebuffer;
+
+#ifdef RANGECHECK
+  /* cph 2006/08/07 - after-the-fact sanity checking of CheckSaveGame calls */
+  static size_t prev_check;
+  static const char* prevf;
+  static int prevl;
+
+  if (pos > prev_check)
+    I_Error("CheckSaveGame at %s:%d called for insufficient buffer (%u < %u)", prevf, prevl, prev_check, pos);
+  prev_check = size + pos;
+  prevf = file;
+  prevl = line;
+#endif
+
   size += 1024;  // breathing room
   if (pos+size > savegamesize)
     save_p = (savebuffer = realloc(savebuffer,
@@ -1878,17 +1892,19 @@ static void G_DoSaveGame (boolean menu)
   // killough 3/16/98: store pwad filenames in savegame
   {
     // CPhipps - changed for new wadfiles handling
-    int i = 0;
-    for (*save_p = 0; (size_t)i<numwadfiles; i++)
+    size_t i;
+    for (i = 0; i<numwadfiles; i++)
       {
-  const char *const w = wadfiles[i].name;
+        const char *const w = wadfiles[i].name;
         CheckSaveGame(strlen(w)+2);
-        strcat(strcat(save_p, w), "\n");
+        strcpy(save_p, w);
+        save_p += strlen(save_p);
+        *save_p++ = '\n';
       }
-    save_p += strlen(save_p)+1;
+    *save_p++ = 0;
   }
 
-  CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+10);
+  CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+14);
 
   *save_p++ = compatibility_level;
 

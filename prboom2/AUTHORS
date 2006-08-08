@@ -112,6 +112,9 @@ Win32 issues.
 Steven Elliot <selliot4@users.sourceforge.net>
 Misc patches.
 
+Andreas Dehmel <zarquon@t-online.de>
+Spotted & patched a savegame bug.
+
 If you have sent in patches and I forgot to list you, I apologise. Please email
 me and I will add you.
 

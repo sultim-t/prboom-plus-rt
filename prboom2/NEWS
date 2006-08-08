@@ -2,6 +2,8 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.4 to v2.4.5
+- fix crash when saving the game in levels with lots of monsters
+  (bug introduced in 2.4.4)
 - -nodeh option to disable automatic loading of dehacked-in-wad lump
 - Unified software and opengl engine into one binary
 - Added video mode selection to menu
