@@ -309,10 +309,6 @@ default_t defaults[] =
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{480},200,MAX_SCREENHEIGHT,
    def_int,ss_none},
-#ifdef GL_DOOM
-  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
-   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
-#endif
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
 #ifndef DISABLE_DOUBLEBUFFER
@@ -350,6 +346,10 @@ default_t defaults[] =
    def_bool,ss_none},
   {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{0},0,1,
    def_bool,ss_none},
+#ifdef GL_DOOM
+  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
+   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
+#endif
 #endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},

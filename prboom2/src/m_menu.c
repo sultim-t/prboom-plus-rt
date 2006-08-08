@@ -1961,12 +1961,18 @@ static void M_DrawSetting(const setup_menu_t* s)
   // Is the item a selection of choices?
 
   if (flags & S_CHOICE) {
-    // killough 10/98: We must draw differently for items being gathered.
-    if (s->selectstrings == NULL) {
-      sprintf(menu_buffer,"%d",*s->var.def->location.pi);
-    } else {
-      strcpy(menu_buffer,s->selectstrings[*s->var.def->location.pi]);
+    if (s->var.def->type == def_int) {
+      if (s->selectstrings == NULL) {
+        sprintf(menu_buffer,"%d",*s->var.def->location.pi);
+      } else {
+        strcpy(menu_buffer,s->selectstrings[*s->var.def->location.pi]);
+      }
     }
+
+    if (s->var.def->type == def_str) {
+      sprintf(menu_buffer,"%s", *s->var.def->location.ppsz);
+    }
+
     M_DrawMenuString(x,y,color);
     return;
   }
@@ -2862,80 +2868,92 @@ enum {
   general_transpct,
   general_fullscreen,
   general_videomode,
-  general_flooroffset,
 //  general_pcx,
 //  general_diskicon,
   general_hom
 };
 
 enum {
-  general_sndcard,
-  general_muscard,
-  general_detvoices,
+  general_gl_texfilter,
+  general_flooroffset,
+};
+
+enum {
+//  general_sndcard,
+//  general_muscard,
+//  general_detvoices,
   general_sndchan,
   general_pitch
 };
 
 #define G_X 250
-#define G_Y  44
-#define G_Y2 (G_Y+82)
-#define G_Y3 (G_Y+44)
-#define G_Y4 (G_Y3+52)
+#define G_YA  44
+#define G_YA2 (G_YA+8*8)
+#define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
 static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
 
+static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
+                                     "GL_LINEAR_MIPMAP_LINEAR",
+                                     NULL};
+
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
-  {"Video"       ,S_SKIP|S_TITLE, m_null, G_X, G_Y - 12},
+  {"Video"       ,S_SKIP|S_TITLE, m_null, G_X, G_YA - 12},
 
   {"Enable Translucency", S_YESNO, m_null, G_X,
-   G_Y + general_trans*8, {"translucency"}, 0, 0, M_Trans},
+   G_YA + general_trans*8, {"translucency"}, 0, 0, M_Trans},
 
   {"Translucency filter percentage", S_NUM, m_null, G_X,
-   G_Y + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+   G_YA + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
 
   {"Fullscreen Video mode", S_YESNO|S_PRGWARN, m_null, G_X,
-   G_Y + general_fullscreen*8, {"use_fullscreen"}, 0, 0, NULL},
+   G_YA + general_fullscreen*8, {"use_fullscreen"}, 0, 0, NULL},
 
   {"Video mode", S_CHOICE|S_PRGWARN, m_null, G_X,
-   G_Y + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
+   G_YA + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
+
+  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
+   G_YA + general_hom*8, {"flashing_hom"}},
 
 #ifdef GL_DOOM
+  {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
+
+  {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
+   G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, NULL, gltexfilters},
+
   {"Item out of Floor offset", S_NUM, m_null, G_X,
-   G_Y + general_flooroffset*8, {"gl_sprite_offset"}},
+   G_YA2 + general_flooroffset*8, {"gl_sprite_offset"}},
 #endif
 
 #if 0
   {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
-   G_Y + general_pcx*8, {"screenshot_pcx"}},
+   G_YA + general_pcx*8, {"screenshot_pcx"}},
 #endif
 
 #if 0 // MBF
   {"Flash Icon During Disk IO", S_YESNO, m_null, G_X,
-   G_Y + general_diskicon*8, {"disk_icon"}},
+   G_YA + general_diskicon*8, {"disk_icon"}},
 #endif
 
-  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
-   G_Y + general_hom*8, {"flashing_hom"}},
-
-  {"Sound & Music", S_SKIP|S_TITLE, m_null, G_X, G_Y2 - 12},
+  {"Sound & Music", S_SKIP|S_TITLE, m_null, G_X, G_YA3 - 12},
 #if 0 // MBF
   {"Sound Card", S_NUM|S_PRGWARN, m_null, G_X,
-   G_Y2 + general_sndcard*8, {"sound_card"}},
+   G_YA2 + general_sndcard*8, {"sound_card"}},
 
   {"Music Card", S_NUM|S_PRGWARN, m_null, G_X,
-   G_Y2 + general_muscard*8, {"music_card"}},
+   G_YA2 + general_muscard*8, {"music_card"}},
 
   {"Autodetect Number of Voices", S_YESNO|S_PRGWARN, m_null, G_X,
-   G_Y2 + general_detvoices*8, {"detect_voices"}},
+   G_YA2 + general_detvoices*8, {"detect_voices"}},
 #endif
 
   {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, G_X,
-   G_Y2 + general_sndchan*8, {"snd_channels"}},
+   G_YA3 + general_sndchan*8, {"snd_channels"}},
 
   {"Enable v1.1 Pitch Effects", S_YESNO, m_null, G_X,
-   G_Y2 + general_pitch*8, {"pitched_sounds"}},
+   G_YA3 + general_pitch*8, {"pitched_sounds"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -2965,34 +2983,38 @@ enum {
   general_end
 };
 
+#define G_YB  44
+#define G_YB1 (G_YB+44)
+#define G_YB2 (G_YB1+52)
+
 setup_menu_t gen_settings2[] = { // General Settings screen2
 
-  {"Input Devices"     ,S_SKIP|S_TITLE, m_null, G_X, G_Y - 12},
+  {"Input Devices"     ,S_SKIP|S_TITLE, m_null, G_X, G_YB - 12},
 
   {"Enable Mouse", S_YESNO, m_null, G_X,
-   G_Y + general_mouse*8, {"use_mouse"}},
+   G_YB + general_mouse*8, {"use_mouse"}},
 
   {"Enable Joystick", S_YESNO, m_null, G_X,
-   G_Y + general_joy*8, {"use_joystick"}},
+   G_YB + general_joy*8, {"use_joystick"}},
 
   {"Files Preloaded at Game Startup",S_SKIP|S_TITLE, m_null, G_X,
-   G_Y3 - 12},
+   G_YB1 - 12},
 
-  {"WAD # 1", S_FILE, m_null, GF_X, G_Y3 + general_wad1*8, {"wadfile_1"}},
+  {"WAD # 1", S_FILE, m_null, GF_X, G_YB1 + general_wad1*8, {"wadfile_1"}},
 
-  {"WAD #2", S_FILE, m_null, GF_X, G_Y3 + general_wad2*8, {"wadfile_2"}},
+  {"WAD #2", S_FILE, m_null, GF_X, G_YB1 + general_wad2*8, {"wadfile_2"}},
 
-  {"DEH/BEX # 1", S_FILE, m_null, GF_X, G_Y3 + general_deh1*8, {"dehfile_1"}},
+  {"DEH/BEX # 1", S_FILE, m_null, GF_X, G_YB1 + general_deh1*8, {"dehfile_1"}},
 
-  {"DEH/BEX #2", S_FILE, m_null, GF_X, G_Y3 + general_deh2*8, {"dehfile_2"}},
+  {"DEH/BEX #2", S_FILE, m_null, GF_X, G_YB1 + general_deh2*8, {"dehfile_2"}},
 
-  {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_Y4 - 12},
+  {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_YB2 - 12},
 
   {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X,
-   G_Y4 + general_corpse*8, {"max_player_corpse"}},
+   G_YB2 + general_corpse*8, {"max_player_corpse"}},
 
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
-   G_Y4 + general_realtic*8, {"realtic_clock_rate"}},
+   G_YB2 + general_realtic*8, {"realtic_clock_rate"}},
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
 
@@ -3979,6 +4001,17 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   M_DrawScreenItems(cred_settings);
 }
 
+static int M_IndexInChoices(const char *str, const char **choices) {
+  int i = 0;
+
+  while (*choices != NULL) {
+    if (!strcmp(str, *choices))
+      return i;
+    i++;
+    choices++;
+  }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // M_Responder
@@ -4480,32 +4513,60 @@ boolean M_Responder (event_t* ev) {
   if (ptr1->m_flags & S_CHOICE) // selection of choices?
     {
     if (ch == key_menu_left) {
-      int value = *ptr1->var.def->location.pi;
+      if (ptr1->var.def->type == def_int) {
+        int value = *ptr1->var.def->location.pi;
       
-      value = value - 1;
-      if ((ptr1->var.def->minvalue != UL &&
-           value < ptr1->var.def->minvalue))
-        value = ptr1->var.def->minvalue;
-      if ((ptr1->var.def->maxvalue != UL &&
-           value > ptr1->var.def->maxvalue))
-        value = ptr1->var.def->maxvalue;
-      if (*ptr1->var.def->location.pi != value)
-        S_StartSound(NULL,sfx_pstop);
-      *ptr1->var.def->location.pi = value;
+        value = value - 1;
+        if ((ptr1->var.def->minvalue != UL &&
+             value < ptr1->var.def->minvalue))
+          value = ptr1->var.def->minvalue;
+        if ((ptr1->var.def->maxvalue != UL &&
+             value > ptr1->var.def->maxvalue))
+          value = ptr1->var.def->maxvalue;
+        if (*ptr1->var.def->location.pi != value)
+          S_StartSound(NULL,sfx_pstop);
+        *ptr1->var.def->location.pi = value;
+      }
+      if (ptr1->var.def->type == def_str) {
+        int old_value, value;
+
+        old_value = M_IndexInChoices(*ptr1->var.def->location.ppsz,
+                                     ptr1->selectstrings);
+        value = old_value - 1;
+        if (value < 0)
+          value = 0;
+        if (old_value != value)
+          S_StartSound(NULL,sfx_pstop);
+        *ptr1->var.def->location.ppsz = ptr1->selectstrings[value];
+      }
     }
     if (ch == key_menu_right) {
-      int value = *ptr1->var.def->location.pi;
+      if (ptr1->var.def->type == def_int) {
+        int value = *ptr1->var.def->location.pi;
       
-      value = value + 1;
-      if ((ptr1->var.def->minvalue != UL &&
-           value < ptr1->var.def->minvalue))
-        value = ptr1->var.def->minvalue;
-      if ((ptr1->var.def->maxvalue != UL &&
-           value > ptr1->var.def->maxvalue))
-        value = ptr1->var.def->maxvalue;
-      if (*ptr1->var.def->location.pi != value)
-        S_StartSound(NULL,sfx_pstop);
-      *ptr1->var.def->location.pi = value;
+        value = value + 1;
+        if ((ptr1->var.def->minvalue != UL &&
+             value < ptr1->var.def->minvalue))
+          value = ptr1->var.def->minvalue;
+        if ((ptr1->var.def->maxvalue != UL &&
+             value > ptr1->var.def->maxvalue))
+          value = ptr1->var.def->maxvalue;
+        if (*ptr1->var.def->location.pi != value)
+          S_StartSound(NULL,sfx_pstop);
+        *ptr1->var.def->location.pi = value;
+      }
+      if (ptr1->var.def->type == def_str) {
+        int old_value, value;
+
+        old_value = M_IndexInChoices(*ptr1->var.def->location.ppsz,
+                                     ptr1->selectstrings);
+        value = old_value + 1;
+        if (ptr1->selectstrings[value] == NULL)
+          value = old_value;
+        if (old_value != value)
+          S_StartSound(NULL,sfx_pstop);
+        *ptr1->var.def->location.ppsz = ptr1->selectstrings[value];
+      }
     }
     if (ch == key_menu_enter) {
       // phares 4/14/98:
