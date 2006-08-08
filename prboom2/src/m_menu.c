@@ -1691,8 +1691,6 @@ void M_Setup(int choice)
 #define PAL_BLACK   0
 #define PAL_WHITE   4
 
-static byte colorblock[(CHIP_SIZE+4)*(CHIP_SIZE+4)];
-
 // Data used by the Chat String editing code
 
 #define CHAT_STRING_BFR_SIZE 128
@@ -1899,8 +1897,12 @@ static void M_DrawSetting(const setup_menu_t* s)
       ch = *s->var.def->location.pi;
       // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
       // draw the paint chip
-      V_DrawMemPatch(x,y-1,0,M_MakeColChip((byte)ch,PAL_BLACK),
-         CR_DEFAULT,VPT_STRETCH);
+      V_FillRect(0, x*SCREENWIDTH/320, (y-1)*SCREENHEIGHT/200,
+                    8*SCREENWIDTH/320, 8*SCREENHEIGHT/200,
+                 PAL_BLACK);
+      V_FillRect(0, (x+1)*SCREENWIDTH/320, y*SCREENHEIGHT/200,
+                        6*SCREENWIDTH/320, 6*SCREENHEIGHT/200,
+                 (byte)ch);
 
       if (!ch) // don't show this item in automap mode
   V_DrawNamePatch(x+1,y,0,"M_PALNO", CR_DEFAULT, VPT_STRETCH);
@@ -2669,15 +2671,7 @@ byte palette_background[16*(CHIP_SIZE+1)+8];
 
 static void M_DrawColPal(void)
 {
-  int i,cpx,cpy;
-  byte *ptr;
-  unsigned char curchip[] = {
-    9,0,9,0,0,0,0,0,44,0,0,0,58,0,0,0,69,0,0,0,80,0,0,0,91,0,0,0,102,0,0,0,113,0,
-    0,0,124,0,0,0,135,0,0,0,0,9,0,4,4,4,4,4,4,4,4,4,0,255,0,1,0,4,0,8,1,0,4,0,
-    255,0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,
-    0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,0,1,0,4,0,8,1,0,4,0,255,0,9,
-    0,4,4,4,4,4,4,4,4,4,0,255
-  };
+  int cpx, cpy;
 
   // Draw a background, border, and paint chips
 
@@ -2688,13 +2682,10 @@ static void M_DrawColPal(void)
   // Draw the cursor around the paint chip
   // (cpx,cpy) is the upper left-hand corner of the paint chip
 
-  ptr = colorblock;
-  for (i = 0 ; i < CHIP_SIZE+2 ; i++)
-    *ptr++ = PAL_WHITE;
   cpx = COLORPALXORIG+color_palette_x*(CHIP_SIZE+1)-1;
   cpy = COLORPALYORIG+color_palette_y*(CHIP_SIZE+1)-1;
   // proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-  V_DrawMemPatch(cpx,cpy,0,(patch_t *)curchip,CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
+  V_DrawNamePatch(cpx,cpy,0,"M_PALSEL",CR_DEFAULT,VPT_STRETCH); // PROFF_GL_FIX
 }
 
 // The drawing part of the Automap Setup initialization. Draw the

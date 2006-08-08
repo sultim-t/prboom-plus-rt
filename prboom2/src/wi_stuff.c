@@ -156,7 +156,7 @@ typedef struct
   /* actual graphics for frames of animations
    * cphipps - const
    */
-  const patch_t*  p[3];
+  patchnum_t p[3];
 
   // following must be initialized to zero before use!
 
@@ -342,7 +342,7 @@ static const char percent[] = {"WIPCNT"};
 static const char colon[] = {"WICOLON"};
 
 // 0-9 graphic
-static const patch_t  * num[10];
+static patchnum_t num[10];
 
 // minus sign
 static const char wiminus[] = {"WIMINUS"};
@@ -669,7 +669,7 @@ void WI_drawAnimatedBack(void)
 
     if (a->ctr >= 0)
       // CPhipps - patch drawing updated
-      V_DrawMemPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr], CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr].lumpnum, CR_DEFAULT, VPT_STRETCH);
   }
 }
 
@@ -685,7 +685,7 @@ void WI_drawAnimatedBack(void)
 // CPhipps - static
 static int WI_drawNum (int x, int y, int n, int digits)
 {
-  int   fontwidth = SHORT(num[0]->width);
+  int   fontwidth = num[0].width;
   int   neg;
   int   temp;
 
@@ -723,7 +723,7 @@ static int WI_drawNum (int x, int y, int n, int digits)
   {
     x -= fontwidth;
     // CPhipps - patch drawing updated
-    V_DrawMemPatch(x, y, FB, num[ n % 10 ], CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatch(x, y, FB, num[ n % 10 ].lumpnum, CR_DEFAULT, VPT_STRETCH);
     n /= 10;
   }
 
@@ -1222,7 +1222,7 @@ void WI_drawDeathmatchStats(void)
 
   // draw stats
   y = DM_MATRIXY+10;
-  w = SHORT(num[0]->width);
+  w = num[0].width;
 
   for (i=0 ; i<MAXPLAYERS ; i++)
   {
@@ -1697,7 +1697,7 @@ void WI_drawStats(void)
   // line height
   int lh;
 
-  lh = (3*SHORT(num[0]->height))/2;
+  lh = (3*num[0].height)/2;
 
   WI_slamBackground();
 
@@ -1831,7 +1831,7 @@ void WI_loadData(void)
           {
             // animations
             sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);
-            a->p[i] = W_CacheLumpName(name);
+            R_SetPatchNum(&a->p[i], name);
           }
           else
           {
@@ -1847,7 +1847,7 @@ void WI_loadData(void)
   {
     // numbers 0-9
     sprintf(name, "WINUM%d", i);
-    num[i] = W_CacheLumpName(name);
+    R_SetPatchNum(&num[i], name);
   }
 }
 

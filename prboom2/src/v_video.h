@@ -122,11 +122,6 @@ extern V_FillRect_f V_FillRect;
 
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
-// V_DrawMemPatch - Draws the given patch_t
-typedef void (*V_DrawMemPatch_f)(int x, int y, int scrn,
-                                 const patch_t *patch, int cm,
-                                 enum patch_translation_e flags);
-extern V_DrawMemPatch_f V_DrawMemPatch;
 
 // V_DrawNumPatch - Draws the patch from lump num
 typedef void (*V_DrawNumPatch_f)(int x, int y, int scrn,

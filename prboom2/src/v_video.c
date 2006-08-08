@@ -205,7 +205,7 @@ void V_Init (void)
 }
 
 //
-// V_DrawMemPatch
+// V_DrawMemPatch8
 //
 // CPhipps - unifying patch drawing routine, handles all cases and combinations
 //  of stretching, flipping and translating
@@ -216,7 +216,7 @@ void V_Init (void)
 // (indeed, laziness of the people who wrote the 'clones' of the original V_DrawPatch
 //  means that their inner loops weren't so well optimised, so merging code may even speed them).
 //
-void V_DrawMemPatch8(int x, int y, int scrn, const patch_t *patch,
+static void V_DrawMemPatch8(int x, int y, int scrn, const patch_t *patch,
         int cm, enum patch_translation_e flags)
 {
   const byte *trans;
@@ -242,8 +242,8 @@ void V_DrawMemPatch8(int x, int y, int scrn, const patch_t *patch,
       || y<0
       || y+SHORT(patch->height) > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT))
     // killough 1/19/98: improved error message:
-    I_Error("V_DrawMemPatch: Patch (%d,%d)-(%d,%d) exceeds LFB"
-            "Bad V_DrawMemPatch (flags=%u)", x, y, x+SHORT(patch->width), y+SHORT(patch->height), flags);
+    I_Error("V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB"
+            "Bad V_DrawMemPatch8 (flags=%u)", x, y, x+SHORT(patch->width), y+SHORT(patch->height), flags);
 
   if (!(flags & VPT_STRETCH)) {
     int             col;
@@ -355,8 +355,8 @@ void V_DrawMemPatch8(int x, int y, int scrn, const patch_t *patch,
   // more than one pixel, to prevent massive warnings at 800x600
   if ((toprow < 0) || ((toprow + count) > SCREENHEIGHT))
     lprintf(LO_WARN,
-            "V_DrawMemPatch: column exceeds screenheight (toprow %i + count %i = %i)\n"
-            "Bad V_DrawMemPatch (flags=%u)", toprow, count, toprow+count, flags);
+            "V_DrawMemPatch8: column exceeds screenheight (toprow %i + count %i = %i)\n"
+            "Bad V_DrawMemPatch8 (flags=%u)", toprow, count, toprow+count, flags);
 #endif
 
   if (toprow < 0) {
@@ -394,7 +394,7 @@ void V_DrawMemPatch8(int x, int y, int scrn, const patch_t *patch,
 void V_DrawNumPatch8(int x, int y, int scrn, int lump,
          int cm, enum patch_translation_e flags)
 {
-  V_DrawMemPatch(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump),
+  V_DrawMemPatch8(x, y, scrn, (const patch_t*)W_CacheLumpNum(lump),
      cm, flags);
   W_UnlockLumpNum(lump);
 }
@@ -476,10 +476,6 @@ void WRAP_gld_DrawBackground(const char *flatname, int n)
 {
   gld_DrawBackground(flatname);
 }
-void WRAP_gld_DrawMemPatch(int x, int y, int scrn, const patch_t *patch, int cm, enum patch_translation_e flags)
-{
-  gld_DrawPatchFromMem(x,y,patch,cm,flags);
-}
 void WRAP_gld_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags)
 {
   gld_DrawNumPatch(x,y,lump,cm,flags);
@@ -511,7 +507,6 @@ static video_mode_t current_videomode = VID_MODE8;
 
 V_CopyRect_f V_CopyRect = NULL_CopyRect;
 V_FillRect_f V_FillRect = NULL_FillRect;
-V_DrawMemPatch_f V_DrawMemPatch = NULL_DrawMemPatch;
 V_DrawNumPatch_f V_DrawNumPatch = NULL_DrawNumPatch;
 V_DrawBackground_f V_DrawBackground = NULL_DrawBackground;
 V_PlotPixel_f V_PlotPixel = NULL_PlotPixel;
@@ -532,7 +527,6 @@ void V_InitMode(video_mode_t mode) {
       lprintf(LO_INFO, "V_InitMode: using 8 bit video mode\n");
       V_CopyRect = V_CopyRect8;
       V_FillRect = V_FillRect8;
-      V_DrawMemPatch = V_DrawMemPatch8;
       V_DrawNumPatch = V_DrawNumPatch8;
       V_DrawBackground = V_DrawBackground8;
       V_PlotPixel = V_PlotPixel8;
@@ -544,7 +538,6 @@ void V_InitMode(video_mode_t mode) {
       lprintf(LO_INFO, "V_InitMode: using OpenGL video mode\n");
       V_CopyRect = WRAP_gld_CopyRect;
       V_FillRect = WRAP_gld_FillRect;
-      V_DrawMemPatch = WRAP_gld_DrawMemPatch;
       V_DrawNumPatch = WRAP_gld_DrawNumPatch;
       V_DrawBackground = WRAP_gld_DrawBackground;
       V_PlotPixel = V_PlotPixelGL;
