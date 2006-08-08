@@ -8,7 +8,7 @@ Changes from v2.4.4 to v2.4.5
 - Unified software and opengl engine into one binary
 - Added video mode selection to menu
 - Fullscreen setting will only take effect after game restart
-- reduce red palette transation if the menu is up, so the menu can still be read
+- reduce red palette translation if the menu is up, so the menu can still be read
 - Added experimental -checksum option for demo playback comparison
 
 Changes from v2.4.3 to v2.4.4
@@ -39,7 +39,7 @@ Changes from v2.4.3 to v2.4.4
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.
   Thanks to SoM and Quasar!!!
-- fix bugs in gameplay occuring with gcc-4.1
+- fix bugs in gameplay occurring with gcc-4.1
 - Mac OS X: Add "Show Game Folder" to menus, for easy installation of new
   game wads
 - Mac OS X: Disable games in popup menu whose wads cannot be found
