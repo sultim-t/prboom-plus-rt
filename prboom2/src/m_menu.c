@@ -1771,33 +1771,6 @@ static void M_DrawItem(const setup_menu_t* s)
 int  gather_count;
 char gather_buffer[MAXGATHER+1];  // killough 10/98: make input character-based
 
-// proff 12/6/98: Drawing of colorchips completly changed for hi-res, it now uses a patch
-static unsigned char colchipsrc[] = {
-  9,0,9,0,0,0,0,0,44,0,0,0,58,0,0,0,72,0,0,0,86,0,0,0,100,0,0,0,114,0,0,0,128,
-  0,0,0,142,0,0,0,156,0,0,0,0,9,0,4,4,4,4,4,4,4,4,4,0,255,0,9,0,4,251,251,251,
-  251,251,251,251,4,0,255,0,9,0,4,251,251,251,251,251,251,251,4,0,255,0,9,0,4,
-  251,251,251,251,251,251,251,4,0,255,0,9,0,4,251,251,251,251,251,251,251,4,0,
-  255,0,9,0,4,251,251,251,251,251,251,251,4,0,255,0,9,0,4,251,251,251,251,251,
-  251,251,4,0,255,0,9,0,4,251,251,251,251,251,251,251,4,0,255,0,9,0,4,4,4,4,4,
-  4,4,4,4,0,255
-};
-
-static unsigned char colchip[171];
-
-static patch_t *M_MakeColChip(byte chipcol, byte framecol)
-{
-  unsigned int i;
-
-  for (i=0; i<sizeof(colchipsrc); i++)
-    if (colchipsrc[i]==4)
-      colchip[i]=framecol;
-    else if (colchipsrc[i]==251)
-      colchip[i]=chipcol;
-    else
-      colchip[i]=colchipsrc[i];
-  return (patch_t *)colchip;
-}
-
 /////////////////////////////
 //
 // phares 4/18/98:
