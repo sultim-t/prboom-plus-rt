@@ -496,6 +496,24 @@ boolean rendering_stats;
 
 static void R_ShowStats(void)
 {
+//e6y
+#if 1
+  static unsigned int FPS_SavedTick = 0, FPS_FrameCount = 0;
+  unsigned int tick = SDL_GetTicks();
+  int now = I_GetTime();
+  FPS_FrameCount++;
+  if(tick >= FPS_SavedTick + 1000)
+  {
+    doom_printf((V_GetMode() == VID_MODEGL)
+                ?"Frame rate %d fps\nWalls %d, Flats %d, Sprites %d"
+                :"Frame rate %d fps\nSegs %d, Visplanes %d, Sprites %d",
+    1000 * FPS_FrameCount / (tick - FPS_SavedTick), rendered_segs,
+    rendered_visplanes, rendered_vissprites);
+    FPS_SavedTick = tick;
+    FPS_FrameCount = 0;
+  }
+#else
+
 #define KEEPTIMES 10
   static int keeptime[KEEPTIMES], showtime;
   int now = I_GetTime();
@@ -510,6 +528,8 @@ static void R_ShowStats(void)
   }
   memmove(keeptime, keeptime+1, sizeof(keeptime[0]) * (KEEPTIMES-1));
   keeptime[KEEPTIMES-1] = now;
+
+#endif //e6y
 }
 
 //
