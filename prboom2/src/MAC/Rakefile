@@ -109,7 +109,7 @@ tables.c
 v_video.c
 version.c
 w_wad.c
-w_memcache.c
+w_mmap.c
 wi_stuff.c
 z_bmalloc.c
 z_zone.c
