@@ -3856,7 +3856,7 @@ static void M_DrawString(int cx, int cy, int color, const char* ch)
       cx += SPACEWIDTH;    // space
       continue;
       }
-    w = SHORT (hu_font[c].width);
+    w = hu_font[c].width;
     if (cx + w > 320)
       break;
 
@@ -3894,7 +3894,7 @@ static int M_GetPixelWidth(const char* ch)
       len += SPACEWIDTH;   // space
       continue;
       }
-    len += SHORT (hu_font[c].width);
+    len += hu_font[c].width;
     len--; // adjust so everything fits
   }
   len++; // replace what you took away on the last char only
@@ -5199,7 +5199,7 @@ void M_Drawer (void)
           p++;
         *p = 0;
         M_WriteText(160 - M_StringWidth(string)/2, y, string);
-        y += SHORT(hu_font[0].height);
+        y += hu_font[0].height;
         if ((*p = c))
           p++;
       }
@@ -5372,7 +5372,7 @@ int M_StringWidth(const char* string)
   int i, c, w = 0;
   for (i = 0;(size_t)i < strlen(string);i++)
     w += (c = toupper(string[i]) - HU_FONTSTART) < 0 || c >= HU_FONTSIZE ?
-      4 : SHORT(hu_font[c].width);
+      4 : hu_font[c].width;
   return w;
 }
 
@@ -5382,7 +5382,7 @@ int M_StringWidth(const char* string)
 
 int M_StringHeight(const char* string)
 {
-  int i, h, height = h = SHORT(hu_font[0].height);
+  int i, h, height = h = hu_font[0].height;
   for (i = 0;string[i];i++)            // killough 1/31/98
     if (string[i] == '\n')
       h += height;
@@ -5420,7 +5420,7 @@ void M_WriteText (int x,int y,const char* string)
       continue;
     }
 
-    w = SHORT (hu_font[c].width);
+    w = hu_font[c].width;
     if (cx+w > SCREENWIDTH)
       break;
     // proff/nicolas 09/20/98 -- changed for hi-res
