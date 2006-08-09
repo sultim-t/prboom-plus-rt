@@ -56,6 +56,8 @@ static LauncherApp *LApp;
 			[debugDrawer open];
 		if([[defaults objectForKey:@"Demo Drawer State"] boolValue])
 			[demoDrawer open];
+		if([[defaults objectForKey:@"Console State"] boolValue])
+			[consoleController showWindow:self];
 	}
 
 	[[consoleController window] setFrameUsingName:@"Console"];
@@ -106,6 +108,8 @@ static LauncherApp *LApp;
 	[defaults setObject:[NSNumber numberWithBool:[wadDrawer state]] forKey:@"Wad Drawer State"];
 	[defaults setObject:[NSNumber numberWithBool:[debugDrawer state]] forKey:@"Debug Drawer State"];
 	[defaults setObject:[NSNumber numberWithBool:[demoDrawer state]] forKey:@"Demo Drawer State"];
+
+	[defaults setObject:[NSNumber numberWithBool:[[consoleController window] isVisible]] forKey:@"Console State"];
 
 	[defaults setObject:[gameButton objectValue] forKey:@"Game"];
 	[defaults setObject:[respawnMonstersButton objectValue] forKey:@"Respawn Monsters"];
