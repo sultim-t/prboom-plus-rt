@@ -385,7 +385,6 @@ static const char facebackp[] = {"STPB0"};
 
 static void WI_endDeathmatchStats(void);
 static void WI_endNetgameStats(void);
-void WI_unloadData(void);
 #define WI_endStats WI_endNetgameStats
 
 /* ====================================================================
@@ -515,14 +514,13 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     int            top;
     int            right;
     int            bottom;
-    int            lump = W_GetNumForName(c[i]);
-    const patch_t* p = W_CacheLumpNum(lump);
+    const rpatch_t* patch = R_CachePatchName(c[i]);
 
-    left = lnodes[wbs->epsd][n].x - SHORT(p->leftoffset);
-    top = lnodes[wbs->epsd][n].y - SHORT(p->topoffset);
-    right = left + SHORT(p->width);
-    bottom = top + SHORT(p->height);
-    W_UnlockLumpNum(lump);
+    left = lnodes[wbs->epsd][n].x - patch->leftoffset;
+    top = lnodes[wbs->epsd][n].y - patch->topoffset;
+    right = left + patch->width;
+    bottom = top + patch->height;
+    R_UnlockPatchName(c[i]);
 
     if (left >= 0
        && right < 320
@@ -799,8 +797,6 @@ static void WI_drawTime(int x, int y, int t)
 //
 void WI_End(void)
 {
-  WI_unloadData();
-
   if (deathmatch)
     WI_endDeathmatchStats();
   else if (netgame)
@@ -1848,42 +1844,6 @@ void WI_loadData(void)
     // numbers 0-9
     sprintf(name, "WINUM%d", i);
     R_SetPatchNum(&num[i], name);
-  }
-}
-
-// ====================================================================
-// WI_unloadData
-// Purpose: Free up the space allocated during WI_loadData
-// Args:    none
-// Returns: void
-//
-// CPhipps - reverse of WI_loadData, goes through the same lumps, but unlocking
-void WI_unloadData(void)
-{
-  int   i,j;
-  char  name[9];  // limited to 8 characters
-
-  // cph - unlock gamemode dependent stuff here
-  if (gamemode != commercial) {
-    if (wbs->epsd < 3) {
-      for (j=0;j<NUMANIMS[wbs->epsd];j++) {
-  anim_t* a = &anims[wbs->epsd][j];
-  for (i=0; i<a->nanims; i++) {
-    // MONDO HACK!
-    if (wbs->epsd != 1 || j != 8) {
-      // animations
-      sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);
-      W_UnlockLumpName(name);
-    }
-  }
-      }
-    }
-  }
-
-  for (i=0;i<10;i++) {
-    // numbers 0-9
-    sprintf(name, "WINUM%d", i);
-    W_UnlockLumpName(name);
   }
 }
 

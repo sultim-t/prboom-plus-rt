@@ -137,8 +137,8 @@ extern V_DrawNumPatch_f V_DrawNumPatch;
  * Doesn't really belong here, but is often used in conjunction with
  * this code.
  */
-int V_NamePatchWidth(const char* name);
-int V_NamePatchHeight(const char* name);
+#define V_NamePatchWidth(name) R_NumPatchWidth(W_GetNumForName(name))
+#define V_NamePatchHeight(name) R_NumPatchHeight(W_GetNumForName(name))
 
 /* cphipps 10/99: function to tile a flat over the screen */
 typedef void (*V_DrawBackground_f)(const char* flatname, int scrn);

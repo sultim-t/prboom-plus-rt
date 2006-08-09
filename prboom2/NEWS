@@ -11,6 +11,7 @@ Changes from v2.4.4 to v2.4.5
 - Fullscreen setting will only take effect after game restart
 - reduce red palette translation if the menu is up, so the menu can still be read
 - Added experimental -checksum option for demo playback comparison
+- Merged new internal patch (graphics) format from PrBoom 2.3
 
 Changes from v2.4.3 to v2.4.4
 - Don't fail when a texture name can't be looked up

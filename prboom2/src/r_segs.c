@@ -119,6 +119,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
   int      texnum;
   sector_t tempsec;      // killough 4/13/98
+  const rpatch_t *patch;
 
   // Calculate light table.
   // Use different light tables
@@ -175,12 +176,12 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   if (fixedcolormap)
     dcvars.colormap = fixedcolormap;
 
+  patch = R_CacheTextureCompositePatchNum(texnum);
+
   // draw the columns
   for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
     if (maskedtexturecol[dcvars.x] != INT_MAX) // dropoff overflow
       {
-	const column_t *col; /* cph 2006/07/29 - localise to this block and make const */
-
         dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
 
         // killough 3/2/98:
@@ -213,15 +214,19 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         // when forming multipatched textures (see r_data.c).
 
         // draw the texture
-        col = (const column_t *)((const byte *)
-                           R_GetColumn(texnum,maskedtexturecol[dcvars.x]) - 3);
-        R_DrawMaskedColumn (col);
+        R_DrawMaskedColumn(
+          patch, 
+          R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x])
+        );
+
         maskedtexturecol[dcvars.x] = INT_MAX; // dropoff overflow
       }
 
   // Except for main_tranmap, mark others purgable at this point
   if (curline->linedef->tranlump > 0 && general_translucency)
     W_UnlockLumpNum(curline->linedef->tranlump-1); // cph - unlock it
+
+  R_UnlockTextureCompositePatchNum(texnum);
 
   curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
 }
@@ -239,6 +244,7 @@ static int didsolidcol; /* True if at least one column was marked solid */
 
 static void R_RenderSegLoop (void)
 {
+  const rpatch_t *tex_patch;
   fixed_t  texturecolumn = 0;   // shut up compiler warning
   rendered_segs++;
   for ( ; rw_x < rw_stopx ; rw_x++)
@@ -308,9 +314,12 @@ static void R_RenderSegLoop (void)
           dcvars.yl = yl;     // single sided line
           dcvars.yh = yh;
           dcvars.texturemid = rw_midtexturemid;
-          dcvars.source = R_GetColumn(midtexture, texturecolumn);
+          tex_patch = R_CacheTextureCompositePatchNum(midtexture);
+          dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
           dcvars.texheight = midtexheight;
           colfunc ();
+          R_UnlockTextureCompositePatchNum(midtexture);
+          tex_patch = NULL;
           ceilingclip[rw_x] = viewheight;
           floorclip[rw_x] = -1;
         }
@@ -332,9 +341,12 @@ static void R_RenderSegLoop (void)
                   dcvars.yl = yl;
                   dcvars.yh = mid;
                   dcvars.texturemid = rw_toptexturemid;
-                  dcvars.source = R_GetColumn(toptexture,texturecolumn);
+                  tex_patch = R_CacheTextureCompositePatchNum(toptexture);
+                  dcvars.source = R_GetTextureColumn(tex_patch,texturecolumn);
                   dcvars.texheight = toptexheight;
                   colfunc ();
+                  R_UnlockTextureCompositePatchNum(toptexture);
+                  tex_patch = NULL;
                   ceilingclip[rw_x] = mid;
                 }
               else
@@ -361,10 +373,12 @@ static void R_RenderSegLoop (void)
                   dcvars.yl = mid;
                   dcvars.yh = yh;
                   dcvars.texturemid = rw_bottomtexturemid;
-                  dcvars.source = R_GetColumn(bottomtexture,
-                                          texturecolumn);
+                  tex_patch = R_CacheTextureCompositePatchNum(bottomtexture);
+                  dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
                   dcvars.texheight = bottomtexheight;
                   colfunc ();
+                  R_UnlockTextureCompositePatchNum(bottomtexture);
+                  tex_patch = NULL;
                   floorclip[rw_x] = mid;
                 }
               else

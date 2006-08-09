@@ -61,8 +61,8 @@ typedef struct {
     
   unsigned char isNotTileable;
   
-  int leftOffset;
-  int topOffset;
+  int leftoffset;
+  int topoffset;
   
   // this is the single malloc'ed/free'd array 
   // for this patch

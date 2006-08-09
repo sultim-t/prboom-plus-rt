@@ -64,10 +64,6 @@ typedef struct
   int   next, index;     // killough 1/31/98: used in hashing algorithm
   // CPhipps - moved arrays with per-texture entries to elements here
   unsigned  widthmask;
-  size_t    compositesize;
-  byte     *composite;
-  short    *columnlump;
-  unsigned *columnofs;
   // CPhipps - end of additions
   short width, height;
   short patchcount;      // All the patches[patchcount] are drawn
@@ -76,12 +72,6 @@ typedef struct
 
 extern int numtextures;
 extern texture_t **textures;
-
-// Retrieve column data for span blitting.
-const byte*
-R_GetColumn
-( int           tex,
-  int           col );
 
 
 // I/O, setting up the stuff.

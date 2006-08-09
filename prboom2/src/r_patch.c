@@ -42,6 +42,32 @@
 #include "r_patch.h"
 #include <assert.h>
 
+// posts are runs of non masked source pixels
+typedef struct
+{
+  byte topdelta; // -1 is the last post in a column
+  byte length;   // length data bytes follows
+} post_t;
+
+// column_t is a list of 0 or more post_t, (byte)-1 terminated
+typedef post_t column_t;
+
+//
+// Patches.
+// A patch holds one or more columns.
+// Patches are used for sprites and all masked pictures,
+// and we compose textures from the TEXTURE1/2 lists
+// of patches.
+//
+
+typedef struct
+{
+  short width, height;  // bounding box size
+  short leftoffset;     // pixels to the left of origin
+  short topoffset;      // pixels below the origin
+  int columnofs[8];     // only [width] used
+} patch_t;
+
 //---------------------------------------------------------------------------
 // Re-engineered patch support
 //---------------------------------------------------------------------------
@@ -185,8 +211,8 @@ static void createPatch(int id) {
   patch->width = SHORT(oldPatch->width);
   patch->widthmask = 0;
   patch->height = SHORT(oldPatch->height);
-  patch->leftOffset = SHORT(oldPatch->leftoffset);
-  patch->topOffset = SHORT(oldPatch->topoffset);
+  patch->leftoffset = SHORT(oldPatch->leftoffset);
+  patch->topoffset = SHORT(oldPatch->topoffset);
   patch->isNotTileable = getPatchIsNotTileable(oldPatch);
 
   // work out how much memory we need to allocate for this patch's data
@@ -393,8 +419,8 @@ static void createTextureCompositePatch(int id) {
   composite_patch->width = texture->width;
   composite_patch->height = texture->height;
   composite_patch->widthmask = texture->widthmask;
-  composite_patch->leftOffset = 0;
-  composite_patch->topOffset = 0;
+  composite_patch->leftoffset = 0;
+  composite_patch->topoffset = 0;
   composite_patch->isNotTileable = 0;
 
   // work out how much memory we need to allocate for this patch's data

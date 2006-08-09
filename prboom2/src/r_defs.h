@@ -293,16 +293,6 @@ typedef struct
   unsigned short children[2];    // If NF_SUBSECTOR its a subsector.
 } node_t;
 
-// posts are runs of non masked source pixels
-typedef struct
-{
-  byte topdelta; // -1 is the last post in a column
-  byte length;   // length data bytes follows
-} post_t;
-
-// column_t is a list of 0 or more post_t, (byte)-1 terminated
-typedef post_t column_t;
-
 //
 // OTHER TYPES
 //
@@ -333,22 +323,6 @@ typedef struct drawseg_s
 
   int *sprtopclip, *sprbottomclip, *maskedtexturecol; // dropoff overflow
 } drawseg_t;
-
-//
-// Patches.
-// A patch holds one or more columns.
-// Patches are used for sprites and all masked pictures,
-// and we compose textures from the TEXTURE1/2 lists
-// of patches.
-//
-
-typedef struct
-{
-  short width, height;  // bounding box size
-  short leftoffset;     // pixels to the left of origin
-  short topoffset;      // pixels below the origin
-  int columnofs[8];     // only [width] used
-} patch_t;
 
 // proff: Added for OpenGL
 typedef struct
