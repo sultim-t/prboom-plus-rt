@@ -254,7 +254,7 @@ static void I_EndDoom(void)
           /* reset everything when we start a new line */
           oldbg = -1;
           oldcolor = -1;
-          printf("\e[39m\e[49m\n");
+          printf("\e[0m\n");
         }
         /* foreground color */
         bold = 0;
