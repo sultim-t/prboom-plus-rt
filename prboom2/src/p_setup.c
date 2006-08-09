@@ -1199,15 +1199,6 @@ static void P_GroupLines (void)
 
   {  // allocate line tables for each sector
     line_t **linebuffer = Z_Malloc(total*sizeof(line_t *), PU_LEVEL, 0);
-    //e6y
-    if (demo_compatibility)
-    {
-      AddIntForRejectOverflow(((total*4+3)&~3)+24);
-      AddIntForRejectOverflow(0);
-      AddIntForRejectOverflow(50);//DOOM_CONST_PU_LEVEL
-      AddIntForRejectOverflow(0x1d4a11);//DOOM_CONST_ZONEID
-    }
-
     // e6y: REJECT overrun emulation code
     // It's emulated successfully if the size of overflow no more than 16 bytes.
     // No more desync on teeth-32.wad\teeth-32.lmp.
