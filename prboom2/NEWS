@@ -10,6 +10,7 @@ Changes from v2.4.4 to v2.4.5
 - fix demo desyncs on E1M5 on x86_64 systems
 - Fullscreen setting will only take effect after game restart
 - reduce red palette translation if the menu is up, so the menu can still be read
+- screenshots now in PNG format on Linux/Unix in GL mode too
 - Added experimental -checksum option for demo playback comparison
 - Merged new internal patch (graphics) format from PrBoom 2.3
 - Mac OS X: Launcher now uses drawers instead of tabs
