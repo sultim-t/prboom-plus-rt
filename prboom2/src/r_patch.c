@@ -76,7 +76,7 @@ static rpatch_t *patches = 0;
 static rpatch_t *texture_composites = 0;
 
 //---------------------------------------------------------------------------
-void R_InitPatches() {
+void R_InitPatches(void) {
   if (!patches)
   {
     patches = (rpatch_t*)malloc(numlumps * sizeof(rpatch_t));
@@ -92,14 +92,14 @@ void R_InitPatches() {
 }
 
 //---------------------------------------------------------------------------
-void R_FlushAllPatches() {
+void R_FlushAllPatches(void) {
   int i;
 
   if (patches)
   {
     for (i=0; i < numlumps; i++)
       if (patches[i].locks > 0)
-        I_Error("R_FlushAllPatches: patch number %i still locked");
+        I_Error("R_FlushAllPatches: patch number %i still locked",i);
     free(patches);
     patches = NULL;
   }
@@ -152,7 +152,7 @@ static int getPatchIsNotTileable(const patch_t *patch) {
       else if (x == SHORT(patch->width)-1 && column->topdelta + column->length >= SHORT(patch->height)) cornerCount++;
 
       if (numPosts++) hasAHole = 1;
-      column = (const column_t *)((byte *)column + column->length + 4);
+      column = (const column_t *)((const byte *)column + column->length + 4);
     }
   }
 
@@ -229,7 +229,7 @@ static void createPatch(int id) {
     while (oldColumn->topdelta != 0xff) {
       numPostsInColumn[x]++;
       numPostsTotal++;
-      oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
+      oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
     }
   }
 
@@ -246,7 +246,7 @@ static void createPatch(int id) {
   patch->posts = (rpost_t*)((unsigned char*)patch->columns + columnsDataSize);
 
   // sanity check that we've got all the memory allocated we need
-  assert(((int)patch->posts + (int)(numPostsTotal*sizeof(rpost_t)) - (int)patch->data) == dataSize);
+  assert((((void*)patch->posts  + numPostsTotal*sizeof(rpost_t)) - (void*)patch->data) == dataSize);
 
   memset(patch->pixels, 0xff, (patch->width*patch->height));
 
@@ -298,7 +298,7 @@ static void createPatch(int id) {
         patch->pixels[x * patch->height + oldColumn->topdelta + y] = oldColumnPixelData[y];
       }
 
-      oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
+      oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
       numPostsUsedSoFar++;
     }
   }
@@ -450,7 +450,7 @@ static void createTextureCompositePatch(int id) {
       while (oldColumn->topdelta != 0xff) {
         countsInColumn[tx].posts++;
         numPostsTotal++;
-        oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
+        oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
       }
     }
 
@@ -470,7 +470,7 @@ static void createTextureCompositePatch(int id) {
   composite_patch->posts = (rpost_t*)((unsigned char*)composite_patch->columns + columnsDataSize);
 
   // sanity check that we've got all the memory allocated we need
-  assert(((int)composite_patch->posts + (int)(numPostsTotal*sizeof(rpost_t)) - (int)composite_patch->data) == dataSize);
+  assert((((void*)composite_patch->posts + numPostsTotal*sizeof(rpost_t)) - (void*)composite_patch->data) == dataSize);
 
   memset(composite_patch->pixels, 0xff, (composite_patch->width*composite_patch->height));
 
@@ -549,7 +549,7 @@ static void createTextureCompositePatch(int id) {
           composite_patch->pixels[tx * composite_patch->height + ty] = oldColumnPixelData[y];
         }
 
-        oldColumn = (const column_t *)((byte *)oldColumn + oldColumn->length + 4);
+        oldColumn = (const column_t *)((const byte *)oldColumn + oldColumn->length + 4);
         countsInColumn[tx].posts_used++;
         assert(countsInColumn[tx].posts_used <= countsInColumn[tx].posts);
       }
