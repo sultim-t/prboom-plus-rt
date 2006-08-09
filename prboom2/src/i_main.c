@@ -251,10 +251,10 @@ static void I_EndDoom(void)
       {
         if (!(i % 80))
         {
-          /* reset everything when we start a new line */
+          /* reset color but not bold when we start a new line */
           oldbg = -1;
           oldcolor = -1;
-          printf("\e[0m\n");
+          printf("\e[39m\e[49m\n");
         }
         /* foreground color */
         bold = 0;
