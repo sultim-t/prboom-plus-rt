@@ -77,6 +77,7 @@ int movement_altmousesupport;
 int movement_mouselook;
 int movement_mouseinvert;
 int render_fov;
+static int render_canusedetail;
 int render_usedetail;
 int render_detailedwalls;
 int render_detailedflats;
@@ -434,7 +435,7 @@ void M_ChangeFOV(void)
 void M_ChangeUseDetail(void)
 {
 #ifdef GL_DOOM
-  render_usedetail = render_detailedflats || render_detailedwalls;
+  render_usedetail = (render_canusedetail) && (render_detailedflats || render_detailedwalls);
 #endif
 }
 
@@ -995,48 +996,51 @@ void e6y_InitExtensions(void)
   }
   //gl_arb_multitexture = false;
 
+  render_canusedetail = false;
   //if (gl_arb_multitexture)
   {
     int gldetail_lumpnum = (W_CheckNumForName)("GLDETAIL", ns_prboom);
-    const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
-    SDL_PixelFormat fmt;
-    SDL_Surface *surf = NULL;
-
-    surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
-    W_UnlockLumpName("PLAYPAL");
-
-    fmt = *surf->format;
-    fmt.BitsPerPixel = 24;
-    fmt.BytesPerPixel = 3;
-    surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
-    if (surf)
+    if (gldetail_lumpnum != -1)
     {
-      if (gl_arb_multitexture)
-        glActiveTextureARB(GL_TEXTURE1_ARB);
-      glGenTextures(1, &idDetail);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glBindTexture(GL_TEXTURE_2D, idDetail);
+      const unsigned char *memDetail=W_CacheLumpNum(gldetail_lumpnum);
+      SDL_PixelFormat fmt;
+      SDL_Surface *surf = NULL;
       
-      gluBuild2DMipmaps(GL_TEXTURE_2D, 
-        surf->format->BytesPerPixel, 
-        surf->w, surf->h, 
-        imageformats[surf->format->BytesPerPixel], 
-        GL_UNSIGNED_BYTE, surf->pixels);
+      surf = SDL_LoadBMP_RW(SDL_RWFromMem((unsigned char *)memDetail, W_LumpLength(gldetail_lumpnum)), 1);
+      W_UnlockLumpName("PLAYPAL");
       
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      if (gl_texture_filter_anisotropic)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
-
-      if (gl_arb_multitexture)
-        glActiveTextureARB(GL_TEXTURE0_ARB);
-      
-      SDL_FreeSurface(surf);
+      fmt = *surf->format;
+      fmt.BitsPerPixel = 24;
+      fmt.BytesPerPixel = 3;
+      surf = SDL_ConvertSurface(surf, &fmt, surf->flags);
+      if (surf)
+      {
+        if (gl_arb_multitexture)
+          glActiveTextureARB(GL_TEXTURE1_ARB);
+        glGenTextures(1, &idDetail);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glBindTexture(GL_TEXTURE_2D, idDetail);
+        
+        gluBuild2DMipmaps(GL_TEXTURE_2D, 
+          surf->format->BytesPerPixel, 
+          surf->w, surf->h, 
+          imageformats[surf->format->BytesPerPixel], 
+          GL_UNSIGNED_BYTE, surf->pixels);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        if (gl_texture_filter_anisotropic)
+          glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0);
+        
+        if (gl_arb_multitexture)
+          glActiveTextureARB(GL_TEXTURE0_ARB);
+        
+        SDL_FreeSurface(surf);
+        render_canusedetail = true;
+      }
     }
-    else
-      render_usedetail = false;
   }
   M_ChangeUseDetail();
   if (gl_arb_multitexture)
