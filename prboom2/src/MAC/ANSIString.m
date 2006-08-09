@@ -62,22 +62,32 @@ static NSColor *ansiColor(int c, int bold)
 	return [[color retain] autorelease];
 }
 
-static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int fg)
+static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int fg, int isReset)
 {
 	// TODO: implement blinking?
 
 	int bgColor = bg;
 	int fgColor = fg;
+	int bgBold = false;
 	if(reverse)
 	{
 		bgColor = fg;
 		fgColor = bg;
 	}
+	// Special case hackery
+	// Make the reset case be black on white
+	if(isReset)
+	{
+		printf("Reset hack!\n");
+		fgColor = 0;
+		bgColor = 7;
+		bgBold = true;
+	}
 
 	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
 	     defaultFont(), NSFontAttributeName,
-	     ansiColor(fg, bold), NSForegroundColorAttributeName,
-	     ansiColor(bg, false), NSBackgroundColorAttributeName, nil];
+	     ansiColor(fgColor, bold), NSForegroundColorAttributeName,
+	     ansiColor(bgColor, bgBold), NSBackgroundColorAttributeName, nil];
 	return [[attributes retain] autorelease];
 }
 
@@ -94,6 +104,7 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 	bool bold = false;
 	bool blink = false;
 	bool reverse = false;
+	bool isReset = true;
 	int bgColor = DefaultBGColor;
 	int fgColor = DefaultFGColor;
 
@@ -102,7 +113,7 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 		int updateLength = current - last + 1;
 		NSAttributedString *update = [[[NSAttributedString alloc]
 		  initWithString:[ansiString substringWithRange:NSMakeRange(last, updateLength)]
-		  attributes:attributes(bold, blink, reverse, bgColor, fgColor)]
+		  attributes:attributes(bold, blink, reverse, bgColor, fgColor, isReset)]
 		  autorelease];
 		[retval appendAttributedString:update];
 		last = current;
@@ -151,17 +162,21 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 						bold = false;
 						blink = false;
 						reverse = false;
+						isReset = true;
 						bgColor = DefaultBGColor;
 						fgColor = DefaultFGColor;
 						break;
 					case 1:
 						bold = true;
+						isReset = false;
 						break;
 					case 5:
 						blink = true;
+						isReset = false;
 						break;
 					case 7:
 						reverse = true;
+						isReset = false;
 						break;
 					case 30:
 					case 31:
@@ -172,6 +187,7 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 					case 36:
 					case 37:
 						fgColor = c - 30;
+						isReset = false;
 						break;
 					case 40:
 					case 41:
@@ -182,6 +198,7 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 					case 46:
 					case 47:
 						bgColor = c - 40;
+						isReset = false;
 						break;
 					}
 				}
@@ -196,7 +213,7 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 	{
 		NSAttributedString *rest = [[[NSAttributedString alloc]
 		      initWithString:[ansiString substringFromIndex:last]
-		      attributes:attributes(bold, blink, reverse, bgColor, fgColor)]
+		      attributes:attributes(bold, blink, reverse, bgColor, fgColor, isReset)]
 		      autorelease];
 		[retval appendAttributedString:rest];
 	}
