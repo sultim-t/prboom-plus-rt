@@ -9,16 +9,15 @@ require 'mac/macsupport'
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @deutex = 'deutex'
 @systemFrameworks += %w(Cocoa Carbon QuickTime OpenGL)
-@frameworks += %w(SDL SDL_net AGRegex)
+@frameworks += %w(SDL SDL_net)
 @includes += ' -I. -IMAC'
-@defines += ' -DHAVE_CONFIG_H -DGL_DOOM'
-@commonflags += ' -Wno-pointer-sign -Wno-packed'
+@defines += ' -DHAVE_CONFIG_H'
 @objcflags += ' -fobjc-exceptions'
 
 if ENV['DEBUG']
 	@commonflags += ' -g -DDEBUG -Wmissing-noreturn -Wredundant-decls -Wnested-externs -Wold-style-definition -Wshadow'
 else
-	@commonflags += ' -Os'
+	@commonflags += ' -Os -Wno-pointer-sign -Wno-packed'
 end
 
 ####################
@@ -116,11 +115,14 @@ z_zone.c
 )
 
 launcherSources = %w(
+MAC/ANSIString.m
+MAC/ConsoleController.m
+MAC/DrawerButton.m
 MAC/LauncherApp.m
 MAC/LauncherMain.m
-MAC/RMUDAnsiTextView.m
 MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
+MAC/WadViewController.m
 )
 
 serverSources = %w(

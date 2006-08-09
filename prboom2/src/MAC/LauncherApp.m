@@ -1,15 +1,13 @@
 // This file is hereby placed in the Public Domain -- Neil Stevens
 
+#import "ConsoleController.h"
 #import "LauncherApp.h"
-
-#import <Foundation/NSArray.h>
-#import <Foundation/NSBundle.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSFileManager.h>
-#import "RMUDAnsiTextView.h"
 #import "UKKQueue.h"
+#import "WadViewController.h"
 
 #include <fcntl.h>
+
+static LauncherApp *LApp;
 
 @implementation LauncherApp
 
@@ -20,18 +18,14 @@
 
 - (void)awakeFromNib
 {
+	LApp = self;
+
 	[[NSFileManager defaultManager] createDirectoryAtPath:[self wadPath]
 	                                attributes:nil];
 	[[UKKQueue sharedQueue] setDelegate:self];
 	[[UKKQueue sharedQueue] addPath:[self wadPath]];
 
-	wads = [[NSMutableArray arrayWithCapacity:3] retain];
 	[self loadDefaults];
-
-	// Check if the task printed any output
-	// And also check its status
-	[NSTimer scheduledTimerWithTimeInterval:0.1 target:self
-	         selector:@selector(taskReadTimer:) userInfo:nil repeats:true];
 
 	// Save Prefs on exit
 	[[NSNotificationCenter defaultCenter] addObserver:self
@@ -51,10 +45,20 @@
 
 - (void)loadDefaults
 {
-	[window setFrameUsingName:@"Launcher"];
-	[consoleWindow setFrameUsingName:@"Console"];
-
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+	if([defaults boolForKey:@"Saved 2.4.5"])
+	{
+		[window setFrameUsingName:@"Launcher"];
+		if([[defaults objectForKey:@"Wad Drawer State"] boolValue])
+			[wadDrawer open];
+		if([[defaults objectForKey:@"Debug Drawer State"] boolValue])
+			[debugDrawer open];
+		if([[defaults objectForKey:@"Demo Drawer State"] boolValue])
+			[demoDrawer open];
+	}
+
+	[[consoleController window] setFrameUsingName:@"Console"];
 
 	if([defaults boolForKey:@"Saved"] == true)
 	{
@@ -69,7 +73,7 @@
 		[disableMusicButton setObjectValue:[defaults objectForKey:@"Disable Music"]];
 		[disableSoundButton setObjectValue:[defaults objectForKey:@"Disable Sound"]];
 		[disableSoundEffectsButton setObjectValue:[defaults objectForKey:@"Disable Sound Effects"]];
-		[wads setArray:[defaults stringArrayForKey:@"Wads"]];
+		[wadViewController setWads:[defaults stringArrayForKey:@"Wads"]];
 
 		// Store the compat level in terms of the Prboom values, rather than
 		// our internal indices.  That means we have to add one when we read
@@ -86,18 +90,22 @@
 
 	[self disableSoundClicked:disableSoundButton];
 	[self demoButtonClicked:demoMatrix];
-	[self tableViewSelectionDidChange:nil];
 	[self updateGameWad];
 }
 
 - (void)saveDefaults
 {
-	[window saveFrameUsingName:@"Launcher"];
-	[consoleWindow saveFrameUsingName:@"Console"];
-
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
 	[defaults setBool:true forKey:@"Saved"];
+	[defaults setBool:true forKey:@"Saved 2.4.5"];
+
+	[window saveFrameUsingName:@"Launcher"];
+	[[consoleController window] saveFrameUsingName:@"Console"];
+
+	[defaults setObject:[NSNumber numberWithBool:[wadDrawer state]] forKey:@"Wad Drawer State"];
+	[defaults setObject:[NSNumber numberWithBool:[debugDrawer state]] forKey:@"Debug Drawer State"];
+	[defaults setObject:[NSNumber numberWithBool:[demoDrawer state]] forKey:@"Demo Drawer State"];
 
 	[defaults setObject:[gameButton objectValue] forKey:@"Game"];
 	[defaults setObject:[respawnMonstersButton objectValue] forKey:@"Respawn Monsters"];
@@ -110,7 +118,7 @@
 	[defaults setObject:[disableMusicButton objectValue] forKey:@"Disable Music"];
 	[defaults setObject:[disableSoundButton objectValue] forKey:@"Disable Sound"];
 	[defaults setObject:[disableSoundEffectsButton objectValue] forKey:@"Disable Sound Effects"];
-	[defaults setObject:wads forKey:@"Wads"];
+	[defaults setObject:[wadViewController wads] forKey:@"Wads"];
 
 	// Store the compat level in terms of the Prboom values, rather than
 	// our internal indices.  That means we have to add one when we read
@@ -162,6 +170,12 @@
         forPath:(NSString *)path
 {
 	[self updateGameWad];
+}
+
+- (void)tryToLaunch
+{
+	if([launchButton isEnabled])
+		[self startClicked:self];
 }
 
 - (IBAction)startClicked:(id)sender
@@ -222,8 +236,22 @@
 	// Extra wads
 	[args insertObject:@"-file" atIndex:[args count]];
 	int i;
+	NSArray *wads = [wadViewController wads];
 	for(i = 0; i < [wads count]; ++i)
-		[args insertObject:[wads objectAtIndex:i] atIndex:[args count]];
+	{
+		NSString *path = [wads objectAtIndex:i];
+		if([[path pathExtension] caseInsensitiveCompare:@"wad"] == NSOrderedSame)
+			[args insertObject:[wads objectAtIndex:i] atIndex:[args count]];
+	}
+
+	// Dehacked
+	[args insertObject:@"-deh" atIndex:[args count]];
+	for(i = 0; i < [wads count]; ++i)
+	{
+		NSString *path = [wads objectAtIndex:i];
+		if([[path pathExtension] caseInsensitiveCompare:@"deh"] == NSOrderedSame)
+			[args insertObject:[wads objectAtIndex:i] atIndex:[args count]];
+	}
 
 	// Demo
 	if([demoMatrix selectedCell] != noDemoButton)
@@ -244,74 +272,13 @@
 		}
 	}
 
-	// Execute
-	standardOutput = [[NSPipe alloc] init];
-	standardError = [[NSPipe alloc] init];
-	[standardOutput retain];
-	[standardError retain];
-	[consoleTextView clear];
-
-	doomTask = [[NSTask alloc] init];
-	[doomTask retain];
-	[doomTask setLaunchPath:path];
-	[doomTask setArguments:args];
-	[doomTask setStandardOutput:standardOutput];
-	[doomTask setStandardError:standardError];
-
 	[launchButton setEnabled:false];
-	[doomTask launch];
+	[consoleController launch:path args:args delegate:self];
 }
 
-static void *buffer = 0;
-static NSString *readPipe(NSPipe *pipe)
+- (void)taskEnded:(id)sender
 {
-	// NSFileHandle doesn't do nonblocking IO, so we'll do it ourselves
-	int fd = [[pipe fileHandleForReading] fileDescriptor];
-	int flags = fcntl(fd, F_GETFL, 0);
-	flags |= O_NONBLOCK;
-	fcntl(fd, F_SETFL, flags);
-
-	if(!buffer)
-		buffer = malloc(1000000);
-	int size = read(fd, buffer, 1000000);
-
-	if(size > 0)
-	{
-		NSData *data = [NSData dataWithBytesNoCopy:buffer length:size
-		                freeWhenDone:false];
-
-		// Stick the data into the console text view
-		NSString *string = [[NSString alloc] initWithData:data
-		                    encoding:NSUTF8StringEncoding];
-		[string retain];
-		return string;
-	}
-	return @"";
-}
-
-- (void)taskReadTimer:(NSTimer *)timer
-{
-	if(doomTask == nil)
-		return;
-
-	NSString *stdoutString = readPipe(standardOutput);
-	[consoleTextView appendAnsiString:stdoutString];
-	[stdoutString release];
-
-	NSString *stderrString = readPipe(standardError);
-	// Ignore for now
-	[stderrString release];
-
-	if(![doomTask isRunning])
-	{
-		if ([doomTask terminationStatus] != 0)
-			[[consoleWindow windowController] showWindow:nil];
-		[doomTask release];
-		doomTask = nil;
-		[standardError release];
-		[standardOutput release];
-		[launchButton setEnabled:true];
-	}
+	[launchButton setEnabled:true];
 }
 
 - (IBAction)gameButtonClicked:(id)sender
@@ -326,7 +293,7 @@ static NSString *readPipe(NSPipe *pipe)
 
 - (IBAction)showConsoleClicked:(id)sender
 {
-	[[consoleWindow windowController] showWindow:sender];
+	[consoleController showWindow:sender];
 }
 
 - (IBAction)disableSoundClicked:(id)sender
@@ -363,71 +330,13 @@ static NSString *readPipe(NSPipe *pipe)
 	[ffToLevelField setEnabled:enabled];
 }
 
-- (IBAction)addWadClicked:(id)sender
-{
-	NSOpenPanel *panel = [NSOpenPanel openPanel];
-	[panel setAllowsMultipleSelection:true];
-	[panel setCanChooseFiles:true];
-	[panel setCanChooseDirectories:false];
-	NSArray *types = [NSArray arrayWithObjects:@"wad", @"WAD", nil];
-	[panel beginSheetForDirectory:nil file:nil types:types
-	       modalForWindow:window  modalDelegate:self
-	       didEndSelector:@selector(addWadEnded:returnCode:contextInfo:)
-	       contextInfo:nil];
-}
-
-- (void)addWadEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info
-{
-	if(code == NSCancelButton) return;
-
-	int i;
-	for(i = 0; i < [[panel filenames] count]; ++i)
-		[wads insertObject:[[panel filenames] objectAtIndex:i] atIndex:[wads count]];
-
-	[wadView noteNumberOfRowsChanged];
-}
-
-- (IBAction)removeWadClicked:(id)sender
-{
-	[wads removeObjectAtIndex:[wadView selectedRow]];
-	[wadView selectRowIndexes:[NSIndexSet indexSetWithIndex:-1] byExtendingSelection:false];
-	[wadView noteNumberOfRowsChanged];
-}
-
-- (void)tableViewSelectionDidChange:(NSNotification *)notification
-{
-	[removeWadButton setEnabled:([wadView selectedRow] > -1)];
-}
-
-- (int)numberOfRowsInTableView:(NSTableView *)tableView
-{
-	return [wads count];
-}
-
-- (id)tableView:(NSTableView *)tableView
-                objectValueForTableColumn:(NSTableColumn *)column
-                row:(int)row
-{
-	// We only have one column
-	return [wads objectAtIndex:row];
-}
-
-- (void)tableView:(NSTableView *)tableView
-                  setObjectValue:(id)object
-                  forTableColumn:(NSTableColumn *)column
-                  row:(int)row
-{
-	// We only have one column
-	[wads replaceObjectAtIndex:row withObject:object];
-}
-
 @end
 
 @implementation LaunchCommand
 
 - (id)performDefaultImplementation
 {
-	// TODO: Factor out the launch code from startClicked: for use here, too.
+	[LApp tryToLaunch];
 }
 
 @end

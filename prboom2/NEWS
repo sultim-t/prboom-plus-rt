@@ -12,6 +12,9 @@ Changes from v2.4.4 to v2.4.5
 - reduce red palette translation if the menu is up, so the menu can still be read
 - Added experimental -checksum option for demo playback comparison
 - Merged new internal patch (graphics) format from PrBoom 2.3
+- Mac OS X: Launcher now uses drawers instead of tabs
+- Mac OS X: Fix some longstanding Wad chooser issues
+- Mac OS X: Add a console to display text output from PrBoom
 
 Changes from v2.4.3 to v2.4.4
 - Don't fail when a texture name can't be looked up

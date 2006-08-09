@@ -1,15 +1,25 @@
 {
     IBClasses = (
+        {
+            CLASS = ConsoleController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {textView = NSTextView; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            CLASS = DrawerButton; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {drawer = NSDrawer; }; 
+            SUPERCLASS = NSButton; 
+        }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             ACTIONS = {
-                addWadClicked = id; 
                 chooseDemoFileClicked = id; 
                 demoButtonClicked = id; 
                 disableSoundClicked = id; 
                 gameButtonClicked = id; 
                 openWebsite = id; 
-                removeWadClicked = id; 
                 showConsoleClicked = id; 
                 showGameFolderClicked = id; 
                 startClicked = id; 
@@ -19,8 +29,9 @@
             OUTLETS = {
                 chooseDemoFileButton = id; 
                 compatibilityLevelButton = id; 
-                consoleTextView = id; 
-                consoleWindow = id; 
+                consoleController = id; 
+                debugDrawer = id; 
+                demoDrawer = id; 
                 demoFileField = id; 
                 demoMatrix = id; 
                 disableGraphicsButton = id; 
@@ -39,15 +50,22 @@
                 noDemoButton = id; 
                 noMonstersButton = id; 
                 playDemoButton = id; 
-                removeWadButton = id; 
                 respawnMonstersButton = id; 
                 timeDemoButton = id; 
-                wadView = id; 
+                wadDrawer = id; 
+                wadViewController = id; 
                 window = id; 
             }; 
             SUPERCLASS = NSObject; 
         }, 
-        {CLASS = RMUDAnsiTextView; LANGUAGE = ObjC; SUPERCLASS = NSTextView; }
+        {CLASS = RMUDAnsiTextView; LANGUAGE = ObjC; SUPERCLASS = NSTextView; }, 
+        {
+            ACTIONS = {add = id; remove = id; }; 
+            CLASS = WadViewController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {removeButton = id; view = id; }; 
+            SUPERCLASS = NSObject; 
+        }
     ); 
     IBVersion = 1; 
 }
