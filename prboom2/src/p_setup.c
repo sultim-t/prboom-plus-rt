@@ -665,7 +665,7 @@ static void P_LoadLineDefs2(int lump)
         
       }
 
-      ld->frontsector = ld->sidenum[0]!=NO_INDEX ? sides[ld->sidenum[0]].sector : 0;
+      ld->frontsector = sides[ld->sidenum[0]].sector; //e6y: Can't be NO_INDEX here
       ld->backsector  = ld->sidenum[1]!=NO_INDEX ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)
         {                       // killough 4/11/98: handle special types
