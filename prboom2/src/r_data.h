@@ -74,6 +74,9 @@ extern int numtextures;
 extern texture_t **textures;
 
 
+const byte *R_GetTextureColumn(const rpatch_t *texpatch, int col);
+
+
 // I/O, setting up the stuff.
 void R_InitData (void);
 void R_PrecacheLevel (void);
