@@ -992,8 +992,13 @@ boolean LauncherIsNeeded(void)
   int i;
   boolean pwad = false;
   char *iwad = NULL;
-  
-  if (!launcher_enable)
+
+
+//  SHIFT for invert
+//  if (GetAsyncKeyState(VK_SHIFT) ? launcher_enable : !launcher_enable)
+//    return false;
+
+  if (!launcher_enable && !GetAsyncKeyState(VK_SHIFT))
     return false;
 
   i = M_CheckParm("-iwad");
