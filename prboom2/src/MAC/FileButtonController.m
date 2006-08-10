@@ -36,7 +36,7 @@
 	[panel setCanChooseFiles:true];
 	[panel setCanChooseDirectories:false];
 	[panel beginSheetForDirectory:nil file:nil types:types
-	       modalForWindow:[button window]  modalDelegate:self
+	       modalForWindow:[NSApp mainWindow]  modalDelegate:self
 	       didEndSelector:@selector(panelEnded:returnCode:contextInfo:)
 	       contextInfo:nil];
 }
