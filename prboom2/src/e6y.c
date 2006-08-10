@@ -325,6 +325,9 @@ void G_SkipDemoStop(void)
 
 void M_ChangeAltMouseHandling(void)
 {
+#ifndef _WIN32
+  movement_altmousesupport = false;
+#else
   if (movement_altmousesupport)
   {
     SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
@@ -337,6 +340,7 @@ void M_ChangeAltMouseHandling(void)
     SDL_WM_GrabInput(SDL_GRAB_ON);
     UngrabMouse_Win32();
   }
+#endif
 }
 
 void M_ChangeSmooth(void)
