@@ -247,6 +247,8 @@ prboom2/src/MAC/DrawerButton.m -text
 prboom2/src/MAC/English.lproj/MainMenu.nib/classes.nib -text
 prboom2/src/MAC/English.lproj/MainMenu.nib/info.nib -text
 prboom2/src/MAC/English.lproj/MainMenu.nib/keyedobjects.nib -text
+prboom2/src/MAC/FileButtonController.h -text
+prboom2/src/MAC/FileButtonController.m -text
 prboom2/src/MAC/Image-DS_Store -text
 prboom2/src/MAC/Info.plist -text
 prboom2/src/MAC/Launcher.icns -text

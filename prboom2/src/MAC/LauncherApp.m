@@ -1,6 +1,7 @@
 // This file is hereby placed in the Public Domain -- Neil Stevens
 
 #import "ConsoleController.h"
+#import "FileButtonController.h"
 #import "LauncherApp.h"
 #import "UKKQueue.h"
 #import "WadViewController.h"
@@ -24,6 +25,12 @@ static LauncherApp *LApp;
 	                                attributes:nil];
 	[[UKKQueue sharedQueue] setDelegate:self];
 	[[UKKQueue sharedQueue] addPath:[self wadPath]];
+
+	[demoFileButtonController
+	     setTypes:[NSArray arrayWithObjects:@"lmp", @"LMP", nil]];
+
+	[configFileButtonController
+	     setTypes:[NSArray arrayWithObjects:@"cfg", @"CFG", nil]];
 
 	[self loadDefaults];
 
@@ -58,6 +65,8 @@ static LauncherApp *LApp;
 			[demoDrawer open];
 		if([[defaults objectForKey:@"Console State"] boolValue])
 			[consoleController showWindow:self];
+
+		[[configFileButtonController field] setObjectValue:[defaults objectForKey:@"Config File"]];
 	}
 
 	[[consoleController window] setFrameUsingName:@"Console"];
@@ -110,6 +119,8 @@ static LauncherApp *LApp;
 	[defaults setObject:[NSNumber numberWithBool:[demoDrawer state]] forKey:@"Demo Drawer State"];
 
 	[defaults setObject:[NSNumber numberWithBool:[[consoleController window] isVisible]] forKey:@"Console State"];
+
+	[defaults setObject:[[configFileButtonController field] objectValue] forKey:@"Config File"];
 
 	[defaults setObject:[gameButton objectValue] forKey:@"Game"];
 	[defaults setObject:[respawnMonstersButton objectValue] forKey:@"Respawn Monsters"];
@@ -236,6 +247,11 @@ static LauncherApp *LApp;
 		if([disableSoundEffectsButton state] == NSOnState)
 			[args insertObject:@"-nosfx" atIndex:[args count]];
 	}
+	if([[[configFileButtonController field] stringValue] length] > 0)
+	{
+		[args insertObject:@"-config" atIndex:[args count]];
+		[args insertObject:[[configFileButtonController field] stringValue] atIndex:[args count]];
+	}
 
 	// Extra wads
 	[args insertObject:@"-file" atIndex:[args count]];
@@ -267,7 +283,7 @@ static LauncherApp *LApp;
 		else if([demoMatrix selectedCell] == fastDemoButton)
 			[args insertObject:@"-fastdemo" atIndex:[args count]];
 
-		[args insertObject:[demoFileField stringValue] atIndex:[args count]];
+		[args insertObject:[[demoFileButtonController field] stringValue] atIndex:[args count]];
 
 		if([[ffToLevelField stringValue] length] > 0)
 		{
@@ -307,30 +323,10 @@ static LauncherApp *LApp;
 	[disableMusicButton setEnabled:state];
 }
 
-- (IBAction)chooseDemoFileClicked:(id)sender
-{
-	NSOpenPanel *panel = [NSOpenPanel openPanel];
-	[panel setAllowsMultipleSelection:false];
-	[panel setCanChooseFiles:true];
-	[panel setCanChooseDirectories:false];
-	NSArray *types = [NSArray arrayWithObjects:@"lmp", @"LMP", nil];
-	[panel beginSheetForDirectory:nil file:nil types:types
-	       modalForWindow:window  modalDelegate:self
-	       didEndSelector:@selector(chooseDemoFileEnded:returnCode:contextInfo:)
-	       contextInfo:nil];
-}
-
-- (void)chooseDemoFileEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info
-{
-	if(code == NSCancelButton) return;
-	[demoFileField setStringValue:[[panel filenames] objectAtIndex:0]];
-}
-
 - (IBAction)demoButtonClicked:(id)sender
 {
 	bool enabled = [demoMatrix selectedCell] != noDemoButton;
-	[chooseDemoFileButton setEnabled:enabled];
-	[demoFileField setEnabled:enabled];
+	[demoFileButtonController setEnabled:enabled];
 	[ffToLevelField setEnabled:enabled];
 }
 

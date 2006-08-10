@@ -118,6 +118,7 @@ launcherSources = %w(
 MAC/ANSIString.m
 MAC/ConsoleController.m
 MAC/DrawerButton.m
+MAC/FileButtonController.m
 MAC/LauncherApp.m
 MAC/LauncherMain.m
 MAC/UKKQueue.m

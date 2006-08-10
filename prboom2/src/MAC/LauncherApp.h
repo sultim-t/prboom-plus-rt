@@ -26,6 +26,7 @@
 	IBOutlet id disableMusicButton;
 	IBOutlet id disableSoundButton;
 	IBOutlet id disableSoundEffectsButton;
+	IBOutlet id configFileButtonController;
 
 	// Demo options
 	IBOutlet id noDemoButton;
@@ -35,8 +36,7 @@
 	IBOutlet id demoMatrix;
 
 	IBOutlet id ffToLevelField;
-	IBOutlet id chooseDemoFileButton;
-	IBOutlet id demoFileField;
+	IBOutlet id demoFileButtonController;
 
 	// Wad options
 	IBOutlet id wadViewController;
@@ -79,8 +79,6 @@
 - (IBAction)disableSoundClicked:(id)sender;
 
 // Demo options
-- (IBAction)chooseDemoFileClicked:(id)sender;
-- (void)chooseDemoFileEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
 - (IBAction)demoButtonClicked:(id)sender;
 
 @end

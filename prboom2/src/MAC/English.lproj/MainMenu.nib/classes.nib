@@ -12,10 +12,16 @@
             OUTLETS = {drawer = NSDrawer; }; 
             SUPERCLASS = NSButton; 
         }, 
+        {
+            ACTIONS = {buttonClicked = id; }; 
+            CLASS = FileButtonController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {button = NSButton; field = id; }; 
+            SUPERCLASS = NSObject; 
+        }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             ACTIONS = {
-                chooseDemoFileClicked = id; 
                 demoButtonClicked = id; 
                 disableSoundClicked = id; 
                 gameButtonClicked = id; 
@@ -27,12 +33,12 @@
             CLASS = LauncherApp; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                chooseDemoFileButton = id; 
                 compatibilityLevelButton = id; 
+                configFileButtonController = id; 
                 consoleController = id; 
                 debugDrawer = id; 
                 demoDrawer = id; 
-                demoFileField = id; 
+                demoFileButtonController = id; 
                 demoMatrix = id; 
                 disableGraphicsButton = id; 
                 disableJoystickButton = id; 
