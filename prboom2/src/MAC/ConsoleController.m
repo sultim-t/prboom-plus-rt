@@ -8,7 +8,7 @@
 
 - (id)initWithWindow:(id)window
 {
-	[super initWithWindow:window];
+	return [super initWithWindow:window];
 }
 
 - (void)awakeFromNib
