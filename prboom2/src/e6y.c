@@ -417,10 +417,12 @@ boolean GetMouseLook(void)
 
 void CheckPitch(signed int *pitch)
 {
+#ifdef GL_DOOM
   if(*pitch > maxViewPitch)
     *pitch = maxViewPitch;
   if(*pitch < minViewPitch)
     *pitch = minViewPitch;
+#endif
 }
 
 void M_ChangeMouseInvert(void)
