@@ -26,45 +26,32 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  *  02111-1307, USA.
  *
- * DESCRIPTION:
- *      Rendering of moving objects, sprites.
- *
  *-----------------------------------------------------------------------------*/
 
-#ifndef __R_THINGS__
-#define __R_THINGS__
+//
+// R_DrawSpan
+//
 
-#ifdef __GNUG__
-#pragma interface
-#endif
+static void R_DRAWSPAN_FUNCNAME(draw_span_vars_t *dsvars)
+{
+  unsigned count = dsvars->x2 - dsvars->x1 + 1;
+  fixed_t xfrac = dsvars->xfrac;
+  fixed_t yfrac = dsvars->yfrac;
+  fixed_t xstep = dsvars->xstep;
+  fixed_t ystep = dsvars->ystep;
+  const byte *source = dsvars->source;
+  const byte *colormap = dsvars->colormap;
+  byte *dest = topleft + dsvars->y*screens[0].pitch + dsvars->x1;
 
-#include "r_draw.h"
+  while (count) {
+    fixed_t xtemp = (xfrac >> 16) & 63;
+    fixed_t ytemp = (yfrac >> 10) & 4032;
+    fixed_t spot = xtemp | ytemp;
+    xfrac += xstep;
+    yfrac += ystep;
+    *dest++ = colormap[source[spot]];
+    count--;
+  }
+}
 
-/* Constant arrays used for psprite clipping and initializing clipping. */
-
-extern int negonearray[MAX_SCREENWIDTH];       /* killough 2/8/98: */ // dropoff overflow
-extern int screenheightarray[MAX_SCREENWIDTH]; /* change to MAX_*  */ // dropoff overflow
-
-/* Vars for R_DrawMaskedColumn */
-
-extern int     *mfloorclip;    // dropoff overflow
-extern int     *mceilingclip;  // dropoff overflow
-extern fixed_t spryscale;
-extern fixed_t sprtopscreen;
-extern fixed_t pspritescale;
-extern fixed_t pspriteiscale;
-/* proff 11/06/98: Added for high-res */
-extern fixed_t pspriteyscale;
-
-void R_DrawMaskedColumn(const rpatch_t *patch,
-                        R_DrawColumn_f colfunc,
-                        draw_column_vars_t *dcvars,
-                        const rcolumn_t *column);
-void R_SortVisSprites(void);
-void R_AddSprites(subsector_t* subsec, int lightlevel);
-void R_DrawPlayerSprites(void);
-void R_InitSprites(const char * const * namelist);
-void R_ClearSprites(void);
-void R_DrawMasked(void);
-
-#endif
+#undef R_DRAWSPAN_FUNCNAME

@@ -128,7 +128,7 @@ void R_InitPlanes (void)
 // BASIC PRIMITIVE
 //
 
-static void R_MapPlane(int y, int x1, int x2)
+static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
 {
   angle_t angle;
   fixed_t distance, length;
@@ -143,37 +143,37 @@ static void R_MapPlane(int y, int x1, int x2)
     {
       cachedheight[y] = planeheight;
       distance = cacheddistance[y] = FixedMul (planeheight, yslope[y]);
-      dsvars.xstep = cachedxstep[y] = FixedMul (distance,basexscale);
-      dsvars.ystep = cachedystep[y] = FixedMul (distance,baseyscale);
+      dsvars->xstep = cachedxstep[y] = FixedMul (distance,basexscale);
+      dsvars->ystep = cachedystep[y] = FixedMul (distance,baseyscale);
     }
   else
     {
       distance = cacheddistance[y];
-      dsvars.xstep = cachedxstep[y];
-      dsvars.ystep = cachedystep[y];
+      dsvars->xstep = cachedxstep[y];
+      dsvars->ystep = cachedystep[y];
     }
 
   length = FixedMul (distance,distscale[x1]);
   angle = (viewangle + xtoviewangle[x1])>>ANGLETOFINESHIFT;
 
   // killough 2/28/98: Add offsets
-  dsvars.xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
-  dsvars.yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
+  dsvars->xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
+  dsvars->yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
 
-  if (!(dsvars.colormap = fixedcolormap))
+  if (!(dsvars->colormap = fixedcolormap))
     {
       index = distance >> LIGHTZSHIFT;
       if (index >= MAXLIGHTZ )
         index = MAXLIGHTZ-1;
-      dsvars.colormap = planezlight[index];
+      dsvars->colormap = planezlight[index];
     }
 
-  dsvars.y = y;
-  dsvars.x1 = x1;
-  dsvars.x2 = x2;
+  dsvars->y = y;
+  dsvars->x1 = x1;
+  dsvars->x2 = x2;
 
   if (V_GetMode() != VID_MODEGL)
-    R_DrawSpan();
+    R_DrawSpan(dsvars);
 }
 
 //
@@ -309,12 +309,14 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
 // R_MakeSpans
 //
 
-static void R_MakeSpans(int x, unsigned int t1, unsigned int b1, unsigned int t2, unsigned int b2) // dropoff overflow
+static void R_MakeSpans(int x, unsigned int t1, unsigned int b1,
+                        unsigned int t2, unsigned int b2,
+                        draw_span_vars_t *dsvars)
 {
   for (; t1 < t2 && t1 <= b1; t1++)
-    R_MapPlane(t1, spanstart[t1], x-1);
+    R_MapPlane(t1, spanstart[t1], x-1, dsvars);
   for (; b1 > b2 && b1 >= t1; b1--)
-    R_MapPlane(b1, spanstart[b1] ,x-1);
+    R_MapPlane(b1, spanstart[b1] ,x-1, dsvars);
   while (t2 < t1 && t2 <= b2)
     spanstart[t2++] = x;
   while (b2 > b1 && b2 >= t2)
@@ -326,6 +328,9 @@ static void R_MakeSpans(int x, unsigned int t1, unsigned int b1, unsigned int t2
 static void R_DoDrawPlane(visplane_t *pl)
 {
   register int x;
+  draw_column_vars_t dcvars;
+  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD);
+
   if (pl->minx <= pl->maxx) {
     if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT) { // sky flat
       int texture;
@@ -394,7 +399,7 @@ static void R_DoDrawPlane(visplane_t *pl)
           if ((dcvars.yl = pl->top[x]) != -1 && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
             {
               dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
-              colfunc();
+              colfunc(&dcvars);
             }
 
       R_UnlockTextureCompositePatchNum(texture);
@@ -402,6 +407,7 @@ static void R_DoDrawPlane(visplane_t *pl)
     } else {     // regular flat
 
       int stop, light;
+      draw_span_vars_t dsvars;
 
       dsvars.source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
 
@@ -421,7 +427,8 @@ static void R_DoDrawPlane(visplane_t *pl)
       pl->top[pl->minx-1] = pl->top[stop] = 0xffffffffu; // dropoff overflow
 
       for (x = pl->minx ; x <= stop ; x++)
-  R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],pl->top[x],pl->bottom[x]);
+         R_MakeSpans(x,pl->top[x-1],pl->bottom[x-1],
+                     pl->top[x],pl->bottom[x], &dsvars);
 
       W_UnlockLumpNum(firstflat + flattranslation[pl->picnum]);
     }

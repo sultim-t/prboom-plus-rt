@@ -75,8 +75,6 @@ const byte *main_tranmap;     // killough 4/11/98
 // Source is the top of the column to scale.
 //
 
-draw_column_vars_t dcvars;
-
 // SoM: OPTIMIZE for ANYRES
 typedef enum
 {
@@ -141,315 +139,8 @@ static void R_QuadFlushError(void)
    I_Error("R_FlushQuadColumn called without being initialized.\n");
 }
 
-//
-// R_FlushWholeOpaque
-//
-// Flushes the entire columns in the buffer, one at a time.
-// This is used when a quad flush isn't possible.
-// Opaque version -- no remapping whatsoever.
-//
-static void R_FlushWholeOpaque(void)
-{
-   register byte *source;
-   register byte *dest;
-   register int  count, yl;
-
-   while(--temp_x >= 0)
-   {
-      yl     = tempyl[temp_x];
-      source = &tempbuf[temp_x + (yl << 2)];
-      dest   = topleft + yl*screens[0].pitch + startx + temp_x;
-      count  = tempyh[temp_x] - yl + 1;
-      
-      while(--count >= 0)
-      {
-         *dest = *source;
-         source += 4;
-         dest += screens[0].pitch;
-      }
-   }
-}
-
-//
-// R_FlushHTOpaque
-//
-// Flushes the head and tail of columns in the buffer in
-// preparation for a quad flush.
-// Opaque version -- no remapping whatsoever.
-//
-static void R_FlushHTOpaque(void)
-{
-   register byte *source;
-   register byte *dest;
-   register int count, colnum = 0;
-   int yl, yh;
-
-   while(colnum < 4)
-   {
-      yl = tempyl[colnum];
-      yh = tempyh[colnum];
-      
-      // flush column head
-      if(yl < commontop)
-      {
-         source = &tempbuf[colnum + (yl << 2)];
-         dest   = topleft + yl*screens[0].pitch + startx + colnum;
-         count  = commontop - yl;
-         
-         while(--count >= 0)
-         {
-            *dest = *source;
-            source += 4;
-            dest += screens[0].pitch;
-         }
-      }
-      
-      // flush column tail
-      if(yh > commonbot)
-      {
-         source = &tempbuf[colnum + ((commonbot + 1) << 2)];
-         dest   = topleft + (commonbot + 1)*screens[0].pitch + startx + colnum;
-         count  = yh - commonbot;
-         
-         while(--count >= 0)
-         {
-            *dest = *source;
-            source += 4;
-            dest += screens[0].pitch;
-         }
-      }         
-      ++colnum;
-   }
-}
-
-static void R_FlushWholeTL(void)
-{
-   register byte *source;
-   register byte *dest;
-   register int  count, yl;
-
-   while(--temp_x >= 0)
-   {
-      yl     = tempyl[temp_x];
-      source = &tempbuf[temp_x + (yl << 2)];
-      dest   = topleft + yl*screens[0].pitch + startx + temp_x;
-      count  = tempyh[temp_x] - yl + 1;
-
-      while(--count >= 0)
-      {
-         // haleyjd 09/11/04: use temptranmap here
-         *dest = temptranmap[(*dest<<8) + *source];
-         source += 4;
-         dest += screens[0].pitch;
-      }
-   }
-}
-
-static void R_FlushHTTL(void)
-{
-   register byte *source;
-   register byte *dest;
-   register int count;
-   int colnum = 0, yl, yh;
-
-   while(colnum < 4)
-   {
-      yl = tempyl[colnum];
-      yh = tempyh[colnum];
-
-      // flush column head
-      if(yl < commontop)
-      {
-         source = &tempbuf[colnum + (yl << 2)];
-         dest   = topleft + yl*screens[0].pitch + startx + colnum;
-         count  = commontop - yl;
-
-         while(--count >= 0)
-         {
-            // haleyjd 09/11/04: use temptranmap here
-            *dest = temptranmap[(*dest<<8) + *source];
-            source += 4;
-            dest += screens[0].pitch;
-         }
-      }
-
-      // flush column tail
-      if(yh > commonbot)
-      {
-         source = &tempbuf[colnum + ((commonbot + 1) << 2)];
-         dest   = topleft + (commonbot + 1)*screens[0].pitch + startx + colnum;
-         count  = yh - commonbot;
-
-         while(--count >= 0)
-         {
-            // haleyjd 09/11/04: use temptranmap here
-            *dest = temptranmap[(*dest<<8) + *source];
-            source += 4;
-            dest += screens[0].pitch;
-         }
-      }
-      
-      ++colnum;
-   }
-}
-
-static void R_FlushWholeFuzz(void)
-{
-   register byte *source;
-   register byte *dest;
-   register int  count, yl;
-
-   while(--temp_x >= 0)
-   {
-      yl     = tempyl[temp_x];
-      source = &tempbuf[temp_x + (yl << 2)];
-      dest   = topleft + yl*screens[0].pitch + startx + temp_x;
-      count  = tempyh[temp_x] - yl + 1;
-
-      while(--count >= 0)
-      {
-         // SoM 7-28-04: Fix the fuzz problem.
-         *dest = tempfuzzmap[6*256+dest[fuzzoffset[fuzzpos]]];
-         
-         // Clamp table lookup index.
-         if(++fuzzpos == FUZZTABLE) 
-            fuzzpos = 0;
-         
-         source += 4;
-         dest += screens[0].pitch;
-      }
-   }
-}
-
-static void R_FlushHTFuzz(void)
-{
-   register byte *source;
-   register byte *dest;
-   register int count;
-   int colnum = 0, yl, yh;
-
-   while(colnum < 4)
-   {
-      yl = tempyl[colnum];
-      yh = tempyh[colnum];
-
-      // flush column head
-      if(yl < commontop)
-      {
-         source = &tempbuf[colnum + (yl << 2)];
-         dest   = topleft + yl*screens[0].pitch + startx + colnum;
-         count  = commontop - yl;
-
-         while(--count >= 0)
-         {
-            // SoM 7-28-04: Fix the fuzz problem.
-            *dest = tempfuzzmap[6*256+dest[fuzzoffset[fuzzpos]]];
-            
-            // Clamp table lookup index.
-            if(++fuzzpos == FUZZTABLE) 
-               fuzzpos = 0;
-            
-            source += 4;
-            dest += screens[0].pitch;
-         }
-      }
-
-      // flush column tail
-      if(yh > commonbot)
-      {
-         source = &tempbuf[colnum + ((commonbot + 1) << 2)];
-         dest   = topleft + (commonbot + 1)*screens[0].pitch + startx + colnum;
-         count  = yh - commonbot;
-
-         while(--count >= 0)
-         {
-            // SoM 7-28-04: Fix the fuzz problem.
-            *dest = tempfuzzmap[6*256+dest[fuzzoffset[fuzzpos]]];
-            
-            // Clamp table lookup index.
-            if(++fuzzpos == FUZZTABLE) 
-               fuzzpos = 0;
-            
-            source += 4;
-            dest += screens[0].pitch;
-         }
-      }
-      
-      ++colnum;
-   }
-}
-
 static void (*R_FlushWholeColumns)(void) = R_FlushWholeError;
 static void (*R_FlushHTColumns)(void)    = R_FlushHTError;
-
-// Begin: Quad column flushing functions.
-static void R_FlushQuadOpaque(void)
-{
-   register int *source = (int *)(&tempbuf[commontop << 2]);
-   register int *dest = (int *)(topleft + commontop*screens[0].pitch + startx);
-   register int count;
-   register int deststep = screens[0].pitch / 4;
-
-   count = commonbot - commontop + 1;
-
-   while(--count >= 0)
-   {
-      *dest = *source++;
-      dest += deststep;
-   }
-}
-
-static void R_FlushQuadTL(void)
-{
-   register byte *source = &tempbuf[commontop << 2];
-   register byte *dest = topleft + commontop*screens[0].pitch + startx;
-   register int count;
-
-   count = commonbot - commontop + 1;
-
-   while(--count >= 0)
-   {
-      *dest   = temptranmap[(*dest<<8) + *source];
-      dest[1] = temptranmap[(dest[1]<<8) + source[1]];
-      dest[2] = temptranmap[(dest[2]<<8) + source[2]];
-      dest[3] = temptranmap[(dest[3]<<8) + source[3]];
-      source += 4;
-      dest += screens[0].pitch;
-   }
-}
-
-static void R_FlushQuadFuzz(void)
-{
-   register byte *source = &tempbuf[commontop << 2];
-   register byte *dest = topleft + commontop*screens[0].pitch + startx;
-   register int count;
-   int fuzz1, fuzz2, fuzz3, fuzz4;
-   fuzz1 = fuzzpos;
-   fuzz2 = (fuzz1 + tempyl[1]) % FUZZTABLE;
-   fuzz3 = (fuzz2 + tempyl[2]) % FUZZTABLE;
-   fuzz4 = (fuzz3 + tempyl[3]) % FUZZTABLE;
-
-   count = commonbot - commontop + 1;
-
-   while(--count >= 0)
-   {
-      // SoM 7-28-04: Fix the fuzz problem.
-      dest[0] = tempfuzzmap[6*256+dest[0 + fuzzoffset[fuzz1]]];
-      if(++fuzz1 == FUZZTABLE) fuzz1 = 0;
-      dest[1] = tempfuzzmap[6*256+dest[1 + fuzzoffset[fuzz2]]];
-      if(++fuzz2 == FUZZTABLE) fuzz2 = 0;
-      dest[2] = tempfuzzmap[6*256+dest[2 + fuzzoffset[fuzz3]]];
-      if(++fuzz3 == FUZZTABLE) fuzz3 = 0;
-      dest[3] = tempfuzzmap[6*256+dest[3 + fuzzoffset[fuzz4]]];
-      if(++fuzz4 == FUZZTABLE) fuzz4 = 0;
-
-      source += 4;
-      dest += screens[0].pitch;
-   }
-
-   fuzzpos = fuzz4;
-}
-
 static void (*R_FlushQuadColumn)(void) = R_QuadFlushError;
 
 static void R_FlushColumns(void)
@@ -482,104 +173,10 @@ void R_ResetColumnBuffer(void)
    R_FlushQuadColumn   = R_QuadFlushError;
 }
 
-// haleyjd 09/12/04: split up R_GetBuffer into various different
-// functions to minimize the number of branches and take advantage
-// of as much precalculated information as possible.
 
-static byte *R_GetBufferOpaque(void)
-{
-   // haleyjd: reordered predicates
-   if(temp_x == 4 ||
-      (temp_x && (temptype != COL_OPAQUE || temp_x + startx != dcvars.x)))
-      R_FlushColumns();
-
-   if(!temp_x)
-   {
-      ++temp_x;
-      startx = dcvars.x;
-      *tempyl = commontop = dcvars.yl;
-      *tempyh = commonbot = dcvars.yh;
-      temptype = COL_OPAQUE;
-      R_FlushWholeColumns = R_FlushWholeOpaque;
-      R_FlushHTColumns    = R_FlushHTOpaque;
-      R_FlushQuadColumn   = R_FlushQuadOpaque;
-      return &tempbuf[dcvars.yl << 2];
-   }
-
-   tempyl[temp_x] = dcvars.yl;
-   tempyh[temp_x] = dcvars.yh;
-   
-   if(dcvars.yl > commontop)
-      commontop = dcvars.yl;
-   if(dcvars.yh < commonbot)
-      commonbot = dcvars.yh;
-      
-   return &tempbuf[(dcvars.yl << 2) + temp_x++];
-}
-
-static byte *R_GetBufferTrans(void)
-{
-   // haleyjd: reordered predicates
-   if(temp_x == 4 || tranmap != temptranmap ||
-      (temp_x && (temptype != COL_TRANS || temp_x + startx != dcvars.x)))
-      R_FlushColumns();
-
-   if(!temp_x)
-   {
-      ++temp_x;
-      startx = dcvars.x;
-      *tempyl = commontop = dcvars.yl;
-      *tempyh = commonbot = dcvars.yh;
-      temptype = COL_TRANS;
-      temptranmap = tranmap;
-      R_FlushWholeColumns = R_FlushWholeTL;
-      R_FlushHTColumns    = R_FlushHTTL;
-      R_FlushQuadColumn   = R_FlushQuadTL;
-      return &tempbuf[dcvars.yl << 2];
-   }
-
-   tempyl[temp_x] = dcvars.yl;
-   tempyh[temp_x] = dcvars.yh;
-   
-   if(dcvars.yl > commontop)
-      commontop = dcvars.yl;
-   if(dcvars.yh < commonbot)
-      commonbot = dcvars.yh;
-      
-   return &tempbuf[(dcvars.yl << 2) + temp_x++];
-}
-
-static byte *R_GetBufferFuzz(void)
-{
-   // haleyjd: reordered predicates
-   if(temp_x == 4 ||
-      (temp_x && (temptype != COL_FUZZ || temp_x + startx != dcvars.x)))
-      R_FlushColumns();
-
-   if(!temp_x)
-   {
-      ++temp_x;
-      startx = dcvars.x;
-      *tempyl = commontop = dcvars.yl;
-      *tempyh = commonbot = dcvars.yh;
-      temptype = COL_FUZZ;
-      tempfuzzmap = fullcolormap; // SoM 7-28-04: Fix the fuzz problem.
-      R_FlushWholeColumns = R_FlushWholeFuzz;
-      R_FlushHTColumns    = R_FlushHTFuzz;
-      R_FlushQuadColumn   = R_FlushQuadFuzz;
-      return &tempbuf[dcvars.yl << 2];
-   }
-
-   tempyl[temp_x] = dcvars.yl;
-   tempyh[temp_x] = dcvars.yh;
-   
-   if(dcvars.yl > commontop)
-      commontop = dcvars.yl;
-   if(dcvars.yh < commonbot)
-      commonbot = dcvars.yh;
-      
-   return &tempbuf[(dcvars.yl << 2) + temp_x++];
-}
+//
+// R_DrawColumn
+//
 
 //
 // A column is a vertical slice/span from a wall texture that,
@@ -589,105 +186,18 @@ static byte *R_GetBufferFuzz(void)
 //  be used. It has also been used with Wolfenstein 3D.
 //
 
-void R_DrawColumn (void)
-{
-  int              count;
-  register byte    *dest;            // killough
-  register fixed_t frac;            // killough
+byte *translationtables;
+#define RDC_STANDARD      1
+#define RDC_TRANSLUCENT   2
+#define RDC_TRANSLATED    4
+#define RDC_FUZZ          8
 
-  // leban 1/17/99:
-  // removed the + 1 here, adjusted the if test, and added an increment
-  // later.  this helps a compiler pipeline a bit better.  the x86
-  // assembler also does this.
-
-  count = dcvars.yh - dcvars.yl;
-
-  // leban 1/17/99:
-  // this case isn't executed too often.  depending on how many instructions
-  // there are between here and the second if test below, this case could
-  // be moved down and might save instructions overall.  since there are
-  // probably different wads that favor one way or the other, i'll leave
-  // this alone for now.
-  if (count < 0)    // Zero length, column does not exceed a pixel.
-    return;
-
-  count++;
-
-#ifdef RANGECHECK
-  if ((unsigned)dcvars.x >= (unsigned)SCREENWIDTH
-      || dcvars.yl < 0
-      || dcvars.yh >= SCREENHEIGHT)
-    I_Error("R_DrawColumn: %i to %i at %i", dcvars.yl, dcvars.yh, dcvars.x);
-#endif
-
-  // Framebuffer destination address.
-   // SoM: MAGIC
-   dest = R_GetBufferOpaque();
-
-  // Determine scaling, which is the only mapping to be done.
-#define  fracstep dcvars.iscale
-  frac = dcvars.texturemid + (dcvars.yl-centery)*fracstep;
-
-  // Inner loop that does the actual texture mapping,
-  //  e.g. a DDA-lile scaling.
-  // This is as fast as it gets.       (Yeah, right!!! -- killough)
-  //
-  // killough 2/1/98: more performance tuning
-
-    if (dcvars.texheight == 128) {
-        while(count--)
-        {
-                *dest = dcvars.colormap[dcvars.source[(frac>>FRACBITS)&127]];
-                dest += 4;
-                frac += fracstep;
-        }
-    } else if (dcvars.texheight == 0) {
-  /* cph - another special case */
-  while (count--) {
-    *dest = dcvars.colormap[dcvars.source[frac>>FRACBITS]];
-    dest += 4;
-    frac += fracstep;
-  }
-    } else {
-     register unsigned heightmask = dcvars.texheight-1; // CPhipps - specify type
-     if (! (dcvars.texheight & heightmask) )   // power of 2 -- killough
-     {
-         while (count>0)   // texture height is a power of 2 -- killough
-           {
-             *dest = dcvars.colormap[dcvars.source[(frac>>FRACBITS) & heightmask]];
-             dest += 4;
-             frac += fracstep;
-            count--;
-           }
-     }
-     else
-     {
-         heightmask++;
-         heightmask <<= FRACBITS;
-
-         if (frac < 0)
-           while ((frac += heightmask) <  0);
-         else
-           while (frac >= (int)heightmask)
-             frac -= heightmask;
-
-         while(count>0)
-           {
-             // Re-map color indices from wall texture column
-             //  using a lighting/special effects LUT.
-
-             // heightmask is the Tutti-Frutti fix -- killough
-
-             *dest = dcvars.colormap[dcvars.source[frac>>FRACBITS]];
-             dest += 4;
-             if ((frac += fracstep) >= (int)heightmask)
-               frac -= heightmask;
-            count--;
-           }
-     }
-    }
-}
-#undef fracstep
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8
+#define R_DRAWCOLUMN_PIPELINE RDC_STANDARD
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeOpaque8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTOpaque8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadOpaque8
+#include "r_drawcolumn.inl"
 
 // Here is the version of R_DrawColumn that deals with translucent  // phares
 // textures and sprites. It's identical to R_DrawColumn except      //    |
@@ -700,128 +210,12 @@ void R_DrawColumn (void)
 // Since we're concerned about performance, the 'translucent or
 // opaque' decision is made outside this routine, not down where the
 // actual code differences are.
-
-void R_DrawTLColumn (void)
-{
-  int              count;
-  register byte    *dest;           // killough
-  register fixed_t frac;            // killough
-
-  count = dcvars.yh - dcvars.yl + 1;
-
-  // Zero length, column does not exceed a pixel.
-  if (count <= 0)
-    return;
-
-#ifdef RANGECHECK
-  if ((unsigned)dcvars.x >= (unsigned)SCREENWIDTH
-      || dcvars.yl < 0
-      || dcvars.yh >= SCREENHEIGHT)
-    I_Error("R_DrawTLColumn: %i to %i at %i", dcvars.yl, dcvars.yh, dcvars.x);
-#endif
-
-  // Framebuffer destination address.
-  // SoM: MAGIC
-  dest = R_GetBufferTrans();
-
-  // Determine scaling,
-  //  which is the only mapping to be done.
-#define  fracstep dcvars.iscale
-  frac = dcvars.texturemid + (dcvars.yl-centery)*fracstep;
-
-  // Inner loop that does the actual texture mapping,
-  //  e.g. a DDA-lile scaling.
-  // This is as fast as it gets.       (Yeah, right!!! -- killough)
-  //
-  // killough 2/1/98, 2/21/98: more performance tuning
-
-  {
-    register const byte *source = dcvars.source;
-    register const lighttable_t *colormap = dcvars.colormap;
-    register unsigned heightmask = dcvars.texheight-1; // CPhipps - specify type
-    if (dcvars.texheight & heightmask)   // not a power of 2 -- killough
-      {
-        heightmask++;
-        heightmask <<= FRACBITS;
-
-        if (frac < 0)
-          while ((frac += heightmask) <  0);
-        else
-          while (frac >= (int)heightmask)
-            frac -= heightmask;
-
-        do
-          {
-            // Re-map color indices from wall texture column
-            //  using a lighting/special effects LUT.
-
-            // heightmask is the Tutti-Frutti fix -- killough
-
-            *dest = tranmap[(*dest<<8)+colormap[source[frac>>FRACBITS]]]; // phares
-            dest += 4;
-            if ((frac += fracstep) >= (int)heightmask)
-              frac -= heightmask;
-          }
-        while (--count);
-      }
-    else
-      {
-	if (heightmask == -1 && frac < 0) frac = 0;
-        while ((count-=2)>=0)   // texture height is a power of 2 -- killough
-          {
-            *dest = tranmap[(*dest<<8)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
-            dest += 4;
-            frac += fracstep;
-            *dest = tranmap[(*dest<<8)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
-            dest += 4;
-            frac += fracstep;
-          }
-        if (count & 1)
-          *dest = tranmap[(*dest<<8)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
-      }
-  }
-}
-#undef fracstep
-
-//
-// Framebuffer postprocessing.
-// Creates a fuzzy image by copying pixels
-//  from adjacent ones to left and right.
-// Used with an all black colormap, this
-//  could create the SHADOW effect,
-//  i.e. spectres and invisible players.
-//
-
-void R_DrawFuzzColumn(void)
-{
-  int      count;
-
-  // Adjust borders. Low...
-  if (!dcvars.yl)
-    dcvars.yl = 1;
-
-  // .. and high.
-  if (dcvars.yh == viewheight-1)
-    dcvars.yh = viewheight - 2;
-
-  count = dcvars.yh - dcvars.yl;
-
-  // Zero length.
-  if (count < 0)
-    return;
-
-#ifdef RANGECHECK
-  if ((unsigned) dcvars.x >= (unsigned)SCREENWIDTH
-      || dcvars.yl < 0
-      || (unsigned)dcvars.yh >= (unsigned)SCREENHEIGHT)
-    I_Error("R_DrawFuzzColumn: %i to %i at %i", dcvars.yl, dcvars.yh, dcvars.x);
-#endif
-
-  // SoM: MAGIC
-  R_GetBufferFuzz();
-  return;
-
-}
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8
+#define R_DRAWCOLUMN_PIPELINE RDC_TRANSLUCENT
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
 
 //
 // R_DrawTranslatedColumn
@@ -832,50 +226,39 @@ void R_DrawFuzzColumn(void)
 //  of the BaronOfHell, the HellKnight, uses
 //  identical sprites, kinda brightened up.
 //
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8
+#define R_DRAWCOLUMN_PIPELINE RDC_TRANSLATED
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTranslated8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTranslated8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTranslated8
+#include "r_drawcolumn.inl"
 
-byte       *translationtables;
+//
+// Framebuffer postprocessing.
+// Creates a fuzzy image by copying pixels
+//  from adjacent ones to left and right.
+// Used with an all black colormap, this
+//  could create the SHADOW effect,
+//  i.e. spectres and invisible players.
+//
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8
+#define R_DRAWCOLUMN_PIPELINE RDC_FUZZ
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
 
-void R_DrawTranslatedColumn (void)
-{
-  int      count;
-  byte     *dest;
-  fixed_t  frac;
-  fixed_t  fracstep;
-
-  count = dcvars.yh - dcvars.yl;
-  if (count < 0)
-    return;
-
-#ifdef RANGECHECK
-  if ((unsigned)dcvars.x >= (unsigned)SCREENWIDTH
-      || dcvars.yl < 0
-      || (unsigned)dcvars.yh >= (unsigned)SCREENHEIGHT)
-    I_Error("R_DrawColumn: %i to %i at %i", dcvars.yl, dcvars.yh, dcvars.x);
-#endif
-
-  // FIXME. As above.
-  // SoM: MAGIC
-  dest = R_GetBufferOpaque();
-
-  // Looks familiar.
-  fracstep = dcvars.iscale;
-  frac = dcvars.texturemid + (dcvars.yl-centery)*fracstep;
-
-  // Here we do an additional index re-mapping.
-  do
-    {
-      // Translation tables are used
-      //  to map certain colorramps to other ones,
-      //  used with PLAY sprites.
-      // Thus the "green" ramp of the player 0 sprite
-      //  is mapped to gray, red, black/indigo.
-
-      *dest = dcvars.colormap[dcvars.translation[dcvars.source[frac>>FRACBITS]]];
-      dest += 4;
-
-      frac += fracstep;
-    }
-  while (count--);
+R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type) {
+   switch (type) {
+      case RDC_PIPELINE_TRANSLUCENT:
+         return &R_DrawTLColumn8;
+      case RDC_PIPELINE_TRANSLATED:
+         return &R_DrawTranslatedColumn8;
+      case RDC_PIPELINE_FUZZ:
+         return &R_DrawFuzzColumn8;
+      default:
+         return &R_DrawColumn8;
+   }
 }
 
 //
@@ -939,34 +322,11 @@ void R_InitTranslationTables (void)
 //  and the inner loop has to step in texture space u and v.
 //
 
-draw_span_vars_t dsvars;
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8
+#include "r_drawspan.inl"
 
-void R_DrawSpan (void)
-{
-  register unsigned count,xfrac = dsvars.xfrac,yfrac = dsvars.yfrac;
-
-  const byte *source;
-  const byte *colormap;
-  byte *dest;
-
-  source = dsvars.source;
-  colormap = dsvars.colormap;
-  dest = topleft + dsvars.y*screens[0].pitch + dsvars.x1;
-  count = dsvars.x2 - dsvars.x1 + 1;
-
-  while (count)
-    {
-      register unsigned xtemp = xfrac >> 16;
-      register unsigned ytemp = yfrac >> 10;
-      register unsigned spot;
-      ytemp &= 4032;
-      xtemp &= 63;
-      spot = xtemp | ytemp;
-      xfrac += dsvars.xstep;
-      yfrac += dsvars.ystep;
-      *dest++ = colormap[source[spot]];
-      count--;
-    }
+void R_DrawSpan(draw_span_vars_t *dsvars) {
+   R_DrawSpan8(dsvars);
 }
 
 //

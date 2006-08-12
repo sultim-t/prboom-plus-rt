@@ -53,7 +53,15 @@ typedef struct {
   const byte          *translation;
 } draw_column_vars_t;
 
-extern draw_column_vars_t dcvars;
+enum column_pipeline_e {
+  RDC_PIPELINE_STANDARD,
+  RDC_PIPELINE_TRANSLUCENT,
+  RDC_PIPELINE_TRANSLATED,
+  RDC_PIPELINE_FUZZ,
+};
+
+typedef void (*R_DrawColumn_f)(draw_column_vars_t *dcvars);
+R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type);
 
 // The span blitting interface.
 // Hook in assembler or system specific BLT here.
@@ -81,13 +89,11 @@ typedef struct {
   const lighttable_t  *colormap;
 } draw_span_vars_t;
 
-extern draw_span_vars_t dsvars;
-
 extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
 extern byte       *translationtables;
 
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
-void R_DrawSpan(void);
+void R_DrawSpan(draw_span_vars_t *dsvars);
 
 void R_InitBuffer(int width, int height);
 

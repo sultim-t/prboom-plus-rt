@@ -98,12 +98,6 @@ extern const lighttable_t *fixedcolormap;
 #define NUMCOLORMAPS 32
 
 //
-// Function pointer to switch refresh/drawing functions.
-//
-
-extern void (*colfunc)(void);
-
-//
 // Utility functions.
 //
 
