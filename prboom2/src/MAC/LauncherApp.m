@@ -64,7 +64,11 @@ static LauncherApp *LApp;
 		if([[defaults objectForKey:@"Demo Drawer State"] boolValue])
 			[demoDrawer open];
 		if([[defaults objectForKey:@"Console State"] boolValue])
+		{
 			[consoleController showWindow:self];
+			// Re-show main window so it keeps focus
+			[window showWindow:self];
+		}
 
 		[[configFileButtonController field] setObjectValue:[defaults objectForKey:@"Config File"]];
 	}
