@@ -25,7 +25,7 @@ there's no need, all bugs that get found, get fixed. Similarly this page no
 longer contains info on BSP bugs.</p>
 
 <p>Those bugs here which are not otherwise attributed, were found and fixed
-by myself (<a href="mailto:cph&#64;cph.demon.co.uk">Colin Phipps</a>). Also I'd
+by myself (<a href="mailto:cph&#64;moria.org.uk">Colin Phipps</a>). Also I'd
 like to thank <a href="mailto:haleyjd&#64;concentric.net">James "Quasar"
 Haley</a>, and <a href="mailto:fraggle&#64;alkali.org">Simon "Fraggle"
 Howard</a>, who discovered some of these bugs, and are always glad to share
@@ -1185,4 +1185,4 @@ Index: src/wi_stuff.c
 <h2>Author</h2>
 
 <p>Colin Phipps &lt;<a
-href="mailto:cph&#64;cph.demon.co.uk">cph&#64;cph.demon.co.uk</a>&gt;</p>
+href="mailto:cph&#64;moria.org.uk">cph&#64;moria.org.uk</a>&gt;</p>
