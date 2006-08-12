@@ -66,8 +66,7 @@ static LauncherApp *LApp;
 		if([[defaults objectForKey:@"Console State"] boolValue])
 		{
 			[consoleController showWindow:self];
-			// Re-show main window so it keeps focus
-			[[window windowController] showWindow:self];
+			[window makeKeyAndOrderFront:self];
 		}
 
 		[[configFileButtonController field] setObjectValue:[defaults objectForKey:@"Config File"]];
