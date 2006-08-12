@@ -122,11 +122,6 @@ extern V_FillRect_f V_FillRect;
 
 // CPhipps - patch drawing
 // Consolidated into the 3 really useful functions:
-// V_DrawMemPatch - Draws the given patch_t
-typedef void (*V_DrawMemPatch_f)(int x, int y, int scrn,
-                                 const patch_t *patch, int cm,
-                                 enum patch_translation_e flags);
-extern V_DrawMemPatch_f V_DrawMemPatch;
 
 // V_DrawNumPatch - Draws the patch from lump num
 typedef void (*V_DrawNumPatch_f)(int x, int y, int scrn,
@@ -142,8 +137,8 @@ extern V_DrawNumPatch_f V_DrawNumPatch;
  * Doesn't really belong here, but is often used in conjunction with
  * this code.
  */
-int V_NamePatchWidth(const char* name);
-int V_NamePatchHeight(const char* name);
+#define V_NamePatchWidth(name) R_NumPatchWidth(W_GetNumForName(name))
+#define V_NamePatchHeight(name) R_NumPatchHeight(W_GetNumForName(name))
 
 /* cphipps 10/99: function to tile a flat over the screen */
 typedef void (*V_DrawBackground_f)(const char* flatname, int scrn);

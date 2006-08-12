@@ -39,6 +39,7 @@
 #include "r_main.h"
 #include "dstrings.h"
 #include "d_deh.h"  // Ty 03/27/98 - externalized
+#include "lprintf.h"
 #include "e6y.h"//e6y
 
 ///////////////////////////////////////////////////////////////
@@ -536,13 +537,35 @@ int EV_VerticalDoor
      */
     if (compatibility_level < prboom_4_compatibility || 
         door->thinker.function == T_VerticalDoor) {
+      /* cph - we are writing outval to door->direction iff it is non-zero */
+      signed int outval = 0;
+
       /* An already moving repeatable door which is being re-pressed, or a
        * monster is trying to open a closing door - so change direction
+       * DEMOSYNC: we only read door->direction now if it really is a door.
        */
-      if (door->direction == -1) {
-        door->direction = 1; return 1; /* go back up */
+      if (door->thinker.function == T_VerticalDoor && door->direction == -1) {
+        outval = 1; /* go back up */
       } else if (player) {
-        door->direction = -1; return 1; /* go back down */
+        outval = -1; /* go back down */
+      }
+
+      /* Write this to the thinker. In demo compatibility mode, we might be 
+       *  overwriting a field of a non-vldoor_t thinker - we need to add any 
+       *  other thinker types here if any demos depend on specific fields
+       *  being corrupted by this.
+       */
+      if (outval) {
+        if (door->thinker.function == T_VerticalDoor) {
+          door->direction = outval;
+        } else if (door->thinker.function == T_PlatRaise) {
+          plat_t* p = (plat_t*)door;
+          p->wait = outval;
+        } else {
+          lprintf(LO_DEBUG, "EV_VerticalDoor: unknown thinker.function in thinker corruption emulation");
+        }
+
+        return 1;
       }
     }
     /* Either we're in prboom >=v2.3 and it's not a door, or it's a door but

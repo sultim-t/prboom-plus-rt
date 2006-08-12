@@ -144,13 +144,6 @@ static void CustomApplicationMain (int argc, char **argv)
                 [SDLApplication sharedApplication];
 
     /* Set up the menubar */
-    int i;
-    for(i = 0; i < [[NSApp mainMenu] numberOfItems]; ++i)
-    {
-        printf("Item %i: %s\n", i,
-               [[[[NSApp mainMenu] itemAtIndex:i] title] UTF8String]);
-    }
-
     NSMenu *mainMenu = [[NSMenu alloc] init];
     setupApplicationMenu(mainMenu);
     setupWindowMenu(mainMenu);

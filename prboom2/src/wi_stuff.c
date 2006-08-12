@@ -156,7 +156,7 @@ typedef struct
   /* actual graphics for frames of animations
    * cphipps - const
    */
-  const patch_t*  p[3];
+  patchnum_t p[3];
 
   // following must be initialized to zero before use!
 
@@ -342,7 +342,7 @@ static const char percent[] = {"WIPCNT"};
 static const char colon[] = {"WICOLON"};
 
 // 0-9 graphic
-static const patch_t  * num[10];
+static patchnum_t num[10];
 
 // minus sign
 static const char wiminus[] = {"WIMINUS"};
@@ -385,7 +385,6 @@ static const char facebackp[] = {"STPB0"};
 
 static void WI_endDeathmatchStats(void);
 static void WI_endNetgameStats(void);
-void WI_unloadData(void);
 #define WI_endStats WI_endNetgameStats
 
 /* ====================================================================
@@ -515,14 +514,13 @@ WI_drawOnLnode  // draw stuff at a location by episode/map#
     int            top;
     int            right;
     int            bottom;
-    int            lump = W_GetNumForName(c[i]);
-    const patch_t* p = W_CacheLumpNum(lump);
+    const rpatch_t* patch = R_CachePatchName(c[i]);
 
-    left = lnodes[wbs->epsd][n].x - SHORT(p->leftoffset);
-    top = lnodes[wbs->epsd][n].y - SHORT(p->topoffset);
-    right = left + SHORT(p->width);
-    bottom = top + SHORT(p->height);
-    W_UnlockLumpNum(lump);
+    left = lnodes[wbs->epsd][n].x - patch->leftoffset;
+    top = lnodes[wbs->epsd][n].y - patch->topoffset;
+    right = left + patch->width;
+    bottom = top + patch->height;
+    R_UnlockPatchName(c[i]);
 
     if (left >= 0
        && right < 320
@@ -669,7 +667,7 @@ void WI_drawAnimatedBack(void)
 
     if (a->ctr >= 0)
       // CPhipps - patch drawing updated
-      V_DrawMemPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr], CR_DEFAULT, VPT_STRETCH);
+      V_DrawNumPatch(a->loc.x, a->loc.y, FB, a->p[a->ctr].lumpnum, CR_DEFAULT, VPT_STRETCH);
   }
 }
 
@@ -685,7 +683,7 @@ void WI_drawAnimatedBack(void)
 // CPhipps - static
 static int WI_drawNum (int x, int y, int n, int digits)
 {
-  int   fontwidth = SHORT(num[0]->width);
+  int   fontwidth = num[0].width;
   int   neg;
   int   temp;
 
@@ -723,7 +721,7 @@ static int WI_drawNum (int x, int y, int n, int digits)
   {
     x -= fontwidth;
     // CPhipps - patch drawing updated
-    V_DrawMemPatch(x, y, FB, num[ n % 10 ], CR_DEFAULT, VPT_STRETCH);
+    V_DrawNumPatch(x, y, FB, num[ n % 10 ].lumpnum, CR_DEFAULT, VPT_STRETCH);
     n /= 10;
   }
 
@@ -799,8 +797,6 @@ static void WI_drawTime(int x, int y, int t)
 //
 void WI_End(void)
 {
-  WI_unloadData();
-
   if (deathmatch)
     WI_endDeathmatchStats();
   else if (netgame)
@@ -1222,7 +1218,7 @@ void WI_drawDeathmatchStats(void)
 
   // draw stats
   y = DM_MATRIXY+10;
-  w = SHORT(num[0]->width);
+  w = num[0].width;
 
   for (i=0 ; i<MAXPLAYERS ; i++)
   {
@@ -1697,7 +1693,7 @@ void WI_drawStats(void)
   // line height
   int lh;
 
-  lh = (3*SHORT(num[0]->height))/2;
+  lh = (3*num[0].height)/2;
 
   WI_slamBackground();
 
@@ -1831,7 +1827,7 @@ void WI_loadData(void)
           {
             // animations
             sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);
-            a->p[i] = W_CacheLumpName(name);
+            R_SetPatchNum(&a->p[i], name);
           }
           else
           {
@@ -1847,43 +1843,7 @@ void WI_loadData(void)
   {
     // numbers 0-9
     sprintf(name, "WINUM%d", i);
-    num[i] = W_CacheLumpName(name);
-  }
-}
-
-// ====================================================================
-// WI_unloadData
-// Purpose: Free up the space allocated during WI_loadData
-// Args:    none
-// Returns: void
-//
-// CPhipps - reverse of WI_loadData, goes through the same lumps, but unlocking
-void WI_unloadData(void)
-{
-  int   i,j;
-  char  name[9];  // limited to 8 characters
-
-  // cph - unlock gamemode dependent stuff here
-  if (gamemode != commercial) {
-    if (wbs->epsd < 3) {
-      for (j=0;j<NUMANIMS[wbs->epsd];j++) {
-  anim_t* a = &anims[wbs->epsd][j];
-  for (i=0; i<a->nanims; i++) {
-    // MONDO HACK!
-    if (wbs->epsd != 1 || j != 8) {
-      // animations
-      sprintf(name, "WIA%d%.2d%.2d", wbs->epsd, j, i);
-      W_UnlockLumpName(name);
-    }
-  }
-      }
-    }
-  }
-
-  for (i=0;i<10;i++) {
-    // numbers 0-9
-    sprintf(name, "WINUM%d", i);
-    W_UnlockLumpName(name);
+    R_SetPatchNum(&num[i], name);
   }
 }
 

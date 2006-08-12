@@ -40,16 +40,20 @@
 #pragma interface
 #endif
 
-extern const lighttable_t *dc_colormap;
-extern int      dc_x;
-extern int      dc_yl;
-extern int      dc_yh;
-extern fixed_t  dc_iscale;
-extern fixed_t  dc_texturemid;
-extern int      dc_texheight;    // killough
+// Packaged into a struct - POPE
+typedef struct {
+  int                 x;
+  int                 yl;
+  int                 yh;
+  fixed_t             iscale;
+  fixed_t             texturemid;
+  int                 texheight;    // killough
+  const byte          *source; // first pixel in a column
+  const lighttable_t  *colormap;
+  const byte          *translation;
+} draw_column_vars_t;
 
-// first pixel in a column
-extern const byte     *dc_source;
+extern draw_column_vars_t dcvars;
 
 // The span blitting interface.
 // Hook in assembler or system specific BLT here.
@@ -65,21 +69,22 @@ void R_DrawTranslatedColumn(void);
 
 void R_VideoErase(int x, int y, int count);
 
-extern const lighttable_t *ds_colormap;
+typedef struct {
+  int                 y;
+  int                 x1;
+  int                 x2;
+  fixed_t             xfrac;
+  fixed_t             yfrac;
+  fixed_t             xstep;
+  fixed_t             ystep;
+  const byte          *source; // start of a 64*64 tile image
+  const lighttable_t  *colormap;
+} draw_span_vars_t;
 
-extern int     ds_y;
-extern int     ds_x1;
-extern int     ds_x2;
-extern fixed_t ds_xfrac;
-extern fixed_t ds_yfrac;
-extern fixed_t ds_xstep;
-extern fixed_t ds_ystep;
+extern draw_span_vars_t dsvars;
 
-// start of a 64*64 tile image
-extern const byte *ds_source;
 extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
 extern byte       *translationtables;
-extern const byte *dc_translation;
 
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
 void R_DrawSpan(void);

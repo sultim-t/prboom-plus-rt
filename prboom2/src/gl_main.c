@@ -75,7 +75,6 @@ extern int tran_filter_pct;
 boolean use_fog=false;
 
 int gl_nearclip=5;
-int gl_farclip=6400;
 char *gl_tex_filter_string;
 int gl_tex_filter;
 int gl_mipmap_filter;
@@ -538,119 +537,6 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
     glTexCoord2f(fU2, fV1); glVertex2f((xpos+width),(ypos));
     glTexCoord2f(fU2, fV2); glVertex2f((xpos+width),(ypos+height));
   glEnd();
-}
-
-void gld_DrawPatchFromMem(int x, int y, const patch_t *patch, int cm, enum patch_translation_e flags)
-{
-  GLTexture *gltexture;
-  unsigned char *buffer;
-  float fU1,fU2,fV1,fV2;
-  float width,height;
-  float xpos, ypos;
-
-  gltexture=(GLTexture *)Z_Malloc(sizeof(GLTexture),PU_STATIC,0);
-  if (!gltexture)
-    return;
-  gltexture->realtexwidth=SHORT(patch->width);
-  gltexture->realtexheight=SHORT(patch->height);
-  gltexture->leftoffset=SHORT(patch->leftoffset);
-  gltexture->topoffset=SHORT(patch->topoffset);
-  gltexture->tex_width=gld_GetTexDimension(gltexture->realtexwidth);
-  gltexture->tex_height=gld_GetTexDimension(gltexture->realtexheight);
-  gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-  gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
-  gltexture->buffer_width=gltexture->tex_width;
-  gltexture->buffer_height=gltexture->tex_height;
-#ifdef USE_GLU_IMAGESCALE
-  gltexture->width=min(gltexture->realtexwidth, gltexture->tex_width);
-  gltexture->height=min(gltexture->realtexheight, gltexture->tex_height);
-  gltexture->buffer_width=max(gltexture->realtexwidth, gltexture->tex_width);
-  gltexture->buffer_height=max(gltexture->realtexheight, gltexture->tex_height);
-#endif
-  gltexture->buffer_size=gltexture->buffer_width*gltexture->buffer_height*4;
-  if (gltexture->realtexwidth>gltexture->buffer_width)
-    return;
-  if (gltexture->realtexheight>gltexture->buffer_height)
-    return;
-  buffer=(unsigned char*)Z_Malloc(gltexture->buffer_size,PU_STATIC,0);
-  if (gl_paletted_texture)
-    memset(buffer,transparent_pal_index,gltexture->buffer_size);
-  else
-    memset(buffer,0,gltexture->buffer_size);
-  gld_AddPatchToTexture(gltexture, buffer, patch, 0, 0, cm, gl_paletted_texture);
-  glGenTextures(1,&gltexture->glTexID[cm]);
-  glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
-  last_gltexture = NULL;
-  last_cm = -1;
-#ifdef USE_GLU_IMAGESCALE
-  if ((gltexture->buffer_width>gltexture->tex_width) ||
-      (gltexture->buffer_height>gltexture->tex_height)
-     )
-  {
-    unsigned char *scaledbuffer;
-
-    scaledbuffer=(unsigned char*)Z_Malloc(gltexture->tex_width*gltexture->tex_height*4,PU_STATIC,0);
-    if (scaledbuffer)
-    {
-      gluScaleImage(GL_RGBA,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    GL_UNSIGNED_BYTE,buffer,
-                    gltexture->tex_width, gltexture->tex_height,
-                    GL_UNSIGNED_BYTE,scaledbuffer);
-      Z_Free(buffer);
-      buffer=scaledbuffer;
-      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                    gltexture->tex_width, gltexture->tex_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-  }
-  else
-#endif /* USE_GLU_IMAGESCALE */
-  {
-    if (gl_paletted_texture) {
-      gld_SetTexturePalette(GL_TEXTURE_2D);
-      glTexImage2D( GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    0, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, buffer);
-    } else {
-      glTexImage2D( GL_TEXTURE_2D, 0, gl_tex_format,
-                    gltexture->buffer_width, gltexture->buffer_height,
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-    }
-  }
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
-  Z_Free(buffer);
-
-  fV1=0.0f;
-  fV2=(float)gltexture->height/(float)gltexture->tex_height;
-  if (flags & VPT_FLIP)
-  {
-    fU1=(float)gltexture->width/(float)gltexture->tex_width;
-    fU2=0.0f;
-  }
-  else
-  {
-    fU1=0.0f;
-    fU2=(float)gltexture->width/(float)gltexture->tex_width;
-  }
-  xpos=SCALE_X(x-gltexture->leftoffset);
-  ypos=SCALE_Y(y-gltexture->topoffset);
-  width=SCALE_X(gltexture->realtexwidth);
-  height=SCALE_Y(gltexture->realtexheight);
-  glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[cm]);
-
-  glBegin(GL_TRIANGLE_STRIP);
-    glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
-    glTexCoord2f(fU1, fV2); glVertex2f((xpos),(ypos+height));
-    glTexCoord2f(fU2, fV1); glVertex2f((xpos+width),(ypos));
-    glTexCoord2f(fU2, fV2); glVertex2f((xpos+width),(ypos+height));
-  glEnd();
-
-  glDeleteTextures(1,&gltexture->glTexID[cm]);
-  Z_Free(gltexture);
 }
 
 #undef SCALE_X
@@ -1929,7 +1815,6 @@ void gld_StartDrawScene(void)
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  //gluPerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f, (float)gl_farclip/100.0f);
 //e6y  infinitePerspective(64.0f, 320.0f/200.0f, (float)gl_nearclip/100.0f);
   infinitePerspective(internal_render_fov,render_aspect_ratio, (float)gl_nearclip/100.0f);//e6y
 

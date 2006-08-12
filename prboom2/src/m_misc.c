@@ -147,7 +147,6 @@ extern int viewwidth;
 extern int viewheight;
 #ifdef GL_DOOM
 extern int gl_nearclip;
-extern int gl_farclip;
 extern int gl_colorbuffer_bits;
 extern int gl_depthbuffer_bits;
 extern char *gl_tex_filter_string;
@@ -314,10 +313,6 @@ default_t defaults[] =
    def_int,ss_none},
   {"screen_height",{&desired_screenheight},{480},200,MAX_SCREENHEIGHT,
    def_int,ss_none},
-#ifdef GL_DOOM
-  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
-   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
-#endif
   {"use_fullscreen",{&use_fullscreen},{1},0,1, /* proff 21/05/2000 */
    def_bool,ss_none},
 #ifndef DISABLE_DOUBLEBUFFER
@@ -337,8 +332,6 @@ default_t defaults[] =
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"gl_nearclip",{&gl_nearclip},{5},0,UL,
    def_int,ss_none}, /* near clipping plane pos */
-  {"gl_farclip",{&gl_farclip},{6400},0,UL,
-   def_int,ss_none}, /* far clipping plane pos */
   {"gl_colorbuffer_bits",{&gl_colorbuffer_bits},{16},16,32,
    def_int,ss_none},
   {"gl_depthbuffer_bits",{&gl_depthbuffer_bits},{16},16,32,
@@ -355,6 +348,10 @@ default_t defaults[] =
    def_bool,ss_none},
   {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{0},0,1,
    def_bool,ss_none},
+#ifdef GL_DOOM
+  {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
+   def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
+#endif
 #endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -1133,6 +1130,51 @@ void M_LoadDefaults (void)
 // CPhipps - nasty but better than nothing
 static boolean screenshot_write_error;
 
+#ifdef HAVE_LIBPNG
+
+#include <png.h>
+
+static void error_fn(png_structp p, png_const_charp s)
+{ screenshot_write_error = true; lprintf(LO_ERROR, "%s\n", s); }
+
+static void WritePNGfile(FILE* fp, const byte* data,
+       const int width, const int height, const byte* palette)
+{
+  png_structp png_ptr;
+  png_infop info_ptr;
+  boolean gl = !palette;
+
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
+  png_set_compression_level(png_ptr, 2);
+  if (png_ptr == NULL) { screenshot_write_error = true; return; }
+  info_ptr = png_create_info_struct(png_ptr);
+  if (info_ptr != NULL) {
+    png_init_io(png_ptr, fp);
+    png_set_IHDR(png_ptr, info_ptr, width, height, 8, !gl ? PNG_COLOR_TYPE_PALETTE : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    if (palette)
+      png_set_PLTE(png_ptr, info_ptr, (png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
+    {
+      png_time t;
+      png_convert_from_time_t(&t, time(NULL));
+      png_set_tIME(png_ptr, info_ptr, &t);
+    }
+
+    { /* Now write the image header and data */
+      int y;
+
+      png_write_info(png_ptr, info_ptr);
+      for (y = 0; y < height; y++)
+        png_write_row(png_ptr, data + (gl ? height - y - 1 : y)*width*(gl ? 3 : 1));
+    }
+
+    png_write_end(png_ptr, info_ptr);
+  }
+  png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+}
+
+#else /* HAVE_LIBPNG */
+
 // jff 3/30/98 types and data structures for BMP output of screenshots
 //
 // killough 5/2/98:
@@ -1193,46 +1235,6 @@ static void SafeWrite(const void *data, size_t size, size_t number, FILE *st)
     screenshot_write_error = true; // CPhipps - made non-fatal
 }
 
-#ifdef HAVE_LIBPNG
-
-#include <png.h>
-
-static void error_fn(png_structp p, png_const_charp s)
-{ screenshot_write_error = true; lprintf(LO_ERROR, "%s\n", s); }
-
-static void WritePNGfile(FILE* fp, const byte* data,
-       const int width, const int height, const byte* palette)
-{
-  png_structp png_ptr;
-  png_infop info_ptr;
-
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, png_error_ptr_NULL, error_fn, NULL);
-  if (png_ptr == NULL) { screenshot_write_error = true; return; }
-  info_ptr = png_create_info_struct(png_ptr);
-  if (info_ptr != NULL) {
-    png_init_io(png_ptr, fp);
-    png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    png_set_PLTE(png_ptr, info_ptr, (png_colorp)palette, PNG_MAX_PALETTE_LENGTH);
-    {
-      png_time t;
-      png_convert_from_time_t(&t, time(NULL));
-      png_set_tIME(png_ptr, info_ptr, &t);
-    }
-
-    { /* Now write the image header and data */
-      int y;
-
-      png_write_info(png_ptr, info_ptr);
-      for (y = 0; y < height; y++)
-	png_write_row(png_ptr, data + y*width);
-    }
-
-    png_write_end(png_ptr, info_ptr);
-  }
-  png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
-}
-#else
 //
 // WriteBMPfile
 // jff 3/30/98 Add capability to write a .BMP file (256 color uncompressed)
@@ -1312,8 +1314,6 @@ static void WriteBMPfile(FILE* st, const byte* data,
   }
 }
 
-#endif /* !HAVE_LIBPNG */
-
 //
 // WriteTGAfile
 // proff 05/15/2000 Add capability to write a .TGA file (24bit color uncompressed)
@@ -1363,6 +1363,8 @@ static void WriteTGAfile(FILE* st, const byte* data,
   }
 }
 
+#endif /* !HAVE_LIBPNG */
+
 //
 // M_ScreenShot
 //
@@ -1406,8 +1408,12 @@ void M_DoScreenShot (const char* fname)
 
     // save the bmp file
 
+  #ifdef HAVE_LIBPNG
+    WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, NULL);
+  #else
     WriteTGAfile
       (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
+  #endif
   } else {
     screenshot.width = screens[0].width;
     screenshot.height = screens[0].height;
@@ -1454,15 +1460,15 @@ void M_ScreenShot(void)
   startshot = shot; // CPhipps - prevent infinite loop
 
   do {
+#ifdef HAVE_LIBPNG
+    sprintf(lbmname,"doom%02d.png", shot++);
+#else
     if (V_GetMode() == VID_MODEGL) {
       sprintf(lbmname,"doom%02d.tga", shot++);
     } else {
-#ifdef HAVE_LIBPNG
-      sprintf(lbmname,"doom%02d.png", shot++);
-#else
       sprintf(lbmname,"doom%02d.bmp", shot++);
-#endif
     }
+#endif
   } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
 
   if (!access(lbmname,0)) screenshot_write_error = true;

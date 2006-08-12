@@ -3061,6 +3061,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\md5.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\md5.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\Mmus2mid.c"
 				>
 				<FileConfiguration
@@ -3215,6 +3223,14 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\p_checksum.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\p_checksum.h"
+				>
 			</File>
 			<File
 				RelativePath="..\src\p_doors.c"
@@ -5038,6 +5054,14 @@
 			</File>
 			<File
 				RelativePath="..\src\r_main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_patch.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_patch.h"
 				>
 			</File>
 			<File

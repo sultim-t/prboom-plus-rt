@@ -63,6 +63,7 @@
 #include "p_saveg.h"
 #include "p_tick.h"
 #include "p_map.h"
+#include "p_checksum.h"
 #include "d_main.h"
 #include "wi_stuff.h"
 #include "hu_stuff.h"
@@ -2948,6 +2949,9 @@ void G_TimeDemo(const char *name) // CPhipps - const char*
 boolean G_CheckDemoStatus (void)
 {
   e6y_G_CheckDemoStatus();//e6y
+
+  P_ChecksumFinal();
+
   if (demorecording)
     {
       demorecording = false;

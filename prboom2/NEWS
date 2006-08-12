@@ -7,8 +7,15 @@ Changes from v2.4.4 to v2.4.5
 - -nodeh option to disable automatic loading of dehacked-in-wad lump
 - Unified software and opengl engine into one binary
 - Added video mode selection to menu
+- fix demo desyncs on E1M5 on x86_64 systems
 - Fullscreen setting will only take effect after game restart
-- reduce red palette transation if the menu is up, so the menu can still be read
+- reduce red palette translation if the menu is up, so the menu can still be read
+- screenshots now in PNG format on Linux/Unix in GL mode too
+- Added experimental -checksum option for demo playback comparison
+- Merged new internal patch (graphics) format from PrBoom 2.3
+- Mac OS X: Launcher now uses drawers instead of tabs
+- Mac OS X: Fix some longstanding Wad chooser issues
+- Mac OS X: Add a console to display text output from PrBoom
 
 Changes from v2.4.3 to v2.4.4
 - Don't fail when a texture name can't be looked up
@@ -38,7 +45,7 @@ Changes from v2.4.3 to v2.4.4
 Changes from v2.4.2 to v2.4.3
 - Massive speed improvements in higher resolutions taken from Eternity.
   Thanks to SoM and Quasar!!!
-- fix bugs in gameplay occuring with gcc-4.1
+- fix bugs in gameplay occurring with gcc-4.1
 - Mac OS X: Add "Show Game Folder" to menus, for easy installation of new
   game wads
 - Mac OS X: Disable games in popup menu whose wads cannot be found

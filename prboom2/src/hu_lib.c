@@ -182,7 +182,7 @@ void HUlib_drawTextLine
     }
     else  if (c != ' ' && c >= l->sc && c <= 127)
     {
-      w = SHORT(l->f[c - l->sc].width);
+      w = l->f[c - l->sc].width;
       if (x+w > BASE_WIDTH)
         break;
       // killough 1/18/98 -- support multiple lines:
@@ -200,7 +200,7 @@ void HUlib_drawTextLine
   l->cm = oc; //jff 2/17/98 restore original color
 
   // draw the cursor if requested
-  if (drawcursor && x + SHORT(l->f['_' - l->sc].width) <= BASE_WIDTH)
+  if (drawcursor && x + l->f['_' - l->sc].width <= BASE_WIDTH)
   {
     // killough 1/18/98 -- support multiple lines
     // CPhipps - patch drawing updated
@@ -228,7 +228,7 @@ void HUlib_eraseTextLine(hu_textline_t* l)
 
   if (!(automapmode & am_active) && viewwindowx && l->needsupdate)
   {
-    lh = SHORT(l->f[0].height) + 1;
+    lh = l->f[0].height + 1;
     for (y=l->y; y<l->y+lh ; y++)
       {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
@@ -283,7 +283,7 @@ void HUlib_initSText
     (
       &s->l[i],
       x,
-      y - i*(SHORT(font[0].height)+1),
+      y - i*(font[0].height+1),
       font,
       startchar,
       cm
@@ -578,7 +578,7 @@ static void HUlib_eraseMBg(hu_mtext_t* m)
 
   if (!(automapmode & am_active) && viewwindowx)
   {
-    lh = SHORT(m->l[0].f[0].height) + 1;
+    lh = m->l[0].f[0].height + 1;
     for (y=m->y; y<m->y+lh*(hud_msg_lines+2) ; y++)
     {
       if (y < viewwindowy || y >= viewwindowy + viewheight)

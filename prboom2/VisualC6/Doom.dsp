@@ -599,6 +599,14 @@ SOURCE=..\src\m_swap.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\md5.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\md5.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\Mmus2mid.c
 # End Source File
 # Begin Source File
@@ -608,6 +616,14 @@ SOURCE=..\src\Mmus2mid.h
 # Begin Source File
 
 SOURCE=..\src\p_ceilng.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_checksum.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\p_checksum.h
 # End Source File
 # Begin Source File
 
@@ -776,6 +792,14 @@ SOURCE=..\src\r_main.c
 # Begin Source File
 
 SOURCE=..\src\r_main.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_patch.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_patch.h
 # End Source File
 # Begin Source File
 

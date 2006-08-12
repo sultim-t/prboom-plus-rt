@@ -119,6 +119,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 {
   int      texnum;
   sector_t tempsec;      // killough 4/13/98
+  const rpatch_t *patch;
 
   // Calculate light table.
   // Use different light tables
@@ -159,35 +160,35 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   // find positioning
   if (curline->linedef->flags & ML_DONTPEGBOTTOM)
     {
-      dc_texturemid = frontsector->floorheight > backsector->floorheight
+      dcvars.texturemid = frontsector->floorheight > backsector->floorheight
         ? frontsector->floorheight : backsector->floorheight;
-      dc_texturemid = dc_texturemid + textureheight[texnum] - viewz;
+      dcvars.texturemid = dcvars.texturemid + textureheight[texnum] - viewz;
     }
   else
     {
-      dc_texturemid =frontsector->ceilingheight<backsector->ceilingheight
+      dcvars.texturemid =frontsector->ceilingheight<backsector->ceilingheight
         ? frontsector->ceilingheight : backsector->ceilingheight;
-      dc_texturemid = dc_texturemid - viewz;
+      dcvars.texturemid = dcvars.texturemid - viewz;
     }
 
-  dc_texturemid += curline->sidedef->rowoffset;
+  dcvars.texturemid += curline->sidedef->rowoffset;
 
   if (fixedcolormap)
-    dc_colormap = fixedcolormap;
+    dcvars.colormap = fixedcolormap;
+
+  patch = R_CacheTextureCompositePatchNum(texnum);
 
   // draw the columns
-  for (dc_x = x1 ; dc_x <= x2 ; dc_x++, spryscale += rw_scalestep)
-    if (maskedtexturecol[dc_x] != INT_MAX) // dropoff overflow
+  for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
+    if (maskedtexturecol[dcvars.x] != INT_MAX) // dropoff overflow
       {
-	const column_t *col; /* cph 2006/07/29 - localise to this block and make const */
-
-        dc_colormap = R_ColourMap(rw_lightlevel,spryscale);
+        dcvars.colormap = R_ColourMap(rw_lightlevel,spryscale);
 
         // killough 3/2/98:
         //
         // This calculation used to overflow and cause crashes in Doom:
         //
-        // sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
+        // sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid, spryscale);
         //
         // This code fixes it, by using double-precision intermediate
         // arithmetic and by skipping the drawing of 2s normals whose
@@ -195,14 +196,14 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
         {
           int_64_t t = ((int_64_t) centeryfrac << FRACBITS) -
-            (int_64_t) dc_texturemid * spryscale;
+            (int_64_t) dcvars.texturemid * spryscale;
           if (t + (int_64_t) textureheight[texnum] * spryscale < 0 ||
               t > (int_64_t) MAX_SCREENHEIGHT << FRACBITS*2)
             continue;        // skip if the texture is out of screen's range
           sprtopscreen = (long)(t >> FRACBITS);
         }
 
-        dc_iscale = 0xffffffffu / (unsigned) spryscale;
+        dcvars.iscale = 0xffffffffu / (unsigned) spryscale;
 
         // killough 1/25/98: here's where Medusa came in, because
         // it implicitly assumed that the column was all one patch.
@@ -213,15 +214,19 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         // when forming multipatched textures (see r_data.c).
 
         // draw the texture
-        col = (const column_t *)((const byte *)
-                           R_GetColumn(texnum,maskedtexturecol[dc_x]) - 3);
-        R_DrawMaskedColumn (col);
-        maskedtexturecol[dc_x] = INT_MAX; // dropoff overflow
+        R_DrawMaskedColumn(
+          patch, 
+          R_GetPatchColumnWrapped(patch, maskedtexturecol[dcvars.x])
+        );
+
+        maskedtexturecol[dcvars.x] = INT_MAX; // dropoff overflow
       }
 
   // Except for main_tranmap, mark others purgable at this point
   if (curline->linedef->tranlump > 0 && general_translucency)
     W_UnlockLumpNum(curline->linedef->tranlump-1); // cph - unlock it
+
+  R_UnlockTextureCompositePatchNum(texnum);
 
   curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so R_ColourMap doesn't try using it for other things */
 }
@@ -239,6 +244,7 @@ static int didsolidcol; /* True if at least one column was marked solid */
 
 static void R_RenderSegLoop (void)
 {
+  const rpatch_t *tex_patch;
   fixed_t  texturecolumn = 0;   // shut up compiler warning
   rendered_segs++;
   for ( ; rw_x < rw_stopx ; rw_x++)
@@ -296,21 +302,24 @@ static void R_RenderSegLoop (void)
           texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance);
           texturecolumn >>= FRACBITS;
 
-          dc_colormap = R_ColourMap(rw_lightlevel,rw_scale);
-          dc_x = rw_x;
-          dc_iscale = 0xffffffffu / (unsigned)rw_scale;
+          dcvars.colormap = R_ColourMap(rw_lightlevel,rw_scale);
+          dcvars.x = rw_x;
+          dcvars.iscale = 0xffffffffu / (unsigned)rw_scale;
         }
 
       // draw the wall tiers
       if (midtexture)
         {
 
-          dc_yl = yl;     // single sided line
-          dc_yh = yh;
-          dc_texturemid = rw_midtexturemid;
-          dc_source = R_GetColumn(midtexture, texturecolumn);
-    dc_texheight = midtexheight;
+          dcvars.yl = yl;     // single sided line
+          dcvars.yh = yh;
+          dcvars.texturemid = rw_midtexturemid;
+          tex_patch = R_CacheTextureCompositePatchNum(midtexture);
+          dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
+          dcvars.texheight = midtexheight;
           colfunc ();
+          R_UnlockTextureCompositePatchNum(midtexture);
+          tex_patch = NULL;
           ceilingclip[rw_x] = viewheight;
           floorclip[rw_x] = -1;
         }
@@ -329,12 +338,15 @@ static void R_RenderSegLoop (void)
 
               if (mid >= yl)
                 {
-                  dc_yl = yl;
-                  dc_yh = mid;
-                  dc_texturemid = rw_toptexturemid;
-                  dc_source = R_GetColumn(toptexture,texturecolumn);
-      dc_texheight = toptexheight;
+                  dcvars.yl = yl;
+                  dcvars.yh = mid;
+                  dcvars.texturemid = rw_toptexturemid;
+                  tex_patch = R_CacheTextureCompositePatchNum(toptexture);
+                  dcvars.source = R_GetTextureColumn(tex_patch,texturecolumn);
+                  dcvars.texheight = toptexheight;
                   colfunc ();
+                  R_UnlockTextureCompositePatchNum(toptexture);
+                  tex_patch = NULL;
                   ceilingclip[rw_x] = mid;
                 }
               else
@@ -358,13 +370,15 @@ static void R_RenderSegLoop (void)
 
               if (mid <= yh)
                 {
-                  dc_yl = mid;
-                  dc_yh = yh;
-                  dc_texturemid = rw_bottomtexturemid;
-                  dc_source = R_GetColumn(bottomtexture,
-                                          texturecolumn);
-                  dc_texheight = bottomtexheight;
+                  dcvars.yl = mid;
+                  dcvars.yh = yh;
+                  dcvars.texturemid = rw_bottomtexturemid;
+                  tex_patch = R_CacheTextureCompositePatchNum(bottomtexture);
+                  dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
+                  dcvars.texheight = bottomtexheight;
                   colfunc ();
+                  R_UnlockTextureCompositePatchNum(bottomtexture);
+                  tex_patch = NULL;
                   floorclip[rw_x] = mid;
                 }
               else

@@ -9,16 +9,15 @@ require 'mac/macsupport'
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
 @deutex = 'deutex'
 @systemFrameworks += %w(Cocoa Carbon QuickTime OpenGL)
-@frameworks += %w(SDL SDL_net AGRegex)
+@frameworks += %w(SDL SDL_net)
 @includes += ' -I. -IMAC'
-@defines += ' -DHAVE_CONFIG_H -DGL_DOOM'
-@commonflags += ' -Wno-pointer-sign -Wno-packed'
+@defines += ' -DHAVE_CONFIG_H'
 @objcflags += ' -fobjc-exceptions'
 
 if ENV['DEBUG']
 	@commonflags += ' -g -DDEBUG -Wmissing-noreturn -Wredundant-decls -Wnested-externs -Wold-style-definition -Wshadow'
 else
-	@commonflags += ' -Os'
+	@commonflags += ' -Os -Wno-pointer-sign -Wno-packed'
 end
 
 ####################
@@ -69,8 +68,10 @@ m_cheat.c
 m_menu.c
 m_misc.c
 m_random.c
+md5.c
 mmus2mid.c
 p_ceilng.c
+p_checksum.c
 p_doors.c
 p_enemy.c
 p_floor.c
@@ -95,6 +96,7 @@ r_data.c
 r_demo.c
 r_draw.c
 r_main.c
+r_patch.c
 r_plane.c
 r_segs.c
 r_sky.c
@@ -114,11 +116,15 @@ z_zone.c
 )
 
 launcherSources = %w(
+MAC/ANSIString.m
+MAC/ConsoleController.m
+MAC/DrawerButton.m
+MAC/FileButtonController.m
 MAC/LauncherApp.m
 MAC/LauncherMain.m
-MAC/RMUDAnsiTextView.m
 MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
+MAC/WadViewController.m
 )
 
 serverSources = %w(

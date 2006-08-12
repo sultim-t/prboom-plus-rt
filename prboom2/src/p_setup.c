@@ -640,31 +640,33 @@ static void P_LoadLineDefs2(int lump)
   for (;i--;ld++)
     {
       { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
-	int j;
-
+        int j;
+        
         for (j=0; j < 2; j++)
+        {
           if (ld->sidenum[j] != NO_INDEX && ld->sidenum[j] >= numsides) {
             ld->sidenum[j] = NO_INDEX;
-            lprintf(LO_WARN, "P_LoadSegs: linedef %d has out-of-range sidedef number\n",numlines-i);
+            lprintf(LO_WARN, "P_LoadSegs: linedef %d has out-of-range sidedef number\n",numlines-i-1);
           }
-
-  // killough 11/98: fix common wad errors (missing sidedefs):
-
-  if (ld->sidenum[0] == NO_INDEX) {
-    ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
-    // cph - print a warning about the bug
-    lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i);
-  }
-
-  if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
-    ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
-    // cph - print a warning about the bug
-    lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i);
-  }
-
+        }
+        
+        // killough 11/98: fix common wad errors (missing sidedefs):
+        
+        if (ld->sidenum[0] == NO_INDEX) {
+          ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
+          // cph - print a warning about the bug
+          lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i-1);
+        }
+        
+        if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
+          ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
+          // cph - print a warning about the bug
+          lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i-1);
+        }
+        
       }
 
-      ld->frontsector = ld->sidenum[0]!=NO_INDEX ? sides[ld->sidenum[0]].sector : 0;
+      ld->frontsector = sides[ld->sidenum[0]].sector; //e6y: Can't be NO_INDEX here
       ld->backsector  = ld->sidenum[1]!=NO_INDEX ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)
         {                       // killough 4/11/98: handle special types

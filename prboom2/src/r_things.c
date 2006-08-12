@@ -314,41 +314,45 @@ int   *mceilingclip; // dropoff overflow
 fixed_t spryscale;
 fixed_t sprtopscreen;
 
-void R_DrawMaskedColumn(const column_t *column)
+void R_DrawMaskedColumn(
+  const rpatch_t *patch,
+  const rcolumn_t *column
+)
 {
+  int     i;
   int     topscreen;
   int     bottomscreen;
-  fixed_t basetexturemid = dc_texturemid;
+  fixed_t basetexturemid = dcvars.texturemid;
 
-  dc_texheight = 0; // killough 11/98
-  while (column->topdelta != 0xff)
-    {
+  dcvars.texheight = patch->height; // killough 11/98
+  for (i=0; i<column->numPosts; i++) {
+      const rpost_t *post = &column->posts[i];
+
       // calculate unclipped screen coordinates for post
-      topscreen = sprtopscreen + spryscale*column->topdelta;
-      bottomscreen = topscreen + spryscale*column->length;
+      topscreen = sprtopscreen + spryscale*post->topdelta;
+      bottomscreen = topscreen + spryscale*post->length;
 
-      dc_yl = (topscreen+FRACUNIT-1)>>FRACBITS;
-      dc_yh = (bottomscreen-1)>>FRACBITS;
+      dcvars.yl = (topscreen+FRACUNIT-1)>>FRACBITS;
+      dcvars.yh = (bottomscreen-1)>>FRACBITS;
 
-      if (dc_yh >= mfloorclip[dc_x])
-        dc_yh = mfloorclip[dc_x]-1;
+      if (dcvars.yh >= mfloorclip[dcvars.x])
+        dcvars.yh = mfloorclip[dcvars.x]-1;
 
-      if (dc_yl <= mceilingclip[dc_x])
-        dc_yl = mceilingclip[dc_x]+1;
+      if (dcvars.yl <= mceilingclip[dcvars.x])
+        dcvars.yl = mceilingclip[dcvars.x]+1;
 
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
-      if (dc_yl <= dc_yh && dc_yh < viewheight)
+      if (dcvars.yl <= dcvars.yh && dcvars.yh < viewheight)
         {
-          dc_source = (const byte *)column + 3;
-          dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
+          dcvars.source = column->pixels + post->topdelta;
+          dcvars.texturemid = basetexturemid - (post->topdelta<<FRACBITS);
 
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
           colfunc ();
         }
-      column = (const column_t *)( (const byte *)column + column->length + 4);
     }
-  dc_texturemid = basetexturemid;
+  dcvars.texturemid = basetexturemid;
 }
 
 //
@@ -358,23 +362,22 @@ void R_DrawMaskedColumn(const column_t *column)
 // CPhipps - new wad lump handling, *'s to const*'s
 static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 {
-  const column_t *column;
   int      texturecolumn;
   fixed_t  frac;
-  const patch_t *patch = W_CacheLumpNum (vis->patch+firstspritelump);
+  const rpatch_t *patch = R_CachePatchNum(vis->patch+firstspritelump);
 
-  dc_colormap = vis->colormap;
+  dcvars.colormap = vis->colormap;
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
 
-  if (!dc_colormap)   // NULL colormap = shadow draw
+  if (!dcvars.colormap)   // NULL colormap = shadow draw
     colfunc = R_DrawFuzzColumn;    // killough 3/14/98
   else
     if (vis->mobjflags & MF_TRANSLATION)
       {
         colfunc = R_DrawTranslatedColumn;
-        dc_translation = translationtables - 256 +
+        dcvars.translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
       }
     else
@@ -387,27 +390,28 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
         colfunc = R_DrawColumn;         // killough 3/14/98, 4/11/98
 
 // proff 11/06/98: Changed for high-res
-  dc_iscale = FixedDiv (FRACUNIT, vis->scale);
-  dc_texturemid = vis->texturemid;
+  dcvars.iscale = FixedDiv (FRACUNIT, vis->scale);
+  dcvars.texturemid = vis->texturemid;
   frac = vis->startfrac;
   spryscale = vis->scale;
-  sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
+  sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
-  for (dc_x=vis->x1 ; dc_x<=vis->x2 ; dc_x++, frac += vis->xiscale)
+  for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;
 
 #ifdef RANGECHECK
-      if (texturecolumn < 0 || texturecolumn >= SHORT(patch->width))
+      if (texturecolumn < 0 || texturecolumn >= patch->width)
         I_Error ("R_DrawSpriteRange: Bad texturecolumn");
 #endif
 
-      column = (const column_t *)((const byte *) patch +
-                            LONG(patch->columnofs[texturecolumn]));
-      R_DrawMaskedColumn (column);
+      R_DrawMaskedColumn(
+        patch,
+        R_GetPatchColumnClamped(patch, texturecolumn)
+      );
     }
   colfunc = R_DrawColumn;         // killough 3/14/98
-  W_UnlockLumpNum(vis->patch+firstspritelump); // cph - release lump
+  R_UnlockPatchNum(vis->patch+firstspritelump); // cph - release lump
 }
 
 //
@@ -535,25 +539,25 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     }
 
   {
-    const patch_t* p = W_CacheLumpNum(lump+firstspritelump);
+    const rpatch_t* patch = R_CachePatchNum(lump+firstspritelump);
 
     /* calculate edges of the shape
      * cph 2003/08/1 - fraggle points out that this offset must be flipped
      * if the sprite is flipped; e.g. FreeDoom imp is messed up by this. */
     if (flip) {
-      tx -= (SHORT(p->width) - SHORT(p->leftoffset)) << FRACBITS;
+      tx -= (patch->width - patch->leftoffset) << FRACBITS;
     } else {
-      tx -= SHORT(p->leftoffset) << FRACBITS;
+      tx -= patch->leftoffset << FRACBITS;
     }
     x1 = (centerxfrac + FixedMul(tx,xscale)) >> FRACBITS;
 
-    tx += SHORT(p->width)<<FRACBITS;
+    tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx,xscale) ) >> FRACBITS) - 1;
 
-    //e6y gzt = thing->z + (SHORT(p->topoffset) << FRACBITS);
-    gzt = fz + (SHORT(p->topoffset) << FRACBITS); //e6y
-    width = SHORT(p->width);
-    W_UnlockLumpNum(lump+firstspritelump);
+    //e6y gzt = thing->z + (patch->topoffset << FRACBITS);
+    gzt = fz + (patch->topoffset << FRACBITS);//e6y
+    width = patch->width;
+    R_UnlockPatchNum(lump+firstspritelump);
   }
 
   // off the side?
@@ -719,20 +723,20 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   flip = (boolean) sprframe->flip[0];
 
   {
-    const patch_t* p = W_CacheLumpNum(lump+firstspritelump);
+    const rpatch_t* patch = R_CachePatchNum(lump+firstspritelump);
     // calculate edges of the shape
     fixed_t       tx;
     tx = psp->sx-160*FRACUNIT;
 
-    tx -= SHORT(p->leftoffset)<<FRACBITS;
+    tx -= patch->leftoffset<<FRACBITS;
     x1 = (centerxfrac + FixedMul (tx,pspritescale))>>FRACBITS;
 
-    tx += SHORT(p->width)<<FRACBITS;
+    tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx, pspritescale) ) >>FRACBITS) - 1;
 
-    width = SHORT(p->width);
-    topoffset = SHORT(p->topoffset)<<FRACBITS;
-    W_UnlockLumpNum(lump+firstspritelump);
+    width = patch->width;
+    topoffset = patch->topoffset<<FRACBITS;
+    R_UnlockPatchNum(lump+firstspritelump);
   }
 
   // off the side

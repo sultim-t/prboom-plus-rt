@@ -26,12 +26,7 @@
 	IBOutlet id disableMusicButton;
 	IBOutlet id disableSoundButton;
 	IBOutlet id disableSoundEffectsButton;
-
-	// Wad options
-	NSMutableArray *wads;
-
-	IBOutlet id wadView;
-	IBOutlet id removeWadButton;
+	IBOutlet id configFileButtonController;
 
 	// Demo options
 	IBOutlet id noDemoButton;
@@ -41,17 +36,18 @@
 	IBOutlet id demoMatrix;
 
 	IBOutlet id ffToLevelField;
-	IBOutlet id chooseDemoFileButton;
-	IBOutlet id demoFileField;
+	IBOutlet id demoFileButtonController;
+
+	// Wad options
+	IBOutlet id wadViewController;
+
+	// Drawers
+	IBOutlet id wadDrawer;
+	IBOutlet id demoDrawer;
+	IBOutlet id debugDrawer;
 
 	// Console
-	IBOutlet id consoleWindow;
-	IBOutlet id consoleTextView;
-
-	// Launch management
-	NSTask *doomTask;
-	NSPipe *standardOutput;
-	NSPipe *standardError;
+	IBOutlet id consoleController;
 }
 
 - (NSString *)wadPath;
@@ -70,8 +66,9 @@
         forPath:(NSString *)path;
 
 // Game
+- (void)tryToLaunch;
 - (IBAction)startClicked:(id)sender;
-- (void)taskReadTimer:(NSTimer *)timer;
+- (void)taskEnded:(id)sender;
 - (IBAction)gameButtonClicked:(id)sender;
 
 // Tools
@@ -82,25 +79,8 @@
 - (IBAction)disableSoundClicked:(id)sender;
 
 // Demo options
-- (IBAction)chooseDemoFileClicked:(id)sender;
-- (void)chooseDemoFileEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
 - (IBAction)demoButtonClicked:(id)sender;
 
-// Wad options
-- (IBAction)addWadClicked:(id)sender;
-- (void)addWadEnded:(NSOpenPanel *)panel returnCode:(int)code contextInfo:(void *)info;
-- (IBAction)removeWadClicked:(id)sender;
-
-// Wad table view and data source
-- (void)tableViewSelectionDidChange:(NSNotification *)notification;
-- (int)numberOfRowsInTableView:(NSTableView *)tableView;
-- (id)tableView:(NSTableView *)tableView
-                objectValueForTableColumn:(NSTableColumn *)column
-                row:(int)row;
-- (void)tableView:(NSTableView *)tableView
-                  setObjectValue:(id)object
-                  forTableColumn:(NSTableColumn *)column
-                  row:(int)row;
 @end
 
 @interface LaunchCommand : NSScriptCommand
