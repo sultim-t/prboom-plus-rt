@@ -28,11 +28,11 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 %build
-./configure --disable-cpu-opt --prefix=/usr
+%configure --disable-cpu-opt
 make
 
 %install
-%makeinstall
+make %{?buildroot:DESTDIR=%{buildroot}} install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
