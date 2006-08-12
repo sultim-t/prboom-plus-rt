@@ -76,6 +76,7 @@ int movement_smooth;
 int movement_altmousesupport;
 int movement_mouselook;
 int movement_mouseinvert;
+int movement_maxviewpitch;
 int render_fov;
 static int render_canusedetail;
 int render_usedetail;
@@ -166,6 +167,9 @@ boolean gl_arb_multitexture;
 PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB       = NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB = NULL;
 PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB     = NULL;
+
+int maxViewPitch;
+int minViewPitch;
 #endif
 
 static boolean saved_fastdemo;
@@ -374,14 +378,27 @@ void M_ChangeMouseLook(void)
   viewpitch = 0;
   if(movement_mouselook)
   {
+    stat_settings3[10].m_flags &= ~(S_SKIP|S_SELECT);
+    stat_settings3[11].m_flags &= ~(S_SKIP|S_SELECT);
     stat_settings3[12].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[13].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
+    stat_settings3[10].m_flags |= (S_SKIP|S_SELECT);
+    stat_settings3[11].m_flags |= (S_SKIP|S_SELECT);
     stat_settings3[12].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[13].m_flags |= (S_SKIP|S_SELECT);
   }
+#endif
+}
+
+void M_ChangeMaxViewPitch(void)
+{
+#ifdef GL_DOOM
+  int angle = (int)((float)movement_maxviewpitch / 45.0f * ANG45);
+  maxViewPitch = (angle - (1<<ANGLETOFINESHIFT));
+  minViewPitch = (-angle + (1<<ANGLETOFINESHIFT));
+
+  viewpitch = 0;
 #endif
 }
 
@@ -400,13 +417,10 @@ boolean GetMouseLook(void)
 
 void CheckPitch(signed int *pitch)
 {
-#define maxAngle (ANG90 - (1<<ANGLETOFINESHIFT))
-#define minAngle (-ANG90 + (1<<ANGLETOFINESHIFT))
-
-  if(*pitch > maxAngle)
-    *pitch = maxAngle;
-  if(*pitch < minAngle)
-    *pitch = minAngle;
+  if(*pitch > maxViewPitch)
+    *pitch = maxViewPitch;
+  if(*pitch < minViewPitch)
+    *pitch = minViewPitch;
 }
 
 void M_ChangeMouseInvert(void)

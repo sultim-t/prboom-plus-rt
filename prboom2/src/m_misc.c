@@ -736,6 +736,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"movement_mouselook", {&movement_mouselook},  {0},0,1,
    def_bool,ss_stat},
+  {"movement_maxviewpitch", {&movement_maxviewpitch},  {90},0,90,
+   def_int,ss_stat},
   {"movement_mouseinvert", {&movement_mouseinvert},  {0},0,1,
    def_bool,ss_stat},
   {"render_paperitems", {&render_paperitems},  {1},0,1,
