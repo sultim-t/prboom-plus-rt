@@ -2,6 +2,25 @@ title: Project Homepage
 
     <h1>News</h1>
     
+    <h3>12th August 2006</h3>
+
+    <p>Version 2.4.5 is released.</p>
+    <ul class="changes">
+        <li>fix crash when saving the game in levels with lots of monsters (bug introduced in 2.4.4)</li>
+        <li>-nodeh option to disable automatic loading of dehacked-in-wad lump</li>
+        <li>Unified software and opengl engine into one binary</li>
+        <li>Added video mode selection to menu</li>
+        <li>fix demo desyncs on E1M5 on x86_64 systems</li>
+        <li>Fullscreen setting will only take effect after game restart</li>
+        <li>reduce red palette translation if the menu is up, so the menu can still be read</li>
+        <li>screenshots now in PNG format on Linux/Unix in GL mode too</li>
+        <li>Added experimental -checksum option for demo playback comparison</li>
+        <li>Merged new internal patch (graphics) format from PrBoom 2.3</li>
+        <li>Mac OS X: Launcher now uses drawers instead of tabs</li>
+        <li>Mac OS X: Fix some longstanding Wad chooser issues</li>
+        <li>Mac OS X: Add a console to display text output from PrBoom</li>
+    </ul>
+
     <h3>30th July 2006</h3>
 
     <p>Version 2.4.4 is released.</p>
