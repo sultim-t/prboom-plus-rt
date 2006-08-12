@@ -53,8 +53,6 @@ COMMON_SRC = \
 
 NET_CLIENT_SRC = d_client.c i_udp_sdl.c
 
-GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
-
 if BUILD_GL
 USE_GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
 else
@@ -69,7 +67,4 @@ endif
 
 prboom_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC)
 prboom_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
-
-# Must remember to include 'optional' sources in the tarball
-EXTRA_prboom_SOURCES = $(GL_SRC)
 
