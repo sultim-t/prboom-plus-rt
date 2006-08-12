@@ -34,9 +34,9 @@ that they are designed to work with. In practice, most PWADs on the
 Internet require doom2.wad (although some work with doom.wad).
 
 If you don't own any of the Doom games, get the shareware doom1.wad
-from Doomworld's shareware download page. You won't be able to play
-most add-ons.
-http://www.doomworld.com/shareware
+from doom19s.zip on Doomworld's shareware download page. But note that you
+will not be able to play most add-ons.
+http://www.doomworld.com/files/shareware.shtml
 
 Windows Installation
 --------------------
@@ -68,7 +68,7 @@ installing the binary RPM package or compiling PrBoom from source.
 
 Once you've done that, you'll need to copy your IWAD file (see the section
 above if you don't know what this is) to a directory where PrBoom can find
-it. Make /usr/local/share/games/doom/, and copy you IWAD (all of your
+it. Make /usr/local/share/games/doom/, and copy your IWAD (all of your
 IWADs, if you own more than one) to that directory.
 
 Mac OS Installation
@@ -84,9 +84,10 @@ First Use
 If it's the first time you've run PrBoom, you'll need to do some configuring
 to get the controls and display right for you.
 
-By default, PrBoom runs at Doom's normal 320x200 resolution. This is rather
-low by modern standards :-). You can use the -width and -height parameters to
-select a higher resolution, e.g.:
+On a new installation, PrBoom runs at 640x480 resolution. If you have used
+PrBoom before, you may have an old config file in your home directory which
+specifies a lower resolution, such as Doom's normal 320x200.  You can use the
+-width and -height parameters to select a higher resolution, e.g.:
 
 prboom -width 640 -height 400
 
@@ -98,9 +99,9 @@ are the same as the original Doom; unlike original Doom, you can change key
 bindings in the game. In the in-game menus, go to Options, Settings, Key
 Bindings.
 
-On Mac OS X, you can't use the command line, but after running the program once,
-you can edit YOURHOME:Library:Application Support:PrBoom:prboom.cfg to change
-settings like your screen resolution.
+On Mac OS X, you can't use the command line, but after running the program
+once, you can edit YOURHOME:Library:Application Support:PrBoom:prboom.cfg to
+change settings like your screen resolution.
 
 Features
 --------
