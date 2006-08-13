@@ -54,6 +54,18 @@ static LauncherApp *LApp;
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
+	[resolutionComboBox setObjectValue:[[resolutionComboBox dataSource]
+	                    comboBox:resolutionComboBox
+	                    objectValueForItemAtIndex:0]];
+	if([defaults boolForKey:@"Saved 2.4.6"])
+	{
+		id res = [defaults objectForKey:@"Resolution"];
+		if(NSNotFound != [[resolutionComboBox dataSource]
+		                  comboBox:resolutionComboBox
+		                  indexOfItemWithStringValue:res])
+			[resolutionComboBox setObjectValue:[defaults objectForKey:@"Resolution"]];
+	}
+
 	if([defaults boolForKey:@"Saved 2.4.5"])
 	{
 		[window setFrameUsingName:@"Launcher"];
@@ -113,6 +125,9 @@ static LauncherApp *LApp;
 
 	[defaults setBool:true forKey:@"Saved"];
 	[defaults setBool:true forKey:@"Saved 2.4.5"];
+	[defaults setBool:true forKey:@"Saved 2.4.6"];
+
+	[defaults setObject:[resolutionComboBox objectValue] forKey:@"Resolution"];
 
 	[window saveFrameUsingName:@"Launcher"];
 	[[consoleController window] saveFrameUsingName:@"Console"];
@@ -231,6 +246,9 @@ static LauncherApp *LApp;
 		[args insertObject:@"-nowindow" atIndex:[args count]];
 	else
 		[args insertObject:@"-window" atIndex:[args count]];
+
+	[args insertObject:@"-geom" atIndex:[args count]];
+	[args insertObject:[resolutionComboBox objectValue] atIndex:[args count]];
 
 	// Debug options
 	if([disableGraphicsButton state] == NSOnState)

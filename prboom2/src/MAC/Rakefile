@@ -132,6 +132,7 @@ MAC/DrawerButton.m
 MAC/FileButtonController.m
 MAC/LauncherApp.m
 MAC/LauncherMain.m
+MAC/ResolutionDataSource.m
 MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
 MAC/WadViewController.m

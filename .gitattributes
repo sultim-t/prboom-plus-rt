@@ -259,6 +259,8 @@ prboom2/src/MAC/Makefile.am -text
 prboom2/src/MAC/PrBoom.icns -text
 prboom2/src/MAC/PrBoom.sdef -text
 prboom2/src/MAC/Rakefile -text
+prboom2/src/MAC/ResolutionDataSource.h -text
+prboom2/src/MAC/ResolutionDataSource.m -text
 prboom2/src/MAC/SDLMain.h -text
 prboom2/src/MAC/SDLMain.m -text
 prboom2/src/MAC/TODO -text

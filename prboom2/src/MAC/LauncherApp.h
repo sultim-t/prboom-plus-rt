@@ -18,6 +18,7 @@
 	IBOutlet id noMonstersButton;
 
 	IBOutlet id fullscreenButton;
+	IBOutlet id resolutionComboBox;
 
 	// Debug options
 	IBOutlet id disableGraphicsButton;

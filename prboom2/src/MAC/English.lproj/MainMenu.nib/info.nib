@@ -54,8 +54,11 @@
 		<integer>660</integer>
 		<integer>661</integer>
 		<integer>590</integer>
-		<integer>358</integer>
+		<integer>21</integer>
 		<integer>365</integer>
+		<integer>753</integer>
+		<integer>752</integer>
+		<integer>358</integer>
 	</array>
 	<key>IBLockedTabItems</key>
 	<array>
@@ -63,8 +66,8 @@
 	</array>
 	<key>IBOpenObjects</key>
 	<array>
-		<integer>21</integer>
 		<integer>601</integer>
+		<integer>21</integer>
 	</array>
 	<key>IBSystem Version</key>
 	<string>8J135</string>
