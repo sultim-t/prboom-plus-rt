@@ -2509,16 +2509,20 @@ void M_DrawWeapons(void)
 // Screen table definitions
 
 setup_menu_t stat_settings1[];
-setup_menu_t stat_settings2[]; //e6y
-setup_menu_t stat_settings3[]; //e6y
-setup_menu_t stat_settings4[]; //e6y
+//e6y
+setup_menu_t stat_settings2[];
+setup_menu_t stat_settings3[];
+setup_menu_t stat_settings4[];
+setup_menu_t stat_settings5[];
 
 setup_menu_t* stat_settings[] =
 {
   stat_settings1,
-  stat_settings2, //e6y
-  stat_settings3, //e6y
-  stat_settings4, //e6y
+  //e6y
+  stat_settings2,
+  stat_settings3,
+  stat_settings4,
+  stat_settings5,
   NULL
 };
 
@@ -2563,42 +2567,61 @@ setup_menu_t stat_settings2[] =
   {"OVERWRITE EXISTING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"demo_overwriteexisting"}},
   {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
   {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
-  {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
-  {"ALT MOUSE HANDLING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 14*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 16*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+#ifdef USE_WINDOWS_LAUNCHER
+  {"MISC"                        ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
+  {"USE IN-GAME LAUNCHER"        ,S_YESNO     ,m_null,ST_X,ST_Y+13*8, {"launcher_enable"}},
+#endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings3}},
   {0,S_SKIP|S_END,m_null}
 };
+
 setup_menu_t stat_settings3[] =
+{
+  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
+  {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 4*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  
+  {"MOUSE"                       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+7*8},
+  {"ALT MOUSE HANDLING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"DBL-CLICK AS USE"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"mouse_doubleclick_as_use"}},
+#ifdef GL_DOOM
+  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 10*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"MAX VIEW PITCH"              ,S_NUM       ,m_null,ST_X,ST_Y+ 11*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 12*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+#endif
+
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings4}},
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t stat_settings4[] =
 {
   {"RENDER"                      ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
   {"CHANGE PALETTE ON PAIN"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"palette_ondamage"}},
   {"CHANGE PALETTE ON BONUS"     ,S_YESNO     ,m_null,ST_X,ST_Y+3*8,  {"palette_onbonus"}},
   {"CHANGE PALETTE ON POWERS"    ,S_YESNO     ,m_null,ST_X,ST_Y+4*8, {"palette_onpowers"}},
 #ifdef GL_DOOM
-  {"DETAILED WALLS"              ,S_YESNO       ,m_null,ST_X,ST_Y+6*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
-  {"DETAILED FLATS"              ,S_YESNO       ,m_null,ST_X,ST_Y+7*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
-
-  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+9*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"DETAILED WALLS"              ,S_YESNO       ,m_null,ST_X,ST_Y+7*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
+  {"DETAILED FLATS"              ,S_YESNO       ,m_null,ST_X,ST_Y+8*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
   {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"SMART ITEMS CLIPPING"        ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"render_smartitemsclipping"}},
-  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 13*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"MAX VIEW PITCH"              ,S_NUM       ,m_null,ST_X,ST_Y+ 14*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
-  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 15*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-  {"PAPER ITEMS"                 ,S_YESNO     ,m_null,ST_X,ST_Y+16*8, {"render_paperitems"}},
+  {"PAPER ITEMS"                 ,S_YESNO     ,m_null,ST_X,ST_Y+12*8, {"render_paperitems"}},
 #else
   {"WIPE SCREEN EFFECT"          ,S_YESNO ,m_null,ST_X,ST_Y+6*8, {"render_wipescreen"}},
 #endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings4}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings3}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings5}},
   {0,S_SKIP|S_END,m_null}
 };
-setup_menu_t stat_settings4[] =
+
+setup_menu_t stat_settings5[] =
 {
   {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+1*8},
   {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 2*8, {"overrun_spechit_warn"}},
@@ -2614,13 +2637,8 @@ setup_menu_t stat_settings4[] =
   {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 12*8, {"comperr_zerotag"}},
   {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null ,E_ST_X,ST_Y+13*8, {"comperr_passuse"}},
 
-#ifdef USE_WINDOWS_LAUNCHER
-  {"MISC"                        ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+15*8},
-  {"USE IN-GAME LAUNCHER"        ,S_YESNO     ,m_null,E_ST_X,ST_Y+16*8, {"launcher_enable"}},
-#endif
-
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings3}},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings4}},
   {0,S_SKIP|S_END,m_null}
 };
 

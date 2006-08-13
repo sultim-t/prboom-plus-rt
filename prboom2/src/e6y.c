@@ -77,6 +77,7 @@ int movement_altmousesupport;
 int movement_mouselook;
 int movement_mouseinvert;
 int movement_maxviewpitch;
+int mouse_doubleclick_as_use;
 int render_fov;
 static int render_canusedetail;
 int render_usedetail;
@@ -354,17 +355,17 @@ void M_ChangeSmooth(void)
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];
-  extern setup_menu_t stat_settings2[];
+  extern setup_menu_t stat_settings3[];
 
   if(movement_strafe50)
   {
-    stat_settings2[13].m_flags &= ~(S_SKIP|S_SELECT);
+    stat_settings3[3].m_flags &= ~(S_SKIP|S_SELECT);
     sidemove[0] = sidemove_strafe50[0];
     sidemove[1] = sidemove_strafe50[1];
   }
   else
   {
-    stat_settings2[13].m_flags |= (S_SKIP|S_SELECT);
+    stat_settings3[3].m_flags |= (S_SKIP|S_SELECT);
     movement_strafe50onturns = false;
     sidemove[0] = sidemove_normal[0];
     sidemove[1] = sidemove_normal[1];
@@ -378,15 +379,15 @@ void M_ChangeMouseLook(void)
   viewpitch = 0;
   if(movement_mouselook)
   {
+    stat_settings3[ 8].m_flags &= ~(S_SKIP|S_SELECT);
+    stat_settings3[ 9].m_flags &= ~(S_SKIP|S_SELECT);
     stat_settings3[10].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[11].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[12].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
+    stat_settings3[ 8].m_flags |= (S_SKIP|S_SELECT);
+    stat_settings3[ 9].m_flags |= (S_SKIP|S_SELECT);
     stat_settings3[10].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[11].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[12].m_flags |= (S_SKIP|S_SELECT);
   }
 #endif
 }

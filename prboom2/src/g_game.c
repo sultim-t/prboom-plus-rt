@@ -483,7 +483,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   if (mousebuttons[mousebforward])
     forward += forwardmove[speed];
 
-    // forward double click
+  if (mouse_doubleclick_as_use) {//e6y
+
+  // forward double click
   if (mousebuttons[mousebforward] != dclickstate && dclicktime > 1 )
     {
       dclickstate = mousebuttons[mousebforward];
@@ -526,6 +528,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         dclicks2 = 0;
         dclickstate2 = 0;
       }
+
+  }//e6y: end if (mouse_doubleclick_as_use)
 
   forward += mousey;
   if (strafe)

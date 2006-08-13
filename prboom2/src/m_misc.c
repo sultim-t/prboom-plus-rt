@@ -691,6 +691,8 @@ default_t defaults[] =
    def_int,ss_none},
   {"mouse_sensitivity_mlook",{&mouseSensitivity_mlook},{10},0,UL,
    def_int,ss_none},
+  {"mouse_doubleclick_as_use", {&mouse_doubleclick_as_use},  {1},0,1,
+   def_bool,ss_stat},
 
   {"Prboom-plus demos settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"demo_overwriteexisting", {&demo_overwriteexisting},  {0},0,1,

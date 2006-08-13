@@ -106,6 +106,7 @@ extern int movement_altmousesupport;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
 extern int movement_maxviewpitch;
+extern int mouse_doubleclick_as_use;
 extern int render_fov;
 extern int render_usedetail;
 extern int render_detailedwalls;
