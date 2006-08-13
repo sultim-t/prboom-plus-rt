@@ -306,7 +306,7 @@ void G_SkipDemoStart(void)
   nodrawers = true;
   nosfxparm = true;
   nomusicparm = true;
-  I_Init();
+  I_Init2();
 }
 
 void G_SkipDemoStop(void)
@@ -322,7 +322,7 @@ void G_SkipDemoStop(void)
   doSkip = false;
   demo_skiptics = 0;
   startmap = 0;
-  I_Init();
+  I_Init2();
   S_Init(snd_SfxVolume, snd_MusicVolume);
   S_Start();
 }
