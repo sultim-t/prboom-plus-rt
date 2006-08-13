@@ -326,9 +326,9 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
 
     mousex = mousey = 0;
+    return;
   }
-  else
-  {
+
     // use two stage accelerative turning
     // on the keyboard and joystick
   if (joyxmove < 0 || joyxmove > 0 ||
@@ -533,7 +533,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else
     cmd->angleturn -= mousex; /* mead now have enough dynamic range 2-10-00 */
 
-//e6y  mousex = mousey = 0;
+  if (!walkcamera.type) //e6y
+    mousex = mousey = 0;
 
   if (forward > MAXPLMOVE)
     forward = MAXPLMOVE;
@@ -572,10 +573,6 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   if (special_event & BT_SPECIAL) {
     cmd->buttons = special_event;
     special_event = 0;
-  }
-//e6y
-  if (!demoplayback)
-    mousex = mousey = 0;
   }
 }
 
