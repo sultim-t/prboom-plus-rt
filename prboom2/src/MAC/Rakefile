@@ -24,7 +24,18 @@ end
 # Bundle structure #
 ####################
 
-installTask(:setup, CONTENTSDIR, 'mac/Info.plist')
+file("#{CONTENTSDIR}/Info.plist" => ['mac/Info.plist', CONTENTSDIR, 'mac/Rakefile']) do |t|
+	plist = []
+	File.open(t.prerequisites[0], 'r') do |file|
+		plist = file.readlines
+	end
+	File.open(t.name, 'w') do |f|
+		for line in plist
+			f.write(line.gsub(/%VERSION%/, APPVERSION))
+		end
+	end
+end
+task(:setup => "#{CONTENTSDIR}/Info.plist")
 task(:bundle => :setup)
 
 installFrameworks(:frameworks)
