@@ -202,7 +202,7 @@ void e6y_D_DoomMainSetup(void);
 void e6y_I_Init(void);
 
 void P_WalkTicker ();
-void P_ResetWalkcam ();
+void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight);
 
 void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);

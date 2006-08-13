@@ -3121,24 +3121,26 @@ void P_WalkTicker()
     walkcamera.z = subsec->sector->floorheight + 41 * FRACUNIT;
   }
 
-  mousex = 0;
-  mousey = 0;
-
+  mousex = mousey = 0;
 }
 
-void P_ResetWalkcam()
+void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight)
 {
   if (!walkcamera.type)
     return;
 
   if (players[displayplayer].mo)
   {
-    if (walkcamera.type==1)
+    if (ResetSight)
     {
       walkcamera.angle = players[displayplayer].mo->angle;
       walkcamera.pitch = players[displayplayer].mo->pitch;
     }
-    walkcamera.x = players[displayplayer].mo->x;
-    walkcamera.y = players[displayplayer].mo->y;
+
+    if(ResetCoord)
+    {
+      walkcamera.x = players[displayplayer].mo->x;
+      walkcamera.y = players[displayplayer].mo->y;
+    }
   }
 }
