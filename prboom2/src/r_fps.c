@@ -33,7 +33,6 @@
  */
 
 #include "doomstat.h"
-#include "SDL.h"
 #include "r_defs.h"
 #include "r_state.h"
 #include "p_spec.h"
@@ -59,86 +58,26 @@ typedef struct
   void *address;
 } interpolation_t;
 
-int numinterpolations = 0;
-boolean NewThinkerPresent = false;
+static int numinterpolations = 0;
 
-unsigned int TicStart;
-unsigned int TicNext;
-unsigned int TicStep;
-float TicksInMSec;
+tic_vars_t tic_vars;
 
-fixed_t	r_TicFrac;
-int otic;
+view_vars_t original_view_vars;
 
-fixed_t PrevX;
-fixed_t PrevY;
-fixed_t PrevZ;
-
-fixed_t oviewx;
-fixed_t oviewy;
-fixed_t oviewz;
-angle_t oviewangle;
-angle_t oviewpitch;
-
-extern int_64_t I_GetTime_Scale;
 extern int realtic_clock_rate;
 void D_Display(void);
 
-void e6y_I_Init(void)
+void R_InitInterpolation(void)
 {
-  TicksInMSec = realtic_clock_rate * TICRATE / 100000.0f;
-}
-
-void Extra_D_Display(void)
-{
-#ifdef GL_DOOM
-  if (movement_smooth)
-#else
-    if (movement_smooth && gamestate==wipegamestate)
-#endif
-  {
-    isExtraDDisplay = true;
-    D_Display();
-    isExtraDDisplay = false;
-  }
-}
-
-fixed_t I_GetTimeFrac (void)
-{
-  unsigned long now;
-  fixed_t frac;
-
-  now = SDL_GetTicks();
-
-  if (TicStep == 0)
-    return FRACUNIT;
-  else
-  {
-    frac = (fixed_t)((now - TicStart + DDisplayTime) * FRACUNIT / TicStep);
-    if (frac < 0)
-      frac = 0;
-    if (frac > FRACUNIT)
-      frac = FRACUNIT;
-    return frac;
-  }
-}
-
-void I_GetTime_SaveMS(void)
-{
-  if (!movement_smooth)
-    return;
-
-  TicStart = SDL_GetTicks();
-  TicNext = (unsigned int) ((TicStart * TicksInMSec + 1.0f) / TicksInMSec);
-  TicStep = TicNext - TicStart;
+  tic_vars.msec = realtic_clock_rate * TICRATE / 100000.0f;
 }
 
 typedef fixed_t fixed2_t[2];
-fixed2_t *oldipos;
-fixed2_t *bakipos;
-interpolation_t *curipos;
+static fixed2_t *oldipos;
+static fixed2_t *bakipos;
+static interpolation_t *curipos;
 
-boolean NoInterpolateView;
+static boolean NoInterpolateView;
 boolean r_NoInterpolate;
 static boolean didInterp;
 
@@ -149,12 +88,12 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     if (NoInterpolateView)
     {
       NoInterpolateView = false;
-      oviewx = player->mo->x;
-      oviewy = player->mo->y;
-      oviewz = player->viewz;
+      original_view_vars.viewx = player->mo->x;
+      original_view_vars.viewy = player->mo->y;
+      original_view_vars.viewz = player->viewz;
 
-      oviewangle = player->mo->angle + viewangleoffset;
-      oviewpitch = player->mo->pitch;
+      original_view_vars.viewangle = player->mo->angle + viewangleoffset;
+      original_view_vars.viewpitch = player->mo->pitch;
 
       if(walkcamera.type)
       {
@@ -168,9 +107,9 @@ void R_InterpolateView (player_t *player, fixed_t frac)
 
     if (walkcamera.type != 2)
     {
-      viewx = oviewx + FixedMul (frac, player->mo->x - oviewx);
-      viewy = oviewy + FixedMul (frac, player->mo->y - oviewy);
-      viewz = oviewz + FixedMul (frac, player->viewz - oviewz);
+      viewx = original_view_vars.viewx + FixedMul (frac, player->mo->x - original_view_vars.viewx);
+      viewy = original_view_vars.viewy + FixedMul (frac, player->mo->y - original_view_vars.viewy);
+      viewz = original_view_vars.viewz + FixedMul (frac, player->viewz - original_view_vars.viewz);
     }
     else
     {
@@ -186,8 +125,8 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     }
     else
     {
-      viewangle = oviewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - oviewangle);
-      viewpitch = oviewpitch + FixedMul (frac, player->mo->pitch /*+ viewangleoffset*/ - oviewpitch);
+      viewangle = original_view_vars.viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - original_view_vars.viewangle);
+      viewpitch = original_view_vars.viewpitch + FixedMul (frac, player->mo->pitch /*+ viewangleoffset*/ - original_view_vars.viewpitch);
     }
   }
   else
@@ -223,7 +162,7 @@ void R_ResetViewInterpolation ()
   NoInterpolateView = true;
 }
 
-void CopyInterpToOld (int i)
+static void R_CopyInterpToOld (int i)
 {
   switch (curipos[i].type)
   {
@@ -252,7 +191,7 @@ void CopyInterpToOld (int i)
   }
 }
 
-void CopyBakToInterp (int i)
+static void R_CopyBakToInterp (int i)
 {
   switch (curipos[i].type)
   {
@@ -281,7 +220,7 @@ void CopyBakToInterp (int i)
   }
 }
 
-void DoAnInterpolation (int i, fixed_t smoothratio)
+static void R_DoAnInterpolation (int i, fixed_t smoothratio)
 {
   fixed_t pos;
   fixed_t *adr1 = NULL;
@@ -329,18 +268,18 @@ void DoAnInterpolation (int i, fixed_t smoothratio)
   }
 }
 
-void updateinterpolations()
+void R_UpdateInterpolations()
 {
   int i;
   if (!movement_smooth)
     return;
   for (i = numinterpolations-1; i >= 0; --i)
-    CopyInterpToOld (i);
+    R_CopyInterpToOld (i);
 }
 
 int interpolations_max = 0;
 
-void setinterpolation(interpolation_type_e type, void *posptr)
+static void R_SetInterpolation(interpolation_type_e type, void *posptr)
 {
   int i;
   if (!movement_smooth)
@@ -360,11 +299,11 @@ void setinterpolation(interpolation_type_e type, void *posptr)
 
   curipos[numinterpolations].address = posptr;
   curipos[numinterpolations].type = type;
-  CopyInterpToOld (numinterpolations);
+  R_CopyInterpToOld (numinterpolations);
   numinterpolations++;
 } 
 
-void stopinterpolation(interpolation_type_e type, void *posptr)
+static void R_StopInterpolation(interpolation_type_e type, void *posptr)
 {
   int i;
 
@@ -386,7 +325,7 @@ void stopinterpolation(interpolation_type_e type, void *posptr)
   }
 }
 
-void stopallinterpolation(void)
+void R_StopAllInterpolations(void)
 {
   int i;
   
@@ -404,7 +343,7 @@ void stopallinterpolation(void)
   }
 }
 
-void dointerpolations(fixed_t smoothratio)
+void R_DoInterpolations(fixed_t smoothratio)
 {
   int i;
   if (!movement_smooth)
@@ -420,11 +359,11 @@ void dointerpolations(fixed_t smoothratio)
 
   for (i = numinterpolations-1; i >= 0; --i)
   {
-    DoAnInterpolation (i, smoothratio);
+    R_DoAnInterpolation (i, smoothratio);
   }
 }
 
-void restoreinterpolations()
+void R_RestoreInterpolations()
 {
   int i;
   
@@ -436,12 +375,12 @@ void restoreinterpolations()
     didInterp = false;
     for (i = numinterpolations-1; i >= 0; --i)
     {
-      CopyBakToInterp (i);
+      R_CopyBakToInterp (i);
     }
   }
 }
 
-void P_ActivateAllInterpolations()
+void R_ActivateSectorInterpolations()
 {
   int i;
   sector_t     *sec;
@@ -452,13 +391,13 @@ void P_ActivateAllInterpolations()
   for (i=0, sec = sectors ; i<numsectors ; i++,sec++)
   {
     if (sec->floordata)
-      setinterpolation (INTERP_SectorFloor, sec);
+      R_SetInterpolation (INTERP_SectorFloor, sec);
     if (sec->ceilingdata)
-      setinterpolation (INTERP_SectorCeiling, sec);
+      R_SetInterpolation (INTERP_SectorCeiling, sec);
   }
 }
 
-void InterpolationGetData(thinker_t *th,
+static void R_InterpolationGetData(thinker_t *th,
   interpolation_type_e *type1, interpolation_type_e *type2,
   void **posptr1, void **posptr2)
 {
@@ -518,7 +457,7 @@ void InterpolationGetData(thinker_t *th,
   }
 }
 
-void SetInterpolationIfNew(thinker_t *th)
+void R_ActivateThinkerInterpolations(thinker_t *th)
 {
   void *posptr1;
   void *posptr2;
@@ -527,18 +466,18 @@ void SetInterpolationIfNew(thinker_t *th)
   if (!movement_smooth)
     return;
 
-  InterpolationGetData(th, &type1, &type2, &posptr1, &posptr2);
+  R_InterpolationGetData(th, &type1, &type2, &posptr1, &posptr2);
 
   if(posptr1)
   {
-    setinterpolation (type1, posptr1);
+    R_SetInterpolation (type1, posptr1);
     
     if(posptr2)
-      setinterpolation (type2, posptr2);
+      R_SetInterpolation (type2, posptr2);
   }
 }
 
-void StopInterpolationIfNeeded(thinker_t *th)
+void R_StopInterpolationIfNeeded(thinker_t *th)
 {
   void *posptr1;
   void *posptr2;
@@ -547,13 +486,13 @@ void StopInterpolationIfNeeded(thinker_t *th)
   if (!movement_smooth)
     return;
 
-  InterpolationGetData(th, &type1, &type2, &posptr1, &posptr2);
+  R_InterpolationGetData(th, &type1, &type2, &posptr1, &posptr2);
 
   if(posptr1)
   {
-    stopinterpolation (type1, posptr1);
+    R_StopInterpolation (type1, posptr1);
     if(posptr2)
-      stopinterpolation (type2, posptr2);
+      R_StopInterpolation (type2, posptr2);
   }
 }
 

@@ -36,9 +36,12 @@
 #include "p_spec.h"
 #include "p_tick.h"
 #include "p_map.h"
+#include "r_fps.h"
 #include "e6y.h"//e6y
 
 int leveltime;
+
+static boolean newthinkerpresent;
 
 //
 // THINKERS
@@ -118,7 +121,7 @@ void P_AddThinker(thinker_t* thinker)
   // killough 8/29/98: set sentinel pointers, and then add to appropriate list
   thinker->cnext = thinker->cprev = NULL;
   P_UpdateThinker(thinker);
-  NewThinkerPresent = true;//e6y
+  newthinkerpresent = true;//e6y
 }
 
 //
@@ -176,7 +179,7 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 
 void P_RemoveThinker(thinker_t *thinker)
 {
-  StopInterpolationIfNeeded(thinker);//e6y
+  R_StopInterpolationIfNeeded(thinker);//e6y
   thinker->function = P_RemoveThinkerDelayed;
 
   P_UpdateThinker(thinker);
@@ -242,15 +245,15 @@ static void P_RunThinkers (void)
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
        {//e6y
-    if (NewThinkerPresent)
-      SetInterpolationIfNew(currentthinker);
+    if (newthinkerpresent)
+      R_ActivateThinkerInterpolations(currentthinker);
 
     if (currentthinker->function)
       currentthinker->function(currentthinker);
     
     //e6y
        }
-  NewThinkerPresent = false;
+  newthinkerpresent = false;
 }
 
 //
@@ -271,7 +274,7 @@ void P_Ticker (void)
    */
 
   //e6y
-  updateinterpolations ();
+  R_UpdateInterpolations ();
   r_NoInterpolate = true;
   if (paused)
     return;

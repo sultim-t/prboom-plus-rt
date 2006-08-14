@@ -57,6 +57,7 @@
 #include "r_plane.h"
 #include "r_data.h"
 #include "r_things.h"
+#include "r_fps.h"
 #include "p_maputl.h"
 #include "m_bbox.h"
 #include "lprintf.h"
@@ -2699,9 +2700,9 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.thing = vspr->thing;
   if (movement_smooth)
   {
-    sprite.x = (float)(-pSpr->PrevX + FixedMul (r_TicFrac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
-    sprite.y = (float)(pSpr->PrevZ + FixedMul (r_TicFrac, pSpr->z - pSpr->PrevZ))/MAP_SCALE;
-    sprite.z = (float)(pSpr->PrevY + FixedMul (r_TicFrac, pSpr->y - pSpr->PrevY))/MAP_SCALE;
+    sprite.x = (float)(-pSpr->PrevX + FixedMul (tic_vars.frac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
+    sprite.y = (float)(pSpr->PrevZ + FixedMul (tic_vars.frac, pSpr->z - pSpr->PrevZ))/MAP_SCALE;
+    sprite.z = (float)(pSpr->PrevY + FixedMul (tic_vars.frac, pSpr->y - pSpr->PrevY))/MAP_SCALE;
   }
   else
   {

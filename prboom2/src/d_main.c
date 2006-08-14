@@ -77,6 +77,7 @@
 #include "p_setup.h"
 #include "r_draw.h"
 #include "r_main.h"
+#include "r_fps.h"
 #include "d_main.h"
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
@@ -101,6 +102,7 @@ boolean respawnparm;    // working -respawn
 boolean fastparm;       // working -fast
 
 boolean singletics = false; // debug flag to cancel adaptiveness
+static boolean skipDDisplay = false;
 
 //jff 1/22/98 parms for disabling music and sound
 boolean nosfxparm;
@@ -206,7 +208,6 @@ extern int     showMessages;
 
 void D_Display (void)
 {
-  unsigned int entertime;//e6y
   static boolean inhelpscreensstate   = false;
   static boolean isborderstate        = false;
   static boolean borderwillneedredraw = false;
@@ -220,7 +221,7 @@ void D_Display (void)
   //e6y
   if (skipDDisplay)
     return;
-  entertime = SDL_GetTicks();
+  I_StartDisplay();
   skipDDisplay = true;
 
   // save the current screen if about to wipe
@@ -320,7 +321,7 @@ void D_Display (void)
   }
 
   //e6y
-  DDisplayTime = SDL_GetTicks() - entertime;
+  I_EndDisplay();
   skipDDisplay = false;
 }
 

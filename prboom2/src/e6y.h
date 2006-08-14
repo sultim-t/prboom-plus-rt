@@ -7,7 +7,6 @@
 #include "p_maputl.h"
 #include "w_wad.h"
 #include "r_demo.h"
-#include "r_fps.h"
 
 #define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
 
@@ -181,7 +180,6 @@ extern char hud_centermsg[80];
 void e6y_assert(const char *format, ...);
 
 void e6y_D_DoomMainSetup(void);
-void e6y_I_Init(void);
 
 void P_WalkTicker ();
 void P_ResetWalkcam(boolean ResetCoord, boolean ResetSight);

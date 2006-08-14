@@ -38,6 +38,7 @@
 #include "r_segs.h"
 #include "r_draw.h"
 #include "r_things.h"
+#include "r_fps.h"
 #include "v_video.h"
 #include "lprintf.h"
 #include "e6y.h"//e6y
@@ -445,9 +446,9 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
 
   if (movement_smooth)
   {
-    fx = thing->PrevX + FixedMul (r_TicFrac, thing->x - thing->PrevX);
-    fy = thing->PrevY + FixedMul (r_TicFrac, thing->y - thing->PrevY);
-    fz = thing->PrevZ + FixedMul (r_TicFrac, thing->z - thing->PrevZ);
+    fx = thing->PrevX + FixedMul (tic_vars.frac, thing->x - thing->PrevX);
+    fy = thing->PrevY + FixedMul (tic_vars.frac, thing->y - thing->PrevY);
+    fz = thing->PrevZ + FixedMul (tic_vars.frac, thing->z - thing->PrevZ);
   }
   else
   {

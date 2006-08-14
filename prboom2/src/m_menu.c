@@ -58,6 +58,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "i_sound.h"
+#include "r_fps.h"
 #include "e6y.h"//e6y
 
 extern patchnum_t hu_font[HU_FONTSIZE];

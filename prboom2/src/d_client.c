@@ -52,6 +52,7 @@
 #include "i_main.h"
 #include "i_video.h"
 #include "m_argv.h"
+#include "r_fps.h"
 #include "lprintf.h"
 
 #ifdef HAVE_CONFIG_H
@@ -77,6 +78,8 @@ int maketic;
 int ticdup = 1;
 static int xtratics = 0;
 int              wanted_player_number;
+
+static boolean isExtraDDisplay = false;
 
 static void D_QuitNetGame (void);
 
@@ -478,10 +481,19 @@ void TryRunTics (void)
         M_Ticker(); return;
       }
       //e6y
-      //if ((DDisplayTime) < (TicNext-SDL_GetTicks()))
+      //if ((displaytime) < (tic_vars.next-SDL_GetTicks()))
       {
         WasRenderedInTryRunTics = true;
-        Extra_D_Display();
+#ifdef GL_DOOM
+        if (movement_smooth)
+#else
+        if (movement_smooth && gamestate==wipegamestate)
+#endif
+        {
+          isExtraDDisplay = true;
+          D_Display();
+          isExtraDDisplay = false;
+        }
       }
 
     } else break;

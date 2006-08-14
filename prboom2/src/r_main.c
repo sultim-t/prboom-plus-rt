@@ -50,6 +50,7 @@
 #include "i_main.h"
 #include "g_game.h"
 #include "r_demo.h"
+#include "r_fps.h"
 #include "e6y.h"//e6y
 
 // Fineangles in the SCREENWIDTH wide window.
@@ -447,10 +448,10 @@ static void R_SetupFrame (player_t *player)
     R_ResetViewInterpolation ();
     oviewer = player->mo;
   }
-  r_TicFrac = I_GetTimeFrac ();
+  tic_vars.frac = I_GetTimeFrac ();
   if (r_NoInterpolate)
-    r_TicFrac = FRACUNIT;
-  R_InterpolateView (player, r_TicFrac);
+    tic_vars.frac = FRACUNIT;
+  R_InterpolateView (player, tic_vars.frac);
 
   extralight = player->extralight;
 
@@ -459,7 +460,7 @@ static void R_SetupFrame (player_t *player)
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 
-  dointerpolations(r_TicFrac);//e6y
+  R_DoInterpolations(tic_vars.frac);//e6y
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
@@ -656,5 +657,5 @@ void R_RenderPlayerView (player_t* player)
 
   if (rendering_stats) R_ShowStats();
   
-  restoreinterpolations ();//e6y
+  R_RestoreInterpolations ();//e6y
 }

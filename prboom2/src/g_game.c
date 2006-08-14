@@ -1763,7 +1763,7 @@ void G_DoLoadGame(void)
   P_UnArchiveSpecials ();
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
-  P_ActivateAllInterpolations();//e6y
+  R_ActivateSectorInterpolations();//e6y
   R_SmoothPlaying_Reset(NULL); // e6y
 
   if (*save_p != 0xe6)

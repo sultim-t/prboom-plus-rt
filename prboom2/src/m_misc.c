@@ -67,6 +67,7 @@
 #include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
+#include "r_fps.h"
 #include "e6y.h"//e6y
 
 /* cph - disk icon not implemented */

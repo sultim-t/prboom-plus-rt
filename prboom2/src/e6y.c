@@ -143,11 +143,6 @@ float skyYShift;
 
 boolean SkyDrawed;
 
-boolean isExtraDDisplay = false;
-boolean skipDDisplay = false;
-unsigned int DDisplayTime;
-
-
 float internal_render_fov = FOV90;
 
 #ifdef GL_DOOM

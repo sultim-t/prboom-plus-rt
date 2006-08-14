@@ -40,6 +40,7 @@
 #include "p_spec.h"
 #include "p_user.h"
 #include "r_demo.h"
+#include "r_fps.h"
 #include "e6y.h"//e6y
 
 // Index of the special effects (INVUL inverse) map.
@@ -310,11 +311,11 @@ void P_PlayerThink (player_t* player)
   //e6y
   if (movement_smooth && players && &players[displayplayer] == player)
   {
-    oviewx = player->mo->x;
-    oviewy = player->mo->y;
-    oviewz = player->viewz;
-    oviewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
-    oviewpitch = player->mo->pitch;// + viewpitchoffset;
+    original_view_vars.viewx = player->mo->x;
+    original_view_vars.viewy = player->mo->y;
+    original_view_vars.viewz = player->viewz;
+    original_view_vars.viewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
+    original_view_vars.viewpitch = player->mo->pitch;// + viewpitchoffset;
     if(walkcamera.type)
     {
       walkcamera.PrevX = walkcamera.x;

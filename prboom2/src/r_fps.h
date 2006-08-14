@@ -32,37 +32,46 @@
  *---------------------------------------------------------------------
  */
 
+#ifndef __R_FPS__
+#define __R_FPS__
+
 #include "doomstat.h"
 
 extern int movement_smooth;
 
-extern fixed_t r_TicFrac;
-extern int otic;
-extern boolean NewThinkerPresent;
+typedef struct {
+  fixed_t viewx;
+  fixed_t viewy;
+  fixed_t viewz;
+  angle_t viewangle;
+  angle_t viewpitch;
+} view_vars_t;
 
-extern fixed_t oviewx;
-extern fixed_t oviewy;
-extern fixed_t oviewz;
-extern angle_t oviewangle;
-extern angle_t oviewpitch;
+extern view_vars_t original_view_vars;
 
-extern boolean isExtraDDisplay;
-extern boolean skipDDisplay;
-extern unsigned int DDisplayTime;
+typedef struct {
+  unsigned int start;
+  unsigned int next;
+  unsigned int step;
+  fixed_t frac;
+  float msec;
+} tic_vars_t;
 
-void Extra_D_Display(void);
-fixed_t I_GetTimeFrac (void);
-void I_GetTime_SaveMS(void);
+extern tic_vars_t tic_vars;
+
+void R_InitInterpolation(void);
 void R_InterpolateView (player_t *player, fixed_t frac);
 
 extern boolean r_NoInterpolate;
 
 void R_ResetViewInterpolation ();
-void updateinterpolations();
-void stopallinterpolation(void);
-void dointerpolations(fixed_t smoothratio);
-void restoreinterpolations();
-void P_ActivateAllInterpolations();
-void SetInterpolationIfNew(thinker_t *th);
-void StopInterpolationIfNeeded(thinker_t *th);
+void R_UpdateInterpolations();
+void R_StopAllInterpolations(void);
+void R_DoInterpolations(fixed_t smoothratio);
+void R_RestoreInterpolations();
+void R_ActivateSectorInterpolations();
+void R_ActivateThinkerInterpolations(thinker_t *th);
+void R_SetInterpolationIfNew(thinker_t *th);
+void R_StopInterpolationIfNeeded(thinker_t *th);
 
+#endif
