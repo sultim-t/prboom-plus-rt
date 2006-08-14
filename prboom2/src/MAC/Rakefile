@@ -95,6 +95,7 @@ r_bsp.c
 r_data.c
 r_demo.c
 r_draw.c
+r_fps.c
 r_main.c
 r_patch.c
 r_plane.c
