@@ -19,6 +19,7 @@
 
 	IBOutlet id fullscreenButton;
 	IBOutlet id resolutionComboBox;
+	IBOutlet id graphicsModeComboBox;
 
 	// Debug options
 	IBOutlet id disableGraphicsButton;

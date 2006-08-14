@@ -52,6 +52,7 @@
                 fullscreenButton = id; 
                 gameButton = id; 
                 gameMenu = id; 
+                graphicsModeComboBox = id; 
                 launchButton = id; 
                 noDemoButton = id; 
                 noMonstersButton = id; 

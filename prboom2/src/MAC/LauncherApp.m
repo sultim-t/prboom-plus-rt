@@ -57,13 +57,21 @@ static LauncherApp *LApp;
 	[resolutionComboBox setObjectValue:[[resolutionComboBox dataSource]
 	                    comboBox:resolutionComboBox
 	                    objectValueForItemAtIndex:0]];
+	[graphicsModeComboBox
+	        setObjectValue:[graphicsModeComboBox itemObjectValueAtIndex:0]];
+
 	if([defaults boolForKey:@"Saved 2.4.6"])
 	{
 		id res = [defaults objectForKey:@"Resolution"];
 		if(NSNotFound != [[resolutionComboBox dataSource]
 		                  comboBox:resolutionComboBox
 		                  indexOfItemWithStringValue:res])
-			[resolutionComboBox setObjectValue:[defaults objectForKey:@"Resolution"]];
+			[resolutionComboBox setObjectValue:res];
+
+		id mode = [defaults objectForKey:@"Graphics Mode"];
+		if(NSNotFound != [graphicsModeComboBox
+		                  indexOfItemWithObjectValue:mode])
+			[graphicsModeComboBox setObjectValue:[defaults objectForKey:@"Graphics Mode"]];
 	}
 
 	if([defaults boolForKey:@"Saved 2.4.5"])
@@ -128,6 +136,7 @@ static LauncherApp *LApp;
 	[defaults setBool:true forKey:@"Saved 2.4.6"];
 
 	[defaults setObject:[resolutionComboBox objectValue] forKey:@"Resolution"];
+	[defaults setObject:[graphicsModeComboBox objectValue] forKey:@"Graphics Mode"];
 
 	[window saveFrameUsingName:@"Launcher"];
 	[[consoleController window] saveFrameUsingName:@"Console"];
@@ -249,6 +258,17 @@ static LauncherApp *LApp;
 
 	[args insertObject:@"-geom" atIndex:[args count]];
 	[args insertObject:[resolutionComboBox objectValue] atIndex:[args count]];
+
+	if([[graphicsModeComboBox objectValue] hasPrefix:@"OpenGL"])
+	{
+		[args insertObject:@"-vidmode" atIndex:[args count]];
+		[args insertObject:@"gl" atIndex:[args count]];
+	}
+	else if([[graphicsModeComboBox objectValue] hasPrefix:@"8"])
+	{
+		[args insertObject:@"-vidmode" atIndex:[args count]];
+		[args insertObject:@"8" atIndex:[args count]];
+	}
 
 	// Debug options
 	if([disableGraphicsButton state] == NSOnState)
