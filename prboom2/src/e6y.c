@@ -122,7 +122,6 @@ int palette_onpowers;
 float mouse_accelfactor;
 
 camera_t walkcamera;
-mobj_t *oviewer;
 
 hu_textline_t  w_hudadd;
 hu_textline_t  w_centermsg;
@@ -613,7 +612,6 @@ void M_ChangeDemoSmoothTurns(void)
 }
 
 float viewPitch;
-boolean WasRenderedInTryRunTics;
 boolean transparentpresent;
 
 void e6y_MultisamplingCheck(void)

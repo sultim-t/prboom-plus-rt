@@ -65,7 +65,6 @@ tic_vars_t tic_vars;
 view_vars_t original_view_vars;
 
 extern int realtic_clock_rate;
-void D_Display(void);
 
 void R_InitInterpolation(void)
 {
@@ -80,6 +79,7 @@ static interpolation_t *curipos;
 static boolean NoInterpolateView;
 boolean r_NoInterpolate;
 static boolean didInterp;
+boolean WasRenderedInTryRunTics;
 
 void R_InterpolateView (player_t *player, fixed_t frac)
 {

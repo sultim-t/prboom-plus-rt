@@ -149,7 +149,6 @@ extern int palette_onbonus;
 extern int palette_onpowers;
 
 extern camera_t walkcamera;
-extern mobj_t *oviewer;
 
 extern fixed_t sidemove_normal[2];
 extern fixed_t sidemove_strafe50[2];
@@ -203,7 +202,6 @@ void M_MouseAccel(int choice);
 void M_ChangeCompTranslucency(void);
 void CheckPitch(signed int *pitch);
 void I_Init2(void);
-void D_Display(void);
 boolean GetMouseLook(void);
 
 #ifdef GL_DOOM
@@ -228,7 +226,6 @@ void MarkAnimatedTextures(void);
 #endif //GL_DOOM
 
 extern float viewPitch;
-extern boolean WasRenderedInTryRunTics;
 extern boolean transparentpresent;
 
 #define MAPBITS 12

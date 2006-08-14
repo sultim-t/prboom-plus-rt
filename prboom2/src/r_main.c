@@ -75,6 +75,8 @@ fixed_t  viewcos, viewsin;
 player_t *viewplayer;
 extern lighttable_t **walllights;
 
+static mobj_t *oviewer;
+
 //
 // precalculated math tables
 //
