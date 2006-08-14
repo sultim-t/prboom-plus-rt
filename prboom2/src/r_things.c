@@ -504,7 +504,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   if (sprframe->rotate)
     {
       // choose a different rotation based on player view
-      angle_t ang = R_PointToAngle(fx, fz);
+      angle_t ang = R_PointToAngle(fx, fy);
       unsigned rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
       lump = sprframe->lump[rot];
       flip = (boolean) sprframe->flip[rot];
