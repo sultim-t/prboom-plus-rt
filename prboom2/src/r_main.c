@@ -51,6 +51,7 @@
 #include "g_game.h"
 #include "r_demo.h"
 #include "r_fps.h"
+#include "i_system.h"
 #include "e6y.h"//e6y
 
 // Fineangles in the SCREENWIDTH wide window.

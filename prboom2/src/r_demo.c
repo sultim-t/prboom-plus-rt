@@ -34,6 +34,7 @@
 
 #include "doomstat.h"
 #include "r_demo.h"
+#include "r_fps.h"
 #include "e6y.h"//e6y
 
 int demo_smoothturns = false;
