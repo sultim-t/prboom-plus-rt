@@ -126,6 +126,9 @@ More MBF bugs.
 Jon Dowland
 Bug reports & fixes.
 
+Robert Phipps <rob@phipps.uklinux.net>
+Network game testing, feature suggestions etc.
+
 Udo Monk
 His port xdoom is very portable, and I referred to his code sometimes for help
 with the X stuff; also his collection of Doom tools (XWadTools) is the
