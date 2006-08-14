@@ -29,7 +29,7 @@
 
 + (NSArray *)resolutions;
 
-- (id)comboBox:(NSComboBox *)box objectValueForItemAtIndex:i;
+- (id)comboBox:(NSComboBox *)box objectValueForItemAtIndex:(int)i;
 - (int)comboBox:(NSComboBox *)box indexOfItemWithStringValue:(NSString *)string;
 - (int)numberOfItemsInComboBox:(NSComboBox *)box;
 

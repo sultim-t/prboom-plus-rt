@@ -62,14 +62,14 @@ static void addResolution(NSMutableArray *array, int w, int h)
 	for(i = 0; i < [modes count]; ++i)
 	{
 		NSDictionary *mode = [modes objectAtIndex:i];
-		int w = [[mode valueForKey:kCGDisplayWidth] intValue];
-		int h = [[mode valueForKey:kCGDisplayHeight] intValue];
+		int w = [[mode valueForKey:(NSString *)kCGDisplayWidth] intValue];
+		int h = [[mode valueForKey:(NSString *)kCGDisplayHeight] intValue];
 		float ratio = (float) w / (float) h;
 		float r1 = 4.0 / 3.0;
 		float r2 = 8.0 / 5.0;
 
 		// Skip unsafe resolutions
-		if(![mode objectForKey:kCGDisplayModeIsSafeForHardware])
+		if(![mode objectForKey:(NSString *)kCGDisplayModeIsSafeForHardware])
 			continue;
 
 		// Bounds of supported PrBoom resolutions
@@ -119,7 +119,7 @@ static void addResolution(NSMutableArray *array, int w, int h)
 	return retval;
 }
 
-- (id)comboBox:(NSComboBox *)box objectValueForItemAtIndex:i
+- (id)comboBox:(NSComboBox *)box objectValueForItemAtIndex:(int)i
 {
 	NSArray *modes = [ResolutionDataSource resolutions];
 	return [modes objectAtIndex:i];
