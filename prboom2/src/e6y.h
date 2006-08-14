@@ -7,6 +7,7 @@
 #include "p_maputl.h"
 #include "w_wad.h"
 #include "r_demo.h"
+#include "r_fps.h"
 
 #define MF_RESSURECTED  (uint_64_t)(0x0000001000000000)
 
@@ -21,8 +22,6 @@
 #define HU_MSGCENTERTIMEOUT   (2*TICRATE)
 
 #define STSTR_SECRETFOUND   "A secret is revealed!"
-
-#define MAXINTERPOLATIONS 2048
 
 #define S_CANT_GL_ARB_MULTITEXTURE 0x10000000
 #define S_CANT_GL_ARB_MULTISAMPLEFACTOR  0x20000000
@@ -101,7 +100,6 @@ extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
 extern int movement_strafe50;
 extern int movement_strafe50onturns;
-extern int movement_smooth;
 extern int movement_altmousesupport;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
@@ -157,16 +155,6 @@ extern mobj_t *oviewer;
 extern fixed_t sidemove_normal[2];
 extern fixed_t sidemove_strafe50[2];
 
-extern fixed_t r_TicFrac;
-extern int otic;
-extern boolean NewThinkerPresent;
-
-extern fixed_t oviewx;
-extern fixed_t oviewy;
-extern fixed_t oviewz;
-extern angle_t oviewangle;
-extern angle_t oviewpitch;
-
 extern int PitchSign;
 extern int mouseSensitivity_mlook;
 extern angle_t viewpitch;
@@ -179,13 +167,6 @@ extern float skyXShift;
 extern float skyYShift;
 
 extern boolean SkyDrawed;
-
-extern boolean isExtraDDisplay;
-extern boolean skipDDisplay;
-extern unsigned int DDisplayTime;
-extern unsigned int TicStart;
-extern unsigned int TicNext;
-extern float TicksInMSec;
 
 extern float internal_render_fov;
 
@@ -226,49 +207,6 @@ void CheckPitch(signed int *pitch);
 void I_Init2(void);
 void D_Display(void);
 boolean GetMouseLook(void);
-
-void Extra_D_Display(void);
-fixed_t I_GetTimeFrac (void);
-void I_GetTime_SaveMS(void);
-void R_InterpolateView (player_t *player, fixed_t frac);
-
-typedef enum
-{
-  INTERP_SectorFloor,
-  INTERP_SectorCeiling,
-  INTERP_Vertex,
-  INTERP_WallPanning,
-  INTERP_FloorPanning,
-  INTERP_CeilingPanning
-} EInterpType;
-
-typedef struct FActiveInterpolation_s
-{
-  EInterpType Type;
-  void *Address;
-} FActiveInterpolation;
-
-extern int numinterpolations;
-extern int startofdynamicinterpolations;
-extern fixed_t oldipos[MAXINTERPOLATIONS][2];
-extern fixed_t bakipos[MAXINTERPOLATIONS][2];
-extern FActiveInterpolation curipos[MAXINTERPOLATIONS];
-extern boolean NoInterpolateView;
-extern boolean r_NoInterpolate;
-
-void R_ResetViewInterpolation ();
-void CopyInterpToOld (int i);
-void CopyBakToInterp (int i);
-void DoAnInterpolation (int i, fixed_t smoothratio);
-void updateinterpolations();
-void setinterpolation(EInterpType type, void *posptr);
-void stopinterpolation(EInterpType type, void *posptr);
-void stopallinterpolation(void);
-void dointerpolations(fixed_t smoothratio);
-void restoreinterpolations();
-void P_ActivateAllInterpolations();
-void SetInterpolationIfNew(thinker_t *th);
-void StopInterpolationIfNeeded(thinker_t *th);
 
 #ifdef GL_DOOM
 

@@ -63,6 +63,7 @@
 #include "gl_intern.h"
 #include "gl_struct.h"
 #include "e6y.h"//e6y
+
 //e6y
 extern PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB;
