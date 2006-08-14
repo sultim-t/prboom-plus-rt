@@ -90,8 +90,6 @@ int render_paperitems;
 int render_smartitemsclipping;
 int render_wipescreen;
 int mouse_acceleration;
-int demo_smoothturns;
-int demo_smoothturnsfactor;
 int demo_overwriteexisting;
 int overrun_spechit_warn;
 int overrun_spechit_emulate;
@@ -328,10 +326,6 @@ void M_ChangeAltMouseHandling(void)
     UngrabMouse_Win32();
   }
 #endif
-}
-
-void M_ChangeSmooth(void)
-{
 }
 
 void M_ChangeSpeed(void)

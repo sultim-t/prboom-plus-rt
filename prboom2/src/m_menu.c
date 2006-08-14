@@ -2581,7 +2581,7 @@ setup_menu_t stat_settings2[] =
 setup_menu_t stat_settings3[] =
 {
   {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
-  {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"movement_smooth"}, 0, 0, M_ChangeSmooth},
+  {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"movement_smooth"}},
   {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 4*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
   {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
   
@@ -5739,7 +5739,6 @@ void M_Init(void)
   
   //e6y
   M_ChangeSpeed();
-  M_ChangeSmooth();
   M_ChangeMouseLook();
   M_ChangeMaxViewPitch();
   M_ChangeMouseInvert();
