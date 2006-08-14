@@ -471,8 +471,8 @@ void TryRunTics (void)
       }
       if (I_GetTime() - entertime > 10) {
         if (server) {
-          remotesend--;
           char buf[sizeof(packet_header_t)+1];
+          remotesend--;
           packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
           buf[sizeof(buf)-1] = consoleplayer;
           I_SendPacket((packet_header_t *)buf, sizeof buf);
