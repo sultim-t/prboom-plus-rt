@@ -35,7 +35,7 @@
 #include "doomstat.h"
 #include "r_demo.h"
 
-int demo_smoothturns = true;
+int demo_smoothturns = false;
 int demo_smoothturnsfactor = 6;
 
 static int smooth_playing_turns[SMOOTH_PLAYING_MAXFACTOR];

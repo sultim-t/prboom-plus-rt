@@ -67,6 +67,8 @@
 #include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
+#include "r_demo.h"
+#include "r_fps.h"
 
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
@@ -196,6 +198,10 @@ default_t defaults[] =
    def_hex, ss_none}, // 0, +1 for colours, +2 for non-ascii chars, +4 for skip-last-line
   {"level_precache",{(int*)&precache},{0},0,1,
    def_bool,ss_none}, // precache level data?
+  {"demo_smoothturns", {&demo_smoothturns},  {0},0,1,
+   def_bool,ss_stat},
+  {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,SMOOTH_PLAYING_MAXFACTOR,
+   def_int,ss_stat},
 
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code */
@@ -322,6 +328,8 @@ default_t defaults[] =
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98
+  {"uncapped_framerate", {&movement_smooth},  {0},0,1,
+   def_bool,ss_stat},
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

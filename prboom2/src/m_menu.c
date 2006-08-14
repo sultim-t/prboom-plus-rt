@@ -58,6 +58,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "i_sound.h"
+#include "r_demo.h"
 #include "r_fps.h"
 
 extern patchnum_t hu_font[HU_FONTSIZE];
@@ -287,6 +288,7 @@ void M_DrawEnemy(void);
 void M_DrawMessages(void);
 void M_DrawChatStrings(void);
 void M_Compat(int);       // killough 10/98
+void M_ChangeDemoSmoothTurns(void);
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
@@ -2835,7 +2837,10 @@ enum {
   general_videomode,
 //  general_pcx,
 //  general_diskicon,
-  general_hom
+  general_hom,
+  general_uncapped,
+  general_smooth,
+  general_smoothfactor
 };
 
 enum {
@@ -2854,7 +2859,7 @@ enum {
 
 #define G_X 250
 #define G_YA  44
-#define G_YA2 (G_YA+7*8)
+#define G_YA2 (G_YA+10*8)
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
@@ -2885,6 +2890,15 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Flashing HOM indicator", S_YESNO, m_null, G_X,
    G_YA + general_hom*8, {"flashing_hom"}},
+
+  {"Uncapped Framerate", S_YESNO, m_null, G_X,
+  G_YA + general_uncapped*8, {"uncapped_framerate"}},
+
+  {"Smooth Demo Playback", S_YESNO, m_null, G_X,
+  G_YA+ general_smooth*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
+
+  {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
+  G_YA+ general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
 
 #ifdef GL_DOOM
   {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
@@ -3007,6 +3021,16 @@ void M_FullScreen(void) // To (un)set fullscreen video after menu changes
 {
   I_UpdateVideoMode();
   V_SetPalette(0);
+}
+
+void M_ChangeDemoSmoothTurns(void)
+{
+  if (demo_smoothturns)
+    gen_settings1[8].m_flags &= ~(S_SKIP|S_SELECT);
+  else
+    gen_settings1[8].m_flags |= (S_SKIP|S_SELECT);
+
+  R_SmoothPlaying_Reset(NULL);
 }
 
 // Setting up for the General screen. Turn on flags, set pointers,
@@ -5515,6 +5539,8 @@ void M_Init(void)
   M_ResetMenu();        // killough 10/98
   M_InitHelpScreen();   // init the help screen       // phares 4/08/98
   M_InitExtendedHelp(); // init extended help screens // phares 3/30/98
+
+  M_ChangeDemoSmoothTurns();
 }
 
 // killough 10/98: allow runtime changing of menu order
