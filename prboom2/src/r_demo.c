@@ -35,7 +35,7 @@
 #include "doomstat.h"
 #include "r_demo.h"
 
-int demo_smoothturns = false;
+int demo_smoothturns = true;
 int demo_smoothturnsfactor = 6;
 
 static int smooth_playing_turns[SMOOTH_PLAYING_MAXFACTOR];
@@ -82,6 +82,6 @@ angle_t R_SmoothPlaying_Get(angle_t defangle)
 
 void R_ResetAfterTeleport(player_t *player)
 {
-  //R_ResetViewInterpolation();
+  R_ResetViewInterpolation();
   R_SmoothPlaying_Reset(player);
 }

@@ -49,6 +49,7 @@
 #include "doomtype.h"
 #include "protocol.h"
 #include "i_network.h"
+#include "m_fixed.h"
 #include "i_system.h"
 #include "m_swap.h"
 

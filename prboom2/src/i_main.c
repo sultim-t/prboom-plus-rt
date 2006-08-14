@@ -43,6 +43,7 @@
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"
+#include "m_fixed.h"
 #include "i_system.h"
 #include "i_video.h"
 #include "z_zone.h"
@@ -116,6 +117,8 @@ void I_Init(void)
     if (!(nomusicparm && nosfxparm))
       I_InitSound();
   }
+
+  R_InitInterpolation();
 }
 
 /* cleanup handling -- killough:

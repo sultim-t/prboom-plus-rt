@@ -278,6 +278,10 @@ boolean P_TeleportMove (mobj_t* thing,fixed_t x,fixed_t y, boolean boss)
 
   P_SetThingPosition (thing);
 
+  thing->PrevX = x;
+  thing->PrevY = y;
+  thing->PrevZ = thing->floorz;
+
   return true;
   }
 

@@ -57,6 +57,7 @@
 #include "r_plane.h"
 #include "r_data.h"
 #include "r_things.h"
+#include "r_fps.h"
 #include "p_maputl.h"
 #include "m_bbox.h"
 #include "lprintf.h"
@@ -2531,9 +2532,18 @@ void gld_AddSprite(vissprite_t *vspr)
     return;
   sprite.shadow = (pSpr->flags & MF_SHADOW) != 0;
   sprite.trans  = (pSpr->flags & MF_TRANSLUCENT) != 0;
-  sprite.x=-(float)pSpr->x/MAP_SCALE;
-  sprite.y= (float)pSpr->z/MAP_SCALE;
-  sprite.z= (float)pSpr->y/MAP_SCALE;
+  if (movement_smooth)
+  {
+    sprite.x = (float)(-pSpr->PrevX + FixedMul (tic_vars.frac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
+    sprite.y = (float)(pSpr->PrevZ + FixedMul (tic_vars.frac, pSpr->z - pSpr->PrevZ))/MAP_SCALE;
+    sprite.z = (float)(pSpr->PrevY + FixedMul (tic_vars.frac, pSpr->y - pSpr->PrevY))/MAP_SCALE;
+  }
+  else
+  {
+    sprite.x=-(float)pSpr->x/MAP_SCALE;
+    sprite.y= (float)pSpr->z/MAP_SCALE;
+    sprite.z= (float)pSpr->y/MAP_SCALE;
+  }
 
   sprite.vt=0.0f;
   sprite.vb=(float)sprite.gltexture->height/(float)sprite.gltexture->tex_height;

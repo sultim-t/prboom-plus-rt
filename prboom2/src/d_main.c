@@ -77,6 +77,7 @@
 #include "p_setup.h"
 #include "r_draw.h"
 #include "r_main.h"
+#include "r_fps.h"
 #include "d_main.h"
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
@@ -100,6 +101,7 @@ boolean respawnparm;    // working -respawn
 boolean fastparm;       // working -fast
 
 boolean singletics = false; // debug flag to cancel adaptiveness
+static boolean skipDDisplay = false;
 
 //jff 1/22/98 parms for disabling music and sound
 boolean nosfxparm;
@@ -201,7 +203,7 @@ gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern boolean setsizeneeded;
 extern int     showMessages;
 
-static void D_Display (void)
+void D_Display (void)
 {
   static boolean inhelpscreensstate   = false;
   static boolean isborderstate        = false;
@@ -212,6 +214,11 @@ static void D_Display (void)
 
   if (nodrawers)                    // for comparative timing / profiling
     return;
+
+  if (skipDDisplay)
+    return;
+  I_StartDisplay();
+  skipDDisplay = true;
 
   // save the current screen if about to wipe
   if ((wipe = gamestate != wipegamestate) && (V_GetMode() != VID_MODEGL))
@@ -306,6 +313,9 @@ static void D_Display (void)
     wipe_EndScreen();
     D_Wipe();
   }
+
+  I_EndDisplay();
+  skipDDisplay = false;
 }
 
 // CPhipps - Auto screenshot Variables
@@ -328,6 +338,7 @@ static void D_DoomLoop(void)
 {
   for (;;)
     {
+      WasRenderedInTryRunTics = false;
       // frame syncronous IO operations
       I_StartFrame ();
 
@@ -353,8 +364,14 @@ static void D_DoomLoop(void)
       if (players[displayplayer].mo) // cph 2002/08/10
 	S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
-      // Update display, next frame, with current state.
-      D_Display();
+#ifdef GL_DOOM
+      if (!movement_smooth || !WasRenderedInTryRunTics) {
+#else
+      if (!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate) {
+#endif
+        // Update display, next frame, with current state.
+        D_Display();
+      }
 
       // CPhipps - auto screenshot
       if (auto_shot_fname && !--auto_shot_count) {

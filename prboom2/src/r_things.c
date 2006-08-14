@@ -38,6 +38,7 @@
 #include "r_segs.h"
 #include "r_draw.h"
 #include "r_things.h"
+#include "r_fps.h"
 #include "v_video.h"
 #include "lprintf.h"
 
@@ -439,14 +440,31 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   int heightsec;      // killough 3/27/98
 
   // transform the origin point
-  fixed_t tr_x = thing->x - viewx;
-  fixed_t tr_y = thing->y - viewy;
-
-  fixed_t gxt = FixedMul(tr_x,viewcos);
-  fixed_t gyt = -FixedMul(tr_y,viewsin);
-
-  fixed_t tz = gxt-gyt;
+  fixed_t tr_x, tr_y;
+  fixed_t fx, fy, fz;
+  fixed_t gxt, gyt;
+  fixed_t tz;
   int width;
+
+  if (movement_smooth)
+  {
+    fx = thing->PrevX + FixedMul (tic_vars.frac, thing->x - thing->PrevX);
+    fy = thing->PrevY + FixedMul (tic_vars.frac, thing->y - thing->PrevY);
+    fz = thing->PrevZ + FixedMul (tic_vars.frac, thing->z - thing->PrevZ);
+  }
+  else
+  {
+    fx = thing->x;
+    fy = thing->y;
+    fz = thing->z;
+  }
+  tr_x = fx - viewx;
+  tr_y = fy - viewy;
+
+  gxt = FixedMul(tr_x,viewcos);
+  gyt = -FixedMul(tr_y,viewsin);
+
+  tz = gxt-gyt;
 
     // thing is behind view plane?
   if (tz < MINZ)
@@ -486,7 +504,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   if (sprframe->rotate)
     {
       // choose a different rotation based on player view
-      angle_t ang = R_PointToAngle(thing->x, thing->y);
+      angle_t ang = R_PointToAngle(fx, fz);
       unsigned rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
       lump = sprframe->lump[rot];
       flip = (boolean) sprframe->flip[rot];
@@ -514,7 +532,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx,xscale) ) >> FRACBITS) - 1;
 
-    gzt = thing->z + (patch->topoffset << FRACBITS);
+    gzt = fz + (patch->topoffset << FRACBITS);
     width = patch->width;
     R_UnlockPatchNum(lump+firstspritelump);
   }
@@ -524,8 +542,8 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     return;
 
   // killough 4/9/98: clip things which are out of view due to height
-  if (thing->z > viewz + FixedDiv(centeryfrac, xscale) ||
-      gzt      < viewz - FixedDiv(centeryfrac-viewheight, xscale))
+  if (fz  > viewz + FixedDiv(centeryfrac, xscale) ||
+      gzt < viewz - FixedDiv(centeryfrac-viewheight, xscale))
     return;
 
     // killough 3/27/98: exclude things totally separated
@@ -538,13 +556,13 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     {
       int phs = viewplayer->mo->subsector->sector->heightsec;
       if (phs != -1 && viewz < sectors[phs].floorheight ?
-          thing->z >= sectors[heightsec].floorheight :
+          fz >= sectors[heightsec].floorheight :
           gzt < sectors[heightsec].floorheight)
         return;
       if (phs != -1 && viewz > sectors[phs].ceilingheight ?
           gzt < sectors[heightsec].ceilingheight &&
           viewz >= sectors[heightsec].ceilingheight :
-          thing->z >= sectors[heightsec].ceilingheight)
+          fz >= sectors[heightsec].ceilingheight)
         return;
     }
 
@@ -570,9 +588,9 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->mobjflags = thing->flags;
 // proff 11/06/98: Changed for high-res
   vis->scale = FixedDiv(projectiony, tz);
-  vis->gx = thing->x;
-  vis->gy = thing->y;
-  vis->gz = thing->z;
+  vis->gx = fx;
+  vis->gy = fy;
+  vis->gz = fz;
   vis->gzt = gzt;                          // killough 3/27/98
   vis->texturemid = vis->gzt - viewz;
   vis->x1 = x1 < 0 ? 0 : x1;

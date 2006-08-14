@@ -70,6 +70,8 @@
 #include "doomtype.h"
 #include "doomdef.h"
 #include "lprintf.h"
+#include "m_fixed.h"
+#include "r_fps.h"
 #include "i_system.h"
 
 #ifdef __GNUG__
@@ -80,6 +82,19 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+static unsigned int start_displaytime;
+static unsigned int displaytime;
+
+void I_StartDisplay(void)
+{
+  start_displaytime = SDL_GetTicks();
+}
+
+void I_EndDisplay(void)
+{
+  displaytime = SDL_GetTicks() - start_displaytime;
+}
 
 void I_uSleep(unsigned long usecs)
 {
@@ -95,6 +110,36 @@ int I_GetTime_RealTime (void)
   ms_to_next_tick = (i+1)*200/(TICRATE/5) - t;
   if (ms_to_next_tick > 1000/TICRATE || ms_to_next_tick<1) ms_to_next_tick = 1;
   return i;
+}
+
+fixed_t I_GetTimeFrac (void)
+{
+  unsigned long now;
+  fixed_t frac;
+
+  now = SDL_GetTicks();
+
+  if (tic_vars.step == 0)
+    return FRACUNIT;
+  else
+  {
+    frac = (fixed_t)((now - tic_vars.start + displaytime) * FRACUNIT / tic_vars.step);
+    if (frac < 0)
+      frac = 0;
+    if (frac > FRACUNIT)
+      frac = FRACUNIT;
+    return frac;
+  }
+}
+
+void I_GetTime_SaveMS(void)
+{
+  if (!movement_smooth)
+    return;
+
+  tic_vars.start = SDL_GetTicks();
+  tic_vars.next = (unsigned int) ((tic_vars.start * tic_vars.msec + 1.0f) / tic_vars.msec);
+  tic_vars.step = tic_vars.next - tic_vars.start;
 }
 
 /*

@@ -253,6 +253,10 @@ typedef struct mobj_s
     fixed_t             y;
     fixed_t             z;
 
+    fixed_t             PrevX;
+    fixed_t             PrevY;
+    fixed_t             PrevZ;
+
     // More list: links in sector (if needed)
     struct mobj_s*      snext;
     struct mobj_s**     sprev; // killough 8/10/98: change to ptr-to-ptr

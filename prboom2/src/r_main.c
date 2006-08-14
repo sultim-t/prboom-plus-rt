@@ -50,6 +50,7 @@
 #include "i_main.h"
 #include "g_game.h"
 #include "r_demo.h"
+#include "r_fps.h"
 
 // Fineangles in the SCREENWIDTH wide window.
 #define FIELDOFVIEW 2048
@@ -71,6 +72,8 @@ angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 player_t *viewplayer;
 extern lighttable_t **walllights;
+
+static mobj_t *oviewer;
 
 //
 // precalculated math tables
@@ -435,18 +438,23 @@ static void R_SetupFrame (player_t *player)
   int cm;
 
   viewplayer = player;
-  viewx = player->mo->x;
-  viewy = player->mo->y;
-  // e6y
-  // old code: viewangle = player->mo->angle + viewangleoffset;
-  viewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset;
+
+  if (player->mo != oviewer || r_NoInterpolate)
+  {
+    R_ResetViewInterpolation ();
+    oviewer = player->mo;
+  }
+  tic_vars.frac = I_GetTimeFrac ();
+  if (r_NoInterpolate)
+    tic_vars.frac = FRACUNIT;
+  R_InterpolateView (player, tic_vars.frac);
 
   extralight = player->extralight;
 
-  viewz = player->viewz;
-
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
+
+  R_DoInterpolations(tic_vars.frac);
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
@@ -575,4 +583,6 @@ void R_RenderPlayerView (player_t* player)
   }
 
   if (rendering_stats) R_ShowStats();
+
+  R_RestoreInterpolations();
 }
