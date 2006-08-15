@@ -43,6 +43,7 @@
 #include <signal.h>
 
 #include "doomtype.h"
+#include "m_fixed.h"
 #include "i_system.h"
 #include "doomdef.h"
 
