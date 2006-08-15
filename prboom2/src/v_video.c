@@ -352,7 +352,7 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
     bottom = ( (y + patch->height) * DY ) >> FRACBITS;
 
     dcvars.texheight = patch->height;
-    dcvars.iscale = DYI - 8;
+    dcvars.iscale = DYI;
     dcvars.drawingmasked = max(patch->width, patch->height) > 8;
     dcvars.edgetype = drawvars.patch_edges;
 
@@ -387,7 +387,7 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
         const rpost_t *post = &column->posts[i];
 
         dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
-        dcvars.yh = (((y + post->topdelta + post->length) * DY)>>FRACBITS);
+        dcvars.yh = (((y + post->topdelta + post->length) * DY - (FRACUNIT>>1))>>FRACBITS);
         dcvars.edgeslope = post->slope;
 
         if (dcvars.yh >= bottom) {
