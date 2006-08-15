@@ -1341,26 +1341,30 @@ void M_DoScreenShot (const char* fname)
   fclose(fp);
 }
 
+#ifndef SCREENSHOT_DIR
+#define SCREENSHOT_DIR "."
+#endif
+
 void M_ScreenShot(void)
 {
   static int shot;
-  char       lbmname[32];
+  char       lbmname[PATH_MAX + 1];
   int        startshot;
 
   screenshot_write_error = false;
 
-  if (access(".",2)) screenshot_write_error = true;
+  if (access(SCREENSHOT_DIR,2)) screenshot_write_error = true;
 
   startshot = shot; // CPhipps - prevent infinite loop
 
   do {
 #ifdef HAVE_LIBPNG
-    sprintf(lbmname,"doom%02d.png", shot++);
+    sprintf(lbmname,"%s/doom%02d.png", SCREENSHOT_DIR, shot++);
 #else
     if (V_GetMode() == VID_MODEGL) {
-      sprintf(lbmname,"doom%02d.tga", shot++);
+      sprintf(lbmname,"%s/doom%02d.tga", SCREENSHOT_DIR, shot++);
     } else {
-      sprintf(lbmname,"doom%02d.bmp", shot++);
+      sprintf(lbmname,"%s/doom%02d.bmp", SCREENSHOT_DIR, shot++);
     }
 #endif
   } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));

@@ -142,17 +142,22 @@ static void Z_DrawStats(void)            // Print allocation statistics
 }
 
 #ifdef HEAPDUMP
+
+#ifndef HEAPDUMP_DIR
+#define HEAPDUMP_DIR "."
+#endif
+
 void W_PrintLump(FILE* fp, void* p);
 
 void Z_DumpMemory(void)
 {
   static int dump;
-  char buf[80];
+  char buf[PATH_MAX + 1];
   FILE* fp;
   size_t total_cache = 0, total_free = 0, total_malloc = 0;
   int tag;
 
-  sprintf(buf, "memdump.%d", dump++);
+  sprintf(buf, "%s/memdump.%d", HEAPDUMP_DIR, dump++);
   fp = fopen(buf, "w");
   for (tag = PU_FREE; tag < PU_MAX; tag++)
   {
