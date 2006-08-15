@@ -2447,7 +2447,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
   gld_drawinfo.flats[gld_drawinfo.num_flats++]=flat;
 }
 
-void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingplane)
+void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 {
   subsector_t *subsector;
 
@@ -2461,11 +2461,11 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
   if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
   {
     // render the floor
-    if (floorplane)
-      gld_AddFlat(subsector->sector->iSectorID, false, floorplane);
+    if (floor)
+      gld_AddFlat(subsector->sector->iSectorID, false, floor);
     // render the ceiling
-    if (ceilingplane)
-      gld_AddFlat(subsector->sector->iSectorID, true, ceilingplane);
+    if (ceiling)
+      gld_AddFlat(subsector->sector->iSectorID, true, ceiling);
     // set rendered true
     sectorrendered[subsector->sector->iSectorID]=rendermarker;
   }

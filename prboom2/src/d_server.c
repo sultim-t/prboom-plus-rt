@@ -192,7 +192,7 @@ int M_CheckParm(const char* p) { p = NULL; return 1; }
 int myargc;
 char** myargv;
 
-void I_Error(const char *error, ...) // killough 3/20/98: add const
+void NORETURN I_Error(const char *error, ...) // killough 3/20/98: add const
 {
   va_list argptr;
   va_start(argptr,error);
@@ -252,7 +252,7 @@ const int num_gameopts = sizeof gameopt_config_names / sizeof gameopt_config_nam
 
 int verbose;
 
-void sig_handler(int signum)
+void NORETURN sig_handler(int signum)
 {
   char buf[80];
   I_SigString(buf,80,signum);
@@ -617,7 +617,7 @@ int main(int argc, char** argv)
   if (!ingame && n_players_in_state(numplayers,pc_confirmedready)) {
     int i;
     packet_header_t gopacket;
-    packet_header_t *packet = &gopacket;
+    packet = &gopacket;
     ingame=true;
     printf("All players joined, beginning game.\n");
     for (i=0; i<MAXPLAYERS; i++) {
@@ -670,7 +670,7 @@ int main(int argc, char** argv)
       if ((remoteticto[i] -= xtratics) < 0) remoteticto[i] = 0;
       tics = lowtic - remoteticto[i];
       {
-        packet_header_t *packet = malloc(sizeof(packet_header_t) + 1 +
+        packet = malloc(sizeof(packet_header_t) + 1 +
          tics * (1 + numplayers * (1 + sizeof(ticcmd_t))));
         byte *p = (void*)(packet+1);
         packet_set(packet, PKT_TICS, remoteticto[i]);

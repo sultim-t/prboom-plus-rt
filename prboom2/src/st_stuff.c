@@ -822,7 +822,7 @@ static void ST_diffDraw(void)
   ST_drawWidgets(false);
 }
 
-void ST_Drawer(boolean st_statusbaron, boolean refresh)
+void ST_Drawer(boolean statusbaron, boolean refresh)
 {
   /* cph - let status bar on be controlled
    * completely by the call from D_Display
@@ -832,7 +832,7 @@ void ST_Drawer(boolean st_statusbaron, boolean refresh)
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items
 
-  if (st_statusbaron) {
+  if (statusbaron) {
     if (st_firsttime || (V_GetMode() == VID_MODEGL))
       ST_doRefresh();     /* If just after ST_Start(), refresh all */
     else

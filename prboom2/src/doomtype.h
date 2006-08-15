@@ -69,9 +69,11 @@ typedef unsigned __int64 uint_64_t;
 #ifdef __GNUC__
 #define CONSTFUNC __attribute__((const))
 #define PUREFUNC __attribute__((pure))
+#define NORETURN __attribute__ ((noreturn))
 #else
 #define CONSTFUNC
 #define PUREFUNC
+#define NORETURN
 #endif
 
 /* CPhipps - use limits.h instead of depreciated values.h */

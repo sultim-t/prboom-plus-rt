@@ -4595,7 +4595,7 @@ boolean M_Responder (event_t* ev) {
     {
       if (ev->type == ev_joystick)
         {
-    int i,oldbutton,group;
+    int oldbutton,group;
     boolean search = true;
 
     if (!ptr1->m_joy)
