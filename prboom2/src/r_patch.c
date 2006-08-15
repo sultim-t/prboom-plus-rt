@@ -397,6 +397,7 @@ static void createTextureCompositePatch(int id) {
   const patch_t *oldPatch;
   const column_t *oldColumn, *oldPrevColumn, *oldNextColumn;
   int i, x, y;
+  int oy, count;
   int pixelDataSize;
   int columnsDataSize;
   int postsDataSize;
@@ -540,8 +541,14 @@ static void createTextureCompositePatch(int id) {
 
         // fill in the post's pixels
         oldColumnPixelData = (const byte *)oldColumn + 3;
-        for (y=0; y<oldColumn->length; y++) {
-          int ty = texpatch->originy + oldColumn->topdelta + y;
+        oy = texpatch->originy;
+        count = oldColumn->length;
+        if (oy < 0) {
+          count += oy;
+          oy = 0;
+        }
+        for (y=0; y<count; y++) {
+          int ty = oy + oldColumn->topdelta + y;
           if (ty < 0)
             continue;
           if (ty >= composite_patch->height)
