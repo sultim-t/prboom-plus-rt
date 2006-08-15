@@ -32,26 +32,44 @@
 // R_DrawSpan
 //
 
+#if (R_DRAWSPAN_PIPELINE & RDC_DITHERZ)  
+  #define GETCOL(col) (dither_colormaps[filter_getDitheredPixelLevel(x1, y, fracz)][(col)])
+#else
+  #define GETCOL(col) colormap[(col)]
+#endif
+
 static void R_DRAWSPAN_FUNCNAME(draw_span_vars_t *dsvars)
 {
   unsigned count = dsvars->x2 - dsvars->x1 + 1;
   fixed_t xfrac = dsvars->xfrac;
   fixed_t yfrac = dsvars->yfrac;
-  fixed_t xstep = dsvars->xstep;
-  fixed_t ystep = dsvars->ystep;
+  const fixed_t xstep = dsvars->xstep;
+  const fixed_t ystep = dsvars->ystep;
   const byte *source = dsvars->source;
   const byte *colormap = dsvars->colormap;
-  byte *dest = topleft + dsvars->y*screens[0].pitch + dsvars->x1;
+  byte *dest = drawvars.topleft + dsvars->y*drawvars.pitch + dsvars->x1;
+#if (R_DRAWSPAN_PIPELINE & RDC_DITHERZ)
+  const int y = dsvars->y;
+  int x1 = dsvars->x1;
+  const int fracz = (dsvars->z >> 12) & 255;
+  const byte *dither_colormaps[2] = { dsvars->colormap, dsvars->nextcolormap };
+#endif
 
   while (count) {
-    fixed_t xtemp = (xfrac >> 16) & 63;
-    fixed_t ytemp = (yfrac >> 10) & 4032;
-    fixed_t spot = xtemp | ytemp;
+    const fixed_t xtemp = (xfrac >> 16) & 63;
+    const fixed_t ytemp = (yfrac >> 10) & 4032;
+    const fixed_t spot = xtemp | ytemp;
     xfrac += xstep;
     yfrac += ystep;
-    *dest++ = colormap[source[spot]];
+    *dest++ = GETCOL(source[spot]);
     count--;
+#if (R_DRAWSPAN_PIPELINE & RDC_DITHERZ)
+    x1--;
+#endif
   }
 }
 
+#undef GETCOL
+
+#undef R_DRAWSPAN_PIPELINE
 #undef R_DRAWSPAN_FUNCNAME

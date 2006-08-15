@@ -67,6 +67,7 @@
 #include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
+#include "r_draw.h"
 #include "r_demo.h"
 #include "r_fps.h"
 
@@ -330,6 +331,22 @@ default_t defaults[] =
    def_int,ss_none}, // gamma correction level // killough 1/18/98
   {"uncapped_framerate", {&movement_smooth},  {0},0,1,
    def_bool,ss_stat},
+  {"filter_wall",{&drawvars.filterwall},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_floor",{&drawvars.filterfloor},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_sprite",{&drawvars.filtersprite},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_z",{&drawvars.filterz},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_LINEAR, def_int,ss_none},
+  {"filter_patch",{&drawvars.filterpatch},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_threshold",{&drawvars.mag_threshold},{49152},
+   0, UL, def_int,ss_none},
+  {"sprite_edges",{&drawvars.sprite_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
+   RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
+  {"patch_edges",{&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
+   RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

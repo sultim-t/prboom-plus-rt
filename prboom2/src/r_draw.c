@@ -37,6 +37,7 @@
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_draw.h"
+#include "r_filter.h"
 #include "v_video.h"
 #include "st_stuff.h"
 #include "g_game.h"
@@ -58,8 +59,6 @@ int  scaledviewwidth;
 int  viewheight;
 int  viewwindowx;
 int  viewwindowy;
-
-byte *topleft;
 
 // Color tables for different players,
 //  translate a limited part to another
@@ -119,6 +118,35 @@ static int fuzzoffset[FUZZTABLE];
 
 static int fuzzpos = 0;
 
+// render pipelines
+#define RDC_STANDARD      1
+#define RDC_TRANSLUCENT   2
+#define RDC_TRANSLATED    4
+#define RDC_FUZZ          8
+// no color mapping
+#define RDC_NOCOLMAP     16
+// filter modes
+#define RDC_DITHERZ      32
+#define RDC_BILINEAR     64
+#define RDC_ROUNDED     128
+
+draw_vars_t drawvars = { 
+  NULL, // topleft
+  0, // pitch
+  RDRAW_FILTER_POINT, // filterwall
+  RDRAW_FILTER_POINT, // filterfloor
+  RDRAW_FILTER_POINT, // filtersprite
+  RDRAW_FILTER_POINT, // filterz
+  RDRAW_FILTER_POINT, // filterpatch
+
+  RDRAW_MASKEDCOLUMNEDGE_SQUARE, // sprite_edges
+  RDRAW_MASKEDCOLUMNEDGE_SQUARE, // patch_edges
+
+  // 49152 = FRACUNIT * 0.75
+  // 81920 = FRACUNIT * 1.25
+  49152 // mag_threshold
+};
+
 //
 // Error functions that will abort if R_FlushColumns tries to flush 
 // columns without a column type.
@@ -173,6 +201,23 @@ void R_ResetColumnBuffer(void)
    R_FlushQuadColumn   = R_QuadFlushError;
 }
 
+#define R_DRAWCOLUMN_PIPELINE RDC_STANDARD
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawflush.inl"
+
+#define R_DRAWCOLUMN_PIPELINE RDC_TRANSLUCENT
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawflush.inl"
+
+#define R_DRAWCOLUMN_PIPELINE RDC_FUZZ
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawflush.inl"
 
 //
 // R_DrawColumn
@@ -187,17 +232,82 @@ void R_ResetColumnBuffer(void)
 //
 
 byte *translationtables;
-#define RDC_STANDARD      1
-#define RDC_TRANSLUCENT   2
-#define RDC_TRANSLATED    4
-#define RDC_FUZZ          8
 
-#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8
-#define R_DRAWCOLUMN_PIPELINE RDC_STANDARD
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeOpaque8
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTOpaque8
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadOpaque8
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_STANDARD
+
+// standard with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_PointUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
 #include "r_drawcolumn.inl"
+
+// standard
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_PointUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE RDC_STANDARD
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_PointUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + bilinear with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_LinearUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_BILINEAR | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + bilinear
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_LinearUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_BILINEAR)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + bilinear + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_LinearUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_BILINEAR | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + rounded with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_ROUNDED | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + rounded
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_ROUNDED)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// standard + rounded + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_STANDARD | RDC_ROUNDED | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
 
 // Here is the version of R_DrawColumn that deals with translucent  // phares
 // textures and sprites. It's identical to R_DrawColumn except      //    |
@@ -210,12 +320,82 @@ byte *translationtables;
 // Since we're concerned about performance, the 'translucent or
 // opaque' decision is made outside this routine, not down where the
 // actual code differences are.
-#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_TRANSLUCENT
+
+// translucent with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_PointUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE RDC_TRANSLUCENT
 #define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
 #define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
 #define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
 #include "r_drawcolumn.inl"
+
+// translucent + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_PointUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent + bilinear with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_LinearUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_BILINEAR | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent + bilinear
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_LinearUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_BILINEAR)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent + bilinear + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_LinearUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_BILINEAR | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent + rounded with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_ROUNDED | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent + rounded
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_ROUNDED)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+// translucent + rounded + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTLColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLUCENT | RDC_ROUNDED | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTL8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTL8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTL8
+#include "r_drawcolumn.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
 
 //
 // R_DrawTranslatedColumn
@@ -226,12 +406,82 @@ byte *translationtables;
 //  of the BaronOfHell, the HellKnight, uses
 //  identical sprites, kinda brightened up.
 //
-#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8
-#define R_DRAWCOLUMN_PIPELINE RDC_TRANSLATED
-#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeTranslated8
-#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTTranslated8
-#define R_FLUSHQUAD_FUNCNAME R_FlushQuadTranslated8
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_TRANSLATED
+
+// translated with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_PointUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
 #include "r_drawcolumn.inl"
+
+// translated
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_PointUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE RDC_TRANSLATED
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_PointUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + bilinear with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_LinearUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_BILINEAR | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + bilinear
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_LinearUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_BILINEAR)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + bilinear + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_LinearUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_BILINEAR | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + rounded with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_ROUNDED | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + rounded
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_ROUNDED)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+// translated + rounded + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawTranslatedColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_TRANSLATED | RDC_ROUNDED | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWhole8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHT8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuad8
+#include "r_drawcolumn.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
 
 //
 // Framebuffer postprocessing.
@@ -241,24 +491,149 @@ byte *translationtables;
 //  could create the SHADOW effect,
 //  i.e. spectres and invisible players.
 //
-#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8
+
+#define R_DRAWCOLUMN_PIPELINE_TYPE RDC_PIPELINE_FUZZ
+
+// fuzz with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_PointUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_PointUV_PointZ
 #define R_DRAWCOLUMN_PIPELINE RDC_FUZZ
 #define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
 #define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
 #define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
 #include "r_drawcolumn.inl"
 
-R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type) {
-   switch (type) {
-      case RDC_PIPELINE_TRANSLUCENT:
-         return &R_DrawTLColumn8;
-      case RDC_PIPELINE_TRANSLATED:
-         return &R_DrawTranslatedColumn8;
-      case RDC_PIPELINE_FUZZ:
-         return &R_DrawFuzzColumn8;
-      default:
-         return &R_DrawColumn8;
-   }
+// fuzz + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_PointUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz + bilinear with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_LinearUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_BILINEAR | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz + bilinear
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_LinearUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_BILINEAR)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz + bilinear + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_LinearUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_BILINEAR | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz + rounded with no color mapping
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_RoundedUV
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_ROUNDED | RDC_NOCOLMAP)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz + rounded
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_RoundedUV_PointZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_ROUNDED)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+// fuzz + rounded + z-dither
+#define R_DRAWCOLUMN_FUNCNAME R_DrawFuzzColumn8_RoundedUV_LinearZ
+#define R_DRAWCOLUMN_PIPELINE (RDC_FUZZ | RDC_ROUNDED | RDC_DITHERZ)
+#define R_FLUSHWHOLE_FUNCNAME R_FlushWholeFuzz8
+#define R_FLUSHHEADTAIL_FUNCNAME R_FlushHTFuzz8
+#define R_FLUSHQUAD_FUNCNAME R_FlushQuadFuzz8
+#include "r_drawcolumn.inl"
+
+#undef R_DRAWCOLUMN_PIPELINE_TYPE
+
+static R_DrawColumn_f drawfuncs[RDRAW_FILTER_MAXFILTERS][RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXPIPELINES] = {
+  {
+    {NULL, NULL, NULL, NULL,},
+    {R_DrawColumn8_PointUV,
+     R_DrawTLColumn8_PointUV,
+     R_DrawTranslatedColumn8_PointUV,
+     R_DrawFuzzColumn8_PointUV,},
+    {R_DrawColumn8_LinearUV,
+     R_DrawTLColumn8_LinearUV,
+     R_DrawTranslatedColumn8_LinearUV,
+     R_DrawFuzzColumn8_LinearUV,},
+    {R_DrawColumn8_RoundedUV,
+     R_DrawTLColumn8_RoundedUV,
+     R_DrawTranslatedColumn8_RoundedUV,
+     R_DrawFuzzColumn8_RoundedUV,},
+  },
+  {
+    {NULL, NULL, NULL, NULL,},
+    {R_DrawColumn8_PointUV_PointZ,
+     R_DrawTLColumn8_PointUV_PointZ,
+     R_DrawTranslatedColumn8_PointUV_PointZ,
+     R_DrawFuzzColumn8_PointUV_PointZ,},
+    {R_DrawColumn8_LinearUV_PointZ,
+     R_DrawTLColumn8_LinearUV_PointZ,
+     R_DrawTranslatedColumn8_LinearUV_PointZ,
+     R_DrawFuzzColumn8_LinearUV_PointZ,},
+    {R_DrawColumn8_RoundedUV_PointZ,
+     R_DrawTLColumn8_RoundedUV_PointZ,
+     R_DrawTranslatedColumn8_RoundedUV_PointZ,
+     R_DrawFuzzColumn8_RoundedUV_PointZ,},
+  },
+  {
+    {NULL, NULL, NULL, NULL,},
+    {R_DrawColumn8_PointUV_LinearZ,
+     R_DrawTLColumn8_PointUV_LinearZ,
+     R_DrawTranslatedColumn8_PointUV_LinearZ,
+     R_DrawFuzzColumn8_PointUV_LinearZ,},
+    {R_DrawColumn8_LinearUV_LinearZ,
+     R_DrawTLColumn8_LinearUV_LinearZ,
+     R_DrawTranslatedColumn8_LinearUV_LinearZ,
+     R_DrawFuzzColumn8_LinearUV_LinearZ,},
+    {R_DrawColumn8_RoundedUV_LinearZ,
+     R_DrawTLColumn8_RoundedUV_LinearZ,
+     R_DrawTranslatedColumn8_RoundedUV_LinearZ,
+     R_DrawFuzzColumn8_RoundedUV_LinearZ,},
+  },
+};
+
+R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
+                                   enum draw_filter_type_e filter,
+                                   enum draw_filter_type_e filterz) {
+  R_DrawColumn_f result = drawfuncs[filterz][filter][type];
+  if (result == NULL)
+    I_Error("R_GetDrawColumnFunc: undefined function (%d, %d, %d)",
+            type, filter, filterz);
+  return result;
+}
+
+void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars) {
+  dcvars->x = dcvars->yl = dcvars->yh = dcvars->z = 0;
+  dcvars->iscale = dcvars->texturemid = dcvars->texheight = dcvars->texu = 0;
+  dcvars->source = dcvars->prevsource = dcvars->nextsource = NULL;
+  dcvars->colormap = dcvars->nextcolormap = colormaps[0];
+  dcvars->translation = NULL;
+  dcvars->edgeslope = dcvars->drawingmasked = 0;
+  dcvars->edgetype = drawvars.sprite_edges;
 }
 
 //
@@ -322,11 +697,23 @@ void R_InitTranslationTables (void)
 //  and the inner loop has to step in texture space u and v.
 //
 
-#define R_DRAWSPAN_FUNCNAME R_DrawSpan8
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8_PointUV_PointZ
+#define R_DRAWSPAN_PIPELINE (RDC_STANDARD)
+#include "r_drawspan.inl"
+
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8_PointUV_LinearZ
+#define R_DRAWSPAN_PIPELINE (RDC_STANDARD | RDC_DITHERZ)
 #include "r_drawspan.inl"
 
 void R_DrawSpan(draw_span_vars_t *dsvars) {
-   R_DrawSpan8(dsvars);
+  switch (drawvars.filterz) {
+    case RDRAW_FILTER_LINEAR:
+      R_DrawSpan8_PointUV_LinearZ(dsvars);
+      break;
+    default:
+      R_DrawSpan8_PointUV_PointZ(dsvars);
+      break;
+  }
 }
 
 //
@@ -350,7 +737,8 @@ void R_InitBuffer(int width, int height)
 
   viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-(ST_SCALED_HEIGHT-1)-height)>>1;
 
-  topleft = screens[0].data + viewwindowy*screens[0].pitch + viewwindowx;
+  drawvars.topleft = screens[0].data + viewwindowy*screens[0].pitch + viewwindowx;
+  drawvars.pitch = screens[0].pitch;
 
   for (i=0; i<FUZZTABLE; i++)
     fuzzoffset[i] = fuzzoffset_org[i]*screens[0].pitch;

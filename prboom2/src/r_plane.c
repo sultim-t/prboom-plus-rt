@@ -160,13 +160,24 @@ static void R_MapPlane(int y, int x1, int x2, draw_span_vars_t *dsvars)
   dsvars->xfrac =  viewx + FixedMul(finecosine[angle], length) + xoffs;
   dsvars->yfrac = -viewy - FixedMul(finesine[angle],   length) + yoffs;
 
+  if (drawvars.filterfloor == RDRAW_FILTER_LINEAR) {
+    dsvars->xfrac -= (FRACUNIT>>1);
+    dsvars->yfrac -= (FRACUNIT>>1);
+  }
+
   if (!(dsvars->colormap = fixedcolormap))
     {
+      dsvars->z = distance;
       index = distance >> LIGHTZSHIFT;
       if (index >= MAXLIGHTZ )
         index = MAXLIGHTZ-1;
       dsvars->colormap = planezlight[index];
+      dsvars->nextcolormap = planezlight[index+1 >= MAXLIGHTZ ? MAXLIGHTZ-1 : index+1];
     }
+  else
+   {
+      dsvars->z = 0;
+   }
 
   dsvars->y = y;
   dsvars->x1 = x1;
@@ -329,7 +340,9 @@ static void R_DoDrawPlane(visplane_t *pl)
 {
   register int x;
   draw_column_vars_t dcvars;
-  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD);
+  R_DrawColumn_f colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterwall, drawvars.filterz);
+
+  R_SetDefaultDrawColumnVars(&dcvars);
 
   if (pl->minx <= pl->maxx) {
     if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT) { // sky flat
@@ -387,6 +400,9 @@ static void R_DoDrawPlane(visplane_t *pl)
 
       if (comp[comp_skymap] || !(dcvars.colormap = fixedcolormap))
         dcvars.colormap = fullcolormap;          // killough 3/20/98
+
+      dcvars.nextcolormap = dcvars.colormap; // for filtering -- POPE
+
       //dcvars.texturemid = skytexturemid;
       dcvars.texheight = textureheight[skytexture]>>FRACBITS; // killough
       // proff 09/21/98: Changed for high-res
@@ -399,6 +415,8 @@ static void R_DoDrawPlane(visplane_t *pl)
           if ((dcvars.yl = pl->top[x]) != -1 && dcvars.yl <= (dcvars.yh = pl->bottom[x])) // dropoff overflow
             {
               dcvars.source = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x])^flip) >> ANGLETOSKYSHIFT);
+              dcvars.prevsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x-1])^flip) >> ANGLETOSKYSHIFT);
+              dcvars.nextsource = R_GetTextureColumn(tex_patch, ((an + xtoviewangle[x+1])^flip) >> ANGLETOSKYSHIFT);
               colfunc(&dcvars);
             }
 

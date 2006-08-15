@@ -42,6 +42,7 @@
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
 #include "i_video.h"
+#include "r_filter.h"
 #include "lprintf.h"
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
@@ -331,16 +332,18 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
     int   DYI = (200<<16)          / SCREENHEIGHT;
     R_DrawColumn_f colfunc;
     draw_column_vars_t dcvars;
-    extern byte *topleft;
-    byte *oldtopleft = topleft;
+    draw_vars_t olddrawvars = drawvars;
 
-    topleft = screens[scrn].data;
+    R_SetDefaultDrawColumnVars(&dcvars);
+
+    drawvars.topleft = screens[scrn].data;
+    drawvars.pitch = screens[scrn].pitch;
 
     if (flags & VPT_TRANS) {
-      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED);
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
       dcvars.translation = trans;
     } else {
-      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD);
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterpatch, RDRAW_FILTER_NONE);
     }
 
     left = ( x * DX ) >> FRACBITS;
@@ -349,12 +352,27 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
     bottom = ( (y + patch->height) * DY ) >> FRACBITS;
 
     dcvars.texheight = patch->height;
-    dcvars.iscale = DYI;
-    dcvars.colormap = colormaps[0];
+    dcvars.iscale = DYI - 8;
+    dcvars.drawingmasked = max(patch->width, patch->height) > 8;
+    dcvars.edgetype = drawvars.patch_edges;
 
-    for (dcvars.x=left, col=0; dcvars.x<right; dcvars.x++, col+=DXI) {
+    if (drawvars.filterpatch == RDRAW_FILTER_LINEAR) {
+      // bias the texture u coordinate
+      if (patch->isNotTileable)
+        col = -(FRACUNIT>>1);
+      else
+        col = (patch->width<<FRACBITS)-(FRACUNIT>>1);
+    }
+    else {
+      col = 0;
+    }
+
+    for (dcvars.x=left; dcvars.x<right; dcvars.x++, col+=DXI) {
       int i;
-      const rcolumn_t *column = R_GetPatchColumn(patch, (flags & VPT_FLIP) ? ((w - col)>>16): (col>>16));
+      const int colindex = (flags & VPT_FLIP) ? ((w - col)>>16): (col>>16);
+      const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
+      const rcolumn_t *prevcolumn = R_GetPatchColumn(patch, colindex-1);
+      const rcolumn_t *nextcolumn = R_GetPatchColumn(patch, colindex+1);
 
       // ignore this column if it's to the left of our clampRect
       if (dcvars.x < 0)
@@ -362,19 +380,29 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
       if (dcvars.x >= SCREENWIDTH)
         break;
 
+      dcvars.texu = ((flags & VPT_FLIP) ? ((patch->width<<FRACBITS)-col) : col) % (patch->width<<FRACBITS);
+
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
 
         dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
         dcvars.yh = (((y + post->topdelta + post->length) * DY)>>FRACBITS);
+        dcvars.edgeslope = post->slope;
 
-        if (dcvars.yh >= bottom)
+        if (dcvars.yh >= bottom) {
           dcvars.yh = bottom-1;
-        if (dcvars.yh >= SCREENHEIGHT)
+          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+        }
+        if (dcvars.yh >= SCREENHEIGHT) {
           dcvars.yh = SCREENHEIGHT-1;
+          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+        }
 
         dcvars.source = column->pixels + post->topdelta;
+        dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta : dcvars.source;
+        dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta : dcvars.source;
+
         dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
 
         colfunc(&dcvars);
@@ -382,7 +410,7 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
     }
 
     R_ResetColumnBuffer();
-    topleft = oldtopleft;
+    drawvars = olddrawvars;
   }
 }
 
@@ -513,6 +541,7 @@ void V_InitMode(video_mode_t mode) {
       break;
 #endif
   }
+  R_FilterInit();
 }
 
 //

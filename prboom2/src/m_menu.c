@@ -2821,12 +2821,13 @@ void M_DrawEnemy(void)
 extern int usejoystick, usemouse, default_mus_card, default_snd_card;
 extern int detect_voices, realtic_clock_rate, tran_filter_pct;
 
-setup_menu_t gen_settings1[], gen_settings2[];
+setup_menu_t gen_settings1[], gen_settings2[], gen_settings3[];
 
 setup_menu_t* gen_settings[] =
 {
   gen_settings1,
   gen_settings2,
+  gen_settings3,
   NULL
 };
 
@@ -2837,10 +2838,7 @@ enum {
   general_videomode,
 //  general_pcx,
 //  general_diskicon,
-  general_hom,
   general_uncapped,
-  general_smooth,
-  general_smoothfactor
 };
 
 enum {
@@ -2859,7 +2857,7 @@ enum {
 
 #define G_X 250
 #define G_YA  44
-#define G_YA2 (G_YA+10*8)
+#define G_YA2 (G_YA+9*8)
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
@@ -2888,17 +2886,11 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Video mode", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
 
-  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
-   G_YA + general_hom*8, {"flashing_hom"}},
-
   {"Uncapped Framerate", S_YESNO, m_null, G_X,
   G_YA + general_uncapped*8, {"uncapped_framerate"}},
 
-  {"Smooth Demo Playback", S_YESNO, m_null, G_X,
-  G_YA+ general_smooth*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
-
-  {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
-  G_YA+ general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"Uncapped Framerate", S_YESNO, m_null, G_X,
+  G_YA + general_uncapped*8, {"uncapped_framerate"}},
 
 #ifdef GL_DOOM
   {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
@@ -2966,7 +2958,8 @@ enum {
 enum {
   general_corpse,
   general_realtic,
-  general_end
+  general_smooth,
+  general_smoothfactor
 };
 
 #define G_YB  44
@@ -3002,7 +2995,67 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_YB2 + general_realtic*8, {"realtic_clock_rate"}},
 
+  {"Smooth Demo Playback", S_YESNO, m_null, G_X,
+   G_YB2 + general_smooth*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
+
+  {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
+   G_YB2 + general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
+
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings3}},
+
+  // Final entry
+
+  {0,S_SKIP|S_END,m_null}
+};
+
+enum {
+  general_filterwall,
+  general_filterfloor,
+  general_filtersprite,
+  general_filterpatch,
+  general_filterz,
+  general_filter_threshold,
+  general_spriteedges,
+  general_patchedges,
+  general_hom,
+};
+
+#define G_YC  44
+
+static const char *renderfilters[] = {"none", "point", "linear", "rounded"};
+static const char *edgetypes[] = {"jagged", "sloped"};
+
+setup_menu_t gen_settings3[] = { // General Settings screen2
+
+  {"Renderer settings"     ,S_SKIP|S_TITLE, m_null, G_X, G_YB - 12},
+
+  {"Filter for walls", S_CHOICE, m_null, G_X,
+   G_YC + general_filterwall*8, {"filter_wall"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for floors/ceilings", S_CHOICE, m_null, G_X,
+   G_YC + general_filterfloor*8, {"filter_floor"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for sprites", S_CHOICE, m_null, G_X,
+   G_YC + general_filtersprite*8, {"filter_sprite"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for patches", S_CHOICE, m_null, G_X,
+   G_YC + general_filterpatch*8, {"filter_patch"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for lighting", S_CHOICE, m_null, G_X,
+   G_YC + general_filterz*8, {"filter_z"}, 0, 0, NULL, renderfilters},
+
+  {"Drawing of sprite edges", S_CHOICE, m_null, G_X,
+   G_YC + general_spriteedges*8, {"sprite_edges"}, 0, 0, NULL, edgetypes},
+
+  {"Drawing of patch edges", S_CHOICE, m_null, G_X,
+   G_YC + general_patchedges*8, {"patch_edges"}, 0, 0, NULL, edgetypes},
+
+  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
+   G_YC + general_hom*8, {"flashing_hom"}},
+
+  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings2}},
 
   // Final entry
 

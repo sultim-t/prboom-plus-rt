@@ -318,7 +318,9 @@ void R_DrawMaskedColumn(
   const rpatch_t *patch,
   R_DrawColumn_f colfunc,
   draw_column_vars_t *dcvars,
-  const rcolumn_t *column
+  const rcolumn_t *column,
+  const rcolumn_t *prevcolumn,
+  const rcolumn_t *nextcolumn
 )
 {
   int     i;
@@ -347,11 +349,17 @@ void R_DrawMaskedColumn(
       if (dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
           dcvars->source = column->pixels + post->topdelta;
+          dcvars->prevsource = prevcolumn->pixels + post->topdelta;
+          dcvars->nextsource = nextcolumn->pixels + post->topdelta;
+
           dcvars->texturemid = basetexturemid - (post->topdelta<<FRACBITS);
 
+          dcvars->edgeslope = post->slope;
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
+          dcvars->drawingmasked = 1; // POPE
           colfunc (dcvars);
+          dcvars->drawingmasked = 0; // POPE
         }
     }
   dcvars->texturemid = basetexturemid;
@@ -369,40 +377,57 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
   const rpatch_t *patch = R_CachePatchNum(vis->patch+firstspritelump);
   R_DrawColumn_f colfunc;
   draw_column_vars_t dcvars;
+  enum draw_filter_type_e filter;
+  enum draw_filter_type_e filterz;
+
+  R_SetDefaultDrawColumnVars(&dcvars);
+  if (vis->isplayersprite) {
+    dcvars.edgetype = drawvars.patch_edges;
+    filter = drawvars.filterpatch;
+    filterz = RDRAW_FILTER_POINT;
+  } else {
+    dcvars.edgetype = drawvars.sprite_edges;
+    filter = drawvars.filtersprite;
+    filterz = drawvars.filterz;
+  }
 
   dcvars.colormap = vis->colormap;
+  dcvars.nextcolormap = dcvars.colormap; // for filtering -- POPE
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
 
   if (!dcvars.colormap)   // NULL colormap = shadow draw
-    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ);    // killough 3/14/98
+    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, filter, filterz);    // killough 3/14/98
   else
     if (vis->mobjflags & MF_TRANSLATION)
       {
-        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED);
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
         dcvars.translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
       }
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
         {
-          colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLUCENT);
+          colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLUCENT, filter, filterz);
           tranmap = main_tranmap;       // killough 4/11/98
         }
       else
-        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD); // killough 3/14/98, 4/11/98
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, filter, filterz); // killough 3/14/98, 4/11/98
 
 // proff 11/06/98: Changed for high-res
   dcvars.iscale = FixedDiv (FRACUNIT, vis->scale);
   dcvars.texturemid = vis->texturemid;
   frac = vis->startfrac;
+  if (filter == RDRAW_FILTER_LINEAR)
+    frac -= (FRACUNIT>>1);
   spryscale = vis->scale;
   sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
   for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;
+      dcvars.texu = frac;
 
 #ifdef RANGECHECK
       if (texturecolumn < 0 || texturecolumn >= patch->width)
@@ -413,7 +438,9 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
         patch,
         colfunc,
         &dcvars,
-        R_GetPatchColumnClamped(patch, texturecolumn)
+        R_GetPatchColumnClamped(patch, texturecolumn),
+        R_GetPatchColumnClamped(patch, texturecolumn-1),
+        R_GetPatchColumnClamped(patch, texturecolumn+1)
       );
     }
   R_UnlockPatchNum(vis->patch+firstspritelump); // cph - release lump
@@ -667,6 +694,8 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   vissprite_t   avis;
   int           width;
   fixed_t       topoffset;
+
+  avis.isplayersprite = true;
 
   // decide which patch to use
 
