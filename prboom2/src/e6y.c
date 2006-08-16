@@ -1041,31 +1041,6 @@ int AccelerateMouse(int val)
   return (int) pow(val, mouse_accelfactor);
 }
 
-int rjreq, rjlen;
-
-void AddIntForRejectOverflow(int k)
-{
-  extern byte *rejectmatrix;
-  int i = 0;
-
-  if (rjlen < rjreq && demo_compatibility
-    && (overrun_reject_warn || overrun_reject_emulate))
-  {
-    if (overrun_reject_warn)
-      ShowOverflowWarning(overrun_reject_emulate, &overrun_reject_promted, rjreq - rjlen > 16, "REJECT", "");
-    
-    if (overrun_reject_emulate)
-    {
-      while (rjlen < rjreq)
-      {
-        rejectmatrix[rjlen++] = (k & 0x000000ff);
-        k >>= 8;
-        if ((++i)==4) break;
-      }
-    }
-  }
-}
-
 int mlooky;
 
 boolean IsDehMaxHealth = false;
@@ -1448,3 +1423,35 @@ void ClearLinesCrossTracer(void)
 float paperitems_pitch;
 
 int levelstarttic;
+
+int lumpcache_num = 0;
+int lumpcache_max = 0;
+void **lumpcache = NULL;
+const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad)
+{
+  size_t lumplen;
+
+  if (lumpcache_num >= lumpcache_max)
+  {
+    lumpcache_max = lumpcache_max ? lumpcache_max * 2 : 32;
+    lumpcache = realloc(lumpcache, sizeof(*lumpcache) * lumpcache_max);
+  }
+
+  lumplen = W_LumpLength(lump);
+  lumpcache[lumpcache_num] = malloc(len);
+  W_ReadLump(lump, lumpcache[lumpcache_num]);
+  memset((unsigned char*)lumpcache[lumpcache_num]+lumplen, pad, len-lumplen);
+
+  return lumpcache[lumpcache_num++];
+}
+
+void W_FreeCachedLumps(void)
+{
+  int i;
+  for (i = 0; i < lumpcache_num; i++)
+  {
+    if (lumpcache[i])
+      free(lumpcache[i]);
+  }
+  free(lumpcache);
+}

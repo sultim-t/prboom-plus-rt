@@ -55,6 +55,7 @@
 #endif
 #include "w_wad.h"
 #include "lprintf.h"
+#include "e6y.h"
 
 //
 // GLOBALS
@@ -437,6 +438,7 @@ void W_ReleaseAllWads(void)
 	numlumps = 0;
 	free(lumpinfo);
 	lumpinfo = NULL;
+	W_FreeCachedLumps();//e6y
 }
 
 //

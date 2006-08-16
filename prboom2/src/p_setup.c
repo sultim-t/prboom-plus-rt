@@ -1149,18 +1149,27 @@ static void P_AddLineToSector(line_t* li, sector_t* sector)
 // It's emulated successfully if the size of overflow no more than 16 bytes.
 // No more desync on teeth-32.wad\teeth-32.lmp.
 // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
-int rjreq, rjlen;
+int rjlen;
+int rjreq;
 static void RejectOverrunAddInt(int k)
 {
+//  extern byte *rejectmatrix;
   int i = 0;
 
-  if (demo_compatibility)
+  if (rjlen < rjreq && demo_compatibility
+    && (overrun_reject_warn || overrun_reject_emulate))
   {
-    while (rjlen < rjreq)
+    if (overrun_reject_warn)
+      ShowOverflowWarning(overrun_reject_emulate, &overrun_reject_promted, rjreq - rjlen > 16, "REJECT", "");
+    
+    if (overrun_reject_emulate)
     {
-      ((byte*)rejectmatrix)[rjlen++] = (k & 0x000000ff);
-      k >>= 8;
-      if ((++i)==4) break;
+      while (rjlen < rjreq)
+      {
+        ((byte*)rejectmatrix)[rjlen++] = (k & 0x000000ff);
+        k >>= 8;
+        if ((++i)==4) break;
+      }
     }
   }
 }
@@ -1465,23 +1474,16 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   if (rejectlump != -1)
     W_UnlockLumpNum(rejectlump);
-  /* FIXME this code is not in 2.3, but I can't find the place where it was
-     removed. We don't have W_CacheLumpNumPadded anymore, so this needs to be
-     done differently.
 
+  //e6y: Needed for REJECT overrun emulation
   rejectlump = lumpnum+ML_REJECT;
-  {
-    // e6y: Needed for REJECT overrun emulation
-    rjlen = W_LumpLength(rejectlump);
-    // e6y: Needed for REJECT overrun emulation
-    rjreq = (numsectors*numsectors+7)/8;
-    if (rjlen < rjreq) {
-      lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
-      rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);
-    } else {
-      rejectmatrix = W_CacheLumpNum(rejectlump);
-    }
-  }*/
+  rjlen = W_LumpLength(rejectlump);
+  rjreq = (numsectors*numsectors+7)/8;
+  if (rjlen < rjreq) {
+    lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
+    rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);
+  } else
+
   rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
   P_GroupLines();
 

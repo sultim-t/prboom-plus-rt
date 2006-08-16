@@ -124,6 +124,9 @@ extern int overrun_playeringame_warn;
 extern int overrun_playeringame_emulate;
 
 extern int overrun_spechit_promted;
+extern int overrun_reject_promted;
+extern int overrun_intercept_promted;
+extern int overrun_playeringame_promted;
 
 extern void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...);
 
@@ -289,10 +292,6 @@ void e6y_I_InitInputs(void);
 int AccelerateMouse(int val);
 void MouseAccelChanging(void);
 
-extern int rjlen;
-extern int rjreq;
-void AddIntForRejectOverflow(int k);
-
 extern int mlooky;
 extern int realtic_clock_rate;
 extern boolean IsDehMaxHealth;
@@ -388,5 +387,8 @@ extern boolean isskytexture;
 void D_AddDehFile (const char *file, wad_source_t source);
 
 extern int levelstarttic;
+
+const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad);
+void W_FreeCachedLumps(void);
 
 #endif
