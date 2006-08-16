@@ -283,6 +283,7 @@ manual_ceiling://e6y
     // create a new ceiling thinker
     rtn = 1;
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
+    memset(ceiling, 0, sizeof(*ceiling));
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling;               //jff 2/22/98
     ceiling->thinker.function = T_MoveCeiling;
