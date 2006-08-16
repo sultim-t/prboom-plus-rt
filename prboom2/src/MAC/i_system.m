@@ -45,6 +45,7 @@
 #include "doomtype.h"
 #include "dstrings.h"
 #include "d_main.h"
+#include "m_fixed.h"
 #include "i_system.h"
 
 #import <Foundation/NSArray.h>
