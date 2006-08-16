@@ -109,6 +109,7 @@ manual_floor:
     // new floor thinker
     rtn = 1;
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+    memset(floor, 0, sizeof(*floor));
     P_AddThinker (&floor->thinker);
     sec->floordata = floor;
     floor->thinker.function = T_MoveFloor;
@@ -312,6 +313,7 @@ manual_ceiling:
     // new ceiling thinker
     rtn = 1;
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
+    memset(ceiling, 0, sizeof(*ceiling));
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling; //jff 2/22/98
     ceiling->thinker.function = T_MoveCeiling;
@@ -518,6 +520,7 @@ manual_lift:
     // Setup the plat thinker
     rtn = 1;
     plat = Z_Malloc( sizeof(*plat), PU_LEVSPEC, 0);
+    memset(plat, 0, sizeof(*plat));
     P_AddThinker(&plat->thinker);
 
     plat->sector = sec;
@@ -678,6 +681,7 @@ manual_stair:
     // new floor thinker
     rtn = 1;
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
+    memset(floor, 0, sizeof(*floor));
     P_AddThinker (&floor->thinker);
     sec->floordata = floor;
     floor->thinker.function = T_MoveFloor;
@@ -779,6 +783,7 @@ manual_stair:
         secnum = newsecnum;
         floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
 
+        memset(floor, 0, sizeof(*floor));
         P_AddThinker (&floor->thinker);
 
         sec->floordata = floor;
@@ -862,6 +867,7 @@ manual_crusher:
     // new ceiling thinker
     rtn = 1;
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
+    memset(ceiling, 0, sizeof(*ceiling));
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling; //jff 2/22/98
     ceiling->thinker.function = T_MoveCeiling;
@@ -957,6 +963,7 @@ manual_locked:
     // new door thinker
     rtn = 1;
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+    memset(door, 0, sizeof(*door));
     P_AddThinker (&door->thinker);
     sec->ceilingdata = door; //jff 2/22/98
 
@@ -1066,6 +1073,7 @@ manual_door:
     // new door thinker
     rtn = 1;
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+    memset(door, 0, sizeof(*door));
     P_AddThinker (&door->thinker);
     sec->ceilingdata = door; //jff 2/22/98
 

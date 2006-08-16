@@ -372,6 +372,7 @@ int EV_DoDoor
     // new door thinker
     rtn = 1;
     door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+    memset(door, 0, sizeof(*door));
     P_AddThinker (&door->thinker);
     sec->ceilingdata = door; //jff 2/22/98
 
@@ -585,6 +586,7 @@ int EV_VerticalDoor
 
   // new door thinker
   door = Z_Malloc (sizeof(*door), PU_LEVSPEC, 0);
+  memset(door, 0, sizeof(*door));
   P_AddThinker (&door->thinker);
   sec->ceilingdata = door; //jff 2/22/98
   door->thinker.function = T_VerticalDoor;
@@ -657,6 +659,7 @@ void P_SpawnDoorCloseIn30 (sector_t* sec)
 
   door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
 
+  memset(door, 0, sizeof(*door));
   P_AddThinker (&door->thinker);
 
   sec->ceilingdata = door; //jff 2/22/98
@@ -688,6 +691,7 @@ void P_SpawnDoorRaiseIn5Mins
 
   door = Z_Malloc ( sizeof(*door), PU_LEVSPEC, 0);
 
+  memset(door, 0, sizeof(*door));
   P_AddThinker (&door->thinker);
 
   sec->ceilingdata = door; //jff 2/22/98

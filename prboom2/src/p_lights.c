@@ -184,6 +184,7 @@ void P_SpawnFireFlicker (sector_t*  sector)
 
   flick = Z_Malloc ( sizeof(*flick), PU_LEVSPEC, 0);
 
+  memset(flick, 0, sizeof(*flick));
   P_AddThinker (&flick->thinker);
 
   flick->thinker.function = T_FireFlicker;
@@ -210,6 +211,7 @@ void P_SpawnLightFlash (sector_t* sector)
 
   flash = Z_Malloc ( sizeof(*flash), PU_LEVSPEC, 0);
 
+  memset(flash, 0, sizeof(*flash));
   P_AddThinker (&flash->thinker);
 
   flash->thinker.function = T_LightFlash;
@@ -241,6 +243,7 @@ void P_SpawnStrobeFlash
 
   flash = Z_Malloc ( sizeof(*flash), PU_LEVSPEC, 0);
 
+  memset(flash, 0, sizeof(*flash));
   P_AddThinker (&flash->thinker);
 
   flash->sector = sector;
@@ -276,6 +279,7 @@ void P_SpawnGlowingLight(sector_t*  sector)
 
   g = Z_Malloc( sizeof(*g), PU_LEVSPEC, 0);
 
+  memset(g, 0, sizeof(*g));
   P_AddThinker(&g->thinker);
 
   g->sector = sector;
