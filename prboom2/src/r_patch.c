@@ -513,33 +513,6 @@ static void createTextureCompositePatch(int id) {
 
       while (oldColumn->topdelta != 0xff) {
         rpost_t *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
-        // set up the post's data
-        post->topdelta = oldColumn->topdelta + texpatch->originy;
-        post->length = oldColumn->length;
-        if ((post->topdelta + post->length) > composite_patch->height) {
-          if ((post->topdelta) > composite_patch->height)
-            post->length = 0;
-          else
-            post->length = composite_patch->height - post->topdelta;
-        }
-        if (post->topdelta < 0) {
-          post->topdelta = 0;
-          if ((post->topdelta + post->length) <= 0)
-            post->length = 0;
-          else
-            post->length -= post->topdelta;
-        }
-        post->slope = 0;
-
-        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta);
-        if (edgeSlope == 1) post->slope |= RDRAW_EDGESLOPE_TOP_UP;
-        else if (edgeSlope == -1) post->slope |= RDRAW_EDGESLOPE_TOP_DOWN;
-
-        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta+oldColumn->length);
-        if (edgeSlope == 1) post->slope |= RDRAW_EDGESLOPE_BOT_UP;
-        else if (edgeSlope == -1) post->slope |= RDRAW_EDGESLOPE_BOT_DOWN;
-
-        // fill in the post's pixels
         oldColumnPixelData = (const byte *)oldColumn + 3;
         oy = texpatch->originy;
         count = oldColumn->length;
@@ -566,10 +539,35 @@ static void createTextureCompositePatch(int id) {
           }
         } else {
           // with a single patch only negative y origins are wrong
-          if (oy < 0) {
-            oy = 0;
-          }
+          oy = 0;
         }
+        // set up the post's data
+        post->topdelta = oldColumn->topdelta + oy;
+        post->length = count;
+        if ((post->topdelta + post->length) > composite_patch->height) {
+          if ((post->topdelta) > composite_patch->height)
+            post->length = 0;
+          else
+            post->length = composite_patch->height - post->topdelta;
+        }
+        if (post->topdelta < 0) {
+          post->topdelta = 0;
+          if ((post->topdelta + post->length) <= 0)
+            post->length = 0;
+          else
+            post->length -= post->topdelta;
+        }
+        post->slope = 0;
+
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta);
+        if (edgeSlope == 1) post->slope |= RDRAW_EDGESLOPE_TOP_UP;
+        else if (edgeSlope == -1) post->slope |= RDRAW_EDGESLOPE_TOP_DOWN;
+
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta+count);
+        if (edgeSlope == 1) post->slope |= RDRAW_EDGESLOPE_BOT_UP;
+        else if (edgeSlope == -1) post->slope |= RDRAW_EDGESLOPE_BOT_DOWN;
+
+        // fill in the post's pixels
         for (y=0; y<count; y++) {
           int ty = oy + oldColumn->topdelta + y;
           if (ty < 0)
