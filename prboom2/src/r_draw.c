@@ -568,7 +568,7 @@ byte *translationtables;
 
 #undef R_DRAWCOLUMN_PIPELINE_TYPE
 
-static R_DrawColumn_f drawfuncs[RDRAW_FILTER_MAXFILTERS][RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXPIPELINES] = {
+static R_DrawColumn_f drawcolumnfuncs[RDRAW_FILTER_MAXFILTERS][RDRAW_FILTER_MAXFILTERS][RDC_PIPELINE_MAXPIPELINES] = {
   {
     {NULL, NULL, NULL, NULL,},
     {R_DrawColumn8_PointUV,
@@ -619,7 +619,7 @@ static R_DrawColumn_f drawfuncs[RDRAW_FILTER_MAXFILTERS][RDRAW_FILTER_MAXFILTERS
 R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
                                    enum draw_filter_type_e filter,
                                    enum draw_filter_type_e filterz) {
-  R_DrawColumn_f result = drawfuncs[filterz][filter][type];
+  R_DrawColumn_f result = drawcolumnfuncs[filterz][filter][type];
   if (result == NULL)
     I_Error("R_GetDrawColumnFunc: undefined function (%d, %d, %d)",
             type, filter, filterz);
@@ -705,15 +705,60 @@ void R_InitTranslationTables (void)
 #define R_DRAWSPAN_PIPELINE (RDC_STANDARD | RDC_DITHERZ)
 #include "r_drawspan.inl"
 
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8_LinearUV_PointZ
+#define R_DRAWSPAN_PIPELINE (RDC_STANDARD | RDC_BILINEAR)
+#include "r_drawspan.inl"
+
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8_LinearUV_LinearZ
+#define R_DRAWSPAN_PIPELINE (RDC_STANDARD | RDC_BILINEAR | RDC_DITHERZ)
+#include "r_drawspan.inl"
+
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8_RoundedUV_PointZ
+#define R_DRAWSPAN_PIPELINE (RDC_STANDARD | RDC_ROUNDED)
+#include "r_drawspan.inl"
+
+#define R_DRAWSPAN_FUNCNAME R_DrawSpan8_RoundedUV_LinearZ
+#define R_DRAWSPAN_PIPELINE (RDC_STANDARD | RDC_ROUNDED | RDC_DITHERZ)
+#include "r_drawspan.inl"
+
+static R_DrawSpan_f drawspanfuncs[RDRAW_FILTER_MAXFILTERS][RDRAW_FILTER_MAXFILTERS] = {
+  {
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+  },
+  {
+    NULL,
+    R_DrawSpan8_PointUV_PointZ,
+    R_DrawSpan8_LinearUV_PointZ,
+    R_DrawSpan8_RoundedUV_PointZ,
+  },
+  {
+    NULL,
+    R_DrawSpan8_PointUV_LinearZ,
+    R_DrawSpan8_LinearUV_LinearZ,
+    R_DrawSpan8_RoundedUV_LinearZ,
+  },
+  {
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+  },
+};
+
+R_DrawSpan_f R_GetDrawSpanFunc(enum draw_filter_type_e filter,
+                               enum draw_filter_type_e filterz) {
+  R_DrawSpan_f result = drawspanfuncs[filterz][filter];
+  if (result == NULL)
+    I_Error("R_GetDrawSpanFunc: undefined function (%d, %d)",
+            filter, filterz);
+  return result;
+}
+
 void R_DrawSpan(draw_span_vars_t *dsvars) {
-  switch (drawvars.filterz) {
-    case RDRAW_FILTER_LINEAR:
-      R_DrawSpan8_PointUV_LinearZ(dsvars);
-      break;
-    default:
-      R_DrawSpan8_PointUV_PointZ(dsvars);
-      break;
-  }
+  R_GetDrawSpanFunc(drawvars.filterfloor, drawvars.filterz)(dsvars);
 }
 
 //
