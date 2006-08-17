@@ -79,6 +79,18 @@ void R_FilterInit(void);
       ((((texV)>>8) & 0xff)>>(8-FILTER_UVBITS)) \
     ] ]
 
+#define filter_getRoundedForSpan(texU, texV) \
+  filter_getScale2xQuadColors( \
+    source[ (((texU)>>16)&0x3f) | (((texV)>>10)&0xfc0)            ], \
+    source[ (((texU)>>16)&0x3f) | ((((texV)-FRACUNIT)>>10)&0xfc0) ], \
+    source[ ((((texU)+FRACUNIT)>>16)&0x3f) | (((texV)>>10)&0xfc0) ], \
+    source[ (((texU)>>16)&0x3f) | ((((texV)+FRACUNIT)>>10)&0xfc0) ], \
+    source[ ((((texU)-FRACUNIT)>>16)&0x3f) | (((texV)>>10)&0xfc0) ] \
+  ) \
+    [ filter_roundedUVMap[ \
+      (((((texU)>>8) & 0xff)>>(8-FILTER_UVBITS))<<FILTER_UVBITS) + \
+      ((((texV)>>8) & 0xff)>>(8-FILTER_UVBITS)) \
+    ] ]
 
 byte *filter_getScale2xQuadColors(byte e, byte b, byte f, byte h, byte d);
 
