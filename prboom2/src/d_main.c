@@ -102,7 +102,6 @@ boolean respawnparm;    // working -respawn
 boolean fastparm;       // working -fast
 
 boolean singletics = false; // debug flag to cancel adaptiveness
-static boolean skipDDisplay = false;
 
 //jff 1/22/98 parms for disabling music and sound
 boolean nosfxparm;
@@ -218,10 +217,8 @@ void D_Display (void)
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
-  if (skipDDisplay)
+  if (!I_StartDisplay())
     return;
-  I_StartDisplay();
-  skipDDisplay = true;
 
   // save the current screen if about to wipe
   if ((wipe = gamestate != wipegamestate) && (V_GetMode() != VID_MODEGL))
@@ -320,7 +317,6 @@ void D_Display (void)
   }
 
   I_EndDisplay();
-  skipDDisplay = false;
 }
 
 // CPhipps - Auto screenshot Variables
