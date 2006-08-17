@@ -1,6 +1,6 @@
 /**/
 #define PACKAGE "prboom-plus"
-#define VERSION "2.4.5.1"
+#define VERSION "2.4.6.1"
 
 #ifdef DEBUG
 
@@ -98,3 +98,5 @@
 #define HAVE_LIBKERN_OSBYTEORDER_H
 #define HAVE_OWN_MUSIC
 #define UPDATE_MUSIC
+#define SCREENSHOT_DIR I_DoomExeDir()
+#define HEAPDUMP_DIR I_DoomExeDir()

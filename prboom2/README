@@ -1,5 +1,10 @@
+<<<<<<< .working
 PrBoom 2.4.5.1
 ==============
+=======
+PrBoom 2.4.6
+============
+>>>>>>> .merge-right.r2096
 
 PrBoom is a version of the classic 3D shoot'em'up game Doom, originally
 written by id Software.

@@ -40,6 +40,7 @@
 
 #include "doomstat.h"
 #include "m_random.h"
+#include "lprintf.h"
 
 //
 // M_Random
@@ -71,7 +72,11 @@ rng_t rng;     // the random number state
 
 unsigned long rngseed = 1993;   // killough 3/26/98: The seed
 
-int P_Random(pr_class_t pr_class)
+int (P_Random)(pr_class_t pr_class
+#ifdef INSTRUMENTED
+     , const char *file, int line
+#endif
+)
 {
   // killough 2/16/98:  We always update both sets of random number
   // generators, to ensure repeatability if the demo_compatibility
@@ -81,6 +86,10 @@ int P_Random(pr_class_t pr_class)
   //
   // All of this RNG stuff is tricky as far as demo sync goes --
   // it's like playing with explosives :) Lee
+
+#ifdef INSTRUMENTED
+  //lprintf(LO_DEBUG, "%.10d: %.10d - %s:%.5d\n", gametic, pr_class, file, line);
+#endif
 
   int compat = pr_class == pr_misc ?
     (rng.prndindex = (rng.prndindex + 1) & 255) :

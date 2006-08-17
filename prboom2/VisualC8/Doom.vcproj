@@ -4977,6 +4977,30 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\r_drawcolumn.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_drawspan.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_filter.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_filter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_fps.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\r_fps.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\r_main.c"
 				>
 				<FileConfiguration

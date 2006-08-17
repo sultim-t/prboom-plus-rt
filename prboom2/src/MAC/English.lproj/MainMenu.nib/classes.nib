@@ -52,10 +52,12 @@
                 fullscreenButton = id; 
                 gameButton = id; 
                 gameMenu = id; 
+                graphicsModeComboBox = id; 
                 launchButton = id; 
                 noDemoButton = id; 
                 noMonstersButton = id; 
                 playDemoButton = id; 
+                resolutionComboBox = id; 
                 respawnMonstersButton = id; 
                 timeDemoButton = id; 
                 wadDrawer = id; 
@@ -65,6 +67,7 @@
             SUPERCLASS = NSObject; 
         }, 
         {CLASS = RMUDAnsiTextView; LANGUAGE = ObjC; SUPERCLASS = NSTextView; }, 
+        {CLASS = ResolutionDataSource; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
             ACTIONS = {add = id; remove = id; }; 
             CLASS = WadViewController; 

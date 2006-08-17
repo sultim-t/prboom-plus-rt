@@ -87,6 +87,6 @@ angle_t R_SmoothPlaying_Get(angle_t defangle)
 
 void R_ResetAfterTeleport(player_t *player)
 {
-  R_ResetViewInterpolation();//e6y
+  R_ResetViewInterpolation();
   R_SmoothPlaying_Reset(player);
 }

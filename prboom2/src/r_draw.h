@@ -40,32 +40,54 @@
 #pragma interface
 #endif
 
+enum column_pipeline_e {
+  RDC_PIPELINE_STANDARD,
+  RDC_PIPELINE_TRANSLUCENT,
+  RDC_PIPELINE_TRANSLATED,
+  RDC_PIPELINE_FUZZ,
+  RDC_PIPELINE_MAXPIPELINES,
+};
+
+// Used to specify what kind of filering you want
+enum draw_filter_type_e {
+  RDRAW_FILTER_NONE,
+  RDRAW_FILTER_POINT,
+  RDRAW_FILTER_LINEAR,
+  RDRAW_FILTER_ROUNDED,
+  RDRAW_FILTER_MAXFILTERS
+};
+
+// Used to specify what kind of column edge rendering to use on masked 
+// columns. SQUARE = standard, SLOPED = slope the column edge up or down
+// based on neighboring columns
+enum sloped_edge_type_e {
+  RDRAW_MASKEDCOLUMNEDGE_SQUARE,
+  RDRAW_MASKEDCOLUMNEDGE_SLOPED
+};
+
 // Packaged into a struct - POPE
 typedef struct {
   int                 x;
   int                 yl;
   int                 yh;
+  fixed_t             z; // the current column z coord
   fixed_t             iscale;
   fixed_t             texturemid;
   int                 texheight;    // killough
+  fixed_t             texu; // the current column u coord
   const byte          *source; // first pixel in a column
+  const byte          *prevsource; // first pixel in previous column
+  const byte          *nextsource; // first pixel in next column
   const lighttable_t  *colormap;
+  const lighttable_t  *nextcolormap;
   const byte          *translation;
+  int                 edgeslope; // OR'ed RDRAW_EDGESLOPE_*
+  // 1 if R_DrawColumn* is currently drawing a masked column, otherwise 0
+  int                 drawingmasked;
+  enum sloped_edge_type_e edgetype;
 } draw_column_vars_t;
 
-extern draw_column_vars_t dcvars;
-
-// The span blitting interface.
-// Hook in assembler or system specific BLT here.
-
-void R_DrawColumn(void);
-void R_DrawTLColumn(void);      // drawing translucent textures // phares
-void R_DrawFuzzColumn(void);    // The Spectre/Invisibility effect.
-
-// Draw with color translation tables, for player sprite rendering,
-//  Green/Red/Blue/Indigo shirts.
-
-void R_DrawTranslatedColumn(void);
+void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
 
 void R_VideoErase(int x, int y, int count);
 
@@ -73,21 +95,50 @@ typedef struct {
   int                 y;
   int                 x1;
   int                 x2;
+  fixed_t             z; // the current span z coord
   fixed_t             xfrac;
   fixed_t             yfrac;
   fixed_t             xstep;
   fixed_t             ystep;
   const byte          *source; // start of a 64*64 tile image
   const lighttable_t  *colormap;
+  const lighttable_t  *nextcolormap;
 } draw_span_vars_t;
 
-extern draw_span_vars_t dsvars;
+typedef struct {
+  byte  *topleft;
+  int   pitch;
+
+  enum draw_filter_type_e filterwall;
+  enum draw_filter_type_e filterfloor;
+  enum draw_filter_type_e filtersprite;
+  enum draw_filter_type_e filterz;
+  enum draw_filter_type_e filterpatch;
+
+  enum sloped_edge_type_e sprite_edges;
+  enum sloped_edge_type_e patch_edges;
+
+  // Used to specify an early-out magnification threshold for filtering.
+  // If a texture is being minified (dcvars.iscale > rdraw_magThresh), then it
+  // drops back to point filtering.
+  fixed_t mag_threshold;
+} draw_vars_t;
+
+extern draw_vars_t drawvars;
 
 extern byte playernumtotrans[MAXPLAYERS]; // CPhipps - what translation table for what player
 extern byte       *translationtables;
 
+typedef void (*R_DrawColumn_f)(draw_column_vars_t *dcvars);
+R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
+                                   enum draw_filter_type_e filter,
+                                   enum draw_filter_type_e filterz);
+
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
-void R_DrawSpan(void);
+typedef void (*R_DrawSpan_f)(draw_span_vars_t *dsvars);
+R_DrawSpan_f R_GetDrawSpanFunc(enum draw_filter_type_e filter,
+                               enum draw_filter_type_e filterz);
+void R_DrawSpan(draw_span_vars_t *dsvars);
 
 void R_InitBuffer(int width, int height);
 

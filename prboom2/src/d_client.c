@@ -263,7 +263,8 @@ boolean D_NetGetWad(const char* name)
 void NetUpdate(void)
 {
   static int lastmadetic;
-  if (isExtraDDisplay) return;//e6y
+  if (isExtraDDisplay)
+    return;
   if (server) { // Receive network packets
     size_t recvlen;
     packet_header_t *packet = Z_Malloc(10000, PU_STATIC, NULL);
@@ -465,22 +466,22 @@ void TryRunTics (void)
 #endif
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
-      if (!movement_smooth)//e6y
-      if (server) I_WaitForPacket(ms_to_next_tick);
-      else I_uSleep(ms_to_next_tick*1000);
+      if (!movement_smooth) {
+        if (server)
+          I_WaitForPacket(ms_to_next_tick);
+        else
+          I_uSleep(ms_to_next_tick*1000);
+      }
       if (I_GetTime() - entertime > 10) {
-        if (server) {//e6y
-        remotesend--;
-	if (server) {
-	  char buf[sizeof(packet_header_t)+1];
-	  packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
-	  buf[sizeof(buf)-1] = consoleplayer;
-	  I_SendPacket((packet_header_t *)buf, sizeof buf);
-	}
-	}//e6y
+        if (server) {
+          char buf[sizeof(packet_header_t)+1];
+          remotesend--;
+          packet_set((packet_header_t *)buf, PKT_RETRANS, remotetic);
+          buf[sizeof(buf)-1] = consoleplayer;
+          I_SendPacket((packet_header_t *)buf, sizeof buf);
+        }
         M_Ticker(); return;
       }
-      //e6y
       //if ((displaytime) < (tic_vars.next-SDL_GetTicks()))
       {
         WasRenderedInTryRunTics = true;
@@ -495,7 +496,6 @@ void TryRunTics (void)
           isExtraDDisplay = false;
         }
       }
-
     } else break;
   }
 
@@ -506,7 +506,7 @@ void TryRunTics (void)
     if (advancedemo)
       D_DoAdvanceDemo ();
     M_Ticker ();
-    I_GetTime_SaveMS();//e6y
+    I_GetTime_SaveMS();
     G_Ticker ();
     P_Checksum(gametic);
     gametic++;

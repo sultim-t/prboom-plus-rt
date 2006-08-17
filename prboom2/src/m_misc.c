@@ -67,6 +67,8 @@
 #include "i_joy.h"
 #include "lprintf.h"
 #include "d_main.h"
+#include "r_draw.h"
+#include "r_demo.h"
 #include "r_fps.h"
 #include "e6y.h"//e6y
 
@@ -198,6 +200,10 @@ default_t defaults[] =
    def_hex, ss_none}, // 0, +1 for colours, +2 for non-ascii chars, +4 for skip-last-line
   {"level_precache",{(int*)&precache},{0},0,1,
    def_bool,ss_none}, // precache level data?
+  {"demo_smoothturns", {&demo_smoothturns},  {0},0,1,
+   def_bool,ss_stat},
+  {"demo_smoothturnsfactor", {&demo_smoothturnsfactor},  {6},1,SMOOTH_PLAYING_MAXFACTOR,
+   def_int,ss_stat},
 
   {"Files",{NULL},{0},UL,UL,def_none,ss_none},
   /* cph - MBF-like wad/deh/bex autoload code */
@@ -328,6 +334,24 @@ default_t defaults[] =
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98
+  {"uncapped_framerate", {&movement_smooth},  {0},0,1,
+   def_bool,ss_stat},
+  {"filter_wall",{&drawvars.filterwall},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_floor",{&drawvars.filterfloor},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_sprite",{&drawvars.filtersprite},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_z",{&drawvars.filterz},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_LINEAR, def_int,ss_none},
+  {"filter_patch",{&drawvars.filterpatch},{RDRAW_FILTER_POINT},
+   RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
+  {"filter_threshold",{&drawvars.mag_threshold},{49152},
+   0, UL, def_int,ss_none},
+  {"sprite_edges",{&drawvars.sprite_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
+   RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
+  {"patch_edges",{&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
+   RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
 
 #ifdef GL_DOOM
   {"OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},
@@ -704,8 +728,6 @@ default_t defaults[] =
    def_int,ss_stat},
 
   {"Prboom-plus game settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"movement_smooth", {&movement_smooth},  {0},0,1,
-   def_bool,ss_stat},
   {"movement_altmousesupport", {&movement_altmousesupport},  {0},0,1,
    def_bool,ss_stat},
   {"movement_strafe50", {&movement_strafe50},  {0},0,1,
@@ -1452,26 +1474,30 @@ void M_DoScreenShot (const char* fname)
   fclose(fp);
 }
 
+#ifndef SCREENSHOT_DIR
+#define SCREENSHOT_DIR "."
+#endif
+
 void M_ScreenShot(void)
 {
   static int shot;
-  char       lbmname[32];
+  char       lbmname[PATH_MAX + 1];
   int        startshot;
 
   screenshot_write_error = false;
 
-  if (access(".",2)) screenshot_write_error = true;
+  if (access(SCREENSHOT_DIR,2)) screenshot_write_error = true;
 
   startshot = shot; // CPhipps - prevent infinite loop
 
   do {
 #ifdef HAVE_LIBPNG
-    sprintf(lbmname,"doom%02d.png", shot++);
+    sprintf(lbmname,"%s/doom%02d.png", SCREENSHOT_DIR, shot++);
 #else
     if (V_GetMode() == VID_MODEGL) {
-      sprintf(lbmname,"doom%02d.tga", shot++);
+      sprintf(lbmname,"%s/doom%02d.tga", SCREENSHOT_DIR, shot++);
     } else {
-      sprintf(lbmname,"doom%02d.bmp", shot++);
+      sprintf(lbmname,"%s/doom%02d.bmp", SCREENSHOT_DIR, shot++);
     }
 #endif
   } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));

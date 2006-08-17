@@ -2598,7 +2598,7 @@ static void gld_AddFlat(int sectornum, boolean ceiling, visplane_t *plane)
   gld_drawinfo.flats[gld_drawinfo.num_flats++]=flat;
 }
 
-void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingplane)
+void gld_AddPlane(int subsectornum, visplane_t *floor, visplane_t *ceiling)
 {
   subsector_t *subsector;
 
@@ -2612,13 +2612,11 @@ void gld_AddPlane(int subsectornum, visplane_t *floorplane, visplane_t *ceilingp
   if (sectorrendered[subsector->sector->iSectorID]!=rendermarker) // if not already rendered
   {
     // render the floor
-    //if (subsector->sector->floorheight < viewMaxY)//e6y
-    if (floorplane)
-      gld_AddFlat(subsector->sector->iSectorID, false, floorplane);
+    if (floor)
+      gld_AddFlat(subsector->sector->iSectorID, false, floor);
     // render the ceiling
-    //if (subsector->sector->ceilingheight > viewMaxY)//e6y
-    if (ceilingplane)
-      gld_AddFlat(subsector->sector->iSectorID, true, ceilingplane);
+    if (ceiling)
+      gld_AddFlat(subsector->sector->iSectorID, true, ceiling);
     // set rendered true
     sectorrendered[subsector->sector->iSectorID]=rendermarker;
   }
@@ -2696,8 +2694,7 @@ void gld_AddSprite(vissprite_t *vspr)
     return;
   sprite.shadow = (pSpr->flags & MF_SHADOW) != 0;
   sprite.trans  = (pSpr->flags & MF_TRANSLUCENT) != 0;
-//e6y
-  sprite.thing = vspr->thing;
+  sprite.thing = vspr->thing;//e6y
   if (movement_smooth)
   {
     sprite.x = (float)(-pSpr->PrevX + FixedMul (tic_vars.frac, -pSpr->x - (-pSpr->PrevX)))/MAP_SCALE;
@@ -2706,12 +2703,10 @@ void gld_AddSprite(vissprite_t *vspr)
   }
   else
   {
-
-  sprite.x=-(float)pSpr->x/MAP_SCALE;
-  sprite.y= (float)pSpr->z/MAP_SCALE;
-  sprite.z= (float)pSpr->y/MAP_SCALE;
-
-  }//e6y
+    sprite.x=-(float)pSpr->x/MAP_SCALE;
+    sprite.y= (float)pSpr->z/MAP_SCALE;
+    sprite.z= (float)pSpr->y/MAP_SCALE;
+  }
 
   sprite.vt=0.0f;
   sprite.vb=(float)sprite.gltexture->height/(float)sprite.gltexture->tex_height;

@@ -1258,10 +1258,10 @@ static int    ng_state;
 //
 static void WI_endNetgameStats(void)
 {
-  free(cnt_frags);
-  free(cnt_secret);
-  free(cnt_items);
-  free(cnt_kills);
+  free(cnt_frags); cnt_frags = NULL;
+  free(cnt_secret); cnt_secret = NULL;
+  free(cnt_items); cnt_items = NULL;
+  free(cnt_kills); cnt_kills = NULL;
 }
 
 // ====================================================================
@@ -1516,11 +1516,17 @@ void WI_drawNetgameStats(void)
       V_DrawNamePatch(x-fwidth, y, FB, star, CR_DEFAULT, VPT_STRETCH);
 
     x += NG_SPACINGX;
-    WI_drawPercent(x-pwidth, y+10, cnt_kills[i]); x += NG_SPACINGX;
-    WI_drawPercent(x-pwidth, y+10, cnt_items[i]); x += NG_SPACINGX;
-    WI_drawPercent(x-pwidth, y+10, cnt_secret[i]);  x += NG_SPACINGX;
+    if (cnt_kills)
+      WI_drawPercent(x-pwidth, y+10, cnt_kills[i]);
+    x += NG_SPACINGX;
+    if (cnt_items)
+      WI_drawPercent(x-pwidth, y+10, cnt_items[i]);
+    x += NG_SPACINGX;
+    if (cnt_secret)
+      WI_drawPercent(x-pwidth, y+10, cnt_secret[i]);
+    x += NG_SPACINGX;
 
-    if (dofrags)
+    if (dofrags && cnt_frags)
       WI_drawNum(x, y+10, cnt_frags[i], -1);
 
     y += WI_SPACINGY;
@@ -1703,13 +1709,16 @@ void WI_drawStats(void)
   WI_drawLF();
 
   V_DrawNamePatch(SP_STATSX, SP_STATSY, FB, kills, CR_DEFAULT, VPT_STRETCH);
-  WI_drawPercent(320 - SP_STATSX, SP_STATSY, cnt_kills[0]);
+  if (cnt_kills)
+    WI_drawPercent(320 - SP_STATSX, SP_STATSY, cnt_kills[0]);
 
   V_DrawNamePatch(SP_STATSX, SP_STATSY+lh, FB, items, CR_DEFAULT, VPT_STRETCH);
-  WI_drawPercent(320 - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
+  if (cnt_items)
+    WI_drawPercent(320 - SP_STATSX, SP_STATSY+lh, cnt_items[0]);
 
   V_DrawNamePatch(SP_STATSX, SP_STATSY+2*lh, FB, sp_secret, CR_DEFAULT, VPT_STRETCH);
-  WI_drawPercent(320 - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
+  if (cnt_secret)
+    WI_drawPercent(320 - SP_STATSX, SP_STATSY+2*lh, cnt_secret[0]);
 
   WI_drawTimeStats(cnt_time, cnt_total_time, cnt_par);
 }

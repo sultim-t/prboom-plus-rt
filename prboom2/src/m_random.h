@@ -138,11 +138,15 @@ extern rng_t rng;                      // The rng's state
 
 extern unsigned long rngseed;          // The starting seed (not part of state)
 
+// As M_Random, but used by the play simulation.
+int P_Random(pr_class_t DA(const char *, int));
+
+#ifdef INSTRUMENTED
+#define P_Random(a) (P_Random) (a, __FILE__,__LINE__)
+#endif
+
 // Returns a number from 0 to 255,
 #define M_Random() P_Random(pr_misc)
-
-// As M_Random, but used by the play simulation.
-int P_Random(pr_class_t);
 
 // Fix randoms for demos.
 void M_ClearRandom(void);

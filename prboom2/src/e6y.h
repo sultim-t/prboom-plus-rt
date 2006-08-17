@@ -189,7 +189,6 @@ void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 const byte* G_ReadDemoHeader(const byte* demo_p);
 void M_ChangeAltMouseHandling(void);
-void M_ChangeDemoSmoothTurns(void);
 void M_ChangeSpeed(void);
 void M_ChangeMouseLook(void);
 void M_ChangeMaxViewPitch(void);

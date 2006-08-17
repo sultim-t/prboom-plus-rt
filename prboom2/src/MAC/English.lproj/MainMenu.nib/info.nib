@@ -21,14 +21,6 @@
 		<integer>318</integer>
 		<integer>319</integer>
 		<integer>325</integer>
-		<integer>316</integer>
-		<integer>460</integer>
-		<integer>461</integer>
-		<integer>462</integer>
-		<integer>572</integer>
-		<integer>610</integer>
-		<integer>665</integer>
-		<integer>666</integer>
 		<integer>614</integer>
 		<integer>615</integer>
 		<integer>616</integer>
@@ -54,8 +46,20 @@
 		<integer>660</integer>
 		<integer>661</integer>
 		<integer>590</integer>
+		<integer>316</integer>
 		<integer>358</integer>
 		<integer>365</integer>
+		<integer>460</integer>
+		<integer>461</integer>
+		<integer>462</integer>
+		<integer>572</integer>
+		<integer>610</integer>
+		<integer>665</integer>
+		<integer>666</integer>
+		<integer>752</integer>
+		<integer>753</integer>
+		<integer>757</integer>
+		<integer>758</integer>
 	</array>
 	<key>IBLockedTabItems</key>
 	<array>

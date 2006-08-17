@@ -40,7 +40,7 @@
 #include "r_fps.h"
 #include "e6y.h"
 
-int movement_smooth;
+int movement_smooth = false;
 
 typedef enum
 {
@@ -65,6 +65,7 @@ tic_vars_t tic_vars;
 view_vars_t original_view_vars;
 
 extern int realtic_clock_rate;
+void D_Display(void);
 
 void R_InitInterpolation(void)
 {
@@ -126,7 +127,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     else
     {
       viewangle = original_view_vars.viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - original_view_vars.viewangle);
-      viewpitch = original_view_vars.viewpitch + FixedMul (frac, player->mo->pitch /*+ viewangleoffset*/ - original_view_vars.viewpitch);
+      viewpitch = original_view_vars.viewpitch + FixedMul (frac, R_SmoothPlaying_Get(player->mo->pitch) - original_view_vars.viewpitch);
     }
   }
   else
@@ -151,8 +152,7 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     else
     {
       viewangle = R_SmoothPlaying_Get(player->mo->angle);
-      //viewangle = player->mo->angle + viewangleoffset;
-      viewpitch = player->mo->pitch;// + viewangleoffset;
+      viewpitch = player->mo->pitch;
     }
   }
 }
@@ -495,4 +495,3 @@ void R_StopInterpolationIfNeeded(thinker_t *th)
       R_StopInterpolation (type2, posptr2);
   }
 }
-

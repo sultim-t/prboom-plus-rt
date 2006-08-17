@@ -42,6 +42,7 @@
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
 #include "i_video.h"
+#include "r_filter.h"
 #include "lprintf.h"
 
 // Each screen is [SCREENWIDTH*SCREENHEIGHT];
@@ -237,12 +238,9 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
   if (!trans)
     flags &= ~VPT_TRANS;
 
-  if (x<0
-      ||x+patch->width > ((flags & VPT_STRETCH) ? 320 : SCREENWIDTH)
-      || y<0
-      || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT))
+  if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT))
     // killough 1/19/98: improved error message:
-    I_Error("V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB"
+    I_Error("V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
             "Bad V_DrawMemPatch8 (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
 
   if (!(flags & VPT_STRETCH)) {
@@ -252,9 +250,14 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
-    for (col=0 ; (unsigned int)col<=w ; desttop++, col++) {
+    for (col=0 ; (unsigned int)col<=w ; desttop++, col++, x++) {
       int i;
       const rcolumn_t *column = &patch->columns[(flags & VPT_FLIP) ? w-col : col];
+
+      if (x < 0)
+        continue;
+      if (x >= SCREENWIDTH)
+        break;
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
@@ -320,64 +323,94 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
     // CPhipps - move stretched patch drawing code here
     //         - reformat initialisers, move variables into inner blocks
 
-    byte *desttop;
     int   col;
     int   w = (patch->width << 16) - 1; // CPhipps - -1 for faster flipping
-    int   stretchx, stretchy;
+    int   left, right, top, bottom;
     int   DX  = (SCREENWIDTH<<16)  / 320;
     int   DXI = (320<<16)          / SCREENWIDTH;
     int   DY  = (SCREENHEIGHT<<16) / 200;
-    register int DYI = (200<<16)   / SCREENHEIGHT;
+    int   DYI = (200<<16)          / SCREENHEIGHT;
+    R_DrawColumn_f colfunc;
+    draw_column_vars_t dcvars;
+    draw_vars_t olddrawvars = drawvars;
 
-    stretchx = ( x * DX ) >> 16;
-    stretchy = ( y * DY ) >> 16;
+    R_SetDefaultDrawColumnVars(&dcvars);
 
-    desttop = screens[scrn].data + stretchy * screens[scrn].pitch +  stretchx;
+    drawvars.topleft = screens[scrn].data;
+    drawvars.pitch = screens[scrn].pitch;
 
-    for ( col = 0; col <= w; x++, col+=DXI, desttop++ ) {
+    if (flags & VPT_TRANS) {
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
+      dcvars.translation = trans;
+    } else {
+      colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, drawvars.filterpatch, RDRAW_FILTER_NONE);
+    }
+
+    left = ( x * DX ) >> FRACBITS;
+    top = ( y * DY ) >> FRACBITS;
+    right = ( (x + patch->width) * DX ) >> FRACBITS;
+    bottom = ( (y + patch->height) * DY ) >> FRACBITS;
+
+    dcvars.texheight = patch->height;
+    dcvars.iscale = DYI;
+    dcvars.drawingmasked = max(patch->width, patch->height) > 8;
+    dcvars.edgetype = drawvars.patch_edges;
+
+    if (drawvars.filterpatch == RDRAW_FILTER_LINEAR) {
+      // bias the texture u coordinate
+      if (patch->isNotTileable)
+        col = -(FRACUNIT>>1);
+      else
+        col = (patch->width<<FRACBITS)-(FRACUNIT>>1);
+    }
+    else {
+      col = 0;
+    }
+
+    for (dcvars.x=left; dcvars.x<right; dcvars.x++, col+=DXI) {
       int i;
-      const rcolumn_t *column = &patch->columns[(flags & VPT_FLIP) ? ((w - col)>>16): (col>>16)];
+      const int colindex = (flags & VPT_FLIP) ? ((w - col)>>16): (col>>16);
+      const rcolumn_t *column = R_GetPatchColumn(patch, colindex);
+      const rcolumn_t *prevcolumn = R_GetPatchColumn(patch, colindex-1);
+      const rcolumn_t *nextcolumn = R_GetPatchColumn(patch, colindex+1);
+
+      // ignore this column if it's to the left of our clampRect
+      if (dcvars.x < 0)
+        continue;
+      if (dcvars.x >= SCREENWIDTH)
+        break;
+
+      dcvars.texu = ((flags & VPT_FLIP) ? ((patch->width<<FRACBITS)-col) : col) % (patch->width<<FRACBITS);
 
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
 
-  int toprow = ((post->topdelta * DY) >> 16);
-  register const byte *source = column->pixels + post->topdelta;
-  register byte       *dest = desttop + toprow * screens[scrn].pitch;
-  register int         count  = ( post->length * DY ) >> 16;
-  register int         srccol = 0;
+        dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
+        dcvars.yh = (((y + post->topdelta + post->length) * DY - (FRACUNIT>>1))>>FRACBITS);
+        dcvars.edgeslope = post->slope;
 
-#ifdef RANGECHECK
-  // this rangecheck fires only when the patch goes over the screen by
-  // more than one pixel, to prevent massive warnings at 800x600
-  if ((toprow < 0) || ((toprow + count) > SCREENHEIGHT))
-    lprintf(LO_WARN,
-            "V_DrawMemPatch8: column exceeds screenheight (toprow %i + count %i = %i)\n"
-            "Bad V_DrawMemPatch8 (flags=%u)", toprow, count, toprow+count, flags);
-#endif
+        if (dcvars.yh >= bottom) {
+          dcvars.yh = bottom-1;
+          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+        }
+        if (dcvars.yh >= SCREENHEIGHT) {
+          dcvars.yh = SCREENHEIGHT-1;
+          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
+        }
 
-  if (toprow < 0) {
-    // proff don't draw anything if this is outside the screen
-    continue;
-  }
-  if ((toprow + count) >= SCREENHEIGHT) // check by John Popplewell
-    count = SCREENHEIGHT-toprow-1; // proff - clip at bottom
+        dcvars.source = column->pixels + post->topdelta;
+        dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta : dcvars.source;
+        dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta : dcvars.source;
 
-  if (flags & VPT_TRANS)
-    while (count--) {
-      *dest  =  trans[source[srccol>>16]];
-      dest  +=  screens[scrn].pitch;
-      srccol+=  DYI;
-    }
-  else
-    while (count--) {
-      *dest  =  source[srccol>>16];
-      dest  +=  screens[scrn].pitch;
-      srccol+=  DYI;
-    }
+        dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
+
+        colfunc(&dcvars);
       }
     }
+
+    R_ResetColumnBuffer();
+    drawvars = olddrawvars;
   }
 }
 
@@ -456,13 +489,13 @@ void WRAP_gld_DrawLine(fline_t* fl, int color)
 }
 #endif
 
-void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
-void NULL_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags) {}
-void NULL_DrawBackground(const char *flatname, int n) {}
-void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
-void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
-void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
-void NULL_DrawLine(fline_t* fl, int color) {}
+static void NULL_FillRect(int scrn, int x, int y, int width, int height, byte colour) {}
+static void NULL_CopyRect(int srcx, int srcy, int srcscrn, int width, int height, int destx, int desty, int destscrn, enum patch_translation_e flags) {}
+static void NULL_DrawBackground(const char *flatname, int n) {}
+static void NULL_DrawNumPatch(int x, int y, int scrn, int lump, int cm, enum patch_translation_e flags) {}
+static void NULL_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src, enum patch_translation_e flags) {}
+static void NULL_PlotPixel(int scrn, int x, int y, byte color) {}
+static void NULL_DrawLine(fline_t* fl, int color) {}
 
 video_mode_t default_videomode;
 static video_mode_t current_videomode = VID_MODE8;
@@ -508,6 +541,7 @@ void V_InitMode(video_mode_t mode) {
       break;
 #endif
   }
+  R_FilterInit();
 }
 
 //

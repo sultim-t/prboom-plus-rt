@@ -237,7 +237,7 @@ static void createPatch(int id) {
 
   // allocate our data chunk
   dataSize = pixelDataSize + columnsDataSize + postsDataSize;
-  patch->data = (unsigned char*)Z_Malloc(dataSize, PU_CACHE, &patch->data);
+  patch->data = (unsigned char*)Z_Malloc(dataSize, PU_CACHE, (void **)&patch->data);
   memset(patch->data, 0, dataSize);
 
   // set out pixel, column, and post pointers into our data array
@@ -397,6 +397,7 @@ static void createTextureCompositePatch(int id) {
   const patch_t *oldPatch;
   const column_t *oldColumn, *oldPrevColumn, *oldNextColumn;
   int i, x, y;
+  int oy, count;
   int pixelDataSize;
   int columnsDataSize;
   int postsDataSize;
@@ -461,7 +462,7 @@ static void createTextureCompositePatch(int id) {
 
   // allocate our data chunk
   dataSize = pixelDataSize + columnsDataSize + postsDataSize;
-  composite_patch->data = (unsigned char*)Z_Malloc(dataSize, PU_STATIC, &composite_patch->data);
+  composite_patch->data = (unsigned char*)Z_Malloc(dataSize, PU_STATIC, (void **)&composite_patch->data);
   memset(composite_patch->data, 0, dataSize);
 
   // set out pixel, column, and post pointers into our data array
@@ -512,9 +513,37 @@ static void createTextureCompositePatch(int id) {
 
       while (oldColumn->topdelta != 0xff) {
         rpost_t *post = &composite_patch->columns[tx].posts[countsInColumn[tx].posts_used];
+        oldColumnPixelData = (const byte *)oldColumn + 3;
+        oy = texpatch->originy;
+        count = oldColumn->length;
+        // the original renderer had several bugs which we reproduce here
+        if (countsInColumn[tx].patches > 1) {
+          // when there are multiple patches, then we need to handle the
+          // column differently
+          if (i == 0) {
+            // draw first patch at original position, it will be partly
+            // overdrawn below
+            for (y=0; y<count; y++) {
+              int ty = oy + oldColumn->topdelta + y;
+              if (ty < 0)
+                continue;
+              if (ty >= composite_patch->height)
+                break;
+              composite_patch->pixels[tx * composite_patch->height + ty] = oldColumnPixelData[y];
+            }
+          }
+          // do the buggy clipping
+          if (oy < 0) {
+            count += oy;
+            oy = 0;
+          }
+        } else {
+          // with a single patch only negative y origins are wrong
+          oy = 0;
+        }
         // set up the post's data
-        post->topdelta = oldColumn->topdelta + texpatch->originy;
-        post->length = oldColumn->length;
+        post->topdelta = oldColumn->topdelta + oy;
+        post->length = count;
         if ((post->topdelta + post->length) > composite_patch->height) {
           if ((post->topdelta) > composite_patch->height)
             post->length = 0;
@@ -534,14 +563,13 @@ static void createTextureCompositePatch(int id) {
         if (edgeSlope == 1) post->slope |= RDRAW_EDGESLOPE_TOP_UP;
         else if (edgeSlope == -1) post->slope |= RDRAW_EDGESLOPE_TOP_DOWN;
 
-        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta+oldColumn->length);
+        edgeSlope = getColumnEdgeSlope(oldPrevColumn, oldNextColumn, oldColumn->topdelta+count);
         if (edgeSlope == 1) post->slope |= RDRAW_EDGESLOPE_BOT_UP;
         else if (edgeSlope == -1) post->slope |= RDRAW_EDGESLOPE_BOT_DOWN;
 
         // fill in the post's pixels
-        oldColumnPixelData = (const byte *)oldColumn + 3;
-        for (y=0; y<oldColumn->length; y++) {
-          int ty = texpatch->originy + oldColumn->topdelta + y;
+        for (y=0; y<count; y++) {
+          int ty = oy + oldColumn->topdelta + y;
           if (ty < 0)
             continue;
           if (ty >= composite_patch->height)

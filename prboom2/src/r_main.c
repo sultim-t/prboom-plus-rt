@@ -48,10 +48,10 @@
 #include "lprintf.h"
 #include "st_stuff.h"
 #include "i_main.h"
+#include "i_system.h"
 #include "g_game.h"
 #include "r_demo.h"
 #include "r_fps.h"
-#include "i_system.h"
 #include "e6y.h"//e6y
 
 // Fineangles in the SCREENWIDTH wide window.
@@ -108,8 +108,6 @@ const lighttable_t **colormaps;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
 int extralight;                           // bumped light from gun blasts
-
-void (*colfunc)(void);
 
 //
 // R_PointOnSide
@@ -402,7 +400,7 @@ void R_Init (void)
 {
   // CPhipps - R_DrawColumn isn't constant anymore, so must
   //  initialise in code
-  colfunc = R_DrawColumn;     // current column draw function
+  // current column draw function
   lprintf(LO_INFO, "\nR_LoadTrigTables: ");
   R_LoadTrigTables();
   lprintf(LO_INFO, "\nR_InitData: ");
@@ -442,10 +440,7 @@ static void R_SetupFrame (player_t *player)
   int cm;
 
   viewplayer = player;
-//e6y  viewx = player->mo->x;
-//e6y  viewy = player->mo->y;
-//e6y  viewangle = player->mo->angle + viewangleoffset;
-//e6y
+
   if (player->mo != oviewer || r_NoInterpolate)
   {
     R_ResetViewInterpolation ();
@@ -458,12 +453,10 @@ static void R_SetupFrame (player_t *player)
 
   extralight = player->extralight;
 
-//e6y  viewz = player->viewz;
-
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 
-  R_DoInterpolations(tic_vars.frac);//e6y
+  R_DoInterpolations(tic_vars.frac);
 
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
@@ -659,6 +652,6 @@ void R_RenderPlayerView (player_t* player)
   }
 
   if (rendering_stats) R_ShowStats();
-  
-  R_RestoreInterpolations ();//e6y
+
+  R_RestoreInterpolations();
 }

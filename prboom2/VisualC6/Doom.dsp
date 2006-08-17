@@ -787,6 +787,14 @@ SOURCE=..\src\r_draw.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\r_filter.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\r_filter.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\r_fps.c
 # End Source File
 # Begin Source File

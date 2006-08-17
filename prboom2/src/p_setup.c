@@ -1368,8 +1368,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   //e6y
   totallive = 0;
-  R_StopAllInterpolations();
   transparentpresent = false;
+
+  R_StopAllInterpolations();
 
   totallive = totalkills = totalitems = totalsecret = wminfo.maxfrags = 0;
   wminfo.partime = 180;

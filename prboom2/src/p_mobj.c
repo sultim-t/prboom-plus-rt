@@ -692,11 +692,11 @@ void P_MobjThinker (mobj_t* mobj)
   // removed old code which looked at target references
   // (we use pointer reference counting now)
 
-  //e6y
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;
-  CheckThingsHealthTracer(mobj);
+
+  CheckThingsHealthTracer(mobj);  //e6y
 
   // momentum movement
   if (mobj->momx | mobj->momy || mobj->flags & MF_SKULLFLY)
@@ -826,6 +826,10 @@ mobj_t* P_SpawnMobj(fixed_t x,fixed_t y,fixed_t z,mobjtype_t type)
     mobj->ceilingz - mobj->height : z;
   
   //e6y
+  mobj->PrevX = mobj->x;
+  mobj->PrevY = mobj->y;
+  mobj->PrevZ = mobj->z;
+
   mobj->PrevX = mobj->x;
   mobj->PrevY = mobj->y;
   mobj->PrevZ = mobj->z;

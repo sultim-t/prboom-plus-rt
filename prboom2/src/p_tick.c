@@ -121,7 +121,7 @@ void P_AddThinker(thinker_t* thinker)
   // killough 8/29/98: set sentinel pointers, and then add to appropriate list
   thinker->cnext = thinker->cprev = NULL;
   P_UpdateThinker(thinker);
-  newthinkerpresent = true;//e6y
+  newthinkerpresent = true;
 }
 
 //
@@ -179,7 +179,7 @@ void P_RemoveThinkerDelayed(thinker_t *thinker)
 
 void P_RemoveThinker(thinker_t *thinker)
 {
-  R_StopInterpolationIfNeeded(thinker);//e6y
+  R_StopInterpolationIfNeeded(thinker);
   thinker->function = P_RemoveThinkerDelayed;
 
   P_UpdateThinker(thinker);
@@ -244,15 +244,12 @@ static void P_RunThinkers (void)
   for (currentthinker = thinkercap.next;
        currentthinker != &thinkercap;
        currentthinker = currentthinker->next)
-       {//e6y
+  {
     if (newthinkerpresent)
       R_ActivateThinkerInterpolations(currentthinker);
-
     if (currentthinker->function)
       currentthinker->function(currentthinker);
-    
-    //e6y
-       }
+  }
   newthinkerpresent = false;
 }
 
@@ -273,17 +270,14 @@ void P_Ticker (void)
    * All of this complicated mess is used to preserve demo sync.
    */
 
-  //e6y
   R_UpdateInterpolations ();
   r_NoInterpolate = true;
-  if (paused)
-    return;
 
   if (paused || (menuactive && !demoplayback && !netgame &&
      players[consoleplayer].viewz != 1))
     return;
 
-  r_NoInterpolate = false;//e6y
+  r_NoInterpolate = false;
 
   P_MapStart();
                // not if this is an intermission screen

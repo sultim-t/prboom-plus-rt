@@ -317,15 +317,19 @@ fixed_t sprtopscreen;
 
 void R_DrawMaskedColumn(
   const rpatch_t *patch,
-  const rcolumn_t *column
+  R_DrawColumn_f colfunc,
+  draw_column_vars_t *dcvars,
+  const rcolumn_t *column,
+  const rcolumn_t *prevcolumn,
+  const rcolumn_t *nextcolumn
 )
 {
   int     i;
   int     topscreen;
   int     bottomscreen;
-  fixed_t basetexturemid = dcvars.texturemid;
+  fixed_t basetexturemid = dcvars->texturemid;
 
-  dcvars.texheight = patch->height; // killough 11/98
+  dcvars->texheight = patch->height; // killough 11/98
   for (i=0; i<column->numPosts; i++) {
       const rpost_t *post = &column->posts[i];
 
@@ -333,27 +337,33 @@ void R_DrawMaskedColumn(
       topscreen = sprtopscreen + spryscale*post->topdelta;
       bottomscreen = topscreen + spryscale*post->length;
 
-      dcvars.yl = (topscreen+FRACUNIT-1)>>FRACBITS;
-      dcvars.yh = (bottomscreen-1)>>FRACBITS;
+      dcvars->yl = (topscreen+FRACUNIT-1)>>FRACBITS;
+      dcvars->yh = (bottomscreen-1)>>FRACBITS;
 
-      if (dcvars.yh >= mfloorclip[dcvars.x])
-        dcvars.yh = mfloorclip[dcvars.x]-1;
+      if (dcvars->yh >= mfloorclip[dcvars->x])
+        dcvars->yh = mfloorclip[dcvars->x]-1;
 
-      if (dcvars.yl <= mceilingclip[dcvars.x])
-        dcvars.yl = mceilingclip[dcvars.x]+1;
+      if (dcvars->yl <= mceilingclip[dcvars->x])
+        dcvars->yl = mceilingclip[dcvars->x]+1;
 
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
-      if (dcvars.yl <= dcvars.yh && dcvars.yh < viewheight)
+      if (dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
-          dcvars.source = column->pixels + post->topdelta;
-          dcvars.texturemid = basetexturemid - (post->topdelta<<FRACBITS);
+          dcvars->source = column->pixels + post->topdelta;
+          dcvars->prevsource = prevcolumn->pixels + post->topdelta;
+          dcvars->nextsource = nextcolumn->pixels + post->topdelta;
 
+          dcvars->texturemid = basetexturemid - (post->topdelta<<FRACBITS);
+
+          dcvars->edgeslope = post->slope;
           // Drawn by either R_DrawColumn
           //  or (SHADOW) R_DrawFuzzColumn.
-          colfunc ();
+          dcvars->drawingmasked = 1; // POPE
+          colfunc (dcvars);
+          dcvars->drawingmasked = 0; // POPE
         }
     }
-  dcvars.texturemid = basetexturemid;
+  dcvars->texturemid = basetexturemid;
 }
 
 //
@@ -366,40 +376,59 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
   int      texturecolumn;
   fixed_t  frac;
   const rpatch_t *patch = R_CachePatchNum(vis->patch+firstspritelump);
+  R_DrawColumn_f colfunc;
+  draw_column_vars_t dcvars;
+  enum draw_filter_type_e filter;
+  enum draw_filter_type_e filterz;
+
+  R_SetDefaultDrawColumnVars(&dcvars);
+  if (vis->isplayersprite) {
+    dcvars.edgetype = drawvars.patch_edges;
+    filter = drawvars.filterpatch;
+    filterz = RDRAW_FILTER_POINT;
+  } else {
+    dcvars.edgetype = drawvars.sprite_edges;
+    filter = drawvars.filtersprite;
+    filterz = drawvars.filterz;
+  }
 
   dcvars.colormap = vis->colormap;
+  dcvars.nextcolormap = dcvars.colormap; // for filtering -- POPE
 
   // killough 4/11/98: rearrange and handle translucent sprites
   // mixed with translucent/non-translucenct 2s normals
 
   if (!dcvars.colormap)   // NULL colormap = shadow draw
-    colfunc = R_DrawFuzzColumn;    // killough 3/14/98
+    colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_FUZZ, filter, filterz);    // killough 3/14/98
   else
     if (vis->mobjflags & MF_TRANSLATION)
       {
-        colfunc = R_DrawTranslatedColumn;
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, filter, filterz);
         dcvars.translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
       }
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
         {
-          colfunc = R_DrawTLColumn;
+          colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLUCENT, filter, filterz);
           tranmap = main_tranmap;       // killough 4/11/98
         }
       else
-        colfunc = R_DrawColumn;         // killough 3/14/98, 4/11/98
+        colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_STANDARD, filter, filterz); // killough 3/14/98, 4/11/98
 
 // proff 11/06/98: Changed for high-res
   dcvars.iscale = FixedDiv (FRACUNIT, vis->scale);
   dcvars.texturemid = vis->texturemid;
   frac = vis->startfrac;
+  if (filter == RDRAW_FILTER_LINEAR)
+    frac -= (FRACUNIT>>1);
   spryscale = vis->scale;
   sprtopscreen = centeryfrac - FixedMul(dcvars.texturemid,spryscale);
 
   for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;
+      dcvars.texu = frac;
 
 #ifdef RANGECHECK
       if (texturecolumn < 0 || texturecolumn >= patch->width)
@@ -408,10 +437,13 @@ static void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 
       R_DrawMaskedColumn(
         patch,
-        R_GetPatchColumnClamped(patch, texturecolumn)
+        colfunc,
+        &dcvars,
+        R_GetPatchColumnClamped(patch, texturecolumn),
+        R_GetPatchColumnClamped(patch, texturecolumn-1),
+        R_GetPatchColumnClamped(patch, texturecolumn+1)
       );
     }
-  colfunc = R_DrawColumn;         // killough 3/14/98
   R_UnlockPatchNum(vis->patch+firstspritelump); // cph - release lump
 }
 
@@ -459,15 +491,9 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   tr_x = fx - viewx;
   tr_y = fy - viewy;
 
-//e6y  fixed_t tr_x = thing->x - viewx;
-//e6y  fixed_t tr_y = thing->y - viewy;
-
-  //e6y fixed_t 
   gxt = FixedMul(tr_x,viewcos);
-  //e6y fixed_t 
   gyt = -FixedMul(tr_y,viewsin);
 
-  //e6y fixed_t 
   tz = gxt-gyt;
 
 //e6y
@@ -526,8 +552,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   if (sprframe->rotate)
     {
       // choose a different rotation based on player view
-      //e6y angle_t ang = R_PointToAngle(thing->x, thing->y);
-      angle_t ang = R_PointToAngle(fx, fy); //e6y
+      angle_t ang = R_PointToAngle(fx, fy);
       unsigned rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
       lump = sprframe->lump[rot];
       flip = (boolean) sprframe->flip[rot];
@@ -555,8 +580,7 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     tx += patch->width<<FRACBITS;
     x2 = ((centerxfrac + FixedMul (tx,xscale) ) >> FRACBITS) - 1;
 
-    //e6y gzt = thing->z + (patch->topoffset << FRACBITS);
-    gzt = fz + (patch->topoffset << FRACBITS);//e6y
+    gzt = fz + (patch->topoffset << FRACBITS);
     width = patch->width;
     R_UnlockPatchNum(lump+firstspritelump);
   }
@@ -569,8 +593,8 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   // killough 4/9/98: clip things which are out of view due to height
   if(!GetMouseLook() && render_fov <= FOV90)//e6y
 
-  if (thing->z > viewz + FixedDiv(centeryfrac, xscale) ||
-      gzt      < viewz - FixedDiv(centeryfrac-viewheight, xscale))
+  if (fz  > viewz + FixedDiv(centeryfrac, xscale) ||
+      gzt < viewz - FixedDiv(centeryfrac-viewheight, xscale))
     return;
 
     // killough 3/27/98: exclude things totally separated
@@ -583,13 +607,13 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
     {
       int phs = viewplayer->mo->subsector->sector->heightsec;
       if (phs != -1 && viewz < sectors[phs].floorheight ?
-          thing->z >= sectors[heightsec].floorheight :
+          fz >= sectors[heightsec].floorheight :
           gzt < sectors[heightsec].floorheight)
         return;
       if (phs != -1 && viewz > sectors[phs].ceilingheight ?
           gzt < sectors[heightsec].ceilingheight &&
           viewz >= sectors[heightsec].ceilingheight :
-          thing->z >= sectors[heightsec].ceilingheight)
+          fz >= sectors[heightsec].ceilingheight)
         return;
     }
 
@@ -620,12 +644,9 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   vis->mobjflags = thing->flags;
 // proff 11/06/98: Changed for high-res
   vis->scale = FixedDiv(projectiony, tz);
-//e6y  vis->gx = thing->x;
-//e6y  vis->gy = thing->y;
-//e6y  vis->gz = thing->z;
-  vis->gx = fx;//e6y
-  vis->gy = fy;//e6y
-  vis->gz = fz;//e6y
+  vis->gx = fx;
+  vis->gy = fy;
+  vis->gz = fz;
   vis->gzt = gzt;                          // killough 3/27/98
   vis->texturemid = vis->gzt - viewz;
   vis->x1 = x1 < 0 ? 0 : x1;
@@ -702,6 +723,8 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   vissprite_t   avis;
   int           width;
   fixed_t       topoffset;
+
+  avis.isplayersprite = true;
 
   // decide which patch to use
 

@@ -318,6 +318,9 @@ typedef struct drawseg_s
   fixed_t bsilheight;                   // do not clip sprites above this
   fixed_t tsilheight;                   // do not clip sprites below this
 
+  // Added for filtering (fractional texture u coord) support - POPE
+  fixed_t rw_offset, rw_distance, rw_centerangle; 
+  
   // Pointers to lists for sprite clipping,
   // all three adjusted so [x1] is first value.
 
@@ -356,6 +359,8 @@ typedef struct vissprite_s
 
   // killough 3/27/98: height sector for underwater/fake ceiling support
   int heightsec;
+
+  boolean isplayersprite;
 } vissprite_t;
 
 //

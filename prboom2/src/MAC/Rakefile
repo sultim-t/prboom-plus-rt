@@ -3,7 +3,7 @@
 #################
 
 NAME = 'PrBoom-Plus'
-APPVERSION = '2.4.5.1'
+APPVERSION = '2.4.6.1'
 require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
@@ -24,7 +24,18 @@ end
 # Bundle structure #
 ####################
 
-installTask(:setup, CONTENTSDIR, 'mac/Info.plist')
+file("#{CONTENTSDIR}/Info.plist" => ['mac/Info.plist', CONTENTSDIR, 'mac/Rakefile']) do |t|
+	plist = []
+	File.open(t.prerequisites[0], 'r') do |file|
+		plist = file.readlines
+	end
+	File.open(t.name, 'w') do |f|
+		for line in plist
+			f.write(line.gsub(/%VERSION%/, APPVERSION))
+		end
+	end
+end
+task(:setup => "#{CONTENTSDIR}/Info.plist")
 task(:bundle => :setup)
 
 installFrameworks(:frameworks)
@@ -95,6 +106,7 @@ r_bsp.c
 r_data.c
 r_demo.c
 r_draw.c
+r_filter.c
 r_fps.c
 r_main.c
 r_patch.c
@@ -123,6 +135,7 @@ MAC/DrawerButton.m
 MAC/FileButtonController.m
 MAC/LauncherApp.m
 MAC/LauncherMain.m
+MAC/ResolutionDataSource.m
 MAC/UKKQueue.m
 MAC/UKMainThreadProxy.m
 MAC/WadViewController.m

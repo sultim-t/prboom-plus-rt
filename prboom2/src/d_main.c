@@ -218,7 +218,6 @@ void D_Display (void)
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
-  //e6y
   if (skipDDisplay)
     return;
   I_StartDisplay();
@@ -320,7 +319,6 @@ void D_Display (void)
     D_Wipe();
   }
 
-  //e6y
   I_EndDisplay();
   skipDDisplay = false;
 }
@@ -345,7 +343,7 @@ static void D_DoomLoop(void)
 {
   for (;;)
     {
-      WasRenderedInTryRunTics = false;//e6y
+      WasRenderedInTryRunTics = false;
       // frame syncronous IO operations
       I_StartFrame ();
 
@@ -371,15 +369,14 @@ static void D_DoomLoop(void)
       if (players[displayplayer].mo) // cph 2002/08/10
         S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
-      // Update display, next frame, with current state.
-//e6y
 #ifdef GL_DOOM
-      if (!movement_smooth || !WasRenderedInTryRunTics)
+      if (!movement_smooth || !WasRenderedInTryRunTics) {
 #else
-      if (!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate)
+      if (!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate) {
 #endif
-
-      D_Display();
+        // Update display, next frame, with current state.
+        D_Display();
+      }
 
       // CPhipps - auto screenshot
       if (auto_shot_fname && !--auto_shot_count) {

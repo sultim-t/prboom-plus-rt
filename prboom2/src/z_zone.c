@@ -110,7 +110,9 @@ static const size_t HEADER_SIZE = (sizeof(memblock_t)+CHUNK_SIZE-1) & ~(CHUNK_SI
 
 static memblock_t *blockbytag[PU_MAX];
 
-static int memory_size = 8192*1024;
+// 0 means unlimited, any other value is a hard limit
+//static int memory_size = 8192*1024;
+static int memory_size = 0;
 static int free_memory = 0;
 
 #ifdef INSTRUMENTED
@@ -121,38 +123,58 @@ static int purgable_memory = 0;
 
 static void Z_DrawStats(void)            // Print allocation statistics
 {
-  unsigned long total_memory = free_memory + memory_size + active_memory + purgable_memory;
-  double s = 100.0 / total_memory;
-
   if (gamestate != GS_LEVEL)
     return;
 
-  doom_printf("%-5i\t%6.01f%%\tstatic\n"
-          "%-5i\t%6.01f%%\tpurgable\n"
-          "%-5i\t%6.01f%%\tfree\n"
-          "%-5li\t\ttotal\n",
-          active_memory,
-          active_memory*s,
-          purgable_memory,
-          purgable_memory*s,
-          (free_memory + memory_size),
-          (free_memory + memory_size)*s,
-          total_memory
-          );
+  if (memory_size > 0) {
+    unsigned long total_memory = free_memory + memory_size + active_memory + purgable_memory;
+    double s = 100.0 / total_memory;
+
+    doom_printf("%-5i\t%6.01f%%\tstatic\n"
+            "%-5i\t%6.01f%%\tpurgable\n"
+            "%-5i\t%6.01f%%\tfree\n"
+            "%-5li\t\ttotal\n",
+            active_memory,
+            active_memory*s,
+            purgable_memory,
+            purgable_memory*s,
+            (free_memory + memory_size),
+            (free_memory + memory_size)*s,
+            total_memory
+            );
+  } else {
+    unsigned long total_memory = active_memory + purgable_memory;
+    double s = 100.0 / total_memory;
+
+    doom_printf("%-5i\t%6.01f%%\tstatic\n"
+            "%-5i\t%6.01f%%\tpurgable\n"
+            "%-5li\t\ttotal\n",
+            active_memory,
+            active_memory*s,
+            purgable_memory,
+            purgable_memory*s,
+            total_memory
+            );
+  }
 }
 
 #ifdef HEAPDUMP
+
+#ifndef HEAPDUMP_DIR
+#define HEAPDUMP_DIR "."
+#endif
+
 void W_PrintLump(FILE* fp, void* p);
 
 void Z_DumpMemory(void)
 {
   static int dump;
-  char buf[80];
+  char buf[PATH_MAX + 1];
   FILE* fp;
   size_t total_cache = 0, total_free = 0, total_malloc = 0;
   int tag;
 
-  sprintf(buf, "memdump.%d", dump++);
+  sprintf(buf, "%s/memdump.%d", HEAPDUMP_DIR, dump++);
   fp = fopen(buf, "w");
   for (tag = PU_FREE; tag < PU_MAX; tag++)
   {
@@ -341,7 +363,7 @@ void *(Z_Malloc)(size_t size, int tag, void **user
 
   size = (size+CHUNK_SIZE-1) & ~(CHUNK_SIZE-1);  // round to chunk size
 
-  if ((free_memory + memory_size) < (int)(size + HEADER_SIZE))
+  if (memory_size > 0 && ((free_memory + memory_size) < (int)(size + HEADER_SIZE)))
   {
     memblock_t *end_block;
     block = blockbytag[PU_CACHE];

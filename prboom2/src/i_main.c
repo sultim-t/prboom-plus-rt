@@ -120,7 +120,8 @@ void I_Init(void)
     if (!(nomusicparm && nosfxparm))
       I_InitSound();
   }
-  R_InitInterpolation();//e6y
+
+  R_InitInterpolation();
 }
 
 //e6y

@@ -58,6 +58,7 @@
 #include "i_system.h"
 #include "i_video.h"
 #include "i_sound.h"
+#include "r_demo.h"
 #include "r_fps.h"
 #include "e6y.h"//e6y
 
@@ -288,6 +289,7 @@ void M_DrawEnemy(void);
 void M_DrawMessages(void);
 void M_DrawChatStrings(void);
 void M_Compat(int);       // killough 10/98
+void M_ChangeDemoSmoothTurns(void);
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
@@ -2581,17 +2583,16 @@ setup_menu_t stat_settings2[] =
 setup_menu_t stat_settings3[] =
 {
   {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
-  {"UNCAPPED FRAMERATE"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"movement_smooth"}},
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 4*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 3*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
   
-  {"MOUSE"                       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+7*8},
-  {"ALT MOUSE HANDLING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
-  {"DBL-CLICK AS USE"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"mouse_doubleclick_as_use"}},
+  {"MOUSE"                       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+5*8},
+  {"ALT MOUSE HANDLING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 6*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"DBL-CLICK AS USE"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 7*8, {"mouse_doubleclick_as_use"}},
 #ifdef GL_DOOM
-  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 10*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"MAX VIEW PITCH"              ,S_NUM       ,m_null,ST_X,ST_Y+ 11*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
-  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 12*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"MAX VIEW PITCH"              ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
 #endif
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -2975,12 +2976,13 @@ void M_DrawEnemy(void)
 extern int usejoystick, usemouse, default_mus_card, default_snd_card;
 extern int detect_voices, realtic_clock_rate, tran_filter_pct;
 
-setup_menu_t gen_settings1[], gen_settings2[];
+setup_menu_t gen_settings1[], gen_settings2[], gen_settings3[];
 
 setup_menu_t* gen_settings[] =
 {
   gen_settings1,
   gen_settings2,
+  gen_settings3,
   NULL
 };
 
@@ -2991,7 +2993,7 @@ enum {
   general_videomode,
 //  general_pcx,
 //  general_diskicon,
-  general_hom
+  general_uncapped,
 };
 
 enum {
@@ -3010,7 +3012,7 @@ enum {
 
 #define G_X 250
 #define G_YA  44
-#define G_YA2 (G_YA+7*8)
+#define G_YA2 (G_YA+9*8)
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
@@ -3039,8 +3041,8 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Video mode", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA + general_videomode*8, {"videomode"}, 0, 0, NULL, videomodes},
 
-  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
-   G_YA + general_hom*8, {"flashing_hom"}},
+  {"Uncapped Framerate", S_YESNO, m_null, G_X,
+  G_YA + general_uncapped*8, {"uncapped_framerate"}},
 
 #ifdef GL_DOOM
   {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
@@ -3108,7 +3110,8 @@ enum {
 enum {
   general_corpse,
   general_realtic,
-  general_end
+  general_smooth,
+  general_smoothfactor
 };
 
 #define G_YB  44
@@ -3144,7 +3147,67 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_YB2 + general_realtic*8, {"realtic_clock_rate"}},
 
+  {"Smooth Demo Playback", S_YESNO, m_null, G_X,
+   G_YB2 + general_smooth*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
+
+  {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
+   G_YB2 + general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
+
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings3}},
+
+  // Final entry
+
+  {0,S_SKIP|S_END,m_null}
+};
+
+enum {
+  general_filterwall,
+  general_filterfloor,
+  general_filtersprite,
+  general_filterpatch,
+  general_filterz,
+  general_filter_threshold,
+  general_spriteedges,
+  general_patchedges,
+  general_hom,
+};
+
+#define G_YC  44
+
+static const char *renderfilters[] = {"none", "point", "linear", "rounded"};
+static const char *edgetypes[] = {"jagged", "sloped"};
+
+setup_menu_t gen_settings3[] = { // General Settings screen2
+
+  {"Renderer settings"     ,S_SKIP|S_TITLE, m_null, G_X, G_YB - 12},
+
+  {"Filter for walls", S_CHOICE, m_null, G_X,
+   G_YC + general_filterwall*8, {"filter_wall"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for floors/ceilings", S_CHOICE, m_null, G_X,
+   G_YC + general_filterfloor*8, {"filter_floor"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for sprites", S_CHOICE, m_null, G_X,
+   G_YC + general_filtersprite*8, {"filter_sprite"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for patches", S_CHOICE, m_null, G_X,
+   G_YC + general_filterpatch*8, {"filter_patch"}, 0, 0, NULL, renderfilters},
+
+  {"Filter for lighting", S_CHOICE, m_null, G_X,
+   G_YC + general_filterz*8, {"filter_z"}, 0, 0, NULL, renderfilters},
+
+  {"Drawing of sprite edges", S_CHOICE, m_null, G_X,
+   G_YC + general_spriteedges*8, {"sprite_edges"}, 0, 0, NULL, edgetypes},
+
+  {"Drawing of patch edges", S_CHOICE, m_null, G_X,
+   G_YC + general_patchedges*8, {"patch_edges"}, 0, 0, NULL, edgetypes},
+
+  {"Flashing HOM indicator", S_YESNO, m_null, G_X,
+   G_YC + general_hom*8, {"flashing_hom"}},
+
+  {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings2}},
 
   // Final entry
 
@@ -3163,6 +3226,18 @@ void M_FullScreen(void) // To (un)set fullscreen video after menu changes
 {
   I_UpdateVideoMode();
   V_SetPalette(0);
+}
+
+void M_ChangeDemoSmoothTurns(void)
+{
+  extern setup_menu_t stat_settings2[];
+
+  if (demo_smoothturns)
+    stat_settings2[8].m_flags &= ~(S_SKIP|S_SELECT);
+  else
+    stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
+
+  R_SmoothPlaying_Reset(NULL);
 }
 
 // Setting up for the General screen. Turn on flags, set pointers,
@@ -4792,7 +4867,7 @@ boolean M_Responder (event_t* ev) {
     {
       if (ev->type == ev_joystick)
         {
-    int i,oldbutton,group;
+    int oldbutton,group;
     boolean search = true;
 
     if (!ptr1->m_joy)
@@ -5470,8 +5545,8 @@ void M_ClearMenus (void)
 
   // if (!netgame && usergame && paused)
   //     sendpause = true;
-  
-  r_NoInterpolate = false; //e6y
+
+  r_NoInterpolate = false;
 }
 
 //
@@ -5739,13 +5814,14 @@ void M_Init(void)
   
   //e6y
   M_ChangeSpeed();
-  M_ChangeMouseLook();
   M_ChangeMaxViewPitch();
+  M_ChangeMouseLook();
   M_ChangeMouseInvert();
   M_ChangeFOV();
-  M_ChangeDemoSmoothTurns();
   if (gametic) M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
+
+  M_ChangeDemoSmoothTurns();
 }
 
 // killough 10/98: allow runtime changing of menu order

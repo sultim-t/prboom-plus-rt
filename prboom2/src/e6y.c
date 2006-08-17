@@ -335,13 +335,13 @@ void M_ChangeSpeed(void)
 
   if(movement_strafe50)
   {
-    stat_settings3[3].m_flags &= ~(S_SKIP|S_SELECT);
+    stat_settings3[2].m_flags &= ~(S_SKIP|S_SELECT);
     sidemove[0] = sidemove_strafe50[0];
     sidemove[1] = sidemove_strafe50[1];
   }
   else
   {
-    stat_settings3[3].m_flags |= (S_SKIP|S_SELECT);
+    stat_settings3[2].m_flags |= (S_SKIP|S_SELECT);
     movement_strafe50onturns = false;
     sidemove[0] = sidemove_normal[0];
     sidemove[1] = sidemove_normal[1];
@@ -355,15 +355,15 @@ void M_ChangeMouseLook(void)
   viewpitch = 0;
   if(movement_mouselook)
   {
+    stat_settings3[ 7].m_flags &= ~(S_SKIP|S_SELECT);
     stat_settings3[ 8].m_flags &= ~(S_SKIP|S_SELECT);
     stat_settings3[ 9].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[10].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
+    stat_settings3[ 7].m_flags |= (S_SKIP|S_SELECT);
     stat_settings3[ 8].m_flags |= (S_SKIP|S_SELECT);
     stat_settings3[ 9].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[10].m_flags |= (S_SKIP|S_SELECT);
   }
 #endif
 }
@@ -592,18 +592,6 @@ float distance2piece(float x0, float y0, float x1, float y1, float x2, float y2)
 }
 
 #endif //GL_DOOM
-
-void M_ChangeDemoSmoothTurns(void)
-{
-  extern setup_menu_t stat_settings2[];
-
-  if (demo_smoothturns)
-    stat_settings2[8].m_flags &= ~(S_SKIP|S_SELECT);
-  else
-    stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
-
-  R_SmoothPlaying_Reset(NULL);
-}
 
 float viewPitch;
 boolean transparentpresent;
