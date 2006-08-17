@@ -85,15 +85,22 @@
 
 static unsigned int start_displaytime;
 static unsigned int displaytime;
+static boolean InDisplay = false;
 
-void I_StartDisplay(void)
+boolean I_StartDisplay(void)
 {
+  if (InDisplay)
+    return false;
+
   start_displaytime = SDL_GetTicks();
+  InDisplay = true;
+  return true;
 }
 
 void I_EndDisplay(void)
 {
   displaytime = SDL_GetTicks() - start_displaytime;
+  InDisplay = false;
 }
 
 void I_uSleep(unsigned long usecs)
