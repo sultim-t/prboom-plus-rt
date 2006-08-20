@@ -2895,7 +2895,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, NULL, gltexfilters},
 
-  {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
+  {"Texture format", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, NULL, gltexformats},
 
   {"Item out of Floor offset", S_NUM, m_null, G_X,
