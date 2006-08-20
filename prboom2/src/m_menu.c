@@ -2889,9 +2889,6 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Uncapped Framerate", S_YESNO, m_null, G_X,
   G_YA + general_uncapped*8, {"uncapped_framerate"}},
 
-  {"Uncapped Framerate", S_YESNO, m_null, G_X,
-  G_YA + general_uncapped*8, {"uncapped_framerate"}},
-
 #ifdef GL_DOOM
   {"OpenGL", S_SKIP|S_TITLE, m_null, G_X, G_YA2 - 12},
 
