@@ -1056,8 +1056,7 @@ static void P_CreateBlockMap(void)
     {
       linelist_t *tmp = bl->next;
       blockmaplump[offs++] = bl->num;
-      free(bl);//e6y
-      //free(e6y_BlockMap[i]);
+      free(bl);
       bl = tmp;
     }
   }
@@ -1067,7 +1066,6 @@ static void P_CreateBlockMap(void)
   free (blocklists);
   free (blockcount);
   free (blockdone);
-  //free(e6y_BlockMap);
 }
 
 // jff 10/6/98
