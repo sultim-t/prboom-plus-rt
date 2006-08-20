@@ -2635,9 +2635,10 @@ setup_menu_t stat_settings5[] =
   {"WARN ON PLAYERINGAME OVERFLOW"     ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 8*8, {"overrun_playeringame_warn"}},
   {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 9*8, {"overrun_playeringame_emulate"}},
 
-  {"COMPATIBILITY WITH COMMON MAPPING ERRORS"                 ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+11*8},
-  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 12*8, {"comperr_zerotag"}},
-  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null ,E_ST_X,ST_Y+13*8, {"comperr_passuse"}},
+  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+11*8},
+  {"LINEDEFS W/O TAGS APPLY LOCALLY"          ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 12*8, {"comperr_zerotag"}},
+  {"USE PASSES THRU ALL SPECIAL LINES"        ,S_YESNO     ,m_null ,E_ST_X,ST_Y+13*8, {"comperr_passuse"}},
+  {"PAD A TOO SHORT REJECT WITH ZEROS"      ,S_YESNO     ,m_null ,E_ST_X,ST_Y+14*8, {"comperr_shortreject"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings4}},
@@ -3016,7 +3017,11 @@ enum {
 #define G_YA3 (G_YA2+5*8)
 #define GF_X 76
 
+#ifdef GL_DOOM
 static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/"OpenGL"};
+#else
+static const char *videomodes[] = {"8bit",/*"16bit","32bit",*/};
+#endif
 
 static const char *gltexfilters[] = {"GL_NEAREST","GL_LINEAR",
                                      "GL_LINEAR_MIPMAP_LINEAR",
@@ -3050,7 +3055,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texfilter*8, {"gl_tex_filter_string"}, 0, 0, NULL, gltexfilters},
 
-  {"Texture filter", S_CHOICE|S_PRGWARN, m_null, G_X,
+  {"Texture format", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, NULL, gltexformats},
 
   {"Item out of Floor offset", S_NUM, m_null, G_X,

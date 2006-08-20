@@ -1482,7 +1482,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   rjreq = (numsectors*numsectors+7)/8;
   if (rjlen < rjreq) {
     lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
-    rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);
+    rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,
+      (unsigned char)(compbad_get(&comperr_shortreject)?0:0xff));
   } else
 
   rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
