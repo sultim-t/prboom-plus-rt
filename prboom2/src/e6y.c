@@ -224,6 +224,7 @@ void e6y_D_DoomMainSetup(void)
     G_SkipDemoStart();
   if ((p = M_CheckParm("-avidemo")) && (p < myargc-1))
     avi_shot_fname = myargv[p+1];
+  force_remove_slime_trails = M_CheckParm("-force_remove_slime_trails");
   force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
   stats_level = M_CheckParm("-levelstat");
 
@@ -648,6 +649,7 @@ void e6y_MultisamplingPrint(void)
 }
 
 int force_monster_avoid_hazards = false;
+int force_remove_slime_trails = false;
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval)
 {
