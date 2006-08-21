@@ -148,10 +148,9 @@ boolean gl_arb_multitexture;
 PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB       = NULL;
 PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB = NULL;
 PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB     = NULL;
-
+#endif
 int maxViewPitch;
 int minViewPitch;
-#endif
 
 static boolean saved_fastdemo;
 static boolean saved_nodrawers;
@@ -332,17 +331,17 @@ void M_ChangeAltMouseHandling(void)
 void M_ChangeSpeed(void)
 {
   extern int sidemove[2];
-  extern setup_menu_t stat_settings3[];
+  extern setup_menu_t gen_settings4[];
 
   if(movement_strafe50)
   {
-    stat_settings3[2].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings4[6].m_flags &= ~(S_SKIP|S_SELECT);
     sidemove[0] = sidemove_strafe50[0];
     sidemove[1] = sidemove_strafe50[1];
   }
   else
   {
-    stat_settings3[2].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings4[6].m_flags |= (S_SKIP|S_SELECT);
     movement_strafe50onturns = false;
     sidemove[0] = sidemove_normal[0];
     sidemove[1] = sidemove_normal[1];
@@ -351,33 +350,31 @@ void M_ChangeSpeed(void)
 
 void M_ChangeMouseLook(void)
 {
-#ifdef GL_DOOM
-  extern setup_menu_t stat_settings3[];
+//#ifdef GL_DOOM
+  extern setup_menu_t gen_settings5[];
   viewpitch = 0;
   if(movement_mouselook)
   {
-    stat_settings3[ 7].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[ 8].m_flags &= ~(S_SKIP|S_SELECT);
-    stat_settings3[ 9].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings5[5].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings5[6].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
-    stat_settings3[ 7].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[ 8].m_flags |= (S_SKIP|S_SELECT);
-    stat_settings3[ 9].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings5[5].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings5[6].m_flags |= (S_SKIP|S_SELECT);
   }
-#endif
+//#endif
 }
 
 void M_ChangeMaxViewPitch(void)
 {
-#ifdef GL_DOOM
+//#ifdef GL_DOOM
   int angle = (int)((float)movement_maxviewpitch / 45.0f * ANG45);
   maxViewPitch = (angle - (1<<ANGLETOFINESHIFT));
   minViewPitch = (-angle + (1<<ANGLETOFINESHIFT));
 
   viewpitch = 0;
-#endif
+//#endif
 }
 
 boolean GetMouseLook(void)

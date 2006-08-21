@@ -2514,18 +2514,12 @@ void M_DrawWeapons(void)
 setup_menu_t stat_settings1[];
 //e6y
 setup_menu_t stat_settings2[];
-setup_menu_t stat_settings3[];
-setup_menu_t stat_settings4[];
-setup_menu_t stat_settings5[];
 
 setup_menu_t* stat_settings[] =
 {
   stat_settings1,
   //e6y
   stat_settings2,
-  stat_settings3,
-  stat_settings4,
-  stat_settings5,
   NULL
 };
 
@@ -2566,82 +2560,8 @@ setup_menu_t stat_settings2[] =
   {"SHOW LEVELTIME"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 3*8, {"hudadd_leveltime"}},
   {"SECRET AREAS"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 4*8, {"hudadd_secretarea"}},
   {"SMART TOTALS"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 5*8, {"hudadd_smarttotals"}},
-  {"DEMOS"                       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+7*8},
-  {"OVERWRITE EXISTING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 8*8, {"demo_overwriteexisting"}},
-  {"SMOOTH PLAYING"              ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
-  {"SMOOTH FACTOR"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
-#ifdef USE_WINDOWS_LAUNCHER
-  {"MISC"                        ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+12*8},
-  {"USE IN-GAME LAUNCHER"        ,S_YESNO     ,m_null,ST_X,ST_Y+13*8, {"launcher_enable"}},
-#endif
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings3}},
-  {0,S_SKIP|S_END,m_null}
-};
-
-setup_menu_t stat_settings3[] =
-{
-  {"MOVEMENTS"                   ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
-  {"PERMANENT STRAFE50"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
-  {"STRAFE50 ON TURNS"           ,S_YESNO     ,m_null,ST_X,ST_Y+ 3*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-  
-  {"MOUSE"                       ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+5*8},
-  {"ALT MOUSE HANDLING"          ,S_YESNO     ,m_null,ST_X,ST_Y+ 6*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
-  {"DBL-CLICK AS USE"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 7*8, {"mouse_doubleclick_as_use"}},
-#ifdef GL_DOOM
-  {"ALWAYS MOUSELOOK"            ,S_YESNO     ,m_null,ST_X,ST_Y+ 9*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
-  {"MAX VIEW PITCH"              ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
-  {"INVERT MOUSE"                ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
-#endif
-
-  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings2}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings4}},
-  {0,S_SKIP|S_END,m_null}
-};
-
-setup_menu_t stat_settings4[] =
-{
-  {"RENDER"                      ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+1*8},
-  {"CHANGE PALETTE ON PAIN"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 2*8, {"palette_ondamage"}},
-  {"CHANGE PALETTE ON BONUS"     ,S_YESNO     ,m_null,ST_X,ST_Y+3*8,  {"palette_onbonus"}},
-  {"CHANGE PALETTE ON POWERS"    ,S_YESNO     ,m_null,ST_X,ST_Y+4*8, {"palette_onpowers"}},
-#ifdef GL_DOOM
-  {"MULTISAMPLING (0-NONE)"      ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,ST_X,ST_Y+6*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
-  {"DETAILED WALLS"              ,S_YESNO       ,m_null,ST_X,ST_Y+7*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
-  {"DETAILED FLATS"              ,S_YESNO       ,m_null,ST_X,ST_Y+8*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
-  {"FIELD OF VIEW"               ,S_NUM       ,m_null,ST_X,ST_Y+ 10*8, {"render_fov"}, 0, 0, M_ChangeFOV},
-  {"SMART ITEMS CLIPPING"        ,S_YESNO     ,m_null,ST_X,ST_Y+ 11*8, {"render_smartitemsclipping"}},
-  {"PAPER ITEMS"                 ,S_YESNO     ,m_null,ST_X,ST_Y+12*8, {"render_paperitems"}},
-#else
-  {"WIPE SCREEN EFFECT"          ,S_YESNO ,m_null,ST_X,ST_Y+6*8, {"render_wipescreen"}},
-#endif
-  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings3}},
-  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,ST_Y+20*8, {stat_settings5}},
-  {0,S_SKIP|S_END,m_null}
-};
-
-setup_menu_t stat_settings5[] =
-{
-  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+1*8},
-  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 2*8, {"overrun_spechit_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 3*8, {"overrun_spechit_emulate"}},
-  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 4*8, {"overrun_reject_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 5*8, {"overrun_reject_emulate"}},
-  {"WARN ON INTERCEPTS OVERFLOW"       ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 6*8, {"overrun_intercept_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 7*8, {"overrun_intercept_emulate"}},
-  {"WARN ON PLAYERINGAME OVERFLOW"     ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 8*8, {"overrun_playeringame_warn"}},
-  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 9*8, {"overrun_playeringame_emulate"}},
-
-  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,E_ST_X,ST_Y+11*8},
-  {"LINEDEFS W/O TAGS APPLY LOCALLY"          ,S_YESNO     ,m_null,E_ST_X,ST_Y+ 12*8, {"comperr_zerotag"}},
-  {"USE PASSES THRU ALL SPECIAL LINES"        ,S_YESNO     ,m_null ,E_ST_X,ST_Y+13*8, {"comperr_passuse"}},
-  {"PAD A TOO SHORT REJECT WITH ZEROS"      ,S_YESNO     ,m_null ,E_ST_X,ST_Y+14*8, {"comperr_shortreject"}},
-
-  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
-  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings4}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -2978,12 +2898,19 @@ extern int usejoystick, usemouse, default_mus_card, default_snd_card;
 extern int detect_voices, realtic_clock_rate, tran_filter_pct;
 
 setup_menu_t gen_settings1[], gen_settings2[], gen_settings3[];
+setup_menu_t gen_settings4[], gen_settings5[], gen_settings6[], gen_settings7[]; //e6y
 
 setup_menu_t* gen_settings[] =
 {
   gen_settings1,
   gen_settings2,
   gen_settings3,
+
+  //e6y
+  gen_settings4,
+  gen_settings5,
+  gen_settings6,
+  gen_settings7,
   NULL
 };
 
@@ -3115,8 +3042,6 @@ enum {
 enum {
   general_corpse,
   general_realtic,
-  general_smooth,
-  general_smoothfactor
 };
 
 #define G_YB  44
@@ -3152,11 +3077,13 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_YB2 + general_realtic*8, {"realtic_clock_rate"}},
 
+/* e6y
   {"Smooth Demo Playback", S_YESNO, m_null, G_X,
    G_YB2 + general_smooth*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
 
   {"Smooth Demo Playback Factor", S_NUM, m_null, G_X,
    G_YB2 + general_smoothfactor*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+ */
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
 
@@ -3214,8 +3141,86 @@ setup_menu_t gen_settings3[] = { // General Settings screen2
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings2}},
 
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings4}},//e6y
   // Final entry
 
+  {0,S_SKIP|S_END,m_null}
+};
+
+//e6y
+#define G_Y 23
+#define G_X2 284
+setup_menu_t gen_settings4[] = { // General Settings screen3
+  {"Demos",                       S_SKIP|S_TITLE, m_null, G_X, G_Y+1*8},
+  {"Overwrite Existing",          S_YESNO, m_null,G_X,G_Y+ 2*8, {"demo_overwriteexisting"}},
+  {"Smooth Demo Playback",        S_YESNO, m_null,G_X,G_Y+ 3*8, {"demo_smoothturns"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"Smooth Demo Playback Factor", S_NUM,   m_null,G_X,G_Y+ 4*8, {"demo_smoothturnsfactor"}, 0, 0, M_ChangeDemoSmoothTurns},
+  {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+6*8},
+  {"Permanent Strafe50",          S_YESNO, m_null,G_X,G_Y+ 7*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
+  {"Strafe50 On Turns",           S_YESNO, m_null,G_X,G_Y+ 8*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+#ifdef USE_WINDOWS_LAUNCHER
+  {"Misc",                        S_SKIP|S_TITLE, m_null, G_X, G_Y+10*8},
+  {"Use In-Game Launcher",        S_YESNO, m_null,G_X,G_Y+ 11*8, {"launcher_enable"}},
+#endif
+  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings3}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t gen_settings5[] = { // General Settings screen3
+  {"Mouse",                       S_SKIP|S_TITLE,m_null,G_X, G_Y+1*8},
+  {"Alt Mouse Handling",          S_YESNO, m_null,G_X,G_Y+2*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"Dbl-Click As Use",            S_YESNO, m_null,G_X,G_Y+3*8, {"mouse_doubleclick_as_use"}},
+  {"Mouse / OpenGL",              S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
+//#ifdef GL_DOOM
+  {"Always Mouselook",            S_YESNO, m_null,G_X,G_Y+6*8, {"movement_mouselook"}, 0, 0, M_ChangeMouseLook},
+  {"Invert Mouse",                S_YESNO, m_null,G_X,G_Y+7*8, {"movement_mouseinvert"}, 0, 0, M_ChangeMouseInvert},
+  {"Max View Pitch",              S_NUM,   m_null,G_X,G_Y+8*8, {"movement_maxviewpitch"}, 0, 0, M_ChangeMaxViewPitch},
+//#endif
+  {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings4}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings6}},
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t gen_settings6[] = { // General Settings screen4
+  {"Common Render"             ,S_SKIP|S_TITLE,m_null,G_X,G_Y+1*8},
+  {"Change Palette On Pain"    ,S_YESNO,m_null,G_X,G_Y+ 2*8, {"palette_ondamage"}},
+  {"Change Palette On Bonus"   ,S_YESNO,m_null,G_X,G_Y+ 3*8, {"palette_onbonus"}},
+  {"Change Palette On Powers"  ,S_YESNO,m_null,G_X,G_Y+ 4*8, {"palette_onpowers"}},
+  {"OpenGL Render"             ,S_SKIP|S_TITLE,m_null,G_X,G_Y+6*8},
+  {"Multisampling (0-None)"    ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,G_X,G_Y+7*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"Detailed Walls"            ,S_YESNO,m_null,G_X,G_Y+ 8*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
+  {"Detailed Flats"            ,S_YESNO,m_null,G_X,G_Y+ 9*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
+  {"Field Of View"             ,S_NUM  ,m_null,G_X,G_Y+11*8, {"render_fov"}, 0, 0, M_ChangeFOV},
+  {"Smart Items Clipping"      ,S_YESNO,m_null,G_X,G_Y+12*8, {"render_smartitemsclipping"}},
+  {"Paper Items"               ,S_YESNO,m_null,G_X,G_Y+13*8, {"render_paperitems"}},
+  {"Soft Render"               ,S_SKIP|S_TITLE,m_null,G_X,G_Y+15*8},
+  {"Wipe Screen Effect"        ,S_YESNO ,m_null,G_X,G_Y+16*8, {"render_wipescreen"}},
+
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
+  {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t gen_settings7[] =
+{
+  {"EMULATION"                         ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+1*8},
+  {"WARN ON SPECHITS OVERFLOW"         ,S_YESNO     ,m_null,G_X2,G_Y+ 2*8, {"overrun_spechit_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 3*8, {"overrun_spechit_emulate"}},
+  {"WARN ON REJECT OVERFLOW"           ,S_YESNO     ,m_null,G_X2,G_Y+ 4*8, {"overrun_reject_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 5*8, {"overrun_reject_emulate"}},
+  {"WARN ON INTERCEPTS OVERFLOW"       ,S_YESNO     ,m_null,G_X2,G_Y+ 6*8, {"overrun_intercept_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 7*8, {"overrun_intercept_emulate"}},
+  {"WARN ON PLAYERINGAME OVERFLOW"     ,S_YESNO     ,m_null,G_X2,G_Y+ 8*8, {"overrun_playeringame_warn"}},
+  {"TRY TO EMULATE IT"                 ,S_YESNO     ,m_null,G_X2,G_Y+ 9*8, {"overrun_playeringame_emulate"}},
+
+  {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+11*8},
+  {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"comperr_zerotag"}},
+  {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"comperr_passuse"}},
+  {"PAD A TOO SHORT REJECT WITH ZEROS" ,S_YESNO     ,m_null,G_X2,G_Y+14*8, {"comperr_shortreject"}},
+
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+  {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings6}},
   {0,S_SKIP|S_END,m_null}
 };
 
@@ -3235,12 +3240,12 @@ void M_FullScreen(void) // To (un)set fullscreen video after menu changes
 
 void M_ChangeDemoSmoothTurns(void)
 {
-  extern setup_menu_t stat_settings2[];
+  extern setup_menu_t gen_settings4[];
 
   if (demo_smoothturns)
-    stat_settings2[8].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings4[3].m_flags &= ~(S_SKIP|S_SELECT);
   else
-    stat_settings2[8].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings4[3].m_flags |= (S_SKIP|S_SELECT);
 
   R_SmoothPlaying_Reset(NULL);
 }

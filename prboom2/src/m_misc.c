@@ -742,10 +742,10 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"palette_onpowers", {&palette_onpowers},  {1},0,1,
    def_bool,ss_stat},
-#ifndef GL_DOOM
+//#ifndef GL_DOOM
   {"render_wipescreen", {&render_wipescreen},  {1},0,1,
    def_bool,ss_stat},
-#endif
+//#endif
 
 #ifdef GL_DOOM
   {"Prboom-plus OpenGL settings",{NULL},{0},UL,UL,def_none,ss_none},

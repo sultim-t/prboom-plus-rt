@@ -1805,6 +1805,9 @@ void gld_StartDrawScene(void)
     skyYShift = viewPitch<skyUpAngle ? skyUpShift : (float)sin(viewPitch*__glPi/180.0f)-0.2f;
   }
   paperitems_pitch=(float)(viewpitch>>ANGLETOFINESHIFT)*360.0f/FINEANGLES;
+  if (paperitems_pitch>87.0f && paperitems_pitch<=90.0f)
+    paperitems_pitch = 87.0f;
+
 
 #ifdef _DEBUG
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1980,15 +1983,13 @@ static void gld_DrawWall(GLWall *wall)
       }
       if (GetMouseLook() && !SkyDrawed)
       {             
-        //float skytop = wall->ytop;
-        float skytop = 255.0f;
-        float skycoord = 255.0f;
+        float maxcoord = 255.0f;
         SkyDrawed = true;
         glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-skycoord,skytop,skycoord);
-          glVertex3f(skycoord,skytop,skycoord);
-          glVertex3f(-skycoord,skytop,-skycoord);
-          glVertex3f(skycoord,skytop,-skycoord);
+          glVertex3f(-maxcoord,+maxcoord,maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
         glEnd();
       }
 

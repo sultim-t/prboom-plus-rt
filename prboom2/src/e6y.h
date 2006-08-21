@@ -40,8 +40,6 @@
 #define FOV_CORRECTION_FACTOR (1.13776f)
 #define FOV90 (90)
 
-#define E_ST_X 284
-
 typedef struct
 {
   const char *wadname;
