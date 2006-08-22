@@ -1871,7 +1871,7 @@ static void G_DoSaveGame (boolean menu)
 
   save_p = savebuffer = malloc(savegamesize);
 
-  CheckSaveGame(SAVESTRINGSIZE+VERSIONSIZE+sizeof(unsigned long));
+  CheckSaveGame(SAVESTRINGSIZE+VERSIONSIZE+sizeof(uint_64_t));
   memcpy (save_p, description, SAVESTRINGSIZE);
   save_p += SAVESTRINGSIZE;
   memset (name2,0,sizeof(name2));
