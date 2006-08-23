@@ -849,6 +849,7 @@ typedef struct
   float skyyaw;
   GLTexture *gltexture;
   byte flag;
+  seg_t *seg;
 } GLWall;
 
 typedef struct
@@ -1942,7 +1943,7 @@ static void gld_DrawWall(GLWall *wall)
   if (!wall->gltexture)
   {
 #ifdef _DEBUG
-    glColor4f(1.0f,0.0f,0.0f,1.0f);
+    //glColor4f(1.0f,0.0f,0.0f,1.0f);
 #endif
   }
   if (wall->flag>=GLDWF_SKY)
@@ -2049,7 +2050,6 @@ static void gld_DrawWall(GLWall *wall)
   }
   else
   {
-
     gld_StaticLightAlpha(wall->light, wall->alpha);
     glBegin(GL_TRIANGLE_STRIP);
       glTexCoord2f(wall->ul,wall->vt); glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
@@ -2199,6 +2199,7 @@ void gld_AddWall(seg_t *seg)
   wall.light=gld_CalcLightLevel(frontsector->lightlevel+rellight+(extralight<<5));
   wall.alpha=1.0f;
   wall.gltexture=NULL;
+  wall.seg = seg; //e6y
 
   if (!seg->backsector) /* onesided */
   {
@@ -2873,7 +2874,11 @@ void e6y_DrawAdd(void)
 
 void gld_DrawScene(player_t *player)
 {
-  int pass;//e6y
+  //e6y
+  int pass;
+  GLWall wall;
+  boolean gl_alpha_blended;
+
   int i,j,k,count;
   fixed_t max_scale;
 
@@ -2912,10 +2917,18 @@ void gld_DrawScene(player_t *player)
   for(SkyDrawed = false, pass=0;pass<(transparentpresent?2:1);pass++){//e6y
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
+    //e6y
+    if (gld_drawinfo.drawitems[i].itemtype != GLDIT_WALL && !gl_alpha_blended)
+    {
+      glEnable(GL_ALPHA_TEST);
+      glEnable(GL_BLEND);
+    }
+
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
     case GLDIT_WALL:
       count=0;
+      gl_alpha_blended = true; //e6y
       for (k=GLDWF_TOP; k<=GLDWF_SKYFLIP; k++)
       {
         if (count>=gld_drawinfo.drawitems[i].itemcount)
@@ -2941,11 +2954,32 @@ void gld_DrawScene(player_t *player)
               if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha == 1.0f)
                 continue;
             }
+            //e6y
+            wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
+            if (!wall.seg->backsector)
+            {
+              if (gl_alpha_blended && wall.gltexture->havealpha)
+              {
+                glDisable(GL_ALPHA_TEST);
+                glDisable(GL_BLEND);
+                gl_alpha_blended = false;
+              }
+            }
+            else
+            {
+              if (!gl_alpha_blended)
+              {
+                glEnable(GL_ALPHA_TEST);
+                glEnable(GL_BLEND);
+                gl_alpha_blended = true;
+              }
+            }
+
             rendered_segs++;
             count++;
-
             gld_DrawWall(&gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex]);
           }
+
         if (gl_drawskys)
         {
           glDisable(GL_TEXTURE_GEN_Q);

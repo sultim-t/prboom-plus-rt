@@ -55,6 +55,7 @@ typedef struct
   int glTexID[CR_LIMIT+MAXPLAYERS];
   GLTexType textype;
   boolean mipmap;
+  boolean havealpha;//e6y
 } GLTexture;
 
 extern int gld_max_texturesize;

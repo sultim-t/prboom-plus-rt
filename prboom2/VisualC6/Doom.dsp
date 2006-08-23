@@ -1116,10 +1116,6 @@ SOURCE=..\Icons\skull.ico
 # End Group
 # Begin Source File
 
-SOURCE=..\ICONS\detail256.bmp
-# End Source File
-# Begin Source File
-
 SOURCE=..\ICONS\prboom.exe.manifest
 # End Source File
 # Begin Source File
