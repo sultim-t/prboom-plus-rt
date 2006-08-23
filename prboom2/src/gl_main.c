@@ -1992,38 +1992,6 @@ static void gld_DrawWall(GLWall *wall)
           glVertex3f(-maxcoord,+maxcoord,-maxcoord);
           glVertex3f(+maxcoord,+maxcoord,-maxcoord);
         glEnd();
-
-        glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
-        glEnd();
-        glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
-        glEnd();
-        glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
-        glEnd();
-        glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
-        glEnd();
-        glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
-          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
-          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
-        glEnd();
-
       }
 
     }
