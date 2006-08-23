@@ -1943,7 +1943,7 @@ static void gld_DrawWall(GLWall *wall)
   if (!wall->gltexture)
   {
 #ifdef _DEBUG
-    //glColor4f(1.0f,0.0f,0.0f,1.0f);
+    glColor4f(1.0f,0.0f,0.0f,1.0f);
 #endif
   }
   if (wall->flag>=GLDWF_SKY)
@@ -1987,11 +1987,43 @@ static void gld_DrawWall(GLWall *wall)
         float maxcoord = 255.0f;
         SkyDrawed = true;
         glBegin(GL_TRIANGLE_STRIP);
-          glVertex3f(-maxcoord,+maxcoord,maxcoord);
+          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
           glVertex3f(+maxcoord,+maxcoord,+maxcoord);
           glVertex3f(-maxcoord,+maxcoord,-maxcoord);
           glVertex3f(+maxcoord,+maxcoord,-maxcoord);
         glEnd();
+
+        glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+        glEnd();
+        glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
+        glEnd();
+        glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
+          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
+          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
+        glEnd();
+        glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(-maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,+maxcoord);
+          glVertex3f(-maxcoord,-maxcoord,+maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,+maxcoord);
+        glEnd();
+        glBegin(GL_TRIANGLE_STRIP);
+          glVertex3f(-maxcoord,+maxcoord,-maxcoord);
+          glVertex3f(+maxcoord,+maxcoord,-maxcoord);
+          glVertex3f(-maxcoord,-maxcoord,-maxcoord);
+          glVertex3f(+maxcoord,-maxcoord,-maxcoord);
+        glEnd();
+
       }
 
     }
