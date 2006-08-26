@@ -39,6 +39,7 @@
 #include "p_tick.h"
 #include "s_sound.h"
 #include "sounds.h"
+#include "lprintf.h"//e6y
 #include "e6y.h"//e6y
 
 ///////////////////////////////////////////////////////////////////////
@@ -779,12 +780,36 @@ manual_stair://e6y
         stairsize = 8*FRACUNIT;
         if (!demo_compatibility)
           floor->crush = false; //jff 2/27/98 fix uninitialized crush field
+        // e6y
+        // It will be not a 0 (false) and not 1 (true) with higher probability
+        // There is no more desync on icarus.wad/ic29uv.lmp
+        // http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+        // http://www.doomworld.com/idgames/index.php?id=5191
+        // http://sourceforge.net/tracker/index.php?func=detail&aid=1546647&group_id=148658&atid=772943
+        else
+        {
+          floor->crush = 10;
+          lprintf(LO_WARN,"Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+        }
+
         break;
       case turbo16:
         speed = FLOORSPEED*4;
         stairsize = 16*FRACUNIT;
         if (!demo_compatibility)
           floor->crush = true;  //jff 2/27/98 fix uninitialized crush field
+        // e6y
+        // It will be not a 0 (false) and not 1 (true) with higher probability
+        // There is no more desync on icarus.wad/ic29uv.lmp
+        // http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+        // http://www.doomworld.com/idgames/index.php?id=5191
+        // http://sourceforge.net/tracker/index.php?func=detail&aid=1546647&group_id=148658&atid=772943
+        else
+        {
+          floor->crush = 10;
+          lprintf(LO_WARN,"Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+        }
+
         break;
     }
     floor->speed = speed;
@@ -856,6 +881,18 @@ manual_stair://e6y
         //jff 2/27/98 fix uninitialized crush field
         if (!demo_compatibility)
           floor->crush = type==build8? false : true;
+        // e6y
+        // It will be not a 0 (false) and not 1 (true) with higher probability
+        // There is no more desync on icarus.wad/ic29uv.lmp
+        // http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
+        // http://www.doomworld.com/idgames/index.php?id=5191
+        // http://sourceforge.net/tracker/index.php?func=detail&aid=1546647&group_id=148658&atid=772943
+        else
+        {
+          floor->crush = 10;
+          lprintf(LO_WARN,"Warning: stairs may lead to desync with -complevel %d\n", compatibility_level);
+        }
+
         ok = 1;
         break;
       }
