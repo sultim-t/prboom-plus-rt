@@ -2735,6 +2735,7 @@ static int G_GetOriginalDoomCompatLevel(int ver)
         return lev;
     }
   }
+  if (ver == 110) return tasdoom_compatibility;
   if (ver < 107) return doom_1666_compatibility;
   if (gamemode == retail) return ultdoom_compatibility;
   if (gamemission >= pack_tnt) return finaldoom_compatibility;
