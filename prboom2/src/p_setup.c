@@ -1083,7 +1083,7 @@ static void P_LoadBlockMap (int lump)
 {
   long count;
 
-  if (M_CheckParm("-blockmap") || (count = W_LumpLength(lump)/2) >= 0x10000)
+  if (M_CheckParm("-blockmap") || W_LumpLength(lump)<8 || (count = W_LumpLength(lump)/2) >= 0x10000) //e6y
     P_CreateBlockMap();
   else
     {
@@ -1474,7 +1474,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
   P_GroupLines();
 
-  P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
+  // e6y
+  // Correction of desync on dv04-423.lmp/dv.wad
+  // http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
+  if (compatibility_level>=lxdoom_1_compatibility || M_CheckParm("-force_remove_slime_trails") > 0)
+    P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
 
   // Note: you don't need to clear player queue slots --
   // a much simpler fix is in g_game.c -- killough 10/98
