@@ -1673,7 +1673,14 @@ static void setMobjInfoValue(int mobjInfoIndex, int keyIndex, uint_64_t value) {
     case 19: mi->damage = (int)value; return;
     case 20: mi->activesound = (int)value; return;
     case 21: mi->flags = value; return;
-    case 22: mi->raisestate = (int)value; return;
+    // e6y
+    // Correction of  wrong processing of "Respawn frame" entry.
+    // Highly relevant to wads such as Wotdoom3 and any others that change this setting.
+    // There is no more desync on http://www.doomworld.com/sda/dwdemo/w303-115.zip
+    // (with correction in PIT_CheckThing)
+    // http://sourceforge.net/tracker/index.php?func=detail&aid=1545036&group_id=148658&atid=772943
+    // old code: case 22: mi->raisestate = (int)value; return;
+    case 23: mi->raisestate = (int)value; return;
     default: return;
   }
 }

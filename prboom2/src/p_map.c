@@ -580,6 +580,15 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   // despite another solid thing being in the way.
   // killough 4/11/98: Treat no-clipping things as not blocking
 
+  // e6y
+  // Correction of wrong return value with demo_compatibility.
+  // There is no more desync on http://www.doomworld.com/sda/dwdemo/w303-115.zip
+  // (with correction in setMobjInfoValue)
+  // http://sourceforge.net/tracker/index.php?func=detail&aid=1545036&group_id=148658&atid=772943
+  if (demo_compatibility)
+    return !(thing->flags & MF_SOLID);
+  else
+
   return !((thing->flags & MF_SOLID && !(thing->flags & MF_NOCLIP))
            && (tmthing->flags & MF_SOLID || demo_compatibility));
 
