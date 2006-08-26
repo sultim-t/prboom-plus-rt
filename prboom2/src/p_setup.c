@@ -99,9 +99,9 @@ typedef struct
 {
   unsigned short  v1;    // start vertex    (16 bit)
   unsigned short  v2;    // end vertex      (16 bit)
-  short     linedef; // linedef, or -1 for minisegs
+  unsigned short  linedef; // linedef, or -1 for minisegs
   short     side;  // side on linedef: 0 for right, 1 for left
-  short     partner; // corresponding partner seg, or -1 on one-sided walls
+  unsigned short  partner; // corresponding partner seg, or -1 on one-sided walls
 } glseg_t;
 
 // fixed 32 bit gl_vert format v2.0+ (glBsp 1.91)
@@ -438,7 +438,7 @@ static void P_LoadGLSegs(int lump)
     segs[i].v2 = &vertexes[checkGLVertex(SHORT(ml->v2))];
     segs[i].iSegID  = i;
 
-    if(ml->linedef != -1) // skip minisegs
+    if(ml->linedef != (unsigned short)-1) // skip minisegs
     {
       ldef = &lines[ml->linedef];
       segs[i].linedef = ldef;
