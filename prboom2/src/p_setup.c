@@ -83,6 +83,8 @@ side_t   *sides;
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
 #define gNd2            0x32644E67  // figgi -- suppport for new GL_VERT format v2.0
+#define ZNOD            0x444F4E5A
+#define ZGLN            0x4E4C475A
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
@@ -157,6 +159,19 @@ size_t     num_deathmatchstarts;   // killough
 
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
+
+static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
+{
+  void *data;
+
+  data = W_CacheLumpNum(lumpnum + ML_NODES);
+  if (*(const int *)data == ZNOD)
+    I_Error("P_CheckForZDoomNodes: ZDoom nodes not supported yet");
+
+  data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
+  if (*(const int *)data == ZGLN)
+    I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
+}
 
 //
 // P_LoadVertexes
@@ -1423,6 +1438,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // to allow texture names to be used in special linedefs
 
 #if 1
+  if (P_CheckForZDoomNodes(lumpnum, gl_lumpnum))
+    I_Error("P_SetupLevel: ZDoom nodes not supported yet");
+
   // figgi 10/19/00 -- check for gl lumps and load them
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
     usingGLNodes = true;
