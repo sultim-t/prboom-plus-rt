@@ -83,12 +83,15 @@ side_t   *sides;
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
 #define gNd2            0x32644E67  // figgi -- suppport for new GL_VERT format v2.0
+#define gNd3            0x33644E67
+#define gNd4            0x34644E67
+#define gNd5            0x35644E67
 #define ZNOD            0x444F4E5A
 #define ZGLN            0x4E4C475A
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
-boolean usingGLNodes  = false;
+int     nodesVersion  = 0;
 boolean forceOldBsp   = false;
 
 // figgi 08/21/00 -- glSegs
@@ -160,6 +163,10 @@ size_t     num_deathmatchstarts;   // killough
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
 
+//
+// P_CheckForZDoomNodes
+//
+
 static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
   void *data;
@@ -171,6 +178,47 @@ static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
   data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
   if (*(const int *)data == ZGLN)
     I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
+
+  return false;
+}
+
+//
+// P_GetNodesVersion
+//
+
+static int P_GetNodesVersion(int lumpnum, int gl_lumpnum)
+{
+  void *data;
+
+  data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
+  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) ) {
+    if (*(const int *)data == gNd2) {
+      data = W_CacheLumpNum(gl_lumpnum+ML_GL_SEGS);
+      if (*(const int *)data == gNd3) {
+        nodesVersion = gNd3;
+        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 3 nodes\n");
+        I_Error("P_GetNodesVersion: version 3 nodes not supported\n");
+      } else {
+        nodesVersion = gNd2;
+        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 2 nodes\n");
+      }
+    }
+    if (*(const int *)data == gNd4) {
+      nodesVersion = gNd4;
+      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 4 nodes\n");
+      I_Error("P_GetNodesVersion: version 4 nodes not supported\n");
+    }
+    if (*(const int *)data == gNd5) {
+      nodesVersion = gNd5;
+      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 5 nodes\n");
+      I_Error("P_GetNodesVersion: version 5 nodes not supported\n");
+    }
+  } else {
+    nodesVersion = 0;
+    lprintf(LO_DEBUG,"P_GetNodesVersion: using normal BSP nodes\n");
+    if (P_CheckForZDoomNodes(lumpnum, gl_lumpnum))
+      I_Error("P_GetNodesVersion: ZDoom nodes not supported yet");
+  }
 }
 
 //
@@ -229,7 +277,7 @@ static void P_LoadVertexes2(int lump, int gllump)
   {
     gldata = W_CacheLumpNum(gllump);
 
-    if (*(const int *)gldata == gNd2) // 32 bit GL_VERT format (16.16 fixed)
+    if (nodesVersion == gNd2) // 32 bit GL_VERT format (16.16 fixed)
     {
       const mapglvertex_t*  mgl;
 
@@ -1438,15 +1486,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // to allow texture names to be used in special linedefs
 
 #if 1
-  if (P_CheckForZDoomNodes(lumpnum, gl_lumpnum))
-    I_Error("P_SetupLevel: ZDoom nodes not supported yet");
-
   // figgi 10/19/00 -- check for gl lumps and load them
-  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
-    usingGLNodes = true;
-  else
-    usingGLNodes = false;
-  if (usingGLNodes)
+  nodesVersion = P_GetNodesVersion(lumpnum,gl_lumpnum);
+
+  if (nodesVersion > 0)
     P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
   else
     P_LoadVertexes  (lumpnum+ML_VERTEXES);
@@ -1457,19 +1500,17 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
   P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
 
-  if (usingGLNodes)
+  if (nodesVersion > 0)
   {
     P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-    lprintf(LO_DEBUG,"Using glBSP nodes!\n");
   }
   else
   {
     P_LoadSubsectors(lumpnum + ML_SSECTORS);
     P_LoadNodes(lumpnum + ML_NODES);
     P_LoadSegs(lumpnum + ML_SEGS);
-    lprintf(LO_DEBUG,"Using normal BSP nodes!\n");
   }
 
 #else
