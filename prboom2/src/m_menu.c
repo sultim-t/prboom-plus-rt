@@ -4701,11 +4701,9 @@ boolean M_Responder (event_t* ev) {
       if (ptr1->action)      // killough 10/98
         ptr1->action();
       
-#ifdef GL_DOOM
       //e6y
       if ((ptr1->m_flags&S_CANT_GL_ARB_MULTITEXTURE) && !gl_arb_multitexture)
         warn_about_changes(ptr1->m_flags & S_CANT_GL_ARB_MULTITEXTURE);
-#endif
     }
     M_SelectDone(ptr1);                           // phares 4/17/98
     return true;

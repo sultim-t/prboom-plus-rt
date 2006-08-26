@@ -574,7 +574,8 @@ void R_RenderPlayerView (player_t* player)
 
   //e6y
 #else
-  if ((render_fov > FOV90) || (GetMouseLook() && viewpitch) || (was_aspected))
+  if ((V_GetMode() == VID_MODEGL) && 
+     ((render_fov > FOV90) || (GetMouseLook() && viewpitch) || (was_aspected)))
   {
     unsigned int oldviewangle;
     oldviewangle = viewangle;

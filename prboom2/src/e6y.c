@@ -379,25 +379,26 @@ void M_ChangeMaxViewPitch(void)
 
 boolean GetMouseLook(void)
 {
-#ifdef GL_DOOM
-//  boolean ret = (demoplayback||demorecording)&&walkcamera.type==0?false:movement_mouselook;
-  boolean ret = (demoplayback)&&walkcamera.type==0?false:movement_mouselook;
-  if (!ret) 
-    viewpitch = 0;
-  return ret;
-#else
-  return false;
-#endif
+  if (V_GetMode() == VID_MODEGL)
+  {
+    boolean ret = (demoplayback)&&walkcamera.type==0?false:movement_mouselook;
+    if (!ret) 
+      viewpitch = 0;
+    return ret;
+  }
+  else
+    return false;
 }
 
 void CheckPitch(signed int *pitch)
 {
-#ifdef GL_DOOM
-  if(*pitch > maxViewPitch)
-    *pitch = maxViewPitch;
-  if(*pitch < minViewPitch)
-    *pitch = minViewPitch;
-#endif
+  if (V_GetMode() == VID_MODEGL)
+  {
+    if(*pitch > maxViewPitch)
+      *pitch = maxViewPitch;
+    if(*pitch < minViewPitch)
+      *pitch = minViewPitch;
+  }
 }
 
 void M_ChangeMouseInvert(void)
@@ -408,11 +409,10 @@ void M_ChangeFOV(void)
 {
   float f1, f2;
 
-#ifdef GL_DOOM
-  internal_render_fov = (float)render_fov;
-#else
-  internal_render_fov = (float)FOV90;
-#endif
+  if (V_GetMode() == VID_MODEGL)
+    internal_render_fov = (float)render_fov;
+  else
+    internal_render_fov = (float)FOV90;
 
   internal_render_fov = internal_render_fov/1.6f*FOV_CORRECTION_FACTOR;
   fovscale = FOV90/(float)render_fov;
@@ -429,9 +429,8 @@ void M_ChangeFOV(void)
 
 void M_ChangeUseDetail(void)
 {
-#ifdef GL_DOOM
-  render_usedetail = (render_canusedetail) && (render_detailedflats || render_detailedwalls);
-#endif
+  if (V_GetMode() == VID_MODEGL)
+    render_usedetail = (render_canusedetail) && (render_detailedflats || render_detailedwalls);
 }
 
 void M_ChangeMultiSample(void)

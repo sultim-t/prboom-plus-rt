@@ -485,11 +485,9 @@ void TryRunTics (void)
       //if ((displaytime) < (tic_vars.next-SDL_GetTicks()))
       {
         WasRenderedInTryRunTics = true;
-#ifdef GL_DOOM
-        if (movement_smooth)
-#else
-        if (movement_smooth && gamestate==wipegamestate)
-#endif
+        if (V_GetMode() == VID_MODEGL ? 
+            movement_smooth : 
+            movement_smooth && gamestate==wipegamestate)
         {
           isExtraDDisplay = true;
           D_Display();

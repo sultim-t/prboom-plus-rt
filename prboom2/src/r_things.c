@@ -497,13 +497,11 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   tz = gxt-gyt;
 
 //e6y
-#ifdef GL_DOOM
-  if (!render_paperitems && mlook)
+  if (V_GetMode() == VID_MODEGL && !render_paperitems && mlook)
   {
     if (tz < -(FRACUNIT*64))
       return;
   } else
-#endif
 
     // thing is behind view plane?
   if (tz < MINZ)
@@ -516,13 +514,11 @@ static void R_ProjectSprite (mobj_t* thing, int lightlevel)
   tx = -(gyt+gxt);
 
 //e6y
-#ifdef GL_DOOM
-  if (!render_paperitems && mlook)
+  if (V_GetMode() == VID_MODEGL && !render_paperitems && mlook)
   {
     if (tz >= MINZ && (D_abs(tx)>>5) > tz)
       return;
   } else
-#endif
 
   // too far off the side?
   if (D_abs(tx)>(tz<<2))
