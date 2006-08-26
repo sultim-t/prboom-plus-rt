@@ -351,7 +351,6 @@ typedef struct mobj_s
 // External declarations (fomerly in p_local.h) -- killough 5/2/98
 
 #define VIEWHEIGHT      (41*FRACUNIT)
-#define PLAYERRADIUS    (16*FRACUNIT)
 
 #define GRAVITY         FRACUNIT
 #define MAXMOVE         (30*FRACUNIT)
