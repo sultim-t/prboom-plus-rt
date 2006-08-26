@@ -306,6 +306,9 @@ static void P_LoadSegs (int lump)
   segs = Z_Calloc(numsegs,sizeof(seg_t),PU_LEVEL,0);
   data = (const mapseg_t *)W_CacheLumpNum(lump); // cph - wad lump handling updated
 
+  if ((!data) || (!numsegs))
+    I_Error("P_LoadSegs: no segs in level");
+
   for (i=0; i<numsegs; i++)
     {
       seg_t *li = segs+i;
@@ -363,6 +366,9 @@ static void P_LoadGLSegs(int lump)
   memset(segs, 0, numsegs * sizeof(seg_t));
   ml = (const glseg_t*)W_CacheLumpNum(lump);
 
+  if ((!ml) || (!numsegs))
+    I_Error("P_LoadGLSegs: no glsegs in level");
+
   for(i = 0; i < numsegs; i++)
   {             // check for gl-vertices
     segs[i].v1 = &vertexes[checkGLVertex(SHORT(ml->v1))];
@@ -419,6 +425,9 @@ static void P_LoadSubsectors (int lump)
   numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
   subsectors = Z_Calloc(numsubsectors,sizeof(subsector_t),PU_LEVEL,0);
   data = (const mapsubsector_t *)W_CacheLumpNum(lump);
+
+  if ((!data) || (!numsubsectors))
+    I_Error("P_LoadSubsectors: no subsectors in level");
 
   for (i=0; i<numsubsectors; i++)
   {
@@ -500,6 +509,9 @@ static void P_LoadNodes (int lump)
   nodes = Z_Malloc (numnodes*sizeof(node_t),PU_LEVEL,0);
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
+  if ((!data) || (!numnodes))
+    I_Error("P_LoadNodes: no nodes in level");
+
   for (i=0; i<numnodes; i++)
     {
       node_t *no = nodes + i;
@@ -536,6 +548,9 @@ static void P_LoadThings (int lump)
 {
   int  i, numthings = W_LumpLength (lump) / sizeof(mapthing_t);
   const mapthing_t *data = W_CacheLumpNum (lump);
+
+  if ((!data) || (!numthings))
+    I_Error("P_LoadThings: no things in level");
 
   for (i=0; i<numthings; i++)
     {
