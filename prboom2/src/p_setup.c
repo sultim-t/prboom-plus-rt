@@ -186,7 +186,7 @@ static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 // P_GetNodesVersion
 //
 
-static int P_GetNodesVersion(int lumpnum, int gl_lumpnum)
+static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
 {
   void *data;
 
@@ -1487,7 +1487,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
 #if 1
   // figgi 10/19/00 -- check for gl lumps and load them
-  nodesVersion = P_GetNodesVersion(lumpnum,gl_lumpnum);
+  P_GetNodesVersion(lumpnum,gl_lumpnum);
 
   if (nodesVersion > 0)
     P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
