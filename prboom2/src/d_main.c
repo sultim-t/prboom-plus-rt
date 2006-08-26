@@ -360,11 +360,11 @@ static void D_DoomLoop(void)
       if (players[displayplayer].mo) // cph 2002/08/10
 	S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
-#ifdef GL_DOOM
-      if (!movement_smooth || !WasRenderedInTryRunTics) {
-#else
-      if (!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate) {
-#endif
+      if (V_GetMode() == VID_MODEGL ? 
+        !movement_smooth || !WasRenderedInTryRunTics :
+        !movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate
+      )
+        {
         // Update display, next frame, with current state.
         D_Display();
       }
