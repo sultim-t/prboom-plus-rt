@@ -2877,7 +2877,7 @@ void gld_DrawScene(player_t *player)
   //e6y
   int pass;
   GLWall wall;
-  boolean gl_alpha_blended;
+  boolean gl_alpha_blended = true;
 
   int i,j,k,count;
   fixed_t max_scale;
