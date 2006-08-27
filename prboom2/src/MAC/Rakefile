@@ -46,6 +46,8 @@ task(:bundle => :frameworks)
 ##############
 
 sources = %w(
+SDL/i_main.c
+SDL/i_network.c
 SDL/i_joy.c
 SDL/i_sound.c
 SDL/i_system.c
@@ -68,8 +70,6 @@ gl_main.c
 gl_texture.c
 hu_lib.c
 hu_stuff.c
-i_main.c
-i_udp_sdl.c
 info.c
 lprintf.c
 m_argv.c
@@ -143,7 +143,7 @@ MAC/WadViewController.m
 serverSources = %w(
 POSIX/i_system.c
 MAC/SDLMain.m
-i_udp_sdl.c
+SDL/i_network.c
 d_server.c
 )
 

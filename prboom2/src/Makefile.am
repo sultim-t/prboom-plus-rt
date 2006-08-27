@@ -14,7 +14,7 @@ games_PROGRAMS = @BUILD_DOOM@ prboom-game-server
 
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
-prboom_game_server_SOURCES = d_server.c i_udp_sdl.c protocol.h
+prboom_game_server_SOURCES = d_server.c protocol.h
 prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
 
 COMMON_SRC = \
@@ -25,7 +25,7 @@ COMMON_SRC = \
  d_deh.c        hu_stuff.c         m_argv.c         p_pspr.c    r_sky.h	    \
  d_deh.h        hu_stuff.h         m_argv.h         p_pspr.h    r_state.h   \
  d_englsh.h     i_joy.h            m_bbox.c         p_saveg.c   r_things.c  \
- d_event.h      i_net.h            m_bbox.h         p_saveg.h   r_things.h  \
+ d_event.h                         m_bbox.h         p_saveg.h   r_things.h  \
  d_items.c      i_network.h        m_cheat.c        p_setup.c   s_sound.c   \
  d_items.h      i_sound.h          m_cheat.h        p_setup.h   s_sound.h   \
  d_main.c       i_system.h         m_fixed.h        p_sight.c   sounds.c    \
@@ -33,7 +33,7 @@ COMMON_SRC = \
                 info.c             m_menu.h         p_spec.h    st_lib.c    \
  d_net.h        info.h             m_misc.c         p_switch.c  st_lib.h    \
  d_player.h                        m_misc.h         p_telept.c  st_stuff.c  \
- m_random.c     p_tick.c           st_stuff.h       i_main.c    i_main.h    \
+ m_random.c     p_tick.c           st_stuff.h       i_main.h    \
  d_think.h      m_random.h         p_tick.h         tables.c    \
  d_ticcmd.h     m_swap.h           p_user.c         tables.h     \
  doomdata.h     p_ceilng.c         p_user.h         v_video.c   \
