@@ -2956,7 +2956,7 @@ void gld_DrawScene(player_t *player)
             }
             //e6y
             wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
-            if (!wall.seg->backsector && wall.gltexture->havealpha)
+            if (!wall.seg->backsector && wall.gltexture->hasHole)
             {
               if (gl_alpha_blended)
               {

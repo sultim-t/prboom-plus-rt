@@ -332,6 +332,9 @@ static void createPatch(int id) {
 
         // this pixel is a hole
 
+        //e6y
+        patch->hasHole = true;
+
         if (x && prevColumn->pixels[y-1] != 0xff) {
           // copy the color from the left
           column->pixels[y] = prevColumn->pixels[y];
@@ -423,6 +426,7 @@ static void createTextureCompositePatch(int id) {
   composite_patch->leftoffset = 0;
   composite_patch->topoffset = 0;
   composite_patch->isNotTileable = 0;
+  composite_patch->hasHole = false;//e6y
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
@@ -646,6 +650,9 @@ static void createTextureCompositePatch(int id) {
         if (column->pixels[y] != 0xff) continue;
 
         // this pixel is a hole
+
+        //e6y
+        composite_patch->hasHole = true;
 
         if (x && prevColumn->pixels[y-1] != 0xff) {
           // copy the color from the left

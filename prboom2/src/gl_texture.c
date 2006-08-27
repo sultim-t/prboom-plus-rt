@@ -208,6 +208,11 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     xs=-originx;
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
+  
+  //e6y
+  if (patch->hasHole)
+    gltexture->hasHole = true;
+
   for (x=xs;x<xe;x++)
   {
 #ifdef RANGECHECK
@@ -218,7 +223,6 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     }
 #endif
     column = &patch->columns[x];
-    if (column->numPosts > 1) gltexture->havealpha = true;//e6y
     for (i=0; i<column->numPosts; i++) {
       const rpost_t *post = &column->posts[i];
       y=(post->topdelta+originy);
@@ -303,6 +307,11 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
     xs=-originx;
   if ((xe+originx)>gltexture->realtexwidth)
     xe+=(gltexture->realtexwidth-(xe+originx));
+
+  //e6y
+  if (patch->hasHole)
+    gltexture->hasHole = true;
+
   for (x=xs;x<xe;x++)
   {
 #ifdef RANGECHECK
@@ -313,7 +322,6 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
     }
 #endif
     column = &patch->columns[x];
-    if (column->numPosts > 1) gltexture->havealpha = true;//e6y
     for (i=0; i<column->numPosts; i++) {
       const rpost_t *post = &column->posts[i];
       y=(post->topdelta+originy);
@@ -470,7 +478,7 @@ GLTexture *gld_RegisterTexture(int texture_num, boolean mipmap)
     if (gltexture->realtexheight>gltexture->buffer_height)
       return gltexture;
     gltexture->textype=GLDT_TEXTURE;
-    gltexture->havealpha = false;//e6y
+    gltexture->hasHole = false;//e6y
   }
   return gltexture;
 }

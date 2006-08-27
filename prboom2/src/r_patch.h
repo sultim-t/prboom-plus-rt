@@ -77,6 +77,7 @@ typedef struct {
   int locktic;
 #endif
   unsigned int locks;
+  boolean hasHole;//e6y
 } rpatch_t;
 
 
