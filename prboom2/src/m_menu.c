@@ -3076,9 +3076,9 @@ void M_FullScreen(void) // To (un)set fullscreen video after menu changes
 void M_ChangeDemoSmoothTurns(void)
 {
   if (demo_smoothturns)
-    gen_settings1[8].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings2[12].m_flags &= ~(S_SKIP|S_SELECT);
   else
-    gen_settings1[8].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings2[12].m_flags |= (S_SKIP|S_SELECT);
 
   R_SmoothPlaying_Reset(NULL);
 }
