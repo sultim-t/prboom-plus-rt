@@ -2922,13 +2922,13 @@ void gld_DrawScene(player_t *player)
     {
       glEnable(GL_ALPHA_TEST);
       glEnable(GL_BLEND);
+      gl_alpha_blended = true;
     }
 
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
     case GLDIT_WALL:
       count=0;
-      gl_alpha_blended = true; //e6y
       for (k=GLDWF_TOP; k<=GLDWF_SKYFLIP; k++)
       {
         if (count>=gld_drawinfo.drawitems[i].itemcount)
@@ -2956,9 +2956,9 @@ void gld_DrawScene(player_t *player)
             }
             //e6y
             wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
-            if (!wall.seg->backsector)
+            if (!wall.seg->backsector && wall.gltexture->havealpha)
             {
-              if (gl_alpha_blended && wall.gltexture->havealpha)
+              if (gl_alpha_blended)
               {
                 glDisable(GL_ALPHA_TEST);
                 glDisable(GL_BLEND);
@@ -3023,6 +3023,13 @@ void gld_DrawScene(player_t *player)
 
   //e6y
   }
+  if (!gl_alpha_blended)
+  {
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_BLEND);
+    gl_alpha_blended = true;
+  }
+
   if (!gl_arb_multitexture && render_usedetail)
     e6y_DrawAdd();
 
