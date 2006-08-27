@@ -1379,7 +1379,7 @@ void HU_Drawer(void)
     if (demoplayback && hudadd_demoprogressbar)
     {
       int len = SCREENWIDTH * gametic / demo_size;
-      V_FillRect(0, 0, SCREENHEIGHT - 5, len - 0, 5, 4);
+      V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
       if (len > 4)
         V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
     }
