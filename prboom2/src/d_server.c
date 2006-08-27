@@ -49,7 +49,9 @@
 #include "doomtype.h"
 #include "protocol.h"
 #include "i_network.h"
+#ifndef PRBOOM_SERVER
 #include "m_fixed.h"
+#endif
 #include "i_system.h"
 #include "m_swap.h"
 
@@ -670,9 +672,10 @@ int main(int argc, char** argv)
       if ((remoteticto[i] -= xtratics) < 0) remoteticto[i] = 0;
       tics = lowtic - remoteticto[i];
       {
+        byte *p;
         packet = malloc(sizeof(packet_header_t) + 1 +
          tics * (1 + numplayers * (1 + sizeof(ticcmd_t))));
-        byte *p = (void*)(packet+1);
+        p = (void*)(packet+1);
         packet_set(packet, PKT_TICS, remoteticto[i]);
         *p++ = tics;
         if (verbose>1) printf("sending %d tics to %d\n", tics, i);

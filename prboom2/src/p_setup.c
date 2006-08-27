@@ -169,7 +169,7 @@ mapthing_t playerstarts[MAXPLAYERS];
 
 static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 {
-  void *data;
+  const void *data;
 
   data = W_CacheLumpNum(lumpnum + ML_NODES);
   if (*(const int *)data == ZNOD)
@@ -188,7 +188,7 @@ static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
 
 static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
 {
-  void *data;
+  const void *data;
 
   data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
   if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) ) {

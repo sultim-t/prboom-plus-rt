@@ -107,6 +107,10 @@ SOURCE=..\src\doomtype.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\SDL\i_network.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\i_network.h
 # End Source File
 # Begin Source File
@@ -116,10 +120,6 @@ SOURCE=..\src\Sdl\i_system.c
 # Begin Source File
 
 SOURCE=..\src\i_system.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\i_udp_sdl.c
 # End Source File
 # Begin Source File
 
@@ -136,6 +136,10 @@ SOURCE=..\src\protocol.h
 # Begin Source File
 
 SOURCE=..\src\SDL\SDL_win32_main.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\z_zone.h
 # End Source File
 # End Group
 # End Target

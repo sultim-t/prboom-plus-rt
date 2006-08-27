@@ -65,13 +65,17 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#ifndef PRBOOM_SERVER
 #include "m_argv.h"
+#endif
 #include "lprintf.h"
 #include "doomtype.h"
 #include "doomdef.h"
 #include "lprintf.h"
+#ifndef PRBOOM_SERVER
 #include "m_fixed.h"
 #include "r_fps.h"
+#endif
 #include "i_system.h"
 
 #ifdef __GNUG__
@@ -119,6 +123,7 @@ int I_GetTime_RealTime (void)
   return i;
 }
 
+#ifndef PRBOOM_SERVER
 fixed_t I_GetTimeFrac (void)
 {
   unsigned long now;
@@ -148,6 +153,7 @@ void I_GetTime_SaveMS(void)
   tic_vars.next = (unsigned int) ((tic_vars.start * tic_vars.msec + 1.0f) / tic_vars.msec);
   tic_vars.step = tic_vars.next - tic_vars.start;
 }
+#endif
 
 /*
  * I_GetRandomTimeSeed

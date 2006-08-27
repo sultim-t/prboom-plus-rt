@@ -247,7 +247,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\Sdl\i_system.c"
+				RelativePath="..\src\SDL\i_system.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -273,7 +273,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\i_udp_sdl.c"
+				RelativePath="..\src\SDL\i_network.c"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
