@@ -2926,6 +2926,11 @@ void G_DoPlayDemo(void)
   
   demo_p = G_ReadDemoHeader(demo_p);
 
+  //e6y
+  demo_size = (W_LumpLength(demolumpnum) - (demo_p - demobuffer + 1)) / 4;
+  if (demo_size <= 0)
+    demo_size = 4;
+
   gameaction = ga_nothing;
   usergame = false;
 

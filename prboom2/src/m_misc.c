@@ -714,6 +714,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_smarttotals", {&hudadd_smarttotals},  {0},0,1,
    def_bool,ss_stat},
+  {"hudadd_demoprogressbar", {&hudadd_demoprogressbar},  {0},0,1,
+   def_bool,ss_stat},
 
   {"Prboom-plus mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"mouse_acceleration",{&mouse_acceleration},{0},0,UL,

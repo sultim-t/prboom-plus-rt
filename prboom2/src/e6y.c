@@ -47,7 +47,7 @@ int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
 int demo_recordfromto = false;
-int demo_lastheaderlen;
+int demo_size;
 
 int avi_shot_time;
 int avi_shot_num;
@@ -73,6 +73,7 @@ int hudadd_gamespeed;
 int hudadd_leveltime;
 int hudadd_secretarea;
 int hudadd_smarttotals;
+int hudadd_demoprogressbar;
 int movement_strafe50;
 int movement_strafe50onturns;
 int movement_altmousesupport;
@@ -229,6 +230,7 @@ void e6y_D_DoomMainSetup(void)
 
   {
     long i, value, count;
+    traces_present = false;
 
     for (i=0;i<3;i++)
     {
@@ -240,6 +242,7 @@ void e6y_D_DoomMainSetup(void)
         {
           sprintf(traces[i].trace->items[count].value, "\x1b\x36%ld\x1b\x33 0", value);
           traces[i].trace->items[count].index = value;
+          traces_present = true;
           count++;
         }
         traces[i].trace->count = count;
@@ -1338,6 +1341,7 @@ char hud_trace_things_health[80];
 char hud_trace_things_pickup[80];
 char hud_trace_lines_cross[80];
 
+boolean traces_present;
 traceslist_t traces[3] = {
   {&things_health, hud_trace_things_health, "-trace_thingshealth", "\x1b\x31health "},
   {&things_pickup, hud_trace_things_pickup, "-trace_thingspickup", "\x1b\x31pickup "},

@@ -70,6 +70,7 @@ extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
 extern int demo_recordfromto;
+extern int demo_size;
 
 extern int avi_shot_time;
 extern int avi_shot_num;
@@ -95,6 +96,7 @@ extern int hudadd_gamespeed;
 extern int hudadd_leveltime;
 extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
+extern int hudadd_demoprogressbar;
 extern int movement_strafe50;
 extern int movement_strafe50onturns;
 extern int movement_altmousesupport;
@@ -364,6 +366,7 @@ extern trace_t things_pickup;
 extern trace_t lines_cross;
 
 extern traceslist_t traces[];
+extern boolean traces_present;
 
 extern hu_textline_t  w_traces[];
 

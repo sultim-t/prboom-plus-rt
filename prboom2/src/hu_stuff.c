@@ -1374,10 +1374,37 @@ void HU_Drawer(void)
       if (hud_active>1)
         HUlib_drawTextLine(&w_monsec, false);
     }
+    
     //e6y
+    if (demoplayback && hudadd_demoprogressbar)
+    {
+      int len = SCREENWIDTH * gametic / demo_size;
+      V_FillRect(0, 0, SCREENHEIGHT - 5, len - 0, 5, 4);
+      if (len > 4)
+        V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
+    }
+    if (traces_present)
+    {
+      int k,num=0;
+      for(k=0;k<3;k++)
+      {
+        if (traces[k].trace->count)
+        {
+          strcpy(traces[k].hudstr, traces[k].prefix);
+          for (i=0;i<traces[k].trace->count;i++)
+            sprintf(traces[k].hudstr+strlen(traces[k].hudstr),
+            "\x1b\x33%s ", traces[k].trace->items[i].value);
+          HUlib_clearTextLine(&w_traces[num]);
+          s = traces[k].hudstr;
+          while (*s)
+            HUlib_addCharToTextLine(&w_traces[num], *(s++));
+          HUlib_drawTextLine(&w_traces[num], false);
+          num++;
+        }
+      }
+    }
     if (hud_active>1)
     {
-      int i;
       if (hudadd_gamespeed||hudadd_leveltime)
       {
         extern int realtic_clock_rate;
@@ -1397,25 +1424,6 @@ void HU_Drawer(void)
         while (*s)
           HUlib_addCharToTextLine(&w_hudadd, *(s++));
         HUlib_drawTextLine(&w_hudadd, false);
-      }
-      {
-        int k,num=0;
-        for(k=0;k<3;k++)
-        {
-          if (traces[k].trace->count)
-          {
-            strcpy(traces[k].hudstr, traces[k].prefix);
-            for (i=0;i<traces[k].trace->count;i++)
-              sprintf(traces[k].hudstr+strlen(traces[k].hudstr),
-              "\x1b\x33%s ", traces[k].trace->items[i].value);
-            HUlib_clearTextLine(&w_traces[num]);
-            s = traces[k].hudstr;
-            while (*s)
-              HUlib_addCharToTextLine(&w_traces[num], *(s++));
-            HUlib_drawTextLine(&w_traces[num], false);
-            num++;
-          }
-        }
       }
     }
 
