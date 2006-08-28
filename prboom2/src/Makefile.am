@@ -15,7 +15,7 @@ games_PROGRAMS = @BUILD_DOOM@ prboom-game-server
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@
 
 prboom_game_server_SOURCES = d_server.c protocol.h
-prboom_game_server_LDADD = POSIX/libposixdoom.a @NET_LIBS@ @SDL_LIBS@
+prboom_game_server_LDADD = POSIX/libposixdoom.a SDL/i_network.o @NET_LIBS@ @SDL_LIBS@
 
 COMMON_SRC = \
  am_map.c       g_game.c           p_maputl.h       r_plane.h   \
@@ -52,7 +52,7 @@ COMMON_SRC = \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
  r_filter.c     r_filter.h
 
-NET_CLIENT_SRC = d_client.c i_udp_sdl.c
+NET_CLIENT_SRC = d_client.c
 
 if BUILD_GL
 USE_GL_SRC = gl_intern.h  gl_main.c  gl_struct.h  gl_texture.c
