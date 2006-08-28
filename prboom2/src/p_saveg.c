@@ -303,12 +303,12 @@ void P_ArchiveThinkers (void)
   /* check that enough room is available in savegame buffer
    * - killough 2/14/98
    * cph - use number_of_thinkers saved by P_ThinkerToIndex above
-   * Andreas Dehmel: size per object is sizeof(mobj_t) - 2*sizeof(void*) plus
+   * size per object is sizeof(mobj_t) - 2*sizeof(void*) - 4*sizeof(fixed_t) plus
    * padded type (4) plus 5*sizeof(void*), i.e. sizeof(mobj_t) + 4 +
    * 3*sizeof(void*)
    * cph - +1 for the tc_end
    */
-  CheckSaveGame(number_of_thinkers*(sizeof(mobj_t)+4+3*sizeof(void*)) +1);
+  CheckSaveGame(number_of_thinkers*(sizeof(mobj_t)-3*sizeof(fixed_t)+4+3*sizeof(void*)) +1);
 
   // save off the current thinkers
   for (th = thinkercap.next ; th != &thinkercap ; th=th->next)
@@ -329,6 +329,7 @@ void P_ArchiveThinkers (void)
 	 * to
 	 *  mobj_t* lastenemy;
 	 *  void* touching_sectorlist;
+         *  fixed_t PrevX, PrevY, PrevZ, padding;
 	 * at prboom 2.4.4. There is code here to preserve the savegame format.
 	 *
 	 * touching_sectorlist is reconstructed anyway, so we now leave off the
@@ -336,8 +337,8 @@ void P_ArchiveThinkers (void)
 	 * into the second of these.
 	 */
         memcpy (mobj, th, sizeof(*mobj) - 2*sizeof(void*));
-        save_p += sizeof(*mobj) - 2*sizeof(void*);
-	memset (save_p, 0, 5*sizeof(void*));
+        save_p += sizeof(*mobj) - 2*sizeof(void*) - 4*sizeof(fixed_t);
+        memset (save_p, 0, 5*sizeof(void*));
         mobj->state = (state_t *)(mobj->state - states);
 
         // killough 2/14/98: convert pointers into indices.
@@ -361,12 +362,12 @@ void P_ArchiveThinkers (void)
         // seeing player anymore.
 
         if (((mobj_t*)th)->lastenemy && ((mobj_t*)th)->lastenemy->thinker.function == P_MobjThinker) {
-	  memcpy (save_p + sizeof(void*), &(((mobj_t*)th)->lastenemy->thinker.prev), sizeof(void*));
+          memcpy (save_p + sizeof(void*), &(((mobj_t*)th)->lastenemy->thinker.prev), sizeof(void*));
 	}
 
         // killough 2/14/98: end changes
 
-	save_p += 5*sizeof(void*);
+        save_p += 5*sizeof(void*);
 
         if (mobj->player)
           mobj->player = (player_t *)((mobj->player-players) + 1);
@@ -449,7 +450,7 @@ void P_UnArchiveThinkers (void)
       {                     // skip all entries, adding up count
         PADSAVEP();
 	/* cph 2006/07/30 - see comment below for change in layout of mobj_t */
-        save_p += sizeof(mobj_t)+3*sizeof(void*);
+        save_p += sizeof(mobj_t)+3*sizeof(void*)-4*sizeof(fixed_t);
       }
 
     if (*--save_p != tc_end)
@@ -479,6 +480,7 @@ void P_UnArchiveThinkers (void)
        * to
        *  mobj_t* lastenemy;
        *  void* touching_sectorlist;
+       *  fixed_t PrevX, PrevY, PrevZ;
        * at prboom 2.4.4. There is code here to preserve the savegame format.
        *
        * touching_sectorlist is reconstructed anyway, so we now read in all 
@@ -486,8 +488,8 @@ void P_UnArchiveThinkers (void)
        * fields of our current mobj_t. We then pull lastenemy from the 2nd of
        * the 5 leftover words, and skip the others.
        */
-      memcpy (mobj, save_p, sizeof(mobj_t)-2*sizeof(void*));
-      save_p += sizeof(mobj_t)-sizeof(void*);
+      memcpy (mobj, save_p, sizeof(mobj_t)-2*sizeof(void*)-4*sizeof(fixed_t));
+      save_p += sizeof(mobj_t)-sizeof(void*)-4*sizeof(fixed_t);
       memcpy (&(mobj->lastenemy), save_p, sizeof(void*));
       save_p += 4*sizeof(void*);
       mobj->state = states + (int) mobj->state;
