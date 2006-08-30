@@ -78,7 +78,6 @@ static NSDictionary *attributes(bool bold, bool blink, bool reverse, int bg, int
 	// Make the reset case be black on white
 	if(isReset)
 	{
-		printf("Reset hack!\n");
 		fgColor = 0;
 		bgColor = 7;
 		bgBold = true;

@@ -10,6 +10,10 @@ Changes from v2.4.5 to v2.4.6
   page in general settings
 - Emulate some texture composition bugs
 - Fixed random crashes caused by use of uninitialized memory
+- Fix some demo incompatibilities caused by slime trail removal
+- Fixed crashes with WADs which use newer gl nodes or don't have any nodes
+- Automatically load gwa files with gl nodes
+- Fixed integer overrun in automap on large levels (from PrBoom+)
 
 Changes from v2.4.4 to v2.4.5
 - fix crash when saving the game in levels with lots of monsters

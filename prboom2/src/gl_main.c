@@ -1711,7 +1711,7 @@ void gld_PreprocessSectors(void)
     gld_PrepareSectorSpecialEffects(i);
 
   // figgi -- adapted for glnodes
-  if (usingGLNodes == false)
+  if (nodesVersion == 0)
     gld_CarveFlats(numnodes-1, 0, 0, sectorclosed);
   else
     gld_GetSubSectorVertices(sectorclosed);

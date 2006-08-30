@@ -475,7 +475,7 @@ SOURCE=..\src\hu_stuff.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\Sdl\i_joy.c
+SOURCE=..\src\SDL\i_joy.c
 # End Source File
 # Begin Source File
 
@@ -483,7 +483,7 @@ SOURCE=..\src\i_joy.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\i_main.c
+SOURCE=..\src\SDL\i_main.c
 # End Source File
 # Begin Source File
 
@@ -491,15 +491,11 @@ SOURCE=..\src\i_main.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\i_net.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\i_network.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\sdl\i_sound.c
+SOURCE=..\src\SDL\i_sound.c
 # End Source File
 # Begin Source File
 
@@ -507,7 +503,7 @@ SOURCE=..\src\i_sound.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\sdl\i_system.c
+SOURCE=..\src\SDL\i_system.c
 # End Source File
 # Begin Source File
 
@@ -515,11 +511,11 @@ SOURCE=..\src\i_system.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\i_udp_sdl.c
+SOURCE=..\src\SDL\i_network.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\sdl\i_video.c
+SOURCE=..\src\SDL\i_video.c
 # End Source File
 # Begin Source File
 

@@ -34,7 +34,7 @@
 #ifndef _GL_STRUCT_H
 #define _GL_STRUCT_H
 
-extern boolean usingGLNodes;
+extern int nodesVersion;
 
 void gld_Init(int width, int height);
 void gld_InitCommandLine();

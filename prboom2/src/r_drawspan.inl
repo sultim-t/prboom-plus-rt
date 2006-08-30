@@ -40,10 +40,10 @@
 
 static void R_DRAWSPAN_FUNCNAME(draw_span_vars_t *dsvars)
 {
-#if (R_DRAWSPAN_PIPELINE & RDC_BILINEAR)
+#if (R_DRAWSPAN_PIPELINE & (RDC_ROUNDED|RDC_BILINEAR))
   // drop back to point filtering if we're minifying
   // 49152 = FRACUNIT * 0.75
-  if (dsvars->xfrac < drawvars.mag_threshold && dsvars->yfrac < drawvars.mag_threshold) {
+  if (dsvars->xfrac > drawvars.mag_threshold && dsvars->yfrac > drawvars.mag_threshold) {
     R_GetDrawSpanFunc(RDRAW_FILTER_POINT,
                       drawvars.filterz)(dsvars);
     return;

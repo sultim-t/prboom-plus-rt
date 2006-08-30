@@ -98,6 +98,8 @@ int map_secret_after;
 // pulls out to 0.5x in 1 second
 #define M_ZOOMOUT       ((int) (FRACUNIT/1.02))
 
+#define PLAYERRADIUS    (16*(1<<MAPBITS)) // e6y
+
 // translates between frame-buffer and map distances
 #define FTOM(x) FixedMul(((x)<<16),scale_ftom)
 #define MTOF(x) (FixedMul((x),scale_mtof)>>16)

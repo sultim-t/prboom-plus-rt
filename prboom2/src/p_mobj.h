@@ -242,6 +242,8 @@ enum {
 
 // killough 9/8/98: changed some fields to shorts,
 // for better memory usage (if only for cache).
+/* cph 2006/08/28 - move Prev[XYZ] fields to the end of the struct. Add any
+ * other new fields to the end, and make sure you don't break savegames! */
 
 typedef struct mobj_s
 {
@@ -252,10 +254,6 @@ typedef struct mobj_s
     fixed_t             x;
     fixed_t             y;
     fixed_t             z;
-
-    fixed_t             PrevX;
-    fixed_t             PrevY;
-    fixed_t             PrevZ;
 
     // More list: links in sector (if needed)
     struct mobj_s*      snext;
@@ -345,16 +343,22 @@ typedef struct mobj_s
     // a linked list of sectors where this object appears
     struct msecnode_s* touching_sectorlist;                 // phares 3/14/98
 
+    fixed_t             PrevX;
+    fixed_t             PrevY;
+    fixed_t             PrevZ;
+
     //e6y
     angle_t             pitch;  // orientation
     int index;
+
+    fixed_t             pad; // cph - needed so I can get the size unambiguously on amd64
+
     // SEE WARNING ABOVE ABOUT POINTER FIELDS!!!
 } mobj_t;
 
 // External declarations (fomerly in p_local.h) -- killough 5/2/98
 
 #define VIEWHEIGHT      (41*FRACUNIT)
-#define PLAYERRADIUS    (16*(1<<MAPBITS))//e6y
 
 #define GRAVITY         FRACUNIT
 #define MAXMOVE         (30*FRACUNIT)

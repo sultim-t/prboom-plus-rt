@@ -84,10 +84,15 @@ side_t   *sides;
 ////////////////////////////////////////////////////////////////////////////////////////////
 // figgi 08/21/00 -- constants and globals for glBsp support
 #define gNd2            0x32644E67  // figgi -- suppport for new GL_VERT format v2.0
+#define gNd3            0x33644E67
+#define gNd4            0x34644E67
+#define gNd5            0x35644E67
+#define ZNOD            0x444F4E5A
+#define ZGLN            0x4E4C475A
 #define GL_VERT_OFFSET  4
 
 int     firstglvertex = 0;
-boolean usingGLNodes  = false;
+int     nodesVersion  = 0;
 boolean forceOldBsp   = false;
 
 // figgi 08/21/00 -- glSegs
@@ -95,9 +100,9 @@ typedef struct
 {
   unsigned short  v1;    // start vertex    (16 bit)
   unsigned short  v2;    // end vertex      (16 bit)
-  short     linedef; // linedef, or -1 for minisegs
+  unsigned short  linedef; // linedef, or -1 for minisegs
   short     side;  // side on linedef: 0 for right, 1 for left
-  short     partner; // corresponding partner seg, or -1 on one-sided walls
+  unsigned short  partner; // corresponding partner seg, or -1 on one-sided walls
 } glseg_t;
 
 // fixed 32 bit gl_vert format v2.0+ (glBsp 1.91)
@@ -160,6 +165,64 @@ mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
 
 //
+// P_CheckForZDoomNodes
+//
+
+static boolean P_CheckForZDoomNodes(int lumpnum, int gl_lumpnum)
+{
+  const void *data;
+
+  data = W_CacheLumpNum(lumpnum + ML_NODES);
+  if (*(const int *)data == ZNOD)
+    I_Error("P_CheckForZDoomNodes: ZDoom nodes not supported yet");
+
+  data = W_CacheLumpNum(lumpnum + ML_SSECTORS);
+  if (*(const int *)data == ZGLN)
+    I_Error("P_CheckForZDoomNodes: ZDoom GL nodes not supported yet");
+
+  return false;
+}
+
+//
+// P_GetNodesVersion
+//
+
+static void P_GetNodesVersion(int lumpnum, int gl_lumpnum)
+{
+  const void *data;
+
+  data = W_CacheLumpNum(gl_lumpnum+ML_GL_VERTS);
+  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) ) {
+    if (*(const int *)data == gNd2) {
+      data = W_CacheLumpNum(gl_lumpnum+ML_GL_SEGS);
+      if (*(const int *)data == gNd3) {
+        nodesVersion = gNd3;
+        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 3 nodes\n");
+        I_Error("P_GetNodesVersion: version 3 nodes not supported\n");
+      } else {
+        nodesVersion = gNd2;
+        lprintf(LO_DEBUG, "P_GetNodesVersion: found version 2 nodes\n");
+      }
+    }
+    if (*(const int *)data == gNd4) {
+      nodesVersion = gNd4;
+      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 4 nodes\n");
+      I_Error("P_GetNodesVersion: version 4 nodes not supported\n");
+    }
+    if (*(const int *)data == gNd5) {
+      nodesVersion = gNd5;
+      lprintf(LO_DEBUG, "P_GetNodesVersion: found version 5 nodes\n");
+      I_Error("P_GetNodesVersion: version 5 nodes not supported\n");
+    }
+  } else {
+    nodesVersion = 0;
+    lprintf(LO_DEBUG,"P_GetNodesVersion: using normal BSP nodes\n");
+    if (P_CheckForZDoomNodes(lumpnum, gl_lumpnum))
+      I_Error("P_GetNodesVersion: ZDoom nodes not supported yet");
+  }
+}
+
+//
 // P_LoadVertexes
 //
 // killough 5/3/98: reformatted, cleaned up
@@ -215,7 +278,7 @@ static void P_LoadVertexes2(int lump, int gllump)
   {
     gldata = W_CacheLumpNum(gllump);
 
-    if (*(const int *)gldata == gNd2) // 32 bit GL_VERT format (16.16 fixed)
+    if (nodesVersion == gNd2) // 32 bit GL_VERT format (16.16 fixed)
     {
       const mapglvertex_t*  mgl;
 
@@ -307,6 +370,9 @@ static void P_LoadSegs (int lump)
   segs = Z_Calloc(numsegs,sizeof(seg_t),PU_LEVEL,0);
   data = (const mapseg_t *)W_CacheLumpNum(lump); // cph - wad lump handling updated
 
+  if ((!data) || (!numsegs))
+    I_Error("P_LoadSegs: no segs in level");
+
   for (i=0; i<numsegs; i++)
     {
       seg_t *li = segs+i;
@@ -364,13 +430,16 @@ static void P_LoadGLSegs(int lump)
   memset(segs, 0, numsegs * sizeof(seg_t));
   ml = (const glseg_t*)W_CacheLumpNum(lump);
 
+  if ((!ml) || (!numsegs))
+    I_Error("P_LoadGLSegs: no glsegs in level");
+
   for(i = 0; i < numsegs; i++)
   {             // check for gl-vertices
     segs[i].v1 = &vertexes[checkGLVertex(SHORT(ml->v1))];
     segs[i].v2 = &vertexes[checkGLVertex(SHORT(ml->v2))];
     segs[i].iSegID  = i;
 
-    if(ml->linedef != -1) // skip minisegs
+    if(ml->linedef != (unsigned short)-1) // skip minisegs
     {
       ldef = &lines[ml->linedef];
       segs[i].linedef = ldef;
@@ -420,6 +489,9 @@ static void P_LoadSubsectors (int lump)
   numsubsectors = W_LumpLength (lump) / sizeof(mapsubsector_t);
   subsectors = Z_Calloc(numsubsectors,sizeof(subsector_t),PU_LEVEL,0);
   data = (const mapsubsector_t *)W_CacheLumpNum(lump);
+
+  if ((!data) || (!numsubsectors))
+    I_Error("P_LoadSubsectors: no subsectors in level");
 
   for (i=0; i<numsubsectors; i++)
   {
@@ -501,6 +573,9 @@ static void P_LoadNodes (int lump)
   nodes = Z_Malloc (numnodes*sizeof(node_t),PU_LEVEL,0);
   data = W_CacheLumpNum (lump); // cph - wad lump handling updated
 
+  if ((!data) || (!numnodes))
+    I_Error("P_LoadNodes: no nodes in level");
+
   for (i=0; i<numnodes; i++)
     {
       node_t *no = nodes + i;
@@ -537,6 +612,9 @@ static void P_LoadThings (int lump)
 {
   int  i, numthings = W_LumpLength (lump) / sizeof(mapthing_t);
   const mapthing_t *data = W_CacheLumpNum (lump);
+
+  if ((!data) || (!numthings))
+    I_Error("P_LoadThings: no things in level");
 
   for (i=0; i<numthings; i++)
     {
@@ -1426,11 +1504,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
 #if 1
   // figgi 10/19/00 -- check for gl lumps and load them
-  if ( (gl_lumpnum > lumpnum) && (forceOldBsp == false) && (compatibility_level >= prboom_2_compatibility) )
-    usingGLNodes = true;
-  else
-    usingGLNodes = false;
-  if (usingGLNodes)
+  P_GetNodesVersion(lumpnum,gl_lumpnum);
+
+  if (nodesVersion > 0)
     P_LoadVertexes2 (lumpnum+ML_VERTEXES,gl_lumpnum+ML_GL_VERTS);
   else
     P_LoadVertexes  (lumpnum+ML_VERTEXES);
@@ -1441,19 +1517,17 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_LoadLineDefs2 (lumpnum+ML_LINEDEFS);
   P_LoadBlockMap  (lumpnum+ML_BLOCKMAP);
 
-  if (usingGLNodes)
+  if (nodesVersion > 0)
   {
     P_LoadSubsectors(gl_lumpnum + ML_GL_SSECT);
     P_LoadNodes(gl_lumpnum + ML_GL_NODES);
     P_LoadGLSegs(gl_lumpnum + ML_GL_SEGS);
-    lprintf(LO_DEBUG,"Using glBSP nodes!\n");
   }
   else
   {
     P_LoadSubsectors(lumpnum + ML_SSECTORS);
     P_LoadNodes(lumpnum + ML_NODES);
     P_LoadSegs(lumpnum + ML_SEGS);
-    lprintf(LO_DEBUG,"Using normal BSP nodes!\n");
   }
 
 #else
@@ -1490,7 +1564,7 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   // e6y
   // Correction of desync on dv04-423.lmp/dv.wad
   // http://www.doomworld.com/vb/showthread.php?s=&postid=627257#post627257
-  if (compatibility_level>=lxdoom_1_compatibility || force_remove_slime_trails)
+  if (compatibility_level>=lxdoom_1_compatibility || M_CheckParm("-force_remove_slime_trails") > 0)
     P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
 
   // Note: you don't need to clear player queue slots --

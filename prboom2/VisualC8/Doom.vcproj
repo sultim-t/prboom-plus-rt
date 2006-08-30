@@ -1929,7 +1929,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\Sdl\i_joy.c"
+				RelativePath="..\src\SDL\i_joy.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
@@ -2009,7 +2009,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\i_main.c"
+				RelativePath="..\src\SDL\i_main.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
@@ -2089,15 +2089,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\i_net.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\i_network.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\sdl\i_sound.c"
+				RelativePath="..\src\SDL\i_sound.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
@@ -2177,7 +2173,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\sdl\i_system.c"
+				RelativePath="..\src\SDL\i_system.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
@@ -2257,7 +2253,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\i_udp_sdl.c"
+				RelativePath="..\src\SDL\i_network.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"
@@ -2333,7 +2329,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\sdl\i_video.c"
+				RelativePath="..\src\SDL\i_video.c"
 				>
 				<FileConfiguration
 					Name="Debug OpenGL NOASM|Win32"

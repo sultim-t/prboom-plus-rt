@@ -42,7 +42,9 @@ extern int ms_to_next_tick;
 boolean I_StartDisplay(void);
 void I_EndDisplay(void);
 int I_GetTime_RealTime(void);     /* killough */
+#ifndef PRBOOM_SERVER
 fixed_t I_GetTimeFrac (void);
+#endif
 void I_GetTime_SaveMS(void);
 
 unsigned long I_GetRandomTimeSeed(void); /* cphipps */
