@@ -456,7 +456,8 @@ void P_UnArchiveThinkers (void)
       {                     // skip all entries, adding up count
         PADSAVEP();
 	/* cph 2006/07/30 - see comment below for change in layout of mobj_t */
-        save_p += sizeof(mobj_t)+3*sizeof(void*)-4*sizeof(fixed_t);
+        //e6y save_p += sizeof(mobj_t)+3*sizeof(void*)-4*sizeof(fixed_t);
+        save_p += sizeof(mobj_t);//e6y
       }
 
     if (*--save_p != tc_end)
