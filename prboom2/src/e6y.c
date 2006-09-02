@@ -41,6 +41,9 @@
 
 #define Pi 3.14159265358979323846f
 
+#define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
+//#define DEFAULT_SPECHIT_MAGIC (0x84000000)
+
 boolean wasWiped = false;
 
 int secretfound;
@@ -270,10 +273,11 @@ void e6y_D_DoomMainSetup(void)
   }
 
   // spechit magic
+  spechit_magic = DEFAULT_SPECHIT_MAGIC;
+  if ((p = M_CheckParm("-spechit")) && (p < myargc-1))
   {
-    spechit_magic = DEFAULT_SPECHIT_MAGIC;
-    if ((p = M_CheckParm("-spechit")) && (p < myargc-1))
-      spechit_magic = atoi(myargv[p+1]);
+    if (!StrToInt(myargv[p+1], &spechit_magic))
+      spechit_magic = DEFAULT_SPECHIT_MAGIC;
   }
 
 }

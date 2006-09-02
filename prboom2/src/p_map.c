@@ -2262,7 +2262,6 @@ static void SpechitOverrun(line_t *ld)
       // hr.wad\hr181329.lmp - http://www.doomworld.com/tas/hr181329.zip
       // icarus.wad\ic09uv.lmp - http://competn.doom2.net/pub/sda/i-o/icuvlmps.zip
       
-      //int addr = 0x01C09C98 + (ld - lines) * 0x3E;
       int addr = spechit_magic + (ld - lines) * 0x3E;
       if (compatibility_level == dosdoom_compatibility || compatibility_level == tasdoom_compatibility)
       {
