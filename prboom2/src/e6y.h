@@ -70,7 +70,8 @@ extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
 extern int demo_recordfromto;
-extern int demo_size;
+extern int demo_len_tics;
+extern char demo_len_st[80];
 
 extern int avi_shot_time;
 extern int avi_shot_num;
@@ -94,6 +95,7 @@ extern int key_walkcamera;
 
 extern int hudadd_gamespeed;
 extern int hudadd_leveltime;
+extern int hudadd_demotime;
 extern int hudadd_secretarea;
 extern int hudadd_smarttotals;
 extern int hudadd_demoprogressbar;
@@ -173,7 +175,7 @@ extern int idDetail;
 
 extern hu_textline_t  w_hudadd;
 extern hu_textline_t  w_centermsg;
-extern char hud_timestr[80];
+extern char hud_add[80];
 extern char hud_centermsg[80];
 
 void e6y_assert(const char *format, ...);

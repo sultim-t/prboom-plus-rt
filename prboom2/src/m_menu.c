@@ -2557,12 +2557,13 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
 setup_menu_t stat_settings2[] =
 {
   {"ADVANCED HUD SETTINGS"       ,S_SKIP|S_TITLE,m_null,ADVHUD_X,ST_Y+1*8},
-  {"SHOW GAMESPEED"              ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 2*8, {"hudadd_gamespeed"}},
-  {"SHOW LEVELTIME"              ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 3*8, {"hudadd_leveltime"}},
-  {"SECRET AREAS"                ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 4*8, {"hudadd_secretarea"}},
-  {"SMART TOTALS"                ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 5*8, {"hudadd_smarttotals"}},
-
+  {"SECRET AREAS"                ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 2*8, {"hudadd_secretarea"}},
+  {"SMART TOTALS"                ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 3*8, {"hudadd_smarttotals"}},
+  {"SHOW GAMESPEED"              ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 4*8, {"hudadd_gamespeed"}},
+  {"SHOW LEVELTIME"              ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 5*8, {"hudadd_leveltime"}},
+  {"SHOW DEMOTIME"               ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 6*8, {"hudadd_demotime"}},
   {"SHOW PROGRESS BAR DURING DEMO PLAYBACK" ,S_YESNO     ,m_null,ADVHUD_X,ST_Y+ 7*8, {"hudadd_demoprogressbar"}},
+
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {stat_settings1}},
   {0,S_SKIP|S_END,m_null}

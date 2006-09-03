@@ -2927,9 +2927,18 @@ void G_DoPlayDemo(void)
   demo_p = G_ReadDemoHeader(demo_p);
 
   //e6y
-  demo_size = (W_LumpLength(demolumpnum) - (demo_p - demobuffer + 1)) / 4;
-  if (demo_size <= 0)
-    demo_size = 4;
+  {
+    int i, playerscount = 0;
+    for (i=0; i<MAXPLAYERS; i++)
+    {
+      if (playeringame[i])
+        playerscount++;
+    }
+    demo_len_tics = (W_LumpLength(demolumpnum) - (demo_p - demobuffer + 1)) / (playerscount * 4);
+    if (demo_len_tics <= 0)
+      demo_len_tics = 4;
+    sprintf(demo_len_st, "\x1b\x35/%d:%02d", demo_len_tics/35/60, (demo_len_tics%(60*35))/35);
+  }
 
   gameaction = ga_nothing;
   usergame = false;

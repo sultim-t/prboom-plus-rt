@@ -606,7 +606,7 @@ void HU_Start(void)
     HU_FONTSTART,
     CR_GRAY
   );
-   HUlib_initTextLine
+  HUlib_initTextLine
   (
     &w_centermsg,
     HU_CENTERMSGX,
@@ -642,6 +642,19 @@ void HU_Start(void)
     HU_FONTSTART,
     CR_GRAY
   );
+  strcpy(hud_add,"");
+  s = hud_add;
+  while (*s)
+    HUlib_addCharToTextLine(&w_hudadd, *(s++));
+  for(i=0;i<3;i++)
+  {
+    strcpy(traces[i].hudstr,"");
+    s = traces[i].hudstr;
+    while (*s)
+      HUlib_addCharToTextLine(&w_traces[i], *(s++));
+    HUlib_drawTextLine(&w_traces[i], false);
+  }
+
 
   // initialize the automaps coordinate widget
   //jff 3/3/98 split coordstr widget into 3 parts
@@ -793,7 +806,12 @@ void HU_Drawer(void)
   int playerscount;
   int  fullkillcount, fullitemcount, fullsecretcount;
   int color, killcolor, itemcolor, secretcolor;
-  doit = !(gametic&1);
+  static int drawedtic = -1;
+  int newtic = (gametic>drawedtic);
+  if (newtic)
+    drawedtic = gametic;
+  //jff 3/4/98 speed update up for slow systems
+  doit = newtic && !(gametic&1);
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
@@ -806,31 +824,42 @@ void HU_Drawer(void)
     // x-coord
     if (map_point_coordinates)
     {
-      sprintf(hud_coordstrx,"X: %-5d", (plr->mo->x)>>FRACBITS);
-      HUlib_clearTextLine(&w_coordx);
-      s = hud_coordstrx;
-      while (*s)
-        HUlib_addCharToTextLine(&w_coordx, *(s++));
-      HUlib_drawTextLine(&w_coordx, false);
 
-      //jff 3/3/98 split coord display into x,y,z lines
-      // y-coord
-      sprintf(hud_coordstry,"Y: %-5d", (plr->mo->y)>>FRACBITS);
-      HUlib_clearTextLine(&w_coordy);
-      s = hud_coordstry;
-      while (*s)
-        HUlib_addCharToTextLine(&w_coordy, *(s++));
-      HUlib_drawTextLine(&w_coordy, false);
+      //e6y: speedup
+      if (!newtic)
+      {
+        HUlib_drawTextLine(&w_coordx, false);
+        HUlib_drawTextLine(&w_coordy, false);
+        HUlib_drawTextLine(&w_coordz, false);
+      }
+      else
+      {
+        sprintf(hud_coordstrx,"X: %-5d", (plr->mo->x)>>FRACBITS);
+        HUlib_clearTextLine(&w_coordx);
+        s = hud_coordstrx;
+        while (*s)
+          HUlib_addCharToTextLine(&w_coordx, *(s++));
+        HUlib_drawTextLine(&w_coordx, false);
 
-      //jff 3/3/98 split coord display into x,y,z lines
-      //jff 2/22/98 added z
-      // z-coord
-      sprintf(hud_coordstrz,"Z: %-5d", (plr->mo->z)>>FRACBITS);
-      HUlib_clearTextLine(&w_coordz);
-      s = hud_coordstrz;
-      while (*s)
-        HUlib_addCharToTextLine(&w_coordz, *(s++));
-      HUlib_drawTextLine(&w_coordz, false);
+        //jff 3/3/98 split coord display into x,y,z lines
+        // y-coord
+        sprintf(hud_coordstry,"Y: %-5d", (plr->mo->y)>>FRACBITS);
+        HUlib_clearTextLine(&w_coordy);
+        s = hud_coordstry;
+        while (*s)
+          HUlib_addCharToTextLine(&w_coordy, *(s++));
+        HUlib_drawTextLine(&w_coordy, false);
+
+        //jff 3/3/98 split coord display into x,y,z lines
+        //jff 2/22/98 added z
+        // z-coord
+        sprintf(hud_coordstrz,"Z: %-5d", (plr->mo->z)>>FRACBITS);
+        HUlib_clearTextLine(&w_coordz);
+        s = hud_coordstrz;
+        while (*s)
+          HUlib_addCharToTextLine(&w_coordz, *(s++));
+        HUlib_drawTextLine(&w_coordz, false);
+      }
     }
   }
 
@@ -845,7 +874,6 @@ void HU_Drawer(void)
     !(automapmode & am_active)       // automap is not active
   )
   {
-//e6y    doit = !(gametic&1); //jff 3/4/98 speed update up for slow systems
     if (doit)            //jff 8/7/98 update every time, avoid lag in update
     {
       HU_MoveHud();                  // insure HUD display coords are correct
@@ -1257,26 +1285,37 @@ void HU_Drawer(void)
       }
     }
     // display the keys/frags line each frame
-    if (hud_active>1)
+
+    //e6y: speedup
+    if (!newtic)
     {
-      HUlib_clearTextLine(&w_keys);      // clear the widget strings
-      HUlib_clearTextLine(&w_gkeys);
-
-      // transfer the built string (frags or key title) to the widget
-      s = hud_keysstr; //jff 3/7/98 display key titles/key text or frags
-      while (*s)
-        HUlib_addCharToTextLine(&w_keys, *(s++));
       HUlib_drawTextLine(&w_keys, false);
-
-      //jff 3/17/98 show graphic keys in non-DM only
-      if (!deathmatch) //jff 3/7/98 display graphic keys
-      {
-        // transfer the graphic key text to the widget
-        s = hud_gkeysstr;
-        while (*s)
-          HUlib_addCharToTextLine(&w_gkeys, *(s++));
-        // display the widget
+      if (!deathmatch)
         HUlib_drawTextLine(&w_gkeys, false);
+    }
+    else
+    {
+      if (hud_active>1)
+      {
+        HUlib_clearTextLine(&w_keys);      // clear the widget strings
+        HUlib_clearTextLine(&w_gkeys);
+
+        // transfer the built string (frags or key title) to the widget
+        s = hud_keysstr; //jff 3/7/98 display key titles/key text or frags
+        while (*s)
+          HUlib_addCharToTextLine(&w_keys, *(s++));
+        HUlib_drawTextLine(&w_keys, false);
+
+        //jff 3/17/98 show graphic keys in non-DM only
+        if (!deathmatch) //jff 3/7/98 display graphic keys
+        {
+          // transfer the graphic key text to the widget
+          s = hud_gkeysstr;
+          while (*s)
+            HUlib_addCharToTextLine(&w_gkeys, *(s++));
+          // display the widget
+          HUlib_drawTextLine(&w_gkeys, false);
+        }
       }
     }
 
@@ -1378,7 +1417,7 @@ void HU_Drawer(void)
     //e6y
     if (demoplayback && hudadd_demoprogressbar)
     {
-      int len = SCREENWIDTH * (totalleveltimes + leveltime) / demo_size;
+      int len = SCREENWIDTH * (totalleveltimes + leveltime) / demo_len_tics;
       V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
       if (len > 4)
         V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
@@ -1390,14 +1429,17 @@ void HU_Drawer(void)
       {
         if (traces[k].trace->count)
         {
-          strcpy(traces[k].hudstr, traces[k].prefix);
-          for (i=0;i<traces[k].trace->count;i++)
-            sprintf(traces[k].hudstr+strlen(traces[k].hudstr),
-            "\x1b\x33%s ", traces[k].trace->items[i].value);
-          HUlib_clearTextLine(&w_traces[num]);
-          s = traces[k].hudstr;
-          while (*s)
-            HUlib_addCharToTextLine(&w_traces[num], *(s++));
+          if (newtic)
+          {
+            strcpy(traces[k].hudstr, traces[k].prefix);
+            for (i=0;i<traces[k].trace->count;i++)
+              sprintf(traces[k].hudstr+strlen(traces[k].hudstr),
+              "\x1b\x33%s ", traces[k].trace->items[i].value);
+            HUlib_clearTextLine(&w_traces[num]);
+            s = traces[k].hudstr;
+            while (*s)
+              HUlib_addCharToTextLine(&w_traces[num], *(s++));
+          }
           HUlib_drawTextLine(&w_traces[num], false);
           num++;
         }
@@ -1407,22 +1449,28 @@ void HU_Drawer(void)
     {
       if (hudadd_gamespeed||hudadd_leveltime)
       {
-        extern int realtic_clock_rate;
-        hud_timestr[0] = 0;
-        if (hudadd_gamespeed)
-          sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31speed \x1b\x33%.2d ", realtic_clock_rate);
-        if (hudadd_leveltime)
-          if (totalleveltimes)
-            sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31time \x1b\x35%d:%02d \x1b\x33%d:%05.2f ", 
-              (totalleveltimes+leveltime)/35/60, ((totalleveltimes+leveltime)%(60*35))/35,
-              leveltime/35/60, (float)(leveltime%(60*35))/35);
-          else
-            sprintf(hud_timestr+strlen(hud_timestr),"\x1b\x31time \x1b\x33%d:%05.2f ", 
-              leveltime/35/60, (float)(leveltime%(60*35))/35);
-        HUlib_clearTextLine(&w_hudadd);
-        s = hud_timestr;
-        while (*s)
-          HUlib_addCharToTextLine(&w_hudadd, *(s++));
+        if (newtic)
+        {
+          hud_add[0] = 0;
+          if (hudadd_gamespeed)
+            sprintf(hud_add,"\x1b\x31speed \x1b\x33%.2d ", realtic_clock_rate);
+          if (hudadd_leveltime || demoplayback && hudadd_demotime)
+          {
+            static char demo_len_null[1]={0};
+            char *demo_len = demoplayback && hudadd_demotime ? demo_len_st : demo_len_null;
+            if (totalleveltimes)
+              sprintf(hud_add+strlen(hud_add),"\x1b\x31time \x1b\x35%d:%02d%s \x1b\x33%d:%05.2f ", 
+                (totalleveltimes+leveltime)/35/60, ((totalleveltimes+leveltime)%(60*35))/35, demo_len, 
+                leveltime/35/60, (float)(leveltime%(60*35))/35);
+            else
+              sprintf(hud_add+strlen(hud_add),"\x1b\x31time \x1b\x33%d:%05.2f%s ", 
+                leveltime/35/60, (float)(leveltime%(60*35))/35, demo_len);
+          }
+          HUlib_clearTextLine(&w_hudadd);
+          s = hud_add;
+          while (*s)
+            HUlib_addCharToTextLine(&w_hudadd, *(s++));
+        }
         HUlib_drawTextLine(&w_hudadd, false);
       }
     }

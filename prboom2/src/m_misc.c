@@ -710,6 +710,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"hudadd_leveltime", {&hudadd_leveltime},  {0},0,1,
    def_bool,ss_stat},
+  {"hudadd_demotime", {&hudadd_demotime},  {0},0,1,
+   def_bool,ss_stat},
   {"hudadd_secretarea", {&hudadd_secretarea},  {0},0,1,
    def_bool,ss_stat},
   {"hudadd_smarttotals", {&hudadd_smarttotals},  {0},0,1,

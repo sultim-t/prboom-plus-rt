@@ -50,7 +50,8 @@ int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
 int demo_recordfromto = false;
-int demo_size;
+int demo_len_tics;
+char demo_len_st[80];
 
 int avi_shot_time;
 int avi_shot_num;
@@ -74,6 +75,7 @@ int key_walkcamera;
 
 int hudadd_gamespeed;
 int hudadd_leveltime;
+int hudadd_demotime;
 int hudadd_secretarea;
 int hudadd_smarttotals;
 int hudadd_demoprogressbar;
@@ -127,7 +129,7 @@ camera_t walkcamera;
 
 hu_textline_t  w_hudadd;
 hu_textline_t  w_centermsg;
-char hud_timestr[80];
+char hud_add[80];
 char hud_centermsg[80];
 
 fixed_t sidemove_normal[2]    = {0x18, 0x28};
