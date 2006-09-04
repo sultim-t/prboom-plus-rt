@@ -90,11 +90,18 @@
 static unsigned int start_displaytime;
 static unsigned int displaytime;
 static boolean InDisplay = false;
+static int saved_gametic = -1;
+boolean realframe = false;
 
 boolean I_StartDisplay(void)
 {
   if (InDisplay)
     return false;
+
+  realframe = (!movement_smooth) || (gametic > saved_gametic);
+  
+  if (realframe)
+    saved_gametic = gametic;
 
   start_displaytime = SDL_GetTicks();
   InDisplay = true;

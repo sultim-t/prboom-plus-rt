@@ -229,6 +229,8 @@ extern  gamestate_t  gamestate;
 
 extern  int   gametic;
 
+//e6y
+extern  boolean realframe;
 
 // Bookkeeping on players - state.
 extern  player_t  players[MAXPLAYERS];

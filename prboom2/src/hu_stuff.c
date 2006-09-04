@@ -806,12 +806,8 @@ void HU_Drawer(void)
   int playerscount;
   int  fullkillcount, fullitemcount, fullsecretcount;
   int color, killcolor, itemcolor, secretcolor;
-  static int drawedtic = -1;
-  int newtic = (gametic>drawedtic);
-  if (newtic)
-    drawedtic = gametic;
   //jff 3/4/98 speed update up for slow systems
-  doit = newtic && !(gametic&1);
+  doit = realframe && !(gametic&1);
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
@@ -826,7 +822,7 @@ void HU_Drawer(void)
     {
 
       //e6y: speedup
-      if (!newtic)
+      if (!realframe)
       {
         HUlib_drawTextLine(&w_coordx, false);
         HUlib_drawTextLine(&w_coordy, false);
@@ -1287,7 +1283,7 @@ void HU_Drawer(void)
     // display the keys/frags line each frame
 
     //e6y: speedup
-    if (!newtic)
+    if (!realframe)
     {
       HUlib_drawTextLine(&w_keys, false);
       if (!deathmatch)
@@ -1429,7 +1425,7 @@ void HU_Drawer(void)
       {
         if (traces[k].trace->count)
         {
-          if (newtic)
+          if (realframe)
           {
             strcpy(traces[k].hudstr, traces[k].prefix);
             for (i=0;i<traces[k].trace->count;i++)
@@ -1449,7 +1445,7 @@ void HU_Drawer(void)
     {
       if (hudadd_gamespeed||hudadd_leveltime)
       {
-        if (newtic)
+        if (realframe)
         {
           hud_add[0] = 0;
           if (hudadd_gamespeed)
