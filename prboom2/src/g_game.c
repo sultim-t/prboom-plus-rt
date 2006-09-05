@@ -2934,7 +2934,8 @@ void G_DoPlayDemo(void)
       if (playeringame[i])
         playerscount++;
     }
-    demo_len_tics = (W_LumpLength(demolumpnum) - (demo_p - demobuffer + 1)) / (playerscount * 4);
+    demo_len_tics = (W_LumpLength(demolumpnum) - 
+      (demo_p - demobuffer + 1)) / (playerscount * (longtics ? 5 : 4));
     if (demo_len_tics <= 0)
       demo_len_tics = 4;
     sprintf(demo_len_st, "\x1b\x35/%d:%02d", demo_len_tics/35/60, (demo_len_tics%(60*35))/35);
