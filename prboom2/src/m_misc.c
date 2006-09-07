@@ -1448,12 +1448,13 @@ void M_DoScreenShot (const char* fname)
 #endif
 
     // save the bmp file
+    // e6y: processing of screen_multiply
 
   #ifdef HAVE_LIBPNG
-    WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, NULL);
+    WritePNGfile(fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, NULL);
   #else
     WriteTGAfile
-      (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT);
+      (fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
   #endif
   } else {
     screenshot.width = screens[0].width;
@@ -1469,12 +1470,13 @@ void M_DoScreenShot (const char* fname)
     pal = W_CacheLumpNum (pplump);
 
     // save the bmp file
+    // e6y: processing of screen_multiply
 
   #ifdef HAVE_LIBPNG
-    WritePNGfile(fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+    WritePNGfile(fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, pal + 3*256*st_palette);
   #else
     WriteBMPfile
-      (fp, screenshot.data, SCREENWIDTH, SCREENHEIGHT, pal + 3*256*st_palette);
+      (fp, screenshot.data, REAL_SCREENWIDTH, REAL_SCREENHEIGHT, pal + 3*256*st_palette);
   #endif
 
     // cph - free the palette
