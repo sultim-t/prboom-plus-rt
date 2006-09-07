@@ -48,7 +48,9 @@
 #define ST_Y      (200 - ST_HEIGHT)
 #define ST_SCALED_HEIGHT (ST_HEIGHT*SCREENHEIGHT/200)
 #define ST_SCALED_WIDTH  SCREENWIDTH
-#define ST_SCALED_Y      (SCREENHEIGHT - ST_SCALED_HEIGHT)
+// e6y: should be calculated as in V_CopyRect (desty=desty*SCREENHEIGHT/200;)
+// old code: #define ST_SCALED_Y      (SCREENHEIGHT - ST_SCALED_HEIGHT)
+#define ST_SCALED_Y      ST_Y*SCREENHEIGHT/200
 
 //
 // STATUS BAR
