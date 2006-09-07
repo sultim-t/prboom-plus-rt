@@ -572,12 +572,14 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     } else {
       SCREENPITCH = SCREENWIDTH;
     }
+  }
 
-    // e6y
-    REAL_SCREENWIDTH = SCREENWIDTH * screen_multiply;
-    REAL_SCREENHEIGHT = SCREENHEIGHT * screen_multiply;
-    REAL_SCREENPITCH = SCREENPITCH * screen_multiply;
-
+  // e6y: processing of screen_multiply
+  {
+    int factor = ((V_GetMode() == VID_MODEGL) ? 1 : screen_multiply);
+    REAL_SCREENWIDTH = SCREENWIDTH * factor;
+    REAL_SCREENHEIGHT = SCREENHEIGHT * factor;
+    REAL_SCREENPITCH = SCREENPITCH * factor;
   }
 }
 
