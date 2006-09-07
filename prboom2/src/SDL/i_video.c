@@ -392,7 +392,7 @@ void I_FinishUpdate (void)
   }
 #endif
 
-  if (SDL_MUSTLOCK(screen)) {
+  if ((screen_multiply > 1) || SDL_MUSTLOCK(screen)) {
       int h;
       byte *src;
       byte *dest;
@@ -421,12 +421,6 @@ void I_FinishUpdate (void)
       }
 
       SDL_UnlockSurface(screen);
-  }
-  else
-  {
-    // e6y: processing of screen_multiply
-    if (screen_multiply > 1)
-      R_ProcessScreenMultiply(screen->pixels, screen->pixels, screen->pitch, screen->pitch);
   }
 
   /* Update the display buffer (flipping video pages if supported)
@@ -719,7 +713,7 @@ void I_UpdateVideoMode(void)
   mouse_currently_grabbed = false;
 
   // Get the info needed to render to the display
-  if (!SDL_MUSTLOCK(screen))
+  if (screen_multiply==1 && !SDL_MUSTLOCK(screen))
   {
     screens[0].not_on_heap = true;
     screens[0].data = (unsigned char *) (screen->pixels);

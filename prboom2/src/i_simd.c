@@ -24,7 +24,6 @@ void I_InitSIMD(void)
   memcpy_fast = memcpy;
   memset_fast = memset;
 
-#ifdef SIMD_INSTRUCTIONS
   if (!M_CheckParm("-nosimd"))
   {
     if (SDL_Has3DNow() && !M_CheckParm("-no3dnow"))
@@ -42,7 +41,6 @@ void I_InitSIMD(void)
       }
     }
   }
-#endif
 }
 
 #ifdef _WIN32

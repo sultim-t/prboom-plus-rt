@@ -1473,6 +1473,60 @@ void W_FreeCachedLumps(void)
   free(lumpcache);
 }
 
+static void R_ProcessScreenMultiplyBlock2x(byte* pixels_src, byte* pixels_dest, 
+                                         int pitch_src, int pitch_dest,
+                                         int ytop, int ybottom)
+{
+  int x, y;
+  unsigned int *d1, *d2;
+  byte *s1, *s2;
+
+  for (y = ytop; y <= ybottom; y++) {
+    d1 = (unsigned int *)(pixels_dest + y * (pitch_dest<<1));
+    d2 = d1 + (pitch_dest>>2);
+    s1 = pixels_src + y * pitch_src;
+    s2 = s1 + 1;
+    x = SCREENWIDTH>>1;
+    while (x > 0) {
+      unsigned int data;
+      data = *s1 | (*s2 << 16);
+      data |= data << 8;
+      s1 += 2;
+      s2 += 2;
+      x--;
+      *d1++ = data;
+      *d2++ = data;
+    }
+  }
+}
+
+static void R_ProcessScreenMultiplyBlock2xI(byte* pixels_src, byte* pixels_dest, 
+                                         int pitch_src, int pitch_dest,
+                                         int ytop, int ybottom)
+{
+  int x, y;
+  unsigned int *d1, *d2;
+  byte *s1, *s2;
+
+  for (y = ytop; y <= ybottom; y++) {
+    d1 = (unsigned int *)(pixels_dest + y * (pitch_dest<<1));
+    d2 = d1 + (pitch_dest>>2);
+    s1 = pixels_src + y * pitch_src;
+    s2 = s1 + 1;
+    x = SCREENWIDTH>>1;
+    while (x > 0) {
+      unsigned int data;
+      data = *s1 | (*s2 << 16);
+      data |= data << 8;
+      s1 += 2;
+      s2 += 2;
+      x--;
+      *d1++ = data;
+      *d2++ = 0;
+    }
+  }
+}
+
 static void R_ProcessScreenMultiplyBlock(byte* pixels_src, byte* pixels_dest, 
                                          int pitch_src, int pitch_dest,
                                          int ytop, int ybottom)
@@ -1489,16 +1543,21 @@ static void R_ProcessScreenMultiplyBlock(byte* pixels_src, byte* pixels_dest,
       byte *p = p2;
       byte *data = p1;
 
-      for (x = 0; x < SCREENWIDTH ; x++, data++)
+      if (screen_multiply == 2)
       {
-        if (screen_multiply == 2)
+        for (x = 0; x < SCREENWIDTH ; x++, data++)
         {
           *((short*)p2)++ = ((short)(*data)<<8) + (short)(*data);
         }
-        else
+      }
+      else
+      {
+        for (x = 0; x < SCREENWIDTH ; x++, data++)
         {
-          memset(p2, *data, screen_multiply);
-          p2 += screen_multiply;
+          for (i = 0; i < screen_multiply; i++)
+            *p2++ = *data;
+          //memset(p2, *data, screen_multiply);
+          //p2 += screen_multiply;
         }
       }
 
@@ -1524,6 +1583,21 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src,
   if (screen_multiply > 1)
   {
     boolean same = (pixels_src == pixels_dest);
+
+    if (screen_multiply == 2)
+    {
+      if (render_interlaced_scanning)
+      {
+        R_ProcessScreenMultiplyBlock2xI(pixels_src, pixels_dest, pitch_src, pitch_dest, 0, SCREENHEIGHT-1);
+        return;
+      }
+      else
+      {
+        R_ProcessScreenMultiplyBlock2x(pixels_src, pixels_dest, pitch_src, pitch_dest, 0, SCREENHEIGHT-1);
+        return;
+      }
+    }
+
 
     R_ProcessScreenMultiplyBlock(
       pixels_src, pixels_dest, 

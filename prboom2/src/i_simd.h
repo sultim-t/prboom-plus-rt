@@ -24,4 +24,9 @@ void I_InitSIMD(void);
 
 #endif
 
+#ifndef SIMD_INSTRUCTIONS
+#define memcpy_fast memcpy
+#define memset_fast memset
+#endif
+
 #endif /* !__I_SIMD_H__ */
