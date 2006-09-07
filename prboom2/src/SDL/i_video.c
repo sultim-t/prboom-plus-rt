@@ -389,6 +389,7 @@ void I_FinishUpdate (void)
     return;
   }
 #endif
+
   if (SDL_MUSTLOCK(screen)) {
       int h;
       byte *src;
@@ -398,17 +399,34 @@ void I_FinishUpdate (void)
         lprintf(LO_INFO,"I_FinishUpdate: %s\n", SDL_GetError());
         return;
       }
-      dest=screen->pixels;
-      src=screens[0].data;
-      h=screen->h;
-      for (; h>0; h--)
+
+      // e6y: processing of screen_multiply
+      if (screen_multiply > 1)
       {
-        memcpy(dest,src,SCREENWIDTH);
-        dest+=screen->pitch;
-        src+=screens[0].pitch;
+        R_ProcessScreenMultiply(screens[0].data, screen->pixels, screens[0].pitch, screen->pitch);
       }
+      else
+      {
+        dest=screen->pixels;
+        src=screens[0].data;
+        h=screen->h;
+        for (; h>0; h--)
+        {
+          memcpy(dest,src,SCREENWIDTH);
+          dest+=screen->pitch;
+          src+=screens[0].pitch;
+        }
+      }
+
       SDL_UnlockSurface(screen);
   }
+  else
+  {
+    // e6y: processing of screen_multiply
+    if (screen_multiply > 1)
+      R_ProcessScreenMultiply(screen->pixels, screen->pixels, screen->pitch, screen->pitch);
+  }
+
   /* Update the display buffer (flipping video pages if supported)
    * If we need to change palette, that implicitely does a flip */
   if (newpal != NO_PALETTE_CHANGE) {
@@ -554,12 +572,19 @@ void I_CalculateRes(unsigned int width, unsigned int height)
     } else {
       SCREENPITCH = SCREENWIDTH;
     }
+
+    // e6y
+    REAL_SCREENWIDTH = SCREENWIDTH * screen_multiply;
+    REAL_SCREENHEIGHT = SCREENHEIGHT * screen_multiply;
+    REAL_SCREENPITCH = SCREENPITCH * screen_multiply;
+
   }
 }
 
 // CPhipps -
 // I_SetRes
 // Sets the screen resolution
+// e6y: processing of screen_multiply
 void I_SetRes(void)
 {
   int i;
@@ -568,17 +593,17 @@ void I_SetRes(void)
 
   // set first three to standard values
   for (i=0; i<3; i++) {
-    screens[i].width = SCREENWIDTH;
-    screens[i].height = SCREENHEIGHT;
-    screens[i].pitch = SCREENPITCH;
+    screens[i].width = REAL_SCREENWIDTH;
+    screens[i].height = REAL_SCREENHEIGHT;
+    screens[i].pitch = REAL_SCREENPITCH;
   }
 
   // statusbar
-  screens[4].width = SCREENWIDTH;
-  screens[4].height = (ST_SCALED_HEIGHT+1);
-  screens[4].pitch = SCREENPITCH;
+  screens[4].width = REAL_SCREENWIDTH;
+  screens[4].height = (ST_SCALED_HEIGHT+1) * screen_multiply;
+  screens[4].pitch = REAL_SCREENPITCH;
 
-  lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
+  lprintf(LO_INFO,"I_SetRes: Using resolution %dx%d\n", REAL_SCREENWIDTH, REAL_SCREENHEIGHT);
 }
 
 void I_InitGraphics(void)
@@ -589,6 +614,9 @@ void I_InitGraphics(void)
   if (firsttime)
   {
     firsttime = 0;
+
+    // e6y: initialisation of screen_multiply
+    screen_multiply = render_screen_multiply;
 
     atexit(I_ShutdownGraphics);
     lprintf(LO_INFO, "I_InitGraphics: %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
@@ -672,7 +700,8 @@ void I_UpdateVideoMode(void)
     e6y_MultisamplingSet();//e6y
     screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
   } else {
-    screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, 8, init_flags);
+    // e6y: processing of screen_multiply
+    screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 8, init_flags);
   }
 
   if(screen == NULL) {

@@ -3188,15 +3188,16 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Change Palette On Bonus"   ,S_YESNO,m_null,G_X,G_Y+ 3*8, {"palette_onbonus"}},
   {"Change Palette On Powers"  ,S_YESNO,m_null,G_X,G_Y+ 4*8, {"palette_onpowers"}},
   {"OpenGL Render"             ,S_SKIP|S_TITLE,m_null,G_X,G_Y+6*8},
-  {"Multisampling (0-None)"    ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR ,m_null,G_X,G_Y+7*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
+  {"Multisampling (0-None)"    ,S_NUM|S_PRGWARN|S_CANT_GL_ARB_MULTISAMPLEFACTOR,m_null,G_X,G_Y+7*8, {"render_multisampling"}, 0, 0, M_ChangeMultiSample},
   {"Detailed Walls"            ,S_YESNO,m_null,G_X,G_Y+ 8*8, {"render_detailedwalls"}, 0, 0, M_ChangeUseDetail},
   {"Detailed Flats"            ,S_YESNO,m_null,G_X,G_Y+ 9*8, {"render_detailedflats"}, 0, 0, M_ChangeUseDetail},
   {"Field Of View"             ,S_NUM  ,m_null,G_X,G_Y+11*8, {"render_fov"}, 0, 0, M_ChangeFOV},
   {"Smart Items Clipping"      ,S_YESNO,m_null,G_X,G_Y+12*8, {"render_smartitemsclipping"}},
   {"Paper Items"               ,S_YESNO,m_null,G_X,G_Y+13*8, {"render_paperitems"}},
   {"Soft Render"               ,S_SKIP|S_TITLE,m_null,G_X,G_Y+15*8},
-  {"Wipe Screen Effect"        ,S_YESNO ,m_null,G_X,G_Y+16*8, {"render_wipescreen"}},
-
+  {"Wipe Screen Effect"        ,S_YESNO,m_null,G_X,G_Y+16*8, {"render_wipescreen"}},
+  {"Screen Multiple Factor (1-None)" ,S_NUM|S_PRGWARN,m_null,G_X,G_Y+17*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
+  {"Interlaced Scanning"       ,S_YESNO,m_null,G_X,G_Y+18*8, {"render_interlaced_scanning"}},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
@@ -5830,6 +5831,7 @@ void M_Init(void)
   M_ChangeFOV();
   if (gametic) M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
+  M_ChangeScreenMultipleFactor();
 
   M_ChangeDemoSmoothTurns();
 }

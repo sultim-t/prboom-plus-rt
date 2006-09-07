@@ -62,6 +62,10 @@ typedef struct camera_s
   int type;
 } camera_t;
 
+extern int REAL_SCREENWIDTH;
+extern int REAL_SCREENHEIGHT;
+extern int REAL_SCREENPITCH;
+
 extern boolean wasWiped;
 
 extern int totalleveltimes;
@@ -114,6 +118,9 @@ extern int render_multisampling;
 extern int render_paperitems;
 extern int render_smartitemsclipping;
 extern int render_wipescreen;
+extern int render_screen_multiply;
+extern int screen_multiply;
+extern int render_interlaced_scanning;
 extern int mouse_acceleration;
 extern int demo_overwriteexisting;
 extern int overrun_spechit_warn;
@@ -197,6 +204,7 @@ void M_ChangeMouseInvert(void);
 void M_ChangeFOV(void);
 void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
+void M_ChangeScreenMultipleFactor(void);
 void M_MouseMLook(int choice);
 void M_MouseAccel(int choice);
 void M_ChangeCompTranslucency(void);
@@ -393,5 +401,7 @@ extern int levelstarttic;
 
 const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad);
 void W_FreeCachedLumps(void);
+
+void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest);
 
 #endif

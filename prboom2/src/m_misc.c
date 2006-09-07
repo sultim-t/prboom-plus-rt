@@ -753,6 +753,10 @@ default_t defaults[] =
 //#ifndef GL_DOOM
   {"render_wipescreen", {&render_wipescreen},  {1},0,1,
    def_bool,ss_stat},
+  {"render_screen_multiply", {&render_screen_multiply},  {1},1,4,
+   def_int,ss_stat},
+  {"render_interlaced_scanning", {&render_interlaced_scanning},  {0},0,1,
+   def_bool,ss_stat},
 //#endif
 
 //#ifdef GL_DOOM

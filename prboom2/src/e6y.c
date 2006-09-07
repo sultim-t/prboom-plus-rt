@@ -44,6 +44,10 @@
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
+int REAL_SCREENWIDTH;
+int REAL_SCREENHEIGHT;
+int REAL_SCREENPITCH;
+
 boolean wasWiped = false;
 
 int secretfound;
@@ -95,6 +99,9 @@ int render_multisampling;
 int render_paperitems;
 int render_smartitemsclipping;
 int render_wipescreen;
+int render_screen_multiply;
+int screen_multiply;
+int render_interlaced_scanning;
 int mouse_acceleration;
 int demo_overwriteexisting;
 int overrun_spechit_warn;
@@ -384,6 +391,19 @@ void M_ChangeMaxViewPitch(void)
 
   viewpitch = 0;
 //#endif
+}
+
+void M_ChangeScreenMultipleFactor(void)
+{
+  extern setup_menu_t gen_settings6[];
+  if(render_screen_multiply != 1)
+  {
+    gen_settings6[14].m_flags &= ~(S_SKIP|S_SELECT);
+  }
+  else
+  {
+    gen_settings6[14].m_flags |= (S_SKIP|S_SELECT);
+  }
 }
 
 boolean GetMouseLook(void)
@@ -951,8 +971,8 @@ void CenterMouse_Win32(long x, long y)
   //MousePrevY = (rect.top + rect.bottom) >> 1;
 //  MousePrevX = SCREENWIDTH/2;
 //  MousePrevY = SCREENHEIGHT/2;
-  MousePrevX = rect.left + SCREENWIDTH/2;
-  MousePrevY = rect.top + SCREENHEIGHT/2;
+  MousePrevX = rect.left + REAL_SCREENWIDTH/2;
+  MousePrevY = rect.top + REAL_SCREENHEIGHT/2;
 
   if (MousePrevX != x || MousePrevY != y)
   {
@@ -1021,7 +1041,7 @@ void UngrabMouse_Win32(void)
 void e6y_I_InitInputs(void)
 {
   // e6y: fix  for turn-snapping bug on fullscreen in software mode
-  SDL_WarpMouse((unsigned short)(SCREENWIDTH/2), (unsigned short)(SCREENHEIGHT/2));
+  SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
 }
@@ -1451,4 +1471,77 @@ void W_FreeCachedLumps(void)
       free(lumpcache[i]);
   }
   free(lumpcache);
+}
+
+static void R_ProcessScreenMultiplyBlock(byte* pixels_src, byte* pixels_dest, 
+                                         int pitch_src, int pitch_dest,
+                                         int ytop, int ybottom)
+{
+    int x, y;
+    int i;
+    byte *p1, *p2;
+    
+    p1 = pixels_src + pitch_src * ybottom;
+    p2 = pixels_dest + pitch_dest * (ybottom * screen_multiply);
+
+    for (y = ybottom; y >= ytop; y--)
+    {
+      byte *p = p2;
+      byte *data = p1;
+
+      for (x = 0; x < SCREENWIDTH ; x++, data++)
+      {
+        if (screen_multiply == 2)
+        {
+          *((short*)p2)++ = ((short)(*data)<<8) + (short)(*data);
+        }
+        else
+        {
+          memset(p2, *data, screen_multiply);
+          p2 += screen_multiply;
+        }
+      }
+
+      if (render_interlaced_scanning)
+      {
+        memset(p + pitch_dest, 0, pitch_dest * (screen_multiply - 1));
+      }
+      else
+      {
+        for (i = 1; i < screen_multiply; i++)
+        {
+          memcpy(p + i * pitch_dest, p, pitch_dest);
+        }
+      }
+
+      p1 -= pitch_src; 
+      p2 = p - pitch_dest * screen_multiply;
+    }
+}
+
+void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest)
+{
+  if (screen_multiply > 1)
+  {
+    boolean same = (pixels_src == pixels_dest);
+
+    R_ProcessScreenMultiplyBlock(
+      pixels_src, pixels_dest, 
+      pitch_src, pitch_dest,
+      (same ? 1 : 0), SCREENHEIGHT - 1);
+
+    if (same)
+    {
+      static byte *tmpbuf = NULL;
+      if (!tmpbuf)
+        tmpbuf = malloc(pitch_src);
+
+      memcpy(tmpbuf, pixels_src, pitch_src);
+
+      R_ProcessScreenMultiplyBlock(
+        tmpbuf, pixels_dest, 
+        pitch_src, pitch_dest,
+        0, 0);
+    }
+  }
 }
