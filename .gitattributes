@@ -247,4 +247,6 @@ prboom2/src/MAC/macsupport.rb -text
 prboom2/src/Makefile.am eol=lf
 prboom2/src/POSIX/Makefile.am eol=lf
 prboom2/src/SDL/Makefile.am eol=lf
+prboom2/src/i_simd.c -text
+prboom2/src/i_simd.h -text
 prboom2/tests/demo-testing.csv -text

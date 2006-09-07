@@ -73,6 +73,7 @@
 #include "doomdef.h"
 #include "lprintf.h"
 #ifndef PRBOOM_SERVER
+#include "d_player.h"
 #include "m_fixed.h"
 #include "r_fps.h"
 #endif
@@ -87,6 +88,23 @@
 #include "config.h"
 #endif
 
+void I_uSleep(unsigned long usecs)
+{
+    SDL_Delay(usecs/1000);
+}
+
+int ms_to_next_tick;
+
+int I_GetTime_RealTime (void)
+{
+  int t = SDL_GetTicks();
+  int i = t*(TICRATE/5)/200;
+  ms_to_next_tick = (i+1)*200/(TICRATE/5) - t;
+  if (ms_to_next_tick > 1000/TICRATE || ms_to_next_tick<1) ms_to_next_tick = 1;
+  return i;
+}
+
+#ifndef PRBOOM_SERVER
 static unsigned int start_displaytime;
 static unsigned int displaytime;
 static boolean InDisplay = false;
@@ -114,23 +132,6 @@ void I_EndDisplay(void)
   InDisplay = false;
 }
 
-void I_uSleep(unsigned long usecs)
-{
-    SDL_Delay(usecs/1000);
-}
-
-int ms_to_next_tick;
-
-int I_GetTime_RealTime (void)
-{
-  int t = SDL_GetTicks();
-  int i = t*(TICRATE/5)/200;
-  ms_to_next_tick = (i+1)*200/(TICRATE/5) - t;
-  if (ms_to_next_tick > 1000/TICRATE || ms_to_next_tick<1) ms_to_next_tick = 1;
-  return i;
-}
-
-#ifndef PRBOOM_SERVER
 fixed_t I_GetTimeFrac (void)
 {
   unsigned long now;

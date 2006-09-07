@@ -38,6 +38,8 @@
 #pragma interface
 #endif
 
+#include "m_fixed.h"
+
 extern int ms_to_next_tick;
 boolean I_StartDisplay(void);
 void I_EndDisplay(void);

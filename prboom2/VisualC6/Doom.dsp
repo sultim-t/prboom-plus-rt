@@ -491,7 +491,19 @@ SOURCE=..\src\i_main.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\SDL\i_network.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\i_network.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_simd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\i_simd.h
 # End Source File
 # Begin Source File
 
@@ -508,10 +520,6 @@ SOURCE=..\src\SDL\i_system.c
 # Begin Source File
 
 SOURCE=..\src\i_system.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\SDL\i_network.c
 # End Source File
 # Begin Source File
 

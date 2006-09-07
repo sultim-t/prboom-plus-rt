@@ -60,6 +60,8 @@
 #include "w_wad.h"
 #include "st_stuff.h"
 #include "lprintf.h"
+
+#include "i_simd.h"
 #include "e6y.h"//e6y
 
 int gl_colorbuffer_bits=16;
@@ -412,7 +414,7 @@ void I_FinishUpdate (void)
         h=screen->h;
         for (; h>0; h--)
         {
-          memcpy(dest,src,SCREENWIDTH);
+          memcpy_fast(dest,src,SCREENWIDTH); //e6y
           dest+=screen->pitch;
           src+=screens[0].pitch;
         }

@@ -36,7 +36,7 @@
 #include "m_misc.h"
 #include "i_system.h"
 #include "p_maputl.h"
-#include "p_mobj.h"
+#include "i_simd.h"
 #include "e6y.h"
 
 #define Pi 3.14159265358979323846f
@@ -1504,13 +1504,13 @@ static void R_ProcessScreenMultiplyBlock(byte* pixels_src, byte* pixels_dest,
 
       if (render_interlaced_scanning)
       {
-        memset(p + pitch_dest, 0, pitch_dest * (screen_multiply - 1));
+        memset_fast(p + pitch_dest, 0, pitch_dest * (screen_multiply - 1));
       }
       else
       {
         for (i = 1; i < screen_multiply; i++)
         {
-          memcpy(p + i * pitch_dest, p, pitch_dest);
+          memcpy_fast(p + i * pitch_dest, p, pitch_dest);
         }
       }
 
@@ -1536,7 +1536,7 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src,
       if (!tmpbuf)
         tmpbuf = malloc(pitch_src);
 
-      memcpy(tmpbuf, pixels_src, pitch_src);
+      memcpy_fast(tmpbuf, pixels_src, pitch_src);
 
       R_ProcessScreenMultiplyBlock(
         tmpbuf, pixels_dest, 
