@@ -495,13 +495,26 @@ void I_PreInitGraphics(void)
   // to prevent problems with certain laptops, 64-bit Windows, and Windows Vista.  
   // The DirectX driver is still available, and can be selected by setting 
   // the environment variable SDL_VIDEODRIVER to "directx".
-#ifdef _WIN32
-  if (V_GetMode() != VID_MODEGL)
   {
-    if ((int)GetVersion() < 0 ) // win9x
-      SDL_putenv("SDL_VIDEODRIVER=directx");
-  }
+    int p;
+    if ((p = M_CheckParm("-videodriver")) && (p < myargc - 1))
+    {
+      if (strcmp(myargv[p + 1], "default"))
+      {
+        char buf[80];
+        strcpy(buf, "SDL_VIDEODRIVER=");
+        strncat(buf, myargv[p + 1], sizeof(buf) - sizeof(buf[0]) - strlen(buf));
+        SDL_putenv(buf);
+      }
+    }
+    else
+    {
+#ifdef _WIN32
+      if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
+        SDL_putenv("SDL_VIDEODRIVER=directx");
 #endif
+    }
+  }
 
   if ( SDL_Init(flags) < 0 ) {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
