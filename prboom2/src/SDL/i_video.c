@@ -450,14 +450,16 @@ void I_FinishUpdate (void)
 void I_ReadScreen (screeninfo_t *dest)
 {
   int h;
-  byte *srcofs = screens[0].data;
+  // e6y: processing of screen_multiply
+  // screen->pixels instead of screens[0].data should be used
+  byte *srcofs = screen->pixels;
   byte *dstofs = dest->data;
   int width, height;
-  width = min(screens[0].width, dest->width);
-  height = min(screens[0].height, dest->height);
+  width = min(screen->w, dest->width);
+  height = min(screen->h, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
-    srcofs += screens[0].pitch;
+    srcofs += screen->pitch;
     dstofs += dest->pitch;
   }
 }
