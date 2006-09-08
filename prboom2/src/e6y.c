@@ -411,7 +411,7 @@ void M_ChangeScreenMultipleFactor(void)
 void M_ChangeInterlacedScanning(void)
 {
   if (render_interlaced_scanning)
-    interlaced_scanning_requires_clearing = true;
+    interlaced_scanning_requires_clearing = 1;
 }
 
 boolean GetMouseLook(void)
@@ -1618,7 +1618,10 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src,
     // there is no necessity to do it each tic
     if (interlaced_scanning_requires_clearing)
     {
-      interlaced_scanning_requires_clearing = false;
+      // needed for "directx" video driver with double buffering
+      // two pages should be cleared
+      interlaced_scanning_requires_clearing = (interlaced_scanning_requires_clearing + 1)%3;
+
       memset_fast(pixels_dest, 0, pitch_dest * screen_multiply * SCREENHEIGHT);
     }
 
