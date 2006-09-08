@@ -487,6 +487,20 @@ void I_PreInitGraphics(void)
 #ifdef _DEBUG
   flags |= SDL_INIT_NOPARACHUTE;
 #endif
+
+  // e6y: Forcing "directx" video driver for Win9x.
+  // The "windib" video driver is the default for SDL > 1.2.9, 
+  // to prevent problems with certain laptops, 64-bit Windows, and Windows Vista.  
+  // The DirectX driver is still available, and can be selected by setting 
+  // the environment variable SDL_VIDEODRIVER to "directx".
+#ifdef _WIN32
+  if (V_GetMode() != VID_MODEGL)
+  {
+    if ((int)GetVersion() < 0 ) // win9x
+      SDL_putenv("SDL_VIDEODRIVER=directx");
+  }
+#endif
+
   if ( SDL_Init(flags) < 0 ) {
     I_Error("Could not initialize SDL [%s]", SDL_GetError());
   }
@@ -691,19 +705,6 @@ void I_UpdateVideoMode(void)
   if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
   if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
   
-  // e6y: Forcing "directx" video driver for Win9x.
-  // The "windib" video driver is the default for SDL > 1.2.9, 
-  // to prevent problems with certain laptops, 64-bit Windows, and Windows Vista.  
-  // The DirectX driver is still available, and can be selected by setting 
-  // the environment variable SDL_VIDEODRIVER to "directx".
-#ifdef _WIN32
-  if (V_GetMode() != VID_MODEGL)
-  {
-    if ((int)GetVersion() < 0 ) // win9x
-      SDL_putenv("SDL_VIDEODRIVER=directx");
-  }
-#endif
-
   if (V_GetMode() == VID_MODEGL) {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );
