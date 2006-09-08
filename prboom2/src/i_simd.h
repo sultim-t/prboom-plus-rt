@@ -13,7 +13,7 @@
 */
 
 #ifdef _WIN32
-#ifdef SIMD_INSTRUCTIONS
+ #ifdef SIMD_INSTRUCTIONS
 
   typedef void *(*memcpy_fast_f)(void *, const void *, size_t);
   typedef void *(*memset_fast_f)(void *, int, size_t);
@@ -23,12 +23,18 @@
 
   void I_InitSIMD(void);
 
-#else // SIMD_INSTRUCTIONS
+ #else // SIMD_INSTRUCTIONS
 
   #define memcpy_fast memcpy
   #define memset_fast memset
 
-#endif // SIMD_INSTRUCTIONS
+ #endif // SIMD_INSTRUCTIONS
+
+#else
+
+  #define memcpy_fast memcpy
+  #define memset_fast memset
+
 #endif // _WIN32
 
 #endif // !__I_SIMD_H__
