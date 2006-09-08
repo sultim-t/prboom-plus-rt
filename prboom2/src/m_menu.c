@@ -3197,7 +3197,7 @@ setup_menu_t gen_settings6[] = { // General Settings screen4
   {"Soft Render"               ,S_SKIP|S_TITLE,m_null,G_X,G_Y+15*8},
   {"Wipe Screen Effect"        ,S_YESNO,m_null,G_X,G_Y+16*8, {"render_wipescreen"}},
   {"Screen Multiple Factor (1-None)" ,S_NUM|S_PRGWARN,m_null,G_X,G_Y+17*8, {"render_screen_multiply"}, 0, 0, M_ChangeScreenMultipleFactor},
-  {"Interlaced Scanning"       ,S_YESNO,m_null,G_X,G_Y+18*8, {"render_interlaced_scanning"}},
+  {"Interlaced Scanning"       ,S_YESNO,m_null,G_X,G_Y+18*8, {"render_interlaced_scanning"}, 0, 0, M_ChangeInterlacedScanning},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {gen_settings5}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings7}},
   {0,S_SKIP|S_END,m_null}
@@ -5832,6 +5832,7 @@ void M_Init(void)
   if (gametic) M_ChangeAltMouseHandling();
 //  M_ChangeUseDetail();
   M_ChangeScreenMultipleFactor();
+  M_ChangeInterlacedScanning();
 
   M_ChangeDemoSmoothTurns();
 }

@@ -102,6 +102,7 @@ int render_wipescreen;
 int render_screen_multiply;
 int screen_multiply;
 int render_interlaced_scanning;
+int interlaced_scanning_requires_clearing;
 int mouse_acceleration;
 int demo_overwriteexisting;
 int overrun_spechit_warn;
@@ -404,6 +405,12 @@ void M_ChangeScreenMultipleFactor(void)
   {
     gen_settings6[14].m_flags |= (S_SKIP|S_SELECT);
   }
+}
+
+void M_ChangeInterlacedScanning(void)
+{
+  if (render_interlaced_scanning)
+    interlaced_scanning_requires_clearing = true;
 }
 
 boolean GetMouseLook(void)
@@ -1475,147 +1482,166 @@ void W_FreeCachedLumps(void)
 
 static void R_ProcessScreenMultiplyBlock2x(byte* pixels_src, byte* pixels_dest, 
                                          int pitch_src, int pitch_dest,
-                                         int ytop, int ybottom)
+                                         int ytop, int ybottom,
+                                         int interlaced)
 {
   int x, y;
-  unsigned int *d1, *d2;
-  byte *s1, *s2;
 
-  for (y = ytop; y <= ybottom; y++) {
-    d1 = (unsigned int *)(pixels_dest + y * (pitch_dest<<1));
-    d2 = d1 + (pitch_dest>>2);
-    s1 = pixels_src + y * pitch_src;
-    s2 = s1 + 1;
-    x = SCREENWIDTH>>1;
-    while (x > 0) {
-      unsigned int data;
-      data = *s1 | (*s2 << 16);
-      data |= data << 8;
-      s1 += 2;
-      s2 += 2;
-      x--;
-      *d1++ = data;
-      *d2++ = data;
+  if (interlaced)
+  {
+    for (y = ytop; y <= ybottom; y++)
+    {
+      unsigned int *pdest = (unsigned int *)(pixels_dest + y * (pitch_dest * 2));
+      byte *psrc = pixels_src + y * pitch_src;
+      x = SCREENWIDTH / 2;
+      while (x > 0)
+      {
+        unsigned int data_dest = *psrc | (*(psrc + 1) << 16);
+        data_dest |= data_dest << 8;
+        psrc += 2;
+        x--;
+        *pdest++ = data_dest;
+      }
+    }
+  }
+  else
+  {
+    for (y = ytop; y <= ybottom; y++)
+    {
+      unsigned int *pdest = (unsigned int *)(pixels_dest + y * (pitch_dest * 2));
+      byte *pdest_saved = (byte*)pdest;
+      byte *psrc = pixels_src + y * pitch_src;
+      x = SCREENWIDTH / 2;
+      while (x > 0)
+      {
+        unsigned int data_dest = *psrc | (*(psrc + 1) << 16);
+        data_dest |= data_dest << 8;
+        psrc += 2;
+        x--;
+        *pdest++ = data_dest;
+      }
+      memcpy_fast(pdest_saved + pitch_dest, pdest_saved, pitch_dest);
     }
   }
 }
 
-static void R_ProcessScreenMultiplyBlock2xI(byte* pixels_src, byte* pixels_dest, 
+static void R_ProcessScreenMultiplyBlock4x(byte* pixels_src, byte* pixels_dest, 
                                          int pitch_src, int pitch_dest,
-                                         int ytop, int ybottom)
+                                         int ytop, int ybottom,
+                                         int interlaced)
 {
-  int x, y;
-  unsigned int *d1, *d2;
-  byte *s1, *s2;
+  int i, x, y;
 
-  for (y = ytop; y <= ybottom; y++) {
-    d1 = (unsigned int *)(pixels_dest + y * (pitch_dest<<1));
-    d2 = d1 + (pitch_dest>>2);
-    s1 = pixels_src + y * pitch_src;
-    s2 = s1 + 1;
-    x = SCREENWIDTH>>1;
-    while (x > 0) {
-      unsigned int data;
-      data = *s1 | (*s2 << 16);
-      data |= data << 8;
-      s1 += 2;
-      s2 += 2;
+  for (y = ytop; y <= ybottom; y++)
+  {
+    unsigned int *pdest = (unsigned int *)(pixels_dest + y * (pitch_dest * 4));
+    byte *pdest_saved = (byte*)pdest;
+    byte *psrc = pixels_src + y * pitch_src;
+    x = SCREENWIDTH;
+    while (x > 0)
+    {
+      unsigned int data_dest = *psrc | (*psrc << 16);
+      data_dest |= data_dest << 8;
+      psrc++;
       x--;
-      *d1++ = data;
-      *d2++ = 0;
+      *pdest++ = data_dest;
+    }
+    if (!interlaced)
+    {
+      for (i = 1; i < screen_multiply; i++)
+        memcpy_fast(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);
     }
   }
 }
 
 static void R_ProcessScreenMultiplyBlock(byte* pixels_src, byte* pixels_dest, 
                                          int pitch_src, int pitch_dest,
-                                         int ytop, int ybottom)
+                                         int ytop, int ybottom,
+                                         int interlaced)
 {
-    int x, y;
-    int i;
-    byte *p1, *p2;
-    
-    p1 = pixels_src + pitch_src * ybottom;
-    p2 = pixels_dest + pitch_dest * (ybottom * screen_multiply);
+  int x, y, i;
+  byte *psrc = pixels_src + pitch_src * ybottom;
+  byte *pdest = pixels_dest + pitch_dest * (ybottom * screen_multiply);
+  byte *pdest_saved = pdest;
+  byte *data_src;
 
+  if (screen_multiply == 2)
+  {
     for (y = ybottom; y >= ytop; y--)
     {
-      byte *p = p2;
-      byte *data = p1;
-
-      if (screen_multiply == 2)
+      data_src = psrc;
+      psrc -= pitch_src; 
+      for (x = 0; x < SCREENWIDTH / 2 ; x++, data_src += 2)
       {
-        for (x = 0; x < SCREENWIDTH ; x++, data++)
-        {
-          *((short*)p2)++ = ((short)(*data)<<8) + (short)(*data);
-        }
+        unsigned int data_dest = *data_src | ((*(data_src + 1)) << 16);
+        data_dest |= data_dest << 8;
+        *((unsigned int*)pdest)++ = data_dest;
       }
-      else
+      if (!interlaced)
+        memcpy_fast(pdest_saved + pitch_dest, pdest_saved, pitch_dest);
+      pdest_saved = pdest = pdest_saved - pitch_dest * 2;
+    }
+  }
+  else
+  {
+    for (y = ybottom; y >= ytop; y--)
+    {
+      data_src = psrc;
+      psrc -= pitch_src; 
+      for (x = 0; x < SCREENWIDTH ; x++, data_src++)
       {
-        for (x = 0; x < SCREENWIDTH ; x++, data++)
-        {
-          for (i = 0; i < screen_multiply; i++)
-            *p2++ = *data;
-          //memset(p2, *data, screen_multiply);
-          //p2 += screen_multiply;
-        }
+        for (i = 0; i < screen_multiply; i++)
+          *pdest++ = *data_src;
       }
-
-      if (render_interlaced_scanning)
-      {
-        memset_fast(p + pitch_dest, 0, pitch_dest * (screen_multiply - 1));
-      }
-      else
+      if (!render_interlaced_scanning)
       {
         for (i = 1; i < screen_multiply; i++)
-        {
-          memcpy_fast(p + i * pitch_dest, p, pitch_dest);
-        }
+          memcpy_fast(pdest_saved + i * pitch_dest, pdest_saved, pitch_dest);
       }
-
-      p1 -= pitch_src; 
-      p2 = p - pitch_dest * screen_multiply;
+      pdest_saved = pdest = pdest_saved - pitch_dest * screen_multiply;
     }
+  }
 }
 
 void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest)
 {
   if (screen_multiply > 1)
   {
-    boolean same = (pixels_src == pixels_dest);
-
-    if (screen_multiply == 2)
+    // there is no necessity to do it each tic
+    if (interlaced_scanning_requires_clearing)
     {
-      if (render_interlaced_scanning)
-      {
-        R_ProcessScreenMultiplyBlock2xI(pixels_src, pixels_dest, pitch_src, pitch_dest, 0, SCREENHEIGHT-1);
-        return;
-      }
-      else
-      {
-        R_ProcessScreenMultiplyBlock2x(pixels_src, pixels_dest, pitch_src, pitch_dest, 0, SCREENHEIGHT-1);
-        return;
-      }
+      interlaced_scanning_requires_clearing = false;
+      memset_fast(pixels_dest, 0, pitch_dest * screen_multiply * SCREENHEIGHT);
     }
 
-
-    R_ProcessScreenMultiplyBlock(
-      pixels_src, pixels_dest, 
-      pitch_src, pitch_dest,
-      (same ? 1 : 0), SCREENHEIGHT - 1);
-
-    if (same)
+    switch (screen_multiply)
     {
-      static byte *tmpbuf = NULL;
-      if (!tmpbuf)
-        tmpbuf = malloc(pitch_src);
-
-      memcpy_fast(tmpbuf, pixels_src, pitch_src);
-
-      R_ProcessScreenMultiplyBlock(
-        tmpbuf, pixels_dest, 
-        pitch_src, pitch_dest,
-        0, 0);
+    case 2:
+      R_ProcessScreenMultiplyBlock2x(pixels_src, pixels_dest, 
+        pitch_src, pitch_dest, 0, SCREENHEIGHT - 1, render_interlaced_scanning);
+      break;
+    case 4:
+      R_ProcessScreenMultiplyBlock4x(pixels_src, pixels_dest, 
+        pitch_src, pitch_dest, 0, SCREENHEIGHT - 1, render_interlaced_scanning);
+      break;
+    default:
+      {
+        // e6y: The following code works correctly even if pixels_src == pixels_dest
+        boolean same = (pixels_src == pixels_dest);
+        R_ProcessScreenMultiplyBlock(pixels_src, pixels_dest, 
+          pitch_src, pitch_dest, (same ? 1 : 0), SCREENHEIGHT - 1, render_interlaced_scanning);
+        if (same)
+        {
+          // never happens after SDL_LockSurface()
+          static byte *tmpbuf = NULL;
+          if (!tmpbuf)
+            tmpbuf = malloc(pitch_src);
+          memcpy_fast(tmpbuf, pixels_src, pitch_src);
+          R_ProcessScreenMultiplyBlock(tmpbuf, pixels_dest, 
+            pitch_src, pitch_dest, 0, 0, render_interlaced_scanning);
+        }
+        break;
+      }
     }
   }
 }

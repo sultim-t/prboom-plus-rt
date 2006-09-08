@@ -8,16 +8,23 @@
 //===============================================================
 
 #ifdef _WIN32
+#ifdef SIMD_INSTRUCTIONS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#endif /* _WIN32 */
+
+#include <stdio.h>
 
 #include "doomtype.h"
+#include "m_argv.h"
 #include "SDL_cpuinfo.h"
 #include "i_simd.h"
 
 memcpy_fast_f memcpy_fast;
 memset_fast_f memset_fast;
+
+static void* memcpy_MMX( void *dst, const void *src, size_t count );
+static void* memset_MMX( void *dst, int val, size_t count );
+static void* memcpy_3DNow( void *dst, const void *src, size_t count );
 
 void I_InitSIMD(void)
 {
@@ -43,7 +50,6 @@ void I_InitSIMD(void)
   }
 }
 
-#ifdef _WIN32
 #define EMMS_INSTRUCTION __asm emms
 #if _MSC_VER > 1300
 #define PREFETCH(a) prefetchnta a
@@ -599,4 +605,5 @@ loop2:
 
 	return dest0;
 }
-#endif /* _WIN32 */
+#endif // SIMD_INSTRUCTIONS
+#endif // _WIN32

@@ -205,6 +205,7 @@ void M_ChangeFOV(void);
 void M_ChangeUseDetail(void);
 void M_ChangeMultiSample(void);
 void M_ChangeScreenMultipleFactor(void);
+void M_ChangeInterlacedScanning(void);
 void M_MouseMLook(int choice);
 void M_MouseAccel(int choice);
 void M_ChangeCompTranslucency(void);
