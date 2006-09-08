@@ -220,10 +220,14 @@ static void I_GetEvent(SDL_Event *Event)
   case SDL_ACTIVEEVENT:
     if (movement_altmousesupport)
     {
-      if (Event->active.gain)
+      if (Event->active.gain && Event->active.state & SDL_APPINPUTFOCUS)
+      {
         GrabMouse_Win32();
+      }
       else
+      {
         UngrabMouse_Win32();
+      }
     }
     break;
 

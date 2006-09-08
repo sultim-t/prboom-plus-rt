@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "SDL.h"
 #ifdef _WIN32
@@ -1034,6 +1035,12 @@ void GrabMouse_Win32(void)
   ClipCursor (&rect);
   CenterMouse_Win32(-1, -1);
   MakeMouseEvents = true;
+
+  {
+    SDL_Event Event;
+    while ( SDL_PollEvent(&Event) )
+      ;
+  }
 #endif
 }
 
@@ -1051,6 +1058,7 @@ void e6y_I_InitInputs(void)
   SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
+  atexit(UngrabMouse_Win32);
 }
 
 int AccelerateMouse(int val)
