@@ -697,8 +697,11 @@ void I_UpdateVideoMode(void)
   // The DirectX driver is still available, and can be selected by setting 
   // the environment variable SDL_VIDEODRIVER to "directx".
 #ifdef _WIN32
-  if ((int)GetVersion() < 0 ) // win9x
-    SDL_putenv("SDL_VIDEODRIVER=directx");
+  if (V_GetMode() != VID_MODEGL)
+  {
+    if ((int)GetVersion() < 0 ) // win9x
+      SDL_putenv("SDL_VIDEODRIVER=directx");
+  }
 #endif
 
   if (V_GetMode() == VID_MODEGL) {
