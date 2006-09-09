@@ -331,17 +331,24 @@ void M_ChangeAltMouseHandling(void)
 #ifndef _WIN32
   movement_altmousesupport = false;
 #else
-  if (movement_altmousesupport)
+  if ((int)GetVersion() < 0 ) // win9x
   {
-    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-    SDL_WM_GrabInput(SDL_GRAB_OFF);
-    GrabMouse_Win32();
+    movement_altmousesupport = false;
   }
   else
   {
-    SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-    SDL_WM_GrabInput(SDL_GRAB_ON);
-    UngrabMouse_Win32();
+    if (movement_altmousesupport)
+    {
+      SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+      SDL_WM_GrabInput(SDL_GRAB_OFF);
+      GrabMouse_Win32();
+    }
+    else
+    {
+      SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+      SDL_WM_GrabInput(SDL_GRAB_ON);
+      UngrabMouse_Win32();
+    }
   }
 #endif
 }
