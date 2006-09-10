@@ -497,23 +497,29 @@ void I_PreInitGraphics(void)
   // the environment variable SDL_VIDEODRIVER to "directx".
   {
     int p;
+    char *video_driver;
     if ((p = M_CheckParm("-videodriver")) && (p < myargc - 1))
+      video_driver = strdup(myargv[p + 1]);
+    else
+      video_driver = strdup(sdl_videodriver);
+
+    if (strcasecmp(video_driver, "default"))
     {
-      if (strcmp(myargv[p + 1], "default"))
-      {
-        char buf[80];
-        strcpy(buf, "SDL_VIDEODRIVER=");
-        strncat(buf, myargv[p + 1], sizeof(buf) - sizeof(buf[0]) - strlen(buf));
-        SDL_putenv(buf);
-      }
+      // videodriver != default
+      char buf[80];
+      strcpy(buf, "SDL_VIDEODRIVER=");
+      strncat(buf, video_driver, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
+      SDL_putenv(buf);
     }
     else
     {
+      // videodriver == default
 #ifdef _WIN32
       if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
         SDL_putenv("SDL_VIDEODRIVER=directx");
 #endif
     }
+    free(video_driver);
   }
 
   if ( SDL_Init(flags) < 0 ) {

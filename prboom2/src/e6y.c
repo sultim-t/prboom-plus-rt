@@ -128,6 +128,7 @@ float render_aspect_ratio;
 int test_dots;
 unsigned int spechit_magic;
 
+char *sdl_videodriver;
 int palette_ondamage;
 int palette_onbonus;
 int palette_onpowers;

@@ -386,6 +386,12 @@ int main(int argc, char **argv)
   myargc = argc;
   myargv = argv;
 
+  //e6y: was moved from D_DoomMainSetup
+  // init subsystems
+  //jff 9/3/98 use logical output routine
+  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
+  M_LoadDefaults();              // load before initing other systems
+
 #ifdef _WIN32
   if (!M_CheckParm("-nodraw")) {
     /* initialize the console window */

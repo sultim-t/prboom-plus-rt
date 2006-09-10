@@ -778,12 +778,6 @@ static void IdentifyVersion (void)
   struct stat sbuf; //jff 3/24/98 used to test save path for existence
   char *iwad;
 
-  //e6y: was moved from D_DoomMainSetup
-  // init subsystems
-  //jff 9/3/98 use logical output routine
-  lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
-  M_LoadDefaults();              // load before initing other systems
-
   // set save path to -save parm or current dir
 
   //jff 3/27/98 default to current dir
@@ -1180,8 +1174,11 @@ static void D_DoomMainSetup(void)
     } while (rsp_found==true);
   }
 
+  // e6y: moved to main()
+  /*
   lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
   M_LoadDefaults();              // load before initing other systems
+  */
 
   // figgi 09/18/00-- added switch to force classic bsp nodes
   if (M_CheckParm ("-forceoldbsp"))

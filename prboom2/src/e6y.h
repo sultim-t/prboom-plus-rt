@@ -153,6 +153,7 @@ extern int test_dots;
 
 extern unsigned int spechit_magic;
 
+extern char *sdl_videodriver;
 extern int palette_ondamage;
 extern int palette_onbonus;
 extern int palette_onpowers;
