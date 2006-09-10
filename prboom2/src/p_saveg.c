@@ -337,9 +337,11 @@ void P_ArchiveThinkers (void)
 	 * last 2 words of mobj_t, write 5 words of 0 and then write lastenemy
 	 * into the second of these.
 	 */
-/*e6y        memcpy (mobj, th, sizeof(*mobj) - 2*sizeof(void*));
+        /*e6y   
+        memcpy (mobj, th, sizeof(*mobj) - 2*sizeof(void*));
         save_p += sizeof(*mobj) - 2*sizeof(void*) - 4*sizeof(fixed_t);
-        memset (save_p, 0, 5*sizeof(void*));*/
+        memset (save_p, 0, 5*sizeof(void*));
+        */
 
         //e6y
         memcpy (mobj, th, sizeof(*mobj));
@@ -367,9 +369,17 @@ void P_ArchiveThinkers (void)
         // monsters from going to sleep after killing monsters and not
         // seeing player anymore.
 
+        //e6y
+        /*
         if (((mobj_t*)th)->lastenemy && ((mobj_t*)th)->lastenemy->thinker.function == P_MobjThinker) {
           memcpy (save_p + sizeof(void*), &(((mobj_t*)th)->lastenemy->thinker.prev), sizeof(void*));
-	}
+	     }
+       */
+        if (mobj->lastenemy)
+          mobj->lastenemy = mobj->lastenemy->thinker.function ==
+            P_MobjThinker ?
+            (mobj_t *) mobj->lastenemy->thinker.prev : NULL;
+
 
         // killough 2/14/98: end changes
 
@@ -422,7 +432,8 @@ static void P_SetNewTarget(mobj_t **mop, mobj_t *targ)
 static int P_GetMobj(mobj_t* mi, size_t s)
 {
   size_t i = (size_t)mi;
-  if (i >= s) I_Error("Corrupt savegame");
+  if (i >= s)
+    I_Error("Corrupt savegame");
   return i;
 }
 
