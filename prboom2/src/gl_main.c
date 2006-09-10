@@ -2207,13 +2207,12 @@ void gld_AddWall(seg_t *seg)
       // e6y
       // The fix for wrong middle texture drawing
       // if it exceeds the boundaries of its floor and ceiling
-      /*
-      CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
+      
+      /*CALC_Y_VALUES(wall, lineheight, floor_height, ceiling_height);
       CALC_TEX_VALUES_MIDDLE2S(
         wall, seg, (LINE->flags & ML_DONTPEGBOTTOM)>0,
         segs[seg->iSegID].length, lineheight
-      );
-      */
+      );*/
       {
         int floormax, ceilingmin, linelen;
         float mip;
@@ -2234,7 +2233,11 @@ void gld_AddWall(seg_t *seg)
         wall.ul=OU((wall),(seg))+(0.0f);
         wall.ur=OU(wall,(seg))+((segs[seg->iSegID].length)/(float)wall.gltexture->buffer_width);
         if (floormax<=floor_height)
+#ifdef USE_GLU_IMAGESCALE
           wall.vb=1.0f;
+#else  // USE_GLU_IMAGESCALE
+          wall.vb=mip*1.0f;
+#endif // USE_GLU_IMAGESCALE
         else
           wall.vb=mip*((float)(ceiling_height - floormax))/linelen;
         if (ceilingmin>=ceiling_height)
