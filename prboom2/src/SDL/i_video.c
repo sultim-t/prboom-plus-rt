@@ -510,14 +510,14 @@ void I_PreInitGraphics(void)
       char buf[80];
       strcpy(buf, "SDL_VIDEODRIVER=");
       strncat(buf, video_driver, sizeof(buf) - sizeof(buf[0]) - strlen(buf));
-      SDL_putenv(buf);
+      putenv(buf);
     }
     else
     {
       // videodriver == default
 #ifdef _WIN32
       if ((int)GetVersion() < 0 && V_GetMode() != VID_MODEGL ) // win9x
-        SDL_putenv("SDL_VIDEODRIVER=directx");
+        putenv("SDL_VIDEODRIVER=directx");
 #endif
     }
     free(video_driver);
