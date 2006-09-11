@@ -79,6 +79,7 @@ int use_doublebuffer = 0;
 int use_doublebuffer = 1; // Included not to break m_misc, but not relevant to SDL
 #endif
 int use_fullscreen;
+int desired_fullscreen;
 static SDL_Surface *screen;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -197,7 +198,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   case SDL_MOUSEBUTTONDOWN:
   case SDL_MOUSEBUTTONUP:
-  if (movement_altmousesupport || mouse_currently_grabbed)//e6y
+  if (mousemode == win32_mousemode || mouse_currently_grabbed)//e6y
   {
     event.type = ev_mouse;
     event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
@@ -218,7 +219,7 @@ static void I_GetEvent(SDL_Event *Event)
 
   //e6y
   case SDL_ACTIVEEVENT:
-    if (movement_altmousesupport)
+    if (mousemode == win32_mousemode)
     {
       if (Event->active.gain && Event->active.state & SDL_APPINPUTFOCUS)
       {
@@ -248,7 +249,7 @@ static void I_GetEvent(SDL_Event *Event)
 void I_StartTic (void)
 {
   SDL_Event Event;
-  if (!movement_altmousesupport)
+  if (mousemode == sdl_mousemode)
   {
     int should_be_grabbed = grabMouse &&
       !(paused || (gamestate != GS_LEVEL) || demoplayback);
@@ -597,7 +598,7 @@ void I_CalculateRes(unsigned int width, unsigned int height)
 // For example glboom.exe -geom 1025x768 -nowindow will set 1024x768.
 // It affects only fullscreen modes.
   if (V_GetMode() == VID_MODEGL) {
-    if ( use_fullscreen && !M_CheckParm("-window") )
+    if ( desired_fullscreen )
     {
       I_ClosestResolution(&width, &height, SDL_OPENGL|SDL_FULLSCREEN);
     }
@@ -683,7 +684,7 @@ void I_UpdateVideoMode(void)
   int i;
   video_mode_t mode;
 
-  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, use_fullscreen ? "fullscreen" : "nofullscreen");
+  lprintf(LO_INFO, "I_UpdateVideoMode: %dx%d (%s)\n", SCREENWIDTH, SCREENHEIGHT, desired_fullscreen ? "fullscreen" : "nofullscreen");
 
   mode = default_videomode;
   if ((i=M_CheckParm("-vidmode")) && i<myargc-1) {
@@ -716,16 +717,9 @@ void I_UpdateVideoMode(void)
 #endif
   }
 
-  if ( use_fullscreen )
+  if ( desired_fullscreen )
     init_flags |= SDL_FULLSCREEN;
 
-  // e6y
-  // New command-line options for setting a window (-window) 
-  // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.
-  // It works like "-geom" switch
-  if (M_CheckParm("-window")) init_flags &= ~SDL_FULLSCREEN;
-  if (M_CheckParm("-nowindow")) init_flags |= SDL_FULLSCREEN;
-  
   if (V_GetMode() == VID_MODEGL) {
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 0 );

@@ -37,6 +37,7 @@
 #include "m_misc.h"
 #include "i_system.h"
 #include "p_maputl.h"
+#include "i_video.h"
 #include "i_simd.h"
 #include "e6y.h"
 
@@ -44,6 +45,8 @@
 
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
+
+mousemode_t mousemode;
 
 int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;
@@ -331,10 +334,12 @@ void M_ChangeAltMouseHandling(void)
 {
 #ifndef _WIN32
   movement_altmousesupport = false;
+  mousemode = sdl_mousemode;
 #else
-  if ((int)GetVersion() < 0 ) // win9x
+  if ((int)GetVersion() < 0 && desired_fullscreen) // win9x
   {
-    movement_altmousesupport = false;
+    //movement_altmousesupport = false;
+    mousemode = sdl_mousemode;
   }
   else
   {
@@ -343,12 +348,14 @@ void M_ChangeAltMouseHandling(void)
       SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
       SDL_WM_GrabInput(SDL_GRAB_OFF);
       GrabMouse_Win32();
+      mousemode = win32_mousemode;
     }
     else
     {
       SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
       SDL_WM_GrabInput(SDL_GRAB_ON);
       UngrabMouse_Win32();
+      mousemode = sdl_mousemode;
     }
   }
 #endif
@@ -663,7 +670,6 @@ void e6y_MultisamplingSet(void)
 #ifdef GL_DOOM
   if (render_multisampling)
   {
-    extern int use_fullscreen;
     extern int gl_colorbuffer_bits;
     extern int gl_depthbuffer_bits;
     
@@ -1003,7 +1009,7 @@ void e6y_I_GetEvent(void)
   extern int usemouse;
   int I_SDLtoDoomMouseState(Uint8 buttonstate);
 
-  if (movement_altmousesupport && usemouse && MakeMouseEvents)
+  if (mousemode == win32_mousemode && usemouse && MakeMouseEvents)
   {
     POINT pos;
     int x, y;

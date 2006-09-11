@@ -237,7 +237,7 @@ void I_UpdateConsole(void)
   while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
   {
     TranslateMessage(&msg);
-    if (!movement_altmousesupport||msg.message != WM_MOUSEMOVE)//e6y
+    if (mousemode == sdl_mousemode || msg.message != WM_MOUSEMOVE)//e6y
     DispatchMessage(&msg);
   }
   if (should_exit)

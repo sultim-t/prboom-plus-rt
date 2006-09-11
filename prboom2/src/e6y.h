@@ -62,6 +62,9 @@ typedef struct camera_s
   int type;
 } camera_t;
 
+typedef enum { win32_mousemode, sdl_mousemode } mousemode_t;
+extern mousemode_t mousemode;
+
 extern int REAL_SCREENWIDTH;
 extern int REAL_SCREENHEIGHT;
 extern int REAL_SCREENPITCH;
