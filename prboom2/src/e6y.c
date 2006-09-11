@@ -334,7 +334,7 @@ void G_SkipDemoStop(void)
 void M_ChangeAltMouseHandling(void)
 {
 #ifndef _WIN32
-  movement_altmousesupport = false;
+  mouse_handler = sdl_mousemode;
   mousemode = sdl_mousemode;
 #else
   if ((int)GetVersion() < 0 && desired_fullscreen) // win9x
