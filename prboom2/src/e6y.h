@@ -62,8 +62,9 @@ typedef struct camera_s
   int type;
 } camera_t;
 
-typedef enum { win32_mousemode, sdl_mousemode } mousemode_t;
+typedef enum { sdl_mousemode, win32_mousemode } mousemode_t;
 extern mousemode_t mousemode;
+extern const char *mousemodes[];
 
 extern int REAL_SCREENWIDTH;
 extern int REAL_SCREENHEIGHT;
@@ -108,10 +109,10 @@ extern int hudadd_smarttotals;
 extern int hudadd_demoprogressbar;
 extern int movement_strafe50;
 extern int movement_strafe50onturns;
-extern int movement_altmousesupport;
 extern int movement_mouselook;
 extern int movement_mouseinvert;
 extern int movement_maxviewpitch;
+extern int mouse_handler;
 extern int mouse_doubleclick_as_use;
 extern int render_fov;
 extern int render_usedetail;

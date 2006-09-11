@@ -726,6 +726,11 @@ default_t defaults[] =
    def_int,ss_none},
   {"mouse_doubleclick_as_use", {&mouse_doubleclick_as_use},  {1},0,1,
    def_bool,ss_stat},
+#ifdef _WIN32
+  {"mouse_handler",{(int*)&mouse_handler},{sdl_mousemode}, sdl_mousemode, win32_mousemode, def_int,ss_none},
+#else
+  {"mouse_handler",{(int*)&mouse_handler},{sdl_mousemode}, sdl_mousemode, sdl_mousemode, def_int,ss_none},
+#endif
 
   {"Prboom-plus demos settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"demo_overwriteexisting", {&demo_overwriteexisting},  {0},0,1,
@@ -736,8 +741,6 @@ default_t defaults[] =
    def_int,ss_stat},
 
   {"Prboom-plus game settings",{NULL},{0},UL,UL,def_none,ss_none},
-  {"movement_altmousesupport", {&movement_altmousesupport},  {0},0,1,
-   def_bool,ss_stat},
   {"movement_strafe50", {&movement_strafe50},  {0},0,1,
    def_bool,ss_stat},
   {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,

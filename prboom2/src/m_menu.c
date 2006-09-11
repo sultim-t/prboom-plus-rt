@@ -3169,7 +3169,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
 
 setup_menu_t gen_settings5[] = { // General Settings screen3
   {"Mouse",                       S_SKIP|S_TITLE,m_null,G_X, G_Y+1*8},
-  {"Alt Mouse Handling",          S_YESNO, m_null,G_X,G_Y+2*8, {"movement_altmousesupport"}, 0, 0, M_ChangeAltMouseHandling},
+  {"Mouse Handling",              S_CHOICE, m_null,G_X,G_Y+2*8, {"mouse_handler"}, 0, 0, M_ChangeAltMouseHandling, mousemodes},
   {"Dbl-Click As Use",            S_YESNO, m_null,G_X,G_Y+3*8, {"mouse_doubleclick_as_use"}},
   {"Mouse / OpenGL",              S_SKIP|S_TITLE,m_null,G_X,G_Y+5*8},
 //#ifdef GL_DOOM

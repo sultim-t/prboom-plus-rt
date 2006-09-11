@@ -47,6 +47,7 @@
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
 mousemode_t mousemode;
+const char *mousemodes[] = {"sdl","Win32"};
 
 int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;
@@ -89,10 +90,10 @@ int hudadd_smarttotals;
 int hudadd_demoprogressbar;
 int movement_strafe50;
 int movement_strafe50onturns;
-int movement_altmousesupport;
 int movement_mouselook;
 int movement_mouseinvert;
 int movement_maxviewpitch;
+int mouse_handler;
 int mouse_doubleclick_as_use;
 int render_fov;
 static int render_canusedetail;
@@ -343,7 +344,7 @@ void M_ChangeAltMouseHandling(void)
   }
   else
   {
-    if (movement_altmousesupport)
+    if (mouse_handler != sdl_mousemode)
     {
       SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
       SDL_WM_GrabInput(SDL_GRAB_OFF);
