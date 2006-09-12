@@ -990,10 +990,6 @@ void CenterMouse_Win32(long x, long y)
 	
   GetWindowRect (hwnd, &rect);
 
-  //MousePrevX = (rect.left + rect.right) >> 1;
-  //MousePrevY = (rect.top + rect.bottom) >> 1;
-//  MousePrevX = SCREENWIDTH/2;
-//  MousePrevY = SCREENHEIGHT/2;
   MousePrevX = rect.left + REAL_SCREENWIDTH/2;
   MousePrevY = rect.top + REAL_SCREENHEIGHT/2;
 
@@ -1069,8 +1065,6 @@ void UngrabMouse_Win32(void)
 
 void e6y_I_InitInputs(void)
 {
-  // e6y: fix  for turn-snapping bug on fullscreen in software mode
-  SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
   atexit(UngrabMouse_Win32);
