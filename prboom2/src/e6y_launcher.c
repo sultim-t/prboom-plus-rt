@@ -218,7 +218,7 @@ boolean LauncherSelect(wadfile_info_t *wadfiles, size_t numwadfiles)
 void LauncherAddIWAD(const char *iwad)
 {
   extern boolean haswolflevels;
-  int i;
+  int i, j;
   char *realiwad;
 
   realiwad = I_FindFile(iwad, ".wad");
@@ -251,16 +251,23 @@ void LauncherAddIWAD(const char *iwad)
     if (gamemode == indetermined)
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");
 
-    for(i=0;(size_t)i<numwadfiles;i++)
+    // delete all IWADs with corresponding GWA from wadfiles array
+    i=0;
+    while((size_t)i<numwadfiles && (int)numwadfiles > 0)
     {
       if (wadfiles[i].src == source_iwad)
       {
         free((char*)wadfiles[i].name);
-        wadfiles[i].name = strdup(realiwad);
-        break;
+        for(j=i+1;(size_t)j<numwadfiles;j++)
+          wadfiles[j-1] = wadfiles[j];
+        numwadfiles--;
       }
+      else
+        i++;
     }
-    //D_AddFile(realiwad,source_iwad);
+
+    // add new IWAD by standart way
+    D_AddFile(realiwad,source_iwad);
     
     free(realiwad);
   }
