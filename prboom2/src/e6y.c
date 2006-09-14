@@ -181,6 +181,7 @@ static boolean saved_nomusicparm;
 #ifdef _WIN32
 static HWND GetHWND(void);
 void SwitchToWindow(HWND hwnd);
+static void I_CenterMouse(long x, long y);
 #endif
 //--------------------------------------------------
 
@@ -348,14 +349,14 @@ void M_ChangeAltMouseHandling(void)
     {
       SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
       SDL_WM_GrabInput(SDL_GRAB_OFF);
-      GrabMouse_Win32();
+      I_StartWin32Mouse();
       mousemode = win32_mousemode;
     }
     else
     {
       SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
       SDL_WM_GrabInput(SDL_GRAB_ON);
-      UngrabMouse_Win32();
+      I_EndWin32Mouse();
       mousemode = sdl_mousemode;
     }
   }
@@ -982,7 +983,7 @@ HWND GetHWND(void)
 }
 #endif
 
-void CenterMouse_Win32(long x, long y)
+static void I_CenterMouse(long x, long y)
 {
 #ifdef _WIN32
   RECT rect;
@@ -1019,7 +1020,7 @@ void e6y_I_GetEvent(void)
     {
       event_t event;
 
-      CenterMouse_Win32(pos.x, pos.y);
+      I_CenterMouse(pos.x, pos.y);
 
       event.type = ev_mouse;
       event.data1 = I_SDLtoDoomMouseState(SDL_GetMouseState(NULL, NULL));
@@ -1031,7 +1032,7 @@ void e6y_I_GetEvent(void)
 #endif
 }
 
-void GrabMouse_Win32(void)
+void I_StartWin32Mouse(void)
 {
 #ifdef _WIN32
   RECT rect;
@@ -1044,7 +1045,7 @@ void GrabMouse_Win32(void)
   ClientToScreen (hwnd, (LPPOINT)&rect.right);
 
   ClipCursor (&rect);
-  CenterMouse_Win32(-1, -1);
+  I_CenterMouse(-1, -1);
   MakeMouseEvents = true;
 
   {
@@ -1055,7 +1056,7 @@ void GrabMouse_Win32(void)
 #endif
 }
 
-void UngrabMouse_Win32(void)
+void I_EndWin32Mouse(void)
 {
 #ifdef _WIN32
   ClipCursor(NULL);
@@ -1067,7 +1068,7 @@ void e6y_I_InitInputs(void)
 {
   M_ChangeAltMouseHandling();
   MouseAccelChanging();
-  atexit(UngrabMouse_Win32);
+  atexit(I_EndWin32Mouse);
 }
 
 int AccelerateMouse(int val)

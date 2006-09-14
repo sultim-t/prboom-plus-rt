@@ -225,11 +225,11 @@ static void I_GetEvent(SDL_Event *Event)
       //if ((state&SDL_APPINPUTFOCUS) && (state&SDL_APPACTIVE))
       if ((state&(SDL_APPACTIVE|SDL_APPINPUTFOCUS)) == (SDL_APPACTIVE|SDL_APPINPUTFOCUS))
       {
-        GrabMouse_Win32();
+        I_StartWin32Mouse();
       }
       else
       {
-        UngrabMouse_Win32();
+        I_EndWin32Mouse();
       }
     }
     break;

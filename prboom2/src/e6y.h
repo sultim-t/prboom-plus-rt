@@ -300,9 +300,8 @@ void e6y_WriteStats(void);
 void e6y_G_DoWorldDone(void);
 
 void e6y_I_GetEvent(void);
-void CenterMouse_Win32(long x, long y);
-void GrabMouse_Win32(void);
-void UngrabMouse_Win32(void);
+void I_StartWin32Mouse(void);
+void I_EndWin32Mouse(void);
 void e6y_I_InitInputs(void);
 int AccelerateMouse(int val);
 void MouseAccelChanging(void);
