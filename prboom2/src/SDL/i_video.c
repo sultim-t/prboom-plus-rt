@@ -741,14 +741,14 @@ void I_UpdateVideoMode(void)
     SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, gl_colorbuffer_bits );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, gl_depthbuffer_bits );
     e6y_MultisamplingSet();//e6y
-    screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
+    screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, gl_colorbuffer_bits, init_flags);
   } else {
     // e6y: processing of screen_multiply
     screen = SDL_SetVideoMode(REAL_SCREENWIDTH, REAL_SCREENHEIGHT, 8, init_flags);
   }
 
   if(screen == NULL) {
-    I_Error("Couldn't set %dx%d video mode [%s]", SCREENWIDTH, SCREENHEIGHT, SDL_GetError());
+    I_Error("Couldn't set %dx%d video mode [%s]", REAL_SCREENWIDTH, REAL_SCREENHEIGHT, SDL_GetError());
   }
   if (V_GetMode() == VID_MODEGL)
     e6y_MultisamplingCheck();//e6y
