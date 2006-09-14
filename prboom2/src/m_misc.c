@@ -317,9 +317,9 @@ default_t defaults[] =
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
 #ifdef GL_DOOM
   #ifdef _MSC_VER
-    {"videomode",{&default_videomode},{VID_MODEGL}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+    {"videomode",{(int*)&default_videomode},{VID_MODEGL}, VID_MODE8, VID_MODEGL, def_int,ss_none},
   #else
-    {"videomode",{&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+    {"videomode",{(int*)&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODEGL, def_int,ss_none},
   #endif
 #else
   {"videomode",{(int*)&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODE8, def_int,ss_none},
