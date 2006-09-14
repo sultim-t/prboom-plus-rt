@@ -70,7 +70,12 @@
 #include "r_draw.h"
 #include "r_demo.h"
 #include "r_fps.h"
-#include "e6y.h"//e6y
+
+//e6y
+#include "e6y.h"
+#ifdef _WIN32
+#include "e6y_launcher.h"
+#endif
 
 /* cph - disk icon not implemented */
 static inline void I_BeginRead(void) {}
@@ -813,7 +818,7 @@ default_t defaults[] =
   {"comperr_shortreject", {&comperr_shortreject},  {0},0,1,
    def_bool,ss_stat},
 
-#ifdef USE_WINDOWS_LAUNCHER
+#ifdef _WIN32
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"launcher_enable", {&launcher_enable},  {0},0,1, def_bool,ss_stat},
   {"launcher_history0", {NULL,&launcher_history[0]}, {0,""},UL,UL,def_str,ss_none},

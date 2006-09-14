@@ -82,7 +82,12 @@
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
-#include "e6y.h" //e6y
+
+//e6y
+#include "e6y.h"
+#ifdef _WIN32
+#include "e6y_launcher.h"
+#endif
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
@@ -1518,7 +1523,7 @@ static void D_DoomMainSetup(void)
   lprintf(LO_INFO,"D_InitNetGame: Checking for network game.\n");
   D_InitNetGame();
 
-#ifdef USE_WINDOWS_LAUNCHER
+#ifdef _WIN32
   LauncherShow();//e6y
 #endif
 

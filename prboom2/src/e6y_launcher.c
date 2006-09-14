@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <direct.h>
 #include <commctrl.h>
-#endif
 
 #include "doomtype.h"
 #include "w_wad.h"
@@ -21,17 +20,260 @@
 #pragma comment( lib, "comctl32.lib" )
 #pragma comment( lib, "advapi32.lib" )
 
+#define ETDT_ENABLE         0x00000002
+#define ETDT_USETABTEXTURE  0x00000004
+#define ETDT_ENABLETAB      (ETDT_ENABLE  | ETDT_USETABTEXTURE)
+typedef HRESULT (WINAPI *EnableThemeDialogTexturePROC)(HWND, DWORD);
+
+#define FA_DIREC	0x00000010
+#define LAUNCHER_HISTORY_SIZE 10
+
+#define LAUNCHER_CAPTION "Prboom-Plus Launcher"
+
+typedef struct
+{
+  wadfile_info_t *wadfiles;
+  size_t numwadfiles;
+} wadfiles_t;
+
+typedef struct
+{
+  char name[PATH_MAX];
+  wad_source_t source;
+  boolean doom1;
+  boolean doom2;
+} fileitem_t;
+
+typedef struct
+{
+  HWND HWNDServer;
+  HWND HWNDClient;
+  HWND listIWAD;
+  HWND listPWAD;
+  HWND listHistory;
+  HWND listCMD;
+  HWND staticFileName;
+  fileitem_t *files;
+  size_t filescount;
+  fileitem_t *cache;
+  size_t cachesize;
+} launcher_t;
+
+launcher_t launcher;
+
 int launcher_enable;
 char *launcher_history[LAUNCHER_HISTORY_SIZE];
 
-launcher_t launcher;
-void LauncherFillPWAD(boolean doom1, boolean doom2);
-void LauncherAddToCache(fileitem_t *item, const char *filename);
-char launchercachefile[PATH_MAX];
+static char launchercachefile[PATH_MAX];
+
+//global
+void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec);
+void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
+const char *D_dehout(void);
+
+//common
+void *I_FindFirst (const char *filespec, findstate_t *fileinfo);
+int I_FindNext (void *handle, findstate_t *fileinfo);
+int I_FindClose (void *handle);
+
+//events
+static void L_GameOnChange(void);
+static void L_FilesOnChange(void);
+static void L_HistoryOnChange(void);
+static void L_CommandOnChange(void);
+
+static void L_FillGameList(void);
+static void L_FillFilesList(fileitem_t *iwad);
+static void L_FillHistoryList(void);
+
+static char* L_HistoryGetStr(wadfiles_t *data);
+
+static void L_ReadCacheData(void);
+static void L_AddItemToCache(fileitem_t *item);
+
+static boolean L_GetFileType(const char *filename, fileitem_t *item);
+static void L_DoGameReplace(const char *iwad);
+static void L_PrepareToLaunch(void);
+
+static boolean L_GUISelect(wadfile_info_t *wadfiles, size_t numwadfiles);
+static boolean L_LauncherIsNeeded(void);
+
+static void L_FillFilesList(fileitem_t *iwad);
+static void L_AddItemToCache(fileitem_t *item);
+
 char* e6y_I_FindFile(const char* ext);
 int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength);
 
-boolean LauncherCheckPWAD(const char *filename, fileitem_t *item)
+//common
+void *I_FindFirst (const char *filespec, findstate_t *fileinfo)
+{
+	return FindFirstFileA(filespec, (LPWIN32_FIND_DATAA)fileinfo);
+}
+
+int I_FindNext (void *handle, findstate_t *fileinfo)
+{
+	return !FindNextFileA((HANDLE)handle, (LPWIN32_FIND_DATAA)fileinfo);
+}
+
+int I_FindClose (void *handle)
+{
+	return FindClose((HANDLE)handle);
+}
+
+//events
+static void L_GameOnChange(void)
+{
+  int index;
+
+  index = SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
+  if (index != CB_ERR)
+  {
+    index = SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
+    if (index != CB_ERR)
+    {
+      L_FillFilesList(&launcher.files[index]);
+    }
+  }
+}
+
+static void L_FilesOnChange(void)
+{
+  int index = SendMessage(launcher.listPWAD, LB_GETCURSEL, 0, 0);
+  if (index != LB_ERR)
+  {
+    index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, index, 0);
+    if (index != LB_ERR)
+    {
+      char path[PATH_MAX];
+      size_t count;
+      RECT rect;
+      HFONT font, oldfont;
+      HDC hdc;
+
+      strcpy(path, launcher.files[index].name);
+      NormalizeSlashes2(path);
+      strlwr(path);
+
+      hdc = GetDC(launcher.staticFileName);
+      GetWindowRect(launcher.staticFileName, &rect);
+
+      font = (HFONT)SendMessage(launcher.staticFileName, WM_GETFONT, 0, 0);
+      oldfont = SelectObject(hdc, font);
+      
+      for (count = 2; count <= strlen(path); count++)
+      {
+        SIZE size = {0, 0};
+        if (GetTextExtentPoint32(hdc, path, count, &size))
+        {
+          if (size.cx > rect.right - rect.left)
+            break;
+        }
+      }
+      
+      SelectObject(hdc, oldfont);
+
+      AbbreviateName(path, count - 1, false);
+      SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)path);
+    }
+  }
+}
+
+static void L_HistoryOnChange(void)
+{
+  int index;
+
+  index = SendMessage(launcher.listHistory, CB_GETCURSEL, 0, 0);
+  if (index >= 0)
+  {
+    wadfiles_t *wadfiles;
+    wadfiles = (wadfiles_t*)SendMessage(launcher.listHistory, CB_GETITEMDATA, index, 0);
+    if ((int)wadfiles != CB_ERR)
+    {
+      if (!L_GUISelect(wadfiles->wadfiles, wadfiles->numwadfiles))
+      {
+        SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
+      }
+    }
+  }
+}
+
+static void L_CommandOnChange(void)
+{
+  int index;
+
+  index = SendMessage(launcher.listCMD, CB_GETCURSEL, 0, 0);
+  
+  switch (index)
+  {
+  case 0:
+    remove(launchercachefile);
+    
+    SendMessage(launcher.listPWAD, LB_RESETCONTENT, 0, 0);
+    SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
+    
+    if (launcher.files)
+    {
+      free(launcher.files);
+      launcher.files = NULL;
+    }
+    launcher.filescount = 0;
+
+    if (launcher.cache)
+    {
+      free(launcher.cache);
+      launcher.cache = NULL;
+    }
+    launcher.cachesize = 0;
+
+    e6y_I_FindFile("*.wad");
+    e6y_I_FindFile("*.deh");
+
+    L_GameOnChange();
+
+    MessageBox(launcher.HWNDServer, "The cache has been successfully rebuilt", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
+    break;
+  case 1:
+    {
+      size_t i;
+      for (i = 0; i < sizeof(launcher_history)/sizeof(launcher_history[0]); i++)
+      {
+        char str[32];
+        default_t *history;
+
+        sprintf(str, "launcher_history%d", i);
+        history = M_LookupDefault(str);
+        
+        strcpy((char*)history->location.ppsz[0], "");
+      }
+      M_SaveDefaults();
+      L_FillHistoryList();
+      SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
+  
+      MessageBox(launcher.HWNDServer, "The history has been successfully cleared", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
+    }
+    break;
+
+  case 2:
+    {
+      HKEY hKey;
+      DWORD Disposition;
+      if (RegCreateKeyEx(HKEY_CLASSES_ROOT, ".lmp\\shell\\open\\command", 0, NULL, 0, KEY_WRITE, NULL, &hKey, &Disposition) == ERROR_SUCCESS)
+      {
+        char str[PATH_MAX];
+        sprintf(str, "\"%s\" \"%%1\"", *myargv);
+        
+        RegSetValueEx(hKey, NULL, 0, REG_SZ, str, strlen(str) + 1);
+        RegCloseKey(hKey);
+      }
+      MessageBox(launcher.HWNDServer, "Succesfully Installed", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
+    }
+    break;
+  }
+  
+  SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
+}
+
+static boolean L_GetFileType(const char *filename, fileitem_t *item)
 {
   size_t i, len;
   wadinfo_t header;
@@ -40,6 +282,7 @@ boolean LauncherCheckPWAD(const char *filename, fileitem_t *item)
   item->source = source_err;
   item->doom1 = false;
   item->doom2 = false;
+  strcpy(item->name, filename);
   
   len = strlen(filename);
 
@@ -71,6 +314,9 @@ boolean LauncherCheckPWAD(const char *filename, fileitem_t *item)
     else if (!strncmp(header.identification, "PWAD", 4))
     {
       item->source = source_pwad;
+    }
+    if (item->source != source_err)
+    {
       header.numlumps = LONG(header.numlumps);
       if (0 == fseek(f, LONG(header.infotableofs), SEEK_SET))
       {
@@ -98,7 +344,7 @@ boolean LauncherCheckPWAD(const char *filename, fileitem_t *item)
           }
 
         }
-        LauncherAddToCache(item, filename);
+        L_AddItemToCache(item);
       }
     }
     fclose(f);
@@ -107,24 +353,7 @@ boolean LauncherCheckPWAD(const char *filename, fileitem_t *item)
   return false;
 }
 
-void LauncherIWADOnChange(void)
-{
-  int index;
-
-  index = SendMessage(launcher.listIWAD, CB_GETCURSEL, 0, 0);
-  if (index != CB_ERR)
-  {
-    index = SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
-    if (index != CB_ERR)
-    {
-      boolean doom2 = index <= 3;
-      boolean doom1 = !doom2;
-      LauncherFillPWAD(doom1, doom2);
-    }
-  }
-}
-
-boolean LauncherSelect(wadfile_info_t *wadfiles, size_t numwadfiles)
+static boolean L_GUISelect(wadfile_info_t *wadfiles, size_t numwadfiles)
 {
   int i, j;
   size_t k;
@@ -146,18 +375,21 @@ boolean LauncherSelect(wadfile_info_t *wadfiles, size_t numwadfiles)
       switch (wadfiles[k].src)
       {
       case source_iwad:
-        for (i=0; !processed && i<nstandard_iwads; i++)
+        for (i=0; !processed && (size_t)i<launcher.filescount; i++)
         {
-          if (!strcasecmp(standard_iwads[i], PathFindFileName(fullpath)))
+          if (launcher.files[i].source == source_iwad &&
+              !strcasecmp(launcher.files[i].name, fullpath))
           {
             for (j=0; !processed && j < listIWADCount; j++)
             {
               if (SendMessage(launcher.listIWAD, CB_GETITEMDATA, j, 0)==i)
+              {
                 if (SendMessage(launcher.listIWAD, CB_SETCURSEL, j, 0) != CB_ERR)
                 {
                   processed = true;
-                  LauncherIWADOnChange();
+                  L_GameOnChange();
                 }
+              }
             }
           }
         }
@@ -169,7 +401,6 @@ boolean LauncherSelect(wadfile_info_t *wadfiles, size_t numwadfiles)
   if (!processed)
     return false;
 
-  //LauncherFillPWAD();
   listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
   for (i = 0; i < listPWADCount; i++)
     SendMessage(launcher.listPWAD, LB_SETSEL, false, i);
@@ -215,7 +446,7 @@ boolean LauncherSelect(wadfile_info_t *wadfiles, size_t numwadfiles)
   return true;
 }
 
-void LauncherAddIWAD(const char *iwad)
+static void L_DoGameReplace(const char *iwad)
 {
   extern boolean haswolflevels;
   int i, j;
@@ -273,7 +504,7 @@ void LauncherAddIWAD(const char *iwad)
   }
 }
 
-void LauncherLaunch(void)
+static void L_PrepareToLaunch(void)
 {
   int i, index, listPWADCount;
   char *history = NULL;
@@ -286,9 +517,10 @@ void LauncherLaunch(void)
     index = SendMessage(launcher.listIWAD, CB_GETITEMDATA, index, 0);
     if (index != CB_ERR)
     {
-      history = malloc(strlen(standard_iwads[index]) + 8);
-      strcpy(history, standard_iwads[index]);
-      LauncherAddIWAD(standard_iwads[index]);
+      char *iwadname = PathFindFileName(launcher.files[index].name);
+      history = malloc(strlen(iwadname) + 8);
+      strcpy(history, iwadname);
+      L_DoGameReplace(iwadname);
     }
   }
 
@@ -301,7 +533,7 @@ void LauncherLaunch(void)
       index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, i, 0);
       item = &launcher.files[index];
       
-      if (item->source == source_pwad)
+      if (item->source == source_pwad || item->source == source_iwad)
         D_AddFile(item->name,source_pwad);
       
       if (item->source == source_deh)
@@ -352,18 +584,18 @@ void LauncherLaunch(void)
   }
 }
 
-void LauncherAddToCache(fileitem_t *item, const char *filename)
+static void L_AddItemToCache(fileitem_t *item)
 {
   FILE *fcache;
 
   if ( (fcache = fopen(launchercachefile, "at")) )
   {
-    fprintf(fcache, "%s = %d, %d, %d\n",filename, item->source, item->doom1, item->doom2);
+    fprintf(fcache, "%s = %d, %d, %d\n",item->name, item->source, item->doom1, item->doom2);
     fclose(fcache);
   }
 }
 
-void LauncherFillCache(void)
+static void L_ReadCacheData(void)
 {
   FILE *fcache;
 
@@ -387,10 +619,14 @@ void LauncherFillCache(void)
   }
 }
 
-void LauncherFillIWAD(void)
+static void L_FillGameList(void)
 {
-  int i;
-  //"doom2f.wad", "doom2.wad", "plutonia.wad", "tnt.wad", "doom.wad", "doom1.wad", "doomu.wad"
+  extern const int nstandard_iwads;
+  extern const char *const standard_iwads[];
+
+  int i, j;
+  
+  //"doom2f.wad", "doom2.wad", "plutonia.wad", "tnt.wad", "doom.wad", "doom1.wad", "doomu.wad", "freedoom.wad"
   const char *IWADTypeNames[] =
   {
     "DOOM 2: French Version",
@@ -400,24 +636,31 @@ void LauncherFillIWAD(void)
     "DOOM Registered",
     "DOOM Shareware",
     "The Ultimate DOOM",
+    "Freedoom",
   };
   
-  for (i=0; i < nstandard_iwads; i++)
+  for (i = 0; (size_t)i < launcher.filescount; i++)
   {
-    char *iwad = I_FindFile(standard_iwads[i], ".wad");
-    if (iwad)
+    fileitem_t *item = &launcher.files[i];
+    if (item->source == source_iwad)
     {
-      char work[128];
-      int index;
-      sprintf(work, "%s (%s)", IWADTypeNames[i], standard_iwads[i]);
-      index = SendMessage(launcher.listIWAD, CB_ADDSTRING, 0, (LPARAM)work);
-      if (index >= 0)
-        SendMessage(launcher.listIWAD, CB_SETITEMDATA, index, (LPARAM)i);
+      for (j=0; j < nstandard_iwads; j++)
+      {
+        if (!strcasecmp(PathFindFileName(item->name), standard_iwads[j]))
+        {
+          char iwadname[128];
+          int index;
+          sprintf(iwadname, "%s (%s)", IWADTypeNames[j], standard_iwads[j]);
+          index = SendMessage(launcher.listIWAD, CB_ADDSTRING, 0, (LPARAM)iwadname);
+          if (index >= 0)
+            SendMessage(launcher.listIWAD, CB_SETITEMDATA, index, (LPARAM)i);
+        }
+      }
     }
   }
 }
 
-void LauncherFillPWAD(boolean doom1, boolean doom2)
+static void L_FillFilesList(fileitem_t *iwad)
 {
   int index;
   size_t i;
@@ -428,8 +671,8 @@ void LauncherFillPWAD(boolean doom1, boolean doom2)
   for (i = 0; i < launcher.filescount; i++)
   {
     item = &launcher.files[i];
-    if (doom1 && item->doom1 || doom2 && item->doom2 ||
-      (!doom1 && !doom2) ||
+    if (iwad->doom1 && item->doom1 || iwad->doom2 && item->doom2 ||
+      (!iwad->doom1 && !iwad->doom2) ||
       item->source == source_deh)
     {
       index = SendMessage(launcher.listPWAD, LB_ADDSTRING, 0, (LPARAM)strlwr(PathFindFileName(item->name)));
@@ -469,20 +712,6 @@ int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength)
   }
 
   return false;
-}
-
-void *I_FindFirst (const char *filespec, findstate_t *fileinfo)
-{
-	return FindFirstFileA(filespec, (LPWIN32_FIND_DATAA)fileinfo);
-}
-int I_FindNext (void *handle, findstate_t *fileinfo)
-{
-	return !FindNextFileA((HANDLE)handle, (LPWIN32_FIND_DATAA)fileinfo);
-}
-
-int I_FindClose (void *handle)
-{
-	return FindClose((HANDLE)handle);
 }
 
 char* e6y_I_FindFile(const char* ext)
@@ -538,7 +767,6 @@ char* e6y_I_FindFile(const char* ext)
       char fullmask[PATH_MAX];
 
       sprintf(fullmask, "%s%s", (p?p:""), ext);
-      //NormalizeSlashes(fullmask);
       
       if ((handle = I_FindFirst(fullmask, &findstate)) != (void *)-1)
       {
@@ -551,7 +779,7 @@ char* e6y_I_FindFile(const char* ext)
             
             sprintf(fullpath, "%s%s", (p?p:""), I_FindName(&findstate));
             
-            if (LauncherCheckPWAD(fullpath, &item))
+            if (L_GetFileType(fullpath, &item))
             {
               if (item.source != source_err)
               {
@@ -584,7 +812,7 @@ char* e6y_I_FindFile(const char* ext)
   return NULL;
 }
 
-char* LauncherSetHistoryStr(wadfiles_t *data)
+static char* L_HistoryGetStr(wadfiles_t *data)
 {
   size_t i;
   char *iwad = NULL;
@@ -646,7 +874,7 @@ char* LauncherSetHistoryStr(wadfiles_t *data)
   return result;
 }
 
-void LauncherFillHistory(void)
+static void L_FillHistoryList(void)
 {
   int i, count;
   char *p = NULL;
@@ -709,7 +937,7 @@ void LauncherFillHistory(void)
       data->wadfiles = wadfiles;
       data->numwadfiles = numwadfiles;
       
-      p = LauncherSetHistoryStr(data);
+      p = L_HistoryGetStr(data);
 
       if (p)
       {
@@ -722,143 +950,6 @@ void LauncherFillHistory(void)
       }
 
       free(str);
-    }
-  }
-}
-
-void LauncherCommandOnChange(void)
-{
-  int index;
-
-  index = SendMessage(launcher.listCMD, CB_GETCURSEL, 0, 0);
-  
-  switch (index)
-  {
-  case 0:
-    remove(launchercachefile);
-    
-    SendMessage(launcher.listPWAD, LB_RESETCONTENT, 0, 0);
-    SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
-    
-    if (launcher.files)
-    {
-      free(launcher.files);
-      launcher.files = NULL;
-    }
-    launcher.filescount = 0;
-
-    if (launcher.cache)
-    {
-      free(launcher.cache);
-      launcher.cache = NULL;
-    }
-    launcher.cachesize = 0;
-
-    e6y_I_FindFile("*.wad");
-    e6y_I_FindFile("*.deh");
-
-    LauncherIWADOnChange();
-
-    MessageBox(launcher.HWNDServer, "The cache has been successfully rebuilt", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
-    break;
-  case 1:
-    {
-      size_t i;
-      for (i = 0; i < sizeof(launcher_history)/sizeof(launcher_history[0]); i++)
-      {
-        char str[32];
-        default_t *history;
-
-        sprintf(str, "launcher_history%d", i);
-        history = M_LookupDefault(str);
-        
-        strcpy((char*)history->location.ppsz[0], "");
-      }
-      M_SaveDefaults();
-      LauncherFillHistory();
-      SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
-  
-      MessageBox(launcher.HWNDServer, "The history has been successfully cleared", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
-    }
-    break;
-
-  case 2:
-    {
-      HKEY hKey;
-      DWORD Disposition;
-      if (RegCreateKeyEx(HKEY_CLASSES_ROOT, ".lmp\\shell\\open\\command", 0, NULL, 0, KEY_WRITE, NULL, &hKey, &Disposition) == ERROR_SUCCESS)
-      {
-        char str[PATH_MAX];
-        sprintf(str, "\"%s\" \"%%1\"", *myargv);
-        
-        RegSetValueEx(hKey, NULL, 0, REG_SZ, str, strlen(str) + 1);
-        RegCloseKey(hKey);
-      }
-      MessageBox(launcher.HWNDServer, "Succesfully Installed", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
-    }
-    break;
-  }
-  
-  SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
-}
-
-void LauncherPWADOnChange(void)
-{
-  int index = SendMessage(launcher.listPWAD, LB_GETCURSEL, 0, 0);
-  if (index != LB_ERR)
-  {
-    index = SendMessage(launcher.listPWAD, LB_GETITEMDATA, index, 0);
-    if (index != LB_ERR)
-    {
-      char path[PATH_MAX];
-      size_t count;
-      RECT rect;
-      HFONT font, oldfont;
-      HDC hdc;
-
-      strcpy(path, launcher.files[index].name);
-      NormalizeSlashes2(path);
-      strlwr(path);
-
-      hdc = GetDC(launcher.staticFileName);
-      GetWindowRect(launcher.staticFileName, &rect);
-
-      font = (HFONT)SendMessage(launcher.staticFileName, WM_GETFONT, 0, 0);
-      oldfont = SelectObject(hdc, font);
-      
-      for (count = 2; count <= strlen(path); count++)
-      {
-        SIZE size = {0, 0};
-        if (GetTextExtentPoint32(hdc, path, count, &size))
-        {
-          if (size.cx > rect.right - rect.left)
-            break;
-        }
-      }
-      
-      SelectObject(hdc, oldfont);
-
-      AbbreviateName(path, count - 1, false);
-      SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)path);
-    }
-  }
-}
-
-void LauncherHistoryOnChange(void)
-{
-  int index;
-
-  index = SendMessage(launcher.listHistory, CB_GETCURSEL, 0, 0);
-  if (index >= 0)
-  {
-    wadfiles_t *wadfiles;
-    wadfiles = (wadfiles_t*)SendMessage(launcher.listHistory, CB_GETITEMDATA, index, 0);
-    if ((int)wadfiles != CB_ERR)
-    {
-      if (!LauncherSelect(wadfiles->wadfiles, wadfiles->numwadfiles))
-      {
-        SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
-      }
     }
   }
 }
@@ -902,25 +993,25 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
         index = SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)buf);
 
         SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
-        LauncherCommandOnChange();
+        L_CommandOnChange();
       }
 
-      LauncherFillCache();
+      L_ReadCacheData();
       
       e6y_I_FindFile("*.wad");
       e6y_I_FindFile("*.deh");
 
-      LauncherFillIWAD();
-      LauncherFillHistory();
+      L_FillGameList();
+      L_FillHistoryList();
 
       if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
       {
-        LauncherHistoryOnChange();
+        L_HistoryOnChange();
         SetFocus(launcher.listHistory);
       }
       else if (SendMessage(launcher.listIWAD, CB_SETCURSEL, 0, 0) != CB_ERR)
       {
-        LauncherIWADOnChange();
+        L_GameOnChange();
         SetFocus(launcher.listPWAD);
       }
     }
@@ -933,25 +1024,25 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
 
       if (wmId == IDC_PWADLIST && wmEvent == LBN_DBLCLK)
       {
-        LauncherLaunch();
+        L_PrepareToLaunch();
         EndDialog (launcher.HWNDServer, 1);
       }
       
       if (wmId == IDC_HISTORYCOMBO && wmEvent == CBN_SELCHANGE)
-        LauncherHistoryOnChange();
+        L_HistoryOnChange();
       
       if (wmId == IDC_IWADCOMBO && wmEvent == CBN_SELCHANGE)
-        LauncherIWADOnChange();
+        L_GameOnChange();
       
       if (wmId == IDC_PWADLIST && wmEvent == LBN_SELCHANGE)
-        LauncherPWADOnChange();
+        L_FilesOnChange();
 
       if ((wmId == IDC_IWADCOMBO && wmEvent == CBN_SELCHANGE) ||
         (wmId == IDC_PWADLIST && wmEvent == LBN_SELCHANGE))
         SendMessage(launcher.listHistory, CB_SETCURSEL, -1, 0);
 
       if (wmId == IDC_COMMANDCOMBO && wmEvent == CBN_SELCHANGE)
-        LauncherCommandOnChange();
+        L_CommandOnChange();
     }
     break;
 	}
@@ -973,7 +1064,7 @@ BOOL CALLBACK LauncherServerCallback (HWND hWnd, UINT message, WPARAM wParam, LP
       EndDialog (hWnd, 0);
       break;
     case IDOK:
-      LauncherLaunch();
+      L_PrepareToLaunch();
       EndDialog (hWnd, 1);
       break;
     }
@@ -994,7 +1085,7 @@ BOOL CALLBACK LauncherServerCallback (HWND hWnd, UINT message, WPARAM wParam, LP
   return 0;
 }
 
-boolean LauncherIsNeeded(void)
+static boolean L_LauncherIsNeeded(void)
 {
   int i;
   boolean pwad = false;
@@ -1023,7 +1114,7 @@ void LauncherShow(void)
   int result;
   int nCmdShow = SW_SHOW;
 
-  if (!LauncherIsNeeded())
+  if (!L_LauncherIsNeeded())
     return;
 
   InitCommonControls();
@@ -1037,8 +1128,9 @@ void LauncherShow(void)
     I_SafeExit(-1);
     break;
   case 1:
-//    LauncherLaunch();
     M_SaveDefaults();
     break;
   }
 }
+
+#endif // _WIN32

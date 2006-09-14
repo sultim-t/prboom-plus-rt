@@ -3158,7 +3158,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+6*8},
   {"Permanent Strafe50",          S_YESNO, m_null,G_X,G_Y+ 7*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
   {"Strafe50 On Turns",           S_YESNO, m_null,G_X,G_Y+ 8*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
-#ifdef USE_WINDOWS_LAUNCHER
+#ifdef _WIN32
   {"Misc",                        S_SKIP|S_TITLE, m_null, G_X, G_Y+10*8},
   {"Use In-Game Launcher",        S_YESNO, m_null,G_X,G_Y+ 11*8, {"launcher_enable"}},
 #endif

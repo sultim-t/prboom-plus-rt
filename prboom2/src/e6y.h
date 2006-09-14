@@ -148,11 +148,6 @@ extern int render_aspect_width;
 extern int render_aspect_height;
 extern float render_aspect_ratio;
 
-#ifdef USE_WINDOWS_LAUNCHER
-extern int launcher_enable;
-extern char *launcher_history[10];
-#endif
-
 extern int test_dots;
 
 extern unsigned int spechit_magic;
@@ -282,15 +277,6 @@ typedef struct timetable_s
   int secret[MAXPLAYERS];
   
   int stat[TT_MAX];
-/*  int allkill;
-  int allitem;
-  int allsecret;
-
-  int time;
-  int totaltime;
-  int totalkill;
-  int totalitem;
-  int totalsecret;*/
 } timetable_t;
 
 extern int stats_level;
@@ -320,14 +306,8 @@ extern int comperr_passuse;
 extern int comperr_shortreject;
 
 boolean compbad_get(int *compbad);
-//boolean CompErrZeroTag(void);
-//boolean CompErrPassUse(void);
 
 boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum);
-
-#ifdef USE_WINDOWS_LAUNCHER
-void LauncherShow(void);
-#endif
 
 #define I_FindName(a)	((a)->Name)
 #define I_FindAttr(a)	((a)->Attribs)
