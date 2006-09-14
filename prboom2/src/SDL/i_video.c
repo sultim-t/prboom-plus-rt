@@ -253,8 +253,13 @@ void I_StartTic (void)
   SDL_Event Event;
   if (mousemode == sdl_mousemode)
   {
-    int should_be_grabbed = grabMouse &&
-      !(paused || (gamestate != GS_LEVEL) || demoplayback);
+     //e6y: allowing of grabbing mouse in camera mode
+    /*e6y
+    int should_be_grabbed = grabMouse && 
+      !(paused || (gamestate != GS_LEVEL) || demoplayback)
+    */
+    int should_be_grabbed = grabMouse && 
+      (gamestate == GS_LEVEL) && ((!demoplayback && !paused) || (walkcamera.type));
 
     if (mouse_currently_grabbed != should_be_grabbed)
       SDL_WM_GrabInput((mouse_currently_grabbed = should_be_grabbed)
