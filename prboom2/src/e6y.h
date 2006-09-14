@@ -192,6 +192,7 @@ extern char hud_centermsg[80];
 
 void e6y_assert(const char *format, ...);
 
+void ParamsMatchingCheck();
 void e6y_D_DoomMainSetup(void);
 
 void P_WalkTicker ();

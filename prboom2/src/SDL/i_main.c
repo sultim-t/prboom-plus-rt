@@ -386,6 +386,9 @@ int main(int argc, char **argv)
   myargc = argc;
   myargv = argv;
 
+  // e6y: Check for conflicts.
+  ParamsMatchingCheck();
+
   //e6y: was moved from D_DoomMainSetup
   // init subsystems
   //jff 9/3/98 use logical output routine

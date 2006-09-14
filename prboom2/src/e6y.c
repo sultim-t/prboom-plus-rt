@@ -205,6 +205,22 @@ static void ResetAspectRatio(void)
   was_aspected = false;
 }
 
+void ParamsMatchingCheck()
+{
+  boolean recording_attempt = 
+    M_CheckParm("-record") || 
+    M_CheckParm("-recordfrom") ||
+    M_CheckParm("-recordfromto");
+  
+  boolean playbacking_attempt = 
+    M_CheckParm("-playdemo") || 
+    M_CheckParm("-timedemo") ||
+    M_CheckParm("-fastdemo");
+
+  if (recording_attempt && playbacking_attempt)
+    I_Error("Params are not matching: Can not being played back and recorded at the same time.");
+}
+
 void e6y_D_DoomMainSetup(void)
 {
   void G_RecordDemo (const char* name);
