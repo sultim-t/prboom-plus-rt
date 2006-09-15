@@ -268,6 +268,20 @@ static void L_CommandOnChange(void)
       MessageBox(launcher.HWNDServer, "Succesfully Installed", LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
     }
     break;
+
+  case 3:
+    {
+      char buf[128];
+      sprintf(buf, "Do you really want to %s the Launcher?", (launcher_enable ? "disable" : "enable"));
+      if (MessageBox(launcher.HWNDServer, buf, LAUNCHER_CAPTION, MB_YESNO|MB_ICONQUESTION) == IDYES)
+      {
+        launcher_enable = !launcher_enable;
+        M_SaveDefaults();
+        sprintf(buf, "Successfully %s", (launcher_enable ? "enabled" : "disabled"));
+        MessageBox(launcher.HWNDServer, buf, LAUNCHER_CAPTION, MB_OK|MB_ICONEXCLAMATION);
+      }
+    }
+    break;
   }
   
   SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
@@ -956,7 +970,6 @@ static void L_FillHistoryList(void)
 
 BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
 	switch (message)
 	{
   case WM_INITDIALOG:
@@ -980,21 +993,19 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
         FreeLibrary(hMod);
       }
 
-      {
-        int index;
-        char buf[256];
-        strcpy(buf, "Rebuild the PrBoom-Plus cache");
-        index = SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)buf);
-        
-        strcpy(buf, "Clear all launcher's history");
-        index = SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)buf);
-        
-        strcpy(buf, "Associate the current EXE with DOOM demos");
-        index = SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)buf);
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Rebuild the PrBoom-Plus cache");
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Clear all Launcher's history");
+      SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)"Associate the current EXE with DOOM demos");
 
-        SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
-        L_CommandOnChange();
+      {
+        char buf[128];
+        strcpy(buf, (launcher_enable ? "Disable" : "Enable"));
+        strcat(buf, " this Launcher for future use");
+        SendMessage(launcher.listCMD, CB_ADDSTRING, 0, (LPARAM)buf);
       }
+
+      SendMessage(launcher.listCMD, CB_SETCURSEL, -1, 0);
+      L_CommandOnChange();
 
       L_ReadCacheData();
       
