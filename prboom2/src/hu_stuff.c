@@ -1282,16 +1282,16 @@ void HU_Drawer(void)
     }
     // display the keys/frags line each frame
 
-    //e6y: speedup
-    if (!realframe)
+    if (hud_active>1)
     {
-      HUlib_drawTextLine(&w_keys, false);
-      if (!deathmatch)
-        HUlib_drawTextLine(&w_gkeys, false);
-    }
-    else
-    {
-      if (hud_active>1)
+      //e6y: speedup
+      if (!realframe)
+      {
+        HUlib_drawTextLine(&w_keys, false);
+        if (!deathmatch)
+          HUlib_drawTextLine(&w_gkeys, false);
+      }
+      else
       {
         HUlib_clearTextLine(&w_keys);      // clear the widget strings
         HUlib_clearTextLine(&w_gkeys);
