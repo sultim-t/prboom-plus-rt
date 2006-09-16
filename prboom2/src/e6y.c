@@ -205,6 +205,11 @@ static void ResetAspectRatio(void)
   was_aspected = false;
 }
 
+/* ParamsMatchingCheck
+ * Conflicting command-line parameters could cause the engine to be confused 
+ * in some cases. Added checks to prevent this.
+ * Example: glboom.exe -record mydemo -playdemo demoname
+ */
 void ParamsMatchingCheck()
 {
   boolean recording_attempt = 
@@ -323,6 +328,8 @@ void G_SkipDemoStart(void)
   saved_nomusicparm = nomusicparm;
   
   doSkip = true;
+
+  S_StopMusic();
   fastdemo = true;
   nodrawers = true;
   nosfxparm = true;

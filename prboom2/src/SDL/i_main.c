@@ -387,9 +387,12 @@ int main(int argc, char **argv)
   myargv = argv;
 
   // e6y: Check for conflicts.
+  // Conflicting command-line parameters could cause the engine to be confused 
+  // in some cases. Added checks to prevent this.
+  // Example: glboom.exe -record mydemo -playdemo demoname
   ParamsMatchingCheck();
 
-  //e6y: was moved from D_DoomMainSetup
+  // e6y: was moved from D_DoomMainSetup
   // init subsystems
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"M_LoadDefaults: Load system defaults.\n");
