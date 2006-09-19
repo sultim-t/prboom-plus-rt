@@ -66,9 +66,9 @@
 #include "e6y.h"//e6y
 
 //e6y
-extern PFNGLACTIVETEXTUREARBPROC        glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC  glClientActiveTextureARB;
-extern PFNGLMULTITEXCOORD2FARBPROC      glMultiTexCoord2fARB;
+extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
+extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
 
 extern int tran_filter_pct;
 
@@ -2016,7 +2016,7 @@ static void gld_DrawWall(GLWall *wall)
         wall->glseg->x2, wall->glseg->z2) < DETAIL_DISTANCE)
   {
     float w, h, s;
-    glActiveTextureARB(GL_TEXTURE1_ARB);
+    GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
     glEnable(GL_TEXTURE_2D);
     if (anim_textures[wall->gltexture->index].count==0)
     {
@@ -2032,21 +2032,21 @@ static void gld_DrawWall(GLWall *wall)
     h = s + wall->gltexture->realtexheight / 18.0f;
     gld_StaticLightAlpha(wall->light, wall->alpha);
     glBegin(GL_TRIANGLE_STRIP);
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vt*h);
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vt);
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vt*h);
       glVertex3f(wall->glseg->x1,wall->ytop,wall->glseg->z1);
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vb); 
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vb*h);
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ul,wall->vb); 
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ul*w,wall->vb*h);
       glVertex3f(wall->glseg->x1,wall->ybottom,wall->glseg->z1);
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vt); 
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vt*h);
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vt); 
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vt*h);
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
-      glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vb); 
-      glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vb*h);
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE0_ARB,wall->ur,wall->vb); 
+      GLEXT_glMultiTexCoord2fARB(GL_TEXTURE1_ARB,wall->ur*w,wall->vb*h);
       glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-    glActiveTextureARB(GL_TEXTURE0_ARB);
+    GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
   }
   else
   {
@@ -2475,7 +2475,7 @@ static void gld_DrawFlat(GLFlat *flat)
   if (gl_arb_multitexture && render_detailedflats)
   {
     float s;
-    glActiveTextureARB(GL_TEXTURE1_ARB);
+    GLEXT_glActiveTextureARB(GL_TEXTURE1_ARB);
     glEnable(GL_TEXTURE_2D);
     gld_StaticLight(flat->light);
     if (anim_flats[flat->gltexture->index - firstflat].count==0)
@@ -2533,7 +2533,7 @@ static void gld_DrawFlat(GLFlat *flat)
     //glMatrixMode(GL_TEXTURE);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
-    glActiveTextureARB(GL_TEXTURE0_ARB);
+    GLEXT_glActiveTextureARB(GL_TEXTURE0_ARB);
   }
 
   glPopMatrix();

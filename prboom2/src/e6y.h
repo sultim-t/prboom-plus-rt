@@ -178,7 +178,7 @@ extern boolean SkyDrawed;
 extern float internal_render_fov;
 
 extern boolean gl_arb_multitexture;
-extern int idDetail;
+extern unsigned int idDetail;
 
 extern hu_textline_t  w_hudadd;
 extern hu_textline_t  w_centermsg;
