@@ -1161,7 +1161,8 @@ void M_LoadDefaults (void)
         // e6y: array
         if (item)
         {
-          if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))))
+          if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))) 
+              && ((item->maxvalue == UL) || *(item->location.pi) < item->maxvalue) )
           {
             int *pcount = item->location.pi;
             char ***arr = (char***)(item->location.pppsz);
