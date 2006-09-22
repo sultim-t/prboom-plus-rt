@@ -75,6 +75,7 @@ typedef struct default_s
   struct {
     int* pi;
     const char** ppsz;
+    const char*** pppsz;// e6y: arrays
   } location;
   struct {
     int i;
@@ -88,6 +89,7 @@ typedef struct default_s
     def_str,  // A string
     def_int,  // Integer
     def_hex,  // Integer (write in hex)
+    def_arr,  // e6y: arrays
     def_bool = def_int,  // Boolean
     def_key = def_hex,   // Key code (byte)
     def_mouseb = def_int,// Mouse button

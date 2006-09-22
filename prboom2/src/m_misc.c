@@ -1019,6 +1019,24 @@ void M_SaveDefaults (void)
       // CPhipps - pure headers
       fprintf(f, "\n# %s\n", defaults[i].name);
     } else
+      // e6y: arrays
+      if (defaults[i].type == def_arr)
+      {
+        int k;
+        fprintf (f,"%-25s \"%s\"\n",defaults[i].name,*(defaults[i].location.ppsz));
+        for (k=0; k<*(defaults[i].location.pi);k++)
+        {
+          const char ***arr = defaults[i].location.pppsz;
+          if ((*arr)[k])
+          {
+            char def[80];
+            sprintf(def, "%s%d", *(defaults[i].location.ppsz), k);
+            fprintf (f,"%-25s \"%s\"\n",def, (*arr)[k]);
+          }
+        }
+      }
+      else
+
     // CPhipps - modified for new default_t form
     if (!IS_STRING(defaults[i])) //jff 4/10/98 kill super-hack on pointer value
       {
@@ -1070,6 +1088,8 @@ void M_LoadDefaults (void)
   char* newstring = NULL;   // killough
   int   parm;
   boolean isstring;
+  // e6y: arrays
+  default_t *item = NULL;
 
   // set everything to base values
 
@@ -1138,9 +1158,37 @@ void M_LoadDefaults (void)
     // Keycode hack removed
   }
 
+        // e6y: array
+        if (item)
+        {
+          if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))))
+          {
+            int *pcount = item->location.pi;
+            char ***arr = (char***)(item->location.pppsz);
+            *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
+            free((*arr)[*pcount]);
+            (*arr)[*pcount] = newstring;
+            (*pcount)++;
+            continue;
+          }
+          else
+          {
+            item = NULL;
+          }
+        }
+
         for (i = 0 ; i < numdefaults ; i++)
           if ((defaults[i].type != def_none) && !strcmp(def, defaults[i].name))
             {
+              // e6y: arrays
+              if (defaults[i].type == def_arr)
+              {
+                free((char*)*(defaults[i].location.ppsz));
+                *(defaults[i].location.ppsz) = newstring;
+                item = &defaults[i];
+                continue;
+              }
+
       // CPhipps - safety check
             if (isstring != IS_STRING(defaults[i])) {
         lprintf(LO_WARN, "M_LoadDefaults: Type mismatch reading %s\n", defaults[i].name);
