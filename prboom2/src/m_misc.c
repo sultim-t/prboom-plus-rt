@@ -1167,13 +1167,13 @@ void M_LoadDefaults (void)
             int *pcount = item->location.pi;
             char ***arr = (char***)(item->location.pppsz);
             *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
-            free((*arr)[*pcount]);
             (*arr)[*pcount] = newstring;
             (*pcount)++;
             continue;
           }
           else
           {
+            item->defaultvalue.i = *(item->location.pi);
             item = NULL;
           }
         }
@@ -1187,6 +1187,23 @@ void M_LoadDefaults (void)
                 free((char*)*(defaults[i].location.ppsz));
                 *(defaults[i].location.ppsz) = newstring;
                 item = &defaults[i];
+                // for multiple calls of M_LoadDefaults()
+                if (*item->location.pi)
+                {
+                  int k;
+                  char ***arr = (char***)(item->location.pppsz);
+                  for (k = 0; k < *(item->location.pi); k++)
+                  {
+                    if ((*arr)[k])
+                    {
+                      free((*arr)[k]);
+                      (*arr)[k] = NULL;
+                    }
+                  }
+                  free(*arr);
+                  *arr = NULL;
+                  *(item->location.pi) = 0;
+                }
                 continue;
               }
 
