@@ -686,7 +686,7 @@ static void L_FillFilesList(fileitem_t *iwad)
   {
     item = &launcher.files[i];
     if (iwad->doom1 && item->doom1 || iwad->doom2 && item->doom2 ||
-      (!iwad->doom1 && !iwad->doom2) ||
+      (!item->doom1 && !item->doom2) ||
       item->source == source_deh)
     {
       index = SendMessage(launcher.listPWAD, LB_ADDSTRING, 0, (LPARAM)strlwr(PathFindFileName(item->name)));
