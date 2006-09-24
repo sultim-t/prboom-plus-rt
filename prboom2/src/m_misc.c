@@ -1181,7 +1181,10 @@ void M_LoadDefaults (void)
               for (k = *pcount; k < item->defaultvalue.array_size; k++)
               {
                 *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
-                (*arr)[*pcount] = strdup(item->defaultvalue.array_data[k]);
+                if (item->defaultvalue.array_data[k])
+                  (*arr)[*pcount] = strdup(item->defaultvalue.array_data[k]);
+                else
+                  (*arr)[*pcount] = strdup("");
                 (*pcount)++;
               }
             }
@@ -1215,15 +1218,6 @@ void M_LoadDefaults (void)
                   *arr = NULL;
                   *(item->location.array_size) = 0;
                 }
-                // load predefined values
-                /*for (k = 0; k < item->defaultvalue.array_size; k++)
-                {
-                  int *pcount = item->location.array_size;
-                  char ***arr = (char***)(item->location.array_data);
-                  *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
-                  (*arr)[*pcount] = strdup(item->defaultvalue.array_data[k]);
-                  (*pcount)++;
-                }*/
                 continue;
               }
 
