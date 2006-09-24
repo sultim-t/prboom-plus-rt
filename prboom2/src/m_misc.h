@@ -77,7 +77,7 @@ typedef struct default_s
     const char** ppsz;
     //e6y: arrays
     int* array_size;
-    const char*** array_data;
+    char*** array_data;
   } location;
   struct {
     int i;

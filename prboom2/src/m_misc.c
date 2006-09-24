@@ -1026,7 +1026,7 @@ void M_SaveDefaults (void)
         fprintf (f,"%-25s \"%s\"\n",defaults[i].name,*(defaults[i].location.ppsz));
         for (k=0; k<*(defaults[i].location.array_size);k++)
         {
-          const char ***arr = defaults[i].location.array_data;
+          char ***arr = defaults[i].location.array_data;
           if ((*arr)[k])
           {
             char def[80];
