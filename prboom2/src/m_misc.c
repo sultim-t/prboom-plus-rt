@@ -1024,9 +1024,9 @@ void M_SaveDefaults (void)
       {
         int k;
         fprintf (f,"%-25s \"%s\"\n",defaults[i].name,*(defaults[i].location.ppsz));
-        for (k=0; k<*(defaults[i].location.pi);k++)
+        for (k=0; k<*(defaults[i].location.array_size);k++)
         {
-          const char ***arr = defaults[i].location.pppsz;
+          const char ***arr = defaults[i].location.array_data;
           if ((*arr)[k])
           {
             char def[80];
@@ -1034,6 +1034,7 @@ void M_SaveDefaults (void)
             fprintf (f,"%-25s \"%s\"\n",def, (*arr)[k]);
           }
         }
+        i += defaults[i].defaultvalue.array_size;
       }
       else
 
@@ -1161,11 +1162,12 @@ void M_LoadDefaults (void)
         // e6y: array
         if (item)
         {
+          int k;
+          int *pcount = item->location.array_size;
+          char ***arr = (char***)(item->location.array_data);
           if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))) 
-              && ((item->maxvalue == UL) || *(item->location.pi) < item->maxvalue) )
+              && ((item->maxvalue == UL) || *(item->location.array_size) < item->maxvalue) )
           {
-            int *pcount = item->location.pi;
-            char ***arr = (char***)(item->location.pppsz);
             *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
             (*arr)[*pcount] = newstring;
             (*pcount)++;
@@ -1173,7 +1175,16 @@ void M_LoadDefaults (void)
           }
           else
           {
-            item->defaultvalue.i = *(item->location.pi);
+            // load predefined values
+            if (*pcount < item->defaultvalue.array_size)
+            {
+              for (k = *pcount; k < item->defaultvalue.array_size; k++)
+              {
+                *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
+                (*arr)[*pcount] = strdup(item->defaultvalue.array_data[k]);
+                (*pcount)++;
+              }
+            }
             item = NULL;
           }
         }
@@ -1184,15 +1195,15 @@ void M_LoadDefaults (void)
               // e6y: arrays
               if (defaults[i].type == def_arr)
               {
+                int k;
                 free((char*)*(defaults[i].location.ppsz));
                 *(defaults[i].location.ppsz) = newstring;
                 item = &defaults[i];
                 // for multiple calls of M_LoadDefaults()
-                if (*item->location.pi)
+                if (*item->location.array_size)
                 {
-                  int k;
-                  char ***arr = (char***)(item->location.pppsz);
-                  for (k = 0; k < *(item->location.pi); k++)
+                  char ***arr = (char***)(item->location.array_data);
+                  for (k = 0; k < *(item->location.array_size); k++)
                   {
                     if ((*arr)[k])
                     {
@@ -1202,8 +1213,17 @@ void M_LoadDefaults (void)
                   }
                   free(*arr);
                   *arr = NULL;
-                  *(item->location.pi) = 0;
+                  *(item->location.array_size) = 0;
                 }
+                // load predefined values
+                /*for (k = 0; k < item->defaultvalue.array_size; k++)
+                {
+                  int *pcount = item->location.array_size;
+                  char ***arr = (char***)(item->location.array_data);
+                  *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
+                  (*arr)[*pcount] = strdup(item->defaultvalue.array_data[k]);
+                  (*pcount)++;
+                }*/
                 continue;
               }
 

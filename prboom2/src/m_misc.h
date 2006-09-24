@@ -75,11 +75,16 @@ typedef struct default_s
   struct {
     int* pi;
     const char** ppsz;
-    const char*** pppsz;// e6y: arrays
+    //e6y: arrays
+    int* array_size;
+    const char*** array_data;
   } location;
   struct {
     int i;
     const char* psz;
+    //e6y: arrays
+    int array_size;
+    char** array_data;
   } defaultvalue; // CPhipps - default value
   // Limits (for an int)
   int   minvalue;         // jff 3/3/98 minimum allowed value
