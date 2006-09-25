@@ -24,7 +24,7 @@ end
 # Bundle structure #
 ####################
 
-file("#{CONTENTSDIR}/Info.plist" => ['mac/Info.plist', CONTENTSDIR, 'mac/Rakefile']) do |t|
+file("#{CONTENTSDIR}/Info.plist" => ['MAC/Info.plist', CONTENTSDIR, 'MAC/Rakefile']) do |t|
 	plist = []
 	File.open(t.prerequisites[0], 'r') do |file|
 		plist = file.readlines
@@ -170,7 +170,7 @@ wadfiles = [Dir::glob('../data/graphics/*.ppm'),
 if wadfiles.empty?
 	# Special case for release tarballs that only contain premade wad
 	file("#{RESOURCEDIR}/prboom.wad" => [RESOURCEDIR, '../data/prboom.wad']) do |task|
-		cp(task.prerequisites[0], task.name)
+		cp(task.prerequisites[1], task.name)
 	end
 else
 	# Make the wad
