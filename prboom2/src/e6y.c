@@ -1694,3 +1694,8 @@ void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src,
     }
   }
 }
+
+int demo_patterns_count;
+char *demo_patterns_mask;
+char **demo_patterns_list;
+char *demo_patterns_list_def[9];

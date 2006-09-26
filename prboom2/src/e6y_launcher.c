@@ -20,6 +20,12 @@
 #pragma comment( lib, "comctl32.lib" )
 #pragma comment( lib, "advapi32.lib" )
 
+#define PCRE_STATIC 1
+#include "pcre.h"
+#include "pcreposix.h"
+#pragma comment( lib, "pcre.lib" )
+#pragma comment( lib, "pcreposix.lib" )
+
 #define ETDT_ENABLE         0x00000002
 #define ETDT_USETABTEXTURE  0x00000004
 #define ETDT_ENABLETAB      (ETDT_ENABLE  | ETDT_USETABTEXTURE)
@@ -87,6 +93,10 @@ static void L_FillFilesList(fileitem_t *iwad);
 static void L_FillHistoryList(void);
 
 static char* L_HistoryGetStr(wadfiles_t *data);
+static wadfiles_t* L_HistoryGetData(const char *str);
+static void L_FreeWadFiles(wadfiles_t *data);
+
+static boolean L_DemoAutoDetect(void);
 
 static void L_ReadCacheData(void);
 static void L_AddItemToCache(fileitem_t *item);
@@ -160,20 +170,23 @@ static void L_FilesOnChange(void)
       font = (HFONT)SendMessage(launcher.staticFileName, WM_GETFONT, 0, 0);
       oldfont = SelectObject(hdc, font);
       
-      for (count = 2; count <= strlen(path); count++)
+      for (count = strlen(path); count > 0 ; count--)
       {
+        char tmppath[PATH_MAX];
         SIZE size = {0, 0};
-        if (GetTextExtentPoint32(hdc, path, count, &size))
+        strcpy(tmppath, path);
+        AbbreviateName(tmppath, count, false);
+        if (GetTextExtentPoint32(hdc, tmppath, count, &size))
         {
-          if (size.cx > rect.right - rect.left)
+          if (size.cx < rect.right - rect.left)
+          {
+            SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)tmppath);
             break;
+          }
         }
       }
       
       SelectObject(hdc, oldfont);
-
-      AbbreviateName(path, count - 1, false);
-      SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)path);
     }
   }
 }
@@ -888,6 +901,60 @@ static char* L_HistoryGetStr(wadfiles_t *data)
   return result;
 }
 
+static wadfiles_t* L_HistoryGetData(const char *str)
+{
+  wadfile_info_t *wadfiles = NULL;
+  wadfiles_t *data;
+  size_t numwadfiles = 0;
+  char *pStr = strdup(str);
+  char *pToken = pStr;
+
+  for (;(pToken = strtok(pToken,"|"));pToken = NULL)
+  {
+    wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+
+    wadfiles[numwadfiles].name =
+      AddDefaultExtension(strcpy(malloc(strlen(pToken)+5), pToken), ".wad");
+
+    if (pToken == pStr)
+    {
+      wadfiles[numwadfiles].src = source_iwad;
+    }
+    else
+    {
+      char *p = (char*)wadfiles[numwadfiles].name;
+      int len = strlen(p);
+      if (!strcasecmp(&p[len-4],".wad"))
+        wadfiles[numwadfiles].src = source_pwad;
+      if (!strcasecmp(&p[len-4],".deh"))
+        wadfiles[numwadfiles].src = source_deh;
+    }
+    numwadfiles++;
+  }
+
+  data = malloc(sizeof(*data));
+  data->wadfiles = wadfiles;
+  data->numwadfiles = numwadfiles;
+
+  free(pStr);
+
+  return data;
+}
+
+static void L_FreeWadFiles(wadfiles_t *wadfiles)
+{
+  if (wadfiles)
+  {
+    if (wadfiles->wadfiles)
+    {
+      free(wadfiles->wadfiles);
+      wadfiles->wadfiles = NULL;
+    }
+    free(wadfiles);
+    wadfiles = NULL;
+  }
+}
+
 static void L_FillHistoryList(void)
 {
   int i, count;
@@ -917,40 +984,10 @@ static void L_FillHistoryList(void)
     if (strlen(launcher_history[i]) > 0)
     {
       int index;
-      wadfile_info_t *wadfiles = NULL;
       wadfiles_t *data;
-      size_t numwadfiles = 0;
-      char *pToken;
       char *str = strdup(launcher_history[i]);
 
-      pToken = str;
-      for (;(pToken = strtok(pToken,"|"));pToken = NULL)
-      {
-        wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-
-        wadfiles[numwadfiles].name =
-          AddDefaultExtension(strcpy(malloc(strlen(pToken)+5), pToken), ".wad");
-    
-        if (pToken == str)
-        {
-          wadfiles[numwadfiles].src = source_iwad;
-        }
-        else
-        {
-          char *p = (char*)wadfiles[numwadfiles].name;
-          int len = strlen(p);
-          if (!strcasecmp(&p[len-4],".wad"))
-            wadfiles[numwadfiles].src = source_pwad;
-          if (!strcasecmp(&p[len-4],".deh"))
-            wadfiles[numwadfiles].src = source_deh;
-        }
-        numwadfiles++;
-      }
-
-      data = malloc(sizeof(*data));
-      data->wadfiles = wadfiles;
-      data->numwadfiles = numwadfiles;
-      
+      data = L_HistoryGetData(str);
       p = L_HistoryGetStr(data);
 
       if (p)
@@ -966,6 +1003,72 @@ static void L_FillHistoryList(void)
       free(str);
     }
   }
+}
+
+static boolean L_DemoAutoDetect(void)
+{
+  int demoindex;
+  for (demoindex = 0; (size_t)demoindex < numwadfiles; demoindex++)
+  {
+    if (wadfiles[demoindex].src == source_lmp)
+    {
+      int i;
+      for (i = 0; i < demo_patterns_count; i++)
+      {
+        int result;
+        regex_t preg;
+        regmatch_t pmatch[4];
+        char errbuf[256];
+        char *buf = demo_patterns_list[i];
+
+        regcomp(&preg, "(.*?)\\/(.*)\\/(.+)", REG_ICASE);
+        result = regexec(&preg, buf, 4, &pmatch[0], REG_NOTBOL);
+        regerror(result, &preg, errbuf, sizeof(errbuf));
+        regfree(&preg);
+
+        if (result != 0)
+        {
+          lprintf(LO_ERROR, "Incorrect format of the <%s%d = \"%s\"> config entry\n", demo_patterns_mask, i, buf);
+        }
+        else
+        {
+          regmatch_t demo_match[2];
+          char pattern[1024];
+          int len;
+
+          len = pmatch[2].rm_eo - pmatch[2].rm_so;
+          strncpy(pattern, buf + pmatch[2].rm_so, len);
+          pattern[len] = '\0';
+          result = regcomp(&preg, pattern, REG_ICASE);
+          if (result != 0)
+          {
+            regerror(result, &preg, errbuf, sizeof(errbuf));
+            lprintf(LO_ERROR, "Incorrect regular expressions in the <%s%d = \"%s\"> config entry - %s\n", demo_patterns_mask, i, buf, errbuf);
+          }
+          else
+          {
+            result = regexec(&preg, wadfiles[demoindex].name, 1, &demo_match[0], REG_NOTBOL);
+            if (result == 0)
+            {
+              char path[MAX_PATH];
+              wadfiles_t *data = L_HistoryGetData(buf + pmatch[3].rm_so);
+              L_GUISelect(data->wadfiles, data->numwadfiles);
+              len = min(pmatch[1].rm_eo - pmatch[1].rm_so, sizeof(path) - sizeof(path[0]));
+              strncpy(path, buf, len);
+              path[len] = '\0';
+              SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)path);
+              L_FreeWadFiles(data);
+              regfree(&preg);
+              return true;
+            }
+          }
+          regfree(&preg);
+        }
+      }
+      break;
+    }
+  }
+  return false;
 }
 
 BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1015,7 +1118,10 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
       L_FillGameList();
       L_FillHistoryList();
 
-      if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
+      if (L_DemoAutoDetect())
+      {
+      }
+      else if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
       {
         L_HistoryOnChange();
         SetFocus(launcher.listHistory);

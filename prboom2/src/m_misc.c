@@ -832,6 +832,26 @@ default_t defaults[] =
   {"launcher_history8", {NULL,&launcher_history[8]}, {0,""},UL,UL,def_str,ss_none},
   {"launcher_history9", {NULL,&launcher_history[9]}, {0,""},UL,UL,def_str,ss_none},
 #endif
+  {"Prboom-plus demo patterns list. Put your patterns here",{NULL},{0},UL,UL,def_none,ss_none},
+  {"demo_patterns_mask", {NULL, &demo_patterns_mask, &demo_patterns_count, &demo_patterns_list}, {0,"demo_pattern",9, &demo_patterns_list_def[0]},UL,UL,def_arr,ss_none},
+  {"demo_pattern0", {NULL,&demo_patterns_list_def[0]}, 
+   {0,"DOOM 2: Hell on Earth/((lv)|(nm)|(pa)|(ty))\\d\\d.\\d\\d\\d\\.lmp/doom2.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern1", {NULL,&demo_patterns_list_def[1]}, 
+   {0,"DOOM 2: Plutonia Experiment/p(c|f|l|n|p|r|s|t)\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|plutonia.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern2", {NULL,&demo_patterns_list_def[2]}, 
+   {0,"DOOM 2: TNT - Evilution/((e(c|f|v|p|r|s|t))|(tn))\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|tnt.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern3", {NULL,&demo_patterns_list_def[3]}, 
+   {0,"The Ultimate DOOM/(((e|f|n|p|r|t|u)\\dm\\d)|(n\\ds\\d)).\\d\\d\\d\\.lmp/doom.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern4", {NULL,&demo_patterns_list_def[4]}, 
+   {0,"Alien Vendetta/a(c|f|n|p|r|s|t|v)\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|av.wad|av.deh"},UL,UL,def_str,ss_none},
+  {"demo_pattern5", {NULL,&demo_patterns_list_def[5]}, 
+   {0,"Requiem/r(c|f|n|p|q|r|s|t)\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|requiem.wad|req21fix.wad|reqmus.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern6", {NULL,&demo_patterns_list_def[6]}, 
+   {0,"Hell Revealed/h(c|e|f|n|p|r|s|t)\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|hr.wad|hrmus.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern7", {NULL,&demo_patterns_list_def[7]}, 
+   {0,"Memento Mori/mm\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|mm.wad|mmmus.wad"},UL,UL,def_str,ss_none},
+  {"demo_pattern8", {NULL,&demo_patterns_list_def[8]}, 
+   {0,"Memento Mori 2/m2\\d\\d.\\d\\d\\d\\.lmp/doom2.wad|mm2.wad|mm2mus.wad"},UL,UL,def_str,ss_none},
 
   {"Weapon preferences",{NULL},{0},UL,UL,def_none,ss_none},
   // killough 2/8/98: weapon preferences set by user:
@@ -1024,7 +1044,7 @@ void M_SaveDefaults (void)
       {
         int k;
         fprintf (f,"%-25s \"%s\"\n",defaults[i].name,*(defaults[i].location.ppsz));
-        for (k=0; k<*(defaults[i].location.array_size);k++)
+        for (k = 0; k < *(defaults[i].location.array_size); k++)
         {
           char ***arr = defaults[i].location.array_data;
           if ((*arr)[k])
@@ -1102,6 +1122,39 @@ void M_LoadDefaults (void)
       *defaults[i].location.pi = defaults[i].defaultvalue.i;
   }
 
+  //e6y: arrays
+  for (i = 0 ; i < numdefaults ; i++) {
+    if (defaults[i].type == def_arr)
+    {
+      int k;
+      default_t *item = &defaults[i];
+      char ***arr = (char***)(item->location.array_data);
+      // free memory
+      for (k = 0; k < *(item->location.array_size); k++)
+      {
+        if ((*arr)[k])
+        {
+          free((*arr)[k]);
+          (*arr)[k] = NULL;
+        }
+      }
+      free(*arr);
+      *arr = NULL;
+      *(item->location.array_size) = 0;
+      // load predefined data
+      *arr = realloc(*arr, sizeof(char*) * item->defaultvalue.array_size);
+      *(item->location.array_size) = item->defaultvalue.array_size;
+      item->location.array_index = 0;
+      for (k = 0; k < item->defaultvalue.array_size; k++)
+      {
+        if (item->defaultvalue.array_data[k])
+          (*arr)[k] = strdup(item->defaultvalue.array_data[k]);
+        else
+          (*arr)[k] = strdup("");
+      }
+    }
+  }
+
   // check for a custom default file
 
   i = M_CheckParm ("-config");
@@ -1162,32 +1215,25 @@ void M_LoadDefaults (void)
         // e6y: array
         if (item)
         {
-          int k;
           int *pcount = item->location.array_size;
+          int *index = &item->location.array_index;
           char ***arr = (char***)(item->location.array_data);
           if (!strncmp(def, *(item->location.ppsz), strlen(*(item->location.ppsz))) 
               && ((item->maxvalue == UL) || *(item->location.array_size) < item->maxvalue) )
           {
-            *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
-            (*arr)[*pcount] = newstring;
-            (*pcount)++;
+            if ((*index) + 1 > *pcount)
+            {
+              *arr = realloc(*arr, sizeof(char*) * ((*index) + 1));
+              (*pcount)++;
+            }
+            if ((*arr)[(*index)])
+              free((*arr)[(*index)]);
+            (*arr)[(*index)] = newstring;
+            (*index)++;
             continue;
           }
           else
           {
-            // load predefined values
-            if (*pcount < item->defaultvalue.array_size)
-            {
-              for (k = *pcount; k < item->defaultvalue.array_size; k++)
-              {
-                *arr = realloc(*arr, sizeof(char*) * ((*pcount)+1));
-                if (item->defaultvalue.array_data[k])
-                  (*arr)[*pcount] = strdup(item->defaultvalue.array_data[k]);
-                else
-                  (*arr)[*pcount] = strdup("");
-                (*pcount)++;
-              }
-            }
             item = NULL;
           }
         }
@@ -1198,26 +1244,9 @@ void M_LoadDefaults (void)
               // e6y: arrays
               if (defaults[i].type == def_arr)
               {
-                int k;
                 free((char*)*(defaults[i].location.ppsz));
                 *(defaults[i].location.ppsz) = newstring;
                 item = &defaults[i];
-                // for multiple calls of M_LoadDefaults()
-                if (*item->location.array_size)
-                {
-                  char ***arr = (char***)(item->location.array_data);
-                  for (k = 0; k < *(item->location.array_size); k++)
-                  {
-                    if ((*arr)[k])
-                    {
-                      free((*arr)[k]);
-                      (*arr)[k] = NULL;
-                    }
-                  }
-                  free(*arr);
-                  *arr = NULL;
-                  *(item->location.array_size) = 0;
-                }
                 continue;
               }
 

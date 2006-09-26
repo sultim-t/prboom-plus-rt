@@ -390,4 +390,9 @@ void W_FreeCachedLumps(void);
 
 void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest);
 
+extern int demo_patterns_count;
+extern char *demo_patterns_mask;
+extern char **demo_patterns_list;
+extern char *demo_patterns_list_def[];
+
 #endif

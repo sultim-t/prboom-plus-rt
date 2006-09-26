@@ -78,6 +78,7 @@ typedef struct default_s
     //e6y: arrays
     int* array_size;
     char*** array_data;
+    int array_index;
   } location;
   struct {
     int i;
