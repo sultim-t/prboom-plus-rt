@@ -1316,8 +1316,20 @@ spawnit:
   mobj->angle = ANG45 * (mthing->angle/45);
   if (options & MTF_AMBUSH)
     mobj->flags |= MF_AMBUSH;
+
+  // RjY
+  // Print a warning when a solid hanging body is used in a sector where
+  // the player can walk under it, to help people with map debugging
+  if (!((~mobj->flags) & (MF_SOLID | MF_SPAWNCEILING)) // solid and hanging
+      // invert everything, then both bits should be clear
+      && mobj->floorz + mobjinfo[MT_PLAYER].height <= mobj->z) // head <= base
+      // player under body's head height <= bottom of body
+  {
+    lprintf(LO_WARN, "P_SpawnMapThing: solid hanging body in tall sector at "
+        "%d,%d (type=%d)\n", mthing->x, mthing->y, mthing->type);
   }
 
+  }
 
 //
 // GAME SPAWN FUNCTIONS

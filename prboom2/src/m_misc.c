@@ -817,6 +817,8 @@ default_t defaults[] =
    def_bool,ss_stat},
   {"comperr_shortreject", {&comperr_shortreject},  {0},0,1,
    def_bool,ss_stat},
+  {"comperr_hangsolid", {&comperr_hangsolid},  {0},0,1,
+   def_bool,ss_stat},
 
 #ifdef _WIN32
   {"Prboom-plus launcher settings",{NULL},{0},UL,UL,def_none,ss_none},

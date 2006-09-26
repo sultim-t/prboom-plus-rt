@@ -3219,6 +3219,7 @@ setup_menu_t gen_settings7[] =
   {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"comperr_zerotag"}},
   {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"comperr_passuse"}},
   {"PAD A TOO SHORT REJECT WITH ZEROS" ,S_YESNO     ,m_null,G_X2,G_Y+14*8, {"comperr_shortreject"}},
+  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+15*8, {"comperr_hangsolid"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings6}},

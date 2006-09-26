@@ -575,6 +575,16 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
       return !solid;
     }
 
+  // RjY
+  // comperr_hangsolid, an attempt to handle blocking hanging bodies
+  // A solid hanging body will allow sufficiently small things underneath it.
+  if (!((~thing->flags) & (MF_SOLID | MF_SPAWNCEILING)) // solid and hanging
+      // invert everything, then both bits should be clear
+      && tmthing->z + tmthing->height <= thing->z // head height <= base
+      // top of thing trying to move under the body <= bottom of body
+      && compbad_get(&comperr_hangsolid))
+    return true;
+
   // killough 3/16/98: Allow non-solid moving objects to move through solid
   // ones, by allowing the moving thing (tmthing) to move if it's non-solid,
   // despite another solid thing being in the way.
