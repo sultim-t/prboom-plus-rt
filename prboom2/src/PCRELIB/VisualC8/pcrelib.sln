@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dftables", "dftables.vcproj", "{12246416-5582-4A06-99C9-71185C51E5CC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pcre", "pcre.vcproj", "{5CD92330-F9E3-4B1F-A27C-6C467D41819C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pcreposix", "pcreposix.vcproj", "{604FC63C-155E-4363-B359-B4CDAA7A6D66}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{12246416-5582-4A06-99C9-71185C51E5CC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{12246416-5582-4A06-99C9-71185C51E5CC}.Debug|Win32.Build.0 = Debug|Win32
+		{12246416-5582-4A06-99C9-71185C51E5CC}.Release|Win32.ActiveCfg = Release|Win32
+		{12246416-5582-4A06-99C9-71185C51E5CC}.Release|Win32.Build.0 = Release|Win32
+		{5CD92330-F9E3-4B1F-A27C-6C467D41819C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5CD92330-F9E3-4B1F-A27C-6C467D41819C}.Debug|Win32.Build.0 = Debug|Win32
+		{5CD92330-F9E3-4B1F-A27C-6C467D41819C}.Release|Win32.ActiveCfg = Release|Win32
+		{5CD92330-F9E3-4B1F-A27C-6C467D41819C}.Release|Win32.Build.0 = Release|Win32
+		{604FC63C-155E-4363-B359-B4CDAA7A6D66}.Debug|Win32.ActiveCfg = Debug|Win32
+		{604FC63C-155E-4363-B359-B4CDAA7A6D66}.Debug|Win32.Build.0 = Debug|Win32
+		{604FC63C-155E-4363-B359-B4CDAA7A6D66}.Release|Win32.ActiveCfg = Release|Win32
+		{604FC63C-155E-4363-B359-B4CDAA7A6D66}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

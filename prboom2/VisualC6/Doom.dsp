@@ -49,7 +49,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "I386_ASM" /FR /YX /FD /c
+# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "I386_ASM" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"Release/prboom-plus.exe"
+# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"Release/prboom-plus.exe" /libpath:"../src/PCRELIB/VisualC6/lib"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug"
@@ -76,7 +76,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom-plus.exe" /pdbtype:sept
+# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom-plus.exe" /pdbtype:sept /libpath:"../src/PCRELIB/VisualC6/lib"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL"
@@ -104,7 +104,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "HIGHRES" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "GL_DOOM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "I386_ASM" /FR /YX /FD /c
+# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "NDEBUG" /D "GL_DOOM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
+# SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -114,8 +115,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /profile /machine:I386 /out:"ReleaseGL/glboom-plus.exe"
-# SUBTRACT LINK32 /debug
+# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /profile /machine:I386 /out:"ReleaseGL/glboom-plus.exe" /libpath:"../src/PCRELIB/VisualC6/lib"
+# SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL"
 
@@ -132,7 +133,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_SDL" /D "HIGHRES" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /FR /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -142,8 +143,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom-plus.exe"
-# SUBTRACT LINK32 /profile
+# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom-plus.exe" /libpath:"../src/PCRELIB/VisualC6/lib"
+# SUBTRACT LINK32 /profile /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release NOASM"
 
@@ -160,7 +161,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
+# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -170,7 +171,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASM/prboom-plus.exe"
+# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASM/prboom-plus.exe" /libpath:"../src/PCRELIB/VisualC6/lib"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Release OpenGL NOASM"
@@ -188,7 +189,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "GL_DOOM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /D "NDEBUG" /D "GL_DOOM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /FR /YX /FD /c
+# ADD CPP /nologo /MT /W3 /WX /GX /O2 /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "NDEBUG" /D "GL_DOOM" /D "WIN32" /D "_WINDOWS" /D "HAVE_CONFIG_H" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -199,7 +200,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib sdl.lib opengl32.lib glu32.lib /nologo /subsystem:windows /machine:I386
 # SUBTRACT BASE LINK32 /profile /debug
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASMGL/glboom-plus.exe"
+# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /machine:I386 /out:"ReleaseNOASMGL/glboom-plus.exe" /libpath:"../src/PCRELIB/VisualC6/lib"
 # SUBTRACT LINK32 /profile /debug
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug NOASM"
@@ -217,7 +218,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /FR /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -228,7 +229,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"Debug/prboom.exe" /pdbtype:sept
 # SUBTRACT BASE LINK32 /profile
-# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom-plus.exe" /pdbtype:sept
+# ADD LINK32 user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASM/prboom-plus.exe" /pdbtype:sept /libpath:"../src/PCRELIB/VisualC6/lib"
 # SUBTRACT LINK32 /profile
 
 !ELSEIF  "$(CFG)" == "Doom - Win32 Debug OpenGL NOASM"
@@ -246,7 +247,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /D "I386_ASM" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /FR /YX /FD /c
+# ADD CPP /nologo /MTd /W3 /WX /Gm /GX /ZI /Od /I "../VisualC6" /I "../src" /I "../src/PCRELIB" /D "GL_DOOM" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "INSTRUMENTED" /D "RANGECHECK" /D "SIMPLECHECKS" /D "TIMEDIAG" /D "HEAPDUMP" /D "HAVE_CONFIG_H" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
@@ -257,7 +258,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugGL/glboom.exe"
 # SUBTRACT BASE LINK32 /profile
-# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASMGL/glboom-plus.exe"
+# ADD LINK32 opengl32.lib glu32.lib user32.lib gdi32.lib sdl.lib sdl_mixer.lib sdl_net.lib /nologo /subsystem:windows /debug /machine:I386 /out:"DebugNOASMGL/glboom-plus.exe" /libpath:"../src/PCRELIB/VisualC6/lib"
 # SUBTRACT LINK32 /profile
 
 !ENDIF 

@@ -21,10 +21,14 @@
 #pragma comment( lib, "advapi32.lib" )
 
 #define PCRE_STATIC 1
-#include "pcre.h"
 #include "pcreposix.h"
+#ifdef _DEBUG
+#pragma comment( lib, "pcred.lib" )
+#pragma comment( lib, "pcreposixd.lib" )
+#else
 #pragma comment( lib, "pcre.lib" )
 #pragma comment( lib, "pcreposix.lib" )
+#endif
 
 #define ETDT_ENABLE         0x00000002
 #define ETDT_USETABTEXTURE  0x00000004
@@ -1007,12 +1011,21 @@ static void L_FillHistoryList(void)
 
 static boolean L_DemoAutoDetect(void)
 {
+  boolean res = false;
   int demoindex;
   for (demoindex = 0; (size_t)demoindex < numwadfiles; demoindex++)
   {
     if (wadfiles[demoindex].src == source_lmp)
     {
       int i;
+      unsigned int maxlen = 0;
+      char *pattern;
+      for (i = 0; i < demo_patterns_count; i++)
+      {
+        if (strlen(demo_patterns_list[i]) > maxlen)
+          maxlen = strlen(demo_patterns_list[i]);
+      }
+      pattern = malloc(maxlen + sizeof(char));
       for (i = 0; i < demo_patterns_count; i++)
       {
         int result;
@@ -1028,22 +1041,20 @@ static boolean L_DemoAutoDetect(void)
 
         if (result != 0)
         {
-          lprintf(LO_ERROR, "Incorrect format of the <%s%d = \"%s\"> config entry\n", demo_patterns_mask, i, buf);
+          lprintf(LO_WARN, "Incorrect format of the <%s%d = \"%s\"> config entry\n", demo_patterns_mask, i, buf);
         }
         else
         {
           regmatch_t demo_match[2];
-          char pattern[1024];
-          int len;
+          int len = pmatch[2].rm_eo - pmatch[2].rm_so;
 
-          len = pmatch[2].rm_eo - pmatch[2].rm_so;
           strncpy(pattern, buf + pmatch[2].rm_so, len);
           pattern[len] = '\0';
           result = regcomp(&preg, pattern, REG_ICASE);
           if (result != 0)
           {
             regerror(result, &preg, errbuf, sizeof(errbuf));
-            lprintf(LO_ERROR, "Incorrect regular expressions in the <%s%d = \"%s\"> config entry - %s\n", demo_patterns_mask, i, buf, errbuf);
+            lprintf(LO_WARN, "Incorrect regular expressions in the <%s%d = \"%s\"> config entry - %s\n", demo_patterns_mask, i, buf, errbuf);
           }
           else
           {
@@ -1058,17 +1069,18 @@ static boolean L_DemoAutoDetect(void)
               path[len] = '\0';
               SendMessage(launcher.staticFileName, WM_SETTEXT, 0, (LPARAM)path);
               L_FreeWadFiles(data);
-              regfree(&preg);
-              return true;
+              res = true;
+              break;
             }
           }
           regfree(&preg);
         }
       }
+      free(pattern);
       break;
     }
   }
-  return false;
+  return res;
 }
 
 BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1120,6 +1132,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
 
       if (L_DemoAutoDetect())
       {
+        // do nothing
       }
       else if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
       {
