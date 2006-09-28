@@ -106,7 +106,7 @@ static void L_ReadCacheData(void);
 static void L_AddItemToCache(fileitem_t *item);
 
 static boolean L_GetFileType(const char *filename, fileitem_t *item);
-static void L_DoGameReplace(const char *iwad);
+//static void L_DoGameReplace(const char *iwad);
 static void L_PrepareToLaunch(void);
 
 static boolean L_GUISelect(wadfile_info_t *wadfiles, size_t numwadfiles);
@@ -477,11 +477,13 @@ static boolean L_GUISelect(wadfile_info_t *wadfiles, size_t numwadfiles)
   return true;
 }
 
-static void L_DoGameReplace(const char *iwad)
+/*static void L_DoGameReplace(const char *iwad)
 {
   extern boolean haswolflevels;
   int i, j;
   char *realiwad;
+  wadfile_info_t *new_wadfiles=NULL;
+  size_t new_numwadfiles = 0;
 
   realiwad = I_FindFile(iwad, ".wad");
 
@@ -530,15 +532,24 @@ static void L_DoGameReplace(const char *iwad)
 
     // add new IWAD by standart way
     D_AddFile(realiwad,source_iwad);
-    
+
     free(realiwad);
   }
-}
+} */
 
 static void L_PrepareToLaunch(void)
 {
   int i, index, listPWADCount;
   char *history = NULL;
+  wadfile_info_t *new_wadfiles=NULL;
+  size_t new_numwadfiles = 0;
+
+  new_numwadfiles = numwadfiles;
+  new_wadfiles = malloc(sizeof(*wadfiles) * numwadfiles);
+  memcpy(new_wadfiles, wadfiles, sizeof(*wadfiles) * numwadfiles);
+  numwadfiles = 0;
+  free(wadfiles);
+  wadfiles = NULL;
   
   listPWADCount = SendMessage(launcher.listPWAD, LB_GETCOUNT, 0, 0);
   
@@ -551,7 +562,19 @@ static void L_PrepareToLaunch(void)
       char *iwadname = PathFindFileName(launcher.files[index].name);
       history = malloc(strlen(iwadname) + 8);
       strcpy(history, iwadname);
-      L_DoGameReplace(iwadname);
+      D_AddFile(iwadname,source_iwad);
+      //L_DoGameReplace(iwadname);
+    }
+  }
+  for (i = 0; (size_t)i < new_numwadfiles; i++)
+  {
+    if (new_wadfiles[i].src == source_auto_load)
+    {
+      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+      wadfiles[numwadfiles].name = strdup(new_wadfiles[i].name);
+      wadfiles[numwadfiles].src = new_wadfiles[i].src;
+      wadfiles[numwadfiles].handle = new_wadfiles[i].handle;
+      numwadfiles++;
     }
   }
 
@@ -575,6 +598,14 @@ static void L_PrepareToLaunch(void)
       strcat(history, item->name);
     }
   }
+  for (i = 0; (size_t)i < new_numwadfiles; i++)
+  {
+    if (new_wadfiles[i].src == source_lmp || new_wadfiles[i].src == source_net)
+      D_AddFile(new_wadfiles[i].name, new_wadfiles[i].src);
+    if (new_wadfiles[i].name)
+      free((char*)new_wadfiles[i].name);
+  }
+  free(new_wadfiles);
 
   if (history)
   {
@@ -1177,7 +1208,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
     break;
 	}
 	return FALSE;
-}
+  }
 
 BOOL CALLBACK LauncherServerCallback (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1244,8 +1275,8 @@ void LauncherShow(void)
   int result;
   int nCmdShow = SW_SHOW;
 
-  if (!L_LauncherIsNeeded())
-    return;
+//  if (!L_LauncherIsNeeded())
+//    return;
 
   InitCommonControls();
   sprintf(launchercachefile,"%s/prboom-plus.cache", I_DoomExeDir());
