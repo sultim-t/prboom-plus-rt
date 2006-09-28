@@ -106,8 +106,7 @@ static void L_ReadCacheData(void);
 static void L_AddItemToCache(fileitem_t *item);
 
 static boolean L_GetFileType(const char *filename, fileitem_t *item);
-//static void L_DoGameReplace(const char *iwad);
-static void L_PrepareToLaunch(void);
+static boolean L_PrepareToLaunch(void);
 
 static boolean L_GUISelect(wadfile_info_t *wadfiles, size_t numwadfiles);
 static boolean L_LauncherIsNeeded(void);
@@ -477,67 +476,7 @@ static boolean L_GUISelect(wadfile_info_t *wadfiles, size_t numwadfiles)
   return true;
 }
 
-/*static void L_DoGameReplace(const char *iwad)
-{
-  extern boolean haswolflevels;
-  int i, j;
-  char *realiwad;
-  wadfile_info_t *new_wadfiles=NULL;
-  size_t new_numwadfiles = 0;
-
-  realiwad = I_FindFile(iwad, ".wad");
-
-  if (realiwad && *realiwad)
-  {
-    CheckIWAD(realiwad,&gamemode,&haswolflevels);
-    
-    switch(gamemode)
-    {
-    case retail:
-    case registered:
-    case shareware:
-      gamemission = doom;
-      break;
-    case commercial:
-      i = strlen(realiwad);
-      gamemission = doom2;
-      if (i>=10 && !strnicmp(realiwad+i-10,"doom2f.wad",10))
-        language=french;
-      else if (i>=7 && !strnicmp(realiwad+i-7,"tnt.wad",7))
-        gamemission = pack_tnt;
-      else if (i>=12 && !strnicmp(realiwad+i-12,"plutonia.wad",12))
-        gamemission = pack_plut;
-      break;
-    default:
-      gamemission = none;
-      break;
-    }
-    if (gamemode == indetermined)
-      lprintf(LO_WARN,"Unknown Game Version, may not work\n");
-
-    // delete all IWADs with corresponding GWA from wadfiles array
-    i=0;
-    while((size_t)i<numwadfiles && (int)numwadfiles > 0)
-    {
-      if (wadfiles[i].src == source_iwad)
-      {
-        free((char*)wadfiles[i].name);
-        for(j=i+1;(size_t)j<numwadfiles;j++)
-          wadfiles[j-1] = wadfiles[j];
-        numwadfiles--;
-      }
-      else
-        i++;
-    }
-
-    // add new IWAD by standart way
-    D_AddFile(realiwad,source_iwad);
-
-    free(realiwad);
-  }
-} */
-
-static void L_PrepareToLaunch(void)
+static boolean L_PrepareToLaunch(void)
 {
   int i, index, listPWADCount;
   char *history = NULL;
@@ -560,12 +499,21 @@ static void L_PrepareToLaunch(void)
     if (index != CB_ERR)
     {
       char *iwadname = PathFindFileName(launcher.files[index].name);
-      history = malloc(strlen(iwadname) + 8);
-      strcpy(history, iwadname);
-      D_AddFile(iwadname,source_iwad);
+      char *realiwad = I_FindFile(iwadname, ".wad");
+      if (realiwad && *realiwad)
+      {
+        history = malloc(strlen(iwadname) + 8);
+        strcpy(history, iwadname);
+        D_AddFile(realiwad,source_iwad);
+        free(realiwad);
+      }
       //L_DoGameReplace(iwadname);
     }
   }
+
+  if (numwadfiles == 0)
+    return false;
+
   for (i = 0; (size_t)i < new_numwadfiles; i++)
   {
     if (new_wadfiles[i].src == source_auto_load)
@@ -644,6 +592,7 @@ static void L_PrepareToLaunch(void)
       history1->location.ppsz[0] = history;
     }
   }
+  return true;
 }
 
 static void L_AddItemToCache(fileitem_t *item)
@@ -1185,8 +1134,8 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
 
       if (wmId == IDC_PWADLIST && wmEvent == LBN_DBLCLK)
       {
-        L_PrepareToLaunch();
-        EndDialog (launcher.HWNDServer, 1);
+        if (L_PrepareToLaunch())
+          EndDialog (launcher.HWNDServer, 1);
       }
       
       if (wmId == IDC_HISTORYCOMBO && wmEvent == CBN_SELCHANGE)
@@ -1225,8 +1174,8 @@ BOOL CALLBACK LauncherServerCallback (HWND hWnd, UINT message, WPARAM wParam, LP
       EndDialog (hWnd, 0);
       break;
     case IDOK:
-      L_PrepareToLaunch();
-      EndDialog (hWnd, 1);
+      if (L_PrepareToLaunch())
+        EndDialog (hWnd, 1);
       break;
     }
     break;
