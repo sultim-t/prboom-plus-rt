@@ -1275,8 +1275,8 @@ void LauncherShow(void)
   int result;
   int nCmdShow = SW_SHOW;
 
-//  if (!L_LauncherIsNeeded())
-//    return;
+  if (!L_LauncherIsNeeded())
+    return;
 
   InitCommonControls();
   sprintf(launchercachefile,"%s/prboom-plus.cache", I_DoomExeDir());
