@@ -136,7 +136,6 @@ static void L_FreeWadFiles(wadfiles_t *data);
 static boolean L_DemoAutoDetect(void);
 
 static void L_ReadCacheData(void);
-static void L_AddItemToCache(fileitem_t *item);
 
 static boolean L_GetFileType(const char *filename, fileitem_t *item);
 static boolean L_PrepareToLaunch(void);
@@ -146,6 +145,7 @@ static boolean L_LauncherIsNeeded(void);
 
 static void L_FillFilesList(fileitem_t *iwad);
 static void L_AddItemToCache(fileitem_t *item);
+static void L_IdentifyVersion(const char *iwad);
 
 char* e6y_I_FindFile(const char* ext);
 int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength);
@@ -532,15 +532,9 @@ static boolean L_PrepareToLaunch(void)
     if (index != CB_ERR)
     {
       char *iwadname = PathFindFileName(launcher.files[index].name);
-      char *realiwad = I_FindFile(iwadname, ".wad");
-      if (realiwad && *realiwad)
-      {
-        history = malloc(strlen(iwadname) + 8);
-        strcpy(history, iwadname);
-        D_AddFile(realiwad,source_iwad);
-        free(realiwad);
-      }
-      //L_DoGameReplace(iwadname);
+      history = malloc(strlen(iwadname) + 8);
+      strcpy(history, iwadname);
+      L_IdentifyVersion(iwadname);
     }
   }
 
@@ -636,6 +630,48 @@ static void L_AddItemToCache(fileitem_t *item)
   {
     fprintf(fcache, "%s = %d, %d, %d\n",item->name, item->source, item->doom1, item->doom2);
     fclose(fcache);
+  }
+}
+
+static void L_IdentifyVersion(const char *iwad)
+{
+  extern boolean haswolflevels;
+  int i;
+  char *realiwad;
+
+  realiwad = I_FindFile(iwad, ".wad");
+
+  if (realiwad && *realiwad)
+  {
+    CheckIWAD(realiwad,&gamemode,&haswolflevels);
+    
+    switch(gamemode)
+    {
+    case retail:
+    case registered:
+    case shareware:
+      gamemission = doom;
+      break;
+    case commercial:
+      i = strlen(realiwad);
+      gamemission = doom2;
+      if (i>=10 && !strnicmp(realiwad+i-10,"doom2f.wad",10))
+        language=french;
+      else if (i>=7 && !strnicmp(realiwad+i-7,"tnt.wad",7))
+        gamemission = pack_tnt;
+      else if (i>=12 && !strnicmp(realiwad+i-12,"plutonia.wad",12))
+        gamemission = pack_plut;
+      break;
+    default:
+      gamemission = none;
+      break;
+    }
+    if (gamemode == indetermined)
+      lprintf(LO_WARN,"Unknown Game Version, may not work\n");
+
+    D_AddFile(realiwad,source_iwad);
+    
+    free(realiwad);
   }
 }
 
