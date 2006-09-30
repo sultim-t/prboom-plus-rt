@@ -802,11 +802,18 @@ static void P_LoadSideDefs2(int lump)
       sd->textureoffset = SHORT(msd->textureoffset)<<FRACBITS;
       sd->rowoffset = SHORT(msd->rowoffset)<<FRACBITS;
 
+      { /* cph 2006/09/30 - catch out-of-range sector numbers; use sector 0 instead */
+        unsigned short sector_num = SHORT(msd->sector);
+        if (sector_num >= numsectors) {
+          lprintf(LO_WARN,"P_LoadSideDefs2: sidedef %i has out-of-range sector num %u\n", i, sector_num);
+          sector_num = 0;
+        }
+        sd->sector = sec = &sectors[sector_num];
+      }
+
       // killough 4/4/98: allow sidedef texture names to be overloaded
       // killough 4/11/98: refined to allow colormaps to work as wall
       // textures if invalid as colormaps but valid as textures.
-
-      sd->sector = sec = &sectors[SHORT(msd->sector)];
       switch (sd->special)
         {
         case 242:                       // variable colormap via 242 linedef

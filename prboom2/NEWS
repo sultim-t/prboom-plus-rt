@@ -9,6 +9,7 @@ Changes from v2.4.5 to v2.4.6
 - Added rendering filters for software mode, they are configurable in a new
   page in general settings
 - Emulate some texture composition bugs
+- Fix more common WAD bugs that can cause crashes
 - Fixed random crashes caused by use of uninitialized memory
 - Fix some demo incompatibilities caused by slime trail removal
 - Fixed crashes with WADs which use newer gl nodes or don't have any nodes
