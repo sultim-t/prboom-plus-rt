@@ -115,6 +115,9 @@ Misc patches.
 Andreas Dehmel <zarquon@t-online.de>
 Spotted & patched a savegame bug.
 
+Jon Dowland
+Bug reports & fixes, documentation improvements.
+
 If you have sent in patches and I forgot to list you, I apologise. Please email
 me and I will add you.
 
@@ -122,9 +125,6 @@ Also, thanks to the following people who have helped in various ways:
 
 Simon "fraggle" Howard <fraggle@alkali.org>
 More MBF bugs.
-
-Jon Dowland
-Bug reports & fixes.
 
 Robert Phipps <rob@phipps.uklinux.net>
 Network game testing, feature suggestions etc.
