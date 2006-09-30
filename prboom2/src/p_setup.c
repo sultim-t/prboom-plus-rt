@@ -397,10 +397,18 @@ static void P_LoadSegs (int lump)
       li->linedef = ldef;
       side = SHORT(ml->side);
       li->sidedef = &sides[ldef->sidenum[side]];
-      li->frontsector = sides[ldef->sidenum[side]].sector;
 
-      // killough 5/3/98: ignore 2s flag if second sidedef missing:
-      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
+      /* cph 2006/09/30 - our frontsector can be the second side of the
+       * linedef, so must check for NO_INDEX in case we are incorrectly
+       * referencing the back of a 1S line */
+      if (ldef->sidenum[side] != NO_INDEX)
+        li->frontsector = sides[ldef->sidenum[side]].sector;
+      else {
+        li->frontsector = 0;
+        lprintf(LO_WARN, "P_LoadSegs: front of seg %i has no sidedef\n", i);
+      }
+
+      if (ldef->sidenum[side^1]!=NO_INDEX)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
@@ -700,6 +708,35 @@ static void P_LoadLineDefs (int lump)
       ld->sidenum[0] = SHORT(mld->sidenum[0]);
       ld->sidenum[1] = SHORT(mld->sidenum[1]);
 
+      { 
+        /* cph 2006/09/30 - fix sidedef errors right away.
+         * cph 2002/07/20 - these errors are fatal if not fixed, so apply them
+         * in compatibility mode - a desync is better than a crash! */
+        int j;
+        
+        for (j=0; j < 2; j++)
+        {
+          if (ld->sidenum[j] != NO_INDEX && ld->sidenum[j] >= numsides) {
+            ld->sidenum[j] = NO_INDEX;
+            lprintf(LO_WARN, "P_LoadLineDefs: linedef %d has out-of-range sidedef number\n",numlines-i-1);
+          }
+        }
+        
+        // killough 11/98: fix common wad errors (missing sidedefs):
+        
+        if (ld->sidenum[0] == NO_INDEX) {
+          ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
+          // cph - print a warning about the bug
+          lprintf(LO_WARN, "P_LoadLineDefs: linedef %d missing first sidedef\n",numlines-i-1);
+        }
+        
+        if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
+          ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
+          // cph - print a warning about the bug
+          lprintf(LO_WARN, "P_LoadLineDefs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i-1);
+        }
+      }
+
       // killough 4/4/98: support special sidedef interpretation below
       if (ld->sidenum[0] != NO_INDEX && ld->special)
         sides[*ld->sidenum].special = ld->special;
@@ -717,33 +754,6 @@ static void P_LoadLineDefs2(int lump)
   register line_t *ld = lines;
   for (;i--;ld++)
     {
-      { // cph 2002/07/20 - these errors are fatal if not fixed, so apply them in compatibility mode - a desync is better than a crash!
-        int j;
-        
-        for (j=0; j < 2; j++)
-        {
-          if (ld->sidenum[j] != NO_INDEX && ld->sidenum[j] >= numsides) {
-            ld->sidenum[j] = NO_INDEX;
-            lprintf(LO_WARN, "P_LoadSegs: linedef %d has out-of-range sidedef number\n",numlines-i-1);
-          }
-        }
-        
-        // killough 11/98: fix common wad errors (missing sidedefs):
-        
-        if (ld->sidenum[0] == NO_INDEX) {
-          ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
-          // cph - print a warning about the bug
-          lprintf(LO_WARN, "P_LoadSegs: linedef %d missing first sidedef\n",numlines-i-1);
-        }
-        
-        if ((ld->sidenum[1] == NO_INDEX) && (ld->flags & ML_TWOSIDED)) {
-          ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
-          // cph - print a warning about the bug
-          lprintf(LO_WARN, "P_LoadSegs: linedef %d has two-sided flag set, but no second sidedef\n",numlines-i-1);
-        }
-        
-      }
-
       ld->frontsector = sides[ld->sidenum[0]].sector; //e6y: Can't be NO_INDEX here
       ld->backsector  = ld->sidenum[1]!=NO_INDEX ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)
