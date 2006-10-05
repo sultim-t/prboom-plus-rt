@@ -883,7 +883,8 @@ typedef enum
   GLDIT_NONE,
   GLDIT_WALL,
   GLDIT_FLAT,
-  GLDIT_SPRITE
+  GLDIT_SPRITE,
+  GLDIT_TSPRITE //e6y: transparent sprites
 } GLDrawItemType;
 
 typedef struct
@@ -905,6 +906,12 @@ typedef struct
   GLSprite *sprites;
   int num_sprites;
   int max_sprites;
+  
+  //e6y: transparent sprites
+  GLSprite *tsprites;
+  int num_tsprites;
+  int max_tsprites;
+
   GLDrawItem *drawitems;
   int num_drawitems;
   int max_drawitems;
@@ -1839,6 +1846,7 @@ void gld_StartDrawScene(void)
   gld_drawinfo.num_walls=0;
   gld_drawinfo.num_flats=0;
   gld_drawinfo.num_sprites=0;
+  gld_drawinfo.num_tsprites=0; //e6y: transparent sprites
   gld_drawinfo.num_drawitems=0;
 }
 
@@ -2742,13 +2750,27 @@ void gld_AddSprite(vissprite_t *vspr)
     }
   }
 
-  if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
+  //e6y: transparent sprites
+  if (sprite.trans || sprite.shadow)
   {
-    gld_drawinfo.max_sprites+=128;
-    gld_drawinfo.sprites=Z_Realloc(gld_drawinfo.sprites,gld_drawinfo.max_sprites*sizeof(GLSprite),PU_LEVEL,0);
+    if (gld_drawinfo.num_tsprites>=gld_drawinfo.max_tsprites)
+    {
+      gld_drawinfo.max_tsprites+=128;
+      gld_drawinfo.tsprites=Z_Realloc(gld_drawinfo.tsprites,gld_drawinfo.max_tsprites*sizeof(GLSprite),PU_LEVEL,0);
+    }
+    gld_AddDrawItem(GLDIT_TSPRITE, gld_drawinfo.num_tsprites);
+    gld_drawinfo.tsprites[gld_drawinfo.num_tsprites++]=sprite;
   }
-  gld_AddDrawItem(GLDIT_SPRITE, gld_drawinfo.num_sprites);
-  gld_drawinfo.sprites[gld_drawinfo.num_sprites++]=sprite;
+  else
+  {
+    if (gld_drawinfo.num_sprites>=gld_drawinfo.max_sprites)
+    {
+      gld_drawinfo.max_sprites+=128;
+      gld_drawinfo.sprites=Z_Realloc(gld_drawinfo.sprites,gld_drawinfo.max_sprites*sizeof(GLSprite),PU_LEVEL,0);
+    }
+    gld_AddDrawItem(GLDIT_SPRITE, gld_drawinfo.num_sprites);
+    gld_drawinfo.sprites[gld_drawinfo.num_sprites++]=sprite;
+  }
 }
 
 /*****************
@@ -2917,17 +2939,14 @@ void gld_DrawScene(player_t *player)
     }
   }
 
-  for(SkyDrawed = false, pass=0;pass<(transparentpresent?2:1);pass++){//e6y
+  // e6y
+  // two-pass method:
+  // the first one for opaque walls
+  // the second one for transparent walls
+  for(SkyDrawed = false, pass=0;pass<(transparentpresent?2:1);pass++) {
+
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
-    //e6y
-    if (gld_drawinfo.drawitems[i].itemtype != GLDIT_WALL && !gl_alpha_blended)
-    {
-      glEnable(GL_ALPHA_TEST);
-      glEnable(GL_BLEND);
-      gl_alpha_blended = true;
-    }
-
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
     case GLDIT_WALL:
@@ -2950,14 +2969,13 @@ void gld_DrawScene(player_t *player)
           if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
           {
             //e6y
-            if (pass==0){
+            if (pass==0) {
               if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha < 1.0f)
                 continue;
-            }else{
+            } else {
               if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha == 1.0f)
                 continue;
             }
-            //e6y
             wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
             if (!wall.seg->backsector && wall.gltexture->hasHole)
             {
@@ -2993,39 +3011,11 @@ void gld_DrawScene(player_t *player)
         }
       }
       break;
-    case GLDIT_SPRITE:
-      if (pass!=0) break;//e6y
-      if (gl_sortsprites)
-      {
-        do
-        {
-          max_scale=INT_MAX;
-          k=-1;
-          for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
-            if (gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex].scale<max_scale)
-            {
-              max_scale=gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex].scale;
-              k=j+gld_drawinfo.drawitems[i].firstitemindex;
-            }
-          if (k>=0)
-          {
-            rendered_vissprites++;
-            gld_DrawSprite(&gld_drawinfo.sprites[k]);
-            gld_drawinfo.sprites[k].scale=INT_MAX;
-          }
-        } while (max_scale!=INT_MAX);
-      }
-      else
-      {
-        for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--,rendered_vissprites++)
-          gld_DrawSprite(&gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex]);
-      }
-      break;
     }
   }
-
-  //e6y
   }
+
+  // e6y: restoring
   if (!gl_alpha_blended)
   {
     glEnable(GL_ALPHA_TEST);
@@ -3033,6 +3023,48 @@ void gld_DrawScene(player_t *player)
     gl_alpha_blended = true;
   }
 
+  // e6y
+  // sorting is not necessary for opaque sprites
+  // if you do not have a complex pixel shader
+  for (i=gld_drawinfo.num_drawitems; i>=0; i--)
+  {
+    if (gld_drawinfo.drawitems[i].itemtype == GLDIT_SPRITE)
+    {
+      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--, rendered_vissprites++)
+      {
+        gld_DrawSprite(&gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex]);
+      }
+    }
+  }
+
+  // e6y
+  // sorting is necessary only for transparent sprites.
+  // from back to front
+  for (i=gld_drawinfo.num_drawitems; i>=0; i--)
+  {
+    if (gld_drawinfo.drawitems[i].itemtype == GLDIT_TSPRITE)
+    {
+      do
+      {
+        max_scale=INT_MAX;
+        k=-1;
+        for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+          if (gld_drawinfo.tsprites[j+gld_drawinfo.drawitems[i].firstitemindex].scale<max_scale)
+          {
+            max_scale=gld_drawinfo.tsprites[j+gld_drawinfo.drawitems[i].firstitemindex].scale;
+            k=j+gld_drawinfo.drawitems[i].firstitemindex;
+          }
+          if (k>=0)
+          {
+            rendered_vissprites++;
+            gld_DrawSprite(&gld_drawinfo.tsprites[k]);
+            gld_drawinfo.tsprites[k].scale=INT_MAX;
+          }
+      } while (max_scale!=INT_MAX);
+    }
+  }
+
+  // e6y
   if (!gl_arb_multitexture && render_usedetail)
     e6y_DrawAdd();
 
