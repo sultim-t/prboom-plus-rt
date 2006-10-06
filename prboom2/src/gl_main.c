@@ -882,6 +882,7 @@ typedef enum
 {
   GLDIT_NONE,
   GLDIT_WALL,
+  GLDIT_TWALL, //e6y: transparent walls
   GLDIT_FLAT,
   GLDIT_SPRITE,
   GLDIT_TSPRITE //e6y: transparent sprites
@@ -2176,7 +2177,7 @@ static void gld_DrawWall(GLWall *wall)
     gld_drawinfo.max_walls+=128;\
     gld_drawinfo.walls=Z_Realloc(gld_drawinfo.walls,gld_drawinfo.max_walls*sizeof(GLWall),PU_LEVEL,0);\
   }\
-  gld_AddDrawItem(GLDIT_WALL, gld_drawinfo.num_walls);\
+  gld_AddDrawItem((*wall.alpha==1.0f?GLDIT_WALL:GLDIT_TWALL), gld_drawinfo.num_walls);\
   gld_drawinfo.walls[gld_drawinfo.num_walls++]=*wall;\
 };
 
@@ -2897,14 +2898,74 @@ void e6y_DrawAdd(void)
   }
 }
 
+void gld_ProcessWall(int i)
+{
+  GLWall wall;
+  boolean gl_alpha_blended = true;
+  int j, k, count;
+
+  count=0;
+  for (k=GLDWF_TOP; k<=GLDWF_SKYFLIP; k++)
+  {
+    if (count>=gld_drawinfo.drawitems[i].itemcount)
+      continue;
+    if ( (gl_drawskys) && (k>=GLDWF_SKY) )
+    {
+      if (comp[comp_skymap] && gl_shared_texture_palette)
+        glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
+      glEnable(GL_TEXTURE_GEN_S);
+      glEnable(GL_TEXTURE_GEN_T);
+      glEnable(GL_TEXTURE_GEN_Q);
+      glColor4fv(gl_whitecolor);
+    }
+    
+    for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+    {
+      if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
+      {
+        wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
+        if (!wall.seg->backsector && wall.gltexture->hasHole)
+        {
+          if (gl_alpha_blended)
+          {
+            glDisable(GL_ALPHA_TEST);
+            glDisable(GL_BLEND);
+            gl_alpha_blended = false;
+          }
+        }
+        else
+        {
+          if (!gl_alpha_blended)
+          {
+            glEnable(GL_ALPHA_TEST);
+            glEnable(GL_BLEND);
+            gl_alpha_blended = true;
+          }
+        }
+        
+        rendered_segs++;
+        count++;
+        gld_DrawWall(&gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex]);
+      }
+    }
+      
+    if (gl_drawskys)
+    {
+      glDisable(GL_TEXTURE_GEN_Q);
+      glDisable(GL_TEXTURE_GEN_T);
+      glDisable(GL_TEXTURE_GEN_S);
+      if (comp[comp_skymap] && gl_shared_texture_palette)
+        glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+    }
+  }
+}
+
 void gld_DrawScene(player_t *player)
 {
   //e6y
-  int pass;
-  GLWall wall;
   boolean gl_alpha_blended = true;
 
-  int i,j,k,count;
+  int i,j,k;
   fixed_t max_scale;
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2943,107 +3004,49 @@ void gld_DrawScene(player_t *player)
   // two-pass method:
   // the first one for opaque walls
   // the second one for transparent walls
-  for(SkyDrawed = false, pass=0;pass<(transparentpresent?2:1);pass++) {
 
+  // first pass
+  for (i=gld_drawinfo.num_drawitems; i>=0; i--)
+  {
+    if (gld_drawinfo.drawitems[i].itemtype != GLDIT_WALL && !gl_alpha_blended)
+    {
+      glEnable(GL_ALPHA_TEST);
+      glEnable(GL_BLEND);
+      gl_alpha_blended = true;
+    }
+    switch (gld_drawinfo.drawitems[i].itemtype)
+    {
+    case GLDIT_WALL:
+      gld_ProcessWall(i);
+      break;
+    case GLDIT_SPRITE:
+      // e6y
+      // sorting is not necessary for opaque sprites
+      // if you do not have a complex pixel shader
+      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--, rendered_vissprites++)
+        gld_DrawSprite(&gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex]);
+      break;
+    }
+  }
+
+  // second pass
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
-    case GLDIT_WALL:
-      count=0;
-      for (k=GLDWF_TOP; k<=GLDWF_SKYFLIP; k++)
-      {
-        if (count>=gld_drawinfo.drawitems[i].itemcount)
-          continue;
-        if ( (gl_drawskys) && (k>=GLDWF_SKY) )
-        {
-          if (comp[comp_skymap] && gl_shared_texture_palette)
-            glDisable(GL_SHARED_TEXTURE_PALETTE_EXT);
-          glEnable(GL_TEXTURE_GEN_S);
-          glEnable(GL_TEXTURE_GEN_T);
-          glEnable(GL_TEXTURE_GEN_Q);
-          glColor4fv(gl_whitecolor);
-        }
-
-        for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
-          if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].flag==k)
-          {
-            //e6y
-            if (pass==0) {
-              if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha < 1.0f)
-                continue;
-            } else {
-              if (gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex].alpha == 1.0f)
-                continue;
-            }
-            wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
-            if (!wall.seg->backsector && wall.gltexture->hasHole)
-            {
-              if (gl_alpha_blended)
-              {
-                glDisable(GL_ALPHA_TEST);
-                glDisable(GL_BLEND);
-                gl_alpha_blended = false;
-              }
-            }
-            else
-            {
-              if (!gl_alpha_blended)
-              {
-                glEnable(GL_ALPHA_TEST);
-                glEnable(GL_BLEND);
-                gl_alpha_blended = true;
-              }
-            }
-
-            rendered_segs++;
-            count++;
-            gld_DrawWall(&gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex]);
-          }
-
-        if (gl_drawskys)
-        {
-          glDisable(GL_TEXTURE_GEN_Q);
-          glDisable(GL_TEXTURE_GEN_T);
-          glDisable(GL_TEXTURE_GEN_S);
-          if (comp[comp_skymap] && gl_shared_texture_palette)
-            glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
-        }
-      }
+    if (gld_drawinfo.drawitems[i].itemtype != GLDIT_WALL && !gl_alpha_blended)
+    {
+      glEnable(GL_ALPHA_TEST);
+      glEnable(GL_BLEND);
+      gl_alpha_blended = true;
+    }
+    case GLDIT_TWALL:
+      gld_ProcessWall(i);
       break;
-    }
-  }
-  }
-
-  // e6y: restoring
-  if (!gl_alpha_blended)
-  {
-    glEnable(GL_ALPHA_TEST);
-    glEnable(GL_BLEND);
-    gl_alpha_blended = true;
-  }
-
-  // e6y
-  // sorting is not necessary for opaque sprites
-  // if you do not have a complex pixel shader
-  for (i=gld_drawinfo.num_drawitems; i>=0; i--)
-  {
-    if (gld_drawinfo.drawitems[i].itemtype == GLDIT_SPRITE)
-    {
-      for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--, rendered_vissprites++)
-      {
-        gld_DrawSprite(&gld_drawinfo.sprites[j+gld_drawinfo.drawitems[i].firstitemindex]);
-      }
-    }
-  }
-
-  // e6y
-  // sorting is necessary only for transparent sprites.
-  // from back to front
-  for (i=gld_drawinfo.num_drawitems; i>=0; i--)
-  {
-    if (gld_drawinfo.drawitems[i].itemtype == GLDIT_TSPRITE)
-    {
+    case GLDIT_TSPRITE:
+      // e6y
+      // sorting is necessary only for transparent sprites.
+      // from back to front
       do
       {
         max_scale=INT_MAX;
@@ -3061,10 +3064,19 @@ void gld_DrawScene(player_t *player)
             gld_drawinfo.tsprites[k].scale=INT_MAX;
           }
       } while (max_scale!=INT_MAX);
+      break;
     }
   }
 
-  // e6y
+  // e6y: restoring
+  if (!gl_alpha_blended)
+  {
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_BLEND);
+    gl_alpha_blended = true;
+  }
+  
+  // e6y: detail
   if (!gl_arb_multitexture && render_usedetail)
     e6y_DrawAdd();
 
