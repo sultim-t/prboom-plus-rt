@@ -55,6 +55,7 @@ typedef struct
   int glTexID[CR_LIMIT+MAXPLAYERS];
   GLTexType textype;
   boolean mipmap;
+  GLint wrap_mode;//e6y
   boolean hasHole;//e6y
 } GLTexture;
 

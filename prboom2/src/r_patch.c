@@ -215,6 +215,24 @@ static void createPatch(int id) {
   patch->topoffset = SHORT(oldPatch->topoffset);
   patch->isNotTileable = getPatchIsNotTileable(oldPatch);
 
+  //e6y
+  {
+    static const char *list[] = {
+      "M_LSLEFT", "M_LSCNTR", "M_LSRGHT",
+      //"M_THERML", "M_THERMM", "M_THERMR",
+    };
+    int i;
+    patches[id].flags &= ~PATCH_REPEAT;
+    for (i = 0; i < sizeof(list) / sizeof(list[0]); i++)
+    {
+      if (!strncasecmp(list[i], lumpinfo[id].name, 8))
+      {
+        patches[id].flags |= PATCH_REPEAT;
+        break;
+      }
+    }
+  }
+
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (patch->width * patch->height + 4) & ~3;
   columnsDataSize = sizeof(rcolumn_t) * patch->width;

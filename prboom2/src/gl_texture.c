@@ -606,6 +606,7 @@ GLTexture *gld_RegisterPatch(int lump, int cm)
     gltexture->textype=GLDT_BROKEN;
     gltexture->index=lump;
     gltexture->mipmap=false;
+    gltexture->wrap_mode = (patch->flags&PATCH_REPEAT?GL_REPEAT:GL_CLAMP); //e6y
     gltexture->realtexwidth=patch->width;
     gltexture->realtexheight=patch->height;
     gltexture->leftoffset=patch->leftoffset;
@@ -709,8 +710,8 @@ void gld_BindPatch(GLTexture *gltexture, int cm)
                       0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
       }
   }
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gltexture->wrap_mode);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gltexture->wrap_mode);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_tex_filter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_tex_filter);
   Z_Free(buffer);
