@@ -44,7 +44,8 @@ typedef enum {
 
 //e6y
 typedef enum {
-  PATCH_REPEAT = 0x00000001,
+  PATCH_REPEAT       = 0x00000001,
+  PATCH_HASHOLES     = 0x00000002,
 } rpatch_flag_t;
 
 typedef struct {
@@ -83,7 +84,6 @@ typedef struct {
 #endif
   unsigned int locks;
   unsigned int flags;//e6y
-  boolean hasHole;//e6y
 } rpatch_t;
 
 

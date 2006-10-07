@@ -210,7 +210,7 @@ static void gld_AddPatchToTexture_UnTranslated(GLTexture *gltexture, unsigned ch
     xe+=(gltexture->realtexwidth-(xe+originx));
   
   //e6y
-  if (patch->hasHole)
+  if (patch->flags&PATCH_HASHOLES)
     gltexture->hasHole = true;
 
   for (x=xs;x<xe;x++)
@@ -309,7 +309,7 @@ void gld_AddPatchToTexture(GLTexture *gltexture, unsigned char *buffer, const rp
     xe+=(gltexture->realtexwidth-(xe+originx));
 
   //e6y
-  if (patch->hasHole)
+  if (patch->flags&PATCH_HASHOLES)
     gltexture->hasHole = true;
 
   for (x=xs;x<xe;x++)

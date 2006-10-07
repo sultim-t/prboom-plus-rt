@@ -214,6 +214,7 @@ static void createPatch(int id) {
   patch->leftoffset = SHORT(oldPatch->leftoffset);
   patch->topoffset = SHORT(oldPatch->topoffset);
   patch->isNotTileable = getPatchIsNotTileable(oldPatch);
+  patch->flags = 0;//e6y
 
   // e6y
   // fix wrong (with holes) drawing of the background 
@@ -353,7 +354,7 @@ static void createPatch(int id) {
         // this pixel is a hole
 
         //e6y
-        patch->hasHole = true;
+        patch->flags |= PATCH_HASHOLES;
 
         if (x && prevColumn->pixels[y-1] != 0xff) {
           // copy the color from the left
@@ -446,7 +447,7 @@ static void createTextureCompositePatch(int id) {
   composite_patch->leftoffset = 0;
   composite_patch->topoffset = 0;
   composite_patch->isNotTileable = 0;
-  composite_patch->hasHole = false;//e6y
+  composite_patch->flags = 0;//e6y
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
@@ -672,7 +673,7 @@ static void createTextureCompositePatch(int id) {
         // this pixel is a hole
 
         //e6y
-        composite_patch->hasHole = true;
+        composite_patch->flags |= PATCH_HASHOLES;
 
         if (x && prevColumn->pixels[y-1] != 0xff) {
           // copy the color from the left
