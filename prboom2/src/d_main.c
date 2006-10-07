@@ -1378,7 +1378,7 @@ static void D_DoomMainSetup(void)
 
   if ((p = M_CheckParm("-nofullscreen")))
       use_fullscreen = 0;
-  
+
   // e6y
   // New command-line options for setting a window (-window) 
   // or fullscreen (-nowindow) mode temporarily which is not saved in cfg.

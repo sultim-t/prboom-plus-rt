@@ -1044,13 +1044,23 @@ static void M_QuitResponse(int ch)
     return;
   if ((!netgame || demoplayback) // killough 12/98
       && !nosfxparm && snd_card) // avoid delay if no sound card
-    {
+  {
+    int i;
+
     if (gamemode == commercial)
       S_StartSound(NULL,quitsounds2[(gametic>>2)&7]);
     else
       S_StartSound(NULL,quitsounds[(gametic>>2)&7]);
-//e6y    I_uSleep(3000000); // cph - 3 s
+
+    // wait till all sounds stopped or 3 seconds are over
+    i = 30;
+    while (i>0) {
+      I_uSleep(100000); // CPhipps - don't thrash cpu in this loop
+      if (!I_AnySoundStillPlaying())
+        break;
+      i--;
     }
+  }
   exit(0); // killough
 }
 
@@ -3218,8 +3228,7 @@ setup_menu_t gen_settings7[] =
   {"COMPATIBILITY WITH COMMON MAPPING ERRORS" ,S_SKIP|S_TITLE,m_null,G_X2,G_Y+11*8},
   {"LINEDEFS W/O TAGS APPLY LOCALLY"   ,S_YESNO     ,m_null,G_X2,G_Y+12*8, {"comperr_zerotag"}},
   {"USE PASSES THRU ALL SPECIAL LINES" ,S_YESNO     ,m_null,G_X2,G_Y+13*8, {"comperr_passuse"}},
-  {"PAD A TOO SHORT REJECT WITH ZEROS" ,S_YESNO     ,m_null,G_X2,G_Y+14*8, {"comperr_shortreject"}},
-  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+15*8, {"comperr_hangsolid"}},
+  {"WALK UNDER SOLID HANGING BODIES"   ,S_YESNO     ,m_null,G_X2,G_Y+14*8, {"comperr_hangsolid"}},
 
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,ST_Y+20*8, {gen_settings6}},

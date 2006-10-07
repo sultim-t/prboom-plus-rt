@@ -2446,7 +2446,16 @@ void P_UpdateSpecials (void)
               buttonlist[i].btexture;
             break;
         }
-        S_StartSound((mobj_t *)&buttonlist[i].soundorg,sfx_swtchn);
+        {
+          /* don't take the address of the switch's sound origin,
+           * unless in a compatibility mode. */
+          mobj_t *so = (mobj_t *)buttonlist[i].soundorg;
+          if (comp[comp_sound] || compatibility_level < prboom_6_compatibility)
+            /* since the buttonlist array is usually zeroed out,
+             * button popouts generally appear to come from (0,0) */
+            so = (mobj_t *)&buttonlist[i].soundorg;
+          S_StartSound(so, sfx_swtchn);
+        }
         memset(&buttonlist[i],0,sizeof(button_t));
       }
     }

@@ -331,8 +331,6 @@ static void I_EndDoom(void)
   if (endoom_mode & endoom_colours)
     puts("\e[0m"); /* cph - reset colours */
   PrintVer();
-#else /* _WIN32 */
-  //e6y I_uSleep(3000000); // CPhipps - don't thrash cpu in this loop
 #endif /* _WIN32 */
 }
 

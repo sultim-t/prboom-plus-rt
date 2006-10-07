@@ -238,15 +238,17 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
   if (!trans)
     flags &= ~VPT_TRANS;
 
-  if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT))
-    // killough 1/19/98: improved error message:
-    I_Error("V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
-            "Bad V_DrawMemPatch8 (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
-
   if (!(flags & VPT_STRETCH)) {
     int             col;
     byte           *desttop = screens[scrn].data+y*screens[scrn].pitch+x;
     unsigned int    w = patch->width;
+
+    if (y<0 || y+patch->height > ((flags & VPT_STRETCH) ? 200 :  SCREENHEIGHT)) {
+      // killough 1/19/98: improved error message:
+      lprintf(LO_WARN, "V_DrawMemPatch8: Patch (%d,%d)-(%d,%d) exceeds LFB in vertical direction (horizontal is clipped)\n"
+              "Bad V_DrawMemPatch8 (flags=%u)", x, y, x+patch->width, y+patch->height, flags);
+      return;
+    }
 
     w--; // CPhipps - note: w = width-1 now, speeds up flipping
 
@@ -385,10 +387,16 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
       // step through the posts in a column
       for (i=0; i<column->numPosts; i++) {
         const rpost_t *post = &column->posts[i];
+        int yoffset = 0;
 
         dcvars.yl = (((y + post->topdelta) * DY)>>FRACBITS);
         dcvars.yh = (((y + post->topdelta + post->length) * DY - (FRACUNIT>>1))>>FRACBITS);
         dcvars.edgeslope = post->slope;
+
+        if ((dcvars.yh < 0) || (dcvars.yh < top))
+          continue;
+        if ((dcvars.yl >= SCREENHEIGHT) || (dcvars.yl >= bottom))
+          continue;
 
         if (dcvars.yh >= bottom) {
           dcvars.yh = bottom-1;
@@ -399,9 +407,20 @@ static void V_DrawMemPatch8(int x, int y, int scrn, const rpatch_t *patch,
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_BOT_MASK;
         }
 
-        dcvars.source = column->pixels + post->topdelta;
-        dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta : dcvars.source;
-        dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta : dcvars.source;
+        if (dcvars.yl < 0) {
+          yoffset = 0-dcvars.yl;
+          dcvars.yl = 0;
+          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+        }
+        if (dcvars.yl < top) {
+          yoffset = top-dcvars.yl;
+          dcvars.yl = top;
+          dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
+        }
+
+        dcvars.source = column->pixels + post->topdelta + yoffset;
+        dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta + yoffset: dcvars.source;
+        dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta + yoffset: dcvars.source;
 
         dcvars.texturemid = -((dcvars.yl-centery)*dcvars.iscale);
 

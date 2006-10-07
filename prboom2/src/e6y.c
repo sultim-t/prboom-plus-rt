@@ -1189,7 +1189,6 @@ void e6y_G_Compatibility(void)
 boolean zerotag_manual;
 int comperr_zerotag;
 int comperr_passuse;
-int comperr_shortreject;
 int comperr_hangsolid;
 
 boolean compbad_get(int *compbad)

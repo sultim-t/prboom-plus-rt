@@ -4,27 +4,29 @@
 prboom-game-server \- Server for network games of PrBoom.
 .SH SYNOPSIS
 .B prboom-game-sever
-[ \-adfnrv ] [ \-e \fIepis\fR ] [ \-l \fIlevel\fR ] [ \-t \fIticdup\fR ]
+[\| \-adfnrv \|] [\| \-e \fIepis\fR \|] [\| \-l \fIlevel\fR \|] [\| \-t \fIticdup\fR \|]
 .BR
-[ \-x \fIxtics\fR ] [ \-p \fIport\fR ] [ \-s \fIskill\fR ] [ \-N \fIplayers\fR ]
+[\| \-x \fIxtics\fR \|] [\| \-p \fIport\fR \|] [\| \-s \fIskill\fR \|] [\| \-N \fIplayers\fR \|]
 .BR
-[ \-c \fIconffilename\fR ]
+[\| \-c \fIconffilename\fR \|]
 .BR
-[ \-w \fIwadname\fR[,\fIdl_url\fR ]]
+[\| \-w \fIwadname\fR[\|,\fIdl_url\fR \|]\|]
 .SH DESCRIPTION
 .PP
 .B PrBoom
 is a version of the 3D shoot'em'up Doom, originally by id software. 
 It includes, amongst other things, the ability to play with several players 
-connected by a tcp/ip network. prboom-game-server is the `server', that is the 
+connected by a tcp/ip network. \fBprboom-game-server\fP is the `server', that is the 
 program that passes data between the different players in the game.
 .PP
 To start a network game (often abbreviated to `netgame'), first the server 
-is started. prboom-game-server accepts various parameters to control the 
+is started. \fBprboom-game-server\fP accepts various parameters to control the 
 type of game (the skill level, number of players, level to play, optional 
 WAD file(s) to load, etc).
 .PP
-Then each player that wishes to participate runs prboom -net \fIhostname\fR, 
+Then each player that wishes to participate runs 
+.B prboom \-net 
+.IR hostname , 
 where \fIhostname\fR is the name of the machine on which the server is 
 running. Each copy of prboom retrieves information about the game from 
 the server, and when the specified number of players have joined, the game 
@@ -32,39 +34,39 @@ begins.
 
 .SH Options
 .TP
-\-N \fIplayers\fR
-Specifies the number of players in the game (default 2). The server will wait 
+.BI \-N\  \fIplayers\fR
+Specifies the number of players in the game (default \fB2\fP). The server will wait 
 for this many players to join before starting the game.
 .TP
-\-e \fIepis\fR
-The episode to play (default 1). Unless you are playing Doom 1 or Ultimate 
+.BI \-e\  \fIepis\fR
+The episode to play (default \fB1\fP).  Unless you are playing Doom 1 or Ultimate 
 Doom, and wish to play one of the later episodes, you do not need to change 
 this.
 .TP
-\-l \fIlevel\fR
-The level to play (default 1). 
+.BI \-l\  \fIlevel\fR
+The level to play (default \fB1\fP). 
 .TP
-\-s \fIskill\fR
-Specify the skill level to play (1-5).
+.BI \-s\  \fIskill\fR
+Specify the skill level to play (\fB1-5\fP).
 .TP
-\-d
+.BI \-d
 Set game mode to (old) deathmatch (default is cooperative). See the original 
 Doom docs for information about the different network game modes.
 .TP
-\-a
+.BI \-a
 Set game mode to `altdeath' (v2 deathmatch) (default is cooperative). See the 
 original Doom docs for information about the different network game modes.
 .TP
-\-f
+.BI \-f
 Select fast mode (monsters move faster).
 .TP
-\-n
+.BI \-n
 Selects nomonsters mode, i.e. there are no monsters in the game.
 .TP
-\-r
+.BI \-r
 Respawn mode. If you don't know what this is, you don't want to ;-).
 .TP
-\-c \fIconffilename\fR
+.BI \-c\  conffilename
 Specifies a configuration file to read which sets parameters for the
 game. This is in the same format as the PrBoom configuration file (in
 fact, you can ask it to read your normal PrBoom configuration file if
@@ -73,39 +75,43 @@ default_compatibility_level, the compatibility options and some of the
 game settings (use -v to have the server print the options as it
 recognises them).
 .TP
-\-w \fIwadname\fR[,\fIdl_url\fR]
+\fB\-w\fP \fIwadname\fR[,\fIdl_url\fR]
 Specifies a WAD file to play. This is added to the internal list that the 
 server keeps. When a client connects, the server sends the list of WADs; 
 PrBoom will then add this to the list of WADs specified on its command line. 
 Optionally, an url to the file can be given too; if when PrBoom connects 
 it cannot find the named WAD, it will attempt to retrieve the file 
-from the given url, extracting it if necessary. See prboom(1) for information 
-about the supported url types and compression formats.
+from the given url, extracting it if necessary. See 
+.BR prboom(1)
+for information about the supported url types and compression formats.
 .TP
-\-t \fIticdup\fR
+.BI \-t\  ticdup
 Reserved.
 .TP
-\-x \fIxtics\fR
+.BI \-x\  xtics
 This causes extra information to be sent with each network packet; this 
 will help on networks with high packet loss, but will use more bandwidth.
 .TP
-\-p \fIport\fR
-Tells prboom\-game\-server what port number to communicate via (default 5030). 
+.BI \-p\  port
+Tells 
+.B prboom\-game\-server
+what port number to communicate via (default \fB5030\fP). 
 Note that if you change this from the default, then all the clients will 
 also need to specify this number when they try to connect (the default 
-programmed into prboom is also 5030).
+programmed into prboom is also \fB5030\fP).
 .TP
-\-v
+.B \-v
 Increases verbosity level; causes more diagnostics to be printed, the more 
-times \-v is specified.
+times \fB\-v\fP is specified.
 .SH More Information
-prboom(6), boom.cfg(5)
+.BR prboom (6),
+.BR boom.cfg (5)
 .PP
-For more information, see the README that came with PrBoom.
+For more information, see the \fBREADME\fP that came with PrBoom.
 .PP
-Doom is a registered trademark of id software (http://www.idsoftware.com).
+Doom is a registered trademark of id software (http://www.idsoftware.com/).
 .SH Author
-See the file AUTHORS included with the PrBoom distribution. 
+See the file \fBAUTHORS\fP included with the PrBoom distribution. 
 This man page was written by Colin Phipps (cph@moria.org.uk).
 
 

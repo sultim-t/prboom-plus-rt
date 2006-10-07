@@ -212,6 +212,7 @@ typedef struct line_s
     RF_IGNORE   = 8,     // Renderer can skip this line
     RF_CLOSED   =16,     // Line blocks view
   } r_flags;
+  degenmobj_t soundorg;  // sound origin for switches/buttons
 } line_t;
 
 

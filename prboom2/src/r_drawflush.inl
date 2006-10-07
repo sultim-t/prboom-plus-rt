@@ -164,14 +164,19 @@ static void R_FLUSHQUAD_FUNCNAME(void)
 
    count = commonbot - commontop + 1;
 
+#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
    while(--count >= 0)
    {
-#if (R_DRAWCOLUMN_PIPELINE & RDC_TRANSLUCENT)
       dest[0] = temptranmap[(dest[0]<<8) + source[0]];
       dest[1] = temptranmap[(dest[1]<<8) + source[1]];
       dest[2] = temptranmap[(dest[2]<<8) + source[2]];
       dest[3] = temptranmap[(dest[3]<<8) + source[3]];
+      source += 4 * sizeof(byte);
+      dest += drawvars.pitch * sizeof(byte);
+   }
 #elif (R_DRAWCOLUMN_PIPELINE & RDC_FUZZ)
+   while(--count >= 0)
+   {
       dest[0] = tempfuzzmap[6*256+dest[0 + fuzzoffset[fuzz1]]];
       dest[1] = tempfuzzmap[6*256+dest[1 + fuzzoffset[fuzz2]]];
       dest[2] = tempfuzzmap[6*256+dest[2 + fuzzoffset[fuzz3]]];
@@ -180,12 +185,29 @@ static void R_FLUSHQUAD_FUNCNAME(void)
       fuzz2 = (fuzz2 + 1) % FUZZTABLE;
       fuzz3 = (fuzz3 + 1) % FUZZTABLE;
       fuzz4 = (fuzz4 + 1) % FUZZTABLE;
-#else
-      *(int *)dest = *(int *)source;
-#endif
-      source += 4;
-      dest += drawvars.pitch;
+      source += 4 * sizeof(byte);
+      dest += drawvars.pitch * sizeof(byte);
    }
+#else
+   if ((sizeof(int) == 4) && (((int)source % 4) == 0) && (((int)dest % 4) == 0)) {
+      while(--count >= 0)
+      {
+         *(int *)dest = *(int *)source;
+         source += 4 * sizeof(byte);
+         dest += drawvars.pitch * sizeof(byte);
+      }
+   } else {
+      while(--count >= 0)
+      {
+         dest[0] = source[0];
+         dest[1] = source[1];
+         dest[2] = source[2];
+         dest[3] = source[3];
+         source += 4 * sizeof(byte);
+         dest += drawvars.pitch * sizeof(byte);
+      }
+   }
+#endif
 }
 
 #undef R_DRAWCOLUMN_PIPELINE

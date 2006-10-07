@@ -3,20 +3,30 @@ require 'rake/loaders/makefile'
 @cc = 'cc'
 @linker = 'cc'
 @makedepend = '/usr/X11R6/bin/makedepend'
-@frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks)
+@frameworkPaths = %w(~/Library/Frameworks /Library/Frameworks /System/Library/Frameworks)
 
-@commonflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
+@commonflags = ''
 @cflags = ''
 @cxxflags = ''
 @objcflags = ''
 
 @includes = ''
 @defines = ''
-@ldflags = '-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
+@ldflags = ''
 @libs = ''
 @systemFrameworks = []
 @frameworks = []
 @cleanfiles = []
+
+begin
+	unless NOT_UNIVERSAL
+		@commonflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
+		@ldflags += ' -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk '
+	end
+rescue NameError
+	NOT_UNIVERSAL = false
+	retry
+end
 
 ###########
 # Cleanup #
@@ -66,11 +76,40 @@ def bundleDir(dir)
 	end
 end
 
-directory(BUNDLEDIR = "#{NAME}.app")
-directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
-directory(BINDIR = "#{CONTENTSDIR}/MacOS")
-directory(RESOURCEDIR = "#{CONTENTSDIR}/Resources")
-directory(FRAMEWORKDIR = "#{CONTENTSDIR}/Frameworks")
+def setCurrentVersion(taskName)
+	task(taskName => "#{VERSIONSDIR}/#{FRAMEWORKVERSION}") do |t|
+		for file in Dir::glob("#{t.prerequisites[0]}/*") do
+			filename = File::basename(file)
+			ln_s("Contents/Versions/#{FRAMEWORKVERSION}/#{filename}", "#{BUNDLEDIR}/#{filename}", :force => true)
+		end
+	end
+end
+
+begin
+	if FRAMEWORK
+		directory(BUNDLEDIR = "#{NAME}.framework")
+		directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
+		directory(VERSIONSDIR = "#{CONTENTSDIR}/Versions")
+		directory(VERSIONDIR = "#{VERSIONSDIR}/#{FRAMEWORKVERSION}")
+		directory(RESOURCEDIR = "#{VERSIONDIR}/Resources")
+		directory(HEADERDIR = "#{VERSIONDIR}/Headers")
+
+		@ldflags += " -dynamiclib -install_name @executable_path/../Frameworks/#{VERSIONDIR}/#{NAME}"
+	else
+		directory(BUNDLEDIR = "#{NAME}.app")
+		directory(CONTENTSDIR = "#{BUNDLEDIR}/Contents")
+		directory(RESOURCEDIR = "#{CONTENTSDIR}/Resources")
+		directory(BINDIR = "#{CONTENTSDIR}/MacOS")
+		directory(FRAMEWORKDIR = "#{CONTENTSDIR}/Frameworks")
+	end
+rescue NameError => e
+	if e.name == :FRAMEWORK
+		FRAMEWORK = false
+		retry
+	else
+		raise e
+	end
+end
 
 bundleDir(BUNDLEDIR)
 task(:bundle => BUNDLEDIR)
@@ -80,7 +119,7 @@ task(:bundle => BUNDLEDIR)
 ##############
 
 def installFrameworks(task)
-	for name in @frameworks
+	for name in [@frameworks, @systemFrameworks].flatten
 		framework = nil
 		for path in @frameworkPaths
 			try = "#{File::expand_path(path)}/#{name}.framework"
@@ -98,12 +137,10 @@ def installFrameworks(task)
 		@libs += " -framework #{name} "
 		@includes += " -I#{framework}/Headers "
 
-		installTaskRecursive(task, FRAMEWORKDIR, framework)
-		bundleDir("#{FRAMEWORKDIR}/#{name}.framework")
-	end
-
-	for name in @systemFrameworks
-		@libs += " -framework #{name} "
+		if @frameworks.include?(name)
+			installTaskRecursive(task, FRAMEWORKDIR, framework)
+			bundleDir("#{FRAMEWORKDIR}/#{name}.framework")
+		end
 	end
 
 	for dir in @frameworkPaths
@@ -130,7 +167,7 @@ end
 
 def objcxxTask(object, source)
 	file(object => source) do |task|
-		sh("#{@cc} #{@commonflags} #{cxxflags} #{@objcflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
+		sh("#{@cc} #{@commonflags} #{@cxxflags} #{@objcflags} #{@includes} #{@defines} -o \"#{task.name}\" -c #{task.prerequisites[0]}")
 	end
 end
 

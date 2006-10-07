@@ -351,6 +351,18 @@ boolean I_SoundIsPlaying(int handle)
 }
 
 
+boolean I_AnySoundStillPlaying(void)
+{
+  boolean result = false;
+  int i;
+
+  for (i=0; i<MAX_CHANNELS; i++)
+    result |= channelinfo[i].data != NULL;
+
+  return result;
+}
+
+
 //
 // This function loops all active (internal) sound
 //  channels, retrieves a given number of samples

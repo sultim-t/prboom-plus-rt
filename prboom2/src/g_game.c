@@ -1579,6 +1579,9 @@ void G_LoadGame(int slot, boolean command)
     forced_loadgame = false;
     savegameslot = slot;
     demoplayback = false;
+    // Don't stay in netgame state if loading single player save
+    // while watching multiplayer demo
+    netgame = false;
   }
   command_loadgame = command;
   R_SmoothPlaying_Reset(NULL); // e6y

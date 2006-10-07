@@ -128,7 +128,9 @@ static void P_StartButton
       buttonlist[i].where = w;
       buttonlist[i].btexture = texture;
       buttonlist[i].btimer = time;
-      buttonlist[i].soundorg = (mobj_t *)&line->frontsector->soundorg;
+      /* use sound origin of line itself - no need to compatibility-wrap
+       * as the popout code gets it wrong whatever its value */
+      buttonlist[i].soundorg = (mobj_t *)&line->soundorg;
       return;
     }
 
@@ -149,64 +151,55 @@ void P_ChangeSwitchTexture
 ( line_t*       line,
   int           useAgain )
 {
-  int     texTop;
-  int     texMid;
-  int     texBot;
-  int     i;
-  int     sound;
+  /* Rearranged a bit to avoid too much code duplication */
+  mobj_t  *soundorg;
+  int     i, sound;
+  short   *texture, *ttop, *tmid, *tbot;
+  bwhere_e position;
 
+  ttop = &sides[line->sidenum[0]].toptexture;
+  tmid = &sides[line->sidenum[0]].midtexture;
+  tbot = &sides[line->sidenum[0]].bottomtexture;
+
+  sound = sfx_swtchn;
+  /* use the sound origin of the linedef (its midpoint)
+   * unless in a compatibility mode */
+  soundorg = (mobj_t *)&line->soundorg;
+  if (comp[comp_sound] || compatibility_level < prboom_6_compatibility) {
+    /* usually NULL, unless there is another button already pressed in,
+     * in which case it's the sound origin of that button press... */
+    soundorg = buttonlist->soundorg;
+  } else {
+    // EXIT SWITCH?
+    /* don't do this unless you're in a compatibility mode */
+    // proff - this works as advertised, but I don't like the sound
+    // if (line->special == 11 || line->special == 51) // exit or secret exit
+    //   sound = sfx_swtchx;
+  }
+
+  /* don't zero line->special until after exit switch test */
   if (!useAgain)
     line->special = 0;
 
-  texTop = sides[line->sidenum[0]].toptexture;
-  texMid = sides[line->sidenum[0]].midtexture;
-  texBot = sides[line->sidenum[0]].bottomtexture;
-
-  sound = sfx_swtchn;
-
-  // EXIT SWITCH?
-  if (line->special == 11)
-    sound = sfx_swtchx;
-
-  for (i = 0;i < numswitches*2;i++)
-  {
-    if (switchlist[i] == texTop)     // if an upper texture
-    {
-      S_StartSound(buttonlist->soundorg,sound);     // switch activation sound
-      sides[line->sidenum[0]].toptexture = switchlist[i^1];       //chg texture
-
-      if (useAgain)
-        P_StartButton(line,top,switchlist[i],BUTTONTIME);         //start timer
-
-      return;
-    }
-    else
-    {
-      if (switchlist[i] == texMid)   // if a normal texture
-      {
-        S_StartSound(buttonlist->soundorg,sound);   // switch activation sound
-        sides[line->sidenum[0]].midtexture = switchlist[i^1];     //chg texture
-
-        if (useAgain)
-          P_StartButton(line, middle,switchlist[i],BUTTONTIME);   //start timer
-
-        return;
-      }
-      else
-      {
-        if (switchlist[i] == texBot) // if a lower texture
-        {
-          S_StartSound(buttonlist->soundorg,sound); // switch activation sound
-          sides[line->sidenum[0]].bottomtexture = switchlist[i^1];//chg texture
-
-          if (useAgain)
-            P_StartButton(line, bottom,switchlist[i],BUTTONTIME); //start timer
-
-          return;
-        }
-      }
+  /* search for a texture to change */
+  texture = NULL; position = 0;
+  for (i = 0;i < numswitches*2;i++) { /* this could be more efficient... */
+    if (switchlist[i] == *ttop) {
+      texture = ttop; position = top; break;
+    } else if (switchlist[i] == *tmid) {
+      texture = tmid; position = middle; break;
+    } else if (switchlist[i] == *tbot) {
+      texture = tbot; position = bottom; break;
     }
   }
+  if (texture == NULL)
+    return; /* no switch texture was found to change */
+  *texture = switchlist[i^1];
+
+  S_StartSound(soundorg, sound);
+
+  if (useAgain)
+    P_StartButton(line, position, switchlist[i], BUTTONTIME);
 }
 
 

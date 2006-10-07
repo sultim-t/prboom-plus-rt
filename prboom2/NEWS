@@ -2,6 +2,19 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.5 to v2.4.6
+- Implemented patch clipping. This fixes bug #1557501.
+- Fixed update of compatibility options after use of TNTCOMP cheat
+- Reenabled padding if short or missing reject lumps.
+  Patch #1570517 by RjY.
+- Removed unaligned memory access in r_drawflush.inl. This should fix bus
+  errors on architectures where unaligned access is forbidden and should
+  give a slight speedup on other architectures.
+- Stop right after the quit sound stops, instead of waiting three seconds
+- Fixed sound origin for switches. This is compatibility optioned.
+  Patch #1533045 by RjY.
+- Fixed "oof" sound when hitting ground while already dead
+  Patch #1532700 by RjY.
+- Ported Eternitys fix to show the "ouch" face when severly hit
 - Unified drawing functions, this speeds things up a bit and fixes most
   artifacts on small numbers and fonts in high resolution modes.
 - Mac OS X: Add resolution and video mode (OpenGL vs software) selection to
@@ -9,6 +22,7 @@ Changes from v2.4.5 to v2.4.6
 - Added rendering filters for software mode, they are configurable in a new
   page in general settings
 - Emulate some texture composition bugs
+- Fix more common WAD bugs that can cause crashes
 - Fixed random crashes caused by use of uninitialized memory
 - Fix some demo incompatibilities caused by slime trail removal
 - Fixed crashes with WADs which use newer gl nodes or don't have any nodes
