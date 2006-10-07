@@ -2,6 +2,7 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.5 to v2.4.6
+- Fixed "oof" sound when hitting ground while already dead
 - Unified drawing functions, this speeds things up a bit and fixes most
   artifacts on small numbers and fonts in high resolution modes.
 - Mac OS X: Add resolution and video mode (OpenGL vs software) selection to
