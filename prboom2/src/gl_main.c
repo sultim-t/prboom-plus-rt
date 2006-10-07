@@ -2898,10 +2898,21 @@ void e6y_DrawAdd(void)
   }
 }
 
-void gld_ProcessWall(int i)
+//e6y
+static inline EnableAlphaBlend(boolean *gl_alpha_blended)
+{
+  if (!(*gl_alpha_blended))
+  {
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_BLEND);
+    *gl_alpha_blended = true;
+  }
+}
+
+//e6y
+static void gld_ProcessWall(int i, boolean *gl_alpha_blended)
 {
   GLWall wall;
-  boolean gl_alpha_blended = true;
   int j, k, count;
 
   count=0;
@@ -2926,21 +2937,16 @@ void gld_ProcessWall(int i)
         wall = gld_drawinfo.walls[j+gld_drawinfo.drawitems[i].firstitemindex];
         if (!wall.seg->backsector && wall.gltexture->hasHole)
         {
-          if (gl_alpha_blended)
+          if (*gl_alpha_blended)
           {
             glDisable(GL_ALPHA_TEST);
             glDisable(GL_BLEND);
-            gl_alpha_blended = false;
+            *gl_alpha_blended = false;
           }
         }
         else
         {
-          if (!gl_alpha_blended)
-          {
-            glEnable(GL_ALPHA_TEST);
-            glEnable(GL_BLEND);
-            gl_alpha_blended = true;
-          }
+          EnableAlphaBlend(gl_alpha_blended);
         }
         
         rendered_segs++;
@@ -3008,18 +3014,13 @@ void gld_DrawScene(player_t *player)
   // first pass
   for (i=gld_drawinfo.num_drawitems; i>=0; i--)
   {
-    if (gld_drawinfo.drawitems[i].itemtype != GLDIT_WALL && !gl_alpha_blended)
-    {
-      glEnable(GL_ALPHA_TEST);
-      glEnable(GL_BLEND);
-      gl_alpha_blended = true;
-    }
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
     case GLDIT_WALL:
-      gld_ProcessWall(i);
+      gld_ProcessWall(i, &gl_alpha_blended);
       break;
     case GLDIT_SPRITE:
+      EnableAlphaBlend(&gl_alpha_blended);
       // e6y
       // sorting is not necessary for opaque sprites
       // if you do not have a complex pixel shader
@@ -3034,16 +3035,11 @@ void gld_DrawScene(player_t *player)
   {
     switch (gld_drawinfo.drawitems[i].itemtype)
     {
-    if (gld_drawinfo.drawitems[i].itemtype != GLDIT_WALL && !gl_alpha_blended)
-    {
-      glEnable(GL_ALPHA_TEST);
-      glEnable(GL_BLEND);
-      gl_alpha_blended = true;
-    }
     case GLDIT_TWALL:
-      gld_ProcessWall(i);
+      gld_ProcessWall(i, &gl_alpha_blended);
       break;
     case GLDIT_TSPRITE:
+      EnableAlphaBlend(&gl_alpha_blended);
       // e6y
       // sorting is necessary only for transparent sprites.
       // from back to front
@@ -3069,12 +3065,7 @@ void gld_DrawScene(player_t *player)
   }
 
   // e6y: restoring
-  if (!gl_alpha_blended)
-  {
-    glEnable(GL_ALPHA_TEST);
-    glEnable(GL_BLEND);
-    gl_alpha_blended = true;
-  }
+  EnableAlphaBlend(&gl_alpha_blended);
   
   // e6y: detail
   if (!gl_arb_multitexture && render_usedetail)
