@@ -213,8 +213,9 @@ static void createPatch(int id) {
   patch->height = SHORT(oldPatch->height);
   patch->leftoffset = SHORT(oldPatch->leftoffset);
   patch->topoffset = SHORT(oldPatch->topoffset);
-  patch->isNotTileable = getPatchIsNotTileable(oldPatch);
-  patch->flags = 0;//e6y
+  patch->flags = 0;
+  if (getPatchIsNotTileable(oldPatch))
+    patch->flags |= PATCH_ISNOTTILEABLE;
 
   // e6y
   // fix wrong (with holes) drawing of the background 
@@ -277,7 +278,7 @@ static void createPatch(int id) {
 
     oldColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[x]));
 
-    if (patch->isNotTileable) {
+    if (patch->flags&PATCH_ISNOTTILEABLE) {
       // non-tiling
       if (x == 0) oldPrevColumn = 0;
       else oldPrevColumn = (const column_t *)((const byte *)oldPatch + LONG(oldPatch->columnofs[x-1]));
@@ -324,7 +325,7 @@ static void createPatch(int id) {
     }
   }
 
-  if (1 || patch->isNotTileable) {
+  if (1 || (patch->flags&PATCH_ISNOTTILEABLE)) {
     const rcolumn_t *column, *prevColumn;
 
     // copy the patch image down and to the right where there are
@@ -446,8 +447,7 @@ static void createTextureCompositePatch(int id) {
   composite_patch->widthmask = texture->widthmask;
   composite_patch->leftoffset = 0;
   composite_patch->topoffset = 0;
-  composite_patch->isNotTileable = 0;
-  composite_patch->flags = 0;//e6y
+  composite_patch->flags = 0;
 
   // work out how much memory we need to allocate for this patch's data
   pixelDataSize = (composite_patch->width * composite_patch->height + 4) & ~3;
@@ -643,7 +643,7 @@ static void createTextureCompositePatch(int id) {
     }
   }
 
-  if (1 || composite_patch->isNotTileable) {
+  if (1 || (composite_patch->flags&PATCH_ISNOTTILEABLE)) {
     const rcolumn_t *column, *prevColumn;
 
     // copy the patch image down and to the right where there are
@@ -808,7 +808,7 @@ const rcolumn_t *R_GetPatchColumnClamped(const rpatch_t *patch, int columnIndex)
 
 //---------------------------------------------------------------------------
 const rcolumn_t *R_GetPatchColumn(const rpatch_t *patch, int columnIndex) {
-  if (patch->isNotTileable) return R_GetPatchColumnClamped(patch, columnIndex);
+  if (patch->flags&PATCH_ISNOTTILEABLE) return R_GetPatchColumnClamped(patch, columnIndex);
   else return R_GetPatchColumnWrapped(patch, columnIndex);
 }
 
