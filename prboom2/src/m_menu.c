@@ -1043,13 +1043,24 @@ static void M_QuitResponse(int ch)
     return;
   if ((!netgame || demoplayback) // killough 12/98
       && !nosfxparm && snd_card) // avoid delay if no sound card
-    {
+  {
+    int i;
+
     if (gamemode == commercial)
       S_StartSound(NULL,quitsounds2[(gametic>>2)&7]);
     else
       S_StartSound(NULL,quitsounds[(gametic>>2)&7]);
-    I_uSleep(3000000); // cph - 3 s
+
+    // wait till all sounds stopped or 3 seconds are over
+    i = 30;
+    while (i>0) {
+      lprintf(LO_DEBUG, "End loop %i\n", i);
+      I_uSleep(100000); // CPhipps - don't thrash cpu in this loop
+      if (!I_AnySoundStillPlaying())
+        break;
+      i--;
     }
+  }
   exit(0); // killough
 }
 
