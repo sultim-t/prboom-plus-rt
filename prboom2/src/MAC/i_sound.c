@@ -204,9 +204,7 @@ int I_RegisterMusic( const char* filename, musicinfo_t *song )
 
 void I_SetMusicVolume(int value)
 {
-  if(value > 1) value = 1;
-  if(value < 0) value = 0;
-  movieVolume = (short) (0x100 * value);
+  movieVolume = 0x000000ff * value / 15;
   if(movie)
   {
     // Update the volume of the running movie.
