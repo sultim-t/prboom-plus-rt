@@ -318,64 +318,49 @@ boolean HasTrailingSlash(const char* dn)
  * cphipps 19/1999 - writen to unify the logic in FindIWADFile and the WAD
  *      autoloading code.
  * Searches the standard dirs for a named WAD file
- * The dirs are:
- * .
- * DOOMWADDIR
- * ~/doom
- * /usr/share/games/doom
- * /usr/local/share/games/doom
- * ~
+ * The dirs are listed at the start of the function
  */
 
-#ifdef MACOSX
-/* Defined elsewhere */
-#else
+#ifndef MACOSX /* OSX defines its search paths elsewhere. */
 char* I_FindFile(const char* wfname, const char* ext)
 {
+  // lookup table of directories to search
+  static const struct {
+    const char *dir; // directory
+    const char *sub; // subdirectory
+    const char *env; // environment variable
+    const char *(*func)(void); // for I_DoomExeDir
+  } search[] = {
+    {NULL}, // current working directory
+    {NULL, NULL, "DOOMWADDIR"}, // run-time $DOOMWADDIR
+    {DOOMWADDIR}, // build-time configured DOOMWADDIR
+    {NULL, "doom", "HOME"}, // ~/doom
+    {NULL, NULL, "HOME"}, // ~
+    {"/usr/local/share/games/doom"},
+    {"/usr/share/games/doom"},
+    {"/usr/local/share/doom"},
+    {"/usr/share/doom"},
+  };
+
   int   i;
   /* Precalculate a length we will need in the loop */
   size_t  pl = strlen(wfname) + strlen(ext) + 4;
 
-  for (i=0; i<10; i++) {
+  for (i = 0; i < sizeof(search)/sizeof(*search); i++) {
     char  * p;
     const char  * d = NULL;
     const char  * s = NULL;
     /* Each entry in the switch sets d to the directory to look in,
      * and optionally s to a subdirectory of d */
-    switch(i) {
-    case 0:
-      if (!(d = getenv("DOOMWADDIR"))) continue;
-    case 1:
-      break;
-    case 2:
-      s = DOOMWADDIR;
-      break;
-    case 3:
-      s = "doom";
-      break;
-    case 4:
-      d = "/usr/share/games/doom";
-      break;
-    case 5:
-      d = "/usr/local/share/games/doom";
-      break;
-    case 6:
-      d = "/usr/share/doom";
-      break;
-    case 7:
-      d = "/usr/local/share/doom";
-      break;
-    case 8:
-      d = I_DoomExeDir();
-      break;
-    case 9:
-      if (!(d = getenv("HOME"))) continue;
-      break;
-#ifdef SIMPLECHECKS
-    default:
-      I_Error("I_FindFile: Internal failure");
-#endif
-    }
+    // switch replaced with lookup table
+    if (search[i].env) {
+      if (!(d = getenv(search[i].env)))
+        continue;
+    } else if (search[i].func)
+      d = search[i].func();
+    else
+      d = search[i].dir;
+    s = search[i].sub;
 
     p = malloc((d ? strlen(d) : 0) + (s ? strlen(s) : 0) + pl);
     sprintf(p, "%s%s%s%s%s", d ? d : "", (d && !HasTrailingSlash(d)) ? "/" : "",
