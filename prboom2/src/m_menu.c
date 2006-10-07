@@ -1054,7 +1054,6 @@ static void M_QuitResponse(int ch)
     // wait till all sounds stopped or 3 seconds are over
     i = 30;
     while (i>0) {
-      lprintf(LO_DEBUG, "End loop %i\n", i);
       I_uSleep(100000); // CPhipps - don't thrash cpu in this loop
       if (!I_AnySoundStillPlaying())
         break;
