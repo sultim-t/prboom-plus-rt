@@ -1236,6 +1236,7 @@ static void P_LoadReject(int lumpnum, int totallines)
 {
   unsigned int length, required;
   byte *newreject;
+  unsigned char pad;
 
   // dump any old cached reject lump, then cache the new one
   if (rejectlump != -1)
@@ -1253,7 +1254,15 @@ static void P_LoadReject(int lumpnum, int totallines)
   // PU_LEVEL => will be freed on level exit
   newreject = Z_Malloc(required, PU_LEVEL, NULL);
   rejectmatrix = (const byte *)memmove(newreject, rejectmatrix, length);
-  memset(newreject + length, 0, required - length);
+
+  // e6y
+  // PrBoom 2.2.5 and 2.2.6 padded a short REJECT with 0xff
+  // This command line switch is needed for all potential demos 
+  // recorded with these versions of PrBoom on maps with too short REJECT
+  // I don't think there are any demos that will need it but yes that seems sensible
+  pad = M_CheckParm("-reject_pad_with_ff") ? 0xff : 0;
+
+  memset(newreject + length, pad, required - length);
   // unlock the original lump, it is no longer needed
   W_UnlockLumpNum(rejectlump);
   rejectlump = -1;
