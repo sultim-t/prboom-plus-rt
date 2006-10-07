@@ -1220,6 +1220,70 @@ static void P_LoadBlockMap (int lump)
 }
 
 //
+// P_LoadReject - load the reject table, padding it if it is too short
+// totallines must be the number returned by P_GroupLines()
+// an underflow will be padded with zeroes, or a doom.exe z_zone header
+// 
+// this function incorporates e6y's RejectOverrunAddInt code:
+// e6y: REJECT overrun emulation code
+// It's emulated successfully if the size of overflow no more than 16 bytes.
+// No more desync on teeth-32.wad\teeth-32.lmp.
+// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
+
+static void P_LoadReject(int lumpnum, int totallines)
+{
+  unsigned int length, required;
+  byte *newreject;
+
+  // dump any old cached reject lump, then cache the new one
+  if (rejectlump != -1)
+    W_UnlockLumpNum(rejectlump);
+  rejectlump = lumpnum + ML_REJECT;
+  rejectmatrix = W_CacheLumpNum(rejectlump);
+
+  required = (numsectors * numsectors + 7) / 8;
+  length = W_LumpLength(rejectlump);
+
+  if (length >= required)
+    return; // nothing to do
+
+  // allocate a new block and copy the reject table into it; zero the rest
+  // PU_LEVEL => will be freed on level exit
+  newreject = Z_Malloc(required, PU_LEVEL, NULL);
+  rejectmatrix = (const byte *)memmove(newreject, rejectmatrix, length);
+  memset(newreject + length, 0, required - length);
+  // unlock the original lump, it is no longer needed
+  W_UnlockLumpNum(rejectlump);
+  rejectlump = -1;
+
+  if (demo_compatibility)
+  {
+    // merged in RejectOverrunAddInt(), and the 4 calls to it, here
+    unsigned int rejectpad[4] = {
+      0,        // size, will be filled in using totallines
+      0,        // part of the header of a doom.exe z_zone block
+      50,       // DOOM_CONST_PU_LEVEL
+      0x1d4a11  // DOOM_CONST_ZONEID
+    };
+    unsigned int i, pad = 0, *src = rejectpad;
+    byte *dest = newreject + length;
+
+    rejectpad[0] = ((totallines*4+3)&~3)+24; // doom.exe zone header size
+
+    // copy at most 16 bytes from rejectpad
+    // emulating a 32-bit, little-endian architecture (can't memmove)
+    for (i = 0; i < required - length && i < 16; i++) { // 16 hard-coded
+      if (!(i&3)) // get the next 4 bytes to copy when i=0,4,8,12
+        pad = *src++;
+      *dest++ = pad & 0xff; // store lowest-significant byte
+      pad >>= 8; // rotate the next byte down
+    }
+  }
+  lprintf(LO_WARN, "P_LoadReject: REJECT too short (%u<%u) - padded\n",
+          length, required);
+}
+
+//
 // P_GroupLines
 // Builds sector line lists and subsector sector numbers.
 // Finds block bounding boxes for sectors.
@@ -1239,27 +1303,8 @@ static void P_AddLineToSector(line_t* li, sector_t* sector)
   M_AddToBox (bbox, li->v2->x, li->v2->y);
 }
 
-// e6y: REJECT overrun emulation code
-// It's emulated successfully if the size of overflow no more than 16 bytes.
-// No more desync on teeth-32.wad\teeth-32.lmp.
-// http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
-int rjreq, rjlen;
-static void RejectOverrunAddInt(int k)
-{
-  int i = 0;
-
-  if (demo_compatibility)
-  {
-    while (rjlen < rjreq)
-    {
-      ((byte*)rejectmatrix)[rjlen++] = (k & 0x000000ff);
-      k >>= 8;
-      if ((++i)==4) break;
-    }
-  }
-}
-
-static void P_GroupLines (void)
+// modified to return totallines (needed by P_LoadReject)
+static int P_GroupLines (void)
 {
   register line_t *li;
   register sector_t *sector;
@@ -1298,16 +1343,7 @@ static void P_GroupLines (void)
     line_t **linebuffer = Z_Malloc(total*sizeof(line_t *), PU_LEVEL, 0);
 
     // e6y: REJECT overrun emulation code
-    // It's emulated successfully if the size of overflow no more than 16 bytes.
-    // No more desync on teeth-32.wad\teeth-32.lmp.
-    // http://www.doomworld.com/vb/showthread.php?s=&threadid=35214
-    if (demo_compatibility)
-    {
-      RejectOverrunAddInt(((total*4+3)&~3)+24);
-      RejectOverrunAddInt(0);
-      RejectOverrunAddInt(50);//DOOM_CONST_PU_LEVEL
-      RejectOverrunAddInt(0x1d4a11);//DOOM_CONST_ZONEID
-    }
+    // moved to P_LoadReject
 
     for (i=0, sector = sectors; i<numsectors; i++, sector++)
     {
@@ -1354,6 +1390,7 @@ static void P_GroupLines (void)
     sector->blockbox[BOXLEFT]=block;
   }
 
+  return total; // this value is needed by the reject overrun emulation code
 }
 
 //
@@ -1548,25 +1585,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
 #endif
 
-  if (rejectlump != -1)
-    W_UnlockLumpNum(rejectlump);
-  /* CHECKME this code is not in 2.3, but I can't find the place where it was removed
-
-  rejectlump = lumpnum+ML_REJECT;
-  {
-    // e6y: Needed for REJECT overrun emulation
-    rjlen = W_LumpLength(rejectlump);
-    // e6y: Needed for REJECT overrun emulation
-    rjreq = (numsectors*numsectors+7)/8;
-    if (rjlen < rjreq) {
-      lprintf(LO_WARN,"P_SetupLevel: REJECT too short (%d<%d) - padded\n",rjlen,rjreq);
-      rejectmatrix = W_CacheLumpNumPadded(rejectlump,rjreq,0xff);
-    } else {
-      rejectmatrix = W_CacheLumpNum(rejectlump);
-    }
-  }*/
-  rejectmatrix = W_CacheLumpNum(rejectlump = lumpnum+ML_REJECT);
-  P_GroupLines();
+  // reject loading and underflow padding separated out into new function
+  // P_GroupLines modified to return a number the underflow padding needs
+  P_LoadReject(lumpnum, P_GroupLines());
 
   // e6y
   // Correction of desync on dv04-423.lmp/dv.wad
