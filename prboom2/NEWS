@@ -6,6 +6,7 @@ Changes from v2.4.5 to v2.4.6
   Patch #1533045 by RjY.
 - Fixed "oof" sound when hitting ground while already dead
   Patch #1532700 by RjY.
+- Ported Eternitys fix to show the "ouch" face when severly hit
 - Unified drawing functions, this speeds things up a bit and fixes most
   artifacts on small numbers and fonts in high resolution modes.
 - Mac OS X: Add resolution and video mode (OpenGL vs software) selection to
