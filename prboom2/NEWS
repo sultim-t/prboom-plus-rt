@@ -2,6 +2,7 @@ This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
 Changes from v2.4.5 to v2.4.6
+- Implemented patch clipping. This fixes bug #1557501.
 - Fixed update of compatibility options after use of TNTCOMP cheat
 - Reenabled padding if short or missing reject lumps.
   Patch #1570517 by RjY.
