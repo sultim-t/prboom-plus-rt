@@ -692,7 +692,6 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXLEFT] = v2->x;
           ld->bbox[BOXRIGHT] = v1->x;
         }
-
       if (v1->y < v2->y)
         {
           ld->bbox[BOXBOTTOM] = v1->y;
@@ -703,6 +702,10 @@ static void P_LoadLineDefs (int lump)
           ld->bbox[BOXBOTTOM] = v2->y;
           ld->bbox[BOXTOP] = v1->y;
         }
+
+      /* calculate sound origin of line to be its midpoint */
+      ld->soundorg.x = (ld->bbox[BOXLEFT] + ld->bbox[BOXRIGHT] ) / 2;
+      ld->soundorg.y = (ld->bbox[BOXTOP]  + ld->bbox[BOXBOTTOM]) / 2;
 
       ld->iLineID=i; // proff 04/05/2000: needed for OpenGL
       ld->sidenum[0] = SHORT(mld->sidenum[0]);

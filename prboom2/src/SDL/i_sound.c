@@ -350,6 +350,15 @@ boolean I_SoundIsPlaying(int handle)
 }
 
 
+boolean I_AnySoundIsPlaying(void)
+{
+  boolean result = false;
+  int i;
+
+  
+}
+
+
 //
 // This function loops all active (internal) sound
 //  channels, retrieves a given number of samples
