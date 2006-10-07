@@ -215,7 +215,9 @@ static void createPatch(int id) {
   patch->topoffset = SHORT(oldPatch->topoffset);
   patch->isNotTileable = getPatchIsNotTileable(oldPatch);
 
-  //e6y
+  // e6y
+  // fix wrong (with holes) drawing of the background 
+  // for the loadgame and savegame entries
   {
     static const char *list[] = {
       "M_LSLEFT", "M_LSCNTR", "M_LSRGHT",
