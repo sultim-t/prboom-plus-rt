@@ -5,7 +5,7 @@
 require 'open-uri'
 
 NAME = 'PrBoom-Plus'
-APPVERSION = '2.4.6.1'
+APPVERSION = '2.4.6.2'
 require 'mac/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom-Plus')
