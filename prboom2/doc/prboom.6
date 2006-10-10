@@ -6,7 +6,7 @@ prboom \- PrBoom, a version of Doom for Unix, Linux and Windows systems
 .B prboom
 [\| \-complevel \fIlvl\fR \|]
 .BR
-[\| \-width \fIw\fR \|] [\| \-height \fIh\fR \|] [\| \-viewangle \fIn\fR \|]
+[\| \-width \fIw\fR \|] [\| \-height \fIh\fR \|] [\| \-viewangle \fIn\fR \|] [\| \-vidmode \fIgl\fR \|] [\| \-[\|no\|]fullscreen \|] [\| \-[\|no\|]window \|]
 .BR
 [\| \-iwad \fIiwadname\fR \|] [\| -file \fIwad1 \&...\fR \|] [\| \-deh \fIdeh_file\fR \|] [\| \-noload \|]
 .BR
@@ -49,6 +49,16 @@ height must be greater than 200.
 .BI \-viewangle\  n
 Causes the player view to be rotated by a given offset (specified in 45degree
 increments, in the range 0..7) from the way the player is facing.
+.TP
+.BI \-vidmode\  gl
+Use the OpenGL video mode. The default is to use the software video mode.
+.TP
+.BI \-fullscreen,\ \-nofullscreen
+These options toggle fullscreen mode. The default is fullscreen.
+.TP
+.BI \-window,\ \-nowindow
+This pair of options also toggle fullscreen mode. They only take effect for
+this prboom session and do not alter your configuration file.
 .SH WAD Options
 .TP
 .BI \-iwad\  iwadname
