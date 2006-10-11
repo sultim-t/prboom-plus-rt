@@ -7,6 +7,10 @@
 //
 //===============================================================
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef _WIN32
 #ifdef SIMD_INSTRUCTIONS
 #define WIN32_LEAN_AND_MEAN
@@ -388,7 +392,7 @@ MMX_Memcpy2kB
 #define _alloca16( x )					((void *)((((int)_alloca( (x)+15 )) + 15) & ~15))
 
 static void MMX_Memcpy2kB( void *dest, const void *src, const int count ) {
-	byte *tbuf = NULL;//(byte *)_alloca16(2048);
+	byte *tbuf = (byte *)_alloca16(2048);
 	__asm { 
 		push	ebx
         mov		esi, src
