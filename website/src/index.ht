@@ -2,6 +2,31 @@ title: Project Homepage
 
     <h1>News</h1>
     
+    <h3>15th October 2006</h3>
+
+    <p>Version 2.4.6 is released.</p>
+    <ul class="changes">
+        <li>Mac OS X: Fixed music volume slider</li>
+        <li>Implemented patch clipping. This fixes bug #1557501.</li>
+        <li>Fixed update of compatibility options after use of TNTCOMP cheat</li>
+        <li>Reenabled padding if short or missing reject lumps. Patch #1570517 by RjY.</li>
+        <li>Removed unaligned memory access in r_drawflush.inl. This should fix bus errors on architectures where unaligned access is forbidden and should give a slight speedup on other architectures.</li>
+        <li>Stop right after the quit sound stops, instead of waiting three seconds</li>
+        <li>Fixed sound origin for switches. This is compatibility optioned. Patch #1533045 by RjY.</li>
+        <li>Fixed "oof" sound when hitting ground while already dead. Patch #1532700 by RjY.</li>
+        <li>Ported Eternitys fix to show the "ouch" face when severly hit</li>
+        <li>Unified drawing functions, this speeds things up a bit and fixes most artifacts on small numbers and fonts in high resolution modes.</li>
+        <li>Mac OS X: Add resolution and video mode (OpenGL vs software) selection to launcher</li>
+        <li>Added rendering filters for software mode, they are configurable in a new page in general settings</li>
+        <li>Emulate some texture composition bugs</li>
+        <li>Fix more common WAD bugs that can cause crashes</li>
+        <li>Fixed random crashes caused by use of uninitialized memory</li>
+        <li>Fix some demo incompatibilities caused by slime trail removal</li>
+        <li>Fixed crashes with WADs which use newer gl nodes or don't have any nodes</li>
+        <li>Automatically load gwa files with gl nodes</li>
+        <li>Fixed integer overrun in automap on large levels (from PrBoom+)</li>
+    </ul>
+
     <h3>12th August 2006</h3>
 
     <p>Version 2.4.5 is released.</p>
