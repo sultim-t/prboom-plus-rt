@@ -402,7 +402,7 @@ static void P_LoadSegs (int lump)
       /* cph 2006/09/30 - our frontsector can be the second side of the
        * linedef, so must check for NO_INDEX in case we are incorrectly
        * referencing the back of a 1S line */
-      if (ldef->sidenum[side] != NO_INDEX)
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
         li->frontsector = sides[ldef->sidenum[side]].sector;
       else {
         li->frontsector = 0;
