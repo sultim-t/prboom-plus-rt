@@ -402,14 +402,14 @@ static void P_LoadSegs (int lump)
       /* cph 2006/09/30 - our frontsector can be the second side of the
        * linedef, so must check for NO_INDEX in case we are incorrectly
        * referencing the back of a 1S line */
-      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
+      if (ldef->sidenum[side] != NO_INDEX)
         li->frontsector = sides[ldef->sidenum[side]].sector;
       else {
         li->frontsector = 0;
         lprintf(LO_WARN, "P_LoadSegs: front of seg %i has no sidedef\n", i);
       }
 
-      if (ldef->sidenum[side^1]!=NO_INDEX)
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
