@@ -418,9 +418,6 @@ void D_AddDehFile (const char *file, wad_source_t source);
 
 extern int levelstarttic;
 
-const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad);
-void W_FreeCachedLumps(void);
-
 void R_ProcessScreenMultiply(byte* pixels_src, byte* pixels_dest, int pitch_src, int pitch_dest);
 
 extern int demo_patterns_count;

@@ -438,7 +438,6 @@ void W_ReleaseAllWads(void)
 	numlumps = 0;
 	free(lumpinfo);
 	lumpinfo = NULL;
-	W_FreeCachedLumps();//e6y
 }
 
 //

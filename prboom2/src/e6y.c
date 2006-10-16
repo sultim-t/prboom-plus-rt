@@ -1196,16 +1196,6 @@ boolean compbad_get(int *compbad)
   return !demo_compatibility && (*compbad) && !demorecording && !demoplayback;
 }
 
-/*boolean CompErrZeroTag(void)
-{
-  return !demo_compatibility && comperr_zerotag && !demorecording && !demoplayback;
-}
-
-boolean CompErrPassUse(void)
-{
-  return !demo_compatibility && comperr_passuse && !demorecording && !demoplayback;
-}*/
-
 boolean ProcessNoTagLines(line_t* line, sector_t **sec, int *secnum)
 {
   zerotag_manual = false;
@@ -1521,38 +1511,6 @@ void ClearLinesCrossTracer(void)
 float paperitems_pitch;
 
 int levelstarttic;
-
-int lumpcache_num = 0;
-int lumpcache_max = 0;
-void **lumpcache = NULL;
-const void * W_CacheLumpNumPadded(int lump, size_t len, unsigned char pad)
-{
-  size_t lumplen;
-
-  if (lumpcache_num >= lumpcache_max)
-  {
-    lumpcache_max = lumpcache_max ? lumpcache_max * 2 : 32;
-    lumpcache = realloc(lumpcache, sizeof(*lumpcache) * lumpcache_max);
-  }
-
-  lumplen = W_LumpLength(lump);
-  lumpcache[lumpcache_num] = malloc(len);
-  W_ReadLump(lump, lumpcache[lumpcache_num]);
-  memset((unsigned char*)lumpcache[lumpcache_num]+lumplen, pad, len-lumplen);
-
-  return lumpcache[lumpcache_num++];
-}
-
-void W_FreeCachedLumps(void)
-{
-  int i;
-  for (i = 0; i < lumpcache_num; i++)
-  {
-    if (lumpcache[i])
-      free(lumpcache[i]);
-  }
-  free(lumpcache);
-}
 
 static void R_ProcessScreenMultiplyBlock2x(byte* pixels_src, byte* pixels_dest, 
                                          int pitch_src, int pitch_dest,
