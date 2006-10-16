@@ -146,38 +146,40 @@ static void stopchan(int i)
 //
 static int addsfx(int sfxid, int channel)
 {
-    int   oldest = gametic;
-    int   oldestnum = 0;
+  int lump = S_sfx[sfxid].lumpnum;
+  size_t len = 0;
+  const unsigned char* data;
 
-  stopchan(channel);
+  I_StopSound(channel);
 
   // We will handle the new SFX.
-    // Set pointer to raw data.
-    {
-      int lump = S_sfx[sfxid].lumpnum;
-      size_t len = W_LumpLength(lump);
-      // e6y: Crash with zero-length sounds.
-      // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
-      // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
-      if (len<=8) return -1;
+  // Set pointer to raw data.
+  len = W_LumpLength(lump);
+  // e6y: Crash with zero-length sounds.
+  // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
+  // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
+  if (len<=8) return -1;
 
-      /* Find padded length */
-    len -= 8;
-    channelinfo[channel].data = W_CacheLumpNum(lump);
+  /* Find padded length */
+  len -= 8;
+  // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
+  data = W_CacheLumpNum(lump);
 
-      /* Set pointer to end of raw data. */
-    channelinfo[channel].enddata = channelinfo[channel].data + len - 1;
-    channelinfo[channel].samplerate = (channelinfo[channel].data[3]<<8)+channelinfo[channel].data[2];
-    channelinfo[channel].data += 8; /* Skip header */
-    }
+  SDL_LockAudio();
+  channelinfo[channel].data = data;
+  /* Set pointer to end of raw data. */
+  channelinfo[channel].enddata = channelinfo[channel].data + len - 1;
+  channelinfo[channel].samplerate = (channelinfo[channel].data[3]<<8)+channelinfo[channel].data[2];
+  channelinfo[channel].data += 8; /* Skip header */
 
   channelinfo[channel].stepremainder = 0;
-    // Should be gametic, I presume.
+  // Should be gametic, I presume.
   channelinfo[channel].starttime = gametic;
 
-    // Preserve sound SFX id,
-    //  e.g. for avoiding duplicates of chainsaw.
+  // Preserve sound SFX id,
+  //  e.g. for avoiding duplicates of chainsaw.
   channelinfo[channel].id = sfxid;
+  SDL_UnlockAudio();
 
   return channel;
 }
@@ -190,7 +192,7 @@ static void updateSoundParams(int handle, int volume, int seperation, int pitch)
     int         step = steptable[pitch];
 
 #ifdef RANGECHECK
-  if (handle>=MAX_CHANNELS)
+  if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_UpdateSoundParams: handle out of range");
 #endif
   // Set stepping
@@ -305,24 +307,14 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
   int handle;
 
-  // UNUSED
-  priority = 0;
-
-    // Debug.
-    //fprintf( stderr, "starting sound %d", id );
-
-    SDL_LockAudio();
   // Returns a handle (not used).
-  handle = addsfx(id,channel);
+  handle = addsfx(id, channel);
 #ifdef RANGECHECK
-  if (handle>=MAX_CHANNELS)
+  if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_StartSound: handle out of range");
 #endif
   if (handle!=-1)
-  updateSoundParams(handle, vol, sep, pitch);
-    SDL_UnlockAudio();
-
-    // fprintf( stderr, "/handle is %d\n", id );
+    I_UpdateSoundParams(handle, vol, sep, pitch);
 
   return handle;
 }
@@ -332,7 +324,7 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 void I_StopSound (int handle)
 {
 #ifdef RANGECHECK
-  if (handle>=MAX_CHANNELS)
+  if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_StopSound: handle out of range");
 #endif
   SDL_LockAudio();
@@ -344,7 +336,7 @@ void I_StopSound (int handle)
 boolean I_SoundIsPlaying(int handle)
 {
 #ifdef RANGECHECK
-  if (handle>=MAX_CHANNELS)
+  if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_SoundIsPlaying: handle out of range");
 #endif
   return channelinfo[handle].data != NULL;

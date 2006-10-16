@@ -1752,12 +1752,14 @@ void G_DoLoadGame(void)
   basetic = gametic - *save_p++;
 
   // dearchive all the modifications
+  P_MapStart();
   P_UnArchivePlayers ();
   P_UnArchiveWorld ();
   P_UnArchiveThinkers ();
   P_UnArchiveSpecials ();
   P_UnArchiveRNG ();    // killough 1/18/98: load RNG information
   P_UnArchiveMap ();    // killough 1/22/98: load automap information
+  P_MapEnd();
   R_ActivateSectorInterpolations();//e6y
   R_SmoothPlaying_Reset(NULL); // e6y
 

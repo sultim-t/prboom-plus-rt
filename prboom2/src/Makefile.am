@@ -51,7 +51,8 @@ COMMON_SRC = \
  md5.c          md5.h              p_checksum.h     p_checksum.c \
  r_patch.c      r_patch.h          r_fps.c          r_fps.h \
  e6y.c          e6y.h              i_simd.c         i_simd.h \
- r_filter.c     r_filter.h
+ r_filter.c     r_filter.h         r_drawcolumn.inl r_drawflush.inl \
+ r_drawspan.inl
 
 NET_CLIENT_SRC = d_client.c
 
@@ -69,5 +70,3 @@ endif
 
 prboom_plus_SOURCES = mmus2mid.c mmus2mid.h $(COMMON_SRC) $(NET_CLIENT_SRC) $(USE_GL_SRC) $(WAD_SRC)
 prboom_plus_LDADD = SDL/libsdldoom.a @MIXER_LIBS@ @NET_LIBS@ @SDL_LIBS@ @GL_LIBS@ @MATH_LIB@
-
-EXTRA_DIST = r_drawcolumn.inl r_drawflush.inl r_drawspan.inl
