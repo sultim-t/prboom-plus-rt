@@ -1604,21 +1604,11 @@ static void G_LoadGameErr(const char *msg)
 // CPhipps - size of version header
 #define VERSIONSIZE   16
 
-//e6y
-/*
 const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] =
-{ "doom v1.2", "doom v1.666", "doom/doom2 v1.9", "ultimate doom", "final doom",
-  "dosdoom compatibility", "tasdoom compatibility", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
+{ "Doom v1.2", "Doom v1.666", "Doom/Doom2 v1.9", "Ultimate Doom/Doom95", "Final Doom",
+  "early DosDoom compatibility", "TASDoom compatibility", "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+",
   "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.6",
   "PrBoom v2.3.x", "PrBoom 2.4.0", "Current PrBoom"  };
-  */
-const char * comp_lev_str[MAX_COMPATIBILITY_LEVEL] = 
-{ "doom v1.2", "doom v1.666", "doom2 v1.9",
-  "ultimate doom v1.9", "final doom/doom95", 
-  "early DosDoom", "TASDoom",
-  "\"boom compatibility\"", "boom v2.01", "boom v2.02", "lxdoom v1.3.2+", 
-  "MBF", "PrBoom 2.03beta", "PrBoom v2.1.0-2.1.1", "PrBoom v2.1.2-v2.2.6",
-  "PrBoom v2.3.x", "Current PrBoom"  };
 
 static byte comp_options_by_version[] =
 { 0,0,0,0,0, /* Original Doom's don't have comp[] */
