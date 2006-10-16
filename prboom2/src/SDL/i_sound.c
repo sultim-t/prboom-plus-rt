@@ -312,9 +312,9 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
   if ((handle < 0) || (handle >= MAX_CHANNELS))
 #ifdef RANGECHECK
     I_Error("I_StartSound: handle out of range");
-#else
-    I_UpdateSoundParams(handle, vol, sep, pitch);
 #endif
+  if ((handle >= 0) && (handle < MAX_CHANNELS))
+    I_UpdateSoundParams(handle, vol, sep, pitch);
 
   return handle;
 }
