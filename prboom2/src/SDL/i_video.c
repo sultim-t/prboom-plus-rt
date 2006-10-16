@@ -806,4 +806,5 @@ void I_UpdateVideoMode(void)
     gld_Init(SCREENWIDTH, SCREENHEIGHT);
 #endif
   }
+  I_AfterUpdateVideoMode();//e6y
 }

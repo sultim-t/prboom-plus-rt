@@ -74,8 +74,6 @@
 #include "i_simd.h"
 #include "e6y.h"
 
-#define Pi 3.14159265358979323846f
-
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
@@ -230,14 +228,6 @@ void e6y_assert(const char *format, ...)
   va_end(argptr);
 }
 
-static void ResetAspectRatio(void)
-{
-  render_aspect_width = 320;
-  render_aspect_height = 200;
-  render_aspect_ratio = (float)render_aspect_width/(float)render_aspect_height;
-  was_aspected = false;
-}
-
 /* ParamsMatchingCheck
  * Conflicting command-line parameters could cause the engine to be confused 
  * in some cases. Added checks to prevent this.
@@ -321,25 +311,6 @@ void e6y_D_DoomMainSetup(void)
         }
         traces[i].trace->count = count;
       }
-    }
-  }
-
-  ResetAspectRatio();
-  
-  if (!(p = M_CheckParm("-aspect")))
-    p = M_CheckParm("-aspectratio");
-
-  if (p && (p+1 < myargc) && (strlen(myargv[p+1]) < 19))
-  {
-    if (sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height) == 2)
-    {
-      render_aspect_ratio = (float)render_aspect_width/(float)render_aspect_height;
-      was_aspected = (float)render_aspect_ratio != (320.0f/200.0f);
-      //M_ChangeFOV();
-    }
-    else
-    {
-      ResetAspectRatio();
     }
   }
 
@@ -518,23 +489,37 @@ void M_ChangeMouseInvert(void)
 void M_ChangeFOV(void)
 {
   float f1, f2;
+  int p;
+  int render_aspect_width, render_aspect_height;
 
-  if (V_GetMode() == VID_MODEGL)
-    internal_render_fov = (float)render_fov;
+  if ((p = M_CheckParm("-aspect")) && (p+1 < myargc) && (strlen(myargv[p+1]) <= 21) &&
+    (2 == sscanf(myargv[p+1], "%dx%d", &render_aspect_width, &render_aspect_height)))
+  {
+    render_aspect_ratio = (float)render_aspect_width/(float)render_aspect_height;
+  }
   else
-    internal_render_fov = (float)FOV90;
+  {
+    render_aspect_ratio = 1.6f;
+    /*if (desired_fullscreen)
+      render_aspect_ratio = 1.6f;
+    else
+      render_aspect_ratio = (float)REAL_SCREENWIDTH/(float)REAL_SCREENHEIGHT;*/
+  }
+  was_aspected = (float)render_aspect_ratio != 1.6f;
 
-  internal_render_fov = internal_render_fov/1.6f*FOV_CORRECTION_FACTOR;
-  fovscale = FOV90/(float)render_fov;
+  internal_render_fov = (float)(2 * RAD2DEG(atan(tan(DEG2RAD(render_fov) / 2) / render_aspect_ratio)));
+
+  fovscale = FOV90/(float)render_fov;//*(render_aspect_ratio/1.6f);
+  //fovscale = render_aspect_ratio/1.6f;
 
   f1 = (float)(320.0f/200.0f/fovscale-0.2f);
-  f2 = (float)tan(internal_render_fov/2.0f*Pi/180.0f);
+  f2 = (float)tan(DEG2RAD(internal_render_fov)/2.0f);
   if (f1-f2<1)
-    skyUpAngle = (float)-asin(f1-f2)*180.0f/Pi;
+    skyUpAngle = (float)-DEG2RAD(asin(f1-f2));
   else
     skyUpAngle = -90.0f;
 
-  skyUpShift = (float)tan((internal_render_fov/2.0f)*Pi/180.0f);
+  skyUpShift = (float)tan(DEG2RAD(internal_render_fov)/2.0f);
 }
 
 void M_ChangeUseDetail(void)
@@ -1686,3 +1671,8 @@ int demo_patterns_count;
 char *demo_patterns_mask;
 char **demo_patterns_list;
 char *demo_patterns_list_def[9];
+
+void I_AfterUpdateVideoMode(void)
+{
+  M_ChangeFOV();
+}
