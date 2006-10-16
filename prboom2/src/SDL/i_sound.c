@@ -309,12 +309,12 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 
   // Returns a handle (not used).
   handle = addsfx(id, channel);
-#ifdef RANGECHECK
   if ((handle < 0) || (handle >= MAX_CHANNELS))
+#ifdef RANGECHECK
     I_Error("I_StartSound: handle out of range");
-#endif
-  if (handle!=-1)
+#else
     I_UpdateSoundParams(handle, vol, sep, pitch);
+#endif
 
   return handle;
 }
