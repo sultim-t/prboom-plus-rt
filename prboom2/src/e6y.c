@@ -515,7 +515,7 @@ void M_ChangeFOV(void)
   f1 = (float)(320.0f/200.0f/fovscale-0.2f);
   f2 = (float)tan(DEG2RAD(internal_render_fov)/2.0f);
   if (f1-f2<1)
-    skyUpAngle = (float)-DEG2RAD(asin(f1-f2));
+    skyUpAngle = (float)-RAD2DEG(asin(f1-f2));
   else
     skyUpAngle = -90.0f;
 
