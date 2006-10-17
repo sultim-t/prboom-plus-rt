@@ -345,6 +345,7 @@ char* I_FindFile(const char* wfname, const char* ext)
     {DOOMWADDIR}, // build-time configured DOOMWADDIR
     {NULL, "doom", "HOME"}, // ~/doom
     {NULL, NULL, "HOME"}, // ~
+    {NULL, NULL, NULL, I_DoomExeDir},
     {"/usr/local/share/games/doom"},
     {"/usr/share/games/doom"},
     {"/usr/local/share/doom"},

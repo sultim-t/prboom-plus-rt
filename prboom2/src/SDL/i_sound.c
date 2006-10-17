@@ -150,7 +150,7 @@ static int addsfx(int sfxid, int channel)
   size_t len = 0;
   const unsigned char* data;
 
-  I_StopSound(channel);
+  stopchan(channel);
 
   // We will handle the new SFX.
   // Set pointer to raw data.
@@ -165,7 +165,6 @@ static int addsfx(int sfxid, int channel)
   // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
   data = W_CacheLumpNum(lump);
 
-  SDL_LockAudio();
   channelinfo[channel].data = data;
   /* Set pointer to end of raw data. */
   channelinfo[channel].enddata = channelinfo[channel].data + len - 1;
@@ -179,7 +178,6 @@ static int addsfx(int sfxid, int channel)
   // Preserve sound SFX id,
   //  e.g. for avoiding duplicates of chainsaw.
   channelinfo[channel].id = sfxid;
-  SDL_UnlockAudio();
 
   return channel;
 }
@@ -308,13 +306,15 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
   int handle;
 
   // Returns a handle (not used).
+  SDL_LockAudio();
   handle = addsfx(id, channel);
 #ifdef RANGECHECK
   if ((handle < 0) || (handle >= MAX_CHANNELS))
     I_Error("I_StartSound: handle out of range");
 #endif
   if ((handle >= 0) && (handle < MAX_CHANNELS))
-    I_UpdateSoundParams(handle, vol, sep, pitch);
+    updateSoundParams(handle, vol, sep, pitch);
+  SDL_UnlockAudio();
 
   return handle;
 }
