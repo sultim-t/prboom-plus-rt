@@ -286,39 +286,42 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 //
 int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
-#ifdef RANGECHECK
+  const unsigned char* data;
+  int lump;
+  size_t len;
+
   if ((channel < 0) || (channel >= MAX_CHANNELS))
+#ifdef RANGECHECK
     I_Error("I_StartSound: handle out of range");
+#else
+    return -1;
 #endif
 
-  if ((channel >= 0) && (channel < MAX_CHANNELS))
-  {
-    const unsigned char* data;
+  lump = S_sfx[id].lumpnum;
 
-    int lump = S_sfx[id].lumpnum;
+  // We will handle the new SFX.
+  // Set pointer to raw data.
+  len = W_LumpLength(lump);
 
-    // We will handle the new SFX.
-    // Set pointer to raw data.
-    size_t len = W_LumpLength(lump);
-    
-    // e6y: Crash with zero-length sounds.
-    // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
-    // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
-    if (len<=8) return -1;
-    
-    /* Find padded length */
-    len -= 8;
-    // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
-    data = W_CacheLumpNum(lump);
-    
-    SDL_LockAudio();
-    
-    // Returns a handle (not used).
-    addsfx(id, channel, data, len);
-    updateSoundParams(channel, vol, sep, pitch);
-    
-    SDL_UnlockAudio();
-  }
+  // e6y: Crash with zero-length sounds.
+  // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
+  // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
+  if (len<=8) return -1;
+
+  /* Find padded length */
+  len -= 8;
+  // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
+  // use locking which makes sure the sound data is in a malloced area and
+  // not in a memory mapped one
+  data = W_LockLumpNum(lump);
+
+  SDL_LockAudio();
+
+  // Returns a handle (not used).
+  addsfx(id, channel, data, len);
+  updateSoundParams(channel, vol, sep, pitch);
+
+  SDL_UnlockAudio();
 
 
   return channel;
@@ -677,6 +680,8 @@ int I_RegisterSong(const void *data, size_t len)
   MIDI *mididata;
   FILE *midfile;
 
+  if ( len < 32 )
+    return 0; // the data should at least as big as the MUS header
   if ( music_tmp == NULL )
     return 0;
   midfile = fopen(music_tmp, "wb");
