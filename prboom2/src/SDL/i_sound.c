@@ -593,7 +593,6 @@ void I_ShutdownMusic(void)
 
 void I_InitMusic(void)
 {
-  if (music_tmp) return;//e6y
 #ifdef HAVE_MIXER
   if (!music_tmp) {
 #ifndef _WIN32
