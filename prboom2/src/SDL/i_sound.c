@@ -286,6 +286,10 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 //
 int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
+  const unsigned char* data;
+  int lump;
+  size_t len;
+
   if ((channel < 0) || (channel >= MAX_CHANNELS))
 #ifdef RANGECHECK
     I_Error("I_StartSound: handle out of range");
@@ -293,13 +297,11 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
     return -1;
 #endif
 
-  const unsigned char* data;
-
-  int lump = S_sfx[id].lumpnum;
+  lump = S_sfx[id].lumpnum;
 
   // We will handle the new SFX.
   // Set pointer to raw data.
-  size_t len = W_LumpLength(lump);
+  len = W_LumpLength(lump);
 
   // e6y: Crash with zero-length sounds.
   // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
