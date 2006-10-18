@@ -136,6 +136,11 @@ const void *W_CacheLumpNum(int lump)
   return cachelump[lump].cache;
 }
 
+const void *W_LockLumpNum(int lump)
+{
+  return W_CacheLumpNum(lump);
+}
+
 /*
  * W_UnlockLumpNum
  *

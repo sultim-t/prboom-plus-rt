@@ -309,7 +309,9 @@ int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
   /* Find padded length */
   len -= 8;
   // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
-  data = W_CacheLumpNum(lump);
+  // use locking which makes sure the sound data is in a malloced area and
+  // not in a memory mapped one
+  data = W_LockLumpNum(lump);
 
   SDL_LockAudio();
 
