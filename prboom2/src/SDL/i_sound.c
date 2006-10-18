@@ -144,26 +144,9 @@ static void stopchan(int i)
 //  (eight, usually) of internal channels.
 // Returns a handle.
 //
-static int addsfx(int sfxid, int channel)
+static int addsfx(int sfxid, int channel, const unsigned char* data, size_t len)
 {
-  int lump = S_sfx[sfxid].lumpnum;
-  size_t len = 0;
-  const unsigned char* data;
-
   stopchan(channel);
-
-  // We will handle the new SFX.
-  // Set pointer to raw data.
-  len = W_LumpLength(lump);
-  // e6y: Crash with zero-length sounds.
-  // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
-  // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
-  if (len<=8) return -1;
-
-  /* Find padded length */
-  len -= 8;
-  // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
-  data = W_CacheLumpNum(lump);
 
   channelinfo[channel].data = data;
   /* Set pointer to end of raw data. */
@@ -303,20 +286,42 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 //
 int I_StartSound(int id, int channel, int vol, int sep, int pitch, int priority)
 {
-  int handle;
-
-  // Returns a handle (not used).
-  SDL_LockAudio();
-  handle = addsfx(id, channel);
 #ifdef RANGECHECK
-  if ((handle < 0) || (handle >= MAX_CHANNELS))
+  if ((channel < 0) || (channel >= MAX_CHANNELS))
     I_Error("I_StartSound: handle out of range");
 #endif
-  if ((handle >= 0) && (handle < MAX_CHANNELS))
-    updateSoundParams(handle, vol, sep, pitch);
-  SDL_UnlockAudio();
 
-  return handle;
+  if ((channel >= 0) && (channel < MAX_CHANNELS))
+  {
+    const unsigned char* data;
+
+    int lump = S_sfx[id].lumpnum;
+
+    // We will handle the new SFX.
+    // Set pointer to raw data.
+    size_t len = W_LumpLength(lump);
+    
+    // e6y: Crash with zero-length sounds.
+    // Example wad: dakills (http://www.doomworld.com/idgames/index.php?id=2803)
+    // The entries DSBSPWLK, DSBSPACT, DSSWTCHN and DSSWTCHX are all zero-length sounds
+    if (len<=8) return -1;
+    
+    /* Find padded length */
+    len -= 8;
+    // do the lump caching outside the SDL_LockAudio/SDL_UnlockAudio pair
+    data = W_CacheLumpNum(lump);
+    
+    SDL_LockAudio();
+    
+    // Returns a handle (not used).
+    addsfx(id, channel, data, len);
+    updateSoundParams(channel, vol, sep, pitch);
+    
+    SDL_UnlockAudio();
+  }
+
+
+  return channel;
 }
 
 
