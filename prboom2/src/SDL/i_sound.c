@@ -677,7 +677,7 @@ int I_RegisterSong(const void *data, size_t len)
   FILE *midfile;
 
   if ( len < 32 )
-    return; // the data should at least as big as the MUS header
+    return 0; // the data should at least as big as the MUS header
   if ( music_tmp == NULL )
     return 0;
   midfile = fopen(music_tmp, "wb");
