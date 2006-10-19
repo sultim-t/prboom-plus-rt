@@ -296,6 +296,8 @@ default_t defaults[] =
   {"comp_maskedanim",{&default_comp[comp_maskedanim]},{0},0,1,def_bool,ss_comp,&comp[comp_maskedanim]},
   //e6y
   {"PrBoom-plus compatibility settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"comp_ouchface",{&default_comp[comp_ouchface]},{0},0,1,def_bool,ss_comp,&comp[comp_ouchface]},
+  {"comp_oofsound",{&default_comp[comp_oofsound]},{0},0,1,def_bool,ss_comp,&comp[comp_oofsound]},
   {"comp_maxhealth",{&default_comp[comp_maxhealth]},{0},0,1,def_bool,ss_comp,&comp[comp_maxhealth]},
   {"comp_translucency",{&default_comp[comp_translucency]},{0},0,1,def_bool,ss_comp,&comp[comp_translucency]},
 

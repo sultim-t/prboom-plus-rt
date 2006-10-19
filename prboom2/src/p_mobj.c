@@ -530,7 +530,8 @@ floater:
         // and utter appropriate sound.
 
         mo->player->deltaviewheight = mo->momz>>3;
-        if (mo->health > 0) /* cph - prevent "oof" when dead */
+        //e6y: compatibility optioned
+        if ((comp[comp_oofsound]?(mo->health):(mo->health>0))) /* cph - prevent "oof" when dead */
     S_StartSound (mo, sfx_oof);
       }
   mo->momz = 0;

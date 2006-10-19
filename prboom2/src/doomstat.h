@@ -107,10 +107,13 @@ enum {
   comp_moveblock,
   comp_respawn,  /* cph - this is the inverse of comp_respawnfix from eternity */
   comp_sound,
-  //e6y
   comp_666,
   comp_soul,
   comp_maskedanim,
+
+  //e6y
+  comp_ouchface,
+  comp_oofsound,
   comp_maxhealth,
   comp_translucency,
 

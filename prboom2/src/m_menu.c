@@ -3350,6 +3350,8 @@ enum
   compat_soul,
   compat_maskedanim,
   //e6y
+  compat_ouchface,
+  compat_oofsound,
   compat_maxhealth,
   compat_translucency,
 };
@@ -3452,6 +3454,11 @@ setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
   {"2S middle textures do not animate", S_YESNO, m_null, C_X,
    C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
 
+  //e6y
+  {"Use Doom's buggy \"Ouch\" face code", S_YESNO, m_null, C_X,
+   C_Y + compat_ouchface * COMP_SPC, {"comp_ouchface"}},
+  {"Dead players make \"oof\" sound when landing", S_YESNO, m_null, C_X,
+   C_Y + compat_oofsound * COMP_SPC, {"comp_oofsound"}},
   {"Max Health in DEH applies only to potions", S_YESNO, m_null, C_X,
    C_Y + compat_maxhealth * COMP_SPC, {"comp_maxhealth"}},
   {"No predefined translucency for some things", S_YESNO, m_null, C_X,

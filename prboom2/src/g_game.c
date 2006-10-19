@@ -2044,8 +2044,11 @@ void G_Compatibility(void)
     ultdoom_compatibility, /* comp_666 - enables tag 666 in non-ExM8 levels */
     prboom_4_compatibility, /* comp_soul - enables lost souls bouncing (see P_ZMovement */
     doom_1666_compatibility, /* comp_maskedanim - 2s mid textures don't animate */
-    boom_compatibility_compatibility, //comp_maxhealth 
-    boom_compatibility_compatibility, //comp_translucency
+    //e6y
+    prboom_1_compatibility, /* comp_ouchface - Use Doom's buggy "Ouch" face code */
+    prboom_1_compatibility, /* comp_oofsound - Dead players make "oof" sound when landing */
+    boom_compatibility_compatibility, /* comp_maxhealth - Max Health in DEH applies only to potions */
+    boom_compatibility_compatibility, /* comp_translucency - No predefined translucency for some things */
   };
   int i;
   //e6y
