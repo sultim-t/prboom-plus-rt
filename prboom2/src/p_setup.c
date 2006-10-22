@@ -408,7 +408,7 @@ static void P_LoadSegs (int lump)
         lprintf(LO_WARN, "P_LoadSegs: front of seg %i has no sidedef\n", i);
       }
 
-      if (ldef->sidenum[side^1]!=NO_INDEX)
+      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=NO_INDEX)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
         li->backsector = 0;
