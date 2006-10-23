@@ -82,7 +82,7 @@ static void W_ReportLocks(void)
   int i;
   lprintf(LO_DEBUG, "W_ReportLocks:\nLump     Size   Locks  Tics\n");
   for (i=0; i<numlumps; i++) {
-//    if (cachelump[i].locks > 0)
+    if (cachelump[i].locks > 0)
       lprintf(LO_DEBUG, "%8.8s %6u %2d   %6d\n", lumpinfo[i].name,
         W_LumpLength(i), cachelump[i].locks, gametic - cachelump[i].locktic);
   }
