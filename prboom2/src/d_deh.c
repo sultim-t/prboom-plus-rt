@@ -1627,9 +1627,11 @@ static uint_64_t getConvertedDEHBits(uint_64_t bits) {
     MF_NOTDMATCH, // 25 Not in deathmatch - do not spawn in deathmatch (like keys)
     MF_TRANSLATION1, // 26 Color 1 (grey / red)
     MF_TRANSLATION2, // 27 Color 2 (brown / red)
-    MF_TRANSLATION, // 28 and 29 allow the green colours in a thing’s graphics to be remapped to a different colour like the players uniforms in multiplayer games. Leaving all the bits alone, the thing stays green. Setting 26 it becomes grey. Setting 27 it becomes brown. Setting both 26 and 27 it becomes red.
-    MF_TRANSLATION,
-    0,
+    // Convert bit 28 to MF_TOUCHY, not (MF_TRANSLATION1|MF_TRANSLATION2)
+    // fixes bug #1576151 (part 1)
+    MF_TOUCHY, // 28 - explodes on contact (MBF)
+    MF_BOUNCES, // 29 - bounces off walls and floors (MBF)
+    MF_FRIEND, // 30 - friendly monster helps players (MBF)
     MF_TRANSLUCENT // e6y: Translucency via dehacked/bex doesn't work without it
   };
   int i;
