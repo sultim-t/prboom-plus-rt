@@ -240,14 +240,12 @@ default_t defaults[] =
    def_bool,ss_weap, &allow_pushers},
   {"variable_friction",{&default_variable_friction},{1},0,1,
    def_bool,ss_weap, &variable_friction},
-#ifdef DOGS
   {"player_helpers",{&default_dogs}, {0}, 0, 3,
    def_bool, ss_enem },
   {"friend_distance",{&default_distfriend}, {128}, 0, 999,
    def_int, ss_enem, &distfriend},
   {"dog_jumping",{&default_dog_jumping}, {1}, 0, 1,
    def_bool, ss_enem, &dog_jumping},
-#endif
    /* End of MBF AI extras */
 
   {"sts_always_red",{&sts_always_red},{1},0,1, // no color changes on status bar

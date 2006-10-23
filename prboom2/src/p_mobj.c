@@ -1176,7 +1176,6 @@ void P_SpawnMapThing (const mapthing_t* mthing)
 
   if (mthing->type <= 4 && mthing->type > 0)  // killough 2/26/98 -- fix crashes
     {
-#ifdef DOGS
       // killough 7/19/98: Marine's best friend :)
       if (!netgame && mthing->type > 1 && mthing->type <= dogs+1 &&
     !players[mthing->type-1].secretcount)
@@ -1203,7 +1202,7 @@ void P_SpawnMapThing (const mapthing_t* mthing)
     }
     goto spawnit;
   }
-#endif
+
 
     // save spots for respawning in coop games
     playerstarts[mthing->type-1] = *mthing;
@@ -1267,9 +1266,7 @@ void P_SpawnMapThing (const mapthing_t* mthing)
     return;
 
   // spawn it
-#ifdef DOGS
 spawnit:
-#endif
 
   x = mthing->x << FRACBITS;
   y = mthing->y << FRACBITS;

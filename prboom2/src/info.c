@@ -78,9 +78,7 @@ const char *sprnames[NUMSPRITES+1] = {
   "COL5","TBLU","TGRN","TRED","SMBT","SMGT","SMRT","HDB1","HDB2","HDB3",
   "HDB4","HDB5","HDB6","POB1","POB2","BRS1","TLMP","TLP2",
   "TNT1", // invisible sprite                                 phares 3/9/98
-#ifdef DOGS
   "DOGS", /* killough 7/19/98: Marine's best friend :) */
-#endif
   NULL
 };
 
@@ -1081,7 +1079,6 @@ state_t states[NUMSTATES] = {
   {SPR_MISL,32770,6,A_Detonate,S_DETONATE3},  // S_DETONATE2
   {SPR_MISL,32771,10,NULL,S_NULL},            // S_DETONATE3
 
-#ifdef DOGS
   // killough 7/19/98: Marine's best friend :)
   {SPR_DOGS,0,10,A_Look,S_DOGS_STND2},  // S_DOGS_STND
   {SPR_DOGS,1,10,A_Look,S_DOGS_STND}, // S_DOGS_STND2
@@ -1110,7 +1107,6 @@ state_t states[NUMSTATES] = {
   {SPR_DOGS,10,5,NULL,S_DOGS_RAISE5}, // S_DOGS_RAISE4
   {SPR_DOGS,9,5,NULL,S_DOGS_RAISE6},  // S_DOGS_RAISE5
   {SPR_DOGS,8,5,NULL,S_DOGS_RUN1},  // S_DOGS_RAISE6
-#endif
 
   // add dummy beta bfg / lost soul frames for dehacked compatibility
   // fixes bug #1576151 (part 2)
@@ -4839,7 +4835,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     MF_NOBLOCKMAP,  // flags
     S_NULL          // raisestate
   },
-#ifdef DOGS
+
   // Marine's best friend :)      // killough 7/19/98
   {   // MT_DOGS
     888,   // doomednum
@@ -4866,5 +4862,4 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL, // flags
     S_DOGS_RAISE1   // raisestate
   },
-#endif
 };

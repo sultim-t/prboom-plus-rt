@@ -1967,16 +1967,13 @@ void G_Compatibility(void)
     monster_friction = 0;
     help_friends = 0;
 
-#ifdef DOGS
     dogs = 0;
     dog_jumping = 0;
-#endif
 
     monkeys = 0;
   }
 }
 
-#ifdef DOGS
 /* killough 7/19/98: Marine's best friend :) */
 static int G_GetHelpers(void)
 {
@@ -1986,7 +1983,6 @@ static int G_GetHelpers(void)
     j = M_CheckParm ("-dogs");
   return j ? j+1 < myargc ? atoi(myargv[j+1]) : 1 : default_dogs;
 }
-#endif
 
 // killough 3/1/98: function to reload all the default parameter
 // settings before a new game begins
@@ -2010,10 +2006,8 @@ void G_ReloadDefaults(void)
 
   monster_infighting = default_monster_infighting; // killough 7/19/98
 
-#ifdef DOGS
   dogs = netgame ? 0 : G_GetHelpers();             // killough 7/19/98
   dog_jumping = default_dog_jumping;
-#endif
 
   distfriend = default_distfriend;                 // killough 8/8/98
 
@@ -2332,11 +2326,7 @@ byte *G_WriteOptions(byte *demo_p)
 
   *demo_p++ = monster_infighting;   // killough 7/19/98
 
-#ifdef DOGS
   *demo_p++ = dogs;                 // killough 7/19/98
-#else
-  *demo_p++ = 0;
-#endif
 
   *demo_p++ = 0;
   *demo_p++ = 0;
@@ -2352,11 +2342,7 @@ byte *G_WriteOptions(byte *demo_p)
 
   *demo_p++ = help_friends;             // killough 9/9/98
 
-#ifdef DOGS
   *demo_p++ = dog_jumping;
-#else
-  *demo_p++ = 0;
-#endif
 
   *demo_p++ = monkeys;
 
@@ -2426,11 +2412,7 @@ const byte *G_ReadOptions(const byte *demo_p)
     {
       monster_infighting = *demo_p++;   // killough 7/19/98
 
-#ifdef DOGS
       dogs = *demo_p++;                 // killough 7/19/98
-#else
-      demo_p++;
-#endif
 
       demo_p += 2;
 
@@ -2445,11 +2427,7 @@ const byte *G_ReadOptions(const byte *demo_p)
 
       help_friends = *demo_p++;          // killough 9/9/98
 
-#ifdef DOGS
       dog_jumping = *demo_p++;           // killough 10/98
-#else
-      demo_p++;
-#endif
 
       monkeys = *demo_p++;
 
@@ -2645,10 +2623,8 @@ static const byte* G_ReadDemoHeader(const byte *demo_p)
 
       monster_infighting = 1;           // killough 7/19/98
 
-#ifdef DOGS
       dogs = 0;                         // killough 7/19/98
       dog_jumping = 0;                  // killough 10/98
-#endif
 
       monster_backing = 0;              // killough 9/8/98
 
