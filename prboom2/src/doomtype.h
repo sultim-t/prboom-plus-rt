@@ -86,11 +86,11 @@ typedef enum {
   doom2_19_compatibility,  /* Doom & Doom 2 v1.9 */
   ultdoom_compatibility,   /* Ultimate Doom and Doom95 */
   finaldoom_compatibility,     /* Final Doom */
-  dosdoom_compatibility,     /* Early dosdoom & tasdoom */
-  tasdoom_compatibility,     /* Early dosdoom & tasdoom */
+  dosdoom_compatibility,     /* DosDoom 0.47 */
+  tasdoom_compatibility,     /* TASDoom */
   boom_compatibility_compatibility,      /* Boom's compatibility mode */
-  boom_201_compatibility,                /* Compatible with Boom v2.01 */
-  boom_202_compatibility,                /* Compatible with Boom v2.01 */
+  boom_201_compatibility,                /* Boom v2.01 */
+  boom_202_compatibility,                /* Boom v2.02 */
   lxdoom_1_compatibility,                /* LxDoom v1.3.2+ */
   mbf_compatibility,                     /* MBF */
   prboom_1_compatibility,                /* PrBoom 2.03beta? */
