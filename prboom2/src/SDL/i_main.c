@@ -146,6 +146,7 @@ void I_Init2(void)
       I_GetTime = I_GetTime_RealTime;
   }
   R_InitInterpolation();
+  force_singletics_to = gametic + BACKUPTICS;
 }
 
 /* cleanup handling -- killough:

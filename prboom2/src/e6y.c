@@ -1676,3 +1676,5 @@ void I_AfterUpdateVideoMode(void)
 {
   M_ChangeFOV();
 }
+
+int force_singletics_to = 0;

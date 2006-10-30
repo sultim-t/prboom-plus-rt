@@ -335,8 +335,12 @@ void NetUpdate(void)
     while (newtics--) {
       I_StartTic();
       if (maketic - gametic > BACKUPTICS/2) break;
-      //if (maketic - gametic > BACKUPTICS/2 && realtic_clock_rate > 200) break;
-      //else if (maketic - gametic) break;
+      
+      // e6y
+      // Eliminating the sudden jump of six frames(BACKUPTICS/2) 
+      // after change of realtic_clock_rate.
+      if (maketic - gametic && gametic - force_singletics_to < 0) break;
+
       G_BuildTiccmd(&localcmds[maketic%BACKUPTICS]);
       maketic++;
     }

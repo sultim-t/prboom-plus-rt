@@ -431,4 +431,6 @@ extern char *demo_patterns_list_def[];
 
 void I_AfterUpdateVideoMode(void);
 
+extern int force_singletics_to;
+
 #endif
