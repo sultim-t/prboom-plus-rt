@@ -266,7 +266,13 @@ void I_StartTic (void)
           ? SDL_GRAB_ON : SDL_GRAB_OFF);
   }
 
-  e6y_I_GetEvent();//e6y
+  // e6y
+  // Moved from D_PostEvent()
+  // Is this condition needed here? I ask you.
+  // if (gametic < 3) return;
+
+  I_ProcessWin32Mouse();
+
   while ( SDL_PollEvent(&Event) )
     I_GetEvent(&Event);
 
@@ -682,6 +688,13 @@ void I_InitGraphics(void)
 
     /* Initialize the input system */
     I_InitInputs();
+
+    //e6y: clear out any events waiting at the start
+    {
+      SDL_Event dummy;
+      while (SDL_PollEvent(&dummy))
+        ;
+    }
   }
 }
 

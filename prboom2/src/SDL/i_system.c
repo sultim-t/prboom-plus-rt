@@ -95,10 +95,18 @@ void I_uSleep(unsigned long usecs)
 
 int ms_to_next_tick;
 
+static int basetime = 0;
 int I_GetTime_RealTime (void)
 {
+  int i;
   int t = SDL_GetTicks();
-  int i = t*(TICRATE/5)/200;
+  
+  //e6y: removing startup delay
+  if (basetime == 0)
+    basetime = t;
+  t -= basetime;
+
+  i = t*(TICRATE/5)/200;
   ms_to_next_tick = (i+1)*200/(TICRATE/5) - t;
   if (ms_to_next_tick > 1000/TICRATE || ms_to_next_tick<1) ms_to_next_tick = 1;
   return i;

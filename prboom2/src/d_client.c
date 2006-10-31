@@ -487,6 +487,7 @@ void TryRunTics (void)
         M_Ticker(); return;
       }
       //if ((displaytime) < (tic_vars.next-SDL_GetTicks()))
+      if (gametic > 0)
       {
         WasRenderedInTryRunTics = true;
         if (V_GetMode() == VID_MODEGL ? 

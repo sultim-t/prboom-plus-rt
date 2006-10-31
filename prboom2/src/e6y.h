@@ -323,7 +323,7 @@ void e6y_WriteStats(void);
 
 void e6y_G_DoWorldDone(void);
 
-void e6y_I_GetEvent(void);
+void I_ProcessWin32Mouse(void);
 void I_StartWin32Mouse(void);
 void I_EndWin32Mouse(void);
 void e6y_I_InitInputs(void);

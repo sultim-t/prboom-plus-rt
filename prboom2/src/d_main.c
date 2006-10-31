@@ -157,7 +157,12 @@ void D_PostEvent(event_t *ev)
 {
   /* cph - suppress all input events at game start
    * FIXME: This is a lousy kludge */
-  if (gametic < 3) return;
+  
+  // e6y
+  // Is this condition needed here?
+  // Moved to I_StartTic()
+  // if (gametic < 3) return;
+
   M_Responder(ev) ||
 	  (gamestate == GS_LEVEL && (
 				     HU_Responder(ev) ||

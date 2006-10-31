@@ -1042,7 +1042,7 @@ static void I_CenterMouse(long x, long y)
 #endif
 }
 
-void e6y_I_GetEvent(void)
+void I_ProcessWin32Mouse(void)
 {
 #ifdef _WIN32
   extern int usemouse;
