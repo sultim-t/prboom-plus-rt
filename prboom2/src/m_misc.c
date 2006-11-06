@@ -305,12 +305,12 @@ default_t defaults[] =
   {"Video settings",{NULL},{0},UL,UL,def_none,ss_none},
 #ifdef GL_DOOM
   #ifdef _MSC_VER
-    {"videomode",{&default_videomode},{VID_MODEGL}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+    {"videomode",{(int*)&default_videomode},{VID_MODEGL}, VID_MODE8, VID_MODEGL, def_int,ss_none},
   #else
-    {"videomode",{&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODEGL, def_int,ss_none},
+    {"videomode",{(int*)&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODEGL, def_int,ss_none},
   #endif
 #else
-  {"videomode",{&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODE8, def_int,ss_none},
+  {"videomode",{(int*)&default_videomode},{VID_MODE8}, VID_MODE8, VID_MODE8, def_int,ss_none},
 #endif
   /* 640x480 default resolution */
   {"screen_width",{&desired_screenwidth},{640}, 320, MAX_SCREENWIDTH,
@@ -333,21 +333,21 @@ default_t defaults[] =
    def_int,ss_none}, // gamma correction level // killough 1/18/98
   {"uncapped_framerate", {&movement_smooth},  {0},0,1,
    def_bool,ss_stat},
-  {"filter_wall",{&drawvars.filterwall},{RDRAW_FILTER_POINT},
+  {"filter_wall",{(int*)&drawvars.filterwall},{RDRAW_FILTER_POINT},
    RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
-  {"filter_floor",{&drawvars.filterfloor},{RDRAW_FILTER_POINT},
+  {"filter_floor",{(int*)&drawvars.filterfloor},{RDRAW_FILTER_POINT},
    RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
-  {"filter_sprite",{&drawvars.filtersprite},{RDRAW_FILTER_POINT},
+  {"filter_sprite",{(int*)&drawvars.filtersprite},{RDRAW_FILTER_POINT},
    RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
-  {"filter_z",{&drawvars.filterz},{RDRAW_FILTER_POINT},
+  {"filter_z",{(int*)&drawvars.filterz},{RDRAW_FILTER_POINT},
    RDRAW_FILTER_POINT, RDRAW_FILTER_LINEAR, def_int,ss_none},
-  {"filter_patch",{&drawvars.filterpatch},{RDRAW_FILTER_POINT},
+  {"filter_patch",{(int*)&drawvars.filterpatch},{RDRAW_FILTER_POINT},
    RDRAW_FILTER_POINT, RDRAW_FILTER_ROUNDED, def_int,ss_none},
-  {"filter_threshold",{&drawvars.mag_threshold},{49152},
+  {"filter_threshold",{(int*)&drawvars.mag_threshold},{49152},
    0, UL, def_int,ss_none},
-  {"sprite_edges",{&drawvars.sprite_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
+  {"sprite_edges",{(int*)&drawvars.sprite_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
    RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
-  {"patch_edges",{&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
+  {"patch_edges",{(int*)&drawvars.patch_edges},{RDRAW_MASKEDCOLUMNEDGE_SQUARE},
    RDRAW_MASKEDCOLUMNEDGE_SQUARE, RDRAW_MASKEDCOLUMNEDGE_SLOPED, def_int,ss_none},
 
 #ifdef GL_DOOM
