@@ -296,7 +296,7 @@ static void I_InitInputs(void)
   grabMouse = M_CheckParm("-nomouse") ? false : usemouse ? true : false;
   // e6y: fix for turn-snapping bug on fullscreen in software mode
   if (!M_CheckParm("-nomouse"))
-    SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENWIDTH/2));
+    SDL_WarpMouse((unsigned short)(REAL_SCREENWIDTH/2), (unsigned short)(REAL_SCREENHEIGHT/2));
 
   I_InitJoystick();
   e6y_I_InitInputs();//e6y
