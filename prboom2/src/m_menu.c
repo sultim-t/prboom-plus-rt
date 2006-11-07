@@ -3350,6 +3350,7 @@ enum
   compat_soul,
   compat_maskedanim,
   //e6y
+  compat_plussettings,
   compat_ouchface,
   compat_oofsound,
   compat_maxhealth,
@@ -3455,6 +3456,8 @@ setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
    C_Y + compat_maskedanim * COMP_SPC, {"comp_maskedanim"}},
 
   //e6y
+  {"PrBoom-Plus Settings", S_SKIP|S_TITLE,m_null,C_X,
+   C_Y + compat_plussettings * COMP_SPC},
   {"Use Doom's buggy \"Ouch\" face code", S_YESNO, m_null, C_X,
    C_Y + compat_ouchface * COMP_SPC, {"comp_ouchface"}},
   {"Dead players make \"oof\" sound when landing", S_YESNO, m_null, C_X,
