@@ -118,6 +118,7 @@ const char *D_dehout(void);
 void *I_FindFirst (const char *filespec, findstate_t *fileinfo);
 int I_FindNext (void *handle, findstate_t *fileinfo);
 int I_FindClose (void *handle);
+char *strrtrm (char *Str);
 
 //events
 static void L_GameOnChange(void);
@@ -165,6 +166,21 @@ int I_FindClose (void *handle)
 {
 	return FindClose((HANDLE)handle);
 }
+
+#define prb_isspace(c) ((c) == 0x20)
+char *strrtrm (char *str)
+{
+  if (str)
+  {
+    char *p = str + strlen (str)-1;
+    while (p >= str && prb_isspace((unsigned char) *p))
+      p--;
+    *++p = 0;
+  }
+  return str;
+}
+#undef prb_isspace
+
 
 //events
 static void L_GameOnChange(void)
@@ -683,17 +699,25 @@ static void L_ReadCacheData(void)
   {
     fileitem_t item;
     char name[PATH_MAX];
+    char line[PATH_MAX];
 
-    while (4 == fscanf(fcache, "%s = %d, %d, %d",name, &item.source, &item.doom1, &item.doom2))
+    while (fgets(line, sizeof(line), fcache))
     {
-      launcher.cache = realloc(launcher.cache, sizeof(*launcher.cache) * (launcher.cachesize + 1));
-      
-      strcpy(launcher.cache[launcher.cachesize].name, strlwr(name));
-      launcher.cache[launcher.cachesize].source = item.source;
-      launcher.cache[launcher.cachesize].doom1 = item.doom1;
-      launcher.cache[launcher.cachesize].doom2 = item.doom2;
-      
-      launcher.cachesize++;
+      char *p = strrchr(line, '=');
+      if (p)
+      {
+        *p = 0;
+        if (3 == sscanf(p + 1, "%d, %d, %d", &item.source, &item.doom1, &item.doom2))
+        {
+          launcher.cache = realloc(launcher.cache, sizeof(*launcher.cache) * (launcher.cachesize + 1));
+          strcpy(launcher.cache[launcher.cachesize].name, strlwr(strrtrm(line)));
+          launcher.cache[launcher.cachesize].source = item.source;
+          launcher.cache[launcher.cachesize].doom1 = item.doom1;
+          launcher.cache[launcher.cachesize].doom2 = item.doom2;
+          
+          launcher.cachesize++;
+        }
+      }
     }
     fclose(fcache);
   }
