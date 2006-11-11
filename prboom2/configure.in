@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([prboom-plus],[2.4.6.2])
+AC_INIT([prboom-plus],[2.4.7.1])
 AC_CONFIG_AUX_DIR(autotools)
 
 dnl --- Fire up automake
@@ -191,12 +191,6 @@ dnl - Always use highres mode and basic checks - anyone that wants these off can
 AC_DEFINE(HIGHRES,1,[Define for high resolution support])
 AC_DEFINE(SIMPLECHECKS,1,[When defined this causes quick checks which only impose significant overhead if a posible error is detected.])
 AC_DEFINE(ZONEIDCHECK,1,[Define this to perform id checks on zone blocks, to detect corrupted and illegally freed blocks])
-
-AC_ARG_ENABLE(dogs,AC_HELP_STRING([--disable-dogs],[disables support for helper dogs]),,enable_dogs="yes")
-if test x"$enable_dogs" = xyes
-then
-	AC_DEFINE(DOGS,1,[Define for support for MBF helper dogs])
-fi
 
 AC_ARG_ENABLE(heapcheck,AC_HELP_STRING([--enable-heapcheck],[turns on continuous heap checking (very slow)]),,enable_heapcheck="no")
 AC_ARG_ENABLE(heapdump,AC_HELP_STRING([--enable-heapdump],[turns on dumping the heap state for debugging]),,enable_heapdump="no")

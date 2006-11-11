@@ -79,9 +79,7 @@ const char *sprnames[NUMSPRITES+1] = {
   "COL5","TBLU","TGRN","TRED","SMBT","SMGT","SMRT","HDB1","HDB2","HDB3",
   "HDB4","HDB5","HDB6","POB1","POB2","BRS1","TLMP","TLP2",
   "TNT1", // invisible sprite                                 phares 3/9/98
-#ifdef DOGS
   "DOGS", /* killough 7/19/98: Marine's best friend :) */
-#endif
   NULL
 };
 
@@ -1082,7 +1080,6 @@ state_t states[NUMSTATES] = {
   {SPR_MISL,32770,6,A_Detonate,S_DETONATE3},  // S_DETONATE2
   {SPR_MISL,32771,10,NULL,S_NULL},            // S_DETONATE3
 
-#ifdef DOGS
   // killough 7/19/98: Marine's best friend :)
   {SPR_DOGS,0,10,A_Look,S_DOGS_STND2},  // S_DOGS_STND
   {SPR_DOGS,1,10,A_Look,S_DOGS_STND}, // S_DOGS_STND2
@@ -1111,7 +1108,89 @@ state_t states[NUMSTATES] = {
   {SPR_DOGS,10,5,NULL,S_DOGS_RAISE5}, // S_DOGS_RAISE4
   {SPR_DOGS,9,5,NULL,S_DOGS_RAISE6},  // S_DOGS_RAISE5
   {SPR_DOGS,8,5,NULL,S_DOGS_RUN1},  // S_DOGS_RAISE6
-#endif
+
+  // add dummy beta bfg / lost soul frames for dehacked compatibility
+  // fixes bug #1576151 (part 2)
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG1
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG2
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG3
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG4
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG5
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG6
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG7
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG8
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG9
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG10
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG11
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG12
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG13
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG14
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG15
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG16
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG17
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG18
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG19
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG20
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG21
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG22
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG23
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG24
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG25
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG26
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG27
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG28
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG29
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG30
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG31
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG32
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG33
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG34
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG35
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG36
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG37
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG38
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG39
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG40
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG41
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG42
+  {0,0,-1,NULL,S_NULL},  // S_OLDBFG43
+
+  {0,0,-1,NULL,S_NULL},  // S_PLS1BALL
+  {0,0,-1,NULL,S_NULL},  // S_PLS1BALL2
+  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP
+  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP2
+  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP3
+  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP4
+  {0,0,-1,NULL,S_NULL},  // S_PLS1EXP5
+
+  {0,0,-1,NULL,S_NULL},  // S_PLS2BALL
+  {0,0,-1,NULL,S_NULL},  // S_PLS2BALL2
+  {0,0,-1,NULL,S_NULL},  // S_PLS2BALLX1
+  {0,0,-1,NULL,S_NULL},  // S_PLS2BALLX2
+  {0,0,-1,NULL,S_NULL},  // S_PLS2BALLX3
+
+  {0,0,-1,NULL,S_NULL},  // S_BON3
+  {0,0,-1,NULL,S_NULL},  // S_BON4
+
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_STND
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN1
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN2
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN3
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_RUN4
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_ATK1
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_ATK2
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_ATK3
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_PAIN1
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_PAIN2
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_PAIN3
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE1
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE2
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE3
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE4
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE5
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE6
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE7
+  {0,0,-1,NULL,S_NULL},  // S_BSKUL_DIE8
 
   // killough 10/98: mushroom effect
   {SPR_MISL,32769,8,A_Mushroom,S_EXPLODE2},  // S_MUSHROOM
@@ -4757,7 +4836,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     MF_NOBLOCKMAP,  // flags
     S_NULL          // raisestate
   },
-#ifdef DOGS
+
   // Marine's best friend :)      // killough 7/19/98
   {   // MT_DOGS
     888,   // doomednum
@@ -4784,5 +4863,4 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     MF_SOLID|MF_SHOOTABLE|MF_COUNTKILL, // flags
     S_DOGS_RAISE1   // raisestate
   },
-#endif
 };

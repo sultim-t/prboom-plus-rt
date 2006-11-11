@@ -120,9 +120,6 @@
 #define HAVE_VSNPRINTF 1
 #define vsnprintf _vsnprintf
 
-/* Define for support for MBF helper dogs */
-#define DOGS 1
-
 /* Define if you want to compile with SDL  */
 #define USE_SDL 1
 
@@ -152,4 +149,4 @@
 #define PACKAGE "prboom-plus"
 
 /* Version number of package */
-#define VERSION "2.4.6.2" //e6y
+#define VERSION "2.4.7.1" //e6y

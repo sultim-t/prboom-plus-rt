@@ -1,6 +1,13 @@
 This file shows a history of changes between PrBoom versions since v2.1.0.
 For historical reference, the complete LxDoom changelog follows it.
 
+Changes from v2.4.6 to v2.4.7
+- Fixed comp_soul and comp_maskedanim options not actually being optional.
+- Fixed searching for IWAD/prboom.wad (bugs #1585185, #1585600)
+- Multiple sound crash fixes (bugs #1577495, #1586800)
+- Fix for previously introduced HOM error
+- Fix frame numbering problem in MBF dehacked patches (bug #1576151)
+
 Changes from v2.4.5 to v2.4.6
 - Mac OS X: Fixed music volume slider
 - Implemented patch clipping. This fixes bug #1557501.

@@ -184,9 +184,7 @@ typedef enum
   SPR_TLP2,
   SPR_TNT1, /* add invisible sprite              phares 3/8/98 */
 
-#ifdef DOGS
   SPR_DOGS, /* killough 7/19/98: Marine's best friend :) */
-#endif
 
   NUMSPRITES  /* counter of how many there are */
 
@@ -1172,7 +1170,6 @@ typedef enum
   S_DETONATE2,
   S_DETONATE3,
 
-#ifdef DOGS
   S_DOGS_STND,      /* killough 7/19/98: Marine's best friend :) */
   S_DOGS_STND2,
   S_DOGS_RUN1,
@@ -1200,7 +1197,49 @@ typedef enum
   S_DOGS_RAISE4,
   S_DOGS_RAISE5,
   S_DOGS_RAISE6,
-#endif
+
+  // add dummy beta bfg / lost soul frames for dehacked compatibility
+  // fixes bug #1576151 (part 2)
+  S_OLDBFG1,  // killough 7/11/98: the old BFG's 43 firing frames
+  S_OLDBFG42 = S_OLDBFG1+41,
+  S_OLDBFG43,
+
+  S_PLS1BALL,      // killough 7/19/98: first plasma fireball in the beta
+  S_PLS1BALL2,
+  S_PLS1EXP,
+  S_PLS1EXP2,
+  S_PLS1EXP3,
+  S_PLS1EXP4,
+  S_PLS1EXP5,
+
+  S_PLS2BALL,     // killough 7/19/98: second plasma fireball in the beta
+  S_PLS2BALL2,
+  S_PLS2BALLX1,
+  S_PLS2BALLX2,
+  S_PLS2BALLX3,
+  S_BON3, // killough 7/11/98: evil sceptre in beta version
+  S_BON4, // killough 7/11/98: unholy bible in beta version
+
+  // killough 10/98: beta lost souls were different from their modern cousins
+  S_BSKUL_STND,
+  S_BSKUL_RUN1,
+  S_BSKUL_RUN2,
+  S_BSKUL_RUN3,
+  S_BSKUL_RUN4,
+  S_BSKUL_ATK1,
+  S_BSKUL_ATK2,
+  S_BSKUL_ATK3,
+  S_BSKUL_PAIN1,
+  S_BSKUL_PAIN2,
+  S_BSKUL_PAIN3,
+  S_BSKUL_DIE1,
+  S_BSKUL_DIE2,
+  S_BSKUL_DIE3,
+  S_BSKUL_DIE4,
+  S_BSKUL_DIE5,
+  S_BSKUL_DIE6,
+  S_BSKUL_DIE7,
+  S_BSKUL_DIE8,
 
   S_MUSHROOM,  /* killough 10/98: mushroom explosion effect */
 
@@ -1373,9 +1412,7 @@ typedef enum {
   MT_PUSH,    /* controls push source - phares */
   MT_PULL,    /* controls pull source - phares 3/20/98 */
 
-#ifdef DOGS
   MT_DOGS,    /* killough 7/19/98: Marine's best friend */
-#endif
 
   /* proff 11/22/98: Andy Baker's stealth monsters (next 12)
    * cph - moved below the MBF stuff, no need to displace them */
