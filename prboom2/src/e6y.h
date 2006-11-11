@@ -287,6 +287,7 @@ void e6y_MultisamplingPrint(void);
 
 extern int force_monster_avoid_hazards;
 //extern int force_remove_slime_trails;
+extern int force_truncated_sector_specials;
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval);
 

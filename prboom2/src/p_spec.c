@@ -2526,7 +2526,7 @@ void P_SpawnSpecials (void)
     if (sector->special&SECRET_MASK) //jff 3/15/98 count extended
       totalsecret++;                 // secret sectors too
 
-    switch (demo_compatibility?sector->special:sector->special&31)
+    switch ((demo_compatibility && !force_truncated_sector_specials) ? sector->special : sector->special&31)
     {
       case 1:
         // random off
