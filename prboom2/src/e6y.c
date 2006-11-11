@@ -193,6 +193,10 @@ boolean SkyDrawed;
 
 float internal_render_fov = FOV90;
 
+int force_monster_avoid_hazards = false;
+//int force_remove_slime_trails = false;
+int force_truncated_sector_specials = false;
+
 #ifdef GL_DOOM
 unsigned int idDetail;
 boolean gl_arb_multitexture;
@@ -738,10 +742,6 @@ void e6y_MultisamplingPrint(void)
   SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &temp );
   lprintf(LO_INFO,"    SDL_GL_MULTISAMPLEBUFFERS: %i\n",temp);
 }
-
-int force_monster_avoid_hazards = false;
-//int force_remove_slime_trails = false;
-int force_truncated_sector_specials = false;
 
 int StepwiseSum(int value, int direction, int step, int minval, int maxval, int defval)
 {

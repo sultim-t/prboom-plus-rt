@@ -699,18 +699,17 @@ static void L_ReadCacheData(void)
   {
     fileitem_t item;
     char name[PATH_MAX];
-    char line[PATH_MAX];
 
-    while (fgets(line, sizeof(line), fcache))
+    while (fgets(name, sizeof(name), fcache))
     {
-      char *p = strrchr(line, '=');
+      char *p = strrchr(name, '=');
       if (p)
       {
         *p = 0;
         if (3 == sscanf(p + 1, "%d, %d, %d", &item.source, &item.doom1, &item.doom2))
         {
           launcher.cache = realloc(launcher.cache, sizeof(*launcher.cache) * (launcher.cachesize + 1));
-          strcpy(launcher.cache[launcher.cachesize].name, strlwr(strrtrm(line)));
+          strcpy(launcher.cache[launcher.cachesize].name, strlwr(strrtrm(name)));
           launcher.cache[launcher.cachesize].source = item.source;
           launcher.cache[launcher.cachesize].doom1 = item.doom1;
           launcher.cache[launcher.cachesize].doom2 = item.doom2;
