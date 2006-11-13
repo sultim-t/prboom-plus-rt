@@ -68,6 +68,7 @@ int validcount = 1;         // increment every time a check is made
 const lighttable_t *fixedcolormap;
 int      centerx, centery;
 fixed_t  centerxfrac, centeryfrac;
+fixed_t  viewheightfrac; //e6y: for correct cliping of things
 fixed_t  projection;
 // proff 11/06/98: Added for high-res
 fixed_t  projectiony;
@@ -352,6 +353,8 @@ void R_ExecuteSetViewSize (void)
     }
 
   viewwidth = scaledviewwidth;
+
+  viewheightfrac = viewheight<<FRACBITS;//e6y
 
   centery = viewheight/2;
   centerx = viewwidth/2;

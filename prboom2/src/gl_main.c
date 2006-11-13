@@ -263,7 +263,7 @@ static float gld_CalcLightLevel(int lightlevel) {
   if (lightlevel < 20)
     lightlevel = 20;
   return lightlevel / 255.0;
-}   y
+}
 */
 
 static void gld_StaticLightAlpha(float light, float alpha)
