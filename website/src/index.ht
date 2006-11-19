@@ -1,7 +1,18 @@
 title: Project Homepage
 
     <h1>News</h1>
-    
+
+    <h3>19th November 2006</h3>
+
+    <p>Version 2.4.7 is released.</p>
+    <ul class="changes">
+        <li>Fixed comp_soul and comp_maskedanim options not actually being optional.</li>
+        <li>Fixed searching for IWAD/prboom.wad (bugs #1585185, #1585600)</li>
+        <li>Multiple sound crash fixes (bugs #1577495, #1586800)</li>
+        <li>Fix for previously introduced HOM error</li>
+        <li>Fix frame numbering problem in MBF dehacked patches (bug #1576151)</li>
+    </ul>
+
     <h3>15th October 2006</h3>
 
     <p>Version 2.4.6 is released.</p>
