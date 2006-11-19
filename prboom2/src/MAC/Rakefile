@@ -4,7 +4,7 @@
 
 NAME = 'PrBoom'
 APPVERSION = '2.4.7'
-require 'mac/macsupport'
+require 'MAC/macsupport'
 
 DOOMWADDIR = File::expand_path('~/Library/Application Support/PrBoom')
 @deutex = 'deutex'
