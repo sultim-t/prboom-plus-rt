@@ -1001,6 +1001,14 @@ void G_Ticker (void)
     prevgamestate = gamestate;
   }
 
+  // e6y
+  // do nothing if a pause has been pressed during playback
+  // pausing during intermission can cause desynchs without that
+  if (paused & 2)
+  {
+    return;
+  }
+
   // do main actions
   switch (gamestate)
     {
