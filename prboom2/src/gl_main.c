@@ -87,7 +87,8 @@ int gl_use_paletted_texture = 0;
 int gl_use_shared_texture_palette = 0;
 int gl_paletted_texture = 0;
 int gl_shared_texture_palette = 0;
-int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
+//e6y: moved to globals
+//int gl_sprite_offset;	// item out of floor offset Mead 8/13/03
 
 GLuint gld_DisplayList=0;
 int fog_density=200;
@@ -2750,7 +2751,7 @@ void gld_AddSprite(vissprite_t *vspr)
   // and it's not a fully dead corpse, move it up
   if (gl_spriteclip != spriteclip_const)
   {
-    if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT)) && 
+    if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE)) && 
       ((gl_spriteclip == spriteclip_always) ||
       !(vspr->thing->flags & MF_CORPSE && vspr->thing->tics == -1)))
     {

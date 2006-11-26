@@ -92,6 +92,7 @@ const char *mousemodes[] = {"sdl","Win32"};
 
 spriteclipmode_t gl_spriteclip;
 const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
+int gl_sprite_offset;
 
 int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;

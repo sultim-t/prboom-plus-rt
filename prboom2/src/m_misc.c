@@ -163,8 +163,9 @@ extern int gl_drawskys;
 extern int gl_sortsprites;
 extern int gl_use_paletted_texture;
 extern int gl_use_shared_texture_palette;
-extern int gl_sprite_offset;
 #endif
+//e6y: removed from #ifdef GL_DOOM
+extern int gl_sprite_offset;
 
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
 extern int tran_filter_pct;            // killough 2/21/98
@@ -382,11 +383,11 @@ default_t defaults[] =
    def_bool,ss_none},
   {"gl_use_shared_texture_palette",{&gl_use_shared_texture_palette},{0},0,1,
    def_bool,ss_none},
-#ifdef GL_DOOM
+#endif
+
+  //e6y: removed from #ifdef GL_DOOM
   {"gl_sprite_offset",{&gl_sprite_offset},{0}, 0, 5,
    def_int,ss_none}, // amount to bring items out of floor (GL) Mead 8/13/03
-#endif
-#endif
 
   {"Mouse settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"use_mouse",{&usemouse},{1},0,1,

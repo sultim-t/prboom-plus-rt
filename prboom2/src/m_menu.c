@@ -2988,9 +2988,8 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Texture format", S_CHOICE|S_PRGWARN, m_null, G_X,
    G_YA2 + general_gl_texformat*8, {"gl_tex_format_string"}, 0, 0, NULL, gltexformats},
-
   {"Item out of Floor offset", S_NUM, m_null, G_X,
-   G_YA2 + general_flooroffset*8, {"gl_sprite_offset"}},
+  G_YA2 + general_flooroffset*8, {"gl_sprite_offset"}},
 #endif
 
 #if 0
