@@ -2741,16 +2741,16 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.y1=voff;
   sprite.y2=voff-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
   
-  //e6y
+  // e6y
+  // if the sprite is below the floor, and it's not a hanger/floater, 
+  // and it's not a fully dead corpse, move it up
   if (render_smartitemsclipping)
   {
-    if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT)))
+    if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT)) && 
+      !(vspr->thing->flags & MF_CORPSE && vspr->thing->tics == -1))
     {
-      if (!(vspr->thing->flags & MF_CORPSE) || vspr->thing->tics != -1)
-      {
-        sprite.y1 -= sprite.y2;
-        sprite.y2 = 0.0f;
-      }
+      sprite.y1 -= sprite.y2;
+      sprite.y2 = 0.0f;
     }
   }
 
