@@ -222,15 +222,10 @@ static void I_GetEvent(SDL_Event *Event)
     if (mousemode == win32_mousemode)
     {
       Uint8 state = SDL_GetAppState();
-      //if ((state&SDL_APPINPUTFOCUS) && (state&SDL_APPACTIVE))
       if ((state&(SDL_APPACTIVE|SDL_APPINPUTFOCUS)) == (SDL_APPACTIVE|SDL_APPINPUTFOCUS))
-      {
         I_StartWin32Mouse();
-      }
       else
-      {
         I_EndWin32Mouse();
-      }
     }
     break;
 

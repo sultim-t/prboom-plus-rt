@@ -1536,6 +1536,7 @@ static void D_DoomMainSetup(void)
 #ifdef _WIN32
   LauncherShow();//e6y
 #endif
+  CheckAutoDemo();
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"W_Init: Init WADfiles.\n");

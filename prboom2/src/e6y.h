@@ -394,6 +394,12 @@ typedef struct
   char prefix[32];
 } traceslist_t;
 
+typedef struct
+{
+  wadfile_info_t *wadfiles;
+  size_t numwadfiles;
+} waddata_t;
+
 extern trace_t things_health;
 extern trace_t things_pickup;
 extern trace_t lines_cross;
@@ -433,5 +439,12 @@ extern char *demo_patterns_list_def[];
 void I_AfterUpdateVideoMode(void);
 
 extern int force_singletics_to;
+
+void WadDataFree(waddata_t *wadfiles);
+int StringToWadData(const char *str, waddata_t* waddata);
+int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize);
+void WadDataToWadFiles(waddata_t *waddata);
+void CheckAutoDemo(void);
+void ProcessNewIWAD(const char *iwad);
 
 #endif

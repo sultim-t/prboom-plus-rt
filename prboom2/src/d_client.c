@@ -339,7 +339,7 @@ void NetUpdate(void)
       // e6y
       // Eliminating the sudden jump of six frames(BACKUPTICS/2) 
       // after change of realtic_clock_rate.
-      if (maketic - gametic && gametic - force_singletics_to < 0) break;
+      if (maketic - gametic && gametic <= force_singletics_to) break;
 
       G_BuildTiccmd(&localcmds[maketic%BACKUPTICS]);
       maketic++;

@@ -74,6 +74,16 @@
 #include "i_simd.h"
 #include "e6y.h"
 
+#define PCRE_STATIC 1
+#include "pcreposix.h"
+#ifdef _DEBUG
+#pragma comment( lib, "pcred.lib" )
+#pragma comment( lib, "pcreposixd.lib" )
+#else
+#pragma comment( lib, "pcre.lib" )
+#pragma comment( lib, "pcreposix.lib" )
+#endif
+
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
 //#define DEFAULT_SPECHIT_MAGIC (0x84000000)
 
@@ -297,6 +307,7 @@ void e6y_D_DoomMainSetup(void)
   force_truncated_sector_specials = M_CheckParm("-force_truncated_sector_specials");
   stats_level = M_CheckParm("-levelstat");
 
+  // TAS-tracers
   {
     long i, value, count;
     traces_present = false;
@@ -326,7 +337,6 @@ void e6y_D_DoomMainSetup(void)
     if (!StrToInt(myargv[p+1], (long*)&spechit_magic))
       spechit_magic = DEFAULT_SPECHIT_MAGIC;
   }
-
 }
 
 void G_SkipDemoStart(void)
@@ -1680,3 +1690,278 @@ void I_AfterUpdateVideoMode(void)
 }
 
 int force_singletics_to = 0;
+
+void WadDataFree(waddata_t *waddata)
+{
+  if (waddata)
+  {
+    if (waddata->wadfiles)
+    {
+      int i;
+      for (i = 0; i < (int)waddata->numwadfiles; i++)
+      {
+        if (waddata->wadfiles[i].name)
+        {
+          free((char*)waddata->wadfiles[i].name);
+          waddata->wadfiles[i].name = NULL;
+        }
+      }
+      free(waddata->wadfiles);
+      waddata->wadfiles = NULL;
+    }
+  }
+}
+
+int StringToWadData(const char *str, waddata_t* waddata)
+{
+  wadfile_info_t *wadfiles = NULL;
+  size_t numwadfiles = 0;
+  char *pStr = strdup(str);
+  char *pToken = pStr;
+
+  for (;(pToken = strtok(pToken,"|"));pToken = NULL)
+  {
+    wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+
+    wadfiles[numwadfiles].name =
+      AddDefaultExtension(strcpy(malloc(strlen(pToken)+5), pToken), ".wad");
+
+    if (pToken == pStr)
+    {
+      wadfiles[numwadfiles].src = source_iwad;
+    }
+    else
+    {
+      char *p = (char*)wadfiles[numwadfiles].name;
+      int len = strlen(p);
+      if (!strcasecmp(&p[len-4],".wad"))
+        wadfiles[numwadfiles].src = source_pwad;
+      if (!strcasecmp(&p[len-4],".deh"))
+        wadfiles[numwadfiles].src = source_deh;
+    }
+    numwadfiles++;
+  }
+
+  waddata->wadfiles = wadfiles;
+  waddata->numwadfiles = numwadfiles;
+
+  free(pStr);
+
+  return numwadfiles;
+}
+
+int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize)
+{
+  int i;
+  size_t maxlen = 0;
+  char *pattern;
+  
+  for (i = 0; i < demo_patterns_count; i++)
+  {
+    if (strlen(demo_patterns_list[i]) > maxlen)
+      maxlen = strlen(demo_patterns_list[i]);
+  }
+
+  pattern = malloc(maxlen + sizeof(char));
+  for (i = 0; i < demo_patterns_count; i++)
+  {
+    int result;
+    regex_t preg;
+    regmatch_t pmatch[4];
+    char errbuf[256];
+    char *buf = demo_patterns_list[i];
+
+    regcomp(&preg, "(.*?)\\/(.*)\\/(.+)", REG_ICASE);
+    result = regexec(&preg, buf, 4, &pmatch[0], REG_NOTBOL);
+    regerror(result, &preg, errbuf, sizeof(errbuf));
+    regfree(&preg);
+
+    if (result != 0)
+    {
+      lprintf(LO_WARN, "Incorrect format of the <%s%d = \"%s\"> config entry\n", demo_patterns_mask, i, buf);
+    }
+    else
+    {
+      regmatch_t demo_match[2];
+      int len = pmatch[2].rm_eo - pmatch[2].rm_so;
+
+      strncpy(pattern, buf + pmatch[2].rm_so, len);
+      pattern[len] = '\0';
+      result = regcomp(&preg, pattern, REG_ICASE);
+      if (result != 0)
+      {
+        regerror(result, &preg, errbuf, sizeof(errbuf));
+        lprintf(LO_WARN, "Incorrect regular expressions in the <%s%d = \"%s\"> config entry - %s\n", demo_patterns_mask, i, buf, errbuf);
+      }
+      else
+      {
+        result = regexec(&preg, demoname, 1, &demo_match[0], REG_NOTBOL);
+        if (result == 0)
+        {
+          StringToWadData(buf + pmatch[3].rm_so, waddata);
+
+          waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
+          waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
+          waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
+          waddata->numwadfiles++;
+
+          if (pattern_name)
+          {
+            len = min(pmatch[1].rm_eo - pmatch[1].rm_so, pattern_maxsize - 1);
+            strncpy(pattern_name, buf, len);
+            pattern_name[len] = '\0';
+          }
+          break;
+        }
+      }
+      regfree(&preg);
+    }
+  }
+  free(pattern);
+  return waddata->numwadfiles;
+}
+
+void WadDataToWadFiles(waddata_t *waddata)
+{
+  void ProcessDehFile(const char *filename, const char *outfilename, int lumpnum);
+  const char *D_dehout(void);
+
+  int i, iwadindex = -1;
+
+  wadfile_info_t *old_wadfiles=NULL;
+  size_t old_numwadfiles = numwadfiles;
+
+  old_numwadfiles = numwadfiles;
+  old_wadfiles = malloc(sizeof(*(wadfiles)) * numwadfiles);
+  memcpy(old_wadfiles, wadfiles, sizeof(*(wadfiles)) * numwadfiles);
+
+  free(wadfiles);
+  wadfiles = NULL;
+  numwadfiles = 0;
+
+  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
+  {
+    if (waddata->wadfiles[i].src == source_iwad)
+    {
+      ProcessNewIWAD(PathFindFileName(strdup(waddata->wadfiles[i].name)));
+      iwadindex = i;
+      break;
+    }
+  }
+
+  if (iwadindex == -1)
+  {
+    I_Error("IdentifyVersion: IWAD not found\n");
+  }
+
+  for (i = 0; (size_t)i < old_numwadfiles; i++)
+  {
+    if (old_wadfiles[i].src == source_auto_load)
+    {
+      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+      wadfiles[numwadfiles].name = strdup(old_wadfiles[i].name);
+      wadfiles[numwadfiles].src = old_wadfiles[i].src;
+      wadfiles[numwadfiles].handle = old_wadfiles[i].handle;
+      numwadfiles++;
+    }
+  }
+
+  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
+  {
+    if (waddata->wadfiles[i].src == source_auto_load)
+    {
+      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+      wadfiles[numwadfiles].name = strdup(waddata->wadfiles[i].name);
+      wadfiles[numwadfiles].src = waddata->wadfiles[i].src;
+      wadfiles[numwadfiles].handle = waddata->wadfiles[i].handle;
+      numwadfiles++;
+    }
+  }
+
+  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
+  {
+    if (waddata->wadfiles[i].src == source_iwad && i != iwadindex)
+      D_AddFile(waddata->wadfiles[i].name, source_pwad);
+    if (waddata->wadfiles[i].src == source_pwad)
+      D_AddFile(waddata->wadfiles[i].name, source_pwad);
+    if (waddata->wadfiles[i].src == source_deh)
+      ProcessDehFile(waddata->wadfiles[i].name, D_dehout(), 0);
+  }
+
+  for (i = 0; (size_t)i < waddata->numwadfiles; i++)
+  {
+    if (waddata->wadfiles[i].src == source_lmp || waddata->wadfiles[i].src == source_net)
+      D_AddFile(waddata->wadfiles[i].name, waddata->wadfiles[i].src);
+  }
+
+  free(old_wadfiles);
+}
+
+void CheckAutoDemo(void)
+{
+  // IWAD\PWAD auto-selecting
+  {
+    if (M_CheckParm("-auto"))
+    {
+      int i;
+      waddata_t waddata;
+
+      for (i = 0; (size_t)i < numwadfiles; i++)
+      {
+        if (wadfiles[i].src == source_lmp)
+        {
+          if (DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0))
+          {
+            WadDataToWadFiles(&waddata);
+          }
+          WadDataFree(&waddata);
+          break;
+        }
+      }
+    }
+  }
+}
+
+void ProcessNewIWAD(const char *iwad)
+{
+  extern boolean haswolflevels;
+  void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec);
+
+  int i;
+  char *realiwad;
+
+  realiwad = I_FindFile(iwad, ".wad");
+
+  if (realiwad && *realiwad)
+  {
+    CheckIWAD(realiwad,&gamemode,&haswolflevels);
+    
+    switch(gamemode)
+    {
+    case retail:
+    case registered:
+    case shareware:
+      gamemission = doom;
+      break;
+    case commercial:
+      i = strlen(realiwad);
+      gamemission = doom2;
+      if (i>=10 && !strnicmp(realiwad+i-10,"doom2f.wad",10))
+        language=french;
+      else if (i>=7 && !strnicmp(realiwad+i-7,"tnt.wad",7))
+        gamemission = pack_tnt;
+      else if (i>=12 && !strnicmp(realiwad+i-12,"plutonia.wad",12))
+        gamemission = pack_plut;
+      break;
+    default:
+      gamemission = none;
+      break;
+    }
+    if (gamemode == indetermined)
+      lprintf(LO_WARN,"Unknown Game Version, may not work\n");
+
+    D_AddFile(realiwad,source_iwad);
+    
+    free(realiwad);
+  }
+}
