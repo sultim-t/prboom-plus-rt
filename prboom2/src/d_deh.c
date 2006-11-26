@@ -2674,7 +2674,8 @@ boolean deh_procStringSub(char *key, char *lookfor, char *newstring, FILE *fpout
   for (i=0;i<deh_numstrlookup;i++)
     {
       found = lookfor ?
-        !strnicmp(*deh_strlookup[i].ppstr,lookfor,strlen(lookfor)) :
+        //e6y !strnicmp(*deh_strlookup[i].ppstr,lookfor,strlen(lookfor)) :
+        !stricmp(*deh_strlookup[i].ppstr,lookfor) :
         !stricmp(deh_strlookup[i].lookup,key);
 
       if (found)
