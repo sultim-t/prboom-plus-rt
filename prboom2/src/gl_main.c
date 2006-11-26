@@ -2747,7 +2747,7 @@ void gld_AddSprite(vissprite_t *vspr)
   sprite.y2=voff-((float)sprite.gltexture->realtexheight/(float)(MAP_COEFF));
   
   // e6y
-  // if the sprite is below the floor, and it's not a hanger/floater, 
+  // if the sprite is below the floor, and it's not a hanger/floater/missile, 
   // and it's not a fully dead corpse, move it up
   if (gl_spriteclip != spriteclip_const)
   {
