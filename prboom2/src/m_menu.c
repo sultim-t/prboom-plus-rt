@@ -5570,8 +5570,6 @@ void M_ClearMenus (void)
 
   // if (!netgame && usergame && paused)
   //     sendpause = true;
-
-  r_NoInterpolate = false;
 }
 
 //
