@@ -2744,10 +2744,13 @@ void gld_AddSprite(vissprite_t *vspr)
   //e6y
   if (render_smartitemsclipping)
   {
-    if(sprite.y2 < 0 && !(vspr->thing->flags & (MF_CORPSE|MF_SPAWNCEILING|MF_FLOAT)))
+    if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT)))
     {
-      sprite.y1 -= sprite.y2;
-      sprite.y2 = 0.0f;
+      if (!(vspr->thing->flags & MF_CORPSE) || vspr->thing->tics != -1)
+      {
+        sprite.y1 -= sprite.y2;
+        sprite.y2 = 0.0f;
+      }
     }
   }
 
