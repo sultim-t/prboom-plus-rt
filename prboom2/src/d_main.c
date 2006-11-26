@@ -327,6 +327,11 @@ void D_Display (void)
   }
 
   I_EndDisplay();
+
+  //e6y: don't thrash cpu during pausing
+  if (paused) {
+    I_uSleep(1000);
+  }
 }
 
 // CPhipps - Auto screenshot Variables
