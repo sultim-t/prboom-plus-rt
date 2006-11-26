@@ -2648,8 +2648,12 @@ static void gld_DrawSprite(GLSprite *sprite)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   // Bring items up out of floor by configurable amount times .01 Mead 8/13/03
-  if (render_smartitemsclipping) glTranslatef(sprite->x,sprite->y,sprite->z); else//e6y
-  glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
+  //e6y: adjust sprite clipping
+  if (gl_spriteclip != spriteclip_const)
+    glTranslatef(sprite->x,sprite->y,sprite->z);
+  else
+    glTranslatef(sprite->x,sprite->y+ (.01f * (float)gl_sprite_offset),sprite->z);
+
   glRotatef(inv_yaw,0.0f,1.0f,0.0f);
 
   //e6y
@@ -2744,10 +2748,11 @@ void gld_AddSprite(vissprite_t *vspr)
   // e6y
   // if the sprite is below the floor, and it's not a hanger/floater, 
   // and it's not a fully dead corpse, move it up
-  if (render_smartitemsclipping)
+  if (gl_spriteclip != spriteclip_const)
   {
     if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT)) && 
-      !(vspr->thing->flags & MF_CORPSE && vspr->thing->tics == -1))
+      ((gl_spriteclip == spriteclip_always) ||
+      !(vspr->thing->flags & MF_CORPSE && vspr->thing->tics == -1)))
     {
       sprite.y1 -= sprite.y2;
       sprite.y2 = 0.0f;

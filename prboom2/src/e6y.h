@@ -103,6 +103,10 @@ typedef enum { sdl_mousemode, win32_mousemode } mousemode_t;
 extern mousemode_t mousemode;
 extern const char *mousemodes[];
 
+typedef enum { spriteclip_const, spriteclip_always, spriteclip_smart } spriteclipmode_t;
+extern spriteclipmode_t gl_spriteclip;
+extern const char *gl_spriteclipmodes[];
+
 extern int REAL_SCREENWIDTH;
 extern int REAL_SCREENHEIGHT;
 extern int REAL_SCREENPITCH;
@@ -157,7 +161,6 @@ extern int render_detailedwalls;
 extern int render_detailedflats;
 extern int render_multisampling;
 extern int render_paperitems;
-extern int render_smartitemsclipping;
 extern int render_wipescreen;
 extern int render_screen_multiply;
 extern int screen_multiply;
@@ -234,6 +237,8 @@ void e6y_I_uSleep(unsigned long usecs);
 void G_SkipDemoStart(void);
 void G_SkipDemoStop(void);
 const byte* G_ReadDemoHeader(const byte* demo_p);
+
+void M_ChangeSpriteClip(void);
 void M_ChangeAltMouseHandling(void);
 void M_ChangeSpeed(void);
 void M_ChangeMouseLook(void);

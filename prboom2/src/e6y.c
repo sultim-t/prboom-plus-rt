@@ -90,6 +90,9 @@
 mousemode_t mousemode;
 const char *mousemodes[] = {"sdl","Win32"};
 
+spriteclipmode_t gl_spriteclip;
+const char *gl_spriteclipmodes[] = {"constant","always", "smart"};
+
 int REAL_SCREENWIDTH;
 int REAL_SCREENHEIGHT;
 int REAL_SCREENPITCH;
@@ -143,7 +146,6 @@ int render_detailedwalls;
 int render_detailedflats;
 int render_multisampling;
 int render_paperitems;
-int render_smartitemsclipping;
 int render_wipescreen;
 int render_screen_multiply;
 int screen_multiply;
@@ -374,6 +376,20 @@ void G_SkipDemoStop(void)
   S_Start();
 }
 
+void M_ChangeSpriteClip(void)
+{
+  extern setup_menu_t gen_settings6[];
+
+  if(gl_spriteclip == spriteclip_const)
+  {
+    gen_settings6[11].m_flags &= ~(S_SKIP|S_SELECT);
+  }
+  else
+  {
+    gen_settings6[11].m_flags |= (S_SKIP|S_SELECT);
+  }
+}
+
 void M_ChangeAltMouseHandling(void)
 {
 #ifndef _WIN32
@@ -459,11 +475,11 @@ void M_ChangeScreenMultipleFactor(void)
   extern setup_menu_t gen_settings6[];
   if(render_screen_multiply != 1)
   {
-    gen_settings6[14].m_flags &= ~(S_SKIP|S_SELECT);
+    gen_settings6[15].m_flags &= ~(S_SKIP|S_SELECT);
   }
   else
   {
-    gen_settings6[14].m_flags |= (S_SKIP|S_SELECT);
+    gen_settings6[15].m_flags |= (S_SKIP|S_SELECT);
   }
 }
 
