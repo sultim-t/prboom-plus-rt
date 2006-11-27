@@ -1212,7 +1212,7 @@ void M_LoadDefaults (void)
     // Keycode hack removed
   }
 
-        // e6y: array
+        // e6y: arrays
         if (item)
         {
           int *pcount = item->location.array_size;
@@ -1226,8 +1226,14 @@ void M_LoadDefaults (void)
               *arr = realloc(*arr, sizeof(char*) * ((*index) + 1));
               (*pcount)++;
             }
-            if ((*arr)[(*index)])
-              free((*arr)[(*index)]);
+            else
+            {
+              if ((*arr)[(*index)])
+              {
+                free((*arr)[(*index)]);
+                (*arr)[(*index)] = NULL;
+              }
+            }
             (*arr)[(*index)] = newstring;
             (*index)++;
             continue;
@@ -1245,6 +1251,7 @@ void M_LoadDefaults (void)
               if (defaults[i].type == def_arr)
               {
                 free((char*)*(defaults[i].location.ppsz));
+                (char*)*(defaults[i].location.ppsz) = NULL;
                 *(defaults[i].location.ppsz) = newstring;
                 item = &defaults[i];
                 continue;

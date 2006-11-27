@@ -1133,7 +1133,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
         }
       }
       
-     if (i == numwadfiles)
+     if ((size_t)i == numwadfiles)
       {
         if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
         {
