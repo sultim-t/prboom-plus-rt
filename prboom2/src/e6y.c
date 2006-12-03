@@ -1773,6 +1773,8 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
   size_t maxlen = 0;
   char *pattern;
   
+  memset(waddata, 0, sizeof(*waddata));
+
   for (i = 0; i < demo_patterns_count; i++)
   {
     if (strlen(demo_patterns_list[i]) > maxlen)
