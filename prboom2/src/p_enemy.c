@@ -2093,13 +2093,32 @@ void A_BossDeath(mobj_t *mo)
     }
   else
     {
+      // e6y
+      // only following checks are present in doom2.exe ver. 1.666 and 1.9
+      // instead of separate checks for each episode in doomult.exe, plutonia.exe and tnt.exe
+      // doom2_19.ida
+      // 0003891A  cmp  gamemap, 8
+      // 00038921  jnz  loc_exit
+      // 00038927  cmp  dword ptr [eax+58h], MT_BRUISER
+      // 0003892B  jnz  short loc_3893A
+      // 0003892D  cmp  gameepisode, 1
+      // 00038934  jnz  loc_exit
+      if (comp[comp_666])
+      {
+        if (gamemap != 8)
+          return;
+        if (mo->type == MT_BRUISER && gameepisode != 1) 
+          return;
+      }
+      else
+      {
       switch(gameepisode)
         {
         case 1:
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_BRUISER && !comp[comp_666])
+          if (mo->type != MT_BRUISER)
             return;
           break;
 
@@ -2107,7 +2126,7 @@ void A_BossDeath(mobj_t *mo)
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_CYBORG && !comp[comp_666])
+          if (mo->type != MT_CYBORG)
             return;
           break;
 
@@ -2115,7 +2134,7 @@ void A_BossDeath(mobj_t *mo)
           if (gamemap != 8)
             return;
 
-          if (mo->type != MT_SPIDER && !comp[comp_666])
+          if (mo->type != MT_SPIDER)
             return;
 
           break;
@@ -2144,6 +2163,7 @@ void A_BossDeath(mobj_t *mo)
             return;
           break;
         }
+      }
 
     }
 
