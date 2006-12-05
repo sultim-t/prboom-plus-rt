@@ -714,6 +714,12 @@ void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
       *gmode = registered;
     else if (sw>=9)
       *gmode = shareware;
+
+    // e6y
+    // The original EXE does not support retail - 4th episode is not supported
+    // There is no right or wrong solution for E4M6 special (there's nothing to emulate)
+    // Check and fix it right now
+    CheckGameVersion(gmode, NULL);
   }
   else // error from access call
     I_Error("CheckIWAD: IWAD %s not readable", iwadname);
@@ -864,6 +870,15 @@ static void IdentifyVersion (void)
         gamemission = none;
         break;
     }
+
+    // e6y
+    // Conflicts between gamemode and gamemission can force the engine to do wrong things
+    // The following check is necessary for prevention of possible collisions
+    // For example, EXEs prior to the Final Doom EXEs do not support Final Doom
+    // and engine will produce "compatible demos" which will never play back with original EXEs
+    // Check it now
+    CheckGameVersion(&gamemode, &gamemission);
+
     if (gamemode == indetermined)
       //jff 9/3/98 use logical output routine
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");

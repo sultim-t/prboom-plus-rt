@@ -453,4 +453,6 @@ void WadDataToWadFiles(waddata_t *waddata);
 void CheckAutoDemo(void);
 void ProcessNewIWAD(const char *iwad);
 
+void CheckGameVersion(GameMode_t *gmode, GameMission_t *gmission);
+
 #endif

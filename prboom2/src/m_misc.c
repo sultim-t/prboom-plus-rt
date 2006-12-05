@@ -1287,6 +1287,18 @@ void M_LoadDefaults (void)
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
      doesn't overlap with the cfg settings */
   wad_files[MAXLOADFILES-1]="prboom-plus.wad";
+
+  //e6y: moved from G_ReloadDefaults()
+  compatibility_level = default_compatibility_level;
+  {
+    int i = M_CheckParm("-complevel");
+    if (i && (1+i) < myargc) {
+      int l = atoi(myargv[i+1]);;
+      if (l >= -1) compatibility_level = l;
+    }
+  }
+  if (compatibility_level == -1)
+    compatibility_level = best_compatibility;
 }
 
 

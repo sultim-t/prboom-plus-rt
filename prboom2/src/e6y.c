@@ -1976,11 +1976,37 @@ void ProcessNewIWAD(const char *iwad)
       gamemission = none;
       break;
     }
+
+    CheckGameVersion(&gamemode, &gamemission);
+
     if (gamemode == indetermined)
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");
 
     D_AddFile(realiwad,source_iwad);
     
     free(realiwad);
+  }
+}
+
+// Check for prevention of possible collisions between
+// compatibility_level and gamemode, gamemission 
+// because it can force the engine to do wrong things.
+void CheckGameVersion(GameMode_t *gmode, GameMission_t *gmission)
+{
+  // The original EXE does not support retail - 4th episode is not supported
+  // There is no right or wrong solution for E4M6 special (there's nothing to emulate)
+  if ((gmode) && 
+     (*gmode == retail) && 
+     (compatibility_level < ultdoom_compatibility))
+  {
+    *gmode = registered;
+  }
+
+  // EXEs prior to the Final Doom EXEs do not support Final Doom
+  if ((gmode && gmission) &&
+     (*gmission == pack_tnt || *gmission == pack_plut) &&
+     (compatibility_level < finaldoom_compatibility && *gmode == commercial))
+  {
+    I_Error("IdentifyVersion: Levels of compatibility prior to the Final Doom compatibility (%d) do not support Final Doom\n", finaldoom_compatibility);
   }
 }
