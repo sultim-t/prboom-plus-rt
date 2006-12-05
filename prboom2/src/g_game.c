@@ -2161,7 +2161,16 @@ void G_ReloadDefaults(void)
 
   consoleplayer = 0;
 
-  //e6y: compatibility_level stuff was moved to M_LoadDefaults()
+  compatibility_level = default_compatibility_level;
+  {
+    int i = M_CheckParm("-complevel");
+    if (i && (1+i) < myargc) {
+      int l = atoi(myargv[i+1]);;
+      if (l >= -1) compatibility_level = l;
+    }
+  }
+  if (compatibility_level == -1)
+    compatibility_level = best_compatibility;
 
   if (mbf_features)
     memcpy(comp, default_comp, sizeof comp);
