@@ -214,8 +214,6 @@ extern float skyUpShift;
 extern float skyXShift;
 extern float skyYShift;
 
-extern boolean SkyDrawed;
-
 extern float internal_render_fov;
 
 extern boolean gl_arb_multitexture;

@@ -69,6 +69,7 @@
 extern PFNGLACTIVETEXTUREARBPROC        GLEXT_glActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC  GLEXT_glClientActiveTextureARB;
 extern PFNGLMULTITEXCOORD2FARBPROC      GLEXT_glMultiTexCoord2fARB;
+static boolean SkyDrawed;
 
 extern int tran_filter_pct;
 
@@ -1992,7 +1993,7 @@ static void gld_DrawWall(GLWall *wall)
           glTranslatef(skyXShift,skyYShift,0.0f);
         }
       }
-      if (GetMouseLook() && !SkyDrawed)
+      if (!SkyDrawed && GetMouseLook())
       {             
         float maxcoord = 255.0f;
         SkyDrawed = true;
@@ -2977,11 +2978,12 @@ static void gld_ProcessWall(int i, boolean *gl_alpha_blended)
 
 void gld_DrawScene(player_t *player)
 {
-  //e6y
-  boolean gl_alpha_blended = true;
-
   int i,j,k;
   fixed_t max_scale;
+
+  //e6y
+  boolean gl_alpha_blended = true;
+  SkyDrawed = false;
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);

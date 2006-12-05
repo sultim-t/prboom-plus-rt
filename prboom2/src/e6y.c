@@ -202,8 +202,6 @@ float skyUpShift;
 float skyXShift;
 float skyYShift;
 
-boolean SkyDrawed;
-
 float internal_render_fov = FOV90;
 
 int force_monster_avoid_hazards = false;
