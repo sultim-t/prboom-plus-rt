@@ -2094,17 +2094,16 @@ void A_BossDeath(mobj_t *mo)
   else
     {
       // e6y
-      // only following checks are present in doom2.exe ver. 1.666 and 1.9
-      // instead of separate checks for each episode in doomult.exe, plutonia.exe and tnt.exe
-      // doom2_19.ida
-      // 0003891A  cmp  gamemap, 8
-      // 00038921  jnz  loc_exit
-      // 00038927  cmp  dword ptr [eax+58h], MT_BRUISER
-      // 0003892B  jnz  short loc_3893A
-      // 0003892D  cmp  gameepisode, 1
-      // 00038934  jnz  loc_exit
-      if (comp[comp_666])
+      // Additional check of gameepisode is necessary, because 
+      // there is no right or wrong solution for E4M6 in original EXEs,
+      // there's nothing to emulate.
+      if (comp[comp_666] && gameepisode < 4)
       {
+        // e6y
+        // Only following checks are present in doom2.exe ver. 1.666 and 1.9
+        // instead of separate checks for each episode in doomult.exe, plutonia.exe and tnt.exe
+        // There is no more desync on doom.wad\episode3.lmp
+        // http://www.doomworld.com/idgames/index.php?id=6909
         if (gamemap != 8)
           return;
         if (mo->type == MT_BRUISER && gameepisode != 1) 
