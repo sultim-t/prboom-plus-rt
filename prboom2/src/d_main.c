@@ -224,6 +224,14 @@ void D_Display (void)
   boolean wipe;
   boolean viewactive = false, isborder = false;
 
+  // e6y
+  if (doSkip)
+  {
+    HU_DrawDemoProgress();
+    I_FinishUpdate();
+    return;
+  }
+
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
@@ -317,6 +325,8 @@ void D_Display (void)
   D_BuildNewTiccmds();
 #endif
 
+  HU_DrawDemoProgress(); //e6y
+
   // normal update
   if (!wipe || (V_GetMode() == VID_MODEGL))
     I_FinishUpdate ();              // page flip or blit buffer
@@ -326,12 +336,12 @@ void D_Display (void)
     D_Wipe();
   }
 
-  I_EndDisplay();
-
   //e6y: don't thrash cpu during pausing
   if (paused) {
     I_uSleep(1000);
   }
+
+  I_EndDisplay();
 }
 
 // CPhipps - Auto screenshot Variables

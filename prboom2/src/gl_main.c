@@ -489,7 +489,11 @@ void gld_Init(int width, int height)
     gl_tex_format=GL_RGBA;
     lprintf(LO_INFO,"Using texture format GL_RGBA.\n");
   }
-  e6y_InitExtensions();//e6y
+  //e6y
+  e6y_InitExtensions();
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
 }
 
 void gld_InitCommandLine(void)
@@ -2012,6 +2016,7 @@ static void gld_DrawWall(GLWall *wall)
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
       glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
+
     if ( wall->gltexture )
     {
       glPopMatrix();
@@ -2803,14 +2808,15 @@ void e6y_DrawAdd(void)
     
     if (render_detailedflats)
     {
+      glEnable(GL_CULL_FACE);
       for (i=gld_drawinfo.num_drawitems; i>=0; i--)
       {
         switch (gld_drawinfo.drawitems[i].itemtype)
         {
         case GLDIT_FLAT:
-          glEnable(GL_CULL_FACE);
           glCullFace(GL_FRONT);
           for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+          {
             if (!gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
             {
               GLFlat *flat;
@@ -2839,32 +2845,35 @@ void e6y_DrawAdd(void)
               glMatrixMode(GL_MODELVIEW);
               glPopMatrix();
             }
-            glCullFace(GL_BACK);
-            for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
-              if (gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
+          }
+          glCullFace(GL_BACK);
+          for (j=(gld_drawinfo.drawitems[i].itemcount-1); j>=0; j--)
+          {
+            if (gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex].ceiling)
+            {
+              GLFlat *flat;
+              int loopnum;
+              GLLoopDef *currentloop;
+              flat = &gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex];
+
+              gld_StaticLight(flat->light);
+              glPushMatrix();
+              glTranslatef(0.0f,flat->z,0.0f);
+              if (flat->sectornum>=0)
               {
-                GLFlat *flat;
-                int loopnum;
-                GLLoopDef *currentloop;
-                flat = &gld_drawinfo.flats[j+gld_drawinfo.drawitems[i].firstitemindex];
-                
-                gld_StaticLight(flat->light);
-                glPushMatrix();
-                glTranslatef(0.0f,flat->z,0.0f);
-                if (flat->sectornum>=0)
+                for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
                 {
-                  for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
-                  {
-                    currentloop=&sectorloops[flat->sectornum].loops[loopnum];
-                    glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
-                  }
+                  currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+                  glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
                 }
-                glPopMatrix();
               }
-              
-              break;
+              glPopMatrix();
+            }
+          }
+          break;
         }
       }
+      glDisable(GL_CULL_FACE);
     }
     if (render_detailedwalls)
     {

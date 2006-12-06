@@ -120,7 +120,8 @@ extern int secretfound;
 extern int messagecenter_counter;
 extern int demo_skiptics;
 extern int demo_recordfromto;
-extern int demo_len_tics;
+extern int demo_tics_count;
+extern int demo_curr_tic;
 extern char demo_len_st[80];
 
 extern int avi_shot_time;
@@ -450,5 +451,7 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
 void WadDataToWadFiles(waddata_t *waddata);
 void CheckAutoDemo(void);
 void ProcessNewIWAD(const char *iwad);
+
+void HU_DrawDemoProgress(void);
 
 #endif

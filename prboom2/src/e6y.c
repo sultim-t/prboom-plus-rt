@@ -104,7 +104,8 @@ int secretfound;
 int messagecenter_counter;
 int demo_skiptics;
 int demo_recordfromto = false;
-int demo_len_tics;
+int demo_tics_count;
+int demo_curr_tic;
 char demo_len_st[80];
 
 int avi_shot_time;
@@ -1980,5 +1981,17 @@ void ProcessNewIWAD(const char *iwad)
     D_AddFile(realiwad,source_iwad);
     
     free(realiwad);
+  }
+}
+
+void HU_DrawDemoProgress(void)
+{
+  if (demoplayback && hudadd_demoprogressbar)
+  {
+    int len = min(SCREENWIDTH, SCREENWIDTH * demo_curr_tic / demo_tics_count);
+    
+    V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
+    if (len > 4)
+      V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
   }
 }

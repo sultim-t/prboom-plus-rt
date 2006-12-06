@@ -2299,6 +2299,7 @@ void G_InitNew(skill_t skill, int episode, int map)
 void G_ReadDemoTiccmd (ticcmd_t* cmd)
 {
   unsigned char at; // e6y: tasdoom stuff
+  demo_curr_tic++;
 
   if (*demo_p == DEMOMARKER)
     G_CheckDemoStatus();      // end of demo data stream
@@ -2926,11 +2927,12 @@ void G_DoPlayDemo(void)
       if (playeringame[i])
         playerscount++;
     }
-    demo_len_tics = (W_LumpLength(demolumpnum) - 
+    demo_tics_count = (W_LumpLength(demolumpnum) - 
       (demo_p - demobuffer + 1)) / (playerscount * (longtics ? 5 : 4));
-    if (demo_len_tics <= 0)
-      demo_len_tics = 4;
-    sprintf(demo_len_st, "\x1b\x35/%d:%02d", demo_len_tics/35/60, (demo_len_tics%(60*35))/35);
+    if (demo_tics_count <= 0)
+      demo_tics_count = 4;
+    demo_curr_tic = 0;
+    sprintf(demo_len_st, "\x1b\x35/%d:%02d", demo_tics_count/35/60, (demo_tics_count%(60*35))/35);
   }
 
   gameaction = ga_nothing;
