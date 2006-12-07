@@ -538,7 +538,6 @@ void gld_DrawNumPatch(int x, int y, int lump, int cm, enum patch_translation_e f
   ypos=SCALE_Y(y-gltexture->topoffset);
   width=SCALE_X(gltexture->realtexwidth);
   height=SCALE_Y(gltexture->realtexheight);
-
   glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(fU1, fV1); glVertex2f((xpos),(ypos));
     glTexCoord2f(fU1, fV2); glVertex2f((xpos),(ypos+height));
@@ -1953,7 +1952,6 @@ static void gld_DrawWall(GLWall *wall)
 {
   if ( (!gl_drawskys) && (wall->flag>=GLDWF_SKY) )
     wall->gltexture=NULL;
-  
   gld_BindTexture(wall->gltexture);
   if (!wall->gltexture)
   {
@@ -2016,7 +2014,6 @@ static void gld_DrawWall(GLWall *wall)
       glVertex3f(wall->glseg->x2,wall->ytop,wall->glseg->z2);
       glVertex3f(wall->glseg->x2,wall->ybottom,wall->glseg->z2);
     glEnd();
-
     if ( wall->gltexture )
     {
       glPopMatrix();
@@ -2537,8 +2534,8 @@ static void gld_DrawFlat(GLFlat *flat)
     for (loopnum=0; loopnum<sectorloops[flat->sectornum].loopcount; loopnum++)
     {
       // set the current loop
-      currentloop = &sectorloops[flat->sectornum].loops[loopnum];
-      glDrawArrays(currentloop->mode, currentloop->vertexindex, currentloop->vertexcount);
+      currentloop=&sectorloops[flat->sectornum].loops[loopnum];
+      glDrawArrays(currentloop->mode,currentloop->vertexindex,currentloop->vertexcount);
     }
 #endif
   }

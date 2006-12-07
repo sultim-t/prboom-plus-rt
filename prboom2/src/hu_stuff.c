@@ -1281,7 +1281,6 @@ void HU_Drawer(void)
       }
     }
     // display the keys/frags line each frame
-
     if (hud_active>1)
     {
       //e6y: speedup

@@ -2091,7 +2091,6 @@ void G_Compatibility(void)
 
     monkeys = 0;
   }
-
 }
 
 /* killough 7/19/98: Marine's best friend :) */
@@ -2916,7 +2915,7 @@ void G_DoPlayDemo(void)
   basename[8] = 0;
   demobuffer = demo_p = W_CacheLumpNum(demolumpnum = W_GetNumForName(basename));
   /* cph - store lump number for unlocking later */
-  
+
   demo_p = G_ReadDemoHeader(demo_p);
 
   //e6y

@@ -37,7 +37,6 @@
 #include "p_tick.h"
 #include "p_map.h"
 #include "r_fps.h"
-#include "e6y.h"//e6y
 
 int leveltime;
 

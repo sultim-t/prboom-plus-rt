@@ -38,8 +38,6 @@
 #pragma interface
 #endif
 
-#include "m_fixed.h"
-
 extern int ms_to_next_tick;
 boolean I_StartDisplay(void);
 void I_EndDisplay(void);
@@ -73,7 +71,5 @@ void I_Read(int fd, void* buf, size_t sz);
 
 /* cph 2001/11/18 - Move W_Filelength to i_system.c */
 int I_Filelength(int handle);
-
-fixed_t I_GetTimeFrac (void);
 
 #endif

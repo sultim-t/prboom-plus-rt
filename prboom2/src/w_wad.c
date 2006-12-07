@@ -55,7 +55,6 @@
 #endif
 #include "w_wad.h"
 #include "lprintf.h"
-#include "e6y.h"
 
 //
 // GLOBALS

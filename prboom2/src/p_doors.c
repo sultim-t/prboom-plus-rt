@@ -267,7 +267,7 @@ void T_VerticalDoor (vldoor_t* door)
         }
 
         /* jff 1/31/98 turn lighting on in tagged sectors of manual doors
-         * killough 10/98: replaced with gradual lighting code */
+   * killough 10/98: replaced with gradual lighting code */
         // e6y: "Tagged doors don't trigger special lighting" handled wrong
         // http://sourceforge.net/tracker/index.php?func=detail&aid=1411400&group_id=148658&atid=772943
         if (door->lighttag && door->topheight - door->sector->floorheight && compatibility_level < mbf_compatibility)

@@ -49,7 +49,6 @@
 #include "d_deh.h"    // Ty 03/27/98 - externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "g_game.h"
-#include "e6y.h"
 
 //jff 1/7/98 default automap colors added
 int mapcolor_back;    // map background
@@ -1469,15 +1468,6 @@ static void AM_drawThings(void)
       }
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-/*void AM_drawLineCharacter
-( mline_t*  lineguy,
-  int   lineguylines,
-  fixed_t scale,
-  angle_t angle,
-  int   color,
-  fixed_t x,
-  fixed_t y )
-{*/
       AM_drawLineCharacter
       (
         thintriangle_guy,

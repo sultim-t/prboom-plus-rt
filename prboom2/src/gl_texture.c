@@ -528,7 +528,6 @@ void gld_BindTexture(GLTexture *gltexture)
   R_UnlockTextureCompositePatchNum(gltexture->index);
   if (gltexture->glTexID[CR_DEFAULT]==0)
     glGenTextures(1,&gltexture->glTexID[CR_DEFAULT]);
-    
   glBindTexture(GL_TEXTURE_2D, gltexture->glTexID[CR_DEFAULT]);
 #ifdef USE_GLU_MIPMAP
   if (gltexture->mipmap & use_mipmapping)

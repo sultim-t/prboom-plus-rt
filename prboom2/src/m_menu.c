@@ -797,7 +797,7 @@ void M_LoadGame (int choice)
 {
   /* killough 5/26/98: exclude during demo recordings
    * cph - unless a new demo */
-  if (demorecording && (compatibility_level < prboom_2_compatibility))//e6ye6y if(0 && 
+  if (demorecording && (compatibility_level < prboom_2_compatibility))
     {
     M_StartMessage("you can't load a game\n"
        "while recording an old demo!\n\n"PRESSKEY,

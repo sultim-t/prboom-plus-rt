@@ -49,7 +49,6 @@
 #pragma implementation "info.h"
 #endif
 #include "info.h"
-#include "e6y.h"//e6y
 
 
 // ********************************************************************

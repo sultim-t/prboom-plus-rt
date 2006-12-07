@@ -998,8 +998,8 @@ static void FindResponseFile (void)
         // DISPLAY ARGS
         //jff 9/3/98 use logical output routine
         lprintf(LO_CONFIRM,"%d command-line args:\n",myargc);
-        for (index=1;index<myargc;index++)
-          //jff 9/3/98 use logical output routine
+	for (index=1;index<myargc;index++)
+	  //jff 9/3/98 use logical output routine
           lprintf(LO_CONFIRM,"%s\n",myargv[index]);
         break;
       }
@@ -1687,7 +1687,7 @@ static void D_DoomMainSetup(void)
 void D_DoomMain(void)
 {
   D_DoomMainSetup(); // CPhipps - setup out of main execution stack
-  
+
   D_DoomLoop ();  // never returns
 }
 

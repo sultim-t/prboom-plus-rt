@@ -43,7 +43,6 @@
 #include "g_game.h"
 #include "am_map.h"
 #include "lprintf.h"
-#include "i_simd.h"
 
 //
 // All drawing to the view buffer is accomplished in this file.
@@ -835,9 +834,8 @@ void R_FillBackScreen (void)
 
 void R_VideoErase(int x, int y, int count)
 {
-  //e6y
   if (V_GetMode() != VID_MODEGL)
-    memcpy_fast(screens[0].data+y*screens[0].pitch+x, screens[1].data+y*screens[1].pitch+x, count);   // LFB copy.
+    memcpy(screens[0].data+y*screens[0].pitch+x, screens[1].data+y*screens[1].pitch+x, count);   // LFB copy.
 }
 
 //

@@ -84,8 +84,7 @@ static int    tmunstuck;     /* killough 8/1/98: whether to allow unsticking */
 
 // 1/11/98 killough: removed limit on special lines crossed
 line_t **spechit;                // new code -- killough
-//e6y static 
-int spechit_max;          // killough
+static int spechit_max;          // killough
 
 int numspechit;
 
@@ -1831,8 +1830,7 @@ void P_RadiusAttack(mobj_t* spot,mobj_t* source,int damage)
 //  to undo the changes.
 //
 
-//e6y static 
-boolean crushchange, nofit;
+static boolean crushchange, nofit;
 
 //
 // PIT_ChangeSector
@@ -2216,7 +2214,6 @@ void P_CreateSecNodeList(mobj_t* thing,fixed_t x,fixed_t y)
    * OTOH for Boom/MBF demos we have to preserve the buggy behavior.
    *  Fun. We restore its previous value unless we're in a Boom/MBF demo.
    */
-   //e6ye6y
   if ((compatibility_level < boom_compatibility_compatibility) ||
       (compatibility_level >= prboom_3_compatibility))
     tmthing = saved_tmthing;

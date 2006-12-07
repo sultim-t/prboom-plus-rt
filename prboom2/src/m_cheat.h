@@ -37,7 +37,7 @@
 /* killough 4/16/98: Cheat table structure */
 
 extern struct cheat_s {
-  const char *cheat;
+  const char *	cheat;
   const char *const deh_cheat;
   enum {
     always   = 0,
