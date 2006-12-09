@@ -533,7 +533,7 @@ static void createTextureCompositePatch(int id) {
             }
           }
           // do the buggy clipping
-          if (oy < 0) {
+          if ((oy + oldColumn->topdelta) < 0) {
             count += oy;
             oy = 0;
           }
@@ -545,17 +545,17 @@ static void createTextureCompositePatch(int id) {
         post->topdelta = oldColumn->topdelta + oy;
         post->length = count;
         if ((post->topdelta + post->length) > composite_patch->height) {
-          if ((post->topdelta) > composite_patch->height)
+          if (post->topdelta > composite_patch->height)
             post->length = 0;
           else
             post->length = composite_patch->height - post->topdelta;
         }
         if (post->topdelta < 0) {
-          post->topdelta = 0;
           if ((post->topdelta + post->length) <= 0)
             post->length = 0;
           else
             post->length -= post->topdelta;
+          post->topdelta = 0;
         }
         post->slope = 0;
 
