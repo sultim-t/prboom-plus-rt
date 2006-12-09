@@ -752,6 +752,10 @@ default_t defaults[] =
   {"movement_strafe50onturns", {&movement_strafe50onturns},  {0},0,1,
    def_bool,ss_stat},
 
+  {"Prboom-plus sound settings",{NULL},{0},UL,UL,def_none,ss_none},
+  {"sound_noquitsound", {&sound_noquitsound},  {0},0,1,
+   def_bool,ss_stat},
+
   {"Prboom-plus video settings",{NULL},{0},UL,UL,def_none,ss_none},
   {"sdl_videodriver", {NULL,&sdl_videodriver}, {0,"default"},UL,UL,
    def_str,ss_none},

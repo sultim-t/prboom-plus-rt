@@ -190,6 +190,8 @@ extern int render_aspect_width;
 extern int render_aspect_height;
 extern float render_aspect_ratio;
 
+extern int sound_noquitsound;
+
 extern int test_dots;
 
 extern unsigned int spechit_magic;

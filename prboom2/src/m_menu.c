@@ -1042,7 +1042,9 @@ static void M_QuitResponse(int ch)
 {
   if (ch != 'y')
     return;
-  if ((!netgame || demoplayback) // killough 12/98
+  
+  //e6y: Optional removal of a quit sound
+  if ((!netgame && !sound_noquitsound) // killough 12/98
       && !nosfxparm && snd_card) // avoid delay if no sound card
   {
     int i;
@@ -3161,9 +3163,11 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Movements",                   S_SKIP|S_TITLE,m_null,G_X, G_Y+6*8},
   {"Permanent Strafe50",          S_YESNO, m_null,G_X,G_Y+ 7*8, {"movement_strafe50"}, 0, 0, M_ChangeSpeed},
   {"Strafe50 On Turns",           S_YESNO, m_null,G_X,G_Y+ 8*8, {"movement_strafe50onturns"}, 0, 0, M_ChangeSpeed},
+  {"Sounds",                      S_SKIP|S_TITLE,m_null,G_X, G_Y+10*8},
+  {"No Quit Sound",               S_YESNO, m_null,G_X,G_Y+ 11*8, {"sound_noquitsound"}},
 #ifdef _WIN32
-  {"Misc",                        S_SKIP|S_TITLE, m_null, G_X, G_Y+10*8},
-  {"Use In-Game Launcher",        S_YESNO, m_null,G_X,G_Y+ 11*8, {"launcher_enable"}},
+  {"Misc",                        S_SKIP|S_TITLE, m_null, G_X, G_Y+13*8},
+  {"Use In-Game Launcher",        S_YESNO, m_null,G_X,G_Y+ 14*8, {"launcher_enable"}},
 #endif
   {"<- PREV",S_SKIP|S_PREV, m_null,KB_PREV, KB_Y+20*8, {gen_settings3}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {gen_settings5}},
