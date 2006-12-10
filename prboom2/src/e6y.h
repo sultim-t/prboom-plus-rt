@@ -340,9 +340,18 @@ void MouseAccelChanging(void);
 
 extern int mlooky;
 extern int realtic_clock_rate;
+
 extern boolean IsDehMaxHealth;
-extern int maxhealthbonus;
+extern boolean IsDehMaxSoul;
+extern boolean IsDehMegaHealth;
+extern boolean IsDehSkullBits;
+
 extern int deh_maxhealth;
+extern int deh_max_soul;
+extern int deh_mega_health;
+
+extern int maxhealthbonus;
+
 void e6y_G_Compatibility(void);
 
 extern boolean zerotag_manual;

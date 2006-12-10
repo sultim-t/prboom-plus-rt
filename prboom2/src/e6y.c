@@ -71,6 +71,7 @@
 #include "i_system.h"
 #include "p_maputl.h"
 #include "i_video.h"
+#include "info.h"
 #include "i_simd.h"
 #include "e6y.h"
 
@@ -1155,7 +1156,14 @@ int AccelerateMouse(int val)
 int mlooky;
 
 boolean IsDehMaxHealth = false;
+boolean IsDehMaxSoul = false;
+boolean IsDehMegaHealth = false;
+boolean IsDehSkullBits = false;
+
 int deh_maxhealth;
+int deh_max_soul;
+int deh_mega_health;
+
 int maxhealthbonus;
 
 void M_ChangeCompTranslucency(void)
@@ -1185,19 +1193,34 @@ void M_ChangeCompTranslucency(void)
 
 void e6y_G_Compatibility(void)
 {
+  extern int maxhealth;
+  extern int max_soul;
+  extern int mega_health;
+
+  int comp_max = (compatibility_level == doom_12_compatibility ? 199 : 200);
+
+  max_soul = (IsDehMaxSoul ? deh_max_soul : comp_max);
+  mega_health = (IsDehMegaHealth ? deh_mega_health : comp_max);
+
+  if (comp[comp_maxhealth]) 
   {
-    extern int maxhealth;
-    if (comp[comp_maxhealth]) 
-    {
-      maxhealth = 100;
-      maxhealthbonus = (IsDehMaxHealth?deh_maxhealth:200);
-    }
-    else 
-    {
-      maxhealth = (IsDehMaxHealth?deh_maxhealth:100);
-      maxhealthbonus = maxhealth * 2;
-    }
+    maxhealth = 100;
+    maxhealthbonus = (IsDehMaxHealth ? deh_maxhealth : comp_max);
   }
+  else 
+  {
+    maxhealth = (IsDehMaxHealth ? deh_maxhealth : 100);
+    maxhealthbonus = maxhealth * 2;
+  }
+
+  if (!IsDehSkullBits)
+  {
+    if (compatibility_level == doom_12_compatibility)
+      mobjinfo[MT_SKULL].flags |= (MF_COUNTKILL);
+    else
+      mobjinfo[MT_SKULL].flags &= ~(MF_COUNTKILL);
+  }
+
   M_ChangeCompTranslucency();
 }
 

@@ -1763,6 +1763,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
           if (bGetData==1) { // proff
             value = getConvertedDEHBits(value);
             mobjinfo[indexnum].flags = value;
+            if (indexnum == MT_SKULL) IsDehSkullBits = true; //e6y
           }
           else {
             // figure out what the bits are
@@ -1800,6 +1801,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
               );
             }
             mobjinfo[indexnum].flags = value; // e6y
+            if (indexnum == MT_SKULL) IsDehSkullBits = true; //e6y
           }
         }
         if (fpout) {
@@ -2376,7 +2378,7 @@ static void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
           initial_bullets = (int)value;
         else
           if (!strcasecmp(key,deh_misc[2]))  // Max Health
-            IsDehMaxHealth = true, deh_maxhealth = (int)value;//e6y
+            IsDehMaxHealth = true, deh_maxhealth = (int)value; //e6y
           else
             if (!strcasecmp(key,deh_misc[3]))  // Max Armor
               max_armor = (int)value;
@@ -2388,13 +2390,13 @@ static void deh_procMisc(DEHFILE *fpin, FILE* fpout, char *line) // done
                   blue_armor_class = (int)value;
                 else
                   if (!strcasecmp(key,deh_misc[6]))  // Max Soulsphere
-                    max_soul = (int)value;
+                    IsDehMaxSoul = true, deh_max_soul = (int)value; //e6y
                   else
                     if (!strcasecmp(key,deh_misc[7]))  // Soulsphere Health
                       soul_health = (int)value;
                     else
                       if (!strcasecmp(key,deh_misc[8]))  // Megasphere Health
-                        mega_health = (int)value;
+                        IsDehMegaHealth = true, deh_mega_health = (int)value; //e6y
                       else
                         if (!strcasecmp(key,deh_misc[9]))  // God Mode Health
                           god_health = (int)value;
