@@ -1158,7 +1158,7 @@ int mlooky;
 boolean IsDehMaxHealth = false;
 boolean IsDehMaxSoul = false;
 boolean IsDehMegaHealth = false;
-boolean IsDehSkullBits = false;
+boolean DEH_mobjinfo_bits[NUMMOBJTYPES] = {0};
 
 int deh_maxhealth;
 int deh_max_soul;
@@ -1168,8 +1168,6 @@ int maxhealthbonus;
 
 void M_ChangeCompTranslucency(void)
 {
-//  static boolean predefined_translucency_fixed = false;
-//  static int predefined_translucency_level = -1;
   int i;
   int predefined_translucency[] = {
     MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
@@ -1177,11 +1175,9 @@ void M_ChangeCompTranslucency(void)
     MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
   };
   
-//  if (!predefined_translucency_fixed || predefined_translucency_level != compatibility_level)
+  for(i = 0; (size_t)i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
   {
-//    predefined_translucency_fixed = true;
-//    predefined_translucency_level = compatibility_level;
-    for(i = 0; (size_t)i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
+    if (!DEH_mobjinfo_bits[predefined_translucency[i]])
     {
       if (comp[comp_translucency]) 
         mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
@@ -1213,7 +1209,7 @@ void e6y_G_Compatibility(void)
     maxhealthbonus = maxhealth * 2;
   }
 
-  if (!IsDehSkullBits)
+  if (!DEH_mobjinfo_bits[MT_SKULL])
   {
     if (compatibility_level == doom_12_compatibility)
       mobjinfo[MT_SKULL].flags |= (MF_COUNTKILL);

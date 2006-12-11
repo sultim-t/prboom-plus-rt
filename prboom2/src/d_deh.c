@@ -1763,7 +1763,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
           if (bGetData==1) { // proff
             value = getConvertedDEHBits(value);
             mobjinfo[indexnum].flags = value;
-            if (indexnum == MT_SKULL) IsDehSkullBits = true; //e6y
+            DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
           }
           else {
             // figure out what the bits are
@@ -1801,7 +1801,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
               );
             }
             mobjinfo[indexnum].flags = value; // e6y
-            if (indexnum == MT_SKULL) IsDehSkullBits = true; //e6y
+            DEH_mobjinfo_bits[indexnum] = true; //e6y: changed by DEH
           }
         }
         if (fpout) {

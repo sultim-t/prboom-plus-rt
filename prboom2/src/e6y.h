@@ -344,7 +344,7 @@ extern int realtic_clock_rate;
 extern boolean IsDehMaxHealth;
 extern boolean IsDehMaxSoul;
 extern boolean IsDehMegaHealth;
-extern boolean IsDehSkullBits;
+extern boolean DEH_mobjinfo_bits[NUMMOBJTYPES];
 
 extern int deh_maxhealth;
 extern int deh_max_soul;
