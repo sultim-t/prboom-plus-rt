@@ -227,8 +227,11 @@ void D_Display (void)
   // e6y
   if (doSkip)
   {
-    HU_DrawDemoProgress();
-    I_FinishUpdate();
+    if (demo_curr_tic%(TICRATE/2) == 0)
+    {
+      HU_DrawDemoProgress();
+      I_FinishUpdate();
+    }
     return;
   }
 

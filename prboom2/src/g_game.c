@@ -2927,11 +2927,13 @@ void G_DoPlayDemo(void)
         playerscount++;
     }
     demo_tics_count = (W_LumpLength(demolumpnum) - 
-      (demo_p - demobuffer + 1)) / (playerscount * (longtics ? 5 : 4));
+      (demo_p - demobuffer + 1)) / (longtics ? 5 : 4);
     if (demo_tics_count <= 0)
       demo_tics_count = 4;
     demo_curr_tic = 0;
-    sprintf(demo_len_st, "\x1b\x35/%d:%02d", demo_tics_count/35/60, (demo_tics_count%(60*35))/35);
+    sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
+      demo_tics_count/playerscount/TICRATE/60, 
+      (demo_tics_count/playerscount%(60*TICRATE))/TICRATE);
   }
 
   gameaction = ga_nothing;
