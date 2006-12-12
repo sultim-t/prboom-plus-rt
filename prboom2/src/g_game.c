@@ -2753,6 +2753,13 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
   demover = *demo_p++;
   longtics = 0;
 
+  //e6y: Handling of unrecognized demo formats
+  if (!(demover >= 104  && demover <= 111 || // old demos
+        demover >= 200  && demover <= 214))  // new versions of demos
+  {
+    I_Error("G_ReadDemoHeader: Unknown demo format %d.", demover);
+  }
+
   if (demover < 200)     // Autodetect old demos
     {
       if (demover >= 111) longtics = 1;
