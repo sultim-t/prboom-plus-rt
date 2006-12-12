@@ -2931,9 +2931,17 @@ void G_DoPlayDemo(void)
     if (demo_tics_count <= 0)
       demo_tics_count = 4;
     demo_curr_tic = 0;
-    sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
-      demo_tics_count/playerscount/TICRATE/60, 
-      (demo_tics_count/playerscount%(60*TICRATE))/TICRATE);
+    if(playerscount>0)
+    {
+      sprintf(demo_len_st, "\x1b\x35/%d:%02d", 
+        demo_tics_count/playerscount/TICRATE/60, 
+        (demo_tics_count/playerscount%(60*TICRATE))/TICRATE);
+    }
+    else
+    {
+      sprintf(demo_len_st, "-");
+    }
+
   }
 
   gameaction = ga_nothing;
