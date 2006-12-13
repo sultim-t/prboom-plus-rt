@@ -457,7 +457,7 @@ void I_AfterUpdateVideoMode(void);
 extern int force_singletics_to;
 
 void WadDataFree(waddata_t *wadfiles);
-int StringToWadData(const char *str, waddata_t* waddata);
+int ParseDemoPattern(const char *str, waddata_t* waddata);
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize);
 void WadDataToWadFiles(waddata_t *waddata);
 void CheckAutoDemo(void);

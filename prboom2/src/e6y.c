@@ -811,15 +811,18 @@ int StepwiseSum(int value, int direction, int step, int minval, int maxval, int 
   return newvalue;
 }
 
-void I_Warning(const char *message, va_list argList)
+void I_Warning(const char *message, ...)
 {
   char msg[1024];
+  va_list argList;
+  va_start(argList,message);
 #ifdef HAVE_VSNPRINTF
   vsnprintf(msg,sizeof(msg),message,argList);
 #else
   vsprintf(msg,message,argList);
 #endif
-  fprintf(stdout,"%s\n",msg);
+  va_end(argList);
+  lprintf(LO_ERROR, "%s\n", msg);
 #ifdef _MSC_VER
   {
     extern HWND con_hWnd;
@@ -1749,8 +1752,9 @@ void WadDataFree(waddata_t *waddata)
   }
 }
 
-int StringToWadData(const char *str, waddata_t* waddata)
+int ParseDemoPattern(const char *str, waddata_t* waddata)
 {
+  int processed = 0;
   wadfile_info_t *wadfiles = NULL;
   size_t numwadfiles = 0;
   char *pStr = strdup(str);
@@ -1758,25 +1762,32 @@ int StringToWadData(const char *str, waddata_t* waddata)
 
   for (;(pToken = strtok(pToken,"|"));pToken = NULL)
   {
-    wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-
-    wadfiles[numwadfiles].name =
-      AddDefaultExtension(strcpy(malloc(strlen(pToken)+5), pToken), ".wad");
-
-    if (pToken == pStr)
+    char *token = I_FindFile(strcpy(malloc(strlen(pToken)+5), pToken), ".wad");
+    processed++;
+    if (token)
     {
-      wadfiles[numwadfiles].src = source_iwad;
+      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+      wadfiles[numwadfiles].name = token;
+
+      if (pToken == pStr)
+      {
+        wadfiles[numwadfiles].src = source_iwad;
+      }
+      else
+      {
+        char *p = (char*)wadfiles[numwadfiles].name;
+        int len = strlen(p);
+        if (!strcasecmp(&p[len-4],".wad"))
+          wadfiles[numwadfiles].src = source_pwad;
+        if (!strcasecmp(&p[len-4],".deh"))
+          wadfiles[numwadfiles].src = source_deh;
+      }
+      numwadfiles++;
     }
     else
     {
-      char *p = (char*)wadfiles[numwadfiles].name;
-      int len = strlen(p);
-      if (!strcasecmp(&p[len-4],".wad"))
-        wadfiles[numwadfiles].src = source_pwad;
-      if (!strcasecmp(&p[len-4],".deh"))
-        wadfiles[numwadfiles].src = source_deh;
+      lprintf(LO_WARN, " not found %s\n", pToken);
     }
-    numwadfiles++;
   }
 
   waddata->wadfiles = wadfiles;
@@ -1784,7 +1795,7 @@ int StringToWadData(const char *str, waddata_t* waddata)
 
   free(pStr);
 
-  return numwadfiles;
+  return processed;
 }
 
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize)
@@ -1837,12 +1848,21 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
         result = regexec(&preg, demoname, 1, &demo_match[0], REG_NOTBOL);
         if (result == 0)
         {
-          StringToWadData(buf + pmatch[3].rm_so, waddata);
+          int parsed = ParseDemoPattern(buf + pmatch[3].rm_so, waddata);
 
-          waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
-          waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
-          waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
-          waddata->numwadfiles++;
+          if (parsed == waddata->numwadfiles)
+          {
+            waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
+            waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
+            waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
+            waddata->numwadfiles++;
+          }
+          else
+          {
+            //lprintf(LO_WARN, "PlayAutoDemo: Not all required files are found, may not work\n");
+            //I_Error("PlayAutoDemo: Not all required files are found, can't continue");
+            I_Warning("PlayAutoDemo: Not all required files are found, may not work");
+          }
 
           if (pattern_name)
           {

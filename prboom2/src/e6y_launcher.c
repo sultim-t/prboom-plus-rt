@@ -1049,7 +1049,7 @@ static void L_FillHistoryList(void)
       waddata_t *data = malloc(sizeof(*data));
       char *str = strdup(launcher_history[i]);
 
-      StringToWadData(str, data);
+      ParseDemoPattern(str, data);
       p = L_HistoryGetStr(data);
 
       if (p)
