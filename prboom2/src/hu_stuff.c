@@ -807,7 +807,10 @@ void HU_Drawer(void)
   int  fullkillcount, fullitemcount, fullsecretcount;
   int color, killcolor, itemcolor, secretcolor;
   //jff 3/4/98 speed update up for slow systems
-  doit = realframe && !(gametic&1);
+  //e6y: speed update for uncapped framerate
+  static boolean needupdate = false;
+  if (realframe) needupdate = !needupdate;
+  doit = needupdate;
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
