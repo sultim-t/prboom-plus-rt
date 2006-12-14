@@ -1763,32 +1763,34 @@ int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
   for (;(pToken = strtok(pToken,"|"));pToken = NULL)
   {
     char *token = malloc(PATH_MAX);
-    GetFullPath(pToken, ".wad", token, PATH_MAX);
     processed++;
-    if (token)
+    if (GetFullPath(pToken, ".wad", token, PATH_MAX))
     {
-      wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
-      wadfiles[numwadfiles].name = token;
-
-      if (pToken == pStr)
+      if (token)
       {
-        wadfiles[numwadfiles].src = source_iwad;
+        wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
+        wadfiles[numwadfiles].name = token;
+
+        if (pToken == pStr)
+        {
+          wadfiles[numwadfiles].src = source_iwad;
+        }
+        else
+        {
+          char *p = (char*)wadfiles[numwadfiles].name;
+          int len = strlen(p);
+          if (!strcasecmp(&p[len-4],".wad"))
+            wadfiles[numwadfiles].src = source_pwad;
+          if (!strcasecmp(&p[len-4],".deh"))
+            wadfiles[numwadfiles].src = source_deh;
+        }
+        numwadfiles++;
       }
       else
       {
-        char *p = (char*)wadfiles[numwadfiles].name;
-        int len = strlen(p);
-        if (!strcasecmp(&p[len-4],".wad"))
-          wadfiles[numwadfiles].src = source_pwad;
-        if (!strcasecmp(&p[len-4],".deh"))
-          wadfiles[numwadfiles].src = source_deh;
+        if (!silent)
+          lprintf(LO_WARN, " not found %s\n", pToken);
       }
-      numwadfiles++;
-    }
-    else
-    {
-      if (!silent)
-        lprintf(LO_WARN, " not found %s\n", pToken);
     }
   }
 
