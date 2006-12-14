@@ -147,7 +147,6 @@ static void L_FillFilesList(fileitem_t *iwad);
 static void L_AddItemToCache(fileitem_t *item);
 
 char* e6y_I_FindFile(const char* ext);
-int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength);
 
 //common
 void *I_FindFirst (const char *filespec, findstate_t *fileinfo)
@@ -466,7 +465,7 @@ static boolean L_GUISelect(waddata_t *waddata)
 
   for (k=0; !processed && k < waddata->numwadfiles; k++)
   {
-    if (GetFullPath(waddata->wadfiles[k].name, fullpath, PATH_MAX))
+    if (GetFullPath(waddata->wadfiles[k].name, NULL, fullpath, PATH_MAX))
     {
       switch (waddata->wadfiles[k].src)
       {
@@ -505,7 +504,7 @@ static boolean L_GUISelect(waddata_t *waddata)
 
   for (k=0; k < waddata->numwadfiles; k++)
   {
-    if (GetFullPath(waddata->wadfiles[k].name, fullpath, PATH_MAX))
+    if (GetFullPath(waddata->wadfiles[k].name, NULL, fullpath, PATH_MAX))
     {
       switch (waddata->wadfiles[k].src)
       {
@@ -570,7 +569,7 @@ static boolean L_PrepareToLaunch(void)
       char *iwadname = PathFindFileName(launcher.files[index].name);
       history = malloc(strlen(iwadname) + 8);
       strcpy(history, iwadname);
-      ProcessNewIWAD(iwadname);
+      ProcessNewIWAD(launcher.files[index].name);
     }
   }
 
@@ -824,77 +823,28 @@ static void L_FillFilesList(fileitem_t *iwad)
   }
 }
 
-int GetFullPath(const char* FileName, char *Buffer, size_t BufferLength)
-{
-  int i, Result;
-  char *p;
-  char dir[PATH_MAX];
-  
-  for (i=0; i<3; i++)
-  {
-    switch(i)
-    {
-    case 0:
-      getcwd(dir, sizeof(dir));
-      break;
-    case 1:
-      if (!getenv("DOOMWADDIR"))
-        continue;
-      strcpy(dir, getenv("DOOMWADDIR"));
-      break;
-    case 2:
-      strcpy(dir, I_DoomExeDir());
-      break;
-    }
-
-    Result = SearchPath(dir,FileName,NULL,BufferLength,Buffer,&p);
-    if (Result)
-      return Result;
-  }
-
-  return false;
-}
-
 char* e6y_I_FindFile(const char* ext)
 {
   int i;
   /* Precalculate a length we will need in the loop */
   size_t  pl = strlen(ext) + 4;
 
-  for (i=0; i<8; i++) {
+  for (i=0; i<3; i++) {
     char  * p;
     char d[PATH_MAX];
     const char  * s = NULL;
     strcpy(d, "");
-    /* Each entry in the switch sets d to the directory to look in,
-     * and optionally s to a subdirectory of d */
     switch(i) {
+    case 0:
+      getcwd(d, sizeof(d));
+      break;
     case 1:
       if (!getenv("DOOMWADDIR"))
         continue;
       strcpy(d, getenv("DOOMWADDIR"));
       break;
-    case 0:
-      getcwd(d, sizeof(d));
-      break;
     case 2:
-      strcpy(d, DOOMWADDIR);
-      break;
-    case 4:
-      strcpy(d, "/usr/share/games/doom");
-      break;
-    case 5:
-      strcpy(d, "/usr/local/share/games/doom");
-      break;
-    case 6:
       strcpy(d, I_DoomExeDir());
-      break;
-    case 3:
-      s = "doom";
-    case 7:
-      if (!getenv("HOME"))
-        continue;
-      strcpy(d, getenv("HOME"));
       break;
     }
 
@@ -1049,7 +999,7 @@ static void L_FillHistoryList(void)
       waddata_t *data = malloc(sizeof(*data));
       char *str = strdup(launcher_history[i]);
 
-      ParseDemoPattern(str, data);
+      ParseDemoPattern(str, data, true);
       p = L_HistoryGetStr(data);
 
       if (p)
@@ -1133,7 +1083,7 @@ BOOL CALLBACK LauncherClientCallback (HWND hDlg, UINT message, WPARAM wParam, LP
         }
       }
       
-     if ((size_t)i == numwadfiles)
+      if ((size_t)i == numwadfiles)
       {
         if (SendMessage(launcher.listHistory, CB_SETCURSEL, 0, 0) != CB_ERR)
         {

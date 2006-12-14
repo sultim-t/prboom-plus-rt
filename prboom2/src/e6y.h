@@ -457,12 +457,14 @@ void I_AfterUpdateVideoMode(void);
 extern int force_singletics_to;
 
 void WadDataFree(waddata_t *wadfiles);
-int ParseDemoPattern(const char *str, waddata_t* waddata);
+int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent);
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize);
 void WadDataToWadFiles(waddata_t *waddata);
 void CheckAutoDemo(void);
 void ProcessNewIWAD(const char *iwad);
 
 void HU_DrawDemoProgress(void);
+
+int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
 
 #endif

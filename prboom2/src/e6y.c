@@ -1752,7 +1752,7 @@ void WadDataFree(waddata_t *waddata)
   }
 }
 
-int ParseDemoPattern(const char *str, waddata_t* waddata)
+int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
 {
   int processed = 0;
   wadfile_info_t *wadfiles = NULL;
@@ -1762,7 +1762,8 @@ int ParseDemoPattern(const char *str, waddata_t* waddata)
 
   for (;(pToken = strtok(pToken,"|"));pToken = NULL)
   {
-    char *token = I_FindFile(strcpy(malloc(strlen(pToken)+5), pToken), ".wad");
+    char *token = malloc(PATH_MAX);
+    GetFullPath(pToken, ".wad", token, PATH_MAX);
     processed++;
     if (token)
     {
@@ -1786,9 +1787,12 @@ int ParseDemoPattern(const char *str, waddata_t* waddata)
     }
     else
     {
-      lprintf(LO_WARN, " not found %s\n", pToken);
+      if (!silent)
+        lprintf(LO_WARN, " not found %s\n", pToken);
     }
   }
+
+  WadDataFree(waddata);
 
   waddata->wadfiles = wadfiles;
   waddata->numwadfiles = numwadfiles;
@@ -1800,6 +1804,7 @@ int ParseDemoPattern(const char *str, waddata_t* waddata)
 
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize)
 {
+  int numwadfiles_required = 0;
   int i;
   size_t maxlen = 0;
   char *pattern;
@@ -1848,20 +1853,13 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
         result = regexec(&preg, demoname, 1, &demo_match[0], REG_NOTBOL);
         if (result == 0)
         {
-          int parsed = ParseDemoPattern(buf + pmatch[3].rm_so, waddata);
-
-          if ((size_t)parsed == waddata->numwadfiles)
+          numwadfiles_required = ParseDemoPattern(buf + pmatch[3].rm_so, waddata, false);
+          if ((size_t)numwadfiles_required == waddata->numwadfiles)
           {
             waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
             waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
             waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
             waddata->numwadfiles++;
-          }
-          else
-          {
-            //lprintf(LO_WARN, "PlayAutoDemo: Not all required files are found, may not work\n");
-            //I_Error("PlayAutoDemo: Not all required files are found, can't continue");
-            I_Warning("PlayAutoDemo: Not all required files are found, may not work");
           }
 
           if (pattern_name)
@@ -1877,7 +1875,8 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
     }
   }
   free(pattern);
-  return waddata->numwadfiles;
+
+  return numwadfiles_required;
 }
 
 void WadDataToWadFiles(waddata_t *waddata)
@@ -1969,8 +1968,13 @@ void CheckAutoDemo(void)
       {
         if (wadfiles[i].src == source_lmp)
         {
-          if (DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0))
+          int numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0);
+          if (waddata.numwadfiles)
           {
+            if (numwadfiles_required != waddata.numwadfiles)
+            {
+              I_Warning("PlayAutoDemo: Not all required files are found, may not work");
+            }
             WadDataToWadFiles(&waddata);
           }
           WadDataFree(&waddata);
@@ -1987,13 +1991,10 @@ void ProcessNewIWAD(const char *iwad)
   void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec);
 
   int i;
-  char *realiwad;
 
-  realiwad = I_FindFile(iwad, ".wad");
-
-  if (realiwad && *realiwad)
+  if (iwad && *iwad)
   {
-    CheckIWAD(realiwad,&gamemode,&haswolflevels);
+    CheckIWAD(iwad,&gamemode,&haswolflevels);
     
     switch(gamemode)
     {
@@ -2003,13 +2004,13 @@ void ProcessNewIWAD(const char *iwad)
       gamemission = doom;
       break;
     case commercial:
-      i = strlen(realiwad);
+      i = strlen(iwad);
       gamemission = doom2;
-      if (i>=10 && !strnicmp(realiwad+i-10,"doom2f.wad",10))
+      if (i>=10 && !strnicmp(iwad+i-10,"doom2f.wad",10))
         language=french;
-      else if (i>=7 && !strnicmp(realiwad+i-7,"tnt.wad",7))
+      else if (i>=7 && !strnicmp(iwad+i-7,"tnt.wad",7))
         gamemission = pack_tnt;
-      else if (i>=12 && !strnicmp(realiwad+i-12,"plutonia.wad",12))
+      else if (i>=12 && !strnicmp(iwad+i-12,"plutonia.wad",12))
         gamemission = pack_plut;
       break;
     default:
@@ -2019,9 +2020,7 @@ void ProcessNewIWAD(const char *iwad)
     if (gamemode == indetermined)
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");
 
-    D_AddFile(realiwad,source_iwad);
-    
-    free(realiwad);
+    D_AddFile(iwad,source_iwad);
   }
 }
 
@@ -2035,4 +2034,35 @@ void HU_DrawDemoProgress(void)
     if (len > 4)
       V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
   }
+}
+
+int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength)
+{
+  int i, Result;
+  char *p;
+  char dir[PATH_MAX];
+  
+  for (i=0; i<3; i++)
+  {
+    switch(i)
+    {
+    case 0:
+      getcwd(dir, sizeof(dir));
+      break;
+    case 1:
+      if (!getenv("DOOMWADDIR"))
+        continue;
+      strcpy(dir, getenv("DOOMWADDIR"));
+      break;
+    case 2:
+      strcpy(dir, I_DoomExeDir());
+      break;
+    }
+
+    Result = SearchPath(dir,FileName,ext,BufferLength,Buffer,&p);
+    if (Result)
+      return Result;
+  }
+
+  return false;
 }
