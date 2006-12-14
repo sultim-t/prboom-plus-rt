@@ -1850,7 +1850,7 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
         {
           int parsed = ParseDemoPattern(buf + pmatch[3].rm_so, waddata);
 
-          if (parsed == waddata->numwadfiles)
+          if ((size_t)parsed == waddata->numwadfiles)
           {
             waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
             waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
