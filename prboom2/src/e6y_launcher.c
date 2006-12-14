@@ -996,17 +996,18 @@ static void L_FillHistoryList(void)
     if (strlen(launcher_history[i]) > 0)
     {
       int index;
-      waddata_t *data = malloc(sizeof(*data));
       char *str = strdup(launcher_history[i]);
+      waddata_t *waddata = malloc(sizeof(*waddata));
+      memset(waddata, 0, sizeof(*waddata));
 
-      ParseDemoPattern(str, data, true);
-      p = L_HistoryGetStr(data);
+      ParseDemoPattern(str, waddata, true);
+      p = L_HistoryGetStr(waddata);
 
       if (p)
       {
         index = SendMessage(launcher.listHistory, CB_ADDSTRING, 0, (LPARAM)p);
         if (index >= 0)
-          SendMessage(launcher.listHistory, CB_SETITEMDATA, index, (LPARAM)data);
+          SendMessage(launcher.listHistory, CB_SETITEMDATA, index, (LPARAM)waddata);
         
         free(p);
         p = NULL;
@@ -1350,7 +1351,7 @@ static boolean L_LauncherIsNeeded(void)
   for (i=0; !pwad && i < (int)numwadfiles; i++)
     pwad = wadfiles[i].src == source_pwad;
 
-  return (!iwad && !pwad);
+  return (!iwad && !pwad && !M_CheckParm("-auto"));
 }
 
 void LauncherShow(void)

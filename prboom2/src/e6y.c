@@ -1853,14 +1853,14 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
         result = regexec(&preg, demoname, 1, &demo_match[0], REG_NOTBOL);
         if (result == 0)
         {
+          lprintf(LO_INFO, " used %s%d\n", demo_patterns_mask, i);
+
           numwadfiles_required = ParseDemoPattern(buf + pmatch[3].rm_so, waddata, false);
-          if ((size_t)numwadfiles_required == waddata->numwadfiles)
-          {
-            waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
-            waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
-            waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
-            waddata->numwadfiles++;
-          }
+
+          waddata->wadfiles = realloc(waddata->wadfiles, sizeof(*wadfiles)*(waddata->numwadfiles+1));
+          waddata->wadfiles[waddata->numwadfiles].name = strdup(demoname);
+          waddata->wadfiles[waddata->numwadfiles].src = source_lmp;
+          waddata->numwadfiles++;
 
           if (pattern_name)
           {
@@ -1901,7 +1901,7 @@ void WadDataToWadFiles(waddata_t *waddata)
   {
     if (waddata->wadfiles[i].src == source_iwad)
     {
-      ProcessNewIWAD(PathFindFileName(strdup(waddata->wadfiles[i].name)));
+      ProcessNewIWAD(waddata->wadfiles[i].name);
       iwadindex = i;
       break;
     }
@@ -1957,29 +1957,26 @@ void WadDataToWadFiles(waddata_t *waddata)
 
 void CheckAutoDemo(void)
 {
-  // IWAD\PWAD auto-selecting
+  if (M_CheckParm("-auto"))
   {
-    if (M_CheckParm("-auto"))
-    {
-      int i;
-      waddata_t waddata;
+    int i;
+    waddata_t waddata;
 
-      for (i = 0; (size_t)i < numwadfiles; i++)
+    for (i = 0; (size_t)i < numwadfiles; i++)
+    {
+      if (wadfiles[i].src == source_lmp)
       {
-        if (wadfiles[i].src == source_lmp)
+        int numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0);
+        if (waddata.numwadfiles)
         {
-          int numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0);
-          if (waddata.numwadfiles)
+          if (numwadfiles_required + 1 != waddata.numwadfiles)
           {
-            if (numwadfiles_required != waddata.numwadfiles)
-            {
-              I_Warning("PlayAutoDemo: Not all required files are found, may not work");
-            }
-            WadDataToWadFiles(&waddata);
+            I_Warning("PlayAutoDemo: Not all required files are found, may not work");
           }
-          WadDataFree(&waddata);
-          break;
+          WadDataToWadFiles(&waddata);
         }
+        WadDataFree(&waddata);
+        break;
       }
     }
   }
