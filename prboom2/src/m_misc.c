@@ -1290,11 +1290,9 @@ void M_LoadDefaults (void)
   //jff 3/4/98 redundant range checks for hud deleted here
   /* proff 2001/7/1 - added prboom.wad as last entry so it's always loaded and
      doesn't overlap with the cfg settings */
-  {
-    char *p = malloc(strlen(I_DoomExeDir()) + 32);
-    sprintf(p, "%s\\%s", I_DoomExeDir(), "prboom-plus.wad");
-    wad_files[MAXLOADFILES-1]=p;
-  }
+  //e6y: Check on existence of prboom.wad
+  if (!(wad_files[MAXLOADFILES-1] = I_FindFile("prboom-plus.wad", "")))
+    I_Error("PrBoom-Plus.wad not found. Can't continue.");
 }
 
 

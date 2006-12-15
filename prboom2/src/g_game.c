@@ -39,9 +39,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #ifdef _MSC_VER
-#define    F_OK    0    /* Check for file existence */
-#define    W_OK    2    /* Check for write permission */
-#define    R_OK    4    /* Check for read permission */
 #include <io.h>
 #else
 #include <unistd.h>

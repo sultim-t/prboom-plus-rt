@@ -348,12 +348,12 @@ char* I_FindFile(const char* wfname, const char* ext)
     const char *env; // environment variable
     const char *(*func)(void); // for I_DoomExeDir
   } search[] = {
+    {NULL, NULL, NULL, I_DoomExeDir}, // config directory
     {NULL}, // current working directory
     {NULL, NULL, "DOOMWADDIR"}, // run-time $DOOMWADDIR
     {DOOMWADDIR}, // build-time configured DOOMWADDIR
     {NULL, "doom", "HOME"}, // ~/doom
     {NULL, NULL, "HOME"}, // ~
-    {NULL, NULL, NULL, I_DoomExeDir}, // config directory
     {"/usr/local/share/games/doom"},
     {"/usr/share/games/doom"},
     {"/usr/local/share/doom"},
@@ -361,8 +361,13 @@ char* I_FindFile(const char* wfname, const char* ext)
   };
 
   int   i;
+  size_t  pl;
+
+  if (!wfname)
+    return NULL;
+
   /* Precalculate a length we will need in the loop */
-  size_t  pl = strlen(wfname) + strlen(ext) + 4;
+  pl = strlen(wfname) + (ext ? strlen(ext) : 0) + 4;
 
   for (i = 0; i < sizeof(search)/sizeof(*search); i++) {
     char  * p;
@@ -385,7 +390,7 @@ char* I_FindFile(const char* wfname, const char* ext)
                              s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
                              wfname);
 
-    if (access(p,F_OK))
+    if (ext && access(p,F_OK))
       strcat(p, ext);
     if (!access(p,F_OK)) {
       lprintf(LO_INFO, " found %s\n", p);
