@@ -467,4 +467,7 @@ void HU_DrawDemoProgress(void);
 
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
 
+void I_vWarning(const char *message, va_list argList);
+void I_Warning(const char *message, ...);
+
 #endif

@@ -811,17 +811,14 @@ int StepwiseSum(int value, int direction, int step, int minval, int maxval, int 
   return newvalue;
 }
 
-void I_Warning(const char *message, ...)
+void I_vWarning(const char *message, va_list argList)
 {
   char msg[1024];
-  va_list argList;
-  va_start(argList,message);
 #ifdef HAVE_VSNPRINTF
   vsnprintf(msg,sizeof(msg),message,argList);
 #else
   vsprintf(msg,message,argList);
 #endif
-  va_end(argList);
   lprintf(LO_ERROR, "%s\n", msg);
 #ifdef _MSC_VER
   {
@@ -833,6 +830,14 @@ void I_Warning(const char *message, ...)
     SwitchToWindow(GetHWND());
   }
 #endif
+}
+
+void I_Warning(const char *message, ...)
+{
+  va_list argptr;
+  va_start(argptr,message);
+  I_vWarning(message, argptr);
+  va_end(argptr);
 }
 
 void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *name, const char *params, ...)
@@ -862,7 +867,7 @@ void ShowOverflowWarning(int emulate, int *promted, boolean fatal, const char *n
       name, "\nYou can change PrBoom behaviour for this overflow through in-game menu.", params);
     
     va_start(argptr,params);
-    I_Warning(buffer, argptr);
+    I_vWarning(buffer, argptr);
     va_end(argptr);
   }
 }
@@ -1971,7 +1976,7 @@ void CheckAutoDemo(void)
         int numwadfiles_required = DemoNameToWadData(wadfiles[i].name, &waddata, NULL, 0);
         if (waddata.numwadfiles)
         {
-          if (numwadfiles_required + 1 != waddata.numwadfiles)
+          if ((size_t)numwadfiles_required + 1 != waddata.numwadfiles)
           {
             I_Warning("PlayAutoDemo: Not all required files are found, may not work");
           }
