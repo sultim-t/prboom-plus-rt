@@ -221,8 +221,10 @@ P_UseSpecialLine
   int           side )
 {
 
-  //e6y: b.m. condition is absent in boom201
-  if (compatibility_level >= boom_202_compatibility)
+  // e6y
+  // b.m. side test was broken in boom201
+  // DEMOSYNC - demos recorded in "demo compatibility" mode by boom201 may desync here
+  if (compatibility_level != boom_201_compatibility)
   if (side) //jff 6/1/98 fix inadvertent deletion of side test
     return false;
 
