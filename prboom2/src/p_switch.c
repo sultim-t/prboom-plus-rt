@@ -221,6 +221,8 @@ P_UseSpecialLine
   int           side )
 {
 
+  //e6y: b.m. condition is absent in boom201
+  if (compatibility_level >= boom_202_compatibility)
   if (side) //jff 6/1/98 fix inadvertent deletion of side test
     return false;
 
