@@ -453,9 +453,6 @@ void I_FinishUpdate (void)
 //
 // I_ReadScreen
 //
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
 void I_ReadScreen (screeninfo_t *dest)
 {
   int h;

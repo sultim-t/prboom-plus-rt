@@ -31,13 +31,6 @@
 #ifndef R_FILTER_H
 #define R_FILTER_H
 
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
 #define DITHER_DIM 4
 
 extern byte filter_ditherMatrix[DITHER_DIM][DITHER_DIM];
