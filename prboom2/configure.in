@@ -181,6 +181,12 @@ then
  ])
 fi
 
+dnl -- PCRE
+AC_ARG_WITH(pcre,
+  [AS_HELP_STRING([--without-pcre],[Do not compile with libpcre])],,
+  [AC_CHECK_LIB(pcreposix,pcreposix_regcomp)]
+)
+
 dnl - Other libs
 AC_CHECK_LIB(png,png_create_info_struct)
 AC_DEFINE(HAVE_NET,1,[Define if you want network game support])

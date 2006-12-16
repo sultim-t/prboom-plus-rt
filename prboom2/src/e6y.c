@@ -75,6 +75,12 @@
 #include "i_simd.h"
 #include "e6y.h"
 
+#ifndef _MSC_VER
+#ifdef HAVE_LIBPCREPOSIX
+#include "pcreposix.h"
+#endif
+#else // _MSC_VER
+#define HAVE_LIBPCREPOSIX 1
 #define PCRE_STATIC 1
 #include "pcreposix.h"
 #ifdef _DEBUG
@@ -83,6 +89,7 @@
 #else
 #pragma comment( lib, "pcre.lib" )
 #pragma comment( lib, "pcreposix.lib" )
+#endif
 #endif
 
 #define DEFAULT_SPECHIT_MAGIC (0x01C09C98)
@@ -1767,9 +1774,14 @@ int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
 
   for (;(pToken = strtok(pToken,"|"));pToken = NULL)
   {
-    char *token = malloc(PATH_MAX);
+    char *token;
     processed++;
+#ifdef _MSC_VER
+    token = malloc(PATH_MAX);
     if (GetFullPath(pToken, ".wad", token, PATH_MAX))
+#else
+    if ((token = I_FindFile(pToken, ".wad")))
+#endif
     {
       if (token)
       {
@@ -1809,6 +1821,7 @@ int ParseDemoPattern(const char *str, waddata_t* waddata, boolean silent)
   return processed;
 }
 
+#ifdef HAVE_LIBPCREPOSIX
 int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_name, int pattern_maxsize)
 {
   int numwadfiles_required = 0;
@@ -1885,6 +1898,7 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
 
   return numwadfiles_required;
 }
+#endif // HAVE_LIBPCREPOSIX
 
 void WadDataToWadFiles(waddata_t *waddata)
 {
@@ -1965,6 +1979,10 @@ void WadDataToWadFiles(waddata_t *waddata)
 void CheckAutoDemo(void)
 {
   if (M_CheckParm("-auto"))
+#ifndef HAVE_LIBPCREPOSIX
+    I_Error("Cannot process -auto - "
+        PACKAGE " was compiled without LIBPCRE support");
+#else
   {
     int i;
     waddata_t waddata;
@@ -1987,6 +2005,7 @@ void CheckAutoDemo(void)
       }
     }
   }
+#endif // HAVE_LIBPCREPOSIX
 }
 
 void ProcessNewIWAD(const char *iwad)
@@ -2040,6 +2059,7 @@ void HU_DrawDemoProgress(void)
   }
 }
 
+#ifdef _MSC_VER
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength)
 {
   int i, Result;
@@ -2070,3 +2090,4 @@ int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t Buff
 
   return false;
 }
+#endif
