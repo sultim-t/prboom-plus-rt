@@ -62,7 +62,7 @@ void R_FilterInit(void);
 #define filter_getRoundedForColumn(texV, nextRowTexV) \
   filter_getScale2xQuadColors( \
     source[      ((texV)>>FRACBITS)              ], \
-    source[      (max(0, ((texV)>>FRACBITS)-1))  ], \
+    source[      (MAX(0, ((texV)>>FRACBITS)-1))  ], \
     nextsource[  ((texV)>>FRACBITS)              ], \
     source[      ((nextRowTexV)>>FRACBITS)       ], \
     prevsource[  ((texV)>>FRACBITS)              ] \

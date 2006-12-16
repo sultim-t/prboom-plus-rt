@@ -461,8 +461,8 @@ void I_ReadScreen (screeninfo_t *dest)
   byte *srcofs = screen->pixels;
   byte *dstofs = dest->data;
   int width, height;
-  width = min(screen->w, dest->width);
-  height = min(screen->h, dest->height);
+  width = MIN(screen->w, dest->width);
+  height = MIN(screen->h, dest->height);
   for (h=height; h>0; h--) {
     memcpy(dstofs, srcofs, width);
     srcofs += screen->pitch;

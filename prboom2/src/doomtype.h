@@ -47,11 +47,13 @@ typedef unsigned char byte;
 #endif
 
 //e6y
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
+#undef max
+#undef min
+#ifndef MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
 /* cph - Wrapper for the long long type, as Win32 used a different name.

@@ -1884,7 +1884,7 @@ int DemoNameToWadData(const char * demoname, waddata_t *waddata, char *pattern_n
 
           if (pattern_name)
           {
-            len = min(pmatch[1].rm_eo - pmatch[1].rm_so, pattern_maxsize - 1);
+            len = MIN(pmatch[1].rm_eo - pmatch[1].rm_so, pattern_maxsize - 1);
             strncpy(pattern_name, buf, len);
             pattern_name[len] = '\0';
           }
@@ -2051,7 +2051,7 @@ void HU_DrawDemoProgress(void)
 {
   if (demoplayback && hudadd_demoprogressbar)
   {
-    int len = min(SCREENWIDTH, SCREENWIDTH * demo_curr_tic / demo_tics_count);
+    int len = MIN(SCREENWIDTH, SCREENWIDTH * demo_curr_tic / demo_tics_count);
     
     V_FillRect(0, 0, SCREENHEIGHT - 4, len - 0, 4, 4);
     if (len > 4)
