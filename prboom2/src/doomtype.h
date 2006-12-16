@@ -47,8 +47,6 @@ typedef unsigned char byte;
 #endif
 
 //e6y
-#undef max
-#undef min
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
