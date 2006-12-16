@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Doom"=.\Doom.dsp - Package Owner=<4>
+Project: "Doom"=".\Doom.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,43 @@ Package=<4>
 
 ###############################################################################
 
-Project: "prboom_server"=.\prboom_server.dsp - Package Owner=<4>
+Project: "dftables"="..\src\PCRELIB\VisualC6\dftables.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "pcre"="..\src\PCRELIB\VisualC6\pcre.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "pcreposix"="..\src\PCRELIB\VisualC6\pcreposix.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "prboom_server"=".\prboom_server.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

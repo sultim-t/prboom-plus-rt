@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="pcreposix"
 	ProjectGUID="{604FC63C-155E-4363-B359-B4CDAA7A6D66}"
+	RootNamespace="pcreposix"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -58,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(SolutionDir)\Lib\$(ProjectName)d.lib"
+				OutputFile="$(ProjectDir)\Lib\$(ProjectName)d.lib"
 				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
@@ -118,7 +119,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(SolutionDir)\Lib\$(ProjectName).lib"
+				OutputFile="$(ProjectDir)\Lib\$(ProjectName).lib"
 				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool

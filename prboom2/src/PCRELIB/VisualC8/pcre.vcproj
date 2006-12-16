@@ -59,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(SolutionDir)\Lib\$(ProjectName)d.lib"
+				OutputFile="$(ProjectDir)\Lib\$(ProjectName)d.lib"
 				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
@@ -119,7 +119,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(SolutionDir)\Lib\$(ProjectName).lib"
+				OutputFile="$(ProjectDir)\Lib\$(ProjectName).lib"
 				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
