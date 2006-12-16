@@ -2754,9 +2754,9 @@ void gld_AddSprite(vissprite_t *vspr)
   // and it's not a fully dead corpse, move it up
   if (gl_spriteclip != spriteclip_const)
   {
-    if (sprite.y2 < 0 && !(vspr->thing->flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE)) && 
-      ((gl_spriteclip == spriteclip_always) ||
-      !(vspr->thing->flags & MF_CORPSE && vspr->thing->tics == -1)))
+    uint_64_t flags = vspr->thing->flags;
+    if (sprite.y2 < 0 && !(flags & (MF_SPAWNCEILING|MF_FLOAT|MF_MISSILE|MF_NOGRAVITY)) && 
+      ((gl_spriteclip == spriteclip_always) || !(flags & MF_CORPSE && vspr->thing->tics == -1)))
     {
       sprite.y1 -= sprite.y2;
       sprite.y2 = 0.0f;
