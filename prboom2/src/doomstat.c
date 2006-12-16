@@ -52,6 +52,10 @@ boolean modifiedgame;
 // CPhipps - compatibility vars
 complevel_t compatibility_level, default_compatibility_level;
 
+// e6y
+// it's required for demos recorded in "demo compatibility" mode by boom201 for example
+int demover;
+
 int comp[COMP_TOTAL], default_comp[COMP_TOTAL];    // killough 10/98
 
 // v1.1-like pitched sounds

@@ -2738,7 +2738,8 @@ const byte* G_ReadDemoHeader(const byte *demo_p)
 {
   skill_t skill;
   int i, episode, map;
-  int demover;
+  // e6y demover should be global. See P_UseSpecialLine()
+  // int demover;
   const byte *option_p = NULL;      /* killough 11/98 */
 
   basetic = gametic;  // killough 9/29/98
