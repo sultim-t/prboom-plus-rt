@@ -88,6 +88,13 @@
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
+// e6y
+// It is signature for new savegame format with continuous numbering.
+// Now it is not necessary to add a new level of compatibility in case 
+// of need to savegame format change from one minor version to another.
+// The old format is still supported.
+#define NEWFORMATSIG "\xff\xff\xff\xff"
+
 static size_t   savegamesize = SAVEGAMESIZE; // killough
 static boolean  netdemo;
 static const byte *demobuffer;   /* cph - only used for playback */
@@ -1652,6 +1659,8 @@ void G_DoLoadGame(void)
   // CPhipps - do savegame filename stuff here
   char name[PATH_MAX+1];     // killough 3/22/98
   int savegame_compatibility = -1;
+  //e6y: numeric version number of package should be zero before initializing from savegame
+  int packageversion = 0;
 
   G_SaveGameName(name,sizeof(name),savegameslot, demoplayback);
 
@@ -1709,6 +1718,14 @@ void G_DoLoadGame(void)
 
   save_p += strlen(save_p)+1;
 
+  //e6y: check on new savegame format
+  if (!memcmp(NEWFORMATSIG, save_p, strlen(NEWFORMATSIG)))
+  {
+    save_p += strlen(NEWFORMATSIG);
+    memcpy(&packageversion, save_p, sizeof packageversion);
+    save_p += sizeof packageversion;
+  }
+
   compatibility_level = (savegame_compatibility >= prboom_4_compatibility) ? *save_p : savegame_compatibility;
   if (savegame_compatibility < prboom_6_compatibility)
     compatibility_level = map_old_comp_levels[compatibility_level];
@@ -1736,6 +1753,14 @@ void G_DoLoadGame(void)
   /* get the times - killough 11/98: save entire word */
   memcpy(&leveltime, save_p, sizeof leveltime);
   save_p += sizeof leveltime;
+
+  //e6y: total level times are always saved since 2.4.8.1
+  if (packageversion >= 0x00002481)
+  {
+    memcpy(&totalleveltimes, save_p, sizeof totalleveltimes);
+    save_p += sizeof totalleveltimes;
+  }
+  else
 
   /* cph - total episode time */
   if (compatibility_level >= prboom_2_compatibility) {
@@ -1852,6 +1877,7 @@ static void G_DoSaveGame (boolean menu)
   char name2[VERSIONSIZE];
   char *description;
   int  length, i;
+  int packageversion = PACKAGEVERSION; //e6y: numeric version number of package
 
   gameaction = ga_nothing; // cph - cancel savegame at top of this function,
     // in case later problems cause a premature exit
@@ -1899,7 +1925,13 @@ static void G_DoSaveGame (boolean menu)
     *save_p++ = 0;
   }
 
-  CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+14);
+  CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+14+strlen(NEWFORMATSIG)+sizeof packageversion);
+
+  //e6y: saving of the version number of package
+  strcpy(save_p, NEWFORMATSIG);
+  save_p += strlen(NEWFORMATSIG);
+  memcpy(save_p, &packageversion, sizeof packageversion);
+  save_p += sizeof packageversion;
 
   *save_p++ = compatibility_level;
 
@@ -1921,6 +1953,14 @@ static void G_DoSaveGame (boolean menu)
   /* killough 11/98: save entire word */
   memcpy(save_p, &leveltime, sizeof leveltime);
   save_p += sizeof leveltime;
+
+  //e6y: total level times are always saved since 2.4.8.1
+  if (packageversion >= 0x00002481)
+  {
+    memcpy(save_p, &totalleveltimes, sizeof totalleveltimes);
+    save_p += sizeof totalleveltimes;
+  }
+  else
 
   /* cph - total episode time */
   if (compatibility_level >= prboom_2_compatibility) {

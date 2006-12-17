@@ -148,3 +148,7 @@
 
 /* Version number of package */
 #define VERSION "2.4.8.1" //e6y
+
+/* e6y
+ * Numeric version number of package */
+#define PACKAGEVERSION 0x00002481
