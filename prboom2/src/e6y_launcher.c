@@ -578,7 +578,7 @@ static boolean L_PrepareToLaunch(void)
 
   for (i = 0; (size_t)i < new_numwadfiles; i++)
   {
-    if (new_wadfiles[i].src == source_auto_load)
+    if (new_wadfiles[i].src == source_auto_load || new_wadfiles[i].src == source_pre)
     {
       wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
       wadfiles[numwadfiles].name = strdup(new_wadfiles[i].name);

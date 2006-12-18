@@ -56,6 +56,8 @@
 #include "w_wad.h"
 #include "lprintf.h"
 
+#include "e6y.h" //e6y
+
 //
 // GLOBALS
 //
@@ -138,6 +140,15 @@ static void W_AddFile(wadfile_info_t *wadfile)
 
   // open the file and add to directory
 
+//e6y
+#ifdef ALL_IN_ONE
+  unsigned char *handle;
+  boolean predefined_lump = (wadfile->src == source_pre);
+  if(predefined_lump)
+    handle = GetAllInOneLumpHandle();
+  else {
+#endif
+
   wadfile->handle = open(wadfile->name,O_RDONLY | O_BINARY);
 
 #ifdef HAVE_NET
@@ -154,6 +165,11 @@ static void W_AddFile(wadfile_info_t *wadfile)
 	I_Error("W_AddFile: couldn't open %s",wadfile->name);
       return;
     }
+
+//e6y
+#ifdef ALL_IN_ONE
+  }
+#endif
 
   //jff 8/3/98 use logical output routine
   lprintf (LO_INFO," adding %s\n",wadfile->name);
@@ -176,6 +192,12 @@ static void W_AddFile(wadfile_info_t *wadfile)
   else
     {
       // WAD file
+ //e6y
+#ifdef ALL_IN_ONE
+      if(predefined_lump)
+        memcpy(&header, handle, sizeof(header));
+      else
+#endif
       I_Read(wadfile->handle, &header, sizeof(header));
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
@@ -184,7 +206,13 @@ static void W_AddFile(wadfile_info_t *wadfile)
       header.infotableofs = LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
       fileinfo2free = fileinfo = malloc(length);    // killough
-      lseek(wadfile->handle, header.infotableofs, SEEK_SET);
+//e6y
+#ifdef ALL_IN_ONE
+      if(predefined_lump)
+        memcpy(fileinfo, handle + header.infotableofs, length);
+      else
+#endif
+      lseek(wadfile->handle, header.infotableofs, SEEK_SET),
       I_Read(wadfile->handle, fileinfo, length);
       numlumps += header.numlumps;
     }
@@ -463,6 +491,15 @@ void W_ReadLump(int lump, void *dest)
 #ifdef RANGECHECK
   if (lump >= numlumps)
     I_Error ("W_ReadLump: %i >= numlumps",lump);
+#endif
+
+//e6y
+#ifdef ALL_IN_ONE
+  if (l->wadfile && !l->wadfile->handle)
+  {
+    memcpy(dest, GetAllInOneLumpHandle() + l->position, l->size);
+    return;
+  }
 #endif
 
     {

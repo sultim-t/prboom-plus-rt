@@ -1463,6 +1463,12 @@ static void D_DoomMainSetup(void)
     }
   }
 
+//e6y
+#ifdef ALL_IN_ONE
+  D_AddFile("$$$all_in_one_lump$$$", source_pre);
+  modifiedgame = true;
+#endif
+
   // e6y: DEH files preloaded in wrong order
   // http://sourceforge.net/tracker/index.php?func=detail&aid=1418158&group_id=148658&atid=772943
   // The dachaked stuff has been moved from above

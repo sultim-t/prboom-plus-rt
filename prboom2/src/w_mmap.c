@@ -55,6 +55,8 @@
 #include "lprintf.h"
 #include "i_system.h"
 
+#include "e6y.h"//e6y
+
 static struct {
   void *cache;
 #ifdef TIMEDIAG
@@ -112,6 +114,12 @@ void W_DoneCache(void)
     return;
   for (i=0; i<numwadfiles; i++)
   {
+//e6y
+#ifdef ALL_IN_ONE
+    if (!mapped_wad[i].hnd && !mapped_wad[i].hnd_map)
+      continue;
+#endif
+
     if (mapped_wad[i].data)
     {
       UnmapViewOfFile(mapped_wad[i].data);
@@ -160,6 +168,17 @@ void W_InitCache(void)
 #endif
       if (!mapped_wad[wad_index].data)
       {
+//e6y
+#ifdef ALL_IN_ONE
+        if(wadfiles[wad_index].src == source_pre)
+        {
+          mapped_wad[wad_index].data = GetAllInOneLumpHandle();
+          mapped_wad[wad_index].hnd = 0;
+          mapped_wad[wad_index].hnd_map = 0;
+          continue;
+        }
+#endif
+
         mapped_wad[wad_index].hnd =
           (HANDLE)OpenFile(
             wadfiles[wad_index].name,

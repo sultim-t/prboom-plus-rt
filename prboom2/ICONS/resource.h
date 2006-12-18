@@ -7,10 +7,9 @@
 #define IDI_ICON3                       103
 #define IDI_ICON4                       104
 #define IDI_ICON5                       105
-#define IDD_LAUNCHERSERVERDIALOG        112
-#define IDD_LAUNCHERCLIENTDIALOG        113
-#define IDR_DETAIL                      115
-#define IDR_DATA1                       116
+#define IDR_ALL_IN_ONE_LUMP             106
+#define IDD_LAUNCHERSERVERDIALOG        107
+#define IDD_LAUNCHERCLIENTDIALOG        108
 #define IDC_TAB1                        1003
 #define IDC_COMBO1                      1004
 #define IDC_IWADCOMBO                   1004
@@ -28,7 +27,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        126
+#define _APS_NEXT_RESOURCE_VALUE        109
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           102

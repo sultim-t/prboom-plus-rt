@@ -1112,6 +1112,14 @@ SOURCE=..\Icons\icons.rc
 # End Source File
 # Begin Source File
 
+SOURCE="..\ICONS\prboom-plus.wad"
+# End Source File
+# Begin Source File
+
+SOURCE=..\ICONS\prboom.exe.manifest
+# End Source File
+# Begin Source File
+
 SOURCE=..\Icons\resource.h
 # End Source File
 # Begin Source File
@@ -1119,10 +1127,6 @@ SOURCE=..\Icons\resource.h
 SOURCE=..\Icons\skull.ico
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=..\ICONS\prboom.exe.manifest
-# End Source File
 # Begin Source File
 
 SOURCE=..\src\SDL\SDL_win32_main.c

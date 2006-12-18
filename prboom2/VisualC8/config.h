@@ -146,9 +146,16 @@
 /* Name of package */
 #define PACKAGE "prboom-plus"
 
+//e6y
 /* Version number of package */
-#define VERSION "2.4.8.1" //e6y
+#define VERSION "2.4.8.1"
 
-/* e6y
- * Numeric version number of package */
+/* Numeric version number of package */
 #define PACKAGEVERSION 0x00002481
+
+#ifdef _WIN32
+
+/* Define if you want to have PrBoom-Plus.wad in the exe  */
+#define ALL_IN_ONE 1
+
+#endif // _WIN32

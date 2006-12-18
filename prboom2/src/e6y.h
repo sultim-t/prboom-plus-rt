@@ -467,7 +467,13 @@ void ProcessNewIWAD(const char *iwad);
 
 void HU_DrawDemoProgress(void);
 
+#ifdef ALL_IN_ONE
+unsigned char* GetAllInOneLumpHandle(void);
+#endif
+
+#ifdef _MSC_VER
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength);
+#endif
 
 void I_vWarning(const char *message, va_list argList);
 void I_Warning(const char *message, ...);

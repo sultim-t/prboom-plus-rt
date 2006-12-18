@@ -1,12 +1,14 @@
 //Microsoft Developer Studio generated resource script.
 //
-#include "resource.h"
+#include "resrc2.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
+#include "resrc1.h"
+#include "resource.h"
 #include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,6 +22,33 @@
 LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
 #pragma code_page(1251)
 #endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "fouch.ico"
+IDI_ICON2               ICON    DISCARDABLE     "god.ico"
+IDI_ICON3               ICON    DISCARDABLE     "skull.ico"
+IDI_ICON4               ICON    DISCARDABLE     "Heada1.ico"
+IDI_ICON5               ICON    DISCARDABLE     "barrel.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Data
+//
+
+IDR_ALL_IN_ONE_LUMP     RCDATA  DISCARDABLE     "prboom-plus.wad"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// 24
+//
+
+1                       24      MOVEABLE PURE   "prboom.exe.manifest"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -59,41 +88,6 @@ BEGIN
 END
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_LAUNCHERCLIENTDIALOG, DIALOG
-    BEGIN
-        RIGHTMARGIN, 172
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Neutral (Default) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Russian resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// 24
-//
-
-1                       24      MOVEABLE PURE   "prboom.exe.manifest"
-
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -115,41 +109,41 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "041904b0"
+        BLOCK "000004b0"
         BEGIN
             VALUE "Comments", "\0"
-            VALUE "CompanyName", "e6y Inc.\0"
-            VALUE "FileDescription", "glboom\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "glboom\0"
-            VALUE "LegalCopyright", "Copyright © 2005\0"
+            VALUE "CompanyName", "e6y, Inc\0"
+            VALUE "FileDescription", "prboom-plus\0"
+            VALUE "FileVersion", "2, 4, 8, 1\0"
+            VALUE "InternalName", "prboom-plus\0"
+            VALUE "LegalCopyright", "Copyright © 2005-2006\0"
             VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "glboom.exe\0"
+            VALUE "OriginalFilename", "prboom-plus.exe\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "e6y Inc. glboom\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "ProductName", "PrBoom-Plus\0"
+            VALUE "ProductVersion", "2, 4, 8, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x419, 1200
+        VALUE "Translation", 0x0, 1200
     END
 END
 
 #endif    // !_MAC
 
-#endif    // Russian resources
+#endif    // Neutral (Default) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// German (Germany) resources
+// Unknown language: 0x22, 0x1 resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_UKR)
 #ifdef _WIN32
-LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
-#pragma code_page(1252)
+LANGUAGE 0x22, 0x1
+#pragma code_page(1251)
 #endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
@@ -160,11 +154,13 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 
 1 TEXTINCLUDE DISCARDABLE 
 BEGIN
-    "resource.h\0"
+    "resrc2.h\0"
 END
 
 2 TEXTINCLUDE DISCARDABLE 
 BEGIN
+    "#include ""resrc1.h""\r\n"
+    "#include ""resource.h""\r\n"
     "#include ""afxres.h""\r\n"
     "\0"
 END
@@ -177,20 +173,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_ICON1               ICON    DISCARDABLE     "fouch.ico"
-IDI_ICON2               ICON    DISCARDABLE     "god.ico"
-IDI_ICON3               ICON    DISCARDABLE     "skull.ico"
-IDI_ICON4               ICON    DISCARDABLE     "Heada1.ico"
-IDI_ICON5               ICON    DISCARDABLE     "barrel.ico"
-#endif    // German (Germany) resources
+#endif    // Unknown language: 0x22, 0x1 resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -74,6 +74,7 @@
 #include "info.h"
 #include "i_simd.h"
 #include "e6y.h"
+#include ".\..\ICONS\resource.h"
 
 #ifndef _MSC_VER
 #ifdef HAVE_LIBPCREPOSIX
@@ -2058,6 +2059,31 @@ void HU_DrawDemoProgress(void)
       V_FillRect(0, 2, SCREENHEIGHT - 3, len - 4, 2, 0);
   }
 }
+
+#ifdef ALL_IN_ONE
+unsigned char* GetAllInOneLumpHandle(void)
+{
+  static unsigned char* AllInOneLumpHandle = NULL;
+
+  if (!AllInOneLumpHandle)
+  {
+    HRSRC hrsrc = FindResource(NULL, MAKEINTRESOURCE(IDR_ALL_IN_ONE_LUMP), RT_RCDATA);
+    if (hrsrc)
+    {
+      HGLOBAL hglobal = LoadResource(NULL, hrsrc);
+      if (hglobal)
+      {
+        AllInOneLumpHandle = LockResource(hglobal);
+      }
+    }
+  }
+  
+  if (!AllInOneLumpHandle)
+    I_Error("Can't load internal data.");
+
+  return AllInOneLumpHandle;
+}
+#endif
 
 #ifdef _MSC_VER
 int GetFullPath(const char* FileName, const char* ext, char *Buffer, size_t BufferLength)
