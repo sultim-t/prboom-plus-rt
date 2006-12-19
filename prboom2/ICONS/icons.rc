@@ -1,27 +1,6 @@
-//Microsoft Developer Studio generated resource script.
-//
-#include "resrc2.h"
-
-#define APSTUDIO_READONLY_SYMBOLS
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 2 resource.
-//
-#include "resrc1.h"
 #include "resource.h"
 #include "afxres.h"
-
-/////////////////////////////////////////////////////////////////////////////
-#undef APSTUDIO_READONLY_SYMBOLS
-
-/////////////////////////////////////////////////////////////////////////////
-// Neutral (Default) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
-#ifdef _WIN32
-LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
-#pragma code_page(1251)
-#endif //_WIN32
+#include "config.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -38,22 +17,12 @@ IDI_ICON5               ICON    DISCARDABLE     "barrel.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Data
-//
-
-IDR_ALL_IN_ONE_LUMP     RCDATA  DISCARDABLE     "prboom-plus.wad"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// 24
-//
-
-1                       24      MOVEABLE PURE   "prboom.exe.manifest"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Dialog
 //
+
+#ifdef USE_WINDOWS_LAUNCHER
+
+1                       24      MOVEABLE PURE   "prboom-plus.exe.manifest"
 
 IDD_LAUNCHERSERVERDIALOG DIALOGEX 0, 0, 187, 245
 STYLE DS_SYSMODAL | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | 
@@ -68,7 +37,7 @@ BEGIN
 END
 
 IDD_LAUNCHERCLIENTDIALOG DIALOGEX 7, 7, 173, 206
-STYLE DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_VISIBLE
+STYLE DS_CONTROL | WS_CHILD | WS_VISIBLE
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Game:",IDC_STATIC,4,5,22,8,0,WS_EX_TRANSPARENT
@@ -87,104 +56,14 @@ BEGIN
     LTEXT           "",IDC_FULLFILENAMESTATIC,23,32,142,8
 END
 
+#endif // USE_WINDOWS_LAUNCHER
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
-// Version
+// RCDATA
 //
 
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x40004L
- FILETYPE 0x1L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "000004b0"
-        BEGIN
-            VALUE "Comments", "\0"
-            VALUE "CompanyName", "e6y, Inc\0"
-            VALUE "FileDescription", "prboom-plus\0"
-            VALUE "FileVersion", "2, 4, 8, 1\0"
-            VALUE "InternalName", "prboom-plus\0"
-            VALUE "LegalCopyright", "Copyright © 2005-2006\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "prboom-plus.exe\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "PrBoom-Plus\0"
-            VALUE "ProductVersion", "2, 4, 8, 1\0"
-            VALUE "SpecialBuild", "\0"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x0, 1200
-    END
-END
-
-#endif    // !_MAC
-
-#endif    // Neutral (Default) resources
+#ifdef ALL_IN_ONE
+IDR_ALL_IN_ONE_LUMP     RCDATA    DISCARDABLE   "prboom-plus.wad"
+#endif // ALL_IN_ONE
 /////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Unknown language: 0x22, 0x1 resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_UKR)
-#ifdef _WIN32
-LANGUAGE 0x22, 0x1
-#pragma code_page(1251)
-#endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "resrc2.h\0"
-END
-
-2 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "#include ""resrc1.h""\r\n"
-    "#include ""resource.h""\r\n"
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Unknown language: 0x22, 0x1 resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-#ifndef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// Generated from the TEXTINCLUDE 3 resource.
-//
-
-
-/////////////////////////////////////////////////////////////////////////////
-#endif    // not APSTUDIO_INVOKED
-

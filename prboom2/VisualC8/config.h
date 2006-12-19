@@ -156,6 +156,26 @@
 #ifdef _WIN32
 
 /* Define if you want to have PrBoom-Plus.wad in the exe  */
-#define ALL_IN_ONE 1
+//#define ALL_IN_ONE 1
+
+#ifdef _MSC_VER
+
+#ifdef _DEBUG
+  #define LINK_LIBRARY(x) comment(lib, x"_D.lib")
+#else
+  #define LINK_LIBRARY(x) comment(lib, x".lib")
+#endif
+
+#ifdef ALL_IN_ONE
+  #pragma LINK_LIBRARY("SDL_static" )
+  #pragma LINK_LIBRARY("SDL_mixer_static" )
+  #pragma LINK_LIBRARY("SDL_net_static" )
+#else // ALL_IN_ONE
+  #pragma comment( lib, "SDL.lib" )
+  #pragma comment( lib, "SDL_mixer.lib" )
+  #pragma comment( lib, "SDL_net.lib" )
+#endif // ALL_IN_ONE
+
+#endif // _MSC_VER
 
 #endif // _WIN32

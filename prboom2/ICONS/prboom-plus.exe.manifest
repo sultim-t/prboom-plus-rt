@@ -4,10 +4,10 @@
 <assemblyIdentity
     version="1.0.0.0"
     processorArchitecture="X86"
-    name="glboom.glboom.glboom"
+    name="prboom-plus.prboom-plus.prboom-plus"
     type="win32"
 />
-<description>BITcom</description>
+<description>PrBoom-Plus</description>
 <dependency>
     <dependentAssembly>
         <assemblyIdentity

@@ -495,7 +495,7 @@ void W_ReadLump(int lump, void *dest)
 
 //e6y
 #ifdef ALL_IN_ONE
-  if (l->wadfile && !l->wadfile->handle)
+  if (l->wadfile && l->wadfile->src == source_pre)
   {
     memcpy(dest, GetAllInOneLumpHandle() + l->position, l->size);
     return;

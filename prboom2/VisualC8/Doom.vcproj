@@ -66,14 +66,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib"
 				OutputFile="DebugNOASMGL/glboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -88,6 +89,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -164,14 +166,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib"
 				OutputFile="ReleaseGL/glboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -184,6 +187,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -259,14 +263,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="ReleaseNOASM/prboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -280,6 +285,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -354,14 +360,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="DebugNOASM/prboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -376,6 +383,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -451,14 +459,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib"
 				OutputFile="ReleaseNOASMGL/glboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -472,6 +481,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -546,18 +556,20 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib glu32.lib"
 				OutputFile="DebugGL/glboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../src/PCRELIB/VisualC8/Lib"
+				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\DebugGL/glboom.pdb"
 				SubSystem="2"
@@ -568,6 +580,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -642,14 +655,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="Debug/prboom-plus.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -664,6 +678,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -739,14 +754,15 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1031"
+				Culture="1033"
+				AdditionalIncludeDirectories="../VisualC8"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib sdl.lib sdl_mixer.lib sdl_net.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="Release/prboom-plus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -760,6 +776,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -6655,7 +6672,8 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						PreprocessorDefinitions=""
-						AdditionalIncludeDirectories="\Dokumente und Einstellungen\Admin\Eigene Dateien\prboom24\Icons"
+						Culture="1033"
+						AdditionalIncludeDirectories=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -6714,6 +6732,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\ICONS\prboom-plus.exe.manifest"
+				>
+			</File>
+			<File
 				RelativePath="..\Icons\resource.h"
 				>
 			</File>
@@ -6722,10 +6744,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\ICONS\prboom.exe.manifest"
-			>
-		</File>
 		<File
 			RelativePath="..\src\SDL\SDL_win32_main.c"
 			>

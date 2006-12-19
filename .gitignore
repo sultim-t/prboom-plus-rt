@@ -1,4 +1,5 @@
 prboom2/ICONS/icons.aps
+prboom2/ICONS/prboom-plus.wad
 prboom2/VisualC6/Debug
 prboom2/VisualC6/DebugGL
 prboom2/VisualC6/DebugNOASM
@@ -31,6 +32,7 @@ prboom2/release
 prboom2/src/PCRELIB/VisualC6/DebugDFTables
 prboom2/src/PCRELIB/VisualC6/DebugPCRE
 prboom2/src/PCRELIB/VisualC6/DebugPCREPOISX
+prboom2/src/PCRELIB/VisualC6/Lib
 prboom2/src/PCRELIB/VisualC6/ReleaseDFTables
 prboom2/src/PCRELIB/VisualC6/ReleasePCRE
 prboom2/src/PCRELIB/VisualC6/ReleasePCREPOISX

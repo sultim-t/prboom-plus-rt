@@ -57,7 +57,6 @@
  * statistics, and enable extra debugging features
  */
 #define INSTRUMENTED 1
-//#define INSTRUMENTED 1
 
 /* Uncomment this to exhaustively run memory checks
  * while the game is running (this is EXTREMELY slow).
@@ -69,7 +68,6 @@
  * Only useful if INSTRUMENTED is also defined.
  */
 #define HEAPDUMP 1
-
 
 /* Uncomment this to perform id checks on zone blocks,
  * to detect corrupted and illegally freed blocks
@@ -148,6 +146,7 @@
 /* Name of package */
 #define PACKAGE "prboom-plus"
 
+//e6y
 /* Version number of package */
 #define VERSION "2.4.8.1"
 
@@ -157,6 +156,26 @@
 #ifdef _WIN32
 
 /* Define if you want to have PrBoom-Plus.wad in the exe  */
-#define ALL_IN_ONE 1
+//#define ALL_IN_ONE 1
+
+#ifdef _MSC_VER
+
+#ifdef _DEBUG
+  #define LINK_LIBRARY(x) comment(lib, x"_D.lib")
+#else
+  #define LINK_LIBRARY(x) comment(lib, x".lib")
+#endif
+
+#ifdef ALL_IN_ONE
+  #pragma LINK_LIBRARY("SDL_static" )
+  #pragma LINK_LIBRARY("SDL_mixer_static" )
+  #pragma LINK_LIBRARY("SDL_net_static" )
+#else // ALL_IN_ONE
+  #pragma comment( lib, "SDL.lib" )
+  #pragma comment( lib, "SDL_mixer.lib" )
+  #pragma comment( lib, "SDL_net.lib" )
+#endif // ALL_IN_ONE
+
+#endif // _MSC_VER
 
 #endif // _WIN32
