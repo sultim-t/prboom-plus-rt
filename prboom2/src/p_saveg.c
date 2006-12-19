@@ -397,13 +397,17 @@ void P_ArchiveThinkers (void)
     int i;
     CheckSaveGame(numsectors * sizeof(mobj_t *));       // killough 9/14/98
     for (i = 0; i < numsectors; i++)
-      {
-  mobj_t *target = sectors[i].soundtarget;
-  if (target)
-    target = (mobj_t *) target->thinker.prev;
-  memcpy(save_p, &target, sizeof target);
-  save_p += sizeof target;
-      }
+    {
+      mobj_t *target = sectors[i].soundtarget;
+      // Fix crash on reload when a soundtarget points to a removed corpse
+      // (prboom bug #1590350)
+      if (target && target->thinker.function == P_MobjThinker)
+        target = (mobj_t *) target->thinker.prev;
+      else
+        target = NULL;
+      memcpy(save_p, &target, sizeof target);
+      save_p += sizeof target;
+    }
   }
 }
 
@@ -557,12 +561,13 @@ void P_UnArchiveThinkers (void)
   {  // killough 9/14/98: restore soundtargets
     int i;
     for (i = 0; i < numsectors; i++)
-      {
-  mobj_t *target;
-  memcpy(&target, save_p, sizeof target);
-  save_p += sizeof target;
-  P_SetNewTarget(&sectors[i].soundtarget, mobj_p[(size_t) target]);
-      }
+    {
+      mobj_t *target;
+      memcpy(&target, save_p, sizeof target);
+      save_p += sizeof target;
+      // Must verify soundtarget. See P_ArchiveThinkers.
+      P_SetNewTarget(&sectors[i].soundtarget, mobj_p[P_GetMobj(target,size)]);
+    }
   }
 
   free(mobj_p);    // free translation table

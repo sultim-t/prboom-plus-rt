@@ -156,11 +156,17 @@ AC_CHECK_LIB(SDL_mixer,Mix_LoadMUS,[
 echo "But I can compile the game server"
 BUILD_DOOM=""
 ,$SDL_LIBS $MIXER_LIBS)
-AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
+
+AC_ARG_ENABLE(network,
+	AS_HELP_STRING([--disable-network],[disables support for netgames]),,
+	AC_DEFINE(HAVE_NET,1,[Define if you want network game support])
+)
+if test "x$enable_network" = "xyes"
+then
+  AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
     AC_DEFINE(HAVE_LIBSDL_NET,1,[Define if you have the SDL net library -lSDL_net])
     AC_DEFINE(USE_SDL_NET,1,[Define if you want to use the SDL net lib])
     NET_LIBS=-lSDL_net
-    has_net=yes
     sdl_net=yes
     save_CFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS $SDL_CFLAGS"
@@ -172,7 +178,13 @@ AC_CHECK_LIB(SDL_net,SDLNet_UDP_Bind,[
 	],
 	AC_DEFINE(SDL_NET_UDP_PACKET_SRC,1,[Define if you have an old SDL_net, such that the UDPpacket structure has a src member instead of an address member]))
     CFLAGS="$save_CFLAGS"
-],,$SDL_LIBS)
+  ],,$SDL_LIBS)
+else
+  dnl -- Networking was disabled by the user.
+  dnl -- Pretend we have sdl_net (for the next bit), but don't link with it.
+  sdl_net="yes"
+  NET_LIBS=
+fi
 
 if test "$sdl_main" != "yes" || test "$sdl_net" != yes
 then
@@ -189,7 +201,6 @@ AC_ARG_WITH(pcre,
 
 dnl - Other libs
 AC_CHECK_LIB(png,png_create_info_struct)
-AC_DEFINE(HAVE_NET,1,[Define if you want network game support])
 AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,AC_DEFINE(HAVE_IPv6,1,[Define if you have struct sockaddr_in6]))
 
 dnl --- Options

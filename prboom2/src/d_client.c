@@ -371,7 +371,7 @@ void NetUpdate(void)
 }
 #else
 
-static void D_BuildNewTiccmds()
+void D_BuildNewTiccmds(void)
 {
     static int lastmadetic;
     int newtics = I_GetTime() - lastmadetic;
@@ -471,12 +471,15 @@ void TryRunTics (void)
     runtics = (server ? remotetic : maketic) - gametic;
     if (!runtics) {
       if (!movement_smooth) {
+#ifdef HAVE_NET
         if (server)
           I_WaitForPacket(ms_to_next_tick);
         else
+#endif
           I_uSleep(ms_to_next_tick*1000);
       }
       if (I_GetTime() - entertime > 10) {
+#ifdef HAVE_NET
         if (server) {
           char buf[sizeof(packet_header_t)+1];
           remotesend--;
@@ -484,6 +487,7 @@ void TryRunTics (void)
           buf[sizeof(buf)-1] = consoleplayer;
           I_SendPacket((packet_header_t *)buf, sizeof buf);
         }
+#endif
         M_Ticker(); return;
       }
       //if ((displaytime) < (tic_vars.next-SDL_GetTicks()))
