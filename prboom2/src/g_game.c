@@ -228,7 +228,8 @@ fixed_t sidemove[2]    = {0x18, 0x28};
 fixed_t angleturn[3]   = {640, 1280, 320};  // + slow turn
 
 // CPhipps - made lots of key/button state vars static
-static boolean gamekeydown[NUMKEYS];
+//e6y static
+boolean gamekeydown[NUMKEYS];
 static int     turnheld;       // for accelerative turning
 
 static boolean mousearray[4];

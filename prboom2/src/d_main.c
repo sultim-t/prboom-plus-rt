@@ -222,15 +222,21 @@ void D_Display (void)
   boolean viewactive = false, isborder = false;
 
   // e6y
+  extern boolean gamekeydown[];
   if (doSkip)
   {
-    if (demo_curr_tic%(TICRATE/2) == 0)
+    static unsigned int DemoProgressLastUpdate = 0;
+    unsigned int tick = SDL_GetTicks();
+    if (DemoProgressLastUpdate == 0 || tick - DemoProgressLastUpdate > 500)
     {
+      DemoProgressLastUpdate = tick;
       HU_DrawDemoProgress();
       I_FinishUpdate();
     }
-    return;
+    if (!gamekeydown[key_use])
+      return;
   }
+  if (!doSkip || !gamekeydown[key_use])
 
   if (nodrawers)                    // for comparative timing / profiling
     return;
