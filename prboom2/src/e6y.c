@@ -219,6 +219,7 @@ float internal_render_fov = FOV90;
 int force_monster_avoid_hazards = false;
 //int force_remove_slime_trails = false;
 int force_truncated_sector_specials = false;
+int force_no_dropoff = false;
 
 #ifdef GL_DOOM
 unsigned int idDetail;
@@ -318,6 +319,7 @@ void e6y_D_DoomMainSetup(void)
 //  force_remove_slime_trails = M_CheckParm("-force_remove_slime_trails");
   force_monster_avoid_hazards = M_CheckParm("-force_monster_avoid_hazards");
   force_truncated_sector_specials = M_CheckParm("-force_truncated_sector_specials");
+  force_no_dropoff = M_CheckParm("-force_no_dropoff");
   stats_level = M_CheckParm("-levelstat");
 
   // TAS-tracers

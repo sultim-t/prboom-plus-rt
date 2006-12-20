@@ -792,11 +792,22 @@ boolean P_TryMove(mobj_t* thing,fixed_t x,fixed_t y,
        * killough 10/98: Allow dropoffs in controlled circumstances
        * killough 11/98: Improve symmetry of clipping on stairs
        */
-
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT))) {
   if (comp[comp_dropoff])
     {
-      if ((compatibility || !dropoff) && (tmfloorz - tmdropoffz > 24*FRACUNIT))
+      // e6y
+      // Fixed mbf_compatibility incompatibility.
+      // There is no more desync on v2-2822.lmp/vrack2.wad
+      // -force_no_dropoff command-line option is for mbf_compatibility demos 
+      // recorded with prboom 2.2.2 - 2.4.7
+      // Links:
+      // http://competn.doom2.net/pub/sda/t-z/v2-2822.zip
+      // http://www.doomworld.com/idgames/index.php?id=11138
+      boolean compatibility_no_dropoff = 
+        !force_no_dropoff && 
+        compatibility_level >= mbf_compatibility && 
+        compatibility_level <= prboom_2_compatibility;
+      if ((compatibility || compatibility_no_dropoff || !dropoff) && (tmfloorz - tmdropoffz > 24*FRACUNIT))
         return false;                      // don't stand over a dropoff
     }
   else
