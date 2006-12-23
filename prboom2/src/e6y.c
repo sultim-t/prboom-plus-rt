@@ -1938,7 +1938,7 @@ void WadDataToWadFiles(waddata_t *waddata)
 
   for (i = 0; (size_t)i < old_numwadfiles; i++)
   {
-    if (old_wadfiles[i].src == source_auto_load)
+    if (old_wadfiles[i].src == source_auto_load || old_wadfiles[i].src == source_pre)
     {
       wadfiles = realloc(wadfiles, sizeof(*wadfiles)*(numwadfiles+1));
       wadfiles[numwadfiles].name = strdup(old_wadfiles[i].name);
