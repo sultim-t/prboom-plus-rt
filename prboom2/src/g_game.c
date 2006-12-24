@@ -2090,7 +2090,7 @@ void G_Compatibility(void)
     { prboom_2_compatibility, prboom_2_compatibility },
     // comp_sound - see s_sound.c
     { boom_compatibility_compatibility, prboom_3_compatibility },
-    // comp_666 - enables tag 666 in non-ExM8 levels
+    // comp_666 - emulate pre-Ultimate BossDeath behaviour
     { ultdoom_compatibility, prboom_4_compatibility },
     // comp_soul - enables lost souls bouncing (see P_ZMovement)
     { prboom_4_compatibility, prboom_4_compatibility },

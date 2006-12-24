@@ -3444,7 +3444,7 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 //e6y
 setup_menu_t comp_settings3[] =  // Compatibility Settings screen #3
 {
-  {"All boss types can trigger tag 666 at ExM8", S_YESNO, m_null, C_X,
+  {"Emulate pre-Ultimate BossDeath behaviour", S_YESNO, m_null, C_X,
    C_Y + compat_666 * COMP_SPC, {"comp_666"}},
 
   {"Lost souls don't bounce off flat surfaces", S_YESNO, m_null, C_X,
