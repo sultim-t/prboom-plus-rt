@@ -46,10 +46,6 @@ int skyflatnum;
 int skytexture;
 int skytexturemid;
 
-// e6y
-// It is necessary for fixing the no-sky problem in the third episode of the Requiem
-boolean isskytexture = false;
-
 //
 // R_InitSkyMap
 // Called whenever the view size changes.
