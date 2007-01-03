@@ -69,8 +69,6 @@ void M_StartControlPanel (void);
 
 void M_ForcedLoadGame(const char *msg); // killough 5/15/98: forced loadgames
 
-extern int traditional_menu;  // display the menu traditional way
-
 void M_Trans(void);          // killough 11/98: reset translucency
 
 void M_ResetMenu(void);      // killough 11/98: reset main menu ordering
